@@ -12,21 +12,16 @@ Point x2 := sampleBoundary( B1 )
 Ball B2 := ballAround( x2 )
 Point x3 := sampleBoundary( B2 )
 Ball B3 := ballAround( x3 )
-Point x4 := sampleBoundary( B3 )
-Ball B4 := ballAround( x4 )
 
 isOffCenter( B0 )
 isOffCenter( B1 )
 isOffCenter( B2 )
 isOffCenter( B3 )
-isOffCenter( B4 )
 
-AutoLabel All
-Label U "Ω"
+-- Label U "Ω"
 Label x0 "x₀"
 Label x1 "x₁"
-Label x2 "x₂"
-Label x3 "…"
-Label x4 "xₖ"
+Label x2 "…"
+Label x3 "xₖ"
 
 

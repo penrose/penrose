@@ -21,7 +21,7 @@ Ball B3 := ballAround( x3 )
 Point y3 := sampleInterior( B3 )
 isSourceSample( y3 )
 
-Label U "Ω"
+-- Label U "Ω"
 Label x0 "x₀"
 Label x1 "x₁"
 Label x2 "…"

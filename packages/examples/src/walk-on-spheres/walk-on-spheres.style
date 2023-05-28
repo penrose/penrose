@@ -36,16 +36,16 @@ Global {
    -- to determine ball radii.  However, signed distance may not yet
    -- be supported for all shapes (like arbitrary Bézier curves).
    scalar maxPerturbation = 15
-   vec2 p0 = maxPerturbation*diskRandom()
-   vec2 p1 = maxPerturbation*diskRandom()
-   vec2 p2 = maxPerturbation*diskRandom()
-   vec2 p3 = maxPerturbation*diskRandom()
-   vec2 p4 = maxPerturbation*diskRandom()
-   vec2 p5 = maxPerturbation*diskRandom()
    scalar w = .8*canvas.width/2
    scalar h = .8*canvas.height/2
+   vec2 p0 = ( w, -h) + maxPerturbation*diskRandom()
+   vec2 p1 = ( 0, -h) + maxPerturbation*diskRandom()
+   vec2 p2 = (-w, -h) + maxPerturbation*diskRandom()
+   vec2 p3 = (-w,  h) + maxPerturbation*diskRandom()
+   vec2 p4 = ( 0,  h) + maxPerturbation*diskRandom()
+   vec2 p5 = ( w,  h) + maxPerturbation*diskRandom()
    shape domain = Polygon {
-      points: ( (w,-h)+p0, (0,-h)+p1, (-w,-h)+p2, (-w,h)+p3, (0,h)+p4, (w,h)+p5)
+      points: ( p0, p1, p2, p3, p4, p5)
       fillColor: Colors.lightGray
       strokeColor: Colors.darkGray
       strokeWidth: Global.domainStrokeWidth
@@ -72,7 +72,7 @@ where U has label {
 
 -- draw each point as a small dot
 forall Point p {
-   vec2 p.location = (?,?) -- location on the canvas
+   vec2 p.location = (?,?)
 
    -- The `dot` shape represents the sample point associated
    -- with the ball.  Ordinarily this point will be at the
@@ -101,8 +101,7 @@ forall Ball B {
    -- convention, points inside the domain have negative
    -- signed distance.
    vec2 B.center = (?,?)
-   scalar B.radius = -signedDistance( Global.domain, B.center )
-   ensure greaterThan( B.radius, 0. )
+   scalar B.radius = -signedDistance( Global.domain, B.center ) - Global.sphereStrokeWidth/2 - Global.domainStrokeWidth/2.
 
    -- The `ball` shape is a flat-shaded semi-transparent
    -- disk that determines the color of the ball.
@@ -118,7 +117,7 @@ forall Ball B {
    -- construction.
    shape B.ball = Circle {
       center: B.center
-      r: B.radius - Global.sphereStrokeWidth/2 - Global.domainStrokeWidth/2.
+      r: B.radius
       fillColor: rgba( .2, .8, .2, .15 )
       strokeColor: none()
       ensureOnCanvas: false
@@ -181,10 +180,11 @@ where B := ballAround(p); isOffCenter(B) {
    -- but will instead let the layout engine determine its location.
    override B.center = (?,?)
 
-   -- Still keep the center within the middle 75% of the ball, since
+   -- Still keep the center within the middle 25–75% of the ball, since
    -- the dot may be hard to see if it gets too close to the boundary
    -- (especially for very small balls).
-   ensure lessThan( norm(B.center - p.location), .75*B.radius )
+   scalar r = B.radius * random(.25,.75)
+   ensure norm(B.center - p.location) == r
 }
 
 -- If a point has a label, draw a label string near the dot.
@@ -260,8 +260,8 @@ where p := sampleBoundary( B ) {
 -- run into the center point or the boundary.
 forall Ball B; Point p
 where p := sampleInterior( B ) {
-   scalar R = norm( p.location - B.center )
-   ensure inRange( R, .2*B.radius, .8*B.radius )
+   scalar r = B.radius * random(.2,.8)
+   ensure norm( p.location - B.center ) == r
 
    -- Make sure the dot is not covered by the ball.
    layer p.dot above B.ball
@@ -305,38 +305,38 @@ where x1 := sampleBoundary( B0 ); B0 := ballAround( x0 ); B1 := ballAround( x1 )
 }
 
 
-forall Point x0; Point x1; Ball B0; Ball B1
-where isNested(B0); isNested(B1); x1 := sampleBoundary( B0 ); B0 := ballAround( x0 ); B1 := ballAround( x1 ) {
-   override x0.walkLine.strokeColor = Colors.white
-}
+-- forall Point x0; Point x1; Ball B0; Ball B1
+-- where isNested(B0); isNested(B1); x1 := sampleBoundary( B0 ); B0 := ballAround( x0 ); B1 := ballAround( x1 ) {
+--    override x0.walkLine.strokeColor = Colors.white
+-- }
 
--- Draw a line between the consecutive points on a walk on stars
-forall Point x0; Point x1; Star St0; Star St1
-where x1 := sampleBoundary( St0 ); St0 := starAround( x0 ); St1 := starAround( x1 ) {
-
-   -- TODO we *might* be able to eliminate redundancy with the previous rule by
-   -- TODO changing ballAround()/starAround() to subdomainAround().  This all depends
-   -- TODO on whether the Style compiler will separately match the two rules
-   -- TODO    Ball B  where B  := subdomainAround(p)
-   -- TODO    Star St where St := subdomainAround(p)
-   -- TODO (and I don't immediately see why it shouldn't...).  In other words, unlike
-   -- TODO C++, we can effectively "overload" rules based on "return type."  This change
-   -- TODO would also just simplify and clean up our Domain schema, since we no longer
-   -- TODO have to carefully match the subdomain type with the method used to construct
-   -- TODO the subdomain.
-
-   shape walkLine = Line {
-      start: x0.location
-      end: x1.location
-      strokeColor: Global.walkColor
-      strokeWidth: Global.walkStrokeWidth
-   }
-   layer walkLine above Global.domain
-
-   -- Use layering to help clarify the direction of the walk.
-   layer walkLine above St0.shading
-   layer walkLine below St1.shading
-}
+-- -- Draw a line between the consecutive points on a walk on stars
+-- forall Point x0; Point x1; Star St0; Star St1
+-- where x1 := sampleBoundary( St0 ); St0 := starAround( x0 ); St1 := starAround( x1 ) {
+-- 
+--    -- TODO we *might* be able to eliminate redundancy with the previous rule by
+--    -- TODO changing ballAround()/starAround() to subdomainAround().  This all depends
+--    -- TODO on whether the Style compiler will separately match the two rules
+--    -- TODO    Ball B  where B  := subdomainAround(p)
+--    -- TODO    Star St where St := subdomainAround(p)
+--    -- TODO (and I don't immediately see why it shouldn't...).  In other words, unlike
+--    -- TODO C++, we can effectively "overload" rules based on "return type."  This change
+--    -- TODO would also just simplify and clean up our Domain schema, since we no longer
+--    -- TODO have to carefully match the subdomain type with the method used to construct
+--    -- TODO the subdomain.
+-- 
+--    shape walkLine = Line {
+--       start: x0.location
+--       end: x1.location
+--       strokeColor: Global.walkColor
+--       strokeWidth: Global.walkStrokeWidth
+--    }
+--    layer walkLine above Global.domain
+-- 
+--    -- Use layering to help clarify the direction of the walk.
+--    layer walkLine above St0.shading
+--    layer walkLine below St1.shading
+-- }
 
 -- Draw sample points that are used to estimate the source term
 -- as just dots contained in the ball of interest.  These sample
@@ -361,7 +361,7 @@ where p has label {
 
 -- Put all labels above all dots
 forall Point p; Point q
-where p has label {
+where p has label; q has label {
    layer p.labelText above q.dot
    layer q.labelText above p.dot
 }
