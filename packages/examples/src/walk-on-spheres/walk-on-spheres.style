@@ -323,7 +323,7 @@ where y := sampleInterior( Bx ); Bx := ballAround( x ); By := ballAround( y ) {
    -- Put the center of the next ball somewhere inside
    -- the current ball, between 20% and 80% of the
    -- radial distance from the center.
-   scalar R = norm(y.location - x.location)
+   scalar R = norm(y.location - Bx.center)
    ensure inRange( R, .2*B.radius, .8*B.radius )
 
    -- Since these samples tend to be the start of a
@@ -346,7 +346,7 @@ forall Point p; Ball B
 where p := sampleInterior( B ); isSourceSample( p ) {
 
    -- Draw source samples in a different style
-   override p.dot.center = (?,?)
+   override p.location = (?,?)
    override p.dot.r = 2
    override p.dot.fillColor = Colors.white
    override p.dot.strokeColor = Colors.black
