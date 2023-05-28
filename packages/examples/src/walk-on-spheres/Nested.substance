@@ -5,36 +5,33 @@
 
 Domain U
 
-Step y00, y01, y02
-Step y10, y11, y12
-
--- main walk
-Step x0
+-- -- main walk
+Point x0
 Ball B0 := ballAround( x0 )
-Step x1 := sampleBoundary( B0 )
+Point x1 := sampleBoundary( B0 )
 Ball B1 := ballAround( x1 )
-Step x2 := sampleBoundary( B1 )
+Point x2 := sampleBoundary( B1 )
 Ball B2 := ballAround( x2 )
-Step x3 := sampleBoundary( B2 )
+Point x3 := sampleBoundary( B2 )
 Ball B3 := ballAround( x3 )
 
--- nested walk from step 0 of main walk
-Step y00 := sampleInterior( B0 )
-Ball B00 := ballAround( y00 )
-y01 := sampleBoundary( B00 )
-Ball B01 := ballAround( y01 )
-y02 := sampleBoundary( B01 )
-Ball B02 := ballAround( y02 )
-isNested( B00 )
-isNested( B01 )
-isNested( B02 )
-
+-- -- nested walk from step 0 of main walk
+-- Point y00 := sampleInterior( B0 )
+-- Ball B00 := ballAround( y00 )
+-- Point y01 := sampleBoundary( B00 )
+-- Ball B01 := ballAround( y01 )
+-- Point y02 := sampleBoundary( B01 )
+-- Ball B02 := ballAround( y02 )
+-- isNested( B00 )
+-- isNested( B01 )
+-- isNested( B02 )
+-- 
 -- nested walk from step 1 of main walk
-Step y10 := sampleInterior( B1 )
+Point y10 := sampleInterior( B1 )
 Ball B10 := ballAround( y10 )
-y11 := sampleBoundary( B10 )
+Point y11 := sampleBoundary( B10 )
 Ball B11 := ballAround( y11 )
-y12 := sampleBoundary( B11 )
+Point y12 := sampleBoundary( B11 )
 Ball B12 := ballAround( y12 )
 isNested( B10 )
 isNested( B11 )
@@ -45,6 +42,4 @@ Label x0 "x₀"
 Label x1 "x₁"
 Label x2 "…"
 Label x3 "xₖ"
-Label y00 "y₀"
-Label y10 "y₁"
 
