@@ -15,7 +15,7 @@ Ball B3 := ballAround( x3 )
 Point x4 := sampleBoundary( B3 )
 Ball B4 := ballAround( x4 )
 
--- Label U "Ω"
+Label U "Ω"
 Label x0 "x₀"
 Label x1 "x₁"
 Label x2 "x₂"
