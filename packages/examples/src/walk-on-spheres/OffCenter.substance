@@ -18,7 +18,7 @@ isOffCenter( B1 )
 isOffCenter( B2 )
 isOffCenter( B3 )
 
--- Label U "Ω"
+Label U "Ω"
 Label x0 "x₀"
 Label x1 "x₁"
 Label x2 "…"
