@@ -1,4 +1,8 @@
+import seedrandom from "seedrandom";
+import { input } from "../engine/Autodiff.js";
+import { makeCanvas } from "../index.js";
 import { Equation } from "../shapes/Equation.js";
+import { sampleText } from "../shapes/Text.js";
 import { getAdValueAsString } from "../utils/Util.js";
 import {
   attrAutoFillSvg,
@@ -9,11 +13,38 @@ import {
   attrWH,
 } from "./AttrHelper.js";
 import { RenderProps } from "./Renderer.js";
+import RenderText from "./Text.js";
 
 const RenderEquation = (
   shape: Equation<number>,
-  { canvasSize, labels }: RenderProps
+  renderOptions: RenderProps
 ): SVGGElement => {
+  const { canvasSize, labels, texLabels, variation } = renderOptions;
+  if (texLabels) {
+    const rng = seedrandom(variation);
+    return RenderText(
+      {
+        ...sampleText(
+          {
+            makeInput: (meta) =>
+              input(
+                meta.init.tag === "Sampled"
+                  ? meta.init.sampler(rng)
+                  : meta.init.pending
+              ),
+          },
+          makeCanvas(canvasSize[0], canvasSize[1])
+        ),
+        ...shape,
+        shapeType: "Text",
+        string: {
+          tag: "StrV",
+          contents: `$${shape.string.contents}$`,
+        },
+      } as any,
+      renderOptions
+    );
+  }
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
 
   // Keep track of which input properties we programatically mapped
