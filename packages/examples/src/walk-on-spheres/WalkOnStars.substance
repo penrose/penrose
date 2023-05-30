@@ -4,21 +4,21 @@
 
 Domain U
 
-Step x0
+Point x0
 Star St0 := starAround( x0 )
-Step x1 := sampleBoundary( St0 )
-Star St1 := starAround( x1 )
-Step x2 := sampleBoundary( St1 )
-Star St2 := starAround( x2 )
-Step x3 := sampleBoundary( St2 )
-Star St3 := starAround( x3 )
-Step x4 := sampleBoundary( St3 )
-Star St4 := starAround( x4 )
+-- Point x1 := sampleBoundary( St0 )
+-- Star St1 := starAround( x1 )
+-- Point x2 := sampleBoundary( St1 )
+-- Star St2 := starAround( x2 )
+-- Point x3 := sampleBoundary( St2 )
+-- Star St3 := starAround( x3 )
+-- Point x4 := sampleBoundary( St3 )
+-- Star St4 := starAround( x4 )
 
 Label U "Ω"
 Label x0 "x₀"
-Label x1 "x₁"
-Label x2 "x₂"
-Label x3 "…"
-Label x4 "xₖ"
+-- Label x1 "x₁"
+-- Label x2 "x₂"
+-- Label x3 "…"
+-- Label x4 "xₖ"
 
