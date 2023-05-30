@@ -23,13 +23,18 @@ Global {
    color labelStrokeColor = Colors.white
    scalar labelStrokeWidth = 1.5
 
-   -- line thickness for basic shapes
+   -- appearance of dots/points
+   scalar dotSize = 2.0
+
+   -- style of domains/subdomains
+   color ballColor = rgba( .2, .8, .2, .15 )
+   color sphereColor = rgba( .4, .5, .4, 1 )
    scalar sphereStrokeWidth = 1
    scalar domainStrokeWidth = 1.5
 
    -- style of lines along a walk
    -- (set color to none() to disable)
-   color walkColor = rgba( 0, 0, .7, 1 )
+   color walkColor = rgba( 0, .7, 0, 1 )
    color walkStrokeWidth = 1.5
 
 }
@@ -59,14 +64,14 @@ where D has label {
    scalar maxPerturbation = 15
    scalar w = .8*canvas.width/2
    scalar h = .8*canvas.height/2
-   vec2 p0 = ( w, -h) + maxPerturbation*diskRandom()
-   vec2 p1 = ( 0, -h) + maxPerturbation*diskRandom()
-   vec2 p2 = (-w, -h) + maxPerturbation*diskRandom()
-   vec2 p3 = (-w,  h) + maxPerturbation*diskRandom()
-   vec2 p4 = ( 0,  h) + maxPerturbation*diskRandom()
-   vec2 p5 = ( w,  h) + maxPerturbation*diskRandom()
+   vec2 D.p0 = ( w, -h) + maxPerturbation*diskRandom()
+   vec2 D.p1 = ( 0, -h) + maxPerturbation*diskRandom()
+   vec2 D.p2 = (-w, -h) + maxPerturbation*diskRandom()
+   vec2 D.p3 = (-w,  h) + maxPerturbation*diskRandom()
+   vec2 D.p4 = ( 0,  h) + maxPerturbation*diskRandom()
+   vec2 D.p5 = ( w,  h) + maxPerturbation*diskRandom()
    shape D.geometry = Polygon {
-      points: ( p0, p1, p2, p3, p4, p5)
+      points: [ D.p0, D.p1, D.p2, D.p3, D.p4, D.p5 ]
       fillColor: Colors.lightGray
       strokeColor: Colors.darkGray
       strokeWidth: Global.domainStrokeWidth
@@ -76,6 +81,29 @@ where D has label {
    ensure lessThan( signedDistance( D.geometry, D.labelText.center ), -9. ) in labelStage
 
    layer D.labelText above D.geometry -- make sure the label doesn't get covered by the domain shape
+}
+
+forall Domain D
+where hasMixedBoundaryConditions( D ) {
+   override D.geometry.strokeColor = none()
+
+   override D.p4 = (0,.2*canvas.height)
+
+   shape D.dirichletBoundary = Polyline {
+      points: [ D.p5, D.p0, D.p1, D.p2, D.p3 ]
+      strokeColor: Colors.darkGray
+      strokeWidth: Global.domainStrokeWidth
+      ensureOnCanvas: false
+   }
+
+   shape D.neumannBoundary = Polyline {
+      points: [ D.p3, D.p4, D.p5 ]
+      strokeColor: Colors.darkGray
+      strokeWidth: Global.domainStrokeWidth
+      ensureOnCanvas: false
+      style: "dashed"
+      strokeDasharray: "4,3"
+   }
 }
 
 -- draw each point as a small dot
@@ -90,7 +118,7 @@ forall Point p {
    -- different location (e.g., for an off-center walk).
    shape p.dot = Circle {
       center: p.location
-      r: 2.5
+      r: Global.dotSize
       fillColor: Colors.black
       ensureOnCanvas: false
    }
@@ -124,7 +152,7 @@ forall Ball B; Domain D {
    shape B.ball = Circle {
       center: B.center
       r: B.radius
-      fillColor: rgba( .2, .8, .2, .15 )
+      fillColor: Global.ballColor
       strokeColor: none()
       ensureOnCanvas: false
    }
@@ -135,7 +163,7 @@ forall Ball B; Domain D {
       center: B.center
       r: B.radius
       fillColor: none()
-      strokeColor: rgba( .4, .5, .4, 1 )
+      strokeColor: Global.sphereColor
       strokeWidth: Global.sphereStrokeWidth
       ensureOnCanvas: false
    }
@@ -162,16 +190,6 @@ forall Ball B; Domain D {
    -- coming from a nested walk) can use a different factor.
    scalar B.shrinkFactor = .55
 }
-
--- TODO forall Star St; Point p; Domain U
--- TODO where St := starAround(p) {
--- TODO    scalar dDirichlet = closestPoint( U.dirichletBoundary, p.location )
--- TODO    scalar dNeumann = closestSilhouettePoint( U.neumannBoundary, p.location )
--- TODO    scalar rMin = 1
--- TODO    scalar r = max( rMin, min( dDirichlet, dNeumann )
--- TODO 
--- TODO    -- TODO draw ball of radius r, and clip it against domain
--- TODO }
 
 -- Make sure the domain's label isn't covered up by a ball.
 forall Ball B; Domain U
@@ -402,6 +420,60 @@ forall NestedPoint p; Point p0; Ball B; Ball B0
 where B := nestedBallAround(p); B0 := ballAround(p0)
 {
    layer B.sphere above B0.sphere
+}
+
+-- Walk on Stars -------------------------------------------
+
+forall Star St; Point p; Domain D
+where St := starAround(p) {
+   scalar yDirichlet = closestPoint( D.dirichletBoundary, p.location )
+   scalar yNeumann = closestSilhouettePoint( D.neumannBoundary, p.location )
+   scalar dDirichlet = norm( yDirichlet - p.location )
+   scalar dNeumann = norm( yNeumann - p.location )
+   scalar rMin = 1
+   scalar R = max( rMin, min( dDirichlet, dNeumann ))
+   
+   shape dirichletBall = Circle {
+      center: p.location
+      r: dDirichlet
+      fillColor: none()
+      strokeColor: Global.sphereColor
+      strokeWidth: Global.sphereStrokeWidth
+   }
+
+   shape neumannBall = Circle {
+      center: p.location
+      r: dNeumann
+      fillColor: none()
+      strokeColor: Global.sphereColor
+      strokeWidth: Global.sphereStrokeWidth
+   }
+
+   shape starBall = Circle {
+      center: p.location
+      r: R
+      fillColor: Global.ballColor
+   }
+
+   -- TODO draw ball of radius r, and clip it against domain
+}
+
+forall Point p0; Point p1; Star St; Domain D
+where p1 := sampleBoundary(St); St := starAround(p0) {
+   scalar theta = 2.*MathPI()*unitRandom()
+   vec2 v = ( cos(theta), sin(theta) )
+   vec2 y = rayIntersect( D.neumannBoundary, p0.location, v )
+
+   override p1.location = y
+
+   shape rayArrow = Line {
+      start: p0.location
+      end: y
+      strokeColor: #f20
+      strokeWidth: 1
+      endArrowhead: "straight"
+      endArrowheadSize: .5
+   }
 }
 
 -- Labeling ------------------------------------------------

@@ -3,10 +3,11 @@
 -- and Neumann boundary conditions, via WoSt.
 
 Domain U
+hasMixedBoundaryConditions( U )
 
 Point x0
 Star St0 := starAround( x0 )
--- Point x1 := sampleBoundary( St0 )
+Point x1 := sampleBoundary( St0 )
 -- Star St1 := starAround( x1 )
 -- Point x2 := sampleBoundary( St1 )
 -- Star St2 := starAround( x2 )

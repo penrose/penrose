@@ -1,4 +1,5 @@
 type Domain -- a region in ℝⁿ
+predicate hasMixedBoundaryConditions( Domain D )
 
 type Point
 predicate isSourceSample( Point p )
