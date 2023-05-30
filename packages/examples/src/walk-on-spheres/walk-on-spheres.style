@@ -1,4 +1,4 @@
-layout = [ walkStage, labelStage ]
+layout = [ walkStage, nestStage, labelStage ]
 
 -- diagram dimensions (in px)
 canvas {
@@ -233,38 +233,11 @@ where B := ballAround( p ); p has label {
    layer p.labelText above B.sphere
 }
 
--- Draw nested steps of a walk in a different style.
-forall Ball B; Point p
-where isNested( p ); B := ballAround( p ) {
-   -- Change to a color palette that is more white & opaque.
-   override B.ball.fillColor = none()
-   override B.ball.strokeColor = none()
-   override B.sphere.strokeColor = none()
-   override p.dot.fillColor = Colors.white
-   override B.shading = Circle{
-      center: B.center
-      r: B.radius
-      fillColor: rgba(1,1,1,.2)
-      strokeColor: rgba(1,1,1,.5)
-      strokeWidth: 1
-   }
-
-   -- Since nested walks are usually secondary in the overall
-   -- diagram, draw them smaller by making them shrink faster.
-   override B.shrinkFactor = .7
-}
-
--- TODO for completeness, we should also define a rule for nested Stars
--- forall Ball B; Point p
--- where isNested( B ); B := starAround( p ) {
-   -- TODO
--- }
-
 -- If a point p is sampled from the boundary of a ball B,
 -- make sure it sits on the corresponding sphere ∂B.
 forall Ball B; Point p
 where p := sampleBoundary( B ) {
-   ensure equal( norm(p.location - B.center), B.radius ) in walkStage
+   constraint p.ballConstraint = ensure equal( norm(p.location - B.center), B.radius ) in walkStage
 
    -- Make sure the dot is not covered by the sphere.
    layer p.dot above B.sphere
@@ -277,16 +250,11 @@ where p := sampleBoundary( B ) {
 forall Ball B; Point p
 where p := sampleInterior( B ) {
    scalar r = B.radius * random(.2,.8)
-   ensure norm( p.location - B.center ) == r in walkStage
+   constraint p.ballConstraint = ensure norm( p.location - B.center ) == r in walkStage
 
    -- Make sure the dot is not covered by the ball.
    layer p.dot above B.ball
 }
-
--- forall Point p; Ball B; Ball B0
--- where isNested(p); startsNewWalk(p); B := ballAround(p); p := sampleInterior(B0) {
---    override B.radius = .1 * B0.radius
--- }
 
 
 -- Adjust the drawing for consecutive steps x0, x1 along a walk on spheres,
@@ -330,10 +298,10 @@ where x1 has label; x1 := sampleBoundary( B0 ); B0 := ballAround( x0 ); B1 := ba
    ensure disjoint ( x0.walkLine, x1.labelText, 3. ) in labelStage
 }
 
-forall Point x0; Point x1; Ball B0
-where isNested(x0); B0 := ballAround( x0 ); x1 := sampleBoundary( B0 ) {
-   override x0.walkLine.strokeColor = Colors.white
-}
+-- forall Point x0; Point x1; Ball B0
+-- where isNested(x0); B0 := ballAround( x0 ); x1 := sampleBoundary( B0 ) {
+--    override x0.walkLine.strokeColor = Colors.white
+-- }
 
 -- -- Draw a line between the consecutive points on a walk on stars
 -- forall Point x0; Point x1; Star St0; Star St1
@@ -378,6 +346,92 @@ where p := sampleInterior( B ); isSourceSample( p ) {
    override p.dot.fillColor = Colors.white
    override p.dot.strokeColor = Colors.black
    override p.dot.strokeWidth = 1
+}
+
+-- Draw nested points in a different style
+forall NestedPoint p {
+   scalar x = ? in nestStage
+   scalar y = ? in nestStage
+   vec2 p.location = (x,y)
+
+   shape p.dot = Circle {
+      center: p.location
+      r: 2.5
+      fillColor: Colors.white
+      ensureOnCanvas: false
+   }
+}
+
+-- Draw nested balls in a different style
+forall Ball B; NestedPoint p
+where B := nestedBallAround(p) {
+
+   override B.center = p.location
+
+   -- Change to a color palette that is more white & opaque.
+   override B.ball.fillColor = none()
+   override B.ball.strokeColor = none()
+   override B.sphere.strokeColor = none()
+   override B.shading = Circle{
+      center: B.center
+      r: B.radius
+      fillColor: rgba(1,1,1,.2)
+      strokeColor: rgba(1,1,1,.5)
+      strokeWidth: 1
+      ensureOnCanvas: false
+   }
+
+   override B.shrinkFactor = .7
+}
+
+forall NestedPoint p; Point p0; Ball B; Ball B0
+where p := startWalkFrom(B0); B := nestedBallAround(p); B0 := ballAround(p0) {
+   vec2 y = closestPoint( Global.domain, B0.center )
+   scalar u = .75
+   vec2 q = (1-u)*B0.center + u*y
+   --override p.location = B0.center + B0.radius*diskRandom()
+   override p.location = q
+   override B.center = p.location
+   override B.radius = -signedDistance( Global.domain, p.location )
+}
+
+forall NestedPoint p; Ball B; Ball B0
+where p := sampleBoundaryNested(B0); B := nestedBallAround(p) {
+
+   ensure norm(p.location - B0.center) == B0.radius in nestStage
+   ensure B.radius == B.shrinkFactor * B0.radius in nestStage
+
+   -- override p.location = B0.center + B0.radius*circleRandom()
+   -- override B.center = p.location
+   -- override B.radius = -signedDistance( Global.domain, p.location )
+}
+
+-- Draw a line between the consecutive points on a walk on spheres
+forall NestedPoint x0; NestedPoint x1; Ball B0; Ball B1
+where x1 := sampleBoundaryNested( B0 ); B0 := nestedBallAround( x0 ); B1 := nestedBallAround( x1 ) {
+
+   shape x0.walkLine = Line {
+      start: x0.location
+      end: x1.location
+      strokeColor: Colors.white
+      strokeWidth: Global.walkStrokeWidth
+      ensureOnCanvas: false
+   }
+   layer x0.walkLine above Global.domain
+
+   -- Use layering to help clarify the direction of the walk.
+   layer x0.walkLine above B0.shading
+   layer x0.walkLine below B1.shading
+}
+
+-- draw nested walks above regular walks
+forall NestedPoint p; Ball B {
+   layer p.dot above B.sphere
+}
+forall NestedPoint p; Point p0; Ball B; Ball B0
+where B := nestedBallAround(p); B0 := ballAround(p0)
+{
+   layer B.sphere above B0.sphere
 }
 
 -- Put all labels above all balls

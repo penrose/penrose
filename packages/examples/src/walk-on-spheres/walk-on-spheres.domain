@@ -2,8 +2,6 @@ type Domain -- a region in ℝⁿ
 
 type Point
 predicate isSourceSample( Point p )
-predicate isNested( Point p ) -- belongs to a nested walk
-predicate startsNewWalk( Point p ) -- is at the beginning of a nested walk
 
 type Subdomain
 type Ball <: Subdomain
@@ -15,4 +13,9 @@ constructor ballAround( Point p ) -> Ball
 constructor starAround( Point p ) -> Star
 -- TODO can we replace both with subdomainAround( Point p ) -> Subdomain ?
 predicate isOffCenter( Ball B ) -- is not centered around p
+
+type NestedPoint
+constructor startWalkFrom( Subdomain S ) -> NestedPoint p
+constructor nestedBallAround( NestedPoint p ) -> Ball
+constructor sampleBoundaryNested( Subdomain S ) -> NestedPoint p
 
