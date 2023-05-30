@@ -348,6 +348,8 @@ where p := sampleInterior( B ); isSourceSample( p ) {
    override p.dot.strokeWidth = 1
 }
 
+-- Nested walks --------------------------------------------
+
 -- Draw nested points in a different style
 forall NestedPoint p {
    scalar x = ? in nestStage
@@ -400,13 +402,9 @@ where p := sampleBoundaryNested(B0); B := nestedBallAround(p) {
 
    ensure norm(p.location - B0.center) == B0.radius in nestStage
    ensure B.radius == B.shrinkFactor * B0.radius in nestStage
-
-   -- override p.location = B0.center + B0.radius*circleRandom()
-   -- override B.center = p.location
-   -- override B.radius = -signedDistance( Global.domain, p.location )
 }
 
--- Draw a line between the consecutive points on a walk on spheres
+-- Draw a line between the consecutive points on a nested walk
 forall NestedPoint x0; NestedPoint x1; Ball B0; Ball B1
 where x1 := sampleBoundaryNested( B0 ); B0 := nestedBallAround( x0 ); B1 := nestedBallAround( x1 ) {
 
@@ -433,6 +431,8 @@ where B := nestedBallAround(p); B0 := ballAround(p0)
 {
    layer B.sphere above B0.sphere
 }
+
+-- Labeling ------------------------------------------------
 
 -- Put all labels above all balls
 forall Point p; Ball B
