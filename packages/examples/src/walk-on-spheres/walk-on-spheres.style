@@ -17,11 +17,11 @@ Colors {
 -- global shapes and constants
 Global {
    -- default appearance for label text
-   string labelFont = "Palatino"
+   string labelFont = "Charter"
    string labelSize = "9px"
    color labelColor = Colors.black
-   color labelStrokeWidth = 1.5
-
+   color labelStrokeColor = Colors.white
+   scalar labelStrokeWidth = 1.5
 
    -- line thickness for basic shapes
    scalar sphereStrokeWidth = 1
@@ -209,7 +209,7 @@ where p has label {
       fontFamily: Global.labelFont
       fontStyle: "italic"
       fillColor: Global.labelColor
-      strokeColor: Colors.white
+      strokeColor: Global.labelStrokeColor
       strokeWidth: Global.labelStrokeWidth
       strokeLinejoin: "round"
       paintOrder: "stroke"
@@ -220,7 +220,10 @@ where p has label {
    -- to overlap the dot (which makes it hard to read).
    scalar theta = ? in labelStage
    p.labelText.center = p.dot.center + 8.*( cos(theta), sin(theta) )
-   --ensure disjoint( p.labelText, p.dot, 2. ) in labelStage
+
+   -- If we fail to avoid overlap, we should
+   -- at least draw the label on top of the dot
+   layer p.labelText above p.dot
 }
 
 -- Make sure a point's label doesn't get covered by a ball

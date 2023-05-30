@@ -15,10 +15,10 @@ Ball B3 := ballAround( x3 )
 Point x4 := sampleBoundary( B3 )
 Ball B4 := ballAround( x4 )
 
-Label U "Ω"
-Label x0 "x₀"
-Label x1 "x₁"
-Label x2 "x₂"
-Label x3 "…"
-Label x4 "xₖ"
+Label U  "Ω"  -- "$\Omega$"
+Label x0 "x₀" -- "$x_0$"
+Label x1 "x₁" -- "$x_1$"
+Label x2 "x₂" -- "$x_2$"
+Label x3 "…"  -- "$\ldots$"
+Label x4 "xₖ" -- "$x_k$"
 
