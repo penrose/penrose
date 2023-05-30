@@ -2777,7 +2777,7 @@ export const compDict = {
       v: ad.Num[]
     ): VectorV<ad.Num> => {
       const hit = rayIntersectShape(S, p, v);
-      const x = hit[0];
+      const x = hit[0]; // hit location
       const x0 = ifCond(eq(absVal(x[0]), Infinity), p[0], x[0]);
       const x1 = ifCond(eq(absVal(x[1]), Infinity), p[1], x[1]);
       return { tag: "VectorV", contents: [x0, x1] };
@@ -2823,8 +2823,8 @@ export const compDict = {
       v: ad.Num[]
     ): VectorV<ad.Num> => {
       const hit = rayIntersectShape(S, p, v);
-      const x = hit[0];
-      const n = hit[1];
+      const x = hit[0]; // hit location
+      const n = hit[1]; // hit normal
       const s = ops.vdot(n, ops.vsub(p, x));
       const n0 = ifCond(
         eq(absVal(x[0]), Infinity),
@@ -2839,6 +2839,52 @@ export const compDict = {
       return { tag: "VectorV", contents: [n0, n1] };
     },
     returns: valueT("Real2"),
+  },
+
+  /**
+   * Given a point p and vector v, returns the distance to the first point
+   * where the ray r(t)=p+tv intersects the given shape S.  If there are no
+   * intersections, returns Infinity.
+   */
+  rayIntersectDistance: {
+    name: "rayIntersectDistance",
+    params: [
+      {
+        name: "S",
+        type: unionT(
+          rectlikeT(),
+          shapeT("Circle"),
+          shapeT("Polygon"),
+          shapeT("Line"),
+          shapeT("Polyline"),
+          shapeT("Ellipse"),
+          shapeT("Group")
+        ),
+        description: "A shape",
+      },
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      S:
+        | Circle<ad.Num>
+        | Rectlike<ad.Num>
+        | Line<ad.Num>
+        | Polyline<ad.Num>
+        | Polygon<ad.Num>
+        | Ellipse<ad.Num>
+        | Group<ad.Num>,
+      p: ad.Num[],
+      v: ad.Num[]
+    ): FloatV<ad.Num> => {
+      const hit = rayIntersectShape(S, p, v);
+      const x = hit[0]; // hit location
+      const infty = 99999999.9
+      let t = ifCond(eq(absVal(x[0]), Infinity), infty, ops.vdist(p,x) );
+      return { tag: "FloatV", contents: t };
+    },
+    returns: valueT("Real"),
   },
 
   closestPoint: {

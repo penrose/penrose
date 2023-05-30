@@ -439,6 +439,7 @@ where St := starAround(p) {
       fillColor: none()
       strokeColor: Global.sphereColor
       strokeWidth: Global.sphereStrokeWidth
+      ensureOnCanvas: false
    }
 
    shape neumannBall = Circle {
@@ -447,12 +448,14 @@ where St := starAround(p) {
       fillColor: none()
       strokeColor: Global.sphereColor
       strokeWidth: Global.sphereStrokeWidth
+      ensureOnCanvas: false
    }
 
-   shape starBall = Circle {
+   shape St.ball = Circle {
       center: p.location
       r: R
       fillColor: Global.ballColor
+      ensureOnCanvas: false
    }
 
    -- TODO draw ball of radius r, and clip it against domain
@@ -461,18 +464,22 @@ where St := starAround(p) {
 forall Point p0; Point p1; Star St; Domain D
 where p1 := sampleBoundary(St); St := starAround(p0) {
    scalar theta = 2.*MathPI()*unitRandom()
+   vec2 x = p0.location
    vec2 v = ( cos(theta), sin(theta) )
-   vec2 y = rayIntersect( D.neumannBoundary, p0.location, v )
+   scalar tBoundary = rayIntersectDistance( D.neumannBoundary, x, v )
+   scalar tBall = St.ball.r
+   scalar t = min( tBoundary, tBall )
 
-   override p1.location = y
+   override p1.location = x + t*v 
 
    shape rayArrow = Line {
       start: p0.location
-      end: y
+      end: p1.location
       strokeColor: #f20
       strokeWidth: 1
       endArrowhead: "straight"
       endArrowheadSize: .5
+      ensureOnCanvas: false
    }
 }
 
