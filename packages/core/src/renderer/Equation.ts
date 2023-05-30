@@ -1,8 +1,4 @@
-import seedrandom from "seedrandom";
-import { input } from "../engine/Autodiff.js";
-import { makeCanvas } from "../index.js";
 import { Equation } from "../shapes/Equation.js";
-import { sampleText } from "../shapes/Text.js";
 import { getAdValueAsString } from "../utils/Util.js";
 import {
   attrAutoFillSvg,
@@ -13,40 +9,37 @@ import {
   attrWH,
 } from "./AttrHelper.js";
 import { RenderProps } from "./Renderer.js";
-import RenderText from "./Text.js";
+
+const placeholderString = (
+  label: string,
+  canvasSize: [number, number],
+  shape: Equation<number>
+): SVGGElement => {
+  const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  txt.textContent = label;
+  attrFill(shape, txt);
+  attrWH(shape, txt);
+  attrTransformCoords(shape, canvasSize, txt);
+  return txt;
+};
 
 const RenderEquation = (
   shape: Equation<number>,
   renderOptions: RenderProps
 ): SVGGElement => {
-  const { canvasSize, labels, texLabels, variation } = renderOptions;
-  if (texLabels) {
-    const rng = seedrandom(variation);
-    return RenderText(
-      {
-        ...sampleText(
-          {
-            makeInput: (meta) =>
-              input(
-                meta.init.tag === "Sampled"
-                  ? meta.init.sampler(rng)
-                  : meta.init.pending
-              ),
-          },
-          makeCanvas(canvasSize[0], canvasSize[1])
-        ),
-        ...shape,
-        shapeType: "Text",
-        string: {
-          tag: "StrV",
-          contents: `$${shape.string.contents}$`,
-        },
-      } as any,
-      renderOptions
-    );
-  }
-  const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  const { canvasSize, labels, texLabels } = renderOptions;
 
+  if (texLabels) {
+    // if equations are rendered as plain TeX strings, forward relevant props to a <text> element and surround the TeX string with $$
+    const txt = placeholderString(
+      `$${getAdValueAsString(shape.string)}$`,
+      canvasSize,
+      shape
+    );
+    return txt;
+  }
+
+  const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
   // Keep track of which input properties we programatically mapped
   const attrToNotAutoMap: string[] = [];
 
@@ -55,11 +48,9 @@ const RenderEquation = (
   attrToNotAutoMap.push(...attrTransformCoords(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrTitle(shape, elem));
 
-  // Indicator: pre-rendered label was found
-  let labelFound = false;
-
   const retrievedLabel = labels.get(getAdValueAsString(shape.name));
 
+  // If pre-rendered label was found, render the label in a group
   if (retrievedLabel && retrievedLabel.tag === "EquationData") {
     // Clone the retrieved node first to avoid mutating existing labels
     const renderedLabel = retrievedLabel.rendered.cloneNode(
@@ -78,24 +69,18 @@ const RenderEquation = (
 
     // Append the element & indicate the rendered label was found
     elem.appendChild(renderedLabel);
-    labelFound = true;
-  }
 
-  if (!labelFound) {
+    // Directly Map across any "unknown" SVG properties
+    attrAutoFillSvg(shape, elem, attrToNotAutoMap);
+
+    return elem;
+  } else {
     // Fallback case: generate plain-text (non-rendered) label from string
-    const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    txt.textContent = getAdValueAsString(shape.string);
-    attrToNotAutoMap.push("string");
-    elem.appendChild(txt);
-
-    // Map the attributes we have
-    attrToNotAutoMap.push(...attrFill(shape, elem));
-    attrToNotAutoMap.push(...attrWH(shape, elem));
+    return placeholderString(
+      getAdValueAsString(shape.string),
+      canvasSize,
+      shape
+    );
   }
-
-  // Directly Map across any "unknown" SVG properties
-  attrAutoFillSvg(shape, elem, attrToNotAutoMap);
-
-  return elem;
 };
 export default RenderEquation;
