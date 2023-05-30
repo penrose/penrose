@@ -237,6 +237,7 @@
   "triangle-mesh-2d/diagrams/angle-equivalence": {
     "name": "Rigid Conformal Mapping of a 2D Mesh"
   },
+  "timeline/penrose": { "name": "Penrose project timeline" },
   "graph-domain/textbook/sec5/ex32": { "name": "Curved graph example" },
   "curve-examples/open-elastic-curve": { "name": "Open elastic curve example" },
   "curve-examples/closed-elastic-curve": {

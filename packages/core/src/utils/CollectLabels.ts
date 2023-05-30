@@ -15,49 +15,55 @@ import { FloatV } from "../types/value.js";
 import { Result, err, ok } from "./Error.js";
 import { getAdValueAsString, getValueAsShapeList, safe } from "./Util.js";
 
-// https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
-// const adaptor = chooseAdaptor();
-const adaptor = browserAdaptor();
-RegisterHTMLHandler(adaptor);
-const tex = new TeX({
-  packages: AllPackages,
-  macros: {
-    textsc: ["\\style{font-variant-caps: small-caps}{\\text{#1}}", 1],
-  },
-  inlineMath: [
-    ["$", "$"],
-    ["\\(", "\\)"],
-  ],
-  processEscapes: true,
-  // https://github.com/mathjax/MathJax-demos-node/issues/25#issuecomment-711247252
-  formatError: (jax: unknown, err: Error) => {
-    throw Error(err.message);
-  },
-});
-const svg = new SVG({ fontCache: "none" });
-const html = mathjax.document("", { InputJax: tex, OutputJax: svg });
-
 // to re-scale baseline
 const EX_CONSTANT = 10;
 
-const convert = (
+export const mathjaxInit = (): ((
   input: string,
   fontSize: string
-): Result<HTMLElement, string> => {
-  // HACK: workaround for newlines
-  // https://github.com/mathjax/MathJax/issues/2312#issuecomment-538185951
-  const newline_escaped = `\\displaylines{${input}}`;
-  // https://github.com/mathjax/MathJax-src/blob/master/ts/core/MathDocument.ts#L689
-  // https://github.com/mathjax/MathJax-demos-node/issues/3#issuecomment-497524041
-  try {
-    const node = html.convert(newline_escaped, { ex: EX_CONSTANT });
-    // Not sure if this call does anything:
-    // https://github.com/mathjax/MathJax-src/blob/master/ts/adaptors/liteAdaptor.ts#L523
-    adaptor.setStyle(node, "font-size", fontSize);
-    return ok(node.firstChild);
-  } catch (error: any) {
-    return err(error.message);
-  }
+) => Result<HTMLElement, string>) => {
+  // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
+  // const adaptor = chooseAdaptor();
+  const adaptor = browserAdaptor();
+  RegisterHTMLHandler(adaptor);
+  const tex = new TeX({
+    packages: AllPackages,
+    macros: {
+      textsc: ["\\style{font-variant-caps: small-caps}{\\text{#1}}", 1],
+    },
+    inlineMath: [
+      ["$", "$"],
+      ["\\(", "\\)"],
+    ],
+    processEscapes: true,
+    // https://github.com/mathjax/MathJax-demos-node/issues/25#issuecomment-711247252
+    formatError: (jax: unknown, err: Error) => {
+      throw Error(err.message);
+    },
+  });
+  const svg = new SVG({ fontCache: "none" });
+  const html = mathjax.document("", { InputJax: tex, OutputJax: svg });
+
+  const convert = (
+    input: string,
+    fontSize: string
+  ): Result<HTMLElement, string> => {
+    // HACK: workaround for newlines
+    // https://github.com/mathjax/MathJax/issues/2312#issuecomment-538185951
+    const newline_escaped = `\\displaylines{${input}}`;
+    // https://github.com/mathjax/MathJax-src/blob/master/ts/core/MathDocument.ts#L689
+    // https://github.com/mathjax/MathJax-demos-node/issues/3#issuecomment-497524041
+    try {
+      const node = html.convert(newline_escaped, { ex: EX_CONSTANT });
+      // Not sure if this call does anything:
+      // https://github.com/mathjax/MathJax-src/blob/master/ts/adaptors/liteAdaptor.ts#L523
+      adaptor.setStyle(node, "font-size", fontSize);
+      return ok(node.firstChild);
+    } catch (error: any) {
+      return err(error.message);
+    }
+  };
+  return convert;
 };
 
 type Output = {
@@ -70,7 +76,8 @@ type Output = {
  * Call MathJax to render __non-empty__ labels.
  */
 const tex2svg = async (
-  properties: Equation<ad.Num>
+  properties: Equation<ad.Num>,
+  convert: (input: string, fontSize: string) => Result<HTMLElement, string>
 ): Promise<Result<Output, string>> =>
   new Promise((resolve) => {
     const contents = getAdValueAsString(properties.string, "");
@@ -176,13 +183,14 @@ export const toFontRule = <T>(properties: Text<T>): string => {
 
 // https://stackoverflow.com/a/44564236
 export const collectLabels = async (
-  allShapes: Shape<ad.Num>[]
+  allShapes: Shape<ad.Num>[],
+  convert: (input: string, fontSize: string) => Result<HTMLElement, string>
 ): Promise<Result<LabelCache, PenroseError>> => {
   const labels: LabelCache = new Map();
   for (const s of allShapes) {
     if (s.shapeType === "Equation") {
       const shapeName = getAdValueAsString(s.name);
-      const svg = await tex2svg(s);
+      const svg = await tex2svg(s, convert);
 
       if (svg.isErr()) {
         return err({
@@ -225,7 +233,7 @@ export const collectLabels = async (
       labels.set(shapeName, label);
     } else if (s.shapeType === "Group") {
       const subShapes = getValueAsShapeList(s.shapes);
-      const subLabels = await collectLabels(subShapes);
+      const subLabels = await collectLabels(subShapes, convert);
       if (subLabels.isErr()) {
         return subLabels;
       }
@@ -245,9 +253,6 @@ export type TextMeasurement = {
   actualAscent: number;
 };
 
-const measureTextElement = document.createElement("canvas");
-const measureTextContext = measureTextElement.getContext("2d")!;
-
 /**
  *
  * @param text the content of the text
@@ -257,9 +262,12 @@ const measureTextContext = measureTextElement.getContext("2d")!;
  * @returns `TextMeasurement` object and includes data such as `width` and `height` of the text.
  */
 export function measureText(text: string, font: string): TextMeasurement {
+  const measureTextElement = document.createElement("canvas");
+  const measureTextContext = measureTextElement.getContext("2d")!;
   measureTextContext.textBaseline = "alphabetic";
   measureTextContext.font = font;
   const measurements = measureTextContext.measureText(text);
+  measureTextElement.remove();
   return {
     width:
       Math.abs(measurements.actualBoundingBoxLeft) +

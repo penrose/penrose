@@ -267,9 +267,9 @@ export const compDict = {
     description:
       "Return a paint color of elements `h`, `s`, `v`, `a` (hue, saturation, value, opacity).",
     params: [
-      { name: "h", description: "Hue", type: unitT() },
-      { name: "s", description: "Saturation", type: unitT() },
-      { name: "v", description: "Value", type: unitT() },
+      { name: "h", description: "Hue in [0, 360)", type: realT() },
+      { name: "s", description: "Saturation in [0, 100]", type: realT() },
+      { name: "v", description: "Value in [0, 100]", type: realT() },
       { name: "a", description: "Opacity", type: unitT() },
     ],
     body: (
@@ -1831,7 +1831,7 @@ export const compDict = {
    */
   unitRandom: {
     name: "unitRandom",
-    description: "Uniformly sample a random value in the range [0,1].",
+    description: "Uniformly sample a random value in the range [0,1).",
     params: [],
     body: ({ makeInput }: Context): FloatV<ad.Num> => {
       const val = makeInput({
