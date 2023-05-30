@@ -142,7 +142,9 @@ describe("problem tests", () => {
     const x = variable(1);
     const y = variable(2);
     const p = await problem({ objective: f(x, y) });
-    for (const [z, a] of p.start({}).run({}).vals) z.val = a;
+    const run = p.start({}).run({});
+    expect(run.converged).toBe(true);
+    for (const [z, a] of run.vals) z.val = a;
     expect(x.val).toBeCloseTo(0);
     expect(y.val).toBeCloseTo(0);
   });
@@ -151,8 +153,9 @@ describe("problem tests", () => {
     const x = variable(1);
     const y = variable(2);
     const p = await problem({ objective: f(x, y) });
-    for (const [z, a] of p.start({ freeze: (z) => z === x }).run({}).vals)
-      z.val = a;
+    const run = p.start({ freeze: (z) => z === x }).run({});
+    expect(run.converged).toBe(true);
+    for (const [z, a] of run.vals) z.val = a;
     expect(x.val).toBe(1);
     expect(y.val).toBeCloseTo(1);
   });

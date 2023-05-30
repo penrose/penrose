@@ -10,7 +10,7 @@ const [ox, oy] = [330, 270];
 
 const Draggable = (props: any) => {
   const draggable = createDraggable(props.id);
-  return <div use:draggable>draggable</div>;
+  return <div>draggable</div>; // TODO: `use:draggable`
 };
 
 const Arrowhead = (args: { id: string; fill: string }) => (

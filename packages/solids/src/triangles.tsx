@@ -154,8 +154,7 @@ export const Triangles = (props: TriangleProps) => {
           labels[i][1].val = p[1];
         });
         if (prob !== undefined) {
-          let run = prob.start({ freeze: (x) => !labelSet.has(x) });
-          while (!run.converged) run = run.run({});
+          const run = prob.start({ freeze: (x) => !labelSet.has(x) }).run({});
           for (const [v, x] of run.vals) v.val = x;
         }
       })

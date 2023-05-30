@@ -75,7 +75,7 @@ describe("API", () => {
     const { vals } = (await problem({ constraints: [pow(sub(x, 5), 2)] }))
       .start({})
       .run({});
-    expect(vals.get(x)).toBeCloseTo(5, 1);
+    expect(vals.get(x)).toBeCloseTo(5);
   });
 });
 

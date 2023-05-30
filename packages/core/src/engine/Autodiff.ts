@@ -2039,6 +2039,9 @@ export const genGradient = async (
   };
 };
 
+const isConverged = (params: Params): boolean =>
+  params.optStatus === "EPConverged";
+
 export const problem = async ({
   objective,
   constraints,
@@ -2086,40 +2089,48 @@ export const problem = async ({
         // give back the optimized values
         for (const [x, i] of vars) if (!freeze(x)) unfrozen.set(x, xs[i - 1]);
         return {
-          converged: params.optStatus === "EPConverged",
+          converged: isConverged(params),
           vals: unfrozen,
-          run: (opts) => {
+          run: ({ until }) => {
             // allocate a new array to store inputs
             const arr = new Float64Array(xs);
-            const after = stepUntil(
-              (
-                inputs: Float64Array /*read-only*/,
-                weight: number,
-                grad: Float64Array /*write-only*/
-              ): number => {
-                if (inputs.length !== n)
-                  throw Error(`expected ${n} inputs, got ${inputs.length}`);
-                if (grad.length !== n)
-                  throw Error(
-                    `expected ${n} inputs, got gradient with length ${grad.length}`
-                  );
-                meta.arrInputs.set(inputs.subarray(0, n), 1);
-                // the first input is the weight
-                meta.arrInputs[0] = weight;
-                // we don't use addend masks, so they are set to 1
-                meta.arrMask.fill(1);
-                meta.arrGrad.fill(0);
-                meta.arrSecondary.fill(0);
-                const phi = f();
-                for (let i = 0; i < n; i++)
-                  grad[i] =
-                    i < meta.numInputs && !mask[i] ? 0 : meta.arrGrad[i + 1];
-                return phi;
-              },
-              arr,
-              params,
-              opts.until ?? (() => false)
-            );
+            let stop = false;
+            let after = params;
+            // ESLint complains that `stop` is always falsy, but it's wrong
+            while (!(stop || isConverged(after))) {
+              after = stepUntil(
+                (
+                  inputs: Float64Array /*read-only*/,
+                  weight: number,
+                  grad: Float64Array /*write-only*/
+                ): number => {
+                  if (inputs.length !== n)
+                    throw Error(`expected ${n} inputs, got ${inputs.length}`);
+                  if (grad.length !== n)
+                    throw Error(
+                      `expected ${n} inputs, got gradient with length ${grad.length}`
+                    );
+                  meta.arrInputs.set(inputs.subarray(0, n), 1);
+                  // the first input is the weight
+                  meta.arrInputs[0] = weight;
+                  // we don't use addend masks, so they are set to 1
+                  meta.arrMask.fill(1);
+                  meta.arrGrad.fill(0);
+                  meta.arrSecondary.fill(0);
+                  const phi = f();
+                  for (let i = 0; i < n; i++)
+                    grad[i] =
+                      i < meta.numInputs && !mask[i] ? 0 : meta.arrGrad[i + 1];
+                  return phi;
+                },
+                arr,
+                after,
+                () => {
+                  if (until) stop = until();
+                  return stop;
+                }
+              );
+            }
             return wrap(Array.from(arr), after);
           },
         };
