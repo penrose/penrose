@@ -2740,12 +2740,9 @@ export const compDict = {
     returns: valueT("Real2"),
   },
 
-  /**
-   * Given a point p and vector v, find the first point where the ray r(t)=p+tv
-   * intersects the given shape S.  If there are no intersections, returns p.
-   */
   rayIntersect: {
     name: "rayIntersect",
+    description: "Given a point p and vector v, find the first point where the ray r(t)=p+tv intersects the given shape S.  If there are no intersections, returns p.",
     params: [
       {
         name: "S",
@@ -2785,13 +2782,9 @@ export const compDict = {
     returns: valueT("Real2"),
   },
 
-  /**
-   * Given a point p and vector v, find the unit normal at the first point where
-   * the ray r(t)=p+tv intersects the given shape S.  If there are no
-   * intersections, returns (0,0).
-   */
   rayIntersectNormal: {
     name: "rayIntersectNormal",
+    description: "Given a point p and vector v, find the unit normal at the first point where the ray r(t)=p+tv intersects the given shape S.  If there are no intersections, returns (0,0).",
     params: [
       {
         name: "S",
@@ -2841,13 +2834,9 @@ export const compDict = {
     returns: valueT("Real2"),
   },
 
-  /**
-   * Given a point p and vector v, returns the distance to the first point
-   * where the ray r(t)=p+tv intersects the given shape S.  If there are no
-   * intersections, returns Infinity.
-   */
   rayIntersectDistance: {
     name: "rayIntersectDistance",
+    description: "Given a point p and vector v, returns the distance to the first point where the ray r(t)=p+tv intersects the shape S.  If there are no intersections, returns Infinity.",
     params: [
       {
         name: "S",
@@ -2889,6 +2878,8 @@ export const compDict = {
 
   closestPoint: {
     name: "closestPoint",
+    description:
+      "Returns a point on the shape s closest to a query point p.  If this point is not unique, an arbitrary choice is made.  If no such point exists, the query point p is returned.",
     params: [
       {
         name: "s",
@@ -2924,6 +2915,8 @@ export const compDict = {
 
   closestSilhouettePoint: {
     name: "closestSilhouettePoint",
+    description:
+      "Returns a point on the visibility silhouette of shape s closest to a query point p.  If this point is not unique, an arbitrary choice is made.  If no such point exists, the query point p is returned.",
     params: [
       {
         name: "s",
