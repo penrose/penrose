@@ -11,7 +11,6 @@ import { LabelCache, State } from "../types/state.js";
 import { getValueAsShapeList } from "../utils/Util.js";
 import { attrAutoFillSvg, attrTitle } from "./AttrHelper.js";
 import RenderCircle from "./Circle.js";
-import { dragUpdate } from "./dragUtils.js";
 import RenderEllipse from "./Ellipse.js";
 import RenderEquation from "./Equation.js";
 import RenderImage from "./Image.js";
@@ -21,6 +20,7 @@ import RenderPolygon from "./Polygon.js";
 import RenderPolyline from "./Polyline.js";
 import RenderRectangle from "./Rectangle.js";
 import RenderText from "./Text.js";
+import { dragUpdate } from "./dragUtils.js";
 
 /**
  * Resolves path references into static strings. Implemented by client
@@ -124,6 +124,7 @@ export const RenderStatic = async (
   svg.setAttribute("viewBox", `0 0 ${canvas.width} ${canvas.height}`);
 
   const shapes = computeShapes(varyingValues);
+
   await RenderShapes(
     shapes,
     svg,

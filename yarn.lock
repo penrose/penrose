@@ -5006,11 +5006,6 @@
   dependencies:
     "@babel/runtime" "^7.12.5"
 
-"@thisbeyond/solid-dnd@^0.7.4":
-  version "0.7.4"
-  resolved "https://registry.yarnpkg.com/@thisbeyond/solid-dnd/-/solid-dnd-0.7.4.tgz#c6291e6a33d2f23d09867c1a427dce8113190f09"
-  integrity sha512-jgV9EtR3gAtVsILG8p1OAGrhHIgnK4W04YxpyLgJRCDKEFYQWuDrMdUe8F5Kc6pcVXlC4IMXr4cB8fS2Ut3/Ow==
-
 "@tootallnate/once@2":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-2.0.0.tgz#f544a148d3ab35801c1f633a7441fd87c2e484bf"
