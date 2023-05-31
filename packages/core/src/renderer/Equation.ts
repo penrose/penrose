@@ -1,5 +1,5 @@
 import { Equation } from "../shapes/Equation.js";
-import { getAdValueAsString } from "../utils/Util.js";
+import { getAdValueAsString, toScreen } from "../utils/Util.js";
 import {
   attrAutoFillSvg,
   attrFill,
@@ -16,10 +16,17 @@ const placeholderString = (
   shape: Equation<number>
 ): SVGGElement => {
   const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  // fake font
   txt.textContent = label;
   attrFill(shape, txt);
   attrWH(shape, txt);
-  attrTransformCoords(shape, canvasSize, txt);
+  const { center } = shape;
+  const [x, y] = toScreen([center.contents[0], center.contents[1]], canvasSize);
+  txt.setAttribute("x", `${x}`);
+  txt.setAttribute("y", `${y}`);
+  txt.setAttribute("alignment-baseline", "alphabetic");
+  txt.setAttribute("dominant-baseline", "alphabetic");
+  txt.setAttribute("text-anchor", "middle");
   return txt;
 };
 
