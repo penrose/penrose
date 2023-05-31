@@ -35,7 +35,9 @@ Be sure you have these tools installed:
 
 - [Git][]
 
-- [Node.js][] v16+ (if using Linux or Mac, we recommend installing via [nvm][])
+- [Python][] 3.10 and below.
+
+- [Node.js][] v16-v18 (if using Linux or Mac, we recommend installing via [nvm][])
 
   - [Yarn][] v1.x
 
@@ -102,7 +104,7 @@ back to this directory:
 
 ```sh
 pushd packages/roger/
-yarn link
+npm link
 popd
 ```
 
@@ -221,6 +223,8 @@ your example to the example gallery in `editor`:
 
 And you're done!
 
+To render all diagrams in the registry, run `yarn registry` in the repo root. The output SVGs will be saved under `packages/examples/diagrams`.
+
 ### Refresh build
 
 To delete all build artifacts (but no `node_modules/`):
@@ -249,15 +253,17 @@ git clean -dfx
 
 ### Roger
 
-If `roger` is not working as expected and you think it might be out of date, run
+Under the hood, `roger` is an executable script (`packages/roger/bin/run.js`) that rely on [tsx][], which is symlinked by `npm link`. If `roger` is not working as expected and you think it might be out of date, run
 these commands to re-install it:
 
 ```sh
 pushd packages/roger/
-yarn unlink
-yarn build
+npm unlink --global @penrose/roger
+npm link
 popd
 ```
+
+`yarn` also provides a `link` functionality but we favor `npm link` because of [known issues](https://github.com/yarnpkg/yarn/issues/891) with `yarn link`.
 
 ### Test
 
@@ -448,3 +454,5 @@ Our repo uses [semantic versioning][] and maintains the same version number for 
 [yarn]: https://classic.yarnpkg.com/lang/en/docs/install/
 [semantic versioning]: https://semver.org
 [github release]: https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository
+[tsx]: https://github.com/esbuild-kit/tsx
+[Python]: https://www.python.org/
