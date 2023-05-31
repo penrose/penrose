@@ -92,19 +92,22 @@ where hasMixedBoundaryConditions( D ) {
    shape D.dirichletBoundary = Polyline {
       points: [ D.p5, D.p0, D.p1, D.p2, D.p3 ]
       strokeColor: Colors.darkGray
-      strokeWidth: Global.domainStrokeWidth
+      strokeWidth: Global.domainStrokeWidth * .75
       ensureOnCanvas: false
+      strokeLinecap: "round"
    }
+   layer D.dirichletBoundary above D.geometry
 
    shape D.neumannBoundary = Polyline {
       points: [ D.p3, D.p4, D.p5 ]
       strokeColor: Colors.darkGray
-      strokeWidth: Global.domainStrokeWidth
+      strokeWidth: Global.domainStrokeWidth * .75
       ensureOnCanvas: false
       style: "dashed"
       strokeDasharray: "3,2"
-      strokeWidth: 1.5
+      strokeLinecap: "round"
    }
+   layer D.neumannBoundary above D.geometry
 }
 
 -- draw each point as a small dot
@@ -431,8 +434,29 @@ where B := nestedBallAround(p); B0 := ballAround(p0)
 -- to zero if p is not on the domain boundary.
 forall Domain D; Point p
 where hasMixedBoundaryConditions( D ) {
+
+   override p.location = triangleRandom( D.p4, D.p5, D.p0 )
+
    vec2 p.normal = (0,0)
+
+   -- rays from p will be sampled from baseAngle + [-angleRange,angleRange]
+   scalar p.baseAngle = 0
+   scalar p.angleRange = MathPI()
+
    layer p.dot above D.neumannBoundary
+
+   -- draw an arrow for the normal at p (transparent if the normal is zero)
+   scalar eps = 1e-7 -- prevents NaNs for zero-length normals
+   shape p.normalArrow = Line {
+      start: p.location
+      end: p.location + 20*p.normal + eps*(1,1)
+      strokeWidth: 1
+      strokeColor: rgba(0,.625,0,norm(p.normal))
+      ensureOnCanvas: false
+      endArrowhead: "straight"
+      endArrowheadSize: .5
+   }
+   layer p.normalArrow below p.dot
 }
 
 forall Star St; Point p; Domain D
@@ -484,9 +508,10 @@ forall Point p0; Point p1; Star St; Domain D
 where p1 := sampleBoundary(St); St := starAround(p0) {
 
    -- sample a random ray from p0
-   scalar theta = 2.*MathPI()*unitRandom()
-   vec2 x = p0.location
-   vec2 v = ( cos(theta), sin(theta) )
+   scalar theta = p0.baseAngle + p0.angleRange * random(-1,1)
+   scalar eps = 1e-1 -- offset ray origin to avoid intersecting at x again
+   vec2 v = -( cos(theta), sin(theta) )
+   vec2 x = p0.location + eps*v
 
    -- intersect the star boundary
    scalar tBoundary = rayIntersectDistance( D.neumannBoundary, x, v )
@@ -494,13 +519,21 @@ where p1 := sampleBoundary(St); St := starAround(p0) {
    scalar t = min( tBoundary, tBall )
    override p1.location = x + t*v 
 
-   -- TODO set the new normal
+   -- set the normal at the intersection point, or set it to zero if
+   -- the ray hits the ball boundary first
+   vec2 n = rayIntersectNormal( D.neumannBoundary, x, v )
+   scalar k = 100. -- steepness parameter for indicator function
+   scalar s = 1. - exp(-k*sqr(t - tBall)) -- equals zero near tBall and 1 otherwise
+   override p1.normal = s * n -- scales n to zero if t == tBall
+   override p1.angleRange = (1-s/2)*MathPI() -- s=0 -> MathPI(); s=1 -> MathPI()/2
+   scalar delta = 1e-7 -- to get valid angle if normal is zero
+   override p1.baseAngle = atan2( p1.normal[1], p1.normal[0] + delta )
 
    -- draw the ray
    shape rayArrow = Line {
       start: p0.location
       end: p1.location - Global.dotSize*v
-      strokeColor: #f20
+      strokeColor: #ff9900
       strokeWidth: 1
       endArrowhead: "straight"
       endArrowheadSize: .5
