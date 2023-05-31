@@ -62,6 +62,7 @@ import { Shape } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
 import { CompFunc } from "../types/functions.js";
 import {
+  BoolV,
   Color,
   ColorV,
   FloatV,
@@ -335,6 +336,45 @@ export const compDict = {
       return {
         tag: "FloatV",
         contents: acos(x),
+      };
+    },
+    returns: valueT("Real"),
+  },
+
+  /** Given a pair of numerical values `x` and `y`, returns true if `x` is
+   * strictly less than `y` and false otherwise.
+   */
+  lessThan: {
+    name: "lessThan",
+    description: "Returns true if `x` is strictly less than `y` and false otherwise.",
+    params: [
+      { name: "x", description: "`x`", type: realT() },
+      { name: "y", description: "`y`", type: realT() },
+    ],
+    body: (_context: Context, x: ad.Num, y: ad.Num): BoolV => {
+      return {
+        tag: "BoolV",
+        contents: lt(x,y),
+      };
+    },
+    returns: valueT("Boolean"),
+  },
+
+  /** Given a pair of numerical values `x` and `y`, returns true if `x` is
+   * strictly less than `y` and false otherwise.
+   */
+  ifThenElse: {
+    name: "ifThenElse",
+    description: "Returns `a` if `C` is true, and `b` otherwise.",
+    params: [
+      { name: "C", description: "condition", type: booleanT() },
+      { name: "a", description: "value if true", type: realT() },
+      { name: "b", description: "value if false", type: realT() },
+    ],
+    body: (_context: Context, C: ad.Bool, a: ad.Num, b: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: ifCond(C,a,b),
       };
     },
     returns: valueT("Real"),
@@ -3020,7 +3060,7 @@ export const compDict = {
       {
         name: "closed",
         type: booleanT(),
-        description: "whether the polygonic chain is closed",
+        description: "whether the polygonal chain is closed",
       },
     ],
     body: (
