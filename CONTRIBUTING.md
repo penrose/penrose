@@ -99,6 +99,12 @@ unless otherwise specified. Next [install dependencies][] from [npm][]:
 yarn
 ```
 
+Then, build the dependencies of our `roger` tool.
+
+```sh
+yarn build:roger
+```
+
 Finally, enter the directory for our `roger` tool, install it, and then come
 back to this directory:
 
