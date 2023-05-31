@@ -14,7 +14,6 @@ Star St2 := starAround( x2 )
 Point x3 := sampleBoundary( St2 )
 Star St3 := starAround( x3 )
 Point x4 := sampleBoundary( St3 )
--- Star St4 := starAround( x4 )
 
 Label U "Ω"
 Label x0 "x₀"
@@ -22,4 +21,11 @@ Label x1 "x₁"
 Label x2 "x₂"
 Label x3 "…"
 Label x4 "xₖ"
+
+-- Label U "$\Omega$"
+-- Label x0 "$x_0$"
+-- Label x1 "$x_1$"
+-- Label x2 "$x_2$"
+-- Label x3 "$\ldots$"
+-- Label x4 "$x_k$"
 

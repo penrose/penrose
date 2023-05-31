@@ -31,10 +31,11 @@ Global {
    color sphereColor = rgba( .4, .5, .4, 1 )
    scalar sphereStrokeWidth = 1
    scalar domainStrokeWidth = 1.5
+   scalar ballShadingOpacity = .75
 
    -- style of lines along a walk
    -- (set color to none() to disable)
-   color walkColor = rgba( 0, .7, 0, 1 )
+   color walkColor = rgba( .4, .4, .4, 1 )
    color walkStrokeWidth = 1.5
 
 }
@@ -107,7 +108,7 @@ where hasMixedBoundaryConditions( D ) {
       strokeDasharray: "3,2"
       strokeLinecap: "round"
    }
-   layer D.neumannBoundary above D.geometry
+   layer D.neumannBoundary above D.dirichletBoundary
 }
 
 -- draw each point as a small dot
@@ -180,6 +181,7 @@ forall Ball B; Domain D {
       height: B.radius * 2.0
       href: "walk-on-spheres-ball.svg"
       ensureOnCanvas: false
+      opacity: Global.ballShadingOpacity
    }
 
    -- Make sure all components of the ball get drawn in the
@@ -451,7 +453,7 @@ where hasMixedBoundaryConditions( D ) {
       start: p.location
       end: p.location + 20*p.normal + eps*(1,1)
       strokeWidth: 1
-      strokeColor: rgba(0,.625,0,norm(p.normal))
+      strokeColor: rgba(1,1,1,.5*norm(p.normal))
       ensureOnCanvas: false
       endArrowhead: "straight"
       endArrowheadSize: .5
@@ -467,41 +469,59 @@ where St := starAround(p) {
    scalar dNeumann = norm( yNeumann - p.location )
    scalar rMin = 1
    scalar R = max( rMin, min( dDirichlet, dNeumann ))
-   
-   shape St.dirichletBall = Circle {
-      center: p.location
-      r: dDirichlet
-      fillColor: none()
-      strokeColor: #ff6666
-      strokeWidth: Global.sphereStrokeWidth
-      ensureOnCanvas: false
-   }
 
-   shape St.neumannBall = Circle {
-      center: p.location
-      r: dNeumann
-      fillColor: none()
-      strokeColor: #6666ff
-      strokeWidth: Global.sphereStrokeWidth
-      ensureOnCanvas: false
-   }
+   -- Widgets to draw the smallest ball touching the Dirichlet boundary,
+   -- and the smallest ball toughing the Neumann silhouette (currently disabled)
+   -- shape St.dirichletBall = Circle {
+   --    center: p.location
+   --    r: dDirichlet
+   --    fillColor: none()
+   --    strokeColor: #ff6666
+   --    strokeWidth: Global.sphereStrokeWidth
+   --    ensureOnCanvas: false
+   -- }
+   -- shape St.neumannBall = Circle {
+   --    center: p.location
+   --    r: dNeumann
+   --    fillColor: none()
+   --    strokeColor: #6666ff
+   --    strokeWidth: Global.sphereStrokeWidth
+   --    ensureOnCanvas: false
+   -- }
+
+   -- color the boundary of the ball according to whether it's defined
+   -- by the closest Dirichlet point or closest Neumann silhouette point
+   scalar s = (dDirichlet - R)/(dDirichlet - dNeumann)
+   vec3 c0 = (.4,.6,.4)
+   vec3 c1 = (.4,.4,.7)
+   vec3 c = (1-s)*c0 + s*c1
 
    shape St.ball = Circle {
       center: p.location
       r: R
-      fillColor: #00000022
+      fillColor: rgba( c[0], c[1], c[2], .2 )
+      strokeColor: rgba( c[0], c[1], c[2], 1 )
+      strokeWidth: Global.sphereStrokeWidth
       ensureOnCanvas: false
    }
 
-   layer St.ball above D.geometry
-   layer St.dirichletBall above St.ball
-   layer St.neumannBall above St.dirichletBall
+   shape St.shading = Image {
+      center: p.location
+      width: R * 2.0
+      height: R * 2.0
+      href: "walk-on-spheres-ball.svg"
+      ensureOnCanvas: false
+      opacity: Global.ballShadingOpacity
+   }
+
+   layer St.shading above D.geometry
+   layer St.ball above St.shading
 
    -- TODO clip balls against domain
 }
 
 forall Point p; Star St {
-   layer p.dot above St.neumannBall
+   layer p.dot above St.ball
 }
 
 forall Point p0; Point p1; Star St; Domain D
@@ -533,7 +553,7 @@ where p1 := sampleBoundary(St); St := starAround(p0) {
    shape rayArrow = Line {
       start: p0.location
       end: p1.location - Global.dotSize*v
-      strokeColor: #ff9900
+      strokeColor: Global.walkColor
       strokeWidth: 1
       endArrowhead: "straight"
       endArrowheadSize: .5
@@ -575,5 +595,10 @@ where p has label; isSourceSample(q) {
    vec2 pc = p.labelText.center
    vec2 qx = q.location
    encourage 1000./norm(pc - qx) == 0. in labelStage
+}
+
+forall Point p; Domain D
+where p has label; hasMixedBoundaryConditions(D) {
+   layer p.labelText above D.dirichletBoundary
 }
 
