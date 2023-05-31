@@ -24,7 +24,7 @@ Global {
    scalar labelStrokeWidth = 1.5
 
    -- appearance of dots/points
-   scalar dotSize = 2.0
+   scalar dotSize = 1.5
 
    -- style of domains/subdomains
    color ballColor = rgba( .2, .8, .2, .15 )
@@ -87,7 +87,7 @@ forall Domain D
 where hasMixedBoundaryConditions( D ) {
    override D.geometry.strokeColor = none()
 
-   override D.p4 = (0,.2*canvas.height)
+   override D.p4 = (0,0)
 
    shape D.dirichletBoundary = Polyline {
       points: [ D.p5, D.p0, D.p1, D.p2, D.p3 ]
@@ -102,7 +102,8 @@ where hasMixedBoundaryConditions( D ) {
       strokeWidth: Global.domainStrokeWidth
       ensureOnCanvas: false
       style: "dashed"
-      strokeDasharray: "4,3"
+      strokeDasharray: "3,2"
+      strokeWidth: 1.5
    }
 }
 
@@ -424,6 +425,16 @@ where B := nestedBallAround(p); B0 := ballAround(p0)
 
 -- Walk on Stars -------------------------------------------
 
+-- If the domain has mixed boundary conditions (and
+-- hence we're using walk on stars), we want to keep
+-- track of the normal at point p, which we'll set
+-- to zero if p is not on the domain boundary.
+forall Domain D; Point p
+where hasMixedBoundaryConditions( D ) {
+   vec2 p.normal = (0,0)
+   layer p.dot above D.neumannBoundary
+}
+
 forall Star St; Point p; Domain D
 where St := starAround(p) {
    scalar yDirichlet = closestPoint( D.dirichletBoundary, p.location )
@@ -433,20 +444,20 @@ where St := starAround(p) {
    scalar rMin = 1
    scalar R = max( rMin, min( dDirichlet, dNeumann ))
    
-   shape dirichletBall = Circle {
+   shape St.dirichletBall = Circle {
       center: p.location
       r: dDirichlet
       fillColor: none()
-      strokeColor: Global.sphereColor
+      strokeColor: #ff6666
       strokeWidth: Global.sphereStrokeWidth
       ensureOnCanvas: false
    }
 
-   shape neumannBall = Circle {
+   shape St.neumannBall = Circle {
       center: p.location
       r: dNeumann
       fillColor: none()
-      strokeColor: Global.sphereColor
+      strokeColor: #6666ff
       strokeWidth: Global.sphereStrokeWidth
       ensureOnCanvas: false
    }
@@ -454,33 +465,49 @@ where St := starAround(p) {
    shape St.ball = Circle {
       center: p.location
       r: R
-      fillColor: Global.ballColor
+      fillColor: #00000022
       ensureOnCanvas: false
    }
 
-   -- TODO draw ball of radius r, and clip it against domain
+   layer St.ball above D.geometry
+   layer St.dirichletBall above St.ball
+   layer St.neumannBall above St.dirichletBall
+
+   -- TODO clip balls against domain
+}
+
+forall Point p; Star St {
+   layer p.dot above St.neumannBall
 }
 
 forall Point p0; Point p1; Star St; Domain D
 where p1 := sampleBoundary(St); St := starAround(p0) {
+
+   -- sample a random ray from p0
    scalar theta = 2.*MathPI()*unitRandom()
    vec2 x = p0.location
    vec2 v = ( cos(theta), sin(theta) )
+
+   -- intersect the star boundary
    scalar tBoundary = rayIntersectDistance( D.neumannBoundary, x, v )
    scalar tBall = St.ball.r
    scalar t = min( tBoundary, tBall )
-
    override p1.location = x + t*v 
 
+   -- TODO set the new normal
+
+   -- draw the ray
    shape rayArrow = Line {
       start: p0.location
-      end: p1.location
+      end: p1.location - Global.dotSize*v
       strokeColor: #f20
       strokeWidth: 1
       endArrowhead: "straight"
       endArrowheadSize: .5
       ensureOnCanvas: false
    }
+
+   layer p0.dot above rayArrow
 }
 
 -- Labeling ------------------------------------------------
