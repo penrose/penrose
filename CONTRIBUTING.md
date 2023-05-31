@@ -105,7 +105,7 @@ Then, build the dependencies of our `roger` tool.
 yarn build:roger
 ```
 
-Finally, enter the directory for our `roger` tool, install it, and then come
+Finally, enter the directory of `roger` to install it as a global binary executable, and then come
 back to this directory:
 
 ```sh
