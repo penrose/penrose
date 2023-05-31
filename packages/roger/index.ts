@@ -26,6 +26,11 @@ import { version } from "./package.json";
 import { InstanceData } from "./types.js";
 import watch from "./watch.js";
 
+// npx defaults to the nearest project root directory, thus preventing `roger` to be run inside of `packages/examples`. However, unlike `process.cwd()`, `INIT_CWD` does point to the origin directory. Therefore, we attempt to cd into the actual working directory when starting the script.
+if (process.env.INIT_CWD) {
+  process.chdir(process.env.INIT_CWD);
+}
+
 interface Trio {
   substance: string;
   style: string[];
