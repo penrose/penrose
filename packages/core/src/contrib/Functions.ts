@@ -2869,8 +2869,7 @@ export const compDict = {
     ): FloatV<ad.Num> => {
       const hit = rayIntersectShape(S, p, v);
       const x = hit[0]; // hit location
-      const infty = 99999999.9
-      let t = ifCond(eq(absVal(x[0]), Infinity), infty, ops.vdist(p,x) );
+      let t = ifCond(eq(absVal(x[0]), Infinity), Infinity, ops.vdist(p,x) );
       return { tag: "FloatV", contents: t };
     },
     returns: valueT("Real"),
@@ -2951,6 +2950,45 @@ export const compDict = {
       return { tag: "VectorV", contents: [qx, qy] };
     },
     returns: valueT("Real2"),
+  },
+
+  closestSilhouetteDistance: {
+    name: "closestSilhouetteDistance",
+    description:
+      "Returns the distance to the closest point on the visibility silhouette of shape s relative to query point p.  If no such point exists, returns Infinity.",
+    params: [
+      {
+        name: "s",
+        type: unionT(
+          rectlikeT(),
+          shapeT("Circle"),
+          shapeT("Polygon"),
+          shapeT("Line"),
+          shapeT("Polyline"),
+          shapeT("Ellipse"),
+          shapeT("Group")
+        ),
+        description: "A shape",
+      },
+      { name: "p", type: real2T(), description: "A point" },
+    ],
+    body: (
+      _context: Context,
+      s:
+        | Circle<ad.Num>
+        | Rectlike<ad.Num>
+        | Line<ad.Num>
+        | Polyline<ad.Num>
+        | Polygon<ad.Num>
+        | Ellipse<ad.Num>
+        | Group<ad.Num>,
+      p: ad.Num[]
+    ): FloatV<ad.Num> => {
+      const q = closestSilhouettePointShape(s, p);
+      const d = ifCond(eq(q[0],Infinity), Infinity, ops.vdist(p,q));
+      return { tag: "FloatV", contents: d };
+    },
+    returns: valueT("Real"),
   },
 
   rectLineDist: {
