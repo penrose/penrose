@@ -45,13 +45,16 @@ export const mathjaxInit = (): ((
   const html = mathjax.document("", { InputJax: tex, OutputJax: svg });
 
   const convert = (input: string): Result<HTMLElement, string> => {
-    // HACK: workaround for newlines
+    // HACK: workaround for newlines. This workaround will force MathJax to always return the same heights regardless of the text content.
     // https://github.com/mathjax/MathJax/issues/2312#issuecomment-538185951
-    const newline_escaped = `\\displaylines{${input}}`;
+    // if(input) {
+    //   const newline_escaped = `\\displaylines{${input}}`;
+    // }
     // https://github.com/mathjax/MathJax-src/blob/master/ts/core/MathDocument.ts#L689
     // https://github.com/mathjax/MathJax-demos-node/issues/3#issuecomment-497524041
     try {
-      const node = html.convert(newline_escaped, { ex: EX_CONSTANT });
+      // const node = html.convert(newline_escaped, { ex: EX_CONSTANT });
+      const node = html.convert(input, { ex: EX_CONSTANT });
       return ok(node.firstChild);
     } catch (error: any) {
       return err(error.message);
@@ -65,25 +68,8 @@ type Output = {
   width: number;
   height: number;
   descent: number;
+  ascent: number;
 };
-
-export function svgBBox(svgEl: SVGSVGElement) {
-  const tempDiv = document.createElement("div");
-  tempDiv.setAttribute(
-    "style",
-    "position:absolute; visibility:hidden; width:0; height:0"
-  );
-  document.body.appendChild(tempDiv);
-  const tempSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  const tempG = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  tempSvg.appendChild(tempG);
-  tempDiv.appendChild(tempSvg);
-  const tempEl = svgEl.cloneNode(true) as SVGSVGElement;
-  tempG.appendChild(tempEl);
-  const bb = tempG.getBBox();
-  document.body.removeChild(tempDiv);
-  return bb;
-}
 
 /**
  * Call MathJax to render __non-empty__ labels.
@@ -114,7 +100,6 @@ const tex2svg = async (
     }
 
     const body = output.value;
-    console.log(body);
 
     const viewBox = body.getAttribute("viewBox");
     if (viewBox === null) {
@@ -129,34 +114,18 @@ const tex2svg = async (
 
     // Get re-scaled dimensions of label according to
     // https://github.com/mathjax/MathJax-src/blob/32213009962a887e262d9930adcfb468da4967ce/ts/output/svg.ts#L248
-
-    // const MATHJAX_XHEIGHT = 0.442;
     const MATHJAX_XHEIGHT = 0.442;
     const EM = 16;
 
     // 1ex = 0.431em (or some other constant depending on the font)
     // 1em = 16 * (font-size)px
+    // HACK: the 1.44 constant factor came from experimentation. No idea why it's required to get the conversion to be one-to-one with pixel-sized plain text.
     const ex_to_px = (n: number) =>
       ((n * MATHJAX_XHEIGHT * EM * parseFloat(fontSize)) / EX_CONSTANT) * 1.44;
 
     const scaledWidth = ex_to_px(width / 1000);
     const scaledHeight = ex_to_px(height / 1000);
     const scaledDescent = ex_to_px(-parseFloat(body.style.verticalAlign));
-    // bbox based
-    // const bbox = svgBBox(body as unknown as SVGSVGElement);
-    // const factor = scaledWidth / bbox.width;
-    // const scaledHeight = factor * bbox.height;
-    // vertical-align-based
-    // const vAlignFloat = parseFloat(body.style.verticalAlign) * EX_CONSTANT;
-    // const constHeight = parseFloat(fontSize) - vAlignFloat;
-    // const scaledHeight = (constHeight / height) * height * MATHJAX_XHEIGHT;
-
-    console.log(scaledWidth, scaledHeight, scaledDescent);
-
-    // const vAlignFloat = parseFloat(body.style.verticalAlign) * EX_CONSTANT;
-    // const constHeight = parseFloat(fontSize) - vAlignFloat;
-    // const scaledWidth = (constHeight / height) * width * MATHJAX_XHEIGHT;
-    // const scaledHeight = (constHeight / height) * height * MATHJAX_XHEIGHT;
 
     resolve(
       ok({
@@ -164,6 +133,7 @@ const tex2svg = async (
         width: scaledWidth,
         height: scaledHeight,
         descent: scaledDescent,
+        ascent: scaledHeight - scaledDescent,
       })
     );
   });
@@ -189,11 +159,15 @@ const textData = (
 const equationData = (
   width: number,
   height: number,
+  ascent: number,
+  descent: number,
   rendered: HTMLElement
 ): EquationData => ({
   tag: "EquationData",
   width: floatV(width),
   height: floatV(height),
+  ascent: floatV(ascent),
+  descent: floatV(descent),
   rendered,
 });
 
@@ -248,13 +222,15 @@ export const collectLabels = async (
         });
       }
 
-      const { body, width, height } = svg.value;
+      const { body, width, height, ascent, descent } = svg.value;
 
       // Instead of directly overwriting the properties, cache them temporarily
       // NOTE: in the case of empty strings, `tex2svg` returns infinity sometimes. Convert to 0 to avoid NaNs in such cases.
       const label: EquationData = equationData(
         width === Infinity ? 0 : width,
         height === Infinity ? 0 : height,
+        ascent,
+        descent,
         body
       );
       labels.set(shapeName, label);
@@ -368,6 +344,8 @@ const insertPendingHelper = (
         );
       setPendingProperty(xs, inputs, s.width, labelData.width);
       setPendingProperty(xs, inputs, s.height, labelData.height);
+      setPendingProperty(xs, inputs, s.ascent, labelData.ascent);
+      setPendingProperty(xs, inputs, s.descent, labelData.descent);
     } else if (s.shapeType === "Text") {
       const labelData = safe(labelCache.get(s.name.contents), "missing label");
       if (labelData.tag !== "TextData")
