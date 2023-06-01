@@ -16,8 +16,7 @@ import { Result, err, ok } from "./Error.js";
 import { getAdValueAsString, getValueAsShapeList, safe } from "./Util.js";
 
 export const mathjaxInit = (): ((
-  input: string,
-  fontSize: number
+  input: string
 ) => Result<HTMLElement, string>) => {
   // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
   // const adaptor = chooseAdaptor();
@@ -65,14 +64,14 @@ type Output = {
   ascent: number;
 };
 
-const parseFontSize = (fontSize: string): { number: number; unit: string } => {
+const parseFontSize = (
+  fontSize: string
+): { number: number; unit: string } | undefined => {
   const regex = /^(\d+(?:\.\d+)?)\s*(px|in|cm|mm)$/;
   const match = fontSize.match(regex);
 
   if (!match) {
-    throw new Error(
-      'Invalid font size format. Only "px", "in", "cm", and "mm" units are supported.'
-    );
+    return;
   }
 
   const number = parseFloat(match[1]);
@@ -82,14 +81,13 @@ const parseFontSize = (fontSize: string): { number: number; unit: string } => {
 };
 
 // Convert from a font size in absolute unit (px, in, cm, mm) to pixels
-const toPxFontSize = (fontSizeString: string): number => {
+const toPxFontSize = (number: number, unit: string): number => {
   const inPX: { [unit: string]: number } = {
     px: 1,
     in: 96, // 96 px to an inch
     cm: 96 / 2.54, // 2.54 cm to an inch
     mm: 96 / 25.4, // 10 mm to a cm
   };
-  const { number, unit } = parseFontSize(fontSizeString);
   return inPX[unit] * number;
 };
 
@@ -142,23 +140,33 @@ const tex2svg = async (
     const exH = parseFloat(body.getAttribute("height")!);
 
     // em is really the pixel value of the font size
-    const em_to_px = (n: number) => n * toPxFontSize(fontSize);
+    const parsedFontSize = parseFontSize(fontSize);
+    if (parsedFontSize) {
+      const { number, unit } = parsedFontSize;
+      const em_to_px = (n: number) => n * toPxFontSize(number, unit);
+      const scaledWidth = em_to_px(width);
+      const scaledHeight = em_to_px(height);
+      const scaledD = (d / exH) * scaledHeight;
+      const scaledDescent = scaledD;
+      const scaledAscent = scaledHeight - scaledDescent; // HACK: interpreting ascent to be height - descent, which might be very wrong
 
-    const scaledWidth = em_to_px(width);
-    const scaledHeight = em_to_px(height);
-    const scaledD = (d / exH) * scaledHeight;
-    const scaledDescent = scaledD;
-    const scaledAscent = scaledHeight - scaledDescent; // HACK: interpreting ascent to be height - descent, which might be very wrong
-
-    resolve(
-      ok({
-        body,
-        width: scaledWidth,
-        height: scaledHeight,
-        descent: scaledDescent,
-        ascent: scaledAscent,
-      })
-    );
+      resolve(
+        ok({
+          body,
+          width: scaledWidth,
+          height: scaledHeight,
+          descent: scaledDescent,
+          ascent: scaledAscent,
+        })
+      );
+    } else {
+      resolve(
+        err(
+          'Invalid font size format. Only "px", "in", "cm", and "mm" units are supported.'
+        )
+      );
+      return;
+    }
   });
 
 const floatV = (contents: number): FloatV<number> => ({
