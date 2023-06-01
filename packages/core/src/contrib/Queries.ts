@@ -1,6 +1,7 @@
 import { ops } from "../engine/Autodiff.js";
 import {
   add,
+  and,
   div,
   gt,
   ifCond,
@@ -189,17 +190,15 @@ export const convexPolygonOriginSignedDistance = (p: ad.Pt2[]): ad.Num => {
  * `-1`).
  */
 export const rectLineDist = (
-  rect: { bottomLeft: ad.Pt2; topRight: ad.Pt2 },
-  line: { start: ad.Pt2; end: ad.Pt2 }
+  rx0: ad.Num,
+  ry0: ad.Num,
+  rx1: ad.Num,
+  ry1: ad.Num,
+  lxs: ad.Num,
+  lys: ad.Num,
+  lxe: ad.Num,
+  lye: ad.Num
 ): ad.Num => {
-  const {
-    bottomLeft: [rx0, ry0],
-    topRight: [rx1, ry1],
-  } = rect;
-  const {
-    start: [lxs, lys],
-    end: [lxe, lye],
-  } = line;
 
   const px = gt(lxs, lxe);
   const py = gt(lys, lye);
@@ -276,11 +275,107 @@ export const rectLineDist = (
   ]);
 };
 
+
+
+// /**
+//  * Return the signed distance from the origin to the Minkowski sum of `rect` and
+//  * the negative of `line` (that is, `start` and `end` points both multiplied by
+//  * `-1`).
+//  */
+// export const rectLineDist = (
+//   rect: { bottomLeft: ad.Pt2; topRight: ad.Pt2 },
+//   line: { start: ad.Pt2; end: ad.Pt2 }
+// ): ad.Num => {
+//   const {
+//     bottomLeft: [rx0, ry0],
+//     topRight: [rx1, ry1],
+//   } = rect;
+//   const {
+//     start: [lxs, lys],
+//     end: [lxe, lye],
+//   } = line;
+// 
+//   const px = gt(lxs, lxe);
+//   const py = gt(lys, lye);
+// 
+//   // 0 means the negative is lesser, 1 means the negative is greater
+//   const lx0 = ifCond(px, lxs, lxe);
+//   const lx1 = ifCond(px, lxe, lxs);
+//   const ly0 = ifCond(py, lys, lye);
+//   const ly1 = ifCond(py, lye, lys);
+// 
+//   const x00 = sub(rx0, lx0);
+//   const x01 = sub(rx0, lx1);
+//   const x10 = sub(rx1, lx0);
+//   const x11 = sub(rx1, lx1);
+// 
+//   const y00 = sub(ry0, ly0);
+//   const y01 = sub(ry0, ly1);
+//   const y10 = sub(ry1, ly0);
+//   const y11 = sub(ry1, ly1);
+// 
+//   const p = xor(px, py); // true iff negative slope
+// 
+//   // if `p`:
+//   //
+//   // 4 - 3
+//   // |    \
+//   // 5     2
+//   //  \    |
+//   //   0 - 1
+//   //
+//   // point 0 is `ops.vsub([rx0, ry0], [lx1, ly0])`
+//   // point 1 is `ops.vsub([rx1, rx0], [lx1, ly0])`
+//   // point 2 is `ops.vsub([rx1, ry1], [lx1, ly0])`
+//   // point 3 is `ops.vsub([rx1, ry1], [lx0, ly1])`
+//   // point 4 is `ops.vsub([rx0, ry1], [lx0, ly1])`
+//   // point 5 is `ops.vsub([rx0, ry0], [lx0, ly1])`
+// 
+//   // if not `p`:
+//   //
+//   //   4 - 3
+//   //  /    |
+//   // 5     2
+//   // |    /
+//   // 0 - 1
+//   //
+//   // point 0 is `ops.vsub([rx0, ry0], [lx0, ly0])`
+//   // point 1 is `ops.vsub([rx1, ry0], [lx0, ly0])`
+//   // point 2 is `ops.vsub([rx1, ry0], [lx1, ly1])`
+//   // point 3 is `ops.vsub([rx1, ry1], [lx1, ly1])`
+//   // point 4 is `ops.vsub([rx0, ry1], [lx1, ly1])`
+//   // point 5 is `ops.vsub([rx0, ry1], [lx0, ly0])`
+// 
+//   const x0 = ifCond(p, x01, x00);
+//   const x1 = ifCond(p, x11, x10);
+//   const x2 = x11;
+//   const x3 = ifCond(p, x10, x11);
+//   const x4 = ifCond(p, x00, x01);
+//   const x5 = x00;
+// 
+//   const y0 = y00;
+//   const y1 = y00;
+//   const y2 = ifCond(p, y10, y01);
+//   const y3 = y11;
+//   const y4 = y11;
+//   const y5 = ifCond(p, y01, y10);
+// 
+//   return convexPolygonOriginSignedDistance([
+//     [x0, y0],
+//     [x1, y1],
+//     [x2, y2],
+//     [x3, y3],
+//     [x4, y4],
+//     [x5, y5],
+//   ]);
+// };
+
 export const shapeDistance = (s1: Shape<ad.Num>, s2: Shape<ad.Num>): ad.Num => {
   const t1 = s1.shapeType;
   const t2 = s2.shapeType;
   // Same shapes
-  if (t1 === "Circle" && t2 === "Circle") return shapeDistanceCircles(s1, s2);
+  if (t1 === "Circle" && t2 === "Circle")
+      return shapeDistanceCircles(s1, s2);
   else if (isRectlike(s1) && isRectlike(s2))
     return shapeDistanceRectlikes(s1, s2);
   // HACK: text/label-line, mainly to skip convex partitioning
@@ -305,6 +400,14 @@ export const shapeDistance = (s1: Shape<ad.Num>, s2: Shape<ad.Num>): ad.Num => {
     return shapeDistanceCircleLine(s1, s2);
   else if (t1 === "Line" && t2 === "Circle")
     return shapeDistanceCircleLine(s2, s1);
+  else if (t1 == "Polyline" && t2 == "Circle")
+    return shapeDistanceCirclePolyline(s2, s1);
+  else if (t2 == "Polyline" && t1 == "Circle")
+    return shapeDistanceCirclePolyline(s1, s2);
+  else if (t1 == "Polyline" && isRectlike(s2))
+    return shapeDistanceRectlikePolyline(s2, s1);
+  else if (t2 == "Polyline" && isRectlike(s1))
+    return shapeDistanceRectlikePolyline(s1, s2);
   // Default to axis-aligned bounding boxes
   else return shapeDistanceAABBs(s1, s2);
 };
@@ -342,12 +445,50 @@ const shapeDistanceRectlikeLine = (
   const halfH = div(s1.height.contents, 2);
   const [cx, cy] = s1.center.contents;
   return rectLineDist(
-    {
-      bottomLeft: [sub(cx, halfW), sub(cy, halfH)],
-      topRight: [add(cx, halfW), add(cy, halfH)],
-    },
-    { start, end }
+      sub(cx, halfW), sub(cy, halfH),
+      add(cx, halfW), add(cy, halfH),
+      start[0], start[1],
+      end[0], end[1]
   );
+};
+
+const shapeDistanceRectlikePolyline = (
+  R: Rectlike<ad.Num>,
+  M: Polyline<ad.Num>
+): ad.Num => {
+
+   let dMin = Infinity;
+
+   // take minimum distance to rect R over all segments in polyline M
+   for( let i = 0; i < M.points.contents.length-1; i++ ) {
+      const a = M.points.contents[i];
+      const b = M.points.contents[i + 1];
+
+      // https://github.com/penrose/penrose/issues/715
+      if (!ad.isPt2(a)) {
+         throw new Error(
+            `shapeDistance expected a to be Pt2, but got length ${a.length}`
+         );
+      }
+      if (!ad.isPt2(b)) {
+         throw new Error(
+            `shapeDistance expected b to be Pt2, but got length ${b.length}`
+         );
+      }
+
+      const halfW = div(R.width.contents, 2);
+      const halfH = div(R.height.contents, 2);
+      const [cx, cy] = R.center.contents;
+
+      const d = rectLineDist(
+         sub(cx, halfW), sub(cy, halfH),
+         add(cx, halfW), add(cy, halfH),
+         a[0], a[1],
+         b[0], b[1]
+      );
+      dMin = min( dMin, d );
+   }
+   return dMin;
 };
 
 export const shapeDistancePolygonlikes = (
@@ -380,16 +521,12 @@ const shapeDistancePolygonlikeEllipse = (
   return minN(cp.map((p) => overlappingPolygonPointsEllipse(p, s2, 0)));
 };
 
-const shapeDistanceCircleLine = (
-  s1: Circle<ad.Num>,
-  s2: Line<ad.Num>
+const distanceCircleLine = (
+  c: ad.Num[],
+  r: ad.Num,
+  a: ad.Num[],
+  b: ad.Num[]
 ): ad.Num => {
-  // collect constants
-  const c = s1.center.contents;
-  const r = s1.r.contents;
-  const a = s2.start.contents;
-  const b = s2.end.contents;
-
   // Return the distance between the circle center c and the
   // segment ab, minus the circle radius r and offset o.  This
   // quantity will be negative of the circular disk intersects
@@ -405,6 +542,38 @@ const shapeDistanceCircleLine = (
   const d = ops.vnorm(ops.vsub(u, ops.vmul(h, v)));
   // return d - (r+o)
   return sub(d, r);
+};
+
+const shapeDistanceCircleLine = (
+  s1: Circle<ad.Num>,
+  s2: Line<ad.Num>
+): ad.Num => {
+   // collect constants
+   const c = s1.center.contents;
+   const r = s1.r.contents;
+   const a = s2.start.contents;
+   const b = s2.end.contents;
+
+   return distanceCircleLine( c, r, a, b );
+};
+
+const shapeDistanceCirclePolyline = (
+  C: Circle<ad.Num>,
+  M: Polyline<ad.Num>
+): ad.Num => {
+   // collect constants
+   const c = C.center.contents;
+   const r = C.r.contents;
+
+   // compute the smallest distance to any segment
+   let dMin = Infinity;
+   for( let i = 0; i < M.points.contents.length-1; i++ ) {
+      const a = M.points.contents[i];
+      const b = M.points.contents[i + 1];
+      const d = distanceCircleLine( c, r, a, b );
+      dMin = min( dMin, d );
+   }
+   return dMin;
 };
 
 export const shapeDistanceAABBs = (
