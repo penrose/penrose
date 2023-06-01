@@ -15,12 +15,9 @@ import { FloatV } from "../types/value.js";
 import { Result, err, ok } from "./Error.js";
 import { getAdValueAsString, getValueAsShapeList, safe } from "./Util.js";
 
-// to re-scale baseline
-const EX_CONSTANT = 10;
-
 export const mathjaxInit = (): ((
   input: string,
-  fontSize: string
+  fontSize: number
 ) => Result<HTMLElement, string>) => {
   // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
   // const adaptor = chooseAdaptor();
@@ -50,11 +47,8 @@ export const mathjaxInit = (): ((
     // if(input) {
     //   const newline_escaped = `\\displaylines{${input}}`;
     // }
-    // https://github.com/mathjax/MathJax-src/blob/master/ts/core/MathDocument.ts#L689
-    // https://github.com/mathjax/MathJax-demos-node/issues/3#issuecomment-497524041
     try {
-      // const node = html.convert(newline_escaped, { ex: EX_CONSTANT });
-      const node = html.convert(input, { ex: EX_CONSTANT });
+      const node = html.convert(input, {});
       return ok(node.firstChild);
     } catch (error: any) {
       return err(error.message);
@@ -71,12 +65,40 @@ type Output = {
   ascent: number;
 };
 
+const parseFontSize = (fontSize: string): { number: number; unit: string } => {
+  const regex = /^(\d+(?:\.\d+)?)\s*(px|in|cm|mm)$/;
+  const match = fontSize.match(regex);
+
+  if (!match) {
+    throw new Error(
+      'Invalid font size format. Only "px", "in", "cm", and "mm" units are supported.'
+    );
+  }
+
+  const number = parseFloat(match[1]);
+  const unit = match[2];
+
+  return { number, unit };
+};
+
+// Convert from a font size in absolute unit (px, in, cm, mm) to pixels
+const toPxFontSize = (fontSizeString: string): number => {
+  const inPX: { [unit: string]: number } = {
+    px: 1,
+    in: 96, // 96 px to an inch
+    cm: 96 / 2.54, // 2.54 cm to an inch
+    mm: 96 / 25.4, // 10 mm to a cm
+  };
+  const { number, unit } = parseFontSize(fontSizeString);
+  return inPX[unit] * number;
+};
+
 /**
  * Call MathJax to render __non-empty__ labels.
  */
 const tex2svg = async (
   properties: Equation<ad.Num>,
-  convert: (input: string, fontSize: string) => Result<HTMLElement, string>
+  convert: (input: string) => Result<HTMLElement, string>
 ): Promise<Result<Output, string>> =>
   new Promise((resolve) => {
     const contents = getAdValueAsString(properties.string, "");
@@ -93,7 +115,7 @@ const tex2svg = async (
     }
 
     // Render the label
-    const output = convert(contents, fontSize);
+    const output = convert(contents);
     if (output.isErr()) {
       resolve(err(`MathJax could not render $${contents}$: ${output.error}`));
       return;
@@ -107,25 +129,26 @@ const tex2svg = async (
       return;
     }
 
-    // Get the rendered viewBox dimensions
-    const viewBoxArr = viewBox.split(" ");
-    const width = parseFloat(viewBoxArr[2]);
-    const height = parseFloat(viewBoxArr[3]);
-
     // Get re-scaled dimensions of label according to
     // https://github.com/mathjax/MathJax-src/blob/32213009962a887e262d9930adcfb468da4967ce/ts/output/svg.ts#L248
-    const MATHJAX_XHEIGHT = 0.442;
-    const EM = 16;
+    // all viewbox units are divided by 1000 because MathJax scaled them by 1000
+    // these viewbox props are in em units * 1000
+    const viewBoxArr = viewBox.split(" ");
+    const width = parseFloat(viewBoxArr[2]) / 1000;
+    const height = parseFloat(viewBoxArr[3]) / 1000;
 
-    // 1ex = 0.431em (or some other constant depending on the font)
-    // 1em = 16 * (font-size)px
-    // HACK: the 1.44 constant factor came from experimentation. No idea why it's required to get the conversion to be one-to-one with pixel-sized plain text.
-    const ex_to_px = (n: number) =>
-      ((n * MATHJAX_XHEIGHT * EM * parseFloat(fontSize)) / EX_CONSTANT) * 1.44;
+    // the vertical align adjustment and height in ex unit. This is used to avoid dealing with ex to px conversion
+    const d = -parseFloat(body.style.verticalAlign);
+    const exH = parseFloat(body.getAttribute("height")!);
 
-    const scaledWidth = ex_to_px(width / 1000);
-    const scaledHeight = ex_to_px(height / 1000);
-    const scaledDescent = ex_to_px(-parseFloat(body.style.verticalAlign));
+    // em is really the pixel value of the font size
+    const em_to_px = (n: number) => n * toPxFontSize(fontSize);
+
+    const scaledWidth = em_to_px(width);
+    const scaledHeight = em_to_px(height);
+    const scaledD = (d / exH) * scaledHeight;
+    const scaledDescent = scaledD;
+    const scaledAscent = scaledHeight - scaledDescent; // HACK: interpreting ascent to be height - descent, which might be very wrong
 
     resolve(
       ok({
@@ -133,7 +156,7 @@ const tex2svg = async (
         width: scaledWidth,
         height: scaledHeight,
         descent: scaledDescent,
-        ascent: scaledHeight - scaledDescent,
+        ascent: scaledAscent,
       })
     );
   });
@@ -206,7 +229,7 @@ export const toFontRule = <T>(properties: Text<T>): string => {
 // https://stackoverflow.com/a/44564236
 export const collectLabels = async (
   allShapes: Shape<ad.Num>[],
-  convert: (input: string, fontSize: string) => Result<HTMLElement, string>
+  convert: (input: string) => Result<HTMLElement, string>
 ): Promise<Result<LabelCache, PenroseError>> => {
   const labels: LabelCache = new Map();
   for (const s of allShapes) {
