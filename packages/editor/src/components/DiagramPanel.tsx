@@ -164,13 +164,19 @@ const SVGaddCode = (
   versionStr: string,
   variationStr: string
 ): void => {
-  svg.setAttribute("penrose", "0");
 
-  // Create custom <penrose> tag to store metadata
-  const metadata = document.createElementNS(
-    "https://penrose.cs.cmu.edu/metadata",
-    "penrose"
-  );
+  // Create custom <penrose> tag to store metadata, or grab it if it already exists
+  const metadataQuery = document.querySelector("penrose");
+  let metadata : Element;
+
+  if(metadataQuery === null) {
+    metadata = document.createElementNS(
+      "https://penrose.cs.cmu.edu/metadata",
+      "penrose"
+    );
+  } else {
+    metadata = metadataQuery!;
+  }
 
   // Create <version> tag for penrose version
   const version = document.createElementNS(
