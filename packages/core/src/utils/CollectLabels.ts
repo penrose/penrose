@@ -44,10 +44,7 @@ export const mathjaxInit = (): ((
   const svg = new SVG({ fontCache: "none" });
   const html = mathjax.document("", { InputJax: tex, OutputJax: svg });
 
-  const convert = (
-    input: string,
-    fontSize: string
-  ): Result<HTMLElement, string> => {
+  const convert = (input: string): Result<HTMLElement, string> => {
     // HACK: workaround for newlines
     // https://github.com/mathjax/MathJax/issues/2312#issuecomment-538185951
     const newline_escaped = `\\displaylines{${input}}`;
@@ -55,9 +52,6 @@ export const mathjaxInit = (): ((
     // https://github.com/mathjax/MathJax-demos-node/issues/3#issuecomment-497524041
     try {
       const node = html.convert(newline_escaped, { ex: EX_CONSTANT });
-      // Not sure if this call does anything:
-      // https://github.com/mathjax/MathJax-src/blob/master/ts/adaptors/liteAdaptor.ts#L523
-      adaptor.setStyle(node, "font-size", fontSize);
       return ok(node.firstChild);
     } catch (error: any) {
       return err(error.message);
@@ -70,7 +64,26 @@ type Output = {
   body: HTMLElement;
   width: number;
   height: number;
+  descent: number;
 };
+
+export function svgBBox(svgEl: SVGSVGElement) {
+  const tempDiv = document.createElement("div");
+  tempDiv.setAttribute(
+    "style",
+    "position:absolute; visibility:hidden; width:0; height:0"
+  );
+  document.body.appendChild(tempDiv);
+  const tempSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  const tempG = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  tempSvg.appendChild(tempG);
+  tempDiv.appendChild(tempSvg);
+  const tempEl = svgEl.cloneNode(true) as SVGSVGElement;
+  tempG.appendChild(tempEl);
+  const bb = tempG.getBBox();
+  document.body.removeChild(tempDiv);
+  return bb;
+}
 
 /**
  * Call MathJax to render __non-empty__ labels.
@@ -99,7 +112,10 @@ const tex2svg = async (
       resolve(err(`MathJax could not render $${contents}$: ${output.error}`));
       return;
     }
+
     const body = output.value;
+    console.log(body);
+
     const viewBox = body.getAttribute("viewBox");
     if (viewBox === null) {
       resolve(err(`No ViewBox found for MathJax output $${contents}$`));
@@ -113,11 +129,43 @@ const tex2svg = async (
 
     // Get re-scaled dimensions of label according to
     // https://github.com/mathjax/MathJax-src/blob/32213009962a887e262d9930adcfb468da4967ce/ts/output/svg.ts#L248
-    const vAlignFloat = parseFloat(body.style.verticalAlign) * EX_CONSTANT;
-    const constHeight = parseFloat(fontSize) - vAlignFloat;
-    const scaledWidth = (constHeight / height) * width;
 
-    resolve(ok({ body, width: scaledWidth, height: constHeight }));
+    // const MATHJAX_XHEIGHT = 0.442;
+    const MATHJAX_XHEIGHT = 0.442;
+    const EM = 16;
+
+    // 1ex = 0.431em (or some other constant depending on the font)
+    // 1em = 16 * (font-size)px
+    const ex_to_px = (n: number) =>
+      ((n * MATHJAX_XHEIGHT * EM * parseFloat(fontSize)) / EX_CONSTANT) * 1.44;
+
+    const scaledWidth = ex_to_px(width / 1000);
+    const scaledHeight = ex_to_px(height / 1000);
+    const scaledDescent = ex_to_px(-parseFloat(body.style.verticalAlign));
+    // bbox based
+    // const bbox = svgBBox(body as unknown as SVGSVGElement);
+    // const factor = scaledWidth / bbox.width;
+    // const scaledHeight = factor * bbox.height;
+    // vertical-align-based
+    // const vAlignFloat = parseFloat(body.style.verticalAlign) * EX_CONSTANT;
+    // const constHeight = parseFloat(fontSize) - vAlignFloat;
+    // const scaledHeight = (constHeight / height) * height * MATHJAX_XHEIGHT;
+
+    console.log(scaledWidth, scaledHeight, scaledDescent);
+
+    // const vAlignFloat = parseFloat(body.style.verticalAlign) * EX_CONSTANT;
+    // const constHeight = parseFloat(fontSize) - vAlignFloat;
+    // const scaledWidth = (constHeight / height) * width * MATHJAX_XHEIGHT;
+    // const scaledHeight = (constHeight / height) * height * MATHJAX_XHEIGHT;
+
+    resolve(
+      ok({
+        body,
+        width: scaledWidth,
+        height: scaledHeight,
+        descent: scaledDescent,
+      })
+    );
   });
 
 const floatV = (contents: number): FloatV<number> => ({
