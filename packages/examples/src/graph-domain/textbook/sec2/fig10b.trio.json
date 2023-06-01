@@ -1,0 +1,6 @@
+{
+  "substance": "./fig10b.substance",
+  "style": ["../../simple-graph.style"],
+  "domain": "../../simple-graph.domain",
+  "variation": ""
+}

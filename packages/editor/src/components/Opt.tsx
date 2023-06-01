@@ -1,7 +1,7 @@
 import { evalFns, prettyPrintFn, zip2 } from "@penrose/core";
 import DataTable from "react-data-table-component";
 import { useRecoilValue } from "recoil";
-import { diagramState } from "../state/atoms";
+import { diagramState } from "../state/atoms.js";
 
 export const EPS = 10e-3;
 
@@ -15,13 +15,8 @@ export default function Opt() {
     );
   }
 
-  const {
-    constraintSets,
-    optStages,
-    currentStageIndex,
-    constrFns,
-    objFns,
-  } = state;
+  const { constraintSets, optStages, currentStageIndex, constrFns, objFns } =
+    state;
   const { objMask, constrMask } = constraintSets.get(
     optStages[currentStageIndex]
   )!;

@@ -5,10 +5,10 @@ import {
   hexToRgba,
   objDict,
   rgbaToHex,
-  shapedefs,
+  shapeTypes,
 } from "@penrose/core";
-import { editor, IRange, languages } from "monaco-editor";
-import { CommentCommon, CommonTokens } from "./common";
+import { IRange, editor, languages } from "monaco-editor";
+import { CommentCommon, CommonTokens } from "./common.js";
 
 export const StyleConfig: languages.LanguageConfiguration = {
   comments: {
@@ -44,8 +44,13 @@ export const StyleConfig: languages.LanguageConfiguration = {
 const styleCustoms = {
   keywords: [
     "forall",
+    "collect",
+    "into",
+    "foreach",
     "where",
     "with",
+    "listof",
+    "from",
     "delete",
     "as",
     "true",
@@ -82,7 +87,7 @@ const styleCustoms = {
     "objective",
     "constraint",
   ],
-  shapes: Object.keys(shapedefs),
+  shapes: shapeTypes,
   constraints: Object.keys(constrDict),
   objectives: Object.keys(objDict),
   computations: Object.keys(compDict),

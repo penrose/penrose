@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { ops } from "../engine/Autodiff";
+import { ops } from "../engine/Autodiff.js";
 import {
   absVal,
   acos,
@@ -30,6 +30,7 @@ import {
   log2,
   lt,
   max,
+  maxN,
   min,
   minN,
   mul,
@@ -47,39 +48,69 @@ import {
   tan,
   tanh,
   trunc,
-} from "../engine/AutodiffFunctions";
-import * as BBox from "../engine/BBox";
-import { PathBuilder } from "../renderer/PathBuilder";
-import { Ellipse } from "../shapes/Ellipse";
-import { Line } from "../shapes/Line";
-import { Polyline } from "../shapes/Polyline";
-import { Context, uniform } from "../shapes/Samplers";
-import { shapedefs } from "../shapes/Shapes";
-import * as ad from "../types/ad";
+} from "../engine/AutodiffFunctions.js";
+import { PathBuilder } from "../renderer/PathBuilder.js";
+import { Circle } from "../shapes/Circle.js";
+import { Ellipse } from "../shapes/Ellipse.js";
+import { Group } from "../shapes/Group.js";
+import { Line } from "../shapes/Line.js";
+import { Path } from "../shapes/Path.js";
+import { Polygon } from "../shapes/Polygon.js";
+import { Polyline } from "../shapes/Polyline.js";
+import { Context, uniform } from "../shapes/Samplers.js";
+import { Shape } from "../shapes/Shapes.js";
+import * as ad from "../types/ad.js";
+import { CompFunc } from "../types/functions.js";
 import {
-  ArgVal,
   Color,
   ColorV,
   FloatV,
   MatrixV,
   PathDataV,
   PtListV,
-  StrV,
   TupV,
-  Value,
   VectorV,
-} from "../types/value";
-import { floatV, getStart, linePts } from "../utils/Util";
+} from "../types/value.js";
 import {
+  booleanT,
+  colorT,
+  colorTypeT,
+  floatV,
+  getStart,
+  linePts,
+  natT,
+  pathCmdT,
+  pathTypeT,
+  posIntT,
+  real2NT,
+  real2T,
+  real3T,
+  realNMT,
+  realNT,
+  realT,
+  rectlikeT,
+  shapeT,
+  stringT,
+  unionT,
+  unitT,
+  valueT,
+  vectorV,
+} from "../utils/Util.js";
+import {
+  centerOfMass,
   elasticEnergy,
+  inflectionEnergy,
   isoperimetricRatio,
+  lengthK,
+  maxCurvature,
+  pElasticEnergy,
   perimeter,
   signedArea,
   totalCurvature,
   turningNumber,
-} from "./CurveConstraints";
-import { bboxFromShape, rectLineDist, shapeDistance } from "./Queries";
-import { clamp, inRange, numOf, ShapeTuple, shapeTupleToShape } from "./Utils";
+} from "./CurveConstraints.js";
+import { rectLineDist, shapeDistance } from "./Queries.js";
+import { Rectlike, clamp, isRectlike, numOf } from "./Utils.js";
 
 /**
  * Static dictionary of computation functions
@@ -92,469 +123,795 @@ import { clamp, inRange, numOf, ShapeTuple, shapeTupleToShape } from "./Utils";
 export const compDict = {
   // TODO: Refactor derivative + derivativePre to be inlined as one case in evaluator
 
-  makePath: (
-    _context: Context,
-    start: [ad.Num, ad.Num],
-    end: [ad.Num, ad.Num],
-    curveHeight: ad.Num,
-    padding: ad.Num
-  ): PathDataV<ad.Num> => {
-    // Two vectors for moving from `start` to the control point: `unit` is the direction of vector [start, end] (along the line passing through both labels) and `normalVec` is perpendicular to `unit` through the `rot90` operation.
-    const unit: ad.Num[] = ops.vnormalize(ops.vsub(start, end));
-    const normalVec: ad.Num[] = ops.rot90(toPt(unit));
-    // There's only one control point in a quadratic bezier curve, and we want it to be equidistant to both `start` and `end`
-    const halfLen: ad.Num = div(ops.vdist(start, end), 2);
-    const controlPt: ad.Num[] = ops.vmove(
-      ops.vmove(end, halfLen, unit),
-      curveHeight,
-      normalVec
-    );
-    const curveEnd: ad.Num[] = ops.vmove(end, padding, unit);
-    // Both the start and end points of the curve should be padded by some distance such that they don't overlap with the texts
-    const path = new PathBuilder();
-    return path
-      .moveTo(toPt(ops.vmove(start, padding, ops.vneg(unit))))
-      .quadraticCurveTo(toPt(controlPt), toPt(curveEnd))
-      .getPath();
+  makePath: {
+    name: "makePath",
+    description: "See https://github.com/penrose/penrose/issues/716",
+    params: [
+      { name: "start", description: "Start point of the path", type: real2T() },
+      { name: "end", description: "End point of the path", type: real2T() },
+      {
+        name: "curveHeight",
+        description: "Height of the curve",
+        type: realT(),
+      },
+      {
+        name: "padding",
+        description: "Padding between the curve and the labels",
+        type: realT(),
+      },
+    ],
+    body: (
+      _context: Context,
+      start: [ad.Num, ad.Num],
+      end: [ad.Num, ad.Num],
+      curveHeight: ad.Num,
+      padding: ad.Num
+    ): PathDataV<ad.Num> => {
+      // Two vectors for moving from `start` to the control point: `unit` is the direction of vector [start, end] (along the line passing through both labels) and `normalVec` is perpendicular to `unit` through the `rot90` operation.
+      const unit: ad.Num[] = ops.vnormalize(ops.vsub(start, end));
+      const normalVec: ad.Num[] = ops.rot90(toPt(unit));
+      // There's only one control point in a quadratic bezier curve, and we want it to be equidistant to both `start` and `end`
+      const halfLen: ad.Num = div(ops.vdist(start, end), 2);
+      const controlPt: ad.Num[] = ops.vmove(
+        ops.vmove(end, halfLen, unit),
+        curveHeight,
+        normalVec
+      );
+      const curveEnd: ad.Num[] = ops.vmove(end, padding, unit);
+      // Both the start and end points of the curve should be padded by some distance such that they don't overlap with the texts
+      const path = new PathBuilder();
+      return path
+        .moveTo(toPt(ops.vmove(start, padding, ops.vneg(unit))))
+        .quadraticCurveTo(toPt(controlPt), toPt(curveEnd))
+        .getPath();
+    },
+    returns: pathCmdT(),
   },
 
   /**
    * Return `i`th element of list `xs, assuming lists only hold floats.
    */
-  get: (_context: Context, xs: ad.Num[], i: number): FloatV<ad.Num> => {
-    const res = xs[i];
-    return {
-      tag: "FloatV",
-      contents: res,
-    };
+  get: {
+    name: "get",
+    description:
+      "Return `i`th element of list `xs, assuming lists only hold floats.",
+    params: [
+      { name: "xs", description: "List of floats", type: realNT() },
+      {
+        name: "i",
+        description: "Index of the element to return",
+        type: natT(),
+      },
+    ],
+    body: (_context: Context, xs: ad.Num[], i: number): FloatV<ad.Num> => {
+      const res = xs[i];
+      return {
+        tag: "FloatV",
+        contents: res,
+      };
+    },
+    returns: realT(),
   },
 
   /**
    * Return a paint color of elements `r`, `g`, `b`, `a` (red, green, blue, opacity).
    */
-  rgba: (
-    _context: Context,
-    r: ad.Num,
-    g: ad.Num,
-    b: ad.Num,
-    a: ad.Num
-  ): ColorV<ad.Num> => {
-    return {
-      tag: "ColorV",
-      contents: {
-        tag: "RGBA",
-        contents: [r, g, b, a],
-      },
-    };
+  rgba: {
+    name: "rgba",
+    description:
+      "Return a paint color of elements `r`, `g`, `b`, `a` (red, green, blue, opacity).",
+    params: [
+      { name: "r", description: "Red", type: unitT() },
+      { name: "g", description: "Green", type: unitT() },
+      { name: "b", description: "Blue", type: unitT() },
+      { name: "a", description: "Opacity", type: unitT() },
+    ],
+    body: (
+      _context: Context,
+      r: ad.Num,
+      g: ad.Num,
+      b: ad.Num,
+      a: ad.Num
+    ): ColorV<ad.Num> => {
+      return {
+        tag: "ColorV",
+        contents: {
+          tag: "RGBA",
+          contents: [r, g, b, a],
+        },
+      };
+    },
+    returns: valueT("Color"),
   },
 
-  selectColor: (
-    _context: Context,
-    color1: Color<ad.Num>,
-    color2: Color<ad.Num>,
-    level: ad.Num
-  ): ColorV<ad.Num> => {
-    const half = div(level, 2);
-    const even = eq(half, trunc(half)); // autodiff doesn't have a mod operator
-    if (!(color1.tag === "RGBA" && color2.tag === "RGBA")) {
-      throw Error("selectColor only supports RGBA");
-    }
-    return {
-      tag: "ColorV",
-      contents: {
-        tag: "RGBA",
-        // https://github.com/penrose/penrose/issues/561
-        contents: [
-          ifCond(even, color1.contents[0], color2.contents[0]),
-          ifCond(even, color1.contents[1], color2.contents[1]),
-          ifCond(even, color1.contents[2], color2.contents[2]),
-          ifCond(even, color1.contents[3], color2.contents[3]),
-        ],
-      },
-    };
+  selectColor: {
+    name: "selectColor",
+    params: [
+      { name: "color1", description: "First color", type: colorT() },
+      { name: "color2", description: "Second color", type: colorT() },
+      { name: "level", description: "Level", type: realT() },
+    ],
+    body: (
+      _context: Context,
+      color1: Color<ad.Num>,
+      color2: Color<ad.Num>,
+      level: ad.Num
+    ): ColorV<ad.Num> => {
+      const half = div(level, 2);
+      const even = eq(half, trunc(half)); // autodiff doesn't have a mod operator
+      if (!(color1.tag === "RGBA" && color2.tag === "RGBA")) {
+        throw Error("selectColor only supports RGBA");
+      }
+      return {
+        tag: "ColorV",
+        contents: {
+          tag: "RGBA",
+          // https://github.com/penrose/penrose/issues/561
+          contents: [
+            ifCond(even, color1.contents[0], color2.contents[0]),
+            ifCond(even, color1.contents[1], color2.contents[1]),
+            ifCond(even, color1.contents[2], color2.contents[2]),
+            ifCond(even, color1.contents[3], color2.contents[3]),
+          ],
+        },
+      };
+    },
+    returns: colorT(),
   },
 
   /**
    * Return a paint color of elements `h`, `s`, `v`, `a` (hue, saturation, value, opacity).
    */
-  hsva: (
-    _context: Context,
-    h: ad.Num,
-    s: ad.Num,
-    v: ad.Num,
-    a: ad.Num
-  ): ColorV<ad.Num> => {
-    return {
-      tag: "ColorV",
-      contents: {
-        tag: "HSVA",
-        contents: [h, s, v, a],
-      },
-    };
+  hsva: {
+    name: "hsva",
+    description:
+      "Return a paint color of elements `h`, `s`, `v`, `a` (hue, saturation, value, opacity).",
+    params: [
+      { name: "h", description: "Hue in [0, 360)", type: realT() },
+      { name: "s", description: "Saturation in [0, 100]", type: realT() },
+      { name: "v", description: "Value in [0, 100]", type: realT() },
+      { name: "a", description: "Opacity", type: unitT() },
+    ],
+    body: (
+      _context: Context,
+      h: ad.Num,
+      s: ad.Num,
+      v: ad.Num,
+      a: ad.Num
+    ): ColorV<ad.Num> => {
+      return {
+        tag: "ColorV",
+        contents: {
+          tag: "HSVA",
+          contents: [h, s, v, a],
+        },
+      };
+    },
+    returns: colorT(),
   },
 
   /**
    * Return a paint of none (no paint)
    */
-  none: (_context: Context): ColorV<ad.Num> => {
-    return {
-      tag: "ColorV",
-      contents: {
-        tag: "NONE",
-      },
-    };
+  none: {
+    name: "none",
+    description: "Return a paint of none (no paint)",
+    params: [],
+    body: (_context: Context): ColorV<ad.Num> => {
+      return {
+        tag: "ColorV",
+        contents: {
+          tag: "NONE",
+        },
+      };
+    },
+    returns: valueT("Color"),
   },
 
   /**
    * Return `acosh(x)`.
    */
-  acosh: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: acosh(x),
-    };
+  acosh: {
+    name: "acosh",
+    description: "Return `acosh(x)`.",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: acosh(x),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return `acos(x)`.
    */
-  acos: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: acos(x),
-    };
+  acos: {
+    name: "acos",
+    description: "Return `acos(x)`.",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: acos(x),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return `asin(x)`.
    */
-  asin: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: asin(x),
-    };
+  asin: {
+    name: "asin",
+    description: "Return `asin(x)`.",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: asin(x),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return `asinh(x)`.
    */
-  asinh: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: asinh(x),
-    };
+  asinh: {
+    name: "asinh",
+    description: "Return `asinh(x)`.",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: asinh(x),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return `atan(x)`.
    */
-  atan: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: atan(x),
-    };
+  atan: {
+    name: "atan",
+    description: "Return `atan(x)`.",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: atan(x),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return `atan2(y,x)`.
    */
-  atan2: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: atan2(y, x),
-    };
+  atan2: {
+    name: "atan2",
+    description: "Return `atan2(x, y)`.",
+    params: [
+      { name: "x", description: "`x`", type: realT() },
+      { name: "y", description: "`y`", type: realT() },
+    ],
+    body: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: atan2(y, x),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return `atanh(x)`.
    */
-  atanh: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: atanh(x),
-    };
+  atanh: {
+    name: "atanh",
+    description: "Return `atanh(x)`.",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: atanh(x),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return `cbrt(x)`.
    */
-  cbrt: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: cbrt(x),
-    };
+  cbrt: {
+    name: "cbrt",
+    description: "Return `cbrt(x)`.",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: cbrt(x),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return `ceil(x)`.
    */
-  ceil: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: ceil(x),
-    };
+  ceil: {
+    name: "ceil",
+    description: "Return `ceil(x)`.",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: ceil(x),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return `cos(x)`.
    */
-  cos: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: cos(x),
-    };
+  cos: {
+    name: "cos",
+    description: "Return `cos(x)`.",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: cos(x),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return `cosh(x)`.
    */
-  cosh: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: cosh(x),
-    };
+  cosh: {
+    name: "cosh",
+    description: "Return `cosh(x)`.",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: cosh(x),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return `exp(x)`.
    */
-  exp: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: exp(x),
-    };
+  exp: {
+    name: "exp",
+    description: "Return `exp(x)`.",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: exp(x),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return `expm1(x)`.
    */
-  expm1: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: expm1(x),
-    };
+  expm1: {
+    name: "expm1",
+    description: "Return `expm1(x)`.",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: expm1(x),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return `floor(x)`.
    */
-  floor: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: floor(x),
-    };
+  floor: {
+    name: "floor",
+    description: "Return `floor(x)`.",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: floor(x),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return `log(x)`.
    */
-  log: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: ln(x),
-    };
+  log: {
+    name: "log",
+    description: "Return `log(x)`.",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: ln(x),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return `log2(x)`.
    */
-  log2: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: log2(x),
-    };
+  log2: {
+    name: "log2",
+    description: "Return `log2(x)`.",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: log2(x),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return `log10(x)`.
    */
-  log10: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: log10(x),
-    };
+  log10: {
+    name: "log10",
+    description: "Return `log10(x)`.",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: log10(x),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return `log1p(x)`.
    */
-  log1p: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: log1p(x),
-    };
+  log1p: {
+    name: "log1p",
+    description: "Return `log1p(x)`.",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: log1p(x),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return `pow(x,y)`.
    */
-  pow: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: pow(x, y),
-    };
+  pow: {
+    name: "pow",
+    description: "Return `pow(x, y)`.",
+    params: [
+      { name: "x", description: "`x`", type: realT() },
+      { name: "y", description: "`y`", type: realT() },
+    ],
+    body: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: pow(x, y),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return `round(x)`.
    */
-  round: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: round(x),
-    };
+  round: {
+    name: "round",
+    description: "Return `round(x)`.",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: round(x),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return `sign(x)`.
    */
-  sign: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: sign(x),
-    };
+  sign: {
+    name: "sign",
+    description: "Return `sign(x)`.",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: sign(x),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return `sin(x)`.
    */
-  sin: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: sin(x),
-    };
+  sin: {
+    name: "sin",
+    description: "Return `sin(x)`.",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: sin(x),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return `sinh(x)`.
    */
-  sinh: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: sinh(x),
-    };
+  sinh: {
+    name: "sinh",
+    description: "Return `sinh(x)`.",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: sinh(x),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return `tan(x)`.
    */
-  tan: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: tan(x),
-    };
+  tan: {
+    name: "tan",
+    description: "Return `tan(x)`.",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: tan(x),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return `tanh(x)`.
    */
-  tanh: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: tanh(x),
-    };
+  tanh: {
+    name: "tanh",
+    description: "Return `tanh(x)`.",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: tanh(x),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return `trunc(x)`.
    */
-  trunc: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return {
+  trunc: {
+    name: "trunc",
+    description: "Return `trunc(x)`.",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: trunc(x),
+      };
+    },
+    returns: valueT("Real"),
+  },
+
+  sum: {
+    name: "sum",
+    description: "Return the sum of elements in a vector.",
+    params: [{ name: "xs", description: "elements", type: realNT() }],
+    body: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: addN(xs),
+      };
+    },
+    returns: realT(),
+  },
+
+  sumVectors: {
+    name: "sumVectors",
+    description: "Return the sum of vectors in a list of vectors.",
+    params: [{ name: "vecs", description: "vectors", type: realNMT() }],
+    body: (_context: Context, vecs: ad.Num[][]): VectorV<ad.Num> => {
+      if (vecs.length === 0) {
+        throw new Error("Expect a non-empty list of vectors");
+      }
+      const vlen = vecs[0].length;
+      const zeros: ad.Num[] = new Array(vlen).fill(0);
+      return vectorV(vecs.reduce((curr, v) => ops.vadd(curr, v), zeros));
+    },
+    returns: realNT(),
+  },
+
+  maxList: {
+    name: "maxList",
+    description: "Return the maximum of the elements in a vector.",
+    params: [{ name: "xs", description: "elements", type: realNT() }],
+    body: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => ({
       tag: "FloatV",
-      contents: trunc(x),
-    };
+      contents: maxN(xs),
+    }),
+    returns: realT(),
+  },
+
+  minList: {
+    name: "minList",
+    description: "Return the minimum of the elements in a vector.",
+    params: [{ name: "xs", description: "elements", type: realNT() }],
+    body: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => ({
+      tag: "FloatV",
+      contents: minN(xs),
+    }),
+    returns: realT(),
+  },
+
+  count: {
+    name: "count",
+    description: "Return the number of the elements in a vector.",
+    params: [{ name: "xs", description: "elements", type: realNT() }],
+    body: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => ({
+      tag: "FloatV",
+      contents: xs.length,
+    }),
+    returns: realT(),
   },
 
   /**
    * Return the dot product of `v` and `w`.
    */
-  dot: (_context: Context, v: ad.Num[], w: ad.Num[]): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: ops.vdot(v, w),
-    };
+  dot: {
+    name: "dot",
+    description: "Return the dot product of `v` and `w`.",
+    params: [
+      { name: "v", description: "Vector `v`", type: realNT() },
+      { name: "w", description: "Vector `w`", type: realNT() },
+    ],
+    body: (_context: Context, v: ad.Num[], w: ad.Num[]): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: ops.vdot(v, w),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return the outer product of `u` and `v`.
    */
-  outerProduct: (
-    _context: Context,
-    u: ad.Num[],
-    v: ad.Num[]
-  ): MatrixV<ad.Num> => {
-    return {
-      tag: "MatrixV",
-      contents: ops.vouter(u, v),
-    };
+  outerProduct: {
+    name: "outerProduct",
+    description: "Return the outer product of `v` and `w`.",
+    params: [
+      { name: "v", description: "Vector `v`", type: realNT() },
+      { name: "w", description: "Vector `w`", type: realNT() },
+    ],
+    body: (_context: Context, u: ad.Num[], v: ad.Num[]): MatrixV<ad.Num> => {
+      return {
+        tag: "MatrixV",
+        contents: ops.vouter(u, v),
+      };
+    },
+    returns: valueT("RealNM"),
   },
 
   /**
    * Return the length of the line or arrow shape `[type, props]`.
    */
-  length: (_context: Context, [t, props]: [string, any]): FloatV<ad.Num> => {
-    if (!shapedefs[t].isLinelike) {
-      throw Error("length expects a line-like shape");
-    } else {
-      const [p1, p2] = linePts(props);
+  length: {
+    name: "length",
+    description: "Return the length of the Line shape.",
+    params: [{ name: "l", description: "A line", type: shapeT("Line") }],
+    body: (_context: Context, shape: Line<ad.Num>): FloatV<ad.Num> => {
+      const [p1, p2] = linePts(shape);
       return {
         tag: "FloatV",
         contents: ops.vdist(p1, p2),
       };
-    }
+    },
+    returns: valueT("Real"),
   },
-
-  /**
-   * Concatenate a list of strings
-   */
-  concat: (_context: Context, ...strings: string[]): StrV => {
-    return {
-      tag: "StrV",
-      contents: strings.join(""),
-    };
-  },
-
   /**
    * Return the normalized version of vector `v`.
    */
-  normalize: (_context: Context, v: ad.Num[]): VectorV<ad.Num> => {
-    return {
-      tag: "VectorV",
-      contents: ops.vnormalize(v),
-    };
+  normalize: {
+    name: "normalize",
+    description: "Return the normalized version of vector `v`.",
+    params: [{ type: realNT(), name: "v", description: "Vector `v`" }],
+    body: (_context: Context, v: ad.Num[]): VectorV<ad.Num> => {
+      return {
+        tag: "VectorV",
+        contents: ops.vnormalize(v),
+      };
+    },
+    returns: valueT("RealN"),
   },
 
   /**
    * Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.
    */
-  pathFromPoints: (
-    _context: Context,
-    pathType: string,
-    pts: ad.Pt2[]
-  ): PathDataV<ad.Num> => {
-    const path = new PathBuilder();
-    const [start, ...tailpts] = pts;
-    path.moveTo(start);
-    tailpts.forEach((pt: ad.Pt2) => path.lineTo(pt));
-    if (pathType === "closed") path.closePath();
-    return path.getPath();
+  pathFromPoints: {
+    name: "pathFromPoints",
+    description:
+      "Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.",
+    params: [
+      { name: "pathType", type: pathTypeT(), description: "Path Type" },
+      { name: "pts", type: real2NT(), description: "List of points" },
+    ],
+    body: (
+      _context: Context,
+      pathType: string,
+      pts: ad.Pt2[]
+    ): PathDataV<ad.Num> => {
+      const path = new PathBuilder();
+      const [start, ...tailpts] = pts;
+      path.moveTo(start);
+      tailpts.forEach((pt: ad.Pt2) => path.lineTo(pt));
+      if (pathType === "closed") path.closePath();
+      return path.getPath();
+    },
+    returns: valueT("PathCmd"),
   },
 
   /**
    * Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.
    */
-  quadraticCurveFromPoints: (
-    _context: Context,
-    pathType: string,
-    pts: ad.Pt2[]
-  ): PathDataV<ad.Num> => {
-    const path = new PathBuilder();
-    const [start, cp, second, ...tailpts] = pts;
-    path.moveTo(start);
-    path.quadraticCurveTo(cp, second);
-    tailpts.forEach((pt: ad.Pt2) => path.quadraticCurveJoin(pt));
-    if (pathType === "closed") path.closePath();
-    return path.getPath();
+  quadraticCurveFromPoints: {
+    name: "quadraticCurveFromPoints",
+    description:
+      "Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.",
+    params: [
+      { name: "pathType", type: pathTypeT(), description: "Path Type" },
+      { name: "pts", type: real2NT(), description: "List of points" },
+    ],
+    body: (
+      _context: Context,
+      pathType: string,
+      pts: ad.Pt2[]
+    ): PathDataV<ad.Num> => {
+      const path = new PathBuilder();
+      const [start, cp, second, ...tailpts] = pts;
+      path.moveTo(start);
+      path.quadraticCurveTo(cp, second);
+      tailpts.forEach((pt: ad.Pt2) => path.quadraticCurveJoin(pt));
+      if (pathType === "closed") path.closePath();
+      return path.getPath();
+    },
+    returns: valueT("PathCmd"),
   },
 
   /**
@@ -564,94 +921,135 @@ export const compDict = {
    * since a Bézier does not interpolate the middle
    * control point.)
    */
-  interpolateQuadraticFromPoints: (
-    _context: Context,
-    pathType: string,
-    p0: ad.Pt2,
-    p1: ad.Pt2,
-    p2: ad.Pt2
-  ): PathDataV<ad.Num> => {
-    const path = new PathBuilder();
-    path.moveTo(p0);
-    // Compute the control point location q1 such that the
-    // quadratic curve interpolates the midpoint p1, namely,
-    //    q1 = 2 p1 - (p0+p2)/2
-    // (This expression can be derived by expressing the
-    // interpolation condition in terms of the quadratic
-    // Bernstein basis.)
-    const q1 = ops.vsub(ops.vmul(2.0, p1), ops.vmul(0.5, ops.vadd(p0, p2)));
-    if (!ad.isPt2(q1)) {
-      // XXX kludge to force TypeScript to know that q1 has length 2; see GitHub issue #715
-      throw new Error("vector ops did not preserve dimension");
-    }
-    path.quadraticCurveTo(q1, p2);
-    if (pathType === "closed") path.closePath();
-    return path.getPath();
+  interpolateQuadraticFromPoints: {
+    name: "interpolateQuadraticFromPoints",
+    description: `Draw a curve interpolating three given points.
+    (Note that this is different from specifying the three control points of a quadratic Bézier curve, since a Bézier does not interpolate the middle control point.)`,
+    params: [
+      { name: "pathType", type: pathTypeT(), description: "Path Type" },
+      { name: "p0", type: real2T(), description: "First point" },
+      { name: "p1", type: real2T(), description: "Second point" },
+      { name: "p2", type: real2T(), description: "Third point" },
+    ],
+    body: (
+      _context: Context,
+      pathType: string,
+      p0: ad.Pt2,
+      p1: ad.Pt2,
+      p2: ad.Pt2
+    ): PathDataV<ad.Num> => {
+      const path = new PathBuilder();
+      path.moveTo(p0);
+      // Compute the control point location q1 such that the
+      // quadratic curve interpolates the midpoint p1, namely,
+      //    q1 = 2 p1 - (p0+p2)/2
+      // (This expression can be derived by expressing the
+      // interpolation condition in terms of the quadratic
+      // Bernstein basis.)
+      const q1 = ops.vsub(ops.vmul(2.0, p1), ops.vmul(0.5, ops.vadd(p0, p2)));
+      if (!ad.isPt2(q1)) {
+        // XXX kludge to force TypeScript to know that q1 has length 2; see GitHub issue #715
+        throw new Error("vector ops did not preserve dimension");
+      }
+      path.quadraticCurveTo(q1, p2);
+      if (pathType === "closed") path.closePath();
+      return path.getPath();
+    },
+    returns: valueT("PathCmd"),
   },
 
   /**
    * Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.
    */
-  cubicCurveFromPoints: (
-    _context: Context,
-    pathType: string,
-    pts: ad.Pt2[]
-  ): PathDataV<ad.Num> => {
-    const path = new PathBuilder();
-    const [start, cp1, cp2, second, ...tailpts] = pts;
-    path.moveTo(start);
-    path.bezierCurveTo(cp1, cp2, second);
-    _.chunk(tailpts, 2).forEach(([cp, pt]) => path.cubicCurveJoin(cp, pt));
-    if (pathType === "closed") path.closePath();
-    return path.getPath();
+  cubicCurveFromPoints: {
+    name: "cubicCurveFromPoints",
+    description:
+      "Given a list of points `pts`, returns a `PathData` that can be used as input to the `Path` shape's `pathData` attribute to be drawn on the screen.",
+
+    params: [
+      { type: pathTypeT(), name: "pathType", description: "Path type" },
+      { type: real2NT(), name: "pts", description: "List of points" },
+    ],
+    body: (
+      _context: Context,
+      pathType: string,
+      pts: ad.Pt2[]
+    ): PathDataV<ad.Num> => {
+      const path = new PathBuilder();
+      const [start, cp1, cp2, second, ...tailpts] = pts;
+      path.moveTo(start);
+      path.bezierCurveTo(cp1, cp2, second);
+      _.chunk(tailpts, 2).forEach(([cp, pt]) => path.cubicCurveJoin(cp, pt));
+      if (pathType === "closed") path.closePath();
+      return path.getPath();
+    },
+    returns: valueT("PathCmd"),
   },
 
   /**
    * Return two points parallel to line `s1` using its normal line `s2`.
    */
-  unitMark: (
-    _context: Context,
-    [, s1]: [string, any],
-    [, s2]: [string, any],
-    t: string,
-    padding: ad.Num,
-    barSize: ad.Num
-  ): PtListV<ad.Num> => {
-    const [start1, end1] = linePts(s1);
-    const [start2, end2] = linePts(s2);
+  unitMark: {
+    name: "unitMark",
+    description:
+      "Return two points parallel to line `s1` using its normal line `s2`.",
+    params: [
+      { name: "s1", type: shapeT("Line") },
+      { name: "s2", type: shapeT("Line") },
+      { name: "padding", type: realT() },
+    ],
+    body: (
+      _context: Context,
+      s1: Line<ad.Num>,
+      s2: Line<ad.Num>,
+      padding: ad.Num
+    ): PtListV<ad.Num> => {
+      const [start1, end1] = linePts(s1);
+      const [start2, end2] = linePts(s2);
 
-    const dir = ops.vnormalize(ops.vsub(end2, start2));
-    const normalDir = ops.vneg(dir);
-    const markStart = ops.vmove(start1, padding, normalDir);
-    const markEnd = ops.vmove(end1, padding, normalDir);
+      const dir = ops.vnormalize(ops.vsub(end2, start2));
+      const normalDir = ops.vneg(dir);
+      const markStart = ops.vmove(start1, padding, normalDir);
+      const markEnd = ops.vmove(end1, padding, normalDir);
 
-    return {
-      tag: "PtListV",
-      contents: [markStart, markEnd].map(toPt),
-    };
+      return {
+        tag: "PtListV",
+        contents: [markStart, markEnd].map(toPt),
+      };
+    },
+    returns: valueT("Real2N"),
   },
 
   /**
    * Return two points to "cap off" the line made in `unitMark`.
    */
-  unitMark2: (
-    _context: Context,
-    [start, end]: [ad.Pt2, ad.Pt2],
-    t: string,
-    padding: ad.Num,
-    size: ad.Num
-  ): PtListV<ad.Num> => {
-    const dir = ops.vnormalize(ops.vsub(end, start));
-    const normalDir = ops.rot90(toPt(dir));
-    const base = t === "start" ? start : end;
-    const [markStart, markEnd] = [
-      ops.vmove(base, size, normalDir),
-      ops.vmove(base, neg(size), normalDir),
-    ];
-    return {
-      tag: "PtListV",
-      contents: [markStart, markEnd].map(toPt),
-    };
+  unitMark2: {
+    name: "unitMark2",
+    description: 'Return two points to "cap off" the line made in `unitMark`.',
+    params: [
+      { name: "[start, end]", type: real2NT() },
+      { name: "t", type: stringT() },
+      { name: "size", type: realT() },
+    ],
+    body: (
+      _context: Context,
+      [start, end]: [ad.Pt2, ad.Pt2],
+      t: string,
+      size: ad.Num
+    ): PtListV<ad.Num> => {
+      const dir = ops.vnormalize(ops.vsub(end, start));
+      const normalDir = ops.rot90(toPt(dir));
+      const base = t === "start" ? start : end;
+      const [markStart, markEnd] = [
+        ops.vmove(base, size, normalDir),
+        ops.vmove(base, neg(size), normalDir),
+      ];
+      return {
+        tag: "PtListV",
+        contents: [markStart, markEnd].map(toPt),
+      };
+    },
+    returns: valueT("Real2N"),
   },
 
   /**
@@ -665,47 +1063,138 @@ export const compDict = {
    * @param arcSweep: 0 to rotate CCW, 1 to rotate CW
    * @returns: Elements that can be passed to Path shape spec to render an SVG arc
    */
-  arc: (
-    _context: Context,
-    pathType: string,
-    start: ad.Pt2,
-    end: ad.Pt2,
-    radius: ad.Pt2,
-    rotation: ad.Num,
-    largeArc: ad.Num,
-    arcSweep: ad.Num
-  ): PathDataV<ad.Num> => {
-    const path = new PathBuilder();
-    path.moveTo(start).arcTo(radius, end, [rotation, largeArc, arcSweep]);
-    if (pathType === "closed") path.closePath();
-    return path.getPath();
+  arc: {
+    name: "arc",
+    description: `Return series of elements that can render an arc SVG. See: https://css-tricks.com/svg-path-syntax-illustrated-guide/ for the "A" spec. Returns elements that can be passed to Path shape spec to render an SVG arc.`,
+    params: [
+      {
+        name: "pathType",
+        type: pathTypeT(),
+        description: `The path type: either "open" or "closed." whether the SVG should automatically draw a line between the final point and the start point`,
+      },
+      {
+        name: "start",
+        type: real2T(),
+        description: "coordinate to start drawing the arc",
+      },
+      {
+        name: "end",
+        type: real2T(),
+        description: "coordinate to finish drawing the arc",
+      },
+      {
+        name: "[width, height]",
+        type: real2T(),
+        description: "width and height of the ellipse to draw the arc along",
+      },
+      {
+        name: "rotation",
+        type: realT(),
+        description: "angle in degrees to rotate ellipse about its center",
+      },
+      {
+        name: "largeArc",
+        type: realT(),
+        description: "0 to draw shorter of 2 arcs, 1 to draw longer",
+      },
+      {
+        name: "arcSweep",
+        type: realT(),
+        description: "0 to rotate CCW, 1 to rotate CW",
+      },
+    ],
+    body: (
+      _context: Context,
+      pathType: string,
+      start: ad.Pt2,
+      end: ad.Pt2,
+      radius: ad.Pt2,
+      rotation: ad.Num,
+      largeArc: ad.Num,
+      arcSweep: ad.Num
+    ): PathDataV<ad.Num> => {
+      const path = new PathBuilder();
+      path.moveTo(start).arcTo(radius, end, [rotation, largeArc, arcSweep]);
+      if (pathType === "closed") path.closePath();
+      return path.getPath();
+    },
+    returns: valueT("PathCmd"),
   },
 
-  repeatedArcs: (
-    _context: Context,
-    innerStart: ad.Pt2,
-    innerEnd: ad.Pt2,
-    outerStart: ad.Pt2,
-    outerEnd: ad.Pt2,
-    innerRadius: ad.Pt2,
-    repeat: ad.Num,
-    spacing: ad.Num,
-    arcSweep: ad.Num
-  ): PathDataV<ad.Num> => {
-    const path = new PathBuilder();
-    const startDir = ops.vnormalize(ops.vsub(outerStart, innerStart));
-    const endDir = ops.vnormalize(ops.vsub(outerEnd, innerEnd));
-    let start: ad.Pt2 = innerStart;
-    let end: ad.Pt2 = innerEnd;
-    let radius = innerRadius;
-    for (let i = 0; i < repeat; i++) {
-      path.moveTo(start).arcTo(radius, end, [0, 0, arcSweep]);
-      // TODO: avoid casting to `ad.Pt2`
-      start = ops.vmove(start, spacing, startDir) as ad.Pt2;
-      end = ops.vmove(end, spacing, endDir) as ad.Pt2;
-      radius = ops.vadd(radius, [spacing, spacing]) as ad.Pt2;
-    }
-    return path.getPath();
+  repeatedArcs: {
+    name: "repeatedArcs",
+    description:
+      "Generate multiple concentric arcs. Useful for denoting equal angles.",
+    params: [
+      {
+        name: "innerStart",
+        type: real2T(),
+        description: "coordinate to start drawing the inner arc",
+      },
+      {
+        name: "innerEnd",
+        type: real2T(),
+        description: "coordinate to end the inner arc",
+      },
+      {
+        name: "outerStart",
+        type: real2T(),
+        description: "coordinate to start drawing the outer arc",
+      },
+      {
+        name: "outerEnd",
+        type: real2T(),
+        description: "coordinate to end the outer arc",
+      },
+      {
+        name: "innerRadius",
+        type: real2T(),
+        description:
+          "radii of the ellipse to draw the inner arc along (width, height)",
+      },
+      {
+        name: "repeat",
+        type: posIntT(),
+        description: "number of times to repeat the arc",
+      },
+      {
+        name: "spacing",
+        type: realT(),
+        description: "spacing between arcs",
+      },
+      {
+        name: "arcSweep",
+        type: realT(),
+        description: "arc length to sweep",
+      },
+    ],
+    body: (
+      _context: Context,
+      innerStart: ad.Pt2,
+      innerEnd: ad.Pt2,
+      outerStart: ad.Pt2,
+      outerEnd: ad.Pt2,
+      innerRadius: ad.Pt2,
+      repeat: number,
+      spacing: ad.Num,
+      arcSweep: ad.Num
+    ): PathDataV<ad.Num> => {
+      const path = new PathBuilder();
+      const startDir = ops.vnormalize(ops.vsub(outerStart, innerStart));
+      const endDir = ops.vnormalize(ops.vsub(outerEnd, innerEnd));
+      let start: ad.Pt2 = innerStart;
+      let end: ad.Pt2 = innerEnd;
+      let radius = innerRadius;
+      for (let i = 0; i < repeat; i++) {
+        path.moveTo(start).arcTo(radius, end, [0, 0, arcSweep]);
+        // TODO: avoid casting to `ad.Pt2`
+        start = ops.vmove(start, spacing, startDir) as ad.Pt2;
+        end = ops.vmove(end, spacing, endDir) as ad.Pt2;
+        radius = ops.vadd(radius, [spacing, spacing]) as ad.Pt2;
+      }
+      return path.getPath();
+    },
+    returns: valueT("PathCmd"),
   },
 
   /**
@@ -719,23 +1208,66 @@ export const compDict = {
    * @param arcSweep: 0 to rotate CCW, 1 to rotate CW
    * @returns: Elements that can be passed to Path shape spec to render an SVG arc
    */
-  wedge: (
-    _context: Context,
-    center: ad.Pt2,
-    start: ad.Pt2,
-    end: ad.Pt2,
-    radius: ad.Pt2,
-    rotation: ad.Num,
-    largeArc: ad.Num,
-    arcSweep: ad.Num
-  ): PathDataV<ad.Num> => {
-    const path = new PathBuilder();
-    path
-      .moveTo(start)
-      .arcTo(radius, end, [rotation, largeArc, arcSweep])
-      .lineTo(center);
-    path.closePath();
-    return path.getPath();
+  wedge: {
+    name: "wedge",
+    description: `Return series of elements that render a "wedge", which is the same as the arc above except that it's connected to the circle center and filled. Returns elements that can be passed to Path shape spec to render an SVG arc.`,
+    params: [
+      {
+        name: "center",
+        type: real2T(),
+        description: "center of the circle on which the arc sits",
+      },
+      {
+        name: "start",
+        type: real2T(),
+        description: "coordinate to start drawing the arc",
+      },
+      {
+        name: "end",
+        type: real2T(),
+        description: "coordinate to finish drawing the arc",
+      },
+      {
+        name: "radius",
+        type: real2T(),
+        description:
+          "width and height of the ellipse to draw the arc along (i.e. [width, height])",
+      },
+      {
+        name: "rotation",
+        type: realT(),
+        description: "angle in degrees to rotate ellipse about its center",
+      },
+      {
+        name: "largeArc",
+        type: realT(),
+        description: "0 to draw shorter of 2 arcs, 1 to draw longer",
+      },
+      {
+        name: "arcSweep",
+        type: realT(),
+        description: "0 to rotate CCW, 1 to rotate CW",
+      },
+    ],
+    body: (
+      _context: Context,
+      center: ad.Pt2,
+      start: ad.Pt2,
+      end: ad.Pt2,
+      radius: ad.Pt2,
+      rotation: ad.Num,
+      largeArc: ad.Num,
+      arcSweep: ad.Num
+    ): PathDataV<ad.Num> => {
+      const path = new PathBuilder();
+      path
+        .moveTo(start)
+        .arcTo(radius, end, [rotation, largeArc, arcSweep])
+        .lineTo(center);
+      path.closePath();
+      return path.getPath();
+    },
+    returns: valueT("PathCmd"),
   },
   /**
    * Find the point that is located at dist r along a line between p1 and p2.
@@ -744,15 +1276,34 @@ export const compDict = {
    * @param r: distance from p1 to travel along the line
    * @returns: vector representation of the point of intersection
    */
-  ptOnLine: (
-    _context: Context,
-    p1: ad.Num[],
-    p2: ad.Num[],
-    r: ad.Num
-  ): VectorV<ad.Num> => {
-    // find unit vector pointing towards v2
-    const unit = ops.vnormalize(ops.vsub(p2, p1));
-    return { tag: "VectorV", contents: ops.vmove(p1, r, unit) };
+  ptOnLine: {
+    name: "ptOnLine",
+    description:
+      "Find the point that is located at dist r along a line between p1 and p2. Returns vector representation of the point of intersection.",
+    params: [
+      {
+        name: "p1",
+        type: realNT(),
+        description: "start point of line segment",
+      },
+      { name: "p2", type: realNT(), description: "endpoint of line segment" },
+      {
+        name: "r",
+        type: realT(),
+        description: "distance from p1 to travel along the line",
+      },
+    ],
+    body: (
+      _context: Context,
+      p1: ad.Num[],
+      p2: ad.Num[],
+      r: ad.Num
+    ): VectorV<ad.Num> => {
+      // find unit vector pointing towards v2
+      const unit = ops.vnormalize(ops.vsub(p2, p1));
+      return { tag: "VectorV", contents: ops.vmove(p1, r, unit) };
+    },
+    returns: valueT("RealN"),
   },
   /**
    * Return 0 if direction of rotation is CCW, 1 if direction of rotation is CW.
@@ -761,113 +1312,202 @@ export const compDict = {
    * @param end: end point of the arc
    * @returns: 0 or 1 depending on CCW or CW rotation
    */
-  arcSweepFlag: (
-    _context: Context,
-    [x1, y1]: ad.Num[],
-    start: ad.Pt2,
-    end: ad.Pt2
-  ): FloatV<ad.Num> => {
-    const st = ops.vnormalize([sub(start[0], x1), sub(start[1], y1)]);
-    const en = ops.vnormalize([sub(end[0], x1), sub(end[1], y1)]);
-    const cross = ops.cross2(st, en);
-    return {
-      tag: "FloatV",
-      contents: ifCond(gt(cross, 0), 0, 1),
-    };
+  arcSweepFlag: {
+    name: "arcSweepFlag",
+    description:
+      "Return 0 if direction of rotation is CCW, 1 if direction of rotation is CW.",
+
+    params: [
+      {
+        name: "[x1, y1]",
+        type: real2T(),
+        description:
+          "x, y coordinates of the circle/ellipse that the arc is drawn on",
+      },
+      { name: "start", type: real2T(), description: "start point of the arc" },
+      { name: "end", type: real2T(), description: "end point of the arc" },
+    ],
+    body: (
+      _context: Context,
+      [x1, y1]: ad.Num[],
+      start: ad.Pt2,
+      end: ad.Pt2
+    ): FloatV<ad.Num> => {
+      const st = ops.vnormalize([sub(start[0], x1), sub(start[1], y1)]);
+      const en = ops.vnormalize([sub(end[0], x1), sub(end[1], y1)]);
+      const cross = ops.cross2(st, en);
+      return {
+        tag: "FloatV",
+        contents: ifCond(gt(cross, 0), 0, 1),
+      };
+    },
+    returns: valueT("Real"),
   },
   /**
    * Return the unsigned angle between vectors `u, v`, in radians.
    * Assumes that both u and v have nonzero magnitude.
    * The returned value will be in the range [0,pi].
    */
-  angleBetween: (
-    _context: Context,
-    u: ad.Num[],
-    v: ad.Num[]
-  ): FloatV<ad.Num> => {
-    const theta = ops.angleBetween(u, v);
-    return {
-      tag: "FloatV",
-      contents: theta,
-    };
+  angleBetween: {
+    name: "angleBetween",
+    description:
+      "Return the unsigned angle between vectors `u, v`, in radians. Assumes that both u and v have nonzero magnitude. The returned value will be in the range [0,pi].",
+    params: [
+      { name: "u", type: realNT(), description: "A vector" },
+      { name: "v", type: realNT(), description: "A vector" },
+    ],
+    body: (_context: Context, u: ad.Num[], v: ad.Num[]): FloatV<ad.Num> => {
+      const theta = ops.angleBetween(u, v);
+      return {
+        tag: "FloatV",
+        contents: theta,
+      };
+    },
+    returns: valueT("Real"),
   },
   /**
    * Return the signed angle from vector `u` to vector `v`, in radians.
    * Assumes that both u and v are 2D vectors and have nonzero magnitude.
    * The returned value will be in the range [-pi,pi].
    */
-  angleFrom: (_context: Context, u: ad.Num[], v: ad.Num[]): FloatV<ad.Num> => {
-    const theta = ops.angleFrom(u, v);
-    return {
-      tag: "FloatV",
-      contents: theta,
-    };
+  angleFrom: {
+    name: "angleFrom",
+    description:
+      "Return the signed angle from vector `u` to vector `v`, in radians. Assumes that both u and v are 2D vectors and have nonzero magnitude. The returned value will be in the range [-pi,pi].",
+    params: [
+      { name: "u", type: realNT(), description: "A vector" },
+      { name: "v", type: realNT(), description: "A vector" },
+    ],
+    body: (_context: Context, u: ad.Num[], v: ad.Num[]): FloatV<ad.Num> => {
+      const theta = ops.angleFrom(u, v);
+      return {
+        tag: "FloatV",
+        contents: theta,
+      };
+    },
+    returns: valueT("Real"),
   },
   /**
    * Return the 2D cross product of `u` and `v`, equal to the determinant of the 2x2 matrix [u v]
    */
-  cross2D: (_context: Context, u: ad.Num[], v: ad.Num[]): FloatV<ad.Num> => {
-    const det = sub(mul(u[0], v[1]), mul(u[1], v[0]));
-    return {
-      tag: "FloatV",
-      contents: det,
-    };
+  cross2D: {
+    name: "cross2D",
+    description:
+      "Return the 2D cross product of `u` and `v`, equal to the determinant of the 2x2 matrix [u v]",
+    params: [
+      { name: "u", type: real2T(), description: "A vector" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (_context: Context, u: ad.Num[], v: ad.Num[]): FloatV<ad.Num> => {
+      const det = sub(mul(u[0], v[1]), mul(u[1], v[0]));
+      return {
+        tag: "FloatV",
+        contents: det,
+      };
+    },
+    returns: valueT("Real"),
   },
   /**
    * Return the 3D cross product of `u` and `v`.
    */
-  cross: (_context: Context, u: ad.Num[], v: ad.Num[]): VectorV<ad.Num> => {
-    const result = ops.cross3(u, v);
-    return {
-      tag: "VectorV",
-      contents: result,
-    };
+  cross: {
+    name: "cross",
+    description: "Return the 3D cross product of 3D vectors `u` and `v`.",
+    params: [
+      { name: "u", type: real3T(), description: "A vector" },
+      { name: "v", type: real3T(), description: "A vector" },
+    ],
+    body: (_context: Context, u: ad.Num[], v: ad.Num[]): VectorV<ad.Num> => {
+      const result = ops.cross3(u, v);
+      return {
+        tag: "VectorV",
+        contents: result,
+      };
+    },
+    returns: real3T(),
   },
   /**
    * Return the intersection of a line passing through
    * `a0` and `a1` with a line passing through `b0` and `b1`
    */
-  lineLineIntersection: (
-    _context: Context,
-    a0: ad.Num[],
-    a1: ad.Num[],
-    b0: ad.Num[],
-    b1: ad.Num[]
-  ): VectorV<ad.Num> => {
-    const A0 = [a0[0], a0[1], 1];
-    const A1 = [a1[0], a1[1], 1];
-    const B0 = [b0[0], b0[1], 1];
-    const B1 = [b1[0], b1[1], 1];
-    const X = ops.cross3(ops.cross3(A0, A1), ops.cross3(B0, B1));
-    const x = [div(X[0], X[2]), div(X[1], X[2])];
-    return {
-      tag: "VectorV",
-      contents: toPt(x),
-    };
+  lineLineIntersection: {
+    name: "lineLineIntersection",
+    description:
+      "Return the intersection of a line passing through `a0` and `a1` with a line passing through `b0` and `b1`.",
+    params: [
+      { name: "a0", type: real2T(), description: "First point of first line" },
+      { name: "a1", type: real2T(), description: "Second point of first line" },
+      { name: "b0", type: real2T(), description: "First point of second line" },
+      {
+        name: "b1",
+        type: real2T(),
+        description: "Second point of second line",
+      },
+    ],
+    body: (
+      _context: Context,
+      a0: ad.Num[],
+      a1: ad.Num[],
+      b0: ad.Num[],
+      b1: ad.Num[]
+    ): VectorV<ad.Num> => {
+      const A0 = [a0[0], a0[1], 1];
+      const A1 = [a1[0], a1[1], 1];
+      const B0 = [b0[0], b0[1], 1];
+      const B1 = [b1[0], b1[1], 1];
+      const X = ops.cross3(ops.cross3(A0, A1), ops.cross3(B0, B1));
+      const x = [div(X[0], X[2]), div(X[1], X[2])];
+      return {
+        tag: "VectorV",
+        contents: toPt(x),
+      };
+    },
+    returns: valueT("Real2"),
   },
   /**
    * Return a point located at the midpoint between pts `start` and `end`
    */
-  midpoint: (
-    _context: Context,
-    start: ad.Num[],
-    end: ad.Num[]
-  ): VectorV<ad.Num> => {
-    const midpointLoc = ops.vmul(0.5, ops.vadd(start, end));
-    return {
-      tag: "VectorV",
-      contents: toPt(midpointLoc),
-    };
+  midpoint: {
+    name: "midpoint",
+    description:
+      "Return a point located at the midpoint between pts `start` and `end`",
+    params: [
+      { name: "start", type: realNT(), description: "First point" },
+      { name: "end", type: realNT(), description: "Second point" },
+    ],
+    body: (
+      _context: Context,
+      start: ad.Num[],
+      end: ad.Num[]
+    ): VectorV<ad.Num> => {
+      const midpointLoc = ops.vmul(0.5, ops.vadd(start, end));
+      return {
+        tag: "VectorV",
+        contents: midpointLoc,
+      };
+    },
+    returns: valueT("RealN"),
   },
   /**
    * Return a point located at the midpoint of a line `s1` but offset by `padding` in its normal direction (for labeling).
    */
-  midpointOffset: (
-    _context: Context,
-    [t1, s1]: [string, any],
-    padding: ad.Num
-  ): TupV<ad.Num> => {
-    if (t1 === "Arrow" || t1 === "Line") {
+  midpointOffset: {
+    name: "midpointOffset",
+    description:
+      "Return a point located at the midpoint of a line `s1` but offset by `padding` in its normal direction (for labeling).",
+    params: [
+      { name: "s1", type: shapeT("Line"), description: "A line" },
+      {
+        name: "padding",
+        type: realT(),
+        description: "Padding between midpoint and label",
+      },
+    ],
+    body: (
+      _context: Context,
+      s1: Line<ad.Num>,
+      padding: ad.Num
+    ): TupV<ad.Num> => {
       const [start, end] = linePts(s1);
       // TODO: Cache these operations in Style!
       const normalDir = ops.rot90(ops.vnormalize(ops.vsub(end, start)));
@@ -877,18 +1517,27 @@ export const compDict = {
         tag: "TupV",
         contents: toPt(midpointOffsetLoc),
       };
-    } else {
-      throw Error(`unsupported shape ${t1} in midpointOffset`);
-    }
+    },
+    returns: valueT("Real2"),
   },
-  chevron: (
-    _context: Context,
-    // TODO reimplement with variable tick marks when #629 is merged
-    [t1, s1]: [string, any],
-    padding: ad.Num,
-    ticks: ad.Num
-  ): PtListV<ad.Num> => {
-    if (t1 === "Arrow" || t1 === "Line") {
+  chevron: {
+    name: "chevron",
+    description:
+      "Return a list of points for a chevron shape comprised of two line segments intersecting at a right angle at the midpoint of `s1`, which can then be passed to `pathFromPoints` to draw the chevron.",
+    params: [
+      { name: "s1", type: shapeT("Line"), description: "A line" },
+      {
+        name: "padding",
+        type: realT(),
+        description: "Length of each line segment",
+      },
+    ],
+    body: (
+      _context: Context,
+      // TODO reimplement with variable tick marks when #629 is merged
+      s1: Line<ad.Num>,
+      padding: ad.Num
+    ): PtListV<ad.Num> => {
       // tickPlacement(padding, ticks);
       const [start, end] = linePts(s1);
       const dir = ops.vnormalize(ops.vsub(end, start)); // TODO make direction face "positive direction"
@@ -904,41 +1553,57 @@ export const compDict = {
           ops.vmove(center, padding, endDir),
         ].map(toPt),
       };
-    } else {
-      throw Error(`unsupported shape ${t1} in chevron`);
-    }
+    },
+    returns: valueT("Real2N"),
   },
   /**
    * Return a point located at `padding` of a line `s1` offset by `padding` in its normal direction (for making right angle markers).
    */
-  innerPointOffset: (
-    _context: Context,
-    pt1: ad.Num[],
-    pt2: ad.Num[],
-    pt3: ad.Num[],
-    padding: ad.Num
-  ): VectorV<ad.Num> => {
-    // unit vector towards first corner
-    const vec1unit = ops.vnormalize(ops.vsub(pt2, pt1));
-    const normalDir = ops.vneg(ops.rot90(vec1unit)); // rot90 rotates CW, neg to point in CCW direction
+  innerPointOffset: {
+    name: "innerPointOffset",
+    description:
+      "Return a point located at `padding` of a line `s1` offset by `padding` in its normal direction (for making right angle markers).",
 
-    // move along line between p1 and p2, then move perpendicularly
-    const ref = ops.vmove(pt1, padding, vec1unit);
-    const [xp, yp] = ops.vmove(ref, padding, normalDir);
-    const [xn, yn] = ops.vmove(ref, padding, ops.vneg(normalDir));
+    params: [
+      { name: "pt1", type: real2T(), description: "First point" },
+      { name: "pt2", type: real2T(), description: "Second point" },
+      { name: "pt3", type: real2T(), description: "Third point" },
+      {
+        name: "padding",
+        type: realT(),
+        description: "Offset from line to returned point",
+      },
+    ],
+    body: (
+      _context: Context,
+      pt1: ad.Num[],
+      pt2: ad.Num[],
+      pt3: ad.Num[],
+      padding: ad.Num
+    ): VectorV<ad.Num> => {
+      // unit vector towards first corner
+      const vec1unit = ops.vnormalize(ops.vsub(pt2, pt1));
+      const normalDir = ops.vneg(ops.rot90(vec1unit)); // rot90 rotates CW, neg to point in CCW direction
 
-    // unit vector towards end point
-    const vec2unit = ops.vnormalize(ops.vsub(pt3, pt1));
-    const endpt = ops.vmove(pt1, padding, vec2unit);
+      // move along line between p1 and p2, then move perpendicularly
+      const ref = ops.vmove(pt1, padding, vec1unit);
+      const [xp, yp] = ops.vmove(ref, padding, normalDir);
+      const [xn, yn] = ops.vmove(ref, padding, ops.vneg(normalDir));
 
-    // unit vector from midpoint to end point
-    const intoEndUnit = ops.vnormalize(ops.vsub([xp, yp], endpt));
-    // vector from B->E needs to be parallel to original vector, only care about positive 1 case bc intoEndUnit should point the same direction as vec1unit
-    const cond = gt(ops.vdot(vec1unit, intoEndUnit), 0.95);
-    return {
-      tag: "VectorV",
-      contents: [ifCond(cond, xp, xn), ifCond(cond, yp, yn)],
-    };
+      // unit vector towards end point
+      const vec2unit = ops.vnormalize(ops.vsub(pt3, pt1));
+      const endpt = ops.vmove(pt1, padding, vec2unit);
+
+      // unit vector from midpoint to end point
+      const intoEndUnit = ops.vnormalize(ops.vsub([xp, yp], endpt));
+      // vector from B->E needs to be parallel to original vector, only care about positive 1 case bc intoEndUnit should point the same direction as vec1unit
+      const cond = gt(ops.vdot(vec1unit, intoEndUnit), 0.95);
+      return {
+        tag: "VectorV",
+        contents: [ifCond(cond, xp, xn), ifCond(cond, yp, yn)],
+      };
+    },
+    returns: valueT("Real2"),
   },
   /**
    * Create equally spaced tick marks centered at the midpoint of a line
@@ -948,49 +1613,89 @@ export const compDict = {
    * @param numTicks: number of tick marks to create
    * @param tickLength: 1/2 length of each tick
    */
-  ticksOnLine: (
-    _context: Context,
-    pt1: ad.Num[],
-    pt2: ad.Num[],
-    spacing: ad.Num,
-    numTicks: ad.Num,
-    tickLength: ad.Num
-  ): PathDataV<ad.Num> => {
-    const path = new PathBuilder();
-    // calculate scalar multipliers to determine the placement of each tick mark
-    const multipliers = tickPlacement(spacing, numOf(numTicks));
-    const unit = ops.vnormalize(ops.vsub(pt2, pt1));
-    const normalDir = ops.vneg(ops.rot90(unit)); // rot90 rotates CW, neg to point in CCW direction
+  ticksOnLine: {
+    name: "ticksOnLine",
+    description:
+      "Create equally spaced tick marks centered at the midpoint of a line",
+    params: [
+      { name: "pt1", type: real2T(), description: "starting point of a line" },
+      { name: "pt2", type: real2T(), description: "ending point of a line" },
+      {
+        name: "spacing",
+        type: realT(),
+        description: "space in px between each tick",
+      },
+      {
+        name: "numTicks",
+        type: posIntT(),
+        description: "number of tick marks to create",
+      },
+      {
+        name: "tickLength",
+        type: realT(),
+        description: "1/2 length of each tick",
+      },
+    ],
+    body: (
+      _context: Context,
+      pt1: ad.Num[],
+      pt2: ad.Num[],
+      spacing: ad.Num,
+      numTicks: ad.Num,
+      tickLength: ad.Num
+    ): PathDataV<ad.Num> => {
+      const path = new PathBuilder();
+      // calculate scalar multipliers to determine the placement of each tick mark
+      const multipliers = tickPlacement(spacing, numOf(numTicks));
+      const unit = ops.vnormalize(ops.vsub(pt2, pt1));
+      const normalDir = ops.vneg(ops.rot90(unit)); // rot90 rotates CW, neg to point in CCW direction
 
-    const mid = ops.vmul(0.5, ops.vadd(pt1, pt2));
+      const mid = ops.vmul(0.5, ops.vadd(pt1, pt2));
 
-    // start/end pts of each tick will be placed parallel to each other, offset at dist of tickLength
-    // from the original pt1->pt2 line
-    const [x1p, y1p] = ops.vmove(mid, tickLength, normalDir);
-    const [x2p, y2p] = ops.vmove(mid, tickLength, ops.vneg(normalDir));
+      // start/end pts of each tick will be placed parallel to each other, offset at dist of tickLength
+      // from the original pt1->pt2 line
+      const [x1p, y1p] = ops.vmove(mid, tickLength, normalDir);
+      const [x2p, y2p] = ops.vmove(mid, tickLength, ops.vneg(normalDir));
 
-    multipliers.forEach((multiplier) => {
-      const [sx, sy] = ops.vmove([x1p, y1p], multiplier, unit);
-      const [ex, ey] = ops.vmove([x2p, y2p], multiplier, unit);
-      path.moveTo([sx, sy]).lineTo([ex, ey]);
-    });
-    return path.getPath();
+      multipliers.forEach((multiplier) => {
+        const [sx, sy] = ops.vmove([x1p, y1p], multiplier, unit);
+        const [ex, ey] = ops.vmove([x2p, y2p], multiplier, unit);
+        path.moveTo([sx, sy]).lineTo([ex, ey]);
+      });
+      return path.getPath();
+    },
+    returns: valueT("PathCmd"),
   },
   /**
    * Given two orthogonal segments that intersect at `intersection`, and a size `len`
    * return a path comprised of three points that describe a perpendicular mark at the angle where the segments intersect.
    */
-  orientedSquare: (
-    _context: Context,
-    [t1, s1]: [string, any],
-    [t2, s2]: [string, any],
-    intersection: ad.Pt2,
-    len: ad.Num
-  ): PathDataV<ad.Num> => {
-    if (
-      (t1 === "Arrow" || t1 === "Line") &&
-      (t2 === "Arrow" || t2 === "Line")
-    ) {
+  orientedSquare: {
+    name: "orientedSquare",
+    description:
+      "Given two orthogonal segments that intersect at `intersection`, and a size `len` return a path comprised of three points that describe a perpendicular mark at the angle where the segments intersect.",
+
+    params: [
+      { name: "s1", type: shapeT("Line"), description: "First line segment" },
+      { name: "s2", type: shapeT("Line"), description: "Second line segment" },
+      {
+        name: "intersection",
+        type: real2T(),
+        description: "Point of intersection",
+      },
+      {
+        name: "len",
+        type: realT(),
+        description: "Side length of square marker",
+      },
+    ],
+    body: (
+      _context: Context,
+      s1: Line<ad.Num>,
+      s2: Line<ad.Num>,
+      intersection: ad.Pt2,
+      len: ad.Num
+    ): PathDataV<ad.Num> => {
       const [seg1, seg2] = [linePts(s1), linePts(s2)];
       const [ptL, ptLR, ptR] = perpPathFlat(len, seg1, seg2);
       const path = new PathBuilder();
@@ -1001,61 +1706,28 @@ export const compDict = {
         .lineTo(intersection)
         .closePath()
         .getPath();
-    } else {
-      throw Error(`orientedSquare undefined for types ${t1}, ${t2}`);
-    }
-  },
-
-  /**
-           * Figure out which side of the rectangle `[t1, s1]` the `start->end` line is hitting, assuming that `start` is located at the rect's center and `end` is located outside the rectangle, and return the size of the OTHER side. Also assuming axis-aligned rectangle. This is used for arrow placement in box-and-arrow diagrams.
-
-       @deprecated Don't use this function, it does not fully work
-           */
-  intersectingSideSize: (
-    _context: Context,
-    start: ad.Num[],
-    end: ad.Num[],
-    [t1, s1]: [string, any]
-  ): FloatV<ad.Num> => {
-    // if (s1.rotation.contents) { throw Error("assumed AABB"); }
-    if (!shapedefs[t1].isRectlike) {
-      throw Error("expected rect-like shape");
-    }
-
-    // TODO: Deal with start and end disjoint from rect, or start and end subset of rect
-    const rect = bboxFromShape([t1, s1]);
-
-    // Intersects top or bottom => return w
-    // i.e. endX \in [minX, maxX] -- if not this, the other must be true
-
-    // Intersects right or left => return h
-    // i.e. endY \in [minY, maxY]
-
-    // Return the OTHER side, which is needed for arrow placement
-
-    // TODO <
-    // this function is wrong -- the `end` doesn't have to lie in any range, and the start always does
-    // Find some other way to calculate what side intersects the ray between the points
-    // Check if this works better WRT new disjoint rectangles, rect-line etc.
-
-    const dim = ifCond(
-      inRange(end[0], BBox.minX(rect), BBox.maxX(rect)),
-      rect.height,
-      rect.width
-    );
-    return { tag: "FloatV", contents: dim };
+    },
+    returns: valueT("PathCmd"),
   },
 
   /**
    * Given three lines `l1, l2, l3` that already form a triangle, return a path that describes the triangle (which can then be filled, etc.).
    */
-  triangle: (
-    _context: Context,
-    [t1, l1]: any,
-    [t2, l2]: any,
-    [t3, l3]: any
-  ): PathDataV<ad.Num> => {
-    if (t1 === "Line" && t2 === "Line" && t3 === "Line") {
+  triangle: {
+    name: "triangle",
+    description:
+      "Given three lines `l1, l2, l3` that already form a triangle, return a path that describes the triangle (which can then be filled, etc.).",
+    params: [
+      { name: "l1", type: shapeT("Line"), description: "First line" },
+      { name: "l2", type: shapeT("Line"), description: "Second line" },
+      { name: "l3", type: shapeT("Line"), description: "Third line" },
+    ],
+    body: (
+      _context: Context,
+      l1: Line<ad.Num>,
+      l2: Line<ad.Num>,
+      l3: Line<ad.Num>
+    ): PathDataV<ad.Num> => {
       const path = new PathBuilder();
       return path
         .moveTo(toPt(getStart(l1)))
@@ -1063,123 +1735,383 @@ export const compDict = {
         .lineTo(toPt(getStart(l3)))
         .closePath()
         .getPath();
-    } else {
-      console.error([t1, l1], [t2, l2], [t3, l3]);
-      throw Error("Triangle function expected three lines");
-    }
+    },
+    returns: valueT("PathCmd"),
   },
 
   /**
    * Return the average of floats `x` and `y`.
    */
-  average2: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: div(add(x, y), 2),
-    };
+  average2: {
+    name: "average2",
+    description: "Return the average of floats `x` and `y`.",
+    params: [
+      { name: "x", type: realT(), description: "`x`" },
+      { name: "y", type: realT(), description: "`y`" },
+    ],
+    body: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: div(add(x, y), 2),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return the average of the floats in the list `xs`.
    */
-  average: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: div(addN(xs), max(1, xs.length)),
-      // To avoid divide-by-0
-    };
+  average: {
+    name: "average",
+    description: "Return the average of the floats in the list `xs`.",
+    params: [{ name: "xs", type: realNT(), description: "`xs`" }],
+    body: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: div(addN(xs), max(1, xs.length)),
+        // To avoid divide-by-0
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return the normalized version of vector `v`.
    */
-  unit: (_context: Context, v: ad.Num[]): VectorV<ad.Num> => {
-    return {
-      tag: "VectorV",
-      contents: ops.vnormalize(v),
-    };
+  unit: {
+    name: "unit",
+    description: "Return the normalized version of vector `v`.",
+    params: [{ name: "v", type: realNT(), description: "`v`" }],
+    body: (_context: Context, v: ad.Num[]): VectorV<ad.Num> => {
+      return {
+        tag: "VectorV",
+        contents: ops.vnormalize(v),
+      };
+    },
+    returns: valueT("RealN"),
+  },
+
+  /**
+   * Return a uniform random value between minVal and maxValue.
+   */
+  random: {
+    name: "random",
+    description:
+      "Uniformly sample a random value in the range from `minVal` to `maxVal`.",
+    params: [
+      { name: "minVal", type: realT(), description: "minimum value" },
+      { name: "maxVal", type: realT(), description: "maximum value" },
+    ],
+    body: (
+      { makeInput }: Context,
+      minVal: ad.Num,
+      maxVal: ad.Num
+    ): FloatV<ad.Num> => {
+      if (typeof minVal === "number" && typeof maxVal === "number") {
+        const val = makeInput({
+          init: { tag: "Sampled", sampler: uniform(minVal, maxVal) },
+          stages: new Set(),
+        });
+
+        return {
+          tag: "FloatV",
+          contents: val,
+        };
+      } else {
+        throw new Error(
+          "Expects the minimum and maximum values to be constants. Got a computed or optimized value instead."
+        );
+      }
+    },
+    returns: valueT("Real"),
+  },
+
+  /**
+   * Return a uniform random value between 0 and 1
+   */
+  unitRandom: {
+    name: "unitRandom",
+    description: "Uniformly sample a random value in the range [0,1).",
+    params: [],
+    body: ({ makeInput }: Context): FloatV<ad.Num> => {
+      const val = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 1) },
+        stages: new Set(),
+      });
+
+      return {
+        tag: "FloatV",
+        contents: val,
+      };
+    },
+    returns: valueT("Real"),
+  },
+
+  /**
+   * Return a random value sampled from the uniform distribution on the unit disk.
+   */
+  diskRandom: {
+    name: "diskRandom",
+    description: "Sample the uniform distribution on the unit disk.",
+    params: [],
+    body: ({ makeInput }: Context): VectorV<ad.Num> => {
+      const u1 = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 1) },
+        stages: new Set(),
+      });
+      const u2 = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 1) },
+        stages: new Set(),
+      });
+
+      // From the section "Sampling the Unit Disk" in Arvo, "Stratified Sampling of 2-Manifolds" (2001)
+      const x = [
+        mul(sqrt(u1), cos(mul(2 * Math.PI, u2))),
+        mul(sqrt(u1), sin(mul(2 * Math.PI, u2))),
+      ];
+
+      return {
+        tag: "VectorV",
+        contents: x,
+      };
+    },
+    returns: valueT("RealN"),
+  },
+
+  /**
+   * Return a random value sampled from the uniform distribution on the unit circle.
+   */
+  circleRandom: {
+    name: "circleRandom",
+    description: "Sample the uniform distribution on the unit circle.",
+    params: [],
+    body: ({ makeInput }: Context): VectorV<ad.Num> => {
+      const u = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 2 * Math.PI) },
+        stages: new Set(),
+      });
+
+      const x = [cos(u), sin(u)];
+
+      return {
+        tag: "VectorV",
+        contents: x,
+      };
+    },
+    returns: valueT("RealN"),
+  },
+
+  /**
+   * Return a random value sampled from the uniform distribution on the unit sphere.
+   */
+  sphereRandom: {
+    name: "sphereRandom",
+    description: "Sample the uniform distribution on the unit sphere.",
+    params: [],
+    body: ({ makeInput }: Context): VectorV<ad.Num> => {
+      const u1 = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 1) },
+        stages: new Set(),
+      });
+      const u2 = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 1) },
+        stages: new Set(),
+      });
+
+      // Adapted from the section "Sampling the Unit Hemisphere" in Arvo, "Stratified Sampling of 2-Manifolds" (2001)
+      const z = sub(1, mul(2, u1));
+      const r = sqrt(clamp([0, 1], sub(1, mul(z, z))));
+      const phi = mul(2 * Math.PI, u2);
+      const x = [mul(r, cos(phi)), mul(r, sin(phi)), z];
+
+      return {
+        tag: "VectorV",
+        contents: x,
+      };
+    },
+    returns: valueT("RealN"),
+  },
+
+  /**
+   * Return a random value sampled from a normal distribution with mean 0 and standard deviation 1.
+   */
+  normalRandom: {
+    name: "normalRandom",
+    description:
+      "Sample a normal distribution with mean 0 and standard deviation 1.",
+    params: [],
+    body: ({ makeInput }: Context): FloatV<ad.Num> => {
+      const u1 = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 1) },
+        stages: new Set(),
+      });
+      const u2 = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 1) },
+        stages: new Set(),
+      });
+
+      const Z = mul(sqrt(mul(-2, ln(u1))), cos(mul(2 * Math.PI, u2)));
+
+      return {
+        tag: "FloatV",
+        contents: Z,
+      };
+    },
+    returns: valueT("Real"),
+  },
+
+  /**
+   * Return a random point sampled from the uniform distribution on a triangle with vertices a, b, c.
+   */
+  triangleRandom: {
+    name: "triangleRandom",
+    description:
+      "Sample a point from the uniform distribution over a triangle with vertices `a`, `b`, and `c`.",
+    params: [
+      { name: "a", type: real2T(), description: "First vertex" },
+      { name: "b", type: real2T(), description: "Second vertex" },
+      { name: "c", type: real2T(), description: "Third vertex" },
+    ],
+    body: (
+      { makeInput }: Context,
+      a: ad.Num[],
+      b: ad.Num[],
+      c: ad.Num[]
+    ): VectorV<ad.Num> => {
+      const u1 = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 1) },
+        stages: new Set(),
+      });
+      const u2 = makeInput({
+        init: { tag: "Sampled", sampler: uniform(0, 1) },
+        stages: new Set(),
+      });
+
+      // Following method SamplePlanarTriangle from Arvo, "Stratified Sampling of 2-Manifolds" (2001)
+      const s = sqrt(u1);
+      const t = u2;
+      const x = ops.vadd(
+        ops.vadd(ops.vmul(sub(1, s), a), ops.vmul(mul(s, sub(1, t)), b)),
+        ops.vmul(mul(s, t), c)
+      );
+
+      return {
+        tag: "VectorV",
+        contents: x,
+      };
+    },
+    returns: valueT("RealN"),
   },
 
   /**
    * Sample a random color once, with opacity `alpha` and colorType `colorType` (`"rgb"` or `"hsv"`).
    */
-  sampleColor: (
-    { makeInput }: Context,
-    alpha: ad.Num,
-    colorType: string
-  ): ColorV<ad.Num> => {
-    if (colorType === "rgb") {
-      const rgb = _.range(3).map(() =>
-        makeInput({
-          init: { tag: "Sampled", sampler: uniform(0.1, 0.9) },
-          stages: new Set(),
-        })
-      );
+  sampleColor: {
+    name: "sampleColor",
+    description:
+      'Sample a random color once, with opacity `alpha` and color type `colorType` (`"rgb"` or `"hsv"`).',
+    params: [
+      { name: "alpha", type: unitT(), description: "Opacity" },
+      { name: "colorType", type: colorTypeT(), description: "Color model" },
+    ],
+    body: (
+      { makeInput }: Context,
+      alpha: ad.Num,
+      colorType: "rgb" | "hsv"
+    ): ColorV<ad.Num> => {
+      if (colorType === "rgb") {
+        const rgb = _.range(3).map(() =>
+          makeInput({
+            init: { tag: "Sampled", sampler: uniform(0.1, 0.9) },
+            stages: new Set(),
+          })
+        );
 
-      return {
-        tag: "ColorV",
-        contents: {
-          tag: "RGBA",
-          contents: [rgb[0], rgb[1], rgb[2], alpha],
-        },
-      };
-    } else if (colorType === "hsv") {
-      const h = makeInput({
-        init: { tag: "Sampled", sampler: uniform(0, 360) },
-        stages: new Set(),
-      });
-      return {
-        tag: "ColorV",
-        contents: {
-          tag: "HSVA",
-          contents: [h, 100, 80, alpha], // HACK: for the color to look good
-        },
-      };
-    } else throw new Error("unknown color type");
+        return {
+          tag: "ColorV",
+          contents: {
+            tag: "RGBA",
+            contents: [rgb[0], rgb[1], rgb[2], alpha],
+          },
+        };
+      } else {
+        const h = makeInput({
+          init: { tag: "Sampled", sampler: uniform(0, 360) },
+          stages: new Set(),
+        });
+        return {
+          tag: "ColorV",
+          contents: {
+            tag: "HSVA",
+            contents: [h, 100, 80, alpha], // HACK: for the color to look good
+          },
+        };
+      }
+    },
+    returns: valueT("Color"),
   },
 
   /**
    * Set the opacity of a color `color` to `frac`.
    */
-  setOpacity: (
-    _context: Context,
-    color: Color<ad.Num>,
-    frac: ad.Num
-  ): ColorV<ad.Num> => {
-    // If paint=none, opacity is irreelevant
-    if (color.tag === "NONE") {
-      return {
-        tag: "ColorV",
-        contents: color,
-      };
-      // Otherwise, retain tag and color; only modify opacity
-    } else {
-      const props = color.contents;
-      return {
-        tag: "ColorV",
-        contents: {
-          tag: color.tag,
-          contents: [props[0], props[1], props[2], mul(frac, props[3])],
-        },
-      };
-    }
+  setOpacity: {
+    name: "setOpacity",
+    description: "Set the opacity of a color `color` to `frac`.",
+    params: [
+      { name: "color", type: colorT(), description: "Color" },
+      { name: "frac", type: unitT(), description: "Opacity" },
+    ],
+    body: (
+      _context: Context,
+      color: Color<ad.Num>,
+      frac: ad.Num
+    ): ColorV<ad.Num> => {
+      // If paint=none, opacity is irreelevant
+      if (color.tag === "NONE") {
+        return {
+          tag: "ColorV",
+          contents: color,
+        };
+        // Otherwise, retain tag and color; only modify opacity
+      } else {
+        const props = color.contents;
+        return {
+          tag: "ColorV",
+          contents: {
+            tag: color.tag,
+            contents: [props[0], props[1], props[2], mul(frac, props[3])],
+          },
+        };
+      }
+    },
+    returns: valueT("Color"),
   },
 
   /**
    * Multiply a matrix `m` and a vector `v` (where `v` is implicitly treated as a column vector).
    */
-  mul: (_context: Context, m: ad.Num[][], v: ad.Num[]): VectorV<ad.Num> => {
-    if (!m.length) {
-      throw Error("empty matrix");
-    }
-    if (!v.length) {
-      throw Error("empty vector");
-    }
+  mul: {
+    name: "mul",
+    description:
+      "Multiply a matrix `m` and a vector `v` (where `v` is implicitly treated as a column vector).",
+    params: [
+      { name: "m", type: realNMT(), description: "A matrix" },
+      { name: "v", type: realNT(), description: "A vector" },
+    ],
+    body: (_context: Context, m: ad.Num[][], v: ad.Num[]): VectorV<ad.Num> => {
+      if (!m.length) {
+        throw Error("empty matrix");
+      }
+      if (!v.length) {
+        throw Error("empty vector");
+      }
 
-    return {
-      tag: "VectorV",
-      contents: m.map((row) => ops.vdot(row, v)),
-    };
+      return {
+        tag: "VectorV",
+        contents: m.map((row) => ops.vdot(row, v)),
+      };
+    },
+    returns: valueT("RealN"),
   },
 
   // ------ Triangle centers
@@ -1187,155 +2119,214 @@ export const compDict = {
   /**
    * Return the barycenter of the triangle with vertices `a`, `b`, `c`.
    */
-  barycenter: (
-    _context: Context,
-    a: ad.Num[],
-    b: ad.Num[],
-    c: ad.Num[]
-  ): VectorV<ad.Num> => {
-    const x = ops.vmul(1 / 3, ops.vadd(a, ops.vadd(b, c)));
-    return {
-      tag: "VectorV",
-      contents: toPt(x),
-    };
+  barycenter: {
+    name: "barycenter",
+    description:
+      "Return the barycenter of the triangle with vertices `a`, `b`, `c`.",
+
+    params: [
+      { name: "a", type: real2T(), description: "First vertex" },
+      { name: "b", type: real2T(), description: "Second vertex" },
+      { name: "c", type: real2T(), description: "Third vertex" },
+    ],
+    body: (
+      _context: Context,
+      a: ad.Num[],
+      b: ad.Num[],
+      c: ad.Num[]
+    ): VectorV<ad.Num> => {
+      const x = ops.vmul(1 / 3, ops.vadd(a, ops.vadd(b, c)));
+      return {
+        tag: "VectorV",
+        contents: toPt(x),
+      };
+    },
+    returns: valueT("Real2"),
   },
 
   /**
    * Return the circumcenter of the triangle with vertices `p`, `q`, `r`.
    */
-  circumcenter: (
-    _context: Context,
-    p: ad.Num[],
-    q: ad.Num[],
-    r: ad.Num[]
-  ): VectorV<ad.Num> => {
-    // edge vectors
-    const u = ops.vsub(r, q);
-    const v = ops.vsub(p, r);
-    const w = ops.vsub(q, p);
+  circumcenter: {
+    name: "circumcenter",
+    description:
+      "Return the circumcenter of the triangle with vertices `p`, `q`, `r`.",
 
-    // side lengths
-    const a = ops.vnorm(u);
-    const b = ops.vnorm(v);
-    const c = ops.vnorm(w);
+    params: [
+      { name: "p", type: real2T(), description: "First vertex" },
+      { name: "q", type: real2T(), description: "Second vertex" },
+      { name: "r", type: real2T(), description: "Third vertex" },
+    ],
+    body: (
+      _context: Context,
+      p: ad.Num[],
+      q: ad.Num[],
+      r: ad.Num[]
+    ): VectorV<ad.Num> => {
+      // edge vectors
+      const u = ops.vsub(r, q);
+      const v = ops.vsub(p, r);
+      const w = ops.vsub(q, p);
 
-    // homogeneous barycentric coordinates for circumcenter
-    const hp = neg(mul(div(a, mul(b, c)), ops.vdot(w, v)));
-    const hq = neg(mul(div(b, mul(c, a)), ops.vdot(u, w)));
-    const hr = neg(mul(div(c, mul(a, b)), ops.vdot(v, u)));
+      // side lengths
+      const a = ops.vnorm(u);
+      const b = ops.vnorm(v);
+      const c = ops.vnorm(w);
 
-    // normalize to get barycentric coordinates for circumcenter
-    const H = add(add(hp, hq), hr);
-    const bp = div(hp, H);
-    const bq = div(hq, H);
-    const br = div(hr, H);
+      // homogeneous barycentric coordinates for circumcenter
+      const hp = neg(mul(div(a, mul(b, c)), ops.vdot(w, v)));
+      const hq = neg(mul(div(b, mul(c, a)), ops.vdot(u, w)));
+      const hr = neg(mul(div(c, mul(a, b)), ops.vdot(v, u)));
 
-    // circumcenter
-    const x = ops.vadd(
-      ops.vadd(ops.vmul(bp, p), ops.vmul(bq, q)),
-      ops.vmul(br, r)
-    );
+      // normalize to get barycentric coordinates for circumcenter
+      const H = add(add(hp, hq), hr);
+      const bp = div(hp, H);
+      const bq = div(hq, H);
+      const br = div(hr, H);
 
-    return {
-      tag: "VectorV",
-      contents: toPt(x),
-    };
+      // circumcenter
+      const x = ops.vadd(
+        ops.vadd(ops.vmul(bp, p), ops.vmul(bq, q)),
+        ops.vmul(br, r)
+      );
+
+      return {
+        tag: "VectorV",
+        contents: toPt(x),
+      };
+    },
+    returns: valueT("Real2"),
   },
 
   /**
    * Return the circumradius of the triangle with vertices `p`, `q`, `r`.
    */
-  circumradius: (
-    _context: Context,
-    p: ad.Num[],
-    q: ad.Num[],
-    r: ad.Num[]
-  ): FloatV<ad.Num> => {
-    // side lengths
-    const a = ops.vnorm(ops.vsub(r, q));
-    const b = ops.vnorm(ops.vsub(p, r));
-    const c = ops.vnorm(ops.vsub(q, p));
+  circumradius: {
+    name: "circumradius",
+    description:
+      "Return the circumradius of the triangle with vertices `p`, `q`, `r`.",
+    params: [
+      { name: "p", type: real2T(), description: "First vertex" },
+      { name: "q", type: real2T(), description: "Second vertex" },
+      { name: "r", type: real2T(), description: "Third vertex" },
+    ],
+    body: (
+      _context: Context,
+      p: ad.Num[],
+      q: ad.Num[],
+      r: ad.Num[]
+    ): FloatV<ad.Num> => {
+      // side lengths
+      const a = ops.vnorm(ops.vsub(r, q));
+      const b = ops.vnorm(ops.vsub(p, r));
+      const c = ops.vnorm(ops.vsub(q, p));
 
-    // semiperimeter
-    const s = mul(0.5, add(add(a, b), c));
+      // semiperimeter
+      const s = mul(0.5, add(add(a, b), c));
 
-    // circumradius, computed as
-    // R = (abc)/(4 sqrt( s(a+b-s)(a+c-s)(b+c-s) ) )
-    const R = div(
-      mul(mul(a, b), c),
-      mul(
-        4,
-        sqrt(
-          mul(
-            mul(mul(s, sub(add(a, b), s)), sub(add(a, c), s)),
-            sub(add(b, c), s)
+      // circumradius, computed as
+      // R = (abc)/(4 sqrt( s(a+b-s)(a+c-s)(b+c-s) ) )
+      const R = div(
+        mul(mul(a, b), c),
+        mul(
+          4,
+          sqrt(
+            mul(
+              mul(mul(s, sub(add(a, b), s)), sub(add(a, c), s)),
+              sub(add(b, c), s)
+            )
           )
         )
-      )
-    );
+      );
 
-    return {
-      tag: "FloatV",
-      contents: R,
-    };
+      return {
+        tag: "FloatV",
+        contents: R,
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return the incenter of the triangle with vertices `p`, `q`, `r`.
    */
-  incenter: (
-    _context: Context,
-    p: ad.Num[],
-    q: ad.Num[],
-    r: ad.Num[]
-  ): VectorV<ad.Num> => {
-    // side lengths
-    const a = ops.vnorm(ops.vsub(r, q));
-    const b = ops.vnorm(ops.vsub(p, r));
-    const c = ops.vnorm(ops.vsub(q, p));
+  incenter: {
+    name: "incenter",
+    description:
+      "Return the incenter of the triangle with vertices `p`, `q`, `r`.",
 
-    // barycentric coordinates for incenter
-    const s = add(add(a, b), c);
-    const bp = div(a, s);
-    const bq = div(b, s);
-    const br = div(c, s);
+    params: [
+      { name: "p", type: real2T(), description: "First vertex" },
+      { name: "q", type: real2T(), description: "Second vertex" },
+      { name: "r", type: real2T(), description: "Third vertex" },
+    ],
+    body: (
+      _context: Context,
+      p: ad.Num[],
+      q: ad.Num[],
+      r: ad.Num[]
+    ): VectorV<ad.Num> => {
+      // side lengths
+      const a = ops.vnorm(ops.vsub(r, q));
+      const b = ops.vnorm(ops.vsub(p, r));
+      const c = ops.vnorm(ops.vsub(q, p));
 
-    // incenter
-    const x = ops.vadd(
-      ops.vadd(ops.vmul(bp, p), ops.vmul(bq, q)),
-      ops.vmul(br, r)
-    );
+      // barycentric coordinates for incenter
+      const s = add(add(a, b), c);
+      const bp = div(a, s);
+      const bq = div(b, s);
+      const br = div(c, s);
 
-    return {
-      tag: "VectorV",
-      contents: toPt(x),
-    };
+      // incenter
+      const x = ops.vadd(
+        ops.vadd(ops.vmul(bp, p), ops.vmul(bq, q)),
+        ops.vmul(br, r)
+      );
+
+      return {
+        tag: "VectorV",
+        contents: toPt(x),
+      };
+    },
+    returns: valueT("Real2"),
   },
 
   /**
    * Return the inradius of the triangle with vertices `p`, `q`, `r`.
    */
-  inradius: (
-    _context: Context,
-    p: ad.Num[],
-    q: ad.Num[],
-    r: ad.Num[]
-  ): FloatV<ad.Num> => {
-    // side lengths
-    const a = ops.vnorm(ops.vsub(r, q));
-    const b = ops.vnorm(ops.vsub(p, r));
-    const c = ops.vnorm(ops.vsub(q, p));
+  inradius: {
+    name: "inradius",
+    description:
+      "Return the inradius of the triangle with vertices `p`, `q`, `r`.",
 
-    // semiperimeter
-    const s = mul(0.5, add(add(a, b), c));
+    params: [
+      { name: "p", type: real2T(), description: "First vertex" },
+      { name: "q", type: real2T(), description: "Second vertex" },
+      { name: "r", type: real2T(), description: "Third vertex" },
+    ],
+    body: (
+      _context: Context,
+      p: ad.Num[],
+      q: ad.Num[],
+      r: ad.Num[]
+    ): FloatV<ad.Num> => {
+      // side lengths
+      const a = ops.vnorm(ops.vsub(r, q));
+      const b = ops.vnorm(ops.vsub(p, r));
+      const c = ops.vnorm(ops.vsub(q, p));
 
-    // inradius
-    const R = sqrt(div(mul(mul(sub(s, a), sub(s, b)), sub(s, c)), s));
+      // semiperimeter
+      const s = mul(0.5, add(add(a, b), c));
 
-    return {
-      tag: "FloatV",
-      contents: R,
-    };
+      // inradius
+      const R = sqrt(div(mul(mul(sub(s, a), sub(s, b)), sub(s, c)), s));
+
+      return {
+        tag: "FloatV",
+        contents: R,
+      };
+    },
+    returns: valueT("Real"),
   },
 
   // ------ Utility functions
@@ -1343,95 +2334,192 @@ export const compDict = {
   /**
    * Return the square of the number `x`.
    */
-  sqr: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return { tag: "FloatV", contents: squared(x) };
+  sqr: {
+    name: "sqr",
+    description: "Return the square of the number `x`.",
+    params: [{ name: "x", type: realT(), description: "`x`" }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+      return { tag: "FloatV", contents: squared(x) };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return the square root of the number `x`. (NOTE: if `x < 0`, you may get `NaN`s)
    */
-  sqrt: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return { tag: "FloatV", contents: sqrt(x) };
+  sqrt: {
+    name: "sqrt",
+    description:
+      "Return the square root of number `x`. (Note: if `x < 0` you may get `NaN`s)",
+    params: [{ name: "x", type: realT(), description: "`x`" }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+      return { tag: "FloatV", contents: sqrt(x) };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return the max of the numbers `x`, `y`.
    */
-  max: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
-    return { tag: "FloatV", contents: max(x, y) };
+  max: {
+    name: "max",
+    description: "Return the max of the numbers `x`, `y`.",
+    params: [
+      { name: "x", type: realT(), description: "`x`" },
+      { name: "y", type: realT(), description: "`y`" },
+    ],
+    body: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
+      return { tag: "FloatV", contents: max(x, y) };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return the min of the numbers `x`, `y`.
    */
-  min: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
-    return { tag: "FloatV", contents: min(x, y) };
+  min: {
+    name: "min",
+    description: "Return the min of the numbers `x`, `y`.",
+    params: [
+      { name: "x", type: realT(), description: "`x`" },
+      { name: "y", type: realT(), description: "`y`" },
+    ],
+    body: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
+      return { tag: "FloatV", contents: min(x, y) };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return the absolute value of the number `x`.
    */
-  abs: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-    return { tag: "FloatV", contents: absVal(x) };
+  abs: {
+    name: "abs",
+    description: "Return the absolute value of the number `x`.",
+    params: [{ name: "x", type: realT(), description: "`x`" }],
+    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
+      return { tag: "FloatV", contents: absVal(x) };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Convert the angle `theta` from degrees to radians.
    */
-  toRadians: (_context: Context, theta: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: mul(Math.PI / 180, theta),
-    };
+  toRadians: {
+    name: "toRadians",
+    description: "Convert the angle `theta` from degrees to radians.",
+    params: [{ name: "theta", type: realT(), description: "`theta`" }],
+    body: (_context: Context, theta: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: mul(Math.PI / 180, theta),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Convert the angle `theta` from radians to degrees.
    */
-  toDegrees: (_context: Context, theta: ad.Num): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: mul(180 / Math.PI, theta),
-    };
+  toDegrees: {
+    name: "toDegrees",
+    description: "Convert the angle `theta` from radians to degrees.",
+    params: [{ name: "theta", type: realT(), description: "`theta`" }],
+    body: (_context: Context, theta: ad.Num): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: mul(180 / Math.PI, theta),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return the Euclidean norm of the vector `v`.
    */
-  norm: (_context: Context, v: ad.Num[]): FloatV<ad.Num> => {
-    return { tag: "FloatV", contents: ops.vnorm(v) };
+  norm: {
+    name: "norm",
+    description: "Return the Euclidean norm of the vector `v`.",
+    params: [{ name: "v", type: realNT(), description: "A vector" }],
+    body: (_context: Context, v: ad.Num[]): FloatV<ad.Num> => {
+      return { tag: "FloatV", contents: ops.vnorm(v) };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return the Euclidean norm squared of the vector `v`.
    */
-  normsq: (_context: Context, v: ad.Num[]): FloatV<ad.Num> => {
-    return { tag: "FloatV", contents: ops.vnormsq(v) };
+  normsq: {
+    name: "normsq",
+    description: "Return the Euclidean norm squared of the vector `v`.",
+    params: [{ name: "v", type: realNT(), description: "A vector" }],
+    body: (_context: Context, v: ad.Num[]): FloatV<ad.Num> => {
+      return { tag: "FloatV", contents: ops.vnormsq(v) };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return the Euclidean distance between the vectors `v` and `w`.
    */
-  vdist: (_context: Context, v: ad.Num[], w: ad.Num[]): FloatV<ad.Num> => {
-    return { tag: "FloatV", contents: ops.vdist(v, w) };
+  vdist: {
+    name: "vdist",
+    description:
+      "Return the Euclidean distance between the vectors `v` and `w`.",
+    params: [
+      { name: "v", type: realNT(), description: "A vector" },
+      { name: "w", type: realNT(), description: "A vector" },
+    ],
+    body: (_context: Context, v: ad.Num[], w: ad.Num[]): FloatV<ad.Num> => {
+      return { tag: "FloatV", contents: ops.vdist(v, w) };
+    },
+    returns: valueT("Real"),
   },
 
-  vmul: (_context: Context, s: ad.Num, v: ad.Num[]): VectorV<ad.Num> => {
-    return { tag: "VectorV", contents: ops.vmul(s, v) };
+  vmul: {
+    name: "vmul",
+    description: "Returns the scalar-vector product.",
+    params: [
+      { name: "s", type: realT(), description: "A scalar" },
+      { name: "v", type: realNT(), description: "A vector" },
+    ],
+    body: (_context: Context, s: ad.Num, v: ad.Num[]): VectorV<ad.Num> => {
+      return { tag: "VectorV", contents: ops.vmul(s, v) };
+    },
+    returns: valueT("RealN"),
   },
 
   /**
    * Return the Euclidean distance squared between the vectors `v` and `w`.
    */
-  vdistsq: (_context: Context, v: ad.Num[], w: ad.Num[]): FloatV<ad.Num> => {
-    return { tag: "FloatV", contents: ops.vdistsq(v, w) };
+  vdistsq: {
+    name: "vdistsq",
+    description:
+      "Return the Euclidean distance squared between the vectors `v` and `w`.",
+    params: [
+      { name: "v", type: realNT(), description: "A vector" },
+      { name: "w", type: realNT(), description: "A vector" },
+    ],
+    body: (_context: Context, v: ad.Num[], w: ad.Num[]): FloatV<ad.Num> => {
+      return { tag: "FloatV", contents: ops.vdistsq(v, w) };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Return the angle made by the vector `v` with the positive x-axis.
    */
-  angleOf: (_context: Context, v: ad.Num[]): FloatV<ad.Num> => {
-    return { tag: "FloatV", contents: atan2(v[1], v[0]) };
+  angleOf: {
+    name: "angleOf",
+    description:
+      "Return the angle made by the vector `v` with the positive x-axis.",
+    params: [{ name: "v", type: realNT(), description: "A vector" }],
+    body: (_context: Context, v: ad.Num[]): FloatV<ad.Num> => {
+      return { tag: "FloatV", contents: atan2(v[1], v[0]) };
+    },
+    returns: valueT("Real"),
   },
 
   // ------ Mathematical constants
@@ -1439,21 +2527,33 @@ export const compDict = {
   /**
    * Base e of the natural logarithm.
    */
-  MathE: (_context: Context): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: Math.E,
-    };
+  MathE: {
+    name: "MathE",
+    description: "Base e of the natural logarithm.",
+    params: [],
+    body: (_context: Context): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: Math.E,
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Ratio of the circumference of a circle to its diameter.
    */
-  MathPI: (_context: Context): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: Math.PI,
-    };
+  MathPI: {
+    name: "MathPI",
+    description: "Ratio of the circumference of a circle to its diameter.",
+    params: [],
+    body: (_context: Context): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: Math.PI,
+      };
+    },
+    returns: valueT("Real"),
   },
 
   // ------ Geometry/graphics utils
@@ -1461,37 +2561,74 @@ export const compDict = {
   /**
    * Rotate a 2D vector `v` by 90 degrees counterclockwise.
    */
-  rot90: (_context: Context, v: ad.Num[]): VectorV<ad.Num> => {
-    if (v.length !== 2) {
-      throw Error("expected 2D vector in `rot90`");
-    }
-    const [x, y] = v;
-    return { tag: "VectorV", contents: [neg(y), x] };
+  rot90: {
+    name: "rot90",
+    description: "Rotate a 2D vector `v` by 90 degrees counterclockwise.",
+    params: [{ name: "v", type: real2T(), description: "A vector" }],
+    body: (_context: Context, v: ad.Num[]): VectorV<ad.Num> => {
+      if (v.length !== 2) {
+        throw Error("expected 2D vector in `rot90`");
+      }
+      const [x, y] = v;
+      return { tag: "VectorV", contents: [neg(y), x] };
+    },
+    returns: valueT("Real2"),
   },
 
   /**
    * Rotate a 2D vector `v` by theta degrees counterclockwise.
    */
-  rotateBy: (
-    _context: Context,
-    v: ad.Num[],
-    theta: ad.Num
-  ): VectorV<ad.Num> => {
-    if (v.length !== 2) {
-      throw Error("expected 2D vector in `rotateBy`");
-    }
-    const [x, y] = v;
-    const X = add(mul(cos(theta), x), mul(sin(theta), y));
-    const Y = add(neg(mul(sin(theta), x)), mul(cos(theta), y));
-    return { tag: "VectorV", contents: [X, Y] };
+  rotateBy: {
+    name: "rotateBy",
+    description: "Rotate a 2D vector `v` by theta degrees counterclockwise.",
+    params: [
+      { name: "v", type: real2T(), description: "A vector" },
+      {
+        name: "theta",
+        type: realT(),
+        description: "degrees to rotate counterclockwise",
+      },
+    ],
+    body: (_context: Context, v: ad.Num[], theta: ad.Num): VectorV<ad.Num> => {
+      if (v.length !== 2) {
+        throw Error("expected 2D vector in `rotateBy`");
+      }
+      const [x, y] = v;
+      const X = add(mul(cos(theta), x), mul(sin(theta), y));
+      const Y = add(neg(mul(sin(theta), x)), mul(cos(theta), y));
+      return { tag: "VectorV", contents: [X, Y] };
+    },
+    returns: valueT("Real2"),
   },
 
-  signedDistance: (
-    _context: Context,
-    [t, s]: [string, any],
-    p: ad.Num[]
-  ): FloatV<ad.Num> => {
-    /*  
+  signedDistance: {
+    name: "signedDistance",
+    description: "Return the signed distance between a shape and a point",
+    params: [
+      {
+        name: "s",
+        type: unionT(
+          rectlikeT(),
+          shapeT("Circle"),
+          shapeT("Polygon"),
+          shapeT("Line"),
+          shapeT("Polyline")
+        ),
+        description: "A shape",
+      },
+      { name: "p", type: real2T(), description: "A point" },
+    ],
+    body: (
+      _context: Context,
+      s:
+        | Rectlike<ad.Num>
+        | Circle<ad.Num>
+        | Polygon<ad.Num>
+        | Line<ad.Num>
+        | Polyline<ad.Num>,
+      p: ad.Num[]
+    ): FloatV<ad.Num> => {
+      /*  
     All math borrowed from:
     https://iquilezles.org/articles/distfunctions2d/
     
@@ -1502,38 +2639,33 @@ export const compDict = {
       return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
     } 
     */
-    if (
-      t === "Rectangle" ||
-      t === "Text" ||
-      t === "Equation" ||
-      t === "Image"
-    ) {
-      const absp = ops.vabs(ops.vsub(p, s.center.contents));
-      const b = [div(s.width.contents, 2), div(s.height.contents, 2)];
-      const d = ops.vsub(absp, b);
-      const result = add(
-        ops.vnorm(ops.vmax(d, [0.0, 0.0])),
-        min(max(d[0], d[1]), 0.0)
-      );
-      return {
-        tag: "FloatV",
-        contents: result,
-      };
-    } else if (t === "Circle") {
-      /*     
+      if (isRectlike(s)) {
+        const absp = ops.vabs(ops.vsub(p, s.center.contents));
+        const b = [div(s.width.contents, 2), div(s.height.contents, 2)];
+        const d = ops.vsub(absp, b);
+        const result = add(
+          ops.vnorm(ops.vmax(d, [0.0, 0.0])),
+          min(max(d[0], d[1]), 0.0)
+        );
+        return {
+          tag: "FloatV",
+          contents: result,
+        };
+      } else if (s.shapeType === "Circle") {
+        /*     
       float sdCircle( vec2 p, float r )
       {
         return length(p) - r;
       } 
       */
-      const pOffset = ops.vsub(p, s.center.contents);
-      const result = sub(ops.vnorm(pOffset), s.r.contents);
-      return {
-        tag: "FloatV",
-        contents: result,
-      };
-    } else if (t === "Polygon") {
-      /*
+        const pOffset = ops.vsub(p, s.center.contents);
+        const result = sub(ops.vnorm(pOffset), s.r.contents);
+        return {
+          tag: "FloatV",
+          contents: result,
+        };
+      } else if (s.shapeType === "Polygon") {
+        /*
       float sdPolygon( in vec2[N] v, in vec2 p )
       {
           float d = dot(p-v[0],p-v[0]);
@@ -1550,253 +2682,619 @@ export const compDict = {
           return s*sqrt(d);
       }
       */
-      const v = s.points.contents;
-      let d = ops.vdot(ops.vsub(p, v[0]), ops.vsub(p, v[0]));
-      let ess: ad.Num = 1.0;
-      let j = v.length - 1;
-      for (let i = 0; i < v.length; i++) {
-        const e = ops.vsub(v[j], v[i]);
-        const w = ops.vsub(p, v[i]);
-        const clampedVal = clamp([0, 1], div(ops.vdot(w, e), ops.vdot(e, e)));
-        const b = ops.vsub(w, ops.vmul(clampedVal, e));
-        d = min(d, ops.vdot(b, b));
-        const c1 = gte(p[1], v[i][1]);
-        const c2 = lt(p[1], v[j][1]);
-        const c3 = gt(mul(e[0], w[1]), mul(e[1], w[0]));
-        const c4 = and(and(c1, c2), c3);
-        const c5 = not(c1);
-        const c6 = not(c2);
-        const c7 = not(c3);
-        const c8 = and(and(c5, c6), c7);
-        const negEss = mul(-1, ess);
-        ess = ifCond(or(c4, c8), negEss, ess);
-        // last line to match for loop in code we are borrowing from
-        j = i;
+        const v = s.points.contents;
+        let d = ops.vdot(ops.vsub(p, v[0]), ops.vsub(p, v[0]));
+        let ess: ad.Num = 1.0;
+        let j = v.length - 1;
+        for (let i = 0; i < v.length; i++) {
+          const e = ops.vsub(v[j], v[i]);
+          const w = ops.vsub(p, v[i]);
+          const clampedVal = clamp([0, 1], div(ops.vdot(w, e), ops.vdot(e, e)));
+          const b = ops.vsub(w, ops.vmul(clampedVal, e));
+          d = min(d, ops.vdot(b, b));
+          const c1 = gte(p[1], v[i][1]);
+          const c2 = lt(p[1], v[j][1]);
+          const c3 = gt(mul(e[0], w[1]), mul(e[1], w[0]));
+          const c4 = and(and(c1, c2), c3);
+          const c5 = not(c1);
+          const c6 = not(c2);
+          const c7 = not(c3);
+          const c8 = and(and(c5, c6), c7);
+          const negEss = mul(-1, ess);
+          ess = ifCond(or(c4, c8), negEss, ess);
+          // last line to match for loop in code we are borrowing from
+          j = i;
+        }
+        const result = mul(ess, sqrt(d));
+        return {
+          tag: "FloatV",
+          contents: result,
+        };
+      } else if (s.shapeType === "Line") {
+        return {
+          tag: "FloatV",
+          contents: sdLine(s, p),
+        };
+      } else {
+        return {
+          tag: "FloatV",
+          contents: sdPolyline(s, p),
+        };
       }
-      const result = mul(ess, sqrt(d));
-      return {
-        tag: "FloatV",
-        contents: result,
-      };
-    } else if (t === "Line") {
-      return {
-        tag: "FloatV",
-        contents: sdLine(s, p),
-      };
-    } else if (t === "Polyline") {
-      return {
-        tag: "FloatV",
-        contents: sdPolyline(s, p),
-      };
-    } else if (t === "Ellipse") {
-      throw Error(`unsupported shape ${t} in distanceShapeToPoint`);
-      // return {
-      //   tag: "FloatV",
-      //   contents: sdEllipse(s, p),
-      // };
-    } else if (t === "Path") {
-      throw Error(`unsupported shape ${t} in distanceShapeToPoint`);
-    } else {
-      throw Error(`unsupported shape ${t} in distanceShapeToPoint`);
-    }
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Construct a unit vector u in the direction of the
    * given angle theta (in radians).
    */
-  unitVector: (_context: Context, theta: ad.Num): VectorV<ad.Num> => {
-    return { tag: "VectorV", contents: [cos(theta), sin(theta)] };
+  unitVector: {
+    name: "unitVector",
+    description:
+      "Construct a unit vector u in the direction of the given angle theta (in radians).",
+    params: [{ name: "theta", type: realT(), description: "direction" }],
+    body: (_context: Context, theta: ad.Num): VectorV<ad.Num> => {
+      return { tag: "VectorV", contents: [cos(theta), sin(theta)] };
+    },
+    returns: valueT("Real2"),
   },
 
-  closestPoint: (
-    _context: Context,
-    [t, s]: [string, any],
-    p: ad.Num[]
-  ): VectorV<ad.Num> => {
-    if (t === "Circle") {
-      /**
-       * Implementing formula
-       * V = P - C
-       * return C + (V/|V|)*r
-       */
-      const pOffset = ops.vsub(p, s.center.contents);
-      const normOffset = ops.vnorm(pOffset);
-      const unitVector = ops.vdiv(pOffset, normOffset);
-      const pOnCircumferenceOffset = ops.vmul(s.r.contents, unitVector);
-      const pOnCircumference = ops.vadd(
-        s.center.contents,
-        pOnCircumferenceOffset
-      );
-      return { tag: "VectorV", contents: pOnCircumference };
-    } else if (
-      t === "Rectangle" ||
-      t === "Text" ||
-      t === "Equation" ||
-      t === "Image"
-    ) {
-      return {
-        tag: "VectorV",
-        contents: closestPointRect(
-          sub(s.center.contents[0], div(s.width.contents, 2)),
-          sub(s.center.contents[1], div(s.height.contents, 2)),
-          s.width.contents,
-          s.height.contents,
-          p[0],
-          p[1]
+  /**
+   * Given a point p and vector v, find the first point where the ray r(t)=p+tv
+   * intersects the given shape S.  If there are no intersections, returns p.
+   */
+  rayIntersect: {
+    name: "rayIntersect",
+    params: [
+      {
+        name: "S",
+        type: unionT(
+          rectlikeT(),
+          shapeT("Circle"),
+          shapeT("Polygon"),
+          shapeT("Line"),
+          shapeT("Polyline"),
+          shapeT("Ellipse"),
+          shapeT("Group")
         ),
-      };
-    } else if (t === "Line") {
-      return {
-        tag: "VectorV",
-        contents: closestPointLine(p, s.start.contents, s.end.contents),
-      };
-    } else if (t === "Polyline") {
-      const closestPoints: ad.Num[][] = [];
-      const dist: ad.Num[] = [];
-      for (let i = 0; i < s.points.contents.length - 1; i++) {
-        const start = s.points.contents[i];
-        const end = s.points.contents[i + 1];
-        closestPoints[i] = closestPointLine(p, start, end);
-        dist[i] = sqrt(
-          add(
-            squared(sub(p[0], closestPoints[i][0])),
-            squared(sub(p[1], closestPoints[i][1]))
-          )
-        );
-      }
-      let retX: ad.Num = closestPoints[0][0];
-      let retY: ad.Num = closestPoints[0][1];
-      let retCond: ad.Num = dist[0];
-      for (let i = 0; i < s.points.contents.length - 1; i++) {
-        retCond = ifCond(lt(retCond, dist[i]), retCond, dist[i]);
-        retX = ifCond(eq(retCond, dist[i]), closestPoints[i][0], retX);
-        retY = ifCond(eq(retCond, dist[i]), closestPoints[i][1], retY);
-      }
-      return { tag: "VectorV", contents: [retX, retY] };
-    } else if (t === "Polygon") {
-      const closestPoints: ad.Num[][] = [];
-      const dist: ad.Num[] = [];
-      let i = 0;
-      for (; i < s.points.contents.length - 1; i++) {
-        const start = s.points.contents[i];
-        const end = s.points.contents[i + 1];
-        closestPoints[i] = closestPointLine(p, start, end);
-        dist[i] = sqrt(
-          add(
-            squared(sub(p[0], closestPoints[i][0])),
-            squared(sub(p[1], closestPoints[i][1]))
-          )
-        );
-      }
-      const start = s.points.contents[i];
-      const end = s.points.contents[0];
-      closestPoints[i] = closestPointLine(p, start, end);
-      dist[i] = sqrt(
-        add(
-          squared(sub(p[0], closestPoints[i][0])),
-          squared(sub(p[1], closestPoints[i][1]))
-        )
-      );
-      let retX: ad.Num = closestPoints[0][0];
-      let retY: ad.Num = closestPoints[0][1];
-      let retCond: ad.Num = dist[0];
-      for (let i = 0; i < s.points.contents.length; i++) {
-        retCond = ifCond(lt(retCond, dist[i]), retCond, dist[i]);
-        retX = ifCond(eq(retCond, dist[i]), closestPoints[i][0], retX);
-        retY = ifCond(eq(retCond, dist[i]), closestPoints[i][1], retY);
-      }
-      return { tag: "VectorV", contents: [retX, retY] };
-    } else if (t === "Ellipse") {
-      return { tag: "VectorV", contents: closestPointEllipse(s, p) };
-    } else throw Error(`unsupported shape ${t} in closestPoint`);
+        description: "A shape",
+      },
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      S:
+        | Circle<ad.Num>
+        | Rectlike<ad.Num>
+        | Line<ad.Num>
+        | Polyline<ad.Num>
+        | Polygon<ad.Num>
+        | Ellipse<ad.Num>
+        | Group<ad.Num>,
+      p: ad.Num[],
+      v: ad.Num[]
+    ): VectorV<ad.Num> => {
+      const hit = rayIntersectShape(S, p, v);
+      const x = hit[0];
+      const x0 = ifCond(eq(absVal(x[0]), Infinity), p[0], x[0]);
+      const x1 = ifCond(eq(absVal(x[1]), Infinity), p[1], x[1]);
+      return { tag: "VectorV", contents: [x0, x1] };
+    },
+    returns: valueT("Real2"),
   },
 
-  rectLineDist: (
-    _context: Context,
-    bottomLeft: ad.Pt2,
-    topRight: ad.Pt2,
-    start: ad.Pt2,
-    end: ad.Pt2
-  ): FloatV<ad.Num> =>
-    floatV(rectLineDist({ bottomLeft, topRight }, { start, end })),
+  /**
+   * Given a point p and vector v, find the unit normal at the first point where
+   * the ray r(t)=p+tv intersects the given shape S.  If there are no
+   * intersections, returns (0,0).
+   */
+  rayIntersectNormal: {
+    name: "rayIntersectNormal",
+    params: [
+      {
+        name: "S",
+        type: unionT(
+          rectlikeT(),
+          shapeT("Circle"),
+          shapeT("Polygon"),
+          shapeT("Line"),
+          shapeT("Polyline"),
+          shapeT("Ellipse"),
+          shapeT("Group")
+        ),
+        description: "A shape",
+      },
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      S:
+        | Circle<ad.Num>
+        | Rectlike<ad.Num>
+        | Line<ad.Num>
+        | Polyline<ad.Num>
+        | Polygon<ad.Num>
+        | Ellipse<ad.Num>
+        | Group<ad.Num>,
+      p: ad.Num[],
+      v: ad.Num[]
+    ): VectorV<ad.Num> => {
+      const hit = rayIntersectShape(S, p, v);
+      const x = hit[0];
+      const n = hit[1];
+      const s = ops.vdot(n, ops.vsub(p, x));
+      const n0 = ifCond(
+        eq(absVal(x[0]), Infinity),
+        0.0,
+        ifCond(lt(s, 0), neg(n[0]), n[0])
+      );
+      const n1 = ifCond(
+        eq(absVal(x[1]), Infinity),
+        0.0,
+        ifCond(lt(s, 0), neg(n[1]), n[1])
+      );
+      return { tag: "VectorV", contents: [n0, n1] };
+    },
+    returns: valueT("Real2"),
+  },
 
-  shapeDistance: (
-    _context: Context,
-    s1: ShapeTuple,
-    s2: ShapeTuple
-  ): FloatV<ad.Num> =>
-    floatV(shapeDistance(shapeTupleToShape(s1), shapeTupleToShape(s2))),
+  closestPoint: {
+    name: "closestPoint",
+    params: [
+      {
+        name: "s",
+        type: unionT(
+          rectlikeT(),
+          shapeT("Circle"),
+          shapeT("Polygon"),
+          shapeT("Line"),
+          shapeT("Polyline"),
+          shapeT("Ellipse"),
+          shapeT("Group")
+        ),
+        description: "A shape",
+      },
+      { name: "p", type: real2T(), description: "A point" },
+    ],
+    body: (
+      _context: Context,
+      s:
+        | Circle<ad.Num>
+        | Rectlike<ad.Num>
+        | Line<ad.Num>
+        | Polyline<ad.Num>
+        | Polygon<ad.Num>
+        | Ellipse<ad.Num>
+        | Group<ad.Num>,
+      p: ad.Num[]
+    ): VectorV<ad.Num> => {
+      return { tag: "VectorV", contents: closestPointShape(s, p) };
+    },
+    returns: valueT("Real2"),
+  },
+
+  closestSilhouettePoint: {
+    name: "closestSilhouettePoint",
+    params: [
+      {
+        name: "s",
+        type: unionT(
+          rectlikeT(),
+          shapeT("Circle"),
+          shapeT("Polygon"),
+          shapeT("Line"),
+          shapeT("Polyline"),
+          shapeT("Ellipse"),
+          shapeT("Group")
+        ),
+        description: "A shape",
+      },
+      { name: "p", type: real2T(), description: "A point" },
+    ],
+    body: (
+      _context: Context,
+      s:
+        | Circle<ad.Num>
+        | Rectlike<ad.Num>
+        | Line<ad.Num>
+        | Polyline<ad.Num>
+        | Polygon<ad.Num>
+        | Ellipse<ad.Num>
+        | Group<ad.Num>,
+      p: ad.Num[]
+    ): VectorV<ad.Num> => {
+      const q = closestSilhouettePointShape(s, p);
+      const qx = ifCond(eq(q[0], Infinity), p[0], q[0]);
+      const qy = ifCond(eq(q[1], Infinity), p[1], q[1]);
+      return { tag: "VectorV", contents: [qx, qy] };
+    },
+    returns: valueT("Real2"),
+  },
+
+  rectLineDist: {
+    name: "rectLineDist",
+    description:
+      "Return the distance between a rectangle (defined using the bottom-left and top-right points) and a line (defined using start and end points)",
+    params: [
+      {
+        name: "bottomLeft",
+        type: real2T(),
+        description: "bottom-left point of rectangle",
+      },
+      {
+        name: "topRight",
+        type: real2T(),
+        description: "top-right point of rectangle",
+      },
+      { name: "start", type: real2T(), description: "start point of line" },
+      { name: "end", type: real2T(), description: "end point of line" },
+    ],
+    body: (
+      _context: Context,
+      bottomLeft: ad.Pt2,
+      topRight: ad.Pt2,
+      start: ad.Pt2,
+      end: ad.Pt2
+    ): FloatV<ad.Num> =>
+      floatV(rectLineDist({ bottomLeft, topRight }, { start, end })),
+    returns: valueT("Real"),
+  },
+
+  shapeDistance: {
+    name: "shapeDistance",
+    description: "Return the distance between two shapes.",
+    params: [
+      { name: "s1", type: shapeT("AnyShape"), description: "a shape" },
+      { name: "s2", type: shapeT("AnyShape"), description: "a shape" },
+    ],
+    body: (
+      _context: Context,
+      s1: Shape<ad.Num>,
+      s2: Shape<ad.Num>
+    ): FloatV<ad.Num> => floatV(shapeDistance(s1, s2)),
+    returns: valueT("Real"),
+  },
 
   /**
    * Returns the signed area enclosed by a polygonal chain given its nodes
    */
-  signedArea: (
-    _context: Context,
-    points: [ad.Num, ad.Num][],
-    closed: boolean
-  ): FloatV<ad.Num> => {
-    return { tag: "FloatV", contents: signedArea(points, closed) };
+  signedArea: {
+    name: "signedArea",
+    description:
+      "Returns the signed area enclosed by a polygonal chain given its nodes",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of polygonal chain",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether the polygonic chain is closed",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      closed: boolean
+    ): FloatV<ad.Num> => {
+      return { tag: "FloatV", contents: signedArea(points, closed) };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Returns the turning number of polygonal chain given its nodes
    */
-  turningNumber: (
-    _context: Context,
-    points: [ad.Num, ad.Num][],
-    closed: boolean
-  ): FloatV<ad.Num> => {
-    return {
-      tag: "FloatV",
-      contents: turningNumber(points, closed),
-    };
+  turningNumber: {
+    name: "turningNumber",
+    description:
+      "Returns the turning number of polygonal chain given its nodes",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of polygonal chain",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether the polygonic chain is closed",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      closed: boolean
+    ): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: turningNumber(points, closed),
+      };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Returns the total length of polygonal chain given its nodes
    */
-  perimeter: (
-    _context: Context,
-    points: [ad.Num, ad.Num][],
-    closed: boolean
-  ): FloatV<ad.Num> => {
-    return { tag: "FloatV", contents: perimeter(points, closed) };
+  perimeter: {
+    name: "perimeter",
+    description: "Returns the total length of polygonal chain given its nodes",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of polygonal chain",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether the polygonic chain is closed",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      closed: boolean
+    ): FloatV<ad.Num> => {
+      return { tag: "FloatV", contents: perimeter(points, closed) };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Returns the isoperimetric ratio (perimeter squared divided by enclosed area)
    */
-  isoperimetricRatio: (
-    _context: Context,
-    points: [ad.Num, ad.Num][],
-    closed: boolean
-  ): FloatV<ad.Num> => {
-    return { tag: "FloatV", contents: isoperimetricRatio(points, closed) };
+  isoperimetricRatio: {
+    name: "isoperimetricRatio",
+    description:
+      "Returns the isoperimetric ratio (perimeter squared divided by enclosed area)",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether the curve is closed",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      closed: boolean
+    ): FloatV<ad.Num> => {
+      return { tag: "FloatV", contents: isoperimetricRatio(points, closed) };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Returns integral of curvature squared along the curve
    */
-  elasticEnergy: (
-    _context: Context,
-    points: [ad.Num, ad.Num][],
-    closed: boolean
-  ): FloatV<ad.Num> => {
-    return { tag: "FloatV", contents: elasticEnergy(points, closed) };
+  elasticEnergy: {
+    name: "elasticEnergy",
+    description: "Returns integral of curvature squared along the curve",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      closed: boolean
+    ): FloatV<ad.Num> => {
+      return { tag: "FloatV", contents: elasticEnergy(points, closed) };
+    },
+    returns: valueT("Real"),
   },
 
   /**
    * Returns integral of curvature along the curve
    */
-  totalCurvature: (
-    _context: Context,
-    points: [ad.Num, ad.Num][],
-    closed: boolean
-  ): FloatV<ad.Num> => {
-    return { tag: "FloatV", contents: totalCurvature(points, closed) };
+  totalCurvature: {
+    name: "totalCurvature",
+    description: "Returns integral of curvature along the curve",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+      {
+        name: "signed",
+        type: booleanT(),
+        description: "whether curvature is signed",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      closed: boolean,
+      signed = true
+    ): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: totalCurvature(points, closed, signed),
+      };
+    },
+    returns: valueT("Real"),
+  },
+
+  /**
+   * Returns the sum of all line segment lengths raised to `k`
+   */
+  lengthK: {
+    name: "lengthK",
+    description: "Returns the sum of all line segment lengths raised to `k`",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+      {
+        name: "k",
+        type: realT(),
+        description: "exponent for line segments",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      closed: boolean,
+      k: number
+    ): FloatV<ad.Num> => {
+      return { tag: "FloatV", contents: lengthK(points, closed, k) };
+    },
+    returns: valueT("Real"),
+  },
+
+  /**
+   * Returns the maximum value of curvature along the curve
+   */
+  maxCurvature: {
+    name: "maxCurvature",
+    description: "Returns the maximum value of curvature along the curve",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      closed: boolean
+    ): FloatV<ad.Num> => {
+      return { tag: "FloatV", contents: maxCurvature(points, closed) };
+    },
+    returns: valueT("Real"),
+  },
+
+  /**
+   * Returns integral of curvature raised to `p` along the curve
+   */
+  pElasticEnergy: {
+    name: "pElasticEnergy",
+    description: "Returns integral of curvature raised to `p` along the curve",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+      {
+        name: "p",
+        type: realT(),
+        description: "exponent for curvature",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      closed: boolean,
+      p: number
+    ): FloatV<ad.Num> => {
+      return { tag: "FloatV", contents: pElasticEnergy(points, closed, p) };
+    },
+    returns: valueT("Real"),
+  },
+
+  /**
+   * Returns integral of curvature derivative raised to `p` along the curve
+   */
+  inflectionEnergy: {
+    name: "inflectionEnergy",
+    description:
+      "Returns integral of curvature derivative raised to `p` along the curve",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+      {
+        name: "p",
+        type: realT(),
+        description: "exponent for curvature derivative",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      closed: boolean,
+      p: number
+    ): FloatV<ad.Num> => {
+      return { tag: "FloatV", contents: inflectionEnergy(points, closed, p) };
+    },
+    returns: valueT("Real"),
+  },
+
+  /**
+   * Returns center of mass for a 2D point cloud
+   */
+  centerOfMass: {
+    name: "centerOfMass",
+    description: "Returns center of mass for a 2D point cloud",
+    params: [
+      {
+        name: "points",
+        type: real2NT(),
+        description: "points of curve",
+      },
+    ],
+    body: (_context: Context, points: [ad.Num, ad.Num][]): VectorV<ad.Num> => {
+      return { tag: "VectorV", contents: centerOfMass(points) };
+    },
+    returns: valueT("Real2"),
   },
 };
+
+// `_compDictVals` causes TypeScript to enforce that every function in
+// `compDict` actually has type `CompFunc` with the right function signature, etc.
+const _compDictVals: CompFunc[] = Object.values(compDict);
 
 /*
   Computes the signed distance for a line 
@@ -1807,7 +3305,7 @@ export const compDict = {
     return length( pa - ba*h );
   }
 */
-const sdLine = (s: Line, p: ad.Num[]): ad.Num => {
+const sdLine = (s: Line<ad.Num>, p: ad.Num[]): ad.Num => {
   return sdLineAsNums(s.start.contents, s.end.contents, p);
 };
 
@@ -1818,7 +3316,7 @@ const sdLineAsNums = (a: ad.Num[], b: ad.Num[], p: ad.Num[]): ad.Num => {
   return ops.vnorm(ops.vsub(pa, ops.vmul(h, ba)));
 };
 
-const sdPolyline = (s: Polyline, p: ad.Num[]): ad.Num => {
+const sdPolyline = (s: Polyline<ad.Num>, p: ad.Num[]): ad.Num => {
   const dists: ad.Num[] = [];
   for (let i = 0; i < s.points.contents.length - 1; i++) {
     const start = s.points.contents[i];
@@ -1828,7 +3326,7 @@ const sdPolyline = (s: Polyline, p: ad.Num[]): ad.Num => {
   return minN(dists);
 };
 
-export const sdEllipse = (s: Ellipse, p: ad.Num[]): ad.Num => {
+export const sdEllipse = (s: Ellipse<ad.Num>, p: ad.Num[]): ad.Num => {
   return sdEllipseAsNums(s.rx.contents, s.ry.contents, s.center.contents, p);
 };
 
@@ -1941,18 +3439,399 @@ export const sdEllipseAsNums = (
   return mul(ops.vnorm(ops.vsub(r, p)), msign(sub(p[1], r[1])));
 };
 
-const closestPointRect = (
-  l: ad.Num,
-  t: ad.Num,
-  w: ad.Num,
-  h: ad.Num,
-  x: ad.Num,
-  y: ad.Num
+const rayIntersectShape = (
+  s:
+    | Circle<ad.Num>
+    | Rectlike<ad.Num>
+    | Line<ad.Num>
+    | Polyline<ad.Num>
+    | Polygon<ad.Num>
+    | Ellipse<ad.Num>
+    | Path<ad.Num>
+    | Group<ad.Num>,
+  p: ad.Num[],
+  v: ad.Num[]
+): ad.Num[][] => {
+  const t = s.shapeType;
+  if (t === "Circle") {
+    return rayIntersectCircle(s, p, v);
+  } else if (
+    t === "Rectangle" ||
+    t === "Text" ||
+    t === "Equation" ||
+    t === "Image"
+  ) {
+    return rayIntersectRect(s, p, v);
+  } else if (t === "Line") {
+    return rayIntersectLine(s, p, v);
+  } else if (t === "Polyline") {
+    return rayIntersectPolyline(s, p, v);
+  } else if (t === "Polygon") {
+    return rayIntersectPolygon(s, p, v);
+  } else if (t === "Ellipse") {
+    return rayIntersectEllipse(s, p, v);
+  } else if (t === "Path") {
+    throw new Error("Ray intersection not handled for Path");
+  } else {
+    // t === "Group"
+    const firstHits = s.shapes.contents.map((shape) =>
+      rayIntersectShape(shape, p, v)
+    );
+    const dist = firstHits.map((hit) => ops.vdist(hit[0], p));
+    let hitX: ad.Num = Infinity;
+    let hitY: ad.Num = Infinity;
+    let nrmX: ad.Num = Infinity;
+    let nrmY: ad.Num = Infinity;
+    let firstDist: ad.Num = Infinity;
+    for (let i = 0; i < s.shapes.contents.length; i++) {
+      firstDist = ifCond(lt(firstDist, dist[i]), firstDist, dist[i]);
+      hitX = ifCond(eq(firstDist, dist[i]), firstHits[i][0][0], hitX);
+      hitY = ifCond(eq(firstDist, dist[i]), firstHits[i][0][1], hitY);
+      nrmX = ifCond(eq(firstDist, dist[i]), firstHits[i][1][0], nrmX);
+      nrmY = ifCond(eq(firstDist, dist[i]), firstHits[i][1][1], nrmY);
+    }
+    return [
+      [hitX, hitY],
+      [nrmX, nrmY],
+    ];
+  }
+};
+
+const rayIntersectCircle = (
+  s: Circle<ad.Num>,
+  p: ad.Num[],
+  v: ad.Num[]
+): ad.Num[][] => {
+  const c = s.center.contents;
+  const r = s.r.contents;
+  return rayIntersectCircleCoords(p, v, c, r);
+};
+
+const rayIntersectEllipse = (
+  s: Ellipse<ad.Num>,
+  p0: ad.Num[],
+  v0: ad.Num[]
+): ad.Num[][] => {
+  // map ray data to coordinate system for unit circle
+  const r = [s.rx.contents, s.ry.contents];
+  const c0 = s.center.contents;
+  const p = ops.ewvvdiv(p0, r);
+  const v = ops.ewvvdiv(v0, r);
+  const c = ops.ewvvdiv(c0, r);
+
+  const hit = rayIntersectCircleCoords(p, v, c, 1);
+
+  // map hit point and normal back to ellipse coordinate system
+  const x = ops.ewvvmul(hit[0], r);
+  const n = ops.vnormalize([
+    mul(div(r[1], r[0]), sub(x[0], c0[0])),
+    mul(div(r[0], r[1]), sub(x[1], c0[1])),
+  ]);
+
+  return [x, n];
+};
+
+const rayIntersectCircleCoords = (
+  p: ad.Num[],
+  v: ad.Num[],
+  c: ad.Num[],
+  r: ad.Num
+): ad.Num[][] => {
+  const w = ops.vnormalize(v);
+  const u = ops.vsub(p, c);
+  const B = neg(ops.vdot(u, w));
+  const C = sub(ops.vdot(u, u), mul(r, r));
+  const D = sub(mul(B, B), C);
+  const t1 = ifCond(lt(D, 0), Infinity, sub(B, sqrt(D)));
+  const t2 = ifCond(lt(D, 0), Infinity, add(B, sqrt(D)));
+  const t = ifCond(gt(t1, 0), t1, ifCond(gt(t2, 0), t2, Infinity));
+  const x = ops.vadd(p, ops.vmul(t, w));
+  const n = ops.vnormalize(ops.vsub(x, c));
+  return [x, n];
+};
+
+const rayIntersectLine = (
+  S: Line<ad.Num>,
+  p: ad.Num[],
+  v: ad.Num[]
+): ad.Num[][] => {
+  return rayIntersectLineCoords(p, v, S.start.contents, S.end.contents);
+};
+
+const rayIntersectRect = (
+  S: Rectlike<ad.Num>,
+  p: ad.Num[],
+  v: ad.Num[]
+): ad.Num[][] => {
+  const c = S.center.contents;
+  const w = S.width.contents;
+  const h = S.height.contents;
+  const x0 = sub(c[0], div(w, 2));
+  const x1 = add(c[0], div(w, 2));
+  const y0 = sub(c[1], div(h, 2));
+  const y1 = add(c[1], div(h, 2));
+
+  const points = [
+    [x0, y0],
+    [x1, y0],
+    [x1, y1],
+    [x0, y1],
+    [x0, y0],
+  ];
+  const firstHits: ad.Num[][][] = [];
+  const dist: ad.Num[] = [];
+  for (let i = 0; i < 4; i++) {
+    const a = points[i];
+    const b = points[i + 1];
+    firstHits[i] = rayIntersectLineCoords(p, v, a, b);
+    dist[i] = ops.vdist(p, firstHits[i][0]);
+  }
+
+  let hitX: ad.Num = Infinity;
+  let hitY: ad.Num = Infinity;
+  let nrmX: ad.Num = Infinity;
+  let nrmY: ad.Num = Infinity;
+  let firstDist: ad.Num = Infinity;
+  for (let i = 0; i < 4; i++) {
+    firstDist = ifCond(lt(firstDist, dist[i]), firstDist, dist[i]);
+    hitX = ifCond(eq(firstDist, dist[i]), firstHits[i][0][0], hitX);
+    hitY = ifCond(eq(firstDist, dist[i]), firstHits[i][0][1], hitY);
+    nrmX = ifCond(eq(firstDist, dist[i]), firstHits[i][1][0], nrmX);
+    nrmY = ifCond(eq(firstDist, dist[i]), firstHits[i][1][1], nrmY);
+  }
+  return [
+    [hitX, hitY],
+    [nrmX, nrmY],
+  ];
+};
+
+const rayIntersectPolyline = (
+  s: Polyline<ad.Num>,
+  p: ad.Num[],
+  v: ad.Num[]
+): ad.Num[][] => {
+  const firstHits: ad.Num[][][] = [];
+  const dist: ad.Num[] = [];
+  for (let i = 0; i < s.points.contents.length - 1; i++) {
+    const a = s.points.contents[i];
+    const b = s.points.contents[i + 1];
+    firstHits[i] = rayIntersectLineCoords(p, v, a, b);
+    dist[i] = ops.vdist(p, firstHits[i][0]);
+  }
+  let firstDist: ad.Num = Infinity;
+  let hitX: ad.Num = Infinity;
+  let hitY: ad.Num = Infinity;
+  let nrmX: ad.Num = 0;
+  let nrmY: ad.Num = 0;
+  for (let i = 0; i < s.points.contents.length - 1; i++) {
+    firstDist = ifCond(lt(firstDist, dist[i]), firstDist, dist[i]);
+    hitX = ifCond(eq(firstDist, dist[i]), firstHits[i][0][0], hitX);
+    hitY = ifCond(eq(firstDist, dist[i]), firstHits[i][0][1], hitY);
+    nrmX = ifCond(eq(firstDist, dist[i]), firstHits[i][1][0], nrmX);
+    nrmY = ifCond(eq(firstDist, dist[i]), firstHits[i][1][1], nrmY);
+  }
+  return [
+    [hitX, hitY],
+    [nrmX, nrmY],
+  ];
+};
+
+const rayIntersectPolygon = (
+  s: Polygon<ad.Num>,
+  p: ad.Num[],
+  v: ad.Num[]
+): ad.Num[][] => {
+  const firstHits: ad.Num[][][] = [];
+  const dist: ad.Num[] = [];
+  let i = 0;
+  for (; i < s.points.contents.length - 1; i++) {
+    const a = s.points.contents[i];
+    const b = s.points.contents[i + 1];
+    firstHits[i] = rayIntersectLineCoords(p, v, a, b);
+    dist[i] = ops.vdist(p, firstHits[i][0]);
+  }
+
+  const a = s.points.contents[i];
+  const b = s.points.contents[0];
+  firstHits[i] = rayIntersectLineCoords(p, v, a, b);
+  dist[i] = ops.vdist(p, firstHits[i][0]);
+
+  let firstDist: ad.Num = Infinity;
+  let hitX: ad.Num = Infinity;
+  let hitY: ad.Num = Infinity;
+  let nrmX: ad.Num = 0;
+  let nrmY: ad.Num = 0;
+  for (let i = 0; i < s.points.contents.length; i++) {
+    firstDist = ifCond(lt(firstDist, dist[i]), firstDist, dist[i]);
+    hitX = ifCond(eq(firstDist, dist[i]), firstHits[i][0][0], hitX);
+    hitY = ifCond(eq(firstDist, dist[i]), firstHits[i][0][1], hitY);
+    nrmX = ifCond(eq(firstDist, dist[i]), firstHits[i][1][0], nrmX);
+    nrmY = ifCond(eq(firstDist, dist[i]), firstHits[i][1][1], nrmY);
+  }
+  return [
+    [hitX, hitY],
+    [nrmX, nrmY],
+  ];
+};
+
+const rayIntersectLineCoords = (
+  p: ad.Num[],
+  v: ad.Num[],
+  a: ad.Num[],
+  b: ad.Num[]
+): ad.Num[][] => {
+  const u = ops.vsub(b, a);
+  const w = ops.vsub(p, a);
+  const d = ops.cross2(v, u);
+  const s = div(ops.cross2(v, w), d);
+  const t = div(ops.cross2(u, w), d);
+
+  // position
+  const T = ifCond(
+    lt(t, 0),
+    Infinity,
+    ifCond(lt(s, 0), Infinity, ifCond(gt(s, 1), Infinity, t))
+  );
+  const x = ops.vadd(p, ops.vmul(T, v));
+
+  // normal
+  const n = ops.vnormalize(ops.rot90(u));
+  const nX = ifCond(
+    lt(t, 0),
+    0,
+    ifCond(lt(s, 0), 0, ifCond(gt(s, 1), 0, n[0]))
+  );
+  const nY = ifCond(
+    lt(t, 0),
+    0,
+    ifCond(lt(s, 0), 0, ifCond(gt(s, 1), 0, n[1]))
+  );
+
+  return [x, [nX, nY]];
+};
+
+const closestPointShape = (
+  s:
+    | Circle<ad.Num>
+    | Rectlike<ad.Num>
+    | Line<ad.Num>
+    | Polyline<ad.Num>
+    | Polygon<ad.Num>
+    | Ellipse<ad.Num>
+    | Path<ad.Num>
+    | Group<ad.Num>,
+  p: ad.Num[]
 ): ad.Num[] => {
+  const t = s.shapeType;
+  if (t === "Circle") {
+    return closestPointCircle(s, p);
+  } else if (
+    t === "Rectangle" ||
+    t === "Text" ||
+    t === "Equation" ||
+    t === "Image"
+  ) {
+    return closestPointRect(s, p);
+  } else if (t === "Line") {
+    return closestPointLine(s, p);
+  } else if (t === "Polyline") {
+    return closestPointPolyline(s, p);
+  } else if (t === "Polygon") {
+    return closestPointPolygon(s, p);
+  } else if (t === "Ellipse") {
+    return closestPointEllipse(s, p);
+  } else if (t === "Path") {
+    throw new Error("Closest point queries not handled for Path");
+  } else {
+    // t === "Group"
+    const closestPoints = s.shapes.contents.map((shape) =>
+      closestPointShape(shape, p)
+    );
+    const dist = closestPoints.map((point) => ops.vdist(point, p));
+    let closestX: ad.Num = Infinity;
+    let closestY: ad.Num = Infinity;
+    let minDist: ad.Num = Infinity;
+    for (let i = 0; i < s.shapes.contents.length; i++) {
+      minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
+      closestX = ifCond(eq(minDist, dist[i]), closestPoints[i][0], closestX);
+      closestY = ifCond(eq(minDist, dist[i]), closestPoints[i][1], closestY);
+    }
+    return [closestX, closestY];
+  }
+};
+
+const closestPointCircle = (s: Circle<ad.Num>, p: ad.Num[]): ad.Num[] => {
+  /**
+   * Implementing formula
+   * V = P - C
+   * return C + (V/|V|)*r
+   */
+  const pOffset = ops.vsub(p, s.center.contents);
+  const normOffset = ops.vnorm(pOffset);
+  const unitVector = ops.vdiv(pOffset, normOffset);
+  const pOnCircumferenceOffset = ops.vmul(s.r.contents, unitVector);
+  const pOnCircumference = ops.vadd(s.center.contents, pOnCircumferenceOffset);
+  return pOnCircumference;
+};
+
+const closestPointLine = (s: Line<ad.Num>, p: ad.Num[]): ad.Num[] => {
+  return closestPointLineCoords(p, s.start.contents, s.end.contents);
+};
+
+const closestPointPolyline = (s: Polyline<ad.Num>, p: ad.Num[]): ad.Num[] => {
+  const closestPoints: ad.Num[][] = [];
+  const dist: ad.Num[] = [];
+  for (let i = 0; i < s.points.contents.length - 1; i++) {
+    const a = s.points.contents[i];
+    const b = s.points.contents[i + 1];
+    closestPoints[i] = closestPointLineCoords(p, a, b);
+    dist[i] = ops.vdist(p, closestPoints[i]);
+  }
+  let closestX: ad.Num = Infinity;
+  let closestY: ad.Num = Infinity;
+  let minDist: ad.Num = Infinity;
+  for (let i = 0; i < s.points.contents.length - 1; i++) {
+    minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
+    closestX = ifCond(eq(minDist, dist[i]), closestPoints[i][0], closestX);
+    closestY = ifCond(eq(minDist, dist[i]), closestPoints[i][1], closestY);
+  }
+  return [closestX, closestY];
+};
+
+const closestPointPolygon = (s: Polygon<ad.Num>, p: ad.Num[]): ad.Num[] => {
+  const closestPoints: ad.Num[][] = [];
+  const dist: ad.Num[] = [];
+  let i = 0;
+  for (; i < s.points.contents.length - 1; i++) {
+    const a = s.points.contents[i];
+    const b = s.points.contents[i + 1];
+    closestPoints[i] = closestPointLineCoords(p, a, b);
+    dist[i] = ops.vdist(p, closestPoints[i]);
+  }
+  const a = s.points.contents[i];
+  const b = s.points.contents[0];
+  closestPoints[i] = closestPointLineCoords(p, a, b);
+  dist[i] = ops.vdist(p, closestPoints[i]);
+  let closestX: ad.Num = Infinity;
+  let closestY: ad.Num = Infinity;
+  let minDist: ad.Num = Infinity;
+  for (let i = 0; i < s.points.contents.length; i++) {
+    minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
+    closestX = ifCond(eq(minDist, dist[i]), closestPoints[i][0], closestX);
+    closestY = ifCond(eq(minDist, dist[i]), closestPoints[i][1], closestY);
+  }
+  return [closestX, closestY];
+};
+
+const closestPointRect = (s: Rectlike<ad.Num>, p: ad.Num[]): ad.Num[] => {
+  const l = sub(s.center.contents[0], div(s.width.contents, 2));
+  const t = sub(s.center.contents[1], div(s.height.contents, 2));
+  const w = s.width.contents;
+  const h = s.height.contents;
   const r = add(l, w);
   const b = add(t, h);
-  x = clamp([l, r], x);
-  y = clamp([t, b], y);
+  const x = clamp([l, r], p[0]);
+  const y = clamp([t, b], p[1]);
   const dl = absVal(sub(x, l));
   const dr = absVal(sub(x, r));
   const dt = absVal(sub(y, t));
@@ -1962,19 +3841,11 @@ const closestPointRect = (
   retX = ifCond(eq(m, dl), l, retX);
   let retY: ad.Num = ifCond(or(eq(m, dl), eq(m, dr)), y, t);
   retY = ifCond(eq(m, db), b, retY);
+
   return [retX, retY];
 };
 
-const closestPointLine = (p: ad.Num[], a: ad.Num[], b: ad.Num[]): ad.Num[] => {
-  const a_to_p = [sub(p[0], a[0]), sub(p[1], a[1])];
-  const a_to_b = [sub(b[0], a[0]), sub(b[1], a[1])];
-  const atb2 = add(squared(a_to_b[0]), squared(a_to_b[1]));
-  const atp_dot_atb = add(mul(a_to_p[0], a_to_b[0]), mul(a_to_p[1], a_to_b[1]));
-  const t = clamp([0, 1], div(atp_dot_atb, atb2));
-  return [add(a[0], mul(a_to_b[0], t)), add(a[1], mul(a_to_b[1], t))];
-};
-
-const closestPointEllipse = (s: Ellipse, p: ad.Num[]): ad.Num[] => {
+const closestPointEllipse = (s: Ellipse<ad.Num>, p: ad.Num[]): ad.Num[] => {
   return closestPointEllipseCoords(
     s.rx.contents,
     s.ry.contents,
@@ -1983,64 +3854,321 @@ const closestPointEllipse = (s: Ellipse, p: ad.Num[]): ad.Num[] => {
   );
 };
 
-const closestPointEllipseCoords = (
-  // Note: this is an approximation function!
-  radiusx: ad.Num,
-  radiusy: ad.Num,
-  center: ad.Num[],
-  pInput: ad.Num[]
+const closestPointLineCoords = (
+  p: ad.Num[],
+  a: ad.Num[],
+  b: ad.Num[]
 ): ad.Num[] => {
-  const pOffset = ops.vsub(pInput, center);
-  const px = absVal(pOffset[0]);
-  const py = absVal(pOffset[1]);
-
-  let t = div(Math.PI, 4);
-  let x: ad.Num = 0;
-  let y: ad.Num = 0;
-
-  const a = radiusx;
-  const b = radiusy;
-  for (let i = 0; i < 100; i++) {
-    x = mul(a, cos(t));
-    y = mul(b, sin(t));
-
-    const ex = div(mul(sub(squared(a), squared(b)), pow(cos(t), 3)), a);
-    const ey = div(mul(sub(squared(b), squared(a)), pow(sin(t), 3)), b);
-
-    const rx = sub(x, ex);
-    const ry = sub(y, ey);
-
-    const qx = sub(px, ex);
-    const qy = sub(py, ey);
-
-    const r = sqrt(add(squared(ry), squared(rx)));
-    const q = sqrt(add(squared(qy), squared(qx)));
-
-    const delta_c = mul(r, asin(div(sub(mul(rx, qy), mul(ry, qx)), mul(r, q))));
-    const delta_t = div(
-      delta_c,
-      sqrt(sub(sub(add(squared(a), squared(b)), squared(x)), squared(y)))
-    );
-    t = add(t, delta_t);
-    t = min(div(Math.PI, 2), max(0, t));
-  }
-  x = mul(msign(pInput[0]), absVal(x));
-  y = mul(msign(pInput[1]), absVal(y));
-  x = add(x, center[0]);
-  y = add(y, center[1]);
-  return [x, y];
+  const a_to_p = [sub(p[0], a[0]), sub(p[1], a[1])];
+  const a_to_b = [sub(b[0], a[0]), sub(b[1], a[1])];
+  const atb2 = add(squared(a_to_b[0]), squared(a_to_b[1]));
+  const atp_dot_atb = add(mul(a_to_p[0], a_to_b[0]), mul(a_to_p[1], a_to_b[1]));
+  const t = clamp([0, 1], div(atp_dot_atb, atb2));
+  return [add(a[0], mul(a_to_b[0], t)), add(a[1], mul(a_to_b[1], t))];
 };
 
-// `_compDictVals` causes TypeScript to enforce that every function in
-// `compDict` takes a `Context` as its first parameter and returns a `Value`
-const _compDictVals: ((
-  context: Context,
-  ...rest: never[]
-) => Value<ad.Num>)[] = Object.values(compDict);
+// Note: approximates the solution via Newton's method (but in practice is quite accurate, even for one or two iterations)
+const closestPointEllipseCoords = (
+  a: ad.Num, // horizontal radius
+  b: ad.Num, // vertical radius
+  c: ad.Num[], // center
+  p0: ad.Num[] // query point
+): ad.Num[] => {
+  const nNewtonIterations = 2;
 
-// Ignore this
-export const checkComp = (fn: string, args: ArgVal<ad.Num>[]): void => {
-  if (!compDict[fn]) throw new Error(`Computation function "${fn}" not found`);
+  const p = ops.vsub(p0, c);
+  let t = atan2(mul(a, p[1]), mul(b, p[0]));
+  for (let i = 0; i < nNewtonIterations; i++) {
+    const a2 = mul(a, a);
+    const b2 = mul(b, b);
+    const n0 = mul(mul(a, p[0]), sin(t));
+    const n1 = mul(b, p[1]);
+    const n2 = mul(sub(a2, b2), sin(t));
+    const n3 = mul(cos(t), add(n1, n2));
+    const d0 = mul(a, mul(p[0], cos(t)));
+    const d1 = mul(sub(a2, b2), cos(mul(2, t)));
+    const d2 = mul(b, mul(p[1], sin(t)));
+    t = sub(t, div(sub(n3, n0), sub(sub(d1, d2), d0)));
+  }
+  const y0 = mul(a, cos(t));
+  const y1 = mul(b, sin(t));
+  return ops.vadd([y0, y1], c);
+};
+
+/* Returns the closest point on the visibility
+ * silhouette of shape S relative to point p.
+ * If there is no silhouette, returns p. */
+const closestSilhouettePointShape = (
+  s:
+    | Circle<ad.Num>
+    | Rectlike<ad.Num>
+    | Line<ad.Num>
+    | Polyline<ad.Num>
+    | Polygon<ad.Num>
+    | Ellipse<ad.Num>
+    | Path<ad.Num>
+    | Group<ad.Num>,
+  p: ad.Num[]
+): ad.Num[] => {
+  const t = s.shapeType;
+  if (t === "Circle") {
+    return closestSilhouettePointCircle(s, p);
+  } else if (
+    t === "Rectangle" ||
+    t === "Text" ||
+    t === "Equation" ||
+    t === "Image"
+  ) {
+    return closestSilhouettePointRect(s, p);
+  } else if (t === "Line") {
+    return closestSilhouettePointLine(s, p);
+  } else if (t === "Polyline") {
+    return closestSilhouettePointPolyline(s, p);
+  } else if (t === "Polygon") {
+    return closestSilhouettePointPolygon(s, p);
+  } else if (t === "Ellipse") {
+    return closestSilhouettePointEllipse(s, p);
+  } else if (t === "Path") {
+    throw new Error("Silhouette queries not handled for Path");
+  } else {
+    // t === "Group"
+    const closestSilhouettePoints = s.shapes.contents.map((shape) =>
+      closestSilhouettePointShape(shape, p)
+    );
+    const dist = closestSilhouettePoints.map((point) => ops.vdist(point, p));
+    let closestX: ad.Num = Infinity;
+    let closestY: ad.Num = Infinity;
+    let minDist: ad.Num = Infinity;
+    for (let i = 0; i < s.shapes.contents.length; i++) {
+      minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
+      closestX = ifCond(
+        eq(minDist, dist[i]),
+        closestSilhouettePoints[i][0],
+        closestX
+      );
+      closestY = ifCond(
+        eq(minDist, dist[i]),
+        closestSilhouettePoints[i][1],
+        closestY
+      );
+    }
+    return [closestX, closestY];
+  }
+};
+
+const closestSilhouettePointCircle = (
+  s: Circle<ad.Num>,
+  p: ad.Num[]
+): ad.Num[] => {
+  const c = s.center.contents;
+  const r = s.r.contents;
+  const y = closestSilhouettePointEllipseCoords(ops.vsub(p, c), r, r);
+  return ops.vadd(y, c);
+};
+
+const closestSilhouettePointEllipse = (
+  s: Ellipse<ad.Num>,
+  p: ad.Num[]
+): ad.Num[] => {
+  const c = s.center.contents;
+  const rx = s.rx.contents;
+  const ry = s.ry.contents;
+  const y = closestSilhouettePointEllipseCoords(ops.vsub(p, c), rx, ry);
+  return ops.vadd(y, c);
+};
+
+const closestSilhouettePointLine = (s: Line<ad.Num>, p: ad.Num[]): ad.Num[] => {
+  const a = s.start.contents;
+  const b = s.end.contents;
+  const da = ops.vdistsq(p, a);
+  const db = ops.vdistsq(p, b);
+  const y0 = ifCond(lt(da, db), a[0], b[0]);
+  const y1 = ifCond(lt(da, db), a[1], b[1]);
+  return [y0, y1];
+};
+
+/* Computes the closest silhouette on an ellipse with radii a0,b0 relative to a
+ * point p0, assuming the ellipse has already been translated to the origin and
+ * rotated to be axis-aligned. */
+const closestSilhouettePointEllipseCoords = (
+  p0: ad.Num[],
+  a0: ad.Num,
+  b0: ad.Num
+): ad.Num[] => {
+  const b = div(b0, a0);
+  const b2 = mul(b, b);
+  const p = ops.vdiv(p0, a0);
+  const x = p[0];
+  const y = p[1];
+  const x2 = mul(x, x);
+  const y2 = mul(y, y);
+  const d = add(mul(b2, x2), y2);
+  const e = add(mul(mul(b2, sub(x2, 1)), y2), mul(y2, y2));
+  const f = mul(b2, x);
+  const g = mul(b2, y2);
+  const u0 = ifCond(lt(e, 0), Infinity, mul(a0, div(sub(f, sqrt(e)), d)));
+  const u1 = ifCond(
+    lt(e, 0),
+    Infinity,
+    mul(a0, div(add(g, mul(mul(x, b2), sqrt(e))), mul(d, y)))
+  );
+  const v0 = ifCond(lt(e, 0), Infinity, mul(a0, div(add(f, sqrt(e)), d)));
+  const v1 = ifCond(
+    lt(e, 0),
+    Infinity,
+    mul(a0, div(sub(g, mul(mul(x, b2), sqrt(e))), mul(d, y)))
+  );
+  const du = ops.vdist([u0, u1], p0);
+  const dv = ops.vdist([v0, v1], p0);
+  const z0 = ifCond(lt(du, dv), u0, v0);
+  const z1 = ifCond(lt(du, dv), u1, v1);
+  return [z0, z1];
+};
+
+const closestSilhouettePointRect = (
+  R: Rectlike<ad.Num>,
+  p: ad.Num[]
+): ad.Num[] => {
+  const c = R.center.contents;
+  const w = R.width.contents;
+  const h = R.height.contents;
+  const x0 = sub(c[0], div(w, 2));
+  const x1 = add(c[0], div(w, 2));
+  const y0 = sub(c[1], div(h, 2));
+  const y1 = add(c[1], div(h, 2));
+
+  const points = [
+    [x0, y0],
+    [x1, y0],
+    [x1, y1],
+    [x0, y1],
+  ];
+  const closestSilhouettePoints: ad.Num[][] = [];
+  const dist: ad.Num[] = [];
+  for (let i = 0; i < 4; i++) {
+    const a = points[i];
+    const b = points[(i + 1) % 4];
+    const c = points[(i + 2) % 4];
+    closestSilhouettePoints[i] = closestSilhouettePointCorner(p, a, b, c);
+    dist[i] = ops.vdist(p, closestSilhouettePoints[i]);
+  }
+
+  let closestX: ad.Num = Infinity;
+  let closestY: ad.Num = Infinity;
+  let minDist: ad.Num = Infinity;
+  for (let i = 0; i < 4; i++) {
+    minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
+    closestX = ifCond(
+      eq(minDist, dist[i]),
+      closestSilhouettePoints[i][0],
+      closestX
+    );
+    closestY = ifCond(
+      eq(minDist, dist[i]),
+      closestSilhouettePoints[i][1],
+      closestY
+    );
+  }
+  return [closestX, closestY];
+};
+
+const closestSilhouettePointPolyline = (
+  s: Polyline<ad.Num>,
+  p: ad.Num[]
+): ad.Num[] => {
+  const closestSilhouettePoints: ad.Num[][] = [];
+  const dist: ad.Num[] = [];
+
+  // interior points
+  for (let i = 0; i < s.points.contents.length - 2; i++) {
+    const a = s.points.contents[i];
+    const b = s.points.contents[i + 1];
+    const c = s.points.contents[i + 2];
+    closestSilhouettePoints[i] = closestSilhouettePointCorner(p, a, b, c);
+    dist[i] = ops.vdist(p, closestSilhouettePoints[i]);
+  }
+  let closestX: ad.Num = Infinity;
+  let closestY: ad.Num = Infinity;
+  let minDist: ad.Num = Infinity;
+  for (let i = 0; i < s.points.contents.length - 2; i++) {
+    minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
+    closestX = ifCond(
+      eq(minDist, dist[i]),
+      closestSilhouettePoints[i][0],
+      closestX
+    );
+    closestY = ifCond(
+      eq(minDist, dist[i]),
+      closestSilhouettePoints[i][1],
+      closestY
+    );
+  }
+
+  //endpoints
+  const q0 = s.points.contents[0];
+  const dist0 = ops.vdist(p, q0);
+  minDist = ifCond(lt(minDist, dist0), minDist, dist0);
+  closestX = ifCond(eq(minDist, dist0), q0[0], closestX);
+  closestY = ifCond(eq(minDist, dist0), q0[1], closestY);
+  const qN = s.points.contents[s.points.contents.length - 1];
+  const distN = ops.vdist(p, qN);
+  minDist = ifCond(lt(minDist, distN), minDist, distN);
+  closestX = ifCond(eq(minDist, distN), qN[0], closestX);
+  closestY = ifCond(eq(minDist, distN), qN[1], closestY);
+
+  return [closestX, closestY];
+};
+
+const closestSilhouettePointPolygon = (
+  s: Polygon<ad.Num>,
+  p: ad.Num[]
+): ad.Num[] => {
+  const closestSilhouettePoints: ad.Num[][] = [];
+  const dist: ad.Num[] = [];
+  for (let i = 0; i < s.points.contents.length; i++) {
+    const j = (i + 1) % s.points.contents.length;
+    const k = (i + 2) % s.points.contents.length;
+    const a = s.points.contents[i];
+    const b = s.points.contents[j];
+    const c = s.points.contents[k];
+    closestSilhouettePoints[i] = closestSilhouettePointCorner(p, a, b, c);
+    dist[i] = ops.vdist(p, closestSilhouettePoints[i]);
+  }
+  let closestX: ad.Num = Infinity;
+  let closestY: ad.Num = Infinity;
+  let minDist: ad.Num = Infinity;
+  for (let i = 0; i < s.points.contents.length; i++) {
+    minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
+    closestX = ifCond(
+      eq(minDist, dist[i]),
+      closestSilhouettePoints[i][0],
+      closestX
+    );
+    closestY = ifCond(
+      eq(minDist, dist[i]),
+      closestSilhouettePoints[i][1],
+      closestY
+    );
+  }
+  return [closestX, closestY];
+};
+
+/* Given three points a, b, c describing a pair of line segments ab, bc and a
+ * query point p, returns b if it is a silhouette point, relative to p, and
+ * (Infinity,Infinity) otherwise. */
+const closestSilhouettePointCorner = (
+  p: ad.Num[],
+  a: ad.Num[],
+  b: ad.Num[],
+  c: ad.Num[]
+): ad.Num[] => {
+  const s = mul(
+    ops.cross2(ops.vsub(b, a), ops.vsub(p, a)),
+    ops.cross2(ops.vsub(c, b), ops.vsub(p, b))
+  );
+  const y0 = ifCond(lt(s, 0), b[0], Infinity);
+  const y1 = ifCond(lt(s, 0), b[1], Infinity);
+  return [y0, y1];
 };
 
 const toPt = (v: ad.Num[]): ad.Pt2 => {

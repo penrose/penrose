@@ -1,51 +1,50 @@
-import * as ad from "./ad";
-import { BoolV, ColorV, FloatV, PtListV, StrV, VectorV } from "./value";
+import { BoolV, ColorV, FloatV, PtListV, StrV, VectorV } from "./value.js";
 
 //#region shape hierarchy interfaces
-export interface Named {
+export interface Named<T> {
   name: StrV;
   style: StrV; // TODO: very temporary; remove this and just use passthrough
   ensureOnCanvas: BoolV;
 }
 
-export interface Stroke {
-  strokeWidth: FloatV<ad.Num>;
+export interface Stroke<T> {
+  strokeWidth: FloatV<T>;
   strokeStyle: StrV;
-  strokeColor: ColorV<ad.Num>;
+  strokeColor: ColorV<T>;
   strokeDasharray: StrV;
 }
 
-export interface Fill {
-  fillColor: ColorV<ad.Num>;
+export interface Fill<T> {
+  fillColor: ColorV<T>;
 }
 
-export interface Center {
-  center: VectorV<ad.Num>; // corresponds to (cx, cy), or other things, in SVG
+export interface Center<T> {
+  center: VectorV<T>; // corresponds to (cx, cy), or other things, in SVG
 }
 
-export interface Rect {
-  width: FloatV<ad.Num>;
-  height: FloatV<ad.Num>;
+export interface Rect<T> {
+  width: FloatV<T>;
+  height: FloatV<T>;
 }
 
-export interface Arrow {
-  startArrowheadSize: FloatV<ad.Num>;
-  endArrowheadSize: FloatV<ad.Num>;
+export interface Arrow<T> {
+  startArrowheadSize: FloatV<T>;
+  endArrowheadSize: FloatV<T>;
   startArrowhead: StrV;
   endArrowhead: StrV;
   flipStartArrowhead: BoolV;
 }
 
-export interface Corner {
-  cornerRadius: FloatV<ad.Num>; // note: corresponds to rx in SVG
+export interface Corner<T> {
+  cornerRadius: FloatV<T>; // note: corresponds to rx in SVG
 }
 
 // TODO: don't use these
-export interface Rotate {
-  rotation: FloatV<ad.Num>; // about the top-left corner
+export interface Rotate<T> {
+  rotation: FloatV<T>; // about the top-left corner
 }
-export interface Scale {
-  scale: FloatV<ad.Num>; // doesn't work correctly
+export interface Scale<T> {
+  scale: FloatV<T>; // doesn't work correctly
 }
 
 // // TODO: use this: https://github.com/penrose/penrose/issues/713
@@ -53,17 +52,20 @@ export interface Scale {
 //   matrix: MatrixV<ad.Num>;
 // }
 
-export interface Poly {
-  points: PtListV<ad.Num>;
+export interface Poly<T> {
+  points: PtListV<T>;
 }
 
-export interface String {
+export interface String<T> {
   string: StrV;
   fontSize: StrV;
 }
 
-export interface Shape {
+export interface ShapeCommon<T> {
   shapeType: string;
+  passthrough: Map<string, CanPassthrough<T>>;
 }
+
+export type CanPassthrough<T> = StrV | FloatV<T>;
 
 //#endregion

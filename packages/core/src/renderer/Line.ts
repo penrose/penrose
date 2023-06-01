@@ -1,5 +1,4 @@
-import { Shape } from "../types/shape";
-import { BoolV, ColorV, FloatV, StrV, VectorV } from "../types/value";
+import { Line } from "../shapes/Line.js";
 import {
   ArrowheadSpec,
   getArrowhead,
@@ -7,9 +6,9 @@ import {
   toScreen,
   toSvgOpacityProperty,
   toSvgPaintProperty,
-} from "../utils/Util";
-import { attrAutoFillSvg, attrTitle, DASH_ARRAY } from "./AttrHelper";
-import { ShapeProps } from "./Renderer";
+} from "../utils/Util.js";
+import { DASH_ARRAY, attrAutoFillSvg, attrTitle } from "./AttrHelper.js";
+import { RenderProps } from "./Renderer.js";
 
 export const arrowHead = (
   id: string,
@@ -56,23 +55,19 @@ export const arrowHead = (
 };
 
 const makeRoomForArrows = (
-  shape: Shape,
+  shape: Line<number>,
   startArrowhead?: ArrowheadSpec,
   endArrowhead?: ArrowheadSpec
 ): [number[][], string[]] => {
   // Keep a list of which input properties we programatically mapped
   const attrMapped: string[] = [];
 
-  const [lineSX, lineSY] = (shape.properties.start as VectorV<number>)
-    .contents as [number, number];
-  const [lineEX, lineEY] = (shape.properties.end as VectorV<number>)
-    .contents as [number, number];
+  const [lineSX, lineSY] = [shape.start.contents[0], shape.start.contents[1]];
+  const [lineEX, lineEY] = [shape.end.contents[0], shape.end.contents[1]];
 
-  const startArrowheadSize = (shape.properties
-    .startArrowheadSize as FloatV<number>).contents;
-  const endArrowheadSize = (shape.properties.endArrowheadSize as FloatV<number>)
-    .contents;
-  const thickness = (shape.properties.strokeWidth as FloatV<number>).contents;
+  const startArrowheadSize = shape.startArrowheadSize.contents;
+  const endArrowheadSize = shape.endArrowheadSize.contents;
+  const thickness = shape.strokeWidth.contents;
   attrMapped.push(
     "start",
     "end",
@@ -92,7 +87,7 @@ const makeRoomForArrows = (
   // See https://math.stackexchange.com/a/2045181 for a derivation.
   let arrowSX, arrowSY;
   if (startArrowhead) {
-    const startFlip = shape.properties.flipStartArrowhead.contents;
+    const startFlip = shape.flipStartArrowhead.contents;
     const startArrowWidth =
       (startFlip
         ? startArrowhead.refX
@@ -127,42 +122,30 @@ const makeRoomForArrows = (
   ];
 };
 
-const Line = ({
-  shape,
-  canvasSize,
-  namespace,
-  variation,
-}: ShapeProps): SVGGElement => {
-  const startArrowhead = getArrowhead(
-    (shape.properties.startArrowhead as StrV).contents
-  );
-  const endArrowhead = getArrowhead(
-    (shape.properties.endArrowhead as StrV).contents
-  );
-  const [
-    [[arrowSX, arrowSY], [arrowEX, arrowEY]],
-    attrToNotAutoMap,
-  ] = makeRoomForArrows(shape, startArrowhead, endArrowhead);
+const RenderLine = (
+  shape: Line<number>,
+  { canvasSize, namespace, variation }: RenderProps
+): SVGGElement => {
+  const startArrowhead = getArrowhead(shape.startArrowhead.contents);
+  const endArrowhead = getArrowhead(shape.endArrowhead.contents);
+  const [[[arrowSX, arrowSY], [arrowEX, arrowEY]], attrToNotAutoMap] =
+    makeRoomForArrows(shape, startArrowhead, endArrowhead);
   const [sx, sy] = toScreen([arrowSX, arrowSY], canvasSize);
   const [ex, ey] = toScreen([arrowEX, arrowEY], canvasSize);
 
   const path = `M ${sx} ${sy} L ${ex} ${ey}`;
-  const color = toSvgPaintProperty(
-    (shape.properties.strokeColor as ColorV<number>).contents
-  );
-  const thickness = (shape.properties.strokeWidth as FloatV<number>).contents;
-  const opacity = toSvgOpacityProperty(
-    (shape.properties.strokeColor as ColorV<number>).contents
-  );
+  const color = toSvgPaintProperty(shape.strokeColor.contents);
+  const thickness = shape.strokeWidth.contents;
+  const opacity = toSvgOpacityProperty(shape.strokeColor.contents);
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
   // an unique id for this instance is determined by the variation and namespace
-  const unique = `${namespace}-${variation}`;
+  const unique = `${namespace}-${variation}-${shape.name.contents}`;
   const startArrowId = unique + "-startArrowId";
   const endArrowId = unique + "-endArrowId";
   if (startArrowhead) {
-    const startArrowheadSize = (shape.properties
-      .startArrowheadSize as FloatV<number>).contents;
-    const flip = (shape.properties.flipStartArrowhead as BoolV).contents;
+    const startArrowheadSize = shape.startArrowheadSize.contents;
+    const flip = shape.flipStartArrowhead.contents;
     elem.appendChild(
       arrowHead(
         startArrowId,
@@ -175,8 +158,7 @@ const Line = ({
     );
   }
   if (endArrowhead) {
-    const endArrowheadSize = (shape.properties
-      .endArrowheadSize as FloatV<number>).contents;
+    const endArrowheadSize = shape.endArrowheadSize.contents;
     elem.appendChild(
       arrowHead(
         endArrowId,
@@ -206,36 +188,22 @@ const Line = ({
   pathElem.setAttribute("d", path);
 
   // Opacity and width only relevant if stroke is present
-  if (
-    (shape.properties.strokeColor as ColorV<number>).contents.tag !== "NONE"
-  ) {
+  if (shape.strokeColor.contents.tag !== "NONE") {
     pathElem.setAttribute("stroke-opacity", opacity.toString());
     pathElem.setAttribute("stroke-width", thickness.toString());
   }
   pathElem.setAttribute("stroke", color);
 
   // factor out an AttrHelper
-  if (
-    "strokeDasharray" in shape.properties &&
-    shape.properties.strokeDasharray.contents !== ""
-  ) {
-    pathElem.setAttribute(
-      "stroke-dasharray",
-      (shape.properties.strokeDasharray as StrV).contents
-    );
-  } else if (shape.properties.strokeStyle.contents === "dashed") {
+  if (shape.strokeDasharray.contents !== "") {
+    pathElem.setAttribute("stroke-dasharray", shape.strokeDasharray.contents);
+  } else if (shape.strokeStyle.contents === "dashed") {
     pathElem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
   }
   attrToNotAutoMap.push("strokeDasharray", "strokeStyle");
 
-  if (
-    "strokeLinecap" in shape.properties &&
-    shape.properties.strokeLinecap.contents !== ""
-  ) {
-    pathElem.setAttribute(
-      "stroke-linecap",
-      (shape.properties.strokeLinecap as StrV).contents
-    );
+  if (shape.strokeLinecap.contents !== "") {
+    pathElem.setAttribute("stroke-linecap", shape.strokeLinecap.contents);
   } else {
     pathElem.setAttribute("stroke-linecap", "butt"); // same default as SVG
   }
@@ -258,4 +226,4 @@ const Line = ({
 
   return elem;
 };
-export default Line;
+export default RenderLine;

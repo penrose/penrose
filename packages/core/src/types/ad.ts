@@ -1,7 +1,6 @@
-import { Outputs } from "@penrose/optimizer";
-import GenericGraph from "../utils/Graph";
+import GenericGraph from "../utils/Graph.js";
 
-// The following two regions define the core types for our symbolic
+// The following three regions define the core types for our automatic
 // differentiation engine.
 //
 // - The "implicit" representation is used essentially as a DSL to construct
@@ -21,6 +20,9 @@ import GenericGraph from "../utils/Graph";
 //   both while constructing the derivatives within it and also while compiling
 //   it to the final representation.
 //
+// - The "compiled" representation is a WebAssembly module which exports a
+//   function that computes a function and its gradient.
+//
 // We only need to compute the gradient of the energy, but we also need to to
 // compute other values that may not even be intermediate computations for the
 // energy. Thus, the explicit representation (but not the implicit
@@ -37,32 +39,8 @@ export type Num = number | Input | Unary | Binary | Ternary | Nary | Index;
 
 export type Vec = PolyRoots;
 
-export interface Input extends InputNode {
-  // HACK: Historically, every Num contained a `val` field which would hold
-  // the "value of this node at the time the computational graph was created".
-  // In particular, every function in `engine/AutodiffFunctions` contained code
-  // to compute the initial value of a node based on the initial values of its
-  // inputs, completely independent of the semantics defined by the logic for
-  // generating JavaScript code from a computation graph (which is what actually
-  // gets used in the optimizer loop). This makes maintenance harder because
-  // discrepancies between these two semantics can result in subtle bugs (and
-  // indeed, there were some minor discrepancies; see the description of PR #907
-  // for more details). Thus, the new implementation does not keep track of
-  // initial values for intermediate nodes. However, some functions used while
-  // constructing the computation graph (such as `convexPartitions` in
-  // `contrib/Minkowski`) need to do ahead-of-time computation on these initial
-  // values, because their results affect the shape of the computation graph
-  // itself, and we currently don't have a way for the shape of the graph to
-  // change during optimization. This isn't a perfect solution because the
-  // precomputed graph can be wrong if the inputs change in unexpected ways, but
-  // until we find a better solution, we need some escape hatch to allow those
-  // few functions to access the initial values for their arguments at graph
-  // construction time. The approach we ended up with is to store the initial
-  // values of just the `Input` nodes in the `val` field defined here, and when
-  // a function needs to compute the initial values of its arguments, it can
-  // compile them to JavaScript code and evaluate that with the initial values
-  // of those `Input`s. This is hacky, but that's understood: it should be used
-  // sparingly.
+export interface Input {
+  tag: "Input";
   val: number;
 }
 
@@ -113,7 +91,7 @@ export interface Index extends IndexNode {
 //#region Types for explicit autodiff graph
 
 export type Node =
-  | number
+  | ConstNode
   | InputNode
   | UnaryNode
   | BinaryNode
@@ -124,6 +102,11 @@ export type Node =
   | PolyRootsNode
   | IndexNode
   | NotNode;
+
+export interface ConstNode {
+  tag: "Const";
+  val: number;
+}
 
 export interface InputNode {
   tag: "Input";
@@ -210,6 +193,50 @@ export interface Graph extends Outputs<Id> {
   graph: GenericGraph<Id, Node, Edge>; // edges point from children to parents
   nodes: Map<Expr, Id>;
 }
+
+//#endregion
+
+//#region Types for compiled autodiff graph
+
+/**
+ * A structure used to collect the various outputs of a `Gradient` function.
+ * This is generic in the concrete number type, because it can also be useful in
+ * situations where the elements are, for instance, computation graph nodes.
+ */
+export interface Outputs<T> {
+  /** Derivatives of primary output with respect to inputs. */
+  gradient: Map<Input, T>;
+  /** Primary output. */
+  primary: T;
+  /** Secondary outputs. */
+  secondary: T[];
+}
+
+export type Compiled = (
+  inputs: (x: Input) => number,
+  mask?: boolean[]
+) => Outputs<number>;
+
+export interface OptOutputs {
+  phi: number; // see `Fn` from `@penrose/optimizer`
+  objectives: number[];
+  constraints: number[];
+}
+
+export interface Masks {
+  inputMask: boolean[];
+  objMask: boolean[];
+  constrMask: boolean[];
+}
+
+// you can think of the `Fn` type from `@penrose/optimizer` as this type
+// partially applied with `masks` and projecting out the `phi` field
+export type Gradient = (
+  masks: Masks,
+  inputs: Float64Array,
+  weight: number,
+  grad: Float64Array
+) => OptOutputs;
 
 //#endregion
 

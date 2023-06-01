@@ -1,16 +1,18 @@
 import seedrandom from "seedrandom";
-import { genCodeSync, input, primaryGraph } from "../../engine/Autodiff";
-import { makeCircle } from "../../shapes/Circle";
-import { makeEllipse } from "../../shapes/Ellipse";
-import { makeLine } from "../../shapes/Line";
-import { makePolygon } from "../../shapes/Polygon";
-import { makeRectangle } from "../../shapes/Rectangle";
-import { Context, InputFactory, makeCanvas } from "../../shapes/Samplers";
-import * as ad from "../../types/ad";
-import { Shape } from "../../types/shapes";
-import { FloatV } from "../../types/value";
-import { black, floatV, ptListV, vectorV } from "../../utils/Util";
-import { compDict, sdEllipse } from "../Functions";
+import { describe, expect, test } from "vitest";
+import { genCodeSync, input, primaryGraph } from "../../engine/Autodiff.js";
+import { Circle, makeCircle } from "../../shapes/Circle.js";
+import { Ellipse, makeEllipse } from "../../shapes/Ellipse.js";
+import { Line, makeLine } from "../../shapes/Line.js";
+import { Polygon, makePolygon } from "../../shapes/Polygon.js";
+import { Polyline } from "../../shapes/Polyline.js";
+import { makeRectangle } from "../../shapes/Rectangle.js";
+import { Context, InputFactory, makeCanvas } from "../../shapes/Samplers.js";
+import * as ad from "../../types/ad.js";
+import { FloatV } from "../../types/value.js";
+import { black, floatV, ptListV, vectorV } from "../../utils/Util.js";
+import { compDict, sdEllipse } from "../Functions.js";
+import { Rectlike } from "../Utils.js";
 
 const canvas = makeCanvas(800, 700);
 
@@ -20,13 +22,9 @@ export const makeContext = (
   const rng = seedrandom("sdf");
   const inputs: ad.Input[] = [];
   const makeInput: InputFactory = (meta) => {
-    const x = input({
-      key: inputs.length,
-      val:
-        meta.init.tag === "Sampled"
-          ? meta.init.sampler(rng)
-          : meta.init.pending,
-    });
+    const x = input(
+      meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending
+    );
     inputs.push(x);
     return x;
   };
@@ -42,11 +40,17 @@ export const makeContext = (
 const compareDistance = (
   context: Context,
   shapeType: string,
-  shape: Shape,
+  shape:
+    | Ellipse<ad.Num>
+    | Polyline<ad.Num>
+    | Polygon<ad.Num>
+    | Line<ad.Num>
+    | Circle<ad.Num>
+    | Rectlike<ad.Num>,
   p: ad.Input[],
   expected: number
 ) => {
-  const result = getResult(context, shapeType, shape, p);
+  const result = getResult(context, shape, p);
   const g = primaryGraph(result.contents);
   //const g = secondaryGraph([result.contents]);
   const f = genCodeSync(g);
@@ -57,7 +61,7 @@ const compareDistance = (
   } = f([]); // no inputs, so, empty array
   const code = stmts.join("\n");
   console.log(code); */
-  const { primary: dist, gradient } = f.call([p[0].val, p[1].val]);
+  const { primary: dist, gradient } = f((x) => x.val);
   //TODO: debug gradient for ellipse
   // the commented code in the next three lines is useful for debugging
   // gradients
@@ -69,18 +73,27 @@ const compareDistance = (
 
 const getResult = (
   context: Context,
-  shapeType: string,
-  s: any,
+  s:
+    | Ellipse<ad.Num>
+    | Polyline<ad.Num>
+    | Polygon<ad.Num>
+    | Line<ad.Num>
+    | Circle<ad.Num>
+    | Rectlike<ad.Num>,
   p: ad.Input[]
 ): FloatV<ad.Num> => {
-  if (shapeType === "Ellipse") {
+  if (s.shapeType === "Ellipse") {
     return {
       tag: "FloatV",
       contents: sdEllipse(s, p),
     };
   } else {
-    const result = compDict.signedDistance(context, [shapeType, s], p);
-    return result;
+    const result = compDict.signedDistance.body(context, s, p);
+    if (result.tag === "FloatV") {
+      return result;
+    } else {
+      return floatV(0);
+    }
   }
 };
 

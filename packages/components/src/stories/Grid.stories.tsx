@@ -1,9 +1,9 @@
 import { ComponentMeta, ComponentStory } from "@storybook/react";
 import { range } from "lodash";
 import { ThemeProvider } from "styled-components";
-import { Grid } from "../Grid";
-import penroseBlue from "../themes/penroseBlue";
-import { continuousMap } from "./PenrosePrograms";
+import { Grid } from "../Grid.js";
+import penroseBlue from "../themes/penroseBlue.js";
+import { continuousMap } from "./PenrosePrograms.js";
 
 // const diagram = await getDiagram();
 
@@ -11,10 +11,6 @@ import { continuousMap } from "./PenrosePrograms";
 export default {
   title: "Example/Grid Component",
   component: Grid,
-  // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
-  // argTypes: {
-  //   backgroundColor: { control: 'color' },
-  // },
 } as ComponentMeta<typeof Grid>;
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
@@ -37,9 +33,3 @@ ContinuousMap.args = {
     variation: `${n}`,
   })),
 };
-
-// export const OneSet = Template.bind({});
-// OneSet.args = oneSet;
-
-// export const Error = Template.bind({});
-// Error.args = error;

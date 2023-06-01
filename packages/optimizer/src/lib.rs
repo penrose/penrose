@@ -1,17 +1,22 @@
-pub mod builtins;
-
 use log::Level;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
-type Bool = i32; // 0 or 1 (`wasm-bindgen` doesn't support `bool` well)
+// we take in functions living in JavaScript-land; the `js-sys` crate does define a `Function` type
+// with `call0` and `call3` methods, but those require us to deal with the parameters and return
+// values as `JsValue`s, so the easiest way to call these functions is to instead define our own
+// typed `call_grad` and `call_stop` functions in JavaScript and then use `wasm-bindgen` to import
+// them into Rust here; as far as I know, the `extern "C"` syntax is historical and in this case
+// we're not actually doing anything related to C, but if you try to write `extern` without "C" then
+// `rustfmt` adds it back
+#[wasm_bindgen(module = "/call.js")]
+extern "C" {
+    fn call_grad(f: JsValue, x: &[f64], weight: f64, grad: &mut [f64]) -> f64;
+    fn call_stop(stop: JsValue) -> bool;
+}
 
 type Vector = nalgebra::DVector<f64>;
-type Matrix = nalgebra::DMatrix<f64>;
-
-type Compiled =
-    fn(inputs: *const f64, mask: *const Bool, gradient: *mut f64, secondary: *mut f64) -> f64;
 
 // the ts-rs crate defines a `TS` trait and `ts` macro which generate Rust tests that, when run,
 // generate TypeScript definitions in the `bindings/` directory of this package; that's why the
@@ -38,9 +43,9 @@ struct LbfgsParams {
     s_list: Vec<Vec<f64>>, // list of nx1 col vecs
     y_list: Vec<Vec<f64>>, // list of nx1 col vecs
     #[serde(rename = "numUnconstrSteps")]
-    num_unconstr_steps: i32,
+    num_unconstr_steps: usize,
     #[serde(rename = "memSize")]
-    mem_size: i32,
+    mem_size: usize,
 }
 
 struct LbfgsAnswer {
@@ -48,42 +53,24 @@ struct LbfgsAnswer {
     updated_lbfgs_info: LbfgsParams,
 }
 
-struct FnEvaled {
-    f: f64,
-    gradf: Vec<f64>,
-    obj_engs: Vec<f64>,
-    constr_engs: Vec<f64>,
-}
-
 #[derive(Clone, Deserialize, Serialize, TS)]
 #[ts(export)]
 struct Params {
-    #[serde(rename = "gradMask")]
-    grad_mask: Vec<bool>,
-    #[serde(rename = "objMask")]
-    obj_mask: Vec<bool>,
-    #[serde(rename = "constrMask")]
-    constr_mask: Vec<bool>,
-
     #[serde(rename = "optStatus")]
     opt_status: OptStatus,
     /// Constraint weight for exterior point method
     weight: f64,
     /// Info for unconstrained optimization
     #[serde(rename = "UOround")]
-    uo_round: i32,
+    uo_round: usize,
     #[serde(rename = "lastUOstate")]
     last_uo_state: Option<Vec<f64>>,
     #[serde(rename = "lastUOenergy")]
     last_uo_energy: Option<f64>,
-    #[serde(rename = "lastObjEnergies")]
-    last_obj_energies: Option<Vec<f64>>,
-    #[serde(rename = "lastConstrEnergies")]
-    last_constr_energies: Option<Vec<f64>>,
 
     /// Info for exterior point method
     #[serde(rename = "EPround")]
-    ep_round: i32,
+    ep_round: usize,
     #[serde(rename = "lastEPstate")]
     last_ep_state: Option<Vec<f64>>,
     #[serde(rename = "lastEPenergy")]
@@ -100,29 +87,10 @@ struct Params {
     lbfgs_info: LbfgsParams,
 }
 
-// Just the compiled function and its grad, with no weights for EP/constraints/penalties, etc.
-#[derive(Clone)]
-struct FnCached<'a> {
-    f: Compiled,
-    grad_mask: &'a [bool],
-    obj_mask: &'a [bool],
-    constr_mask: &'a [bool],
-}
-
-#[derive(Deserialize, Serialize, TS)]
-#[ts(export)]
-struct OptState {
-    #[serde(rename = "varyingValues")]
-    varying_values: Vec<f64>,
-    params: Params,
-}
-
 // Returned after a call to `minimize`
 struct OptInfo {
     xs: Vec<f64>,
     energy_val: f64,
-    obj_engs: Vec<f64>,
-    constr_engs: Vec<f64>,
     norm_grad: f64,
     new_lbfgs_info: LbfgsParams,
     gradient: Vec<f64>,
@@ -131,9 +99,9 @@ struct OptInfo {
 }
 
 // Intial weight for constraints
-const INIT_CONSTRAINT_WEIGHT: f64 = 10e-3;
+const INIT_CONSTRAINT_WEIGHT: f64 = 1e3;
 
-const DEFAULT_LBFGS_MEM_SIZE: i32 = 17;
+const DEFAULT_LBFGS_MEM_SIZE: usize = 17;
 
 const DEFAULT_LBFGS_PARAMS: LbfgsParams = LbfgsParams {
     last_state: None,
@@ -171,10 +139,6 @@ const DEBUG_LINE_SEARCH: bool = false;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-fn bools(v: Vec<Bool>) -> Vec<bool> {
-    v.into_iter().map(|n| n > 0).collect()
-}
-
 fn norm_list(xs: &[f64]) -> f64 {
     let sum_squares: f64 = xs.iter().map(|e| e * e).sum();
     sum_squares.sqrt()
@@ -207,44 +171,6 @@ fn unconstrained_converged(norm_grad: f64) -> bool {
     norm_grad < UO_STOP
 }
 
-fn objective_and_gradient(f: FnCached, weight: f64, xs: &[f64]) -> FnEvaled {
-    let len_inputs = xs.len();
-    let len_gradient = len_inputs + 1;
-    let len_secondary = f.obj_mask.len() + f.constr_mask.len();
-
-    let mut inputs = vec![0.; len_gradient];
-    inputs[..len_inputs].copy_from_slice(xs);
-    inputs[len_inputs] = weight;
-    let mask: Vec<i32> = f
-        .obj_mask
-        .iter()
-        .chain(f.constr_mask)
-        .map(|&b| if b { 1 } else { 0 })
-        .collect();
-    let mut gradient = vec![0.; len_gradient];
-    let mut secondary = vec![0.; len_secondary];
-
-    let energy = (f.f)(
-        inputs.as_ptr(),
-        mask.as_ptr(),
-        gradient.as_mut_ptr(),
-        secondary.as_mut_ptr(),
-    );
-
-    gradient.pop();
-
-    FnEvaled {
-        f: energy,
-        gradf: gradient
-            .into_iter()
-            .zip(f.grad_mask)
-            .map(|(x, &b)| if b { x } else { 0. })
-            .collect(),
-        obj_engs: secondary[..f.obj_mask.len()].to_vec(),
-        constr_engs: secondary[f.obj_mask.len()..].to_vec(),
-    }
-}
-
 fn ep_converged(xs0: &[f64], xs1: &[f64], fxs0: f64, fxs1: f64) -> bool {
     // TODO: These dx and dfx should really be scaled to account for magnitudes
     let state_change = norm_list(&subv(xs1, xs0));
@@ -263,13 +189,17 @@ fn ep_converged(xs0: &[f64], xs1: &[f64], fxs0: f64, fxs1: f64) -> bool {
 // 1) scale the constraints so that the penalty generated by each is about the same magnitude
 // 2) fix initial value of the penalty parameter so that the magnitude of the penalty term is not much smaller than the magnitude of objective function
 
-/// Given a `State`, take n steps by evaluating the overall objective function
-fn step(state: OptState, f: Compiled, steps: i32) -> OptState {
-    let mut opt_params = state.params.clone();
+fn step_until(
+    f: impl FnMut(&[f64], f64, &mut [f64]) -> f64,
+    x: &mut [f64],
+    state: Params,
+    stop: impl FnMut() -> bool,
+) -> Params {
+    let mut opt_params = state.clone();
     let Params {
         opt_status, weight, ..
     } = opt_params;
-    let mut xs = state.varying_values.clone();
+    let mut xs = x.to_vec();
 
     log::info!("===============");
     log::info!(
@@ -280,15 +210,12 @@ fn step(state: OptState, f: Compiled, steps: i32) -> OptState {
 
     match opt_status {
         OptStatus::NewIter => {
-            return OptState {
-                params: Params {
-                    weight: INIT_CONSTRAINT_WEIGHT,
-                    uo_round: 0,
-                    ep_round: 0,
-                    opt_status: OptStatus::UnconstrainedRunning,
-                    lbfgs_info: DEFAULT_LBFGS_PARAMS,
-                    ..state.params
-                },
+            return Params {
+                weight: INIT_CONSTRAINT_WEIGHT,
+                uo_round: 0,
+                ep_round: 0,
+                opt_status: OptStatus::UnconstrainedRunning,
+                lbfgs_info: DEFAULT_LBFGS_PARAMS,
                 ..state
             }
         }
@@ -296,18 +223,7 @@ fn step(state: OptState, f: Compiled, steps: i32) -> OptState {
         OptStatus::UnconstrainedRunning => {
             // NOTE: use cached varying values
 
-            let res = minimize(
-                &xs,
-                FnCached {
-                    f,
-                    grad_mask: &state.params.grad_mask,
-                    obj_mask: &state.params.obj_mask,
-                    constr_mask: &state.params.constr_mask,
-                },
-                state.params.weight,
-                state.params.lbfgs_info,
-                steps,
-            );
+            let res = minimize(f, &xs, state.weight, state.lbfgs_info, stop);
             xs = res.xs;
 
             // the new `xs` is put into the `newState`, which is returned at end of function
@@ -319,19 +235,15 @@ fn step(state: OptState, f: Compiled, steps: i32) -> OptState {
                 gradient,
                 gradient_preconditioned,
                 failed,
-                obj_engs,
-                constr_engs,
                 ..
             } = res;
 
             opt_params.last_uo_state = Some(xs.clone());
             opt_params.last_uo_energy = Some(energy_val);
-            opt_params.uo_round = opt_params.uo_round + 1;
+            opt_params.uo_round += 1;
             opt_params.lbfgs_info = new_lbfgs_info;
             opt_params.last_gradient = gradient;
             opt_params.last_gradient_preconditioned = gradient_preconditioned;
-            opt_params.last_constr_energies = Some(constr_engs);
-            opt_params.last_obj_energies = Some(obj_engs);
 
             // NOTE: `varyingValues` is updated in `state` after each step by putting it into `newState` and passing it to `evalTranslation`, which returns another state
 
@@ -346,16 +258,13 @@ fn step(state: OptState, f: Compiled, steps: i32) -> OptState {
                 opt_params.opt_status = OptStatus::UnconstrainedRunning;
                 // Note that lbfgs prams have already been updated
                 log::info!(
-                    "Took {steps} steps. Current energy {energy_val} gradient norm {norm_grad}",
+                    "Took some steps. Current energy {energy_val} gradient norm {norm_grad}",
                 );
             }
             if failed {
                 log::warn!("Error detected after stepping");
                 opt_params.opt_status = OptStatus::Error;
-                return OptState {
-                    params: opt_params,
-                    ..state
-                };
+                return opt_params;
             }
         }
 
@@ -373,7 +282,7 @@ fn step(state: OptState, f: Compiled, steps: i32) -> OptState {
             if opt_params.ep_round > 1
                 && ep_converged(
                     &opt_params.last_ep_state.unwrap(),
-                    &opt_params.last_uo_state.as_ref().unwrap(),
+                    opt_params.last_uo_state.as_ref().unwrap(),
                     opt_params.last_ep_energy.unwrap(),
                     opt_params.last_uo_energy.unwrap(),
                 )
@@ -390,7 +299,7 @@ fn step(state: OptState, f: Compiled, steps: i32) -> OptState {
                 opt_params.opt_status = OptStatus::UnconstrainedRunning;
 
                 opt_params.weight = WEIGHT_GROWTH_FACTOR * weight;
-                opt_params.ep_round = opt_params.ep_round + 1;
+                opt_params.ep_round += 1;
                 opt_params.uo_round = 0;
 
                 log::info!(
@@ -415,24 +324,26 @@ fn step(state: OptState, f: Compiled, steps: i32) -> OptState {
         }
     }
 
-    OptState {
-        varying_values: xs.clone(),
-        params: opt_params,
-        ..state
-    }
+    x.copy_from_slice(&xs);
+    opt_params
 }
 
 // Note: line search seems to be quite sensitive to the maxSteps parameter; with maxSteps=25, the line search might
 
-fn aw_line_search(xs0: &[f64], f: FnCached, weight: f64, gradfxs0: &[f64], fxs0: f64) -> f64 {
+fn aw_line_search(
+    mut f: impl FnMut(&[f64], f64, &mut [f64]) -> f64,
+    xs0: &[f64],
+    weight: f64,
+    gradfxs0: &[f64],
+    fxs0: f64,
+) -> f64 {
     let max_steps = 10;
 
     let descent_dir = negv(gradfxs0); // This is preconditioned by L-BFGS
 
-    let duf_at_x0 = dot(
-        &descent_dir,
-        &objective_and_gradient(f.clone(), weight, xs0).gradf,
-    );
+    let mut grad_at_x0 = vec![0.; xs0.len()];
+    f(xs0, weight, &mut grad_at_x0);
+    let duf_at_x0 = dot(&descent_dir, &grad_at_x0);
     let min_interval = 10e-10;
 
     // Hyperparameters
@@ -476,7 +387,7 @@ fn aw_line_search(xs0: &[f64], f: FnCached, weight: f64, gradfxs0: &[f64], fxs0:
     let wolfe = weak_wolfe; // Set this if using strong_wolfe instead
 
     // Interval check
-    let should_stop = |num_updates: i32, ai: f64, bi: f64, t: f64| {
+    let should_stop = |num_updates: usize, ai: f64, bi: f64, t: f64| {
         let interval_too_small = (ai - bi).abs() < min_interval;
         let too_many_steps = num_updates > max_steps;
 
@@ -512,11 +423,8 @@ fn aw_line_search(xs0: &[f64], f: FnCached, weight: f64, gradfxs0: &[f64], fxs0:
 
     // Main loop + update check
     while !should_stop(i, a, b, t) {
-        let FnEvaled {
-            f: obj,
-            gradf: grad,
-            ..
-        } = objective_and_gradient(f.clone(), weight, &addv(xs0, &scalev(t, &descent_dir)));
+        let mut grad = vec![0.; xs0.len()];
+        let obj = f(&addv(xs0, &scalev(t, &descent_dir)), weight, &mut grad);
         let is_armijo = armijo(t, obj);
         let is_wolfe = wolfe(t, &grad);
         if DEBUG_LINE_SEARCH {
@@ -563,15 +471,11 @@ fn aw_line_search(xs0: &[f64], f: FnCached, weight: f64, gradfxs0: &[f64], fxs0:
 // Approximate the inverse of the Hessian times the gradient
 // Only using the last `m` gradient/state difference vectors, not building the full h_k matrix (Nocedal p226)
 
+// "Nocedal" refers to the 1999 edition of "Numerical Optimization" by Nocedal and Wright
+// https://www.ime.unicamp.br/~pulino/MT404/TextosOnline/NocedalJ.pdf
+
 fn lbfgs_inner(grad_fx_k: &Vector, ss: &[Vector], ys: &[Vector]) -> Vector {
     // TODO: See if rewriting outside the functional style yields speedup (e.g. less copying of matrix objects -> less garbage collection)
-
-    // takes two column vectors (nx1), returns a square matrix (nxn)
-    fn estimate_hess(y_km1: &Vector, s_km1: &Vector) -> Matrix {
-        let gamma_k = s_km1.dot(y_km1) / (y_km1.dot(y_km1) + EPSD);
-        let n = y_km1.len();
-        Matrix::identity(n, n) * gamma_k
-    }
 
     // BACKWARD: for i = k-1 ... k-m
     // The length of any list should be the number of stored vectors
@@ -593,11 +497,12 @@ fn lbfgs_inner(grad_fx_k: &Vector, ss: &[Vector], ys: &[Vector]) -> Vector {
     }
     let q_k_minus_m = q_i;
 
-    let h_0_k = estimate_hess(&ys[0], &ss[0]); // nxn matrix, according to Nocedal p226, eqn 9.6
+    let y_km1 = &ys[0];
+    let s_km1 = &ss[0];
+    let gamma_k = s_km1.dot(y_km1) / (y_km1.dot(y_km1) + EPSD); // according to Nocedal p226, eqn 9.6
 
     // FORWARD: for i = k-m .. k-1
-    // below: [nxn matrix * nx1 (col) vec] -> nx1 (col) vec
-    let r_k_minus_m = h_0_k * q_k_minus_m;
+    let r_k_minus_m = gamma_k * q_k_minus_m;
 
     // Note that rhos, alphas, ss, and ys are all in order from `k-1` to `k-m` so we just reverse all of them together to go from `k-m` to `k-1`
     let mut r_i = r_k_minus_m;
@@ -606,10 +511,9 @@ fn lbfgs_inner(grad_fx_k: &Vector, ss: &[Vector], ys: &[Vector]) -> Vector {
         let r_i_plus_1 = r_i + s_i * (alpha_i - beta_i);
         r_i = r_i_plus_1;
     }
-    let r_k = r_i;
 
     // result r_k is H_k * grad f(x_k)
-    r_k
+    r_i
 }
 
 // Outer loop of lbfgs
@@ -652,7 +556,7 @@ fn lbfgs(xs: &[f64], gradfxs: &[f64], lbfgs_info: LbfgsParams) -> LbfgsAnswer {
                 ..lbfgs_info
             },
         }
-    } else if lbfgs_info.last_state != None && lbfgs_info.last_grad != None {
+    } else if lbfgs_info.last_state.is_some() && lbfgs_info.last_grad.is_some() {
         // Our current step is k; the last step is km1 (k_minus_1)
         let x_k = Vector::from_column_slice(xs);
         let grad_fx_k = Vector::from_column_slice(gradfxs);
@@ -685,10 +589,10 @@ fn lbfgs(xs: &[f64], gradfxs: &[f64], lbfgs_info: LbfgsParams) -> LbfgsAnswer {
         // Haskell `ss` -> JS `ss_km2`; Haskell `ss'` -> JS `ss_km1`
         let mut ss_km1 = vec![s_km1];
         ss_km1.append(&mut ss_km2);
-        ss_km1.truncate(lbfgs_info.mem_size.try_into().unwrap());
+        ss_km1.truncate(lbfgs_info.mem_size);
         let mut ys_km1 = vec![y_km1];
         ys_km1.append(&mut ys_km2);
-        ys_km1.truncate(lbfgs_info.mem_size.try_into().unwrap());
+        ys_km1.truncate(lbfgs_info.mem_size);
         let grad_preconditioned = lbfgs_inner(&grad_fx_k, &ss_km1, &ys_km1);
 
         // Reset L-BFGS if the result is not a descent direction, and use steepest descent direction
@@ -741,21 +645,16 @@ fn lbfgs(xs: &[f64], gradfxs: &[f64], lbfgs_info: LbfgsParams) -> LbfgsAnswer {
 }
 
 fn minimize(
+    mut f: impl FnMut(&[f64], f64, &mut [f64]) -> f64,
     xs0: &[f64],
-    f: FnCached,
     weight: f64,
     lbfgs_info: LbfgsParams,
-    num_steps: i32,
+    mut stop: impl FnMut() -> bool,
 ) -> OptInfo {
     // TODO: Do a UO convergence check here? Since the EP check is tied to the render cycle...
 
     log::info!("-------------------------------------");
-    log::info!("minimize, num steps, {num_steps}");
-
-    let min_steps = 1;
-    if num_steps < min_steps {
-        panic!("must step at least {min_steps} times in the optimizer");
-    }
+    log::info!("minimize");
 
     // (10,000 steps / 100ms) * (10 ms / s) (???) = 100k steps/s (on this simple problem (just `sameCenter` or just `contains`, with no line search, and not sure about mem use)
     // this is just a factor of 5 slowdown over the compiled energy function
@@ -769,23 +668,14 @@ fn minimize(
     let mut t = 0.0001; // NOTE: This const setting will not necessarily work well for a given opt problem.
     let mut failed = false;
 
-    // these will be overwritten so it's OK that they're the wrong length at first
-    let mut obj_engs = vec![];
-    let mut constr_engs = vec![];
+    let mut new_lbfgs_info = lbfgs_info;
 
-    let mut new_lbfgs_info = lbfgs_info.clone();
-
-    while i < num_steps {
+    while !stop() {
         if contains_nan(&xs) {
             log::info!("xs {xs:?}");
             panic!("NaN in xs");
         }
-        FnEvaled {
-            f: fxs,
-            gradf: gradfxs,
-            obj_engs,
-            constr_engs,
-        } = objective_and_gradient(f.clone(), weight, &xs);
+        fxs = f(&xs, weight, &mut gradfxs);
         if contains_nan(&gradfxs) {
             log::info!("gradfxs {gradfxs:?}");
             panic!("NaN in gradfxs");
@@ -801,17 +691,13 @@ fn minimize(
 
         if BREAK_EARLY && unconstrained_converged(norm_gradfxs) {
             // This is on the original gradient, not the preconditioned one
-            log::info!(
-                "descent converged early, on step {} of {} (per display cycle); stopping early",
-                i,
-                num_steps,
-            );
+            log::info!("descent converged early, on step {i}; stopping early");
             break;
         }
 
         if USE_LINE_SEARCH {
             // The search direction is conditioned (here, by an approximation of the inverse of the Hessian at the point)
-            t = aw_line_search(&xs, f.clone(), weight, &gradient_preconditioned, fxs);
+            t = aw_line_search(&mut f, &xs, weight, &gradient_preconditioned, fxs);
         }
 
         let norm_grad = norm_list(&gradfxs);
@@ -819,7 +705,6 @@ fn minimize(
         if DEBUG_GRAD_DESCENT {
             log::info!("-----");
             log::info!("i {i}");
-            log::info!("num steps per display cycle {num_steps}");
             log::info!("input (xs): {xs:?}");
             log::info!("energy (f(xs)): {fxs}");
             log::info!("grad (grad(f)(xs)) : {gradfxs:?}");
@@ -841,7 +726,6 @@ fn minimize(
             }
 
             log::info!("i {i}");
-            log::info!("num steps per display cycle {num_steps}");
             log::info!("input (xs): {xs:?}");
             log::info!("energy (f(xs)): {fxs:?}");
             log::info!("grad (grad(f)(xs)): {gradfxs:?}");
@@ -858,7 +742,7 @@ fn minimize(
 
     // TODO: Log stats for last one?
 
-    return OptInfo {
+    OptInfo {
         xs,
         energy_val: fxs,
         norm_grad: norm_gradfxs,
@@ -866,19 +750,13 @@ fn minimize(
         gradient: gradfxs,
         gradient_preconditioned,
         failed,
-        obj_engs,
-        constr_engs,
-    };
+    }
 }
 
-fn gen_opt_problem(grad_mask: Vec<bool>, obj_mask: Vec<bool>, constr_mask: Vec<bool>) -> Params {
-    let last_gradient = vec![0.; grad_mask.len()];
-    let last_gradient_preconditioned = vec![0.; grad_mask.len()];
+fn start(n: usize) -> Params {
+    let last_gradient = vec![0.; n];
+    let last_gradient_preconditioned = vec![0.; n];
     Params {
-        grad_mask,
-        obj_mask,
-        constr_mask,
-
         last_gradient,
         last_gradient_preconditioned,
 
@@ -891,8 +769,6 @@ fn gen_opt_problem(grad_mask: Vec<bool>, obj_mask: Vec<bool>, constr_mask: Vec<b
 
         last_uo_state: None,
         last_uo_energy: None,
-        last_obj_energies: None,
-        last_constr_energies: None,
 
         last_ep_state: None,
         last_ep_energy: None,
@@ -918,39 +794,44 @@ pub fn penrose_init() {
 }
 
 #[wasm_bindgen]
-pub fn penrose_call(
-    p: usize,
-    inputs: &[f64],
-    mask: &[Bool],
-    gradient: &mut [f64],
-    secondary: &mut [f64],
-) -> f64 {
-    let f = unsafe { std::mem::transmute::<usize, Compiled>(p) };
-    f(
-        inputs.as_ptr(),
-        mask.as_ptr(),
-        gradient.as_mut_ptr(),
-        secondary.as_mut_ptr(),
-    )
+pub fn penrose_poly_roots(v: &mut [f64]) {
+    let n = v.len();
+    // https://en.wikipedia.org/wiki/Companion_matrix
+    let mut m = nalgebra::DMatrix::<f64>::zeros(n, n);
+    for i in 0..(n - 1) {
+        m[(i + 1, i)] = 1.;
+        m[(i, n - 1)] = -v[i];
+    }
+    m[(n - 1, n - 1)] = -v[n - 1];
+
+    // the characteristic polynomial of the companion matrix is equal to the original polynomial, so
+    // by finding the eigenvalues of the companion matrix, we get the roots of its characteristic
+    // polynomial and thus of the original polynomial
+    let r = m.complex_eigenvalues();
+    for i in 0..n {
+        let z = r[i];
+        // as mentioned in the `polyRoots` docstring in `engine/AutodiffFunctions`, we discard any
+        // non-real root and replace with `NaN`
+        v[i] = if z.im == 0. { z.re } else { f64::NAN };
+    }
 }
 
 #[wasm_bindgen]
-pub fn penrose_gen_opt_problem(
-    grad_mask: Vec<Bool>,
-    obj_mask: Vec<Bool>,
-    constr_mask: Vec<Bool>,
-) -> JsValue {
-    let params: Params = gen_opt_problem(bools(grad_mask), bools(obj_mask), bools(constr_mask));
+pub fn penrose_start(n: usize) -> JsValue {
+    let params: Params = start(n);
     to_js_value(&params).unwrap()
 }
 
 #[wasm_bindgen]
-pub fn penrose_step(state: JsValue, p: usize, steps: i32) -> JsValue {
-    let unstepped: OptState = serde_wasm_bindgen::from_value(state).unwrap();
-    let stepped: OptState = step(
+pub fn penrose_step_until(f: JsValue, x: &mut [f64], state: JsValue, stop: JsValue) -> JsValue {
+    let unstepped: Params = serde_wasm_bindgen::from_value(state).unwrap();
+    // a `JsValue` is basically just an integer representing an index into an array that
+    // `wasm-bindgen` maintains on the JavaScript side, so they're pretty much free to `.clone()`
+    let stepped: Params = step_until(
+        |x, weight, grad| call_grad(f.clone(), x, weight, grad),
+        x,
         unstepped,
-        unsafe { std::mem::transmute::<usize, Compiled>(p) },
-        steps,
+        || call_stop(stop.clone()),
     );
     to_js_value(&stepped).unwrap()
 }

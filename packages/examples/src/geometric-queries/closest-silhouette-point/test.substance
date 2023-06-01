@@ -1,0 +1,11 @@
+-- For each shape, finds the closest silhouette point relative to the query point x.
+
+Point x
+Line L
+Polyline M
+Polygon P
+Rectangle R
+Circle C
+Ellipse E
+-- Group G
+

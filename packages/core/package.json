@@ -1,6 +1,6 @@
 {
   "name": "@penrose/core",
-  "version": "2.3.0",
+  "version": "3.0.0-alpha.0",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -15,13 +15,12 @@
     "build-parsers": "nearleyc src/parser/Domain.ne > src/parser/DomainParser.ts && nearleyc src/parser/Substance.ne > src/parser/SubstanceParser.ts && nearleyc src/parser/Style.ne > src/parser/StyleParser.ts",
     "build": "tsc",
     "watch": "yarn build --watch",
-    "test": "cross-env NODE_OPTIONS='--no-warnings --experimental-vm-modules' jest",
-    "test-watch": "yarn test --watchAll",
+    "test": "vitest run --no-threads",
+    "coverage": "yarn test --coverage",
     "build-decls": ":",
     "typecheck": ":",
-    "docs": "typedoc --plugin none --out docs",
+    "docs": "typedoc --out docs",
     "docs:md": "typedoc --plugin typedoc-plugin-markdown --out docs/md",
-    "coverage": "yarn test --coverage --ci --runInBand --reporters=default --reporters=jest-junit",
     "lint": "eslint --ext js,ts,tsx src"
   },
   "nx": {
@@ -76,7 +75,7 @@
   },
   "dependencies": {
     "@datastructures-js/queue": "^4.1.3",
-    "@penrose/optimizer": "^2.3.0",
+    "@penrose/optimizer": "^3.0.0-alpha.0",
     "consola": "^2.15.2",
     "immutable": "^4.0.0-rc.12",
     "lodash": "^4.17.15",
@@ -90,9 +89,6 @@
     "true-myth": "^4.1.0"
   },
   "devDependencies": {
-    "@penrose/examples": "^2.3.0",
-    "@types/jest": "^27.4.1",
-    "@types/jscodeshift": "^0.11.0",
     "@types/lodash": "^4.14.149",
     "@types/moo": "^0.5.3",
     "@types/nearley": "^2.11.1",
@@ -106,12 +102,8 @@
     "eslint-plugin-eslint-comments": "^3.2.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jsdoc": "^30.7.3",
-    "jest": "^27.5.1",
-    "jest-junit": "^12.0.0",
-    "jscodeshift": "^0.11.0",
-    "ts-jest": "^27.1.3",
     "tslib": "^2.1.0",
-    "typedoc": "^0.22.11",
+    "typedoc": "^0.24.7",
     "typedoc-plugin-markdown": "^3.11.13"
   }
 }

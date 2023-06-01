@@ -4,59 +4,66 @@ import { TeX } from "mathjax-full/js/input/tex.js";
 import { AllPackages } from "mathjax-full/js/input/tex/AllPackages.js";
 import { mathjax } from "mathjax-full/js/mathjax.js";
 import { SVG } from "mathjax-full/js/output/svg.js";
-import { InputMeta } from "../shapes/Samplers";
-import { ShapeDef, shapedefs } from "../shapes/Shapes";
-import * as ad from "../types/ad";
-import { PenroseError } from "../types/errors";
-import { Properties, ShapeAD } from "../types/shape";
-import { EquationData, LabelCache, State, TextData } from "../types/state";
-import { FloatV } from "../types/value";
-import { err, ok, Result } from "./Error";
-import { getAdValueAsString, getValueAsShapeList } from "./Util";
-
-// https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
-// const adaptor = chooseAdaptor();
-const adaptor = browserAdaptor();
-RegisterHTMLHandler(adaptor);
-const tex = new TeX({
-  packages: AllPackages,
-  macros: {
-    textsc: ["\\style{font-variant-caps: small-caps}{\\text{#1}}", 1],
-  },
-  inlineMath: [
-    ["$", "$"],
-    ["\\(", "\\)"],
-  ],
-  processEscapes: true,
-  // https://github.com/mathjax/MathJax-demos-node/issues/25#issuecomment-711247252
-  formatError: (jax: unknown, err: Error) => {
-    throw Error(err.message);
-  },
-});
-const svg = new SVG({ fontCache: "none" });
-const html = mathjax.document("", { InputJax: tex, OutputJax: svg });
+import { Equation } from "../shapes/Equation.js";
+import { InputMeta } from "../shapes/Samplers.js";
+import { Shape } from "../shapes/Shapes.js";
+import { Text } from "../shapes/Text.js";
+import * as ad from "../types/ad.js";
+import { PenroseError } from "../types/errors.js";
+import { EquationData, LabelCache, State, TextData } from "../types/state.js";
+import { FloatV } from "../types/value.js";
+import { Result, err, ok } from "./Error.js";
+import { getAdValueAsString, getValueAsShapeList, safe } from "./Util.js";
 
 // to re-scale baseline
 const EX_CONSTANT = 10;
 
-const convert = (
+export const mathjaxInit = (): ((
   input: string,
   fontSize: string
-): Result<HTMLElement, string> => {
-  // HACK: workaround for newlines
-  // https://github.com/mathjax/MathJax/issues/2312#issuecomment-538185951
-  const newline_escaped = `\\displaylines{${input}}`;
-  // https://github.com/mathjax/MathJax-src/blob/master/ts/core/MathDocument.ts#L689
-  // https://github.com/mathjax/MathJax-demos-node/issues/3#issuecomment-497524041
-  try {
-    const node = html.convert(newline_escaped, { ex: EX_CONSTANT });
-    // Not sure if this call does anything:
-    // https://github.com/mathjax/MathJax-src/blob/master/ts/adaptors/liteAdaptor.ts#L523
-    adaptor.setStyle(node, "font-size", fontSize);
-    return ok(node.firstChild);
-  } catch (error: any) {
-    return err(error.message);
-  }
+) => Result<HTMLElement, string>) => {
+  // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
+  // const adaptor = chooseAdaptor();
+  const adaptor = browserAdaptor();
+  RegisterHTMLHandler(adaptor);
+  const tex = new TeX({
+    packages: AllPackages,
+    macros: {
+      textsc: ["\\style{font-variant-caps: small-caps}{\\text{#1}}", 1],
+    },
+    inlineMath: [
+      ["$", "$"],
+      ["\\(", "\\)"],
+    ],
+    processEscapes: true,
+    // https://github.com/mathjax/MathJax-demos-node/issues/25#issuecomment-711247252
+    formatError: (jax: unknown, err: Error) => {
+      throw Error(err.message);
+    },
+  });
+  const svg = new SVG({ fontCache: "none" });
+  const html = mathjax.document("", { InputJax: tex, OutputJax: svg });
+
+  const convert = (
+    input: string,
+    fontSize: string
+  ): Result<HTMLElement, string> => {
+    // HACK: workaround for newlines
+    // https://github.com/mathjax/MathJax/issues/2312#issuecomment-538185951
+    const newline_escaped = `\\displaylines{${input}}`;
+    // https://github.com/mathjax/MathJax-src/blob/master/ts/core/MathDocument.ts#L689
+    // https://github.com/mathjax/MathJax-demos-node/issues/3#issuecomment-497524041
+    try {
+      const node = html.convert(newline_escaped, { ex: EX_CONSTANT });
+      // Not sure if this call does anything:
+      // https://github.com/mathjax/MathJax-src/blob/master/ts/adaptors/liteAdaptor.ts#L523
+      adaptor.setStyle(node, "font-size", fontSize);
+      return ok(node.firstChild);
+    } catch (error: any) {
+      return err(error.message);
+    }
+  };
+  return convert;
 };
 
 type Output = {
@@ -69,7 +76,8 @@ type Output = {
  * Call MathJax to render __non-empty__ labels.
  */
 const tex2svg = async (
-  properties: Properties<ad.Num>
+  properties: Equation<ad.Num>,
+  convert: (input: string, fontSize: string) => Result<HTMLElement, string>
 ): Promise<Result<Output, string>> =>
   new Promise((resolve) => {
     const contents = getAdValueAsString(properties.string, "");
@@ -142,14 +150,14 @@ const equationData = (
 });
 
 /**
- * Get the CSS string for the font setting of a `Text` GPI.
- * @param shape A text GPI
+ * Get the CSS string for the font setting of a `Text` shape.
+ * @param shape A text shape
  *
  * NOTE: the `font` CSS rule -> https://developer.mozilla.org/en-US/docs/Web/CSS/font
  *
  * @returns a CSS rule string of its font settings
  */
-export const toFontRule = ({ properties }: ShapeAD): string => {
+export const toFontRule = <T>(properties: Text<T>): string => {
   const fontFamily = getAdValueAsString(properties.fontFamily);
   const fontSize = getAdValueAsString(properties.fontSize);
   const fontStretch = getAdValueAsString(properties.fontStretch);
@@ -175,14 +183,14 @@ export const toFontRule = ({ properties }: ShapeAD): string => {
 
 // https://stackoverflow.com/a/44564236
 export const collectLabels = async (
-  allShapes: ShapeAD[]
+  allShapes: Shape<ad.Num>[],
+  convert: (input: string, fontSize: string) => Result<HTMLElement, string>
 ): Promise<Result<LabelCache, PenroseError>> => {
   const labels: LabelCache = new Map();
   for (const s of allShapes) {
-    const { shapeType, properties } = s;
-    if (shapeType === "Equation" || shapeType === "EquationTransform") {
-      const shapeName = getAdValueAsString(properties.name);
-      const svg = await tex2svg(properties);
+    if (s.shapeType === "Equation") {
+      const shapeName = getAdValueAsString(s.name);
+      const svg = await tex2svg(s, convert);
 
       if (svg.isErr()) {
         return err({
@@ -202,12 +210,12 @@ export const collectLabels = async (
         body
       );
       labels.set(shapeName, label);
-    } else if (shapeType === "Text") {
-      const shapeName: string = getAdValueAsString(properties.name);
+    } else if (s.shapeType === "Text") {
+      const shapeName: string = getAdValueAsString(s.name);
       let label: TextData;
       // Use canvas to measure text data
       const measure: TextMeasurement = measureText(
-        getAdValueAsString(properties.string),
+        getAdValueAsString(s.string),
         toFontRule(s)
       );
 
@@ -223,9 +231,9 @@ export const collectLabels = async (
         label = textData(0, 0, 0, 0);
       }
       labels.set(shapeName, label);
-    } else if (shapeType === "Group") {
-      const subShapes = getValueAsShapeList(properties["shapes"]);
-      const subLabels = await collectLabels(subShapes);
+    } else if (s.shapeType === "Group") {
+      const subShapes = getValueAsShapeList(s.shapes);
+      const subLabels = await collectLabels(subShapes, convert);
       if (subLabels.isErr()) {
         return subLabels;
       }
@@ -245,9 +253,6 @@ export type TextMeasurement = {
   actualAscent: number;
 };
 
-const measureTextElement = document.createElement("canvas");
-const measureTextContext = measureTextElement.getContext("2d")!;
-
 /**
  *
  * @param text the content of the text
@@ -257,9 +262,12 @@ const measureTextContext = measureTextElement.getContext("2d")!;
  * @returns `TextMeasurement` object and includes data such as `width` and `height` of the text.
  */
 export function measureText(text: string, font: string): TextMeasurement {
+  const measureTextElement = document.createElement("canvas");
+  const measureTextContext = measureTextElement.getContext("2d")!;
   measureTextContext.textBaseline = "alphabetic";
   measureTextContext.font = font;
   const measurements = measureTextContext.measureText(text);
+  measureTextElement.remove();
   return {
     width:
       Math.abs(measurements.actualBoundingBoxLeft) +
@@ -274,57 +282,63 @@ export function measureText(text: string, font: string): TextMeasurement {
 
 //#endregion
 
+type InputMap = Map<
+  ad.Input,
+  {
+    index: number;
+    meta: InputMeta;
+  }
+>;
+
 const setPendingProperty = (
-  properties: Properties<ad.Num>,
-  propertyID: string,
-  newValue: FloatV<number>,
   xs: number[],
-  meta: InputMeta[]
+  inputs: InputMap,
+  before: FloatV<ad.Num>,
+  after: FloatV<number>
 ) => {
-  const value = properties[propertyID];
-  if (value.tag === "FloatV") {
-    const x = value.contents;
-    if (
-      typeof x !== "number" &&
-      x.tag === "Input" &&
-      meta[x.key].init.tag === "Pending"
-    ) {
-      xs[x.key] = newValue.contents;
-    }
+  if (typeof before.contents !== "number" && before.contents.tag === "Input") {
+    const { index, meta } = safe(inputs.get(before.contents), "missing input");
+    if (meta.init.tag === "Pending") xs[index] = after.contents;
   }
 };
 
 const insertPendingHelper = (
-  shapes: ShapeAD[],
+  shapes: Shape<ad.Num>[],
   xs: number[],
-  state: State
+  labelCache: LabelCache,
+  inputs: InputMap
 ): void => {
-  for (const { shapeType, properties } of shapes) {
-    if (shapeType === "Group") {
-      const subShapes = getValueAsShapeList(properties["shapes"]);
-      insertPendingHelper(subShapes, xs, state);
-    } else {
-      const shapedef: ShapeDef = shapedefs[shapeType];
-      if (properties.name.tag === "StrV") {
-        const labelData = state.labelCache.get(properties.name.contents);
-        if (labelData !== undefined) {
-          for (const propertyID of shapedef.pendingProps) {
-            setPendingProperty(
-              properties,
-              propertyID,
-              labelData[propertyID],
-              xs,
-              state.inputs
-            );
-          }
-        }
-      }
+  for (const s of shapes) {
+    if (s.shapeType === "Group") {
+      const subShapes = getValueAsShapeList(s.shapes);
+      insertPendingHelper(subShapes, xs, labelCache, inputs);
+    } else if (s.shapeType === "Equation") {
+      const labelData = safe(labelCache.get(s.name.contents), "missing label");
+      if (labelData.tag !== "EquationData")
+        throw Error(
+          `for ${s.shapeType} ${s.name.contents} got unexpected ${labelData.tag}`
+        );
+      setPendingProperty(xs, inputs, s.width, labelData.width);
+      setPendingProperty(xs, inputs, s.height, labelData.height);
+    } else if (s.shapeType === "Text") {
+      const labelData = safe(labelCache.get(s.name.contents), "missing label");
+      if (labelData.tag !== "TextData")
+        throw Error(
+          `for ${s.shapeType} ${s.name.contents} got unexpected ${labelData.tag}`
+        );
+      setPendingProperty(xs, inputs, s.width, labelData.width);
+      setPendingProperty(xs, inputs, s.height, labelData.height);
+      setPendingProperty(xs, inputs, s.ascent, labelData.ascent);
+      setPendingProperty(xs, inputs, s.descent, labelData.descent);
     }
   }
 };
 
 export const insertPending = (state: State): State => {
   const varyingValues = [...state.varyingValues];
-  insertPendingHelper(state.shapes, varyingValues, state);
+  const inputs = new Map(
+    state.inputs.map(({ handle, meta }, index) => [handle, { index, meta }])
+  );
+  insertPendingHelper(state.shapes, varyingValues, state.labelCache, inputs);
   return { ...state, varyingValues };
 };

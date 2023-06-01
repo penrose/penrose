@@ -1,23 +1,13 @@
 Phosphorus p
 Chlorine cl1, cl2, cl3
 -- bromine 
-ElectronPair e
-e := ValenceElectronPair(p)
+TwoValenceElectrons(p)
 -- single bond
 Bond b1 := MakeSingleBond(cl1, p)
-ElectronPair e1, e2, e3
-e1 := ValenceElectronPair(cl1)
-e2 := ValenceElectronPair(cl1)
-e3 := ValenceElectronPair(cl1)
+SixValenceElectrons(cl1)
 -- double bond 1
 Bond b2 := MakeSingleBond(cl2, p)
-ElectronPair e21, e22, e23
-e21 := ValenceElectronPair(cl2)
-e22 := ValenceElectronPair(cl2)
-e23 := ValenceElectronPair(cl2)
+SixValenceElectrons(cl2)
 -- double bond 2
 Bond b3 := MakeSingleBond(cl3, p)
-ElectronPair e31, e32, e33
-e31 := ValenceElectronPair(cl3)
-e32 := ValenceElectronPair(cl3)
-e33 := ValenceElectronPair(cl3)
+SixValenceElectrons(cl3)

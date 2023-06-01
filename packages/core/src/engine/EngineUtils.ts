@@ -1,10 +1,18 @@
 // Utils that are unrelated to the engine, but autodiff/opt/etc only
 
-import { Gradient } from "@penrose/optimizer";
-import _ from "lodash";
-import { InputMeta } from "../shapes/Samplers";
-import { ShapeDef, shapedefs } from "../shapes/Shapes";
-import * as ad from "../types/ad";
+import { Circle } from "../shapes/Circle.js";
+import { Ellipse } from "../shapes/Ellipse.js";
+import { Equation } from "../shapes/Equation.js";
+import { Group } from "../shapes/Group.js";
+import { Image } from "../shapes/Image.js";
+import { Line } from "../shapes/Line.js";
+import { Path as PathShape } from "../shapes/Path.js";
+import { Polygon } from "../shapes/Polygon.js";
+import { Polyline } from "../shapes/Polyline.js";
+import { Rectangle } from "../shapes/Rectangle.js";
+import { Shape } from "../shapes/Shapes.js";
+import { Text } from "../shapes/Text.js";
+import * as ad from "../types/ad.js";
 import {
   A,
   ASTNode,
@@ -12,32 +20,42 @@ import {
   Identifier,
   NodeType,
   SourceLoc,
-} from "../types/ast";
-import { StyleError } from "../types/errors";
-import { GenericShape, Shape, ShapeAD } from "../types/shape";
-import { ShapeFn } from "../types/state";
-import { Expr, Path } from "../types/style";
+} from "../types/ast.js";
+import { StyleError } from "../types/errors.js";
+import {
+  Arrow,
+  CanPassthrough,
+  Center,
+  Corner,
+  Fill,
+  Named,
+  Poly,
+  Rect,
+  Rotate,
+  Scale,
+  String as StringProps,
+  Stroke,
+} from "../types/shapes.js";
+import { ShapeFn } from "../types/state.js";
+import { Expr, Path } from "../types/style.js";
 import {
   Color,
   ColorV,
   FloatV,
-  ListV,
   LListV,
+  ListV,
   MatrixV,
   PathCmd,
   PathDataV,
-  PropID,
   PtListV,
   ShapeListV,
-  ShapeTypeStr,
   SubPath,
   TupV,
   Value,
   VectorV,
-} from "../types/value";
-import { safe } from "../utils/Util";
-import { fns, genCode, input, makeGraph, secondaryGraph } from "./Autodiff";
-import { mul } from "./AutodiffFunctions";
+} from "../types/value.js";
+import { safe } from "../utils/Util.js";
+import { genCode, secondaryGraph } from "./Autodiff.js";
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?
 
@@ -132,14 +150,12 @@ function mapPathData<T, S>(f: (arg: T) => S, v: PathDataV<T>): PathDataV<S> {
     contents: v.contents.map((pathCmd: PathCmd<T>) => {
       return {
         cmd: pathCmd.cmd,
-        contents: pathCmd.contents.map(
-          (subCmd: SubPath<T>): SubPath<S> => {
-            return {
-              tag: subCmd.tag,
-              contents: mapTuple(f, subCmd.contents),
-            };
-          }
-        ),
+        contents: pathCmd.contents.map((subCmd: SubPath<T>): SubPath<S> => {
+          return {
+            tag: subCmd.tag,
+            contents: mapTuple(f, subCmd.contents),
+          };
+        }),
       };
     }),
   };
@@ -163,29 +179,256 @@ function mapColor<T, S>(f: (arg: T) => S, v: ColorV<T>): ColorV<S> {
   };
 }
 
-function mapShape<T, S>(f: (arg: T) => S, v: GenericShape<T>): GenericShape<S> {
-  const shapeType = v.shapeType;
-  const shapeProps = v.properties;
-  const mappedShapeProps = Object.fromEntries(
-    Object.entries(shapeProps).map(([prop, propVal]) => {
-      return [prop, mapValueNumeric(f, propVal)];
-    })
-  );
-
-  return {
-    shapeType,
-    properties: mappedShapeProps,
-  };
+function mapShape<T, S>(f: (arg: T) => S, v: Shape<T>): Shape<S> {
+  switch (v.shapeType) {
+    case "Circle":
+      return mapCircle(f, v);
+    case "Ellipse":
+      return mapEllipse(f, v);
+    case "Equation":
+      return mapEquation(f, v);
+    case "Image":
+      return mapImage(f, v);
+    case "Line":
+      return mapLine(f, v);
+    case "Path":
+      return mapPath(f, v);
+    case "Polygon":
+      return mapPolygon(f, v);
+    case "Polyline":
+      return mapPolyline(f, v);
+    case "Rectangle":
+      return mapRectangle(f, v);
+    case "Text":
+      return mapText(f, v);
+    case "Group":
+      return mapGroup(f, v);
+  }
 }
 
 function mapShapeList<T, S>(f: (arg: T) => S, v: ShapeListV<T>): ShapeListV<S> {
   return {
     tag: "ShapeListV",
-    contents: v.contents.map((gpi) => {
-      return mapShape(f, gpi);
+    contents: v.contents.map((shape) => {
+      return mapShape(f, shape);
     }),
   };
 }
+
+const mapCircle = <T, S>(f: (arg: T) => S, v: Circle<T>): Circle<S> => {
+  return {
+    ...v,
+    ...mapNamed(f, v),
+    ...mapStroke(f, v),
+    ...mapFill(f, v),
+    ...mapCenter(f, v),
+    r: mapFloat(f, v.r),
+    passthrough: mapPassthrough(f, v.passthrough),
+  };
+};
+
+const mapEllipse = <T, S>(f: (arg: T) => S, v: Ellipse<T>): Ellipse<S> => {
+  return {
+    ...v,
+    ...mapNamed(f, v),
+    ...mapStroke(f, v),
+    ...mapFill(f, v),
+    ...mapCenter(f, v),
+    rx: mapFloat(f, v.rx),
+    ry: mapFloat(f, v.ry),
+    passthrough: mapPassthrough(f, v.passthrough),
+  };
+};
+
+const mapEquation = <T, S>(f: (arg: T) => S, v: Equation<T>): Equation<S> => {
+  return {
+    ...v,
+    ...mapNamed(f, v),
+    ...mapFill(f, v),
+    ...mapCenter(f, v),
+    ...mapRect(f, v),
+    ...mapRotate(f, v),
+    ...mapString(f, v),
+    passthrough: mapPassthrough(f, v.passthrough),
+  };
+};
+
+const mapGroup = <T, S>(f: (arg: T) => S, v: Group<T>): Group<S> => {
+  return {
+    ...v,
+    ...mapNamed(f, v),
+    shapes: mapShapeList(f, v.shapes),
+    passthrough: mapPassthrough(f, v.passthrough),
+  };
+};
+
+const mapImage = <T, S>(f: (arg: T) => S, v: Image<T>): Image<S> => {
+  return {
+    ...v,
+    ...mapNamed(f, v),
+    ...mapCenter(f, v),
+    ...mapRect(f, v),
+    ...mapRotate(f, v),
+    href: v.href,
+    passthrough: mapPassthrough(f, v.passthrough),
+  };
+};
+
+const mapLine = <T, S>(f: (arg: T) => S, v: Line<T>): Line<S> => {
+  return {
+    ...v,
+    ...mapNamed(f, v),
+    ...mapStroke(f, v),
+    ...mapArrow(f, v),
+    start: mapVector(f, v.start),
+    end: mapVector(f, v.end),
+    strokeLinecap: v.strokeLinecap,
+    passthrough: mapPassthrough(f, v.passthrough),
+  };
+};
+
+const mapPath = <T, S>(f: (arg: T) => S, v: PathShape<T>): PathShape<S> => {
+  return {
+    ...v,
+    ...mapNamed(f, v),
+    ...mapStroke(f, v),
+    ...mapFill(f, v),
+    ...mapArrow(f, v),
+    d: mapPathData(f, v.d),
+    passthrough: mapPassthrough(f, v.passthrough),
+  };
+};
+
+const mapPolygon = <T, S>(f: (arg: T) => S, v: Polygon<T>): Polygon<S> => {
+  return {
+    ...v,
+    ...mapNamed(f, v),
+    ...mapStroke(f, v),
+    ...mapFill(f, v),
+    ...mapScale(f, v),
+    ...mapPoly(f, v),
+    passthrough: mapPassthrough(f, v.passthrough),
+  };
+};
+
+const mapPolyline = <T, S>(f: (arg: T) => S, v: Polyline<T>): Polyline<S> => {
+  return {
+    ...v,
+    ...mapNamed(f, v),
+    ...mapStroke(f, v),
+    ...mapFill(f, v),
+    ...mapScale(f, v),
+    ...mapPoly(f, v),
+    passthrough: mapPassthrough(f, v.passthrough),
+  };
+};
+
+const mapRectangle = <T, S>(
+  f: (arg: T) => S,
+  v: Rectangle<T>
+): Rectangle<S> => {
+  return {
+    ...v,
+    ...mapNamed(f, v),
+    ...mapStroke(f, v),
+    ...mapFill(f, v),
+    ...mapCenter(f, v),
+    ...mapRotate(f, v),
+    ...mapRect(f, v),
+    ...mapCorner(f, v),
+    passthrough: mapPassthrough(f, v.passthrough),
+  };
+};
+
+const mapText = <T, S>(f: (arg: T) => S, v: Text<T>): Text<S> => {
+  return {
+    ...v,
+    ...mapNamed(f, v),
+    ...mapStroke(f, v),
+    ...mapFill(f, v),
+    ...mapCenter(f, v),
+    ...mapRotate(f, v),
+    ...mapRect(f, v),
+    ...mapString(f, v),
+    ascent: mapFloat(f, v.ascent),
+    descent: mapFloat(f, v.descent),
+    passthrough: mapPassthrough(f, v.passthrough),
+  };
+};
+
+const mapPassthrough = <T, S>(
+  f: (arg: T) => S,
+  v: Map<string, CanPassthrough<T>>
+): Map<string, CanPassthrough<S>> => {
+  const vMapped = new Map<string, CanPassthrough<S>>();
+  for (const [key, value] of v.entries()) {
+    if (value.tag === "StrV") {
+      vMapped.set(key, value);
+    } else {
+      vMapped.set(key, mapFloat(f, value));
+    }
+  }
+  return vMapped;
+};
+
+const mapNamed = <T, S>(f: (arg: T) => S, v: Named<T>): Named<S> => {
+  // Cannot use "spread" operator since `v` might have more things than just Named.
+  return { name: v.name, style: v.style, ensureOnCanvas: v.ensureOnCanvas };
+};
+
+const mapStroke = <T, S>(f: (arg: T) => S, v: Stroke<T>): Stroke<S> => {
+  return {
+    strokeStyle: v.strokeStyle,
+    strokeDasharray: v.strokeDasharray,
+    strokeWidth: mapFloat(f, v.strokeWidth),
+    strokeColor: mapColor(f, v.strokeColor),
+  };
+};
+
+const mapFill = <T, S>(f: (arg: T) => S, v: Fill<T>): Fill<S> => {
+  return { fillColor: mapColor(f, v.fillColor) };
+};
+
+const mapCenter = <T, S>(f: (arg: T) => S, v: Center<T>): Center<S> => {
+  return { center: mapVector(f, v.center) };
+};
+
+const mapRect = <T, S>(f: (arg: T) => S, v: Rect<T>): Rect<S> => {
+  return { width: mapFloat(f, v.width), height: mapFloat(f, v.height) };
+};
+
+const mapArrow = <T, S>(f: (arg: T) => S, v: Arrow<T>): Arrow<S> => {
+  return {
+    startArrowhead: v.startArrowhead,
+    endArrowhead: v.endArrowhead,
+    flipStartArrowhead: v.flipStartArrowhead,
+    startArrowheadSize: mapFloat(f, v.startArrowheadSize),
+    endArrowheadSize: mapFloat(f, v.endArrowheadSize),
+  };
+};
+
+const mapCorner = <T, S>(f: (arg: T) => S, v: Corner<T>): Corner<S> => {
+  return { cornerRadius: mapFloat(f, v.cornerRadius) };
+};
+
+const mapRotate = <T, S>(f: (arg: T) => S, v: Rotate<T>): Rotate<S> => {
+  return { rotation: mapFloat(f, v.rotation) };
+};
+
+const mapScale = <T, S>(f: (arg: T) => S, v: Scale<T>): Scale<S> => {
+  return { scale: mapFloat(f, v.scale) };
+};
+
+const mapPoly = <T, S>(f: (arg: T) => S, v: Poly<T>): Poly<S> => {
+  return { points: mapPtList(f, v.points) };
+};
+
+const mapString = <T, S>(
+  f: (arg: T) => S,
+  v: StringProps<T>
+): StringProps<S> => {
+  return { string: v.string, fontSize: v.fontSize };
+};
 
 // Utils for converting types of values
 
@@ -214,143 +457,44 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
     case "ShapeListV":
       return mapShapeList(f, v);
     // non-numeric Value types
-    case "GPIListV":
-      // since all GPIListV have been converted to ShapeListV
-      // this should never happen
-      throw Error("There should not be a GPIListV");
     case "BoolV":
     case "StrV":
       return v;
   }
 }
 
-export const compileCompGraph = async (shapes: ShapeAD[]): Promise<ShapeFn> => {
-  const vars = [];
+export const compileCompGraph = async (
+  inputs: ad.Input[],
+  shapes: Shape<ad.Num>[]
+): Promise<ShapeFn> => {
+  const indices = new Map(inputs.map((x, i) => [x, i]));
+  const vars: ad.Num[] = [];
   for (const s of shapes) {
-    for (const v of Object.values(s.properties)) {
-      vars.push(...valueADNums(v));
-    }
+    // a bit weird since it feels somewhat wasteful to reconstruct the new
+    // shape, but this reduces some code duplication since this way we don't
+    // have to write a separate function to collect all the `ad.Num`s
+    mapShape((x) => {
+      vars.push(x);
+    }, s);
   }
   const compGraph: ad.Graph = secondaryGraph(vars);
   const evalFn = await genCode(compGraph);
-  return (xs: number[]): Shape[] => {
-    const numbers = evalFn.call(xs).secondary;
+  return (xs: number[]): Shape<number>[] => {
+    const numbers = evalFn(
+      (x) => xs[safe(indices.get(x), "input not found")]
+    ).secondary;
     const m = new Map(compGraph.secondary.map((id, i) => [id, numbers[i]]));
-    return shapes.map((s: ShapeAD) => ({
-      ...s,
-      properties: _.mapValues(s.properties, (p: Value<ad.Num>) =>
-        mapValueNumeric(
-          (x) =>
-            safe(
-              m.get(
-                safe(compGraph.nodes.get(x), `missing node for value ${p.tag}`)
-              ),
-              "missing output"
-            ),
-          p
-        )
-      ),
-    }));
+    return shapes.map((s: Shape<ad.Num>) =>
+      mapShape(
+        (x) =>
+          safe(
+            m.get(safe(compGraph.nodes.get(x), `missing node`)),
+            "missing output"
+          ),
+        s
+      )
+    );
   };
-};
-
-const valueADNums = (v: Value<ad.Num>): ad.Num[] => {
-  switch (v.tag) {
-    case "FloatV": {
-      return [v.contents];
-    }
-    case "BoolV":
-    case "StrV": {
-      return [];
-    }
-    case "GPIListV": {
-      throw Error("There should not be a GPIListV");
-    }
-    case "ShapeListV": {
-      const vars = [];
-      const shapes = v.contents;
-      for (const s of shapes) {
-        for (const v of Object.values(s.properties)) {
-          vars.push(...valueADNums(v));
-        }
-      }
-      return vars;
-    }
-    case "ListV":
-    case "VectorV":
-    case "TupV": {
-      return v.contents;
-    }
-    case "PathDataV": {
-      return v.contents.flatMap((pathCmd) =>
-        pathCmd.contents.flatMap((subPath) => subPath.contents)
-      );
-    }
-    case "PtListV":
-    case "MatrixV":
-    case "LListV": {
-      return v.contents.flat();
-    }
-    case "ColorV": {
-      return colorADNums(v.contents);
-    }
-  }
-};
-
-const colorADNums = (c: Color<ad.Num>): ad.Num[] => {
-  switch (c.tag) {
-    case "RGBA":
-    case "HSVA": {
-      return c.contents;
-    }
-    case "NONE": {
-      return [];
-    }
-  }
-};
-
-// weight for constraints
-const constraintWeight = 10e4; // HACK: constant constraint weight
-// const constraintWeight = 1; // TODO: If you want to minimally satisfify the constraint. Figure out which one works better wrt `initConstraintWeight`, as the constraint weight is increased by the growth factor anyway
-
-/**
- * Generate an energy function from the current state (using `ad.Num`s only)
- */
-export const genGradient = async (
-  inputs: InputMeta[],
-  objEngs: ad.Num[],
-  constrEngs: ad.Num[]
-): Promise<Gradient> => {
-  // TODO: Doesn't reuse compiled function for now (since caching function in App currently does not work)
-  // Compile objective and gradient
-
-  // This changes with the EP round, gets bigger to weight the constraints
-  // Therefore it's marked as an input to the generated objective function, which can be partially applied with the ep weight
-  // But its initial `val` gets compiled away, so we just set it to zero here
-  const epWeightNode = input({ val: 0, key: inputs.length });
-
-  // Note there are two energies, each of which does NOT know about its children, but the root nodes should now have parents up to the objfn energies. The computational graph can be seen in inspecting varyingValuesTF's parents
-  // The energies are in the val field of the results (w/o grads)
-
-  // This is fixed during the whole optimization
-  const constrWeightNode: ad.Num = constraintWeight;
-
-  // F(x) = o(x) + c0 * penalty * c(x)
-  const objs = objEngs.map((x, i) => {
-    const secondary = [];
-    secondary[i] = x;
-    return makeGraph({ primary: x, secondary });
-  });
-  const constrs = constrEngs.map((x, i) => {
-    const secondary = [];
-    secondary[objEngs.length + i] = x;
-    return makeGraph({
-      primary: mul(fns.toPenalty(x), mul(constrWeightNode, epWeightNode)),
-      secondary,
-    });
-  });
-
-  return await genCode(...objs, ...constrs);
 };
 
 //#region translation operations
@@ -375,35 +519,6 @@ export const dummyIdentifier = (
     value: name,
     tag: "Identifier",
   };
-};
-
-// Given 'propType' and 'shapeType', return all props of that ValueType
-// COMBAK: Model "FloatT", "FloatV", etc as types for ValueType
-export const propertiesOf = (
-  propType: string,
-  shapeType: ShapeTypeStr
-): PropID[] => {
-  const shapedef: ShapeDef = shapedefs[shapeType];
-  const shapeInfo: [string, Value<ad.Num>["tag"]][] = Object.entries(
-    shapedef.propTags
-  );
-  return shapeInfo
-    .filter(([, tag]) => tag === propType)
-    .map(([pName]) => pName);
-};
-
-// Given 'propType' and 'shapeType', return all props NOT of that ValueType
-export const propertiesNotOf = (
-  propType: string,
-  shapeType: ShapeTypeStr
-): PropID[] => {
-  const shapedef: ShapeDef = shapedefs[shapeType];
-  const shapeInfo: [string, Value<ad.Num>["tag"]][] = Object.entries(
-    shapedef.propTags
-  );
-  return shapeInfo
-    .filter(([, tag]) => tag !== propType)
-    .map(([pName]) => pName);
 };
 
 //#endregion

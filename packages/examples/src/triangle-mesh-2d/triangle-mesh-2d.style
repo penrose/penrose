@@ -1,3 +1,5 @@
+layout = [shapes, labels]
+
 canvas {
    width = 480
    height = 360
@@ -19,7 +21,7 @@ Global {
    scalar vertexRadius = 2.5
    scalar pointRadius = 2.0
    scalar lineThickness = 1.
-   scalar labelBoundRadius = 10.
+   scalar labelBoundRadius = 8.
    scalar lineOffset = 8.0
    scalar wedgeSize = 30.0
 
@@ -55,8 +57,8 @@ forall Vertex v {
 forall Vertex v
 where v has label {
 
-   v.labelAngle = ?
-   v.labelRadius = ?
+   v.labelAngle = ? in labels
+   v.labelRadius = ? in labels
 
    -- label
    shape v.text = Text {
@@ -69,7 +71,7 @@ where v has label {
    }
 
    -- make sure label doesn't get too far from the dot
-   ensure inRange( v.labelRadius, 1.02*Global.labelBoundRadius, 1.1*Global.labelBoundRadius )
+   ensure inRange( v.labelRadius, 1.02*Global.labelBoundRadius, 1.1*Global.labelBoundRadius ) in labels
 
    -- invisible circle around label
    -- (used to prevent overlap)
@@ -81,16 +83,16 @@ where v has label {
    }
 
    -- make sure the label is on the canvas
-   ensure contains( Global.box, v.bounds )
+   ensure contains( Global.box, v.bounds ) in labels
 
    -- keep the label near the dot
-   encourage equal( norm(v.text.center - v.icon.center), Global.labelBoundRadius )
+   encourage equal( norm(v.text.center - v.icon.center), Global.labelBoundRadius ) in labels
 }
 
 -- make sure vertex labels don't overlap
 forall Vertex u; Vertex v
 where u has label; v has label { -- requires #774 to replace with "where u has label; v has label"; currently hacked-in using predicate in Domain program
-   ensure disjoint( u.bounds, v.bounds )
+   ensure disjoint( u.bounds, v.bounds ) in labels
 }
 
 forall Edge e; Vertex i; Vertex j
@@ -125,8 +127,8 @@ forall Edge e; Vertex i; Vertex j
 where e := MakeEdge(i,j); i has label; j has label {
    -- make sure edge doesn't cover the
    -- labels of its two endpoints
-   ensure disjoint( i.bounds, e.segment, 1. )
-   ensure disjoint( j.bounds, e.segment, 1. )
+   ensure disjoint( i.bounds, e.segment, 1. ) in labels
+   ensure disjoint( j.bounds, e.segment, 1. ) in labels
 }
 
 forall Edge e
@@ -139,7 +141,7 @@ where IsBoundaryEdge( e ) {
 forall Edge e; Vertex i; Vertex j; Vertex k
 where e := MakeEdge(i,j); k has label {
    
-   ensure disjoint( k.bounds, e.segment, 1. )
+   ensure disjoint( k.bounds, e.segment, 1. ) in labels
 }
 
 forall Triangle t; Vertex i; Vertex j; Vertex k
@@ -178,8 +180,8 @@ where t := MakeTriangle(i,j,k)
    -- (the third will of course make the sum equal to 180)
    scalar aTheta = angleFrom( b-a, c-a )
    scalar bTheta = angleFrom( c-b, a-b )
-   constraint t.goodAngleA = ensure inRange( aTheta, toRadians(40.), toRadians(80.) )
-   constraint t.goodAngleB = ensure inRange( bTheta, toRadians(40.), toRadians(80.) )
+   constraint t.goodAngleA = ensure inRange( aTheta, toRadians(40.), toRadians(80.) ) in labels
+   constraint t.goodAngleB = ensure inRange( bTheta, toRadians(40.), toRadians(80.) ) in labels
 }
 
 forall Corner c; Vertex i; Vertex j; Vertex k
@@ -247,20 +249,20 @@ where c := MakeCorner(i,j,k); c has text label {
 
    shape c.textBounds = Circle {
       center: c.text.center
-      r: 1.1*Global.labelBoundRadius
+      r: 1.1 * .5 * max(c.text.width, c.text.height)
       fillColor: none()
    }
 
    vec2 w = (c.u+c.v)/2.
    vec2 z = c.center - i.center
    ensure lessThan( angleBetween(w,z), c.wedgeAngle/4. )
-   encourage near( c.textBounds, i.icon )
-   ensure disjoint( c.textBounds, c.arcBall )
+   encourage near( c.textBounds, i.icon ) in labels
+   ensure disjoint( c.textBounds, c.arcBall ) in labels
 }
 
 forall Corner c1; Corner c2
 where c1 has text label; c2 has text label {
-   ensure disjoint( c1.textBounds, c2.textBounds )
+   ensure disjoint( c1.textBounds, c2.textBounds ) in labels
 }
 
 forall Point p {
@@ -321,11 +323,11 @@ where h := MakeHalfedge(k,i); t := MakeTriangle(i,j,k)
    h.end = i.center
    h.opposite = j.center
 }
-forall Halfedge h {
+forall Halfedge e {
 
-   vec2 p0 = h.start
-   vec2 p1 = h.end
-   vec2 p2 = h.opposite
+   vec2 p0 = e.start
+   vec2 p1 = e.end
+   vec2 p2 = e.opposite
 
    -- unit vectors along the three edges
    vec2 t01 = unit(p1-p0)
@@ -356,16 +358,16 @@ forall Halfedge h {
    vec2 n = rot90(t01)
    vec2 Q2 = Q0 + h*(n-t01)
 
-   h.icon = Path {
+   e.icon = Path {
       strokeWidth: 2.*Global.lineThickness
       strokeColor: Colors.black
       fillColor: none()
       d: pathFromPoints("open", [Q2,Q0,Q1])
    }
 
-   h.labelText = Text {
+   e.labelText = Text {
       center: m + h*n
-      string: h.label
+      string: e.label
       fontFamily: "Courier"
       fontSize: "6.75px"
       fillColor: Colors.black
@@ -526,7 +528,6 @@ where IsPositivelyOriented(t) {
       strokeColor: Colors.black
       d: arc( "open", p0, p1, (R,R), 0., 1, 0 )
       strokeWidth: 2.*Global.lineThickness
-      startArrowhead: false
       endArrowhead: "straight"
       endArrowheadSize: .5
    }
@@ -621,9 +622,9 @@ where p := Intersection(ab,cd); ab := MakeEdge(a,b); cd := MakeEdge(c,d) {
 -- Specific to diagrams/angle-equivalence.substance
 -- TODO requires #776 to import these rules from an example-specific Style module
 
---- angle-equivalence --- -- Don't draw vertices as dots in this
---- angle-equivalence --- -- example (but still keep the icons, for
---- angle-equivalence --- -- other purposes).
+-- Don't draw vertices as dots in this
+-- example (but still keep the icons, for
+-- other purposes).
 --- angle-equivalence --- forall Vertex v {
 --- angle-equivalence ---    override v.icon.r = 0.
 --- angle-equivalence --- }
@@ -652,20 +653,26 @@ where p := Intersection(ab,cd); ab := MakeEdge(a,b); cd := MakeEdge(c,d) {
 --- angle-equivalence ---    delete t.goodAngleA
 --- angle-equivalence ---    delete t.goodAngleB
 --- angle-equivalence --- }
+--- angle-equivalence --- 
+--- angle-equivalence --- -- make sure triangles are disjoint if they are made similar
+--- angle-equivalence --- forall Triangle t1, t2
+--- angle-equivalence --- where t1 := MakeTriangle(i, j, k); t2 := MakeTriangle(I, J, K); i := similarity(i); j := similarity(j); k := similarity(k);
+--- angle-equivalence --- with Vertex i, j, k, I, J, K {
+--- angle-equivalence ---    ensure disjoint(t1.icon, t2.icon)
+--- angle-equivalence --- }
 
 -- Specific to diagrams/concyclic-pair.substance
 -- TODO requires #776 to import these rules from an example-specific Style module
 
 --- concyclic-pair --- -- make vertex dots bigger
 --- concyclic-pair --- forall Vertex v {
---- concyclic-pair ---    override v.icon.r = 1.5*Global.vertexRadius
+--- concyclic-pair ---    override v.icon.r = 1.75*Global.vertexRadius
 --- concyclic-pair --- }
 --- concyclic-pair --- 
 --- concyclic-pair --- -- make corner labels larger and dark blue
 --- concyclic-pair --- forall Corner c; Vertex i; Vertex j; Vertex k
 --- concyclic-pair --- where c := MakeCorner(i,j,k); c has text label {
---- concyclic-pair ---    override c.text.fontSize = "13.5px"
---- concyclic-pair ---    override c.textBounds.r = Global.labelBoundRadius
+--- concyclic-pair ---    override c.text.fontSize = "25px"
 --- concyclic-pair ---    override c.text.fillColor = Colors.darkBlue
 --- concyclic-pair --- }
 --- concyclic-pair --- 
@@ -677,7 +684,7 @@ where p := Intersection(ab,cd); ab := MakeEdge(a,b); cd := MakeEdge(c,d) {
 --- concyclic-pair --- 
 --- concyclic-pair --- -- make edges thicker
 --- concyclic-pair --- forall Edge e {
---- concyclic-pair ---    override e.segment.strokeWidth = 2.25*Global.lineThickness
+--- concyclic-pair ---    override e.segment.strokeWidth = 2*Global.lineThickness
 --- concyclic-pair --- }
 --- concyclic-pair --- 
 --- concyclic-pair --- -- make boundary edges thicker
@@ -695,4 +702,3 @@ where p := Intersection(ab,cd); ab := MakeEdge(a,b); cd := MakeEdge(c,d) {
 --- concyclic-pair --- where c := MakeCorner(i,j,k); e := MakeEdge(i,l) {
 --- concyclic-pair ---    ensure disjoint( c.textBounds, e.segment )
 --- concyclic-pair --- }
-

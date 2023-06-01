@@ -12,17 +12,17 @@ import toast from "react-hot-toast";
 import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
 import { v4 as uuid } from "uuid";
 import {
-  currentRogerState,
   DiagramMetadata,
-  diagramMetadataSelector,
-  diagramState,
-  fileContentsSelector,
   ProgramFile,
   RogerState,
   WorkspaceMetadata,
+  currentRogerState,
+  diagramMetadataSelector,
+  diagramState,
+  fileContentsSelector,
   workspaceMetadataSelector,
-} from "../state/atoms";
-import BlueButton from "./BlueButton";
+} from "../state/atoms.js";
+import BlueButton from "./BlueButton.js";
 
 /**
  * Fetch url, but try local storage first using a name.
@@ -83,11 +83,7 @@ export const pathResolver = async (
   // Handle relative paths
   switch (location.kind) {
     case "example": {
-      return fetchResource(
-        relativePath,
-        workspace,
-        new URL(relativePath, location.root).href
-      );
+      return location.resolver(relativePath);
     }
     case "roger": {
       if (rogerState.kind === "connected") {
@@ -109,6 +105,8 @@ export const pathResolver = async (
             })
           );
         });
+      } else {
+        return undefined;
       }
     }
     // TODO: publish images in the gist
@@ -271,7 +269,7 @@ export const DownloadPNG = (
 export default function DiagramPanel() {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [diagram, setDiagram] = useRecoilState(diagramState);
-  const { state, error, metadata } = diagram;
+  const { state, error, warnings, metadata } = diagram;
   const [showEasterEgg, setShowEasterEgg] = useState(false);
   const { interactive } = useRecoilValue(diagramMetadataSelector);
   const workspace = useRecoilValue(workspaceMetadataSelector);
@@ -302,8 +300,6 @@ export default function DiagramPanel() {
               (path) => pathResolver(path, rogerState, workspace),
               "diagramPanel"
             );
-        rendered.setAttribute("width", "100%");
-        rendered.setAttribute("height", "100%");
         if (cur.firstElementChild) {
           cur.replaceChild(rendered, cur.firstElementChild);
         } else {
@@ -387,32 +383,33 @@ export default function DiagramPanel() {
   });
 
   const downloadPdf = useRecoilCallback(
-    ({ snapshot }) => () => {
-      if (canvasRef.current !== null) {
-        const svg = canvasRef.current.firstElementChild as SVGSVGElement;
-        if (svg !== null && state) {
-          const metadata = snapshot.getLoadable(workspaceMetadataSelector)
-            .contents as WorkspaceMetadata;
-          const openedWindow = window.open(
-            "",
-            "PRINT",
-            `height=${state.canvas.height},width=${state.canvas.width}`
-          );
-          if (openedWindow === null) {
-            toast.error("Couldn't open popup to print");
-            return;
+    ({ snapshot }) =>
+      () => {
+        if (canvasRef.current !== null) {
+          const svg = canvasRef.current.firstElementChild as SVGSVGElement;
+          if (svg !== null && state) {
+            const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+              .contents as WorkspaceMetadata;
+            const openedWindow = window.open(
+              "",
+              "PRINT",
+              `height=${state.canvas.height},width=${state.canvas.width}`
+            );
+            if (openedWindow === null) {
+              toast.error("Couldn't open popup to print");
+              return;
+            }
+            openedWindow.document.write(
+              `<!DOCTYPE html><head><title>${metadata.name}</title></head><body>`
+            );
+            openedWindow.document.write(svg.outerHTML);
+            openedWindow.document.write("</body></html>");
+            openedWindow.document.close();
+            openedWindow.focus();
+            openedWindow.print();
           }
-          openedWindow.document.write(
-            `<!DOCTYPE html><head><title>${metadata.name}</title></head><body>`
-          );
-          openedWindow.document.write(svg.outerHTML);
-          openedWindow.document.write("</body></html>");
-          openedWindow.document.close();
-          openedWindow.focus();
-          openedWindow.print();
         }
-      }
-    },
+      },
     [state]
   );
 
@@ -456,7 +453,32 @@ export default function DiagramPanel() {
             >
               error ({error.errorType})
             </span>
-            <pre>{showError(error).toString()}</pre>
+            <pre style={{ whiteSpace: "pre-wrap" }}>
+              {showError(error).toString()}
+            </pre>
+          </div>
+        )}
+        {warnings.length > 0 && (
+          <div
+            style={{
+              bottom: 0,
+              backgroundColor: "#FFF2C5",
+              maxHeight: "100%",
+              maxWidth: "100%",
+              minHeight: "100px",
+              overflow: "auto",
+              padding: "10px",
+              boxSizing: "border-box",
+            }}
+          >
+            <span
+              style={{ fontWeight: "bold", color: "#F0C324", fontSize: 14 }}
+            >
+              warnings
+            </span>
+            <pre style={{ whiteSpace: "pre-wrap" }}>
+              {warnings.map((w) => showError(w).toString()).join("\n")}
+            </pre>
           </div>
         )}
         <div

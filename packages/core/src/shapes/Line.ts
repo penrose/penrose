@@ -1,16 +1,19 @@
-import * as ad from "../types/ad";
-import { Arrow, Named, Shape, Stroke } from "../types/shapes";
-import { StrV, VectorV } from "../types/value";
-import { boolV, floatV, strV } from "../utils/Util";
-import { Canvas, Context, sampleColor, sampleVector } from "./Samplers";
+import * as ad from "../types/ad.js";
+import { Arrow, Named, ShapeCommon, Stroke } from "../types/shapes.js";
+import { StrV, VectorV } from "../types/value.js";
+import { boolV, floatV, strV } from "../utils/Util.js";
+import { Canvas, Context, sampleColor, sampleVector } from "./Samplers.js";
 
-export interface LineProps extends Named, Stroke, Arrow {
-  start: VectorV<ad.Num>;
-  end: VectorV<ad.Num>;
+export interface LineProps<T> extends Named<T>, Stroke<T>, Arrow<T> {
+  start: VectorV<T>;
+  end: VectorV<T>;
   strokeLinecap: StrV;
 }
 
-export const sampleLine = (context: Context, canvas: Canvas): LineProps => ({
+export const sampleLine = (
+  context: Context,
+  canvas: Canvas
+): LineProps<ad.Num> => ({
   name: strV("defaultLine"),
   style: strV(""),
   strokeWidth: floatV(1),
@@ -28,14 +31,15 @@ export const sampleLine = (context: Context, canvas: Canvas): LineProps => ({
   ensureOnCanvas: boolV(true),
 });
 
-export type Line = Shape & { shapeType: "Line" } & LineProps;
+export type Line<T> = ShapeCommon<T> & { shapeType: "Line" } & LineProps<T>;
 
 export const makeLine = (
   context: Context,
   canvas: Canvas,
-  properties: Partial<LineProps>
-): Line => ({
+  properties: Partial<LineProps<ad.Num>>
+): Line<ad.Num> => ({
   ...sampleLine(context, canvas),
   ...properties,
   shapeType: "Line",
+  passthrough: new Map(),
 });

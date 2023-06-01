@@ -40,14 +40,15 @@ canvas {
 
 tells Penrose that the drawing canvas should have a width of 800 pixels and a height of 700 pixels.
 
-## Style Blocks
+## Selector Blocks
 
-Style blocks are the most important component in a _style_ schema, since they actually describe _how_ to draw elements of a diagram. The syntax for style blocks is as follows:
+Selector Blocks are the most important component in a _style_ schema, since they actually describe _how_ to draw elements of a diagram. The syntax for Selector Blocks is as follows:
 
 ```
 forall list_object_declarations
-where list_relations {
-    list_body_expressions
+where list_relations
+with list_object_declarations {
+    ... (Selector Block Body)
 }
 ```
 
@@ -55,9 +56,10 @@ where
 
 - `list_object_declarations` is a **semicolon**-separated list of object declarations, similar to the object declarations in the _substance_ schema. Each object declaration has syntax `type_name object_name`. The names declared in `list_object_declarations` are referred to as _style variables_.
 - `list_relations` is a **semicolon**-separated list of constraints (about objects in `list_object_declaration`) that must be satisfied in order for this style block to be triggered.
-- `list_body_expressions` is the body of this _style_ block, containing statements that represent the computational and graphical aspects of the diagrams that are triggered when this style block is triggered. Refer to [this section](usage#block-body) for a detailed explanation of what may appear in the body of a _style_ block.
 
-If `list_relations` is empty, then the clause `where ...` needs to be omitted.
+One might observe that both the `forall` clause and the `with` clause take in list of object declarations. The two clauses are treated equivalently in Selector Blocks. Variables declared in these clauses can be accessed within the body of the Selector Block.
+
+If the `where` or `with` clause is empty, it needs to be omitted.
 
 In the set-theory example, a style block may look like
 
@@ -73,6 +75,16 @@ or
 forall Set x; Set y
 where IsSubset (x, y) {
     ...
+}
+```
+
+or
+
+```
+forall Set x
+where IsSubst(x, y)
+with Set y {
+
 }
 ```
 
@@ -238,12 +250,12 @@ Then, only one of mappings `x -> A; y -> B` and `x -> B; y -> A` triggers the St
 
 Within a _style_ block body, some variable names are reserved for metadata purposes:
 
-- `match_count` is an integer that refers to the number of times that this _style_ blocks will be triggered (or matched) in total; and
+- `match_total` is an integer that refers to the number of times that this _style_ blocks will be triggered (or matched) in total; and
 - `match_id` is the 1-indexed ordinal of this current matching.
 
 These values can directly be read or overwritten within the style block body if needed.
 
-## Block Body
+## Selector Block Body
 
 The body of a block contains declarations of variables, shapes, and the relationship between objects.
 
@@ -362,6 +374,85 @@ layer shape_1 below shape_2
 where `shape_1` and `shape_2` can be variables assigned to shapes.
 
 We have special handling of layering statements for `Group` shapes, found [here](./shapes/group.md).
+
+## Collector Blocks
+
+Selector blocks match _style_ variables against _substance_ variables to produce multiple matches. Each match is independent from another. This characteristic makes it difficult to implement features that require aggregations over multiple matches. For example, we can't compute the sum of `center` fields of _all_ Substance variables that a selector matches on.
+
+Collector Blocks enables these types of aggregations by introducing collections of _substance_ variables. The syntax is as follows:
+
+```
+collect <COLLECT> into <INTO>
+where <WHERE>
+with <WITH>
+foreach <FOREACH> { ... }
+```
+
+The `where`, `with`, and `foreach` clauses are optional, and if they are empty, they must be omitted.
+
+- `<COLLECT>` is an object declaration. The `<COLLECT> ` object is accessible, via the name given in the `<INTO>` clause, in the _style_ block body.
+- `<INTO>` is the name assigned to the collection. The collection includes all the Substance objects that `<COLLECT>` matches to. Within the Style block, `<INTO>` conceptually represents a list of Substance objects.
+- The `<WHERE>` clause has the same meaning as in standard `forall` Style selectors.
+- `<WITH>` is a semicolon-separated list of object declarations. Objects in the `<WITH>` clause aren't collected, but may be used in `<WHERE>`.
+- `<FOREACH>` is a semicolon-separated list of object declarations. Objects in the `<FOREACH>` clause are also not collected, but they arrange the `<COLLECT>` objects into groups. The entire `Collector` block runs once for each distinct match of the `<FOREACH>` clause. The `<FOREACH>` list can contain multiple declarations.
+
+For example, suppose we have the Substance program that defines one set `s1` that contains elements `e1, e2`, and another set `s2` that contains elements `e3, e4, e5`, as follows:
+
+```
+Set s1
+Element e1, e2
+In(e1, s1)
+In(e2, s1)
+
+Set s2
+Element e3, e4, e5
+In(e3, s2)
+In(e4, s2)
+In(e5, s2)
+```
+
+We can write a Collector Block:
+
+```
+collect Element e into es
+where In(e, s)
+foreach Set s {
+    ...
+}
+```
+
+Under the above Substance program, this Collector Block would run twice:
+
+- once with mapping `es -> [e1, e2]` and `s -> s1`
+- once with mapping `es -> [e3, e4, e5]` and `s -> s2`.
+
+Notice that we have splitted the set of all elements `[e1, e2, e3, e4, e5]` into two groups based on the `Set` object that they are contained within.
+
+Within the body of the Collector Blocks, we can do everything that can be done in Selector Blocks, with the one exception that we can only access Style variables in `<INTO>` and `<FOREACH>`.
+
+### Collection Access Expression
+
+Within the Collector Block, the name in the `<INTO>` clause conceptually means a list of Substance objects. We can access the fields of each element in the collection using the "Collection Access" expression with syntax:
+
+```
+listof <FIELD NAME> from <COLLECTION NAME>
+```
+
+This expression takes the `<FIELD NAME>` field of each Substance variable in the collection `<COLLECTION NAME>`, and compiles these fields into an appropriate list.
+
+For example, suppose `elements` is the name in the `<INTO>` block, conceptually representing some list of Substance objects `[e1, e2, ..., en]`. Then, we would expect the expression `listof field from elements` to produce a list `[e1.field, e2.field, ..., en.field]`.
+
+Due to technical constraints, we cannot access _any_ field of each element of the collection. In the above example, if `e1.field` gives a color, then we cannot really put the color into a list, since Penrose does not support lists of colors. We restrict allowable types to as follows:
+
+| Type of `field`    | Collects into                 |
+| ------------------ | ----------------------------- |
+| `FloatV` (number)  | `VectorV` (vector)            |
+| `VectorV` (vector) | `MatrixV` (matrix)            |
+| `ListV` (list)     | `LListV` (list of lists)      |
+| `TupV` (2-tuple)   | `PtListV` (list of 2d points) |
+| some shape         | `ShapeListV` (list of shapes) |
+
+If, in the above example, `e1.field`, `e2.field`, etc. are numbers, then the expresion `listof field from elements` gives us a vector that contains all the values. We can directly plug the vector into accumulation functions such as `average` and `sum`.
 
 ## Expressions and their Types
 

@@ -1,11 +1,15 @@
-import * as ad from "../../types/ad";
+import { describe, expect, it } from "vitest";
+import { Polygon } from "../../shapes/Polygon.js";
+import { Polyline } from "../../shapes/Polyline.js";
+import { Shape } from "../../shapes/Shapes.js";
+import * as ad from "../../types/ad.js";
 import {
   consecutiveTriples,
   consecutiveTuples,
   extractPoints,
   isClosed,
-} from "../Utils";
-import { _polygons, _polylines } from "../__testfixtures__/TestShapes.input";
+} from "../Utils.js";
+import { _polygons, _polylines } from "../__testfixtures__/TestShapes.input.js";
 
 describe("consecutiveTuples", () => {
   const a: [ad.Num, ad.Num] = [1, 2];
@@ -109,32 +113,23 @@ describe("consecutiveTuples", () => {
 });
 
 describe("isClosed", () => {
-  it.each([["Polygon", _polygons[1]]])(
-    "closed %p",
-    (shapeType: string, shapeData: any) => {
-      const shape: [string, any] = [shapeType, shapeData];
-      const result = isClosed(shape);
-      expect(result).toBeTruthy();
-    }
-  );
+  it.each([[_polygons[1]]])("closed %p", (shape: Shape<ad.Num>) => {
+    const result = isClosed(shape);
+    expect(result).toBeTruthy();
+  });
 
-  it.each([["Polyline", _polylines[3]]])(
-    "open %p",
-    (shapeType: string, shapeData: any) => {
-      const shape: [string, any] = [shapeType, shapeData];
-      const result = isClosed(shape);
-      expect(result).toBeFalsy();
-    }
-  );
+  it.each([[_polylines[3]]])("open %p", (shape: Shape<ad.Num>) => {
+    const result = isClosed(shape);
+    expect(result).toBeFalsy();
+  });
 });
 
 describe("extractPoints", () => {
-  it.each([
-    ["Polyline", _polylines[5]],
-    ["Polygon", _polygons[6]],
-  ])("%p", (shapeType: string, shapeData: any) => {
-    const shape: [string, any] = [shapeType, shapeData];
-    const result = extractPoints(shape);
-    expect(result).toStrictEqual(shapeData.points.contents);
-  });
+  it.each([[_polylines[5]], [_polygons[6]]])(
+    "%p",
+    (shape: Polyline<ad.Num> | Polygon<ad.Num>) => {
+      const result = extractPoints(shape);
+      expect(result).toStrictEqual(shape.points.contents);
+    }
+  );
 });

@@ -1,3 +1,4 @@
+import { Polygon } from "../shapes/Polygon.js";
 import {
   attrAutoFillSvg,
   attrFill,
@@ -5,10 +6,13 @@ import {
   attrScale,
   attrStroke,
   attrTitle,
-} from "./AttrHelper";
-import { ShapeProps } from "./Renderer";
+} from "./AttrHelper.js";
+import { RenderProps } from "./Renderer.js";
 
-const Polygon = ({ shape, canvasSize }: ShapeProps): SVGPolygonElement => {
+const RenderPolygon = (
+  shape: Polygon<number>,
+  { canvasSize }: RenderProps
+): SVGPolygonElement => {
   const elem = document.createElementNS(
     "http://www.w3.org/2000/svg",
     "polygon"
@@ -29,4 +33,4 @@ const Polygon = ({ shape, canvasSize }: ShapeProps): SVGPolygonElement => {
 
   return elem;
 };
-export default Polygon;
+export default RenderPolygon;

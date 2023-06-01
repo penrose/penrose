@@ -4,7 +4,7 @@ import {
   genCodeSync,
   ops,
   secondaryGraph,
-} from "../engine/Autodiff";
+} from "../engine/Autodiff.js";
 import {
   absVal,
   add,
@@ -19,37 +19,35 @@ import {
   or,
   squared,
   sub,
-} from "../engine/AutodiffFunctions";
-import * as BBox from "../engine/BBox";
-import { Equation } from "../shapes/Equation";
-import { Image } from "../shapes/Image";
-import { Line } from "../shapes/Line";
-import { Polygon } from "../shapes/Polygon";
-import { Polyline } from "../shapes/Polyline";
-import { Rectangle } from "../shapes/Rectangle";
-import { Shape, ShapeType } from "../shapes/Shapes";
-import { Text } from "../shapes/Text";
-import * as ad from "../types/ad";
+} from "../engine/AutodiffFunctions.js";
+import * as BBox from "../engine/BBox.js";
+import { Equation } from "../shapes/Equation.js";
+import { Image } from "../shapes/Image.js";
+import { Line } from "../shapes/Line.js";
+import { Polygon } from "../shapes/Polygon.js";
+import { Polyline } from "../shapes/Polyline.js";
+import { Rectangle } from "../shapes/Rectangle.js";
+import { Shape } from "../shapes/Shapes.js";
+import { Text } from "../shapes/Text.js";
+import * as ad from "../types/ad.js";
 
-export type ShapeTuple = [ShapeType, Omit<Shape, "shapeType">];
+export type Rectlike<T> = Equation<T> | Image<T> | Rectangle<T> | Text<T>;
+export type Polygonlike<T> = Rectlike<T> | Line<T> | Polygon<T> | Polyline<T>;
+export type Linelike<T> = Line<T>;
 
-export const shapeTupleToShape = ([t, s]: ShapeTuple): Shape =>
-  ({ shapeType: t, ...s } as Shape);
-
-// these are redundant with the `isRectlike` and `isPolygonlike` fields on
-// `ShapeDef`, which we want to remove as part of a larger consolidation effort:
-// https://github.com/penrose/penrose/issues/1282
-export type Rectlike = Equation | Image | Rectangle | Text;
-export type Polygonlike = Rectlike | Line | Polygon | Polyline;
-
-export const isRectlike = (s: Shape): s is Rectlike => {
+export const isRectlike = <T>(s: Shape<T>): s is Rectlike<T> => {
   const t = s.shapeType;
   return t === "Equation" || t === "Image" || t === "Rectangle" || t === "Text";
 };
 
-export const isPolygonlike = (s: Shape): s is Polygonlike => {
+export const isPolygonlike = <T>(s: Shape<T>): s is Polygonlike<T> => {
   const t = s.shapeType;
   return t === "Polygon" || t === "Polyline";
+};
+
+export const isLinelike = <T>(s: Shape<T>): s is Linelike<T> => {
+  const t = s.shapeType;
+  return t === "Line";
 };
 
 /**
@@ -204,68 +202,62 @@ export const closestPt_PtSeg = (
  * @param xs nodes in the computation graph
  * @returns a list of `number`s corresponding to nodes in `xs`
  */
-export const numsOf = (xs: ad.Num[]): number[] => {
-  const g = secondaryGraph(xs);
-  const inputs = [];
-  for (const v of g.nodes.keys()) {
-    if (typeof v !== "number" && v.tag === "Input") {
-      inputs[v.key] = v.val;
-    }
-  }
-  const f = genCodeSync(g);
-  return f.call(inputs).secondary;
-};
+export const numsOf = (xs: ad.Num[]): number[] =>
+  genCodeSync(secondaryGraph(xs))((x) => x.val).secondary;
 
 export const numOf = (x: ad.Num): number => {
   return numsOf([x])[0];
 };
 
 /**
- * Return list of tuples of consecutive points
+ * Return list of tuples of consecutive items
  */
-export const consecutiveTuples = (
-  points: [ad.Num, ad.Num][],
-  closed: boolean
-): [ad.Num, ad.Num][][] => {
-  const resLength = closed ? points.length : points.length - 1;
+export const consecutiveTuples = <T>(items: T[], closed: boolean): [T, T][] => {
+  const resLength = closed ? items.length : items.length - 1;
   if (resLength <= 0) return [];
   return Array.from({ length: resLength }, (_, key) => key).map((i) => [
-    points[i],
-    points[(i + 1) % points.length],
+    items[i],
+    items[(i + 1) % items.length],
   ]);
 };
 
 /**
- * Return list of triples of consecutive points
+ * Return list of triples of consecutive items
  */
-export const consecutiveTriples = (
-  points: [ad.Num, ad.Num][],
+export const consecutiveTriples = <T>(
+  items: T[],
   closed: boolean
-): [ad.Num, ad.Num][][] => {
-  const resLength = closed ? points.length : points.length - 2;
+): [T, T, T][] => {
+  const resLength = closed ? items.length : items.length - 2;
   if (resLength <= 0) return [];
   return Array.from({ length: resLength }, (_, key) => key).map((i) => [
-    points[i],
-    points[(i + 1) % points.length],
-    points[(i + 2) % points.length],
+    items[i],
+    items[(i + 1) % items.length],
+    items[(i + 2) % items.length],
   ]);
 };
 
 /**
  * Return indicator of closed Polyline, Polygon or Path shape
  */
-export const isClosed = ([t, s]: [string, any]): boolean => {
-  if (t === "Polyline") return false;
-  else if (t === "Polygon") return true;
-  else if (t === "Path") return s.shapeType === "closed";
-  else throw new Error(`Function isClosed not defined for shape ${t}.`);
+export const isClosed = (s: Shape<ad.Num>): boolean => {
+  if (s.shapeType === "Polyline") return false;
+  else if (s.shapeType === "Polygon") return true;
+  else if (s.shapeType === "Path") {
+    if (s.d.contents.length === 0) {
+      return false;
+    }
+    return s.d.contents[s.d.contents.length - 1].cmd === "Z";
+  } else
+    throw new Error(`Function isClosed not defined for shape ${s.shapeType}.`);
 };
 
 /**
  * Return list of points from Polyline, Polygon or Path shape
  */
-export const extractPoints = ([t, s]: [string, any]): [ad.Num, ad.Num][] => {
-  if (t === "Polyline" || t === "Polygon") return s.points.contents;
-  else if (t === "Path") return s.d.contents;
-  else throw new Error(`Point extraction not defined for shape ${t}.`);
+export const extractPoints = (s: Shape<ad.Num>): [ad.Num, ad.Num][] => {
+  if (s.shapeType === "Polyline" || s.shapeType === "Polygon")
+    return s.points.contents.map((arr) => [arr[0], arr[1]]);
+  else
+    throw new Error(`Point extraction not defined for shape ${s.shapeType}.`);
 };

@@ -1,9 +1,8 @@
 import { convexPartition, isClockwise } from "poly-partition";
-import { ops } from "../engine/Autodiff";
+import { ops } from "../engine/Autodiff.js";
 import {
   absVal,
   add,
-  addN,
   div,
   eq,
   ifCond,
@@ -17,23 +16,23 @@ import {
   sqrt,
   squared,
   sub,
-} from "../engine/AutodiffFunctions";
-import * as BBox from "../engine/BBox";
-import { Ellipse } from "../shapes/Ellipse";
-import * as ad from "../types/ad";
-import { safe } from "../utils/Util";
+} from "../engine/AutodiffFunctions.js";
+import * as BBox from "../engine/BBox.js";
+import { Ellipse } from "../shapes/Ellipse.js";
+import * as ad from "../types/ad.js";
+import { safe } from "../utils/Util.js";
 import {
+  ImplicitEllipse,
+  ImplicitHalfPlane,
   ellipsePolynomial,
   ellipseToImplicit,
   halfPlaneToImplicit,
-  ImplicitEllipse,
   implicitEllipseFunc,
-  ImplicitHalfPlane,
   implicitHalfPlaneFunc,
   implicitIntersectionOfEllipsesFunc,
-} from "./ImplicitShapes";
-import { outwardUnitNormal } from "./Queries";
-import { numsOf } from "./Utils";
+} from "./ImplicitShapes.js";
+import { outwardUnitNormal } from "./Queries.js";
+import { numsOf } from "./Utils.js";
 
 /**
  * Compute coordinates of Minkowski sum of AABBs representing the first rectangle `box1` and the negative of the second rectangle `box2`.
@@ -87,7 +86,7 @@ export const halfPlaneSDF = (
   const normal = outwardUnitNormal(lineSegment, insidePoint);
   const alpha = ops.vdot(normal, lineSegment[0]);
   const alphaOther = maxN(otherPoints.map((p) => ops.vdot(normal, p)));
-  return neg(addN([alpha, alphaOther, padding]));
+  return add(neg(add(alpha, alphaOther)), padding);
 };
 
 /**
@@ -228,7 +227,7 @@ export const rectangleSignedDistance = (
  * @param point Testing point.
  * @param padding Padding applied to the polygon.
  */
-const containsConvexPolygonPoints = (
+export const containsConvexPolygonPoints = (
   p1: ad.Num[][],
   p2: ad.Num[],
   padding: ad.Num
@@ -287,7 +286,7 @@ const pointCandidates = (
  */
 export const halfPlaneEllipseSDF = (
   lineSegment: ad.Num[][],
-  ellipse: Ellipse,
+  ellipse: Ellipse<ad.Num>,
   insidePoint: ad.Num[],
   padding: ad.Num
 ): ad.Num => {
@@ -322,7 +321,7 @@ export const halfPlaneEllipseSDF = (
  */
 export const overlappingPolygonPointsEllipse = (
   polygonPoints: ad.Num[][],
-  ellipse: Ellipse,
+  ellipse: Ellipse<ad.Num>,
   padding: ad.Num
 ): ad.Num => {
   const center = ops.vdiv(polygonPoints.reduce(ops.vadd), polygonPoints.length);

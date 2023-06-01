@@ -1,8 +1,10 @@
 import { PathResolver, PenroseState } from "@penrose/core";
+import { OptStatus } from "@penrose/optimizer";
 
+import * as _ from "lodash";
 import React from "react";
 import styled from "styled-components";
-import { Gridbox, GridboxProps } from "./Gridbox";
+import { Gridbox, GridboxProps } from "./Gridbox.js";
 
 type DiagramSource = {
   style: string;
@@ -13,17 +15,17 @@ type DiagramSource = {
 
 export interface GridProps {
   diagrams: DiagramSource[];
-  metadata: (
-    i: number
-  ) => {
+  metadata: (i: number) => {
     name: string;
     data: string;
   }[];
   header: (i: number) => string;
   onSelected?: (n: number) => void;
+  onComplete?: () => void;
   onStateUpdate: (n: number, s: PenroseState) => void;
   imageResolver?: PathResolver;
   gridBoxProps?: Partial<GridboxProps>;
+  selected?: number[];
 }
 
 const GridContainer = styled.main`
@@ -45,16 +47,17 @@ const PlaceholderText = styled.h3`
   color: ${(props) => props.theme.primary};
 `;
 
-export class Grid extends React.Component<GridProps> {
+interface GridState {
+  optStatuses: OptStatus[];
+}
+
+export class Grid extends React.Component<GridProps, GridState> {
   constructor(props: GridProps) {
     super(props);
+    this.state = {
+      optStatuses: Array(props.diagrams.length),
+    };
   }
-
-  setSrcState = (newState: PenroseState) => {
-    this.setState({
-      srcState: newState,
-    });
-  };
 
   innerContent() {
     return this.props.diagrams.map(
@@ -71,8 +74,24 @@ export class Grid extends React.Component<GridProps> {
           substance={substance}
           variation={variation}
           onSelected={this.props.onSelected}
-          onStateUpdate={this.props.onStateUpdate}
+          onStateUpdate={(n, state) => {
+            // record opt status
+            this.setState((prev) => {
+              const optStatuses = [...prev.optStatuses];
+              optStatuses[n] = state.params.optStatus;
+              // report opt completion when all are done
+              if (
+                this.props.onComplete &&
+                _.every(optStatuses, (s) => s === "EPConverged")
+              )
+                this.props.onComplete();
+              return { ...prev, optStatuses };
+            });
+            // callback
+            this.props.onStateUpdate(n, state);
+          }}
           imageResolver={this.props.imageResolver}
+          selected={this.props.selected && this.props.selected.includes(i)}
         />
       )
     );

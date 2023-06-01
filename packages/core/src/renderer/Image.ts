@@ -1,25 +1,25 @@
-import { StrV } from "../types/value";
+import { Image } from "../shapes/Image.js";
 import {
   attrAutoFillSvg,
   attrRotation,
+  attrTitle,
   attrTransformCoords,
   attrWH,
-} from "./AttrHelper";
-import * as notFound from "./not_found";
-import { ShapeProps } from "./Renderer";
-import { makeIdsUnique } from "./util";
+} from "./AttrHelper.js";
+import * as notFound from "./not_found.js";
+import { RenderProps } from "./Renderer.js";
+import { makeIdsUnique } from "./util.js";
 
-const Image = async ({
-  shape,
-  canvasSize,
-  pathResolver,
-}: ShapeProps): Promise<SVGGElement> => {
+const RenderImage = async (
+  shape: Image<number>,
+  { canvasSize, pathResolver }: RenderProps
+): Promise<SVGGElement> => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
   // Keep track of which input properties we programatically mapped
   const attrToNotAutoMap: string[] = [];
 
   // Map/Fill the shape attributes while keeping track of input properties mapped
-  const path = (shape.properties.href as StrV).contents;
+  const path = shape.href.contents;
   let rawSVG = await pathResolver(path);
   if (rawSVG === undefined) {
     console.error(`Could not resolve image path ${path}`);
@@ -34,10 +34,10 @@ const Image = async ({
   attrToNotAutoMap.push(...attrWH(shape, svg));
   attrToNotAutoMap.push(...attrRotation(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrTransformCoords(shape, canvasSize, elem));
-
+  attrToNotAutoMap.push(...attrTitle(shape, elem));
   // Directly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);
 
   return elem;
 };
-export default Image;
+export default RenderImage;

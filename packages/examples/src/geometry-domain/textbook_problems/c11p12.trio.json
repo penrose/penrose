@@ -1,0 +1,6 @@
+{
+  "substance": "./c11p12.substance",
+  "style": ["../euclidean.style"],
+  "domain": "../geometry.domain",
+  "variation": "CosmopolitanBeaver4985"
+}

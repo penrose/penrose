@@ -1,24 +1,25 @@
 {
   "name": "@penrose/optimizer",
-  "version": "2.3.0",
+  "version": "3.0.0-alpha.1",
   "type": "module",
   "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
   "license": "MIT",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
-    "bindings/*.d.ts",
-    "index.d.ts",
-    "index.js",
-    "source.d.ts"
+    "dist/**/*.d.ts",
+    "dist/**/*.js"
   ],
   "devDependencies": {
-    "esbuild": "^0.16",
-    "typescript": "^4"
+    "esbuild": "^0.16"
   },
   "scripts": {
-    "build": "esbuild ./source.ts --outfile=index.js --platform=neutral --bundle --loader:.wasm=binary --define:import.meta.url=null --sourcemap",
-    "build-decls": "cargo test && tsc",
+    "build": "esbuild ./source.ts --outfile=dist/index.js --platform=neutral --bundle --loader:.wasm=binary --define:import.meta.url=null --sourcemap",
+    "build-decls": "tsc && cp index.d.ts dist/index.d.ts",
+    "build-ts": "rimraf bindings && cargo test",
     "build-wasm": "cargo build --target=wasm32-unknown-unknown --release",
-    "build-wasm-bindgen": "wasm-bindgen --target=web --keep-lld-exports --out-dir=build target/wasm32-unknown-unknown/release/penrose_optimizer.wasm",
+    "build-wasm-bindgen": "rimraf build && wasm-bindgen --target=web --out-dir=build ../../target/wasm32-unknown-unknown/release/penrose_optimizer.wasm",
     "format": "cargo fmt",
     "format:check": "cargo fmt --check",
     "typecheck": ":"
@@ -32,6 +33,7 @@
       },
       "build-decls": {
         "dependsOn": [
+          "build-ts",
           "build-wasm-bindgen"
         ]
       },

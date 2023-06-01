@@ -1,4 +1,4 @@
-import { EPS_DENOM, ops } from "../engine/Autodiff";
+import { EPS_DENOM, ops } from "../engine/Autodiff.js";
 import {
   absVal,
   add,
@@ -10,12 +10,12 @@ import {
   neg,
   squared,
   sub,
-} from "../engine/AutodiffFunctions";
-import { Circle } from "../shapes/Circle";
-import { Ellipse } from "../shapes/Ellipse";
-import * as ad from "../types/ad";
-import { msign } from "./Functions";
-import { outwardUnitNormal } from "./Queries";
+} from "../engine/AutodiffFunctions.js";
+import { Circle } from "../shapes/Circle.js";
+import { Ellipse } from "../shapes/Ellipse.js";
+import * as ad from "../types/ad.js";
+import { msign } from "./Functions.js";
+import { outwardUnitNormal } from "./Queries.js";
 
 /**
  * Parameters of implicitly defined ellipse:
@@ -114,7 +114,7 @@ export const halfPlaneToImplicit = (
  * @param factor Multiplication factor for the implicit function (the function is not uniquely given).
  */
 export const ellipseToImplicit = (
-  ellipse: Ellipse,
+  ellipse: Ellipse<ad.Num>,
   padding: ad.Num,
   factor: ad.Num = 1
 ): ImplicitEllipse => {
@@ -134,7 +134,7 @@ export const ellipseToImplicit = (
  * @param circle Explicit circle shape.
  */
 export const circleToImplicitEllipse = (
-  circle: Circle,
+  circle: Circle<ad.Num>,
   padding: ad.Num,
   factor: ad.Num = 1
 ): ImplicitEllipse => {

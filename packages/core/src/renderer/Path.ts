@@ -1,14 +1,15 @@
 import _ from "lodash";
-import { BoolV, ColorV, FloatV, PathCmd, StrV, SubPath } from "../types/value";
+import { Path } from "../shapes/Path.js";
+import { PathCmd, SubPath } from "../types/value.js";
 import {
   getArrowhead,
   toScreen,
   toSvgOpacityProperty,
   toSvgPaintProperty,
-} from "../utils/Util";
-import { attrAutoFillSvg, attrTitle, DASH_ARRAY } from "./AttrHelper";
-import { arrowHead } from "./Line";
-import { ShapeProps } from "./Renderer";
+} from "../utils/Util.js";
+import { DASH_ARRAY, attrAutoFillSvg, attrTitle } from "./AttrHelper.js";
+import { arrowHead } from "./Line.js";
+import { RenderProps } from "./Renderer.js";
 
 const toPathString = (
   pathData: PathCmd<number>[],
@@ -27,7 +28,7 @@ const toPathString = (
         contents.map((c: SubPath<number>): number[] => {
           switch (c.tag) {
             case "CoordV": {
-              return toScreen(c.contents as [number, number], canvasSize);
+              return toScreen([c.contents[0], c.contents[1]], canvasSize);
             }
             case "ValueV": {
               return c.contents;
@@ -61,40 +62,30 @@ const Shadow = (id: string) => {
   return elem;
 };
 
-export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
+export const RenderPath = (
+  shape: Path<number>,
+  { canvasSize }: RenderProps
+): SVGGElement => {
   // TODO: distinguish between fill opacity and stroke opacity
-  const startArrowId = shape.properties.name.contents + "-startArrowId";
-  const endArrowId = shape.properties.name.contents + "-endArrowId";
-  const shadowId = shape.properties.name.contents + "-shadow";
+  const startArrowId = shape.name.contents + "-startArrowId";
+  const endArrowId = shape.name.contents + "-endArrowId";
+  const shadowId = shape.name.contents + "-shadow";
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  const strokeWidth = (shape.properties.strokeWidth as FloatV<number>).contents;
-  const strokeColor = toSvgPaintProperty(
-    (shape.properties.strokeColor as ColorV<number>).contents
-  );
-  const strokeOpacity = toSvgOpacityProperty(
-    (shape.properties.strokeColor as ColorV<number>).contents
-  );
-  const fillColor = toSvgPaintProperty(
-    (shape.properties.fillColor as ColorV<number>).contents
-  );
-  const fillOpacity = toSvgOpacityProperty(
-    (shape.properties.fillColor as ColorV<number>).contents
-  );
+  const strokeWidth = shape.strokeWidth.contents;
+  const strokeColor = toSvgPaintProperty(shape.strokeColor.contents);
+  const strokeOpacity = toSvgOpacityProperty(shape.strokeColor.contents);
+  const fillColor = toSvgPaintProperty(shape.fillColor.contents);
+  const fillOpacity = toSvgOpacityProperty(shape.fillColor.contents);
   // Keep track of which input properties we programatically mapped
   const attrToNotAutoMap: string[] = [];
 
-  const startArrowhead = getArrowhead(
-    (shape.properties.startArrowhead as StrV).contents
-  );
-  const endArrowhead = getArrowhead(
-    (shape.properties.endArrowhead as StrV).contents
-  );
+  const startArrowhead = getArrowhead(shape.startArrowhead.contents);
+  const endArrowhead = getArrowhead(shape.endArrowhead.contents);
 
   if (startArrowhead) {
-    const startArrowId = shape.properties.name.contents + "-startArrowId";
-    const startArrowheadSize = (shape.properties
-      .startArrowheadSize as FloatV<number>).contents;
-    const flip = (shape.properties.flipStartArrowhead as BoolV).contents;
+    const startArrowId = shape.name.contents + "-startArrowId";
+    const startArrowheadSize = shape.startArrowheadSize.contents;
+    const flip = shape.flipStartArrowhead.contents;
     elem.appendChild(
       arrowHead(
         startArrowId,
@@ -107,9 +98,8 @@ export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
     );
   }
   if (endArrowhead) {
-    const endArrowId = shape.properties.name.contents + "-endArrowId";
-    const endArrowheadSize = (shape.properties
-      .endArrowheadSize as FloatV<number>).contents;
+    const endArrowId = shape.name.contents + "-endArrowId";
+    const endArrowheadSize = shape.endArrowheadSize.contents;
     elem.appendChild(
       arrowHead(
         endArrowId,
@@ -139,37 +129,26 @@ export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
   attrToNotAutoMap.push("fillColor", "strokeColor");
 
   // Stroke opacity and width only relevant if paint is present
-  if (
-    (shape.properties.strokeColor as ColorV<number>).contents.tag !== "NONE"
-  ) {
+  if (shape.strokeColor.contents.tag !== "NONE") {
     path.setAttribute("stroke-width", strokeWidth.toString());
     path.setAttribute("stroke-opacity", strokeOpacity.toString());
     attrToNotAutoMap.push("strokeColor", "strokeWidth");
   }
   // Fill opacity only relevant if paint is present
-  if ((shape.properties.fillColor as ColorV<number>).contents.tag !== "NONE") {
+  if (shape.fillColor.contents.tag !== "NONE") {
     path.setAttribute("fill-opacity", fillOpacity.toString());
     attrToNotAutoMap.push("fillColor");
   }
   // factor out an AttrHelper
-  if (
-    "strokeDasharray" in shape.properties &&
-    shape.properties.strokeDasharray.contents !== ""
-  ) {
-    path.setAttribute(
-      "stroke-dasharray",
-      (shape.properties.strokeDasharray as StrV).contents
-    );
-  } else if (shape.properties.strokeStyle.contents === "dashed") {
+  if ("strokeDasharray" in shape && shape.strokeDasharray.contents !== "") {
+    path.setAttribute("stroke-dasharray", shape.strokeDasharray.contents);
+  } else if (shape.strokeStyle.contents === "dashed") {
     path.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
   }
   attrToNotAutoMap.push("strokeDasharray", "strokeStyle");
 
   // TODO: ded
-  path.setAttribute(
-    "d",
-    toPathString(shape.properties.d.contents as any[], canvasSize)
-  );
+  path.setAttribute("d", toPathString(shape.d.contents, canvasSize));
   attrToNotAutoMap.push("d");
   if (startArrowhead) {
     path.setAttribute("marker-start", `url(#${startArrowId})`);
@@ -187,4 +166,4 @@ export const Path = ({ shape, canvasSize }: ShapeProps): SVGGElement => {
 
   return elem;
 };
-export default Path;
+export default RenderPath;

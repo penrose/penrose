@@ -1,6 +1,7 @@
 import { Result } from "true-myth";
-import { isConcrete } from "../engine/EngineUtils";
-import { shapedefs } from "../shapes/Shapes";
+import { isConcrete } from "../engine/EngineUtils.js";
+import { shapeTypes } from "../shapes/Shapes.js";
+import * as ad from "../types/ad.js";
 import {
   A,
   AbstractNode,
@@ -9,19 +10,24 @@ import {
   NodeType,
   SourceLoc,
   SourceRange,
-} from "../types/ast";
-import { Arg, Type, TypeConstructor } from "../types/domain";
+} from "../types/ast.js";
+import { Arg, Type, TypeConstructor } from "../types/domain.js";
 import {
   ArgLengthMismatch,
+  BadArgumentTypeError,
+  BadShapeParamTypeError,
   CyclicSubtypes,
   DeconstructNonconstructor,
   DomainError,
   DuplicateName,
   FatalError,
+  FunctionInternalError,
   InvalidColorLiteral,
+  MissingArgumentError,
   NaNError,
   ParseError,
   PenroseError,
+  RedeclareNamespaceError,
   RuntimeError,
   SelectorFieldNotSupported,
   StyleError,
@@ -29,16 +35,29 @@ import {
   SubstanceError,
   SymmetricArgLengthMismatch,
   SymmetricTypeMismatch,
+  TooManyArgumentsError,
   TypeArgLengthMismatch,
   TypeMismatch,
   TypeNotFound,
+  UnexpectedCollectionAccessError,
   UnexpectedExprForNestedPred,
   VarNotFound,
-} from "../types/errors";
-import { State } from "../types/state";
-import { BindingForm, ColorLit } from "../types/style";
-import { Deconstructor, SubExpr } from "../types/substance";
-import { prettyPrintPath, prettyPrintResolvedPath } from "./Util";
+} from "../types/errors.js";
+import {
+  CompFunc,
+  ConstrFunc,
+  FuncParam,
+  ObjFunc,
+} from "../types/functions.js";
+import { State } from "../types/state.js";
+import { BindingForm, ColorLit } from "../types/style.js";
+import { Deconstructor, SubExpr } from "../types/substance.js";
+import { ArgVal, ArgValWithSourceLoc, ShapeVal, Val } from "../types/value.js";
+import {
+  describeType,
+  prettyPrintPath,
+  prettyPrintResolvedPath,
+} from "./Util.js";
 const {
   or,
   and,
@@ -53,6 +72,37 @@ const {
 } = Result;
 
 // #region error rendering and construction
+
+const showArgValType = (v: ArgVal<ad.Num>): string => {
+  if (v.tag === "ShapeVal") {
+    return `${v.contents.shapeType}Shape`;
+  } else {
+    const start = `${v.contents.tag} value`;
+    if (
+      v.contents.tag === "ListV" ||
+      v.contents.tag === "VectorV" ||
+      v.contents.tag === "TupV"
+    ) {
+      return start + ` with ${v.contents.contents.length} elements`;
+    } else if (
+      v.contents.tag === "PtListV" ||
+      v.contents.tag === "MatrixV" ||
+      v.contents.tag === "LListV"
+    ) {
+      const { contents } = v.contents;
+      const rowLengths = contents.map((row) => row.length);
+      if (rowLengths.every((l) => l === rowLengths[0])) {
+        return start + ` of shape ${contents.length}-by-${rowLengths[0]}`;
+      } else {
+        return start + ` of nonrectangular shape`;
+      }
+    } else if (v.contents.tag === "StrV") {
+      return start + ` with content "${v.contents.contents}"`;
+    } else {
+      return `${v.contents.tag} value`;
+    }
+  }
+};
 
 /**
  * Type pretty printing function.
@@ -260,7 +310,7 @@ export const showError = (
     // --- BEGIN BLOCK STATIC ERRORS
 
     case "InvalidGPITypeError": {
-      const shapeNames: string[] = Object.keys(shapedefs);
+      const shapeNames: string[] = shapeTypes;
       return `Got invalid GPI type ${error.givenType.value}. Available shape types: ${shapeNames}`;
     }
 
@@ -313,9 +363,27 @@ export const showError = (
     }
 
     case "BadElementError": {
-      return `Wrong element type at index ${error.index} in ${
-        error.coll.tag
-      } (at ${loc(error.coll)}).`;
+      if (error.coll.tag === "CollectionAccess") {
+        const preamble = `The collection access (at ${locc(
+          "Style",
+          error.coll
+        )}) failed`;
+        if (error.index === 0) {
+          return (
+            preamble +
+            ` because the collection contains elements that cannot be collected`
+          );
+        } else {
+          return (
+            preamble +
+            ` because some elements of the collection (in particular, index ${error.index}) have different type from other elements.`
+          );
+        }
+      } else {
+        return `Wrong element type at index ${error.index} in ${
+          error.coll.tag
+        } (at ${loc(error.coll)}).`;
+      }
     }
 
     case "BadIndexError": {
@@ -425,6 +493,64 @@ canvas {
       } (at ${loc(error.expr)}).`;
     }
 
+    case "BadShapeParamTypeError": {
+      const expectedType = error.expectedType;
+      const expectedClause = `expects type ${expectedType}`;
+      const doesNotAcceptClause =
+        error.value.tag === "Val"
+          ? `does not accept type ${error.value.contents.tag}`
+          : `does not accept shape ${error.value.contents.shapeType}`;
+      const propertyClause = error.passthrough
+        ? `Passthrough shape property ${error.path}`
+        : `Shape property ${error.path}`;
+      return `${propertyClause} ${expectedClause} and ${doesNotAcceptClause}.`;
+    }
+
+    case "BadArgumentTypeError": {
+      const { funcName, funcArg, provided } = error;
+
+      const { name: argName, type: expectedType } = funcArg;
+      const locStr = locc("Style", provided);
+      const strExpectedType = describeType(expectedType).symbol;
+      const strActualType = showArgValType(provided);
+
+      return `Parameter \`${argName}\` (at ${locStr}) of function \`${funcName}\` expects ${strExpectedType} but is given incompatible ${strActualType}.`;
+    }
+
+    case "MissingArgumentError": {
+      const { funcName, funcArg, funcLocation } = error;
+      const locStr = locc("Style", funcLocation);
+
+      const { name } = funcArg;
+
+      return `Parameter \`${name}\` of function \`${funcName}\` (at ${locStr}) is missing without default value.`;
+    }
+
+    case "TooManyArgumentsError": {
+      const { func, funcLocation, numProvided } = error;
+      const locStr = locc("Style", funcLocation);
+
+      const expNum = func.params.length;
+
+      return `Function \`${func.name}\` (at ${locStr}) takes at most ${expNum} arguments but is provided with ${numProvided} arguments`;
+    }
+
+    case "FunctionInternalError": {
+      const { func, location, message } = error;
+      const locStr = locc("Style", location);
+      return `Function \`${func.name}\` (at ${locStr}) failed with message: ${message}`;
+    }
+    case "RedeclareNamespaceError": {
+      return `Namespace ${
+        error.existingNamespace
+      } already exists and is redeclared in ${locc("Style", error.location)}.`;
+    }
+
+    case "UnexpectedCollectionAccessError": {
+      const { name, location } = error;
+      const locStr = locc("Style", location);
+      return `Style variable \`${name}\` cannot be accessed via the collection access operator (at ${locStr}) because it is not a collection.`;
+    }
     // --- END COMPILATION ERRORS
 
     // TODO(errors): use identifiers here
@@ -624,6 +750,81 @@ export const invalidColorLiteral = (
 ): InvalidColorLiteral => ({
   tag: "InvalidColorLiteral",
   color,
+});
+
+export const badShapeParamTypeError = (
+  path: string,
+  value: Val<ad.Num> | ShapeVal<ad.Num>,
+  expectedType: string,
+  passthrough: boolean
+): BadShapeParamTypeError => ({
+  tag: "BadShapeParamTypeError",
+  path,
+  value,
+  expectedType,
+  passthrough,
+});
+
+export const badArgumentTypeError = (
+  funcName: string,
+  funcArg: FuncParam,
+  provided: ArgValWithSourceLoc<ad.Num>
+): BadArgumentTypeError => ({
+  tag: "BadArgumentTypeError",
+  funcName,
+  funcArg,
+  provided,
+});
+
+export const missingArgumentError = (
+  funcName: string,
+  funcArg: FuncParam,
+  funcLocation: SourceRange
+): MissingArgumentError => ({
+  tag: "MissingArgumentError",
+  funcName,
+  funcArg,
+  funcLocation,
+});
+
+export const tooManyArgumentsError = (
+  func: CompFunc | ObjFunc | ConstrFunc,
+  funcLocation: SourceRange,
+  numProvided: number
+): TooManyArgumentsError => ({
+  tag: "TooManyArgumentsError",
+  func,
+  funcLocation,
+  numProvided,
+});
+
+export const functionInternalError = (
+  func: CompFunc | ObjFunc | ConstrFunc,
+  location: SourceRange,
+  message: string
+): FunctionInternalError => ({
+  tag: "FunctionInternalError",
+  func,
+  location,
+  message,
+});
+
+export const redeclareNamespaceError = (
+  existingNamespace: string,
+  location: SourceRange
+): RedeclareNamespaceError => ({
+  tag: "RedeclareNamespaceError",
+  existingNamespace,
+  location,
+});
+
+export const unexpectedCollectionAccessError = (
+  name: string,
+  location: SourceRange
+): UnexpectedCollectionAccessError => ({
+  tag: "UnexpectedCollectionAccessError",
+  name,
+  location,
 });
 
 export const nanError = (message: string, lastState: State): NaNError => ({

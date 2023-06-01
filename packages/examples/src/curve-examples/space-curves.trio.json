@@ -1,0 +1,6 @@
+{
+  "substance": "./space-curves/space-curves.substance",
+  "style": ["./space-curves/space-curves.style"],
+  "domain": "./space-curves/space-curves.domain",
+  "variation": "SkywardLobster2569"
+}

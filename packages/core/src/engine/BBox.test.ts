@@ -1,16 +1,18 @@
-import { compDict } from "../contrib/Functions";
-import { makeCircle } from "../shapes/Circle";
-import { makeEllipse } from "../shapes/Ellipse";
-import { makeImage } from "../shapes/Image";
-import { makeLine } from "../shapes/Line";
-import { makePath } from "../shapes/Path";
-import { makePolygon } from "../shapes/Polygon";
-import { makePolyline } from "../shapes/Polyline";
-import { makeRectangle } from "../shapes/Rectangle";
-import { makeCanvas, simpleContext } from "../shapes/Samplers";
-import { Poly, Scale } from "../types/shapes";
-import { black, floatV, ptListV, vectorV } from "../utils/Util";
-import { genCodeSync, secondaryGraph } from "./Autodiff";
+import { describe, expect, test } from "vitest";
+import { compDict } from "../contrib/Functions.js";
+import { numsOf } from "../contrib/Utils.js";
+import { makeCircle } from "../shapes/Circle.js";
+import { makeEllipse } from "../shapes/Ellipse.js";
+import { makeImage } from "../shapes/Image.js";
+import { makeLine } from "../shapes/Line.js";
+import { makePath } from "../shapes/Path.js";
+import { makePolygon } from "../shapes/Polygon.js";
+import { makePolyline } from "../shapes/Polyline.js";
+import { makeRectangle } from "../shapes/Rectangle.js";
+import { makeCanvas, simpleContext } from "../shapes/Samplers.js";
+import * as ad from "../types/ad.js";
+import { Poly, Scale } from "../types/shapes.js";
+import { black, floatV, ptListV, vectorV } from "../utils/Util.js";
 import {
   BBox,
   bboxFromCircle,
@@ -20,7 +22,7 @@ import {
   bboxFromPolygon,
   bboxFromRect,
   bboxFromRectlike,
-} from "./BBox";
+} from "./BBox.js";
 
 const canvas = makeCanvas(800, 700);
 
@@ -28,21 +30,19 @@ const expectBbox = (
   actual: BBox,
   expected: { width: number; height: number; center: [number, number] }
 ) => {
-  const g = secondaryGraph([
+  const [width, height, x, y] = numsOf([
     actual.width,
     actual.height,
     actual.center[0],
     actual.center[1],
   ]);
-  const f = genCodeSync(g);
-  const [width, height, x, y] = f.call([]).secondary; // no inputs, so, empty array
   expect(width).toBeCloseTo(expected.width);
   expect(height).toBeCloseTo(expected.height);
   expect(x).toBeCloseTo(expected.center[0]);
   expect(y).toBeCloseTo(expected.center[1]);
 };
 
-const polyProps = (): Poly & Scale => ({
+const polyProps = (): Poly<ad.Num> & Scale<ad.Num> => ({
   points: ptListV(
     // https://en.wikipedia.org/wiki/Polygon#/media/File:Assorted_polygons.svg
     [
@@ -163,7 +163,7 @@ describe("bbox", () => {
   test("Path (lines)", () => {
     const context = simpleContext("bbox Path (lines)");
     const shape = makePath(context, canvas, {
-      d: compDict.pathFromPoints(context, "open", [
+      d: compDict.pathFromPoints.body(context, "open", [
         [-100, -100],
         [100, -50],
         [-50, 100],
@@ -179,7 +179,7 @@ describe("bbox", () => {
   test("Path (quadratic)", () => {
     const context = simpleContext("bbox Path (quadratic)");
     const shape = makePath(context, canvas, {
-      d: compDict.makePath(context, [-100, 0], [100, 0], 50, 10),
+      d: compDict.makePath.body(context, [-100, 0], [100, 0], 50, 10),
     });
     expectBbox(bboxFromPath(shape), {
       width: 180,
@@ -191,7 +191,7 @@ describe("bbox", () => {
   test("Path (cubic)", () => {
     const context = simpleContext("bbox Path (cubic)");
     const shape = makePath(context, canvas, {
-      d: compDict.cubicCurveFromPoints(context, "open", [
+      d: compDict.cubicCurveFromPoints.body(context, "open", [
         [0, 0],
         [50, 50],
         [200, 0],
@@ -208,7 +208,7 @@ describe("bbox", () => {
   test("Path (quadratic join)", () => {
     const context = simpleContext("bbox Path (quadratic join)");
     const shape = makePath(context, canvas, {
-      d: compDict.quadraticCurveFromPoints(context, "open", [
+      d: compDict.quadraticCurveFromPoints.body(context, "open", [
         [0, 0],
         [50, 50],
         [75, -25],
@@ -225,7 +225,7 @@ describe("bbox", () => {
   test("Path (cubic join)", () => {
     const context = simpleContext("bbox Path (cubic join)");
     const shape = makePath(context, canvas, {
-      d: compDict.cubicCurveFromPoints(context, "open", [
+      d: compDict.cubicCurveFromPoints.body(context, "open", [
         [0, 0],
         [50, 50],
         [200, 0],
@@ -244,7 +244,7 @@ describe("bbox", () => {
   test("Path (arc unscaled)", () => {
     const context = simpleContext("bbox Path (arc unscaled)");
     const shape = makePath(context, canvas, {
-      d: compDict.arc(
+      d: compDict.arc.body(
         context,
         "open",
         [-50, 50],
@@ -265,7 +265,7 @@ describe("bbox", () => {
   test("Path (arc small)", () => {
     const context = simpleContext("bbox Path (arc small)");
     const shape = makePath(context, canvas, {
-      d: compDict.arc(
+      d: compDict.arc.body(
         context,
         "open",
         [-50, 50],
@@ -286,7 +286,7 @@ describe("bbox", () => {
   test("Path (arc scaled)", () => {
     const context = simpleContext("bbox Path (arc scaled)");
     const shape = makePath(context, canvas, {
-      d: compDict.arc(
+      d: compDict.arc.body(
         context,
         "open",
         [-75, -50],

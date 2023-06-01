@@ -1,5 +1,5 @@
-import { StrV, VectorV } from "../types/value";
-import { toScreen } from "../utils/Util";
+import { Text } from "../shapes/Text.js";
+import { toScreen } from "../utils/Util.js";
 import {
   attrAutoFillSvg,
   attrFill,
@@ -9,10 +9,13 @@ import {
   attrStroke,
   attrTitle,
   attrWH,
-} from "./AttrHelper";
-import { ShapeProps } from "./Renderer";
+} from "./AttrHelper.js";
+import { RenderProps } from "./Renderer.js";
 
-const Text = ({ shape, canvasSize, labels }: ShapeProps): SVGTextElement => {
+const RenderText = (
+  shape: Text<number>,
+  { canvasSize, labels }: RenderProps
+): SVGTextElement => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "text");
 
   // Keep track of which input properties we programatically mapped
@@ -28,11 +31,11 @@ const Text = ({ shape, canvasSize, labels }: ShapeProps): SVGTextElement => {
   attrToNotAutoMap.push(...attrFont(shape, elem));
 
   // Get width/height of the text if available
-  const name = shape.properties.name as StrV;
+  const name = shape.name;
   const retrievedLabel = labels.get(name.contents);
   // Directly render the text with [x, y] in screen coordinates without transforming them using `width` and `height`
-  const center = shape.properties.center as VectorV<number>;
-  const [x, y] = toScreen(center.contents as [number, number], canvasSize);
+  const center = shape.center;
+  const [x, y] = toScreen([center.contents[0], center.contents[1]], canvasSize);
   if (retrievedLabel && retrievedLabel.tag === "TextData") {
     // adjust the y-coordinate of the text center s.t. it's the center of the bbox
     // see https://user-images.githubusercontent.com/11740102/149545843-84406be2-b3dc-4294-b01f-26ef8a2098ee.png for an illustration
@@ -47,9 +50,25 @@ const Text = ({ shape, canvasSize, labels }: ShapeProps): SVGTextElement => {
     elem.setAttribute("y", y.toString());
   }
 
+  elem.setAttribute("font-size-adjust", shape.fontSizeAdjust.contents);
+  elem.setAttribute("alignment-baseline", shape.alignmentBaseline.contents);
+  elem.setAttribute("dominant-baseline", shape.dominantBaseline.contents);
+  elem.setAttribute("ascent", shape.ascent.contents.toString());
+  elem.setAttribute("descent", shape.descent.contents.toString());
+  elem.setAttribute("text-anchor", shape.textAnchor.contents.toString());
+  elem.setAttribute("visibility", shape.visibility.contents);
+  attrToNotAutoMap.push(
+    "fontSizeAdjust",
+    "alignmentBaseline",
+    "dominantBaseline",
+    "ascent",
+    "descent",
+    "textAnchor",
+    "visibility"
+  );
   // Directly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);
 
   return elem;
 };
-export default Text;
+export default RenderText;
