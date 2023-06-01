@@ -4,7 +4,7 @@ import BlogMeta from "../../../../src/components/BlogMeta.vue";
 
 # What Have We Done to the Languages?
 
-<BlogMeta github="liangyiliang" date="2023-03-17" />
+<BlogMeta github="liangyiliang" date="2023-06-01" />
 
 I joined the Penrose team in July 2022, and worked on of a few language-related improvements to Penrose which have the potential of making Penrose more flexible.
 

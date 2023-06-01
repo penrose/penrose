@@ -4,7 +4,7 @@ import BlogMeta from "../../../../src/components/BlogMeta.vue";
 
 # Rust Wasm 10x faster than JS
 
-<BlogMeta github="samestep" date="2023-02-27" />
+<BlogMeta github="samestep" date="2023-06-01" />
 
 In January we merged pull request [#1092][wasm pr], which took the performance
 bottleneck component of our system (the optimizer) and rewrote it from

@@ -95,7 +95,7 @@ export default defineConfig({
   description:
     "Create beautiful diagrams just by typing math notation in plain text.",
 
-  cleanUrls: "without-subfolders",
+  cleanUrls: true,
   ignoreDeadLinks: true,
   outDir: "build",
 
@@ -258,20 +258,15 @@ export default defineConfig({
       ],
       "/blog": [
         {
-          text: "February 2023",
+          text: "June 2023",
           items: [
             {
               text: "Rust Wasm 10x faster than JS",
-              link: "/blog/2023/02/27/wasm",
+              link: "/blog/2023/06/01/wasm",
             },
-          ],
-        },
-        {
-          text: "March 2023",
-          items: [
             {
               text: "What Have We Done to the Languages?",
-              link: "/blog/2023/03/17/new-language-features",
+              link: "/blog/2023/06/01/new-language-features",
             },
           ],
         },
