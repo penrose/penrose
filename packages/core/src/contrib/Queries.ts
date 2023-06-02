@@ -4,6 +4,7 @@ import {
   and,
   div,
   gt,
+  gte,
   ifCond,
   lt,
   lte,
@@ -13,6 +14,8 @@ import {
   minN,
   mul,
   neg,
+  not,
+  or,
   sqrt,
   squared,
   sub,
@@ -184,6 +187,8 @@ export const convexPolygonOriginSignedDistance = (p: ad.Pt2[]): ad.Num => {
   );
 };
 
+
+
 /**
  * Return the signed distance from the origin to the Minkowski sum of `rect` and
  * the negative of `line` (that is, `start` and `end` points both multiplied by
@@ -275,7 +280,51 @@ export const rectLineDist = (
   ]);
 };
 
-
+export const polygonSignedDistance = (
+   v: ad.Num[][], // 2D polygon vertices
+   p: ad.Num[] // 2D query point
+): type => {
+        /*
+      float sdPolygon( in vec2[N] v, in vec2 p )
+      {
+          float d = dot(p-v[0],p-v[0]);
+          float s = 1.0;
+          for( int i=0, j=N-1; i<N; j=i, i++ )
+          {
+              vec2 e = v[j] - v[i];
+              vec2 w =    p - v[i];
+              vec2 b = w - e*clamp( dot(w,e)/dot(e,e), 0.0, 1.0 );
+              d = min( d, dot(b,b) );
+              bvec3 c = bvec3(p.y>=v[i].y,p.y<v[j].y,e.x*w.y>e.y*w.x);
+              if( all(c) || all(not(c)) ) s*=-1.0;  
+          }
+          return s*sqrt(d);
+      }
+      */
+   let d = ops.vdot(ops.vsub(p, v[0]), ops.vsub(p, v[0]));
+   let ess: ad.Num = 1.0;
+   let j = v.length - 1;
+   for (let i = 0; i < v.length; i++) {
+      const e = ops.vsub(v[j], v[i]);
+      const w = ops.vsub(p, v[i]);
+      const clampedVal = max(0, min(1, div(ops.vdot(w, e), ops.vdot(e, e))));
+      const b = ops.vsub(w, ops.vmul(clampedVal, e));
+      d = min(d, ops.vdot(b, b));
+      const c1 = gte(p[1], v[i][1]);
+      const c2 = lt(p[1], v[j][1]);
+      const c3 = gt(mul(e[0], w[1]), mul(e[1], w[0]));
+      const c4 = and(and(c1, c2), c3);
+      const c5 = not(c1);
+      const c6 = not(c2);
+      const c7 = not(c3);
+      const c8 = and(and(c5, c6), c7);
+      const negEss = mul(-1, ess);
+      ess = ifCond(or(c4, c8), negEss, ess);
+      // last line to match for loop in code we are borrowing from
+      j = i;
+   }
+   return mul(ess, sqrt(d));
+}
 
 // /**
 //  * Return the signed distance from the origin to the Minkowski sum of `rect` and
