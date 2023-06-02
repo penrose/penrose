@@ -17,9 +17,9 @@ colors {
 global {
     --- parameters that user may want to tweek
     taskHeight = 35
-    taskLabelFontSize = "14pt"
+    taskLabelFontSize = "14px"
     taskFontStyle = "italic"
-    periodFontSize = "16pt"
+    periodFontSize = "16px"
     periodFontStyle = "bold"
 
     fontFamily = "Garamond"

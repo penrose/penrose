@@ -6,7 +6,7 @@ canvas {
 forall Text `g` {
   `g`.shape = Equation {
     string : "e^{i \pi} = -1"
-    fontSize : "50pt"
+    fontSize : "50px"
   }
   `g`.box = Rectangle {
     center: `g`.shape.center

@@ -66,7 +66,7 @@ export const sampleEquation = (
   ),
   rotation: floatV(0),
   string: strV("defaultLabelText"),
-  fontSize: strV("12pt"),
+  fontSize: strV("16px"),
   ensureOnCanvas: boolV(true),
 });
 
