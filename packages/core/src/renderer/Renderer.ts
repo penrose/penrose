@@ -186,7 +186,7 @@ const RenderGroup = async (
         childSvg.setAttribute("clip-path", `url(#${clipPathSvgId})`);
         elem.appendChild(childSvg);
       }
-      // If already rendered as clip shape, don't render it here.
+      // If already rendered as clip shape, don't render it here because the clip shape is implicitly a group member.
     } else {
       const childSvg = await RenderShape(shape, shapeProps, interactiveProp);
       elem.appendChild(childSvg);

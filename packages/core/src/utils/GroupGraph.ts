@@ -25,6 +25,7 @@ export const makeGroupGraph = (shapes: Shape<ad.Num>[]): GroupGraph => {
       });
       const clip = shape.clipPath.contents;
       if (clip.tag === "Clip") {
+        // if the group is clipped, the clipping shape is implicitly a member of the group
         const clipName = clip.contents.name.contents;
         graph.setEdge({ i: name, j: clipName, e: undefined });
       }
