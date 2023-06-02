@@ -7,7 +7,7 @@ forall Shape s {
     shape s.eq = Equation {
         center: s.center
         string: s.label
-        fontSize: "15"
+        fontSize: "15px"
     }
 }
 
@@ -29,7 +29,7 @@ forall Center c {
     }
     shape c.eq = Equation {
         string: c.label
-        fontSize: "15"
+        fontSize: "15px"
     }
     ensure lessThan(100, c.r)
     ensure touching(c.eq, c.circle, 5)

@@ -161,6 +161,12 @@ export const checkEquation = (
   const string = checkString(path, trans);
   if (string.isErr()) return err(string.error);
 
+  const ascent = checkProp(path, "ascent", trans, checkFloatV);
+  if (ascent.isErr()) return err(ascent.error);
+
+  const descent = checkProp(path, "descent", trans, checkFloatV);
+  if (descent.isErr()) return err(descent.error);
+
   return ok({
     ...named.value,
     ...fill.value,
@@ -168,6 +174,8 @@ export const checkEquation = (
     ...rect.value,
     ...rotate.value,
     ...string.value,
+    ascent: ascent.value,
+    descent: descent.value,
     passthrough: new Map(),
     shapeType: "Equation",
   });

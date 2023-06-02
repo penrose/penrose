@@ -33,6 +33,7 @@ export interface RenderProps {
   namespace: string;
   variation: string;
   labels: LabelCache;
+  texLabels: boolean;
   canvasSize: [number, number];
   pathResolver: PathResolver;
 }
@@ -91,6 +92,7 @@ export const RenderInteractive = async (
       canvasSize: state.canvas.size,
       variation: state.variation,
       namespace,
+      texLabels: false,
       pathResolver,
     },
     {
@@ -109,7 +111,8 @@ export const RenderInteractive = async (
 export const RenderStatic = async (
   state: State,
   pathResolver: PathResolver,
-  namespace: string
+  namespace: string,
+  texLabels = false
 ): Promise<SVGSVGElement> => {
   const {
     varyingValues,
@@ -132,6 +135,7 @@ export const RenderStatic = async (
       canvasSize: canvas.size,
       variation,
       namespace,
+      texLabels,
       pathResolver,
     },
     undefined
@@ -141,13 +145,7 @@ export const RenderStatic = async (
 
 const RenderGroup = async (
   groupShape: Group<number>,
-  shapeProps: {
-    labels: LabelCache;
-    canvasSize: [number, number];
-    variation: string;
-    namespace: string;
-    pathResolver: PathResolver;
-  },
+  shapeProps: RenderProps,
   interactiveProp?: InteractiveProps
 ): Promise<SVGGElement> => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");

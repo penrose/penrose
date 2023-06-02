@@ -249,6 +249,8 @@ const mapEquation = <T, S>(f: (arg: T) => S, v: Equation<T>): Equation<S> => {
     ...mapRect(f, v),
     ...mapRotate(f, v),
     ...mapString(f, v),
+    ascent: mapFloat(f, v.ascent),
+    descent: mapFloat(f, v.descent),
     passthrough: mapPassthrough(f, v.passthrough),
   };
 };
