@@ -1,7 +1,8 @@
+import { zip2 } from "@penrose/core";
 import timelineDomain from "@penrose/examples/dist/timeline/timeline.domain";
 import timelineStyle from "@penrose/examples/dist/timeline/timeline.style";
 import { drop, range, take } from "lodash";
-import { useLayoutEffect, useRef, useState } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import {
   CellProps,
   Column,
@@ -12,10 +13,6 @@ import {
   textColumn,
 } from "react-datasheet-grid";
 import "react-datasheet-grid/dist/style.css";
-
-// Import the style only once in your app!
-import { zip2 } from "@penrose/core";
-import React from "react";
 import Select, { GroupBase, SelectInstance } from "react-select";
 import { Simple } from "../Simple";
 
