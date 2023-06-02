@@ -13,6 +13,11 @@
   },
   "nx": {
     "targets": {
+      "copy-editor": {
+        "dependsOn": [
+          "^build"
+        ]
+      },
       "build": {
         "dependsOn": [
           "^build",
