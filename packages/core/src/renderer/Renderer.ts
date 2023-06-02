@@ -170,7 +170,7 @@ const RenderGroup = async (
       "clipPath"
     );
     // Okay if used only once
-    clipPathSvgId = clipShapeName + "-clip";
+    clipPathSvgId = shapeProps.namespace + clipShapeName + "-clip";
     clipPathSvg.setAttribute("id", clipPathSvgId);
     clipPathSvg.appendChild(clipShapeSvg);
 
@@ -192,7 +192,6 @@ const RenderGroup = async (
       elem.appendChild(childSvg);
     }
   }
-
   attrAutoFillSvg(groupShape, elem, [
     ...attrTitle(groupShape, elem),
     "shapes",
