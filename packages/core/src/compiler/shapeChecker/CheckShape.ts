@@ -243,9 +243,13 @@ export const checkLine = (
   const strokeLinecap = checkProp(path, "strokeLinecap", trans, checkStrV);
   if (strokeLinecap.isErr()) return err(strokeLinecap.error);
 
+  const fill = checkFill(path, trans);
+  if (fill.isErr()) return err(fill.error);
+
   return ok({
     ...named.value,
     ...stroke.value,
+    ...fill.value,
     ...arrow.value,
     start: start.value,
     end: end.value,
