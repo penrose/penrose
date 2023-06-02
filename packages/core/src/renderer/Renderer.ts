@@ -4,14 +4,17 @@
  *
  */
 
+import { bboxFromShape } from "../contrib/Queries.js";
 import { isLinelike, isRectlike } from "../contrib/Utils.js";
+import { genCode, secondaryGraph } from "../engine/Autodiff.js";
+import { maxN, minN } from "../engine/AutodiffFunctions.js";
+import { maxX, maxY, minX, minY } from "../engine/BBox.js";
 import { Group } from "../shapes/Group.js";
 import { Shape } from "../shapes/Shapes.js";
 import { LabelCache, State } from "../types/state.js";
-import { getValueAsShapeList } from "../utils/Util.js";
+import { getValueAsShapeList, toScreen } from "../utils/Util.js";
 import { attrAutoFillSvg, attrTitle } from "./AttrHelper.js";
 import RenderCircle from "./Circle.js";
-import { dragUpdate } from "./dragUtils.js";
 import RenderEllipse from "./Ellipse.js";
 import RenderEquation from "./Equation.js";
 import RenderImage from "./Image.js";
@@ -21,12 +24,7 @@ import RenderPolygon from "./Polygon.js";
 import RenderPolyline from "./Polyline.js";
 import RenderRectangle from "./Rectangle.js";
 import RenderText from "./Text.js";
-import { bboxFromShape } from "../contrib/Queries.js";
-import {maxN, minN, sub} from "../engine/AutodiffFunctions.js";
-import {maxX, maxY, minX, minY, corners} from "../engine/BBox.js";
-import { genCode } from "../engine/Autodiff.js";
-import { secondaryGraph } from "../engine/Autodiff.js";
-import {toScreen} from "../utils/Util.js";
+import { dragUpdate } from "./dragUtils.js";
 
 /**
  * Resolves path references into static strings. Implemented by client
@@ -132,23 +130,25 @@ export const RenderStatic = async (
   const shapes = computeShapes(varyingValues);
 
   // Find x and y ranges of shapes by using their bounding boxes
-  const bboxs = shapes.map(shape => bboxFromShape(shape));
-  
-  const MinX = minN(bboxs.map(bbox => minX(bbox)));
-  const MinY = minN(bboxs.map(bbox => minY(bbox)));
-  const MaxX = maxN(bboxs.map(bbox => maxX(bbox)));
-  const MaxY = maxN(bboxs.map(bbox => maxY(bbox)));
+  const bboxs = shapes.map((shape) => bboxFromShape(shape));
+
+  const MinX = minN(bboxs.map((bbox) => minX(bbox)));
+  const MinY = minN(bboxs.map((bbox) => minY(bbox)));
+  const MaxX = maxN(bboxs.map((bbox) => maxX(bbox)));
+  const MaxY = maxN(bboxs.map((bbox) => maxY(bbox)));
   const viewBoxRanges = [MinX, MinY, MaxX, MaxY];
-    
-  const [mx, my, Mx, My] = (await genCode(secondaryGraph(viewBoxRanges)))((x) => x.val).secondary;
+
+  const [mx, my, Mx, My] = (await genCode(secondaryGraph(viewBoxRanges)))(
+    (x) => x.val
+  ).secondary;
 
   // toScreen flips the y-axis and therefore the max will become min
   const [mxt, myt] = toScreen([mx, my], [canvas.width, canvas.height]);
-  const [Mxt, Myt] = toScreen([Mx, My], [canvas.width, canvas.height]); 
-    
+  const [Mxt, Myt] = toScreen([Mx, My], [canvas.width, canvas.height]);
+
   // New top left point and canvas size for cropped view box
   const topLeft = [mxt, Myt];
-  const croppedCanvasSize = [(Mxt-mxt),(myt-Myt)];
+  const croppedCanvasSize = [Mxt - mxt, myt - Myt];
 
   // Add cropped view box metadata to svg
   svg.setAttribute("penrose", "0");
@@ -162,10 +162,12 @@ export const RenderStatic = async (
     "croppedViewBox"
   );
 
-  croppedViewBox.insertAdjacentText("afterbegin", `${topLeft[0]} ${topLeft[1]} ${croppedCanvasSize[0]} ${croppedCanvasSize[1]}`);
+  croppedViewBox.insertAdjacentText(
+    "afterbegin",
+    `${topLeft[0]} ${topLeft[1]} ${croppedCanvasSize[0]} ${croppedCanvasSize[1]}`
+  );
   metadata.appendChild(croppedViewBox);
   svg.appendChild(metadata);
-
 
   await RenderShapes(
     shapes,
