@@ -169,7 +169,7 @@ const RenderGroup = async (
       "http://www.w3.org/2000/svg",
       "clipPath"
     );
-    // Okay if used only once
+    // use the renderer namespace to make sure the clip path id is unique
     clipPathSvgId = shapeProps.namespace + clipShapeName + "-clip";
     clipPathSvg.setAttribute("id", clipPathSvgId);
     clipPathSvg.appendChild(clipShapeSvg);
