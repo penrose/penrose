@@ -162,11 +162,10 @@ ${qts.map((q) => `Quarter ${q.label} := MkQuarter(${q.year})`).join("\n")}
 ${qts.map((q) => `Label ${q.label} "Q${q.value}"`).join("\n")}
 ${yrs.map((y) => `First(q${y.startQuarter}_${y.value}, ${y.label})`).join("\n")}
 ${yrs.map((y) => `Last(q${y.endQuarter}_${y.value}, ${y.label})`).join("\n")}
-${zip2(take(qts, qts.length - 1), drop(qts))
-  .map(([before, after]) => `Before(${before.label}, ${after.label})`)
-  .join("\n")}
-
 Category ${categories.join(", ")}
+${zip2(take(categories, categories.length - 1), drop(categories))
+  .map(([before, after]) => `Before(${before}, ${after})`)
+  .join("\n")}
   `;
 
   let prog = preamble;
@@ -178,6 +177,8 @@ Category ${categories.join(", ")}
   Label e${i} "${e.task}"
     `;
   }
+  console.log(prog);
+
   return prog;
 };
 
