@@ -90,7 +90,6 @@ const tex2svg = async (
           `Label 'string' and 'fontSize' must be non-empty and non-optimized for ${properties.name.contents}`
         )
       );
-      return;
     }
 
     // Render the label

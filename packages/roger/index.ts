@@ -40,6 +40,7 @@ const render = async (
   style: string,
   domain: string,
   resolvePath: (filePath: string) => Promise<string | undefined>,
+  texLabels: boolean,
   verbose: boolean,
   meta: {
     substanceName: string;
@@ -89,8 +90,9 @@ const render = async (
   const convergeEnd = process.hrtime(convergeStart);
   const reactRenderStart = process.hrtime();
 
-  const canvas = (await RenderStatic(optimizedState, resolvePath, "roger"))
-    .outerHTML;
+  const canvas = (
+    await RenderStatic(optimizedState, resolvePath, "roger", texLabels)
+  ).outerHTML;
 
   const reactRenderEnd = process.hrtime(reactRenderStart);
   const overallEnd = process.hrtime(overallStart);
@@ -269,6 +271,11 @@ yargs(hideBin(process.argv))
           desc: "A common path prefix for the trio files",
           default: ".",
         })
+        .option("tex-labels", {
+          desc: "Render Equation shapes as plain TeX strings in the output SVG",
+          type: "boolean",
+          default: false,
+        })
         .option("variation", {
           alias: "v",
           desc: "Variation for the Penrose diagram",
@@ -277,6 +284,7 @@ yargs(hideBin(process.argv))
     async (options) => {
       let sub: string, sty: string[], dom: string;
       let prefix = options.path;
+      const texLabels = options.texLabels;
       let variation = options.variation as string | undefined;
       if (options.trio.length === 1) {
         console.log();
@@ -304,6 +312,7 @@ yargs(hideBin(process.argv))
         style,
         domain,
         resolvePath(prefix, sty),
+        texLabels,
         false,
         {
           substanceName: sub,
