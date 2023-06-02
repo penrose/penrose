@@ -5,7 +5,8 @@
   "scripts": {
     "build": "vitepress build",
     "build-decls": ":",
-    "build-shapedefs": "shx mkdir -p ./public/try/ && shx cp -r ../editor/dist/* ./public/try && shx rm -f ./src/shapedefs.json && cd ../roger && yarn start shapedefs -o ../docs-site/src/shapedefs.json",
+    "copy-editor": "shx mkdir -p ./public/try/ && shx cp -r ../editor/dist/* ./public/try",
+    "build-shapedefs": "shx rm -f ./src/shapedefs.json && roger shapedefs -o ./src/shapedefs.json",
     "dev": "vitepress dev",
     "preview": "vitepress preview",
     "typecheck": ":"
@@ -15,6 +16,7 @@
       "build": {
         "dependsOn": [
           "^build",
+          "copy-editor",
           "build-shapedefs"
         ]
       },
@@ -26,6 +28,7 @@
       "dev": {
         "dependsOn": [
           "^build",
+          "copy-editor",
           "build-shapedefs"
         ]
       },
