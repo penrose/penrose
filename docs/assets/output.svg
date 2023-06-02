@@ -2,32 +2,32 @@
   <circle
     fill="#81a985"
     fill-opacity="0.5"
-    cx="327.29941902209663"
-    cy="289.61035031650727"
+    cx="327.46760443050755"
+    cy="291.32100000019085"
     stroke="none"
-    r="289.60485201828266"
+    r="291.2733879329686"
   >
     <title>`A`.icon</title>
   </circle>
   <circle
     fill="#6d9eac"
     fill-opacity="0.5"
-    cx="284.8659580550326"
-    cy="456.3871757371386"
+    cx="278.87783128141194"
+    cy="455.26609186027235"
     stroke="none"
-    r="108.16730186537251"
+    r="114.80127353984363"
   >
     <title>`C`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 284.88070534657265, 456.3777513681471)translate(275.38070534657265, 447.2902513681471)"
+    transform="rotate(0, 278.87783128141194, 455.26609186027235)translate(266.7178312814119, 443.63409186027235)"
   >
     <title>`C`.text</title>
     <svg
-      style="font-size: 25px"
+      style="font-size: 32px"
       xmlns="http://www.w3.org/2000/svg"
-      width="19"
-      height="18.175"
+      width="24.32"
+      height="23.264"
       role="img"
       focusable="false"
       viewBox="0 -705 760 727"
@@ -53,22 +53,22 @@
   <circle
     fill="#3bd67a"
     fill-opacity="0.5"
-    cx="495.5990623053906"
-    cy="292.06782718022754"
+    cx="499.4856259555253"
+    cy="291.28332317194736"
     stroke="none"
-    r="114.70411774807114"
+    r="113.67496568718947"
   >
     <title>`B`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 495.61575102957954, 292.0879374724374)translate(486.12825102957953, 283.55043747243735)"
+    transform="rotate(0, 499.4856259555253, 291.28332317194736)translate(487.3416259555253, 280.35532317194736)"
   >
     <title>`B`.text</title>
     <svg
-      style="font-size: 25px"
+      style="font-size: 32px"
       xmlns="http://www.w3.org/2000/svg"
-      width="18.975"
-      height="17.075000000000003"
+      width="24.288"
+      height="21.856"
       role="img"
       focusable="false"
       viewBox="0 -683 759 683"
@@ -94,22 +94,22 @@
   <circle
     fill="#88469c"
     fill-opacity="0.5"
-    cx="277.5335809476755"
-    cy="372.85836482853057"
+    cx="280.97495933114726"
+    cy="385.5010415790628"
     stroke="none"
-    r="18.855913762844764"
+    r="38.42663818580061"
   >
     <title>`F`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 277.5234006891047, 372.89592355137535)translate(268.16090068910466, 364.39592355137535)"
+    transform="rotate(0, 280.97495933114726, 385.5010415790628)translate(268.9909593311473, 374.6210415790628)"
   >
     <title>`F`.text</title>
     <svg
-      style="font-size: 25px"
+      style="font-size: 32px"
       xmlns="http://www.w3.org/2000/svg"
-      width="18.725"
-      height="17"
+      width="23.968"
+      height="21.76"
       role="img"
       focusable="false"
       viewBox="0 -680 749 680"
@@ -135,22 +135,22 @@
   <circle
     fill="#cfb479"
     fill-opacity="0.5"
-    cx="446.40511170095147"
-    cy="326.93441227722457"
+    cx="449.5935956031266"
+    cy="326.98157637558035"
     stroke="none"
-    r="34.42237937214352"
+    r="35.00730321932639"
   >
     <title>`D`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 446.4081495968059, 326.93506980589063)translate(436.0581495968059, 318.3975698058906)"
+    transform="rotate(0, 449.5935956031266, 326.98157637558035)translate(436.3455956031266, 316.05357637558035)"
   >
     <title>`D`.text</title>
     <svg
-      style="font-size: 25px"
+      style="font-size: 32px"
       xmlns="http://www.w3.org/2000/svg"
-      width="20.7"
-      height="17.075000000000003"
+      width="26.496"
+      height="21.856"
       role="img"
       focusable="false"
       viewBox="0 -683 828 683"
@@ -176,22 +176,22 @@
   <circle
     fill="#48a632"
     fill-opacity="0.5"
-    cx="438.29890275090736"
-    cy="234.26559975627094"
+    cx="442.312276569784"
+    cy="232.32890567120364"
     stroke="none"
-    r="28.313706403135683"
+    r="26.01436501967881"
   >
     <title>`E`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 438.28120376116266, 234.24806588125972)translate(428.73120376116265, 225.74806588125972)"
+    transform="rotate(0, 442.312276569784, 232.32890567120364)translate(430.088276569784, 221.44890567120365)"
   >
     <title>`E`.text</title>
     <svg
-      style="font-size: 25px"
+      style="font-size: 32px"
       xmlns="http://www.w3.org/2000/svg"
-      width="19.1"
-      height="17"
+      width="24.448"
+      height="21.76"
       role="img"
       focusable="false"
       viewBox="0 -680 764 680"
@@ -215,14 +215,14 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 327.2851713646642, 289.60194104350074)translate(317.9101713646642, 280.65194104350076)"
+    transform="rotate(0, 327.46760443050755, 291.32100000019085)translate(315.46760443050755, 279.86500000019083)"
   >
     <title>`A`.text</title>
     <svg
-      style="font-size: 25px"
+      style="font-size: 32px"
       xmlns="http://www.w3.org/2000/svg"
-      width="18.75"
-      height="17.9"
+      width="24"
+      height="22.912"
       role="img"
       focusable="false"
       viewBox="0 -716 750 716"
@@ -248,22 +248,22 @@
   <circle
     fill="#c6525e"
     fill-opacity="0.5"
-    cx="224.24543310783108"
-    cy="439.44229014664126"
+    cx="210.60161995804742"
+    cy="434.1944605194161"
     stroke="none"
-    r="36.46055282767049"
+    r="29.86861553912883"
   >
     <title>`G`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 224.25062687653852, 439.44546598493935)translate(214.42562687653853, 430.35796598493937)"
+    transform="rotate(0, 210.60161995804742, 434.1944605194161)translate(198.02561995804743, 422.5624605194161)"
   >
     <title>`G`.text</title>
     <svg
-      style="font-size: 25px"
+      style="font-size: 32px"
       xmlns="http://www.w3.org/2000/svg"
-      width="19.650000000000002"
-      height="18.175"
+      width="25.152"
+      height="23.264"
       role="img"
       focusable="false"
       viewBox="0 -705 786 727"
