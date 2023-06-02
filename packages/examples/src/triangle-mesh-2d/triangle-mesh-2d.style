@@ -36,7 +36,7 @@ Global {
 
    -- string fontFamily = "Linux Libertine O"
    string fontFamily = "Palatino"
-   string fontSize = "14px"
+   string fontSize = "18px"
 }
 
 forall Vertex v {
