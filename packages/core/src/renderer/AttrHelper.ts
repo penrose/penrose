@@ -298,13 +298,14 @@ export const attrStroke = (
       attrMapped.push("strokeDasharray", "strokeStyle");
     }
 
+    console.log(properties);
     if (
       "strokeLinecap" in properties &&
       properties.strokeLinecap.contents !== ""
     ) {
       elem.setAttribute("stroke-linecap", properties.strokeLinecap.contents);
     } else {
-      elem.setAttribute("stroke-linecap", "butt");
+      elem.setAttribute("stroke-linecap", "");
     }
     attrMapped.push("strokeLinecap");
   }

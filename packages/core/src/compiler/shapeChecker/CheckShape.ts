@@ -334,12 +334,16 @@ export const checkPolyline = (
   const poly = checkPoly(path, trans);
   if (poly.isErr()) return err(poly.error);
 
+  const strokeLinecap = checkProp(path, "strokeLinecap", trans, checkStrV);
+  if (strokeLinecap.isErr()) return err(strokeLinecap.error);
+
   return ok({
     ...named.value,
     ...stroke.value,
     ...fill.value,
     ...scale.value,
     ...poly.value,
+    strokeLinecap: strokeLinecap.value,
     passthrough: new Map(),
     shapeType: "Polyline",
   });
