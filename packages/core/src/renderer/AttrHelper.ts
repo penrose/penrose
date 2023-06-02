@@ -298,7 +298,6 @@ export const attrStroke = (
       attrMapped.push("strokeDasharray", "strokeStyle");
     }
 
-    console.log(properties);
     if (
       "strokeLinecap" in properties &&
       properties.strokeLinecap.contents !== ""
