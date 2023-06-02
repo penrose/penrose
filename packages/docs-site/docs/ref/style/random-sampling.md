@@ -25,8 +25,8 @@ Here, Penrose can rotate the vector in order to make it reach `p`, but it cannot
 
 Functions that perform random sampling generally have the suffix `random`. For instance:
 
-- `random( minVal, maxVal )` — samples a random constant uniformly from the range `[minVal,maxVal]`
-- `unitRandom()` — samples a random constant uniformly from the range `[0,1]`.
+- `random( minVal, maxVal )` — samples a random constant uniformly from the range `[minVal,maxVal)`
+- `unitRandom()` — samples a random constant uniformly from the range `[0,1)`.
 - `normalRandom()` — samples a random constant from a normal distribution with mean 0 and standard deviation 1.
 - `diskRandom()` — samples a random point uniformly from the unit disk.
 - `sphereRandom()` — samples a random point uniformly from the unit sphere.

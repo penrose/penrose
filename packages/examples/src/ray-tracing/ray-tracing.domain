@@ -1,0 +1,16 @@
+type Entity
+type Scene
+type Light <: Entity
+type Camera <: Entity
+type Point <: Entity
+type Ray
+
+constructor rayFrom(Point p) -> Ray
+constructor rayBetween(Entity p, Entity q) -> Ray
+constructor intersect(Ray r, Scene S) -> Point
+
+predicate onCamera(Point p, Camera C)
+predicate onLight(Point p, Light L)
+predicate hitsLight(Ray r, Light L)
+predicate isSpecular(Point p)
+
