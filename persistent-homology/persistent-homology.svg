@@ -2,105 +2,105 @@
   <circle
     fill="#339933"
     fill-opacity="0.3"
-    cx="151.91336589035396"
-    cy="416.55181602062623"
+    cx="149.90305161325279"
+    cy="544.3519157186987"
     stroke="none"
-    r="7.695929433800404"
+    r="7.980354895558555"
   >
     <title>`P3`.circle1</title>
   </circle>
   <circle
     fill="#339933"
     fill-opacity="0.3"
-    cx="158.38839329229137"
-    cy="388.2558195944842"
+    cx="168.9817552271047"
+    cy="526.0530938128283"
     stroke="none"
-    r="7.6959625464786"
+    r="7.979884643210347"
   >
     <title>`P2`.circle1</title>
   </circle>
   <circle
     fill="#339933"
     fill-opacity="0.3"
-    cx="7.664841794577342"
-    cy="494.2337669489492"
+    cx="82.93093004700597"
+    cy="388.0496363073448"
     stroke="none"
-    r="7.680269257672718"
+    r="7.9803912446969445"
   >
     <title>`P9`.circle1</title>
   </circle>
   <circle
     fill="#339933"
     fill-opacity="0.3"
-    cx="183.59242983027752"
-    cy="504.7603680644151"
+    cx="55.425915646071246"
+    cy="569.0966766762311"
     stroke="none"
-    r="7.6959028110739505"
+    r="7.980391749872182"
   >
     <title>`P4`.circle1</title>
   </circle>
   <circle
     fill="#339933"
     fill-opacity="0.3"
-    cx="16.060235361976765"
-    cy="400.5074144171911"
+    cx="179.0521739482988"
+    cy="405.43837858402486"
     stroke="none"
-    r="7.695852794260905"
+    r="7.980390332103795"
   >
     <title>`P10`.circle1</title>
   </circle>
   <circle
     fill="#339933"
     fill-opacity="0.3"
-    cx="73.98485931038522"
-    cy="494.6578654970554"
+    cx="13.72537424109288"
+    cy="382.27527775816264"
     stroke="none"
-    r="7.695957341134039"
+    r="7.98038330775624"
   >
     <title>`P8`.circle1</title>
   </circle>
   <circle
     fill="#339933"
     fill-opacity="0.3"
-    cx="109.36431235873266"
-    cy="390.0415280212103"
+    cx="181.06511286060143"
+    cy="503.0772339425448"
     stroke="none"
-    r="7.695980514771385"
+    r="7.979924838945467"
   >
     <title>`P1`.circle1</title>
   </circle>
   <circle
     fill="#339933"
     fill-opacity="0.3"
-    cx="7.686011967520926"
-    cy="560.91224198483"
+    cx="76.40211337163657"
+    cy="456.40805160804643"
     stroke="none"
-    r="7.690955475771838"
+    r="7.980389340585785"
   >
     <title>`P7`.circle1</title>
   </circle>
   <circle
     fill="#339933"
     fill-opacity="0.3"
-    cx="167.98603211556502"
-    cy="552.3696016186768"
+    cx="8.027810782488018"
+    cy="548.4032690324435"
     stroke="none"
-    r="7.695896437948284"
+    r="7.980457084048867"
   >
     <title>`P5`.circle1</title>
   </circle>
   <circle
     fill="#339933"
     fill-opacity="0.3"
-    cx="74.39120022234204"
-    cy="561.0880917631814"
+    cx="7.978533666578528"
+    cy="450.7266989952178"
     stroke="none"
-    r="7.695884866072275"
+    r="7.97937724935304"
   >
     <title>`P6`.circle1</title>
   </circle>
   <g
-    transform="rotate(0, 151.91336589035396, 416.55181602062623)translate(144.21743645655354, 408.8558865868258)"
+    transform="rotate(0, 149.90305161325279, 544.3519157186987)translate(141.92269671769424, 536.3715608231402)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -114,8 +114,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.391858867600808"
-      height="15.391858867600808"
+      width="15.96070979111711"
+      height="15.96070979111711"
     >
       <style type="text/css">
         .st0 {
@@ -150,105 +150,105 @@
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="427.8196090440122"
-    cy="416.55181602062623"
+    cx="422.98763689176326"
+    cy="544.3519157186987"
     stroke="none"
-    r="28.54302884939559"
+    r="29.35737980348178"
   >
     <title>`P3`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="434.2947197785579"
-    cy="388.2558195944842"
+    cx="442.06650396559957"
+    cy="526.0530938128283"
     stroke="none"
-    r="28.497572965802217"
+    r="29.353368789439767"
   >
     <title>`P2`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="283.55551045333226"
-    cy="494.2337669489492"
+    cx="356.01548495135046"
+    cy="388.0496363073448"
     stroke="none"
-    r="28.29422395324709"
+    r="29.345238752300975"
   >
     <title>`P9`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="459.54081905578374"
-    cy="504.7603680644151"
+    cx="328.51046956645826"
+    cy="569.0966766762311"
     stroke="none"
-    r="28.537453129867266"
+    r="29.357028179543494"
   >
     <title>`P4`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="291.96652103408786"
-    cy="400.5074144171911"
+    cx="452.1367306717477"
+    cy="405.43837858402486"
     stroke="none"
-    r="28.49749454061556"
+    r="29.35337036840504"
   >
     <title>`P10`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="349.8911900067026"
-    cy="494.6578654970554"
+    cx="286.8099227232309"
+    cy="382.27527775816264"
     stroke="none"
-    r="28.211858029319004"
+    r="29.352577378971553"
   >
     <title>`P8`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="385.27062899584735"
-    cy="390.0415280212103"
+    cx="454.152041902196"
+    cy="503.0772339425448"
     stroke="none"
-    r="28.543228839652734"
+    r="29.35737898722387"
   >
     <title>`P1`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="283.5874195102201"
-    cy="560.91224198483"
+    cx="349.48666836667553"
+    cy="456.40805160804643"
     stroke="none"
-    r="28.418638206737814"
+    r="29.332788138045956"
   >
     <title>`P7`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="443.8923146676705"
-    cy="552.3696016186768"
+    cx="281.1124221644126"
+    cy="548.4032690324435"
     stroke="none"
-    r="28.53753523411268"
+    r="29.357027435633228"
   >
     <title>`P5`.circle2</title>
   </circle>
   <circle
     fill="#ff3333"
     fill-opacity="0.3"
-    cx="350.2974800762121"
-    cy="561.0880917631814"
+    cx="281.06208757364476"
+    cy="450.7266989952178"
     stroke="none"
-    r="28.336299632509984"
+    r="29.340126534566444"
   >
     <title>`P6`.circle2</title>
   </circle>
   <g
-    transform="rotate(0, 427.8196090440122, 416.55181602062623)translate(399.27658019461666, 388.00878717123067)"
+    transform="rotate(0, 422.98763689176326, 544.3519157186987)translate(393.6302570882815, 514.9945359152169)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -262,8 +262,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="57.08605769879118"
-      height="57.08605769879118"
+      width="58.71475960696356"
+      height="58.71475960696356"
     >
       <style type="text/css">
         .st0 {
@@ -298,105 +298,105 @@
   <circle
     fill="#3333ff"
     fill-opacity="0.3"
-    cx="717.9766483567016"
-    cy="416.55181602062623"
+    cx="716.5056237545741"
+    cy="544.3519157186987"
     stroke="none"
-    r="50.38857404133027"
+    r="52.326712012579236"
   >
     <title>`P3`.circle3</title>
   </circle>
   <circle
     fill="#3333ff"
     fill-opacity="0.3"
-    cx="724.4132366299079"
-    cy="388.2558195944842"
+    cx="735.5865806167574"
+    cy="526.0530938128283"
     stroke="none"
-    r="50.37061785130322"
+    r="52.325730671325594"
   >
     <title>`P2`.circle3</title>
   </circle>
   <circle
     fill="#3333ff"
     fill-opacity="0.3"
-    cx="573.7912559181271"
-    cy="494.2337669489492"
+    cx="649.5348849467769"
+    cy="388.0496363073448"
     stroke="none"
-    r="50.602990943097666"
+    r="52.34425682568873"
   >
     <title>`P9`.circle3</title>
   </circle>
   <circle
     fill="#3333ff"
     fill-opacity="0.3"
-    cx="749.7141597027563"
-    cy="504.7603680644151"
+    cx="622.0343148841426"
+    cy="569.0966766762311"
     stroke="none"
-    r="50.30671112299947"
+    r="52.32709067390567"
   >
     <title>`P4`.circle3</title>
   </circle>
   <circle
     fill="#3333ff"
     fill-opacity="0.3"
-    cx="582.0846041776788"
-    cy="400.5074144171911"
+    cx="745.6570744918632"
+    cy="405.43837858402486"
     stroke="none"
-    r="50.41406887533915"
+    r="52.33042480024398"
   >
     <title>`P10`.circle3</title>
   </circle>
   <circle
     fill="#3333ff"
     fill-opacity="0.3"
-    cx="639.8415396243222"
-    cy="494.6578654970554"
+    cx="580.3299862132875"
+    cy="382.27527775816264"
     stroke="none"
-    r="50.12187232258854"
+    r="52.325713969004795"
   >
     <title>`P8`.circle3</title>
   </circle>
   <circle
     fill="#3333ff"
     fill-opacity="0.3"
-    cx="675.3505605303494"
-    cy="390.0415280212103"
+    cx="747.6771056647722"
+    cy="503.0772339425448"
     stroke="none"
-    r="50.38812298195254"
+    r="52.32344947923803"
   >
     <title>`P1`.circle3</title>
   </circle>
   <circle
     fill="#3333ff"
     fill-opacity="0.3"
-    cx="573.7401185570807"
-    cy="560.91224198483"
+    cx="642.9948423981409"
+    cy="456.40805160804643"
     stroke="none"
-    r="50.419190833888486"
+    r="52.297339595839695"
   >
     <title>`P7`.circle3</title>
   </circle>
   <circle
     fill="#3333ff"
     fill-opacity="0.3"
-    cx="733.997874751308"
-    cy="552.3696016186768"
+    cx="574.6287522178477"
+    cy="548.4032690324435"
     stroke="none"
-    r="50.37508340181228"
+    r="52.3263617789361"
   >
     <title>`P5`.circle3</title>
   </circle>
   <circle
     fill="#3333ff"
     fill-opacity="0.3"
-    cx="640.3702770409435"
-    cy="561.0880917631814"
+    cx="574.5904432015639"
+    cy="450.7266989952178"
     stroke="none"
-    r="50.59241533346211"
+    r="52.34343196242824"
   >
     <title>`P6`.circle3</title>
   </circle>
   <g
-    transform="rotate(0, 717.9766483567016, 416.55181602062623)translate(667.5880743153714, 366.16324197929595)"
+    transform="rotate(0, 716.5056237545741, 544.3519157186987)translate(664.1789117419949, 492.02520370611944)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -410,8 +410,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="100.77714808266055"
-      height="100.77714808266055"
+      width="104.65342402515847"
+      height="104.65342402515847"
     >
       <style type="text/css">
         .st0 {
@@ -444,7 +444,7 @@
     <title>`P3`.shade3</title>
   </g>
   <g
-    transform="rotate(0, 109.36431235873266, 390.0415280212103)translate(101.66833184396128, 382.3455475064389)"
+    transform="rotate(0, 181.06511286060143, 503.0772339425448)translate(173.08518802165597, 495.09730910359934)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -458,8 +458,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.39196102954277"
-      height="15.39196102954277"
+      width="15.959849677890935"
+      height="15.959849677890935"
     >
       <style type="text/css">
         .st0 {
@@ -492,7 +492,7 @@
     <title>`P1`.shade1</title>
   </g>
   <g
-    transform="rotate(0, 385.27062899584735, 390.0415280212103)translate(356.7274001561946, 361.49829918155757)"
+    transform="rotate(0, 454.152041902196, 503.0772339425448)translate(424.79466291497215, 473.71985495532095)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -506,8 +506,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="57.08645767930547"
-      height="57.08645767930547"
+      width="58.71475797444774"
+      height="58.71475797444774"
     >
       <style type="text/css">
         .st0 {
@@ -540,7 +540,7 @@
     <title>`P1`.shade2</title>
   </g>
   <g
-    transform="rotate(0, 675.3505605303494, 390.0415280212103)translate(624.9624375483969, 339.65340503925773)"
+    transform="rotate(0, 747.6771056647722, 503.0772339425448)translate(695.3536561855342, 450.7537844633068)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -554,8 +554,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="100.77624596390508"
-      height="100.77624596390508"
+      width="104.64689895847606"
+      height="104.64689895847606"
     >
       <style type="text/css">
         .st0 {
@@ -589,7 +589,7 @@
   </g>
   <g>
     <path
-      d="M 717.9766483567016 416.55181602062623 L 675.3505605303494 390.0415280212103"
+      d="M 716.5056237545741 544.3519157186987 L 747.6771056647722 503.0772339425448"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -598,7 +598,7 @@
     <title>`C3P3P1`.line</title>
   </g>
   <g
-    transform="rotate(0, 73.98485931038522, 494.6578654970554)translate(66.28890196925119, 486.9619081559214)"
+    transform="rotate(0, 13.72537424109288, 382.27527775816264)translate(5.74499093333664, 374.2948944504064)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -612,8 +612,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.391914682268078"
-      height="15.391914682268078"
+      width="15.96076661551248"
+      height="15.96076661551248"
     >
       <style type="text/css">
         .st0 {
@@ -646,7 +646,7 @@
     <title>`P8`.shade1</title>
   </g>
   <g
-    transform="rotate(0, 349.8911900067026, 494.6578654970554)translate(321.6793319773836, 466.4460074677364)"
+    transform="rotate(0, 286.8099227232309, 382.27527775816264)translate(257.45734534425935, 352.9227003791911)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -660,8 +660,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="56.42371605863801"
-      height="56.42371605863801"
+      width="58.705154757943106"
+      height="58.705154757943106"
     >
       <style type="text/css">
         .st0 {
@@ -694,7 +694,7 @@
     <title>`P8`.shade2</title>
   </g>
   <g
-    transform="rotate(0, 639.8415396243222, 494.6578654970554)translate(589.7196673017337, 444.53599317446685)"
+    transform="rotate(0, 580.3299862132875, 382.27527775816264)translate(528.0042722442827, 329.9495637891579)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -708,8 +708,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="100.24374464517707"
-      height="100.24374464517707"
+      width="104.65142793800959"
+      height="104.65142793800959"
     >
       <style type="text/css">
         .st0 {
@@ -742,7 +742,7 @@
     <title>`P8`.shade3</title>
   </g>
   <g
-    transform="rotate(0, 7.664841794577342, 494.2337669489492)translate(-0.015427463095376126, 486.5534976912765)"
+    transform="rotate(0, 82.93093004700597, 388.0496363073448)translate(74.95053880230903, 380.0692450626479)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -756,8 +756,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.360538515345436"
-      height="15.360538515345436"
+      width="15.960782489393889"
+      height="15.960782489393889"
     >
       <style type="text/css">
         .st0 {
@@ -790,7 +790,7 @@
     <title>`P9`.shade1</title>
   </g>
   <g
-    transform="rotate(0, 283.55551045333226, 494.2337669489492)translate(255.26128650008516, 465.93954299570214)"
+    transform="rotate(0, 356.01548495135046, 388.0496363073448)translate(326.6702461990495, 358.70439755504384)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -804,8 +804,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="56.58844790649418"
-      height="56.58844790649418"
+      width="58.69047750460195"
+      height="58.69047750460195"
     >
       <style type="text/css">
         .st0 {
@@ -838,7 +838,7 @@
     <title>`P9`.shade2</title>
   </g>
   <g
-    transform="rotate(0, 573.7912559181271, 494.2337669489492)translate(523.1882649750295, 443.63077600585154)"
+    transform="rotate(0, 649.5348849467769, 388.0496363073448)translate(597.1906281210881, 335.7053794816561)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -852,8 +852,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="101.20598188619533"
-      height="101.20598188619533"
+      width="104.68851365137746"
+      height="104.68851365137746"
     >
       <style type="text/css">
         .st0 {
@@ -887,7 +887,7 @@
   </g>
   <g>
     <path
-      d="M 639.8415396243222 494.6578654970554 L 573.7912559181271 494.2337669489492"
+      d="M 580.3299862132875 382.27527775816264 L 649.5348849467769 388.0496363073448"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -896,7 +896,7 @@
     <title>`C3P8P9`.line</title>
   </g>
   <g
-    transform="rotate(0, 16.060235361976765, 400.5074144171911)translate(8.364382567715861, 392.8115616229302)"
+    transform="rotate(0, 179.0521739482988, 405.43837858402486)translate(171.07178361619498, 397.45798825192105)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -910,8 +910,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.39170558852181"
-      height="15.39170558852181"
+      width="15.96078066420759"
+      height="15.96078066420759"
     >
       <style type="text/css">
         .st0 {
@@ -944,7 +944,7 @@
     <title>`P10`.shade1</title>
   </g>
   <g
-    transform="rotate(0, 291.96652103408786, 400.5074144171911)translate(263.4690264934723, 372.00991987657557)"
+    transform="rotate(0, 452.1367306717477, 405.43837858402486)translate(422.7833603033427, 376.08500821561984)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -958,8 +958,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="56.99498908123112"
-      height="56.99498908123112"
+      width="58.70674073681008"
+      height="58.70674073681008"
     >
       <style type="text/css">
         .st0 {
@@ -992,7 +992,7 @@
     <title>`P10`.shade2</title>
   </g>
   <g
-    transform="rotate(0, 582.0846041776788, 400.5074144171911)translate(531.6705353023397, 350.093345541852)"
+    transform="rotate(0, 745.6570744918632, 405.43837858402486)translate(693.3266496916192, 353.1079537837809)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1006,8 +1006,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="100.8281377506783"
-      height="100.8281377506783"
+      width="104.66084960048796"
+      height="104.66084960048796"
     >
       <style type="text/css">
         .st0 {
@@ -1041,7 +1041,7 @@
   </g>
   <g>
     <path
-      d="M 582.0846041776788 400.5074144171911 L 675.3505605303494 390.0415280212103"
+      d="M 745.6570744918632 405.43837858402486 L 747.6771056647722 503.0772339425448"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -1052,8 +1052,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="151.91336589035396"
-    cy="416.55181602062623"
+    cx="149.90305161325279"
+    cy="544.3519157186987"
     stroke="none"
     r="3"
   >
@@ -1062,8 +1062,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="427.8196090440122"
-    cy="416.55181602062623"
+    cx="422.98763689176326"
+    cy="544.3519157186987"
     stroke="none"
     r="3"
   >
@@ -1072,15 +1072,15 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="717.9766483567016"
-    cy="416.55181602062623"
+    cx="716.5056237545741"
+    cy="544.3519157186987"
     stroke="none"
     r="3"
   >
     <title>`P3`.dot3</title>
   </circle>
   <g
-    transform="rotate(0, 7.686011967520926, 560.91224198483)translate(-0.004943508250911499, 553.2212865090581)"
+    transform="rotate(0, 76.40211337163657, 456.40805160804643)translate(68.42172403105079, 448.4276622674607)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1094,8 +1094,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.381910951543675"
-      height="15.381910951543675"
+      width="15.96077868117157"
+      height="15.96077868117157"
     >
       <style type="text/css">
         .st0 {
@@ -1128,7 +1128,7 @@
     <title>`P7`.shade1</title>
   </g>
   <g
-    transform="rotate(0, 283.5874195102201, 560.91224198483)translate(255.1687813034823, 532.4936037780922)"
+    transform="rotate(0, 349.48666836667553, 456.40805160804643)translate(320.1538802286296, 427.0752634700005)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1142,8 +1142,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="56.83727641347563"
-      height="56.83727641347563"
+      width="58.66557627609191"
+      height="58.66557627609191"
     >
       <style type="text/css">
         .st0 {
@@ -1176,7 +1176,7 @@
     <title>`P7`.shade2</title>
   </g>
   <g
-    transform="rotate(0, 573.7401185570807, 560.91224198483)translate(523.3209277231922, 510.4930511509415)"
+    transform="rotate(0, 642.9948423981409, 456.40805160804643)translate(590.6975028023012, 404.11071201220676)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1190,8 +1190,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="100.83838166777697"
-      height="100.83838166777697"
+      width="104.59467919167939"
+      height="104.59467919167939"
     >
       <style type="text/css">
         .st0 {
@@ -1225,7 +1225,7 @@
   </g>
   <g>
     <path
-      d="M 573.7401185570807 560.91224198483 L 573.7912559181271 494.2337669489492"
+      d="M 642.9948423981409 456.40805160804643 L 649.5348849467769 388.0496363073448"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -1236,8 +1236,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="167.98603211556502"
-    cy="552.3696016186768"
+    cx="8.027810782488018"
+    cy="548.4032690324435"
     stroke="none"
     r="3"
   >
@@ -1246,8 +1246,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="443.8923146676705"
-    cy="552.3696016186768"
+    cx="281.1124221644126"
+    cy="548.4032690324435"
     stroke="none"
     r="3"
   >
@@ -1256,8 +1256,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="733.997874751308"
-    cy="552.3696016186768"
+    cx="574.6287522178477"
+    cy="548.4032690324435"
     stroke="none"
     r="3"
   >
@@ -1265,7 +1265,7 @@
   </circle>
   <g>
     <path
-      d="M 573.7912559181271 494.2337669489492 L 582.0846041776788 400.5074144171911"
+      d="M 649.5348849467769 388.0496363073448 L 745.6570744918632 405.43837858402486"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -1275,7 +1275,7 @@
   </g>
   <g>
     <path
-      d="M 573.7401185570807 560.91224198483 L 639.8415396243222 494.6578654970554"
+      d="M 642.9948423981409 456.40805160804643 L 580.3299862132875 382.27527775816264"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -1285,7 +1285,7 @@
   </g>
   <g>
     <path
-      d="M 427.8196090440122 416.55181602062623 L 385.27062899584735 390.0415280212103"
+      d="M 422.98763689176326 544.3519157186987 L 454.152041902196 503.0772339425448"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -1296,8 +1296,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="183.59242983027752"
-    cy="504.7603680644151"
+    cx="55.425915646071246"
+    cy="569.0966766762311"
     stroke="none"
     r="3"
   >
@@ -1306,8 +1306,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="459.54081905578374"
-    cy="504.7603680644151"
+    cx="328.51046956645826"
+    cy="569.0966766762311"
     stroke="none"
     r="3"
   >
@@ -1316,15 +1316,15 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="749.7141597027563"
-    cy="504.7603680644151"
+    cx="622.0343148841426"
+    cy="569.0966766762311"
     stroke="none"
     r="3"
   >
     <title>`P4`.dot3</title>
   </circle>
   <g
-    transform="rotate(0, 158.38839329229137, 388.2558195944842)translate(150.69243074581277, 380.5598570480056)"
+    transform="rotate(0, 168.9817552271047, 526.0530938128283)translate(161.00187058389437, 518.0732091696179)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1338,8 +1338,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.3919250929572"
-      height="15.3919250929572"
+      width="15.959769286420695"
+      height="15.959769286420695"
     >
       <style type="text/css">
         .st0 {
@@ -1372,7 +1372,7 @@
     <title>`P2`.shade1</title>
   </g>
   <g
-    transform="rotate(0, 434.2947197785579, 388.2558195944842)translate(405.7971468127557, 359.758246628682)"
+    transform="rotate(0, 442.06650396559957, 526.0530938128283)translate(412.7131351761598, 496.6997250233885)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1386,8 +1386,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="56.99514593160443"
-      height="56.99514593160443"
+      width="58.70673757887953"
+      height="58.70673757887953"
     >
       <style type="text/css">
         .st0 {
@@ -1420,7 +1420,7 @@
     <title>`P2`.shade2</title>
   </g>
   <g
-    transform="rotate(0, 724.4132366299079, 388.2558195944842)translate(674.0426187786047, 337.88520174318097)"
+    transform="rotate(0, 735.5865806167574, 526.0530938128283)translate(683.2608499454318, 473.7273631415027)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1434,8 +1434,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="100.74123570260645"
-      height="100.74123570260645"
+      width="104.65146134265119"
+      height="104.65146134265119"
     >
       <style type="text/css">
         .st0 {
@@ -1469,7 +1469,7 @@
   </g>
   <g>
     <path
-      d="M 385.27062899584735 390.0415280212103 L 434.2947197785579 388.2558195944842"
+      d="M 454.152041902196 503.0772339425448 L 442.06650396559957 526.0530938128283"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -1480,8 +1480,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="16.060235361976765"
-    cy="400.5074144171911"
+    cx="179.0521739482988"
+    cy="405.43837858402486"
     stroke="none"
     r="3"
   >
@@ -1490,8 +1490,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="291.96652103408786"
-    cy="400.5074144171911"
+    cx="452.1367306717477"
+    cy="405.43837858402486"
     stroke="none"
     r="3"
   >
@@ -1500,8 +1500,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="582.0846041776788"
-    cy="400.5074144171911"
+    cx="745.6570744918632"
+    cy="405.43837858402486"
     stroke="none"
     r="3"
   >
@@ -1510,8 +1510,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="73.98485931038522"
-    cy="494.6578654970554"
+    cx="13.72537424109288"
+    cy="382.27527775816264"
     stroke="none"
     r="3"
   >
@@ -1520,8 +1520,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="349.8911900067026"
-    cy="494.6578654970554"
+    cx="286.8099227232309"
+    cy="382.27527775816264"
     stroke="none"
     r="3"
   >
@@ -1530,15 +1530,15 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="639.8415396243222"
-    cy="494.6578654970554"
+    cx="580.3299862132875"
+    cy="382.27527775816264"
     stroke="none"
     r="3"
   >
     <title>`P8`.dot3</title>
   </circle>
   <g
-    transform="rotate(0, 167.98603211556502, 552.3696016186768)translate(160.29013567761675, 544.6737051807286)"
+    transform="rotate(0, 8.027810782488018, 548.4032690324435)translate(0.04735369843915116, 540.4228119483946)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1552,8 +1552,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.391792875896568"
-      height="15.391792875896568"
+      width="15.960914168097734"
+      height="15.960914168097734"
     >
       <style type="text/css">
         .st0 {
@@ -1586,7 +1586,7 @@
     <title>`P5`.shade1</title>
   </g>
   <g
-    transform="rotate(0, 443.8923146676705, 552.3696016186768)translate(415.35477943355784, 523.8320663845641)"
+    transform="rotate(0, 281.1124221644126, 548.4032690324435)translate(251.75539472877935, 519.0462415968103)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1600,8 +1600,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="57.07507046822536"
-      height="57.07507046822536"
+      width="58.714054871266455"
+      height="58.714054871266455"
     >
       <style type="text/css">
         .st0 {
@@ -1634,7 +1634,7 @@
     <title>`P5`.shade2</title>
   </g>
   <g
-    transform="rotate(0, 733.997874751308, 552.3696016186768)translate(683.6227913494957, 501.99451821686455)"
+    transform="rotate(0, 574.6287522178477, 548.4032690324435)translate(522.3023904389116, 496.07690725350744)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1648,8 +1648,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="100.75016680362457"
-      height="100.75016680362457"
+      width="104.6527235578722"
+      height="104.6527235578722"
     >
       <style type="text/css">
         .st0 {
@@ -1682,7 +1682,7 @@
     <title>`P5`.shade3</title>
   </g>
   <g
-    transform="rotate(0, 74.39120022234204, 561.0880917631814)translate(66.69531535626976, 553.3922068971092)"
+    transform="rotate(0, 7.978533666578528, 450.7266989952178)translate(-0.0008435827745119084, 442.7473217458648)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1696,8 +1696,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.39176973214455"
-      height="15.39176973214455"
+      width="15.95875449870608"
+      height="15.95875449870608"
     >
       <style type="text/css">
         .st0 {
@@ -1730,7 +1730,7 @@
     <title>`P6`.shade1</title>
   </g>
   <g
-    transform="rotate(0, 350.2974800762121, 561.0880917631814)translate(321.9611804437021, 532.7517921306714)"
+    transform="rotate(0, 281.06208757364476, 450.7266989952178)translate(251.7219610390783, 421.3865724606514)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1744,8 +1744,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="56.67259926501997"
-      height="56.67259926501997"
+      width="58.68025306913289"
+      height="58.68025306913289"
     >
       <style type="text/css">
         .st0 {
@@ -1778,7 +1778,7 @@
     <title>`P6`.shade2</title>
   </g>
   <g
-    transform="rotate(0, 640.3702770409435, 561.0880917631814)translate(589.7778617074814, 510.4956764297193)"
+    transform="rotate(0, 574.5904432015639, 450.7266989952178)translate(522.2470112391356, 398.3832670327896)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1792,8 +1792,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="101.18483066692421"
-      height="101.18483066692421"
+      width="104.68686392485648"
+      height="104.68686392485648"
     >
       <style type="text/css">
         .st0 {
@@ -1827,7 +1827,7 @@
   </g>
   <g>
     <path
-      d="M 733.997874751308 552.3696016186768 L 640.3702770409435 561.0880917631814"
+      d="M 574.6287522178477 548.4032690324435 L 574.5904432015639 450.7266989952178"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -1837,7 +1837,7 @@
   </g>
   <g>
     <path
-      d="M 640.3702770409435 561.0880917631814 L 573.7912559181271 494.2337669489492"
+      d="M 574.5904432015639 450.7266989952178 L 649.5348849467769 388.0496363073448"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -1846,7 +1846,7 @@
     <title>`C3P6P9`.line</title>
   </g>
   <g
-    transform="rotate(0, 183.59242983027752, 504.7603680644151)translate(175.89652701920357, 497.06446525334115)"
+    transform="rotate(0, 55.425915646071246, 569.0966766762311)translate(47.44552389619906, 561.116284926359)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1860,8 +1860,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="15.391805622147901"
-      height="15.391805622147901"
+      width="15.960783499744364"
+      height="15.960783499744364"
     >
       <style type="text/css">
         .st0 {
@@ -1894,7 +1894,7 @@
     <title>`P4`.shade1</title>
   </g>
   <g
-    transform="rotate(0, 459.54081905578374, 504.7603680644151)translate(431.00336592591646, 476.2229149345478)"
+    transform="rotate(0, 328.51046956645826, 569.0966766762311)translate(299.1534413869148, 539.7396484966877)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1908,8 +1908,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="57.07490625973453"
-      height="57.07490625973453"
+      width="58.71405635908699"
+      height="58.71405635908699"
     >
       <style type="text/css">
         .st0 {
@@ -1942,7 +1942,7 @@
     <title>`P4`.shade2</title>
   </g>
   <g
-    transform="rotate(0, 749.7141597027563, 504.7603680644151)translate(699.4074485797569, 454.45365694141566)"
+    transform="rotate(0, 622.0343148841426, 569.0966766762311)translate(569.707224210237, 516.7695860023255)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -1956,8 +1956,8 @@
       viewBox="0 0 92.9 92.9"
       style="enable-background: new 0 0 92.9 92.9"
       xml:space="preserve"
-      width="100.61342224599893"
-      height="100.61342224599893"
+      width="104.65418134781135"
+      height="104.65418134781135"
     >
       <style type="text/css">
         .st0 {
@@ -1991,7 +1991,7 @@
   </g>
   <g>
     <path
-      d="M 459.54081905578374 504.7603680644151 L 443.8923146676705 552.3696016186768"
+      d="M 328.51046956645826 569.0966766762311 L 281.1124221644126 548.4032690324435"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -2001,7 +2001,7 @@
   </g>
   <g>
     <path
-      d="M 724.4132366299079 388.2558195944842 L 717.9766483567016 416.55181602062623"
+      d="M 735.5865806167574 526.0530938128283 L 716.5056237545741 544.3519157186987"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -2011,7 +2011,7 @@
   </g>
   <g>
     <path
-      d="M 675.3505605303494 390.0415280212103 L 724.4132366299079 388.2558195944842"
+      d="M 747.6771056647722 503.0772339425448 L 735.5865806167574 526.0530938128283"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -2022,8 +2022,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="7.686011967520926"
-    cy="560.91224198483"
+    cx="76.40211337163657"
+    cy="456.40805160804643"
     stroke="none"
     r="3"
   >
@@ -2032,8 +2032,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="283.5874195102201"
-    cy="560.91224198483"
+    cx="349.48666836667553"
+    cy="456.40805160804643"
     stroke="none"
     r="3"
   >
@@ -2042,8 +2042,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="573.7401185570807"
-    cy="560.91224198483"
+    cx="642.9948423981409"
+    cy="456.40805160804643"
     stroke="none"
     r="3"
   >
@@ -2051,7 +2051,7 @@
   </circle>
   <g>
     <path
-      d="M 434.2947197785579 388.2558195944842 L 427.8196090440122 416.55181602062623"
+      d="M 442.06650396559957 526.0530938128283 L 422.98763689176326 544.3519157186987"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -2061,7 +2061,7 @@
   </g>
   <g>
     <path
-      d="M 717.9766483567016 416.55181602062623 L 749.7141597027563 504.7603680644151"
+      d="M 716.5056237545741 544.3519157186987 L 622.0343148841426 569.0966766762311"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -2072,8 +2072,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="158.38839329229137"
-    cy="388.2558195944842"
+    cx="168.9817552271047"
+    cy="526.0530938128283"
     stroke="none"
     r="3"
   >
@@ -2082,8 +2082,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="434.2947197785579"
-    cy="388.2558195944842"
+    cx="442.06650396559957"
+    cy="526.0530938128283"
     stroke="none"
     r="3"
   >
@@ -2092,8 +2092,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="724.4132366299079"
-    cy="388.2558195944842"
+    cx="735.5865806167574"
+    cy="526.0530938128283"
     stroke="none"
     r="3"
   >
@@ -2101,7 +2101,7 @@
   </circle>
   <g>
     <path
-      d="M 640.3702770409435 561.0880917631814 L 573.7401185570807 560.91224198483"
+      d="M 574.5904432015639 450.7266989952178 L 642.9948423981409 456.40805160804643"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -2111,7 +2111,7 @@
   </g>
   <g>
     <path
-      d="M 749.7141597027563 504.7603680644151 L 733.997874751308 552.3696016186768"
+      d="M 622.0343148841426 569.0966766762311 L 574.6287522178477 548.4032690324435"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -2122,8 +2122,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="109.36431235873266"
-    cy="390.0415280212103"
+    cx="181.06511286060143"
+    cy="503.0772339425448"
     stroke="none"
     r="3"
   >
@@ -2132,8 +2132,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="385.27062899584735"
-    cy="390.0415280212103"
+    cx="454.152041902196"
+    cy="503.0772339425448"
     stroke="none"
     r="3"
   >
@@ -2142,8 +2142,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="675.3505605303494"
-    cy="390.0415280212103"
+    cx="747.6771056647722"
+    cy="503.0772339425448"
     stroke="none"
     r="3"
   >
@@ -2152,8 +2152,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="7.664841794577342"
-    cy="494.2337669489492"
+    cx="82.93093004700597"
+    cy="388.0496363073448"
     stroke="none"
     r="3"
   >
@@ -2162,8 +2162,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="283.55551045333226"
-    cy="494.2337669489492"
+    cx="356.01548495135046"
+    cy="388.0496363073448"
     stroke="none"
     r="3"
   >
@@ -2172,8 +2172,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="573.7912559181271"
-    cy="494.2337669489492"
+    cx="649.5348849467769"
+    cy="388.0496363073448"
     stroke="none"
     r="3"
   >
@@ -2181,7 +2181,7 @@
   </circle>
   <g>
     <path
-      d="M 640.3702770409435 561.0880917631814 L 639.8415396243222 494.6578654970554"
+      d="M 574.5904432015639 450.7266989952178 L 580.3299862132875 382.27527775816264"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -2192,8 +2192,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="74.39120022234204"
-    cy="561.0880917631814"
+    cx="7.978533666578528"
+    cy="450.7266989952178"
     stroke="none"
     r="3"
   >
@@ -2202,8 +2202,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="350.2974800762121"
-    cy="561.0880917631814"
+    cx="281.06208757364476"
+    cy="450.7266989952178"
     stroke="none"
     r="3"
   >
@@ -2212,8 +2212,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="640.3702770409435"
-    cy="561.0880917631814"
+    cx="574.5904432015639"
+    cy="450.7266989952178"
     stroke="none"
     r="3"
   >
@@ -2237,7 +2237,7 @@
       ></path>
     </marker>
     <path
-      d="M 28.833146053307814 647.0284033252813 L 760.5408539466922 647.0284033252813"
+      d="M 28.571169968367485 669.2572568259613 L 760.8028300316325 669.2572568259613"
       stroke-opacity="0.5"
       stroke-width="2"
       stroke="#000000"
@@ -2247,17 +2247,17 @@
     <title>`F`.axis</title>
   </g>
   <g
-    transform="rotate(0, 130.90869551563532, 246.2036244192519)translate(78.40759622133058, 231.3436244192519)"
+    transform="rotate(0, 130.53840300884525, 281.68692343906343)translate(77.21940300884526, 267.60042343906343)"
   >
     <title>`F`.lab1</title>
     <svg
-      style="font-size: 24p"
+      style="font-size: 30px"
       xmlns="http://www.w3.org/2000/svg"
-      width="105.00219858860947"
-      height="29.72"
+      width="106.63799999999999"
+      height="28.173000000000002"
       role="img"
       focusable="false"
-      viewBox="0 -753 3554.6 1006.1"
+      viewBox="0 -683 3554.6 939.1"
     >
       <g
         stroke="none"
@@ -2267,345 +2267,43 @@
         fill-opacity="0.8"
       >
         <g data-mml-node="math">
-          <g data-mml-node="mtable">
-            <g data-mml-node="mtr" transform="translate(0,3)">
-              <g data-mml-node="mtd">
-                <g data-mml-node="mi">
-                  <path
-                    data-c="1D44B"
-                    d="M42 0H40Q26 0 26 11Q26 15 29 27Q33 41 36 43T55 46Q141 49 190 98Q200 108 306 224T411 342Q302 620 297 625Q288 636 234 637H206Q200 643 200 645T202 664Q206 677 212 683H226Q260 681 347 681Q380 681 408 681T453 682T473 682Q490 682 490 671Q490 670 488 658Q484 643 481 640T465 637Q434 634 411 620L488 426L541 485Q646 598 646 610Q646 628 622 635Q617 635 609 637Q594 637 594 648Q594 650 596 664Q600 677 606 683H618Q619 683 643 683T697 681T738 680Q828 680 837 683H845Q852 676 852 672Q850 647 840 637H824Q790 636 763 628T722 611T698 593L687 584Q687 585 592 480L505 384Q505 383 536 304T601 142T638 56Q648 47 699 46Q734 46 734 37Q734 35 732 23Q728 7 725 4T711 1Q708 1 678 1T589 2Q528 2 496 2T461 1Q444 1 444 10Q444 11 446 25Q448 35 450 39T455 44T464 46T480 47T506 54Q523 62 523 64Q522 64 476 181L429 299Q241 95 236 84Q232 76 232 72Q232 53 261 47Q262 47 267 47T273 46Q276 46 277 46T280 45T283 42T284 35Q284 26 282 19Q279 6 276 4T261 1Q258 1 243 1T201 2T142 2Q64 2 42 0Z"
-                  ></path>
-                </g>
-                <g data-mml-node="mo" transform="translate(1074.2,0)">
-                  <path
-                    data-c="2295"
-                    d="M56 250Q56 394 156 488T384 583Q530 583 626 485T722 250Q722 110 625 14T390 -83Q249 -83 153 14T56 250ZM364 542Q308 539 251 509T148 418T96 278V270H369V542H364ZM681 278Q675 338 650 386T592 462T522 509T458 535T412 542H409V270H681V278ZM96 222Q104 150 139 95T219 12T302 -29T366 -42H369V230H96V222ZM681 222V230H409V-42H412Q429 -42 456 -36T521 -10T590 37T649 113T681 222Z"
-                  ></path>
-                </g>
-                <g data-mml-node="msub" transform="translate(2074.4,0)">
-                  <g data-mml-node="mi">
-                    <path
-                      data-c="1D435"
-                      d="M231 637Q204 637 199 638T194 649Q194 676 205 682Q206 683 335 683Q594 683 608 681Q671 671 713 636T756 544Q756 480 698 429T565 360L555 357Q619 348 660 311T702 219Q702 146 630 78T453 1Q446 0 242 0Q42 0 39 2Q35 5 35 10Q35 17 37 24Q42 43 47 45Q51 46 62 46H68Q95 46 128 49Q142 52 147 61Q150 65 219 339T288 628Q288 635 231 637ZM649 544Q649 574 634 600T585 634Q578 636 493 637Q473 637 451 637T416 636H403Q388 635 384 626Q382 622 352 506Q352 503 351 500L320 374H401Q482 374 494 376Q554 386 601 434T649 544ZM595 229Q595 273 572 302T512 336Q506 337 429 337Q311 337 310 336Q310 334 293 263T258 122L240 52Q240 48 252 48T333 46Q422 46 429 47Q491 54 543 105T595 229Z"
-                    ></path>
-                  </g>
-                  <g
-                    data-mml-node="TeXAtom"
-                    transform="translate(792,-150) scale(0.707)"
-                    data-mjx-texclass="ORD"
-                  >
-                    <g data-mml-node="msub">
-                      <g data-mml-node="mi">
-                        <path
-                          data-c="1D700"
-                          d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
-                        ></path>
-                      </g>
-                      <g
-                        data-mml-node="TeXAtom"
-                        transform="translate(499,-150) scale(0.707)"
-                        data-mjx-texclass="ORD"
-                      >
-                        <g data-mml-node="mn">
-                          <path
-                            data-c="31"
-                            d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"
-                          ></path>
-                        </g>
-                      </g>
-                    </g>
-                  </g>
-                </g>
-              </g>
-            </g>
+          <g data-mml-node="mi">
+            <path
+              data-c="1D44B"
+              d="M42 0H40Q26 0 26 11Q26 15 29 27Q33 41 36 43T55 46Q141 49 190 98Q200 108 306 224T411 342Q302 620 297 625Q288 636 234 637H206Q200 643 200 645T202 664Q206 677 212 683H226Q260 681 347 681Q380 681 408 681T453 682T473 682Q490 682 490 671Q490 670 488 658Q484 643 481 640T465 637Q434 634 411 620L488 426L541 485Q646 598 646 610Q646 628 622 635Q617 635 609 637Q594 637 594 648Q594 650 596 664Q600 677 606 683H618Q619 683 643 683T697 681T738 680Q828 680 837 683H845Q852 676 852 672Q850 647 840 637H824Q790 636 763 628T722 611T698 593L687 584Q687 585 592 480L505 384Q505 383 536 304T601 142T638 56Q648 47 699 46Q734 46 734 37Q734 35 732 23Q728 7 725 4T711 1Q708 1 678 1T589 2Q528 2 496 2T461 1Q444 1 444 10Q444 11 446 25Q448 35 450 39T455 44T464 46T480 47T506 54Q523 62 523 64Q522 64 476 181L429 299Q241 95 236 84Q232 76 232 72Q232 53 261 47Q262 47 267 47T273 46Q276 46 277 46T280 45T283 42T284 35Q284 26 282 19Q279 6 276 4T261 1Q258 1 243 1T201 2T142 2Q64 2 42 0Z"
+            ></path>
           </g>
-        </g>
-      </g>
-    </svg>
-  </g>
-  <g
-    transform="rotate(0, 406.8150058188442, 246.2036244192519)translate(354.31390652453945, 231.3436244192519)"
-  >
-    <title>`F`.lab2</title>
-    <svg
-      style="font-size: 24p"
-      xmlns="http://www.w3.org/2000/svg"
-      width="105.00219858860947"
-      height="29.72"
-      role="img"
-      focusable="false"
-      viewBox="0 -753 3554.6 1006.1"
-    >
-      <g
-        stroke="none"
-        fill="#801a1a"
-        stroke-width="0"
-        transform="scale(1,-1)"
-        fill-opacity="0.8"
-      >
-        <g data-mml-node="math">
-          <g data-mml-node="mtable">
-            <g data-mml-node="mtr" transform="translate(0,3)">
-              <g data-mml-node="mtd">
-                <g data-mml-node="mi">
-                  <path
-                    data-c="1D44B"
-                    d="M42 0H40Q26 0 26 11Q26 15 29 27Q33 41 36 43T55 46Q141 49 190 98Q200 108 306 224T411 342Q302 620 297 625Q288 636 234 637H206Q200 643 200 645T202 664Q206 677 212 683H226Q260 681 347 681Q380 681 408 681T453 682T473 682Q490 682 490 671Q490 670 488 658Q484 643 481 640T465 637Q434 634 411 620L488 426L541 485Q646 598 646 610Q646 628 622 635Q617 635 609 637Q594 637 594 648Q594 650 596 664Q600 677 606 683H618Q619 683 643 683T697 681T738 680Q828 680 837 683H845Q852 676 852 672Q850 647 840 637H824Q790 636 763 628T722 611T698 593L687 584Q687 585 592 480L505 384Q505 383 536 304T601 142T638 56Q648 47 699 46Q734 46 734 37Q734 35 732 23Q728 7 725 4T711 1Q708 1 678 1T589 2Q528 2 496 2T461 1Q444 1 444 10Q444 11 446 25Q448 35 450 39T455 44T464 46T480 47T506 54Q523 62 523 64Q522 64 476 181L429 299Q241 95 236 84Q232 76 232 72Q232 53 261 47Q262 47 267 47T273 46Q276 46 277 46T280 45T283 42T284 35Q284 26 282 19Q279 6 276 4T261 1Q258 1 243 1T201 2T142 2Q64 2 42 0Z"
-                  ></path>
-                </g>
-                <g data-mml-node="mo" transform="translate(1074.2,0)">
-                  <path
-                    data-c="2295"
-                    d="M56 250Q56 394 156 488T384 583Q530 583 626 485T722 250Q722 110 625 14T390 -83Q249 -83 153 14T56 250ZM364 542Q308 539 251 509T148 418T96 278V270H369V542H364ZM681 278Q675 338 650 386T592 462T522 509T458 535T412 542H409V270H681V278ZM96 222Q104 150 139 95T219 12T302 -29T366 -42H369V230H96V222ZM681 222V230H409V-42H412Q429 -42 456 -36T521 -10T590 37T649 113T681 222Z"
-                  ></path>
-                </g>
-                <g data-mml-node="msub" transform="translate(2074.4,0)">
-                  <g data-mml-node="mi">
-                    <path
-                      data-c="1D435"
-                      d="M231 637Q204 637 199 638T194 649Q194 676 205 682Q206 683 335 683Q594 683 608 681Q671 671 713 636T756 544Q756 480 698 429T565 360L555 357Q619 348 660 311T702 219Q702 146 630 78T453 1Q446 0 242 0Q42 0 39 2Q35 5 35 10Q35 17 37 24Q42 43 47 45Q51 46 62 46H68Q95 46 128 49Q142 52 147 61Q150 65 219 339T288 628Q288 635 231 637ZM649 544Q649 574 634 600T585 634Q578 636 493 637Q473 637 451 637T416 636H403Q388 635 384 626Q382 622 352 506Q352 503 351 500L320 374H401Q482 374 494 376Q554 386 601 434T649 544ZM595 229Q595 273 572 302T512 336Q506 337 429 337Q311 337 310 336Q310 334 293 263T258 122L240 52Q240 48 252 48T333 46Q422 46 429 47Q491 54 543 105T595 229Z"
-                    ></path>
-                  </g>
-                  <g
-                    data-mml-node="TeXAtom"
-                    transform="translate(792,-150) scale(0.707)"
-                    data-mjx-texclass="ORD"
-                  >
-                    <g data-mml-node="msub">
-                      <g data-mml-node="mi">
-                        <path
-                          data-c="1D700"
-                          d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
-                        ></path>
-                      </g>
-                      <g
-                        data-mml-node="TeXAtom"
-                        transform="translate(499,-150) scale(0.707)"
-                        data-mjx-texclass="ORD"
-                      >
-                        <g data-mml-node="mn">
-                          <path
-                            data-c="32"
-                            d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"
-                          ></path>
-                        </g>
-                      </g>
-                    </g>
-                  </g>
-                </g>
-              </g>
-            </g>
+          <g data-mml-node="mo" transform="translate(1074.2,0)">
+            <path
+              data-c="2295"
+              d="M56 250Q56 394 156 488T384 583Q530 583 626 485T722 250Q722 110 625 14T390 -83Q249 -83 153 14T56 250ZM364 542Q308 539 251 509T148 418T96 278V270H369V542H364ZM681 278Q675 338 650 386T592 462T522 509T458 535T412 542H409V270H681V278ZM96 222Q104 150 139 95T219 12T302 -29T366 -42H369V230H96V222ZM681 222V230H409V-42H412Q429 -42 456 -36T521 -10T590 37T649 113T681 222Z"
+            ></path>
           </g>
-        </g>
-      </g>
-    </svg>
-  </g>
-  <g
-    transform="rotate(0, 696.9334831573537, 246.2036244192519)translate(644.7730220424191, 231.27862441925188)"
-  >
-    <title>`F`.lab3</title>
-    <svg
-      style="font-size: 24p"
-      xmlns="http://www.w3.org/2000/svg"
-      width="104.32092222986924"
-      height="29.85"
-      role="img"
-      focusable="false"
-      viewBox="0 -758.5 3554.6 1017.1"
-    >
-      <g
-        stroke="none"
-        fill="#1a1a80"
-        stroke-width="0"
-        transform="scale(1,-1)"
-        fill-opacity="0.8"
-      >
-        <g data-mml-node="math">
-          <g data-mml-node="mtable">
-            <g data-mml-node="mtr" transform="translate(0,8.5)">
-              <g data-mml-node="mtd">
-                <g data-mml-node="mi">
-                  <path
-                    data-c="1D44B"
-                    d="M42 0H40Q26 0 26 11Q26 15 29 27Q33 41 36 43T55 46Q141 49 190 98Q200 108 306 224T411 342Q302 620 297 625Q288 636 234 637H206Q200 643 200 645T202 664Q206 677 212 683H226Q260 681 347 681Q380 681 408 681T453 682T473 682Q490 682 490 671Q490 670 488 658Q484 643 481 640T465 637Q434 634 411 620L488 426L541 485Q646 598 646 610Q646 628 622 635Q617 635 609 637Q594 637 594 648Q594 650 596 664Q600 677 606 683H618Q619 683 643 683T697 681T738 680Q828 680 837 683H845Q852 676 852 672Q850 647 840 637H824Q790 636 763 628T722 611T698 593L687 584Q687 585 592 480L505 384Q505 383 536 304T601 142T638 56Q648 47 699 46Q734 46 734 37Q734 35 732 23Q728 7 725 4T711 1Q708 1 678 1T589 2Q528 2 496 2T461 1Q444 1 444 10Q444 11 446 25Q448 35 450 39T455 44T464 46T480 47T506 54Q523 62 523 64Q522 64 476 181L429 299Q241 95 236 84Q232 76 232 72Q232 53 261 47Q262 47 267 47T273 46Q276 46 277 46T280 45T283 42T284 35Q284 26 282 19Q279 6 276 4T261 1Q258 1 243 1T201 2T142 2Q64 2 42 0Z"
-                  ></path>
-                </g>
-                <g data-mml-node="mo" transform="translate(1074.2,0)">
-                  <path
-                    data-c="2295"
-                    d="M56 250Q56 394 156 488T384 583Q530 583 626 485T722 250Q722 110 625 14T390 -83Q249 -83 153 14T56 250ZM364 542Q308 539 251 509T148 418T96 278V270H369V542H364ZM681 278Q675 338 650 386T592 462T522 509T458 535T412 542H409V270H681V278ZM96 222Q104 150 139 95T219 12T302 -29T366 -42H369V230H96V222ZM681 222V230H409V-42H412Q429 -42 456 -36T521 -10T590 37T649 113T681 222Z"
-                  ></path>
-                </g>
-                <g data-mml-node="msub" transform="translate(2074.4,0)">
-                  <g data-mml-node="mi">
-                    <path
-                      data-c="1D435"
-                      d="M231 637Q204 637 199 638T194 649Q194 676 205 682Q206 683 335 683Q594 683 608 681Q671 671 713 636T756 544Q756 480 698 429T565 360L555 357Q619 348 660 311T702 219Q702 146 630 78T453 1Q446 0 242 0Q42 0 39 2Q35 5 35 10Q35 17 37 24Q42 43 47 45Q51 46 62 46H68Q95 46 128 49Q142 52 147 61Q150 65 219 339T288 628Q288 635 231 637ZM649 544Q649 574 634 600T585 634Q578 636 493 637Q473 637 451 637T416 636H403Q388 635 384 626Q382 622 352 506Q352 503 351 500L320 374H401Q482 374 494 376Q554 386 601 434T649 544ZM595 229Q595 273 572 302T512 336Q506 337 429 337Q311 337 310 336Q310 334 293 263T258 122L240 52Q240 48 252 48T333 46Q422 46 429 47Q491 54 543 105T595 229Z"
-                    ></path>
-                  </g>
-                  <g
-                    data-mml-node="TeXAtom"
-                    transform="translate(792,-150) scale(0.707)"
-                    data-mjx-texclass="ORD"
-                  >
-                    <g data-mml-node="msub">
-                      <g data-mml-node="mi">
-                        <path
-                          data-c="1D700"
-                          d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
-                        ></path>
-                      </g>
-                      <g
-                        data-mml-node="TeXAtom"
-                        transform="translate(499,-150) scale(0.707)"
-                        data-mjx-texclass="ORD"
-                      >
-                        <g data-mml-node="mn">
-                          <path
-                            data-c="33"
-                            d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"
-                          ></path>
-                        </g>
-                      </g>
-                    </g>
-                  </g>
-                </g>
-              </g>
+          <g data-mml-node="msub" transform="translate(2074.4,0)">
+            <g data-mml-node="mi">
+              <path
+                data-c="1D435"
+                d="M231 637Q204 637 199 638T194 649Q194 676 205 682Q206 683 335 683Q594 683 608 681Q671 671 713 636T756 544Q756 480 698 429T565 360L555 357Q619 348 660 311T702 219Q702 146 630 78T453 1Q446 0 242 0Q42 0 39 2Q35 5 35 10Q35 17 37 24Q42 43 47 45Q51 46 62 46H68Q95 46 128 49Q142 52 147 61Q150 65 219 339T288 628Q288 635 231 637ZM649 544Q649 574 634 600T585 634Q578 636 493 637Q473 637 451 637T416 636H403Q388 635 384 626Q382 622 352 506Q352 503 351 500L320 374H401Q482 374 494 376Q554 386 601 434T649 544ZM595 229Q595 273 572 302T512 336Q506 337 429 337Q311 337 310 336Q310 334 293 263T258 122L240 52Q240 48 252 48T333 46Q422 46 429 47Q491 54 543 105T595 229Z"
+              ></path>
             </g>
-          </g>
-        </g>
-      </g>
-    </svg>
-  </g>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="28.833146053307814"
-    cy="647.0284033252813"
-    stroke="none"
-    r="4"
-  >
-    <title>`F`.dot0</title>
-  </circle>
-  <g
-    transform="rotate(0, 8.833146053307814, 647.0284033252813)translate(1.4181460533078143, 632.1984033252812)"
-  >
-    <title>`F`.eps0</title>
-    <svg
-      style="font-size: 24p"
-      xmlns="http://www.w3.org/2000/svg"
-      width="14.83"
-      height="29.66"
-      role="img"
-      focusable="false"
-      viewBox="0 -750 500 1000"
-    >
-      <g
-        stroke="none"
-        fill="#000000"
-        stroke-width="0"
-        transform="scale(1,-1)"
-        fill-opacity="1"
-      >
-        <g data-mml-node="math">
-          <g data-mml-node="mtable">
-            <g data-mml-node="mtr">
-              <g data-mml-node="mtd">
-                <g data-mml-node="mn">
-                  <path
-                    data-c="30"
-                    d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"
-                  ></path>
-                </g>
-              </g>
-            </g>
-          </g>
-        </g>
-      </g>
-    </svg>
-  </g>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="130.90869551563532"
-    cy="647.0284033252813"
-    stroke="none"
-    r="4"
-  >
-    <title>`F`.dot1</title>
-  </circle>
-  <g
-    transform="rotate(0, 791.1668539466922, 647.0284033252813)translate(784.2560739466921, 632.1984033252812)"
-  >
-    <title>`F`.eps</title>
-    <svg
-      style="font-size: 24p"
-      xmlns="http://www.w3.org/2000/svg"
-      width="13.82156"
-      height="29.66"
-      role="img"
-      focusable="false"
-      viewBox="0 -750 466 1000"
-    >
-      <g
-        stroke="none"
-        fill="#000000"
-        stroke-width="0"
-        transform="scale(1,-1)"
-        fill-opacity="1"
-      >
-        <g data-mml-node="math">
-          <g data-mml-node="mtable">
-            <g data-mml-node="mtr">
-              <g data-mml-node="mtd">
+            <g
+              data-mml-node="TeXAtom"
+              transform="translate(792,-150) scale(0.707)"
+              data-mjx-texclass="ORD"
+            >
+              <g data-mml-node="msub">
                 <g data-mml-node="mi">
                   <path
                     data-c="1D700"
                     d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
                   ></path>
                 </g>
-              </g>
-            </g>
-          </g>
-        </g>
-      </g>
-    </svg>
-  </g>
-  <g
-    transform="rotate(0, 150.90869551563532, 667.0284033252813)translate(137.5231375156353, 652.1984033252812)"
-  >
-    <title>`F`.eps1</title>
-    <svg
-      style="font-size: 24p"
-      xmlns="http://www.w3.org/2000/svg"
-      width="26.771116"
-      height="29.66"
-      role="img"
-      focusable="false"
-      viewBox="0 -750 902.6 1000"
-    >
-      <g
-        stroke="none"
-        fill="#1a4d1a"
-        stroke-width="0"
-        transform="scale(1,-1)"
-        fill-opacity="0.8"
-      >
-        <g data-mml-node="math">
-          <g data-mml-node="mtable">
-            <g data-mml-node="mtr">
-              <g data-mml-node="mtd">
-                <g data-mml-node="msub">
-                  <g data-mml-node="mi">
-                    <path
-                      data-c="1D700"
-                      d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
-                    ></path>
-                  </g>
-                  <g
-                    data-mml-node="mn"
-                    transform="translate(499,-150) scale(0.707)"
-                  >
+                <g
+                  data-mml-node="TeXAtom"
+                  transform="translate(499,-150) scale(0.707)"
+                  data-mjx-texclass="ORD"
+                >
+                  <g data-mml-node="mn">
                     <path
                       data-c="31"
                       d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"
@@ -2619,28 +2317,18 @@
       </g>
     </svg>
   </g>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="406.8150058188442"
-    cy="647.0284033252813"
-    stroke="none"
-    r="4"
-  >
-    <title>`F`.dot2</title>
-  </circle>
   <g
-    transform="rotate(0, 426.8150058188442, 667.0284033252813)translate(413.4294478188442, 652.1984033252812)"
+    transform="rotate(0, 403.6229885027345, 281.68692343906343)translate(350.30398850273446, 267.60042343906343)"
   >
-    <title>`F`.eps2</title>
+    <title>`F`.lab2</title>
     <svg
-      style="font-size: 24p"
+      style="font-size: 30px"
       xmlns="http://www.w3.org/2000/svg"
-      width="26.771116"
-      height="29.66"
+      width="106.63799999999999"
+      height="28.173000000000002"
       role="img"
       focusable="false"
-      viewBox="0 -750 902.6 1000"
+      viewBox="0 -683 3554.6 939.1"
     >
       <g
         stroke="none"
@@ -2650,20 +2338,43 @@
         fill-opacity="0.8"
       >
         <g data-mml-node="math">
-          <g data-mml-node="mtable">
-            <g data-mml-node="mtr">
-              <g data-mml-node="mtd">
-                <g data-mml-node="msub">
-                  <g data-mml-node="mi">
-                    <path
-                      data-c="1D700"
-                      d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
-                    ></path>
-                  </g>
-                  <g
-                    data-mml-node="mn"
-                    transform="translate(499,-150) scale(0.707)"
-                  >
+          <g data-mml-node="mi">
+            <path
+              data-c="1D44B"
+              d="M42 0H40Q26 0 26 11Q26 15 29 27Q33 41 36 43T55 46Q141 49 190 98Q200 108 306 224T411 342Q302 620 297 625Q288 636 234 637H206Q200 643 200 645T202 664Q206 677 212 683H226Q260 681 347 681Q380 681 408 681T453 682T473 682Q490 682 490 671Q490 670 488 658Q484 643 481 640T465 637Q434 634 411 620L488 426L541 485Q646 598 646 610Q646 628 622 635Q617 635 609 637Q594 637 594 648Q594 650 596 664Q600 677 606 683H618Q619 683 643 683T697 681T738 680Q828 680 837 683H845Q852 676 852 672Q850 647 840 637H824Q790 636 763 628T722 611T698 593L687 584Q687 585 592 480L505 384Q505 383 536 304T601 142T638 56Q648 47 699 46Q734 46 734 37Q734 35 732 23Q728 7 725 4T711 1Q708 1 678 1T589 2Q528 2 496 2T461 1Q444 1 444 10Q444 11 446 25Q448 35 450 39T455 44T464 46T480 47T506 54Q523 62 523 64Q522 64 476 181L429 299Q241 95 236 84Q232 76 232 72Q232 53 261 47Q262 47 267 47T273 46Q276 46 277 46T280 45T283 42T284 35Q284 26 282 19Q279 6 276 4T261 1Q258 1 243 1T201 2T142 2Q64 2 42 0Z"
+            ></path>
+          </g>
+          <g data-mml-node="mo" transform="translate(1074.2,0)">
+            <path
+              data-c="2295"
+              d="M56 250Q56 394 156 488T384 583Q530 583 626 485T722 250Q722 110 625 14T390 -83Q249 -83 153 14T56 250ZM364 542Q308 539 251 509T148 418T96 278V270H369V542H364ZM681 278Q675 338 650 386T592 462T522 509T458 535T412 542H409V270H681V278ZM96 222Q104 150 139 95T219 12T302 -29T366 -42H369V230H96V222ZM681 222V230H409V-42H412Q429 -42 456 -36T521 -10T590 37T649 113T681 222Z"
+            ></path>
+          </g>
+          <g data-mml-node="msub" transform="translate(2074.4,0)">
+            <g data-mml-node="mi">
+              <path
+                data-c="1D435"
+                d="M231 637Q204 637 199 638T194 649Q194 676 205 682Q206 683 335 683Q594 683 608 681Q671 671 713 636T756 544Q756 480 698 429T565 360L555 357Q619 348 660 311T702 219Q702 146 630 78T453 1Q446 0 242 0Q42 0 39 2Q35 5 35 10Q35 17 37 24Q42 43 47 45Q51 46 62 46H68Q95 46 128 49Q142 52 147 61Q150 65 219 339T288 628Q288 635 231 637ZM649 544Q649 574 634 600T585 634Q578 636 493 637Q473 637 451 637T416 636H403Q388 635 384 626Q382 622 352 506Q352 503 351 500L320 374H401Q482 374 494 376Q554 386 601 434T649 544ZM595 229Q595 273 572 302T512 336Q506 337 429 337Q311 337 310 336Q310 334 293 263T258 122L240 52Q240 48 252 48T333 46Q422 46 429 47Q491 54 543 105T595 229Z"
+              ></path>
+            </g>
+            <g
+              data-mml-node="TeXAtom"
+              transform="translate(792,-150) scale(0.707)"
+              data-mjx-texclass="ORD"
+            >
+              <g data-mml-node="msub">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D700"
+                    d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
+                  ></path>
+                </g>
+                <g
+                  data-mml-node="TeXAtom"
+                  transform="translate(499,-150) scale(0.707)"
+                  data-mjx-texclass="ORD"
+                >
+                  <g data-mml-node="mn">
                     <path
                       data-c="32"
                       d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"
@@ -2677,28 +2388,18 @@
       </g>
     </svg>
   </g>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="696.9334831573537"
-    cy="647.0284033252813"
-    stroke="none"
-    r="4"
-  >
-    <title>`F`.dot3</title>
-  </circle>
   <g
-    transform="rotate(0, 716.9334831573537, 667.0284033252813)translate(703.5479251573538, 652.1984033252812)"
+    transform="rotate(0, 697.143064025306, 281.68692343906343)translate(643.824064025306, 267.4354234390634)"
   >
-    <title>`F`.eps3</title>
+    <title>`F`.lab3</title>
     <svg
-      style="font-size: 24p"
+      style="font-size: 30px"
       xmlns="http://www.w3.org/2000/svg"
-      width="26.771116"
-      height="29.66"
+      width="106.63799999999999"
+      height="28.503"
       role="img"
       focusable="false"
-      viewBox="0 -750 902.6 1000"
+      viewBox="0 -683 3554.6 950.1"
     >
       <g
         stroke="none"
@@ -2708,20 +2409,43 @@
         fill-opacity="0.8"
       >
         <g data-mml-node="math">
-          <g data-mml-node="mtable">
-            <g data-mml-node="mtr">
-              <g data-mml-node="mtd">
-                <g data-mml-node="msub">
-                  <g data-mml-node="mi">
-                    <path
-                      data-c="1D700"
-                      d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
-                    ></path>
-                  </g>
-                  <g
-                    data-mml-node="mn"
-                    transform="translate(499,-150) scale(0.707)"
-                  >
+          <g data-mml-node="mi">
+            <path
+              data-c="1D44B"
+              d="M42 0H40Q26 0 26 11Q26 15 29 27Q33 41 36 43T55 46Q141 49 190 98Q200 108 306 224T411 342Q302 620 297 625Q288 636 234 637H206Q200 643 200 645T202 664Q206 677 212 683H226Q260 681 347 681Q380 681 408 681T453 682T473 682Q490 682 490 671Q490 670 488 658Q484 643 481 640T465 637Q434 634 411 620L488 426L541 485Q646 598 646 610Q646 628 622 635Q617 635 609 637Q594 637 594 648Q594 650 596 664Q600 677 606 683H618Q619 683 643 683T697 681T738 680Q828 680 837 683H845Q852 676 852 672Q850 647 840 637H824Q790 636 763 628T722 611T698 593L687 584Q687 585 592 480L505 384Q505 383 536 304T601 142T638 56Q648 47 699 46Q734 46 734 37Q734 35 732 23Q728 7 725 4T711 1Q708 1 678 1T589 2Q528 2 496 2T461 1Q444 1 444 10Q444 11 446 25Q448 35 450 39T455 44T464 46T480 47T506 54Q523 62 523 64Q522 64 476 181L429 299Q241 95 236 84Q232 76 232 72Q232 53 261 47Q262 47 267 47T273 46Q276 46 277 46T280 45T283 42T284 35Q284 26 282 19Q279 6 276 4T261 1Q258 1 243 1T201 2T142 2Q64 2 42 0Z"
+            ></path>
+          </g>
+          <g data-mml-node="mo" transform="translate(1074.2,0)">
+            <path
+              data-c="2295"
+              d="M56 250Q56 394 156 488T384 583Q530 583 626 485T722 250Q722 110 625 14T390 -83Q249 -83 153 14T56 250ZM364 542Q308 539 251 509T148 418T96 278V270H369V542H364ZM681 278Q675 338 650 386T592 462T522 509T458 535T412 542H409V270H681V278ZM96 222Q104 150 139 95T219 12T302 -29T366 -42H369V230H96V222ZM681 222V230H409V-42H412Q429 -42 456 -36T521 -10T590 37T649 113T681 222Z"
+            ></path>
+          </g>
+          <g data-mml-node="msub" transform="translate(2074.4,0)">
+            <g data-mml-node="mi">
+              <path
+                data-c="1D435"
+                d="M231 637Q204 637 199 638T194 649Q194 676 205 682Q206 683 335 683Q594 683 608 681Q671 671 713 636T756 544Q756 480 698 429T565 360L555 357Q619 348 660 311T702 219Q702 146 630 78T453 1Q446 0 242 0Q42 0 39 2Q35 5 35 10Q35 17 37 24Q42 43 47 45Q51 46 62 46H68Q95 46 128 49Q142 52 147 61Q150 65 219 339T288 628Q288 635 231 637ZM649 544Q649 574 634 600T585 634Q578 636 493 637Q473 637 451 637T416 636H403Q388 635 384 626Q382 622 352 506Q352 503 351 500L320 374H401Q482 374 494 376Q554 386 601 434T649 544ZM595 229Q595 273 572 302T512 336Q506 337 429 337Q311 337 310 336Q310 334 293 263T258 122L240 52Q240 48 252 48T333 46Q422 46 429 47Q491 54 543 105T595 229Z"
+              ></path>
+            </g>
+            <g
+              data-mml-node="TeXAtom"
+              transform="translate(792,-150) scale(0.707)"
+              data-mjx-texclass="ORD"
+            >
+              <g data-mml-node="msub">
+                <g data-mml-node="mi">
+                  <path
+                    data-c="1D700"
+                    d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
+                  ></path>
+                </g>
+                <g
+                  data-mml-node="TeXAtom"
+                  transform="translate(499,-150) scale(0.707)"
+                  data-mjx-texclass="ORD"
+                >
+                  <g data-mml-node="mn">
                     <path
                       data-c="33"
                       d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"
@@ -2729,6 +2453,225 @@
                   </g>
                 </g>
               </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="28.571169968367485"
+    cy="669.2572568259613"
+    stroke="none"
+    r="4"
+  >
+    <title>`F`.dot0</title>
+  </circle>
+  <g
+    transform="rotate(0, 8.571169968367485, 669.2572568259613)translate(1.0711699683674851, 658.9372568259613)"
+  >
+    <title>`F`.eps0</title>
+    <svg
+      style="font-size: 30px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="15"
+      height="20.639999999999997"
+      role="img"
+      focusable="false"
+      viewBox="0 -666 500 688"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mn">
+            <path
+              data-c="30"
+              d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"
+            ></path>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="130.53840300884525"
+    cy="669.2572568259613"
+    stroke="none"
+    r="4"
+  >
+    <title>`F`.dot1</title>
+  </circle>
+  <g
+    transform="rotate(0, 791.4288300316325, 669.2572568259613)translate(784.4388300316325, 662.1472568259613)"
+  >
+    <title>`F`.eps</title>
+    <svg
+      style="font-size: 30px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="13.98"
+      height="14.219999999999999"
+      role="img"
+      focusable="false"
+      viewBox="0 -452 466 474"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D700"
+              d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
+            ></path>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 150.53840300884525, 689.2572568259613)translate(136.99940300884526, 680.2272568259614)"
+  >
+    <title>`F`.eps1</title>
+    <svg
+      style="font-size: 30px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="27.078000000000003"
+      height="18.06"
+      role="img"
+      focusable="false"
+      viewBox="0 -452 902.6 602"
+    >
+      <g
+        stroke="none"
+        fill="#1a4d1a"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="0.8"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="msub">
+            <g data-mml-node="mi">
+              <path
+                data-c="1D700"
+                d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
+              ></path>
+            </g>
+            <g data-mml-node="mn" transform="translate(499,-150) scale(0.707)">
+              <path
+                data-c="31"
+                d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"
+              ></path>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="403.6229885027345"
+    cy="669.2572568259613"
+    stroke="none"
+    r="4"
+  >
+    <title>`F`.dot2</title>
+  </circle>
+  <g
+    transform="rotate(0, 423.6229885027345, 689.2572568259613)translate(410.0839885027345, 680.2272568259614)"
+  >
+    <title>`F`.eps2</title>
+    <svg
+      style="font-size: 30px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="27.078000000000003"
+      height="18.06"
+      role="img"
+      focusable="false"
+      viewBox="0 -452 902.6 602"
+    >
+      <g
+        stroke="none"
+        fill="#801a1a"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="0.8"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="msub">
+            <g data-mml-node="mi">
+              <path
+                data-c="1D700"
+                d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
+              ></path>
+            </g>
+            <g data-mml-node="mn" transform="translate(499,-150) scale(0.707)">
+              <path
+                data-c="32"
+                d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"
+              ></path>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="697.143064025306"
+    cy="669.2572568259613"
+    stroke="none"
+    r="4"
+  >
+    <title>`F`.dot3</title>
+  </circle>
+  <g
+    transform="rotate(0, 717.143064025306, 689.2572568259613)translate(703.604064025306, 679.9932568259613)"
+  >
+    <title>`F`.eps3</title>
+    <svg
+      style="font-size: 30px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="27.078000000000003"
+      height="18.528000000000002"
+      role="img"
+      focusable="false"
+      viewBox="0 -452 902.6 617.6"
+    >
+      <g
+        stroke="none"
+        fill="#1a1a80"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="0.8"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="msub">
+            <g data-mml-node="mi">
+              <path
+                data-c="1D700"
+                d="M190 -22Q124 -22 76 11T27 107Q27 174 97 232L107 239L99 248Q76 273 76 304Q76 364 144 408T290 452H302Q360 452 405 421Q428 405 428 392Q428 381 417 369T391 356Q382 356 371 365T338 383T283 392Q217 392 167 368T116 308Q116 289 133 272Q142 263 145 262T157 264Q188 278 238 278H243Q308 278 308 247Q308 206 223 206Q177 206 142 219L132 212Q68 169 68 112Q68 39 201 39Q253 39 286 49T328 72T345 94T362 105Q376 103 376 88Q376 79 365 62T334 26T275 -8T190 -22Z"
+              ></path>
+            </g>
+            <g data-mml-node="mn" transform="translate(499,-150) scale(0.707)">
+              <path
+                data-c="33"
+                d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"
+              ></path>
             </g>
           </g>
         </g>

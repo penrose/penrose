@@ -16,8 +16,8 @@
   </rect>
   <circle
     fill="none"
-    cx="269.1560635118029"
-    cy="343.92679159343606"
+    cx="295.7651509289036"
+    cy="320.6265456783848"
     stroke="none"
     r="8"
   >
@@ -25,7 +25,7 @@
   </circle>
   <g>
     <path
-      d="M 249.80136916836176 93.17274314606347 L 380.53724099395924 106.92352075102379"
+      d="M 264.262887108263 17.970250813005407 L 348.88306673086714 166.03641592288128"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#000000"
@@ -35,8 +35,8 @@
   </g>
   <circle
     fill="none"
-    cx="251.2775215121078"
-    cy="102.1978056548584"
+    cx="263.0092676546904"
+    cy="9.125315128956032"
     stroke="none"
     r="8"
   >
@@ -44,7 +44,7 @@
   </circle>
   <g>
     <path
-      d="M 380.53724099395924 106.92352075102379 L 137.53586940725302 144.53328510967623"
+      d="M 348.88306673086714 166.03641592288128 L 131.26277120653214 185.8162570970033"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#000000"
@@ -54,8 +54,8 @@
   </g>
   <circle
     fill="none"
-    cx="389.3388296659873"
-    cy="108.5466602422632"
+    cx="357.79443716123933"
+    cy="165.205702716567"
     stroke="none"
     r="8"
   >
@@ -63,7 +63,7 @@
   </circle>
   <g>
     <path
-      d="M 137.53586940725302 144.53328510967623 L 249.80136916836176 93.17274314606347"
+      d="M 131.26277120653214 185.8162570970033 L 264.262887108263 17.970250813005407"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#000000"
@@ -73,8 +73,8 @@
   </g>
   <circle
     fill="none"
-    cx="130.1931913192849"
-    cy="149.65065939980875"
+    cx="123.9328581496702"
+    cy="190.9519050088344"
     stroke="none"
     r="8"
   >
@@ -82,7 +82,7 @@
   </circle>
   <g>
     <path
-      d="M 137.53586940725302 144.53328510967623 L 274.5621615033423 336.81493759756734"
+      d="M 131.26277120653214 185.8162570970033 L 298.4098540689738 312.09361943357624"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#000000"
@@ -92,7 +92,7 @@
   </g>
   <g>
     <path
-      d="M 274.5621615033423 336.81493759756734 L 380.53724099395924 106.92352075102379"
+      d="M 298.4098540689738 312.09361943357624 L 348.88306673086714 166.03641592288128"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#000000"
@@ -103,8 +103,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="380.53724099395924"
-    cy="106.92352075102379"
+    cx="348.88306673086714"
+    cy="166.03641592288128"
     stroke="none"
     r="2.5"
   >
@@ -114,16 +114,16 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 389.3388296659873, 108.5466602422632)"
-    style="font: italic 14px Palatino"
-    x="389.3388296659873"
-    y="114.0466602422632"
-    width="4"
-    height="11"
+    transform="rotate(0, 357.79443716123933, 165.205702716567)"
+    style="font: italic 18px Palatino"
+    x="357.79443716123933"
+    y="172.205702716567"
+    width="5"
+    height="14"
     font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
-    ascent="11"
+    ascent="14"
     descent="0"
     text-anchor="middle"
     visibility=""
@@ -134,8 +134,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="137.53586940725302"
-    cy="144.53328510967623"
+    cx="131.26277120653214"
+    cy="185.8162570970033"
     stroke="none"
     r="2.5"
   >
@@ -145,17 +145,17 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 130.1931913192849, 149.65065939980875)"
-    style="font: italic 14px Palatino"
-    x="130.1931913192849"
-    y="153.65065939980875"
-    width="8"
-    height="14"
+    transform="rotate(0, 123.9328581496702, 190.9519050088344)"
+    style="font: italic 18px Palatino"
+    x="123.9328581496702"
+    y="195.9519050088344"
+    width="10"
+    height="18"
     font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
-    ascent="11"
-    descent="3"
+    ascent="14"
+    descent="4"
     text-anchor="middle"
     visibility=""
   >
@@ -206,7 +206,7 @@
       fill="none"
       stroke-width="2"
       stroke-opacity="1"
-      d="M 279.0569909871515 227.3260221584117 A 35.28423303553195 35.28423303553195 0 1 0 243.77275795161955 227.3260221584117"
+      d="M 285.43283394183993 248.95618361462596 A 26.424725464636627 26.424725464636627 0 1 0 259.0081084772033 248.95618361462596"
       marker-end="url(#`ijk`.orientationArc-endArrowId)"
     ></path>
     <title>`ijk`.orientationArc</title>
@@ -232,15 +232,15 @@
       stroke="none"
       fill="#1b1f8a"
       fill-opacity="0.2"
-      d="M 380.53724099395924 106.92352075102379 L 137.53586940725302 144.53328510967623 L 274.5621615033423 336.81493759756734 Z "
+      d="M 348.88306673086714 166.03641592288128 L 131.26277120653214 185.8162570970033 L 298.4098540689738 312.09361943357624 Z "
     ></path>
     <title>`ijk`.icon</title>
   </g>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="274.5621615033423"
-    cy="336.81493759756734"
+    cx="298.4098540689738"
+    cy="312.09361943357624"
     stroke="none"
     r="2.5"
   >
@@ -250,16 +250,16 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 269.1560635118029, 343.92679159343606)"
-    style="font: italic 14px Palatino"
-    x="269.1560635118029"
-    y="349.42679159343606"
-    width="8"
-    height="11"
+    transform="rotate(0, 295.7651509289036, 320.6265456783848)"
+    style="font: italic 18px Palatino"
+    x="295.7651509289036"
+    y="327.6265456783848"
+    width="10"
+    height="14"
     font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
-    ascent="11"
+    ascent="14"
     descent="0"
     text-anchor="middle"
     visibility=""
@@ -270,8 +270,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="249.80136916836176"
-    cy="93.17274314606347"
+    cx="264.262887108263"
+    cy="17.970250813005407"
     stroke="none"
     r="2.5"
   >
@@ -281,16 +281,16 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 251.2775215121078, 102.1978056548584)"
-    style="font: italic 14px Palatino"
-    x="251.2775215121078"
-    y="107.6978056548584"
-    width="4"
-    height="11"
+    transform="rotate(0, 263.0092676546904, 9.125315128956032)"
+    style="font: italic 18px Palatino"
+    x="263.0092676546904"
+    y="16.125315128956032"
+    width="6"
+    height="14"
     font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
-    ascent="11"
+    ascent="14"
     descent="0"
     text-anchor="middle"
     visibility=""
@@ -342,7 +342,7 @@
       fill="none"
       stroke-width="2"
       stroke-opacity="1"
-      d="M 256.68359399008204 117.1845796480675 A 8.245080636297875 8.245080636297875 0 1 0 248.43851335378417 117.1845796480675"
+      d="M 270.7509598845269 142.3226973443093 A 28.096298924006412 28.096298924006412 0 1 0 242.65466096052046 142.3226973443093"
       marker-start="url(#`jil`.orientationArc-startArrowId)"
     ></path>
     <title>`jil`.orientationArc</title>
@@ -368,7 +368,7 @@
       stroke="none"
       fill="#1b1f8a"
       fill-opacity="0.2"
-      d="M 137.53586940725302 144.53328510967623 L 380.53724099395924 106.92352075102379 L 249.80136916836176 93.17274314606347 Z "
+      d="M 131.26277120653214 185.8162570970033 L 348.88306673086714 166.03641592288128 L 264.262887108263 17.970250813005407 Z "
     ></path>
     <title>`jil`.icon</title>
   </g>

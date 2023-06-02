@@ -16,8 +16,8 @@
   </rect>
   <circle
     fill="none"
-    cx="235.72346591281755"
-    cy="232.63371504464124"
+    cx="235.69491837619975"
+    cy="232.44766016486136"
     stroke="none"
     r="8"
   >
@@ -25,7 +25,7 @@
   </circle>
   <g>
     <path
-      d="M 392.35621459558087 107.7273334651912 L 179.1387666629895 89.52565362510123"
+      d="M 392.1083976826461 108.34046180562514 L 179.1402097203685 89.88227642629936"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#000000"
@@ -35,8 +35,8 @@
   </g>
   <circle
     fill="none"
-    cx="401.27797508697336"
-    cy="107.27282428631553"
+    cx="401.03385047156667"
+    cy="107.96538665021741"
     stroke="none"
     r="8"
   >
@@ -44,8 +44,8 @@
   </circle>
   <circle
     fill="none"
-    cx="179.8975491478059"
-    cy="80.62460660802566"
+    cx="170.94482477827913"
+    cy="86.32699099325339"
     stroke="none"
     r="8"
   >
@@ -72,15 +72,15 @@
       stroke="none"
       fill="#1b1f8a"
       fill-opacity="0.2"
-      d="M 243.7969253191749 228.80962795445168 L 392.35621459558087 107.7273334651912 L 179.1387666629895 89.52565362510123 Z "
+      d="M 243.78409133667745 228.65692545046485 L 392.1083976826461 108.34046180562514 L 179.1402097203685 89.88227642629936 Z "
     ></path>
     <title>`ijk`.icon</title>
   </g>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="262.4320381647022"
-    cy="147.8241173392242"
+    cx="262.35756373201525"
+    cy="148.12627235774926"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
@@ -92,8 +92,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="283.4311074919197"
-    cy="125.76098362091074"
+    cx="283.31108465355913"
+    cy="125.80099536454973"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
@@ -104,7 +104,7 @@
   </circle>
   <g>
     <path
-      d="M 179.1387666629895 89.52565362510123 L 243.7969253191749 228.80962795445168"
+      d="M 179.1402097203685 89.88227642629936 L 243.78409133667745 228.65692545046485"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#000000"
@@ -114,7 +114,7 @@
   </g>
   <g>
     <path
-      d="M 243.7969253191749 228.80962795445168 L 392.35621459558087 107.7273334651912"
+      d="M 243.78409133667745 228.65692545046485 L 392.1083976826461 108.34046180562514"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#000000"
@@ -127,7 +127,7 @@
     fill-opacity="1"
     stroke="none"
     transform="rotate(0, 182.44327867455402, 149.38195621687578)"
-    style="font: italic 14px Palatino"
+    style="font: italic 18px Palatino"
     x="182.44327867455402"
     y="149.38195621687578"
     width="0"
@@ -147,7 +147,7 @@
     fill-opacity="1"
     stroke="none"
     transform="rotate(0, 433.34621343290075, 222.66735316537248)"
-    style="font: italic 14px Palatino"
+    style="font: italic 18px Palatino"
     x="433.34621343290075"
     y="222.66735316537248"
     width="0"
@@ -165,8 +165,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="243.7969253191749"
-    cy="228.80962795445168"
+    cx="243.78409133667745"
+    cy="228.65692545046485"
     stroke="none"
     r="2.5"
   >
@@ -176,16 +176,16 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 235.72346591281755, 232.63371504464124)"
-    style="font: italic 14px Palatino"
-    x="235.72346591281755"
-    y="238.13371504464124"
-    width="4"
-    height="11"
+    transform="rotate(0, 235.69491837619975, 232.44766016486136)"
+    style="font: italic 18px Palatino"
+    x="235.69491837619975"
+    y="239.44766016486136"
+    width="5"
+    height="14"
     font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
-    ascent="11"
+    ascent="14"
     descent="0"
     text-anchor="middle"
     visibility=""
@@ -196,8 +196,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="392.35621459558087"
-    cy="107.7273334651912"
+    cx="392.1083976826461"
+    cy="108.34046180562514"
     stroke="none"
     r="2.5"
   >
@@ -207,17 +207,17 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 401.27797508697336, 107.27282428631553)"
-    style="font: italic 14px Palatino"
-    x="401.27797508697336"
-    y="111.27282428631553"
-    width="8"
-    height="14"
+    transform="rotate(0, 401.03385047156667, 107.96538665021741)"
+    style="font: italic 18px Palatino"
+    x="401.03385047156667"
+    y="112.96538665021741"
+    width="10"
+    height="18"
     font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
-    ascent="11"
-    descent="3"
+    ascent="14"
+    descent="4"
     text-anchor="middle"
     visibility=""
   >
@@ -227,8 +227,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="179.1387666629895"
-    cy="89.52565362510123"
+    cx="179.1402097203685"
+    cy="89.88227642629936"
     stroke="none"
     r="2.5"
   >
@@ -238,16 +238,16 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 179.8975491478059, 80.62460660802566)"
-    style="font: italic 14px Palatino"
-    x="179.8975491478059"
-    y="86.12460660802566"
-    width="8"
-    height="11"
+    transform="rotate(0, 170.94482477827913, 86.32699099325339)"
+    style="font: italic 18px Palatino"
+    x="170.94482477827913"
+    y="93.32699099325339"
+    width="10"
+    height="14"
     font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
-    ascent="11"
+    ascent="14"
     descent="0"
     text-anchor="middle"
     visibility=""
@@ -257,25 +257,25 @@
   </text>
   <circle
     fill="none"
-    cx="283.4311074919197"
-    cy="125.76098362091074"
+    cx="283.31108465355913"
+    cy="125.80099536454973"
     stroke="#000000"
     stroke-opacity="0.2"
     stroke-width="1.5"
     stroke-linecap="butt"
-    r="110.40784163945492"
+    r="110.18949838578749"
   >
     <title>`Ca`.icon</title>
   </circle>
   <circle
     fill="none"
-    cx="262.4320381647022"
-    cy="147.8241173392242"
+    cx="262.35756373201525"
+    cy="148.12627235774926"
     stroke="#000000"
     stroke-opacity="0.2"
     stroke-width="1.5"
     stroke-linecap="butt"
-    r="51.002485630408756"
+    r="50.84085909644159"
   >
     <title>`Cb`.icon</title>
   </circle>
