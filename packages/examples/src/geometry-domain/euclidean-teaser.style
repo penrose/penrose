@@ -27,7 +27,7 @@ const {
     textPadding2 = 25.0
     repelWeight = 0.7 -- TODO: Reverted from 0.0
     repelWeight2 = 0.5
-    fontSize = "22pt"
+    fontSize = "25px"
     containPadding = 50.0
     rayLength = 100.0
     pointRadius = 4.0

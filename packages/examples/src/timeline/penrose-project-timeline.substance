@@ -17,24 +17,10 @@ q4_2024 := MkQuarter(y2024)
 q1_2025 := MkQuarter(y2025)
 q2_2025 := MkQuarter(y2025)
 
-Before(q1_2023, q2_2023)
-Before(q2_2023, q3_2023)
-Before(q3_2023, q4_2023)
-Before(q4_2023, q1_2024)
-Before(q1_2024, q2_2024)
-Before(q2_2024, q3_2024)
-Before(q3_2024, q4_2024)
-Before(q4_2024, q1_2025)
-Before(q1_2025, q2_2025)
-
-First(q1_2023, y2023)
-Last(q4_2023, y2023)
-First(q1_2024, y2024)
-Last(q4_2024, y2024)
-First(q1_2025, y2025)
-Last(q2_2025, y2025)
-
 Category outcome, access, milestone
+
+Before(outcome, access)
+Before(access, milestone)
 
 e1 := MkTask(q1_2023, q2_2023)
 In(e1, outcome)

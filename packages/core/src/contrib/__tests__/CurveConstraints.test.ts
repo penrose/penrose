@@ -1,7 +1,8 @@
-import { Polygon } from "../../shapes/Polygon";
-import { Polyline } from "../../shapes/Polyline";
-import { Shape } from "../../shapes/Shapes";
-import * as ad from "../../types/ad";
+import { describe, expect, it, test } from "vitest";
+import { Polygon } from "../../shapes/Polygon.js";
+import { Polyline } from "../../shapes/Polyline.js";
+import { Shape } from "../../shapes/Shapes.js";
+import * as ad from "../../types/ad.js";
 import {
   centerOfMass,
   constrDictCurves,
@@ -17,9 +18,9 @@ import {
   signedArea,
   totalCurvature,
   turningNumber,
-} from "../CurveConstraints";
-import { extractPoints, isClosed, numOf } from "../Utils";
-import { _polygons, _polylines } from "../__testfixtures__/TestShapes.input";
+} from "../CurveConstraints.js";
+import { extractPoints, isClosed, numOf } from "../Utils.js";
+import { _polygons, _polylines } from "../__testfixtures__/TestShapes.input.js";
 
 describe("key-name equality", () => {
   test("each function's key and name should be equal", () => {
@@ -93,7 +94,7 @@ describe("totalCurvature", () => {
     [_polylines[10], 0],
     [_polygons[10], 0],
   ])("of %p", (shape: Shape<ad.Num>, expected: number) => {
-    const points: [ad.Num, ad.Num][] = extractPoints(shape);
+    const points: ad.Num[][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
     const result = totalCurvature(points, closed);
     expect(numOf(result)).toBeCloseTo(expected, 4);
@@ -107,7 +108,7 @@ describe("elasticEnergy", () => {
     [_polylines[3], 33983],
     [_polygons[4], 124721],
   ])("of %p", (shape: Shape<ad.Num>, expected: number) => {
-    const points: [ad.Num, ad.Num][] = extractPoints(shape);
+    const points: ad.Num[][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
     const result = elasticEnergy(points, closed);
     expect(numOf(result)).toBeCloseTo(expected, 0);
@@ -120,7 +121,7 @@ describe("isoperimetricRatio", () => {
     [_polygons[7], -18],
     [_polygons[8], (14 * 14) / 6],
   ])("of %p", (shape: Shape<ad.Num>, expected: number) => {
-    const points: [ad.Num, ad.Num][] = extractPoints(shape);
+    const points: ad.Num[][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
     const result = isoperimetricRatio(points, closed);
     expect(numOf(result)).toBeCloseTo(expected, 4);
@@ -134,7 +135,7 @@ describe("perimeter", () => {
     [_polygons[8], 1400],
     [_polylines[10], 300],
   ])("of %p", (shape: Shape<ad.Num>, expected: number) => {
-    const points: [ad.Num, ad.Num][] = extractPoints(shape);
+    const points: ad.Num[][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
     const result = perimeter(points, closed);
     expect(numOf(result)).toBeCloseTo(expected, 4);
@@ -147,7 +148,7 @@ describe("turningNumber", () => {
     [_polygons[7], -1],
     [_polygons[8], 2],
   ])("of %p", (shape: Shape<ad.Num>, expected: number) => {
-    const points: [ad.Num, ad.Num][] = extractPoints(shape);
+    const points: ad.Num[][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
     const result = turningNumber(points, closed);
     expect(numOf(result)).toBeCloseTo(expected, 4);
@@ -160,7 +161,7 @@ describe("signedArea", () => {
     [_polygons[7], -200 * 100],
     [_polygons[8], 300 * 200],
   ])("of %p", (shape: Shape<ad.Num>, expected: number) => {
-    const points: [ad.Num, ad.Num][] = extractPoints(shape);
+    const points: ad.Num[][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
     const result = signedArea(points, closed);
     expect(numOf(result)).toBeCloseTo(expected, 4);
@@ -177,14 +178,18 @@ describe("isLocallyConvex", () => {
     [_polylines[8]],
     [_polygons[8]],
   ])("locally convex %p", (shape: Shape<ad.Num>) => {
-    const result = constrDictCurves.isLocallyConvex.body(shape);
+    const points: ad.Num[][] = extractPoints(shape);
+    const closed: boolean = isClosed(shape);
+    const result = constrDictCurves.isLocallyConvex.body(points, closed);
     expect(numOf(result)).toBeLessThanOrEqual(1e-5);
   });
 
   it.each([[_polygons[5]], [_polylines[10]], [_polygons[10]]])(
     "not locally convex %p",
     (shape: Shape<ad.Num>) => {
-      const result = constrDictCurves.isLocallyConvex.body(shape);
+      const points: ad.Num[][] = extractPoints(shape);
+      const closed: boolean = isClosed(shape);
+      const result = constrDictCurves.isLocallyConvex.body(points, closed);
       expect(numOf(result)).toBeGreaterThan(0.01);
     }
   );
@@ -194,7 +199,9 @@ describe("isConvex", () => {
   it.each([[_polygons[0]], [_polygons[2]], [_polygons[6]], [_polygons[7]]])(
     "convex %p",
     (shape: Polygon<ad.Num>) => {
-      const result = constrDictCurves.isConvex.body(shape);
+      const points: ad.Num[][] = extractPoints(shape);
+      const closed: boolean = isClosed(shape);
+      const result = constrDictCurves.isConvex.body(points, closed);
       expect(numOf(result)).toBeLessThanOrEqual(1e-5);
     }
   );
@@ -202,7 +209,9 @@ describe("isConvex", () => {
   it.each([[_polygons[5]], [_polygons[8]]])(
     "non-convex %p",
     (shape: Polygon<ad.Num>) => {
-      const result = constrDictCurves.isConvex.body(shape);
+      const points: ad.Num[][] = extractPoints(shape);
+      const closed: boolean = isClosed(shape);
+      const result = constrDictCurves.isConvex.body(points, closed);
       expect(numOf(result)).toBeGreaterThan(0.01);
     }
   );
@@ -216,7 +225,9 @@ describe("isEquidistant", () => {
     [_polygons[9]],
     [_polylines[10]],
   ])("equidistant %p", (shape: Polyline<ad.Num> | Polygon<ad.Num>) => {
-    const result = constrDictCurves.isEquilateral.body(shape);
+    const points: ad.Num[][] = extractPoints(shape);
+    const closed: boolean = isClosed(shape);
+    const result = constrDictCurves.isEquilateral.body(points, closed);
     expect(numOf(result)).toBeLessThanOrEqual(1e-5);
   });
 
@@ -227,7 +238,9 @@ describe("isEquidistant", () => {
     [_polygons[8]],
     [_polygons[10]],
   ])("non-equidistant %p", (shape: Polyline<ad.Num> | Polygon<ad.Num>) => {
-    const result = constrDictCurves.isEquilateral.body(shape);
+    const points: ad.Num[][] = extractPoints(shape);
+    const closed: boolean = isClosed(shape);
+    const result = constrDictCurves.isEquilateral.body(points, closed);
     expect(numOf(result)).toBeGreaterThan(0.01);
   });
 });
@@ -241,7 +254,9 @@ describe("isEquiangular", () => {
     [_polylines[8]],
     [_polygons[8]],
   ])("equiangular %p", (shape: Polygon<ad.Num> | Polyline<ad.Num>) => {
-    const result = constrDictCurves.isEquiangular.body(shape);
+    const points: ad.Num[][] = extractPoints(shape);
+    const closed: boolean = isClosed(shape);
+    const result = constrDictCurves.isEquiangular.body(points, closed);
     expect(numOf(result)).toBeLessThanOrEqual(1e-5);
   });
 
@@ -253,7 +268,9 @@ describe("isEquiangular", () => {
     [_polylines[9]],
     [_polygons[9]],
   ])("non-equiangular %p", (shape: Polygon<ad.Num> | Polyline<ad.Num>) => {
-    const result = constrDictCurves.isEquiangular.body(shape);
+    const points: ad.Num[][] = extractPoints(shape);
+    const closed: boolean = isClosed(shape);
+    const result = constrDictCurves.isEquiangular.body(points, closed);
     expect(numOf(result)).toBeGreaterThan(0.01);
   });
 });
@@ -269,7 +286,7 @@ describe("pElasticEnergy", () => {
     [_polylines[3], 3, 38283],
     [_polygons[4], 3, 210899],
   ])("of %p", (shape: Shape<ad.Num>, p: number, expected: number) => {
-    const points: [ad.Num, ad.Num][] = extractPoints(shape);
+    const points: ad.Num[][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
     const result = pElasticEnergy(points, closed, p);
     expect(numOf(result)).toBeCloseTo(expected, 0);
@@ -283,7 +300,7 @@ describe("maxCurvature", () => {
     [_polygons[8], 0.01],
     [_polylines[10], 0.01],
   ])("of %p", (shape: Shape<ad.Num>, expected: number) => {
-    const points: [ad.Num, ad.Num][] = extractPoints(shape);
+    const points: ad.Num[][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
     const result = maxCurvature(points, closed);
     expect(numOf(result)).toBeCloseTo(expected, 2);
@@ -301,7 +318,7 @@ describe("lengthK", () => {
     [_polygons[8], 2, 280000],
     [_polylines[10], 2, 30000],
   ])("of %p", (shape: Shape<ad.Num>, k: number, expected: number) => {
-    const points: [ad.Num, ad.Num][] = extractPoints(shape);
+    const points: ad.Num[][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
     const result = lengthK(points, closed, k);
     expect(numOf(result)).toBeCloseTo(expected, 4);
@@ -319,7 +336,7 @@ describe("inflectionEnergy", () => {
     [_polygons[8], 2, 0.0],
     [_polylines[10], 2, 8.0],
   ])("of %p", (shape: Shape<ad.Num>, p: number, expected: number) => {
-    const points: [ad.Num, ad.Num][] = extractPoints(shape);
+    const points: ad.Num[][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
     const result = inflectionEnergy(points, closed, p);
     expect(numOf(result)).toBeCloseTo(expected, 2);

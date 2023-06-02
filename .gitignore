@@ -6,7 +6,6 @@
 *.log
 *#
 *~
-/.vscode/
-/diagrams/
+/target/
 dist/
 node_modules/

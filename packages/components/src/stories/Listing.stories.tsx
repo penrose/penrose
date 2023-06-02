@@ -1,6 +1,6 @@
 import { ComponentMeta, ComponentStory } from "@storybook/react";
-import Listing from "../Listing";
-import { continuousMap, oneSet } from "./PenrosePrograms";
+import Listing from "../Listing.js";
+import { continuousMap, oneSet } from "./PenrosePrograms.js";
 
 // const diagram = await getDiagram();
 

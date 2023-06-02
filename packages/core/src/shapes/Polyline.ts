@@ -1,7 +1,14 @@
-import * as ad from "../types/ad";
-import { Fill, Named, Poly, Scale, ShapeCommon, Stroke } from "../types/shapes";
-import { black, boolV, floatV, noPaint, ptListV, strV } from "../utils/Util";
-import { Canvas, Context } from "./Samplers";
+import * as ad from "../types/ad.js";
+import {
+  Fill,
+  Named,
+  Poly,
+  Scale,
+  ShapeCommon,
+  Stroke,
+} from "../types/shapes.js";
+import { black, boolV, floatV, noPaint, ptListV, strV } from "../utils/Util.js";
+import { Canvas, Context } from "./Samplers.js";
 
 export interface PolylineProps<T>
   extends Named<T>,

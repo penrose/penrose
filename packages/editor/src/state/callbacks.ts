@@ -6,7 +6,6 @@ import {
   stepNextStage,
   stepState,
 } from "@penrose/core";
-import { Meta } from "@penrose/examples/dist";
 import localforage from "localforage";
 import { range } from "lodash";
 import queryString from "query-string";
@@ -20,6 +19,7 @@ import {
   GistMetadata,
   LocalGithubUser,
   Settings,
+  TrioWithPreview,
   Workspace,
   WorkspaceLocation,
   WorkspaceMetadata,
@@ -29,8 +29,8 @@ import {
   localFilesState,
   settingsState,
   workspaceMetadataSelector,
-} from "./atoms";
-import { generateVariation } from "./variation";
+} from "./atoms.js";
+import { generateVariation } from "./variation.js";
 
 const _compileDiagram = async (
   substance: string,
@@ -226,49 +226,52 @@ export const useLoadLocalWorkspace = () =>
   });
 
 export const useLoadExampleWorkspace = () =>
-  useRecoilCallback(({ set, reset, snapshot }) => async (meta: Meta) => {
-    const currentWorkspace = snapshot.getLoadable(
-      currentWorkspaceState
-    ).contents;
-    if (!_confirmDirtyWorkspace(currentWorkspace)) {
-      return;
-    }
-    const id = toast.loading("Loading example...");
-    const { domain, style, substance, variation } = await meta.get();
-    toast.dismiss(id);
-    const styleJoined = style.map(({ contents }) => contents).join("\n");
-    // HACK: we should really use each Style's individual `resolver`
-    const { resolver } = style[0];
-    set(currentWorkspaceState, {
-      metadata: {
-        id: uuid(),
-        name: meta.name!,
-        lastModified: new Date().toISOString(),
-        editorVersion: EDITOR_VERSION,
-        location: {
-          kind: "example",
-          resolver,
-        },
-        forkedFromGist: null,
-      },
-      files: {
-        domain: {
-          contents: domain,
-          name: `.domain`,
-        },
-        style: {
-          contents: styleJoined,
-          name: `.style`,
-        },
-        substance: {
-          contents: substance,
-          name: `.substance`,
-        },
-      },
-    });
-    reset(diagramState);
-    await _compileDiagram(substance, styleJoined, domain, variation, set);
-  });
+  useRecoilCallback(
+    ({ set, reset, snapshot }) =>
+      async (meta: TrioWithPreview) => {
+        const currentWorkspace = snapshot.getLoadable(
+          currentWorkspaceState
+        ).contents;
+        if (!_confirmDirtyWorkspace(currentWorkspace)) {
+          return;
+        }
+        const id = toast.loading("Loading example...");
+        const { domain, style, substance, variation } = await meta.get();
+        toast.dismiss(id);
+        const styleJoined = style.map(({ contents }) => contents).join("\n");
+        // HACK: we should really use each Style's individual `resolver`
+        const { resolver } = style[0];
+        set(currentWorkspaceState, {
+          metadata: {
+            id: uuid(),
+            name: meta.name!,
+            lastModified: new Date().toISOString(),
+            editorVersion: EDITOR_VERSION,
+            location: {
+              kind: "example",
+              resolver,
+            },
+            forkedFromGist: null,
+          },
+          files: {
+            domain: {
+              contents: domain,
+              name: `.domain`,
+            },
+            style: {
+              contents: styleJoined,
+              name: `.style`,
+            },
+            substance: {
+              contents: substance,
+              name: `.substance`,
+            },
+          },
+        });
+        reset(diagramState);
+        await _compileDiagram(substance, styleJoined, domain, variation, set);
+      }
+  );
 
 export const useCheckURL = () =>
   useRecoilCallback(({ set }) => async () => {

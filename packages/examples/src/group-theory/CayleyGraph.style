@@ -40,7 +40,7 @@ forall Element g
    shape g.labelText = Equation {
        string: g.label
        center: g.icon.center
-       fontSize: "0.35px"
+       fontSize: "5px"
        fillColor: colors.darkGray
    }
 }

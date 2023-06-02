@@ -1,4 +1,4 @@
-import { ops } from "../engine/Autodiff";
+import { ops } from "../engine/Autodiff.js";
 import {
   absVal,
   add,
@@ -8,30 +8,38 @@ import {
   lt,
   max,
   maxN,
+  minN,
   mul,
   neg,
+  sqrt,
   squared,
   sub,
-} from "../engine/AutodiffFunctions";
-import * as BBox from "../engine/BBox";
-import { Circle } from "../shapes/Circle";
-import { Ellipse } from "../shapes/Ellipse";
-import { Polygon } from "../shapes/Polygon";
-import { Shape } from "../shapes/Shapes";
-import * as ad from "../types/ad";
-import { circleToImplicitEllipse, ellipseToImplicit } from "./ImplicitShapes";
+} from "../engine/AutodiffFunctions.js";
+import * as BBox from "../engine/BBox.js";
+import { Circle } from "../shapes/Circle.js";
+import { Ellipse } from "../shapes/Ellipse.js";
+import { Group } from "../shapes/Group.js";
+import { Polygon } from "../shapes/Polygon.js";
+import { Shape } from "../shapes/Shapes.js";
+import * as ad from "../types/ad.js";
+import { constrDict } from "./Constraints.js";
+import {
+  circleToImplicitEllipse,
+  ellipseToImplicit,
+} from "./ImplicitShapes.js";
 import {
   containsPolygonPoints,
   overlappingImplicitEllipses,
-} from "./Minkowski";
-import { bboxFromShape, shapeCenter } from "./Queries";
+} from "./Minkowski.js";
+import { bboxFromShape, shapeCenter } from "./Queries.js";
 import {
   Rectlike,
   atDistOutside,
   isLinelike,
   noIntersectCircles,
   pointInBox,
-} from "./Utils";
+  relu,
+} from "./Utils.js";
 
 // -------- Ovelapping helpers
 
@@ -167,6 +175,27 @@ export const containsRectlikeCircle = (
   );
 };
 
+export const containsGroupShape = (
+  s1: Group<ad.Num>,
+  s2: Shape<ad.Num>,
+  padding: ad.Num
+): ad.Num => {
+  const vals = s1.shapes.contents.map((s) =>
+    constrDict.contains.body(s, s2, padding)
+  );
+  if (s1.clipPath.contents.tag === "NoClip") {
+    // If a group does not have a clipping shape, checking whether a group contains a shape is equivalent to checking whether some group member contains the shape.
+    return minN(vals);
+  } else {
+    // Otherwise, then (1) the group members (excluding the clipping shape) contains the other shape, and
+    // (2) the clipping shape contains the other shape.
+    return andConstraint(
+      minN(vals),
+      constrDict.contains.body(s1.clipPath.contents.contents, s2)
+    );
+  }
+};
+
 /**
  * Require that a shape `s1` contains another shape `s2`.
  */
@@ -231,4 +260,9 @@ export const containsCirclePolygon = (
       sub(add(ops.vdist(x, s1.center.contents), padding), s1.r.contents)
     )
   );
+};
+
+export const andConstraint = (...xs: ad.Num[]): ad.Num => {
+  const relusqs = xs.map(relu).map(squared);
+  return sqrt(addN(relusqs));
 };

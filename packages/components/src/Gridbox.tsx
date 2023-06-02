@@ -1,8 +1,8 @@
 import { PenroseState } from "@penrose/core";
 import React, { SVGProps } from "react";
 import styled from "styled-components";
-import Checkbox from "./Checkbox";
-import { Simple, SimpleProps } from "./Simple";
+import Checkbox from "./Checkbox.js";
+import { Simple, SimpleProps } from "./Simple.js";
 
 export type GridboxProps = SimpleProps & {
   header: string;
@@ -154,16 +154,6 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
       variation: props.variation,
     };
   }
-
-  componentDidUpdate(
-    prevProps: Readonly<GridboxProps>,
-    prevState: Readonly<GridboxState>
-  ): void {
-    if (this.props.selected !== prevState.isSelected) {
-      this.setState({ isSelected: this.props.selected ?? false });
-    }
-  }
-
   toggleView = () => {
     this.setState({ showDiagramInfo: !this.state.showDiagramInfo });
   };
@@ -234,9 +224,11 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
             name={`gridbox-${this.props.gridIndex}`}
             interactive={false}
             onFrame={(state: PenroseState) => {
-              this.setState({ currentState: state });
-              if (onStateUpdate) {
-                onStateUpdate(this.props.gridIndex, state);
+              if (stateful) {
+                this.setState({ currentState: state });
+                if (onStateUpdate !== undefined) {
+                  onStateUpdate(this.props.gridIndex, state);
+                }
               }
             }}
           />

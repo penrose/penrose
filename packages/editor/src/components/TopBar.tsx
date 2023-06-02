@@ -5,14 +5,14 @@ import {
   WorkspaceMetadata,
   settingsState,
   workspaceMetadataSelector,
-} from "../state/atoms";
+} from "../state/atoms.js";
 import {
   useCompileDiagram,
   usePublishGist,
   useResampleDiagram,
   useSaveLocally,
-} from "../state/callbacks";
-import BlueButton from "./BlueButton";
+} from "../state/callbacks.js";
+import BlueButton from "./BlueButton.js";
 
 const TitleBox = styled.div`
   padding: 5px 10px;

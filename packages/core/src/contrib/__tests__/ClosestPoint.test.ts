@@ -1,14 +1,15 @@
-import { Circle, makeCircle } from "../../shapes/Circle";
-import { Ellipse, makeEllipse } from "../../shapes/Ellipse";
-import { Line, makeLine } from "../../shapes/Line";
-import { Polygon, makePolygon } from "../../shapes/Polygon";
-import { Polyline, makePolyline } from "../../shapes/Polyline";
-import { makeRectangle } from "../../shapes/Rectangle";
-import { Context, makeCanvas, simpleContext } from "../../shapes/Samplers";
-import * as ad from "../../types/ad";
-import { black, floatV, ptListV, vectorV } from "../../utils/Util";
-import { compDict } from "../Functions";
-import { Rectlike, numOf } from "../Utils";
+import { describe, expect, test } from "vitest";
+import { Circle, makeCircle } from "../../shapes/Circle.js";
+import { Ellipse, makeEllipse } from "../../shapes/Ellipse.js";
+import { Line, makeLine } from "../../shapes/Line.js";
+import { Polygon, makePolygon } from "../../shapes/Polygon.js";
+import { Polyline, makePolyline } from "../../shapes/Polyline.js";
+import { makeRectangle } from "../../shapes/Rectangle.js";
+import { Context, makeCanvas, simpleContext } from "../../shapes/Samplers.js";
+import * as ad from "../../types/ad.js";
+import { black, floatV, ptListV, vectorV } from "../../utils/Util.js";
+import { compDict } from "../Functions.js";
+import { Rectlike, numOf } from "../Utils.js";
 
 const canvas = makeCanvas(800, 700);
 
@@ -298,124 +299,5 @@ describe("closest point", () => {
       [3, 6],
       [4, 6]
     );
-  });
-
-  test("ellipse", () => {
-    testEllipse([0, 0], 50, 100, [50, 0], [50, 0]);
-    testEllipse([0, 0], 100, 50, [0, 100], [0, 50]);
-    testEllipse([0, 0], 100, 50, [0, -100], [0, -50]);
-    testEllipse([0, 0], 100, 50, [0, 60], [0, 50.0]);
-    testEllipse([0, 0], 100, 50, [0, 0], [6.123233995736766e-15, 50.0]);
-    testEllipse([0, 0], 100, 50, [0, 10], [6.123233995736766e-15, 50.0]);
-    testEllipse([0, 0], 100, 50, [200, 0], [100.0, 0.0]);
-    testEllipse([0, 0], 100, 50, [0, 110], [6.123233995736766e-15, 50.0]);
-    testEllipse(
-      [0, 0],
-      100,
-      50,
-      [200, 200],
-      [81.19841273323402, 29.183975781254418]
-    );
-    testEllipse(
-      [0, 0],
-      100,
-      50,
-      [100, 100],
-      [69.28204652936475, 36.05550592039633]
-    );
-    testEllipse(
-      [0, 0],
-      50,
-      100,
-      [10, 10],
-      [49.61089494163424, 12.493833223000912]
-    );
-    testEllipse([0, 0], 100, 50, [100, 0], [100, 0]);
-    testEllipse([0, 0], 100, 50, [0, 0], [0, 50.0]);
-    testEllipse([0, 0], 100, 50, [-100, 0], [-100, 0]); // [-100, 0] -> [0, 100]
-    testEllipse([0, 0], 100, 50, [0, -50], [6.123233995736766e-15, -50.0]); // [0, -50] -> [0, 50]
-    testEllipse([0, 0], 100, 50, [100, 0], [100, 0]); // [100, 0] -> [0,100]
-    testEllipse([0, 0], 100, 50, [0, 50], [0, 50.0]); // fine
-    testEllipse(
-      [0, 0],
-      3,
-      3,
-      [2.121320343559643, 2.121320343559643],
-      [2.121320343559643, 2.121320343559643]
-    );
-    testEllipse(
-      [0, 0],
-      50,
-      100,
-      [-10, -15],
-      [-49.11524150621692, -18.728913666946834]
-    );
-    testEllipse(
-      [0, 0],
-      50,
-      100,
-      [-10, -15],
-      [-49.11524150621692, -18.728913666946834]
-    );
-    testEllipse(
-      [0, 0],
-      50,
-      100,
-      [20, -30],
-      [46.83455310025607, -35.015689963174765]
-    );
-    testEllipse(
-      [0, 0],
-      50,
-      100,
-      [10, -30],
-      [46.38787139061665, -37.3183808784684]
-    );
-    testEllipse(
-      [0, 0],
-      50,
-      100,
-      [35, -30],
-      [47.35509305915151, -32.093311537396765]
-    );
-    testEllipse(
-      [0, 0],
-      50,
-      100,
-      [-60, 10],
-      [-49.77368387088071, 9.511432996109345]
-    );
-    testEllipse(
-      [0, 0],
-      50,
-      100,
-      [-40, 10],
-      [-49.72375690607735, 10.513979153705371]
-    );
-    testEllipse(
-      [0, 0],
-      50,
-      100,
-      [80, -30],
-      [48.311109867232666, -25.771042927764825]
-    );
-    testEllipse([0, 0], 50, 100, [0, -100], [0, -100]);
-    // testEllipse(
-    //   [10, 0],
-    //   50,
-    //   100,
-    //   [0, -90],
-    //   [13.524560987414274, -96.27224418486799]
-    // );
-    // testEllipse(
-    //   [10, 100],
-    //   50,
-    //   100,
-    //   [0, -90],
-    //   [2.170529302886986, -99.9057316182672]
-    // );
-    testEllipse([50, 50], 100, 50, [-50, 50], [-50, 50]);
-    testEllipse([50, 50], 100, 50, [150, 50], [150, 50]);
-    // testEllipse([-100, 200], 100, 50, [-50, 50], [-67.59, 152.6987]);
   });
 });

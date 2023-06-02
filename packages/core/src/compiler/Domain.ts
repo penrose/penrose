@@ -1,9 +1,9 @@
 import im from "immutable";
 import _ from "lodash";
 import nearley from "nearley";
-import domainGrammar from "../parser/DomainParser";
-import { idOf, lastLocation, prettyParseError } from "../parser/ParserUtil";
-import { A, C } from "../types/ast";
+import domainGrammar from "../parser/DomainParser.js";
+import { idOf, lastLocation, prettyParseError } from "../parser/ParserUtil.js";
+import { A, C } from "../types/ast.js";
 import {
   Arg,
   ConstructorDecl,
@@ -16,15 +16,15 @@ import {
   TypeConstructor,
   TypeDecl,
   TypeVar,
-} from "../types/domain";
+} from "../types/domain.js";
 import {
   DomainError,
   ParseError,
   PenroseError,
   TypeNotFound,
   TypeVarNotFound,
-} from "../types/errors";
-import { ApplyConstructor, TypeConsApp } from "../types/substance";
+} from "../types/errors.js";
+import { ApplyConstructor, TypeConsApp } from "../types/substance.js";
 import {
   Result,
   and,
@@ -39,8 +39,8 @@ import {
   symmetricArgLengthMismatch,
   symmetricTypeMismatch,
   typeNotFound,
-} from "../utils/Error";
-import Graph from "../utils/Graph";
+} from "../utils/Error.js";
+import Graph from "../utils/Graph.js";
 
 export const parseDomain = (
   prog: string

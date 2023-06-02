@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Simple } from "./Simple";
+import { Simple } from "./Simple.js";
 
 const Demo = (props: {
   examples: {

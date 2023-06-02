@@ -4,7 +4,7 @@ import { OptStatus } from "@penrose/optimizer";
 import * as _ from "lodash";
 import React from "react";
 import styled from "styled-components";
-import { Gridbox, GridboxProps } from "./Gridbox";
+import { Gridbox, GridboxProps } from "./Gridbox.js";
 
 type DiagramSource = {
   style: string;

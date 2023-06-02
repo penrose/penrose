@@ -1,18 +1,18 @@
 // Utils that are unrelated to the engine, but autodiff/opt/etc only
 
-import { Circle } from "../shapes/Circle";
-import { Ellipse } from "../shapes/Ellipse";
-import { Equation } from "../shapes/Equation";
-import { Group } from "../shapes/Group";
-import { Image } from "../shapes/Image";
-import { Line } from "../shapes/Line";
-import { Path as PathShape } from "../shapes/Path";
-import { Polygon } from "../shapes/Polygon";
-import { Polyline } from "../shapes/Polyline";
-import { Rectangle } from "../shapes/Rectangle";
-import { Shape } from "../shapes/Shapes";
-import { Text } from "../shapes/Text";
-import * as ad from "../types/ad";
+import { Circle } from "../shapes/Circle.js";
+import { Ellipse } from "../shapes/Ellipse.js";
+import { Equation } from "../shapes/Equation.js";
+import { Group } from "../shapes/Group.js";
+import { Image } from "../shapes/Image.js";
+import { Line } from "../shapes/Line.js";
+import { Path as PathShape } from "../shapes/Path.js";
+import { Polygon } from "../shapes/Polygon.js";
+import { Polyline } from "../shapes/Polyline.js";
+import { Rectangle } from "../shapes/Rectangle.js";
+import { Shape } from "../shapes/Shapes.js";
+import { Text } from "../shapes/Text.js";
+import * as ad from "../types/ad.js";
 import {
   A,
   ASTNode,
@@ -20,8 +20,8 @@ import {
   Identifier,
   NodeType,
   SourceLoc,
-} from "../types/ast";
-import { StyleError } from "../types/errors";
+} from "../types/ast.js";
+import { StyleError } from "../types/errors.js";
 import {
   Arrow,
   CanPassthrough,
@@ -35,10 +35,12 @@ import {
   Scale,
   String as StringProps,
   Stroke,
-} from "../types/shapes";
-import { ShapeFn } from "../types/state";
-import { Expr, Path } from "../types/style";
+} from "../types/shapes.js";
+import { ShapeFn } from "../types/state.js";
+import { Expr, Path } from "../types/style.js";
 import {
+  ClipData,
+  ClipDataV,
   Color,
   ColorV,
   FloatV,
@@ -53,9 +55,9 @@ import {
   TupV,
   Value,
   VectorV,
-} from "../types/value";
-import { safe } from "../utils/Util";
-import { genCode, secondaryGraph } from "./Autodiff";
+} from "../types/value.js";
+import { safe } from "../utils/Util.js";
+import { genCode, secondaryGraph } from "./Autodiff.js";
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?
 
@@ -215,6 +217,25 @@ function mapShapeList<T, S>(f: (arg: T) => S, v: ShapeListV<T>): ShapeListV<S> {
   };
 }
 
+function mapClipData<T, S>(f: (arg: T) => S, v: ClipDataV<T>): ClipDataV<S> {
+  return {
+    tag: "ClipDataV",
+    contents: mapClipDataInner(f, v.contents),
+  };
+}
+
+function mapClipDataInner<T, S>(f: (arg: T) => S, v: ClipData<T>): ClipData<S> {
+  if (v.tag === "NoClip") {
+    return { tag: "NoClip" };
+  } else {
+    const mapped = mapShape(f, v.contents);
+    if (mapped.shapeType === "Group") {
+      throw new Error("Got a Group shape in mapClipDataInner");
+    }
+    return { tag: "Clip", contents: mapped };
+  }
+}
+
 const mapCircle = <T, S>(f: (arg: T) => S, v: Circle<T>): Circle<S> => {
   return {
     ...v,
@@ -249,6 +270,8 @@ const mapEquation = <T, S>(f: (arg: T) => S, v: Equation<T>): Equation<S> => {
     ...mapRect(f, v),
     ...mapRotate(f, v),
     ...mapString(f, v),
+    ascent: mapFloat(f, v.ascent),
+    descent: mapFloat(f, v.descent),
     passthrough: mapPassthrough(f, v.passthrough),
   };
 };
@@ -258,6 +281,7 @@ const mapGroup = <T, S>(f: (arg: T) => S, v: Group<T>): Group<S> => {
     ...v,
     ...mapNamed(f, v),
     shapes: mapShapeList(f, v.shapes),
+    clipPath: mapClipData(f, v.clipPath),
     passthrough: mapPassthrough(f, v.passthrough),
   };
 };
@@ -456,6 +480,8 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
       return mapPathData(f, v);
     case "ShapeListV":
       return mapShapeList(f, v);
+    case "ClipDataV":
+      return mapClipData(f, v);
     // non-numeric Value types
     case "BoolV":
     case "StrV":

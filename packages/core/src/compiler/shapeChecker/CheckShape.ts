@@ -1,20 +1,20 @@
 import { Result } from "true-myth";
-import { dummyIdentifier } from "../../engine/EngineUtils";
-import { Circle } from "../../shapes/Circle";
-import { Ellipse } from "../../shapes/Ellipse";
-import { Equation } from "../../shapes/Equation";
-import { Group } from "../../shapes/Group";
-import { Image } from "../../shapes/Image";
-import { Line } from "../../shapes/Line";
-import { Path } from "../../shapes/Path";
-import { Polygon } from "../../shapes/Polygon";
-import { Polyline } from "../../shapes/Polyline";
-import { Rectangle } from "../../shapes/Rectangle";
-import { Shape, ShapeType } from "../../shapes/Shapes";
-import { Text } from "../../shapes/Text";
-import * as ad from "../../types/ad";
-import { StyleError } from "../../types/errors";
-import { Translation } from "../../types/styleSemantics";
+import { dummyIdentifier } from "../../engine/EngineUtils.js";
+import { Circle } from "../../shapes/Circle.js";
+import { Ellipse } from "../../shapes/Ellipse.js";
+import { Equation } from "../../shapes/Equation.js";
+import { Group } from "../../shapes/Group.js";
+import { Image } from "../../shapes/Image.js";
+import { Line } from "../../shapes/Line.js";
+import { Path } from "../../shapes/Path.js";
+import { Polygon } from "../../shapes/Polygon.js";
+import { Polyline } from "../../shapes/Polyline.js";
+import { Rectangle } from "../../shapes/Rectangle.js";
+import { Shape, ShapeType } from "../../shapes/Shapes.js";
+import { Text } from "../../shapes/Text.js";
+import * as ad from "../../types/ad.js";
+import { StyleError } from "../../types/errors.js";
+import { Translation } from "../../types/styleSemantics.js";
 import {
   checkArrow,
   checkCenter,
@@ -28,14 +28,15 @@ import {
   checkScale,
   checkString,
   checkStroke,
-} from "./CheckShapeHierarchyProps";
+} from "./CheckShapeHierarchyProps.js";
 import {
+  checkClipDataV,
   checkFloatV,
   checkPathDataV,
   checkShapeListV,
   checkStrV,
   checkVectorV,
-} from "./CheckValues";
+} from "./CheckValues.js";
 
 const { err, ok } = Result;
 
@@ -161,6 +162,12 @@ export const checkEquation = (
   const string = checkString(path, trans);
   if (string.isErr()) return err(string.error);
 
+  const ascent = checkProp(path, "ascent", trans, checkFloatV);
+  if (ascent.isErr()) return err(ascent.error);
+
+  const descent = checkProp(path, "descent", trans, checkFloatV);
+  if (descent.isErr()) return err(descent.error);
+
   return ok({
     ...named.value,
     ...fill.value,
@@ -168,6 +175,8 @@ export const checkEquation = (
     ...rect.value,
     ...rotate.value,
     ...string.value,
+    ascent: ascent.value,
+    descent: descent.value,
     passthrough: new Map(),
     shapeType: "Equation",
   });
@@ -183,9 +192,13 @@ export const checkGroup = (
   const shapes = checkProp(path, "shapes", trans, checkShapeListV);
   if (shapes.isErr()) return err(shapes.error);
 
+  const clipPath = checkProp(path, "clipPath", trans, checkClipDataV);
+  if (clipPath.isErr()) return err(clipPath.error);
+
   return ok({
     ...named.value,
     shapes: shapes.value,
+    clipPath: clipPath.value,
     passthrough: new Map(),
     shapeType: "Group",
   });

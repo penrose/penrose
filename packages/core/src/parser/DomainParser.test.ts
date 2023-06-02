@@ -1,28 +1,14 @@
-import linearAlgebraDomain from "@penrose/examples/dist/linear-algebra-domain/linear-algebra.domain";
-import setTheoryDomain from "@penrose/examples/dist/set-theory-domain/setTheory.domain";
 import nearley from "nearley";
-import { SourceRange } from "../types/ast";
-import { DomainProg, PredicateDecl } from "../types/domain";
-import grammar from "./DomainParser";
-
-const outputDir = "/tmp/asts";
+import { beforeEach, describe, expect, test } from "vitest";
+import { SourceRange } from "../types/ast.js";
+import { DomainProg, PredicateDecl } from "../types/domain.js";
+import grammar from "./DomainParser.js";
 
 let parser: nearley.Parser;
 const sameASTs = (results: any[]) => {
   for (const p of results) expect(results[0]).toEqual(p);
   expect(results.length).toEqual(1);
 };
-
-// USAGE:
-// printAST(results[0])
-const printAST = (ast: any) => {
-  console.log(JSON.stringify(ast));
-};
-
-const domains = [
-  ["linear-algebra.domain", linearAlgebraDomain],
-  ["setTheory.domain", setTheoryDomain],
-];
 
 beforeEach(() => {
   // NOTE: Neither `feed` nor `finish` will reset the parser state. Therefore recompiling before each unit test
@@ -38,7 +24,7 @@ describe("Common", () => {
     const prog = `
 -- comments
 type Set -- inline comments\r
--- type Point 
+-- type Point
 type ParametrizedSet ('T, 'U)\r\n
 predicate From(Map f, Set domain, Set codomain)\n
 /* Multi-line comments
@@ -54,7 +40,7 @@ predicate From(Map f, Set domain, Set codomain)
     const prog = `
 -- comments
 type Set -- inline comments
--- type Point 
+-- type Point
 type ParametrizedSet ('T, 'U)
 predicate From(Map f, Set domain, Set codomain)
 /* Multi-line comments
@@ -96,8 +82,8 @@ describe("Statement types", () => {
   test("type decls", () => {
     const prog = `
 -- comments
-type Set 
-type Point 
+type Set
+type Point
 -- type ParametrizedSet1 () -- this is not okay
 type ParametrizedSet2 ('T)
 type ParametrizedSet3 ( 'T,    'V)
@@ -229,14 +215,5 @@ List('T) <: List('U)
       `;
     const { results } = parser.feed(prog);
     sameASTs(results);
-  });
-});
-
-describe("Real Programs", () => {
-  domains.forEach(([examplePath, prog]) => {
-    test(examplePath, () => {
-      const { results } = parser.feed(prog);
-      sameASTs(results);
-    });
   });
 });

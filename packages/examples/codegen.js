@@ -21,12 +21,12 @@ const codegen = (dir) => {
         fs.writeFileSync(
           path.join(srcDir, `${path.basename(child, ".json")}.ts`),
           [
-            `import substance from "${trio.substance}";`,
+            `import substance from "${trio.substance}.js";`,
             ...trio.style.map(
               (style, i) =>
-                `import style${i}, { resolver as resolver${i} } from "${style}";`
+                `import style${i}, { resolver as resolver${i} } from "${style}.js";`
             ),
-            `import domain from "${trio.domain}";`,
+            `import domain from "${trio.domain}.js";`,
             "export default {",
             "  substance,",
             "  style: [",
@@ -48,7 +48,7 @@ const codegen = (dir) => {
             `import { makeResolver } from "${dir
               .split(path.sep)
               .map(() => "..")
-              .join("/")}/resolver";`,
+              .join("/")}/resolver.js";`,
             `export const resolver = makeResolver(${JSON.stringify(dir)});`,
             `export default ${JSON.stringify(contents)};`,
             "",
@@ -74,30 +74,40 @@ codegen("");
 
 const registry = JSON.parse(fs.readFileSync(`${src}/registry.json`, "utf8"));
 const lines = [
-  'import { Meta, Trio } from ".";',
+  'import { Meta, Trio } from "./index.js";',
   "",
   "const trio = async (x: Promise<{ default: Trio }>): Promise<Trio> =>",
   "  (await x).default;",
   "",
-  "export const registry = new Map<string, Meta>([",
+  "const entries: [string, Meta][] = [",
 ];
 for (const [k, v] of Object.entries(registry)) {
   lines.push(`  [${JSON.stringify(k)}, {`);
-  lines.push(
-    `    get: () => trio(import(${JSON.stringify(`./${k}.trio.js`)})),`
-  );
+  const isTrio = v.trio ?? true;
+  lines.push(`    trio: ${isTrio},`);
+  if (isTrio) {
+    lines.push(
+      `    get: () => trio(import(${JSON.stringify(`./${k}.trio.js`)})),`
+    );
+    if ("gallery" in v) lines.push(`    gallery: ${v.gallery},`);
+  } else {
+    lines.push(
+      `    f: (await import(${JSON.stringify(`./${k}.js`)})).default,`
+    );
+  }
   if ("name" in v) lines.push(`    name: ${JSON.stringify(v.name)},`);
-  if ("gallery" in v) lines.push(`    gallery: ${v.gallery},`);
   lines.push(`  }],`);
 }
-lines.push("]);");
+lines.push("];");
+lines.push("");
+lines.push("export default new Map<string, Meta>(entries);");
 lines.push("");
 fs.writeFileSync(`${src}/registry.ts`, lines.join("\n"));
 
 fs.writeFileSync(
   `${src}/resolver.ts`,
   [
-    'import { PathResolver, join } from ".";',
+    'import { PathResolver, join } from "./index.js";',
     "",
     "export const makeResolver = (dir: string): PathResolver => async (path: string): Promise<string | undefined> => {",
     "  switch (join(dir, path)) {",

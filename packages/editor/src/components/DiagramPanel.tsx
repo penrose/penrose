@@ -12,6 +12,7 @@ import toast from "react-hot-toast";
 import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
 import { v4 as uuid } from "uuid";
 import {
+  Diagram,
   DiagramMetadata,
   ProgramFile,
   RogerState,
@@ -21,8 +22,8 @@ import {
   diagramState,
   fileContentsSelector,
   workspaceMetadataSelector,
-} from "../state/atoms";
-import BlueButton from "./BlueButton";
+} from "../state/atoms.js";
+import BlueButton from "./BlueButton.js";
 
 /**
  * Fetch url, but try local storage first using a name.
@@ -300,8 +301,6 @@ export default function DiagramPanel() {
               (path) => pathResolver(path, rogerState, workspace),
               "diagramPanel"
             );
-        rendered.setAttribute("width", "100%");
-        rendered.setAttribute("height", "100%");
         if (cur.firstElementChild) {
           cur.replaceChild(rendered, cur.firstElementChild);
         } else {
@@ -344,6 +343,41 @@ export default function DiagramPanel() {
     if (canvasRef.current !== null) {
       const svg = canvasRef.current.firstElementChild as SVGSVGElement;
       if (svg !== null) {
+        const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+          .contents as WorkspaceMetadata;
+        const diagram = snapshot.getLoadable(diagramMetadataSelector)
+          .contents as DiagramMetadata;
+        const domain = snapshot.getLoadable(fileContentsSelector("domain"))
+          .contents as ProgramFile;
+        const substance = snapshot.getLoadable(
+          fileContentsSelector("substance")
+        ).contents as ProgramFile;
+        const style = snapshot.getLoadable(fileContentsSelector("style"))
+          .contents as ProgramFile;
+        DownloadSVG(
+          svg,
+          metadata.name,
+          domain.contents,
+          substance.contents,
+          style.contents,
+          metadata.editorVersion.toString(),
+          diagram.variation
+        );
+      }
+    }
+  });
+
+  // download an svg with raw TeX labels
+  const downloadSvgTex = useRecoilCallback(({ snapshot }) => async () => {
+    if (canvasRef.current !== null) {
+      const { state } = snapshot.getLoadable(diagramState).contents as Diagram;
+      if (state !== null) {
+        const svg = await RenderStatic(
+          state,
+          (path) => pathResolver(path, rogerState, workspace),
+          "diagramPanel",
+          true
+        );
         const metadata = snapshot.getLoadable(workspaceMetadataSelector)
           .contents as WorkspaceMetadata;
         const diagram = snapshot.getLoadable(diagramMetadataSelector)
@@ -433,6 +467,7 @@ export default function DiagramPanel() {
         {state && (
           <div style={{ display: "flex" }}>
             <BlueButton onClick={downloadSvg}>SVG</BlueButton>
+            <BlueButton onClick={downloadSvgTex}>SVG (TeX)</BlueButton>
             <BlueButton onClick={downloadPng}>PNG</BlueButton>
             <BlueButton onClick={downloadPdf}>PDF</BlueButton>
           </div>

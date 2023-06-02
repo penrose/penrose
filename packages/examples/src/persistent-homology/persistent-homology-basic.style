@@ -8,13 +8,14 @@ forall Frames f {
   f.r1 = ?
   f.r2 = ?
   f.r3 = ?
-  ensure lessThan(200, f.d)
-  ensure lessThan(f.d, 400)
-  ensure lessThan(3, f.r1)
-  ensure lessThan(f.r1, f.r2)
-  ensure lessThan(10, f.r2)
-  ensure lessThan(f.r2, f.r3)
-  ensure lessThan(30, f.r3)
+
+  ensure 200 < f.d
+  ensure f.d < 400
+  ensure 3 < f.r1
+  ensure f.r1 < f.r2
+  ensure 10 < f.r2
+  ensure f.r2 < f.r3
+  ensure 30 < f.r3
 }
 
 forall Point p {
@@ -62,14 +63,14 @@ forall Point p {
 }
 
 forall Point p; Frames f {
-  ensure equal(p.d, f.d)
-  ensure equal(p.r1, f.r1)
-  ensure equal(p.r2, f.r2)
-  ensure equal(p.r3, f.r3)
+  ensure p.d == f.d
+  ensure p.r1 == f.r1
+  ensure p.r2 == f.r2
+  ensure p.r3 == f.r3
 }
 
 forall Point p1; Point p2 {
-  ensure lessThan(abs(p1.x - p2.x) + 150.0, p1.d)
+  ensure abs(p1.x - p2.x) + 150.0 < p1.d
 }
 
 forall Point p1; Point p2 

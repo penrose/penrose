@@ -1,4 +1,4 @@
-import { isKeyOf } from "../utils/Util";
+import { isKeyOf } from "../utils/Util.js";
 
 // Refactored version of `makeIdsUnique` in https://github.com/iconfu/svg-inject/blob/064ac002930deaf96eefb95eaf953c5ef5287992/src/svg-inject.js
 // MIT License
@@ -25,6 +25,14 @@ import { isKeyOf } from "../utils/Util";
 
 let uniqueIdCounter = 1;
 
+/**
+ * Make all the IDs and references to them unique in an SVG element.
+ * NOTE: this function mutates the SVG element
+ * NOTE: this function doesn't behave well on a single SVG node (e.g. `<g>`). Therefore, we use this function for opaque imports (e.g. `Image`) and generally favor namespaces for id-uniqueness.
+ * @param svgElem an SVG element
+ * @param onlyReferenced only transform IDs that are referenced in the element
+ * @returns whether the SVG element is changed
+ */
 export const makeIdsUnique = (
   svgElem: Element,
   onlyReferenced: boolean

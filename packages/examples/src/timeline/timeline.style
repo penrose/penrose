@@ -17,9 +17,9 @@ colors {
 global {
     --- parameters that user may want to tweek
     taskHeight = 35
-    taskLabelFontSize = "14pt"
+    taskLabelFontSize = "18px"
     taskFontStyle = "italic"
-    periodFontSize = "16pt"
+    periodFontSize = "20px"
     periodFontStyle = "bold"
 
     fontFamily = "Garamond"
@@ -54,6 +54,13 @@ global {
         strokeColor: colors.gray
     }
 
+}
+
+forall Category c {
+    -- compute an HSVA color: H is based on the category index with a random phase shift of [0, 100] degrees. S=30, H=100, and A=100%.
+    phaseShift = unitRandom() * 50 
+    hue = 360 / match_total * match_id + phaseShift
+    c.fillColor = hsva(hue, 30, 100, 1)
 }
 
 forall Year y {
@@ -116,28 +123,17 @@ forall Quarter q {
         strokeWidth : global.gridLineWeight
         strokeColor: colors.gray
     }
-    layer q.slotEnd above q.slotBegin
     layer q.slotEnd below global.baseline
     layer q.slotBegin below global.baseline
 }
 
-forall Quarter q1; Quarter q2
-where Before(q1, q2) {
-    layer q2.slotBegin above q1.slotEnd
-}
 
-forall Quarter q
-where First(q,y)
-with Year y {
-    y.minX = q.startSlotX
+collect Quarter q into qs
+where q := MkQuarter(y)
+foreach Year y {
+    override y.minX = minList(listof startSlotX from qs)
+    override y.maxX = maxList(listof   endSlotX from qs)
 }
-
-forall Quarter q
-where Last(q,y)
-with Year y {
-    y.maxX = q.endSlotX
-}
-
 
 forall Task e
 where e := MkTask(start, end)
@@ -167,49 +163,42 @@ with Quarter start; Quarter end;{
     ensure lessThan(topBox, topWithPadding)
     bottomWithPadding = global.bottomGridY + global.taskPadding
     ensure greaterThan(bottomBox, bottomWithPadding)
-    layer e.icon above end.slotEnd
+    layer e.icon above global.baseline
     layer e.text above e.icon
 }
 
+forall Task e 
+where In(e, c)
+with Category c {
+   e.icon.fillColor = c.fillColor
+}
+
+forall Task e1; Task e2
+where In(e1, c1); In(e2, c2); Before(c2, c1)
+with Category c1, c2
+{
+  ensure e1.centerY > (e2.centerY + global.taskPadding + global.taskHeight) in [sort,disjoint]
+}
+
+forall Task e1, e2 {
+    ensure disjoint(e1.icon, e2.icon, global.taskPadding) in disjoint
+}
+
+-- `penrose-project-timeline` styling
 forall Task e
 where In(e, `access`)
 with Category `access` {
-   e.icon.fillColor = colors.green
+   override e.icon.fillColor = colors.green
 }
 
 forall Task e
 where In (e, `milestone`)
 with  Category `milestone` {
-   e.icon.fillColor = colors.blue
+   override e.icon.fillColor = colors.blue
 }
 
 forall Task e
 where In(e, `outcome`)
 with Category `outcome` {
-   e.icon.fillColor = colors.purple
-}
-
-forall Task e1; Task e2
-where In(e1, `outcome`); In(e2, `access`)
-with Category `outcome`; Category `access`
-{
-  ensure e1.centerY > (e2.centerY + global.taskPadding + global.taskHeight) in [sort,disjoint]
-}
-
-forall Task e1; Task e2;
-where In(e1, `access`); In(e2, `milestone`)
-with Category `access`; Category `milestone`
-{
-  ensure e1.centerY >  (e2.centerY + global.taskPadding + global.taskHeight) in [sort,disjoint]
-}
-
-forall Task e1; Task e2;
-where In(e1, `outcome`); In(e2, `milestone`)
-with Category `outcome`; Category `milestone`
-{
-  ensure e1.centerY >  (e2.centerY + global.taskPadding + global.taskHeight) in [sort,disjoint]
-}
-
-forall Task e1, e2 {
-    ensure disjoint(e1.icon, e2.icon, global.taskPadding) in disjoint
+   override e.icon.fillColor = colors.purple
 }

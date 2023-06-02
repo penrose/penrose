@@ -1,4 +1,4 @@
-import { ops } from "../engine/Autodiff";
+import { ops } from "../engine/Autodiff.js";
 import {
   absVal,
   add,
@@ -10,28 +10,29 @@ import {
   neg,
   squared,
   sub,
-} from "../engine/AutodiffFunctions";
-import * as BBox from "../engine/BBox";
-import { Line } from "../shapes/Line";
-import { Shape } from "../shapes/Shapes";
-import * as ad from "../types/ad";
-import { ConstrFunc } from "../types/functions";
-import { real2T, realNT, realT, shapeT } from "../utils/Util";
+} from "../engine/AutodiffFunctions.js";
+import * as BBox from "../engine/BBox.js";
+import { Line } from "../shapes/Line.js";
+import { Shape } from "../shapes/Shapes.js";
+import * as ad from "../types/ad.js";
+import { ConstrFunc } from "../types/functions.js";
+import { real2T, realNT, realT, shapeT } from "../utils/Util.js";
 import {
   atDistLabel,
   containsAABBs,
   containsCirclePolygon,
   containsCircleRectlike,
   containsCircles,
+  containsGroupShape,
   containsPolygonCircle,
   containsPolygonPolygon,
   containsRectlikeCircle,
   overlappingCircleEllipse,
   overlappingEllipse,
-} from "./ConstraintsUtils";
-import { constrDictCurves } from "./CurveConstraints";
-import { bboxFromShape, shapeDistance, shapeSize } from "./Queries";
-import { inRange, isRectlike, overlap1D } from "./Utils";
+} from "./ConstraintsUtils.js";
+import { constrDictCurves } from "./CurveConstraints.js";
+import { bboxFromShape, shapeDistance, shapeSize } from "./Queries.js";
+import { inRange, isRectlike, overlap1D } from "./Utils.js";
 
 // -------- Simple constraints
 // Do not require shape queries, operate directly with `ad.Num` parameters.
@@ -393,7 +394,7 @@ const constrDictGeneral = {
       { name: "s2", description: "Shape 2", type: shapeT("AnyShape") },
       { name: "padding", description: "Padding", type: realT(), default: 0 },
     ],
-    body: (s1: Shape<ad.Num>, s2: Shape<ad.Num>, padding = 0.0) => {
+    body: (s1: Shape<ad.Num>, s2: Shape<ad.Num>, padding: ad.Num = 0.0) => {
       const t1 = s1.shapeType,
         t2 = s2.shapeType;
       if (t1 === "Circle" && t2 === "Circle")
@@ -408,7 +409,9 @@ const constrDictGeneral = {
         return containsCircleRectlike(s1, s2, padding);
       else if (isRectlike(s1) && t2 === "Circle")
         return containsRectlikeCircle(s1, s2, padding);
-      else return containsAABBs(s1, s2, padding);
+      else if (t1 === "Group") {
+        return containsGroupShape(s1, s2, padding);
+      } else return containsAABBs(s1, s2, padding);
     },
   },
 

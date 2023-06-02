@@ -7,7 +7,6 @@
   - [Windows WSL](#windows-wsl)
   - [Linux](#linux)
 - [Setup](#setup)
-- [Editor](#editor)
 - [Development](#development)
   - [Run](#run)
   - [Production build](#production-build)
@@ -36,7 +35,9 @@ Be sure you have these tools installed:
 
 - [Git][]
 
-- [Node.js][] v16+ (if using Linux or Mac, we recommend installing via [nvm][])
+- [Python][] 3.10 and below.
+
+- [Node.js][] v16-v18 (if using Linux or Mac, we recommend installing via [nvm][])
 
   - [Yarn][] v1.x
 
@@ -98,28 +99,20 @@ unless otherwise specified. Next [install dependencies][] from [npm][]:
 yarn
 ```
 
-Finally, enter the directory for our `roger` tool, install it, and then come
+Then, build the dependencies of our `roger` tool.
+
+```sh
+yarn build:roger
+```
+
+Finally, enter the directory of `roger` to install it as a global binary executable, and then come
 back to this directory:
 
 ```sh
 pushd packages/roger/
-yarn link
+npm link
 popd
 ```
-
-## Editor
-
-For [VS Code][] users, we provide a [VS Code workspace][] file called
-`penrose.code-workspace` which automatically configures many settings (and
-recommends several [extensions][]) that we strongly encourage using. From your
-terminal, you can open VS Code to the workspace via this command:
-
-```sh
-code penrose.code-workspace
-```
-
-You should be automatically prompted to install the extensions we recommend, but
-if not, you can now find them listed in the **Extensions** tab.
 
 ## Development
 
@@ -236,6 +229,8 @@ your example to the example gallery in `editor`:
 
 And you're done!
 
+To render all diagrams in the registry, run `yarn registry` in the repo root. The output SVGs will be saved under `packages/examples/diagrams`.
+
 ### Refresh build
 
 To delete all build artifacts (but no `node_modules/`):
@@ -264,15 +259,17 @@ git clean -dfx
 
 ### Roger
 
-If `roger` is not working as expected and you think it might be out of date, run
+Under the hood, `roger` is an executable script (`packages/roger/bin/run.js`) that rely on [tsx][], which is symlinked by `npm link`. If `roger` is not working as expected and you think it might be out of date, run
 these commands to re-install it:
 
 ```sh
 pushd packages/roger/
-yarn unlink
-yarn build
+npm unlink --global @penrose/roger
+npm link
 popd
 ```
+
+`yarn` also provides a `link` functionality but we favor `npm link` because of [known issues](https://github.com/yarnpkg/yarn/issues/891) with `yarn link`.
 
 ### Test
 
@@ -439,7 +436,6 @@ Our repo uses [semantic versioning][] and maintains the same version number for 
 [commit]: https://github.com/git-guides/git-commit
 [conventional commit guidelines]: https://www.conventionalcommits.org/en/v1.0.0/
 [create a fork]: https://docs.github.com/en/get-started/quickstart/fork-a-repo
-[extensions]: https://code.visualstudio.com/docs/editor/extension-marketplace
 [git]: https://git-scm.com/downloads
 [good first issues]: https://github.com/penrose/penrose/issues?q=is%3Aopen+is%3Aissue+label%3A%22kind%3Agood+first+issue%22
 [guide for installing nvm and node.js]: https://logfetch.com/install-node-npm-wsl2/
@@ -460,9 +456,9 @@ Our repo uses [semantic versioning][] and maintains the same version number for 
 [rustfmt]: https://github.com/rust-lang/rustfmt
 [that link]: http://localhost:3000/try/
 [this repo]: https://github.com/penrose/penrose
-[vs code workspace]: https://code.visualstudio.com/docs/editor/workspaces
-[vs code]: https://code.visualstudio.com/download
 [yaml]: https://yaml.org/
 [yarn]: https://classic.yarnpkg.com/lang/en/docs/install/
 [semantic versioning]: https://semver.org
 [github release]: https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository
+[tsx]: https://github.com/esbuild-kit/tsx
+[Python]: https://www.python.org/

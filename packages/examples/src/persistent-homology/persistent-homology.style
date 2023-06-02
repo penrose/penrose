@@ -10,14 +10,14 @@ forall Frames f {
   f.r3 = ?
   f.y = ?
   f.ylab = ?
-  ensure lessThan(200, f.d)
-  ensure lessThan(f.d, 500)
-  ensure lessThan(8, f.r1)
-  ensure lessThan(f.r1, f.r2)
-  ensure lessThan(15, f.r2)
-  ensure lessThan(f.r2, f.r3)
-  ensure lessThan(25, f.r3)
-  encourage lessThan(f.ylab - f.y, 400)
+  ensure 200 < f.d
+  ensure f.d < 500
+  ensure 8 < f.r1
+  ensure f.r1 < f.r2
+  ensure 15 < f.r2
+  ensure f.r2 < f.r3
+  ensure 25 < f.r3
+  encourage f.ylab - f.y < 400
 
   f.axis = Line {
     strokeColor: rgba(0.0, 0.0, 0.0, 0.5)
@@ -52,49 +52,49 @@ forall Frames f {
   f.eps0 = Equation {
     string: "0"
     center: (f.dot0.center[0] - 20, f.dot0.center[1])
-    fontSize: "24p"
+    fontSize: "30px"
   }
   f.eps = Equation {
     string: "\varepsilon"
     center: (1.5 * f.d + 20, f.dot0.center[1])
-    fontSize: "24p"
+    fontSize: "30px"
   }
   f.eps1 = Equation {
     string: "\varepsilon_1"
     center: (f.dot1.center[0] + 20, f.dot1.center[1] - 20)
     fillColor: rgba(0.1, 0.3, 0.1, 0.8)
-    fontSize: "24p"
+    fontSize: "30px"
   }
   f.eps2 = Equation {
     string: "\varepsilon_2"
     center: (f.dot2.center[0] + 20, f.dot2.center[1] - 20)
     fillColor: rgba(0.5, 0.1, 0.1, 0.8)
-    fontSize: "24p"
+    fontSize: "30px"
   }
   f.eps3 = Equation {
     string: "\varepsilon_3"
     center: (f.dot3.center[0] + 20, f.dot3.center[1] - 20)
     fillColor: rgba(0.1, 0.1, 0.5, 0.8)
-    fontSize: "24p"
+    fontSize: "30px"
   }
 
   f.lab1 = Equation {
     string: "X \oplus B_{\varepsilon_{1}}"
     fillColor: rgba(0.1, 0.3, 0.1, 0.8)
     center: (f.dot1.center[0], f.ylab)
-    fontSize: "24p"
+    fontSize: "30px"
   }
   f.lab2 = Equation {
     string: "X \oplus B_{\varepsilon_{2}}"
     fillColor: rgba(0.5, 0.1, 0.1, 0.8)
     center: (f.dot2.center[0], f.ylab)
-    fontSize: "24p"
+    fontSize: "30px"
   }
   f.lab3 = Equation {
     string: "X \oplus B_{\varepsilon_{3}}"
     fillColor: rgba(0.1, 0.1, 0.5, 0.8)
     center: (f.dot3.center[0], f.ylab)
-    fontSize: "24p"
+    fontSize: "30px"
   }
 }
 
@@ -171,13 +171,13 @@ forall Point p {
 }
 
 forall Point p; Frames f {
-  ensure equal(p.d12, f.dot2.center[0] - f.dot1.center[0])
-  ensure equal(p.d23, f.dot3.center[0] - f.dot2.center[0])
-  ensure equal(p.r1, f.r1)
-  ensure equal(p.r2, f.r2)
-  ensure equal(p.r3, f.r3)
-  ensure lessThan(f.y, p.y - p.r3 - 30)
-  ensure lessThan(p.y + p.r3 + 30, f.ylab)
+  ensure p.d12 == f.dot2.center[0] - f.dot1.center[0]
+  ensure p.d23 == f.dot3.center[0] - f.dot2.center[0]
+  ensure p.r1 == f.r1
+  ensure p.r2 == f.r2
+  ensure p.r3 == f.r3
+  ensure f.y < p.y - p.r3 - 30
+  ensure p.y + p.r3 + 30 < f.ylab
 }
 
 forall Point p1; Point p2 {
@@ -187,8 +187,8 @@ forall Point p1; Point p2 {
   p2.circle1 below p1.shade1
   p2.circle2 below p1.shade2
   p2.circle3 below p1.shade3
-  ensure lessThan(abs(p1.x - p2.x) + 100.0, p1.d12)
-  ensure lessThan(abs(p1.x - p2.x) + 100.0, p1.d23)
+  ensure abs(p1.x - p2.x) + 100.0 < p1.d12
+  ensure abs(p1.x - p2.x) + 100.0 < p1.d23
 }
 
 forall Point p1; Point p2 

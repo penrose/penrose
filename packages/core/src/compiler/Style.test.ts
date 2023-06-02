@@ -1,11 +1,10 @@
-import functionsDomain from "@penrose/examples/dist/set-theory-domain/functions.domain";
-import twosetsSimpleSubstance from "@penrose/examples/dist/set-theory-domain/twosets-simple.substance";
 import im from "immutable";
-import { C } from "../types/ast";
-import { Either } from "../types/common";
-import { Env } from "../types/domain";
-import { PenroseError } from "../types/errors";
-import { State } from "../types/state";
+import { describe, expect, test } from "vitest";
+import { C } from "../types/ast.js";
+import { Either } from "../types/common.js";
+import { Env } from "../types/domain.js";
+import { PenroseError } from "../types/errors.js";
+import { State } from "../types/state.js";
 import {
   AnonAssign,
   ConstrFn,
@@ -14,22 +13,22 @@ import {
   PathAssign,
   StyProg,
   Vector,
-} from "../types/style";
+} from "../types/style.js";
 import {
   Assignment,
   DepGraph,
   Layer,
   Translation,
-} from "../types/styleSemantics";
-import { SubstanceEnv } from "../types/substance";
-import { ColorV, RGBA } from "../types/value";
-import { Result, andThen, err, showError } from "../utils/Error";
-import Graph from "../utils/Graph";
-import { GroupGraph } from "../utils/GroupGraph";
-import { ToRight, foldM, toLeft, zip2 } from "../utils/Util";
-import { compileDomain } from "./Domain";
-import * as S from "./Style";
-import { compileSubstance } from "./Substance";
+} from "../types/styleSemantics.js";
+import { SubstanceEnv } from "../types/substance.js";
+import { ColorV, RGBA } from "../types/value.js";
+import { Result, andThen, err, showError } from "../utils/Error.js";
+import Graph from "../utils/Graph.js";
+import { GroupGraph } from "../utils/GroupGraph.js";
+import { ToRight, foldM, toLeft, zip2 } from "../utils/Util.js";
+import { compileDomain } from "./Domain.js";
+import * as S from "./Style.js";
+import { compileSubstance } from "./Substance.js";
 
 // TODO: Reorganize and name tests by compiler stage
 
@@ -466,7 +465,7 @@ describe("Compiler", () => {
     ]);
   });
 
-  describe("Correct Style programs", () => {
+  test("Correct Style programs", () => {
     const dsl = "type Object";
     const sub = "Object o";
     // TODO: Name these programs
@@ -513,14 +512,19 @@ describe("Compiler", () => {
       `forall Object o {
         o.a = Circle {}
         o.b = Circle {}
+        o.c = Rectangle {}
         o.g = Group {
           shapes: [o.a, o.b]
+          clipPath: noClip()
         }
+        override o.g.clipPath = clip(o.c)
       }`,
     ];
-    stys.forEach((sty: string) =>
-      loadProgs({ dsl, sub, sty: canvasPreamble + sty })
-    );
+    stys.forEach((sty: string) => {
+      expect(
+        async () => await loadProgs({ dsl, sub, sty: canvasPreamble + sty })
+      ).not.toThrowError();
+    });
   });
 
   // TODO: There are no tests directly for the substitution application part of the compiler, though I guess you could walk the AST (making the substitution-application code more generic to do so) and check that there are no Style variables anywhere? Except for, I guess, namespace names?
@@ -765,8 +769,18 @@ Bond(O, H2)`;
   };
 
   describe("Expected Style errors", () => {
-    const subProg = twosetsSimpleSubstance;
-    const domainProg = functionsDomain;
+    const subProg = `Set A, B
+IsSubset(B, A)
+AutoLabel All `;
+
+    const domainProg = `type Set
+type Point
+
+function Union(Set a, Set b) -> Set
+
+predicate IsSubset(Set s1, Set s2)
+`;
+
     // We test variations on this Style program
     // const styPath = "set-theory-domain/venn.style";
 
@@ -792,7 +806,7 @@ Bond(O, H2)`;
     const errorStyProgs = {
       // ------ Generic errors
       InvalidColorLiteral: [
-        `forall Set x { 
+        `forall Set x {
           x.color = #12777733aa
        }`,
       ],
@@ -860,21 +874,21 @@ delete x.z.p }`,
 
       NoopDeleteWarning: [`forall Set x { delete x.z }`],
       AssignAccessError: [
-        `forall Set x {  
-         x.icon = Circle { 
-           center: (0.0, 0.0) 
+        `forall Set x {
+         x.icon = Circle {
+           center: (0.0, 0.0)
          }
          delete x.icon[0] }`,
       ],
 
       ImplicitOverrideWarning: [
-        `forall Set x { 
-           x.z = 1.0 
+        `forall Set x {
+           x.z = 1.0
            x.z = 2.0
 }`,
-        `forall Set x { 
-         x.icon = Circle { 
-           center: (0.0, 0.0) 
+        `forall Set x {
+         x.icon = Circle {
+           center: (0.0, 0.0)
          }
            x.icon.center = (2.0, 0.0)
 }`,
@@ -899,25 +913,25 @@ delete x.z.p }`,
 
       MissingPathError: [
         `forall Set x { x.icon = Circle { r: x.r } }`,
-        `forall Set x {  
+        `forall Set x {
          x.z = x.c.p
        }`,
-        `forall Set x {  
-          x.icon = Circle { 
+        `forall Set x {
+          x.icon = Circle {
            r: 9.
            center: (x.icon.z, 0.0)
-         } 
+         }
        }`,
-        `forall Set x { 
-           x.z = 1.0 
+        `forall Set x {
+           x.z = 1.0
            x.y = x.z.p
 }`,
       ],
       CanvasNonexistentDimsError: [
-        `foo { 
+        `foo {
   bar = 1.0
 }`,
-        `canvas { 
+        `canvas {
   height = 100
 }`,
         `canvas {
@@ -932,7 +946,7 @@ delete x.z.p }`,
   width = (1.0, 1.0)
   height = 100
 }`,
-        `canvas { 
+        `canvas {
   width = 100
 }`,
         `canvas {
@@ -967,6 +981,13 @@ delete x.z.p }`,
             ptProp: (1, 2, 3)
           }
         }`,
+        `forall Set a {
+          a.sh = Group {
+            shapes: []
+            clipPath: 12345
+          }
+        }
+        `,
       ],
       BadArgumentTypeError: [
         `forall Set a {
@@ -982,6 +1003,10 @@ delete x.z.p }`,
           c = Circle {}
           encourage isRegular(c)
         }`,
+        `forall Set a {
+          x = clip(123)
+        }
+        `,
       ],
       MissingArgumentError: [
         `forall Set a {
@@ -991,16 +1016,32 @@ delete x.z.p }`,
         `forall Set a {
           ensure disjoint()
         }`,
+        `
+        forall Set a {
+          x = clip()
+        }
+        `,
       ],
       TooManyArgumentsError: [
         `forall Set a {
           a.s = Circle {}
           ensure contains(a.s, a.s, 1, 2, 3)
         }`,
+        `forall Set a {
+          a.s = Circle {}
+          x = noClip(a.s)
+        }`,
       ],
       FunctionInternalError: [
         `forall Set a {
           x = dot([1, 2, 3], [4, 5])
+        }`,
+        `forall Set a {
+          x = Group {}
+          y = Group {
+            shapes: []
+            clipPath: clip(x)
+          }
         }`,
       ],
       RedeclareNamespaceError: [
@@ -1011,6 +1052,29 @@ delete x.z.p }`,
           red = #e00
         }
         `,
+      ],
+      UnexpectedCollectionAccessError: [
+        `forall Set a {
+          a.c = 10
+          x = listof c from a
+        }`,
+        `collect Set a into aa foreach Set b {
+          x = listof c from b
+        }`,
+        `collect Set a into aa foreach Set b {
+          x = listof c from x
+        }`,
+      ],
+      BadElementError: [
+        `forall Set a {
+          a.c = 10
+        }
+        forall Set \`B\` {
+          override \`B\`.c = "hello"
+        }
+        collect Set a into aa {
+          x = listof c from aa
+        }`,
       ],
       // TODO: this test should _not_ fail, but it's failing because we are skipping `OptEval` checks for access paths
       //       InvalidAccessPathError: [
@@ -1067,13 +1131,13 @@ delete x.z.p }`,
       const sub = `
       MySet X, Y
  OtherType Z
- 
+
  MyPred(Z, X, Y)
  MyOtherPred(X, Y)`;
       const dsl = `
      type MySet
  type OtherType
- 
+
  predicate MyPred(OtherType, MySet, MySet)
  predicate MyOtherPred(MySet, MySet)`;
 
@@ -1240,6 +1304,84 @@ delete x.z.p }`,
       colorValMatches(`Colors.red`, [1, 0, 0, 1], translation);
       colorValMatches(`Colors.green`, [0, 1, 0, 1], translation);
       colorValMatches(`Colors.blue`, [0, 0, 1, 1], translation);
+    });
+  });
+
+  describe("collector", () => {
+    const dsl = "type T \n type U \n predicate P(T, U)";
+    const sub =
+      "T t1, t2, t3 \n U u1, u2 \n P(t1, u1) \n P(t2, u1) \n P(t3, u2) \n AutoLabel All";
+    test("pure collection", async () => {
+      const sty =
+        canvasPreamble +
+        `
+        forall T t {
+          t.value = 1
+        }
+        collect T t into ts {
+          Circle {
+            r: count(listof value from ts)
+          }
+        }
+      `;
+      const { state } = await loadProgs({ dsl, sub, sty });
+      const sh = state.shapes[0];
+      if (sh.shapeType === "Circle") {
+        expect(sh.r.contents).toBeCloseTo(3);
+      } else {
+        throw new Error("Bad shape type");
+      }
+    });
+    test("pure collection with foreach", async () => {
+      const sty =
+        canvasPreamble +
+        `
+        forall T t {
+          t.value = 1
+        }
+        collect T t into ts
+        where P(t, u)
+        foreach U u {
+          Circle {
+            r: count(listof value from ts)
+          }
+        }
+      `;
+      const { state } = await loadProgs({ dsl, sub, sty });
+      const sh0 = state.shapes[0],
+        sh1 = state.shapes[1];
+      if (sh0.shapeType === "Circle" && sh1.shapeType === "Circle") {
+        const counts = [sh0.r.contents, sh1.r.contents];
+        expect(counts.sort()).toEqual([1, 2]);
+      } else {
+        throw new Error("Bad shape type");
+      }
+    });
+  });
+
+  describe("gather dependencies", () => {
+    test("indexing", async () => {
+      const dsl = "type T";
+      const sub = "T t";
+      const sty =
+        canvasPreamble +
+        `
+        forall T t {
+          t.vals = [1, 2, 3, 4, 5, 6]
+          t.val = t.vals[match_id]
+        
+          Circle {
+            r: t.val
+          }
+        }
+      `;
+
+      // This problem would have failed compilation when indexing is not handled correctly
+      // And this would fail:
+      const { graph } = await loadProgs({ dsl, sub, sty });
+      expect(graph.parents("`t`.val").sort()).toEqual(
+        ["`t`.vals", "1:0:match_id"].sort()
+      );
     });
   });
 });

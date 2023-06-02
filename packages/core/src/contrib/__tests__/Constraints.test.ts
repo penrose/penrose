@@ -1,14 +1,15 @@
-import { Shape } from "../../shapes/Shapes";
-import * as ad from "../../types/ad";
-import { constrDict } from "../Constraints";
-import { numOf } from "../Utils";
+import { describe, expect, it, test } from "vitest";
+import { Shape } from "../../shapes/Shapes.js";
+import * as ad from "../../types/ad.js";
+import { constrDict } from "../Constraints.js";
+import { numOf } from "../Utils.js";
 import {
   _circles,
   _ellipses,
   _lines,
   _polygons,
   _rectangles,
-} from "../__testfixtures__/TestShapes.input";
+} from "../__testfixtures__/TestShapes.input.js";
 
 const digitPrecision = 10;
 
