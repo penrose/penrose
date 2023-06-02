@@ -1,6 +1,6 @@
 import { ComponentMeta, ComponentStory } from "@storybook/react";
-import Demo from "../Demo";
-import { vectorsPerp, vectorWedge } from "./PenrosePrograms";
+import Demo from "../Demo.js";
+import { vectorWedge, vectorsPerp } from "./PenrosePrograms.js";
 
 // const diagram = await getDiagram();
 

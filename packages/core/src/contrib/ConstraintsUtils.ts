@@ -1,4 +1,4 @@
-import { ops } from "../engine/Autodiff";
+import { ops } from "../engine/Autodiff.js";
 import {
   absVal,
   add,
@@ -12,26 +12,29 @@ import {
   neg,
   squared,
   sub,
-} from "../engine/AutodiffFunctions";
-import * as BBox from "../engine/BBox";
-import { Circle } from "../shapes/Circle";
-import { Ellipse } from "../shapes/Ellipse";
-import { Polygon } from "../shapes/Polygon";
-import { Shape } from "../shapes/Shapes";
-import * as ad from "../types/ad";
-import { circleToImplicitEllipse, ellipseToImplicit } from "./ImplicitShapes";
+} from "../engine/AutodiffFunctions.js";
+import * as BBox from "../engine/BBox.js";
+import { Circle } from "../shapes/Circle.js";
+import { Ellipse } from "../shapes/Ellipse.js";
+import { Polygon } from "../shapes/Polygon.js";
+import { Shape } from "../shapes/Shapes.js";
+import * as ad from "../types/ad.js";
+import {
+  circleToImplicitEllipse,
+  ellipseToImplicit,
+} from "./ImplicitShapes.js";
 import {
   containsPolygonPoints,
   overlappingImplicitEllipses,
-} from "./Minkowski";
-import { bboxFromShape, shapeCenter } from "./Queries";
+} from "./Minkowski.js";
+import { bboxFromShape, shapeCenter } from "./Queries.js";
 import {
+  Rectlike,
   atDistOutside,
   isLinelike,
   noIntersectCircles,
   pointInBox,
-  Rectlike,
-} from "./Utils";
+} from "./Utils.js";
 
 // -------- Ovelapping helpers
 

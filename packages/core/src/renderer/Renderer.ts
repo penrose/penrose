@@ -4,23 +4,23 @@
  *
  */
 
-import { isLinelike, isRectlike } from "../contrib/Utils";
-import { Group } from "../shapes/Group";
-import { Shape } from "../shapes/Shapes";
-import { LabelCache, State } from "../types/state";
-import { getValueAsShapeList } from "../utils/Util";
-import { attrAutoFillSvg, attrTitle } from "./AttrHelper";
-import RenderCircle from "./Circle";
-import { dragUpdate } from "./dragUtils";
-import RenderEllipse from "./Ellipse";
-import RenderEquation from "./Equation";
-import RenderImage from "./Image";
-import RenderLine from "./Line";
-import RenderPath from "./Path";
-import RenderPolygon from "./Polygon";
-import RenderPolyline from "./Polyline";
-import RenderRectangle from "./Rectangle";
-import RenderText from "./Text";
+import { isLinelike, isRectlike } from "../contrib/Utils.js";
+import { Group } from "../shapes/Group.js";
+import { Shape } from "../shapes/Shapes.js";
+import { LabelCache, State } from "../types/state.js";
+import { getValueAsShapeList } from "../utils/Util.js";
+import { attrAutoFillSvg, attrTitle } from "./AttrHelper.js";
+import RenderCircle from "./Circle.js";
+import { dragUpdate } from "./dragUtils.js";
+import RenderEllipse from "./Ellipse.js";
+import RenderEquation from "./Equation.js";
+import RenderImage from "./Image.js";
+import RenderLine from "./Line.js";
+import RenderPath from "./Path.js";
+import RenderPolygon from "./Polygon.js";
+import RenderPolyline from "./Polyline.js";
+import RenderRectangle from "./Rectangle.js";
+import RenderText from "./Text.js";
 
 /**
  * Resolves path references into static strings. Implemented by client
@@ -33,6 +33,7 @@ export interface RenderProps {
   namespace: string;
   variation: string;
   labels: LabelCache;
+  texLabels: boolean;
   canvasSize: [number, number];
   pathResolver: PathResolver;
 }
@@ -74,8 +75,6 @@ export const RenderInteractive = async (
 ): Promise<SVGSVGElement> => {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-  svg.setAttribute("width", "100%");
-  svg.setAttribute("height", "100%");
   svg.setAttribute("version", "1.2");
   svg.setAttribute(
     "viewBox",
@@ -93,6 +92,7 @@ export const RenderInteractive = async (
       canvasSize: state.canvas.size,
       variation: state.variation,
       namespace,
+      texLabels: false,
       pathResolver,
     },
     {
@@ -111,7 +111,8 @@ export const RenderInteractive = async (
 export const RenderStatic = async (
   state: State,
   pathResolver: PathResolver,
-  namespace: string
+  namespace: string,
+  texLabels = false
 ): Promise<SVGSVGElement> => {
   const {
     varyingValues,
@@ -134,6 +135,7 @@ export const RenderStatic = async (
       canvasSize: canvas.size,
       variation,
       namespace,
+      texLabels,
       pathResolver,
     },
     undefined
@@ -143,13 +145,7 @@ export const RenderStatic = async (
 
 const RenderGroup = async (
   groupShape: Group<number>,
-  shapeProps: {
-    labels: LabelCache;
-    canvasSize: [number, number];
-    variation: string;
-    namespace: string;
-    pathResolver: PathResolver;
-  },
+  shapeProps: RenderProps,
   interactiveProp?: InteractiveProps
 ): Promise<SVGGElement> => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");

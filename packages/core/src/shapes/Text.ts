@@ -1,4 +1,4 @@
-import * as ad from "../types/ad";
+import * as ad from "../types/ad.js";
 import {
   Center,
   Fill,
@@ -8,10 +8,10 @@ import {
   ShapeCommon,
   String,
   Stroke,
-} from "../types/shapes";
-import { FloatV, StrV } from "../types/value";
-import { black, boolV, floatV, noPaint, strV, vectorV } from "../utils/Util";
-import { Canvas, Context, uniform } from "./Samplers";
+} from "../types/shapes.js";
+import { FloatV, StrV } from "../types/value.js";
+import { black, boolV, floatV, noPaint, strV, vectorV } from "../utils/Util.js";
+import { Canvas, Context, uniform } from "./Samplers.js";
 
 export interface TextProps<T>
   extends Named<T>,

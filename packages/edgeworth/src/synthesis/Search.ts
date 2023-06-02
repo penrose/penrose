@@ -26,24 +26,24 @@ import {
   nodesEqual,
   sortStmts,
   subProg,
-} from "../analysis/SubstanceAnalysis";
+} from "../analysis/SubstanceAnalysis.js";
 import {
   Add,
-  addMutation,
   Delete,
+  Mutation,
+  MutationGroup,
+  addMutation,
   deleteMutation,
   enumerateProgMutations,
   enumerateStmtMutations,
   executeMutation,
-  Mutation,
-  MutationGroup,
-} from "./Mutation";
+} from "./Mutation.js";
 import {
-  filterContext,
-  initContext,
   SynthesisContext,
   WithContext,
-} from "./Synthesizer";
+  filterContext,
+  initContext,
+} from "./Synthesizer.js";
 
 //#region Fine-grained diffs
 
@@ -361,7 +361,7 @@ export const toStmtDiff = (
  */
 const diffType = (node: AbstractNode, diff: rdiff.rdiffResult): DiffType => {
   let tag = undefined;
-  let currNode: AbstractNode = node;
+  let currNode: any = node;
   for (const prop of diff.path) {
     currNode = currNode[prop];
     if (currNode.tag) {
@@ -575,10 +575,8 @@ export const enumerateMutationPaths = (
             cxt
           );
           // execute all mutations and get resulting programs
-          const resultProgs: WithContext<
-            SubProg<A>
-          >[] = possibleMutations.map((m) =>
-            executeMutation(m, progToGrow, cxt)
+          const resultProgs: WithContext<SubProg<A>>[] = possibleMutations.map(
+            (m) => executeMutation(m, progToGrow, cxt)
           );
           // pack the resulting programs with their updated mutation path
           return _.zipWith(

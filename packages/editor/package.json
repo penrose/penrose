@@ -1,12 +1,12 @@
 {
   "name": "@penrose/editor",
   "private": true,
-  "version": "2.3.0",
+  "version": "3.0.0-alpha.0",
   "scripts": {
     "start": "cross-env NODE_OPTIONS='--max-old-space-size=8192' vite",
     "dev": "cross-env NODE_OPTIONS='--max-old-space-size=8192' vite",
     "watch": "cross-env NODE_OPTIONS='--max-old-space-size=8192' vite",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc",
     "build-decls": ":",
     "build": "NODE_OPTIONS='--max-old-space-size=8192' vite build",
     "preview": "vite preview"
@@ -41,8 +41,9 @@
     }
   },
   "dependencies": {
-    "@penrose/components": "^2.3.0",
-    "@penrose/core": "^2.3.0",
+    "@penrose/components": "^3.0.0-alpha.0",
+    "@penrose/core": "^3.0.0-alpha.0",
+    "@penrose/examples": "^3.0.0-alpha.0",
     "animals": "^0.0.3",
     "color-name-list": "^8.38.0",
     "flexlayout-react": "^0.7.3",

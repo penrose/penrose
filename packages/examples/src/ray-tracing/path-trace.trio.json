@@ -1,0 +1,6 @@
+{
+  "substance": "./path-trace.substance",
+  "style": ["./ray-tracing.style"],
+  "domain": "./ray-tracing.domain",
+  "variation": "ConclaveFerret7630"
+}

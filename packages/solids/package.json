@@ -1,0 +1,37 @@
+{
+  "name": "@penrose/solids",
+  "version": "3.0.0-alpha.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "types": "./dist/types/index.d.ts",
+    "browser": "./dist/dom/index.js",
+    "default": "./dist/ssr/index.js"
+  },
+  "dependencies": {
+    "solid-js": "^1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7",
+    "@babel/core": "^7",
+    "@babel/preset-typescript": "^7",
+    "babel-preset-solid": "^1"
+  },
+  "scripts": {
+    "build": ":",
+    "build-decls": "tsc",
+    "build-dom": "babel --config-file=./babel.dom.config.json --extensions=.ts,.tsx src --out-dir=dist/dom",
+    "build-ssr": "babel --config-file=./babel.ssr.config.json --extensions=.ts,.tsx src --out-dir=dist/ssr",
+    "typecheck": ":"
+  },
+  "nx": {
+    "targets": {
+      "build": {
+        "dependsOn": [
+          "build-dom",
+          "build-ssr"
+        ]
+      }
+    }
+  }
+}

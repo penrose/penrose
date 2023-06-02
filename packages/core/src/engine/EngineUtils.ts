@@ -1,18 +1,18 @@
 // Utils that are unrelated to the engine, but autodiff/opt/etc only
 
-import { Circle } from "../shapes/Circle";
-import { Ellipse } from "../shapes/Ellipse";
-import { Equation } from "../shapes/Equation";
-import { Group } from "../shapes/Group";
-import { Image } from "../shapes/Image";
-import { Line } from "../shapes/Line";
-import { Path as PathShape } from "../shapes/Path";
-import { Polygon } from "../shapes/Polygon";
-import { Polyline } from "../shapes/Polyline";
-import { Rectangle } from "../shapes/Rectangle";
-import { Shape } from "../shapes/Shapes";
-import { Text } from "../shapes/Text";
-import * as ad from "../types/ad";
+import { Circle } from "../shapes/Circle.js";
+import { Ellipse } from "../shapes/Ellipse.js";
+import { Equation } from "../shapes/Equation.js";
+import { Group } from "../shapes/Group.js";
+import { Image } from "../shapes/Image.js";
+import { Line } from "../shapes/Line.js";
+import { Path as PathShape } from "../shapes/Path.js";
+import { Polygon } from "../shapes/Polygon.js";
+import { Polyline } from "../shapes/Polyline.js";
+import { Rectangle } from "../shapes/Rectangle.js";
+import { Shape } from "../shapes/Shapes.js";
+import { Text } from "../shapes/Text.js";
+import * as ad from "../types/ad.js";
 import {
   A,
   ASTNode,
@@ -20,8 +20,8 @@ import {
   Identifier,
   NodeType,
   SourceLoc,
-} from "../types/ast";
-import { StyleError } from "../types/errors";
+} from "../types/ast.js";
+import { StyleError } from "../types/errors.js";
 import {
   Arrow,
   CanPassthrough,
@@ -35,15 +35,15 @@ import {
   Scale,
   String as StringProps,
   Stroke,
-} from "../types/shapes";
-import { ShapeFn } from "../types/state";
-import { Expr, Path } from "../types/style";
+} from "../types/shapes.js";
+import { ShapeFn } from "../types/state.js";
+import { Expr, Path } from "../types/style.js";
 import {
   Color,
   ColorV,
   FloatV,
-  ListV,
   LListV,
+  ListV,
   MatrixV,
   PathCmd,
   PathDataV,
@@ -53,9 +53,9 @@ import {
   TupV,
   Value,
   VectorV,
-} from "../types/value";
-import { safe } from "../utils/Util";
-import { genCode, secondaryGraph } from "./Autodiff";
+} from "../types/value.js";
+import { safe } from "../utils/Util.js";
+import { genCode, secondaryGraph } from "./Autodiff.js";
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?
 
@@ -150,14 +150,12 @@ function mapPathData<T, S>(f: (arg: T) => S, v: PathDataV<T>): PathDataV<S> {
     contents: v.contents.map((pathCmd: PathCmd<T>) => {
       return {
         cmd: pathCmd.cmd,
-        contents: pathCmd.contents.map(
-          (subCmd: SubPath<T>): SubPath<S> => {
-            return {
-              tag: subCmd.tag,
-              contents: mapTuple(f, subCmd.contents),
-            };
-          }
-        ),
+        contents: pathCmd.contents.map((subCmd: SubPath<T>): SubPath<S> => {
+          return {
+            tag: subCmd.tag,
+            contents: mapTuple(f, subCmd.contents),
+          };
+        }),
       };
     }),
   };
@@ -251,6 +249,8 @@ const mapEquation = <T, S>(f: (arg: T) => S, v: Equation<T>): Equation<S> => {
     ...mapRect(f, v),
     ...mapRotate(f, v),
     ...mapString(f, v),
+    ascent: mapFloat(f, v.ascent),
+    descent: mapFloat(f, v.descent),
     passthrough: mapPassthrough(f, v.passthrough),
   };
 };
@@ -470,26 +470,21 @@ export const compileCompGraph = async (
   shapes: Shape<ad.Num>[]
 ): Promise<ShapeFn> => {
   const indices = new Map(inputs.map((x, i) => [x, i]));
-  const vars = [];
+  const vars: ad.Num[] = [];
   for (const s of shapes) {
-    for (const k of Object.keys(s)) {
-      // remove shapeType
-      if (k === "shapeType") continue;
-      // get all values from passthrough
-      else if (k === "passthrough") {
-        for (const ptVal of s.passthrough.values()) {
-          vars.push(...valueADNums(ptVal));
-        }
-      } else {
-        vars.push(...valueADNums(s[k]));
-      }
-    }
+    // a bit weird since it feels somewhat wasteful to reconstruct the new
+    // shape, but this reduces some code duplication since this way we don't
+    // have to write a separate function to collect all the `ad.Num`s
+    mapShape((x) => {
+      vars.push(x);
+    }, s);
   }
   const compGraph: ad.Graph = secondaryGraph(vars);
   const evalFn = await genCode(compGraph);
   return (xs: number[]): Shape<number>[] => {
-    const numbers = evalFn((x) => xs[safe(indices.get(x), "input not found")])
-      .secondary;
+    const numbers = evalFn(
+      (x) => xs[safe(indices.get(x), "input not found")]
+    ).secondary;
     const m = new Map(compGraph.secondary.map((id, i) => [id, numbers[i]]));
     return shapes.map((s: Shape<ad.Num>) =>
       mapShape(
@@ -502,67 +497,6 @@ export const compileCompGraph = async (
       )
     );
   };
-};
-
-const valueADNums = (v: Value<ad.Num>): ad.Num[] => {
-  switch (v.tag) {
-    case "FloatV": {
-      return [v.contents];
-    }
-    case "BoolV":
-    case "StrV": {
-      return [];
-    }
-    case "ShapeListV": {
-      const vars = [];
-      const shapes = v.contents;
-      for (const s of shapes) {
-        for (const k of Object.keys(s)) {
-          // remove shapeType
-          if (k === "shapeType") continue;
-          // get all values from passthrough
-          else if (k === "passthrough") {
-            for (const ptVal of s.passthrough.values()) {
-              vars.push(...valueADNums(ptVal));
-            }
-          } else {
-            vars.push(...valueADNums(s[k]));
-          }
-        }
-      }
-      return vars;
-    }
-    case "ListV":
-    case "VectorV":
-    case "TupV": {
-      return v.contents;
-    }
-    case "PathDataV": {
-      return v.contents.flatMap((pathCmd) =>
-        pathCmd.contents.flatMap((subPath) => subPath.contents)
-      );
-    }
-    case "PtListV":
-    case "MatrixV":
-    case "LListV": {
-      return v.contents.flat();
-    }
-    case "ColorV": {
-      return colorADNums(v.contents);
-    }
-  }
-};
-
-const colorADNums = (c: Color<ad.Num>): ad.Num[] => {
-  switch (c.tag) {
-    case "RGBA":
-    case "HSVA": {
-      return c.contents;
-    }
-    case "NONE": {
-      return [];
-    }
-  }
 };
 
 //#region translation operations

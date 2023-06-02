@@ -1,15 +1,15 @@
 import _ from "lodash";
-import { Path } from "../shapes/Path";
-import { PathCmd, SubPath } from "../types/value";
+import { Path } from "../shapes/Path.js";
+import { PathCmd, SubPath } from "../types/value.js";
 import {
   getArrowhead,
   toScreen,
   toSvgOpacityProperty,
   toSvgPaintProperty,
-} from "../utils/Util";
-import { attrAutoFillSvg, attrTitle, DASH_ARRAY } from "./AttrHelper";
-import { arrowHead } from "./Line";
-import { RenderProps } from "./Renderer";
+} from "../utils/Util.js";
+import { DASH_ARRAY, attrAutoFillSvg, attrTitle } from "./AttrHelper.js";
+import { arrowHead } from "./Line.js";
+import { RenderProps } from "./Renderer.js";
 
 const toPathString = (
   pathData: PathCmd<number>[],

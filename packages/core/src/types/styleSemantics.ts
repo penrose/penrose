@@ -1,12 +1,12 @@
 import im from "immutable";
-import { ShapeType } from "../shapes/Shapes";
-import Graph from "../utils/Graph";
-import * as ad from "./ad";
-import { A, C, Identifier } from "./ast";
-import { StyleDiagnostics, StyleError } from "./errors";
-import { Fn } from "./state";
-import { BindingForm, Expr, GPIDecl, Header, StyT } from "./style";
-import { ArgVal, Field, Name, PropID } from "./value";
+import { ShapeType } from "../shapes/Shapes.js";
+import Graph from "../utils/Graph.js";
+import * as ad from "./ad.js";
+import { A, C, Identifier } from "./ast.js";
+import { StyleDiagnostics, StyleError } from "./errors.js";
+import { Fn } from "./state.js";
+import { BindingForm, Expr, GPIDecl, Header, StyT } from "./style.js";
+import { ArgVal, Field, Name, PropID } from "./value.js";
 
 //#region Style semantics
 
@@ -54,6 +54,20 @@ export interface SelEnv {
 // COMBAK: In prev grammar, the key was `StyVar`, but here it gets stringified
 // TODO: make this an `im.Map`
 export type Subst = { [k: string]: string };
+
+export type StySubSubst = {
+  tag: "StySubSubst";
+  contents: Subst;
+};
+
+export type CollectionSubst = {
+  tag: "CollectionSubst";
+  groupby: Subst;
+  collName: string;
+  collContent: string[];
+};
+
+export type StySubst = StySubSubst | CollectionSubst;
 
 export type LocalVarSubst = LocalVarId | NamespaceId;
 
@@ -126,7 +140,7 @@ export interface BlockAssignment extends Assignment, Locals {}
 
 export interface BlockInfo {
   block: LocalVarSubst;
-  subst: Subst;
+  subst: StySubst;
 }
 
 export interface Context extends BlockInfo, Locals {}

@@ -1,4 +1,4 @@
-# Penrose [![npm (scoped)](https://img.shields.io/npm/v/@penrose/core)](https://www.npmjs.com/package/@penrose/core) [![license](https://img.shields.io/github/license/penrose/penrose)](LICENSE) [![Build](https://github.com/penrose/penrose/actions/workflows/build.yml/badge.svg)](https://github.com/penrose/penrose/actions/workflows/build.yml) [![codecov](https://codecov.io/gh/penrose/penrose/branch/main/graph/badge.svg?token=opGTmY4rkK)](https://codecov.io/gh/penrose/penrose) [![Twitter: @UsePenrose](https://img.shields.io/badge/follow-%40UsePenrose-1DA1F2?logo=twitter&style=social)](https://twitter.com/UsePenrose)
+# Penrose [![npm (scoped)](https://img.shields.io/npm/v/@penrose/core)](https://www.npmjs.com/package/@penrose/core) [![license](https://img.shields.io/github/license/penrose/penrose)](LICENSE) [![Build](https://github.com/penrose/penrose/actions/workflows/build.yml/badge.svg)](https://github.com/penrose/penrose/actions/workflows/build.yml) [![Twitter: @UsePenrose](https://img.shields.io/badge/follow-%40UsePenrose-1DA1F2?logo=twitter&style=social)](https://twitter.com/UsePenrose)
 
 [Penrose](https://penrose.cs.cmu.edu/) is a platform that enables people to
 **create beautiful diagrams just by typing mathematical notation in plain
@@ -70,7 +70,7 @@ It's specified by the following trio of Domain, Substance, and Style programs
   
     x.text = Equation {
       string : x.label
-      fontSize : "25px"
+      fontSize : "32px"
     }
   
     ensure contains(x.icon, x.text)

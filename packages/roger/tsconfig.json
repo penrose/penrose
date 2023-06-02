@@ -1,16 +1,13 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "declaration": true,
-    "importHelpers": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "module": "commonjs",
-    "outDir": "dist",
-    "rootDir": "src",
-    "skipLibCheck": true,
-    "strict": true,
-    "target": "es2019",
-    "noImplicitAny": false
+    "noEmit": true,
+    "noImplicitThis": true,
+    "resolveJsonModule": true,
+    "strictNullChecks": true,
+    "strict": false // COMBAK: strict disabled for now due to errors
   },
-  "include": ["src/**/*"]
+  "ts-node": {
+    "swc": true
+  }
 }

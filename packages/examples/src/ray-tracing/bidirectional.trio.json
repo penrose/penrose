@@ -1,0 +1,6 @@
+{
+  "substance": "./bidirectional.substance",
+  "style": ["./ray-tracing.style"],
+  "domain": "./ray-tracing.domain",
+  "variation": "SunflowerDolphin187"
+}

@@ -12,17 +12,18 @@ import toast from "react-hot-toast";
 import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
 import { v4 as uuid } from "uuid";
 import {
-  currentRogerState,
+  Diagram,
   DiagramMetadata,
-  diagramMetadataSelector,
-  diagramState,
-  fileContentsSelector,
   ProgramFile,
   RogerState,
   WorkspaceMetadata,
+  currentRogerState,
+  diagramMetadataSelector,
+  diagramState,
+  fileContentsSelector,
   workspaceMetadataSelector,
-} from "../state/atoms";
-import BlueButton from "./BlueButton";
+} from "../state/atoms.js";
+import BlueButton from "./BlueButton.js";
 
 /**
  * Fetch url, but try local storage first using a name.
@@ -83,11 +84,7 @@ export const pathResolver = async (
   // Handle relative paths
   switch (location.kind) {
     case "example": {
-      return fetchResource(
-        relativePath,
-        workspace,
-        new URL(relativePath, location.root).href
-      );
+      return location.resolver(relativePath);
     }
     case "roger": {
       if (rogerState.kind === "connected") {
@@ -109,6 +106,8 @@ export const pathResolver = async (
             })
           );
         });
+      } else {
+        return undefined;
       }
     }
     // TODO: publish images in the gist
@@ -302,8 +301,6 @@ export default function DiagramPanel() {
               (path) => pathResolver(path, rogerState, workspace),
               "diagramPanel"
             );
-        rendered.setAttribute("width", "100%");
-        rendered.setAttribute("height", "100%");
         if (cur.firstElementChild) {
           cur.replaceChild(rendered, cur.firstElementChild);
         } else {
@@ -370,6 +367,41 @@ export default function DiagramPanel() {
     }
   });
 
+  // download an svg with raw TeX labels
+  const downloadSvgTex = useRecoilCallback(({ snapshot }) => async () => {
+    if (canvasRef.current !== null) {
+      const { state } = snapshot.getLoadable(diagramState).contents as Diagram;
+      if (state !== null) {
+        const svg = await RenderStatic(
+          state,
+          (path) => pathResolver(path, rogerState, workspace),
+          "diagramPanel",
+          true
+        );
+        const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+          .contents as WorkspaceMetadata;
+        const diagram = snapshot.getLoadable(diagramMetadataSelector)
+          .contents as DiagramMetadata;
+        const domain = snapshot.getLoadable(fileContentsSelector("domain"))
+          .contents as ProgramFile;
+        const substance = snapshot.getLoadable(
+          fileContentsSelector("substance")
+        ).contents as ProgramFile;
+        const style = snapshot.getLoadable(fileContentsSelector("style"))
+          .contents as ProgramFile;
+        DownloadSVG(
+          svg,
+          metadata.name,
+          domain.contents,
+          substance.contents,
+          style.contents,
+          metadata.editorVersion.toString(),
+          diagram.variation
+        );
+      }
+    }
+  });
+
   const downloadPng = useRecoilCallback(({ snapshot }) => async () => {
     if (canvasRef.current !== null) {
       const svg = canvasRef.current.firstElementChild as SVGSVGElement;
@@ -387,32 +419,33 @@ export default function DiagramPanel() {
   });
 
   const downloadPdf = useRecoilCallback(
-    ({ snapshot }) => () => {
-      if (canvasRef.current !== null) {
-        const svg = canvasRef.current.firstElementChild as SVGSVGElement;
-        if (svg !== null && state) {
-          const metadata = snapshot.getLoadable(workspaceMetadataSelector)
-            .contents as WorkspaceMetadata;
-          const openedWindow = window.open(
-            "",
-            "PRINT",
-            `height=${state.canvas.height},width=${state.canvas.width}`
-          );
-          if (openedWindow === null) {
-            toast.error("Couldn't open popup to print");
-            return;
+    ({ snapshot }) =>
+      () => {
+        if (canvasRef.current !== null) {
+          const svg = canvasRef.current.firstElementChild as SVGSVGElement;
+          if (svg !== null && state) {
+            const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+              .contents as WorkspaceMetadata;
+            const openedWindow = window.open(
+              "",
+              "PRINT",
+              `height=${state.canvas.height},width=${state.canvas.width}`
+            );
+            if (openedWindow === null) {
+              toast.error("Couldn't open popup to print");
+              return;
+            }
+            openedWindow.document.write(
+              `<!DOCTYPE html><head><title>${metadata.name}</title></head><body>`
+            );
+            openedWindow.document.write(svg.outerHTML);
+            openedWindow.document.write("</body></html>");
+            openedWindow.document.close();
+            openedWindow.focus();
+            openedWindow.print();
           }
-          openedWindow.document.write(
-            `<!DOCTYPE html><head><title>${metadata.name}</title></head><body>`
-          );
-          openedWindow.document.write(svg.outerHTML);
-          openedWindow.document.write("</body></html>");
-          openedWindow.document.close();
-          openedWindow.focus();
-          openedWindow.print();
         }
-      }
-    },
+      },
     [state]
   );
 
@@ -434,6 +467,7 @@ export default function DiagramPanel() {
         {state && (
           <div style={{ display: "flex" }}>
             <BlueButton onClick={downloadSvg}>SVG</BlueButton>
+            <BlueButton onClick={downloadSvgTex}>SVG (TeX)</BlueButton>
             <BlueButton onClick={downloadPng}>PNG</BlueButton>
             <BlueButton onClick={downloadPdf}>PDF</BlueButton>
           </div>

@@ -1,0 +1,14 @@
+
+Vertex AcetylCoA, Citrate, Isocitrate, AlphaKG, SuccinylCoA, Succinate, Fumarate, Malate, Oxaloacetate
+
+Edge(AcetylCoA, Citrate)
+Edge(Citrate, Isocitrate)
+Edge(Isocitrate, AlphaKG)
+Edge(AlphaKG, SuccinylCoA)
+Edge(SuccinylCoA, Succinate)
+Edge(Succinate, Fumarate)
+Edge(Fumarate, Malate)
+Edge(Malate, Oxaloacetate)
+Edge(Oxaloacetate, Citrate)
+
+AutoLabel All

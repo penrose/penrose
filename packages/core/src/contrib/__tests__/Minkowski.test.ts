@@ -1,12 +1,13 @@
-import * as BBox from "../../engine/BBox";
-import * as ad from "../../types/ad";
+import { describe, expect, test } from "vitest";
+import * as BBox from "../../engine/BBox.js";
+import * as ad from "../../types/ad.js";
 import {
   containsConvexPolygonPoints,
   convexPartitions,
   halfPlaneSDF,
   rectangleDifference,
-} from "../Minkowski";
-import { numsOf } from "../Utils";
+} from "../Minkowski.js";
+import { numsOf } from "../Utils.js";
 
 describe("containsConvexPolygonPoints", () => {
   test("test", () => {

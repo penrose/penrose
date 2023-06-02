@@ -1,6 +1,6 @@
 import { Monaco } from "@monaco-editor/react";
 import { IRange, languages } from "monaco-editor";
-import { CommentCommon, CommonTokens } from "./common";
+import { CommentCommon, CommonTokens } from "./common.js";
 
 export const DomainConfig: languages.LanguageConfiguration = {
   comments: {

@@ -26,7 +26,7 @@ Global {
 
    -- some additional parameters to get consistent styling throughout
    scalar lineThickness = 1.5
-   scalar fontSize = "4.5px"
+   scalar fontSize = "9px"
    string fontFamily = "Linux Libertine"
 }
 
