@@ -8,7 +8,6 @@ import { isLinelike, isRectlike } from "../contrib/Utils.js";
 import { Group } from "../shapes/Group.js";
 import { Shape } from "../shapes/Shapes.js";
 import { LabelCache, State } from "../types/state.js";
-import { getValueAsShapeList } from "../utils/Util.js";
 import { attrAutoFillSvg, attrTitle } from "./AttrHelper.js";
 import RenderCircle from "./Circle.js";
 import { dragUpdate } from "./dragUtils.js";
@@ -149,12 +148,53 @@ const RenderGroup = async (
   interactiveProp?: InteractiveProps
 ): Promise<SVGGElement> => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  const subShapes = getValueAsShapeList(groupShape.shapes);
-  for (const shape of subShapes) {
-    const childSvg = await RenderShape(shape, shapeProps, interactiveProp);
-    elem.appendChild(childSvg);
+
+  const clip = groupShape.clipPath.contents;
+
+  let clipShapeName: string | undefined = undefined;
+  let clipPathSvgId: string | undefined = undefined;
+
+  if (clip.tag === "Clip") {
+    const clipShape = clip.contents;
+    clipShapeName = clipShape.name.contents;
+    const clipShapeSvg = await RenderShape(
+      clipShape,
+      shapeProps,
+      interactiveProp
+    );
+
+    const clipPathSvg = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "clipPath"
+    );
+    // use the renderer namespace to make sure the clip path id is unique
+    clipPathSvgId = shapeProps.namespace + clipShapeName + "-clip";
+    clipPathSvg.setAttribute("id", clipPathSvgId);
+    clipPathSvg.appendChild(clipShapeSvg);
+
+    elem.appendChild(clipPathSvg);
   }
-  attrAutoFillSvg(groupShape, elem, [...attrTitle(groupShape, elem), "shapes"]);
+
+  const subShapes = groupShape.shapes.contents;
+  for (const shape of subShapes) {
+    const name = shape.name.contents;
+    if (clip.tag === "Clip") {
+      if (name !== clipShapeName) {
+        const childSvg = await RenderShape(shape, shapeProps, interactiveProp);
+        childSvg.setAttribute("clip-path", `url(#${clipPathSvgId})`);
+        elem.appendChild(childSvg);
+      }
+      // If already rendered as clip shape, don't render it here because the clip shape is implicitly a group member.
+    } else {
+      const childSvg = await RenderShape(shape, shapeProps, interactiveProp);
+      elem.appendChild(childSvg);
+    }
+  }
+  attrAutoFillSvg(groupShape, elem, [
+    ...attrTitle(groupShape, elem),
+    "shapes",
+    "clipPath",
+  ]);
   return elem;
 };
 

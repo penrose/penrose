@@ -2888,7 +2888,8 @@ const evalListOrVector = (
           case "PathDataV":
           case "PtListV":
           case "StrV":
-          case "ShapeListV": {
+          case "ShapeListV":
+          case "ClipDataV": {
             return err(oneErr({ tag: "BadElementError", coll, index: 0 }));
           }
         }
@@ -2941,7 +2942,8 @@ const evalAccess = (
     case "ColorV":
     case "FloatV":
     case "PathDataV":
-    case "StrV": {
+    case "StrV":
+    case "ClipDataV": {
       // Not allowing indexing into a shape list for now
       return err({ tag: "NotCollError", expr });
     }
@@ -2968,7 +2970,8 @@ const evalUMinus = (
     case "PtListV":
     case "StrV":
     case "TupV":
-    case "ShapeListV": {
+    case "ShapeListV":
+    case "ClipDataV": {
       return err({ tag: "UOpTypeError", expr, arg: arg.tag });
     }
   }
@@ -2992,6 +2995,7 @@ const evalUTranspose = (
     case "PtListV":
     case "StrV":
     case "ShapeListV":
+    case "ClipDataV":
     case "TupV": {
       return err({ tag: "UOpTypeError", expr, arg: arg.tag });
     }
