@@ -184,8 +184,11 @@ export const containsGroupShape = (
     constrDict.contains.body(s, s2, padding)
   );
   if (s1.clipPath.contents.tag === "NoClip") {
+    // If a group does not have a clipping shape, checking whether a group contains a shape is equivalent to checking whether some group member contains the shape.
     return minN(vals);
   } else {
+    // Otherwise, then (1) the group members (excluding the clipping shape) contains the other shape, and
+    // (2) the clipping shape contains the other shape.
     return andConstraint(
       minN(vals),
       constrDict.contains.body(s1.clipPath.contents.contents, s2)
