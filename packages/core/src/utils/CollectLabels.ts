@@ -15,12 +15,8 @@ import { FloatV } from "../types/value.js";
 import { Result, err, ok } from "./Error.js";
 import { getAdValueAsString, getValueAsShapeList, safe } from "./Util.js";
 
-// to re-scale baseline
-const EX_CONSTANT = 10;
-
 export const mathjaxInit = (): ((
-  input: string,
-  fontSize: string
+  input: string
 ) => Result<HTMLElement, string>) => {
   // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
   // const adaptor = chooseAdaptor();
@@ -44,20 +40,14 @@ export const mathjaxInit = (): ((
   const svg = new SVG({ fontCache: "none" });
   const html = mathjax.document("", { InputJax: tex, OutputJax: svg });
 
-  const convert = (
-    input: string,
-    fontSize: string
-  ): Result<HTMLElement, string> => {
-    // HACK: workaround for newlines
+  const convert = (input: string): Result<HTMLElement, string> => {
+    // HACK: workaround for newlines. This workaround will force MathJax to always return the same heights regardless of the text content.
     // https://github.com/mathjax/MathJax/issues/2312#issuecomment-538185951
-    const newline_escaped = `\\displaylines{${input}}`;
-    // https://github.com/mathjax/MathJax-src/blob/master/ts/core/MathDocument.ts#L689
-    // https://github.com/mathjax/MathJax-demos-node/issues/3#issuecomment-497524041
+    // if(input) {
+    //   const newline_escaped = `\\displaylines{${input}}`;
+    // }
     try {
-      const node = html.convert(newline_escaped, { ex: EX_CONSTANT });
-      // Not sure if this call does anything:
-      // https://github.com/mathjax/MathJax-src/blob/master/ts/adaptors/liteAdaptor.ts#L523
-      adaptor.setStyle(node, "font-size", fontSize);
+      const node = html.convert(input, {});
       return ok(node.firstChild);
     } catch (error: any) {
       return err(error.message);
@@ -70,6 +60,35 @@ type Output = {
   body: HTMLElement;
   width: number;
   height: number;
+  descent: number;
+  ascent: number;
+};
+
+const parseFontSize = (
+  fontSize: string
+): { number: number; unit: string } | undefined => {
+  const regex = /^(\d+(?:\.\d+)?)\s*(px|in|cm|mm)$/;
+  const match = fontSize.match(regex);
+
+  if (!match) {
+    return;
+  }
+
+  const number = parseFloat(match[1]);
+  const unit = match[2];
+
+  return { number, unit };
+};
+
+// Convert from a font size in absolute unit (px, in, cm, mm) to pixels
+const toPxFontSize = (number: number, unit: string): number => {
+  const inPX: { [unit: string]: number } = {
+    px: 1,
+    in: 96, // 96 px to an inch
+    cm: 96 / 2.54, // 2.54 cm to an inch
+    mm: 96 / 25.4, // 10 mm to a cm
+  };
+  return inPX[unit] * number;
 };
 
 /**
@@ -77,7 +96,7 @@ type Output = {
  */
 const tex2svg = async (
   properties: Equation<ad.Num>,
-  convert: (input: string, fontSize: string) => Result<HTMLElement, string>
+  convert: (input: string) => Result<HTMLElement, string>
 ): Promise<Result<Output, string>> =>
   new Promise((resolve) => {
     const contents = getAdValueAsString(properties.string, "");
@@ -93,30 +112,60 @@ const tex2svg = async (
     }
 
     // Render the label
-    const output = convert(contents, fontSize);
+    const output = convert(contents);
     if (output.isErr()) {
       resolve(err(`MathJax could not render $${contents}$: ${output.error}`));
       return;
     }
+
     const body = output.value;
+
     const viewBox = body.getAttribute("viewBox");
     if (viewBox === null) {
       resolve(err(`No ViewBox found for MathJax output $${contents}$`));
       return;
     }
 
-    // Get the rendered viewBox dimensions
-    const viewBoxArr = viewBox.split(" ");
-    const width = parseFloat(viewBoxArr[2]);
-    const height = parseFloat(viewBoxArr[3]);
-
     // Get re-scaled dimensions of label according to
     // https://github.com/mathjax/MathJax-src/blob/32213009962a887e262d9930adcfb468da4967ce/ts/output/svg.ts#L248
-    const vAlignFloat = parseFloat(body.style.verticalAlign) * EX_CONSTANT;
-    const constHeight = parseFloat(fontSize) - vAlignFloat;
-    const scaledWidth = (constHeight / height) * width;
+    // all viewbox units are divided by 1000 because MathJax scaled them by 1000
+    // these viewbox props are in em units * 1000
+    const viewBoxArr = viewBox.split(" ");
+    const width = parseFloat(viewBoxArr[2]) / 1000;
+    const height = parseFloat(viewBoxArr[3]) / 1000;
 
-    resolve(ok({ body, width: scaledWidth, height: constHeight }));
+    // the vertical align adjustment and height in ex unit. This is used to avoid dealing with ex to px conversion
+    const d = -parseFloat(body.style.verticalAlign);
+    const exH = parseFloat(body.getAttribute("height")!);
+
+    // em is really the pixel value of the font size
+    const parsedFontSize = parseFontSize(fontSize);
+    if (parsedFontSize) {
+      const { number, unit } = parsedFontSize;
+      const em_to_px = (n: number) => n * toPxFontSize(number, unit);
+      const scaledWidth = em_to_px(width);
+      const scaledHeight = em_to_px(height);
+      const scaledD = (d / exH) * scaledHeight;
+      const scaledDescent = scaledD;
+      const scaledAscent = scaledHeight - scaledDescent; // HACK: interpreting ascent to be height - descent, which might be very wrong
+
+      resolve(
+        ok({
+          body,
+          width: scaledWidth,
+          height: scaledHeight,
+          descent: scaledDescent,
+          ascent: scaledAscent,
+        })
+      );
+    } else {
+      resolve(
+        err(
+          'Invalid font size format. Only "px", "in", "cm", and "mm" units are supported.'
+        )
+      );
+      return;
+    }
   });
 
 const floatV = (contents: number): FloatV<number> => ({
@@ -140,11 +189,15 @@ const textData = (
 const equationData = (
   width: number,
   height: number,
+  ascent: number,
+  descent: number,
   rendered: HTMLElement
 ): EquationData => ({
   tag: "EquationData",
   width: floatV(width),
   height: floatV(height),
+  ascent: floatV(ascent),
+  descent: floatV(descent),
   rendered,
 });
 
@@ -183,7 +236,7 @@ export const toFontRule = <T>(properties: Text<T>): string => {
 // https://stackoverflow.com/a/44564236
 export const collectLabels = async (
   allShapes: Shape<ad.Num>[],
-  convert: (input: string, fontSize: string) => Result<HTMLElement, string>
+  convert: (input: string) => Result<HTMLElement, string>
 ): Promise<Result<LabelCache, PenroseError>> => {
   const labels: LabelCache = new Map();
   for (const s of allShapes) {
@@ -199,13 +252,15 @@ export const collectLabels = async (
         });
       }
 
-      const { body, width, height } = svg.value;
+      const { body, width, height, ascent, descent } = svg.value;
 
       // Instead of directly overwriting the properties, cache them temporarily
       // NOTE: in the case of empty strings, `tex2svg` returns infinity sometimes. Convert to 0 to avoid NaNs in such cases.
       const label: EquationData = equationData(
         width === Infinity ? 0 : width,
         height === Infinity ? 0 : height,
+        ascent,
+        descent,
         body
       );
       labels.set(shapeName, label);
@@ -319,6 +374,8 @@ const insertPendingHelper = (
         );
       setPendingProperty(xs, inputs, s.width, labelData.width);
       setPendingProperty(xs, inputs, s.height, labelData.height);
+      setPendingProperty(xs, inputs, s.ascent, labelData.ascent);
+      setPendingProperty(xs, inputs, s.descent, labelData.descent);
     } else if (s.shapeType === "Text") {
       const labelData = safe(labelCache.get(s.name.contents), "missing label");
       if (labelData.tag !== "TextData")

@@ -10,7 +10,7 @@ forall Set x {
 
   x.text = Equation {
     string : x.label
-    fontSize : "25px"
+    fontSize : "32px"
   }
 
   ensure contains(x.icon, x.text)

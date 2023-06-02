@@ -64,14 +64,14 @@ forall Element g
    shape g.rowLabel = Equation {
        string: g.label
        center: (-global.tableWidth/2, g.v )
-       fontSize: "2.5px"
+       fontSize: "8px"
        fillColor: colors.darkGray
    }
 
    shape g.colLabel = Equation {
        string: g.label
        center: (g.u, global.tableHeight/2)
-       fontSize: "2.5px"
+       fontSize: "8px"
        fillColor: colors.darkGray
    }
 }
@@ -99,7 +99,7 @@ where IsProduct( a, b, c )
    shape productText = Equation {
       string: a.label
       center: productShape.center
-      fontSize: "2.5px"
+      fontSize: "8px"
       fillColor: a.labelColor
    }
 }
@@ -120,7 +120,7 @@ where IsProduct( a, e, a )
    shape productText = Equation {
       string: a.label
       center: productShape.center
-      fontSize: "2.5px"
+      fontSize: "8px"
       fillColor: a.labelColor
    }
 }
@@ -141,7 +141,7 @@ where IsProduct( a, a, e )
    shape productText = Equation {
       string: a.label
       center: productShape.center
-      fontSize: "2.5px"
+      fontSize: "8px"
       fillColor: a.labelColor
    }
 }
@@ -162,7 +162,7 @@ where IsProduct( a, b, b )
    shape productText = Equation {
       string: a.label
       center: productShape.center
-      fontSize: "2.5px"
+      fontSize: "8px"
       fillColor: a.labelColor
    }
 }
@@ -183,7 +183,7 @@ where IsProduct( e, e, e )
    shape productText = Equation {
       string: e.label
       center: productShape.center
-      fontSize: "2.5px"
+      fontSize: "8px"
       fillColor: e.labelColor
    }
 }

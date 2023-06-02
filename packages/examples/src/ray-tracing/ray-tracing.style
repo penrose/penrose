@@ -129,7 +129,7 @@ where p has math label {
    shape p.labelText = Equation {
       string: p.label
       ensureOnCanvas: false
-      fontSize: "9px"
+      fontSize: "14px"
       fillColor: #000
       strokeColor: "#ffffff"
       strokeWidth: 2.5
