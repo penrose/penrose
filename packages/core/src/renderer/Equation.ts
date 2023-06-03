@@ -12,7 +12,7 @@ import { RenderProps } from "./Renderer.js";
 
 const placeholderString = (
   label: string,
-  canvasSize: [number, number],
+  [x, y]: [number, number],
   shape: Equation<number>
 ): SVGGElement => {
   const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
@@ -20,8 +20,6 @@ const placeholderString = (
   txt.textContent = label;
   attrFill(shape, txt);
   attrWH(shape, txt);
-  const { center } = shape;
-  const [x, y] = toScreen([center.contents[0], center.contents[1]], canvasSize);
   txt.setAttribute("x", `${x}`);
   txt.setAttribute("y", `${y}`);
   txt.setAttribute("alignment-baseline", "alphabetic");
@@ -35,12 +33,16 @@ const RenderEquation = (
   renderOptions: RenderProps
 ): SVGGElement => {
   const { canvasSize, labels, texLabels } = renderOptions;
+  const { center } = shape;
+  const [x, y] = toScreen([center.contents[0], center.contents[1]], canvasSize);
 
   if (texLabels) {
-    // if equations are rendered as plain TeX strings, forward relevant props to a <text> element and surround the TeX string with $$
+    // If equations are rendered as plain TeX strings, forward relevant props to a <text> element and surround the TeX string with $$
+    // Since the `svg` TeX package render text with the center on the baseline, we shift the labels down by height/2 + descent
+    const baselineY = y + shape.height.contents / 2 - shape.descent.contents;
     const txt = placeholderString(
       `$${getAdValueAsString(shape.string)}$`,
-      canvasSize,
+      [x, baselineY],
       shape
     );
     return txt;
@@ -83,11 +85,7 @@ const RenderEquation = (
     return elem;
   } else {
     // Fallback case: generate plain-text (non-rendered) label from string
-    return placeholderString(
-      getAdValueAsString(shape.string),
-      canvasSize,
-      shape
-    );
+    return placeholderString(getAdValueAsString(shape.string), [x, y], shape);
   }
 };
 export default RenderEquation;
