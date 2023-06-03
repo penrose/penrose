@@ -25,12 +25,16 @@ import {
 } from "../types/types.js";
 import {
   BoolV,
+  Clip,
+  ClipData,
+  ClipDataV,
   Color,
   ColorV,
   FloatV,
   LListV,
   ListV,
   MatrixV,
+  NoClip,
   PathCmd,
   PathDataV,
   PtListV,
@@ -643,6 +647,25 @@ export const white = (): ColorV<ad.Num> =>
   colorV({ tag: "RGBA", contents: [1, 1, 1, 1] });
 
 export const noPaint = (): ColorV<ad.Num> => colorV({ tag: "NONE" });
+
+export const clipDataV = (contents: ClipData<ad.Num>): ClipDataV<ad.Num> => ({
+  tag: "ClipDataV",
+  contents,
+});
+
+export const noClip = (): NoClip => ({
+  tag: "NoClip",
+});
+
+export const clipShape = (contents: Shape<ad.Num>): Clip<ad.Num> => {
+  if (contents.shapeType === "Group") {
+    throw new Error("Cannot use a Group shape as clip path");
+  }
+  return {
+    tag: "Clip",
+    contents,
+  };
+};
 
 //#endregion
 

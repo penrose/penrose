@@ -10,8 +10,8 @@
     "build-decls": ":",
     "build": "cross-env NODE_OPTIONS='--max-old-space-size=8192' vite build",
     "preview": "vite preview",
-    "test": "vitest run",
-    "coverage": "vitest run --coverage"
+    "test": "vitest run --no-threads",
+    "coverage": "yarn test --coverage"
   },
   "nx": {
     "targets": {
