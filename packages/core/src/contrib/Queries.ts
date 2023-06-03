@@ -35,6 +35,7 @@ import {
   rectangleDifference,
   rectangleSignedDistance,
 } from "./Minkowski.js";
+import { Polyline } from "../shapes/Polyline.js";
 import {
   Polygonlike,
   Rectlike,
@@ -283,7 +284,7 @@ export const rectLineDist = (
 export const polygonSignedDistance = (
    v: ad.Num[][], // 2D polygon vertices
    p: ad.Num[] // 2D query point
-): type => {
+): ad.Num => {
         /*
       float sdPolygon( in vec2[N] v, in vec2 p )
       {
@@ -525,24 +526,12 @@ const shapeDistanceRectlikePolyline = (
   M: Polyline<ad.Num>
 ): ad.Num => {
 
-   let dMin = Infinity;
+   let dMin: ad.Num = Infinity;
 
    // take minimum distance to rect R over all segments in polyline M
    for( let i = 0; i < M.points.contents.length-1; i++ ) {
       const a = M.points.contents[i];
       const b = M.points.contents[i + 1];
-
-      // https://github.com/penrose/penrose/issues/715
-      if (!ad.isPt2(a)) {
-         throw new Error(
-            `shapeDistance expected a to be Pt2, but got length ${a.length}`
-         );
-      }
-      if (!ad.isPt2(b)) {
-         throw new Error(
-            `shapeDistance expected b to be Pt2, but got length ${b.length}`
-         );
-      }
 
       const halfW = div(R.width.contents, 2);
       const halfH = div(R.height.contents, 2);
@@ -634,7 +623,7 @@ const shapeDistanceCirclePolyline = (
    const r = C.r.contents;
 
    // compute the smallest distance to any segment
-   let dMin = Infinity;
+   let dMin: ad.Num = Infinity;
    for( let i = 0; i < M.points.contents.length-1; i++ ) {
       const a = M.points.contents[i];
       const b = M.points.contents[i + 1];

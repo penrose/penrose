@@ -2982,7 +2982,9 @@ export const compDict = {
       start: ad.Pt2,
       end: ad.Pt2
     ): FloatV<ad.Num> =>
-      floatV(rectLineDist({ bottomLeft, topRight }, { start, end })),
+      floatV(
+         rectLineDist( bottomLeft[0], bottomLeft[1], topRight[0], topRight[1], start[0], start[1], end[0], end[1] )
+      ),
     returns: valueT("Real"),
   },
 
