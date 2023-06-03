@@ -1,0 +1,32 @@
+canvas {
+   width = 640
+   height = 480
+}
+
+global {
+   scalar strokeWidth = 4
+}
+
+forall Line L {
+   vec2 a = (?,?)
+   vec2 b = (?,?)
+   shape L.icon = Line {
+      start: a
+      end: b
+      strokeWidth: global.strokeWidth
+      fill: "none"
+   }
+   shape L.bbox = Rectangle {
+      center: (a+b)/2
+      width: abs(a[0]-b[0])
+      height: abs(a[1]-b[1])
+      fillColor: #0001
+   }
+   ensure norm(a-b) == 160
+}
+
+forall Line L1; Line L2 {
+   ensure disjoint( L1.icon, L2.icon, global.strokeWidth/2 )
+   --ensure disjoint( L1.bbox, L2.bbox, global.strokeWidth/2 )
+}
+

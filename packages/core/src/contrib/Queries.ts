@@ -425,6 +425,8 @@ export const shapeDistance = (s1: Shape<ad.Num>, s2: Shape<ad.Num>): ad.Num => {
   // Same shapes
   if (t1 === "Circle" && t2 === "Circle")
       return shapeDistanceCircles(s1, s2);
+  if (t1 === "Line" && t2 === "Line")
+      return shapeDistanceLines(s1, s2);
   else if (isRectlike(s1) && isRectlike(s2))
     return shapeDistanceRectlikes(s1, s2);
   // HACK: text/label-line, mainly to skip convex partitioning
@@ -466,6 +468,23 @@ const shapeDistanceCircles = (s1: Circle<ad.Num>, s2: Circle<ad.Num>): ad.Num =>
     ops.vdist(s1.center.contents, s2.center.contents),
     add(s1.r.contents, s2.r.contents)
   );
+
+const shapeDistanceLines = (s1: Line<ad.Num>, s2: Line<ad.Num>): ad.Num => {
+   // line endpoints
+   const a0 = s1.start.contents;
+   const a1 = s1.end.contents;
+   const b0 = s2.start.contents;
+   const b1 = s2.end.contents;
+
+   // vertices of Minkowski difference polygon
+   const p0 = ops.vsub( a0, b0 );
+   const p1 = ops.vsub( a0, b1 );
+   const p2 = ops.vsub( a1, b1 );
+   const p3 = ops.vsub( a1, b0 );
+
+   // how far is Minkowski polygon from containing the origin?
+   return polygonSignedDistance( [p0,p1,p2,p3], [0,0] );
+}
 
 const shapeDistanceRectlikes = (
   s1: Rectlike<ad.Num>,
