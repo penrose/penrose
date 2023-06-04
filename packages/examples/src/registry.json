@@ -287,5 +287,9 @@
   "geometric-queries/ray-intersect/test": {
     "name": "Ray Intersection Tests",
     "gallery": false
+  },
+  "tsne/tsne": {
+    "name": "T-SNE Test",
+    "gallery": false
   }
 }
