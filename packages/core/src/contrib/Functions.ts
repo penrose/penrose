@@ -2969,6 +2969,37 @@ export const compDict = {
     },
     returns: valueT("Real2"),
   },
+
+  /**
+   * T-SNE energy
+   */
+  tsneEnergy: {
+    name: "tsneEnergy",
+    description: "Returns T-SNE energy",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "high dimensional points",
+      },
+      {
+        name: "projectedPoints",
+        type: realNMT(),
+        description: "projected, low dimensional points",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      projectedPoints: ad.Num[][]
+    ): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: calculateTsneEnergy(points, projectedPoints),
+      };
+    },
+    returns: valueT("Real"),
+  },
 };
 
 // `_compDictVals` causes TypeScript to enforce that every function in
@@ -3261,4 +3292,70 @@ const tickPlacement = (
     pts.push(add(pts[i - 1], shift));
   }
   return pts;
+};
+
+// Function to calculate the pairwise similarity matrix for the original high-dimensional data.
+const calculateProbabilityMatrixHighDim = (x: ad.Num[][]): ad.Num[][] => {
+  const m = x.length;
+  const probabilities = Array(m)
+    .fill(0)
+    .map(() => Array(m).fill(0));
+
+  for (let i = 0; i < m; i++) {
+    for (let j = i + 1; j < m; j++) {
+      const distance = ops.vdist(x[i], x[j]);
+      const value = exp(neg(div(distance, 2)));
+      probabilities[i][j] = value;
+      probabilities[j][i] = value; // Symmetric
+    }
+  }
+
+  // Normalize probabilities
+  const sum = addN(probabilities.flat());
+  return probabilities.map((row) => row.map((value) => div(value, sum)));
+};
+
+// Function to calculate the pairwise similarity matrix for the low-dimensional representation of the data.
+const calculateProbabilityMatrixLowDim = (y: ad.Num[][]): ad.Num[][] => {
+  const n = y.length;
+  const probabilities = Array(n)
+    .fill(0)
+    .map(() => Array(n).fill(0));
+
+  for (let i = 0; i < n; i++) {
+    for (let j = i + 1; j < n; j++) {
+      const distance = ops.vdist(y[i], y[j]);
+      const value = div(1, add(1, distance));
+      probabilities[i][j] = value;
+      probabilities[j][i] = value; // Symmetric
+    }
+  }
+
+  // Normalize probabilities
+  const sum = addN(probabilities.flat());
+  return probabilities.map((row) => row.map((value) => div(value, sum)));
+};
+
+// Function to calculate the Kullback-Leibler divergence between two probability distributions.
+const calculateKLDivergence = (p: ad.Num[][], q: ad.Num[][]): ad.Num => {
+  return addN(
+    p.map((row, i) =>
+      addN(
+        row.map((p_ij, j) =>
+          mul(
+            p_ij,
+            ln(div(add(p_ij, Number.EPSILON), add(q[i][j], Number.EPSILON)))
+          )
+        )
+      )
+    )
+  );
+};
+
+// Function to calculate the t-SNE energy (cost) for a given high-dimensional data and its low-dimensional representation.
+const calculateTsneEnergy = (x: ad.Num[][], y: ad.Num[][]): ad.Num => {
+  const p = calculateProbabilityMatrixHighDim(x);
+  const q = calculateProbabilityMatrixLowDim(y);
+
+  return calculateKLDivergence(p, q);
 };
