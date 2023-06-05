@@ -25,12 +25,16 @@ import {
 } from "../types/types.js";
 import {
   BoolV,
+  Clip,
+  ClipData,
+  ClipDataV,
   Color,
   ColorV,
   FloatV,
   LListV,
   ListV,
   MatrixV,
+  NoClip,
   PathCmd,
   PathDataV,
   PtListV,
@@ -635,6 +639,25 @@ export const white = (): ColorV<ad.Num> =>
 
 export const noPaint = (): ColorV<ad.Num> => colorV({ tag: "NONE" });
 
+export const clipDataV = (contents: ClipData<ad.Num>): ClipDataV<ad.Num> => ({
+  tag: "ClipDataV",
+  contents,
+});
+
+export const noClip = (): NoClip => ({
+  tag: "NoClip",
+});
+
+export const clipShape = (contents: Shape<ad.Num>): Clip<ad.Num> => {
+  if (contents.shapeType === "Group") {
+    throw new Error("Cannot use a Group shape as clip path");
+  }
+  return {
+    tag: "Clip",
+    contents,
+  };
+};
+
 //#endregion
 
 //#region Type
@@ -683,6 +706,7 @@ export const stringT = (): ValueT => valueT("String");
 export const posIntT = (): ValueT => valueT("PosInt");
 export const booleanT = (): ValueT => valueT("Boolean");
 export const realNMT = (): ValueT => valueT("RealNM");
+export const shapeListT = (): ValueT => valueT("ShapeList");
 
 export const shapeT = (type: ShapeType | "AnyShape"): ShapeT => ({
   tag: "ShapeT",
@@ -716,9 +740,11 @@ export const resolveRhsName = (
       if (locals.has(value)) {
         // locals shadow selector match names
         return { tag: "Local", block, name: value };
-      } else if (value in subst) {
+      } else if (subst.tag === "StySubSubst" && value in subst.contents) {
         // selector match names shadow globals
-        return { tag: "Substance", block, name: subst[value] };
+        return { tag: "Substance", block, name: subst.contents[value] };
+      } else if (subst.tag === "CollectionSubst" && value in subst.groupby) {
+        return { tag: "Substance", block, name: subst.groupby[value] };
       } else {
         // couldn't find it in context, must be a glboal
         return { tag: "Global", block, name: value };

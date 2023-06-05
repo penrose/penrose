@@ -30,6 +30,7 @@ import { Rectangle } from "../shapes/Rectangle.js";
 import { Shape } from "../shapes/Shapes.js";
 import { Text } from "../shapes/Text.js";
 import * as ad from "../types/ad.js";
+import { bboxFromShape } from "./Queries.js";
 
 export type Rectlike<T> = Equation<T> | Image<T> | Rectangle<T> | Text<T>;
 export type Polygonlike<T> = Rectlike<T> | Line<T> | Polygon<T> | Polyline<T>;
@@ -48,6 +49,13 @@ export const isPolygonlike = <T>(s: Shape<T>): s is Polygonlike<T> => {
 export const isLinelike = <T>(s: Shape<T>): s is Linelike<T> => {
   const t = s.shapeType;
   return t === "Line";
+};
+
+export const bboxPts = (s: Shape<ad.Num>): [ad.Pt2, ad.Pt2, ad.Pt2, ad.Pt2] => {
+  const { topRight, topLeft, bottomLeft, bottomRight } = BBox.corners(
+    bboxFromShape(s)
+  );
+  return [topRight, topLeft, bottomLeft, bottomRight];
 };
 
 export const toPt = (v: ad.Num[]): ad.Pt2 => {
@@ -267,4 +275,8 @@ export const extractPoints = (s: Shape<ad.Num>): [ad.Num, ad.Num][] => {
     return s.points.contents.map((arr) => [arr[0], arr[1]]);
   else
     throw new Error(`Point extraction not defined for shape ${s.shapeType}.`);
+};
+
+export const relu = (x: ad.Num): ad.Num => {
+  return ifCond(lt(x, 0), 0, x);
 };

@@ -19,7 +19,7 @@
     "build-decls": "tsc && cp index.d.ts dist/index.d.ts",
     "build-ts": "rimraf bindings && cargo test",
     "build-wasm": "cargo build --target=wasm32-unknown-unknown --release",
-    "build-wasm-bindgen": "rimraf build && wasm-bindgen --target=web --out-dir=build target/wasm32-unknown-unknown/release/penrose_optimizer.wasm",
+    "build-wasm-bindgen": "rimraf build && wasm-bindgen --target=web --out-dir=build ../../target/wasm32-unknown-unknown/release/penrose_optimizer.wasm",
     "format": "cargo fmt",
     "format:check": "cargo fmt --check",
     "typecheck": ":"

@@ -109,7 +109,7 @@ forall Triangle t
    -- using again the projected 2D coordinates p
    scalar dotSize = 1.0
    color dotColor = rgba(0,0,0,1)
-   string dotFontSize = "4.5px"
+   string dotFontSize = "10px"
    scalar offset = 6 -- offset of labels from vertices
    shape t.vertexI = Circle {
       center: t.pi

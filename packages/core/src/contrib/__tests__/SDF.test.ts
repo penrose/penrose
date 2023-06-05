@@ -93,7 +93,7 @@ const getResult = (
       ),
     };
   } else {
-    const result = compDict.signedDistance.body(context, s, p);
+    const result = compDict.signedDistance.body(context, s, [p[0], p[1]]);
     if (result.tag === "FloatV") {
       return result;
     } else {

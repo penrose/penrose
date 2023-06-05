@@ -601,7 +601,7 @@ forall Atom x {
         rotation : 0.0
         center : x.icon.center
         fillColor: #000
-        fontSize: "15pt"
+        fontSize: "20px"
     }
     x.layering = x.text above x.icon
 }

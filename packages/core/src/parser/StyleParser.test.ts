@@ -120,6 +120,40 @@ as Const
     const { results } = parser.feed(prog);
     sameASTs(results);
   });
+
+  test("collector", () => {
+    const p1 = `collect Element e into es {}`;
+    const r1 = parser.feed(p1);
+    sameASTs(r1.results);
+
+    const p2 = `collect Element e
+    into es where In(e, s) with Set s {}`;
+    const r2 = parser.feed(p2);
+    sameASTs(r2.results);
+
+    const p3 = `collect Element e
+    into es where In(e, s) foreach Set s {}`;
+    const r3 = parser.feed(p3);
+    sameASTs(r3.results);
+
+    const p4 = `collect Element e
+    into es where In(e, s) with Set s
+    foreach OtherThing o {}`;
+    const r4 = parser.feed(p4);
+    sameASTs(r4.results);
+
+    const p5 = `collect Element e
+    into es foreach OtherThing o where In(e, s) 
+    with Set s {}`;
+    const r5 = parser.feed(p5);
+    sameASTs(r5.results);
+
+    const p6 = `collect Element e
+    into es 
+    with Set s foreach OtherThing o where In(e, s) {} `;
+    const r6 = parser.feed(p6);
+    sameASTs(r6.results);
+  });
   test("multiple as clauses for predicates", () => {
     const prog = `
 forall Set A, B, C, D

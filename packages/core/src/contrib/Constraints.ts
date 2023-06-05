@@ -9,8 +9,10 @@ import {
   max,
   maxN,
   min,
+  minN,
   mul,
   neg,
+  sqrt,
   squared,
   sub,
 } from "../engine/AutodiffFunctions.js";
@@ -19,6 +21,7 @@ import { Line } from "../shapes/Line.js";
 import { Shape } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
 import { ConstrFunc } from "../types/functions.js";
+import { ClipData } from "../types/value.js";
 import { real2NT, real2T, realNT, realT, shapeT } from "../utils/Util.js";
 import { constrDictCurves } from "./CurveConstraints.js";
 import {
@@ -37,7 +40,12 @@ import {
   shapeDistance,
 } from "./Queries.js";
 import * as utils from "./Utils.js";
-import { isRectlike, overlap1D, toPt } from "./Utils.js";
+import { isRectlike, overlap1D, relu, toPt } from "./Utils.js";
+
+export const andConstraint = (...xs: ad.Num[]): ad.Num => {
+  const relusqs = xs.map(relu).map(squared);
+  return sqrt(addN(relusqs));
+};
 
 //#region Individual constriants
 /**
@@ -270,7 +278,7 @@ export const touching = (
 export const contains = (
   s1: Shape<ad.Num>,
   s2: Shape<ad.Num>,
-  padding = 0.0
+  padding: ad.Num = 0.0
 ): ad.Num => {
   const t1 = s1.shapeType,
     t2 = s2.shapeType;
@@ -312,6 +320,13 @@ export const contains = (
       rectPts,
       toPt(s2.center.contents),
       s2.r.contents,
+      padding
+    );
+  } else if (t1 === "Group") {
+    return containsGroupShape(
+      s1.shapes.contents,
+      s1.clipPath.contents,
+      s2,
       padding
     );
   } else {
@@ -447,6 +462,25 @@ export const containsRects = (
     ifCond(lt(yl1, yl2), 0, squared(sub(yl1, yl2))),
     ifCond(lt(yr2, yr1), 0, squared(sub(yr2, yr1))),
   ]);
+};
+export const containsGroupShape = (
+  shapes: Shape<ad.Num>[],
+  clip: ClipData<ad.Num>,
+  s2: Shape<ad.Num>,
+  padding: ad.Num
+): ad.Num => {
+  const vals = shapes.map((s) => constrDict.contains.body(s, s2, padding));
+  if (clip.tag === "NoClip") {
+    // If a group does not have a clipping shape, checking whether a group contains a shape is equivalent to checking whether some group member contains the shape.
+    return minN(vals);
+  } else {
+    // Otherwise, then (1) the group members (excluding the clipping shape) contains the other shape, and
+    // (2) the clipping shape contains the other shape.
+    return andConstraint(
+      minN(vals),
+      constrDict.contains.body(clip.contents, s2)
+    );
+  }
 };
 
 /**
