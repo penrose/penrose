@@ -12,7 +12,7 @@ import { maxX, maxY, minX, minY } from "../engine/BBox.js";
 import { Group } from "../shapes/Group.js";
 import { Shape } from "../shapes/Shapes.js";
 import { LabelCache, State } from "../types/state.js";
-import { getValueAsShapeList, toScreen } from "../utils/Util.js";
+import { toScreen } from "../utils/Util.js";
 import { attrAutoFillSvg, attrTitle } from "./AttrHelper.js";
 import RenderCircle from "./Circle.js";
 import RenderEllipse from "./Ellipse.js";
