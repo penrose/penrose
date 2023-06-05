@@ -1,8 +1,15 @@
 import * as ad from "../types/ad.js";
 import { Arrow, Fill, Named, ShapeCommon, Stroke } from "../types/shapes.js";
 import { PathDataV } from "../types/value.js";
-import { boolV, floatV, noPaint, pathDataV, strV } from "../utils/Util.js";
-import { Canvas, Context, sampleColor } from "./Samplers.js";
+import {
+  black,
+  boolV,
+  floatV,
+  noPaint,
+  pathDataV,
+  strV,
+} from "../utils/Util.js";
+import { Canvas, Context } from "./Samplers.js";
 
 export interface PathProps<T> extends Named<T>, Stroke<T>, Fill<T>, Arrow<T> {
   d: PathDataV<T>;
@@ -16,7 +23,7 @@ export const samplePath = (
   style: strV(""),
   strokeWidth: floatV(1),
   strokeStyle: strV("solid"),
-  strokeColor: sampleColor(context),
+  strokeColor: black(),
   strokeDasharray: strV(""),
   fillColor: noPaint(),
   startArrowheadSize: floatV(1),
