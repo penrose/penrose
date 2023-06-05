@@ -781,7 +781,7 @@ fn contains_nan(number_list: &[f64]) -> bool {
 
 fn to_js_value(value: &(impl Serialize + ?Sized)) -> Result<JsValue, serde_wasm_bindgen::Error> {
     // ts-rs expects `Option::None` to become `null` instead of `undefined`
-    value.serialize(&serde_wasm_bindgen::Serializer::new().serialize_missing_as_null(true))
+    value.serialize(&serde_wasm_bindgen::Serializer::json_compatible())
 }
 
 #[wasm_bindgen]
