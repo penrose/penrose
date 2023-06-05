@@ -1,7 +1,7 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5 5">
   <g>
     <marker
-      id="registry-PurpletiniSeahorse9761-`u`.shape-endArrowId"
+      id="registry-SucculentsReindeer397-`u`.shape-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -17,12 +17,12 @@
       ></path>
     </marker>
     <path
-      d="M 2.5 2.5 L 3.713883718800388 0.07223256239922327"
+      d="M 2.5 2.5 L 3.713875231070963 0.07224953785807342"
       stroke-opacity="255"
       stroke-width="0.01"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#registry-PurpletiniSeahorse9761-`u`.shape-endArrowId)"
+      marker-end="url(#registry-SucculentsReindeer397-`u`.shape-endArrowId)"
     ></path>
     <title>`u`.shape</title>
   </g>
@@ -36,35 +36,8 @@
   >
     <title>`S`.shape</title>
   </circle>
-  <g>
-    <marker
-      id="registry-PurpletiniSeahorse9761-`v`.shape-endArrowId"
-      markerUnits="strokeWidth"
-      markerWidth="9.95"
-      markerHeight="8.12"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#000000"
-        fill-opacity="255"
-      ></path>
-    </marker>
-    <path
-      d="M 2.5 2.5 L 3.543098137243497 3.0825472615907774"
-      stroke-opacity="255"
-      stroke-width="0.01"
-      stroke="#000000"
-      stroke-linecap="butt"
-      marker-end="url(#registry-PurpletiniSeahorse9761-`v`.shape-endArrowId)"
-    ></path>
-    <title>`v`.shape</title>
-  </g>
   <polygon
-    fill="#e3c73f"
+    fill="#8f2d90"
     fill-opacity="0.5"
     stroke="#000000"
     stroke-opacity="255"
@@ -77,7 +50,7 @@
   </polygon>
   <g>
     <marker
-      id="registry-PurpletiniSeahorse9761-`w`.shape-endArrowId"
+      id="registry-SucculentsReindeer397-`v`.shape-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -93,33 +66,60 @@
       ></path>
     </marker>
     <path
-      d="M 2.5 2.5 L 4.797805125461275 0.6711668844798859"
+      d="M 2.5 2.5 L 3.4923328881627076 3.045107655137476"
       stroke-opacity="255"
       stroke-width="0.01"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#registry-PurpletiniSeahorse9761-`w`.shape-endArrowId)"
+      marker-end="url(#registry-SucculentsReindeer397-`v`.shape-endArrowId)"
+    ></path>
+    <title>`v`.shape</title>
+  </g>
+  <g>
+    <marker
+      id="registry-SucculentsReindeer397-`w`.shape-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="255"
+      ></path>
+    </marker>
+    <path
+      d="M 2.5 2.5 L 4.748265013696225 0.6344797402184676"
+      stroke-opacity="255"
+      stroke-width="0.01"
+      stroke="#000000"
+      stroke-linecap="butt"
+      marker-end="url(#registry-SucculentsReindeer397-`w`.shape-endArrowId)"
     ></path>
     <title>`w`.shape</title>
   </g>
   <g>
     <path
-      d="M 3.747827230698835 0.004345538602329668 L 4.857191529070491 0.6239009869811261"
-      stroke-opacity="0.5"
+      d="M 3.74781874296941 0.004362514061179823 L 4.806675529509404 0.5860130336825544"
+      stroke-opacity="0.5019607843137255"
       stroke-width="0.01"
-      stroke="#82452c"
-      stroke-dasharray="7,5"
+      stroke="#707070"
+      stroke-dasharray="0.07,0.05"
       stroke-linecap="butt"
     ></path>
     <title>`w`.dashed_u</title>
   </g>
   <g>
     <path
-      d="M 3.6093642983716556 3.1195554483787964 L 4.857191529070491 0.6239009869811261"
-      stroke-opacity="0.5"
+      d="M 3.558856786539993 3.081650519621375 L 4.806675529509404 0.5860130336825544"
+      stroke-opacity="0.5019607843137255"
       stroke-width="0.01"
-      stroke="#30528f"
-      stroke-dasharray="7,5"
+      stroke="#707070"
+      stroke-dasharray="0.07,0.05"
       stroke-linecap="butt"
     ></path>
     <title>`w`.dashed_v</title>

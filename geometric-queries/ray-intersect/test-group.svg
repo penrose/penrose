@@ -3,53 +3,53 @@
     <g>
       <path
         d="M 0 690 L 800 690"
-        stroke-opacity="0.5"
+        stroke-opacity="1"
         stroke-width="5"
-        stroke="#ae1d29"
+        stroke="#000000"
         stroke-linecap="butt"
       ></path>
       <title>`G`.line</title>
     </g>
     <ellipse
-      fill="#519e9c"
+      fill="#6d36c5"
       fill-opacity="0.5"
-      cx="357.0240035382139"
-      cy="338.45527680083546"
+      cx="519.8825502797656"
+      cy="588.883861836455"
       stroke="none"
-      rx="87.38696004854333"
-      ry="73.01610348865609"
+      rx="64.29669066969142"
+      ry="81.6096975633142"
     >
       <title>`G`.ellipse</title>
     </ellipse>
     <polygon
-      fill="#b2c82c"
+      fill="#b27c52"
       fill-opacity="0.5"
       stroke="none"
       transform="scale(1)"
-      points="545.6201714801103,482.7012502896981,429.6473667900861,402.1761342860318,383.3753588375605,572.482563987992"
+      points="427.7897708129059,464.31766988228674,534.7989997844059,313.73301119819183,232.11237064751032,437.2447306310357"
     >
       <title>`G`.polygon</title>
     </polygon>
     <rect
-      x="27.5171070056766"
-      y="512.4822329809867"
-      width="66.25541781390068"
-      height="93.49960272253551"
-      fill="#325a22"
+      x="674.8178597037071"
+      y="186.56776689448316"
+      width="70.72202544870048"
+      height="87.98713549295783"
+      fill="#ba5134"
       fill-opacity="0.5"
       stroke="none"
       rx="0"
-      transform="rotate(0, 60.64481591262694, 559.2320343422545)"
+      transform="rotate(0, 710.1788724280573, 230.56133464096206)"
     >
       <title>`G`.rectangle</title>
     </rect>
     <circle
-      fill="#e1329b"
+      fill="#464e1f"
       fill-opacity="0.5"
-      cx="96.41707627369806"
-      cy="435.93910866040534"
+      cx="339.3772073488781"
+      cy="178.5266888956924"
       stroke="none"
-      r="60.60874491880611"
+      r="78.64277709748413"
     >
       <title>`G`.circle</title>
     </circle>
@@ -57,7 +57,7 @@
   </g>
   <g>
     <path
-      d="M 400 10 L 113.33024744863764 377.77541024199166"
+      d="M 400 10 L 763.1379398551295 690"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -68,8 +68,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="113.33024744863764"
-    cy="377.77541024199166"
+    cx="763.1379398551295"
+    cy="690"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -83,7 +83,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 617.6477409124732 689.9999999999999"
+      d="M 400 10 L 354.31832341138903 101.31761608091938"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -94,8 +94,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="617.6477409124732"
-    cy="689.9999999999999"
+    cx="354.31832341138903"
+    cy="101.31761608091938"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -109,7 +109,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 304.4486015614209 281.159169837528"
+      d="M 400 10 L 360.2454952478354 102.70454531160505"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -120,8 +120,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="304.4486015614209"
-    cy="281.159169837528"
+    cx="360.2454952478354"
+    cy="102.70454531160505"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -135,7 +135,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 775.5605362913543 690.0000000000001"
+      d="M 400 10 L 376.49964010734334 109.1984585516496"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -146,8 +146,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="775.5605362913543"
-    cy="690.0000000000001"
+    cx="376.49964010734334"
+    cy="109.1984585516496"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -161,7 +161,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 498.7218170665767 450.137620914477"
+      d="M 400 10 L 516.0015029230924 321.4033571430874"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -172,8 +172,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="498.7218170665767"
-    cy="450.137620914477"
+    cx="516.0015029230924"
+    cy="321.4033571430874"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -187,7 +187,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 672.8802413152806 690"
+      d="M 400 10 L 361.45786700215046 103.04869218960675"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -198,8 +198,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="672.8802413152806"
-    cy="690"
+    cx="361.45786700215046"
+    cy="103.04869218960675"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -213,7 +213,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 352.4233216603945 266.2204919013863"
+      d="M 400 10 L 402.5753649562408 131.7251633842409"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -224,8 +224,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="352.4233216603945"
-    cy="266.2204919013863"
+    cx="402.5753649562408"
+    cy="131.7251633842409"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -239,7 +239,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 312.4280457907389 276.57170237843246"
+      d="M 400 10 L 383.5513733613126 113.46433467225864"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -250,8 +250,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="312.4280457907389"
-    cy="276.57170237843246"
+    cx="383.5513733613126"
+    cy="113.46433467225864"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -265,7 +265,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 412.3913413844525 282.93817056639546"
+      d="M 400 10 L 365.09907876503325 104.21067551410482"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -276,8 +276,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="412.3913413844525"
-    cy="282.93817056639546"
+    cx="365.09907876503325"
+    cy="104.21067551410482"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -291,7 +291,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 462.3228607136334 424.8641941782064"
+      d="M 400 10 L 750.0037408026144 690"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -302,8 +302,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="462.3228607136334"
-    cy="424.8641941782064"
+    cx="750.0037408026144"
+    cy="690"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -317,7 +317,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 377.929894500112 268.2542256461727"
+      d="M 400 10 L 523.3851648215195 318.39044316209663"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -328,8 +328,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="377.929894500112"
-    cy="268.2542256461727"
+    cx="523.3851648215195"
+    cy="318.39044316209663"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -343,7 +343,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 340.24118070370156 267.50872477248123"
+      d="M 400 10 L 356.22267874383186 101.71061026461535"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -354,8 +354,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="340.24118070370156"
-    cy="267.50872477248123"
+    cx="356.22267874383186"
+    cy="101.71061026461535"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -369,7 +369,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 494.02010292741056 446.87301006468005"
+      d="M 400 10 L 776.4221049864393 690"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -380,8 +380,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="494.02010292741056"
-    cy="446.87301006468005"
+    cx="776.4221049864393"
+    cy="690"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -395,7 +395,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 360.24087166922124 266.1620773868343"
+      d="M 400 10 L 334.0340211943262 100.06722498107908"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -406,8 +406,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="360.24087166922124"
-    cy="266.1620773868343"
+    cx="334.0340211943262"
+    cy="100.06722498107908"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -421,7 +421,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 464.91556717412965 426.66442647450157"
+      d="M 400 10 L 400 10"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -432,8 +432,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="464.91556717412965"
-    cy="426.66442647450157"
+    cx="400"
+    cy="10"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -447,7 +447,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 132.5544518270616 387.3260241423126"
+      d="M 400 10 L 384.60167230337316 114.1899784974085"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -458,8 +458,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="132.5544518270616"
-    cy="387.3260241423126"
+    cx="384.60167230337316"
+    cy="114.1899784974085"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -473,7 +473,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 358.9515427326323 266.13078852547096"
+      d="M 400 10 L 377.5737312306985 109.78439656675181"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -484,8 +484,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="358.9515427326323"
-    cy="266.13078852547096"
+    cx="377.5737312306985"
+    cy="109.78439656675181"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -499,7 +499,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 383.2153990961439 269.5081724701611"
+      d="M 400 10 L 378.10154909759 110.0803461714303"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -510,8 +510,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="383.2153990961439"
-    cy="269.5081724701611"
+    cx="378.10154909759"
+    cy="110.0803461714303"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -525,7 +525,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 400 10"
+      d="M 400 10 L 523.9659096235682 318.15346940062847"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -536,8 +536,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="400"
-    cy="10"
+    cx="523.9659096235682"
+    cy="318.15346940062847"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -551,7 +551,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 99.71484295742562 375.45712728238584"
+      d="M 400 10 L 788.2980620949779 690"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -562,8 +562,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="99.71484295742562"
-    cy="375.45712728238584"
+    cx="788.2980620949779"
+    cy="690"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -577,7 +577,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 718.9363287646389 690"
+      d="M 400 10 L 369.5118081655199 105.88792691748665"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -588,8 +588,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="718.9363287646389"
-    cy="690"
+    cx="369.5118081655199"
+    cy="105.88792691748665"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -603,7 +603,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 93.77252481957726 588.5859487110241"
+      d="M 400 10 L 330.6380449772553 100.3726495668306"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -614,8 +614,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="93.77252481957726"
-    cy="588.5859487110241"
+    cx="330.6380449772553"
+    cy="100.3726495668306"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -629,7 +629,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 93.77252481957726 599.5289040422632"
+      d="M 400 10 L 327.6524692867507 100.76456792286893"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -640,8 +640,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="93.77252481957726"
-    cy="599.5289040422632"
+    cx="327.6524692867507"
+    cy="100.76456792286893"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -655,7 +655,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 745.9462935608194 690"
+      d="M 400 10 L 349.46296181819173 100.53470895673229"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -666,8 +666,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="745.9462935608194"
-    cy="690"
+    cx="349.46296181819173"
+    cy="100.53470895673229"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -681,7 +681,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 400 10"
+      d="M 400 10 L 385.03855794352 114.49931528619237"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -692,8 +692,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="400"
-    cy="10"
+    cx="385.03855794352"
+    cy="114.49931528619237"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -707,7 +707,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 717.9554084157105 690"
+      d="M 400 10 L 410.2654721169581 144.4800076931377"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -718,8 +718,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="717.9554084157105"
-    cy="690"
+    cx="410.2654721169581"
+    cy="144.4800076931377"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -733,7 +733,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 147.96917863609247 404.136224785012"
+      d="M 400 10 L 370.22882887428676 106.18955415298592"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -744,8 +744,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="147.96917863609247"
-    cy="404.136224785012"
+    cx="370.22882887428676"
+    cy="106.18955415298592"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -759,7 +759,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 400 10"
+      d="M 400 10 L 335.1583937265571 99.9987198914927"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -770,8 +770,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="400"
-    cy="10"
+    cx="335.1583937265571"
+    cy="99.9987198914927"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -785,7 +785,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 93.77252481957726 583.9374659709856"
+      d="M 400 10 L 386.3269940904395 115.43803832543739"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -796,8 +796,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="93.77252481957726"
-    cy="583.9374659709856"
+    cx="386.3269940904395"
+    cy="115.43803832543739"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -811,7 +811,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 402.356030875978 276.8709885175346"
+      d="M 400 10 L 403.33874342909934 132.77402123352522"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -822,8 +822,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="402.356030875978"
-    cy="276.8709885175346"
+    cx="403.33874342909934"
+    cy="132.77402123352522"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -837,7 +837,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 400 10"
+      d="M 400 10 L 495.614925461285 329.72212973915043"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -848,8 +848,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="400"
-    cy="10"
+    cx="495.614925461285"
+    cy="329.72212973915043"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -863,7 +863,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 519.8470035884558 464.80578471218956"
+      d="M 400 10 L 400 10"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -874,8 +874,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="519.8470035884558"
-    cy="464.80578471218956"
+    cx="400"
+    cy="10"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -889,7 +889,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 394.2005836746218 273.1463962648098"
+      d="M 400 10 L 376.9913302816589 109.46399495130231"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -900,8 +900,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="394.2005836746218"
-    cy="273.1463962648098"
+    cx="376.9913302816589"
+    cy="109.46399495130231"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -915,7 +915,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 393.7716295460441 272.9761773296099"
+      d="M 400 10 L 357.6310196568688 102.03303281487607"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -926,8 +926,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="393.7716295460441"
-    cy="272.9761773296099"
+    cx="357.6310196568688"
+    cy="102.03303281487607"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -941,7 +941,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 131.50659098257574 386.5643366757913"
+      d="M 400 10 L 473.5571662774444 338.72283046848327"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -952,8 +952,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="131.50659098257574"
-    cy="386.5643366757913"
+    cx="473.5571662774444"
+    cy="338.72283046848327"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -967,7 +967,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 420.2919343200402 289.23753379937114"
+      d="M 400 10 L 761.554749515162 690"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -978,8 +978,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="420.2919343200402"
-    cy="289.23753379937114"
+    cx="761.554749515162"
+    cy="690"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -993,7 +993,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 152.4285349317299 412.8812610059472"
+      d="M 400 10 L 362.8525481506409 103.47076022573279"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1004,8 +1004,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="152.4285349317299"
-    cy="412.8812610059472"
+    cx="362.8525481506409"
+    cy="103.47076022573279"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1019,7 +1019,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 85.44847734924747 690"
+      d="M 400 10 L 753.7911173278931 690"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1030,7 +1030,7 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="85.44847734924747"
+    cx="753.7911173278931"
     cy="690"
     stroke="#000000"
     stroke-opacity="1"
@@ -1045,7 +1045,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 96.21895052498127 375.367950912419"
+      d="M 400 10 L 533.58369737762 314.22891711356385"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1056,8 +1056,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="96.21895052498127"
-    cy="375.367950912419"
+    cx="533.58369737762"
+    cy="314.22891711356385"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1071,7 +1071,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 100.70258608887877 690"
+      d="M 400 10 L 706.6028369288993 690"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1082,7 +1082,7 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="100.70258608887877"
+    cx="706.6028369288993"
     cy="690"
     stroke="#000000"
     stroke-opacity="1"
@@ -1097,7 +1097,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 416.6611983934562 286.1427558137255"
+      d="M 400 10 L 722.8496791131245 690"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1108,8 +1108,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="416.6611983934562"
-    cy="286.1427558137255"
+    cx="722.8496791131245"
+    cy="690"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1123,7 +1123,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 141.26931958372438 395.22806145365263"
+      d="M 400 10 L 415.0940109508319 157.28489927472955"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1134,8 +1134,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="141.26931958372438"
-    cy="395.22806145365263"
+    cx="415.0940109508319"
+    cy="157.28489927472955"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1149,7 +1149,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 373.88947552488 267.4971087797666"
+      d="M 400 10 L 400 10"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1160,8 +1160,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="373.88947552488"
-    cy="267.4971087797666"
+    cx="400"
+    cy="10"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1175,7 +1175,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 153.45626386988195 456.30455934367706"
+      d="M 400 10 L 391.3392020537471 119.49791456795506"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1186,8 +1186,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="153.45626386988195"
-    cy="456.30455934367706"
+    cx="391.3392020537471"
+    cy="119.49791456795506"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1201,7 +1201,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 480.0041902672385 437.1411337349298"
+      d="M 400 10 L 452.9070660188789 347.14913392519304"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1212,8 +1212,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="480.0041902672385"
-    cy="437.1411337349298"
+    cx="452.9070660188789"
+    cy="347.14913392519304"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1227,7 +1227,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 108.70636141092706 690"
+      d="M 400 10 L 529.2305225330649 316.0052364428185"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1238,8 +1238,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="108.70636141092706"
-    cy="690"
+    cx="529.2305225330649"
+    cy="316.0052364428185"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1253,7 +1253,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 731.1557069418423 690"
+      d="M 400 10 L 706.6964553938453 690"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1264,7 +1264,7 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="731.1557069418423"
+    cx="706.6964553938453"
     cy="690"
     stroke="#000000"
     stroke-opacity="1"
@@ -1279,7 +1279,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 305.4582191047413 280.51569488192666"
+      d="M 400 10 L 450.16743199960837 348.26704557296443"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1290,8 +1290,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="305.4582191047413"
-    cy="280.51569488192666"
+    cx="450.16743199960837"
+    cy="348.26704557296443"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1305,7 +1305,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 397.9067059279771 274.72065902266354"
+      d="M 400 10 L 400 10"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1316,8 +1316,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="397.9067059279771"
-    cy="274.72065902266354"
+    cx="400"
+    cy="10"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1331,7 +1331,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 411.15119394140436 282.08449259198596"
+      d="M 400 10 L 401.06791712692274 129.7552231993164"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1342,8 +1342,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="411.15119394140436"
-    cy="282.08449259198596"
+    cx="401.06791712692274"
+    cy="129.7552231993164"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1357,7 +1357,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 104.43831302143121 375.9003303226093"
+      d="M 400 10 L 392.01358114273427 120.0984865185263"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1368,8 +1368,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="104.43831302143121"
-    cy="375.9003303226093"
+    cx="392.01358114273427"
+    cy="120.0984865185263"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1383,7 +1383,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 361.66433241538897 266.21542457866667"
+      d="M 400 10 L 399.6792056841744 128.04821154823495"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1394,8 +1394,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="361.66433241538897"
-    cy="266.21542457866667"
+    cx="399.6792056841744"
+    cy="128.04821154823495"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1409,7 +1409,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 400 10"
+      d="M 400 10 L 475.4031204819845 337.96958616942993"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1420,8 +1420,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="400"
-    cy="10"
+    cx="475.4031204819845"
+    cy="337.96958616942993"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1435,7 +1435,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 481.38375462699344 438.0990270996777"
+      d="M 400 10 L 345.68586633729427 100.13877075901297"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1446,8 +1446,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="481.38375462699344"
-    cy="438.0990270996777"
+    cx="345.68586633729427"
+    cy="100.13877075901297"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1461,7 +1461,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 400 10"
+      d="M 400 10 L 341.4977354026994 99.91396976902448"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1472,8 +1472,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="400"
-    cy="10"
+    cx="341.4977354026994"
+    cy="99.91396976902448"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1487,7 +1487,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 776.5120453319029 690"
+      d="M 400 10 L 338.00827648805887 99.89734369565485"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1498,8 +1498,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="776.5120453319029"
-    cy="690"
+    cx="338.00827648805887"
+    cy="99.89734369565485"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1513,7 +1513,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 440.1329798006384 319.28574813986944"
+      d="M 400 10 L 715.1154839563426 690"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1524,8 +1524,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="440.1329798006384"
-    cy="319.28574813986944"
+    cx="715.1154839563426"
+    cy="690"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1539,7 +1539,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 377.36860402761346 268.138792299919"
+      d="M 400 10 L 337.49426149210467 99.90798186578121"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1550,8 +1550,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="377.36860402761346"
-    cy="268.138792299919"
+    cx="337.49426149210467"
+    cy="99.90798186578121"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1591,7 +1591,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 156.69137321949538 429.96267912668617"
+      d="M 400 10 L 400 10"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1602,8 +1602,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="156.69137321949538"
-    cy="429.96267912668617"
+    cx="400"
+    cy="10"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1617,7 +1617,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 404.5614511425966 278.0508669215375"
+      d="M 400 10 L 517.1999691056515 320.91432127350816"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1628,8 +1628,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="404.5614511425966"
-    cy="278.0508669215375"
+    cx="517.1999691056515"
+    cy="320.91432127350816"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1643,7 +1643,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 88.01612840837555 375.95395309810874"
+      d="M 400 10 L 360.69340671457786 102.82924648417813"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1654,8 +1654,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="88.01612840837555"
-    cy="375.95395309810874"
+    cx="360.69340671457786"
+    cy="102.82924648417813"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1669,7 +1669,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 322.3544880178335 272.24147738403485"
+      d="M 400 10 L 339.4654225053065 99.88545461038944"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1680,8 +1680,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="322.3544880178335"
-    cy="272.24147738403485"
+    cx="339.4654225053065"
+    cy="99.88545461038944"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1695,7 +1695,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 89.41467302922007 375.77449113535727"
+      d="M 400 10 L 529.8104042517097 315.76861486378897"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1706,8 +1706,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="89.41467302922007"
-    cy="375.77449113535727"
+    cx="529.8104042517097"
+    cy="315.76861486378897"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1721,7 +1721,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 400 10"
+      d="M 400 10 L 358.1539257192356 102.15970423792263"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1732,8 +1732,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="400"
-    cy="10"
+    cx="358.1539257192356"
+    cy="102.15970423792263"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1747,7 +1747,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 426.0054649442741 294.9834696220087"
+      d="M 400 10 L 339.4567111050729 99.88544545486081"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1758,8 +1758,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="426.0054649442741"
-    cy="294.9834696220087"
+    cx="339.4567111050729"
+    cy="99.88544545486081"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1773,7 +1773,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 400 10"
+      d="M 400 10 L 388.3525789110261 116.99728383459671"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1784,8 +1784,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="400"
-    cy="10"
+    cx="388.3525789110261"
+    cy="116.99728383459671"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1799,7 +1799,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 617.145350367224 690"
+      d="M 400 10 L 335.62903472673906 99.97484099564832"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1810,8 +1810,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="617.145350367224"
-    cy="690"
+    cx="335.62903472673906"
+    cy="99.97484099564832"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1825,7 +1825,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 388.4434920307949 271.05771346545924"
+      d="M 400 10 L 367.48872970369524 105.08128910234404"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1836,8 +1836,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="388.4434920307949"
-    cy="271.05771346545924"
+    cx="367.48872970369524"
+    cy="105.08128910234404"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1851,7 +1851,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 154.28718086405445 418.0524292269203"
+      d="M 400 10 L 322.2232201147155 101.77945665762132"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1862,8 +1862,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="154.28718086405445"
-    cy="418.0524292269203"
+    cx="322.2232201147155"
+    cy="101.77945665762132"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1877,7 +1877,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 420.1165847406613 289.07923961952196"
+      d="M 400 10 L 457.5164212162697 345.2682798302176"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1888,8 +1888,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="420.1165847406613"
-    cy="289.07923961952196"
+    cx="457.5164212162697"
+    cy="345.2682798302176"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1903,7 +1903,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 334.82504911255523 268.56695047052955"
+      d="M 400 10 L 337.9353582760381 99.89864819818843"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1914,8 +1914,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="334.82504911255523"
-    cy="268.56695047052955"
+    cx="337.9353582760381"
+    cy="99.89864819818843"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1929,7 +1929,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 457.2486513377346 421.34094319093174"
+      d="M 400 10 L 410.5345701025539 145.0461102697158"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1940,8 +1940,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="457.2486513377346"
-    cy="421.34094319093174"
+    cx="410.5345701025539"
+    cy="145.0461102697158"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1955,7 +1955,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 609.711547453579 690"
+      d="M 400 10 L 345.33431870601277 100.11127558173692"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1966,8 +1966,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="609.711547453579"
-    cy="690"
+    cx="345.33431870601277"
+    cy="100.11127558173692"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -1981,7 +1981,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 295.8672758820154 287.52143242740715"
+      d="M 400 10 L 396.10707454714947 124.06433456333983"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -1992,8 +1992,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="295.8672758820154"
-    cy="287.52143242740715"
+    cx="396.10707454714947"
+    cy="124.06433456333983"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -2007,7 +2007,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 147.63332533267302 403.59805729039925"
+      d="M 400 10 L 385.76516680959554 115.0237838201034"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -2018,8 +2018,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="147.63332533267302"
-    cy="403.59805729039925"
+    cx="385.76516680959554"
+    cy="115.0237838201034"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -2033,7 +2033,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 645.9419711157657 690"
+      d="M 400 10 L 358.3041962576428 102.19680809139169"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -2044,8 +2044,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="645.9419711157657"
-    cy="690"
+    cx="358.3041962576428"
+    cy="102.19680809139169"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -2059,7 +2059,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 400 10"
+      d="M 400 10 L 387.44963696316063 116.28924999342553"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -2070,8 +2070,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="400"
-    cy="10"
+    cx="387.44963696316063"
+    cy="116.28924999342553"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -2085,7 +2085,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 97.11125205941778 690"
+      d="M 400 10 L 344.0704188992079 100.02550737831177"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -2096,8 +2096,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="97.11125205941778"
-    cy="690"
+    cx="344.0704188992079"
+    cy="100.02550737831177"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -2111,7 +2111,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 92.28440157993361 375.50918874859"
+      d="M 400 10 L 400 10"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -2122,8 +2122,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="92.28440157993361"
-    cy="375.50918874859"
+    cx="400"
+    cy="10"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -2137,7 +2137,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 761.2964169436766 690.0000000000001"
+      d="M 400 10 L 372.5620734602494 107.22979611421849"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -2148,8 +2148,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="761.2964169436766"
-    cy="690.0000000000001"
+    cx="372.5620734602494"
+    cy="107.22979611421849"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -2163,7 +2163,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 400 10"
+      d="M 400 10 L 530.152614646308 315.6289754143518"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -2174,8 +2174,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="400"
-    cy="10"
+    cx="530.152614646308"
+    cy="315.6289754143518"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -2189,7 +2189,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 428.1522814613132 297.4972824653318"
+      d="M 400 10 L 344.87920612436494 100.07803466326496"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -2200,8 +2200,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="428.1522814613132"
-    cy="297.4972824653318"
+    cx="344.87920612436494"
+    cy="100.07803466326496"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -2215,7 +2215,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 411.87761283201155 282.58058765153123"
+      d="M 400 10 L 453.70023578230695 346.8254798491524"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -2226,8 +2226,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="411.87761283201155"
-    cy="282.58058765153123"
+    cx="453.70023578230695"
+    cy="346.8254798491524"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -2241,7 +2241,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 68.87298706513593 689.9999999999999"
+      d="M 400 10 L 324.31836599701563 101.34096309284956"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -2252,8 +2252,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="68.87298706513593"
-    cy="689.9999999999999"
+    cx="324.31836599701563"
+    cy="101.34096309284956"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -2267,7 +2267,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 121.85759951135998 690"
+      d="M 400 10 L 474.8212361577001 338.2070249146045"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -2278,8 +2278,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="121.85759951135998"
-    cy="690"
+    cx="474.8212361577001"
+    cy="338.2070249146045"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -2293,7 +2293,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 632.1276560738844 690"
+      d="M 400 10 L 485.40649717640684 333.88769375420947"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -2304,8 +2304,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="632.1276560738844"
-    cy="690"
+    cx="485.40649717640684"
+    cy="333.88769375420947"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -2319,7 +2319,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 520.93668428064 465.56239885444137"
+      d="M 400 10 L 400 10"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -2330,8 +2330,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="520.93668428064"
-    cy="465.56239885444137"
+    cx="400"
+    cy="10"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -2345,7 +2345,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 403.0915673118616 277.25572731820273"
+      d="M 400 10 L 514.5192023572617 322.00821204574396"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -2356,8 +2356,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="403.0915673118616"
-    cy="277.25572731820273"
+    cx="514.5192023572617"
+    cy="322.00821204574396"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -2371,7 +2371,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 381.3815762571639 269.03845753717115"
+      d="M 400 10 L 456.1678673911618 345.81855918071864"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -2382,8 +2382,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="381.3815762571639"
-    cy="269.03845753717115"
+    cx="456.1678673911618"
+    cy="345.81855918071864"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -2397,7 +2397,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 724.3470160274902 690"
+      d="M 400 10 L 385.5630466842488 114.87662618775536"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -2408,8 +2408,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="724.3470160274902"
-    cy="690"
+    cx="385.5630466842488"
+    cy="114.87662618775536"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -2423,7 +2423,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 758.9549168372932 690"
+      d="M 400 10 L 342.89334358343353 99.96400003756489"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -2434,8 +2434,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="758.9549168372932"
-    cy="690"
+    cx="342.89334358343353"
+    cy="99.96400003756489"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -2449,7 +2449,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 632.2890801895732 690"
+      d="M 400 10 L 329.04316771947003 100.56753762914596"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -2460,8 +2460,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="632.2890801895732"
-    cy="690"
+    cx="329.04316771947003"
+    cy="100.56753762914596"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -2475,7 +2475,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 459.5189040189437 422.9172813764281"
+      d="M 400 10 L 341.16621367595445 99.90573141161735"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -2486,8 +2486,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="459.5189040189437"
-    cy="422.9172813764281"
+    cx="341.16621367595445"
+    cy="99.90573141161735"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -2501,7 +2501,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 324.13417059194074 271.6044462128334"
+      d="M 400 10 L 410.6353494669693 145.26116025418438"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -2512,8 +2512,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="324.13417059194074"
-    cy="271.6044462128334"
+    cx="410.6353494669693"
+    cy="145.26116025418438"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -2527,7 +2527,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 136.58975232975433 390.6037896073887"
+      d="M 400 10 L 415.62971027518483 159.29672506770794"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -2538,8 +2538,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="136.58975232975433"
-    cy="390.6037896073887"
+    cx="415.62971027518483"
+    cy="159.29672506770794"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -2553,7 +2553,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 107.42646202909913 376.3755564034281"
+      d="M 400 10 L 363.79765293123984 103.77291877840338"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -2564,8 +2564,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="107.42646202909913"
-    cy="376.3755564034281"
+    cx="363.79765293123984"
+    cy="103.77291877840338"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -2579,7 +2579,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 631.5772828469313 690"
+      d="M 400 10 L 374.58997244398626 108.20925330256557"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -2590,8 +2590,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="631.5772828469313"
-    cy="690"
+    cx="374.58997244398626"
+    cy="108.20925330256557"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -2605,7 +2605,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 142.39725482960876 396.5065308906221"
+      d="M 400 10 L 505.1481982870429 325.8320638915466"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -2616,8 +2616,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="142.39725482960876"
-    cy="396.5065308906221"
+    cx="505.1481982870429"
+    cy="325.8320638915466"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
@@ -2631,7 +2631,7 @@
   </circle>
   <g>
     <path
-      d="M 400 10 L 73.64301492757164 690"
+      d="M 400 10 L 337.4669632253167 99.9086408602331"
       stroke-opacity="0.1"
       stroke-width="3.5"
       stroke="#ff8000"
@@ -2642,8 +2642,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="73.64301492757164"
-    cy="690"
+    cx="337.4669632253167"
+    cy="99.9086408602331"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"

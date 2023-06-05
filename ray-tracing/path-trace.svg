@@ -1,7 +1,7 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 200">
   <g>
     <marker
-      id="registry-ConclaveFerret7630-`r3`.icon-endArrowId"
+      id="registry-RockfallLlama5064-`r3`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -17,12 +17,12 @@
       ></path>
     </marker>
     <path
-      d="M 111.36487645109482 189.3605266216614 L 111.4503700992839 178.15585355554697"
+      d="M 107.44181470784558 37.35017764941465 L 96.31233417739342 36.0514725300765"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#registry-ConclaveFerret7630-`r3`.icon-endArrowId)"
+      marker-end="url(#registry-RockfallLlama5064-`r3`.icon-endArrowId)"
     ></path>
     <title>`r3`.icon</title>
   </g>
@@ -40,7 +40,7 @@
   </polygon>
   <g fill="none">
     <path
-      d="M 111.36487645109482 189.3605266216614 L 111.55350975624013 164.63852027027235"
+      d="M 107.44181470784558 37.35017764941465 L 64.77858631188535 32.371782388852125"
       stroke-opacity="1"
       stroke-width="0.65"
       stroke="#000000"
@@ -50,7 +50,7 @@
   </g>
   <g>
     <marker
-      id="registry-ConclaveFerret7630-`r1`.icon-endArrowId"
+      id="registry-RockfallLlama5064-`r1`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -66,18 +66,18 @@
       ></path>
     </marker>
     <path
-      d="M 130.11134195030152 91.82264266254515 L 141.22753741815197 93.23053065836072"
+      d="M 224.70000000000002 146.24920250062948 L 213.66097594284096 148.1706477319616"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#registry-ConclaveFerret7630-`r1`.icon-endArrowId)"
+      marker-end="url(#registry-RockfallLlama5064-`r1`.icon-endArrowId)"
     ></path>
     <title>`r1`.icon</title>
   </g>
   <g fill="none">
     <path
-      d="M 130.11134195030152 91.82264266254515 L 224.70000000000002 103.80248204137038"
+      d="M 224.70000000000002 146.24920250062948 L 28.578438290818482 180.38599190848706"
       stroke-opacity="1"
       stroke-width="0.65"
       stroke="#000000"
@@ -87,7 +87,7 @@
   </g>
   <g>
     <marker
-      id="registry-ConclaveFerret7630-`r2`.icon-endArrowId"
+      id="registry-RockfallLlama5064-`r2`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -103,18 +103,18 @@
       ></path>
     </marker>
     <path
-      d="M 224.70000000000002 103.80248204137038 L 215.75712997204457 110.55356192348123"
+      d="M 28.578438290818482 180.38599190848706 L 33.988535166603924 170.57360944395236"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#registry-ConclaveFerret7630-`r2`.icon-endArrowId)"
+      marker-end="url(#registry-RockfallLlama5064-`r2`.icon-endArrowId)"
     ></path>
     <title>`r2`.icon</title>
   </g>
   <g fill="none">
     <path
-      d="M 224.70000000000002 103.80248204137038 L 111.36487645109482 189.3605266216614"
+      d="M 28.578438290818482 180.38599190848706 L 107.44181470784558 37.35017764941465"
       stroke-opacity="1"
       stroke-width="0.65"
       stroke="#000000"
@@ -124,7 +124,7 @@
   </g>
   <g>
     <marker
-      id="registry-ConclaveFerret7630-`r0`.icon-endArrowId"
+      id="registry-RockfallLlama5064-`r0`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -140,18 +140,18 @@
       ></path>
     </marker>
     <path
-      d="M 197.99534456013174 43.1306043904043 L 188.89038625450377 49.66143582696553"
+      d="M 183.54928213660247 82.36935566371821 L 189.61734777099048 91.78904803962727"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#registry-ConclaveFerret7630-`r0`.icon-endArrowId)"
+      marker-end="url(#registry-RockfallLlama5064-`r0`.icon-endArrowId)"
     ></path>
     <title>`r0`.icon</title>
   </g>
   <g fill="none">
     <path
-      d="M 197.99534456013174 43.1306043904043 L 130.11134195030152 91.82264266254515"
+      d="M 183.54928213660247 82.36935566371821 L 224.70000000000002 146.24920250062948"
       stroke-opacity="1"
       stroke-width="0.65"
       stroke="#000000"
@@ -160,7 +160,7 @@
     <title>`r0`.rayLine</title>
   </g>
   <g
-    transform="rotate(0, 111.55350975624013, 164.63852027027235)translate(98.05350975624013, 144.13852027027235)"
+    transform="rotate(0, 64.77858631188535, 32.371782388852125)translate(51.27858631188535, 11.871782388852125)"
   >
     <!--?xml version="1.0" encoding="utf-8"?-->
     <!-- Generator: Adobe Illustrator 27.2.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
@@ -392,7 +392,7 @@
   </g>
   <g>
     <marker
-      id="registry-ConclaveFerret7630-16:0:normalArrow-endArrowId"
+      id="registry-RockfallLlama5064-16:0:normalArrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -408,20 +408,20 @@
       ></path>
     </marker>
     <path
-      d="M 130.11134195030152 91.82264266254515 L 139.32579543536514 85.44723700801465"
+      d="M 224.70000000000002 146.24920250062948 L 213.49500094102882 146.24920250062948"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#55aa55"
       stroke-linecap="butt"
-      marker-end="url(#registry-ConclaveFerret7630-16:0:normalArrow-endArrowId)"
+      marker-end="url(#registry-RockfallLlama5064-16:0:normalArrow-endArrowId)"
     ></path>
     <title>16:0:normalArrow</title>
   </g>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="130.11134195030152"
-    cy="91.82264266254515"
+    cx="224.70000000000002"
+    cy="146.24920250062948"
     stroke="none"
     r="2"
   >
@@ -430,8 +430,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="197.99534456013174"
-    cy="43.1306043904043"
+    cx="183.54928213660247"
+    cy="82.36935566371821"
     stroke="none"
     r="2"
   >
@@ -439,34 +439,34 @@
   </circle>
   <g>
     <rect
-      x="193.19534456013173"
-      y="32.4056043904043"
+      x="178.74928213660246"
+      y="71.64435566371822"
       width="9.600000000000001"
       height="4.95"
       fill="#666666"
       fill-opacity="1"
       stroke="none"
       rx="2"
-      transform="rotate(0, 197.99534456013174, 34.8806043904043)"
+      transform="rotate(0, 183.54928213660247, 74.11935566371821)"
     >
       <title>10:0:viewfinder</title>
     </rect>
     <rect
-      x="188.79534456013175"
-      y="33.643104390404304"
+      x="174.34928213660248"
+      y="72.88185566371821"
       width="2.4000000000000004"
       height="2.475"
       fill="#666666"
       fill-opacity="1"
       stroke="none"
       rx="0"
-      transform="rotate(0, 189.99534456013174, 34.8806043904043)"
+      transform="rotate(0, 175.54928213660247, 74.11935566371821)"
     >
       <title>10:0:shutterRelease</title>
     </rect>
     <rect
-      x="185.99534456013174"
-      y="34.8806043904043"
+      x="171.54928213660247"
+      y="74.11935566371821"
       width="24"
       height="16.5"
       fill="#aaaaaa"
@@ -476,15 +476,15 @@
       stroke-width="1"
       stroke-linecap="butt"
       rx="2"
-      transform="rotate(0, 197.99534456013174, 43.1306043904043)"
+      transform="rotate(0, 183.54928213660247, 82.36935566371821)"
     >
       <title>10:0:body</title>
     </rect>
     <circle
       fill="#ffffff"
       fill-opacity="1"
-      cx="206.99534456013174"
-      cy="37.8806043904043"
+      cx="192.54928213660247"
+      cy="77.11935566371821"
       stroke="#666666"
       stroke-opacity="1"
       stroke-width="0.8"
@@ -496,8 +496,8 @@
     <circle
       fill="#cccccc"
       fill-opacity="1"
-      cx="197.99534456013174"
-      cy="43.1306043904043"
+      cx="183.54928213660247"
+      cy="82.36935566371821"
       stroke="#666666"
       stroke-opacity="1"
       stroke-width="1"
@@ -509,8 +509,8 @@
     <circle
       fill="#227788"
       fill-opacity="1"
-      cx="197.99534456013174"
-      cy="43.1306043904043"
+      cx="183.54928213660247"
+      cy="82.36935566371821"
       stroke="#666666"
       stroke-opacity="1"
       stroke-width="1"
@@ -522,7 +522,7 @@
     <title>`C`.icon</title>
   </g>
   <g
-    transform="rotate(0, 121.8878219336214, 97.51242948489681)translate(114.8276219336214, 93.36842948489681)"
+    transform="rotate(0, 234.69999937264748, 146.24920250062948)translate(227.63979937264747, 142.10520250062947)"
     paint-order="stroke"
     stroke-linejoin="round"
     strokeColor="#ffffff"
@@ -566,7 +566,7 @@
   </g>
   <g>
     <marker
-      id="registry-ConclaveFerret7630-16:1:normalArrow-endArrowId"
+      id="registry-RockfallLlama5064-16:1:normalArrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -582,27 +582,27 @@
       ></path>
     </marker>
     <path
-      d="M 224.70000000000002 103.80248204137038 L 213.49500094102882 103.80248204137038"
+      d="M 28.578438290818482 180.38599190848706 L 39.616202799070166 178.45732591976054"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#55aa55"
       stroke-linecap="butt"
-      marker-end="url(#registry-ConclaveFerret7630-16:1:normalArrow-endArrowId)"
+      marker-end="url(#registry-RockfallLlama5064-16:1:normalArrow-endArrowId)"
     ></path>
     <title>16:1:normalArrow</title>
   </g>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="224.70000000000002"
-    cy="103.80248204137038"
+    cx="28.578438290818482"
+    cy="180.38599190848706"
     stroke="none"
     r="2"
   >
     <title>`x2`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 234.69999937264748, 103.80248204137038)translate(227.63979937264747, 99.65848204137038)"
+    transform="rotate(0, 18.727688794746314, 182.1072467425013)translate(11.667488794746314, 177.9632467425013)"
     paint-order="stroke"
     stroke-linejoin="round"
     strokeColor="#ffffff"
@@ -646,7 +646,7 @@
   </g>
   <g>
     <marker
-      id="registry-ConclaveFerret7630-16:2:normalArrow-endArrowId"
+      id="registry-RockfallLlama5064-16:2:normalArrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -662,27 +662,27 @@
       ></path>
     </marker>
     <path
-      d="M 111.36487645109482 189.3605266216614 L 110.8453481516322 178.1675780365723"
+      d="M 107.44181470784558 37.35017764941465 L 98.83389709145032 44.52344232974403"
       stroke-opacity="1"
       stroke-width="1"
       stroke="#55aa55"
       stroke-linecap="butt"
-      marker-end="url(#registry-ConclaveFerret7630-16:2:normalArrow-endArrowId)"
+      marker-end="url(#registry-RockfallLlama5064-16:2:normalArrow-endArrowId)"
     ></path>
     <title>16:2:normalArrow</title>
   </g>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="111.36487645109482"
-    cy="189.3605266216614"
+    cx="107.44181470784558"
+    cy="37.35017764941465"
     stroke="none"
     r="2"
   >
     <title>`x3`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 111.82853402229297, 199.3497714055862)translate(104.76833402229298, 195.09657140558622)"
+    transform="rotate(0, 115.12402628949044, 30.948334664710586)translate(108.06382628949045, 26.695134664710586)"
     paint-order="stroke"
     stroke-linejoin="round"
     strokeColor="#ffffff"

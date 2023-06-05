@@ -1,7 +1,7 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
   <rect
-    x="417.9499853137741"
-    y="216.7926358283226"
+    x="491.92288106929476"
+    y="185.80372004323863"
     width="233.33333333333334"
     height="233.33333333333334"
     fill="#f2f5eb"
@@ -11,39 +11,39 @@
     stroke-width="1"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 534.6166519804408, 333.4593024949893)"
+    transform="rotate(0, 608.5895477359614, 302.4703867099053)"
   >
     <title>`Rm`.icon</title>
   </rect>
   <circle
     fill="#1a1ae6"
     fill-opacity="0.2"
-    cx="541.9699369364702"
-    cy="331.416942027178"
+    cx="556.1613579523898"
+    cy="319.98915020392036"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
     stroke-linecap="butt"
-    r="78.04661631063713"
+    r="54.21320972464077"
   >
     <title>`B`.icon</title>
   </circle>
   <circle
     fill="#1a1ae6"
     fill-opacity="0.2"
-    cx="508.9678819507916"
-    cy="330.25482765851336"
+    cx="536.1204353231444"
+    cy="343.74655212887444"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
     stroke-dasharray="7,5"
     stroke-linecap="butt"
-    r="23.815406156957955"
+    r="13.108159931639834"
   >
     <title>`V`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 501.8358166730434, 339.2904051403537)translate(495.6838166730434, 333.6504051403537)"
+    transform="rotate(0, 535.3202355958816, 343.6784248806142)translate(529.1682355958816, 338.03842488061423)"
   >
     <title>`V`.text</title>
     <svg
@@ -74,8 +74,8 @@
     </svg>
   </g>
   <rect
-    x="17.949985313774178"
-    y="216.7926358283226"
+    x="91.9228810692948"
+    y="185.80372004323863"
     width="233.33333333333334"
     height="233.33333333333334"
     fill="#f2f5eb"
@@ -85,12 +85,12 @@
     stroke-width="1.5"
     stroke-linecap="butt"
     rx="0"
-    transform="rotate(0, 134.61665198044085, 333.4593024949893)"
+    transform="rotate(0, 208.58954773596147, 302.4703867099053)"
   >
     <title>`Rn`.icon</title>
   </rect>
   <g
-    transform="rotate(0, 231.28331864710754, 236.7926358283226)translate(221.44891864710755, 230.9886358283226)"
+    transform="rotate(0, 305.25621440262813, 205.80372004323866)translate(295.4218144026281, 199.99972004323865)"
   >
     <title>`Rn`.text</title>
     <svg
@@ -133,32 +133,32 @@
   <circle
     fill="#1a1ae6"
     fill-opacity="0.2"
-    cx="134.6373222300728"
-    cy="333.6858242924025"
+    cx="206.20243693766346"
+    cy="321.9785475876366"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
     stroke-linecap="butt"
-    r="105.15030698281552"
+    r="86.74170158195513"
   >
     <title>`A`.icon</title>
   </circle>
   <circle
     fill="#1a1ae6"
     fill-opacity="0.2"
-    cx="161.6693296226002"
-    cy="347.60493434613346"
+    cx="192.06612421288773"
+    cy="336.1927371541077"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
     stroke-dasharray="7,5"
     stroke-linecap="butt"
-    r="55.37422774334087"
+    r="51.63512934792412"
   >
     <title>`U`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 165.42273758078022, 348.7948383915464)translate(140.3291375807802, 339.72363839154644)"
+    transform="rotate(0, 192.6723637613755, 335.05733813310667)translate(167.57876376137548, 325.9861381331067)"
   >
     <title>`U`.text</title>
     <svg
@@ -227,7 +227,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 186.12178925717356, 407.7227142774975)translate(180.12178925717356, 401.9947142774975)"
+    transform="rotate(0, 190.9945999291953, 394.71544924188896)translate(184.9945999291953, 388.98744924188895)"
   >
     <title>`A`.text</title>
     <svg
@@ -258,7 +258,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 539.3363232334598, 356.19807186272425)translate(533.2643232334598, 350.73407186272425)"
+    transform="rotate(0, 556.9644423292236, 345.02425619070436)translate(550.8924423292236, 339.56025619070437)"
   >
     <title>`B`.text</title>
     <svg
@@ -306,7 +306,7 @@
       ></path>
     </marker>
     <path
-      d="M 271.28331864710754 333.4593024949893 L 382.76998531377416 333.4593024949893"
+      d="M 345.25621440262813 302.4703867099053 L 456.7428810692948 302.4703867099053"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#000000"
@@ -316,7 +316,7 @@
     <title>`f`.icon</title>
   </g>
   <g
-    transform="rotate(0, 334.6190764560698, 317.4404327486231)translate(330.21907645606984, 310.1604327486231)"
+    transform="rotate(0, 408.588741554452, 286.4550455231339)translate(404.188741554452, 279.1750455231339)"
   >
     <title>`f`.text</title>
     <svg
@@ -347,7 +347,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 631.2833186471075, 236.7926358283226)translate(619.8769186471076, 230.9886358283226)"
+    transform="rotate(0, 705.2562144026281, 205.80372004323866)translate(693.8498144026281, 199.99972004323865)"
   >
     <title>`Rm`.text</title>
     <svg

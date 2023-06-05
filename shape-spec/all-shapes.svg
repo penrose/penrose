@@ -164,10 +164,10 @@
       </feMerge>
     </filter>
     <path
-      stroke="#43be2d"
+      stroke="#000000"
       fill="none"
       stroke-width="1"
-      stroke-opacity="0.5"
+      stroke-opacity="1"
       d="M 483.33333333333337 200 L 533.3333333333334 150 L 583.3333333333334 200 L 558.3333333333334 250 L 508.33333333333337 250 Z "
     ></path>
     <title>`Path`.icon</title>
@@ -366,8 +366,8 @@
     <title>`Text`.container</title>
   </rect>
   <text
-    fill="#7b4087"
-    fill-opacity="0.5"
+    fill="#000000"
+    fill-opacity="1"
     stroke="none"
     transform="rotate(0, 533.3333333333334, 1000)"
     style="font: italic 12px Palatino"
@@ -474,7 +474,7 @@
     y="350"
     width="200"
     height="100"
-    fill="#359acb"
+    fill="#b3422b"
     fill-opacity="0.5"
     stroke="none"
     rx="0"
@@ -551,7 +551,7 @@
     <title>`Circle`.container</title>
   </rect>
   <circle
-    fill="#afbad8"
+    fill="#565487"
     fill-opacity="0.5"
     cx="266.66666666666663"
     cy="200"
@@ -621,9 +621,9 @@
   <g>
     <path
       d="M 483.33333333333337 450 L 583.3333333333334 350"
-      stroke-opacity="0.5"
+      stroke-opacity="1"
       stroke-width="1"
-      stroke="#cac87e"
+      stroke="#000000"
       stroke-linecap="butt"
     ></path>
     <title>`Line`.icon</title>
@@ -702,7 +702,7 @@
     <title>`Polygon`.container</title>
   </rect>
   <polygon
-    fill="#1c6760"
+    fill="#a57dd0"
     fill-opacity="0.5"
     stroke="none"
     transform="scale(1)"
@@ -890,7 +890,7 @@
     <title>`Ellipse`.container</title>
   </rect>
   <ellipse
-    fill="#50df46"
+    fill="#3b6c2d"
     fill-opacity="0.5"
     cx="266.66666666666663"
     cy="600"

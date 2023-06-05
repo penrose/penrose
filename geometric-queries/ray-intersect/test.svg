@@ -1,7 +1,7 @@
 <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
   <g>
     <path
-      d="M 10 301.99078099034864 L 1049.3545066273066 78.96121466218642"
+      d="M 10 265.92617934707187 L 1017.9415774543994 -71.79227589280015"
       stroke-opacity="1"
       stroke-width="1.5"
       stroke="#000000"
@@ -28,7 +28,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 301.99078099034864 L 72.19908737676104 288.64380900418604"
+      d="M 10 265.92617934707187 L 70.31921336783387 245.71577031590888"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -38,13 +38,13 @@
     <title>`r4`.arrow</title>
   </g>
   <ellipse
-    fill="#55a6ab"
+    fill="#bb5e6b"
     fill-opacity="0.5"
-    cx="227.19080875176053"
-    cy="67.78424072428106"
+    cx="759.3029379378879"
+    cy="354.8077865830106"
     stroke="none"
-    rx="15.1691454489647"
-    ry="66.10727988307151"
+    rx="40.54822305201973"
+    ry="50.208184904805165"
   >
     <title>`E1`.icon</title>
   </ellipse>
@@ -66,7 +66,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 301.99078099034864 L NaN NaN"
+      d="M 10 265.92617934707187 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -79,7 +79,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="301.99078099034864"
+    cy="265.92617934707187"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -89,11 +89,11 @@
     <title>10:9:intersectDot</title>
   </circle>
   <polygon
-    fill="#e5cd68"
+    fill="#82e523"
     fill-opacity="0.5"
     stroke="none"
     transform="scale(1)"
-    points="465.7087285438977,60.73841810140755,400.5586717305411,13.679705034653807,426.9425112556243,133.03736493933147"
+    points="708.4754286951982,24.19148912208749,642.735198391078,13.39982244445548,619.8043961354774,104.95413015764157"
   >
     <title>`P1`.icon</title>
   </polygon>
@@ -101,8 +101,8 @@
     <marker
       id="registry-SnowflakeQuetzal3561-9:54:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
-      markerWidth="0"
-      markerHeight="0"
+      markerWidth="4.97"
+      markerHeight="4.06"
       viewBox="0 0 9.95 8.12"
       refX="2.36"
       refY="4.06"
@@ -115,7 +115,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 301.99078099034864 L NaN NaN"
+      d="M 631.6558302552786 57.635687734554836 L 609.9173002192758 52.191029301391666"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -127,24 +127,24 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="10"
-    cy="301.99078099034864"
+    cx="631.6558302552786"
+    cy="57.635687734554836"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
     stroke-linecap="butt"
-    r="0"
+    r="4.999999470239542"
   >
     <title>9:54:intersectDot</title>
   </circle>
   <ellipse
-    fill="#8c24b3"
+    fill="#d3b827"
     fill-opacity="0.5"
-    cx="80.92733730846982"
-    cy="647.072208023895"
+    cx="750.1505005357038"
+    cy="241.24763588002014"
     stroke="none"
-    rx="68.81771297178165"
-    ry="39.84173766087015"
+    rx="39.35657997895439"
+    ry="52.359147949504205"
   >
     <title>`E3`.icon</title>
   </ellipse>
@@ -166,7 +166,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 301.99078099034864 L NaN NaN"
+      d="M 10 265.92617934707187 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -179,7 +179,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="301.99078099034864"
+    cy="265.92617934707187"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -193,7 +193,7 @@
     fill-opacity="0.5"
     stroke="none"
     transform="scale(1)"
-    points="446.61019098345,397.21697156916423,411.5530320065783,314.26308674377395,335.3142222164874,406.43330949477144"
+    points="102.24976328509979,193.56315059725114,10.937348564841216,203.55080238260373,3.149244213698182,245.02270525081576"
   >
     <title>`P3`.icon</title>
   </polygon>
@@ -215,7 +215,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 301.99078099034864 L NaN NaN"
+      d="M 10 265.92617934707187 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -228,7 +228,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="301.99078099034864"
+    cy="265.92617934707187"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -239,42 +239,42 @@
   </circle>
   <g>
     <circle
-      fill="#cd5f22"
+      fill="#7a86b9"
       fill-opacity="1"
-      cx="684.8332411543024"
-      cy="653.0223987123027"
+      cx="413.85357916353996"
+      cy="60.34097179335794"
       stroke="none"
-      r="37.91974181331825"
+      r="26.654425293226865"
     >
       <title>8:0:c1</title>
     </circle>
     <circle
-      fill="#cd5f22"
+      fill="#7a86b9"
       fill-opacity="1"
-      cx="673.2517362277298"
-      cy="670.4555364911786"
+      cx="430.9402857441144"
+      cy="47.05688869023504"
       stroke="none"
-      r="28.225647789100357"
+      r="26.856748210856765"
     >
       <title>8:0:c2</title>
     </circle>
     <circle
-      fill="#cd5f22"
+      fill="#7a86b9"
       fill-opacity="1"
-      cx="708.2494130219742"
-      cy="636.8307063285833"
+      cx="399.4951978380809"
+      cy="67.3094752606608"
       stroke="none"
-      r="23.84855074206114"
+      r="27.225026055052194"
     >
       <title>8:0:c3</title>
     </circle>
     <circle
-      fill="#cd5f22"
+      fill="#7a86b9"
       fill-opacity="1"
-      cx="651.7865449605152"
-      cy="650.9929191350246"
+      cx="386.5236965461744"
+      cy="35.21405610372909"
       stroke="none"
-      r="38.967882441999464"
+      r="23.488265174633263"
     >
       <title>8:0:c4</title>
     </circle>
@@ -298,7 +298,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 301.99078099034864 L NaN NaN"
+      d="M 10 265.92617934707187 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -311,7 +311,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="301.99078099034864"
+    cy="265.92617934707187"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -322,12 +322,12 @@
   </circle>
   <polyline
     fill="none"
-    stroke="#33db21"
+    stroke="#659950"
     stroke-opacity="1"
     stroke-width="5"
     stroke-linecap="butt"
     transform="scale(1)"
-    points="773.0271775746423,35,738.9779767279465,192.5,786.228272714837,350,735.3004140052906,507.5,779.8561570310856,665"
+    points="724.0882169177394,35,766.1386845811651,192.5,734.9285967091993,350,748.1502772338711,507.5,763.7033249133196,665"
     stroke-linejoin="round"
   >
     <title>`M`.icon</title>
@@ -350,7 +350,7 @@
       ></path>
     </marker>
     <path
-      d="M 749.6186342404795 143.2799444172098 L 727.7146452047526 138.54462173770955"
+      d="M 10 265.92617934707187 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -362,8 +362,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="749.6186342404795"
-    cy="143.2799444172098"
+    cx="10"
+    cy="265.92617934707187"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -373,12 +373,12 @@
     <title>11:3:intersectDot</title>
   </circle>
   <circle
-    fill="#7f705a"
+    fill="#6675d8"
     fill-opacity="0.5"
-    cx="167.27784894977972"
-    cy="310.535166871506"
+    cx="265.2173659524449"
+    cy="54.98321800457063"
     stroke="none"
-    r="78.04889634329537"
+    r="54.774859617650904"
   >
     <title>`C3`.icon</title>
   </circle>
@@ -386,8 +386,8 @@
     <marker
       id="registry-SnowflakeQuetzal3561-9:53:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
-      markerWidth="4.97"
-      markerHeight="4.06"
+      markerWidth="0"
+      markerHeight="0"
       viewBox="0 0 9.95 8.12"
       refX="2.36"
       refY="4.06"
@@ -400,7 +400,7 @@
       ></path>
     </marker>
     <path
-      d="M 93.88136488127645 283.9911241714325 L 72.80720376271745 276.36959516089894"
+      d="M 10 265.92617934707187 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -412,26 +412,26 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="93.88136488127645"
-    cy="283.9911241714325"
+    cx="10"
+    cy="265.92617934707187"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
     stroke-linecap="butt"
-    r="4.999999359376025"
+    r="0"
   >
     <title>9:53:intersectDot</title>
   </circle>
   <rect
-    x="99.14811704015202"
-    y="2.4202210232649293"
-    width="40.79984973161227"
-    height="69.00067886864355"
-    fill="#e5aa1a"
+    x="691.8501587613882"
+    y="632.7104596355318"
+    width="64.42054882151976"
+    height="62.320867471157875"
+    fill="#4dc1b1"
     fill-opacity="0.5"
     stroke="none"
     rx="0"
-    transform="rotate(0, 119.54804190595814, 36.9205604575867)"
+    transform="rotate(0, 724.0604331721481, 663.8708933711108)"
   >
     <title>`R3`.icon</title>
   </rect>
@@ -453,7 +453,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 301.99078099034864 L NaN NaN"
+      d="M 10 265.92617934707187 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -466,7 +466,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="301.99078099034864"
+    cy="265.92617934707187"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -477,42 +477,42 @@
   </circle>
   <g>
     <circle
-      fill="#b6c9c8"
+      fill="#b16d79"
       fill-opacity="1"
-      cx="766.2908102870824"
-      cy="521.4564154640823"
+      cx="308.89569917363025"
+      cy="146.77350136253628"
       stroke="none"
-      r="32.063128832285145"
+      r="31.516466394623635"
     >
       <title>8:1:c1</title>
     </circle>
     <circle
-      fill="#b6c9c8"
+      fill="#b16d79"
       fill-opacity="1"
-      cx="746.695334388992"
-      cy="489.96512235112993"
+      cx="291.81117921646825"
+      cy="146.34369516475468"
       stroke="none"
-      r="26.04696144282208"
+      r="35.62618140371262"
     >
       <title>8:1:c2</title>
     </circle>
     <circle
-      fill="#b6c9c8"
+      fill="#b16d79"
       fill-opacity="1"
-      cx="748.1889334866795"
-      cy="556.8876143290079"
+      cx="281.5516689802839"
+      cy="146.3631126950014"
       stroke="none"
-      r="21.026330291950114"
+      r="33.42203971235848"
     >
       <title>8:1:c3</title>
     </circle>
     <circle
-      fill="#b6c9c8"
+      fill="#b16d79"
       fill-opacity="1"
-      cx="750.0171485381828"
-      cy="492.66480676444667"
+      cx="303.0015494052998"
+      cy="142.90462755878121"
       stroke="none"
-      r="31.780007554601184"
+      r="30.9305669799812"
     >
       <title>8:1:c4</title>
     </circle>
@@ -522,8 +522,8 @@
     <marker
       id="registry-SnowflakeQuetzal3561-9:66:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
-      markerWidth="0"
-      markerHeight="0"
+      markerWidth="4.97"
+      markerHeight="4.06"
       viewBox="0 0 9.95 8.12"
       refX="2.36"
       refY="4.06"
@@ -536,7 +536,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 301.99078099034864 L NaN NaN"
+      d="M 271.6092198678342 178.27202995340815 L 264.94265002845907 199.6674651219568"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -548,22 +548,22 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="10"
-    cy="301.99078099034864"
+    cx="271.6092198678342"
+    cy="178.27202995340815"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
     stroke-linecap="butt"
-    r="0"
+    r="4.999998503980673"
   >
     <title>9:66:intersectDot</title>
   </circle>
   <g>
     <path
-      d="M 468.52992998446973 19.395652901990786 L 630.7529341611886 6.5311399706505995"
-      stroke-opacity="0.5"
+      d="M 345.00617539606907 32.723399496619436 L 352.4875062222913 409.13502874587755"
+      stroke-opacity="1"
       stroke-width="5"
-      stroke="#d0a999"
+      stroke="#000000"
       stroke-linecap="butt"
     ></path>
     <title>`L2`.icon</title>
@@ -572,8 +572,8 @@
     <marker
       id="registry-SnowflakeQuetzal3561-9:61:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
-      markerWidth="0"
-      markerHeight="0"
+      markerWidth="4.97"
+      markerHeight="4.06"
       viewBox="0 0 9.95 8.12"
       refX="2.36"
       refY="4.06"
@@ -586,7 +586,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 301.99078099034864 L NaN NaN"
+      d="M 347.3943287700485 152.87965555282028 L 324.9887543814103 153.3249752542526"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -598,24 +598,24 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="10"
-    cy="301.99078099034864"
+    cx="347.3943287700485"
+    cy="152.87965555282028"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
     stroke-linecap="butt"
-    r="0"
+    r="4.99999986719293"
   >
     <title>9:61:intersectDot</title>
   </circle>
   <ellipse
-    fill="#5ba267"
+    fill="#cb602b"
     fill-opacity="0.5"
-    cx="501.24513595534114"
-    cy="526.6985002796289"
+    cx="325.5142329083368"
+    cy="674.2053735916438"
     stroke="none"
-    rx="70.07979542098921"
-    ry="65.43454785064256"
+    rx="8.88339653033474"
+    ry="19.80218504618719"
   >
     <title>`E2`.icon</title>
   </ellipse>
@@ -637,7 +637,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 301.99078099034864 L NaN NaN"
+      d="M 10 265.92617934707187 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -650,7 +650,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="301.99078099034864"
+    cy="265.92617934707187"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -660,15 +660,15 @@
     <title>10:10:intersectDot</title>
   </circle>
   <rect
-    x="344.4769197270364"
-    y="210.7728500065991"
-    width="57.17931634796149"
-    height="38.329094785661525"
-    fill="#21389f"
+    x="177.2813830624894"
+    y="79.37993901191531"
+    width="36.48500979979707"
+    height="35.24806108413347"
+    fill="#a89981"
     fill-opacity="0.5"
     stroke="none"
     rx="0"
-    transform="rotate(0, 373.0665779010171, 229.93739739942987)"
+    transform="rotate(0, 195.52388796238793, 97.00396955398205)"
   >
     <title>`R1`.icon</title>
   </rect>
@@ -676,8 +676,8 @@
     <marker
       id="registry-SnowflakeQuetzal3561-9:57:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
-      markerWidth="4.97"
-      markerHeight="4.06"
+      markerWidth="0"
+      markerHeight="0"
       viewBox="0 0 9.95 8.12"
       refX="2.36"
       refY="4.06"
@@ -690,7 +690,7 @@
       ></path>
     </marker>
     <path
-      d="M 344.47691972703643 230.2171543039441 L 322.06692557376834 230.2171543039441"
+      d="M 10 265.92617934707187 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -702,22 +702,22 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="344.47691972703643"
-    cy="230.2171543039441"
+    cx="10"
+    cy="265.92617934707187"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
     stroke-linecap="butt"
-    r="4.999998695508276"
+    r="0"
   >
     <title>9:57:intersectDot</title>
   </circle>
   <g>
     <path
-      d="M 307.0679388537767 603.5473298737941 L 568.3377345124861 696.5115391580703"
-      stroke-opacity="0.5"
+      d="M 516.733352410405 250.27072738411528 L 752.9776329507615 133.20495121673153"
+      stroke-opacity="1"
       stroke-width="5"
-      stroke="#7cbb4b"
+      stroke="#000000"
       stroke-linecap="butt"
     ></path>
     <title>`L1`.icon</title>
@@ -740,7 +740,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 301.99078099034864 L NaN NaN"
+      d="M 10 265.92617934707187 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -753,7 +753,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="301.99078099034864"
+    cy="265.92617934707187"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -763,68 +763,18 @@
     <title>9:60:intersectDot</title>
   </circle>
   <circle
-    fill="#dfa79c"
+    fill="#4f79d0"
     fill-opacity="0.5"
-    cx="212.25692135821288"
-    cy="68.89564420672531"
+    cx="237.81028974222218"
+    cy="224.3573902770296"
     stroke="none"
-    r="68.7657843340763"
+    r="40.70862751817099"
   >
     <title>`C2`.icon</title>
   </circle>
   <g>
     <marker
       id="registry-SnowflakeQuetzal3561-9:52:intersectNormal-endArrowId"
-      markerUnits="strokeWidth"
-      markerWidth="0"
-      markerHeight="0"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#888888"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 10 301.99078099034864 L NaN NaN"
-      stroke-opacity="1"
-      stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:52:intersectNormal-endArrowId)"
-    ></path>
-    <title>9:52:intersectNormal</title>
-  </g>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="10"
-    cy="301.99078099034864"
-    stroke="#000000"
-    stroke-opacity="1"
-    stroke-width="2"
-    stroke-linecap="butt"
-    r="0"
-  >
-    <title>9:52:intersectDot</title>
-  </circle>
-  <g>
-    <path
-      d="M 461.7844826910246 165.25713891615655 L 714.5893582625367 476.43344459150757"
-      stroke-opacity="0.5"
-      stroke-width="5"
-      stroke="#dfd164"
-      stroke-linecap="butt"
-    ></path>
-    <title>`L3`.icon</title>
-  </g>
-  <g>
-    <marker
-      id="registry-SnowflakeQuetzal3561-9:62:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.97"
       markerHeight="4.06"
@@ -840,7 +790,57 @@
       ></path>
     </marker>
     <path
-      d="M 489.3100184175189 199.13818847954792 L 471.9165963539777 213.26889772809798"
+      d="M 204.6845731101338 200.69563944232937 L 186.44894710926803 187.66990346989482"
+      stroke-opacity="1"
+      stroke-width="2"
+      stroke="#888888"
+      stroke-linecap="butt"
+      marker-end="url(#registry-SnowflakeQuetzal3561-9:52:intersectNormal-endArrowId)"
+    ></path>
+    <title>9:52:intersectNormal</title>
+  </g>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="204.6845731101338"
+    cy="200.69563944232937"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="2"
+    stroke-linecap="butt"
+    r="4.999998771759137"
+  >
+    <title>9:52:intersectDot</title>
+  </circle>
+  <g>
+    <path
+      d="M 250.28145497865154 447.2561981556653 L 568.5893717723554 590.7999139786177"
+      stroke-opacity="1"
+      stroke-width="5"
+      stroke="#000000"
+      stroke-linecap="butt"
+    ></path>
+    <title>`L3`.icon</title>
+  </g>
+  <g>
+    <marker
+      id="registry-SnowflakeQuetzal3561-9:62:intersectNormal-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="0"
+      markerHeight="0"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#888888"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 10 265.92617934707187 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -852,26 +852,26 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="489.3100184175189"
-    cy="199.13818847954792"
+    cx="10"
+    cy="265.92617934707187"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
     stroke-linecap="butt"
-    r="4.999999875288454"
+    r="0"
   >
     <title>9:62:intersectDot</title>
   </circle>
   <rect
-    x="525.5057634632211"
-    y="618.149910912782"
-    width="67.36315276502927"
-    height="49.83081489473334"
-    fill="#b4c443"
+    x="724.0346976023748"
+    y="294.88906543804904"
+    width="38.32637393978928"
+    height="51.05325228367086"
+    fill="#77cd2b"
     fill-opacity="0.5"
     stroke="none"
     rx="0"
-    transform="rotate(0, 559.1873398457358, 643.0653183601487)"
+    transform="rotate(0, 743.1978845722693, 320.4156915798845)"
   >
     <title>`R2`.icon</title>
   </rect>
@@ -893,7 +893,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 301.99078099034864 L NaN NaN"
+      d="M 10 265.92617934707187 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -906,7 +906,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="301.99078099034864"
+    cy="265.92617934707187"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -917,10 +917,10 @@
   </circle>
   <g>
     <path
-      d="M 383.3644398789063 62.75681752658778 L 159.14493191994455 171.74532836743637"
-      stroke-opacity="0.5"
+      d="M 13.003788643614769 660.4589110200205 L 135.3494858575259 377.8606660545308"
+      stroke-opacity="1"
       stroke-width="5"
-      stroke="#c29da3"
+      stroke="#000000"
       stroke-linecap="butt"
     ></path>
     <title>`L4`.icon</title>
@@ -943,7 +943,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 301.99078099034864 L NaN NaN"
+      d="M 10 265.92617934707187 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -956,7 +956,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="301.99078099034864"
+    cy="265.92617934707187"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -967,42 +967,42 @@
   </circle>
   <g>
     <circle
-      fill="#9e43d0"
+      fill="#58b56a"
       fill-opacity="1"
-      cx="239.03506441512164"
-      cy="645.3974153357121"
+      cx="715.3541549201514"
+      cy="415.612751822039"
       stroke="none"
-      r="36.61289534847264"
+      r="24.2941083795282"
     >
       <title>8:2:c1</title>
     </circle>
     <circle
-      fill="#9e43d0"
+      fill="#58b56a"
       fill-opacity="1"
-      cx="256.16752837808906"
-      cy="612.7643232592172"
+      cx="732.1832507193178"
+      cy="415.98040409184983"
       stroke="none"
-      r="35.74399650317537"
+      r="34.68920721655233"
     >
       <title>8:2:c2</title>
     </circle>
     <circle
-      fill="#9e43d0"
+      fill="#58b56a"
       fill-opacity="1"
-      cx="245.4365326267176"
-      cy="658.2595260982094"
+      cx="745.1038884332447"
+      cy="412.84848230492173"
       stroke="none"
-      r="37.260538176133984"
+      r="32.239079480769526"
     >
       <title>8:2:c3</title>
     </circle>
     <circle
-      fill="#9e43d0"
+      fill="#58b56a"
       fill-opacity="1"
-      cx="243.80114049098927"
-      cy="658.3500471098462"
+      cx="710.4560036185665"
+      cy="389.5579187100975"
       stroke="none"
-      r="20.074854369958217"
+      r="34.63277662062471"
     >
       <title>8:2:c4</title>
     </circle>
@@ -1026,7 +1026,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 301.99078099034864 L NaN NaN"
+      d="M 10 265.92617934707187 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -1039,7 +1039,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="301.99078099034864"
+    cy="265.92617934707187"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -1049,11 +1049,11 @@
     <title>9:67:intersectDot</title>
   </circle>
   <polygon
-    fill="#6675d8"
+    fill="#b7702d"
     fill-opacity="0.5"
     stroke="none"
     transform="scale(1)"
-    points="165.4027852062205,486.0677654952126,91.09695609711906,446.9614358310589,80.27515315909824,554.1288580437124"
+    points="662.2109536437575,599.4301410641995,590.567308443343,568.2861512538955,586.4786034083779,671.2514303339573"
   >
     <title>`P2`.icon</title>
   </polygon>
@@ -1075,7 +1075,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 301.99078099034864 L NaN NaN"
+      d="M 10 265.92617934707187 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -1088,7 +1088,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="301.99078099034864"
+    cy="265.92617934707187"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -1099,10 +1099,10 @@
   </circle>
   <g>
     <path
-      d="M 125.68459410254644 99.09371165345684 L 20.256265270139636 12.406689391575128"
-      stroke-opacity="0.5"
+      d="M 543.5266214217729 690.8221669254403 L 260.4943338521406 665.8396866316582"
+      stroke-opacity="1"
       stroke-width="5"
-      stroke="#581e99"
+      stroke="#000000"
       stroke-linecap="butt"
     ></path>
     <title>`L5`.icon</title>
@@ -1125,7 +1125,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 301.99078099034864 L NaN NaN"
+      d="M 10 265.92617934707187 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -1138,7 +1138,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="301.99078099034864"
+    cy="265.92617934707187"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -1148,12 +1148,12 @@
     <title>9:64:intersectDot</title>
   </circle>
   <circle
-    fill="#37dcbd"
+    fill="#2e518b"
     fill-opacity="0.5"
-    cx="650.2007754946617"
-    cy="542.6790306723583"
+    cx="426.9160002228749"
+    cy="159.4486477186215"
     stroke="none"
-    r="67.42413936997025"
+    r="58.1909341691329"
   >
     <title>`C1`.icon</title>
   </circle>
@@ -1161,8 +1161,8 @@
     <marker
       id="registry-SnowflakeQuetzal3561-9:51:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
-      markerWidth="0"
-      markerHeight="0"
+      markerWidth="4.97"
+      markerHeight="4.06"
       viewBox="0 0 9.95 8.12"
       refX="2.36"
       refY="4.06"
@@ -1175,7 +1175,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 301.99078099034864 L NaN NaN"
+      d="M 370.51336636047563 145.1334470062988 L 348.7920563772976 139.62049679722955"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -1187,13 +1187,13 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="10"
-    cy="301.99078099034864"
+    cx="370.51336636047563"
+    cy="145.1334470062988"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
     stroke-linecap="butt"
-    r="0"
+    r="4.999999140759426"
   >
     <title>9:51:intersectDot</title>
   </circle>
@@ -1201,7 +1201,7 @@
     fill="#000000"
     fill-opacity="1"
     cx="10"
-    cy="301.99078099034864"
+    cy="265.92617934707187"
     stroke="none"
     r="5"
   >
@@ -1209,7 +1209,7 @@
   </circle>
   <g>
     <path
-      d="M 10 358.5645369138796 L 1066.2259109088586 238.61953839755532"
+      d="M 10 168.18092648274626 L 1061.2061761198754 326.18584076859884"
       stroke-opacity="1"
       stroke-width="1.5"
       stroke="#000000"
@@ -1236,7 +1236,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 358.5645369138796 L 73.20873898313755 351.3865534680584"
+      d="M 10 168.18092648274626 L 72.90833818610838 177.63656592699928"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -1249,8 +1249,8 @@
     <marker
       id="registry-SnowflakeQuetzal3561-9:18:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
-      markerWidth="0"
-      markerHeight="0"
+      markerWidth="4.97"
+      markerHeight="4.06"
       viewBox="0 0 9.95 8.12"
       refX="2.36"
       refY="4.06"
@@ -1263,7 +1263,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 358.5645369138796 L NaN NaN"
+      d="M 206.96871438026906 197.78694054511033 L 189.99050263887887 183.15997300800453"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -1275,13 +1275,13 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="10"
-    cy="358.5645369138796"
+    cx="206.96871438026906"
+    cy="197.78694054511033"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
     stroke-linecap="butt"
-    r="0"
+    r="4.9999987717591425"
   >
     <title>9:18:intersectDot</title>
   </circle>
@@ -1303,7 +1303,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 358.5645369138796 L NaN NaN"
+      d="M 10 168.18092648274626 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -1316,7 +1316,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="358.5645369138796"
+    cy="168.18092648274626"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -1343,7 +1343,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 358.5645369138796 L NaN NaN"
+      d="M 10 168.18092648274626 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -1356,7 +1356,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="358.5645369138796"
+    cy="168.18092648274626"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -1383,7 +1383,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 358.5645369138796 L NaN NaN"
+      d="M 10 168.18092648274626 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -1396,7 +1396,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="358.5645369138796"
+    cy="168.18092648274626"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -1409,8 +1409,8 @@
     <marker
       id="registry-SnowflakeQuetzal3561-9:26:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
-      markerWidth="0"
-      markerHeight="0"
+      markerWidth="4.97"
+      markerHeight="4.06"
       viewBox="0 0 9.95 8.12"
       refX="2.36"
       refY="4.06"
@@ -1423,7 +1423,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 358.5645369138796 L NaN NaN"
+      d="M 525.9053609530871 245.72573566365105 L 515.9551986743382 225.64583694549998"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -1435,13 +1435,13 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="10"
-    cy="358.5645369138796"
+    cx="525.9053609530871"
+    cy="245.72573566365105"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
     stroke-linecap="butt"
-    r="0"
+    r="4.999999810360692"
   >
     <title>9:26:intersectDot</title>
   </circle>
@@ -1463,7 +1463,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 358.5645369138796 L NaN NaN"
+      d="M 10 168.18092648274626 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -1476,7 +1476,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="358.5645369138796"
+    cy="168.18092648274626"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -1489,8 +1489,8 @@
     <marker
       id="registry-SnowflakeQuetzal3561-9:27:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
-      markerWidth="0"
-      markerHeight="0"
+      markerWidth="4.97"
+      markerHeight="4.06"
       viewBox="0 0 9.95 8.12"
       refX="2.36"
       refY="4.06"
@@ -1503,7 +1503,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 358.5645369138796 L NaN NaN"
+      d="M 348.7103228123911 219.09186739944263 L 326.30474842375287 219.53718710087495"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -1515,13 +1515,13 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="10"
-    cy="358.5645369138796"
+    cx="348.7103228123911"
+    cy="219.09186739944263"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
     stroke-linecap="butt"
-    r="0"
+    r="4.99999986719293"
   >
     <title>9:27:intersectDot</title>
   </circle>
@@ -1543,7 +1543,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 358.5645369138796 L NaN NaN"
+      d="M 10 168.18092648274626 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -1556,7 +1556,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="358.5645369138796"
+    cy="168.18092648274626"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -1569,8 +1569,8 @@
     <marker
       id="registry-SnowflakeQuetzal3561-9:28:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
-      markerWidth="4.97"
-      markerHeight="4.06"
+      markerWidth="0"
+      markerHeight="0"
       viewBox="0 0 9.95 8.12"
       refX="2.36"
       refY="4.06"
@@ -1583,7 +1583,7 @@
       ></path>
     </marker>
     <path
-      d="M 567.4055264181392 295.26557373877165 L 550.012104354598 309.39628298732174"
+      d="M 10 168.18092648274626 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -1595,13 +1595,13 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="567.4055264181392"
-    cy="295.26557373877165"
+    cx="10"
+    cy="168.18092648274626"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
     stroke-linecap="butt"
-    r="4.999999875288454"
+    r="0"
   >
     <title>9:28:intersectDot</title>
   </circle>
@@ -1623,7 +1623,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 358.5645369138796 L NaN NaN"
+      d="M 10 168.18092648274626 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -1636,7 +1636,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="358.5645369138796"
+    cy="168.18092648274626"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -1663,7 +1663,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 358.5645369138796 L NaN NaN"
+      d="M 10 168.18092648274626 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -1676,7 +1676,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="358.5645369138796"
+    cy="168.18092648274626"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -1703,7 +1703,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 358.5645369138796 L NaN NaN"
+      d="M 10 168.18092648274626 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -1716,7 +1716,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="358.5645369138796"
+    cy="168.18092648274626"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -1743,7 +1743,7 @@
       ></path>
     </marker>
     <path
-      d="M 763.1395348880902 273.0380226883333 L 741.6746606861559 279.47752528746196"
+      d="M 748.948187454756 279.25090273749026 L 726.9656293348776 274.8948546703665"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -1755,8 +1755,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="763.1395348880902"
-    cy="273.0380226883333"
+    cx="748.948187454756"
+    cy="279.25090273749026"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -1783,7 +1783,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 358.5645369138796 L NaN NaN"
+      d="M 10 168.18092648274626 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -1796,7 +1796,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="358.5645369138796"
+    cy="168.18092648274626"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -1823,7 +1823,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 358.5645369138796 L NaN NaN"
+      d="M 10 168.18092648274626 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -1836,7 +1836,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="358.5645369138796"
+    cy="168.18092648274626"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -1863,7 +1863,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 358.5645369138796 L NaN NaN"
+      d="M 10 168.18092648274626 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -1876,7 +1876,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="358.5645369138796"
+    cy="168.18092648274626"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -1903,7 +1903,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 358.5645369138796 L NaN NaN"
+      d="M 10 168.18092648274626 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -1916,7 +1916,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="358.5645369138796"
+    cy="168.18092648274626"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -1943,7 +1943,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 358.5645369138796 L NaN NaN"
+      d="M 10 168.18092648274626 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -1956,7 +1956,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="358.5645369138796"
+    cy="168.18092648274626"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -1969,8 +1969,8 @@
     <marker
       id="registry-SnowflakeQuetzal3561-9:19:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
-      markerWidth="4.97"
-      markerHeight="4.06"
+      markerWidth="0"
+      markerHeight="0"
       viewBox="0 0 9.95 8.12"
       refX="2.36"
       refY="4.06"
@@ -1983,7 +1983,7 @@
       ></path>
     </marker>
     <path
-      d="M 99.05756296952694 348.45116140593 L 79.46963149837973 359.33789241165573"
+      d="M 10 168.18092648274626 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -1995,13 +1995,13 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="99.05756296952694"
-    cy="348.45116140593"
+    cx="10"
+    cy="168.18092648274626"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
     stroke-linecap="butt"
-    r="4.999999359376025"
+    r="0"
   >
     <title>9:19:intersectDot</title>
   </circle>
@@ -2023,7 +2023,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 358.5645369138796 L NaN NaN"
+      d="M 720.0065220654739 274.9007329392091 L 701.0522388937812 286.85660872739754"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -2035,8 +2035,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="10"
-    cy="358.5645369138796"
+    cx="720.0065220654739"
+    cy="274.9007329392091"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -2063,7 +2063,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 358.5645369138796 L NaN NaN"
+      d="M 10 168.18092648274626 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -2076,7 +2076,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="358.5645369138796"
+    cy="168.18092648274626"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -2089,7 +2089,7 @@
     fill="#000000"
     fill-opacity="1"
     cx="10"
-    cy="358.5645369138796"
+    cy="168.18092648274626"
     stroke="none"
     r="5"
   >
@@ -2097,7 +2097,7 @@
   </circle>
   <g>
     <path
-      d="M 10 597.028008658568 L 1071.7523330586002 648.8156584551646"
+      d="M 10 406.45989051831225 L 1035.414472630489 126.23651975968752"
       stroke-opacity="1"
       stroke-width="1.5"
       stroke="#000000"
@@ -2124,7 +2124,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 597.028008658568 L 73.53946195721096 600.1271865945608"
+      d="M 10 406.45989051831225 L 71.36486057004834 389.69021490513364"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -2151,7 +2151,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 597.028008658568 L NaN NaN"
+      d="M 10 406.45989051831225 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -2164,7 +2164,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="597.028008658568"
+    cy="406.45989051831225"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -2191,7 +2191,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 597.028008658568 L NaN NaN"
+      d="M 10 406.45989051831225 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -2204,7 +2204,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="597.028008658568"
+    cy="406.45989051831225"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -2231,7 +2231,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 597.028008658568 L NaN NaN"
+      d="M 10 406.45989051831225 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -2244,7 +2244,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="597.028008658568"
+    cy="406.45989051831225"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -2271,7 +2271,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 597.028008658568 L NaN NaN"
+      d="M 10 406.45989051831225 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -2284,7 +2284,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="597.028008658568"
+    cy="406.45989051831225"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -2297,8 +2297,8 @@
     <marker
       id="registry-SnowflakeQuetzal3561-9:78:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
-      markerWidth="0"
-      markerHeight="0"
+      markerWidth="4.97"
+      markerHeight="4.06"
       viewBox="0 0 9.95 8.12"
       refX="2.36"
       refY="4.06"
@@ -2311,7 +2311,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 597.028008658568 L NaN NaN"
+      d="M 350.5844482939274 313.3856023389578 L 328.17887390528915 313.8309220403902"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -2323,13 +2323,13 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="10"
-    cy="597.028008658568"
+    cx="350.5844482939274"
+    cy="313.3856023389578"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
     stroke-linecap="butt"
-    r="0"
+    r="4.99999986719293"
   >
     <title>9:78:intersectDot</title>
   </circle>
@@ -2351,7 +2351,7 @@
       ></path>
     </marker>
     <path
-      d="M 771.1296228991207 634.1525933034314 L 749.5658795493786 640.2528384295604"
+      d="M 764.6043345421593 200.24301348124297 L 742.621776422281 195.88696541411917"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -2363,8 +2363,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="771.1296228991207"
-    cy="634.1525933034314"
+    cx="764.6043345421593"
+    cy="200.24301348124297"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -2391,7 +2391,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 597.028008658568 L NaN NaN"
+      d="M 10 406.45989051831225 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -2404,7 +2404,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="597.028008658568"
+    cy="406.45989051831225"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -2431,7 +2431,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 597.028008658568 L NaN NaN"
+      d="M 716.882868212347 213.28424754748295 L 696.6397715889318 203.67046241022248"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -2443,8 +2443,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="10"
-    cy="597.028008658568"
+    cx="716.882868212347"
+    cy="213.28424754748295"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -2471,7 +2471,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 597.028008658568 L NaN NaN"
+      d="M 10 406.45989051831225 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -2484,7 +2484,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="597.028008658568"
+    cy="406.45989051831225"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -2511,7 +2511,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 597.028008658568 L NaN NaN"
+      d="M 10 406.45989051831225 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -2524,7 +2524,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="597.028008658568"
+    cy="406.45989051831225"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -2537,8 +2537,8 @@
     <marker
       id="registry-SnowflakeQuetzal3561-9:77:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
-      markerWidth="4.97"
-      markerHeight="4.06"
+      markerWidth="0"
+      markerHeight="0"
       viewBox="0 0 9.95 8.12"
       refX="2.36"
       refY="4.06"
@@ -2551,7 +2551,7 @@
       ></path>
     </marker>
     <path
-      d="M 333.0265271011007 612.7838343249282 L 325.51406231857436 633.8971224788878"
+      d="M 10 406.45989051831225 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -2563,13 +2563,13 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="333.0265271011007"
-    cy="612.7838343249282"
+    cx="10"
+    cy="406.45989051831225"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
     stroke-linecap="butt"
-    r="4.999999819700378"
+    r="0"
   >
     <title>9:77:intersectDot</title>
   </circle>
@@ -2577,8 +2577,8 @@
     <marker
       id="registry-SnowflakeQuetzal3561-9:82:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
-      markerWidth="4.97"
-      markerHeight="4.06"
+      markerWidth="0"
+      markerHeight="0"
       viewBox="0 0 9.95 8.12"
       refX="2.36"
       refY="4.06"
@@ -2591,7 +2591,7 @@
       ></path>
     </marker>
     <path
-      d="M 621.2067269625331 626.8400080709703 L 603.6205716349307 612.9499042902917"
+      d="M 10 406.45989051831225 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -2603,13 +2603,13 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="621.2067269625331"
-    cy="626.8400080709703"
+    cx="10"
+    cy="406.45989051831225"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
     stroke-linecap="butt"
-    r="4.999998716889213"
+    r="0"
   >
     <title>9:82:intersectDot</title>
   </circle>
@@ -2617,8 +2617,8 @@
     <marker
       id="registry-SnowflakeQuetzal3561-9:75:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
-      markerWidth="4.97"
-      markerHeight="4.06"
+      markerWidth="0"
+      markerHeight="0"
       viewBox="0 0 9.95 8.12"
       refX="2.36"
       refY="4.06"
@@ -2631,7 +2631,7 @@
       ></path>
     </marker>
     <path
-      d="M 525.5057634632212 622.1721323069282 L 503.09576796043757 622.1721323069282"
+      d="M 10 406.45989051831225 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -2643,13 +2643,13 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="525.5057634632212"
-    cy="622.1721323069282"
+    cx="10"
+    cy="406.45989051831225"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
     stroke-linecap="butt"
-    r="4.999998996605011"
+    r="0"
   >
     <title>9:75:intersectDot</title>
   </circle>
@@ -2671,7 +2671,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 597.028008658568 L NaN NaN"
+      d="M 10 406.45989051831225 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -2684,7 +2684,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="597.028008658568"
+    cy="406.45989051831225"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -2711,7 +2711,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 597.028008658568 L NaN NaN"
+      d="M 10 406.45989051831225 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -2724,7 +2724,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="597.028008658568"
+    cy="406.45989051831225"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -2751,7 +2751,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 597.028008658568 L NaN NaN"
+      d="M 10 406.45989051831225 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -2764,7 +2764,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="597.028008658568"
+    cy="406.45989051831225"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -2791,7 +2791,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 597.028008658568 L NaN NaN"
+      d="M 10 406.45989051831225 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -2804,7 +2804,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="597.028008658568"
+    cy="406.45989051831225"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -2831,7 +2831,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 597.028008658568 L NaN NaN"
+      d="M 10 406.45989051831225 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -2844,7 +2844,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="597.028008658568"
+    cy="406.45989051831225"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -2871,7 +2871,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 597.028008658568 L NaN NaN"
+      d="M 10 406.45989051831225 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -2884,7 +2884,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="597.028008658568"
+    cy="406.45989051831225"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -2897,8 +2897,8 @@
     <marker
       id="registry-SnowflakeQuetzal3561-9:84:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
-      markerWidth="4.97"
-      markerHeight="4.06"
+      markerWidth="0"
+      markerHeight="0"
       viewBox="0 0 9.95 8.12"
       refX="2.36"
       refY="4.06"
@@ -2911,7 +2911,7 @@
       ></path>
     </marker>
     <path
-      d="M 220.8418426664389 607.3119545191098 L 198.69410462528162 603.8935457288208"
+      d="M 10 406.45989051831225 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -2923,13 +2923,13 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="220.8418426664389"
-    cy="607.3119545191098"
+    cx="10"
+    cy="406.45989051831225"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
     stroke-linecap="butt"
-    r="4.999998601163599"
+    r="0"
   >
     <title>9:84:intersectDot</title>
   </circle>
@@ -2951,7 +2951,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 597.028008658568 L NaN NaN"
+      d="M 10 406.45989051831225 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -2964,7 +2964,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="597.028008658568"
+    cy="406.45989051831225"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -2977,7 +2977,7 @@
     fill="#000000"
     fill-opacity="1"
     cx="10"
-    cy="597.028008658568"
+    cy="406.45989051831225"
     stroke="none"
     r="5"
   >
@@ -2985,7 +2985,7 @@
   </circle>
   <g>
     <path
-      d="M 10 273.64503037086746 L 1070.0140535980554 353.4584605590946"
+      d="M 10 460.3907715278167 L 1064.4114964101434 325.422724120192"
       stroke-opacity="1"
       stroke-width="1.5"
       stroke="#000000"
@@ -3012,7 +3012,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 273.64503037086746 L 73.4354364344801 278.42138192973357"
+      d="M 10 460.3907715278167 L 73.10015723839109 452.31374937605233"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -3039,7 +3039,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 273.64503037086746 L NaN NaN"
+      d="M 10 460.3907715278167 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -3052,7 +3052,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="273.64503037086746"
+    cy="460.3907715278167"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -3079,7 +3079,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 273.64503037086746 L NaN NaN"
+      d="M 10 460.3907715278167 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -3092,7 +3092,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="273.64503037086746"
+    cy="460.3907715278167"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -3119,7 +3119,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 273.64503037086746 L NaN NaN"
+      d="M 720.5205998111082 369.44185990660134 L 698.7599310790256 374.79733602424096"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -3131,8 +3131,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="10"
-    cy="273.64503037086746"
+    cx="720.5205998111082"
+    cy="369.44185990660134"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -3159,7 +3159,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 273.64503037086746 L NaN NaN"
+      d="M 10 460.3907715278167 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -3172,7 +3172,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="273.64503037086746"
+    cy="460.3907715278167"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -3199,7 +3199,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 273.64503037086746 L NaN NaN"
+      d="M 10 460.3907715278167 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -3212,7 +3212,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="273.64503037086746"
+    cy="460.3907715278167"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -3225,8 +3225,8 @@
     <marker
       id="registry-SnowflakeQuetzal3561-9:45:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
-      markerWidth="4.97"
-      markerHeight="4.06"
+      markerWidth="0"
+      markerHeight="0"
       viewBox="0 0 9.95 8.12"
       refX="2.36"
       refY="4.06"
@@ -3239,7 +3239,7 @@
       ></path>
     </marker>
     <path
-      d="M 585.0146683884124 316.94058191270346 L 567.6212463248712 331.07129116125355"
+      d="M 10 460.3907715278167 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -3251,13 +3251,13 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="585.0146683884124"
-    cy="316.94058191270346"
+    cx="10"
+    cy="460.3907715278167"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
     stroke-linecap="butt"
-    r="4.999999875288454"
+    r="0"
   >
     <title>9:45:intersectDot</title>
   </circle>
@@ -3279,7 +3279,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 273.64503037086746 L NaN NaN"
+      d="M 10 460.3907715278167 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -3292,7 +3292,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="273.64503037086746"
+    cy="460.3907715278167"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -3319,7 +3319,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 273.64503037086746 L NaN NaN"
+      d="M 10 460.3907715278167 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -3332,7 +3332,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="273.64503037086746"
+    cy="460.3907715278167"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -3359,7 +3359,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 273.64503037086746 L NaN NaN"
+      d="M 10 460.3907715278167 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -3372,7 +3372,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="273.64503037086746"
+    cy="460.3907715278167"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -3399,7 +3399,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 273.64503037086746 L NaN NaN"
+      d="M 10 460.3907715278167 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -3412,7 +3412,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="273.64503037086746"
+    cy="460.3907715278167"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -3439,7 +3439,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 273.64503037086746 L NaN NaN"
+      d="M 10 460.3907715278167 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -3452,7 +3452,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="273.64503037086746"
+    cy="460.3907715278167"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -3479,7 +3479,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 273.64503037086746 L NaN NaN"
+      d="M 10 460.3907715278167 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -3492,7 +3492,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="273.64503037086746"
+    cy="460.3907715278167"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -3505,8 +3505,8 @@
     <marker
       id="registry-SnowflakeQuetzal3561-9:46:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
-      markerWidth="0"
-      markerHeight="0"
+      markerWidth="4.97"
+      markerHeight="4.06"
       viewBox="0 0 9.95 8.12"
       refX="2.36"
       refY="4.06"
@@ -3519,7 +3519,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 273.64503037086746 L NaN NaN"
+      d="M 104.87738345843451 448.2461626800122 L 84.31194925626562 439.3427373021284"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -3531,13 +3531,13 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="10"
-    cy="273.64503037086746"
+    cx="104.87738345843451"
+    cy="448.2461626800122"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
     stroke-linecap="butt"
-    r="0"
+    r="4.999999837633448"
   >
     <title>9:46:intersectDot</title>
   </circle>
@@ -3559,7 +3559,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 273.64503037086746 L NaN NaN"
+      d="M 10 460.3907715278167 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -3572,7 +3572,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="273.64503037086746"
+    cy="460.3907715278167"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -3585,8 +3585,8 @@
     <marker
       id="registry-SnowflakeQuetzal3561-9:50:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
-      markerWidth="0"
-      markerHeight="0"
+      markerWidth="4.97"
+      markerHeight="4.06"
       viewBox="0 0 9.95 8.12"
       refX="2.36"
       refY="4.06"
@@ -3599,7 +3599,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 273.64503037086746 L NaN NaN"
+      d="M 679.1549748639758 374.73679233850163 L 658.9007948548604 365.1463803484764"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -3611,13 +3611,13 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="10"
-    cy="273.64503037086746"
+    cx="679.1549748639758"
+    cy="374.73679233850163"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
     stroke-linecap="butt"
-    r="0"
+    r="4.999998556275916"
   >
     <title>9:50:intersectDot</title>
   </circle>
@@ -3639,7 +3639,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 273.64503037086746 L NaN NaN"
+      d="M 10 460.3907715278167 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -3652,7 +3652,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="273.64503037086746"
+    cy="460.3907715278167"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -3665,8 +3665,8 @@
     <marker
       id="registry-SnowflakeQuetzal3561-9:36:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
-      markerWidth="4.97"
-      markerHeight="4.06"
+      markerWidth="0"
+      markerHeight="0"
       viewBox="0 0 9.95 8.12"
       refX="2.36"
       refY="4.06"
@@ -3679,7 +3679,7 @@
       ></path>
     </marker>
     <path
-      d="M 95.4175618650155 280.0765192625677 L 74.78448539589601 271.3309988818895"
+      d="M 10 460.3907715278167 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -3691,13 +3691,13 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="95.4175618650155"
-    cy="280.0765192625677"
+    cx="10"
+    cy="460.3907715278167"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
     stroke-linecap="butt"
-    r="4.999999359376026"
+    r="0"
   >
     <title>9:36:intersectDot</title>
   </circle>
@@ -3719,7 +3719,7 @@
       ></path>
     </marker>
     <path
-      d="M 780.7313407410959 331.67700820108195 L 759.2664665391615 338.1165108002107"
+      d="M 736.3901595086742 367.4105054563782 L 714.0587095656771 369.28516765827663"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -3731,8 +3731,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="780.7313407410959"
-    cy="331.67700820108195"
+    cx="736.3901595086742"
+    cy="367.4105054563782"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -3759,7 +3759,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 273.64503037086746 L NaN NaN"
+      d="M 10 460.3907715278167 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -3772,7 +3772,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="273.64503037086746"
+    cy="460.3907715278167"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -3799,7 +3799,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 273.64503037086746 L NaN NaN"
+      d="M 10 460.3907715278167 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -3812,7 +3812,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="273.64503037086746"
+    cy="460.3907715278167"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -3839,7 +3839,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 273.64503037086746 L NaN NaN"
+      d="M 10 460.3907715278167 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -3852,7 +3852,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="273.64503037086746"
+    cy="460.3907715278167"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -3865,7 +3865,7 @@
     fill="#000000"
     fill-opacity="1"
     cx="10"
-    cy="273.64503037086746"
+    cy="460.3907715278167"
     stroke="none"
     r="5"
   >
@@ -3873,7 +3873,7 @@
   </circle>
   <g>
     <path
-      d="M 10 113.56747369594902 L 1071.8141237709074 63.06258298086385"
+      d="M 10 111.3859418487128 L 1013.1740732204322 -240.24135727715668"
       stroke-opacity="1"
       stroke-width="1.5"
       stroke="#000000"
@@ -3900,7 +3900,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 113.56747369594902 L 73.5431597579925 110.54506114047143"
+      d="M 10 111.3859418487128 L 70.0339070454562 90.34317254886395"
       stroke-opacity="1"
       stroke-width="3"
       stroke="#000000"
@@ -3913,8 +3913,8 @@
     <marker
       id="registry-SnowflakeQuetzal3561-9:1:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
-      markerWidth="4.97"
-      markerHeight="4.06"
+      markerWidth="0"
+      markerHeight="0"
       viewBox="0 0 9.95 8.12"
       refX="2.36"
       refY="4.06"
@@ -3927,7 +3927,7 @@
       ></path>
     </marker>
     <path
-      d="M 154.8019443146505 106.68000986473601 L 136.07801179600148 118.99351078745235"
+      d="M 10 111.3859418487128 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -3939,13 +3939,13 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="154.8019443146505"
-    cy="106.68000986473601"
+    cx="10"
+    cy="111.3859418487128"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
     stroke-linecap="butt"
-    r="4.999999272894283"
+    r="0"
   >
     <title>9:1:intersectDot</title>
   </circle>
@@ -3967,7 +3967,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 113.56747369594902 L NaN NaN"
+      d="M 10 111.3859418487128 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -3980,7 +3980,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="113.56747369594902"
+    cy="111.3859418487128"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -4007,7 +4007,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 113.56747369594902 L NaN NaN"
+      d="M 10 111.3859418487128 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -4020,7 +4020,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="113.56747369594902"
+    cy="111.3859418487128"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -4047,7 +4047,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 113.56747369594902 L NaN NaN"
+      d="M 10 111.3859418487128 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -4060,7 +4060,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="113.56747369594902"
+    cy="111.3859418487128"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -4087,7 +4087,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 113.56747369594902 L NaN NaN"
+      d="M 10 111.3859418487128 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -4100,7 +4100,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="113.56747369594902"
+    cy="111.3859418487128"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -4127,7 +4127,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 113.56747369594902 L NaN NaN"
+      d="M 10 111.3859418487128 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -4140,7 +4140,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="113.56747369594902"
+    cy="111.3859418487128"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -4167,7 +4167,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 113.56747369594902 L NaN NaN"
+      d="M 10 111.3859418487128 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -4180,7 +4180,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="113.56747369594902"
+    cy="111.3859418487128"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -4193,8 +4193,8 @@
     <marker
       id="registry-SnowflakeQuetzal3561-9:3:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
-      markerWidth="4.97"
-      markerHeight="4.06"
+      markerWidth="0"
+      markerHeight="0"
       viewBox="0 0 9.95 8.12"
       refX="2.36"
       refY="4.06"
@@ -4207,7 +4207,7 @@
       ></path>
     </marker>
     <path
-      d="M 418.3453307828893 94.14464267166068 L 396.4635557677141 98.98157765334034"
+      d="M 10 111.3859418487128 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -4219,13 +4219,13 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="418.3453307828893"
-    cy="94.14464267166068"
+    cx="10"
+    cy="111.3859418487128"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
     stroke-linecap="butt"
-    r="4.999999590965066"
+    r="0"
   >
     <title>9:3:intersectDot</title>
   </circle>
@@ -4247,7 +4247,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 113.56747369594902 L NaN NaN"
+      d="M 10 111.3859418487128 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -4260,7 +4260,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="113.56747369594902"
+    cy="111.3859418487128"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -4287,7 +4287,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 113.56747369594902 L NaN NaN"
+      d="M 10 111.3859418487128 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -4300,7 +4300,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="113.56747369594902"
+    cy="111.3859418487128"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -4327,7 +4327,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 113.56747369594902 L NaN NaN"
+      d="M 10 111.3859418487128 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -4340,7 +4340,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="113.56747369594902"
+    cy="111.3859418487128"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -4367,7 +4367,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 113.56747369594902 L NaN NaN"
+      d="M 10 111.3859418487128 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -4380,7 +4380,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="113.56747369594902"
+    cy="111.3859418487128"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -4407,7 +4407,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 113.56747369594902 L NaN NaN"
+      d="M 10 111.3859418487128 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -4420,7 +4420,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="113.56747369594902"
+    cy="111.3859418487128"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -4447,7 +4447,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 113.56747369594902 L NaN NaN"
+      d="M 10 111.3859418487128 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -4460,7 +4460,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="113.56747369594902"
+    cy="111.3859418487128"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -4487,7 +4487,7 @@
       ></path>
     </marker>
     <path
-      d="M 763.7931392327696 77.71351463997973 L 741.8891501970427 72.97819196047953"
+      d="M 10 111.3859418487128 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -4499,8 +4499,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="763.7931392327696"
-    cy="77.71351463997973"
+    cx="10"
+    cy="111.3859418487128"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -4527,7 +4527,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 113.56747369594902 L NaN NaN"
+      d="M 10 111.3859418487128 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -4540,7 +4540,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="113.56747369594902"
+    cy="111.3859418487128"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -4567,7 +4567,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 113.56747369594902 L NaN NaN"
+      d="M 10 111.3859418487128 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -4580,7 +4580,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="113.56747369594902"
+    cy="111.3859418487128"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -4607,7 +4607,7 @@
       ></path>
     </marker>
     <path
-      d="M 214.47725672512098 103.84157038252619 L 192.31302823706733 107.15137936623105"
+      d="M 10 111.3859418487128 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -4619,8 +4619,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="214.47725672512098"
-    cy="103.84157038252619"
+    cx="10"
+    cy="111.3859418487128"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -4647,7 +4647,7 @@
       ></path>
     </marker>
     <path
-      d="M 10 113.56747369594902 L NaN NaN"
+      d="M 10 111.3859418487128 L NaN NaN"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -4660,7 +4660,7 @@
     fill="#ffffff"
     fill-opacity="1"
     cx="10"
-    cy="113.56747369594902"
+    cy="111.3859418487128"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
@@ -4672,46 +4672,6 @@
   <g>
     <marker
       id="registry-SnowflakeQuetzal3561-9:12:intersectNormal-endArrowId"
-      markerUnits="strokeWidth"
-      markerWidth="4.97"
-      markerHeight="4.06"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#888888"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <path
-      d="M 307.9925679758248 99.39354085535163 L 298.19559482841373 79.2384577034461"
-      stroke-opacity="1"
-      stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:12:intersectNormal-endArrowId)"
-    ></path>
-    <title>9:12:intersectNormal</title>
-  </g>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="307.9925679758248"
-    cy="99.39354085535163"
-    stroke="#000000"
-    stroke-opacity="1"
-    stroke-width="2"
-    stroke-linecap="butt"
-    r="4.999999799442296"
-  >
-    <title>9:12:intersectDot</title>
-  </circle>
-  <g>
-    <marker
-      id="registry-SnowflakeQuetzal3561-9:2:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -4727,7 +4687,47 @@
       ></path>
     </marker>
     <path
-      d="M 10 113.56747369594902 L NaN NaN"
+      d="M 10 111.3859418487128 L NaN NaN"
+      stroke-opacity="1"
+      stroke-width="2"
+      stroke="#888888"
+      stroke-linecap="butt"
+      marker-end="url(#registry-SnowflakeQuetzal3561-9:12:intersectNormal-endArrowId)"
+    ></path>
+    <title>9:12:intersectNormal</title>
+  </g>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="10"
+    cy="111.3859418487128"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="2"
+    stroke-linecap="butt"
+    r="0"
+  >
+    <title>9:12:intersectDot</title>
+  </circle>
+  <g>
+    <marker
+      id="registry-SnowflakeQuetzal3561-9:2:intersectNormal-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="4.97"
+      markerHeight="4.06"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#888888"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <path
+      d="M 212.40884213062463 40.4386592409146 L 190.8033285374779 34.48805431329407"
       stroke-opacity="1"
       stroke-width="2"
       stroke="#888888"
@@ -4739,13 +4739,13 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="10"
-    cy="113.56747369594902"
+    cx="212.40884213062463"
+    cy="40.4386592409146"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
     stroke-linecap="butt"
-    r="0"
+    r="4.999999087172501"
   >
     <title>9:2:intersectDot</title>
   </circle>
@@ -4753,7 +4753,7 @@
     fill="#000000"
     fill-opacity="1"
     cx="10"
-    cy="113.56747369594902"
+    cy="111.3859418487128"
     stroke="none"
     r="5"
   >
