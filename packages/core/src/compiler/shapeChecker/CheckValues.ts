@@ -3,6 +3,7 @@ import * as ad from "../../types/ad.js";
 import { BadShapeParamTypeError } from "../../types/errors.js";
 import {
   BoolV,
+  ClipDataV,
   ColorV,
   FloatV,
   ListV,
@@ -193,4 +194,14 @@ export const checkShapeListV = (
     return ok(value);
   }
   return err(badShapeParamTypeError(path, val(value), "ShapeListV", false));
+};
+
+export const checkClipDataV = (
+  path: string,
+  value: Value<ad.Num>
+): Result<ClipDataV<ad.Num>, BadShapeParamTypeError> => {
+  if (value.tag === "ClipDataV") {
+    return ok(value);
+  }
+  return err(badShapeParamTypeError(path, val(value), "ClipDataV", false));
 };

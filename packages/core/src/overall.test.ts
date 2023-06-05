@@ -232,20 +232,20 @@ describe("Energy API", () => {
 
 describe("Cross-instance energy eval", () => {
   test("correct - subsets", async () => {
-    const twosets = `Set A, B\nAutoLabel All`;
+    const twosets = `Set A, B\nNot(Intersecting(A, B))\nAutoLabel All`;
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
     // compile and optimize both states
     const state1 = await compileTrio({
       substance: twosets,
       style: vennStyle,
       domain: setDomain,
-      variation: "cross-instance state1",
+      variation: "cross-instance state0",
     });
     const state2 = await compileTrio({
       substance: twoSubsets,
       style: vennStyle,
       domain: setDomain,
-      variation: "cross-instance state2",
+      variation: "cross-instance state1",
     });
     if (state1.isOk() && state2.isOk()) {
       const state1Done = stepUntilConvergence(await prepareState(state1.value));

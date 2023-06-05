@@ -29,6 +29,7 @@ const RenderImage = async (
   elem.innerHTML = rawSVG;
   // We assume the first svg element in the file is the one to display
   const svg = elem.querySelector("svg")!;
+  // make sure the SVG has unique IDs so multiple diagrams can appear on the screen
   makeIdsUnique(elem, false);
 
   attrToNotAutoMap.push(...attrWH(shape, svg));
