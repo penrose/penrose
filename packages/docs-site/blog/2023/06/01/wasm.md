@@ -63,7 +63,7 @@ diagram, for instance:
 
 ![Euclidean geometry performance][siggraph teaser perf]
 
-## Implementation
+## Attempt 1
 
 Luckily for me, [Ben Titzer][], one of the creators of WebAssembly, works in our
 department at CMU! So I went and asked him how I would configure a fixed
@@ -82,6 +82,99 @@ wasn't showing up. Turns out, [`wasm-bindgen`][wasm-bindgen] was postprocessing
 the WebAssembly produced by the Rust compiler, stripping out the table. So I
 decided to just use the Rust compiler directly, without `wasm-bindgen`.
 
+This turned out to be very... fun 🙃 and I found myself writing code like the
+following:
+
+```javascript
+const rust = (await WebAssembly.instantiate(src)).instance.exports;
+
+const withVec = (T, len, f) => {
+  const align = T.BYTES_PER_ELEMENT;
+  const size = len * align;
+  const ptr = rust.__wbindgen_malloc(size, align);
+  try {
+    return f(new T(rust.memory.buffer, ptr, len));
+  } finally {
+    rust.__wbindgen_free(ptr, size, align);
+  }
+};
+
+// ...
+
+return withVec(Uint8Array, n, (vInputs) => {
+  for (let i = 0; i < n; i++) {
+    vInputs[i] = inputMetaToByte(inputs[i]);
+  }
+  return withVec(Float64Array, n, (vXs) => {
+    vXs.set(varyingValues);
+    rust.converge(
+      index,
+      vInputs.byteOffset,
+      n,
+      numObjEngs,
+      numConstrEngs,
+      vXs.byteOffset,
+      n
+    );
+    return Array.from(vXs);
+  });
+});
+```
+
+Exactly what you wanna see in JavaScript! And the best part is, there's a nasty
+bug lurking. Can you spot it?
+
+That's right: Wasm memory can [grow][]. So if you wrap its `buffer` in a
+`TypedArray` and the memory grows later, that array becomes invalid. A more
+correct version of `withVec` would look like this:
+
+```javascript
+const withVec = (T, len, f) => {
+  const align = T.BYTES_PER_ELEMENT;
+  const size = len * align;
+  const ptr = rust.__wbindgen_malloc(size, align);
+  try {
+    return f(() => new T(rust.memory.buffer, ptr, len));
+  } finally {
+    rust.__wbindgen_free(ptr, size, align);
+  }
+};
+```
+
+But this only gets you so far. The Penrose optimizer uses a big `Params` type to
+keep track of data across iterations of the numerical optimization algorithm,
+and these `Params` contain some numbers, some vectors, and a couple rectangular
+matrices (some of which aren't always present). Dealing with all these data
+individually via `withVec` would be a huge pain, and this issue is pretty much
+exactly what `wasm-bindgen` is designed to solve! So I wanted to go back and try
+to use it after all.
+
+## Attempt 2
+
+Following Ben's advice, I was still trying to use the
+`__indirect_function_table`. I took a look at the `wasm-bindgen` source code,
+and I found a function called
+[`unexported_unused_lld_things`][unexported_unused_lld_things]. So I opened a
+[pull request][keep-lld-exports] adding a flag called `--keep-lld-exports` which
+causes that function to not be called. Alex merged it a few hours later (!), so
+I could just use the latest `wasm-bindgen` from GitHub `main` to have my table
+and eat it too. (I quickly realized that using `cargo install` to build
+`wasm-bindgen-cli` from source in every CI run is too slow, so instead I stashed
+a Linux binary in a GitHub Gist to use until the next release.)
+
+By default, `wasm-bindgen` exports exports Rust types as JavaScript classes
+which point to data living in the Wasm memory. This is great for efficiency
+because it means data doesn't get unnecessarily copied back and forth, but the
+downside is that the user on the JS side needs to remember to manually call
+`.free()` or some other thing that consumes the object, or a memory leak springs
+up. For our purposes I wanted our optimizer interface to just return plain old
+JavaScript data, so I made use of the very nice
+[`serde-wasm-bindgen`][serde-wasm-bindgen] and [ts-rs][] crates. These work
+great together as long as you use the
+[`Serializer::json_compatible()`][json_compatible] preset.
+
+## Attempt 3
+
 ## Takeaways
 
 This took a lot of trial and error! I also leaned heavily on experts like Ben
@@ -90,16 +183,22 @@ all the work going on in the [Rust/Wasm][rustwasm] space; there's a lot of great
 tools and resources there already, and I'm hoping that going forward we can
 continue making all of this more accessible to newcomers.
 
+[keep-lld-exports]: https://github.com/rustwasm/wasm-bindgen/pull/3147
 [alex crichton]: https://github.com/alexcrichton
 [ben titzer]: https://s3d.cmu.edu/people/core-faculty/titzer-ben.html
 [experiment]: https://github.com/penrose/experiments/tree/main/2022-optimizer-performance
 [function constructor]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/Function
+[grow]: https://developer.mozilla.org/en-US/docs/WebAssembly/Reference/Memory/Grow
+[json_compatible]: https://docs.rs/serde-wasm-bindgen/0.5.0/serde_wasm_bindgen/struct.Serializer.html#method.json_compatible
 [l-bfgs]: https://en.wikipedia.org/wiki/Limited-memory_BFGS
 [rustwasm]: https://rustwasm.github.io/
+[serde-wasm-bindgen]: https://github.com/cloudflare/serde-wasm-bindgen
 [siggraph 2020]: http://www.cs.cmu.edu/~kmcrane/Projects/MonteCarloGeometryProcessing/index.html
 [siggraph 2022]: https://cs.dartmouth.edu/wjarosz/publications/sawhneyseyb22gridfree.html
 [siggraph teaser]: https://raw.githubusercontent.com/penrose/penrose/3f0947795e975c33f7d8cfad0be467746221f005/diagrams/siggraph-teaser-euclidean-teaser.svg
 [siggraph teaser perf]: https://raw.githubusercontent.com/penrose/experiments/bc833544044f82b381c643b8a4062146181b8ba0/2022-optimizer-performance/mac-arm/siggraph-teaser-euclidean-teaser.svg
+[ts-rs]: https://github.com/Aleph-Alpha/ts-rs
+[unexported_unused_lld_things]: https://github.com/rustwasm/wasm-bindgen/blob/0.2.83/crates/cli-support/src/lib.rs#L610-L626
 [walk on spheres]: https://raw.githubusercontent.com/penrose/penrose/3f0947795e975c33f7d8cfad0be467746221f005/diagrams/wos-nested-estimator-walk-on-spheres.svg
 [walk on spheres perf]: https://raw.githubusercontent.com/penrose/experiments/bc833544044f82b381c643b8a4062146181b8ba0/2022-optimizer-performance/mac-arm/wos-nested-estimator-walk-on-spheres.svg
 [wasm pr]: https://github.com/penrose/penrose/pull/1092
