@@ -52,49 +52,49 @@ forall Frames f {
   f.eps0 = Equation {
     string: "0"
     center: (f.dot0.center[0] - 20, f.dot0.center[1])
-    fontSize: "24p"
+    fontSize: "30px"
   }
   f.eps = Equation {
     string: "\varepsilon"
     center: (1.5 * f.d + 20, f.dot0.center[1])
-    fontSize: "24p"
+    fontSize: "30px"
   }
   f.eps1 = Equation {
     string: "\varepsilon_1"
     center: (f.dot1.center[0] + 20, f.dot1.center[1] - 20)
     fillColor: rgba(0.1, 0.3, 0.1, 0.8)
-    fontSize: "24p"
+    fontSize: "30px"
   }
   f.eps2 = Equation {
     string: "\varepsilon_2"
     center: (f.dot2.center[0] + 20, f.dot2.center[1] - 20)
     fillColor: rgba(0.5, 0.1, 0.1, 0.8)
-    fontSize: "24p"
+    fontSize: "30px"
   }
   f.eps3 = Equation {
     string: "\varepsilon_3"
     center: (f.dot3.center[0] + 20, f.dot3.center[1] - 20)
     fillColor: rgba(0.1, 0.1, 0.5, 0.8)
-    fontSize: "24p"
+    fontSize: "30px"
   }
 
   f.lab1 = Equation {
     string: "X \oplus B_{\varepsilon_{1}}"
     fillColor: rgba(0.1, 0.3, 0.1, 0.8)
     center: (f.dot1.center[0], f.ylab)
-    fontSize: "24p"
+    fontSize: "30px"
   }
   f.lab2 = Equation {
     string: "X \oplus B_{\varepsilon_{2}}"
     fillColor: rgba(0.5, 0.1, 0.1, 0.8)
     center: (f.dot2.center[0], f.ylab)
-    fontSize: "24p"
+    fontSize: "30px"
   }
   f.lab3 = Equation {
     string: "X \oplus B_{\varepsilon_{3}}"
     fillColor: rgba(0.1, 0.1, 0.5, 0.8)
     center: (f.dot3.center[0], f.ylab)
-    fontSize: "24p"
+    fontSize: "30px"
   }
 }
 

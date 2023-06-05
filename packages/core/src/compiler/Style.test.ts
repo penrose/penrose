@@ -512,9 +512,12 @@ describe("Compiler", () => {
       `forall Object o {
         o.a = Circle {}
         o.b = Circle {}
+        o.c = Rectangle {}
         o.g = Group {
           shapes: [o.a, o.b]
+          clipPath: noClip()
         }
+        override o.g.clipPath = clip(o.c)
       }`,
     ];
     stys.forEach((sty: string) => {
@@ -978,6 +981,13 @@ delete x.z.p }`,
             ptProp: (1, 2, 3)
           }
         }`,
+        `forall Set a {
+          a.sh = Group {
+            shapes: []
+            clipPath: 12345
+          }
+        }
+        `,
       ],
       BadArgumentTypeError: [
         `forall Set a {
@@ -993,6 +1003,10 @@ delete x.z.p }`,
           c = Circle {}
           encourage isRegular(c)
         }`,
+        `forall Set a {
+          x = clip(123)
+        }
+        `,
       ],
       MissingArgumentError: [
         `forall Set a {
@@ -1002,16 +1016,32 @@ delete x.z.p }`,
         `forall Set a {
           ensure disjoint()
         }`,
+        `
+        forall Set a {
+          x = clip()
+        }
+        `,
       ],
       TooManyArgumentsError: [
         `forall Set a {
           a.s = Circle {}
           ensure contains(a.s, a.s, 1, 2, 3)
         }`,
+        `forall Set a {
+          a.s = Circle {}
+          x = noClip(a.s)
+        }`,
       ],
       FunctionInternalError: [
         `forall Set a {
           x = dot([1, 2, 3], [4, 5])
+        }`,
+        `forall Set a {
+          x = Group {}
+          y = Group {
+            shapes: []
+            clipPath: clip(x)
+          }
         }`,
       ],
       RedeclareNamespaceError: [
@@ -1326,6 +1356,32 @@ delete x.z.p }`,
       } else {
         throw new Error("Bad shape type");
       }
+    });
+  });
+
+  describe("gather dependencies", () => {
+    test("indexing", async () => {
+      const dsl = "type T";
+      const sub = "T t";
+      const sty =
+        canvasPreamble +
+        `
+        forall T t {
+          t.vals = [1, 2, 3, 4, 5, 6]
+          t.val = t.vals[match_id]
+        
+          Circle {
+            r: t.val
+          }
+        }
+      `;
+
+      // This problem would have failed compilation when indexing is not handled correctly
+      // And this would fail:
+      const { graph } = await loadProgs({ dsl, sub, sty });
+      expect(graph.parents("`t`.val").sort()).toEqual(
+        ["`t`.vals", "1:0:match_id"].sort()
+      );
     });
   });
 });

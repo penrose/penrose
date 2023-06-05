@@ -39,6 +39,8 @@ import {
 import { ShapeFn } from "../types/state.js";
 import { Expr, Path } from "../types/style.js";
 import {
+  ClipData,
+  ClipDataV,
   Color,
   ColorV,
   FloatV,
@@ -215,6 +217,25 @@ function mapShapeList<T, S>(f: (arg: T) => S, v: ShapeListV<T>): ShapeListV<S> {
   };
 }
 
+function mapClipData<T, S>(f: (arg: T) => S, v: ClipDataV<T>): ClipDataV<S> {
+  return {
+    tag: "ClipDataV",
+    contents: mapClipDataInner(f, v.contents),
+  };
+}
+
+function mapClipDataInner<T, S>(f: (arg: T) => S, v: ClipData<T>): ClipData<S> {
+  if (v.tag === "NoClip") {
+    return { tag: "NoClip" };
+  } else {
+    const mapped = mapShape(f, v.contents);
+    if (mapped.shapeType === "Group") {
+      throw new Error("Got a Group shape in mapClipDataInner");
+    }
+    return { tag: "Clip", contents: mapped };
+  }
+}
+
 const mapCircle = <T, S>(f: (arg: T) => S, v: Circle<T>): Circle<S> => {
   return {
     ...v,
@@ -249,6 +270,8 @@ const mapEquation = <T, S>(f: (arg: T) => S, v: Equation<T>): Equation<S> => {
     ...mapRect(f, v),
     ...mapRotate(f, v),
     ...mapString(f, v),
+    ascent: mapFloat(f, v.ascent),
+    descent: mapFloat(f, v.descent),
     passthrough: mapPassthrough(f, v.passthrough),
   };
 };
@@ -258,6 +281,7 @@ const mapGroup = <T, S>(f: (arg: T) => S, v: Group<T>): Group<S> => {
     ...v,
     ...mapNamed(f, v),
     shapes: mapShapeList(f, v.shapes),
+    clipPath: mapClipData(f, v.clipPath),
     passthrough: mapPassthrough(f, v.passthrough),
   };
 };
@@ -456,6 +480,8 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
       return mapPathData(f, v);
     case "ShapeListV":
       return mapShapeList(f, v);
+    case "ClipDataV":
+      return mapClipData(f, v);
     // non-numeric Value types
     case "BoolV":
     case "StrV":

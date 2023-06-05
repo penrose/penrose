@@ -70,7 +70,7 @@ It's specified by the following trio of Domain, Substance, and Style programs
   
     x.text = Equation {
       string : x.label
-      fontSize : "25px"
+      fontSize : "32px"
     }
   
     ensure contains(x.icon, x.text)
