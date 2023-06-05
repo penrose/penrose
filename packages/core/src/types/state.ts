@@ -49,6 +49,8 @@ export interface EquationData {
   tag: "EquationData";
   width: FloatV<number>;
   height: FloatV<number>;
+  descent: FloatV<number>;
+  ascent: FloatV<number>;
   rendered: HTMLElement;
 }
 

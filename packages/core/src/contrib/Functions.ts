@@ -30,6 +30,7 @@ import {
   log2,
   lt,
   max,
+  maxN,
   min,
   minN,
   mul,
@@ -51,7 +52,9 @@ import {
 import { PathBuilder } from "../renderer/PathBuilder.js";
 import { Circle } from "../shapes/Circle.js";
 import { Ellipse } from "../shapes/Ellipse.js";
+import { Group } from "../shapes/Group.js";
 import { Line } from "../shapes/Line.js";
+import { Path } from "../shapes/Path.js";
 import { Polygon } from "../shapes/Polygon.js";
 import { Polyline } from "../shapes/Polyline.js";
 import { Context, uniform } from "../shapes/Samplers.js";
@@ -59,6 +62,7 @@ import { Shape } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
 import { CompFunc } from "../types/functions.js";
 import {
+  ClipDataV,
   Color,
   ColorV,
   FloatV,
@@ -70,15 +74,19 @@ import {
 } from "../types/value.js";
 import {
   booleanT,
+  clipDataV,
+  clipShape,
   colorT,
   colorTypeT,
   floatV,
   getStart,
   linePts,
   natT,
+  noClip,
   pathCmdT,
   pathTypeT,
   posIntT,
+  ptListV,
   real2NT,
   real2T,
   real3T,
@@ -91,6 +99,7 @@ import {
   unionT,
   unitT,
   valueT,
+  vectorV,
 } from "../utils/Util.js";
 import {
   centerOfMass,
@@ -106,7 +115,7 @@ import {
   turningNumber,
 } from "./CurveConstraints.js";
 import { rectLineDist, shapeDistance } from "./Queries.js";
-import { Rectlike, clamp, isRectlike, numOf } from "./Utils.js";
+import { Rectlike, bboxPts, clamp, isRectlike, numOf } from "./Utils.js";
 
 /**
  * Static dictionary of computation functions
@@ -263,9 +272,9 @@ export const compDict = {
     description:
       "Return a paint color of elements `h`, `s`, `v`, `a` (hue, saturation, value, opacity).",
     params: [
-      { name: "h", description: "Hue", type: unitT() },
-      { name: "s", description: "Saturation", type: unitT() },
-      { name: "v", description: "Value", type: unitT() },
+      { name: "h", description: "Hue in [0, 360)", type: realT() },
+      { name: "s", description: "Saturation in [0, 100]", type: realT() },
+      { name: "v", description: "Value in [0, 100]", type: realT() },
       { name: "a", description: "Opacity", type: unitT() },
     ],
     body: (
@@ -724,6 +733,67 @@ export const compDict = {
       };
     },
     returns: valueT("Real"),
+  },
+
+  sum: {
+    name: "sum",
+    description: "Return the sum of elements in a vector.",
+    params: [{ name: "xs", description: "elements", type: realNT() }],
+    body: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => {
+      return {
+        tag: "FloatV",
+        contents: addN(xs),
+      };
+    },
+    returns: realT(),
+  },
+
+  sumVectors: {
+    name: "sumVectors",
+    description: "Return the sum of vectors in a list of vectors.",
+    params: [{ name: "vecs", description: "vectors", type: realNMT() }],
+    body: (_context: Context, vecs: ad.Num[][]): VectorV<ad.Num> => {
+      if (vecs.length === 0) {
+        throw new Error("Expect a non-empty list of vectors");
+      }
+      const vlen = vecs[0].length;
+      const zeros: ad.Num[] = new Array(vlen).fill(0);
+      return vectorV(vecs.reduce((curr, v) => ops.vadd(curr, v), zeros));
+    },
+    returns: realNT(),
+  },
+
+  maxList: {
+    name: "maxList",
+    description: "Return the maximum of the elements in a vector.",
+    params: [{ name: "xs", description: "elements", type: realNT() }],
+    body: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => ({
+      tag: "FloatV",
+      contents: maxN(xs),
+    }),
+    returns: realT(),
+  },
+
+  minList: {
+    name: "minList",
+    description: "Return the minimum of the elements in a vector.",
+    params: [{ name: "xs", description: "elements", type: realNT() }],
+    body: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => ({
+      tag: "FloatV",
+      contents: minN(xs),
+    }),
+    returns: realT(),
+  },
+
+  count: {
+    name: "count",
+    description: "Return the number of the elements in a vector.",
+    params: [{ name: "xs", description: "elements", type: realNT() }],
+    body: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => ({
+      tag: "FloatV",
+      contents: xs.length,
+    }),
+    returns: realT(),
   },
 
   /**
@@ -1766,7 +1836,7 @@ export const compDict = {
    */
   unitRandom: {
     name: "unitRandom",
-    description: "Uniformly sample a random value in the range [0,1].",
+    description: "Uniformly sample a random value in the range [0,1).",
     params: [],
     body: ({ makeInput }: Context): FloatV<ad.Num> => {
       const val = makeInput({
@@ -2675,6 +2745,107 @@ export const compDict = {
     returns: valueT("Real2"),
   },
 
+  /**
+   * Given a point p and vector v, find the first point where the ray r(t)=p+tv
+   * intersects the given shape S.  If there are no intersections, returns p.
+   */
+  rayIntersect: {
+    name: "rayIntersect",
+    params: [
+      {
+        name: "S",
+        type: unionT(
+          rectlikeT(),
+          shapeT("Circle"),
+          shapeT("Polygon"),
+          shapeT("Line"),
+          shapeT("Polyline"),
+          shapeT("Ellipse"),
+          shapeT("Group")
+        ),
+        description: "A shape",
+      },
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      S:
+        | Circle<ad.Num>
+        | Rectlike<ad.Num>
+        | Line<ad.Num>
+        | Polyline<ad.Num>
+        | Polygon<ad.Num>
+        | Ellipse<ad.Num>
+        | Group<ad.Num>,
+      p: ad.Num[],
+      v: ad.Num[]
+    ): VectorV<ad.Num> => {
+      const hit = rayIntersectShape(S, p, v);
+      const x = hit[0];
+      const x0 = ifCond(eq(absVal(x[0]), Infinity), p[0], x[0]);
+      const x1 = ifCond(eq(absVal(x[1]), Infinity), p[1], x[1]);
+      return { tag: "VectorV", contents: [x0, x1] };
+    },
+    returns: valueT("Real2"),
+  },
+
+  /**
+   * Given a point p and vector v, find the unit normal at the first point where
+   * the ray r(t)=p+tv intersects the given shape S.  If there are no
+   * intersections, returns (0,0).
+   */
+  rayIntersectNormal: {
+    name: "rayIntersectNormal",
+    params: [
+      {
+        name: "S",
+        type: unionT(
+          rectlikeT(),
+          shapeT("Circle"),
+          shapeT("Polygon"),
+          shapeT("Line"),
+          shapeT("Polyline"),
+          shapeT("Ellipse"),
+          shapeT("Group")
+        ),
+        description: "A shape",
+      },
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      S:
+        | Circle<ad.Num>
+        | Rectlike<ad.Num>
+        | Line<ad.Num>
+        | Polyline<ad.Num>
+        | Polygon<ad.Num>
+        | Ellipse<ad.Num>
+        | Group<ad.Num>,
+      p: ad.Num[],
+      v: ad.Num[]
+    ): VectorV<ad.Num> => {
+      const hit = rayIntersectShape(S, p, v);
+      const x = hit[0];
+      const n = hit[1];
+      const s = ops.vdot(n, ops.vsub(p, x));
+      const n0 = ifCond(
+        eq(absVal(x[0]), Infinity),
+        0.0,
+        ifCond(lt(s, 0), neg(n[0]), n[0])
+      );
+      const n1 = ifCond(
+        eq(absVal(x[1]), Infinity),
+        0.0,
+        ifCond(lt(s, 0), neg(n[1]), n[1])
+      );
+      return { tag: "VectorV", contents: [n0, n1] };
+    },
+    returns: valueT("Real2"),
+  },
+
   closestPoint: {
     name: "closestPoint",
     params: [
@@ -2686,11 +2857,12 @@ export const compDict = {
           shapeT("Polygon"),
           shapeT("Line"),
           shapeT("Polyline"),
-          shapeT("Ellipse")
+          shapeT("Ellipse"),
+          shapeT("Group")
         ),
         description: "A shape",
       },
-      { name: "p", type: real2T(), description: "A vector" },
+      { name: "p", type: real2T(), description: "A point" },
     ],
     body: (
       _context: Context,
@@ -2700,106 +2872,49 @@ export const compDict = {
         | Line<ad.Num>
         | Polyline<ad.Num>
         | Polygon<ad.Num>
-        | Ellipse<ad.Num>,
+        | Ellipse<ad.Num>
+        | Group<ad.Num>,
       p: ad.Num[]
     ): VectorV<ad.Num> => {
-      const t = s.shapeType;
-      if (t === "Circle") {
-        /**
-         * Implementing formula
-         * V = P - C
-         * return C + (V/|V|)*r
-         */
-        const pOffset = ops.vsub(p, s.center.contents);
-        const normOffset = ops.vnorm(pOffset);
-        const unitVector = ops.vdiv(pOffset, normOffset);
-        const pOnCircumferenceOffset = ops.vmul(s.r.contents, unitVector);
-        const pOnCircumference = ops.vadd(
-          s.center.contents,
-          pOnCircumferenceOffset
-        );
-        return { tag: "VectorV", contents: pOnCircumference };
-      } else if (
-        t === "Rectangle" ||
-        t === "Text" ||
-        t === "Equation" ||
-        t === "Image"
-      ) {
-        return {
-          tag: "VectorV",
-          contents: closestPointRect(
-            sub(s.center.contents[0], div(s.width.contents, 2)),
-            sub(s.center.contents[1], div(s.height.contents, 2)),
-            s.width.contents,
-            s.height.contents,
-            p[0],
-            p[1]
-          ),
-        };
-      } else if (t === "Line") {
-        return {
-          tag: "VectorV",
-          contents: closestPointLine(p, s.start.contents, s.end.contents),
-        };
-      } else if (t === "Polyline") {
-        const closestPoints: ad.Num[][] = [];
-        const dist: ad.Num[] = [];
-        for (let i = 0; i < s.points.contents.length - 1; i++) {
-          const start = s.points.contents[i];
-          const end = s.points.contents[i + 1];
-          closestPoints[i] = closestPointLine(p, start, end);
-          dist[i] = sqrt(
-            add(
-              squared(sub(p[0], closestPoints[i][0])),
-              squared(sub(p[1], closestPoints[i][1]))
-            )
-          );
-        }
-        let retX: ad.Num = closestPoints[0][0];
-        let retY: ad.Num = closestPoints[0][1];
-        let retCond: ad.Num = dist[0];
-        for (let i = 0; i < s.points.contents.length - 1; i++) {
-          retCond = ifCond(lt(retCond, dist[i]), retCond, dist[i]);
-          retX = ifCond(eq(retCond, dist[i]), closestPoints[i][0], retX);
-          retY = ifCond(eq(retCond, dist[i]), closestPoints[i][1], retY);
-        }
-        return { tag: "VectorV", contents: [retX, retY] };
-      } else if (t === "Polygon") {
-        const closestPoints: ad.Num[][] = [];
-        const dist: ad.Num[] = [];
-        let i = 0;
-        for (; i < s.points.contents.length - 1; i++) {
-          const start = s.points.contents[i];
-          const end = s.points.contents[i + 1];
-          closestPoints[i] = closestPointLine(p, start, end);
-          dist[i] = sqrt(
-            add(
-              squared(sub(p[0], closestPoints[i][0])),
-              squared(sub(p[1], closestPoints[i][1]))
-            )
-          );
-        }
-        const start = s.points.contents[i];
-        const end = s.points.contents[0];
-        closestPoints[i] = closestPointLine(p, start, end);
-        dist[i] = sqrt(
-          add(
-            squared(sub(p[0], closestPoints[i][0])),
-            squared(sub(p[1], closestPoints[i][1]))
-          )
-        );
-        let retX: ad.Num = closestPoints[0][0];
-        let retY: ad.Num = closestPoints[0][1];
-        let retCond: ad.Num = dist[0];
-        for (let i = 0; i < s.points.contents.length; i++) {
-          retCond = ifCond(lt(retCond, dist[i]), retCond, dist[i]);
-          retX = ifCond(eq(retCond, dist[i]), closestPoints[i][0], retX);
-          retY = ifCond(eq(retCond, dist[i]), closestPoints[i][1], retY);
-        }
-        return { tag: "VectorV", contents: [retX, retY] };
-      } else {
-        return { tag: "VectorV", contents: closestPointEllipse(s, p) };
-      }
+      return { tag: "VectorV", contents: closestPointShape(s, p) };
+    },
+    returns: valueT("Real2"),
+  },
+
+  closestSilhouettePoint: {
+    name: "closestSilhouettePoint",
+    params: [
+      {
+        name: "s",
+        type: unionT(
+          rectlikeT(),
+          shapeT("Circle"),
+          shapeT("Polygon"),
+          shapeT("Line"),
+          shapeT("Polyline"),
+          shapeT("Ellipse"),
+          shapeT("Group")
+        ),
+        description: "A shape",
+      },
+      { name: "p", type: real2T(), description: "A point" },
+    ],
+    body: (
+      _context: Context,
+      s:
+        | Circle<ad.Num>
+        | Rectlike<ad.Num>
+        | Line<ad.Num>
+        | Polyline<ad.Num>
+        | Polygon<ad.Num>
+        | Ellipse<ad.Num>
+        | Group<ad.Num>,
+      p: ad.Num[]
+    ): VectorV<ad.Num> => {
+      const q = closestSilhouettePointShape(s, p);
+      const qx = ifCond(eq(q[0], Infinity), p[0], q[0]);
+      const qy = ifCond(eq(q[1], Infinity), p[1], q[1]);
+      return { tag: "VectorV", contents: [qx, qy] };
     },
     returns: valueT("Real2"),
   },
@@ -3180,6 +3295,33 @@ export const compDict = {
     },
     returns: valueT("Real2"),
   },
+
+  noClip: {
+    name: "noClip",
+    description: "Describes no shape clipping",
+    params: [],
+    body: (_context: Context): ClipDataV<ad.Num> => clipDataV(noClip()),
+    returns: valueT("ClipData"),
+  },
+
+  clip: {
+    name: "clip",
+    description: "Describes clipping to a shape",
+    params: [{ name: "shape", type: shapeT("AnyShape") }],
+    body: (_context: Context, shape: Shape<ad.Num>): ClipDataV<ad.Num> =>
+      clipDataV(clipShape(shape)),
+    returns: valueT("ClipData"),
+  },
+
+  bboxPts: {
+    name: "bboxPts",
+    description:
+      "Return the top-right, top-left, bottom-left, bottom-right points (in that order) of the axis-aligned bounding box of the shape",
+    params: [{ name: "shape", type: shapeT("AnyShape") }],
+    body: (_context: Context, shape: Shape<ad.Num>): PtListV<ad.Num> =>
+      ptListV(bboxPts(shape)),
+    returns: valueT("Real2N"),
+  },
 };
 
 // `_compDictVals` causes TypeScript to enforce that every function in
@@ -3329,18 +3471,399 @@ export const sdEllipseAsNums = (
   return mul(ops.vnorm(ops.vsub(r, p)), msign(sub(p[1], r[1])));
 };
 
-const closestPointRect = (
-  l: ad.Num,
-  t: ad.Num,
-  w: ad.Num,
-  h: ad.Num,
-  x: ad.Num,
-  y: ad.Num
+const rayIntersectShape = (
+  s:
+    | Circle<ad.Num>
+    | Rectlike<ad.Num>
+    | Line<ad.Num>
+    | Polyline<ad.Num>
+    | Polygon<ad.Num>
+    | Ellipse<ad.Num>
+    | Path<ad.Num>
+    | Group<ad.Num>,
+  p: ad.Num[],
+  v: ad.Num[]
+): ad.Num[][] => {
+  const t = s.shapeType;
+  if (t === "Circle") {
+    return rayIntersectCircle(s, p, v);
+  } else if (
+    t === "Rectangle" ||
+    t === "Text" ||
+    t === "Equation" ||
+    t === "Image"
+  ) {
+    return rayIntersectRect(s, p, v);
+  } else if (t === "Line") {
+    return rayIntersectLine(s, p, v);
+  } else if (t === "Polyline") {
+    return rayIntersectPolyline(s, p, v);
+  } else if (t === "Polygon") {
+    return rayIntersectPolygon(s, p, v);
+  } else if (t === "Ellipse") {
+    return rayIntersectEllipse(s, p, v);
+  } else if (t === "Path") {
+    throw new Error("Ray intersection not handled for Path");
+  } else {
+    // t === "Group"
+    const firstHits = s.shapes.contents.map((shape) =>
+      rayIntersectShape(shape, p, v)
+    );
+    const dist = firstHits.map((hit) => ops.vdist(hit[0], p));
+    let hitX: ad.Num = Infinity;
+    let hitY: ad.Num = Infinity;
+    let nrmX: ad.Num = Infinity;
+    let nrmY: ad.Num = Infinity;
+    let firstDist: ad.Num = Infinity;
+    for (let i = 0; i < s.shapes.contents.length; i++) {
+      firstDist = ifCond(lt(firstDist, dist[i]), firstDist, dist[i]);
+      hitX = ifCond(eq(firstDist, dist[i]), firstHits[i][0][0], hitX);
+      hitY = ifCond(eq(firstDist, dist[i]), firstHits[i][0][1], hitY);
+      nrmX = ifCond(eq(firstDist, dist[i]), firstHits[i][1][0], nrmX);
+      nrmY = ifCond(eq(firstDist, dist[i]), firstHits[i][1][1], nrmY);
+    }
+    return [
+      [hitX, hitY],
+      [nrmX, nrmY],
+    ];
+  }
+};
+
+const rayIntersectCircle = (
+  s: Circle<ad.Num>,
+  p: ad.Num[],
+  v: ad.Num[]
+): ad.Num[][] => {
+  const c = s.center.contents;
+  const r = s.r.contents;
+  return rayIntersectCircleCoords(p, v, c, r);
+};
+
+const rayIntersectEllipse = (
+  s: Ellipse<ad.Num>,
+  p0: ad.Num[],
+  v0: ad.Num[]
+): ad.Num[][] => {
+  // map ray data to coordinate system for unit circle
+  const r = [s.rx.contents, s.ry.contents];
+  const c0 = s.center.contents;
+  const p = ops.ewvvdiv(p0, r);
+  const v = ops.ewvvdiv(v0, r);
+  const c = ops.ewvvdiv(c0, r);
+
+  const hit = rayIntersectCircleCoords(p, v, c, 1);
+
+  // map hit point and normal back to ellipse coordinate system
+  const x = ops.ewvvmul(hit[0], r);
+  const n = ops.vnormalize([
+    mul(div(r[1], r[0]), sub(x[0], c0[0])),
+    mul(div(r[0], r[1]), sub(x[1], c0[1])),
+  ]);
+
+  return [x, n];
+};
+
+const rayIntersectCircleCoords = (
+  p: ad.Num[],
+  v: ad.Num[],
+  c: ad.Num[],
+  r: ad.Num
+): ad.Num[][] => {
+  const w = ops.vnormalize(v);
+  const u = ops.vsub(p, c);
+  const B = neg(ops.vdot(u, w));
+  const C = sub(ops.vdot(u, u), mul(r, r));
+  const D = sub(mul(B, B), C);
+  const t1 = ifCond(lt(D, 0), Infinity, sub(B, sqrt(D)));
+  const t2 = ifCond(lt(D, 0), Infinity, add(B, sqrt(D)));
+  const t = ifCond(gt(t1, 0), t1, ifCond(gt(t2, 0), t2, Infinity));
+  const x = ops.vadd(p, ops.vmul(t, w));
+  const n = ops.vnormalize(ops.vsub(x, c));
+  return [x, n];
+};
+
+const rayIntersectLine = (
+  S: Line<ad.Num>,
+  p: ad.Num[],
+  v: ad.Num[]
+): ad.Num[][] => {
+  return rayIntersectLineCoords(p, v, S.start.contents, S.end.contents);
+};
+
+const rayIntersectRect = (
+  S: Rectlike<ad.Num>,
+  p: ad.Num[],
+  v: ad.Num[]
+): ad.Num[][] => {
+  const c = S.center.contents;
+  const w = S.width.contents;
+  const h = S.height.contents;
+  const x0 = sub(c[0], div(w, 2));
+  const x1 = add(c[0], div(w, 2));
+  const y0 = sub(c[1], div(h, 2));
+  const y1 = add(c[1], div(h, 2));
+
+  const points = [
+    [x0, y0],
+    [x1, y0],
+    [x1, y1],
+    [x0, y1],
+    [x0, y0],
+  ];
+  const firstHits: ad.Num[][][] = [];
+  const dist: ad.Num[] = [];
+  for (let i = 0; i < 4; i++) {
+    const a = points[i];
+    const b = points[i + 1];
+    firstHits[i] = rayIntersectLineCoords(p, v, a, b);
+    dist[i] = ops.vdist(p, firstHits[i][0]);
+  }
+
+  let hitX: ad.Num = Infinity;
+  let hitY: ad.Num = Infinity;
+  let nrmX: ad.Num = Infinity;
+  let nrmY: ad.Num = Infinity;
+  let firstDist: ad.Num = Infinity;
+  for (let i = 0; i < 4; i++) {
+    firstDist = ifCond(lt(firstDist, dist[i]), firstDist, dist[i]);
+    hitX = ifCond(eq(firstDist, dist[i]), firstHits[i][0][0], hitX);
+    hitY = ifCond(eq(firstDist, dist[i]), firstHits[i][0][1], hitY);
+    nrmX = ifCond(eq(firstDist, dist[i]), firstHits[i][1][0], nrmX);
+    nrmY = ifCond(eq(firstDist, dist[i]), firstHits[i][1][1], nrmY);
+  }
+  return [
+    [hitX, hitY],
+    [nrmX, nrmY],
+  ];
+};
+
+const rayIntersectPolyline = (
+  s: Polyline<ad.Num>,
+  p: ad.Num[],
+  v: ad.Num[]
+): ad.Num[][] => {
+  const firstHits: ad.Num[][][] = [];
+  const dist: ad.Num[] = [];
+  for (let i = 0; i < s.points.contents.length - 1; i++) {
+    const a = s.points.contents[i];
+    const b = s.points.contents[i + 1];
+    firstHits[i] = rayIntersectLineCoords(p, v, a, b);
+    dist[i] = ops.vdist(p, firstHits[i][0]);
+  }
+  let firstDist: ad.Num = Infinity;
+  let hitX: ad.Num = Infinity;
+  let hitY: ad.Num = Infinity;
+  let nrmX: ad.Num = 0;
+  let nrmY: ad.Num = 0;
+  for (let i = 0; i < s.points.contents.length - 1; i++) {
+    firstDist = ifCond(lt(firstDist, dist[i]), firstDist, dist[i]);
+    hitX = ifCond(eq(firstDist, dist[i]), firstHits[i][0][0], hitX);
+    hitY = ifCond(eq(firstDist, dist[i]), firstHits[i][0][1], hitY);
+    nrmX = ifCond(eq(firstDist, dist[i]), firstHits[i][1][0], nrmX);
+    nrmY = ifCond(eq(firstDist, dist[i]), firstHits[i][1][1], nrmY);
+  }
+  return [
+    [hitX, hitY],
+    [nrmX, nrmY],
+  ];
+};
+
+const rayIntersectPolygon = (
+  s: Polygon<ad.Num>,
+  p: ad.Num[],
+  v: ad.Num[]
+): ad.Num[][] => {
+  const firstHits: ad.Num[][][] = [];
+  const dist: ad.Num[] = [];
+  let i = 0;
+  for (; i < s.points.contents.length - 1; i++) {
+    const a = s.points.contents[i];
+    const b = s.points.contents[i + 1];
+    firstHits[i] = rayIntersectLineCoords(p, v, a, b);
+    dist[i] = ops.vdist(p, firstHits[i][0]);
+  }
+
+  const a = s.points.contents[i];
+  const b = s.points.contents[0];
+  firstHits[i] = rayIntersectLineCoords(p, v, a, b);
+  dist[i] = ops.vdist(p, firstHits[i][0]);
+
+  let firstDist: ad.Num = Infinity;
+  let hitX: ad.Num = Infinity;
+  let hitY: ad.Num = Infinity;
+  let nrmX: ad.Num = 0;
+  let nrmY: ad.Num = 0;
+  for (let i = 0; i < s.points.contents.length; i++) {
+    firstDist = ifCond(lt(firstDist, dist[i]), firstDist, dist[i]);
+    hitX = ifCond(eq(firstDist, dist[i]), firstHits[i][0][0], hitX);
+    hitY = ifCond(eq(firstDist, dist[i]), firstHits[i][0][1], hitY);
+    nrmX = ifCond(eq(firstDist, dist[i]), firstHits[i][1][0], nrmX);
+    nrmY = ifCond(eq(firstDist, dist[i]), firstHits[i][1][1], nrmY);
+  }
+  return [
+    [hitX, hitY],
+    [nrmX, nrmY],
+  ];
+};
+
+const rayIntersectLineCoords = (
+  p: ad.Num[],
+  v: ad.Num[],
+  a: ad.Num[],
+  b: ad.Num[]
+): ad.Num[][] => {
+  const u = ops.vsub(b, a);
+  const w = ops.vsub(p, a);
+  const d = ops.cross2(v, u);
+  const s = div(ops.cross2(v, w), d);
+  const t = div(ops.cross2(u, w), d);
+
+  // position
+  const T = ifCond(
+    lt(t, 0),
+    Infinity,
+    ifCond(lt(s, 0), Infinity, ifCond(gt(s, 1), Infinity, t))
+  );
+  const x = ops.vadd(p, ops.vmul(T, v));
+
+  // normal
+  const n = ops.vnormalize(ops.rot90(u));
+  const nX = ifCond(
+    lt(t, 0),
+    0,
+    ifCond(lt(s, 0), 0, ifCond(gt(s, 1), 0, n[0]))
+  );
+  const nY = ifCond(
+    lt(t, 0),
+    0,
+    ifCond(lt(s, 0), 0, ifCond(gt(s, 1), 0, n[1]))
+  );
+
+  return [x, [nX, nY]];
+};
+
+const closestPointShape = (
+  s:
+    | Circle<ad.Num>
+    | Rectlike<ad.Num>
+    | Line<ad.Num>
+    | Polyline<ad.Num>
+    | Polygon<ad.Num>
+    | Ellipse<ad.Num>
+    | Path<ad.Num>
+    | Group<ad.Num>,
+  p: ad.Num[]
 ): ad.Num[] => {
+  const t = s.shapeType;
+  if (t === "Circle") {
+    return closestPointCircle(s, p);
+  } else if (
+    t === "Rectangle" ||
+    t === "Text" ||
+    t === "Equation" ||
+    t === "Image"
+  ) {
+    return closestPointRect(s, p);
+  } else if (t === "Line") {
+    return closestPointLine(s, p);
+  } else if (t === "Polyline") {
+    return closestPointPolyline(s, p);
+  } else if (t === "Polygon") {
+    return closestPointPolygon(s, p);
+  } else if (t === "Ellipse") {
+    return closestPointEllipse(s, p);
+  } else if (t === "Path") {
+    throw new Error("Closest point queries not handled for Path");
+  } else {
+    // t === "Group"
+    const closestPoints = s.shapes.contents.map((shape) =>
+      closestPointShape(shape, p)
+    );
+    const dist = closestPoints.map((point) => ops.vdist(point, p));
+    let closestX: ad.Num = Infinity;
+    let closestY: ad.Num = Infinity;
+    let minDist: ad.Num = Infinity;
+    for (let i = 0; i < s.shapes.contents.length; i++) {
+      minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
+      closestX = ifCond(eq(minDist, dist[i]), closestPoints[i][0], closestX);
+      closestY = ifCond(eq(minDist, dist[i]), closestPoints[i][1], closestY);
+    }
+    return [closestX, closestY];
+  }
+};
+
+const closestPointCircle = (s: Circle<ad.Num>, p: ad.Num[]): ad.Num[] => {
+  /**
+   * Implementing formula
+   * V = P - C
+   * return C + (V/|V|)*r
+   */
+  const pOffset = ops.vsub(p, s.center.contents);
+  const normOffset = ops.vnorm(pOffset);
+  const unitVector = ops.vdiv(pOffset, normOffset);
+  const pOnCircumferenceOffset = ops.vmul(s.r.contents, unitVector);
+  const pOnCircumference = ops.vadd(s.center.contents, pOnCircumferenceOffset);
+  return pOnCircumference;
+};
+
+const closestPointLine = (s: Line<ad.Num>, p: ad.Num[]): ad.Num[] => {
+  return closestPointLineCoords(p, s.start.contents, s.end.contents);
+};
+
+const closestPointPolyline = (s: Polyline<ad.Num>, p: ad.Num[]): ad.Num[] => {
+  const closestPoints: ad.Num[][] = [];
+  const dist: ad.Num[] = [];
+  for (let i = 0; i < s.points.contents.length - 1; i++) {
+    const a = s.points.contents[i];
+    const b = s.points.contents[i + 1];
+    closestPoints[i] = closestPointLineCoords(p, a, b);
+    dist[i] = ops.vdist(p, closestPoints[i]);
+  }
+  let closestX: ad.Num = Infinity;
+  let closestY: ad.Num = Infinity;
+  let minDist: ad.Num = Infinity;
+  for (let i = 0; i < s.points.contents.length - 1; i++) {
+    minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
+    closestX = ifCond(eq(minDist, dist[i]), closestPoints[i][0], closestX);
+    closestY = ifCond(eq(minDist, dist[i]), closestPoints[i][1], closestY);
+  }
+  return [closestX, closestY];
+};
+
+const closestPointPolygon = (s: Polygon<ad.Num>, p: ad.Num[]): ad.Num[] => {
+  const closestPoints: ad.Num[][] = [];
+  const dist: ad.Num[] = [];
+  let i = 0;
+  for (; i < s.points.contents.length - 1; i++) {
+    const a = s.points.contents[i];
+    const b = s.points.contents[i + 1];
+    closestPoints[i] = closestPointLineCoords(p, a, b);
+    dist[i] = ops.vdist(p, closestPoints[i]);
+  }
+  const a = s.points.contents[i];
+  const b = s.points.contents[0];
+  closestPoints[i] = closestPointLineCoords(p, a, b);
+  dist[i] = ops.vdist(p, closestPoints[i]);
+  let closestX: ad.Num = Infinity;
+  let closestY: ad.Num = Infinity;
+  let minDist: ad.Num = Infinity;
+  for (let i = 0; i < s.points.contents.length; i++) {
+    minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
+    closestX = ifCond(eq(minDist, dist[i]), closestPoints[i][0], closestX);
+    closestY = ifCond(eq(minDist, dist[i]), closestPoints[i][1], closestY);
+  }
+  return [closestX, closestY];
+};
+
+const closestPointRect = (s: Rectlike<ad.Num>, p: ad.Num[]): ad.Num[] => {
+  const l = sub(s.center.contents[0], div(s.width.contents, 2));
+  const t = sub(s.center.contents[1], div(s.height.contents, 2));
+  const w = s.width.contents;
+  const h = s.height.contents;
   const r = add(l, w);
   const b = add(t, h);
-  x = clamp([l, r], x);
-  y = clamp([t, b], y);
+  const x = clamp([l, r], p[0]);
+  const y = clamp([t, b], p[1]);
   const dl = absVal(sub(x, l));
   const dr = absVal(sub(x, r));
   const dt = absVal(sub(y, t));
@@ -3350,16 +3873,8 @@ const closestPointRect = (
   retX = ifCond(eq(m, dl), l, retX);
   let retY: ad.Num = ifCond(or(eq(m, dl), eq(m, dr)), y, t);
   retY = ifCond(eq(m, db), b, retY);
-  return [retX, retY];
-};
 
-const closestPointLine = (p: ad.Num[], a: ad.Num[], b: ad.Num[]): ad.Num[] => {
-  const a_to_p = [sub(p[0], a[0]), sub(p[1], a[1])];
-  const a_to_b = [sub(b[0], a[0]), sub(b[1], a[1])];
-  const atb2 = add(squared(a_to_b[0]), squared(a_to_b[1]));
-  const atp_dot_atb = add(mul(a_to_p[0], a_to_b[0]), mul(a_to_p[1], a_to_b[1]));
-  const t = clamp([0, 1], div(atp_dot_atb, atb2));
-  return [add(a[0], mul(a_to_b[0], t)), add(a[1], mul(a_to_b[1], t))];
+  return [retX, retY];
 };
 
 const closestPointEllipse = (s: Ellipse<ad.Num>, p: ad.Num[]): ad.Num[] => {
@@ -3371,52 +3886,321 @@ const closestPointEllipse = (s: Ellipse<ad.Num>, p: ad.Num[]): ad.Num[] => {
   );
 };
 
-const closestPointEllipseCoords = (
-  // Note: this is an approximation function!
-  radiusx: ad.Num,
-  radiusy: ad.Num,
-  center: ad.Num[],
-  pInput: ad.Num[]
+const closestPointLineCoords = (
+  p: ad.Num[],
+  a: ad.Num[],
+  b: ad.Num[]
 ): ad.Num[] => {
-  const pOffset = ops.vsub(pInput, center);
-  const px = absVal(pOffset[0]);
-  const py = absVal(pOffset[1]);
+  const a_to_p = [sub(p[0], a[0]), sub(p[1], a[1])];
+  const a_to_b = [sub(b[0], a[0]), sub(b[1], a[1])];
+  const atb2 = add(squared(a_to_b[0]), squared(a_to_b[1]));
+  const atp_dot_atb = add(mul(a_to_p[0], a_to_b[0]), mul(a_to_p[1], a_to_b[1]));
+  const t = clamp([0, 1], div(atp_dot_atb, atb2));
+  return [add(a[0], mul(a_to_b[0], t)), add(a[1], mul(a_to_b[1], t))];
+};
 
-  let t = div(Math.PI, 4);
-  let x: ad.Num = 0;
-  let y: ad.Num = 0;
+// Note: approximates the solution via Newton's method (but in practice is quite accurate, even for one or two iterations)
+const closestPointEllipseCoords = (
+  a: ad.Num, // horizontal radius
+  b: ad.Num, // vertical radius
+  c: ad.Num[], // center
+  p0: ad.Num[] // query point
+): ad.Num[] => {
+  const nNewtonIterations = 2;
 
-  const a = radiusx;
-  const b = radiusy;
-  for (let i = 0; i < 100; i++) {
-    x = mul(a, cos(t));
-    y = mul(b, sin(t));
-
-    const ex = div(mul(sub(squared(a), squared(b)), pow(cos(t), 3)), a);
-    const ey = div(mul(sub(squared(b), squared(a)), pow(sin(t), 3)), b);
-
-    const rx = sub(x, ex);
-    const ry = sub(y, ey);
-
-    const qx = sub(px, ex);
-    const qy = sub(py, ey);
-
-    const r = sqrt(add(squared(ry), squared(rx)));
-    const q = sqrt(add(squared(qy), squared(qx)));
-
-    const delta_c = mul(r, asin(div(sub(mul(rx, qy), mul(ry, qx)), mul(r, q))));
-    const delta_t = div(
-      delta_c,
-      sqrt(sub(sub(add(squared(a), squared(b)), squared(x)), squared(y)))
-    );
-    t = add(t, delta_t);
-    t = min(div(Math.PI, 2), max(0, t));
+  const p = ops.vsub(p0, c);
+  let t = atan2(mul(a, p[1]), mul(b, p[0]));
+  for (let i = 0; i < nNewtonIterations; i++) {
+    const a2 = mul(a, a);
+    const b2 = mul(b, b);
+    const n0 = mul(mul(a, p[0]), sin(t));
+    const n1 = mul(b, p[1]);
+    const n2 = mul(sub(a2, b2), sin(t));
+    const n3 = mul(cos(t), add(n1, n2));
+    const d0 = mul(a, mul(p[0], cos(t)));
+    const d1 = mul(sub(a2, b2), cos(mul(2, t)));
+    const d2 = mul(b, mul(p[1], sin(t)));
+    t = sub(t, div(sub(n3, n0), sub(sub(d1, d2), d0)));
   }
-  x = mul(msign(pInput[0]), absVal(x));
-  y = mul(msign(pInput[1]), absVal(y));
-  x = add(x, center[0]);
-  y = add(y, center[1]);
-  return [x, y];
+  const y0 = mul(a, cos(t));
+  const y1 = mul(b, sin(t));
+  return ops.vadd([y0, y1], c);
+};
+
+/* Returns the closest point on the visibility
+ * silhouette of shape S relative to point p.
+ * If there is no silhouette, returns p. */
+const closestSilhouettePointShape = (
+  s:
+    | Circle<ad.Num>
+    | Rectlike<ad.Num>
+    | Line<ad.Num>
+    | Polyline<ad.Num>
+    | Polygon<ad.Num>
+    | Ellipse<ad.Num>
+    | Path<ad.Num>
+    | Group<ad.Num>,
+  p: ad.Num[]
+): ad.Num[] => {
+  const t = s.shapeType;
+  if (t === "Circle") {
+    return closestSilhouettePointCircle(s, p);
+  } else if (
+    t === "Rectangle" ||
+    t === "Text" ||
+    t === "Equation" ||
+    t === "Image"
+  ) {
+    return closestSilhouettePointRect(s, p);
+  } else if (t === "Line") {
+    return closestSilhouettePointLine(s, p);
+  } else if (t === "Polyline") {
+    return closestSilhouettePointPolyline(s, p);
+  } else if (t === "Polygon") {
+    return closestSilhouettePointPolygon(s, p);
+  } else if (t === "Ellipse") {
+    return closestSilhouettePointEllipse(s, p);
+  } else if (t === "Path") {
+    throw new Error("Silhouette queries not handled for Path");
+  } else {
+    // t === "Group"
+    const closestSilhouettePoints = s.shapes.contents.map((shape) =>
+      closestSilhouettePointShape(shape, p)
+    );
+    const dist = closestSilhouettePoints.map((point) => ops.vdist(point, p));
+    let closestX: ad.Num = Infinity;
+    let closestY: ad.Num = Infinity;
+    let minDist: ad.Num = Infinity;
+    for (let i = 0; i < s.shapes.contents.length; i++) {
+      minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
+      closestX = ifCond(
+        eq(minDist, dist[i]),
+        closestSilhouettePoints[i][0],
+        closestX
+      );
+      closestY = ifCond(
+        eq(minDist, dist[i]),
+        closestSilhouettePoints[i][1],
+        closestY
+      );
+    }
+    return [closestX, closestY];
+  }
+};
+
+const closestSilhouettePointCircle = (
+  s: Circle<ad.Num>,
+  p: ad.Num[]
+): ad.Num[] => {
+  const c = s.center.contents;
+  const r = s.r.contents;
+  const y = closestSilhouettePointEllipseCoords(ops.vsub(p, c), r, r);
+  return ops.vadd(y, c);
+};
+
+const closestSilhouettePointEllipse = (
+  s: Ellipse<ad.Num>,
+  p: ad.Num[]
+): ad.Num[] => {
+  const c = s.center.contents;
+  const rx = s.rx.contents;
+  const ry = s.ry.contents;
+  const y = closestSilhouettePointEllipseCoords(ops.vsub(p, c), rx, ry);
+  return ops.vadd(y, c);
+};
+
+const closestSilhouettePointLine = (s: Line<ad.Num>, p: ad.Num[]): ad.Num[] => {
+  const a = s.start.contents;
+  const b = s.end.contents;
+  const da = ops.vdistsq(p, a);
+  const db = ops.vdistsq(p, b);
+  const y0 = ifCond(lt(da, db), a[0], b[0]);
+  const y1 = ifCond(lt(da, db), a[1], b[1]);
+  return [y0, y1];
+};
+
+/* Computes the closest silhouette on an ellipse with radii a0,b0 relative to a
+ * point p0, assuming the ellipse has already been translated to the origin and
+ * rotated to be axis-aligned. */
+const closestSilhouettePointEllipseCoords = (
+  p0: ad.Num[],
+  a0: ad.Num,
+  b0: ad.Num
+): ad.Num[] => {
+  const b = div(b0, a0);
+  const b2 = mul(b, b);
+  const p = ops.vdiv(p0, a0);
+  const x = p[0];
+  const y = p[1];
+  const x2 = mul(x, x);
+  const y2 = mul(y, y);
+  const d = add(mul(b2, x2), y2);
+  const e = add(mul(mul(b2, sub(x2, 1)), y2), mul(y2, y2));
+  const f = mul(b2, x);
+  const g = mul(b2, y2);
+  const u0 = ifCond(lt(e, 0), Infinity, mul(a0, div(sub(f, sqrt(e)), d)));
+  const u1 = ifCond(
+    lt(e, 0),
+    Infinity,
+    mul(a0, div(add(g, mul(mul(x, b2), sqrt(e))), mul(d, y)))
+  );
+  const v0 = ifCond(lt(e, 0), Infinity, mul(a0, div(add(f, sqrt(e)), d)));
+  const v1 = ifCond(
+    lt(e, 0),
+    Infinity,
+    mul(a0, div(sub(g, mul(mul(x, b2), sqrt(e))), mul(d, y)))
+  );
+  const du = ops.vdist([u0, u1], p0);
+  const dv = ops.vdist([v0, v1], p0);
+  const z0 = ifCond(lt(du, dv), u0, v0);
+  const z1 = ifCond(lt(du, dv), u1, v1);
+  return [z0, z1];
+};
+
+const closestSilhouettePointRect = (
+  R: Rectlike<ad.Num>,
+  p: ad.Num[]
+): ad.Num[] => {
+  const c = R.center.contents;
+  const w = R.width.contents;
+  const h = R.height.contents;
+  const x0 = sub(c[0], div(w, 2));
+  const x1 = add(c[0], div(w, 2));
+  const y0 = sub(c[1], div(h, 2));
+  const y1 = add(c[1], div(h, 2));
+
+  const points = [
+    [x0, y0],
+    [x1, y0],
+    [x1, y1],
+    [x0, y1],
+  ];
+  const closestSilhouettePoints: ad.Num[][] = [];
+  const dist: ad.Num[] = [];
+  for (let i = 0; i < 4; i++) {
+    const a = points[i];
+    const b = points[(i + 1) % 4];
+    const c = points[(i + 2) % 4];
+    closestSilhouettePoints[i] = closestSilhouettePointCorner(p, a, b, c);
+    dist[i] = ops.vdist(p, closestSilhouettePoints[i]);
+  }
+
+  let closestX: ad.Num = Infinity;
+  let closestY: ad.Num = Infinity;
+  let minDist: ad.Num = Infinity;
+  for (let i = 0; i < 4; i++) {
+    minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
+    closestX = ifCond(
+      eq(minDist, dist[i]),
+      closestSilhouettePoints[i][0],
+      closestX
+    );
+    closestY = ifCond(
+      eq(minDist, dist[i]),
+      closestSilhouettePoints[i][1],
+      closestY
+    );
+  }
+  return [closestX, closestY];
+};
+
+const closestSilhouettePointPolyline = (
+  s: Polyline<ad.Num>,
+  p: ad.Num[]
+): ad.Num[] => {
+  const closestSilhouettePoints: ad.Num[][] = [];
+  const dist: ad.Num[] = [];
+
+  // interior points
+  for (let i = 0; i < s.points.contents.length - 2; i++) {
+    const a = s.points.contents[i];
+    const b = s.points.contents[i + 1];
+    const c = s.points.contents[i + 2];
+    closestSilhouettePoints[i] = closestSilhouettePointCorner(p, a, b, c);
+    dist[i] = ops.vdist(p, closestSilhouettePoints[i]);
+  }
+  let closestX: ad.Num = Infinity;
+  let closestY: ad.Num = Infinity;
+  let minDist: ad.Num = Infinity;
+  for (let i = 0; i < s.points.contents.length - 2; i++) {
+    minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
+    closestX = ifCond(
+      eq(minDist, dist[i]),
+      closestSilhouettePoints[i][0],
+      closestX
+    );
+    closestY = ifCond(
+      eq(minDist, dist[i]),
+      closestSilhouettePoints[i][1],
+      closestY
+    );
+  }
+
+  //endpoints
+  const q0 = s.points.contents[0];
+  const dist0 = ops.vdist(p, q0);
+  minDist = ifCond(lt(minDist, dist0), minDist, dist0);
+  closestX = ifCond(eq(minDist, dist0), q0[0], closestX);
+  closestY = ifCond(eq(minDist, dist0), q0[1], closestY);
+  const qN = s.points.contents[s.points.contents.length - 1];
+  const distN = ops.vdist(p, qN);
+  minDist = ifCond(lt(minDist, distN), minDist, distN);
+  closestX = ifCond(eq(minDist, distN), qN[0], closestX);
+  closestY = ifCond(eq(minDist, distN), qN[1], closestY);
+
+  return [closestX, closestY];
+};
+
+const closestSilhouettePointPolygon = (
+  s: Polygon<ad.Num>,
+  p: ad.Num[]
+): ad.Num[] => {
+  const closestSilhouettePoints: ad.Num[][] = [];
+  const dist: ad.Num[] = [];
+  for (let i = 0; i < s.points.contents.length; i++) {
+    const j = (i + 1) % s.points.contents.length;
+    const k = (i + 2) % s.points.contents.length;
+    const a = s.points.contents[i];
+    const b = s.points.contents[j];
+    const c = s.points.contents[k];
+    closestSilhouettePoints[i] = closestSilhouettePointCorner(p, a, b, c);
+    dist[i] = ops.vdist(p, closestSilhouettePoints[i]);
+  }
+  let closestX: ad.Num = Infinity;
+  let closestY: ad.Num = Infinity;
+  let minDist: ad.Num = Infinity;
+  for (let i = 0; i < s.points.contents.length; i++) {
+    minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
+    closestX = ifCond(
+      eq(minDist, dist[i]),
+      closestSilhouettePoints[i][0],
+      closestX
+    );
+    closestY = ifCond(
+      eq(minDist, dist[i]),
+      closestSilhouettePoints[i][1],
+      closestY
+    );
+  }
+  return [closestX, closestY];
+};
+
+/* Given three points a, b, c describing a pair of line segments ab, bc and a
+ * query point p, returns b if it is a silhouette point, relative to p, and
+ * (Infinity,Infinity) otherwise. */
+const closestSilhouettePointCorner = (
+  p: ad.Num[],
+  a: ad.Num[],
+  b: ad.Num[],
+  c: ad.Num[]
+): ad.Num[] => {
+  const s = mul(
+    ops.cross2(ops.vsub(b, a), ops.vsub(p, a)),
+    ops.cross2(ops.vsub(c, b), ops.vsub(p, b))
+  );
+  const y0 = ifCond(lt(s, 0), b[0], Infinity);
+  const y1 = ifCond(lt(s, 0), b[1], Infinity);
+  return [y0, y1];
 };
 
 const toPt = (v: ad.Num[]): ad.Pt2 => {

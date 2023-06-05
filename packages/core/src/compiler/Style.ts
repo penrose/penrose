@@ -50,6 +50,8 @@ import {
   BinOp,
   BinaryOp,
   BindingForm,
+  CollectionAccess,
+  Collector,
   DeclPattern,
   Expr,
   FunctionCall,
@@ -77,6 +79,7 @@ import {
   Assignment,
   BlockAssignment,
   BlockInfo,
+  CollectionSubst,
   Context,
   DepGraph,
   FieldDict,
@@ -89,6 +92,7 @@ import {
   ResolvedPath,
   SelEnv,
   ShapeSource,
+  StySubst,
   Subst,
   Translation,
   WithContext,
@@ -113,7 +117,9 @@ import {
   ListV,
   MatrixV,
   PropID,
+  PtListV,
   ShapeListV,
+  TupV,
   Value,
   VectorV,
 } from "../types/value.js";
@@ -131,6 +137,7 @@ import {
   safeChain,
   selectorFieldNotSupported,
   toStyleErrors,
+  unexpectedCollectionAccessError,
 } from "../utils/Error.js";
 import Graph from "../utils/Graph.js";
 import {
@@ -153,6 +160,7 @@ import {
   llistV,
   matrixV,
   prettyPrintResolvedPath,
+  ptListV,
   resolveRhsName,
   shapeListV,
   strV,
@@ -601,38 +609,73 @@ const mergeEnv = (varEnv: Env, selEnv: SelEnv): Env => {
   );
 };
 
+const checkSelector = (varEnv: Env, sel: Selector<A>): SelEnv => {
+  // Judgment 7. G |- Sel ok ~> g
+  const selEnv_afterHead = checkDeclPatternsAndMakeEnv(
+    varEnv,
+    initSelEnv(),
+    sel.head.contents
+  );
+  // Check `with` statements
+  // TODO: Did we get rid of `with` statements?
+  const selEnv_decls = checkDeclPatternsAndMakeEnv(
+    varEnv,
+    selEnv_afterHead,
+    safeContentsList(sel.with)
+  );
+
+  // Basically creates a new, empty environment.
+  const emptyVarsEnv: Env = { ...varEnv, vars: im.Map(), varIDs: [] };
+  const relErrs = checkRelPatterns(
+    mergeEnv(emptyVarsEnv, selEnv_decls),
+    selEnv_decls,
+    safeContentsList(sel.where)
+  );
+
+  // TODO(error): The errors returned in the top 3 statements
+  return {
+    ...selEnv_decls,
+    errors: selEnv_decls.errors.concat(relErrs), // COMBAK: Reverse the error order?
+  };
+};
+
+const checkCollector = (varEnv: Env, col: Collector<A>): SelEnv => {
+  const selEnv_afterHead = checkDeclPatternAndMakeEnv(
+    varEnv,
+    initSelEnv(),
+    col.head
+  );
+  const selEnv_afterWith = checkDeclPatternsAndMakeEnv(
+    varEnv,
+    selEnv_afterHead,
+    safeContentsList(col.with)
+  );
+  const selEnv_afterGroupby = checkDeclPatternsAndMakeEnv(
+    varEnv,
+    selEnv_afterWith,
+    safeContentsList(col.foreach)
+  );
+  const emptyVarsEnv: Env = { ...varEnv, vars: im.Map(), varIDs: [] };
+  const relErrs = checkRelPatterns(
+    mergeEnv(emptyVarsEnv, selEnv_afterGroupby),
+    selEnv_afterGroupby,
+    safeContentsList(col.where)
+  );
+
+  return {
+    ...selEnv_afterGroupby,
+    errors: selEnv_afterGroupby.errors.concat(relErrs),
+  };
+};
+
 // ported from `checkPair`, `checkSel`, and `checkNamespace`
 const checkHeader = (varEnv: Env, header: Header<A>): SelEnv => {
   switch (header.tag) {
     case "Selector": {
-      // Judgment 7. G |- Sel ok ~> g
-      const sel: Selector<A> = header;
-      const selEnv_afterHead = checkDeclPatternsAndMakeEnv(
-        varEnv,
-        initSelEnv(),
-        sel.head.contents
-      );
-      // Check `with` statements
-      // TODO: Did we get rid of `with` statements?
-      const selEnv_decls = checkDeclPatternsAndMakeEnv(
-        varEnv,
-        selEnv_afterHead,
-        safeContentsList(sel.with)
-      );
-
-      // Basically creates a new, empty environment.
-      const emptyVarsEnv: Env = { ...varEnv, vars: im.Map(), varIDs: [] };
-      const relErrs = checkRelPatterns(
-        mergeEnv(emptyVarsEnv, selEnv_decls),
-        selEnv_decls,
-        safeContentsList(sel.where)
-      );
-
-      // TODO(error): The errors returned in the top 3 statements
-      return {
-        ...selEnv_decls,
-        errors: selEnv_decls.errors.concat(relErrs), // COMBAK: Reverse the error order?
-      };
+      return checkSelector(varEnv, header);
+    }
+    case "Collector": {
+      return checkCollector(varEnv, header);
     }
     case "Namespace": {
       // TODO(error)
@@ -1605,60 +1648,109 @@ const makePotentialSubsts = (
   }
 };
 
+const getDecls = (header: Collector<A> | Selector<A>): DeclPattern<A>[] => {
+  if (header.tag === "Selector") {
+    // Put `forall` and `with` together
+    return header.head.contents.concat(safeContentsList(header.with));
+  } else {
+    // Put `collect`, `with`, and `groupby` together
+    return safeContentsList(header.with)
+      .concat(header.head)
+      .concat(safeContentsList(header.foreach));
+  }
+};
+
+const getSubsts = (
+  varEnv: Env,
+  subEnv: SubstanceEnv,
+  selEnv: SelEnv,
+  subProg: SubProg<A>,
+  header: Collector<A> | Selector<A>
+): Subst[] => {
+  const decls = getDecls(header);
+  const rels = safeContentsList(header.where);
+  const rawSubsts = makePotentialSubsts(
+    varEnv,
+    selEnv,
+    subEnv,
+    subProg,
+    decls,
+    rels
+  );
+  log.debug("total number of raw substs: ", rawSubsts.size);
+
+  // Ensures there are no duplicated substitutions in terms of both
+  // matched relations and substitution targets.
+  const filteredSubsts = deduplicate(varEnv, subEnv, subProg, rels, rawSubsts);
+  const correctSubsts = filteredSubsts.filter(uniqueKeysAndVals);
+
+  return correctSubsts.toArray();
+};
+
+type GroupbyBucket = {
+  groupbySubst: Subst;
+  contents: string[];
+};
+
+const collectSubsts = (
+  substs: Subst[],
+  toCollect: string,
+  collectInto: string,
+  groupbys: string[]
+): CollectionSubst[] => {
+  const buckets: Map<string, GroupbyBucket> = new Map();
+
+  for (const subst of substs) {
+    const toCollectVal = subst[toCollect];
+    const groupbyVals = groupbys.map((groupby) => subst[groupby]);
+
+    const groupbyVals_str = groupbyVals.join(" ");
+
+    const bucket = buckets.get(groupbyVals_str);
+
+    if (bucket === undefined) {
+      buckets.set(groupbyVals_str, {
+        groupbySubst: Object.fromEntries(zip2(groupbys, groupbyVals)),
+        contents: [toCollectVal],
+      });
+    } else {
+      bucket.contents.push(toCollectVal);
+    }
+  }
+
+  const collectionSubsts: CollectionSubst[] = [];
+  for (const { groupbySubst, contents } of buckets.values()) {
+    collectionSubsts.push({
+      tag: "CollectionSubst",
+      groupby: groupbySubst,
+      collName: collectInto,
+      collContent: contents,
+    });
+  }
+  return collectionSubsts;
+};
+
 const findSubstsSel = (
   varEnv: Env,
   subEnv: SubstanceEnv,
   subProg: SubProg<A>,
   [header, selEnv]: [Header<A>, SelEnv]
-): Subst[] => {
-  switch (header.tag) {
-    case "Selector": {
-      const sel = header;
-      const decls = sel.head.contents.concat(safeContentsList(sel.with));
-      const rels = safeContentsList(sel.where);
-      // const initSubsts: Subst[] = [];
-      const rawSubsts = makePotentialSubsts(
-        varEnv,
-        selEnv,
-        subEnv,
-        subProg,
-        decls,
-        rels
-      );
-      log.debug("total number of raw substs: ", rawSubsts.size);
-      /*
-      const substCandidates = rawSubsts.filter((subst) =>
-        fullSubst(selEnv, subst)
-      );
-      */
-
-      // Ensures there are no duplicated substitutions in terms of both
-      // matched relations and substitution targets.
-      const filteredSubsts = deduplicate(
-        varEnv,
-        subEnv,
-        subProg,
-        rels,
-        rawSubsts
-      );
-      const correctSubsts = filteredSubsts.filter(uniqueKeysAndVals);
-      /*const correctSubstsWithAliasSubsts = correctSubsts.map((subst) =>
-        addRelPredAliasSubsts(
-          varEnv,
-          subEnv,
-          subProg,
-          subst,
-          substituteRels(subst, rels)
-        )
-      );*/
-
-      return /*correctSubstsWithAliasSubsts.toArray();*/ correctSubsts.toArray();
-    }
-    case "Namespace": {
-      // must return one empty substitution, so the block gets processed exactly
-      // once in the first compiler pass
-      return [{}];
-    }
+): StySubst[] => {
+  if (header.tag === "Selector") {
+    return getSubsts(varEnv, subEnv, selEnv, subProg, header).map((subst) => ({
+      tag: "StySubSubst",
+      contents: subst,
+    }));
+  } else if (header.tag === "Collector") {
+    const substs = getSubsts(varEnv, subEnv, selEnv, subProg, header);
+    const toCollect = header.head.id.contents.value;
+    const collectInto = header.into.contents.value;
+    const groupbys = header.foreach
+      ? header.foreach.contents.map((decl) => decl.id.contents.value)
+      : [];
+    return collectSubsts(substs, toCollect, collectInto, groupbys);
+  } else {
+    return [{ tag: "StySubSubst", contents: {} }];
   }
 };
 
@@ -1868,9 +1960,11 @@ const resolveLhsName = (
       if (assignment.locals.has(value)) {
         // locals shadow selector match names
         return { tag: "Local", block, name: value };
-      } else if (value in subst) {
+      } else if (subst.tag === "StySubSubst" && value in subst.contents) {
         // selector match names shadow globals
-        return { tag: "Substance", block, name: subst[value] };
+        return { tag: "Substance", block, name: subst.contents[value] };
+      } else if (subst.tag === "CollectionSubst" && value in subst.groupby) {
+        return { tag: "Substance", block, name: subst.groupby[value] };
       } else if (assignment.globals.has(value)) {
         return { tag: "Global", block, name: value };
       } else {
@@ -1962,7 +2056,8 @@ const blockId = (
   header: Header<A>
 ): LocalVarSubst => {
   switch (header.tag) {
-    case "Selector": {
+    case "Selector":
+    case "Collector": {
       return { tag: "LocalVarId", contents: [blockIndex, substIndex] };
     }
     case "Namespace": {
@@ -2119,7 +2214,7 @@ export const buildAssignment = (
             expr: {
               context: {
                 block: { tag: "NamespaceId", contents: "" }, // HACK
-                subst: {},
+                subst: { tag: "StySubSubst", contents: {} },
                 locals: im.Map(),
               },
               expr: {
@@ -2147,10 +2242,10 @@ export const buildAssignment = (
 
 //#region second pass
 
-const findPathsExpr = <T>(expr: Expr<T>): Path<T>[] => {
+const findPathsExpr = <T>(expr: Expr<T>, context: Context): Path<T>[] => {
   switch (expr.tag) {
     case "BinOp": {
-      return [expr.left, expr.right].flatMap(findPathsExpr);
+      return [expr.left, expr.right].flatMap((e) => findPathsExpr(e, context));
     }
     case "BoolLit":
     case "ColorLit":
@@ -2160,19 +2255,21 @@ const findPathsExpr = <T>(expr: Expr<T>): Path<T>[] => {
       return [];
     }
     case "CompApp": {
-      return expr.args.flatMap(findPathsExpr);
+      return expr.args.flatMap((e) => findPathsExpr(e, context));
     }
     case "ConstrFn":
     case "ObjFn": {
       const body = expr.body;
       if (body.tag === "FunctionCall") {
-        return body.args.flatMap(findPathsExpr);
+        return body.args.flatMap((e) => findPathsExpr(e, context));
       } else {
-        return [body.arg1, body.arg2].flatMap(findPathsExpr);
+        return [body.arg1, body.arg2].flatMap((e) => findPathsExpr(e, context));
       }
     }
     case "GPIDecl": {
-      return expr.properties.flatMap((prop) => findPathsExpr(prop.value));
+      return expr.properties.flatMap((prop) =>
+        findPathsExpr(prop.value, context)
+      );
     }
     case "Layering": {
       return [expr.left, ...expr.right];
@@ -2180,13 +2277,57 @@ const findPathsExpr = <T>(expr: Expr<T>): Path<T>[] => {
     case "List":
     case "Tuple":
     case "Vector": {
-      return expr.contents.flatMap(findPathsExpr);
+      return expr.contents.flatMap((e) => findPathsExpr(e, context));
     }
     case "Path": {
-      return [expr];
+      // A `Path` (generally, `arr[index]`) expression depends on `arr` and `index` (if exists)
+      return [
+        {
+          ...expr,
+          indices: [],
+        },
+        ...expr.indices.flatMap((index) => findPathsExpr(index, context)),
+      ];
     }
     case "UOp": {
-      return findPathsExpr(expr.arg);
+      return findPathsExpr(expr.arg, context);
+    }
+    case "CollectionAccess": {
+      const name = expr.name.value;
+      const field = expr.field.value;
+      if (
+        context.subst.tag === "CollectionSubst" &&
+        context.subst.collName === name
+      ) {
+        const paths = context.subst.collContent.map(
+          (subVar: string): Path<T> => ({
+            ...expr,
+            tag: "Path",
+            name: {
+              ...expr.name,
+              tag: "SubVar",
+              contents: {
+                ...expr.name,
+                tag: "Identifier",
+                type: "value",
+                value: subVar,
+              },
+            },
+            members: [
+              {
+                ...expr.field,
+                tag: "Identifier",
+                type: "value",
+                value: field,
+              },
+            ],
+            indices: [],
+          })
+        );
+        return paths.flatMap((p) => findPathsExpr(p, context));
+      } else {
+        return [];
+      }
     }
   }
 };
@@ -2195,7 +2336,7 @@ const findPathsWithContext = <T>({
   context,
   expr,
 }: WithContext<Expr<T>>): WithContext<Path<T>>[] =>
-  findPathsExpr(expr).map((p) => ({ context, expr: p }));
+  findPathsExpr(expr, context).map((p) => ({ context, expr: p }));
 
 const resolveRhsPath = (p: WithContext<Path<C>>): ResolvedPath<C> => {
   const { start, end, name, members } = p.expr; // drop `indices`
@@ -2630,7 +2771,7 @@ const evalBinOp = (
 };
 
 const eval1D = (
-  coll: List<C> | Vector<C>,
+  coll: List<C> | Vector<C> | CollectionAccess<C>,
   first: FloatV<ad.Num>,
   rest: ArgVal<ad.Num>[]
 ): Result<ListV<ad.Num> | VectorV<ad.Num>, StyleDiagnostics> => {
@@ -2649,17 +2790,28 @@ const eval1D = (
     case "Vector": {
       return ok(vectorV(elems));
     }
+    case "CollectionAccess": {
+      return ok(vectorV(elems));
+    }
   }
 };
 
 const eval2D = (
-  coll: List<C> | Vector<C>,
-  first: VectorV<ad.Num>,
+  coll: List<C> | Vector<C> | CollectionAccess<C>,
+  first: VectorV<ad.Num> | ListV<ad.Num> | TupV<ad.Num>,
   rest: ArgVal<ad.Num>[]
-): Result<LListV<ad.Num> | MatrixV<ad.Num>, StyleDiagnostics> => {
+): Result<
+  LListV<ad.Num> | MatrixV<ad.Num> | PtListV<ad.Num>,
+  StyleDiagnostics
+> => {
   const elems = [first.contents];
   for (const v of rest) {
-    if (v.tag === "Val" && v.contents.tag === "VectorV") {
+    if (
+      v.tag === "Val" &&
+      (v.contents.tag === "VectorV" ||
+        v.contents.tag === "ListV" ||
+        v.contents.tag === "TupV")
+    ) {
       elems.push(v.contents.contents);
     } else {
       return err(oneErr({ tag: "BadElementError", coll, index: elems.length }));
@@ -2672,11 +2824,16 @@ const eval2D = (
     case "Vector": {
       return ok(matrixV(elems));
     }
+    case "CollectionAccess": {
+      if (first.tag === "ListV") return ok(llistV(elems));
+      else if (first.tag === "TupV") return ok(ptListV(elems));
+      else return ok(matrixV(elems));
+    }
   }
 };
 
 const evalShapeList = (
-  coll: List<C> | Vector<C>,
+  coll: List<C> | Vector<C> | CollectionAccess<C>,
   first: Shape<ad.Num>,
   rest: ArgVal<ad.Num>[]
 ): Result<ShapeListV<ad.Num>, StyleDiagnostics> => {
@@ -2719,19 +2876,20 @@ const evalListOrVector = (
           case "FloatV": {
             return eval1D(coll, first.contents, rest);
           }
-          case "VectorV": {
+          case "VectorV":
+          case "ListV":
+          case "TupV": {
             return eval2D(coll, first.contents, rest);
           }
           case "BoolV":
           case "ColorV":
-          case "ListV":
           case "LListV":
           case "MatrixV":
           case "PathDataV":
           case "PtListV":
           case "StrV":
-          case "TupV":
-          case "ShapeListV": {
+          case "ShapeListV":
+          case "ClipDataV": {
             return err(oneErr({ tag: "BadElementError", coll, index: 0 }));
           }
         }
@@ -2784,7 +2942,8 @@ const evalAccess = (
     case "ColorV":
     case "FloatV":
     case "PathDataV":
-    case "StrV": {
+    case "StrV":
+    case "ClipDataV": {
       // Not allowing indexing into a shape list for now
       return err({ tag: "NotCollError", expr });
     }
@@ -2811,7 +2970,8 @@ const evalUMinus = (
     case "PtListV":
     case "StrV":
     case "TupV":
-    case "ShapeListV": {
+    case "ShapeListV":
+    case "ClipDataV": {
       return err({ tag: "UOpTypeError", expr, arg: arg.tag });
     }
   }
@@ -2835,6 +2995,7 @@ const evalUTranspose = (
     case "PtListV":
     case "StrV":
     case "ShapeListV":
+    case "ClipDataV":
     case "TupV": {
       return err({ tag: "UOpTypeError", expr, arg: arg.tag });
     }
@@ -3043,6 +3204,79 @@ const evalExpr = (
         )
       );
     }
+    case "CollectionAccess": {
+      const { subst } = context;
+      const { name, field } = expr;
+      if (subst.tag === "CollectionSubst" && name.value === subst.collName) {
+        // actually gather the list.
+        const collection = subst.collContent;
+        const result: ArgVal<ad.Num>[] = [];
+        for (const subVar of collection) {
+          const actualPath = `\`${subVar}\`.${field.value}`;
+          const value = trans.symbols.get(actualPath);
+          if (value !== undefined) {
+            result.push(value);
+          }
+        }
+        const collected = collectIntoVal(result, expr);
+        if (collected.isErr()) {
+          return err(collected.error);
+        } else {
+          return ok(val(collected.value));
+        }
+      } else {
+        return err(
+          oneErr(
+            unexpectedCollectionAccessError(name.value, {
+              start: expr.start,
+              end: expr.end,
+            })
+          )
+        );
+      }
+    }
+  }
+};
+
+type CollectionType<T> =
+  | VectorV<T>
+  | ListV<T>
+  | TupV<T>
+  | MatrixV<T>
+  | LListV<T>
+  | PtListV<T>
+  | ShapeListV<T>;
+
+const collectIntoVal = (
+  coll: ArgVal<ad.Num>[],
+  expr: CollectionAccess<C>
+): Result<CollectionType<ad.Num>, StyleDiagnostics> => {
+  if (coll.length === 0) {
+    return ok(vectorV([]));
+  }
+
+  const [first, ...rest] = coll;
+
+  if (first.tag === "ShapeVal") {
+    return evalShapeList(expr, first.contents, rest);
+  } else {
+    if (first.contents.tag === "FloatV") {
+      return eval1D(expr, first.contents, rest);
+    } else if (
+      first.contents.tag === "VectorV" ||
+      first.contents.tag === "ListV" ||
+      first.contents.tag === "TupV"
+    ) {
+      return eval2D(expr, first.contents, rest);
+    } else {
+      return err(
+        oneErr({
+          tag: "BadElementError",
+          coll: expr,
+          index: 0,
+        })
+      );
+    }
   }
 };
 
@@ -3117,7 +3351,8 @@ const translateExpr = (
     case "Tuple":
     case "UOp":
     case "Vary":
-    case "Vector": {
+    case "Vector":
+    case "CollectionAccess": {
       const res = evalExpr(mut, canvas, layoutStages, e, trans);
       if (res.isErr()) {
         return addDiags(res.error, trans);
@@ -3538,7 +3773,7 @@ const onCanvases = (canvas: Canvas, shapes: Shape<ad.Num>[]): Fn[] => {
         ast: {
           context: {
             block: { tag: "NamespaceId", contents: "canvas" }, // doesn't matter
-            subst: {},
+            subst: { tag: "StySubSubst", contents: {} },
             locals: im.Map(),
           },
           expr: {

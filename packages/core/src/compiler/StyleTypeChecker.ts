@@ -91,6 +91,8 @@ export const checkValueAgainstValueType = (
     if (tag === "ShapeListV") return contents;
   } else if (expected === "PathCmd") {
     if (tag === "PathDataV") return contents;
+  } else if (expected === "ClipData") {
+    if (tag === "ClipDataV") return contents;
   } else {
     // type === "Boolean"
     if (tag === "BoolV") return contents;

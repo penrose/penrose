@@ -1,3 +1,4 @@
+import { FloatV } from "src/types/value.js";
 import * as ad from "../types/ad.js";
 import {
   Center,
@@ -17,7 +18,10 @@ export interface EquationProps<T>
     Center<T>,
     Rect<T>,
     Rotate<T>,
-    String<T> {}
+    String<T> {
+  ascent: FloatV<T>;
+  descent: FloatV<T>;
+}
 
 export const sampleEquation = (
   context: Context,
@@ -48,9 +52,21 @@ export const sampleEquation = (
       stages: new Set(),
     })
   ),
+  descent: floatV(
+    context.makeInput({
+      init: { tag: "Pending", pending: 0 },
+      stages: new Set(),
+    })
+  ),
+  ascent: floatV(
+    context.makeInput({
+      init: { tag: "Pending", pending: 0 },
+      stages: new Set(),
+    })
+  ),
   rotation: floatV(0),
   string: strV("defaultLabelText"),
-  fontSize: strV("12pt"),
+  fontSize: strV("16px"),
   ensureOnCanvas: boolV(true),
 });
 

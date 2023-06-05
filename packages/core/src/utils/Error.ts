@@ -39,6 +39,7 @@ import {
   TypeArgLengthMismatch,
   TypeMismatch,
   TypeNotFound,
+  UnexpectedCollectionAccessError,
   UnexpectedExprForNestedPred,
   VarNotFound,
 } from "../types/errors.js";
@@ -362,9 +363,27 @@ export const showError = (
     }
 
     case "BadElementError": {
-      return `Wrong element type at index ${error.index} in ${
-        error.coll.tag
-      } (at ${loc(error.coll)}).`;
+      if (error.coll.tag === "CollectionAccess") {
+        const preamble = `The collection access (at ${locc(
+          "Style",
+          error.coll
+        )}) failed`;
+        if (error.index === 0) {
+          return (
+            preamble +
+            ` because the collection contains elements that cannot be collected`
+          );
+        } else {
+          return (
+            preamble +
+            ` because some elements of the collection (in particular, index ${error.index}) have different type from other elements.`
+          );
+        }
+      } else {
+        return `Wrong element type at index ${error.index} in ${
+          error.coll.tag
+        } (at ${loc(error.coll)}).`;
+      }
     }
 
     case "BadIndexError": {
@@ -527,6 +546,11 @@ canvas {
       } already exists and is redeclared in ${locc("Style", error.location)}.`;
     }
 
+    case "UnexpectedCollectionAccessError": {
+      const { name, location } = error;
+      const locStr = locc("Style", location);
+      return `Style variable \`${name}\` cannot be accessed via the collection access operator (at ${locStr}) because it is not a collection.`;
+    }
     // --- END COMPILATION ERRORS
 
     // TODO(errors): use identifiers here
@@ -791,6 +815,15 @@ export const redeclareNamespaceError = (
 ): RedeclareNamespaceError => ({
   tag: "RedeclareNamespaceError",
   existingNamespace,
+  location,
+});
+
+export const unexpectedCollectionAccessError = (
+  name: string,
+  location: SourceRange
+): UnexpectedCollectionAccessError => ({
+  tag: "UnexpectedCollectionAccessError",
+  name,
   location,
 });
 

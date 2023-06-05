@@ -1,0 +1,17 @@
+type Point
+type Ray
+
+type Shape
+type Conic <: Shape
+type Line <: Shape
+type Polyline <: Shape
+type Polygon <: Shape
+type Rectangle <: Shape
+type Circle <: Conic
+type Ellipse <: Conic
+
+function rayFrom(Point p) -> Ray r
+constructor rayIntersect(Shape S, Ray r) -> Point q
+constructor closestPoint(Shape S, Point p) -> Point q
+constructor closestSilhouettePoint(Shape S, Point p) -> Point q
+
