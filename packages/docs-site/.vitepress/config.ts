@@ -95,7 +95,7 @@ export default defineConfig({
   description:
     "Create beautiful diagrams just by typing math notation in plain text.",
 
-  cleanUrls: "without-subfolders",
+  cleanUrls: true,
   ignoreDeadLinks: true,
   outDir: "build",
 
