@@ -22,7 +22,7 @@ export default function ExamplesBrowser() {
         );
         const cropped = svgDoc.querySelector("croppedViewBox")?.innerHTML;
         const svgNode = svgDoc.querySelector("svg")!;
-        if (!(cropped === undefined)) {
+        if (cropped !== undefined) {
           svgNode.setAttribute("viewBox", cropped!);
         }
         const croppedPreview = serializer.serializeToString(svgNode);
