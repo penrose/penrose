@@ -366,6 +366,95 @@ And the performance difference is striking!
 
 ## Attempt 3
 
+At this point we've achieved our performance goal, but the `@penrose/optimizer`
+module is basically impossible to use since it's so tightly coupled to our
+autodiff codegen; for instance, it exports a `class Gradient` with this
+docstring:
+
+```typescript
+/**
+ * An instantiated WebAssembly function that can be used either to directly
+ * compute outputs and gradients or to step a state via the optimizer.
+ *
+ * Each WebAssembly module used to construct an instance of this class must
+ * follow some conventions using other things exported from this package:
+ *
+ * - The module name of every import must match `importModule`.
+ *
+ * - One import must be a memory whose name matches `importMemoryName`.
+ *
+ * - The rest of the imports must be functions in the same order as the the
+ *   insertion order of `builtins`. The name of each of these imports must be a
+ *   base-36 integer (`"0"`-`"9"`, `"a"`-`"z"`) corresponding to the index of
+ *   the name in `builtins`. The type of the import is determined by its value
+ *   in `builtins`, which is an element of `BuiltinType`:
+ *
+ *   - `"addToStackPointer"` takes one `i32` and returns one `i32`.
+ *   - `"unary"` takes one `f64` and returns one `f64`.
+ *   - `"binary"` takes two `f64`s and returns one `f64`.
+ *   - `"polyRoots"` takes two `i32`s and returns nothing.
+ *
+ * - The module must export a function whose name matches `exportFunctionName`,
+ *   which takes four `i32`s and returns one `f64`.
+ */
+```
+
+Yikes. The reason for this is that I took Ben's original advice a bit too
+literally, thinking that I needed to directly put the WebAssembly function
+produced by our autodiff compiler directly into our Rust optimizer module's
+indirect function table (for #performance of course). Premature optimization!
+What I should have done instead is take advantage of `wasm-bindgen`'s various
+features for calling JavaScript functions from Rust/Wasm. So last month I wrote
+pull requests [#1338][decouple] and [#1368][cleanup] which expose a much more
+reasonable `@penrose/optimizer` interface: it now just takes in an arbitrary
+JavaScript function to compute the objective and gradient:
+
+```typescript
+/**
+ * Given an objective function `f` and some constraint functions `g_j`, where we
+ * want to minimize `f` subject to `g_j(x) \leq 0` for all `j`, this function
+ * computes the following, where `\lambda` is `weight`:
+ *
+ * `\phi(x, \lambda) = f(x) + \lambda * \sum_j \max(g_j(x), 0)^2`
+ *
+ * The gradient with respect to `x` is stored in `grad`.
+ *
+ * @param x input vector
+ * @param weight `\lambda`, the weight of the constraint term
+ * @param grad mutable array to store gradient in
+ * @returns the augmented objective value `\phi(x, \lambda)`
+ */
+export type Fn = (
+  x: Float64Array,
+  weight: number,
+  grad: Float64Array
+) => number;
+
+/**
+ * Steps the optimizer until either convergence or `stop` returns `true`.
+ * @param f to compute objective, constraints, and gradient
+ * @param x mutable array to update at each step
+ * @param state initial optimizer state
+ * @param stop early stopping criterion
+ * @returns optimizer state after stepping
+ */
+export const stepUntil = (
+  f: Fn,
+  x: Float64Array,
+  state: Params,
+  stop: () => boolean
+): Params => penrose_step_until(f, x, state, stop);
+```
+
+And our autodiff compiler just wraps its raw WebAssembly function to conform to
+that interface. I think there might be a small performance drop (hard to notice
+since the performance data we currently collect are fairly noisy), but the
+tradeoff is worth it.
+
+The other consequence of this is that we now no longer use the
+`--keep-lld-exports` flag at all! So I guess I should have thought more about
+the design and the tools available before going to submit upstream patches.
+
 ## Takeaways
 
 This took a lot of trial and error! I also leaned heavily on experts like Ben
@@ -377,6 +466,8 @@ continue making all of this more accessible to newcomers.
 [keep-lld-exports]: https://github.com/rustwasm/wasm-bindgen/pull/3147
 [alex crichton]: https://github.com/alexcrichton
 [ben titzer]: https://s3d.cmu.edu/people/core-faculty/titzer-ben.html
+[cleanup]: https://github.com/penrose/penrose/pull/1368
+[decouple]: https://github.com/penrose/penrose/pull/1338
 [docusaurus]: https://docusaurus.io/
 [esbuild binary]: https://esbuild.github.io/content-types/#binary
 [experiment]: https://github.com/penrose/experiments/tree/main/2022-optimizer-performance
