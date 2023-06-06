@@ -1,8 +1,15 @@
 import { Num, Var, add, mul, neg, ops, variable } from "@penrose/core";
+import MarkdownIt from "markdown-it";
+import mdMJ from "markdown-it-mathjax3";
 import { createMutable } from "solid-js/store";
 import { numSignal } from "./util.js";
 
-const [ox, oy] = [330, 270];
+const md = MarkdownIt({
+  // linkify: true,
+  // breaks: true,
+}).use(mdMJ);
+
+const [ox, oy] = [330, 330];
 const [w, h] = [270, 270];
 const fontSize = "20px";
 const fontFamily = "STIXGeneral-Italic";
@@ -12,10 +19,15 @@ const Draggable = (props: any) => {
   return <div>draggable</div>;
 };
 
+const $ = ({ children }: { children: string }) => (
+  <span innerHTML={md.render(`$${children}$`)}></span>
+);
+
 const toCanvas = ([x, y]: Num[]) => [
   add(mul(x, w / 5), ox),
   add(neg(mul(y, h / 5)), oy),
 ];
+const toModel = ([x, y]: number[]): number[] => [x / (w / 5), y / (h / 5)];
 
 const Arrowhead = (args: { id: string; fill: string }) => (
   <marker
@@ -45,11 +57,6 @@ const Point = ({
   const [lx, ly] = ops.vadd(toCanvas(val), [15, -15]).map(numSignal);
   return (
     <g>
-      {draggable && (
-        <g transform={`translate(${vals[0]()}, ${vals[1]()})`}>
-          <circle r="22.91" fill="#000" fill-opacity={0.15}></circle>
-        </g>
-      )}
       <text
         font-family={fontFamily}
         font-size={fontSize}
@@ -57,6 +64,9 @@ const Point = ({
         fill={fill}
         x={lx()}
         y={ly()}
+        style={{
+          "user-select": "none",
+        }}
       >
         {label}
       </text>
@@ -66,6 +76,14 @@ const Point = ({
         r={4}
         fill={"rgb(231, 76, 60)"}
       ></circle>
+      {draggable && (
+        <g
+          transform={`translate(${vals[0]()}, ${vals[1]()})`}
+          onMouseDown={(e) => onMouseDown(e, svg, val as Var[])}
+        >
+          <circle r="22.91" fill="#000" fill-opacity={0.1}></circle>
+        </g>
+      )}
     </g>
   );
 };
@@ -88,42 +106,32 @@ const getPosition = (
   return { x: 0, y: 0 };
 };
 
-const clamp = (x: number, min: number, max: number): number =>
-  Math.min(Math.max(x, min), max);
-
-const onMouseDown = (e: MouseEvent, parent: SVGSVGElement) => {
+const onMouseDown = (e: MouseEvent, parent: SVGSVGElement, val: Var[]) => {
+  const target = e.target as SVGSVGElement;
+  target.setAttribute("fill-opacity", "0.15");
   const { clientX, clientY } = e;
-  const { x: tempX, y: tempY } = getPosition({ clientX, clientY }, parent);
-  // const {
-  //   width: bboxW,
-  //   height: bboxH,
-  //   x: bboxX,
-  //   y: bboxY,
-  // } = (e.target as SVGSVGElement).getBBox({ stroke: true });
-  // const minX = tempX - bboxX;
-  // const maxX = w - bboxW + (tempX - bboxX);
-  // const minY = tempY - bboxY;
-  // const maxY = h - bboxH + (tempY - bboxY);
+  let { x: tempX, y: tempY } = getPosition({ clientX, clientY }, parent);
   let dx = 0,
     dy = 0;
   const onMouseMove = (e: MouseEvent) => {
     const { x, y } = getPosition(e, parent);
-    // const constrainedX = clamp(x, minX, maxX);
-    // const constrainedY = clamp(y, minY, maxY);
-    // dx = constrainedX - tempX;
-    // dy = tempY - constrainedY;
     dx = x - tempX;
     dy = tempY - y;
-    console.log(e.target);
-
-    (e.target as SVGSVGElement).setAttribute(
-      `transform`,
-      `translate(${dx},${-dy})`
-    );
+    tempX = x;
+    tempY = y;
+    // set the actual values
+    const [mx, my] = toModel([dx, dy]);
+    const futureX = val[0].val + mx;
+    const futureY = val[1].val + my;
+    if (futureX >= 0 && futureX <= 5) val[0].val = futureX;
+    if (futureY >= 0 && futureY <= 5) val[1].val = futureY;
   };
-  const onMouseUp = () => {
+  const onMouseUp = (e: MouseEvent) => {
     document.removeEventListener("mouseup", onMouseUp);
     document.removeEventListener("mousemove", onMouseMove);
+    // remove transform
+    target.setAttribute(`transform`, "");
+    target.setAttribute("fill-opacity", "0.1");
   };
   document.addEventListener("mouseup", onMouseUp);
   document.addEventListener("mousemove", onMouseMove);
@@ -145,15 +153,6 @@ const Vector = ({
   return (
     <g>
       <Arrowhead id={id} fill={fill}></Arrowhead>
-      <g onMouseDown={(e) => onMouseDown(e, svg)}>
-        <circle
-          cx={vals[0]()}
-          cy={vals[1]()}
-          r="22.91"
-          fill="#000"
-          fill-opacity={0.15}
-        ></circle>
-      </g>
       <text
         font-family={fontFamily}
         font-size={fontSize}
@@ -161,6 +160,9 @@ const Vector = ({
         fill={fill}
         x={lx()}
         y={ly()}
+        style={{
+          "user-select": "none",
+        }}
       >
         {label}
       </text>
@@ -173,115 +175,75 @@ const Vector = ({
         x2={vals[0]()}
         y2={vals[1]()}
       ></line>
+      <g onMouseDown={(e) => onMouseDown(e, svg, val)}>
+        <circle
+          cx={vals[0]()}
+          cy={vals[1]()}
+          r="22.91"
+          fill="#000"
+          fill-opacity={0.1}
+        ></circle>
+      </g>
     </g>
   );
 };
 
 // TODO: shorten
-const Axis = () => (
-  <g class="axis">
+const Axis = ({
+  origin: [ox, oy],
+  xRange: [minX, maxX],
+  yRange: [minY, maxY],
+  width,
+  height,
+}: {
+  origin: [number, number];
+  xRange: [number, number];
+  yRange: [number, number];
+  width: number;
+  height: number;
+}) => {
+  const xStep = width / (maxX - minX);
+  const yStep = height / (maxY - minY);
+  const xTicks = Math.floor(width / xStep) + 1;
+  const yTicks = Math.floor(height / yStep) + 1;
+  const stroke = "#0002";
+  return (
     <g
-      class="axis"
-      transform="translate(0,270)"
-      style="font-size: 10px; pointer-events: none;"
+      style={{
+        "user-select": "none",
+      }}
     >
-      <g class="tick" transform="translate(330,0)" style="opacity: 1;">
-        <line y2="6" x2="0"></line>
-        <text y="9" x="0" dy=".71em" style="text-anchor: middle;">
-          0
-        </text>
-      </g>
-      <g class="tick" transform="translate(390,0)" style="opacity: 1;">
-        <line y2="6" x2="0"></line>
-        <text y="9" x="0" dy=".71em" style="text-anchor: middle;">
-          1
-        </text>
-      </g>
-      <g class="tick" transform="translate(450,0)" style="opacity: 1;">
-        <line y2="6" x2="0"></line>
-        <text y="9" x="0" dy=".71em" style="text-anchor: middle;">
-          2
-        </text>
-      </g>
-      <g class="tick" transform="translate(510,0)" style="opacity: 1;">
-        <line y2="6" x2="0"></line>
-        <text y="9" x="0" dy=".71em" style="text-anchor: middle;">
-          3
-        </text>
-      </g>
-      <g class="tick" transform="translate(570,0)" style="opacity: 1;">
-        <line y2="6" x2="0"></line>
-        <text y="9" x="0" dy=".71em" style="text-anchor: middle;">
-          4
-        </text>
-      </g>
-      <g class="tick" transform="translate(630,0)" style="opacity: 1;">
-        <line y2="6" x2="0"></line>
-        <text y="9" x="0" dy=".71em" style="text-anchor: middle;">
-          5
-        </text>
-      </g>
-      <path
-        fill="none"
-        stroke="rgba(0, 0, 0, .1)"
-        class="domain"
-        d="M330,6V0H630V6"
-      ></path>
-    </g>
-    <g
-      class="axis"
-      transform="translate(330,0)"
-      style="font-size: 10px; pointer-events: none;"
-    >
-      <g class="tick" transform="translate(0,270)" style="opacity: 1;">
-        <line x2="-6" y2="0"></line>
-        <text x="-9" y="0" dy=".32em" style="text-anchor: end;">
-          0
-        </text>
-      </g>
-      <g class="tick" transform="translate(0,222)" style="opacity: 1;">
-        <line x2="-6" y2="0"></line>
-        <text x="-9" y="0" dy=".32em" style="text-anchor: end;">
-          1
-        </text>
-      </g>
-      <g class="tick" transform="translate(0,174)" style="opacity: 1;">
-        <line x2="-6" y2="0"></line>
-        <text x="-9" y="0" dy=".32em" style="text-anchor: end;">
-          2
-        </text>
+      <g
+        transform={`translate(0,${oy})`}
+        style="font-size: 10px; pointer-events: none;"
+      >
+        {Array.from({ length: xTicks }).map((_, i: number) => (
+          <g transform={`translate(${ox + i * xStep},0)`} style="opacity: 1;">
+            <line y2="6" x2="0" stroke={stroke}></line>
+            <text y="9" x="0" dy=".71em" style="text-anchor: middle;">
+              {i}
+            </text>
+          </g>
+        ))}
+        <path fill="none" stroke="#0002" d={`M${ox},6V0H${ox + width}V6`} />
       </g>
       <g
-        class="tick"
-        transform="translate(0,125.99999999999997)"
-        style="opacity: 1;"
+        transform={`translate(${ox},0)`}
+        style="font-size: 10px; pointer-events: none;"
       >
-        <line x2="-6" y2="0"></line>
-        <text x="-9" y="0" dy=".32em" style="text-anchor: end;">
-          3
-        </text>
+        {Array.from({ length: yTicks }).map((_, i: number) => (
+          <g transform={`translate(0,${oy - i * yStep})`} style="opacity: 1;">
+            <line x2="-6" y2="0" stroke={stroke}></line>
+            <text x="-9" y="0" dy=".32em" style="text-anchor: end;">
+              {i}
+            </text>
+          </g>
+        ))}
+        <path fill="none" stroke={stroke} d={`M-6,${ox - height}H0V${oy}H-6`} />
       </g>
-      <g class="tick" transform="translate(0,78)" style="opacity: 1;">
-        <line x2="-6" y2="0"></line>
-        <text x="-9" y="0" dy=".32em" style="text-anchor: end;">
-          4
-        </text>
-      </g>
-      <g class="tick" transform="translate(0,30)" style="opacity: 1;">
-        <line x2="-6" y2="0"></line>
-        <text x="-9" y="0" dy=".32em" style="text-anchor: end;">
-          5
-        </text>
-      </g>
-      <path
-        fill="none"
-        stroke="rgba(0, 0, 0, .1)"
-        class="domain"
-        d="M-6,30H0V270H-6"
-      ></path>
     </g>
-  </g>
-);
+  );
+};
 
 const vec = (x: number, y: number): [Var, Var] => [
   createMutable(variable(x)),
@@ -292,31 +254,51 @@ export default () => {
   const v1 = vec(1, 0.5);
   const v2 = vec(0.5, 1);
   const v = vec(2, 3);
-  const Av = ops.mvmul([v1, v2], v);
+  const A = ops.mtrans([v1, v2]);
+  const Av = ops.mvmul(A, v);
   const vd = v.map(numSignal);
   const avd = Av.map(numSignal);
   const v1d = v1.map(numSignal);
   const v2d = v2.map(numSignal);
+  const a1Color = "#3498db";
+  const a2Color = "#2ecc71";
+  const vColor = "#E74C3C";
 
   return (
-    <div>
-      <svg ref={svg} width={960} height={300}>
-        <Axis />
+    <div style={{ display: "flex" }}>
+      <svg ref={svg} width={960} height={500}>
+        <Axis
+          origin={[ox, oy]}
+          width={w}
+          height={h}
+          xRange={[0, 5]}
+          yRange={[0, 5]}
+        />
         <g>
-          <Vector id={"primary"} fill={"#3498db"} val={v1} label={"a₁"} />
-          <Vector id={"secondary"} fill={"#2ecc71"} val={v2} label={"a₂"} />
-          <Point fill={"rgb(231, 76, 60)"} val={v} label={"v"} draggable />
-          <Point fill={"rgb(231, 76, 60)"} val={Av} label={"Av"} />
+          <Vector id={"primary"} fill={a1Color} val={v1} label={"a₁"} />
+          <Vector id={"secondary"} fill={a2Color} val={v2} label={"a₂"} />
+          <Point fill={vColor} val={v} label={"v"} draggable />
+          <Point fill={vColor} val={Av} label={"Av"} />
         </g>
       </svg>
-      <br />
-      v1: {v1d[0]()}, {v1d[1]()}
-      <br />
-      v2: {v2d[0]()}, {v2d[1]()}
-      <br />
-      v: {vd[0]()}, {vd[1]()}
-      <br />
-      Av: {avd[0]()}, {avd[1]()}
+      <div>
+        <$>{`\\textcolor{${a1Color}}{a_1} = [${v1d[0]()}, ${v1d[1]()}]`}</$>
+        <$>{`\\textcolor{${a2Color}}{a_2} = [${v2d[0]()}, ${v2d[1]()}]`}</$>
+        <$>{`\\textcolor{${vColor}}{v}= [${vd[0]()}, ${vd[1]()}]`}</$>
+        <$>
+          {`\\textcolor{${vColor}}{A} =  
+\\begin{bmatrix}
+\\textcolor{${a1Color}}{a_1,x} & \\textcolor{${a2Color}}{a_2,x} \\\\
+\\textcolor{${a1Color}}{a_1,y} & \\textcolor{${a2Color}}{a_2,y} \\\\
+\\end{bmatrix} =
+\\begin{bmatrix}
+${v1d[0]()} & ${v2d[0]()}\\\\
+${v1d[1]()} & ${v2d[1]()}
+\\end{bmatrix}
+`}
+        </$>
+        <$>{`\\textcolor{${vColor}}{Av}= [${avd[0]()}, ${avd[1]()}]`}</$>
+      </div>
     </div>
   );
 };
