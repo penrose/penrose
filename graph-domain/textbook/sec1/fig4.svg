@@ -1,4 +1,15 @@
-<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+<svg
+  version="1.2"
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 400 400"
+  penrose="0"
+>
+  <penrose>
+    <croppedViewBox>
+      0.001671626803329218 69.58034844384406 399.9972647853576
+      176.40567541305006
+    </croppedViewBox>
+  </penrose>
   <g>
     <filter
       id="`Arc_Detroit_Chicago`.pointer-shadow"

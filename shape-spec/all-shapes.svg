@@ -1,4 +1,14 @@
-<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1200">
+<svg
+  version="1.2"
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 800 1200"
+  penrose="0"
+>
+  <penrose>
+    <croppedViewBox>
+      166.66666666666666 109.5 457.16666666666674 981
+    </croppedViewBox>
+  </penrose>
   <g
     transform="rotate(0, 533.3333333333334, 670)translate(504.9893333333334, 662.816)"
   >

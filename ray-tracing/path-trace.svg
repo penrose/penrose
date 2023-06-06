@@ -1,4 +1,14 @@
-<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 200">
+<svg
+  version="1.2"
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 240 200"
+  penrose="0"
+>
+  <penrose>
+    <croppedViewBox>
+      9.5 4.299999999999983 232.2601993726475 188.8
+    </croppedViewBox>
+  </penrose>
   <g>
     <marker
       id="registry-RockfallLlama5064-`r3`.icon-endArrowId"

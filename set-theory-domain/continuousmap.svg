@@ -1,4 +1,14 @@
-<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
+<svg
+  version="1.2"
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 800 700"
+  penrose="0"
+>
+  <penrose>
+    <croppedViewBox>
+      91.17288106929482 185.05372004323866 634.5833333333333 234.83333333333334
+    </croppedViewBox>
+  </penrose>
   <rect
     x="491.92288106929476"
     y="185.80372004323863"

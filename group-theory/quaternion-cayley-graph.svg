@@ -1,4 +1,14 @@
-<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 200">
+<svg
+  version="1.2"
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 240 200"
+  penrose="0"
+>
+  <penrose>
+    <croppedViewBox>
+      23.908291489882316 51.12920628738792 111.92962927094746 107.78496809794575
+    </croppedViewBox>
+  </penrose>
   <g>
     <filter id="9:1:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>

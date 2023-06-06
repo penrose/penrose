@@ -1,4 +1,14 @@
-<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+<svg
+  version="1.2"
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 400 400"
+  penrose="0"
+>
+  <penrose>
+    <croppedViewBox>
+      30.204697529245095 6.579010152682713 369.7932455692945 300.22968734392697
+    </croppedViewBox>
+  </penrose>
   <g>
     <filter id="`e5`.pointer-shadow" x="0" y="0" width="200%" height="200%">
       <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>

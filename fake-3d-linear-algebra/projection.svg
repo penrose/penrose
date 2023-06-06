@@ -1,4 +1,15 @@
-<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5 5">
+<svg
+  version="1.2"
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 5 5"
+  penrose="0"
+>
+  <penrose>
+    <croppedViewBox>
+      0.2777777777777777 -0.000019788160882328043 4.5333698716587145
+      4.055575343716438
+    </croppedViewBox>
+  </penrose>
   <g>
     <marker
       id="registry-SucculentsReindeer397-`u`.shape-endArrowId"

@@ -1,4 +1,14 @@
-<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
+<svg
+  version="1.2"
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 800 700"
+  penrose="0"
+>
+  <penrose>
+    <croppedViewBox>
+      2.3950052219943245 0.05819222369069621 773.3621407192308 699.9206958487291
+    </croppedViewBox>
+  </penrose>
   <g>
     <polygon
       fill="#8f3184"

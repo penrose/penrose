@@ -1,4 +1,14 @@
-<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+<svg
+  version="1.2"
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 400 400"
+  penrose="0"
+>
+  <penrose>
+    <croppedViewBox>
+      137.5111993415813 11.678828480409294 262.3931773400377 314.61519214171517
+    </croppedViewBox>
+  </penrose>
   <g>
     <filter
       id="`Arc_parser_page`.pointer-shadow"

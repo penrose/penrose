@@ -1,4 +1,10 @@
-<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
+<svg
+  version="1.2"
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 800 700"
+  penrose="0"
+>
+  <penrose><croppedViewBox>-2 5 804.0000000000001 697</croppedViewBox></penrose>
   <text
     fill="#6666dd"
     fill-opacity="1"

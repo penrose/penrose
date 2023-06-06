@@ -1,4 +1,14 @@
-<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">
+<svg
+  version="1.2"
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 300 300"
+  penrose="0"
+>
+  <penrose>
+    <croppedViewBox>
+      62.673916363595765 62.43382900121739 236.50342747526855 229.69877145435444
+    </croppedViewBox>
+  </penrose>
   <g>
     <path
       d="M 215.23737530197047 208.95234318084917 L 176.17322575576918 170.11802207060492"
