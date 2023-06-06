@@ -26,6 +26,7 @@ import {
   currentWorkspaceState,
   diagramGridState,
   diagramState,
+  exampleTriosState,
   localFilesState,
   settingsState,
   workspaceMetadataSelector,
@@ -238,7 +239,9 @@ export const useLoadExampleWorkspace = () =>
         const id = toast.loading("Loading example...");
         const { domain, style, substance, variation } = await meta.get();
         toast.dismiss(id);
-        const styleJoined = style.map(({ contents }) => contents).join("\n");
+        const styleJoined = style
+          .map(({ contents }: any) => contents)
+          .join("\n");
         // HACK: we should really use each Style's individual `resolver`
         const { resolver } = style[0];
         set(currentWorkspaceState, {
@@ -274,7 +277,7 @@ export const useLoadExampleWorkspace = () =>
   );
 
 export const useCheckURL = () =>
-  useRecoilCallback(({ set }) => async () => {
+  useRecoilCallback(({ set, snapshot, reset }) => async () => {
     const parsed = queryString.parse(window.location.search);
     if (
       "access_token" in parsed &&
@@ -344,6 +347,46 @@ export const useCheckURL = () =>
         files,
       };
       set(currentWorkspaceState, workspace);
+    } else if ("examples" in parsed) {
+      const t = toast.loading("Loading example...");
+      const id = parsed["examples"];
+      const examples = await snapshot.getPromise(exampleTriosState);
+      const ex = examples.find((e: TrioWithPreview) => e.id === id)!;
+      const { domain, style, substance, variation } = await ex.get();
+      toast.dismiss(t);
+      const styleJoined = style.map(({ contents }: any) => contents).join("\n");
+      // HACK: we should really use each Style's individual `resolver`
+      const { resolver } = style[0];
+      set(currentWorkspaceState, {
+        metadata: {
+          id: uuid(),
+          name: ex.name!,
+          lastModified: new Date().toISOString(),
+          editorVersion: EDITOR_VERSION,
+          location: {
+            kind: "example",
+            resolver,
+          },
+          forkedFromGist: null,
+        },
+        files: {
+          domain: {
+            contents: domain,
+            name: `.domain`,
+          },
+          style: {
+            contents: styleJoined,
+            name: `.style`,
+          },
+          substance: {
+            contents: substance,
+            name: `.substance`,
+          },
+        },
+      });
+      reset(diagramState);
+      await _compileDiagram(substance, styleJoined, domain, variation, set);
+      toast.dismiss(t);
     }
     // TODO: implementing loading individual registry examples by URL
   });
