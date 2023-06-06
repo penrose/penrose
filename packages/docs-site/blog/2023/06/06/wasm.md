@@ -173,6 +173,197 @@ JavaScript data, so I made use of the very nice
 great together as long as you use the
 [`Serializer::json_compatible()`][json_compatible] preset.
 
+To bundle this all up into an actual `@penrose/optimizer` package, I had to
+write a several-step build process, running ts-rs via `cargo test`, and using
+[esbuild's `binary` loader][esbuild binary] to embed the Wasm binary directly
+into the JavaScript:
+
+```shell
+cargo test
+cargo build --target=wasm32-unknown-unknown --release
+wasm-bindgen --target=web --keep-lld-exports --out-dir=build target/wasm32-unknown-unknown/release/penrose_optimizer.wasm
+esbuild ./source.ts --outfile=index.js --platform=neutral --bundle --loader:.wasm=binary --define:import.meta.url=null --sourcemap
+```
+
+`wasm-bindgen` has several available [targets][wasm-bindgen target]. Here you
+can see I'm using `web` instead of `bundler`, despite the fact that esbuild is a
+bundler. What gives? Well, the `bundler` target is designed to work well with
+Webpack, which is very slow; we've worked hard to get rid of all Webpack usage
+in Penrose, with the effect of cutting two-thirds off our build times. The `web`
+target emits this function:
+
+```javascript
+async function init(input) {
+  if (typeof input === "undefined") {
+    input = new URL("penrose_optimizer_bg.wasm", import.meta.url);
+  }
+  const imports = getImports();
+
+  if (
+    typeof input === "string" ||
+    (typeof Request === "function" && input instanceof Request) ||
+    (typeof URL === "function" && input instanceof URL)
+  ) {
+    input = fetch(input);
+  }
+
+  initMemory(imports);
+
+  const { instance, module } = await load(await input, imports);
+
+  return finalizeInit(instance, module);
+}
+
+export default init;
+```
+
+What I wanted was to provide a single bundle that could be used both in the
+browser and in Node, so this actually works great since I can write an
+`instance.js` file to pass in the bytes directly, bypassing `fetch`:
+
+```javascript
+import init from "./build/penrose_optimizer";
+import bytes from "./build/penrose_optimizer_bg.wasm";
+
+export let maybeOptimizer = undefined;
+
+export const optimizerReady = init(bytes).then((output) => {
+  maybeOptimizer = output;
+});
+```
+
+The problem is that esbuild doesn't identify and eliminate the dead code in
+`init`, so smarter tools like [Vite][] (which we use for our website) see the
+`new URL` and try to turn `penrose_optimizer_bg.wasm` into a resource. Our
+bundle is in a different directory from the Wasm binary file itself, so Vite
+throws a build error. The hacky solution to this problem is to pass
+`--define:import.meta.url=null` to esbuild so that the `new URL` no longer fits
+Vite's smart resource pattern-recognition.
+
+The reason the above was `instance.js` instead of `instance.ts` is that
+TypeScript still doesn't understand the `*.wasm` extension even if esbuild does,
+so we also need a separate `instance.d.ts` file:
+
+```typescript
+import { InitOutput } from "./build/penrose_optimizer";
+
+export declare let maybeOptimizer: InitOutput | undefined;
+
+export declare const optimizerReady: Promise<void>;
+```
+
+Then at the top-level of `@penrose/optimizer`, we export a promise that can be
+`await`ed to ensure the optimizer is `ready`:
+
+```typescript
+import { maybeOptimizer, optimizerReady } from "./instance";
+
+let maybeIndex: number | undefined = undefined;
+
+export const ready = optimizerReady.then(() => {
+  penrose_init();
+  maybeIndex = maybeOptimizer!.__indirect_function_table.length;
+  maybeOptimizer!.__indirect_function_table.grow(1);
+});
+```
+
+The annoying thing is that now we need to do this before every single place
+where the optimizer is used:
+
+```typescript
+import { ready } from "@penrose/optimizer";
+
+await ready;
+```
+
+We went back and forth on this architecture for a bit, and eventually ended up
+deciding to solve this annoyance by [using top-level `await`][top-level await].
+Not all of our downstream code supported top-level await because we were
+previously using [Docusaurus][] for our website, so we had to migrate to
+[VitePress][] first.
+
+And the performance difference is striking!
+
+### Before
+
+```
+|                                         0s   1s   2s   3s   4s   5s   6s   7s   8s   9s  10s  11s  12s  13s  14s  15s  16s  17s  18s  19s  20s  21s  22s  23s  24s  25s  26s  27s  28s  29s  30s  31s  32s  33s  34s  35s  36s  37s  38s  39s  40s  41s  42s  43s  44s  45s  46s  47s  48s  49s  50s  51s  52s  53s  54s  55s  56s  57s  58s  59s  60s  61s  62s  63s  64s  65s  66s  67s  68s  69s  70s  71s  72s  73s
+|                                         |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |
+| 3d-projection-fake-3d-linear-algebra    ▝▀▞▖
+| allShapes-allShapes                     ▝▀▚▚▄▄
+| arrowheads-arrowheads                   ▝▀▞▖
+| circle-example-euclidean                ▝▀▀▀▀▀▞▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▖
+| collinear-euclidean                     ▝▀▀▚▀▀▀▖
+| congruent-triangles-euclidean           ▝▀▀▀▀▀▀▀▀▞▚
+| continuousmap-continuousmap             ▝▀▚▚
+| hypergraph-hypergraph                   ▝▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▞▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▖
+| incenter-triangle-euclidean             ▝▀▀▀▚▀▀▀▀▀▀▀▀▀▀▚
+| lagrange-bases-lagrange-bases           ▝▀▚▚
+| midsegment-triangles-euclidean          ▝▀▀▀▚▚
+| non-convex-non-convex                   ▝▀▀▀▀▞▀▀▀▀▚
+| one-water-molecule-atoms-and-bonds      ▝▀▞▖
+| parallel-lines-euclidean                ▝▀▀▚▀▀▀▀▀▀▀▀▀▚
+| persistent-homology-persistent-homology ▝▀▀▀▀▀▀▀▀▞▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▄
+| points-around-line-shape-distance       ▝▀▀▀▀▀▀▞▚
+| points-around-polyline-shape-distance   ▝▀▀▀▀▀▀▀▀▀▀▀▀▞▀▚
+| points-around-star-shape-distance       ▝▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▚▀▖
+| siggraph-teaser-euclidean-teaser        ▝▀▀▀▀▀▞▀▀▚
+| small-graph-disjoint-rect-line-horiz    ▝▀▀▀▀▀▀▀▀▞▚
+| small-graph-disjoint-rects              ▝▀▞▖
+| small-graph-disjoint-rects-large-canvas ▝▀▞▖
+| small-graph-disjoint-rects-small-canvas ▝▀▚▚
+| tree-tree                               ▝▀▀▞▖
+| tree-venn                               ▝▀▀▀▚▞▀▖
+| tree-venn-3d                            ▝▀▀▀▚▀▀▚▄▖
+| two-vectors-perp-vectors-dashed         ▝▀▀▞▖
+| vector-wedge-exterior-algebra           ▝▀▀▚▚
+| wet-floor-atoms-and-bonds               ▝▀▀▚▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▖
+| wos-laplace-estimator-walk-on-spheres   ▝▀▀▀▀▞▀▀▀▖
+| wos-nested-estimator-walk-on-spheres    ▝▀▀▀▀▀▀▞▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▚
+| wos-offcenter-estimator-walk-on-spheres ▝▀▀▀▚▀▀▀▀▖
+| wos-poisson-estimator-walk-on-spheres   ▝▀▀▀▚▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▖
+```
+
+### After
+
+```
+|                                         0s   1s   2s   3s   4s   5s   6s   7s   8s
+|                                         |    |    |    |    |    |    |    |    |
+| 3d-projection-fake-3d-linear-algebra    ▝▀▞▖
+| allShapes-allShapes                     ▝▀▚▞▄▄
+| arrowheads-arrowheads                   ▝▀▞▖
+| circle-example-euclidean                ▝▀▀▀▀▀▞▀▀▚
+| collinear-euclidean                     ▝▀▀▚▚
+| congruent-triangles-euclidean           ▝▀▀▀▀▀▀▀▀▞▖
+| continuousmap-continuousmap             ▝▀▚▚
+| hypergraph-hypergraph                   ▝▀▀▀▀▀▀▀▀▀▀▀▞▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▖
+| incenter-triangle-euclidean             ▝▀▀▀▚▚
+| lagrange-bases-lagrange-bases           ▝▀▀▞▖
+| midsegment-triangles-euclidean          ▝▀▀▀▀▞▖
+| non-convex-non-convex                   ▝▀▀▀▚▚
+| one-water-molecule-atoms-and-bonds      ▝▚▚
+| parallel-lines-euclidean                ▝▀▀▚▚
+| persistent-homology-persistent-homology ▝▀▀▀▀▀▀▀▞▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▚
+| points-around-line-shape-distance       ▝▀▀▀▞▖
+| points-around-polyline-shape-distance   ▝▀▀▀▀▀▀▀▀▀▀▚▚
+| points-around-star-shape-distance       ▝▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▚▚
+| siggraph-teaser-euclidean-teaser        ▝▀▀▀▀▀▚▚
+| small-graph-disjoint-rect-line-horiz    ▝▀▀▀▀▀▀▀▀▚▚
+| small-graph-disjoint-rects              ▝▀▞▖
+| small-graph-disjoint-rects-large-canvas ▝▀▞▖
+| small-graph-disjoint-rects-small-canvas ▝▀▚▚
+| tree-tree                               ▝▀▚▞▖
+| tree-venn                               ▝▀▀▀▚▞▖
+| tree-venn-3d                            ▝▀▀▀▞▄▖
+| two-vectors-perp-vectors-dashed         ▝▀▚▚
+| vector-wedge-exterior-algebra           ▝▀▚▚
+| wet-floor-atoms-and-bonds               ▝▀▀▞▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▚
+| wos-laplace-estimator-walk-on-spheres   ▝▀▀▀▀▀▀▀▞▖
+| wos-nested-estimator-walk-on-spheres    ▝▀▀▀▀▀▀▀▀▀▀▀▀▀▚▀▀▀▀▀▀▀▚
+| wos-offcenter-estimator-walk-on-spheres ▝▀▀▀▀▀▀▀▀▚▚
+| wos-poisson-estimator-walk-on-spheres   ▝▀▀▀▀▀▀▀▀▚▀▀▖
+```
+
 ## Attempt 3
 
 ## Takeaways
@@ -186,6 +377,8 @@ continue making all of this more accessible to newcomers.
 [keep-lld-exports]: https://github.com/rustwasm/wasm-bindgen/pull/3147
 [alex crichton]: https://github.com/alexcrichton
 [ben titzer]: https://s3d.cmu.edu/people/core-faculty/titzer-ben.html
+[docusaurus]: https://docusaurus.io/
+[esbuild binary]: https://esbuild.github.io/content-types/#binary
 [experiment]: https://github.com/penrose/experiments/tree/main/2022-optimizer-performance
 [function constructor]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/Function
 [grow]: https://developer.mozilla.org/en-US/docs/WebAssembly/Reference/Memory/Grow
@@ -197,10 +390,14 @@ continue making all of this more accessible to newcomers.
 [siggraph 2022]: https://cs.dartmouth.edu/wjarosz/publications/sawhneyseyb22gridfree.html
 [siggraph teaser]: https://raw.githubusercontent.com/penrose/penrose/3f0947795e975c33f7d8cfad0be467746221f005/diagrams/siggraph-teaser-euclidean-teaser.svg
 [siggraph teaser perf]: https://raw.githubusercontent.com/penrose/experiments/bc833544044f82b381c643b8a4062146181b8ba0/2022-optimizer-performance/mac-arm/siggraph-teaser-euclidean-teaser.svg
+[top-level await]: https://github.com/penrose/penrose/pull/1188
 [ts-rs]: https://github.com/Aleph-Alpha/ts-rs
 [unexported_unused_lld_things]: https://github.com/rustwasm/wasm-bindgen/blob/0.2.83/crates/cli-support/src/lib.rs#L610-L626
+[vite]: https://vitejs.dev/
+[vitepress]: https://vitepress.dev/
 [walk on spheres]: https://raw.githubusercontent.com/penrose/penrose/3f0947795e975c33f7d8cfad0be467746221f005/diagrams/wos-nested-estimator-walk-on-spheres.svg
 [walk on spheres perf]: https://raw.githubusercontent.com/penrose/experiments/bc833544044f82b381c643b8a4062146181b8ba0/2022-optimizer-performance/mac-arm/wos-nested-estimator-walk-on-spheres.svg
 [wasm pr]: https://github.com/penrose/penrose/pull/1092
 [wasm-bindgen]: https://github.com/rustwasm/wasm-bindgen
+[wasm-bindgen target]: https://rustwasm.github.io/docs/wasm-bindgen/reference/deployment.html
 [will crichton]: https://willcrichton.net/
