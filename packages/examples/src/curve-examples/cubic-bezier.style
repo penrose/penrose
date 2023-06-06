@@ -5,6 +5,7 @@ canvas {
 
 global {
     scalar t = 0.4
+    color semiBlue = rgba( 27./255., 31./255., 138./255., .2 )
 }
 
 forall Curve c {
@@ -17,6 +18,7 @@ forall Curve c {
     shape curve = Path {
         d: cubicCurveFromPoints("open", points)
         strokeWidth: 3.5
+        strokeColor: global.semiBlue
         ensureOnCanvas: true
     }
 

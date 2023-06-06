@@ -12,6 +12,7 @@ import toast from "react-hot-toast";
 import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
 import { v4 as uuid } from "uuid";
 import {
+  Diagram,
   DiagramMetadata,
   ProgramFile,
   RogerState,
@@ -164,13 +165,18 @@ const SVGaddCode = (
   versionStr: string,
   variationStr: string
 ): void => {
-  svg.setAttribute("penrose", "0");
+  // Create custom <penrose> tag to store metadata, or grab it if it already exists
+  const metadataQuery = document.querySelector("penrose");
+  let metadata: Element;
 
-  // Create custom <penrose> tag to store metadata
-  const metadata = document.createElementNS(
-    "https://penrose.cs.cmu.edu/metadata",
-    "penrose"
-  );
+  if (metadataQuery === null) {
+    metadata = document.createElementNS(
+      "https://penrose.cs.cmu.edu/metadata",
+      "penrose"
+    );
+  } else {
+    metadata = metadataQuery!;
+  }
 
   // Create <version> tag for penrose version
   const version = document.createElementNS(
@@ -366,6 +372,41 @@ export default function DiagramPanel() {
     }
   });
 
+  // download an svg with raw TeX labels
+  const downloadSvgTex = useRecoilCallback(({ snapshot }) => async () => {
+    if (canvasRef.current !== null) {
+      const { state } = snapshot.getLoadable(diagramState).contents as Diagram;
+      if (state !== null) {
+        const svg = await RenderStatic(
+          state,
+          (path) => pathResolver(path, rogerState, workspace),
+          "diagramPanel",
+          true
+        );
+        const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+          .contents as WorkspaceMetadata;
+        const diagram = snapshot.getLoadable(diagramMetadataSelector)
+          .contents as DiagramMetadata;
+        const domain = snapshot.getLoadable(fileContentsSelector("domain"))
+          .contents as ProgramFile;
+        const substance = snapshot.getLoadable(
+          fileContentsSelector("substance")
+        ).contents as ProgramFile;
+        const style = snapshot.getLoadable(fileContentsSelector("style"))
+          .contents as ProgramFile;
+        DownloadSVG(
+          svg,
+          metadata.name,
+          domain.contents,
+          substance.contents,
+          style.contents,
+          metadata.editorVersion.toString(),
+          diagram.variation
+        );
+      }
+    }
+  });
+
   const downloadPng = useRecoilCallback(({ snapshot }) => async () => {
     if (canvasRef.current !== null) {
       const svg = canvasRef.current.firstElementChild as SVGSVGElement;
@@ -431,6 +472,7 @@ export default function DiagramPanel() {
         {state && (
           <div style={{ display: "flex" }}>
             <BlueButton onClick={downloadSvg}>SVG</BlueButton>
+            <BlueButton onClick={downloadSvgTex}>SVG (TeX)</BlueButton>
             <BlueButton onClick={downloadPng}>PNG</BlueButton>
             <BlueButton onClick={downloadPdf}>PDF</BlueButton>
           </div>

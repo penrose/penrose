@@ -9,10 +9,12 @@ import { ops } from "./Autodiff.js";
 import {
   absVal,
   add,
+  and,
   div,
   eq,
   gt,
   ifCond,
+  lt,
   max,
   min,
   mul,
@@ -498,4 +500,34 @@ export const bboxFromPath = ({ d }: PathProps<ad.Num>): BBox => {
     control = nextControl;
   }
   return bboxFromPoints(points);
+};
+
+export const intersectBbox = (bbox1: BBox, bbox2: BBox): BBox => {
+  const { center: center1, width: w1, height: h1 } = bbox1;
+  const [x1, y1] = center1;
+  const { center: center2, width: w2, height: h2 } = bbox2;
+  const [x2, y2] = center2;
+
+  const hw1 = mul(w1, 0.5);
+  const hw2 = mul(w2, 0.5);
+  const hh1 = mul(h1, 0.5);
+  const hh2 = mul(h2, 0.5);
+
+  const left = max(sub(x1, hw1), sub(x2, hw2));
+  const right = min(add(x1, hw1), add(x2, hw2));
+  const top = min(add(y1, hh1), add(y2, hh2));
+  const bottom = max(sub(y1, hh1), sub(y2, hh2));
+
+  const intersection_x = div(add(left, right), 2);
+  const intersection_y = div(add(top, bottom), 2);
+  const intersection_w = sub(right, left);
+  const intersection_h = sub(top, bottom);
+
+  const cond = and(lt(left, right), lt(bottom, top));
+
+  return bbox(
+    ifCond(cond, intersection_w, 0),
+    ifCond(cond, intersection_h, 0),
+    [ifCond(cond, intersection_x, 0), ifCond(cond, intersection_y, 0)]
+  );
 };
