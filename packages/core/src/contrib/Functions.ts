@@ -4220,7 +4220,14 @@ export const rawRayIntersect = (
     t === "Equation" ||
     t === "Image"
   ) {
-    return rawRayIntersectRect(bboxPts(bboxFromRectlike(s)), p, v);
+    const c = s.center.contents;
+    const w = s.width.contents;
+    const h = s.height.contents;
+    const x0 = sub(c[0], div(w, 2));
+    const x1 = add(c[0], div(w, 2));
+    const y0 = sub(c[1], div(h, 2));
+    const y1 = add(c[1], div(h, 2));
+    return rawRayIntersectRectHelper(x0, x1, y0, y1, p, v);
   } else if (t === "Line") {
     return rawRayIntersectLine(s.start.contents, s.end.contents, p, v);
   } else if (t === "Polyline") {
@@ -4314,7 +4321,17 @@ export const rawRayIntersectRect = (
     x1 = tr[0];
   const y0 = bl[1],
     y1 = tl[1];
+  return rawRayIntersectRectHelper(x0, x1, y0, y1, p, v);
+};
 
+const rawRayIntersectRectHelper = (
+  x0: ad.Num,
+  x1: ad.Num,
+  y0: ad.Num,
+  y1: ad.Num,
+  p: ad.Num[],
+  v: ad.Num[]
+) => {
   const points = [
     [x0, y0],
     [x1, y0],
