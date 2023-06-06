@@ -19,8 +19,8 @@ const Draggable = (props: any) => {
   return <div>draggable</div>;
 };
 
-const $ = ({ children }: { children: string }) => (
-  <span innerHTML={md.render(`$${children}$`)}></span>
+const $ = (props: { children: string }) => (
+  <span innerHTML={md.render(`$${props.children}$`)}></span>
 );
 
 const toCanvas = ([x, y]: Num[]) => [
