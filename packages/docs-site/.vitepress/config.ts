@@ -261,12 +261,12 @@ export default defineConfig({
           text: "June 2023",
           items: [
             {
-              text: "Rust Wasm 10x faster than JS",
-              link: "/blog/2023/06/01/wasm",
+              text: "What Have We Done to the Languages?",
+              link: "/blog/2023/06/06/new-language-features",
             },
             {
-              text: "What Have We Done to the Languages?",
-              link: "/blog/2023/06/01/new-language-features",
+              text: "Porting the Penrose Optimizer from TypeScript to Rust and WebAssembly for 10x Speedup",
+              link: "/blog/2023/06/06/wasm",
             },
           ],
         },
