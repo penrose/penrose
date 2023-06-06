@@ -205,15 +205,15 @@ export const containsAABBs = (
   padding: ad.Num = 0
 ): ad.Num => {
   // TODO: Remake using Minkowski penalties
-  const box1 = bboxFromShape(s1);
-  const box2 = bboxFromShape(s2);
-  const [[xl1, xr1], [xl2, xr2]] = [BBox.xRange(box1), BBox.xRange(box2)];
-  const [[yl1, yr1], [yl2, yr2]] = [BBox.yRange(box1), BBox.yRange(box2)];
+  const A = bboxFromShape(s1);
+  const B = bboxFromShape(s2);
+  const [[Ax0, Ax1], [Bx0, Bx1]] = [BBox.xRange(A), BBox.xRange(B)];
+  const [[Ay0, Ay1], [By0, By2]] = [BBox.yRange(A), BBox.yRange(B)];
   return addN([
-    ifCond(lt(xl1, xl2), 0, squared(sub(xl1, xl2))),
-    ifCond(lt(xr2, xr1), 0, squared(sub(xr2, xr1))),
-    ifCond(lt(yl1, yl2), 0, squared(sub(yl1, yl2))),
-    ifCond(lt(yr2, yr1), 0, squared(sub(yr2, yr1))),
+    ifCond(lt(Ax0, sub(Bx0,padding)), 0, squared(sub(Ax0, sub(Bx0,padding)))),
+    ifCond(lt(add(Bx1,padding), Ax1), 0, squared(sub(add(Bx1,padding), Ax1))),
+    ifCond(lt(Ay0, sub(By0,padding)), 0, squared(sub(Ay0, sub(By0,padding)))),
+    ifCond(lt(add(By2,padding), Ay1), 0, squared(sub(add(By2,padding), Ay1))),
   ]);
 };
 

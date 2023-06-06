@@ -2844,7 +2844,7 @@ export const compDict = {
   closestPoint: {
     name: "closestPoint",
     description:
-      "Returns a point on the shape s closest to a query point p.  If this point is not unique, an arbitrary choice is made.  If no such point exists, the query point p is returned.",
+      "Returns a point on the shape s closest to a query point p.  If this point is not unique, an arbitrary choice is made.",
     params: [
       {
         name: "s",
