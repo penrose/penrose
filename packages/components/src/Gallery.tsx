@@ -1,6 +1,7 @@
 import registry from "@penrose/examples/dist/registry";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
+import { optimize } from "svgo";
 
 export interface TrioWithPreview {
   id: string;
@@ -29,10 +30,14 @@ const Example = ({ example }: { example: TrioWithPreview }) => {
   if (cropped !== undefined) {
     svgNode.setAttribute("viewBox", cropped!);
   }
-  const croppedPreview = serializer.serializeToString(svgNode);
+  const croppedPreview = optimize(serializer.serializeToString(svgNode), {
+    plugins: ["inlineStyles", "prefixIds"],
+    path: example.id,
+  }).data;
+
   return (
     <a
-      href={`http://127.0.0.1:3000/try/?examples=${example.id}`}
+      href={new URL(`?examples=${example.id}`, import.meta.url).href}
       target="_blank"
     >
       <Container
