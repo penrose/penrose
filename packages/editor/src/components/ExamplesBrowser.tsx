@@ -1,5 +1,6 @@
 import queryString from "query-string";
 import { useRecoilValueLoadable } from "recoil";
+import { optimize } from "svgo";
 import { TrioWithPreview, exampleTriosState } from "../state/atoms.js";
 import { useLoadExampleWorkspace } from "../state/callbacks.js";
 import FileButton from "./FileButton.js";
@@ -22,7 +23,10 @@ const Example = ({
   if (cropped !== undefined) {
     svgNode.setAttribute("viewBox", cropped!);
   }
-  const croppedPreview = serializer.serializeToString(svgNode);
+  const croppedPreview = optimize(serializer.serializeToString(svgNode), {
+    plugins: ["inlineStyles", "prefixIds"],
+    path: example.id,
+  }).data;
 
   return (
     <div key={example.name}>

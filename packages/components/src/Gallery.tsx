@@ -1,5 +1,6 @@
 import registry from "@penrose/examples/dist/registry";
 import { useEffect, useState } from "react";
+import styled from "styled-components";
 
 export interface TrioWithPreview {
   id: string;
@@ -8,6 +9,19 @@ export interface TrioWithPreview {
 }
 const parser = new DOMParser();
 const serializer = new XMLSerializer();
+
+const Container = styled.div`
+  width: 200px;
+  height: 200px;
+  padding: 1.5em;
+  box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.1);
+  transition: 0.3s;
+  &:hover {
+    box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.2);
+    transform: scale(1.05, 1.05);
+  }
+`;
+
 const Example = ({ example }: { example: TrioWithPreview }) => {
   const svgDoc = parser.parseFromString(example.preview!, "image/svg+xml");
   const cropped = svgDoc.querySelector("croppedViewBox")?.innerHTML;
@@ -21,10 +35,9 @@ const Example = ({ example }: { example: TrioWithPreview }) => {
       href={`http://127.0.0.1:3000/try/?examples=${example.id}`}
       target="_blank"
     >
-      <div
-        style={{ width: 200, height: 200, padding: "1em" }}
+      <Container
         dangerouslySetInnerHTML={{ __html: croppedPreview }}
-      ></div>
+      ></Container>
     </a>
   );
 };
