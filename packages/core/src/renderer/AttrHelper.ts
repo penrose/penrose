@@ -290,6 +290,7 @@ export const attrStroke = (
         "stroke-dasharray",
         properties.strokeDasharray.contents
       );
+      attrMapped.push("strokeDasharray");
     } else if (
       "strokeStyle" in properties &&
       properties.strokeStyle.contents === "dashed"
