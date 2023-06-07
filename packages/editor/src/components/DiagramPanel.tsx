@@ -306,8 +306,6 @@ export default function DiagramPanel() {
               (path) => pathResolver(path, rogerState, workspace),
               "diagramPanel"
             );
-        rendered.setAttribute("width", "100%");
-        rendered.setAttribute("height", "100%");
         if (cur.firstElementChild) {
           cur.replaceChild(rendered, cur.firstElementChild);
         } else {
