@@ -9,7 +9,7 @@ import moo from "moo";
 import _ from 'lodash'
 import { optional, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil.js'
 import { C, ConcreteNode, Identifier, StringLit } from "../types/ast.js";
-import { SubProg, SubStmt, Decl, Bind, ApplyPredicate, Deconstructor, Func, EqualExprs, EqualPredicates, LabelDecl, NoLabel, AutoLabel, LabelOption, TypeConsApp } from "../types/substance.js";
+import { SubProg, SubStmt, Decl, Bind, ApplyConstructor, ApplyPredicate, Deconstructor, Func, EqualExprs, EqualPredicates, LabelDecl, NoLabel, AutoLabel, LabelOption, TypeConsApp } from "../types/substance.js";
 
 
 // NOTE: ordering matters here. Top patterns get matched __first__
@@ -86,8 +86,17 @@ bind -> identifier _ ":=" _ sub_expr {%
   })
 %}
 
+# Allows Let keyword; in that case, takes type from func/constructor name
 decl_bind -> type_constructor __ identifier _ ":=" _ sub_expr {%
-  ([type, , variable, , , , expr]): [Decl<C>, Bind<C>] => {
+  ([prefix, , variable, , , , expr]): [Decl<C>, Bind<C>] => {
+    let type: TypeConsApp<C> = prefix;
+    if(prefix.name.value === "Let") {
+      type = {
+        ...nodeData,
+        ...rangeBetween(variable, expr),
+        tag: "TypeConstructor", args: [], name: expr.name
+      };
+    };
     const decl: Decl<C> = {
       ...nodeData,
       ...rangeBetween(type, variable),
