@@ -8,7 +8,6 @@ const Gallery = defineAsyncComponent(async () => {
   return applyPureReactInVue(Gallery);
 });
 const link = withBase(`/try/index.html`);
-console.log(link);
 </script>
 
 <template>
