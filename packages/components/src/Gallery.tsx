@@ -23,7 +23,13 @@ const Container = styled.div`
   }
 `;
 
-const Example = ({ example }: { example: TrioWithPreview }) => {
+const Example = ({
+  example,
+  ideLink,
+}: {
+  ideLink: string;
+  example: TrioWithPreview;
+}) => {
   const svgDoc = parser.parseFromString(example.preview!, "image/svg+xml");
   const cropped = svgDoc.querySelector("croppedViewBox")?.innerHTML;
   const svgNode = svgDoc.querySelector("svg")!;
@@ -34,12 +40,10 @@ const Example = ({ example }: { example: TrioWithPreview }) => {
     plugins: ["inlineStyles", "prefixIds"],
     path: example.id,
   }).data;
+  console.log(ideLink);
 
   return (
-    <a
-      href={new URL(`?examples=${example.id}`, import.meta.url).href}
-      target="_blank"
-    >
+    <a href={`${ideLink}?examples=${example.id}`} target="_blank">
       <Container
         dangerouslySetInnerHTML={{ __html: croppedPreview }}
       ></Container>
@@ -47,7 +51,7 @@ const Example = ({ example }: { example: TrioWithPreview }) => {
   );
 };
 
-export default () => {
+export default ({ ideLink }: { ideLink: string }) => {
   let [examples, setExamples] = useState<TrioWithPreview[]>([]);
   useEffect(() => {
     const load = async () => {
@@ -71,7 +75,7 @@ export default () => {
   return (
     <div style={{ display: "flex", flexWrap: "wrap" }}>
       {examples.map((e) => {
-        return <Example example={e}></Example>;
+        return <Example example={e} ideLink={ideLink}></Example>;
       })}
     </div>
   );

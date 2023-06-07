@@ -129,8 +129,8 @@ export default defineConfig({
     nav: [
       {
         text: "Examples",
-        link: "/docs/examples",
-        activeMatch: "/docs/examples",
+        link: "/examples",
+        activeMatch: "/examples",
       },
       {
         text: "Learn Penrose",
