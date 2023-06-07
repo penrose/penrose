@@ -49,7 +49,6 @@ export default ({ ideLink }: { ideLink: string }) => {
   let [examples, setExamples] = useState<TrioWithPreview[]>([]);
   useEffect(() => {
     const load = async () => {
-      const trios: TrioWithPreview[] = [];
       for (const [id, meta] of registry.entries()) {
         if (meta.trio && meta.gallery) {
           const svg = await fetch(
@@ -58,11 +57,11 @@ export default ({ ideLink }: { ideLink: string }) => {
             )
           );
           if (svg.ok) {
-            trios.push({ id, preview: await svg.text() });
+            const trio = { id, preview: await svg.text() };
+            setExamples((ex) => [...ex, trio]);
           }
         }
       }
-      setExamples(trios);
     };
     load();
   });
