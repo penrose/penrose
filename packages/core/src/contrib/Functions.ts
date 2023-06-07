@@ -87,6 +87,7 @@ import {
   pathCmdT,
   pathTypeT,
   posIntT,
+  ptListV,
   real2NT,
   real2T,
   real3T,
@@ -3904,6 +3905,33 @@ export const compDict = {
       return { tag: "PtListV", contents: bboxPts(bboxFromShape(s)) };
     },
     returns: valueT("Real2N"),
+  },
+  rectPts: {
+    name: "rectPts",
+    description:
+      "Returns the top-left, top-right, bottom-right, bottom-left points of a rect-like shape. This takes into account rotation.",
+    params: [{ name: "s", type: rectlikeT() }],
+    body: (_context: Context, s: Rectlike<ad.Num>): PtListV<ad.Num> => {
+      const counterclockwise = neg(s.rotation.contents);
+      const down = ops.vrot([0, -1], counterclockwise);
+      const right = ops.rot90(down);
+
+      const width = s.width.contents;
+      const height = s.height.contents;
+      const top = ops.vmul(width, right);
+      const left = ops.vmul(height, down);
+
+      const topLeft = [
+        sub(s.center.contents[0], div(width, 2)),
+        add(s.center.contents[1], div(height, 2)),
+      ];
+      const topRight = ops.vadd(topLeft, top);
+      const botLeft = ops.vadd(topLeft, left);
+      const botRight = ops.vadd(topRight, left);
+
+      return ptListV([topRight, topLeft, botLeft, botRight]);
+    },
+    returns: real2NT(),
   },
 };
 
