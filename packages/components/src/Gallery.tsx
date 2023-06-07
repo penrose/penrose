@@ -1,7 +1,6 @@
 import registry from "@penrose/examples/dist/registry";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { optimize } from "svgo";
 
 export interface TrioWithPreview {
   id: string;
@@ -36,12 +35,7 @@ const Example = ({
   if (cropped !== undefined) {
     svgNode.setAttribute("viewBox", cropped!);
   }
-  const croppedPreview = optimize(serializer.serializeToString(svgNode), {
-    plugins: ["inlineStyles", "prefixIds"],
-    path: example.id,
-  }).data;
-  console.log(ideLink);
-
+  const croppedPreview = serializer.serializeToString(svgNode);
   return (
     <a href={`${ideLink}?examples=${example.id}`} target="_blank">
       <Container

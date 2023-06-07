@@ -55,8 +55,7 @@
     "react-datasheet-grid": "^4.11.0",
     "react-latex-next": "^2.2.0",
     "react-select": "^5.7.3",
-    "styled-components": "^5.3.5",
-    "svgo": "^3.0.2"
+    "styled-components": "^5.3.5"
   },
   "devDependencies": {
     "@babel/core": "^7.18.0",
