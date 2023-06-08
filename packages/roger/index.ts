@@ -22,7 +22,7 @@ import convertHrtime from "convert-hrtime";
 import * as fs from "fs";
 import { extname, join, resolve } from "path";
 import prettier from "prettier";
-import { version } from "./package.json";
+import packageJSON from "./package.json" assert { type: "json" };
 import { InstanceData } from "./types.js";
 import watch from "./watch.js";
 
@@ -255,7 +255,7 @@ const orderTrio = (unordered: string[]): string[] => {
 yargs(hideBin(process.argv))
   .scriptName("roger")
   // .description("Command-line interface for Penrose.")
-  .version(version)
+  .version(packageJSON.version)
   .command(
     "trio [trio..]",
     "Generate a diagram from a Penrose trio.",
