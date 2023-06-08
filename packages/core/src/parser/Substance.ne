@@ -27,6 +27,7 @@ const lexer = moo.compile({
       label: "Label",
       noLabel: "NoLabel",
       autoLabel: "AutoLabel"
+      let: "Let"
     })
   }
 });
@@ -64,6 +65,7 @@ statements
 statement 
   -> decl            {% id %}
   |  bind            {% id %}
+  |  let_bind        {% id %}   
   |  decl_bind       {% id %} 
   |  apply_predicate {% id %}
   |  label_stmt      {% id %}
@@ -88,15 +90,28 @@ bind -> identifier _ ":=" _ sub_expr {%
 
 # Allows Let keyword; in that case, takes type from func/constructor name
 decl_bind -> type_constructor __ identifier _ ":=" _ sub_expr {%
+  ([type, , variable, , , , expr]): [Decl<C>, Bind<C>] => {
+    const decl: Decl<C> = {
+      ...nodeData,
+      ...rangeBetween(type, variable),
+      tag: "Decl", type, name: variable
+    };
+    const bind: Bind<C> = {
+      ...nodeData,
+      ...rangeBetween(variable, expr),
+      tag: "Bind", variable, expr
+    };
+    return [decl, bind];
+  }
+%}
+
+let_bind -> "Let" __ identifier _ ":=" _ sub_expr {%
   ([prefix, , variable, , , , expr]): [Decl<C>, Bind<C>] => {
-    let type: TypeConsApp<C> = prefix;
-    if(prefix.name.value === "Let") {
-      type = {
+    const type: TypeConsApp<C> = {
         ...nodeData,
         ...rangeBetween(variable, expr),
         tag: "TypeConstructor", args: [], name: expr.name
       };
-    };
     const decl: Decl<C> = {
       ...nodeData,
       ...rangeBetween(type, variable),
