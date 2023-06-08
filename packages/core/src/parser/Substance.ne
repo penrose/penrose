@@ -26,7 +26,7 @@ const lexer = moo.compile({
       all: "All",
       label: "Label",
       noLabel: "NoLabel",
-      autoLabel: "AutoLabel"
+      autoLabel: "AutoLabel",
       let: "Let"
     })
   }
