@@ -2,9 +2,11 @@ import {
   Binary,
   Bool,
   Comp,
+  Index,
   Logic,
   Nary,
   Num,
+  Ternary,
   Unary,
   Var,
   Vec,
@@ -134,6 +136,41 @@ const evalNary = (op: Nary["op"]): ((xs: number[]) => number) => {
 
 const secret = Symbol("signal");
 
+interface BoolSignal {
+  [secret]: Accessor<boolean>;
+}
+
+interface SignalComp extends Comp, BoolSignal {}
+interface SignalLogic extends Logic, BoolSignal {}
+interface SignalNot extends BoolSignal {}
+export type SignalBool = SignalComp | SignalLogic | SignalNot;
+
+interface NumSignal {
+  [secret]: Accessor<number>;
+}
+
+interface SignalUnary extends Unary, NumSignal {}
+interface SignalBinary extends Binary, NumSignal {}
+interface SignalTernary extends Ternary, NumSignal {}
+interface SignalNary extends Nary, NumSignal {}
+interface SignalIndex extends Index, NumSignal {}
+export type SignalNum =
+  | number
+  | Var
+  | SignalUnary
+  | SignalBinary
+  | SignalTernary
+  | SignalNary
+  | SignalIndex;
+
+export const bool = (x: SignalBool): boolean => x[secret]();
+
+export const num = (x: SignalNum): number => {
+  if (typeof x === "number") return x;
+  if (x.tag === "Var") return x.val;
+  return x[secret]();
+};
+
 const boolWith = (x: Bool, signal: Accessor<boolean>): Accessor<boolean> => {
   const mem = createMemo(signal);
   (x as any)[secret] = mem;
@@ -157,7 +194,7 @@ const vecWith = (x: Vec, signal: Accessor<number[]>): Accessor<number[]> => {
 
 // TODO: rewrite these from recursive to iterative
 
-export const boolSignal = (x: Bool): Accessor<boolean> => {
+const boolSignal = (x: Bool): Accessor<boolean> => {
   if (secret in x) return x[secret] as Accessor<boolean>;
   switch (x.tag) {
     case "Comp": {
@@ -182,7 +219,7 @@ export const boolSignal = (x: Bool): Accessor<boolean> => {
   }
 };
 
-export const numSignal = (x: Num): Accessor<number> => {
+const numSignal = (x: Num): Accessor<number> => {
   if (typeof x === "number") return () => x;
   if (secret in x) return x[secret] as Accessor<number>;
   switch (x.tag) {
@@ -234,6 +271,17 @@ const vecSignal = (x: Vec): Accessor<number[]> => {
       });
     }
   }
+};
+
+export const signalNum = (x: Num): SignalNum => {
+  if (typeof x === "number") return x;
+  numSignal(x);
+  return x as SignalNum;
+};
+
+export const signalBool = (x: Bool): SignalBool => {
+  boolSignal(x);
+  return x as SignalBool;
 };
 
 export type Sampler = (x: number) => number;

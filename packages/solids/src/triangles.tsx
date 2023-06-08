@@ -19,7 +19,7 @@ import { convexPolygonMinkowskiSDF } from "@penrose/core/dist/contrib/Minkowski.
 import { BBox, corners } from "@penrose/core/dist/engine/BBox.js";
 import { For, createEffect, createResource, createSignal, on } from "solid-js";
 import { createMutable, createStore } from "solid-js/store";
-import { boolSignal, numSignal, sample } from "./util.js";
+import { bool, num, sample, signalBool, signalNum } from "./util.js";
 
 export interface TriangleProps {
   seed: string;
@@ -51,11 +51,10 @@ export const Triangles = (props: TriangleProps) => {
   const q11 = [planeSize, planeHeight, planeSize];
 
   const Qs = [q00, q10, q11, q01].map((v) => rotate(v, props.theta));
-  const ps = Qs.map(perspective);
-  const points = ps.map((p) => p.map(numSignal));
+  const ps = Qs.map(perspective).map((p) => p.map(signalNum));
   const plane = (
     <polygon
-      points={points.map(([x, y]) => toCanvas([x(), y()])).join(" ")}
+      points={ps.map(([x, y]) => toCanvas([num(x), num(y)])).join(" ")}
       fill={"#0003"}
       stroke={"#aaa"}
       stroke-width={0.5}
@@ -72,13 +71,11 @@ export const Triangles = (props: TriangleProps) => {
   ) => {
     // triangle
     const [qi, qj, qk] = qs.map((p) => rotate(p, props.theta));
-    const ps = [qi, qj, qk].map(perspective);
-    const triangle = ps.map((p) => p.map(numSignal));
+    const ps = [qi, qj, qk].map(perspective).map((p) => p.map(signalNum));
     const rs = [qi, qj, qk].map((p) => [p[0], planeHeight, p[2]]);
-    const ss = rs.map(perspective);
-    const shadow = ss.map((p) => p.map(numSignal));
+    const ss = rs.map(perspective).map((p) => p.map(signalNum));
 
-    const vertices = () => triangle.map(([x, y]) => [x(), y()]);
+    const vertices = () => ps.map(([x, y]) => [num(x), num(y)]);
     const labels = vertices().map(([x, y]) => [
       createMutable(variable(x)),
       createMutable(variable(y)),
@@ -121,7 +118,6 @@ export const Triangles = (props: TriangleProps) => {
         }
       })
     );
-    const texts = labels.map((p) => p.map(numSignal));
 
     createEffect(async () => {
       const f = props.onFinish;
@@ -144,11 +140,11 @@ export const Triangles = (props: TriangleProps) => {
             stroke-width={0.5}
           ></polygon>
           <polygon
-            points={shadow.map(([x, y]) => toCanvas([x(), y()])).join(" ")}
+            points={ss.map(([x, y]) => toCanvas([num(x), num(y)])).join(" ")}
             fill={"#0002"}
           ></polygon>
-          {texts.map(([x0, y0], i) => {
-            const [x, y] = toCanvas([x0(), y0()]);
+          {labels.map(([x0, y0], i) => {
+            const [x, y] = toCanvas([num(x0), num(y0)]);
             return (
               <text
                 x={x}
@@ -185,13 +181,15 @@ export const Triangles = (props: TriangleProps) => {
   const tri1 = triangleWithShadow(qs1, "#34379a", ["A", "B", "C"]);
   const tri2 = triangleWithShadow(qs2, "#340000", ["D", "E", "F"]);
 
-  const swap = boolSignal(lt(tri1.z, tri2.z));
+  const swap = signalBool(lt(tri1.z, tri2.z));
 
   return (
     <svg version="1.2" xmlns="http://www.w3.org/2000/svg" width={w} height={h}>
       {plane}
       <For
-        each={swap() ? [tri2.shapes, tri1.shapes] : [tri1.shapes, tri2.shapes]}
+        each={
+          bool(swap) ? [tri2.shapes, tri1.shapes] : [tri1.shapes, tri2.shapes]
+        }
       >
         {(s) => s}
       </For>

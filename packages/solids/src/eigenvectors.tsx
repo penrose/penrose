@@ -2,7 +2,7 @@ import { Num, Var, add, mul, neg, ops, variable } from "@penrose/core";
 import MarkdownIt from "markdown-it";
 import mdMJ from "markdown-it-mathjax3";
 import { createMutable } from "solid-js/store";
-import { numSignal } from "./util.js";
+import { num, signalNum } from "./util.js";
 
 const md = MarkdownIt({
   // linkify: true,
@@ -53,8 +53,8 @@ const Point = ({
   label: string;
   draggable?: boolean;
 }) => {
-  const vals = toCanvas(val).map(numSignal);
-  const [lx, ly] = ops.vadd(toCanvas(val), [15, -15]).map(numSignal);
+  const vals = toCanvas(val).map(signalNum);
+  const [lx, ly] = ops.vadd(toCanvas(val), [15, -15]).map(signalNum);
   return (
     <g>
       <text
@@ -62,8 +62,8 @@ const Point = ({
         font-size={fontSize}
         stroke={"0"}
         fill={fill}
-        x={lx()}
-        y={ly()}
+        x={num(lx)}
+        y={num(ly)}
         style={{
           "user-select": "none",
         }}
@@ -71,14 +71,14 @@ const Point = ({
         {label}
       </text>
       <circle
-        cx={vals[0]()}
-        cy={vals[1]()}
+        cx={num(vals[0])}
+        cy={num(vals[1])}
         r={4}
         fill={"rgb(231, 76, 60)"}
       ></circle>
       {draggable && (
         <g
-          transform={`translate(${vals[0]()}, ${vals[1]()})`}
+          transform={`translate(${num(vals[0])}, ${num(vals[1])})`}
           onMouseDown={(e) => onMouseDown(e, svg, val as Var[])}
         >
           <circle r="22.91" fill="#000" fill-opacity={0.1}></circle>
@@ -148,8 +148,8 @@ const Vector = ({
   fill: string;
   label: string;
 }) => {
-  const vals = toCanvas(val).map(numSignal);
-  const [lx, ly] = ops.vadd(toCanvas(val), [5, -5]).map(numSignal);
+  const vals = toCanvas(val).map(signalNum);
+  const [lx, ly] = ops.vadd(toCanvas(val), [5, -5]).map(signalNum);
   return (
     <g>
       <Arrowhead id={id} fill={fill}></Arrowhead>
@@ -158,8 +158,8 @@ const Vector = ({
         font-size={fontSize}
         stroke={"0"}
         fill={fill}
-        x={lx()}
-        y={ly()}
+        x={num(lx)}
+        y={num(ly)}
         style={{
           "user-select": "none",
         }}
@@ -172,13 +172,13 @@ const Vector = ({
         stroke={fill}
         x1={ox}
         y1={oy}
-        x2={vals[0]()}
-        y2={vals[1]()}
+        x2={num(vals[0])}
+        y2={num(vals[1])}
       ></line>
       <g onMouseDown={(e) => onMouseDown(e, svg, val)}>
         <circle
-          cx={vals[0]()}
-          cy={vals[1]()}
+          cx={num(vals[0])}
+          cy={num(vals[1])}
           r="22.91"
           fill="#000"
           fill-opacity={0.1}
@@ -255,11 +255,7 @@ export default () => {
   const v2 = vec(0.5, 1);
   const v = vec(2, 3);
   const A = ops.mtrans([v1, v2]);
-  const Av = ops.mvmul(A, v);
-  const vd = v.map(numSignal);
-  const avd = Av.map(numSignal);
-  const v1d = v1.map(numSignal);
-  const v2d = v2.map(numSignal);
+  const Av = ops.mvmul(A, v).map(signalNum);
   const a1Color = "#3498db";
   const a2Color = "#2ecc71";
   const vColor = "#E74C3C";
@@ -282,15 +278,15 @@ export default () => {
         </g>
       </svg>
       <div>
-        <$>{`\\textcolor{${a1Color}}{a_1} = [${v1d[0]().toFixed(
-          2
-        )}, ${v1d[1]().toFixed(2)}]`}</$>
-        <$>{`\\textcolor{${a2Color}}{a_2} = [${v2d[0]().toFixed(
-          2
-        )}, ${v2d[1]().toFixed(2)}]`}</$>
-        <$>{`\\textcolor{${vColor}}{v}= [${vd[0]().toFixed(
-          2
-        )}, ${vd[1]().toFixed(2)}]`}</$>
+        <$>{`\\textcolor{${a1Color}}{a_1} = [${num(v1[0]).toFixed(2)}, ${num(
+          v1[1]
+        ).toFixed(2)}]`}</$>
+        <$>{`\\textcolor{${a2Color}}{a_2} = [${num(v2[0]).toFixed(2)}, ${num(
+          v2[1]
+        ).toFixed(2)}]`}</$>
+        <$>{`\\textcolor{${vColor}}{v}= [${num(v[0]).toFixed(2)}, ${num(
+          v[1]
+        ).toFixed(2)}]`}</$>
         <$>
           {`\\textcolor{${vColor}}{A} =  
 \\begin{bmatrix}
@@ -298,14 +294,14 @@ export default () => {
 \\textcolor{${a1Color}}{a_1,y} & \\textcolor{${a2Color}}{a_2,y} \\\\
 \\end{bmatrix} =
 \\begin{bmatrix}
-${v1d[0]().toFixed(2)} & ${v2d[0]().toFixed(2)}\\\\
-${v1d[1]().toFixed(2)} & ${v2d[1]().toFixed(2)}
+${num(v1[0]).toFixed(2)} & ${num(v2[0]).toFixed(2)}\\\\
+${num(v1[1]).toFixed(2)} & ${num(v2[1]).toFixed(2)}
 \\end{bmatrix}
 `}
         </$>
-        <$>{`\\textcolor{${vColor}}{Av}= [${avd[0]().toFixed(
-          2
-        )}, ${avd[1]().toFixed(2)}]`}</$>
+        <$>{`\\textcolor{${vColor}}{Av}= [${num(Av[0]).toFixed(2)}, ${num(
+          Av[1]
+        ).toFixed(2)}]`}</$>
       </div>
     </div>
   );
