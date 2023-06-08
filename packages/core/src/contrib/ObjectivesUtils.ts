@@ -1,21 +1,19 @@
 import { ops } from "../engine/Autodiff.js";
 import { squared, sub } from "../engine/AutodiffFunctions.js";
-import { Shape } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
-import { shapeCenter } from "./Queries.js";
 
 /**
- * Encourage the center of the shape `shape` to be in the direction `direction` with respect to shape `shapeRef`.
- * For shapes without the property `center`, the center of their bounding box is used.
+ * Encourage the point `p` to be in the direction `direction` with respect to point `pRef`.
+ * The `direction` vector does not need to be normalized.
+ * The `offset` parameter is the distance between the points.
  */
 export const inDirection = (
-  shape: Shape<ad.Num>,
-  shapeRef: Shape<ad.Num>,
-  unitDirectionVector: ad.Pt2,
+  p: ad.Pt2,
+  pRef: ad.Pt2,
+  direction: ad.Pt2,
   offset: ad.Num
 ): ad.Num => {
-  const center = shapeCenter(shape);
-  const centerRef = shapeCenter(shapeRef);
-  const dotProduct = ops.vdot(ops.vsub(center, centerRef), unitDirectionVector);
+  const unitDirectionVector = ops.vnormalize(direction);
+  const dotProduct = ops.vdot(ops.vsub(p, pRef), unitDirectionVector);
   return squared(sub(dotProduct, offset));
 };

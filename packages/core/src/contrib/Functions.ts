@@ -3489,7 +3489,7 @@ export const compDict = {
         description:
           "The top-right, top-left, bottom-left, bottom-right points (in that order) of the rectangle.",
       },
-      { name: "c", type: realT(), description: "center of the circle" },
+      { name: "c", type: real2T(), description: "center of the circle" },
       { name: "r", type: realT(), description: "radius of the circle" },
     ],
     body: (
