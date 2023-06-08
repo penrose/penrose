@@ -1,6 +1,8 @@
 // @vitest-environment jsdom
 
+import { start } from "@penrose/optimizer";
 import { describe, expect, test } from "vitest";
+import { genGradient } from "./engine/Autodiff.js";
 import {
   RenderStatic,
   compileTrio,
@@ -11,6 +13,7 @@ import {
   showError,
   stepUntilConvergence,
 } from "./index.js";
+import * as ad from "./types/ad.js";
 import { State } from "./types/state.js";
 
 // copied from `packages/examples/src/set-theory-domain/setTheory.domain`
@@ -187,7 +190,7 @@ describe("Energy API", () => {
       console.log(showError(res.error));
     }
   });
-  /*
+
   test("filtered constraints", async () => {
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
     const res = await compileTrio({
@@ -202,7 +205,7 @@ describe("Energy API", () => {
       const smallerThanFns = state.constrFns.filter((c) => {
         return (
           c.ast.expr.body.tag === "FunctionCall" &&
-          c.ast.expr.body.name.value === "smallerThan"
+          c.ast.expr.body.name.value === "disjoint"
         );
       });
       const masks: ad.Masks = {
@@ -225,7 +228,6 @@ describe("Energy API", () => {
       console.log(showError(res.error));
     }
   });
-  */
 });
 
 describe("Cross-instance energy eval", () => {
