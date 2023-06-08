@@ -27,7 +27,7 @@ export default function Opt() {
     .filter(([, include]) => include)
     .map((l) => l[0])
     .map(([name, fnEvaled]) => {
-      const energy = (Math.max(fnEvaled, 0)).toFixed(3);
+      const energy = parseFloat((Math.max(fnEvaled, 0)).toFixed(3));
       return {
         name,
         energy,
