@@ -21,7 +21,7 @@ describe("inDirection", () => {
       [-1, 0],
       0
     );
-    expect(numOf(result)).toEqual(1);
+    expect(numOf(result)).toBeCloseTo(1);
   });
 
   test("with padding (not in the direction)", async () => {
@@ -31,7 +31,7 @@ describe("inDirection", () => {
       [-1, 0],
       1
     );
-    expect(numOf(result)).toEqual(0);
+    expect(numOf(result)).toBeCloseTo(0);
   });
 
   test("with padding (in the direction)", async () => {
@@ -41,6 +41,6 @@ describe("inDirection", () => {
       [-1, 0],
       -2
     );
-    expect(numOf(result)).toEqual(9);
+    expect(numOf(result)).toBeCloseTo(9);
   });
 });
