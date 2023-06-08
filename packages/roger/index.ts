@@ -20,9 +20,9 @@ import {
 import chalk from "chalk";
 import convertHrtime from "convert-hrtime";
 import * as fs from "fs";
-import { extname, join, resolve } from "path";
+import { basename, extname, join, resolve } from "path";
 import prettier from "prettier";
-import packageJSON from "./package.json" assert { type: "json" };
+// import packageJSON from "./package.json"; // TODO: no supported by node
 import { InstanceData } from "./types.js";
 import watch from "./watch.js";
 
@@ -255,7 +255,7 @@ const orderTrio = (unordered: string[]): string[] => {
 yargs(hideBin(process.argv))
   .scriptName("roger")
   // .description("Command-line interface for Penrose.")
-  .version(packageJSON.version)
+  // .version(packageJSON.version) // TODO: not supported by node
   .command(
     "trio [trio..]",
     "Generate a diagram from a Penrose trio.",
@@ -292,8 +292,6 @@ yargs(hideBin(process.argv))
       const texLabels = options.texLabels;
       let variation = options.variation as string | undefined;
       if (options.trio.length === 1) {
-        console.log();
-
         const trioPath = options.trio[0] as string;
         prefix = join(trioPath, "..");
         // read trio from a JSON file
@@ -333,6 +331,68 @@ yargs(hideBin(process.argv))
         );
       } else {
         console.log(diagram);
+      }
+    }
+  )
+  .command(
+    "trios [trios..]",
+    "Create diagrams from multiple .trio.json files.",
+    (yargs) =>
+      yargs
+        .options("trios", {
+          desc: "Any number of .trio.json files of Penrose trios.",
+          type: "array",
+          demandOption: true,
+        })
+        .option("tex-labels", {
+          desc: "Render Equation shapes as plain TeX strings in the output SVG",
+          type: "boolean",
+          default: false,
+        })
+        .option("out", {
+          desc: "Output folder containing the SVG files",
+          alias: "o",
+          type: "string",
+          demandOption: true,
+        }),
+    async (options) => {
+      for (const trio of options.trios) {
+        const trioPath = trio as string;
+        const prefix = join(trioPath, "..");
+        const texLabels = options.texLabels;
+        const trioName = basename(trioPath, ".trio.json");
+        // read trio from a JSON file
+        const paths: Trio = JSON.parse(
+          fs.readFileSync(resolve(trioPath), "utf8")
+        );
+        const dom = paths.domain;
+        const sub = paths.substance;
+        const sty = paths.style;
+        const variation = paths.variation;
+        const { substance, style, domain } = readTrio(sub, sty, dom, prefix);
+        const { diagram } = await render(
+          variation ?? "",
+          substance,
+          style,
+          domain,
+          resolvePath(prefix, sty),
+          texLabels,
+          false,
+          {
+            substanceName: sub,
+            styleNames: sty,
+            domainName: dom,
+            id: trioName,
+          }
+        );
+        // create out folder if it doesn't exist
+        if (!fs.existsSync(options.out)) fs.mkdirSync(options.out);
+        // write diagram to out folder
+        const outputPath = join(options.out, `${trioName}.svg`);
+        fs.writeFileSync(outputPath, diagram);
+        console.log(
+          chalk.green(`The diagram has been saved as ${resolve(outputPath)}`)
+        );
       }
     }
   )
