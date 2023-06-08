@@ -88,7 +88,6 @@ bind -> identifier _ ":=" _ sub_expr {%
   })
 %}
 
-# Allows Let keyword; in that case, takes type from func/constructor name
 decl_bind -> type_constructor __ identifier _ ":=" _ sub_expr {%
   ([type, , variable, , , , expr]): [Decl<C>, Bind<C>] => {
     const decl: Decl<C> = {
