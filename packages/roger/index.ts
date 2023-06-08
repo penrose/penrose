@@ -371,7 +371,7 @@ yargs(hideBin(process.argv))
         const variation = paths.variation;
         const { substance, style, domain } = readTrio(sub, sty, dom, prefix);
         const { diagram } = await render(
-          variation ?? "",
+          variation,
           substance,
           style,
           domain,
