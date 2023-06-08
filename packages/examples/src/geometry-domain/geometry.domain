@@ -19,7 +19,7 @@ type Plane <: Shape
 -- Lines and Points
 constructor Segment(Point p, Point q)
 constructor Ray(Point base, Point direction)
-constructor Line(Point p, Point q) -> Line
+constructor Line(Point p, Point q)
 constructor Midpoint(Linelike l) -> Point
 
 -- Angles
