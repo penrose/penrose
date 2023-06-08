@@ -43,7 +43,7 @@ export default function Opt() {
     .filter(([, include]) => include)
     .map((l) => l[0])
     .map(([name, fnEvaled]) => {
-      const energy = fnEvaled;
+      const energy = parseFloat(fnEvaled.toFixed(3));
       // const gradientNorm = normList(fnEvaled.gradf);
       return {
         name,
@@ -83,8 +83,8 @@ export default function Opt() {
         highlightOnHover={true}
         striped={true}
         columns={[
-          { name: "Expression", selector: "name", sortable: true },
-          { name: "Energy", selector: "energy", sortable: true },
+          { name: "Expression", selector: "name", sortable: true  },
+          { name: "Energy", selector: "energy", sortable: true, width: "10em" },
           // { name: "Gradient Norm", selector: "gradientNorm", sortable: true },
         ]}
       />
