@@ -114,7 +114,10 @@ export const pathResolver = async (
     case "gist":
       return undefined;
     case "local": {
-      return fetchResource(relativePath, workspace);
+      const { resolver } = location;
+      return resolver
+        ? resolver(relativePath)
+        : fetchResource(relativePath, workspace);
     }
   }
 };
