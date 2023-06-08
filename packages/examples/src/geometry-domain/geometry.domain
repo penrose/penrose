@@ -17,20 +17,20 @@ type Plane <: Shape
 
 -- ~~~~~~~~~~~~~~~~ CONSTRUCTORS ~~~~~~~~~~~~~~~~
 -- Lines and Points
-constructor MkSegment(Point p, Point q) -> Segment
-constructor MkRay(Point base, Point direction) -> Ray
-constructor MkLine(Point p, Point q) -> Line
-constructor MkMidpoint(Linelike l) -> Point
+constructor Segment(Point p, Point q)
+constructor Ray(Point base, Point direction)
+constructor Line(Point p, Point q) -> Line
+constructor Midpoint(Linelike l) -> Point
 
 -- Angles
 constructor InteriorAngle(Point p, Point q, Point r) -> Angle
 
 -- Polygons/Shapes
-constructor MkTriangle(Point p, Point q, Point r) -> Triangle
-constructor MkRectangle(Point p, Point q, Point r, Point s) -> Rectangle
-constructor MkQuadrilateral(Point p, Point q, Point r, Point s) -> Quadrilateral
-constructor MkCircleR(Point center, Point radius) -> Circle
--- constructor MkCircleD(Point diam1, Point diam2) -> Circle  -- TODO can be reimplemented when #621 is resolved
+constructor Triangle(Point p, Point q, Point r)
+constructor Rectangle(Point p, Point q, Point r, Point s)
+constructor Quadrilateral(Point p, Point q, Point r, Point s)
+constructor CircleR(Point center, Point radius) -> Circle
+-- constructor CircleD(Point diam1, Point diam2) -> Circle  -- TODO can be reimplemented when #621 is resolved
 
 -- ~~~~~~~~~~~~~~~~ FUNCTIONS ~~~~~~~~~~~~~~~~
 -- Lines and Points
@@ -79,7 +79,7 @@ predicate Orthocenter(Point, Triangle)
 predicate Centroid(Point, Triangle)
 predicate Circumcenter(Point, Triangle)
 
--- notation "{p, q}" ~ "MkSegment(p, q)"
--- notation "{p, q, r}" ~ "MkTriangle(p, q, r)"
--- notation "{p, q, r, s}" ~ "MkRectangle(p, q, r, s)"
+-- notation "{p, q}" ~ "Segment(p, q)"
+-- notation "{p, q, r}" ~ "Triangle(p, q, r)"
+-- notation "{p, q, r, s}" ~ "Rectangle(p, q, r, s)"
 -- notation "∠(p, q, r)" ~ "InteriorAngle(p, q, r)"

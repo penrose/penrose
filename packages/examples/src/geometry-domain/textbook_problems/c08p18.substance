@@ -1,5 +1,5 @@
 Point A, B, C, D
-Triangle ABC := MkTriangle(A, B, C)
-Segment BD := MkSegment(B, D)
+Let ABC := Triangle(A, B, C)
+Let BD := Segment(B, D)
 Collinear(A, D, C)
 AutoLabel All

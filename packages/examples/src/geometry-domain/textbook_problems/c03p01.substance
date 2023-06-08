@@ -1,8 +1,8 @@
 -- name in registry: parallel-lines
 Point J, K, L, M, N
-Line JK := MkLine(J, K)
-Line NL := MkLine(N, L)
-Line KM := MkLine(K, M)
+Let JK := Line(J, K)
+Let NL := Line(N, L)
+Let KM := Line(K, M)
 ParallelMarker1(JK, NL)
 Parallel(JK, NL)
 Collinear(L, M, N)
