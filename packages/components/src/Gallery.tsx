@@ -64,7 +64,7 @@ export default ({ ideLink }: { ideLink: string }) => {
       }
     };
     load();
-  });
+  }, []);
   return (
     <div style={{ display: "flex", flexWrap: "wrap" }}>
       {examples.map((e) => {
