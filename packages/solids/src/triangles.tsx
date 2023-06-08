@@ -1,6 +1,5 @@
 import {
   Num,
-  Var,
   add,
   addN,
   cos,
@@ -18,46 +17,9 @@ import {
 } from "@penrose/core";
 import { convexPolygonMinkowskiSDF } from "@penrose/core/dist/contrib/Minkowski.js";
 import { BBox, corners } from "@penrose/core/dist/engine/BBox.js";
-import seedrandom from "seedrandom";
-import {
-  Accessor,
-  For,
-  createEffect,
-  createResource,
-  createSignal,
-  on,
-} from "solid-js";
-import { SetStoreFunction, createMutable, createStore } from "solid-js/store";
-import { boolSignal, numSignal } from "./util.js";
-
-type Sampler = (x: number) => number;
-
-const sample = <T,>(
-  seed: Accessor<string>,
-  f: (makeVar: (sampler: Sampler) => Var) => T
-): T => {
-  const vars: { sampler: Sampler; setter: SetStoreFunction<Var> }[] = [];
-  const rng = seedrandom(seed());
-  let ok = true;
-  const res = f((sampler) => {
-    if (!ok) throw Error("can't keep sampling after scope is done");
-    const [x, setter] = createStore(variable(sampler(rng())));
-    vars.push({ sampler, setter });
-    return x;
-  });
-  ok = false;
-  createEffect(
-    on(
-      seed,
-      (s) => {
-        const rng = seedrandom(s);
-        vars.forEach(({ sampler, setter }) => setter({ val: sampler(rng()) }));
-      },
-      { defer: true }
-    )
-  );
-  return res;
-};
+import { For, createEffect, createResource, createSignal, on } from "solid-js";
+import { createMutable, createStore } from "solid-js/store";
+import { boolSignal, numSignal, sample } from "./util.js";
 
 export interface TriangleProps {
   seed: string;

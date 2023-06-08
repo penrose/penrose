@@ -1,4 +1,7 @@
-import eigenvectors from "./eigenvectors.jsx";
+// import eigenvectors from "./eigenvectors.jsx";
 
-// export default RotatingTriangles;
-export default eigenvectors;
+// export default eigenvectors;
+
+import { RotatingTriangles } from "./triangles.jsx";
+
+export default RotatingTriangles;

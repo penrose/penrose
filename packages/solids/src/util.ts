@@ -6,10 +6,14 @@ import {
   Nary,
   Num,
   Unary,
+  Var,
   Vec,
+  variable,
 } from "@penrose/core";
 import { polyRoots } from "@penrose/optimizer";
-import { Accessor, createMemo } from "solid-js";
+import seedrandom from "seedrandom";
+import { Accessor, createEffect, createMemo, on } from "solid-js";
+import { SetStoreFunction, createStore } from "solid-js/store";
 
 const evalComp = (op: Comp["binop"]): ((x: number, y: number) => boolean) => {
   switch (op) {
@@ -230,4 +234,33 @@ const vecSignal = (x: Vec): Accessor<number[]> => {
       });
     }
   }
+};
+
+export type Sampler = (x: number) => number;
+
+export const sample = <T>(
+  seed: Accessor<string>,
+  f: (makeVar: (sampler: Sampler) => Var) => T
+): T => {
+  const vars: { sampler: Sampler; setter: SetStoreFunction<Var> }[] = [];
+  const rng = seedrandom(seed());
+  let ok = true;
+  const res = f((sampler) => {
+    if (!ok) throw Error("can't keep sampling after scope is done");
+    const [x, setter] = createStore(variable(sampler(rng())));
+    vars.push({ sampler, setter });
+    return x;
+  });
+  ok = false;
+  createEffect(
+    on(
+      seed,
+      (s) => {
+        const rng = seedrandom(s);
+        vars.forEach(({ sampler, setter }) => setter({ val: sampler(rng()) }));
+      },
+      { defer: true }
+    )
+  );
+  return res;
 };

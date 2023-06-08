@@ -266,7 +266,7 @@ export default () => {
 
   return (
     <div style={{ display: "flex" }}>
-      <svg ref={svg} width={960} height={500}>
+      <svg ref={svg} width={800} height={500}>
         <Axis
           origin={[ox, oy]}
           width={w}
@@ -282,9 +282,15 @@ export default () => {
         </g>
       </svg>
       <div>
-        <$>{`\\textcolor{${a1Color}}{a_1} = [${v1d[0]()}, ${v1d[1]()}]`}</$>
-        <$>{`\\textcolor{${a2Color}}{a_2} = [${v2d[0]()}, ${v2d[1]()}]`}</$>
-        <$>{`\\textcolor{${vColor}}{v}= [${vd[0]()}, ${vd[1]()}]`}</$>
+        <$>{`\\textcolor{${a1Color}}{a_1} = [${v1d[0]().toFixed(
+          2
+        )}, ${v1d[1]().toFixed(2)}]`}</$>
+        <$>{`\\textcolor{${a2Color}}{a_2} = [${v2d[0]().toFixed(
+          2
+        )}, ${v2d[1]().toFixed(2)}]`}</$>
+        <$>{`\\textcolor{${vColor}}{v}= [${vd[0]().toFixed(
+          2
+        )}, ${vd[1]().toFixed(2)}]`}</$>
         <$>
           {`\\textcolor{${vColor}}{A} =  
 \\begin{bmatrix}
@@ -292,12 +298,14 @@ export default () => {
 \\textcolor{${a1Color}}{a_1,y} & \\textcolor{${a2Color}}{a_2,y} \\\\
 \\end{bmatrix} =
 \\begin{bmatrix}
-${v1d[0]()} & ${v2d[0]()}\\\\
-${v1d[1]()} & ${v2d[1]()}
+${v1d[0]().toFixed(2)} & ${v2d[0]().toFixed(2)}\\\\
+${v1d[1]().toFixed(2)} & ${v2d[1]().toFixed(2)}
 \\end{bmatrix}
 `}
         </$>
-        <$>{`\\textcolor{${vColor}}{Av}= [${avd[0]()}, ${avd[1]()}]`}</$>
+        <$>{`\\textcolor{${vColor}}{Av}= [${avd[0]().toFixed(
+          2
+        )}, ${avd[1]().toFixed(2)}]`}</$>
       </div>
     </div>
   );
