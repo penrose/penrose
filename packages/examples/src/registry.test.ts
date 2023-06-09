@@ -1,5 +1,7 @@
 // @vitest-environment jsdom
 
+import { optimize } from "svgo";
+
 import {
   RenderStatic,
   compileTrio,
@@ -43,12 +45,10 @@ const bigBillion = BigInt(billion);
 const nanoToSeconds = (n: bigint): number =>
   Number(n / bigBillion) + Number(n % bigBillion) / billion;
 
-const renderTrio = async ({
-  substance,
-  style,
-  domain,
-  variation,
-}: Trio): Promise<Rendered> => {
+const renderTrio = async (
+  id: string,
+  { substance, style, domain, variation }: Trio
+): Promise<Rendered> => {
   const compiling = process.hrtime.bigint();
 
   const compilerOutput = await compileTrio({
@@ -97,11 +97,15 @@ const renderTrio = async ({
 
   const svg = (await RenderStatic(optimizedState, resolvePath, "registry"))
     .outerHTML;
+  const svgOptimized = optimize(svg, {
+    plugins: ["inlineStyles", "prefixIds"],
+    path: id,
+  }).data;
 
   const done = process.hrtime.bigint();
 
   return {
-    svg,
+    svg: svgOptimized,
     data: {
       seconds: {
         compiling: nanoToSeconds(labeling - compiling),
@@ -267,7 +271,7 @@ describe("registry", () => {
       async () => {
         const before = process.hrtime.bigint();
         const { svg, data } = meta.trio
-          ? await renderTrio(await meta.get())
+          ? await renderTrio(key, await meta.get())
           : { svg: await meta.f(), data: {} };
         const after = process.hrtime.bigint();
         datas.set(key, {

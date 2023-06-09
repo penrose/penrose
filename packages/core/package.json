@@ -89,6 +89,7 @@
     "true-myth": "^4.1.0"
   },
   "devDependencies": {
+    "svgo": "^3.0.2",
     "@types/lodash": "^4.14.149",
     "@types/moo": "^0.5.3",
     "@types/nearley": "^2.11.1",

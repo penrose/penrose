@@ -10,6 +10,7 @@ import localforage from "localforage";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
+import { optimize } from "svgo";
 import { v4 as uuid } from "uuid";
 import {
   Diagram,
@@ -134,7 +135,12 @@ export const DownloadSVG = (
   variationStr: string
 ): void => {
   SVGaddCode(svg, dslStr, subStr, styleStr, versionStr, variationStr);
-  const blob = new Blob([svg.outerHTML], {
+  // optimize the svg output
+  const svgStr = optimize(svg.outerHTML, {
+    plugins: ["inlineStyles", "prefixIds"],
+    path: title,
+  }).data;
+  const blob = new Blob([svgStr], {
     type: "image/svg+xml;charset=utf-8",
   });
   const url = URL.createObjectURL(blob);
