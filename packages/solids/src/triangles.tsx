@@ -1,7 +1,10 @@
 import {
+  BBox,
   Num,
   add,
   addN,
+  convexPolygonMinkowskiSDF,
+  corners,
   cos,
   div,
   eq,
@@ -15,8 +18,6 @@ import {
   textBBox,
   variable,
 } from "@penrose/core";
-import { convexPolygonMinkowskiSDF } from "@penrose/core/dist/contrib/Minkowski.js";
-import { BBox, corners } from "@penrose/core/dist/engine/BBox.js";
 import { For, createEffect, createResource, createSignal, on } from "solid-js";
 import { createMutable, createStore } from "solid-js/store";
 import { bool, num, sample, signalBool, signalNum } from "./util.js";
