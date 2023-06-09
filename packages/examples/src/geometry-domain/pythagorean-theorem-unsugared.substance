@@ -1,7 +1,6 @@
 -- First construct the right triangle
 Point A, B, C
-Triangle ABC
-ABC := MkTriangle(A, B, C) 
+Let ABC := Triangle(A, B, C) 
 
 Angle CAB
 CAB := InteriorAngle(C, A, B)
@@ -10,16 +9,13 @@ Right(CAB)
 
 -- And draw the area of each side of the right triangle as a square
 Point D, E, F, G, H, I
-Square CBDE
-CBDE := MkSquare(C, B, D, E)
+Let CBDE := Square(C, B, D, E)
 
 Disjoint(CBDE, ABC)
-Square BAGF
-BAGF := MkSquare(B, A, G, F)
+Let BAGF := Square(B, A, G, F)
 
 Disjoint(BAGF, ABC)
-Square ACIH
-ACIH := MkSquare(A, C, I, H)
+Let ACIH := Square(A, C, I, H)
 
 Disjoint(ACIH, ABC)
 
@@ -30,49 +26,37 @@ AK := Altitude(ABC, CAB)
 Point K
 K := Endpoint(AK)
 
-Segment DE
-DE := MkSegment(D, E)
+Let DE := Segment(D, E)
 
 Point L
 On(L, DE)
-Segment KL
-KL := MkSegment(K, L)
+Let KL := Segment(K, L)
 
 Perpendicular(KL, DE)
 
-Rectangle BDLK
-BDLK := MkRectangle(B, D, L, K)
+Let BDLK := Rectangle(B, D, L, K)
 
-Rectangle CKLE
-CKLE := MkRectangle(C, K, L, E)
+Let CKLE := Rectangle(C, K, L, E)
 
 
 -- Drop two lines that describe the triangles used to prove area equality between BAGF~BDKL and ACIH~CKLE
-Segment CF
-CF := MkSegment(C, F)
+Let CF := Segment(C, F)
 
-Segment AD
-AD := MkSegment(A, D) 
+Let AD := Segment(A, D) 
 
 
 -- These objects are only present in the Byrne style
-Segment AB
-AB := MkSegment(A, B)
+Let AB := Segment(A, B)
 
-Segment BC
-BC := MkSegment(B, C)
+Let BC := Segment(B, C)
 
-Segment CA
-CA := MkSegment(C, A)
+Let CA := Segment(C, A)
 
-Segment AL
-AL := MkSegment(A, L)
+Let AL := Segment(A, L)
 
-Segment BF
-BF := MkSegment(B, F)
+Let BF := Segment(B, F)
 
-Segment DB
-DB := MkSegment(D, B)
+Let DB := Segment(D, B)
 
 Angle FBA
 FBA := InteriorAngle(F, B, A)
@@ -85,11 +69,9 @@ CBD := InteriorAngle(C, B, D)
 
 
 -- These are part of the proof, but not shown in the construction
-Triangle BCF
-BCF := MkTriangle(B, C, F)
+Let BCF := Triangle(B, C, F)
 
-Triangle BDA
-BDA := MkTriangle(B, D, A)
+Let BDA := Triangle(B, D, A)
 
 Angle CAB
 CAB := InteriorAngle(C, A, B)

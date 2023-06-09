@@ -303,6 +303,7 @@ const mapLine = <T, S>(f: (arg: T) => S, v: Line<T>): Line<S> => {
     ...v,
     ...mapNamed(f, v),
     ...mapStroke(f, v),
+    ...mapFill(f, v),
     ...mapArrow(f, v),
     start: mapVector(f, v.start),
     end: mapVector(f, v.end),

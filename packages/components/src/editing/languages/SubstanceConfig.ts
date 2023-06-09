@@ -37,7 +37,7 @@ export const SubstanceLanguageTokens = (
       ...domainCache.functions.keys(),
       ...domainCache.predicates.keys(),
     ],
-    control: ["AutoLabel", "Label", "NoLabel", "All"],
+    control: ["AutoLabel", "Label", "NoLabel", "All", "Let"],
   };
   return {
     ...refs,

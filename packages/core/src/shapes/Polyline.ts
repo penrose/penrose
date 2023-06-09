@@ -1,3 +1,4 @@
+import { StrV } from "src/types/value.js";
 import * as ad from "../types/ad.js";
 import {
   Fill,
@@ -15,7 +16,11 @@ export interface PolylineProps<T>
     Stroke<T>,
     Fill<T>,
     Scale<T>,
-    Poly<T> {}
+    Poly<T> {
+  // `stroke-linecap` only takes effect on <altGlyph>, <path>, <polyline>, <line>, <text>, <textPath>, <tref>, and <tspan>.
+  // https://www.w3docs.com/learn-css/stroke-linecap.html
+  strokeLinecap: StrV;
+}
 
 export const samplePolyline = (
   _context: Context,
@@ -27,6 +32,7 @@ export const samplePolyline = (
   strokeStyle: strV("solid"),
   strokeColor: black(),
   strokeDasharray: strV(""),
+  strokeLinecap: strV("butt"),
   fillColor: noPaint(),
   scale: floatV(1),
   points: ptListV([
