@@ -1,3 +1,3 @@
-#!/usr/bin/env -S npx tsx
+#!/usr/bin/env -S npx ts-node --esm --swc
 
-import "../index";
+import "../index.js";
