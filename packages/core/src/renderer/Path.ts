@@ -7,7 +7,12 @@ import {
   toSvgOpacityProperty,
   toSvgPaintProperty,
 } from "../utils/Util.js";
-import { DASH_ARRAY, attrAutoFillSvg, attrTitle } from "./AttrHelper.js";
+import {
+  attrAutoFillSvg,
+  attrFill,
+  attrStroke,
+  attrTitle,
+} from "./AttrHelper.js";
 import { arrowHead } from "./Line.js";
 import { RenderProps } from "./Renderer.js";
 
@@ -71,11 +76,8 @@ export const RenderPath = (
   const endArrowId = shape.name.contents + "-endArrowId";
   const shadowId = shape.name.contents + "-shadow";
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  const strokeWidth = shape.strokeWidth.contents;
   const strokeColor = toSvgPaintProperty(shape.strokeColor.contents);
   const strokeOpacity = toSvgOpacityProperty(shape.strokeColor.contents);
-  const fillColor = toSvgPaintProperty(shape.fillColor.contents);
-  const fillOpacity = toSvgOpacityProperty(shape.fillColor.contents);
   // Keep track of which input properties we programatically mapped
   const attrToNotAutoMap: string[] = [];
 
@@ -116,7 +118,6 @@ export const RenderPath = (
 
   attrToNotAutoMap.push(
     "name",
-    "strokeColor",
     "startArrowhead",
     "flipStartArrowhead",
     "endArrowhead"
@@ -124,30 +125,9 @@ export const RenderPath = (
   elem.appendChild(Shadow(shadowId));
 
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-  path.setAttribute("stroke", strokeColor);
-  path.setAttribute("fill", fillColor);
-  attrToNotAutoMap.push("fillColor", "strokeColor");
+  attrToNotAutoMap.push(...attrFill(shape, path));
+  attrToNotAutoMap.push(...attrStroke(shape, path));
 
-  // Stroke opacity and width only relevant if paint is present
-  if (shape.strokeColor.contents.tag !== "NONE") {
-    path.setAttribute("stroke-width", strokeWidth.toString());
-    path.setAttribute("stroke-opacity", strokeOpacity.toString());
-    attrToNotAutoMap.push("strokeColor", "strokeWidth");
-  }
-  // Fill opacity only relevant if paint is present
-  if (shape.fillColor.contents.tag !== "NONE") {
-    path.setAttribute("fill-opacity", fillOpacity.toString());
-    attrToNotAutoMap.push("fillColor");
-  }
-  // factor out an AttrHelper
-  if ("strokeDasharray" in shape && shape.strokeDasharray.contents !== "") {
-    path.setAttribute("stroke-dasharray", shape.strokeDasharray.contents);
-  } else if (shape.strokeStyle.contents === "dashed") {
-    path.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
-  }
-  attrToNotAutoMap.push("strokeDasharray", "strokeStyle");
-
-  // TODO: ded
   path.setAttribute("d", toPathString(shape.d.contents, canvasSize));
   attrToNotAutoMap.push("d");
   if (startArrowhead) {

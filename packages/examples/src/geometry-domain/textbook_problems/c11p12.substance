@@ -1,6 +1,6 @@
 -- TODO full example can sometimes throw error "2147482504"
 Point A, B, C, D, E, F, d, b
-Circle c := MkCircleR(F, C)
+Circle c := CircleR(F, C)
 Segment AC := Chord(c, A, C)
 Segment EC := Chord(c, E, C)
 Segment FB := Radius(c, B)

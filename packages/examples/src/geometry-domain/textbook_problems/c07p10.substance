@@ -1,8 +1,8 @@
 Point F, G, H, J, K, L
-Triangle FGH := MkTriangle(F, G, H)
+Let FGH := Triangle(F, G, H)
 Angle aFGH := InteriorAngle(F, G, H)
-Segment KH := MkSegment(K, H)
-Segment FL := MkSegment(F, L)
+Let KH := Segment(K, H)
+Let FL := Segment(F, L)
 Collinear(F, J, L)
 Collinear(K, J, H)
 Collinear(F, K, G)

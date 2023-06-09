@@ -1,8 +1,8 @@
 -- name in registry: circle-example
 Point P, Q, U, S, T, R
 Circle c
-Segment PR := MkSegment(P, R)
-Segment PS := MkSegment(P, S)
+Let PR := Segment(P, R)
+Let PS := Segment(P, S)
 Segment RT := Diameter(c, R, T)
 Collinear(P, Q, R)
 Collinear(P, U, S)

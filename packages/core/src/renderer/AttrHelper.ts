@@ -290,6 +290,7 @@ export const attrStroke = (
         "stroke-dasharray",
         properties.strokeDasharray.contents
       );
+      attrMapped.push("strokeDasharray");
     } else if (
       "strokeStyle" in properties &&
       properties.strokeStyle.contents === "dashed"
@@ -298,15 +299,14 @@ export const attrStroke = (
       attrMapped.push("strokeDasharray", "strokeStyle");
     }
 
+    // NOTE: some stroked properties might not contain `strokeLinecap`
     if (
       "strokeLinecap" in properties &&
       properties.strokeLinecap.contents !== ""
     ) {
       elem.setAttribute("stroke-linecap", properties.strokeLinecap.contents);
-    } else {
-      elem.setAttribute("stroke-linecap", "butt");
+      attrMapped.push("strokeLinecap");
     }
-    attrMapped.push("strokeLinecap");
   }
 
   return attrMapped; // Return array of input properties programatically mapped

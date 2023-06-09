@@ -95,7 +95,7 @@ export default defineConfig({
   description:
     "Create beautiful diagrams just by typing math notation in plain text.",
 
-  cleanUrls: "without-subfolders",
+  cleanUrls: true,
   ignoreDeadLinks: true,
   outDir: "build",
 
@@ -127,6 +127,11 @@ export default defineConfig({
     logo: "img/favicon.ico",
     outline: "deep",
     nav: [
+      {
+        text: "Examples",
+        link: "/examples",
+        activeMatch: "/examples",
+      },
       {
         text: "Learn Penrose",
         link: "/docs/tutorial/welcome",
