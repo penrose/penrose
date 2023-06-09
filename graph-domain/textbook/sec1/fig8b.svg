@@ -29,10 +29,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 247.74508314771592 300.1276824706892 Q 279.9341731842985 252.6388404602886 312.1389788031796 205.16065464909633"
     />
     <title>`e5`.arrow</title>
@@ -53,7 +54,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 187.76454224369047, 170.76361723520327)"
     style="font: 18px serif"
     x="187.76454224369047"
@@ -92,10 +92,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 312.1389788031796 205.16065464909633 Q 301.7987248940403 148.72140071096342 257.05835783310374 112.79634272560745"
     />
     <title>`e9m1`.arrow</title>
@@ -120,10 +121,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 312.1389788031796 205.16065464909633 Q 284.6210576174904 158.96514703144138 257.05835783310374 112.79634272560745"
     />
     <title>`e9m2`.arrow</title>
@@ -148,10 +150,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 105.83138588344087 73.66994812663889 Q 181.44702277344976 93.22483194892864 257.05835783310374 112.79634272560745"
     />
     <title>`e7`.arrow</title>
@@ -176,10 +179,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 168.68863273035805 176.74377587629272 Q 207.0174994669352 136.6775884251151 257.05835783310374 112.79634272560745"
     />
     <title>`e3m1`.arrow</title>
@@ -204,10 +208,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 257.05835783310374 112.79634272560745 Q 267.4435219856417 169.20881484679398 312.1389788031796 205.16065464909633"
     />
     <title>`e10`.arrow</title>
@@ -232,10 +237,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 168.68863273035805 176.74377587629272 Q 218.74425012619724 152.8829258569636 257.05835783310374 112.79634272560745"
     />
     <title>`e3m2`.arrow</title>
@@ -256,7 +262,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 312.821459270918, 95.61506707909697)"
     style="font: 18px serif"
     x="312.821459270918"
@@ -295,10 +300,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 172.72026654410533 87.03551995184347 Q 125.06231597842554 121.4614409830351 77.36513431533282 155.8329866620492"
     />
     <title>`e8m2`.arrow</title>
@@ -323,10 +329,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 172.72026654410533 87.03551995184347 Q 113.36034528843916 105.24219606256273 77.36513431533282 155.8329866620492"
     />
     <title>`e8m1`.arrow</title>
@@ -351,10 +358,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 168.68863273035805 176.74377587629272 Q 123.03119641076724 166.26954563321019 77.36513431533282 155.8329866620492"
     />
     <title>`e1`.arrow</title>
@@ -379,10 +387,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 77.36513431533282 155.8329866620492 Q 136.76427989115365 137.68067651004594 172.72026654410533 87.03551995184347"
     />
     <title>`e4m2`.arrow</title>
@@ -407,10 +416,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 77.36513431533282 155.8329866620492 Q 148.4662590312946 153.89993314265897 172.72026654410533 87.03551995184347"
     />
     <title>`e4m3`.arrow</title>
@@ -435,10 +445,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 77.36513431533282 155.8329866620492 Q 101.6583668675731 89.02294042688396 172.72026654410533 87.03551995184347"
     />
     <title>`e4m1`.arrow</title>
@@ -459,7 +470,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 123.2905686713686, 208.76355933970683)"
     style="font: 18px serif"
     x="123.2905686713686"
@@ -498,10 +508,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 105.83138588344087 73.66994812663889 Q 128.74807005107186 130.39767599014408 168.68863273035805 176.74377587629272"
     />
     <title>`e6m1`.arrow</title>
@@ -526,10 +537,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 168.68863273035805 176.74377587629272 Q 111.67269986420409 140.81070500314726 105.83138588344087 73.66994812663889"
     />
     <title>`e2m1`.arrow</title>
@@ -554,10 +566,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 105.83138588344087 73.66994812663889 Q 145.82345863810517 119.98463575621538 168.68863273035805 176.74377587629272"
     />
     <title>`e6m2`.arrow</title>
@@ -582,10 +595,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 168.68863273035805 176.74377587629272 Q 162.89887213632193 109.57158033076382 105.83138588344087 73.66994812663889"
     />
     <title>`e2m2`.arrow</title>
@@ -606,7 +620,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 168.55425040303197, 189.76358381238208)"
     style="font: 18px serif"
     x="168.55425040303197"
@@ -641,7 +654,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 337.38330096696075, 132.76365690960023)"
     style="font: 18px serif"
     x="337.38330096696075"
@@ -676,7 +688,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 231.4636814754113, 151.76364011083703)"
     style="font: 18px serif"
     x="231.4636814754113"
@@ -711,7 +722,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 100.2298363591807, 151.7636279884848)"
     style="font: 18px serif"
     x="100.2298363591807"

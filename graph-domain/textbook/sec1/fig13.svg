@@ -29,9 +29,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 74.99216337717728 171.60760311867642 L 80.5593315429847 160.24949562665188 L 82.92046150555349 172.67628251975597 Z "
     />
     <title>`Arc_team5_team2`.pointer</title>
@@ -56,10 +56,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 71.7497580924416 225.610363549035 Q 78.26225588134648 177.28642191615938 84.77717600644903 128.96280679734207"
     />
     <title>`Arc_team5_team2`.arrow</title>
@@ -84,9 +85,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 123.03089884935838 245.8279589294296 L 132.11259537431982 254.63265968610025 L 119.56441770034829 253.0379169957406 Z "
     />
     <title>`Arc_team5_team3`.pointer</title>
@@ -111,10 +112,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 71.7497580924416 225.610363549035 Q 115.69386219352565 246.73908694399645 159.63859472398613 267.86650326436063"
     />
     <title>`Arc_team5_team3`.arrow</title>
@@ -139,9 +141,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 139.9565365176249 148.38906602544145 L 151.13669774703908 142.47265033646843 L 145.74241817689156 153.91387962529535 Z "
     />
     <title>`Arc_team5_team6`.pointer</title>
@@ -166,10 +168,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 71.7497580924416 225.610363549035 Q 126.2367868211745 168.54973055912905 180.72270555899823 111.48803766284549"
     />
     <title>`Arc_team5_team6`.arrow</title>
@@ -194,9 +197,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 154.90034709385208 214.5324269341829 L 142.37784403791696 212.74723872723501 L 153.46695940683378 206.66188745923225 Z "
     />
     <title>`Arc_team1_team5`.pointer</title>
@@ -221,10 +224,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 226.9882146717173 197.33823647049647 Q 149.36888322611406 211.47373359420007 71.7497580924416 225.610363549035"
     />
     <title>`Arc_team1_team5`.arrow</title>
@@ -249,9 +253,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 110.4404915235574 200.2153908623068 L 122.90143859892119 198.04173969099136 L 114.23687164141941 207.257228873262 Z "
     />
     <title>`Arc_team5_team4`.pointer</title>
@@ -276,10 +280,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 71.7497580924416 225.610363549035 Q 108.27075768044588 205.93755688245673 144.77812838469947 186.2394702416233"
     />
     <title>`Arc_team5_team4`.arrow</title>
@@ -300,7 +305,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 39.359289416597164, 167.50880699254418)"
     style="font: 18px serif"
     x="39.359289416597164"
@@ -339,9 +343,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 172.57987938083073 201.82029671593716 L 167.0123270585499 213.1782164576411 L 164.65161707135218 200.75134927090943 Z "
     />
     <title>`Arc_team6_team3`.pointer</title>
@@ -366,10 +370,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 180.72270555899823 111.48803766284549 Q 170.18114062680203 189.67733659449004 159.63859472398613 267.86650326436063"
     />
     <title>`Arc_team6_team3`.arrow</title>
@@ -394,9 +399,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 163.80042669705486 155.895726893475 L 154.99525444662024 164.97696596422776 L 156.5906488045163 152.42887135736478 Z "
     />
     <title>`Arc_team6_team4`.pointer</title>
@@ -421,10 +426,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 180.72270555899823 111.48803766284549 Q 162.7389667019422 148.8582480362121 144.77812838469947 186.2394702416233"
     />
     <title>`Arc_team6_team4`.arrow</title>
@@ -449,9 +455,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 130.67869286287333 124.66811736409412 L 118.156170346466 122.88306918166063 L 129.24521726905195 116.79759421776302 Z "
     />
     <title>`Arc_team6_team2`.pointer</title>
@@ -476,10 +482,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 180.72270555899823 111.48803766284549 Q 132.74981795645652 120.22474785029802 84.77717600644903 128.96280679734207"
     />
     <title>`Arc_team6_team2`.arrow</title>
@@ -504,9 +511,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 198.01157639786163 152.0008575087145 L 195.8399339432894 139.53955997447815 L 205.05402642748896 148.20561252912387 Z "
     />
     <title>`Arc_team1_team6`.pointer</title>
@@ -531,10 +538,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 226.9882146717173 197.33823647049647 Q 203.85544388685074 154.41314581237162 180.72270555899823 111.48803766284549"
     />
     <title>`Arc_team1_team6`.arrow</title>
@@ -555,7 +563,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 223.5778773560171, 103.57993801892022)"
     style="font: 18px serif"
     x="223.5778773560171"
@@ -594,9 +601,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 133.0274285585943 156.59981763949236 L 123.94581604554268 147.79502951692658 L 136.49397892952345 149.38989250714823 Z "
     />
     <title>`Arc_team1_team2`.pointer</title>
@@ -621,10 +628,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 226.9882146717173 197.33823647049647 Q 155.88281967694584 163.1502630290859 84.77717600644903 128.96280679734207"
     />
     <title>`Arc_team1_team2`.arrow</title>
@@ -649,9 +657,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 121.88843225746851 158.85889495865416 L 127.80649998648371 170.03818097241273 L 116.36447419501641 164.645592798815 Z "
     />
     <title>`Arc_team2_team4`.pointer</title>
@@ -676,10 +684,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 84.77717600644903 128.96280679734207 Q 114.77789423108261 157.60088497187468 144.77812838469947 186.2394702416233"
     />
     <title>`Arc_team2_team4`.arrow</title>
@@ -704,9 +713,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 131.05695790962807 206.4030067426352 L 133.22893848916024 218.8642458496557 L 124.01461056132219 210.1984429117586 Z "
     />
     <title>`Arc_team2_team3`.pointer</title>
@@ -731,10 +740,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 84.77717600644903 128.96280679734207 Q 122.20765816266162 198.4147774804773 159.63859472398613 267.86650326436063"
     />
     <title>`Arc_team2_team3`.arrow</title>
@@ -755,7 +765,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 51.17869049056125, 186.5090397041238)"
     style="font: 18px serif"
     x="51.17869049056125"
@@ -794,9 +803,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 157.41216983553056 233.30565024842753 L 155.62616487767866 245.82803611222266 L 149.54153732568312 234.73852444647542 Z "
     />
     <title>`Arc_team4_team3`.pointer</title>
@@ -821,10 +830,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 144.77812838469947 186.2394702416233 Q 152.2078672182412 227.053076748484 159.63859472398613 267.86650326436063"
     />
     <title>`Arc_team4_team3`.arrow</title>
@@ -849,9 +859,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 192.01291708435176 239.7558906631213 L 180.8325939839607 245.67199939751626 L 186.22718722363658 234.23091854976568 Z "
     />
     <title>`Arc_team1_team3`.pointer</title>
@@ -876,10 +886,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 226.9882146717173 197.33823647049647 Q 193.31317678567092 232.60215222704895 159.63859472398613 267.86650326436063"
     />
     <title>`Arc_team1_team3`.arrow</title>
@@ -900,7 +911,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 116.88289736373503, 276.5267469730028)"
     style="font: 18px serif"
     x="116.88289736373503"
@@ -939,9 +949,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 178.72132238788268 194.8584365790892 L 167.36437384694295 189.28890506703718 L 179.79165158692595 186.93036115211495 Z "
     />
     <title>`Arc_team1_team4`.pointer</title>
@@ -966,10 +976,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 226.9882146717173 197.33823647049647 Q 185.88312365469554 191.78920796174683 144.77812838469947 186.2394702416233"
     />
     <title>`Arc_team1_team4`.arrow</title>
@@ -990,7 +1001,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 119.7100402350131, 204.37217909782868)"
     style="font: 18px serif"
     x="119.7100402350131"
@@ -1025,7 +1035,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 262.81160942009694, 213.53698625650833)"
     style="font: 18px serif"
     x="262.81160942009694"

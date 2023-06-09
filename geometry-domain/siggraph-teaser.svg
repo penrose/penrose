@@ -15,7 +15,6 @@
     stroke="#8e93c4"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 400, 350)"
   >
@@ -38,12 +37,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 425.3149563453838 353.8560201522948 L 339.0871444653964 323.64685426358153"
+    <line
+      x1="425.3149563453838"
+      y1="353.8560201522948"
+      x2="339.0871444653964"
+      y2="323.64685426358153"
+      stroke="#8c90c1"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#8c90c1"
-      stroke-linecap="butt"
       marker-start="url(#siggraph-teaser__registry-StromboliCat61816-`h`.icon-startArrowId)"
     />
     <title>`h`.icon</title>
@@ -111,12 +112,14 @@
     </svg>
   </g>
   <g>
-    <path
-      d="M 414.83390594971274 107.43838715167203 L 353.16925396965286 478.1396784995617"
+    <line
+      x1="414.83390594971274"
+      y1="107.43838715167203"
+      x2="353.16925396965286"
+      y2="478.1396784995617"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`b`.icon</title>
   </g>
@@ -137,12 +140,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 414.83390594971274 107.43838715167203 L 392.1492791808236 195.94336149691344"
+    <line
+      x1="414.83390594971274"
+      y1="107.43838715167203"
+      x2="392.1492791808236"
+      y2="195.94336149691344"
+      stroke="#8c90c1"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#8c90c1"
-      stroke-linecap="butt"
       marker-end="url(#siggraph-teaser__registry-StromboliCat61816-`w`.icon-endArrowId)"
     />
     <title>`w`.icon</title>
@@ -167,61 +172,72 @@
       </feMerge>
     </filter>
     <path
-      stroke="#8c90c1"
       fill="none"
-      stroke-width="2"
+      stroke="#8c90c1"
       stroke-opacity="1"
+      stroke-width="2"
+      stroke-linecap="butt"
       d="M 404.91478459203176 135.751122664269 A 30 30 0 0 0 409.9111717728206 137.031741816617"
     />
     <title>`theta`.mark</title>
   </g>
   <g>
-    <path
-      d="M 263.3403829810801 539.855321375491 L 414.83390594971274 107.43838715167203"
+    <line
+      x1="263.3403829810801"
+      y1="539.855321375491"
+      x2="414.83390594971274"
+      y2="107.43838715167203"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`theta`.side1</title>
   </g>
   <g>
-    <path
-      d="M 414.83390594971274 107.43838715167203 L 353.16925396965286 478.1396784995617"
+    <line
+      x1="414.83390594971274"
+      y1="107.43838715167203"
+      x2="353.16925396965286"
+      y2="478.1396784995617"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`theta`.side2</title>
   </g>
   <g>
-    <path
-      d="M 414.83390594971274 107.43838715167203 L 263.3403829810801 539.855321375491"
+    <line
+      x1="414.83390594971274"
+      y1="107.43838715167203"
+      x2="263.3403829810801"
+      y2="539.855321375491"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`a`.icon</title>
   </g>
   <g>
-    <path
-      d="M 414.83390594971274 107.43838715167203 L 353.16925396965286 478.1396784995617"
+    <line
+      x1="414.83390594971274"
+      y1="107.43838715167203"
+      x2="353.16925396965286"
+      y2="478.1396784995617"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="0"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`t`.PQ</title>
   </g>
   <g>
-    <path
-      d="M 653.635237604984 295.947014324066 L 414.83390594971274 107.43838715167203"
+    <line
+      x1="653.635237604984"
+      y1="295.947014324066"
+      x2="414.83390594971274"
+      y2="107.43838715167203"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="0"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`t`.RP</title>
   </g>
@@ -233,18 +249,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`p`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 353.16925396965286 478.1396784995617 L 653.635237604984 295.947014324066"
+    <line
+      x1="353.16925396965286"
+      y1="478.1396784995617"
+      x2="653.635237604984"
+      y2="295.947014324066"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="0"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`t`.QR</title>
   </g>
@@ -256,7 +273,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`r`.icon</title>
@@ -380,11 +396,12 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="#1b1f8a"
-      stroke-width="0"
-      stroke-opacity="1"
       fill-opacity="0.2"
+      stroke="#000000"
+      stroke-opacity="1"
+      stroke-width="0"
+      stroke-linecap="butt"
       d="M 414.83390594971274 107.43838715167203 L 653.635237604984 295.947014324066 L 353.16925396965286 478.1396784995617 Z "
     />
     <title>`t`.icon</title>
@@ -397,7 +414,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`s`.icon</title>
@@ -410,7 +426,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`q`.icon</title>
@@ -454,7 +469,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`m`.icon</title>
@@ -479,10 +493,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="2"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="2"
+      stroke-linecap="butt"
       d="M 348.52472223975445 326.95322776833916 L 345.2183487349968 336.39080554269714 L 335.780770751665 333.0844325618036"
     />
     <title>`h`.mark</title>

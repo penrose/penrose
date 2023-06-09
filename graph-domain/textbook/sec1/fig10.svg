@@ -29,9 +29,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 189.95129584401454 140.3165235217897 L 187.21754494685538 152.66668809986606 L 181.99444691773687 141.14630589910948 Z "
     />
     <title>`Arc_s4_s5`.pointer</title>
@@ -56,10 +56,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 182.53906969708825 107.81213317063558 Q 186.59562873680022 146.6953695848302 190.64900426782987 185.57893799218274"
     />
     <title>`Arc_s4_s5`.arrow</title>
@@ -84,9 +85,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 248.41473137570523 175.79632969746808 L 235.81200573041818 174.71407473442486 L 246.54353922447376 168.0182433176872 Z "
     />
     <title>`Arc_s2_s5`.pointer</title>
@@ -111,10 +112,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 292.64133347936945 161.0424084927731 Q 241.64521617614767 173.3108698675569 190.64900426782987 185.57893799218274"
     />
     <title>`Arc_s2_s5`.arrow</title>
@@ -135,7 +137,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 171.24625654030947, 176.29695984207186)"
     style="font: 18px serif"
     x="171.24625654030947"
@@ -174,9 +175,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 203.15197036170647 176.39151343637664 L 202.06965815419406 188.9942345567947 L 195.37387524795315 178.26267033595278 Z "
     />
     <title>`Arc_s4_s6`.pointer</title>
@@ -201,10 +202,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 182.53906969708825 107.81213317063558 Q 200.666318536903 183.15739931395606 218.79049234718522 258.5034052094449"
     />
     <title>`Arc_s4_s6`.arrow</title>
@@ -229,9 +231,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 163.14989583200855 289.1608982682671 L 175.4217005798759 286.09450293223165 L 167.44409398320332 295.9107020497804 Z "
     />
     <title>`Arc_s3_s6`.pointer</title>
@@ -256,10 +258,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 121.92662808966108 320.12780797378446 Q 170.35860186123443 289.31567204756135 218.79049234718522 258.5034052094449"
     />
     <title>`Arc_s3_s6`.arrow</title>
@@ -284,9 +287,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 262.5275060054306 207.4057282912171 L 252.09206530509832 214.5542631915008 L 256.1512969251939 202.57417085107446 Z "
     />
     <title>`Arc_s2_s6`.pointer</title>
@@ -311,10 +314,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 292.64133347936945 161.0424084927731 Q 255.71491419467915 209.7721500744392 218.79049234718522 258.5034052094449"
     />
     <title>`Arc_s2_s6`.arrow</title>
@@ -339,9 +343,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 154.82124859307984 227.06808843516035 L 164.31144950139984 235.43086681121895 L 151.70162174910865 234.43476465536406 Z "
     />
     <title>`Arc_s1_s6`.pointer</title>
@@ -366,10 +370,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 98.77613472926588 207.67994012216516 Q 158.7846428370068 233.08853366418367 218.79049234718522 258.5034052094449"
     />
     <title>`Arc_s1_s6`.arrow</title>
@@ -390,7 +395,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 236.5780064236207, 271.33900906121175)"
     style="font: 18px serif"
     x="236.5780064236207"
@@ -429,9 +433,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 241.24897722831892 140.63880844938012 L 232.18638642331854 131.81444321811256 L 244.7310782060794 133.43638092012637 Z "
     />
     <title>`Arc_s2_s4`.pointer</title>
@@ -456,10 +460,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 292.64133347936945 161.0424084927731 Q 237.59042699597413 134.42680459509597 182.53906969708825 107.81213317063558"
     />
     <title>`Arc_s2_s4`.arrow</title>
@@ -480,7 +485,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 272.6970091400055, 152.9386843562237)"
     style="font: 18px serif"
     x="272.6970091400055"
@@ -519,9 +523,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 113.06010784246378 257.2257909022649 L 111.56205717108388 269.78587913097283 L 105.22444477096305 258.83897814517854 Z "
     />
     <title>`Arc_s1_s3`.pointer</title>
@@ -546,10 +550,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 98.77613472926588 207.67994012216516 Q 110.35081131449347 263.9039914177398 121.92662808966108 320.12780797378446"
     />
     <title>`Arc_s1_s3`.arrow</title>
@@ -570,7 +575,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 134.6122111457637, 303.00026248813697)"
     style="font: 18px serif"
     x="134.6122111457637"
@@ -609,9 +613,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 133.73776556640337 159.76751974299475 L 144.51398858704493 153.14385060428037 L 139.86721165376028 164.90851972763684 Z "
     />
     <title>`Arc_s1_s4`.pointer</title>
@@ -636,10 +640,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 98.77613472926588 207.67994012216516 Q 140.65332577437056 157.74244983422759 182.53906969708825 107.81213317063558"
     />
     <title>`Arc_s1_s4`.arrow</title>
@@ -660,7 +665,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 162.87483789344168, 103.70679294673768)"
     style="font: 18px serif"
     x="162.87483789344168"
@@ -695,7 +699,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 114.82576700682537, 222.56230727225818)"
     style="font: 18px serif"
     x="114.82576700682537"

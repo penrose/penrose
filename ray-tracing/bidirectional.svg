@@ -10,12 +10,14 @@
     </croppedViewBox>
   </penrose>
   <g>
-    <path
-      d="M 17.875638420984046 42.35057877216613 L 17.875638420984046 42.35057877216613"
+    <line
+      x1="17.875638420984046"
+      y1="42.35057877216613"
+      x2="17.875638420984046"
+      y2="42.35057877216613"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`rxy`.icon</title>
   </g>
@@ -25,20 +27,21 @@
     stroke="#aaaaaa"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     transform="scale(1)"
     points="23,24.700000000000003,9.5,71.2,30.799999999999997,193.1,224.7,184.1,224.7,24.700000000000003,163.8,4.299999999999997,122.9,81.4,148.5,118.4,115.1,144.8,78.8,93.1,124.4,57.7,83.9,9.099999999999994"
   >
     <title>`S`.geometry</title>
   </polygon>
   <g fill="none">
-    <path
-      d="M 17.875638420984046 42.35057877216613 L 83.1330203634027 89.73620787577948"
+    <line
+      x1="17.875638420984046"
+      y1="42.35057877216613"
+      x2="83.1330203634027"
+      y2="89.73620787577948"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="0.65"
-      stroke="#000000"
       stroke-dasharray="4,3"
-      stroke-linecap="butt"
     />
     <title>`rxy`.rayLine</title>
   </g>
@@ -59,23 +62,27 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 115.79897235116995 166.24314021141754 L 110.36164529889992 156.44581917316162"
+    <line
+      x1="115.79897235116995"
+      y1="166.24314021141754"
+      x2="110.36164529889992"
+      y2="156.44581917316162"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#bidirectional__registry-SunflowerDolphin187-`s0`.icon-endArrowId)"
     />
     <title>`s0`.icon</title>
   </g>
   <g fill="none">
-    <path
-      d="M 115.79897235116995 166.24314021141754 L 35.47214558074984 21.505164678822695"
+    <line
+      x1="115.79897235116995"
+      y1="166.24314021141754"
+      x2="35.47214558074984"
+      y2="21.505164678822695"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="0.65"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`s0`.rayLine</title>
   </g>
@@ -96,23 +103,27 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 110.1749100742402 189.41575971806003 L 104.21848438643525 179.92508004229143"
+    <line
+      x1="110.1749100742402"
+      y1="189.41575971806003"
+      x2="104.21848438643525"
+      y2="179.92508004229143"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#bidirectional__registry-SunflowerDolphin187-`r1`.icon-endArrowId)"
     />
     <title>`r1`.icon</title>
   </g>
   <g fill="none">
-    <path
-      d="M 110.1749100742402 189.41575971806003 L 17.875638420984046 42.35057877216613"
+    <line
+      x1="110.1749100742402"
+      y1="189.41575971806003"
+      x2="17.875638420984046"
+      y2="42.35057877216613"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="0.65"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`r1`.rayLine</title>
   </g>
@@ -143,23 +154,27 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 92.91563852774347 150.28369821239644 L 97.4373583008259 160.535823616122"
+    <line
+      x1="92.91563852774347"
+      y1="150.28369821239644"
+      x2="97.4373583008259"
+      y2="160.535823616122"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#bidirectional__registry-SunflowerDolphin187-`r0`.icon-endArrowId)"
     />
     <title>`r0`.icon</title>
   </g>
   <g fill="none">
-    <path
-      d="M 92.91563852774347 150.28369821239644 L 110.1749100742402 189.41575971806003"
+    <line
+      x1="92.91563852774347"
+      y1="150.28369821239644"
+      x2="110.1749100742402"
+      y2="189.41575971806003"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="0.65"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`r0`.rayLine</title>
   </g>
@@ -180,23 +195,27 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 35.47214558074984 21.505164678822695 L 41.88867382759547 30.69103082126216"
+    <line
+      x1="35.47214558074984"
+      y1="21.505164678822695"
+      x2="41.88867382759547"
+      y2="30.69103082126216"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#bidirectional__registry-SunflowerDolphin187-`s1`.icon-endArrowId)"
     />
     <title>`s1`.icon</title>
   </g>
   <g fill="none">
-    <path
-      d="M 35.47214558074984 21.505164678822695 L 83.1330203634027 89.73620787577948"
+    <line
+      x1="35.47214558074984"
+      y1="21.505164678822695"
+      x2="83.1330203634027"
+      y2="89.73620787577948"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="0.65"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`s1`.rayLine</title>
   </g>
@@ -237,7 +256,6 @@
       stroke="#666666"
       stroke-opacity="1"
       stroke-width="1"
-      stroke-linecap="butt"
       rx="2"
       transform="rotate(0, 92.91563852774347, 150.28369821239644)"
     >
@@ -251,7 +269,6 @@
       stroke="#666666"
       stroke-opacity="1"
       stroke-width="0.8"
-      stroke-linecap="butt"
       r="1.155"
     >
       <title>10:0:flash</title>
@@ -264,7 +281,6 @@
       stroke="#666666"
       stroke-opacity="1"
       stroke-width="1"
-      stroke-linecap="butt"
       r="6.2700000000000005"
     >
       <title>10:0:outerLens</title>
@@ -277,7 +293,6 @@
       stroke="#666666"
       stroke-opacity="1"
       stroke-width="1"
-      stroke-linecap="butt"
       r="4.125"
     >
       <title>`C`.innerLens</title>
@@ -301,12 +316,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 83.1330203634027 89.73620787577948 L 76.26188285490102 80.88525108516717"
+    <line
+      x1="83.1330203634027"
+      y1="89.73620787577948"
+      x2="76.26188285490102"
+      y2="80.88525108516717"
+      stroke="#55aa55"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#55aa55"
-      stroke-linecap="butt"
       marker-end="url(#bidirectional__registry-SunflowerDolphin187-16:3:normalArrow-endArrowId)"
     />
     <title>16:3:normalArrow</title>
@@ -623,12 +640,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 110.1749100742402 189.41575971806003 L 109.65538177477758 178.22281113297095"
+    <line
+      x1="110.1749100742402"
+      y1="189.41575971806003"
+      x2="109.65538177477758"
+      y2="178.22281113297095"
+      stroke="#55aa55"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#55aa55"
-      stroke-linecap="butt"
       marker-end="url(#bidirectional__registry-SunflowerDolphin187-16:0:normalArrow-endArrowId)"
     />
     <title>16:0:normalArrow</title>
@@ -692,7 +711,6 @@
     stroke="#ffffff"
     stroke-opacity="0"
     stroke-width="2"
-    stroke-linecap="butt"
     transform="rotate(0, 83.1330203634027, 89.73620787577948)"
     style="font: 18px sans-serif"
     x="83.1330203634027"
@@ -728,12 +746,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 17.875638420984046 42.35057877216613 L 28.63631491671103 45.474646141893324"
+    <line
+      x1="17.875638420984046"
+      y1="42.35057877216613"
+      x2="28.63631491671103"
+      y2="45.474646141893324"
+      stroke="#55aa55"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#55aa55"
-      stroke-linecap="butt"
       marker-end="url(#bidirectional__registry-SunflowerDolphin187-16:1:normalArrow-endArrowId)"
     />
     <title>16:1:normalArrow</title>
@@ -808,12 +828,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 35.47214558074984 21.505164678822695 L 38.25261778660014 32.35970040550754"
+    <line
+      x1="35.47214558074984"
+      y1="21.505164678822695"
+      x2="38.25261778660014"
+      y2="32.35970040550754"
+      stroke="#55aa55"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#55aa55"
-      stroke-linecap="butt"
       marker-end="url(#bidirectional__registry-SunflowerDolphin187-16:2:normalArrow-endArrowId)"
     />
     <title>16:2:normalArrow</title>

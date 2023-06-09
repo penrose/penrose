@@ -39,11 +39,12 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="#ffffff"
-      stroke-width="1"
-      stroke-opacity="1"
       fill-opacity="1"
+      stroke="#000000"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 400 350 L 397.58816992717755 369.85404060023603 L 417.4422058477174 372.2659255136348 L 419.8540359205399 352.41188491339875 Z "
     />
     <title>6:0:perpMark</title>
@@ -65,13 +66,15 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 400 350 L 395.38350365494534 388.00272121090836"
+    <line
+      x1="400"
+      y1="350"
+      x2="395.38350365494534"
+      y2="388.00272121090836"
+      stroke="#1a1ae6"
       stroke-opacity="1"
       stroke-width="3"
-      stroke="#1a1ae6"
       stroke-dasharray="4 1 2"
-      stroke-linecap="butt"
       marker-end="url(#two-vectors-perp__registry--`u`.arrow-endArrowId)"
     />
     <title>`u`.arrow</title>
@@ -109,12 +112,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 235.626 350 L 564.374 350"
+    <line
+      x1="235.626"
+      y1="350"
+      x2="564.374"
+      y2="350"
+      stroke="#999999"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#999999"
-      stroke-linecap="butt"
       marker-start="url(#two-vectors-perp__registry--`V`.xAxis-startArrowId)"
       marker-end="url(#two-vectors-perp__registry--`V`.xAxis-endArrowId)"
     />
@@ -153,12 +158,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 400 514.374 L 400 185.626"
+    <line
+      x1="400"
+      y1="514.374"
+      x2="400"
+      y2="185.626"
+      stroke="#999999"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#999999"
-      stroke-linecap="butt"
       marker-start="url(#two-vectors-perp__registry--`V`.yAxis-startArrowId)"
       marker-end="url(#two-vectors-perp__registry--`V`.yAxis-endArrowId)"
     />
@@ -212,13 +219,15 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 400 350 L 499.5567257552028 362.09423443361135"
+    <line
+      x1="400"
+      y1="350"
+      x2="499.5567257552028"
+      y2="362.09423443361135"
+      stroke="#1a1ae6"
       stroke-opacity="1"
       stroke-width="3"
-      stroke="#1a1ae6"
       stroke-dasharray="4 1 2"
-      stroke-linecap="butt"
       marker-end="url(#two-vectors-perp__registry--`v`.arrow-endArrowId)"
     />
     <title>`v`.arrow</title>

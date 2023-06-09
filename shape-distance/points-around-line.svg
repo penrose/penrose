@@ -10,12 +10,14 @@
     </croppedViewBox>
   </penrose>
   <g>
-    <path
-      d="M 200 450 L 650 250"
+    <line
+      x1="200"
+      y1="450"
+      x2="650"
+      y2="250"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="8"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`g`.icon</title>
   </g>

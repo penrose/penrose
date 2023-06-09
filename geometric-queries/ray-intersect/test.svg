@@ -10,13 +10,15 @@
     </croppedViewBox>
   </penrose>
   <g>
-    <path
-      d="M 10 265.92617934707187 L 1017.9415774543994 -71.79227589280015"
+    <line
+      x1="10"
+      y1="265.92617934707187"
+      x2="1017.9415774543994"
+      y2="-71.79227589280015"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.5"
-      stroke="#000000"
       stroke-dasharray="8,6"
-      stroke-linecap="butt"
     />
     <title>`r4`.line</title>
   </g>
@@ -37,12 +39,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 265.92617934707187 L 70.31921336783387 245.71577031590888"
+    <line
+      x1="10"
+      y1="265.92617934707187"
+      x2="70.31921336783387"
+      y2="245.71577031590888"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-`r4`.arrow-endArrowId)"
     />
     <title>`r4`.arrow</title>
@@ -75,12 +79,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 265.92617934707187 L NaN NaN"
+    <line
+      x1="10"
+      y1="265.92617934707187"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-10:9:intersectNormal-endArrowId)"
     />
     <title>10:9:intersectNormal</title>
@@ -93,7 +99,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>10:9:intersectDot</title>
@@ -124,12 +129,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 631.6558302552786 57.635687734554836 L 609.9173002192758 52.191029301391666"
+    <line
+      x1="631.6558302552786"
+      y1="57.635687734554836"
+      x2="609.9173002192758"
+      y2="52.191029301391666"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:54:intersectNormal-endArrowId)"
     />
     <title>9:54:intersectNormal</title>
@@ -142,7 +149,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="4.999999470239542"
   >
     <title>9:54:intersectDot</title>
@@ -175,12 +181,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 265.92617934707187 L NaN NaN"
+    <line
+      x1="10"
+      y1="265.92617934707187"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-10:11:intersectNormal-endArrowId)"
     />
     <title>10:11:intersectNormal</title>
@@ -193,7 +201,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>10:11:intersectDot</title>
@@ -224,12 +231,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 265.92617934707187 L NaN NaN"
+    <line
+      x1="10"
+      y1="265.92617934707187"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:56:intersectNormal-endArrowId)"
     />
     <title>9:56:intersectNormal</title>
@@ -242,7 +251,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:56:intersectDot</title>
@@ -307,12 +315,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 265.92617934707187 L NaN NaN"
+    <line
+      x1="10"
+      y1="265.92617934707187"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:65:intersectNormal-endArrowId)"
     />
     <title>9:65:intersectNormal</title>
@@ -325,7 +335,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:65:intersectDot</title>
@@ -359,12 +368,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 265.92617934707187 L NaN NaN"
+    <line
+      x1="10"
+      y1="265.92617934707187"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-11:3:intersectNormal-endArrowId)"
     />
     <title>11:3:intersectNormal</title>
@@ -377,7 +388,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>11:3:intersectDot</title>
@@ -409,12 +419,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 265.92617934707187 L NaN NaN"
+    <line
+      x1="10"
+      y1="265.92617934707187"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:53:intersectNormal-endArrowId)"
     />
     <title>9:53:intersectNormal</title>
@@ -427,7 +439,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:53:intersectDot</title>
@@ -462,12 +473,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 265.92617934707187 L NaN NaN"
+    <line
+      x1="10"
+      y1="265.92617934707187"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:59:intersectNormal-endArrowId)"
     />
     <title>9:59:intersectNormal</title>
@@ -480,7 +493,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:59:intersectDot</title>
@@ -545,12 +557,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 271.6092198678342 178.27202995340815 L 264.94265002845907 199.6674651219568"
+    <line
+      x1="271.6092198678342"
+      y1="178.27202995340815"
+      x2="264.94265002845907"
+      y2="199.6674651219568"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:66:intersectNormal-endArrowId)"
     />
     <title>9:66:intersectNormal</title>
@@ -563,18 +577,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="4.999998503980673"
   >
     <title>9:66:intersectDot</title>
   </circle>
   <g>
-    <path
-      d="M 345.00617539606907 32.723399496619436 L 352.4875062222913 409.13502874587755"
+    <line
+      x1="345.00617539606907"
+      y1="32.723399496619436"
+      x2="352.4875062222913"
+      y2="409.13502874587755"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="5"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`L2`.icon</title>
   </g>
@@ -595,12 +610,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 347.3943287700485 152.87965555282028 L 324.9887543814103 153.3249752542526"
+    <line
+      x1="347.3943287700485"
+      y1="152.87965555282028"
+      x2="324.9887543814103"
+      y2="153.3249752542526"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:61:intersectNormal-endArrowId)"
     />
     <title>9:61:intersectNormal</title>
@@ -613,7 +630,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="4.99999986719293"
   >
     <title>9:61:intersectDot</title>
@@ -646,12 +662,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 265.92617934707187 L NaN NaN"
+    <line
+      x1="10"
+      y1="265.92617934707187"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-10:10:intersectNormal-endArrowId)"
     />
     <title>10:10:intersectNormal</title>
@@ -664,7 +682,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>10:10:intersectDot</title>
@@ -699,12 +716,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 265.92617934707187 L NaN NaN"
+    <line
+      x1="10"
+      y1="265.92617934707187"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:57:intersectNormal-endArrowId)"
     />
     <title>9:57:intersectNormal</title>
@@ -717,18 +736,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:57:intersectDot</title>
   </circle>
   <g>
-    <path
-      d="M 516.733352410405 250.27072738411528 L 752.9776329507615 133.20495121673153"
+    <line
+      x1="516.733352410405"
+      y1="250.27072738411528"
+      x2="752.9776329507615"
+      y2="133.20495121673153"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="5"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`L1`.icon</title>
   </g>
@@ -749,12 +769,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 265.92617934707187 L NaN NaN"
+    <line
+      x1="10"
+      y1="265.92617934707187"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:60:intersectNormal-endArrowId)"
     />
     <title>9:60:intersectNormal</title>
@@ -767,7 +789,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:60:intersectDot</title>
@@ -799,12 +820,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 204.6845731101338 200.69563944232937 L 186.44894710926803 187.66990346989482"
+    <line
+      x1="204.6845731101338"
+      y1="200.69563944232937"
+      x2="186.44894710926803"
+      y2="187.66990346989482"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:52:intersectNormal-endArrowId)"
     />
     <title>9:52:intersectNormal</title>
@@ -817,18 +840,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="4.999998771759137"
   >
     <title>9:52:intersectDot</title>
   </circle>
   <g>
-    <path
-      d="M 250.28145497865154 447.2561981556653 L 568.5893717723554 590.7999139786177"
+    <line
+      x1="250.28145497865154"
+      y1="447.2561981556653"
+      x2="568.5893717723554"
+      y2="590.7999139786177"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="5"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`L3`.icon</title>
   </g>
@@ -849,12 +873,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 265.92617934707187 L NaN NaN"
+    <line
+      x1="10"
+      y1="265.92617934707187"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:62:intersectNormal-endArrowId)"
     />
     <title>9:62:intersectNormal</title>
@@ -867,7 +893,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:62:intersectDot</title>
@@ -902,12 +927,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 265.92617934707187 L NaN NaN"
+    <line
+      x1="10"
+      y1="265.92617934707187"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:58:intersectNormal-endArrowId)"
     />
     <title>9:58:intersectNormal</title>
@@ -920,18 +947,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:58:intersectDot</title>
   </circle>
   <g>
-    <path
-      d="M 13.003788643614769 660.4589110200205 L 135.3494858575259 377.8606660545308"
+    <line
+      x1="13.003788643614769"
+      y1="660.4589110200205"
+      x2="135.3494858575259"
+      y2="377.8606660545308"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="5"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`L4`.icon</title>
   </g>
@@ -952,12 +980,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 265.92617934707187 L NaN NaN"
+    <line
+      x1="10"
+      y1="265.92617934707187"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:63:intersectNormal-endArrowId)"
     />
     <title>9:63:intersectNormal</title>
@@ -970,7 +1000,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:63:intersectDot</title>
@@ -1035,12 +1064,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 265.92617934707187 L NaN NaN"
+    <line
+      x1="10"
+      y1="265.92617934707187"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:67:intersectNormal-endArrowId)"
     />
     <title>9:67:intersectNormal</title>
@@ -1053,7 +1084,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:67:intersectDot</title>
@@ -1084,12 +1114,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 265.92617934707187 L NaN NaN"
+    <line
+      x1="10"
+      y1="265.92617934707187"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:55:intersectNormal-endArrowId)"
     />
     <title>9:55:intersectNormal</title>
@@ -1102,18 +1134,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:55:intersectDot</title>
   </circle>
   <g>
-    <path
-      d="M 543.5266214217729 690.8221669254403 L 260.4943338521406 665.8396866316582"
+    <line
+      x1="543.5266214217729"
+      y1="690.8221669254403"
+      x2="260.4943338521406"
+      y2="665.8396866316582"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="5"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`L5`.icon</title>
   </g>
@@ -1134,12 +1167,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 265.92617934707187 L NaN NaN"
+    <line
+      x1="10"
+      y1="265.92617934707187"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:64:intersectNormal-endArrowId)"
     />
     <title>9:64:intersectNormal</title>
@@ -1152,7 +1187,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:64:intersectDot</title>
@@ -1184,12 +1218,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 370.51336636047563 145.1334470062988 L 348.7920563772976 139.62049679722955"
+    <line
+      x1="370.51336636047563"
+      y1="145.1334470062988"
+      x2="348.7920563772976"
+      y2="139.62049679722955"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:51:intersectNormal-endArrowId)"
     />
     <title>9:51:intersectNormal</title>
@@ -1202,7 +1238,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="4.999999140759426"
   >
     <title>9:51:intersectDot</title>
@@ -1218,13 +1253,15 @@
     <title>`r4`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 10 168.18092648274626 L 1061.2061761198754 326.18584076859884"
+    <line
+      x1="10"
+      y1="168.18092648274626"
+      x2="1061.2061761198754"
+      y2="326.18584076859884"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.5"
-      stroke="#000000"
       stroke-dasharray="8,6"
-      stroke-linecap="butt"
     />
     <title>`r2`.line</title>
   </g>
@@ -1245,12 +1282,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 168.18092648274626 L 72.90833818610838 177.63656592699928"
+    <line
+      x1="10"
+      y1="168.18092648274626"
+      x2="72.90833818610838"
+      y2="177.63656592699928"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-`r2`.arrow-endArrowId)"
     />
     <title>`r2`.arrow</title>
@@ -1272,12 +1311,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 206.96871438026906 197.78694054511033 L 189.99050263887887 183.15997300800453"
+    <line
+      x1="206.96871438026906"
+      y1="197.78694054511033"
+      x2="189.99050263887887"
+      y2="183.15997300800453"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:18:intersectNormal-endArrowId)"
     />
     <title>9:18:intersectNormal</title>
@@ -1290,7 +1331,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="4.9999987717591425"
   >
     <title>9:18:intersectDot</title>
@@ -1312,12 +1352,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 168.18092648274626 L NaN NaN"
+    <line
+      x1="10"
+      y1="168.18092648274626"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:25:intersectNormal-endArrowId)"
     />
     <title>9:25:intersectNormal</title>
@@ -1330,7 +1372,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:25:intersectDot</title>
@@ -1352,12 +1393,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 168.18092648274626 L NaN NaN"
+    <line
+      x1="10"
+      y1="168.18092648274626"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:32:intersectNormal-endArrowId)"
     />
     <title>9:32:intersectNormal</title>
@@ -1370,7 +1413,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:32:intersectDot</title>
@@ -1392,12 +1434,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 168.18092648274626 L NaN NaN"
+    <line
+      x1="10"
+      y1="168.18092648274626"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:17:intersectNormal-endArrowId)"
     />
     <title>9:17:intersectNormal</title>
@@ -1410,7 +1454,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:17:intersectDot</title>
@@ -1432,12 +1475,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 525.9053609530871 245.72573566365105 L 515.9551986743382 225.64583694549998"
+    <line
+      x1="525.9053609530871"
+      y1="245.72573566365105"
+      x2="515.9551986743382"
+      y2="225.64583694549998"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:26:intersectNormal-endArrowId)"
     />
     <title>9:26:intersectNormal</title>
@@ -1450,7 +1495,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="4.999999810360692"
   >
     <title>9:26:intersectDot</title>
@@ -1472,12 +1516,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 168.18092648274626 L NaN NaN"
+    <line
+      x1="10"
+      y1="168.18092648274626"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:21:intersectNormal-endArrowId)"
     />
     <title>9:21:intersectNormal</title>
@@ -1490,7 +1536,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:21:intersectDot</title>
@@ -1512,12 +1557,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 348.7103228123911 219.09186739944263 L 326.30474842375287 219.53718710087495"
+    <line
+      x1="348.7103228123911"
+      y1="219.09186739944263"
+      x2="326.30474842375287"
+      y2="219.53718710087495"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:27:intersectNormal-endArrowId)"
     />
     <title>9:27:intersectNormal</title>
@@ -1530,7 +1577,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="4.99999986719293"
   >
     <title>9:27:intersectDot</title>
@@ -1552,12 +1598,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 168.18092648274626 L NaN NaN"
+    <line
+      x1="10"
+      y1="168.18092648274626"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:29:intersectNormal-endArrowId)"
     />
     <title>9:29:intersectNormal</title>
@@ -1570,7 +1618,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:29:intersectDot</title>
@@ -1592,12 +1639,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 168.18092648274626 L NaN NaN"
+    <line
+      x1="10"
+      y1="168.18092648274626"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:28:intersectNormal-endArrowId)"
     />
     <title>9:28:intersectNormal</title>
@@ -1610,7 +1659,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:28:intersectDot</title>
@@ -1632,12 +1680,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 168.18092648274626 L NaN NaN"
+    <line
+      x1="10"
+      y1="168.18092648274626"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:24:intersectNormal-endArrowId)"
     />
     <title>9:24:intersectNormal</title>
@@ -1650,7 +1700,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:24:intersectDot</title>
@@ -1672,12 +1721,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 168.18092648274626 L NaN NaN"
+    <line
+      x1="10"
+      y1="168.18092648274626"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-10:3:intersectNormal-endArrowId)"
     />
     <title>10:3:intersectNormal</title>
@@ -1690,7 +1741,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>10:3:intersectDot</title>
@@ -1712,12 +1762,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 168.18092648274626 L NaN NaN"
+    <line
+      x1="10"
+      y1="168.18092648274626"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:22:intersectNormal-endArrowId)"
     />
     <title>9:22:intersectNormal</title>
@@ -1730,7 +1782,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:22:intersectDot</title>
@@ -1752,12 +1803,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 748.948187454756 279.25090273749026 L 726.9656293348776 274.8948546703665"
+    <line
+      x1="748.948187454756"
+      y1="279.25090273749026"
+      x2="726.9656293348776"
+      y2="274.8948546703665"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-11:1:intersectNormal-endArrowId)"
     />
     <title>11:1:intersectNormal</title>
@@ -1770,7 +1823,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>11:1:intersectDot</title>
@@ -1792,12 +1844,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 168.18092648274626 L NaN NaN"
+    <line
+      x1="10"
+      y1="168.18092648274626"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:33:intersectNormal-endArrowId)"
     />
     <title>9:33:intersectNormal</title>
@@ -1810,7 +1864,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:33:intersectDot</title>
@@ -1832,12 +1885,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 168.18092648274626 L NaN NaN"
+    <line
+      x1="10"
+      y1="168.18092648274626"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-10:4:intersectNormal-endArrowId)"
     />
     <title>10:4:intersectNormal</title>
@@ -1850,7 +1905,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>10:4:intersectDot</title>
@@ -1872,12 +1926,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 168.18092648274626 L NaN NaN"
+    <line
+      x1="10"
+      y1="168.18092648274626"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:30:intersectNormal-endArrowId)"
     />
     <title>9:30:intersectNormal</title>
@@ -1890,7 +1946,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:30:intersectDot</title>
@@ -1912,12 +1967,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 168.18092648274626 L NaN NaN"
+    <line
+      x1="10"
+      y1="168.18092648274626"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:20:intersectNormal-endArrowId)"
     />
     <title>9:20:intersectNormal</title>
@@ -1930,7 +1987,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:20:intersectDot</title>
@@ -1952,12 +2008,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 168.18092648274626 L NaN NaN"
+    <line
+      x1="10"
+      y1="168.18092648274626"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:31:intersectNormal-endArrowId)"
     />
     <title>9:31:intersectNormal</title>
@@ -1970,7 +2028,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:31:intersectDot</title>
@@ -1992,12 +2049,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 168.18092648274626 L NaN NaN"
+    <line
+      x1="10"
+      y1="168.18092648274626"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:19:intersectNormal-endArrowId)"
     />
     <title>9:19:intersectNormal</title>
@@ -2010,7 +2069,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:19:intersectDot</title>
@@ -2032,12 +2090,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 720.0065220654739 274.9007329392091 L 701.0522388937812 286.85660872739754"
+    <line
+      x1="720.0065220654739"
+      y1="274.9007329392091"
+      x2="701.0522388937812"
+      y2="286.85660872739754"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-10:5:intersectNormal-endArrowId)"
     />
     <title>10:5:intersectNormal</title>
@@ -2050,7 +2110,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>10:5:intersectDot</title>
@@ -2072,12 +2131,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 168.18092648274626 L NaN NaN"
+    <line
+      x1="10"
+      y1="168.18092648274626"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:23:intersectNormal-endArrowId)"
     />
     <title>9:23:intersectNormal</title>
@@ -2090,7 +2151,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:23:intersectDot</title>
@@ -2106,13 +2166,15 @@
     <title>`r2`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 10 406.45989051831225 L 1035.414472630489 126.23651975968752"
+    <line
+      x1="10"
+      y1="406.45989051831225"
+      x2="1035.414472630489"
+      y2="126.23651975968752"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.5"
-      stroke="#000000"
       stroke-dasharray="8,6"
-      stroke-linecap="butt"
     />
     <title>`r5`.line</title>
   </g>
@@ -2133,12 +2195,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 406.45989051831225 L 71.36486057004834 389.69021490513364"
+    <line
+      x1="10"
+      y1="406.45989051831225"
+      x2="71.36486057004834"
+      y2="389.69021490513364"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-`r5`.arrow-endArrowId)"
     />
     <title>`r5`.arrow</title>
@@ -2160,12 +2224,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 406.45989051831225 L NaN NaN"
+    <line
+      x1="10"
+      y1="406.45989051831225"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:80:intersectNormal-endArrowId)"
     />
     <title>9:80:intersectNormal</title>
@@ -2178,7 +2244,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:80:intersectDot</title>
@@ -2200,12 +2265,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 406.45989051831225 L NaN NaN"
+    <line
+      x1="10"
+      y1="406.45989051831225"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:81:intersectNormal-endArrowId)"
     />
     <title>9:81:intersectNormal</title>
@@ -2218,7 +2285,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:81:intersectDot</title>
@@ -2240,12 +2306,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 406.45989051831225 L NaN NaN"
+    <line
+      x1="10"
+      y1="406.45989051831225"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:69:intersectNormal-endArrowId)"
     />
     <title>9:69:intersectNormal</title>
@@ -2258,7 +2326,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:69:intersectDot</title>
@@ -2280,12 +2347,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 406.45989051831225 L NaN NaN"
+    <line
+      x1="10"
+      y1="406.45989051831225"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:71:intersectNormal-endArrowId)"
     />
     <title>9:71:intersectNormal</title>
@@ -2298,7 +2367,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:71:intersectDot</title>
@@ -2320,12 +2388,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 350.5844482939274 313.3856023389578 L 328.17887390528915 313.8309220403902"
+    <line
+      x1="350.5844482939274"
+      y1="313.3856023389578"
+      x2="328.17887390528915"
+      y2="313.8309220403902"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:78:intersectNormal-endArrowId)"
     />
     <title>9:78:intersectNormal</title>
@@ -2338,7 +2408,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="4.99999986719293"
   >
     <title>9:78:intersectDot</title>
@@ -2360,12 +2429,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 764.6043345421593 200.24301348124297 L 742.621776422281 195.88696541411917"
+    <line
+      x1="764.6043345421593"
+      y1="200.24301348124297"
+      x2="742.621776422281"
+      y2="195.88696541411917"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-11:4:intersectNormal-endArrowId)"
     />
     <title>11:4:intersectNormal</title>
@@ -2378,7 +2449,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>11:4:intersectDot</title>
@@ -2400,12 +2470,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 406.45989051831225 L NaN NaN"
+    <line
+      x1="10"
+      y1="406.45989051831225"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:72:intersectNormal-endArrowId)"
     />
     <title>9:72:intersectNormal</title>
@@ -2418,7 +2490,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:72:intersectDot</title>
@@ -2440,12 +2511,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 716.882868212347 213.28424754748295 L 696.6397715889318 203.67046241022248"
+    <line
+      x1="716.882868212347"
+      y1="213.28424754748295"
+      x2="696.6397715889318"
+      y2="203.67046241022248"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-10:14:intersectNormal-endArrowId)"
     />
     <title>10:14:intersectNormal</title>
@@ -2458,7 +2531,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>10:14:intersectDot</title>
@@ -2480,12 +2552,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 406.45989051831225 L NaN NaN"
+    <line
+      x1="10"
+      y1="406.45989051831225"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:83:intersectNormal-endArrowId)"
     />
     <title>9:83:intersectNormal</title>
@@ -2498,7 +2572,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:83:intersectDot</title>
@@ -2520,12 +2593,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 406.45989051831225 L NaN NaN"
+    <line
+      x1="10"
+      y1="406.45989051831225"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:74:intersectNormal-endArrowId)"
     />
     <title>9:74:intersectNormal</title>
@@ -2538,7 +2613,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:74:intersectDot</title>
@@ -2560,12 +2634,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 406.45989051831225 L NaN NaN"
+    <line
+      x1="10"
+      y1="406.45989051831225"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:77:intersectNormal-endArrowId)"
     />
     <title>9:77:intersectNormal</title>
@@ -2578,7 +2654,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:77:intersectDot</title>
@@ -2600,12 +2675,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 406.45989051831225 L NaN NaN"
+    <line
+      x1="10"
+      y1="406.45989051831225"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:82:intersectNormal-endArrowId)"
     />
     <title>9:82:intersectNormal</title>
@@ -2618,7 +2695,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:82:intersectDot</title>
@@ -2640,12 +2716,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 406.45989051831225 L NaN NaN"
+    <line
+      x1="10"
+      y1="406.45989051831225"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:75:intersectNormal-endArrowId)"
     />
     <title>9:75:intersectNormal</title>
@@ -2658,7 +2736,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:75:intersectDot</title>
@@ -2680,12 +2757,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 406.45989051831225 L NaN NaN"
+    <line
+      x1="10"
+      y1="406.45989051831225"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-10:12:intersectNormal-endArrowId)"
     />
     <title>10:12:intersectNormal</title>
@@ -2698,7 +2777,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>10:12:intersectDot</title>
@@ -2720,12 +2798,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 406.45989051831225 L NaN NaN"
+    <line
+      x1="10"
+      y1="406.45989051831225"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:70:intersectNormal-endArrowId)"
     />
     <title>9:70:intersectNormal</title>
@@ -2738,7 +2818,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:70:intersectDot</title>
@@ -2760,12 +2839,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 406.45989051831225 L NaN NaN"
+    <line
+      x1="10"
+      y1="406.45989051831225"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:73:intersectNormal-endArrowId)"
     />
     <title>9:73:intersectNormal</title>
@@ -2778,7 +2859,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:73:intersectDot</title>
@@ -2800,12 +2880,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 406.45989051831225 L NaN NaN"
+    <line
+      x1="10"
+      y1="406.45989051831225"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:79:intersectNormal-endArrowId)"
     />
     <title>9:79:intersectNormal</title>
@@ -2818,7 +2900,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:79:intersectDot</title>
@@ -2840,12 +2921,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 406.45989051831225 L NaN NaN"
+    <line
+      x1="10"
+      y1="406.45989051831225"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:76:intersectNormal-endArrowId)"
     />
     <title>9:76:intersectNormal</title>
@@ -2858,7 +2941,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:76:intersectDot</title>
@@ -2880,12 +2962,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 406.45989051831225 L NaN NaN"
+    <line
+      x1="10"
+      y1="406.45989051831225"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:68:intersectNormal-endArrowId)"
     />
     <title>9:68:intersectNormal</title>
@@ -2898,7 +2982,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:68:intersectDot</title>
@@ -2920,12 +3003,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 406.45989051831225 L NaN NaN"
+    <line
+      x1="10"
+      y1="406.45989051831225"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:84:intersectNormal-endArrowId)"
     />
     <title>9:84:intersectNormal</title>
@@ -2938,7 +3023,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:84:intersectDot</title>
@@ -2960,12 +3044,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 406.45989051831225 L NaN NaN"
+    <line
+      x1="10"
+      y1="406.45989051831225"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-10:13:intersectNormal-endArrowId)"
     />
     <title>10:13:intersectNormal</title>
@@ -2978,7 +3064,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>10:13:intersectDot</title>
@@ -2994,13 +3079,15 @@
     <title>`r5`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 10 460.3907715278167 L 1064.4114964101434 325.422724120192"
+    <line
+      x1="10"
+      y1="460.3907715278167"
+      x2="1064.4114964101434"
+      y2="325.422724120192"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.5"
-      stroke="#000000"
       stroke-dasharray="8,6"
-      stroke-linecap="butt"
     />
     <title>`r3`.line</title>
   </g>
@@ -3021,12 +3108,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 460.3907715278167 L 73.10015723839109 452.31374937605233"
+    <line
+      x1="10"
+      y1="460.3907715278167"
+      x2="73.10015723839109"
+      y2="452.31374937605233"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-`r3`.arrow-endArrowId)"
     />
     <title>`r3`.arrow</title>
@@ -3048,12 +3137,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 460.3907715278167 L NaN NaN"
+    <line
+      x1="10"
+      y1="460.3907715278167"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:40:intersectNormal-endArrowId)"
     />
     <title>9:40:intersectNormal</title>
@@ -3066,7 +3157,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:40:intersectDot</title>
@@ -3088,12 +3178,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 460.3907715278167 L NaN NaN"
+    <line
+      x1="10"
+      y1="460.3907715278167"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:37:intersectNormal-endArrowId)"
     />
     <title>9:37:intersectNormal</title>
@@ -3106,7 +3198,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:37:intersectDot</title>
@@ -3128,12 +3219,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 720.5205998111082 369.44185990660134 L 698.7599310790256 374.79733602424096"
+    <line
+      x1="720.5205998111082"
+      y1="369.44185990660134"
+      x2="698.7599310790256"
+      y2="374.79733602424096"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-10:6:intersectNormal-endArrowId)"
     />
     <title>10:6:intersectNormal</title>
@@ -3146,7 +3239,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>10:6:intersectDot</title>
@@ -3168,12 +3260,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 460.3907715278167 L NaN NaN"
+    <line
+      x1="10"
+      y1="460.3907715278167"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:42:intersectNormal-endArrowId)"
     />
     <title>9:42:intersectNormal</title>
@@ -3186,7 +3280,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:42:intersectDot</title>
@@ -3208,12 +3301,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 460.3907715278167 L NaN NaN"
+    <line
+      x1="10"
+      y1="460.3907715278167"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:49:intersectNormal-endArrowId)"
     />
     <title>9:49:intersectNormal</title>
@@ -3226,7 +3321,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:49:intersectDot</title>
@@ -3248,12 +3342,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 460.3907715278167 L NaN NaN"
+    <line
+      x1="10"
+      y1="460.3907715278167"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:45:intersectNormal-endArrowId)"
     />
     <title>9:45:intersectNormal</title>
@@ -3266,7 +3362,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:45:intersectDot</title>
@@ -3288,12 +3383,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 460.3907715278167 L NaN NaN"
+    <line
+      x1="10"
+      y1="460.3907715278167"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:41:intersectNormal-endArrowId)"
     />
     <title>9:41:intersectNormal</title>
@@ -3306,7 +3403,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:41:intersectDot</title>
@@ -3328,12 +3424,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 460.3907715278167 L NaN NaN"
+    <line
+      x1="10"
+      y1="460.3907715278167"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:38:intersectNormal-endArrowId)"
     />
     <title>9:38:intersectNormal</title>
@@ -3346,7 +3444,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:38:intersectDot</title>
@@ -3368,12 +3465,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 460.3907715278167 L NaN NaN"
+    <line
+      x1="10"
+      y1="460.3907715278167"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-10:7:intersectNormal-endArrowId)"
     />
     <title>10:7:intersectNormal</title>
@@ -3386,7 +3485,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>10:7:intersectDot</title>
@@ -3408,12 +3506,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 460.3907715278167 L NaN NaN"
+    <line
+      x1="10"
+      y1="460.3907715278167"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:47:intersectNormal-endArrowId)"
     />
     <title>9:47:intersectNormal</title>
@@ -3426,7 +3526,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:47:intersectDot</title>
@@ -3448,12 +3547,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 460.3907715278167 L NaN NaN"
+    <line
+      x1="10"
+      y1="460.3907715278167"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:43:intersectNormal-endArrowId)"
     />
     <title>9:43:intersectNormal</title>
@@ -3466,7 +3567,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:43:intersectDot</title>
@@ -3488,12 +3588,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 460.3907715278167 L NaN NaN"
+    <line
+      x1="10"
+      y1="460.3907715278167"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:34:intersectNormal-endArrowId)"
     />
     <title>9:34:intersectNormal</title>
@@ -3506,7 +3608,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:34:intersectDot</title>
@@ -3528,12 +3629,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 104.87738345843451 448.2461626800122 L 84.31194925626562 439.3427373021284"
+    <line
+      x1="104.87738345843451"
+      y1="448.2461626800122"
+      x2="84.31194925626562"
+      y2="439.3427373021284"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:46:intersectNormal-endArrowId)"
     />
     <title>9:46:intersectNormal</title>
@@ -3546,7 +3649,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="4.999999837633448"
   >
     <title>9:46:intersectDot</title>
@@ -3568,12 +3670,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 460.3907715278167 L NaN NaN"
+    <line
+      x1="10"
+      y1="460.3907715278167"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:35:intersectNormal-endArrowId)"
     />
     <title>9:35:intersectNormal</title>
@@ -3586,7 +3690,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:35:intersectDot</title>
@@ -3608,12 +3711,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 679.1549748639758 374.73679233850163 L 658.9007948548604 365.1463803484764"
+    <line
+      x1="679.1549748639758"
+      y1="374.73679233850163"
+      x2="658.9007948548604"
+      y2="365.1463803484764"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:50:intersectNormal-endArrowId)"
     />
     <title>9:50:intersectNormal</title>
@@ -3626,7 +3731,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="4.999998556275916"
   >
     <title>9:50:intersectDot</title>
@@ -3648,12 +3752,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 460.3907715278167 L NaN NaN"
+    <line
+      x1="10"
+      y1="460.3907715278167"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:48:intersectNormal-endArrowId)"
     />
     <title>9:48:intersectNormal</title>
@@ -3666,7 +3772,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:48:intersectDot</title>
@@ -3688,12 +3793,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 460.3907715278167 L NaN NaN"
+    <line
+      x1="10"
+      y1="460.3907715278167"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:36:intersectNormal-endArrowId)"
     />
     <title>9:36:intersectNormal</title>
@@ -3706,7 +3813,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:36:intersectDot</title>
@@ -3728,12 +3834,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 736.3901595086742 367.4105054563782 L 714.0587095656771 369.28516765827663"
+    <line
+      x1="736.3901595086742"
+      y1="367.4105054563782"
+      x2="714.0587095656771"
+      y2="369.28516765827663"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-11:2:intersectNormal-endArrowId)"
     />
     <title>11:2:intersectNormal</title>
@@ -3746,7 +3854,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>11:2:intersectDot</title>
@@ -3768,12 +3875,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 460.3907715278167 L NaN NaN"
+    <line
+      x1="10"
+      y1="460.3907715278167"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:39:intersectNormal-endArrowId)"
     />
     <title>9:39:intersectNormal</title>
@@ -3786,7 +3895,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:39:intersectDot</title>
@@ -3808,12 +3916,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 460.3907715278167 L NaN NaN"
+    <line
+      x1="10"
+      y1="460.3907715278167"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-10:8:intersectNormal-endArrowId)"
     />
     <title>10:8:intersectNormal</title>
@@ -3826,7 +3936,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>10:8:intersectDot</title>
@@ -3848,12 +3957,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 460.3907715278167 L NaN NaN"
+    <line
+      x1="10"
+      y1="460.3907715278167"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:44:intersectNormal-endArrowId)"
     />
     <title>9:44:intersectNormal</title>
@@ -3866,7 +3977,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:44:intersectDot</title>
@@ -3882,13 +3992,15 @@
     <title>`r3`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 10 111.3859418487128 L 1013.1740732204322 -240.24135727715668"
+    <line
+      x1="10"
+      y1="111.3859418487128"
+      x2="1013.1740732204322"
+      y2="-240.24135727715668"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.5"
-      stroke="#000000"
       stroke-dasharray="8,6"
-      stroke-linecap="butt"
     />
     <title>`r1`.line</title>
   </g>
@@ -3909,12 +4021,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 111.3859418487128 L 70.0339070454562 90.34317254886395"
+    <line
+      x1="10"
+      y1="111.3859418487128"
+      x2="70.0339070454562"
+      y2="90.34317254886395"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-`r1`.arrow-endArrowId)"
     />
     <title>`r1`.arrow</title>
@@ -3936,12 +4050,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 111.3859418487128 L NaN NaN"
+    <line
+      x1="10"
+      y1="111.3859418487128"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:1:intersectNormal-endArrowId)"
     />
     <title>9:1:intersectNormal</title>
@@ -3954,7 +4070,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:1:intersectDot</title>
@@ -3976,12 +4091,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 111.3859418487128 L NaN NaN"
+    <line
+      x1="10"
+      y1="111.3859418487128"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:15:intersectNormal-endArrowId)"
     />
     <title>9:15:intersectNormal</title>
@@ -3994,7 +4111,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:15:intersectDot</title>
@@ -4016,12 +4132,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 111.3859418487128 L NaN NaN"
+    <line
+      x1="10"
+      y1="111.3859418487128"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:14:intersectNormal-endArrowId)"
     />
     <title>9:14:intersectNormal</title>
@@ -4034,7 +4152,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:14:intersectDot</title>
@@ -4056,12 +4173,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 111.3859418487128 L NaN NaN"
+    <line
+      x1="10"
+      y1="111.3859418487128"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:7:intersectNormal-endArrowId)"
     />
     <title>9:7:intersectNormal</title>
@@ -4074,7 +4193,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:7:intersectDot</title>
@@ -4096,12 +4214,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 111.3859418487128 L NaN NaN"
+    <line
+      x1="10"
+      y1="111.3859418487128"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:11:intersectNormal-endArrowId)"
     />
     <title>9:11:intersectNormal</title>
@@ -4114,7 +4234,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:11:intersectDot</title>
@@ -4136,12 +4255,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 111.3859418487128 L NaN NaN"
+    <line
+      x1="10"
+      y1="111.3859418487128"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-10:1:intersectNormal-endArrowId)"
     />
     <title>10:1:intersectNormal</title>
@@ -4154,7 +4275,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>10:1:intersectDot</title>
@@ -4176,12 +4296,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 111.3859418487128 L NaN NaN"
+    <line
+      x1="10"
+      y1="111.3859418487128"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:6:intersectNormal-endArrowId)"
     />
     <title>9:6:intersectNormal</title>
@@ -4194,7 +4316,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:6:intersectDot</title>
@@ -4216,12 +4337,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 111.3859418487128 L NaN NaN"
+    <line
+      x1="10"
+      y1="111.3859418487128"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:3:intersectNormal-endArrowId)"
     />
     <title>9:3:intersectNormal</title>
@@ -4234,7 +4357,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:3:intersectDot</title>
@@ -4256,12 +4378,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 111.3859418487128 L NaN NaN"
+    <line
+      x1="10"
+      y1="111.3859418487128"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:0:intersectNormal-endArrowId)"
     />
     <title>9:0:intersectNormal</title>
@@ -4274,7 +4398,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:0:intersectDot</title>
@@ -4296,12 +4419,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 111.3859418487128 L NaN NaN"
+    <line
+      x1="10"
+      y1="111.3859418487128"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:13:intersectNormal-endArrowId)"
     />
     <title>9:13:intersectNormal</title>
@@ -4314,7 +4439,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:13:intersectDot</title>
@@ -4336,12 +4460,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 111.3859418487128 L NaN NaN"
+    <line
+      x1="10"
+      y1="111.3859418487128"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:5:intersectNormal-endArrowId)"
     />
     <title>9:5:intersectNormal</title>
@@ -4354,7 +4480,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:5:intersectDot</title>
@@ -4376,12 +4501,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 111.3859418487128 L NaN NaN"
+    <line
+      x1="10"
+      y1="111.3859418487128"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:16:intersectNormal-endArrowId)"
     />
     <title>9:16:intersectNormal</title>
@@ -4394,7 +4521,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:16:intersectDot</title>
@@ -4416,12 +4542,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 111.3859418487128 L NaN NaN"
+    <line
+      x1="10"
+      y1="111.3859418487128"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:9:intersectNormal-endArrowId)"
     />
     <title>9:9:intersectNormal</title>
@@ -4434,7 +4562,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:9:intersectDot</title>
@@ -4456,12 +4583,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 111.3859418487128 L NaN NaN"
+    <line
+      x1="10"
+      y1="111.3859418487128"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:4:intersectNormal-endArrowId)"
     />
     <title>9:4:intersectNormal</title>
@@ -4474,7 +4603,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:4:intersectDot</title>
@@ -4496,12 +4624,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 111.3859418487128 L NaN NaN"
+    <line
+      x1="10"
+      y1="111.3859418487128"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-11:0:intersectNormal-endArrowId)"
     />
     <title>11:0:intersectNormal</title>
@@ -4514,7 +4644,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>11:0:intersectDot</title>
@@ -4536,12 +4665,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 111.3859418487128 L NaN NaN"
+    <line
+      x1="10"
+      y1="111.3859418487128"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-10:2:intersectNormal-endArrowId)"
     />
     <title>10:2:intersectNormal</title>
@@ -4554,7 +4685,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>10:2:intersectDot</title>
@@ -4576,12 +4706,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 111.3859418487128 L NaN NaN"
+    <line
+      x1="10"
+      y1="111.3859418487128"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:10:intersectNormal-endArrowId)"
     />
     <title>9:10:intersectNormal</title>
@@ -4594,7 +4726,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:10:intersectDot</title>
@@ -4616,12 +4747,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 111.3859418487128 L NaN NaN"
+    <line
+      x1="10"
+      y1="111.3859418487128"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-10:0:intersectNormal-endArrowId)"
     />
     <title>10:0:intersectNormal</title>
@@ -4634,7 +4767,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>10:0:intersectDot</title>
@@ -4656,12 +4788,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 111.3859418487128 L NaN NaN"
+    <line
+      x1="10"
+      y1="111.3859418487128"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:8:intersectNormal-endArrowId)"
     />
     <title>9:8:intersectNormal</title>
@@ -4674,7 +4808,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:8:intersectDot</title>
@@ -4696,12 +4829,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 10 111.3859418487128 L NaN NaN"
+    <line
+      x1="10"
+      y1="111.3859418487128"
+      x2="NaN"
+      y2="NaN"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:12:intersectNormal-endArrowId)"
     />
     <title>9:12:intersectNormal</title>
@@ -4714,7 +4849,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="0"
   >
     <title>9:12:intersectDot</title>
@@ -4736,12 +4870,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 212.40884213062463 40.4386592409146 L 190.8033285374779 34.48805431329407"
+    <line
+      x1="212.40884213062463"
+      y1="40.4386592409146"
+      x2="190.8033285374779"
+      y2="34.48805431329407"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-SnowflakeQuetzal3561-9:2:intersectNormal-endArrowId)"
     />
     <title>9:2:intersectNormal</title>
@@ -4754,7 +4890,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="4.999999087172501"
   >
     <title>9:2:intersectDot</title>

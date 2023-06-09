@@ -18,7 +18,6 @@
     stroke="#000000"
     stroke-opacity="0.05"
     stroke-width="1"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 120, 90)"
   >
@@ -34,7 +33,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0.5"
-    stroke-linecap="butt"
     rx="5"
     transform="rotate(0, 161.94664663860115, 86.20495434142471)"
   >
@@ -50,7 +48,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0.5"
-    stroke-linecap="butt"
     rx="5"
     transform="rotate(0, 143.2437336660362, 25.704484969510617)"
   >
@@ -66,7 +63,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0.5"
-    stroke-linecap="butt"
     rx="5"
     transform="rotate(0, 83.70934233804493, 86.20445679489038)"
   >
@@ -82,7 +78,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0.5"
-    stroke-linecap="butt"
     rx="5"
     transform="rotate(0, 188.04615039300646, 127.20498505370674)"
   >
@@ -98,7 +93,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0.5"
-    stroke-linecap="butt"
     rx="5"
     transform="rotate(0, 143.26342948797065, 163.20443188736095)"
   >
@@ -114,7 +108,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0.5"
-    stroke-linecap="butt"
     rx="5"
     transform="rotate(0, 179.61811369622805, 106.70498491939351)"
   >
@@ -130,7 +123,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0.5"
-    stroke-linecap="butt"
     rx="5"
     transform="rotate(0, 79.59451951408695, 124.2044419471735)"
   >
@@ -146,7 +138,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0.5"
-    stroke-linecap="butt"
     rx="5"
     transform="rotate(0, 99.32796439685549, 45.204478642728205)"
   >
@@ -183,7 +174,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0.5"
-    stroke-linecap="butt"
     rx="5"
     transform="rotate(0, 67.14094174793584, 105.70445067255747)"
   >
@@ -220,7 +210,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0.5"
-    stroke-linecap="butt"
     rx="5"
     transform="rotate(0, 66.44359656094971, 143.704437687517)"
   >
@@ -236,7 +225,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0.5"
-    stroke-linecap="butt"
     rx="5"
     transform="rotate(0, 99.3329532690994, 65.70447030283395)"
   >

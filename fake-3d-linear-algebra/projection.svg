@@ -27,12 +27,14 @@
         fill-opacity="255"
       />
     </marker>
-    <path
-      d="M 2.5 2.5 L 3.713875231070963 0.07224953785807342"
+    <line
+      x1="2.5"
+      y1="2.5"
+      x2="3.713875231070963"
+      y2="0.07224953785807342"
+      stroke="#000000"
       stroke-opacity="255"
       stroke-width="0.01"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#projection__registry-SucculentsReindeer397-`u`.shape-endArrowId)"
     />
     <title>`u`.shape</title>
@@ -53,7 +55,6 @@
     stroke="#000000"
     stroke-opacity="255"
     stroke-width="0.01"
-    stroke-linecap="butt"
     transform="scale(1)"
     points="1.1666666666666665,3.166666666666667,0.2777777777777777,0.9444444444444444,3.8333333333333335,1.8333333333333333,4.722222222222222,4.055555555555555"
   >
@@ -76,12 +77,14 @@
         fill-opacity="255"
       />
     </marker>
-    <path
-      d="M 2.5 2.5 L 3.4923328881627076 3.045107655137476"
+    <line
+      x1="2.5"
+      y1="2.5"
+      x2="3.4923328881627076"
+      y2="3.045107655137476"
+      stroke="#000000"
       stroke-opacity="255"
       stroke-width="0.01"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#projection__registry-SucculentsReindeer397-`v`.shape-endArrowId)"
     />
     <title>`v`.shape</title>
@@ -103,35 +106,41 @@
         fill-opacity="255"
       />
     </marker>
-    <path
-      d="M 2.5 2.5 L 4.748265013696225 0.6344797402184676"
+    <line
+      x1="2.5"
+      y1="2.5"
+      x2="4.748265013696225"
+      y2="0.6344797402184676"
+      stroke="#000000"
       stroke-opacity="255"
       stroke-width="0.01"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#projection__registry-SucculentsReindeer397-`w`.shape-endArrowId)"
     />
     <title>`w`.shape</title>
   </g>
   <g>
-    <path
-      d="M 3.74781874296941 0.004362514061179823 L 4.806675529509404 0.5860130336825544"
+    <line
+      x1="3.74781874296941"
+      y1="0.004362514061179823"
+      x2="4.806675529509404"
+      y2="0.5860130336825544"
+      stroke="#707070"
       stroke-opacity="0.5019607843137255"
       stroke-width="0.01"
-      stroke="#707070"
       stroke-dasharray="0.07,0.05"
-      stroke-linecap="butt"
     />
     <title>`w`.dashed_u</title>
   </g>
   <g>
-    <path
-      d="M 3.558856786539993 3.081650519621375 L 4.806675529509404 0.5860130336825544"
+    <line
+      x1="3.558856786539993"
+      y1="3.081650519621375"
+      x2="4.806675529509404"
+      y2="0.5860130336825544"
+      stroke="#707070"
       stroke-opacity="0.5019607843137255"
       stroke-width="0.01"
-      stroke="#707070"
       stroke-dasharray="0.07,0.05"
-      stroke-linecap="butt"
     />
     <title>`w`.dashed_v</title>
   </g>

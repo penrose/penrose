@@ -240,7 +240,6 @@
     stroke-opacity="1"
     stroke-width="2"
     stroke-dasharray="7,5"
-    stroke-linecap="butt"
     r="176.68449731377967"
   >
     <title>`r`.circle</title>

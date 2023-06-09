@@ -7,12 +7,14 @@
   <penrose><croppedViewBox>0 5 800 688.25</croppedViewBox></penrose>
   <g>
     <g>
-      <path
-        d="M 0 690 L 800 690"
+      <line
+        x1="0"
+        y1="690"
+        x2="800"
+        y2="690"
+        stroke="#000000"
         stroke-opacity="1"
         stroke-width="5"
-        stroke="#000000"
-        stroke-linecap="butt"
       />
       <title>`G`.line</title>
     </g>
@@ -62,12 +64,14 @@
     <title>`G`.icon</title>
   </g>
   <g>
-    <path
-      d="M 400 10 L 763.1379398551295 690"
+    <line
+      x1="400"
+      y1="10"
+      x2="763.1379398551295"
+      y2="690"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:22:line</title>
   </g>
@@ -79,7 +83,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:22:intersectDot</title>
@@ -88,12 +91,14 @@
     <title>`r23`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 354.31832341138903 101.31761608091938"
+    <line
+      x1="400"
+      y1="10"
+      x2="354.31832341138903"
+      y2="101.31761608091938"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:76:line</title>
   </g>
@@ -105,7 +110,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:76:intersectDot</title>
@@ -114,12 +118,14 @@
     <title>`r77`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 360.2454952478354 102.70454531160505"
+    <line
+      x1="400"
+      y1="10"
+      x2="360.2454952478354"
+      y2="102.70454531160505"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:69:line</title>
   </g>
@@ -131,7 +137,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:69:intersectDot</title>
@@ -140,12 +145,14 @@
     <title>`r70`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 376.49964010734334 109.1984585516496"
+    <line
+      x1="400"
+      y1="10"
+      x2="376.49964010734334"
+      y2="109.1984585516496"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:71:line</title>
   </g>
@@ -157,7 +164,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:71:intersectDot</title>
@@ -166,12 +172,14 @@
     <title>`r72`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 516.0015029230924 321.4033571430874"
+    <line
+      x1="400"
+      y1="10"
+      x2="516.0015029230924"
+      y2="321.4033571430874"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:82:line</title>
   </g>
@@ -183,7 +191,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:82:intersectDot</title>
@@ -192,12 +199,14 @@
     <title>`r83`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 361.45786700215046 103.04869218960675"
+    <line
+      x1="400"
+      y1="10"
+      x2="361.45786700215046"
+      y2="103.04869218960675"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:34:line</title>
   </g>
@@ -209,7 +218,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:34:intersectDot</title>
@@ -218,12 +226,14 @@
     <title>`r35`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 402.5753649562408 131.7251633842409"
+    <line
+      x1="400"
+      y1="10"
+      x2="402.5753649562408"
+      y2="131.7251633842409"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:42:line</title>
   </g>
@@ -235,7 +245,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:42:intersectDot</title>
@@ -244,12 +253,14 @@
     <title>`r43`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 383.5513733613126 113.46433467225864"
+    <line
+      x1="400"
+      y1="10"
+      x2="383.5513733613126"
+      y2="113.46433467225864"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:57:line</title>
   </g>
@@ -261,7 +272,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:57:intersectDot</title>
@@ -270,12 +280,14 @@
     <title>`r58`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 365.09907876503325 104.21067551410482"
+    <line
+      x1="400"
+      y1="10"
+      x2="365.09907876503325"
+      y2="104.21067551410482"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:4:line</title>
   </g>
@@ -287,7 +299,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:4:intersectDot</title>
@@ -296,12 +307,14 @@
     <title>`r5`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 750.0037408026144 690"
+    <line
+      x1="400"
+      y1="10"
+      x2="750.0037408026144"
+      y2="690"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:74:line</title>
   </g>
@@ -313,7 +326,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:74:intersectDot</title>
@@ -322,12 +334,14 @@
     <title>`r75`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 523.3851648215195 318.39044316209663"
+    <line
+      x1="400"
+      y1="10"
+      x2="523.3851648215195"
+      y2="318.39044316209663"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:29:line</title>
   </g>
@@ -339,7 +353,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:29:intersectDot</title>
@@ -348,12 +361,14 @@
     <title>`r30`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 356.22267874383186 101.71061026461535"
+    <line
+      x1="400"
+      y1="10"
+      x2="356.22267874383186"
+      y2="101.71061026461535"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:65:line</title>
   </g>
@@ -365,7 +380,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:65:intersectDot</title>
@@ -374,12 +388,14 @@
     <title>`r66`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 776.4221049864393 690"
+    <line
+      x1="400"
+      y1="10"
+      x2="776.4221049864393"
+      y2="690"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:2:line</title>
   </g>
@@ -391,7 +407,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:2:intersectDot</title>
@@ -400,12 +415,14 @@
     <title>`r3`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 334.0340211943262 100.06722498107908"
+    <line
+      x1="400"
+      y1="10"
+      x2="334.0340211943262"
+      y2="100.06722498107908"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:37:line</title>
   </g>
@@ -417,7 +434,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:37:intersectDot</title>
@@ -426,12 +442,14 @@
     <title>`r38`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 400 10"
+    <line
+      x1="400"
+      y1="10"
+      x2="400"
+      y2="10"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:19:line</title>
   </g>
@@ -443,7 +461,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:19:intersectDot</title>
@@ -452,12 +469,14 @@
     <title>`r20`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 384.60167230337316 114.1899784974085"
+    <line
+      x1="400"
+      y1="10"
+      x2="384.60167230337316"
+      y2="114.1899784974085"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:91:line</title>
   </g>
@@ -469,7 +488,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:91:intersectDot</title>
@@ -478,12 +496,14 @@
     <title>`r92`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 377.5737312306985 109.78439656675181"
+    <line
+      x1="400"
+      y1="10"
+      x2="377.5737312306985"
+      y2="109.78439656675181"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:21:line</title>
   </g>
@@ -495,7 +515,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:21:intersectDot</title>
@@ -504,12 +523,14 @@
     <title>`r22`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 378.10154909759 110.0803461714303"
+    <line
+      x1="400"
+      y1="10"
+      x2="378.10154909759"
+      y2="110.0803461714303"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:33:line</title>
   </g>
@@ -521,7 +542,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:33:intersectDot</title>
@@ -530,12 +550,14 @@
     <title>`r34`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 523.9659096235682 318.15346940062847"
+    <line
+      x1="400"
+      y1="10"
+      x2="523.9659096235682"
+      y2="318.15346940062847"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:41:line</title>
   </g>
@@ -547,7 +569,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:41:intersectDot</title>
@@ -556,12 +577,14 @@
     <title>`r42`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 788.2980620949779 690"
+    <line
+      x1="400"
+      y1="10"
+      x2="788.2980620949779"
+      y2="690"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:67:line</title>
   </g>
@@ -573,7 +596,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:67:intersectDot</title>
@@ -582,12 +604,14 @@
     <title>`r68`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 369.5118081655199 105.88792691748665"
+    <line
+      x1="400"
+      y1="10"
+      x2="369.5118081655199"
+      y2="105.88792691748665"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:68:line</title>
   </g>
@@ -599,7 +623,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:68:intersectDot</title>
@@ -608,12 +631,14 @@
     <title>`r69`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 330.6380449772553 100.3726495668306"
+    <line
+      x1="400"
+      y1="10"
+      x2="330.6380449772553"
+      y2="100.3726495668306"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:25:line</title>
   </g>
@@ -625,7 +650,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:25:intersectDot</title>
@@ -634,12 +658,14 @@
     <title>`r26`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 327.6524692867507 100.76456792286893"
+    <line
+      x1="400"
+      y1="10"
+      x2="327.6524692867507"
+      y2="100.76456792286893"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:64:line</title>
   </g>
@@ -651,7 +677,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:64:intersectDot</title>
@@ -660,12 +685,14 @@
     <title>`r65`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 349.46296181819173 100.53470895673229"
+    <line
+      x1="400"
+      y1="10"
+      x2="349.46296181819173"
+      y2="100.53470895673229"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:38:line</title>
   </g>
@@ -677,7 +704,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:38:intersectDot</title>
@@ -686,12 +712,14 @@
     <title>`r39`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 385.03855794352 114.49931528619237"
+    <line
+      x1="400"
+      y1="10"
+      x2="385.03855794352"
+      y2="114.49931528619237"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:1:line</title>
   </g>
@@ -703,7 +731,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:1:intersectDot</title>
@@ -712,12 +739,14 @@
     <title>`r2`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 410.2654721169581 144.4800076931377"
+    <line
+      x1="400"
+      y1="10"
+      x2="410.2654721169581"
+      y2="144.4800076931377"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:44:line</title>
   </g>
@@ -729,7 +758,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:44:intersectDot</title>
@@ -738,12 +766,14 @@
     <title>`r45`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 370.22882887428676 106.18955415298592"
+    <line
+      x1="400"
+      y1="10"
+      x2="370.22882887428676"
+      y2="106.18955415298592"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:24:line</title>
   </g>
@@ -755,7 +785,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:24:intersectDot</title>
@@ -764,12 +793,14 @@
     <title>`r25`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 335.1583937265571 99.9987198914927"
+    <line
+      x1="400"
+      y1="10"
+      x2="335.1583937265571"
+      y2="99.9987198914927"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:27:line</title>
   </g>
@@ -781,7 +812,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:27:intersectDot</title>
@@ -790,12 +820,14 @@
     <title>`r28`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 386.3269940904395 115.43803832543739"
+    <line
+      x1="400"
+      y1="10"
+      x2="386.3269940904395"
+      y2="115.43803832543739"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:40:line</title>
   </g>
@@ -807,7 +839,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:40:intersectDot</title>
@@ -816,12 +847,14 @@
     <title>`r41`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 403.33874342909934 132.77402123352522"
+    <line
+      x1="400"
+      y1="10"
+      x2="403.33874342909934"
+      y2="132.77402123352522"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:63:line</title>
   </g>
@@ -833,7 +866,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:63:intersectDot</title>
@@ -842,12 +874,14 @@
     <title>`r64`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 495.614925461285 329.72212973915043"
+    <line
+      x1="400"
+      y1="10"
+      x2="495.614925461285"
+      y2="329.72212973915043"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:78:line</title>
   </g>
@@ -859,7 +893,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:78:intersectDot</title>
@@ -868,12 +901,14 @@
     <title>`r79`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 400 10"
+    <line
+      x1="400"
+      y1="10"
+      x2="400"
+      y2="10"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:0:line</title>
   </g>
@@ -885,7 +920,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:0:intersectDot</title>
@@ -894,12 +928,14 @@
     <title>`r1`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 376.9913302816589 109.46399495130231"
+    <line
+      x1="400"
+      y1="10"
+      x2="376.9913302816589"
+      y2="109.46399495130231"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:61:line</title>
   </g>
@@ -911,7 +947,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:61:intersectDot</title>
@@ -920,12 +955,14 @@
     <title>`r62`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 357.6310196568688 102.03303281487607"
+    <line
+      x1="400"
+      y1="10"
+      x2="357.6310196568688"
+      y2="102.03303281487607"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:55:line</title>
   </g>
@@ -937,7 +974,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:55:intersectDot</title>
@@ -946,12 +982,14 @@
     <title>`r56`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 473.5571662774444 338.72283046848327"
+    <line
+      x1="400"
+      y1="10"
+      x2="473.5571662774444"
+      y2="338.72283046848327"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:16:line</title>
   </g>
@@ -963,7 +1001,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:16:intersectDot</title>
@@ -972,12 +1009,14 @@
     <title>`r17`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 761.554749515162 690"
+    <line
+      x1="400"
+      y1="10"
+      x2="761.554749515162"
+      y2="690"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:28:line</title>
   </g>
@@ -989,7 +1028,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:28:intersectDot</title>
@@ -998,12 +1036,14 @@
     <title>`r29`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 362.8525481506409 103.47076022573279"
+    <line
+      x1="400"
+      y1="10"
+      x2="362.8525481506409"
+      y2="103.47076022573279"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:36:line</title>
   </g>
@@ -1015,7 +1055,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:36:intersectDot</title>
@@ -1024,12 +1063,14 @@
     <title>`r37`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 753.7911173278931 690"
+    <line
+      x1="400"
+      y1="10"
+      x2="753.7911173278931"
+      y2="690"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:93:line</title>
   </g>
@@ -1041,7 +1082,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:93:intersectDot</title>
@@ -1050,12 +1090,14 @@
     <title>`r94`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 533.58369737762 314.22891711356385"
+    <line
+      x1="400"
+      y1="10"
+      x2="533.58369737762"
+      y2="314.22891711356385"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:53:line</title>
   </g>
@@ -1067,7 +1109,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:53:intersectDot</title>
@@ -1076,12 +1117,14 @@
     <title>`r54`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 706.6028369288993 690"
+    <line
+      x1="400"
+      y1="10"
+      x2="706.6028369288993"
+      y2="690"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:45:line</title>
   </g>
@@ -1093,7 +1136,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:45:intersectDot</title>
@@ -1102,12 +1144,14 @@
     <title>`r46`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 722.8496791131245 690"
+    <line
+      x1="400"
+      y1="10"
+      x2="722.8496791131245"
+      y2="690"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:88:line</title>
   </g>
@@ -1119,7 +1163,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:88:intersectDot</title>
@@ -1128,12 +1171,14 @@
     <title>`r89`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 415.0940109508319 157.28489927472955"
+    <line
+      x1="400"
+      y1="10"
+      x2="415.0940109508319"
+      y2="157.28489927472955"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:48:line</title>
   </g>
@@ -1145,7 +1190,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:48:intersectDot</title>
@@ -1154,12 +1198,14 @@
     <title>`r49`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 400 10"
+    <line
+      x1="400"
+      y1="10"
+      x2="400"
+      y2="10"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:3:line</title>
   </g>
@@ -1171,7 +1217,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:3:intersectDot</title>
@@ -1180,12 +1225,14 @@
     <title>`r4`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 391.3392020537471 119.49791456795506"
+    <line
+      x1="400"
+      y1="10"
+      x2="391.3392020537471"
+      y2="119.49791456795506"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:30:line</title>
   </g>
@@ -1197,7 +1244,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:30:intersectDot</title>
@@ -1206,12 +1252,14 @@
     <title>`r31`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 452.9070660188789 347.14913392519304"
+    <line
+      x1="400"
+      y1="10"
+      x2="452.9070660188789"
+      y2="347.14913392519304"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:62:line</title>
   </g>
@@ -1223,7 +1271,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:62:intersectDot</title>
@@ -1232,12 +1279,14 @@
     <title>`r63`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 529.2305225330649 316.0052364428185"
+    <line
+      x1="400"
+      y1="10"
+      x2="529.2305225330649"
+      y2="316.0052364428185"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:77:line</title>
   </g>
@@ -1249,7 +1298,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:77:intersectDot</title>
@@ -1258,12 +1306,14 @@
     <title>`r78`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 706.6964553938453 690"
+    <line
+      x1="400"
+      y1="10"
+      x2="706.6964553938453"
+      y2="690"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:66:line</title>
   </g>
@@ -1275,7 +1325,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:66:intersectDot</title>
@@ -1284,12 +1333,14 @@
     <title>`r67`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 450.16743199960837 348.26704557296443"
+    <line
+      x1="400"
+      y1="10"
+      x2="450.16743199960837"
+      y2="348.26704557296443"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:11:line</title>
   </g>
@@ -1301,7 +1352,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:11:intersectDot</title>
@@ -1310,12 +1360,14 @@
     <title>`r12`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 400 10"
+    <line
+      x1="400"
+      y1="10"
+      x2="400"
+      y2="10"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:17:line</title>
   </g>
@@ -1327,7 +1379,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:17:intersectDot</title>
@@ -1336,12 +1387,14 @@
     <title>`r18`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 401.06791712692274 129.7552231993164"
+    <line
+      x1="400"
+      y1="10"
+      x2="401.06791712692274"
+      y2="129.7552231993164"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:85:line</title>
   </g>
@@ -1353,7 +1406,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:85:intersectDot</title>
@@ -1362,12 +1414,14 @@
     <title>`r86`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 392.01358114273427 120.0984865185263"
+    <line
+      x1="400"
+      y1="10"
+      x2="392.01358114273427"
+      y2="120.0984865185263"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:15:line</title>
   </g>
@@ -1379,7 +1433,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:15:intersectDot</title>
@@ -1388,12 +1441,14 @@
     <title>`r16`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 399.6792056841744 128.04821154823495"
+    <line
+      x1="400"
+      y1="10"
+      x2="399.6792056841744"
+      y2="128.04821154823495"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:60:line</title>
   </g>
@@ -1405,7 +1460,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:60:intersectDot</title>
@@ -1414,12 +1468,14 @@
     <title>`r61`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 475.4031204819845 337.96958616942993"
+    <line
+      x1="400"
+      y1="10"
+      x2="475.4031204819845"
+      y2="337.96958616942993"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:96:line</title>
   </g>
@@ -1431,7 +1487,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:96:intersectDot</title>
@@ -1440,12 +1495,14 @@
     <title>`r97`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 345.68586633729427 100.13877075901297"
+    <line
+      x1="400"
+      y1="10"
+      x2="345.68586633729427"
+      y2="100.13877075901297"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:56:line</title>
   </g>
@@ -1457,7 +1514,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:56:intersectDot</title>
@@ -1466,12 +1522,14 @@
     <title>`r57`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 341.4977354026994 99.91396976902448"
+    <line
+      x1="400"
+      y1="10"
+      x2="341.4977354026994"
+      y2="99.91396976902448"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:5:line</title>
   </g>
@@ -1483,7 +1541,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:5:intersectDot</title>
@@ -1492,12 +1549,14 @@
     <title>`r6`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 338.00827648805887 99.89734369565485"
+    <line
+      x1="400"
+      y1="10"
+      x2="338.00827648805887"
+      y2="99.89734369565485"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:83:line</title>
   </g>
@@ -1509,7 +1568,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:83:intersectDot</title>
@@ -1518,12 +1576,14 @@
     <title>`r84`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 715.1154839563426 690"
+    <line
+      x1="400"
+      y1="10"
+      x2="715.1154839563426"
+      y2="690"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:9:line</title>
   </g>
@@ -1535,7 +1595,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:9:intersectDot</title>
@@ -1544,12 +1603,14 @@
     <title>`r10`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 337.49426149210467 99.90798186578121"
+    <line
+      x1="400"
+      y1="10"
+      x2="337.49426149210467"
+      y2="99.90798186578121"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:99:line</title>
   </g>
@@ -1561,7 +1622,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:99:intersectDot</title>
@@ -1570,12 +1630,14 @@
     <title>`r100`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 400 10"
+    <line
+      x1="400"
+      y1="10"
+      x2="400"
+      y2="10"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:90:line</title>
   </g>
@@ -1587,7 +1649,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:90:intersectDot</title>
@@ -1596,12 +1657,14 @@
     <title>`r91`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 400 10"
+    <line
+      x1="400"
+      y1="10"
+      x2="400"
+      y2="10"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:20:line</title>
   </g>
@@ -1613,7 +1676,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:20:intersectDot</title>
@@ -1622,12 +1684,14 @@
     <title>`r21`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 517.1999691056515 320.91432127350816"
+    <line
+      x1="400"
+      y1="10"
+      x2="517.1999691056515"
+      y2="320.91432127350816"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:54:line</title>
   </g>
@@ -1639,7 +1703,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:54:intersectDot</title>
@@ -1648,12 +1711,14 @@
     <title>`r55`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 360.69340671457786 102.82924648417813"
+    <line
+      x1="400"
+      y1="10"
+      x2="360.69340671457786"
+      y2="102.82924648417813"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:80:line</title>
   </g>
@@ -1665,7 +1730,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:80:intersectDot</title>
@@ -1674,12 +1738,14 @@
     <title>`r81`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 339.4654225053065 99.88545461038944"
+    <line
+      x1="400"
+      y1="10"
+      x2="339.4654225053065"
+      y2="99.88545461038944"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:92:line</title>
   </g>
@@ -1691,7 +1757,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:92:intersectDot</title>
@@ -1700,12 +1765,14 @@
     <title>`r93`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 529.8104042517097 315.76861486378897"
+    <line
+      x1="400"
+      y1="10"
+      x2="529.8104042517097"
+      y2="315.76861486378897"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:84:line</title>
   </g>
@@ -1717,7 +1784,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:84:intersectDot</title>
@@ -1726,12 +1792,14 @@
     <title>`r85`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 358.1539257192356 102.15970423792263"
+    <line
+      x1="400"
+      y1="10"
+      x2="358.1539257192356"
+      y2="102.15970423792263"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:47:line</title>
   </g>
@@ -1743,7 +1811,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:47:intersectDot</title>
@@ -1752,12 +1819,14 @@
     <title>`r48`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 339.4567111050729 99.88544545486081"
+    <line
+      x1="400"
+      y1="10"
+      x2="339.4567111050729"
+      y2="99.88544545486081"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:39:line</title>
   </g>
@@ -1769,7 +1838,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:39:intersectDot</title>
@@ -1778,12 +1846,14 @@
     <title>`r40`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 388.3525789110261 116.99728383459671"
+    <line
+      x1="400"
+      y1="10"
+      x2="388.3525789110261"
+      y2="116.99728383459671"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:26:line</title>
   </g>
@@ -1795,7 +1865,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:26:intersectDot</title>
@@ -1804,12 +1873,14 @@
     <title>`r27`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 335.62903472673906 99.97484099564832"
+    <line
+      x1="400"
+      y1="10"
+      x2="335.62903472673906"
+      y2="99.97484099564832"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:18:line</title>
   </g>
@@ -1821,7 +1892,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:18:intersectDot</title>
@@ -1830,12 +1900,14 @@
     <title>`r19`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 367.48872970369524 105.08128910234404"
+    <line
+      x1="400"
+      y1="10"
+      x2="367.48872970369524"
+      y2="105.08128910234404"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:59:line</title>
   </g>
@@ -1847,7 +1919,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:59:intersectDot</title>
@@ -1856,12 +1927,14 @@
     <title>`r60`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 322.2232201147155 101.77945665762132"
+    <line
+      x1="400"
+      y1="10"
+      x2="322.2232201147155"
+      y2="101.77945665762132"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:52:line</title>
   </g>
@@ -1873,7 +1946,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:52:intersectDot</title>
@@ -1882,12 +1954,14 @@
     <title>`r53`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 457.5164212162697 345.2682798302176"
+    <line
+      x1="400"
+      y1="10"
+      x2="457.5164212162697"
+      y2="345.2682798302176"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:79:line</title>
   </g>
@@ -1899,7 +1973,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:79:intersectDot</title>
@@ -1908,12 +1981,14 @@
     <title>`r80`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 337.9353582760381 99.89864819818843"
+    <line
+      x1="400"
+      y1="10"
+      x2="337.9353582760381"
+      y2="99.89864819818843"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:87:line</title>
   </g>
@@ -1925,7 +2000,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:87:intersectDot</title>
@@ -1934,12 +2008,14 @@
     <title>`r88`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 410.5345701025539 145.0461102697158"
+    <line
+      x1="400"
+      y1="10"
+      x2="410.5345701025539"
+      y2="145.0461102697158"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:12:line</title>
   </g>
@@ -1951,7 +2027,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:12:intersectDot</title>
@@ -1960,12 +2035,14 @@
     <title>`r13`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 345.33431870601277 100.11127558173692"
+    <line
+      x1="400"
+      y1="10"
+      x2="345.33431870601277"
+      y2="100.11127558173692"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:10:line</title>
   </g>
@@ -1977,7 +2054,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:10:intersectDot</title>
@@ -1986,12 +2062,14 @@
     <title>`r11`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 396.10707454714947 124.06433456333983"
+    <line
+      x1="400"
+      y1="10"
+      x2="396.10707454714947"
+      y2="124.06433456333983"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:98:line</title>
   </g>
@@ -2003,7 +2081,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:98:intersectDot</title>
@@ -2012,12 +2089,14 @@
     <title>`r99`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 385.76516680959554 115.0237838201034"
+    <line
+      x1="400"
+      y1="10"
+      x2="385.76516680959554"
+      y2="115.0237838201034"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:58:line</title>
   </g>
@@ -2029,7 +2108,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:58:intersectDot</title>
@@ -2038,12 +2116,14 @@
     <title>`r59`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 358.3041962576428 102.19680809139169"
+    <line
+      x1="400"
+      y1="10"
+      x2="358.3041962576428"
+      y2="102.19680809139169"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:14:line</title>
   </g>
@@ -2055,7 +2135,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:14:intersectDot</title>
@@ -2064,12 +2143,14 @@
     <title>`r15`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 387.44963696316063 116.28924999342553"
+    <line
+      x1="400"
+      y1="10"
+      x2="387.44963696316063"
+      y2="116.28924999342553"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:72:line</title>
   </g>
@@ -2081,7 +2162,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:72:intersectDot</title>
@@ -2090,12 +2170,14 @@
     <title>`r73`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 344.0704188992079 100.02550737831177"
+    <line
+      x1="400"
+      y1="10"
+      x2="344.0704188992079"
+      y2="100.02550737831177"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:89:line</title>
   </g>
@@ -2107,7 +2189,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:89:intersectDot</title>
@@ -2116,12 +2197,14 @@
     <title>`r90`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 400 10"
+    <line
+      x1="400"
+      y1="10"
+      x2="400"
+      y2="10"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:32:line</title>
   </g>
@@ -2133,7 +2216,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:32:intersectDot</title>
@@ -2142,12 +2224,14 @@
     <title>`r33`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 372.5620734602494 107.22979611421849"
+    <line
+      x1="400"
+      y1="10"
+      x2="372.5620734602494"
+      y2="107.22979611421849"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:73:line</title>
   </g>
@@ -2159,7 +2243,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:73:intersectDot</title>
@@ -2168,12 +2251,14 @@
     <title>`r74`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 530.152614646308 315.6289754143518"
+    <line
+      x1="400"
+      y1="10"
+      x2="530.152614646308"
+      y2="315.6289754143518"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:6:line</title>
   </g>
@@ -2185,7 +2270,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:6:intersectDot</title>
@@ -2194,12 +2278,14 @@
     <title>`r7`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 344.87920612436494 100.07803466326496"
+    <line
+      x1="400"
+      y1="10"
+      x2="344.87920612436494"
+      y2="100.07803466326496"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:13:line</title>
   </g>
@@ -2211,7 +2297,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:13:intersectDot</title>
@@ -2220,12 +2305,14 @@
     <title>`r14`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 453.70023578230695 346.8254798491524"
+    <line
+      x1="400"
+      y1="10"
+      x2="453.70023578230695"
+      y2="346.8254798491524"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:70:line</title>
   </g>
@@ -2237,7 +2324,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:70:intersectDot</title>
@@ -2246,12 +2332,14 @@
     <title>`r71`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 324.31836599701563 101.34096309284956"
+    <line
+      x1="400"
+      y1="10"
+      x2="324.31836599701563"
+      y2="101.34096309284956"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:8:line</title>
   </g>
@@ -2263,7 +2351,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:8:intersectDot</title>
@@ -2272,12 +2359,14 @@
     <title>`r9`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 474.8212361577001 338.2070249146045"
+    <line
+      x1="400"
+      y1="10"
+      x2="474.8212361577001"
+      y2="338.2070249146045"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:94:line</title>
   </g>
@@ -2289,7 +2378,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:94:intersectDot</title>
@@ -2298,12 +2386,14 @@
     <title>`r95`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 485.40649717640684 333.88769375420947"
+    <line
+      x1="400"
+      y1="10"
+      x2="485.40649717640684"
+      y2="333.88769375420947"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:35:line</title>
   </g>
@@ -2315,7 +2405,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:35:intersectDot</title>
@@ -2324,12 +2413,14 @@
     <title>`r36`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 400 10"
+    <line
+      x1="400"
+      y1="10"
+      x2="400"
+      y2="10"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:51:line</title>
   </g>
@@ -2341,7 +2432,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:51:intersectDot</title>
@@ -2350,12 +2440,14 @@
     <title>`r52`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 514.5192023572617 322.00821204574396"
+    <line
+      x1="400"
+      y1="10"
+      x2="514.5192023572617"
+      y2="322.00821204574396"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:23:line</title>
   </g>
@@ -2367,7 +2459,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:23:intersectDot</title>
@@ -2376,12 +2467,14 @@
     <title>`r24`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 456.1678673911618 345.81855918071864"
+    <line
+      x1="400"
+      y1="10"
+      x2="456.1678673911618"
+      y2="345.81855918071864"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:75:line</title>
   </g>
@@ -2393,7 +2486,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:75:intersectDot</title>
@@ -2402,12 +2494,14 @@
     <title>`r76`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 385.5630466842488 114.87662618775536"
+    <line
+      x1="400"
+      y1="10"
+      x2="385.5630466842488"
+      y2="114.87662618775536"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:7:line</title>
   </g>
@@ -2419,7 +2513,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:7:intersectDot</title>
@@ -2428,12 +2521,14 @@
     <title>`r8`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 342.89334358343353 99.96400003756489"
+    <line
+      x1="400"
+      y1="10"
+      x2="342.89334358343353"
+      y2="99.96400003756489"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:43:line</title>
   </g>
@@ -2445,7 +2540,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:43:intersectDot</title>
@@ -2454,12 +2548,14 @@
     <title>`r44`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 329.04316771947003 100.56753762914596"
+    <line
+      x1="400"
+      y1="10"
+      x2="329.04316771947003"
+      y2="100.56753762914596"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:49:line</title>
   </g>
@@ -2471,7 +2567,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:49:intersectDot</title>
@@ -2480,12 +2575,14 @@
     <title>`r50`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 341.16621367595445 99.90573141161735"
+    <line
+      x1="400"
+      y1="10"
+      x2="341.16621367595445"
+      y2="99.90573141161735"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:50:line</title>
   </g>
@@ -2497,7 +2594,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:50:intersectDot</title>
@@ -2506,12 +2602,14 @@
     <title>`r51`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 410.6353494669693 145.26116025418438"
+    <line
+      x1="400"
+      y1="10"
+      x2="410.6353494669693"
+      y2="145.26116025418438"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:46:line</title>
   </g>
@@ -2523,7 +2621,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:46:intersectDot</title>
@@ -2532,12 +2629,14 @@
     <title>`r47`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 415.62971027518483 159.29672506770794"
+    <line
+      x1="400"
+      y1="10"
+      x2="415.62971027518483"
+      y2="159.29672506770794"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:31:line</title>
   </g>
@@ -2549,7 +2648,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:31:intersectDot</title>
@@ -2558,12 +2656,14 @@
     <title>`r32`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 363.79765293123984 103.77291877840338"
+    <line
+      x1="400"
+      y1="10"
+      x2="363.79765293123984"
+      y2="103.77291877840338"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:81:line</title>
   </g>
@@ -2575,7 +2675,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:81:intersectDot</title>
@@ -2584,12 +2683,14 @@
     <title>`r82`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 374.58997244398626 108.20925330256557"
+    <line
+      x1="400"
+      y1="10"
+      x2="374.58997244398626"
+      y2="108.20925330256557"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:95:line</title>
   </g>
@@ -2601,7 +2702,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:95:intersectDot</title>
@@ -2610,12 +2710,14 @@
     <title>`r96`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 505.1481982870429 325.8320638915466"
+    <line
+      x1="400"
+      y1="10"
+      x2="505.1481982870429"
+      y2="325.8320638915466"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:86:line</title>
   </g>
@@ -2627,7 +2729,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:86:intersectDot</title>
@@ -2636,12 +2737,14 @@
     <title>`r87`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 337.4669632253167 99.9086408602331"
+    <line
+      x1="400"
+      y1="10"
+      x2="337.4669632253167"
+      y2="99.9086408602331"
+      stroke="#ff8000"
       stroke-opacity="0.1"
       stroke-width="3.5"
-      stroke="#ff8000"
-      stroke-linecap="butt"
     />
     <title>3:97:line</title>
   </g>
@@ -2653,7 +2756,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="2.5"
   >
     <title>3:97:intersectDot</title>

@@ -14,7 +14,6 @@
     stroke="#000000"
     stroke-opacity="0.2"
     stroke-width="1"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 120, 90)"
   >
@@ -37,11 +36,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 120 90 L 67.48378009394528 114.14412514630094"
+    <line
+      x1="120"
+      y1="90"
+      x2="67.48378009394528"
+      y2="114.14412514630094"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.5"
-      stroke="#000000"
       stroke-linecap="round"
       marker-end="url(#vector-wedge__registry-ArtemisCrane740-`c`.icon-endArrowId)"
     />
@@ -96,11 +98,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 120 90 L 135.34901282763946 12.706033815607938"
+    <line
+      x1="120"
+      y1="90"
+      x2="135.34901282763946"
+      y2="12.706033815607938"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.5"
-      stroke="#000000"
       stroke-linecap="round"
       marker-end="url(#vector-wedge__registry-ArtemisCrane740-`b`.icon-endArrowId)"
     />
@@ -126,9 +131,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#0400cc"
       fill-opacity="0.2"
+      stroke="none"
       d="M 120 90 L 136.45777769800344 7.122558489948588 L 78.76947735313169 33.6445272359016 L 62.31169965512827 116.52196874595302 Z "
     />
     <title>`v`.icon</title>
@@ -150,11 +155,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 120 90 L 164.11843009544782 101.44016579243717"
+    <line
+      x1="120"
+      y1="90"
+      x2="164.11843009544782"
+      y2="101.44016579243717"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.5"
-      stroke="#000000"
       stroke-linecap="round"
       marker-end="url(#vector-wedge__registry-ArtemisCrane740-`a`.icon-endArrowId)"
     />
@@ -180,9 +188,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#7f00cc"
       fill-opacity="0.2"
+      stroke="none"
       d="M 120 90 L 169.6286901032886 102.86900829460134 L 186.08646780129203 19.991566784549917 L 136.45777769800344 7.122558489948588 Z "
     />
     <title>`u`.icon</title>
@@ -287,10 +295,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#7f00cc"
       fill="none"
-      stroke-width="1.125"
+      stroke="#7f00cc"
       stroke-opacity="1"
+      stroke-width="1.125"
+      stroke-linecap="butt"
       d="M 159.3266074708303 73.13247812020397 A 19.194284352218354 19.194284352218354 0 0 1 146.75986033046172 36.85908866434595"
       marker-start="url(#vector-wedge__`u`.marker-startArrowId)"
     />
@@ -376,10 +385,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#0400cc"
       fill="none"
-      stroke-width="1.125"
+      stroke="#0400cc"
       stroke-opacity="1"
+      stroke-width="1.125"
+      stroke-linecap="butt"
       d="M 110.2024618949057 45.86116936135734 A 19.28159022900243 19.28159022900243 0 0 1 88.567015458226 77.78335787454427"
       marker-start="url(#vector-wedge__`v`.marker-startArrowId)"
     />

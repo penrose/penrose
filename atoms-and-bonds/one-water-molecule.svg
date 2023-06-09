@@ -10,12 +10,14 @@
     </croppedViewBox>
   </penrose>
   <g>
-    <path
-      d="M 481.3576006377833 257.6434977847032 L 430.72969221565825 343.8804670804068"
+    <line
+      x1="481.3576006377833"
+      y1="257.6434977847032"
+      x2="430.72969221565825"
+      y2="343.8804670804068"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`SBond_H2_O1`.symbol</title>
   </g>
@@ -64,12 +66,14 @@
     <title>`H2`.shape</title>
   </g>
   <g>
-    <path
-      d="M 334.5625002843333 316.46019877757465 L 430.72969221565825 343.8804670804068"
+    <line
+      x1="334.5625002843333"
+      y1="316.46019877757465"
+      x2="430.72969221565825"
+      y2="343.8804670804068"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`SBond_H1_O1`.symbol</title>
   </g>

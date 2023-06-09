@@ -37,12 +37,14 @@
         fill-opacity="0.6588235294117647"
       />
     </marker>
-    <path
-      d="M 170 200 L 101.96964218870696 160.60217466575784"
+    <line
+      x1="170"
+      y1="200"
+      x2="101.96964218870696"
+      y2="160.60217466575784"
+      stroke="#22a34d"
       stroke-opacity="0.6588235294117647"
       stroke-width="1.5"
-      stroke="#22a34d"
-      stroke-linecap="butt"
       marker-end="url(#open-elastic-curve__registry-ClamshellKookabura228-`c`.arrow1-endArrowId)"
     />
     <title>`c`.arrow1</title>
@@ -64,12 +66,14 @@
         fill-opacity="0.6588235294117647"
       />
     </marker>
-    <path
-      d="M 430 200 L 485.61132878057936 144.43293838740166"
+    <line
+      x1="430"
+      y1="200"
+      x2="485.61132878057936"
+      y2="144.43293838740166"
+      stroke="#22a34d"
       stroke-opacity="0.6588235294117647"
       stroke-width="1.5"
-      stroke="#22a34d"
-      stroke-linecap="butt"
       marker-end="url(#open-elastic-curve__registry-ClamshellKookabura228-`c`.arrow2-endArrowId)"
     />
     <title>`c`.arrow2</title>

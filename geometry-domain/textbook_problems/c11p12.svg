@@ -227,12 +227,14 @@
     </svg>
   </g>
   <g>
-    <path
-      d="M 208.17765830201245 322.7002524265646 L 109.2876422206929 263.10048110530516"
+    <line
+      x1="208.17765830201245"
+      y1="322.7002524265646"
+      x2="109.2876422206929"
+      y2="263.10048110530516"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`FD`.icon</title>
   </g>
@@ -243,7 +245,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.75"
-    stroke-linecap="butt"
     r="115.46261451589488"
   >
     <title>`c`.icon</title>
@@ -256,7 +257,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`D`.icon</title>
@@ -300,7 +300,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`E`.icon</title>
@@ -313,7 +312,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`A`.icon</title>
@@ -326,18 +324,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`F`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 208.17765830201245 322.7002524265646 L 267.7770734681973 223.80003258812403"
+    <line
+      x1="208.17765830201245"
+      y1="322.7002524265646"
+      x2="267.7770734681973"
+      y2="223.80003258812403"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`FB`.icon</title>
   </g>
@@ -349,18 +348,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`C`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 208.17765830201245 322.7002524265646 L 219.404374923751 207.78473482889058"
+    <line
+      x1="208.17765830201245"
+      y1="322.7002524265646"
+      x2="219.404374923751"
+      y2="207.78473482889058"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`FC`.icon</title>
   </g>
@@ -372,18 +372,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`B`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 304.538843788261 259.09099886040747 L 219.404374923751 207.78473482889058"
+    <line
+      x1="304.538843788261"
+      y1="259.09099886040747"
+      x2="219.404374923751"
+      y2="207.78473482889058"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`AC`.icon</title>
   </g>
@@ -395,7 +396,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`b`.icon</title>
@@ -408,28 +408,31 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`d`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 111.80625421064693 386.2940212673915 L 304.538843788261 259.09099886040747"
+    <line
+      x1="111.80625421064693"
+      y1="386.2940212673915"
+      x2="304.538843788261"
+      y2="259.09099886040747"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`EA`.icon</title>
   </g>
   <g>
-    <path
-      d="M 208.17765830201245 322.7002524265646 L 261.971609356006 233.43786684464902"
+    <line
+      x1="208.17765830201245"
+      y1="322.7002524265646"
+      x2="261.971609356006"
+      y2="233.43786684464902"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Fb`.icon</title>
   </g>
@@ -453,31 +456,36 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="2"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="2"
+      stroke-linecap="butt"
       d="M 251.64834041507663 250.56766665701363 L 234.518540602712 240.24439771608428 L 244.84181141806368 223.11459887184589"
     />
     <title>`Fb`.mark</title>
   </g>
   <g>
-    <path
-      d="M 111.80625421064693 386.2940212673915 L 219.404374923751 207.78473482889058"
+    <line
+      x1="111.80625421064693"
+      y1="386.2940212673915"
+      x2="219.404374923751"
+      y2="207.78473482889058"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`EC`.icon</title>
   </g>
   <g>
-    <path
-      d="M 208.17765830201245 322.7002524265646 L 165.60531456719895 297.03937804814103"
+    <line
+      x1="208.17765830201245"
+      y1="322.7002524265646"
+      x2="165.60531456719895"
+      y2="297.03937804814103"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Fd`.icon</title>
   </g>
@@ -501,10 +509,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="2"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="2"
+      stroke-linecap="butt"
       d="M 182.73428297922868 307.36402236161916 L 193.0589272927068 290.2350539495894 L 175.9299596455285 279.91040764002753"
     />
     <title>`Fd`.mark</title>

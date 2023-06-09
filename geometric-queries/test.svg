@@ -48,22 +48,26 @@
     closest silhouette point
   </text>
   <g fill="none">
-    <path
-      d="M 325 20 L 365 20"
+    <line
+      x1="325"
+      y1="20"
+      x2="365"
+      y2="20"
+      stroke="#00aa00"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#00aa00"
-      stroke-linecap="butt"
     />
     <title>legend.silhouetteLine</title>
   </g>
   <g fill="none">
-    <path
-      d="M 130 20 L 170 20"
+    <line
+      x1="130"
+      y1="20"
+      x2="170"
+      y2="20"
+      stroke="#6666dd"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#6666dd"
-      stroke-linecap="butt"
     />
     <title>legend.closestLine</title>
   </g>
@@ -123,12 +127,14 @@
     shape
   </text>
   <g fill="none">
-    <path
-      d="M 615 20 L 655 20"
+    <line
+      x1="615"
+      y1="20"
+      x2="655"
+      y2="20"
+      stroke="#ff6600"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#ff6600"
-      stroke-linecap="butt"
     />
     <title>legend.rayLine</title>
   </g>
@@ -142,7 +148,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 133.33333333333337, 212.5)"
   >
@@ -158,7 +163,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 400.00000000000006, 537.5)"
   >
@@ -174,20 +178,21 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 666.6666666666667, 212.5)"
   >
     <title>`M`.box</title>
   </rect>
   <g fill="none">
-    <path
-      d="M 303.17073184005096 403.6535841777518 L 374.622356741086 502.42066234962783"
+    <line
+      x1="303.17073184005096"
+      y1="403.6535841777518"
+      x2="374.622356741086"
+      y2="502.42066234962783"
+      stroke="#ff6600"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#ff6600"
       stroke-dasharray="8,6"
-      stroke-linecap="butt"
     />
     <title>`aR`.raySegment</title>
   </g>
@@ -201,7 +206,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 400.00000000000006, 212.5)"
   >
@@ -217,7 +221,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 666.6666666666667, 537.5)"
   >
@@ -233,7 +236,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 133.33333333333337, 537.5)"
   >
@@ -256,24 +258,28 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 303.17073184005096 403.6535841777518 L 321.0552198212101 428.37518602999364"
+    <line
+      x1="303.17073184005096"
+      y1="403.6535841777518"
+      x2="321.0552198212101"
+      y2="428.37518602999364"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2.5"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-MettwurstCattle35745-`rR`.icon-endArrowId)"
     />
     <title>`rR`.icon</title>
   </g>
   <g fill="none">
-    <path
-      d="M 508.15349032907613 75.01917068800833 L 451.8311330858129 146.614126699598"
+    <line
+      x1="508.15349032907613"
+      y1="75.01917068800833"
+      x2="451.8311330858129"
+      y2="146.614126699598"
+      stroke="#ff6600"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#ff6600"
       stroke-dasharray="8,6"
-      stroke-linecap="butt"
     />
     <title>`aL`.raySegment</title>
   </g>
@@ -294,12 +300,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 508.15349032907613 75.01917068800833 L 489.28788811870646 99.00044609077247"
+    <line
+      x1="508.15349032907613"
+      y1="75.01917068800833"
+      x2="489.28788811870646"
+      y2="99.00044609077247"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2.5"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-MettwurstCattle35745-`rL`.icon-endArrowId)"
     />
     <title>`rL`.icon</title>
@@ -314,13 +322,15 @@
     <title>`P`.icon</title>
   </polygon>
   <g fill="none">
-    <path
-      d="M 558.3486675067749 400.38344159512235 L 664.4136071850903 534.6479184956214"
+    <line
+      x1="558.3486675067749"
+      y1="400.38344159512235"
+      x2="664.4136071850903"
+      y2="534.6479184956214"
+      stroke="#ff6600"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#ff6600"
       stroke-dasharray="8,6"
-      stroke-linecap="butt"
     />
     <title>`aE`.raySegment</title>
   </g>
@@ -341,12 +351,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 558.3486675067749 400.38344159512235 L 577.2628855272831 424.3263919820042"
+    <line
+      x1="558.3486675067749"
+      y1="400.38344159512235"
+      x2="577.2628855272831"
+      y2="424.3263919820042"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2.5"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-MettwurstCattle35745-`rE`.icon-endArrowId)"
     />
     <title>`rE`.icon</title>
@@ -375,13 +387,15 @@
     <title>`C`.icon</title>
   </circle>
   <g fill="none">
-    <path
-      d="M 208.0426663853056 400 L 208.0426663853056 400"
+    <line
+      x1="208.0426663853056"
+      y1="400"
+      x2="208.0426663853056"
+      y2="400"
+      stroke="#ff6600"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#ff6600"
       stroke-dasharray="8,6"
-      stroke-linecap="butt"
     />
     <title>`aC`.raySegment</title>
   </g>
@@ -402,12 +416,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 208.0426663853056 400 L 193.47539161808763 426.81057638540375"
+    <line
+      x1="208.0426663853056"
+      y1="400"
+      x2="193.47539161808763"
+      y2="426.81057638540375"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2.5"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-MettwurstCattle35745-`rC`.icon-endArrowId)"
     />
     <title>`rC`.icon</title>
@@ -424,13 +440,15 @@
     <title>`E`.icon</title>
   </ellipse>
   <g fill="none">
-    <path
-      d="M 559.0729032925981 349.971386186488 L 761.7657598239923 90.99291862797372"
+    <line
+      x1="559.0729032925981"
+      y1="349.971386186488"
+      x2="761.7657598239923"
+      y2="90.99291862797372"
+      stroke="#ff6600"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#ff6600"
       stroke-dasharray="8,6"
-      stroke-linecap="butt"
     />
     <title>`aM`.raySegment</title>
   </g>
@@ -451,12 +469,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 559.0729032925981 349.971386186488 L 577.8788164628028 325.9432746032673"
+    <line
+      x1="559.0729032925981"
+      y1="349.971386186488"
+      x2="577.8788164628028"
+      y2="325.9432746032673"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2.5"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-MettwurstCattle35745-`rM`.icon-endArrowId)"
     />
     <title>`rM`.icon</title>
@@ -478,23 +498,27 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 374.622356741086 502.42066234962783 L 374.622356741086 471.90816547409463"
+    <line
+      x1="374.622356741086"
+      y1="502.42066234962783"
+      x2="374.622356741086"
+      y2="471.90816547409463"
+      stroke="#ff6600"
       stroke-opacity="1"
       stroke-width="2.5"
-      stroke="#ff6600"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-MettwurstCattle35745-`aR`.normalArrow-endArrowId)"
     />
     <title>`aR`.normalArrow</title>
   </g>
   <g fill="none">
-    <path
-      d="M 359.4630722904812 99.45006119625003 L 478.4687420061169 160.21555906866723"
+    <line
+      x1="359.4630722904812"
+      y1="99.45006119625003"
+      x2="478.4687420061169"
+      y2="160.21555906866723"
+      stroke="#000000"
       stroke-opacity="0.2"
       stroke-width="5"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`L`.icon</title>
   </g>
@@ -511,13 +535,15 @@
     <title>`M`.icon</title>
   </polyline>
   <g fill="none">
-    <path
-      d="M 240.85885469585673 349.9743434468057 L 185.7738972770034 279.54670674258136"
+    <line
+      x1="240.85885469585673"
+      y1="349.9743434468057"
+      x2="185.7738972770034"
+      y2="279.54670674258136"
+      stroke="#ff6600"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#ff6600"
       stroke-dasharray="8,6"
-      stroke-linecap="butt"
     />
     <title>`aP`.raySegment</title>
   </g>
@@ -538,12 +564,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 240.85885469585673 349.9743434468057 L 222.06059187690596 325.9402461810707"
+    <line
+      x1="240.85885469585673"
+      y1="349.9743434468057"
+      x2="222.06059187690596"
+      y2="325.9402461810707"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2.5"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-MettwurstCattle35745-`rP`.icon-endArrowId)"
     />
     <title>`rP`.icon</title>
@@ -556,7 +584,6 @@
     stroke="#ff6600"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>`aR`.icon</title>
@@ -578,12 +605,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 208.0426663853056 400 L NaN NaN"
+    <line
+      x1="208.0426663853056"
+      y1="400"
+      x2="NaN"
+      y2="NaN"
+      stroke="#ff6600"
       stroke-opacity="1"
       stroke-width="2.5"
-      stroke="#ff6600"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-MettwurstCattle35745-`aC`.normalArrow-endArrowId)"
     />
     <title>`aC`.normalArrow</title>
@@ -596,18 +625,19 @@
     stroke="#ff6600"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>`aC`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 508.15349032907613 75.01917068800833 L 467.50884658565406 154.61932568377543"
+    <line
+      x1="508.15349032907613"
+      y1="75.01917068800833"
+      x2="467.50884658565406"
+      y2="154.61932568377543"
+      stroke="#6666dd"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#6666dd"
-      stroke-linecap="butt"
     />
     <title>`bL`.querySegment</title>
   </g>
@@ -619,7 +649,6 @@
     stroke="#6666dd"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>`bL`.icon</title>
@@ -641,12 +670,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 185.7738972770034 279.54670674258136 L 197.49872009662147 307.7165656329634"
+    <line
+      x1="185.7738972770034"
+      y1="279.54670674258136"
+      x2="197.49872009662147"
+      y2="307.7165656329634"
+      stroke="#ff6600"
       stroke-opacity="1"
       stroke-width="2.5"
-      stroke="#ff6600"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-MettwurstCattle35745-`aP`.normalArrow-endArrowId)"
     />
     <title>`aP`.normalArrow</title>
@@ -659,18 +690,19 @@
     stroke="#ff6600"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>`aP`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 208.0426663853056 400 L 245.69044298499747 616.827565964199"
+    <line
+      x1="208.0426663853056"
+      y1="400"
+      x2="245.69044298499747"
+      y2="616.827565964199"
+      stroke="#00aa00"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#00aa00"
-      stroke-linecap="butt"
     />
     <title>`cC`.querySegment</title>
   </g>
@@ -682,7 +714,6 @@
     stroke="#00aa00"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>`cC`.icon</title>
@@ -704,12 +735,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 761.7657598239923 90.99291862797372 L 739.5648910455025 111.92456236001857"
+    <line
+      x1="761.7657598239923"
+      y1="90.99291862797372"
+      x2="739.5648910455025"
+      y2="111.92456236001857"
+      stroke="#ff6600"
       stroke-opacity="1"
       stroke-width="2.5"
-      stroke="#ff6600"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-MettwurstCattle35745-`aM`.normalArrow-endArrowId)"
     />
     <title>`aM`.normalArrow</title>
@@ -722,18 +755,19 @@
     stroke="#ff6600"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>`aM`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 303.17073184005096 403.6535841777518 L 325.63429078020346 502.42066234962783"
+    <line
+      x1="303.17073184005096"
+      y1="403.6535841777518"
+      x2="325.63429078020346"
+      y2="502.42066234962783"
+      stroke="#6666dd"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#6666dd"
-      stroke-linecap="butt"
     />
     <title>`bR`.querySegment</title>
   </g>
@@ -745,7 +779,6 @@
     stroke="#6666dd"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>`bR`.icon</title>
@@ -767,12 +800,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 664.4136071850903 534.6479184956214 L 634.2473947641492 530.0640413000001"
+    <line
+      x1="664.4136071850903"
+      y1="534.6479184956214"
+      x2="634.2473947641492"
+      y2="530.0640413000001"
+      stroke="#ff6600"
       stroke-opacity="1"
       stroke-width="2.5"
-      stroke="#ff6600"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-MettwurstCattle35745-`aE`.normalArrow-endArrowId)"
     />
     <title>`aE`.normalArrow</title>
@@ -785,7 +820,6 @@
     stroke="#ff6600"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>`aE`.icon</title>
@@ -818,12 +852,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 451.8311330858129 146.614126699598 L 465.70691241483627 119.43922532145334"
+    <line
+      x1="451.8311330858129"
+      y1="146.614126699598"
+      x2="465.70691241483627"
+      y2="119.43922532145334"
+      stroke="#ff6600"
       stroke-opacity="1"
       stroke-width="2.5"
-      stroke="#ff6600"
-      stroke-linecap="butt"
       marker-end="url(#test__registry-MettwurstCattle35745-`aL`.normalArrow-endArrowId)"
     />
     <title>`aL`.normalArrow</title>
@@ -836,18 +872,19 @@
     stroke="#ff6600"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>`aL`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 303.17073184005096 403.6535841777518 L 423.2909439605491 502.42066234962783"
+    <line
+      x1="303.17073184005096"
+      y1="403.6535841777518"
+      x2="423.2909439605491"
+      y2="502.42066234962783"
+      stroke="#00aa00"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#00aa00"
-      stroke-linecap="butt"
     />
     <title>`cR`.querySegment</title>
   </g>
@@ -859,18 +896,19 @@
     stroke="#00aa00"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>`cR`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 558.3486675067749 400.38344159512235 L 676.749309451621 503.0253665543298"
+    <line
+      x1="558.3486675067749"
+      y1="400.38344159512235"
+      x2="676.749309451621"
+      y2="503.0253665543298"
+      stroke="#6666dd"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#6666dd"
-      stroke-linecap="butt"
     />
     <title>`bE`.querySegment</title>
   </g>
@@ -882,18 +920,19 @@
     stroke="#6666dd"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>`bE`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 240.85885469585673 349.9743434468057 L 207.74016111631377 270.4039363606952"
+    <line
+      x1="240.85885469585673"
+      y1="349.9743434468057"
+      x2="207.74016111631377"
+      y2="270.4039363606952"
+      stroke="#6666dd"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#6666dd"
-      stroke-linecap="butt"
     />
     <title>`bP`.querySegment</title>
   </g>
@@ -905,28 +944,31 @@
     stroke="#6666dd"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>`bP`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 559.0729032925981 349.971386186488 L 791.2508532776903 199.9691306468695"
+    <line
+      x1="559.0729032925981"
+      y1="349.971386186488"
+      x2="791.2508532776903"
+      y2="199.9691306468695"
+      stroke="#00aa00"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#00aa00"
-      stroke-linecap="butt"
     />
     <title>`cM`.querySegment</title>
   </g>
   <g>
-    <path
-      d="M 559.0729032925981 349.971386186488 L 791.2508532776903 199.9691306468695"
+    <line
+      x1="559.0729032925981"
+      y1="349.971386186488"
+      x2="791.2508532776903"
+      y2="199.9691306468695"
+      stroke="#6666dd"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#6666dd"
-      stroke-linecap="butt"
     />
     <title>`bM`.querySegment</title>
   </g>
@@ -948,18 +990,19 @@
     stroke="#00aa00"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>`cM`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 240.85885469585673 349.9743434468057 L 157.61967402417736 291.26502171703305"
+    <line
+      x1="240.85885469585673"
+      y1="349.9743434468057"
+      x2="157.61967402417736"
+      y2="291.26502171703305"
+      stroke="#00aa00"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#00aa00"
-      stroke-linecap="butt"
     />
     <title>`cP`.querySegment</title>
   </g>
@@ -971,18 +1014,19 @@
     stroke="#00aa00"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>`cP`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 558.3486675067749 400.38344159512235 L 699.7677697642594 498.6832378581663"
+    <line
+      x1="558.3486675067749"
+      y1="400.38344159512235"
+      x2="699.7677697642594"
+      y2="498.6832378581663"
+      stroke="#00aa00"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#00aa00"
-      stroke-linecap="butt"
     />
     <title>`cE`.querySegment</title>
   </g>
@@ -1004,7 +1048,6 @@
     stroke="#00aa00"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>`cE`.icon</title>
@@ -1020,12 +1063,14 @@
     <title>`pP`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 508.15349032907613 75.01917068800833 L 478.4687420061169 160.21555906866723"
+    <line
+      x1="508.15349032907613"
+      y1="75.01917068800833"
+      x2="478.4687420061169"
+      y2="160.21555906866723"
+      stroke="#00aa00"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#00aa00"
-      stroke-linecap="butt"
     />
     <title>`cL`.querySegment</title>
   </g>
@@ -1047,18 +1092,19 @@
     stroke="#00aa00"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>`cL`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 208.0426663853056 400 L 196.23966725924095 572.2472232246529"
+    <line
+      x1="208.0426663853056"
+      y1="400"
+      x2="196.23966725924095"
+      y2="572.2472232246529"
+      stroke="#6666dd"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#6666dd"
-      stroke-linecap="butt"
     />
     <title>`bC`.querySegment</title>
   </g>
@@ -1090,7 +1136,6 @@
     stroke="#6666dd"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>`bM`.icon</title>
@@ -1103,7 +1148,6 @@
     stroke="#6666dd"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>`bC`.icon</title>
@@ -1169,7 +1213,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="6"
-    stroke-linecap="butt"
     transform="rotate(0, 133.33333333333337, 407)"
     style="font: 24px monospace"
     x="133.33333333333337"
@@ -1194,7 +1237,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="6"
-    stroke-linecap="butt"
     transform="rotate(0, 666.6666666666667, 407)"
     style="font: 24px monospace"
     x="666.6666666666667"
@@ -1219,7 +1261,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="6"
-    stroke-linecap="butt"
     transform="rotate(0, 400.00000000000006, 82)"
     style="font: 24px monospace"
     x="400.00000000000006"
@@ -1244,7 +1285,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="6"
-    stroke-linecap="butt"
     transform="rotate(0, 666.6666666666667, 82)"
     style="font: 24px monospace"
     x="666.6666666666667"
@@ -1269,7 +1309,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="6"
-    stroke-linecap="butt"
     transform="rotate(0, 133.33333333333337, 82)"
     style="font: 24px monospace"
     x="133.33333333333337"
@@ -1294,7 +1333,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="6"
-    stroke-linecap="butt"
     transform="rotate(0, 400.00000000000006, 407)"
     style="font: 24px monospace"
     x="400.00000000000006"

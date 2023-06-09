@@ -28,7 +28,6 @@
     stroke="#808080"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     transform="scale(1)"
     points="282.8198680761845,230.9912106547951,162.8386780596474,196.991748852703,-0.48866046222906334,240.38013421447891,-0.48866041062194654,-0.383856544224102,162.66461835528332,43.043043993741065,289.3000345434218,27.319677025943093"
   >
@@ -95,18 +94,19 @@
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="90.80428565400705"
   >
     <title>`x0`.sphere</title>
   </circle>
   <g>
-    <path
-      d="M 112.73975157900193 79.55886212474805 L 178.51765567010648 147.92827413546226"
+    <line
+      x1="112.73975157900193"
+      y1="79.55886212474805"
+      x2="178.51765567010648"
+      y2="147.92827413546226"
+      stroke="#0000b3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#0000b3"
-      stroke-linecap="butt"
     />
     <title>9:0:walkLine</title>
   </g>
@@ -171,18 +171,19 @@
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="56.74635266470305"
   >
     <title>`x1`.sphere</title>
   </circle>
   <g>
-    <path
-      d="M 178.51765567010648 147.92827413546226 L 142.6638261473027 150.14581542312476"
+    <line
+      x1="178.51765567010648"
+      y1="147.92827413546226"
+      x2="142.6638261473027"
+      y2="150.14581542312476"
+      stroke="#0000b3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#0000b3"
-      stroke-linecap="butt"
     />
     <title>9:1:walkLine</title>
   </g>
@@ -247,18 +248,19 @@
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="43.60747757777838"
   >
     <title>`x2`.sphere</title>
   </circle>
   <g>
-    <path
-      d="M 142.6638261473027 150.14581542312476 L 162.53966683642415 103.8405992499325"
+    <line
+      x1="142.6638261473027"
+      y1="150.14581542312476"
+      x2="162.53966683642415"
+      y2="103.8405992499325"
+      stroke="#0000b3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#0000b3"
-      stroke-linecap="butt"
     />
     <title>9:2:walkLine</title>
   </g>
@@ -353,7 +355,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="2.5"
-    stroke-linecap="butt"
     transform="rotate(0, 253.32142858800438, 207.42790861577492)"
     style="font: italic 12px Palatino"
     x="253.32142858800438"
@@ -389,7 +390,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="2.5"
-    stroke-linecap="butt"
     transform="rotate(0, 145.25144306689037, 158.32154970068027)"
     style="font: italic 12px Palatino"
     x="145.25144306689037"
@@ -425,7 +425,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="2.5"
-    stroke-linecap="butt"
     transform="rotate(0, 100.81821747600833, 84.69491237111086)"
     style="font: italic 12px Palatino"
     x="100.81821747600833"
@@ -462,18 +461,19 @@
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="31.3364154761435"
   >
     <title>`x3`.sphere</title>
   </circle>
   <g>
-    <path
-      d="M 162.53966683642415 103.8405992499325 L 188.0239827946544 57.665744103504345"
+    <line
+      x1="162.53966683642415"
+      y1="103.8405992499325"
+      x2="188.0239827946544"
+      y2="57.665744103504345"
+      stroke="#0000b3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#0000b3"
-      stroke-linecap="butt"
     />
     <title>9:3:walkLine</title>
   </g>
@@ -538,7 +538,6 @@
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="17.237384483619323"
   >
     <title>`x4`.sphere</title>
@@ -549,7 +548,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="2.5"
-    stroke-linecap="butt"
     transform="rotate(0, 176.94888758188802, 81.22449373151045)"
     style="font: italic 12px Palatino"
     x="176.94888758188802"
@@ -585,7 +583,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="2.5"
-    stroke-linecap="butt"
     transform="rotate(0, 132.2862618692413, 115.75161207146452)"
     style="font: italic 12px Palatino"
     x="132.2862618692413"

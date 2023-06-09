@@ -14,7 +14,6 @@
     stroke="#cccccc"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 240, 180)"
   >
@@ -208,9 +207,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#1b1f8a"
       fill-opacity="0.2"
+      stroke="none"
       d="M 277.9163686323186 225.0655220433693 L 73.03026861452787 243.0167202308791 L 236.35151169639687 357.4875599825057 Z "
     />
     <title>`IKB`.icon</title>
@@ -235,9 +234,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#1b1f8a"
       fill-opacity="0.2"
+      stroke="none"
       d="M 190.12515726826797 216.50075394319833 L 226.23715128278317 40.90351509070993 L 39.370400823769046 36.87232191109334 Z "
     />
     <title>`ikb`.icon</title>
@@ -263,41 +262,53 @@
     <title>`a`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 277.9163686323186 225.0655220433693 L 219.48667830102963 49.12897917536637"
+    <line
+      x1="277.9163686323186"
+      y1="225.0655220433693"
+      x2="219.48667830102963"
+      y2="49.12897917536637"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`IJ`.segment</title>
   </g>
   <g>
-    <path
-      d="M 190.12515726826797 216.50075394319833 L 304.04655270380874 177.86600141765237"
+    <line
+      x1="190.12515726826797"
+      y1="216.50075394319833"
+      x2="304.04655270380874"
+      y2="177.86600141765237"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`ij`.segment</title>
   </g>
   <g>
-    <path
-      d="M 219.48667830102963 49.12897917536637 L 73.03026861452787 243.0167202308791"
+    <line
+      x1="219.48667830102963"
+      y1="49.12897917536637"
+      x2="73.03026861452787"
+      y2="243.0167202308791"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`JK`.segment</title>
   </g>
   <g>
-    <path
-      d="M 304.04655270380874 177.86600141765237 L 226.23715128278317 40.90351509070993"
+    <line
+      x1="304.04655270380874"
+      y1="177.86600141765237"
+      x2="226.23715128278317"
+      y2="40.90351509070993"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`jk`.segment</title>
@@ -342,9 +353,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#1b1f8a"
       fill-opacity="0.2"
+      stroke="none"
       d="M 73.03026861452787 243.0167202308791 L 219.48667830102963 49.12897917536637 L 2.5057781839781796 37.39207253254418 Z "
     />
     <title>`KJA`.icon</title>
@@ -369,9 +380,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#1b1f8a"
       fill-opacity="0.2"
+      stroke="none"
       d="M 226.23715128278317 40.90351509070993 L 304.04655270380874 177.86600141765237 L 443.9699371542855 45.67207832095701 Z "
     />
     <title>`kja`.icon</title>
@@ -397,21 +408,27 @@
     <title>`c`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 277.9163686323186 225.0655220433693 L 399.95878310760463 136.50766521891265"
+    <line
+      x1="277.9163686323186"
+      y1="225.0655220433693"
+      x2="399.95878310760463"
+      y2="136.50766521891265"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`IL`.segment</title>
   </g>
   <g>
-    <path
-      d="M 190.12515726826797 216.50075394319833 L 296.39536988907093 260.088242355137"
+    <line
+      x1="190.12515726826797"
+      y1="216.50075394319833"
+      x2="296.39536988907093"
+      y2="260.088242355137"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`il`.segment</title>
@@ -457,10 +474,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="0.75"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="0.75"
+      stroke-linecap="butt"
       d="M 302.1973897038218 207.44644103086415 A 30 30 0 0 0 268.4609746098789 196.59456273602575"
     />
     <title>`cILJ`.arc</title>
@@ -485,9 +503,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#1b1f8a"
       fill-opacity="0.2"
+      stroke="none"
       d="M 302.1973897038218 207.44644103086415 A 30 30 0 0 0 268.4609746098789 196.59456273602575 L 277.9163686323186 225.0655220433693 Z "
     />
     <title>`cILJ`.arcFill</title>
@@ -533,10 +551,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="0.75"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="0.75"
+      stroke-linecap="butt"
       d="M 217.8811830921497 227.88508661859083 A 30 30 0 0 0 218.53581930688802 206.86569906388834"
     />
     <title>`cilj`.arc</title>
@@ -561,9 +580,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#1b1f8a"
       fill-opacity="0.2"
+      stroke="none"
       d="M 217.8811830921497 227.88508661859083 A 30 30 0 0 0 218.53581930688802 206.86569906388834 L 190.12515726826797 216.50075394319833 Z "
     />
     <title>`cilj`.arcFill</title>
@@ -588,9 +607,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#1b1f8a"
       fill-opacity="0.2"
+      stroke="none"
       d="M 399.95878310760463 136.50766521891265 L 277.9163686323186 225.0655220433693 L 366.6111979581078 276.0332462615887 Z "
     />
     <title>`LIC`.icon</title>
@@ -615,9 +634,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#1b1f8a"
       fill-opacity="0.2"
+      stroke="none"
       d="M 296.39536988907093 260.088242355137 L 190.12515726826797 216.50075394319833 L 235.96234624853128 354.4579636309845 Z "
     />
     <title>`lic`.icon</title>
@@ -663,10 +682,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="0.75"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="0.75"
+      stroke-linecap="butt"
       d="M 372.9571431757175 123.4343549652424 A 30 30 0 0 0 375.6777620361014 154.12674623141777"
     />
     <title>`cLJI`.arc</title>
@@ -691,9 +711,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#1b1f8a"
       fill-opacity="0.2"
+      stroke="none"
       d="M 372.9571431757175 123.4343549652424 A 30 30 0 0 0 375.6777620361014 154.12674623141777 L 399.95878310760463 136.50766521891265 Z "
     />
     <title>`cLJI`.arcFill</title>
@@ -739,10 +759,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="0.75"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="0.75"
+      stroke-linecap="butt"
       d="M 299.17500823457186 230.21729307882143 A 30 30 0 0 0 268.63934406518916 248.70390967974453"
     />
     <title>`clji`.arc</title>
@@ -767,9 +788,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#1b1f8a"
       fill-opacity="0.2"
+      stroke="none"
       d="M 299.17500823457186 230.21729307882143 A 30 30 0 0 0 268.63934406518916 248.70390967974453 L 296.39536988907093 260.088242355137 Z "
     />
     <title>`clji`.arcFill</title>
@@ -794,9 +815,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#1b1f8a"
       fill-opacity="0.2"
+      stroke="none"
       d="M 277.9163686323186 225.0655220433693 L 219.48667830102963 49.12897917536637 L 73.03026861452787 243.0167202308791 Z "
     />
     <title>`IJK`.icon</title>
@@ -821,9 +842,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#1b1f8a"
       fill-opacity="0.2"
+      stroke="none"
       d="M 190.12515726826797 216.50075394319833 L 304.04655270380874 177.86600141765237 L 226.23715128278317 40.90351509070993 Z "
     />
     <title>`ijk`.icon</title>
@@ -869,10 +890,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="0.75"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="0.75"
+      stroke-linecap="butt"
       d="M 228.9420723234693 77.59993848270992 A 30 30 0 0 0 246.48831823291675 62.20228942903661"
     />
     <title>`cJIL`.arc</title>
@@ -897,9 +919,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#1b1f8a"
       fill-opacity="0.2"
+      stroke="none"
       d="M 228.9420723234693 77.59993848270992 A 30 30 0 0 0 246.48831823291675 62.20228942903661 L 219.48667830102963 49.12897917536637 Z "
     />
     <title>`cJIL`.arcFill</title>
@@ -945,10 +967,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="0.75"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="0.75"
+      stroke-linecap="butt"
       d="M 275.6358906651887 187.50105629696233 A 30 30 0 0 0 301.26691435830776 207.73695069396797"
     />
     <title>`cjil`.arc</title>
@@ -973,9 +996,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#1b1f8a"
       fill-opacity="0.2"
+      stroke="none"
       d="M 275.6358906651887 187.50105629696233 A 30 30 0 0 0 301.26691435830776 207.73695069396797 L 304.04655270380874 177.86600141765237 Z "
     />
     <title>`cjil`.arcFill</title>
@@ -1020,9 +1043,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#1b1f8a"
       fill-opacity="0.2"
+      stroke="none"
       d="M 219.48667830102963 49.12897917536637 L 277.9163686323186 225.0655220433693 L 399.95878310760463 136.50766521891265 Z "
     />
     <title>`JIL`.icon</title>
@@ -1047,169 +1070,217 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#1b1f8a"
       fill-opacity="0.2"
+      stroke="none"
       d="M 304.04655270380874 177.86600141765237 L 190.12515726826797 216.50075394319833 L 296.39536988907093 260.088242355137 Z "
     />
     <title>`jil`.icon</title>
   </g>
   <g>
-    <path
-      d="M 73.03026861452787 243.0167202308791 L 2.5057781839781796 37.39207253254418"
+    <line
+      x1="73.03026861452787"
+      y1="243.0167202308791"
+      x2="2.5057781839781796"
+      y2="37.39207253254418"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.5"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`KA`.segment</title>
   </g>
   <g>
-    <path
-      d="M 226.23715128278317 40.90351509070993 L 443.9699371542855 45.67207832095701"
+    <line
+      x1="226.23715128278317"
+      y1="40.90351509070993"
+      x2="443.9699371542855"
+      y2="45.67207832095701"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.5"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`ka`.segment</title>
   </g>
   <g>
-    <path
-      d="M 219.48667830102963 49.12897917536637 L 2.5057781839781796 37.39207253254418"
+    <line
+      x1="219.48667830102963"
+      y1="49.12897917536637"
+      x2="2.5057781839781796"
+      y2="37.39207253254418"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.5"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`JA`.segment</title>
   </g>
   <g>
-    <path
-      d="M 304.04655270380874 177.86600141765237 L 443.9699371542855 45.67207832095701"
+    <line
+      x1="304.04655270380874"
+      y1="177.86600141765237"
+      x2="443.9699371542855"
+      y2="45.67207832095701"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.5"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`ja`.segment</title>
   </g>
   <g>
-    <path
-      d="M 73.03026861452787 243.0167202308791 L 236.35151169639687 357.4875599825057"
+    <line
+      x1="73.03026861452787"
+      y1="243.0167202308791"
+      x2="236.35151169639687"
+      y2="357.4875599825057"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.5"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`KB`.segment</title>
   </g>
   <g>
-    <path
-      d="M 226.23715128278317 40.90351509070993 L 39.370400823769046 36.87232191109334"
+    <line
+      x1="226.23715128278317"
+      y1="40.90351509070993"
+      x2="39.370400823769046"
+      y2="36.87232191109334"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.5"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`kb`.segment</title>
   </g>
   <g>
-    <path
-      d="M 399.95878310760463 136.50766521891265 L 366.6111979581078 276.0332462615887"
+    <line
+      x1="399.95878310760463"
+      y1="136.50766521891265"
+      x2="366.6111979581078"
+      y2="276.0332462615887"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.5"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`LC`.segment</title>
   </g>
   <g>
-    <path
-      d="M 296.39536988907093 260.088242355137 L 235.96234624853128 354.4579636309845"
+    <line
+      x1="296.39536988907093"
+      y1="260.088242355137"
+      x2="235.96234624853128"
+      y2="354.4579636309845"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.5"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`lc`.segment</title>
   </g>
   <g>
-    <path
-      d="M 277.9163686323186 225.0655220433693 L 236.35151169639687 357.4875599825057"
+    <line
+      x1="277.9163686323186"
+      y1="225.0655220433693"
+      x2="236.35151169639687"
+      y2="357.4875599825057"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.5"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`IB`.segment</title>
   </g>
   <g>
-    <path
-      d="M 190.12515726826797 216.50075394319833 L 39.370400823769046 36.87232191109334"
+    <line
+      x1="190.12515726826797"
+      y1="216.50075394319833"
+      x2="39.370400823769046"
+      y2="36.87232191109334"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.5"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`ib`.segment</title>
   </g>
   <g>
-    <path
-      d="M 277.9163686323186 225.0655220433693 L 366.6111979581078 276.0332462615887"
+    <line
+      x1="277.9163686323186"
+      y1="225.0655220433693"
+      x2="366.6111979581078"
+      y2="276.0332462615887"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.5"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`IC`.segment</title>
   </g>
   <g>
-    <path
-      d="M 190.12515726826797 216.50075394319833 L 235.96234624853128 354.4579636309845"
+    <line
+      x1="190.12515726826797"
+      y1="216.50075394319833"
+      x2="235.96234624853128"
+      y2="354.4579636309845"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.5"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`ic`.segment</title>
   </g>
   <g>
-    <path
-      d="M 73.03026861452787 243.0167202308791 L 277.9163686323186 225.0655220433693"
+    <line
+      x1="73.03026861452787"
+      y1="243.0167202308791"
+      x2="277.9163686323186"
+      y2="225.0655220433693"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`KI`.segment</title>
   </g>
   <g>
-    <path
-      d="M 226.23715128278317 40.90351509070993 L 190.12515726826797 216.50075394319833"
+    <line
+      x1="226.23715128278317"
+      y1="40.90351509070993"
+      x2="190.12515726826797"
+      y2="216.50075394319833"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`ki`.segment</title>
   </g>
   <g>
-    <path
-      d="M 399.95878310760463 136.50766521891265 L 219.48667830102963 49.12897917536637"
+    <line
+      x1="399.95878310760463"
+      y1="136.50766521891265"
+      x2="219.48667830102963"
+      y2="49.12897917536637"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.5"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`LJ`.segment</title>
   </g>
   <g>
-    <path
-      d="M 296.39536988907093 260.088242355137 L 304.04655270380874 177.86600141765237"
+    <line
+      x1="296.39536988907093"
+      y1="260.088242355137"
+      x2="304.04655270380874"
+      y2="177.86600141765237"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.5"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`lj`.segment</title>

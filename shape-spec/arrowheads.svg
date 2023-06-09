@@ -19,32 +19,38 @@
     <title>const.bg</title>
   </rect>
   <g>
-    <path
-      d="M 200 0 L 200 600"
+    <line
+      x1="200"
+      y1="0"
+      x2="200"
+      y2="600"
+      stroke="#ff0000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#ff0000"
-      stroke-linecap="butt"
     />
     <title>const.vguide1</title>
   </g>
   <g>
-    <path
-      d="M 10 0 L 10 600"
+    <line
+      x1="10"
+      y1="0"
+      x2="10"
+      y2="600"
+      stroke="#ff0000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#ff0000"
-      stroke-linecap="butt"
     />
     <title>const.vguide2</title>
   </g>
   <g>
-    <path
-      d="M 10 70 L 200 70"
+    <line
+      x1="10"
+      y1="70"
+      x2="200"
+      y2="70"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`none`.icon</title>
   </g>
@@ -125,12 +131,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 26.5 140 L 183.5 140"
+    <line
+      x1="26.5"
+      y1="140"
+      x2="183.5"
+      y2="140"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-start="url(#arrowheads__registry--`concave`.icon-startArrowId)"
       marker-end="url(#arrowheads__registry--`concave`.icon-endArrowId)"
     />
@@ -228,12 +236,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 32.77000000000001 210 L 177.23 210"
+    <line
+      x1="32.77000000000001"
+      y1="210"
+      x2="177.23"
+      y2="210"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-start="url(#arrowheads__registry--`straight`.icon-startArrowId)"
       marker-end="url(#arrowheads__registry--`straight`.icon-endArrowId)"
     />
@@ -340,12 +350,14 @@
         stroke-linecap="round"
       />
     </marker>
-    <path
-      d="M 17.5 280 L 192.5 280"
+    <line
+      x1="17.5"
+      y1="280"
+      x2="192.5"
+      y2="280"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-start="url(#arrowheads__registry--`line`.icon-startArrowId)"
       marker-end="url(#arrowheads__registry--`line`.icon-endArrowId)"
     />
@@ -432,12 +444,14 @@
         stroke-linecap="round"
       />
     </marker>
-    <path
-      d="M 32.5 350 L 177.5 350"
+    <line
+      x1="32.5"
+      y1="350"
+      x2="177.5"
+      y2="350"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-start="url(#arrowheads__registry--`doubleLine`.icon-startArrowId)"
       marker-end="url(#arrowheads__registry--`doubleLine`.icon-endArrowId)"
     />
@@ -546,12 +560,14 @@
     >
       <path d="M1 10 a 4 4 0 0 1 0 9" fill="none" stroke-linecap="round" />
     </marker>
-    <path
-      d="M 25 420 L 185 420"
+    <line
+      x1="25"
+      y1="420"
+      x2="185"
+      y2="420"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-start="url(#arrowheads__registry--`loopup`.icon-startArrowId)"
       marker-end="url(#arrowheads__registry--`loopup`.icon-endArrowId)"
     />
@@ -640,12 +656,14 @@
     >
       <path d="M1 1 a 4 4 0 0 1 0 9" fill="none" stroke-linecap="round" />
     </marker>
-    <path
-      d="M 25 490 L 185 490"
+    <line
+      x1="25"
+      y1="490"
+      x2="185"
+      y2="490"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-start="url(#arrowheads__registry--`loopdown`.icon-startArrowId)"
       marker-end="url(#arrowheads__registry--`loopdown`.icon-endArrowId)"
     />
@@ -752,12 +770,14 @@
         stroke-linecap="round"
       />
     </marker>
-    <path
-      d="M 25 560 L 185 560"
+    <line
+      x1="25"
+      y1="560"
+      x2="185"
+      y2="560"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="3"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-start="url(#arrowheads__registry--`loop`.icon-startArrowId)"
       marker-end="url(#arrowheads__registry--`loop`.icon-endArrowId)"
     />

@@ -26,12 +26,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 22.4429284675185 145.27244038453063 L 29.519457713791255 136.5848209371597"
+    <line
+      x1="22.4429284675185"
+      y1="145.27244038453063"
+      x2="29.519457713791255"
+      y2="136.5848209371597"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#next-event-estimation__registry-TransfusionElephant49974-`r3`.icon-endArrowId)"
     />
     <title>`r3`.icon</title>
@@ -42,19 +44,20 @@
     stroke="#aaaaaa"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     transform="scale(1)"
     points="23,24.700000000000003,9.5,71.2,30.799999999999997,193.1,224.7,184.1,224.7,24.700000000000003,163.8,4.299999999999997,122.9,81.4,148.5,118.4,115.1,144.8,78.8,93.1,124.4,57.7,83.9,9.099999999999994"
   >
     <title>`S`.geometry</title>
   </polygon>
   <g fill="none">
-    <path
-      d="M 22.4429284675185 145.27244038453063 L 65.70962649792303 92.1553551367804"
+    <line
+      x1="22.4429284675185"
+      y1="145.27244038453063"
+      x2="65.70962649792303"
+      y2="92.1553551367804"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="0.65"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`r3`.rayLine</title>
   </g>
@@ -75,65 +78,77 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 149.9878289107828 30.337124473805503 L 151.63765880203053 41.41999629542794"
+    <line
+      x1="149.9878289107828"
+      y1="30.337124473805503"
+      x2="151.63765880203053"
+      y2="41.41999629542794"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#next-event-estimation__registry-TransfusionElephant49974-`r1`.icon-endArrowId)"
     />
     <title>`r1`.icon</title>
   </g>
   <g fill="none">
-    <path
-      d="M 149.9878289107828 30.337124473805503 L 173.23305153526803 186.48887331708403"
+    <line
+      x1="149.9878289107828"
+      y1="30.337124473805503"
+      x2="173.23305153526803"
+      y2="186.48887331708403"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="0.65"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`r1`.rayLine</title>
   </g>
   <g>
-    <path
-      d="M 173.23305153526803 186.48887331708403 L 173.23305153526803 186.48887331708403"
+    <line
+      x1="173.23305153526803"
+      y1="186.48887331708403"
+      x2="173.23305153526803"
+      y2="186.48887331708403"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`rL2`.icon</title>
   </g>
   <g fill="none">
-    <path
-      d="M 173.23305153526803 186.48887331708403 L 65.70962649792303 92.1553551367804"
+    <line
+      x1="173.23305153526803"
+      y1="186.48887331708403"
+      x2="65.70962649792303"
+      y2="92.1553551367804"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="0.65"
-      stroke="#000000"
       stroke-dasharray="4,3"
-      stroke-linecap="butt"
     />
     <title>`rL2`.rayLine</title>
   </g>
   <g>
-    <path
-      d="M 149.9878289107828 30.337124473805503 L 149.9878289107828 30.337124473805503"
+    <line
+      x1="149.9878289107828"
+      y1="30.337124473805503"
+      x2="149.9878289107828"
+      y2="30.337124473805503"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`rL1`.icon</title>
   </g>
   <g fill="none">
-    <path
-      d="M 149.9878289107828 30.337124473805503 L 65.70962649792303 92.1553551367804"
+    <line
+      x1="149.9878289107828"
+      y1="30.337124473805503"
+      x2="65.70962649792303"
+      y2="92.1553551367804"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="0.65"
-      stroke="#000000"
       stroke-dasharray="4,3"
-      stroke-linecap="butt"
     />
     <title>`rL1`.rayLine</title>
   </g>
@@ -154,23 +169,27 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 173.23305153526803 186.48887331708403 L 162.42454672610978 183.5345152695898"
+    <line
+      x1="173.23305153526803"
+      y1="186.48887331708403"
+      x2="162.42454672610978"
+      y2="183.5345152695898"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#next-event-estimation__registry-TransfusionElephant49974-`r2`.icon-endArrowId)"
     />
     <title>`r2`.icon</title>
   </g>
   <g fill="none">
-    <path
-      d="M 173.23305153526803 186.48887331708403 L 22.4429284675185 145.27244038453063"
+    <line
+      x1="173.23305153526803"
+      y1="186.48887331708403"
+      x2="22.4429284675185"
+      y2="145.27244038453063"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="0.65"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`r2`.rayLine</title>
   </g>
@@ -191,23 +210,27 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 184.557297565802 50.623656648026476 L 174.89341094859822 44.95256147603102"
+    <line
+      x1="184.557297565802"
+      y1="50.623656648026476"
+      x2="174.89341094859822"
+      y2="44.95256147603102"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#next-event-estimation__registry-TransfusionElephant49974-`r0`.icon-endArrowId)"
     />
     <title>`r0`.icon</title>
   </g>
   <g fill="none">
-    <path
-      d="M 184.557297565802 50.623656648026476 L 149.9878289107828 30.337124473805503"
+    <line
+      x1="184.557297565802"
+      y1="50.623656648026476"
+      x2="149.9878289107828"
+      y2="30.337124473805503"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="0.65"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`r0`.rayLine</title>
   </g>
@@ -464,7 +487,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     transform="rotate(0, 120.6841687348493, 140.3861660299395)"
     style="font: 18px sans-serif"
     x="120.6841687348493"
@@ -500,12 +522,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 149.9878289107828 30.337124473805503 L 159.88629552883464 35.58806201827137"
+    <line
+      x1="149.9878289107828"
+      y1="30.337124473805503"
+      x2="159.88629552883464"
+      y2="35.58806201827137"
+      stroke="#55aa55"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#55aa55"
-      stroke-linecap="butt"
       marker-end="url(#next-event-estimation__registry-TransfusionElephant49974-16:0:normalArrow-endArrowId)"
     />
     <title>16:0:normalArrow</title>
@@ -567,7 +591,6 @@
       stroke="#666666"
       stroke-opacity="1"
       stroke-width="1"
-      stroke-linecap="butt"
       rx="2"
       transform="rotate(0, 184.557297565802, 50.623656648026476)"
     >
@@ -581,7 +604,6 @@
       stroke="#666666"
       stroke-opacity="1"
       stroke-width="0.8"
-      stroke-linecap="butt"
       r="1.155"
     >
       <title>10:0:flash</title>
@@ -594,7 +616,6 @@
       stroke="#666666"
       stroke-opacity="1"
       stroke-width="1"
-      stroke-linecap="butt"
       r="6.2700000000000005"
     >
       <title>10:0:outerLens</title>
@@ -607,7 +628,6 @@
       stroke="#666666"
       stroke-opacity="1"
       stroke-width="1"
-      stroke-linecap="butt"
       r="4.125"
     >
       <title>`C`.innerLens</title>
@@ -663,7 +683,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     transform="rotate(0, 119.95513693930758, 52.36616432716909)"
     style="font: 18px sans-serif"
     x="119.95513693930758"
@@ -699,12 +718,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 173.23305153526803 186.48887331708403 L 172.7135232358054 175.29592473199492"
+    <line
+      x1="173.23305153526803"
+      y1="186.48887331708403"
+      x2="172.7135232358054"
+      y2="175.29592473199492"
+      stroke="#55aa55"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#55aa55"
-      stroke-linecap="butt"
       marker-end="url(#next-event-estimation__registry-TransfusionElephant49974-16:1:normalArrow-endArrowId)"
     />
     <title>16:1:normalArrow</title>
@@ -779,12 +800,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 22.4429284675185 145.27244038453063 L 33.48069297577018 143.3437743958041"
+    <line
+      x1="22.4429284675185"
+      y1="145.27244038453063"
+      x2="33.48069297577018"
+      y2="143.3437743958041"
+      stroke="#55aa55"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#55aa55"
-      stroke-linecap="butt"
       marker-end="url(#next-event-estimation__registry-TransfusionElephant49974-16:2:normalArrow-endArrowId)"
     />
     <title>16:2:normalArrow</title>

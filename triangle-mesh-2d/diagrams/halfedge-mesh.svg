@@ -14,38 +14,46 @@
     stroke="#cccccc"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 240, 180)"
   >
     <title>Global.box</title>
   </rect>
   <g>
-    <path
-      d="M 370.1533237543782 264.30693740886267 L 264.31975477819634 95.01316311858973"
+    <line
+      x1="370.1533237543782"
+      y1="264.30693740886267"
+      x2="264.31975477819634"
+      y2="95.01316311858973"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`eki`.segment</title>
   </g>
   <g>
-    <path
-      d="M 75.93309125296557 133.63173423402253 L 92.06500285237152 335.1036086724508"
+    <line
+      x1="75.93309125296557"
+      y1="133.63173423402253"
+      x2="92.06500285237152"
+      y2="335.1036086724508"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`elj`.segment</title>
   </g>
   <g>
-    <path
-      d="M 112.48926342476543 3.069533449065233 L 75.93309125296557 133.63173423402253"
+    <line
+      x1="112.48926342476543"
+      y1="3.069533449065233"
+      x2="75.93309125296557"
+      y2="133.63173423402253"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`eml`.segment</title>
@@ -70,10 +78,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="2"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="2"
+      stroke-linecap="butt"
       d="M 202.59256020546232 91.33432918516228 L 212.03614594604045 97.56479265493023 L 117.84281908156544 116.87407720854591"
     />
     <title>`hli`.icon</title>
@@ -100,21 +109,27 @@
     twin-&gt;next-&gt;twin
   </text>
   <g>
-    <path
-      d="M 264.31975477819634 95.01316311858973 L 92.06500285237152 335.1036086724508"
+    <line
+      x1="264.31975477819634"
+      y1="95.01316311858973"
+      x2="92.06500285237152"
+      y2="335.1036086724508"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`eij`.segment</title>
   </g>
   <g>
-    <path
-      d="M 92.06500285237152 335.1036086724508 L 370.1533237543782 264.30693740886267"
+    <line
+      x1="92.06500285237152"
+      y1="335.1036086724508"
+      x2="370.1533237543782"
+      y2="264.30693740886267"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`ejk`.segment</title>
@@ -139,10 +154,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="2"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="2"
+      stroke-linecap="butt"
       d="M 281.7111194047547 153.01631076332404 L 284.2539454728176 141.99206372485003 L 337.1707273104644 226.63894663027614"
     />
     <title>`hki`.icon</title>
@@ -188,10 +204,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="2"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="2"
+      stroke-linecap="butt"
       d="M 204.0015348707142 151.63848152031758 L 215.16518408223604 149.80192833063003 L 129.0378110340411 269.8471470449973"
     />
     <title>`hji`.icon</title>
@@ -218,11 +235,14 @@
     h-&gt;twin
   </text>
   <g>
-    <path
-      d="M 264.31975477819634 95.01316311858973 L 75.93309125296557 133.63173423402253"
+    <line
+      x1="264.31975477819634"
+      y1="95.01316311858973"
+      x2="75.93309125296557"
+      y2="133.63173423402253"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`eil`.segment</title>
@@ -247,19 +267,22 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#1b1f8a"
       fill-opacity="0.2"
+      stroke="none"
       d="M 264.31975477819634 95.01316311858973 L 112.48926342476543 3.069533449065233 L 75.93309125296557 133.63173423402253 Z "
     />
     <title>`iml`.icon</title>
   </g>
   <g>
-    <path
-      d="M 264.31975477819634 95.01316311858973 L 112.48926342476543 3.069533449065233"
+    <line
+      x1="264.31975477819634"
+      y1="95.01316311858973"
+      x2="112.48926342476543"
+      y2="3.069533449065233"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`eim`.segment</title>
@@ -294,10 +317,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="2"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="2"
+      stroke-linecap="butt"
       d="M 155.71002626396262 273.8413537265357 L 144.5463770524408 275.67790691622326 L 230.67375010063571 155.63268820185598"
     />
     <title>`hij`.icon</title>
@@ -343,10 +367,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="2"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="2"
+      stroke-linecap="butt"
       d="M 294.25542153930843 267.1189700581287 L 303.98183880410613 272.8979663611125 L 164.93768319854453 308.29630075933756"
     />
     <title>`hjk`.icon</title>
@@ -402,9 +427,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#1b1f8a"
       fill-opacity="0.2"
+      stroke="none"
       d="M 264.31975477819634 95.01316311858973 L 92.06500285237152 335.1036086724508 L 370.1533237543782 264.30693740886267 Z "
     />
     <title>`ijk`.icon</title>
@@ -439,10 +464,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="2"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="2"
+      stroke-linecap="butt"
       d="M 127.53644516636041 139.3859117235871 L 118.09285942578228 133.15544825381915 L 212.28618629025732 113.84616370020348"
     />
     <title>`hil`.icon</title>
@@ -508,9 +534,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#1b1f8a"
       fill-opacity="0.2"
+      stroke="none"
       d="M 92.06500285237152 335.1036086724508 L 264.31975477819634 95.01316311858973 L 75.93309125296557 133.63173423402253 Z "
     />
     <title>`jil`.icon</title>

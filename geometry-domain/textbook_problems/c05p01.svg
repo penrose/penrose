@@ -10,32 +10,38 @@
     </croppedViewBox>
   </penrose>
   <g>
-    <path
-      d="M 274.89778286232223 273.98841736780537 L 383.9278326761727 176.07840379637963"
+    <line
+      x1="274.89778286232223"
+      y1="273.98841736780537"
+      x2="383.9278326761727"
+      y2="176.07840379637963"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`aGFJ`.side1</title>
   </g>
   <g>
-    <path
-      d="M 274.89778286232223 273.98841736780537 L 197.4214004809053 107.40453516068649"
+    <line
+      x1="274.89778286232223"
+      y1="273.98841736780537"
+      x2="197.4214004809053"
+      y2="107.40453516068649"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`GJF`.PQ</title>
   </g>
   <g>
-    <path
-      d="M 383.9278326761727 176.07840379637963 L 274.89778286232223 273.98841736780537"
+    <line
+      x1="383.9278326761727"
+      y1="176.07840379637963"
+      x2="274.89778286232223"
+      y2="273.98841736780537"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`GJF`.RP</title>
   </g>
@@ -47,48 +53,55 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`G`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 383.9278326761727 176.07840379637963 L 197.4214004809053 107.40453516068649"
+    <line
+      x1="383.9278326761727"
+      y1="176.07840379637963"
+      x2="197.4214004809053"
+      y2="107.40453516068649"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`aGFJ`.side2</title>
   </g>
   <g>
-    <path
-      d="M 197.4214004809053 107.40453516068649 L 383.9278326761727 176.07840379637963"
+    <line
+      x1="197.4214004809053"
+      y1="107.40453516068649"
+      x2="383.9278326761727"
+      y2="176.07840379637963"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`GJF`.QR</title>
   </g>
   <g>
-    <path
-      d="M 165.86773304847173 371.89843093923116 L 383.9278326761727 176.07840379637963"
+    <line
+      x1="165.86773304847173"
+      y1="371.89843093923116"
+      x2="383.9278326761727"
+      y2="176.07840379637963"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`DEF`.QR</title>
   </g>
   <g>
-    <path
-      d="M 383.9278326761727 176.07840379637963 L 10.914968285637883 38.73066652499335"
+    <line
+      x1="383.9278326761727"
+      y1="176.07840379637963"
+      x2="10.914968285637883"
+      y2="38.73066652499335"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`DEF`.RP</title>
   </g>
@@ -100,7 +113,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`F`.icon</title>
@@ -113,7 +125,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`J`.icon</title>
@@ -355,8 +366,8 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="none"
+      stroke="none"
       d="M 274.89778286232223 273.98841736780537 L 197.4214004809053 107.40453516068649 L 383.9278326761727 176.07840379637963 Z "
     />
     <title>`GJF`.icon</title>
@@ -381,19 +392,21 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="none"
+      stroke="none"
       d="M 10.914968285637883 38.73066652499335 L 165.86773304847173 371.89843093923116 L 383.9278326761727 176.07840379637963 Z "
     />
     <title>`DEF`.icon</title>
   </g>
   <g>
-    <path
-      d="M 10.914968285637883 38.73066652499335 L 165.86773304847173 371.89843093923116"
+    <line
+      x1="10.914968285637883"
+      y1="38.73066652499335"
+      x2="165.86773304847173"
+      y2="371.89843093923116"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`DEF`.PQ</title>
   </g>
@@ -405,7 +418,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`D`.icon</title>
@@ -418,28 +430,31 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`E`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 274.89778286232223 273.98841736780537 L 197.4214004809053 107.40453516068649"
+    <line
+      x1="274.89778286232223"
+      y1="273.98841736780537"
+      x2="197.4214004809053"
+      y2="107.40453516068649"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`GJ`.icon</title>
   </g>
   <g>
-    <path
-      d="M 290.67461657853903 141.74146947853308 L 329.4128077692475 225.03341058209253"
+    <line
+      x1="290.67461657853903"
+      y1="141.74146947853308"
+      x2="329.4128077692475"
+      y2="225.03341058209253"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`HK`.icon</title>
   </g>
@@ -451,7 +466,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`H`.icon</title>
@@ -464,7 +478,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`K`.icon</title>

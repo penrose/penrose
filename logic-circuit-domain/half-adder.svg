@@ -26,7 +26,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     r="25"
   >
     <title>`XOR`.part2</title>
@@ -41,7 +40,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 403.5999821479802, 480.3306664240897)"
   >
@@ -55,7 +53,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     r="24"
   >
     <title>`XOR`.part3</title>
@@ -68,7 +65,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     r="39.05124837953327"
   >
     <title>`XOR`.part4</title>
@@ -94,7 +90,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     r="39.05124837953327"
   >
     <title>`XOR`.part6</title>
@@ -113,12 +108,14 @@
     <title>`XOR`.part7</title>
   </rect>
   <g>
-    <path
-      d="M 176.7197382566013 497.4059635407436 L 176.71973744263192 331.7226489204869"
+    <line
+      x1="176.7197382566013"
+      y1="497.4059635407436"
+      x2="176.71973744263192"
+      y2="331.7226489204869"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`S2`.line</title>
   </g>
@@ -133,242 +130,290 @@
     <title>`S2`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 116.34009752034495 331.93006036853177 L 160.9132179000865 331.93006036853177"
+    <line
+      x1="116.34009752034495"
+      y1="331.93006036853177"
+      x2="160.9132179000865"
+      y2="331.93006036853177"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`C2`.line1</title>
   </g>
   <g>
-    <path
-      d="M 160.9132179000865 331.93006036853177 L 160.9132179000865 331.7231173003583"
+    <line
+      x1="160.9132179000865"
+      y1="331.93006036853177"
+      x2="160.9132179000865"
+      y2="331.7231173003583"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`C2`.line2</title>
   </g>
   <g>
-    <path
-      d="M 160.9132179000865 331.7231173003583 L 176.71972975267738 331.7231173003583"
+    <line
+      x1="160.9132179000865"
+      y1="331.7231173003583"
+      x2="176.71972975267738"
+      y2="331.7231173003583"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`C2`.line3</title>
   </g>
   <g>
-    <path
-      d="M 176.7197382566013 497.4059635407436 L 233.0768199984141 497.4059635407436"
+    <line
+      x1="176.7197382566013"
+      y1="497.4059635407436"
+      x2="233.0768199984141"
+      y2="497.4059635407436"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`C4`.line1</title>
   </g>
   <g>
-    <path
-      d="M 233.0768199984141 497.4059635407436 L 233.0768199984141 497.33066934785535"
+    <line
+      x1="233.0768199984141"
+      y1="497.4059635407436"
+      x2="233.0768199984141"
+      y2="497.33066934785535"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`C4`.line2</title>
   </g>
   <g>
-    <path
-      d="M 233.0768199984141 497.33066934785535 L 383.5999834826314 497.33066934785535"
+    <line
+      x1="233.0768199984141"
+      y1="497.33066934785535"
+      x2="383.5999834826314"
+      y2="497.33066934785535"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`C4`.line3</title>
   </g>
   <g>
-    <path
-      d="M 323.4689268560151 297.8101735634886 L 363.13996550533574 297.8101735634886"
+    <line
+      x1="323.4689268560151"
+      y1="297.8101735634886"
+      x2="363.13996550533574"
+      y2="297.8101735634886"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`C5`.line1</title>
   </g>
   <g>
-    <path
-      d="M 363.13996550533574 297.8101735634886 L 363.13996550533574 297.83867656557976"
+    <line
+      x1="363.13996550533574"
+      y1="297.8101735634886"
+      x2="363.13996550533574"
+      y2="297.83867656557976"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`C5`.line2</title>
   </g>
   <g>
-    <path
-      d="M 363.13996550533574 297.83867656557976 L 529.7900935050172 297.83867656557976"
+    <line
+      x1="363.13996550533574"
+      y1="297.83867656557976"
+      x2="529.7900935050172"
+      y2="297.83867656557976"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`C5`.line3</title>
   </g>
   <g>
-    <path
-      d="M 594.7900931275218 314.83867732612475 L 671.6458685434861 314.83867732612475"
+    <line
+      x1="594.7900931275218"
+      y1="314.83867732612475"
+      x2="671.6458685434861"
+      y2="314.83867732612475"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`C8`.line1</title>
   </g>
   <g>
-    <path
-      d="M 671.6458685434861 314.83867732612475 L 671.6458685434861 314.8388092977338"
+    <line
+      x1="671.6458685434861"
+      y1="314.83867732612475"
+      x2="671.6458685434861"
+      y2="314.8388092977338"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`C8`.line2</title>
   </g>
   <g>
-    <path
-      d="M 671.6458685434861 314.8388092977338 L 678.6516707256133 314.8388092977338"
+    <line
+      x1="671.6458685434861"
+      y1="314.8388092977338"
+      x2="678.6516707256133"
+      y2="314.8388092977338"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`C8`.line3</title>
   </g>
   <g>
-    <path
-      d="M 448.5999697222338 480.3306655897867 L 454.6551442756944 480.3306655897867"
+    <line
+      x1="448.5999697222338"
+      y1="480.3306655897867"
+      x2="454.6551442756944"
+      y2="480.3306655897867"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`C7`.line1</title>
   </g>
   <g>
-    <path
-      d="M 454.6551442756944 480.3306655897867 L 454.6551442756944 480.39168498853536"
+    <line
+      x1="454.6551442756944"
+      y1="480.3306655897867"
+      x2="454.6551442756944"
+      y2="480.39168498853536"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`C7`.line2</title>
   </g>
   <g>
-    <path
-      d="M 454.6551442756944 480.39168498853536 L 678.6516563691368 480.39168498853536"
+    <line
+      x1="454.6551442756944"
+      y1="480.39168498853536"
+      x2="678.6516563691368"
+      y2="480.39168498853536"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`C7`.line3</title>
   </g>
   <g>
-    <path
-      d="M 176.71973744263192 331.7226489204869 L 380.6558233466709 331.7226489204869"
+    <line
+      x1="176.71973744263192"
+      y1="331.7226489204869"
+      x2="380.6558233466709"
+      y2="331.7226489204869"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`C6`.line1</title>
   </g>
   <g>
-    <path
-      d="M 380.6558233466709 331.7226489204869 L 380.6558233466709 331.83866790504106"
+    <line
+      x1="380.6558233466709"
+      y1="331.7226489204869"
+      x2="380.6558233466709"
+      y2="331.83866790504106"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`C6`.line2</title>
   </g>
   <g>
-    <path
-      d="M 380.6558233466709 331.83866790504106 L 529.7901136282127 331.83866790504106"
+    <line
+      x1="380.6558233466709"
+      y1="331.83866790504106"
+      x2="529.7901136282127"
+      y2="331.83866790504106"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`C6`.line3</title>
   </g>
   <g>
-    <path
-      d="M 116.34008156615016 348.82752773253577 L 218.46619800217263 348.82752773253577"
+    <line
+      x1="116.34008156615016"
+      y1="348.82752773253577"
+      x2="218.46619800217263"
+      y2="348.82752773253577"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`C1`.line1</title>
   </g>
   <g>
-    <path
-      d="M 218.46619800217263 348.82752773253577 L 218.46619800217263 348.76550113887265"
+    <line
+      x1="218.46619800217263"
+      y1="348.82752773253577"
+      x2="218.46619800217263"
+      y2="348.76550113887265"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`C1`.line2</title>
   </g>
   <g>
-    <path
-      d="M 218.46619800217263 348.76550113887265 L 323.46891464851666 348.76550113887265"
+    <line
+      x1="218.46619800217263"
+      y1="348.76550113887265"
+      x2="323.46891464851666"
+      y2="348.76550113887265"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`C1`.line3</title>
   </g>
   <g>
-    <path
-      d="M 323.46892770683615 463.488366001506 L 371.2453348025766 463.488366001506"
+    <line
+      x1="323.46892770683615"
+      y1="463.488366001506"
+      x2="371.2453348025766"
+      y2="463.488366001506"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`C3`.line1</title>
   </g>
   <g>
-    <path
-      d="M 371.2453348025766 463.488366001506 L 371.2453348025766 463.33066346248734"
+    <line
+      x1="371.2453348025766"
+      y1="463.488366001506"
+      x2="371.2453348025766"
+      y2="463.33066346248734"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`C3`.line2</title>
   </g>
   <g>
-    <path
-      d="M 371.2453348025766 463.33066346248734 L 383.59998378014865 463.33066346248734"
+    <line
+      x1="371.2453348025766"
+      y1="463.33066346248734"
+      x2="383.59998378014865"
+      y2="463.33066346248734"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`C3`.line3</title>
   </g>
@@ -380,18 +425,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     r="6"
   >
     <title>`IN2`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 323.46892770683615 463.488366001506 L 323.4689268560151 297.8101735634886"
+    <line
+      x1="323.46892770683615"
+      y1="463.488366001506"
+      x2="323.4689268560151"
+      y2="297.8101735634886"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`S1`.line</title>
   </g>
@@ -456,7 +502,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     r="6"
   >
     <title>`IN1`.icon</title>
@@ -512,7 +557,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     r="6"
   >
     <title>`CAR`.icon</title>
@@ -568,7 +612,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     r="25"
   >
     <title>`AND`.part2</title>
@@ -583,7 +626,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 549.7901003308102, 314.83867447384887)"
   >
@@ -597,7 +639,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     r="24"
   >
     <title>`AND`.part3</title>
@@ -610,7 +651,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     r="6"
   >
     <title>`SUM`.icon</title>

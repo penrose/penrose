@@ -19,7 +19,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 608.5895477359614, 302.4703867099053)"
   >
@@ -33,7 +32,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     r="54.21320972464077"
   >
     <title>`B`.icon</title>
@@ -47,7 +45,6 @@
     stroke-opacity="1"
     stroke-width="1.5"
     stroke-dasharray="7,5"
-    stroke-linecap="butt"
     r="13.108159931639834"
   >
     <title>`V`.icon</title>
@@ -93,7 +90,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 208.58954773596147, 302.4703867099053)"
   >
@@ -148,7 +144,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     r="86.74170158195513"
   >
     <title>`A`.icon</title>
@@ -162,7 +157,6 @@
     stroke-opacity="1"
     stroke-width="1.5"
     stroke-dasharray="7,5"
-    stroke-linecap="butt"
     r="51.63512934792412"
   >
     <title>`U`.icon</title>
@@ -315,12 +309,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 345.25621440262813 302.4703867099053 L 456.7428810692948 302.4703867099053"
+    <line
+      x1="345.25621440262813"
+      y1="302.4703867099053"
+      x2="456.7428810692948"
+      y2="302.4703867099053"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#continuousmap__registry--`f`.icon-endArrowId)"
     />
     <title>`f`.icon</title>

@@ -10,212 +10,254 @@
     </croppedViewBox>
   </penrose>
   <g>
-    <path
-      d="M 1060 525 L 1060 65"
+    <line
+      x1="1060"
+      y1="525"
+      x2="1060"
+      y2="65"
+      stroke="#d3d3d3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#d3d3d3"
-      stroke-linecap="butt"
     />
     <title>`q1_2025`.slotEnd</title>
   </g>
   <g>
-    <path
-      d="M 945 525 L 945 65"
+    <line
+      x1="945"
+      y1="525"
+      x2="945"
+      y2="65"
+      stroke="#d3d3d3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#d3d3d3"
-      stroke-linecap="butt"
     />
     <title>`q1_2025`.slotBegin</title>
   </g>
   <g>
-    <path
-      d="M 1175 525 L 1175 65"
+    <line
+      x1="1175"
+      y1="525"
+      x2="1175"
+      y2="65"
+      stroke="#d3d3d3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#d3d3d3"
-      stroke-linecap="butt"
     />
     <title>`q2_2025`.slotEnd</title>
   </g>
   <g>
-    <path
-      d="M 1060 525 L 1060 65"
+    <line
+      x1="1060"
+      y1="525"
+      x2="1060"
+      y2="65"
+      stroke="#d3d3d3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#d3d3d3"
-      stroke-linecap="butt"
     />
     <title>`q2_2025`.slotBegin</title>
   </g>
   <g>
-    <path
-      d="M 140 525 L 140 65"
+    <line
+      x1="140"
+      y1="525"
+      x2="140"
+      y2="65"
+      stroke="#d3d3d3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#d3d3d3"
-      stroke-linecap="butt"
     />
     <title>`q1_2023`.slotEnd</title>
   </g>
   <g>
-    <path
-      d="M 25 525 L 25 65"
+    <line
+      x1="25"
+      y1="525"
+      x2="25"
+      y2="65"
+      stroke="#d3d3d3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#d3d3d3"
-      stroke-linecap="butt"
     />
     <title>`q1_2023`.slotBegin</title>
   </g>
   <g>
-    <path
-      d="M 485 525 L 485 65"
+    <line
+      x1="485"
+      y1="525"
+      x2="485"
+      y2="65"
+      stroke="#d3d3d3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#d3d3d3"
-      stroke-linecap="butt"
     />
     <title>`q4_2023`.slotEnd</title>
   </g>
   <g>
-    <path
-      d="M 370 525 L 370 65"
+    <line
+      x1="370"
+      y1="525"
+      x2="370"
+      y2="65"
+      stroke="#d3d3d3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#d3d3d3"
-      stroke-linecap="butt"
     />
     <title>`q4_2023`.slotBegin</title>
   </g>
   <g>
-    <path
-      d="M 830 525 L 830 65"
+    <line
+      x1="830"
+      y1="525"
+      x2="830"
+      y2="65"
+      stroke="#d3d3d3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#d3d3d3"
-      stroke-linecap="butt"
     />
     <title>`q3_2024`.slotEnd</title>
   </g>
   <g>
-    <path
-      d="M 715 525 L 715 65"
+    <line
+      x1="715"
+      y1="525"
+      x2="715"
+      y2="65"
+      stroke="#d3d3d3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#d3d3d3"
-      stroke-linecap="butt"
     />
     <title>`q3_2024`.slotBegin</title>
   </g>
   <g>
-    <path
-      d="M 945 525 L 945 65"
+    <line
+      x1="945"
+      y1="525"
+      x2="945"
+      y2="65"
+      stroke="#d3d3d3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#d3d3d3"
-      stroke-linecap="butt"
     />
     <title>`q4_2024`.slotEnd</title>
   </g>
   <g>
-    <path
-      d="M 830 525 L 830 65"
+    <line
+      x1="830"
+      y1="525"
+      x2="830"
+      y2="65"
+      stroke="#d3d3d3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#d3d3d3"
-      stroke-linecap="butt"
     />
     <title>`q4_2024`.slotBegin</title>
   </g>
   <g>
-    <path
-      d="M 715 525 L 715 65"
+    <line
+      x1="715"
+      y1="525"
+      x2="715"
+      y2="65"
+      stroke="#d3d3d3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#d3d3d3"
-      stroke-linecap="butt"
     />
     <title>`q2_2024`.slotEnd</title>
   </g>
   <g>
-    <path
-      d="M 600 525 L 600 65"
+    <line
+      x1="600"
+      y1="525"
+      x2="600"
+      y2="65"
+      stroke="#d3d3d3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#d3d3d3"
-      stroke-linecap="butt"
     />
     <title>`q2_2024`.slotBegin</title>
   </g>
   <g>
-    <path
-      d="M 255 525 L 255 65"
+    <line
+      x1="255"
+      y1="525"
+      x2="255"
+      y2="65"
+      stroke="#d3d3d3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#d3d3d3"
-      stroke-linecap="butt"
     />
     <title>`q2_2023`.slotEnd</title>
   </g>
   <g>
-    <path
-      d="M 140 525 L 140 65"
+    <line
+      x1="140"
+      y1="525"
+      x2="140"
+      y2="65"
+      stroke="#d3d3d3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#d3d3d3"
-      stroke-linecap="butt"
     />
     <title>`q2_2023`.slotBegin</title>
   </g>
   <g>
-    <path
-      d="M 370 525 L 370 65"
+    <line
+      x1="370"
+      y1="525"
+      x2="370"
+      y2="65"
+      stroke="#d3d3d3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#d3d3d3"
-      stroke-linecap="butt"
     />
     <title>`q3_2023`.slotEnd</title>
   </g>
   <g>
-    <path
-      d="M 255 525 L 255 65"
+    <line
+      x1="255"
+      y1="525"
+      x2="255"
+      y2="65"
+      stroke="#d3d3d3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#d3d3d3"
-      stroke-linecap="butt"
     />
     <title>`q3_2023`.slotBegin</title>
   </g>
   <g>
-    <path
-      d="M 600 525 L 600 65"
+    <line
+      x1="600"
+      y1="525"
+      x2="600"
+      y2="65"
+      stroke="#d3d3d3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#d3d3d3"
-      stroke-linecap="butt"
     />
     <title>`q1_2024`.slotEnd</title>
   </g>
   <g>
-    <path
-      d="M 485 525 L 485 65"
+    <line
+      x1="485"
+      y1="525"
+      x2="485"
+      y2="65"
+      stroke="#d3d3d3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#d3d3d3"
-      stroke-linecap="butt"
     />
     <title>`q1_2024`.slotBegin</title>
   </g>
   <g>
-    <path
-      d="M 25 105 L 1175 105"
+    <line
+      x1="25"
+      y1="105"
+      x2="1175"
+      y2="105"
+      stroke="#d3d3d3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#d3d3d3"
-      stroke-linecap="butt"
     />
     <title>global.baseline</title>
   </g>
@@ -229,7 +271,6 @@
     stroke="#333333"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     rx="8"
     transform="rotate(0, 657.5, 126.6818189035236)"
   >
@@ -266,7 +307,6 @@
     stroke="#333333"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     rx="8"
     transform="rotate(0, 312.5, 417.136373174146)"
   >
@@ -303,7 +343,6 @@
     stroke="#333333"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     rx="8"
     transform="rotate(0, 600, 207.04562122760802)"
   >
@@ -340,7 +379,6 @@
     stroke="#333333"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     rx="8"
     transform="rotate(0, 657.5, 457.3181170260126)"
   >
@@ -377,7 +415,6 @@
     stroke="#333333"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     rx="8"
     transform="rotate(0, 830, 340.42587853800075)"
   >
@@ -414,7 +451,6 @@
     stroke="#333333"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     rx="8"
     transform="rotate(0, 370, 334.363788981549)"
   >
@@ -451,7 +487,6 @@
     stroke="#333333"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     rx="8"
     transform="rotate(0, 657.5, 500.4090284913301)"
   >
@@ -488,7 +523,6 @@
     stroke="#333333"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     rx="8"
     transform="rotate(0, 427.5, 166.86372924162885)"
   >
@@ -525,7 +559,6 @@
     stroke="#333333"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     rx="8"
     transform="rotate(0, 255, 374.5454973793664)"
   >
@@ -562,7 +595,6 @@
     stroke="#333333"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     rx="8"
     transform="rotate(0, 140, 500.40902819258656)"
   >
@@ -599,7 +631,6 @@
     stroke="#333333"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     rx="8"
     transform="rotate(0, 772.5, 250.13659044536163)"
   >
@@ -636,7 +667,6 @@
     stroke="#333333"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     rx="8"
     transform="rotate(0, 197.5, 250.13658773139463)"
   >
@@ -673,7 +703,6 @@
     stroke="#333333"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     rx="8"
     transform="rotate(0, 600, 294.18206838749444)"
   >
@@ -722,12 +751,14 @@
     Q1
   </text>
   <g>
-    <path
-      d="M 485 65 L 485 25"
+    <line
+      x1="485"
+      y1="65"
+      x2="485"
+      y2="25"
+      stroke="#d3d3d3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#d3d3d3"
-      stroke-linecap="butt"
     />
     <title>`y2023`.slotEnd</title>
   </g>
@@ -753,22 +784,26 @@
     2023
   </text>
   <g>
-    <path
-      d="M 25 65 L 25 25"
+    <line
+      x1="25"
+      y1="65"
+      x2="25"
+      y2="25"
+      stroke="#d3d3d3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#d3d3d3"
-      stroke-linecap="butt"
     />
     <title>`y2023`.slotBegin</title>
   </g>
   <g>
-    <path
-      d="M 945 65 L 945 25"
+    <line
+      x1="945"
+      y1="65"
+      x2="945"
+      y2="25"
+      stroke="#d3d3d3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#d3d3d3"
-      stroke-linecap="butt"
     />
     <title>`y2024`.slotEnd</title>
   </g>
@@ -794,22 +829,26 @@
     2024
   </text>
   <g>
-    <path
-      d="M 485 65 L 485 25"
+    <line
+      x1="485"
+      y1="65"
+      x2="485"
+      y2="25"
+      stroke="#d3d3d3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#d3d3d3"
-      stroke-linecap="butt"
     />
     <title>`y2024`.slotBegin</title>
   </g>
   <g>
-    <path
-      d="M 1175 65 L 1175 25"
+    <line
+      x1="1175"
+      y1="65"
+      x2="1175"
+      y2="25"
+      stroke="#d3d3d3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#d3d3d3"
-      stroke-linecap="butt"
     />
     <title>`y2025`.slotEnd</title>
   </g>
@@ -835,12 +874,14 @@
     2025
   </text>
   <g>
-    <path
-      d="M 945 65 L 945 25"
+    <line
+      x1="945"
+      y1="65"
+      x2="945"
+      y2="25"
+      stroke="#d3d3d3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#d3d3d3"
-      stroke-linecap="butt"
     />
     <title>`y2025`.slotBegin</title>
   </g>

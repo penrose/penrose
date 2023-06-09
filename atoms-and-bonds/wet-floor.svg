@@ -10,12 +10,14 @@
     </croppedViewBox>
   </penrose>
   <g>
-    <path
-      d="M 665.3731061475046 624.536080853758 L 567.8305972307825 646.5692140150379"
+    <line
+      x1="665.3731061475046"
+      y1="624.536080853758"
+      x2="567.8305972307825"
+      y2="646.5692140150379"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`SBond_H4_O2`.symbol</title>
   </g>
@@ -64,12 +66,14 @@
     <title>`H4`.shape</title>
   </g>
   <g>
-    <path
-      d="M 522.0764521661846 557.6503845530488 L 567.8305972307825 646.5692140150379"
+    <line
+      x1="522.0764521661846"
+      y1="557.6503845530488"
+      x2="567.8305972307825"
+      y2="646.5692140150379"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`SBond_H3_O2`.symbol</title>
   </g>
@@ -118,12 +122,14 @@
     <title>`O2`.shape</title>
   </g>
   <g>
-    <path
-      d="M 655.0576675706747 86.20588358901244 L 557.4601085026422 107.99387236023048"
+    <line
+      x1="655.0576675706747"
+      y1="86.20588358901244"
+      x2="557.4601085026422"
+      y2="107.99387236023048"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`SBond_H7_O4`.symbol</title>
   </g>
@@ -172,23 +178,27 @@
     <title>`H7`.shape</title>
   </g>
   <g>
-    <path
-      d="M 511.9293195031232 18.960466947202633 L 557.4601085026422 107.99387236023048"
+    <line
+      x1="511.9293195031232"
+      y1="18.960466947202633"
+      x2="557.4601085026422"
+      y2="107.99387236023048"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`SBond_H8_O4`.symbol</title>
   </g>
   <g>
-    <path
-      d="M 472.77435765699244 289.17975380085244 L 557.4601085026422 107.99387236023048"
+    <line
+      x1="472.77435765699244"
+      y1="289.17975380085244"
+      x2="557.4601085026422"
+      y2="107.99387236023048"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="5"
-      stroke="#000000"
       stroke-dasharray="7,5"
-      stroke-linecap="butt"
     />
     <title>`WBond_H2_O4`.symbol</title>
   </g>
@@ -237,13 +247,15 @@
     <title>`O4`.shape</title>
   </g>
   <g>
-    <path
-      d="M 430.543959817332 379.8251812178231 L 522.0764521661846 557.6503845530488"
+    <line
+      x1="430.543959817332"
+      y1="379.8251812178231"
+      x2="522.0764521661846"
+      y2="557.6503845530488"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="5"
-      stroke="#000000"
       stroke-dasharray="7,5"
-      stroke-linecap="butt"
     />
     <title>`WBond_O1_H3`.symbol</title>
   </g>
@@ -336,12 +348,14 @@
     <title>`H8`.shape</title>
   </g>
   <g>
-    <path
-      d="M 61.04363511389403 391.792137866682 L 135.57397886905358 325.11959591637503"
+    <line
+      x1="61.04363511389403"
+      y1="391.792137866682"
+      x2="135.57397886905358"
+      y2="325.11959591637503"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`SBond_H6_O3`.symbol</title>
   </g>
@@ -390,23 +404,27 @@
     <title>`H6`.shape</title>
   </g>
   <g>
-    <path
-      d="M 332.21234863824395 361.6346823335138 L 135.57397886905358 325.11959591637503"
+    <line
+      x1="332.21234863824395"
+      y1="361.6346823335138"
+      x2="135.57397886905358"
+      y2="325.11959591637503"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="5"
-      stroke="#000000"
       stroke-dasharray="7,5"
-      stroke-linecap="butt"
     />
     <title>`WBond_H1_O3`.symbol</title>
   </g>
   <g>
-    <path
-      d="M 89.6850609407544 236.27024465859753 L 135.57397886905358 325.11959591637503"
+    <line
+      x1="89.6850609407544"
+      y1="236.27024465859753"
+      x2="135.57397886905358"
+      y2="325.11959591637503"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`SBond_H5_O3`.symbol</title>
   </g>
@@ -455,22 +473,26 @@
     <title>`O3`.shape</title>
   </g>
   <g>
-    <path
-      d="M 472.77435765699244 289.17975380085244 L 430.543959817332 379.8251812178231"
+    <line
+      x1="472.77435765699244"
+      y1="289.17975380085244"
+      x2="430.543959817332"
+      y2="379.8251812178231"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`SBond_H2_O1`.symbol</title>
   </g>
   <g>
-    <path
-      d="M 332.21234863824395 361.6346823335138 L 430.543959817332 379.8251812178231"
+    <line
+      x1="332.21234863824395"
+      y1="361.6346823335138"
+      x2="430.543959817332"
+      y2="379.8251812178231"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`SBond_H1_O1`.symbol</title>
   </g>

@@ -10,32 +10,38 @@
     </croppedViewBox>
   </penrose>
   <g>
-    <path
-      d="M 288.2434797379119 296.4851793666482 L 240.72214733508835 211.67775440989234"
+    <line
+      x1="288.2434797379119"
+      y1="296.4851793666482"
+      x2="240.72214733508835"
+      y2="211.67775440989234"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`PML`.side1</title>
   </g>
   <g>
-    <path
-      d="M 288.2434797379119 296.4851793666482 L 10.7808107618811 340.5240045366884"
+    <line
+      x1="288.2434797379119"
+      y1="296.4851793666482"
+      x2="10.7808107618811"
+      y2="340.5240045366884"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`PLM`.PQ</title>
   </g>
   <g>
-    <path
-      d="M 240.72214733508835 211.67775440989234 L 288.2434797379119 296.4851793666482"
+    <line
+      x1="240.72214733508835"
+      y1="211.67775440989234"
+      x2="288.2434797379119"
+      y2="296.4851793666482"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`PLM`.RP</title>
   </g>
@@ -47,28 +53,31 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`P`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 240.72214733508835 211.67775440989234 L 10.7808107618811 340.5240045366884"
+    <line
+      x1="240.72214733508835"
+      y1="211.67775440989234"
+      x2="10.7808107618811"
+      y2="340.5240045366884"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`PML`.side2</title>
   </g>
   <g>
-    <path
-      d="M 10.7808107618811 340.5240045366884 L 240.72214733508835 211.67775440989234"
+    <line
+      x1="10.7808107618811"
+      y1="340.5240045366884"
+      x2="240.72214733508835"
+      y2="211.67775440989234"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`PLM`.QR</title>
   </g>
@@ -80,7 +89,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`m`.icon</title>
@@ -93,38 +101,43 @@
     stroke-opacity="0.6"
     stroke-width="1.75"
     stroke-dasharray="7,5"
-    stroke-linecap="butt"
     r="94.15683946793452"
   >
     <title>`JKL`.incenterIcon</title>
   </circle>
   <g>
-    <path
-      d="M 379.2191421243342 136.4640145088798 L 10.7808107618811 340.5240045366884"
+    <line
+      x1="379.2191421243342"
+      y1="136.4640145088798"
+      x2="10.7808107618811"
+      y2="340.5240045366884"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`JKL`.QR</title>
   </g>
   <g>
-    <path
-      d="M 10.7808107618811 340.5240045366884 L 387.8341243984603 413.4226959255576"
+    <line
+      x1="10.7808107618811"
+      y1="340.5240045366884"
+      x2="387.8341243984603"
+      y2="413.4226959255576"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`JKL`.RP</title>
   </g>
   <g>
-    <path
-      d="M 379.2191421243342 136.4640145088798 L 10.7808107618811 340.5240045366884"
+    <line
+      x1="379.2191421243342"
+      y1="136.4640145088798"
+      x2="10.7808107618811"
+      y2="340.5240045366884"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`KL`.icon</title>
   </g>
@@ -136,7 +149,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`L`.icon</title>
@@ -266,12 +278,14 @@
     </svg>
   </g>
   <g>
-    <path
-      d="M 387.8341243984603 413.4226959255576 L 379.2191421243342 136.4640145088798"
+    <line
+      x1="387.8341243984603"
+      y1="413.4226959255576"
+      x2="379.2191421243342"
+      y2="136.4640145088798"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`JKL`.PQ</title>
   </g>
@@ -283,7 +297,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`J`.icon</title>
@@ -296,7 +309,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`K`.icon</title>
@@ -352,8 +364,8 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="none"
+      stroke="none"
       d="M 288.2434797379119 296.4851793666482 L 10.7808107618811 340.5240045366884 L 240.72214733508835 211.67775440989234 Z "
     />
     <title>`PLM`.icon</title>
@@ -378,8 +390,8 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="none"
+      stroke="none"
       d="M 387.8341243984603 413.4226959255576 L 379.2191421243342 136.4640145088798 L 10.7808107618811 340.5240045366884 Z "
     />
     <title>`JKL`.icon</title>
@@ -404,10 +416,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="2"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="2"
+      stroke-linecap="butt"
       d="M 245.61046495341392 220.40153399727407 L 236.8866853660322 225.28985161559964 L 231.99836718132846 216.56607234564837"
     />
     <title>`PML`.mark</title>

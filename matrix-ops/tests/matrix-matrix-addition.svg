@@ -6,52 +6,62 @@
 >
   <penrose><croppedViewBox>29 9 182 182</croppedViewBox></penrose>
   <g>
-    <path
-      d="M 156 190 L 156 10"
+    <line
+      x1="156"
+      y1="190"
+      x2="156"
+      y2="10"
+      stroke="#888888"
       stroke-opacity="0.26666666666666666"
       stroke-width="0.35"
-      stroke="#888888"
-      stroke-linecap="butt"
     />
     <title>global.gridX2</title>
   </g>
   <g>
-    <path
-      d="M 30 46 L 210 46"
+    <line
+      x1="30"
+      y1="46"
+      x2="210"
+      y2="46"
+      stroke="#888888"
       stroke-opacity="0.26666666666666666"
       stroke-width="0.35"
-      stroke="#888888"
-      stroke-linecap="butt"
     />
     <title>global.gridY3</title>
   </g>
   <g>
-    <path
-      d="M 174 190 L 174 10"
+    <line
+      x1="174"
+      y1="190"
+      x2="174"
+      y2="10"
+      stroke="#888888"
       stroke-opacity="0.26666666666666666"
       stroke-width="0.35"
-      stroke="#888888"
-      stroke-linecap="butt"
     />
     <title>global.gridX3</title>
   </g>
   <g>
-    <path
-      d="M 30 28 L 210 28"
+    <line
+      x1="30"
+      y1="28"
+      x2="210"
+      y2="28"
+      stroke="#888888"
       stroke-opacity="0.26666666666666666"
       stroke-width="0.35"
-      stroke="#888888"
-      stroke-linecap="butt"
     />
     <title>global.gridY4</title>
   </g>
   <g>
-    <path
-      d="M 192 190 L 192 10"
+    <line
+      x1="192"
+      y1="190"
+      x2="192"
+      y2="10"
+      stroke="#888888"
       stroke-opacity="0.26666666666666666"
       stroke-width="0.35"
-      stroke="#888888"
-      stroke-linecap="butt"
     />
     <title>global.gridX4</title>
   </g>
@@ -69,72 +79,86 @@
     <title>global.box</title>
   </rect>
   <g>
-    <path
-      d="M 102 190 L 102 10"
+    <line
+      x1="102"
+      y1="190"
+      x2="102"
+      y2="10"
+      stroke="#888888"
       stroke-opacity="0.26666666666666666"
       stroke-width="0.35"
-      stroke="#888888"
-      stroke-linecap="butt"
     />
     <title>global.gridXn1</title>
   </g>
   <g>
-    <path
-      d="M 30 118 L 210 118"
+    <line
+      x1="30"
+      y1="118"
+      x2="210"
+      y2="118"
+      stroke="#888888"
       stroke-opacity="0.26666666666666666"
       stroke-width="0.35"
-      stroke="#888888"
-      stroke-linecap="butt"
     />
     <title>global.gridYn1</title>
   </g>
   <g>
-    <path
-      d="M 84 190 L 84 10"
+    <line
+      x1="84"
+      y1="190"
+      x2="84"
+      y2="10"
+      stroke="#888888"
       stroke-opacity="0.26666666666666666"
       stroke-width="0.35"
-      stroke="#888888"
-      stroke-linecap="butt"
     />
     <title>global.gridXn2</title>
   </g>
   <g>
-    <path
-      d="M 30 136 L 210 136"
+    <line
+      x1="30"
+      y1="136"
+      x2="210"
+      y2="136"
+      stroke="#888888"
       stroke-opacity="0.26666666666666666"
       stroke-width="0.35"
-      stroke="#888888"
-      stroke-linecap="butt"
     />
     <title>global.gridYn2</title>
   </g>
   <g>
-    <path
-      d="M 66 190 L 66 10"
+    <line
+      x1="66"
+      y1="190"
+      x2="66"
+      y2="10"
+      stroke="#888888"
       stroke-opacity="0.26666666666666666"
       stroke-width="0.35"
-      stroke="#888888"
-      stroke-linecap="butt"
     />
     <title>global.gridXn3</title>
   </g>
   <g>
-    <path
-      d="M 30 154 L 210 154"
+    <line
+      x1="30"
+      y1="154"
+      x2="210"
+      y2="154"
+      stroke="#888888"
       stroke-opacity="0.26666666666666666"
       stroke-width="0.35"
-      stroke="#888888"
-      stroke-linecap="butt"
     />
     <title>global.gridYn3</title>
   </g>
   <g>
-    <path
-      d="M 48 190 L 48 10"
+    <line
+      x1="48"
+      y1="190"
+      x2="48"
+      y2="10"
+      stroke="#888888"
       stroke-opacity="0.26666666666666666"
       stroke-width="0.35"
-      stroke="#888888"
-      stroke-linecap="butt"
     />
     <title>global.gridXn4</title>
   </g>
@@ -155,23 +179,27 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 30 100 L 207.53325 100"
+    <line
+      x1="30"
+      y1="100"
+      x2="207.53325"
+      y2="100"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="0.65"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#matrix-matrix-addition__registry-DoesNotMatter-global.xAxis-endArrowId)"
     />
     <title>global.xAxis</title>
   </g>
   <g>
-    <path
-      d="M 30 172 L 210 172"
+    <line
+      x1="30"
+      y1="172"
+      x2="210"
+      y2="172"
+      stroke="#888888"
       stroke-opacity="0.26666666666666666"
       stroke-width="0.35"
-      stroke="#888888"
-      stroke-linecap="butt"
     />
     <title>global.gridYn4</title>
   </g>
@@ -192,43 +220,51 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 120 190 L 120 12.466750000000005"
+    <line
+      x1="120"
+      y1="190"
+      x2="120"
+      y2="12.466750000000005"
+      stroke="#888888"
       stroke-opacity="1"
       stroke-width="0.65"
-      stroke="#888888"
-      stroke-linecap="butt"
       marker-end="url(#matrix-matrix-addition__registry-DoesNotMatter-global.yAxis-endArrowId)"
     />
     <title>global.yAxis</title>
   </g>
   <g>
-    <path
-      d="M 30 82 L 210 82"
+    <line
+      x1="30"
+      y1="82"
+      x2="210"
+      y2="82"
+      stroke="#888888"
       stroke-opacity="0.26666666666666666"
       stroke-width="0.35"
-      stroke="#888888"
-      stroke-linecap="butt"
     />
     <title>global.gridY1</title>
   </g>
   <g>
-    <path
-      d="M 138 190 L 138 10"
+    <line
+      x1="138"
+      y1="190"
+      x2="138"
+      y2="10"
+      stroke="#888888"
       stroke-opacity="0.26666666666666666"
       stroke-width="0.35"
-      stroke="#888888"
-      stroke-linecap="butt"
     />
     <title>global.gridX1</title>
   </g>
   <g>
-    <path
-      d="M 30 64 L 210 64"
+    <line
+      x1="30"
+      y1="64"
+      x2="210"
+      y2="64"
+      stroke="#888888"
       stroke-opacity="0.26666666666666666"
       stroke-width="0.35"
-      stroke="#888888"
-      stroke-linecap="butt"
     />
     <title>global.gridY2</title>
   </g>
@@ -288,12 +324,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 120 100 L 103.69717559492234 67.39435118984468"
+    <line
+      x1="120"
+      y1="100"
+      x2="103.69717559492234"
+      y2="67.39435118984468"
+      stroke="#33dd00"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#33dd00"
-      stroke-linecap="butt"
       marker-end="url(#matrix-matrix-addition__registry-DoesNotMatter-`X`.row1-endArrowId)"
     />
     <title>`X`.row1</title>
@@ -315,12 +353,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 120 100 L 120 132.20499999999998"
+    <line
+      x1="120"
+      y1="100"
+      x2="120"
+      y2="132.20499999999998"
+      stroke="#33dd00"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#33dd00"
-      stroke-linecap="butt"
       marker-end="url(#matrix-matrix-addition__registry-DoesNotMatter-`X`.row2-endArrowId)"
     />
     <title>`X`.row2</title>
@@ -420,12 +460,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 120 100 L 152.60564881015532 83.69717559492234"
+    <line
+      x1="120"
+      y1="100"
+      x2="152.60564881015532"
+      y2="83.69717559492234"
+      stroke="#4400cc"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#4400cc"
-      stroke-linecap="butt"
       marker-end="url(#matrix-matrix-addition__registry-DoesNotMatter-`Y`.row1-endArrowId)"
     />
     <title>`Y`.row1</title>
@@ -447,12 +489,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 120 100 L 136.30282440507767 67.39435118984468"
+    <line
+      x1="120"
+      y1="100"
+      x2="136.30282440507767"
+      y2="67.39435118984468"
+      stroke="#4400cc"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#4400cc"
-      stroke-linecap="butt"
       marker-end="url(#matrix-matrix-addition__registry-DoesNotMatter-`Y`.row2-endArrowId)"
     />
     <title>`Y`.row2</title>
@@ -576,12 +620,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 120 100 L 136.7999156279661 49.6002531161017"
+    <line
+      x1="120"
+      y1="100"
+      x2="136.7999156279661"
+      y2="49.6002531161017"
+      stroke="#aaaaaa"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#aaaaaa"
-      stroke-linecap="butt"
       marker-end="url(#matrix-matrix-addition__registry-DoesNotMatter-`Z`.row1-endArrowId)"
     />
     <title>`Z`.row1</title>
@@ -603,12 +649,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 120 100 L 134.205 100"
+    <line
+      x1="120"
+      y1="100"
+      x2="134.205"
+      y2="100"
+      stroke="#aaaaaa"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#aaaaaa"
-      stroke-linecap="butt"
       marker-end="url(#matrix-matrix-addition__registry-DoesNotMatter-`Z`.row2-endArrowId)"
     />
     <title>`Z`.row2</title>

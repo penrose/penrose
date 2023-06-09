@@ -11,62 +11,74 @@
     </croppedViewBox>
   </penrose>
   <g>
-    <path
-      d="M 71.69603077141176 103.49581637335403 L 5.000032938844129 36.56073525120476"
+    <line
+      x1="71.69603077141176"
+      y1="103.49581637335403"
+      x2="5.000032938844129"
+      y2="36.56073525120476"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k26t1_k26b3`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 71.69603077141176 103.49581637335403 L 82.83394638920703 207.3645808319942"
+    <line
+      x1="71.69603077141176"
+      y1="103.49581637335403"
+      x2="82.83394638920703"
+      y2="207.3645808319942"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k26t1_k26b4`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 71.69603077141176 103.49581637335403 L 88.53961383632777 5.000000700844623"
+    <line
+      x1="71.69603077141176"
+      y1="103.49581637335403"
+      x2="88.53961383632777"
+      y2="5.000000700844623"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k26t1_k26b2`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 71.69603077141176 103.49581637335403 L 175.0761713941808 194.97715275503944"
+    <line
+      x1="71.69603077141176"
+      y1="103.49581637335403"
+      x2="175.0761713941808"
+      y2="194.97715275503944"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k26t1_k26b1`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 71.69603077141176 103.49581637335403 L 5.001236489354994 158.2863609535154"
+    <line
+      x1="71.69603077141176"
+      y1="103.49581637335403"
+      x2="5.001236489354994"
+      y2="158.2863609535154"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k26t1_k26b6`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 71.69603077141176 103.49581637335403 L 179.94586238792067 5.219853132960395"
+    <line
+      x1="71.69603077141176"
+      y1="103.49581637335403"
+      x2="179.94586238792067"
+      y2="5.219853132960395"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k26t1_k26b5`.arrow</title>
   </g>
@@ -86,7 +98,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 72.80638308468735, 113.43398108020021)"
     style="font: 18px serif"
     x="72.80638308468735"
@@ -105,12 +116,14 @@
     <title>`k26t1`.text</title>
   </text>
   <g>
-    <path
-      d="M 136.24724545455592 101.63160077492022 L 175.0761713941808 194.97715275503944"
+    <line
+      x1="136.24724545455592"
+      y1="101.63160077492022"
+      x2="175.0761713941808"
+      y2="194.97715275503944"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k26t2_k26b1`.arrow</title>
   </g>
@@ -130,7 +143,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 184.63187698260285, 197.924777342296)"
     style="font: 18px serif"
     x="184.63187698260285"
@@ -149,52 +161,62 @@
     <title>`k26b1`.text</title>
   </text>
   <g>
-    <path
-      d="M 394.99998097756884 94.86295937480696 L 282.85650531807636 195.55110555395376"
+    <line
+      x1="394.99998097756884"
+      y1="94.86295937480696"
+      x2="282.85650531807636"
+      y2="195.55110555395376"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k35t2_k35b2`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 394.99998097756884 94.86295937480696 L 237.14060200299087 104.15667041010389"
+    <line
+      x1="394.99998097756884"
+      y1="94.86295937480696"
+      x2="237.14060200299087"
+      y2="104.15667041010389"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k35t2_k35b1`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 394.99998097756884 94.86295937480696 L 394.99849049087834 5.001519148098339"
+    <line
+      x1="394.99998097756884"
+      y1="94.86295937480696"
+      x2="394.99849049087834"
+      y2="5.001519148098339"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k35t2_k35b4`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 394.99998097756884 94.86295937480696 L 296.0775046135731 5.000039677407898"
+    <line
+      x1="394.99998097756884"
+      y1="94.86295937480696"
+      x2="296.0775046135731"
+      y2="5.000039677407898"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k35t2_k35b5`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 394.99998097756884 94.86295937480696 L 394.9999586588832 199.9030605344305"
+    <line
+      x1="394.99998097756884"
+      y1="94.86295937480696"
+      x2="394.9999586588832"
+      y2="199.9030605344305"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k35t2_k35b3`.arrow</title>
   </g>
@@ -214,7 +236,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 385.1397965157631, 96.52932139404692)"
     style="font: 18px serif"
     x="385.1397965157631"
@@ -233,22 +254,26 @@
     <title>`k35t2`.text</title>
   </text>
   <g>
-    <path
-      d="M 337.5281465714003 137.79850356143203 L 394.99849049087834 5.001519148098339"
+    <line
+      x1="337.5281465714003"
+      y1="137.79850356143203"
+      x2="394.99849049087834"
+      y2="5.001519148098339"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k35t3_k35b4`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 312.02699751351855 76.82219670421482 L 394.99849049087834 5.001519148098339"
+    <line
+      x1="312.02699751351855"
+      y1="76.82219670421482"
+      x2="394.99849049087834"
+      y2="5.001519148098339"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k35t1_k35b4`.arrow</title>
   </g>
@@ -268,7 +293,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 394.1406734941106, 14.96465871351927)"
     style="font: 18px serif"
     x="394.1406734941106"
@@ -287,32 +311,38 @@
     <title>`k35b4`.text</title>
   </text>
   <g>
-    <path
-      d="M 394.9987904166609 394.9989413670522 L 242.32254484061463 310.4512353130558"
+    <line
+      x1="394.9987904166609"
+      y1="394.9989413670522"
+      x2="242.32254484061463"
+      y2="310.4512353130558"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k33t2_k33b1`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 394.9987904166609 394.9989413670522 L 394.9991629605345 311.2985552939585"
+    <line
+      x1="394.9987904166609"
+      y1="394.9989413670522"
+      x2="394.9991629605345"
+      y2="311.2985552939585"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k33t2_k33b3`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 394.9987904166609 394.9989413670522 L 320.15674788180155 292.3049084339218"
+    <line
+      x1="394.9987904166609"
+      y1="394.9989413670522"
+      x2="320.15674788180155"
+      y2="292.3049084339218"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k33t2_k33b2`.arrow</title>
   </g>
@@ -332,7 +362,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 394.6259358655881, 385.0058948103838)"
     style="font: 18px serif"
     x="394.6259358655881"
@@ -351,22 +380,26 @@
     <title>`k33t2`.text</title>
   </text>
   <g>
-    <path
-      d="M 322.9684733671579 394.9997695378436 L 242.32254484061463 310.4512353130558"
+    <line
+      x1="322.9684733671579"
+      y1="394.9997695378436"
+      x2="242.32254484061463"
+      y2="310.4512353130558"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k33t3_k33b1`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 253.20099286222353 394.9985856208277 L 242.32254484061463 310.4512353130558"
+    <line
+      x1="253.20099286222353"
+      y1="394.9985856208277"
+      x2="242.32254484061463"
+      y2="310.4512353130558"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k33t1_k33b1`.arrow</title>
   </g>
@@ -386,7 +419,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 235.27439561928458, 303.357322954289)"
     style="font: 18px serif"
     x="235.27439561928458"
@@ -405,42 +437,50 @@
     <title>`k33b1`.text</title>
   </text>
   <g>
-    <path
-      d="M 312.02699751351855 76.82219670421482 L 237.14060200299087 104.15667041010389"
+    <line
+      x1="312.02699751351855"
+      y1="76.82219670421482"
+      x2="237.14060200299087"
+      y2="104.15667041010389"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k35t1_k35b1`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 312.02699751351855 76.82219670421482 L 282.85650531807636 195.55110555395376"
+    <line
+      x1="312.02699751351855"
+      y1="76.82219670421482"
+      x2="282.85650531807636"
+      y2="195.55110555395376"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k35t1_k35b2`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 312.02699751351855 76.82219670421482 L 296.0775046135731 5.000039677407898"
+    <line
+      x1="312.02699751351855"
+      y1="76.82219670421482"
+      x2="296.0775046135731"
+      y2="5.000039677407898"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k35t1_k35b5`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 312.02699751351855 76.82219670421482 L 394.9999586588832 199.9030605344305"
+    <line
+      x1="312.02699751351855"
+      y1="76.82219670421482"
+      x2="394.9999586588832"
+      y2="199.9030605344305"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k35t1_k35b3`.arrow</title>
   </g>
@@ -460,7 +500,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 304.88958835341566, 69.81809858373711)"
     style="font: 18px serif"
     x="304.88958835341566"
@@ -479,12 +518,14 @@
     <title>`k35t1`.text</title>
   </text>
   <g>
-    <path
-      d="M 136.24724545455592 101.63160077492022 L 88.53961383632777 5.000000700844623"
+    <line
+      x1="136.24724545455592"
+      y1="101.63160077492022"
+      x2="88.53961383632777"
+      y2="5.000000700844623"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k26t2_k26b2`.arrow</title>
   </g>
@@ -504,7 +545,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 98.38862142762406, 6.7311995532551805)"
     style="font: 18px serif"
     x="98.38862142762406"
@@ -523,12 +563,14 @@
     <title>`k26b2`.text</title>
   </text>
   <g>
-    <path
-      d="M 337.5281465714003 137.79850356143203 L 237.14060200299087 104.15667041010389"
+    <line
+      x1="337.5281465714003"
+      y1="137.79850356143203"
+      x2="237.14060200299087"
+      y2="104.15667041010389"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k35t3_k35b1`.arrow</title>
   </g>
@@ -548,7 +590,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 227.4045607285639, 106.43910338889076)"
     style="font: 18px serif"
     x="227.4045607285639"
@@ -567,22 +608,26 @@
     <title>`k35b1`.text</title>
   </text>
   <g>
-    <path
-      d="M 253.20099286222353 394.9985856208277 L 394.9991629605345 311.2985552939585"
+    <line
+      x1="253.20099286222353"
+      y1="394.9985856208277"
+      x2="394.9991629605345"
+      y2="311.2985552939585"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k33t1_k33b3`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 253.20099286222353 394.9985856208277 L 320.15674788180155 292.3049084339218"
+    <line
+      x1="253.20099286222353"
+      y1="394.9985856208277"
+      x2="320.15674788180155"
+      y2="292.3049084339218"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k33t1_k33b2`.arrow</title>
   </g>
@@ -602,7 +647,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 248.42140709557106, 386.2147618578409)"
     style="font: 18px serif"
     x="248.42140709557106"
@@ -621,32 +665,38 @@
     <title>`k33t1`.text</title>
   </text>
   <g>
-    <path
-      d="M 5.000026721539797 394.99867642920003 L 79.29757203171474 394.9999802478144"
+    <line
+      x1="5.000026721539797"
+      y1="394.99867642920003"
+      x2="79.29757203171474"
+      y2="394.9999802478144"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k23t1_k23b1`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 5.000026721539797 394.99867642920003 L 5.001179733886914 287.2177936348328"
+    <line
+      x1="5.000026721539797"
+      y1="394.99867642920003"
+      x2="5.001179733886914"
+      y2="287.2177936348328"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k23t1_k23b2`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 5.000026721539797 394.99867642920003 L 155.56246313512355 394.9999731966518"
+    <line
+      x1="5.000026721539797"
+      y1="394.99867642920003"
+      x2="155.56246313512355"
+      y2="394.9999731966518"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k23t1_k23b3`.arrow</title>
   </g>
@@ -666,7 +716,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 6.041267193356731, 385.0530332483972)"
     style="font: 18px serif"
     x="6.041267193356731"
@@ -685,12 +734,14 @@
     <title>`k23t1`.text</title>
   </text>
   <g>
-    <path
-      d="M 337.5281465714003 137.79850356143203 L 282.85650531807636 195.55110555395376"
+    <line
+      x1="337.5281465714003"
+      y1="137.79850356143203"
+      x2="282.85650531807636"
+      y2="195.55110555395376"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k35t3_k35b2`.arrow</title>
   </g>
@@ -710,7 +761,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 290.2971862111928, 202.23214348580325)"
     style="font: 18px serif"
     x="290.2971862111928"
@@ -729,12 +779,14 @@
     <title>`k35b2`.text</title>
   </text>
   <g>
-    <path
-      d="M 118.77677309964771 298.44811917647604 L 5.001179733886914 287.2177936348328"
+    <line
+      x1="118.77677309964771"
+      y1="298.44811917647604"
+      x2="5.001179733886914"
+      y2="287.2177936348328"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k23t2_k23b2`.arrow</title>
   </g>
@@ -754,7 +806,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 14.82275768338343, 285.3372068694948)"
     style="font: 18px serif"
     x="14.82275768338343"
@@ -773,12 +824,14 @@
     <title>`k23b2`.text</title>
   </text>
   <g>
-    <path
-      d="M 322.9684733671579 394.9997695378436 L 320.15674788180155 292.3049084339218"
+    <line
+      x1="322.9684733671579"
+      y1="394.9997695378436"
+      x2="320.15674788180155"
+      y2="292.3049084339218"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k33t3_k33b2`.arrow</title>
   </g>
@@ -798,7 +851,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 312.9781675421533, 299.26680360026955)"
     style="font: 18px serif"
     x="312.9781675421533"
@@ -817,12 +869,14 @@
     <title>`k33b2`.text</title>
   </text>
   <g>
-    <path
-      d="M 322.9684733671579 394.9997695378436 L 394.9991629605345 311.2985552939585"
+    <line
+      x1="322.9684733671579"
+      y1="394.9997695378436"
+      x2="394.9991629605345"
+      y2="311.2985552939585"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k33t3_k33b3`.arrow</title>
   </g>
@@ -842,7 +896,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 313.15991802810254, 393.05240152930264)"
     style="font: 18px serif"
     x="313.15991802810254"
@@ -861,22 +914,26 @@
     <title>`k33t3`.text</title>
   </text>
   <g>
-    <path
-      d="M 118.77677309964771 298.44811917647604 L 79.29757203171474 394.9999802478144"
+    <line
+      x1="118.77677309964771"
+      y1="298.44811917647604"
+      x2="79.29757203171474"
+      y2="394.9999802478144"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k23t2_k23b1`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 118.77677309964771 298.44811917647604 L 155.56246313512355 394.9999731966518"
+    <line
+      x1="118.77677309964771"
+      y1="298.44811917647604"
+      x2="155.56246313512355"
+      y2="394.9999731966518"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k23t2_k23b3`.arrow</title>
   </g>
@@ -896,7 +953,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 108.82998251084682, 297.41789736417445)"
     style="font: 18px serif"
     x="108.82998251084682"
@@ -915,12 +971,14 @@
     <title>`k23t2`.text</title>
   </text>
   <g>
-    <path
-      d="M 136.24724545455592 101.63160077492022 L 5.001236489354994 158.2863609535154"
+    <line
+      x1="136.24724545455592"
+      y1="101.63160077492022"
+      x2="5.001236489354994"
+      y2="158.2863609535154"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k26t2_k26b6`.arrow</title>
   </g>
@@ -940,7 +998,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 7.32181106345061, 148.5593401533906)"
     style="font: 18px serif"
     x="7.32181106345061"
@@ -959,12 +1016,14 @@
     <title>`k26b6`.text</title>
   </text>
   <g>
-    <path
-      d="M 337.5281465714003 137.79850356143203 L 394.9999586588832 199.9030605344305"
+    <line
+      x1="337.5281465714003"
+      y1="137.79850356143203"
+      x2="394.9999586588832"
+      y2="199.9030605344305"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k35t3_k35b3`.arrow</title>
   </g>
@@ -984,7 +1043,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 386.13930799117037, 204.53866942051656)"
     style="font: 18px serif"
     x="386.13930799117037"
@@ -1018,7 +1076,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 389.1264634952866, 303.20464394091806)"
     style="font: 18px serif"
     x="389.1264634952866"
@@ -1037,32 +1094,38 @@
     <title>`k33b3`.text</title>
   </text>
   <g>
-    <path
-      d="M 136.24724545455592 101.63160077492022 L 179.94586238792067 5.219853132960395"
+    <line
+      x1="136.24724545455592"
+      y1="101.63160077492022"
+      x2="179.94586238792067"
+      y2="5.219853132960395"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k26t2_k26b5`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 136.24724545455592 101.63160077492022 L 5.000032938844129 36.56073525120476"
+    <line
+      x1="136.24724545455592"
+      y1="101.63160077492022"
+      x2="5.000032938844129"
+      y2="36.56073525120476"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k26t2_k26b3`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 136.24724545455592 101.63160077492022 L 82.83394638920703 207.3645808319942"
+    <line
+      x1="136.24724545455592"
+      y1="101.63160077492022"
+      x2="82.83394638920703"
+      y2="207.3645808319942"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k26t2_k26b4`.arrow</title>
   </g>
@@ -1082,7 +1145,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 146.22445546743796, 102.30634543688294)"
     style="font: 18px serif"
     x="146.22445546743796"
@@ -1116,7 +1178,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 189.82584047213115, 6.764532081972305)"
     style="font: 18px serif"
     x="189.82584047213115"
@@ -1150,7 +1211,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 80.48492009149416, 385.07072022579166)"
     style="font: 18px serif"
     x="80.48492009149416"
@@ -1184,7 +1244,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 158.39526087925992, 385.4096000578831)"
     style="font: 18px serif"
     x="158.39526087925992"
@@ -1203,12 +1262,14 @@
     <title>`k23b3`.text</title>
   </text>
   <g>
-    <path
-      d="M 337.5281465714003 137.79850356143203 L 296.0775046135731 5.000039677407898"
+    <line
+      x1="337.5281465714003"
+      y1="137.79850356143203"
+      x2="296.0775046135731"
+      y2="5.000039677407898"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_k35t3_k35b5`.arrow</title>
   </g>
@@ -1228,7 +1289,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 329.2472556886928, 132.19253832887023)"
     style="font: 18px serif"
     x="329.2472556886928"
@@ -1262,7 +1322,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 92.61948743691676, 205.30468122191922)"
     style="font: 18px serif"
     x="92.61948743691676"
@@ -1296,7 +1355,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 305.73769722181146, 7.584740583071493)"
     style="font: 18px serif"
     x="305.73769722181146"
@@ -1330,7 +1388,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 7.854599516740649, 46.1446514472259)"
     style="font: 18px serif"
     x="7.854599516740649"

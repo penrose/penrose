@@ -10,12 +10,14 @@
     </croppedViewBox>
   </penrose>
   <g>
-    <path
-      d="M 7.948006719919903 31.513579512426986 L 67.89568847722842 31.513579512426986"
+    <line
+      x1="7.948006719919903"
+      y1="31.513579512426986"
+      x2="67.89568847722842"
+      y2="31.513579512426986"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="0.65"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`I`.icon</title>
   </g>
@@ -38,7 +40,6 @@
     stroke="#9ea6dd"
     stroke-opacity="1"
     stroke-width="0.65"
-    stroke-linecap="butt"
     r="19.661154084115118"
   >
     <title>`S`.icon</title>
@@ -50,7 +51,6 @@
     stroke="#9ea6dd"
     stroke-opacity="1"
     stroke-width="0.65"
-    stroke-linecap="butt"
     rx="19.661154084115118"
     ry="4.9152885210287796"
   >
@@ -63,7 +63,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0.65"
-    stroke-linecap="butt"
     r="23.064206800321983"
   >
     <title>`C`.icon</title>

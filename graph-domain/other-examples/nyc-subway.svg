@@ -10,22 +10,26 @@
     </croppedViewBox>
   </penrose>
   <g>
-    <path
-      d="M 271.3361466416811 624.5552753064227 L 377.1506162961137 675.1652757251752"
+    <line
+      x1="271.3361466416811"
+      y1="624.5552753064227"
+      x2="377.1506162961137"
+      y2="675.1652757251752"
+      stroke="#000000"
       stroke-opacity="0"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Broadway_CentralPark`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 377.1506162961137 675.1652757251752 L 433.1525278392454 579.3861404240222"
+    <line
+      x1="377.1506162961137"
+      y1="675.1652757251752"
+      x2="433.1525278392454"
+      y2="579.3861404240222"
+      stroke="#000000"
       stroke-opacity="0"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_CentralPark_TimesSquare`.arrow</title>
   </g>
@@ -160,7 +164,6 @@
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="0"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 377.1506162961137, 675.1652757251752)"
   >
@@ -172,7 +175,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 377.1506162961137, 675.1652757251752)"
     style="font: 18px serif"
     x="377.1506162961137"
@@ -201,7 +203,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 377.1506162961137, 675.1652757251752)"
   >
@@ -258,22 +259,26 @@
     <title>`Edge_GrandCentral_UnionSquare`.c7</title>
   </circle>
   <g>
-    <path
-      d="M 433.1525278392454 579.3861404240222 L 421.47074416085087 436.7491438916004"
+    <line
+      x1="433.1525278392454"
+      y1="579.3861404240222"
+      x2="421.47074416085087"
+      y2="436.7491438916004"
+      stroke="#000000"
       stroke-opacity="0"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_TimesSquare_GrandCentral`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 421.47074416085087 436.7491438916004 L 500.5226545784416 379.66216170522364"
+    <line
+      x1="421.47074416085087"
+      y1="436.7491438916004"
+      x2="500.5226545784416"
+      y2="379.66216170522364"
+      stroke="#000000"
       stroke-opacity="0"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_GrandCentral_WallStreet`.arrow</title>
   </g>
@@ -287,7 +292,6 @@
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="0"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 421.47074416085087, 436.7491438916004)"
   >
@@ -299,7 +303,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 421.47074416085087, 436.7491438916004)"
     style="font: 18px serif"
     x="421.47074416085087"
@@ -319,12 +322,14 @@
     GrandCentral
   </text>
   <g>
-    <path
-      d="M 421.47074416085087 436.7491438916004 L 326.30178231462327 523.0557377448631"
+    <line
+      x1="421.47074416085087"
+      y1="436.7491438916004"
+      x2="326.30178231462327"
+      y2="523.0557377448631"
+      stroke="#000000"
       stroke-opacity="0"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_GrandCentral_UnionSquare`.arrow</title>
   </g>
@@ -338,19 +343,20 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 421.47074416085087, 436.7491438916004)"
   >
     <title>`GrandCentral`.box</title>
   </rect>
   <g>
-    <path
-      d="M 335.7941408741939 253.48069642222669 L 234.24237094332216 334.89335259314953"
+    <line
+      x1="335.7941408741939"
+      y1="253.48069642222669"
+      x2="234.24237094332216"
+      y2="334.89335259314953"
+      stroke="#000000"
       stroke-opacity="0"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_BarclaysCenter_ConeyIsland`.arrow</title>
   </g>
@@ -364,7 +370,6 @@
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="0"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 234.24237094332216, 334.89335259314953)"
   >
@@ -376,7 +381,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 234.24237094332216, 334.89335259314953)"
     style="font: 18px serif"
     x="234.24237094332216"
@@ -405,19 +409,20 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 234.24237094332216, 334.89335259314953)"
   >
     <title>`ConeyIsland`.box</title>
   </rect>
   <g>
-    <path
-      d="M 433.1525278392454 579.3861404240222 L 326.30178231462327 523.0557377448631"
+    <line
+      x1="433.1525278392454"
+      y1="579.3861404240222"
+      x2="326.30178231462327"
+      y2="523.0557377448631"
+      stroke="#000000"
       stroke-opacity="0"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_TimesSquare_UnionSquare`.arrow</title>
   </g>
@@ -431,7 +436,6 @@
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="0"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 433.1525278392454, 579.3861404240222)"
   >
@@ -443,7 +447,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 433.1525278392454, 579.3861404240222)"
     style="font: 18px serif"
     x="433.1525278392454"
@@ -472,7 +475,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 433.1525278392454, 579.3861404240222)"
   >
@@ -529,12 +531,14 @@
     <title>`Edge_UnionSquare_Broadway`.c7</title>
   </circle>
   <g>
-    <path
-      d="M 446.90029973568073 304.53721977874784 L 335.7941408741939 253.48069642222669"
+    <line
+      x1="446.90029973568073"
+      y1="304.53721977874784"
+      x2="335.7941408741939"
+      y2="253.48069642222669"
+      stroke="#000000"
       stroke-opacity="0"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_FultonStreet_BarclaysCenter`.arrow</title>
   </g>
@@ -548,7 +552,6 @@
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="0"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 446.90029973568073, 304.53721977874784)"
   >
@@ -560,7 +563,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 446.90029973568073, 304.53721977874784)"
     style="font: 18px serif"
     x="446.90029973568073"
@@ -580,22 +582,26 @@
     FultonStreet
   </text>
   <g>
-    <path
-      d="M 560.7339169088131 219.61293908933982 L 446.90029973568073 304.53721977874784"
+    <line
+      x1="560.7339169088131"
+      y1="219.61293908933982"
+      x2="446.90029973568073"
+      y2="304.53721977874784"
+      stroke="#000000"
       stroke-opacity="0"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_JFKAirport_FultonStreet`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 500.5226545784416 379.66216170522364 L 446.90029973568073 304.53721977874784"
+    <line
+      x1="500.5226545784416"
+      y1="379.66216170522364"
+      x2="446.90029973568073"
+      y2="304.53721977874784"
+      stroke="#000000"
       stroke-opacity="0"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_WallStreet_FultonStreet`.arrow</title>
   </g>
@@ -609,7 +615,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 446.90029973568073, 304.53721977874784)"
   >
@@ -625,7 +630,6 @@
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="0"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 335.7941408741939, 253.48069642222669)"
   >
@@ -637,7 +641,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 335.7941408741939, 253.48069642222669)"
     style="font: 18px serif"
     x="335.7941408741939"
@@ -666,7 +669,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 335.7941408741939, 253.48069642222669)"
   >
@@ -682,7 +684,6 @@
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="0"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 500.5226545784416, 379.66216170522364)"
   >
@@ -694,7 +695,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 500.5226545784416, 379.66216170522364)"
     style="font: 18px serif"
     x="500.5226545784416"
@@ -723,7 +723,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 500.5226545784416, 379.66216170522364)"
   >
@@ -789,7 +788,6 @@
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="0"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 326.30178231462327, 523.0557377448631)"
   >
@@ -801,7 +799,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 326.30178231462327, 523.0557377448631)"
     style="font: 18px serif"
     x="326.30178231462327"
@@ -821,12 +818,14 @@
     UnionSquare
   </text>
   <g>
-    <path
-      d="M 326.30178231462327 523.0557377448631 L 271.3361466416811 624.5552753064227"
+    <line
+      x1="326.30178231462327"
+      y1="523.0557377448631"
+      x2="271.3361466416811"
+      y2="624.5552753064227"
+      stroke="#000000"
       stroke-opacity="0"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_UnionSquare_Broadway`.arrow</title>
   </g>
@@ -840,7 +839,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 326.30178231462327, 523.0557377448631)"
   >
@@ -906,7 +904,6 @@
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="0"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 560.7339169088131, 219.61293908933982)"
   >
@@ -918,7 +915,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 560.7339169088131, 219.61293908933982)"
     style="font: 18px serif"
     x="560.7339169088131"
@@ -947,7 +943,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 560.7339169088131, 219.61293908933982)"
   >
@@ -1063,7 +1058,6 @@
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="0"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 271.3361466416811, 624.5552753064227)"
   >
@@ -1075,7 +1069,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 271.3361466416811, 624.5552753064227)"
     style="font: 18px serif"
     x="271.3361466416811"
@@ -1104,7 +1097,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 271.3361466416811, 624.5552753064227)"
   >

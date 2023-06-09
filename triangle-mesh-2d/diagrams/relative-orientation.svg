@@ -14,7 +14,6 @@
     stroke="#cccccc"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 240, 180)"
   >
@@ -30,11 +29,14 @@
     <title>`k`.bounds</title>
   </circle>
   <g>
-    <path
-      d="M 314.0311958045072 139.11598281011246 L 251.98213963322445 335.26577154595776"
+    <line
+      x1="314.0311958045072"
+      y1="139.11598281011246"
+      x2="251.98213963322445"
+      y2="335.26577154595776"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`li`.segment</title>
@@ -49,11 +51,14 @@
     <title>`l`.bounds</title>
   </circle>
   <g>
-    <path
-      d="M 251.98213963322445 335.26577154595776 L 163.8058627222094 122.15574944261202"
+    <line
+      x1="251.98213963322445"
+      y1="335.26577154595776"
+      x2="163.8058627222094"
+      y2="122.15574944261202"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`ij`.segment</title>
@@ -68,11 +73,14 @@
     <title>`i`.bounds</title>
   </circle>
   <g>
-    <path
-      d="M 163.8058627222094 122.15574944261202 L 314.0311958045072 139.11598281011246"
+    <line
+      x1="163.8058627222094"
+      y1="122.15574944261202"
+      x2="314.0311958045072"
+      y2="139.11598281011246"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`jl`.segment</title>
@@ -87,21 +95,27 @@
     <title>`j`.bounds</title>
   </circle>
   <g>
-    <path
-      d="M 163.8058627222094 122.15574944261202 L 58.66803519718127 260.7959404338203"
+    <line
+      x1="163.8058627222094"
+      y1="122.15574944261202"
+      x2="58.66803519718127"
+      y2="260.7959404338203"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`jk`.segment</title>
   </g>
   <g>
-    <path
-      d="M 58.66803519718127 260.7959404338203 L 251.98213963322445 335.26577154595776"
+    <line
+      x1="58.66803519718127"
+      y1="260.7959404338203"
+      x2="251.98213963322445"
+      y2="335.26577154595776"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`ki`.segment</title>
@@ -204,10 +218,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="2"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="2"
+      stroke-linecap="butt"
       d="M 163.40050296579517 259.5407781508285 A 28.30272476312744 28.30272476312744 0 1 0 135.0977782026677 259.5407781508285"
       marker-end="url(#relative-orientation__`ijk`.orientationArc-endArrowId)"
     />
@@ -233,9 +248,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#1b1f8a"
       fill-opacity="0.2"
+      stroke="none"
       d="M 251.98213963322445 335.26577154595776 L 163.8058627222094 122.15574944261202 L 58.66803519718127 260.7959404338203 Z "
     />
     <title>`ijk`.icon</title>
@@ -338,10 +353,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="2"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="2"
+      stroke-linecap="butt"
       d="M 258.44930755886725 206.1406623207712 A 25.971820874542814 25.971820874542814 0 1 0 232.4774866843244 206.1406623207712"
       marker-start="url(#relative-orientation__`jil`.orientationArc-startArrowId)"
     />
@@ -367,9 +383,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#1b1f8a"
       fill-opacity="0.2"
+      stroke="none"
       d="M 163.8058627222094 122.15574944261202 L 251.98213963322445 335.26577154595776 L 314.0311958045072 139.11598281011246 Z "
     />
     <title>`jil`.icon</title>

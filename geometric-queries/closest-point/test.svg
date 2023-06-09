@@ -19,12 +19,14 @@
     <title>`P`.icon</title>
   </polygon>
   <g>
-    <path
-      d="M 348.7277862407008 537.1487351787396 L 312.077579728993 429.0145361557018"
+    <line
+      x1="348.7277862407008"
+      y1="537.1487351787396"
+      x2="312.077579728993"
+      y2="429.0145361557018"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:1:closestSegment</title>
   </g>
@@ -36,18 +38,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:1:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 784.8722801508225 70.60953435570127 L 733.4301651270695 633.9030836484417"
+    <line
+      x1="784.8722801508225"
+      y1="70.60953435570127"
+      x2="733.4301651270695"
+      y2="633.9030836484417"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="5"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`L`.icon</title>
   </g>
@@ -86,12 +89,14 @@
     <title>`C`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 348.7277862407008 537.1487351787396 L 645.9682112977457 95.59072275878282"
+    <line
+      x1="348.7277862407008"
+      y1="537.1487351787396"
+      x2="645.9682112977457"
+      y2="95.59072275878282"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:3:closestSegment</title>
   </g>
@@ -103,18 +108,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:3:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 348.7277862407008 537.1487351787396 L 739.0111626551596 572.7909014463626"
+    <line
+      x1="348.7277862407008"
+      y1="537.1487351787396"
+      x2="739.0111626551596"
+      y2="572.7909014463626"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:0:closestSegment</title>
   </g>
@@ -126,18 +132,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:0:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 348.7277862407008 537.1487351787396 L 595.1094854369474 508.942738306545"
+    <line
+      x1="348.7277862407008"
+      y1="537.1487351787396"
+      x2="595.1094854369474"
+      y2="508.942738306545"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:4:closestSegment</title>
   </g>
@@ -149,7 +156,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:4:closestDot</title>
@@ -167,12 +173,14 @@
     <title>`M`.icon</title>
   </polyline>
   <g>
-    <path
-      d="M 348.7277862407008 537.1487351787396 L 431.08400553496455 452.9880285112597"
+    <line
+      x1="348.7277862407008"
+      y1="537.1487351787396"
+      x2="431.08400553496455"
+      y2="452.9880285112597"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>10:0:closestSegment</title>
   </g>
@@ -184,18 +192,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>10:0:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 348.7277862407008 537.1487351787396 L 418.4515870365547 647.674376367025"
+    <line
+      x1="348.7277862407008"
+      y1="537.1487351787396"
+      x2="418.4515870365547"
+      y2="647.674376367025"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:2:closestSegment</title>
   </g>
@@ -207,7 +216,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:2:closestDot</title>

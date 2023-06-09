@@ -29,9 +29,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 164.4439807267997 114.6067459697586 L 160.7862225488294 126.71545248261651 L 156.4472051834909 114.833832365548 Z "
     />
     <title>`Arc_Deborah_Brian`.pointer</title>
@@ -56,10 +56,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 159.10982738121243 67.90900108093038 Q 160.55558379617545 118.36630805536349 161.97554521739963 168.82434753655835"
     />
     <title>`Arc_Deborah_Brian`.arrow</title>
@@ -84,9 +85,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 206.63444807062368 62.372581954332816 L 218.75916618064548 65.9769097816864 L 206.8967949962159 70.36827838581661 Z "
     />
     <title>`Arc_Deborah_Linda`.pointer</title>
@@ -111,10 +112,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 159.10982738121243 67.90900108093038 Q 209.6125045542693 66.30208517076801 260.1118957471379 64.59502057387672"
     />
     <title>`Arc_Deborah_Linda`.arrow</title>
@@ -139,9 +141,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 217.34699673812764 117.57142840527987 L 223.30599542682998 128.72895108154864 L 211.84428287010684 123.37833215375503 Z "
     />
     <title>`Arc_Deborah_Fred`.pointer</title>
@@ -166,10 +168,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 159.10982738121243 67.90900108093038 Q 211.07118388844376 117.12169554879596 263.00586992856523 166.36253482650412"
     />
     <title>`Arc_Deborah_Fred`.arrow</title>
@@ -190,7 +193,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 109.76051912629426, 57.66461974008274)"
     style="font: 18px serif"
     x="109.76051912629426"
@@ -229,9 +231,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 232.15884299540932 216.33200772569518 L 241.29294013128464 207.58167963815777 L 239.2358592751068 220.06240038971288 Z "
     />
     <title>`Arc_Yvonne_Fred`.pointer</title>
@@ -256,10 +258,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 209.4714414324143 267.92396712449636 Q 236.26095663812572 217.15500611714154 263.00586992856523 166.36253482650412"
     />
     <title>`Arc_Yvonne_Fred`.arrow</title>
@@ -284,9 +287,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 216.96597587450293 171.4941650005481 L 204.87209866378132 167.78767038329403 L 216.77109720271105 163.4965397506643 Z "
     />
     <title>`Arc_Fred_Brian`.pointer</title>
@@ -311,10 +314,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 263.00586992856523 166.36253482650412 Q 212.49112575823244 167.61060308480097 161.97554521739963 168.82434753655835"
     />
     <title>`Arc_Fred_Brian`.arrow</title>
@@ -335,7 +339,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 231.89667199100177, 178.378458652714)"
     style="font: 18px serif"
     x="231.89667199100177"
@@ -374,9 +377,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 178.19487188117327 223.4680324250111 L 176.61559590921388 210.91789862949682 L 185.40909696408997 220.0104400827326 Z "
     />
     <title>`Arc_Yvonne_Brian`.pointer</title>
@@ -401,10 +404,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 209.4714414324143 267.92396712449636 Q 176.72245657804754 222.68812249945523 161.97554521739963 168.82434753655835"
     />
     <title>`Arc_Yvonne_Brian`.arrow</title>
@@ -429,9 +433,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 193.28048680444164 213.29497173474437 L 194.85976277640103 225.84510553025868 L 186.06626172152494 216.7525640770229 Z "
     />
     <title>`Arc_Brian_Yvonne`.pointer</title>
@@ -456,10 +460,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 161.97554521739963 168.82434753655835 Q 194.75922417793652 214.04356416975872 209.4714414324143 267.92396712449636"
     />
     <title>`Arc_Brian_Yvonne`.arrow</title>
@@ -480,7 +485,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 165.92105889620717, 272.2765853977047)"
     style="font: 18px serif"
     x="165.92105889620717"
@@ -519,9 +523,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 213.45710024709015 108.29350067120464 L 224.59543967786354 102.29872191197504 L 219.2816353887826 113.77754857782276 Z "
     />
     <title>`Arc_Brian_Linda`.pointer</title>
@@ -546,10 +550,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 161.97554521739963 168.82434753655835 Q 211.02589338169327 116.69289908075798 260.1118957471379 64.59502057387672"
     />
     <title>`Arc_Brian_Linda`.arrow</title>
@@ -570,7 +575,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 287.9499502017141, 81.4951399967824)"
     style="font: 18px serif"
     x="287.9499502017141"
@@ -605,7 +609,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 126.31375217920453, 172.33826639080166)"
     style="font: 18px serif"
     x="126.31375217920453"

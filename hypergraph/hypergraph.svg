@@ -536,10 +536,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#672551"
       fill="none"
-      stroke-width="3"
+      stroke="#672551"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 505.82446756684226 347.0100635312696 Q 566.5963323359179 331.8998931341662 605.8244624161292 283.08709337324535"
     />
     <title>`N1`.line3r</title>
@@ -564,10 +565,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#672551"
       fill="none"
-      stroke-width="3"
+      stroke="#672551"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 305.8244349346086 285.4785115399837 Q 340.8449260178212 355.2486228602148 405.8244376859496 398.5148311931209"
     />
     <title>`N1`.line12</title>
@@ -592,10 +594,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#672551"
       fill="none"
-      stroke-width="3"
+      stroke="#672551"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 405.8244376859496 398.5148311931209 Q 464.98212679144046 390.5426873146244 505.82446756684226 347.0100635312696"
     />
     <title>`N1`.line23</title>
@@ -620,10 +623,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#672551"
       fill="none"
-      stroke-width="3"
+      stroke="#672551"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 205.82444191669452 257.3338469294505 Q 250.40602363800264 290.65821040498304 305.8244349346086 285.4785115399837"
     />
     <title>`N1`.linel1</title>
@@ -740,10 +744,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#652b68"
       fill="none"
-      stroke-width="3"
+      stroke="#652b68"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 505.82446756684226 259.79253791719793 Q 561.6717432868699 263.6326028157754 605.8244624161292 229.22038621210584"
     />
     <title>`N2`.line3r</title>
@@ -768,10 +773,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#652b68"
       fill="none"
-      stroke-width="3"
+      stroke="#652b68"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 305.8244349346086 269.9725401322965 Q 361.87705523307477 273.1586981441391 405.8244376859496 238.22054748412134"
     />
     <title>`N2`.line12</title>
@@ -796,10 +802,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#652b68"
       fill="none"
-      stroke-width="3"
+      stroke="#652b68"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 405.8244376859496 238.22054748412134 Q 451.60707344127 268.5568274711632 505.82446756684226 259.79253791719793"
     />
     <title>`N2`.line23</title>
@@ -824,10 +831,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#652b68"
       fill="none"
-      stroke-width="3"
+      stroke="#652b68"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 205.82444191669452 300.4048385927527 Q 261.6472403252152 304.32229596201415 305.8244349346086 269.9725401322965"
     />
     <title>`N2`.linel1</title>
@@ -955,10 +963,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#715f55"
       fill="none"
-      stroke-width="3"
+      stroke="#715f55"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 505.82446756684226 259.78123149917246 Q 545.1084130709377 308.39706955973645 605.8244624161292 323.2391803348084"
     />
     <title>`N3`.line3r</title>
@@ -983,10 +992,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#715f55"
       fill="none"
-      stroke-width="3"
+      stroke="#715f55"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 305.8244349346086 278.9419298639819 Q 363.36732832677546 277.10424278631615 405.8244376859496 238.22038419605528"
     />
     <title>`N3`.line12</title>
@@ -1011,10 +1021,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#715f55"
       fill="none"
-      stroke-width="3"
+      stroke="#715f55"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 405.8244376859496 238.22038419605528 Q 451.6091551565908 268.55154156883714 505.82446756684226 259.78123149917246"
     />
     <title>`N3`.line23</title>
@@ -1039,10 +1050,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#715f55"
       fill="none"
-      stroke-width="3"
+      stroke="#715f55"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 205.82444191669452 229.2261566557235 Q 246.9209158846627 271.9929018143977 305.8244349346086 278.9419298639819"
     />
     <title>`N3`.linel1</title>
@@ -1159,10 +1171,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#4d558a"
       fill="none"
-      stroke-width="3"
+      stroke="#4d558a"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 505.82446756684226 248.34601722372406 Q 546.2469059353202 293.1782984584401 605.8244624161292 302.895324188166"
     />
     <title>`N4`.line3r</title>
@@ -1187,10 +1200,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#4d558a"
       fill="none"
-      stroke-width="3"
+      stroke="#4d558a"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 305.8244349346086 361.47981567003245 Q 364.78982209926664 354.2839628392375 405.8244376859496 311.33217141677574"
     />
     <title>`N4`.line12</title>
@@ -1215,10 +1229,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#4d558a"
       fill="none"
-      stroke-width="3"
+      stroke="#4d558a"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 405.8244376859496 311.33217141677574 Q 466.4835293854161 296.76197867705554 505.82446756684226 248.34601722372406"
     />
     <title>`N4`.line23</title>
@@ -1243,10 +1258,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#4d558a"
       fill="none"
-      stroke-width="3"
+      stroke="#4d558a"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 205.82444191669452 319.906863521351 Q 248.14688475918877 359.1610166512368 305.8244349346086 361.47981567003245"
     />
     <title>`N4`.linel1</title>
@@ -1363,10 +1379,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#b82ac9"
       fill="none"
-      stroke-width="3"
+      stroke="#b82ac9"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 505.82446756684226 347.74080209415774 Q 545.6038823647486 394.65817422071746 605.8244624161292 407.1930146193772"
     />
     <title>`N5`.line3r</title>
@@ -1391,10 +1408,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#b82ac9"
       fill="none"
-      stroke-width="3"
+      stroke="#b82ac9"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 305.8244349346086 399.47976346596573 Q 368.9157313981908 371.30891567787984 405.8244376859496 312.8978342636616"
     />
     <title>`N5`.line12</title>
@@ -1419,10 +1437,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#b82ac9"
       fill="none"
-      stroke-width="3"
+      stroke="#b82ac9"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 405.8244376859496 312.8978342636616 Q 449.24387882891256 349.2057146840757 505.82446756684226 347.74080209415774"
     />
     <title>`N5`.line23</title>
@@ -1447,10 +1466,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#b82ac9"
       fill="none"
-      stroke-width="3"
+      stroke="#b82ac9"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 205.82444191669452 345.22955270129523 Q 246.28742700416745 389.9343435992412 305.8244349346086 399.47976346596573"
     />
     <title>`N5`.linel1</title>
@@ -1556,10 +1576,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#c690d3"
       fill="none"
-      stroke-width="3"
+      stroke="#c690d3"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 505.82446756684226 298.4627947513655 Q 563.1496056307753 297.3927134656171 605.8244624161292 259.10208730618075"
     />
     <title>`N6`.line3r</title>
@@ -1584,10 +1605,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#c690d3"
       fill="none"
-      stroke-width="3"
+      stroke="#c690d3"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 305.8244349346086 323.4797438283078 Q 350.5089779934322 356.5448626635431 405.8244376859496 351.0485590271395"
     />
     <title>`N6`.line12</title>
@@ -1612,10 +1634,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#c690d3"
       fill="none"
-      stroke-width="3"
+      stroke="#c690d3"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 405.8244376859496 351.0485590271395 Q 465.13303134195064 342.4573799567415 505.82446756684226 298.4627947513655"
     />
     <title>`N6`.line23</title>
@@ -1640,10 +1663,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#c690d3"
       fill="none"
-      stroke-width="3"
+      stroke="#c690d3"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 205.82444191669452 385.6019809167942 Q 266.378231978694 371.52960493004485 305.8244349346086 323.4797438283078"
     />
     <title>`N6`.linel1</title>
@@ -1749,10 +1773,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#9d7676"
       fill="none"
-      stroke-width="3"
+      stroke="#9d7676"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 505.82446756684226 297.792552994823 Q 565.8948930521306 285.9326691429761 605.8244624161292 239.51347918948537"
     />
     <title>`N7`.line3r</title>
@@ -1777,10 +1802,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#9d7676"
       fill="none"
-      stroke-width="3"
+      stroke="#9d7676"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 305.8244349346086 323.4798514311046 Q 350.3357692934652 356.98151741271255 405.8244376859496 352.01894247108936"
     />
     <title>`N7`.line12</title>
@@ -1805,10 +1831,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#9d7676"
       fill="none"
-      stroke-width="3"
+      stroke="#9d7676"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 405.8244376859496 352.01894247108936 Q 465.3582341593585 342.4871850847779 505.82446756684226 297.792552994823"
     />
     <title>`N7`.line23</title>
@@ -1833,10 +1860,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#9d7676"
       fill="none"
-      stroke-width="3"
+      stroke="#9d7676"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 205.82444191669452 405.8286805259413 Q 268.53820858780307 380.09317742034267 305.8244349346086 323.4798514311046"
     />
     <title>`N7`.linel1</title>
@@ -1931,10 +1959,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#50a9ac"
       fill="none"
-      stroke-width="3"
+      stroke="#50a9ac"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 505.82446756684226 308.989428780779 Q 548.0279512545864 348.57294982741826 605.8244624161292 351.3209282621026"
     />
     <title>`N8`.line3r</title>
@@ -1959,10 +1988,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#50a9ac"
       fill="none"
-      stroke-width="3"
+      stroke="#50a9ac"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 305.8244349346086 437.4797401020982 Q 368.02288671420644 414.8461657831948 405.8244376859496 360.51415337368087"
     />
     <title>`N8`.line12</title>
@@ -1987,10 +2017,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#50a9ac"
       fill="none"
-      stroke-width="3"
+      stroke="#50a9ac"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 405.8244376859496 360.51415337368087 Q 464.98493089316 352.5305865034955 505.82446756684226 308.989428780779"
     />
     <title>`N8`.line23</title>
@@ -2015,10 +2046,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#50a9ac"
       fill="none"
-      stroke-width="3"
+      stroke="#50a9ac"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 205.82444191669452 368.4147136825638 Q 244.4586888429389 419.40382649846777 305.8244349346086 437.4797401020982"
     />
     <title>`N8`.linel1</title>
@@ -2113,10 +2145,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#dbba3b"
       fill="none"
-      stroke-width="3"
+      stroke="#dbba3b"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 505.82446756684226 309.00994268908136 Q 545.1804667258582 357.3732433372247 605.8244624161292 371.87179929760384"
     />
     <title>`N9`.line3r</title>
@@ -2141,10 +2174,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#dbba3b"
       fill="none"
-      stroke-width="3"
+      stroke="#dbba3b"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 305.8244349346086 437.4797396803099 Q 368.0229377390703 414.84586976547166 405.8244376859496 360.51364030348486"
     />
     <title>`N9`.line12</title>
@@ -2169,10 +2203,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#dbba3b"
       fill="none"
-      stroke-width="3"
+      stroke="#dbba3b"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 405.8244376859496 360.51364030348486 Q 464.98197642226984 352.5421088952154 505.82446756684226 309.00994268908136"
     />
     <title>`N9`.line23</title>
@@ -2197,10 +2232,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#dbba3b"
       fill="none"
-      stroke-width="3"
+      stroke="#dbba3b"
       stroke-opacity="0.5"
+      stroke-width="3"
+      stroke-linecap="butt"
       d="M 205.82444191669452 446.331047381302 Q 257.5878107615581 461.8275028146279 305.8244349346086 437.4797396803099"
     />
     <title>`N9`.linel1</title>

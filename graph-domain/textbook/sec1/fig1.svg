@@ -10,22 +10,26 @@
     </croppedViewBox>
   </penrose>
   <g>
-    <path
-      d="M 265.6042005148213 284.38310071983 L 155.55678695484238 192.58757968331807"
+    <line
+      x1="265.6042005148213"
+      y1="284.38310071983"
+      x2="155.55678695484238"
+      y2="192.58757968331807"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Detroit_NYC`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 256.11298455608056 183.8899678489181 L 265.6042005148213 284.38310071983"
+    <line
+      x1="256.11298455608056"
+      y1="183.8899678489181"
+      x2="265.6042005148213"
+      y2="284.38310071983"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Chicago_Detroit`.arrow</title>
   </g>
@@ -45,7 +49,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 277.3999794202882, 301.3838313109808)"
     style="font: 18px serif"
     x="277.3999794202882"
@@ -65,22 +68,26 @@
     Detroit
   </text>
   <g>
-    <path
-      d="M 155.55678695484238 192.58757968331807 L 196.94913089318024 85.50102780821867"
+    <line
+      x1="155.55678695484238"
+      y1="192.58757968331807"
+      x2="196.94913089318024"
+      y2="85.50102780821867"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_NYC_Washington`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 256.11298455608056 183.8899678489181 L 196.94913089318024 85.50102780821867"
+    <line
+      x1="256.11298455608056"
+      y1="183.8899678489181"
+      x2="196.94913089318024"
+      y2="85.50102780821867"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Chicago_Washington`.arrow</title>
   </g>
@@ -100,7 +107,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 200.36076046110745, 103.50307508564723)"
     style="font: 18px serif"
     x="200.36076046110745"
@@ -120,32 +126,38 @@
     Washington
   </text>
   <g>
-    <path
-      d="M 256.11298455608056 183.8899678489181 L 164.30554263179044 293.96275405965775"
+    <line
+      x1="256.11298455608056"
+      y1="183.8899678489181"
+      x2="164.30554263179044"
+      y2="293.96275405965775"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Chicago_Denver`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 164.30554263179044 293.96275405965775 L 109.66926016480694 394.9407298684615"
+    <line
+      x1="164.30554263179044"
+      y1="293.96275405965775"
+      x2="109.66926016480694"
+      y2="394.9407298684615"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Denver_SF`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 164.30554263179044 293.96275405965775 L 49.54265435729056 297.14749515697565"
+    <line
+      x1="164.30554263179044"
+      y1="293.96275405965775"
+      x2="49.54265435729056"
+      y2="297.14749515697565"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Denver_LA`.arrow</title>
   </g>
@@ -165,7 +177,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 149.76610390296563, 310.4615024765719)"
     style="font: 18px serif"
     x="149.76610390296563"
@@ -185,12 +196,14 @@
     Denver
   </text>
   <g>
-    <path
-      d="M 49.54265435729056 297.14749515697565 L 109.66926016480694 394.9407298684615"
+    <line
+      x1="49.54265435729056"
+      y1="297.14749515697565"
+      x2="109.66926016480694"
+      y2="394.9407298684615"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_LA_SF`.arrow</title>
   </g>
@@ -210,7 +223,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 55.535488781247125, 315.65316485606655)"
     style="font: 18px serif"
     x="55.535488781247125"
@@ -245,7 +257,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 126.57111549721547, 378.9433902562964)"
     style="font: 18px serif"
     x="126.57111549721547"
@@ -265,12 +276,14 @@
     San Francisco
   </text>
   <g>
-    <path
-      d="M 256.11298455608056 183.8899678489181 L 155.55678695484238 192.58757968331807"
+    <line
+      x1="256.11298455608056"
+      y1="183.8899678489181"
+      x2="155.55678695484238"
+      y2="192.58757968331807"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Chicago_NYC`.arrow</title>
   </g>
@@ -290,7 +303,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 100.9679331374969, 200.63407083279543)"
     style="font: 18px serif"
     x="100.9679331374969"
@@ -325,7 +337,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 300.8410926595908, 199.50856624257432)"
     style="font: 18px serif"
     x="300.8410926595908"

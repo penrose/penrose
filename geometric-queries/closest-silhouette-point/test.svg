@@ -19,23 +19,27 @@
     <title>`P`.icon</title>
   </polygon>
   <g>
-    <path
-      d="M 400 10 L 622.7875139606265 321.6822710110525"
+    <line
+      x1="400"
+      y1="10"
+      x2="622.7875139606265"
+      y2="321.6822710110525"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:1:closestSegment</title>
   </g>
   <g>
-    <path
-      d="M 622.7875139606265 321.6822710110525 L 1240.9411764612832 1186.4862895883894"
+    <line
+      x1="622.7875139606265"
+      y1="321.6822710110525"
+      x2="1240.9411764612832"
+      y2="1186.4862895883894"
+      stroke="#000000"
       stroke-opacity="0.2"
       stroke-width="2"
-      stroke="#000000"
       stroke-dasharray="10 8"
-      stroke-linecap="butt"
     />
     <title>9:1:continuedSegment</title>
   </g>
@@ -47,18 +51,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:1:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 266.8516972573707 567.3096663556692 L 10.460806600889896 221.0967770902822"
+    <line
+      x1="266.8516972573707"
+      y1="567.3096663556692"
+      x2="10.460806600889896"
+      y2="221.0967770902822"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="5"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`L`.icon</title>
   </g>
@@ -97,23 +102,27 @@
     <title>`C`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 555.2970671943862 650.2059850319542"
+    <line
+      x1="400"
+      y1="10"
+      x2="555.2970671943862"
+      y2="650.2059850319542"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:3:closestSegment</title>
   </g>
   <g>
-    <path
-      d="M 555.2970671943862 650.2059850319542 L 805.8890485712111 1683.2614649377513"
+    <line
+      x1="555.2970671943862"
+      y1="650.2059850319542"
+      x2="805.8890485712111"
+      y2="1683.2614649377513"
+      stroke="#000000"
       stroke-opacity="0.2"
       stroke-width="2"
-      stroke="#000000"
       stroke-dasharray="10 8"
-      stroke-linecap="butt"
     />
     <title>9:3:continuedSegment</title>
   </g>
@@ -125,29 +134,32 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:3:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 10.460806600889896 221.0967770902822"
+    <line
+      x1="400"
+      y1="10"
+      x2="10.460806600889896"
+      y2="221.0967770902822"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:0:closestSegment</title>
   </g>
   <g>
-    <path
-      d="M 10.460806600889896 221.0967770902822 L -924.1424946857624 727.5714736105143"
+    <line
+      x1="10.460806600889896"
+      y1="221.0967770902822"
+      x2="-924.1424946857624"
+      y2="727.5714736105143"
+      stroke="#000000"
       stroke-opacity="0.2"
       stroke-width="2"
-      stroke="#000000"
       stroke-dasharray="10 8"
-      stroke-linecap="butt"
     />
     <title>9:0:continuedSegment</title>
   </g>
@@ -159,29 +171,32 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:0:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 440.1079682565495 346.63002315281284"
+    <line
+      x1="400"
+      y1="10"
+      x2="440.1079682565495"
+      y2="346.63002315281284"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:4:closestSegment</title>
   </g>
   <g>
-    <path
-      d="M 440.1079682565495 346.63002315281284 L 565.8719127818121 1402.178867874333"
+    <line
+      x1="440.1079682565495"
+      y1="346.63002315281284"
+      x2="565.8719127818121"
+      y2="1402.178867874333"
+      stroke="#000000"
       stroke-opacity="0.2"
       stroke-width="2"
-      stroke="#000000"
       stroke-dasharray="10 8"
-      stroke-linecap="butt"
     />
     <title>9:4:continuedSegment</title>
   </g>
@@ -193,7 +208,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:4:closestDot</title>
@@ -211,23 +225,27 @@
     <title>`M`.icon</title>
   </polyline>
   <g>
-    <path
-      d="M 400 10 L 101.43785939779309 128.39872047008558"
+    <line
+      x1="400"
+      y1="10"
+      x2="101.43785939779309"
+      y2="128.39872047008558"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>10:0:closestSegment</title>
   </g>
   <g>
-    <path
-      d="M 101.43785939779309 128.39872047008558 L -886.7131320764715 520.2629159297512"
+    <line
+      x1="101.43785939779309"
+      y1="128.39872047008558"
+      x2="-886.7131320764715"
+      y2="520.2629159297512"
+      stroke="#000000"
       stroke-opacity="0.2"
       stroke-width="2"
-      stroke="#000000"
       stroke-dasharray="10 8"
-      stroke-linecap="butt"
     />
     <title>10:0:continuedSegment</title>
   </g>
@@ -239,29 +257,32 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>10:0:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 400 10 L 500.14404334594144 69.31114676822273"
+    <line
+      x1="400"
+      y1="10"
+      x2="500.14404334594144"
+      y2="69.31114676822273"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:2:closestSegment</title>
   </g>
   <g>
-    <path
-      d="M 500.14404334594144 69.31114676822273 L 1414.7804556888725 611.0122073558746"
+    <line
+      x1="500.14404334594144"
+      y1="69.31114676822273"
+      x2="1414.7804556888725"
+      y2="611.0122073558746"
+      stroke="#000000"
       stroke-opacity="0.2"
       stroke-width="2"
-      stroke="#000000"
       stroke-dasharray="10 8"
-      stroke-linecap="butt"
     />
     <title>9:2:continuedSegment</title>
   </g>
@@ -273,7 +294,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:2:closestDot</title>

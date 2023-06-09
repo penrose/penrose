@@ -10,12 +10,14 @@
     </croppedViewBox>
   </penrose>
   <g>
-    <path
-      d="M 335.8727791301367 392.6485852056384 L 244.77659129608023 322.77280960031965"
+    <line
+      x1="335.8727791301367"
+      y1="392.6485852056384"
+      x2="244.77659129608023"
+      y2="322.77280960031965"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Ybarra_architecture`.arrow</title>
   </g>
@@ -35,7 +37,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 293.8963802875588, 392.99065459002554)"
     style="font: 18px serif"
     x="293.8963802875588"
@@ -55,22 +56,26 @@
     Ybarra
   </text>
   <g>
-    <path
-      d="M 129.99460370415142 320.18542137526003 L 20.33077259549063 286.19119916362973"
+    <line
+      x1="129.99460370415142"
+      y1="320.18542137526003"
+      x2="20.33077259549063"
+      y2="286.19119916362973"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Ziegler_requirements`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 36.572042500008564 172.5314353969892 L 20.33077259549063 286.19119916362973"
+    <line
+      x1="36.572042500008564"
+      y1="172.5314353969892"
+      x2="20.33077259549063"
+      y2="286.19119916362973"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Xuan_requirements`.arrow</title>
   </g>
@@ -90,7 +95,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 82.37985216225329, 267.2218371816034)"
     style="font: 18px serif"
     x="82.37985216225329"
@@ -110,22 +114,26 @@
     requirements
   </text>
   <g>
-    <path
-      d="M 36.572042500008564 172.5314353969892 L 146.22118147567687 206.53351176799364"
+    <line
+      x1="36.572042500008564"
+      y1="172.5314353969892"
+      x2="146.22118147567687"
+      y2="206.53351176799364"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Xuan_testing`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 36.572042500008564 172.5314353969892 L 61.99033588740309 60.57841422303139"
+    <line
+      x1="36.572042500008564"
+      y1="172.5314353969892"
+      x2="61.99033588740309"
+      y2="60.57841422303139"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Xuan_implementation`.arrow</title>
   </g>
@@ -145,7 +153,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 69.64621372223579, 162.4925457885285)"
     style="font: 18px serif"
     x="69.64621372223579"
@@ -165,22 +172,26 @@
     Xuan
   </text>
   <g>
-    <path
-      d="M 129.99460370415142 320.18542137526003 L 244.77659129608023 322.77280960031965"
+    <line
+      x1="129.99460370415142"
+      y1="320.18542137526003"
+      x2="244.77659129608023"
+      y2="322.77280960031965"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Ziegler_architecture`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 129.99460370415142 320.18542137526003 L 146.22118147567687 206.53351176799364"
+    <line
+      x1="129.99460370415142"
+      y1="320.18542137526003"
+      x2="146.22118147567687"
+      y2="206.53351176799364"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Ziegler_testing`.arrow</title>
   </g>
@@ -200,7 +211,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 163.89639398219225, 339.13644974738503)"
     style="font: 18px serif"
     x="163.89639398219225"
@@ -235,7 +245,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 143.07970914029534, 73.57754809221794)"
     style="font: 18px serif"
     x="143.07970914029534"
@@ -270,7 +279,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 165.08491860982187, 187.5237986582325)"
     style="font: 18px serif"
     x="165.08491860982187"
@@ -290,12 +298,14 @@
     testing
   </text>
   <g>
-    <path
-      d="M 293.96951776820447 219.03498805845237 L 244.77659129608023 322.77280960031965"
+    <line
+      x1="293.96951776820447"
+      y1="219.03498805845237"
+      x2="244.77659129608023"
+      y2="322.77280960031965"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Washington_architecture`.arrow</title>
   </g>
@@ -315,7 +325,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 255.16912480192622, 200.0373319238618)"
     style="font: 18px serif"
     x="255.16912480192622"
@@ -350,7 +359,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 253.04599621914616, 306.2835585288035)"
     style="font: 18px serif"
     x="253.04599621914616"

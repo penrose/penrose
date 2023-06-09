@@ -28,7 +28,6 @@
     stroke="#808080"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     transform="scale(1)"
     points="310.1244301835718,199.60205088961789,165.76523996760992,199.02720458998368,-0.5153890156125271,240.39444937654832,-0.515389021247529,-0.40805485387107865,166.25690325385773,40.872622479256734,309.42570310109215,40.33985721269332"
   >
@@ -91,7 +90,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     r="2"
   >
     <title>`y0`.dot</title>
@@ -103,18 +101,19 @@
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="92.42503636595347"
   >
     <title>`x0`.sphere</title>
   </circle>
   <g>
-    <path
-      d="M 93.65964736326924 119.92001525349988 L 184.06663419395346 138.96783172889863"
+    <line
+      x1="93.65964736326924"
+      y1="119.92001525349988"
+      x2="184.06663419395346"
+      y2="138.96783172889863"
+      stroke="#0000b3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#0000b3"
-      stroke-linecap="butt"
     />
     <title>9:0:walkLine</title>
   </g>
@@ -174,18 +173,19 @@
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="58.3817732818139"
   >
     <title>`x1`.sphere</title>
   </circle>
   <g>
-    <path
-      d="M 184.06663419395346 138.96783172889863 L 183.68863039118781 77.6149188397965"
+    <line
+      x1="184.06663419395346"
+      y1="138.96783172889863"
+      x2="183.68863039118781"
+      y2="77.6149188397965"
+      stroke="#0000b3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#0000b3"
-      stroke-linecap="butt"
     />
     <title>9:1:walkLine</title>
   </g>
@@ -245,18 +245,19 @@
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="35.056909133597536"
   >
     <title>`x2`.sphere</title>
   </circle>
   <g>
-    <path
-      d="M 183.68863039118781 77.6149188397965 L 153.72569215395652 59.420192467749764"
+    <line
+      x1="183.68863039118781"
+      y1="77.6149188397965"
+      x2="153.72569215395652"
+      y2="59.420192467749764"
+      stroke="#0000b3"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#0000b3"
-      stroke-linecap="butt"
     />
     <title>9:2:walkLine</title>
   </g>
@@ -346,7 +347,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="2.5"
-    stroke-linecap="butt"
     transform="rotate(0, 189.49103575688443, 129.30914229012612)"
     style="font: italic 12px Palatino"
     x="189.49103575688443"
@@ -382,7 +382,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="2.5"
-    stroke-linecap="butt"
     transform="rotate(0, 174.01720044591028, 84.55141336681444)"
     style="font: italic 12px Palatino"
     x="174.01720044591028"
@@ -420,7 +419,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     r="2"
   >
     <title>`y3`.dot</title>
@@ -431,7 +429,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="2.5"
-    stroke-linecap="butt"
     transform="rotate(0, 76.76423872253116, 131.87667219261996)"
     style="font: italic 12px Palatino"
     x="76.76423872253116"
@@ -457,7 +454,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="2.5"
-    stroke-linecap="butt"
     transform="rotate(0, 80.84716946482104, 118.97843306153537)"
     style="font: italic 12px Palatino"
     x="80.84716946482104"
@@ -495,7 +491,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     r="2"
   >
     <title>`y2`.dot</title>
@@ -506,7 +501,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="2.5"
-    stroke-linecap="butt"
     transform="rotate(0, 228.30437966346045, 122.78613355383645)"
     style="font: italic 12px Palatino"
     x="228.30437966346045"
@@ -534,7 +528,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     r="2"
   >
     <title>`y1`.dot</title>
@@ -546,7 +539,6 @@
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="19.265159418914156"
   >
     <title>`x3`.sphere</title>
@@ -557,7 +549,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="2.5"
-    stroke-linecap="butt"
     transform="rotate(0, 160.02328255274438, 67.74402772779075)"
     style="font: italic 12px Palatino"
     x="160.02328255274438"

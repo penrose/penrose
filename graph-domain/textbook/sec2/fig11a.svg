@@ -10,12 +10,14 @@
     </croppedViewBox>
   </penrose>
   <g>
-    <path
-      d="M 153.46315781378865 327.0184441319645 L 200.0659106576603 205.59739244414132"
+    <line
+      x1="153.46315781378865"
+      y1="327.0184441319645"
+      x2="200.0659106576603"
+      y2="205.59739244414132"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_b_e`.arrow</title>
   </g>
@@ -35,7 +37,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 144.65945584103736, 322.27557247283494)"
     style="font: 18px serif"
     x="144.65945584103736"
@@ -54,12 +55,14 @@
     <title>`b`.text</title>
   </text>
   <g>
-    <path
-      d="M 200.0659106576603 205.59739244414132 L 147.19094139347993 86.8279084115956"
+    <line
+      x1="200.0659106576603"
+      y1="205.59739244414132"
+      x2="147.19094139347993"
+      y2="86.8279084115956"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_e_i`.arrow</title>
   </g>
@@ -79,7 +82,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 137.49915332408665, 89.29149198394825)"
     style="font: 18px serif"
     x="137.49915332408665"
@@ -98,12 +100,14 @@
     <title>`i`.text</title>
   </text>
   <g>
-    <path
-      d="M 252.9606275050408 324.3804862064553 L 200.0659106576603 205.59739244414132"
+    <line
+      x1="252.9606275050408"
+      y1="324.3804862064553"
+      x2="200.0659106576603"
+      y2="205.59739244414132"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_a_e`.arrow</title>
   </g>
@@ -123,7 +127,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 243.3059247724463, 321.77535374432745)"
     style="font: 18px serif"
     x="243.3059247724463"
@@ -142,12 +145,14 @@
     <title>`a`.text</title>
   </text>
   <g>
-    <path
-      d="M 318.8641393522115 152.70505373872055 L 200.0659106576603 205.59739244414132"
+    <line
+      x1="318.8641393522115"
+      y1="152.70505373872055"
+      x2="200.0659106576603"
+      y2="205.59739244414132"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_d_e`.arrow</title>
   </g>
@@ -167,7 +172,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 309.16004401854735, 150.29040391832046)"
     style="font: 18px serif"
     x="309.16004401854735"
@@ -186,12 +190,14 @@
     <title>`d`.text</title>
   </text>
   <g>
-    <path
-      d="M 246.6754063677747 84.20133084557506 L 200.0659106576603 205.59739244414132"
+    <line
+      x1="246.6754063677747"
+      y1="84.20133084557506"
+      x2="200.0659106576603"
+      y2="205.59739244414132"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_c_e`.arrow</title>
   </g>
@@ -211,7 +217,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 241.37730826027047, 92.68249565020302)"
     style="font: 18px serif"
     x="241.37730826027047"
@@ -230,12 +235,14 @@
     <title>`c`.text</title>
   </text>
   <g>
-    <path
-      d="M 200.0659106576603 205.59739244414132 L 321.4624438334615 252.20747143951246"
+    <line
+      x1="200.0659106576603"
+      y1="205.59739244414132"
+      x2="321.4624438334615"
+      y2="252.20747143951246"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_e_g`.arrow</title>
   </g>
@@ -255,7 +262,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 311.9175871336075, 255.1900392223554)"
     style="font: 18px serif"
     x="311.9175871336075"
@@ -274,22 +280,26 @@
     <title>`g`.text</title>
   </text>
   <g>
-    <path
-      d="M 200.0659106576603 205.59739244414132 L 81.30920660173484 258.47088202561946"
+    <line
+      x1="200.0659106576603"
+      y1="205.59739244414132"
+      x2="81.30920660173484"
+      y2="258.47088202561946"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_e_h`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 200.0659106576603 205.59739244414132 L 78.64927438100317 158.9915584825535"
+    <line
+      x1="200.0659106576603"
+      y1="205.59739244414132"
+      x2="78.64927438100317"
+      y2="158.9915584825535"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_e_f`.arrow</title>
   </g>
@@ -309,7 +319,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 191.249518394217, 200.87815230857956)"
     style="font: 18px serif"
     x="191.249518394217"
@@ -343,7 +352,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 88.37640560881476, 251.3959475245567)"
     style="font: 18px serif"
     x="88.37640560881476"
@@ -377,7 +385,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 88.16549983086051, 162.06425325872104)"
     style="font: 18px serif"
     x="88.16549983086051"

@@ -176,10 +176,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 483.33333333333337 200 L 533.3333333333334 150 L 583.3333333333334 200 L 558.3333333333334 250 L 508.33333333333337 250 Z "
     />
     <title>`Path`.icon</title>
@@ -631,12 +632,14 @@
     <title>`Line`.container</title>
   </rect>
   <g>
-    <path
-      d="M 483.33333333333337 450 L 583.3333333333334 350"
+    <line
+      x1="483.33333333333337"
+      y1="450"
+      x2="583.3333333333334"
+      y2="350"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Line`.icon</title>
   </g>

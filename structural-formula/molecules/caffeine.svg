@@ -15,7 +15,6 @@
     stroke="#808080"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 533.25, 300)"
   >
@@ -946,12 +945,14 @@
     <title>`H9`.background</title>
   </g>
   <g>
-    <path
-      d="M 589.713313639208 457.05764218002804 L 608.5651913486788 442.74514736585775"
+    <line
+      x1="589.713313639208"
+      y1="457.05764218002804"
+      x2="608.5651913486788"
+      y2="442.74514736585775"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:19:line</title>
   </g>
@@ -1095,7 +1096,6 @@
     stroke="#b30000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="20"
   >
     <title>`H9`.icon</title>
@@ -1125,42 +1125,50 @@
     H
   </text>
   <g>
-    <path
-      d="M 563.8053145498576 234.9118177763968 L 565.4778602686448 284.6882992335534"
+    <line
+      x1="563.8053145498576"
+      y1="234.9118177763968"
+      x2="565.4778602686448"
+      y2="284.6882992335534"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:1:line</title>
   </g>
   <g>
-    <path
-      d="M 552.8139051590573 375.22855841518805 L 561.0148898168459 336.1201602193258"
+    <line
+      x1="552.8139051590573"
+      y1="375.22855841518805"
+      x2="561.0148898168459"
+      y2="336.1201602193258"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:13:line</title>
   </g>
   <g>
-    <path
-      d="M 592.5477146705801 314.511841518891 L 664.4693223317619 339.58702504987406"
+    <line
+      x1="592.5477146705801"
+      y1="314.511841518891"
+      x2="664.4693223317619"
+      y2="339.58702504987406"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>10:0:line1</title>
   </g>
   <g>
-    <path
-      d="M 589.2556027290839 323.9544038491102 L 661.1772103902655 349.0295873800932"
+    <line
+      x1="589.2556027290839"
+      y1="323.9544038491102"
+      x2="661.1772103902655"
+      y2="349.0295873800932"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>10:0:line2</title>
   </g>
@@ -1172,7 +1180,6 @@
     stroke="#808080"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="20"
   >
     <title>`C5`.icon</title>
@@ -1202,32 +1209,38 @@
     C
   </text>
   <g>
-    <path
-      d="M 546.6143473833238 485.9949102976259 L 517.9302085883602 502.92483102401184"
+    <line
+      x1="546.6143473833238"
+      y1="485.9949102976259"
+      x2="517.9302085883602"
+      y2="502.92483102401184"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:18:line</title>
   </g>
   <g>
-    <path
-      d="M 572.0291003303367 498.602958615685 L 576.1945543399974 534.1751710501435"
+    <line
+      x1="572.0291003303367"
+      y1="498.602958615685"
+      x2="576.1945543399974"
+      y2="534.1751710501435"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:17:line</title>
   </g>
   <g>
-    <path
-      d="M 609.1069909620535 382.0892074509582 L 579.5199035071146 449.00040459337765"
+    <line
+      x1="609.1069909620535"
+      y1="382.0892074509582"
+      x2="579.5199035071146"
+      y2="449.00040459337765"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:20:line</title>
   </g>
@@ -1239,7 +1252,6 @@
     stroke="#808080"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="20"
   >
     <title>`C3`.icon</title>
@@ -1269,12 +1281,14 @@
     C
   </text>
   <g>
-    <path
-      d="M 613.1148409695824 114.30477936129645 L 644.2919389529549 98.16044057001233"
+    <line
+      x1="613.1148409695824"
+      y1="114.30477936129645"
+      x2="644.2919389529549"
+      y2="98.16044057001233"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:7:line</title>
   </g>
@@ -1286,7 +1300,6 @@
     stroke="#b30000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="20"
   >
     <title>`H6`.icon</title>
@@ -1323,7 +1336,6 @@
     stroke="#b30000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="20"
   >
     <title>`H8`.icon</title>
@@ -1353,42 +1365,50 @@
     H
   </text>
   <g>
-    <path
-      d="M 665.672812007946 272.5394199712016 L 647.6038537771757 270.17446170398836"
+    <line
+      x1="665.672812007946"
+      y1="272.5394199712016"
+      x2="647.6038537771757"
+      y2="270.17446170398836"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>10:1:line1</title>
   </g>
   <g>
-    <path
-      d="M 666.9705943982126 262.62399096450457 L 648.9016361674421 260.25903269729133"
+    <line
+      x1="666.9705943982126"
+      y1="262.62399096450457"
+      x2="648.9016361674421"
+      y2="260.25903269729133"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>10:1:line2</title>
   </g>
   <g>
-    <path
-      d="M 636.2238539437974 338.3010037826649 L 675.4996590379413 290.96514201760476"
+    <line
+      x1="636.2238539437974"
+      y1="338.3010037826649"
+      x2="675.4996590379413"
+      y2="290.96514201760476"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:3:line</title>
   </g>
   <g>
-    <path
-      d="M 661.4714247627788 210.5231772949992 L 680.3473374332003 247.76473385345082"
+    <line
+      x1="661.4714247627788"
+      y1="210.5231772949992"
+      x2="680.3473374332003"
+      y2="247.76473385345082"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:4:line</title>
   </g>
@@ -1400,7 +1420,6 @@
     stroke="#808080"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="20"
   >
     <title>`C2`.icon</title>
@@ -1430,32 +1449,38 @@
     C
   </text>
   <g>
-    <path
-      d="M 567.4704237258903 139.19156716323178 L 514.0918519124587 169.79259094169464"
+    <line
+      x1="567.4704237258903"
+      y1="139.19156716323178"
+      x2="514.0918519124587"
+      y2="169.79259094169464"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:6:line</title>
   </g>
   <g>
-    <path
-      d="M 631.5436464577357 168.73812534546255 L 608.2000006082245 144.85428324441008"
+    <line
+      x1="631.5436464577357"
+      y1="168.73812534546255"
+      x2="608.2000006082245"
+      y2="144.85428324441008"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:5:line</title>
   </g>
   <g>
-    <path
-      d="M 586.5683348474251 100.49147263230142 L 581.9093898373247 65.77678460294473"
+    <line
+      x1="586.5683348474251"
+      y1="100.49147263230142"
+      x2="581.9093898373247"
+      y2="65.77678460294473"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:8:line</title>
   </g>
@@ -1467,7 +1492,6 @@
     stroke="#808080"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="20"
   >
     <title>`C1`.icon</title>
@@ -1497,12 +1521,14 @@
     C
   </text>
   <g>
-    <path
-      d="M 440.41867898609576 410.11156752350837 L 421.42309415985983 437.4703889562098"
+    <line
+      x1="440.41867898609576"
+      y1="410.11156752350837"
+      x2="421.42309415985983"
+      y2="437.4703889562098"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:10:line</title>
   </g>
@@ -1514,7 +1540,6 @@
     stroke="#b30000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="20"
   >
     <title>`H3`.icon</title>
@@ -1544,32 +1569,38 @@
     H
   </text>
   <g>
-    <path
-      d="M 624.4863013615345 193.61007167963558 L 588.1628203911932 202.64838516010877"
+    <line
+      x1="624.4863013615345"
+      y1="193.61007167963558"
+      x2="588.1628203911932"
+      y2="202.64838516010877"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:0:line</title>
   </g>
   <g>
-    <path
-      d="M 546.1793564528032 188.4242212208534 L 519.1963537888261 138.45234265616077"
+    <line
+      x1="546.1793564528032"
+      y1="188.4242212208534"
+      x2="519.1963537888261"
+      y2="138.45234265616077"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>10:2:line1</title>
   </g>
   <g>
-    <path
-      d="M 554.9785429948837 183.67297950800847 L 527.9955403309065 133.70110094331582"
+    <line
+      x1="554.9785429948837"
+      y1="183.67297950800847"
+      x2="527.9955403309065"
+      y2="133.70110094331582"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>10:2:line2</title>
   </g>
@@ -1581,7 +1612,6 @@
     stroke="#808080"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="20"
   >
     <title>`C4`.icon</title>
@@ -1611,32 +1641,38 @@
     C
   </text>
   <g>
-    <path
-      d="M 711.5291291399576 408.9767661610455 L 697.654829081186 376.74881328690947"
+    <line
+      x1="711.5291291399576"
+      y1="408.9767661610455"
+      x2="697.654829081186"
+      y2="376.74881328690947"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:15:line</title>
   </g>
   <g>
-    <path
-      d="M 670.0536825939072 469.66371684977724 L 698.6640273964102 445.71322522228706"
+    <line
+      x1="670.0536825939072"
+      y1="469.66371684977724"
+      x2="698.6640273964102"
+      y2="445.71322522228706"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>10:3:line1</title>
   </g>
   <g>
-    <path
-      d="M 676.4726773299002 477.3316034025285 L 705.0830221324034 453.38111177503833"
+    <line
+      x1="676.4726773299002"
+      y1="477.3316034025285"
+      x2="705.0830221324034"
+      y2="453.38111177503833"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>10:3:line2</title>
   </g>
@@ -1648,7 +1684,6 @@
     stroke="#0000b3"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="20"
   >
     <title>`N4`.icon</title>
@@ -1678,12 +1713,14 @@
     N
   </text>
   <g>
-    <path
-      d="M 452.4576281296945 362.90470655594646 L 449.01116517699876 330.96616901967866"
+    <line
+      x1="452.4576281296945"
+      y1="362.90470655594646"
+      x2="449.01116517699876"
+      y2="330.96616901967866"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:9:line</title>
   </g>
@@ -1695,7 +1732,6 @@
     stroke="#b30000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="20"
   >
     <title>`H4`.icon</title>
@@ -1725,12 +1761,14 @@
     H
   </text>
   <g>
-    <path
-      d="M 395.5576845022746 374.02786211381726 L 430.0040309707481 382.5265843380424"
+    <line
+      x1="395.5576845022746"
+      y1="374.02786211381726"
+      x2="430.0040309707481"
+      y2="382.5265843380424"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:11:line</title>
   </g>
@@ -1742,7 +1780,6 @@
     stroke="#b30000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="20"
   >
     <title>`H2`.icon</title>
@@ -1772,12 +1809,14 @@
     H
   </text>
   <g>
-    <path
-      d="M 661.4574123176358 354.94962199796186 L 645.5382104631949 356.22838138263614"
+    <line
+      x1="661.4574123176358"
+      y1="354.94962199796186"
+      x2="645.5382104631949"
+      y2="356.22838138263614"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:2:line</title>
   </g>
@@ -1789,7 +1828,6 @@
     stroke="#808080"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="20"
   >
     <title>`C6`.icon</title>
@@ -1826,7 +1864,6 @@
     stroke="#0000b3"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="20"
   >
     <title>`N2`.icon</title>
@@ -1863,7 +1900,6 @@
     stroke="#b30000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="20"
   >
     <title>`H7`.icon</title>
@@ -1900,7 +1936,6 @@
     stroke="#b30000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="20"
   >
     <title>`H5`.icon</title>
@@ -1937,7 +1972,6 @@
     stroke="#808080"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="20"
   >
     <title>`O1`.icon</title>
@@ -1967,22 +2001,26 @@
     O
   </text>
   <g>
-    <path
-      d="M 633.4737806043754 473.39828562860225 L 567.330692655016 417.46384780953633"
+    <line
+      x1="633.4737806043754"
+      y1="473.39828562860225"
+      x2="567.330692655016"
+      y2="417.46384780953633"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:14:line</title>
   </g>
   <g>
-    <path
-      d="M 521.6922766252301 397.3424116776075 L 481.0325957437217 392.08731090623934"
+    <line
+      x1="521.6922766252301"
+      y1="397.3424116776075"
+      x2="481.0325957437217"
+      y2="392.08731090623934"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:12:line</title>
   </g>
@@ -1994,7 +2032,6 @@
     stroke="#0000b3"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="20"
   >
     <title>`N3`.icon</title>
@@ -2024,12 +2061,14 @@
     N
   </text>
   <g>
-    <path
-      d="M 669.6447652216589 510.4285821785816 L 690.0440555402371 535.732582617214"
+    <line
+      x1="669.6447652216589"
+      y1="510.4285821785816"
+      x2="690.0440555402371"
+      y2="535.732582617214"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:16:line</title>
   </g>
@@ -2041,7 +2080,6 @@
     stroke="#b30000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="20"
   >
     <title>`H1`.icon</title>
@@ -2078,7 +2116,6 @@
     stroke="#808080"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="20"
   >
     <title>`C7`.icon</title>
@@ -2115,7 +2152,6 @@
     stroke="#808080"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="20"
   >
     <title>`O2`.icon</title>
@@ -2152,7 +2188,6 @@
     stroke="#0000b3"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="20"
   >
     <title>`N1`.icon</title>
@@ -2189,7 +2224,6 @@
     stroke="#b30000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="20"
   >
     <title>`H10`.icon</title>
@@ -2226,7 +2260,6 @@
     stroke="#808080"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="20"
   >
     <title>`C8`.icon</title>

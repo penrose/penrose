@@ -14,7 +14,6 @@
     stroke="#cccccc"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 240, 180)"
   >
@@ -30,11 +29,14 @@
     <title>`i`.bounds</title>
   </circle>
   <g>
-    <path
-      d="M 221.33727002391566 205.28974233660816 L 72.76123819133991 25.92211408028163"
+    <line
+      x1="221.33727002391566"
+      y1="205.28974233660816"
+      x2="72.76123819133991"
+      y2="25.92211408028163"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`jk`.segment</title>
@@ -77,9 +79,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#1b1f8a"
       fill-opacity="0.2"
+      stroke="none"
       d="M 146.52441011592248 246.32807025145698 L 221.33727002391566 205.28974233660816 L 72.76123819133991 25.92211408028163 Z "
     />
     <title>`ijk`.icon</title>
@@ -92,7 +94,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     r="2"
   >
     <title>`b`.icon</title>
@@ -105,27 +106,32 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     r="2"
   >
     <title>`a`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 72.76123819133991 25.92211408028163 L 146.52441011592248 246.32807025145698"
+    <line
+      x1="72.76123819133991"
+      y1="25.92211408028163"
+      x2="146.52441011592248"
+      y2="246.32807025145698"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`ki`.segment</title>
   </g>
   <g>
-    <path
-      d="M 146.52441011592248 246.32807025145698 L 221.33727002391566 205.28974233660816"
+    <line
+      x1="146.52441011592248"
+      y1="246.32807025145698"
+      x2="221.33727002391566"
+      y2="205.28974233660816"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
       stroke-linecap="round"
     />
     <title>`ij`.segment</title>
@@ -270,7 +276,6 @@
     stroke="#000000"
     stroke-opacity="0.2"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="118.34162601286471"
   >
     <title>`Ca`.icon</title>
@@ -282,7 +287,6 @@
     stroke="#000000"
     stroke-opacity="0.2"
     stroke-width="1.5"
-    stroke-linecap="butt"
     r="35.44154800859165"
   >
     <title>`Cb`.icon</title>

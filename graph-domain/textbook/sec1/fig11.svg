@@ -10,32 +10,38 @@
     </croppedViewBox>
   </penrose>
   <g>
-    <path
-      d="M 158.9270291870416 353.43155127757433 L 260.54807069261864 261.33525011264584"
+    <line
+      x1="158.9270291870416"
+      y1="353.43155127757433"
+      x2="260.54807069261864"
+      y2="261.33525011264584"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Raccoon_Hawk`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 260.54807069261864 261.33525011264584 L 125.29086313134178 275.97200097366704"
+    <line
+      x1="260.54807069261864"
+      y1="261.33525011264584"
+      x2="125.29086313134178"
+      y2="275.97200097366704"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Hawk_Owl`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 260.54807069261864 261.33525011264584 L 244.22744160758728 344.18342558996324"
+    <line
+      x1="260.54807069261864"
+      y1="261.33525011264584"
+      x2="244.22744160758728"
+      y2="344.18342558996324"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Hawk_Crow`.arrow</title>
   </g>
@@ -55,7 +61,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 253.37186592139054, 244.33525011264584)"
     style="font: 18px serif"
     x="253.37186592139054"
@@ -75,32 +80,38 @@
     Hawk
   </text>
   <g>
-    <path
-      d="M 247.80745355852727 131.4012269214881 L 170.0481949632221 68.84773133840764"
+    <line
+      x1="247.80745355852727"
+      y1="131.4012269214881"
+      x2="170.0481949632221"
+      y2="68.84773133840764"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Opossum_Woodpecker`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 106.87859024268657 146.55427331062327 L 170.0481949632221 68.84773133840764"
+    <line
+      x1="106.87859024268657"
+      y1="146.55427331062327"
+      x2="170.0481949632221"
+      y2="68.84773133840764"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Shrew_Woodpecker`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 186.98361553182792 214.1829833434197 L 170.0481949632221 68.84773133840764"
+    <line
+      x1="186.98361553182792"
+      y1="214.1829833434197"
+      x2="170.0481949632221"
+      y2="68.84773133840764"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Squirrel_Woodpecker`.arrow</title>
   </g>
@@ -120,7 +131,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 215.51802325645437, 49.84773133840764)"
     style="font: 18px serif"
     x="215.51802325645437"
@@ -140,22 +150,26 @@
     Woodpecker
   </text>
   <g>
-    <path
-      d="M 158.9270291870416 353.43155127757433 L 125.29086313134178 275.97200097366704"
+    <line
+      x1="158.9270291870416"
+      y1="353.43155127757433"
+      x2="125.29086313134178"
+      y2="275.97200097366704"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Raccoon_Owl`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 158.9270291870416 353.43155127757433 L 186.98361553182792 214.1829833434197"
+    <line
+      x1="158.9270291870416"
+      y1="353.43155127757433"
+      x2="186.98361553182792"
+      y2="214.1829833434197"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Raccoon_Squirrel`.arrow</title>
   </g>
@@ -175,7 +189,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 190.39339600994256, 370.43155127757433)"
     style="font: 18px serif"
     x="190.39339600994256"
@@ -195,22 +208,26 @@
     Raccoon
   </text>
   <g>
-    <path
-      d="M 247.80745355852727 131.4012269214881 L 186.98361553182792 214.1829833434197"
+    <line
+      x1="247.80745355852727"
+      y1="131.4012269214881"
+      x2="186.98361553182792"
+      y2="214.1829833434197"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Opossum_Squirrel`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 247.80745355852727 131.4012269214881 L 106.87859024268657 146.55427331062327"
+    <line
+      x1="247.80745355852727"
+      y1="131.4012269214881"
+      x2="106.87859024268657"
+      y2="146.55427331062327"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Opossum_Shrew`.arrow</title>
   </g>
@@ -230,7 +247,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 292.8259987287156, 150.10230380561808)"
     style="font: 18px serif"
     x="292.8259987287156"
@@ -250,12 +266,14 @@
     Opossum
   </text>
   <g>
-    <path
-      d="M 125.29086313134178 275.97200097366704 L 244.22744160758728 344.18342558996324"
+    <line
+      x1="125.29086313134178"
+      y1="275.97200097366704"
+      x2="244.22744160758728"
+      y2="344.18342558996324"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Owl_Crow`.arrow</title>
   </g>
@@ -275,7 +293,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 96.70883188134178, 270.71085709897267)"
     style="font: 18px serif"
     x="96.70883188134178"
@@ -295,12 +312,14 @@
     Owl
   </text>
   <g>
-    <path
-      d="M 106.87859024268657 146.55427331062327 L 16.19295160091673 76.15042238377599"
+    <line
+      x1="106.87859024268657"
+      y1="146.55427331062327"
+      x2="16.19295160091673"
+      y2="76.15042238377599"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Shrew_Mouse`.arrow</title>
   </g>
@@ -320,7 +339,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 69.09425827302039, 159.94194620046756)"
     style="font: 18px serif"
     x="69.09425827302039"
@@ -340,12 +358,14 @@
     Shrew
   </text>
   <g>
-    <path
-      d="M 186.98361553182792 214.1829833434197 L 244.22744160758728 344.18342558996324"
+    <line
+      x1="186.98361553182792"
+      y1="214.1829833434197"
+      x2="244.22744160758728"
+      y2="344.18342558996324"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_Squirrel_Crow`.arrow</title>
   </g>
@@ -365,7 +385,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 138.95138896932792, 213.0185378298227)"
     style="font: 18px serif"
     x="138.95138896932792"
@@ -400,7 +419,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 40.94830940946585, 59.150422383776004)"
     style="font: 18px serif"
     x="40.94830940946585"
@@ -435,7 +453,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 209.12237643796038, 351.3767258523869)"
     style="font: 18px serif"
     x="209.12237643796038"

@@ -11,22 +11,26 @@
     </croppedViewBox>
   </penrose>
   <g>
-    <path
-      d="M 294.5326263382629 393.7802826900482 L 394.99566569290204 394.95276375080215"
+    <line
+      x1="294.5326263382629"
+      y1="393.7802826900482"
+      x2="394.99566569290204"
+      y2="394.95276375080215"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_c61_c62`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 394.9999584371408 292.00239514430086 L 294.5326263382629 393.7802826900482"
+    <line
+      x1="394.9999584371408"
+      y1="292.00239514430086"
+      x2="294.5326263382629"
+      y2="393.7802826900482"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_c66_c61`.arrow</title>
   </g>
@@ -46,7 +50,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 293.2916118062881, 383.85552480561296)"
     style="font: 18px serif"
     x="293.2916118062881"
@@ -65,12 +68,14 @@
     <title>`c61`.text</title>
   </text>
   <g>
-    <path
-      d="M 310.8964111814877 178.62478554071686 L 394.9999584371408 292.00239514430086"
+    <line
+      x1="310.8964111814877"
+      y1="178.62478554071686"
+      x2="394.9999584371408"
+      y2="292.00239514430086"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_c65_c66`.arrow</title>
   </g>
@@ -90,7 +95,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 396.91373471960696, 301.8343870970678)"
     style="font: 18px serif"
     x="396.91373471960696"
@@ -109,22 +113,26 @@
     <title>`c66`.text</title>
   </text>
   <g>
-    <path
-      d="M 219.34915928003753 219.61057402727738 L 106.0629484910874 275.7470510346168"
+    <line
+      x1="219.34915928003753"
+      y1="219.61057402727738"
+      x2="106.0629484910874"
+      y2="275.7470510346168"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_c52_c53`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 106.0629484910874 275.7470510346168 L 196.11833108771881 317.3569300231403"
+    <line
+      x1="106.0629484910874"
+      y1="275.7470510346168"
+      x2="196.11833108771881"
+      y2="317.3569300231403"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_c53_c54`.arrow</title>
   </g>
@@ -144,7 +152,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 115.97662996236504, 274.4235391885658)"
     style="font: 18px serif"
     x="115.97662996236504"
@@ -163,22 +170,26 @@
     <title>`c53`.text</title>
   </text>
   <g>
-    <path
-      d="M 310.99907033195774 290.46043135152 L 394.999986837768 189.59599045845616"
+    <line
+      x1="310.99907033195774"
+      y1="290.46043135152"
+      x2="394.999986837768"
+      y2="189.59599045845616"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_c63_c64`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 394.999986837768 189.59599045845616 L 310.8964111814877 178.62478554071686"
+    <line
+      x1="394.999986837768"
+      y1="189.59599045845616"
+      x2="310.8964111814877"
+      y2="178.62478554071686"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_c64_c65`.arrow</title>
   </g>
@@ -198,7 +209,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 385.46979600246675, 192.63020806895162)"
     style="font: 18px serif"
     x="385.46979600246675"
@@ -217,22 +227,26 @@
     <title>`c64`.text</title>
   </text>
   <g>
-    <path
-      d="M 5.001718477026714 394.99878762511474 L 5.00127094694713 293.22752870880345"
+    <line
+      x1="5.001718477026714"
+      y1="394.99878762511474"
+      x2="5.00127094694713"
+      y2="293.22752870880345"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_c31_c32`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 102.90019972311386 387.33566132373164 L 5.001718477026714 394.99878762511474"
+    <line
+      x1="102.90019972311386"
+      y1="387.33566132373164"
+      x2="5.001718477026714"
+      y2="394.99878762511474"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_c33_c31`.arrow</title>
   </g>
@@ -252,7 +266,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 14.23585863779681, 391.15711729648933)"
     style="font: 18px serif"
     x="14.23585863779681"
@@ -271,22 +284,26 @@
     <title>`c31`.text</title>
   </text>
   <g>
-    <path
-      d="M 5.0000042650087835 149.05178709158915 L 95.37237119429378 99.63382782088703"
+    <line
+      x1="5.0000042650087835"
+      y1="149.05178709158915"
+      x2="95.37237119429378"
+      y2="99.63382782088703"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_c43_c44`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 5.008034392768565 28.393797164228147 L 5.0000042650087835 149.05178709158915"
+    <line
+      x1="5.008034392768565"
+      y1="28.393797164228147"
+      x2="5.0000042650087835"
+      y2="149.05178709158915"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_c42_c43`.arrow</title>
   </g>
@@ -306,7 +323,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 11.762943554341092, 156.41935316727285)"
     style="font: 18px serif"
     x="11.762943554341092"
@@ -325,22 +341,26 @@
     <title>`c43`.text</title>
   </text>
   <g>
-    <path
-      d="M 136.38765997025723 190.01387482717078 L 216.31066530773452 104.24958357345824"
+    <line
+      x1="136.38765997025723"
+      y1="190.01387482717078"
+      x2="216.31066530773452"
+      y2="104.24958357345824"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_c55_c51`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 196.11833108771881 317.3569300231403 L 136.38765997025723 190.01387482717078"
+    <line
+      x1="196.11833108771881"
+      y1="317.3569300231403"
+      x2="136.38765997025723"
+      y2="190.01387482717078"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_c54_c55`.arrow</title>
   </g>
@@ -360,7 +380,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 146.2607094775142, 188.41569133032948)"
     style="font: 18px serif"
     x="146.2607094775142"
@@ -379,12 +398,14 @@
     <title>`c55`.text</title>
   </text>
   <g>
-    <path
-      d="M 5.00127094694713 293.22752870880345 L 102.90019972311386 387.33566132373164"
+    <line
+      x1="5.00127094694713"
+      y1="293.22752870880345"
+      x2="102.90019972311386"
+      y2="387.33566132373164"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_c32_c33`.arrow</title>
   </g>
@@ -404,7 +425,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 109.9586179238181, 380.2484226297999)"
     style="font: 18px serif"
     x="109.9586179238181"
@@ -438,7 +458,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 196.533701454552, 307.363727166503)"
     style="font: 18px serif"
     x="196.533701454552"
@@ -457,12 +476,14 @@
     <title>`c54`.text</title>
   </text>
   <g>
-    <path
-      d="M 216.31066530773452 104.24958357345824 L 219.34915928003753 219.61057402727738"
+    <line
+      x1="216.31066530773452"
+      y1="104.24958357345824"
+      x2="219.34915928003753"
+      y2="219.61057402727738"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_c51_c52`.arrow</title>
   </g>
@@ -482,7 +503,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 215.1134612415865, 228.67046845415823)"
     style="font: 18px serif"
     x="215.1134612415865"
@@ -516,7 +536,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 300.9088477516636, 179.15887030734524)"
     style="font: 18px serif"
     x="300.9088477516636"
@@ -550,7 +569,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 10.153108454927462, 284.6557300613156)"
     style="font: 18px serif"
     x="10.153108454927462"
@@ -569,22 +587,26 @@
     <title>`c32`.text</title>
   </text>
   <g>
-    <path
-      d="M 122.13747207843403 5.001982473093989 L 5.008034392768565 28.393797164228147"
+    <line
+      x1="122.13747207843403"
+      y1="5.001982473093989"
+      x2="5.008034392768565"
+      y2="28.393797164228147"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_c41_c42`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 95.37237119429378 99.63382782088703 L 122.13747207843403 5.001982473093989"
+    <line
+      x1="95.37237119429378"
+      y1="99.63382782088703"
+      x2="122.13747207843403"
+      y2="5.001982473093989"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_c44_c41`.arrow</title>
   </g>
@@ -604,7 +626,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 130.35433374242814, 10.704981366834716)"
     style="font: 18px serif"
     x="130.35433374242814"
@@ -638,7 +659,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 208.55723458470843, 110.5667983673423)"
     style="font: 18px serif"
     x="208.55723458470843"
@@ -657,12 +677,14 @@
     <title>`c51`.text</title>
   </text>
   <g>
-    <path
-      d="M 394.99566569290204 394.95276375080215 L 310.99907033195774 290.46043135152"
+    <line
+      x1="394.99566569290204"
+      y1="394.95276375080215"
+      x2="310.99907033195774"
+      y2="290.46043135152"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_c62_c63`.arrow</title>
   </g>
@@ -682,7 +704,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 301.4283840134492, 293.3598978496522)"
     style="font: 18px serif"
     x="301.4283840134492"
@@ -716,7 +737,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 388.4873276792552, 387.3573658168393)"
     style="font: 18px serif"
     x="388.4873276792552"
@@ -750,7 +770,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 101.48738375817591, 107.54698932717099)"
     style="font: 18px serif"
     x="101.48738375817591"
@@ -784,7 +803,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 11.31094600094147, 36.16116498388675)"
     style="font: 18px serif"
     x="11.31094600094147"

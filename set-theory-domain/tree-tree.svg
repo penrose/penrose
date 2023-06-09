@@ -14,7 +14,6 @@
     stroke="#cccccc"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 400, 350)"
   >
@@ -82,12 +81,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 430.73792224715277 338.3035356042768 L 416.80561553121373 302.946635361381"
+    <line
+      x1="430.73792224715277"
+      y1="338.3035356042768"
+      x2="416.80561553121373"
+      y2="302.946635361381"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#tree-tree__registry--5:3:arrow-endArrowId)"
     />
     <title>5:3:arrow</title>
@@ -118,12 +119,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 312.88456317782317 393.06694957721515 L 312.63076050884183 305.2367611285126"
+    <line
+      x1="312.88456317782317"
+      y1="393.06694957721515"
+      x2="312.63076050884183"
+      y2="305.2367611285126"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#tree-tree__registry--5:5:arrow-endArrowId)"
     />
     <title>5:5:arrow</title>
@@ -145,12 +148,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 404.26943592601384 393.0779130635401 L 404.5394304906516 305.2566694024561"
+    <line
+      x1="404.26943592601384"
+      y1="393.0779130635401"
+      x2="404.5394304906516"
+      y2="305.2566694024561"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#tree-tree__registry--5:2:arrow-endArrowId)"
     />
     <title>5:2:arrow</title>
@@ -181,12 +186,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 319.6268490619018 255.51290113436858 L 345.51469487733146 195.12225951877485"
+    <line
+      x1="319.6268490619018"
+      y1="255.51290113436858"
+      x2="345.51469487733146"
+      y2="195.12225951877485"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#tree-tree__registry--5:1:arrow-endArrowId)"
     />
     <title>5:1:arrow</title>
@@ -208,12 +215,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 397.550423561041 255.53241857259238 L 371.6586597305703 195.12301363969334"
+    <line
+      x1="397.550423561041"
+      y1="255.53241857259238"
+      x2="371.6586597305703"
+      y2="195.12301363969334"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#tree-tree__registry--5:0:arrow-endArrowId)"
     />
     <title>5:0:arrow</title>
@@ -235,12 +244,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 286.4498878099635 338.2759589937665 L 300.37412368195214 302.92805664292104"
+    <line
+      x1="286.4498878099635"
+      y1="338.2759589937665"
+      x2="300.37412368195214"
+      y2="302.92805664292104"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="4"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#tree-tree__registry--5:4:arrow-endArrowId)"
     />
     <title>5:4:arrow</title>

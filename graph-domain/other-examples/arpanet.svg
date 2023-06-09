@@ -10,12 +10,14 @@
     </croppedViewBox>
   </penrose>
   <g>
-    <path
-      d="M 263.6218140754588 448.35491232687696 L 131.95094292613146 384.4348132808873"
+    <line
+      x1="263.6218140754588"
+      y1="448.35491232687696"
+      x2="131.95094292613146"
+      y2="384.4348132808873"
+      stroke="#000000"
       stroke-opacity="0"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_RAND_SDC`.arrow</title>
   </g>
@@ -214,7 +216,6 @@
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="0"
-    stroke-linecap="butt"
     r="32.65087890625"
   >
     <title>`RAND`.dot2</title>
@@ -225,7 +226,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 263.6218140754588, 448.35491232687696)"
     style="font: 18px serif"
     x="263.6218140754588"
@@ -245,12 +245,14 @@
     RAND
   </text>
   <g>
-    <path
-      d="M 313.6777502718801 331.51126960699037 L 263.6218140754588 448.35491232687696"
+    <line
+      x1="313.6777502718801"
+      y1="331.51126960699037"
+      x2="263.6218140754588"
+      y2="448.35491232687696"
+      stroke="#000000"
       stroke-opacity="0"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_BBN_RAND`.arrow</title>
   </g>
@@ -262,7 +264,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="32.65087890625"
   >
     <title>`RAND`.dot</title>
@@ -325,7 +326,6 @@
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="0"
-    stroke-linecap="butt"
     r="16.4765625"
   >
     <title>`LL`.dot2</title>
@@ -336,7 +336,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 496.4085301517278, 246.4135294252565)"
     style="font: 18px serif"
     x="496.4085301517278"
@@ -356,22 +355,26 @@
     LL
   </text>
   <g>
-    <path
-      d="M 496.4085301517278 246.4135294252565 L 367.6532419328547 234.11401981986052"
+    <line
+      x1="496.4085301517278"
+      y1="246.4135294252565"
+      x2="367.6532419328547"
+      y2="234.11401981986052"
+      stroke="#000000"
       stroke-opacity="0"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_LL_NASA`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 439.4307690620434 334.86989138965026 L 496.4085301517278 246.4135294252565"
+    <line
+      x1="439.4307690620434"
+      y1="334.86989138965026"
+      x2="496.4085301517278"
+      y2="246.4135294252565"
+      stroke="#000000"
       stroke-opacity="0"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_MIT_LL`.arrow</title>
   </g>
@@ -383,7 +386,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="16.4765625"
   >
     <title>`LL`.dot</title>
@@ -489,32 +491,38 @@
     <title>`Edge_BBN_HARV`.c7</title>
   </circle>
   <g>
-    <path
-      d="M 281.3303667695793 99.25805229151905 L 304.84519215971494 219.5577768263645"
+    <line
+      x1="281.3303667695793"
+      y1="99.25805229151905"
+      x2="304.84519215971494"
+      y2="219.5577768263645"
+      stroke="#000000"
       stroke-opacity="0"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_UCLA_SRI`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 304.84519215971494 219.5577768263645 L 121.73102433782617 258.24580728036227"
+    <line
+      x1="304.84519215971494"
+      y1="219.5577768263645"
+      x2="121.73102433782617"
+      y2="258.24580728036227"
+      stroke="#000000"
       stroke-opacity="0"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_SRI_Utah`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 304.84519215971494 219.5577768263645 L 313.6777502718801 331.51126960699037"
+    <line
+      x1="304.84519215971494"
+      y1="219.5577768263645"
+      x2="313.6777502718801"
+      y2="331.51126960699037"
+      stroke="#000000"
       stroke-opacity="0"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_SRI_BBN`.arrow</title>
   </g>
@@ -526,7 +534,6 @@
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="0"
-    stroke-linecap="butt"
     r="20.94189453125"
   >
     <title>`SRI`.dot2</title>
@@ -537,7 +544,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 304.84519215971494, 219.5577768263645)"
     style="font: 18px serif"
     x="304.84519215971494"
@@ -557,12 +563,14 @@
     SRI
   </text>
   <g>
-    <path
-      d="M 304.84519215971494 219.5577768263645 L 231.8436302150132 316.77218433643475"
+    <line
+      x1="304.84519215971494"
+      y1="219.5577768263645"
+      x2="231.8436302150132"
+      y2="316.77218433643475"
+      stroke="#000000"
       stroke-opacity="0"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_SRI_UCSB`.arrow</title>
   </g>
@@ -574,7 +582,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="20.94189453125"
   >
     <title>`SRI`.dot</title>
@@ -680,12 +687,14 @@
     <title>`Edge_SRI_Utah`.c7</title>
   </circle>
   <g>
-    <path
-      d="M 131.95094292613146 384.4348132808873 L 231.8436302150132 316.77218433643475"
+    <line
+      x1="131.95094292613146"
+      y1="384.4348132808873"
+      x2="231.8436302150132"
+      y2="316.77218433643475"
+      stroke="#000000"
       stroke-opacity="0"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_SDC_UCSB`.arrow</title>
   </g>
@@ -697,7 +706,6 @@
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="0"
-    stroke-linecap="butt"
     r="24.38134765625"
   >
     <title>`SDC`.dot2</title>
@@ -708,7 +716,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 131.95094292613146, 384.4348132808873)"
     style="font: 18px serif"
     x="131.95094292613146"
@@ -735,7 +742,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="24.38134765625"
   >
     <title>`SDC`.dot</title>
@@ -748,7 +754,6 @@
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="0"
-    stroke-linecap="butt"
     r="26.5673828125"
   >
     <title>`Utah`.dot2</title>
@@ -759,7 +764,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 121.73102433782617, 258.24580728036227)"
     style="font: 18px serif"
     x="121.73102433782617"
@@ -779,12 +783,14 @@
     Utah
   </text>
   <g>
-    <path
-      d="M 231.8436302150132 316.77218433643475 L 121.73102433782617 258.24580728036227"
+    <line
+      x1="231.8436302150132"
+      y1="316.77218433643475"
+      x2="121.73102433782617"
+      y2="258.24580728036227"
+      stroke="#000000"
       stroke-opacity="0"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_UCSB_Utah`.arrow</title>
   </g>
@@ -796,7 +802,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="26.5673828125"
   >
     <title>`Utah`.dot</title>
@@ -859,7 +864,6 @@
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="0"
-    stroke-linecap="butt"
     r="31.13671875"
   >
     <title>`UCSB`.dot2</title>
@@ -870,7 +874,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 231.8436302150132, 316.77218433643475)"
     style="font: 18px serif"
     x="231.8436302150132"
@@ -890,22 +893,26 @@
     UCSB
   </text>
   <g>
-    <path
-      d="M 367.6532419328547 234.11401981986052 L 231.8436302150132 316.77218433643475"
+    <line
+      x1="367.6532419328547"
+      y1="234.11401981986052"
+      x2="231.8436302150132"
+      y2="316.77218433643475"
+      stroke="#000000"
       stroke-opacity="0"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_NASA_UCSB`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 281.3303667695793 99.25805229151905 L 231.8436302150132 316.77218433643475"
+    <line
+      x1="281.3303667695793"
+      y1="99.25805229151905"
+      x2="231.8436302150132"
+      y2="316.77218433643475"
+      stroke="#000000"
       stroke-opacity="0"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_UCLA_UCSB`.arrow</title>
   </g>
@@ -917,7 +924,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="31.13671875"
   >
     <title>`UCSB`.dot</title>
@@ -930,7 +936,6 @@
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="0"
-    stroke-linecap="butt"
     r="31.44775390625"
   >
     <title>`UCLA`.dot2</title>
@@ -941,7 +946,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 281.3303667695793, 99.25805229151905)"
     style="font: 18px serif"
     x="281.3303667695793"
@@ -968,7 +972,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="31.44775390625"
   >
     <title>`UCLA`.dot</title>
@@ -1024,12 +1027,14 @@
     <title>`Edge_CWRU_CMU`.c7</title>
   </circle>
   <g>
-    <path
-      d="M 371.5923482099147 450.27077895540134 L 439.4307690620434 334.86989138965026"
+    <line
+      x1="371.5923482099147"
+      y1="450.27077895540134"
+      x2="439.4307690620434"
+      y2="334.86989138965026"
+      stroke="#000000"
       stroke-opacity="0"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_HARV_MIT`.arrow</title>
   </g>
@@ -1041,7 +1046,6 @@
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="0"
-    stroke-linecap="butt"
     r="32.3037109375"
   >
     <title>`HARV`.dot2</title>
@@ -1052,7 +1056,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 371.5923482099147, 450.27077895540134)"
     style="font: 18px serif"
     x="371.5923482099147"
@@ -1072,12 +1075,14 @@
     HARV
   </text>
   <g>
-    <path
-      d="M 313.6777502718801 331.51126960699037 L 371.5923482099147 450.27077895540134"
+    <line
+      x1="313.6777502718801"
+      y1="331.51126960699037"
+      x2="371.5923482099147"
+      y2="450.27077895540134"
+      stroke="#000000"
       stroke-opacity="0"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_BBN_HARV`.arrow</title>
   </g>
@@ -1089,7 +1094,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="32.3037109375"
   >
     <title>`HARV`.dot</title>
@@ -1102,7 +1106,6 @@
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="0"
-    stroke-linecap="butt"
     r="31.5400390625"
   >
     <title>`NASA`.dot2</title>
@@ -1113,7 +1116,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 367.6532419328547, 234.11401981986052)"
     style="font: 18px serif"
     x="367.6532419328547"
@@ -1140,7 +1142,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="31.5400390625"
   >
     <title>`NASA`.dot</title>
@@ -1303,7 +1304,6 @@
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="0"
-    stroke-linecap="butt"
     r="28.1015625"
   >
     <title>`CMU`.dot2</title>
@@ -1314,7 +1314,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 106.1573379191299, 96.63316897209688)"
     style="font: 18px serif"
     x="106.1573379191299"
@@ -1334,12 +1333,14 @@
     CMU
   </text>
   <g>
-    <path
-      d="M 209.5989987110994 202.39976615723359 L 106.1573379191299 96.63316897209688"
+    <line
+      x1="209.5989987110994"
+      y1="202.39976615723359"
+      x2="106.1573379191299"
+      y2="96.63316897209688"
+      stroke="#000000"
       stroke-opacity="0"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_CWRU_CMU`.arrow</title>
   </g>
@@ -1351,7 +1352,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="28.1015625"
   >
     <title>`CMU`.dot</title>
@@ -1414,7 +1414,6 @@
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="0"
-    stroke-linecap="butt"
     r="22.7705078125"
   >
     <title>`MIT`.dot2</title>
@@ -1425,7 +1424,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 439.4307690620434, 334.86989138965026)"
     style="font: 18px serif"
     x="439.4307690620434"
@@ -1445,12 +1443,14 @@
     MIT
   </text>
   <g>
-    <path
-      d="M 313.6777502718801 331.51126960699037 L 439.4307690620434 334.86989138965026"
+    <line
+      x1="313.6777502718801"
+      y1="331.51126960699037"
+      x2="439.4307690620434"
+      y2="334.86989138965026"
+      stroke="#000000"
       stroke-opacity="0"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_BBN_MIT`.arrow</title>
   </g>
@@ -1462,7 +1462,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="22.7705078125"
   >
     <title>`MIT`.dot</title>
@@ -1518,12 +1517,14 @@
     <title>`Edge_SRI_UCSB`.c7</title>
   </circle>
   <g>
-    <path
-      d="M 313.6777502718801 331.51126960699037 L 209.5989987110994 202.39976615723359"
+    <line
+      x1="313.6777502718801"
+      y1="331.51126960699037"
+      x2="209.5989987110994"
+      y2="202.39976615723359"
+      stroke="#000000"
       stroke-opacity="0"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_BBN_CWRU`.arrow</title>
   </g>
@@ -1535,7 +1536,6 @@
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="0"
-    stroke-linecap="butt"
     r="25.2275390625"
   >
     <title>`BBN`.dot2</title>
@@ -1546,7 +1546,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 313.6777502718801, 331.51126960699037)"
     style="font: 18px serif"
     x="313.6777502718801"
@@ -1573,7 +1572,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="25.2275390625"
   >
     <title>`BBN`.dot</title>
@@ -1736,7 +1734,6 @@
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="0"
-    stroke-linecap="butt"
     r="34.9130859375"
   >
     <title>`CWRU`.dot2</title>
@@ -1747,7 +1744,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 209.5989987110994, 202.39976615723359)"
     style="font: 18px serif"
     x="209.5989987110994"
@@ -1774,7 +1770,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="34.9130859375"
   >
     <title>`CWRU`.dot</title>

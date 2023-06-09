@@ -45,12 +45,14 @@
     <title>`G`.icon</title>
   </g>
   <g>
-    <path
-      d="M 478.585028491921 456.66511262804795 L 482.23826743408677 461.274184953291"
+    <line
+      x1="478.585028491921"
+      y1="456.66511262804795"
+      x2="482.23826743408677"
+      y2="461.274184953291"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:18:closestSegment</title>
   </g>
@@ -62,18 +64,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:18:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 7.8950052219943245 516.0083012589873 L 230.30468159318667 312.8689280452942"
+    <line
+      x1="7.8950052219943245"
+      y1="516.0083012589873"
+      x2="230.30468159318667"
+      y2="312.8689280452942"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:1:closestSegment</title>
   </g>
@@ -85,18 +88,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:1:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 725.5510740258919 5.5748358163803005 L 440.4372691355722 236.75697651463696"
+    <line
+      x1="725.5510740258919"
+      y1="5.5748358163803005"
+      x2="440.4372691355722"
+      y2="236.75697651463696"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:15:closestSegment</title>
   </g>
@@ -108,18 +112,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:15:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 90.70815805621191 169.60998486922847 L 230.30468159318667 188.24380021131978"
+    <line
+      x1="90.70815805621191"
+      y1="169.60998486922847"
+      x2="230.30468159318667"
+      y2="188.24380021131978"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:14:closestSegment</title>
   </g>
@@ -131,18 +136,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:14:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 291.110810198658 221.17429534010262 L 291.110810198658 188.24380021131978"
+    <line
+      x1="291.110810198658"
+      y1="221.17429534010262"
+      x2="291.110810198658"
+      y2="188.24380021131978"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:7:closestSegment</title>
   </g>
@@ -154,18 +160,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:7:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 225.0206481385987 388.3021131942945 L 230.30468159318667 312.8689280452942"
+    <line
+      x1="225.0206481385987"
+      y1="388.3021131942945"
+      x2="230.30468159318667"
+      y2="312.8689280452942"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:25:closestSegment</title>
   </g>
@@ -177,18 +184,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:25:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 669.4139836151741 284.2425886554219 L 554.4954167434181 377.42334609229306"
+    <line
+      x1="669.4139836151741"
+      y1="284.2425886554219"
+      x2="554.4954167434181"
+      y2="377.42334609229306"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:11:closestSegment</title>
   </g>
@@ -200,18 +208,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:11:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 390.20302696202936 244.1431975378846 L 418.7357552481213 243.36519567670763"
+    <line
+      x1="390.20302696202936"
+      y1="244.1431975378846"
+      x2="418.7357552481213"
+      y2="243.36519567670763"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:6:closestSegment</title>
   </g>
@@ -223,18 +232,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:6:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 170.57077904958652 348.7672386499137 L 230.30468159318667 312.8689280452942"
+    <line
+      x1="170.57077904958652"
+      y1="348.7672386499137"
+      x2="230.30468159318667"
+      y2="312.8689280452942"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:3:closestSegment</title>
   </g>
@@ -246,18 +256,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:3:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 105.29357506921633 136.6998239411962 L 230.30468159318667 188.24380021131978"
+    <line
+      x1="105.29357506921633"
+      y1="136.6998239411962"
+      x2="230.30468159318667"
+      y2="188.24380021131978"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:0:closestSegment</title>
   </g>
@@ -269,18 +280,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:0:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 82.663902410979 656.9577150571768 L 230.30468159318667 312.8689280452942"
+    <line
+      x1="82.663902410979"
+      y1="656.9577150571768"
+      x2="230.30468159318667"
+      y2="312.8689280452942"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:17:closestSegment</title>
   </g>
@@ -292,18 +304,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:17:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 291.2729894944824 425.6672535548692 L 357.66103864390556 379.4652902649138"
+    <line
+      x1="291.2729894944824"
+      y1="425.6672535548692"
+      x2="357.66103864390556"
+      y2="379.4652902649138"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:26:closestSegment</title>
   </g>
@@ -315,18 +328,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:26:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 395.87086903691625 207.8522861637839 L 417.79412483057 208.8314931361174"
+    <line
+      x1="395.87086903691625"
+      y1="207.8522861637839"
+      x2="417.79412483057"
+      y2="208.8314931361174"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:21:closestSegment</title>
   </g>
@@ -338,18 +352,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:21:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 398.0231886751993 694.4788880724197 L 425.8951854685143 505.9327901200935"
+    <line
+      x1="398.0231886751993"
+      y1="694.4788880724197"
+      x2="425.8951854685143"
+      y2="505.9327901200935"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:13:closestSegment</title>
   </g>
@@ -361,18 +376,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:13:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 58.88357513111487 251.9518704775498 L 230.30468159318667 251.9518704775498"
+    <line
+      x1="58.88357513111487"
+      y1="251.9518704775498"
+      x2="230.30468159318667"
+      y2="251.9518704775498"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:27:closestSegment</title>
   </g>
@@ -384,18 +400,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:27:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 459.96267761923804 549.4340829515309 L 425.8951854685143 505.9327901200935"
+    <line
+      x1="459.96267761923804"
+      y1="549.4340829515309"
+      x2="425.8951854685143"
+      y2="505.9327901200935"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:29:closestSegment</title>
   </g>
@@ -407,18 +424,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:29:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 203.19131160190062 591.912090908378 L 425.8951854685143 505.9327901200935"
+    <line
+      x1="203.19131160190062"
+      y1="591.912090908378"
+      x2="425.8951854685143"
+      y2="505.9327901200935"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:28:closestSegment</title>
   </g>
@@ -430,18 +448,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:28:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 198.86577504080765 694.4723438539636 L 425.8951854685143 505.9327901200935"
+    <line
+      x1="198.86577504080765"
+      y1="694.4723438539636"
+      x2="425.8951854685143"
+      y2="505.9327901200935"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:5:closestSegment</title>
   </g>
@@ -453,18 +472,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:5:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 768.6189545182547 471.0433330987166 L 567.6147048632514 393.60318655055846"
+    <line
+      x1="768.6189545182547"
+      y1="471.0433330987166"
+      x2="567.6147048632514"
+      y2="393.60318655055846"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:24:closestSegment</title>
   </g>
@@ -476,18 +496,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:24:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 531.7906251069132 572.7303762431488 L 458.41510175620954 480.15688204255787"
+    <line
+      x1="531.7906251069132"
+      y1="572.7303762431488"
+      x2="458.41510175620954"
+      y2="480.15688204255787"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:16:closestSegment</title>
   </g>
@@ -499,18 +520,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:16:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 754.0947907538861 694.3098687938841 L 535.7609096814598 418.8511142900643"
+    <line
+      x1="754.0947907538861"
+      y1="694.3098687938841"
+      x2="535.7609096814598"
+      y2="418.8511142900643"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:9:closestSegment</title>
   </g>
@@ -522,18 +544,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:9:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 654.4588402033019 5.558192223690696 L 417.79412483057 208.8314931361174"
+    <line
+      x1="654.4588402033019"
+      y1="5.558192223690696"
+      x2="417.79412483057"
+      y2="208.8314931361174"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:4:closestSegment</title>
   </g>
@@ -545,18 +568,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:4:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 126.64613961634984 590.661825472711 L 230.30468159318667 312.8689280452942"
+    <line
+      x1="126.64613961634984"
+      y1="590.661825472711"
+      x2="230.30468159318667"
+      y2="312.8689280452942"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:22:closestSegment</title>
   </g>
@@ -568,18 +592,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:22:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 257.6069312458569 585.5614923754802 L 425.8951854685143 505.9327901200935"
+    <line
+      x1="257.6069312458569"
+      y1="585.5614923754802"
+      x2="425.8951854685143"
+      y2="505.9327901200935"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:30:closestSegment</title>
   </g>
@@ -591,7 +616,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:30:closestDot</title>
@@ -606,19 +630,20 @@
     stroke-opacity="1"
     stroke-width="2"
     stroke-dasharray="10 8"
-    stroke-linecap="butt"
     rx="0"
     transform="rotate(0, 400, 350)"
   >
     <title>8:0:bbox</title>
   </rect>
   <g>
-    <path
-      d="M 255.68154001838224 552.0179557921975 L 425.8951854685143 505.9327901200935"
+    <line
+      x1="255.68154001838224"
+      y1="552.0179557921975"
+      x2="425.8951854685143"
+      y2="505.9327901200935"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:10:closestSegment</title>
   </g>
@@ -630,18 +655,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:10:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 208.4312258091488 435.81753532050254 L 230.30468159318667 312.8689280452942"
+    <line
+      x1="208.4312258091488"
+      y1="435.81753532050254"
+      x2="230.30468159318667"
+      y2="312.8689280452942"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:20:closestSegment</title>
   </g>
@@ -653,18 +679,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:20:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 17.316119763806 580.3743317094942 L 230.30468159318667 312.8689280452942"
+    <line
+      x1="17.316119763806"
+      y1="580.3743317094942"
+      x2="230.30468159318667"
+      y2="312.8689280452942"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:19:closestSegment</title>
   </g>
@@ -676,18 +703,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:19:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 618.7377259007769 303.2186172491399 L 543.6769212423517 364.081042027708"
+    <line
+      x1="618.7377259007769"
+      y1="303.2186172491399"
+      x2="543.6769212423517"
+      y2="364.081042027708"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:8:closestSegment</title>
   </g>
@@ -699,18 +727,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:8:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 265.0359346528412 557.3562849086682 L 425.8951854685143 505.9327901200935"
+    <line
+      x1="265.0359346528412"
+      y1="557.3562849086682"
+      x2="425.8951854685143"
+      y2="505.9327901200935"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:12:closestSegment</title>
   </g>
@@ -722,18 +751,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:12:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 770.2571459412251 544.6590634328114 L 567.6147048632514 393.60318655055846"
+    <line
+      x1="770.2571459412251"
+      y1="544.6590634328114"
+      x2="567.6147048632514"
+      y2="393.60318655055846"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:23:closestSegment</title>
   </g>
@@ -745,18 +775,19 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:23:closestDot</title>
   </circle>
   <g>
-    <path
-      d="M 126.62771283818165 374.5473309468183 L 230.30468159318667 312.8689280452942"
+    <line
+      x1="126.62771283818165"
+      y1="374.5473309468183"
+      x2="230.30468159318667"
+      y2="312.8689280452942"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="2"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>9:2:closestSegment</title>
   </g>
@@ -768,7 +799,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="2"
-    stroke-linecap="butt"
     r="5"
   >
     <title>9:2:closestDot</title>

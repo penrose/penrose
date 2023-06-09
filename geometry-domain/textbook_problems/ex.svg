@@ -10,82 +10,98 @@
     </croppedViewBox>
   </penrose>
   <g>
-    <path
-      d="M 319.2165058865047 312.3260310804311 L 164.54854036738084 85.10533767915754"
+    <line
+      x1="319.2165058865047"
+      y1="312.3260310804311"
+      x2="164.54854036738084"
+      y2="85.10533767915754"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`aTUS`.side1</title>
   </g>
   <g>
-    <path
-      d="M 438.6613739492831 64.76936511747917 L 319.2165058865047 312.3260310804311"
+    <line
+      x1="438.6613739492831"
+      y1="64.76936511747917"
+      x2="319.2165058865047"
+      y2="312.3260310804311"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`ST`.icon</title>
   </g>
   <g>
-    <path
-      d="M 438.6613739492831 64.76936511747917 L 319.2165058865047 312.3260310804311"
+    <line
+      x1="438.6613739492831"
+      y1="64.76936511747917"
+      x2="319.2165058865047"
+      y2="312.3260310804311"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`aUST`.side2</title>
   </g>
   <g>
-    <path
-      d="M 164.54854036738084 85.10533767915754 L 319.2165058865047 312.3260310804311"
+    <line
+      x1="164.54854036738084"
+      y1="85.10533767915754"
+      x2="319.2165058865047"
+      y2="312.3260310804311"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`UT`.icon</title>
   </g>
   <g>
-    <path
-      d="M 164.54854036738084 85.10533767915754 L 319.2165058865047 312.3260310804311"
+    <line
+      x1="164.54854036738084"
+      y1="85.10533767915754"
+      x2="319.2165058865047"
+      y2="312.3260310804311"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`UTS`.PQ</title>
   </g>
   <g>
-    <path
-      d="M 319.2165058865047 312.3260310804311 L 438.6613739492831 64.76936511747917"
+    <line
+      x1="319.2165058865047"
+      y1="312.3260310804311"
+      x2="438.6613739492831"
+      y2="64.76936511747917"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`UTS`.QR</title>
   </g>
   <g>
-    <path
-      d="M 164.54854036738084 85.10533767915754 L 319.2165058865047 312.3260310804311"
+    <line
+      x1="164.54854036738084"
+      y1="85.10533767915754"
+      x2="319.2165058865047"
+      y2="312.3260310804311"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`aUTS`.side1</title>
   </g>
   <g>
-    <path
-      d="M 319.2165058865047 312.3260310804311 L 438.6613739492831 64.76936511747917"
+    <line
+      x1="319.2165058865047"
+      y1="312.3260310804311"
+      x2="438.6613739492831"
+      y2="64.76936511747917"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`aUTS`.side2</title>
   </g>
@@ -97,48 +113,55 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`T`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 164.54854036738084 85.10533767915754 L 438.6613739492831 64.76936511747917"
+    <line
+      x1="164.54854036738084"
+      y1="85.10533767915754"
+      x2="438.6613739492831"
+      y2="64.76936511747917"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`aTUS`.side2</title>
   </g>
   <g>
-    <path
-      d="M 164.54854036738084 85.10533767915754 L 438.6613739492831 64.76936511747917"
+    <line
+      x1="164.54854036738084"
+      y1="85.10533767915754"
+      x2="438.6613739492831"
+      y2="64.76936511747917"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`aUST`.side1</title>
   </g>
   <g>
-    <path
-      d="M 438.6613739492831 64.76936511747917 L 164.54854036738084 85.10533767915754"
+    <line
+      x1="438.6613739492831"
+      y1="64.76936511747917"
+      x2="164.54854036738084"
+      y2="85.10533767915754"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`UTS`.RP</title>
   </g>
   <g>
-    <path
-      d="M 164.54854036738084 85.10533767915754 L 438.6613739492831 64.76936511747917"
+    <line
+      x1="164.54854036738084"
+      y1="85.10533767915754"
+      x2="438.6613739492831"
+      y2="64.76936511747917"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`US`.icon</title>
   </g>
@@ -150,7 +173,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`U`.icon</title>
@@ -163,88 +185,103 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`S`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 307.80526915659163 118.16079674015518 L 56.29742965886024 229.04448388967717"
+    <line
+      x1="307.80526915659163"
+      y1="118.16079674015518"
+      x2="56.29742965886024"
+      y2="229.04448388967717"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`aXYZ`.side1</title>
   </g>
   <g>
-    <path
-      d="M 278.07954692750303 391.41479646611305 L 307.80526915659163 118.16079674015518"
+    <line
+      x1="278.07954692750303"
+      y1="391.41479646611305"
+      x2="307.80526915659163"
+      y2="118.16079674015518"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`aZXY`.side1</title>
   </g>
   <g>
-    <path
-      d="M 307.80526915659163 118.16079674015518 L 56.29742965886024 229.04448388967717"
+    <line
+      x1="307.80526915659163"
+      y1="118.16079674015518"
+      x2="56.29742965886024"
+      y2="229.04448388967717"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`aZXY`.side2</title>
   </g>
   <g>
-    <path
-      d="M 307.80526915659163 118.16079674015518 L 56.29742965886024 229.04448388967717"
+    <line
+      x1="307.80526915659163"
+      y1="118.16079674015518"
+      x2="56.29742965886024"
+      y2="229.04448388967717"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`XY`.icon</title>
   </g>
   <g>
-    <path
-      d="M 307.80526915659163 118.16079674015518 L 56.29742965886024 229.04448388967717"
+    <line
+      x1="307.80526915659163"
+      y1="118.16079674015518"
+      x2="56.29742965886024"
+      y2="229.04448388967717"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`XYZ`.PQ</title>
   </g>
   <g>
-    <path
-      d="M 278.07954692750303 391.41479646611305 L 307.80526915659163 118.16079674015518"
+    <line
+      x1="278.07954692750303"
+      y1="391.41479646611305"
+      x2="307.80526915659163"
+      y2="118.16079674015518"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`XYZ`.RP</title>
   </g>
   <g>
-    <path
-      d="M 307.80526915659163 118.16079674015518 L 278.07954692750303 391.41479646611305"
+    <line
+      x1="307.80526915659163"
+      y1="118.16079674015518"
+      x2="278.07954692750303"
+      y2="391.41479646611305"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`XZ`.icon</title>
   </g>
   <g>
-    <path
-      d="M 278.07954692750303 391.41479646611305 L 307.80526915659163 118.16079674015518"
+    <line
+      x1="278.07954692750303"
+      y1="391.41479646611305"
+      x2="307.80526915659163"
+      y2="118.16079674015518"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`aYZX`.side2</title>
   </g>
@@ -256,48 +293,55 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`X`.icon</title>
   </circle>
   <g>
-    <path
-      d="M 56.29742965886024 229.04448388967717 L 278.07954692750303 391.41479646611305"
+    <line
+      x1="56.29742965886024"
+      y1="229.04448388967717"
+      x2="278.07954692750303"
+      y2="391.41479646611305"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`aXYZ`.side2</title>
   </g>
   <g>
-    <path
-      d="M 56.29742965886024 229.04448388967717 L 278.07954692750303 391.41479646611305"
+    <line
+      x1="56.29742965886024"
+      y1="229.04448388967717"
+      x2="278.07954692750303"
+      y2="391.41479646611305"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`XYZ`.QR</title>
   </g>
   <g>
-    <path
-      d="M 278.07954692750303 391.41479646611305 L 56.29742965886024 229.04448388967717"
+    <line
+      x1="278.07954692750303"
+      y1="391.41479646611305"
+      x2="56.29742965886024"
+      y2="229.04448388967717"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`ZY`.icon</title>
   </g>
   <g>
-    <path
-      d="M 56.29742965886024 229.04448388967717 L 278.07954692750303 391.41479646611305"
+    <line
+      x1="56.29742965886024"
+      y1="229.04448388967717"
+      x2="278.07954692750303"
+      y2="391.41479646611305"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1.75"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`aYZX`.side1</title>
   </g>
@@ -309,7 +353,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`Y`.icon</title>
@@ -322,7 +365,6 @@
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="0"
-    stroke-linecap="butt"
     r="4"
   >
     <title>`Z`.icon</title>
@@ -527,10 +569,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="2"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="2"
+      stroke-linecap="butt"
       d="M 282.1899619461915 261.16234690778634 L 302.0726612413531 263.32527076985315 M 283.81215484274156 246.25032243641508 L 303.69485413790323 248.41324629848188"
     />
     <title>`XZ`.tick</title>
@@ -549,10 +592,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="2"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="2"
+      stroke-linecap="butt"
       d="M 309.82425204662553 84.35505707274365 L 308.34455203705807 64.40987071671748 M 294.8653622796059 85.46483207991923 L 293.38566227003844 65.51964572389306"
     />
     <title>`US`.tick</title>
@@ -571,8 +615,8 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="none"
+      stroke="none"
       d="M 307.80526915659163 118.16079674015518 L 56.29742965886024 229.04448388967717 L 278.07954692750303 391.41479646611305 Z "
     />
     <title>`XYZ`.icon</title>
@@ -591,8 +635,8 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="none"
+      stroke="none"
       d="M 164.54854036738084 85.10533767915754 L 319.2165058865047 312.3260310804311 L 438.6613739492831 64.76936511747917 Z "
     />
     <title>`UTS`.icon</title>
@@ -611,10 +655,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="2"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="2"
+      stroke-linecap="butt"
       d="M 173.0957373027419 302.1609102987393 L 161.2812392836214 318.298370057051 M 160.99264248400812 293.3000367843989 L 149.17814446488762 309.4374965427106 M 185.19883212147568 311.0217838130796 L 173.38433410235518 327.1592435713913"
     />
     <title>`ZY`.tick</title>
@@ -633,10 +678,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="2"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="2"
+      stroke-linecap="butt"
       d="M 233.61593042092457 204.34271181499844 L 250.14911583296094 193.08865694459024 M 242.0564715737307 216.7426008740257 L 258.5896569857671 205.48854600361756 M 225.17538926811844 191.94282275597112 L 241.70857468015484 180.68876788556298"
     />
     <title>`UT`.tick</title>
@@ -655,10 +701,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="2"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="2"
+      stroke-linecap="butt"
       d="M 369.9324947285594 184.202132799107 L 387.9453851072284 192.8932633988033"
     />
     <title>`ST`.tick</title>
@@ -677,10 +724,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="2"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="2"
+      stroke-linecap="butt"
       d="M 178.01725157024987 164.4524464720841 L 186.08544724520198 182.75283415774823"
     />
     <title>`XY`.tick</title>
@@ -699,10 +747,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="2"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="2"
+      stroke-linecap="butt"
       d="M 181.4296226729931 109.90511579721212 A 30 30 0 0 0 194.46631990142006 82.88578766480632"
     />
     <title>`aTUS`.mark</title>
@@ -721,10 +770,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="2"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="2"
+      stroke-linecap="butt"
       d="M 302.33542358089244 287.5262529623766 A 30 30 0 0 1 332.25320178604915 285.3066955124277 M 296.7083961707697 279.259660293205 A 40 40 0 0 1 336.5987670665278 276.3002503632376 M 291.08136876064685 270.9930676240334 A 50 50 0 0 1 340.9443323470065 267.2938052140475"
     />
     <title>`aUTS`.mark</title>
@@ -743,10 +793,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="2"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="2"
+      stroke-linecap="butt"
       d="M 408.7435944152439 66.9889151318304 A 30 30 0 0 0 425.6246780497387 91.78870068548261 M 398.7710012816816 67.72876513331641 A 40 40 0 0 0 421.27911276926 100.79514583467272"
     />
     <title>`aUST`.mark</title>
@@ -765,10 +816,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="2"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="2"
+      stroke-linecap="butt"
       d="M 253.8733572900355 373.6930494374323 A 30 30 0 0 1 281.32393272060324 361.59074752337057 M 245.80462744684434 367.78580045420244 A 40 40 0 0 1 282.40539464681626 351.64939792010125"
     />
     <title>`aYZX`.mark</title>
@@ -787,10 +839,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="2"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="2"
+      stroke-linecap="butt"
       d="M 83.74801118735644 216.942190377249 A 30 30 0 0 1 80.5036192963278 246.7662309183579"
     />
     <title>`aXYZ`.mark</title>
@@ -809,10 +862,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="2"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="2"
+      stroke-linecap="butt"
       d="M 304.5608833634914 147.98484568289766 A 30 30 0 0 1 280.35468762809546 130.26309025258334 M 303.4794214372784 157.92619528616694 A 40 40 0 0 1 271.20449382604846 134.29718807207823 M 302.39795951106544 167.86754488943626 A 50 50 0 0 1 262.0543000240015 138.33128589157312"
     />
     <title>`aZXY`.mark</title>

@@ -29,9 +29,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 333.3593216786784 79.23695205742753 L 339.92669687984824 90.0475747256524 L 328.1864231179774 85.33950171177439 Z "
     />
     <title>`Arc_parser_page`.pointer</title>
@@ -56,10 +56,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 275.78562861062755 35.67859431666227 Q 335.3459462362222 86.1636906307383 394.904376681619 136.6510132809253"
     />
     <title>`Arc_parser_page`.arrow</title>
@@ -84,9 +85,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 308.9190567401388 39.84406004257437 L 319.58905773478045 46.63751556265058 L 306.9769836270214 47.60475174337461 Z "
     />
     <title>`Arc_parser_AST`.pointer</title>
@@ -111,10 +112,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 275.78562861062755 35.67859431666227 Q 313.7633133112189 45.176991830130675 351.7384911830867 54.68540684744025"
     />
     <title>`Arc_parser_AST`.arrow</title>
@@ -139,9 +141,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 278.8632015731519 102.00178552715744 L 281.562156383961 89.64396952332322 L 286.81768213761427 101.14959521287608 Z "
     />
     <title>`Arc_main_parser`.pointer</title>
@@ -166,10 +168,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 288.62727062081404 155.54453279772903 Q 282.19663275233086 95.61261527085938 275.78562861062755 35.67859431666227"
     />
     <title>`Arc_main_parser`.arrow</title>
@@ -190,7 +193,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 296.77144787174257, 18.678828480409294)"
     style="font: 18px serif"
     x="296.77144787174257"
@@ -229,9 +231,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 316.70724811429585 274.61634655584385 L 304.2907827630802 277.03116752401746 L 312.7750624631485 267.6494315387491 Z "
     />
     <title>`Arc_protocol_network`.pointer</title>
@@ -256,10 +258,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 359.50897010563 245.86543708730366 Q 309.5199619095877 274.0798940106766 259.5307493756326 302.29398889496986"
     />
     <title>`Arc_protocol_network`.arrow</title>
@@ -280,7 +283,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 232.09676851750694, 319.29402062212444)"
     style="font: 18px serif"
     x="232.09676851750694"
@@ -319,9 +321,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 248.68284828604035 132.32091793408674 L 241.17249862209772 122.14277384131856 L 253.28766480891275 125.77907931716751 Z "
     />
     <title>`Arc_main_display`.pointer</title>
@@ -346,10 +348,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 288.62727062081404 155.54453279772903 Q 246.08005480557307 125.59898832464016 203.53617793616962 95.64870037377942"
     />
     <title>`Arc_main_display`.arrow</title>
@@ -374,9 +377,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 270.79377190660017 72.90791758071249 L 283.42572992899017 73.56641261397291 L 272.9250664911219 80.61879140079854 Z "
     />
     <title>`Arc_display_AST`.pointer</title>
@@ -401,10 +404,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 203.53617793616962 95.64870037377942 Q 277.6369639106323 75.16571262862671 351.7384911830867 54.68540684744025"
     />
     <title>`Arc_display_AST`.arrow</title>
@@ -425,7 +429,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 170.27487121658126, 76.65847652616443)"
     style="font: 18px serif"
     x="170.27487121658126"
@@ -464,9 +467,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 371.5610898952568 195.72728016542374 L 379.06588682050256 185.5450409599278 L 379.17139280360357 198.19371047947197 Z "
     />
     <title>`Arc_protocol_page`.pointer</title>
@@ -491,10 +494,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 359.50897010563 245.86543708730366 Q 377.22046863718435 191.26269609773192 394.904376681619 136.6510132809253"
     />
     <title>`Arc_protocol_page`.arrow</title>
@@ -519,9 +523,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 323.51048575996566 193.51853954247727 L 327.77216076879216 205.428119646234 L 317.21707269947694 198.45746056852448 Z "
     />
     <title>`Arc_main_protocol`.pointer</title>
@@ -546,10 +550,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 288.62727062081404 155.54453279772903 Q 324.0649474928375 200.7074749358005 359.50897010563 245.86543708730366"
     />
     <title>`Arc_main_protocol`.arrow</title>
@@ -570,7 +575,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 310.9656950678462, 237.09696021424267)"
     style="font: 18px serif"
     x="310.9656950678462"
@@ -605,7 +609,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 363.0259227883321, 142.4478571533778)"
     style="font: 18px serif"
     x="363.0259227883321"
@@ -644,9 +647,9 @@
       </feMerge>
     </filter>
     <path
-      stroke="none"
       fill="#000000"
       fill-opacity="1"
+      stroke="none"
       d="M 313.6116147809199 108.07581023456939 L 323.36785735942595 100.02499016121943 L 320.3933553406311 112.31939176700303 Z "
     />
     <title>`Arc_main_AST`.pointer</title>
@@ -671,10 +674,11 @@
       </feMerge>
     </filter>
     <path
-      stroke="#000000"
       fill="none"
-      stroke-width="1"
+      stroke="#000000"
       stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
       d="M 288.62727062081404 155.54453279772903 Q 320.18286825653576 105.11496190988916 351.7384911830867 54.68540684744025"
     />
     <title>`Arc_main_AST`.arrow</title>
@@ -695,7 +699,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 373.32048073699997, 71.38747114763564)"
     style="font: 18px serif"
     x="373.32048073699997"
@@ -730,7 +733,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 262.82725581873024, 172.07769431019864)"
     style="font: 18px serif"
     x="262.82725581873024"

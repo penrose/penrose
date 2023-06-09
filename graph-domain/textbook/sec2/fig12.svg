@@ -10,22 +10,26 @@
     </croppedViewBox>
   </penrose>
   <g>
-    <path
-      d="M 283.90314205803946 215.36200512864426 L 377.0085655352079 148.18986554441523"
+    <line
+      x1="283.90314205803946"
+      y1="215.36200512864426"
+      x2="377.0085655352079"
+      y2="148.18986554441523"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_p4_p5`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 377.0085655352079 148.18986554441523 L 311.08605287030986 54.18529765434178"
+    <line
+      x1="377.0085655352079"
+      y1="148.18986554441523"
+      x2="311.08605287030986"
+      y2="54.18529765434178"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_p5_p6`.arrow</title>
   </g>
@@ -45,7 +49,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 356.30636276837765, 142.7036302381175)"
     style="font: 18px serif"
     x="356.30636276837765"
@@ -80,7 +83,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 299.49400074716607, 71.06625769083956)"
     style="font: 18px serif"
     x="299.49400074716607"
@@ -100,22 +102,26 @@
     𝑃₆
   </text>
   <g>
-    <path
-      d="M 57.17937224998036 220.988219916525 L 83.98818392576098 109.3481130220977"
+    <line
+      x1="57.17937224998036"
+      y1="220.988219916525"
+      x2="83.98818392576098"
+      y2="109.3481130220977"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_p1_p2`.arrow</title>
   </g>
   <g>
-    <path
-      d="M 83.98818392576098 109.3481130220977 L 193.06505031726252 145.1592095257402"
+    <line
+      x1="83.98818392576098"
+      y1="109.3481130220977"
+      x2="193.06505031726252"
+      y2="145.1592095257402"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_p2_p3`.arrow</title>
   </g>
@@ -135,7 +141,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 103.18129214378312, 98.2874411410365)"
     style="font: 18px serif"
     x="103.18129214378312"
@@ -155,12 +160,14 @@
     𝑃₂
   </text>
   <g>
-    <path
-      d="M 193.06505031726252 145.1592095257402 L 283.90314205803946 215.36200512864426"
+    <line
+      x1="193.06505031726252"
+      y1="145.1592095257402"
+      x2="283.90314205803946"
+      y2="215.36200512864426"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`Edge_p3_p4`.arrow</title>
   </g>
@@ -180,7 +187,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 213.12068878878856, 138.28945536569654)"
     style="font: 18px serif"
     x="213.12068878878856"
@@ -215,7 +221,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 263.84707082911154, 221.08677624636454)"
     style="font: 18px serif"
     x="263.84707082911154"
@@ -250,7 +255,6 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    stroke-linecap="butt"
     transform="rotate(0, 76.73509188068832, 214.4653961427144)"
     style="font: 18px serif"
     x="76.73509188068832"

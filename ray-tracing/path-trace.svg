@@ -26,12 +26,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 107.44181470784558 37.35017764941465 L 96.31233417739342 36.0514725300765"
+    <line
+      x1="107.44181470784558"
+      y1="37.35017764941465"
+      x2="96.31233417739342"
+      y2="36.0514725300765"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#path-trace__registry-RockfallLlama5064-`r3`.icon-endArrowId)"
     />
     <title>`r3`.icon</title>
@@ -42,19 +44,20 @@
     stroke="#aaaaaa"
     stroke-opacity="1"
     stroke-width="1"
-    stroke-linecap="butt"
     transform="scale(1)"
     points="23,24.700000000000003,9.5,71.2,30.799999999999997,193.1,224.7,184.1,224.7,24.700000000000003,163.8,4.299999999999997,122.9,81.4,148.5,118.4,115.1,144.8,78.8,93.1,124.4,57.7,83.9,9.099999999999994"
   >
     <title>`S`.geometry</title>
   </polygon>
   <g fill="none">
-    <path
-      d="M 107.44181470784558 37.35017764941465 L 64.77858631188535 32.371782388852125"
+    <line
+      x1="107.44181470784558"
+      y1="37.35017764941465"
+      x2="64.77858631188535"
+      y2="32.371782388852125"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="0.65"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`r3`.rayLine</title>
   </g>
@@ -75,23 +78,27 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 224.70000000000002 146.24920250062948 L 213.66097594284096 148.1706477319616"
+    <line
+      x1="224.70000000000002"
+      y1="146.24920250062948"
+      x2="213.66097594284096"
+      y2="148.1706477319616"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#path-trace__registry-RockfallLlama5064-`r1`.icon-endArrowId)"
     />
     <title>`r1`.icon</title>
   </g>
   <g fill="none">
-    <path
-      d="M 224.70000000000002 146.24920250062948 L 28.578438290818482 180.38599190848706"
+    <line
+      x1="224.70000000000002"
+      y1="146.24920250062948"
+      x2="28.578438290818482"
+      y2="180.38599190848706"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="0.65"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`r1`.rayLine</title>
   </g>
@@ -112,23 +119,27 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 28.578438290818482 180.38599190848706 L 33.988535166603924 170.57360944395236"
+    <line
+      x1="28.578438290818482"
+      y1="180.38599190848706"
+      x2="33.988535166603924"
+      y2="170.57360944395236"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#path-trace__registry-RockfallLlama5064-`r2`.icon-endArrowId)"
     />
     <title>`r2`.icon</title>
   </g>
   <g fill="none">
-    <path
-      d="M 28.578438290818482 180.38599190848706 L 107.44181470784558 37.35017764941465"
+    <line
+      x1="28.578438290818482"
+      y1="180.38599190848706"
+      x2="107.44181470784558"
+      y2="37.35017764941465"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="0.65"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`r2`.rayLine</title>
   </g>
@@ -149,23 +160,27 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 183.54928213660247 82.36935566371821 L 189.61734777099048 91.78904803962727"
+    <line
+      x1="183.54928213660247"
+      y1="82.36935566371821"
+      x2="189.61734777099048"
+      y2="91.78904803962727"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#000000"
-      stroke-linecap="butt"
       marker-end="url(#path-trace__registry-RockfallLlama5064-`r0`.icon-endArrowId)"
     />
     <title>`r0`.icon</title>
   </g>
   <g fill="none">
-    <path
-      d="M 183.54928213660247 82.36935566371821 L 224.70000000000002 146.24920250062948"
+    <line
+      x1="183.54928213660247"
+      y1="82.36935566371821"
+      x2="224.70000000000002"
+      y2="146.24920250062948"
+      stroke="#000000"
       stroke-opacity="1"
       stroke-width="0.65"
-      stroke="#000000"
-      stroke-linecap="butt"
     />
     <title>`r0`.rayLine</title>
   </g>
@@ -400,12 +415,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 224.70000000000002 146.24920250062948 L 213.49500094102882 146.24920250062948"
+    <line
+      x1="224.70000000000002"
+      y1="146.24920250062948"
+      x2="213.49500094102882"
+      y2="146.24920250062948"
+      stroke="#55aa55"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#55aa55"
-      stroke-linecap="butt"
       marker-end="url(#path-trace__registry-RockfallLlama5064-16:0:normalArrow-endArrowId)"
     />
     <title>16:0:normalArrow</title>
@@ -467,7 +484,6 @@
       stroke="#666666"
       stroke-opacity="1"
       stroke-width="1"
-      stroke-linecap="butt"
       rx="2"
       transform="rotate(0, 183.54928213660247, 82.36935566371821)"
     >
@@ -481,7 +497,6 @@
       stroke="#666666"
       stroke-opacity="1"
       stroke-width="0.8"
-      stroke-linecap="butt"
       r="1.155"
     >
       <title>10:0:flash</title>
@@ -494,7 +509,6 @@
       stroke="#666666"
       stroke-opacity="1"
       stroke-width="1"
-      stroke-linecap="butt"
       r="6.2700000000000005"
     >
       <title>10:0:outerLens</title>
@@ -507,7 +521,6 @@
       stroke="#666666"
       stroke-opacity="1"
       stroke-width="1"
-      stroke-linecap="butt"
       r="4.125"
     >
       <title>`C`.innerLens</title>
@@ -574,12 +587,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 28.578438290818482 180.38599190848706 L 39.616202799070166 178.45732591976054"
+    <line
+      x1="28.578438290818482"
+      y1="180.38599190848706"
+      x2="39.616202799070166"
+      y2="178.45732591976054"
+      stroke="#55aa55"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#55aa55"
-      stroke-linecap="butt"
       marker-end="url(#path-trace__registry-RockfallLlama5064-16:1:normalArrow-endArrowId)"
     />
     <title>16:1:normalArrow</title>
@@ -654,12 +669,14 @@
         fill-opacity="1"
       />
     </marker>
-    <path
-      d="M 107.44181470784558 37.35017764941465 L 98.83389709145032 44.52344232974403"
+    <line
+      x1="107.44181470784558"
+      y1="37.35017764941465"
+      x2="98.83389709145032"
+      y2="44.52344232974403"
+      stroke="#55aa55"
       stroke-opacity="1"
       stroke-width="1"
-      stroke="#55aa55"
-      stroke-linecap="butt"
       marker-end="url(#path-trace__registry-RockfallLlama5064-16:2:normalArrow-endArrowId)"
     />
     <title>16:2:normalArrow</title>
