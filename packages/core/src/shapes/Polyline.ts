@@ -17,6 +17,8 @@ export interface PolylineProps<T>
     Fill<T>,
     Scale<T>,
     Poly<T> {
+  // `stroke-linecap` only takes effect on <altGlyph>, <path>, <polyline>, <line>, <text>, <textPath>, <tref>, and <tspan>.
+  // https://www.w3docs.com/learn-css/stroke-linecap.html
   strokeLinecap: StrV;
 }
 

@@ -7,6 +7,8 @@ import { Canvas, Context, sampleVector } from "./Samplers.js";
 export interface LineProps<T> extends Named<T>, Stroke<T>, Arrow<T>, Fill<T> {
   start: VectorV<T>;
   end: VectorV<T>;
+  // `stroke-linecap` only takes effect on <altGlyph>, <path>, <polyline>, <line>, <text>, <textPath>, <tref>, and <tspan>.
+  // https://www.w3docs.com/learn-css/stroke-linecap.html
   strokeLinecap: StrV;
 }
 
