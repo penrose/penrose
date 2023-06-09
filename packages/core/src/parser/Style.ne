@@ -545,7 +545,7 @@ expr_literal
   # |  transformExpr 
 
 list -> "[" expr_list "]" {% 
-  ([lbracket, , exprs, , rbracket]): List<C> => ({
+  ([lbracket, exprs, rbracket]): List<C> => ({
     ...nodeData,
     ...rangeBetween(lbracket, rbracket),
     tag: 'List',
