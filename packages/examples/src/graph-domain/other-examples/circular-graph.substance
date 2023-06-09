@@ -1,0 +1,40 @@
+Vertex n00
+Vertex n01
+Vertex n02
+Vertex n03
+Vertex n04
+Vertex n05
+Vertex n06
+Vertex n07
+Vertex n08
+Vertex n09
+Vertex n10
+Vertex n11
+Vertex n12
+Vertex n13
+Vertex n14
+Vertex n15
+Vertex n16
+Vertex n17
+Vertex n18
+Vertex n19
+Edge e00 := MakeEdge(n00, n01)
+Edge e01 := MakeEdge(n01, n02)
+Edge e02 := MakeEdge(n02, n03)
+Edge e03 := MakeEdge(n03, n04)
+Edge e04 := MakeEdge(n04, n05)
+Edge e05 := MakeEdge(n05, n06)
+Edge e06 := MakeEdge(n06, n07)
+Edge e07 := MakeEdge(n07, n08)
+Edge e08 := MakeEdge(n08, n09)
+Edge e09 := MakeEdge(n09, n10)
+Edge e10 := MakeEdge(n10, n11)
+Edge e11 := MakeEdge(n11, n12)
+Edge e12 := MakeEdge(n12, n13)
+Edge e13 := MakeEdge(n13, n14)
+Edge e14 := MakeEdge(n14, n15)
+Edge e15 := MakeEdge(n15, n16)
+Edge e16 := MakeEdge(n16, n17)
+Edge e17 := MakeEdge(n17, n18)
+Edge e18 := MakeEdge(n18, n19)
+Edge e19 := MakeEdge(n19, n00)

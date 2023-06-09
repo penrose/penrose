@@ -1,0 +1,96 @@
+Vertex n0x0
+Vertex n0x1
+Vertex n0x2
+Vertex n0x3
+Vertex n0x4
+Vertex n0x5
+Vertex n1x0
+Vertex n1x1
+Vertex n1x2
+Vertex n1x3
+Vertex n1x4
+Vertex n1x5
+Vertex n2x0
+Vertex n2x1
+Vertex n2x2
+Vertex n2x3
+Vertex n2x4
+Vertex n2x5
+Vertex n3x0
+Vertex n3x1
+Vertex n3x2
+Vertex n3x3
+Vertex n3x4
+Vertex n3x5
+Vertex n4x0
+Vertex n4x1
+Vertex n4x2
+Vertex n4x3
+Vertex n4x4
+Vertex n4x5
+Vertex n5x0
+Vertex n5x1
+Vertex n5x2
+Vertex n5x3
+Vertex n5x4
+Vertex n5x5
+Edge e0 := MakeEdge(n0x0, n1x0)
+Edge e1 := MakeEdge(n0x0, n0x1)
+Edge e2 := MakeEdge(n0x1, n1x1)
+Edge e3 := MakeEdge(n0x1, n0x2)
+Edge e4 := MakeEdge(n0x2, n1x2)
+Edge e5 := MakeEdge(n0x2, n0x3)
+Edge e6 := MakeEdge(n0x3, n1x3)
+Edge e7 := MakeEdge(n0x3, n0x4)
+Edge e8 := MakeEdge(n0x4, n1x4)
+Edge e9 := MakeEdge(n0x4, n0x5)
+Edge e10 := MakeEdge(n0x5, n1x5)
+Edge e11 := MakeEdge(n1x0, n2x0)
+Edge e12 := MakeEdge(n1x0, n1x1)
+Edge e13 := MakeEdge(n1x1, n2x1)
+Edge e14 := MakeEdge(n1x1, n1x2)
+Edge e15 := MakeEdge(n1x2, n2x2)
+Edge e16 := MakeEdge(n1x2, n1x3)
+Edge e17 := MakeEdge(n1x3, n2x3)
+Edge e18 := MakeEdge(n1x3, n1x4)
+Edge e19 := MakeEdge(n1x4, n2x4)
+Edge e20 := MakeEdge(n1x4, n1x5)
+Edge e21 := MakeEdge(n1x5, n2x5)
+Edge e22 := MakeEdge(n2x0, n3x0)
+Edge e23 := MakeEdge(n2x0, n2x1)
+Edge e24 := MakeEdge(n2x1, n3x1)
+Edge e25 := MakeEdge(n2x1, n2x2)
+Edge e26 := MakeEdge(n2x2, n3x2)
+Edge e27 := MakeEdge(n2x2, n2x3)
+Edge e28 := MakeEdge(n2x3, n3x3)
+Edge e29 := MakeEdge(n2x3, n2x4)
+Edge e30 := MakeEdge(n2x4, n3x4)
+Edge e31 := MakeEdge(n2x4, n2x5)
+Edge e32 := MakeEdge(n2x5, n3x5)
+Edge e33 := MakeEdge(n3x0, n4x0)
+Edge e34 := MakeEdge(n3x0, n3x1)
+Edge e35 := MakeEdge(n3x1, n4x1)
+Edge e36 := MakeEdge(n3x1, n3x2)
+Edge e37 := MakeEdge(n3x2, n4x2)
+-- Edge e38 := MakeEdge(n3x2, n3x3)
+Edge e39 := MakeEdge(n3x3, n4x3)
+Edge e40 := MakeEdge(n3x3, n3x4)
+Edge e41 := MakeEdge(n3x4, n4x4)
+Edge e42 := MakeEdge(n3x4, n3x5)
+Edge e43 := MakeEdge(n3x5, n4x5)
+Edge e44 := MakeEdge(n4x0, n5x0)
+Edge e45 := MakeEdge(n4x0, n4x1)
+Edge e46 := MakeEdge(n4x1, n5x1)
+Edge e47 := MakeEdge(n4x1, n4x2)
+Edge e48 := MakeEdge(n4x2, n5x2)
+Edge e49 := MakeEdge(n4x2, n4x3)
+Edge e50 := MakeEdge(n4x3, n5x3)
+Edge e51 := MakeEdge(n4x3, n4x4)
+Edge e52 := MakeEdge(n4x4, n5x4)
+Edge e53 := MakeEdge(n4x4, n4x5)
+Edge e54 := MakeEdge(n4x5, n5x5)
+Edge e55 := MakeEdge(n5x0, n5x1)
+Edge e56 := MakeEdge(n5x1, n5x2)
+Edge e57 := MakeEdge(n5x2, n5x3)
+Edge e58 := MakeEdge(n5x3, n5x4)
+Edge e59 := MakeEdge(n5x4, n5x5)
