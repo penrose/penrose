@@ -16,7 +16,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_RAND_SDC`.arrow</title>
   </g>
   <polyline
@@ -251,7 +251,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_BBN_RAND`.arrow</title>
   </g>
   <circle
@@ -362,7 +362,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_LL_NASA`.arrow</title>
   </g>
   <g>
@@ -372,7 +372,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_MIT_LL`.arrow</title>
   </g>
   <circle
@@ -495,7 +495,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_UCLA_SRI`.arrow</title>
   </g>
   <g>
@@ -505,7 +505,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_SRI_Utah`.arrow</title>
   </g>
   <g>
@@ -515,7 +515,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_SRI_BBN`.arrow</title>
   </g>
   <circle
@@ -563,7 +563,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_SRI_UCSB`.arrow</title>
   </g>
   <circle
@@ -686,7 +686,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_SDC_UCSB`.arrow</title>
   </g>
   <circle
@@ -785,7 +785,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_UCSB_Utah`.arrow</title>
   </g>
   <circle
@@ -896,7 +896,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_NASA_UCSB`.arrow</title>
   </g>
   <g>
@@ -906,7 +906,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_UCLA_UCSB`.arrow</title>
   </g>
   <circle
@@ -1030,7 +1030,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_HARV_MIT`.arrow</title>
   </g>
   <circle
@@ -1078,7 +1078,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_BBN_HARV`.arrow</title>
   </g>
   <circle
@@ -1340,7 +1340,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_CWRU_CMU`.arrow</title>
   </g>
   <circle
@@ -1451,7 +1451,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_BBN_MIT`.arrow</title>
   </g>
   <circle
@@ -1524,7 +1524,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_BBN_CWRU`.arrow</title>
   </g>
   <circle

@@ -27,7 +27,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="round"
-    ></path>
+    />
     <title>`eki`.segment</title>
   </g>
   <g>
@@ -37,7 +37,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="round"
-    ></path>
+    />
     <title>`elj`.segment</title>
   </g>
   <g>
@@ -47,24 +47,26 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="round"
-    ></path>
+    />
     <title>`eml`.segment</title>
   </g>
   <g>
-    <filter id="`hli`.icon-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="halfedge-mesh__`hli`.icon-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -73,7 +75,7 @@
       stroke-width="2"
       stroke-opacity="1"
       d="M 202.59256020546232 91.33432918516228 L 212.03614594604045 97.56479265493023 L 117.84281908156544 116.87407720854591"
-    ></path>
+    />
     <title>`hli`.icon</title>
   </g>
   <text
@@ -104,7 +106,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="round"
-    ></path>
+    />
     <title>`eij`.segment</title>
   </g>
   <g>
@@ -114,24 +116,26 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="round"
-    ></path>
+    />
     <title>`ejk`.segment</title>
   </g>
   <g>
-    <filter id="`hki`.icon-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="halfedge-mesh__`hki`.icon-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -140,7 +144,7 @@
       stroke-width="2"
       stroke-opacity="1"
       d="M 281.7111194047547 153.01631076332404 L 284.2539454728176 141.99206372485003 L 337.1707273104644 226.63894663027614"
-    ></path>
+    />
     <title>`hki`.icon</title>
   </g>
   <text
@@ -165,20 +169,22 @@
     next-&gt;next
   </text>
   <g>
-    <filter id="`hji`.icon-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="halfedge-mesh__`hji`.icon-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -187,7 +193,7 @@
       stroke-width="2"
       stroke-opacity="1"
       d="M 204.0015348707142 151.63848152031758 L 215.16518408223604 149.80192833063003 L 129.0378110340411 269.8471470449973"
-    ></path>
+    />
     <title>`hji`.icon</title>
   </g>
   <text
@@ -218,24 +224,26 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="round"
-    ></path>
+    />
     <title>`eil`.segment</title>
   </g>
   <g>
-    <filter id="`iml`.icon-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="halfedge-mesh__`iml`.icon-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -243,7 +251,7 @@
       fill="#1b1f8a"
       fill-opacity="0.2"
       d="M 264.31975477819634 95.01316311858973 L 112.48926342476543 3.069533449065233 L 75.93309125296557 133.63173423402253 Z "
-    ></path>
+    />
     <title>`iml`.icon</title>
   </g>
   <g>
@@ -253,7 +261,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="round"
-    ></path>
+    />
     <title>`eim`.segment</title>
   </g>
   <circle
@@ -267,20 +275,22 @@
     <title>`i`.icon</title>
   </circle>
   <g>
-    <filter id="`hij`.icon-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="halfedge-mesh__`hij`.icon-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -289,7 +299,7 @@
       stroke-width="2"
       stroke-opacity="1"
       d="M 155.71002626396262 273.8413537265357 L 144.5463770524408 275.67790691622326 L 230.67375010063571 155.63268820185598"
-    ></path>
+    />
     <title>`hij`.icon</title>
   </g>
   <text
@@ -314,20 +324,22 @@
     h
   </text>
   <g>
-    <filter id="`hjk`.icon-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="halfedge-mesh__`hjk`.icon-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -336,7 +348,7 @@
       stroke-width="2"
       stroke-opacity="1"
       d="M 294.25542153930843 267.1189700581287 L 303.98183880410613 272.8979663611125 L 164.93768319854453 308.29630075933756"
-    ></path>
+    />
     <title>`hjk`.icon</title>
   </g>
   <text
@@ -371,20 +383,22 @@
     <title>`j`.icon</title>
   </circle>
   <g>
-    <filter id="`ijk`.icon-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="halfedge-mesh__`ijk`.icon-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -392,7 +406,7 @@
       fill="#1b1f8a"
       fill-opacity="0.2"
       d="M 264.31975477819634 95.01316311858973 L 92.06500285237152 335.1036086724508 L 370.1533237543782 264.30693740886267 Z "
-    ></path>
+    />
     <title>`ijk`.icon</title>
   </g>
   <circle
@@ -406,20 +420,22 @@
     <title>`k`.icon</title>
   </circle>
   <g>
-    <filter id="`hil`.icon-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="halfedge-mesh__`hil`.icon-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -428,7 +444,7 @@
       stroke-width="2"
       stroke-opacity="1"
       d="M 127.53644516636041 139.3859117235871 L 118.09285942578228 133.15544825381915 L 212.28618629025732 113.84616370020348"
-    ></path>
+    />
     <title>`hil`.icon</title>
   </g>
   <text
@@ -473,20 +489,22 @@
     <title>`m`.icon</title>
   </circle>
   <g>
-    <filter id="`jil`.icon-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="halfedge-mesh__`jil`.icon-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -494,7 +512,7 @@
       fill="#1b1f8a"
       fill-opacity="0.2"
       d="M 92.06500285237152 335.1036086724508 L 264.31975477819634 95.01316311858973 L 75.93309125296557 133.63173423402253 Z "
-    ></path>
+    />
     <title>`jil`.icon</title>
   </g>
 </svg>

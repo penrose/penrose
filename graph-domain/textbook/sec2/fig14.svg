@@ -16,7 +16,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_p2_p6`.arrow</title>
   </g>
   <g>
@@ -26,7 +26,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_p2_p3`.arrow</title>
   </g>
   <g>
@@ -36,7 +36,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_p0_p2`.arrow</title>
   </g>
   <circle
@@ -81,7 +81,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_p4_p5`.arrow</title>
   </g>
   <g>
@@ -91,7 +91,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_p4_p6`.arrow</title>
   </g>
   <g>
@@ -101,7 +101,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_p0_p4`.arrow</title>
   </g>
   <circle
@@ -146,7 +146,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_p0_p1`.arrow</title>
   </g>
   <g>
@@ -156,7 +156,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_p1_p3`.arrow</title>
   </g>
   <g>
@@ -166,7 +166,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_p1_p5`.arrow</title>
   </g>
   <circle
@@ -211,7 +211,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_p3_p7`.arrow</title>
   </g>
   <circle
@@ -256,7 +256,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_p6_p7`.arrow</title>
   </g>
   <circle
@@ -301,7 +301,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_p5_p7`.arrow</title>
   </g>
   <circle

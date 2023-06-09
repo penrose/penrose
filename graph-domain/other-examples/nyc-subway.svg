@@ -16,7 +16,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Broadway_CentralPark`.arrow</title>
   </g>
   <g>
@@ -26,7 +26,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_CentralPark_TimesSquare`.arrow</title>
   </g>
   <polyline
@@ -264,7 +264,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_TimesSquare_GrandCentral`.arrow</title>
   </g>
   <g>
@@ -274,7 +274,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_GrandCentral_WallStreet`.arrow</title>
   </g>
   <rect
@@ -325,7 +325,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_GrandCentral_UnionSquare`.arrow</title>
   </g>
   <rect
@@ -351,7 +351,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_BarclaysCenter_ConeyIsland`.arrow</title>
   </g>
   <rect
@@ -418,7 +418,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_TimesSquare_UnionSquare`.arrow</title>
   </g>
   <rect
@@ -535,7 +535,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_FultonStreet_BarclaysCenter`.arrow</title>
   </g>
   <rect
@@ -586,7 +586,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_JFKAirport_FultonStreet`.arrow</title>
   </g>
   <g>
@@ -596,7 +596,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_WallStreet_FultonStreet`.arrow</title>
   </g>
   <rect
@@ -827,7 +827,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_UnionSquare_Broadway`.arrow</title>
   </g>
   <rect

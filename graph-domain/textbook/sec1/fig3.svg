@@ -22,20 +22,16 @@
     <title>`e12`.arrow</title>
   </circle>
   <g>
-    <filter id="`e2`.arrow-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter id="fig3__`e2`.arrow-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -44,24 +40,20 @@
       stroke-width="1"
       stroke-opacity="1"
       d="M 177.07958714649632 292.36857831678293 Q 252.86017830302544 304.1341907756952 328.66095098055894 315.7690734160665"
-    ></path>
+    />
     <title>`e2`.arrow</title>
   </g>
   <g>
-    <filter id="`e7`.arrow-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter id="fig3__`e7`.arrow-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -70,7 +62,7 @@
       stroke-width="1"
       stroke-opacity="1"
       d="M 328.66095098055894 315.7690734160665 Q 295.4905616136259 278.8646136216487 262.293810661494 241.98386512471774"
-    ></path>
+    />
     <title>`e7`.arrow</title>
   </g>
   <circle
@@ -121,20 +113,22 @@
     <title>`e16`.arrow</title>
   </circle>
   <g>
-    <filter id="`e9m2`.arrow-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="fig3__`e9m2`.arrow-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -143,24 +137,26 @@
       stroke-width="1"
       stroke-opacity="1"
       d="M 262.293810661494 241.98386512471774 Q 262.66409192343826 305.3728794415822 243.28927273317424 365.72949155343923"
-    ></path>
+    />
     <title>`e9m2`.arrow</title>
   </g>
   <g>
-    <filter id="`e9m1`.arrow-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="fig3__`e9m1`.arrow-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -169,24 +165,20 @@
       stroke-width="1"
       stroke-opacity="1"
       d="M 262.293810661494 241.98386512471774 Q 242.8925350851124 302.3364141322217 243.28927273317424 365.72949155343923"
-    ></path>
+    />
     <title>`e9m1`.arrow</title>
   </g>
   <g>
-    <filter id="`e4`.arrow-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter id="fig3__`e4`.arrow-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -195,7 +187,7 @@
       stroke-width="1"
       stroke-opacity="1"
       d="M 177.07958714649632 292.36857831678293 Q 210.21409535491043 329.022261307054 243.28927273317424 365.72949155343923"
-    ></path>
+    />
     <title>`e4`.arrow</title>
   </g>
   <circle
@@ -234,20 +226,22 @@
     Washington
   </text>
   <g>
-    <filter id="`e5m2`.arrow-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="fig3__`e5m2`.arrow-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -256,24 +250,20 @@
       stroke-width="1"
       stroke-opacity="1"
       d="M 120.10534621696947 201.20933202228716 Q 73.63238877522564 170.2885481282276 41.167092546414636 124.88111271528211"
-    ></path>
+    />
     <title>`e5m2`.arrow</title>
   </g>
   <g>
-    <filter id="`e6`.arrow-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter id="fig3__`e6`.arrow-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -282,24 +272,26 @@
       stroke-width="1"
       stroke-opacity="1"
       d="M 120.10534621696947 201.20933202228716 Q 65.2486098613092 218.21420860913116 10.429025365373661 235.33847522178343"
-    ></path>
+    />
     <title>`e6`.arrow</title>
   </g>
   <g>
-    <filter id="`e1m1`.arrow-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="fig3__`e1m1`.arrow-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -308,7 +300,7 @@
       stroke-width="1"
       stroke-opacity="1"
       d="M 177.07958714649632 292.36857831678293 Q 148.58580090711496 246.7931212576117 120.10534621696947 201.20933202228716"
-    ></path>
+    />
     <title>`e1m1`.arrow</title>
   </g>
   <circle
@@ -324,20 +316,22 @@
     <title>`e11`.arrow</title>
   </circle>
   <g>
-    <filter id="`e5m1`.arrow-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="fig3__`e5m1`.arrow-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -346,24 +340,26 @@
       stroke-width="1"
       stroke-opacity="1"
       d="M 120.10534621696947 201.20933202228716 Q 87.53517846532039 155.91035420140616 41.167092546414636 124.88111271528211"
-    ></path>
+    />
     <title>`e5m1`.arrow</title>
   </g>
   <g>
-    <filter id="`e1m2`.arrow-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="fig3__`e1m2`.arrow-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -372,24 +368,26 @@
       stroke-width="1"
       stroke-opacity="1"
       d="M 177.07958714649632 292.36857831678293 Q 131.62581099860734 257.3930613677791 120.10534621696947 201.20933202228716"
-    ></path>
+    />
     <title>`e1m2`.arrow</title>
   </g>
   <g>
-    <filter id="`e1m3`.arrow-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="fig3__`e1m3`.arrow-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -398,7 +396,7 @@
       stroke-width="1"
       stroke-opacity="1"
       d="M 177.07958714649632 292.36857831678293 Q 165.54584995622542 236.19314418475432 120.10534621696947 201.20933202228716"
-    ></path>
+    />
     <title>`e1m3`.arrow</title>
   </g>
   <circle
@@ -449,20 +447,16 @@
     <title>`e13`.arrow</title>
   </circle>
   <g>
-    <filter id="`e8`.arrow-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter id="fig3__`e8`.arrow-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -471,7 +465,7 @@
       stroke-width="1"
       stroke-opacity="1"
       d="M 41.167092546414636 124.88111271528211 Q 25.829834528592073 180.11863647270036 10.429025365373661 235.33847522178343"
-    ></path>
+    />
     <title>`e8`.arrow</title>
   </g>
   <circle
@@ -569,20 +563,22 @@
     <title>`e14`.arrow</title>
   </circle>
   <g>
-    <filter id="`e3m2`.arrow-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="fig3__`e3m2`.arrow-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -591,24 +587,26 @@
       stroke-width="1"
       stroke-opacity="1"
       d="M 177.07958714649632 292.36857831678293 Q 224.7314739257328 275.70830534394196 262.293810661494 241.98386512471774"
-    ></path>
+    />
     <title>`e3m2`.arrow</title>
   </g>
   <g>
-    <filter id="`e3m1`.arrow-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="fig3__`e3m1`.arrow-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -617,7 +615,7 @@
       stroke-width="1"
       stroke-opacity="1"
       d="M 177.07958714649632 292.36857831678293 Q 214.55155001552433 258.4912913630668 262.293810661494 241.98386512471774"
-    ></path>
+    />
     <title>`e3m1`.arrow</title>
   </g>
   <circle

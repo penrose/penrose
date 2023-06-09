@@ -22,7 +22,7 @@
   </polyline>
   <g>
     <marker
-      id="registry-ClamshellKookabura228-`c`.arrow1-endArrowId"
+      id="open-elastic-curve__registry-ClamshellKookabura228-`c`.arrow1-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -35,7 +35,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#22a34d"
         fill-opacity="0.6588235294117647"
-      ></path>
+      />
     </marker>
     <path
       d="M 170 200 L 101.96964218870696 160.60217466575784"
@@ -43,13 +43,13 @@
       stroke-width="1.5"
       stroke="#22a34d"
       stroke-linecap="butt"
-      marker-end="url(#registry-ClamshellKookabura228-`c`.arrow1-endArrowId)"
-    ></path>
+      marker-end="url(#open-elastic-curve__registry-ClamshellKookabura228-`c`.arrow1-endArrowId)"
+    />
     <title>`c`.arrow1</title>
   </g>
   <g>
     <marker
-      id="registry-ClamshellKookabura228-`c`.arrow2-endArrowId"
+      id="open-elastic-curve__registry-ClamshellKookabura228-`c`.arrow2-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -62,7 +62,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#22a34d"
         fill-opacity="0.6588235294117647"
-      ></path>
+      />
     </marker>
     <path
       d="M 430 200 L 485.61132878057936 144.43293838740166"
@@ -70,8 +70,8 @@
       stroke-width="1.5"
       stroke="#22a34d"
       stroke-linecap="butt"
-      marker-end="url(#registry-ClamshellKookabura228-`c`.arrow2-endArrowId)"
-    ></path>
+      marker-end="url(#open-elastic-curve__registry-ClamshellKookabura228-`c`.arrow2-endArrowId)"
+    />
     <title>`c`.arrow2</title>
   </g>
 </svg>

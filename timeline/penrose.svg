@@ -16,7 +16,7 @@
       stroke-width="2"
       stroke="#d3d3d3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`q1_2025`.slotEnd</title>
   </g>
   <g>
@@ -26,7 +26,7 @@
       stroke-width="2"
       stroke="#d3d3d3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`q1_2025`.slotBegin</title>
   </g>
   <g>
@@ -36,7 +36,7 @@
       stroke-width="2"
       stroke="#d3d3d3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`q2_2025`.slotEnd</title>
   </g>
   <g>
@@ -46,7 +46,7 @@
       stroke-width="2"
       stroke="#d3d3d3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`q2_2025`.slotBegin</title>
   </g>
   <g>
@@ -56,7 +56,7 @@
       stroke-width="2"
       stroke="#d3d3d3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`q1_2023`.slotEnd</title>
   </g>
   <g>
@@ -66,7 +66,7 @@
       stroke-width="2"
       stroke="#d3d3d3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`q1_2023`.slotBegin</title>
   </g>
   <g>
@@ -76,7 +76,7 @@
       stroke-width="2"
       stroke="#d3d3d3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`q4_2023`.slotEnd</title>
   </g>
   <g>
@@ -86,7 +86,7 @@
       stroke-width="2"
       stroke="#d3d3d3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`q4_2023`.slotBegin</title>
   </g>
   <g>
@@ -96,7 +96,7 @@
       stroke-width="2"
       stroke="#d3d3d3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`q3_2024`.slotEnd</title>
   </g>
   <g>
@@ -106,7 +106,7 @@
       stroke-width="2"
       stroke="#d3d3d3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`q3_2024`.slotBegin</title>
   </g>
   <g>
@@ -116,7 +116,7 @@
       stroke-width="2"
       stroke="#d3d3d3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`q4_2024`.slotEnd</title>
   </g>
   <g>
@@ -126,7 +126,7 @@
       stroke-width="2"
       stroke="#d3d3d3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`q4_2024`.slotBegin</title>
   </g>
   <g>
@@ -136,7 +136,7 @@
       stroke-width="2"
       stroke="#d3d3d3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`q2_2024`.slotEnd</title>
   </g>
   <g>
@@ -146,7 +146,7 @@
       stroke-width="2"
       stroke="#d3d3d3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`q2_2024`.slotBegin</title>
   </g>
   <g>
@@ -156,7 +156,7 @@
       stroke-width="2"
       stroke="#d3d3d3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`q2_2023`.slotEnd</title>
   </g>
   <g>
@@ -166,7 +166,7 @@
       stroke-width="2"
       stroke="#d3d3d3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`q2_2023`.slotBegin</title>
   </g>
   <g>
@@ -176,7 +176,7 @@
       stroke-width="2"
       stroke="#d3d3d3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`q3_2023`.slotEnd</title>
   </g>
   <g>
@@ -186,7 +186,7 @@
       stroke-width="2"
       stroke="#d3d3d3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`q3_2023`.slotBegin</title>
   </g>
   <g>
@@ -196,7 +196,7 @@
       stroke-width="2"
       stroke="#d3d3d3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`q1_2024`.slotEnd</title>
   </g>
   <g>
@@ -206,7 +206,7 @@
       stroke-width="2"
       stroke="#d3d3d3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`q1_2024`.slotBegin</title>
   </g>
   <g>
@@ -216,7 +216,7 @@
       stroke-width="2"
       stroke="#d3d3d3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>global.baseline</title>
   </g>
   <rect
@@ -728,7 +728,7 @@
       stroke-width="2"
       stroke="#d3d3d3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`y2023`.slotEnd</title>
   </g>
   <text
@@ -759,7 +759,7 @@
       stroke-width="2"
       stroke="#d3d3d3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`y2023`.slotBegin</title>
   </g>
   <g>
@@ -769,7 +769,7 @@
       stroke-width="2"
       stroke="#d3d3d3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`y2024`.slotEnd</title>
   </g>
   <text
@@ -800,7 +800,7 @@
       stroke-width="2"
       stroke="#d3d3d3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`y2024`.slotBegin</title>
   </g>
   <g>
@@ -810,7 +810,7 @@
       stroke-width="2"
       stroke="#d3d3d3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`y2025`.slotEnd</title>
   </g>
   <text
@@ -841,7 +841,7 @@
       stroke-width="2"
       stroke="#d3d3d3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`y2025`.slotBegin</title>
   </g>
   <text

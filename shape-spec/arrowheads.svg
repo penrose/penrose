@@ -25,7 +25,7 @@
       stroke-width="1"
       stroke="#ff0000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>const.vguide1</title>
   </g>
   <g>
@@ -35,7 +35,7 @@
       stroke-width="1"
       stroke="#ff0000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>const.vguide2</title>
   </g>
   <g>
@@ -45,7 +45,7 @@
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`none`.icon</title>
   </g>
   <g transform="rotate(0, 273.664, 70)translate(254.624, 66.336)">
@@ -71,22 +71,22 @@
             <path
               data-c="1D427"
               d="M40 442Q217 450 218 450H224V407L225 365Q233 378 245 391T289 422T362 448Q374 450 398 450Q428 450 448 447T491 434T529 402T551 346Q553 335 554 198V62H623V0H614Q596 3 489 3Q374 3 365 0H356V62H425V194V275Q425 348 416 373T371 399Q326 399 288 370T238 290Q236 281 235 171V62H304V0H295Q277 3 171 3Q64 3 46 0H37V62H106V210V303Q106 353 104 363T91 376Q77 380 50 380H37V442H40Z"
-            ></path>
+            />
             <path
               data-c="1D428"
               d="M287 -5Q228 -5 182 10T109 48T63 102T39 161T32 219Q32 272 50 314T94 382T154 423T214 446T265 452H279Q319 452 326 451Q428 439 485 376T542 221Q542 156 514 108T442 33Q384 -5 287 -5ZM399 230V250Q399 280 398 298T391 338T372 372T338 392T282 401Q241 401 212 380Q190 363 183 334T175 230Q175 202 175 189T177 153T183 118T195 91T215 68T245 56T287 50Q348 50 374 84Q388 101 393 132T399 230Z"
               transform="translate(639,0)"
-            ></path>
+            />
             <path
               data-c="1D427"
               d="M40 442Q217 450 218 450H224V407L225 365Q233 378 245 391T289 422T362 448Q374 450 398 450Q428 450 448 447T491 434T529 402T551 346Q553 335 554 198V62H623V0H614Q596 3 489 3Q374 3 365 0H356V62H425V194V275Q425 348 416 373T371 399Q326 399 288 370T238 290Q236 281 235 171V62H304V0H295Q277 3 171 3Q64 3 46 0H37V62H106V210V303Q106 353 104 363T91 376Q77 380 50 380H37V442H40Z"
               transform="translate(1214,0)"
-            ></path>
+            />
             <path
               data-c="1D41E"
               d="M32 225Q32 332 102 392T272 452H283Q382 452 436 401Q494 343 494 243Q494 226 486 222T440 217Q431 217 394 217T327 218H175V209Q175 177 179 154T196 107T236 69T306 50Q312 49 323 49Q376 49 410 85Q421 99 427 111T434 127T442 133T463 135H468Q494 135 494 117Q494 110 489 97T468 66T431 32T373 5T292 -6Q181 -6 107 55T32 225ZM383 276Q377 346 348 374T280 402Q253 402 230 390T195 357Q179 331 176 279V266H383V276Z"
               transform="translate(1853,0)"
-            ></path>
+            />
           </g>
         </g>
       </g>
@@ -94,7 +94,7 @@
   </g>
   <g>
     <marker
-      id="registry--`concave`.icon-startArrowId"
+      id="arrowheads__registry--`concave`.icon-startArrowId"
       markerUnits="strokeWidth"
       markerWidth="8"
       markerHeight="8"
@@ -107,10 +107,10 @@
         d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#000000"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <marker
-      id="registry--`concave`.icon-endArrowId"
+      id="arrowheads__registry--`concave`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="8"
       markerHeight="8"
@@ -123,7 +123,7 @@
         d="M0,0 A30,30,0,0,0,8,4 A30,30,0,0,0,0,8 L2.5,4 z"
         fill="#000000"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 26.5 140 L 183.5 140"
@@ -131,9 +131,9 @@
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-start="url(#registry--`concave`.icon-startArrowId)"
-      marker-end="url(#registry--`concave`.icon-endArrowId)"
-    ></path>
+      marker-start="url(#arrowheads__registry--`concave`.icon-startArrowId)"
+      marker-end="url(#arrowheads__registry--`concave`.icon-endArrowId)"
+    />
     <title>`concave`.icon</title>
   </g>
   <g transform="rotate(0, 273.672, 140)translate(242.24000000000004, 136.328)">
@@ -159,37 +159,37 @@
             <path
               data-c="1D41C"
               d="M447 131H458Q478 131 478 117Q478 112 471 95T439 51T377 9Q330 -6 286 -6Q196 -6 135 35Q39 96 39 222Q39 324 101 384Q169 453 286 453Q359 453 411 431T464 353Q464 319 445 302T395 284Q360 284 343 305T325 353Q325 380 338 396H333Q317 398 295 398H292Q280 398 271 397T245 390T218 373T197 338T183 283Q182 275 182 231Q182 199 184 180T193 132T220 85T270 57Q289 50 317 50H326Q385 50 414 115Q419 127 423 129T447 131Z"
-            ></path>
+            />
             <path
               data-c="1D428"
               d="M287 -5Q228 -5 182 10T109 48T63 102T39 161T32 219Q32 272 50 314T94 382T154 423T214 446T265 452H279Q319 452 326 451Q428 439 485 376T542 221Q542 156 514 108T442 33Q384 -5 287 -5ZM399 230V250Q399 280 398 298T391 338T372 372T338 392T282 401Q241 401 212 380Q190 363 183 334T175 230Q175 202 175 189T177 153T183 118T195 91T215 68T245 56T287 50Q348 50 374 84Q388 101 393 132T399 230Z"
               transform="translate(511,0)"
-            ></path>
+            />
             <path
               data-c="1D427"
               d="M40 442Q217 450 218 450H224V407L225 365Q233 378 245 391T289 422T362 448Q374 450 398 450Q428 450 448 447T491 434T529 402T551 346Q553 335 554 198V62H623V0H614Q596 3 489 3Q374 3 365 0H356V62H425V194V275Q425 348 416 373T371 399Q326 399 288 370T238 290Q236 281 235 171V62H304V0H295Q277 3 171 3Q64 3 46 0H37V62H106V210V303Q106 353 104 363T91 376Q77 380 50 380H37V442H40Z"
               transform="translate(1086,0)"
-            ></path>
+            />
             <path
               data-c="1D41C"
               d="M447 131H458Q478 131 478 117Q478 112 471 95T439 51T377 9Q330 -6 286 -6Q196 -6 135 35Q39 96 39 222Q39 324 101 384Q169 453 286 453Q359 453 411 431T464 353Q464 319 445 302T395 284Q360 284 343 305T325 353Q325 380 338 396H333Q317 398 295 398H292Q280 398 271 397T245 390T218 373T197 338T183 283Q182 275 182 231Q182 199 184 180T193 132T220 85T270 57Q289 50 317 50H326Q385 50 414 115Q419 127 423 129T447 131Z"
               transform="translate(1725,0)"
-            ></path>
+            />
             <path
               data-c="1D41A"
               d="M64 349Q64 399 107 426T255 453Q346 453 402 423T473 341Q478 327 478 310T479 196V77Q493 63 529 62Q549 62 553 57T558 31Q558 9 552 5T514 0H497H481Q375 0 367 56L356 46Q300 -6 210 -6Q130 -6 81 30T32 121Q32 188 111 226T332 272H350V292Q350 313 348 327T337 361T306 391T248 402T194 399H189Q204 376 204 354Q204 327 187 306T134 284Q97 284 81 305T64 349ZM164 121Q164 89 186 67T238 45Q274 45 307 63T346 108L350 117V226H347Q248 218 206 189T164 121Z"
               transform="translate(2236,0)"
-            ></path>
+            />
             <path
               data-c="1D42F"
               d="M401 444Q413 441 495 441Q568 441 574 444H580V382H510L409 156Q348 18 339 6Q331 -4 320 -4Q318 -4 313 -4T303 -3H288Q273 -3 264 12T221 102Q206 135 197 156L96 382H26V444H34Q49 441 145 441Q252 441 270 444H279V382H231L284 264Q335 149 338 149Q338 150 389 264T442 381Q442 382 418 382H394V444H401Z"
               transform="translate(2795,0)"
-            ></path>
+            />
             <path
               data-c="1D41E"
               d="M32 225Q32 332 102 392T272 452H283Q382 452 436 401Q494 343 494 243Q494 226 486 222T440 217Q431 217 394 217T327 218H175V209Q175 177 179 154T196 107T236 69T306 50Q312 49 323 49Q376 49 410 85Q421 99 427 111T434 127T442 133T463 135H468Q494 135 494 117Q494 110 489 97T468 66T431 32T373 5T292 -6Q181 -6 107 55T32 225ZM383 276Q377 346 348 374T280 402Q253 402 230 390T195 357Q179 331 176 279V266H383V276Z"
               transform="translate(3402,0)"
-            ></path>
+            />
           </g>
         </g>
       </g>
@@ -197,7 +197,7 @@
   </g>
   <g>
     <marker
-      id="registry--`straight`.icon-startArrowId"
+      id="arrowheads__registry--`straight`.icon-startArrowId"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -210,10 +210,10 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#000000"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <marker
-      id="registry--`straight`.icon-endArrowId"
+      id="arrowheads__registry--`straight`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -226,7 +226,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#000000"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 32.77000000000001 210 L 177.23 210"
@@ -234,9 +234,9 @@
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-start="url(#registry--`straight`.icon-startArrowId)"
-      marker-end="url(#registry--`straight`.icon-endArrowId)"
-    ></path>
+      marker-start="url(#arrowheads__registry--`straight`.icon-startArrowId)"
+      marker-end="url(#arrowheads__registry--`straight`.icon-endArrowId)"
+    />
     <title>`straight`.icon</title>
   </g>
   <g transform="rotate(0, 277.168, 210)translate(245.856, 202.832)">
@@ -262,42 +262,42 @@
             <path
               data-c="1D42C"
               d="M38 315Q38 339 45 360T70 404T127 440T223 453Q273 453 320 436L338 445L357 453H366Q380 453 383 447T386 403V387V355Q386 331 383 326T365 321H355H349Q333 321 329 324T324 341Q317 406 224 406H216Q123 406 123 353Q123 334 143 321T188 304T244 294T285 286Q305 281 325 273T373 237T412 172Q414 162 414 142Q414 -6 230 -6Q154 -6 117 22L68 -6H58Q44 -6 41 0T38 42V73Q38 85 38 101T37 122Q37 144 42 148T68 153H75Q87 153 91 151T97 147T103 132Q131 46 220 46H230Q257 46 265 47Q330 58 330 108Q330 127 316 142Q300 156 284 162Q271 168 212 178T122 202Q38 243 38 315Z"
-            ></path>
+            />
             <path
               data-c="1D42D"
               d="M272 49Q320 49 320 136V145V177H382V143Q382 106 380 99Q374 62 349 36T285 -2L272 -5H247Q173 -5 134 27Q109 46 102 74T94 160Q94 171 94 199T95 245V382H21V433H25Q58 433 90 456Q121 479 140 523T162 621V635H224V444H363V382H224V239V207V149Q224 98 228 81T249 55Q261 49 272 49Z"
               transform="translate(454,0)"
-            ></path>
+            />
             <path
               data-c="1D42B"
               d="M405 293T374 293T324 312T305 361Q305 378 312 394Q315 397 315 399Q305 399 294 394T266 375T238 329T222 249Q221 241 221 149V62H308V0H298Q280 3 161 3Q47 3 38 0H29V62H98V210V303Q98 353 96 363T83 376Q69 380 42 380H29V442H32L118 446Q204 450 205 450H210V414L211 378Q247 449 315 449H321Q384 449 413 422T442 360Q442 332 424 313Z"
               transform="translate(901,0)"
-            ></path>
+            />
             <path
               data-c="1D41A"
               d="M64 349Q64 399 107 426T255 453Q346 453 402 423T473 341Q478 327 478 310T479 196V77Q493 63 529 62Q549 62 553 57T558 31Q558 9 552 5T514 0H497H481Q375 0 367 56L356 46Q300 -6 210 -6Q130 -6 81 30T32 121Q32 188 111 226T332 272H350V292Q350 313 348 327T337 361T306 391T248 402T194 399H189Q204 376 204 354Q204 327 187 306T134 284Q97 284 81 305T64 349ZM164 121Q164 89 186 67T238 45Q274 45 307 63T346 108L350 117V226H347Q248 218 206 189T164 121Z"
               transform="translate(1375,0)"
-            ></path>
+            />
             <path
               data-c="1D422"
               d="M72 610Q72 649 98 672T159 695Q193 693 217 670T241 610Q241 572 217 549T157 525Q120 525 96 548T72 610ZM46 442L136 446L226 450H232V62H294V0H286Q271 3 171 3Q67 3 49 0H40V62H109V209Q109 358 108 362Q103 380 55 380H43V442H46Z"
               transform="translate(1934,0)"
-            ></path>
+            />
             <path
               data-c="1D420"
               d="M50 300Q50 368 105 409T255 450Q328 450 376 426L388 420Q435 455 489 455Q517 455 533 441T554 414T558 389Q558 367 544 353T508 339Q484 339 471 354T458 387Q458 397 462 400Q464 401 461 400Q459 400 454 399Q429 392 427 390Q454 353 459 328Q461 315 461 300Q461 240 419 202Q364 149 248 149Q185 149 136 172Q129 158 129 148Q129 105 170 93Q176 91 263 91Q273 91 298 91T334 91T366 89T400 85T432 77T466 64Q544 22 544 -69Q544 -114 506 -145Q438 -201 287 -201Q149 -201 90 -161T30 -70Q30 -58 33 -47T42 -27T54 -13T69 -1T82 6T94 12T101 15Q66 57 66 106Q66 151 90 187L97 197L89 204Q50 243 50 300ZM485 403H492Q491 404 488 404L485 403V403ZM255 200Q279 200 295 206T319 219T331 242T335 268T336 300Q336 337 333 352T317 380Q298 399 255 399Q228 399 211 392T187 371T178 345T176 312V300V289Q176 235 194 219Q215 200 255 200ZM287 -150Q357 -150 400 -128T443 -71Q443 -65 442 -61T436 -50T420 -37T389 -27T339 -21L308 -20Q276 -20 253 -20Q190 -20 180 -20T156 -26Q130 -38 130 -69Q130 -105 173 -127T287 -150Z"
               transform="translate(2253,0)"
-            ></path>
+            />
             <path
               data-c="1D421"
               d="M40 686L131 690Q222 694 223 694H229V533L230 372L238 381Q248 394 264 407T317 435T398 450Q428 450 448 447T491 434T529 402T551 346Q553 335 554 198V62H623V0H614Q596 3 489 3Q374 3 365 0H356V62H425V194V275Q425 348 416 373T371 399Q326 399 288 370T238 290Q236 281 235 171V62H304V0H295Q277 3 171 3Q64 3 46 0H37V62H106V332Q106 387 106 453T107 534Q107 593 105 605T91 620Q77 624 50 624H37V686H40Z"
               transform="translate(2828,0)"
-            ></path>
+            />
             <path
               data-c="1D42D"
               d="M272 49Q320 49 320 136V145V177H382V143Q382 106 380 99Q374 62 349 36T285 -2L272 -5H247Q173 -5 134 27Q109 46 102 74T94 160Q94 171 94 199T95 245V382H21V433H25Q58 433 90 456Q121 479 140 523T162 621V635H224V444H363V382H224V239V207V149Q224 98 228 81T249 55Q261 49 272 49Z"
               transform="translate(3467,0)"
-            ></path>
+            />
           </g>
         </g>
       </g>
@@ -305,7 +305,7 @@
   </g>
   <g>
     <marker
-      id="registry--`line`.icon-startArrowId"
+      id="arrowheads__registry--`line`.icon-startArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.5"
       markerHeight="14"
@@ -320,10 +320,10 @@
         d="M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6"
         fill="none"
         stroke-linecap="round"
-      ></path>
+      />
     </marker>
     <marker
-      id="registry--`line`.icon-endArrowId"
+      id="arrowheads__registry--`line`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.5"
       markerHeight="14"
@@ -338,7 +338,7 @@
         d="M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6"
         fill="none"
         stroke-linecap="round"
-      ></path>
+      />
     </marker>
     <path
       d="M 17.5 280 L 192.5 280"
@@ -346,9 +346,9 @@
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-start="url(#registry--`line`.icon-startArrowId)"
-      marker-end="url(#registry--`line`.icon-endArrowId)"
-    ></path>
+      marker-start="url(#arrowheads__registry--`line`.icon-startArrowId)"
+      marker-end="url(#arrowheads__registry--`line`.icon-endArrowId)"
+    />
     <title>`line`.icon</title>
   </g>
   <g transform="rotate(0, 275.608, 280)translate(261.176, 274.392)">
@@ -374,22 +374,22 @@
             <path
               data-c="1D425"
               d="M43 686L134 690Q225 694 226 694H232V62H301V0H292Q274 3 170 3Q67 3 49 0H40V62H109V332Q109 387 109 453T110 534Q110 593 108 605T94 620Q80 624 53 624H40V686H43Z"
-            ></path>
+            />
             <path
               data-c="1D422"
               d="M72 610Q72 649 98 672T159 695Q193 693 217 670T241 610Q241 572 217 549T157 525Q120 525 96 548T72 610ZM46 442L136 446L226 450H232V62H294V0H286Q271 3 171 3Q67 3 49 0H40V62H109V209Q109 358 108 362Q103 380 55 380H43V442H46Z"
               transform="translate(319,0)"
-            ></path>
+            />
             <path
               data-c="1D427"
               d="M40 442Q217 450 218 450H224V407L225 365Q233 378 245 391T289 422T362 448Q374 450 398 450Q428 450 448 447T491 434T529 402T551 346Q553 335 554 198V62H623V0H614Q596 3 489 3Q374 3 365 0H356V62H425V194V275Q425 348 416 373T371 399Q326 399 288 370T238 290Q236 281 235 171V62H304V0H295Q277 3 171 3Q64 3 46 0H37V62H106V210V303Q106 353 104 363T91 376Q77 380 50 380H37V442H40Z"
               transform="translate(638,0)"
-            ></path>
+            />
             <path
               data-c="1D41E"
               d="M32 225Q32 332 102 392T272 452H283Q382 452 436 401Q494 343 494 243Q494 226 486 222T440 217Q431 217 394 217T327 218H175V209Q175 177 179 154T196 107T236 69T306 50Q312 49 323 49Q376 49 410 85Q421 99 427 111T434 127T442 133T463 135H468Q494 135 494 117Q494 110 489 97T468 66T431 32T373 5T292 -6Q181 -6 107 55T32 225ZM383 276Q377 346 348 374T280 402Q253 402 230 390T195 357Q179 331 176 279V266H383V276Z"
               transform="translate(1277,0)"
-            ></path>
+            />
           </g>
         </g>
       </g>
@@ -397,7 +397,7 @@
   </g>
   <g>
     <marker
-      id="registry--`doubleLine`.icon-startArrowId"
+      id="arrowheads__registry--`doubleLine`.icon-startArrowId"
       markerUnits="strokeWidth"
       markerWidth="12.5"
       markerHeight="14"
@@ -412,10 +412,10 @@
         d="M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6 M 12 7 a -6 6.75 0 0 1 -6 -6 M 7 7 L 12 7 M 12 7 a -6 6.75 0 0 0 -6 6"
         fill="none"
         stroke-linecap="round"
-      ></path>
+      />
     </marker>
     <marker
-      id="registry--`doubleLine`.icon-endArrowId"
+      id="arrowheads__registry--`doubleLine`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="12.5"
       markerHeight="14"
@@ -430,7 +430,7 @@
         d="M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6 M 12 7 a -6 6.75 0 0 1 -6 -6 M 7 7 L 12 7 M 12 7 a -6 6.75 0 0 0 -6 6"
         fill="none"
         stroke-linecap="round"
-      ></path>
+      />
     </marker>
     <path
       d="M 32.5 350 L 177.5 350"
@@ -438,9 +438,9 @@
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-start="url(#registry--`doubleLine`.icon-startArrowId)"
-      marker-end="url(#registry--`doubleLine`.icon-endArrowId)"
-    ></path>
+      marker-start="url(#arrowheads__registry--`doubleLine`.icon-startArrowId)"
+      marker-end="url(#arrowheads__registry--`doubleLine`.icon-endArrowId)"
+    />
     <title>`doubleLine`.icon</title>
   </g>
   <g transform="rotate(0, 275.608, 350)translate(231.488, 344.392)">
@@ -466,52 +466,52 @@
             <path
               data-c="1D41D"
               d="M351 686L442 690Q533 694 534 694H540V389Q540 327 540 253T539 163Q539 97 541 83T555 66Q569 62 596 62H609V31Q609 0 608 0Q588 0 510 -3T412 -6Q411 -6 411 16V38L401 31Q337 -6 265 -6Q159 -6 99 58T38 224Q38 265 51 303T92 375T165 429T272 449Q359 449 417 412V507V555Q417 597 415 607T402 620Q388 624 361 624H348V686H351ZM411 350Q362 399 291 399Q278 399 256 392T218 371Q195 351 189 320T182 238V221Q182 179 183 159T191 115T212 74Q241 46 288 46Q358 46 404 100L411 109V350Z"
-            ></path>
+            />
             <path
               data-c="1D428"
               d="M287 -5Q228 -5 182 10T109 48T63 102T39 161T32 219Q32 272 50 314T94 382T154 423T214 446T265 452H279Q319 452 326 451Q428 439 485 376T542 221Q542 156 514 108T442 33Q384 -5 287 -5ZM399 230V250Q399 280 398 298T391 338T372 372T338 392T282 401Q241 401 212 380Q190 363 183 334T175 230Q175 202 175 189T177 153T183 118T195 91T215 68T245 56T287 50Q348 50 374 84Q388 101 393 132T399 230Z"
               transform="translate(639,0)"
-            ></path>
+            />
             <path
               data-c="1D42E"
               d="M40 442L134 446Q228 450 229 450H235V273V165Q235 90 238 74T254 52Q268 46 304 46H319Q352 46 380 67T419 121L420 123Q424 135 425 199Q425 201 425 207Q425 233 425 249V316Q425 354 423 363T410 376Q396 380 369 380H356V442L554 450V267Q554 84 556 79Q561 62 610 62H623V31Q623 0 622 0Q603 0 527 -3T432 -6Q431 -6 431 25V56L420 45Q373 6 332 -1Q313 -6 281 -6Q208 -6 165 14T109 87L107 98L106 230Q106 358 104 366Q96 380 50 380H37V442H40Z"
               transform="translate(1214,0)"
-            ></path>
+            />
             <path
               data-c="1D41B"
               d="M32 686L123 690Q214 694 215 694H221V409Q289 450 378 450Q479 450 539 387T600 221Q600 122 535 58T358 -6H355Q272 -6 203 53L160 1L129 0H98V301Q98 362 98 435T99 525Q99 591 97 604T83 620Q69 624 42 624H29V686H32ZM227 105L232 99Q237 93 242 87T258 73T280 59T306 49T339 45Q380 45 411 66T451 131Q457 160 457 230Q457 264 456 284T448 329T430 367T396 389T343 398Q282 398 235 355L227 348V105Z"
               transform="translate(1853,0)"
-            ></path>
+            />
             <path
               data-c="1D425"
               d="M43 686L134 690Q225 694 226 694H232V62H301V0H292Q274 3 170 3Q67 3 49 0H40V62H109V332Q109 387 109 453T110 534Q110 593 108 605T94 620Q80 624 53 624H40V686H43Z"
               transform="translate(2492,0)"
-            ></path>
+            />
             <path
               data-c="1D41E"
               d="M32 225Q32 332 102 392T272 452H283Q382 452 436 401Q494 343 494 243Q494 226 486 222T440 217Q431 217 394 217T327 218H175V209Q175 177 179 154T196 107T236 69T306 50Q312 49 323 49Q376 49 410 85Q421 99 427 111T434 127T442 133T463 135H468Q494 135 494 117Q494 110 489 97T468 66T431 32T373 5T292 -6Q181 -6 107 55T32 225ZM383 276Q377 346 348 374T280 402Q253 402 230 390T195 357Q179 331 176 279V266H383V276Z"
               transform="translate(2811,0)"
-            ></path>
+            />
             <path
               data-c="1D40B"
               d="M643 285Q641 280 629 148T612 4V0H39V62H147V624H39V686H51Q75 683 228 683Q415 685 425 686H439V624H304V62H352H378Q492 62 539 138Q551 156 558 178T569 214T576 255T581 289H643V285Z"
               transform="translate(3338,0)"
-            ></path>
+            />
             <path
               data-c="1D422"
               d="M72 610Q72 649 98 672T159 695Q193 693 217 670T241 610Q241 572 217 549T157 525Q120 525 96 548T72 610ZM46 442L136 446L226 450H232V62H294V0H286Q271 3 171 3Q67 3 49 0H40V62H109V209Q109 358 108 362Q103 380 55 380H43V442H46Z"
               transform="translate(4030,0)"
-            ></path>
+            />
             <path
               data-c="1D427"
               d="M40 442Q217 450 218 450H224V407L225 365Q233 378 245 391T289 422T362 448Q374 450 398 450Q428 450 448 447T491 434T529 402T551 346Q553 335 554 198V62H623V0H614Q596 3 489 3Q374 3 365 0H356V62H425V194V275Q425 348 416 373T371 399Q326 399 288 370T238 290Q236 281 235 171V62H304V0H295Q277 3 171 3Q64 3 46 0H37V62H106V210V303Q106 353 104 363T91 376Q77 380 50 380H37V442H40Z"
               transform="translate(4349,0)"
-            ></path>
+            />
             <path
               data-c="1D41E"
               d="M32 225Q32 332 102 392T272 452H283Q382 452 436 401Q494 343 494 243Q494 226 486 222T440 217Q431 217 394 217T327 218H175V209Q175 177 179 154T196 107T236 69T306 50Q312 49 323 49Q376 49 410 85Q421 99 427 111T434 127T442 133T463 135H468Q494 135 494 117Q494 110 489 97T468 66T431 32T373 5T292 -6Q181 -6 107 55T32 225ZM383 276Q377 346 348 374T280 402Q253 402 230 390T195 357Q179 331 176 279V266H383V276Z"
               transform="translate(4988,0)"
-            ></path>
+            />
           </g>
         </g>
       </g>
@@ -519,7 +519,7 @@
   </g>
   <g>
     <marker
-      id="registry--`loopup`.icon-startArrowId"
+      id="arrowheads__registry--`loopup`.icon-startArrowId"
       markerUnits="strokeWidth"
       markerWidth="6"
       markerHeight="28"
@@ -530,10 +530,10 @@
       stroke="#000000"
       stroke-opacity="1"
     >
-      <path d="M1 10 a 4 4 0 0 1 0 9" fill="none" stroke-linecap="round"></path>
+      <path d="M1 10 a 4 4 0 0 1 0 9" fill="none" stroke-linecap="round" />
     </marker>
     <marker
-      id="registry--`loopup`.icon-endArrowId"
+      id="arrowheads__registry--`loopup`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="6"
       markerHeight="28"
@@ -544,7 +544,7 @@
       stroke="#000000"
       stroke-opacity="1"
     >
-      <path d="M1 10 a 4 4 0 0 1 0 9" fill="none" stroke-linecap="round"></path>
+      <path d="M1 10 a 4 4 0 0 1 0 9" fill="none" stroke-linecap="round" />
     </marker>
     <path
       d="M 25 420 L 185 420"
@@ -552,9 +552,9 @@
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-start="url(#registry--`loopup`.icon-startArrowId)"
-      marker-end="url(#registry--`loopup`.icon-endArrowId)"
-    ></path>
+      marker-start="url(#arrowheads__registry--`loopup`.icon-startArrowId)"
+      marker-end="url(#arrowheads__registry--`loopup`.icon-endArrowId)"
+    />
     <title>`loopup`.icon</title>
   </g>
   <g transform="rotate(0, 277.104, 420)translate(250.016, 412.896)">
@@ -580,32 +580,32 @@
             <path
               data-c="1D425"
               d="M43 686L134 690Q225 694 226 694H232V62H301V0H292Q274 3 170 3Q67 3 49 0H40V62H109V332Q109 387 109 453T110 534Q110 593 108 605T94 620Q80 624 53 624H40V686H43Z"
-            ></path>
+            />
             <path
               data-c="1D428"
               d="M287 -5Q228 -5 182 10T109 48T63 102T39 161T32 219Q32 272 50 314T94 382T154 423T214 446T265 452H279Q319 452 326 451Q428 439 485 376T542 221Q542 156 514 108T442 33Q384 -5 287 -5ZM399 230V250Q399 280 398 298T391 338T372 372T338 392T282 401Q241 401 212 380Q190 363 183 334T175 230Q175 202 175 189T177 153T183 118T195 91T215 68T245 56T287 50Q348 50 374 84Q388 101 393 132T399 230Z"
               transform="translate(319,0)"
-            ></path>
+            />
             <path
               data-c="1D428"
               d="M287 -5Q228 -5 182 10T109 48T63 102T39 161T32 219Q32 272 50 314T94 382T154 423T214 446T265 452H279Q319 452 326 451Q428 439 485 376T542 221Q542 156 514 108T442 33Q384 -5 287 -5ZM399 230V250Q399 280 398 298T391 338T372 372T338 392T282 401Q241 401 212 380Q190 363 183 334T175 230Q175 202 175 189T177 153T183 118T195 91T215 68T245 56T287 50Q348 50 374 84Q388 101 393 132T399 230Z"
               transform="translate(894,0)"
-            ></path>
+            />
             <path
               data-c="1D429"
               d="M32 442L123 446Q214 450 215 450H221V409Q222 409 229 413T251 423T284 436T328 446T382 450Q480 450 540 388T600 223Q600 128 539 61T361 -6H354Q292 -6 236 28L227 34V-132H296V-194H287Q269 -191 163 -191Q56 -191 38 -194H29V-132H98V113V284Q98 330 97 348T93 370T83 376Q69 380 42 380H29V442H32ZM457 224Q457 303 427 349T350 395Q282 395 235 352L227 345V104L233 97Q274 45 337 45Q383 45 420 86T457 224Z"
               transform="translate(1469,0)"
-            ></path>
+            />
             <path
               data-c="1D42E"
               d="M40 442L134 446Q228 450 229 450H235V273V165Q235 90 238 74T254 52Q268 46 304 46H319Q352 46 380 67T419 121L420 123Q424 135 425 199Q425 201 425 207Q425 233 425 249V316Q425 354 423 363T410 376Q396 380 369 380H356V442L554 450V267Q554 84 556 79Q561 62 610 62H623V31Q623 0 622 0Q603 0 527 -3T432 -6Q431 -6 431 25V56L420 45Q373 6 332 -1Q313 -6 281 -6Q208 -6 165 14T109 87L107 98L106 230Q106 358 104 366Q96 380 50 380H37V442H40Z"
               transform="translate(2108,0)"
-            ></path>
+            />
             <path
               data-c="1D429"
               d="M32 442L123 446Q214 450 215 450H221V409Q222 409 229 413T251 423T284 436T328 446T382 450Q480 450 540 388T600 223Q600 128 539 61T361 -6H354Q292 -6 236 28L227 34V-132H296V-194H287Q269 -191 163 -191Q56 -191 38 -194H29V-132H98V113V284Q98 330 97 348T93 370T83 376Q69 380 42 380H29V442H32ZM457 224Q457 303 427 349T350 395Q282 395 235 352L227 345V104L233 97Q274 45 337 45Q383 45 420 86T457 224Z"
               transform="translate(2747,0)"
-            ></path>
+            />
           </g>
         </g>
       </g>
@@ -613,7 +613,7 @@
   </g>
   <g>
     <marker
-      id="registry--`loopdown`.icon-startArrowId"
+      id="arrowheads__registry--`loopdown`.icon-startArrowId"
       markerUnits="strokeWidth"
       markerWidth="6"
       markerHeight="28"
@@ -624,10 +624,10 @@
       stroke="#000000"
       stroke-opacity="1"
     >
-      <path d="M1 1 a 4 4 0 0 1 0 9" fill="none" stroke-linecap="round"></path>
+      <path d="M1 1 a 4 4 0 0 1 0 9" fill="none" stroke-linecap="round" />
     </marker>
     <marker
-      id="registry--`loopdown`.icon-endArrowId"
+      id="arrowheads__registry--`loopdown`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="6"
       markerHeight="28"
@@ -638,7 +638,7 @@
       stroke="#000000"
       stroke-opacity="1"
     >
-      <path d="M1 1 a 4 4 0 0 1 0 9" fill="none" stroke-linecap="round"></path>
+      <path d="M1 1 a 4 4 0 0 1 0 9" fill="none" stroke-linecap="round" />
     </marker>
     <path
       d="M 25 490 L 185 490"
@@ -646,9 +646,9 @@
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-start="url(#registry--`loopdown`.icon-startArrowId)"
-      marker-end="url(#registry--`loopdown`.icon-endArrowId)"
-    ></path>
+      marker-start="url(#arrowheads__registry--`loopdown`.icon-startArrowId)"
+      marker-end="url(#arrowheads__registry--`loopdown`.icon-endArrowId)"
+    />
     <title>`loopdown`.icon</title>
   </g>
   <g transform="rotate(0, 277.104, 490)translate(238.76799999999997, 482.896)">
@@ -674,42 +674,42 @@
             <path
               data-c="1D425"
               d="M43 686L134 690Q225 694 226 694H232V62H301V0H292Q274 3 170 3Q67 3 49 0H40V62H109V332Q109 387 109 453T110 534Q110 593 108 605T94 620Q80 624 53 624H40V686H43Z"
-            ></path>
+            />
             <path
               data-c="1D428"
               d="M287 -5Q228 -5 182 10T109 48T63 102T39 161T32 219Q32 272 50 314T94 382T154 423T214 446T265 452H279Q319 452 326 451Q428 439 485 376T542 221Q542 156 514 108T442 33Q384 -5 287 -5ZM399 230V250Q399 280 398 298T391 338T372 372T338 392T282 401Q241 401 212 380Q190 363 183 334T175 230Q175 202 175 189T177 153T183 118T195 91T215 68T245 56T287 50Q348 50 374 84Q388 101 393 132T399 230Z"
               transform="translate(319,0)"
-            ></path>
+            />
             <path
               data-c="1D428"
               d="M287 -5Q228 -5 182 10T109 48T63 102T39 161T32 219Q32 272 50 314T94 382T154 423T214 446T265 452H279Q319 452 326 451Q428 439 485 376T542 221Q542 156 514 108T442 33Q384 -5 287 -5ZM399 230V250Q399 280 398 298T391 338T372 372T338 392T282 401Q241 401 212 380Q190 363 183 334T175 230Q175 202 175 189T177 153T183 118T195 91T215 68T245 56T287 50Q348 50 374 84Q388 101 393 132T399 230Z"
               transform="translate(894,0)"
-            ></path>
+            />
             <path
               data-c="1D429"
               d="M32 442L123 446Q214 450 215 450H221V409Q222 409 229 413T251 423T284 436T328 446T382 450Q480 450 540 388T600 223Q600 128 539 61T361 -6H354Q292 -6 236 28L227 34V-132H296V-194H287Q269 -191 163 -191Q56 -191 38 -194H29V-132H98V113V284Q98 330 97 348T93 370T83 376Q69 380 42 380H29V442H32ZM457 224Q457 303 427 349T350 395Q282 395 235 352L227 345V104L233 97Q274 45 337 45Q383 45 420 86T457 224Z"
               transform="translate(1469,0)"
-            ></path>
+            />
             <path
               data-c="1D41D"
               d="M351 686L442 690Q533 694 534 694H540V389Q540 327 540 253T539 163Q539 97 541 83T555 66Q569 62 596 62H609V31Q609 0 608 0Q588 0 510 -3T412 -6Q411 -6 411 16V38L401 31Q337 -6 265 -6Q159 -6 99 58T38 224Q38 265 51 303T92 375T165 429T272 449Q359 449 417 412V507V555Q417 597 415 607T402 620Q388 624 361 624H348V686H351ZM411 350Q362 399 291 399Q278 399 256 392T218 371Q195 351 189 320T182 238V221Q182 179 183 159T191 115T212 74Q241 46 288 46Q358 46 404 100L411 109V350Z"
               transform="translate(2108,0)"
-            ></path>
+            />
             <path
               data-c="1D428"
               d="M287 -5Q228 -5 182 10T109 48T63 102T39 161T32 219Q32 272 50 314T94 382T154 423T214 446T265 452H279Q319 452 326 451Q428 439 485 376T542 221Q542 156 514 108T442 33Q384 -5 287 -5ZM399 230V250Q399 280 398 298T391 338T372 372T338 392T282 401Q241 401 212 380Q190 363 183 334T175 230Q175 202 175 189T177 153T183 118T195 91T215 68T245 56T287 50Q348 50 374 84Q388 101 393 132T399 230Z"
               transform="translate(2747,0)"
-            ></path>
+            />
             <path
               data-c="1D430"
               d="M624 444Q636 441 722 441Q797 441 800 444H805V382H741L593 11Q592 10 590 8T586 4T584 2T581 0T579 -2T575 -3T571 -3T567 -4T561 -4T553 -4H542Q525 -4 518 6T490 70Q474 110 463 137L415 257L367 137Q357 111 341 72Q320 17 313 7T289 -4H277Q259 -4 253 -2T238 11L90 382H25V444H32Q47 441 140 441Q243 441 261 444H270V382H222L310 164L382 342L366 382H303V444H310Q322 441 407 441Q508 441 523 444H531V382H506Q481 382 481 380Q482 376 529 259T577 142L674 382H617V444H624Z"
               transform="translate(3322,0)"
-            ></path>
+            />
             <path
               data-c="1D427"
               d="M40 442Q217 450 218 450H224V407L225 365Q233 378 245 391T289 422T362 448Q374 450 398 450Q428 450 448 447T491 434T529 402T551 346Q553 335 554 198V62H623V0H614Q596 3 489 3Q374 3 365 0H356V62H425V194V275Q425 348 416 373T371 399Q326 399 288 370T238 290Q236 281 235 171V62H304V0H295Q277 3 171 3Q64 3 46 0H37V62H106V210V303Q106 353 104 363T91 376Q77 380 50 380H37V442H40Z"
               transform="translate(4153,0)"
-            ></path>
+            />
           </g>
         </g>
       </g>
@@ -717,7 +717,7 @@
   </g>
   <g>
     <marker
-      id="registry--`loop`.icon-startArrowId"
+      id="arrowheads__registry--`loop`.icon-startArrowId"
       markerUnits="strokeWidth"
       markerWidth="6"
       markerHeight="28"
@@ -732,10 +732,10 @@
         d="M1 10 a 4 4 0 0 1 0 9 M1 1 a 4 4 0 0 1 0 9"
         fill="none"
         stroke-linecap="round"
-      ></path>
+      />
     </marker>
     <marker
-      id="registry--`loop`.icon-endArrowId"
+      id="arrowheads__registry--`loop`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="6"
       markerHeight="28"
@@ -750,7 +750,7 @@
         d="M1 10 a 4 4 0 0 1 0 9 M1 1 a 4 4 0 0 1 0 9"
         fill="none"
         stroke-linecap="round"
-      ></path>
+      />
     </marker>
     <path
       d="M 25 560 L 185 560"
@@ -758,9 +758,9 @@
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-start="url(#registry--`loop`.icon-startArrowId)"
-      marker-end="url(#registry--`loop`.icon-endArrowId)"
-    ></path>
+      marker-start="url(#arrowheads__registry--`loop`.icon-startArrowId)"
+      marker-end="url(#arrowheads__registry--`loop`.icon-endArrowId)"
+    />
     <title>`loop`.icon</title>
   </g>
   <g transform="rotate(0, 277.104, 560)translate(260.24, 552.896)">
@@ -786,22 +786,22 @@
             <path
               data-c="1D425"
               d="M43 686L134 690Q225 694 226 694H232V62H301V0H292Q274 3 170 3Q67 3 49 0H40V62H109V332Q109 387 109 453T110 534Q110 593 108 605T94 620Q80 624 53 624H40V686H43Z"
-            ></path>
+            />
             <path
               data-c="1D428"
               d="M287 -5Q228 -5 182 10T109 48T63 102T39 161T32 219Q32 272 50 314T94 382T154 423T214 446T265 452H279Q319 452 326 451Q428 439 485 376T542 221Q542 156 514 108T442 33Q384 -5 287 -5ZM399 230V250Q399 280 398 298T391 338T372 372T338 392T282 401Q241 401 212 380Q190 363 183 334T175 230Q175 202 175 189T177 153T183 118T195 91T215 68T245 56T287 50Q348 50 374 84Q388 101 393 132T399 230Z"
               transform="translate(319,0)"
-            ></path>
+            />
             <path
               data-c="1D428"
               d="M287 -5Q228 -5 182 10T109 48T63 102T39 161T32 219Q32 272 50 314T94 382T154 423T214 446T265 452H279Q319 452 326 451Q428 439 485 376T542 221Q542 156 514 108T442 33Q384 -5 287 -5ZM399 230V250Q399 280 398 298T391 338T372 372T338 392T282 401Q241 401 212 380Q190 363 183 334T175 230Q175 202 175 189T177 153T183 118T195 91T215 68T245 56T287 50Q348 50 374 84Q388 101 393 132T399 230Z"
               transform="translate(894,0)"
-            ></path>
+            />
             <path
               data-c="1D429"
               d="M32 442L123 446Q214 450 215 450H221V409Q222 409 229 413T251 423T284 436T328 446T382 450Q480 450 540 388T600 223Q600 128 539 61T361 -6H354Q292 -6 236 28L227 34V-132H296V-194H287Q269 -191 163 -191Q56 -191 38 -194H29V-132H98V113V284Q98 330 97 348T93 370T83 376Q69 380 42 380H29V442H32ZM457 224Q457 303 427 349T350 395Q282 395 235 352L227 345V104L233 97Q274 45 337 45Q383 45 420 86T457 224Z"
               transform="translate(1469,0)"
-            ></path>
+            />
           </g>
         </g>
       </g>

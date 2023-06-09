@@ -16,7 +16,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Raccoon_Hawk`.arrow</title>
   </g>
   <g>
@@ -26,7 +26,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Hawk_Owl`.arrow</title>
   </g>
   <g>
@@ -36,7 +36,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Hawk_Crow`.arrow</title>
   </g>
   <circle
@@ -81,7 +81,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Opossum_Woodpecker`.arrow</title>
   </g>
   <g>
@@ -91,7 +91,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Shrew_Woodpecker`.arrow</title>
   </g>
   <g>
@@ -101,7 +101,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Squirrel_Woodpecker`.arrow</title>
   </g>
   <circle
@@ -146,7 +146,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Raccoon_Owl`.arrow</title>
   </g>
   <g>
@@ -156,7 +156,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Raccoon_Squirrel`.arrow</title>
   </g>
   <circle
@@ -201,7 +201,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Opossum_Squirrel`.arrow</title>
   </g>
   <g>
@@ -211,7 +211,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Opossum_Shrew`.arrow</title>
   </g>
   <circle
@@ -256,7 +256,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Owl_Crow`.arrow</title>
   </g>
   <circle
@@ -301,7 +301,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Shrew_Mouse`.arrow</title>
   </g>
   <circle
@@ -346,7 +346,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Squirrel_Crow`.arrow</title>
   </g>
   <circle

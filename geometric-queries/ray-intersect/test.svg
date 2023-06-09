@@ -17,12 +17,12 @@
       stroke="#000000"
       stroke-dasharray="8,6"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`r4`.line</title>
   </g>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-`r4`.arrow-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-`r4`.arrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -35,7 +35,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#000000"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 265.92617934707187 L 70.31921336783387 245.71577031590888"
@@ -43,8 +43,8 @@
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-`r4`.arrow-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-`r4`.arrow-endArrowId)"
+    />
     <title>`r4`.arrow</title>
   </g>
   <ellipse
@@ -60,7 +60,7 @@
   </ellipse>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-10:9:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-10:9:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -73,7 +73,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 265.92617934707187 L NaN NaN"
@@ -81,8 +81,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-10:9:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-10:9:intersectNormal-endArrowId)"
+    />
     <title>10:9:intersectNormal</title>
   </g>
   <circle
@@ -109,7 +109,7 @@
   </polygon>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:54:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:54:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.97"
       markerHeight="4.06"
@@ -122,7 +122,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 631.6558302552786 57.635687734554836 L 609.9173002192758 52.191029301391666"
@@ -130,8 +130,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:54:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:54:intersectNormal-endArrowId)"
+    />
     <title>9:54:intersectNormal</title>
   </g>
   <circle
@@ -160,7 +160,7 @@
   </ellipse>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-10:11:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-10:11:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -173,7 +173,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 265.92617934707187 L NaN NaN"
@@ -181,8 +181,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-10:11:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-10:11:intersectNormal-endArrowId)"
+    />
     <title>10:11:intersectNormal</title>
   </g>
   <circle
@@ -209,7 +209,7 @@
   </polygon>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:56:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:56:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -222,7 +222,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 265.92617934707187 L NaN NaN"
@@ -230,8 +230,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:56:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:56:intersectNormal-endArrowId)"
+    />
     <title>9:56:intersectNormal</title>
   </g>
   <circle
@@ -292,7 +292,7 @@
   </g>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:65:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:65:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -305,7 +305,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 265.92617934707187 L NaN NaN"
@@ -313,8 +313,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:65:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:65:intersectNormal-endArrowId)"
+    />
     <title>9:65:intersectNormal</title>
   </g>
   <circle
@@ -344,7 +344,7 @@
   </polyline>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-11:3:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-11:3:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -357,7 +357,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 265.92617934707187 L NaN NaN"
@@ -365,8 +365,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-11:3:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-11:3:intersectNormal-endArrowId)"
+    />
     <title>11:3:intersectNormal</title>
   </g>
   <circle
@@ -394,7 +394,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:53:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:53:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -407,7 +407,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 265.92617934707187 L NaN NaN"
@@ -415,8 +415,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:53:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:53:intersectNormal-endArrowId)"
+    />
     <title>9:53:intersectNormal</title>
   </g>
   <circle
@@ -447,7 +447,7 @@
   </rect>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:59:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:59:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -460,7 +460,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 265.92617934707187 L NaN NaN"
@@ -468,8 +468,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:59:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:59:intersectNormal-endArrowId)"
+    />
     <title>9:59:intersectNormal</title>
   </g>
   <circle
@@ -530,7 +530,7 @@
   </g>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:66:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:66:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.97"
       markerHeight="4.06"
@@ -543,7 +543,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 271.6092198678342 178.27202995340815 L 264.94265002845907 199.6674651219568"
@@ -551,8 +551,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:66:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:66:intersectNormal-endArrowId)"
+    />
     <title>9:66:intersectNormal</title>
   </g>
   <circle
@@ -575,12 +575,12 @@
       stroke-width="5"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`L2`.icon</title>
   </g>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:61:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:61:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.97"
       markerHeight="4.06"
@@ -593,7 +593,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 347.3943287700485 152.87965555282028 L 324.9887543814103 153.3249752542526"
@@ -601,8 +601,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:61:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:61:intersectNormal-endArrowId)"
+    />
     <title>9:61:intersectNormal</title>
   </g>
   <circle
@@ -631,7 +631,7 @@
   </ellipse>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-10:10:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-10:10:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -644,7 +644,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 265.92617934707187 L NaN NaN"
@@ -652,8 +652,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-10:10:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-10:10:intersectNormal-endArrowId)"
+    />
     <title>10:10:intersectNormal</title>
   </g>
   <circle
@@ -684,7 +684,7 @@
   </rect>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:57:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:57:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -697,7 +697,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 265.92617934707187 L NaN NaN"
@@ -705,8 +705,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:57:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:57:intersectNormal-endArrowId)"
+    />
     <title>9:57:intersectNormal</title>
   </g>
   <circle
@@ -729,12 +729,12 @@
       stroke-width="5"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`L1`.icon</title>
   </g>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:60:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:60:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -747,7 +747,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 265.92617934707187 L NaN NaN"
@@ -755,8 +755,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:60:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:60:intersectNormal-endArrowId)"
+    />
     <title>9:60:intersectNormal</title>
   </g>
   <circle
@@ -784,7 +784,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:52:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:52:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.97"
       markerHeight="4.06"
@@ -797,7 +797,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 204.6845731101338 200.69563944232937 L 186.44894710926803 187.66990346989482"
@@ -805,8 +805,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:52:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:52:intersectNormal-endArrowId)"
+    />
     <title>9:52:intersectNormal</title>
   </g>
   <circle
@@ -829,12 +829,12 @@
       stroke-width="5"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`L3`.icon</title>
   </g>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:62:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:62:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -847,7 +847,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 265.92617934707187 L NaN NaN"
@@ -855,8 +855,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:62:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:62:intersectNormal-endArrowId)"
+    />
     <title>9:62:intersectNormal</title>
   </g>
   <circle
@@ -887,7 +887,7 @@
   </rect>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:58:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:58:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -900,7 +900,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 265.92617934707187 L NaN NaN"
@@ -908,8 +908,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:58:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:58:intersectNormal-endArrowId)"
+    />
     <title>9:58:intersectNormal</title>
   </g>
   <circle
@@ -932,12 +932,12 @@
       stroke-width="5"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`L4`.icon</title>
   </g>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:63:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:63:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -950,7 +950,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 265.92617934707187 L NaN NaN"
@@ -958,8 +958,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:63:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:63:intersectNormal-endArrowId)"
+    />
     <title>9:63:intersectNormal</title>
   </g>
   <circle
@@ -1020,7 +1020,7 @@
   </g>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:67:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:67:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -1033,7 +1033,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 265.92617934707187 L NaN NaN"
@@ -1041,8 +1041,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:67:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:67:intersectNormal-endArrowId)"
+    />
     <title>9:67:intersectNormal</title>
   </g>
   <circle
@@ -1069,7 +1069,7 @@
   </polygon>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:55:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:55:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -1082,7 +1082,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 265.92617934707187 L NaN NaN"
@@ -1090,8 +1090,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:55:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:55:intersectNormal-endArrowId)"
+    />
     <title>9:55:intersectNormal</title>
   </g>
   <circle
@@ -1114,12 +1114,12 @@
       stroke-width="5"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`L5`.icon</title>
   </g>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:64:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:64:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -1132,7 +1132,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 265.92617934707187 L NaN NaN"
@@ -1140,8 +1140,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:64:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:64:intersectNormal-endArrowId)"
+    />
     <title>9:64:intersectNormal</title>
   </g>
   <circle
@@ -1169,7 +1169,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:51:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:51:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.97"
       markerHeight="4.06"
@@ -1182,7 +1182,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 370.51336636047563 145.1334470062988 L 348.7920563772976 139.62049679722955"
@@ -1190,8 +1190,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:51:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:51:intersectNormal-endArrowId)"
+    />
     <title>9:51:intersectNormal</title>
   </g>
   <circle
@@ -1225,12 +1225,12 @@
       stroke="#000000"
       stroke-dasharray="8,6"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`r2`.line</title>
   </g>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-`r2`.arrow-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-`r2`.arrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -1243,7 +1243,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#000000"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 168.18092648274626 L 72.90833818610838 177.63656592699928"
@@ -1251,13 +1251,13 @@
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-`r2`.arrow-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-`r2`.arrow-endArrowId)"
+    />
     <title>`r2`.arrow</title>
   </g>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:18:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:18:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.97"
       markerHeight="4.06"
@@ -1270,7 +1270,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 206.96871438026906 197.78694054511033 L 189.99050263887887 183.15997300800453"
@@ -1278,8 +1278,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:18:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:18:intersectNormal-endArrowId)"
+    />
     <title>9:18:intersectNormal</title>
   </g>
   <circle
@@ -1297,7 +1297,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:25:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:25:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -1310,7 +1310,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 168.18092648274626 L NaN NaN"
@@ -1318,8 +1318,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:25:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:25:intersectNormal-endArrowId)"
+    />
     <title>9:25:intersectNormal</title>
   </g>
   <circle
@@ -1337,7 +1337,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:32:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:32:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -1350,7 +1350,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 168.18092648274626 L NaN NaN"
@@ -1358,8 +1358,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:32:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:32:intersectNormal-endArrowId)"
+    />
     <title>9:32:intersectNormal</title>
   </g>
   <circle
@@ -1377,7 +1377,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:17:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:17:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -1390,7 +1390,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 168.18092648274626 L NaN NaN"
@@ -1398,8 +1398,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:17:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:17:intersectNormal-endArrowId)"
+    />
     <title>9:17:intersectNormal</title>
   </g>
   <circle
@@ -1417,7 +1417,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:26:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:26:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.97"
       markerHeight="4.06"
@@ -1430,7 +1430,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 525.9053609530871 245.72573566365105 L 515.9551986743382 225.64583694549998"
@@ -1438,8 +1438,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:26:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:26:intersectNormal-endArrowId)"
+    />
     <title>9:26:intersectNormal</title>
   </g>
   <circle
@@ -1457,7 +1457,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:21:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:21:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -1470,7 +1470,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 168.18092648274626 L NaN NaN"
@@ -1478,8 +1478,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:21:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:21:intersectNormal-endArrowId)"
+    />
     <title>9:21:intersectNormal</title>
   </g>
   <circle
@@ -1497,7 +1497,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:27:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:27:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.97"
       markerHeight="4.06"
@@ -1510,7 +1510,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 348.7103228123911 219.09186739944263 L 326.30474842375287 219.53718710087495"
@@ -1518,8 +1518,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:27:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:27:intersectNormal-endArrowId)"
+    />
     <title>9:27:intersectNormal</title>
   </g>
   <circle
@@ -1537,7 +1537,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:29:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:29:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -1550,7 +1550,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 168.18092648274626 L NaN NaN"
@@ -1558,8 +1558,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:29:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:29:intersectNormal-endArrowId)"
+    />
     <title>9:29:intersectNormal</title>
   </g>
   <circle
@@ -1577,7 +1577,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:28:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:28:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -1590,7 +1590,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 168.18092648274626 L NaN NaN"
@@ -1598,8 +1598,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:28:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:28:intersectNormal-endArrowId)"
+    />
     <title>9:28:intersectNormal</title>
   </g>
   <circle
@@ -1617,7 +1617,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:24:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:24:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -1630,7 +1630,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 168.18092648274626 L NaN NaN"
@@ -1638,8 +1638,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:24:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:24:intersectNormal-endArrowId)"
+    />
     <title>9:24:intersectNormal</title>
   </g>
   <circle
@@ -1657,7 +1657,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-10:3:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-10:3:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -1670,7 +1670,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 168.18092648274626 L NaN NaN"
@@ -1678,8 +1678,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-10:3:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-10:3:intersectNormal-endArrowId)"
+    />
     <title>10:3:intersectNormal</title>
   </g>
   <circle
@@ -1697,7 +1697,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:22:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:22:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -1710,7 +1710,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 168.18092648274626 L NaN NaN"
@@ -1718,8 +1718,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:22:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:22:intersectNormal-endArrowId)"
+    />
     <title>9:22:intersectNormal</title>
   </g>
   <circle
@@ -1737,7 +1737,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-11:1:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-11:1:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -1750,7 +1750,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 748.948187454756 279.25090273749026 L 726.9656293348776 274.8948546703665"
@@ -1758,8 +1758,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-11:1:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-11:1:intersectNormal-endArrowId)"
+    />
     <title>11:1:intersectNormal</title>
   </g>
   <circle
@@ -1777,7 +1777,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:33:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:33:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -1790,7 +1790,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 168.18092648274626 L NaN NaN"
@@ -1798,8 +1798,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:33:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:33:intersectNormal-endArrowId)"
+    />
     <title>9:33:intersectNormal</title>
   </g>
   <circle
@@ -1817,7 +1817,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-10:4:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-10:4:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -1830,7 +1830,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 168.18092648274626 L NaN NaN"
@@ -1838,8 +1838,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-10:4:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-10:4:intersectNormal-endArrowId)"
+    />
     <title>10:4:intersectNormal</title>
   </g>
   <circle
@@ -1857,7 +1857,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:30:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:30:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -1870,7 +1870,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 168.18092648274626 L NaN NaN"
@@ -1878,8 +1878,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:30:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:30:intersectNormal-endArrowId)"
+    />
     <title>9:30:intersectNormal</title>
   </g>
   <circle
@@ -1897,7 +1897,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:20:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:20:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -1910,7 +1910,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 168.18092648274626 L NaN NaN"
@@ -1918,8 +1918,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:20:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:20:intersectNormal-endArrowId)"
+    />
     <title>9:20:intersectNormal</title>
   </g>
   <circle
@@ -1937,7 +1937,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:31:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:31:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -1950,7 +1950,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 168.18092648274626 L NaN NaN"
@@ -1958,8 +1958,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:31:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:31:intersectNormal-endArrowId)"
+    />
     <title>9:31:intersectNormal</title>
   </g>
   <circle
@@ -1977,7 +1977,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:19:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:19:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -1990,7 +1990,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 168.18092648274626 L NaN NaN"
@@ -1998,8 +1998,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:19:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:19:intersectNormal-endArrowId)"
+    />
     <title>9:19:intersectNormal</title>
   </g>
   <circle
@@ -2017,7 +2017,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-10:5:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-10:5:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -2030,7 +2030,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 720.0065220654739 274.9007329392091 L 701.0522388937812 286.85660872739754"
@@ -2038,8 +2038,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-10:5:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-10:5:intersectNormal-endArrowId)"
+    />
     <title>10:5:intersectNormal</title>
   </g>
   <circle
@@ -2057,7 +2057,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:23:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:23:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -2070,7 +2070,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 168.18092648274626 L NaN NaN"
@@ -2078,8 +2078,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:23:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:23:intersectNormal-endArrowId)"
+    />
     <title>9:23:intersectNormal</title>
   </g>
   <circle
@@ -2113,12 +2113,12 @@
       stroke="#000000"
       stroke-dasharray="8,6"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`r5`.line</title>
   </g>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-`r5`.arrow-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-`r5`.arrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -2131,7 +2131,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#000000"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 406.45989051831225 L 71.36486057004834 389.69021490513364"
@@ -2139,13 +2139,13 @@
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-`r5`.arrow-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-`r5`.arrow-endArrowId)"
+    />
     <title>`r5`.arrow</title>
   </g>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:80:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:80:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -2158,7 +2158,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 406.45989051831225 L NaN NaN"
@@ -2166,8 +2166,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:80:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:80:intersectNormal-endArrowId)"
+    />
     <title>9:80:intersectNormal</title>
   </g>
   <circle
@@ -2185,7 +2185,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:81:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:81:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -2198,7 +2198,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 406.45989051831225 L NaN NaN"
@@ -2206,8 +2206,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:81:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:81:intersectNormal-endArrowId)"
+    />
     <title>9:81:intersectNormal</title>
   </g>
   <circle
@@ -2225,7 +2225,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:69:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:69:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -2238,7 +2238,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 406.45989051831225 L NaN NaN"
@@ -2246,8 +2246,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:69:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:69:intersectNormal-endArrowId)"
+    />
     <title>9:69:intersectNormal</title>
   </g>
   <circle
@@ -2265,7 +2265,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:71:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:71:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -2278,7 +2278,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 406.45989051831225 L NaN NaN"
@@ -2286,8 +2286,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:71:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:71:intersectNormal-endArrowId)"
+    />
     <title>9:71:intersectNormal</title>
   </g>
   <circle
@@ -2305,7 +2305,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:78:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:78:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.97"
       markerHeight="4.06"
@@ -2318,7 +2318,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 350.5844482939274 313.3856023389578 L 328.17887390528915 313.8309220403902"
@@ -2326,8 +2326,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:78:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:78:intersectNormal-endArrowId)"
+    />
     <title>9:78:intersectNormal</title>
   </g>
   <circle
@@ -2345,7 +2345,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-11:4:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-11:4:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -2358,7 +2358,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 764.6043345421593 200.24301348124297 L 742.621776422281 195.88696541411917"
@@ -2366,8 +2366,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-11:4:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-11:4:intersectNormal-endArrowId)"
+    />
     <title>11:4:intersectNormal</title>
   </g>
   <circle
@@ -2385,7 +2385,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:72:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:72:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -2398,7 +2398,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 406.45989051831225 L NaN NaN"
@@ -2406,8 +2406,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:72:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:72:intersectNormal-endArrowId)"
+    />
     <title>9:72:intersectNormal</title>
   </g>
   <circle
@@ -2425,7 +2425,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-10:14:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-10:14:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -2438,7 +2438,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 716.882868212347 213.28424754748295 L 696.6397715889318 203.67046241022248"
@@ -2446,8 +2446,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-10:14:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-10:14:intersectNormal-endArrowId)"
+    />
     <title>10:14:intersectNormal</title>
   </g>
   <circle
@@ -2465,7 +2465,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:83:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:83:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -2478,7 +2478,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 406.45989051831225 L NaN NaN"
@@ -2486,8 +2486,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:83:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:83:intersectNormal-endArrowId)"
+    />
     <title>9:83:intersectNormal</title>
   </g>
   <circle
@@ -2505,7 +2505,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:74:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:74:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -2518,7 +2518,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 406.45989051831225 L NaN NaN"
@@ -2526,8 +2526,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:74:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:74:intersectNormal-endArrowId)"
+    />
     <title>9:74:intersectNormal</title>
   </g>
   <circle
@@ -2545,7 +2545,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:77:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:77:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -2558,7 +2558,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 406.45989051831225 L NaN NaN"
@@ -2566,8 +2566,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:77:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:77:intersectNormal-endArrowId)"
+    />
     <title>9:77:intersectNormal</title>
   </g>
   <circle
@@ -2585,7 +2585,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:82:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:82:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -2598,7 +2598,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 406.45989051831225 L NaN NaN"
@@ -2606,8 +2606,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:82:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:82:intersectNormal-endArrowId)"
+    />
     <title>9:82:intersectNormal</title>
   </g>
   <circle
@@ -2625,7 +2625,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:75:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:75:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -2638,7 +2638,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 406.45989051831225 L NaN NaN"
@@ -2646,8 +2646,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:75:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:75:intersectNormal-endArrowId)"
+    />
     <title>9:75:intersectNormal</title>
   </g>
   <circle
@@ -2665,7 +2665,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-10:12:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-10:12:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -2678,7 +2678,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 406.45989051831225 L NaN NaN"
@@ -2686,8 +2686,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-10:12:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-10:12:intersectNormal-endArrowId)"
+    />
     <title>10:12:intersectNormal</title>
   </g>
   <circle
@@ -2705,7 +2705,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:70:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:70:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -2718,7 +2718,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 406.45989051831225 L NaN NaN"
@@ -2726,8 +2726,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:70:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:70:intersectNormal-endArrowId)"
+    />
     <title>9:70:intersectNormal</title>
   </g>
   <circle
@@ -2745,7 +2745,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:73:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:73:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -2758,7 +2758,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 406.45989051831225 L NaN NaN"
@@ -2766,8 +2766,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:73:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:73:intersectNormal-endArrowId)"
+    />
     <title>9:73:intersectNormal</title>
   </g>
   <circle
@@ -2785,7 +2785,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:79:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:79:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -2798,7 +2798,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 406.45989051831225 L NaN NaN"
@@ -2806,8 +2806,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:79:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:79:intersectNormal-endArrowId)"
+    />
     <title>9:79:intersectNormal</title>
   </g>
   <circle
@@ -2825,7 +2825,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:76:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:76:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -2838,7 +2838,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 406.45989051831225 L NaN NaN"
@@ -2846,8 +2846,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:76:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:76:intersectNormal-endArrowId)"
+    />
     <title>9:76:intersectNormal</title>
   </g>
   <circle
@@ -2865,7 +2865,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:68:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:68:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -2878,7 +2878,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 406.45989051831225 L NaN NaN"
@@ -2886,8 +2886,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:68:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:68:intersectNormal-endArrowId)"
+    />
     <title>9:68:intersectNormal</title>
   </g>
   <circle
@@ -2905,7 +2905,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:84:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:84:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -2918,7 +2918,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 406.45989051831225 L NaN NaN"
@@ -2926,8 +2926,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:84:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:84:intersectNormal-endArrowId)"
+    />
     <title>9:84:intersectNormal</title>
   </g>
   <circle
@@ -2945,7 +2945,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-10:13:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-10:13:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -2958,7 +2958,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 406.45989051831225 L NaN NaN"
@@ -2966,8 +2966,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-10:13:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-10:13:intersectNormal-endArrowId)"
+    />
     <title>10:13:intersectNormal</title>
   </g>
   <circle
@@ -3001,12 +3001,12 @@
       stroke="#000000"
       stroke-dasharray="8,6"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`r3`.line</title>
   </g>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-`r3`.arrow-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-`r3`.arrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -3019,7 +3019,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#000000"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 460.3907715278167 L 73.10015723839109 452.31374937605233"
@@ -3027,13 +3027,13 @@
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-`r3`.arrow-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-`r3`.arrow-endArrowId)"
+    />
     <title>`r3`.arrow</title>
   </g>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:40:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:40:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -3046,7 +3046,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 460.3907715278167 L NaN NaN"
@@ -3054,8 +3054,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:40:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:40:intersectNormal-endArrowId)"
+    />
     <title>9:40:intersectNormal</title>
   </g>
   <circle
@@ -3073,7 +3073,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:37:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:37:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -3086,7 +3086,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 460.3907715278167 L NaN NaN"
@@ -3094,8 +3094,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:37:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:37:intersectNormal-endArrowId)"
+    />
     <title>9:37:intersectNormal</title>
   </g>
   <circle
@@ -3113,7 +3113,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-10:6:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-10:6:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -3126,7 +3126,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 720.5205998111082 369.44185990660134 L 698.7599310790256 374.79733602424096"
@@ -3134,8 +3134,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-10:6:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-10:6:intersectNormal-endArrowId)"
+    />
     <title>10:6:intersectNormal</title>
   </g>
   <circle
@@ -3153,7 +3153,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:42:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:42:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -3166,7 +3166,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 460.3907715278167 L NaN NaN"
@@ -3174,8 +3174,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:42:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:42:intersectNormal-endArrowId)"
+    />
     <title>9:42:intersectNormal</title>
   </g>
   <circle
@@ -3193,7 +3193,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:49:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:49:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -3206,7 +3206,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 460.3907715278167 L NaN NaN"
@@ -3214,8 +3214,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:49:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:49:intersectNormal-endArrowId)"
+    />
     <title>9:49:intersectNormal</title>
   </g>
   <circle
@@ -3233,7 +3233,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:45:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:45:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -3246,7 +3246,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 460.3907715278167 L NaN NaN"
@@ -3254,8 +3254,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:45:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:45:intersectNormal-endArrowId)"
+    />
     <title>9:45:intersectNormal</title>
   </g>
   <circle
@@ -3273,7 +3273,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:41:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:41:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -3286,7 +3286,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 460.3907715278167 L NaN NaN"
@@ -3294,8 +3294,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:41:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:41:intersectNormal-endArrowId)"
+    />
     <title>9:41:intersectNormal</title>
   </g>
   <circle
@@ -3313,7 +3313,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:38:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:38:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -3326,7 +3326,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 460.3907715278167 L NaN NaN"
@@ -3334,8 +3334,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:38:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:38:intersectNormal-endArrowId)"
+    />
     <title>9:38:intersectNormal</title>
   </g>
   <circle
@@ -3353,7 +3353,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-10:7:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-10:7:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -3366,7 +3366,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 460.3907715278167 L NaN NaN"
@@ -3374,8 +3374,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-10:7:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-10:7:intersectNormal-endArrowId)"
+    />
     <title>10:7:intersectNormal</title>
   </g>
   <circle
@@ -3393,7 +3393,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:47:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:47:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -3406,7 +3406,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 460.3907715278167 L NaN NaN"
@@ -3414,8 +3414,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:47:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:47:intersectNormal-endArrowId)"
+    />
     <title>9:47:intersectNormal</title>
   </g>
   <circle
@@ -3433,7 +3433,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:43:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:43:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -3446,7 +3446,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 460.3907715278167 L NaN NaN"
@@ -3454,8 +3454,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:43:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:43:intersectNormal-endArrowId)"
+    />
     <title>9:43:intersectNormal</title>
   </g>
   <circle
@@ -3473,7 +3473,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:34:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:34:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -3486,7 +3486,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 460.3907715278167 L NaN NaN"
@@ -3494,8 +3494,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:34:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:34:intersectNormal-endArrowId)"
+    />
     <title>9:34:intersectNormal</title>
   </g>
   <circle
@@ -3513,7 +3513,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:46:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:46:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.97"
       markerHeight="4.06"
@@ -3526,7 +3526,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 104.87738345843451 448.2461626800122 L 84.31194925626562 439.3427373021284"
@@ -3534,8 +3534,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:46:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:46:intersectNormal-endArrowId)"
+    />
     <title>9:46:intersectNormal</title>
   </g>
   <circle
@@ -3553,7 +3553,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:35:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:35:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -3566,7 +3566,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 460.3907715278167 L NaN NaN"
@@ -3574,8 +3574,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:35:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:35:intersectNormal-endArrowId)"
+    />
     <title>9:35:intersectNormal</title>
   </g>
   <circle
@@ -3593,7 +3593,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:50:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:50:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.97"
       markerHeight="4.06"
@@ -3606,7 +3606,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 679.1549748639758 374.73679233850163 L 658.9007948548604 365.1463803484764"
@@ -3614,8 +3614,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:50:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:50:intersectNormal-endArrowId)"
+    />
     <title>9:50:intersectNormal</title>
   </g>
   <circle
@@ -3633,7 +3633,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:48:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:48:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -3646,7 +3646,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 460.3907715278167 L NaN NaN"
@@ -3654,8 +3654,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:48:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:48:intersectNormal-endArrowId)"
+    />
     <title>9:48:intersectNormal</title>
   </g>
   <circle
@@ -3673,7 +3673,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:36:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:36:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -3686,7 +3686,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 460.3907715278167 L NaN NaN"
@@ -3694,8 +3694,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:36:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:36:intersectNormal-endArrowId)"
+    />
     <title>9:36:intersectNormal</title>
   </g>
   <circle
@@ -3713,7 +3713,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-11:2:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-11:2:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -3726,7 +3726,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 736.3901595086742 367.4105054563782 L 714.0587095656771 369.28516765827663"
@@ -3734,8 +3734,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-11:2:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-11:2:intersectNormal-endArrowId)"
+    />
     <title>11:2:intersectNormal</title>
   </g>
   <circle
@@ -3753,7 +3753,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:39:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:39:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -3766,7 +3766,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 460.3907715278167 L NaN NaN"
@@ -3774,8 +3774,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:39:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:39:intersectNormal-endArrowId)"
+    />
     <title>9:39:intersectNormal</title>
   </g>
   <circle
@@ -3793,7 +3793,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-10:8:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-10:8:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -3806,7 +3806,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 460.3907715278167 L NaN NaN"
@@ -3814,8 +3814,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-10:8:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-10:8:intersectNormal-endArrowId)"
+    />
     <title>10:8:intersectNormal</title>
   </g>
   <circle
@@ -3833,7 +3833,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:44:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:44:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -3846,7 +3846,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 460.3907715278167 L NaN NaN"
@@ -3854,8 +3854,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:44:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:44:intersectNormal-endArrowId)"
+    />
     <title>9:44:intersectNormal</title>
   </g>
   <circle
@@ -3889,12 +3889,12 @@
       stroke="#000000"
       stroke-dasharray="8,6"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`r1`.line</title>
   </g>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-`r1`.arrow-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-`r1`.arrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -3907,7 +3907,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#000000"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 111.3859418487128 L 70.0339070454562 90.34317254886395"
@@ -3915,13 +3915,13 @@
       stroke-width="3"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-`r1`.arrow-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-`r1`.arrow-endArrowId)"
+    />
     <title>`r1`.arrow</title>
   </g>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:1:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:1:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -3934,7 +3934,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 111.3859418487128 L NaN NaN"
@@ -3942,8 +3942,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:1:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:1:intersectNormal-endArrowId)"
+    />
     <title>9:1:intersectNormal</title>
   </g>
   <circle
@@ -3961,7 +3961,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:15:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:15:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -3974,7 +3974,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 111.3859418487128 L NaN NaN"
@@ -3982,8 +3982,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:15:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:15:intersectNormal-endArrowId)"
+    />
     <title>9:15:intersectNormal</title>
   </g>
   <circle
@@ -4001,7 +4001,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:14:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:14:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -4014,7 +4014,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 111.3859418487128 L NaN NaN"
@@ -4022,8 +4022,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:14:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:14:intersectNormal-endArrowId)"
+    />
     <title>9:14:intersectNormal</title>
   </g>
   <circle
@@ -4041,7 +4041,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:7:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:7:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -4054,7 +4054,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 111.3859418487128 L NaN NaN"
@@ -4062,8 +4062,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:7:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:7:intersectNormal-endArrowId)"
+    />
     <title>9:7:intersectNormal</title>
   </g>
   <circle
@@ -4081,7 +4081,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:11:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:11:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -4094,7 +4094,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 111.3859418487128 L NaN NaN"
@@ -4102,8 +4102,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:11:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:11:intersectNormal-endArrowId)"
+    />
     <title>9:11:intersectNormal</title>
   </g>
   <circle
@@ -4121,7 +4121,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-10:1:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-10:1:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -4134,7 +4134,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 111.3859418487128 L NaN NaN"
@@ -4142,8 +4142,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-10:1:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-10:1:intersectNormal-endArrowId)"
+    />
     <title>10:1:intersectNormal</title>
   </g>
   <circle
@@ -4161,7 +4161,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:6:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:6:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -4174,7 +4174,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 111.3859418487128 L NaN NaN"
@@ -4182,8 +4182,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:6:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:6:intersectNormal-endArrowId)"
+    />
     <title>9:6:intersectNormal</title>
   </g>
   <circle
@@ -4201,7 +4201,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:3:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:3:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -4214,7 +4214,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 111.3859418487128 L NaN NaN"
@@ -4222,8 +4222,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:3:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:3:intersectNormal-endArrowId)"
+    />
     <title>9:3:intersectNormal</title>
   </g>
   <circle
@@ -4241,7 +4241,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:0:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:0:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -4254,7 +4254,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 111.3859418487128 L NaN NaN"
@@ -4262,8 +4262,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:0:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:0:intersectNormal-endArrowId)"
+    />
     <title>9:0:intersectNormal</title>
   </g>
   <circle
@@ -4281,7 +4281,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:13:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:13:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -4294,7 +4294,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 111.3859418487128 L NaN NaN"
@@ -4302,8 +4302,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:13:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:13:intersectNormal-endArrowId)"
+    />
     <title>9:13:intersectNormal</title>
   </g>
   <circle
@@ -4321,7 +4321,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:5:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:5:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -4334,7 +4334,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 111.3859418487128 L NaN NaN"
@@ -4342,8 +4342,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:5:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:5:intersectNormal-endArrowId)"
+    />
     <title>9:5:intersectNormal</title>
   </g>
   <circle
@@ -4361,7 +4361,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:16:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:16:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -4374,7 +4374,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 111.3859418487128 L NaN NaN"
@@ -4382,8 +4382,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:16:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:16:intersectNormal-endArrowId)"
+    />
     <title>9:16:intersectNormal</title>
   </g>
   <circle
@@ -4401,7 +4401,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:9:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:9:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -4414,7 +4414,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 111.3859418487128 L NaN NaN"
@@ -4422,8 +4422,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:9:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:9:intersectNormal-endArrowId)"
+    />
     <title>9:9:intersectNormal</title>
   </g>
   <circle
@@ -4441,7 +4441,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:4:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:4:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -4454,7 +4454,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 111.3859418487128 L NaN NaN"
@@ -4462,8 +4462,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:4:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:4:intersectNormal-endArrowId)"
+    />
     <title>9:4:intersectNormal</title>
   </g>
   <circle
@@ -4481,7 +4481,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-11:0:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-11:0:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -4494,7 +4494,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 111.3859418487128 L NaN NaN"
@@ -4502,8 +4502,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-11:0:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-11:0:intersectNormal-endArrowId)"
+    />
     <title>11:0:intersectNormal</title>
   </g>
   <circle
@@ -4521,7 +4521,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-10:2:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-10:2:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -4534,7 +4534,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 111.3859418487128 L NaN NaN"
@@ -4542,8 +4542,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-10:2:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-10:2:intersectNormal-endArrowId)"
+    />
     <title>10:2:intersectNormal</title>
   </g>
   <circle
@@ -4561,7 +4561,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:10:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:10:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -4574,7 +4574,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 111.3859418487128 L NaN NaN"
@@ -4582,8 +4582,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:10:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:10:intersectNormal-endArrowId)"
+    />
     <title>9:10:intersectNormal</title>
   </g>
   <circle
@@ -4601,7 +4601,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-10:0:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-10:0:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -4614,7 +4614,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 111.3859418487128 L NaN NaN"
@@ -4622,8 +4622,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-10:0:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-10:0:intersectNormal-endArrowId)"
+    />
     <title>10:0:intersectNormal</title>
   </g>
   <circle
@@ -4641,7 +4641,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:8:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:8:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -4654,7 +4654,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 111.3859418487128 L NaN NaN"
@@ -4662,8 +4662,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:8:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:8:intersectNormal-endArrowId)"
+    />
     <title>9:8:intersectNormal</title>
   </g>
   <circle
@@ -4681,7 +4681,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:12:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:12:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -4694,7 +4694,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 10 111.3859418487128 L NaN NaN"
@@ -4702,8 +4702,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:12:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:12:intersectNormal-endArrowId)"
+    />
     <title>9:12:intersectNormal</title>
   </g>
   <circle
@@ -4721,7 +4721,7 @@
   </circle>
   <g>
     <marker
-      id="registry-SnowflakeQuetzal3561-9:2:intersectNormal-endArrowId"
+      id="test__registry-SnowflakeQuetzal3561-9:2:intersectNormal-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.97"
       markerHeight="4.06"
@@ -4734,7 +4734,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#888888"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 212.40884213062463 40.4386592409146 L 190.8033285374779 34.48805431329407"
@@ -4742,8 +4742,8 @@
       stroke-width="2"
       stroke="#888888"
       stroke-linecap="butt"
-      marker-end="url(#registry-SnowflakeQuetzal3561-9:2:intersectNormal-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-SnowflakeQuetzal3561-9:2:intersectNormal-endArrowId)"
+    />
     <title>9:2:intersectNormal</title>
   </g>
   <circle

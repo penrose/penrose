@@ -37,11 +37,9 @@
   <g
     transform="rotate(0, 93.65964736326924, 119.92001525349988)translate(1.2346109973157695, 27.49497888754641)"
   >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
-    <svg
+    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
-      id="Layer_1--inject-51"
+      id="poisson-estimator__Layer_1--inject-51"
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       x="0px"
@@ -53,25 +51,25 @@
       height="184.85007273190695"
     >
       <style type="text/css">
-        .st0 {
+        .poisson-estimator__st0 {
           opacity: 0.6;
-          fill: url(#SVGID_1_--inject-51);
+          fill: url(#poisson-estimator__SVGID_1_--inject-51);
           enable-background: new;
         }
       </style>
       <radialGradient
-        id="SVGID_1_--inject-51"
+        id="poisson-estimator__SVGID_1_--inject-51"
         cx="75.4328"
         cy="151.0149"
         r="157.9341"
         gradientTransform="matrix(1 0 0 -1 0 222)"
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset="0" style="stop-color: #ffffff"></stop>
-        <stop offset="0.7844" style="stop-color: #5f5f5f"></stop>
-        <stop offset="1" style="stop-color: #7f7f7f"></stop>
+        <stop offset="0" style="stop-color: #ffffff" />
+        <stop offset="0.7844" style="stop-color: #5f5f5f" />
+        <stop offset="1" style="stop-color: #7f7f7f" />
       </radialGradient>
-      <circle class="st0" cx="110.9" cy="110.9" r="110.9"></circle>
+      <circle class="poisson-estimator__st0" cx="110.9" cy="110.9" r="110.9" />
     </svg>
     <title>`x0`.shading</title>
   </g>
@@ -117,17 +115,15 @@
       stroke-width="2"
       stroke="#0000b3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>9:0:walkLine</title>
   </g>
   <g
     transform="rotate(0, 184.06663419395346, 138.96783172889863)translate(125.68486091213956, 80.58605844708472)"
   >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
-    <svg
+    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
-      id="Layer_1--inject-52"
+      id="poisson-estimator__Layer_1--inject-52"
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       x="0px"
@@ -139,25 +135,25 @@
       height="116.7635465636278"
     >
       <style type="text/css">
-        .st0 {
+        .poisson-estimator__st0 {
           opacity: 0.6;
-          fill: url(#SVGID_1_--inject-52);
+          fill: url(#poisson-estimator__SVGID_1_--inject-52);
           enable-background: new;
         }
       </style>
       <radialGradient
-        id="SVGID_1_--inject-52"
+        id="poisson-estimator__SVGID_1_--inject-52"
         cx="75.4328"
         cy="151.0149"
         r="157.9341"
         gradientTransform="matrix(1 0 0 -1 0 222)"
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset="0" style="stop-color: #ffffff"></stop>
-        <stop offset="0.7844" style="stop-color: #5f5f5f"></stop>
-        <stop offset="1" style="stop-color: #7f7f7f"></stop>
+        <stop offset="0" style="stop-color: #ffffff" />
+        <stop offset="0.7844" style="stop-color: #5f5f5f" />
+        <stop offset="1" style="stop-color: #7f7f7f" />
       </radialGradient>
-      <circle class="st0" cx="110.9" cy="110.9" r="110.9"></circle>
+      <circle class="poisson-estimator__st0" cx="110.9" cy="110.9" r="110.9" />
     </svg>
     <title>`x1`.shading</title>
   </g>
@@ -190,17 +186,15 @@
       stroke-width="2"
       stroke="#0000b3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>9:1:walkLine</title>
   </g>
   <g
     transform="rotate(0, 183.68863039118781, 77.6149188397965)translate(148.63172125759027, 42.558009706198966)"
   >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
-    <svg
+    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
-      id="Layer_1--inject-53"
+      id="poisson-estimator__Layer_1--inject-53"
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       x="0px"
@@ -212,25 +206,25 @@
       height="70.11381826719507"
     >
       <style type="text/css">
-        .st0 {
+        .poisson-estimator__st0 {
           opacity: 0.6;
-          fill: url(#SVGID_1_--inject-53);
+          fill: url(#poisson-estimator__SVGID_1_--inject-53);
           enable-background: new;
         }
       </style>
       <radialGradient
-        id="SVGID_1_--inject-53"
+        id="poisson-estimator__SVGID_1_--inject-53"
         cx="75.4328"
         cy="151.0149"
         r="157.9341"
         gradientTransform="matrix(1 0 0 -1 0 222)"
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset="0" style="stop-color: #ffffff"></stop>
-        <stop offset="0.7844" style="stop-color: #5f5f5f"></stop>
-        <stop offset="1" style="stop-color: #7f7f7f"></stop>
+        <stop offset="0" style="stop-color: #ffffff" />
+        <stop offset="0.7844" style="stop-color: #5f5f5f" />
+        <stop offset="1" style="stop-color: #7f7f7f" />
       </radialGradient>
-      <circle class="st0" cx="110.9" cy="110.9" r="110.9"></circle>
+      <circle class="poisson-estimator__st0" cx="110.9" cy="110.9" r="110.9" />
     </svg>
     <title>`x2`.shading</title>
   </g>
@@ -263,17 +257,15 @@
       stroke-width="2"
       stroke="#0000b3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>9:2:walkLine</title>
   </g>
   <g
     transform="rotate(0, 153.72569215395652, 59.420192467749764)translate(134.46053273504236, 40.155033048835605)"
   >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
-    <svg
+    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
-      id="Layer_1--inject-54"
+      id="poisson-estimator__Layer_1--inject-54"
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       x="0px"
@@ -285,25 +277,25 @@
       height="38.53031883782831"
     >
       <style type="text/css">
-        .st0 {
+        .poisson-estimator__st0 {
           opacity: 0.6;
-          fill: url(#SVGID_1_--inject-54);
+          fill: url(#poisson-estimator__SVGID_1_--inject-54);
           enable-background: new;
         }
       </style>
       <radialGradient
-        id="SVGID_1_--inject-54"
+        id="poisson-estimator__SVGID_1_--inject-54"
         cx="75.4328"
         cy="151.0149"
         r="157.9341"
         gradientTransform="matrix(1 0 0 -1 0 222)"
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset="0" style="stop-color: #ffffff"></stop>
-        <stop offset="0.7844" style="stop-color: #5f5f5f"></stop>
-        <stop offset="1" style="stop-color: #7f7f7f"></stop>
+        <stop offset="0" style="stop-color: #ffffff" />
+        <stop offset="0.7844" style="stop-color: #5f5f5f" />
+        <stop offset="1" style="stop-color: #7f7f7f" />
       </radialGradient>
-      <circle class="st0" cx="110.9" cy="110.9" r="110.9"></circle>
+      <circle class="poisson-estimator__st0" cx="110.9" cy="110.9" r="110.9" />
     </svg>
     <title>`x3`.shading</title>
   </g>

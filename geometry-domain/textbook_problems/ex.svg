@@ -16,7 +16,7 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`aTUS`.side1</title>
   </g>
   <g>
@@ -26,7 +26,7 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`ST`.icon</title>
   </g>
   <g>
@@ -36,7 +36,7 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`aUST`.side2</title>
   </g>
   <g>
@@ -46,7 +46,7 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`UT`.icon</title>
   </g>
   <g>
@@ -56,7 +56,7 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`UTS`.PQ</title>
   </g>
   <g>
@@ -66,7 +66,7 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`UTS`.QR</title>
   </g>
   <g>
@@ -76,7 +76,7 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`aUTS`.side1</title>
   </g>
   <g>
@@ -86,7 +86,7 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`aUTS`.side2</title>
   </g>
   <circle
@@ -109,7 +109,7 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`aTUS`.side2</title>
   </g>
   <g>
@@ -119,7 +119,7 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`aUST`.side1</title>
   </g>
   <g>
@@ -129,7 +129,7 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`UTS`.RP</title>
   </g>
   <g>
@@ -139,7 +139,7 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`US`.icon</title>
   </g>
   <circle
@@ -175,7 +175,7 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`aXYZ`.side1</title>
   </g>
   <g>
@@ -185,7 +185,7 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`aZXY`.side1</title>
   </g>
   <g>
@@ -195,7 +195,7 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`aZXY`.side2</title>
   </g>
   <g>
@@ -205,7 +205,7 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`XY`.icon</title>
   </g>
   <g>
@@ -215,7 +215,7 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`XYZ`.PQ</title>
   </g>
   <g>
@@ -225,7 +225,7 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`XYZ`.RP</title>
   </g>
   <g>
@@ -235,7 +235,7 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`XZ`.icon</title>
   </g>
   <g>
@@ -245,7 +245,7 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`aYZX`.side2</title>
   </g>
   <circle
@@ -268,7 +268,7 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`aXYZ`.side2</title>
   </g>
   <g>
@@ -278,7 +278,7 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`XYZ`.QR</title>
   </g>
   <g>
@@ -288,7 +288,7 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`ZY`.icon</title>
   </g>
   <g>
@@ -298,7 +298,7 @@
       stroke-width="1.75"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`aYZX`.side1</title>
   </g>
   <circle
@@ -352,7 +352,7 @@
             <path
               data-c="1D448"
               d="M107 637Q73 637 71 641Q70 643 70 649Q70 673 81 682Q83 683 98 683Q139 681 234 681Q268 681 297 681T342 682T362 682Q378 682 378 672Q378 670 376 658Q371 641 366 638H364Q362 638 359 638T352 638T343 637T334 637Q295 636 284 634T266 623Q265 621 238 518T184 302T154 169Q152 155 152 140Q152 86 183 55T269 24Q336 24 403 69T501 205L552 406Q599 598 599 606Q599 633 535 637Q511 637 511 648Q511 650 513 660Q517 676 519 679T529 683Q532 683 561 682T645 680Q696 680 723 681T752 682Q767 682 767 672Q767 650 759 642Q756 637 737 637Q666 633 648 597Q646 592 598 404Q557 235 548 205Q515 105 433 42T263 -22Q171 -22 116 34T60 167V183Q60 201 115 421Q164 622 164 628Q164 635 107 637Z"
-            ></path>
+            />
           </g>
         </g>
       </g>
@@ -383,7 +383,7 @@
             <path
               data-c="1D446"
               d="M308 24Q367 24 416 76T466 197Q466 260 414 284Q308 311 278 321T236 341Q176 383 176 462Q176 523 208 573T273 648Q302 673 343 688T407 704H418H425Q521 704 564 640Q565 640 577 653T603 682T623 704Q624 704 627 704T632 705Q645 705 645 698T617 577T585 459T569 456Q549 456 549 465Q549 471 550 475Q550 478 551 494T553 520Q553 554 544 579T526 616T501 641Q465 662 419 662Q362 662 313 616T263 510Q263 480 278 458T319 427Q323 425 389 408T456 390Q490 379 522 342T554 242Q554 216 546 186Q541 164 528 137T492 78T426 18T332 -20Q320 -22 298 -22Q199 -22 144 33L134 44L106 13Q83 -14 78 -18T65 -22Q52 -22 52 -14Q52 -11 110 221Q112 227 130 227H143Q149 221 149 216Q149 214 148 207T144 186T142 153Q144 114 160 87T203 47T255 29T308 24Z"
-            ></path>
+            />
           </g>
         </g>
       </g>
@@ -414,7 +414,7 @@
             <path
               data-c="1D447"
               d="M40 437Q21 437 21 445Q21 450 37 501T71 602L88 651Q93 669 101 677H569H659Q691 677 697 676T704 667Q704 661 687 553T668 444Q668 437 649 437Q640 437 637 437T631 442L629 445Q629 451 635 490T641 551Q641 586 628 604T573 629Q568 630 515 631Q469 631 457 630T439 622Q438 621 368 343T298 60Q298 48 386 46Q418 46 427 45T436 36Q436 31 433 22Q429 4 424 1L422 0Q419 0 415 0Q410 0 363 1T228 2Q99 2 64 0H49Q43 6 43 9T45 27Q49 40 55 46H83H94Q174 46 189 55Q190 56 191 56Q196 59 201 76T241 233Q258 301 269 344Q339 619 339 625Q339 630 310 630H279Q212 630 191 624Q146 614 121 583T67 467Q60 445 57 441T43 437H40Z"
-            ></path>
+            />
           </g>
         </g>
       </g>
@@ -445,7 +445,7 @@
             <path
               data-c="1D44D"
               d="M58 8Q58 23 64 35Q64 36 329 334T596 635L586 637Q575 637 512 637H500H476Q442 637 420 635T365 624T311 598T266 548T228 469Q227 466 226 463T224 458T223 453T222 450L221 448Q218 443 202 443Q185 443 182 453L214 561Q228 606 241 651Q249 679 253 681Q256 683 487 683H718Q723 678 723 675Q723 673 717 649Q189 54 188 52L185 49H274Q369 50 377 51Q452 60 500 100T579 247Q587 272 590 277T603 282H607Q628 282 628 271Q547 5 541 2Q538 0 300 0H124Q58 0 58 8Z"
-            ></path>
+            />
           </g>
         </g>
       </g>
@@ -476,7 +476,7 @@
             <path
               data-c="1D44B"
               d="M42 0H40Q26 0 26 11Q26 15 29 27Q33 41 36 43T55 46Q141 49 190 98Q200 108 306 224T411 342Q302 620 297 625Q288 636 234 637H206Q200 643 200 645T202 664Q206 677 212 683H226Q260 681 347 681Q380 681 408 681T453 682T473 682Q490 682 490 671Q490 670 488 658Q484 643 481 640T465 637Q434 634 411 620L488 426L541 485Q646 598 646 610Q646 628 622 635Q617 635 609 637Q594 637 594 648Q594 650 596 664Q600 677 606 683H618Q619 683 643 683T697 681T738 680Q828 680 837 683H845Q852 676 852 672Q850 647 840 637H824Q790 636 763 628T722 611T698 593L687 584Q687 585 592 480L505 384Q505 383 536 304T601 142T638 56Q648 47 699 46Q734 46 734 37Q734 35 732 23Q728 7 725 4T711 1Q708 1 678 1T589 2Q528 2 496 2T461 1Q444 1 444 10Q444 11 446 25Q448 35 450 39T455 44T464 46T480 47T506 54Q523 62 523 64Q522 64 476 181L429 299Q241 95 236 84Q232 76 232 72Q232 53 261 47Q262 47 267 47T273 46Q276 46 277 46T280 45T283 42T284 35Q284 26 282 19Q279 6 276 4T261 1Q258 1 243 1T201 2T142 2Q64 2 42 0Z"
-            ></path>
+            />
           </g>
         </g>
       </g>
@@ -507,27 +507,23 @@
             <path
               data-c="1D44C"
               d="M66 637Q54 637 49 637T39 638T32 641T30 647T33 664T42 682Q44 683 56 683Q104 680 165 680Q288 680 306 683H316Q322 677 322 674T320 656Q316 643 310 637H298Q242 637 242 624Q242 619 292 477T343 333L346 336Q350 340 358 349T379 373T411 410T454 461Q546 568 561 587T577 618Q577 634 545 637Q528 637 528 647Q528 649 530 661Q533 676 535 679T549 683Q551 683 578 682T657 680Q684 680 713 681T746 682Q763 682 763 673Q763 669 760 657T755 643Q753 637 734 637Q662 632 617 587Q608 578 477 424L348 273L322 169Q295 62 295 57Q295 46 363 46Q379 46 384 45T390 35Q390 33 388 23Q384 6 382 4T366 1Q361 1 324 1T232 2Q170 2 138 2T102 1Q84 1 84 9Q84 14 87 24Q88 27 89 30T90 35T91 39T93 42T96 44T101 45T107 45T116 46T129 46Q168 47 180 50T198 63Q201 68 227 171L252 274L129 623Q128 624 127 625T125 627T122 629T118 631T113 633T105 634T96 635T83 636T66 637Z"
-            ></path>
+            />
           </g>
         </g>
       </g>
     </svg>
   </g>
   <g>
-    <filter id="`XZ`.tick-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter id="ex__`XZ`.tick-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -536,24 +532,20 @@
       stroke-width="2"
       stroke-opacity="1"
       d="M 282.1899619461915 261.16234690778634 L 302.0726612413531 263.32527076985315 M 283.81215484274156 246.25032243641508 L 303.69485413790323 248.41324629848188"
-    ></path>
+    />
     <title>`XZ`.tick</title>
   </g>
   <g>
-    <filter id="`US`.tick-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter id="ex__`US`.tick-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -562,72 +554,60 @@
       stroke-width="2"
       stroke-opacity="1"
       d="M 309.82425204662553 84.35505707274365 L 308.34455203705807 64.40987071671748 M 294.8653622796059 85.46483207991923 L 293.38566227003844 65.51964572389306"
-    ></path>
+    />
     <title>`US`.tick</title>
   </g>
   <g>
-    <filter id="`XYZ`.icon-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter id="ex__`XYZ`.icon-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
       stroke="none"
       fill="none"
       d="M 307.80526915659163 118.16079674015518 L 56.29742965886024 229.04448388967717 L 278.07954692750303 391.41479646611305 Z "
-    ></path>
+    />
     <title>`XYZ`.icon</title>
   </g>
   <g>
-    <filter id="`UTS`.icon-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter id="ex__`UTS`.icon-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
       stroke="none"
       fill="none"
       d="M 164.54854036738084 85.10533767915754 L 319.2165058865047 312.3260310804311 L 438.6613739492831 64.76936511747917 Z "
-    ></path>
+    />
     <title>`UTS`.icon</title>
   </g>
   <g>
-    <filter id="`ZY`.tick-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter id="ex__`ZY`.tick-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -636,24 +616,20 @@
       stroke-width="2"
       stroke-opacity="1"
       d="M 173.0957373027419 302.1609102987393 L 161.2812392836214 318.298370057051 M 160.99264248400812 293.3000367843989 L 149.17814446488762 309.4374965427106 M 185.19883212147568 311.0217838130796 L 173.38433410235518 327.1592435713913"
-    ></path>
+    />
     <title>`ZY`.tick</title>
   </g>
   <g>
-    <filter id="`UT`.tick-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter id="ex__`UT`.tick-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -662,24 +638,20 @@
       stroke-width="2"
       stroke-opacity="1"
       d="M 233.61593042092457 204.34271181499844 L 250.14911583296094 193.08865694459024 M 242.0564715737307 216.7426008740257 L 258.5896569857671 205.48854600361756 M 225.17538926811844 191.94282275597112 L 241.70857468015484 180.68876788556298"
-    ></path>
+    />
     <title>`UT`.tick</title>
   </g>
   <g>
-    <filter id="`ST`.tick-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter id="ex__`ST`.tick-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -688,24 +660,20 @@
       stroke-width="2"
       stroke-opacity="1"
       d="M 369.9324947285594 184.202132799107 L 387.9453851072284 192.8932633988033"
-    ></path>
+    />
     <title>`ST`.tick</title>
   </g>
   <g>
-    <filter id="`XY`.tick-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter id="ex__`XY`.tick-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -714,24 +682,20 @@
       stroke-width="2"
       stroke-opacity="1"
       d="M 178.01725157024987 164.4524464720841 L 186.08544724520198 182.75283415774823"
-    ></path>
+    />
     <title>`XY`.tick</title>
   </g>
   <g>
-    <filter id="`aTUS`.mark-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter id="ex__`aTUS`.mark-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -740,24 +704,20 @@
       stroke-width="2"
       stroke-opacity="1"
       d="M 181.4296226729931 109.90511579721212 A 30 30 0 0 0 194.46631990142006 82.88578766480632"
-    ></path>
+    />
     <title>`aTUS`.mark</title>
   </g>
   <g>
-    <filter id="`aUTS`.mark-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter id="ex__`aUTS`.mark-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -766,24 +726,20 @@
       stroke-width="2"
       stroke-opacity="1"
       d="M 302.33542358089244 287.5262529623766 A 30 30 0 0 1 332.25320178604915 285.3066955124277 M 296.7083961707697 279.259660293205 A 40 40 0 0 1 336.5987670665278 276.3002503632376 M 291.08136876064685 270.9930676240334 A 50 50 0 0 1 340.9443323470065 267.2938052140475"
-    ></path>
+    />
     <title>`aUTS`.mark</title>
   </g>
   <g>
-    <filter id="`aUST`.mark-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter id="ex__`aUST`.mark-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -792,24 +748,20 @@
       stroke-width="2"
       stroke-opacity="1"
       d="M 408.7435944152439 66.9889151318304 A 30 30 0 0 0 425.6246780497387 91.78870068548261 M 398.7710012816816 67.72876513331641 A 40 40 0 0 0 421.27911276926 100.79514583467272"
-    ></path>
+    />
     <title>`aUST`.mark</title>
   </g>
   <g>
-    <filter id="`aYZX`.mark-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter id="ex__`aYZX`.mark-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -818,24 +770,20 @@
       stroke-width="2"
       stroke-opacity="1"
       d="M 253.8733572900355 373.6930494374323 A 30 30 0 0 1 281.32393272060324 361.59074752337057 M 245.80462744684434 367.78580045420244 A 40 40 0 0 1 282.40539464681626 351.64939792010125"
-    ></path>
+    />
     <title>`aYZX`.mark</title>
   </g>
   <g>
-    <filter id="`aXYZ`.mark-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter id="ex__`aXYZ`.mark-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -844,24 +792,20 @@
       stroke-width="2"
       stroke-opacity="1"
       d="M 83.74801118735644 216.942190377249 A 30 30 0 0 1 80.5036192963278 246.7662309183579"
-    ></path>
+    />
     <title>`aXYZ`.mark</title>
   </g>
   <g>
-    <filter id="`aZXY`.mark-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter id="ex__`aZXY`.mark-shadow" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -870,7 +814,7 @@
       stroke-width="2"
       stroke-opacity="1"
       d="M 304.5608833634914 147.98484568289766 A 30 30 0 0 1 280.35468762809546 130.26309025258334 M 303.4794214372784 157.92619528616694 A 40 40 0 0 1 271.20449382604846 134.29718807207823 M 302.39795951106544 167.86754488943626 A 50 50 0 0 1 262.0543000240015 138.33128589157312"
-    ></path>
+    />
     <title>`aZXY`.mark</title>
   </g>
 </svg>

@@ -16,7 +16,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Ybarra_architecture`.arrow</title>
   </g>
   <circle
@@ -61,7 +61,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Ziegler_requirements`.arrow</title>
   </g>
   <g>
@@ -71,7 +71,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Xuan_requirements`.arrow</title>
   </g>
   <circle
@@ -116,7 +116,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Xuan_testing`.arrow</title>
   </g>
   <g>
@@ -126,7 +126,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Xuan_implementation`.arrow</title>
   </g>
   <circle
@@ -171,7 +171,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Ziegler_architecture`.arrow</title>
   </g>
   <g>
@@ -181,7 +181,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Ziegler_testing`.arrow</title>
   </g>
   <circle
@@ -296,7 +296,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Washington_architecture`.arrow</title>
   </g>
   <circle

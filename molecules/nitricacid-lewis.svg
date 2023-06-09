@@ -16,7 +16,7 @@
       stroke-width="2"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`b2`.icon</title>
   </g>
   <g>
@@ -26,7 +26,7 @@
       stroke-width="2"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`b1`.icon</title>
   </g>
   <circle
@@ -91,7 +91,7 @@
       stroke-width="2"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`b4`.icon</title>
   </g>
   <circle
@@ -179,7 +179,7 @@
       stroke-width="6"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`b3`.icon</title>
   </g>
   <circle
@@ -207,7 +207,7 @@
       stroke-width="2"
       stroke="#ffffff"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`b3`.line2</title>
   </g>
   <g>

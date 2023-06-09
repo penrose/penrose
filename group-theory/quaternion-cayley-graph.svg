@@ -10,20 +10,22 @@
     </croppedViewBox>
   </penrose>
   <g>
-    <filter id="9:1:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="quaternion-cayley-graph__9:1:pathOutline-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -32,12 +34,12 @@
       stroke-width="3"
       stroke-opacity="1"
       d="M 84.40613155387703 100.50946161393598 Q 70.80387870627702 85.79121661136259 68.42201177217223 66.81821662733167"
-    ></path>
+    />
     <title>9:1:pathOutline</title>
   </g>
   <g>
     <marker
-      id="9:1:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__9:1:orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -50,22 +52,24 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#f242ad"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
-    <filter id="9:1:orientedPath-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="quaternion-cayley-graph__9:1:orientedPath-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -74,25 +78,27 @@
       stroke-width="1"
       stroke-opacity="1"
       d="M 84.40613155387703 100.50946161393598 Q 70.80387870627702 85.79121661136259 68.42201177217223 66.81821662733167"
-      marker-end="url(#9:1:orientedPath-endArrowId)"
-    ></path>
+      marker-end="url(#quaternion-cayley-graph__9:1:orientedPath-endArrowId)"
+    />
     <title>9:1:orientedPath</title>
   </g>
   <g>
-    <filter id="7:1:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="quaternion-cayley-graph__7:1:pathOutline-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -101,12 +107,12 @@
       stroke-width="3"
       stroke-opacity="1"
       d="M 29.183291489882322 76.79129479642025 Q 55.160326465955734 79.78591062449553 76.40168882901007 93.8065595063169"
-    ></path>
+    />
     <title>7:1:pathOutline</title>
   </g>
   <g>
     <marker
-      id="7:1:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__7:1:orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -119,22 +125,24 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#88904d"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
-    <filter id="7:1:orientedPath-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="quaternion-cayley-graph__7:1:orientedPath-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -143,25 +151,27 @@
       stroke-width="1"
       stroke-opacity="1"
       d="M 29.183291489882322 76.79129479642025 Q 55.160326465955734 79.78591062449553 76.40168882901007 93.8065595063169"
-      marker-end="url(#7:1:orientedPath-endArrowId)"
-    ></path>
+      marker-end="url(#quaternion-cayley-graph__7:1:orientedPath-endArrowId)"
+    />
     <title>7:1:orientedPath</title>
   </g>
   <g>
-    <filter id="7:9:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="quaternion-cayley-graph__7:9:pathOutline-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -170,12 +180,12 @@
       stroke-width="3"
       stroke-opacity="1"
       d="M 42.033625957214085 119.97399359037311 Q 80.50794887982605 108.19514542046282 120.29478766877745 108.3443022011135"
-    ></path>
+    />
     <title>7:9:pathOutline</title>
   </g>
   <g>
     <marker
-      id="7:9:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__7:9:orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -188,22 +198,24 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#f242ad"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
-    <filter id="7:9:orientedPath-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="quaternion-cayley-graph__7:9:orientedPath-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -212,25 +224,27 @@
       stroke-width="1"
       stroke-opacity="1"
       d="M 42.033625957214085 119.97399359037311 Q 80.50794887982605 108.19514542046282 120.29478766877745 108.3443022011135"
-      marker-end="url(#7:9:orientedPath-endArrowId)"
-    ></path>
+      marker-end="url(#quaternion-cayley-graph__7:9:orientedPath-endArrowId)"
+    />
     <title>7:9:orientedPath</title>
   </g>
   <g>
-    <filter id="7:2:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="quaternion-cayley-graph__7:2:pathOutline-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -239,12 +253,12 @@
       stroke-width="3"
       stroke-opacity="1"
       d="M 67.68147909933141 56.40420628738792 Q 63.68357383858384 86.35843125505633 48.55727425220611 111.82279656642335"
-    ></path>
+    />
     <title>7:2:pathOutline</title>
   </g>
   <g>
     <marker
-      id="7:2:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__7:2:orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -257,22 +271,24 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#88904d"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
-    <filter id="7:2:orientedPath-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="quaternion-cayley-graph__7:2:orientedPath-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -281,25 +297,27 @@
       stroke-width="1"
       stroke-opacity="1"
       d="M 67.68147909933141 56.40420628738792 Q 63.68357383858384 86.35843125505633 48.55727425220611 111.82279656642335"
-      marker-end="url(#7:2:orientedPath-endArrowId)"
-    ></path>
+      marker-end="url(#quaternion-cayley-graph__7:2:orientedPath-endArrowId)"
+    />
     <title>7:2:orientedPath</title>
   </g>
   <g>
-    <filter id="8:1:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="quaternion-cayley-graph__8:1:pathOutline-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -308,12 +326,12 @@
       stroke-width="3"
       stroke-opacity="1"
       d="M 116.3567182224448 151.41417438533367 Q 96.68710323520335 134.1838607825744 87.18132228787029 110.57416808705074"
-    ></path>
+    />
     <title>8:1:pathOutline</title>
   </g>
   <g>
     <marker
-      id="8:1:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__8:1:orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -326,22 +344,24 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#f242ad"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
-    <filter id="8:1:orientedPath-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="quaternion-cayley-graph__8:1:orientedPath-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -350,25 +370,27 @@
       stroke-width="1"
       stroke-opacity="1"
       d="M 116.3567182224448 151.41417438533367 Q 96.68710323520335 134.1838607825744 87.18132228787029 110.57416808705074"
-      marker-end="url(#8:1:orientedPath-endArrowId)"
-    ></path>
+      marker-end="url(#quaternion-cayley-graph__8:1:orientedPath-endArrowId)"
+    />
     <title>8:1:orientedPath</title>
   </g>
   <g>
-    <filter id="9:0:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="quaternion-cayley-graph__9:0:pathOutline-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -377,12 +399,12 @@
       stroke-width="3"
       stroke-opacity="1"
       d="M 114.63351720279901 65.19831844014458 Q 94.69129811421278 69.09356348109539 76.95826143001383 61.19391500391111"
-    ></path>
+    />
     <title>9:0:pathOutline</title>
   </g>
   <g>
     <marker
-      id="9:0:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__9:0:orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -395,22 +417,24 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#88904d"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
-    <filter id="9:0:orientedPath-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="quaternion-cayley-graph__9:0:orientedPath-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -419,25 +443,27 @@
       stroke-width="1"
       stroke-opacity="1"
       d="M 114.63351720279901 65.19831844014458 Q 94.69129811421278 69.09356348109539 76.95826143001383 61.19391500391111"
-      marker-end="url(#9:0:orientedPath-endArrowId)"
-    ></path>
+      marker-end="url(#quaternion-cayley-graph__9:0:orientedPath-endArrowId)"
+    />
     <title>9:0:orientedPath</title>
   </g>
   <g>
-    <filter id="7:0:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="quaternion-cayley-graph__7:0:pathOutline-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -446,12 +472,12 @@
       stroke-width="3"
       stroke-opacity="1"
       d="M 84.40613155387703 100.50946161393598 Q 104.13787325228029 97.00141822965836 121.39606172377741 105.23567165791542"
-    ></path>
+    />
     <title>7:0:pathOutline</title>
   </g>
   <g>
     <marker
-      id="7:0:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__7:0:orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -464,22 +490,24 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#88904d"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
-    <filter id="7:0:orientedPath-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="quaternion-cayley-graph__7:0:orientedPath-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -488,25 +516,27 @@
       stroke-width="1"
       stroke-opacity="1"
       d="M 84.40613155387703 100.50946161393598 Q 104.13787325228029 97.00141822965836 121.39606172377741 105.23567165791542"
-      marker-end="url(#7:0:orientedPath-endArrowId)"
-    ></path>
+      marker-end="url(#quaternion-cayley-graph__7:0:orientedPath-endArrowId)"
+    />
     <title>7:0:orientedPath</title>
   </g>
   <g>
-    <filter id="7:4:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="quaternion-cayley-graph__7:4:pathOutline-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -515,12 +545,12 @@
       stroke-width="3"
       stroke-opacity="1"
       d="M 71.7089493843008 145.37673850701844 Q 46.70678032526679 119.28568328284369 31.903264902315115 86.87106387292486"
-    ></path>
+    />
     <title>7:4:pathOutline</title>
   </g>
   <g>
     <marker
-      id="7:4:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__7:4:orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -533,22 +563,24 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#88904d"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
-    <filter id="7:4:orientedPath-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="quaternion-cayley-graph__7:4:orientedPath-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -557,25 +589,27 @@
       stroke-width="1"
       stroke-opacity="1"
       d="M 71.7089493843008 145.37673850701844 Q 46.70678032526679 119.28568328284369 31.903264902315115 86.87106387292486"
-      marker-end="url(#7:4:orientedPath-endArrowId)"
-    ></path>
+      marker-end="url(#quaternion-cayley-graph__7:4:orientedPath-endArrowId)"
+    />
     <title>7:4:orientedPath</title>
   </g>
   <g>
-    <filter id="7:7:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="quaternion-cayley-graph__7:7:pathOutline-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -584,12 +618,12 @@
       stroke-width="3"
       stroke-opacity="1"
       d="M 29.183291489882322 76.79129479642025 Q 41.37082600247723 91.45118523133624 42.056814757198424 109.53371283363313"
-    ></path>
+    />
     <title>7:7:pathOutline</title>
   </g>
   <g>
     <marker
-      id="7:7:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__7:7:orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -602,22 +636,24 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#f242ad"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
-    <filter id="7:7:orientedPath-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="quaternion-cayley-graph__7:7:orientedPath-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -626,25 +662,27 @@
       stroke-width="1"
       stroke-opacity="1"
       d="M 29.183291489882322 76.79129479642025 Q 41.37082600247723 91.45118523133624 42.056814757198424 109.53371283363313"
-      marker-end="url(#7:7:orientedPath-endArrowId)"
-    ></path>
+      marker-end="url(#quaternion-cayley-graph__7:7:orientedPath-endArrowId)"
+    />
     <title>7:7:orientedPath</title>
   </g>
   <g>
-    <filter id="7:10:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="quaternion-cayley-graph__7:10:pathOutline-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -653,12 +691,12 @@
       stroke-width="3"
       stroke-opacity="1"
       d="M 71.7089493843008 145.37673850701844 Q 90.08296045415787 140.29308021909543 106.848922635455 147.10119130212814"
-    ></path>
+    />
     <title>7:10:pathOutline</title>
   </g>
   <g>
     <marker
-      id="7:10:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__7:10:orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -671,28 +709,24 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#f242ad"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <filter
-      id="7:10:orientedPath-shadow"
+      id="quaternion-cayley-graph__7:10:orientedPath-shadow"
       x="0"
       y="0"
       width="200%"
       height="200%"
     >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -701,211 +735,217 @@
       stroke-width="1"
       stroke-opacity="1"
       d="M 71.7089493843008 145.37673850701844 Q 90.08296045415787 140.29308021909543 106.848922635455 147.10119130212814"
-      marker-end="url(#7:10:orientedPath-endArrowId)"
-    ></path>
+      marker-end="url(#quaternion-cayley-graph__7:10:orientedPath-endArrowId)"
+    />
     <title>7:10:orientedPath</title>
   </g>
   <g>
-    <filter id="7:8:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
-      </feMerge>
-    </filter>
-    <path
-      stroke="#ffffff"
-      fill="none"
-      stroke-width="3"
-      stroke-opacity="1"
-      d="M 67.68147909933141 56.40420628738792 Q 76.96144138834559 95.55643611545202 74.25367912237238 135.2513076243264"
-    ></path>
-    <title>7:8:pathOutline</title>
-  </g>
-  <g>
-    <marker
-      id="7:8:orientedPath-endArrowId"
-      markerUnits="strokeWidth"
-      markerWidth="7.46"
-      markerHeight="6.09"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#f242ad"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <filter id="7:8:orientedPath-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
-      </feMerge>
-    </filter>
-    <path
-      stroke="#f242ad"
-      fill="none"
-      stroke-width="1"
-      stroke-opacity="1"
-      d="M 67.68147909933141 56.40420628738792 Q 76.96144138834559 95.55643611545202 74.25367912237238 135.2513076243264"
-      marker-end="url(#7:8:orientedPath-endArrowId)"
-    ></path>
-    <title>7:8:orientedPath</title>
-  </g>
-  <g>
-    <filter id="7:5:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
-      </feMerge>
-    </filter>
-    <path
-      stroke="#ffffff"
-      fill="none"
-      stroke-width="3"
-      stroke-opacity="1"
-      d="M 130.5629207608298 110.2325402168042 Q 109.27398160826877 131.68048747332188 81.83275566766244 142.82555322621914"
-    ></path>
-    <title>7:5:pathOutline</title>
-  </g>
-  <g>
-    <marker
-      id="7:5:orientedPath-endArrowId"
-      markerUnits="strokeWidth"
-      markerWidth="7.46"
-      markerHeight="6.09"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#88904d"
-        fill-opacity="1"
-      ></path>
-    </marker>
-    <filter id="7:5:orientedPath-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
-      </feMerge>
-    </filter>
-    <path
-      stroke="#88904d"
-      fill="none"
-      stroke-width="1"
-      stroke-opacity="1"
-      d="M 130.5629207608298 110.2325402168042 Q 109.27398160826877 131.68048747332188 81.83275566766244 142.82555322621914"
-      marker-end="url(#7:5:orientedPath-endArrowId)"
-    ></path>
-    <title>7:5:orientedPath</title>
-  </g>
-  <g>
-    <filter id="7:11:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
-      </feMerge>
-    </filter>
-    <path
-      stroke="#ffffff"
-      fill="none"
-      stroke-width="3"
-      stroke-opacity="1"
-      d="M 130.5629207608298 110.2325402168042 Q 117.19487178605394 94.93026398230171 115.13994683402369 75.62633498350591"
-    ></path>
-    <title>7:11:pathOutline</title>
-  </g>
-  <g>
-    <marker
-      id="7:11:orientedPath-endArrowId"
-      markerUnits="strokeWidth"
-      markerWidth="7.46"
-      markerHeight="6.09"
-      viewBox="0 0 9.95 8.12"
-      refX="2.36"
-      refY="4.06"
-      orient="auto-start-reverse"
-    >
-      <path
-        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
-        fill="#f242ad"
-        fill-opacity="1"
-      ></path>
-    </marker>
     <filter
-      id="7:11:orientedPath-shadow"
+      id="quaternion-cayley-graph__7:8:pathOutline-shadow"
       x="0"
       y="0"
       width="200%"
       height="200%"
     >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <path
+      stroke="#ffffff"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="1"
+      d="M 67.68147909933141 56.40420628738792 Q 76.96144138834559 95.55643611545202 74.25367912237238 135.2513076243264"
+    />
+    <title>7:8:pathOutline</title>
+  </g>
+  <g>
+    <marker
+      id="quaternion-cayley-graph__7:8:orientedPath-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="7.46"
+      markerHeight="6.09"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#f242ad"
+        fill-opacity="1"
+      />
+    </marker>
+    <filter
+      id="quaternion-cayley-graph__7:8:orientedPath-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <path
+      stroke="#f242ad"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 67.68147909933141 56.40420628738792 Q 76.96144138834559 95.55643611545202 74.25367912237238 135.2513076243264"
+      marker-end="url(#quaternion-cayley-graph__7:8:orientedPath-endArrowId)"
+    />
+    <title>7:8:orientedPath</title>
+  </g>
+  <g>
+    <filter
+      id="quaternion-cayley-graph__7:5:pathOutline-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <path
+      stroke="#ffffff"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="1"
+      d="M 130.5629207608298 110.2325402168042 Q 109.27398160826877 131.68048747332188 81.83275566766244 142.82555322621914"
+    />
+    <title>7:5:pathOutline</title>
+  </g>
+  <g>
+    <marker
+      id="quaternion-cayley-graph__7:5:orientedPath-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="7.46"
+      markerHeight="6.09"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#88904d"
+        fill-opacity="1"
+      />
+    </marker>
+    <filter
+      id="quaternion-cayley-graph__7:5:orientedPath-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <path
+      stroke="#88904d"
+      fill="none"
+      stroke-width="1"
+      stroke-opacity="1"
+      d="M 130.5629207608298 110.2325402168042 Q 109.27398160826877 131.68048747332188 81.83275566766244 142.82555322621914"
+      marker-end="url(#quaternion-cayley-graph__7:5:orientedPath-endArrowId)"
+    />
+    <title>7:5:orientedPath</title>
+  </g>
+  <g>
+    <filter
+      id="quaternion-cayley-graph__7:11:pathOutline-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <path
+      stroke="#ffffff"
+      fill="none"
+      stroke-width="3"
+      stroke-opacity="1"
+      d="M 130.5629207608298 110.2325402168042 Q 117.19487178605394 94.93026398230171 115.13994683402369 75.62633498350591"
+    />
+    <title>7:11:pathOutline</title>
+  </g>
+  <g>
+    <marker
+      id="quaternion-cayley-graph__7:11:orientedPath-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="7.46"
+      markerHeight="6.09"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#f242ad"
+        fill-opacity="1"
+      />
+    </marker>
+    <filter
+      id="quaternion-cayley-graph__7:11:orientedPath-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -914,25 +954,27 @@
       stroke-width="1"
       stroke-opacity="1"
       d="M 130.5629207608298 110.2325402168042 Q 117.19487178605394 94.93026398230171 115.13994683402369 75.62633498350591"
-      marker-end="url(#7:11:orientedPath-endArrowId)"
-    ></path>
+      marker-end="url(#quaternion-cayley-graph__7:11:orientedPath-endArrowId)"
+    />
     <title>7:11:orientedPath</title>
   </g>
   <g>
-    <filter id="8:0:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="quaternion-cayley-graph__8:0:pathOutline-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -941,12 +983,12 @@
       stroke-width="3"
       stroke-opacity="1"
       d="M 116.3567182224448 151.41417438533367 Q 108.09653064051253 113.45512098262485 111.83394688237087 75.2562708172926"
-    ></path>
+    />
     <title>8:0:pathOutline</title>
   </g>
   <g>
     <marker
-      id="8:0:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__8:0:orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -959,22 +1001,24 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#88904d"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
-    <filter id="8:0:orientedPath-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="quaternion-cayley-graph__8:0:orientedPath-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -983,25 +1027,27 @@
       stroke-width="1"
       stroke-opacity="1"
       d="M 116.3567182224448 151.41417438533367 Q 108.09653064051253 113.45512098262485 111.83394688237087 75.2562708172926"
-      marker-end="url(#8:0:orientedPath-endArrowId)"
-    ></path>
+      marker-end="url(#quaternion-cayley-graph__8:0:orientedPath-endArrowId)"
+    />
     <title>8:0:orientedPath</title>
   </g>
   <g>
-    <filter id="7:3:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="quaternion-cayley-graph__7:3:pathOutline-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -1010,12 +1056,12 @@
       stroke-width="3"
       stroke-opacity="1"
       d="M 42.033625957214085 119.97399359037311 Q 77.51221086675721 126.83871039202836 108.31564616801724 144.7552585414816"
-    ></path>
+    />
     <title>7:3:pathOutline</title>
   </g>
   <g>
     <marker
-      id="7:3:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__7:3:orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -1028,22 +1074,24 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#88904d"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
-    <filter id="7:3:orientedPath-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="quaternion-cayley-graph__7:3:orientedPath-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -1052,8 +1100,8 @@
       stroke-width="1"
       stroke-opacity="1"
       d="M 42.033625957214085 119.97399359037311 Q 77.51221086675721 126.83871039202836 108.31564616801724 144.7552585414816"
-      marker-end="url(#7:3:orientedPath-endArrowId)"
-    ></path>
+      marker-end="url(#quaternion-cayley-graph__7:3:orientedPath-endArrowId)"
+    />
     <title>7:3:orientedPath</title>
   </g>
   <circle
@@ -1067,20 +1115,22 @@
     <title>4:0:identityMarker</title>
   </circle>
   <g>
-    <filter id="7:6:pathOutline-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="quaternion-cayley-graph__7:6:pathOutline-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -1089,12 +1139,12 @@
       stroke-width="3"
       stroke-opacity="1"
       d="M 114.63351720279901 65.19831844014458 Q 77.87129765374365 77.75453319592805 39.495825144595614 78.41968345408337"
-    ></path>
+    />
     <title>7:6:pathOutline</title>
   </g>
   <g>
     <marker
-      id="7:6:orientedPath-endArrowId"
+      id="quaternion-cayley-graph__7:6:orientedPath-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="7.46"
       markerHeight="6.09"
@@ -1107,22 +1157,24 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#f242ad"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
-    <filter id="7:6:orientedPath-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="quaternion-cayley-graph__7:6:orientedPath-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -1131,8 +1183,8 @@
       stroke-width="1"
       stroke-opacity="1"
       d="M 114.63351720279901 65.19831844014458 Q 77.87129765374365 77.75453319592805 39.495825144595614 78.41968345408337"
-      marker-end="url(#7:6:orientedPath-endArrowId)"
-    ></path>
+      marker-end="url(#quaternion-cayley-graph__7:6:orientedPath-endArrowId)"
+    />
     <title>7:6:orientedPath</title>
   </g>
   <circle
@@ -1173,7 +1225,7 @@
             <path
               data-c="31"
               d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"
-            ></path>
+            />
           </g>
         </g>
       </g>
@@ -1217,7 +1269,7 @@
             <path
               data-c="1D456"
               d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"
-            ></path>
+            />
           </g>
         </g>
       </g>
@@ -1261,7 +1313,7 @@
             <path
               data-c="1D457"
               d="M297 596Q297 627 318 644T361 661Q378 661 389 651T403 623Q403 595 384 576T340 557Q322 557 310 567T297 596ZM288 376Q288 405 262 405Q240 405 220 393T185 362T161 325T144 293L137 279Q135 278 121 278H107Q101 284 101 286T105 299Q126 348 164 391T252 441Q253 441 260 441T272 442Q296 441 316 432Q341 418 354 401T367 348V332L318 133Q267 -67 264 -75Q246 -125 194 -164T75 -204Q25 -204 7 -183T-12 -137Q-12 -110 7 -91T53 -71Q70 -71 82 -81T95 -112Q95 -148 63 -167Q69 -168 77 -168Q111 -168 139 -140T182 -74L193 -32Q204 11 219 72T251 197T278 308T289 365Q289 372 288 376Z"
-            ></path>
+            />
           </g>
         </g>
       </g>
@@ -1305,7 +1357,7 @@
             <path
               data-c="1D458"
               d="M121 647Q121 657 125 670T137 683Q138 683 209 688T282 694Q294 694 294 686Q294 679 244 477Q194 279 194 272Q213 282 223 291Q247 309 292 354T362 415Q402 442 438 442Q468 442 485 423T503 369Q503 344 496 327T477 302T456 291T438 288Q418 288 406 299T394 328Q394 353 410 369T442 390L458 393Q446 405 434 405H430Q398 402 367 380T294 316T228 255Q230 254 243 252T267 246T293 238T320 224T342 206T359 180T365 147Q365 130 360 106T354 66Q354 26 381 26Q429 26 459 145Q461 153 479 153H483Q499 153 499 144Q499 139 496 130Q455 -11 378 -11Q333 -11 305 15T277 90Q277 108 280 121T283 145Q283 167 269 183T234 206T200 217T182 220H180Q168 178 159 139T145 81T136 44T129 20T122 7T111 -2Q98 -11 83 -11Q66 -11 57 -1T48 16Q48 26 85 176T158 471L195 616Q196 629 188 632T149 637H144Q134 637 131 637T124 640T121 647Z"
-            ></path>
+            />
           </g>
         </g>
       </g>
@@ -1349,13 +1401,13 @@
             <path
               data-c="2212"
               d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"
-            ></path>
+            />
           </g>
           <g data-mml-node="mn" transform="translate(778,0)">
             <path
               data-c="31"
               d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"
-            ></path>
+            />
           </g>
         </g>
       </g>
@@ -1399,13 +1451,13 @@
             <path
               data-c="2212"
               d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"
-            ></path>
+            />
           </g>
           <g data-mml-node="mi" transform="translate(778,0)">
             <path
               data-c="1D456"
               d="M184 600Q184 624 203 642T247 661Q265 661 277 649T290 619Q290 596 270 577T226 557Q211 557 198 567T184 600ZM21 287Q21 295 30 318T54 369T98 420T158 442Q197 442 223 419T250 357Q250 340 236 301T196 196T154 83Q149 61 149 51Q149 26 166 26Q175 26 185 29T208 43T235 78T260 137Q263 149 265 151T282 153Q302 153 302 143Q302 135 293 112T268 61T223 11T161 -11Q129 -11 102 10T74 74Q74 91 79 106T122 220Q160 321 166 341T173 380Q173 404 156 404H154Q124 404 99 371T61 287Q60 286 59 284T58 281T56 279T53 278T49 278T41 278H27Q21 284 21 287Z"
-            ></path>
+            />
           </g>
         </g>
       </g>
@@ -1449,13 +1501,13 @@
             <path
               data-c="2212"
               d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"
-            ></path>
+            />
           </g>
           <g data-mml-node="mi" transform="translate(778,0)">
             <path
               data-c="1D457"
               d="M297 596Q297 627 318 644T361 661Q378 661 389 651T403 623Q403 595 384 576T340 557Q322 557 310 567T297 596ZM288 376Q288 405 262 405Q240 405 220 393T185 362T161 325T144 293L137 279Q135 278 121 278H107Q101 284 101 286T105 299Q126 348 164 391T252 441Q253 441 260 441T272 442Q296 441 316 432Q341 418 354 401T367 348V332L318 133Q267 -67 264 -75Q246 -125 194 -164T75 -204Q25 -204 7 -183T-12 -137Q-12 -110 7 -91T53 -71Q70 -71 82 -81T95 -112Q95 -148 63 -167Q69 -168 77 -168Q111 -168 139 -140T182 -74L193 -32Q204 11 219 72T251 197T278 308T289 365Q289 372 288 376Z"
-            ></path>
+            />
           </g>
         </g>
       </g>
@@ -1499,13 +1551,13 @@
             <path
               data-c="2212"
               d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"
-            ></path>
+            />
           </g>
           <g data-mml-node="mi" transform="translate(778,0)">
             <path
               data-c="1D458"
               d="M121 647Q121 657 125 670T137 683Q138 683 209 688T282 694Q294 694 294 686Q294 679 244 477Q194 279 194 272Q213 282 223 291Q247 309 292 354T362 415Q402 442 438 442Q468 442 485 423T503 369Q503 344 496 327T477 302T456 291T438 288Q418 288 406 299T394 328Q394 353 410 369T442 390L458 393Q446 405 434 405H430Q398 402 367 380T294 316T228 255Q230 254 243 252T267 246T293 238T320 224T342 206T359 180T365 147Q365 130 360 106T354 66Q354 26 381 26Q429 26 459 145Q461 153 479 153H483Q499 153 499 144Q499 139 496 130Q455 -11 378 -11Q333 -11 305 15T277 90Q277 108 280 121T283 145Q283 167 269 183T234 206T200 217T182 220H180Q168 178 159 139T145 81T136 44T129 20T122 7T111 -2Q98 -11 83 -11Q66 -11 57 -1T48 16Q48 26 85 176T158 471L195 616Q196 629 188 632T149 637H144Q134 637 131 637T124 640T121 647Z"
-            ></path>
+            />
           </g>
         </g>
       </g>

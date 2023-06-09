@@ -37,11 +37,9 @@
   <g
     transform="rotate(0, 88.85829787570745, 119.96229409568633)translate(1.046245611278593, 32.150241831257475)"
   >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
-    <svg
+    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
-      id="Layer_1--inject-46"
+      id="laplace-estimator__Layer_1--inject-46"
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       x="0px"
@@ -53,25 +51,25 @@
       height="175.6241045288577"
     >
       <style type="text/css">
-        .st0 {
+        .laplace-estimator__st0 {
           opacity: 0.6;
-          fill: url(#SVGID_1_--inject-46);
+          fill: url(#laplace-estimator__SVGID_1_--inject-46);
           enable-background: new;
         }
       </style>
       <radialGradient
-        id="SVGID_1_--inject-46"
+        id="laplace-estimator__SVGID_1_--inject-46"
         cx="75.4328"
         cy="151.0149"
         r="157.9341"
         gradientTransform="matrix(1 0 0 -1 0 222)"
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset="0" style="stop-color: #ffffff"></stop>
-        <stop offset="0.7844" style="stop-color: #5f5f5f"></stop>
-        <stop offset="1" style="stop-color: #7f7f7f"></stop>
+        <stop offset="0" style="stop-color: #ffffff" />
+        <stop offset="0.7844" style="stop-color: #5f5f5f" />
+        <stop offset="1" style="stop-color: #7f7f7f" />
       </radialGradient>
-      <circle class="st0" cx="110.9" cy="110.9" r="110.9"></circle>
+      <circle class="laplace-estimator__st0" cx="110.9" cy="110.9" r="110.9" />
     </svg>
     <title>`x0`.shading</title>
   </g>
@@ -104,17 +102,15 @@
       stroke-width="2"
       stroke="#0000b3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>9:0:walkLine</title>
   </g>
   <g
     transform="rotate(0, 174.8488900407498, 104.07102407988921)translate(119.38843393377417, 48.610567972913564)"
   >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
-    <svg
+    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
-      id="Layer_1--inject-47"
+      id="laplace-estimator__Layer_1--inject-47"
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       x="0px"
@@ -126,25 +122,25 @@
       height="110.9209122139513"
     >
       <style type="text/css">
-        .st0 {
+        .laplace-estimator__st0 {
           opacity: 0.6;
-          fill: url(#SVGID_1_--inject-47);
+          fill: url(#laplace-estimator__SVGID_1_--inject-47);
           enable-background: new;
         }
       </style>
       <radialGradient
-        id="SVGID_1_--inject-47"
+        id="laplace-estimator__SVGID_1_--inject-47"
         cx="75.4328"
         cy="151.0149"
         r="157.9341"
         gradientTransform="matrix(1 0 0 -1 0 222)"
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset="0" style="stop-color: #ffffff"></stop>
-        <stop offset="0.7844" style="stop-color: #5f5f5f"></stop>
-        <stop offset="1" style="stop-color: #7f7f7f"></stop>
+        <stop offset="0" style="stop-color: #ffffff" />
+        <stop offset="0.7844" style="stop-color: #5f5f5f" />
+        <stop offset="1" style="stop-color: #7f7f7f" />
       </radialGradient>
-      <circle class="st0" cx="110.9" cy="110.9" r="110.9"></circle>
+      <circle class="laplace-estimator__st0" cx="110.9" cy="110.9" r="110.9" />
     </svg>
     <title>`x1`.shading</title>
   </g>
@@ -177,17 +173,15 @@
       stroke-width="2"
       stroke="#0000b3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>9:1:walkLine</title>
   </g>
   <g
     transform="rotate(0, 122.84900914320727, 83.55004431016027)translate(79.65635249680582, 40.357387663758836)"
   >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
-    <svg
+    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
-      id="Layer_1--inject-48"
+      id="laplace-estimator__Layer_1--inject-48"
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       x="0px"
@@ -199,25 +193,25 @@
       height="86.38531329280288"
     >
       <style type="text/css">
-        .st0 {
+        .laplace-estimator__st0 {
           opacity: 0.6;
-          fill: url(#SVGID_1_--inject-48);
+          fill: url(#laplace-estimator__SVGID_1_--inject-48);
           enable-background: new;
         }
       </style>
       <radialGradient
-        id="SVGID_1_--inject-48"
+        id="laplace-estimator__SVGID_1_--inject-48"
         cx="75.4328"
         cy="151.0149"
         r="157.9341"
         gradientTransform="matrix(1 0 0 -1 0 222)"
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset="0" style="stop-color: #ffffff"></stop>
-        <stop offset="0.7844" style="stop-color: #5f5f5f"></stop>
-        <stop offset="1" style="stop-color: #7f7f7f"></stop>
+        <stop offset="0" style="stop-color: #ffffff" />
+        <stop offset="0.7844" style="stop-color: #5f5f5f" />
+        <stop offset="1" style="stop-color: #7f7f7f" />
       </radialGradient>
-      <circle class="st0" cx="110.9" cy="110.9" r="110.9"></circle>
+      <circle class="laplace-estimator__st0" cx="110.9" cy="110.9" r="110.9" />
     </svg>
     <title>`x2`.shading</title>
   </g>
@@ -250,17 +244,15 @@
       stroke-width="2"
       stroke="#0000b3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>9:2:walkLine</title>
   </g>
   <g
     transform="rotate(0, 163.22614564257125, 97.61727090063364)translate(115.67356678355831, 50.0646920416207)"
   >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
-    <svg
+    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
-      id="Layer_1--inject-49"
+      id="laplace-estimator__Layer_1--inject-49"
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       x="0px"
@@ -272,25 +264,25 @@
       height="95.10515771802588"
     >
       <style type="text/css">
-        .st0 {
+        .laplace-estimator__st0 {
           opacity: 0.6;
-          fill: url(#SVGID_1_--inject-49);
+          fill: url(#laplace-estimator__SVGID_1_--inject-49);
           enable-background: new;
         }
       </style>
       <radialGradient
-        id="SVGID_1_--inject-49"
+        id="laplace-estimator__SVGID_1_--inject-49"
         cx="75.4328"
         cy="151.0149"
         r="157.9341"
         gradientTransform="matrix(1 0 0 -1 0 222)"
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset="0" style="stop-color: #ffffff"></stop>
-        <stop offset="0.7844" style="stop-color: #5f5f5f"></stop>
-        <stop offset="1" style="stop-color: #7f7f7f"></stop>
+        <stop offset="0" style="stop-color: #ffffff" />
+        <stop offset="0.7844" style="stop-color: #5f5f5f" />
+        <stop offset="1" style="stop-color: #7f7f7f" />
       </radialGradient>
-      <circle class="st0" cx="110.9" cy="110.9" r="110.9"></circle>
+      <circle class="laplace-estimator__st0" cx="110.9" cy="110.9" r="110.9" />
     </svg>
     <title>`x3`.shading</title>
   </g>
@@ -462,17 +454,15 @@
       stroke-width="2"
       stroke="#0000b3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>9:3:walkLine</title>
   </g>
   <g
     transform="rotate(0, 162.29778645559117, 154.43674574277455)translate(126.86094935396972, 118.9999086411531)"
   >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
-    <svg
+    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
-      id="Layer_1--inject-50"
+      id="laplace-estimator__Layer_1--inject-50"
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       x="0px"
@@ -484,25 +474,25 @@
       height="70.87367420324291"
     >
       <style type="text/css">
-        .st0 {
+        .laplace-estimator__st0 {
           opacity: 0.6;
-          fill: url(#SVGID_1_--inject-50);
+          fill: url(#laplace-estimator__SVGID_1_--inject-50);
           enable-background: new;
         }
       </style>
       <radialGradient
-        id="SVGID_1_--inject-50"
+        id="laplace-estimator__SVGID_1_--inject-50"
         cx="75.4328"
         cy="151.0149"
         r="157.9341"
         gradientTransform="matrix(1 0 0 -1 0 222)"
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset="0" style="stop-color: #ffffff"></stop>
-        <stop offset="0.7844" style="stop-color: #5f5f5f"></stop>
-        <stop offset="1" style="stop-color: #7f7f7f"></stop>
+        <stop offset="0" style="stop-color: #ffffff" />
+        <stop offset="0.7844" style="stop-color: #5f5f5f" />
+        <stop offset="1" style="stop-color: #7f7f7f" />
       </radialGradient>
-      <circle class="st0" cx="110.9" cy="110.9" r="110.9"></circle>
+      <circle class="laplace-estimator__st0" cx="110.9" cy="110.9" r="110.9" />
     </svg>
     <title>`x4`.shading</title>
   </g>

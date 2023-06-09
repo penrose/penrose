@@ -11,7 +11,7 @@
   </penrose>
   <g>
     <marker
-      id="registry-TransfusionElephant49974-`r3`.icon-endArrowId"
+      id="next-event-estimation__registry-TransfusionElephant49974-`r3`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -24,7 +24,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#000000"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 22.4429284675185 145.27244038453063 L 29.519457713791255 136.5848209371597"
@@ -32,8 +32,8 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#registry-TransfusionElephant49974-`r3`.icon-endArrowId)"
-    ></path>
+      marker-end="url(#next-event-estimation__registry-TransfusionElephant49974-`r3`.icon-endArrowId)"
+    />
     <title>`r3`.icon</title>
   </g>
   <polygon
@@ -55,12 +55,12 @@
       stroke-width="0.65"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`r3`.rayLine</title>
   </g>
   <g>
     <marker
-      id="registry-TransfusionElephant49974-`r1`.icon-endArrowId"
+      id="next-event-estimation__registry-TransfusionElephant49974-`r1`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -73,7 +73,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#000000"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 149.9878289107828 30.337124473805503 L 151.63765880203053 41.41999629542794"
@@ -81,8 +81,8 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#registry-TransfusionElephant49974-`r1`.icon-endArrowId)"
-    ></path>
+      marker-end="url(#next-event-estimation__registry-TransfusionElephant49974-`r1`.icon-endArrowId)"
+    />
     <title>`r1`.icon</title>
   </g>
   <g fill="none">
@@ -92,7 +92,7 @@
       stroke-width="0.65"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`r1`.rayLine</title>
   </g>
   <g>
@@ -102,7 +102,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`rL2`.icon</title>
   </g>
   <g fill="none">
@@ -113,7 +113,7 @@
       stroke="#000000"
       stroke-dasharray="4,3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`rL2`.rayLine</title>
   </g>
   <g>
@@ -123,7 +123,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`rL1`.icon</title>
   </g>
   <g fill="none">
@@ -134,12 +134,12 @@
       stroke="#000000"
       stroke-dasharray="4,3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`rL1`.rayLine</title>
   </g>
   <g>
     <marker
-      id="registry-TransfusionElephant49974-`r2`.icon-endArrowId"
+      id="next-event-estimation__registry-TransfusionElephant49974-`r2`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -152,7 +152,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#000000"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 173.23305153526803 186.48887331708403 L 162.42454672610978 183.5345152695898"
@@ -160,8 +160,8 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#registry-TransfusionElephant49974-`r2`.icon-endArrowId)"
-    ></path>
+      marker-end="url(#next-event-estimation__registry-TransfusionElephant49974-`r2`.icon-endArrowId)"
+    />
     <title>`r2`.icon</title>
   </g>
   <g fill="none">
@@ -171,12 +171,12 @@
       stroke-width="0.65"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`r2`.rayLine</title>
   </g>
   <g>
     <marker
-      id="registry-TransfusionElephant49974-`r0`.icon-endArrowId"
+      id="next-event-estimation__registry-TransfusionElephant49974-`r0`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -189,7 +189,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#000000"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 184.557297565802 50.623656648026476 L 174.89341094859822 44.95256147603102"
@@ -197,8 +197,8 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#registry-TransfusionElephant49974-`r0`.icon-endArrowId)"
-    ></path>
+      marker-end="url(#next-event-estimation__registry-TransfusionElephant49974-`r0`.icon-endArrowId)"
+    />
     <title>`r0`.icon</title>
   </g>
   <g fill="none">
@@ -208,17 +208,15 @@
       stroke-width="0.65"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`r0`.rayLine</title>
   </g>
   <g
     transform="rotate(0, 65.70962649792303, 92.1553551367804)translate(52.209626497923026, 71.6553551367804)"
   >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 27.2.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-    <svg
+    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 27.2.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
-      id="Layer_1--inject-96"
+      id="next-event-estimation__Layer_1--inject-96"
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       x="0px"
@@ -230,215 +228,233 @@
       height="41"
     >
       <style type="text/css">
-        .st0 {
-          fill: url(#SVGID_1_--inject-96);
-          stroke: #ff6600;
-          stroke-width: 0.7013;
-          stroke-miterlimit: 10;
-        }
-        .st1 {
+        .next-event-estimation__st1 {
           fill: none;
           stroke: #ff4800;
           stroke-width: 0.5;
           stroke-miterlimit: 10;
         }
-
-        .st2 {
-          fill: url(#SVGID_00000018935483706378349460000013208435196869131452_--inject-96);
+        .next-event-estimation__st2 {
+          fill: url(#next-event-estimation__SVGID_00000018935483706378349460000013208435196869131452_--inject-96);
           stroke: #7268ad;
           stroke-width: 0.5;
           stroke-miterlimit: 10;
         }
-
-        .st3 {
-          fill: url(#SVGID_00000078003197397473630540000010183348844872727683_--inject-96);
+        .next-event-estimation__st3 {
+          fill: url(#next-event-estimation__SVGID_00000078003197397473630540000010183348844872727683_--inject-96);
           stroke: #7268ad;
           stroke-width: 0.5;
           stroke-miterlimit: 10;
         }
-
-        .st4 {
-          fill: url(#SVGID_00000029035955789647268990000012886445163362957962_--inject-96);
+        .next-event-estimation__st4 {
+          fill: url(#next-event-estimation__SVGID_00000029035955789647268990000012886445163362957962_--inject-96);
           stroke: #7268ad;
           stroke-width: 0.5;
           stroke-miterlimit: 10;
         }
-
-        .st5 {
-          fill: url(#SVGID_00000042701746379068522330000008319387606643851198_--inject-96);
+        .next-event-estimation__st5 {
+          fill: url(#next-event-estimation__SVGID_00000042701746379068522330000008319387606643851198_--inject-96);
           stroke: #7268ad;
           stroke-width: 0.5;
           stroke-miterlimit: 10;
         }
-
-        .st6 {
-          fill: url(#SVGID_00000024003511866000973270000016641126527330055306_--inject-96);
+        .next-event-estimation__st6 {
+          fill: url(#next-event-estimation__SVGID_00000024003511866000973270000016641126527330055306_--inject-96);
           stroke: #7268ad;
           stroke-width: 0.5;
           stroke-miterlimit: 10;
         }
-        .st7 {
+        .next-event-estimation__st7 {
           fill: #ff6600;
         }
       </style>
       <radialGradient
-        id="SVGID_1_--inject-96"
+        id="next-event-estimation__SVGID_1_--inject-96"
         cx="13.9983"
         cy="9.3041"
         r="14.2367"
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset="0" style="stop-color: #ffe7b8"></stop>
-        <stop offset="2.577424e-03" style="stop-color: #ffe7b7"></stop>
-        <stop offset="0.1958" style="stop-color: #ffd480"></stop>
-        <stop offset="0.3838" style="stop-color: #ffc552"></stop>
-        <stop offset="0.5624" style="stop-color: #ffb92e"></stop>
-        <stop offset="0.7293" style="stop-color: #ffb115"></stop>
-        <stop offset="0.8799" style="stop-color: #ffac05"></stop>
-        <stop offset="1" style="stop-color: #ffaa00"></stop>
+        <stop offset="0" style="stop-color: #ffe7b8" />
+        <stop offset="2.577424e-03" style="stop-color: #ffe7b7" />
+        <stop offset="0.1958" style="stop-color: #ffd480" />
+        <stop offset="0.3838" style="stop-color: #ffc552" />
+        <stop offset="0.5624" style="stop-color: #ffb92e" />
+        <stop offset="0.7293" style="stop-color: #ffb115" />
+        <stop offset="0.8799" style="stop-color: #ffac05" />
+        <stop offset="1" style="stop-color: #ffaa00" />
       </radialGradient>
       <path
-        class="st0"
         d="M15.5,29c0,0,0-3.9,0-7s3.7-8.1,3.5-11c-0.3-3.2-2.9-5.9-6.2-6.3c-0.3,0-1.3,0-1.6,0C8,5.2,5.4,7.8,5,11
 	C4.7,13.9,8.5,19,8.5,22s0,7,0,7H15.5z"
-      ></path>
+        style="
+          fill: url(#next-event-estimation__SVGID_1_--inject-96);
+          stroke: #ff6600;
+          stroke-width: 0.7013;
+          stroke-miterlimit: 10;
+        "
+      />
       <path
-        class="st1"
+        class="next-event-estimation__st1"
         d="M12,26.2c0,0,0-2.3,0-6.2s-2.8-7.4-2.2-8.4c0.6-1,2.2-0.7,2.2,0.5s0,7.9,0,7.9"
-      ></path>
+      />
       <path
-        class="st1"
+        class="next-event-estimation__st1"
         d="M12,26.2c0,0,0-2.3,0-6.2s2.8-7.4,2.2-8.4c-0.6-1-2.2-0.7-2.2,0.5s0,7.9,0,7.9"
-      ></path>
+      />
       <g>
         <linearGradient
-          id="SVGID_00000089563940588869822530000016603780972814762650_--inject-96"
+          id="next-event-estimation__SVGID_00000089563940588869822530000016603780972814762650_--inject-96"
           gradientUnits="userSpaceOnUse"
           x1="12.369"
           y1="25.3749"
           x2="11.6062"
           y2="34.021"
         >
-          <stop offset="0" style="stop-color: #b5e2ff"></stop>
-          <stop offset="1" style="stop-color: #5a77ad"></stop>
+          <stop offset="0" style="stop-color: #b5e2ff" />
+          <stop offset="1" style="stop-color: #5a77ad" />
         </linearGradient>
-
         <rect
           x="8"
           y="24.5"
           style="
-            fill: url(#SVGID_00000089563940588869822530000016603780972814762650_--inject-96);
+            fill: url(#next-event-estimation__SVGID_00000089563940588869822530000016603780972814762650_--inject-96);
             stroke: #7268ad;
             stroke-width: 0.5;
             stroke-miterlimit: 10;
           "
           width="8.1"
           height="10.1"
-        ></rect>
-
+        />
         <linearGradient
-          id="SVGID_00000130627870975031971840000012476769343880697790_--inject-96"
+          id="next-event-estimation__SVGID_00000130627870975031971840000012476769343880697790_--inject-96"
           gradientUnits="userSpaceOnUse"
           x1="12.0897"
           y1="25.1835"
           x2="11.9032"
           y2="27.2975"
         >
-          <stop offset="0" style="stop-color: #b5e2ff"></stop>
-          <stop offset="1" style="stop-color: #5a77ad"></stop>
+          <stop offset="0" style="stop-color: #b5e2ff" />
+          <stop offset="1" style="stop-color: #5a77ad" />
         </linearGradient>
-
         <path
           style="
-            fill: url(#SVGID_00000130627870975031971840000012476769343880697790_--inject-96);
+            fill: url(#next-event-estimation__SVGID_00000130627870975031971840000012476769343880697790_--inject-96);
             stroke: #7268ad;
             stroke-width: 0.5;
             stroke-miterlimit: 10;
           "
           d="
 		M8,24.5l4,0.6l4,0.6c0,0,0.4,0.6,0.4,1.1c0,0.6-0.4,1.1-0.4,1.1l-4-0.6l-4-0.6c0,0-0.4-0.6-0.4-1.1S8,24.5,8,24.5z"
-        ></path>
-
+        />
         <linearGradient
-          id="SVGID_00000121984210716788000840000003981854337940660669_--inject-96"
+          id="next-event-estimation__SVGID_00000121984210716788000840000003981854337940660669_--inject-96"
           gradientUnits="userSpaceOnUse"
           x1="12.0897"
           y1="27.4218"
           x2="11.9032"
           y2="29.5358"
         >
-          <stop offset="0" style="stop-color: #b5e2ff"></stop>
-          <stop offset="1" style="stop-color: #5a77ad"></stop>
+          <stop offset="0" style="stop-color: #b5e2ff" />
+          <stop offset="1" style="stop-color: #5a77ad" />
         </linearGradient>
-
         <path
           style="
-            fill: url(#SVGID_00000121984210716788000840000003981854337940660669_--inject-96);
+            fill: url(#next-event-estimation__SVGID_00000121984210716788000840000003981854337940660669_--inject-96);
             stroke: #7268ad;
             stroke-width: 0.5;
             stroke-miterlimit: 10;
           "
           d="
 		M8,26.8l4,0.6l4,0.6c0,0,0.4,0.6,0.4,1.1S16,30.1,16,30.1l-4-0.6L8,29c0,0-0.4-0.6-0.4-1.1C7.6,27.3,8,26.8,8,26.8z"
-        ></path>
-
+        />
         <linearGradient
-          id="SVGID_00000125584911409238479950000009050297073157801887_--inject-96"
+          id="next-event-estimation__SVGID_00000125584911409238479950000009050297073157801887_--inject-96"
           gradientUnits="userSpaceOnUse"
           x1="12.0897"
           y1="29.6602"
           x2="11.9032"
           y2="31.7742"
         >
-          <stop offset="0" style="stop-color: #b5e2ff"></stop>
-          <stop offset="1" style="stop-color: #5a77ad"></stop>
+          <stop offset="0" style="stop-color: #b5e2ff" />
+          <stop offset="1" style="stop-color: #5a77ad" />
         </linearGradient>
-
         <path
           style="
-            fill: url(#SVGID_00000125584911409238479950000009050297073157801887_--inject-96);
+            fill: url(#next-event-estimation__SVGID_00000125584911409238479950000009050297073157801887_--inject-96);
             stroke: #7268ad;
             stroke-width: 0.5;
             stroke-miterlimit: 10;
           "
           d="
 		M8,29l4,0.6l4,0.6c0,0,0.4,0.6,0.4,1.1c0,0.6-0.4,1.1-0.4,1.1l-4-0.6l-4-0.6c0,0-0.4-0.6-0.4-1.1S8,29,8,29z"
-        ></path>
-
+        />
         <linearGradient
-          id="SVGID_00000020379778380040063200000009621109186709514122_--inject-96"
+          id="next-event-estimation__SVGID_00000020379778380040063200000009621109186709514122_--inject-96"
           gradientUnits="userSpaceOnUse"
           x1="12.0897"
           y1="31.8985"
           x2="11.9032"
           y2="34.0125"
         >
-          <stop offset="0" style="stop-color: #b5e2ff"></stop>
-          <stop offset="1" style="stop-color: #5a77ad"></stop>
+          <stop offset="0" style="stop-color: #b5e2ff" />
+          <stop offset="1" style="stop-color: #5a77ad" />
         </linearGradient>
-
         <path
           style="
-            fill: url(#SVGID_00000020379778380040063200000009621109186709514122_--inject-96);
+            fill: url(#next-event-estimation__SVGID_00000020379778380040063200000009621109186709514122_--inject-96);
             stroke: #7268ad;
             stroke-width: 0.5;
             stroke-miterlimit: 10;
           "
           d="
 		M8,31.2l4,0.6l4,0.6c0,0,0.4,0.6,0.4,1.1c0,0.6-0.4,1.1-0.4,1.1L12,34l-4-0.6c0,0-0.4-0.6-0.4-1.1S8,31.2,8,31.2z"
-        ></path>
+        />
       </g>
-      <path class="st7" d="M6.7,18.7l0.2,0.5l-3.7,1.2L6.7,18.7z"></path>
-      <path class="st7" d="M5.2,15.1l0.2,0.5l-3.7,1.3L5.2,15.1z"></path>
-      <path class="st7" d="M4.2,11.3l0,0.5l-3.9-0.2L4.2,11.3z"></path>
-      <path class="st7" d="M5.4,7.5L5.2,7.9L2,5.7L5.4,7.5z"></path>
-      <path class="st7" d="M8.4,4.9L7.9,5.1L6.2,1.6L8.4,4.9z"></path>
-      <path class="st7" d="M12.2,4l-0.5,0l0.2-3.9L12.2,4z"></path>
-      <path class="st7" d="M16,5.1l-0.5-0.3l2.1-3.3L16,5.1z"></path>
-      <path class="st7" d="M18.8,7.8l-0.3-0.4L22,5.6L18.8,7.8z"></path>
-      <path class="st7" d="M19.8,11.7l0-0.5l3.9,0.3L19.8,11.7z"></path>
-      <path class="st7" d="M18.7,15.5l0.2-0.5l3.5,1.7L18.7,15.5z"></path>
-      <path class="st7" d="M17.1,19.1l0.2-0.5l3.5,1.7L17.1,19.1z"></path>
+      <path
+        class="next-event-estimation__st7"
+        d="M6.7,18.7l0.2,0.5l-3.7,1.2L6.7,18.7z"
+      />
+      <path
+        class="next-event-estimation__st7"
+        d="M5.2,15.1l0.2,0.5l-3.7,1.3L5.2,15.1z"
+      />
+      <path
+        class="next-event-estimation__st7"
+        d="M4.2,11.3l0,0.5l-3.9-0.2L4.2,11.3z"
+      />
+      <path
+        class="next-event-estimation__st7"
+        d="M5.4,7.5L5.2,7.9L2,5.7L5.4,7.5z"
+      />
+      <path
+        class="next-event-estimation__st7"
+        d="M8.4,4.9L7.9,5.1L6.2,1.6L8.4,4.9z"
+      />
+      <path
+        class="next-event-estimation__st7"
+        d="M12.2,4l-0.5,0l0.2-3.9L12.2,4z"
+      />
+      <path
+        class="next-event-estimation__st7"
+        d="M16,5.1l-0.5-0.3l2.1-3.3L16,5.1z"
+      />
+      <path
+        class="next-event-estimation__st7"
+        d="M18.8,7.8l-0.3-0.4L22,5.6L18.8,7.8z"
+      />
+      <path
+        class="next-event-estimation__st7"
+        d="M19.8,11.7l0-0.5l3.9,0.3L19.8,11.7z"
+      />
+      <path
+        class="next-event-estimation__st7"
+        d="M18.7,15.5l0.2-0.5l3.5,1.7L18.7,15.5z"
+      />
+      <path
+        class="next-event-estimation__st7"
+        d="M17.1,19.1l0.2-0.5l3.5,1.7L17.1,19.1z"
+      />
     </svg>
     <title>`L`.icon</title>
   </g>
@@ -469,7 +485,7 @@
   </text>
   <g>
     <marker
-      id="registry-TransfusionElephant49974-16:0:normalArrow-endArrowId"
+      id="next-event-estimation__registry-TransfusionElephant49974-16:0:normalArrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -482,7 +498,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#55aa55"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 149.9878289107828 30.337124473805503 L 159.88629552883464 35.58806201827137"
@@ -490,8 +506,8 @@
       stroke-width="1"
       stroke="#55aa55"
       stroke-linecap="butt"
-      marker-end="url(#registry-TransfusionElephant49974-16:0:normalArrow-endArrowId)"
-    ></path>
+      marker-end="url(#next-event-estimation__registry-TransfusionElephant49974-16:0:normalArrow-endArrowId)"
+    />
     <title>16:0:normalArrow</title>
   </g>
   <circle
@@ -628,13 +644,13 @@
               <path
                 data-c="1D465"
                 d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"
-              ></path>
+              />
             </g>
             <g data-mml-node="mn" transform="translate(605,-150) scale(0.707)">
               <path
                 data-c="31"
                 d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"
-              ></path>
+              />
             </g>
           </g>
         </g>
@@ -668,7 +684,7 @@
   </text>
   <g>
     <marker
-      id="registry-TransfusionElephant49974-16:1:normalArrow-endArrowId"
+      id="next-event-estimation__registry-TransfusionElephant49974-16:1:normalArrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -681,7 +697,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#55aa55"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 173.23305153526803 186.48887331708403 L 172.7135232358054 175.29592473199492"
@@ -689,8 +705,8 @@
       stroke-width="1"
       stroke="#55aa55"
       stroke-linecap="butt"
-      marker-end="url(#registry-TransfusionElephant49974-16:1:normalArrow-endArrowId)"
-    ></path>
+      marker-end="url(#next-event-estimation__registry-TransfusionElephant49974-16:1:normalArrow-endArrowId)"
+    />
     <title>16:1:normalArrow</title>
   </g>
   <circle
@@ -733,13 +749,13 @@
               <path
                 data-c="1D465"
                 d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"
-              ></path>
+              />
             </g>
             <g data-mml-node="mn" transform="translate(605,-150) scale(0.707)">
               <path
                 data-c="32"
                 d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"
-              ></path>
+              />
             </g>
           </g>
         </g>
@@ -748,7 +764,7 @@
   </g>
   <g>
     <marker
-      id="registry-TransfusionElephant49974-16:2:normalArrow-endArrowId"
+      id="next-event-estimation__registry-TransfusionElephant49974-16:2:normalArrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -761,7 +777,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#55aa55"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 22.4429284675185 145.27244038453063 L 33.48069297577018 143.3437743958041"
@@ -769,8 +785,8 @@
       stroke-width="1"
       stroke="#55aa55"
       stroke-linecap="butt"
-      marker-end="url(#registry-TransfusionElephant49974-16:2:normalArrow-endArrowId)"
-    ></path>
+      marker-end="url(#next-event-estimation__registry-TransfusionElephant49974-16:2:normalArrow-endArrowId)"
+    />
     <title>16:2:normalArrow</title>
   </g>
   <circle
@@ -813,13 +829,13 @@
               <path
                 data-c="1D465"
                 d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"
-              ></path>
+              />
             </g>
             <g data-mml-node="mn" transform="translate(605,-150) scale(0.707)">
               <path
                 data-c="33"
                 d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"
-              ></path>
+              />
             </g>
           </g>
         </g>

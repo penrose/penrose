@@ -25,7 +25,7 @@
       stroke-width="2"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>9:1:closestSegment</title>
   </g>
   <circle
@@ -48,7 +48,7 @@
       stroke-width="5"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`L`.icon</title>
   </g>
   <ellipse
@@ -92,7 +92,7 @@
       stroke-width="2"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>9:3:closestSegment</title>
   </g>
   <circle
@@ -115,7 +115,7 @@
       stroke-width="2"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>9:0:closestSegment</title>
   </g>
   <circle
@@ -138,7 +138,7 @@
       stroke-width="2"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>9:4:closestSegment</title>
   </g>
   <circle
@@ -173,7 +173,7 @@
       stroke-width="2"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>10:0:closestSegment</title>
   </g>
   <circle
@@ -196,7 +196,7 @@
       stroke-width="2"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>9:2:closestSegment</title>
   </g>
   <circle

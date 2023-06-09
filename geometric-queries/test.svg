@@ -54,7 +54,7 @@
       stroke-width="4"
       stroke="#00aa00"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>legend.silhouetteLine</title>
   </g>
   <g fill="none">
@@ -64,7 +64,7 @@
       stroke-width="4"
       stroke="#6666dd"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>legend.closestLine</title>
   </g>
   <text
@@ -129,7 +129,7 @@
       stroke-width="4"
       stroke="#ff6600"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>legend.rayLine</title>
   </g>
   <rect
@@ -188,7 +188,7 @@
       stroke="#ff6600"
       stroke-dasharray="8,6"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`aR`.raySegment</title>
   </g>
   <rect
@@ -241,7 +241,7 @@
   </rect>
   <g>
     <marker
-      id="registry-MettwurstCattle35745-`rR`.icon-endArrowId"
+      id="test__registry-MettwurstCattle35745-`rR`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -254,7 +254,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#000000"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 303.17073184005096 403.6535841777518 L 321.0552198212101 428.37518602999364"
@@ -262,8 +262,8 @@
       stroke-width="2.5"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#registry-MettwurstCattle35745-`rR`.icon-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-MettwurstCattle35745-`rR`.icon-endArrowId)"
+    />
     <title>`rR`.icon</title>
   </g>
   <g fill="none">
@@ -274,12 +274,12 @@
       stroke="#ff6600"
       stroke-dasharray="8,6"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`aL`.raySegment</title>
   </g>
   <g>
     <marker
-      id="registry-MettwurstCattle35745-`rL`.icon-endArrowId"
+      id="test__registry-MettwurstCattle35745-`rL`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -292,7 +292,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#000000"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 508.15349032907613 75.01917068800833 L 489.28788811870646 99.00044609077247"
@@ -300,8 +300,8 @@
       stroke-width="2.5"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#registry-MettwurstCattle35745-`rL`.icon-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-MettwurstCattle35745-`rL`.icon-endArrowId)"
+    />
     <title>`rL`.icon</title>
   </g>
   <polygon
@@ -321,12 +321,12 @@
       stroke="#ff6600"
       stroke-dasharray="8,6"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`aE`.raySegment</title>
   </g>
   <g>
     <marker
-      id="registry-MettwurstCattle35745-`rE`.icon-endArrowId"
+      id="test__registry-MettwurstCattle35745-`rE`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -339,7 +339,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#000000"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 558.3486675067749 400.38344159512235 L 577.2628855272831 424.3263919820042"
@@ -347,8 +347,8 @@
       stroke-width="2.5"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#registry-MettwurstCattle35745-`rE`.icon-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-MettwurstCattle35745-`rE`.icon-endArrowId)"
+    />
     <title>`rE`.icon</title>
   </g>
   <rect
@@ -382,12 +382,12 @@
       stroke="#ff6600"
       stroke-dasharray="8,6"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`aC`.raySegment</title>
   </g>
   <g>
     <marker
-      id="registry-MettwurstCattle35745-`rC`.icon-endArrowId"
+      id="test__registry-MettwurstCattle35745-`rC`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -400,7 +400,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#000000"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 208.0426663853056 400 L 193.47539161808763 426.81057638540375"
@@ -408,8 +408,8 @@
       stroke-width="2.5"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#registry-MettwurstCattle35745-`rC`.icon-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-MettwurstCattle35745-`rC`.icon-endArrowId)"
+    />
     <title>`rC`.icon</title>
   </g>
   <ellipse
@@ -431,12 +431,12 @@
       stroke="#ff6600"
       stroke-dasharray="8,6"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`aM`.raySegment</title>
   </g>
   <g>
     <marker
-      id="registry-MettwurstCattle35745-`rM`.icon-endArrowId"
+      id="test__registry-MettwurstCattle35745-`rM`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -449,7 +449,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#000000"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 559.0729032925981 349.971386186488 L 577.8788164628028 325.9432746032673"
@@ -457,13 +457,13 @@
       stroke-width="2.5"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#registry-MettwurstCattle35745-`rM`.icon-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-MettwurstCattle35745-`rM`.icon-endArrowId)"
+    />
     <title>`rM`.icon</title>
   </g>
   <g fill="none">
     <marker
-      id="registry-MettwurstCattle35745-`aR`.normalArrow-endArrowId"
+      id="test__registry-MettwurstCattle35745-`aR`.normalArrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.97"
       markerHeight="4.06"
@@ -476,7 +476,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#ff6600"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 374.622356741086 502.42066234962783 L 374.622356741086 471.90816547409463"
@@ -484,8 +484,8 @@
       stroke-width="2.5"
       stroke="#ff6600"
       stroke-linecap="butt"
-      marker-end="url(#registry-MettwurstCattle35745-`aR`.normalArrow-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-MettwurstCattle35745-`aR`.normalArrow-endArrowId)"
+    />
     <title>`aR`.normalArrow</title>
   </g>
   <g fill="none">
@@ -495,7 +495,7 @@
       stroke-width="5"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`L`.icon</title>
   </g>
   <polyline
@@ -518,12 +518,12 @@
       stroke="#ff6600"
       stroke-dasharray="8,6"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`aP`.raySegment</title>
   </g>
   <g>
     <marker
-      id="registry-MettwurstCattle35745-`rP`.icon-endArrowId"
+      id="test__registry-MettwurstCattle35745-`rP`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -536,7 +536,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#000000"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 240.85885469585673 349.9743434468057 L 222.06059187690596 325.9402461810707"
@@ -544,8 +544,8 @@
       stroke-width="2.5"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#registry-MettwurstCattle35745-`rP`.icon-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-MettwurstCattle35745-`rP`.icon-endArrowId)"
+    />
     <title>`rP`.icon</title>
   </g>
   <circle
@@ -563,7 +563,7 @@
   </circle>
   <g fill="none">
     <marker
-      id="registry-MettwurstCattle35745-`aC`.normalArrow-endArrowId"
+      id="test__registry-MettwurstCattle35745-`aC`.normalArrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="0"
       markerHeight="0"
@@ -576,7 +576,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#ff6600"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 208.0426663853056 400 L NaN NaN"
@@ -584,8 +584,8 @@
       stroke-width="2.5"
       stroke="#ff6600"
       stroke-linecap="butt"
-      marker-end="url(#registry-MettwurstCattle35745-`aC`.normalArrow-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-MettwurstCattle35745-`aC`.normalArrow-endArrowId)"
+    />
     <title>`aC`.normalArrow</title>
   </g>
   <circle
@@ -608,7 +608,7 @@
       stroke-width="2"
       stroke="#6666dd"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`bL`.querySegment</title>
   </g>
   <circle
@@ -626,7 +626,7 @@
   </circle>
   <g fill="none">
     <marker
-      id="registry-MettwurstCattle35745-`aP`.normalArrow-endArrowId"
+      id="test__registry-MettwurstCattle35745-`aP`.normalArrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.97"
       markerHeight="4.06"
@@ -639,7 +639,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#ff6600"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 185.7738972770034 279.54670674258136 L 197.49872009662147 307.7165656329634"
@@ -647,8 +647,8 @@
       stroke-width="2.5"
       stroke="#ff6600"
       stroke-linecap="butt"
-      marker-end="url(#registry-MettwurstCattle35745-`aP`.normalArrow-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-MettwurstCattle35745-`aP`.normalArrow-endArrowId)"
+    />
     <title>`aP`.normalArrow</title>
   </g>
   <circle
@@ -671,7 +671,7 @@
       stroke-width="2"
       stroke="#00aa00"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`cC`.querySegment</title>
   </g>
   <circle
@@ -689,7 +689,7 @@
   </circle>
   <g fill="none">
     <marker
-      id="registry-MettwurstCattle35745-`aM`.normalArrow-endArrowId"
+      id="test__registry-MettwurstCattle35745-`aM`.normalArrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.97"
       markerHeight="4.06"
@@ -702,7 +702,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#ff6600"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 761.7657598239923 90.99291862797372 L 739.5648910455025 111.92456236001857"
@@ -710,8 +710,8 @@
       stroke-width="2.5"
       stroke="#ff6600"
       stroke-linecap="butt"
-      marker-end="url(#registry-MettwurstCattle35745-`aM`.normalArrow-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-MettwurstCattle35745-`aM`.normalArrow-endArrowId)"
+    />
     <title>`aM`.normalArrow</title>
   </g>
   <circle
@@ -734,7 +734,7 @@
       stroke-width="2"
       stroke="#6666dd"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`bR`.querySegment</title>
   </g>
   <circle
@@ -752,7 +752,7 @@
   </circle>
   <g fill="none">
     <marker
-      id="registry-MettwurstCattle35745-`aE`.normalArrow-endArrowId"
+      id="test__registry-MettwurstCattle35745-`aE`.normalArrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.97"
       markerHeight="4.06"
@@ -765,7 +765,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#ff6600"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 664.4136071850903 534.6479184956214 L 634.2473947641492 530.0640413000001"
@@ -773,8 +773,8 @@
       stroke-width="2.5"
       stroke="#ff6600"
       stroke-linecap="butt"
-      marker-end="url(#registry-MettwurstCattle35745-`aE`.normalArrow-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-MettwurstCattle35745-`aE`.normalArrow-endArrowId)"
+    />
     <title>`aE`.normalArrow</title>
   </g>
   <circle
@@ -803,7 +803,7 @@
   </polyline>
   <g fill="none">
     <marker
-      id="registry-MettwurstCattle35745-`aL`.normalArrow-endArrowId"
+      id="test__registry-MettwurstCattle35745-`aL`.normalArrow-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.97"
       markerHeight="4.06"
@@ -816,7 +816,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#ff6600"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 451.8311330858129 146.614126699598 L 465.70691241483627 119.43922532145334"
@@ -824,8 +824,8 @@
       stroke-width="2.5"
       stroke="#ff6600"
       stroke-linecap="butt"
-      marker-end="url(#registry-MettwurstCattle35745-`aL`.normalArrow-endArrowId)"
-    ></path>
+      marker-end="url(#test__registry-MettwurstCattle35745-`aL`.normalArrow-endArrowId)"
+    />
     <title>`aL`.normalArrow</title>
   </g>
   <circle
@@ -848,7 +848,7 @@
       stroke-width="2"
       stroke="#00aa00"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`cR`.querySegment</title>
   </g>
   <circle
@@ -871,7 +871,7 @@
       stroke-width="2"
       stroke="#6666dd"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`bE`.querySegment</title>
   </g>
   <circle
@@ -894,7 +894,7 @@
       stroke-width="2"
       stroke="#6666dd"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`bP`.querySegment</title>
   </g>
   <circle
@@ -917,7 +917,7 @@
       stroke-width="2"
       stroke="#00aa00"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`cM`.querySegment</title>
   </g>
   <g>
@@ -927,7 +927,7 @@
       stroke-width="2"
       stroke="#6666dd"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`bM`.querySegment</title>
   </g>
   <circle
@@ -960,7 +960,7 @@
       stroke-width="2"
       stroke="#00aa00"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`cP`.querySegment</title>
   </g>
   <circle
@@ -983,7 +983,7 @@
       stroke-width="2"
       stroke="#00aa00"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`cE`.querySegment</title>
   </g>
   <circle
@@ -1026,7 +1026,7 @@
       stroke-width="2"
       stroke="#00aa00"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`cL`.querySegment</title>
   </g>
   <circle
@@ -1059,7 +1059,7 @@
       stroke-width="2"
       stroke="#6666dd"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`bC`.querySegment</title>
   </g>
   <circle

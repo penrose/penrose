@@ -16,7 +16,7 @@
       stroke-width="8"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`g`.icon</title>
   </g>
   <circle

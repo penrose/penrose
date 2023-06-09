@@ -17,7 +17,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Chen_architecture`.arrow</title>
   </g>
   <g>
@@ -27,7 +27,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Chen_implementation`.arrow</title>
   </g>
   <g>
@@ -37,7 +37,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Chen_requirements`.arrow</title>
   </g>
   <circle
@@ -82,7 +82,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Davis_requirements`.arrow</title>
   </g>
   <g>
@@ -92,7 +92,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Alvarez_requirements`.arrow</title>
   </g>
   <circle
@@ -137,7 +137,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Berkowitz_implementation`.arrow</title>
   </g>
   <g>
@@ -147,7 +147,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Berkowitz_architecture`.arrow</title>
   </g>
   <g>
@@ -157,7 +157,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Berkowitz_testing`.arrow</title>
   </g>
   <circle
@@ -272,7 +272,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Alvarez_testing`.arrow</title>
   </g>
   <circle

@@ -13,7 +13,7 @@
         stroke-width="5"
         stroke="#000000"
         stroke-linecap="butt"
-      ></path>
+      />
       <title>`G`.line</title>
     </g>
     <ellipse
@@ -68,7 +68,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:22:line</title>
   </g>
   <circle
@@ -94,7 +94,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:76:line</title>
   </g>
   <circle
@@ -120,7 +120,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:69:line</title>
   </g>
   <circle
@@ -146,7 +146,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:71:line</title>
   </g>
   <circle
@@ -172,7 +172,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:82:line</title>
   </g>
   <circle
@@ -198,7 +198,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:34:line</title>
   </g>
   <circle
@@ -224,7 +224,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:42:line</title>
   </g>
   <circle
@@ -250,7 +250,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:57:line</title>
   </g>
   <circle
@@ -276,7 +276,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:4:line</title>
   </g>
   <circle
@@ -302,7 +302,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:74:line</title>
   </g>
   <circle
@@ -328,7 +328,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:29:line</title>
   </g>
   <circle
@@ -354,7 +354,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:65:line</title>
   </g>
   <circle
@@ -380,7 +380,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:2:line</title>
   </g>
   <circle
@@ -406,7 +406,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:37:line</title>
   </g>
   <circle
@@ -432,7 +432,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:19:line</title>
   </g>
   <circle
@@ -458,7 +458,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:91:line</title>
   </g>
   <circle
@@ -484,7 +484,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:21:line</title>
   </g>
   <circle
@@ -510,7 +510,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:33:line</title>
   </g>
   <circle
@@ -536,7 +536,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:41:line</title>
   </g>
   <circle
@@ -562,7 +562,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:67:line</title>
   </g>
   <circle
@@ -588,7 +588,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:68:line</title>
   </g>
   <circle
@@ -614,7 +614,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:25:line</title>
   </g>
   <circle
@@ -640,7 +640,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:64:line</title>
   </g>
   <circle
@@ -666,7 +666,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:38:line</title>
   </g>
   <circle
@@ -692,7 +692,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:1:line</title>
   </g>
   <circle
@@ -718,7 +718,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:44:line</title>
   </g>
   <circle
@@ -744,7 +744,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:24:line</title>
   </g>
   <circle
@@ -770,7 +770,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:27:line</title>
   </g>
   <circle
@@ -796,7 +796,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:40:line</title>
   </g>
   <circle
@@ -822,7 +822,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:63:line</title>
   </g>
   <circle
@@ -848,7 +848,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:78:line</title>
   </g>
   <circle
@@ -874,7 +874,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:0:line</title>
   </g>
   <circle
@@ -900,7 +900,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:61:line</title>
   </g>
   <circle
@@ -926,7 +926,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:55:line</title>
   </g>
   <circle
@@ -952,7 +952,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:16:line</title>
   </g>
   <circle
@@ -978,7 +978,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:28:line</title>
   </g>
   <circle
@@ -1004,7 +1004,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:36:line</title>
   </g>
   <circle
@@ -1030,7 +1030,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:93:line</title>
   </g>
   <circle
@@ -1056,7 +1056,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:53:line</title>
   </g>
   <circle
@@ -1082,7 +1082,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:45:line</title>
   </g>
   <circle
@@ -1108,7 +1108,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:88:line</title>
   </g>
   <circle
@@ -1134,7 +1134,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:48:line</title>
   </g>
   <circle
@@ -1160,7 +1160,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:3:line</title>
   </g>
   <circle
@@ -1186,7 +1186,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:30:line</title>
   </g>
   <circle
@@ -1212,7 +1212,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:62:line</title>
   </g>
   <circle
@@ -1238,7 +1238,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:77:line</title>
   </g>
   <circle
@@ -1264,7 +1264,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:66:line</title>
   </g>
   <circle
@@ -1290,7 +1290,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:11:line</title>
   </g>
   <circle
@@ -1316,7 +1316,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:17:line</title>
   </g>
   <circle
@@ -1342,7 +1342,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:85:line</title>
   </g>
   <circle
@@ -1368,7 +1368,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:15:line</title>
   </g>
   <circle
@@ -1394,7 +1394,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:60:line</title>
   </g>
   <circle
@@ -1420,7 +1420,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:96:line</title>
   </g>
   <circle
@@ -1446,7 +1446,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:56:line</title>
   </g>
   <circle
@@ -1472,7 +1472,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:5:line</title>
   </g>
   <circle
@@ -1498,7 +1498,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:83:line</title>
   </g>
   <circle
@@ -1524,7 +1524,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:9:line</title>
   </g>
   <circle
@@ -1550,7 +1550,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:99:line</title>
   </g>
   <circle
@@ -1576,7 +1576,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:90:line</title>
   </g>
   <circle
@@ -1602,7 +1602,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:20:line</title>
   </g>
   <circle
@@ -1628,7 +1628,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:54:line</title>
   </g>
   <circle
@@ -1654,7 +1654,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:80:line</title>
   </g>
   <circle
@@ -1680,7 +1680,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:92:line</title>
   </g>
   <circle
@@ -1706,7 +1706,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:84:line</title>
   </g>
   <circle
@@ -1732,7 +1732,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:47:line</title>
   </g>
   <circle
@@ -1758,7 +1758,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:39:line</title>
   </g>
   <circle
@@ -1784,7 +1784,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:26:line</title>
   </g>
   <circle
@@ -1810,7 +1810,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:18:line</title>
   </g>
   <circle
@@ -1836,7 +1836,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:59:line</title>
   </g>
   <circle
@@ -1862,7 +1862,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:52:line</title>
   </g>
   <circle
@@ -1888,7 +1888,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:79:line</title>
   </g>
   <circle
@@ -1914,7 +1914,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:87:line</title>
   </g>
   <circle
@@ -1940,7 +1940,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:12:line</title>
   </g>
   <circle
@@ -1966,7 +1966,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:10:line</title>
   </g>
   <circle
@@ -1992,7 +1992,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:98:line</title>
   </g>
   <circle
@@ -2018,7 +2018,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:58:line</title>
   </g>
   <circle
@@ -2044,7 +2044,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:14:line</title>
   </g>
   <circle
@@ -2070,7 +2070,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:72:line</title>
   </g>
   <circle
@@ -2096,7 +2096,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:89:line</title>
   </g>
   <circle
@@ -2122,7 +2122,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:32:line</title>
   </g>
   <circle
@@ -2148,7 +2148,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:73:line</title>
   </g>
   <circle
@@ -2174,7 +2174,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:6:line</title>
   </g>
   <circle
@@ -2200,7 +2200,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:13:line</title>
   </g>
   <circle
@@ -2226,7 +2226,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:70:line</title>
   </g>
   <circle
@@ -2252,7 +2252,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:8:line</title>
   </g>
   <circle
@@ -2278,7 +2278,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:94:line</title>
   </g>
   <circle
@@ -2304,7 +2304,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:35:line</title>
   </g>
   <circle
@@ -2330,7 +2330,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:51:line</title>
   </g>
   <circle
@@ -2356,7 +2356,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:23:line</title>
   </g>
   <circle
@@ -2382,7 +2382,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:75:line</title>
   </g>
   <circle
@@ -2408,7 +2408,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:7:line</title>
   </g>
   <circle
@@ -2434,7 +2434,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:43:line</title>
   </g>
   <circle
@@ -2460,7 +2460,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:49:line</title>
   </g>
   <circle
@@ -2486,7 +2486,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:50:line</title>
   </g>
   <circle
@@ -2512,7 +2512,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:46:line</title>
   </g>
   <circle
@@ -2538,7 +2538,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:31:line</title>
   </g>
   <circle
@@ -2564,7 +2564,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:81:line</title>
   </g>
   <circle
@@ -2590,7 +2590,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:95:line</title>
   </g>
   <circle
@@ -2616,7 +2616,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:86:line</title>
   </g>
   <circle
@@ -2642,7 +2642,7 @@
       stroke-width="3.5"
       stroke="#ff8000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>3:97:line</title>
   </g>
   <circle

@@ -16,7 +16,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Detroit_NYC`.arrow</title>
   </g>
   <g>
@@ -26,7 +26,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Chicago_Detroit`.arrow</title>
   </g>
   <circle
@@ -71,7 +71,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_NYC_Washington`.arrow</title>
   </g>
   <g>
@@ -81,7 +81,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Chicago_Washington`.arrow</title>
   </g>
   <circle
@@ -126,7 +126,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Chicago_Denver`.arrow</title>
   </g>
   <g>
@@ -136,7 +136,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Denver_SF`.arrow</title>
   </g>
   <g>
@@ -146,7 +146,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Denver_LA`.arrow</title>
   </g>
   <circle
@@ -191,7 +191,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_LA_SF`.arrow</title>
   </g>
   <circle
@@ -271,7 +271,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_Chicago_NYC`.arrow</title>
   </g>
   <circle

@@ -16,7 +16,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_d_e`.arrow</title>
   </g>
   <g>
@@ -26,7 +26,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_a_d`.arrow</title>
   </g>
   <circle
@@ -171,7 +171,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_e_f`.arrow</title>
   </g>
   <g>
@@ -181,7 +181,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_c_e`.arrow</title>
   </g>
   <g>
@@ -191,7 +191,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_b_e`.arrow</title>
   </g>
   <circle
@@ -271,7 +271,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_a_b`.arrow</title>
   </g>
   <g>
@@ -281,7 +281,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_b_c`.arrow</title>
   </g>
   <circle
@@ -326,7 +326,7 @@
       stroke-width="1"
       stroke="#000000"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`Edge_a_c`.arrow</title>
   </g>
   <circle

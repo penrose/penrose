@@ -12,7 +12,7 @@
   </penrose>
   <g>
     <marker
-      id="registry-SucculentsReindeer397-`u`.shape-endArrowId"
+      id="projection__registry-SucculentsReindeer397-`u`.shape-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -25,7 +25,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#000000"
         fill-opacity="255"
-      ></path>
+      />
     </marker>
     <path
       d="M 2.5 2.5 L 3.713875231070963 0.07224953785807342"
@@ -33,8 +33,8 @@
       stroke-width="0.01"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#registry-SucculentsReindeer397-`u`.shape-endArrowId)"
-    ></path>
+      marker-end="url(#projection__registry-SucculentsReindeer397-`u`.shape-endArrowId)"
+    />
     <title>`u`.shape</title>
   </g>
   <circle
@@ -61,7 +61,7 @@
   </polygon>
   <g>
     <marker
-      id="registry-SucculentsReindeer397-`v`.shape-endArrowId"
+      id="projection__registry-SucculentsReindeer397-`v`.shape-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -74,7 +74,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#000000"
         fill-opacity="255"
-      ></path>
+      />
     </marker>
     <path
       d="M 2.5 2.5 L 3.4923328881627076 3.045107655137476"
@@ -82,13 +82,13 @@
       stroke-width="0.01"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#registry-SucculentsReindeer397-`v`.shape-endArrowId)"
-    ></path>
+      marker-end="url(#projection__registry-SucculentsReindeer397-`v`.shape-endArrowId)"
+    />
     <title>`v`.shape</title>
   </g>
   <g>
     <marker
-      id="registry-SucculentsReindeer397-`w`.shape-endArrowId"
+      id="projection__registry-SucculentsReindeer397-`w`.shape-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="9.95"
       markerHeight="8.12"
@@ -101,7 +101,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#000000"
         fill-opacity="255"
-      ></path>
+      />
     </marker>
     <path
       d="M 2.5 2.5 L 4.748265013696225 0.6344797402184676"
@@ -109,8 +109,8 @@
       stroke-width="0.01"
       stroke="#000000"
       stroke-linecap="butt"
-      marker-end="url(#registry-SucculentsReindeer397-`w`.shape-endArrowId)"
-    ></path>
+      marker-end="url(#projection__registry-SucculentsReindeer397-`w`.shape-endArrowId)"
+    />
     <title>`w`.shape</title>
   </g>
   <g>
@@ -121,7 +121,7 @@
       stroke="#707070"
       stroke-dasharray="0.07,0.05"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`w`.dashed_u</title>
   </g>
   <g>
@@ -132,7 +132,7 @@
       stroke="#707070"
       stroke-dasharray="0.07,0.05"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>`w`.dashed_v</title>
   </g>
 </svg>

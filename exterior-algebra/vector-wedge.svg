@@ -22,7 +22,7 @@
   </rect>
   <g>
     <marker
-      id="registry-ArtemisCrane740-`c`.icon-endArrowId"
+      id="vector-wedge__registry-ArtemisCrane740-`c`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -35,7 +35,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#000000"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 120 90 L 67.48378009394528 114.14412514630094"
@@ -43,8 +43,8 @@
       stroke-width="1.5"
       stroke="#000000"
       stroke-linecap="round"
-      marker-end="url(#registry-ArtemisCrane740-`c`.icon-endArrowId)"
-    ></path>
+      marker-end="url(#vector-wedge__registry-ArtemisCrane740-`c`.icon-endArrowId)"
+    />
     <title>`c`.icon</title>
   </g>
   <g
@@ -73,7 +73,7 @@
             <path
               data-c="1D450"
               d="M34 159Q34 268 120 355T306 442Q362 442 394 418T427 355Q427 326 408 306T360 285Q341 285 330 295T319 325T330 359T352 380T366 386H367Q367 388 361 392T340 400T306 404Q276 404 249 390Q228 381 206 359Q162 315 142 235T121 119Q121 73 147 50Q169 26 205 26H209Q321 26 394 111Q403 121 406 121Q410 121 419 112T429 98T420 83T391 55T346 25T282 0T202 -11Q127 -11 81 37T34 159Z"
-            ></path>
+            />
           </g>
         </g>
       </g>
@@ -81,7 +81,7 @@
   </g>
   <g>
     <marker
-      id="registry-ArtemisCrane740-`b`.icon-endArrowId"
+      id="vector-wedge__registry-ArtemisCrane740-`b`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -94,7 +94,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#000000"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 120 90 L 135.34901282763946 12.706033815607938"
@@ -102,25 +102,27 @@
       stroke-width="1.5"
       stroke="#000000"
       stroke-linecap="round"
-      marker-end="url(#registry-ArtemisCrane740-`b`.icon-endArrowId)"
-    ></path>
+      marker-end="url(#vector-wedge__registry-ArtemisCrane740-`b`.icon-endArrowId)"
+    />
     <title>`b`.icon</title>
   </g>
   <g>
-    <filter id="`v`.icon-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="vector-wedge__`v`.icon-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -128,12 +130,12 @@
       fill="#0400cc"
       fill-opacity="0.2"
       d="M 120 90 L 136.45777769800344 7.122558489948588 L 78.76947735313169 33.6445272359016 L 62.31169965512827 116.52196874595302 Z "
-    ></path>
+    />
     <title>`v`.icon</title>
   </g>
   <g>
     <marker
-      id="registry-ArtemisCrane740-`a`.icon-endArrowId"
+      id="vector-wedge__registry-ArtemisCrane740-`a`.icon-endArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -146,7 +148,7 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#000000"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
     <path
       d="M 120 90 L 164.11843009544782 101.44016579243717"
@@ -154,25 +156,27 @@
       stroke-width="1.5"
       stroke="#000000"
       stroke-linecap="round"
-      marker-end="url(#registry-ArtemisCrane740-`a`.icon-endArrowId)"
-    ></path>
+      marker-end="url(#vector-wedge__registry-ArtemisCrane740-`a`.icon-endArrowId)"
+    />
     <title>`a`.icon</title>
   </g>
   <g>
-    <filter id="`u`.icon-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="vector-wedge__`u`.icon-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -180,7 +184,7 @@
       fill="#7f00cc"
       fill-opacity="0.2"
       d="M 120 90 L 169.6286901032886 102.86900829460134 L 186.08646780129203 19.991566784549917 L 136.45777769800344 7.122558489948588 Z "
-    ></path>
+    />
     <title>`u`.icon</title>
   </g>
   <g
@@ -209,7 +213,7 @@
             <path
               data-c="1D44F"
               d="M73 647Q73 657 77 670T89 683Q90 683 161 688T234 694Q246 694 246 685T212 542Q204 508 195 472T180 418L176 399Q176 396 182 402Q231 442 283 442Q345 442 383 396T422 280Q422 169 343 79T173 -11Q123 -11 82 27T40 150V159Q40 180 48 217T97 414Q147 611 147 623T109 637Q104 637 101 637H96Q86 637 83 637T76 640T73 647ZM336 325V331Q336 405 275 405Q258 405 240 397T207 376T181 352T163 330L157 322L136 236Q114 150 114 114Q114 66 138 42Q154 26 178 26Q211 26 245 58Q270 81 285 114T318 219Q336 291 336 325Z"
-            ></path>
+            />
           </g>
         </g>
       </g>
@@ -241,7 +245,7 @@
             <path
               data-c="1D44E"
               d="M33 157Q33 258 109 349T280 441Q331 441 370 392Q386 422 416 422Q429 422 439 414T449 394Q449 381 412 234T374 68Q374 43 381 35T402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487Q506 153 506 144Q506 138 501 117T481 63T449 13Q436 0 417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157ZM351 328Q351 334 346 350T323 385T277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q217 26 254 59T298 110Q300 114 325 217T351 328Z"
-            ></path>
+            />
           </g>
         </g>
       </g>
@@ -249,7 +253,7 @@
   </g>
   <g>
     <marker
-      id="`u`.marker-startArrowId"
+      id="vector-wedge__`u`.marker-startArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -262,22 +266,24 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#7f00cc"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
-    <filter id="`u`.marker-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="vector-wedge__`u`.marker-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -286,8 +292,8 @@
       stroke-width="1.125"
       stroke-opacity="1"
       d="M 159.3266074708303 73.13247812020397 A 19.194284352218354 19.194284352218354 0 0 1 146.75986033046172 36.85908866434595"
-      marker-start="url(#`u`.marker-startArrowId)"
-    ></path>
+      marker-start="url(#vector-wedge__`u`.marker-startArrowId)"
+    />
     <title>`u`.marker</title>
   </g>
   <g
@@ -316,19 +322,19 @@
             <path
               data-c="1D44E"
               d="M33 157Q33 258 109 349T280 441Q331 441 370 392Q386 422 416 422Q429 422 439 414T449 394Q449 381 412 234T374 68Q374 43 381 35T402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487Q506 153 506 144Q506 138 501 117T481 63T449 13Q436 0 417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157ZM351 328Q351 334 346 350T323 385T277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q217 26 254 59T298 110Q300 114 325 217T351 328Z"
-            ></path>
+            />
           </g>
           <g data-mml-node="mo" transform="translate(751.2,0)">
             <path
               data-c="2227"
               d="M318 591Q325 598 333 598Q344 598 348 591Q349 590 414 445T545 151T611 -4Q609 -22 591 -22Q588 -22 586 -21T581 -20T577 -17T575 -13T572 -9T570 -4L333 528L96 -4Q87 -20 80 -21Q78 -22 75 -22Q57 -22 55 -4Q55 2 120 150T251 444T318 591Z"
-            ></path>
+            />
           </g>
           <g data-mml-node="mi" transform="translate(1640.4,0)">
             <path
               data-c="1D44F"
               d="M73 647Q73 657 77 670T89 683Q90 683 161 688T234 694Q246 694 246 685T212 542Q204 508 195 472T180 418L176 399Q176 396 182 402Q231 442 283 442Q345 442 383 396T422 280Q422 169 343 79T173 -11Q123 -11 82 27T40 150V159Q40 180 48 217T97 414Q147 611 147 623T109 637Q104 637 101 637H96Q86 637 83 637T76 640T73 647ZM336 325V331Q336 405 275 405Q258 405 240 397T207 376T181 352T163 330L157 322L136 236Q114 150 114 114Q114 66 138 42Q154 26 178 26Q211 26 245 58Q270 81 285 114T318 219Q336 291 336 325Z"
-            ></path>
+            />
           </g>
         </g>
       </g>
@@ -336,7 +342,7 @@
   </g>
   <g>
     <marker
-      id="`v`.marker-startArrowId"
+      id="vector-wedge__`v`.marker-startArrowId"
       markerUnits="strokeWidth"
       markerWidth="4.98"
       markerHeight="4.06"
@@ -349,22 +355,24 @@
         d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
         fill="#0400cc"
         fill-opacity="1"
-      ></path>
+      />
     </marker>
-    <filter id="`v`.marker-shadow" x="0" y="0" width="200%" height="200%">
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5"></feOffset>
-      <feGaussianBlur
-        result="blurOut"
-        in="offOut"
-        stdDeviation="4"
-      ></feGaussianBlur>
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"></feBlend>
+    <filter
+      id="vector-wedge__`v`.marker-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5"></feFuncA>
+        <feFuncA type="linear" slope="0.5" />
       </feComponentTransfer>
       <feMerge>
-        <feMergeNode></feMergeNode>
-        <feMergeNode in="SourceGraphic"></feMergeNode>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
     <path
@@ -373,8 +381,8 @@
       stroke-width="1.125"
       stroke-opacity="1"
       d="M 110.2024618949057 45.86116936135734 A 19.28159022900243 19.28159022900243 0 0 1 88.567015458226 77.78335787454427"
-      marker-start="url(#`v`.marker-startArrowId)"
-    ></path>
+      marker-start="url(#vector-wedge__`v`.marker-startArrowId)"
+    />
     <title>`v`.marker</title>
   </g>
   <g
@@ -403,19 +411,19 @@
             <path
               data-c="1D44F"
               d="M73 647Q73 657 77 670T89 683Q90 683 161 688T234 694Q246 694 246 685T212 542Q204 508 195 472T180 418L176 399Q176 396 182 402Q231 442 283 442Q345 442 383 396T422 280Q422 169 343 79T173 -11Q123 -11 82 27T40 150V159Q40 180 48 217T97 414Q147 611 147 623T109 637Q104 637 101 637H96Q86 637 83 637T76 640T73 647ZM336 325V331Q336 405 275 405Q258 405 240 397T207 376T181 352T163 330L157 322L136 236Q114 150 114 114Q114 66 138 42Q154 26 178 26Q211 26 245 58Q270 81 285 114T318 219Q336 291 336 325Z"
-            ></path>
+            />
           </g>
           <g data-mml-node="mo" transform="translate(651.2,0)">
             <path
               data-c="2227"
               d="M318 591Q325 598 333 598Q344 598 348 591Q349 590 414 445T545 151T611 -4Q609 -22 591 -22Q588 -22 586 -21T581 -20T577 -17T575 -13T572 -9T570 -4L333 528L96 -4Q87 -20 80 -21Q78 -22 75 -22Q57 -22 55 -4Q55 2 120 150T251 444T318 591Z"
-            ></path>
+            />
           </g>
           <g data-mml-node="mi" transform="translate(1540.4,0)">
             <path
               data-c="1D450"
               d="M34 159Q34 268 120 355T306 442Q362 442 394 418T427 355Q427 326 408 306T360 285Q341 285 330 295T319 325T330 359T352 380T366 386H367Q367 388 361 392T340 400T306 404Q276 404 249 390Q228 381 206 359Q162 315 142 235T121 119Q121 73 147 50Q169 26 205 26H209Q321 26 394 111Q403 121 406 121Q410 121 419 112T429 98T420 83T391 55T346 25T282 0T202 -11Q127 -11 81 37T34 159Z"
-            ></path>
+            />
           </g>
         </g>
       </g>

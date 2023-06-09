@@ -37,11 +37,9 @@
   <g
     transform="rotate(0, 92.06562525296388, 120.02835667223819)translate(1.2613395989568374, 29.224071018231143)"
   >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
-    <svg
+    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
-      id="Layer_1--inject-65"
+      id="offcenter-estimator__Layer_1--inject-65"
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       x="0px"
@@ -53,25 +51,30 @@
       height="181.6085713080141"
     >
       <style type="text/css">
-        .st0 {
+        .offcenter-estimator__st0 {
           opacity: 0.6;
-          fill: url(#SVGID_1_--inject-65);
+          fill: url(#offcenter-estimator__SVGID_1_--inject-65);
           enable-background: new;
         }
       </style>
       <radialGradient
-        id="SVGID_1_--inject-65"
+        id="offcenter-estimator__SVGID_1_--inject-65"
         cx="75.4328"
         cy="151.0149"
         r="157.9341"
         gradientTransform="matrix(1 0 0 -1 0 222)"
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset="0" style="stop-color: #ffffff"></stop>
-        <stop offset="0.7844" style="stop-color: #5f5f5f"></stop>
-        <stop offset="1" style="stop-color: #7f7f7f"></stop>
+        <stop offset="0" style="stop-color: #ffffff" />
+        <stop offset="0.7844" style="stop-color: #5f5f5f" />
+        <stop offset="1" style="stop-color: #7f7f7f" />
       </radialGradient>
-      <circle class="st0" cx="110.9" cy="110.9" r="110.9"></circle>
+      <circle
+        class="offcenter-estimator__st0"
+        cx="110.9"
+        cy="110.9"
+        r="110.9"
+      />
     </svg>
     <title>`x0`.shading</title>
   </g>
@@ -104,17 +107,15 @@
       stroke-width="2"
       stroke="#0000b3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>9:0:walkLine</title>
   </g>
   <g
     transform="rotate(0, 199.3095393681329, 146.52696892097512)translate(142.56318670342984, 89.78061625627207)"
   >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
-    <svg
+    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
-      id="Layer_1--inject-66"
+      id="offcenter-estimator__Layer_1--inject-66"
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       x="0px"
@@ -126,25 +127,30 @@
       height="113.4927053294061"
     >
       <style type="text/css">
-        .st0 {
+        .offcenter-estimator__st0 {
           opacity: 0.6;
-          fill: url(#SVGID_1_--inject-66);
+          fill: url(#offcenter-estimator__SVGID_1_--inject-66);
           enable-background: new;
         }
       </style>
       <radialGradient
-        id="SVGID_1_--inject-66"
+        id="offcenter-estimator__SVGID_1_--inject-66"
         cx="75.4328"
         cy="151.0149"
         r="157.9341"
         gradientTransform="matrix(1 0 0 -1 0 222)"
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset="0" style="stop-color: #ffffff"></stop>
-        <stop offset="0.7844" style="stop-color: #5f5f5f"></stop>
-        <stop offset="1" style="stop-color: #7f7f7f"></stop>
+        <stop offset="0" style="stop-color: #ffffff" />
+        <stop offset="0.7844" style="stop-color: #5f5f5f" />
+        <stop offset="1" style="stop-color: #7f7f7f" />
       </radialGradient>
-      <circle class="st0" cx="110.9" cy="110.9" r="110.9"></circle>
+      <circle
+        class="offcenter-estimator__st0"
+        cx="110.9"
+        cy="110.9"
+        r="110.9"
+      />
     </svg>
     <title>`x1`.shading</title>
   </g>
@@ -177,17 +183,15 @@
       stroke-width="2"
       stroke="#0000b3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>9:1:walkLine</title>
   </g>
   <g
     transform="rotate(0, 162.65316267153537, 151.63465066223847)translate(119.04568509375699, 108.02717308446009)"
   >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
-    <svg
+    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
-      id="Layer_1--inject-67"
+      id="offcenter-estimator__Layer_1--inject-67"
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       x="0px"
@@ -199,25 +203,30 @@
       height="87.21495515555677"
     >
       <style type="text/css">
-        .st0 {
+        .offcenter-estimator__st0 {
           opacity: 0.6;
-          fill: url(#SVGID_1_--inject-67);
+          fill: url(#offcenter-estimator__SVGID_1_--inject-67);
           enable-background: new;
         }
       </style>
       <radialGradient
-        id="SVGID_1_--inject-67"
+        id="offcenter-estimator__SVGID_1_--inject-67"
         cx="75.4328"
         cy="151.0149"
         r="157.9341"
         gradientTransform="matrix(1 0 0 -1 0 222)"
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset="0" style="stop-color: #ffffff"></stop>
-        <stop offset="0.7844" style="stop-color: #5f5f5f"></stop>
-        <stop offset="1" style="stop-color: #7f7f7f"></stop>
+        <stop offset="0" style="stop-color: #ffffff" />
+        <stop offset="0.7844" style="stop-color: #5f5f5f" />
+        <stop offset="1" style="stop-color: #7f7f7f" />
       </radialGradient>
-      <circle class="st0" cx="110.9" cy="110.9" r="110.9"></circle>
+      <circle
+        class="offcenter-estimator__st0"
+        cx="110.9"
+        cy="110.9"
+        r="110.9"
+      />
     </svg>
     <title>`x2`.shading</title>
   </g>
@@ -250,17 +259,15 @@
       stroke-width="2"
       stroke="#0000b3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>9:2:walkLine</title>
   </g>
   <g
     transform="rotate(0, 162.6607619761699, 76.1294592451449)translate(131.32434650002642, 44.7930437690014)"
   >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
-    <svg
+    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
-      id="Layer_1--inject-68"
+      id="offcenter-estimator__Layer_1--inject-68"
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       x="0px"
@@ -272,25 +279,30 @@
       height="62.672830952287"
     >
       <style type="text/css">
-        .st0 {
+        .offcenter-estimator__st0 {
           opacity: 0.6;
-          fill: url(#SVGID_1_--inject-68);
+          fill: url(#offcenter-estimator__SVGID_1_--inject-68);
           enable-background: new;
         }
       </style>
       <radialGradient
-        id="SVGID_1_--inject-68"
+        id="offcenter-estimator__SVGID_1_--inject-68"
         cx="75.4328"
         cy="151.0149"
         r="157.9341"
         gradientTransform="matrix(1 0 0 -1 0 222)"
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset="0" style="stop-color: #ffffff"></stop>
-        <stop offset="0.7844" style="stop-color: #5f5f5f"></stop>
-        <stop offset="1" style="stop-color: #7f7f7f"></stop>
+        <stop offset="0" style="stop-color: #ffffff" />
+        <stop offset="0.7844" style="stop-color: #5f5f5f" />
+        <stop offset="1" style="stop-color: #7f7f7f" />
       </radialGradient>
-      <circle class="st0" cx="110.9" cy="110.9" r="110.9"></circle>
+      <circle
+        class="offcenter-estimator__st0"
+        cx="110.9"
+        cy="110.9"
+        r="110.9"
+      />
     </svg>
     <title>`x3`.shading</title>
   </g>
@@ -462,17 +474,15 @@
       stroke-width="2"
       stroke="#0000b3"
       stroke-linecap="butt"
-    ></path>
+    />
     <title>9:3:walkLine</title>
   </g>
   <g
     transform="rotate(0, 184.02524109356088, 59.52403868121426)translate(166.78785660994157, 42.286654197594935)"
   >
-    <!--?xml version="1.0" encoding="utf-8"?-->
-    <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0) -->
-    <svg
+    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
-      id="Layer_1--inject-69"
+      id="offcenter-estimator__Layer_1--inject-69"
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       x="0px"
@@ -484,25 +494,30 @@
       height="34.474768967238646"
     >
       <style type="text/css">
-        .st0 {
+        .offcenter-estimator__st0 {
           opacity: 0.6;
-          fill: url(#SVGID_1_--inject-69);
+          fill: url(#offcenter-estimator__SVGID_1_--inject-69);
           enable-background: new;
         }
       </style>
       <radialGradient
-        id="SVGID_1_--inject-69"
+        id="offcenter-estimator__SVGID_1_--inject-69"
         cx="75.4328"
         cy="151.0149"
         r="157.9341"
         gradientTransform="matrix(1 0 0 -1 0 222)"
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset="0" style="stop-color: #ffffff"></stop>
-        <stop offset="0.7844" style="stop-color: #5f5f5f"></stop>
-        <stop offset="1" style="stop-color: #7f7f7f"></stop>
+        <stop offset="0" style="stop-color: #ffffff" />
+        <stop offset="0.7844" style="stop-color: #5f5f5f" />
+        <stop offset="1" style="stop-color: #7f7f7f" />
       </radialGradient>
-      <circle class="st0" cx="110.9" cy="110.9" r="110.9"></circle>
+      <circle
+        class="offcenter-estimator__st0"
+        cx="110.9"
+        cy="110.9"
+        r="110.9"
+      />
     </svg>
     <title>`x4`.shading</title>
   </g>
