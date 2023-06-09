@@ -67,6 +67,11 @@ describe("Selector Grammar", () => {
 
   }
 
+  -- commented out block
+  -- -- -- -- forall Set A with Set B -- {
+
+  -- -- -- -- }
+
   forall Set A, \`B\`; Map f
   {
   }`;
