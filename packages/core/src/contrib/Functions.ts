@@ -1126,6 +1126,59 @@ export const compDict = {
     returns: valueT("PathCmd"),
   },
 
+  circularArc: {
+    name: "circularArc",
+    description: `Return series of elements that can render an arc SVG. See: https://css-tricks.com/svg-path-syntax-illustrated-guide/ for the "A" spec. Returns elements that can be passed to Path shape spec to render an SVG arc.`,
+    params: [
+      {
+        name: "pathType",
+        type: pathTypeT(),
+        description: `The path type: either "open" or "closed." whether the SVG should automatically draw a line between the final point and the start point`,
+      },
+      {
+        name: "center",
+        type: real2T(),
+        description: "circle center",
+      },
+      {
+        name: "r",
+        type: realT(),
+        description: "circle radius",
+      },
+      {
+        name: "theta0",
+        type: realT(),
+        description: "start angle in radians",
+      },
+      {
+        name: "theta1",
+        type: realT(),
+        description: "end angle in radians",
+      },
+    ],
+    body: (
+      _context: Context,
+      pathType: string,
+      center: ad.Pt2,
+      r: ad.Num,
+      theta0: ad.Num,
+      theta1: ad.Num
+    ): PathDataV<ad.Num> => {
+      const path = new PathBuilder();
+      //path.moveTo(start).arcTo(radius, end, [rotation, largeArc, arcSweep]);
+      const u0 = [ mul(r,cos(theta0)), mul(r,sin(theta0)) ];
+      const u1 = [ mul(r,cos(theta1)), mul(r,sin(theta1)) ];
+      const x0 = ops.vadd( center, u0 );
+      const x1 = ops.vadd( center, u1 );
+      const largeArc = ifCond(gt(absVal(sub(theta1,theta0)),Math.PI), 1, 0 );
+      const arcSweep = ifCond(gt(theta0,theta1), 1, 0 );
+      path.moveTo(x0).arcTo([r,r], x1, [0, largeArc, arcSweep]);
+      if (pathType === "closed") path.closePath();
+      return path.getPath();
+    },
+    returns: valueT("PathCmd"),
+  },
+
   repeatedArcs: {
     name: "repeatedArcs",
     description:
