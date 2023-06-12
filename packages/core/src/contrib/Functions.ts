@@ -1168,8 +1168,8 @@ export const compDict = {
       //path.moveTo(start).arcTo(radius, end, [rotation, largeArc, arcSweep]);
       const u0 = [ mul(r,cos(theta0)), mul(r,sin(theta0)) ];
       const u1 = [ mul(r,cos(theta1)), mul(r,sin(theta1)) ];
-      const x0 = ops.vadd( center, u0 );
-      const x1 = ops.vadd( center, u1 );
+      const x0 = toPt(ops.vadd( center, u0 ));
+      const x1 = toPt(ops.vadd( center, u1 ));
       const largeArc = ifCond(gt(absVal(sub(theta1,theta0)),Math.PI), 1, 0 );
       const arcSweep = ifCond(gt(theta0,theta1), 1, 0 );
       path.moveTo(x0).arcTo([r,r], x1, [0, largeArc, arcSweep]);
