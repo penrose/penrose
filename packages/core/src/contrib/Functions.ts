@@ -1128,7 +1128,7 @@ export const compDict = {
 
   circularArc: {
     name: "circularArc",
-    description: `Return series of elements that can render an arc SVG. See: https://css-tricks.com/svg-path-syntax-illustrated-guide/ for the "A" spec. Returns elements that can be passed to Path shape spec to render an SVG arc.`,
+    description: `Return path data that describes a circular arc.  The arc is equivalent to the parametric curve center + r*(cos(t),sin(t)) for t in the range [theta0,theta1].  More general arcs (e.g., along an ellipse) can be drawn using arc().`,
     params: [
       {
         name: "pathType",
