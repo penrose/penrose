@@ -1,4 +1,15 @@
-import { Num, Var, add, mul, neg, ops, variable } from "@penrose/core";
+import {
+  Num,
+  Var,
+  add,
+  div,
+  mul,
+  neg,
+  ops,
+  sqrt,
+  sub,
+  variable,
+} from "@penrose/core";
 import MarkdownIt from "markdown-it";
 import mdMJ from "markdown-it-mathjax3";
 import { createMutable } from "solid-js/store";
@@ -9,7 +20,7 @@ const md = MarkdownIt({
   // breaks: true,
 }).use(mdMJ);
 
-const [ox, oy] = [330, 330];
+const [ox, oy] = [200, 330];
 const [w, h] = [270, 270];
 const fontSize = "20px";
 const fontFamily = "STIXGeneral-Italic";
@@ -22,10 +33,13 @@ const Draggable = (props: any) => {
 const $ = (props: { children: string }) => (
   <span innerHTML={md.render(`$${props.children}$`)}></span>
 );
+const P = (props: { children: string }) => (
+  <p innerHTML={md.render(`${props.children}`)}></p>
+);
 
-const toCanvas = ([x, y]: Num[]) => [
-  add(mul(x, w / 5), ox),
-  add(neg(mul(y, h / 5)), oy),
+const toCanvas = (props: Num[]) => [
+  add(mul(props[0], w / 5), ox),
+  add(neg(mul(props[1], h / 5)), oy),
 ];
 const toModel = ([x, y]: number[]): number[] => [x / (w / 5), y / (h / 5)];
 
@@ -188,7 +202,6 @@ const Vector = ({
   );
 };
 
-// TODO: shorten
 const Axis = ({
   origin: [ox, oy],
   xRange: [minX, maxX],
@@ -239,7 +252,7 @@ const Axis = ({
             </text>
           </g>
         ))}
-        <path fill="none" stroke={stroke} d={`M-6,${ox - height}H0V${oy}H-6`} />
+        <path fill="none" stroke={stroke} d={`M-6,${oy}H0V${oy - height}H-6`} />
       </g>
     </g>
   );
@@ -250,19 +263,35 @@ const vec = (x: number, y: number): [Var, Var] => [
   createMutable(variable(y)),
 ];
 
-export default () => {
-  const v1 = vec(1, 0.5);
-  const v2 = vec(0.5, 1);
-  const v = vec(2, 3);
-  const A = ops.mtrans([v1, v2]);
-  const Av = ops.mvmul(A, v).map(signalNum);
+const EigenValues = ({ a1, a2, v }: { a1: Var[]; a2: Var[]; v: Var[] }) => {
   const a1Color = "#3498db";
   const a2Color = "#2ecc71";
   const vColor = "#E74C3C";
+  const A = ops.mtrans([a1, a2]);
+  const Av = ops.mvmul(A, v);
+  const vc = toCanvas(v).map(signalNum);
+  const avc = toCanvas(ops.mvmul(A, v)).map(signalNum);
+  // compute eigenvalues using the trick: https://www.youtube.com/watch?v=e50Bj7jn9IQ
+  const m = div(add(a1[0], a2[1]), 2);
+  const p = ops.cross2(A[0], A[1]);
+  const d = sqrt(sub(mul(m, m), p));
+  const eigenValues = [add(m, d), sub(m, d)];
+  const eigenValuesD = eigenValues.map(signalNum);
+  const eigen1 = ops.vnormalize([sub(eigenValues[0], A[1][1]), A[1][0]]);
+  const eigen1D = eigen1.map(signalNum);
+  const eigen2 = ops.vnormalize([sub(eigenValues[1], A[1][1]), A[1][0]]);
+  const eigen2D = eigen2.map(signalNum);
 
   return (
-    <div style={{ display: "flex" }}>
-      <svg ref={svg} width={800} height={500}>
+    <div
+      style={{
+        display: "flex",
+        width: "100%",
+        "justify-content": "center",
+        "align-content": "center",
+      }}
+    >
+      <svg ref={svg} width={700} height={400}>
         <Axis
           origin={[ox, oy]}
           width={w}
@@ -271,22 +300,111 @@ export default () => {
           yRange={[0, 5]}
         />
         <g>
-          <Vector id={"primary"} fill={a1Color} val={v1} label={"a₁"} />
-          <Vector id={"secondary"} fill={a2Color} val={v2} label={"a₂"} />
+          <Vector id={"primary"} fill={a1Color} val={a1} label={"a₁"} />
+          <Vector id={"secondary"} fill={a2Color} val={a2} label={"a₂"} />
           <Point fill={vColor} val={v} label={"v"} draggable />
+          <line
+            x1={num(vc[0])}
+            y1={num(vc[1])}
+            x2={num(avc[0])}
+            y2={num(avc[1])}
+            stroke-width={2}
+            stroke={"#0002"}
+            stroke-dasharray={"2,2"}
+          ></line>
+          <Point fill={vColor} val={Av} label={"Av"} />
+        </g>
+        <line
+          x1={ox}
+          y1={oy}
+          x2={ox + num(eigen1D[0]) * 10000}
+          y2={oy - num(eigen1D[1]) * 10000}
+          stroke-width={1}
+          stroke={"#000"}
+        ></line>
+        <text
+          font-family={fontFamily}
+          font-size={fontSize}
+          stroke={"0"}
+          fill={"#000"}
+          x={ox + num(eigen1D[0]) * 100}
+          y={oy - num(eigen1D[1]) * 100}
+          style={{
+            "user-select": "none",
+          }}
+        >
+          {"s₁"}
+        </text>
+        <line
+          x1={ox}
+          y1={oy}
+          x2={ox + num(eigen2D[0]) * 10000}
+          y2={oy - num(eigen2D[1]) * 10000}
+          stroke-width={1}
+          stroke={"#000"}
+        ></line>
+        <text
+          font-family={fontFamily}
+          font-size={fontSize}
+          stroke={"0"}
+          fill={"#000"}
+          x={ox + num(eigen2D[0]) * 100}
+          y={oy - num(eigen2D[1]) * 100}
+          style={{
+            "user-select": "none",
+          }}
+        >
+          {"s₂"}
+        </text>
+      </svg>
+      <div>
+        <$>{`\\lambda_1 = ${num(eigenValuesD[0]).toFixed(2)}`}</$>
+        <$>{`\\lambda_2 = ${num(eigenValuesD[1]).toFixed(2)}`}</$>
+      </div>
+    </div>
+  );
+};
+
+const Vectors = ({ a1, a2, v }: { a1: Var[]; a2: Var[]; v: Var[] }) => {
+  const A = ops.mtrans([a1, a2]);
+  const Av = ops.mvmul(A, v);
+  const vd = v.map(signalNum);
+  const avd = Av.map(signalNum);
+  const v1d = a1.map(signalNum);
+  const v2d = a2.map(signalNum);
+  const vc = toCanvas(v).map(signalNum);
+  const avc = toCanvas(ops.mvmul(A, v)).map(signalNum);
+  const a1Color = "#3498db";
+  const a2Color = "#2ecc71";
+  const vColor = "#E74C3C";
+
+  return (
+    <div style={{ display: "flex", "align-items": "center" }}>
+      <svg ref={svg} width={800} height={400}>
+        <Axis
+          origin={[ox, oy]}
+          width={w}
+          height={h}
+          xRange={[0, 5]}
+          yRange={[0, 5]}
+        />
+        <g>
+          <Vector id={"primary"} fill={a1Color} val={a1} label={"a₁"} />
+          <Vector id={"secondary"} fill={a2Color} val={a2} label={"a₂"} />
+          <Point fill={vColor} val={v} label={"v"} draggable />
+          <line
+            x1={num(vc[0])}
+            y1={num(vc[1])}
+            x2={num(avc[0])}
+            y2={num(avc[1])}
+            stroke-width={2}
+            stroke={"#0002"}
+            stroke-dasharray={"2,2"}
+          ></line>
           <Point fill={vColor} val={Av} label={"Av"} />
         </g>
       </svg>
       <div>
-        <$>{`\\textcolor{${a1Color}}{a_1} = [${num(v1[0]).toFixed(2)}, ${num(
-          v1[1]
-        ).toFixed(2)}]`}</$>
-        <$>{`\\textcolor{${a2Color}}{a_2} = [${num(v2[0]).toFixed(2)}, ${num(
-          v2[1]
-        ).toFixed(2)}]`}</$>
-        <$>{`\\textcolor{${vColor}}{v}= [${num(v[0]).toFixed(2)}, ${num(
-          v[1]
-        ).toFixed(2)}]`}</$>
         <$>
           {`\\textcolor{${vColor}}{A} =  
 \\begin{bmatrix}
@@ -294,14 +412,83 @@ export default () => {
 \\textcolor{${a1Color}}{a_1,y} & \\textcolor{${a2Color}}{a_2,y} \\\\
 \\end{bmatrix} =
 \\begin{bmatrix}
-${num(v1[0]).toFixed(2)} & ${num(v2[0]).toFixed(2)}\\\\
-${num(v1[1]).toFixed(2)} & ${num(v2[1]).toFixed(2)}
+${num(v1d[0]).toFixed(2)} & ${num(v2d[0]).toFixed(2)}\\\\
+${num(v1d[1]).toFixed(2)} & ${num(v2d[1]).toFixed(2)}
 \\end{bmatrix}
 `}
         </$>
-        <$>{`\\textcolor{${vColor}}{Av}= [${num(Av[0]).toFixed(2)}, ${num(
-          Av[1]
+        <$>{`\\textcolor{${vColor}}{v}= [${num(vd[0]).toFixed(2)}, ${num(
+          vd[1]
         ).toFixed(2)}]`}</$>
+        <$>{`\\textcolor{${vColor}}{Av}= [${num(avd[0]).toFixed(2)}, ${num(
+          avd[1]
+        ).toFixed(2)}]`}</$>
+      </div>
+    </div>
+  );
+};
+
+export default () => {
+  const a1 = vec(1, 0.5);
+  const a2 = vec(0.5, 1);
+  const v = vec(2, 3);
+  return (
+    <div
+      style={{ display: "flex", width: "100%", "justify-content": "center" }}
+    >
+      <div style={{ "font-family": "Lato", margin: "0 150px" }}>
+        <h1
+          style={{
+            "font-size": "6em",
+            "font-weight": "normal",
+            "margin-bottom": 0,
+          }}
+        >
+          Eigenvectors and Eigenvalues
+          <br />
+        </h1>
+        <span
+          style={{ "font-size": "1.5rem", "margin-top": 0, "font-weight": 100 }}
+        >
+          Explained Visually
+        </span>
+        <P>
+          _Adapted from the original article:
+          [https://setosa.io/ev/eigenvectors-and-eigenvalues/](https://setosa.io/ev/eigenvectors-and-eigenvalues/)_
+        </P>
+        <P>
+          Eigenvalues/vectors are instrumental to understanding electrical
+          circuits, mechanical systems, ecology and even Google's PageRank
+          algorithm. Let's see if visualization can make these ideas more
+          intuitive. To begin, let $v$ be a vector (shown as a point) and $A$ be
+          a matrix with columns $a_1$ and $a_2$ (shown as arrows). If we
+          multiply $v$ by $A$, then $A$ sends $v$ to a new vector $Av$.
+        </P>
+        <Vectors a1={a1} a2={a2} v={v} />
+        <P>
+          If you can draw a line through the three points $(0,0)$, $v$ and $Av$,
+          then $Av$ is just $v$ multiplied by a number $\lambda$; that is, $Av =
+          \lambda v$. In this case, we call $\lambda$ an __eigenvalue__ and $v$
+          an __eigenvector__. For example, here $(1,2)$ is an eigvector and $5$
+          an eigenvalue.
+        </P>
+        <P>
+          Below, change the columns of $A$ and drag $v$ to be an eigenvector.
+          Note three facts: First, every point on the same line as an
+          eigenvector is an eigenvector. Those lines are __eigenspaces__, and
+          each has an associated eigenvalue. Second, if you place $v$ on an
+          eigenspace (either $s_1$ or $s_2$) with associated eigenvalue $\lambda
+          &lt;1$, then $Av$ is closer to $(0,0)$ than $v$; but when $\lambda
+          &gt;1$, it's farther. Third, both eigenspaces depend on both columns
+          of $A$: it is not as though $a_1$ only affects $s_1$.
+        </P>
+        <EigenValues a1={a1} a2={a2} v={v} />
+        <P>
+          If you keep multiplying $v$ by $A$, you get a sequence $v, Av, A^2v$
+          etc. Eigenspaces attract that sequence and eigenvalues tell you
+          whether it ends up at $(0,0)$ or far away. Therefore,
+          eigenvectors/values tell us about systems that evolve step-by-step.
+        </P>
       </div>
     </div>
   );
