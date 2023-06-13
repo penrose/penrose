@@ -26,16 +26,16 @@ together into a single numerical function meant to roughly encode how "good" or
 "bad" the diagram is. We use [automatic differentiation][] on that function to
 let us compute a "tweak" for each degree of freedom to make that number bigger
 or smaller in a way that makes the overall diagram "better"; this is called the
-gradient. Then we use what's called an exterior-point method with the [L-BFGS][]
-algorithm to find a good solution by running this gradient over and over.
+gradient. Then we use the [L-BFGS][] algorithm to find a good solution by
+running this gradient function over and over in a loop.
 
 Up until this year, we had written the optimizer in TypeScript and did the
 gradient computation by concatenating together a long string of JavaScript code
-and passing that to [`new Function`][function constructor]. As mentioned above,
-at the end of last year we rewrote the optimizer in Rust and rewrote our code
-generation to produce [WebAssembly][] instead of JavaScript, which ended up
-making optimization about ten times faster. The rest of this post describes how
-exactly we did that, and some of the challenges we hit along the way.
+which we feed to the browser's JavaScript engine. At the end of last year, we
+rewrote the optimizer in Rust and rewrote our code generation to produce
+[WebAssembly][] instead of JavaScript. This made optimization about ten times
+faster. The rest of this post describes how exactly we did that, and some of the
+challenges we hit along the way.
 
 ## Impetus
 
