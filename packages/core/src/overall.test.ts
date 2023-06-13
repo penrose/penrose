@@ -3,15 +3,18 @@
 import { start } from "@penrose/optimizer";
 import { describe, expect, test } from "vitest";
 import { genGradient } from "./engine/Autodiff.js";
+import { pow, sub } from "./engine/AutodiffFunctions.js";
 import {
   RenderStatic,
   compileTrio,
   evalEnergy,
   evalFns,
   prepareState,
+  problem,
   resample,
   showError,
   stepUntilConvergence,
+  variable,
 } from "./index.js";
 import * as ad from "./types/ad.js";
 import { State } from "./types/state.js";
@@ -65,6 +68,16 @@ where Intersecting(x, y) {
   ensure disjoint(x.text, y.icon)
 }
 `;
+
+describe("API", () => {
+  test("simple constraints", async () => {
+    const x = variable(10);
+    const { vals } = (await problem({ constraints: [pow(sub(x, 5), 2)] }))
+      .start({})
+      .run({});
+    expect(vals.get(x)).toBeCloseTo(5);
+  });
+});
 
 describe("Determinism", () => {
   const render = async (state: State): Promise<string> =>
