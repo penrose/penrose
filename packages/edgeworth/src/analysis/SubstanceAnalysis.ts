@@ -613,12 +613,7 @@ export const dedupSynthesizedSubstances = (
     p1: SynthesizedSubstance,
     p2: SynthesizedSubstance
   ) => {
-    return (
-      p1.prog.statements.reduce<string>(
-        (acc, val) => acc + prettyStmt(val),
-        ""
-      ) ===
-      p2.prog.statements.reduce<string>((acc, val) => acc + prettyStmt(val), "")
+    return prettySubstance(p1.prog) === prettySubstance(p2.prog)
     );
   };
   // Remove duplicated programs
