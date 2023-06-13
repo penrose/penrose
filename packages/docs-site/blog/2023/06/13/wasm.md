@@ -4,7 +4,7 @@ import BlogMeta from "../../../../src/components/BlogMeta.vue";
 
 # Porting the Penrose Optimizer from TypeScript to Rust and WebAssembly for 10x Speedup
 
-<BlogMeta github="samestep" date="2023-06-06" />
+<BlogMeta github="samestep" date="2023-06-13" />
 
 In January we merged pull request [#1092][wasm pr], which took the performance
 bottleneck component of our system (the optimizer) and rewrote it from

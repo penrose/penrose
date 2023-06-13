@@ -267,11 +267,11 @@ export default defineConfig({
           items: [
             {
               text: "What Have We Done to the Languages?",
-              link: "/blog/2023/06/06/new-language-features",
+              link: "/blog/2023/06/13/new-language-features",
             },
             {
               text: "Porting the Penrose Optimizer from TypeScript to Rust and WebAssembly for 10x Speedup",
-              link: "/blog/2023/06/06/wasm",
+              link: "/blog/2023/06/13/wasm",
             },
           ],
         },
