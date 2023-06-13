@@ -46,8 +46,8 @@ export const rectPts = (
   center: ad.Num[],
   width: ad.Num,
   height: ad.Num,
-  rotation: ad.Num
-): ad.Num[][] => {
+  rotation: ad.Num = 0
+): ad.Pt2[] => {
   const counterclockwise = neg(rotation);
   const down = ops.vrot([0, -1], counterclockwise);
   const right = ops.rot90(down);
@@ -62,7 +62,7 @@ export const rectPts = (
   const botLeft = ops.vadd(topLeft, left);
   const botRight = ops.vadd(topRight, left);
 
-  return [topRight, topLeft, botLeft, botRight];
+  return [toPt(topRight), toPt(topLeft), toPt(botLeft), toPt(botRight)];
 };
 
 /**

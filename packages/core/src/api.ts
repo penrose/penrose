@@ -4,7 +4,8 @@ import {
   equivalued,
   perimeter,
 } from "./contrib/CurveConstraints.js";
-import { sdfRect } from "./contrib/Functions.js";
+import { signedDistanceRect } from "./contrib/Functions.js";
+import { rectPts } from "./contrib/Queries.js";
 import { consecutiveTuples } from "./contrib/Utils.js";
 import { ops, variable } from "./engine/Autodiff.js";
 import { absVal, add, div, neg, pow, sub } from "./engine/AutodiffFunctions.js";
@@ -89,11 +90,12 @@ export type {
 export {
   measureText,
   variable,
-  sdfRect,
+  signedDistanceRect,
   perimeter,
   consecutiveTuples,
   equivalued,
   elasticEnergy,
   sub,
   pow,
+  rectPts,
 };
