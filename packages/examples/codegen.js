@@ -92,7 +92,9 @@ for (const [k, v] of Object.entries(registry)) {
     if ("gallery" in v) lines.push(`    gallery: ${v.gallery},`);
   } else {
     lines.push(
-      `    f: (await import(${JSON.stringify(`./${k}.js`)})).default,`
+      `    f: async () => (await import(${JSON.stringify(
+        `./${k}.js`
+      )})).default(),`
     );
   }
   if ("name" in v) lines.push(`    name: ${JSON.stringify(v.name)},`);
