@@ -20,7 +20,7 @@ import {
 import * as BBox from "../engine/BBox.js";
 import { Shape, computeShapeBbox } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
-import { msign } from "./Functions.js";
+import { msign, signedDistancePolygon } from "./Functions.js";
 import {
   convexPartitions,
   overlappingPolygonPoints,
@@ -337,6 +337,15 @@ export const shapeDistance = (s1: Shape<ad.Num>, s2: Shape<ad.Num>): ad.Num => {
       toPt(s1.end.contents)
     );
   }
+  // Line x Line
+  else if (t1 === "Line" && t2 === "Line") {
+    return shapeDistanceLines(
+      toPt(s1.start.contents),
+      toPt(s1.end.contents),
+      toPt(s2.start.contents),
+      toPt(s2.end.contents)
+    );
+  }
   // Default to axis-aligned bounding boxes
   else {
     return shapeDistanceRects(
@@ -440,4 +449,29 @@ export const shapeDistanceCircleLine = (
   const d = ops.vnorm(ops.vsub(u, ops.vmul(h, v)));
   // return d - (r+o)
   return sub(d, r);
+};
+
+export const shapeDistanceLines = (
+  start1: ad.Pt2,
+  end1: ad.Pt2,
+  start2: ad.Pt2,
+  end2: ad.Pt2
+): ad.Num => {
+  // line endpoints
+  const a0 = start1;
+  const a1 = end1;
+  const b0 = start2;
+  const b1 = end2;
+
+  // vertices of Minkowski difference polygon
+  const p0 = ops.vsub(a0, b0);
+  const p1 = ops.vsub(a0, b1);
+  const p2 = ops.vsub(a1, b1);
+  const p3 = ops.vsub(a1, b0);
+
+  // how far is Minkowski polygon from containing the origin?
+  return signedDistancePolygon(
+    [toPt(p0), toPt(p1), toPt(p2), toPt(p3)],
+    [0, 0]
+  );
 };

@@ -124,6 +124,7 @@ import {
   shapeDistance,
   shapeDistanceCircleLine,
   shapeDistanceCircles,
+  shapeDistanceLines,
   shapeDistancePolyEllipse,
   shapeDistancePolys,
   shapeDistanceRectCircle,
@@ -3542,6 +3543,24 @@ export const compDict = {
       start: ad.Pt2,
       end: ad.Pt2
     ): FloatV<ad.Num> => floatV(shapeDistanceCircleLine(c, r, start, end)),
+    returns: realT(),
+  },
+  shapeDistanceLines: {
+    name: "shapeDistanceLines",
+    description: "Returns the distance between two lines.",
+    params: [
+      { name: "start1", type: real2T(), description: "start point of line" },
+      { name: "end1", type: real2T(), description: "end point of line" },
+      { name: "start2", type: real2T(), description: "start point of line" },
+      { name: "end2", type: real2T(), description: "end point of line" },
+    ],
+    body: (
+      _context: Context,
+      start1: ad.Pt2,
+      end1: ad.Pt2,
+      start2: ad.Pt2,
+      end2: ad.Pt2
+    ) => floatV(shapeDistanceLines(start1, end1, start2, end2)),
     returns: realT(),
   },
   //#endregion
