@@ -1,8 +1,8 @@
 Point A, B, C, D, O
 Circle c
 CircleCenter(c, O)
-Segment AO := MkSegment(A, O)
-Segment CO := MkSegment(C, O)
+Let AO := Segment(A, O)
+Let CO := Segment(C, O)
 EqualLengthMarker(AO, CO)
 Segment AB := Chord(c, A, B)
 Segment DC := Chord(c, D, C)
@@ -10,7 +10,7 @@ Segment CB := Chord(c, B, C)
 Segment DA := Chord(c, D, A)
 Segment DB := Diameter(c, D, B)
 Segment AC := Diameter(c, A, C)
-Quadrilateral ABCD := MkQuadrilateral(A, B, C, D)
+Let ABCD := Quadrilateral(A, B, C, D)
 ParallelMarker1(AB, DC)
 Parallel(AB, DC)
 AutoLabel A, B, C, D, O

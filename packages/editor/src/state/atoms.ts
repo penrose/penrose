@@ -6,7 +6,7 @@ import {
   PenroseWarning,
 } from "@penrose/core";
 import { PathResolver, Trio, TrioMeta } from "@penrose/examples/dist";
-import registry from "@penrose/examples/dist/registry";
+import registry from "@penrose/examples/dist/registry.js";
 import { Actions, BorderNode, TabNode } from "flexlayout-react";
 import localforage from "localforage";
 import { debounce, range } from "lodash";
@@ -40,6 +40,7 @@ export type WorkspaceLocation =
        * True if file is explicitly saved to localStorage
        */
       saved: boolean;
+      resolver?: PathResolver;
     }
   | GistLocation
   | {
@@ -130,17 +131,23 @@ const saveWorkspaceEffect: AtomEffect<Workspace> = ({ onSet, setSelf }) => {
         newValue.metadata.location.kind !== "local" &&
         newValue.metadata.location.kind !== "roger"
       ) {
-        setSelf((workspace) => ({
-          ...(workspace as Workspace),
-          metadata: {
-            ...(workspace as Workspace).metadata,
-            location: { kind: "local", saved: false },
-            forkedFromGist:
-              newValue.metadata.location.kind === "gist"
-                ? newValue.metadata.location.id
-                : null,
-          } as WorkspaceMetadata,
-        }));
+        setSelf((workspaceOrDefault) => {
+          const workspace = workspaceOrDefault as Workspace;
+          let resolver: PathResolver | undefined = undefined;
+          if (workspace.metadata.location.kind === "example")
+            resolver = workspace.metadata.location.resolver;
+          return {
+            ...workspace,
+            metadata: {
+              ...workspace.metadata,
+              location: { kind: "local", saved: false, resolver },
+              forkedFromGist:
+                newValue.metadata.location.kind === "gist"
+                  ? newValue.metadata.location.id
+                  : null,
+            } as WorkspaceMetadata,
+          };
+        });
       }
       // If the workspace is already in localStorage
       if (

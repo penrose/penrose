@@ -15,7 +15,7 @@ export type OptPipeline = string[];
 export type StagedConstraints = Map<string, ad.Masks>;
 
 export interface InputInfo {
-  handle: ad.Input;
+  handle: ad.Var;
   meta: InputMeta;
 }
 

@@ -35,12 +35,12 @@ export type Expr = Bool | Num | Vec;
 
 export type Bool = Comp | Logic | Not;
 
-export type Num = number | Input | Unary | Binary | Ternary | Nary | Index;
+export type Num = number | Var | Unary | Binary | Ternary | Nary | Index;
 
 export type Vec = PolyRoots;
 
-export interface Input {
-  tag: "Input";
+export interface Var {
+  tag: "Var";
   val: number;
 }
 
@@ -109,7 +109,7 @@ export interface ConstNode {
 }
 
 export interface InputNode {
-  tag: "Input";
+  tag: "Var";
   key: number;
 }
 
@@ -205,7 +205,7 @@ export interface Graph extends Outputs<Id> {
  */
 export interface Outputs<T> {
   /** Derivatives of primary output with respect to inputs. */
-  gradient: Map<Input, T>;
+  gradient: Map<Var, T>;
   /** Primary output. */
   primary: T;
   /** Secondary outputs. */
@@ -213,7 +213,7 @@ export interface Outputs<T> {
 }
 
 export type Compiled = (
-  inputs: (x: Input) => number,
+  inputs: (x: Var) => number,
   mask?: boolean[]
 ) => Outputs<number>;
 
@@ -237,6 +237,37 @@ export type Gradient = (
   weight: number,
   grad: Float64Array
 ) => OptOutputs;
+
+export interface Description {
+  /** zero by default */
+  objective?: Num;
+  /** empty by default */
+  constraints?: Num[];
+}
+
+export interface Options {
+  /** always false by default */
+  until?(): boolean;
+}
+
+export interface Run {
+  converged: boolean;
+  /** doesn't include frozen */
+  vals: Map<Var, number>;
+  /** returns a new `Run`, leaving this one unchanged */
+  run(opts: Options): Run;
+}
+
+export interface Config {
+  /** uses `val` field by default */
+  vals?(x: Var): number;
+  /** always false by default */
+  freeze?(x: Var): boolean;
+}
+
+export interface Problem {
+  start(config: Config): Run;
+}
 
 //#endregion
 

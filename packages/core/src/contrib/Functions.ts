@@ -5039,3 +5039,23 @@ const tickPlacement = (
   }
   return pts;
 };
+
+/*
+ *  Return the signed distance to an axis-aligned rectangle:
+ *  float sdBox( in vec2 p, in vec2 b )
+ *  {
+ *    vec2 d = abs(p)-b;
+ *    return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
+ *  }
+ */
+export const sdfRect = (
+  center: ad.Num[],
+  width: ad.Num,
+  height: ad.Num,
+  p: ad.Num[]
+) => {
+  const absp = ops.vabs(ops.vsub(p, center));
+  const b = [div(width, 2), div(height, 2)];
+  const d = ops.vsub(absp, b);
+  return add(ops.vnorm(ops.vmax(d, [0.0, 0.0])), min(max(d[0], d[1]), 0.0));
+};

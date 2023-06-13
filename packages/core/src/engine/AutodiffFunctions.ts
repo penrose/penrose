@@ -2,7 +2,7 @@ import * as ad from "../types/ad.js";
 
 const binary =
   (binop: ad.Binary["binop"]) =>
-  (v: ad.Num, w: ad.Num): ad.Binary => ({
+  (v: ad.Num, w: ad.Num): ad.Num => ({
     tag: "Binary",
     binop,
     left: v,
@@ -10,7 +10,7 @@ const binary =
   });
 
 const nary =
-  (op: ad.Nary["op"], bin: (v: ad.Num, w: ad.Num) => ad.Binary) =>
+  (op: ad.Nary["op"], bin: (v: ad.Num, w: ad.Num) => ad.Num) =>
   (xs: ad.Num[]): ad.Num => {
     // interestingly, special-casing 1 and 2 args like this actually affects the
     // gradient by a nontrivial amount in some cases
@@ -77,7 +77,7 @@ export const minN = nary("minN", min);
  * describes the angle made by a vector (x,y) with the x-axis.
  * Returns a value in radians, in the range [-pi,pi].
  */
-export const atan2 = (y: ad.Num, x: ad.Num): ad.Binary => ({
+export const atan2 = (y: ad.Num, x: ad.Num): ad.Num => ({
   tag: "Binary",
   binop: "atan2",
   left: y,
@@ -93,7 +93,7 @@ export const pow = binary("pow");
 
 const unary =
   (unop: ad.Unary["unop"]) =>
-  (v: ad.Num): ad.Unary => ({
+  (v: ad.Num): ad.Num => ({
     tag: "Unary",
     unop,
     param: v,
@@ -248,7 +248,7 @@ export const trunc = unary("trunc");
 
 const comp =
   (binop: ad.Comp["binop"]) =>
-  (v: ad.Num, w: ad.Num): ad.Comp => ({
+  (v: ad.Num, w: ad.Num): ad.Bool => ({
     tag: "Comp",
     binop,
     left: v,
@@ -282,7 +282,7 @@ export const eq = comp("===");
 
 const logic =
   (binop: ad.Logic["binop"]) =>
-  (v: ad.Bool, w: ad.Bool): ad.Logic => ({
+  (v: ad.Bool, w: ad.Bool): ad.Bool => ({
     tag: "Logic",
     binop,
     left: v,
@@ -304,12 +304,12 @@ export const or = logic("||");
  */
 export const xor = logic("!==");
 
-export const not = (v: ad.Bool): ad.Not => ({ tag: "Not", param: v });
+export const not = (v: ad.Bool): ad.Bool => ({ tag: "Not", param: v });
 
 /**
  * Return a conditional `if(cond) then v else w`.
  */
-export const ifCond = (cond: ad.Bool, v: ad.Num, w: ad.Num): ad.Ternary => ({
+export const ifCond = (cond: ad.Bool, v: ad.Num, w: ad.Num): ad.Num => ({
   tag: "Ternary",
   cond,
   then: v,

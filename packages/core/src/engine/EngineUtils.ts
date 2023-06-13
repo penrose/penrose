@@ -303,6 +303,7 @@ const mapLine = <T, S>(f: (arg: T) => S, v: Line<T>): Line<S> => {
     ...v,
     ...mapNamed(f, v),
     ...mapStroke(f, v),
+    ...mapFill(f, v),
     ...mapArrow(f, v),
     start: mapVector(f, v.start),
     end: mapVector(f, v.end),
@@ -490,7 +491,7 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
 }
 
 export const compileCompGraph = async (
-  inputs: ad.Input[],
+  inputs: ad.Var[],
   shapes: Shape<ad.Num>[]
 ): Promise<ShapeFn> => {
   const indices = new Map(inputs.map((x, i) => [x, i]));

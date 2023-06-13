@@ -122,6 +122,12 @@ function
 
 # NOTE: nearley does not like `constructor` as a rule name
 constructor_decl
+  -> long_constructor_decl {% id %}
+  |  short_constructor_decl {% id %}
+  
+
+# Constructor decl supplying output type
+long_constructor_decl 
   -> "constructor" __  identifier type_params_list named_args_list _ "->" _ arg
   {%
     ([kw, , name, ps, as, , , , output]): ConstructorDecl<C> => {
@@ -134,6 +140,32 @@ constructor_decl
       }
     }
   %}
+
+# Constructor decl such that constructor's name is read as output type
+short_constructor_decl 
+  -> "constructor" __  identifier type_params_list named_args_list
+  {%
+    ([kw, , name, ps, as]): ConstructorDecl<C> => {
+      const params = optional(ps, []);
+      const args   = optional(as, []);
+      const type: TypeConstructor<C> = {
+        ...nodeData,
+        ...rangeBetween(rangeOf(kw), name),
+        tag: "TypeConstructor", args: [], name: name
+      };
+      const output: Arg<C> = {
+        ...nodeData, 
+        ...rangeBetween(rangeOf(kw), name),
+        tag: "Arg", type, variable: undefined
+      };
+      return {
+        ...nodeData,
+        ...rangeFrom([rangeOf(kw), ...args]),
+        tag: "ConstructorDecl", name, output, params, args
+      }
+    }
+  %}
+
 
 prelude -> "value" __ var _ ":" _ type_constructor {%
   ([kw, , name, , , , type]): PreludeDecl<C> => ({

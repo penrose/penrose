@@ -335,6 +335,7 @@ export const evalFns = (
 export type PenroseState = State;
 export type PenroseFn = Fn;
 
+export * from "./api.js";
 export { checkDomain, compileDomain, parseDomain } from "./compiler/Domain.js";
 export {
   checkSubstance,
