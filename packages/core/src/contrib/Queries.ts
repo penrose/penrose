@@ -42,6 +42,29 @@ export const bboxPts = (bbox: BBox.BBox): ad.Pt2[] => {
   return [topRight, topLeft, bottomLeft, bottomRight];
 };
 
+export const rectPts = (
+  center: ad.Num[],
+  width: ad.Num,
+  height: ad.Num,
+  rotation: ad.Num
+): ad.Num[][] => {
+  const counterclockwise = neg(rotation);
+  const down = ops.vrot([0, -1], counterclockwise);
+  const right = ops.rot90(down);
+  const top = ops.vmul(width, right);
+  const left = ops.vmul(height, down);
+
+  const topLeft = [
+    sub(center[0], div(width, 2)),
+    add(center[1], div(height, 2)),
+  ];
+  const topRight = ops.vadd(topLeft, top);
+  const botLeft = ops.vadd(topLeft, left);
+  const botRight = ops.vadd(topRight, left);
+
+  return [topRight, topLeft, botLeft, botRight];
+};
+
 /**
  * Return center of the shape `shape`.
  * For shapes without the property `center`, the center of their bounding box is returned.
