@@ -434,7 +434,7 @@ export class Synthesizer {
    * @returns an array of Substance programs and some metadata (e.g. mutation operation record)
    */
   generateSubstances = (numProgs: number): SynthesizedSubstance[] => {
-    const oneSubstance = () => {
+    const oneSubstance = (n: number) => {
       const sub = this.generateSubstance();
       // DEBUG: report results
       log.info(
@@ -447,11 +447,13 @@ export class Synthesizer {
       return sub;
     };
 
-    let substances = dedupSynthesizedSubstances(_.times(numProgs, iteratee));
+    let substances = dedupSynthesizedSubstances(
+      _.times(numProgs, oneSubstance)
+    );
 
     // Generate until there are numProgs unique Substance programs
     while (substances.length < numProgs) {
-      const sub = oneSubstance(temp.length);
+      const sub = oneSubstance(substances.length);
       substances.push(sub);
       substances = dedupSynthesizedSubstances(substances);
     }

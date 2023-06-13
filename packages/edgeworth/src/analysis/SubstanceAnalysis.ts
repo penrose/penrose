@@ -1,12 +1,15 @@
-import { prettyStmt } from "@penrose/core/dist/compiler/Substance";
+import {
+  prettyStmt,
+  prettySubstance,
+} from "@penrose/core/dist/compiler/Substance";
 import { dummyIdentifier } from "@penrose/core/dist/engine/EngineUtils";
 import {
   A,
   AbstractNode,
   C,
   Identifier,
-  metaProps,
   StringLit,
+  metaProps,
 } from "@penrose/core/dist/types/ast";
 import {
   ConstructorDecl,
@@ -613,8 +616,7 @@ export const dedupSynthesizedSubstances = (
     p1: SynthesizedSubstance,
     p2: SynthesizedSubstance
   ) => {
-    return prettySubstance(p1.prog) === prettySubstance(p2.prog)
-    );
+    return prettySubstance(p1.prog) === prettySubstance(p2.prog);
   };
   // Remove duplicated programs
   return _.uniqWith(progs, stmtsComparator);
