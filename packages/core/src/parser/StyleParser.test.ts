@@ -67,6 +67,11 @@ describe("Selector Grammar", () => {
 
   }
 
+  -- commented out block
+  -- -- -- -- forall Set A with Set B -- {
+
+  -- -- -- -- }
+
   forall Set A, \`B\`; Map f
   {
   }`;
@@ -507,6 +512,17 @@ const {
   -- unary op
   u2 = -pn2
   u1 = -A.shape.x + (-m1) * 5.0
+}`;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
+
+  test("list expr", () => {
+    const prog = `
+testing {
+  a = [1]
+  a = [1  ]
+  a = ["a", 1, 2,3,4    ,5  ]
 }`;
     const { results } = parser.feed(prog);
     sameASTs(results);

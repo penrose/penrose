@@ -1,7 +1,7 @@
 -- name in registry: midsegment-triangles
 Point D, E, F, G, H, J, K
-Triangle DEF := MkTriangle(D, E, F)
-Triangle GJF := MkTriangle(G, J, F)
+Let DEF := Triangle(D, E, F)
+Let GJF := Triangle(G, J, F)
 Segment GJ := MidSegment(DEF, G, J)  -- TODO add markers when attribute changes are implemented
 Segment HK := MidSegment(GJF, H, K)
 Angle aGFJ := InteriorAngle(G, F, J)

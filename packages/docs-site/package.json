@@ -1,6 +1,7 @@
 {
   "name": "@penrose/docs-site",
   "version": "3.0.0-alpha.1",
+  "type": "module",
   "private": true,
   "scripts": {
     "build": "vitepress build",
