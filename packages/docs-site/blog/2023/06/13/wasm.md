@@ -6,40 +6,49 @@ import BlogMeta from "../../../../src/components/BlogMeta.vue";
 
 <BlogMeta github="samestep" date="2023-06-13" />
 
-In January we merged pull request [#1092][wasm pr], which took the performance
-bottleneck component of our system (the optimizer) and rewrote it from
-TypeScript to Rust that we compile to WebAssembly. Now it's an order of
-magnitude faster.
+When you write `encourage` and `ensure` statements in your Style program,
+Penrose uses numerical optimization to find a layout of shapes that minimizes
+your objectives while satisfying your constraints. The faster this is, the more
+complicated diagrams you can make, and the more easily you can iterate on any
+given diagram by tweaking it or trying out different random variations.
 
-## Background
+Because performance affects the user experience so much, we've recently been
+putting a good amount of work into making Penrose faster. One really big win has
+been [rewriting the optimizer in Rust and compiling it to WebAssembly][wasm pr],
+which gave us an **order of magnitude performance improvement!**
 
-Penrose Style programs can include `ensure` and `encourage` statements, which
-represent numerical constraints and objectives that Penrose will try to satisfy
-and optimize (respectively) while laying out the diagram. All these objectives
-and constraints get combined together into a numerical optimization problem, on
-which we use an exterior-point method with [L-BFGS][] to find a solution. This
-means that we need to combine all our objectives and constraints into a single
-numerical function of our vector of degrees of freedom, and then compute the
-gradient of that function repeatedly in a loop as part of the optimizer. Up
-until this year, we had written the optimizer in TypeScript and did the gradient
-computation by putting together a long string of JavaScript code and passing
-that to [`new Function`][function constructor].
+## Overview
+
+The locations, sizes, and even colors of shapes in a Penrose diagram are all
+made up of numbers that the optimizer can play with to find a good diagram; we
+call these "degrees of freedom". All the objectives and constraints get combined
+together into a single numerical function meant to roughly encode how "good" or
+"bad" the diagram is. We use [automatic differentiation][] on that function to
+let us compute a "tweak" for each degree of freedom to make that number bigger
+or smaller in a way that makes the overall diagram "better"; this is called the
+gradient. Then we use what's called an exterior-point method with the [L-BFGS][]
+algorithm to find a good solution by running this gradient over and over.
+
+Up until this year, we had written the optimizer in TypeScript and did the
+gradient computation by concatenating together a long string of JavaScript code
+and passing that to [`new Function`][function constructor]. As mentioned above,
+at the end of last year we rewrote the optimizer in Rust and rewrote our code
+generation to produce [WebAssembly][] instead of JavaScript, which ended up
+making optimization about ten times faster. The rest of this post describes how
+exactly we did that, and some of the challenges we hit along the way.
 
 ## Impetus
 
-I wasn't working on Penrose last summer, but in the back of my mind I did start
-wondering whether it would be faster if we ran it natively instead of in the
-browser. So in September I did [an experiment][experiment] to see what would
-happen if I just went through the whole optimizer line by line and rewrote it
-from TypeScript to Rust. I didn't do anything clever, as you can see by my many
-usages of `.clone()`; I just translated it as naïvely as I could. Then, since
-the optimizer takes as input a function to compute our objective and gradient
-values, I modified our compiler backend to produce C instead of JavaScript, so
-that I could compile and link that together with the Rust code for the optimizer
-itself.
+In September I did [an experiment][experiment] to see what would happen if I
+just went through the whole optimizer line by line (nothing clever) and rewrote
+it from TypeScript to Rust. Then since the optimizer takes as input a function
+to compute our objective and gradient values, I modified our compiler backend to
+produce C instead of JavaScript, so that I could compile and link that together
+with the Rust code for the optimizer itself.
 
-Turns out, native is way faster. For example, consider this Penrose diagram (in
-the style of a couple papers from [SIGGRAPH 2020][] and [SIGGRAPH 2022][]):
+It turns out that native is way faster. For example, consider this Penrose
+diagram (in the style of a couple papers from [SIGGRAPH 2020][] and [SIGGRAPH
+2022][]):
 
 ![walk on spheres diagram][walk on spheres]
 
@@ -62,6 +71,10 @@ diagram, for instance:
 ![Euclidean geometry diagram][siggraph teaser]
 
 ![Euclidean geometry performance][siggraph teaser perf]
+
+Given how good the speed of this native optimizer was, I next wanted to compile
+the Rust code to WebAssembly to run it in the browser and see if we could bring
+some of that speedup to the web.
 
 ## Attempt 1
 
@@ -157,10 +170,11 @@ and I found a function called
 [`unexported_unused_lld_things`][unexported_unused_lld_things]. So I opened a
 [pull request][keep-lld-exports] adding a flag called `--keep-lld-exports` which
 causes that function to not be called. Alex merged it a few hours later (!), so
-I could just use the latest `wasm-bindgen` from GitHub `main` to have my table
-and eat it too. (I quickly realized that using `cargo install` to build
-`wasm-bindgen-cli` from source in every CI run is too slow, so instead I stashed
-a Linux binary in a GitHub Gist to use until the next release.)
+I could just use the latest `wasm-bindgen` from GitHub `main` to access the
+table while still using `wasm-bindgen`. (I quickly realized that using `cargo
+install` to build `wasm-bindgen-cli` from source in every CI run is too slow, so
+instead I stashed a Linux binary in a GitHub Gist to use until the next
+release.)
 
 By default, `wasm-bindgen` exports exports Rust types as JavaScript classes
 which point to data living in the Wasm memory. This is great for efficiency
@@ -457,13 +471,18 @@ the design and the tools available before going to submit upstream patches.
 
 ## Takeaways
 
-This took a lot of trial and error! I also leaned heavily on experts like Ben
-and Alex to get me through some of the trickier parts. I'm super excited about
-all the work going on in the [Rust/Wasm][rustwasm] space; there's a lot of great
-tools and resources there already, and I'm hoping that going forward we can
-continue making all of this more accessible to newcomers.
+While there is some debate about how fast Wasm actually is in practice (and
+indeed, our Wasm optimizer is a few times slower than the native one), we found
+a _significant_ performance gain compared to JavaScript. Definitely worth the
+effort.
 
-[keep-lld-exports]: https://github.com/rustwasm/wasm-bindgen/pull/3147
+This project took a lot of trial and error, though! I also leaned heavily on
+experts like Ben and Alex to get me through some of the trickier parts. I'm
+super excited about all the work going on in the [Rust/Wasm][rustwasm] space;
+there's a lot of great tools and resources there already, and I'm hoping that
+going forward we can continue making all of this more accessible to newcomers.
+
+[automatic differentiation]: https://en.wikipedia.org/wiki/Automatic_differentiation
 [alex crichton]: https://github.com/alexcrichton
 [ben titzer]: https://s3d.cmu.edu/people/core-faculty/titzer-ben.html
 [cleanup]: https://github.com/penrose/penrose/pull/1368
@@ -474,6 +493,7 @@ continue making all of this more accessible to newcomers.
 [function constructor]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/Function
 [grow]: https://developer.mozilla.org/en-US/docs/WebAssembly/Reference/Memory/Grow
 [json_compatible]: https://docs.rs/serde-wasm-bindgen/0.5.0/serde_wasm_bindgen/struct.Serializer.html#method.json_compatible
+[keep-lld-exports]: https://github.com/rustwasm/wasm-bindgen/pull/3147
 [l-bfgs]: https://en.wikipedia.org/wiki/Limited-memory_BFGS
 [rustwasm]: https://rustwasm.github.io/
 [serde-wasm-bindgen]: https://github.com/cloudflare/serde-wasm-bindgen
@@ -491,4 +511,5 @@ continue making all of this more accessible to newcomers.
 [wasm pr]: https://github.com/penrose/penrose/pull/1092
 [wasm-bindgen]: https://github.com/rustwasm/wasm-bindgen
 [wasm-bindgen target]: https://rustwasm.github.io/docs/wasm-bindgen/reference/deployment.html
+[webassembly]: https://webassembly.org/
 [will crichton]: https://willcrichton.net/
