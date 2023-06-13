@@ -63,8 +63,9 @@ export const lessThan = (x: ad.Num, y: ad.Num): ad.Num => sub(x, y);
 export { convexPolygonMinkowskiSDF } from "./contrib/Minkowski.js";
 export { compile, ops, problem } from "./engine/Autodiff.js";
 export * from "./engine/AutodiffFunctions.js";
-export { BBox, corners } from "./engine/BBox.js";
-export {
+export { corners } from "./engine/BBox.js";
+export type { BBox } from "./engine/BBox.js";
+export type {
   Binary,
   Bool,
   Comp,
