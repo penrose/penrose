@@ -1,0 +1,2 @@
+var n=Object.defineProperty;var e=(t,r)=>n(t,"name",{value:r,configurable:!0});import{a3 as a}from"./svg-4b9035ef.js";import{r as i,V as m}from"./triangles-7c57f84d.js";import"./iframe-e4576df4.js";import"./CollectLabels-97fd8b95.js";const o=e((t,r)=>[a(t),a(r)],"vec"),u=e(async()=>{const t=o(1,.5),r=o(.5,1),c=o(2,3),s=document.createElement("div");return i(()=>m({a1:t,a2:r,v:c}),s),(s.firstChild?.firstChild).outerHTML},"vectors");export{u as default};
+//# sourceMappingURL=vectors-3f82b6b3.js.map
