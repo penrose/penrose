@@ -263,7 +263,15 @@ const vec = (x: number, y: number): [Var, Var] => [
   createMutable(variable(y)),
 ];
 
-const EigenValues = ({ a1, a2, v }: { a1: Var[]; a2: Var[]; v: Var[] }) => {
+export const EigenValues = ({
+  a1,
+  a2,
+  v,
+}: {
+  a1: Var[];
+  a2: Var[];
+  v: Var[];
+}) => {
   const a1Color = "#3498db";
   const a2Color = "#2ecc71";
   const vColor = "#E74C3C";
@@ -365,7 +373,7 @@ const EigenValues = ({ a1, a2, v }: { a1: Var[]; a2: Var[]; v: Var[] }) => {
   );
 };
 
-const Vectors = ({ a1, a2, v }: { a1: Var[]; a2: Var[]; v: Var[] }) => {
+export const Vectors = ({ a1, a2, v }: { a1: Var[]; a2: Var[]; v: Var[] }) => {
   const A = ops.mtrans([a1, a2]);
   const Av = ops.mvmul(A, v);
   const vd = v.map(signalNum);
