@@ -251,9 +251,6 @@
   },
   "curve-examples/blobs": { "name": "Blobs" },
   "curve-examples/space-curves": { "name": "Space curves" },
-  "solid/triangles": { "trio": false },
-  "solid/vectors": { "trio": false },
-  "solid/eigenspace": { "trio": false },
   "geometric-queries/ray-intersect/test-group": {
     "name": "Ray Casting",
     "gallery": true
