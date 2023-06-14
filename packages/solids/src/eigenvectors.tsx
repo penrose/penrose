@@ -13,21 +13,79 @@ import {
 import MarkdownIt from "markdown-it";
 import mdMJ from "markdown-it-mathjax3";
 import { createMutable } from "solid-js/store";
-import { num, signalNum } from "./util.js";
+import { SignalNum, num, signalNum } from "./util.js";
 
-const md = MarkdownIt({
-  // linkify: true,
-  // breaks: true,
-}).use(mdMJ);
+const md = MarkdownIt().use(mdMJ);
 
 const [ox, oy] = [200, 330];
 const [w, h] = [270, 270];
 const fontSize = "20px";
 const fontFamily = "STIXGeneral-Italic";
+const a1Color = "#3498db";
+const a2Color = "#2ecc71";
+const vColor = "#E74C3C";
 let svg: SVGSVGElement;
 
-const Draggable = (props: any) => {
-  return <div>draggable</div>;
+const DraggablePoint = ({ x, y }: { x: Var; y: Var }) => {
+  /**
+   * Converts screen to relative SVG coords
+   * Thanks to
+   * https://www.petercollingridge.co.uk/tutorials/svg/interactive/dragging/
+   * @param e
+   * @param svg
+   */
+  const getPosition = (
+    { clientX, clientY }: { clientX: number; clientY: number },
+    svg: SVGSVGElement
+  ) => {
+    const CTM = svg.getScreenCTM();
+    if (CTM !== null) {
+      return { x: (clientX - CTM.e) / CTM.a, y: (clientY - CTM.f) / CTM.d };
+    }
+    return { x: 0, y: 0 };
+  };
+
+  const onMouseDown = (e: MouseEvent, parent: SVGSVGElement, val: Var[]) => {
+    const target = e.target as SVGSVGElement;
+    target.setAttribute("fill-opacity", "0.15");
+    const { clientX, clientY } = e;
+    let { x: tempX, y: tempY } = getPosition({ clientX, clientY }, parent);
+    let dx = 0,
+      dy = 0;
+    const onMouseMove = (e: MouseEvent) => {
+      const { x, y } = getPosition(e, parent);
+      dx = x - tempX;
+      dy = tempY - y;
+      tempX = x;
+      tempY = y;
+      // set the actual values
+      const [mx, my] = toModel([dx, dy]);
+      const futureX = val[0].val + mx;
+      const futureY = val[1].val + my;
+      if (futureX >= 0 && futureX <= 5) val[0].val = futureX;
+      if (futureY >= 0 && futureY <= 5) val[1].val = futureY;
+    };
+    const onMouseUp = (e: MouseEvent) => {
+      document.removeEventListener("mouseup", onMouseUp);
+      document.removeEventListener("mousemove", onMouseMove);
+      target.setAttribute("fill-opacity", "0.1");
+    };
+    document.addEventListener("mouseup", onMouseUp);
+    document.addEventListener("mousemove", onMouseMove);
+  };
+  const canvasSignal = (x: Var, y: Var) => toCanvas([x, y]).map(signalNum);
+  const [canvasX, canvasY] = canvasSignal(x, y);
+  return (
+    <g onMouseDown={(e) => onMouseDown(e, svg, [x, y])}>
+      <circle
+        cx={num(canvasX)}
+        cy={num(canvasY)}
+        r="22.91"
+        fill="#000"
+        fill-opacity={0.1}
+      ></circle>
+    </g>
+  );
 };
 
 const $ = (props: { children: string }) => (
@@ -60,12 +118,10 @@ const Point = ({
   val,
   fill,
   label,
-  draggable,
 }: {
   val: Num[];
   fill: string;
   label: string;
-  draggable?: boolean;
 }) => {
   const vals = toCanvas(val).map(signalNum);
   const [lx, ly] = ops.vadd(toCanvas(val), [15, -15]).map(signalNum);
@@ -90,65 +146,8 @@ const Point = ({
         r={4}
         fill={"rgb(231, 76, 60)"}
       ></circle>
-      {draggable && (
-        <g
-          transform={`translate(${num(vals[0])}, ${num(vals[1])})`}
-          onMouseDown={(e) => onMouseDown(e, svg, val as Var[])}
-        >
-          <circle r="22.91" fill="#000" fill-opacity={0.1}></circle>
-        </g>
-      )}
     </g>
   );
-};
-
-/**
- * Converts screen to relative SVG coords
- * Thanks to
- * https://www.petercollingridge.co.uk/tutorials/svg/interactive/dragging/
- * @param e
- * @param svg
- */
-const getPosition = (
-  { clientX, clientY }: { clientX: number; clientY: number },
-  svg: SVGSVGElement
-) => {
-  const CTM = svg.getScreenCTM();
-  if (CTM !== null) {
-    return { x: (clientX - CTM.e) / CTM.a, y: (clientY - CTM.f) / CTM.d };
-  }
-  return { x: 0, y: 0 };
-};
-
-const onMouseDown = (e: MouseEvent, parent: SVGSVGElement, val: Var[]) => {
-  const target = e.target as SVGSVGElement;
-  target.setAttribute("fill-opacity", "0.15");
-  const { clientX, clientY } = e;
-  let { x: tempX, y: tempY } = getPosition({ clientX, clientY }, parent);
-  let dx = 0,
-    dy = 0;
-  const onMouseMove = (e: MouseEvent) => {
-    const { x, y } = getPosition(e, parent);
-    dx = x - tempX;
-    dy = tempY - y;
-    tempX = x;
-    tempY = y;
-    // set the actual values
-    const [mx, my] = toModel([dx, dy]);
-    const futureX = val[0].val + mx;
-    const futureY = val[1].val + my;
-    if (futureX >= 0 && futureX <= 5) val[0].val = futureX;
-    if (futureY >= 0 && futureY <= 5) val[1].val = futureY;
-  };
-  const onMouseUp = (e: MouseEvent) => {
-    document.removeEventListener("mouseup", onMouseUp);
-    document.removeEventListener("mousemove", onMouseMove);
-    // remove transform
-    target.setAttribute(`transform`, "");
-    target.setAttribute("fill-opacity", "0.1");
-  };
-  document.addEventListener("mouseup", onMouseUp);
-  document.addEventListener("mousemove", onMouseMove);
 };
 
 const Vector = ({
@@ -189,15 +188,6 @@ const Vector = ({
         x2={num(vals[0])}
         y2={num(vals[1])}
       ></line>
-      <g onMouseDown={(e) => onMouseDown(e, svg, val)}>
-        <circle
-          cx={num(vals[0])}
-          cy={num(vals[1])}
-          r="22.91"
-          fill="#000"
-          fill-opacity={0.1}
-        ></circle>
-      </g>
     </g>
   );
 };
@@ -272,9 +262,6 @@ export const EigenValues = ({
   a2: Var[];
   v: Var[];
 }) => {
-  const a1Color = "#3498db";
-  const a2Color = "#2ecc71";
-  const vColor = "#E74C3C";
   const A = ops.mtrans([a1, a2]);
   const Av = ops.mvmul(A, v);
   const vc = toCanvas(v).map(signalNum);
@@ -289,6 +276,37 @@ export const EigenValues = ({
   const eigen1D = eigen1.map(signalNum);
   const eigen2 = ops.vnormalize([sub(eigenValues[1], A[1][1]), A[1][0]]);
   const eigen2D = eigen2.map(signalNum);
+  const EigenSpace = ({
+    basis,
+    label,
+  }: {
+    basis: SignalNum[];
+    label: string;
+  }) => (
+    <>
+      <line
+        x1={ox}
+        y1={oy}
+        x2={ox + num(basis[0]) * 10000}
+        y2={oy - num(basis[1]) * 10000}
+        stroke-width={1}
+        stroke={"#000"}
+      ></line>
+      <text
+        font-family={fontFamily}
+        font-size={fontSize}
+        stroke={"0"}
+        fill={"#000"}
+        x={ox + num(basis[0]) * 100}
+        y={oy - num(basis[1]) * 100}
+        style={{
+          "user-select": "none",
+        }}
+      >
+        {label}
+      </text>
+    </>
+  );
 
   return (
     <div
@@ -309,8 +327,11 @@ export const EigenValues = ({
         />
         <g>
           <Vector id={"primary"} fill={a1Color} val={a1} label={"a₁"} />
+          <DraggablePoint x={a1[0]} y={a1[1]} />
           <Vector id={"secondary"} fill={a2Color} val={a2} label={"a₂"} />
-          <Point fill={vColor} val={v} label={"v"} draggable />
+          <DraggablePoint x={a2[0]} y={a2[1]} />
+          <Point fill={vColor} val={v} label={"v"} />
+          <DraggablePoint x={v[0]} y={v[1]} />
           <line
             x1={num(vc[0])}
             y1={num(vc[1])}
@@ -322,48 +343,8 @@ export const EigenValues = ({
           ></line>
           <Point fill={vColor} val={Av} label={"Av"} />
         </g>
-        <line
-          x1={ox}
-          y1={oy}
-          x2={ox + num(eigen1D[0]) * 10000}
-          y2={oy - num(eigen1D[1]) * 10000}
-          stroke-width={1}
-          stroke={"#000"}
-        ></line>
-        <text
-          font-family={fontFamily}
-          font-size={fontSize}
-          stroke={"0"}
-          fill={"#000"}
-          x={ox + num(eigen1D[0]) * 100}
-          y={oy - num(eigen1D[1]) * 100}
-          style={{
-            "user-select": "none",
-          }}
-        >
-          {"s₁"}
-        </text>
-        <line
-          x1={ox}
-          y1={oy}
-          x2={ox + num(eigen2D[0]) * 10000}
-          y2={oy - num(eigen2D[1]) * 10000}
-          stroke-width={1}
-          stroke={"#000"}
-        ></line>
-        <text
-          font-family={fontFamily}
-          font-size={fontSize}
-          stroke={"0"}
-          fill={"#000"}
-          x={ox + num(eigen2D[0]) * 100}
-          y={oy - num(eigen2D[1]) * 100}
-          style={{
-            "user-select": "none",
-          }}
-        >
-          {"s₂"}
-        </text>
+        <EigenSpace basis={eigen1D} label={"s₁"} />
+        <EigenSpace basis={eigen2D} label={"s₂"} />
       </svg>
       <div>
         <$>{`\\lambda_1 = ${num(eigenValuesD[0]).toFixed(2)}`}</$>
@@ -376,15 +357,9 @@ export const EigenValues = ({
 export const Vectors = ({ a1, a2, v }: { a1: Var[]; a2: Var[]; v: Var[] }) => {
   const A = ops.mtrans([a1, a2]);
   const Av = ops.mvmul(A, v);
-  const vd = v.map(signalNum);
   const avd = Av.map(signalNum);
-  const v1d = a1.map(signalNum);
-  const v2d = a2.map(signalNum);
   const vc = toCanvas(v).map(signalNum);
   const avc = toCanvas(ops.mvmul(A, v)).map(signalNum);
-  const a1Color = "#3498db";
-  const a2Color = "#2ecc71";
-  const vColor = "#E74C3C";
 
   return (
     <div style={{ display: "flex", "align-items": "center" }}>
@@ -398,8 +373,11 @@ export const Vectors = ({ a1, a2, v }: { a1: Var[]; a2: Var[]; v: Var[] }) => {
         />
         <g>
           <Vector id={"primary"} fill={a1Color} val={a1} label={"a₁"} />
+          <DraggablePoint x={a1[0]} y={a1[1]} />
           <Vector id={"secondary"} fill={a2Color} val={a2} label={"a₂"} />
-          <Point fill={vColor} val={v} label={"v"} draggable />
+          <DraggablePoint x={a2[0]} y={a2[1]} />
+          <Point fill={vColor} val={v} label={"v"} />
+          <DraggablePoint x={v[0]} y={v[1]} />
           <line
             x1={num(vc[0])}
             y1={num(vc[1])}
@@ -420,13 +398,13 @@ export const Vectors = ({ a1, a2, v }: { a1: Var[]; a2: Var[]; v: Var[] }) => {
 \\textcolor{${a1Color}}{a_1,y} & \\textcolor{${a2Color}}{a_2,y} \\\\
 \\end{bmatrix} =
 \\begin{bmatrix}
-${num(v1d[0]).toFixed(2)} & ${num(v2d[0]).toFixed(2)}\\\\
-${num(v1d[1]).toFixed(2)} & ${num(v2d[1]).toFixed(2)}
+${num(a1[0]).toFixed(2)} & ${num(a2[0]).toFixed(2)}\\\\
+${num(a1[1]).toFixed(2)} & ${num(a2[1]).toFixed(2)}
 \\end{bmatrix}
 `}
         </$>
-        <$>{`\\textcolor{${vColor}}{v}= [${num(vd[0]).toFixed(2)}, ${num(
-          vd[1]
+        <$>{`\\textcolor{${vColor}}{v}= [${num(v[0]).toFixed(2)}, ${num(
+          v[1]
         ).toFixed(2)}]`}</$>
         <$>{`\\textcolor{${vColor}}{Av}= [${num(avd[0]).toFixed(2)}, ${num(
           avd[1]
