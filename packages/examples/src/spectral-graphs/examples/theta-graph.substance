@@ -44,7 +44,6 @@ Edge e16 := MakeEdge(n16, n17)
 Edge e17 := MakeEdge(n17, n18)
 Edge e18 := MakeEdge(n18, n19)
 Edge e19 := MakeEdge(n19, n00)
-
 Edge e20 := MakeEdge(n00, n20)
 Edge e21 := MakeEdge(n20, n21)
 Edge e22 := MakeEdge(n21, n22)

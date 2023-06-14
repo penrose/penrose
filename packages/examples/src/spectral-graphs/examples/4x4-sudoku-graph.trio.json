@@ -1,5 +1,5 @@
 {
-  "substance": "./7d-cube.substance",
+  "substance": "./4x4-sudoku-graph.substance",
   "style": ["./../colors.style"],
   "domain": "./../graph.domain",
   "variation": "StromboliCat61816"
