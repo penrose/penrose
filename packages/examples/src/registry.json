@@ -287,5 +287,17 @@
   "geometric-queries/ray-intersect/test": {
     "name": "Ray Intersection Tests",
     "gallery": false
+  },
+  "spectral-graphs/examples/7d-cube": {
+    "name": "7D Cube Connection Graph",
+    "gallery": false
+  },
+  "spectral-graphs/examples/hexagonal-lattice": {
+    "name": "Hexagonal Lattice Graph",
+    "gallery": false
+  },
+  "spectral-graphs/examples/watts-strogatz-graph": {
+    "name": "Watts-Strogatz Random Graph",
+    "gallery": false
   }
 }
