@@ -26,7 +26,30 @@ const a2Color = "#2ecc71";
 const vColor = "#E74C3C";
 let svg: SVGSVGElement;
 
-const DraggablePoint = ({ x, y }: { x: Var; y: Var }) => {
+const $ = (props: { children: string }) => (
+  <span innerHTML={md.render(`$${props.children}$`)}></span>
+);
+const P = (props: { children: string }) => (
+  <p innerHTML={md.render(`${props.children}`)}></p>
+);
+
+const toCanvas = (xy: Num[]) => [
+  add(mul(xy[0], w / 5), ox),
+  add(neg(mul(xy[1], h / 5)), oy),
+];
+const toModel = ([x, y]: number[]): number[] => [x / (w / 5), y / (h / 5)];
+
+const DraggablePoint = ({
+  x,
+  y,
+}: {
+  x: Var;
+  y: Var;
+  // transform: {
+  //   toCanvas: (xy: Num[]) => Num[];
+  //   toModel: (xy: Num[]) => Num[];
+  // };
+}) => {
   /**
    * Converts screen to relative SVG coords
    * Thanks to
@@ -56,14 +79,19 @@ const DraggablePoint = ({ x, y }: { x: Var; y: Var }) => {
       const { x, y } = getPosition(e, parent);
       dx = x - tempX;
       dy = tempY - y;
-      tempX = x;
-      tempY = y;
       // set the actual values
       const [mx, my] = toModel([dx, dy]);
       const futureX = val[0].val + mx;
       const futureY = val[1].val + my;
-      if (futureX >= 0 && futureX <= 5) val[0].val = futureX;
-      if (futureY >= 0 && futureY <= 5) val[1].val = futureY;
+      // only update when the value update will happen
+      if (futureX >= 0 && futureX <= 5) {
+        val[0].val = futureX;
+        tempX = x;
+      }
+      if (futureY >= 0 && futureY <= 5) {
+        val[1].val = futureY;
+        tempY = y;
+      }
     };
     const onMouseUp = (e: MouseEvent) => {
       document.removeEventListener("mouseup", onMouseUp);
@@ -87,19 +115,6 @@ const DraggablePoint = ({ x, y }: { x: Var; y: Var }) => {
     </g>
   );
 };
-
-const $ = (props: { children: string }) => (
-  <span innerHTML={md.render(`$${props.children}$`)}></span>
-);
-const P = (props: { children: string }) => (
-  <p innerHTML={md.render(`${props.children}`)}></p>
-);
-
-const toCanvas = (props: Num[]) => [
-  add(mul(props[0], w / 5), ox),
-  add(neg(mul(props[1], h / 5)), oy),
-];
-const toModel = ([x, y]: number[]): number[] => [x / (w / 5), y / (h / 5)];
 
 const Arrowhead = (args: { id: string; fill: string }) => (
   <marker
