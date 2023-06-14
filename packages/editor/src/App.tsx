@@ -261,8 +261,9 @@ function App() {
         case "file_change":
           updatedFile(parsed.fileName, parsed.contents);
           break;
-        default:
-          toast.error(`Couldn't handle Roger message ${parsed.kind}`);
+        case "trio_file":
+          updatedFile(parsed.fileName, parsed.contents);
+          break;
       }
     };
   }, []);

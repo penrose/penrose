@@ -1,5 +1,5 @@
 import localforage from "localforage";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Select from "react-select";
 import { useRecoilCallback, useRecoilValue } from "recoil";
 import { v4 as uuid } from "uuid";
@@ -15,6 +15,7 @@ export default function RogerPanel({
   rogerState: RogerState;
   ws: WebSocket | null;
 }) {
+  const [trio, setTrio] = useState(".trio.json");
   const workspace = useRecoilValue(currentWorkspaceState);
   const { substance, style, domain } = workspace.files;
   const onSelection = useRecoilCallback(
@@ -122,22 +123,25 @@ export default function RogerPanel({
         getOptionLabel={({ val }) => val}
         getOptionValue={({ val }) => val}
         onChange={(e) => {
-          ws?.addEventListener("message", (e) => {
-            const parsed = JSON.parse(e.data);
-            if (parsed.kind !== "trio_file") return;
-            const key: "substance" | "style" | "domain" = parsed.type;
-            const val = parsed.fileName;
-            onSelection(val, key);
-          });
-          ws?.send(
-            JSON.stringify({
-              kind: "retrieve_trio",
-              path: e?.val,
-              token: uuid(),
-            })
-          );
+          if (e?.val) {
+            setTrio(e?.val);
+            ws?.send(
+              JSON.stringify({
+                kind: "retrieve_trio",
+                path: e?.val,
+                token: uuid(),
+              })
+            );
+            ws?.addEventListener("message", (e) => {
+              const parsed = JSON.parse(e.data);
+              if (parsed.kind !== "trio_file") return;
+              const key: "substance" | "style" | "domain" = parsed.type;
+              const val = parsed.fileName;
+              onSelection(val, key);
+            });
+          }
         }}
-        value={{ val: ".trio.json" }}
+        value={{ val: trio }}
       />
     </div>
   );

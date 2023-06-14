@@ -1,6 +1,6 @@
 import chokidar from "chokidar";
 import { promises as fs } from "fs";
-import { parse, resolve } from "path";
+import { parse, relative, resolve } from "path";
 import WS, { WebSocketServer } from "ws";
 
 let wss: WS.Server | null = null;
@@ -68,12 +68,14 @@ export default async function (port = 9160): Promise<void> {
           const parentDir = parse(path).dir;
           const contents = await fs.readFile(path, "utf8");
           const { substance, style, domain } = JSON.parse(contents);
-          const combinedStyle = (style as string[])
-            .map(
-              async (s: string) =>
-                await fs.readFile(resolve(parentDir, s), "utf8")
-            )
-            .join("\n");
+          let combinedStyle = "";
+          // concat all the style files
+          for (const s of style) {
+            const styPath = resolve(parentDir, s);
+            combinedStyle += `-- ${styPath}\n`;
+            const sty = await fs.readFile(styPath, "utf8");
+            combinedStyle += sty + "\n";
+          }
           // send all files
           if (wss) {
             const domainPath = resolve(parentDir, domain);
@@ -85,7 +87,7 @@ export default async function (port = 9160): Promise<void> {
                 JSON.stringify({
                   kind: "trio_file",
                   type: "domain",
-                  fileName: domainPath,
+                  fileName: relative(".", domainPath),
                   contents: domainText,
                   token,
                 })
@@ -94,7 +96,7 @@ export default async function (port = 9160): Promise<void> {
                 JSON.stringify({
                   kind: "trio_file",
                   type: "substance",
-                  fileName: substancePath,
+                  fileName: relative(".", substancePath),
                   contents: substanceText,
                   token,
                 })
@@ -104,7 +106,10 @@ export default async function (port = 9160): Promise<void> {
                   kind: "trio_file",
                   type: "style",
                   contents: combinedStyle,
-                  fileName: resolve(parentDir, style[0]),
+                  fileName:
+                    style.length > 1
+                      ? "combined_style"
+                      : relative(".", resolve(parentDir, style[0])), // HACK: use the first style path as the path to the combined Style because the combined Style doesn't exist in the file system
                   token,
                 })
               );
