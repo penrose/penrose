@@ -1,0 +1,35 @@
+Vertex Acciaiuoli
+Vertex Medici
+Vertex Castellani
+Vertex Peruzzi
+Vertex Strozzi
+Vertex Barbadori
+Vertex Ridolfi
+Vertex Tornabuoni
+Vertex Albizzi
+Vertex Salviati
+Vertex Pazzi
+Vertex Bischeri
+Vertex Guadagni
+Vertex Ginori
+Vertex Lamberteschi
+Edge e0 := MakeEdge(Acciaiuoli, Medici)
+Edge e1 := MakeEdge(Medici, Barbadori)
+Edge e2 := MakeEdge(Medici, Ridolfi)
+Edge e3 := MakeEdge(Medici, Tornabuoni)
+Edge e4 := MakeEdge(Medici, Albizzi)
+Edge e5 := MakeEdge(Medici, Salviati)
+Edge e6 := MakeEdge(Castellani, Peruzzi)
+Edge e7 := MakeEdge(Castellani, Strozzi)
+Edge e8 := MakeEdge(Castellani, Barbadori)
+Edge e9 := MakeEdge(Peruzzi, Strozzi)
+Edge e10 := MakeEdge(Peruzzi, Bischeri)
+Edge e11 := MakeEdge(Strozzi, Ridolfi)
+Edge e12 := MakeEdge(Strozzi, Bischeri)
+Edge e13 := MakeEdge(Ridolfi, Tornabuoni)
+Edge e14 := MakeEdge(Tornabuoni, Guadagni)
+Edge e15 := MakeEdge(Albizzi, Ginori)
+Edge e16 := MakeEdge(Albizzi, Guadagni)
+Edge e17 := MakeEdge(Salviati, Pazzi)
+Edge e18 := MakeEdge(Bischeri, Guadagni)
+Edge e19 := MakeEdge(Guadagni, Lamberteschi)
