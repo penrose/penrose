@@ -1,0 +1,6 @@
+{
+  "substance": "./7d-cube.substance",
+  "style": ["./../colors.style"],
+  "domain": "./../graph.domain",
+  "variation": "StromboliCat61816"
+}

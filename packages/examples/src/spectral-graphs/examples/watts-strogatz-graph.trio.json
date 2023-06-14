@@ -1,0 +1,6 @@
+{
+  "substance": "./watts-strogatz-graph.substance",
+  "style": ["./../colors.style"],
+  "domain": "./../graph.domain",
+  "variation": "StromboliCat61816"
+}
