@@ -1,18 +1,18 @@
-Vertex Acciaiuoli
-Vertex Medici
-Vertex Castellani
-Vertex Peruzzi
-Vertex Strozzi
-Vertex Barbadori
-Vertex Ridolfi
-Vertex Tornabuoni
-Vertex Albizzi
-Vertex Salviati
-Vertex Pazzi
-Vertex Bischeri
-Vertex Guadagni
-Vertex Ginori
-Vertex Lamberteschi
+Node Acciaiuoli
+Node Medici
+Node Castellani
+Node Peruzzi
+Node Strozzi
+Node Barbadori
+Node Ridolfi
+Node Tornabuoni
+Node Albizzi
+Node Salviati
+Node Pazzi
+Node Bischeri
+Node Guadagni
+Node Ginori
+Node Lamberteschi
 Edge e0 := MakeEdge(Acciaiuoli, Medici)
 Edge e1 := MakeEdge(Medici, Barbadori)
 Edge e2 := MakeEdge(Medici, Ridolfi)

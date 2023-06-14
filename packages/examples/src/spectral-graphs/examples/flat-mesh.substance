@@ -1,39 +1,39 @@
-Vertex n0x0
-Vertex n0x1
-Vertex n0x2
-Vertex n0x3
-Vertex n0x4
-Vertex n0x5
-Vertex n1x0
-Vertex n1x1
-Vertex n1x2
-Vertex n1x3
-Vertex n1x4
-Vertex n1x5
-Vertex n2x0
-Vertex n2x1
-Vertex n2x2
-Vertex n2x3
-Vertex n2x4
-Vertex n2x5
-Vertex n3x0
-Vertex n3x1
-Vertex n3x2
-Vertex n3x3
-Vertex n3x4
-Vertex n3x5
-Vertex n4x0
-Vertex n4x1
-Vertex n4x2
-Vertex n4x3
-Vertex n4x4
-Vertex n4x5
-Vertex n5x0
-Vertex n5x1
-Vertex n5x2
-Vertex n5x3
-Vertex n5x4
-Vertex n5x5
+Node n0x0
+Node n0x1
+Node n0x2
+Node n0x3
+Node n0x4
+Node n0x5
+Node n1x0
+Node n1x1
+Node n1x2
+Node n1x3
+Node n1x4
+Node n1x5
+Node n2x0
+Node n2x1
+Node n2x2
+Node n2x3
+Node n2x4
+Node n2x5
+Node n3x0
+Node n3x1
+Node n3x2
+Node n3x3
+Node n3x4
+Node n3x5
+Node n4x0
+Node n4x1
+Node n4x2
+Node n4x3
+Node n4x4
+Node n4x5
+Node n5x0
+Node n5x1
+Node n5x2
+Node n5x3
+Node n5x4
+Node n5x5
 Edge e0 := MakeEdge(n0x0, n1x0)
 Edge e1 := MakeEdge(n0x0, n0x1)
 Edge e2 := MakeEdge(n0x1, n1x1)
@@ -72,7 +72,7 @@ Edge e34 := MakeEdge(n3x0, n3x1)
 Edge e35 := MakeEdge(n3x1, n4x1)
 Edge e36 := MakeEdge(n3x1, n3x2)
 Edge e37 := MakeEdge(n3x2, n4x2)
--- Edge e38 := MakeEdge(n3x2, n3x3)
+Edge e38 := MakeEdge(n3x2, n3x3)
 Edge e39 := MakeEdge(n3x3, n4x3)
 Edge e40 := MakeEdge(n3x3, n3x4)
 Edge e41 := MakeEdge(n3x4, n4x4)
