@@ -8,6 +8,7 @@
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
     "outDir": "dist/types",
-    "rootDir": "src"
-  }
+    "types": ["vite/client"]
+  },
+  "include": ["src"]
 }

@@ -12,12 +12,12 @@ import "./instance";
 penrose_init();
 
 /**
- * Replaces the contents of the input vector with the roots of the monic
- * polynomial whose degree is the length of the vector and whose coefficient
- * with a given degree is the element of the vector at that index. Any root with
- * a nonzero imaginary component is replaced with `NaN`.
+ * Replaces the contents of `v` with the roots of the monic polynomial whose
+ * degree is the length of the vector and whose coefficient with a given degree
+ * is the element of the vector at that index. Any root with a nonzero imaginary
+ * component is replaced with `NaN`.
  */
-export const polyRoots = penrose_poly_roots;
+export const polyRoots: (v: Float64Array) => void = penrose_poly_roots;
 
 // see page 443 of Engineering Optimization, Fourth Edition
 /**

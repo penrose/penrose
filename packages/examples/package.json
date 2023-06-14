@@ -4,11 +4,11 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "@penrose/core": "^3.0.0-alpha.0",
     "@penrose/solids": "^3.0.0-alpha.0",
     "solid-js": "^1"
   },
   "devDependencies": {
-    "@penrose/core": "^3.0.0-alpha.0",
     "@types/prettier": "^2",
     "prettier": "^2",
     "vite": "^4",

@@ -1,5 +1,5 @@
 import seedrandom from "seedrandom";
-import { input } from "../engine/Autodiff.js";
+import { variable } from "../engine/Autodiff.js";
 import * as ad from "../types/ad.js";
 import { OptStages } from "../types/state.js";
 import { ColorV, FloatV, VectorV } from "../types/value.js";
@@ -45,7 +45,7 @@ export interface InputMeta {
   stages: OptStages; // can be the empty set, meaning unoptimized
 }
 
-export type InputFactory = (meta: InputMeta) => ad.Input; // NOTE: stateful!
+export type InputFactory = (meta: InputMeta) => ad.Var; // NOTE: stateful!
 
 export interface Context {
   makeInput: InputFactory;
@@ -60,7 +60,7 @@ export const simpleContext = (variation: string): Context => {
   const rng = seedrandom(variation);
   return {
     makeInput: (meta) =>
-      input(
+      variable(
         meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending
       ),
   };

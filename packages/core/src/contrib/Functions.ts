@@ -2636,25 +2636,17 @@ export const compDict = {
       /*  
     All math borrowed from:
     https://iquilezles.org/articles/distfunctions2d/
-    
-    axis-aligned rectangle:
-    float sdBox( in vec2 p, in vec2 b )
-    {
-      vec2 d = abs(p)-b;
-      return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
-    } 
     */
+
       if (isRectlike(s)) {
-        const absp = ops.vabs(ops.vsub(p, s.center.contents));
-        const b = [div(s.width.contents, 2), div(s.height.contents, 2)];
-        const d = ops.vsub(absp, b);
-        const result = add(
-          ops.vnorm(ops.vmax(d, [0.0, 0.0])),
-          min(max(d[0], d[1]), 0.0)
-        );
         return {
           tag: "FloatV",
-          contents: result,
+          contents: sdfRect(
+            s.center.contents,
+            s.width.contents,
+            s.height.contents,
+            p
+          ),
         };
       } else if (s.shapeType === "Circle") {
         /*     
@@ -4251,4 +4243,24 @@ const tickPlacement = (
     pts.push(add(pts[i - 1], shift));
   }
   return pts;
+};
+
+/*
+ *  Return the signed distance to an axis-aligned rectangle:
+ *  float sdBox( in vec2 p, in vec2 b )
+ *  {
+ *    vec2 d = abs(p)-b;
+ *    return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
+ *  }
+ */
+export const sdfRect = (
+  center: ad.Num[],
+  width: ad.Num,
+  height: ad.Num,
+  p: ad.Num[]
+) => {
+  const absp = ops.vabs(ops.vsub(p, center));
+  const b = [div(width, 2), div(height, 2)];
+  const d = ops.vsub(absp, b);
+  return add(ops.vnorm(ops.vmax(d, [0.0, 0.0])), min(max(d[0], d[1]), 0.0));
 };
