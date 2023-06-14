@@ -5,10 +5,16 @@ import WS, { WebSocketServer } from "ws";
 
 let wss: WS.Server | null = null;
 
-const files: { substance: string[]; style: string[]; domain: string[] } = {
+const files: {
+  substance: string[];
+  style: string[];
+  domain: string[];
+  trio: string[];
+} = {
   substance: [],
   style: [],
   domain: [],
+  trio: [],
 };
 
 const broadcastFiles = () => {
@@ -56,6 +62,58 @@ export default async function (port = 9160): Promise<void> {
           const joined = resolve(parentDir, relativePath);
           broadcastFileChange(joined, token);
           break;
+        case "retrieve_trio": {
+          const { path, token } = parsed;
+          // get containing dir of the trio file
+          const parentDir = parse(path).dir;
+          const contents = await fs.readFile(path, "utf8");
+          const { substance, style, domain } = JSON.parse(contents);
+          const combinedStyle = (style as string[])
+            .map(
+              async (s: string) =>
+                await fs.readFile(resolve(parentDir, s), "utf8")
+            )
+            .join("\n");
+          // send all files
+          if (wss) {
+            const domainPath = resolve(parentDir, domain);
+            const domainText = await fs.readFile(domainPath, "utf8");
+            const substancePath = resolve(parentDir, substance);
+            const substanceText = await fs.readFile(substancePath, "utf8");
+            for (const ws of wss.clients) {
+              ws.send(
+                JSON.stringify({
+                  kind: "trio_file",
+                  type: "domain",
+                  fileName: domainPath,
+                  contents: domainText,
+                  token,
+                })
+              );
+              ws.send(
+                JSON.stringify({
+                  kind: "trio_file",
+                  type: "substance",
+                  fileName: substancePath,
+                  contents: substanceText,
+                  token,
+                })
+              );
+              ws.send(
+                JSON.stringify({
+                  kind: "trio_file",
+                  type: "style",
+                  contents: combinedStyle,
+                  fileName: resolve(parentDir, style[0]),
+                  token,
+                })
+              );
+            }
+          } else {
+            console.warn("Websocket server not defined");
+          }
+          break;
+        }
         default:
           console.error(`unknown message kind: ${parsed.kind}`);
       }
@@ -80,6 +138,9 @@ export default async function (port = 9160): Promise<void> {
       case "domain":
         files.domain.push(p);
         break;
+      case "json":
+        // filter out non-trio json files
+        if (p.split(".").slice(1).join(".") === "trio.json") files.trio.push(p);
     }
 
     broadcastFiles();
@@ -89,7 +150,7 @@ export default async function (port = 9160): Promise<void> {
   });
   watcher.on("change", async (p) => {
     if (
-      ["sub", "substance", "sty", "style", "dsl", "domain"].includes(
+      ["json", "sub", "substance", "sty", "style", "dsl", "domain"].includes(
         p.split(".").pop() ?? ""
       )
     ) {
@@ -103,13 +164,16 @@ export default async function (port = 9160): Promise<void> {
       case "substance":
         files.substance = files.substance.filter((f) => f !== p);
         break;
-      case "sty":
+      case ".sty":
       case "style":
         files.style = files.style.filter((f) => f !== p);
         break;
       case "dsl":
       case "domain":
         files.domain = files.domain.filter((f) => f !== p);
+        break;
+      case "json":
+        files.trio = files.trio.filter((f) => f !== p);
         break;
     }
 

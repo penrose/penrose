@@ -116,6 +116,29 @@ export default function RogerPanel({
         onChange={(e) => onSelection(e?.val ?? "", "domain")}
         value={{ val: domain.name }}
       />
+      <h2>trio</h2>
+      <Select
+        options={rogerState.trio.map((val) => ({ val }))}
+        getOptionLabel={({ val }) => val}
+        getOptionValue={({ val }) => val}
+        onChange={(e) => {
+          ws?.addEventListener("message", (e) => {
+            const parsed = JSON.parse(e.data);
+            if (parsed.kind !== "trio_file") return;
+            const key: "substance" | "style" | "domain" = parsed.type;
+            const val = parsed.fileName;
+            onSelection(val, key);
+          });
+          ws?.send(
+            JSON.stringify({
+              kind: "retrieve_trio",
+              path: e?.val,
+              token: uuid(),
+            })
+          );
+        }}
+        value={{ val: ".trio.json" }}
+      />
     </div>
   );
 }
