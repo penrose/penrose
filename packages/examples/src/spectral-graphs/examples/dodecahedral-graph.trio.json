@@ -1,5 +1,5 @@
 {
-  "substance": "./watts-strogatz-graph.substance",
+  "substance": "./dodecahedral-graph.substance",
   "style": ["./../colors.style"],
   "domain": "./../graph.domain",
   "variation": "StromboliCat61816"
