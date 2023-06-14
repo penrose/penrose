@@ -145,7 +145,7 @@ const Point = ({
       <text
         font-family={fontFamily}
         font-size={fontSize}
-        stroke={"0"}
+        stroke-width={0}
         fill={fill}
         x={num(lx)}
         y={num(ly)}
@@ -184,7 +184,7 @@ const Vector = ({
       <text
         font-family={fontFamily}
         font-size={fontSize}
-        stroke={"0"}
+        stroke-width={0}
         fill={fill}
         x={num(lx)}
         y={num(ly)}
@@ -310,8 +310,10 @@ export const EigenValues = ({
       <text
         font-family={fontFamily}
         font-size={fontSize}
-        stroke={"0"}
-        fill={"#000"}
+        stroke="#fff"
+        stroke-width={4}
+        paint-order="stroke"
+        fill="#000"
         x={ox + num(basis[0]) * 100}
         y={oy - num(basis[1]) * 100}
         style={{
@@ -341,11 +343,11 @@ export const EigenValues = ({
           yRange={[0, 5]}
         />
         <g>
-          <Vector id={"primary"} fill={a1Color} val={a1} label={"a₁"} />
+          <Vector id="primary" fill={a1Color} val={a1} label="a₁" />
           <DraggablePoint x={a1[0]} y={a1[1]} />
-          <Vector id={"secondary"} fill={a2Color} val={a2} label={"a₂"} />
+          <Vector id="secondary" fill={a2Color} val={a2} label="a₂" />
           <DraggablePoint x={a2[0]} y={a2[1]} />
-          <Point fill={vColor} val={v} label={"v"} />
+          <Point fill={vColor} val={v} label="v" />
           <DraggablePoint x={v[0]} y={v[1]} />
           <line
             x1={num(vc[0])}
@@ -353,13 +355,13 @@ export const EigenValues = ({
             x2={num(avc[0])}
             y2={num(avc[1])}
             stroke-width={2}
-            stroke={"#0002"}
-            stroke-dasharray={"2,2"}
+            stroke="#0002"
+            stroke-dasharray="2,2"
           ></line>
-          <Point fill={vColor} val={Av} label={"Av"} />
+          <Point fill={vColor} val={Av} label="Av" />
         </g>
-        <EigenSpace basis={eigen1D} label={"s₁"} />
-        <EigenSpace basis={eigen2D} label={"s₂"} />
+        <EigenSpace basis={eigen1D} label="s₁" />
+        <EigenSpace basis={eigen2D} label="s₂" />
       </svg>
       <div>
         <$>{`\\lambda_1 = ${num(eigenValuesD[0]).toFixed(2)}`}</$>
@@ -387,11 +389,11 @@ export const Vectors = ({ a1, a2, v }: { a1: Var[]; a2: Var[]; v: Var[] }) => {
           yRange={[0, 5]}
         />
         <g>
-          <Vector id={"primary"} fill={a1Color} val={a1} label={"a₁"} />
+          <Vector id="primary" fill={a1Color} val={a1} label="a₁" />
           <DraggablePoint x={a1[0]} y={a1[1]} />
-          <Vector id={"secondary"} fill={a2Color} val={a2} label={"a₂"} />
+          <Vector id="secondary" fill={a2Color} val={a2} label="a₂" />
           <DraggablePoint x={a2[0]} y={a2[1]} />
-          <Point fill={vColor} val={v} label={"v"} />
+          <Point fill={vColor} val={v} label="v" />
           <DraggablePoint x={v[0]} y={v[1]} />
           <line
             x1={num(vc[0])}
@@ -399,10 +401,10 @@ export const Vectors = ({ a1, a2, v }: { a1: Var[]; a2: Var[]; v: Var[] }) => {
             x2={num(avc[0])}
             y2={num(avc[1])}
             stroke-width={2}
-            stroke={"#0002"}
-            stroke-dasharray={"2,2"}
+            stroke="#0002"
+            stroke-dasharray="2,2"
           ></line>
-          <Point fill={vColor} val={Av} label={"Av"} />
+          <Point fill={vColor} val={Av} label="Av" />
         </g>
       </svg>
       <div>
