@@ -13,6 +13,7 @@ import {
 import MarkdownIt from "markdown-it";
 import mdMJ from "markdown-it-mathjax3";
 import { createMutable } from "solid-js/store";
+import DraggablePoint from "./DraggablePoint.jsx";
 import { SignalNum, num, signalNum } from "./util.js";
 
 const md = MarkdownIt().use(mdMJ);
@@ -24,7 +25,6 @@ const fontFamily = "STIXGeneral-Italic";
 const a1Color = "#3498db";
 const a2Color = "#2ecc71";
 const vColor = "#E74C3C";
-let svg: SVGSVGElement;
 
 const $ = (props: { children: string }) => (
   <span innerHTML={md.render(`$${props.children}$`)}></span>
@@ -37,83 +37,13 @@ const toCanvas = (xy: Num[]) => [
   add(mul(xy[0], w / 5), ox),
   add(neg(mul(xy[1], h / 5)), oy),
 ];
-const toModel = ([x, y]: number[]): number[] => [x / (w / 5), y / (h / 5)];
-
-const DraggablePoint = ({
-  x,
-  y,
-}: {
-  x: Var;
-  y: Var;
-  // transform: {
-  //   toCanvas: (xy: Num[]) => Num[];
-  //   toModel: (xy: Num[]) => Num[];
-  // };
-}) => {
-  /**
-   * Converts screen to relative SVG coords
-   * Thanks to
-   * https://www.petercollingridge.co.uk/tutorials/svg/interactive/dragging/
-   * @param e
-   * @param svg
-   */
-  const getPosition = (
-    { clientX, clientY }: { clientX: number; clientY: number },
-    svg: SVGSVGElement
-  ) => {
-    const CTM = svg.getScreenCTM();
-    if (CTM !== null) {
-      return { x: (clientX - CTM.e) / CTM.a, y: (clientY - CTM.f) / CTM.d };
-    }
-    return { x: 0, y: 0 };
-  };
-
-  const onMouseDown = (e: MouseEvent, parent: SVGSVGElement, val: Var[]) => {
-    const target = e.target as SVGSVGElement;
-    target.setAttribute("fill-opacity", "0.15");
-    const { clientX, clientY } = e;
-    let { x: tempX, y: tempY } = getPosition({ clientX, clientY }, parent);
-    let dx = 0,
-      dy = 0;
-    const onMouseMove = (e: MouseEvent) => {
-      const { x, y } = getPosition(e, parent);
-      dx = x - tempX;
-      dy = tempY - y;
-      // set the actual values
-      const [mx, my] = toModel([dx, dy]);
-      const futureX = val[0].val + mx;
-      const futureY = val[1].val + my;
-      // only update when the value update will happen
-      if (futureX >= 0 && futureX <= 5) {
-        val[0].val = futureX;
-        tempX = x;
-      }
-      if (futureY >= 0 && futureY <= 5) {
-        val[1].val = futureY;
-        tempY = y;
-      }
-    };
-    const onMouseUp = (e: MouseEvent) => {
-      document.removeEventListener("mouseup", onMouseUp);
-      document.removeEventListener("mousemove", onMouseMove);
-      target.setAttribute("fill-opacity", "0.1");
-    };
-    document.addEventListener("mouseup", onMouseUp);
-    document.addEventListener("mousemove", onMouseMove);
-  };
-  const canvasSignal = (x: Var, y: Var) => toCanvas([x, y]).map(signalNum);
-  const [canvasX, canvasY] = canvasSignal(x, y);
-  return (
-    <g onMouseDown={(e) => onMouseDown(e, svg, [x, y])}>
-      <circle
-        cx={num(canvasX)}
-        cy={num(canvasY)}
-        r="22.91"
-        fill="#000"
-        fill-opacity={0.1}
-      ></circle>
-    </g>
-  );
+const toModel = (xy: number[]): number[] => [xy[0] / (w / 5), xy[1] / (h / 5)];
+const toScreen = (xy: number[]) => [(xy[0] * w) / 5 + ox, oy - (xy[1] * h) / 5];
+const inWorld = (xy: number[]) => {
+  const minmax = (n: number) => Math.max(0, Math.min(5, n));
+  const x = minmax(Math.round(xy[0] * 2) / 2);
+  const y = minmax(Math.round(xy[1] * 2) / 2);
+  return [x, y];
 };
 
 const Arrowhead = (args: { id: string; fill: string }) => (
@@ -149,9 +79,6 @@ const Point = ({
         fill={fill}
         x={num(lx)}
         y={num(ly)}
-        style={{
-          "user-select": "none",
-        }}
       >
         {label}
       </text>
@@ -188,9 +115,6 @@ const Vector = ({
         fill={fill}
         x={num(lx)}
         y={num(ly)}
-        style={{
-          "user-select": "none",
-        }}
       >
         {label}
       </text>
@@ -226,11 +150,7 @@ const Axis = ({
   const yTicks = Math.floor(height / yStep) + 1;
   const stroke = "#0002";
   return (
-    <g
-      style={{
-        "user-select": "none",
-      }}
-    >
+    <g>
       <g
         transform={`translate(0,${oy})`}
         style="font-size: 10px; pointer-events: none;"
@@ -316,14 +236,13 @@ export const EigenValues = ({
         fill="#000"
         x={ox + num(basis[0]) * 100}
         y={oy - num(basis[1]) * 100}
-        style={{
-          "user-select": "none",
-        }}
       >
         {label}
       </text>
     </>
   );
+
+  let svg = undefined;
 
   return (
     <div
@@ -344,11 +263,29 @@ export const EigenValues = ({
         />
         <g>
           <Vector id="primary" fill={a1Color} val={a1} label="a₁" />
-          <DraggablePoint x={a1[0]} y={a1[1]} />
+          <DraggablePoint
+            x={a1[0]}
+            y={a1[1]}
+            constrain={inWorld}
+            transform={{ toScreen, toModel }}
+            svg={svg}
+          />
           <Vector id="secondary" fill={a2Color} val={a2} label="a₂" />
-          <DraggablePoint x={a2[0]} y={a2[1]} />
+          <DraggablePoint
+            x={a2[0]}
+            y={a2[1]}
+            constrain={inWorld}
+            svg={svg}
+            transform={{ toScreen, toModel }}
+          />
           <Point fill={vColor} val={v} label="v" />
-          <DraggablePoint x={v[0]} y={v[1]} />
+          <DraggablePoint
+            x={v[0]}
+            y={v[1]}
+            constrain={inWorld}
+            svg={svg}
+            transform={{ toScreen, toModel }}
+          />
           <line
             x1={num(vc[0])}
             y1={num(vc[1])}
@@ -377,7 +314,7 @@ export const Vectors = ({ a1, a2, v }: { a1: Var[]; a2: Var[]; v: Var[] }) => {
   const avd = Av.map(signalNum);
   const vc = toCanvas(v).map(signalNum);
   const avc = toCanvas(ops.mvmul(A, v)).map(signalNum);
-
+  let svg = undefined;
   return (
     <div style={{ display: "flex", "align-items": "center" }}>
       <svg ref={svg} width={800} height={400}>
@@ -390,11 +327,29 @@ export const Vectors = ({ a1, a2, v }: { a1: Var[]; a2: Var[]; v: Var[] }) => {
         />
         <g>
           <Vector id="primary" fill={a1Color} val={a1} label="a₁" />
-          <DraggablePoint x={a1[0]} y={a1[1]} />
+          <DraggablePoint
+            x={a1[0]}
+            y={a1[1]}
+            constrain={inWorld}
+            svg={svg}
+            transform={{ toScreen, toModel }}
+          />
           <Vector id="secondary" fill={a2Color} val={a2} label="a₂" />
-          <DraggablePoint x={a2[0]} y={a2[1]} />
+          <DraggablePoint
+            x={a2[0]}
+            y={a2[1]}
+            constrain={inWorld}
+            svg={svg}
+            transform={{ toScreen, toModel }}
+          />
           <Point fill={vColor} val={v} label="v" />
-          <DraggablePoint x={v[0]} y={v[1]} />
+          <DraggablePoint
+            x={v[0]}
+            y={v[1]}
+            constrain={inWorld}
+            svg={svg}
+            transform={{ toScreen, toModel }}
+          />
           <line
             x1={num(vc[0])}
             y1={num(vc[1])}
