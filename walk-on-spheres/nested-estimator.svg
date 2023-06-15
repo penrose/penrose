@@ -24,7 +24,7 @@
     stroke-opacity="1"
     stroke-width="2"
     transform="scale(1)"
-    points="297.4459766032933,230.87280017676935,159.99830392187806,199.91694572442435,9.998113718026445,199.92661917450195,9.998491563998954,40.07337364229771,159.99800203102467,40.0830503550099,290.2949382396824,12.846880585953556"
+    points="297.42548896869346,230.96590719816703,159.9998214142364,199.843732831215,9.838499260555892,200.013629390342,11.143919068110364,39.97387798375276,160.00002132609472,40.15627083211142,290.59841453776266,11.408693291825657"
   >
     <title>Global.domain</title>
   </polygon>
@@ -32,10 +32,10 @@
     fill="#808080"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 278.01238870873385, 212.06290656463983)"
+    transform="rotate(0, 278.01395209241184, 212.04449206092545)"
     style="font: 12px Palatino"
-    x="278.01238870873385"
-    y="217.06290656463983"
+    x="278.01395209241184"
+    y="217.04449206092545"
     width="10"
     height="10"
     font-size-adjust=""
@@ -50,7 +50,7 @@
     Ω
   </text>
   <g
-    transform="rotate(0, 89.63705114523808, 103.08282496969827)translate(28.382737562121036, 41.828511386581226)"
+    transform="rotate(0, 159.99980233705313, 103.09966058029065)translate(98.80641258849295, 41.90627083173047)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -62,8 +62,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="122.50862716623408"
-      height="122.50862716623408"
+      width="122.38677949712036"
+      height="122.38677949712036"
     >
       <style type="text/css">
         .nested-estimator__st0 {
@@ -91,30 +91,30 @@
   <circle
     fill="#33cc33"
     fill-opacity="0.15"
-    cx="89.63705114523808"
-    cy="103.08282496969827"
+    cx="159.99980233705313"
+    cy="103.09966058029065"
     stroke="none"
-    r="61.25431358311704"
+    r="61.19338974856018"
   >
     <title>`x0`.ball</title>
   </circle>
   <circle
     fill="none"
-    cx="89.63705114523808"
-    cy="103.08282496969827"
+    cx="159.99980233705313"
+    cy="103.09966058029065"
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
-    r="61.25431358311704"
+    r="61.19338974856018"
   >
     <title>`x0`.sphere</title>
   </circle>
   <g>
     <line
-      x1="89.63705114523808"
-      y1="103.08282496969827"
-      x2="89.63720353209399"
-      y2="164.4935616279913"
+      x1="159.99980233705313"
+      y1="103.09966058029065"
+      x2="159.99948163526665"
+      y2="164.44931986626364"
       stroke="#0000b3"
       stroke-opacity="1"
       stroke-width="2"
@@ -122,7 +122,7 @@
     <title>9:0:walkLine</title>
   </g>
   <g
-    transform="rotate(0, 89.63720353209399, 164.4935616279913)translate(55.95928195113858, 130.8156400470359)"
+    transform="rotate(0, 159.99948163526665, 164.44931986626364)translate(126.3550686686844, 130.80490689968138)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -134,8 +134,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="67.35584316191083"
-      height="67.35584316191083"
+      width="67.28882593316449"
+      height="67.28882593316449"
     >
       <style type="text/css">
         .nested-estimator__st0 {
@@ -163,26 +163,26 @@
   <circle
     fill="#33cc33"
     fill-opacity="0.15"
-    cx="89.63720353209399"
-    cy="164.4935616279913"
+    cx="159.99948163526665"
+    cy="164.44931986626364"
     stroke="none"
-    r="33.67792158095541"
+    r="33.644412966582244"
   >
     <title>`x1`.ball</title>
   </circle>
   <circle
     fill="none"
-    cx="89.63720353209399"
-    cy="164.4935616279913"
+    cx="159.99948163526665"
+    cy="164.44931986626364"
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
-    r="33.67792158095541"
+    r="33.644412966582244"
   >
     <title>`x1`.sphere</title>
   </circle>
   <g
-    transform="rotate(0, 89.63908608167588, 193.1197971272365)translate(84.58740006184355, 188.06811110740418)"
+    transform="rotate(0, 159.99975855169671, 193.0470719814655)translate(154.95309770165653, 188.00041113142532)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -194,8 +194,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="10.103372039664658"
-      height="10.103372039664658"
+      width="10.09332170008039"
+      height="10.09332170008039"
     >
       <style type="text/css">
         .nested-estimator__st0 {
@@ -223,30 +223,30 @@
   <circle
     fill="#ffffff"
     fill-opacity="0.4"
-    cx="89.63908608167588"
-    cy="193.1197971272365"
+    cx="159.99975855169671"
+    cy="193.0470719814655"
     stroke="none"
-    r="5.051686019832329"
+    r="5.046660850040195"
   >
     <title>`y10`.ball</title>
   </circle>
   <circle
     fill="none"
-    cx="89.63908608167588"
-    cy="193.1197971272365"
+    cx="159.99975855169671"
+    cy="193.0470719814655"
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="1.5"
-    r="5.051686019832329"
+    r="5.046660850040195"
   >
     <title>`y10`.sphere</title>
   </circle>
   <g>
     <line
-      x1="89.63908608167588"
-      y1="193.1197971272365"
-      x2="84.82018595414753"
-      y2="194.63561657921394"
+      x1="159.99975855169671"
+      y1="193.0470719814655"
+      x2="155.18726548391507"
+      y2="194.5665119761103"
       stroke="#0000b3"
       stroke-opacity="1"
       stroke-width="2"
@@ -254,7 +254,7 @@
     <title>9:5:walkLine</title>
   </g>
   <g
-    transform="rotate(0, 84.82018595414753, 194.63561657921394)translate(81.28400861426988, 191.0994392393363)"
+    transform="rotate(0, 155.18726548391507, 194.5665119761103)translate(151.65460295481412, 191.03384944700935)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -266,8 +266,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="7.0723546797553"
-      height="7.0723546797553"
+      width="7.065325058201918"
+      height="7.065325058201918"
     >
       <style type="text/css">
         .nested-estimator__st0 {
@@ -295,30 +295,30 @@
   <circle
     fill="#ffffff"
     fill-opacity="0.4"
-    cx="84.82018595414753"
-    cy="194.63561657921394"
+    cx="155.18726548391507"
+    cy="194.5665119761103"
     stroke="none"
-    r="3.53617733987765"
+    r="3.532662529100959"
   >
     <title>`y11`.ball</title>
   </circle>
   <circle
     fill="none"
-    cx="84.82018595414753"
-    cy="194.63561657921394"
+    cx="155.18726548391507"
+    cy="194.5665119761103"
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="1.5"
-    r="3.53617733987765"
+    r="3.532662529100959"
   >
     <title>`y11`.sphere</title>
   </circle>
   <g>
     <line
-      x1="84.82018595414753"
-      y1="194.63561657921394"
-      x2="81.4469593684102"
-      y2="195.69668764324854"
+      x1="155.18726548391507"
+      y1="194.5665119761103"
+      x2="151.81852118414454"
+      y2="195.63012265754523"
       stroke="#0000b3"
       stroke-opacity="1"
       stroke-width="2"
@@ -326,7 +326,7 @@
     <title>9:6:walkLine</title>
   </g>
   <g
-    transform="rotate(0, 81.4469593684102, 195.69668764324854)translate(78.97163555237715, 193.22136382721547)"
+    transform="rotate(0, 151.81852118414454, 195.63012265754523)translate(149.34565717022267, 193.15725864362335)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -338,8 +338,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="4.950647632066119"
-      height="4.950647632066119"
+      width="4.945728027843749"
+      height="4.945728027843749"
     >
       <style type="text/css">
         .nested-estimator__st0 {
@@ -367,30 +367,30 @@
   <circle
     fill="#ffffff"
     fill-opacity="0.4"
-    cx="81.4469593684102"
-    cy="195.69668764324854"
+    cx="151.81852118414454"
+    cy="195.63012265754523"
     stroke="none"
-    r="2.4753238160330593"
+    r="2.4728640139218747"
   >
     <title>`y12`.ball</title>
   </circle>
   <circle
     fill="none"
-    cx="81.4469593684102"
-    cy="195.69668764324854"
+    cx="151.81852118414454"
+    cy="195.63012265754523"
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="1.5"
-    r="2.4753238160330593"
+    r="2.4728640139218747"
   >
     <title>`y12`.sphere</title>
   </circle>
   <g>
     <line
-      x1="89.63720353209399"
-      y1="164.4935616279913"
-      x2="59.56281391401126"
-      y2="179.6505504961089"
+      x1="159.99948163526665"
+      y1="164.44931986626364"
+      x2="129.97119471294815"
+      y2="179.62326661884427"
       stroke="#0000b3"
       stroke-opacity="1"
       stroke-width="2"
@@ -398,7 +398,7 @@
     <title>9:1:walkLine</title>
   </g>
   <g
-    transform="rotate(0, 59.56281391401126, 179.6505504961089)translate(41.03994168474128, 161.12767826683893)"
+    transform="rotate(0, 129.97119471294815, 179.62326661884427)translate(111.46676626869144, 161.11883817458758)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -410,8 +410,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="37.04574445853995"
-      height="37.04574445853995"
+      width="37.0088568885134"
+      height="37.0088568885134"
     >
       <style type="text/css">
         .nested-estimator__st0 {
@@ -439,30 +439,30 @@
   <circle
     fill="#33cc33"
     fill-opacity="0.15"
-    cx="59.56281391401126"
-    cy="179.6505504961089"
+    cx="129.97119471294815"
+    cy="179.62326661884427"
     stroke="none"
-    r="18.522872229269975"
+    r="18.5044284442567"
   >
     <title>`x2`.ball</title>
   </circle>
   <circle
     fill="none"
-    cx="59.56281391401126"
-    cy="179.6505504961089"
+    cx="129.97119471294815"
+    cy="179.62326661884427"
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
-    r="18.522872229269975"
+    r="18.5044284442567"
   >
     <title>`x2`.sphere</title>
   </circle>
   <g>
     <line
-      x1="59.56281391401126"
-      y1="179.6505504961089"
-      x2="43.02188726393452"
-      y2="187.98690455326323"
+      x1="129.97119471294815"
+      y1="179.62326661884427"
+      x2="113.45564150152012"
+      y2="187.96895082373476"
       stroke="#0000b3"
       stroke-opacity="1"
       stroke-width="2"
@@ -470,7 +470,7 @@
     <title>9:2:walkLine</title>
   </g>
   <g
-    transform="rotate(0, 43.02188726393452, 187.98690455326323)translate(32.8343023569841, 177.79931964631282)"
+    transform="rotate(0, 113.45564150152012, 187.96895082373476)translate(103.27820579119113, 177.79151511340578)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -482,8 +482,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="20.37516981390084"
-      height="20.37516981390084"
+      width="20.35487142065798"
+      height="20.35487142065798"
     >
       <style type="text/css">
         .nested-estimator__st0 {
@@ -511,25 +511,25 @@
   <circle
     fill="#33cc33"
     fill-opacity="0.15"
-    cx="43.02188726393452"
-    cy="187.98690455326323"
+    cx="113.45564150152012"
+    cy="187.96895082373476"
     stroke="none"
-    r="10.18758490695042"
+    r="10.17743571032899"
   >
     <title>`x3`.ball</title>
   </circle>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="43.02188726393452"
-    cy="187.98690455326323"
+    cx="113.45564150152012"
+    cy="187.96895082373476"
     stroke="none"
     r="2.5"
   >
     <title>`x3`.dot</title>
   </circle>
   <g
-    transform="rotate(0, 89.64025376951895, 51.016655939044185)translate(80.4521093153193, 41.82851148484454)"
+    transform="rotate(0, 159.99998359375962, 51.08527940848559)translate(150.8209750173203, 41.90627083204628)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -541,8 +541,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="18.37628890839929"
-      height="18.37628890839929"
+      width="18.358017152878617"
+      height="18.358017152878617"
     >
       <style type="text/css">
         .nested-estimator__st0 {
@@ -570,30 +570,30 @@
   <circle
     fill="#ffffff"
     fill-opacity="0.4"
-    cx="89.64025376951895"
-    cy="51.016655939044185"
+    cx="159.99998359375962"
+    cy="51.08527940848559"
     stroke="none"
-    r="9.188144454199644"
+    r="9.179008576439308"
   >
     <title>`y00`.ball</title>
   </circle>
   <circle
     fill="none"
-    cx="89.64025376951895"
-    cy="51.016655939044185"
+    cx="159.99998359375962"
+    cy="51.08527940848559"
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="1.5"
-    r="9.188144454199644"
+    r="9.179008576439308"
   >
     <title>`y00`.sphere</title>
   </circle>
   <g>
     <line
-      x1="89.64025376951895"
-      y1="51.016655939044185"
-      x2="98.40535528929996"
-      y2="48.26077642932954"
+      x1="159.99998359375962"
+      y1="51.08527940848559"
+      x2="168.08894606134953"
+      y2="46.74674388709997"
       stroke="#0000b3"
       stroke-opacity="1"
       stroke-width="2"
@@ -601,7 +601,7 @@
     <title>9:3:walkLine</title>
   </g>
   <g
-    transform="rotate(0, 98.40535528929996, 48.26077642932954)translate(91.97365579005319, 41.82907693008277)"
+    transform="rotate(0, 168.08894606134953, 46.74674388709997)translate(161.66364187415888, 40.32143969990932)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -613,8 +613,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="12.863398998493537"
-      height="12.863398998493537"
+      width="12.850608374381302"
+      height="12.850608374381302"
     >
       <style type="text/css">
         .nested-estimator__st0 {
@@ -642,30 +642,30 @@
   <circle
     fill="#ffffff"
     fill-opacity="0.4"
-    cx="98.40535528929996"
-    cy="48.26077642932954"
+    cx="168.08894606134953"
+    cy="46.74674388709997"
     stroke="none"
-    r="6.431699499246768"
+    r="6.425304187190651"
   >
     <title>`y01`.ball</title>
   </circle>
   <circle
     fill="none"
-    cx="98.40535528929996"
-    cy="48.26077642932954"
+    cx="168.08894606134953"
+    cy="46.74674388709997"
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="1.5"
-    r="6.431699499246768"
+    r="6.425304187190651"
   >
     <title>`y01`.sphere</title>
   </circle>
   <g>
     <line
-      x1="98.40535528929996"
-      y1="48.26077642932954"
-      x2="92.2700275735167"
-      y2="46.33087071229271"
+      x1="168.08894606134953"
+      y1="46.74674388709997"
+      x2="161.68852049387502"
+      y2="46.18187923019215"
       stroke="#0000b3"
       stroke-opacity="1"
       stroke-width="2"
@@ -673,7 +673,7 @@
     <title>9:4:walkLine</title>
   </g>
   <g
-    transform="rotate(0, 92.2700275735167, 46.33087071229271)translate(87.76783798730864, 41.828681126084646)"
+    transform="rotate(0, 161.68852049387502, 46.18187923019215)translate(157.1908082609356, 41.68416699725273)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -685,8 +685,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="9.004379172416117"
-      height="9.004379172416117"
+      width="8.995424465878848"
+      height="8.995424465878848"
     >
       <style type="text/css">
         .nested-estimator__st0 {
@@ -714,29 +714,29 @@
   <circle
     fill="#ffffff"
     fill-opacity="0.4"
-    cx="92.2700275735167"
-    cy="46.33087071229271"
+    cx="161.68852049387502"
+    cy="46.18187923019215"
     stroke="none"
-    r="4.5021895862080585"
+    r="4.497712232939424"
   >
     <title>`y02`.ball</title>
   </circle>
   <circle
     fill="none"
-    cx="92.2700275735167"
-    cy="46.33087071229271"
+    cx="161.68852049387502"
+    cy="46.18187923019215"
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="1.5"
-    r="4.5021895862080585"
+    r="4.497712232939424"
   >
     <title>`y02`.sphere</title>
   </circle>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="92.2700275735167"
-    cy="46.33087071229271"
+    cx="161.68852049387502"
+    cy="46.18187923019215"
     stroke="none"
     r="2.5"
   >
@@ -748,10 +748,10 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="2.5"
-    transform="rotate(0, 89.80023308272384, 172.49366541089645)"
+    transform="rotate(0, 90.1823586452864, 177.46812259757627)"
     style="font: italic 12px Palatino"
-    x="89.80023308272384"
-    y="175.99366541089645"
+    x="90.1823586452864"
+    y="180.96812259757627"
     width="10.767578125"
     height="7"
     font-size-adjust=""
@@ -770,8 +770,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="89.63720353209399"
-    cy="164.4935616279913"
+    cx="159.99948163526665"
+    cy="164.44931986626364"
     stroke="none"
     r="2.5"
   >
@@ -783,10 +783,10 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="2.5"
-    transform="rotate(0, 59.095290091197654, 174.14944664773122)"
+    transform="rotate(0, 59.997200118624974, 173.7167368300468)"
     style="font: italic 12px Palatino"
-    x="59.095290091197654"
-    y="175.14944664773122"
+    x="59.997200118624974"
+    y="174.7167368300468"
     width="12"
     height="2"
     font-size-adjust=""
@@ -805,8 +805,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="59.56281391401126"
-    cy="179.6505504961089"
+    cx="129.97119471294815"
+    cy="179.62326661884427"
     stroke="none"
     r="2.5"
   >
@@ -815,8 +815,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="89.63908608167588"
-    cy="193.1197971272365"
+    cx="159.99975855169671"
+    cy="193.0470719814655"
     stroke="none"
     r="2.5"
   >
@@ -828,10 +828,10 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="2.5"
-    transform="rotate(0, 100.02094464449448, 103.20394027637437)"
+    transform="rotate(0, 206.03666663178964, 102.88225014827754)"
     style="font: italic 12px Palatino"
-    x="100.02094464449448"
-    y="106.70394027637437"
+    x="206.03666663178964"
+    y="106.38225014827754"
     width="11.767578125"
     height="7"
     font-size-adjust=""
@@ -850,8 +850,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="89.63705114523808"
-    cy="103.08282496969827"
+    cx="159.99980233705313"
+    cy="103.09966058029065"
     stroke="none"
     r="2.5"
   >
@@ -860,8 +860,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="81.4469593684102"
-    cy="195.69668764324854"
+    cx="151.81852118414454"
+    cy="195.63012265754523"
     stroke="none"
     r="2.5"
   >
@@ -870,8 +870,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="98.40535528929996"
-    cy="48.26077642932954"
+    cx="168.08894606134953"
+    cy="46.74674388709997"
     stroke="none"
     r="2.5"
   >
@@ -883,10 +883,10 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="2.5"
-    transform="rotate(0, 100.53274954436984, 51.15624387898549)"
+    transform="rotate(0, 170.92028210296414, 51.011034887279195)"
     style="font: italic 12px Palatino"
-    x="100.53274954436984"
-    y="53.15624387898549"
+    x="170.92028210296414"
+    y="53.011034887279195"
     width="12.779296875"
     height="10"
     font-size-adjust=""
@@ -905,8 +905,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="89.64025376951895"
-    cy="51.016655939044185"
+    cx="159.99998359375962"
+    cy="51.08527940848559"
     stroke="none"
     r="2.5"
   >
@@ -915,8 +915,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="84.82018595414753"
-    cy="194.63561657921394"
+    cx="155.18726548391507"
+    cy="194.5665119761103"
     stroke="none"
     r="2.5"
   >
@@ -928,10 +928,10 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="2.5"
-    transform="rotate(0, 100.02923465306964, 193.12895860312605)"
+    transform="rotate(0, 179.6878677777495, 192.99472959703326)"
     style="font: italic 12px Palatino"
-    x="100.02923465306964"
-    y="195.12895860312605"
+    x="179.6878677777495"
+    y="194.99472959703326"
     width="11.779296875"
     height="10"
     font-size-adjust=""
@@ -949,12 +949,12 @@
   </text>
   <circle
     fill="none"
-    cx="43.02188726393452"
-    cy="187.98690455326323"
+    cx="113.45564150152012"
+    cy="187.96895082373476"
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
-    r="10.18758490695042"
+    r="10.17743571032899"
   >
     <title>`x3`.sphere</title>
   </circle>
@@ -964,10 +964,10 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="2.5"
-    transform="rotate(0, 42.695938776240084, 195.98700181271244)"
+    transform="rotate(0, 43.61368945715223, 196.9064192322386)"
     style="font: italic 12px Palatino"
-    x="42.695938776240084"
-    y="199.48700181271244"
+    x="43.61368945715223"
+    y="200.4064192322386"
     width="11.767578125"
     height="7"
     font-size-adjust=""

@@ -6,7 +6,7 @@
 >
   <penrose>
     <croppedViewBox>
-      -1.3239815640502854 -0.5 242.64796398830674 181
+      -1.2495404611159984 -0.5 242.49908107273387 181
     </croppedViewBox>
   </penrose>
   <rect
@@ -24,8 +24,8 @@
     <title>Global.box</title>
   </rect>
   <rect
-    x="126.87193960735115"
-    y="77.70495434142471"
+    x="126.7704348784477"
+    y="69.78201146158429"
     width="70.1494140625"
     height="17"
     fill="#1b8a1f"
@@ -34,13 +34,13 @@
     stroke-opacity="1"
     stroke-width="0.5"
     rx="5"
-    transform="rotate(0, 161.94664663860115, 86.20495434142471)"
+    transform="rotate(0, 161.8451419096977, 78.28201146158429)"
   >
     <title>`Survey`.box</title>
   </rect>
   <rect
-    x="82.0786946035362"
-    y="18.204484969510617"
+    x="82.17641157243816"
+    y="11.781972044133653"
     width="122.330078125"
     height="15"
     fill="#1b8a1f"
@@ -49,13 +49,13 @@
     stroke-opacity="1"
     stroke-width="0.5"
     rx="5"
-    transform="rotate(0, 143.2437336660362, 25.704484969510617)"
+    transform="rotate(0, 143.34145063493816, 19.281972044133653)"
   >
     <title>`Courses`.box</title>
   </rect>
   <rect
-    x="44.046744681794934"
-    y="77.70445679489038"
+    x="44.44521434657105"
+    y="69.7819494742172"
     width="79.3251953125"
     height="17"
     fill="#1b1f8a"
@@ -64,13 +64,13 @@
     stroke-opacity="1"
     stroke-width="0.5"
     rx="5"
-    transform="rotate(0, 83.70934233804493, 86.20445679489038)"
+    transform="rotate(0, 84.10781200282105, 78.2819494742172)"
   >
     <title>`Shells`.box</title>
   </rect>
   <rect
-    x="135.01831836175646"
-    y="118.70498505370674"
+    x="134.94387654911787"
+    y="109.78202918126016"
     width="106.0556640625"
     height="17"
     fill="#1b8a1f"
@@ -79,13 +79,13 @@
     stroke-opacity="1"
     stroke-width="0.5"
     rx="5"
-    transform="rotate(0, 188.04615039300646, 127.20498505370674)"
+    transform="rotate(0, 187.97170858036787, 118.28202918126016)"
   >
     <title>`Software`.box</title>
   </rect>
   <rect
-    x="112.81958183172065"
-    y="155.70443188736095"
+    x="112.89220281839539"
+    y="145.7819196745954"
     width="60.8876953125"
     height="15"
     fill="#1b8a1f"
@@ -94,13 +94,13 @@
     stroke-opacity="1"
     stroke-width="0.5"
     rx="5"
-    transform="rotate(0, 143.26342948797065, 163.20443188736095)"
+    transform="rotate(0, 143.3360504746454, 153.2819196745954)"
   >
     <title>`Videos`.box</title>
   </rect>
   <rect
-    x="119.50141447747805"
-    y="98.20498491939351"
+    x="119.50030319603636"
+    y="89.78200999879788"
     width="120.2333984375"
     height="17"
     fill="#1b1f8a"
@@ -109,13 +109,13 @@
     stroke-opacity="1"
     stroke-width="0.5"
     rx="5"
-    transform="rotate(0, 179.61811369622805, 106.70498491939351)"
+    transform="rotate(0, 179.61700241478636, 98.28200999879788)"
   >
     <title>`Riemannian`.box</title>
   </rect>
   <rect
-    x="43.016394514086954"
-    y="116.7044419471735"
+    x="43.515493740378076"
+    y="107.7819325327392"
     width="73.15625"
     height="15"
     fill="#1b8a1f"
@@ -124,13 +124,13 @@
     stroke-opacity="1"
     stroke-width="0.5"
     rx="5"
-    transform="rotate(0, 79.59451951408695, 124.2044419471735)"
+    transform="rotate(0, 80.09361874037808, 115.2819325327392)"
   >
     <title>`Tools`.box</title>
   </rect>
   <rect
-    x="48.45638236560549"
-    y="36.704478642728205"
+    x="48.679228162162616"
+    y="29.781966117005283"
     width="101.7431640625"
     height="17"
     fill="#1b1f8a"
@@ -139,7 +139,7 @@
     stroke-opacity="1"
     stroke-width="0.5"
     rx="5"
-    transform="rotate(0, 99.32796439685549, 45.204478642728205)"
+    transform="rotate(0, 99.55081019341262, 38.28196611700528)"
   >
     <title>`BCs`.box</title>
   </rect>
@@ -147,10 +147,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 99.32796439685549, 45.204478642728205)"
+    transform="rotate(0, 99.55081019341262, 38.28196611700528)"
     style="font: 9px Palatino"
-    x="99.32796439685549"
-    y="47.704478642728205"
+    x="99.55081019341262"
+    y="40.78196611700528"
     width="93.7431640625"
     height="9"
     font-size-adjust=""
@@ -165,8 +165,8 @@
     boundary conditions
   </text>
   <rect
-    x="18.28059018543584"
-    y="98.20445067255747"
+    x="18.779509328646995"
+    y="89.78194129690014"
     width="97.720703125"
     height="15"
     fill="#1b1f8a"
@@ -175,7 +175,7 @@
     stroke-opacity="1"
     stroke-width="0.5"
     rx="5"
-    transform="rotate(0, 67.14094174793584, 105.70445067255747)"
+    transform="rotate(0, 67.639860891147, 97.28194129690014)"
   >
     <title>`Exact`.box</title>
   </rect>
@@ -183,10 +183,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 67.14094174793584, 105.70445067255747)"
+    transform="rotate(0, 67.639860891147, 97.28194129690014)"
     style="font: 9px Palatino"
-    x="67.14094174793584"
-    y="109.20445067255747"
+    x="67.639860891147"
+    y="100.78194129690014"
     width="89.720703125"
     height="7"
     font-size-adjust=""
@@ -201,8 +201,8 @@
     exact discretization
   </text>
   <rect
-    x="-1.0739815640502854"
-    y="135.204437687517"
+    x="-0.9995404611159984"
+    y="125.78192425749415"
     width="135.03515625"
     height="17"
     fill="#1b1f8a"
@@ -211,13 +211,13 @@
     stroke-opacity="1"
     stroke-width="0.5"
     rx="5"
-    transform="rotate(0, 66.44359656094971, 143.704437687517)"
+    transform="rotate(0, 66.518037663884, 134.28192425749415)"
   >
     <title>`CurveSurface`.box</title>
   </rect>
   <rect
-    x="48.223578269099406"
-    y="57.204470302833954"
+    x="48.443938623530386"
+    y="49.78195872548392"
     width="102.21875"
     height="17"
     fill="#1b1f8a"
@@ -226,7 +226,7 @@
     stroke-opacity="1"
     stroke-width="0.5"
     rx="5"
-    transform="rotate(0, 99.3329532690994, 65.70447030283395)"
+    transform="rotate(0, 99.55331362353039, 58.28195872548392)"
   >
     <title>`Minkowski`.box</title>
   </rect>
@@ -234,10 +234,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 99.3329532690994, 65.70447030283395)"
+    transform="rotate(0, 99.55331362353039, 58.28195872548392)"
     style="font: 9px Palatino"
-    x="99.3329532690994"
-    y="68.20447030283395"
+    x="99.55331362353039"
+    y="60.78195872548392"
     width="94.21875"
     height="9"
     font-size-adjust=""
@@ -255,10 +255,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 83.70934233804493, 86.20445679489038)"
+    transform="rotate(0, 84.10781200282105, 78.2819494742172)"
     style="font: 9px Palatino"
-    x="83.70934233804493"
-    y="88.70445679489038"
+    x="84.10781200282105"
+    y="80.7819494742172"
     width="71.3251953125"
     height="9"
     font-size-adjust=""
@@ -276,10 +276,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 179.61811369622805, 106.70498491939351)"
+    transform="rotate(0, 179.61700241478636, 98.28200999879788)"
     style="font: 9px Palatino"
-    x="179.61811369622805"
-    y="109.20498491939351"
+    x="179.61700241478636"
+    y="100.78200999879788"
     width="112.2333984375"
     height="9"
     font-size-adjust=""
@@ -297,10 +297,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 66.44359656094971, 143.704437687517)"
+    transform="rotate(0, 66.518037663884, 134.28192425749415)"
     style="font: 9px Palatino"
-    x="66.44359656094971"
-    y="146.204437687517"
+    x="66.518037663884"
+    y="136.78192425749415"
     width="127.03515625"
     height="9"
     font-size-adjust=""
@@ -318,10 +318,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 188.04615039300646, 127.20498505370674)"
+    transform="rotate(0, 187.97170858036787, 118.28202918126016)"
     style="font: 9px Palatino"
-    x="188.04615039300646"
-    y="129.70498505370674"
+    x="187.97170858036787"
+    y="120.78202918126016"
     width="98.0556640625"
     height="9"
     font-size-adjust=""
@@ -339,10 +339,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 143.26342948797065, 163.20443188736095)"
+    transform="rotate(0, 143.3360504746454, 153.2819196745954)"
     style="font: 9px Palatino"
-    x="143.26342948797065"
-    y="166.70443188736095"
+    x="143.3360504746454"
+    y="156.7819196745954"
     width="52.8876953125"
     height="7"
     font-size-adjust=""
@@ -360,10 +360,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 79.59451951408695, 124.2044419471735)"
+    transform="rotate(0, 80.09361874037808, 115.2819325327392)"
     style="font: 9px Palatino"
-    x="79.59451951408695"
-    y="127.7044419471735"
+    x="80.09361874037808"
+    y="118.7819325327392"
     width="65.15625"
     height="7"
     font-size-adjust=""
@@ -381,10 +381,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 143.2437336660362, 25.704484969510617)"
+    transform="rotate(0, 143.34145063493816, 19.281972044133653)"
     style="font: 9px Palatino"
-    x="143.2437336660362"
-    y="29.204484969510617"
+    x="143.34145063493816"
+    y="22.781972044133653"
     width="114.330078125"
     height="7"
     font-size-adjust=""
@@ -402,10 +402,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 161.94664663860115, 86.20495434142471)"
+    transform="rotate(0, 161.8451419096977, 78.28201146158429)"
     style="font: 9px Palatino"
-    x="161.94664663860115"
-    y="88.70495434142471"
+    x="161.8451419096977"
+    y="80.78201146158429"
     width="62.1494140625"
     height="9"
     font-size-adjust=""

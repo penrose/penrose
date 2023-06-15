@@ -4,12 +4,7 @@
   viewBox="0 0 320 240"
   penrose="0"
 >
-  <penrose>
-    <croppedViewBox>
-      -0.48866046222906334 -0.383856544224102 320.48866046222906
-      240.76399075870302
-    </croppedViewBox>
-  </penrose>
+  <penrose><croppedViewBox>0 0 320 240</croppedViewBox></penrose>
   <rect
     x="0"
     y="0"
@@ -29,12 +24,12 @@
     stroke-opacity="1"
     stroke-width="2"
     transform="scale(1)"
-    points="282.8198680761845,230.9912106547951,162.8386780596474,196.991748852703,-0.48866046222906334,240.38013421447891,-0.48866041062194654,-0.383856544224102,162.66461835528332,43.043043993741065,289.3000345434218,27.319677025943093"
+    points="301.25426798253324,237.1033217275536,155.21905436779318,239.691143852016,38.95631342593872,230.74366871352441,37.735859240483904,17.433026811905265,139.2698969967591,0.04455674168596602,283.8035553788815,1.008329135386461"
   >
     <title>Global.domain</title>
   </polygon>
   <g
-    transform="rotate(0, 92.06562525296388, 120.02835667223819)translate(1.2613395989568374, 29.224071018231143)"
+    transform="rotate(0, 144.58037285240167, 106.40153942163984)translate(40.60317084292754, 2.4243374121657126)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -46,8 +41,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="181.6085713080141"
-      height="181.6085713080141"
+      width="207.95440401894825"
+      height="207.95440401894825"
     >
       <style type="text/css">
         .offcenter-estimator__st0 {
@@ -80,30 +75,30 @@
   <circle
     fill="#33cc33"
     fill-opacity="0.15"
-    cx="92.06562525296388"
-    cy="120.02835667223819"
+    cx="144.58037285240167"
+    cy="106.40153942163984"
     stroke="none"
-    r="90.80428565400705"
+    r="103.97720200947413"
   >
     <title>`x0`.ball</title>
   </circle>
   <circle
     fill="none"
-    cx="92.06562525296388"
-    cy="120.02835667223819"
+    cx="144.58037285240167"
+    cy="106.40153942163984"
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
-    r="90.80428565400705"
+    r="103.97720200947413"
   >
     <title>`x0`.sphere</title>
   </circle>
   <g>
     <line
-      x1="112.73975157900193"
-      y1="79.55886212474805"
-      x2="178.51765567010648"
-      y2="147.92827413546226"
+      x1="96.55538627424221"
+      y1="79.8527466991444"
+      x2="178.738774989276"
+      y2="204.6077092210378"
       stroke="#0000b3"
       stroke-opacity="1"
       stroke-width="2"
@@ -111,7 +106,7 @@
     <title>9:0:walkLine</title>
   </g>
   <g
-    transform="rotate(0, 199.3095393681329, 146.52696892097512)translate(142.56318670342984, 89.78061625627207)"
+    transform="rotate(0, 144.0675001607494, 179.7212033143445)translate(86.88004993715674, 122.53375309075184)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -123,8 +118,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="113.4927053294061"
-      height="113.4927053294061"
+      width="114.37490044718533"
+      height="114.37490044718533"
     >
       <style type="text/css">
         .offcenter-estimator__st0 {
@@ -157,30 +152,30 @@
   <circle
     fill="#33cc33"
     fill-opacity="0.15"
-    cx="199.3095393681329"
-    cy="146.52696892097512"
+    cx="144.0675001607494"
+    cy="179.7212033143445"
     stroke="none"
-    r="56.74635266470305"
+    r="57.18745022359266"
   >
     <title>`x1`.ball</title>
   </circle>
   <circle
     fill="none"
-    cx="199.3095393681329"
-    cy="146.52696892097512"
+    cx="144.0675001607494"
+    cy="179.7212033143445"
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
-    r="56.74635266470305"
+    r="57.18745022359266"
   >
     <title>`x1`.sphere</title>
   </circle>
   <g>
     <line
-      x1="178.51765567010648"
-      y1="147.92827413546226"
-      x2="142.6638261473027"
-      y2="150.14581542312476"
+      x1="178.738774989276"
+      y1="204.6077092210378"
+      x2="93.8270457034455"
+      y2="152.40273350985848"
       stroke="#0000b3"
       stroke-opacity="1"
       stroke-width="2"
@@ -188,7 +183,7 @@
     <title>9:1:walkLine</title>
   </g>
   <g
-    transform="rotate(0, 162.65316267153537, 151.63465066223847)translate(119.04568509375699, 108.02717308446009)"
+    transform="rotate(0, 71.66553253798885, 144.32392602369086)translate(40.21240739730907, 112.87080088301107)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -200,8 +195,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="87.21495515555677"
-      height="87.21495515555677"
+      width="62.90625028135956"
+      height="62.90625028135956"
     >
       <style type="text/css">
         .offcenter-estimator__st0 {
@@ -234,30 +229,30 @@
   <circle
     fill="#33cc33"
     fill-opacity="0.15"
-    cx="162.65316267153537"
-    cy="151.63465066223847"
+    cx="71.66553253798885"
+    cy="144.32392602369086"
     stroke="none"
-    r="43.60747757777838"
+    r="31.45312514067978"
   >
     <title>`x2`.ball</title>
   </circle>
   <circle
     fill="none"
-    cx="162.65316267153537"
-    cy="151.63465066223847"
+    cx="71.66553253798885"
+    cy="144.32392602369086"
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
-    r="43.60747757777838"
+    r="31.45312514067978"
   >
     <title>`x2`.sphere</title>
   </circle>
   <g>
     <line
-      x1="142.6638261473027"
-      y1="150.14581542312476"
-      x2="162.53966683642415"
-      y2="103.8405992499325"
+      x1="93.8270457034455"
+      y1="152.40273350985848"
+      x2="61.85969795732852"
+      y2="114.4384079354415"
       stroke="#0000b3"
       stroke-opacity="1"
       stroke-width="2"
@@ -265,7 +260,7 @@
     <title>9:2:walkLine</title>
   </g>
   <g
-    transform="rotate(0, 162.6607619761699, 76.1294592451449)translate(131.32434650002642, 44.7930437690014)"
+    transform="rotate(0, 57.2743576670037, 102.8880482554479)translate(39.9751008733322, 85.5887914617764)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -277,8 +272,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="62.672830952287"
-      height="62.672830952287"
+      width="34.59851358734299"
+      height="34.59851358734299"
     >
       <style type="text/css">
         .offcenter-estimator__st0 {
@@ -311,18 +306,18 @@
   <circle
     fill="#33cc33"
     fill-opacity="0.15"
-    cx="162.6607619761699"
-    cy="76.1294592451449"
+    cx="57.2743576670037"
+    cy="102.8880482554479"
     stroke="none"
-    r="31.3364154761435"
+    r="17.299256793671496"
   >
     <title>`x3`.ball</title>
   </circle>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="162.53966683642415"
-    cy="103.8405992499325"
+    cx="61.85969795732852"
+    cy="114.4384079354415"
     stroke="none"
     r="2.5"
   >
@@ -332,10 +327,10 @@
     fill="#808080"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 269.51743048334345, 211.25306103363258)"
+    transform="rotate(0, 270.9303037380165, 202.92763122344803)"
     style="font: 12px Palatino"
-    x="269.51743048334345"
-    y="216.25306103363258"
+    x="270.9303037380165"
+    y="207.92763122344803"
     width="10"
     height="10"
     font-size-adjust=""
@@ -355,10 +350,10 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="2.5"
-    transform="rotate(0, 253.32142858800438, 207.42790861577492)"
+    transform="rotate(0, 178.8693490089837, 196.60771602099896)"
     style="font: italic 12px Palatino"
-    x="253.32142858800438"
-    y="210.92790861577492"
+    x="178.8693490089837"
+    y="200.10771602099896"
     width="10.767578125"
     height="7"
     font-size-adjust=""
@@ -377,8 +372,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="178.51765567010648"
-    cy="147.92827413546226"
+    cx="178.738774989276"
+    cy="204.6077092210378"
     stroke="none"
     r="2.5"
   >
@@ -390,10 +385,10 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="2.5"
-    transform="rotate(0, 145.25144306689037, 158.32154970068027)"
+    transform="rotate(0, 94.62564136520504, 144.40269280951247)"
     style="font: italic 12px Palatino"
-    x="145.25144306689037"
-    y="161.82154970068027"
+    x="94.62564136520504"
+    y="147.90269280951247"
     width="11.767578125"
     height="7"
     font-size-adjust=""
@@ -412,8 +407,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="142.6638261473027"
-    cy="150.14581542312476"
+    cx="93.8270457034455"
+    cy="152.40273350985848"
     stroke="none"
     r="2.5"
   >
@@ -425,10 +420,10 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="2.5"
-    transform="rotate(0, 100.81821747600833, 84.69491237111086)"
+    transform="rotate(0, 106.93920635286472, 79.83623691011636)"
     style="font: italic 12px Palatino"
-    x="100.81821747600833"
-    y="88.19491237111086"
+    x="106.93920635286472"
+    y="83.33623691011636"
     width="11.767578125"
     height="7"
     font-size-adjust=""
@@ -447,8 +442,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="112.73975157900193"
-    cy="79.55886212474805"
+    cx="96.55538627424221"
+    cy="79.8527466991444"
     stroke="none"
     r="2.5"
   >
@@ -456,21 +451,21 @@
   </circle>
   <circle
     fill="none"
-    cx="162.6607619761699"
-    cy="76.1294592451449"
+    cx="57.2743576670037"
+    cy="102.8880482554479"
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
-    r="31.3364154761435"
+    r="17.299256793671496"
   >
     <title>`x3`.sphere</title>
   </circle>
   <g>
     <line
-      x1="162.53966683642415"
-      y1="103.8405992499325"
-      x2="188.0239827946544"
-      y2="57.665744103504345"
+      x1="61.85969795732852"
+      y1="114.4384079354415"
+      x2="42.34398054003401"
+      y2="94.1503339427683"
       stroke="#0000b3"
       stroke-opacity="1"
       stroke-width="2"
@@ -478,7 +473,7 @@
     <title>9:3:walkLine</title>
   </g>
   <g
-    transform="rotate(0, 184.02524109356088, 59.52403868121426)translate(166.78785660994157, 42.286654197594935)"
+    transform="rotate(0, 49.44353353444963, 94.84030504408109)translate(39.92892839473163, 85.32569990436309)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -490,8 +485,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="34.474768967238646"
-      height="34.474768967238646"
+      width="19.029210279435997"
+      height="19.029210279435997"
     >
       <style type="text/css">
         .offcenter-estimator__st0 {
@@ -524,21 +519,21 @@
   <circle
     fill="#33cc33"
     fill-opacity="0.15"
-    cx="184.02524109356088"
-    cy="59.52403868121426"
+    cx="49.44353353444963"
+    cy="94.84030504408109"
     stroke="none"
-    r="17.237384483619323"
+    r="9.514605139717998"
   >
     <title>`x4`.ball</title>
   </circle>
   <circle
     fill="none"
-    cx="184.02524109356088"
-    cy="59.52403868121426"
+    cx="49.44353353444963"
+    cy="94.84030504408109"
     stroke="#668066"
     stroke-opacity="1"
     stroke-width="1.5"
-    r="17.237384483619323"
+    r="9.514605139717998"
   >
     <title>`x4`.sphere</title>
   </circle>
@@ -548,10 +543,10 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="2.5"
-    transform="rotate(0, 176.94888758188802, 81.22449373151045)"
+    transform="rotate(0, 42.26140002137531, 86.15027795878103)"
     style="font: italic 12px Palatino"
-    x="176.94888758188802"
-    y="84.72449373151045"
+    x="42.26140002137531"
+    y="89.65027795878103"
     width="11.767578125"
     height="7"
     font-size-adjust=""
@@ -570,8 +565,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="188.0239827946544"
-    cy="57.665744103504345"
+    cx="42.34398054003401"
+    cy="94.1503339427683"
     stroke="none"
     r="2.5"
   >
@@ -583,10 +578,10 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="2.5"
-    transform="rotate(0, 132.2862618692413, 115.75161207146452)"
+    transform="rotate(0, 61.856986287762325, 108.93838937707696)"
     style="font: italic 12px Palatino"
-    x="132.2862618692413"
-    y="116.75161207146452"
+    x="61.856986287762325"
+    y="109.93838937707696"
     width="12"
     height="2"
     font-size-adjust=""

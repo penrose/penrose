@@ -6,7 +6,7 @@
 >
   <penrose>
     <croppedViewBox>
-      141.57359201589833 18.534852356599174 224.719758344389 321.0428084032147
+      141.57359201589833 18.53485235659923 224.719758344389 321.04280840321456
     </croppedViewBox>
   </penrose>
   <g>
@@ -61,10 +61,10 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    transform="rotate(0, 283.39104157536246, 332.57766075981385)"
+    transform="rotate(0, 283.39104157536246, 332.5776607598138)"
     style="font: 18px serif"
     x="283.39104157536246"
-    y="339.57766075981385"
+    y="339.5776607598138"
     width="20.111328125"
     height="14"
     font-size-adjust=""
@@ -201,10 +201,10 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    transform="rotate(0, 341.02902915152447, 118.26563681135913)"
+    transform="rotate(0, 341.02902915152447, 118.26563681135922)"
     style="font: 18px serif"
     x="341.02902915152447"
-    y="125.26563681135913"
+    y="125.26563681135922"
     width="19.111328125"
     height="14"
     font-size-adjust=""
@@ -293,10 +293,10 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    transform="rotate(0, 156.34485432680697, 219.2776089638667)"
+    transform="rotate(0, 156.3448543268069, 219.27760896386675)"
     style="font: 18px serif"
-    x="156.34485432680697"
-    y="226.2776089638667"
+    x="156.3448543268069"
+    y="226.27760896386675"
     width="20.111328125"
     height="14"
     font-size-adjust=""
@@ -407,10 +407,10 @@
     stroke="#ffffff"
     stroke-opacity="1"
     stroke-width="4"
-    transform="rotate(0, 285.32733490237, 25.534852356599174)"
+    transform="rotate(0, 285.32733490237, 25.53485235659923)"
     style="font: 18px serif"
     x="285.32733490237"
-    y="32.534852356599174"
+    y="32.53485235659923"
     width="20.111328125"
     height="14"
     font-size-adjust=""
