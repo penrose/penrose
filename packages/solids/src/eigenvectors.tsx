@@ -13,7 +13,7 @@ import {
 import MarkdownIt from "markdown-it";
 import mdMJ from "markdown-it-mathjax3";
 import { createMutable } from "solid-js/store";
-import DraggablePoint from "./DraggablePoint.jsx";
+import DraggablePoint from "./DraggablePoint.js";
 import { SignalNum, num, signalNum } from "./util.js";
 
 const md = MarkdownIt().use(mdMJ);
