@@ -115,7 +115,7 @@ import {
   turningNumber,
 } from "./CurveConstraints.js";
 import { rectLineDist, shapeDistance } from "./Queries.js";
-import { bboxPts, clamp, isRectlike, numOf, Rectlike } from "./Utils.js";
+import { Rectlike, bboxPts, clamp, isRectlike, numOf } from "./Utils.js";
 
 /**
  * Static dictionary of computation functions
