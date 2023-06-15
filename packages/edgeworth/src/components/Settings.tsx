@@ -68,7 +68,8 @@ export interface SettingsProps {
     numPrograms: number,
     dsl: string,
     prompt: string,
-    sty: string
+    sty: string,
+    llmInput: string
   ) => void;
   onPrompt: (prompt: string) => void;
   defaultDomain: string;
@@ -84,6 +85,7 @@ interface SettingState {
   domain: string;
   style: string;
   prompt: string;
+  llmInput: string;
   env?: Env;
 }
 
@@ -146,6 +148,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
       domain: this.props.defaultDomain,
       style: this.props.defaultStyle,
       prompt: "",
+      llmInput: "",
     };
   }
 
@@ -219,7 +222,8 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
         this.state.numPrograms,
         this.state.domain,
         this.state.substance,
-        this.state.style
+        this.state.style,
+        this.state.llmInput
       );
   };
 
@@ -374,6 +378,26 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
               <Latex>{this.state.prompt}</Latex>
             </div>
           </SettingDiv>
+          <br />
+          <TextField
+            label="Enter text"
+            value={this.state.llmInput}
+            onChange={(e) => {
+              this.setState({ llmInput: e.target.value });
+            }}
+            variant="outlined"
+          />
+          <ButtonContainer>
+            <Button
+              onClick={() => {
+                this.setState({ substance: this.state.llmInput });
+              }}
+              color="primary"
+              variant="contained"
+            >
+              Generate Input Scenario
+            </Button>
+          </ButtonContainer>
           <br />
           <Accordion key="substance" elevation={0}>
             <AccordionHeaderStyled>{`Input Scenario`}</AccordionHeaderStyled>
