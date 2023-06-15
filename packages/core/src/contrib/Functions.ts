@@ -115,7 +115,7 @@ import {
   turningNumber,
 } from "./CurveConstraints.js";
 import { rectLineDist, shapeDistance } from "./Queries.js";
-import { bboxPts, clamp, isRectlike, numOf, Rectlike } from "./Utils.js";
+import { Rectlike, bboxPts, clamp, isRectlike, numOf } from "./Utils.js";
 
 /**
  * Static dictionary of computation functions
@@ -4273,7 +4273,7 @@ const tickPlacement = (
   return pts;
 };
 
-/*
+/**
  * Function to calculate the pairwise similarity matrix
  * for the original high-dimensional data.
  */
@@ -4297,7 +4297,7 @@ const calculateProbabilityMatrixHighDim = (x: ad.Num[][]): ad.Num[][] => {
   return probabilities.map((row) => row.map((value) => div(value, sum)));
 };
 
-/*
+/**
  * Function to calculate the pairwise similarity matrix
  * for the low-dimensional representation of the data.
  */
@@ -4321,7 +4321,7 @@ const calculateProbabilityMatrixLowDim = (y: ad.Num[][]): ad.Num[][] => {
   return probabilities.map((row) => row.map((value) => div(value, sum)));
 };
 
-/*
+/**
  * Function to calculate the Kullback-Leibler divergence
  * between two probability distributions.
  */
@@ -4340,7 +4340,7 @@ const calculateKLDivergence = (p: ad.Num[][], q: ad.Num[][]): ad.Num => {
   );
 };
 
-/*
+/**
  * Function to calculate the t-SNE energy (cost)
  * for a given high-dimensional data and its low-dimensional representation.
  */
@@ -4351,7 +4351,7 @@ const calculateTsneEnergy = (x: ad.Num[][], y: ad.Num[][]): ad.Num => {
   return calculateKLDivergence(p, q);
 };
 
-/*
+/**
  *  Return the signed distance to an axis-aligned rectangle:
  *  float sdBox( in vec2 p, in vec2 b )
  *  {
