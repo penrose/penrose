@@ -15,13 +15,13 @@ import { black, floatV, ptListV, vectorV } from "../../utils/Util.js";
 import { compDict } from "../Functions.js";
 import {
   bboxFromShape,
+  bboxPts,
   convexPolygonOriginSignedDistance,
   outwardUnitNormal,
   polygonLikePoints,
   shapeCenter,
-  shapeDistanceAABBs,
-  shapeDistancePolygonlikes,
-  shapeSize,
+  shapeDistancePolys,
+  shapeDistanceRects,
 } from "../Queries.js";
 import { numOf, numsOf } from "../Utils.js";
 import { _rectangles } from "../__testfixtures__/TestShapes.input.js";
@@ -99,12 +99,6 @@ describe("simple queries", () => {
     const [x, y] = numsOf([center[0], center[1]]);
     expect(x).toBeCloseTo(11, precisionDigits);
     expect(y).toBeCloseTo(22, precisionDigits);
-  });
-
-  it.each(shapes)("shapeSize for %p", (shape: Shape<ad.Num>) => {
-    const size = shapeSize(shape);
-    const sizeNum = numOf(size);
-    expect(sizeNum).toBeCloseTo(44, precisionDigits);
   });
 });
 
@@ -251,8 +245,14 @@ test("shapeDistanceAABBs should return the same value as shapeDistancePolygonlik
     for (const j in _rectangles) {
       const r2 = _rectangles[j];
 
-      const result1 = shapeDistanceAABBs(r1, r2);
-      const result2 = shapeDistancePolygonlikes(r1, r2);
+      const result1 = shapeDistanceRects(
+        bboxPts(bboxFromShape(r1)),
+        bboxPts(bboxFromShape(r2))
+      );
+      const result2 = shapeDistancePolys(
+        polygonLikePoints(r1),
+        polygonLikePoints(r2)
+      );
 
       const [result1num, result2num] = numsOf([result1, result2]);
 

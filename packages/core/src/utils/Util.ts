@@ -706,6 +706,7 @@ export const stringT = (): ValueT => valueT("String");
 export const posIntT = (): ValueT => valueT("PosInt");
 export const booleanT = (): ValueT => valueT("Boolean");
 export const realNMT = (): ValueT => valueT("RealNM");
+export const shapeListT = (): ValueT => valueT("ShapeList");
 
 export const shapeT = (type: ShapeType | "AnyShape"): ShapeT => ({
   tag: "ShapeT",
