@@ -50,7 +50,6 @@ forall Set x {
 
 forall Set x; Set y
 where IsSubset(x, y) {
-  ensure smallerThan(x.icon, y.icon)
   ensure disjoint(y.text, x.icon, 10)
   ensure contains(y.icon, x.icon, 5)
   x.icon above y.icon
@@ -204,6 +203,7 @@ describe("Energy API", () => {
       console.log(showError(res.error));
     }
   });
+
   test("filtered constraints", async () => {
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
     const res = await compileTrio({
@@ -218,7 +218,7 @@ describe("Energy API", () => {
       const smallerThanFns = state.constrFns.filter((c) => {
         return (
           c.ast.expr.body.tag === "FunctionCall" &&
-          c.ast.expr.body.name.value === "smallerThan"
+          c.ast.expr.body.name.value === "disjoint"
         );
       });
       const masks: ad.Masks = {

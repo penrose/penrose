@@ -7,6 +7,7 @@ import {
   halfPlaneSDF,
   rectangleDifference,
 } from "../Minkowski.js";
+import { bboxPts } from "../Queries.js";
 import { numsOf } from "../Utils.js";
 
 describe("containsConvexPolygonPoints", () => {
@@ -50,8 +51,8 @@ describe("rectangleDifference", () => {
     expect(result11).toEqual(expected[1][1]);
   };
 
-  let testBBox1 = BBox.bbox(2, 2, [0, 0]);
-  let testBBox2 = BBox.bbox(3, 1, [0.5, 1.5]);
+  let testBBox1 = bboxPts(BBox.bbox(2, 2, [0, 0]));
+  let testBBox2 = bboxPts(BBox.bbox(3, 1, [0.5, 1.5]));
 
   test("without padding", async () => {
     let result = rectangleDifference(testBBox1, testBBox2, 0);
