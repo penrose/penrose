@@ -115,7 +115,7 @@ import {
   turningNumber,
 } from "./CurveConstraints.js";
 import { rectLineDist, shapeDistance } from "./Queries.js";
-import { Rectlike, bboxPts, clamp, isRectlike, numOf } from "./Utils.js";
+import { bboxPts, clamp, isRectlike, numOf, Rectlike } from "./Utils.js";
 
 /**
  * Static dictionary of computation functions
@@ -2636,25 +2636,17 @@ export const compDict = {
       /*  
     All math borrowed from:
     https://iquilezles.org/articles/distfunctions2d/
-    
-    axis-aligned rectangle:
-    float sdBox( in vec2 p, in vec2 b )
-    {
-      vec2 d = abs(p)-b;
-      return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
-    } 
     */
+
       if (isRectlike(s)) {
-        const absp = ops.vabs(ops.vsub(p, s.center.contents));
-        const b = [div(s.width.contents, 2), div(s.height.contents, 2)];
-        const d = ops.vsub(absp, b);
-        const result = add(
-          ops.vnorm(ops.vmax(d, [0.0, 0.0])),
-          min(max(d[0], d[1]), 0.0)
-        );
         return {
           tag: "FloatV",
-          contents: result,
+          contents: sdfRect(
+            s.center.contents,
+            s.width.contents,
+            s.height.contents,
+            p
+          ),
         };
       } else if (s.shapeType === "Circle") {
         /*     
@@ -4281,8 +4273,10 @@ const tickPlacement = (
   return pts;
 };
 
-// Function to calculate the pairwise similarity matrix
-// for the original high-dimensional data.
+/*
+ * Function to calculate the pairwise similarity matrix
+ * for the original high-dimensional data.
+ */
 const calculateProbabilityMatrixHighDim = (x: ad.Num[][]): ad.Num[][] => {
   const m = x.length;
   const probabilities = Array(m)
@@ -4303,8 +4297,10 @@ const calculateProbabilityMatrixHighDim = (x: ad.Num[][]): ad.Num[][] => {
   return probabilities.map((row) => row.map((value) => div(value, sum)));
 };
 
-// Function to calculate the pairwise similarity matrix
-// for the low-dimensional representation of the data.
+/*
+ * Function to calculate the pairwise similarity matrix
+ * for the low-dimensional representation of the data.
+ */
 const calculateProbabilityMatrixLowDim = (y: ad.Num[][]): ad.Num[][] => {
   const n = y.length;
   const probabilities = Array(n)
@@ -4325,8 +4321,10 @@ const calculateProbabilityMatrixLowDim = (y: ad.Num[][]): ad.Num[][] => {
   return probabilities.map((row) => row.map((value) => div(value, sum)));
 };
 
-// Function to calculate the Kullback-Leibler divergence
-// between two probability distributions.
+/*
+ * Function to calculate the Kullback-Leibler divergence
+ * between two probability distributions.
+ */
 const calculateKLDivergence = (p: ad.Num[][], q: ad.Num[][]): ad.Num => {
   return addN(
     p.map((row, i) =>
@@ -4342,11 +4340,33 @@ const calculateKLDivergence = (p: ad.Num[][], q: ad.Num[][]): ad.Num => {
   );
 };
 
-// Function to calculate the t-SNE energy (cost)
-// for a given high-dimensional data and its low-dimensional representation.
+/*
+ * Function to calculate the t-SNE energy (cost)
+ * for a given high-dimensional data and its low-dimensional representation.
+ */
 const calculateTsneEnergy = (x: ad.Num[][], y: ad.Num[][]): ad.Num => {
   const p = calculateProbabilityMatrixHighDim(x);
   const q = calculateProbabilityMatrixLowDim(y);
 
   return calculateKLDivergence(p, q);
+};
+
+/*
+ *  Return the signed distance to an axis-aligned rectangle:
+ *  float sdBox( in vec2 p, in vec2 b )
+ *  {
+ *    vec2 d = abs(p)-b;
+ *    return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
+ *  }
+ */
+export const sdfRect = (
+  center: ad.Num[],
+  width: ad.Num,
+  height: ad.Num,
+  p: ad.Num[]
+): ad.Num => {
+  const absp = ops.vabs(ops.vsub(p, center));
+  const b = [div(width, 2), div(height, 2)];
+  const d = ops.vsub(absp, b);
+  return add(ops.vnorm(ops.vmax(d, [0.0, 0.0])), min(max(d[0], d[1]), 0.0));
 };

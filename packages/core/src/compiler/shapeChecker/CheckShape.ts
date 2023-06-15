@@ -256,9 +256,13 @@ export const checkLine = (
   const strokeLinecap = checkProp(path, "strokeLinecap", trans, checkStrV);
   if (strokeLinecap.isErr()) return err(strokeLinecap.error);
 
+  const fill = checkFill(path, trans);
+  if (fill.isErr()) return err(fill.error);
+
   return ok({
     ...named.value,
     ...stroke.value,
+    ...fill.value,
     ...arrow.value,
     start: start.value,
     end: end.value,
@@ -284,6 +288,9 @@ export const checkPath = (
   const arrow = checkArrow(path, trans);
   if (arrow.isErr()) return err(arrow.error);
 
+  const strokeLinecap = checkProp(path, "strokeLinecap", trans, checkStrV);
+  if (strokeLinecap.isErr()) return err(strokeLinecap.error);
+
   const d = checkProp(path, "d", trans, checkPathDataV);
   if (d.isErr()) return err(d.error);
 
@@ -294,6 +301,7 @@ export const checkPath = (
     ...arrow.value,
     d: d.value,
     passthrough: new Map(),
+    strokeLinecap: strokeLinecap.value,
     shapeType: "Path",
   });
 };
@@ -347,12 +355,16 @@ export const checkPolyline = (
   const poly = checkPoly(path, trans);
   if (poly.isErr()) return err(poly.error);
 
+  const strokeLinecap = checkProp(path, "strokeLinecap", trans, checkStrV);
+  if (strokeLinecap.isErr()) return err(strokeLinecap.error);
+
   return ok({
     ...named.value,
     ...stroke.value,
     ...fill.value,
     ...scale.value,
     ...poly.value,
+    strokeLinecap: strokeLinecap.value,
     passthrough: new Map(),
     shapeType: "Polyline",
   });

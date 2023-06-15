@@ -10,6 +10,7 @@ import localforage from "localforage";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
+import { optimize } from "svgo";
 import { v4 as uuid } from "uuid";
 import {
   Diagram,
@@ -114,7 +115,10 @@ export const pathResolver = async (
     case "gist":
       return undefined;
     case "local": {
-      return fetchResource(relativePath, workspace);
+      const { resolver } = location;
+      return resolver
+        ? resolver(relativePath)
+        : fetchResource(relativePath, workspace);
     }
   }
 };
@@ -134,7 +138,12 @@ export const DownloadSVG = (
   variationStr: string
 ): void => {
   SVGaddCode(svg, dslStr, subStr, styleStr, versionStr, variationStr);
-  const blob = new Blob([svg.outerHTML], {
+  // optimize the svg output
+  const svgStr = optimize(svg.outerHTML, {
+    plugins: ["inlineStyles", "prefixIds"],
+    path: title,
+  }).data;
+  const blob = new Blob([svgStr], {
     type: "image/svg+xml;charset=utf-8",
   });
   const url = URL.createObjectURL(blob);
@@ -165,13 +174,18 @@ const SVGaddCode = (
   versionStr: string,
   variationStr: string
 ): void => {
-  svg.setAttribute("penrose", "0");
+  // Create custom <penrose> tag to store metadata, or grab it if it already exists
+  const metadataQuery = document.querySelector("penrose");
+  let metadata: Element;
 
-  // Create custom <penrose> tag to store metadata
-  const metadata = document.createElementNS(
-    "https://penrose.cs.cmu.edu/metadata",
-    "penrose"
-  );
+  if (metadataQuery === null) {
+    metadata = document.createElementNS(
+      "https://penrose.cs.cmu.edu/metadata",
+      "penrose"
+    );
+  } else {
+    metadata = metadataQuery!;
+  }
 
   // Create <version> tag for penrose version
   const version = document.createElementNS(
@@ -301,6 +315,8 @@ export default function DiagramPanel() {
               (path) => pathResolver(path, rogerState, workspace),
               "diagramPanel"
             );
+        rendered.setAttribute("width", "100%");
+        rendered.setAttribute("height", "100%");
         if (cur.firstElementChild) {
           cur.replaceChild(rendered, cur.firstElementChild);
         } else {

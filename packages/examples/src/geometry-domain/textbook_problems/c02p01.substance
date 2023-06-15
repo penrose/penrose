@@ -1,7 +1,7 @@
 Point A, B, C, D
-Ray DA := MkRay(D, A)
-Ray DB := MkRay(D, B)
-Ray DC := MkRay(D, C)
+Let DA := Ray(D, A)
+Let DB := Ray(D, B)
+Let DC := Ray(D, C)
 Angle ADB := InteriorAngle(A, D, B)
 Angle BDC := InteriorAngle(B, D, C)
 Angle ADC := InteriorAngle(A, D, C)
