@@ -227,8 +227,15 @@ const RenderGroup = async (
     if (clip.tag === "Clip") {
       if (name !== clipShapeName) {
         const childSvg = await RenderShape(shape, shapeProps, interactiveProp);
-        childSvg.setAttribute("clip-path", `url(#${clipPathSvgId})`);
-        elem.appendChild(childSvg);
+
+        // wraps the shape in a <g> tag so that clipping is applied after all the transformations etc.
+        const wrapper = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "g"
+        );
+        wrapper.appendChild(childSvg);
+        wrapper.setAttribute("clip-path", `url(#${clipPathSvgId})`);
+        elem.appendChild(wrapper);
       }
       // If already rendered as clip shape, don't render it here because the clip shape is implicitly a group member.
     } else {
