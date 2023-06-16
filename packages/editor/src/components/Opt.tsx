@@ -70,7 +70,6 @@ export default function Opt() {
             selector: "sat",
             sortable: true,
             width: "7em",
-            fontWeight: "bold",
           },
         ]}
         conditionalRowStyles={[
