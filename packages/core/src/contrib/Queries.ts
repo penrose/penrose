@@ -192,8 +192,6 @@ export const convexPolygonOriginSignedDistance = (p: ad.Pt2[]): ad.Num => {
   );
 };
 
-
-
 /**
  * Return the signed distance from the origin to the Minkowski sum of `rect` and
  * the negative of `line` (that is, `start` and `end` points both multiplied by
@@ -209,7 +207,6 @@ export const rectLineDist = (
   lxe: ad.Num,
   lye: ad.Num
 ): ad.Num => {
-
   const px = gt(lxs, lxe);
   const py = gt(lys, lye);
 
@@ -286,10 +283,10 @@ export const rectLineDist = (
 };
 
 export const polygonSignedDistance = (
-   v: ad.Num[][], // 2D polygon vertices
-   p: ad.Num[] // 2D query point
+  v: ad.Num[][], // 2D polygon vertices
+  p: ad.Num[] // 2D query point
 ): ad.Num => {
-        /*
+  /*
       float sdPolygon( in vec2[N] v, in vec2 p )
       {
           float d = dot(p-v[0],p-v[0]);
@@ -306,30 +303,30 @@ export const polygonSignedDistance = (
           return s*sqrt(d);
       }
       */
-   let d = ops.vdot(ops.vsub(p, v[0]), ops.vsub(p, v[0]));
-   let ess: ad.Num = 1.0;
-   let j = v.length - 1;
-   for (let i = 0; i < v.length; i++) {
-      const e = ops.vsub(v[j], v[i]);
-      const w = ops.vsub(p, v[i]);
-      const clampedVal = max(0, min(1, div(ops.vdot(w, e), ops.vdot(e, e))));
-      const b = ops.vsub(w, ops.vmul(clampedVal, e));
-      d = min(d, ops.vdot(b, b));
-      const c1 = gte(p[1], v[i][1]);
-      const c2 = lt(p[1], v[j][1]);
-      const c3 = gt(mul(e[0], w[1]), mul(e[1], w[0]));
-      const c4 = and(and(c1, c2), c3);
-      const c5 = not(c1);
-      const c6 = not(c2);
-      const c7 = not(c3);
-      const c8 = and(and(c5, c6), c7);
-      const negEss = mul(-1, ess);
-      ess = ifCond(or(c4, c8), negEss, ess);
-      // last line to match for loop in code we are borrowing from
-      j = i;
-   }
-   return mul(ess, sqrt(d));
-}
+  let d = ops.vdot(ops.vsub(p, v[0]), ops.vsub(p, v[0]));
+  let ess: ad.Num = 1.0;
+  let j = v.length - 1;
+  for (let i = 0; i < v.length; i++) {
+    const e = ops.vsub(v[j], v[i]);
+    const w = ops.vsub(p, v[i]);
+    const clampedVal = max(0, min(1, div(ops.vdot(w, e), ops.vdot(e, e))));
+    const b = ops.vsub(w, ops.vmul(clampedVal, e));
+    d = min(d, ops.vdot(b, b));
+    const c1 = gte(p[1], v[i][1]);
+    const c2 = lt(p[1], v[j][1]);
+    const c3 = gt(mul(e[0], w[1]), mul(e[1], w[0]));
+    const c4 = and(and(c1, c2), c3);
+    const c5 = not(c1);
+    const c6 = not(c2);
+    const c7 = not(c3);
+    const c8 = and(and(c5, c6), c7);
+    const negEss = mul(-1, ess);
+    ess = ifCond(or(c4, c8), negEss, ess);
+    // last line to match for loop in code we are borrowing from
+    j = i;
+  }
+  return mul(ess, sqrt(d));
+};
 
 // /**
 //  * Return the signed distance from the origin to the Minkowski sum of `rect` and
@@ -348,28 +345,28 @@ export const polygonSignedDistance = (
 //     start: [lxs, lys],
 //     end: [lxe, lye],
 //   } = line;
-// 
+//
 //   const px = gt(lxs, lxe);
 //   const py = gt(lys, lye);
-// 
+//
 //   // 0 means the negative is lesser, 1 means the negative is greater
 //   const lx0 = ifCond(px, lxs, lxe);
 //   const lx1 = ifCond(px, lxe, lxs);
 //   const ly0 = ifCond(py, lys, lye);
 //   const ly1 = ifCond(py, lye, lys);
-// 
+//
 //   const x00 = sub(rx0, lx0);
 //   const x01 = sub(rx0, lx1);
 //   const x10 = sub(rx1, lx0);
 //   const x11 = sub(rx1, lx1);
-// 
+//
 //   const y00 = sub(ry0, ly0);
 //   const y01 = sub(ry0, ly1);
 //   const y10 = sub(ry1, ly0);
 //   const y11 = sub(ry1, ly1);
-// 
+//
 //   const p = xor(px, py); // true iff negative slope
-// 
+//
 //   // if `p`:
 //   //
 //   // 4 - 3
@@ -384,7 +381,7 @@ export const polygonSignedDistance = (
 //   // point 3 is `ops.vsub([rx1, ry1], [lx0, ly1])`
 //   // point 4 is `ops.vsub([rx0, ry1], [lx0, ly1])`
 //   // point 5 is `ops.vsub([rx0, ry0], [lx0, ly1])`
-// 
+//
 //   // if not `p`:
 //   //
 //   //   4 - 3
@@ -399,21 +396,21 @@ export const polygonSignedDistance = (
 //   // point 3 is `ops.vsub([rx1, ry1], [lx1, ly1])`
 //   // point 4 is `ops.vsub([rx0, ry1], [lx1, ly1])`
 //   // point 5 is `ops.vsub([rx0, ry1], [lx0, ly0])`
-// 
+//
 //   const x0 = ifCond(p, x01, x00);
 //   const x1 = ifCond(p, x11, x10);
 //   const x2 = x11;
 //   const x3 = ifCond(p, x10, x11);
 //   const x4 = ifCond(p, x00, x01);
 //   const x5 = x00;
-// 
+//
 //   const y0 = y00;
 //   const y1 = y00;
 //   const y2 = ifCond(p, y10, y01);
 //   const y3 = y11;
 //   const y4 = y11;
 //   const y5 = ifCond(p, y01, y10);
-// 
+//
 //   return convexPolygonOriginSignedDistance([
 //     [x0, y0],
 //     [x1, y1],
@@ -511,45 +508,41 @@ export const shapeDistance = (s1: Shape<ad.Num>, s2: Shape<ad.Num>): ad.Num => {
       toPt(s2.start.contents),
       toPt(s2.end.contents)
     );
-  }
-  else if (t1 == "Polyline" && t2 == "Circle") {
+  } else if (t1 == "Polyline" && t2 == "Circle") {
     return shapeDistanceCirclePolyline(
-       s2.center.contents,
-       s2.r.contents,
-       s1.points.contents
+      s2.center.contents,
+      s2.r.contents,
+      s1.points.contents
     );
-  }
-  else if (t2 == "Polyline" && t1 == "Circle") {
+  } else if (t2 == "Polyline" && t1 == "Circle") {
     return shapeDistanceCirclePolyline(
-       s1.center.contents,
-       s1.r.contents,
-       s2.points.contents
+      s1.center.contents,
+      s1.r.contents,
+      s2.points.contents
     );
-  }
-  else if (t1 == "Polyline" && isRectlike(s2)) {
+  } else if (t1 == "Polyline" && isRectlike(s2)) {
     const bbox = bboxFromShape(s2);
     const corners = BBox.corners(bbox);
     return shapeDistanceRectlikePolyline(
-       [
-         corners.topRight,
-         corners.topLeft,
-         corners.bottomLeft,
-         corners.bottomRight,
-       ],
-       s1.points.contents
+      [
+        corners.topRight,
+        corners.topLeft,
+        corners.bottomLeft,
+        corners.bottomRight,
+      ],
+      s1.points.contents
     );
-  }
-  else if (t2 == "Polyline" && isRectlike(s1)) {
+  } else if (t2 == "Polyline" && isRectlike(s1)) {
     const bbox = bboxFromShape(s1);
     const corners = BBox.corners(bbox);
     return shapeDistanceRectlikePolyline(
-       [
-         corners.topRight,
-         corners.topLeft,
-         corners.bottomLeft,
-         corners.bottomRight,
-       ],
-       s2.points.contents
+      [
+        corners.topRight,
+        corners.topLeft,
+        corners.bottomLeft,
+        corners.bottomRight,
+      ],
+      s2.points.contents
     );
   }
   // Default to axis-aligned bounding boxes
@@ -592,10 +585,14 @@ export const shapeDistanceRectLine = (
   const halfH = div(bbox.height, 2);
   const [cx, cy] = bbox.center;
   return rectLineDist(
-      sub(cx, halfW), sub(cy, halfH),
-      add(cx, halfW), add(cy, halfH),
-      start[0], start[1],
-      end[0], end[1]
+    sub(cx, halfW),
+    sub(cy, halfH),
+    add(cx, halfW),
+    add(cy, halfH),
+    start[0],
+    start[1],
+    end[0],
+    end[1]
   );
 };
 
@@ -603,26 +600,29 @@ const shapeDistanceRectlikePolyline = (
   rect: ad.Pt2[],
   points: ad.Num[][]
 ): ad.Num => {
+  let dMin: ad.Num = Infinity;
 
-   let dMin: ad.Num = Infinity;
+  const topRight = rect[0];
+  const bottomLeft = rect[2];
 
-   const topRight = rect[0];
-   const bottomLeft = rect[2];
+  // take minimum distance to rect R over all segments in polyline M
+  for (let i = 0; i < points.length - 1; i++) {
+    const a = points[i];
+    const b = points[i + 1];
 
-   // take minimum distance to rect R over all segments in polyline M
-   for( let i = 0; i < points.length-1; i++ ) {
-      const a = points[i];
-      const b = points[i + 1];
-
-      const d = rectLineDist(
-         bottomLeft[0], bottomLeft[1],
-         topRight[0], topRight[1],
-         a[0], a[1],
-         b[0], b[1]
-      );
-      dMin = min( dMin, d );
-   }
-   return dMin;
+    const d = rectLineDist(
+      bottomLeft[0],
+      bottomLeft[1],
+      topRight[0],
+      topRight[1],
+      a[0],
+      a[1],
+      b[0],
+      b[1]
+    );
+    dMin = min(dMin, d);
+  }
+  return dMin;
 };
 
 export const shapeDistancePolys = (pts1: ad.Pt2[], pts2: ad.Pt2[]): ad.Num =>
@@ -687,15 +687,15 @@ const shapeDistanceCirclePolyline = (
   r: ad.Num,
   points: ad.Num[][]
 ): ad.Num => {
-   // compute the smallest distance to any segment
-   let dMin: ad.Num = Infinity;
-   for( let i = 0; i < points.length-1; i++ ) {
-      const a = points[i];
-      const b = points[i + 1];
-      const d = shapeDistanceCircleLine( toPt(c), r, toPt(a), toPt(b) );
-      dMin = min( dMin, d );
-   }
-   return dMin;
+  // compute the smallest distance to any segment
+  let dMin: ad.Num = Infinity;
+  for (let i = 0; i < points.length - 1; i++) {
+    const a = points[i];
+    const b = points[i + 1];
+    const d = shapeDistanceCircleLine(toPt(c), r, toPt(a), toPt(b));
+    dMin = min(dMin, d);
+  }
+  return dMin;
 };
 
 export const shapeDistanceLines = (
@@ -722,4 +722,3 @@ export const shapeDistanceLines = (
     [0, 0]
   );
 };
-

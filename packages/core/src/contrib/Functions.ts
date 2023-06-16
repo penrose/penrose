@@ -120,7 +120,6 @@ import {
   bboxFromShape,
   bboxPts,
   polygonLikePoints,
-  polygonSignedDistance,
   rectLineDist,
   rectPts,
   shapeDistance,
@@ -1183,13 +1182,13 @@ export const compDict = {
     ): PathDataV<ad.Num> => {
       const path = new PathBuilder();
       //path.moveTo(start).arcTo(radius, end, [rotation, largeArc, arcSweep]);
-      const u0 = [ mul(r,cos(theta0)), mul(r,sin(theta0)) ];
-      const u1 = [ mul(r,cos(theta1)), mul(r,sin(theta1)) ];
-      const x0 = toPt(ops.vadd( center, u0 ));
-      const x1 = toPt(ops.vadd( center, u1 ));
-      const largeArc = ifCond(gt(absVal(sub(theta1,theta0)),Math.PI), 1, 0 );
-      const arcSweep = ifCond(gt(theta0,theta1), 1, 0 );
-      path.moveTo(x0).arcTo([r,r], x1, [0, largeArc, arcSweep]);
+      const u0 = [mul(r, cos(theta0)), mul(r, sin(theta0))];
+      const u1 = [mul(r, cos(theta1)), mul(r, sin(theta1))];
+      const x0 = toPt(ops.vadd(center, u0));
+      const x1 = toPt(ops.vadd(center, u1));
+      const largeArc = ifCond(gt(absVal(sub(theta1, theta0)), Math.PI), 1, 0);
+      const arcSweep = ifCond(gt(theta0, theta1), 1, 0);
+      path.moveTo(x0).arcTo([r, r], x1, [0, largeArc, arcSweep]);
       if (pathType === "closed") path.closePath();
       return path.getPath();
     },
@@ -2830,7 +2829,8 @@ export const compDict = {
   //#region ray intersection (and normal) Style functions
   rayIntersect: {
     name: "rayIntersect",
-    description: "Given a point p and vector v, find the first point where the ray r(t)=p+tv intersects the given shape S.  If there are no intersections, returns p.",
+    description:
+      "Given a point p and vector v, find the first point where the ray r(t)=p+tv intersects the given shape S.  If there are no intersections, returns p.",
     params: [
       {
         name: "S",
@@ -2867,7 +2867,8 @@ export const compDict = {
   },
   rayIntersectDistance: {
     name: "rayIntersectDistance",
-    description: "Given a point p and vector v, returns the distance to the first point where the ray r(t)=p+tv intersects the shape S.  If there are no intersections, returns Infinity.",
+    description:
+      "Given a point p and vector v, returns the distance to the first point where the ray r(t)=p+tv intersects the shape S.  If there are no intersections, returns Infinity.",
     params: [
       {
         name: "S",
@@ -2900,7 +2901,7 @@ export const compDict = {
     ): FloatV<ad.Num> => {
       const hit = rawRayIntersect(S, p, v);
       const x = hit[0]; // hit location
-      let t = ifCond(eq(absVal(x[0]), Infinity), Infinity, ops.vdist(p,x) );
+      let t = ifCond(eq(absVal(x[0]), Infinity), Infinity, ops.vdist(p, x));
       return { tag: "FloatV", contents: t };
     },
     returns: valueT("Real"),
@@ -3024,7 +3025,8 @@ export const compDict = {
   },
   rayIntersectNormal: {
     name: "rayIntersectNormal",
-    description: "Given a point p and vector v, find the unit normal at the first point where the ray r(t)=p+tv intersects the given shape S.  If there are no intersections, returns (0,0).",
+    description:
+      "Given a point p and vector v, find the unit normal at the first point where the ray r(t)=p+tv intersects the given shape S.  If there are no intersections, returns (0,0).",
     params: [
       {
         name: "S",
@@ -3483,7 +3485,7 @@ export const compDict = {
       p: ad.Num[]
     ): FloatV<ad.Num> => {
       const q = rawClosestSilhouettePoint(s, p);
-      const d = ifCond(eq(q[0],Infinity), Infinity, ops.vdist(p,q));
+      const d = ifCond(eq(q[0], Infinity), Infinity, ops.vdist(p, q));
       return { tag: "FloatV", contents: d };
     },
     returns: valueT("Real"),
@@ -3515,7 +3517,16 @@ export const compDict = {
       end: ad.Pt2
     ): FloatV<ad.Num> =>
       floatV(
-         rectLineDist( bottomLeft[0], bottomLeft[1], topRight[0], topRight[1], start[0], start[1], end[0], end[1] )
+        rectLineDist(
+          bottomLeft[0],
+          bottomLeft[1],
+          topRight[0],
+          topRight[1],
+          start[0],
+          start[1],
+          end[0],
+          end[1]
+        )
       ),
     returns: valueT("Real"),
   },

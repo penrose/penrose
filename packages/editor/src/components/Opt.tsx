@@ -27,7 +27,7 @@ export default function Opt() {
     .filter(([, include]) => include)
     .map((l) => l[0])
     .map(([name, fnEvaled]) => {
-      const energy = parseFloat((Math.max(fnEvaled, 0)).toFixed(3));
+      const energy = parseFloat(Math.max(fnEvaled, 0).toFixed(3));
       return {
         name,
         energy,
@@ -65,7 +65,13 @@ export default function Opt() {
         columns={[
           { name: "Expression", selector: "name", sortable: true },
           { name: "Energy", selector: "energy", sortable: true, width: "7em" },
-          { name: "Satisfied?", selector: "sat", sortable: true, width: "7em", fontWeight: "bold" },
+          {
+            name: "Satisfied?",
+            selector: "sat",
+            sortable: true,
+            width: "7em",
+            fontWeight: "bold",
+          },
         ]}
         conditionalRowStyles={[
           {
@@ -83,7 +89,7 @@ export default function Opt() {
         highlightOnHover={true}
         striped={true}
         columns={[
-          { name: "Expression", selector: "name", sortable: true  },
+          { name: "Expression", selector: "name", sortable: true },
           { name: "Energy", selector: "energy", sortable: true, width: "10em" },
           // { name: "Gradient Norm", selector: "gradientNorm", sortable: true },
         ]}
