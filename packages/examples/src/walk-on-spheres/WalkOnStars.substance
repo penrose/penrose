@@ -1,7 +1,6 @@
 -- A short walk used to estimate the solution to
 -- a Laplace equation Δu = 0 with both Dirichlet
 -- and Neumann boundary conditions, via WoSt.
-
 Domain U
 hasMixedBoundaryConditions( U )
 
@@ -15,17 +14,10 @@ Point x3 := sampleBoundary( St2 )
 Star St3 := starAround( x3 )
 Point x4 := sampleBoundary( St3 )
 
--- Label U "Ω"
--- Label x0 "x₀"
--- Label x1 "x₁"
--- Label x2 "x₂"
--- Label x3 "…"
--- Label x4 "xₖ"
-
-Label U "$\Omega$"
-Label x0 "$x_0$"
-Label x1 "$x_1$"
-Label x2 "$x_2$"
-Label x3 "$\ldots$"
-Label x4 "$x_k$"
+Label U $\Omega$
+Label x0 $x_0$
+Label x1 $x_1$
+Label x2 $x_2$
+Label x3 $\cdot\!\cdot\!\cdot$
+Label x4 $x_k$
 

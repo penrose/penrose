@@ -5,7 +5,7 @@
 
 Domain U
 
--- -- main walk
+-- main walk
 Point x0
 Ball B0 := ballAround( x0 )
 Point x1 := sampleBoundary( B0 )
@@ -31,9 +31,9 @@ Ball B11 := nestedBallAround( y11 )
 NestedPoint y12 := sampleBoundaryNested( B11 )
 Ball B12 := nestedBallAround( y12 )
 
-Label U "Ω"
-Label x0 "x₀"
-Label x1 "x₁"
-Label x2 "…"
-Label x3 "xₖ"
+Label U $\Omega$
+Label x0 $x_0$
+Label x1 $x_1$
+Label x2 $\ldots$
+Label x3 $x_k$
 

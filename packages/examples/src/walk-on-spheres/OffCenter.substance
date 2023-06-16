@@ -18,10 +18,10 @@ isOffCenter( B1 )
 isOffCenter( B2 )
 isOffCenter( B3 )
 
-Label U "Ω"
-Label x0 "x₀"
-Label x1 "x₁"
-Label x2 "…"
-Label x3 "xₖ"
+Label U $\Omega$
+Label x0 $x_0$
+Label x1 $x_1$
+Label x2 $\ldots$
+Label x3 $x_k$
 
 
