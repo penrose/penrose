@@ -51,6 +51,7 @@ import {
   autoLabelStmt,
   cascadingDelete,
   dedupStmts,
+  dedupSynthesizedSubstances,
   desugarAutoLabel,
   domainToSubType,
   findDecl,
@@ -432,8 +433,8 @@ export class Synthesizer {
    * @param numProgs number of Substance programs to generate
    * @returns an array of Substance programs and some metadata (e.g. mutation operation record)
    */
-  generateSubstances = (numProgs: number): SynthesizedSubstance[] =>
-    _.times(numProgs, (n: number) => {
+  generateSubstances = (numProgs: number): SynthesizedSubstance[] => {
+    const oneSubstance = (n: number) => {
       const sub = this.generateSubstance();
       // DEBUG: report results
       log.info(
@@ -444,7 +445,20 @@ export class Synthesizer {
       // reset synthesizer after generating each Substance diagram
       this.reset();
       return sub;
-    });
+    };
+
+    let substances = dedupSynthesizedSubstances(
+      _.times(numProgs, oneSubstance)
+    );
+
+    // Generate until there are numProgs unique Substance programs
+    while (substances.length < numProgs) {
+      const sub = oneSubstance(substances.length);
+      substances.push(sub);
+      substances = dedupSynthesizedSubstances(substances);
+    }
+    return substances;
+  };
 
   generateSubstance = (): SynthesizedSubstance => {
     const numStmts = this.random(...this.setting.mutationCount);

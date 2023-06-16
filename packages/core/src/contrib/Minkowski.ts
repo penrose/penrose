@@ -17,15 +17,13 @@ import {
   squared,
   sub,
 } from "../engine/AutodiffFunctions.js";
-import * as BBox from "../engine/BBox.js";
-import { Ellipse } from "../shapes/Ellipse.js";
 import * as ad from "../types/ad.js";
 import { safe } from "../utils/Util.js";
 import {
   ImplicitEllipse,
   ImplicitHalfPlane,
+  absEllipseToImplicit,
   ellipsePolynomial,
-  ellipseToImplicit,
   halfPlaneToImplicit,
   implicitEllipseFunc,
   implicitHalfPlaneFunc,
@@ -43,23 +41,13 @@ import { numsOf } from "./Utils.js";
  * @param padding Additional padding added to one of the boxes.
  */
 export const rectangleDifference = (
-  box1: BBox.BBox,
-  box2: BBox.BBox,
+  [, tl1, , br1]: ad.Pt2[],
+  [, tl2, , br2]: ad.Pt2[],
   padding: ad.Num
 ): [ad.Pt2, ad.Pt2] => {
   // Prepare coordinates
-  const [xa1, xa2, ya1, ya2] = [
-    BBox.minX(box1),
-    BBox.maxX(box1),
-    BBox.minY(box1),
-    BBox.maxY(box1),
-  ];
-  const [xb1, xb2, yb1, yb2] = [
-    BBox.minX(box2),
-    BBox.maxX(box2),
-    BBox.minY(box2),
-    BBox.maxY(box2),
-  ];
+  const [xa1, xa2, ya1, ya2] = [tl1[0], br1[0], br1[1], tl1[1]];
+  const [xb1, xb2, yb1, yb2] = [tl2[0], br2[0], br2[1], tl2[1]];
   // Compute coordinates of the new rectangle
   const xs = [sub(xa1, xb1), sub(xa2, xb2), sub(xa1, xb2), sub(xa2, xb1)];
   const ys = [sub(ya1, yb1), sub(ya2, yb2), sub(ya1, yb2), sub(ya2, yb1)];
@@ -245,21 +233,6 @@ export const containsConvexPolygonPoints = (
 };
 
 /**
- * Constraint checking whether `point` is inside a polygon with vertices `polygonPoints`.
- * @param polygonPoints Sequence of points defining a polygon.
- * @param point Testing point.
- * @param padding Padding applied to the polygon.
- */
-export const containsPolygonPoints = (
-  polygonPoints: ad.Num[][],
-  point: ad.Num[],
-  padding: ad.Num = 0
-): ad.Num => {
-  const cp1 = convexPartitions(polygonPoints);
-  return maxN(cp1.map((p1) => containsConvexPolygonPoints(p1, point, padding)));
-};
-
-/**
  * Return candidates for extremal points of the implicit functions.
  * @param ei Implicit ellipse parameters.
  * @param hpi Implicit half-plane parameters.
@@ -280,18 +253,22 @@ const pointCandidates = (
 /**
  * Helper for Signed Distance Function (SDF) of a polygon and ellipse.
  * @param lineSegment Two points defining the line segment.
- * @param ellipse Ellipse shape.
+ * @param c center of ellipse
+ * @param rx horizontal radius of ellipse
+ * @param ry vertical radius of ellipse
  * @param insidePoint Any point inside of the half-plane.
  * @param padding Padding around the Minkowski sum.
  */
 export const halfPlaneEllipseSDF = (
   lineSegment: ad.Num[][],
-  ellipse: Ellipse<ad.Num>,
+  c: ad.Pt2,
+  rx: ad.Num,
+  ry: ad.Num,
   insidePoint: ad.Num[],
   padding: ad.Num
 ): ad.Num => {
   const hpi = halfPlaneToImplicit(lineSegment, insidePoint, 0);
-  const ei = ellipseToImplicit(ellipse, padding);
+  const ei = absEllipseToImplicit(c, rx, ry, padding);
   const e = div(
     add(mul(ei.b, squared(hpi.a)), mul(ei.a, squared(hpi.b))),
     mul(
@@ -321,7 +298,9 @@ export const halfPlaneEllipseSDF = (
  */
 export const overlappingPolygonPointsEllipse = (
   polygonPoints: ad.Num[][],
-  ellipse: Ellipse<ad.Num>,
+  c: ad.Pt2,
+  rx: ad.Num,
+  ry: ad.Num,
   padding: ad.Num
 ): ad.Num => {
   const center = ops.vdiv(polygonPoints.reduce(ops.vadd), polygonPoints.length);
@@ -334,7 +313,7 @@ export const overlappingPolygonPointsEllipse = (
     polygonPoints[i > 0 ? i - 1 : polygonPoints.length - 1],
   ]);
   const sdfs = sides.map((s: ad.Num[][]) =>
-    halfPlaneEllipseSDF(s, ellipse, center, padding)
+    halfPlaneEllipseSDF(s, c, rx, ry, center, padding)
   );
   return maxN(sdfs);
 };

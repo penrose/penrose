@@ -16,7 +16,6 @@ forall Graph A
 
     A.level = 0
 
-    ensure minSize(A.icon)
     ensure contains(A.icon, A.text)
     ensure contains(A.icon, A.text)
 
@@ -80,9 +79,6 @@ where Result := or(A, B)
         strokeWidth: 0.0
         r : 0.0
     }
-
-    ensure smallerThan(A.icon, Result.icon)
-    ensure smallerThan(B.icon, Result.icon)
     ensure contains(Result.icon2, A.icon, 5.0)
     ensure contains(Result.icon2, B.icon, 5.0)
     ensure disjoint(A.icon, B.icon)

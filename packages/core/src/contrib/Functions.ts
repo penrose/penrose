@@ -49,6 +49,7 @@ import {
   tanh,
   trunc,
 } from "../engine/AutodiffFunctions.js";
+import { bboxFromRectlike } from "../engine/BBox.js";
 import { PathBuilder } from "../renderer/PathBuilder.js";
 import { Circle } from "../shapes/Circle.js";
 import { Ellipse } from "../shapes/Ellipse.js";
@@ -94,6 +95,7 @@ import {
   realNT,
   realT,
   rectlikeT,
+  shapeListT,
   shapeT,
   stringT,
   unionT,
@@ -114,8 +116,24 @@ import {
   totalCurvature,
   turningNumber,
 } from "./CurveConstraints.js";
-import { rectLineDist, polygonSignedDistance, shapeDistance } from "./Queries.js";
-import { Rectlike, bboxPts, clamp, isRectlike, numOf } from "./Utils.js";
+import {
+  bboxFromShape,
+  bboxPts,
+  polygonLikePoints,
+  polygonSignedDistance,
+  rectLineDist,
+  rectPts,
+  shapeDistance,
+  shapeDistanceCircleLine,
+  shapeDistanceCircles,
+  shapeDistanceLines,
+  shapeDistancePolyEllipse,
+  shapeDistancePolys,
+  shapeDistanceRectCircle,
+  shapeDistanceRectLine,
+  shapeDistanceRects,
+} from "./Queries.js";
+import { Rectlike, clamp, isRectlike, numOf, toPt } from "./Utils.js";
 
 /**
  * Static dictionary of computation functions
@@ -795,7 +813,6 @@ export const compDict = {
     }),
     returns: realT(),
   },
-
   /**
    * Return the dot product of `v` and `w`.
    */
@@ -2659,6 +2676,7 @@ export const compDict = {
     returns: valueT("Real2"),
   },
 
+  //#region signed distance Style functions
   signedDistance: {
     name: "signedDistance",
     description: "Return the signed distance between a shape and a point",
@@ -2678,71 +2696,121 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      s:
-        | Rectlike<ad.Num>
-        | Circle<ad.Num>
-        | Polygon<ad.Num>
-        | Line<ad.Num>
-        | Polyline<ad.Num>,
-      p: ad.Num[]
-    ): FloatV<ad.Num> => {
-      /*  
-    All math borrowed from:
-    https://iquilezles.org/articles/distfunctions2d/
-    
-    axis-aligned rectangle:
-    float sdBox( in vec2 p, in vec2 b )
-    {
-      vec2 d = abs(p)-b;
-      return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
-    } 
-    */
-      if (isRectlike(s)) {
-        const absp = ops.vabs(ops.vsub(p, s.center.contents));
-        const b = [div(s.width.contents, 2), div(s.height.contents, 2)];
-        const d = ops.vsub(absp, b);
-        const result = add(
-          ops.vnorm(ops.vmax(d, [0.0, 0.0])),
-          min(max(d[0], d[1]), 0.0)
-        );
-        return {
-          tag: "FloatV",
-          contents: result,
-        };
-      } else if (s.shapeType === "Circle") {
-        /*     
-      float sdCircle( vec2 p, float r )
-      {
-        return length(p) - r;
-      } 
-      */
-        const pOffset = ops.vsub(p, s.center.contents);
-        const result = sub(ops.vnorm(pOffset), s.r.contents);
-        return {
-          tag: "FloatV",
-          contents: result,
-        };
-      } else if (s.shapeType === "Polygon") {
-        const v = s.points.contents;
-        const result = polygonSignedDistance( v, p );
-        return {
-          tag: "FloatV",
-          contents: result,
-        };
-      } else if (s.shapeType === "Line") {
-        return {
-          tag: "FloatV",
-          contents: sdLine(s, p),
-        };
-      } else {
-        return {
-          tag: "FloatV",
-          contents: sdPolyline(s, p),
-        };
-      }
-    },
+      shape: Shape<ad.Num>,
+      pt: ad.Pt2
+    ): FloatV<ad.Num> => floatV(signedDistance(shape, pt)),
     returns: valueT("Real"),
   },
+
+  signedDistanceRect: {
+    name: "signedDistanceRect",
+    description: "Returns the distance between a rect and a point",
+    params: [
+      { name: "rect", type: real2NT() },
+      { name: "pt", type: real2T() },
+    ],
+    body: (_context: Context, rect: ad.Pt2[], pt: ad.Pt2): FloatV<ad.Num> =>
+      floatV(signedDistanceRect(rect, pt)),
+    returns: realT(),
+  },
+
+  signedDistanceCircle: {
+    name: "signedDistanceCircle",
+    description: "Returns the distance between a circle and a point",
+    params: [
+      { name: "c", type: real2T(), description: "center of circle" },
+      { name: "r", type: realT(), description: "radius of circle" },
+      { name: "pt", type: real2T(), description: "the point" },
+    ],
+    body: (
+      _context: Context,
+      c: ad.Pt2,
+      r: ad.Num,
+      pt: ad.Pt2
+    ): FloatV<ad.Num> => floatV(signedDistanceCircle(c, r, pt)),
+    returns: realT(),
+  },
+
+  signedDistancePolygon: {
+    name: "signedDistancePolygon",
+    description: "Returns the distance between a polygon and a point",
+    params: [
+      { name: "pts", type: real2NT(), description: "points of the polygon" },
+      { name: "pt", type: real2T(), description: "the point" },
+    ],
+    body: (_context: Context, pts: ad.Pt2[], pt: ad.Pt2): FloatV<ad.Num> =>
+      floatV(signedDistancePolygon(pts, pt)),
+    returns: realT(),
+  },
+
+  signedDistanceEllipse: {
+    name: "signedDistanceEllipse",
+    description: "Returns the distance between an ellipse and a point",
+    params: [
+      { name: "c", type: real2T(), description: "center of ellipse" },
+      {
+        name: "rx",
+        type: realT(),
+        description: "horizontal radius of ellipse",
+      },
+      { name: "ry", type: realT(), description: "vertical radius of ellipse" },
+      { name: "pt", type: real2T(), description: "the point" },
+    ],
+    body: (
+      _context: Context,
+      c: ad.Pt2,
+      rx: ad.Num,
+      ry: ad.Num,
+      pt: ad.Pt2
+    ): FloatV<ad.Num> => floatV(signedDistanceEllipse(c, rx, ry, pt)),
+    returns: realT(),
+  },
+
+  signedDistanceLine: {
+    name: "signedDistanceLine",
+    description: "Returns the distance between a line and a point",
+    params: [
+      { name: "start", type: real2T(), description: "start of line" },
+      { name: "end", type: real2T(), description: "end of line" },
+      { name: "pt", type: real2T(), description: "the point" },
+    ],
+    body: (
+      _context: Context,
+      start: ad.Pt2,
+      end: ad.Pt2,
+      pt: ad.Pt2
+    ): FloatV<ad.Num> => floatV(signedDistanceLine(start, end, pt)),
+    returns: realT(),
+  },
+
+  signedDistancePolyline: {
+    name: "signedDistancePolyline",
+    description: "Returns the distance between a line and a polyline",
+    params: [
+      { name: "pts", type: real2NT(), description: "points of the polyline" },
+      { name: "pt", type: real2T(), description: "the point" },
+    ],
+    body: (_context: Context, pts: ad.Pt2[], pt: ad.Pt2): FloatV<ad.Num> =>
+      floatV(signedDistancePolyline(pts, pt)),
+    returns: realT(),
+  },
+
+  signedDistanceGroup: {
+    name: "signedDistanceGroup",
+    description:
+      "Returns the signed distance between a group of shapes and a point",
+    params: [
+      { name: "shapes", type: shapeListT() },
+      { name: "pt", type: real2T() },
+    ],
+    body: (
+      _context: Context,
+      shapes: Shape<ad.Num>[],
+      pt: ad.Pt2
+    ): FloatV<ad.Num> => floatV(signedDistanceGroup(shapes, pt)),
+    returns: realT(),
+  },
+  //#endregion
 
   /**
    * Construct a unit vector u in the direction of the
@@ -2759,6 +2827,7 @@ export const compDict = {
     returns: valueT("Real2"),
   },
 
+  //#region ray intersection (and normal) Style functions
   rayIntersect: {
     name: "rayIntersect",
     description: "Given a point p and vector v, find the first point where the ray r(t)=p+tv intersects the given shape S.  If there are no intersections, returns p.",
@@ -2792,67 +2861,10 @@ export const compDict = {
       p: ad.Num[],
       v: ad.Num[]
     ): VectorV<ad.Num> => {
-      const hit = rayIntersectShape(S, p, v);
-      const x = hit[0]; // hit location
-      const x0 = ifCond(eq(absVal(x[0]), Infinity), p[0], x[0]);
-      const x1 = ifCond(eq(absVal(x[1]), Infinity), p[1], x[1]);
-      return { tag: "VectorV", contents: [x0, x1] };
+      return vectorV(safeRI(rawRayIntersect(S, p, v), p));
     },
     returns: valueT("Real2"),
   },
-
-  rayIntersectNormal: {
-    name: "rayIntersectNormal",
-    description: "Given a point p and vector v, find the unit normal at the first point where the ray r(t)=p+tv intersects the given shape S.  If there are no intersections, returns (0,0).",
-    params: [
-      {
-        name: "S",
-        type: unionT(
-          rectlikeT(),
-          shapeT("Circle"),
-          shapeT("Polygon"),
-          shapeT("Line"),
-          shapeT("Polyline"),
-          shapeT("Ellipse"),
-          shapeT("Group")
-        ),
-        description: "A shape",
-      },
-      { name: "p", type: real2T(), description: "A point" },
-      { name: "v", type: real2T(), description: "A vector" },
-    ],
-    body: (
-      _context: Context,
-      S:
-        | Circle<ad.Num>
-        | Rectlike<ad.Num>
-        | Line<ad.Num>
-        | Polyline<ad.Num>
-        | Polygon<ad.Num>
-        | Ellipse<ad.Num>
-        | Group<ad.Num>,
-      p: ad.Num[],
-      v: ad.Num[]
-    ): VectorV<ad.Num> => {
-      const hit = rayIntersectShape(S, p, v);
-      const x = hit[0]; // hit location
-      const n = hit[1]; // hit normal
-      const s = ops.vdot(n, ops.vsub(p, x));
-      const n0 = ifCond(
-        eq(absVal(x[0]), Infinity),
-        0.0,
-        ifCond(lt(s, 0), neg(n[0]), n[0])
-      );
-      const n1 = ifCond(
-        eq(absVal(x[1]), Infinity),
-        0.0,
-        ifCond(lt(s, 0), neg(n[1]), n[1])
-      );
-      return { tag: "VectorV", contents: [n0, n1] };
-    },
-    returns: valueT("Real2"),
-  },
-
   rayIntersectDistance: {
     name: "rayIntersectDistance",
     description: "Given a point p and vector v, returns the distance to the first point where the ray r(t)=p+tv intersects the shape S.  If there are no intersections, returns Infinity.",
@@ -2886,14 +2898,285 @@ export const compDict = {
       p: ad.Num[],
       v: ad.Num[]
     ): FloatV<ad.Num> => {
-      const hit = rayIntersectShape(S, p, v);
+      const hit = rawRayIntersect(S, p, v);
       const x = hit[0]; // hit location
       let t = ifCond(eq(absVal(x[0]), Infinity), Infinity, ops.vdist(p,x) );
       return { tag: "FloatV", contents: t };
     },
     returns: valueT("Real"),
   },
+  rayIntersectCircle: {
+    name: "rayIntersectCircle",
+    params: [
+      { name: "c", type: real2T(), description: "center of circle" },
+      { name: "r", type: realT(), description: "radius of circle" },
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      c: ad.Num[],
+      r: ad.Num,
+      p: ad.Num[],
+      v: ad.Num[]
+    ): VectorV<ad.Num> => vectorV(safeRI(rawRayIntersectCircle(c, r, p, v), p)),
+    returns: valueT("Real2"),
+  },
+  rayIntersectEllipse: {
+    name: "rayIntersectEllipse",
+    params: [
+      { name: "c", type: real2T() },
+      { name: "rx", type: realT() },
+      { name: "ry", type: realT() },
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      c: ad.Num[],
+      rx: ad.Num,
+      ry: ad.Num,
+      p: ad.Num[],
+      v: ad.Num[]
+    ): VectorV<ad.Num> =>
+      vectorV(safeRI(rawRayIntersectEllipse(c, rx, ry, p, v), p)),
+    returns: real2T(),
+  },
+  rayIntersectLine: {
+    name: "rayIntersectLine",
+    params: [
+      { name: "start", type: real2T() },
+      { name: "end", type: real2T() },
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      start: ad.Num[],
+      end: ad.Num[],
+      p: ad.Num[],
+      v: ad.Num[]
+    ): VectorV<ad.Num> =>
+      vectorV(safeRI(rawRayIntersectLine(start, end, p, v), p)),
+    returns: real2T(),
+  },
+  rayIntersectRect: {
+    name: "rayIntersectRect",
+    params: [
+      {
+        name: "rect",
+        type: real2NT(),
+        description:
+          "The top-right, top-left, bottom-left, bottom-right points (in that order) of the rectangle",
+      },
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      rect: ad.Pt2[],
+      p: ad.Num[],
+      v: ad.Num[]
+    ): VectorV<ad.Num> => vectorV(safeRI(rawRayIntersectRect(rect, p, v), p)),
+    returns: real2T(),
+  },
+  rayIntersectPoly: {
+    name: "rayIntersectPoly",
+    params: [
+      {
+        name: "pts",
+        type: real2NT(),
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+      },
 
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      pts: ad.Pt2[],
+      closed: boolean,
+      p: ad.Num[],
+      v: ad.Num[]
+    ): VectorV<ad.Num> =>
+      vectorV(safeRI(rawRayIntersectPoly(pts, closed, p, v), p)),
+    returns: real2T(),
+  },
+  rayIntersectGroup: {
+    name: "rayIntersectGroup",
+    params: [
+      { name: "shapes", type: shapeListT() },
+
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      shapes: Shape<ad.Num>[],
+      p: ad.Num[],
+      v: ad.Num[]
+    ): VectorV<ad.Num> =>
+      vectorV(safeRI(rawRayIntersectGroup(shapes, p, v), p)),
+    returns: real2T(),
+  },
+  rayIntersectNormal: {
+    name: "rayIntersectNormal",
+    description: "Given a point p and vector v, find the unit normal at the first point where the ray r(t)=p+tv intersects the given shape S.  If there are no intersections, returns (0,0).",
+    params: [
+      {
+        name: "S",
+        type: unionT(
+          rectlikeT(),
+          shapeT("Circle"),
+          shapeT("Polygon"),
+          shapeT("Line"),
+          shapeT("Polyline"),
+          shapeT("Ellipse"),
+          shapeT("Group")
+        ),
+        description: "A shape",
+      },
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      S:
+        | Circle<ad.Num>
+        | Rectlike<ad.Num>
+        | Line<ad.Num>
+        | Polyline<ad.Num>
+        | Polygon<ad.Num>
+        | Ellipse<ad.Num>
+        | Group<ad.Num>,
+      p: ad.Num[],
+      v: ad.Num[]
+    ): VectorV<ad.Num> => vectorV(safeRIN(rawRayIntersect(S, p, v), p)),
+    returns: valueT("Real2"),
+  },
+  rayIntersectNormalCircle: {
+    name: "rayIntersectNormalCircle",
+    params: [
+      { name: "c", type: real2T(), description: "center of circle" },
+      { name: "r", type: realT(), description: "radius of circle" },
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      c: ad.Num[],
+      r: ad.Num,
+      p: ad.Num[],
+      v: ad.Num[]
+    ): VectorV<ad.Num> =>
+      vectorV(safeRIN(rawRayIntersectCircle(c, r, p, v), p)),
+    returns: valueT("Real2"),
+  },
+  rayIntersectNormalEllipse: {
+    name: "rayIntersectNormalEllipse",
+    params: [
+      { name: "c", type: real2T() },
+      { name: "rx", type: realT() },
+      { name: "ry", type: realT() },
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      c: ad.Num[],
+      rx: ad.Num,
+      ry: ad.Num,
+      p: ad.Num[],
+      v: ad.Num[]
+    ): VectorV<ad.Num> =>
+      vectorV(safeRIN(rawRayIntersectEllipse(c, rx, ry, p, v), p)),
+    returns: real2T(),
+  },
+  rayIntersectNormalLine: {
+    name: "rayIntersectNormalLine",
+    params: [
+      { name: "start", type: real2T() },
+      { name: "end", type: real2T() },
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      start: ad.Num[],
+      end: ad.Num[],
+      p: ad.Num[],
+      v: ad.Num[]
+    ): VectorV<ad.Num> =>
+      vectorV(safeRIN(rawRayIntersectLine(start, end, p, v), p)),
+    returns: real2T(),
+  },
+  rayIntersectNormalRect: {
+    name: "rayIntersectNormalRect",
+    params: [
+      {
+        name: "rect",
+        type: real2NT(),
+        description:
+          "The top-right, top-left, bottom-left, bottom-right points (in that order) of the rectangle",
+      },
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      rect: ad.Pt2[],
+      p: ad.Num[],
+      v: ad.Num[]
+    ): VectorV<ad.Num> => vectorV(safeRIN(rawRayIntersectRect(rect, p, v), p)),
+    returns: real2T(),
+  },
+  rayIntersectNormalPoly: {
+    name: "rayIntersectNormalPoly",
+    params: [
+      {
+        name: "pts",
+        type: real2NT(),
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+      },
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      pts: ad.Pt2[],
+      closed: boolean,
+      p: ad.Num[],
+      v: ad.Num[]
+    ): VectorV<ad.Num> =>
+      vectorV(safeRIN(rawRayIntersectPoly(pts, closed, p, v), p)),
+    returns: real2T(),
+  },
+  rayIntersectNormalGroup: {
+    name: "rayIntersectNormalGroup",
+    params: [
+      { name: "shapes", type: shapeListT() },
+
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      shapes: Shape<ad.Num>[],
+      p: ad.Num[],
+      v: ad.Num[]
+    ): VectorV<ad.Num> =>
+      vectorV(safeRIN(rawRayIntersectGroup(shapes, p, v), p)),
+    returns: real2T(),
+  },
+  //#endregion
+
+  //#region closest point style functions
   closestPoint: {
     name: "closestPoint",
     description:
@@ -2912,25 +3195,117 @@ export const compDict = {
         ),
         description: "A shape",
       },
-      { name: "p", type: real2T(), description: "A point" },
+      { name: "p", type: real2T(), description: "A vector" },
+    ],
+    body: (_context: Context, shape: Shape<ad.Num>, p: ad.Pt2) =>
+      vectorV(closestPoint(shape, p)),
+    returns: valueT("Real2"),
+  },
+  closestPointCircle: {
+    name: "closestPointCircle",
+    params: [
+      { name: "c", type: real2T(), description: "center of circle" },
+      { name: "r", type: realT(), description: "radius of circle" },
+      { name: "pt", type: real2T(), description: "the point" },
     ],
     body: (
       _context: Context,
-      s:
-        | Circle<ad.Num>
-        | Rectlike<ad.Num>
-        | Line<ad.Num>
-        | Polyline<ad.Num>
-        | Polygon<ad.Num>
-        | Ellipse<ad.Num>
-        | Group<ad.Num>,
-      p: ad.Num[]
-    ): VectorV<ad.Num> => {
-      return { tag: "VectorV", contents: closestPointShape(s, p) };
-    },
+      c: ad.Pt2,
+      r: ad.Num,
+      pt: ad.Pt2
+    ): VectorV<ad.Num> => vectorV(closestPointCircle(c, r, pt)),
     returns: valueT("Real2"),
   },
+  closestPointRect: {
+    name: "closestPointRect",
+    params: [
+      {
+        name: "rect",
+        type: real2NT(),
+        description:
+          "The top-right, top-left, bottom-left, bottom-right points (in that order) of the rectangle",
+      },
+      { name: "pt", type: real2T(), description: "the point" },
+    ],
+    body: (_context: Context, rect: ad.Pt2[], pt: ad.Pt2): VectorV<ad.Num> =>
+      vectorV(closestPointRect(rect, pt)),
+    returns: valueT("Real2"),
+  },
+  closestPointLine: {
+    name: "closestPointLine",
+    params: [
+      { name: "start", type: real2T(), description: "start point of line" },
+      { name: "end", type: real2T(), description: "end point of line" },
+      { name: "pt", type: real2T(), description: "the point" },
+    ],
+    body: (
+      _context: Context,
+      start: ad.Pt2,
+      end: ad.Pt2,
+      pt: ad.Pt2
+    ): VectorV<ad.Num> => vectorV(closestPointLine(start, end, pt)),
+    returns: valueT("Real2"),
+  },
+  closestPointEllipse: {
+    name: "closestPointEllipse",
+    params: [
+      { name: "c", type: real2T(), description: "center of ellipse" },
+      {
+        name: "rx",
+        type: realT(),
+        description: "horizontal radius of ellipse",
+      },
+      { name: "ry", type: realT(), description: "vertical radius of ellipse" },
+      { name: "pt", type: real2T(), description: "the point" },
+    ],
+    body: (
+      _context: Context,
+      c: ad.Pt2,
+      rx: ad.Num,
+      ry: ad.Num,
+      pt: ad.Pt2
+    ): VectorV<ad.Num> => vectorV(closestPointEllipse(c, rx, ry, pt)),
+    returns: valueT("Real2"),
+  },
+  closestPointPoly: {
+    name: "closestPointPoly",
+    params: [
+      { name: "pts", type: real2NT(), description: "points of the polygon" },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether or not the polygon is closed",
+      },
+      { name: "pt", type: real2T(), description: "the point" },
+    ],
+    body: (
+      _context: Context,
+      pts: ad.Pt2[],
+      closed: boolean,
+      pt: ad.Pt2
+    ): VectorV<ad.Num> => vectorV(closestPointPoly(pts, closed, pt)),
+    returns: valueT("Real2"),
+  },
+  closestPointGroup: {
+    name: "closestPointGroup",
+    params: [
+      {
+        name: "shapes",
+        type: shapeListT(),
+        description: "shapes of the group",
+      },
+      { name: "pt", type: real2T(), description: "the point" },
+    ],
+    body: (
+      _context: Context,
+      shapes: Shape<ad.Num>[],
+      pt: ad.Pt2
+    ): VectorV<ad.Num> => vectorV(closestPointGroup(shapes, pt)),
+    returns: real2T(),
+  },
+  //#endregion
 
+  //#region closest silhouette point style functions
   closestSilhouettePoint: {
     name: "closestSilhouettePoint",
     description:
@@ -2962,14 +3337,118 @@ export const compDict = {
         | Ellipse<ad.Num>
         | Group<ad.Num>,
       p: ad.Num[]
-    ): VectorV<ad.Num> => {
-      const q = closestSilhouettePointShape(s, p);
-      const qx = ifCond(eq(q[0], Infinity), p[0], q[0]);
-      const qy = ifCond(eq(q[1], Infinity), p[1], q[1]);
-      return { tag: "VectorV", contents: [qx, qy] };
-    },
+    ): VectorV<ad.Num> => vectorV(safeCSP(rawClosestSilhouettePoint(s, p), p)),
     returns: valueT("Real2"),
   },
+  closestSilhouettePointCircle: {
+    name: "closestSilhouettePointCircle",
+    params: [
+      { name: "c", type: real2T(), description: "center of circle" },
+      { name: "r", type: realT(), description: "radius of circle" },
+      { name: "p", type: real2T(), description: "A point" },
+    ],
+    body: (
+      _context: Context,
+      c: ad.Pt2,
+      r: ad.Num,
+      p: ad.Pt2
+    ): VectorV<ad.Num> =>
+      vectorV(safeCSP(rawClosestSilhouettePointCircle(c, r, p), p)),
+    returns: real2T(),
+  },
+  closestSilhouettePointEllipse: {
+    name: "closestSilhouettePointEllipse",
+    params: [
+      { name: "c", type: real2T() },
+      { name: "rx", type: realT() },
+      { name: "ry", type: realT() },
+      { name: "p", type: real2T(), description: "A point" },
+    ],
+    body: (
+      _context: Context,
+      c: ad.Pt2,
+      rx: ad.Num,
+      ry: ad.Num,
+      p: ad.Pt2
+    ): VectorV<ad.Num> =>
+      vectorV(safeCSP(closestPointEllipse(c, rx, ry, p), p)),
+    returns: real2T(),
+  },
+  closestSilhouettePointLine: {
+    name: "closestSilhouettePointLine",
+    params: [
+      { name: "start", type: real2T() },
+      { name: "end", type: real2T() },
+      { name: "p", type: real2T(), description: "A point" },
+    ],
+    body: (
+      _context: Context,
+      start: ad.Pt2,
+      end: ad.Pt2,
+      p: ad.Pt2
+    ): VectorV<ad.Num> =>
+      vectorV(safeCSP(rawClosestSilhouettePointLine(start, end, p), p)),
+    returns: real2T(),
+  },
+  closestSilhouettePointRect: {
+    name: "closestSilhouettePointRect",
+    params: [
+      {
+        name: "rect",
+        type: real2NT(),
+        description:
+          "The top-right, top-left, bottom-left, bottom-right points (in that order) of the rectangle",
+      },
+      { name: "p", type: real2T(), description: "A point" },
+    ],
+    body: (_context: Context, rect: ad.Pt2[], p: ad.Pt2): VectorV<ad.Num> =>
+      vectorV(safeCSP(rawClosestSilhouettePointRect(rect, p), p)),
+    returns: real2T(),
+  },
+  closestSilhouettePointPolyline: {
+    name: "closestSilhouettePointPolyline",
+    params: [
+      {
+        name: "points",
+        type: real2NT(),
+      },
+      { name: "p", type: real2T(), description: "A point" },
+    ],
+    body: (_context: Context, points: ad.Pt2[], p: ad.Pt2): VectorV<ad.Num> =>
+      vectorV(safeCSP(rawClosestSilhouettePointPolyline(points, p), p)),
+    returns: real2T(),
+  },
+  closestSilhouettePointPolygon: {
+    name: "closestSilhouettePointPolygon",
+    params: [
+      {
+        name: "points",
+        type: real2NT(),
+      },
+      { name: "p", type: real2T(), description: "A point" },
+    ],
+    body: (_context: Context, points: ad.Pt2[], p: ad.Pt2): VectorV<ad.Num> =>
+      vectorV(safeCSP(rawClosestSilhouettePointPolygon(points, p), p)),
+    returns: real2T(),
+  },
+  closestSilhouettePointGroup: {
+    name: "closestSilhouettePointGroup",
+    params: [
+      {
+        name: "shapes",
+        type: shapeListT(),
+      },
+      { name: "p", type: real2T(), description: "A point" },
+    ],
+    body: (
+      _context: Context,
+      shapes: Shape<ad.Num>[],
+      p: ad.Pt2
+    ): VectorV<ad.Num> =>
+      vectorV(safeCSP(rawClosestSilhouettePointGroup(shapes, p), p)),
+    returns: real2T(),
+  },
+  //#endregion
 
   closestSilhouetteDistance: {
     name: "closestSilhouetteDistance",
@@ -3041,6 +3520,7 @@ export const compDict = {
     returns: valueT("Real"),
   },
 
+  //#region shape distance style functions
   shapeDistance: {
     name: "shapeDistance",
     description: "Return the distance between two shapes.",
@@ -3055,6 +3535,176 @@ export const compDict = {
     ): FloatV<ad.Num> => floatV(shapeDistance(s1, s2)),
     returns: valueT("Real"),
   },
+  shapeDistanceCircles: {
+    name: "shapeDistanceCircles",
+    description: "Return the distance between two circles.",
+    params: [
+      { name: "c1", type: real2T(), description: "center of first circle" },
+      { name: "r1", type: realT(), description: "radius of first circle" },
+      { name: "c2", type: real2T(), description: "center of second circle" },
+      { name: "r2", type: realT(), description: "radius of second circle" },
+    ],
+    body: (
+      _context: Context,
+      c1: ad.Pt2,
+      r1: ad.Num,
+      c2: ad.Pt2,
+      r2: ad.Num
+    ): FloatV<ad.Num> => floatV(shapeDistanceCircles(c1, r1, c2, r2)),
+    returns: realT(),
+  },
+  shapeDistanceRects: {
+    name: "shapeDistanceRects",
+    description: "Return the distance between two rectangles.",
+    params: [
+      {
+        name: "rect1",
+        type: real2NT(),
+        description:
+          "The top-right, top-left, bottom-left, bottom-right points (in that order) of the first rectangle.",
+      },
+      {
+        name: "rect2",
+        type: real2NT(),
+        description:
+          "The top-right, top-left, bottom-left, bottom-right points (in that order) of the second rectangle.",
+      },
+    ],
+    body: (
+      _context: Context,
+      rect1: ad.Pt2[],
+      rect2: ad.Pt2[]
+    ): FloatV<ad.Num> => floatV(shapeDistanceRects(rect1, rect2)),
+    returns: realT(),
+  },
+  shapeDistanceRectLine: {
+    name: "shapeDistanceRectLine",
+    description: "Returns the distance between a rectangle and a line.",
+    params: [
+      {
+        name: "rect",
+        type: real2NT(),
+        description:
+          "The top-right, top-left, bottom-left, bottom-right points (in that order) of the rectangle.",
+      },
+      {
+        name: "start",
+        type: real2T(),
+        description: "The start point of the line",
+      },
+      { name: "end", type: real2T(), description: "The end point of the line" },
+    ],
+    body: (
+      _context: Context,
+      rect: ad.Pt2[],
+      start: ad.Pt2,
+      end: ad.Pt2
+    ): FloatV<ad.Num> => floatV(shapeDistanceRectLine(rect, start, end)),
+    returns: realT(),
+  },
+  shapeDistancePolys: {
+    name: "shapeDistancePolys",
+    description: "Returns the distance between two polygons.",
+    params: [
+      {
+        name: "pts1",
+        type: real2NT(),
+        description: "The list of points for the first polygon",
+      },
+      {
+        name: "pts2",
+        type: real2NT(),
+        description: "The list of points for the second polygon",
+      },
+    ],
+    body: (_context: Context, pts1: ad.Pt2[], pts2: ad.Pt2[]): FloatV<ad.Num> =>
+      floatV(shapeDistancePolys(pts1, pts2)),
+    returns: realT(),
+  },
+  shapeDistanceRectCircle: {
+    name: "shapeDistanceRectCircle",
+    description: "Returns the distance between a rectangle and a circle.",
+    params: [
+      {
+        name: "rect",
+        type: real2NT(),
+        description:
+          "The top-right, top-left, bottom-left, bottom-right points (in that order) of the rectangle.",
+      },
+      { name: "c", type: real2T(), description: "center of the circle" },
+      { name: "r", type: realT(), description: "radius of the circle" },
+    ],
+    body: (
+      _context: Context,
+      rect: ad.Pt2[],
+      c: ad.Pt2,
+      r: ad.Num
+    ): FloatV<ad.Num> => floatV(shapeDistanceRectCircle(rect, c, r)),
+    returns: realT(),
+  },
+  shapeDistancePolyEllipse: {
+    name: "shapeDistancePolyEllipse",
+    description: "Returns the distance between a polygon and an ellipse.",
+    params: [
+      {
+        name: "pts",
+        type: real2NT(),
+        description: "The list of points for the polygon",
+      },
+      { name: "c", type: real2T(), description: "center of the ellipse" },
+      {
+        name: "rx",
+        type: realT(),
+        description: "horizontal radius of ellipse",
+      },
+      { name: "ry", type: realT(), description: "vertical radius of ellipse" },
+    ],
+    body: (
+      _context: Context,
+      pts: ad.Pt2[],
+      c: ad.Pt2,
+      rx: ad.Num,
+      ry: ad.Num
+    ): FloatV<ad.Num> => floatV(shapeDistancePolyEllipse(pts, c, rx, ry)),
+    returns: realT(),
+  },
+  shapeDistanceCircleLine: {
+    name: "shapeDistanceCircleLine",
+    description: "Returns the distance between a circle and a line.",
+    params: [
+      { name: "c", type: real2T(), description: "center of the circle" },
+      { name: "r", type: realT(), description: "radius of the circle" },
+      { name: "start", type: real2T(), description: "start point of line" },
+      { name: "end", type: real2T(), description: "end point of line" },
+    ],
+    body: (
+      _context: Context,
+      c: ad.Pt2,
+      r: ad.Num,
+      start: ad.Pt2,
+      end: ad.Pt2
+    ): FloatV<ad.Num> => floatV(shapeDistanceCircleLine(c, r, start, end)),
+    returns: realT(),
+  },
+  shapeDistanceLines: {
+    name: "shapeDistanceLines",
+    description: "Returns the distance between two lines.",
+    params: [
+      { name: "start1", type: real2T(), description: "start point of line" },
+      { name: "end1", type: real2T(), description: "end point of line" },
+      { name: "start2", type: real2T(), description: "start point of line" },
+      { name: "end2", type: real2T(), description: "end point of line" },
+    ],
+    body: (
+      _context: Context,
+      start1: ad.Pt2,
+      end1: ad.Pt2,
+      start2: ad.Pt2,
+      end2: ad.Pt2
+    ) => floatV(shapeDistanceLines(start1, end1, start2, end2)),
+    returns: realT(),
+  },
+  //#endregion
 
   /**
    * Returns the signed area enclosed by a polygonal chain given its nodes
@@ -3409,11 +4059,29 @@ export const compDict = {
   bboxPts: {
     name: "bboxPts",
     description:
-      "Return the top-right, top-left, bottom-left, bottom-right points (in that order) of the axis-aligned bounding box of the shape",
-    params: [{ name: "shape", type: shapeT("AnyShape") }],
-    body: (_context: Context, shape: Shape<ad.Num>): PtListV<ad.Num> =>
-      ptListV(bboxPts(shape)),
+      "Returns the top-left, top-right, bottom-right, bottom-left points (in that order) of the axis-aligned bounding box of a shape",
+    params: [{ name: "s", type: shapeT("AnyShape"), description: "a shape" }],
+    body: (_context: Context, s: Shape<ad.Num>): PtListV<ad.Num> => {
+      return { tag: "PtListV", contents: bboxPts(bboxFromShape(s)) };
+    },
     returns: valueT("Real2N"),
+  },
+  rectPts: {
+    name: "rectPts",
+    description:
+      "Returns the top-left, top-right, bottom-right, bottom-left points of a rect-like shape. This takes into account rotation.",
+    params: [{ name: "s", type: rectlikeT() }],
+    body: (_context: Context, s: Rectlike<ad.Num>): PtListV<ad.Num> => {
+      return ptListV(
+        rectPts(
+          s.center.contents,
+          s.width.contents,
+          s.height.contents,
+          s.rotation.contents
+        )
+      );
+    },
+    returns: real2NT(),
   },
 };
 
@@ -3422,55 +4090,129 @@ export const compDict = {
 const _compDictVals: CompFunc[] = Object.values(compDict);
 
 /*
-  Computes the signed distance for a line 
-  float sdSegment( in vec2 p, in vec2 a, in vec2 b )
-  {
-    vec2 pa = p-a, ba = b-a;
-    float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
-    return length( pa - ba*h );
-  }
-*/
-const sdLine = (s: Line<ad.Num>, p: ad.Num[]): ad.Num => {
-  return sdLineAsNums(s.start.contents, s.end.contents, p);
-};
-
-const sdLineAsNums = (a: ad.Num[], b: ad.Num[], p: ad.Num[]): ad.Num => {
-  const pa = ops.vsub(p, a);
-  const ba = ops.vsub(b, a);
-  const h = clamp([0, 1], div(ops.vdot(pa, ba), ops.vdot(ba, ba)));
-  return ops.vnorm(ops.vsub(pa, ops.vmul(h, ba)));
-};
-
-const sdPolyline = (s: Polyline<ad.Num>, p: ad.Num[]): ad.Num => {
-  const dists: ad.Num[] = [];
-  for (let i = 0; i < s.points.contents.length - 1; i++) {
-    const start = s.points.contents[i];
-    const end = s.points.contents[i + 1];
-    dists[i] = sdLineAsNums(start, end, p);
-  }
-  return minN(dists);
-};
-
-export const sdEllipse = (s: Ellipse<ad.Num>, p: ad.Num[]): ad.Num => {
-  return sdEllipseAsNums(s.rx.contents, s.ry.contents, s.center.contents, p);
-};
-
-/*
   float msign(in float x) { return (x<0.0)?-1.0:1.0; }
 */
 export const msign = (x: ad.Num): ad.Num => {
   return ifCond(lt(x, 0), -1, 1);
 };
 
-/*
-  Ported code is here: https://www.shadertoy.com/view/4sS3zz
-*/
-export const sdEllipseAsNums = (
+//#region Signed Distance Functions
+
+const signedDistance = (s: Shape<ad.Num>, p: ad.Pt2): ad.Num => {
+  if (isRectlike(s)) {
+    return signedDistanceRect(bboxPts(bboxFromShape(s)), p);
+  } else if (s.shapeType === "Circle") {
+    return signedDistanceCircle(toPt(s.center.contents), s.r.contents, p);
+  } else if (s.shapeType === "Polygon") {
+    return signedDistancePolygon(polygonLikePoints(s), p);
+  } else if (s.shapeType === "Line") {
+    return signedDistanceLine(toPt(s.start.contents), toPt(s.end.contents), p);
+  } else if (s.shapeType === "Polyline") {
+    return signedDistancePolyline(polygonLikePoints(s), p);
+  } else if (s.shapeType === "Group") {
+    return signedDistanceGroup(s.shapes.contents, p);
+  } else {
+    throw new Error(
+      `Shape type ${s.shapeType} is not supported by signedDistance`
+    );
+  }
+};
+
+// All math borrowed from:
+// https://iquilezles.org/articles/distfunctions2d/
+
+export const signedDistanceRect = (rect: ad.Pt2[], pt: ad.Pt2): ad.Num => {
+  /*  
+    
+    axis-aligned rectangle:
+    float sdBox( in vec2 p, in vec2 b )
+    {
+      vec2 d = abs(p)-b;
+      return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
+    } 
+    */
+  if (rect.length !== 4) {
+    throw new Error("Expects rect to have four points");
+  }
+  const [tr, tl, bl] = rect;
+  const center = ops.vmul(0.5, ops.vadd(tr, bl));
+  const width = sub(tr[0], tl[0]);
+  const height = sub(tl[1], bl[1]);
+
+  const absp = ops.vabs(ops.vsub(pt, center));
+  const b = [div(width, 2), div(height, 2)];
+  const d = ops.vsub(absp, b);
+  return add(ops.vnorm(ops.vmax(d, [0.0, 0.0])), min(max(d[0], d[1]), 0.0));
+};
+
+export const signedDistanceCircle = (
+  c: ad.Pt2,
+  r: ad.Num,
+  pt: ad.Pt2
+): ad.Num => {
+  /*     
+      float sdCircle( vec2 p, float r )
+      {
+        return length(p) - r;
+      } 
+  */
+  const pOffset = ops.vsub(pt, c);
+  return sub(ops.vnorm(pOffset), r);
+};
+
+export const signedDistancePolygon = (pts: ad.Pt2[], pt: ad.Pt2): ad.Num => {
+  /*
+      float sdPolygon( in vec2[N] v, in vec2 p )
+      {
+          float d = dot(p-v[0],p-v[0]);
+          float s = 1.0;
+          for( int i=0, j=N-1; i<N; j=i, i++ )
+          {
+              vec2 e = v[j] - v[i];
+              vec2 w =    p - v[i];
+              vec2 b = w - e*clamp( dot(w,e)/dot(e,e), 0.0, 1.0 );
+              d = min( d, dot(b,b) );
+              bvec3 c = bvec3(p.y>=v[i].y,p.y<v[j].y,e.x*w.y>e.y*w.x);
+              if( all(c) || all(not(c)) ) s*=-1.0;  
+          }
+          return s*sqrt(d);
+      }
+  */
+  const v = pts;
+  let d = ops.vdot(ops.vsub(pt, v[0]), ops.vsub(pt, v[0]));
+  let ess: ad.Num = 1.0;
+  let j = v.length - 1;
+  for (let i = 0; i < v.length; i++) {
+    const e = ops.vsub(v[j], v[i]);
+    const w = ops.vsub(pt, v[i]);
+    const clampedVal = clamp([0, 1], div(ops.vdot(w, e), ops.vdot(e, e)));
+    const b = ops.vsub(w, ops.vmul(clampedVal, e));
+    d = min(d, ops.vdot(b, b));
+    const c1 = gte(pt[1], v[i][1]);
+    const c2 = lt(pt[1], v[j][1]);
+    const c3 = gt(mul(e[0], w[1]), mul(e[1], w[0]));
+    const c4 = and(and(c1, c2), c3);
+    const c5 = not(c1);
+    const c6 = not(c2);
+    const c7 = not(c3);
+    const c8 = and(and(c5, c6), c7);
+    const negEss = mul(-1, ess);
+    ess = ifCond(or(c4, c8), negEss, ess);
+    // last line to match for loop in code we are borrowing from
+    j = i;
+  }
+  return mul(ess, sqrt(d));
+};
+
+export const signedDistanceEllipse = (
+  center: ad.Pt2,
   radiusx: ad.Num,
   radiusy: ad.Num,
-  center: ad.Num[],
-  pInput: ad.Num[]
-): ad.Num => {
+  pInput: ad.Pt2
+) => {
+  /*
+    Ported code is here: https://www.shadertoy.com/view/4sS3zz
+  */
   // if = abs( p );
   // if( p.x>p.y ){ p=p.yx; ab=ab.yx; }
   const pOffset = ops.vsub(pInput, center);
@@ -3564,7 +4306,77 @@ export const sdEllipseAsNums = (
   return mul(ops.vnorm(ops.vsub(r, p)), msign(sub(p[1], r[1])));
 };
 
-const rayIntersectShape = (
+export const signedDistanceLine = (
+  start: ad.Pt2,
+  end: ad.Pt2,
+  pt: ad.Pt2
+): ad.Num => {
+  /*
+  Computes the signed distance for a line 
+    float sdSegment( in vec2 p, in vec2 a, in vec2 b )
+    {
+      vec2 pa = p-a, ba = b-a;
+      float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
+      return length( pa - ba*h );
+    }
+  */
+  const pa = ops.vsub(pt, start);
+  const ba = ops.vsub(end, start);
+  const h = clamp([0, 1], div(ops.vdot(pa, ba), ops.vdot(ba, ba)));
+  return ops.vnorm(ops.vsub(pa, ops.vmul(h, ba)));
+};
+
+export const signedDistancePolyline = (pts: ad.Pt2[], pt: ad.Pt2): ad.Num => {
+  const dists: ad.Num[] = [];
+  for (let i = 0; i < pts.length - 1; i++) {
+    const start = pts[i];
+    const end = pts[i + 1];
+    dists[i] = signedDistanceLine(start, end, pt);
+  }
+  return minN(dists);
+};
+
+export const signedDistanceGroup = (
+  ss: Shape<ad.Num>[],
+  pt: ad.Pt2
+): ad.Num => {
+  const dists = ss.map((s) => signedDistance(s, pt));
+  return minN(dists);
+};
+
+//#endregion
+
+//#region Ray intersection
+// `raw` functions may return `Infinity` when ray intersection does not exist.
+// `safe` functions return `p` if `Infinity` is detected.
+
+// safe ray intersection
+export const safeRI = (hit: ad.Num[][], p: ad.Num[]): ad.Num[] => {
+  const x = hit[0];
+  const x0 = ifCond(eq(absVal(x[0]), Infinity), p[0], x[0]);
+  const x1 = ifCond(eq(absVal(x[1]), Infinity), p[1], x[1]);
+  return [x0, x1];
+};
+
+// safe ray intersection normal
+export const safeRIN = (hit: ad.Num[][], p: ad.Num[]): ad.Num[] => {
+  const x = hit[0];
+  const n = hit[1];
+  const s = ops.vdot(n, ops.vsub(p, x));
+  const n0 = ifCond(
+    eq(absVal(x[0]), Infinity),
+    0.0,
+    ifCond(lt(s, 0), neg(n[0]), n[0])
+  );
+  const n1 = ifCond(
+    eq(absVal(x[1]), Infinity),
+    0.0,
+    ifCond(lt(s, 0), neg(n[1]), n[1])
+  );
+  return [n0, n1];
+};
+
+export const rawRayIntersect = (
   s:
     | Circle<ad.Num>
     | Rectlike<ad.Num>
@@ -3579,72 +4391,66 @@ const rayIntersectShape = (
 ): ad.Num[][] => {
   const t = s.shapeType;
   if (t === "Circle") {
-    return rayIntersectCircle(s, p, v);
+    return rawRayIntersectCircle(s.center.contents, s.r.contents, p, v);
   } else if (
     t === "Rectangle" ||
     t === "Text" ||
     t === "Equation" ||
     t === "Image"
   ) {
-    return rayIntersectRect(s, p, v);
+    const c = s.center.contents;
+    const w = s.width.contents;
+    const h = s.height.contents;
+    const x0 = sub(c[0], div(w, 2));
+    const x1 = add(c[0], div(w, 2));
+    const y0 = sub(c[1], div(h, 2));
+    const y1 = add(c[1], div(h, 2));
+    return rawRayIntersectRectHelper(x0, x1, y0, y1, p, v);
   } else if (t === "Line") {
-    return rayIntersectLine(s, p, v);
+    return rawRayIntersectLine(s.start.contents, s.end.contents, p, v);
   } else if (t === "Polyline") {
-    return rayIntersectPolyline(s, p, v);
+    return rawRayIntersectPoly(s.points.contents, false, p, v);
   } else if (t === "Polygon") {
-    return rayIntersectPolygon(s, p, v);
+    return rawRayIntersectPoly(s.points.contents, true, p, v);
   } else if (t === "Ellipse") {
-    return rayIntersectEllipse(s, p, v);
+    return rawRayIntersectEllipse(
+      s.center.contents,
+      s.rx.contents,
+      s.ry.contents,
+      p,
+      v
+    );
   } else if (t === "Path") {
     throw new Error("Ray intersection not handled for Path");
   } else {
-    // t === "Group"
-    const firstHits = s.shapes.contents.map((shape) =>
-      rayIntersectShape(shape, p, v)
-    );
-    const dist = firstHits.map((hit) => ops.vdist(hit[0], p));
-    let hitX: ad.Num = Infinity;
-    let hitY: ad.Num = Infinity;
-    let nrmX: ad.Num = Infinity;
-    let nrmY: ad.Num = Infinity;
-    let firstDist: ad.Num = Infinity;
-    for (let i = 0; i < s.shapes.contents.length; i++) {
-      firstDist = ifCond(lt(firstDist, dist[i]), firstDist, dist[i]);
-      hitX = ifCond(eq(firstDist, dist[i]), firstHits[i][0][0], hitX);
-      hitY = ifCond(eq(firstDist, dist[i]), firstHits[i][0][1], hitY);
-      nrmX = ifCond(eq(firstDist, dist[i]), firstHits[i][1][0], nrmX);
-      nrmY = ifCond(eq(firstDist, dist[i]), firstHits[i][1][1], nrmY);
-    }
-    return [
-      [hitX, hitY],
-      [nrmX, nrmY],
-    ];
+    return rawRayIntersectGroup(s.shapes.contents, p, v);
   }
 };
 
-const rayIntersectCircle = (
-  s: Circle<ad.Num>,
+export const rawRayIntersectCircle = (
+  c: ad.Num[],
+  r: ad.Num,
   p: ad.Num[],
   v: ad.Num[]
 ): ad.Num[][] => {
-  const c = s.center.contents;
-  const r = s.r.contents;
-  return rayIntersectCircleCoords(p, v, c, r);
+  return rawRayIntersectCircleCoords(p, v, c, r);
 };
 
-const rayIntersectEllipse = (
-  s: Ellipse<ad.Num>,
+export const rawRayIntersectEllipse = (
+  center: ad.Num[],
+  rx: ad.Num,
+  ry: ad.Num,
   p0: ad.Num[],
   v0: ad.Num[]
 ): ad.Num[][] => {
   // map ray data to coordinate system for unit circle
-  const r = [s.rx.contents, s.ry.contents];
-  const c0 = s.center.contents;
+  const r = [rx, ry];
+  const c0 = center;
   const p = ops.ewvvdiv(p0, r);
   const v = ops.ewvvdiv(v0, r);
   const c = ops.ewvvdiv(c0, r);
 
-  const hit = rayIntersectCircleCoords(p, v, c, 1);
+  const hit = rawRayIntersectCircleCoords(p, v, c, 1);
 
   // map hit point and normal back to ellipse coordinate system
   const x = ops.ewvvmul(hit[0], r);
@@ -3656,7 +4462,7 @@ const rayIntersectEllipse = (
   return [x, n];
 };
 
-const rayIntersectCircleCoords = (
+const rawRayIntersectCircleCoords = (
   p: ad.Num[],
   v: ad.Num[],
   c: ad.Num[],
@@ -3675,27 +4481,35 @@ const rayIntersectCircleCoords = (
   return [x, n];
 };
 
-const rayIntersectLine = (
-  S: Line<ad.Num>,
+export const rawRayIntersectLine = (
+  start: ad.Num[],
+  end: ad.Num[],
   p: ad.Num[],
   v: ad.Num[]
 ): ad.Num[][] => {
-  return rayIntersectLineCoords(p, v, S.start.contents, S.end.contents);
+  return rawRayIntersectLineCoords(p, v, start, end);
 };
 
-const rayIntersectRect = (
-  S: Rectlike<ad.Num>,
+export const rawRayIntersectRect = (
+  [tr, tl, bl, br]: ad.Num[][],
   p: ad.Num[],
   v: ad.Num[]
 ): ad.Num[][] => {
-  const c = S.center.contents;
-  const w = S.width.contents;
-  const h = S.height.contents;
-  const x0 = sub(c[0], div(w, 2));
-  const x1 = add(c[0], div(w, 2));
-  const y0 = sub(c[1], div(h, 2));
-  const y1 = add(c[1], div(h, 2));
+  const x0 = tl[0],
+    x1 = tr[0];
+  const y0 = bl[1],
+    y1 = tl[1];
+  return rawRayIntersectRectHelper(x0, x1, y0, y1, p, v);
+};
 
+const rawRayIntersectRectHelper = (
+  x0: ad.Num,
+  x1: ad.Num,
+  y0: ad.Num,
+  y1: ad.Num,
+  p: ad.Num[],
+  v: ad.Num[]
+) => {
   const points = [
     [x0, y0],
     [x1, y0],
@@ -3708,7 +4522,7 @@ const rayIntersectRect = (
   for (let i = 0; i < 4; i++) {
     const a = points[i];
     const b = points[i + 1];
-    firstHits[i] = rayIntersectLineCoords(p, v, a, b);
+    firstHits[i] = rawRayIntersectLineCoords(p, v, a, b);
     dist[i] = ops.vdist(p, firstHits[i][0]);
   }
 
@@ -3730,17 +4544,20 @@ const rayIntersectRect = (
   ];
 };
 
-const rayIntersectPolyline = (
-  s: Polyline<ad.Num>,
+export const rawRayIntersectPoly = (
+  points: ad.Num[][],
+  closed: boolean,
   p: ad.Num[],
   v: ad.Num[]
 ): ad.Num[][] => {
+  const pts = closed ? [...points, points[0]] : points;
+
   const firstHits: ad.Num[][][] = [];
   const dist: ad.Num[] = [];
-  for (let i = 0; i < s.points.contents.length - 1; i++) {
-    const a = s.points.contents[i];
-    const b = s.points.contents[i + 1];
-    firstHits[i] = rayIntersectLineCoords(p, v, a, b);
+  for (let i = 0; i < pts.length - 1; i++) {
+    const a = pts[i];
+    const b = pts[i + 1];
+    firstHits[i] = rawRayIntersectLineCoords(p, v, a, b);
     dist[i] = ops.vdist(p, firstHits[i][0]);
   }
   let firstDist: ad.Num = Infinity;
@@ -3748,7 +4565,7 @@ const rayIntersectPolyline = (
   let hitY: ad.Num = Infinity;
   let nrmX: ad.Num = 0;
   let nrmY: ad.Num = 0;
-  for (let i = 0; i < s.points.contents.length - 1; i++) {
+  for (let i = 0; i < pts.length - 1; i++) {
     firstDist = ifCond(lt(firstDist, dist[i]), firstDist, dist[i]);
     hitX = ifCond(eq(firstDist, dist[i]), firstHits[i][0][0], hitX);
     hitY = ifCond(eq(firstDist, dist[i]), firstHits[i][0][1], hitY);
@@ -3761,45 +4578,7 @@ const rayIntersectPolyline = (
   ];
 };
 
-const rayIntersectPolygon = (
-  s: Polygon<ad.Num>,
-  p: ad.Num[],
-  v: ad.Num[]
-): ad.Num[][] => {
-  const firstHits: ad.Num[][][] = [];
-  const dist: ad.Num[] = [];
-  let i = 0;
-  for (; i < s.points.contents.length - 1; i++) {
-    const a = s.points.contents[i];
-    const b = s.points.contents[i + 1];
-    firstHits[i] = rayIntersectLineCoords(p, v, a, b);
-    dist[i] = ops.vdist(p, firstHits[i][0]);
-  }
-
-  const a = s.points.contents[i];
-  const b = s.points.contents[0];
-  firstHits[i] = rayIntersectLineCoords(p, v, a, b);
-  dist[i] = ops.vdist(p, firstHits[i][0]);
-
-  let firstDist: ad.Num = Infinity;
-  let hitX: ad.Num = Infinity;
-  let hitY: ad.Num = Infinity;
-  let nrmX: ad.Num = 0;
-  let nrmY: ad.Num = 0;
-  for (let i = 0; i < s.points.contents.length; i++) {
-    firstDist = ifCond(lt(firstDist, dist[i]), firstDist, dist[i]);
-    hitX = ifCond(eq(firstDist, dist[i]), firstHits[i][0][0], hitX);
-    hitY = ifCond(eq(firstDist, dist[i]), firstHits[i][0][1], hitY);
-    nrmX = ifCond(eq(firstDist, dist[i]), firstHits[i][1][0], nrmX);
-    nrmY = ifCond(eq(firstDist, dist[i]), firstHits[i][1][1], nrmY);
-  }
-  return [
-    [hitX, hitY],
-    [nrmX, nrmY],
-  ];
-};
-
-const rayIntersectLineCoords = (
+const rawRayIntersectLineCoords = (
   p: ad.Num[],
   v: ad.Num[],
   a: ad.Num[],
@@ -3835,7 +4614,36 @@ const rayIntersectLineCoords = (
   return [x, [nX, nY]];
 };
 
-const closestPointShape = (
+export const rawRayIntersectGroup = (
+  shapes: Shape<ad.Num>[],
+  p: ad.Num[],
+  v: ad.Num[]
+): ad.Num[][] => {
+  // t === "Group"
+  const firstHits = shapes.map((shape) => rawRayIntersect(shape, p, v));
+  const dist = firstHits.map((hit) => ops.vdist(hit[0], p));
+  let hitX: ad.Num = Infinity;
+  let hitY: ad.Num = Infinity;
+  let nrmX: ad.Num = Infinity;
+  let nrmY: ad.Num = Infinity;
+  let firstDist: ad.Num = Infinity;
+  for (let i = 0; i < shapes.length; i++) {
+    firstDist = ifCond(lt(firstDist, dist[i]), firstDist, dist[i]);
+    hitX = ifCond(eq(firstDist, dist[i]), firstHits[i][0][0], hitX);
+    hitY = ifCond(eq(firstDist, dist[i]), firstHits[i][0][1], hitY);
+    nrmX = ifCond(eq(firstDist, dist[i]), firstHits[i][1][0], nrmX);
+    nrmY = ifCond(eq(firstDist, dist[i]), firstHits[i][1][1], nrmY);
+  }
+  return [
+    [hitX, hitY],
+    [nrmX, nrmY],
+  ];
+};
+//#endregion
+
+//#region closest point
+
+export const closestPoint = (
   s:
     | Circle<ad.Num>
     | Rectlike<ad.Num>
@@ -3849,73 +4657,80 @@ const closestPointShape = (
 ): ad.Num[] => {
   const t = s.shapeType;
   if (t === "Circle") {
-    return closestPointCircle(s, p);
+    return closestPointCircle(s.center.contents, s.r.contents, p);
   } else if (
     t === "Rectangle" ||
     t === "Text" ||
     t === "Equation" ||
     t === "Image"
   ) {
-    return closestPointRect(s, p);
+    return closestPointRect(bboxPts(bboxFromRectlike(s)), p);
   } else if (t === "Line") {
-    return closestPointLine(s, p);
+    return closestPointLine(s.start.contents, s.end.contents, p);
   } else if (t === "Polyline") {
-    return closestPointPolyline(s, p);
+    return closestPointPoly(s.points.contents, false, p);
   } else if (t === "Polygon") {
-    return closestPointPolygon(s, p);
+    return closestPointPoly(s.points.contents, true, p);
   } else if (t === "Ellipse") {
-    return closestPointEllipse(s, p);
+    return closestPointEllipse(
+      s.center.contents,
+      s.rx.contents,
+      s.ry.contents,
+      p
+    );
   } else if (t === "Path") {
     throw new Error("Closest point queries not handled for Path");
   } else {
     // t === "Group"
-    const closestPoints = s.shapes.contents.map((shape) =>
-      closestPointShape(shape, p)
-    );
-    const dist = closestPoints.map((point) => ops.vdist(point, p));
-    let closestX: ad.Num = Infinity;
-    let closestY: ad.Num = Infinity;
-    let minDist: ad.Num = Infinity;
-    for (let i = 0; i < s.shapes.contents.length; i++) {
-      minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
-      closestX = ifCond(eq(minDist, dist[i]), closestPoints[i][0], closestX);
-      closestY = ifCond(eq(minDist, dist[i]), closestPoints[i][1], closestY);
-    }
-    return [closestX, closestY];
+    return closestPointGroup(s.shapes.contents, p);
   }
 };
 
-const closestPointCircle = (s: Circle<ad.Num>, p: ad.Num[]): ad.Num[] => {
+export const closestPointCircle = (
+  c: ad.Num[],
+  r: ad.Num,
+  p: ad.Num[]
+): ad.Num[] => {
   /**
    * Implementing formula
    * V = P - C
    * return C + (V/|V|)*r
    */
-  const pOffset = ops.vsub(p, s.center.contents);
+  const pOffset = ops.vsub(p, c);
   const normOffset = ops.vnorm(pOffset);
   const unitVector = ops.vdiv(pOffset, normOffset);
-  const pOnCircumferenceOffset = ops.vmul(s.r.contents, unitVector);
-  const pOnCircumference = ops.vadd(s.center.contents, pOnCircumferenceOffset);
+  const pOnCircumferenceOffset = ops.vmul(r, unitVector);
+  const pOnCircumference = ops.vadd(c, pOnCircumferenceOffset);
   return pOnCircumference;
 };
 
-const closestPointLine = (s: Line<ad.Num>, p: ad.Num[]): ad.Num[] => {
-  return closestPointLineCoords(p, s.start.contents, s.end.contents);
+export const closestPointLine = (
+  start: ad.Num[],
+  end: ad.Num[],
+  p: ad.Num[]
+): ad.Num[] => {
+  return closestPointLineCoords(p, start, end);
 };
 
-const closestPointPolyline = (s: Polyline<ad.Num>, p: ad.Num[]): ad.Num[] => {
+export const closestPointPoly = (
+  points: ad.Num[][],
+  closed: boolean,
+  p: ad.Num[]
+): ad.Num[] => {
+  const allPts = closed ? [...points, points[0]] : points;
+
   const closestPoints: ad.Num[][] = [];
   const dist: ad.Num[] = [];
-  for (let i = 0; i < s.points.contents.length - 1; i++) {
-    const a = s.points.contents[i];
-    const b = s.points.contents[i + 1];
+  for (let i = 0; i < allPts.length - 1; i++) {
+    const a = allPts[i];
+    const b = allPts[i + 1];
     closestPoints[i] = closestPointLineCoords(p, a, b);
     dist[i] = ops.vdist(p, closestPoints[i]);
   }
   let closestX: ad.Num = Infinity;
   let closestY: ad.Num = Infinity;
   let minDist: ad.Num = Infinity;
-  for (let i = 0; i < s.points.contents.length - 1; i++) {
+  for (let i = 0; i < allPts.length - 1; i++) {
     minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
     closestX = ifCond(eq(minDist, dist[i]), closestPoints[i][0], closestX);
     closestY = ifCond(eq(minDist, dist[i]), closestPoints[i][1], closestY);
@@ -3923,40 +4738,17 @@ const closestPointPolyline = (s: Polyline<ad.Num>, p: ad.Num[]): ad.Num[] => {
   return [closestX, closestY];
 };
 
-const closestPointPolygon = (s: Polygon<ad.Num>, p: ad.Num[]): ad.Num[] => {
-  const closestPoints: ad.Num[][] = [];
-  const dist: ad.Num[] = [];
-  let i = 0;
-  for (; i < s.points.contents.length - 1; i++) {
-    const a = s.points.contents[i];
-    const b = s.points.contents[i + 1];
-    closestPoints[i] = closestPointLineCoords(p, a, b);
-    dist[i] = ops.vdist(p, closestPoints[i]);
-  }
-  const a = s.points.contents[i];
-  const b = s.points.contents[0];
-  closestPoints[i] = closestPointLineCoords(p, a, b);
-  dist[i] = ops.vdist(p, closestPoints[i]);
-  let closestX: ad.Num = Infinity;
-  let closestY: ad.Num = Infinity;
-  let minDist: ad.Num = Infinity;
-  for (let i = 0; i < s.points.contents.length; i++) {
-    minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
-    closestX = ifCond(eq(minDist, dist[i]), closestPoints[i][0], closestX);
-    closestY = ifCond(eq(minDist, dist[i]), closestPoints[i][1], closestY);
-  }
-  return [closestX, closestY];
-};
-
-const closestPointRect = (s: Rectlike<ad.Num>, p: ad.Num[]): ad.Num[] => {
-  const l = sub(s.center.contents[0], div(s.width.contents, 2));
-  const t = sub(s.center.contents[1], div(s.height.contents, 2));
-  const w = s.width.contents;
-  const h = s.height.contents;
+export const closestPointRect = (rect: ad.Num[][], p: ad.Num[]): ad.Num[] => {
+  const [tr, tl, bl] = rect;
+  const l = tl[0],
+    t = bl[1];
+  const w = sub(tr[0], tl[0]);
+  const h = sub(tl[1], bl[1]);
+  let [x, y] = p;
   const r = add(l, w);
   const b = add(t, h);
-  const x = clamp([l, r], p[0]);
-  const y = clamp([t, b], p[1]);
+  x = clamp([l, r], x);
+  y = clamp([t, b], y);
   const dl = absVal(sub(x, l));
   const dr = absVal(sub(x, r));
   const dt = absVal(sub(y, t));
@@ -3966,17 +4758,33 @@ const closestPointRect = (s: Rectlike<ad.Num>, p: ad.Num[]): ad.Num[] => {
   retX = ifCond(eq(m, dl), l, retX);
   let retY: ad.Num = ifCond(or(eq(m, dl), eq(m, dr)), y, t);
   retY = ifCond(eq(m, db), b, retY);
-
   return [retX, retY];
 };
 
-const closestPointEllipse = (s: Ellipse<ad.Num>, p: ad.Num[]): ad.Num[] => {
-  return closestPointEllipseCoords(
-    s.rx.contents,
-    s.ry.contents,
-    s.center.contents,
-    p
-  );
+export const closestPointEllipse = (
+  c: ad.Num[],
+  rx: ad.Num,
+  ry: ad.Num,
+  p: ad.Num[]
+): ad.Num[] => {
+  return closestPointEllipseCoords(rx, ry, c, p);
+};
+
+export const closestPointGroup = (
+  shapes: Shape<ad.Num>[],
+  p: ad.Num[]
+): ad.Num[] => {
+  const closestPoints = shapes.map((shape) => closestPoint(shape, p));
+  const dist = closestPoints.map((point) => ops.vdist(point, p));
+  let closestX: ad.Num = Infinity;
+  let closestY: ad.Num = Infinity;
+  let minDist: ad.Num = Infinity;
+  for (let i = 0; i < shapes.length; i++) {
+    minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
+    closestX = ifCond(eq(minDist, dist[i]), closestPoints[i][0], closestX);
+    closestY = ifCond(eq(minDist, dist[i]), closestPoints[i][1], closestY);
+  }
+  return [closestX, closestY];
 };
 
 const closestPointLineCoords = (
@@ -4020,10 +4828,21 @@ const closestPointEllipseCoords = (
   return ops.vadd([y0, y1], c);
 };
 
+//#endregion
+
+//#region closest silhouette point
+
+// `raw` functions may return `Infinity` when ray intersection does not exist.
+// `safe` function return `p` if `Infinity` is detected.
+export const safeCSP = (q: ad.Num[], p: ad.Num[]): ad.Num[] => {
+  const qx = ifCond(eq(q[0], Infinity), p[0], q[0]);
+  const qy = ifCond(eq(q[1], Infinity), p[1], q[1]);
+  return [qx, qy];
+};
 /* Returns the closest point on the visibility
  * silhouette of shape S relative to point p.
- * If there is no silhouette, returns p. */
-const closestSilhouettePointShape = (
+ * If there is no silhouette, returns Infinity. */
+export const rawClosestSilhouettePoint = (
   s:
     | Circle<ad.Num>
     | Rectlike<ad.Num>
@@ -4037,74 +4856,61 @@ const closestSilhouettePointShape = (
 ): ad.Num[] => {
   const t = s.shapeType;
   if (t === "Circle") {
-    return closestSilhouettePointCircle(s, p);
+    return rawClosestSilhouettePointCircle(s.center.contents, s.r.contents, p);
   } else if (
     t === "Rectangle" ||
     t === "Text" ||
     t === "Equation" ||
     t === "Image"
   ) {
-    return closestSilhouettePointRect(s, p);
+    return rawClosestSilhouettePointRect(bboxPts(bboxFromRectlike(s)), p);
   } else if (t === "Line") {
-    return closestSilhouettePointLine(s, p);
+    return rawClosestSilhouettePointLine(s.start.contents, s.end.contents, p);
   } else if (t === "Polyline") {
-    return closestSilhouettePointPolyline(s, p);
+    return rawClosestSilhouettePointPolyline(s.points.contents, p);
   } else if (t === "Polygon") {
-    return closestSilhouettePointPolygon(s, p);
+    return rawClosestSilhouettePointPolygon(s.points.contents, p);
   } else if (t === "Ellipse") {
-    return closestSilhouettePointEllipse(s, p);
+    return rawClosestSilhouettePointEllipse(
+      s.center.contents,
+      s.rx.contents,
+      s.ry.contents,
+      p
+    );
   } else if (t === "Path") {
     throw new Error("Silhouette queries not handled for Path");
   } else {
     // t === "Group"
-    const closestSilhouettePoints = s.shapes.contents.map((shape) =>
-      closestSilhouettePointShape(shape, p)
-    );
-    const dist = closestSilhouettePoints.map((point) => ops.vdist(point, p));
-    let closestX: ad.Num = Infinity;
-    let closestY: ad.Num = Infinity;
-    let minDist: ad.Num = Infinity;
-    for (let i = 0; i < s.shapes.contents.length; i++) {
-      minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
-      closestX = ifCond(
-        eq(minDist, dist[i]),
-        closestSilhouettePoints[i][0],
-        closestX
-      );
-      closestY = ifCond(
-        eq(minDist, dist[i]),
-        closestSilhouettePoints[i][1],
-        closestY
-      );
-    }
-    return [closestX, closestY];
+    return rawClosestSilhouettePointGroup(s.shapes.contents, p);
   }
 };
 
-const closestSilhouettePointCircle = (
-  s: Circle<ad.Num>,
+export const rawClosestSilhouettePointCircle = (
+  c: ad.Num[],
+  r: ad.Num,
   p: ad.Num[]
 ): ad.Num[] => {
-  const c = s.center.contents;
-  const r = s.r.contents;
-  const y = closestSilhouettePointEllipseCoords(ops.vsub(p, c), r, r);
+  const y = rawClosestSilhouettePointEllipseCoords(ops.vsub(p, c), r, r);
   return ops.vadd(y, c);
 };
 
-const closestSilhouettePointEllipse = (
-  s: Ellipse<ad.Num>,
+export const rawClosestSilhouettePointEllipse = (
+  c: ad.Num[],
+  rx: ad.Num,
+  ry: ad.Num,
   p: ad.Num[]
 ): ad.Num[] => {
-  const c = s.center.contents;
-  const rx = s.rx.contents;
-  const ry = s.ry.contents;
-  const y = closestSilhouettePointEllipseCoords(ops.vsub(p, c), rx, ry);
+  const y = rawClosestSilhouettePointEllipseCoords(ops.vsub(p, c), rx, ry);
   return ops.vadd(y, c);
 };
 
-const closestSilhouettePointLine = (s: Line<ad.Num>, p: ad.Num[]): ad.Num[] => {
-  const a = s.start.contents;
-  const b = s.end.contents;
+export const rawClosestSilhouettePointLine = (
+  start: ad.Num[],
+  end: ad.Num[],
+  p: ad.Num[]
+): ad.Num[] => {
+  const a = start,
+    b = end;
   const da = ops.vdistsq(p, a);
   const db = ops.vdistsq(p, b);
   const y0 = ifCond(lt(da, db), a[0], b[0]);
@@ -4115,7 +4921,7 @@ const closestSilhouettePointLine = (s: Line<ad.Num>, p: ad.Num[]): ad.Num[] => {
 /* Computes the closest silhouette on an ellipse with radii a0,b0 relative to a
  * point p0, assuming the ellipse has already been translated to the origin and
  * rotated to be axis-aligned. */
-const closestSilhouettePointEllipseCoords = (
+const rawClosestSilhouettePointEllipseCoords = (
   p0: ad.Num[],
   a0: ad.Num,
   b0: ad.Num
@@ -4150,17 +4956,14 @@ const closestSilhouettePointEllipseCoords = (
   return [z0, z1];
 };
 
-const closestSilhouettePointRect = (
-  R: Rectlike<ad.Num>,
+export const rawClosestSilhouettePointRect = (
+  [tr, tl, bl, br]: ad.Num[][],
   p: ad.Num[]
 ): ad.Num[] => {
-  const c = R.center.contents;
-  const w = R.width.contents;
-  const h = R.height.contents;
-  const x0 = sub(c[0], div(w, 2));
-  const x1 = add(c[0], div(w, 2));
-  const y0 = sub(c[1], div(h, 2));
-  const y1 = add(c[1], div(h, 2));
+  const x0 = tl[0],
+    x1 = tr[0];
+  const y0 = bl[1],
+    y1 = tl[1];
 
   const points = [
     [x0, y0],
@@ -4174,7 +4977,7 @@ const closestSilhouettePointRect = (
     const a = points[i];
     const b = points[(i + 1) % 4];
     const c = points[(i + 2) % 4];
-    closestSilhouettePoints[i] = closestSilhouettePointCorner(p, a, b, c);
+    closestSilhouettePoints[i] = rawClosestSilhouettePointCorner(p, a, b, c);
     dist[i] = ops.vdist(p, closestSilhouettePoints[i]);
   }
 
@@ -4197,25 +5000,25 @@ const closestSilhouettePointRect = (
   return [closestX, closestY];
 };
 
-const closestSilhouettePointPolyline = (
-  s: Polyline<ad.Num>,
+export const rawClosestSilhouettePointPolyline = (
+  pts: ad.Num[][],
   p: ad.Num[]
 ): ad.Num[] => {
   const closestSilhouettePoints: ad.Num[][] = [];
   const dist: ad.Num[] = [];
 
   // interior points
-  for (let i = 0; i < s.points.contents.length - 2; i++) {
-    const a = s.points.contents[i];
-    const b = s.points.contents[i + 1];
-    const c = s.points.contents[i + 2];
-    closestSilhouettePoints[i] = closestSilhouettePointCorner(p, a, b, c);
+  for (let i = 0; i < pts.length - 2; i++) {
+    const a = pts[i];
+    const b = pts[i + 1];
+    const c = pts[i + 2];
+    closestSilhouettePoints[i] = rawClosestSilhouettePointCorner(p, a, b, c);
     dist[i] = ops.vdist(p, closestSilhouettePoints[i]);
   }
   let closestX: ad.Num = Infinity;
   let closestY: ad.Num = Infinity;
   let minDist: ad.Num = Infinity;
-  for (let i = 0; i < s.points.contents.length - 2; i++) {
+  for (let i = 0; i < pts.length - 2; i++) {
     minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
     closestX = ifCond(
       eq(minDist, dist[i]),
@@ -4230,12 +5033,12 @@ const closestSilhouettePointPolyline = (
   }
 
   //endpoints
-  const q0 = s.points.contents[0];
+  const q0 = pts[0];
   const dist0 = ops.vdist(p, q0);
   minDist = ifCond(lt(minDist, dist0), minDist, dist0);
   closestX = ifCond(eq(minDist, dist0), q0[0], closestX);
   closestY = ifCond(eq(minDist, dist0), q0[1], closestY);
-  const qN = s.points.contents[s.points.contents.length - 1];
+  const qN = pts[pts.length - 1];
   const distN = ops.vdist(p, qN);
   minDist = ifCond(lt(minDist, distN), minDist, distN);
   closestX = ifCond(eq(minDist, distN), qN[0], closestX);
@@ -4244,25 +5047,25 @@ const closestSilhouettePointPolyline = (
   return [closestX, closestY];
 };
 
-const closestSilhouettePointPolygon = (
-  s: Polygon<ad.Num>,
+export const rawClosestSilhouettePointPolygon = (
+  pts: ad.Num[][],
   p: ad.Num[]
 ): ad.Num[] => {
   const closestSilhouettePoints: ad.Num[][] = [];
   const dist: ad.Num[] = [];
-  for (let i = 0; i < s.points.contents.length; i++) {
-    const j = (i + 1) % s.points.contents.length;
-    const k = (i + 2) % s.points.contents.length;
-    const a = s.points.contents[i];
-    const b = s.points.contents[j];
-    const c = s.points.contents[k];
-    closestSilhouettePoints[i] = closestSilhouettePointCorner(p, a, b, c);
+  for (let i = 0; i < pts.length; i++) {
+    const j = (i + 1) % pts.length;
+    const k = (i + 2) % pts.length;
+    const a = pts[i];
+    const b = pts[j];
+    const c = pts[k];
+    closestSilhouettePoints[i] = rawClosestSilhouettePointCorner(p, a, b, c);
     dist[i] = ops.vdist(p, closestSilhouettePoints[i]);
   }
   let closestX: ad.Num = Infinity;
   let closestY: ad.Num = Infinity;
   let minDist: ad.Num = Infinity;
-  for (let i = 0; i < s.points.contents.length; i++) {
+  for (let i = 0; i < pts.length; i++) {
     minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
     closestX = ifCond(
       eq(minDist, dist[i]),
@@ -4281,7 +5084,7 @@ const closestSilhouettePointPolygon = (
 /* Given three points a, b, c describing a pair of line segments ab, bc and a
  * query point p, returns b if it is a silhouette point, relative to p, and
  * (Infinity,Infinity) otherwise. */
-const closestSilhouettePointCorner = (
+const rawClosestSilhouettePointCorner = (
   p: ad.Num[],
   a: ad.Num[],
   b: ad.Num[],
@@ -4296,12 +5099,34 @@ const closestSilhouettePointCorner = (
   return [y0, y1];
 };
 
-const toPt = (v: ad.Num[]): ad.Pt2 => {
-  if (v.length !== 2) {
-    throw Error("expected vector of length 2");
+export const rawClosestSilhouettePointGroup = (
+  shapes: Shape<ad.Num>[],
+  p: ad.Num[]
+): ad.Num[] => {
+  const closestSilhouettePoints = shapes.map((shape) =>
+    rawClosestSilhouettePoint(shape, p)
+  );
+  const dist = closestSilhouettePoints.map((point) => ops.vdist(point, p));
+  let closestX: ad.Num = Infinity;
+  let closestY: ad.Num = Infinity;
+  let minDist: ad.Num = Infinity;
+  for (let i = 0; i < shapes.length; i++) {
+    minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
+    closestX = ifCond(
+      eq(minDist, dist[i]),
+      closestSilhouettePoints[i][0],
+      closestX
+    );
+    closestY = ifCond(
+      eq(minDist, dist[i]),
+      closestSilhouettePoints[i][1],
+      closestY
+    );
   }
-  return [v[0], v[1]];
+  return [closestX, closestY];
 };
+
+//#endregion
 
 /**
  * Given two perpendicular vectors `[startR, endR]` and `[startL, endL]`, return a path that describes a perpendicular mark between them.

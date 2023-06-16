@@ -74,13 +74,12 @@ Now our selector is not just `forall Set A` since we only want to apply these st
 ```
 forall Set A; Set B
 where IsSubset(A, B) {
-    ensure smallerThan(A.icon, B.icon)
     ensure contains(A.icon, B.icon, 5.0)
     A.icon above B.icon
 }
 ```
 
-`smallerThan()` and `contains()` are a couple of the built-in constraints pre-defined by Penrose. A full list of available constraints is available in the `constrDict` object documentation [here](https://penrose.github.io/penrose/typedoc/modules.html#constrDict).
+`contains()` is a couple of the built-in constraints pre-defined by Penrose. A full list of available constraints is available in the `constrDict` object documentation [here](https://penrose.github.io/penrose/typedoc/modules.html#constrDict).
 
 Notice that in our first example, we did not care about the size of our shapes, but now we want to maintain a specific hierarchy between objects. While Penrose tries to satisfy all constraints, it is possible for the circles to become too big or too small. So we need to specify a range of acceptable sizes for our circles so nothing goes crazy.
 
@@ -102,7 +101,6 @@ So putting it all together, we have:
 ```
 forall Set A; Set B
 where IsSubset(A, B) {
-    ensure smallerThan(A.icon, B.icon)
     ensure contains(A.icon, B.icon, 5.0)
     A.icon above B.icon
 }
