@@ -2901,7 +2901,7 @@ export const compDict = {
     ): FloatV<ad.Num> => {
       const hit = rawRayIntersect(S, p, v);
       const x = hit[0]; // hit location
-      let t = ifCond(eq(absVal(x[0]), Infinity), Infinity, ops.vdist(p, x));
+      const t = ifCond(eq(absVal(x[0]), Infinity), Infinity, ops.vdist(p, x));
       return { tag: "FloatV", contents: t };
     },
     returns: valueT("Real"),

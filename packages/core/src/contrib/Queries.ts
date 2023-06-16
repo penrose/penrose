@@ -415,19 +415,19 @@ export const shapeDistance = (s1: Shape<ad.Num>, s2: Shape<ad.Num>): ad.Num => {
       toPt(s2.start.contents),
       toPt(s2.end.contents)
     );
-  } else if (t1 == "Polyline" && t2 == "Circle") {
+  } else if (t1 === "Polyline" && t2 === "Circle") {
     return shapeDistanceCirclePolyline(
       s2.center.contents,
       s2.r.contents,
       s1.points.contents
     );
-  } else if (t2 == "Polyline" && t1 == "Circle") {
+  } else if (t2 === "Polyline" && t1 === "Circle") {
     return shapeDistanceCirclePolyline(
       s1.center.contents,
       s1.r.contents,
       s2.points.contents
     );
-  } else if (t1 == "Polyline" && isRectlike(s2)) {
+  } else if (t1 === "Polyline" && isRectlike(s2)) {
     const bbox = bboxFromShape(s2);
     const corners = BBox.corners(bbox);
     return shapeDistanceRectlikePolyline(
@@ -439,7 +439,7 @@ export const shapeDistance = (s1: Shape<ad.Num>, s2: Shape<ad.Num>): ad.Num => {
       ],
       s1.points.contents
     );
-  } else if (t2 == "Polyline" && isRectlike(s1)) {
+  } else if (t2 === "Polyline" && isRectlike(s1)) {
     const bbox = bboxFromShape(s1);
     const corners = BBox.corners(bbox);
     return shapeDistanceRectlikePolyline(

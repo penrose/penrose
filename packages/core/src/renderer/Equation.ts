@@ -36,31 +36,33 @@ const RenderEquation = (
   const { center } = shape;
   const [x, y] = toScreen([center.contents[0], center.contents[1]], canvasSize);
 
-   if (texLabels) {
-      // If equations are rendered as plain TeX strings, forward relevant props to a <text> element and surround the TeX string with $$
-      // Since the `svg` TeX package render text with the center on the baseline, we shift the labels down by height/2 + descent
-      const baselineY = y + shape.height.contents / 2 - shape.descent.contents;
+  if (texLabels) {
+    // If equations are rendered as plain TeX strings, forward relevant props to a <text> element and surround the TeX string with $$
+    // Since the `svg` TeX package render text with the center on the baseline, we shift the labels down by height/2 + descent
+    const baselineY = y + shape.height.contents / 2 - shape.descent.contents;
 
-      let txt = placeholderString(
-         `$${getAdValueAsString(shape.string)}$`,
-         [x, baselineY],
-         shape
-      );
+    let txt = placeholderString(
+      `$${getAdValueAsString(shape.string)}$`,
+      [x, baselineY],
+      shape
+    );
 
-      // If the Equation has a texContourColor passthrough value, give the
-      // string a contour with the specified color
-      for (const [propKey, propVal] of shape.passthrough) {
-         if ( propKey === "texContourColor" && propVal.contents !== "") {
-            txt = placeholderString(
-               `\\contour{${propVal.contents}}{$${getAdValueAsString(shape.string)}$}`,
-               [x, baselineY],
-               shape
-            );
-         }
+    // If the Equation has a texContourColor passthrough value, give the
+    // string a contour with the specified color
+    for (const [propKey, propVal] of shape.passthrough) {
+      if (propKey === "texContourColor" && propVal.contents !== "") {
+        txt = placeholderString(
+          `\\contour{${propVal.contents}}{$${getAdValueAsString(
+            shape.string
+          )}$}`,
+          [x, baselineY],
+          shape
+        );
       }
+    }
 
-      return txt;
-   }
+    return txt;
+  }
 
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
   // Keep track of which input properties we programatically mapped
