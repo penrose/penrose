@@ -3482,7 +3482,7 @@ export const compDict = {
         | Group<ad.Num>,
       p: ad.Num[]
     ): FloatV<ad.Num> => {
-      const q = closestSilhouettePointShape(s, p);
+      const q = rawClosestSilhouettePoint(s, p);
       const d = ifCond(eq(q[0],Infinity), Infinity, ops.vdist(p,q));
       return { tag: "FloatV", contents: d };
     },

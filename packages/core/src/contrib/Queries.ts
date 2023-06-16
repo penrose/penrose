@@ -692,7 +692,7 @@ const shapeDistanceCirclePolyline = (
    for( let i = 0; i < points.length-1; i++ ) {
       const a = points[i];
       const b = points[i + 1];
-      const d = distanceCircleLine( c, r, a, b );
+      const d = shapeDistanceCircleLine( toPt(c), r, toPt(a), toPt(b) );
       dMin = min( dMin, d );
    }
    return dMin;
