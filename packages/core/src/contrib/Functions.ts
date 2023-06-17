@@ -130,8 +130,8 @@ import {
   shapeDistancePolys,
   shapeDistanceRectCircle,
   shapeDistanceRectLine,
-  shapeDistanceRects,
   shapeDistanceRectlikePolyline,
+  shapeDistanceRects,
 } from "./Queries.js";
 import { Rectlike, clamp, isRectlike, numOf, toPt } from "./Utils.js";
 
@@ -3134,8 +3134,7 @@ export const compDict = {
       shapes: Shape<ad.Num>[],
       p: ad.Num[],
       v: ad.Num[]
-    ): FloatV<ad.Num> =>
-      floatV(distRI(rawRayIntersectGroup(shapes, p, v), p)),
+    ): FloatV<ad.Num> => floatV(distRI(rawRayIntersectGroup(shapes, p, v), p)),
     returns: valueT("Real"),
   },
   rayIntersectNormal: {
@@ -4530,7 +4529,7 @@ export const distRI = (hit: ad.Num[][], p: ad.Num[]): ad.Num => {
   const x = hit[0]; // hit location
   // if the point is at infinity, return an infinite distance;
   // otherwise, compute and return the distance to the hit point
-  const t = ifCond(eq(absVal(x[0]), Infinity), Infinity, ops.vdist(p,x));
+  const t = ifCond(eq(absVal(x[0]), Infinity), Infinity, ops.vdist(p, x));
   return t;
 };
 

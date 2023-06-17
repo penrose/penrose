@@ -1,10 +1,8 @@
 import { ops } from "../engine/Autodiff.js";
 import {
   add,
-  and,
   div,
   gt,
-  gte,
   ifCond,
   lt,
   lte,
@@ -14,8 +12,6 @@ import {
   minN,
   mul,
   neg,
-  not,
-  or,
   sqrt,
   squared,
   sub,
