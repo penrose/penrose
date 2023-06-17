@@ -194,18 +194,15 @@ export const convexPolygonOriginSignedDistance = (p: ad.Pt2[]): ad.Num => {
  * `-1`).
  */
 export const rectLineDist = (
-  rect: { bottomLeft: ad.Pt2; topRight: ad.Pt2 },
-  line: { start: ad.Pt2; end: ad.Pt2 }
+  rx0: ad.Num,
+  ry0: ad.Num,
+  rx1: ad.Num,
+  ry1: ad.Num,
+  lxs: ad.Num,
+  lys: ad.Num,
+  lxe: ad.Num,
+  lye: ad.Num
 ): ad.Num => {
-  const {
-    bottomLeft: [rx0, ry0],
-    topRight: [rx1, ry1],
-  } = rect;
-  const {
-    start: [lxs, lys],
-    end: [lxe, lye],
-  } = line;
-
   const px = gt(lxs, lxe);
   const py = gt(lys, lye);
 
@@ -368,6 +365,42 @@ export const shapeDistance = (s1: Shape<ad.Num>, s2: Shape<ad.Num>): ad.Num => {
       toPt(s2.start.contents),
       toPt(s2.end.contents)
     );
+  } else if (t1 === "Polyline" && t2 === "Circle") {
+    return shapeDistanceCirclePolyline(
+      s2.center.contents,
+      s2.r.contents,
+      s1.points.contents
+    );
+  } else if (t2 === "Polyline" && t1 === "Circle") {
+    return shapeDistanceCirclePolyline(
+      s1.center.contents,
+      s1.r.contents,
+      s2.points.contents
+    );
+  } else if (t1 === "Polyline" && isRectlike(s2)) {
+    const bbox = bboxFromShape(s2);
+    const corners = BBox.corners(bbox);
+    return shapeDistanceRectlikePolyline(
+      [
+        corners.topRight,
+        corners.topLeft,
+        corners.bottomLeft,
+        corners.bottomRight,
+      ],
+      s1.points.contents
+    );
+  } else if (t2 === "Polyline" && isRectlike(s1)) {
+    const bbox = bboxFromShape(s1);
+    const corners = BBox.corners(bbox);
+    return shapeDistanceRectlikePolyline(
+      [
+        corners.topRight,
+        corners.topLeft,
+        corners.bottomLeft,
+        corners.bottomRight,
+      ],
+      s2.points.contents
+    );
   }
   // Default to axis-aligned bounding boxes
   else {
@@ -409,12 +442,44 @@ export const shapeDistanceRectLine = (
   const halfH = div(bbox.height, 2);
   const [cx, cy] = bbox.center;
   return rectLineDist(
-    {
-      bottomLeft: [sub(cx, halfW), sub(cy, halfH)],
-      topRight: [add(cx, halfW), add(cy, halfH)],
-    },
-    { start, end }
+    sub(cx, halfW),
+    sub(cy, halfH),
+    add(cx, halfW),
+    add(cy, halfH),
+    start[0],
+    start[1],
+    end[0],
+    end[1]
   );
+};
+
+export const shapeDistanceRectlikePolyline = (
+  rect: ad.Pt2[],
+  points: ad.Num[][]
+): ad.Num => {
+  let dMin: ad.Num = Infinity;
+
+  const topRight = rect[0];
+  const bottomLeft = rect[2];
+
+  // take minimum distance to rect R over all segments in polyline M
+  for (let i = 0; i < points.length - 1; i++) {
+    const a = points[i];
+    const b = points[i + 1];
+
+    const d = rectLineDist(
+      bottomLeft[0],
+      bottomLeft[1],
+      topRight[0],
+      topRight[1],
+      a[0],
+      a[1],
+      b[0],
+      b[1]
+    );
+    dMin = min(dMin, d);
+  }
+  return dMin;
 };
 
 export const shapeDistancePolys = (pts1: ad.Pt2[], pts2: ad.Pt2[]): ad.Num =>
@@ -472,6 +537,22 @@ export const shapeDistanceCircleLine = (
   const d = ops.vnorm(ops.vsub(u, ops.vmul(h, v)));
   // return d - (r+o)
   return sub(d, r);
+};
+
+const shapeDistanceCirclePolyline = (
+  c: ad.Num[],
+  r: ad.Num,
+  points: ad.Num[][]
+): ad.Num => {
+  // compute the smallest distance to any segment
+  let dMin: ad.Num = Infinity;
+  for (let i = 0; i < points.length - 1; i++) {
+    const a = points[i];
+    const b = points[i + 1];
+    const d = shapeDistanceCircleLine(toPt(c), r, toPt(a), toPt(b));
+    dMin = min(dMin, d);
+  }
+  return dMin;
 };
 
 export const shapeDistanceLines = (

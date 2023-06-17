@@ -457,10 +457,10 @@ export const containsRects = (
   const [xl2, xr2] = [tl2[0], br2[0]];
   const [yl2, yr2] = [br2[1], tl2[1]];
   return addN([
-    ifCond(lt(xl1, xl2), 0, squared(sub(xl1, xl2))),
-    ifCond(lt(xr2, xr1), 0, squared(sub(xr2, xr1))),
-    ifCond(lt(yl1, yl2), 0, squared(sub(yl1, yl2))),
-    ifCond(lt(yr2, yr1), 0, squared(sub(yr2, yr1))),
+    ifCond(lt(xl1, sub(xl2, padding)), 0, squared(sub(xl1, sub(xl2, padding)))),
+    ifCond(lt(add(xr2, padding), xr1), 0, squared(sub(add(xr2, padding), xr1))),
+    ifCond(lt(yl1, sub(yl2, padding)), 0, squared(sub(yl1, sub(yl2, padding)))),
+    ifCond(lt(add(yr2, padding), yr1), 0, squared(sub(add(yr2, padding), yr1))),
   ]);
 };
 export const containsGroupShape = (
