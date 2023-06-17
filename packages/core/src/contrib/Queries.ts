@@ -453,7 +453,7 @@ export const shapeDistanceRectLine = (
   );
 };
 
-const shapeDistanceRectlikePolyline = (
+export const shapeDistanceRectlikePolyline = (
   rect: ad.Pt2[],
   points: ad.Num[][]
 ): ad.Num => {
