@@ -1,22 +1,29 @@
 import im from "immutable";
-import * as ad from "./ad";
-import { A, AbstractNode, C, Identifier, SourceLoc, SourceRange } from "./ast";
-import { Arg, TypeConstructor, TypeVar } from "./domain";
-import { CompFunc, ConstrFunc, FuncParam, ObjFunc } from "./functions";
-import { State } from "./state";
+import * as ad from "./ad.js";
 import {
-  BindingForm,
+  A,
+  AbstractNode,
+  C,
+  Identifier,
+  SourceLoc,
+  SourceRange,
+} from "./ast.js";
+import { Arg, TypeConstructor, TypeVar } from "./domain.js";
+import { CompFunc, ConstrFunc, FuncParam, ObjFunc } from "./functions.js";
+import { State } from "./state.js";
+import {
   BinOp,
+  BindingForm,
   ColorLit,
   Expr,
   GPIDecl,
   LayoutStages,
   Path,
   UOp,
-} from "./style";
-import { ResolvedPath } from "./styleSemantics";
-import { Deconstructor, SubExpr, TypeConsApp } from "./substance";
-import { ArgValWithSourceLoc, ShapeVal, Val, Value } from "./value";
+} from "./style.js";
+import { ResolvedPath } from "./styleSemantics.js";
+import { Deconstructor, SubExpr, TypeConsApp } from "./substance.js";
+import { ArgValWithSourceLoc, ShapeVal, Val, Value } from "./value.js";
 
 //#region ErrorTypes
 
@@ -205,6 +212,7 @@ export type StyleError =
   | TooManyArgumentsError
   | FunctionInternalError
   | RedeclareNamespaceError
+  | UnexpectedCollectionAccessError
   // Runtime errors
   | RuntimeValueTypeError;
 
@@ -489,6 +497,12 @@ export interface RedeclareNamespaceError {
   tag: "RedeclareNamespaceError";
   existingNamespace: string;
   location: SourceRange; // location of the duplicated declaration
+}
+
+export interface UnexpectedCollectionAccessError {
+  tag: "UnexpectedCollectionAccessError";
+  name: string;
+  location: SourceRange;
 }
 
 //#endregion

@@ -95,7 +95,7 @@ export default defineConfig({
   description:
     "Create beautiful diagrams just by typing math notation in plain text.",
 
-  cleanUrls: "without-subfolders",
+  cleanUrls: true,
   ignoreDeadLinks: true,
   outDir: "build",
 
@@ -105,8 +105,7 @@ export default defineConfig({
       "link",
       {
         rel: "stylesheet",
-        href:
-          "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css",
+        href: "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css",
       },
     ],
   ],
@@ -129,6 +128,11 @@ export default defineConfig({
     outline: "deep",
     nav: [
       {
+        text: "Examples",
+        link: "/examples",
+        activeMatch: "/examples",
+      },
+      {
         text: "Learn Penrose",
         link: "/docs/tutorial/welcome",
         activeMatch: "/docs/tutorial",
@@ -142,13 +146,11 @@ export default defineConfig({
           { text: "SIGGRAPH'20 paper", link: "pathname:///siggraph20.html" },
           {
             text: "CHI'20 paper",
-            link:
-              "https://www.cs.cmu.edu/~woden/assets/chi-20-natural-diagramming.pdf",
+            link: "https://www.cs.cmu.edu/~woden/assets/chi-20-natural-diagramming.pdf",
           },
           {
             text: "Popular Mechanics",
-            link:
-              "https://www.popularmechanics.com/science/math/a32743509/cmu-penrose-math-equations-into-pictures/",
+            link: "https://www.popularmechanics.com/science/math/a32743509/cmu-penrose-math-equations-into-pictures/",
           },
         ],
       },
@@ -233,6 +235,10 @@ export default defineConfig({
                     },
                     { text: "Text", link: "/docs/ref/style/shapes/text" },
                   ],
+                },
+                {
+                  text: "Random Sampling",
+                  link: "/docs/ref/style/random-sampling",
                 },
                 { text: "Function Library", link: "/docs/ref/style/functions" },
                 {

@@ -1,23 +1,45 @@
 {
   "name": "@penrose/examples",
-  "version": "2.3.0",
+  "version": "3.0.0-alpha.0",
   "private": true,
+  "type": "module",
+  "dependencies": {
+    "@penrose/core": "^3.0.0-alpha.0",
+    "@penrose/solids": "^3.0.0-alpha.0",
+    "solid-js": "^1"
+  },
+  "devDependencies": {
+    "@types/prettier": "^2",
+    "prettier": "^2",
+    "vite": "^4",
+    "vitest": "^0.31"
+  },
   "scripts": {
-    "build": ":",
+    "build": "rimraf dist && tsc",
     "build-decls": ":",
-    "build-examples": "node build.js",
+    "codegen": "git clean -dfqX src && node codegen.js",
+    "test": "vitest run --no-threads --reporter=verbose",
     "typecheck": ":"
   },
   "nx": {
     "targets": {
-      "build-decls": {
-        "dependsOn": [
-          "build-examples"
-        ]
-      },
       "build": {
         "dependsOn": [
-          "build-examples"
+          "^build",
+          "^build-decls",
+          "codegen"
+        ]
+      },
+      "build-decls": {
+        "dependsOn": [
+          "build"
+        ]
+      },
+      "test": {
+        "dependsOn": [
+          "^build",
+          "^build-decls",
+          "codegen"
         ]
       }
     }

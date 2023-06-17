@@ -1,9 +1,9 @@
 import seedrandom from "seedrandom";
-import { input } from "../engine/Autodiff";
-import * as ad from "../types/ad";
-import { OptStages } from "../types/state";
-import { ColorV, FloatV, VectorV } from "../types/value";
-import { colorV, floatV, randFloat, vectorV } from "../utils/Util";
+import { variable } from "../engine/Autodiff.js";
+import * as ad from "../types/ad.js";
+import { OptStages } from "../types/state.js";
+import { ColorV, FloatV, VectorV } from "../types/value.js";
+import { colorV, floatV, randFloat, vectorV } from "../utils/Util.js";
 
 type Range = [number, number];
 
@@ -45,7 +45,7 @@ export interface InputMeta {
   stages: OptStages; // can be the empty set, meaning unoptimized
 }
 
-export type InputFactory = (meta: InputMeta) => ad.Input; // NOTE: stateful!
+export type InputFactory = (meta: InputMeta) => ad.Var; // NOTE: stateful!
 
 export interface Context {
   makeInput: InputFactory;
@@ -60,15 +60,16 @@ export const simpleContext = (variation: string): Context => {
   const rng = seedrandom(variation);
   return {
     makeInput: (meta) =>
-      input(
+      variable(
         meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending
       ),
   };
 };
 
-export const uniform = (min: number, max: number): Sampler => (
-  rng: seedrandom.prng
-) => randFloat(rng, min, max);
+export const uniform =
+  (min: number, max: number): Sampler =>
+  (rng: seedrandom.prng) =>
+    randFloat(rng, min, max);
 
 export const sampleVector = (
   { makeInput }: Context,

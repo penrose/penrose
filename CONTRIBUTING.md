@@ -7,7 +7,6 @@
   - [Windows WSL](#windows-wsl)
   - [Linux](#linux)
 - [Setup](#setup)
-- [Editor](#editor)
 - [Development](#development)
   - [Run](#run)
   - [Production build](#production-build)
@@ -24,6 +23,7 @@
   - [Creating your fork](#creating-your-fork)
   - [Finding an issue to work on](#finding-an-issue-to-work-on)
   - [Merging new changes from upstream](#merging-new-changes-from-upstream)
+  - [Adding tests](#adding-tests)
   - [Opening a pull request (PR)](#opening-a-pull-request-pr)
 - [Release](#release)
 
@@ -35,7 +35,9 @@ Be sure you have these tools installed:
 
 - [Git][]
 
-- [Node.js][] v16+ (if using Linux or Mac, we recommend installing via [nvm][])
+- [Python][] 3.10 and below.
+
+- [Node.js][] v16-v18 (if using Linux or Mac, we recommend installing via [nvm][])
 
   - [Yarn][] v1.x
 
@@ -97,28 +99,20 @@ unless otherwise specified. Next [install dependencies][] from [npm][]:
 yarn
 ```
 
-Finally, enter the directory for our `roger` tool, install it, and then come
+Then, build the dependencies of our `roger` tool.
+
+```sh
+yarn build:roger
+```
+
+Finally, enter the directory of `roger` to install it as a global binary executable, and then come
 back to this directory:
 
 ```sh
 pushd packages/roger/
-yarn install-global
+npm link
 popd
 ```
-
-## Editor
-
-For [VS Code][] users, we provide a [VS Code workspace][] file called
-`penrose.code-workspace` which automatically configures many settings (and
-recommends several [extensions][]) that we strongly encourage using. From your
-terminal, you can open VS Code to the workspace via this command:
-
-```sh
-code penrose.code-workspace
-```
-
-You should be automatically prompted to install the extensions we recommend, but
-if not, you can now find them listed in the **Extensions** tab.
 
 ## Development
 
@@ -127,7 +121,7 @@ if not, you can now find them listed in the **Extensions** tab.
 Open a separate terminal (to the same directory), and run these commands:
 
 ```sh
-cd packages/examples/src/
+cd packages/examples/
 roger watch
 ```
 
@@ -156,11 +150,11 @@ should see something like this:
 ![Roger watch start](docs/assets/roger-startup.png)
 
 Type in the drop-down boxes to search for any Penrose trio in
-`packages/examples/src/`; for example:
+`packages/examples/`; for example:
 
-- Substance: `set-theory-domain/tree.substance`
-- Style: `set-theory-domain/venn.style`
-- Domain: `set-theory-domain/setTheory.domain`
+- Substance: `src/set-theory-domain/tree.substance`
+- Style: `src/set-theory-domain/venn.style`
+- Domain: `src/set-theory-domain/setTheory.domain`
 
 ... and voilà! ✨ See the results in your browser:
 
@@ -193,7 +187,7 @@ yarn typecheck
 ### Registry
 
 We have a `packages/examples/src/registry.json` file which lists several
-diagrams from the `packages/examples/src/` directory. All the "trios" listed in
+diagrams from the `packages/examples/src/` directory. All the trios listed in
 this file are automatically run in GitHub Actions to produce the SVG files in
 the `ci/*` branches.
 
@@ -204,53 +198,38 @@ under `packages/examples/src/`:
 
 ```
 packages/examples/src/foo-domain/
-├── mydomain.domain
+├── foo.domain
 ├── bar.style
 └── baz.substance
 ```
 
-The first step in adding this to the registry is to add the domain under
-`"domains"`:
-
-```json
-"foo": {
-  "URI": "foo-domain/mydomain.domain"
-}
-```
-
-Next you can add the style under `"styles"` referring to that domain:
-
-```json
-"mystyle": {
-  "domain": "foo",
-  "URI": "foo-domain/bar.style"
-}
-```
-
-And similarly the substance would go under `"substances"`:
-
-```json
-"mysubstance": {
-  "domain": "foo",
-  "URI": "foo-domain/baz.substance"
-}
-```
-
-Then, if you find that these give a nice diagram using variation
-`CedarEagle308`, you can add the following under `"trios"`. By default, examples in `trios` won't show up in `@penrose/editor`. Setting `gallery: true` will add your example to the example gallery in `editor`:
+The first step in adding this to the registry is to create a trio JSON file; if
+you find that these give a nice diagram using variation `CedarEagle308`, put
+this in `packages/examples/src/foo-domain/example.trio.json`:
 
 ```json
 {
+  "domain": "./foo.domain",
+  "style": ["./bar.style"],
+  "substance": "./baz.substance",
+  "variation": "CedarEagle308"
+}
+```
+
+The add the following to `packages/examples/src/registry.json`. By default,
+examples won't show up in `@penrose/editor`. Setting `"gallery": true` will add
+your example to the example gallery in `editor`:
+
+```json
+"foo-domain/example": {
   "name": "My Trio",
-  "substance": "mysubstance",
-  "style": "mystyle",
-  "domain": "foo",
-  "variation": "CedarEagle308",
   "gallery": true
 }
 ```
 
 And you're done!
+
+To render all diagrams in the registry, run `yarn registry` in the repo root. The output SVGs will be saved under `packages/examples/diagrams`.
 
 ### Refresh build
 
@@ -280,15 +259,17 @@ git clean -dfx
 
 ### Roger
 
-If `roger` is not working as expected and you think it might be out of date, run
+Under the hood, `roger` is an executable script (`packages/roger/bin/run.js`) that rely on [tsx][], which is symlinked by `npm link`. If `roger` is not working as expected and you think it might be out of date, run
 these commands to re-install it:
 
 ```sh
 pushd packages/roger/
-yarn unlink
-yarn build
+npm unlink --global @penrose/roger
+npm link
 popd
 ```
+
+`yarn` also provides a `link` functionality but we favor `npm link` because of [known issues](https://github.com/yarnpkg/yarn/issues/891) with `yarn link`.
 
 ### Test
 
@@ -308,7 +289,7 @@ npx nx run core:test-watch
 
 The CI process runs a test that checks whether the set-venn-diagram example generates the same image that goes onto the `README` page. If you made changes to Penrose, it might generate something different from the image on the README page. If this is expected, update the `README` image by doing the following:
 
-- Build `@penrose/automator`
+- Build `@penrose/roger`
 - Run `.github/gen_readme.js`
 
 This should update the image that is placed onto the `README` page.
@@ -411,6 +392,10 @@ branch, and then [push][] to your fork:
 git push
 ```
 
+### Adding tests
+
+For some PRs, it can be helpful to add tests that help verify the correctness of new features, and which ensure features don't break in future versions. Tests can be created as example diagrams in `packages/examples/src` and added to the [registry](#registry).
+
 ### Opening a pull request (PR)
 
 When your work is ready for review:
@@ -451,7 +436,6 @@ Our repo uses [semantic versioning][] and maintains the same version number for 
 [commit]: https://github.com/git-guides/git-commit
 [conventional commit guidelines]: https://www.conventionalcommits.org/en/v1.0.0/
 [create a fork]: https://docs.github.com/en/get-started/quickstart/fork-a-repo
-[extensions]: https://code.visualstudio.com/docs/editor/extension-marketplace
 [git]: https://git-scm.com/downloads
 [good first issues]: https://github.com/penrose/penrose/issues?q=is%3Aopen+is%3Aissue+label%3A%22kind%3Agood+first+issue%22
 [guide for installing nvm and node.js]: https://logfetch.com/install-node-npm-wsl2/
@@ -472,9 +456,9 @@ Our repo uses [semantic versioning][] and maintains the same version number for 
 [rustfmt]: https://github.com/rust-lang/rustfmt
 [that link]: http://localhost:3000/try/
 [this repo]: https://github.com/penrose/penrose
-[vs code workspace]: https://code.visualstudio.com/docs/editor/workspaces
-[vs code]: https://code.visualstudio.com/download
 [yaml]: https://yaml.org/
 [yarn]: https://classic.yarnpkg.com/lang/en/docs/install/
 [semantic versioning]: https://semver.org
 [github release]: https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository
+[tsx]: https://github.com/esbuild-kit/tsx
+[Python]: https://www.python.org/

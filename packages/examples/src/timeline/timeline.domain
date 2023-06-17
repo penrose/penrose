@@ -1,0 +1,23 @@
+type Category
+type Quarter 
+type Task
+type Year
+
+constructor MkTask (Quarter start, Quarter end) -> Task
+constructor MkQuarter(Year y) -> Quarter
+
+--seperated category into new predicate to avoid match de-deuplication
+predicate In(Task t, Category c)
+
+
+-- The following predicates (Before, First, and Last) are neccesary to get around Style language
+-- limitations related to aggregation.
+-- If style aggregation is ever supported the style program should use that feature
+-- and these predicates should be removed.
+
+--declares the immediate prior category
+predicate Before(Category, Category)
+-- declares the first quarter of the year
+predicate First(Quarter q, Year y)
+-- declares the last quarter of the year
+predicate Last(Quarter q, Year y)

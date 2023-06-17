@@ -1,4 +1,6 @@
-import { compileDomain } from "@penrose/core/dist/compiler/Domain";
+// @vitest-environment jsdom
+
+import { compileDomain } from "@penrose/core";
 import {
   compileSubstance,
   prettyStmt,
@@ -11,27 +13,28 @@ import _ from "lodash";
 import pc from "pandemonium/choice";
 import rdiff from "recursive-diff";
 import seedrandom from "seedrandom";
-import { sortStmts, typeOf } from "../analysis/SubstanceAnalysis";
+import { describe, expect, test } from "vitest";
+import { sortStmts, typeOf } from "../analysis/SubstanceAnalysis.js";
 import {
   enumerateStmtMutations,
   executeMutation,
   executeMutations,
   showMutations,
-} from "./Mutation";
+} from "./Mutation.js";
 import {
-  applyStmtDiffs,
   DiffSet,
+  StmtDiff,
+  applyStmtDiffs,
   diffSubProgs,
   diffSubStmts,
   enumerateMutationPaths,
   findMutationPaths,
   showStmtDiff,
   showSubDiff,
-  StmtDiff,
   subProgDiffs,
   swapDiffID,
-} from "./Search";
-import { initContext } from "./Synthesizer";
+} from "./Search.js";
+import { initContext } from "./Synthesizer.js";
 
 const RNG = seedrandom("seed5");
 const choice: <T>(array: Array<T>) => T = pc.createChoice(RNG);

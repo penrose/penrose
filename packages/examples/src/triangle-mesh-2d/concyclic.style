@@ -1,0 +1,39 @@
+
+-- make vertex dots bigger
+forall Vertex v {
+   override v.icon.r = 1.75*Global.vertexRadius
+}
+
+-- make corner labels larger and dark blue
+forall Corner c; Vertex i; Vertex j; Vertex k
+where c := MakeCorner(i,j,k); c has text label {
+   override c.text.fontSize = "25px"
+   override c.text.fillColor = Colors.darkBlue
+}
+
+-- don't draw black outline on arcs
+forall Corner c; Vertex i; Vertex j; Vertex k
+where c := MakeCorner(i,j,k) {
+   delete c.arc
+}
+
+-- make edges thicker
+forall Edge e {
+   override e.segment.strokeWidth = 2*Global.lineThickness
+}
+
+-- make boundary edges thicker
+forall Edge e
+where IsBoundaryEdge( e ) {
+   override e.segment.strokeWidth = 3*Global.lineThickness
+}
+
+-- corner labels shouldn't overlap diagonals
+forall Edge e; Corner c; Vertex i; Vertex j; Vertex k; Vertex l
+where c := MakeCorner(i,j,k); e := MakeEdge(l,i) {
+   ensure disjoint( c.textBounds, e.segment )
+}
+forall Edge e; Corner c; Vertex i; Vertex j; Vertex k; Vertex l
+where c := MakeCorner(i,j,k); e := MakeEdge(i,l) {
+   ensure disjoint( c.textBounds, e.segment )
+}

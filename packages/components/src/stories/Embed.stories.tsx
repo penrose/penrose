@@ -1,6 +1,6 @@
 import { ComponentMeta, ComponentStory } from "@storybook/react";
-import { Embed } from "../Embed";
-import { continuousMap, error, oneSet } from "./PenrosePrograms";
+import { Embed } from "../Embed.js";
+import { continuousMap, error, oneSet } from "./PenrosePrograms.js";
 
 // const diagram = await getDiagram();
 

@@ -1,12 +1,14 @@
-import * as ad from "../types/ad";
-import { Arrow, Named, ShapeCommon, Stroke } from "../types/shapes";
-import { StrV, VectorV } from "../types/value";
-import { boolV, floatV, strV } from "../utils/Util";
-import { Canvas, Context, sampleColor, sampleVector } from "./Samplers";
+import * as ad from "../types/ad.js";
+import { Arrow, Fill, Named, ShapeCommon, Stroke } from "../types/shapes.js";
+import { StrV, VectorV } from "../types/value.js";
+import { black, boolV, floatV, noPaint, strV } from "../utils/Util.js";
+import { Canvas, Context, sampleVector } from "./Samplers.js";
 
-export interface LineProps<T> extends Named<T>, Stroke<T>, Arrow<T> {
+export interface LineProps<T> extends Named<T>, Stroke<T>, Arrow<T>, Fill<T> {
   start: VectorV<T>;
   end: VectorV<T>;
+  // `stroke-linecap` only takes effect on <altGlyph>, <path>, <polyline>, <line>, <text>, <textPath>, <tref>, and <tspan>.
+  // https://www.w3docs.com/learn-css/stroke-linecap.html
   strokeLinecap: StrV;
 }
 
@@ -18,7 +20,7 @@ export const sampleLine = (
   style: strV(""),
   strokeWidth: floatV(1),
   strokeStyle: strV("solid"),
-  strokeColor: sampleColor(context),
+  strokeColor: black(),
   strokeDasharray: strV(""),
   startArrowheadSize: floatV(1),
   startArrowhead: strV("none"),
@@ -29,6 +31,7 @@ export const sampleLine = (
   end: sampleVector(context, canvas),
   strokeLinecap: strV(""),
   ensureOnCanvas: boolV(true),
+  fillColor: noPaint(),
 });
 
 export type Line<T> = ShapeCommon<T> & { shapeType: "Line" } & LineProps<T>;

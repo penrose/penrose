@@ -1,14 +1,14 @@
-import * as ad from "../types/ad";
-import { Center, Named, Rect, Rotate, ShapeCommon } from "../types/shapes";
-import { StrV } from "../types/value";
-import { boolV, floatV, strV } from "../utils/Util";
+import * as ad from "../types/ad.js";
+import { Center, Named, Rect, Rotate, ShapeCommon } from "../types/shapes.js";
+import { StrV } from "../types/value.js";
+import { boolV, floatV, strV } from "../utils/Util.js";
 import {
   Canvas,
   Context,
   sampleHeight,
   sampleVector,
   sampleWidth,
-} from "./Samplers";
+} from "./Samplers.js";
 
 export interface ImageProps<T> extends Named<T>, Center<T>, Rect<T>, Rotate<T> {
   href: StrV;

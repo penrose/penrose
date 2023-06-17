@@ -1,11 +1,11 @@
 import { Queue } from "@datastructures-js/queue";
-import { polyRoots } from "@penrose/optimizer";
+import { Params, polyRoots, start, stepUntil } from "@penrose/optimizer";
 import consola from "consola";
 import _ from "lodash";
-import * as ad from "../types/ad";
-import Graph from "../utils/Graph";
-import { safe, zip2 } from "../utils/Util";
-import * as wasm from "../utils/Wasm";
+import * as ad from "../types/ad.js";
+import Graph from "../utils/Graph.js";
+import { safe, zip2 } from "../utils/Util.js";
+import * as wasm from "../utils/Wasm.js";
 import {
   absVal,
   acos,
@@ -32,27 +32,27 @@ import {
   sqrt,
   squared,
   sub,
-} from "./AutodiffFunctions";
+} from "./AutodiffFunctions.js";
 
 // To view logs, use LogLevel.Trace, otherwese LogLevel.Warn
 // const log = consola.create({ level: LogLevel.Trace }).withScope("Optimizer");
-export const logAD = consola
+export const logAD = (consola as any)
   .create({ level: (consola as any).LogLevel.Warn })
   .withScope("Optimizer");
 
 export const EPS_DENOM = 10e-6; // Avoid divide-by-zero in denominator
 
-export const input = (val: number): ad.Input => ({ tag: "Input", val });
+export const variable = (val: number): ad.Var => ({ tag: "Var", val });
 
 // most `ad.Num`s are already `ad.Node`s, but this function returns a new object
 // with all the children removed
-const makeNode = (getKey: (x: ad.Input) => number, x: ad.Expr): ad.Node => {
+const makeNode = (getKey: (x: ad.Var) => number, x: ad.Expr): ad.Node => {
   if (typeof x === "number") {
     return { tag: "Const", val: x };
   }
   const { tag } = x;
   switch (tag) {
-    case "Input": {
+    case "Var": {
       return { tag, key: getKey(x) };
     }
     case "Not": {
@@ -225,7 +225,7 @@ const children = (x: ad.Expr): Child[] => {
     return [];
   }
   switch (x.tag) {
-    case "Input": {
+    case "Var": {
       return [];
     }
     case "Not": {
@@ -322,7 +322,7 @@ const getInputNodes = (
   for (const id of graph.sources()) {
     const label: ad.Node = graph.node(id);
     // other non-const sources include n-ary nodes with an empty params array
-    if (label.tag === "Input") {
+    if (label.tag === "Var") {
       inputs.push({ id, label });
     }
   }
@@ -331,7 +331,7 @@ const getInputNodes = (
 
 const getInputKey = (graph: ad.Graph["graph"], id: ad.Id): number => {
   const node = graph.node(id);
-  if (node.tag !== "Input")
+  if (node.tag !== "Var")
     throw Error(`expected node ${id} to be input, got ${JSON.stringify(node)}`);
   return node.key;
 };
@@ -350,7 +350,7 @@ const getInputKey = (graph: ad.Graph["graph"], id: ad.Id): number => {
  */
 export const makeGraph = (
   outputs: Omit<ad.Outputs<ad.Num>, "gradient">,
-  getKey?: (x: ad.Input) => number
+  getKey?: (x: ad.Var) => number
 ): ad.Graph => {
   const graph = new Graph<ad.Id, ad.Node, ad.Edge>();
   const nodes = new Map<ad.Expr, ad.Id>();
@@ -521,9 +521,9 @@ export const makeGraph = (
   // outputs instead of the primary output; really, the gradients for all those
   // inputs are just zero, so the caller needs to substitute zero whenever the
   // gradient is missing a key
-  const gradient = new Map<ad.Input, ad.Id>();
+  const gradient = new Map<ad.Var, ad.Id>();
   for (const [x, id] of nodes) {
-    if (typeof x !== "number" && x.tag === "Input")
+    if (typeof x !== "number" && x.tag === "Var")
       gradient.set(x, safe(gradNodes.get(id), "missing gradient")[0]);
   }
 
@@ -546,7 +546,7 @@ export const makeGraph = (
  */
 export const primaryGraph = (
   output: ad.Num,
-  getKey?: (x: ad.Input) => number
+  getKey?: (x: ad.Var) => number
 ): ad.Graph => makeGraph({ primary: output, secondary: [] }, getKey);
 
 /**
@@ -555,7 +555,7 @@ export const primaryGraph = (
  */
 export const secondaryGraph = (
   outputs: ad.Num[],
-  getKey?: (x: ad.Input) => number
+  getKey?: (x: ad.Var) => number
 ): ad.Graph =>
   // use 1 because makeGraph always constructs a constant gradient node 1 for
   // the primary output, and so if that's already present in the graph then we
@@ -1544,7 +1544,7 @@ const getLayout = (node: ad.Node): { typename: Typename; count: number } => {
       return { typename: "i32", count: 1 };
     }
     case "Const":
-    case "Input":
+    case "Var":
     case "Unary":
     case "Binary":
     case "Ternary":
@@ -1596,10 +1596,11 @@ const compileGraph = (
   const numLocalDecls = Object.keys(counts).length;
   t.int(numLocalDecls);
 
-  for (const [typename, count] of Object.entries(counts)) {
-    t.int(count);
-    t.byte(wasm.TYPE[typename]);
-  }
+  t.int(counts.i32);
+  t.byte(wasm.TYPE.i32);
+
+  t.int(counts.f64);
+  t.byte(wasm.TYPE.f64);
 
   for (const {
     id,
@@ -1619,7 +1620,7 @@ const compileGraph = (
   for (const id of graph.topsort()) {
     const node = graph.node(id);
     // we already generated code for the inputs
-    if (node.tag !== "Input") {
+    if (node.tag !== "Var") {
       const preds: number[] = [];
       for (const { i: v, e } of graph.inEdges(id)) {
         preds[e] = getIndex(locals, v);
@@ -1885,10 +1886,10 @@ const makeCompiled = (
   meta: Metadata,
   instance: WebAssembly.Instance
 ): ad.Compiled => {
-  const indices = new Map<ad.Input, number>();
+  const indices = new Map<ad.Var, number>();
   for (const { graph, nodes } of graphs) {
     for (const [x, id] of nodes) {
-      if (typeof x !== "number" && x.tag === "Input") {
+      if (typeof x !== "number" && x.tag === "Var") {
         const prev = indices.get(x);
         const key = getInputKey(graph, id);
         if (prev !== undefined && prev !== key)
@@ -1902,7 +1903,7 @@ const makeCompiled = (
   // we wrap our Wasm function in a JavaScript function which instead thinks in
   // terms of arrays, using the `meta` data to translate between the two
   return (
-    inputs: (x: ad.Input) => number,
+    inputs: (x: ad.Var) => number,
     mask?: boolean[]
   ): ad.Outputs<number> => {
     for (const [x, i] of indices) meta.arrInputs[i] = inputs(x);
@@ -1911,7 +1912,7 @@ const makeCompiled = (
     meta.arrGrad.fill(0);
     meta.arrSecondary.fill(0);
     const primary = f();
-    const gradient = new Map<ad.Input, number>();
+    const gradient = new Map<ad.Var, number>();
     for (const [x, i] of indices) gradient.set(x, meta.arrGrad[i]);
     return {
       gradient,
@@ -1954,7 +1955,7 @@ export const genCodeSync = (...graphs: ad.Graph[]): ad.Compiled => {
 
 /** Generate an energy function from the current state (using `ad.Num`s only) */
 export const genGradient = async (
-  inputs: ad.Input[],
+  inputs: ad.Var[],
   objectives: ad.Num[],
   constraints: ad.Num[]
 ): Promise<ad.Gradient> => {
@@ -1964,11 +1965,11 @@ export const genGradient = async (
   // Therefore it's marked as an input to the generated objective function,
   // which can be partially applied with the ep weight. But its initial `val`
   // gets compiled away, so we just set it to zero here.
-  const lambda = input(0);
+  const lambda = variable(0);
 
   const indices = new Map(inputs.map((x, i) => [x, i]));
   indices.set(lambda, n);
-  const getKey = (x: ad.Input): number => safe(indices.get(x), "missing input");
+  const getKey = (x: ad.Var): number => safe(indices.get(x), "missing input");
 
   const objs = objectives.map((x, i) => {
     const secondary = [];
@@ -2035,5 +2036,133 @@ export const genGradient = async (
       objectives: Array.from(meta.arrSecondary.subarray(0, objectives.length)),
       constraints: Array.from(meta.arrSecondary.subarray(objectives.length)),
     };
+  };
+};
+
+const isConverged = (params: Params): boolean =>
+  params.optStatus === "EPConverged";
+
+export const problem = async ({
+  objective,
+  constraints,
+}: ad.Description): Promise<ad.Problem> => {
+  // `vars` keep track of all the inputs across all constraints and objective, and the weight
+  const vars = new Map<ad.Var, number>();
+  // add in the weight
+  const lambda = variable(0);
+  // make the comp graphs for obj and constrs
+  const getKey = (x: ad.Var): number => {
+    if (x === lambda) return 0;
+    let i = vars.get(x);
+    if (i === undefined) {
+      i = vars.size + 1;
+      vars.set(x, i);
+    }
+    return i;
+  };
+  const obj = primaryGraph(objective ?? 0, getKey);
+  const constrs = (constraints ?? []).map((x) =>
+    primaryGraph(mul(lambda, fns.toPenalty(x)), getKey)
+  );
+  const graphs = [obj, ...constrs];
+  const meta = makeMeta(graphs);
+  const instance = await WebAssembly.instantiate(
+    await WebAssembly.compile(genBytes(graphs)),
+    makeImports(meta.memory)
+  );
+  const f = getExport(meta, instance);
+  const n = vars.size;
+
+  return {
+    start: (conf) => {
+      const vals = conf.vals ?? ((x: ad.Var) => x.val);
+      const freeze = conf.freeze ?? (() => false);
+      const mask: boolean[] = [];
+      const init: number[] = [];
+      // populate inputs with initial values from `vals`
+      for (const [x, i] of vars) {
+        mask[i - 1] = !freeze(x);
+        init[i - 1] = vals(x); // skip the weight input
+      }
+      const wrap = (xs: number[], params: Params): ad.Run => {
+        const unfrozen = new Map<ad.Var, number>();
+        // give back the optimized values
+        for (const [x, i] of vars) if (!freeze(x)) unfrozen.set(x, xs[i - 1]);
+        return {
+          converged: isConverged(params),
+          vals: unfrozen,
+          run: ({ until }) => {
+            // allocate a new array to store inputs
+            const arr = new Float64Array(xs);
+            let stop = false;
+            let after = params;
+            // ESLint complains that `stop` is always falsy, but it's wrong
+            while (!(stop || isConverged(after))) {
+              after = stepUntil(
+                (
+                  inputs: Float64Array /*read-only*/,
+                  weight: number,
+                  grad: Float64Array /*write-only*/
+                ): number => {
+                  if (inputs.length !== n)
+                    throw Error(`expected ${n} inputs, got ${inputs.length}`);
+                  if (grad.length !== n)
+                    throw Error(
+                      `expected ${n} inputs, got gradient with length ${grad.length}`
+                    );
+                  meta.arrInputs.set(inputs.subarray(0, n), 1);
+                  // the first input is the weight
+                  meta.arrInputs[0] = weight;
+                  // we don't use addend masks, so they are set to 1
+                  meta.arrMask.fill(1);
+                  meta.arrGrad.fill(0);
+                  meta.arrSecondary.fill(0);
+                  const phi = f();
+                  for (let i = 0; i < n; i++)
+                    grad[i] =
+                      i < meta.numInputs && !mask[i] ? 0 : meta.arrGrad[i + 1];
+                  return phi;
+                },
+                arr,
+                after,
+                () => {
+                  if (until) stop = until();
+                  return stop;
+                }
+              );
+            }
+            return wrap(Array.from(arr), after);
+          },
+        };
+      };
+      return wrap(init, start(n));
+    },
+  };
+};
+
+export const compile = async (
+  xs: ad.Num[]
+): Promise<(inputs: (x: ad.Var) => number) => number[]> => {
+  const indices = new Map<ad.Var, number>();
+  const graph = secondaryGraph(xs, (x: ad.Var): number => {
+    let i = indices.get(x);
+    if (i === undefined) {
+      i = indices.size;
+      indices.set(x, i);
+    }
+    return i;
+  });
+  const graphs = [graph];
+  const meta = makeMeta(graphs);
+  meta.arrMask[0] = 1; // only one graph, always run it
+  const instance = await WebAssembly.instantiate(
+    await WebAssembly.compile(genBytes(graphs)),
+    makeImports(meta.memory)
+  );
+  const f = getExport(meta, instance);
+  return (inputs: (x: ad.Var) => number): number[] => {
+    for (const [x, i] of indices) meta.arrInputs[i] = inputs(x);
+    f();
+    return Array.from(meta.arrSecondary);
   };
 };

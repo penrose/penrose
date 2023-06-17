@@ -1,7 +1,7 @@
 import { evalFns, prettyPrintFn, zip2 } from "@penrose/core";
 import DataTable from "react-data-table-component";
 import { useRecoilValue } from "recoil";
-import { diagramState } from "../state/atoms";
+import { diagramState } from "../state/atoms.js";
 
 export const EPS = 10e-3;
 
@@ -15,13 +15,8 @@ export default function Opt() {
     );
   }
 
-  const {
-    constraintSets,
-    optStages,
-    currentStageIndex,
-    constrFns,
-    objFns,
-  } = state;
+  const { constraintSets, optStages, currentStageIndex, constrFns, objFns } =
+    state;
   const { objMask, constrMask } = constraintSets.get(
     optStages[currentStageIndex]
   )!;
@@ -32,7 +27,7 @@ export default function Opt() {
     .filter(([, include]) => include)
     .map((l) => l[0])
     .map(([name, fnEvaled]) => {
-      const energy = Math.max(fnEvaled, 0);
+      const energy = parseFloat(Math.max(fnEvaled, 0).toFixed(3));
       return {
         name,
         energy,
@@ -48,7 +43,7 @@ export default function Opt() {
     .filter(([, include]) => include)
     .map((l) => l[0])
     .map(([name, fnEvaled]) => {
-      const energy = fnEvaled;
+      const energy = parseFloat(fnEvaled.toFixed(3));
       // const gradientNorm = normList(fnEvaled.gradf);
       return {
         name,
@@ -69,8 +64,13 @@ export default function Opt() {
         striped={true}
         columns={[
           { name: "Expression", selector: "name", sortable: true },
-          { name: "Energy", selector: "energy", sortable: true },
-          { name: "Satisfied?", selector: "sat", sortable: true },
+          { name: "Energy", selector: "energy", sortable: true, width: "7em" },
+          {
+            name: "Satisfied?",
+            selector: "sat",
+            sortable: true,
+            width: "7em",
+          },
         ]}
         conditionalRowStyles={[
           {
@@ -89,7 +89,7 @@ export default function Opt() {
         striped={true}
         columns={[
           { name: "Expression", selector: "name", sortable: true },
-          { name: "Energy", selector: "energy", sortable: true },
+          { name: "Energy", selector: "energy", sortable: true, width: "10em" },
           // { name: "Gradient Norm", selector: "gradientNorm", sortable: true },
         ]}
       />

@@ -1,4 +1,4 @@
-import { ShapeType } from "../shapes/Shapes";
+import { ShapeType } from "../shapes/Shapes.js";
 
 export interface TypeDesc {
   description: string;
@@ -22,6 +22,7 @@ export const valueTypeDesc = {
   ShapeList: { description: "List of shapes", symbol: "Shape[]" },
   PathCmd: { description: "Path Command", symbol: "PathCmd" },
   Boolean: { description: "Boolean Value", symbol: `true | false` },
+  ClipData: { description: "Shape clip data", symbol: "ClipData" },
 };
 
 export type ValueType = keyof typeof valueTypeDesc;

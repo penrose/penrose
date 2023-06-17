@@ -8,12 +8,14 @@
   "scripts": {
     "build": "nx run-many --target=build --verbose",
     "typecheck": "nx run-many --target=typecheck --verbose",
-    "build:automator": "nx run automator:build",
+    "build:roger": "nx run roger:build",
     "build:docs-site": "nx run docs-site:build",
     "start:docs-site": "nx run docs-site:dev",
-    "start": "nx run editor:watch",
+    "start": "nx run editor:watch --verbose",
     "build:ide": "nx run editor:build",
-    "test": "nx run core:test",
+    "test": "nx run-many --target=test --verbose",
+    "coverage": "nx run core:coverage",
+    "registry": "nx run examples:test --output-style=stream-without-prefix",
     "docs": "nx run core:docs",
     "lint": "nx run core:lint",
     "lint:fix": "nx run core:lint --fix",
@@ -32,24 +34,18 @@
     "lerna": "^3.22.1",
     "markdown-toc": "^1.2.0",
     "nx": "^15.0.13",
-    "prettier": "2.2.1",
+    "prettier": "2.8.8",
     "prettier-plugin-organize-imports": "^3.2.1",
     "pretty-quick": "^3.1.0",
     "rimraf": "^3.0.2",
-    "typescript": "^4.9.4"
+    "typescript": "^5.0.4",
+    "vitest": "^0.31.1",
+    "@vitest/coverage-c8": "^0.31.1",
+    "@vitest/ui": "^0.31.1"
   },
   "workspaces": {
     "packages": [
-      "packages/automator",
-      "packages/components",
-      "packages/core",
-      "packages/docs-site",
-      "packages/edgeworth",
-      "packages/editor",
-      "packages/examples",
-      "packages/optimizer",
-      "packages/roger",
-      "packages/vscode"
+      "packages/*"
     ],
     "nohoist": [
       "**/@types/jest",

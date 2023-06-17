@@ -4,7 +4,7 @@ import {
   genCodeSync,
   ops,
   secondaryGraph,
-} from "../engine/Autodiff";
+} from "../engine/Autodiff.js";
 import {
   absVal,
   add,
@@ -19,17 +19,18 @@ import {
   or,
   squared,
   sub,
-} from "../engine/AutodiffFunctions";
-import * as BBox from "../engine/BBox";
-import { Equation } from "../shapes/Equation";
-import { Image } from "../shapes/Image";
-import { Line } from "../shapes/Line";
-import { Polygon } from "../shapes/Polygon";
-import { Polyline } from "../shapes/Polyline";
-import { Rectangle } from "../shapes/Rectangle";
-import { Shape } from "../shapes/Shapes";
-import { Text } from "../shapes/Text";
-import * as ad from "../types/ad";
+} from "../engine/AutodiffFunctions.js";
+import * as BBox from "../engine/BBox.js";
+import { Equation } from "../shapes/Equation.js";
+import { Image } from "../shapes/Image.js";
+import { Line } from "../shapes/Line.js";
+import { Polygon } from "../shapes/Polygon.js";
+import { Polyline } from "../shapes/Polyline.js";
+import { Rectangle } from "../shapes/Rectangle.js";
+import { Shape } from "../shapes/Shapes.js";
+import { Text } from "../shapes/Text.js";
+import * as ad from "../types/ad.js";
+import { bboxFromShape } from "./Queries.js";
 
 export type Rectlike<T> = Equation<T> | Image<T> | Rectangle<T> | Text<T>;
 export type Polygonlike<T> = Rectlike<T> | Line<T> | Polygon<T> | Polyline<T>;
@@ -48,6 +49,20 @@ export const isPolygonlike = <T>(s: Shape<T>): s is Polygonlike<T> => {
 export const isLinelike = <T>(s: Shape<T>): s is Linelike<T> => {
   const t = s.shapeType;
   return t === "Line";
+};
+
+export const bboxPts = (s: Shape<ad.Num>): [ad.Pt2, ad.Pt2, ad.Pt2, ad.Pt2] => {
+  const { topRight, topLeft, bottomLeft, bottomRight } = BBox.corners(
+    bboxFromShape(s)
+  );
+  return [topRight, topLeft, bottomLeft, bottomRight];
+};
+
+export const toPt = (v: ad.Num[]): ad.Pt2 => {
+  if (v.length !== 2) {
+    throw Error("expected vector of length 2");
+  }
+  return [v[0], v[1]];
 };
 
 /**
@@ -258,8 +273,10 @@ export const isClosed = (s: Shape<ad.Num>): boolean => {
 export const extractPoints = (s: Shape<ad.Num>): [ad.Num, ad.Num][] => {
   if (s.shapeType === "Polyline" || s.shapeType === "Polygon")
     return s.points.contents.map((arr) => [arr[0], arr[1]]);
-  else if (s.shapeType === "Path")
-    return s.d.contents.map((arr) => [arr[0], arr[1]]);
   else
     throw new Error(`Point extraction not defined for shape ${s.shapeType}.`);
+};
+
+export const relu = (x: ad.Num): ad.Num => {
+  return ifCond(lt(x, 0), 0, x);
 };

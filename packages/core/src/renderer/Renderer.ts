@@ -4,23 +4,27 @@
  *
  */
 
-import { isLinelike, isRectlike } from "../contrib/Utils";
-import { Group } from "../shapes/Group";
-import { Shape } from "../shapes/Shapes";
-import { LabelCache, State } from "../types/state";
-import { getValueAsShapeList } from "../utils/Util";
-import { attrAutoFillSvg, attrTitle } from "./AttrHelper";
-import RenderCircle from "./Circle";
-import { dragUpdate } from "./dragUtils";
-import RenderEllipse from "./Ellipse";
-import RenderEquation from "./Equation";
-import RenderImage from "./Image";
-import RenderLine from "./Line";
-import RenderPath from "./Path";
-import RenderPolygon from "./Polygon";
-import RenderPolyline from "./Polyline";
-import RenderRectangle from "./Rectangle";
-import RenderText from "./Text";
+import { bboxFromShape } from "../contrib/Queries.js";
+import { isLinelike, isRectlike } from "../contrib/Utils.js";
+import { genCode, secondaryGraph } from "../engine/Autodiff.js";
+import { maxN, minN } from "../engine/AutodiffFunctions.js";
+import { maxX, maxY, minX, minY } from "../engine/BBox.js";
+import { Group } from "../shapes/Group.js";
+import { Shape } from "../shapes/Shapes.js";
+import { LabelCache, State } from "../types/state.js";
+import { toScreen } from "../utils/Util.js";
+import { attrAutoFillSvg, attrTitle } from "./AttrHelper.js";
+import RenderCircle from "./Circle.js";
+import RenderEllipse from "./Ellipse.js";
+import RenderEquation from "./Equation.js";
+import RenderImage from "./Image.js";
+import RenderLine from "./Line.js";
+import RenderPath from "./Path.js";
+import RenderPolygon from "./Polygon.js";
+import RenderPolyline from "./Polyline.js";
+import RenderRectangle from "./Rectangle.js";
+import RenderText from "./Text.js";
+import { dragUpdate } from "./dragUtils.js";
 
 /**
  * Resolves path references into static strings. Implemented by client
@@ -33,6 +37,7 @@ export interface RenderProps {
   namespace: string;
   variation: string;
   labels: LabelCache;
+  texLabels: boolean;
   canvasSize: [number, number];
   pathResolver: PathResolver;
 }
@@ -74,8 +79,6 @@ export const RenderInteractive = async (
 ): Promise<SVGSVGElement> => {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-  svg.setAttribute("width", "100%");
-  svg.setAttribute("height", "100%");
   svg.setAttribute("version", "1.2");
   svg.setAttribute(
     "viewBox",
@@ -93,6 +96,7 @@ export const RenderInteractive = async (
       canvasSize: state.canvas.size,
       variation: state.variation,
       namespace,
+      texLabels: false,
       pathResolver,
     },
     {
@@ -111,7 +115,8 @@ export const RenderInteractive = async (
 export const RenderStatic = async (
   state: State,
   pathResolver: PathResolver,
-  namespace: string
+  namespace: string,
+  texLabels = false
 ): Promise<SVGSVGElement> => {
   const {
     varyingValues,
@@ -126,6 +131,47 @@ export const RenderStatic = async (
   svg.setAttribute("viewBox", `0 0 ${canvas.width} ${canvas.height}`);
 
   const shapes = computeShapes(varyingValues);
+
+  // Find x and y ranges of shapes by using their bounding boxes
+  const bboxs = shapes.map((shape) => bboxFromShape(shape));
+
+  const MinX = minN(bboxs.map((bbox) => minX(bbox)));
+  const MinY = minN(bboxs.map((bbox) => minY(bbox)));
+  const MaxX = maxN(bboxs.map((bbox) => maxX(bbox)));
+  const MaxY = maxN(bboxs.map((bbox) => maxY(bbox)));
+  const viewBoxRanges = [MinX, MinY, MaxX, MaxY];
+
+  const [mx, my, Mx, My] = (await genCode(secondaryGraph(viewBoxRanges)))(
+    (x) => x.val
+  ).secondary;
+
+  // toScreen flips the y-axis and therefore the max will become min
+  const [mxt, myt] = toScreen([mx, my], [canvas.width, canvas.height]);
+  const [Mxt, Myt] = toScreen([Mx, My], [canvas.width, canvas.height]);
+
+  // New top left point and canvas size for cropped view box
+  const topLeft = [mxt, Myt];
+  const croppedCanvasSize = [Mxt - mxt, myt - Myt];
+
+  // Add cropped view box metadata to svg
+  svg.setAttribute("penrose", "0");
+  const metadata = document.createElementNS(
+    "https://penrose.cs.cmu.edu/metadata",
+    "penrose"
+  );
+
+  const croppedViewBox = document.createElementNS(
+    "https://penrose.cs.cmu.edu/croppedViewBox",
+    "croppedViewBox"
+  );
+
+  croppedViewBox.insertAdjacentText(
+    "afterbegin",
+    `${topLeft[0]} ${topLeft[1]} ${croppedCanvasSize[0]} ${croppedCanvasSize[1]}`
+  );
+  metadata.appendChild(croppedViewBox);
+  svg.appendChild(metadata);
+
   await RenderShapes(
     shapes,
     svg,
@@ -134,6 +180,7 @@ export const RenderStatic = async (
       canvasSize: canvas.size,
       variation,
       namespace,
+      texLabels,
       pathResolver,
     },
     undefined
@@ -143,22 +190,57 @@ export const RenderStatic = async (
 
 const RenderGroup = async (
   groupShape: Group<number>,
-  shapeProps: {
-    labels: LabelCache;
-    canvasSize: [number, number];
-    variation: string;
-    namespace: string;
-    pathResolver: PathResolver;
-  },
+  shapeProps: RenderProps,
   interactiveProp?: InteractiveProps
 ): Promise<SVGGElement> => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  const subShapes = getValueAsShapeList(groupShape.shapes);
-  for (const shape of subShapes) {
-    const childSvg = await RenderShape(shape, shapeProps, interactiveProp);
-    elem.appendChild(childSvg);
+
+  const clip = groupShape.clipPath.contents;
+
+  let clipShapeName: string | undefined = undefined;
+  let clipPathSvgId: string | undefined = undefined;
+
+  if (clip.tag === "Clip") {
+    const clipShape = clip.contents;
+    clipShapeName = clipShape.name.contents;
+    const clipShapeSvg = await RenderShape(
+      clipShape,
+      shapeProps,
+      interactiveProp
+    );
+
+    const clipPathSvg = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "clipPath"
+    );
+    // use the renderer namespace to make sure the clip path id is unique
+    clipPathSvgId = shapeProps.namespace + clipShapeName + "-clip";
+    clipPathSvg.setAttribute("id", clipPathSvgId);
+    clipPathSvg.appendChild(clipShapeSvg);
+
+    elem.appendChild(clipPathSvg);
   }
-  attrAutoFillSvg(groupShape, elem, [...attrTitle(groupShape, elem), "shapes"]);
+
+  const subShapes = groupShape.shapes.contents;
+  for (const shape of subShapes) {
+    const name = shape.name.contents;
+    if (clip.tag === "Clip") {
+      if (name !== clipShapeName) {
+        const childSvg = await RenderShape(shape, shapeProps, interactiveProp);
+        childSvg.setAttribute("clip-path", `url(#${clipPathSvgId})`);
+        elem.appendChild(childSvg);
+      }
+      // If already rendered as clip shape, don't render it here because the clip shape is implicitly a group member.
+    } else {
+      const childSvg = await RenderShape(shape, shapeProps, interactiveProp);
+      elem.appendChild(childSvg);
+    }
+  }
+  attrAutoFillSvg(groupShape, elem, [
+    ...attrTitle(groupShape, elem),
+    "shapes",
+    "clipPath",
+  ]);
   return elem;
 };
 

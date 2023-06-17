@@ -1,21 +1,82 @@
-import setTHeory from "@penrose/examples/dist/set-theory-domain";
+// @vitest-environment jsdom
+
 import { start } from "@penrose/optimizer";
-import { genGradient } from "./engine/Autodiff";
+import { describe, expect, test } from "vitest";
+import { genGradient } from "./engine/Autodiff.js";
+import { pow, sub } from "./engine/AutodiffFunctions.js";
 import {
+  RenderStatic,
   compileTrio,
   evalEnergy,
   evalFns,
   prepareState,
-  RenderStatic,
+  problem,
   resample,
   showError,
   stepUntilConvergence,
-} from "./index";
-import * as ad from "./types/ad";
-import { State } from "./types/state";
+  variable,
+} from "./index.js";
+import * as ad from "./types/ad.js";
+import { State } from "./types/state.js";
 
-const vennStyle = setTHeory["venn.style"];
-const setDomain = setTHeory["setTheory.domain"];
+// copied from `packages/examples/src/set-theory-domain/setTheory.domain`
+const setDomain = `type Set
+
+predicate Not(Prop p1)
+predicate Intersecting(Set s1, Set s2)
+predicate IsSubset(Set s1, Set s2)
+`;
+
+// copied from `packages/examples/src/set-theory-domain/venn.style`
+const vennStyle = `canvas {
+  width = 800
+  height = 700
+}
+
+forall Set x {
+  x.icon = Circle {
+    strokeWidth : 0
+  }
+
+  x.text = Equation {
+    string : x.label
+    fontSize : "25px"
+  }
+
+  ensure contains(x.icon, x.text)
+  encourage sameCenter(x.text, x.icon)
+  x.textLayering = x.text above x.icon
+}
+
+forall Set x; Set y
+where IsSubset(x, y) {
+  ensure disjoint(y.text, x.icon, 10)
+  ensure contains(y.icon, x.icon, 5)
+  x.icon above y.icon
+}
+
+forall Set x; Set y
+where Not(Intersecting(x, y)) {
+  ensure disjoint(x.icon, y.icon)
+}
+
+forall Set x; Set y
+where Intersecting(x, y) {
+  ensure overlapping(x.icon, y.icon)
+  ensure disjoint(y.text, x.icon)
+  ensure disjoint(x.text, y.icon)
+}
+`;
+
+describe("API", () => {
+  test("simple constraints", async () => {
+    const x = variable(10);
+    const { vals } = (await problem({ constraints: [pow(sub(x, 5), 2)] }))
+      .start({})
+      .run({});
+    expect(vals.get(x)).toBeCloseTo(5);
+  });
+});
 
 describe("Determinism", () => {
   const render = async (state: State): Promise<string> =>
@@ -142,6 +203,7 @@ describe("Energy API", () => {
       console.log(showError(res.error));
     }
   });
+
   test("filtered constraints", async () => {
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
     const res = await compileTrio({
@@ -156,7 +218,7 @@ describe("Energy API", () => {
       const smallerThanFns = state.constrFns.filter((c) => {
         return (
           c.ast.expr.body.tag === "FunctionCall" &&
-          c.ast.expr.body.name.value === "smallerThan"
+          c.ast.expr.body.name.value === "disjoint"
         );
       });
       const masks: ad.Masks = {
@@ -183,20 +245,20 @@ describe("Energy API", () => {
 
 describe("Cross-instance energy eval", () => {
   test("correct - subsets", async () => {
-    const twosets = `Set A, B\nAutoLabel All`;
+    const twosets = `Set A, B\nNot(Intersecting(A, B))\nAutoLabel All`;
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
     // compile and optimize both states
     const state1 = await compileTrio({
       substance: twosets,
       style: vennStyle,
       domain: setDomain,
-      variation: "cross-instance state1",
+      variation: "cross-instance state0",
     });
     const state2 = await compileTrio({
       substance: twoSubsets,
       style: vennStyle,
       domain: setDomain,
-      variation: "cross-instance state2",
+      variation: "cross-instance state1",
     });
     if (state1.isOk() && state2.isOk()) {
       const state1Done = stepUntilConvergence(await prepareState(state1.value));
@@ -248,12 +310,10 @@ describe("Run individual functions", () => {
       // console.log("# constraints", stateEvaled.constrFns.length);
 
       // Test objectives
-      const { constrEngs: initEngsConstr, objEngs: initEngsObj } = evalFns(
-        stateEvaled
-      );
-      const { constrEngs: optedEngsConstr, objEngs: optedEngsObj } = evalFns(
-        stateOptimizedValue
-      );
+      const { constrEngs: initEngsConstr, objEngs: initEngsObj } =
+        evalFns(stateEvaled);
+      const { constrEngs: optedEngsConstr, objEngs: optedEngsObj } =
+        evalFns(stateOptimizedValue);
 
       for (let i = 0; i < initEngsObj.length; i++) {
         expect(initEngsObj[i]).toBeGreaterThanOrEqual(optedEngsObj[i]);

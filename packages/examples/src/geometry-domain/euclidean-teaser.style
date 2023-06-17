@@ -27,7 +27,7 @@ const {
     textPadding2 = 25.0
     repelWeight = 0.7 -- TODO: Reverted from 0.0
     repelWeight2 = 0.5
-    fontSize = "22pt"
+    fontSize = "25px"
     containPadding = 50.0
     rayLength = 100.0
     pointRadius = 4.0
@@ -146,7 +146,7 @@ forall Linelike l {
 }
 
 forall Ray r
-where r := MkRay(base, direction)
+where r := Ray(base, direction)
 with Point base; Point direction {
   r.start = base.vec
   r.end = direction.vec
@@ -190,7 +190,7 @@ where r := Bisector(theta); theta := InteriorAngle(y, x, z) {
 }
 
 forall Line l
-where l := MkLine(p, q)
+where l := Line(p, q)
 with Point p; Point q {
   l.start = p.vec
   l.end = q.vec
@@ -239,7 +239,7 @@ where Parallel(l1, l2) {
 }
 --Segment
 forall Segment e
-where e := MkSegment(p, q)
+where e := Segment(p, q)
 with Point p; Point q {
   e.vec = [q.x - p.x, q.y - p.y]
   e.start = p.vec
@@ -465,7 +465,7 @@ where Obtuse(a) {
 }
 
 forall Triangle t; Plane P 
-where t := MkTriangle(p, q, r)
+where t := Triangle(p, q, r)
 with Point p; Point q; Point r {
   t.PQ above P.icon
   t.QR above P.icon
@@ -474,7 +474,7 @@ with Point p; Point q; Point r {
 }
 
 forall Triangle t
-where t := MkTriangle(p, q, r)
+where t := Triangle(p, q, r)
 with Point p; Point q; Point r {
   t.color = Colors.black
   t.PQ = Line {
@@ -518,7 +518,7 @@ with Point p; Point q; Point r {
 
 forall Point p
 with Triangle T; Point t1, t2, t3
-where T := MkTriangle(t1, t2, t3); Incenter(p, T) {
+where T := Triangle(t1, t2, t3); Incenter(p, T) {
   override p.vec = incenter(t1.vec, t2.vec, t3.vec)
   clr = setOpacity(Colors.darkpurple, 0.6)
   T.incenterIcon = Circle {
@@ -647,7 +647,7 @@ with Triangle T {
 --Rectangle
 -- -- Should the rectangle be constructed from the points, or vice versa?
 forall Rectangle R
-where R := MkRectangle(p, q, r, s)
+where R := Rectangle(p, q, r, s)
 with Point p; Point q; Point r; Point s {
   override R.color = Colors.none
   override R.icon = Path {
@@ -666,7 +666,7 @@ with Point p; Point q; Point r; Point s {
 }
 
 forall Quadrilateral Q
-where Q := MkQuadrilateral(p, q, r, s)
+where Q := Quadrilateral(p, q, r, s)
 with Point p; Point q; Point r; Point s {
   Q.p = p.icon.center
   Q.q = q.icon.center
@@ -723,7 +723,7 @@ with Point p; Point q; Point r; Point s {
 --FUNCTIONS
 forall Segment s
 with Triangle T; Point p, q, r, a, b
-where s := MidSegment(T, a, b); T := MkTriangle(p, q, r) {
+where s := MidSegment(T, a, b); T := Triangle(p, q, r) {
   override a.vec = midpoint(q.vec, r.vec)
   override b.vec = midpoint(r.vec, p.vec)
   override s.icon = Line {
@@ -736,7 +736,7 @@ where s := MidSegment(T, a, b); T := MkTriangle(p, q, r) {
 }
 
 forall Point p
-where p := MkMidpoint(l)
+where p := Midpoint(l)
 with Linelike l {
   override p.vec = midpoint(l.icon.start, l.icon.end)
 }
@@ -788,7 +788,7 @@ forall Circle c {
 }
 
 forall Circle c
-where c := MkCircleR(p, q)
+where c := CircleR(p, q)
 with Point p, q {
   override c.radius = vdist(p.vec, q.vec)
   override c.vec = p.icon.center
@@ -803,7 +803,7 @@ with Point p, q {
 
 -- TODO this can be reimplemented when issue #621 is resolved
 -- Circle c
--- where c := MkCircleD(p, q)
+-- where c := CircleD(p, q)
 -- with Point p, q {
 --   override c.radius = vdist(p.vec, q.vec) / 2
 -- }
@@ -910,7 +910,7 @@ forall Plane p {
 }
 
 forall Triangle t
-where t := MkTriangle(p, q, r)
+where t := Triangle(p, q, r)
 with Point p; Point q; Point r {
   t.strokeWidth = 0.0
   override t.PQ = Line {
@@ -996,7 +996,7 @@ with Segment s2; Point p {
 }
 
 forall Point p
-where p := MkMidpoint(l)
+where p := Midpoint(l)
 with Linelike l {
   override p.vec = midpoint(l.icon.start, l.icon.end)
   override p.icon.fillColor = Colors.white

@@ -1,4 +1,4 @@
-import { EPS_DENOM, ops } from "../engine/Autodiff";
+import { EPS_DENOM, ops } from "../engine/Autodiff.js";
 import {
   absVal,
   add,
@@ -12,34 +12,33 @@ import {
   neg,
   squared,
   sub,
-} from "../engine/AutodiffFunctions";
-import { Line } from "../shapes/Line";
-import { Path } from "../shapes/Path";
-import { Polygon } from "../shapes/Polygon";
-import { Polyline } from "../shapes/Polyline";
-import { Shape } from "../shapes/Shapes";
-import * as ad from "../types/ad";
-import { ObjFunc } from "../types/functions";
+} from "../engine/AutodiffFunctions.js";
+import { Line } from "../shapes/Line.js";
+import { Shape } from "../shapes/Shapes.js";
+import * as ad from "../types/ad.js";
+import { ObjFunc } from "../types/functions.js";
 import {
+  booleanT,
   linePts,
   real2T,
+  realNMT,
   realNT,
   realT,
   rectlikeT,
   shapeT,
   unionT,
-} from "../utils/Util";
-import { constrDictCurves } from "./CurveConstraints";
-import { inDirection } from "./ObjectivesUtils";
-import { bboxFromShape, shapeCenter } from "./Queries";
+} from "../utils/Util.js";
+import { constrDictCurves } from "./CurveConstraints.js";
+import { inDirection } from "./ObjectivesUtils.js";
+import { bboxFromShape, shapeCenter } from "./Queries.js";
 import {
-  closestPt_PtSeg,
-  isLinelike,
   Linelike,
   Rectlike,
+  closestPt_PtSeg,
+  isLinelike,
   repelPoint,
   sampleSeg,
-} from "./Utils";
+} from "./Utils.js";
 
 // -------- Simple objective functions
 // Do not require shape queries, operate directly with `ad.Num` parameters.
@@ -75,6 +74,24 @@ export const objDictSimple = {
       { name: "y", description: "Second value", type: realT() },
     ],
     body: (x: ad.Num, y: ad.Num): ad.Num => squared(sub(x, y)),
+  },
+
+  nearVec: {
+    name: "nearVec",
+    description:
+      "Encourage two vectors `v1` and `v2` to be near each other with distance `offset`.",
+    params: [
+      { name: "v1", type: realNT(), description: "a vector" },
+      { name: "v2", type: realNT(), description: "a vector" },
+      {
+        name: "offset",
+        type: realT(),
+        description: "distance between two vectors",
+      },
+    ],
+    body: (v1: ad.Num[], v2: ad.Num[], offset: ad.Num): ad.Num => {
+      return sub(ops.vdistsq(v1, v2), squared(offset));
+    },
   },
 
   /**
@@ -140,6 +157,18 @@ export const objDictSimple = {
 // -------- General objective functions
 // Defined for all shapes, generally require shape queries or call multiple specific objective functions.
 export const objDictGeneral = {
+  inDirection: {
+    name: "inDirection",
+    description:
+      "Encourage the point `p` to be in the direction `direction` with respect to point `pRef`. The `direction` vector does not need to be normalized. The `offset` parameter is the shortest allowed distance between the points.",
+    params: [
+      { name: "p", type: real2T() },
+      { name: "pRef", type: real2T() },
+      { name: "direction", type: real2T() },
+      { name: "offset", type: realT() },
+    ],
+    body: inDirection,
+  },
   /**
    * Encourage the center of `sTop` to be above the center of `sBottom`.
    * Only works for shapes with property `center`.
@@ -159,10 +188,15 @@ export const objDictGeneral = {
         type: shapeT("AnyShape"),
         description: "shape on the top",
       },
-      { name: "offset", type: realT(), description: "offset", default: 100 },
+      {
+        name: "offset",
+        type: realT(),
+        description: "distance between the two centers",
+        default: 100,
+      },
     ],
     body: (bottom: Shape<ad.Num>, top: Shape<ad.Num>, offset = 100): ad.Num => {
-      return inDirection(bottom, top, [0, 1], offset);
+      return inDirection(shapeCenter(bottom), shapeCenter(top), [0, 1], offset);
     },
   },
 
@@ -184,10 +218,15 @@ export const objDictGeneral = {
         type: shapeT("AnyShape"),
         description: "shape on the bottom",
       },
-      { name: "offset", type: realT(), description: "offset", default: 100 },
+      {
+        name: "offset",
+        type: realT(),
+        description: "distance between the two centers",
+        default: 100,
+      },
     ],
     body: (top: Shape<ad.Num>, bottom: Shape<ad.Num>, offset = 100): ad.Num => {
-      return inDirection(top, bottom, [0, 1], offset);
+      return inDirection(shapeCenter(top), shapeCenter(bottom), [0, 1], offset);
     },
   },
 
@@ -209,10 +248,15 @@ export const objDictGeneral = {
         type: shapeT("AnyShape"),
         description: "shape on the right",
       },
-      { name: "offset", type: realT(), description: "offset", default: 100 },
+      {
+        name: "offset",
+        type: realT(),
+        description: "distance between the two centers",
+        default: 100,
+      },
     ],
     body: (left: Shape<ad.Num>, right: Shape<ad.Num>, offset = 100): ad.Num => {
-      return inDirection(left, right, [1, 0], offset);
+      return inDirection(shapeCenter(left), shapeCenter(right), [1, 0], offset);
     },
   },
 
@@ -234,10 +278,15 @@ export const objDictGeneral = {
         type: shapeT("AnyShape"),
         description: "shape on the left",
       },
-      { name: "offset", type: realT(), description: "offset", default: 100 },
+      {
+        name: "offset",
+        type: realT(),
+        description: "distance between the two centers",
+        default: 100,
+      },
     ],
     body: (right: Shape<ad.Num>, left: Shape<ad.Num>, offset = 100): ad.Num => {
-      return inDirection(right, left, [1, 0], offset);
+      return inDirection(shapeCenter(right), shapeCenter(left), [1, 0], offset);
     },
   },
 
@@ -477,13 +526,19 @@ export const objDictSpecific = {
     description: "Try to make the shape regular",
     params: [
       {
-        name: "s",
-        type: unionT(shapeT("Polyline"), shapeT("Polygon"), shapeT("Path")),
+        name: "points",
+        type: realNMT(),
+        description: "points of polygonal chain",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether the polygonic chain is closed",
       },
     ],
-    body: (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
-      const equilater = constrDictCurves.isEquilateral.body(s);
-      const equiangular = constrDictCurves.isEquiangular.body(s);
+    body: (points: ad.Num[][], closed: boolean): ad.Num => {
+      const equilater = constrDictCurves.isEquilateral.body(points, closed);
+      const equiangular = constrDictCurves.isEquiangular.body(points, closed);
       return add(equilater, equiangular);
     },
   },
@@ -496,12 +551,18 @@ export const objDictSpecific = {
     description: "Try to make the shape equilateral",
     params: [
       {
-        name: "s",
-        type: unionT(shapeT("Polyline"), shapeT("Polygon"), shapeT("Path")),
+        name: "points",
+        type: realNMT(),
+        description: "points of polygonal chain",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether the polygonic chain is closed",
       },
     ],
-    body: (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
-      return constrDictCurves.isEquilateral.body(s);
+    body: (points: ad.Num[][], closed: boolean): ad.Num => {
+      return constrDictCurves.isEquilateral.body(points, closed);
     },
   },
 
@@ -513,12 +574,18 @@ export const objDictSpecific = {
     description: "Try to make the shape equiangular",
     params: [
       {
-        name: "s",
-        type: unionT(shapeT("Polyline"), shapeT("Polygon"), shapeT("Path")),
+        name: "points",
+        type: realNMT(),
+        description: "points of polygonal chain",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether the polygonic chain is closed",
       },
     ],
-    body: (s: Polyline<ad.Num> | Polygon<ad.Num> | Path<ad.Num>): ad.Num => {
-      return constrDictCurves.isEquiangular.body(s);
+    body: (points: ad.Num[][], closed: boolean): ad.Num => {
+      return constrDictCurves.isEquiangular.body(points, closed);
     },
   },
 };

@@ -1,7 +1,7 @@
 import { Result } from "true-myth";
-import { isConcrete } from "../engine/EngineUtils";
-import { shapeTypes } from "../shapes/Shapes";
-import * as ad from "../types/ad";
+import { isConcrete } from "../engine/EngineUtils.js";
+import { shapeTypes } from "../shapes/Shapes.js";
+import * as ad from "../types/ad.js";
 import {
   A,
   AbstractNode,
@@ -10,8 +10,8 @@ import {
   NodeType,
   SourceLoc,
   SourceRange,
-} from "../types/ast";
-import { Arg, Type, TypeConstructor } from "../types/domain";
+} from "../types/ast.js";
+import { Arg, Type, TypeConstructor } from "../types/domain.js";
 import {
   ArgLengthMismatch,
   BadArgumentTypeError,
@@ -39,15 +39,25 @@ import {
   TypeArgLengthMismatch,
   TypeMismatch,
   TypeNotFound,
+  UnexpectedCollectionAccessError,
   UnexpectedExprForNestedPred,
   VarNotFound,
-} from "../types/errors";
-import { CompFunc, ConstrFunc, FuncParam, ObjFunc } from "../types/functions";
-import { State } from "../types/state";
-import { BindingForm, ColorLit } from "../types/style";
-import { Deconstructor, SubExpr } from "../types/substance";
-import { ArgVal, ArgValWithSourceLoc, ShapeVal, Val } from "../types/value";
-import { describeType, prettyPrintPath, prettyPrintResolvedPath } from "./Util";
+} from "../types/errors.js";
+import {
+  CompFunc,
+  ConstrFunc,
+  FuncParam,
+  ObjFunc,
+} from "../types/functions.js";
+import { State } from "../types/state.js";
+import { BindingForm, ColorLit } from "../types/style.js";
+import { Deconstructor, SubExpr } from "../types/substance.js";
+import { ArgVal, ArgValWithSourceLoc, ShapeVal, Val } from "../types/value.js";
+import {
+  describeType,
+  prettyPrintPath,
+  prettyPrintResolvedPath,
+} from "./Util.js";
 const {
   or,
   and,
@@ -353,9 +363,27 @@ export const showError = (
     }
 
     case "BadElementError": {
-      return `Wrong element type at index ${error.index} in ${
-        error.coll.tag
-      } (at ${loc(error.coll)}).`;
+      if (error.coll.tag === "CollectionAccess") {
+        const preamble = `The collection access (at ${locc(
+          "Style",
+          error.coll
+        )}) failed`;
+        if (error.index === 0) {
+          return (
+            preamble +
+            ` because the collection contains elements that cannot be collected`
+          );
+        } else {
+          return (
+            preamble +
+            ` because some elements of the collection (in particular, index ${error.index}) have different type from other elements.`
+          );
+        }
+      } else {
+        return `Wrong element type at index ${error.index} in ${
+          error.coll.tag
+        } (at ${loc(error.coll)}).`;
+      }
     }
 
     case "BadIndexError": {
@@ -518,6 +546,11 @@ canvas {
       } already exists and is redeclared in ${locc("Style", error.location)}.`;
     }
 
+    case "UnexpectedCollectionAccessError": {
+      const { name, location } = error;
+      const locStr = locc("Style", location);
+      return `Style variable \`${name}\` cannot be accessed via the collection access operator (at ${locStr}) because it is not a collection.`;
+    }
     // --- END COMPILATION ERRORS
 
     // TODO(errors): use identifiers here
@@ -782,6 +815,15 @@ export const redeclareNamespaceError = (
 ): RedeclareNamespaceError => ({
   tag: "RedeclareNamespaceError",
   existingNamespace,
+  location,
+});
+
+export const unexpectedCollectionAccessError = (
+  name: string,
+  location: SourceRange
+): UnexpectedCollectionAccessError => ({
+  tag: "UnexpectedCollectionAccessError",
+  name,
   location,
 });
 

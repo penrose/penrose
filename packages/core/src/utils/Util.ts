@@ -1,19 +1,19 @@
 import _ from "lodash";
 import seedrandom from "seedrandom";
-import { LineProps } from "../shapes/Line";
-import { Shape, ShapeType } from "../shapes/Shapes";
-import * as ad from "../types/ad";
-import { A } from "../types/ast";
-import { Either, Left, Right } from "../types/common";
-import { Fn } from "../types/state";
-import { BindingForm, Expr, Path } from "../types/style";
+import { LineProps } from "../shapes/Line.js";
+import { Shape, ShapeType } from "../shapes/Shapes.js";
+import * as ad from "../types/ad.js";
+import { A } from "../types/ast.js";
+import { Either, Left, Right } from "../types/common.js";
+import { Fn } from "../types/state.js";
+import { BindingForm, Expr, Path } from "../types/style.js";
 import {
   Context,
   LocalVarSubst,
   ResolvedName,
   ResolvedPath,
   WithContext,
-} from "../types/styleSemantics";
+} from "../types/styleSemantics.js";
 import {
   ShapeT,
   TypeDesc,
@@ -22,15 +22,19 @@ import {
   ValueT,
   ValueType,
   valueTypeDesc,
-} from "../types/types";
+} from "../types/types.js";
 import {
   BoolV,
+  Clip,
+  ClipData,
+  ClipDataV,
   Color,
   ColorV,
   FloatV,
-  ListV,
   LListV,
+  ListV,
   MatrixV,
+  NoClip,
   PathCmd,
   PathDataV,
   PtListV,
@@ -40,7 +44,7 @@ import {
   Val,
   Value,
   VectorV,
-} from "../types/value";
+} from "../types/value.js";
 
 //#region general
 
@@ -139,6 +143,13 @@ export const zip3 = <T1, T2, T3>(
   return a;
 };
 
+// https://stackoverflow.com/a/70811091
+/** returns whether `key` is in `obj`, in a way that informs TypeScript */
+export const isKeyOf = <T extends Record<string, unknown>>(
+  key: string | number | symbol,
+  obj: T
+): key is keyof T => key in obj;
+
 //#endregion
 
 //#region random
@@ -215,6 +226,15 @@ export const arrowheads: ArrowheadMap = {
     path: "M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z",
     fillKind: "fill",
   },
+  perp: {
+    width: 1,
+    height: 10.15,
+    viewbox: "0 0 1 10.2",
+    refX: 0.5,
+    refY: 5.08,
+    path: "M0.5 10.2 0.5 0",
+    fillKind: "stroke",
+  },
   line: {
     width: 7.5,
     height: 14,
@@ -233,8 +253,7 @@ export const arrowheads: ArrowheadMap = {
     viewbox: "0 0 12.5 14",
     refX: 5,
     refY: 7,
-    path:
-      "M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6 M 12 7 a -6 6.75 0 0 1 -6 -6 M 7 7 L 12 7 M 12 7 a -6 6.75 0 0 0 -6 6",
+    path: "M 7 7 a -6 6.75 0 0 1 -6 -6 M 7 7 a -6 6.75 0 0 0 -6 6 M 12 7 a -6 6.75 0 0 1 -6 -6 M 7 7 L 12 7 M 12 7 a -6 6.75 0 0 0 -6 6",
     fillKind: "stroke",
     style: {
       "stroke-linecap": "round",
@@ -629,6 +648,25 @@ export const white = (): ColorV<ad.Num> =>
 
 export const noPaint = (): ColorV<ad.Num> => colorV({ tag: "NONE" });
 
+export const clipDataV = (contents: ClipData<ad.Num>): ClipDataV<ad.Num> => ({
+  tag: "ClipDataV",
+  contents,
+});
+
+export const noClip = (): NoClip => ({
+  tag: "NoClip",
+});
+
+export const clipShape = (contents: Shape<ad.Num>): Clip<ad.Num> => {
+  if (contents.shapeType === "Group") {
+    throw new Error("Cannot use a Group shape as clip path");
+  }
+  return {
+    tag: "Clip",
+    contents,
+  };
+};
+
 //#endregion
 
 //#region Type
@@ -677,6 +715,7 @@ export const stringT = (): ValueT => valueT("String");
 export const posIntT = (): ValueT => valueT("PosInt");
 export const booleanT = (): ValueT => valueT("Boolean");
 export const realNMT = (): ValueT => valueT("RealNM");
+export const shapeListT = (): ValueT => valueT("ShapeList");
 
 export const shapeT = (type: ShapeType | "AnyShape"): ShapeT => ({
   tag: "ShapeT",
@@ -710,9 +749,11 @@ export const resolveRhsName = (
       if (locals.has(value)) {
         // locals shadow selector match names
         return { tag: "Local", block, name: value };
-      } else if (value in subst) {
+      } else if (subst.tag === "StySubSubst" && value in subst.contents) {
         // selector match names shadow globals
-        return { tag: "Substance", block, name: subst[value] };
+        return { tag: "Substance", block, name: subst.contents[value] };
+      } else if (subst.tag === "CollectionSubst" && value in subst.groupby) {
+        return { tag: "Substance", block, name: subst.groupby[value] };
       } else {
         // couldn't find it in context, must be a glboal
         return { tag: "Global", block, name: value };

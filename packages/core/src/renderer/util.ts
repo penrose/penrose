@@ -1,3 +1,5 @@
+import { isKeyOf } from "../utils/Util.js";
+
 // Refactored version of `makeIdsUnique` in https://github.com/iconfu/svg-inject/blob/064ac002930deaf96eefb95eaf953c5ef5287992/src/svg-inject.js
 // MIT License
 
@@ -23,6 +25,14 @@
 
 let uniqueIdCounter = 1;
 
+/**
+ * Make all the IDs and references to them unique in an SVG element.
+ * NOTE: this function mutates the SVG element
+ * NOTE: this function doesn't behave well on a single SVG node (e.g. `<g>`). Therefore, we use this function for opaque imports (e.g. `Image`) and generally favor namespaces for id-uniqueness.
+ * @param svgElem an SVG element
+ * @param onlyReferenced only transform IDs that are referenced in the element
+ * @returns whether the SVG element is changed
+ */
 export const makeIdsUnique = (
   svgElem: Element,
   onlyReferenced: boolean
@@ -53,9 +63,10 @@ export const makeIdsUnique = (
   let idElem;
   // An object containing referenced IDs  as keys is used if only referenced IDs should be uniquified.
   // If this object does not exist, all IDs will be uniquified.
-  const referencedIds: number[] | null = onlyReferenced ? [] : null;
-  let tagName;
-  const iriTagNames = {};
+  const referencedIds: Set<number | string> | undefined = onlyReferenced
+    ? new Set()
+    : undefined;
+  const iriTagNames = new Set<keyof typeof IRI_TAG_PROPERTIES_MAP>();
   const iriProperties: string[] = [];
   let changed = false;
   let i, j;
@@ -64,14 +75,14 @@ export const makeIdsUnique = (
     // Make all IDs unique by adding the ID suffix and collect all encountered tag names
     // that are IRI referenceable from properities.
     for (i = 0; i < idElements.length; i++) {
-      tagName = idElements[i].localName; // Use non-namespaced tag name
+      const tagName = idElements[i].localName; // Use non-namespaced tag name
       // Make ID unique if tag name is IRI referenceable
-      if (tagName in IRI_TAG_PROPERTIES_MAP) {
-        iriTagNames[tagName] = 1;
+      if (isKeyOf(tagName, IRI_TAG_PROPERTIES_MAP)) {
+        iriTagNames.add(tagName);
       }
     }
     // Get all properties that are mapped to the found IRI referenceable tags
-    for (tagName in iriTagNames) {
+    iriTagNames.forEach((tagName) => {
       (IRI_TAG_PROPERTIES_MAP[tagName] || [tagName]).forEach(function (
         mappedProperty: string
       ) {
@@ -81,7 +92,7 @@ export const makeIdsUnique = (
           iriProperties.push(mappedProperty);
         }
       });
-    }
+    });
     if (iriProperties.length) {
       // Add "style" to properties, because it may contain references in the form 'style="fill:url(#myFill)"'
       iriProperties.push("style");
@@ -102,7 +113,7 @@ export const makeIdsUnique = (
           value &&
           value.replace(funcIriRegex, function (_: string, id: string) {
             if (referencedIds) {
-              referencedIds[id] = 1;
+              referencedIds.add(id);
             }
             return "url(#" + id + idSuffix + ")";
           });
@@ -118,7 +129,7 @@ export const makeIdsUnique = (
             value &&
             value.replace(funcIriRegex, function (_: string, id: number) {
               if (referencedIds) {
-                referencedIds[id] = 1;
+                referencedIds.add(id);
               }
               return "url(#" + id + idSuffix + ")";
             });
@@ -135,7 +146,7 @@ export const makeIdsUnique = (
             element.setAttribute(refAttrName, iri + idSuffix);
             if (referencedIds) {
               // Add ID to referenced IDs
-              referencedIds[iri.substring(1)] = 1;
+              referencedIds.add(iri.substring(1));
             }
           }
         }
@@ -146,7 +157,7 @@ export const makeIdsUnique = (
       idElem = idElements[i];
       // If set of referenced IDs exists, make only referenced IDs unique,
       // otherwise make all IDs unique.
-      if (!referencedIds || referencedIds[idElem.id]) {
+      if (!referencedIds || referencedIds.has(idElem.id)) {
         // Add suffix to element's ID
         idElem.id += idSuffix;
         changed = true;

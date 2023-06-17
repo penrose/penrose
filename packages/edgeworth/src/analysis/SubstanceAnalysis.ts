@@ -1,12 +1,15 @@
-import { prettyStmt } from "@penrose/core/dist/compiler/Substance";
+import {
+  prettyStmt,
+  prettySubstance,
+} from "@penrose/core/dist/compiler/Substance";
 import { dummyIdentifier } from "@penrose/core/dist/engine/EngineUtils";
 import {
   A,
   AbstractNode,
   C,
   Identifier,
-  metaProps,
   StringLit,
+  metaProps,
 } from "@penrose/core/dist/types/ast";
 import {
   ConstructorDecl,
@@ -34,6 +37,7 @@ import {
 import consola from "consola";
 import im from "immutable";
 import _ from "lodash";
+import { SynthesizedSubstance } from "../synthesis/Synthesizer";
 
 const log = consola
   .create({ level: (consola as any).LogLevel.Info })
@@ -327,7 +331,7 @@ export const cascadingDelete = <T>(
     const toDelete = prog.statements.filter((s): boolean => {
       switch (s.tag) {
         case "Bind": {
-          const expr = (s.expr as unknown) as ApplyPredicate<T>;
+          const expr = s.expr as unknown as ApplyPredicate<T>;
           const willDelete = findArg(expr, id);
           // push its return value IF bind will be deleted
           if (willDelete) ids.push(s.variable);
@@ -598,6 +602,25 @@ export const dedupStmts = (prog: SubProg<A>): SubProg<A> => ({
     (s1: SubStmt<A>, s2: SubStmt<A>) => prettyStmt(s1) === prettyStmt(s2)
   ),
 });
+
+/**
+ * Remove duplicated SynthesizedSubstances.
+ * @param progs a list of SynthesizedSubstance programs
+ * @returns a list of SynthesizedSubstance programs without duplicates
+ */
+export const dedupSynthesizedSubstances = (
+  progs: SynthesizedSubstance[]
+): SynthesizedSubstance[] => {
+  // Find duplicated programs by comparing pretty-printed statements
+  const stmtsComparator = (
+    p1: SynthesizedSubstance,
+    p2: SynthesizedSubstance
+  ) => {
+    return prettySubstance(p1.prog) === prettySubstance(p2.prog);
+  };
+  // Remove duplicated programs
+  return _.uniqWith(progs, stmtsComparator);
+};
 
 // TODO: compare clean nodes instead?
 export const stmtExists = (stmt: SubStmt<A>, prog: SubProg<A>): boolean =>

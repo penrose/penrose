@@ -240,7 +240,7 @@ fn step_until(
 
             opt_params.last_uo_state = Some(xs.clone());
             opt_params.last_uo_energy = Some(energy_val);
-            opt_params.uo_round = opt_params.uo_round + 1;
+            opt_params.uo_round += 1;
             opt_params.lbfgs_info = new_lbfgs_info;
             opt_params.last_gradient = gradient;
             opt_params.last_gradient_preconditioned = gradient_preconditioned;
@@ -282,7 +282,7 @@ fn step_until(
             if opt_params.ep_round > 1
                 && ep_converged(
                     &opt_params.last_ep_state.unwrap(),
-                    &opt_params.last_uo_state.as_ref().unwrap(),
+                    opt_params.last_uo_state.as_ref().unwrap(),
                     opt_params.last_ep_energy.unwrap(),
                     opt_params.last_uo_energy.unwrap(),
                 )
@@ -299,7 +299,7 @@ fn step_until(
                 opt_params.opt_status = OptStatus::UnconstrainedRunning;
 
                 opt_params.weight = WEIGHT_GROWTH_FACTOR * weight;
-                opt_params.ep_round = opt_params.ep_round + 1;
+                opt_params.ep_round += 1;
                 opt_params.uo_round = 0;
 
                 log::info!(
@@ -511,10 +511,9 @@ fn lbfgs_inner(grad_fx_k: &Vector, ss: &[Vector], ys: &[Vector]) -> Vector {
         let r_i_plus_1 = r_i + s_i * (alpha_i - beta_i);
         r_i = r_i_plus_1;
     }
-    let r_k = r_i;
 
     // result r_k is H_k * grad f(x_k)
-    r_k
+    r_i
 }
 
 // Outer loop of lbfgs
@@ -557,7 +556,7 @@ fn lbfgs(xs: &[f64], gradfxs: &[f64], lbfgs_info: LbfgsParams) -> LbfgsAnswer {
                 ..lbfgs_info
             },
         }
-    } else if lbfgs_info.last_state != None && lbfgs_info.last_grad != None {
+    } else if lbfgs_info.last_state.is_some() && lbfgs_info.last_grad.is_some() {
         // Our current step is k; the last step is km1 (k_minus_1)
         let x_k = Vector::from_column_slice(xs);
         let grad_fx_k = Vector::from_column_slice(gradfxs);
@@ -590,10 +589,10 @@ fn lbfgs(xs: &[f64], gradfxs: &[f64], lbfgs_info: LbfgsParams) -> LbfgsAnswer {
         // Haskell `ss` -> JS `ss_km2`; Haskell `ss'` -> JS `ss_km1`
         let mut ss_km1 = vec![s_km1];
         ss_km1.append(&mut ss_km2);
-        ss_km1.truncate(lbfgs_info.mem_size.try_into().unwrap());
+        ss_km1.truncate(lbfgs_info.mem_size);
         let mut ys_km1 = vec![y_km1];
         ys_km1.append(&mut ys_km2);
-        ys_km1.truncate(lbfgs_info.mem_size.try_into().unwrap());
+        ys_km1.truncate(lbfgs_info.mem_size);
         let grad_preconditioned = lbfgs_inner(&grad_fx_k, &ss_km1, &ys_km1);
 
         // Reset L-BFGS if the result is not a descent direction, and use steepest descent direction
@@ -669,7 +668,7 @@ fn minimize(
     let mut t = 0.0001; // NOTE: This const setting will not necessarily work well for a given opt problem.
     let mut failed = false;
 
-    let mut new_lbfgs_info = lbfgs_info.clone();
+    let mut new_lbfgs_info = lbfgs_info;
 
     while !stop() {
         if contains_nan(&xs) {
@@ -743,7 +742,7 @@ fn minimize(
 
     // TODO: Log stats for last one?
 
-    return OptInfo {
+    OptInfo {
         xs,
         energy_val: fxs,
         norm_grad: norm_gradfxs,
@@ -751,7 +750,7 @@ fn minimize(
         gradient: gradfxs,
         gradient_preconditioned,
         failed,
-    };
+    }
 }
 
 fn start(n: usize) -> Params {
@@ -781,8 +780,8 @@ fn contains_nan(number_list: &[f64]) -> bool {
 }
 
 fn to_js_value(value: &(impl Serialize + ?Sized)) -> Result<JsValue, serde_wasm_bindgen::Error> {
-    // ts-rs expects `Option::None` to become `null` instead of `undefined`
-    value.serialize(&serde_wasm_bindgen::Serializer::new().serialize_missing_as_null(true))
+    // ts-rs expects us to produce data that looks like JSON
+    value.serialize(&serde_wasm_bindgen::Serializer::json_compatible())
 }
 
 #[wasm_bindgen]

@@ -1,0 +1,6 @@
+{
+  "substance": "./all-shapes.substance",
+  "style": ["./shape-spec.style"],
+  "domain": "./all-shapes.domain",
+  "variation": ""
+}

@@ -1,32 +1,31 @@
-import * as ad from "../types/ad";
+import * as ad from "../types/ad.js";
 
-const binary = (binop: ad.Binary["binop"]) => (
-  v: ad.Num,
-  w: ad.Num
-): ad.Binary => ({
-  tag: "Binary",
-  binop,
-  left: v,
-  right: w,
-});
+const binary =
+  (binop: ad.Binary["binop"]) =>
+  (v: ad.Num, w: ad.Num): ad.Num => ({
+    tag: "Binary",
+    binop,
+    left: v,
+    right: w,
+  });
 
-const nary = (op: ad.Nary["op"], bin: (v: ad.Num, w: ad.Num) => ad.Binary) => (
-  xs: ad.Num[]
-): ad.Num => {
-  // interestingly, special-casing 1 and 2 args like this actually affects the
-  // gradient by a nontrivial amount in some cases
-  switch (xs.length) {
-    case 1: {
-      return xs[0];
+const nary =
+  (op: ad.Nary["op"], bin: (v: ad.Num, w: ad.Num) => ad.Num) =>
+  (xs: ad.Num[]): ad.Num => {
+    // interestingly, special-casing 1 and 2 args like this actually affects the
+    // gradient by a nontrivial amount in some cases
+    switch (xs.length) {
+      case 1: {
+        return xs[0];
+      }
+      case 2: {
+        return bin(xs[0], xs[1]);
+      }
+      default: {
+        return { tag: "Nary", op, params: xs };
+      }
     }
-    case 2: {
-      return bin(xs[0], xs[1]);
-    }
-    default: {
-      return { tag: "Nary", op, params: xs };
-    }
-  }
-};
+  };
 
 /**
  * Return `v + w`.
@@ -78,7 +77,7 @@ export const minN = nary("minN", min);
  * describes the angle made by a vector (x,y) with the x-axis.
  * Returns a value in radians, in the range [-pi,pi].
  */
-export const atan2 = (y: ad.Num, x: ad.Num): ad.Binary => ({
+export const atan2 = (y: ad.Num, x: ad.Num): ad.Num => ({
   tag: "Binary",
   binop: "atan2",
   left: y,
@@ -92,11 +91,13 @@ export const pow = binary("pow");
 
 // --- Unary ops
 
-const unary = (unop: ad.Unary["unop"]) => (v: ad.Num): ad.Unary => ({
-  tag: "Unary",
-  unop,
-  param: v,
-});
+const unary =
+  (unop: ad.Unary["unop"]) =>
+  (v: ad.Num): ad.Num => ({
+    tag: "Unary",
+    unop,
+    param: v,
+  });
 
 /**
  * Return `-v`.
@@ -245,12 +246,14 @@ export const trunc = unary("trunc");
 
 // ------- Discontinuous / noGrad ops
 
-const comp = (binop: ad.Comp["binop"]) => (v: ad.Num, w: ad.Num): ad.Comp => ({
-  tag: "Comp",
-  binop,
-  left: v,
-  right: w,
-});
+const comp =
+  (binop: ad.Comp["binop"]) =>
+  (v: ad.Num, w: ad.Num): ad.Bool => ({
+    tag: "Comp",
+    binop,
+    left: v,
+    right: w,
+  });
 
 /**
  * Return a conditional `v > w`.
@@ -277,15 +280,14 @@ export const lte = comp("<=");
  */
 export const eq = comp("===");
 
-const logic = (binop: ad.Logic["binop"]) => (
-  v: ad.Bool,
-  w: ad.Bool
-): ad.Logic => ({
-  tag: "Logic",
-  binop,
-  left: v,
-  right: w,
-});
+const logic =
+  (binop: ad.Logic["binop"]) =>
+  (v: ad.Bool, w: ad.Bool): ad.Bool => ({
+    tag: "Logic",
+    binop,
+    left: v,
+    right: w,
+  });
 
 /**
  * Return a boolean `v && w`
@@ -302,12 +304,12 @@ export const or = logic("||");
  */
 export const xor = logic("!==");
 
-export const not = (v: ad.Bool): ad.Not => ({ tag: "Not", param: v });
+export const not = (v: ad.Bool): ad.Bool => ({ tag: "Not", param: v });
 
 /**
  * Return a conditional `if(cond) then v else w`.
  */
-export const ifCond = (cond: ad.Bool, v: ad.Num, w: ad.Num): ad.Ternary => ({
+export const ifCond = (cond: ad.Bool, v: ad.Num, w: ad.Num): ad.Num => ({
   tag: "Ternary",
   cond,
   then: v,

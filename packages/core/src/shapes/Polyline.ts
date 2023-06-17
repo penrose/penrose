@@ -1,14 +1,26 @@
-import * as ad from "../types/ad";
-import { Fill, Named, Poly, Scale, ShapeCommon, Stroke } from "../types/shapes";
-import { black, boolV, floatV, noPaint, ptListV, strV } from "../utils/Util";
-import { Canvas, Context } from "./Samplers";
+import { StrV } from "src/types/value.js";
+import * as ad from "../types/ad.js";
+import {
+  Fill,
+  Named,
+  Poly,
+  Scale,
+  ShapeCommon,
+  Stroke,
+} from "../types/shapes.js";
+import { black, boolV, floatV, noPaint, ptListV, strV } from "../utils/Util.js";
+import { Canvas, Context } from "./Samplers.js";
 
 export interface PolylineProps<T>
   extends Named<T>,
     Stroke<T>,
     Fill<T>,
     Scale<T>,
-    Poly<T> {}
+    Poly<T> {
+  // `stroke-linecap` only takes effect on <altGlyph>, <path>, <polyline>, <line>, <text>, <textPath>, <tref>, and <tspan>.
+  // https://www.w3docs.com/learn-css/stroke-linecap.html
+  strokeLinecap: StrV;
+}
 
 export const samplePolyline = (
   _context: Context,
@@ -20,6 +32,7 @@ export const samplePolyline = (
   strokeStyle: strV("solid"),
   strokeColor: black(),
   strokeDasharray: strV(""),
+  strokeLinecap: strV("butt"),
   fillColor: noPaint(),
   scale: floatV(1),
   points: ptListV([
