@@ -2899,10 +2899,7 @@ export const compDict = {
       p: ad.Num[],
       v: ad.Num[]
     ): FloatV<ad.Num> => {
-      const hit = rawRayIntersect(S, p, v);
-      const x = hit[0]; // hit location
-      const t = ifCond(eq(absVal(x[0]), Infinity), Infinity, ops.vdist(p, x));
-      return { tag: "FloatV", contents: t };
+      return floatV(distRI(rawRayIntersect(S, p, v), p));
     },
     returns: valueT("Real"),
   },
@@ -2922,6 +2919,23 @@ export const compDict = {
       v: ad.Num[]
     ): VectorV<ad.Num> => vectorV(safeRI(rawRayIntersectCircle(c, r, p, v), p)),
     returns: valueT("Real2"),
+  },
+  rayIntersectCircleDistance: {
+    name: "rayIntersectCircleDistance",
+    params: [
+      { name: "c", type: real2T(), description: "center of circle" },
+      { name: "r", type: realT(), description: "radius of circle" },
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      c: ad.Num[],
+      r: ad.Num,
+      p: ad.Num[],
+      v: ad.Num[]
+    ): FloatV<ad.Num> => floatV(distRI(rawRayIntersectCircle(c, r, p, v), p)),
+    returns: valueT("Real"),
   },
   rayIntersectEllipse: {
     name: "rayIntersectEllipse",
@@ -2943,6 +2957,26 @@ export const compDict = {
       vectorV(safeRI(rawRayIntersectEllipse(c, rx, ry, p, v), p)),
     returns: real2T(),
   },
+  rayIntersectEllipseDistance: {
+    name: "rayIntersectEllipseDistance",
+    params: [
+      { name: "c", type: real2T() },
+      { name: "rx", type: realT() },
+      { name: "ry", type: realT() },
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      c: ad.Num[],
+      rx: ad.Num,
+      ry: ad.Num,
+      p: ad.Num[],
+      v: ad.Num[]
+    ): FloatV<ad.Num> =>
+      floatV(distRI(rawRayIntersectEllipse(c, rx, ry, p, v), p)),
+    returns: valueT("Real"),
+  },
   rayIntersectLine: {
     name: "rayIntersectLine",
     params: [
@@ -2960,6 +2994,24 @@ export const compDict = {
     ): VectorV<ad.Num> =>
       vectorV(safeRI(rawRayIntersectLine(start, end, p, v), p)),
     returns: real2T(),
+  },
+  rayIntersectLineDistance: {
+    name: "rayIntersectLineDistance",
+    params: [
+      { name: "start", type: real2T() },
+      { name: "end", type: real2T() },
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      start: ad.Num[],
+      end: ad.Num[],
+      p: ad.Num[],
+      v: ad.Num[]
+    ): FloatV<ad.Num> =>
+      floatV(distRI(rawRayIntersectLine(start, end, p, v), p)),
+    returns: valueT("Real"),
   },
   rayIntersectRect: {
     name: "rayIntersectRect",
@@ -2980,6 +3032,26 @@ export const compDict = {
       v: ad.Num[]
     ): VectorV<ad.Num> => vectorV(safeRI(rawRayIntersectRect(rect, p, v), p)),
     returns: real2T(),
+  },
+  rayIntersectRectDistance: {
+    name: "rayIntersectRectDistance",
+    params: [
+      {
+        name: "rect",
+        type: real2NT(),
+        description:
+          "The top-right, top-left, bottom-left, bottom-right points (in that order) of the rectangle",
+      },
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      rect: ad.Pt2[],
+      p: ad.Num[],
+      v: ad.Num[]
+    ): FloatV<ad.Num> => floatV(distRI(rawRayIntersectRect(rect, p, v), p)),
+    returns: valueT("Real"),
   },
   rayIntersectPoly: {
     name: "rayIntersectPoly",
@@ -3006,6 +3078,31 @@ export const compDict = {
       vectorV(safeRI(rawRayIntersectPoly(pts, closed, p, v), p)),
     returns: real2T(),
   },
+  rayIntersectPolyDistance: {
+    name: "rayIntersectPolyDistance",
+    params: [
+      {
+        name: "pts",
+        type: real2NT(),
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+      },
+
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      pts: ad.Pt2[],
+      closed: boolean,
+      p: ad.Num[],
+      v: ad.Num[]
+    ): FloatV<ad.Num> =>
+      floatV(distRI(rawRayIntersectPoly(pts, closed, p, v), p)),
+    returns: valueT("Real"),
+  },
   rayIntersectGroup: {
     name: "rayIntersectGroup",
     params: [
@@ -3022,6 +3119,23 @@ export const compDict = {
     ): VectorV<ad.Num> =>
       vectorV(safeRI(rawRayIntersectGroup(shapes, p, v), p)),
     returns: real2T(),
+  },
+  rayIntersectGroupDistance: {
+    name: "rayIntersectGroupDistance",
+    params: [
+      { name: "shapes", type: shapeListT() },
+
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      shapes: Shape<ad.Num>[],
+      p: ad.Num[],
+      v: ad.Num[]
+    ): FloatV<ad.Num> =>
+      floatV(distRI(rawRayIntersectGroup(shapes, p, v), p)),
+    returns: valueT("Real"),
   },
   rayIntersectNormal: {
     name: "rayIntersectNormal",
@@ -4385,6 +4499,15 @@ export const safeRIN = (hit: ad.Num[][], p: ad.Num[]): ad.Num[] => {
     ifCond(lt(s, 0), neg(n[1]), n[1])
   );
   return [n0, n1];
+};
+
+// ray intersection distance
+export const distRI = (hit: ad.Num[][], p: ad.Num[]): ad.Num => {
+  const x = hit[0]; // hit location
+  // if the point is at infinity, return an infinite distance;
+  // otherwise, compute and return the distance to the hit point
+  const t = ifCond(eq(absVal(x[0]), Infinity), Infinity, ops.vdist(p,x));
+  return t;
 };
 
 export const rawRayIntersect = (
