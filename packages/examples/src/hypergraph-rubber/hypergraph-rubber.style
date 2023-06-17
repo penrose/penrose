@@ -33,28 +33,30 @@ forall Hyperedge h {
     strokeColor: #000
   }
 
-  encourage equal(perimeter(h.poly.points, true), 100) except second
-  encourage minimal(elasticEnergy(h.poly.points, true)) except second
-  --   encourage equal(elasticEnergy(h.poly.points, true), 0)
-  encourage isEquilateral(h.poly) except second
-  ensure isConvex(h.poly) except second
+  encourage perimeter(h.poly.points, true) == 0 except second
+--   encourage minimal(elasticEnergy(h.poly.points, true)) except second
+  encourage isEquilateral(h.poly.points, true) except second
 }
 
 forall Node n {
   vec2 n.pos = (?, ?)
   shape n.icon = Circle {
     center: n.pos
-    -- width: 50
-    -- height: 50
-    r: 10
-    fillColor: #000
+    r: 8
+    fillColor: #ffffffff
+    strokeColor: #000
+    strokeWidth: 1
   }
-  
+  shape n.logo = Text {
+    center: n.pos
+    string: n.label
+  }
+
 }
 
 forall Node n; Hyperedge h
 where isIn(n, h) {
-  ensure overlapping(h.poly, n.icon) except first
+  ensure overlapping(h.poly, n.icon, 50) except first
 }
 
 forall Node n; Hyperedge h
@@ -62,10 +64,6 @@ where notIn(n, h) {
   ensure disjoint(n.icon, h.poly, 50) except first
 }
 
--- forall Hyperedge h1; Hyperedge h2 {
---   -- ensure disjoint(h1.poly, h2.poly, 100)
--- }
-
 forall Node n1; Node n2 {
-  ensure lessThan(50, vdist(n1.pos, n2.pos)) except first
+  ensure lessThan(20, vdist(n1.pos, n2.pos)) except first
 }
