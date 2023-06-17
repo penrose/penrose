@@ -131,6 +131,7 @@ import {
   shapeDistanceRectCircle,
   shapeDistanceRectLine,
   shapeDistanceRects,
+  shapeDistanceRectlikePolyline,
 } from "./Queries.js";
 import { Rectlike, clamp, isRectlike, numOf, toPt } from "./Utils.js";
 
@@ -3725,6 +3726,29 @@ export const compDict = {
       start: ad.Pt2,
       end: ad.Pt2
     ): FloatV<ad.Num> => floatV(shapeDistanceRectLine(rect, start, end)),
+    returns: realT(),
+  },
+  shapeDistanceRectlikePolyline: {
+    name: "shapeDistanceRectlikePolyline",
+    description: "Returns the distance between a rectangle and a polyline.",
+    params: [
+      {
+        name: "rect",
+        type: real2NT(),
+        description:
+          "The top-right, top-left, bottom-left, bottom-right points (in that order) of the rectangle.",
+      },
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of polyline",
+      },
+    ],
+    body: (
+      _context: Context,
+      rect: ad.Pt2[],
+      points: ad.Num[][]
+    ): FloatV<ad.Num> => floatV(shapeDistanceRectlikePolyline(rect, points)),
     returns: realT(),
   },
   shapeDistancePolys: {
