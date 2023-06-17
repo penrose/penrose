@@ -1,39 +1,27 @@
 <svg
   version="1.2"
   xmlns="http://www.w3.org/2000/svg"
-  viewBox="0 0 320 240"
+  viewBox="0 0 200 200"
   penrose="0"
 >
   <penrose>
     <croppedViewBox>
-      0 -0.43485669607741784 320 240.86988095168954
+      7.81265964094959 21.672858287387044 182.98148573620398 161.01727385630144
     </croppedViewBox>
   </penrose>
-  <rect
-    x="0"
-    y="0"
-    width="320"
-    height="240"
-    fill="none"
-    stroke="none"
-    rx="0"
-    transform="rotate(0, 160, 120)"
-  >
-    <title>Global.box</title>
-  </rect>
   <polygon
-    fill="#e6e6e6"
+    fill="#e5e5e5"
     fill-opacity="1"
-    stroke="#808080"
+    stroke="#b3b3b3"
     stroke-opacity="1"
-    stroke-width="2"
+    stroke-width="1.3333333333333333"
     transform="scale(1)"
-    points="284.72186799425333,240.43502425561212,159.14345539976117,194.75736253793505,28.004254618735047,223.36439078033328,8.674262518532629,40.16653633841172,160.92854822524572,45.03733356332546,284.2407063277874,-0.4348566960774036"
+    points="176.69989225148686,172.26236207013955,94.15283441257121,175.75306934265427,7.8126596409496045,182.6901321436885,15.884176476397528,32.66273441058273,92.00412258765502,31.139459982998446,190.79414537715357,21.672858287387044"
   >
-    <title>Global.domain</title>
+    <title>`U`.geometry</title>
   </polygon>
   <g
-    transform="rotate(0, 200.33192783533795, 120.1957446264264)translate(117.93234595824231, 37.79616274933076)"
+    transform="rotate(0, 19.580306903333096, 158.72057741672788)translate(10.117359934699074, 149.25763044809386)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -45,8 +33,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="164.79916375419128"
-      height="164.79916375419128"
+      width="18.925893937268043"
+      height="18.925893937268043"
     >
       <style type="text/css">
         .poisson-estimator__st0 {
@@ -69,55 +57,10 @@
       </radialGradient>
       <circle class="poisson-estimator__st0" cx="110.9" cy="110.9" r="110.9" />
     </svg>
-    <title>`x0`.shading</title>
-  </g>
-  <circle
-    fill="#33cc33"
-    fill-opacity="0.15"
-    cx="200.33192783533795"
-    cy="120.1957446264264"
-    stroke="none"
-    r="82.39958187709564"
-  >
-    <title>`x0`.ball</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="158.6671929088909"
-    cy="160.11014083845544"
-    stroke="#000000"
-    stroke-opacity="1"
-    stroke-width="1"
-    r="2"
-  >
-    <title>`y0`.dot</title>
-  </circle>
-  <circle
-    fill="none"
-    cx="200.33192783533795"
-    cy="120.1957446264264"
-    stroke="#668066"
-    stroke-opacity="1"
-    stroke-width="1.5"
-    r="82.39958187709564"
-  >
-    <title>`x0`.sphere</title>
-  </circle>
-  <g>
-    <line
-      x1="200.33192783533795"
-      y1="120.1957446264264"
-      x2="117.75277371529637"
-      y2="100.63512265359562"
-      stroke="#0000b3"
-      stroke-opacity="1"
-      stroke-width="2"
-    />
-    <title>9:0:walkLine</title>
+    <title>`B3`.shading</title>
   </g>
   <g
-    transform="rotate(0, 117.75277371529637, 100.63512265359562)translate(62.55287467015747, 45.43522360845672)"
+    transform="rotate(0, 63.164611891097174, 145.85621867611488)translate(31.882021861091445, 114.57362864610914)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -129,8 +72,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="110.3997980902778"
-      height="110.3997980902778"
+      width="62.56518006001146"
+      height="62.56518006001146"
     >
       <style type="text/css">
         .poisson-estimator__st0 {
@@ -153,43 +96,10 @@
       </radialGradient>
       <circle class="poisson-estimator__st0" cx="110.9" cy="110.9" r="110.9" />
     </svg>
-    <title>`x1`.shading</title>
-  </g>
-  <circle
-    fill="#33cc33"
-    fill-opacity="0.15"
-    cx="117.75277371529637"
-    cy="100.63512265359562"
-    stroke="none"
-    r="55.1998990451389"
-  >
-    <title>`x1`.ball</title>
-  </circle>
-  <circle
-    fill="none"
-    cx="117.75277371529637"
-    cy="100.63512265359562"
-    stroke="#668066"
-    stroke-opacity="1"
-    stroke-width="1.5"
-    r="55.1998990451389"
-  >
-    <title>`x1`.sphere</title>
-  </circle>
-  <g>
-    <line
-      x1="117.75277371529637"
-      y1="100.63512265359562"
-      x2="170.4258893138708"
-      y2="97.36002740970198"
-      stroke="#0000b3"
-      stroke-opacity="1"
-      stroke-width="2"
-    />
-    <title>9:1:walkLine</title>
+    <title>`B1`.shading</title>
   </g>
   <g
-    transform="rotate(0, 170.4258893138708, 97.36002740970198)translate(118.99822690665951, 45.932365002490684)"
+    transform="rotate(0, 70.78866804466873, 89.49119819081437)translate(13.910491717129318, 32.613021863274966)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -201,8 +111,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="102.8553248144226"
-      height="102.8553248144226"
+      width="113.75635265507881"
+      height="113.75635265507881"
     >
       <style type="text/css">
         .poisson-estimator__st0 {
@@ -225,43 +135,60 @@
       </radialGradient>
       <circle class="poisson-estimator__st0" cx="110.9" cy="110.9" r="110.9" />
     </svg>
-    <title>`x2`.shading</title>
+    <title>`B0`.shading</title>
   </g>
   <circle
-    fill="#33cc33"
-    fill-opacity="0.15"
-    cx="170.4258893138708"
-    cy="97.36002740970198"
-    stroke="none"
-    r="51.4276624072113"
-  >
-    <title>`x2`.ball</title>
-  </circle>
-  <circle
-    fill="none"
-    cx="170.4258893138708"
-    cy="97.36002740970198"
-    stroke="#668066"
+    fill="#9acca0"
+    fill-opacity="1"
+    cx="70.78866804466873"
+    cy="89.49119819081437"
+    stroke="#1b8a1f"
     stroke-opacity="1"
-    stroke-width="1.5"
-    r="51.4276624072113"
+    stroke-width="0.6666666666666666"
+    r="56.87817632753941"
+    opacity="0.35"
   >
-    <title>`x2`.sphere</title>
+    <title>`B0`.ball</title>
   </circle>
-  <g>
+  <g fill="none">
     <line
-      x1="170.4258893138708"
-      y1="97.36002740970198"
-      x2="163.55738263833044"
-      y2="156.68597530409374"
-      stroke="#0000b3"
-      stroke-opacity="1"
-      stroke-width="2"
+      x1="70.78866804466873"
+      y1="89.49119819081437"
+      x2="63.164611891097174"
+      y2="145.85621867611488"
+      stroke="#006600"
+      stroke-opacity="0.2980392156862745"
+      stroke-width="1.3333333333333333"
     />
-    <title>9:2:walkLine</title>
+    <title>`x1`.walkLine</title>
+  </g>
+  <circle
+    fill="#9acca0"
+    fill-opacity="1"
+    cx="63.164611891097174"
+    cy="145.85621867611488"
+    stroke="#1b8a1f"
+    stroke-opacity="1"
+    stroke-width="0.6666666666666666"
+    r="31.28259003000573"
+    opacity="0.35"
+  >
+    <title>`B1`.ball</title>
+  </circle>
+  <g fill="none">
+    <line
+      x1="63.164611891097174"
+      y1="145.85621867611488"
+      x2="36.44547360435168"
+      y2="162.1254711849598"
+      stroke="#006600"
+      stroke-opacity="0.2980392156862745"
+      stroke-width="1.3333333333333333"
+    />
+    <title>`x2`.walkLine</title>
   </g>
   <g
-    transform="rotate(0, 163.55738263833044, 156.68597530409374)translate(126.98097816861167, 120.10957083437498)"
+    transform="rotate(0, 36.44547360435168, 162.1254711849598)translate(19.240004034440027, 144.92000161504814)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -273,8 +200,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="73.15280893943753"
-      height="73.15280893943753"
+      width="34.41093913982331"
+      height="34.41093913982331"
     >
       <style type="text/css">
         .poisson-estimator__st0 {
@@ -297,124 +224,51 @@
       </radialGradient>
       <circle class="poisson-estimator__st0" cx="110.9" cy="110.9" r="110.9" />
     </svg>
-    <title>`x3`.shading</title>
+    <title>`B2`.shading</title>
   </g>
   <circle
-    fill="#33cc33"
-    fill-opacity="0.15"
-    cx="163.55738263833044"
-    cy="156.68597530409374"
-    stroke="none"
-    r="36.57640446971877"
-  >
-    <title>`x3`.ball</title>
-  </circle>
-  <circle
-    fill="#000000"
+    fill="#9acca0"
     fill-opacity="1"
-    cx="163.55738263833044"
-    cy="156.68597530409374"
-    stroke="none"
-    r="2.5"
-  >
-    <title>`x3`.dot</title>
-  </circle>
-  <text
-    fill="#808080"
-    fill-opacity="1"
-    stroke="none"
-    transform="rotate(0, 251.4525276092625, 208.6164038950936)"
-    style="font: 12px Palatino"
-    x="251.4525276092625"
-    y="213.6164038950936"
-    width="10"
-    height="10"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="10"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-  >
-    <title>`U`.labelText</title>
-    Ω
-  </text>
-  <text
-    fill="#000000"
-    fill-opacity="1"
-    stroke="#ffffff"
+    cx="36.44547360435168"
+    cy="162.1254711849598"
+    stroke="#1b8a1f"
     stroke-opacity="1"
-    stroke-width="2.5"
-    transform="rotate(0, 127.71790688327312, 101.21214216350447)"
-    style="font: italic 12px Palatino"
-    x="127.71790688327312"
-    y="104.71214216350447"
-    width="10.767578125"
-    height="7"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="7"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-    paint-order="stroke"
-    stroke-linejoin="round"
+    stroke-width="0.6666666666666666"
+    r="17.205469569911656"
+    opacity="0.35"
   >
-    <title>`x1`.labelText</title>
-    x₁
-  </text>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="117.75277371529637"
-    cy="100.63512265359562"
-    stroke="none"
-    r="2.5"
-  >
-    <title>`x1`.dot</title>
+    <title>`B2`.ball</title>
   </circle>
-  <text
-    fill="#000000"
-    fill-opacity="1"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="2.5"
-    transform="rotate(0, 171.14975517778458, 91.63260331408274)"
-    style="font: italic 12px Palatino"
-    x="171.14975517778458"
-    y="92.63260331408274"
-    width="12"
-    height="2"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="2"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-    paint-order="stroke"
-    stroke-linejoin="round"
-  >
-    <title>`x2`.labelText</title>
-    …
-  </text>
+  <g fill="none">
+    <line
+      x1="36.44547360435168"
+      y1="162.1254711849598"
+      x2="19.580306903333096"
+      y2="158.72057741672788"
+      stroke="#006600"
+      stroke-opacity="0.2980392156862745"
+      stroke-width="1.3333333333333333"
+    />
+    <title>`x3`.walkLine</title>
+  </g>
   <circle
-    fill="#000000"
+    fill="#9acca0"
     fill-opacity="1"
-    cx="170.4258893138708"
-    cy="97.36002740970198"
-    stroke="none"
-    r="2.5"
+    cx="19.580306903333096"
+    cy="158.72057741672788"
+    stroke="#1b8a1f"
+    stroke-opacity="1"
+    stroke-width="0.6666666666666666"
+    r="9.462946968634022"
+    opacity="0.35"
   >
-    <title>`x2`.dot</title>
+    <title>`B3`.ball</title>
   </circle>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="173.25514732622395"
-    cy="151.56615560740445"
+    cx="14.647897258378507"
+    cy="162.57336602403024"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
@@ -422,108 +276,53 @@
   >
     <title>`y3`.dot</title>
   </circle>
-  <text
-    fill="#000000"
-    fill-opacity="1"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="2.5"
-    transform="rotate(0, 157.64004673722934, 169.19359099060526)"
-    style="font: italic 12px Palatino"
-    x="157.64004673722934"
-    y="171.19359099060526"
-    width="12.779296875"
-    height="10"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="7"
-    descent="3"
-    text-anchor="middle"
-    visibility=""
-    paint-order="stroke"
-    stroke-linejoin="round"
-  >
-    <title>`y0`.labelText</title>
-    y₀
-  </text>
-  <text
-    fill="#000000"
-    fill-opacity="1"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="2.5"
-    transform="rotate(0, 203.03408767928937, 112.19937926303388)"
-    style="font: italic 12px Palatino"
-    x="203.03408767928937"
-    y="115.69937926303388"
-    width="11.767578125"
-    height="7"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="7"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-    paint-order="stroke"
-    stroke-linejoin="round"
-  >
-    <title>`x0`.labelText</title>
-    x₀
-  </text>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="200.33192783533795"
-    cy="120.1957446264264"
+    cx="19.580306903333096"
+    cy="158.72057741672788"
     stroke="none"
-    r="2.5"
+    r="2"
+  >
+    <title>`x3`.dot</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="70.78866804466873"
+    cy="89.49119819081437"
+    stroke="none"
+    r="2"
   >
     <title>`x0`.dot</title>
   </circle>
   <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="36.44547360435168"
+    cy="162.1254711849598"
+    stroke="none"
+    r="2"
+  >
+    <title>`x2`.dot</title>
+  </circle>
+  <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="170.06774694064245"
-    cy="71.19929702644754"
+    cx="77.72017052440563"
+    cy="108.98789090529543"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
     r="2"
   >
-    <title>`y2`.dot</title>
+    <title>`y0`.dot</title>
   </circle>
-  <text
-    fill="#000000"
-    fill-opacity="1"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="2.5"
-    transform="rotate(0, 121.49451083370562, 87.53904670050568)"
-    style="font: italic 12px Palatino"
-    x="121.49451083370562"
-    y="89.53904670050568"
-    width="11.779296875"
-    height="10"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="7"
-    descent="3"
-    text-anchor="middle"
-    visibility=""
-    paint-order="stroke"
-    stroke-linejoin="round"
-  >
-    <title>`y1`.labelText</title>
-    y₁
-  </text>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="111.59693585667777"
-    cy="86.03487667335764"
+    cx="65.16429979085157"
+    cy="121.89435994814573"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
@@ -532,39 +331,295 @@
     <title>`y1`.dot</title>
   </circle>
   <circle
-    fill="none"
-    cx="163.55738263833044"
-    cy="156.68597530409374"
-    stroke="#668066"
-    stroke-opacity="1"
-    stroke-width="1.5"
-    r="36.57640446971877"
-  >
-    <title>`x3`.sphere</title>
-  </circle>
-  <text
     fill="#000000"
     fill-opacity="1"
-    stroke="#ffffff"
+    cx="63.164611891097174"
+    cy="145.85621867611488"
+    stroke="none"
+    r="2"
+  >
+    <title>`x1`.dot</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="39.96995739262178"
+    cy="159.27576723084002"
+    stroke="#000000"
     stroke-opacity="1"
-    stroke-width="2.5"
-    transform="rotate(0, 162.05900034875555, 166.4835155902576)"
-    style="font: italic 12px Palatino"
-    x="162.05900034875555"
-    y="169.9835155902576"
-    width="11.767578125"
-    height="7"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="7"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-    paint-order="stroke"
-    stroke-linejoin="round"
+    stroke-width="1"
+    r="2"
+  >
+    <title>`y2`.dot</title>
+  </circle>
+  <g
+    transform="rotate(0, 36.99636786080599, 153.14234725626966)translate(29.18322986080599, 152.34236725626965)"
+    font-family="Linux Libertine"
+    font-style="italic"
+  >
+    <title>`x2`.labelText</title>
+    <svg
+      style="font-size: 13.333px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="15.626275999999999"
+      height="1.59996"
+      role="img"
+      focusable="false"
+      viewBox="0 -120 1172 120"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mo">
+            <path
+              data-c="2026"
+              d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60ZM525 60Q525 84 542 102T585 120Q609 120 627 104T646 61Q646 36 629 18T586 0T543 17T525 60ZM972 60Q972 84 989 102T1032 120Q1056 120 1074 104T1093 61Q1093 36 1076 18T1033 0T990 17T972 60Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 16.831951140823676, 167.2906731339694)translate(10.009455040823676, 163.2921064339694)"
+    font-family="Linux Libertine"
+    font-style="italic"
   >
     <title>`x3`.labelText</title>
-    xₖ
-  </text>
+    <svg
+      style="font-size: 13.333px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="13.6449922"
+      height="7.9971334"
+      role="img"
+      focusable="false"
+      viewBox="0 -442 1023.4 599.8"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="msub">
+            <g data-mml-node="mi">
+              <path
+                data-c="1D465"
+                d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"
+              />
+            </g>
+            <g data-mml-node="mi" transform="translate(605,-150) scale(0.707)">
+              <path
+                data-c="1D458"
+                d="M121 647Q121 657 125 670T137 683Q138 683 209 688T282 694Q294 694 294 686Q294 679 244 477Q194 279 194 272Q213 282 223 291Q247 309 292 354T362 415Q402 442 438 442Q468 442 485 423T503 369Q503 344 496 327T477 302T456 291T438 288Q418 288 406 299T394 328Q394 353 410 369T442 390L458 393Q446 405 434 405H430Q398 402 367 380T294 316T228 255Q230 254 243 252T267 246T293 238T320 224T342 206T359 180T365 147Q365 130 360 106T354 66Q354 26 381 26Q429 26 459 145Q461 153 479 153H483Q499 153 499 144Q499 139 496 130Q455 -11 378 -11Q333 -11 305 15T277 90Q277 108 280 121T283 145Q283 167 269 183T234 206T200 217T182 220H180Q168 178 159 139T145 81T136 44T129 20T122 7T111 -2Q98 -11 83 -11Q66 -11 57 -1T48 16Q48 26 85 176T158 471L195 616Q196 629 188 632T149 637H144Q134 637 131 637T124 640T121 647Z"
+              />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 56.748710750757645, 118.70408392431159)translate(50.571531850757644, 114.39085842431159)"
+    font-family="Linux Libertine"
+    font-style="italic"
+  >
+    <title>`y1`.labelText</title>
+    <svg
+      style="font-size: 13.333px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="12.3543578"
+      height="8.626451000000001"
+      role="img"
+      focusable="false"
+      viewBox="0 -442 926.6 647"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="msub">
+            <g data-mml-node="mi">
+              <path
+                data-c="1D466"
+                d="M21 287Q21 301 36 335T84 406T158 442Q199 442 224 419T250 355Q248 336 247 334Q247 331 231 288T198 191T182 105Q182 62 196 45T238 27Q261 27 281 38T312 61T339 94Q339 95 344 114T358 173T377 247Q415 397 419 404Q432 431 462 431Q475 431 483 424T494 412T496 403Q496 390 447 193T391 -23Q363 -106 294 -155T156 -205Q111 -205 77 -183T43 -117Q43 -95 50 -80T69 -58T89 -48T106 -45Q150 -45 150 -87Q150 -107 138 -122T115 -142T102 -147L99 -148Q101 -153 118 -160T152 -167H160Q177 -167 186 -165Q219 -156 247 -127T290 -65T313 -9T321 21L315 17Q309 13 296 6T270 -6Q250 -11 231 -11Q185 -11 150 11T104 82Q103 89 103 113Q103 170 138 262T173 379Q173 380 173 381Q173 390 173 393T169 400T158 404H154Q131 404 112 385T82 344T65 302T57 280Q55 278 41 278H27Q21 284 21 287Z"
+              />
+            </g>
+            <g data-mml-node="mn" transform="translate(523,-150) scale(0.707)">
+              <path
+                data-c="31"
+                d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"
+              />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 106.81196021145321, 166.134018691876)translate(101.9987472114532, 161.440802691876)"
+    font-family="Linux Libertine"
+  >
+    <title>`U`.labelText</title>
+    <svg
+      style="font-size: 13.333px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="9.626426"
+      height="9.386432"
+      role="img"
+      focusable="false"
+      viewBox="0 -704 722 704"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="3A9"
+              d="M55 454Q55 503 75 546T127 617T197 665T272 695T337 704H352Q396 704 404 703Q527 687 596 615T666 454Q666 392 635 330T559 200T499 83V80H543Q589 81 600 83T617 93Q622 102 629 135T636 172L637 177H677V175L660 89Q645 3 644 2V0H552H488Q461 0 456 3T451 20Q451 89 499 235T548 455Q548 512 530 555T483 622T424 656T361 668Q332 668 303 658T243 626T193 560T174 456Q174 380 222 233T270 20Q270 7 263 0H77V2Q76 3 61 89L44 175V177H84L85 172Q85 171 88 155T96 119T104 93Q109 86 120 84T178 80H222V83Q206 132 162 199T87 329T55 454Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 69.1222539014556, 80.64681783358756)translate(62.39842200145559, 76.59625243358757)"
+    font-family="Linux Libertine"
+    font-style="italic"
+  >
+    <title>`x0`.labelText</title>
+    <svg
+      style="font-size: 13.333px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="13.447663799999999"
+      height="8.1011308"
+      role="img"
+      focusable="false"
+      viewBox="0 -442 1008.6 607.6"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="msub">
+            <g data-mml-node="mi">
+              <path
+                data-c="1D465"
+                d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"
+              />
+            </g>
+            <g data-mml-node="mn" transform="translate(605,-150) scale(0.707)">
+              <path
+                data-c="30"
+                d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"
+              />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 86.72011151251041, 108.9552993322838)translate(80.54293261251041, 104.6420738322838)"
+    font-family="Linux Libertine"
+    font-style="italic"
+  >
+    <title>`y0`.labelText</title>
+    <svg
+      style="font-size: 13.333px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="12.3543578"
+      height="8.626451000000001"
+      role="img"
+      focusable="false"
+      viewBox="0 -442 926.6 647"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="msub">
+            <g data-mml-node="mi">
+              <path
+                data-c="1D466"
+                d="M21 287Q21 301 36 335T84 406T158 442Q199 442 224 419T250 355Q248 336 247 334Q247 331 231 288T198 191T182 105Q182 62 196 45T238 27Q261 27 281 38T312 61T339 94Q339 95 344 114T358 173T377 247Q415 397 419 404Q432 431 462 431Q475 431 483 424T494 412T496 403Q496 390 447 193T391 -23Q363 -106 294 -155T156 -205Q111 -205 77 -183T43 -117Q43 -95 50 -80T69 -58T89 -48T106 -45Q150 -45 150 -87Q150 -107 138 -122T115 -142T102 -147L99 -148Q101 -153 118 -160T152 -167H160Q177 -167 186 -165Q219 -156 247 -127T290 -65T313 -9T321 21L315 17Q309 13 296 6T270 -6Q250 -11 231 -11Q185 -11 150 11T104 82Q103 89 103 113Q103 170 138 262T173 379Q173 380 173 381Q173 390 173 393T169 400T158 404H154Q131 404 112 385T82 344T65 302T57 280Q55 278 41 278H27Q21 284 21 287Z"
+              />
+            </g>
+            <g data-mml-node="mn" transform="translate(523,-150) scale(0.707)">
+              <path
+                data-c="30"
+                d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"
+              />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 70.15882845394577, 151.52022208995336)translate(63.43499655394577, 147.57365408995335)"
+    font-family="Linux Libertine"
+    font-style="italic"
+  >
+    <title>`x1`.labelText</title>
+    <svg
+      style="font-size: 13.333px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="13.447663799999999"
+      height="7.893136"
+      role="img"
+      focusable="false"
+      viewBox="0 -442 1008.6 592"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="msub">
+            <g data-mml-node="mi">
+              <path
+                data-c="1D465"
+                d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"
+              />
+            </g>
+            <g data-mml-node="mn" transform="translate(605,-150) scale(0.707)">
+              <path
+                data-c="31"
+                d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"
+              />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
 </svg>

@@ -1,56 +1,28 @@
 <svg
   version="1.2"
   xmlns="http://www.w3.org/2000/svg"
-  viewBox="0 0 320 240"
+  viewBox="0 0 200 200"
   penrose="0"
 >
-  <penrose><croppedViewBox>0 0 320 240</croppedViewBox></penrose>
-  <rect
-    x="0"
-    y="0"
-    width="320"
-    height="240"
-    fill="none"
-    stroke="none"
-    rx="0"
-    transform="rotate(0, 160, 120)"
-  >
-    <title>Global.box</title>
-  </rect>
+  <penrose>
+    <croppedViewBox>
+      28.406823924187464 11.836487381959103 150.07404362893612
+      173.51363059685733
+    </croppedViewBox>
+  </penrose>
   <polygon
-    fill="#e6e6e6"
+    fill="#e5e5e5"
     fill-opacity="1"
-    stroke="#808080"
+    stroke="#b3b3b3"
     stroke-opacity="1"
-    stroke-width="2"
+    stroke-width="1.3333333333333333"
     transform="scale(1)"
-    points="297.42548896869346,230.96590719816703,159.9998214142364,199.843732831215,9.838499260555892,200.013629390342,11.143919068110364,39.97387798375276,160.00002132609472,40.15627083211142,290.59841453776266,11.408693291825657"
+    points="172.51014711131765,170.8961976165619,107.1891641647483,168.63004147768666,32.34813402035161,185.35011797881643,28.406823924187464,30.848970840683748,88.10002010969814,24.90942560842393,178.48086755312357,11.836487381959103"
   >
-    <title>Global.domain</title>
+    <title>`U`.geometry</title>
   </polygon>
-  <text
-    fill="#808080"
-    fill-opacity="1"
-    stroke="none"
-    transform="rotate(0, 278.01395209241184, 212.04449206092545)"
-    style="font: 12px Palatino"
-    x="278.01395209241184"
-    y="217.04449206092545"
-    width="10"
-    height="10"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="10"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-  >
-    <title>`U`.labelText</title>
-    Ω
-  </text>
   <g
-    transform="rotate(0, 159.99980233705313, 103.09966058029065)translate(98.80641258849295, 41.90627083173047)"
+    transform="rotate(0, 91.98965383441927, 35.35593928679762)translate(82.09392042614549, 25.460205878523844)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -62,8 +34,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="122.38677949712036"
-      height="122.38677949712036"
+      width="19.79146681654756"
+      height="19.79146681654756"
     >
       <style type="text/css">
         .nested-estimator__st0 {
@@ -86,43 +58,10 @@
       </radialGradient>
       <circle class="nested-estimator__st0" cx="110.9" cy="110.9" r="110.9" />
     </svg>
-    <title>`x0`.shading</title>
-  </g>
-  <circle
-    fill="#33cc33"
-    fill-opacity="0.15"
-    cx="159.99980233705313"
-    cy="103.09966058029065"
-    stroke="none"
-    r="61.19338974856018"
-  >
-    <title>`x0`.ball</title>
-  </circle>
-  <circle
-    fill="none"
-    cx="159.99980233705313"
-    cy="103.09966058029065"
-    stroke="#668066"
-    stroke-opacity="1"
-    stroke-width="1.5"
-    r="61.19338974856018"
-  >
-    <title>`x0`.sphere</title>
-  </circle>
-  <g>
-    <line
-      x1="159.99980233705313"
-      y1="103.09966058029065"
-      x2="159.99948163526665"
-      y2="164.44931986626364"
-      stroke="#0000b3"
-      stroke-opacity="1"
-      stroke-width="2"
-    />
-    <title>9:0:walkLine</title>
+    <title>`B3`.shading</title>
   </g>
   <g
-    transform="rotate(0, 159.99948163526665, 164.44931986626364)translate(126.3550686686844, 130.80490689968138)"
+    transform="rotate(0, 140.07147855888348, 51.45667914683876)translate(107.35777381559328, 18.74297440354856)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -134,8 +73,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="67.28882593316449"
-      height="67.28882593316449"
+      width="65.4274094865804"
+      height="65.4274094865804"
     >
       <style type="text/css">
         .nested-estimator__st0 {
@@ -158,31 +97,10 @@
       </radialGradient>
       <circle class="nested-estimator__st0" cx="110.9" cy="110.9" r="110.9" />
     </svg>
-    <title>`x1`.shading</title>
+    <title>`B1`.shading</title>
   </g>
-  <circle
-    fill="#33cc33"
-    fill-opacity="0.15"
-    cx="159.99948163526665"
-    cy="164.44931986626364"
-    stroke="none"
-    r="33.644412966582244"
-  >
-    <title>`x1`.ball</title>
-  </circle>
-  <circle
-    fill="none"
-    cx="159.99948163526665"
-    cy="164.44931986626364"
-    stroke="#668066"
-    stroke-opacity="1"
-    stroke-width="1.5"
-    r="33.644412966582244"
-  >
-    <title>`x1`.sphere</title>
-  </circle>
   <g
-    transform="rotate(0, 159.99975855169671, 193.0470719814655)translate(154.95309770165653, 188.00041113142532)"
+    transform="rotate(0, 114.45637020022016, 105.13806477497907)translate(54.97678556450356, 45.658480139262466)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -194,8 +112,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="10.09332170008039"
-      height="10.09332170008039"
+      width="118.95916927143321"
+      height="118.95916927143321"
     >
       <style type="text/css">
         .nested-estimator__st0 {
@@ -218,43 +136,60 @@
       </radialGradient>
       <circle class="nested-estimator__st0" cx="110.9" cy="110.9" r="110.9" />
     </svg>
-    <title>`y10`.shading</title>
+    <title>`B0`.shading</title>
   </g>
   <circle
-    fill="#ffffff"
-    fill-opacity="0.4"
-    cx="159.99975855169671"
-    cy="193.0470719814655"
-    stroke="none"
-    r="5.046660850040195"
-  >
-    <title>`y10`.ball</title>
-  </circle>
-  <circle
-    fill="none"
-    cx="159.99975855169671"
-    cy="193.0470719814655"
-    stroke="#ffffff"
+    fill="#9acca0"
+    fill-opacity="1"
+    cx="114.45637020022016"
+    cy="105.13806477497907"
+    stroke="#1b8a1f"
     stroke-opacity="1"
-    stroke-width="1.5"
-    r="5.046660850040195"
+    stroke-width="0.6666666666666666"
+    r="59.479584635716606"
+    opacity="0.35"
   >
-    <title>`y10`.sphere</title>
+    <title>`B0`.ball</title>
   </circle>
-  <g>
+  <g fill="none">
     <line
-      x1="159.99975855169671"
-      y1="193.0470719814655"
-      x2="155.18726548391507"
-      y2="194.5665119761103"
-      stroke="#0000b3"
-      stroke-opacity="1"
-      stroke-width="2"
+      x1="114.45637020022016"
+      y1="105.13806477497907"
+      x2="140.07147855888348"
+      y2="51.45667914683876"
+      stroke="#006600"
+      stroke-opacity="0.2980392156862745"
+      stroke-width="1.3333333333333333"
     />
-    <title>9:5:walkLine</title>
+    <title>`x1`.walkLine</title>
+  </g>
+  <circle
+    fill="#9acca0"
+    fill-opacity="1"
+    cx="140.07147855888348"
+    cy="51.45667914683876"
+    stroke="#1b8a1f"
+    stroke-opacity="1"
+    stroke-width="0.6666666666666666"
+    r="32.7137047432902"
+    opacity="0.35"
+  >
+    <title>`B1`.ball</title>
+  </circle>
+  <g fill="none">
+    <line
+      x1="140.07147855888348"
+      y1="51.45667914683876"
+      x2="109.05084331245077"
+      y2="41.06905003123639"
+      stroke="#006600"
+      stroke-opacity="0.2980392156862745"
+      stroke-width="1.3333333333333333"
+    />
+    <title>`x2`.walkLine</title>
   </g>
   <g
-    transform="rotate(0, 155.18726548391507, 194.5665119761103)translate(151.65460295481412, 191.03384944700935)"
+    transform="rotate(0, 109.05084331245077, 41.06905003123639)translate(91.05847961250419, 23.076686331289814)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -266,8 +201,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="7.065325058201918"
-      height="7.065325058201918"
+      width="35.984727399893146"
+      height="35.984727399893146"
     >
       <style type="text/css">
         .nested-estimator__st0 {
@@ -290,578 +225,414 @@
       </radialGradient>
       <circle class="nested-estimator__st0" cx="110.9" cy="110.9" r="110.9" />
     </svg>
-    <title>`y11`.shading</title>
+    <title>`B2`.shading</title>
   </g>
   <circle
-    fill="#ffffff"
-    fill-opacity="0.4"
-    cx="155.18726548391507"
-    cy="194.5665119761103"
-    stroke="none"
-    r="3.532662529100959"
-  >
-    <title>`y11`.ball</title>
-  </circle>
-  <circle
-    fill="none"
-    cx="155.18726548391507"
-    cy="194.5665119761103"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="1.5"
-    r="3.532662529100959"
-  >
-    <title>`y11`.sphere</title>
-  </circle>
-  <g>
-    <line
-      x1="155.18726548391507"
-      y1="194.5665119761103"
-      x2="151.81852118414454"
-      y2="195.63012265754523"
-      stroke="#0000b3"
-      stroke-opacity="1"
-      stroke-width="2"
-    />
-    <title>9:6:walkLine</title>
-  </g>
-  <g
-    transform="rotate(0, 151.81852118414454, 195.63012265754523)translate(149.34565717022267, 193.15725864362335)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="nested-estimator__Layer_1--inject-59"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 221.7 221.7"
-      style="enable-background: new 0 0 221.7 221.7"
-      xml:space="preserve"
-      width="4.945728027843749"
-      height="4.945728027843749"
-    >
-      <style type="text/css">
-        .nested-estimator__st0 {
-          opacity: 0.6;
-          fill: url(#nested-estimator__SVGID_1_--inject-59);
-          enable-background: new;
-        }
-      </style>
-      <radialGradient
-        id="nested-estimator__SVGID_1_--inject-59"
-        cx="75.4328"
-        cy="151.0149"
-        r="157.9341"
-        gradientTransform="matrix(1 0 0 -1 0 222)"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #ffffff" />
-        <stop offset="0.7844" style="stop-color: #5f5f5f" />
-        <stop offset="1" style="stop-color: #7f7f7f" />
-      </radialGradient>
-      <circle class="nested-estimator__st0" cx="110.9" cy="110.9" r="110.9" />
-    </svg>
-    <title>`y12`.shading</title>
-  </g>
-  <circle
-    fill="#ffffff"
-    fill-opacity="0.4"
-    cx="151.81852118414454"
-    cy="195.63012265754523"
-    stroke="none"
-    r="2.4728640139218747"
-  >
-    <title>`y12`.ball</title>
-  </circle>
-  <circle
-    fill="none"
-    cx="151.81852118414454"
-    cy="195.63012265754523"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="1.5"
-    r="2.4728640139218747"
-  >
-    <title>`y12`.sphere</title>
-  </circle>
-  <g>
-    <line
-      x1="159.99948163526665"
-      y1="164.44931986626364"
-      x2="129.97119471294815"
-      y2="179.62326661884427"
-      stroke="#0000b3"
-      stroke-opacity="1"
-      stroke-width="2"
-    />
-    <title>9:1:walkLine</title>
-  </g>
-  <g
-    transform="rotate(0, 129.97119471294815, 179.62326661884427)translate(111.46676626869144, 161.11883817458758)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="nested-estimator__Layer_1--inject-60"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 221.7 221.7"
-      style="enable-background: new 0 0 221.7 221.7"
-      xml:space="preserve"
-      width="37.0088568885134"
-      height="37.0088568885134"
-    >
-      <style type="text/css">
-        .nested-estimator__st0 {
-          opacity: 0.6;
-          fill: url(#nested-estimator__SVGID_1_--inject-60);
-          enable-background: new;
-        }
-      </style>
-      <radialGradient
-        id="nested-estimator__SVGID_1_--inject-60"
-        cx="75.4328"
-        cy="151.0149"
-        r="157.9341"
-        gradientTransform="matrix(1 0 0 -1 0 222)"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #ffffff" />
-        <stop offset="0.7844" style="stop-color: #5f5f5f" />
-        <stop offset="1" style="stop-color: #7f7f7f" />
-      </radialGradient>
-      <circle class="nested-estimator__st0" cx="110.9" cy="110.9" r="110.9" />
-    </svg>
-    <title>`x2`.shading</title>
-  </g>
-  <circle
-    fill="#33cc33"
-    fill-opacity="0.15"
-    cx="129.97119471294815"
-    cy="179.62326661884427"
-    stroke="none"
-    r="18.5044284442567"
-  >
-    <title>`x2`.ball</title>
-  </circle>
-  <circle
-    fill="none"
-    cx="129.97119471294815"
-    cy="179.62326661884427"
-    stroke="#668066"
-    stroke-opacity="1"
-    stroke-width="1.5"
-    r="18.5044284442567"
-  >
-    <title>`x2`.sphere</title>
-  </circle>
-  <g>
-    <line
-      x1="129.97119471294815"
-      y1="179.62326661884427"
-      x2="113.45564150152012"
-      y2="187.96895082373476"
-      stroke="#0000b3"
-      stroke-opacity="1"
-      stroke-width="2"
-    />
-    <title>9:2:walkLine</title>
-  </g>
-  <g
-    transform="rotate(0, 113.45564150152012, 187.96895082373476)translate(103.27820579119113, 177.79151511340578)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="nested-estimator__Layer_1--inject-61"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 221.7 221.7"
-      style="enable-background: new 0 0 221.7 221.7"
-      xml:space="preserve"
-      width="20.35487142065798"
-      height="20.35487142065798"
-    >
-      <style type="text/css">
-        .nested-estimator__st0 {
-          opacity: 0.6;
-          fill: url(#nested-estimator__SVGID_1_--inject-61);
-          enable-background: new;
-        }
-      </style>
-      <radialGradient
-        id="nested-estimator__SVGID_1_--inject-61"
-        cx="75.4328"
-        cy="151.0149"
-        r="157.9341"
-        gradientTransform="matrix(1 0 0 -1 0 222)"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #ffffff" />
-        <stop offset="0.7844" style="stop-color: #5f5f5f" />
-        <stop offset="1" style="stop-color: #7f7f7f" />
-      </radialGradient>
-      <circle class="nested-estimator__st0" cx="110.9" cy="110.9" r="110.9" />
-    </svg>
-    <title>`x3`.shading</title>
-  </g>
-  <circle
-    fill="#33cc33"
-    fill-opacity="0.15"
-    cx="113.45564150152012"
-    cy="187.96895082373476"
-    stroke="none"
-    r="10.17743571032899"
-  >
-    <title>`x3`.ball</title>
-  </circle>
-  <circle
-    fill="#000000"
+    fill="#9acca0"
     fill-opacity="1"
-    cx="113.45564150152012"
-    cy="187.96895082373476"
+    cx="109.05084331245077"
+    cy="41.06905003123639"
+    stroke="#1b8a1f"
+    stroke-opacity="1"
+    stroke-width="0.6666666666666666"
+    r="17.992363699946573"
+    opacity="0.35"
+  >
+    <title>`B2`.ball</title>
+  </circle>
+  <g fill="none">
+    <line
+      x1="109.05084331245077"
+      y1="41.06905003123639"
+      x2="91.98965383441927"
+      y2="35.35593928679762"
+      stroke="#006600"
+      stroke-opacity="0.2980392156862745"
+      stroke-width="1.3333333333333333"
+    />
+    <title>`x3`.walkLine</title>
+  </g>
+  <circle
+    fill="#9acca0"
+    fill-opacity="1"
+    cx="91.98965383441927"
+    cy="35.35593928679762"
+    stroke="#1b8a1f"
+    stroke-opacity="1"
+    stroke-width="0.6666666666666666"
+    r="9.89573340827378"
+    opacity="0.35"
+  >
+    <title>`B3`.ball</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="0.2"
+    cx="159.78413488295453"
+    cy="106.83956046344345"
+    stroke="#ffffff"
+    stroke-opacity="0.5"
+    stroke-width="1"
+    r="15.119896158929151"
+  >
+    <title>`B00`.shading</title>
+  </circle>
+  <circle
+    fill="none"
+    cx="159.78413488295453"
+    cy="106.83956046344345"
+    stroke="none"
+    r="15.119896158929151"
+    opacity="0.35"
+  >
+    <title>`B00`.ball</title>
+  </circle>
+  <g fill="none">
+    <line
+      x1="159.78413488295453"
+      y1="106.83956046344345"
+      x2="149.2670808224028"
+      y2="82.35351818605942"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="1.3333333333333333"
+    />
+    <title>`y01`.walkLine</title>
+  </g>
+  <circle
+    fill="#ffffff"
+    fill-opacity="0.2"
+    cx="133.34659038008402"
+    cy="23.548173500438807"
+    stroke="#ffffff"
+    stroke-opacity="0.5"
+    stroke-width="1"
+    r="4.129952730480611"
+  >
+    <title>`B12`.shading</title>
+  </circle>
+  <circle
+    fill="none"
+    cx="133.34659038008402"
+    cy="23.548173500438807"
+    stroke="none"
+    r="4.129952730480611"
+    opacity="0.35"
+  >
+    <title>`B12`.ball</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="0.2"
+    cx="149.2670808224028"
+    cy="82.35351818605942"
+    stroke="#ffffff"
+    stroke-opacity="0.5"
+    stroke-width="1"
+    r="25.548048872986875"
+  >
+    <title>`B01`.shading</title>
+  </circle>
+  <circle
+    fill="none"
+    cx="149.2670808224028"
+    cy="82.35351818605942"
+    stroke="none"
+    r="25.548048872986875"
+    opacity="0.35"
+  >
+    <title>`B01`.ball</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="0.2"
+    cx="136.4518137176874"
+    cy="26.43182473834834"
+    stroke="#ffffff"
+    stroke-opacity="0.5"
+    stroke-width="1"
+    r="8.428426185822552"
+  >
+    <title>`B10`.shading</title>
+  </circle>
+  <circle
+    fill="none"
+    cx="136.4518137176874"
+    cy="26.43182473834834"
+    stroke="none"
+    r="8.428426185822552"
+    opacity="0.35"
+  >
+    <title>`B10`.ball</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="0.2"
+    cx="144.0941244367578"
+    cy="46.589103284148"
+    stroke="#ffffff"
+    stroke-opacity="0.5"
+    stroke-width="1"
+    r="28.472116216209493"
+  >
+    <title>`B02`.shading</title>
+  </circle>
+  <circle
+    fill="none"
+    cx="144.0941244367578"
+    cy="46.589103284148"
+    stroke="none"
+    r="28.472116216209493"
+    opacity="0.35"
+  >
+    <title>`B02`.ball</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="0.2"
+    cx="128.02972115311815"
+    cy="26.105604250633263"
+    stroke="#ffffff"
+    stroke-opacity="0.5"
+    stroke-width="1"
+    r="5.899917315826644"
+  >
+    <title>`B11`.shading</title>
+  </circle>
+  <circle
+    fill="none"
+    cx="128.02972115311815"
+    cy="26.105604250633263"
+    stroke="none"
+    r="5.899917315826644"
+    opacity="0.35"
+  >
+    <title>`B11`.ball</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="128.02972115311815"
+    cy="26.105604250633263"
     stroke="none"
     r="2.5"
   >
-    <title>`x3`.dot</title>
+    <title>`y11`.dot</title>
   </circle>
-  <g
-    transform="rotate(0, 159.99998359375962, 51.08527940848559)translate(150.8209750173203, 41.90627083204628)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="nested-estimator__Layer_1--inject-62"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 221.7 221.7"
-      style="enable-background: new 0 0 221.7 221.7"
-      xml:space="preserve"
-      width="18.358017152878617"
-      height="18.358017152878617"
-    >
-      <style type="text/css">
-        .nested-estimator__st0 {
-          opacity: 0.6;
-          fill: url(#nested-estimator__SVGID_1_--inject-62);
-          enable-background: new;
-        }
-      </style>
-      <radialGradient
-        id="nested-estimator__SVGID_1_--inject-62"
-        cx="75.4328"
-        cy="151.0149"
-        r="157.9341"
-        gradientTransform="matrix(1 0 0 -1 0 222)"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #ffffff" />
-        <stop offset="0.7844" style="stop-color: #5f5f5f" />
-        <stop offset="1" style="stop-color: #7f7f7f" />
-      </radialGradient>
-      <circle class="nested-estimator__st0" cx="110.9" cy="110.9" r="110.9" />
-    </svg>
-    <title>`y00`.shading</title>
-  </g>
-  <circle
-    fill="#ffffff"
-    fill-opacity="0.4"
-    cx="159.99998359375962"
-    cy="51.08527940848559"
-    stroke="none"
-    r="9.179008576439308"
-  >
-    <title>`y00`.ball</title>
-  </circle>
-  <circle
-    fill="none"
-    cx="159.99998359375962"
-    cy="51.08527940848559"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="1.5"
-    r="9.179008576439308"
-  >
-    <title>`y00`.sphere</title>
-  </circle>
-  <g>
+  <g fill="none">
     <line
-      x1="159.99998359375962"
-      y1="51.08527940848559"
-      x2="168.08894606134953"
-      y2="46.74674388709997"
-      stroke="#0000b3"
+      x1="128.02972115311815"
+      y1="26.105604250633263"
+      x2="133.34659038008402"
+      y2="23.548173500438807"
+      stroke="#ffffff"
       stroke-opacity="1"
-      stroke-width="2"
+      stroke-width="1.3333333333333333"
     />
-    <title>9:3:walkLine</title>
+    <title>`y12`.walkLine</title>
   </g>
   <g
-    transform="rotate(0, 168.08894606134953, 46.74674388709997)translate(161.66364187415888, 40.32143969990932)"
+    transform="rotate(0, 67.2340876239357, 40.287144263718766)translate(62.420874623935696, 35.593928263718766)"
+    font-family="Linux Libertine"
   >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="nested-estimator__Layer_1--inject-63"
+    <title>`U`.labelText</title>
+    <svg
+      style="font-size: 13.333px"
       xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 221.7 221.7"
-      style="enable-background: new 0 0 221.7 221.7"
-      xml:space="preserve"
-      width="12.850608374381302"
-      height="12.850608374381302"
+      width="9.626426"
+      height="9.386432"
+      role="img"
+      focusable="false"
+      viewBox="0 -704 722 704"
     >
-      <style type="text/css">
-        .nested-estimator__st0 {
-          opacity: 0.6;
-          fill: url(#nested-estimator__SVGID_1_--inject-63);
-          enable-background: new;
-        }
-      </style>
-      <radialGradient
-        id="nested-estimator__SVGID_1_--inject-63"
-        cx="75.4328"
-        cy="151.0149"
-        r="157.9341"
-        gradientTransform="matrix(1 0 0 -1 0 222)"
-        gradientUnits="userSpaceOnUse"
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
       >
-        <stop offset="0" style="stop-color: #ffffff" />
-        <stop offset="0.7844" style="stop-color: #5f5f5f" />
-        <stop offset="1" style="stop-color: #7f7f7f" />
-      </radialGradient>
-      <circle class="nested-estimator__st0" cx="110.9" cy="110.9" r="110.9" />
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="3A9"
+              d="M55 454Q55 503 75 546T127 617T197 665T272 695T337 704H352Q396 704 404 703Q527 687 596 615T666 454Q666 392 635 330T559 200T499 83V80H543Q589 81 600 83T617 93Q622 102 629 135T636 172L637 177H677V175L660 89Q645 3 644 2V0H552H488Q461 0 456 3T451 20Q451 89 499 235T548 455Q548 512 530 555T483 622T424 656T361 668Q332 668 303 658T243 626T193 560T174 456Q174 380 222 233T270 20Q270 7 263 0H77V2Q76 3 61 89L44 175V177H84L85 172Q85 171 88 155T96 119T104 93Q109 86 120 84T178 80H222V83Q206 132 162 199T87 329T55 454Z"
+            />
+          </g>
+        </g>
+      </g>
     </svg>
-    <title>`y01`.shading</title>
   </g>
-  <circle
-    fill="#ffffff"
-    fill-opacity="0.4"
-    cx="168.08894606134953"
-    cy="46.74674388709997"
-    stroke="none"
-    r="6.425304187190651"
-  >
-    <title>`y01`.ball</title>
-  </circle>
-  <circle
-    fill="none"
-    cx="168.08894606134953"
-    cy="46.74674388709997"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="1.5"
-    r="6.425304187190651"
-  >
-    <title>`y01`.sphere</title>
-  </circle>
-  <g>
-    <line
-      x1="168.08894606134953"
-      y1="46.74674388709997"
-      x2="161.68852049387502"
-      y2="46.18187923019215"
-      stroke="#0000b3"
-      stroke-opacity="1"
-      stroke-width="2"
-    />
-    <title>9:4:walkLine</title>
-  </g>
-  <g
-    transform="rotate(0, 161.68852049387502, 46.18187923019215)translate(157.1908082609356, 41.68416699725273)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="nested-estimator__Layer_1--inject-64"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 221.7 221.7"
-      style="enable-background: new 0 0 221.7 221.7"
-      xml:space="preserve"
-      width="8.995424465878848"
-      height="8.995424465878848"
-    >
-      <style type="text/css">
-        .nested-estimator__st0 {
-          opacity: 0.6;
-          fill: url(#nested-estimator__SVGID_1_--inject-64);
-          enable-background: new;
-        }
-      </style>
-      <radialGradient
-        id="nested-estimator__SVGID_1_--inject-64"
-        cx="75.4328"
-        cy="151.0149"
-        r="157.9341"
-        gradientTransform="matrix(1 0 0 -1 0 222)"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #ffffff" />
-        <stop offset="0.7844" style="stop-color: #5f5f5f" />
-        <stop offset="1" style="stop-color: #7f7f7f" />
-      </radialGradient>
-      <circle class="nested-estimator__st0" cx="110.9" cy="110.9" r="110.9" />
-    </svg>
-    <title>`y02`.shading</title>
-  </g>
-  <circle
-    fill="#ffffff"
-    fill-opacity="0.4"
-    cx="161.68852049387502"
-    cy="46.18187923019215"
-    stroke="none"
-    r="4.497712232939424"
-  >
-    <title>`y02`.ball</title>
-  </circle>
-  <circle
-    fill="none"
-    cx="161.68852049387502"
-    cy="46.18187923019215"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="1.5"
-    r="4.497712232939424"
-  >
-    <title>`y02`.sphere</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="161.68852049387502"
-    cy="46.18187923019215"
-    stroke="none"
-    r="2.5"
-  >
-    <title>`y02`.dot</title>
-  </circle>
-  <text
-    fill="#000000"
-    fill-opacity="1"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="2.5"
-    transform="rotate(0, 90.1823586452864, 177.46812259757627)"
-    style="font: italic 12px Palatino"
-    x="90.1823586452864"
-    y="180.96812259757627"
-    width="10.767578125"
-    height="7"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="7"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-    paint-order="stroke"
-    stroke-linejoin="round"
-  >
-    <title>`x1`.labelText</title>
-    x₁
-  </text>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="159.99948163526665"
-    cy="164.44931986626364"
+    cx="140.07147855888348"
+    cy="51.45667914683876"
     stroke="none"
-    r="2.5"
+    r="2"
   >
     <title>`x1`.dot</title>
   </circle>
-  <text
-    fill="#000000"
-    fill-opacity="1"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="2.5"
-    transform="rotate(0, 59.997200118624974, 173.7167368300468)"
-    style="font: italic 12px Palatino"
-    x="59.997200118624974"
-    y="174.7167368300468"
-    width="12"
-    height="2"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="2"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-    paint-order="stroke"
-    stroke-linejoin="round"
-  >
-    <title>`x2`.labelText</title>
-    …
-  </text>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="129.97119471294815"
-    cy="179.62326661884427"
+    cx="109.05084331245077"
+    cy="41.06905003123639"
     stroke="none"
-    r="2.5"
+    r="2"
   >
     <title>`x2`.dot</title>
   </circle>
   <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="159.99975855169671"
-    cy="193.0470719814655"
-    stroke="none"
-    r="2.5"
-  >
-    <title>`y10`.dot</title>
-  </circle>
-  <text
     fill="#000000"
     fill-opacity="1"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="2.5"
-    transform="rotate(0, 206.03666663178964, 102.88225014827754)"
-    style="font: italic 12px Palatino"
-    x="206.03666663178964"
-    y="106.38225014827754"
-    width="11.767578125"
-    height="7"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="7"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-    paint-order="stroke"
-    stroke-linejoin="round"
+    cx="91.98965383441927"
+    cy="35.35593928679762"
+    stroke="none"
+    r="2"
   >
-    <title>`x0`.labelText</title>
-    x₀
-  </text>
+    <title>`x3`.dot</title>
+  </circle>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="159.99980233705313"
-    cy="103.09966058029065"
+    cx="114.45637020022016"
+    cy="105.13806477497907"
     stroke="none"
-    r="2.5"
+    r="2"
   >
     <title>`x0`.dot</title>
   </circle>
+  <g
+    transform="rotate(0, 113.58892935509239, 114.09616425981423)translate(106.8650974550924, 110.04559885981423)"
+    font-family="Linux Libertine"
+    font-style="italic"
+  >
+    <title>`x0`.labelText</title>
+    <svg
+      style="font-size: 13.333px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="13.447663799999999"
+      height="8.1011308"
+      role="img"
+      focusable="false"
+      viewBox="0 -442 1008.6 607.6"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="msub">
+            <g data-mml-node="mi">
+              <path
+                data-c="1D465"
+                d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"
+              />
+            </g>
+            <g data-mml-node="mn" transform="translate(605,-150) scale(0.707)">
+              <path
+                data-c="30"
+                d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"
+              />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="151.81852118414454"
-    cy="195.63012265754523"
+    cx="159.78413488295453"
+    cy="106.83956046344345"
+    stroke="none"
+    r="2.5"
+  >
+    <title>`y00`.dot</title>
+  </circle>
+  <g
+    transform="rotate(0, 84.71261686979727, 30.060211478882536)translate(77.89012076979728, 26.061644778882535)"
+    font-family="Linux Libertine"
+    font-style="italic"
+  >
+    <title>`x3`.labelText</title>
+    <svg
+      style="font-size: 13.333px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="13.6449922"
+      height="7.9971334"
+      role="img"
+      focusable="false"
+      viewBox="0 -442 1023.4 599.8"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="msub">
+            <g data-mml-node="mi">
+              <path
+                data-c="1D465"
+                d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"
+              />
+            </g>
+            <g data-mml-node="mi" transform="translate(605,-150) scale(0.707)">
+              <path
+                data-c="1D458"
+                d="M121 647Q121 657 125 670T137 683Q138 683 209 688T282 694Q294 694 294 686Q294 679 244 477Q194 279 194 272Q213 282 223 291Q247 309 292 354T362 415Q402 442 438 442Q468 442 485 423T503 369Q503 344 496 327T477 302T456 291T438 288Q418 288 406 299T394 328Q394 353 410 369T442 390L458 393Q446 405 434 405H430Q398 402 367 380T294 316T228 255Q230 254 243 252T267 246T293 238T320 224T342 206T359 180T365 147Q365 130 360 106T354 66Q354 26 381 26Q429 26 459 145Q461 153 479 153H483Q499 153 499 144Q499 139 496 130Q455 -11 378 -11Q333 -11 305 15T277 90Q277 108 280 121T283 145Q283 167 269 183T234 206T200 217T182 220H180Q168 178 159 139T145 81T136 44T129 20T122 7T111 -2Q98 -11 83 -11Q66 -11 57 -1T48 16Q48 26 85 176T158 471L195 616Q196 629 188 632T149 637H144Q134 637 131 637T124 640T121 647Z"
+              />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 111.42404076306744, 49.75052075113094)translate(103.61090276306744, 48.950540751130944)"
+    font-family="Linux Libertine"
+    font-style="italic"
+  >
+    <title>`x2`.labelText</title>
+    <svg
+      style="font-size: 13.333px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="15.626275999999999"
+      height="1.59996"
+      role="img"
+      focusable="false"
+      viewBox="0 -120 1172 120"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mo">
+            <path
+              data-c="2026"
+              d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60ZM525 60Q525 84 542 102T585 120Q609 120 627 104T646 61Q646 36 629 18T586 0T543 17T525 60ZM972 60Q972 84 989 102T1032 120Q1056 120 1074 104T1093 61Q1093 36 1076 18T1033 0T990 17T972 60Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="133.34659038008402"
+    cy="23.548173500438807"
     stroke="none"
     r="2.5"
   >
@@ -870,117 +641,96 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="168.08894606134953"
-    cy="46.74674388709997"
+    cx="144.0941244367578"
+    cy="46.589103284148"
+    stroke="none"
+    r="2.5"
+  >
+    <title>`y02`.dot</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="149.2670808224028"
+    cy="82.35351818605942"
     stroke="none"
     r="2.5"
   >
     <title>`y01`.dot</title>
   </circle>
-  <text
-    fill="#000000"
-    fill-opacity="1"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="2.5"
-    transform="rotate(0, 170.92028210296414, 51.011034887279195)"
-    style="font: italic 12px Palatino"
-    x="170.92028210296414"
-    y="53.011034887279195"
-    width="12.779296875"
-    height="10"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="7"
-    descent="3"
-    text-anchor="middle"
-    visibility=""
-    paint-order="stroke"
-    stroke-linejoin="round"
+  <g
+    transform="rotate(0, 149.06867767656112, 51.2321618048349)translate(142.34484577656113, 47.2855938048349)"
+    font-family="Linux Libertine"
+    font-style="italic"
   >
-    <title>`y00`.labelText</title>
-    y₀
-  </text>
+    <title>`x1`.labelText</title>
+    <svg
+      style="font-size: 13.333px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="13.447663799999999"
+      height="7.893136"
+      role="img"
+      focusable="false"
+      viewBox="0 -442 1008.6 592"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="msub">
+            <g data-mml-node="mi">
+              <path
+                data-c="1D465"
+                d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"
+              />
+            </g>
+            <g data-mml-node="mn" transform="translate(605,-150) scale(0.707)">
+              <path
+                data-c="31"
+                d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"
+              />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="159.99998359375962"
-    cy="51.08527940848559"
+    cx="136.4518137176874"
+    cy="26.43182473834834"
     stroke="none"
     r="2.5"
   >
-    <title>`y00`.dot</title>
+    <title>`y10`.dot</title>
   </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="155.18726548391507"
-    cy="194.5665119761103"
-    stroke="none"
-    r="2.5"
-  >
-    <title>`y11`.dot</title>
-  </circle>
-  <text
-    fill="#000000"
-    fill-opacity="1"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="2.5"
-    transform="rotate(0, 179.6878677777495, 192.99472959703326)"
-    style="font: italic 12px Palatino"
-    x="179.6878677777495"
-    y="194.99472959703326"
-    width="11.779296875"
-    height="10"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="7"
-    descent="3"
-    text-anchor="middle"
-    visibility=""
-    paint-order="stroke"
-    stroke-linejoin="round"
-  >
-    <title>`y10`.labelText</title>
-    y₁
-  </text>
-  <circle
-    fill="none"
-    cx="113.45564150152012"
-    cy="187.96895082373476"
-    stroke="#668066"
-    stroke-opacity="1"
-    stroke-width="1.5"
-    r="10.17743571032899"
-  >
-    <title>`x3`.sphere</title>
-  </circle>
-  <text
-    fill="#000000"
-    fill-opacity="1"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="2.5"
-    transform="rotate(0, 43.61368945715223, 196.9064192322386)"
-    style="font: italic 12px Palatino"
-    x="43.61368945715223"
-    y="200.4064192322386"
-    width="11.767578125"
-    height="7"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="7"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-    paint-order="stroke"
-    stroke-linejoin="round"
-  >
-    <title>`x3`.labelText</title>
-    xₖ
-  </text>
+  <g fill="none">
+    <line
+      x1="149.2670808224028"
+      y1="82.35351818605942"
+      x2="144.0941244367578"
+      y2="46.589103284148"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="1.3333333333333333"
+    />
+    <title>`y02`.walkLine</title>
+  </g>
+  <g fill="none">
+    <line
+      x1="136.4518137176874"
+      y1="26.43182473834834"
+      x2="128.02972115311815"
+      y2="26.105604250633263"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="1.3333333333333333"
+    />
+    <title>`y11`.walkLine</title>
+  </g>
 </svg>

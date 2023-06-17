@@ -1,483 +1,211 @@
 <svg
   version="1.2"
   xmlns="http://www.w3.org/2000/svg"
-  viewBox="0 0 320 240"
+  viewBox="0 0 200 200"
   penrose="0"
 >
-  <penrose><croppedViewBox>0 0 320 240</croppedViewBox></penrose>
-  <rect
-    x="0"
-    y="0"
-    width="320"
-    height="240"
-    fill="none"
-    stroke="none"
-    rx="0"
-    transform="rotate(0, 160, 120)"
-  >
-    <title>Global.box</title>
-  </rect>
+  <penrose>
+    <croppedViewBox>
+      16.797392816186175 9.81186859404221 171.4388410462473 180.97829830870802
+    </croppedViewBox>
+  </penrose>
   <polygon
-    fill="#e6e6e6"
+    fill="#e5e5e5"
     fill-opacity="1"
-    stroke="#808080"
+    stroke="#b3b3b3"
     stroke-opacity="1"
-    stroke-width="2"
+    stroke-width="1.3333333333333333"
     transform="scale(1)"
-    points="301.25426798253324,237.1033217275536,155.21905436779318,239.691143852016,38.95631342593872,230.74366871352441,37.735859240483904,17.433026811905265,139.2698969967591,0.04455674168596602,283.8035553788815,1.008329135386461"
+    points="188.23623386243347,177.67213816395116,113.23180821491597,183.5906906144096,16.797392816186175,190.79016690275023,22.042063655391544,9.811868594042224,86.93777840378073,18.908705079844154,173.77346617623698,33.175535893106584"
   >
-    <title>Global.domain</title>
+    <title>`U`.geometry</title>
   </polygon>
   <g
-    transform="rotate(0, 144.58037285240167, 106.40153942163984)translate(40.60317084292754, 2.4243374121657126)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="offcenter-estimator__Layer_1--inject-65"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 221.7 221.7"
-      style="enable-background: new 0 0 221.7 221.7"
-      xml:space="preserve"
-      width="207.95440401894825"
-      height="207.95440401894825"
-    >
-      <style type="text/css">
-        .offcenter-estimator__st0 {
-          opacity: 0.6;
-          fill: url(#offcenter-estimator__SVGID_1_--inject-65);
-          enable-background: new;
-        }
-      </style>
-      <radialGradient
-        id="offcenter-estimator__SVGID_1_--inject-65"
-        cx="75.4328"
-        cy="151.0149"
-        r="157.9341"
-        gradientTransform="matrix(1 0 0 -1 0 222)"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #ffffff" />
-        <stop offset="0.7844" style="stop-color: #5f5f5f" />
-        <stop offset="1" style="stop-color: #7f7f7f" />
-      </radialGradient>
-      <circle
-        class="offcenter-estimator__st0"
-        cx="110.9"
-        cy="110.9"
-        r="110.9"
-      />
-    </svg>
-    <title>`x0`.shading</title>
-  </g>
-  <circle
-    fill="#33cc33"
-    fill-opacity="0.15"
-    cx="144.58037285240167"
-    cy="106.40153942163984"
-    stroke="none"
-    r="103.97720200947413"
-  >
-    <title>`x0`.ball</title>
-  </circle>
-  <circle
-    fill="none"
-    cx="144.58037285240167"
-    cy="106.40153942163984"
-    stroke="#668066"
-    stroke-opacity="1"
-    stroke-width="1.5"
-    r="103.97720200947413"
-  >
-    <title>`x0`.sphere</title>
-  </circle>
-  <g>
-    <line
-      x1="96.55538627424221"
-      y1="79.8527466991444"
-      x2="178.738774989276"
-      y2="204.6077092210378"
-      stroke="#0000b3"
-      stroke-opacity="1"
-      stroke-width="2"
-    />
-    <title>9:0:walkLine</title>
-  </g>
-  <g
-    transform="rotate(0, 144.0675001607494, 179.7212033143445)translate(86.88004993715674, 122.53375309075184)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="offcenter-estimator__Layer_1--inject-66"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 221.7 221.7"
-      style="enable-background: new 0 0 221.7 221.7"
-      xml:space="preserve"
-      width="114.37490044718533"
-      height="114.37490044718533"
-    >
-      <style type="text/css">
-        .offcenter-estimator__st0 {
-          opacity: 0.6;
-          fill: url(#offcenter-estimator__SVGID_1_--inject-66);
-          enable-background: new;
-        }
-      </style>
-      <radialGradient
-        id="offcenter-estimator__SVGID_1_--inject-66"
-        cx="75.4328"
-        cy="151.0149"
-        r="157.9341"
-        gradientTransform="matrix(1 0 0 -1 0 222)"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #ffffff" />
-        <stop offset="0.7844" style="stop-color: #5f5f5f" />
-        <stop offset="1" style="stop-color: #7f7f7f" />
-      </radialGradient>
-      <circle
-        class="offcenter-estimator__st0"
-        cx="110.9"
-        cy="110.9"
-        r="110.9"
-      />
-    </svg>
-    <title>`x1`.shading</title>
-  </g>
-  <circle
-    fill="#33cc33"
-    fill-opacity="0.15"
-    cx="144.0675001607494"
-    cy="179.7212033143445"
-    stroke="none"
-    r="57.18745022359266"
-  >
-    <title>`x1`.ball</title>
-  </circle>
-  <circle
-    fill="none"
-    cx="144.0675001607494"
-    cy="179.7212033143445"
-    stroke="#668066"
-    stroke-opacity="1"
-    stroke-width="1.5"
-    r="57.18745022359266"
-  >
-    <title>`x1`.sphere</title>
-  </circle>
-  <g>
-    <line
-      x1="178.738774989276"
-      y1="204.6077092210378"
-      x2="93.8270457034455"
-      y2="152.40273350985848"
-      stroke="#0000b3"
-      stroke-opacity="1"
-      stroke-width="2"
-    />
-    <title>9:1:walkLine</title>
-  </g>
-  <g
-    transform="rotate(0, 71.66553253798885, 144.32392602369086)translate(40.21240739730907, 112.87080088301107)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="offcenter-estimator__Layer_1--inject-67"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 221.7 221.7"
-      style="enable-background: new 0 0 221.7 221.7"
-      xml:space="preserve"
-      width="62.90625028135956"
-      height="62.90625028135956"
-    >
-      <style type="text/css">
-        .offcenter-estimator__st0 {
-          opacity: 0.6;
-          fill: url(#offcenter-estimator__SVGID_1_--inject-67);
-          enable-background: new;
-        }
-      </style>
-      <radialGradient
-        id="offcenter-estimator__SVGID_1_--inject-67"
-        cx="75.4328"
-        cy="151.0149"
-        r="157.9341"
-        gradientTransform="matrix(1 0 0 -1 0 222)"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #ffffff" />
-        <stop offset="0.7844" style="stop-color: #5f5f5f" />
-        <stop offset="1" style="stop-color: #7f7f7f" />
-      </radialGradient>
-      <circle
-        class="offcenter-estimator__st0"
-        cx="110.9"
-        cy="110.9"
-        r="110.9"
-      />
-    </svg>
-    <title>`x2`.shading</title>
-  </g>
-  <circle
-    fill="#33cc33"
-    fill-opacity="0.15"
-    cx="71.66553253798885"
-    cy="144.32392602369086"
-    stroke="none"
-    r="31.45312514067978"
-  >
-    <title>`x2`.ball</title>
-  </circle>
-  <circle
-    fill="none"
-    cx="71.66553253798885"
-    cy="144.32392602369086"
-    stroke="#668066"
-    stroke-opacity="1"
-    stroke-width="1.5"
-    r="31.45312514067978"
-  >
-    <title>`x2`.sphere</title>
-  </circle>
-  <g>
-    <line
-      x1="93.8270457034455"
-      y1="152.40273350985848"
-      x2="61.85969795732852"
-      y2="114.4384079354415"
-      stroke="#0000b3"
-      stroke-opacity="1"
-      stroke-width="2"
-    />
-    <title>9:2:walkLine</title>
-  </g>
-  <g
-    transform="rotate(0, 57.2743576670037, 102.8880482554479)translate(39.9751008733322, 85.5887914617764)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="offcenter-estimator__Layer_1--inject-68"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 221.7 221.7"
-      style="enable-background: new 0 0 221.7 221.7"
-      xml:space="preserve"
-      width="34.59851358734299"
-      height="34.59851358734299"
-    >
-      <style type="text/css">
-        .offcenter-estimator__st0 {
-          opacity: 0.6;
-          fill: url(#offcenter-estimator__SVGID_1_--inject-68);
-          enable-background: new;
-        }
-      </style>
-      <radialGradient
-        id="offcenter-estimator__SVGID_1_--inject-68"
-        cx="75.4328"
-        cy="151.0149"
-        r="157.9341"
-        gradientTransform="matrix(1 0 0 -1 0 222)"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #ffffff" />
-        <stop offset="0.7844" style="stop-color: #5f5f5f" />
-        <stop offset="1" style="stop-color: #7f7f7f" />
-      </radialGradient>
-      <circle
-        class="offcenter-estimator__st0"
-        cx="110.9"
-        cy="110.9"
-        r="110.9"
-      />
-    </svg>
-    <title>`x3`.shading</title>
-  </g>
-  <circle
-    fill="#33cc33"
-    fill-opacity="0.15"
-    cx="57.2743576670037"
-    cy="102.8880482554479"
-    stroke="none"
-    r="17.299256793671496"
-  >
-    <title>`x3`.ball</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="61.85969795732852"
-    cy="114.4384079354415"
-    stroke="none"
-    r="2.5"
-  >
-    <title>`x3`.dot</title>
-  </circle>
-  <text
-    fill="#808080"
-    fill-opacity="1"
-    stroke="none"
-    transform="rotate(0, 270.9303037380165, 202.92763122344803)"
-    style="font: 12px Palatino"
-    x="270.9303037380165"
-    y="207.92763122344803"
-    width="10"
-    height="10"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="10"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
+    transform="rotate(0, 27.06760778688205, 147.48575690803366)translate(22.25439478688205, 142.79254090803366)"
+    font-family="Linux Libertine"
   >
     <title>`U`.labelText</title>
-    Ω
-  </text>
-  <text
-    fill="#000000"
-    fill-opacity="1"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="2.5"
-    transform="rotate(0, 178.8693490089837, 196.60771602099896)"
-    style="font: italic 12px Palatino"
-    x="178.8693490089837"
-    y="200.10771602099896"
-    width="10.767578125"
-    height="7"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="7"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-    paint-order="stroke"
-    stroke-linejoin="round"
+    <svg
+      style="font-size: 13.333px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="9.626426"
+      height="9.386432"
+      role="img"
+      focusable="false"
+      viewBox="0 -704 722 704"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="3A9"
+              d="M55 454Q55 503 75 546T127 617T197 665T272 695T337 704H352Q396 704 404 703Q527 687 596 615T666 454Q666 392 635 330T559 200T499 83V80H543Q589 81 600 83T617 93Q622 102 629 135T636 172L637 177H677V175L660 89Q645 3 644 2V0H552H488Q461 0 456 3T451 20Q451 89 499 235T548 455Q548 512 530 555T483 622T424 656T361 668Q332 668 303 658T243 626T193 560T174 456Q174 380 222 233T270 20Q270 7 263 0H77V2Q76 3 61 89L44 175V177H84L85 172Q85 171 88 155T96 119T104 93Q109 86 120 84T178 80H222V83Q206 132 162 199T87 329T55 454Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 123.12757379657259, 143.02759232513353)translate(84.46862457319247, 104.3686431017534)"
   >
-    <title>`x1`.labelText</title>
-    x₁
-  </text>
+    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
+      version="1.1"
+      id="offcenter-estimator__Layer_1--inject-59"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      x="0px"
+      y="0px"
+      viewBox="0 0 221.7 221.7"
+      style="enable-background: new 0 0 221.7 221.7"
+      xml:space="preserve"
+      width="77.31789844676024"
+      height="77.31789844676024"
+    >
+      <style type="text/css">
+        .offcenter-estimator__st0 {
+          opacity: 0.6;
+          fill: url(#offcenter-estimator__SVGID_1_--inject-59);
+          enable-background: new;
+        }
+      </style>
+      <radialGradient
+        id="offcenter-estimator__SVGID_1_--inject-59"
+        cx="75.4328"
+        cy="151.0149"
+        r="157.9341"
+        gradientTransform="matrix(1 0 0 -1 0 222)"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="0" style="stop-color: #ffffff" />
+        <stop offset="0.7844" style="stop-color: #5f5f5f" />
+        <stop offset="1" style="stop-color: #7f7f7f" />
+      </radialGradient>
+      <circle
+        class="offcenter-estimator__st0"
+        cx="110.9"
+        cy="110.9"
+        r="110.9"
+      />
+    </svg>
+    <title>`B1`.shading</title>
+  </g>
+  <g
+    transform="rotate(0, 108.86964067929787, 100.52821840135537)translate(38.58063936204141, 30.23921708409891)"
+  >
+    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
+      version="1.1"
+      id="offcenter-estimator__Layer_1--inject-60"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      x="0px"
+      y="0px"
+      viewBox="0 0 221.7 221.7"
+      style="enable-background: new 0 0 221.7 221.7"
+      xml:space="preserve"
+      width="140.57800263451293"
+      height="140.57800263451293"
+    >
+      <style type="text/css">
+        .offcenter-estimator__st0 {
+          opacity: 0.6;
+          fill: url(#offcenter-estimator__SVGID_1_--inject-60);
+          enable-background: new;
+        }
+      </style>
+      <radialGradient
+        id="offcenter-estimator__SVGID_1_--inject-60"
+        cx="75.4328"
+        cy="151.0149"
+        r="157.9341"
+        gradientTransform="matrix(1 0 0 -1 0 222)"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="0" style="stop-color: #ffffff" />
+        <stop offset="0.7844" style="stop-color: #5f5f5f" />
+        <stop offset="1" style="stop-color: #7f7f7f" />
+      </radialGradient>
+      <circle
+        class="offcenter-estimator__st0"
+        cx="110.9"
+        cy="110.9"
+        r="110.9"
+      />
+    </svg>
+    <title>`B0`.shading</title>
+  </g>
+  <circle
+    fill="#9acca0"
+    fill-opacity="1"
+    cx="108.86964067929787"
+    cy="100.52821840135537"
+    stroke="#1b8a1f"
+    stroke-opacity="1"
+    stroke-width="0.6666666666666666"
+    r="70.28900131725646"
+    opacity="0.35"
+  >
+    <title>`B0`.ball</title>
+  </circle>
+  <g fill="none">
+    <line
+      x1="126.40894629148244"
+      y1="126.96044468389033"
+      x2="118.34191511571154"
+      y2="170.17602837256115"
+      stroke="#006600"
+      stroke-opacity="0.2980392156862745"
+      stroke-width="1.3333333333333333"
+    />
+    <title>`x1`.walkLine</title>
+  </g>
+  <circle
+    fill="#9acca0"
+    fill-opacity="1"
+    cx="123.12757379657259"
+    cy="143.02759232513353"
+    stroke="#1b8a1f"
+    stroke-opacity="1"
+    stroke-width="0.6666666666666666"
+    r="38.65894922338012"
+    opacity="0.35"
+  >
+    <title>`B1`.ball</title>
+  </circle>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="178.738774989276"
-    cy="204.6077092210378"
+    cx="118.34191511571154"
+    cy="170.17602837256115"
     stroke="none"
-    r="2.5"
+    r="2"
   >
     <title>`x1`.dot</title>
   </circle>
-  <text
-    fill="#000000"
-    fill-opacity="1"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="2.5"
-    transform="rotate(0, 94.62564136520504, 144.40269280951247)"
-    style="font: italic 12px Palatino"
-    x="94.62564136520504"
-    y="147.90269280951247"
-    width="11.767578125"
-    height="7"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="7"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-    paint-order="stroke"
-    stroke-linejoin="round"
-  >
-    <title>`x2`.labelText</title>
-    x₂
-  </text>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="93.8270457034455"
-    cy="152.40273350985848"
-    stroke="none"
-    r="2.5"
-  >
-    <title>`x2`.dot</title>
-  </circle>
-  <text
-    fill="#000000"
-    fill-opacity="1"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="2.5"
-    transform="rotate(0, 106.93920635286472, 79.83623691011636)"
-    style="font: italic 12px Palatino"
-    x="106.93920635286472"
-    y="83.33623691011636"
-    width="11.767578125"
-    height="7"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="7"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-    paint-order="stroke"
-    stroke-linejoin="round"
-  >
-    <title>`x0`.labelText</title>
-    x₀
-  </text>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="96.55538627424221"
-    cy="79.8527466991444"
-    stroke="none"
-    r="2.5"
-  >
-    <title>`x0`.dot</title>
-  </circle>
-  <circle
-    fill="none"
-    cx="57.2743576670037"
-    cy="102.8880482554479"
-    stroke="#668066"
-    stroke-opacity="1"
-    stroke-width="1.5"
-    r="17.299256793671496"
-  >
-    <title>`x3`.sphere</title>
-  </circle>
-  <g>
+  <g fill="none">
     <line
-      x1="61.85969795732852"
-      y1="114.4384079354415"
-      x2="42.34398054003401"
-      y2="94.1503339427683"
-      stroke="#0000b3"
-      stroke-opacity="1"
-      stroke-width="2"
+      x1="118.34191511571154"
+      y1="170.17602837256115"
+      x2="158.15297861012164"
+      y2="126.66507917810432"
+      stroke="#006600"
+      stroke-opacity="0.2980392156862745"
+      stroke-width="1.3333333333333333"
     />
-    <title>9:3:walkLine</title>
+    <title>`x2`.walkLine</title>
   </g>
   <g
-    transform="rotate(0, 49.44353353444963, 94.84030504408109)translate(39.92892839473163, 85.32569990436309)"
+    transform="rotate(0, 160.16572116329658, 120.75599612152601)translate(138.9032222295252, 99.49349718775463)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
-      id="offcenter-estimator__Layer_1--inject-69"
+      id="offcenter-estimator__Layer_1--inject-61"
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       x="0px"
@@ -485,18 +213,18 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="19.029210279435997"
-      height="19.029210279435997"
+      width="42.524997867542766"
+      height="42.524997867542766"
     >
       <style type="text/css">
         .offcenter-estimator__st0 {
           opacity: 0.6;
-          fill: url(#offcenter-estimator__SVGID_1_--inject-69);
+          fill: url(#offcenter-estimator__SVGID_1_--inject-61);
           enable-background: new;
         }
       </style>
       <radialGradient
-        id="offcenter-estimator__SVGID_1_--inject-69"
+        id="offcenter-estimator__SVGID_1_--inject-61"
         cx="75.4328"
         cy="151.0149"
         r="157.9341"
@@ -514,87 +242,274 @@
         r="110.9"
       />
     </svg>
-    <title>`x4`.shading</title>
+    <title>`B2`.shading</title>
   </g>
   <circle
-    fill="#33cc33"
-    fill-opacity="0.15"
-    cx="49.44353353444963"
-    cy="94.84030504408109"
-    stroke="none"
-    r="9.514605139717998"
+    fill="#9acca0"
+    fill-opacity="1"
+    cx="160.16572116329658"
+    cy="120.75599612152601"
+    stroke="#1b8a1f"
+    stroke-opacity="1"
+    stroke-width="0.6666666666666666"
+    r="21.262498933771383"
+    opacity="0.35"
   >
-    <title>`x4`.ball</title>
+    <title>`B2`.ball</title>
   </circle>
   <circle
-    fill="none"
-    cx="49.44353353444963"
-    cy="94.84030504408109"
-    stroke="#668066"
-    stroke-opacity="1"
-    stroke-width="1.5"
-    r="9.514605139717998"
-  >
-    <title>`x4`.sphere</title>
-  </circle>
-  <text
     fill="#000000"
     fill-opacity="1"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="2.5"
-    transform="rotate(0, 42.26140002137531, 86.15027795878103)"
-    style="font: italic 12px Palatino"
-    x="42.26140002137531"
-    y="89.65027795878103"
-    width="11.767578125"
-    height="7"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="7"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-    paint-order="stroke"
-    stroke-linejoin="round"
+    cx="158.15297861012164"
+    cy="126.66507917810432"
+    stroke="none"
+    r="2"
   >
-    <title>`x4`.labelText</title>
-    xₖ
-  </text>
+    <title>`x2`.dot</title>
+  </circle>
+  <g
+    transform="rotate(0, 167.3122968067869, 96.08584854851425)translate(155.61781863377607, 84.39137037550343)"
+  >
+    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
+      version="1.1"
+      id="offcenter-estimator__Layer_1--inject-62"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      x="0px"
+      y="0px"
+      viewBox="0 0 221.7 221.7"
+      style="enable-background: new 0 0 221.7 221.7"
+      xml:space="preserve"
+      width="23.388956346021654"
+      height="23.388956346021654"
+    >
+      <style type="text/css">
+        .offcenter-estimator__st0 {
+          opacity: 0.6;
+          fill: url(#offcenter-estimator__SVGID_1_--inject-62);
+          enable-background: new;
+        }
+      </style>
+      <radialGradient
+        id="offcenter-estimator__SVGID_1_--inject-62"
+        cx="75.4328"
+        cy="151.0149"
+        r="157.9341"
+        gradientTransform="matrix(1 0 0 -1 0 222)"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="0" style="stop-color: #ffffff" />
+        <stop offset="0.7844" style="stop-color: #5f5f5f" />
+        <stop offset="1" style="stop-color: #7f7f7f" />
+      </radialGradient>
+      <circle
+        class="offcenter-estimator__st0"
+        cx="110.9"
+        cy="110.9"
+        r="110.9"
+      />
+    </svg>
+    <title>`B3`.shading</title>
+  </g>
+  <g fill="none">
+    <line
+      x1="158.15297861012164"
+      y1="126.66507917810432"
+      x2="161.65413577114018"
+      y2="99.54559992359114"
+      stroke="#006600"
+      stroke-opacity="0.2980392156862745"
+      stroke-width="1.3333333333333333"
+    />
+    <title>`x3`.walkLine</title>
+  </g>
+  <circle
+    fill="#9acca0"
+    fill-opacity="1"
+    cx="167.3122968067869"
+    cy="96.08584854851425"
+    stroke="#1b8a1f"
+    stroke-opacity="1"
+    stroke-width="0.6666666666666666"
+    r="11.694478173010827"
+    opacity="0.35"
+  >
+    <title>`B3`.ball</title>
+  </circle>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="42.34398054003401"
-    cy="94.1503339427683"
+    cx="161.65413577114018"
+    cy="99.54559992359114"
     stroke="none"
-    r="2.5"
+    r="2"
   >
-    <title>`x4`.dot</title>
+    <title>`x3`.dot</title>
   </circle>
-  <text
+  <circle
     fill="#000000"
     fill-opacity="1"
-    stroke="#ffffff"
-    stroke-opacity="1"
-    stroke-width="2.5"
-    transform="rotate(0, 61.856986287762325, 108.93838937707696)"
-    style="font: italic 12px Palatino"
-    x="61.856986287762325"
-    y="109.93838937707696"
-    width="12"
-    height="2"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="2"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-    paint-order="stroke"
-    stroke-linejoin="round"
+    cx="126.40894629148244"
+    cy="126.96044468389033"
+    stroke="none"
+    r="2"
+  >
+    <title>`x0`.dot</title>
+  </circle>
+  <g
+    transform="rotate(0, 117.92689906060642, 123.95131278694922)translate(111.20306716060642, 119.90074738694922)"
+    font-family="Linux Libertine"
+    font-style="italic"
+  >
+    <title>`x0`.labelText</title>
+    <svg
+      style="font-size: 13.333px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="13.447663799999999"
+      height="8.1011308"
+      role="img"
+      focusable="false"
+      viewBox="0 -442 1008.6 607.6"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="msub">
+            <g data-mml-node="mi">
+              <path
+                data-c="1D465"
+                d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"
+              />
+            </g>
+            <g data-mml-node="mn" transform="translate(605,-150) scale(0.707)">
+              <path
+                data-c="30"
+                d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"
+              />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 164.10780244293528, 90.88652838769758)translate(157.28530634293529, 86.88796168769758)"
+    font-family="Linux Libertine"
+    font-style="italic"
   >
     <title>`x3`.labelText</title>
-    …
-  </text>
+    <svg
+      style="font-size: 13.333px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="13.6449922"
+      height="7.9971334"
+      role="img"
+      focusable="false"
+      viewBox="0 -442 1023.4 599.8"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="msub">
+            <g data-mml-node="mi">
+              <path
+                data-c="1D465"
+                d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"
+              />
+            </g>
+            <g data-mml-node="mi" transform="translate(605,-150) scale(0.707)">
+              <path
+                data-c="1D458"
+                d="M121 647Q121 657 125 670T137 683Q138 683 209 688T282 694Q294 694 294 686Q294 679 244 477Q194 279 194 272Q213 282 223 291Q247 309 292 354T362 415Q402 442 438 442Q468 442 485 423T503 369Q503 344 496 327T477 302T456 291T438 288Q418 288 406 299T394 328Q394 353 410 369T442 390L458 393Q446 405 434 405H430Q398 402 367 380T294 316T228 255Q230 254 243 252T267 246T293 238T320 224T342 206T359 180T365 147Q365 130 360 106T354 66Q354 26 381 26Q429 26 459 145Q461 153 479 153H483Q499 153 499 144Q499 139 496 130Q455 -11 378 -11Q333 -11 305 15T277 90Q277 108 280 121T283 145Q283 167 269 183T234 206T200 217T182 220H180Q168 178 159 139T145 81T136 44T129 20T122 7T111 -2Q98 -11 83 -11Q66 -11 57 -1T48 16Q48 26 85 176T158 471L195 616Q196 629 188 632T149 637H144Q134 637 131 637T124 640T121 647Z"
+              />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 164.27515438853882, 133.2619696378711)translate(156.4620163885388, 132.46198963787108)"
+    font-family="Linux Libertine"
+    font-style="italic"
+  >
+    <title>`x2`.labelText</title>
+    <svg
+      style="font-size: 13.333px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="15.626275999999999"
+      height="1.59996"
+      role="img"
+      focusable="false"
+      viewBox="0 -120 1172 120"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mo">
+            <path
+              data-c="2026"
+              d="M78 60Q78 84 95 102T138 120Q162 120 180 104T199 61Q199 36 182 18T139 0T96 17T78 60ZM525 60Q525 84 542 102T585 120Q609 120 627 104T646 61Q646 36 629 18T586 0T543 17T525 60ZM972 60Q972 84 989 102T1032 120Q1056 120 1074 104T1093 61Q1093 36 1076 18T1033 0T990 17T972 60Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 115.36815439271268, 178.67054114036304)translate(108.64432249271269, 174.72397314036303)"
+    font-family="Linux Libertine"
+    font-style="italic"
+  >
+    <title>`x1`.labelText</title>
+    <svg
+      style="font-size: 13.333px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="13.447663799999999"
+      height="7.893136"
+      role="img"
+      focusable="false"
+      viewBox="0 -442 1008.6 592"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="msub">
+            <g data-mml-node="mi">
+              <path
+                data-c="1D465"
+                d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"
+              />
+            </g>
+            <g data-mml-node="mn" transform="translate(605,-150) scale(0.707)">
+              <path
+                data-c="31"
+                d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"
+              />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
 </svg>
