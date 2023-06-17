@@ -1,0 +1,145 @@
+import{s as p,d as n}from"./curves.domain-2fd21de8.js";import{m as e}from"./resolver-66ef16e8.js";import"./iframe-1df500b0.js";const c=e("curve-examples"),v=`canvas {
+  width = 600
+  height = 400
+}
+
+forall Curve c {
+
+  vec2 p2 = (?, ?)
+  vec2 p3 = (?, ?)
+  vec2 p4 = (?, ?)
+  vec2 p5 = (?, ?)
+  vec2 p6 = (?, ?)
+  vec2 p7 = (?, ?)
+  vec2 p8 = (?, ?)
+  vec2 p9 = (?, ?)
+  vec2 p10 = (?, ?)
+  vec2 p11 = (?, ?)
+  vec2 p12 = (?, ?)
+  vec2 p13 = (?, ?)
+  vec2 p14 = (?, ?)
+  vec2 p15 = (?, ?)
+  vec2 p16 = (?, ?)
+  vec2 p17 = (?, ?)
+  vec2 p18 = (?, ?)
+  vec2 p19 = (?, ?)
+  vec2 p20 = (?, ?)
+  vec2 p21 = (?, ?)
+  vec2 p22 = (?, ?)
+  vec2 p23 = (?, ?)
+  vec2 p24 = (?, ?)
+  vec2 p25 = (?, ?)
+  vec2 p26 = (?, ?)
+  vec2 p27 = (?, ?)
+  vec2 p28 = (?, ?)
+  vec2 p29 = (?, ?)
+  vec2 p30 = (?, ?)
+  vec2 p31 = (?, ?)
+  vec2 p32 = (?, ?)
+  vec2 p33 = (?, ?)
+  vec2 p34 = (?, ?)
+  vec2 p35 = (?, ?)
+  vec2 p36 = (?, ?)
+  vec2 p37 = (?, ?)
+  vec2 p38 = (?, ?)
+  vec2 p39 = (?, ?)
+  vec2 p40 = (?, ?)
+  vec2 p41 = (?, ?)
+  vec2 p42 = (?, ?)
+  vec2 p43 = (?, ?)
+  vec2 p44 = (?, ?)
+  vec2 p45 = (?, ?)
+  vec2 p46 = (?, ?)
+  vec2 p47 = (?, ?)
+  vec2 p48 = (?, ?)
+  vec2 p49 = (?, ?)
+  vec2 p50 = (?, ?)
+  vec2 p51 = (?, ?)
+  vec2 p52 = (?, ?)
+  vec2 p53 = (?, ?)
+  vec2 p54 = (?, ?)
+  vec2 p55 = (?, ?)
+  vec2 p56 = (?, ?)
+  vec2 p57 = (?, ?)
+  vec2 p58 = (?, ?)
+  vec2 p59 = (?, ?)
+  vec2 p60 = (?, ?)
+  vec2 p61 = (?, ?)
+  vec2 p62 = (?, ?)
+  vec2 p63 = (?, ?)
+  vec2 p64 = (?, ?)
+  vec2 p65 = (?, ?)
+  vec2 p66 = (?, ?)
+  vec2 p67 = (?, ?)
+  vec2 p68 = (?, ?)
+  vec2 p69 = (?, ?)
+  vec2 p70 = (?, ?)
+  vec2 p71 = (?, ?)
+  vec2 p72 = (?, ?)
+  vec2 p73 = (?, ?)
+  vec2 p74 = (?, ?)
+  vec2 p75 = (?, ?)
+  vec2 p76 = (?, ?)
+  vec2 p77 = (?, ?)
+  vec2 p78 = (?, ?)
+  vec2 p79 = (?, ?)
+  vec2 p80 = (?, ?)
+  vec2 p81 = (?, ?)
+  vec2 p82 = (?, ?)
+  vec2 p83 = (?, ?)
+  vec2 p84 = (?, ?)
+  vec2 p85 = (?, ?)
+  vec2 p86 = (?, ?)
+  vec2 p87 = (?, ?)
+  vec2 p88 = (?, ?)
+  vec2 p89 = (?, ?)
+  vec2 p90 = (?, ?)
+  vec2 p91 = (?, ?)
+  vec2 p92 = (?, ?)
+  vec2 p93 = (?, ?)
+  vec2 p94 = (?, ?)
+  vec2 p95 = (?, ?)
+  vec2 p96 = (?, ?)
+  vec2 p97 = (?, ?)
+
+  scalar theta1 = 3.14 * 5 / 6
+  scalar theta2 = 3.14 * 1 / 4
+  scalar length = 600
+  scalar edgeLength = length / 100
+
+  -- endpoints
+  vec2 p0 = (-130, 0)
+  vec2 p99 = (130, 0)
+
+  -- endpoint directions
+  vec2 p1 = (p0[0] + edgeLength * cos(theta1), p0[1] + edgeLength * sin(theta1))
+  vec2 p98 = (p99[0] - edgeLength * cos(theta2), p99[1] - edgeLength * sin(theta2))
+
+  shape c.poly = Polyline {
+      points: [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27, p28, p29, p30, p31, p32, p33, p34, p35, p36, p37, p38, p39, p40, p41, p42, p43, p44, p45, p46, p47, p48, p49, p50, p51, p52, p53, p54, p55, p56, p57, p58, p59, p60, p61, p62, p63, p64, p65, p66, p67, p68, p69, p70, p71, p72, p73, p74, p75,  p76, p77, p78, p79, p80, p81, p82, p83, p84, p85, p86, p87, p88, p89, p90, p91, p92, p93, p94, p95, p96, p97, p98, p99]
+      strokeWidth: 2
+      strokeColor: #000
+  }
+
+  ensure perimeter(c.poly.points, false) == length
+  ensure isEquilateral(c.poly.points, false)
+  encourage elasticEnergy(c.poly.points, false) == 0  -- works better than \`minimal\` in this case
+
+  shape c.arrow1 = Line {
+    start: p0
+    end: p0 + 15 * (p1 - p0)
+    strokeWidth: 1.5
+    strokeColor: #22a34da8
+    endArrowhead: "straight"
+  }
+  shape c.arrow2 = Line {
+    start: p99
+    end: p99 + 15 * (p99 - p98)
+    strokeWidth: 1.5
+    strokeColor: #22a34da8
+    endArrowhead: "straight"
+  }
+
+}
+`,r={substance:p,style:[{contents:v,resolver:c}],domain:n,variation:"ClamshellKookabura228"};export{r as default};
+//# sourceMappingURL=open-elastic-curve.trio-6552c7c1.js.map
