@@ -5,7 +5,8 @@ import {
   onCanvasPoint,
   onCanvasRect,
   problem,
-  sdfRect,
+  rectPts,
+  signedDistanceRect,
   textBBox,
   variable,
 } from "@penrose/core";
@@ -49,7 +50,13 @@ export default async function Text(
       const [x, y] = points[i];
       return [
         onCanvasRect(canvas, rect),
-        eq(sdfRect(rect.center, rect.width, rect.height, [x.val, y.val]), 10),
+        eq(
+          signedDistanceRect(rectPts(rect.center, rect.width, rect.height), [
+            x.val,
+            y.val,
+          ]),
+          10
+        ),
       ];
     }),
   }).then((p) => {

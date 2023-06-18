@@ -33,7 +33,6 @@ forall Set x {
 forall Set x; Set y
 where IsSubset(x, y) {
     ensure contains(y.icon, x.icon, 5.0)
-    ensure smallerThan(x.icon, y.icon)
     ensure disjoint(y.text, x.icon) -- Is this not working?
     x.icon above y.icon
     -- layering1  = y.text below x.icon

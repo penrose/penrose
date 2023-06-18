@@ -76,6 +76,24 @@ export const objDictSimple = {
     body: (x: ad.Num, y: ad.Num): ad.Num => squared(sub(x, y)),
   },
 
+  nearVec: {
+    name: "nearVec",
+    description:
+      "Encourage two vectors `v1` and `v2` to be near each other with distance `offset`.",
+    params: [
+      { name: "v1", type: realNT(), description: "a vector" },
+      { name: "v2", type: realNT(), description: "a vector" },
+      {
+        name: "offset",
+        type: realT(),
+        description: "distance between two vectors",
+      },
+    ],
+    body: (v1: ad.Num[], v2: ad.Num[], offset: ad.Num): ad.Num => {
+      return sub(ops.vdistsq(v1, v2), squared(offset));
+    },
+  },
+
   /**
    * Encourage x to be greater than or equal to y: `max(0,y - x)^2`
    */
@@ -139,6 +157,18 @@ export const objDictSimple = {
 // -------- General objective functions
 // Defined for all shapes, generally require shape queries or call multiple specific objective functions.
 export const objDictGeneral = {
+  inDirection: {
+    name: "inDirection",
+    description:
+      "Encourage the point `p` to be in the direction `direction` with respect to point `pRef`. The `direction` vector does not need to be normalized. The `offset` parameter is the shortest allowed distance between the points.",
+    params: [
+      { name: "p", type: real2T() },
+      { name: "pRef", type: real2T() },
+      { name: "direction", type: real2T() },
+      { name: "offset", type: realT() },
+    ],
+    body: inDirection,
+  },
   /**
    * Encourage the center of `sTop` to be above the center of `sBottom`.
    * Only works for shapes with property `center`.
@@ -158,10 +188,15 @@ export const objDictGeneral = {
         type: shapeT("AnyShape"),
         description: "shape on the top",
       },
-      { name: "offset", type: realT(), description: "offset", default: 100 },
+      {
+        name: "offset",
+        type: realT(),
+        description: "distance between the two centers",
+        default: 100,
+      },
     ],
     body: (bottom: Shape<ad.Num>, top: Shape<ad.Num>, offset = 100): ad.Num => {
-      return inDirection(bottom, top, [0, 1], offset);
+      return inDirection(shapeCenter(bottom), shapeCenter(top), [0, 1], offset);
     },
   },
 
@@ -183,10 +218,15 @@ export const objDictGeneral = {
         type: shapeT("AnyShape"),
         description: "shape on the bottom",
       },
-      { name: "offset", type: realT(), description: "offset", default: 100 },
+      {
+        name: "offset",
+        type: realT(),
+        description: "distance between the two centers",
+        default: 100,
+      },
     ],
     body: (top: Shape<ad.Num>, bottom: Shape<ad.Num>, offset = 100): ad.Num => {
-      return inDirection(top, bottom, [0, 1], offset);
+      return inDirection(shapeCenter(top), shapeCenter(bottom), [0, 1], offset);
     },
   },
 
@@ -208,10 +248,15 @@ export const objDictGeneral = {
         type: shapeT("AnyShape"),
         description: "shape on the right",
       },
-      { name: "offset", type: realT(), description: "offset", default: 100 },
+      {
+        name: "offset",
+        type: realT(),
+        description: "distance between the two centers",
+        default: 100,
+      },
     ],
     body: (left: Shape<ad.Num>, right: Shape<ad.Num>, offset = 100): ad.Num => {
-      return inDirection(left, right, [1, 0], offset);
+      return inDirection(shapeCenter(left), shapeCenter(right), [1, 0], offset);
     },
   },
 
@@ -233,10 +278,15 @@ export const objDictGeneral = {
         type: shapeT("AnyShape"),
         description: "shape on the left",
       },
-      { name: "offset", type: realT(), description: "offset", default: 100 },
+      {
+        name: "offset",
+        type: realT(),
+        description: "distance between the two centers",
+        default: 100,
+      },
     ],
     body: (right: Shape<ad.Num>, left: Shape<ad.Num>, offset = 100): ad.Num => {
-      return inDirection(right, left, [1, 0], offset);
+      return inDirection(shapeCenter(right), shapeCenter(left), [1, 0], offset);
     },
   },
 

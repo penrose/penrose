@@ -40,11 +40,27 @@ const RenderEquation = (
     // If equations are rendered as plain TeX strings, forward relevant props to a <text> element and surround the TeX string with $$
     // Since the `svg` TeX package render text with the center on the baseline, we shift the labels down by height/2 + descent
     const baselineY = y + shape.height.contents / 2 - shape.descent.contents;
-    const txt = placeholderString(
+
+    let txt = placeholderString(
       `$${getAdValueAsString(shape.string)}$`,
       [x, baselineY],
       shape
     );
+
+    // If the Equation has a texContourColor passthrough value, give the
+    // string a contour with the specified color
+    for (const [propKey, propVal] of shape.passthrough) {
+      if (propKey === "texContourColor" && propVal.contents !== "") {
+        txt = placeholderString(
+          `\\contour{${propVal.contents}}{$${getAdValueAsString(
+            shape.string
+          )}$}`,
+          [x, baselineY],
+          shape
+        );
+      }
+    }
+
     return txt;
   }
 
