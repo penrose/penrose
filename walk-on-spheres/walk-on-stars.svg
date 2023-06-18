@@ -6,7 +6,7 @@
 >
   <penrose>
     <croppedViewBox>
-      15.782304296410501 5.408675063490932 170.64403407501425 240.4091148247179
+      15.782304296410501 5.408675063490932 170.64403407501425 179.97175921591958
     </croppedViewBox>
   </penrose>
   <polygon
@@ -18,45 +18,6 @@
   >
     <title>`U`.geometry</title>
   </polygon>
-  <g
-    transform="rotate(0, 98.52526518158434, 169.3746642035966)translate(22.082139496972133, 92.9315385189844)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="walk-on-stars__Layer_1--inject-63"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 221.7 221.7"
-      style="enable-background: new 0 0 221.7 221.7"
-      xml:space="preserve"
-      width="152.88625136922442"
-      height="152.88625136922442"
-    >
-      <style type="text/css">
-        .walk-on-stars__st0 {
-          opacity: 0.6;
-          fill: url(#walk-on-stars__SVGID_1_--inject-63);
-          enable-background: new;
-        }
-      </style>
-      <radialGradient
-        id="walk-on-stars__SVGID_1_--inject-63"
-        cx="75.4328"
-        cy="151.0149"
-        r="157.9341"
-        gradientTransform="matrix(1 0 0 -1 0 222)"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #ffffff" />
-        <stop offset="0.7844" style="stop-color: #5f5f5f" />
-        <stop offset="1" style="stop-color: #7f7f7f" />
-      </radialGradient>
-      <circle class="walk-on-stars__st0" cx="110.9" cy="110.9" r="110.9" />
-    </svg>
-    <title>`St3`.shading</title>
-  </g>
   <g>
     <clipPath id="walk-on-stars__registry`St3`.domainGeometry-clip">
       <polygon
@@ -68,60 +29,63 @@
         <title>`St3`.domainGeometry</title>
       </polygon>
     </clipPath>
-    <circle
-      fill="#9acca0"
-      fill-opacity="1"
-      cx="98.52526518158434"
-      cy="169.3746642035966"
-      stroke="#1b8a1f"
-      stroke-opacity="1"
-      stroke-width="0.6666666666666666"
-      r="76.44312568461221"
-      opacity="0.35"
-      clip-path="url(#walk-on-stars__registry`St3`.domainGeometry-clip)"
-    >
-      <title>`St3`.ball</title>
-    </circle>
-    <title>`St3`.G</title>
-  </g>
-  <g
-    transform="rotate(0, 131.50045132865188, 111.83075986057)translate(79.66084160838902, 59.99115014030714)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="walk-on-stars__Layer_1--inject-64"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 221.7 221.7"
-      style="enable-background: new 0 0 221.7 221.7"
-      xml:space="preserve"
-      width="103.67921944052571"
-      height="103.67921944052571"
-    >
-      <style type="text/css">
-        .walk-on-stars__st0 {
-          opacity: 0.6;
-          fill: url(#walk-on-stars__SVGID_1_--inject-64);
-          enable-background: new;
-        }
-      </style>
-      <radialGradient
-        id="walk-on-stars__SVGID_1_--inject-64"
-        cx="75.4328"
-        cy="151.0149"
-        r="157.9341"
-        gradientTransform="matrix(1 0 0 -1 0 222)"
-        gradientUnits="userSpaceOnUse"
+    <g clip-path="url(#walk-on-stars__registry`St3`.domainGeometry-clip)">
+      <g
+        transform="rotate(0, 98.52526518158434, 169.3746642035966)translate(22.082139496972133, 92.9315385189844)"
       >
-        <stop offset="0" style="stop-color: #ffffff" />
-        <stop offset="0.7844" style="stop-color: #5f5f5f" />
-        <stop offset="1" style="stop-color: #7f7f7f" />
-      </radialGradient>
-      <circle class="walk-on-stars__st0" cx="110.9" cy="110.9" r="110.9" />
-    </svg>
-    <title>`St1`.shading</title>
+        <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
+          version="1.1"
+          id="walk-on-stars__Layer_1--inject-63"
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          x="0px"
+          y="0px"
+          viewBox="0 0 221.7 221.7"
+          style="enable-background: new 0 0 221.7 221.7"
+          xml:space="preserve"
+          width="152.88625136922442"
+          height="152.88625136922442"
+        >
+          <style type="text/css">
+            .walk-on-stars__st0 {
+              opacity: 0.6;
+              fill: url(#walk-on-stars__SVGID_1_--inject-63);
+              enable-background: new;
+            }
+          </style>
+          <radialGradient
+            id="walk-on-stars__SVGID_1_--inject-63"
+            cx="75.4328"
+            cy="151.0149"
+            r="157.9341"
+            gradientTransform="matrix(1 0 0 -1 0 222)"
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop offset="0" style="stop-color: #ffffff" />
+            <stop offset="0.7844" style="stop-color: #5f5f5f" />
+            <stop offset="1" style="stop-color: #7f7f7f" />
+          </radialGradient>
+          <circle class="walk-on-stars__st0" cx="110.9" cy="110.9" r="110.9" />
+        </svg>
+        <title>`St3`.shading</title>
+      </g>
+    </g>
+    <g clip-path="url(#walk-on-stars__registry`St3`.domainGeometry-clip)">
+      <circle
+        fill="#9acca0"
+        fill-opacity="1"
+        cx="98.52526518158434"
+        cy="169.3746642035966"
+        stroke="#1b8a1f"
+        stroke-opacity="1"
+        stroke-width="0.6666666666666666"
+        r="76.44312568461221"
+        opacity="0.35"
+      >
+        <title>`St3`.ball</title>
+      </circle>
+    </g>
+    <title>`St3`.G</title>
   </g>
   <g>
     <clipPath id="walk-on-stars__registry`St1`.domainGeometry-clip">
@@ -134,60 +98,63 @@
         <title>`St1`.domainGeometry</title>
       </polygon>
     </clipPath>
-    <circle
-      fill="#9acca0"
-      fill-opacity="1"
-      cx="131.50045132865188"
-      cy="111.83075986057"
-      stroke="#1b8a1f"
-      stroke-opacity="1"
-      stroke-width="0.6666666666666666"
-      r="51.83960972026286"
-      opacity="0.35"
-      clip-path="url(#walk-on-stars__registry`St1`.domainGeometry-clip)"
-    >
-      <title>`St1`.ball</title>
-    </circle>
-    <title>`St1`.G</title>
-  </g>
-  <g
-    transform="rotate(0, 78.79516495670427, 82.84940960779613)translate(18.747298211299558, 22.801542862391422)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="walk-on-stars__Layer_1--inject-65"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 221.7 221.7"
-      style="enable-background: new 0 0 221.7 221.7"
-      xml:space="preserve"
-      width="120.09573349080942"
-      height="120.09573349080942"
-    >
-      <style type="text/css">
-        .walk-on-stars__st0 {
-          opacity: 0.6;
-          fill: url(#walk-on-stars__SVGID_1_--inject-65);
-          enable-background: new;
-        }
-      </style>
-      <radialGradient
-        id="walk-on-stars__SVGID_1_--inject-65"
-        cx="75.4328"
-        cy="151.0149"
-        r="157.9341"
-        gradientTransform="matrix(1 0 0 -1 0 222)"
-        gradientUnits="userSpaceOnUse"
+    <g clip-path="url(#walk-on-stars__registry`St1`.domainGeometry-clip)">
+      <g
+        transform="rotate(0, 131.50045132865188, 111.83075986057)translate(79.66084160838902, 59.99115014030714)"
       >
-        <stop offset="0" style="stop-color: #ffffff" />
-        <stop offset="0.7844" style="stop-color: #5f5f5f" />
-        <stop offset="1" style="stop-color: #7f7f7f" />
-      </radialGradient>
-      <circle class="walk-on-stars__st0" cx="110.9" cy="110.9" r="110.9" />
-    </svg>
-    <title>`St0`.shading</title>
+        <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
+          version="1.1"
+          id="walk-on-stars__Layer_1--inject-64"
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          x="0px"
+          y="0px"
+          viewBox="0 0 221.7 221.7"
+          style="enable-background: new 0 0 221.7 221.7"
+          xml:space="preserve"
+          width="103.67921944052571"
+          height="103.67921944052571"
+        >
+          <style type="text/css">
+            .walk-on-stars__st0 {
+              opacity: 0.6;
+              fill: url(#walk-on-stars__SVGID_1_--inject-64);
+              enable-background: new;
+            }
+          </style>
+          <radialGradient
+            id="walk-on-stars__SVGID_1_--inject-64"
+            cx="75.4328"
+            cy="151.0149"
+            r="157.9341"
+            gradientTransform="matrix(1 0 0 -1 0 222)"
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop offset="0" style="stop-color: #ffffff" />
+            <stop offset="0.7844" style="stop-color: #5f5f5f" />
+            <stop offset="1" style="stop-color: #7f7f7f" />
+          </radialGradient>
+          <circle class="walk-on-stars__st0" cx="110.9" cy="110.9" r="110.9" />
+        </svg>
+        <title>`St1`.shading</title>
+      </g>
+    </g>
+    <g clip-path="url(#walk-on-stars__registry`St1`.domainGeometry-clip)">
+      <circle
+        fill="#9acca0"
+        fill-opacity="1"
+        cx="131.50045132865188"
+        cy="111.83075986057"
+        stroke="#1b8a1f"
+        stroke-opacity="1"
+        stroke-width="0.6666666666666666"
+        r="51.83960972026286"
+        opacity="0.35"
+      >
+        <title>`St1`.ball</title>
+      </circle>
+    </g>
+    <title>`St1`.G</title>
   </g>
   <g>
     <clipPath id="walk-on-stars__registry`St0`.domainGeometry-clip">
@@ -200,20 +167,62 @@
         <title>`St0`.domainGeometry</title>
       </polygon>
     </clipPath>
-    <circle
-      fill="#9acca0"
-      fill-opacity="1"
-      cx="78.79516495670427"
-      cy="82.84940960779613"
-      stroke="#1b8a1f"
-      stroke-opacity="1"
-      stroke-width="0.6666666666666666"
-      r="60.04786674540471"
-      opacity="0.35"
-      clip-path="url(#walk-on-stars__registry`St0`.domainGeometry-clip)"
-    >
-      <title>`St0`.ball</title>
-    </circle>
+    <g clip-path="url(#walk-on-stars__registry`St0`.domainGeometry-clip)">
+      <g
+        transform="rotate(0, 78.79516495670427, 82.84940960779613)translate(18.747298211299558, 22.801542862391422)"
+      >
+        <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
+          version="1.1"
+          id="walk-on-stars__Layer_1--inject-65"
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          x="0px"
+          y="0px"
+          viewBox="0 0 221.7 221.7"
+          style="enable-background: new 0 0 221.7 221.7"
+          xml:space="preserve"
+          width="120.09573349080942"
+          height="120.09573349080942"
+        >
+          <style type="text/css">
+            .walk-on-stars__st0 {
+              opacity: 0.6;
+              fill: url(#walk-on-stars__SVGID_1_--inject-65);
+              enable-background: new;
+            }
+          </style>
+          <radialGradient
+            id="walk-on-stars__SVGID_1_--inject-65"
+            cx="75.4328"
+            cy="151.0149"
+            r="157.9341"
+            gradientTransform="matrix(1 0 0 -1 0 222)"
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop offset="0" style="stop-color: #ffffff" />
+            <stop offset="0.7844" style="stop-color: #5f5f5f" />
+            <stop offset="1" style="stop-color: #7f7f7f" />
+          </radialGradient>
+          <circle class="walk-on-stars__st0" cx="110.9" cy="110.9" r="110.9" />
+        </svg>
+        <title>`St0`.shading</title>
+      </g>
+    </g>
+    <g clip-path="url(#walk-on-stars__registry`St0`.domainGeometry-clip)">
+      <circle
+        fill="#9acca0"
+        fill-opacity="1"
+        cx="78.79516495670427"
+        cy="82.84940960779613"
+        stroke="#1b8a1f"
+        stroke-opacity="1"
+        stroke-width="0.6666666666666666"
+        r="60.04786674540471"
+        opacity="0.35"
+      >
+        <title>`St0`.ball</title>
+      </circle>
+    </g>
     <title>`St0`.G</title>
   </g>
   <g fill="none">
@@ -229,45 +238,6 @@
     />
     <title>`x3`.walkLine</title>
   </g>
-  <g
-    transform="rotate(0, 110.07213374468853, 159.14408000843144)translate(35.39447822773977, 84.46642449148268)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="walk-on-stars__Layer_1--inject-66"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 221.7 221.7"
-      style="enable-background: new 0 0 221.7 221.7"
-      xml:space="preserve"
-      width="149.35531103389752"
-      height="149.35531103389752"
-    >
-      <style type="text/css">
-        .walk-on-stars__st0 {
-          opacity: 0.6;
-          fill: url(#walk-on-stars__SVGID_1_--inject-66);
-          enable-background: new;
-        }
-      </style>
-      <radialGradient
-        id="walk-on-stars__SVGID_1_--inject-66"
-        cx="75.4328"
-        cy="151.0149"
-        r="157.9341"
-        gradientTransform="matrix(1 0 0 -1 0 222)"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #ffffff" />
-        <stop offset="0.7844" style="stop-color: #5f5f5f" />
-        <stop offset="1" style="stop-color: #7f7f7f" />
-      </radialGradient>
-      <circle class="walk-on-stars__st0" cx="110.9" cy="110.9" r="110.9" />
-    </svg>
-    <title>`St2`.shading</title>
-  </g>
   <g>
     <clipPath id="walk-on-stars__registry`St2`.domainGeometry-clip">
       <polygon
@@ -279,20 +249,62 @@
         <title>`St2`.domainGeometry</title>
       </polygon>
     </clipPath>
-    <circle
-      fill="#9acca0"
-      fill-opacity="1"
-      cx="110.07213374468853"
-      cy="159.14408000843144"
-      stroke="#1b8a1f"
-      stroke-opacity="1"
-      stroke-width="0.6666666666666666"
-      r="74.67765551694876"
-      opacity="0.35"
-      clip-path="url(#walk-on-stars__registry`St2`.domainGeometry-clip)"
-    >
-      <title>`St2`.ball</title>
-    </circle>
+    <g clip-path="url(#walk-on-stars__registry`St2`.domainGeometry-clip)">
+      <g
+        transform="rotate(0, 110.07213374468853, 159.14408000843144)translate(35.39447822773977, 84.46642449148268)"
+      >
+        <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
+          version="1.1"
+          id="walk-on-stars__Layer_1--inject-66"
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          x="0px"
+          y="0px"
+          viewBox="0 0 221.7 221.7"
+          style="enable-background: new 0 0 221.7 221.7"
+          xml:space="preserve"
+          width="149.35531103389752"
+          height="149.35531103389752"
+        >
+          <style type="text/css">
+            .walk-on-stars__st0 {
+              opacity: 0.6;
+              fill: url(#walk-on-stars__SVGID_1_--inject-66);
+              enable-background: new;
+            }
+          </style>
+          <radialGradient
+            id="walk-on-stars__SVGID_1_--inject-66"
+            cx="75.4328"
+            cy="151.0149"
+            r="157.9341"
+            gradientTransform="matrix(1 0 0 -1 0 222)"
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop offset="0" style="stop-color: #ffffff" />
+            <stop offset="0.7844" style="stop-color: #5f5f5f" />
+            <stop offset="1" style="stop-color: #7f7f7f" />
+          </radialGradient>
+          <circle class="walk-on-stars__st0" cx="110.9" cy="110.9" r="110.9" />
+        </svg>
+        <title>`St2`.shading</title>
+      </g>
+    </g>
+    <g clip-path="url(#walk-on-stars__registry`St2`.domainGeometry-clip)">
+      <circle
+        fill="#9acca0"
+        fill-opacity="1"
+        cx="110.07213374468853"
+        cy="159.14408000843144"
+        stroke="#1b8a1f"
+        stroke-opacity="1"
+        stroke-width="0.6666666666666666"
+        r="74.67765551694876"
+        opacity="0.35"
+      >
+        <title>`St2`.ball</title>
+      </circle>
+    </g>
     <title>`St2`.G</title>
   </g>
   <g fill="none">
