@@ -519,11 +519,8 @@ where St := starAround(p) {
       fillColor: none()
       ensureOnCanvas: false
    }
-   -- this group should ideally also include St.shading, but
-   -- there appears to be a bug with clipping imported images
-   -- (or perhaps gradients)
    shape St.G = Group {
-      shapes: [St.ball] -- [St.ball,St.shading]
+      shapes: [St.ball,St.shading]
       clipPath: clip(St.domainGeometry)
       ensureOnCanvas: false
    }
