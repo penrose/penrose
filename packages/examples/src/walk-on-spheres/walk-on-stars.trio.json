@@ -1,6 +1,6 @@
 {
-  "substance": "./Nested.substance",
+  "substance": "./WalkOnStars.substance",
   "style": ["./walk-on-spheres.style"],
   "domain": "./walk-on-spheres.domain",
-  "variation": "CosmosGull147"
+  "variation": "FlaxseedSnake5823"
 }

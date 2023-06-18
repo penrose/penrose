@@ -130,6 +130,7 @@ import {
   shapeDistancePolys,
   shapeDistanceRectCircle,
   shapeDistanceRectLine,
+  shapeDistanceRectlikePolyline,
   shapeDistanceRects,
 } from "./Queries.js";
 import { Rectlike, clamp, isRectlike, numOf, toPt } from "./Utils.js";
@@ -1136,6 +1137,59 @@ export const compDict = {
     ): PathDataV<ad.Num> => {
       const path = new PathBuilder();
       path.moveTo(start).arcTo(radius, end, [rotation, largeArc, arcSweep]);
+      if (pathType === "closed") path.closePath();
+      return path.getPath();
+    },
+    returns: valueT("PathCmd"),
+  },
+
+  circularArc: {
+    name: "circularArc",
+    description: `Return path data that describes a circular arc.  The arc is equivalent to the parametric curve center + r*(cos(t),sin(t)) for t in the range [theta0,theta1].  More general arcs (e.g., along an ellipse) can be drawn using arc().`,
+    params: [
+      {
+        name: "pathType",
+        type: pathTypeT(),
+        description: `The path type: either "open" or "closed." whether the SVG should automatically draw a line between the final point and the start point`,
+      },
+      {
+        name: "center",
+        type: real2T(),
+        description: "circle center",
+      },
+      {
+        name: "r",
+        type: realT(),
+        description: "circle radius",
+      },
+      {
+        name: "theta0",
+        type: realT(),
+        description: "start angle in radians",
+      },
+      {
+        name: "theta1",
+        type: realT(),
+        description: "end angle in radians",
+      },
+    ],
+    body: (
+      _context: Context,
+      pathType: string,
+      center: ad.Pt2,
+      r: ad.Num,
+      theta0: ad.Num,
+      theta1: ad.Num
+    ): PathDataV<ad.Num> => {
+      const path = new PathBuilder();
+      //path.moveTo(start).arcTo(radius, end, [rotation, largeArc, arcSweep]);
+      const u0 = [mul(r, cos(theta0)), mul(r, sin(theta0))];
+      const u1 = [mul(r, cos(theta1)), mul(r, sin(theta1))];
+      const x0 = toPt(ops.vadd(center, u0));
+      const x1 = toPt(ops.vadd(center, u1));
+      const largeArc = ifCond(gt(absVal(sub(theta1, theta0)), Math.PI), 1, 0);
+      const arcSweep = ifCond(gt(theta0, theta1), 1, 0);
+      path.moveTo(x0).arcTo([r, r], x1, [0, largeArc, arcSweep]);
       if (pathType === "closed") path.closePath();
       return path.getPath();
     },
@@ -2776,6 +2830,8 @@ export const compDict = {
   //#region ray intersection (and normal) Style functions
   rayIntersect: {
     name: "rayIntersect",
+    description:
+      "Given a point p and vector v, find the first point where the ray r(t)=p+tv intersects the given shape S.  If there are no intersections, returns p.",
     params: [
       {
         name: "S",
@@ -2810,6 +2866,44 @@ export const compDict = {
     },
     returns: valueT("Real2"),
   },
+  rayIntersectDistance: {
+    name: "rayIntersectDistance",
+    description:
+      "Given a point p and vector v, returns the distance to the first point where the ray r(t)=p+tv intersects the shape S.  If there are no intersections, returns Infinity.",
+    params: [
+      {
+        name: "S",
+        type: unionT(
+          rectlikeT(),
+          shapeT("Circle"),
+          shapeT("Polygon"),
+          shapeT("Line"),
+          shapeT("Polyline"),
+          shapeT("Ellipse"),
+          shapeT("Group")
+        ),
+        description: "A shape",
+      },
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      S:
+        | Circle<ad.Num>
+        | Rectlike<ad.Num>
+        | Line<ad.Num>
+        | Polyline<ad.Num>
+        | Polygon<ad.Num>
+        | Ellipse<ad.Num>
+        | Group<ad.Num>,
+      p: ad.Num[],
+      v: ad.Num[]
+    ): FloatV<ad.Num> => {
+      return floatV(distRI(rawRayIntersect(S, p, v), p));
+    },
+    returns: valueT("Real"),
+  },
   rayIntersectCircle: {
     name: "rayIntersectCircle",
     params: [
@@ -2826,6 +2920,23 @@ export const compDict = {
       v: ad.Num[]
     ): VectorV<ad.Num> => vectorV(safeRI(rawRayIntersectCircle(c, r, p, v), p)),
     returns: valueT("Real2"),
+  },
+  rayIntersectCircleDistance: {
+    name: "rayIntersectCircleDistance",
+    params: [
+      { name: "c", type: real2T(), description: "center of circle" },
+      { name: "r", type: realT(), description: "radius of circle" },
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      c: ad.Num[],
+      r: ad.Num,
+      p: ad.Num[],
+      v: ad.Num[]
+    ): FloatV<ad.Num> => floatV(distRI(rawRayIntersectCircle(c, r, p, v), p)),
+    returns: valueT("Real"),
   },
   rayIntersectEllipse: {
     name: "rayIntersectEllipse",
@@ -2847,6 +2958,26 @@ export const compDict = {
       vectorV(safeRI(rawRayIntersectEllipse(c, rx, ry, p, v), p)),
     returns: real2T(),
   },
+  rayIntersectEllipseDistance: {
+    name: "rayIntersectEllipseDistance",
+    params: [
+      { name: "c", type: real2T() },
+      { name: "rx", type: realT() },
+      { name: "ry", type: realT() },
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      c: ad.Num[],
+      rx: ad.Num,
+      ry: ad.Num,
+      p: ad.Num[],
+      v: ad.Num[]
+    ): FloatV<ad.Num> =>
+      floatV(distRI(rawRayIntersectEllipse(c, rx, ry, p, v), p)),
+    returns: valueT("Real"),
+  },
   rayIntersectLine: {
     name: "rayIntersectLine",
     params: [
@@ -2864,6 +2995,24 @@ export const compDict = {
     ): VectorV<ad.Num> =>
       vectorV(safeRI(rawRayIntersectLine(start, end, p, v), p)),
     returns: real2T(),
+  },
+  rayIntersectLineDistance: {
+    name: "rayIntersectLineDistance",
+    params: [
+      { name: "start", type: real2T() },
+      { name: "end", type: real2T() },
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      start: ad.Num[],
+      end: ad.Num[],
+      p: ad.Num[],
+      v: ad.Num[]
+    ): FloatV<ad.Num> =>
+      floatV(distRI(rawRayIntersectLine(start, end, p, v), p)),
+    returns: valueT("Real"),
   },
   rayIntersectRect: {
     name: "rayIntersectRect",
@@ -2884,6 +3033,26 @@ export const compDict = {
       v: ad.Num[]
     ): VectorV<ad.Num> => vectorV(safeRI(rawRayIntersectRect(rect, p, v), p)),
     returns: real2T(),
+  },
+  rayIntersectRectDistance: {
+    name: "rayIntersectRectDistance",
+    params: [
+      {
+        name: "rect",
+        type: real2NT(),
+        description:
+          "The top-right, top-left, bottom-left, bottom-right points (in that order) of the rectangle",
+      },
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      rect: ad.Pt2[],
+      p: ad.Num[],
+      v: ad.Num[]
+    ): FloatV<ad.Num> => floatV(distRI(rawRayIntersectRect(rect, p, v), p)),
+    returns: valueT("Real"),
   },
   rayIntersectPoly: {
     name: "rayIntersectPoly",
@@ -2910,6 +3079,31 @@ export const compDict = {
       vectorV(safeRI(rawRayIntersectPoly(pts, closed, p, v), p)),
     returns: real2T(),
   },
+  rayIntersectPolyDistance: {
+    name: "rayIntersectPolyDistance",
+    params: [
+      {
+        name: "pts",
+        type: real2NT(),
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+      },
+
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      pts: ad.Pt2[],
+      closed: boolean,
+      p: ad.Num[],
+      v: ad.Num[]
+    ): FloatV<ad.Num> =>
+      floatV(distRI(rawRayIntersectPoly(pts, closed, p, v), p)),
+    returns: valueT("Real"),
+  },
   rayIntersectGroup: {
     name: "rayIntersectGroup",
     params: [
@@ -2927,8 +3121,26 @@ export const compDict = {
       vectorV(safeRI(rawRayIntersectGroup(shapes, p, v), p)),
     returns: real2T(),
   },
+  rayIntersectGroupDistance: {
+    name: "rayIntersectGroupDistance",
+    params: [
+      { name: "shapes", type: shapeListT() },
+
+      { name: "p", type: real2T(), description: "A point" },
+      { name: "v", type: real2T(), description: "A vector" },
+    ],
+    body: (
+      _context: Context,
+      shapes: Shape<ad.Num>[],
+      p: ad.Num[],
+      v: ad.Num[]
+    ): FloatV<ad.Num> => floatV(distRI(rawRayIntersectGroup(shapes, p, v), p)),
+    returns: valueT("Real"),
+  },
   rayIntersectNormal: {
     name: "rayIntersectNormal",
+    description:
+      "Given a point p and vector v, find the unit normal at the first point where the ray r(t)=p+tv intersects the given shape S.  If there are no intersections, returns (0,0).",
     params: [
       {
         name: "S",
@@ -3048,7 +3260,6 @@ export const compDict = {
         name: "closed",
         type: booleanT(),
       },
-
       { name: "p", type: real2T(), description: "A point" },
       { name: "v", type: real2T(), description: "A vector" },
     ],
@@ -3084,6 +3295,8 @@ export const compDict = {
   //#region closest point style functions
   closestPoint: {
     name: "closestPoint",
+    description:
+      "Returns a point on the shape s closest to a query point p.  If this point is not unique, an arbitrary choice is made.",
     params: [
       {
         name: "s",
@@ -3211,6 +3424,8 @@ export const compDict = {
   //#region closest silhouette point style functions
   closestSilhouettePoint: {
     name: "closestSilhouettePoint",
+    description:
+      "Returns a point on the visibility silhouette of shape s closest to a query point p.  If this point is not unique, an arbitrary choice is made.  If no such point exists, the query point p is returned.",
     params: [
       {
         name: "s",
@@ -3351,6 +3566,45 @@ export const compDict = {
   },
   //#endregion
 
+  closestSilhouetteDistance: {
+    name: "closestSilhouetteDistance",
+    description:
+      "Returns the distance to the closest point on the visibility silhouette of shape s relative to query point p.  If no such point exists, returns Infinity.",
+    params: [
+      {
+        name: "s",
+        type: unionT(
+          rectlikeT(),
+          shapeT("Circle"),
+          shapeT("Polygon"),
+          shapeT("Line"),
+          shapeT("Polyline"),
+          shapeT("Ellipse"),
+          shapeT("Group")
+        ),
+        description: "A shape",
+      },
+      { name: "p", type: real2T(), description: "A point" },
+    ],
+    body: (
+      _context: Context,
+      s:
+        | Circle<ad.Num>
+        | Rectlike<ad.Num>
+        | Line<ad.Num>
+        | Polyline<ad.Num>
+        | Polygon<ad.Num>
+        | Ellipse<ad.Num>
+        | Group<ad.Num>,
+      p: ad.Num[]
+    ): FloatV<ad.Num> => {
+      const q = rawClosestSilhouettePoint(s, p);
+      const d = ifCond(eq(q[0], Infinity), Infinity, ops.vdist(p, q));
+      return { tag: "FloatV", contents: d };
+    },
+    returns: valueT("Real"),
+  },
+
   rectLineDist: {
     name: "rectLineDist",
     description:
@@ -3376,7 +3630,18 @@ export const compDict = {
       start: ad.Pt2,
       end: ad.Pt2
     ): FloatV<ad.Num> =>
-      floatV(rectLineDist({ bottomLeft, topRight }, { start, end })),
+      floatV(
+        rectLineDist(
+          bottomLeft[0],
+          bottomLeft[1],
+          topRight[0],
+          topRight[1],
+          start[0],
+          start[1],
+          end[0],
+          end[1]
+        )
+      ),
     returns: valueT("Real"),
   },
 
@@ -3460,6 +3725,29 @@ export const compDict = {
       start: ad.Pt2,
       end: ad.Pt2
     ): FloatV<ad.Num> => floatV(shapeDistanceRectLine(rect, start, end)),
+    returns: realT(),
+  },
+  shapeDistanceRectlikePolyline: {
+    name: "shapeDistanceRectlikePolyline",
+    description: "Returns the distance between a rectangle and a polyline.",
+    params: [
+      {
+        name: "rect",
+        type: real2NT(),
+        description:
+          "The top-right, top-left, bottom-left, bottom-right points (in that order) of the rectangle.",
+      },
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of polyline",
+      },
+    ],
+    body: (
+      _context: Context,
+      rect: ad.Pt2[],
+      points: ad.Num[][]
+    ): FloatV<ad.Num> => floatV(shapeDistanceRectlikePolyline(rect, points)),
     returns: realT(),
   },
   shapeDistancePolys: {
@@ -4234,6 +4522,15 @@ export const safeRIN = (hit: ad.Num[][], p: ad.Num[]): ad.Num[] => {
     ifCond(lt(s, 0), neg(n[1]), n[1])
   );
   return [n0, n1];
+};
+
+// ray intersection distance
+export const distRI = (hit: ad.Num[][], p: ad.Num[]): ad.Num => {
+  const x = hit[0]; // hit location
+  // if the point is at infinity, return an infinite distance;
+  // otherwise, compute and return the distance to the hit point
+  const t = ifCond(eq(absVal(x[0]), Infinity), Infinity, ops.vdist(p, x));
+  return t;
 };
 
 export const rawRayIntersect = (

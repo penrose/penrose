@@ -142,6 +142,10 @@
   "walk-on-spheres/offcenter-estimator": {
     "name": "Walk on Spheres - Off-Center Estimator"
   },
+  "walk-on-spheres/walk-on-stars": {
+    "name": "Walk on Stars - Laplace Estimator",
+    "gallery": false
+  },
   "shape-distance/points-around-star": {},
   "shape-distance/points-around-polyline": {},
   "shape-distance/points-around-line": {},
