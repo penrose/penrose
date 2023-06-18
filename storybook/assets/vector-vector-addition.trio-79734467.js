@@ -1,0 +1,9 @@
+import{s as t,r as o,d as e}from"./matrix-ops.domain-ede51af7.js";import"./resolver-95147227.js";import"./iframe-a3f99df2.js";const r=`AutoLabel All
+Vector u, v
+
+-- vector-vector addition
+Vector a := vadd(u,v)
+Label a $u+v$
+
+`,i={substance:r,style:[{contents:t,resolver:o}],domain:e,variation:"DoesNotMatter"};export{i as default};
+//# sourceMappingURL=vector-vector-addition.trio-79734467.js.map
