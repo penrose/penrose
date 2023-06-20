@@ -233,6 +233,29 @@ function App() {
     []
   );
 
+  //
+  const updateTrio = useRecoilCallback(
+    ({ set }) =>
+      async (files: any) => {
+        set(fileContentsSelector("domain"), () => {
+          return {
+            name: files.domain.fileName,
+            contents: files.domain.contents,
+          };
+        });
+        set(fileContentsSelector("style"), () => ({
+          name: files.style.fileName,
+          contents: files.style.contents,
+        }));
+        set(fileContentsSelector("substance"), () => ({
+          name: files.substance.fileName,
+          contents: files.substance.contents,
+        }));
+        await compileDiagram();
+      },
+    []
+  );
+
   const connectRoger = useCallback(() => {
     ws.current = new WebSocket("ws://localhost:9160");
     ws.current.onclose = () => {
@@ -261,8 +284,8 @@ function App() {
         case "file_change":
           updatedFile(parsed.fileName, parsed.contents);
           break;
-        case "trio_file":
-          updatedFile(parsed.fileName, parsed.contents);
+        case "trio_files":
+          updateTrio(parsed.files);
           break;
       }
     };

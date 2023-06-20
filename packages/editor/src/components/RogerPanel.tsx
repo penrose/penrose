@@ -123,18 +123,19 @@ export default function RogerPanel({
         getOptionLabel={({ val }) => val}
         getOptionValue={({ val }) => val}
         onChange={(e) => {
+          const token = uuid();
           if (e?.val) {
             setTrio(e?.val);
             ws?.send(
               JSON.stringify({
                 kind: "retrieve_trio",
                 path: e?.val,
-                token: uuid(),
+                token,
               })
             );
             ws?.addEventListener("message", (e) => {
               const parsed = JSON.parse(e.data);
-              if (parsed.kind !== "trio_file") return;
+              if (parsed.kind !== "trio_file" && parsed.token !== token) return;
               const key: "substance" | "style" | "domain" = parsed.type;
               const val = parsed.fileName;
               onSelection(val, key);

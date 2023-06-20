@@ -28,6 +28,7 @@ const broadcastFiles = () => {
 };
 
 const broadcastFileChange = async (fileName: string, token?: string) => {
+  if (fileName === "combined_style") return;
   try {
     const contents = await fs.readFile(fileName, "utf8");
     if (wss) {
@@ -85,31 +86,24 @@ export default async function (port = 9160): Promise<void> {
             for (const ws of wss.clients) {
               ws.send(
                 JSON.stringify({
-                  kind: "trio_file",
-                  type: "domain",
-                  fileName: relative(".", domainPath),
-                  contents: domainText,
-                  token,
-                })
-              );
-              ws.send(
-                JSON.stringify({
-                  kind: "trio_file",
-                  type: "substance",
-                  fileName: relative(".", substancePath),
-                  contents: substanceText,
-                  token,
-                })
-              );
-              ws.send(
-                JSON.stringify({
-                  kind: "trio_file",
-                  type: "style",
-                  contents: combinedStyle,
-                  fileName:
-                    style.length > 1
-                      ? "combined_style"
-                      : relative(".", resolve(parentDir, style[0])), // HACK: use the first style path as the path to the combined Style because the combined Style doesn't exist in the file system
+                  kind: "trio_files",
+                  files: {
+                    domain: {
+                      fileName: relative(".", domainPath),
+                      contents: domainText,
+                    },
+                    substance: {
+                      fileName: relative(".", substancePath),
+                      contents: substanceText,
+                    },
+                    style: {
+                      contents: combinedStyle,
+                      fileName:
+                        style.length > 1
+                          ? "combined_style"
+                          : relative(".", resolve(parentDir, style[0])), // HACK: use the first style path as the path to the combined Style because the combined Style doesn't exist in the file system
+                    },
+                  },
                   token,
                 })
               );
