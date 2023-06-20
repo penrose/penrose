@@ -2,6 +2,7 @@
 import { defineComponent } from "vue";
 import Markdown from "markdown-it";
 import { describeType } from "@penrose/core";
+import { FuncParam } from "@penrose/core/dist/types/functions";
 const md = new Markdown();
 export default defineComponent({
   props: ["name", "description", "params", "returns"],
@@ -33,6 +34,7 @@ export default defineComponent({
           <th>Type</th>
           <th>Type Description</th>
           <th>Description</th>
+          <th v-if="parameters.filter((p: FuncParam) => p.default).length > 0">Default Value</th>
         </tr>
       </thead>
       <tbody>
@@ -43,6 +45,7 @@ export default defineComponent({
           <td>{{ param.type.symbol }}</td>
           <td>{{ param.type.description }}</td>
           <td>{{ param.description }}</td>
+          <td v-if="parameters.filter((p: FuncParam) => p.default).length > 0">{{ param.default ?? "" }}</td>
         </tr>
       </tbody>
     </table>
