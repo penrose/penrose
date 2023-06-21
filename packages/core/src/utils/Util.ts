@@ -5,6 +5,7 @@ import { Shape, ShapeType } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
 import { A } from "../types/ast.js";
 import { Either, Left, Right } from "../types/common.js";
+import { MayWarn } from "../types/functions.js";
 import { Fn } from "../types/state.js";
 import { BindingForm, Expr, Path } from "../types/style.js";
 import {
@@ -1018,6 +1019,21 @@ export const getAdValueAsString = (
 export const getValueAsShapeList = <T>(val: Value<T>): Shape<T>[] => {
   if (val.tag === "ShapeListV") return val.contents;
   throw new Error("Not a list of shapes");
+};
+
+//#endregion
+
+//#region functions
+
+export const noWarn = <T>(value: T): MayWarn<T> => ({
+  value,
+  warnings: [],
+});
+
+export const noWarnFn = <T extends any[], S>(
+  f: (...args: T) => S
+): ((...args: T) => MayWarn<S>) => {
+  return (...args: T) => noWarn(f(...args));
 };
 
 //#endregion

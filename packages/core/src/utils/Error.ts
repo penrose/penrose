@@ -600,6 +600,14 @@ canvas {
         .join("; ")}.`;
     }
 
+    case "BBoxApproximationWarning": {
+      const loc =
+        error.location === undefined
+          ? ""
+          : `(at ${locc("Style", error.location)}) `;
+      return `Function call ${error.signature} ${loc} uses bounding box approximations`;
+    }
+
     // ----- END STYLE WARNINGS
 
     case "Fatal": {

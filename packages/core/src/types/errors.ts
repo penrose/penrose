@@ -222,7 +222,10 @@ export type StyleWarning =
   | NoopDeleteWarning
   | LayerCycleWarning
   | ShapeBelongsToMultipleGroupsWarning
-  | GroupCycleWarning;
+  | GroupCycleWarning
+  | FunctionInternalWarning;
+
+export type FunctionInternalWarning = BBoxApproximationWarning;
 
 export interface StyleDiagnostics {
   errors: im.List<StyleError>;
@@ -253,6 +256,12 @@ export interface ShapeBelongsToMultipleGroupsWarning {
 export interface GroupCycleWarning {
   tag: "GroupCycleWarning";
   cycles: string[][];
+}
+
+export interface BBoxApproximationWarning {
+  tag: "BBoxApproximationWarning";
+  signature: string;
+  location?: SourceRange;
 }
 
 //#endregion

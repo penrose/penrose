@@ -4,6 +4,7 @@ import {
   CompFunc,
   ConstrFunc,
   FuncParam,
+  MayWarn,
   ObjFunc,
 } from "../types/functions.js";
 
@@ -27,11 +28,15 @@ export const callCompFunc = (
   range: SourceRange,
   context: Context,
   args: ArgValWithSourceLoc<ad.Num>[]
-): Result<Value<ad.Num>, StyleError> => {
+): Result<MayWarn<Value<ad.Num>>, StyleError> => {
   const checkedArgs = checkArgs(func, range, args);
   if (checkedArgs.isErr()) return err(checkedArgs.error);
   try {
-    return ok(func.body(context, ...checkedArgs.value));
+    const { value, warnings } = func.body(context, ...checkedArgs.value);
+    return ok({
+      value,
+      warnings: warnings.map((w) => ({ ...w, location: range })),
+    });
   } catch (e) {
     if (e instanceof Error) {
       return err(functionInternalError(func, range, e.message));
@@ -45,11 +50,15 @@ export const callObjConstrFunc = (
   func: ObjFunc | ConstrFunc,
   range: SourceRange,
   args: ArgValWithSourceLoc<ad.Num>[]
-): Result<ad.Num, StyleError> => {
+): Result<MayWarn<ad.Num>, StyleError> => {
   const checkedArgs = checkArgs(func, range, args);
   if (checkedArgs.isErr()) return err(checkedArgs.error);
   try {
-    return ok(func.body(...checkedArgs.value));
+    const { value, warnings } = func.body(...checkedArgs.value);
+    return ok({
+      value,
+      warnings: warnings.map((w) => ({ ...w, location: range })),
+    });
   } catch (e) {
     if (e instanceof Error) {
       return err(functionInternalError(func, range, e.message));
