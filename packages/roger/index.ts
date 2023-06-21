@@ -398,7 +398,7 @@ yargs(hideBin(process.argv))
   )
   .command(
     "watch",
-    "Watch the current folder for files & changes (must end in .sub,.substance,.sty,.style,.dsl,.domain)",
+    "Watch the current folder for files & changes (must end in .substance, .style, .domain)",
     (yargs) =>
       yargs.option("port", {
         desc: "Port number for the WebSocket connection.",

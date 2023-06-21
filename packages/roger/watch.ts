@@ -125,15 +125,12 @@ export default async function (port = 9160): Promise<void> {
   const watcher = chokidar.watch(".", { persistent: true });
   watcher.on("add", (p) => {
     switch (p.split(".").pop()) {
-      case "sub":
       case "substance":
         files.substance.push(p);
         break;
-      case "sty":
       case "style":
         files.style.push(p);
         break;
-      case "dsl":
       case "domain":
         files.domain.push(p);
         break;
@@ -149,7 +146,7 @@ export default async function (port = 9160): Promise<void> {
   });
   watcher.on("change", async (p) => {
     if (
-      ["json", "sub", "substance", "sty", "style", "dsl", "domain"].includes(
+      ["json", "substance", "style", "domain"].includes(
         p.split(".").pop() ?? ""
       )
     ) {
@@ -159,15 +156,12 @@ export default async function (port = 9160): Promise<void> {
   });
   watcher.on("unlink", (p) => {
     switch (p.split(".").pop()) {
-      case "sub":
       case "substance":
         files.substance = files.substance.filter((f) => f !== p);
         break;
-      case ".sty":
       case "style":
         files.style = files.style.filter((f) => f !== p);
         break;
-      case "dsl":
       case "domain":
         files.domain = files.domain.filter((f) => f !== p);
         break;

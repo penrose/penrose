@@ -8,11 +8,12 @@ Usage:
 roger <command>
 
 Commands:
-  roger trio [trio..]  Generate a diagram from a Penrose trio.
-  roger watch          Watch the current folder for files & changes (must end in
-                        .sub,.substance,.sty,.style,.dsl,.domain)
-  roger shapedefs      Generate a JSON file that contains all shape definitions
-                       in the Penrose system.
+  roger trio [trio..]    Generate a diagram from a Penrose trio.
+  roger trios [trios..]  Create diagrams from multiple .trio.json files.
+  roger watch            Watch the current folder for files & changes (must end
+                         in .substance, .style, .domain)
+  roger shapedefs        Generate a JSON file that contains all shape definition
+                         s in the Penrose system.
 
 Options:
   --version  Show version number                                       [boolean]
