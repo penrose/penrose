@@ -116,6 +116,24 @@ const members = [
     ],
   },
   {
+    name: "Rijul Jain",
+    title: "REUSE student",
+    avatar: "https://www.github.com/rjainrjain.png",
+    links: [
+      { icon: { svg: website }, link: "https://github.com/rjainrjain" },
+      { icon: "github", link: "https://github.com/rjainrjain" },
+    ],
+  },
+  {
+    name: "Raven Rothkopf",
+    title: "REUSE student",
+    avatar: "https://www.github.com/ravenrothkopf.png",
+    links: [
+      { icon: { svg: website }, link: "https://ravenrothkopf.github.io/" },
+      { icon: "github", link: "https://github.com/ravenrothkopf" },
+    ],
+  },
+  {
     name: "Josh Sunshine",
     title: "Professor @ CMU",
     avatar: "https://www.github.com/joshsunshine.png",
