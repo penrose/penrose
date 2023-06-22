@@ -1008,6 +1008,130 @@ export const compDict = {
     returns: valueT("PathCmd"),
   },
 
+   /*
+  diffusionProcess: {
+    name: "diffusionProcess",
+    description:
+      "Return `n` points sampled from a diffusion process starting at `X0`, with covariance matrix `A` and constant drift `omega`.  This path approximately integrates the stochastic differential equation dX_t = omega dt + A dW_t, where W_t is a Wiener process.",
+    params: [
+      { name: "n", type: posIntT(), description: "number of points" },
+      { name: "X0", type: real2T(), description: "starting location" },
+      { name: "A", type: realNMT(), description: "covariance matrix" },
+      { name: "omega", type: real2T(), description: "drift direction" },
+    ],
+    body: (
+      _context: Context,
+      n: number,
+      X0: ad.Num[],
+      A: ad.Num[][],
+      omega: ad.Num[]
+    ): PtListV<ad.Num> => {
+
+       let Xt = [ X0 ];
+       for( let i = 1; i < n; i++ ) {
+          const Wt = [ randn(_context), randn(_context) ];
+          Xt.push( ops.vadd( ops.vadd( Xt[i-1], ops.mvmul(A, Wt )), omega ) );
+       }
+
+       return {
+          tag: "PtListV",
+          contents: Xt.map(toPt),
+       };
+    },
+    returns: valueT("Real2N"),
+  },
+*/
+
+  interpolatingSpline: {
+    name: "interpolatingSpline",
+    description:
+      "Returns path data for a curve that smoothly interpolates the given points.  Interpolation is performed via a Catmull-Rom spline.",
+    params: [
+       {
+          name: "pathType",
+          type: pathTypeT(),
+          description: `either "open" or "closed."`,
+       },
+       { name: "points",
+         type: realNMT(),
+         description: "points to be interpolated"
+       },
+       { name: "tension",
+         type: realT(),
+         description: "smoothness of curve (0=piecewise linear, .25=default)",
+         default: 0.25
+       },
+    ],
+    body: (
+      _context: Context,
+      pathType: string,
+      points: ad.Num[][],
+      tension: ad.Num[]
+    ): PathDataV<ad.Num> => {
+       
+       const n = points.length;
+
+       // compute tangents, assuming curve is closed
+       const tangents = new Array(n);
+       for( let j = 0; j < n; j++ ) {
+          const i = (j-1+n) % n;
+          const k = (j+1) % n;
+          tangents[j] = ops.vmul( tension, ops.vsub( points[k], points[i] ));
+       }
+
+       // if path is open, replace first/last tangents
+       if (pathType === "open") {
+          tangents[0] = ops.vmul( tension, ops.vsub( points[1], points[0] ));
+          tangents[n-1] = ops.vmul( tension, ops.vsub( points[n-1], points[n-2] ));
+       }
+
+       const path = new PathBuilder();
+       path.moveTo( points[0] );
+       for( let i = 0; i < n-1; i++ ) {
+          path.bezierCurveTo(
+             ops.vadd( points[i], tangents[i] ),
+             ops.vsub( points[i+1], tangents[i+1] ),
+             points[i+1]
+          );
+       }
+
+       if (pathType === "closed") path.closePath();
+
+       return path.getPath();
+    },
+    returns: valueT("PathCmd"),
+  },
+
+  diffusionProcess: {
+    name: "diffusionProcess",
+    description:
+      "Return `n` points sampled from a diffusion process starting at `X0`, with covariance matrix `A` and constant drift `omega`.  This path approximately integrates the stochastic differential equation dX_t = omega dt + A dW_t, where W_t is a Wiener process.",
+    params: [
+      { name: "n", type: posIntT(), description: "number of points" },
+      { name: "X0", type: real2T(), description: "starting location" },
+      { name: "A", type: realNMT(), description: "covariance matrix" },
+      { name: "omega", type: real2T(), description: "drift direction" },
+    ],
+    body: (
+      _context: Context,
+      n: number,
+      X0: ad.Num[],
+      A: ad.Num[][],
+      omega: ad.Num[]
+    ): PathDataV<ad.Num> => {
+       const path = new PathBuilder();
+       path.moveTo( toPt(X0) );
+       let Xt = X0;
+       for( let i = 1; i < n; i++ ) {
+          const Wt = [ randn(_context), randn(_context) ];
+          Xt = ops.vadd( ops.vadd( Xt, ops.mvmul(A, Wt )), omega );
+          path.lineTo( toPt(Xt) );
+       }
+       return path.getPath();
+    },
+    returns: valueT("PathCmd"),
+  },
+
   /**
    * Return two points parallel to line `s1` using its normal line `s2`.
    */
@@ -2016,20 +2140,10 @@ export const compDict = {
       "Sample a normal distribution with mean 0 and standard deviation 1.",
     params: [],
     body: ({ makeInput }: Context): FloatV<ad.Num> => {
-      const u1 = makeInput({
-        init: { tag: "Sampled", sampler: uniform(0, 1) },
-        stages: new Set(),
-      });
-      const u2 = makeInput({
-        init: { tag: "Sampled", sampler: uniform(0, 1) },
-        stages: new Set(),
-      });
-
-      const Z = mul(sqrt(mul(-2, ln(u1))), cos(mul(2 * Math.PI, u2)));
 
       return {
         tag: "FloatV",
-        contents: Z,
+        contents: randn( { makeInput } )
       };
     },
     returns: valueT("Real"),
@@ -5327,3 +5441,19 @@ const tickPlacement = (
   }
   return pts;
 };
+
+const randn = (
+   { makeInput }: Context
+): ad.Num => {
+   const u1 = makeInput({
+      init: { tag: "Sampled", sampler: uniform(0, 1) },
+      stages: new Set(),
+   });
+   const u2 = makeInput({
+      init: { tag: "Sampled", sampler: uniform(0, 1) },
+      stages: new Set(),
+   });
+
+   return mul(sqrt(mul(-2, ln(u1))), cos(mul(2 * Math.PI, u2)));
+}
+
