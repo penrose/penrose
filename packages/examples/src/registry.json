@@ -32,6 +32,9 @@
     "name": "Two Perpendicular Vectors",
     "gallery": true
   },
+  "tutorials/tutorial1": { "name": "Tutorial 1 - Two Sets" },
+  "tutorials/tutorial2": { "name": "Tutorial 2 - Subset" },
+  "tutorials/tutorial3": { "name": "Tutorial 3 - Vector" },
   "molecules/nitricacid-lewis": {
     "name": "Lewis Structure of Nitric Acid",
     "gallery": true
