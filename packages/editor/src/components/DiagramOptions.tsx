@@ -82,6 +82,21 @@ export default function DiagramOptions() {
       </div>
       <div>
         <label>
+          exclude warnings:{" "}
+          <input
+            type="text"
+            value={diagramMetadata.excludeWarnings.join(",")}
+            onChange={(e) =>
+              setDiagramMetadata((metadata) => ({
+                ...metadata,
+                excludeWarnings: e.target.value.split(","),
+              }))
+            }
+          />
+        </label>
+      </div>
+      <div>
+        <label>
           grid size:{" "}
           <input
             type="range"

@@ -33,6 +33,7 @@ const Demo = (props: {
         variation={example.variation}
         interactive={false}
         animate={true}
+        excludeWarnings={[]}
       />
     </div>
   );

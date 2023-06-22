@@ -4047,11 +4047,17 @@ export const compileStyleHelper = async (
 export const compileStyle = async (
   variation: string,
   stySource: string,
+  excludeWarnings: string[],
   subEnv: SubstanceEnv,
   varEnv: Env
 ): Promise<Result<State, PenroseError>> =>
   (await compileStyleHelper(variation, stySource, subEnv, varEnv)).map(
-    ({ state }) => state
+    ({ state }) => ({
+      ...state,
+      warnings: state.warnings.filter(
+        (warning) => !excludeWarnings.includes(warning.tag)
+      ),
+    })
   );
 
 //#endregion Main funcitons

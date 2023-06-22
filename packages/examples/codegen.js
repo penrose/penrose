@@ -36,7 +36,12 @@ const codegen = (dir) => {
             ),
             "  ],",
             "  domain,",
-            `  variation: ${JSON.stringify(trio.variation)}`,
+            `  variation: ${JSON.stringify(trio.variation)},`,
+            `  excludeWarnings: ${
+              trio.excludeWarnings === undefined
+                ? JSON.stringify([])
+                : JSON.stringify(trio.excludeWarnings)
+            }`,
             "};",
             "",
           ].join("\n")
