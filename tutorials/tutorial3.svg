@@ -1,0 +1,146 @@
+<svg
+  version="1.2"
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 800 700"
+  penrose="0"
+>
+  <penrose>
+    <croppedViewBox>218.864 169.36 356.13599999999997 355.64</croppedViewBox>
+  </penrose>
+  <rect
+    x="225"
+    y="175"
+    width="350"
+    height="350"
+    fill="#fb04fb04fb04"
+    fill-opacity="0.015"
+    stroke="#000000"
+    stroke-opacity="0"
+    stroke-width="0"
+    rx="0"
+    transform="rotate(0, 400, 350)"
+  >
+    <title>`U`.background</title>
+  </rect>
+  <g>
+    <marker
+      id="tutorial3__registry--`U`.xAxis-startArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="13.93"
+      markerHeight="11.37"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#999999"
+        fill-opacity="1"
+      />
+    </marker>
+    <marker
+      id="tutorial3__registry--`U`.xAxis-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="13.93"
+      markerHeight="11.37"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#999999"
+        fill-opacity="1"
+      />
+    </marker>
+    <line
+      x1="235.626"
+      y1="350"
+      x2="564.374"
+      y2="350"
+      stroke="#999999"
+      stroke-opacity="1"
+      stroke-width="1"
+      marker-start="url(#tutorial3__registry--`U`.xAxis-startArrowId)"
+      marker-end="url(#tutorial3__registry--`U`.xAxis-endArrowId)"
+    />
+    <title>`U`.xAxis</title>
+  </g>
+  <g>
+    <marker
+      id="tutorial3__registry--`U`.yAxis-startArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="13.93"
+      markerHeight="11.37"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#999999"
+        fill-opacity="1"
+      />
+    </marker>
+    <marker
+      id="tutorial3__registry--`U`.yAxis-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="13.93"
+      markerHeight="11.37"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#999999"
+        fill-opacity="1"
+      />
+    </marker>
+    <line
+      x1="400"
+      y1="514.374"
+      x2="400"
+      y2="185.626"
+      stroke="#999999"
+      stroke-opacity="1"
+      stroke-width="1"
+      marker-start="url(#tutorial3__registry--`U`.yAxis-startArrowId)"
+      marker-end="url(#tutorial3__registry--`U`.yAxis-endArrowId)"
+    />
+    <title>`U`.yAxis</title>
+  </g>
+  <g transform="rotate(0, 225, 175)translate(218.864, 169.36)">
+    <title>`U`.text</title>
+    <svg
+      style="font-size: 16px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="12.272"
+      height="11.28"
+      role="img"
+      focusable="false"
+      viewBox="0 -683 767 705"
+    >
+      <g
+        stroke="none"
+        fill="#999999"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D448"
+              d="M107 637Q73 637 71 641Q70 643 70 649Q70 673 81 682Q83 683 98 683Q139 681 234 681Q268 681 297 681T342 682T362 682Q378 682 378 672Q378 670 376 658Q371 641 366 638H364Q362 638 359 638T352 638T343 637T334 637Q295 636 284 634T266 623Q265 621 238 518T184 302T154 169Q152 155 152 140Q152 86 183 55T269 24Q336 24 403 69T501 205L552 406Q599 598 599 606Q599 633 535 637Q511 637 511 648Q511 650 513 660Q517 676 519 679T529 683Q532 683 561 682T645 680Q696 680 723 681T752 682Q767 682 767 672Q767 650 759 642Q756 637 737 637Q666 633 648 597Q646 592 598 404Q557 235 548 205Q515 105 433 42T263 -22Q171 -22 116 34T60 167V183Q60 201 115 421Q164 622 164 628Q164 635 107 637Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+</svg>
