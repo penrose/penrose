@@ -14,6 +14,7 @@ const Container = styled.div`
   width: 200px;
   height: 200px;
   padding: 1.5em;
+  background-color: white;
   box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.1);
   transition: 0.3s;
   &:hover {
