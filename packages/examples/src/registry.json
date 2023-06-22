@@ -39,7 +39,14 @@
   "exterior-algebra/vector-wedge": {},
   "shape-spec/all-shapes": {},
   "shape-spec/arrowheads": {},
-  "graph-domain/textbook/sec1/fig1": { "name": "Computer Network", "gallery": false },
+  "graph-domain/other-examples/hamiltonian-cycle": {
+    "name": "Hamiltonian Cycle",
+    "gallery": true
+  },
+  "graph-domain/textbook/sec1/fig1": {
+    "name": "Computer Network",
+    "gallery": false
+  },
   "graph-domain/textbook/sec1/fig2": {
     "name": "Computer Network with Multiple Links between Data Centers",
     "gallery": false
@@ -56,13 +63,34 @@
     "name": "Computer Network with Multiple One-Way Links",
     "gallery": false
   },
-  "graph-domain/textbook/sec1/fig6": { "name": "Acquaintanceship Graph", "gallery": false },
-  "graph-domain/textbook/sec1/fig7": { "name": "Influence Graph", "gallery": false },
-  "graph-domain/textbook/sec1/fig8a": { "name": "Call Graph", "gallery": false },
-  "graph-domain/textbook/sec1/fig8b": { "name": "Call Graph", "gallery": false },
-  "graph-domain/textbook/sec1/fig9": { "name": "Module Dependency Graph", "gallery": false },
-  "graph-domain/textbook/sec1/fig10": { "name": "Precedence Graph", "gallery": false },
-  "graph-domain/textbook/sec1/fig11": { "name": "Niche Overlap Graph", "gallery": false },
+  "graph-domain/textbook/sec1/fig6": {
+    "name": "Acquaintanceship Graph",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec1/fig7": {
+    "name": "Influence Graph",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec1/fig8a": {
+    "name": "Call Graph",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec1/fig8b": {
+    "name": "Call Graph",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec1/fig9": {
+    "name": "Module Dependency Graph",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec1/fig10": {
+    "name": "Precedence Graph",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec1/fig11": {
+    "name": "Niche Overlap Graph",
+    "gallery": false
+  },
   "graph-domain/textbook/sec1/fig12": {
     "name": "Module of a Protein Interaction Graph",
     "gallery": false
@@ -71,11 +99,26 @@
     "name": "Graph Model of a Round-Robin Tournament",
     "gallery": false
   },
-  "graph-domain/textbook/sec2/fig3": { "name": "Complete Graphs", "gallery": false },
-  "graph-domain/textbook/sec2/fig4": { "name": "Cycle Graphs", "gallery": false },
-  "graph-domain/textbook/sec2/fig5": { "name": "Wheel Graphs", "gallery": false },
-  "graph-domain/textbook/sec2/fig6": { "name": "Cube Graphs", "gallery": false },
-  "graph-domain/textbook/sec2/fig9": { "name": "Complete Bipartite Graphs", "gallery": false },
+  "graph-domain/textbook/sec2/fig3": {
+    "name": "Complete Graphs",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec2/fig4": {
+    "name": "Cycle Graphs",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec2/fig5": {
+    "name": "Wheel Graphs",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec2/fig6": {
+    "name": "Cube Graphs",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec2/fig9": {
+    "name": "Complete Bipartite Graphs",
+    "gallery": false
+  },
   "graph-domain/textbook/sec2/fig10a": {
     "name": "Modeling the Jobs for Which Employees Have Been Trained"
   },
@@ -127,7 +170,10 @@
     "gallery": true
   },
   "random-sampling/test": { "name": "Random Sampling", "gallery": true },
-  "geometry-domain/textbook_problems/c11p12": { "name": "Circle Example", "gallery": true },
+  "geometry-domain/textbook_problems/c11p12": {
+    "name": "Circle Example",
+    "gallery": true
+  },
   "word-cloud/example": { "name": "Word Cloud", "gallery": true },
   "geometry-domain/siggraph-teaser": {
     "name": "SIGGRAPH teaser - Euclidean Geometry",
@@ -253,19 +299,30 @@
     "name": "Half Edge Mesh",
     "gallery": true
   },
-  "triangle-mesh-2d/diagrams/relative-orientation": { "name": "Relative Orientation", "gallery": false },
-  "triangle-mesh-2d/diagrams/triangle-centers": { "name": "Triangle Centers", "gallery": fa;se },
+  "triangle-mesh-2d/diagrams/relative-orientation": {
+    "name": "Relative Orientation",
+    "gallery": false
+  },
+  "triangle-mesh-2d/diagrams/triangle-centers": {
+    "name": "Triangle Centers",
+    "gallery": false
+  },
   "triangle-mesh-2d/diagrams/angle-equivalence": {
     "name": "Rigid Conformal Mapping of a 2D Mesh",
     "gallery": false
   },
   "timeline/penrose": { "name": "Penrose project timeline", "gallery": false },
-  "graph-domain/textbook/sec5/ex32": { "name": "Curved graph example",  "gallery": false },
-  "curve-examples/open-elastic-curve": { "name": "Open elastic curve example", "gallery": false },
+  "graph-domain/textbook/sec5/ex32": {
+    "name": "Curved graph example",
+    "gallery": false
+  },
+  "curve-examples/open-elastic-curve": {
+    "name": "Open elastic curve example",
+    "gallery": false
+  },
   "curve-examples/closed-elastic-curve": {
     "name": "Closed elastic curve example",
     "gallery": false
-
   },
   "graph-domain/other-examples/arpanet": {
     "name": "Curved graph example with dots",
@@ -276,7 +333,7 @@
     "gallery": false
   },
   "curve-examples/blobs": { "name": "Blobs", "gallery": false },
-  "curve-examples/space-curves": { "name": "Space curves" , "gallery": false},
+  "curve-examples/space-curves": { "name": "Space curves", "gallery": false },
   "geometric-queries/ray-intersect/test-group": {
     "name": "Ray Casting",
     "gallery": true

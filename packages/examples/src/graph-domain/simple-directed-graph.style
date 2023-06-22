@@ -8,6 +8,7 @@ layout = [dots, arrows, text]
 color {
   black = #000000
   white = #ffffff
+  red = #ff0000
 }
 
 num {
@@ -113,4 +114,14 @@ forall Vertex u; Vertex v; Vertex w where Arc(u, v) as e; w has label {
 forall Vertex a, b, c, d where Arc(a, b) as e1; Arc(c, d) as e2 {
   ensure norm(e2.pointerCenter - e1.pointerCenter) > max(num.pointerX, num.pointerY)*3 in arrows
   encourage e1.step == e2.step
+}
+
+forall Vertex v where HighlightVertex(v) {
+    override v.dot.fillColor = color.red
+    override v.text.fillColor = color.red
+}
+
+forall Vertex a, b where Arc(a,b) as e; HighlightArc(a,b) {
+    override e.arrow.strokeColor = color.red 
+    override e.pointer.fillColor = color.red
 }
