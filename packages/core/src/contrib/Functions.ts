@@ -1068,38 +1068,8 @@ export const compDict = {
       points: ad.Num[][],
       tension: ad.Num[]
     ): PathDataV<ad.Num> => {
-       
-       const n = points.length;
 
-       // compute tangents, assuming curve is closed
-       const tangents = new Array(n);
-       for( let j = 0; j < n; j++ ) {
-          const i = (j-1+n) % n;
-          const k = (j+1) % n;
-          tangents[j] = ops.vmul( tension, ops.vsub( points[k], points[i] ));
-       }
-
-       // if path is open, replace first/last tangents
-       if (pathType === "open") {
-          tangents[0] = ops.vmul( tension, ops.vsub( points[1], points[0] ));
-          tangents[n-1] = ops.vmul( tension, ops.vsub( points[n-1], points[n-2] ));
-       }
-
-       const path = new PathBuilder();
-       path.moveTo( points[0] );
-       const m = (pathType === "open" ? n-1 : n);
-       for( let i = 0; i < m; i++ ) {
-          const j = (i+1) % n;
-          path.bezierCurveTo(
-             ops.vadd( points[i], tangents[i] ),
-             ops.vsub( points[j], tangents[j] ),
-             points[j]
-          );
-       }
-
-       if (pathType === "closed") path.closePath();
-
-       return path.getPath();
+       return catmullRom( _context, pathType, points, tension );
     },
     returns: valueT("PathCmd"),
   },
@@ -5459,3 +5429,42 @@ const randn = (
    return mul(sqrt(mul(-2, ln(u1))), cos(mul(2 * Math.PI, u2)));
 }
 
+const catmullRom = (
+      _context: Context,
+      pathType: string,
+      points: ad.Num[][],
+      tension: ad.Num[]
+): PathDataV<ad.Num> => {
+
+   const n = points.length;
+
+   // compute tangents, assuming curve is closed
+   const tangents = new Array(n);
+   for( let j = 0; j < n; j++ ) {
+      const i = (j-1+n) % n;
+      const k = (j+1) % n;
+      tangents[j] = ops.vmul( tension, ops.vsub( points[k], points[i] ));
+   }
+
+   // if path is open, replace first/last tangents
+   if (pathType === "open") {
+      tangents[0] = ops.vmul( tension, ops.vsub( points[1], points[0] ));
+      tangents[n-1] = ops.vmul( tension, ops.vsub( points[n-1], points[n-2] ));
+   }
+
+   const path = new PathBuilder();
+   path.moveTo( points[0] );
+   const m = (pathType === "open" ? n-1 : n);
+   for( let i = 0; i < m; i++ ) {
+      const j = (i+1) % n;
+      path.bezierCurveTo(
+         ops.vadd( points[i], tangents[i] ),
+         ops.vsub( points[j], tangents[j] ),
+         points[j]
+      );
+   }
+
+   if (pathType === "closed") path.closePath();
+
+   return path.getPath();
+}
