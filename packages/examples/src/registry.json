@@ -28,6 +28,10 @@
     "name": "Continuous Map",
     "gallery": true
   },
+  "walk-on-spheres/SignedAngleOutside": {
+    "name": "Walk on Stars - Signed Angle Outside",
+    "gallery": true
+  },
   "linear-algebra-domain/two-vectors-perp": {
     "name": "Two Perpendicular Vectors",
     "gallery": true

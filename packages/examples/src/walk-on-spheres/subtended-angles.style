@@ -1,0 +1,21 @@
+-- Shade signed angles blue if they're positive, and red
+-- if they're negative
+forall Angle t; Point a, b, c
+where t := InteriorAngle(a,b,c); IsOriented(t)
+{
+   -- computes a value v equal to zero if the triangle
+   -- is negatively-oriented, and one if the triangle is
+   -- positively-oriented
+   scalar u = sign( cross2D( b.x - a.x, c.x - a.x ))
+   scalar v = (u + 1)/2
+
+   shape subtended = Polygon {
+      points: ( b.x, a.x, c.x )
+      fillColor: rgba( 1-v, 0, v, .2 )
+      strokeColor: #0002
+      strokeWidth: .5
+      ensureOnCanvas: false
+   }
+
+   override t.icon.strokeColor = rgba( 1-v, 0, v, .4 )
+}
