@@ -26,7 +26,11 @@
       "patterns": [
         {
           "name": "keyword.control.penrose",
-          "match": "\\b(type|value|constructor|function|predicate|notation|Prop)\\b"
+          "match": "\\b(symmetric|type|value|constructor|function|predicate|notation|Prop)\\b"
+        },
+        {
+          "name": "keyword.operator.penrose.subtype",
+          "match": "<:"
         }
       ]
     },

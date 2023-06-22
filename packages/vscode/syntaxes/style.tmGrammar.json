@@ -4,9 +4,10 @@
   "scopeName": "source.penrose-style",
   "fileTypes": [".style"],
   "patterns": [
+    { "include": "#comments" },
     { "include": "#numbers" },
-    { "include": "#keywords" },
-    { "include": "#comments" }
+    { "include": "#strings" },
+    { "include": "#keywords" }
   ],
   "repository": {
     "strings": {
@@ -30,11 +31,19 @@
       "patterns": [
         {
           "name": "keyword.control.penrose",
-          "match": "\\b(forall|where|with|delete|as|true|false|layer|encourage|ensure|override|in|except)\\b"
+          "match": "\\b(forall|where|with|delete|as|true|false|layer|encourage|ensure|override|in|except|has|collect|foreach|listof|from)\\b"
         },
         {
           "name": "entity.other.attribute-name.penrose.layering",
           "match": "\\b(above|below)\\b"
+        },
+        {
+          "name": "keyword.operator.penrose",
+          "match": "\\+|\\*|-|/|\\^|\\.|=|:|;"
+        },
+        {
+          "name": "support.type.penrose",
+          "match": "^\\b(scalar|int|bool|string|path|color|file|style|shape|vec2|vec3|vec4|mat2x2|mat3x3|mat4x4|function|objective|constraint)\\b"
         }
       ]
     },

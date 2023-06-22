@@ -32,6 +32,10 @@
         {
           "name": "keyword.control.penrose",
           "match": "\\b(AutoLabel|Label|NoLabel|All)\\b"
+        },
+        {
+          "name": "keyword.operator",
+          "match": ":="
         }
       ]
     },

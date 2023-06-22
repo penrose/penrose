@@ -22,7 +22,7 @@ To define a relationship between objects in the domain, there are a few things w
 
 The syntax for declaring a relationship is through the use of keyword `predicate`, the name of the predicate, and the objects that are involved in the predicate:
 
-```
+```domain
 predicate IsR(t1 var1, t2 var2)
 ```
 
@@ -32,7 +32,7 @@ This pattern informs Penrose that there is a relationship that we care about cal
 
 In the case of our current example, we can name our relationship `IsSubset`, and we have 2 arguments of type `Set`.
 
-```
+```domain
 type Set
 predicate IsSubset(Set s1, Set s2)
 ```
@@ -43,7 +43,7 @@ Now we are free to use the predicate `IsSubset` in our `.substance` file and def
 
 In our goal diagram, we have 3 sets, therefore we will declare 3 different sets in our `.substance` file. Note that in the previous example we declared each of our sets on separate lines, but we could also declare multiple objects of the same type in a single line. For instance, `Set A, B, C` is equivalent to writing:
 
-```
+```substance
 Set A
 Set B
 Set C
@@ -51,7 +51,7 @@ Set C
 
 So, we declare the set objects that will appear in our diagram, then we declare the relationships between the sets. In this case, let's make "B a subset of A" and "C a subset of B".
 
-```
+```substance
 Set A, B, C
 IsSubset(B, A)
 IsSubset(C, B)
@@ -71,7 +71,7 @@ Therefore we call the corresponding `ensure` functions on the `.icon` fields (th
 
 Now our selector is not just `forall Set A` since we only want to apply these styling rules to the sets that have the relationship `isSubset`. Therefore, we need to add a condition to the arbitrary sets we are looping through in the program. We can do this with the pattern `where HasRelationshipR(A, B)` where the `HasRelationshipR` is `IsSubset` in this particular case. Now our `.style` file looks like this:
 
-```
+```style
 forall Set A; Set B
 where IsSubset(A, B) {
     ensure contains(A.icon, B.icon, 5.0)
@@ -87,7 +87,7 @@ Notice that in our first example, we did not care about the size of our shapes, 
 
 Since we care about the sizes of **all** the sets and we need to **ensure** all of their sizes are within a reasonable range, we will again make use of our newly introduced keyword `ensure`. We call `ensure` on any fields of the object that we want to limit to within a certain range. In this case, we want to constrain the size of the shapes, so we add a call to `ensure minSize(x.icon)`. `minSize` is another pre-defined constraint that Penrose provides. If you're curious, the documentation for this constraint can be found [here](https://penrose.github.io/penrose/typedoc/modules.html#constrDict) (scroll down to `minSize`). You can also see how Penrose implemented this constraint by clicking on the "Defined in" link.
 
-```
+```style
 forall Set x {
     x.icon = Circle {
         strokeWidth : 0.0
@@ -98,7 +98,7 @@ forall Set x {
 
 So putting it all together, we have:
 
-```
+```style
 forall Set A; Set B
 where IsSubset(A, B) {
     ensure contains(A.icon, B.icon, 5.0)
