@@ -260,6 +260,10 @@ export interface GroupCycleWarning {
 
 export interface BBoxApproximationWarning {
   tag: "BBoxApproximationWarning";
+  stack: [BBoxApproximationWarningItem, ...BBoxApproximationWarningItem[]];
+}
+
+export interface BBoxApproximationWarningItem {
   signature: string;
   location?: SourceRange;
 }

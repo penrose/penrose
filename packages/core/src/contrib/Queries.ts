@@ -449,7 +449,11 @@ export const shapeDistance = (
       warnings: [
         {
           tag: "BBoxApproximationWarning",
-          signature: `shapeDistance(${t1}, ${t2})`,
+          stack: [
+            {
+              signature: `shapeDistance(${t1}, ${t2})`,
+            },
+          ],
         },
       ],
     };

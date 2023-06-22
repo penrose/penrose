@@ -20,6 +20,7 @@ import * as BBox from "../engine/BBox.js";
 import { Line } from "../shapes/Line.js";
 import { Shape } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
+import { BBoxApproximationWarningItem } from "../types/errors.js";
 import { ConstrFunc, MayWarn } from "../types/functions.js";
 import { ClipData } from "../types/value.js";
 import {
@@ -45,6 +46,7 @@ import {
   bboxFromShape,
   bboxPts,
   polygonLikePoints,
+  rectPts,
   shapeDistance,
 } from "./Queries.js";
 import * as utils from "./Utils.js";
@@ -242,7 +244,12 @@ export const overlapping = (
         if (warning.tag === "BBoxApproximationWarning") {
           return {
             ...warning,
-            signature: `overlapping(${t1}, ${t2})`,
+            stack: [
+              ...warning.stack,
+              {
+                signature: `overlapping(${t1}, ${t2})`,
+              },
+            ],
           };
         } else {
           return warning;
@@ -306,7 +313,12 @@ export const disjoint = (
       if (warning.tag === "BBoxApproximationWarning") {
         return {
           ...warning,
-          signature: `disjoint(${s1.shapeType}, ${s2.shapeType})`,
+          stack: [
+            ...warning.stack,
+            {
+              signature: `disjoint(${s1.shapeType}, ${s2.shapeType})`,
+            },
+          ],
         };
       } else return warning;
     }),
@@ -325,7 +337,12 @@ export const touching = (
       if (warning.tag === "BBoxApproximationWarning") {
         return {
           ...warning,
-          signature: `disjoint(${s1.shapeType}, ${s2.shapeType})`,
+          stack: [
+            ...warning.stack,
+            {
+              signature: `overlapping(${s1.shapeType}, ${s2.shapeType})`,
+            },
+          ],
         };
       } else return warning;
     }),
@@ -336,60 +353,110 @@ export const contains = (
   s1: Shape<ad.Num>,
   s2: Shape<ad.Num>,
   padding: ad.Num = 0.0
-): ad.Num => {
+): MayWarn<ad.Num> => {
   const t1 = s1.shapeType,
     t2 = s2.shapeType;
   if (t1 === "Circle" && t2 === "Circle")
-    return containsCircles(
-      toPt(s1.center.contents),
-      s1.r.contents,
-      toPt(s2.center.contents),
-      s2.r.contents,
-      padding
+    return noWarn(
+      containsCircles(
+        toPt(s1.center.contents),
+        s1.r.contents,
+        toPt(s2.center.contents),
+        s2.r.contents,
+        padding
+      )
     );
   else if (t1 === "Polygon" && t2 === "Polygon") {
-    return containsPolys(polygonLikePoints(s1), polygonLikePoints(s2), padding);
+    return noWarn(
+      containsPolys(polygonLikePoints(s1), polygonLikePoints(s2), padding)
+    );
   } else if (t1 === "Polygon" && t2 === "Circle") {
-    return containsPolyCircle(
-      polygonLikePoints(s1),
-      toPt(s2.center.contents),
-      s2.r.contents,
-      padding
+    return noWarn(
+      containsPolyCircle(
+        polygonLikePoints(s1),
+        toPt(s2.center.contents),
+        s2.r.contents,
+        padding
+      )
     );
   } else if (t1 === "Circle" && t2 === "Polygon") {
-    return containsCirclePoly(
-      toPt(s1.center.contents),
-      s1.r.contents,
-      polygonLikePoints(s2),
-      padding
+    return noWarn(
+      containsCirclePoly(
+        toPt(s1.center.contents),
+        s1.r.contents,
+        polygonLikePoints(s2),
+        padding
+      )
     );
   } else if (t1 === "Circle" && isRectlike(s2)) {
-    const rectPts = bboxPts(bboxFromShape(s2));
-    return containsCircleRect(
-      toPt(s1.center.contents),
-      s1.r.contents,
-      rectPts,
-      padding
+    const rPts = rectPts(
+      s2.center.contents,
+      s2.width.contents,
+      s2.height.contents,
+      s2.rotation.contents
+    );
+    return noWarn(
+      containsCircleRect(toPt(s1.center.contents), s1.r.contents, rPts, padding)
     );
   } else if (isRectlike(s1) && t2 === "Circle") {
-    const rectPts = bboxPts(bboxFromShape(s1));
-    return containsRectCircle(
-      rectPts,
-      toPt(s2.center.contents),
-      s2.r.contents,
-      padding
+    const rPts = rectPts(
+      s1.center.contents,
+      s1.width.contents,
+      s1.height.contents,
+      s1.rotation.contents
+    );
+    return noWarn(
+      containsRectCircle(rPts, toPt(s2.center.contents), s2.r.contents, padding)
     );
   } else if (t1 === "Group") {
-    return containsGroupShape(
+    const { value, warnings } = containsGroupShape(
       s1.shapes.contents,
       s1.clipPath.contents,
       s2,
       padding
     );
+
+    return {
+      value,
+      warnings: warnings.map((warning) => {
+        if (warning.tag === "BBoxApproximationWarning") {
+          return {
+            ...warning,
+            stack: [...warning.stack, { signature: `contains(${t1}, ${t2})` }],
+          };
+        } else return warning;
+      }),
+    };
+  } else if (isRectlike(s1) && isRectlike(s2)) {
+    return noWarn(
+      containsRects(
+        rectPts(
+          s1.center.contents,
+          s1.width.contents,
+          s1.height.contents,
+          s1.rotation.contents
+        ),
+        rectPts(
+          s2.center.contents,
+          s2.width.contents,
+          s2.height.contents,
+          s2.rotation.contents
+        ),
+        padding
+      )
+    );
   } else {
     const s1BboxPts = bboxPts(bboxFromShape(s1));
     const s2BboxPts = bboxPts(bboxFromShape(s2));
-    return containsRects(s1BboxPts, s2BboxPts, padding);
+    return {
+      value: containsRects(s1BboxPts, s2BboxPts, padding),
+      warnings: [
+        {
+          tag: "BBoxApproximationWarning",
+          stack: [{ signature: `contains(${t1}, ${t2})` }],
+        },
+      ],
+    };
   }
 };
 
@@ -523,15 +590,68 @@ export const containsGroupShape = (
   clip: ClipData<ad.Num>,
   s2: Shape<ad.Num>,
   padding: ad.Num
-): ad.Num => {
-  const vals = shapes.map((s) => contains(s, s2, padding));
+): MayWarn<ad.Num> => {
+  const results = shapes.map((s) => contains(s, s2, padding));
+  const energies = results.map((r) => r.value);
+  const warningss = results.map((r) => {
+    return r.warnings.map((warning) => {
+      if (warning.tag === "BBoxApproximationWarning") {
+        const newStack: [
+          BBoxApproximationWarningItem,
+          ...BBoxApproximationWarningItem[]
+        ] = [
+          ...warning.stack,
+          {
+            signature: `containsGroupShape([${shapes
+              .map((s) => s.shapeType)
+              .join(", ")}], ..., ${s2.shapeType}, ...)`,
+          },
+        ];
+        return {
+          ...warning,
+          stack: newStack,
+        };
+      } else {
+        return warning;
+      }
+    });
+  });
   if (clip.tag === "NoClip") {
     // If a group does not have a clipping shape, checking whether a group contains a shape is equivalent to checking whether some group member contains the shape.
-    return minN(vals);
+    return {
+      value: minN(energies),
+      warnings: warningss.flat(),
+    };
   } else {
     // Otherwise, then (1) the group members (excluding the clipping shape) contains the other shape, and
     // (2) the clipping shape contains the other shape.
-    return andConstraint(minN(vals), contains(clip.contents, s2));
+    const clipResult = contains(clip.contents, s2);
+    const clipEnergy = clipResult.value;
+    const clipWarnings = clipResult.warnings.map((warning) => {
+      if (warning.tag === "BBoxApproximationWarning") {
+        const newStack: [
+          BBoxApproximationWarningItem,
+          ...BBoxApproximationWarningItem[]
+        ] = [
+          ...warning.stack,
+          {
+            signature: `containsGroupShape([${shapes
+              .map((s) => s.shapeType)
+              .join(", ")}], clip(${clip.contents.shapeType}), ${
+              s2.shapeType
+            }, ...)`,
+          },
+        ];
+        return {
+          ...warning,
+          stack: newStack,
+        };
+      } else return warning;
+    });
+    return {
+      value: andConstraint(minN(energies), clipEnergy),
+      warnings: warningss.flat().concat(...clipWarnings),
+    };
   }
 };
 
@@ -805,7 +925,7 @@ const constrDictGeneral = {
       { name: "s2", description: "Shape 2", type: shapeT("AnyShape") },
       { name: "padding", description: "Padding", type: realT(), default: 0 },
     ],
-    body: noWarnFn(contains),
+    body: contains,
   },
 
   containsCircles: {

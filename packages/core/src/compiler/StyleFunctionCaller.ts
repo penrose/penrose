@@ -35,7 +35,12 @@ export const callCompFunc = (
     const { value, warnings } = func.body(context, ...checkedArgs.value);
     return ok({
       value,
-      warnings: warnings.map((w) => ({ ...w, location: range })),
+      warnings: warnings.map((w) => {
+        if (w.tag === "BBoxApproximationWarning") {
+          w.stack[w.stack.length - 1].location = range;
+        }
+        return w;
+      }),
     });
   } catch (e) {
     if (e instanceof Error) {
@@ -57,7 +62,12 @@ export const callObjConstrFunc = (
     const { value, warnings } = func.body(...checkedArgs.value);
     return ok({
       value,
-      warnings: warnings.map((w) => ({ ...w, location: range })),
+      warnings: warnings.map((w) => {
+        if (w.tag === "BBoxApproximationWarning") {
+          w.stack[w.stack.length - 1].location = range;
+        }
+        return w;
+      }),
     });
   } catch (e) {
     if (e instanceof Error) {
