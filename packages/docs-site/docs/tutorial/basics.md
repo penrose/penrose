@@ -2,7 +2,7 @@
 
 This is the first diagram we will make together. This is the equivalent of the `print("Hello World")` program for Penrose. To make any mathematical diagram, we first need to visualize some **shapes** that we want. In this tutorial, we will learn about how to build a triple (`.domain`, `.substance`, `.style`) for a simple diagram containing two circles.
 
-👉 [**Open this online workspace**](pathname:///try/index.html?example_trio=penrose/penrose/main/packages/examples/src/tutorials/code/tutorial1) in a separate tab to follow along!
+👉 [**Open this online workspace**](pathname:///try/index.html?examples=tutorials%2Ftutorial1) in a separate tab to follow along!
 
 ## Goal
 
