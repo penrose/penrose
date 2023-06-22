@@ -330,14 +330,14 @@
   },
   "graph-domain/other-examples/arpanet": {
     "name": "Curved graph example with dots",
-    "gallery": false
+    "gallery": true
   },
   "graph-domain/other-examples/nyc-subway": {
     "name": "Curved graph example with boxes",
     "gallery": false
   },
   "curve-examples/blobs": { "name": "Blobs", "gallery": false },
-  "curve-examples/space-curves": { "name": "Space curves", "gallery": false },
+  "curve-examples/space-curves": { "name": "Space Curves", "gallery": true },
   "geometric-queries/ray-intersect/test-group": {
     "name": "Ray Casting",
     "gallery": true
