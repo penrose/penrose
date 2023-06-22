@@ -24,7 +24,7 @@ For example, if we want Penrose to know that there are objects of type plant, we
 
 The answer is a **Set**. A set is a **type** of element in set theory. Therefore in our `.domain`, we write the following line:
 
-```
+```substance
 type Set
 ```
 
@@ -38,7 +38,7 @@ Since we are visualizing 2 sets, they are **substances** of this diagram. These 
 
 We declare a substance by first declaring its _type_ followed by its _name_. The name will not appear in the diagram unless you choose to label your substances, therefore in this exercise, it doesn't matter how you name your sets.
 
-```
+```substance
 Set A
 Set B
 ```
@@ -53,7 +53,7 @@ For style, we have a little more work to do. If you are familiar with HTML/CSS, 
 
 We first need to specify the dimensions of the canvas that our diagram will be drawn on. To do so, you can write the following code anywhere in `.style`. We recommend using a canvas size of 800x700.
 
-```
+```style
 canvas {
   width = -- [some width]
   height = -- [some height]
@@ -70,7 +70,7 @@ Note that the syntax is _very_ similar to the mathematical way of talking about 
 
 In this case, our `Type` is `Set`, and we want all of our sets to be circles. We can make that happen by setting some field of each set to a Shape object. In the example below, we name the field `.icon`. It could be named whatever you want, `.foo`, `.shape`, even `.ImALittleTeapot` would work, as long as we are assigning it to a Shape object. Penrose will detect the Shape object and use it to render each `Set` as that object.
 
-```
+```style
 forall Set x {
     x.icon = -- [some shape object]
 }
@@ -82,7 +82,7 @@ So, what are the shapes we can use? Currently, the system supports 12 different 
 
 When we construct the `Circle` object for our Set, we need to look back at our goal diagram. Our desired circles do not have strokes, therefore we will set `strokeWidth : 0.0`. (Actually, we could leave that out as well, because it is the default for `strokeWidth` in `Circle`.) For all the other properties that we did not specify, Penrose will choose the best value for them based on optimization, so you do not have to worry.
 
-```
+```style
 forall Set x {
     x.icon =  Circle {
         strokeWidth : 0.0

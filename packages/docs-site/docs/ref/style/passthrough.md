@@ -12,7 +12,7 @@ All passthrough values must either be a string or a numerical value, or an error
 
 For example,
 
-```
+```style
 myShape = Circle {
     colorInterpolation : true
 }
@@ -20,7 +20,7 @@ myShape = Circle {
 
 generates the error
 
-```
+```error
 Passthrough shape property 1:6:myShape.colorInterpolation expects type StrV or FloatV and does not accept type BoolV.
 ```
 

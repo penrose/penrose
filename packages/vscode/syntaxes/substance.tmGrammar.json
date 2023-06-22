@@ -6,14 +6,36 @@
   "patterns": [
     { "include": "#keywords" },
     { "include": "#latex" },
-    { "include": "source.penrose-common" }
+    { "include": "#strings" },
+    { "include": "#comments" }
   ],
   "repository": {
+    "strings": {
+      "name": "string.quoted.double",
+      "match": "\"(?:[^\n\\\"]|\\[\"\\ntbfr])*\""
+    },
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.block.penrose",
+          "begin": "/\\*",
+          "end": "\\*/"
+        },
+        {
+          "name": "comment.line.penrose",
+          "match": "--.*?$"
+        }
+      ]
+    },
     "keywords": {
       "patterns": [
         {
           "name": "keyword.control.penrose",
           "match": "\\b(AutoLabel|Label|NoLabel|All)\\b"
+        },
+        {
+          "name": "keyword.operator",
+          "match": ":="
         }
       ]
     },
