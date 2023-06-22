@@ -291,7 +291,7 @@
     "name": "Ray Intersection Tests",
     "gallery": false
   },
-  "curve-examples/catmull-rom/test": {
+  "curve-examples/catmull-rom/catmull-rom": {
     "name": "Catmull-Rom Interpolation Test",
     "gallery": false
   },

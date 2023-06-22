@@ -1066,7 +1066,7 @@ export const compDict = {
       _context: Context,
       pathType: string,
       points: ad.Num[][],
-      tension: ad.Num[]
+      tension: ad.Num
     ): PathDataV<ad.Num> => {
 
        return catmullRom( _context, pathType, points, tension );
@@ -1083,13 +1083,15 @@ export const compDict = {
       { name: "X0", type: real2T(), description: "starting location" },
       { name: "A", type: realNMT(), description: "covariance matrix" },
       { name: "omega", type: real2T(), description: "drift direction" },
+      { name: "interpolationType", type: stringT(), description: `"smooth" or "straight"`, default: "straight" },
     ],
     body: (
       _context: Context,
       n: number,
       X0: ad.Num[],
       A: ad.Num[][],
-      omega: ad.Num[]
+      omega: ad.Num[],
+      interpolationType: string
     ): PathDataV<ad.Num> => {
 
        let Xt: ad.Num[][] = [];
@@ -1099,8 +1101,10 @@ export const compDict = {
           Xt[i] = ops.vadd( ops.vadd( Xt[i-1], ops.mvmul(A,Wt)), omega );
        }
 
-       // return catmullRom( _context, Xt, 0.25 );
-
+       if( interpolationType === "smooth" ) {
+          return catmullRom( _context, "open", Xt, 0.25 );
+       }
+       // Otherwise, "straight":
        const path = new PathBuilder();
        path.moveTo( toPt(Xt[0]) );
        for( let i = 1; i < n; i++ ) {
@@ -5440,7 +5444,7 @@ const catmullRom = (
       _context: Context,
       pathType: string,
       points: ad.Num[][],
-      tension: ad.Num[]
+      tension: ad.Num
 ): PathDataV<ad.Num> => {
 
    const n = points.length;
@@ -5460,14 +5464,14 @@ const catmullRom = (
    }
 
    const path = new PathBuilder();
-   path.moveTo( points[0] );
+   path.moveTo( toPt(points[0]) );
    const m = (pathType === "open" ? n-1 : n);
    for( let i = 0; i < m; i++ ) {
       const j = (i+1) % n;
       path.bezierCurveTo(
-         ops.vadd( points[i], tangents[i] ),
-         ops.vsub( points[j], tangents[j] ),
-         points[j]
+         toPt(ops.vadd( points[i], tangents[i] )),
+         toPt(ops.vsub( points[j], tangents[j] )),
+         toPt(points[j])
       );
    }
 
