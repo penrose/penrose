@@ -85,4 +85,4 @@ yarn dev
 
 ## Exported functions
 
-For the full list of exported functions, refer to the [documentation site](https://penrose.github.io/penrose/typedoc/modules.html).
+For the full list of exported functions, refer to the [documentation site](https://penrose.cs.cmu.edu/docs/ref/style/functions).
