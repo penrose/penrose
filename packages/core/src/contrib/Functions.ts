@@ -1091,13 +1091,20 @@ export const compDict = {
       A: ad.Num[][],
       omega: ad.Num[]
     ): PathDataV<ad.Num> => {
-       const path = new PathBuilder();
-       path.moveTo( toPt(X0) );
-       let Xt = X0;
+
+       let Xt: ad.Num[][] = [];
+       Xt[0] = X0;
        for( let i = 1; i < n; i++ ) {
           const Wt = [ randn(_context), randn(_context) ];
-          Xt = ops.vadd( ops.vadd( Xt, ops.mvmul(A, Wt )), omega );
-          path.lineTo( toPt(Xt) );
+          Xt[i] = ops.vadd( ops.vadd( Xt[i-1], ops.mvmul(A,Wt)), omega );
+       }
+
+       // return catmullRom( _context, Xt, 0.25 );
+
+       const path = new PathBuilder();
+       path.moveTo( toPt(Xt[0]) );
+       for( let i = 1; i < n; i++ ) {
+          path.lineTo( toPt(Xt[i]) );
        }
        return path.getPath();
     },
@@ -5439,7 +5446,7 @@ const catmullRom = (
    const n = points.length;
 
    // compute tangents, assuming curve is closed
-   const tangents = new Array(n);
+   let tangents: ad.Num[][] = [];
    for( let j = 0; j < n; j++ ) {
       const i = (j-1+n) % n;
       const k = (j+1) % n;
