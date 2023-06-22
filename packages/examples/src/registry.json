@@ -5,7 +5,7 @@
   },
   "set-theory-domain/tree-tree": {
     "name": "Sets as Tree Diagram",
-    "gallery": true
+    "gallery": false
   },
   "set-theory-domain/tree-venn-3d": {
     "name": "Sets as Venn Diagram in 2.5D",
@@ -22,10 +22,10 @@
   "atoms-and-bonds/wet-floor": { "name": "Wet Floor", "gallery": true },
   "atoms-and-bonds/one-water-molecule": {
     "name": "A Water Molecule",
-    "gallery": true
+    "gallery": false
   },
   "set-theory-domain/continuousmap": {
-    "name": "Continous Map",
+    "name": "Continuous Map",
     "gallery": true
   },
   "linear-algebra-domain/two-vectors-perp": {
@@ -34,65 +34,78 @@
   },
   "molecules/nitricacid-lewis": {
     "name": "Lewis Structure of Nitric Acid",
-    "gallery": true
+    "gallery": false
   },
   "exterior-algebra/vector-wedge": {},
   "shape-spec/all-shapes": {},
   "shape-spec/arrowheads": {},
-  "graph-domain/textbook/sec1/fig1": { "name": "Computer Network" },
+  "graph-domain/textbook/sec1/fig1": { "name": "Computer Network", "gallery": false },
   "graph-domain/textbook/sec1/fig2": {
-    "name": "Computer Network with Multiple Links between Data Centers"
+    "name": "Computer Network with Multiple Links between Data Centers",
+    "gallery": false
   },
   "graph-domain/textbook/sec1/fig3": {
-    "name": "Computer Network with Diagnostic Links"
+    "name": "Computer Network with Diagnostic Links",
+    "gallery": false
   },
   "graph-domain/textbook/sec1/fig4": {
-    "name": "Communications Network with One-Way Communications Links"
+    "name": "Communications Network with One-Way Communications Links",
+    "gallery": false
   },
   "graph-domain/textbook/sec1/fig5": {
-    "name": "Computer Network with Multiple One-Way Links"
+    "name": "Computer Network with Multiple One-Way Links",
+    "gallery": false
   },
-  "graph-domain/textbook/sec1/fig6": { "name": "Acquaintanceship Graph" },
-  "graph-domain/textbook/sec1/fig7": { "name": "Influence Graph" },
-  "graph-domain/textbook/sec1/fig8a": { "name": "Call Graph" },
-  "graph-domain/textbook/sec1/fig8b": { "name": "Call Graph" },
-  "graph-domain/textbook/sec1/fig9": { "name": "Module Dependency Graph" },
-  "graph-domain/textbook/sec1/fig10": { "name": "Precedence Graph" },
-  "graph-domain/textbook/sec1/fig11": { "name": "Niche Overlap Graph" },
+  "graph-domain/textbook/sec1/fig6": { "name": "Acquaintanceship Graph", "gallery": false },
+  "graph-domain/textbook/sec1/fig7": { "name": "Influence Graph", "gallery": false },
+  "graph-domain/textbook/sec1/fig8a": { "name": "Call Graph", "gallery": false },
+  "graph-domain/textbook/sec1/fig8b": { "name": "Call Graph", "gallery": false },
+  "graph-domain/textbook/sec1/fig9": { "name": "Module Dependency Graph", "gallery": false },
+  "graph-domain/textbook/sec1/fig10": { "name": "Precedence Graph", "gallery": false },
+  "graph-domain/textbook/sec1/fig11": { "name": "Niche Overlap Graph", "gallery": false },
   "graph-domain/textbook/sec1/fig12": {
-    "name": "Module of a Protein Interaction Graph"
+    "name": "Module of a Protein Interaction Graph",
+    "gallery": false
   },
   "graph-domain/textbook/sec1/fig13": {
-    "name": "Graph Model of a Round-Robin Tournament"
+    "name": "Graph Model of a Round-Robin Tournament",
+    "gallery": false
   },
-  "graph-domain/textbook/sec2/fig3": { "name": "Complete Graphs" },
-  "graph-domain/textbook/sec2/fig4": { "name": "Cycle Graphs" },
-  "graph-domain/textbook/sec2/fig5": { "name": "Wheel Graphs" },
-  "graph-domain/textbook/sec2/fig6": { "name": "Cube Graphs" },
-  "graph-domain/textbook/sec2/fig9": { "name": "Complete Bipartite Graphs" },
+  "graph-domain/textbook/sec2/fig3": { "name": "Complete Graphs", "gallery": false },
+  "graph-domain/textbook/sec2/fig4": { "name": "Cycle Graphs", "gallery": false },
+  "graph-domain/textbook/sec2/fig5": { "name": "Wheel Graphs", "gallery": false },
+  "graph-domain/textbook/sec2/fig6": { "name": "Cube Graphs", "gallery": false },
+  "graph-domain/textbook/sec2/fig9": { "name": "Complete Bipartite Graphs", "gallery": false },
   "graph-domain/textbook/sec2/fig10a": {
     "name": "Modeling the Jobs for Which Employees Have Been Trained"
   },
   "graph-domain/textbook/sec2/fig10b": {
-    "name": "Modeling the Jobs for Which Employees Have Been Trained"
+    "name": "Modeling the Jobs for Which Employees Have Been Trained",
+    "gallery": false
   },
   "graph-domain/textbook/sec2/fig11a": {
-    "name": "Star Topology for Local Area Network"
+    "name": "Star Topology for Local Area Network",
+    "gallery": false
   },
   "graph-domain/textbook/sec2/fig11b": {
-    "name": "Ring Topology for Local Area Network"
+    "name": "Ring Topology for Local Area Network",
+    "gallery": false
   },
   "graph-domain/textbook/sec2/fig11c": {
-    "name": "Hybrid Topology for Local Area Network"
+    "name": "Hybrid Topology for Local Area Network",
+    "gallery": false
   },
   "graph-domain/textbook/sec2/fig12": {
-    "name": "Linear Array for Six Processors"
+    "name": "Linear Array for Six Processors",
+    "gallery": false
   },
   "graph-domain/textbook/sec2/fig13": {
-    "name": "Mesh Network for 16 Processors"
+    "name": "Mesh Network for 16 Processors",
+    "gallery": false
   },
   "graph-domain/textbook/sec2/fig14": {
-    "name": "Hypercube Network for Eight Processors"
+    "name": "Hypercube Network for Eight Processors",
+    "gallery": false
   },
   "graph-domain/textbook/sec2/fig16b": {},
   "geometry-domain/textbook_problems/c05p13": {
@@ -101,11 +114,12 @@
   },
   "geometry-domain/textbook_problems/c01p01": {
     "name": "Collinear Points",
-    "gallery": true
+    "gallery": false
   },
   "geometry-domain/textbook_problems/c03p01": { "name": "Parallel Lines" },
   "geometry-domain/textbook_problems/c05p01": {
-    "name": "Midsegment Triangles"
+    "name": "Midsegment Triangles",
+    "gallery": false
   },
   "geometry-domain/textbook_problems/ex": { "name": "Congruent Triangles" },
   "triangle-mesh-3d/two-triangles": {
@@ -113,7 +127,7 @@
     "gallery": true
   },
   "random-sampling/test": { "name": "Random Sampling", "gallery": true },
-  "geometry-domain/textbook_problems/c11p12": { "name": "Circle Example" },
+  "geometry-domain/textbook_problems/c11p12": { "name": "Circle Example", "gallery": true },
   "word-cloud/example": { "name": "Word Cloud", "gallery": true },
   "geometry-domain/siggraph-teaser": {
     "name": "SIGGRAPH teaser - Euclidean Geometry",
@@ -134,17 +148,20 @@
     "gallery": true
   },
   "walk-on-spheres/poisson-estimator": {
-    "name": "Walk on Spheres - Poisson Estimator"
+    "name": "Walk on Spheres - Poisson Estimator",
+    "gallery": false
   },
   "walk-on-spheres/nested-estimator": {
-    "name": "Walk on Spheres - Nested Estimator"
+    "name": "Walk on Spheres - Nested Estimator",
+    "gallery": false
   },
   "walk-on-spheres/offcenter-estimator": {
-    "name": "Walk on Spheres - Off-Center Estimator"
+    "name": "Walk on Spheres - Off-Center Estimator",
+    "gallery": false
   },
   "walk-on-spheres/walk-on-stars": {
     "name": "Walk on Stars - Laplace Estimator",
-    "gallery": false
+    "gallery": true
   },
   "shape-distance/points-around-star": {},
   "shape-distance/points-around-polyline": {},
@@ -172,7 +189,7 @@
   },
   "matrix-ops/tests/matrix-matrix-multiplication": {
     "name": "Matrix-matrix multiplication",
-    "gallery": false
+    "gallery": true
   },
   "matrix-ops/tests/matrix-matrix-subtraction": {
     "name": "Matrix-matrix subtraction",
@@ -236,25 +253,30 @@
     "name": "Half Edge Mesh",
     "gallery": true
   },
-  "triangle-mesh-2d/diagrams/relative-orientation": {},
-  "triangle-mesh-2d/diagrams/triangle-centers": { "name": "Triangle Centers" },
+  "triangle-mesh-2d/diagrams/relative-orientation": { "name": "Relative Orientation", "gallery": false },
+  "triangle-mesh-2d/diagrams/triangle-centers": { "name": "Triangle Centers", "gallery": fa;se },
   "triangle-mesh-2d/diagrams/angle-equivalence": {
-    "name": "Rigid Conformal Mapping of a 2D Mesh"
+    "name": "Rigid Conformal Mapping of a 2D Mesh",
+    "gallery": false
   },
-  "timeline/penrose": { "name": "Penrose project timeline" },
-  "graph-domain/textbook/sec5/ex32": { "name": "Curved graph example" },
-  "curve-examples/open-elastic-curve": { "name": "Open elastic curve example" },
+  "timeline/penrose": { "name": "Penrose project timeline", "gallery": false },
+  "graph-domain/textbook/sec5/ex32": { "name": "Curved graph example",  "gallery": false },
+  "curve-examples/open-elastic-curve": { "name": "Open elastic curve example", "gallery": false },
   "curve-examples/closed-elastic-curve": {
-    "name": "Closed elastic curve example"
+    "name": "Closed elastic curve example",
+    "gallery": false
+
   },
   "graph-domain/other-examples/arpanet": {
-    "name": "Curved graph example with dots"
+    "name": "Curved graph example with dots",
+    "gallery": false
   },
   "graph-domain/other-examples/nyc-subway": {
-    "name": "Curved graph example with boxes"
+    "name": "Curved graph example with boxes",
+    "gallery": false
   },
-  "curve-examples/blobs": { "name": "Blobs" },
-  "curve-examples/space-curves": { "name": "Space curves" },
+  "curve-examples/blobs": { "name": "Blobs", "gallery": false },
+  "curve-examples/space-curves": { "name": "Space curves" , "gallery": false},
   "geometric-queries/ray-intersect/test-group": {
     "name": "Ray Casting",
     "gallery": true
@@ -269,7 +291,7 @@
   },
   "ray-tracing/next-event-estimation": {
     "name": "Next Event Estimation",
-    "gallery": false
+    "gallery": true
   },
   "geometric-queries/test": {
     "name": "Geometric Queries",
