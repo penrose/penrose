@@ -1,5 +1,13 @@
 import markdownItKatex from "markdown-it-katex";
 import { defineConfig } from "vitepress";
+import styleGrammar from "../../vscode/syntaxes/style.tmGrammar.json";
+
+const styleLang = {
+  id: "style",
+  scopeName: "source.penrose-style",
+  grammar: styleGrammar,
+  path: "style.tmGrammar.json",
+};
 
 // https://github.com/vuejs/vitepress/issues/529#issuecomment-1151186631
 const customElements = [
@@ -114,6 +122,7 @@ export default defineConfig({
     config: (md) => {
       md.use(markdownItKatex);
     },
+    languages: [styleLang as any],
   },
   vue: {
     template: {
@@ -272,6 +281,10 @@ export default defineConfig({
             {
               text: "Porting the Penrose Optimizer from TypeScript to Rust and WebAssembly for 10x Speedup",
               link: "/blog/2023/06/13/wasm",
+            },
+            {
+              text: "Diagram Layout in Stages",
+              link: "/blog/2023/06/13/staged-layout",
             },
           ],
         },
