@@ -2,7 +2,7 @@
 
 So far, we've directly declared substances in our diagram, and we've learned how to define relationships between our substances by using predicates.
 
-Now we will introduce functions in Penrose, which allow us to compose atomic substances in the diagram and define **new** substances based on **existing** ones. It's a very powerful feature that you will find super convenient in your journey as a Penrose developer.
+Now we will introduce functions in Penrose, which allow us to compose atomic substances in the diagram and define **new** substances based on **existing** ones. It's a very powerful feature that you will find super convenient in your journey as a Penrose diagrammer.
 
 ## Goal
 
@@ -14,7 +14,7 @@ In particular, we are visualizing vector addition. Below is the goal diagram for
 
 ## Starter Code
 
-👉 [**Open this online workspace**](pathname:///try/index.html?example_trio=penrose/penrose/main/packages/examples/src/tutorials/code/tutorial3) in a separate tab to follow along!
+👉 [**Open this online workspace**](pathname:///try/index.html?examples=tutorials%2Ftutorial3) in a separate tab to follow along!
 
 If everything is working, when you compile, you should see a vector space labeled `U` with its x-axis and y-axis in your Penrose window. It should look something like this:
 
@@ -88,8 +88,7 @@ To represent these constraints to Penrose, we write the following:
 ```
 ensure contains(U.background, u.shape)
 ensure contains(U.background, u.text)
-ensure atDist(u.shape, u.text, 15.0)
-ensure minSize(u.shape)
+ensure vdist(u.shape.end, u.text.center) == 15.0
 
 layer u.text above U.xAxis
 layer u.text above U.yAxis
