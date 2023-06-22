@@ -6,9 +6,22 @@
   "patterns": [
     { "include": "#keywords" },
     { "include": "#operators" },
-    { "include": "source.penrose-common" }
+    { "include": "#comments" }
   ],
   "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.block.penrose",
+          "begin": "/\\*",
+          "end": "\\*/"
+        },
+        {
+          "name": "comment.line.penrose",
+          "match": "--.*?$"
+        }
+      ]
+    },
     "keywords": {
       "patterns": [
         {

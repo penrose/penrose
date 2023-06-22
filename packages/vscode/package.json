@@ -56,10 +56,6 @@
     ],
     "grammars": [
       {
-        "scopeName": "source.penrose-common",
-        "path": "./syntaxes/common.tmGrammar.json"
-      },
-      {
         "language": "penrose-style",
         "scopeName": "source.penrose-style",
         "path": "./syntaxes/style.tmGrammar.json"
