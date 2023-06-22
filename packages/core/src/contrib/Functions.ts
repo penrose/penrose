@@ -1087,11 +1087,13 @@ export const compDict = {
 
        const path = new PathBuilder();
        path.moveTo( points[0] );
-       for( let i = 0; i < n-1; i++ ) {
+       const m = (pathType === "open" ? n-1 : n);
+       for( let i = 0; i < m; i++ ) {
+          const j = (i+1) % n;
           path.bezierCurveTo(
              ops.vadd( points[i], tangents[i] ),
-             ops.vsub( points[i+1], tangents[i+1] ),
-             points[i+1]
+             ops.vsub( points[j], tangents[j] ),
+             points[j]
           );
        }
 
