@@ -32,6 +32,9 @@
     "name": "Two Perpendicular Vectors",
     "gallery": true
   },
+  "tutorials/tutorial1": { "name": "Tutorial 1 - Two Sets" },
+  "tutorials/tutorial2": { "name": "Tutorial 2 - Subset" },
+  "tutorials/tutorial3": { "name": "Tutorial 3 - Vector" },
   "molecules/nitricacid-lewis": {
     "name": "Lewis Structure of Nitric Acid",
     "gallery": true
@@ -141,6 +144,10 @@
   },
   "walk-on-spheres/offcenter-estimator": {
     "name": "Walk on Spheres - Off-Center Estimator"
+  },
+  "walk-on-spheres/walk-on-stars": {
+    "name": "Walk on Stars - Laplace Estimator",
+    "gallery": false
   },
   "shape-distance/points-around-star": {},
   "shape-distance/points-around-polyline": {},
@@ -290,6 +297,14 @@
   "box-arrow-diagram/computer-architecture": {
     "name": "Computer Architecture Box-Arrow Diagram",
     "gallery": true
+  },
+  "curve-examples/catmull-rom/catmull-rom": {
+    "name": "Catmull-Rom Interpolation Test",
+    "gallery": false
+  },
+  "stochastic-process/stochastic-process": {
+    "name": "Stochastic Process Test",
+    "gallery": false
   },
   "solid/eigenspace": { "trio": false },
   "solid/triangles": { "trio": false },

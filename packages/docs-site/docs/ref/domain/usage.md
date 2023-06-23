@@ -2,7 +2,7 @@
 
 A _domain_ schema describes the types of objects, as well as relations between these objects, that Penrose diagrams work with. For example, say we want to use Penrose to draw a Venn diagram that represents the relationship between mathematical sets. We can declare the following domain schema:
 
-```
+```domain
 type Set
 
 predicate Not (Prop p1)
@@ -20,7 +20,7 @@ There are four types of statements that can appear in the _domain_ schema.
 
 A _type_ is a class of objects that a diagram works with. In the set-theory example, _Set_ is a type. The syntax for a type declaration is as follows:
 
-```
+```domain
 type typename
 ```
 
@@ -32,13 +32,13 @@ For example, statement `type Set` declares a type with name `Set`. We can then u
 
 Conceptually, a type might be a _subtype_ of another type. As an example, in a chemistry domain, types _Hydrogen_ and _Oxygen_ might both be subtypes of the type _Atom_. Penrose allows us to represent subtyping relations as follows:
 
-```
+```domain
 type subtype_name <: supertype_name
 ```
 
 Take the example of types _Hydrogen_, _Oxygen_, and _Atom_:
 
-```
+```domain
 type Atom
 type Hydrogen <: Atom
 type Oxygen <: Atom
@@ -52,7 +52,7 @@ Penrose adopts this interpretation: if Penrose expects to see an object with typ
 
 A _predicate_ represents mathematical or logical statements regarding zero or more objects or other statements. To declare a predicate, we write
 
-```
+```domain
 predicate predicate_name (argument_list)
 ```
 
@@ -63,7 +63,7 @@ where
 
 The arguments in `argument_list` contains the types of objects that this predicate accepts, separated by commas. Here is a _domain_ schema that contains a couple of type declarations and four different, valid, predicate declarations:
 
-```
+```domain
 type FirstType, SecondType
 
 predicate P1 (FirstType, SecondType)
@@ -78,7 +78,7 @@ Notice how some declarations have names associated with the argument types (e.g.
 
 A special type, _Prop_, is built into Penrose, and is available to be used as predicate arguments. The _Prop_ type represents predicates themselves. For example, the predicate _Not_ is declared in the set-theory example:
 
-```
+```domain
 predicate Not (Prop p1)
 ```
 
@@ -88,7 +88,7 @@ When we use the _Not_ predicate in the _substance_ or _style_ schemas, then, we 
 
 Some relations between objects are symmetric: for example, in the set-theory domain, the relations "_a_ intersects _b_" and "_b_ intersects _a_" are equivalent. As a recent new feature, Penrose supports symmetric predicates:
 
-```
+```domain
 symmetric predicate predicate_name (argument_type, argument_type)
 ```
 
@@ -96,7 +96,7 @@ For now, Penrose only supports symmetry of binary predicates (taking exactly two
 
 As an example, consider the following valid _domain_ schema in the chemistry domain:
 
-```
+```domain
 type Atom
 type Hydrogen <: Atom
 type Oxygen <: Atom
@@ -109,7 +109,7 @@ The predicate `Bond` is declared symmetric. Then, if `H` is a `Hydrogen` and `O`
 
 In mathematics, we sometimes define functions that takes some inputs and returns some output. Penrose allows us to define _functions_ that behave similarly:
 
-```
+```domain
 function function_name (argument_list) -> output_type
 ```
 
@@ -121,14 +121,14 @@ where
 
 For example, in the linear-algebra domain, we can define
 
-```
+```domain
 type Vector
 function addVector (Vector v1, Vector v2) -> Vector
 ```
 
 _Constructors_ in Penrose are functionally equivalent to functions, with the same declaration syntax, except for the first word:
 
-```
+```domain
 constructor constructor_name (argument_list) -> output_type
 ```
 
@@ -136,6 +136,6 @@ constructor constructor_name (argument_list) -> output_type
 
 _Comments_ are lines in the schema that are ignored by the Penrose parser. They are for documentation purposes, and are not involved in the generation of the diagrams. In the _domain_ schema, they start with two dashes:
 
-```
+```domain
 -- this is a comment
 ```

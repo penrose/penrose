@@ -93,6 +93,7 @@ export type RogerState =
       substance: string[];
       style: string[];
       domain: string[];
+      trio: string[];
     };
 
 const localFilesEffect: AtomEffect<LocalWorkspaces> = ({ setSelf, onSet }) => {
