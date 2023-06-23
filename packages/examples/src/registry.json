@@ -305,6 +305,9 @@
   "solid/eigenspace": { "trio": false },
   "solid/triangles": { "trio": false },
   "solid/vectors": { "trio": false },
+  "tsne/tsne": {
+    "name": "T-SNE Test"
+  },
   "spectral-graphs/examples/4x4-sudoku-graph": {
     "name": "4 x 4 Sudoku Graph",
     "gallery": false
@@ -315,6 +318,6 @@
   },
   "spectral-graphs/examples/dodecahedral-graph": {
     "name": "Dodecahedral Graph",
-    "gallery": false
+    "gallery": true
   }
 }
