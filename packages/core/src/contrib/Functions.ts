@@ -1036,6 +1036,115 @@ export const compDict = {
     returns: valueT("PathCmd"),
   },
 
+  firstPoint: {
+    name: "firstPoint",
+    description: "Returns the first point in a list.",
+    params: [
+      { name: "points", type: realNMT(), description: "list of points" },
+    ],
+    body: (_context: Context, points: ad.Num[][]): MayWarn<VectorV<ad.Num>> => {
+      return noWarn({
+        tag: "VectorV",
+        contents: points[0],
+      });
+    },
+    returns: valueT("Real2"),
+  },
+
+  lastPoint: {
+    name: "lastPoint",
+    description: "Returns the last point in a list.",
+    params: [
+      { name: "points", type: realNMT(), description: "list of points" },
+    ],
+    body: (_context: Context, points: ad.Num[][]): MayWarn<VectorV<ad.Num>> => {
+      return noWarn({
+        tag: "VectorV",
+        contents: points[points.length - 1],
+      });
+    },
+    returns: valueT("Real2"),
+  },
+
+  averagePoint: {
+    name: "averagePoint",
+    description: "Returns the average (mean) of all points in a list.",
+    params: [
+      { name: "points", type: realNMT(), description: "list of points" },
+    ],
+    body: (_context: Context, points: ad.Num[][]): MayWarn<VectorV<ad.Num>> => {
+      let mean: ad.Num[] = [0, 0];
+      for (let i = 0; i < points.length; i++) {
+        mean = ops.vadd(mean, points[i]);
+      }
+      mean = ops.vdiv(mean, points.length);
+      return noWarn({
+        tag: "VectorV",
+        contents: mean,
+      });
+    },
+    returns: valueT("Real2"),
+  },
+
+  interpolatingSpline: {
+    name: "interpolatingSpline",
+    description:
+      "Returns path data for a curve that smoothly interpolates the given points.  Interpolation is performed via a Catmull-Rom spline.",
+    params: [
+      {
+        name: "pathType",
+        type: pathTypeT(),
+        description: `either "open" or "closed."`,
+      },
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points to be interpolated",
+      },
+      {
+        name: "tension",
+        type: realT(),
+        description: "smoothness of curve (0=piecewise linear, .25=default)",
+        default: 0.25,
+      },
+    ],
+    body: (
+      _context: Context,
+      pathType: string,
+      points: ad.Num[][],
+      tension: ad.Num
+    ): MayWarn<PathDataV<ad.Num>> => {
+      return noWarn(catmullRom(_context, pathType, points, tension));
+    },
+    returns: valueT("PathCmd"),
+  },
+
+  diffusionProcess: {
+    name: "diffusionProcess",
+    description:
+      "Return `n` points sampled from a diffusion process starting at `X0`, with covariance matrix `A` and constant drift `omega`.  This path approximately integrates the stochastic differential equation dX_t = omega dt + A dW_t, where W_t is a Wiener process.",
+    params: [
+      { name: "n", type: posIntT(), description: "number of points" },
+      { name: "X0", type: real2T(), description: "starting location" },
+      { name: "A", type: realNMT(), description: "covariance matrix" },
+      { name: "omega", type: real2T(), description: "drift direction" },
+    ],
+    body: (
+      _context: Context,
+      n: number,
+      X0: ad.Num[],
+      A: ad.Num[][],
+      omega: ad.Num[]
+    ): MayWarn<PtListV<ad.Num>> => {
+      const Xt = diffusionProcess(_context, n, X0, A, omega);
+      return noWarn({
+        tag: "PtListV",
+        contents: Xt.map(toPt),
+      });
+    },
+    returns: valueT("Real2N"),
+  },
+
   /**
    * Return two points parallel to line `s1` using its normal line `s2`.
    */
@@ -2068,20 +2177,9 @@ export const compDict = {
       "Sample a normal distribution with mean 0 and standard deviation 1.",
     params: [],
     body: ({ makeInput }: Context): MayWarn<FloatV<ad.Num>> => {
-      const u1 = makeInput({
-        init: { tag: "Sampled", sampler: uniform(0, 1) },
-        stages: new Set(),
-      });
-      const u2 = makeInput({
-        init: { tag: "Sampled", sampler: uniform(0, 1) },
-        stages: new Set(),
-      });
-
-      const Z = mul(sqrt(mul(-2, ln(u1))), cos(mul(2 * Math.PI, u2)));
-
       return noWarn({
         tag: "FloatV",
-        contents: Z,
+        contents: randn({ makeInput }),
       });
     },
     returns: valueT("Real"),
@@ -4371,6 +4469,34 @@ export const compDict = {
     },
     returns: valueT("Real2N"),
   },
+
+  tsneEnergy: {
+    name: "tsneEnergy",
+    description: "Returns T-SNE energy",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "high dimensional points",
+      },
+      {
+        name: "projectedPoints",
+        type: realNMT(),
+        description: "projected, low dimensional points",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      projectedPoints: ad.Num[][]
+    ): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
+        tag: "FloatV",
+        contents: calculateTsneEnergy(points, projectedPoints),
+      });
+    },
+    returns: valueT("Real"),
+  },
   rectPts: {
     name: "rectPts",
     description:
@@ -5488,4 +5614,171 @@ const tickPlacement = (
     pts.push(add(pts[i - 1], shift));
   }
   return pts;
+};
+
+/**
+ * Function to calculate the pairwise similarity matrix
+ * for the original high-dimensional data.
+ */
+const calculateProbabilityMatrixHighDim = (x: ad.Num[][]): ad.Num[][] => {
+  const m = x.length;
+  const probabilities = Array(m)
+    .fill(0)
+    .map(() => Array(m).fill(0));
+
+  for (let i = 0; i < m; i++) {
+    for (let j = i + 1; j < m; j++) {
+      const distance = ops.vdist(x[i], x[j]);
+      const value = exp(neg(div(distance, 2)));
+      probabilities[i][j] = value;
+      probabilities[j][i] = value; // Symmetric
+    }
+  }
+
+  // Normalize probabilities
+  const sum = addN(probabilities.flat());
+  return probabilities.map((row) => row.map((value) => div(value, sum)));
+};
+
+/**
+ * Function to calculate the pairwise similarity matrix
+ * for the low-dimensional representation of the data.
+ */
+const calculateProbabilityMatrixLowDim = (y: ad.Num[][]): ad.Num[][] => {
+  const n = y.length;
+  const probabilities = Array(n)
+    .fill(0)
+    .map(() => Array(n).fill(0));
+
+  for (let i = 0; i < n; i++) {
+    for (let j = i + 1; j < n; j++) {
+      const distance = ops.vdist(y[i], y[j]);
+      const value = div(1, add(1, distance));
+      probabilities[i][j] = value;
+      probabilities[j][i] = value; // Symmetric
+    }
+  }
+
+  // Normalize probabilities
+  const sum = addN(probabilities.flat());
+  return probabilities.map((row) => row.map((value) => div(value, sum)));
+};
+
+/**
+ * Function to calculate the Kullback-Leibler divergence
+ * between two probability distributions.
+ */
+const calculateKLDivergence = (p: ad.Num[][], q: ad.Num[][]): ad.Num => {
+  return addN(
+    p.map((row, i) =>
+      addN(
+        row.map((p_ij, j) =>
+          mul(
+            p_ij,
+            ln(div(add(p_ij, Number.EPSILON), add(q[i][j], Number.EPSILON)))
+          )
+        )
+      )
+    )
+  );
+};
+
+/**
+ * Function to calculate the t-SNE energy (cost)
+ * for a given high-dimensional data and its low-dimensional representation.
+ */
+const calculateTsneEnergy = (x: ad.Num[][], y: ad.Num[][]): ad.Num => {
+  const p = calculateProbabilityMatrixHighDim(x);
+  const q = calculateProbabilityMatrixLowDim(y);
+
+  return calculateKLDivergence(p, q);
+};
+
+/**
+ *  Return the signed distance to an axis-aligned rectangle:
+ *  float sdBox( in vec2 p, in vec2 b )
+ *  {
+ *    vec2 d = abs(p)-b;
+ *    return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
+ *  }
+ */
+export const sdfRect = (
+  center: ad.Num[],
+  width: ad.Num,
+  height: ad.Num,
+  p: ad.Num[]
+): ad.Num => {
+  const absp = ops.vabs(ops.vsub(p, center));
+  const b = [div(width, 2), div(height, 2)];
+  const d = ops.vsub(absp, b);
+  return add(ops.vnorm(ops.vmax(d, [0.0, 0.0])), min(max(d[0], d[1]), 0.0));
+};
+
+const randn = ({ makeInput }: Context): ad.Num => {
+  const u1 = makeInput({
+    init: { tag: "Sampled", sampler: uniform(0, 1) },
+    stages: new Set(),
+  });
+  const u2 = makeInput({
+    init: { tag: "Sampled", sampler: uniform(0, 1) },
+    stages: new Set(),
+  });
+
+  return mul(sqrt(mul(-2, ln(u1))), cos(mul(2 * Math.PI, u2)));
+};
+
+const catmullRom = (
+  _context: Context,
+  pathType: string,
+  points: ad.Num[][],
+  tension: ad.Num
+): PathDataV<ad.Num> => {
+  const n = points.length;
+
+  // compute tangents, assuming curve is closed
+  const tangents: ad.Num[][] = [];
+  for (let j = 0; j < n; j++) {
+    const i = (j - 1 + n) % n;
+    const k = (j + 1) % n;
+    tangents[j] = ops.vmul(tension, ops.vsub(points[k], points[i]));
+  }
+
+  // if path is open, replace first/last tangents
+  if (pathType === "open") {
+    tangents[0] = ops.vmul(tension, ops.vsub(points[1], points[0]));
+    tangents[n - 1] = ops.vmul(tension, ops.vsub(points[n - 1], points[n - 2]));
+  }
+
+  const path = new PathBuilder();
+  path.moveTo(toPt(points[0]));
+  const m = pathType === "open" ? n - 1 : n;
+  for (let i = 0; i < m; i++) {
+    const j = (i + 1) % n;
+    path.bezierCurveTo(
+      toPt(ops.vadd(points[i], tangents[i])),
+      toPt(ops.vsub(points[j], tangents[j])),
+      toPt(points[j])
+    );
+  }
+
+  if (pathType === "closed") path.closePath();
+
+  return path.getPath();
+};
+
+const diffusionProcess = (
+  _context: Context,
+  n: number,
+  X0: ad.Num[],
+  A: ad.Num[][],
+  omega: ad.Num[]
+): ad.Num[][] => {
+  const Xt: ad.Num[][] = [];
+  Xt[0] = X0;
+  for (let i = 1; i < n; i++) {
+    const Wt = [randn(_context), randn(_context)];
+    Xt[i] = ops.vadd(ops.vadd(Xt[i - 1], ops.mvmul(A, Wt)), omega);
+  }
+
+  return Xt;
 };

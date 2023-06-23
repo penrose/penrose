@@ -399,7 +399,10 @@ export const exampleTriosState = atom<TrioWithPreview[]>({
             const trio: TrioWithPreview = { id, get, name };
             if (!svg.ok) {
               console.error(`could not fetch preview for ${id}`);
-              return trio;
+              return {
+                ...trio,
+                preview: `<svg><rect fill="#cbcbcb" width="50" height="50"/></svg>`,
+              };
             }
             return { ...trio, preview: await svg.text() };
           })
