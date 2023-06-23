@@ -1008,6 +1008,105 @@ export const compDict = {
     returns: valueT("PathCmd"),
   },
 
+  firstPoint: {
+    name: "firstPoint",
+    description:
+      "Returns the first point in a list.",
+    params: [
+       { name: "points",
+         type: realNMT(),
+         description: "list of points"
+       },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][]
+    ): VectorV<ad.Num> => {
+      return {
+        tag: "VectorV",
+        contents: points[ 0 ],
+      };
+    },
+    returns: valueT("Real2"),
+  },
+
+  lastPoint: {
+    name: "lastPoint",
+    description:
+      "Returns the last point in a list.",
+    params: [
+       { name: "points",
+         type: realNMT(),
+         description: "list of points"
+       },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][]
+    ): VectorV<ad.Num> => {
+      return {
+        tag: "VectorV",
+        contents: points[ points.length-1 ],
+      };
+    },
+    returns: valueT("Real2"),
+  },
+
+  pointAtIndex: {
+    name: "pointAtIndex",
+    description:
+      "Returns the point with the given index from a list.",
+    params: [
+       { name: "points",
+         type: realNMT(),
+         description: "list of points"
+       },
+       { name: "index",
+         type: posIntT(),
+         description: "index of point"
+       },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      index: number
+    ): VectorV<ad.Num> => {
+      return {
+        tag: "VectorV",
+        contents: points[ index ],
+      };
+    },
+    returns: valueT("Real2"),
+  },
+
+  averagePoint: {
+    name: "averagePoint",
+    description:
+      "Returns the average (mean) of all points in a list.",
+    params: [
+       { name: "points",
+         type: realNMT(),
+         description: "list of points"
+       },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][]
+    ): VectorV<ad.Num> => {
+       let mean: ad.Num[] = [0,0];
+       for( let i = 0; i < points.length; i++ ) {
+          mean = ops.vadd( mean, points[i] );
+       }
+       mean = ops.vdiv( mean, points.length );
+      return {
+        tag: "VectorV",
+        contents: mean,
+      };
+    },
+    returns: valueT("Real2"),
+  },
+
+
   interpolatingSpline: {
     name: "interpolatingSpline",
     description:
