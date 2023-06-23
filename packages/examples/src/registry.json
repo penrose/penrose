@@ -65,7 +65,7 @@
   },
   "graph-domain/textbook/sec1/fig5": {
     "name": "Computer Network with Multiple One-Way Links",
-    "gallery": false
+    "gallery": true
   },
   "graph-domain/textbook/sec1/fig6": {
     "name": "Acquaintanceship Graph",
@@ -188,7 +188,7 @@
     "name": "Lagrange Bases",
     "gallery": true
   },
-  "hypergraph/hypergraph": {},
+  "hypergraph/hypergraph": { "name": "Hypergraph", "gallery": true },
   "persistent-homology/persistent-homology": {
     "name": "Persistent Homology",
     "gallery": true
@@ -289,7 +289,7 @@
     "name": "Vector-vector subtraction",
     "gallery": false
   },
-  "logic-circuit-domain/half-adder": {},
+  "logic-circuit-domain/half-adder": { "name": "Half Adder", "gallery": true },
   "curve-examples/cubic-bezier": {},
   "triangle-mesh-2d/diagrams/cotan-formula": {
     "name": "Cotan Formula",
