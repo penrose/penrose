@@ -5468,7 +5468,7 @@ const catmullRom = (
   const n = points.length;
 
   // compute tangents, assuming curve is closed
-  let tangents: ad.Num[][] = [];
+  const tangents: ad.Num[][] = [];
   for (let j = 0; j < n; j++) {
     const i = (j - 1 + n) % n;
     const k = (j + 1) % n;
@@ -5505,7 +5505,7 @@ const diffusionProcess = (
   A: ad.Num[][],
   omega: ad.Num[]
 ): ad.Num[][] => {
-  let Xt: ad.Num[][] = [];
+  const Xt: ad.Num[][] = [];
   Xt[0] = X0;
   for (let i = 1; i < n; i++) {
     const Wt = [randn(_context), randn(_context)];
