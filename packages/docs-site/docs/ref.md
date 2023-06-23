@@ -15,9 +15,9 @@ Penrose effortlessly creates beautiful diagrams using a 'trio':
 
 To create a new diagram, you simply create a short and simple Substance program that describes the domain objects and their relationships. Often these are so short, you may not even realize you are writing a program. Here's an example:
 
-```
-  Set A, B, C, D, E
-  AutoLabel All
+```substance
+Set A, B, C, D, E
+AutoLabel All
 ```
 
 The beauty of Penrose is you get to "stand atop giants" by using the existing Style and Domain program library for many common domains. You only need to modify a Style or Domain program if you want to add or change the way the domain is displayed (Style) or if you need to define new relationships or domain object types (Domain).
