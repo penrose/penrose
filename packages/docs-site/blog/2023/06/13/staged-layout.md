@@ -32,7 +32,7 @@ const incenterOneStage = {
     substance: geometry.substance,
     style: euclideanOneStage,
     domain: geometry.domain,
-    variation: "test1",
+    variation: "test3",
   },
   imageResolver: geometry.style[0].resolver,
 }
@@ -53,8 +53,24 @@ const incenter = {
 
 In Style, we can write `ensure` and `encourage` statements to declare constraints and objectives. The compiler turns them into a numerical optimization problem, and the optimizer finds a good layout. So far, this approach has worked fairly well for us. As we author more complex diagrams in Penrose, however, we ran into more difficult optimization problems.
 
-<div width="200px">
+<div>
+For example, we have built a series of diagrams in 2D Euclidean geometry. Initially, the layout engine worked just fine. But as the Style program become a lot more complex, the optimizer started to struggle. Take this diagram as an example.
+
+<div style="width: 55%; float:right; margin-left: 15px; margin-top: 0px">
   <StagedDiagram :trio="incenterOneStage.trio" :imageResolver="incenterOneStage.imageResolver" />
+</div>
+
+Conceptually, this diagram illustrates the _incenter_ $P$ of $\triangle JKL$, where $P$ is equidistant from the triangle's sides. The layout problem can be broken down into:
+
+- Lay out points $J$, $K$, and $L$ to form a [non-degenerate triangle](<https://en.wikipedia.org/wiki/Degeneracy_(mathematics)#Triangle>).
+- Compute the location of the incenter $P$ of $\triangle JKL$.
+- Lay out point $m$ on $\overline{KL}$.
+- Lay out $\overline{mP}$ perpendicular to $\overline{KL}$.
+- Lay out all point labels so they are close to the points.
+  - If the label is for a triangle vertex, make sure it's outside of the triangle.
+
+Aside from the location of $P$, everything else is optimized. And as you can see, the optimizer attempts to satisfy **all of the above concurrently**. Notice in every frame of the layout animation, Penrose always tries to keep the labels close to the points.
+
 </div>
 
 <!-- <StagedDiagram :trio="exterior.trio" :imageResolver="exterior.imageResolver" /> -->

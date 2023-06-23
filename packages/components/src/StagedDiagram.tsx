@@ -66,7 +66,10 @@ export default (props: {
             <Stage>{s}</Stage>
           );
         })}
-        <div onClick={() => setVariation(Math.random().toString())}>
+        <div
+          onClick={() => setVariation(Math.random().toString())}
+          style={{ cursor: "pointer" }}
+        >
           <Resample size={28} color={"black"} />
         </div>
       </StageContainer>
