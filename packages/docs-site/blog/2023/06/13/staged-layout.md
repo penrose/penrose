@@ -1,10 +1,66 @@
 <script setup>
 import BlogMeta from "../../../../src/components/BlogMeta.vue";
+import StagedDiagram from "../../../../src/components/StagedDiagram.vue";
+import { ref } from 'vue'
+import vector from "@penrose/examples/dist/exterior-algebra/vector-wedge.trio";
+import laplace from "@penrose/examples/dist/walk-on-spheres/laplace-estimator.trio.js";
+import geometry from "@penrose/examples/dist/geometry-domain/textbook_problems/c05p13.trio";
+import euclideanOneStage from "./euclideanOneStage"
+import { defineComponent } from "vue";
+import { applyPureReactInVue } from "veaury";
+
+const exterior = {
+  trio: {
+    substance: vector.substance,
+    style: vector.style[0].contents,
+    domain: vector.domain,
+    variation:"ArtemisCrane740"
+  },
+  imageResolver: vector.style[0].resolver,
+}
+const wos = {
+  trio: {
+    substance: laplace.substance,
+    style: laplace.style[0].contents,
+    domain: laplace.domain,
+    variation: "test3",
+  },
+  imageResolver: laplace.style[0].resolver,
+}
+const incenterOneStage = {
+  trio: {
+    substance: geometry.substance,
+    style: euclideanOneStage,
+    domain: geometry.domain,
+    variation: "test1",
+  },
+  imageResolver: geometry.style[0].resolver,
+}
+const incenter = {
+  trio: {
+    substance: geometry.substance,
+    style: geometry.style[0].contents,
+    domain: geometry.domain,
+    variation: "test",
+  },
+  imageResolver: geometry.style[0].resolver,
+}
 </script>
 
 # Diagram Layout in Stages
 
 <BlogMeta github="wodeni" date="2023-06-13" />
+
+In Style, we can write `ensure` and `encourage` statements to declare constraints and objectives. The compiler turns them into a numerical optimization problem, and the optimizer finds a good layout. So far, this approach has worked fairly well for us. As we author more complex diagrams in Penrose, however, we ran into more difficult optimization problems.
+
+<div width="200px">
+  <StagedDiagram :trio="incenterOneStage.trio" :imageResolver="incenterOneStage.imageResolver" />
+</div>
+
+<!-- <StagedDiagram :trio="exterior.trio" :imageResolver="exterior.imageResolver" /> -->
+<!-- <StagedDiagram :trio="incenter.trio" :imageResolver="incenter.imageResolver" /> -->
+
+## Constraint-based layout
 
 ## The Stage Syntax
 
@@ -38,3 +94,5 @@ forall Object o {
   ensure onCanvas(o.shape)
 }
 ```
+
+<StagedDiagram :trio="wos.trio" :imageResolver="wos.imageResolver" />

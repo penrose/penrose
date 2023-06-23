@@ -1,6 +1,7 @@
+import { PathResolver } from "@penrose/core";
 import { useState } from "react";
 import styled from "styled-components";
-import { Simple, SimpleProps } from "./Simple.js";
+import { Simple } from "./Simple.js";
 import Resample from "./icons/Resample.js";
 
 const Container = styled.div`
@@ -25,18 +26,17 @@ const StageContainer = styled.div`
   font-family: "Open Sans", sans-serif;
   width: 100%;
   justify-content: center;
-  margin-bottom: 10px;
+  margin: 10px 0px;
 `;
 
 // variation from SimpleProps is just the initial variation; the actual
 // variation is stored in state, can be changed by resampling
-export default ({
-  variation,
-  substance,
-  style,
-  domain,
-  imageResolver,
-}: SimpleProps) => {
+export default (props: {
+  trio: { substance: string; domain: string; style: string; variation: string };
+  imageResolver: PathResolver;
+}) => {
+  const { trio, imageResolver } = props;
+  const { variation, substance, style, domain } = trio;
   const [currVariation, setVariation] = useState(variation);
   const [stageIdx, setStageIdx] = useState(0);
   const [stages, setStages] = useState([""]);
@@ -58,9 +58,14 @@ export default ({
         }}
       />
       <StageContainer>
-        {stages.map((s, n) =>
-          n === stageIdx ? <Stage $active>{s}</Stage> : <Stage>{s}</Stage>
-        )}
+        {stages.map((stage, n) => {
+          const s = stage === "" ? "default" : stage;
+          return n === stageIdx ? (
+            <Stage $active>{s}</Stage>
+          ) : (
+            <Stage>{s}</Stage>
+          );
+        })}
         <div onClick={() => setVariation(Math.random().toString())}>
           <Resample size={28} color={"black"} />
         </div>
