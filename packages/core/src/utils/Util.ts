@@ -226,6 +226,15 @@ export const arrowheads: ArrowheadMap = {
     path: "M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z",
     fillKind: "fill",
   },
+  perp: {
+    width: 1,
+    height: 10.15,
+    viewbox: "0 0 1 10.2",
+    refX: 0.5,
+    refY: 5.08,
+    path: "M0.5 10.2 0.5 0",
+    fillKind: "stroke",
+  },
   line: {
     width: 7.5,
     height: 14,
@@ -706,6 +715,7 @@ export const stringT = (): ValueT => valueT("String");
 export const posIntT = (): ValueT => valueT("PosInt");
 export const booleanT = (): ValueT => valueT("Boolean");
 export const realNMT = (): ValueT => valueT("RealNM");
+export const shapeListT = (): ValueT => valueT("ShapeList");
 
 export const shapeT = (type: ShapeType | "AnyShape"): ShapeT => ({
   tag: "ShapeT",

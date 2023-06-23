@@ -82,6 +82,16 @@ const makeRoomForArrows = (
   // multiplied by thickness since the arrow size uses markerUnits, which is strokeWidth by default:
   // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/markerUnits
   const length = Math.sqrt((lineSX - lineEX) ** 2 + (lineSY - lineEY) ** 2);
+  // zero length arrow doesn't need to be moved. Render as just the arrowhead by default
+  if (length === 0) {
+    return [
+      [
+        [lineSX, lineSY],
+        [lineEX, lineEY],
+      ],
+      attrMapped,
+    ];
+  }
 
   // Subtract off the arrowHeight from each side.
   // See https://math.stackexchange.com/a/2045181 for a derivation.

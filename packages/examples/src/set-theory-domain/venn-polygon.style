@@ -21,7 +21,6 @@ forall Set x {
 forall Set x; Set y
 where IsSubset(x, y) {
 
-    ensure smallerThan(x.icon, y.icon)
     ensure disjoint(y.text, x.icon)
     ensure contains(y.icon, x.icon, 5.0)
     x.icon above y.icon

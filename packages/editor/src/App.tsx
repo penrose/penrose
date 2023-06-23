@@ -28,6 +28,7 @@ import SvgUploader from "./components/SvgUploader.js";
 import TopBar from "./components/TopBar.js";
 import {
   RogerState,
+  Workspace,
   currentRogerState,
   currentWorkspaceState,
   fileContentsSelector,
@@ -233,6 +234,32 @@ function App() {
     []
   );
 
+  //
+  const updateTrio = useRecoilCallback(
+    ({ set }) =>
+      async (files: any) => {
+        await set(currentWorkspaceState, (workspace: Workspace) => ({
+          ...workspace,
+          files: {
+            domain: {
+              name: files.domain.fileName,
+              contents: files.domain.contents,
+            },
+            style: {
+              name: files.style.fileName,
+              contents: files.style.contents,
+            },
+            substance: {
+              name: files.substance.fileName,
+              contents: files.substance.contents,
+            },
+          },
+        }));
+        await compileDiagram();
+      },
+    []
+  );
+
   const connectRoger = useCallback(() => {
     ws.current = new WebSocket("ws://localhost:9160");
     ws.current.onclose = () => {
@@ -261,8 +288,9 @@ function App() {
         case "file_change":
           updatedFile(parsed.fileName, parsed.contents);
           break;
-        default:
-          toast.error(`Couldn't handle Roger message ${parsed.kind}`);
+        case "trio_files":
+          updateTrio(parsed.files);
+          break;
       }
     };
   }, []);

@@ -11,8 +11,8 @@ import { Context, InputFactory, makeCanvas } from "../../shapes/Samplers.js";
 import * as ad from "../../types/ad.js";
 import { FloatV } from "../../types/value.js";
 import { black, floatV, ptListV, vectorV } from "../../utils/Util.js";
-import { compDict, sdEllipse } from "../Functions.js";
-import { Rectlike } from "../Utils.js";
+import { compDict, signedDistanceEllipse } from "../Functions.js";
+import { Rectlike, toPt } from "../Utils.js";
 
 const canvas = makeCanvas(800, 700);
 
@@ -85,10 +85,15 @@ const getResult = (
   if (s.shapeType === "Ellipse") {
     return {
       tag: "FloatV",
-      contents: sdEllipse(s, p),
+      contents: signedDistanceEllipse(
+        toPt(s.center.contents),
+        s.rx.contents,
+        s.ry.contents,
+        toPt(p)
+      ),
     };
   } else {
-    const result = compDict.signedDistance.body(context, s, p);
+    const result = compDict.signedDistance.body(context, s, [p[0], p[1]]);
     if (result.tag === "FloatV") {
       return result;
     } else {
