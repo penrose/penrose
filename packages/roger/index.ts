@@ -331,6 +331,7 @@ yargs(hideBin(process.argv))
         );
       } else {
         console.log(diagram);
+        // TODO: print warning to stderr
       }
     }
   )
@@ -393,6 +394,7 @@ yargs(hideBin(process.argv))
         console.log(
           chalk.green(`The diagram has been saved as ${resolve(outputPath)}`)
         );
+        // TODO: print warning here
       }
     }
   )

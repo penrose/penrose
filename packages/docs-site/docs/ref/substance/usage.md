@@ -2,7 +2,7 @@
 
 The _substance_ program tells Penrose _what_ objects and relations to draw. In the set-theory example, for example, we can have the following _substance_ program:
 
-```
+```substance
 Set A, B, C
 
 IsSubset (A, C)
@@ -22,7 +22,7 @@ Formally, a _substance_ program can contain five types of statements.
 
 An _object declaration_ declares the existence of an object, and specify its type:
 
-```
+```substance
 type_name object_name
 ```
 
@@ -35,7 +35,7 @@ Once an object is declared, we can refer to it using `object_name`, which become
 
 Penrose also allows users to declare multiple objects of the same type at the same time:
 
-```
+```substance
 type_name object_name_1, object_name_2, ...
 ```
 
@@ -45,7 +45,7 @@ This is equivalent to declaring the objects sequentially and separately.
 
 We can _apply_ the predicates (first defined in the _domain_ schema) in our _substance_ program simply by invoking it. The syntax is
 
-```
+```substance
 predicate_name (argument_list)
 ```
 
@@ -58,7 +58,7 @@ The types of the _substance_ objects in `argument_list` must match the types of 
 
 We illustrate these rules with some examples. Suppose we have _domain_ schema
 
-```
+```domain
 type Atom
 type Hydrogen <: Atom
 type Oxygen <: Atom
@@ -70,7 +70,7 @@ predicate Not (Prop)
 
 and _substance_ object declarations
 
-```
+```substance
 Hydrogen H
 Oxygen O
 Atom A
@@ -92,13 +92,13 @@ Then,
 
 In Penrose, functions and constructors behave equivalently. There are two ways of invoking a function or constructor. The first way is
 
-```
+```substance
 object_name := function_constructor_name (argument_list)
 ```
 
 which requires object with `object_name` to be declared beforehand in the _substance_ program. The second way combines the declaration of the object and the invocation of the function into one statement:
 
-```
+```substance
 type_name object_name := function_constructor_name (argument_list)
 ```
 
@@ -122,6 +122,6 @@ If an object has an assigned label, then in the _style_ schema, we can access th
 
 Comments are ignored by the Penrose engine. In the _substance_ program, comments are declared using double dashes:
 
-```
+```substance
 -- this is a comment
 ```

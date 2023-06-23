@@ -1,5 +1,27 @@
 import markdownItKatex from "markdown-it-katex";
 import { defineConfig } from "vitepress";
+import domainGrammar from "../../vscode/syntaxes/domain.tmGrammar.json";
+import styleGrammar from "../../vscode/syntaxes/style.tmGrammar.json";
+import substanceGrammar from "../../vscode/syntaxes/substance.tmGrammar.json";
+
+const styleLang = {
+  id: "style",
+  scopeName: "source.penrose-style",
+  grammar: styleGrammar,
+  path: "style.tmGrammar.json",
+};
+const domainLang = {
+  id: "domain",
+  scopeName: "source.penrose-domain",
+  grammar: domainGrammar,
+  path: "domain.tmGrammar.json",
+};
+const substanceLang = {
+  id: "substance",
+  scopeName: "source.penrose-substance",
+  grammar: substanceGrammar,
+  path: "substance.tmGrammar.json",
+};
 
 // https://github.com/vuejs/vitepress/issues/529#issuecomment-1151186631
 const customElements = [
@@ -114,6 +136,8 @@ export default defineConfig({
     config: (md) => {
       md.use(markdownItKatex);
     },
+    // TODO: figure out the current types of language configs
+    languages: [substanceLang as any, domainLang as any, styleLang as any],
   },
   vue: {
     template: {

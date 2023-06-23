@@ -2,7 +2,7 @@
 
 This is the first diagram we will make together. This is the equivalent of the `print("Hello World")` program for Penrose. To make any mathematical diagram, we first need to visualize some **shapes** that we want. In this tutorial, we will learn about how to build a triple (`.domain`, `.substance`, `.style`) for a simple diagram containing two circles.
 
-👉 [**Open this online workspace**](pathname:///try/index.html?example_trio=penrose/penrose/main/packages/examples/src/tutorials/code/tutorial1) in a separate tab to follow along!
+👉 [**Open this online workspace**](pathname:///try/index.html?examples=tutorials%2Ftutorial1) in a separate tab to follow along!
 
 ## Goal
 
@@ -12,7 +12,7 @@ This is what you will achieve at the end of this tutorial. If you are familiar w
 
 ## 📄 Domain
 
-It follows naturally that our mathematical **domain** is Set Theory. Therefore, we can name our domain file `setTheory.domain`.
+It follows naturally that our mathematical **domain** is Set Theory. Let's take a look at our `.domain` file.
 
 Recall that a `.domain` file defines the possible types of objects in our domain. Essentially, we are _teaching_ Penrose the necessary vocabulary that we use to communicate our concept. For example, recall our example of a house from the introduction. Penrose has no idea that there are objects of type "plant" or "furniture" in a house, but we can describe them to Penrose using the `type` keyword.
 
@@ -22,9 +22,9 @@ For example, if we want Penrose to know that there are objects of type plant, we
 
 ### ❓ What's the most fundamental type of element in Set Theory? (hint: the name gives it away.)
 
-The answer is a **Set**. A set is a **type** of element in set theory. Therefore in our `setTheory.domain`, we write the following line:
+The answer is a **Set**. A set is a **type** of element in set theory. Therefore in our `.domain`, we write the following line:
 
-```
+```substance
 type Set
 ```
 
@@ -34,26 +34,26 @@ If you look closely at the repository, we have a [domain file](https://github.co
 
 ## 📄 Substance
 
-Since we are visualizing 2 sets, they are **substances** of this diagram.
+Since we are visualizing 2 sets, they are **substances** of this diagram. These go in our `.substance` file.
 
 We declare a substance by first declaring its _type_ followed by its _name_. The name will not appear in the diagram unless you choose to label your substances, therefore in this exercise, it doesn't matter how you name your sets.
 
-```
+```substance
 Set A
 Set B
 ```
 
 Now, Penrose will know that you want two substances of type `Set` in your diagram. 🎉
 
-Here we have capitalized `Set` because we did so in our `setTheory.domain` file. If we had written`type set` instead, we would declare our set with `set A` here. There is no magic here, you define your Penrose world completely. 🌎✨
+Here we have capitalized `Set` because we did so in our `.domain` file. If we had written`type set` instead, we would declare our set with `set A` here. There is no magic here, you define your Penrose world completely. 🌎✨
 
 ## 📄 Style
 
-For style, we have a little more work to do. If you are familiar with HTML/CSS, a `.style` file is essentially a `.css` file for your HTML (which would be our `.substance` file). We will rename our provided `.style` file to `twoSets.style`.
+For style, we have a little more work to do. If you are familiar with HTML/CSS, a `.style` file is essentially a `.css` file for your HTML (which would be our `.substance` file).
 
-We first need to specify the dimensions of the canvas that our diagram will be drawn on. To do so, you can write the following code anywhere in `twoSets.style`. We recommend using a canvas size of 800x700.
+We first need to specify the dimensions of the canvas that our diagram will be drawn on. To do so, you can write the following code anywhere in `.style`. We recommend using a canvas size of 800x700.
 
-```
+```style
 canvas {
   width = -- [some width]
   height = -- [some height]
@@ -70,19 +70,19 @@ Note that the syntax is _very_ similar to the mathematical way of talking about 
 
 In this case, our `Type` is `Set`, and we want all of our sets to be circles. We can make that happen by setting some field of each set to a Shape object. In the example below, we name the field `.icon`. It could be named whatever you want, `.foo`, `.shape`, even `.ImALittleTeapot` would work, as long as we are assigning it to a Shape object. Penrose will detect the Shape object and use it to render each `Set` as that object.
 
-```
+```style
 forall Set x {
     x.icon = -- [some shape object]
 }
 ```
 
-So, what are the shapes we can use? Currently, the system supports 12 different shapes, and you can find the specs for every shape [here](/docs/ref). It is a page that you will visit frequently as you work in Penrose.
+So, what are the shapes we can use? Currently, the system supports 12 different shapes, and you can find the specs for every shape [here](/docs/ref/style/shapes-overview). It is a page that you will visit frequently as you work in Penrose.
 
 [This](/docs/ref/style/shapes/circle) is the specification for the shape **Circle**, and all the other shapes we have available are documented in the same way. You can see a table that lists out the different properties you can manipulate, along with the default values for any properties that aren't randomly generated.
 
 When we construct the `Circle` object for our Set, we need to look back at our goal diagram. Our desired circles do not have strokes, therefore we will set `strokeWidth : 0.0`. (Actually, we could leave that out as well, because it is the default for `strokeWidth` in `Circle`.) For all the other properties that we did not specify, Penrose will choose the best value for them based on optimization, so you do not have to worry.
 
-```
+```style
 forall Set x {
     x.icon =  Circle {
         strokeWidth : 0.0
@@ -96,23 +96,11 @@ And that's a wrap! 🎉
 
 Now it's time to see all of our hard work (drumroll please 🥁)!
 
-### In the editor
-
 Click the `Compile` button.
-
-### Locally
-
-To compile your Penrose programs locally (more detailed description [here](https://github.com/penrose/penrose/wiki/Getting-started)), you need to do the following:
-
-- Open two terminals at the Penrose root directory.
-- In the first terminal, run `yarn start` to launch Penrose on your computer and get the browser window to show up.
-- The pattern for sending the three files we edited (otherwise known as a **triple**) to the Penrose server that we just launched in the previous step is as follows: `npx roger watch <path-to-substance> <path-to-style> <path-to-domain>`
-  - So we need to replace each of the `<path-to>` with the actual path to the triple in the `tutorial1` directory. For example, if I had saved the `tutorials` repo at `~/repos/`, then I would run: `npx roger watch ~/repos/penrose/packages/examples/src/tutorials/code/tutorial1/twoSets.substance ~/repos/penrose/packages/examples/src/tutorials/code/tutorial1/twoSets.style ~/repos/penrose/packages/examples/src/tutorials/code/tutorial1/setTheory.domain`
-- Refresh your Penrose window!
 
 ## Exercise
 
-We have now covered the differences between and usage of the `.domain`, `.substance` and `style` files. We have provided 3 exercises for you to help solidify the basics. You can work on each of these within the existing files - no need to make new ones. **Hint:** Make use of the shape specs [here](/docs/ref).
+We have now covered the differences between and usage of the `.domain`, `.substance` and `style` files. We have provided 3 exercises for you to help solidify the basics. You can work on each of these within the existing files - no need to make new ones. **Hint:** Make use of the shape specs [here](/docs/ref/style/shapes-overview).
 
 _Since we are not defining all the properties that control how the shape will look on-screen (location, color, etc), Penrose will optimize and make those decisions for you. Therefore when you click the resample button, you will get a new diagram that might have varying appearances, and here we've provided some sample results of the same Penrose program. So do not worry if your diagram does not look the exact same as ours._
 

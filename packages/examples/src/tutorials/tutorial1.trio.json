@@ -1,0 +1,6 @@
+{
+  "substance": "./code/tutorial1/twoSets.substance",
+  "style": ["./code/tutorial1/twoSets.style"],
+  "domain": "./code/tutorial1/setTheory.domain",
+  "variation": ""
+}
