@@ -294,6 +294,14 @@
     "name": "Ray Intersection Tests",
     "gallery": false
   },
+  "curve-examples/catmull-rom/catmull-rom": {
+    "name": "Catmull-Rom Interpolation Test",
+    "gallery": false
+  },
+  "stochastic-process/stochastic-process": {
+    "name": "Stochastic Process Test",
+    "gallery": false
+  },
   "solid/eigenspace": { "trio": false },
   "solid/triangles": { "trio": false },
   "solid/vectors": { "trio": false }

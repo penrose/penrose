@@ -1,0 +1,6 @@
+{
+  "substance": "./test.substance",
+  "style": ["./catmull-rom.style"],
+  "domain": "./catmull-rom.domain",
+  "variation": "UranusYak398"
+}
