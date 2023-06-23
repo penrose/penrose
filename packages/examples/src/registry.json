@@ -15,6 +15,10 @@
     "name": "Walk on Stars - Signed Angle Outside",
     "gallery": true
   },
+  "spectral-graphs/examples/7d-cube": {
+    "name": "7D Cube",
+    "gallery": true
+  },
   "group-theory/quaternion-cayley-graph": {
     "name": "Quaternions as Cayley graph",
     "gallery": true
@@ -69,6 +73,10 @@
   "graph-domain/textbook/sec1/fig4": {
     "name": "Communications Network with One-Way Communications Links",
     "gallery": false
+  },
+  "spectral-graphs/examples/hexagonal-lattice": {
+    "name": "Hexagonal Lattice Graph",
+    "gallery": true
   },
   "graph-domain/textbook/sec1/fig5": {
     "name": "Computer Network with Multiple One-Way Links",
@@ -180,7 +188,7 @@
     "name": "Two 3D Triangles",
     "gallery": true
   },
-  "random-sampling/test": { "name": "Random Sampling", "gallery": false },
+  "random-sampling/test": { "name": "Random Sampling", "gallery": true },
   "geometry-domain/textbook_problems/c11p12": {
     "name": "Circle Example",
     "gallery": true
@@ -343,7 +351,7 @@
     "name": "Curved graph example with boxes",
     "gallery": false
   },
-  "curve-examples/blobs": { "name": "Blobs", "gallery": false },
+  "curve-examples/blobs": { "name": "Blobs", "gallery": true },
   "curve-examples/space-curves": { "name": "Space Curves", "gallery": false },
   "geometric-queries/ray-intersect/test-group": {
     "name": "Ray Casting",
@@ -394,10 +402,6 @@
   "solid/vectors": { "trio": false },
   "spectral-graphs/examples/4x4-sudoku-graph": {
     "name": "4 x 4 Sudoku Graph",
-    "gallery": false
-  },
-  "spectral-graphs/examples/hexagonal-lattice": {
-    "name": "Hexagonal Lattice Graph",
     "gallery": false
   },
   "spectral-graphs/examples/dodecahedral-graph": {
