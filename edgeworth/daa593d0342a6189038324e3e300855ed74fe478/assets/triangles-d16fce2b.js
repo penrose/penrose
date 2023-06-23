@@ -1,0 +1,1 @@
+import{r as t,T as a}from"./triangles-fa607418.js";import"./index-e5d181b5.js";const i=async()=>{const e=document.createElement("div");return await new Promise(n=>{const r=()=>{n(void 0)};t(()=>a({seed:"foobar",theta:0,onFinish:r}),e)}),e.innerHTML};export{i as default};
