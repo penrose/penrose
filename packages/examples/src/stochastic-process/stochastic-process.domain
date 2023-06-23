@@ -1,0 +1,8 @@
+type StochasticProcess
+type Point
+type Step
+
+constructor Step( Point p0, Point p1 )
+predicate startsAt( StochasticProcess X, Point p )
+function endPoint( StochasticProcess X ) -> Point
+
