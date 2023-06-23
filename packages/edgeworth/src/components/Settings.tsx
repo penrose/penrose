@@ -18,6 +18,7 @@ import { compileDomain, Env, showError } from "@penrose/core";
 import c04p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c04p01.substance";
 import React from "react";
 import Latex from "react-latex-next";
+import { OPENAI_API_KEY } from "../../env.js";
 import { Preset, presets } from "../examples.js";
 import {
   DeclTypes,
@@ -390,7 +391,84 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
           <ButtonContainer>
             <Button
               onClick={() => {
-                this.setState({ substance: this.state.llmInput });
+                let output = "";
+
+                const apiUrl = "https://api.openai.com/v1/chat/completions";
+
+                const headers = {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${OPENAI_API_KEY}`,
+                };
+
+                const prompt = `
+                  You are a code generator that is generating a new program in the Substance programming language, 
+                  which draws from the Domain programming language program also given below. To write comments, begin with \`--\`.\n
+                  
+                  We have been working on a platform called Penrose for authoring mathematical diagrams. 
+                  The system involves a family of 3 domain specific languages: 
+                  Substance (for specifying the mathematical objects and the relationships between those objects, 
+                  Style (for mapping the mathematical objects to shapes and mathematical relationships to layout constraints and objectives), 
+                  and Domain (for specifying the types of mathematical objects and relationships; this is a meta-language or schema language). 
+                  Those three programs are used to synthesize a layout problem which we then solve to create a corresponding diagram.\n
+                  
+                  Here is a Domain program which would inform a Substance program:\n
+
+                  \`\`\`\n
+                  type Vertex\n
+                  predicate Arc(Vertex a, Vertex b)\n
+                  predicate HighlightVertex(Vertex a)\n
+                  predicate HighlightArc(Vertex a, Vertex b)\n
+                  \`\`\`\n
+
+                  Here is a sample Substance program describing a directed graph:\n
+
+                  \`\`\`\n
+                  Vertex x, y, z, w, u, v\n
+                  \n
+                  Arc(x, y)\n
+                  Arc(x, z)\n
+                  Arc(y, z)\n
+                  Arc(z, w)\n
+                  Arc(w, u)\n
+                  Arc(u, v)\n
+                  Arc(x, v)\n
+                  \n
+                  HighlightVertex(x)\n
+                  HighlightArc(x,y)\n
+                  \n
+                  AutoLabel All\n
+                  \n
+                  \`\`\`\n
+
+                  According to Wikipedia, a Hamiltonian cycle (or Hamiltonian circuit) 
+                  is a cycle that visits each vertex exactly once.\n
+
+                  Question: Given the context above, can you generate a new Substance program which describes \n
+                  ${this.state.llmInput}? Return only the Substance program; explain your reasoning in Substance comments.`;
+
+                const data = {
+                  model: "gpt-3.5-turbo-16k",
+                  messages: [{ role: "user", content: `${prompt}` }],
+                  max_tokens: 5000,
+                  temperature: 0.7,
+                };
+
+                fetch(apiUrl, {
+                  method: "POST",
+                  headers: headers,
+                  body: JSON.stringify(data),
+                })
+                  .then((response) => response.json())
+                  .then((result) => {
+                    // Process the result
+                    console.log(result.choices[0]);
+                    output = result.choices[0].message.content;
+                    this.setState({ substance: output });
+                  })
+                  .catch((error) => {
+                    // Handle any errors
+                    console.error("Error:", error);
+                  });
               }}
               color="primary"
               variant="contained"
