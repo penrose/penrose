@@ -1038,26 +1038,6 @@ export const compDict = {
     returns: valueT("Real2"),
   },
 
-  pointAtIndex: {
-    name: "pointAtIndex",
-    description: "Returns the point with the given index from a list.",
-    params: [
-      { name: "points", type: realNMT(), description: "list of points" },
-      { name: "index", type: posIntT(), description: "index of point" },
-    ],
-    body: (
-      _context: Context,
-      points: ad.Num[][],
-      index: number
-    ): VectorV<ad.Num> => {
-      return {
-        tag: "VectorV",
-        contents: points[index],
-      };
-    },
-    returns: valueT("Real2"),
-  },
-
   averagePoint: {
     name: "averagePoint",
     description: "Returns the average (mean) of all points in a list.",
