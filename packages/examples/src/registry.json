@@ -44,6 +44,9 @@
     "name": "Two Perpendicular Vectors",
     "gallery": true
   },
+  "tutorials/tutorial1": { "name": "Tutorial 1 - Two Sets" },
+  "tutorials/tutorial2": { "name": "Tutorial 2 - Subset" },
+  "tutorials/tutorial3": { "name": "Tutorial 3 - Vector" },
   "molecules/nitricacid-lewis": {
     "name": "Lewis Structure of Nitric Acid",
     "gallery": false
@@ -378,7 +381,27 @@
     "name": "Ray Intersection Tests",
     "gallery": false
   },
+  "curve-examples/catmull-rom/catmull-rom": {
+    "name": "Catmull-Rom Interpolation Test",
+    "gallery": false
+  },
+  "stochastic-process/stochastic-process": {
+    "name": "Stochastic Process Test",
+    "gallery": false
+  },
   "solid/eigenspace": { "trio": false },
   "solid/triangles": { "trio": false },
-  "solid/vectors": { "trio": false }
+  "solid/vectors": { "trio": false },
+  "spectral-graphs/examples/4x4-sudoku-graph": {
+    "name": "4 x 4 Sudoku Graph",
+    "gallery": false
+  },
+  "spectral-graphs/examples/hexagonal-lattice": {
+    "name": "Hexagonal Lattice Graph",
+    "gallery": false
+  },
+  "spectral-graphs/examples/dodecahedral-graph": {
+    "name": "Dodecahedral Graph",
+    "gallery": false
+  }
 }

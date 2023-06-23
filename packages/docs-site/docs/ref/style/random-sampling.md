@@ -2,14 +2,14 @@
 
 Several functions allow values or points to be sampled at random. These values are effectively fixed constants that depend only on the current `variation` (which determines the random seed). Unlike unknown values `?`, they cannot be optimized—just as constants like `1.23` cannot be optimized. For instance, in the Style code
 
-```
+```style
 scalar x = random(0,100)
 encourage x == 50
 ```
 
 the `encourage` statement will have no effect on the value of `x`. Randomly-sampled constants can of course be used to define other quantities, which can in turn be optimized. For instance,
 
-```
+```style
 -- construct a vector v
 scalar L = random(1,2) -- pick a random length between 1 and 2
 scalar θ = ? -- angle is unknown

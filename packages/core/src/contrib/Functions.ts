@@ -1008,6 +1008,115 @@ export const compDict = {
     returns: valueT("PathCmd"),
   },
 
+  firstPoint: {
+    name: "firstPoint",
+    description: "Returns the first point in a list.",
+    params: [
+      { name: "points", type: realNMT(), description: "list of points" },
+    ],
+    body: (_context: Context, points: ad.Num[][]): VectorV<ad.Num> => {
+      return {
+        tag: "VectorV",
+        contents: points[0],
+      };
+    },
+    returns: valueT("Real2"),
+  },
+
+  lastPoint: {
+    name: "lastPoint",
+    description: "Returns the last point in a list.",
+    params: [
+      { name: "points", type: realNMT(), description: "list of points" },
+    ],
+    body: (_context: Context, points: ad.Num[][]): VectorV<ad.Num> => {
+      return {
+        tag: "VectorV",
+        contents: points[points.length - 1],
+      };
+    },
+    returns: valueT("Real2"),
+  },
+
+  averagePoint: {
+    name: "averagePoint",
+    description: "Returns the average (mean) of all points in a list.",
+    params: [
+      { name: "points", type: realNMT(), description: "list of points" },
+    ],
+    body: (_context: Context, points: ad.Num[][]): VectorV<ad.Num> => {
+      let mean: ad.Num[] = [0, 0];
+      for (let i = 0; i < points.length; i++) {
+        mean = ops.vadd(mean, points[i]);
+      }
+      mean = ops.vdiv(mean, points.length);
+      return {
+        tag: "VectorV",
+        contents: mean,
+      };
+    },
+    returns: valueT("Real2"),
+  },
+
+  interpolatingSpline: {
+    name: "interpolatingSpline",
+    description:
+      "Returns path data for a curve that smoothly interpolates the given points.  Interpolation is performed via a Catmull-Rom spline.",
+    params: [
+      {
+        name: "pathType",
+        type: pathTypeT(),
+        description: `either "open" or "closed."`,
+      },
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points to be interpolated",
+      },
+      {
+        name: "tension",
+        type: realT(),
+        description: "smoothness of curve (0=piecewise linear, .25=default)",
+        default: 0.25,
+      },
+    ],
+    body: (
+      _context: Context,
+      pathType: string,
+      points: ad.Num[][],
+      tension: ad.Num
+    ): PathDataV<ad.Num> => {
+      return catmullRom(_context, pathType, points, tension);
+    },
+    returns: valueT("PathCmd"),
+  },
+
+  diffusionProcess: {
+    name: "diffusionProcess",
+    description:
+      "Return `n` points sampled from a diffusion process starting at `X0`, with covariance matrix `A` and constant drift `omega`.  This path approximately integrates the stochastic differential equation dX_t = omega dt + A dW_t, where W_t is a Wiener process.",
+    params: [
+      { name: "n", type: posIntT(), description: "number of points" },
+      { name: "X0", type: real2T(), description: "starting location" },
+      { name: "A", type: realNMT(), description: "covariance matrix" },
+      { name: "omega", type: real2T(), description: "drift direction" },
+    ],
+    body: (
+      _context: Context,
+      n: number,
+      X0: ad.Num[],
+      A: ad.Num[][],
+      omega: ad.Num[]
+    ): PtListV<ad.Num> => {
+      const Xt = diffusionProcess(_context, n, X0, A, omega);
+      return {
+        tag: "PtListV",
+        contents: Xt.map(toPt),
+      };
+    },
+    returns: valueT("Real2N"),
+  },
+
   /**
    * Return two points parallel to line `s1` using its normal line `s2`.
    */
@@ -2016,20 +2125,9 @@ export const compDict = {
       "Sample a normal distribution with mean 0 and standard deviation 1.",
     params: [],
     body: ({ makeInput }: Context): FloatV<ad.Num> => {
-      const u1 = makeInput({
-        init: { tag: "Sampled", sampler: uniform(0, 1) },
-        stages: new Set(),
-      });
-      const u2 = makeInput({
-        init: { tag: "Sampled", sampler: uniform(0, 1) },
-        stages: new Set(),
-      });
-
-      const Z = mul(sqrt(mul(-2, ln(u1))), cos(mul(2 * Math.PI, u2)));
-
       return {
         tag: "FloatV",
-        contents: Z,
+        contents: randn({ makeInput }),
       };
     },
     returns: valueT("Real"),
@@ -5326,4 +5424,73 @@ const tickPlacement = (
     pts.push(add(pts[i - 1], shift));
   }
   return pts;
+};
+
+const randn = ({ makeInput }: Context): ad.Num => {
+  const u1 = makeInput({
+    init: { tag: "Sampled", sampler: uniform(0, 1) },
+    stages: new Set(),
+  });
+  const u2 = makeInput({
+    init: { tag: "Sampled", sampler: uniform(0, 1) },
+    stages: new Set(),
+  });
+
+  return mul(sqrt(mul(-2, ln(u1))), cos(mul(2 * Math.PI, u2)));
+};
+
+const catmullRom = (
+  _context: Context,
+  pathType: string,
+  points: ad.Num[][],
+  tension: ad.Num
+): PathDataV<ad.Num> => {
+  const n = points.length;
+
+  // compute tangents, assuming curve is closed
+  const tangents: ad.Num[][] = [];
+  for (let j = 0; j < n; j++) {
+    const i = (j - 1 + n) % n;
+    const k = (j + 1) % n;
+    tangents[j] = ops.vmul(tension, ops.vsub(points[k], points[i]));
+  }
+
+  // if path is open, replace first/last tangents
+  if (pathType === "open") {
+    tangents[0] = ops.vmul(tension, ops.vsub(points[1], points[0]));
+    tangents[n - 1] = ops.vmul(tension, ops.vsub(points[n - 1], points[n - 2]));
+  }
+
+  const path = new PathBuilder();
+  path.moveTo(toPt(points[0]));
+  const m = pathType === "open" ? n - 1 : n;
+  for (let i = 0; i < m; i++) {
+    const j = (i + 1) % n;
+    path.bezierCurveTo(
+      toPt(ops.vadd(points[i], tangents[i])),
+      toPt(ops.vsub(points[j], tangents[j])),
+      toPt(points[j])
+    );
+  }
+
+  if (pathType === "closed") path.closePath();
+
+  return path.getPath();
+};
+
+const diffusionProcess = (
+  _context: Context,
+  n: number,
+  X0: ad.Num[],
+  A: ad.Num[][],
+  omega: ad.Num[]
+): ad.Num[][] => {
+  const Xt: ad.Num[][] = [];
+  Xt[0] = X0;
+  for (let i = 1; i < n; i++) {
+    const Wt = [randn(_context), randn(_context)];
+    Xt[i] = ops.vadd(ops.vadd(Xt[i - 1], ops.mvmul(A, Wt)), omega);
+  }
+
+  return Xt;
 };
