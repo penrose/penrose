@@ -132,6 +132,12 @@ _Constructors_ in Penrose are functionally equivalent to functions, with the sam
 constructor constructor_name (argument_list) -> output_type
 ```
 
+Optionally, where the constructor name is the same as the output type, constructors may omit the output type:
+
+```domain
+constructor constructor_name (argument_list)
+```
+
 ## Comments
 
 _Comments_ are lines in the schema that are ignored by the Penrose parser. They are for documentation purposes, and are not involved in the generation of the diagrams. In the _domain_ schema, they start with two dashes:
