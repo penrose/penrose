@@ -7,12 +7,12 @@
     "name": "Sets as Tree Diagram",
     "gallery": false
   },
-  "set-theory-domain/tree-venn-3d": {
-    "name": "Sets as Venn Diagram in 2.5D",
-    "gallery": true
-  },
   "group-theory/quaternion-multiplication-table": {
     "name": "Quaternions as table",
+    "gallery": true
+  },
+  "walk-on-spheres/SignedAngleOutside": {
+    "name": "Walk on Stars - Signed Angle Outside",
     "gallery": true
   },
   "group-theory/quaternion-cayley-graph": {
@@ -20,16 +20,24 @@
     "gallery": true
   },
   "atoms-and-bonds/wet-floor": { "name": "Wet Floor", "gallery": true },
+  "set-theory-domain/tree-venn-3d": {
+    "name": "Sets as Venn Diagram in 2.5D",
+    "gallery": true
+  },
   "atoms-and-bonds/one-water-molecule": {
     "name": "A Water Molecule",
     "gallery": false
   },
-  "set-theory-domain/continuousmap": {
-    "name": "Continuous Map",
+  "graph-domain/other-examples/hamiltonian-cycle": {
+    "name": "Hamiltonian Cycle",
     "gallery": true
   },
-  "walk-on-spheres/SignedAngleOutside": {
-    "name": "Walk on Stars - Signed Angle Outside",
+  "walk-on-spheres/walk-on-stars": {
+    "name": "Walk on Stars - Laplace Estimator",
+    "gallery": true
+  },
+  "set-theory-domain/continuousmap": {
+    "name": "Continuous Map",
     "gallery": true
   },
   "linear-algebra-domain/two-vectors-perp": {
@@ -43,10 +51,6 @@
   "exterior-algebra/vector-wedge": {},
   "shape-spec/all-shapes": {},
   "shape-spec/arrowheads": {},
-  "graph-domain/other-examples/hamiltonian-cycle": {
-    "name": "Hamiltonian Cycle",
-    "gallery": true
-  },
   "graph-domain/textbook/sec1/fig1": {
     "name": "Computer Network",
     "gallery": false
@@ -209,10 +213,6 @@
     "name": "Walk on Spheres - Off-Center Estimator",
     "gallery": false
   },
-  "walk-on-spheres/walk-on-stars": {
-    "name": "Walk on Stars - Laplace Estimator",
-    "gallery": true
-  },
   "shape-distance/points-around-star": {},
   "shape-distance/points-around-polyline": {},
   "shape-distance/points-around-line": {},
@@ -221,6 +221,10 @@
   "animation/center-shrink-circle": {},
   "structural-formula/molecules/caffeine": {
     "name": "A Caffeine Molecule",
+    "gallery": false
+  },
+  "structural-formula/reactions/methane-combustion": {
+    "name": "Methane Combustion Reaction",
     "gallery": true
   },
   "mobius/mobius": {},
