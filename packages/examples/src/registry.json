@@ -173,7 +173,7 @@
     "name": "Two 3D Triangles",
     "gallery": true
   },
-  "random-sampling/test": { "name": "Random Sampling", "gallery": true },
+  "random-sampling/test": { "name": "Random Sampling", "gallery": false },
   "geometry-domain/textbook_problems/c11p12": {
     "name": "Circle Example",
     "gallery": true
@@ -301,7 +301,7 @@
   },
   "triangle-mesh-2d/diagrams/halfedge-mesh": {
     "name": "Half Edge Mesh",
-    "gallery": true
+    "gallery": false
   },
   "triangle-mesh-2d/diagrams/relative-orientation": {
     "name": "Relative Orientation",
@@ -337,18 +337,18 @@
     "gallery": false
   },
   "curve-examples/blobs": { "name": "Blobs", "gallery": false },
-  "curve-examples/space-curves": { "name": "Space Curves", "gallery": true },
+  "curve-examples/space-curves": { "name": "Space Curves", "gallery": false },
   "geometric-queries/ray-intersect/test-group": {
     "name": "Ray Casting",
     "gallery": true
   },
   "ray-tracing/path-trace": {
     "name": "Path Tracing",
-    "gallery": true
+    "gallery": false
   },
   "ray-tracing/bidirectional": {
     "name": "Bidirectional Path Tracing",
-    "gallery": true
+    "gallery": false
   },
   "ray-tracing/next-event-estimation": {
     "name": "Next Event Estimation",
