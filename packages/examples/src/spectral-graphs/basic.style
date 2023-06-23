@@ -1,0 +1,49 @@
+canvas {
+  width = 500
+  height = 500
+}
+
+color {
+  black = #000000
+  gray = #5b5b5b
+}
+
+forall Node n {
+    vec2 n.center = (?, ?)
+    scalar n.normsq = normsq(n.center)
+    shape n.icon = Circle {
+        center: n.center
+        r: 3
+        fillColor: color.black
+    }
+}
+
+forall Edge e; Node a; Node b
+where e := MakeEdge(a, b) {
+    scalar e.distsq = vdistsq(a.center, b.center)
+    shape e.icon = Line {
+        start: a.center
+        end: b.center
+        strokeWidth: 1
+        strokeColor: color.gray
+    }
+}
+
+forall Node n; Edge e {
+    e.icon below n.icon
+}
+
+collect Node n into nodes {
+    normsqs = listof normsq from nodes
+    centers = listof center from nodes
+    scalar scale = (canvas.width / 5) * (canvas.height / 5)
+    ensure sum(normsqs) / count(normsqs) == scale
+    ensure norm(sumVectors(centers)) == 0
+}
+
+collect Edge e into edges
+where e := MakeEdge(a, b)
+foreach Node a; Node b {
+    distsqs = listof distsq from edges
+    encourage sum(distsqs) == 0
+}

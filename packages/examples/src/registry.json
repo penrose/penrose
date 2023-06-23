@@ -304,5 +304,17 @@
   },
   "solid/eigenspace": { "trio": false },
   "solid/triangles": { "trio": false },
-  "solid/vectors": { "trio": false }
+  "solid/vectors": { "trio": false },
+  "spectral-graphs/examples/4x4-sudoku-graph": {
+    "name": "4 x 4 Sudoku Graph",
+    "gallery": false
+  },
+  "spectral-graphs/examples/hexagonal-lattice": {
+    "name": "Hexagonal Lattice Graph",
+    "gallery": false
+  },
+  "spectral-graphs/examples/dodecahedral-graph": {
+    "name": "Dodecahedral Graph",
+    "gallery": false
+  }
 }
