@@ -2,7 +2,7 @@
 
 So far, we've directly declared substances in our diagram, and we've learned how to define relationships between our substances by using predicates.
 
-Now we will introduce functions in Penrose, which allow us to compose atomic substances in the diagram and define **new** substances based on **existing** ones. It's a very powerful feature that you will find super convenient in your journey as a Penrose developer.
+Now we will introduce functions in Penrose, which allow us to compose atomic substances in the diagram and define **new** substances based on **existing** ones. It's a very powerful feature that you will find super convenient in your journey as a Penrose diagrammer.
 
 ## Goal
 
@@ -14,7 +14,7 @@ In particular, we are visualizing vector addition. Below is the goal diagram for
 
 ## Starter Code
 
-👉 [**Open this online workspace**](pathname:///try/index.html?example_trio=penrose/penrose/main/packages/examples/src/tutorials/code/tutorial3) in a separate tab to follow along!
+👉 [**Open this online workspace**](pathname:///try/index.html?examples=tutorials%2Ftutorial3) in a separate tab to follow along!
 
 If everything is working, when you compile, you should see a vector space labeled `U` with its x-axis and y-axis in your Penrose window. It should look something like this:
 
@@ -40,7 +40,7 @@ Every vector exists in a vector space, and we typically draw them from the origi
 
 We start by writing the selector, which catches any vectors that are in a vector space.
 
-```
+```style
 forall Vector u; VectorSpace U
 where In(u, U) {
   /* draw a vector in vector space */
@@ -49,13 +49,13 @@ where In(u, U) {
 
 Remember, we use Penrose to visualize abstract relationships between objects. We do not have specific values in mind for the vectors, and we want Penrose to decide for us. To do that, we use the `?` symbol to let Penrose know that we will be happy with an optimized value. Therefore we write:
 
-```
+```style
   u.vector = (?, ?)
 ```
 
 Next, vectors are commonly visually represented with single-head arrows ➡️, where the tail is anchored at the origin, and the head points at the vector position in space. Therefore we will need to assign some field of `u` to an `Arrow` shape object to draw an arrow on the screen.
 
-```
+```style
 u.shape = Line {
   start: U.origin
   end : U.origin + u.vector
@@ -70,7 +70,7 @@ Note that the field name `shape` could be replaced by anything you want, we just
 
 Lastly, we need a field to write the variable name of our vector in the diagram.
 
-```
+```style
 u.text = Equation {
   string : u.label /* will be autofilled by Penrose because we set AutoLabel All in .substance */
   fillColor : u.shape.strokeColor /* this way it changes accordingly when we change the arrow's color */
@@ -85,11 +85,10 @@ Just one more step for this task. We will need to place some constraints on how 
 
 To represent these constraints to Penrose, we write the following:
 
-```
+```style
 ensure contains(U.background, u.shape)
 ensure contains(U.background, u.text)
-ensure atDist(u.shape, u.text, 15.0)
-ensure minSize(u.shape)
+ensure vdist(u.shape.end, u.text.center) == 15.0
 
 layer u.text above U.xAxis
 layer u.text above U.yAxis
@@ -105,7 +104,7 @@ layer u.text above U.yAxis
 
 We will write our first function in Penrose together 💫!
 
-```
+```domain
 /* new line in .domain file */
 function addV(Vector, Vector) -> Vector
 ```
@@ -127,7 +126,7 @@ The syntax for composing a new object using a function in Penrose involves a new
 
 The existing code in our sample file already defines the vectors `v` and `w`, so all we need to do is define our resulting vector, `u`. We can do this by writing `u := addV(v, w)`. We also want to make sure that `u` is in our original vector space (denoted `U`) along with our existing vectors `v` and `w`. To do this, we can make use of the predicate `In` (which was defined in the starter code) by writing `In(u, U)`.
 
-```
+```substance
 /* new lines in .substance file ******/
 Vector u := addV(v, w)
 In(u, U)
@@ -143,7 +142,7 @@ Though we have declared our function `addV` in the Domain program and defined th
 
 Again, we start with writing a selector. We have a bit more work to do, since we have 3 vectors and 1 vector space involved. We also need to make sure that `u,v,w` are all in the same vector space. Therefore, our selector will be the following:
 
-```
+```style
 forall Vector u; Vector v; Vector w; VectorSpace U
 where u := addV(v,w); In(u, U); In(v, U); In(w, U)
 ```
@@ -156,7 +155,7 @@ When we manually add 2 vectors, we add their x values and y values to get the ne
 
 Since Penrose has built-in vector functionality (read about more features [here](https://github.com/penrose/penrose/wiki/Style-language-spec#vectors-and-matrices)), to get the sum of two vectors we simply need to add them using the `+` operator. But since all the vectors are offset by the origin vector, we also need to subtract the origin from our sum.
 
-```
+```style
 /* new lines in .style file */
 forall Vector u; Vector v; Vector w; VectorSpace U
 where u := addV(v,w); In(u, U); In(v, U); In(w, U) {

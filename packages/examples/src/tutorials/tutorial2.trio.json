@@ -1,0 +1,6 @@
+{
+  "substance": "./code/tutorial2/subset.substance",
+  "style": ["./code/tutorial2/subset.style"],
+  "domain": "./code/tutorial2/setTheory.domain",
+  "variation": ""
+}

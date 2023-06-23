@@ -6,6 +6,7 @@ import {
   stepNextStage,
   stepState,
 } from "@penrose/core";
+import registry from "@penrose/examples/dist/registry.js";
 import localforage from "localforage";
 import { range } from "lodash";
 import queryString from "query-string";
@@ -26,7 +27,6 @@ import {
   currentWorkspaceState,
   diagramGridState,
   diagramState,
-  exampleTriosState,
   localFilesState,
   settingsState,
   workspaceMetadataSelector,
@@ -348,8 +348,9 @@ export const useCheckURL = () =>
     } else if ("examples" in parsed) {
       const t = toast.loading("Loading example...");
       const id = parsed["examples"];
-      const examples = await snapshot.getPromise(exampleTriosState);
-      const ex = examples.find((e: TrioWithPreview) => e.id === id)!;
+      if (typeof id !== "string") return;
+      const ex = registry.get(id);
+      if (ex === undefined || !ex.trio) return;
       const { domain, style, substance, variation } = await ex.get();
       toast.dismiss(t);
       const styleJoined = style.map(({ contents }: any) => contents).join("\n");
