@@ -1008,40 +1008,6 @@ export const compDict = {
     returns: valueT("PathCmd"),
   },
 
-   /*
-  diffusionProcess: {
-    name: "diffusionProcess",
-    description:
-      "Return `n` points sampled from a diffusion process starting at `X0`, with covariance matrix `A` and constant drift `omega`.  This path approximately integrates the stochastic differential equation dX_t = omega dt + A dW_t, where W_t is a Wiener process.",
-    params: [
-      { name: "n", type: posIntT(), description: "number of points" },
-      { name: "X0", type: real2T(), description: "starting location" },
-      { name: "A", type: realNMT(), description: "covariance matrix" },
-      { name: "omega", type: real2T(), description: "drift direction" },
-    ],
-    body: (
-      _context: Context,
-      n: number,
-      X0: ad.Num[],
-      A: ad.Num[][],
-      omega: ad.Num[]
-    ): PtListV<ad.Num> => {
-
-       let Xt = [ X0 ];
-       for( let i = 1; i < n; i++ ) {
-          const Wt = [ randn(_context), randn(_context) ];
-          Xt.push( ops.vadd( ops.vadd( Xt[i-1], ops.mvmul(A, Wt )), omega ) );
-       }
-
-       return {
-          tag: "PtListV",
-          contents: Xt.map(toPt),
-       };
-    },
-    returns: valueT("Real2N"),
-  },
-*/
-
   interpolatingSpline: {
     name: "interpolatingSpline",
     description:
@@ -1083,36 +1049,21 @@ export const compDict = {
       { name: "X0", type: real2T(), description: "starting location" },
       { name: "A", type: realNMT(), description: "covariance matrix" },
       { name: "omega", type: real2T(), description: "drift direction" },
-      { name: "interpolationType", type: stringT(), description: `"smooth" or "straight"`, default: "straight" },
     ],
     body: (
       _context: Context,
       n: number,
       X0: ad.Num[],
       A: ad.Num[][],
-      omega: ad.Num[],
-      interpolationType: string
-    ): PathDataV<ad.Num> => {
-
-       let Xt: ad.Num[][] = [];
-       Xt[0] = X0;
-       for( let i = 1; i < n; i++ ) {
-          const Wt = [ randn(_context), randn(_context) ];
-          Xt[i] = ops.vadd( ops.vadd( Xt[i-1], ops.mvmul(A,Wt)), omega );
-       }
-
-       if( interpolationType === "smooth" ) {
-          return catmullRom( _context, "open", Xt, 0.25 );
-       }
-       // Otherwise, "straight":
-       const path = new PathBuilder();
-       path.moveTo( toPt(Xt[0]) );
-       for( let i = 1; i < n; i++ ) {
-          path.lineTo( toPt(Xt[i]) );
-       }
-       return path.getPath();
+      omega: ad.Num[]
+    ): PtListV<ad.Num> => {
+       const Xt = diffusionProcess( _context, n, X0, A, omega );
+       return {
+          tag: "PtListV",
+          contents: Xt.map(toPt),
+       };
     },
-    returns: valueT("PathCmd"),
+    returns: valueT("Real2N"),
   },
 
   /**
@@ -5479,3 +5430,22 @@ const catmullRom = (
 
    return path.getPath();
 }
+
+const diffusionProcess = (
+      _context: Context,
+      n: number,
+      X0: ad.Num[],
+      A: ad.Num[][],
+      omega: ad.Num[]
+): ad.Num[][] => {
+
+   let Xt: ad.Num[][] = [];
+   Xt[0] = X0;
+   for( let i = 1; i < n; i++ ) {
+      const Wt = [ randn(_context), randn(_context) ];
+      Xt[i] = ops.vadd( ops.vadd( Xt[i-1], ops.mvmul(A,Wt)), omega );
+   }
+
+   return Xt;
+}
+
