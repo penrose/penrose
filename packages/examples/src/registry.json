@@ -294,6 +294,10 @@
     "name": "Ray Intersection Tests",
     "gallery": false
   },
+  "box-arrow-diagram/computer-architecture": {
+    "name": "Computer Architecture Box-Arrow Diagram",
+    "gallery": true
+  },
   "curve-examples/catmull-rom/catmull-rom": {
     "name": "Catmull-Rom Interpolation Test",
     "gallery": false
