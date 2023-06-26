@@ -8,6 +8,10 @@ import FileButton from "./FileButton.js";
 const parser = new DOMParser();
 const serializer = new XMLSerializer();
 
+const ExampleContainer = styled.div`
+  margin: 0;
+`;
+
 const ExampleTab = styled.div`
   display: flex;
   justify-content: space-between;
@@ -65,7 +69,7 @@ export default function ExamplesBrowser() {
   }
 
   return (
-    <div>
+    <ExampleContainer>
       {examples.contents.map((example, k) => (
         <Example
           example={example}
@@ -74,6 +78,6 @@ export default function ExamplesBrowser() {
           key={`example-${k}`}
         ></Example>
       ))}
-    </div>
+    </ExampleContainer>
   );
 }

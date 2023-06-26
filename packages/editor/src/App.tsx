@@ -1,6 +1,7 @@
 import {
   Action,
   Actions,
+  DockLocation,
   IJsonRowNode,
   Layout,
   Model,
@@ -43,6 +44,7 @@ const mainRowLayout: IJsonRowNode = {
   children: [
     {
       type: "tabset",
+      id: "mainEditor",
       weight: process.env.NODE_ENV === "development" ? 25 : 50,
       children: [
         ...(process.env.NODE_ENV === "development"
@@ -121,6 +123,7 @@ export const layoutModel = Model.fromJson({
         {
           type: "tab",
           name: "examples",
+          id: "examples",
           component: "examplesPanel",
         },
         {
@@ -308,6 +311,11 @@ function App() {
         rootOrientationVertical: isTabletOrMobile && isPortrait,
       })
     );
+    if (isTabletOrMobile && isPortrait) {
+      layoutModel.doAction(
+        Actions.moveNode("examples", "mainEditor", DockLocation.CENTER, 0)
+      );
+    }
   }, [isTabletOrMobile, isPortrait]);
 
   const checkURL = useCheckURL();
