@@ -109,6 +109,9 @@ export const layoutModel = Model.fromJson({
     {
       type: "border",
       location: "left",
+      // auto-expand examples tab on start
+      // selected: process.env.NODE_ENV === "development" ? -1 : 1,
+      selected: 1,
       children: [
         {
           type: "tab",
