@@ -311,6 +311,7 @@ function App() {
         rootOrientationVertical: isTabletOrMobile && isPortrait,
       })
     );
+    // on mobile, move example browser to the center panel
     if (isTabletOrMobile && isPortrait) {
       layoutModel.doAction(
         Actions.moveNode("examples", "mainEditor", DockLocation.CENTER, 0)
