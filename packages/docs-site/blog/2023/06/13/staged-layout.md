@@ -114,6 +114,8 @@ For example, we have built a series of diagrams in 2D Euclidean geometry. Initia
   </div>
 </div>
 
+(Because of issues you'll read about soon, you may need to take a few clicks of the ↻ button to figure out what the diagram is about.)
+
 Conceptually, this diagram illustrates the _incenter_ $P$ of $\triangle JKL$, where $P$ is equidistant from the triangle's sides. The layout problem can be broken down into:
 
 - Lay out points $J$, $K$, and $L$ to form a [non-degenerate triangle](<https://en.wikipedia.org/wiki/Degeneracy_(mathematics)#Triangle>).
@@ -155,7 +157,7 @@ Just like human diagrammers, the optimizer can benefit from some separation of c
 
 As expected, the layout optimizer lays out the triangle first, and then move labels around without moving the triangle itself. This led to massively more reliable layouts for this example and a shorter layout solve time on average. I implemented this by hardcoding layout stages in the optimizer in [an experimental PR](https://github.com/penrose/penrose/pull/1115/files).
 
-## The stage syntax
+## Now you can specify layout stages in Style!
 
 How does Penrose determine the layout stages? Each diagram type might require different a different layout strategy. This is why we designed the Style language first anyway, so why not let users specify this in Style, too? In a [subsequent PR](https://github.com/penrose/penrose/pull/1199), I introduced a more general language feature for layout stages. Here's how it works:
 
@@ -268,4 +270,4 @@ global {
 
 This is not unique to this feature. In Style, it's possible to specify unsolvable layout problems without staging, too! Detecting infeasible layout specification in general is an interesting (probably pretty hard) problem we'd like to explore in the future. Similarly, automatically detecting layout stages from any Style program is also a great research problem.
 
-While we are pushing the frontier of automatic diagram layout further in the research world, we also care about delivering pragmatic solutions that can immediately improve upon the status quo.
+While we are pushing the frontier of automatic diagram layout further in the research world, we also care about delivering pragmatic solutions to the world. We could have easily spent a month trying to automatically stage our optimizer, but spending a few days to ship the Style language feature enabled so many great examples. Balancing research problem-solving and practical toolsmithing is hard, but perhaps that's why I like doing this so much 💙.
