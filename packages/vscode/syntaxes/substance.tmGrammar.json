@@ -31,7 +31,7 @@
       "patterns": [
         {
           "name": "keyword.control.penrose",
-          "match": "\\b(AutoLabel|Label|NoLabel|All)\\b"
+          "match": "\\b(AutoLabel|Label|NoLabel|All|Let)\\b"
         },
         {
           "name": "keyword.operator",
