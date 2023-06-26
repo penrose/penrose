@@ -36,6 +36,7 @@ interface Trio {
   style: string[];
   domain: string;
   variation: string;
+  excludeWarnings?: string[];
 }
 
 // In an async context, communicate with the backend to compile and optimize the diagram
@@ -52,7 +53,8 @@ const render = async (
     styleNames: string[];
     domainName: string;
     id: string;
-  }
+  },
+  excludeWarnings: string[]
 ): Promise<{
   diagram: string;
   metadata: InstanceData;
@@ -68,6 +70,7 @@ const render = async (
     style,
     domain,
     variation,
+    excludeWarnings,
   });
   const compileEnd = process.hrtime(compileStart);
   if (compilerOutput.isErr()) {
@@ -291,6 +294,7 @@ yargs(hideBin(process.argv))
       let prefix = options.path;
       const texLabels = options.texLabels;
       let variation = options.variation as string | undefined;
+      let excludeWarnings: string[] | undefined = undefined;
       if (options.trio.length === 1) {
         const trioPath = options.trio[0] as string;
         prefix = join(trioPath, "..");
@@ -302,14 +306,20 @@ yargs(hideBin(process.argv))
         sub = paths.substance;
         sty = paths.style;
         variation ??= paths.variation;
+        excludeWarnings = paths.excludeWarnings;
       } else {
         // load all three files
         const trio = orderTrio(options.trio as string[]);
         [sub, sty, dom] = [trio[0], [trio[1]], trio[2]];
       }
+
+      if (excludeWarnings === undefined) {
+        excludeWarnings = [];
+      }
+
       const { substance, style, domain } = readTrio(sub, sty, dom, prefix);
       // draw diagram and get metadata
-      const { diagram } = await render(
+      const { diagram, state } = await render(
         variation ?? "",
         substance,
         style,
@@ -322,7 +332,8 @@ yargs(hideBin(process.argv))
           styleNames: sty,
           domainName: dom,
           id: options.trio.join(", "),
-        }
+        },
+        excludeWarnings
       );
       if (options.out) {
         fs.writeFileSync(options.out, diagram);
@@ -331,7 +342,10 @@ yargs(hideBin(process.argv))
         );
       } else {
         console.log(diagram);
-        // TODO: print warning to stderr
+        for (const warning of state.warnings) {
+          const warnStr = showError(warning);
+          console.warn(chalk.yellow("Warning in diagram: " + warnStr));
+        }
       }
     }
   )
@@ -370,8 +384,10 @@ yargs(hideBin(process.argv))
         const sub = paths.substance;
         const sty = paths.style;
         const variation = paths.variation;
+        const excludeWarnings =
+          paths.excludeWarnings === undefined ? [] : paths.excludeWarnings;
         const { substance, style, domain } = readTrio(sub, sty, dom, prefix);
-        const { diagram } = await render(
+        const { diagram, state } = await render(
           variation,
           substance,
           style,
@@ -384,7 +400,8 @@ yargs(hideBin(process.argv))
             styleNames: sty,
             domainName: dom,
             id: trioName,
-          }
+          },
+          excludeWarnings
         );
         // create out folder if it doesn't exist
         if (!fs.existsSync(options.out)) fs.mkdirSync(options.out);
@@ -395,6 +412,10 @@ yargs(hideBin(process.argv))
           chalk.green(`The diagram has been saved as ${resolve(outputPath)}`)
         );
         // TODO: print warning here
+        for (const warning of state.warnings) {
+          const warnStr = showError(warning);
+          console.warn(chalk.yellow("Warning in diagram: " + warnStr));
+        }
       }
     }
   )
