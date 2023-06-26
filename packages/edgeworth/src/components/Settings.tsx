@@ -18,7 +18,6 @@ import { compileDomain, Env, showError } from "@penrose/core";
 import c04p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c04p01.substance";
 import React from "react";
 import Latex from "react-latex-next";
-import { OPENAI_API_KEY } from "../../env.js";
 import { Preset, presets } from "../examples.js";
 import {
   DeclTypes,
@@ -397,7 +396,9 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
 
                 const headers = {
                   "Content-Type": "application/json",
-                  Authorization: `Bearer ${OPENAI_API_KEY}`,
+                  Authorization: `Bearer ${
+                    import.meta.env.VITE_OPENAI_API_KEY
+                  }`,
                 };
 
                 const prompt = `
