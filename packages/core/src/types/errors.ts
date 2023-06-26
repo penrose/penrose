@@ -260,6 +260,7 @@ export interface GroupCycleWarning {
 
 export interface BBoxApproximationWarning {
   tag: "BBoxApproximationWarning";
+  // tail is the top of stack
   stack: [BBoxApproximationWarningItem, ...BBoxApproximationWarningItem[]];
 }
 
