@@ -32,7 +32,7 @@ const incenterOneStage = {
     substance: geometry.substance,
     style: euclideanOneStage,
     domain: geometry.domain,
-    variation: "test3",
+    variation: "test8",
   },
   imageResolver: geometry.style[0].resolver,
 }
@@ -41,7 +41,7 @@ const incenter = {
     substance: geometry.substance,
     style: geometry.style[0].contents,
     domain: geometry.domain,
-    variation: "test",
+    variation: "test20",
   },
   imageResolver: geometry.style[0].resolver,
 }
@@ -56,7 +56,8 @@ In Style, we can write `ensure` and `encourage` statements to declare constraint
 <div>
 For example, we have built a series of diagrams in 2D Euclidean geometry. Initially, the layout engine worked just fine. But as the Style program become a lot more complex, the optimizer started to struggle. Take this diagram as an example.
 
-<div style="width: 55%; float:right; margin-left: 15px; margin-top: 0px">
+<div style="width: 55%; float:right; margin-left: 16px; margin-top: 16px">
+  <StagedDiagram :trio="incenter.trio" :imageResolver="incenter.imageResolver" />
   <StagedDiagram :trio="incenterOneStage.trio" :imageResolver="incenterOneStage.imageResolver" />
 </div>
 
