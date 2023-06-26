@@ -12,7 +12,7 @@ const Container = styled.div`
   box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.2);
   background-color: #fff;
   overflow: hidden;
-  min-height: 400px;
+  min-height: 320px;
 `;
 
 const StartOverlay = styled.div`

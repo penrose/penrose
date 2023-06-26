@@ -109,7 +109,7 @@ For example, we have built a series of diagrams in 2D Euclidean geometry. Initia
 
 <!-- <div style="width: 55%; float:right; margin-left: 16px; margin-top: 16px"> -->
 <div style="display: flex; justify-content: center">
-  <div style="width: 50%">
+  <div style="width: 100%; max-width: 320px">
     <StagedDiagram :trio="incenterOneStage.trio" :imageResolver="incenterOneStage.imageResolver" />
   </div>
 </div>
@@ -150,7 +150,7 @@ Just like human diagrammers, the optimizer can benefit from some separation of c
 - `label`: put all labels near the points they label.
 
 <div style="display: flex; justify-content: center">
-  <div style="width: 50%">
+  <div style="width: 100%; max-width: 320px">
     <StagedDiagram :trio="incenter.trio" :imageResolver="incenter.imageResolver" />
   </div>
 </div>
@@ -225,7 +225,7 @@ forall Point p {
 This is a surprising simple language feature to implement. It required some refactoring of the optimizer to "freeze" and "unfreeze" variables in an optimization problem (thanks to [Sam's PR on variable masking](https://github.com/penrose/penrose/pull/1192)) and less than a day of work for me to implement. But it unleashes the power of **customizing the layout solving strategy** to every Style writer. Beyond a simple shape-label pipeline, for example, [Jiri](https://github.com/jiriminarcik) built graphs with curved edges using an 8-stage layout with repeated stages. As a language designer, it's truly incredible to see what people can do with seemingly simple language features:
 
 <div style="display: flex; justify-content: center">
-  <div style="width: 50%">
+  <div style="width: 100%; max-width: 320px">
     <StagedDiagram :trio="curvedGraph.trio" :imageResolver="curvedGraph.imageResolver" />
   </div>
 </div>
