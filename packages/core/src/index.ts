@@ -371,6 +371,7 @@ export * as Value from "./types/value.js";
 export { showError } from "./utils/Error.js";
 export type { Result } from "./utils/Error.js";
 export {
+  allWarnings,
   describeType,
   hexToRgba,
   prettyPrintExpr,

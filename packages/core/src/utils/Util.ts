@@ -5,6 +5,7 @@ import { Shape, ShapeType } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
 import { A } from "../types/ast.js";
 import { Either, Left, Right } from "../types/common.js";
+import { Warning } from "../types/errors.js";
 import { MayWarn } from "../types/functions.js";
 import { Fn } from "../types/state.js";
 import { BindingForm, Expr, Path } from "../types/style.js";
@@ -1035,5 +1036,18 @@ export const noWarnFn = <T extends any[], S>(
 ): ((...args: T) => MayWarn<S>) => {
   return (...args: T) => noWarn(f(...args));
 };
+
+//#endregion
+
+//#region warnings
+
+export const allWarnings: Warning["tag"][] = [
+  "BBoxApproximationWarning",
+  "GroupCycleWarning",
+  "ImplicitOverrideWarning",
+  "LayerCycleWarning",
+  "NoopDeleteWarning",
+  "ShapeBelongsToMultipleGroups",
+];
 
 //#endregion
