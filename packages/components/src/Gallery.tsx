@@ -11,13 +11,31 @@ const parser = new DOMParser();
 const serializer = new XMLSerializer();
 
 const Container = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 20px;
+  gap: 1em;
+`;
+
+const ExampleContainer = styled.div<{ dark?: boolean; shadow: string }>`
   width: 200px;
   height: 200px;
   padding: 1.5em;
-  box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: ${(props) =>
+    props.dark ? "" : "0px 3px 3px rgba(0, 0, 0, 0.1)"};
   transition: 0.3s;
   &:hover {
-    box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.2);
+    box-shadow: ${(props) =>
+      props.dark
+        ? `0px 1px 2px 0px ${props.shadow},
+          1px 2px 4px 0px ${props.shadow},
+          2px 4px 8px 0px ${props.shadow},
+          2px 4px 16px 0px ${props.shadow}`
+        : "0px 10px 10px rgba(0, 0, 0, 0.2)"};
+
     transform: scale(1.05, 1.05);
   }
 `;
@@ -25,8 +43,10 @@ const Container = styled.div`
 const Example = ({
   example,
   ideLink,
+  dark,
 }: {
   ideLink: string;
+  dark?: boolean;
   example: TrioWithPreview;
 }) => {
   const svgDoc = parser.parseFromString(example.preview!, "image/svg+xml");
@@ -38,15 +58,19 @@ const Example = ({
   const croppedPreview = serializer.serializeToString(svgNode);
   return (
     <a href={`${ideLink}?examples=${example.id}`} target="_blank">
-      <Container
+      <ExampleContainer
+        dark={dark}
+        shadow={"rgb(46, 154, 216, .7)"}
         dangerouslySetInnerHTML={{ __html: croppedPreview }}
-      ></Container>
+      ></ExampleContainer>
     </a>
   );
 };
 
-export default ({ ideLink }: { ideLink: string }) => {
+export default ({ ideLink, dark }: { ideLink: string; dark?: boolean }) => {
   let [examples, setExamples] = useState<TrioWithPreview[]>([]);
+  console.log(dark);
+
   useEffect(() => {
     const load = async () => {
       for (const [id, meta] of registry.entries()) {
@@ -66,10 +90,10 @@ export default ({ ideLink }: { ideLink: string }) => {
     load();
   }, []);
   return (
-    <div style={{ display: "flex", flexWrap: "wrap" }}>
+    <Container>
       {examples.map((e) => {
-        return <Example example={e} ideLink={ideLink}></Example>;
+        return <Example example={e} ideLink={ideLink} dark={dark}></Example>;
       })}
-    </div>
+    </Container>
   );
 };
