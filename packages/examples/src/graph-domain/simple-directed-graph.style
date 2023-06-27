@@ -8,7 +8,7 @@ layout = [dots, arrows, text]
 color {
   black = #000000
   white = #ffffff
-  red = #ff0000
+  redOrange = #FE4A49
 }
 
 num {
@@ -117,11 +117,11 @@ forall Vertex a, b, c, d where Arc(a, b) as e1; Arc(c, d) as e2 {
 }
 
 forall Vertex v where HighlightVertex(v) {
-    override v.dot.fillColor = color.red
-    override v.text.fillColor = color.red
+    override v.dot.fillColor = color.redOrange
+    override v.text.fillColor = color.redOrange
 }
 
 forall Vertex a, b where Arc(a,b) as e; HighlightArc(a,b) {
-    override e.arrow.strokeColor = color.red 
-    override e.pointer.fillColor = color.red
+    override e.arrow.strokeColor = color.redOrange 
+    override e.pointer.fillColor = color.redOrange
 }
