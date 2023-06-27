@@ -131,7 +131,7 @@ In [a GitHub issue about this problem](https://github.com/penrose/penrose/issues
 > [A]t some point it becomes hard to strike a balance between many competing constraints and objectives. Anyone who has ever worked with continuous optimization knows the challenge: you want to simultaneously optimize $f(x)$ and $g(x)$, but if $f$ and $g$ differ on what they consider "good" states $x$, then they will effectively compete—usually reaching a solution that nobody likes.
 > ...designing constraints and objectives becomes (very) hard when you're laying out the diagram all at once, because everything affects everything.
 
-So far, we've managed to create all of diagrams by carefully designing our constraints and objectives to work together. This is a painstaking process that often involved modifying the Penrose system itself. Clearly, we need a better solution.
+So far, we've managed to create diagrams by carefully designing our constraints and objectives to work together. This is a painstaking process that often involved modifying the Penrose system itself. Clearly, we need a better solution.
 
 ## Layout is often done in multiple stages by hand
 
@@ -145,7 +145,7 @@ Notice that I didn't put labels down until the very end, which is a somewhat com
 
 Just like human diagrammers, the optimizer can benefit from some separation of concerns. So the idea of our solution is to **divide the layout optimization problem into multiple stages.** As a simple example, here's the same example as above, but laid out in two stages:
 
-- `shape`: lay out the vertices for $\trianlge JKL$, the incenter $P$, and point $m$.
+- `shape`: lay out the vertices for $\triangle JKL$, the incenter $P$, and point $m$.
 - `label`: put all labels near the points they label.
 
 <div style="display: flex; justify-content: center">
@@ -154,7 +154,7 @@ Just like human diagrammers, the optimizer can benefit from some separation of c
   </div>
 </div>
 
-As expected, the layout optimizer lays out the triangle first, and then move labels around without moving the triangle itself. This led to massively more reliable layouts for this example and a shorter layout solve time on average. I implemented this by hardcoding layout stages in the optimizer in [an experimental PR](https://github.com/penrose/penrose/pull/1115/files).
+As expected, the layout optimizer lays out the triangle first, and then moves labels around without moving the triangle itself. This leads to massively more reliable layouts for this example and a shorter layout solve time on average. I initially experimented with these two layout stages by hardcoding layout stages in the optimizer in [an experimental PR](https://github.com/penrose/penrose/pull/1115/files).
 
 ## Now you can specify layout stages in Style!
 
@@ -221,7 +221,7 @@ forall Point p {
 }
 ```
 
-This is a surprising simple language feature to implement. It required some refactoring of the optimizer to "freeze" and "unfreeze" variables in an optimization problem (thanks to [Sam's PR on variable masking](https://github.com/penrose/penrose/pull/1192)) and less than a day of work for me to implement. But it unleashes the power of **customizing the layout solving strategy** to every Style writer. Beyond a simple shape-label pipeline, for example, [Jiri](https://github.com/jiriminarcik) built graphs with curved edges using an 8-stage layout with repeated stages. As a language designer, it's truly incredible to see what people can do with seemingly simple language features:
+This is a surprisingly simple language feature to implement. It required some refactoring of the optimizer to "freeze" and "unfreeze" variables in an optimization problem (thanks to [Sam's PR on variable masking](https://github.com/penrose/penrose/pull/1192)) and less than a day of work for me to implement. But it unleashes the power of **customizing the layout solving strategy** to every Style writer. Beyond a simple shape-label pipeline, for example, [Jiri](https://github.com/jiriminarcik) built graphs with curved edges using an 8-stage layout with repeated stages. As a language designer, it's truly incredible to see what people can do with seemingly simple language features:
 
 <div style="display: flex; justify-content: center">
   <div style="width: 100%; max-width: 320px">
@@ -267,6 +267,6 @@ global {
 }
 ```
 
-This is not unique to this feature. In Style, it's possible to specify unsolvable layout problems without staging, too! Detecting infeasible layout specification in general is an interesting (probably pretty hard) problem we'd like to explore in the future. Similarly, automatically detecting layout stages from any Style program is also a great research problem.
+The issue is not unique to this feature. In Style, it's possible to specify unsolvable layout problems without staging, too! Detecting infeasible layout specification in general is an interesting (probably pretty hard) problem we'd like to explore in the future. Similarly, automatically detecting layout stages from any Style program is also a great research problem.
 
 While we are pushing the frontier of automatic diagram layout further in the research world, we also care about delivering pragmatic solutions to the world. We could have easily spent a month trying to automatically stage our optimizer, but spending a few days to ship the Style language feature enabled so many great examples. Balancing research problem-solving and practical toolsmithing is hard, but perhaps that's why I like doing this so much 💙.
