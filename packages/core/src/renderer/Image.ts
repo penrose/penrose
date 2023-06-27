@@ -36,6 +36,8 @@ const RenderImage = async (
   attrToNotAutoMap.push(...attrRotation(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrTransformCoords(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrTitle(shape, elem));
+  svg.setAttribute("preserveAspectRatio", shape.preserveAspectRatio.contents);
+  attrToNotAutoMap.push("preserveAspectRatio");
   // Directly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);
 

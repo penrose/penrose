@@ -55,7 +55,10 @@
     "name": "Lewis Structure of Nitric Acid",
     "gallery": false
   },
-  "exterior-algebra/vector-wedge": {},
+  "exterior-algebra/vector-wedge": {
+    "name": "Wedge Product",
+    "gallery": true
+  },
   "shape-spec/all-shapes": {},
   "shape-spec/arrowheads": {},
   "graph-domain/textbook/sec1/fig1": {
@@ -232,7 +235,7 @@
   "animation/center-shrink-circle": {},
   "structural-formula/molecules/caffeine": {
     "name": "A Caffeine Molecule",
-    "gallery": false
+    "gallery": true
   },
   "structural-formula/reactions/methane-combustion": {
     "name": "Methane Combustion Reaction",
@@ -351,6 +354,10 @@
     "name": "Curved graph example with boxes",
     "gallery": false
   },
+  "fancy-text/fancy-text": {
+    "name": "Fancy Text + Equations",
+    "gallery": true
+  },
   "curve-examples/blobs": { "name": "Blobs", "gallery": true },
   "curve-examples/space-curves": { "name": "Space Curves", "gallery": false },
   "geometric-queries/ray-intersect/test-group": {
@@ -395,7 +402,7 @@
   },
   "curve-examples/catmull-rom/catmull-rom": {
     "name": "Catmull-Rom Interpolation Test",
-    "gallery": false
+    "gallery": true
   },
   "stochastic-process/stochastic-process": {
     "name": "Stochastic Process Test",
