@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
 import siggraphTeaser from "@penrose/examples/dist/geometry-domain/siggraph-teaser.trio";
 import treeVenn from "@penrose/examples/dist/set-theory-domain/tree-venn.trio";
+import * as veaury from "veaury";
+import { defineAsyncComponent } from "vue";
 
 const demo = [
   {
@@ -19,9 +20,8 @@ const demo = [
 ];
 
 const Demo = defineAsyncComponent(async () => {
-  const { applyPureReactInVue } = await import("veaury");
-  const { Demo } = await import("@penrose/components");
-  return applyPureReactInVue(Demo);
+  const Demo = (await import("@penrose/components/dist/Demo.js")).default;
+  return veaury.applyPureReactInVue(Demo);
 });
 </script>
 

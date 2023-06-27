@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import * as veaury from "veaury";
 import { withBase } from "vitepress";
 import { defineAsyncComponent } from "vue";
 
 const Gallery = defineAsyncComponent(async () => {
-  const { applyPureReactInVue } = await import("veaury");
-  const { Gallery } = await import("@penrose/components");
-  return applyPureReactInVue(Gallery);
+  const Gallery = (await import("@penrose/components/dist/Gallery.js")).default;
+  return veaury.applyPureReactInVue(Gallery);
 });
 const link = withBase(`/try/index.html`);
 </script>
