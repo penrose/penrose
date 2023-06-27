@@ -23,7 +23,6 @@
     "name": "Quaternions as Cayley graph",
     "gallery": true
   },
-  "atoms-and-bonds/wet-floor": { "name": "Wet Floor", "gallery": true },
   "set-theory-domain/tree-venn-3d": {
     "name": "Sets as Venn Diagram in 2.5D",
     "gallery": true
@@ -179,7 +178,7 @@
   "graph-domain/textbook/sec2/fig16b": {},
   "geometry-domain/textbook_problems/c05p13": {
     "name": "Triangle Incenter",
-    "gallery": true
+    "gallery": false
   },
   "geometry-domain/textbook_problems/c01p01": {
     "name": "Collinear Points",
@@ -429,5 +428,6 @@
   "spectral-graphs/examples/dodecahedral-graph": {
     "name": "Dodecahedral Graph",
     "gallery": true
-  }
+  },
+  "atoms-and-bonds/wet-floor": { "name": "Wet Floor", "gallery": true }
 }
