@@ -54,10 +54,12 @@ export const parseDomain = (
       const ast: DomainProg<C> = results[0];
       return ok(ast);
     } else {
-      return err(parseError(`Unexpected end of input`, lastLocation(parser)));
+      return err(
+        parseError(`Unexpected end of input`, lastLocation(parser), "Domain")
+      );
     }
   } catch (e) {
-    return err(parseError(prettyParseError(e), lastLocation(parser)));
+    return err(parseError(prettyParseError(e), lastLocation(parser), "Domain"));
   }
 };
 

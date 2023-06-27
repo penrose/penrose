@@ -1,9 +1,10 @@
 import _ from "lodash";
 import seedrandom from "seedrandom";
+import { isConcrete } from "../engine/EngineUtils.js";
 import { LineProps } from "../shapes/Line.js";
 import { Shape, ShapeType } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
-import { A } from "../types/ast.js";
+import { A, ASTNode, NodeType, SourceLoc, SourceRange } from "../types/ast.js";
 import { Either, Left, Right } from "../types/common.js";
 import { Fn } from "../types/state.js";
 import { BindingForm, Expr, Path } from "../types/style.js";
@@ -1018,6 +1019,35 @@ export const getAdValueAsString = (
 export const getValueAsShapeList = <T>(val: Value<T>): Shape<T>[] => {
   if (val.tag === "ShapeListV") return val.contents;
   throw new Error("Not a list of shapes");
+};
+
+//#endregion
+
+//#region AST
+
+export type ErrorLoc = {
+  type: NodeType;
+  range: SourceRange;
+};
+
+export const toErrorLoc = (node: {
+  nodeType: NodeType;
+  start: SourceLoc;
+  end: SourceLoc;
+}): ErrorLoc => {
+  return {
+    type: node.nodeType,
+    range: {
+      start: node.start,
+      end: node.end,
+    },
+  };
+};
+
+export const locOrNone = (node: ASTNode<A>): ErrorLoc[] => {
+  if (isConcrete(node)) {
+    return [toErrorLoc(node)];
+  } else return [];
 };
 
 //#endregion

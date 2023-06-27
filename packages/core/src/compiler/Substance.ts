@@ -71,10 +71,14 @@ export const parseSubstance = (
       const ast: SubProg<C> = results[0];
       return ok(ast);
     } else {
-      return err(parseError(`Unexpected end of input`, lastLocation(parser)));
+      return err(
+        parseError(`Unexpected end of input`, lastLocation(parser), "Substance")
+      );
     }
   } catch (e) {
-    return err(parseError(prettyParseError(e), lastLocation(parser)));
+    return err(
+      parseError(prettyParseError(e), lastLocation(parser), "Substance")
+    );
   }
 };
 

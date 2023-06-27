@@ -360,7 +360,7 @@ export type {
 export type { CompFunc } from "./types/functions.js";
 export type { SubProg } from "./types/substance.js";
 export * as Value from "./types/value.js";
-export { showError } from "./utils/Error.js";
+export { errLocs, showError } from "./utils/Error.js";
 export type { Result } from "./utils/Error.js";
 export {
   describeType,
