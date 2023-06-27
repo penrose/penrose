@@ -409,8 +409,12 @@
     "gallery": true
   },
   "stochastic-process/stochastic-process": {
-    "name": "Stochastic Process Test",
-    "gallery": false
+    "name": "Brownian Motion in a Ball",
+    "gallery": true
+  },
+  "stochastic-process/epsilon-shell/AbsorbingBoundary": {
+    "name": "Brownian Motion Absorbed at Boundary",
+    "gallery": true
   },
   "solid/eigenspace": { "trio": false },
   "solid/triangles": { "trio": false },
