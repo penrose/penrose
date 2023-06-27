@@ -1,0 +1,51 @@
+override color {
+  black = #000000
+  white = #ffffff
+  blue = #0F2557
+  lightblue = #28559A
+}
+
+override background {
+    shape icon = Rectangle {
+        center: (0, 0)
+        width: canvas.width
+        height: canvas.height
+        fillColor: color.blue
+    }
+}
+
+forall Vertex v {
+  v.center = (?, ?)
+
+  v.text = Text {
+    center: v.center
+    string: v.label
+    override fillColor: color.white
+    override fontFamily: "Palatino"
+    fontSize: "17px"
+    override strokeColor: color.lightblue
+    strokeWidth: 4
+    paintOrder: "stroke"
+  }
+
+  padding = 4
+  v.dot = Circle {
+    center: v.center
+    r: padding + max(v.text.width, v.text.height) / 2
+    fillColor : #0000
+    strokeColor : color.white
+    strokeWidth: 2
+  }
+  v.dot2 = Circle {
+    center: v.center
+    r: padding + max(v.text.width, v.text.height) / 2
+    override fillColor : color.lightblue
+    strokeColor : #0000
+  }
+  v.text above v.dot2 
+  v.dot above v.text
+
+  encourage shapeDistance(v.dot, v.text) == num.labelDist except dots
+}
+
+
