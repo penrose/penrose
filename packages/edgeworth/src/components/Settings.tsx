@@ -80,7 +80,9 @@ export interface SettingsProps {
     prompt: string,
     sty: string,
     llmInput: string,
-    currentTab: number
+    currentTab: number,
+    domainSelect: string,
+    presetSelect: string
   ) => void;
   onPrompt: (prompt: string) => void;
   defaultDomain: string;
@@ -98,6 +100,8 @@ interface SettingState {
   prompt: string;
   llmInput: string;
   currentTab: number;
+  domainSelect: string;
+  presetSelect: string;
   env?: Env;
 }
 
@@ -171,6 +175,8 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
       prompt: "",
       llmInput: "",
       currentTab: 0,
+      domainSelect: "moleculesDomain",
+      presetSelect: "lewis_0",
     };
   }
 
@@ -288,8 +294,20 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
             id="preset-select"
             label="preset"
             // defaultValue={"c04p01"}
-            defaultValue={"lewis_0"}
-            onChange={(e) => this.handlePreset(e.target.value as string)}
+            value={this.state.presetSelect}
+            onChange={(e) => {
+              const key = e.target.value as string;
+              this.handlePreset(key);
+
+              const domainSelectStr = Object.entries(domains).find(
+                ([_, { domain }]) => domain === presets[key].domain
+              )![0];
+
+              this.setState({
+                presetSelect: key,
+                domainSelect: domainSelectStr,
+              });
+            }}
           >
             {this.presets()}
           </Select>
@@ -394,7 +412,9 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
         this.state.substance,
         this.state.style,
         this.state.llmInput,
-        this.state.currentTab
+        this.state.currentTab,
+        this.state.presetSelect,
+        this.state.domainSelect
       );
   };
 
@@ -514,6 +534,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
       </MenuItem>
     ));
 
+  // NOTE: some graph domains are not yet included
   domains = () =>
     Object.entries(domains).map(([name, { displayName }]: [string, Preset]) => (
       <MenuItem key={name} value={name}>
@@ -551,11 +572,13 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
               labelId="domain-select-label"
               id="domain-select"
               label="domain"
-              // defaultValue={"c04p01"}
-              defaultValue={"moleculesDomain"}
+              value={this.state.domainSelect}
               onChange={(e) => {
-                this.setState({});
                 this.handleDomain(e.target.value as string);
+                this.setState({
+                  presetSelect: "",
+                  domainSelect: e.target.value as string,
+                });
               }}
             >
               {this.domains()}
