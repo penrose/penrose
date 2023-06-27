@@ -55,7 +55,10 @@
     "name": "Lewis Structure of Nitric Acid",
     "gallery": false
   },
-  "exterior-algebra/vector-wedge": {},
+  "exterior-algebra/vector-wedge": {
+    "name": "Wedge Product",
+    "gallery": true
+  },
   "shape-spec/all-shapes": {},
   "shape-spec/arrowheads": {},
   "graph-domain/textbook/sec1/fig1": {
@@ -395,7 +398,7 @@
   },
   "curve-examples/catmull-rom/catmull-rom": {
     "name": "Catmull-Rom Interpolation Test",
-    "gallery": false
+    "gallery": true
   },
   "stochastic-process/stochastic-process": {
     "name": "Stochastic Process Test",
