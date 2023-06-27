@@ -232,7 +232,7 @@
   "animation/center-shrink-circle": {},
   "structural-formula/molecules/caffeine": {
     "name": "A Caffeine Molecule",
-    "gallery": false
+    "gallery": true
   },
   "structural-formula/reactions/methane-combustion": {
     "name": "Methane Combustion Reaction",
