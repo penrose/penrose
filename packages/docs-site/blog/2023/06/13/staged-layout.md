@@ -102,9 +102,8 @@ const blob = {
 
 ## Layout optimization becomes complicated quickly
 
-In Style, we can write `ensure` and `encourage` statements to declare constraints and objectives. The compiler turns them into a numerical optimization problem, and the optimizer finds a good layout. So far, this approach has worked fairly well for us. As we author more complex diagrams in Penrose, however, we ran into more difficult optimization problems.
-
-For example, we have built a series of diagrams in 2D Euclidean geometry. Initially, the layout engine worked just fine. But as the Style program become a lot more complex, the optimizer started to struggle. Take this diagram as an example.
+In Style, we can write `ensure` and `encourage` statements to declare constraints and objectives. The compiler turns them into a numerical optimization problem, and the optimizer finds a good layout. This simple approach worked fairly well in the early years of Penrose. However, as we authored more complex diagrams in Penrose, the optimizer started to struggle.
+For example, we have built a series of diagrams in 2D Euclidean geometry where the optimizer was unable to consistently produce good layouts, like this one:
 
 <!-- <div style="width: 55%; float:right; margin-left: 16px; margin-top: 16px"> -->
 <div style="display: flex; justify-content: center">
@@ -112,8 +111,6 @@ For example, we have built a series of diagrams in 2D Euclidean geometry. Initia
     <StagedDiagram :trio="incenterOneStage.trio" :imageResolver="incenterOneStage.imageResolver" />
   </div>
 </div>
-
-(Because of issues you'll read about soon, you may need to take a few clicks of the ↻ button to figure out what the diagram is about.)
 
 Conceptually, this diagram illustrates the _incenter_ $P$ of $\triangle JKL$, where $P$ is equidistant from the triangle's sides. The layout problem can be broken down into:
 
@@ -124,26 +121,26 @@ Conceptually, this diagram illustrates the _incenter_ $P$ of $\triangle JKL$, wh
 - Lay out all point labels so they are close to the points.
 - If the label is for a triangle vertex, make sure it's outside of the triangle.
 
-Aside from the location of $P$, everything else is optimized. And as you can see, the optimizer attempts to satisfy **all of the above concurrently**. Notice in every frame of the layout animation, Penrose always tries to keep the labels close to the points.
+Aside from the location of $P$, everything else is optimized. And as you can see, the optimizer attempts to achieve **all of the above concurrently**. For example, notice that Penrose tries to keep the labels close to the points in every frame of the layout animation.
 
 In [a GitHub issue about this problem](https://github.com/penrose/penrose/issues/766), [Keenan](https://www.cs.cmu.edu/~kmcrane/) summarized the general problem well:
 
 > [A]t some point it becomes hard to strike a balance between many competing constraints and objectives. Anyone who has ever worked with continuous optimization knows the challenge: you want to simultaneously optimize $f(x)$ and $g(x)$, but if $f$ and $g$ differ on what they consider "good" states $x$, then they will effectively compete—usually reaching a solution that nobody likes.
 > ...designing constraints and objectives becomes (very) hard when you're laying out the diagram all at once, because everything affects everything.
 
-So far, we've managed to create diagrams by carefully designing our constraints and objectives to work together. This is a painstaking process that often involved modifying the Penrose system itself. Clearly, we need a better solution.
+Clearly, we need a better solution.
 
 ## Layout is often done in multiple stages by hand
 
-When using WYSIWYG tools to draw diagrams, we often use groups and layers to lay out parts of a diagram before others. As a simple example, I tried drawing a similar diagram as the example above in Figma, which took me about 10 mins:
+When using WYSIWYG tools to draw diagrams, we often use groups and layers to lay out parts of a diagram before others. For example, I drew a similar diagrams to the one above in Figma:
 
 <img alt="Drawing a triangle with its incenter in Figma." src="./assets//figma-incenter.gif" loading="lazy" />
 
-Notice that I didn't put labels down until the very end, which is a somewhat common move: labels in diagrams like this usually don't depend on the shapes that much!
+Notice that I didn't place labels until the very end. This is a common strategy. Just like the Penrose optimizer, it's hard for me to consider the location of both labels and shapes at the same time!
 
 ## Staging makes layout a lot easier in Penrose
 
-Just like human diagrammers, the optimizer can benefit from some separation of concerns. So the idea of our solution is to **divide the layout optimization problem into multiple stages.** As a simple example, here's the same example as above, but laid out in two stages:
+Separating shape layout and label layout helped me reduce my [cognitive load] (https://en.wikipedia.org/wiki/Cognitive_load). We decided to **divide the layout optimization problem into multiple stages** to help the optimizer. Here's the same example as above, but laid out in two stages:
 
 - `shape`: lay out the vertices for $\triangle JKL$, the incenter $P$, and point $m$.
 - `label`: put all labels near the points they label.
@@ -158,7 +155,7 @@ As expected, the layout optimizer lays out the triangle first, and then moves la
 
 ## Now you can specify layout stages in Style!
 
-How does Penrose determine the layout stages? Each diagram type might require different a different layout strategy. This is why we designed the Style language first anyway, so why not let users specify this in Style, too? In a [subsequent PR](https://github.com/penrose/penrose/pull/1199), I introduced a more general language feature for layout stages. Here's how it works:
+How does Penrose determine the layout stages? The right layout strategy may be different for each diagram type. Penrose users already use the Style language to define the layout problem, shapes, and styling for each diagram type. Why not let users specify stages in Style, too? In a [subsequent PR](https://github.com/penrose/penrose/pull/1199), I introduced a more general language feature for layout stages. Here's how it works:
 
 In Style, we provide language constructs for annotating variables (`?`), constraints (`ensure`), and objectives (`encourage`) with layout stages. At layout time, the optimizer executes layout stages in order. For instance, the user may want to layout shapes before laying out labels. Using the feature, they can separate varying values and constraints into distinct sets to be optimized in stages.
 
@@ -231,7 +228,7 @@ This is a surprisingly simple language feature to implement. It required some re
 
 ## Others have built cool examples using layout stages
 
-Ever since I implemented this feature, we've made a lot of examples using this feature already! Here are a few:
+We've made a lot of examples using this feature already! Here are a few:
 
 <div style="display: grid;   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); grid-gap: 20px">
 <StagedDiagram :trio="wos.trio" :imageResolver="wos.imageResolver" />
@@ -267,6 +264,6 @@ global {
 }
 ```
 
-The issue is not unique to this feature. In Style, it's possible to specify unsolvable layout problems without staging, too! Detecting infeasible layout specification in general is an interesting (probably pretty hard) problem we'd like to explore in the future. Similarly, automatically detecting layout stages from any Style program is also a great research problem.
+The issue is not unique to this feature. In Style, it's possible to specify unsolvable layout problems without staging! Detecting infeasible layout specification in general is an interesting (and very hard) problem we'd like to explore in the future. Similarly, automatically detecting layout stages from any Style program is also a great research problem.
 
 While we are pushing the frontier of automatic diagram layout further in the research world, we also care about delivering pragmatic solutions to the world. We could have easily spent a month trying to automatically stage our optimizer, but spending a few days to ship the Style language feature enabled so many great examples. Balancing research problem-solving and practical toolsmithing is hard, but perhaps that's why I like doing this so much 💙.
