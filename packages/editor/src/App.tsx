@@ -1,6 +1,7 @@
 import {
   Action,
   Actions,
+  DockLocation,
   IJsonRowNode,
   Layout,
   Model,
@@ -43,6 +44,7 @@ const mainRowLayout: IJsonRowNode = {
   children: [
     {
       type: "tabset",
+      id: "mainEditor",
       weight: process.env.NODE_ENV === "development" ? 25 : 50,
       children: [
         ...(process.env.NODE_ENV === "development"
@@ -109,6 +111,8 @@ export const layoutModel = Model.fromJson({
     {
       type: "border",
       location: "left",
+      // auto-expand examples tab on start
+      selected: process.env.NODE_ENV === "development" ? -1 : 1,
       children: [
         {
           type: "tab",
@@ -118,6 +122,7 @@ export const layoutModel = Model.fromJson({
         {
           type: "tab",
           name: "examples",
+          id: "examples",
           component: "examplesPanel",
         },
         {
@@ -305,6 +310,12 @@ function App() {
         rootOrientationVertical: isTabletOrMobile && isPortrait,
       })
     );
+    // on mobile, move example browser to the center panel
+    if (isTabletOrMobile && isPortrait) {
+      layoutModel.doAction(
+        Actions.moveNode("examples", "mainEditor", DockLocation.CENTER, 0)
+      );
+    }
   }, [isTabletOrMobile, isPortrait]);
 
   const checkURL = useCheckURL();

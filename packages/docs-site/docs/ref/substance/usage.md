@@ -20,7 +20,7 @@ Formally, a _substance_ program can contain five types of statements.
 
 ## Object Declarations
 
-An _object declaration_ declares the existence of an object, and specify its type:
+An _object declaration_ declares the existence of an object, and specifies its type:
 
 ```substance
 type_name object_name
@@ -90,7 +90,7 @@ Then,
 
 ## Function and Constructor Applications
 
-In Penrose, functions and constructors behave equivalently. There are two ways of invoking a function or constructor. The first way is
+In Penrose, functions and constructors behave almost equivalently (the only difference being that constructors can additionally be invoked with the `Let` keyword explained below). Both functions and constructors can be invoked in the following two ways. The first way is
 
 ```substance
 object_name := function_constructor_name (argument_list)
@@ -100,6 +100,12 @@ which requires object with `object_name` to be declared beforehand in the _subst
 
 ```substance
 type_name object_name := function_constructor_name (argument_list)
+```
+
+Finally, constructors alone can be invoked using the `Let` keyword if the constructor name is the same as the output type, as follows:
+
+```substance
+Let object_name := function_constructor_name (argument_list)
 ```
 
 The rules for `argument_list` remain the same as in predicate applications. We further require that the output type of the function or constructor must match the type of `object_name`, up to subtyping. That is, if the function outputs type `A` and `object_name` has type `B`, then if `A` is a subtype of `B`, then the assignment is valid.
