@@ -1,4 +1,4 @@
-import { EditorPane } from "@penrose/monaco";
+import { EditorPane } from "@penrose/components";
 import { useCallback } from "react";
 import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from "recoil";
 import {

@@ -44,7 +44,6 @@
     "@penrose/components": "^3.0.0-alpha.0",
     "@penrose/core": "^3.0.0-alpha.0",
     "@penrose/examples": "^3.0.0-alpha.0",
-    "@penrose/monaco": "^3.0.0-alpha.0",
     "animals": "^0.0.3",
     "color-name-list": "^8.38.0",
     "flexlayout-react": "^0.7.3",
