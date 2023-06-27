@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { applyReactInVue } from "veaury";
+import * as veaury from "veaury";
 import { StagedDiagram as StagedDiagramReact } from "@penrose/components";
 
-const StagedDiagram = applyReactInVue(StagedDiagramReact);
+const StagedDiagram = veaury.applyReactInVue(StagedDiagramReact);
 
 const props = defineProps(["trio"]);
 </script>
