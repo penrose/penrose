@@ -1,8 +1,13 @@
 <script setup lang="ts">
-import * as veaury from "veaury";
-import { StagedDiagram as StagedDiagramReact } from "@penrose/components";
+import { defineAsyncComponent } from "vue";
 
-const StagedDiagram = veaury.applyReactInVue(StagedDiagramReact);
+const StagedDiagram = defineAsyncComponent(async () => {
+  const { applyReactInVue } = await import("veaury");
+  const StagedDiagram = (
+    await import("@penrose/components/dist/StagedDiagram.js")
+  ).default;
+  return applyReactInVue(StagedDiagram);
+});
 
 const props = defineProps(["trio"]);
 </script>

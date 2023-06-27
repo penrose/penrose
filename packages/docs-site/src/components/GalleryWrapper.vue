@@ -4,7 +4,7 @@ import { defineAsyncComponent } from "vue";
 
 const Gallery = defineAsyncComponent(async () => {
   const { applyPureReactInVue } = await import("veaury");
-  const { Gallery } = await import("@penrose/components");
+  const Gallery = (await import("@penrose/components/dist/Gallery.js")).default;
   return applyPureReactInVue(Gallery);
 });
 const link = withBase(`/try/index.html`);
