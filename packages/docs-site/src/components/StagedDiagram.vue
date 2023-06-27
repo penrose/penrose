@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { defineComponent } from "vue";
 import { applyReactInVue } from "veaury";
 import { StagedDiagram as StagedDiagramReact } from "@penrose/components";
 
