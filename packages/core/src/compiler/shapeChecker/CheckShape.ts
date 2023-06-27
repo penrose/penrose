@@ -223,7 +223,12 @@ export const checkImage = (
   const href = checkProp(path, "href", trans, checkStrV);
   if (href.isErr()) return err(href.error);
 
-  const preserveAspectRatio = checkProp(path, "preserveAspectRatio", trans, checkStrV);
+  const preserveAspectRatio = checkProp(
+    path,
+    "preserveAspectRatio",
+    trans,
+    checkStrV
+  );
   if (preserveAspectRatio.isErr()) return err(preserveAspectRatio.error);
 
   return ok({
