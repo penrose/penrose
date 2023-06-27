@@ -5,20 +5,23 @@ import {
   Box,
   Button,
   Drawer,
+  InputLabel,
   MenuItem,
   Select,
   Slider,
-  styled,
+  Tab,
+  Tabs,
   TextField,
   Toolbar,
   Typography,
+  styled,
 } from "@material-ui/core";
 import { Listing } from "@penrose/components";
-import { compileDomain, Env, showError } from "@penrose/core";
+import { Env, compileDomain, showError } from "@penrose/core";
 import c04p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c04p01.substance";
 import React from "react";
 import Latex from "react-latex-next";
-import { Preset, presets } from "../examples.js";
+import { Preset, domains, presets } from "../examples.js";
 import {
   DeclTypes,
   MatchSetting,
@@ -61,6 +64,13 @@ const defaultEnv: PartialEnv = {
   },
 };
 
+// derived from https://mui.com/material-ui/react-tabs/
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  currentTab: number;
+}
+
 export interface SettingsProps {
   generateCallback: (
     setting: SynthesizerSetting,
@@ -69,7 +79,8 @@ export interface SettingsProps {
     dsl: string,
     prompt: string,
     sty: string,
-    llmInput: string
+    llmInput: string,
+    currentTab: number
   ) => void;
   onPrompt: (prompt: string) => void;
   defaultDomain: string;
@@ -86,6 +97,7 @@ interface SettingState {
   style: string;
   prompt: string;
   llmInput: string;
+  currentTab: number;
   env?: Env;
 }
 
@@ -136,6 +148,15 @@ const AccordionBodyStyled = styled(AccordionDetails)(({ theme }) => ({
   borderTop: "0px solid black",
 }));
 
+// derived from https://mui.com/material-ui/react-tabs/
+const TabPanel = ({ index, currentTab, children }: TabPanelProps) => {
+  return (
+    <div hidden={currentTab !== index}>
+      {currentTab === index && <>{children}</>}
+    </div>
+  );
+};
+
 export class Settings extends React.Component<SettingsProps, SettingState> {
   constructor(props: SettingsProps) {
     super(props);
@@ -149,6 +170,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
       style: this.props.defaultStyle,
       prompt: "",
       llmInput: "",
+      currentTab: 0,
     };
   }
 
@@ -214,6 +236,154 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
     }
   };
 
+  displayNaturalLangOrPresetTabs = () => {
+    const handleTabSwitch = (
+      event: React.ChangeEvent<{}>,
+      newValue: number
+    ) => {
+      this.setState({ currentTab: newValue });
+    };
+
+    return (
+      <>
+        <Tabs
+          textColor="primary"
+          indicatorColor="primary"
+          value={this.state.currentTab}
+          onChange={handleTabSwitch}
+        >
+          <Tab label="Generate new problem" />
+          <Tab label="Select from presets" />
+        </Tabs>
+
+        <br />
+
+        <TabPanel index={0} currentTab={this.state.currentTab}>
+          <TextField
+            fullWidth
+            multiline
+            label="Description of input scenario"
+            value={this.state.llmInput}
+            onChange={(e) => {
+              this.setState({ llmInput: e.target.value });
+            }}
+            variant="outlined"
+          />
+          <ButtonContainer>
+            <Button
+              onClick={this.onLLMGenerateClick}
+              color="primary"
+              variant="contained"
+            >
+              Generate Input Scenario
+            </Button>
+          </ButtonContainer>
+        </TabPanel>
+
+        <TabPanel index={1} currentTab={this.state.currentTab}>
+          <InputLabel id="preset-select-label">Preset</InputLabel>
+          <Select
+            key="preset"
+            labelId="preset-select-label"
+            id="preset-select"
+            label="preset"
+            // defaultValue={"c04p01"}
+            defaultValue={"lewis_0"}
+            onChange={(e) => this.handlePreset(e.target.value as string)}
+          >
+            {this.presets()}
+          </Select>
+          <SettingLabel>Prompt:</SettingLabel>
+          <div>
+            <Latex>{this.state.prompt}</Latex>
+          </div>
+        </TabPanel>
+      </>
+    );
+  };
+
+  onLLMGenerateClick = () => {
+    let output = "";
+
+    const apiUrl = "https://api.openai.com/v1/chat/completions";
+
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
+    };
+
+    const prompt = `
+      You are a code generator that is generating a new program in the Substance programming language, 
+      which draws from the Domain programming language program also given below. 
+      To write comments, begin with \`--\`.
+      Return only the Substance program; explain your reasoning only in Substance comments.\n
+      
+      We have been working on a platform called Penrose for authoring mathematical diagrams. 
+      The system involves a family of 3 domain specific languages: 
+      Substance (for specifying the mathematical objects and the relationships between those objects, 
+      Style (for mapping the mathematical objects to shapes and mathematical relationships to layout constraints and objectives), 
+      and Domain (for specifying the types of mathematical objects and relationships; this is a meta-language or schema language). 
+      Those three programs are used to synthesize a layout problem which we then solve to create a corresponding diagram.\n
+      
+      Here is a Domain program which would inform a Substance program:\n
+
+      \`\`\`\n
+      ${this.state.domain}
+      \`\`\`\n
+
+      Here is a sample Substance program describing a directed graph:\n
+
+      \`\`\`\n
+      Vertex x, y, z, w, u, v\n
+      \n
+      Arc(x, y)\n
+      Arc(x, z)\n
+      Arc(y, z)\n
+      Arc(z, w)\n
+      Arc(w, u)\n
+      Arc(u, v)\n
+      Arc(x, v)\n
+      \n
+      HighlightVertex(x)\n
+      HighlightArc(x,y)\n
+      \n
+      AutoLabel All\n
+      \n
+      \`\`\`\n
+
+      According to Wikipedia, a Hamiltonian cycle (or Hamiltonian circuit) 
+      is a cycle that visits each vertex exactly once.\n
+
+      Question: Given the context above, can you generate a new Substance program which describes the following: \n
+      ${this.state.llmInput}.
+      
+      Highlight the nodes and edges in the Hamiltonian cycle. 
+      `;
+
+    const data = {
+      model: "gpt-3.5-turbo-16k",
+      messages: [{ role: "user", content: `${prompt}` }],
+      max_tokens: 16000,
+      temperature: 0.7,
+    };
+
+    fetch(apiUrl, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        // Process the result
+        output = result.choices[0].message.content;
+        this.setState({ substance: output });
+      })
+      .catch((error) => {
+        // Handle any errors
+        console.error("Error:", error);
+      });
+  };
+
   onGenerateClick = () => {
     if (this.state.setting)
       this.props.generateCallback(
@@ -223,7 +393,8 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
         this.state.domain,
         this.state.substance,
         this.state.style,
-        this.state.llmInput
+        this.state.llmInput,
+        this.state.currentTab
       );
   };
 
@@ -343,10 +514,22 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
       </MenuItem>
     ));
 
+  domains = () =>
+    Object.entries(domains).map(([name, { displayName }]: [string, Preset]) => (
+      <MenuItem key={name} value={name}>
+        {displayName}
+      </MenuItem>
+    ));
+
   handlePreset = (key: string) => {
     this.setState({ ...this.state, ...presets[key] });
     this.updateDomainEnv(presets[key].domain);
     this.props.onPrompt(presets[key].prompt);
+  };
+
+  handleDomain = (key: string) => {
+    this.setState({ ...this.state, ...domains[key] });
+    this.updateDomainEnv(domains[key].domain);
   };
 
   componentDidMount = () => {
@@ -362,121 +545,23 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
         <Toolbar />
         <SettingContainer>
           <SettingDiv>
+            <InputLabel id="domain-select-label">Pick a Domain</InputLabel>
             <Select
-              key="preset"
-              labelId="preset-select-label"
-              id="preset-select"
-              label="preset"
+              key="domain"
+              labelId="domain-select-label"
+              id="domain-select"
+              label="domain"
               // defaultValue={"c04p01"}
-              defaultValue={"lewis_0"}
-              onChange={(e) => this.handlePreset(e.target.value as string)}
-            >
-              {this.presets()}
-            </Select>
-            <SettingLabel>Prompt:</SettingLabel>
-            <div>
-              <Latex>{this.state.prompt}</Latex>
-            </div>
-          </SettingDiv>
-          <br />
-          <TextField
-            label="Enter text"
-            value={this.state.llmInput}
-            onChange={(e) => {
-              this.setState({ llmInput: e.target.value });
-            }}
-            variant="outlined"
-          />
-          <ButtonContainer>
-            <Button
-              onClick={() => {
-                let output = "";
-
-                const apiUrl = "https://api.openai.com/v1/chat/completions";
-
-                const headers = {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${
-                    import.meta.env.VITE_OPENAI_API_KEY
-                  }`,
-                };
-
-                const prompt = `
-                  You are a code generator that is generating a new program in the Substance programming language, 
-                  which draws from the Domain programming language program also given below. To write comments, begin with \`--\`.\n
-                  
-                  We have been working on a platform called Penrose for authoring mathematical diagrams. 
-                  The system involves a family of 3 domain specific languages: 
-                  Substance (for specifying the mathematical objects and the relationships between those objects, 
-                  Style (for mapping the mathematical objects to shapes and mathematical relationships to layout constraints and objectives), 
-                  and Domain (for specifying the types of mathematical objects and relationships; this is a meta-language or schema language). 
-                  Those three programs are used to synthesize a layout problem which we then solve to create a corresponding diagram.\n
-                  
-                  Here is a Domain program which would inform a Substance program:\n
-
-                  \`\`\`\n
-                  type Vertex\n
-                  predicate Arc(Vertex a, Vertex b)\n
-                  predicate HighlightVertex(Vertex a)\n
-                  predicate HighlightArc(Vertex a, Vertex b)\n
-                  \`\`\`\n
-
-                  Here is a sample Substance program describing a directed graph:\n
-
-                  \`\`\`\n
-                  Vertex x, y, z, w, u, v\n
-                  \n
-                  Arc(x, y)\n
-                  Arc(x, z)\n
-                  Arc(y, z)\n
-                  Arc(z, w)\n
-                  Arc(w, u)\n
-                  Arc(u, v)\n
-                  Arc(x, v)\n
-                  \n
-                  HighlightVertex(x)\n
-                  HighlightArc(x,y)\n
-                  \n
-                  AutoLabel All\n
-                  \n
-                  \`\`\`\n
-
-                  According to Wikipedia, a Hamiltonian cycle (or Hamiltonian circuit) 
-                  is a cycle that visits each vertex exactly once.\n
-
-                  Question: Given the context above, can you generate a new Substance program which describes \n
-                  ${this.state.llmInput}? Return only the Substance program; explain your reasoning in Substance comments.`;
-
-                const data = {
-                  model: "gpt-3.5-turbo-16k",
-                  messages: [{ role: "user", content: `${prompt}` }],
-                  max_tokens: 5000,
-                  temperature: 0.7,
-                };
-
-                fetch(apiUrl, {
-                  method: "POST",
-                  headers: headers,
-                  body: JSON.stringify(data),
-                })
-                  .then((response) => response.json())
-                  .then((result) => {
-                    // Process the result
-                    console.log(result.choices[0]);
-                    output = result.choices[0].message.content;
-                    this.setState({ substance: output });
-                  })
-                  .catch((error) => {
-                    // Handle any errors
-                    console.error("Error:", error);
-                  });
+              defaultValue={"moleculesDomain"}
+              onChange={(e) => {
+                this.setState({});
+                this.handleDomain(e.target.value as string);
               }}
-              color="primary"
-              variant="contained"
             >
-              Generate Input Scenario
-            </Button>
-          </ButtonContainer>
+              {this.domains()}
+            </Select>
+          </SettingDiv>
+          <SettingDiv>{this.displayNaturalLangOrPresetTabs()}</SettingDiv>
           <br />
           <Accordion key="substance" elevation={0}>
             <AccordionHeaderStyled>{`Input Scenario`}</AccordionHeaderStyled>
