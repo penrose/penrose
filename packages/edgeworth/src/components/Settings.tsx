@@ -320,6 +320,12 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
     );
   };
 
+  getSamplePreset = () => {
+    return Object.entries(presets).find(
+      ([_, { domain }]) => domain === this.state.domain
+    )![1];
+  };
+
   onLLMGenerateClick = () => {
     let output = "";
 
@@ -330,58 +336,33 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
       Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
     };
 
+    const samplePreset = this.getSamplePreset();
+
     const prompt = `
-      You are a code generator that is generating a new program in the Substance programming language, 
-      which draws from the Domain programming language program also given below. 
-      To write comments, begin with \`--\`.
-      Return only the Substance program; explain your reasoning only in Substance comments.\n
-      
-      We have been working on a platform called Penrose for authoring mathematical diagrams. 
-      The system involves a family of 3 domain specific languages: 
-      Substance (for specifying the mathematical objects and the relationships between those objects, 
-      Style (for mapping the mathematical objects to shapes and mathematical relationships to layout constraints and objectives), 
-      and Domain (for specifying the types of mathematical objects and relationships; this is a meta-language or schema language). 
-      Those three programs are used to synthesize a layout problem which we then solve to create a corresponding diagram.\n
-      
-      Here is a Domain program which would inform a Substance program:\n
+You are a code generator that is generating a new program in the Substance programming language, which draws from the Domain programming language program also given below. To write comments, begin with \`--\`. Return only the Substance program; explain your reasoning only in Substance comments.
 
-      \`\`\`\n
-      ${this.state.domain}
-      \`\`\`\n
+We have been working on a platform called Penrose for authoring mathematical diagrams. The system involves a family of 3 domain specific languages: Substance (for specifying the mathematical objects and the relationships between those objects, Style (for mapping the mathematical objects to shapes and mathematical relationships to layout constraints and objectives), and Domain (for specifying the types of mathematical objects and relationships; this is a meta-language or schema language). Those three programs are used to synthesize a layout problem which we then solve to create a corresponding diagram.\n
 
-      Here is a sample Substance program describing a directed graph:\n
+Here is a Domain program which would inform a Substance program:
 
-      \`\`\`\n
-      Vertex x, y, z, w, u, v\n
-      \n
-      Arc(x, y)\n
-      Arc(x, z)\n
-      Arc(y, z)\n
-      Arc(z, w)\n
-      Arc(w, u)\n
-      Arc(u, v)\n
-      Arc(x, v)\n
-      \n
-      HighlightVertex(x)\n
-      HighlightArc(x,y)\n
-      \n
-      AutoLabel All\n
-      \n
-      \`\`\`\n
+\`\`\`
+${this.state.domain}
+\`\`\`
 
-      According to Wikipedia, a Hamiltonian cycle (or Hamiltonian circuit) 
-      is a cycle that visits each vertex exactly once.\n
+Here is a sample Substance program named \"${samplePreset.displayName}\":
 
-      Question: Given the context above, can you generate a new Substance program which describes the following: \n
-      ${this.state.llmInput}.
-      
-      Highlight the nodes and edges in the Hamiltonian cycle. 
-      `;
+\`\`\`
+${samplePreset.substance}
+\`\`\`
 
+Question: Given the context above, can you generate a new Substance program which describes the following:
+${this.state.llmInput}.`;
+
+    console.log(prompt);
     const data = {
-      model: "gpt-3.5-turbo-16k",
-      messages: [{ role: "user", content: `${prompt}` }],
-      max_tokens: 16000,
+      model: "gpt-3.5-turbo",
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: 2000,
       temperature: 0.7,
     };
 
@@ -392,6 +373,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
     })
       .then((response) => response.json())
       .then((result) => {
+        //console.log(result);
         // Process the result
         output = result.choices[0].message.content;
         this.setState({ substance: output });

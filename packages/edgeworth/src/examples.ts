@@ -176,12 +176,22 @@ export const domains: PresetCollection = {
       ...lewisParams,
     },
   },
-  graphDomain: {
-    displayName: "Graphs",
+  undirectedGraphDomain: {
+    displayName: "Undirected Graphs",
     prompt: "",
     substance: "",
     domain: simpleGraphDomain,
     style: simpleGraphStyle,
+    setting: {
+      ...graphParams,
+    },
+  },
+  directedGraphDomain: {
+    displayName: "Directed Graphs",
+    prompt: "",
+    substance: "",
+    domain: simpleDirectedGraphDomain,
+    style: simpleDirectedGraphStyle,
     setting: {
       ...graphParams,
     },

@@ -3,8 +3,8 @@ Carbon c
 Nitrogen n
 Bond b1 := MakeSingleBond(c, h)
 Bond b2 := MakeTripleBond(c, n)
-ZeroValenceElectrons(h)
-ZeroValenceElectrons(c)
-TwoValenceElectrons(n)
+ZeroDots(h)
+ZeroDots(c)
+TwoDots(n)
 
 AutoLabel All

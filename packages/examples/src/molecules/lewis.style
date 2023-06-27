@@ -696,7 +696,7 @@ forall Bond x; Bond y {
 -- valance
 
 forall Atom a 
-where TwoValenceElectrons(a) as e {
+where TwoDots(a) as e {
   e.icon1 = Group {
     shapes: [e.circle11, e.circle12]
   }
@@ -726,7 +726,7 @@ where TwoValenceElectrons(a) as e {
 }
 
 forall Atom a 
-where FourValenceElectrons(a) as e {
+where FourDots(a) as e {
   e.icon1 = Group {
     shapes: [e.circle11, e.circle12]
   }
@@ -785,7 +785,7 @@ where FourValenceElectrons(a) as e {
 }
 
 forall Atom a 
-where SixValenceElectrons(a) as e {
+where SixDots(a) as e {
   e.icon1 = Group {
     shapes: [e.circle11, e.circle12]
   }
@@ -875,7 +875,7 @@ where SixValenceElectrons(a) as e {
 
 -- single bond
 forall Bond b
-where TwoValenceElectrons(x) as e; b := MakeSingleBond(x, y)
+where TwoDots(x) as e; b := MakeSingleBond(x, y)
 with Atom x, y {
   -- attract all electrons to the opposite of the bond
   weight = const.bondAvoidWeight
@@ -891,7 +891,7 @@ with Atom x, y {
   -- }
 }
 forall Bond b
-where TwoValenceElectrons(y) as e; b := MakeSingleBond(x, y)
+where TwoDots(y) as e; b := MakeSingleBond(x, y)
 with Atom x, y {
   -- attract all electrons to the opposite of the bond
   weight = const.bondAvoidWeight
@@ -903,7 +903,7 @@ with Atom x, y {
 }
 
 forall Bond b
-where FourValenceElectrons(x) as e; b := MakeSingleBond(x, y)
+where FourDots(x) as e; b := MakeSingleBond(x, y)
 with Atom x, y {
   -- attract all electrons to the opposite of the bond
   weight = const.bondAvoidWeight
@@ -929,7 +929,7 @@ with Atom x, y {
   -- }
 }
 forall Bond b
-where FourValenceElectrons(y) as e; b := MakeSingleBond(x, y)
+where FourDots(y) as e; b := MakeSingleBond(x, y)
 with Atom x, y {
   -- attract all electrons to the opposite of the bond
   weight = const.bondAvoidWeight
@@ -946,7 +946,7 @@ with Atom x, y {
 }
 
 forall Bond b
-where SixValenceElectrons(x) as e; b := MakeSingleBond(x, y)
+where SixDots(x) as e; b := MakeSingleBond(x, y)
 with Atom x, y {
   -- attract all electrons to the opposite of the bond
   weight = const.bondAvoidWeight
@@ -982,7 +982,7 @@ with Atom x, y {
   -- }
 }
 forall Bond b
-where SixValenceElectrons(y) as e; b := MakeSingleBond(x, y)
+where SixDots(y) as e; b := MakeSingleBond(x, y)
 with Atom x, y {
   -- attract all electrons to the opposite of the bond
   weight = const.bondAvoidWeight
@@ -1006,7 +1006,7 @@ with Atom x, y {
 
 -- double bond
 forall Bond b
-where TwoValenceElectrons(x) as e; b := MakeDoubleBond(x, y)
+where TwoDots(x) as e; b := MakeDoubleBond(x, y)
 with Atom x, y {
   -- attract all electrons to the opposite of the bond
   weight = const.bondAvoidWeight
@@ -1016,7 +1016,7 @@ with Atom x, y {
   encourage weight * const.k*(d1 - const.L)*(d1 - const.L)/2 == weight in electron -- minimize ½ k(d-L)²
 }
 forall Bond b
-where TwoValenceElectrons(y) as e; b := MakeDoubleBond(x, y)
+where TwoDots(y) as e; b := MakeDoubleBond(x, y)
 with Atom x, y {
   -- attract all electrons to the opposite of the bond
   weight = const.bondAvoidWeight
@@ -1027,7 +1027,7 @@ with Atom x, y {
 }
 
 forall Bond b
-where FourValenceElectrons(x) as e; b := MakeDoubleBond(x, y)
+where FourDots(x) as e; b := MakeDoubleBond(x, y)
 with Atom x, y {
   -- attract all electrons to the opposite of the bond
   weight = const.bondAvoidWeight
@@ -1043,7 +1043,7 @@ with Atom x, y {
   encourage weight * const.k*(d2 - const.L)*(d2 - const.L)/2 == weight in electron -- minimize ½ k(d-L)²
 }
 forall Bond b
-where FourValenceElectrons(y) as e; b := MakeDoubleBond(x, y)
+where FourDots(y) as e; b := MakeDoubleBond(x, y)
 with Atom x, y {
   -- attract all electrons to the opposite of the bond
   weight = const.bondAvoidWeight
@@ -1060,7 +1060,7 @@ with Atom x, y {
 }
 
 forall Bond b
-where SixValenceElectrons(x) as e; b := MakeDoubleBond(x, y)
+where SixDots(x) as e; b := MakeDoubleBond(x, y)
 with Atom x, y {
   -- attract all electrons to the opposite of the bond
   weight = const.bondAvoidWeight
@@ -1081,7 +1081,7 @@ with Atom x, y {
   encourage weight * const.k*(d3 - const.L)*(d3 - const.L)/2 == weight in electron -- minimize ½ k(d-L)²
 }
 forall Bond b
-where SixValenceElectrons(y) as e; b := MakeDoubleBond(x, y)
+where SixDots(y) as e; b := MakeDoubleBond(x, y)
 with Atom x, y {
   -- attract all electrons to the opposite of the bond
   weight = const.bondAvoidWeight
@@ -1105,7 +1105,7 @@ with Atom x, y {
 
 -- triple bond
 forall Bond b
-where TwoValenceElectrons(x) as e; b := MakeTripleBond(x, y)
+where TwoDots(x) as e; b := MakeTripleBond(x, y)
 with Atom x, y {
   -- attract all electrons to the opposite of the bond
   weight = const.bondAvoidWeight
@@ -1115,7 +1115,7 @@ with Atom x, y {
   encourage weight * const.k*(d1 - const.L)*(d1 - const.L)/2 == weight in electron -- minimize ½ k(d-L)²
 }
 forall Bond b
-where TwoValenceElectrons(y) as e; b := MakeTripleBond(x, y)
+where TwoDots(y) as e; b := MakeTripleBond(x, y)
 with Atom x, y {
   -- attract all electrons to the opposite of the bond
   weight = const.bondAvoidWeight
@@ -1126,7 +1126,7 @@ with Atom x, y {
 }
 
 forall Bond b
-where FourValenceElectrons(x) as e; b := MakeTripleBond(x, y)
+where FourDots(x) as e; b := MakeTripleBond(x, y)
 with Atom x, y {
   -- attract all electrons to the opposite of the bond
   weight = const.bondAvoidWeight
@@ -1142,7 +1142,7 @@ with Atom x, y {
   encourage weight * const.k*(d2 - const.L)*(d2 - const.L)/2 == weight in electron -- minimize ½ k(d-L)²
 }
 forall Bond b
-where FourValenceElectrons(y) as e; b := MakeTripleBond(x, y)
+where FourDots(y) as e; b := MakeTripleBond(x, y)
 with Atom x, y {
   -- attract all electrons to the opposite of the bond
   weight = const.bondAvoidWeight
@@ -1159,7 +1159,7 @@ with Atom x, y {
 }
 
 forall Bond b
-where SixValenceElectrons(x) as e; b := MakeTripleBond(x, y)
+where SixDots(x) as e; b := MakeTripleBond(x, y)
 with Atom x, y {
   -- attract all electrons to the opposite of the bond
   weight = const.bondAvoidWeight
@@ -1180,7 +1180,7 @@ with Atom x, y {
   encourage weight * const.k*(d3 - const.L)*(d3 - const.L)/2 == weight in electron -- minimize ½ k(d-L)²
 }
 forall Bond b
-where SixValenceElectrons(y) as e; b := MakeTripleBond(x, y)
+where SixDots(y) as e; b := MakeTripleBond(x, y)
 with Atom x, y {
   -- attract all electrons to the opposite of the bond
   weight = const.bondAvoidWeight

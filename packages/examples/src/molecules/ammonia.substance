@@ -3,8 +3,8 @@ Hydrogen h1, h2, h3
 Bond b1 := MakeSingleBond(n, h1)
 Bond b2 := MakeSingleBond(n, h2)
 Bond b3 := MakeSingleBond(n, h3)
-TwoValenceElectrons(n)
-ZeroValenceElectrons(h1)
-ZeroValenceElectrons(h2)
-ZeroValenceElectrons(h3)
+TwoDots(n)
+ZeroDots(h1)
+ZeroDots(h2)
+ZeroDots(h3)
 AutoLabel All
