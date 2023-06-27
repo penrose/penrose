@@ -31,3 +31,6 @@ SingleBond(C3, H9)
 SingleBond(N1, C3)
 
 AutoLabel All
+
+Title title
+Label title "caffeine"
