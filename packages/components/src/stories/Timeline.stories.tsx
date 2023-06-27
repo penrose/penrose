@@ -1,5 +1,5 @@
 import { ComponentMeta, ComponentStory } from "@storybook/react";
-import TimelineTable from "../editing/TimelineTable";
+import TimelineTable from "../TimelineTable";
 
 export default {
   title: "Example/Timeline Component",

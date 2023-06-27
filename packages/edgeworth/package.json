@@ -59,6 +59,7 @@
     "@penrose/components": "^3.0.0-alpha.0",
     "@penrose/core": "^3.0.0-alpha.0",
     "@penrose/examples": "^3.0.0-alpha.0",
+    "@penrose/monaco": "^3.0.0-alpha.0",
     "@types/file-saver": "^2.0.5",
     "@types/jszip": "^3.4.1",
     "file-saver": "^2.0.5",

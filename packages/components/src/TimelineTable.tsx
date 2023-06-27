@@ -14,7 +14,7 @@ import {
 } from "react-datasheet-grid";
 import "react-datasheet-grid/dist/style.css";
 import Select, { GroupBase, SelectInstance } from "react-select";
-import { Simple } from "../Simple";
+import { Simple } from "./Simple";
 
 type Choice = {
   label: string;

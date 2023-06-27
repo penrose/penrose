@@ -13,9 +13,9 @@ import {
   Toolbar,
   Typography,
 } from "@material-ui/core";
-import { Listing } from "@penrose/components";
 import { compileDomain, Env, showError } from "@penrose/core";
 import c04p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c04p01.substance";
+import { Listing } from "@penrose/monaco";
 import React from "react";
 import Latex from "react-latex-next";
 import { Preset, presets } from "../examples.js";
