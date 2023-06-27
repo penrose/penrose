@@ -354,6 +354,10 @@
     "name": "Curved graph example with boxes",
     "gallery": false
   },
+  "fancy-text/fancy-text": {
+    "name": "Fancy Text + Equations",
+    "gallery": true
+  },
   "curve-examples/blobs": { "name": "Blobs", "gallery": true },
   "curve-examples/space-curves": { "name": "Space Curves", "gallery": false },
   "geometric-queries/ray-intersect/test-group": {
