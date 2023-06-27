@@ -44,9 +44,13 @@
     "name": "Continuous Map",
     "gallery": true
   },
+  "mobius/mobius": {
+    "name": "Mobius Transformation of Circles",
+    "gallery": true
+  },
   "linear-algebra-domain/two-vectors-perp": {
     "name": "Two Perpendicular Vectors",
-    "gallery": true
+    "gallery": false
   },
   "tutorials/tutorial1": { "name": "Tutorial 1 - Two Sets" },
   "tutorials/tutorial2": { "name": "Tutorial 2 - Subset" },
