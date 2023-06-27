@@ -12,7 +12,6 @@ import space from "@penrose/examples/dist/timeline/penrose.trio.js"
 import blobTrio from "@penrose/examples/dist/curve-examples/blobs.trio.js"
 import euclideanOneStage from "./euclideanOneStage"
 import { defineComponent } from "vue";
-import { applyPureReactInVue } from "veaury";
 
 const exterior = {
   trio: {
