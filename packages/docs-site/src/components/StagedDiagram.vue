@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
+import { defineComponent } from "vue";
+import { applyReactInVue } from "veaury";
+import { StagedDiagram as StagedDiagramReact } from "@penrose/components";
 
-const StagedDiagram = defineAsyncComponent(async () => {
-  const { applyReactInVue } = await import("veaury");
-  const { StagedDiagram } = await import("@penrose/components");
-  return applyReactInVue(StagedDiagram);
-});
+const StagedDiagram = applyReactInVue(StagedDiagramReact);
 
 const props = defineProps(["trio"]);
 </script>
