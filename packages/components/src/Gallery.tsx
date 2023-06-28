@@ -81,7 +81,18 @@ export default ({ ideLink, dark }: { ideLink: string; dark?: boolean }) => {
             )
           );
           if (svg.ok) {
-            const trio = { id, preview: await svg.text() };
+            const preview = await svg.text();
+
+            // crop the SVG
+            const svgDoc = parser.parseFromString(preview, "image/svg+xml");
+            const cropped = svgDoc.querySelector("croppedViewBox")?.innerHTML;
+            const svgNode = svgDoc.querySelector("svg")!;
+            if (cropped !== undefined) {
+              svgNode.setAttribute("viewBox", cropped!);
+            }
+            const croppedPreview = serializer.serializeToString(svgNode);
+
+            const trio = { id, preview: croppedPreview };
             setExamples((ex) => [...ex, trio]);
           }
         }

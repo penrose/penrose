@@ -1,0 +1,58 @@
+-- outer part of "A"
+Point a1, a2, a3, a4, a5, a6, a7, a8
+Let a12 := Segment( a1, a2 )
+Let a23 := Segment( a2, a3 )
+Let a34 := Segment( a3, a4 )
+Let a45 := Segment( a4, a5 )
+Let a56 := Segment( a5, a6 )
+Let a67 := Segment( a6, a7 )
+Let a78 := Segment( a7, a8 )
+Let a81 := Segment( a8, a1 )
+
+-- inner hole of "A"
+Point b1, b2, b3
+Let b12 := Segment( b1, b2 )
+Let b23 := Segment( b2, b3 )
+Let b31 := Segment( b3, b1 )
+
+-- all of these segments are oriented
+IsOriented( a12 )
+IsOriented( a23 )
+IsOriented( a34 )
+IsOriented( a45 )
+IsOriented( a56 )
+IsOriented( a67 )
+IsOriented( a78 )
+IsOriented( a81 )
+IsOriented( b12 )
+IsOriented( b23 )
+IsOriented( b31 )
+
+-- point at which we want to measure the winding number
+Point x
+Label x $x$
+
+-- oriented angle of each segment relative to x
+Angle alpha12 := InteriorAngle(x,a1,a2)
+Angle alpha23 := InteriorAngle(x,a2,a3)
+Angle alpha34 := InteriorAngle(x,a3,a4)
+Angle alpha45 := InteriorAngle(x,a4,a5)
+Angle alpha56 := InteriorAngle(x,a5,a6)
+Angle alpha67 := InteriorAngle(x,a6,a7)
+Angle alpha78 := InteriorAngle(x,a7,a8)
+Angle alpha81 := InteriorAngle(x,a8,a1)
+Angle beta12 := InteriorAngle(x,b1,b2)
+Angle beta23 := InteriorAngle(x,b2,b3)
+Angle beta31 := InteriorAngle(x,b3,b1)
+IsOriented( alpha12 )
+IsOriented( alpha23 )
+IsOriented( alpha34 )
+IsOriented( alpha45 )
+IsOriented( alpha56 )
+IsOriented( alpha67 )
+IsOriented( alpha78 )
+IsOriented( alpha81 )
+IsOriented( beta12 )
+IsOriented( beta23 )
+IsOriented( beta31 )
+

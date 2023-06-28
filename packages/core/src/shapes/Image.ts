@@ -12,6 +12,7 @@ import {
 
 export interface ImageProps<T> extends Named<T>, Center<T>, Rect<T>, Rotate<T> {
   href: StrV;
+  preserveAspectRatio: StrV;
   // note, SVG also has these two attributes:
   // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/crossorigin
   // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/preserveAspectRatio
@@ -29,6 +30,7 @@ export const sampleImage = (
   rotation: floatV(0),
   href: strV("defaultImage"),
   ensureOnCanvas: boolV(true),
+  preserveAspectRatio: strV(""),
 });
 
 export type Image<T> = ShapeCommon<T> & { shapeType: "Image" } & ImageProps<T>;

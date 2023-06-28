@@ -1,6 +1,6 @@
 {
-  "substance": "./caffeine.substance",
+  "substance": "./glucose.substance",
   "style": ["../pseudo-3d.style"],
   "domain": "../structural-formula.domain",
-  "variation": "AmouretteEchidna3389"
+  "variation": "ApocyanDonkey465"
 }
