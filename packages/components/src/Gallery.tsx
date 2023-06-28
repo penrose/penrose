@@ -11,11 +11,12 @@ const parser = new DOMParser();
 const serializer = new XMLSerializer();
 
 const Container = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  padding: 20px;
-  gap: 1em;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  padding: 2em;
+  grid-gap: 1.5em;
 `;
 
 const ExampleContainer = styled.div<{ dark?: boolean; shadow: string }>`
@@ -69,11 +70,10 @@ const Example = ({
 
 export default ({ ideLink, dark }: { ideLink: string; dark?: boolean }) => {
   let [examples, setExamples] = useState<TrioWithPreview[]>([]);
-  console.log(dark);
-
   useEffect(() => {
     const load = async () => {
-      for (const [id, meta] of registry.entries()) {
+      const entries = registry.entries();
+      for (const [id, meta] of entries) {
         if (meta.trio && meta.gallery) {
           const svg = await fetch(
             encodeURI(

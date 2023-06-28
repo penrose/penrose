@@ -1,6 +1,6 @@
 canvas {
    scalar width  = 800
-   scalar height = 600
+   scalar height = 800
 }
 
 global {

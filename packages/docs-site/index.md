@@ -6,14 +6,14 @@ hero:
   tagline: just by typing math notation in plain text.
   actions:
     - theme: brand
-      text: Tutorial
-      link: /docs/tutorial/welcome
+      text: Examples
+      link: /examples
     - theme: sponsor
       text: Try
       link: pathname:///try/index.html
-    # - theme: alt
-    #   text: Video
-    #   link: https://vimeo.com/416822487
+    - theme: alt
+      text: Tutorial
+      link: /docs/tutorial/welcome
 features:
   - title: Declarative
     details: Penrose is a platform that enables people to create beautiful diagrams just by typing mathematical notation in plain text.
