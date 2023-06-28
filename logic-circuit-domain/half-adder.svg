@@ -10,7 +10,7 @@
     y="0"
     width="800"
     height="700"
-    fill="#ffffff"
+    fill="#f7f4e9"
     fill-opacity="1"
     stroke="none"
     rx="0"
@@ -19,447 +19,447 @@
     <title>background.icon</title>
   </rect>
   <circle
-    fill="#ffffff"
+    fill="#3cbcc3"
     fill-opacity="1"
-    cx="423.5999821479802"
-    cy="480.3306664240897"
-    stroke="#000000"
+    cx="620.9888892235784"
+    cy="482.8229551646732"
+    stroke="#1d1d2c"
     stroke-opacity="1"
-    stroke-width="1"
+    stroke-width="7"
     r="25"
   >
     <title>`XOR`.part2</title>
   </circle>
   <rect
-    x="383.5999821479802"
-    y="455.3306664240897"
+    x="580.9888892235784"
+    y="455.6729551646732"
     width="40"
-    height="50"
-    fill="#ffffff"
+    height="54.3"
+    fill="#3cbcc3"
     fill-opacity="1"
-    stroke="#000000"
+    stroke="#1d1d2c"
     stroke-opacity="1"
-    stroke-width="1"
+    stroke-width="3"
     rx="0"
-    transform="rotate(0, 403.5999821479802, 480.3306664240897)"
+    transform="rotate(0, 600.9888892235784, 482.8229551646732)"
   >
     <title>`XOR`.part1</title>
   </rect>
   <circle
-    fill="#ffffff"
+    fill="#3cbcc3"
     fill-opacity="1"
-    cx="423.5999821479802"
-    cy="480.3306664240897"
-    stroke="#ffffff"
+    cx="620.9888892235784"
+    cy="482.8229551646732"
+    stroke="#3cbcc3"
     stroke-opacity="1"
-    stroke-width="1"
+    stroke-width="3"
     r="24"
   >
     <title>`XOR`.part3</title>
   </circle>
   <circle
-    fill="#ffffff"
+    fill="#f7f4e9"
     fill-opacity="1"
-    cx="356.5999821479802"
-    cy="480.3306664240897"
-    stroke="#000000"
+    cx="555.4888892235784"
+    cy="482.8229551646732"
+    stroke="#1d1d2c"
     stroke-opacity="1"
-    stroke-width="1"
+    stroke-width="3"
     r="39.05124837953327"
   >
     <title>`XOR`.part4</title>
   </circle>
   <rect
-    x="266.5999821479802"
-    y="435.3306664240897"
+    x="463.98888922357844"
+    y="437.8229551646732"
     width="120"
     height="90"
-    fill="#ffffff"
+    fill="#f7f4e9"
     fill-opacity="1"
     stroke="none"
     rx="0"
-    transform="rotate(0, 326.5999821479802, 480.3306664240897)"
+    transform="rotate(0, 523.9888892235784, 482.8229551646732)"
   >
     <title>`XOR`.part5</title>
   </rect>
   <circle
-    fill="#ffffff"
+    fill="#f7f4e9"
     fill-opacity="1"
-    cx="347.5999821479802"
-    cy="480.3306664240897"
-    stroke="#000000"
+    cx="544.9888892235784"
+    cy="482.8229551646732"
+    stroke="#1d1d2c"
     stroke-opacity="1"
-    stroke-width="1"
+    stroke-width="3"
     r="39.05124837953327"
   >
     <title>`XOR`.part6</title>
   </circle>
   <rect
-    x="257.5999821479802"
-    y="435.3306664240897"
+    x="454.98888922357844"
+    y="437.8229551646732"
     width="120"
     height="90"
-    fill="#ffffff"
+    fill="#f7f4e9"
     fill-opacity="1"
     stroke="none"
     rx="0"
-    transform="rotate(0, 317.5999821479802, 480.3306664240897)"
+    transform="rotate(0, 514.9888892235784, 482.8229551646732)"
   >
     <title>`XOR`.part7</title>
   </rect>
   <g>
     <line
-      x1="176.7197382566013"
-      y1="497.4059635407436"
-      x2="176.71973744263192"
-      y2="331.7226489204869"
-      stroke="#000000"
+      x1="158.87541553983453"
+      y1="499.8960974061162"
+      x2="158.87541397802275"
+      y2="311.2570130922164"
+      stroke="#1d1d2c"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="3"
     />
     <title>`S2`.line</title>
   </g>
   <circle
-    fill="#000000"
+    fill="#1d1d2c"
     fill-opacity="1"
-    cx="176.71972975267738"
-    cy="331.7231173003583"
+    cx="158.8754131760311"
+    cy="346.1854300888932"
     stroke="none"
-    r="6"
+    r="9"
   >
     <title>`S2`.icon</title>
   </circle>
   <g>
     <line
-      x1="116.34009752034495"
-      y1="331.93006036853177"
-      x2="160.9132179000865"
-      y2="331.93006036853177"
-      stroke="#000000"
+      x1="119.09938633602667"
+      y1="346.5293495666939"
+      x2="130.01126053345848"
+      y2="346.5293495666939"
+      stroke="#1d1d2c"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="2.9"
     />
     <title>`C2`.line1</title>
   </g>
   <g>
     <line
-      x1="160.9132179000865"
-      y1="331.93006036853177"
-      x2="160.9132179000865"
-      y2="331.7231173003583"
-      stroke="#000000"
+      x1="130.01126053345848"
+      y1="346.5293495666939"
+      x2="130.01126053345848"
+      y2="346.1854300888932"
+      stroke="#1d1d2c"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="3"
     />
     <title>`C2`.line2</title>
   </g>
   <g>
     <line
-      x1="160.9132179000865"
-      y1="331.7231173003583"
-      x2="176.71972975267738"
-      y2="331.7231173003583"
-      stroke="#000000"
+      x1="130.01126053345848"
+      y1="346.1854300888932"
+      x2="158.8754131760311"
+      y2="346.1854300888932"
+      stroke="#1d1d2c"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="3"
     />
     <title>`C2`.line3</title>
   </g>
   <g>
     <line
-      x1="176.7197382566013"
-      y1="497.4059635407436"
-      x2="233.0768199984141"
-      y2="497.4059635407436"
-      stroke="#000000"
+      x1="158.87541553983453"
+      y1="499.8960974061162"
+      x2="381.25229424039895"
+      y2="499.8960974061162"
+      stroke="#1d1d2c"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="2.9"
     />
     <title>`C4`.line1</title>
   </g>
   <g>
     <line
-      x1="233.0768199984141"
-      y1="497.4059635407436"
-      x2="233.0768199984141"
-      y2="497.33066934785535"
-      stroke="#000000"
+      x1="381.25229424039895"
+      y1="499.8960974061162"
+      x2="381.25229424039895"
+      y2="499.8229588838336"
+      stroke="#1d1d2c"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="3"
     />
     <title>`C4`.line2</title>
   </g>
   <g>
     <line
-      x1="233.0768199984141"
-      y1="497.33066934785535"
-      x2="383.5999834826314"
-      y2="497.33066934785535"
-      stroke="#000000"
+      x1="381.25229424039895"
+      y1="499.8229588838336"
+      x2="580.9888805286607"
+      y2="499.8229588838336"
+      stroke="#1d1d2c"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="3"
     />
     <title>`C4`.line3</title>
   </g>
   <g>
     <line
-      x1="323.4689268560151"
-      y1="297.8101735634886"
-      x2="363.13996550533574"
-      y2="297.8101735634886"
-      stroke="#000000"
+      x1="283.12557247664023"
+      y1="277.0133417886897"
+      x2="311.6124032067074"
+      y2="277.0133417886897"
+      stroke="#1d1d2c"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="2.9"
     />
     <title>`C5`.line1</title>
   </g>
   <g>
     <line
-      x1="363.13996550533574"
-      y1="297.8101735634886"
-      x2="363.13996550533574"
-      y2="297.83867656557976"
-      stroke="#000000"
+      x1="311.6124032067074"
+      y1="277.0133417886897"
+      x2="311.6124032067074"
+      y2="277.13642988957446"
+      stroke="#1d1d2c"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="3"
     />
     <title>`C5`.line2</title>
   </g>
   <g>
     <line
-      x1="363.13996550533574"
-      y1="297.83867656557976"
-      x2="529.7900935050172"
-      y2="297.83867656557976"
-      stroke="#000000"
+      x1="311.6124032067074"
+      y1="277.13642988957446"
+      x2="314.1880165557561"
+      y2="277.13642988957446"
+      stroke="#1d1d2c"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="3"
     />
     <title>`C5`.line3</title>
   </g>
   <g>
     <line
-      x1="594.7900931275218"
-      y1="314.83867732612475"
-      x2="671.6458685434861"
-      y2="314.83867732612475"
-      stroke="#000000"
+      x1="379.18804325027725"
+      y1="294.1364267577412"
+      x2="498.61922390958784"
+      y2="294.1364267577412"
+      stroke="#1d1d2c"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="2.9"
     />
     <title>`C8`.line1</title>
   </g>
   <g>
     <line
-      x1="671.6458685434861"
-      y1="314.83867732612475"
-      x2="671.6458685434861"
-      y2="314.8388092977338"
-      stroke="#000000"
+      x1="498.61922390958784"
+      y1="294.1364267577412"
+      x2="498.61922390958784"
+      y2="294.1594189105897"
+      stroke="#1d1d2c"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="3"
     />
     <title>`C8`.line2</title>
   </g>
   <g>
     <line
-      x1="671.6458685434861"
-      y1="314.8388092977338"
-      x2="678.6516707256133"
-      y2="314.8388092977338"
-      stroke="#000000"
+      x1="498.61922390958784"
+      y1="294.1594189105897"
+      x2="720.118947249088"
+      y2="294.1594189105897"
+      stroke="#1d1d2c"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="3"
     />
     <title>`C8`.line3</title>
   </g>
   <g>
     <line
-      x1="448.5999697222338"
-      y1="480.3306655897867"
-      x2="454.6551442756944"
-      y2="480.3306655897867"
-      stroke="#000000"
+      x1="645.9888729382593"
+      y1="482.8229640920922"
+      x2="713.7619483675265"
+      y2="482.8229640920922"
+      stroke="#1d1d2c"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="2.9"
     />
     <title>`C7`.line1</title>
   </g>
   <g>
     <line
-      x1="454.6551442756944"
-      y1="480.3306655897867"
-      x2="454.6551442756944"
-      y2="480.39168498853536"
-      stroke="#000000"
+      x1="713.7619483675265"
+      y1="482.8229640920922"
+      x2="713.7619483675265"
+      y2="482.560605591288"
+      stroke="#1d1d2c"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="3"
     />
     <title>`C7`.line2</title>
   </g>
   <g>
     <line
-      x1="454.6551442756944"
-      y1="480.39168498853536"
-      x2="678.6516563691368"
-      y2="480.39168498853536"
-      stroke="#000000"
+      x1="713.7619483675265"
+      y1="482.560605591288"
+      x2="720.1189441630299"
+      y2="482.560605591288"
+      stroke="#1d1d2c"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="3"
     />
     <title>`C7`.line3</title>
   </g>
   <g>
     <line
-      x1="176.71973744263192"
-      y1="331.7226489204869"
-      x2="380.6558233466709"
-      y2="331.7226489204869"
-      stroke="#000000"
+      x1="158.87541397802275"
+      y1="311.2570130922164"
+      x2="251.4008360048939"
+      y2="311.2570130922164"
+      stroke="#1d1d2c"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="2.9"
     />
     <title>`C6`.line1</title>
   </g>
   <g>
     <line
-      x1="380.6558233466709"
-      y1="331.7226489204869"
-      x2="380.6558233466709"
-      y2="331.83866790504106"
-      stroke="#000000"
+      x1="251.4008360048939"
+      y1="311.2570130922164"
+      x2="251.4008360048939"
+      y2="311.1364240474667"
+      stroke="#1d1d2c"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="3"
     />
     <title>`C6`.line2</title>
   </g>
   <g>
     <line
-      x1="380.6558233466709"
-      y1="331.83866790504106"
-      x2="529.7901136282127"
-      y2="331.83866790504106"
-      stroke="#000000"
+      x1="251.4008360048939"
+      y1="311.1364240474667"
+      x2="314.1880329361172"
+      y2="311.1364240474667"
+      stroke="#1d1d2c"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="3"
     />
     <title>`C6`.line3</title>
   </g>
   <g>
     <line
-      x1="116.34008156615016"
-      y1="348.82752773253577"
-      x2="218.46619800217263"
-      y2="348.82752773253577"
-      stroke="#000000"
+      x1="119.09938350719409"
+      y1="277.122293019135"
+      x2="212.75679090559066"
+      y2="277.122293019135"
+      stroke="#1d1d2c"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="2.9"
     />
     <title>`C1`.line1</title>
   </g>
   <g>
     <line
-      x1="218.46619800217263"
-      y1="348.82752773253577"
-      x2="218.46619800217263"
-      y2="348.76550113887265"
-      stroke="#000000"
+      x1="212.75679090559066"
+      y1="277.122293019135"
+      x2="212.75679090559066"
+      y2="277.01340091857327"
+      stroke="#1d1d2c"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="3"
     />
     <title>`C1`.line2</title>
   </g>
   <g>
     <line
-      x1="218.46619800217263"
-      y1="348.76550113887265"
-      x2="323.46891464851666"
-      y2="348.76550113887265"
-      stroke="#000000"
+      x1="212.75679090559066"
+      y1="277.01340091857327"
+      x2="283.1255689932191"
+      y2="277.01340091857327"
+      stroke="#1d1d2c"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="3"
     />
     <title>`C1`.line3</title>
   </g>
   <g>
     <line
-      x1="323.46892770683615"
-      y1="463.488366001506"
-      x2="371.2453348025766"
-      y2="463.488366001506"
-      stroke="#000000"
+      x1="283.1255731931916"
+      y1="465.92317492017384"
+      x2="424.9913399450441"
+      y2="465.92317492017384"
+      stroke="#1d1d2c"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="2.9"
     />
     <title>`C3`.line1</title>
   </g>
   <g>
     <line
-      x1="371.2453348025766"
-      y1="463.488366001506"
-      x2="371.2453348025766"
-      y2="463.33066346248734"
-      stroke="#000000"
+      x1="424.9913399450441"
+      y1="465.92317492017384"
+      x2="424.9913399450441"
+      y2="465.82295631085935"
+      stroke="#1d1d2c"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="3"
     />
     <title>`C3`.line2</title>
   </g>
   <g>
     <line
-      x1="371.2453348025766"
-      y1="463.33066346248734"
-      x2="383.59998378014865"
-      y2="463.33066346248734"
-      stroke="#000000"
+      x1="424.9913399450441"
+      y1="465.82295631085935"
+      x2="580.9888850894889"
+      y2="465.82295631085935"
+      stroke="#1d1d2c"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="3"
     />
     <title>`C3`.line3</title>
   </g>
   <circle
-    fill="#ffffff"
+    fill="#3cbcc3"
     fill-opacity="1"
-    cx="116.34009752034495"
-    cy="331.93006036853177"
-    stroke="#000000"
+    cx="119.09938633602667"
+    cy="346.5293495666939"
+    stroke="#1d1d2c"
     stroke-opacity="1"
-    stroke-width="1"
-    r="6"
+    stroke-width="3"
+    r="8"
   >
     <title>`IN2`.icon</title>
   </circle>
   <g>
     <line
-      x1="323.46892770683615"
-      y1="463.488366001506"
-      x2="323.4689268560151"
-      y2="297.8101735634886"
-      stroke="#000000"
+      x1="283.1255731931916"
+      y1="465.92317492017384"
+      x2="283.12557247664023"
+      y2="277.0133417886897"
+      stroke="#1d1d2c"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="3"
     />
     <title>`S1`.line</title>
   </g>
   <circle
-    fill="#000000"
+    fill="#1d1d2c"
     fill-opacity="1"
-    cx="323.46891464851666"
-    cy="348.76550113887265"
+    cx="283.1255689932191"
+    cy="277.01340091857327"
     stroke="none"
-    r="6"
+    r="9"
   >
     <title>`S1`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 86.34009752034495, 331.93006036853177)translate(71.20409752034496, 326.46606036853177)"
+    transform="rotate(0, 86.09938633602667, 346.5293495666939)translate(70.01738633602668, 340.7238495666939)"
   >
     <title>`IN2`.symbol</title>
     <svg
-      style="font-size: 16px"
+      style="font-size: 17px"
       xmlns="http://www.w3.org/2000/svg"
-      width="30.272"
-      height="10.928"
+      width="32.164"
+      height="11.611"
       role="img"
       focusable="false"
       viewBox="0 -683 1892 683"
@@ -495,26 +495,26 @@
     </svg>
   </g>
   <circle
-    fill="#ffffff"
+    fill="#3cbcc3"
     fill-opacity="1"
-    cx="116.34008156615016"
-    cy="348.82752773253577"
-    stroke="#000000"
+    cx="119.09938350719409"
+    cy="277.122293019135"
+    stroke="#1d1d2c"
     stroke-opacity="1"
-    stroke-width="1"
-    r="6"
+    stroke-width="3"
+    r="8"
   >
     <title>`IN1`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 86.34008156615016, 348.82752773253577)translate(71.20408156615017, 343.3635277325358)"
+    transform="rotate(0, 86.09938350719409, 277.122293019135)translate(70.0173835071941, 271.316793019135)"
   >
     <title>`IN1`.symbol</title>
     <svg
-      style="font-size: 16px"
+      style="font-size: 17px"
       xmlns="http://www.w3.org/2000/svg"
-      width="30.272"
-      height="10.928"
+      width="32.164"
+      height="11.611"
       role="img"
       focusable="false"
       viewBox="0 -683 1892 683"
@@ -550,26 +550,26 @@
     </svg>
   </g>
   <circle
-    fill="#ffffff"
+    fill="#3cbcc3"
     fill-opacity="1"
-    cx="678.6516707256133"
-    cy="314.8388092977338"
-    stroke="#000000"
+    cx="720.118947249088"
+    cy="294.1594189105897"
+    stroke="#1d1d2c"
     stroke-opacity="1"
-    stroke-width="1"
-    r="6"
+    stroke-width="3"
+    r="8"
   >
     <title>`CAR`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 713.6516707256133, 314.8388092977338)translate(695.4996707256132, 308.9348092977338)"
+    transform="rotate(0, 757.118947249088, 294.1594189105897)translate(737.832447249088, 287.88641891058967)"
   >
     <title>`CAR`.symbol</title>
     <svg
-      style="font-size: 16px"
+      style="font-size: 17px"
       xmlns="http://www.w3.org/2000/svg"
-      width="36.304"
-      height="11.808"
+      width="38.573"
+      height="12.546"
       role="img"
       focusable="false"
       viewBox="0 -716 2269 738"
@@ -605,65 +605,65 @@
     </svg>
   </g>
   <circle
-    fill="#ffffff"
+    fill="#3cbcc3"
     fill-opacity="1"
-    cx="569.7901003308102"
-    cy="314.83867447384887"
-    stroke="#000000"
+    cx="354.188039275293"
+    cy="294.136419047766"
+    stroke="#1d1d2c"
     stroke-opacity="1"
-    stroke-width="1"
+    stroke-width="7"
     r="25"
   >
     <title>`AND`.part2</title>
   </circle>
   <rect
-    x="529.7901003308102"
-    y="289.83867447384887"
+    x="314.188039275293"
+    y="266.98641904776605"
     width="40"
-    height="50"
-    fill="#ffffff"
+    height="54.3"
+    fill="#3cbcc3"
     fill-opacity="1"
-    stroke="#000000"
+    stroke="#1d1d2c"
     stroke-opacity="1"
-    stroke-width="1"
+    stroke-width="3"
     rx="0"
-    transform="rotate(0, 549.7901003308102, 314.83867447384887)"
+    transform="rotate(0, 334.188039275293, 294.136419047766)"
   >
     <title>`AND`.part1</title>
   </rect>
   <circle
-    fill="#ffffff"
+    fill="#3cbcc3"
     fill-opacity="1"
-    cx="569.7901003308102"
-    cy="314.83867447384887"
-    stroke="#ffffff"
+    cx="354.188039275293"
+    cy="294.136419047766"
+    stroke="#3cbcc3"
     stroke-opacity="1"
-    stroke-width="1"
+    stroke-width="3"
     r="24"
   >
     <title>`AND`.part3</title>
   </circle>
   <circle
-    fill="#ffffff"
+    fill="#3cbcc3"
     fill-opacity="1"
-    cx="678.6516563691368"
-    cy="480.39168498853536"
-    stroke="#000000"
+    cx="720.1189441630299"
+    cy="482.560605591288"
+    stroke="#1d1d2c"
     stroke-opacity="1"
-    stroke-width="1"
-    r="6"
+    stroke-width="3"
+    r="8"
   >
     <title>`SUM`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 713.6516563691368, 480.39168498853536)translate(693.9476563691369, 474.5756849885354)"
+    transform="rotate(0, 757.1189441630299, 482.560605591288)translate(736.1834441630299, 476.38110559128796)"
   >
     <title>`SUM`.symbol</title>
     <svg
-      style="font-size: 16px"
+      style="font-size: 17px"
       xmlns="http://www.w3.org/2000/svg"
-      width="39.408"
-      height="11.632"
+      width="41.871"
+      height="12.359"
       role="img"
       focusable="false"
       viewBox="0 -705 2463 727"

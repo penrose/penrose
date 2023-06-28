@@ -1,2291 +1,2171 @@
 <svg
   version="1.2"
   xmlns="http://www.w3.org/2000/svg"
-  viewBox="0 0 1066.5 600"
+  viewBox="0 0 800 600"
   penrose="0"
 >
-  <penrose><croppedViewBox>0 0 1066.5 600</croppedViewBox></penrose>
-  <rect
-    x="0"
-    y="0"
-    width="1066.5"
-    height="600"
-    fill="#000000"
-    fill-opacity="0"
-    stroke="#808080"
-    stroke-opacity="1"
-    stroke-width="0"
-    rx="0"
-    transform="rotate(0, 533.25, 300)"
-  >
-    <title>Global.bbox</title>
-  </rect>
-  <g
-    transform="rotate(0, 455.24707403431074, 388.75463558544305)translate(415.24707403431074, 348.75463558544305)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 24.2.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
+  <penrose><croppedViewBox>0 0 800 600</croppedViewBox></penrose>
+  <g transform="rotate(0, 400, 300)translate(0, 0)">
+    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 27.2.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
-      id="caffeine__Layer_1--inject-67"
+      id="caffeine__Layer_1--inject-15"
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       x="0px"
       y="0px"
-      viewBox="0 0 432 432"
-      style="enable-background: new 0 0 432 432"
+      viewBox="0 0 100 100"
+      style="enable-background: new 0 0 100 100"
       xml:space="preserve"
-      width="80"
-      height="80"
+      width="800"
+      height="600"
+      preserveAspectRatio="none"
     >
-      <style type="text/css">
-        .caffeine__st0 {
-          fill: url(#caffeine__SVGID_1_--inject-67);
-        }
-      </style>
-      <radialGradient
-        id="caffeine__SVGID_1_--inject-67"
-        cx="216"
-        cy="216"
-        r="216"
+      <linearGradient
+        id="caffeine__SVGID_1_--inject-15"
         gradientUnits="userSpaceOnUse"
+        x1="37.2857"
+        y1="158.1429"
+        x2="137.2857"
+        y2="158.1429"
+        gradientTransform="matrix(6.123234e-17 -1 1 6.123234e-17 -108.1429 137.2857)"
       >
-        <stop offset="0" style="stop-color: #000000" />
-        <stop offset="0.2365" style="stop-color: #020202" />
-        <stop offset="0.3732" style="stop-color: #0b0b0b" />
-        <stop offset="0.4846" style="stop-color: #191919" />
-        <stop offset="0.5822" style="stop-color: #2d2d2d" />
-        <stop offset="0.6709" style="stop-color: #474747" />
-        <stop offset="0.7531" style="stop-color: #666666" />
-        <stop offset="0.8303" style="stop-color: #8c8c8c" />
-        <stop offset="0.9036" style="stop-color: #b8b8b8" />
-        <stop offset="0.9714" style="stop-color: #e8e8e8" />
-        <stop offset="1" style="stop-color: #ffffff" />
-      </radialGradient>
-      <circle class="caffeine__st0" cx="216" cy="216" r="216" />
+        <stop offset="1.240079e-03" style="stop-color: #fac7d1" />
+        <stop offset="1" style="stop-color: #9494f0" />
+      </linearGradient>
+      <polygon
+        points="100,0 100,100 0,100 0,0 "
+        style="fill: url(#caffeine__SVGID_1_--inject-15)"
+      />
     </svg>
-    <title>`C7`.background</title>
+    <title>global.background</title>
   </g>
-  <g
-    transform="rotate(0, 511.24271860646945, 113.1988367903291)translate(471.24271860646945, 73.1988367903291)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 24.2.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="caffeine__Layer_1--inject-68"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 432 432"
-      style="enable-background: new 0 0 432 432"
-      xml:space="preserve"
-      width="80"
-      height="80"
-    >
-      <style type="text/css">
-        .caffeine__st0 {
-          fill: url(#caffeine__SVGID_1_--inject-68);
-        }
-      </style>
-      <radialGradient
-        id="caffeine__SVGID_1_--inject-68"
-        cx="216"
-        cy="216"
-        r="216"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #000000" />
-        <stop offset="0.2365" style="stop-color: #020202" />
-        <stop offset="0.3732" style="stop-color: #0b0b0b" />
-        <stop offset="0.4846" style="stop-color: #191919" />
-        <stop offset="0.5822" style="stop-color: #2d2d2d" />
-        <stop offset="0.6709" style="stop-color: #474747" />
-        <stop offset="0.7531" style="stop-color: #666666" />
-        <stop offset="0.8303" style="stop-color: #8c8c8c" />
-        <stop offset="0.9036" style="stop-color: #b8b8b8" />
-        <stop offset="0.9714" style="stop-color: #e8e8e8" />
-        <stop offset="1" style="stop-color: #ffffff" />
-      </radialGradient>
-      <circle class="caffeine__st0" cx="216" cy="216" r="216" />
-    </svg>
-    <title>`O1`.background</title>
-  </g>
-  <g
-    transform="rotate(0, 566.3509966412622, 310.67363163611003)translate(526.3509966412622, 270.67363163611003)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 24.2.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="caffeine__Layer_1--inject-69"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 432 432"
-      style="enable-background: new 0 0 432 432"
-      xml:space="preserve"
-      width="80"
-      height="80"
-    >
-      <style type="text/css">
-        .caffeine__st0 {
-          fill: url(#caffeine__SVGID_1_--inject-69);
-        }
-      </style>
-      <radialGradient
-        id="caffeine__SVGID_1_--inject-69"
-        cx="216"
-        cy="216"
-        r="216"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #000000" />
-        <stop offset="0.2365" style="stop-color: #020202" />
-        <stop offset="0.3732" style="stop-color: #0b0b0b" />
-        <stop offset="0.4846" style="stop-color: #191919" />
-        <stop offset="0.5822" style="stop-color: #2d2d2d" />
-        <stop offset="0.6709" style="stop-color: #474747" />
-        <stop offset="0.7531" style="stop-color: #666666" />
-        <stop offset="0.8303" style="stop-color: #8c8c8c" />
-        <stop offset="0.9036" style="stop-color: #b8b8b8" />
-        <stop offset="0.9714" style="stop-color: #e8e8e8" />
-        <stop offset="1" style="stop-color: #ffffff" />
-      </radialGradient>
-      <circle class="caffeine__st0" cx="216" cy="216" r="216" />
-    </svg>
-    <title>`C5`.background</title>
-  </g>
-  <g
-    transform="rotate(0, 721.8100298015601, 432.8577821850808)translate(681.8100298015601, 392.8577821850808)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 24.2.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="caffeine__Layer_1--inject-70"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 432 432"
-      style="enable-background: new 0 0 432 432"
-      xml:space="preserve"
-      width="80"
-      height="80"
-    >
-      <style type="text/css">
-        .caffeine__st0 {
-          fill: url(#caffeine__SVGID_1_--inject-70);
-        }
-      </style>
-      <radialGradient
-        id="caffeine__SVGID_1_--inject-70"
-        cx="216"
-        cy="216"
-        r="216"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #000000" />
-        <stop offset="0.2365" style="stop-color: #020202" />
-        <stop offset="0.3732" style="stop-color: #0b0b0b" />
-        <stop offset="0.4846" style="stop-color: #191919" />
-        <stop offset="0.5822" style="stop-color: #2d2d2d" />
-        <stop offset="0.6709" style="stop-color: #474747" />
-        <stop offset="0.7531" style="stop-color: #666666" />
-        <stop offset="0.8303" style="stop-color: #8c8c8c" />
-        <stop offset="0.9036" style="stop-color: #b8b8b8" />
-        <stop offset="0.9714" style="stop-color: #e8e8e8" />
-        <stop offset="1" style="stop-color: #ffffff" />
-      </radialGradient>
-      <circle class="caffeine__st0" cx="216" cy="216" r="216" />
-    </svg>
-    <title>`N4`.background</title>
-  </g>
-  <g
-    transform="rotate(0, 622.4726295548967, 261.8425129859471)translate(582.4726295548967, 221.8425129859471)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 24.2.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="caffeine__Layer_1--inject-71"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 432 432"
-      style="enable-background: new 0 0 432 432"
-      xml:space="preserve"
-      width="80"
-      height="80"
-    >
-      <style type="text/css">
-        .caffeine__st0 {
-          fill: url(#caffeine__SVGID_1_--inject-71);
-        }
-      </style>
-      <radialGradient
-        id="caffeine__SVGID_1_--inject-71"
-        cx="216"
-        cy="216"
-        r="216"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #000000" />
-        <stop offset="0.2365" style="stop-color: #020202" />
-        <stop offset="0.3732" style="stop-color: #0b0b0b" />
-        <stop offset="0.4846" style="stop-color: #191919" />
-        <stop offset="0.5822" style="stop-color: #2d2d2d" />
-        <stop offset="0.6709" style="stop-color: #474747" />
-        <stop offset="0.7531" style="stop-color: #666666" />
-        <stop offset="0.8303" style="stop-color: #8c8c8c" />
-        <stop offset="0.9036" style="stop-color: #b8b8b8" />
-        <stop offset="0.9714" style="stop-color: #e8e8e8" />
-        <stop offset="1" style="stop-color: #ffffff" />
-      </radialGradient>
-      <circle class="caffeine__st0" cx="216" cy="216" r="216" />
-    </svg>
-    <title>`O2`.background</title>
-  </g>
-  <g
-    transform="rotate(0, 370.314641438712, 367.7998108664166)translate(330.314641438712, 327.7998108664166)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 24.2.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="caffeine__Layer_1--inject-72"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 432 432"
-      style="enable-background: new 0 0 432 432"
-      xml:space="preserve"
-      width="80"
-      height="80"
-    >
-      <style type="text/css">
-        .caffeine__st0 {
-          fill: url(#caffeine__SVGID_1_--inject-72);
-        }
-      </style>
-      <radialGradient
-        id="caffeine__SVGID_1_--inject-72"
-        cx="216"
-        cy="216"
-        r="216"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #000000" />
-        <stop offset="0.2365" style="stop-color: #020202" />
-        <stop offset="0.3732" style="stop-color: #0b0b0b" />
-        <stop offset="0.4846" style="stop-color: #191919" />
-        <stop offset="0.5822" style="stop-color: #2d2d2d" />
-        <stop offset="0.6709" style="stop-color: #474747" />
-        <stop offset="0.7531" style="stop-color: #666666" />
-        <stop offset="0.8303" style="stop-color: #8c8c8c" />
-        <stop offset="0.9036" style="stop-color: #b8b8b8" />
-        <stop offset="0.9714" style="stop-color: #e8e8e8" />
-        <stop offset="1" style="stop-color: #ffffff" />
-      </radialGradient>
-      <circle class="caffeine__st0" cx="216" cy="216" r="216" />
-    </svg>
-    <title>`H2`.background</title>
-  </g>
-  <g
-    transform="rotate(0, 653.3266749247505, 490.1870464397348)translate(613.3266749247505, 450.1870464397348)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 24.2.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="caffeine__Layer_1--inject-73"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 432 432"
-      style="enable-background: new 0 0 432 432"
-      xml:space="preserve"
-      width="80"
-      height="80"
-    >
-      <style type="text/css">
-        .caffeine__st0 {
-          fill: url(#caffeine__SVGID_1_--inject-73);
-        }
-      </style>
-      <radialGradient
-        id="caffeine__SVGID_1_--inject-73"
-        cx="216"
-        cy="216"
-        r="216"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #000000" />
-        <stop offset="0.2365" style="stop-color: #020202" />
-        <stop offset="0.3732" style="stop-color: #0b0b0b" />
-        <stop offset="0.4846" style="stop-color: #191919" />
-        <stop offset="0.5822" style="stop-color: #2d2d2d" />
-        <stop offset="0.6709" style="stop-color: #474747" />
-        <stop offset="0.7531" style="stop-color: #666666" />
-        <stop offset="0.8303" style="stop-color: #8c8c8c" />
-        <stop offset="0.9036" style="stop-color: #b8b8b8" />
-        <stop offset="0.9714" style="stop-color: #e8e8e8" />
-        <stop offset="1" style="stop-color: #ffffff" />
-      </radialGradient>
-      <circle class="caffeine__st0" cx="216" cy="216" r="216" />
-    </svg>
-    <title>`C8`.background</title>
-  </g>
-  <g
-    transform="rotate(0, 649.7169435754876, 187.3319714659042)translate(609.7169435754876, 147.3319714659042)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 24.2.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="caffeine__Layer_1--inject-74"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 432 432"
-      style="enable-background: new 0 0 432 432"
-      xml:space="preserve"
-      width="80"
-      height="80"
-    >
-      <style type="text/css">
-        .caffeine__st0 {
-          fill: url(#caffeine__SVGID_1_--inject-74);
-        }
-      </style>
-      <radialGradient
-        id="caffeine__SVGID_1_--inject-74"
-        cx="216"
-        cy="216"
-        r="216"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #000000" />
-        <stop offset="0.2365" style="stop-color: #020202" />
-        <stop offset="0.3732" style="stop-color: #0b0b0b" />
-        <stop offset="0.4846" style="stop-color: #191919" />
-        <stop offset="0.5822" style="stop-color: #2d2d2d" />
-        <stop offset="0.6709" style="stop-color: #474747" />
-        <stop offset="0.7531" style="stop-color: #666666" />
-        <stop offset="0.8303" style="stop-color: #8c8c8c" />
-        <stop offset="0.9036" style="stop-color: #b8b8b8" />
-        <stop offset="0.9714" style="stop-color: #e8e8e8" />
-        <stop offset="1" style="stop-color: #ffffff" />
-      </radialGradient>
-      <circle class="caffeine__st0" cx="216" cy="216" r="216" />
-    </svg>
-    <title>`N2`.background</title>
-  </g>
-  <g
-    transform="rotate(0, 692.1018186204916, 270.9559396825458)translate(652.1018186204916, 230.95593968254582)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 24.2.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="caffeine__Layer_1--inject-75"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 432 432"
-      style="enable-background: new 0 0 432 432"
-      xml:space="preserve"
-      width="80"
-      height="80"
-    >
-      <style type="text/css">
-        .caffeine__st0 {
-          fill: url(#caffeine__SVGID_1_--inject-75);
-        }
-      </style>
-      <radialGradient
-        id="caffeine__SVGID_1_--inject-75"
-        cx="216"
-        cy="216"
-        r="216"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #000000" />
-        <stop offset="0.2365" style="stop-color: #020202" />
-        <stop offset="0.3732" style="stop-color: #0b0b0b" />
-        <stop offset="0.4846" style="stop-color: #191919" />
-        <stop offset="0.5822" style="stop-color: #2d2d2d" />
-        <stop offset="0.6709" style="stop-color: #474747" />
-        <stop offset="0.7531" style="stop-color: #666666" />
-        <stop offset="0.8303" style="stop-color: #8c8c8c" />
-        <stop offset="0.9036" style="stop-color: #b8b8b8" />
-        <stop offset="0.9714" style="stop-color: #e8e8e8" />
-        <stop offset="1" style="stop-color: #ffffff" />
-      </radialGradient>
-      <circle class="caffeine__st0" cx="216" cy="216" r="216" />
-    </svg>
-    <title>`C2`.background</title>
-  </g>
-  <g
-    transform="rotate(0, 562.9321781772403, 208.92648537384014)translate(522.9321781772403, 168.92648537384014)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 24.2.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="caffeine__Layer_1--inject-76"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 432 432"
-      style="enable-background: new 0 0 432 432"
-      xml:space="preserve"
-      width="80"
-      height="80"
-    >
-      <style type="text/css">
-        .caffeine__st0 {
-          fill: url(#caffeine__SVGID_1_--inject-76);
-        }
-      </style>
-      <radialGradient
-        id="caffeine__SVGID_1_--inject-76"
-        cx="216"
-        cy="216"
-        r="216"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #000000" />
-        <stop offset="0.2365" style="stop-color: #020202" />
-        <stop offset="0.3732" style="stop-color: #0b0b0b" />
-        <stop offset="0.4846" style="stop-color: #191919" />
-        <stop offset="0.5822" style="stop-color: #2d2d2d" />
-        <stop offset="0.6709" style="stop-color: #474747" />
-        <stop offset="0.7531" style="stop-color: #666666" />
-        <stop offset="0.8303" style="stop-color: #8c8c8c" />
-        <stop offset="0.9036" style="stop-color: #b8b8b8" />
-        <stop offset="0.9714" style="stop-color: #e8e8e8" />
-        <stop offset="1" style="stop-color: #ffffff" />
-      </radialGradient>
-      <circle class="caffeine__st0" cx="216" cy="216" r="216" />
-    </svg>
-    <title>`C4`.background</title>
-  </g>
-  <g
-    transform="rotate(0, 579.2184545624131, 559.9987237392165)translate(539.2184545624131, 519.9987237392165)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 24.2.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="caffeine__Layer_1--inject-77"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 432 432"
-      style="enable-background: new 0 0 432 432"
-      xml:space="preserve"
-      width="80"
-      height="80"
-    >
-      <style type="text/css">
-        .caffeine__st0 {
-          fill: url(#caffeine__SVGID_1_--inject-77);
-        }
-      </style>
-      <radialGradient
-        id="caffeine__SVGID_1_--inject-77"
-        cx="216"
-        cy="216"
-        r="216"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #000000" />
-        <stop offset="0.2365" style="stop-color: #020202" />
-        <stop offset="0.3732" style="stop-color: #0b0b0b" />
-        <stop offset="0.4846" style="stop-color: #191919" />
-        <stop offset="0.5822" style="stop-color: #2d2d2d" />
-        <stop offset="0.6709" style="stop-color: #474747" />
-        <stop offset="0.7531" style="stop-color: #666666" />
-        <stop offset="0.8303" style="stop-color: #8c8c8c" />
-        <stop offset="0.9036" style="stop-color: #b8b8b8" />
-        <stop offset="0.9714" style="stop-color: #e8e8e8" />
-        <stop offset="1" style="stop-color: #ffffff" />
-      </radialGradient>
-      <circle class="caffeine__st0" cx="216" cy="216" r="216" />
-    </svg>
-    <title>`H10`.background</title>
-  </g>
-  <g
-    transform="rotate(0, 590.0267034904726, 126.26043712396842)translate(550.0267034904726, 86.26043712396842)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 24.2.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="caffeine__Layer_1--inject-78"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 432 432"
-      style="enable-background: new 0 0 432 432"
-      xml:space="preserve"
-      width="80"
-      height="80"
-    >
-      <style type="text/css">
-        .caffeine__st0 {
-          fill: url(#caffeine__SVGID_1_--inject-78);
-        }
-      </style>
-      <radialGradient
-        id="caffeine__SVGID_1_--inject-78"
-        cx="216"
-        cy="216"
-        r="216"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #000000" />
-        <stop offset="0.2365" style="stop-color: #020202" />
-        <stop offset="0.3732" style="stop-color: #0b0b0b" />
-        <stop offset="0.4846" style="stop-color: #191919" />
-        <stop offset="0.5822" style="stop-color: #2d2d2d" />
-        <stop offset="0.6709" style="stop-color: #474747" />
-        <stop offset="0.7531" style="stop-color: #666666" />
-        <stop offset="0.8303" style="stop-color: #8c8c8c" />
-        <stop offset="0.9036" style="stop-color: #b8b8b8" />
-        <stop offset="0.9714" style="stop-color: #e8e8e8" />
-        <stop offset="1" style="stop-color: #ffffff" />
-      </radialGradient>
-      <circle class="caffeine__st0" cx="216" cy="216" r="216" />
-    </svg>
-    <title>`C1`.background</title>
-  </g>
-  <g
-    transform="rotate(0, 406.5946991116449, 458.8273208942751)translate(366.5946991116449, 418.8273208942751)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 24.2.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="caffeine__Layer_1--inject-79"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 432 432"
-      style="enable-background: new 0 0 432 432"
-      xml:space="preserve"
-      width="80"
-      height="80"
-    >
-      <style type="text/css">
-        .caffeine__st0 {
-          fill: url(#caffeine__SVGID_1_--inject-79);
-        }
-      </style>
-      <radialGradient
-        id="caffeine__SVGID_1_--inject-79"
-        cx="216"
-        cy="216"
-        r="216"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #000000" />
-        <stop offset="0.2365" style="stop-color: #020202" />
-        <stop offset="0.3732" style="stop-color: #0b0b0b" />
-        <stop offset="0.4846" style="stop-color: #191919" />
-        <stop offset="0.5822" style="stop-color: #2d2d2d" />
-        <stop offset="0.6709" style="stop-color: #474747" />
-        <stop offset="0.7531" style="stop-color: #666666" />
-        <stop offset="0.8303" style="stop-color: #8c8c8c" />
-        <stop offset="0.9036" style="stop-color: #b8b8b8" />
-        <stop offset="0.9714" style="stop-color: #e8e8e8" />
-        <stop offset="1" style="stop-color: #ffffff" />
-      </radialGradient>
-      <circle class="caffeine__st0" cx="216" cy="216" r="216" />
-    </svg>
-    <title>`H3`.background</title>
-  </g>
-  <g
-    transform="rotate(0, 687.3739284195835, 352.86779726287415)translate(647.3739284195835, 312.86779726287415)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 24.2.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="caffeine__Layer_1--inject-80"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 432 432"
-      style="enable-background: new 0 0 432 432"
-      xml:space="preserve"
-      width="80"
-      height="80"
-    >
-      <style type="text/css">
-        .caffeine__st0 {
-          fill: url(#caffeine__SVGID_1_--inject-80);
-        }
-      </style>
-      <radialGradient
-        id="caffeine__SVGID_1_--inject-80"
-        cx="216"
-        cy="216"
-        r="216"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #000000" />
-        <stop offset="0.2365" style="stop-color: #020202" />
-        <stop offset="0.3732" style="stop-color: #0b0b0b" />
-        <stop offset="0.4846" style="stop-color: #191919" />
-        <stop offset="0.5822" style="stop-color: #2d2d2d" />
-        <stop offset="0.6709" style="stop-color: #474747" />
-        <stop offset="0.7531" style="stop-color: #666666" />
-        <stop offset="0.8303" style="stop-color: #8c8c8c" />
-        <stop offset="0.9036" style="stop-color: #b8b8b8" />
-        <stop offset="0.9714" style="stop-color: #e8e8e8" />
-        <stop offset="1" style="stop-color: #ffffff" />
-      </radialGradient>
-      <circle class="caffeine__st0" cx="216" cy="216" r="216" />
-    </svg>
-    <title>`C6`.background</title>
-  </g>
-  <g
-    transform="rotate(0, 667.3800764320645, 86.20478280734037)translate(627.3800764320645, 46.204782807340365)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 24.2.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="caffeine__Layer_1--inject-81"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 432 432"
-      style="enable-background: new 0 0 432 432"
-      xml:space="preserve"
-      width="80"
-      height="80"
-    >
-      <style type="text/css">
-        .caffeine__st0 {
-          fill: url(#caffeine__SVGID_1_--inject-81);
-        }
-      </style>
-      <radialGradient
-        id="caffeine__SVGID_1_--inject-81"
-        cx="216"
-        cy="216"
-        r="216"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #000000" />
-        <stop offset="0.2365" style="stop-color: #020202" />
-        <stop offset="0.3732" style="stop-color: #0b0b0b" />
-        <stop offset="0.4846" style="stop-color: #191919" />
-        <stop offset="0.5822" style="stop-color: #2d2d2d" />
-        <stop offset="0.6709" style="stop-color: #474747" />
-        <stop offset="0.7531" style="stop-color: #666666" />
-        <stop offset="0.8303" style="stop-color: #8c8c8c" />
-        <stop offset="0.9036" style="stop-color: #b8b8b8" />
-        <stop offset="0.9714" style="stop-color: #e8e8e8" />
-        <stop offset="1" style="stop-color: #ffffff" />
-      </radialGradient>
-      <circle class="caffeine__st0" cx="216" cy="216" r="216" />
-    </svg>
-    <title>`H6`.background</title>
-  </g>
-  <g
-    transform="rotate(0, 491.53557214787634, 182.723720980958)translate(451.53557214787634, 142.723720980958)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 24.2.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="caffeine__Layer_1--inject-82"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 432 432"
-      style="enable-background: new 0 0 432 432"
-      xml:space="preserve"
-      width="80"
-      height="80"
-    >
-      <style type="text/css">
-        .caffeine__st0 {
-          fill: url(#caffeine__SVGID_1_--inject-82);
-        }
-      </style>
-      <radialGradient
-        id="caffeine__SVGID_1_--inject-82"
-        cx="216"
-        cy="216"
-        r="216"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #000000" />
-        <stop offset="0.2365" style="stop-color: #020202" />
-        <stop offset="0.3732" style="stop-color: #0b0b0b" />
-        <stop offset="0.4846" style="stop-color: #191919" />
-        <stop offset="0.5822" style="stop-color: #2d2d2d" />
-        <stop offset="0.6709" style="stop-color: #474747" />
-        <stop offset="0.7531" style="stop-color: #666666" />
-        <stop offset="0.8303" style="stop-color: #8c8c8c" />
-        <stop offset="0.9036" style="stop-color: #b8b8b8" />
-        <stop offset="0.9714" style="stop-color: #e8e8e8" />
-        <stop offset="1" style="stop-color: #ffffff" />
-      </radialGradient>
-      <circle class="caffeine__st0" cx="216" cy="216" r="216" />
-    </svg>
-    <title>`H7`.background</title>
-  </g>
-  <g
-    transform="rotate(0, 619.6216943612471, 358.31020611772385)translate(579.6216943612471, 318.31020611772385)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 24.2.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="caffeine__Layer_1--inject-83"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 432 432"
-      style="enable-background: new 0 0 432 432"
-      xml:space="preserve"
-      width="80"
-      height="80"
-    >
-      <style type="text/css">
-        .caffeine__st0 {
-          fill: url(#caffeine__SVGID_1_--inject-83);
-        }
-      </style>
-      <radialGradient
-        id="caffeine__SVGID_1_--inject-83"
-        cx="216"
-        cy="216"
-        r="216"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #000000" />
-        <stop offset="0.2365" style="stop-color: #020202" />
-        <stop offset="0.3732" style="stop-color: #0b0b0b" />
-        <stop offset="0.4846" style="stop-color: #191919" />
-        <stop offset="0.5822" style="stop-color: #2d2d2d" />
-        <stop offset="0.6709" style="stop-color: #474747" />
-        <stop offset="0.7531" style="stop-color: #666666" />
-        <stop offset="0.8303" style="stop-color: #8c8c8c" />
-        <stop offset="0.9036" style="stop-color: #b8b8b8" />
-        <stop offset="0.9714" style="stop-color: #e8e8e8" />
-        <stop offset="1" style="stop-color: #ffffff" />
-      </radialGradient>
-      <circle class="caffeine__st0" cx="216" cy="216" r="216" />
-    </svg>
-    <title>`N1`.background</title>
-  </g>
-  <g
-    transform="rotate(0, 578.4510211942772, 40.00782011127774)translate(538.4510211942772, 0.007820111277737851)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 24.2.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="caffeine__Layer_1--inject-84"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 432 432"
-      style="enable-background: new 0 0 432 432"
-      xml:space="preserve"
-      width="80"
-      height="80"
-    >
-      <style type="text/css">
-        .caffeine__st0 {
-          fill: url(#caffeine__SVGID_1_--inject-84);
-        }
-      </style>
-      <radialGradient
-        id="caffeine__SVGID_1_--inject-84"
-        cx="216"
-        cy="216"
-        r="216"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #000000" />
-        <stop offset="0.2365" style="stop-color: #020202" />
-        <stop offset="0.3732" style="stop-color: #0b0b0b" />
-        <stop offset="0.4846" style="stop-color: #191919" />
-        <stop offset="0.5822" style="stop-color: #2d2d2d" />
-        <stop offset="0.6709" style="stop-color: #474747" />
-        <stop offset="0.7531" style="stop-color: #666666" />
-        <stop offset="0.8303" style="stop-color: #8c8c8c" />
-        <stop offset="0.9036" style="stop-color: #b8b8b8" />
-        <stop offset="0.9714" style="stop-color: #e8e8e8" />
-        <stop offset="1" style="stop-color: #ffffff" />
-      </radialGradient>
-      <circle class="caffeine__st0" cx="216" cy="216" r="216" />
-    </svg>
-    <title>`H5`.background</title>
-  </g>
-  <g
-    transform="rotate(0, 495.5393558637631, 516.1403353950257)translate(455.5393558637631, 476.14033539502566)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 24.2.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="caffeine__Layer_1--inject-85"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 432 432"
-      style="enable-background: new 0 0 432 432"
-      xml:space="preserve"
-      width="80"
-      height="80"
-    >
-      <style type="text/css">
-        .caffeine__st0 {
-          fill: url(#caffeine__SVGID_1_--inject-85);
-        }
-      </style>
-      <radialGradient
-        id="caffeine__SVGID_1_--inject-85"
-        cx="216"
-        cy="216"
-        r="216"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #000000" />
-        <stop offset="0.2365" style="stop-color: #020202" />
-        <stop offset="0.3732" style="stop-color: #0b0b0b" />
-        <stop offset="0.4846" style="stop-color: #191919" />
-        <stop offset="0.5822" style="stop-color: #2d2d2d" />
-        <stop offset="0.6709" style="stop-color: #474747" />
-        <stop offset="0.7531" style="stop-color: #666666" />
-        <stop offset="0.8303" style="stop-color: #8c8c8c" />
-        <stop offset="0.9036" style="stop-color: #b8b8b8" />
-        <stop offset="0.9714" style="stop-color: #e8e8e8" />
-        <stop offset="1" style="stop-color: #ffffff" />
-      </radialGradient>
-      <circle class="caffeine__st0" cx="216" cy="216" r="216" />
-    </svg>
-    <title>`H8`.background</title>
-  </g>
-  <g
-    transform="rotate(0, 569.0052001079209, 472.779405926612)translate(529.0052001079209, 432.779405926612)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 24.2.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="caffeine__Layer_1--inject-86"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 432 432"
-      style="enable-background: new 0 0 432 432"
-      xml:space="preserve"
-      width="80"
-      height="80"
-    >
-      <style type="text/css">
-        .caffeine__st0 {
-          fill: url(#caffeine__SVGID_1_--inject-86);
-        }
-      </style>
-      <radialGradient
-        id="caffeine__SVGID_1_--inject-86"
-        cx="216"
-        cy="216"
-        r="216"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #000000" />
-        <stop offset="0.2365" style="stop-color: #020202" />
-        <stop offset="0.3732" style="stop-color: #0b0b0b" />
-        <stop offset="0.4846" style="stop-color: #191919" />
-        <stop offset="0.5822" style="stop-color: #2d2d2d" />
-        <stop offset="0.6709" style="stop-color: #474747" />
-        <stop offset="0.7531" style="stop-color: #666666" />
-        <stop offset="0.8303" style="stop-color: #8c8c8c" />
-        <stop offset="0.9036" style="stop-color: #b8b8b8" />
-        <stop offset="0.9714" style="stop-color: #e8e8e8" />
-        <stop offset="1" style="stop-color: #ffffff" />
-      </radialGradient>
-      <circle class="caffeine__st0" cx="216" cy="216" r="216" />
-    </svg>
-    <title>`C3`.background</title>
-  </g>
-  <g
-    transform="rotate(0, 629.2733048799658, 427.0233836192738)translate(589.2733048799658, 387.0233836192738)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 24.2.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="caffeine__Layer_1--inject-87"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 432 432"
-      style="enable-background: new 0 0 432 432"
-      xml:space="preserve"
-      width="80"
-      height="80"
-    >
-      <style type="text/css">
-        .caffeine__st0 {
-          fill: url(#caffeine__SVGID_1_--inject-87);
-        }
-      </style>
-      <radialGradient
-        id="caffeine__SVGID_1_--inject-87"
-        cx="216"
-        cy="216"
-        r="216"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #000000" />
-        <stop offset="0.2365" style="stop-color: #020202" />
-        <stop offset="0.3732" style="stop-color: #0b0b0b" />
-        <stop offset="0.4846" style="stop-color: #191919" />
-        <stop offset="0.5822" style="stop-color: #2d2d2d" />
-        <stop offset="0.6709" style="stop-color: #474747" />
-        <stop offset="0.7531" style="stop-color: #666666" />
-        <stop offset="0.8303" style="stop-color: #8c8c8c" />
-        <stop offset="0.9036" style="stop-color: #b8b8b8" />
-        <stop offset="0.9714" style="stop-color: #e8e8e8" />
-        <stop offset="1" style="stop-color: #ffffff" />
-      </radialGradient>
-      <circle class="caffeine__st0" cx="216" cy="216" r="216" />
-    </svg>
-    <title>`H9`.background</title>
-  </g>
-  <g>
-    <line
-      x1="589.713313639208"
-      y1="457.05764218002804"
-      x2="608.5651913486788"
-      y2="442.74514736585775"
+  <g opacity="0.1">
+    <ellipse
+      fill="#000000"
+      fill-opacity="1"
+      cx="399.5951222427917"
+      cy="427.25361807362094"
       stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="4"
-    />
-    <title>9:19:line</title>
-  </g>
-  <g
-    transform="rotate(0, 706.3621458371455, 555.9741183560609)translate(666.3621458371455, 515.9741183560609)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 24.2.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="caffeine__Layer_1--inject-88"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 432 432"
-      style="enable-background: new 0 0 432 432"
-      xml:space="preserve"
-      width="80"
-      height="80"
+      stroke-opacity="0"
+      stroke-width="3"
+      rx="50"
+      ry="25"
     >
-      <style type="text/css">
-        .caffeine__st0 {
-          fill: url(#caffeine__SVGID_1_--inject-88);
-        }
-      </style>
-      <radialGradient
-        id="caffeine__SVGID_1_--inject-88"
-        cx="216"
-        cy="216"
-        r="216"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #000000" />
-        <stop offset="0.2365" style="stop-color: #020202" />
-        <stop offset="0.3732" style="stop-color: #0b0b0b" />
-        <stop offset="0.4846" style="stop-color: #191919" />
-        <stop offset="0.5822" style="stop-color: #2d2d2d" />
-        <stop offset="0.6709" style="stop-color: #474747" />
-        <stop offset="0.7531" style="stop-color: #666666" />
-        <stop offset="0.8303" style="stop-color: #8c8c8c" />
-        <stop offset="0.9036" style="stop-color: #b8b8b8" />
-        <stop offset="0.9714" style="stop-color: #e8e8e8" />
-        <stop offset="1" style="stop-color: #ffffff" />
-      </radialGradient>
-      <circle class="caffeine__st0" cx="216" cy="216" r="216" />
-    </svg>
-    <title>`H1`.background</title>
-  </g>
-  <g
-    transform="rotate(0, 446.22171927238253, 305.11623999018207)translate(406.22171927238253, 265.11623999018207)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 24.2.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="caffeine__Layer_1--inject-89"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 432 432"
-      style="enable-background: new 0 0 432 432"
-      xml:space="preserve"
-      width="80"
-      height="80"
+      <title>`C8`.shadow</title>
+    </ellipse>
+    <ellipse
+      fill="#000000"
+      fill-opacity="1"
+      cx="644.3292918258248"
+      cy="355.70875466660124"
+      stroke="#000000"
+      stroke-opacity="0"
+      stroke-width="3"
+      rx="37.5"
+      ry="18.75"
     >
-      <style type="text/css">
-        .caffeine__st0 {
-          fill: url(#caffeine__SVGID_1_--inject-89);
-        }
-      </style>
-      <radialGradient
-        id="caffeine__SVGID_1_--inject-89"
-        cx="216"
-        cy="216"
-        r="216"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #000000" />
-        <stop offset="0.2365" style="stop-color: #020202" />
-        <stop offset="0.3732" style="stop-color: #0b0b0b" />
-        <stop offset="0.4846" style="stop-color: #191919" />
-        <stop offset="0.5822" style="stop-color: #2d2d2d" />
-        <stop offset="0.6709" style="stop-color: #474747" />
-        <stop offset="0.7531" style="stop-color: #666666" />
-        <stop offset="0.8303" style="stop-color: #8c8c8c" />
-        <stop offset="0.9036" style="stop-color: #b8b8b8" />
-        <stop offset="0.9714" style="stop-color: #e8e8e8" />
-        <stop offset="1" style="stop-color: #ffffff" />
-      </radialGradient>
-      <circle class="caffeine__st0" cx="216" cy="216" r="216" />
-    </svg>
-    <title>`H4`.background</title>
-  </g>
-  <g
-    transform="rotate(0, 547.4777983346411, 400.6750869984038)translate(507.4777983346411, 360.6750869984038)"
-  >
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 24.2.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="caffeine__Layer_1--inject-90"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 432 432"
-      style="enable-background: new 0 0 432 432"
-      xml:space="preserve"
-      width="80"
-      height="80"
+      <title>`H10`.shadow</title>
+    </ellipse>
+    <ellipse
+      fill="#000000"
+      fill-opacity="1"
+      cx="394.8605656726108"
+      cy="482.87860917080843"
+      stroke="#000000"
+      stroke-opacity="0"
+      stroke-width="3"
+      rx="37.5"
+      ry="18.75"
     >
-      <style type="text/css">
-        .caffeine__st0 {
-          fill: url(#caffeine__SVGID_1_--inject-90);
-        }
-      </style>
-      <radialGradient
-        id="caffeine__SVGID_1_--inject-90"
-        cx="216"
-        cy="216"
-        r="216"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0" style="stop-color: #000000" />
-        <stop offset="0.2365" style="stop-color: #020202" />
-        <stop offset="0.3732" style="stop-color: #0b0b0b" />
-        <stop offset="0.4846" style="stop-color: #191919" />
-        <stop offset="0.5822" style="stop-color: #2d2d2d" />
-        <stop offset="0.6709" style="stop-color: #474747" />
-        <stop offset="0.7531" style="stop-color: #666666" />
-        <stop offset="0.8303" style="stop-color: #8c8c8c" />
-        <stop offset="0.9036" style="stop-color: #b8b8b8" />
-        <stop offset="0.9714" style="stop-color: #e8e8e8" />
-        <stop offset="1" style="stop-color: #ffffff" />
-      </radialGradient>
-      <circle class="caffeine__st0" cx="216" cy="216" r="216" />
-    </svg>
-    <title>`N3`.background</title>
+      <title>`H1`.shadow</title>
+    </ellipse>
+    <ellipse
+      fill="#000000"
+      fill-opacity="1"
+      cx="596.3804001697208"
+      cy="137.92880740463156"
+      stroke="#000000"
+      stroke-opacity="0"
+      stroke-width="3"
+      rx="37.5"
+      ry="18.75"
+    >
+      <title>`H6`.shadow</title>
+    </ellipse>
+    <ellipse
+      fill="#000000"
+      fill-opacity="1"
+      cx="552.4134789159873"
+      cy="173.9100799495281"
+      stroke="#000000"
+      stroke-opacity="0"
+      stroke-width="3"
+      rx="50"
+      ry="25"
+    >
+      <title>`C1`.shadow</title>
+    </ellipse>
+    <ellipse
+      fill="#000000"
+      fill-opacity="1"
+      cx="598.7532401757721"
+      cy="456.9852297099267"
+      stroke="#000000"
+      stroke-opacity="0"
+      stroke-width="3"
+      rx="37.5"
+      ry="18.75"
+    >
+      <title>`H8`.shadow</title>
+    </ellipse>
+    <ellipse
+      fill="#000000"
+      fill-opacity="1"
+      cx="681.6074685415552"
+      cy="433.4523768426912"
+      stroke="#000000"
+      stroke-opacity="0"
+      stroke-width="3"
+      rx="37.5"
+      ry="18.75"
+    >
+      <title>`H9`.shadow</title>
+    </ellipse>
+    <ellipse
+      fill="#000000"
+      fill-opacity="1"
+      cx="544.5768526951118"
+      cy="369.8131916623838"
+      stroke="#000000"
+      stroke-opacity="0"
+      stroke-width="3"
+      rx="50"
+      ry="25"
+    >
+      <title>`N1`.shadow</title>
+    </ellipse>
+    <ellipse
+      fill="#000000"
+      fill-opacity="1"
+      cx="478.9858135517193"
+      cy="413.6522522400178"
+      stroke="#000000"
+      stroke-opacity="0"
+      stroke-width="3"
+      rx="50"
+      ry="25"
+    >
+      <title>`N4`.shadow</title>
+    </ellipse>
+    <ellipse
+      fill="#000000"
+      fill-opacity="1"
+      cx="511.2639796778596"
+      cy="135.59915206000196"
+      stroke="#000000"
+      stroke-opacity="0"
+      stroke-width="3"
+      rx="37.5"
+      ry="18.75"
+    >
+      <title>`H7`.shadow</title>
+    </ellipse>
+    <ellipse
+      fill="#000000"
+      fill-opacity="1"
+      cx="431.8131216724836"
+      cy="345.7398705625874"
+      stroke="#000000"
+      stroke-opacity="0"
+      stroke-width="3"
+      rx="50"
+      ry="25"
+    >
+      <title>`C2`.shadow</title>
+    </ellipse>
+    <ellipse
+      fill="#000000"
+      fill-opacity="1"
+      cx="494.3403672535434"
+      cy="316.53446322990334"
+      stroke="#000000"
+      stroke-opacity="0"
+      stroke-width="3"
+      rx="50"
+      ry="25"
+    >
+      <title>`C6`.shadow</title>
+    </ellipse>
+    <ellipse
+      fill="#000000"
+      fill-opacity="1"
+      cx="479.70217373130345"
+      cy="237.59534051022808"
+      stroke="#000000"
+      stroke-opacity="0"
+      stroke-width="3"
+      rx="50"
+      ry="25"
+    >
+      <title>`N2`.shadow</title>
+    </ellipse>
+    <ellipse
+      fill="#000000"
+      fill-opacity="1"
+      cx="629.902441447487"
+      cy="410.1030004608866"
+      stroke="#000000"
+      stroke-opacity="0"
+      stroke-width="3"
+      rx="50"
+      ry="25"
+    >
+      <title>`C3`.shadow</title>
+    </ellipse>
+    <ellipse
+      fill="#000000"
+      fill-opacity="1"
+      cx="220.50148494118258"
+      cy="376.7523764603227"
+      stroke="#000000"
+      stroke-opacity="0"
+      stroke-width="3"
+      rx="37.5"
+      ry="18.75"
+    >
+      <title>`H2`.shadow</title>
+    </ellipse>
+    <ellipse
+      fill="#000000"
+      fill-opacity="1"
+      cx="277.48857644384384"
+      cy="244.526161484955"
+      stroke="#000000"
+      stroke-opacity="0"
+      stroke-width="3"
+      rx="37.5"
+      ry="18.75"
+    >
+      <title>`H4`.shadow</title>
+    </ellipse>
+    <ellipse
+      fill="#000000"
+      fill-opacity="1"
+      cx="409.8385618664778"
+      cy="188.64322395689857"
+      stroke="#000000"
+      stroke-opacity="0"
+      stroke-width="3"
+      rx="50"
+      ry="25"
+    >
+      <title>`C4`.shadow</title>
+    </ellipse>
+    <ellipse
+      fill="#000000"
+      fill-opacity="1"
+      cx="200.3690182623274"
+      cy="284.87119781149"
+      stroke="#000000"
+      stroke-opacity="0"
+      stroke-width="3"
+      rx="37.5"
+      ry="18.75"
+    >
+      <title>`H3`.shadow</title>
+    </ellipse>
+    <ellipse
+      fill="#000000"
+      fill-opacity="1"
+      cx="344.4192254607866"
+      cy="326.2959046845379"
+      stroke="#000000"
+      stroke-opacity="0"
+      stroke-width="3"
+      rx="50"
+      ry="25"
+    >
+      <title>`N3`.shadow</title>
+    </ellipse>
+    <ellipse
+      fill="#000000"
+      fill-opacity="1"
+      cx="367.7283294746564"
+      cy="116.68036402906617"
+      stroke="#000000"
+      stroke-opacity="0"
+      stroke-width="3"
+      rx="50"
+      ry="25"
+    >
+      <title>`O1`.shadow</title>
+    </ellipse>
+    <ellipse
+      fill="#000000"
+      fill-opacity="1"
+      cx="581.4664096487336"
+      cy="221.99943544491484"
+      stroke="#000000"
+      stroke-opacity="0"
+      stroke-width="3"
+      rx="37.5"
+      ry="18.75"
+    >
+      <title>`H5`.shadow</title>
+    </ellipse>
+    <ellipse
+      fill="#000000"
+      fill-opacity="1"
+      cx="405.52289415548154"
+      cy="270.5445306334706"
+      stroke="#000000"
+      stroke-opacity="0"
+      stroke-width="3"
+      rx="50"
+      ry="25"
+    >
+      <title>`C5`.shadow</title>
+    </ellipse>
+    <ellipse
+      fill="#000000"
+      fill-opacity="1"
+      cx="255.49406613870855"
+      cy="296.031517319969"
+      stroke="#000000"
+      stroke-opacity="0"
+      stroke-width="3"
+      rx="50"
+      ry="25"
+    >
+      <title>`C7`.shadow</title>
+    </ellipse>
+    <ellipse
+      fill="#000000"
+      fill-opacity="1"
+      cx="332.64904219643813"
+      cy="398.4307566236569"
+      stroke="#000000"
+      stroke-opacity="0"
+      stroke-width="3"
+      rx="50"
+      ry="25"
+    >
+      <title>`O2`.shadow</title>
+    </ellipse>
+    <title>5:0:nodeShadows</title>
   </g>
   <circle
-    fill="#ff0000"
+    fill="#ffffff"
     fill-opacity="1"
-    cx="629.2733048799658"
-    cy="427.0233836192738"
-    stroke="#b30000"
+    cx="681.6074685415552"
+    cy="383.4523768426912"
+    stroke="#808080"
     stroke-opacity="1"
-    stroke-width="2"
-    r="20"
+    stroke-width="3"
+    r="18.75"
   >
     <title>`H9`.icon</title>
   </circle>
-  <text
-    fill="#ffffff"
-    fill-opacity="1"
-    stroke="none"
-    transform="rotate(0, 629.2733048799658, 427.0233836192738)"
-    style="
-      font: Bold 12px HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica,
-        Arial, sans-serif;
-    "
-    x="629.2733048799658"
-    y="431.5233836192738"
-    width="8"
-    height="9"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="9"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-  >
-    <title>`H9`.text</title>
-    H
-  </text>
   <g>
     <line
-      x1="563.8053145498576"
-      y1="234.9118177763968"
-      x2="565.4778602686448"
-      y2="284.6882992335534"
-      stroke="#000000"
+      x1="641.2946778062022"
+      y1="365.2475991492535"
+      x2="670.21523218284"
+      y2="378.3077781543243"
+      stroke="#1ab399"
       stroke-opacity="1"
-      stroke-width="4"
+      stroke-width="10"
+      stroke-linecap="round"
     />
-    <title>9:1:line</title>
+    <title>15:19:line</title>
   </g>
   <g>
     <line
-      x1="552.8139051590573"
-      y1="375.22855841518805"
-      x2="561.0148898168459"
-      y2="336.1201602193258"
-      stroke="#000000"
+      x1="641.2946778062022"
+      y1="365.2475991492535"
+      x2="670.21523218284"
+      y2="378.3077781543243"
+      stroke="#ffffff"
       stroke-opacity="1"
       stroke-width="4"
+      stroke-linecap="round"
     />
-    <title>9:13:line</title>
-  </g>
-  <g>
-    <line
-      x1="592.5477146705801"
-      y1="314.511841518891"
-      x2="664.4693223317619"
-      y2="339.58702504987406"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="4"
-    />
-    <title>10:0:line1</title>
-  </g>
-  <g>
-    <line
-      x1="589.2556027290839"
-      y1="323.9544038491102"
-      x2="661.1772103902655"
-      y2="349.0295873800932"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="4"
-    />
-    <title>10:0:line2</title>
+    <title>15:19:innerLine</title>
   </g>
   <circle
-    fill="#000000"
+    fill="#ffffff"
     fill-opacity="1"
-    cx="566.3509966412622"
-    cy="310.67363163611003"
+    cx="644.3292918258248"
+    cy="305.70875466660124"
     stroke="#808080"
     stroke-opacity="1"
-    stroke-width="2"
-    r="20"
-  >
-    <title>`C5`.icon</title>
-  </circle>
-  <text
-    fill="#ffffff"
-    fill-opacity="1"
-    stroke="none"
-    transform="rotate(0, 566.3509966412622, 310.67363163611003)"
-    style="
-      font: Bold 12px HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica,
-        Arial, sans-serif;
-    "
-    x="566.3509966412622"
-    y="315.17363163611003"
-    width="9"
-    height="9"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="9"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-  >
-    <title>`C5`.text</title>
-    C
-  </text>
-  <g>
-    <line
-      x1="546.6143473833238"
-      y1="485.9949102976259"
-      x2="517.9302085883602"
-      y2="502.92483102401184"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="4"
-    />
-    <title>9:18:line</title>
-  </g>
-  <g>
-    <line
-      x1="572.0291003303367"
-      y1="498.602958615685"
-      x2="576.1945543399974"
-      y2="534.1751710501435"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="4"
-    />
-    <title>9:17:line</title>
-  </g>
-  <g>
-    <line
-      x1="609.1069909620535"
-      y1="382.0892074509582"
-      x2="579.5199035071146"
-      y2="449.00040459337765"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="4"
-    />
-    <title>9:20:line</title>
-  </g>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="569.0052001079209"
-    cy="472.779405926612"
-    stroke="#808080"
-    stroke-opacity="1"
-    stroke-width="2"
-    r="20"
-  >
-    <title>`C3`.icon</title>
-  </circle>
-  <text
-    fill="#ffffff"
-    fill-opacity="1"
-    stroke="none"
-    transform="rotate(0, 569.0052001079209, 472.779405926612)"
-    style="
-      font: Bold 12px HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica,
-        Arial, sans-serif;
-    "
-    x="569.0052001079209"
-    y="477.279405926612"
-    width="9"
-    height="9"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="9"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-  >
-    <title>`C3`.text</title>
-    C
-  </text>
-  <g>
-    <line
-      x1="613.1148409695824"
-      y1="114.30477936129645"
-      x2="644.2919389529549"
-      y2="98.16044057001233"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="4"
-    />
-    <title>9:7:line</title>
-  </g>
-  <circle
-    fill="#ff0000"
-    fill-opacity="1"
-    cx="667.3800764320645"
-    cy="86.20478280734037"
-    stroke="#b30000"
-    stroke-opacity="1"
-    stroke-width="2"
-    r="20"
-  >
-    <title>`H6`.icon</title>
-  </circle>
-  <text
-    fill="#ffffff"
-    fill-opacity="1"
-    stroke="none"
-    transform="rotate(0, 667.3800764320645, 86.20478280734037)"
-    style="
-      font: Bold 12px HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica,
-        Arial, sans-serif;
-    "
-    x="667.3800764320645"
-    y="90.70478280734037"
-    width="8"
-    height="9"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="9"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-  >
-    <title>`H6`.text</title>
-    H
-  </text>
-  <circle
-    fill="#ff0000"
-    fill-opacity="1"
-    cx="495.5393558637631"
-    cy="516.1403353950257"
-    stroke="#b30000"
-    stroke-opacity="1"
-    stroke-width="2"
-    r="20"
-  >
-    <title>`H8`.icon</title>
-  </circle>
-  <text
-    fill="#ffffff"
-    fill-opacity="1"
-    stroke="none"
-    transform="rotate(0, 495.5393558637631, 516.1403353950257)"
-    style="
-      font: Bold 12px HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica,
-        Arial, sans-serif;
-    "
-    x="495.5393558637631"
-    y="520.6403353950257"
-    width="8"
-    height="9"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="9"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-  >
-    <title>`H8`.text</title>
-    H
-  </text>
-  <g>
-    <line
-      x1="665.672812007946"
-      y1="272.5394199712016"
-      x2="647.6038537771757"
-      y2="270.17446170398836"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="4"
-    />
-    <title>10:1:line1</title>
-  </g>
-  <g>
-    <line
-      x1="666.9705943982126"
-      y1="262.62399096450457"
-      x2="648.9016361674421"
-      y2="260.25903269729133"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="4"
-    />
-    <title>10:1:line2</title>
-  </g>
-  <g>
-    <line
-      x1="636.2238539437974"
-      y1="338.3010037826649"
-      x2="675.4996590379413"
-      y2="290.96514201760476"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="4"
-    />
-    <title>9:3:line</title>
-  </g>
-  <g>
-    <line
-      x1="661.4714247627788"
-      y1="210.5231772949992"
-      x2="680.3473374332003"
-      y2="247.76473385345082"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="4"
-    />
-    <title>9:4:line</title>
-  </g>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="692.1018186204916"
-    cy="270.9559396825458"
-    stroke="#808080"
-    stroke-opacity="1"
-    stroke-width="2"
-    r="20"
-  >
-    <title>`C2`.icon</title>
-  </circle>
-  <text
-    fill="#ffffff"
-    fill-opacity="1"
-    stroke="none"
-    transform="rotate(0, 692.1018186204916, 270.9559396825458)"
-    style="
-      font: Bold 12px HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica,
-        Arial, sans-serif;
-    "
-    x="692.1018186204916"
-    y="275.4559396825458"
-    width="9"
-    height="9"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="9"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-  >
-    <title>`C2`.text</title>
-    C
-  </text>
-  <g>
-    <line
-      x1="567.4704237258903"
-      y1="139.19156716323178"
-      x2="514.0918519124587"
-      y2="169.79259094169464"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="4"
-    />
-    <title>9:6:line</title>
-  </g>
-  <g>
-    <line
-      x1="631.5436464577357"
-      y1="168.73812534546255"
-      x2="608.2000006082245"
-      y2="144.85428324441008"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="4"
-    />
-    <title>9:5:line</title>
-  </g>
-  <g>
-    <line
-      x1="586.5683348474251"
-      y1="100.49147263230142"
-      x2="581.9093898373247"
-      y2="65.77678460294473"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="4"
-    />
-    <title>9:8:line</title>
-  </g>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="590.0267034904726"
-    cy="126.26043712396842"
-    stroke="#808080"
-    stroke-opacity="1"
-    stroke-width="2"
-    r="20"
-  >
-    <title>`C1`.icon</title>
-  </circle>
-  <text
-    fill="#ffffff"
-    fill-opacity="1"
-    stroke="none"
-    transform="rotate(0, 590.0267034904726, 126.26043712396842)"
-    style="
-      font: Bold 12px HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica,
-        Arial, sans-serif;
-    "
-    x="590.0267034904726"
-    y="130.76043712396842"
-    width="9"
-    height="9"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="9"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-  >
-    <title>`C1`.text</title>
-    C
-  </text>
-  <g>
-    <line
-      x1="440.41867898609576"
-      y1="410.11156752350837"
-      x2="421.42309415985983"
-      y2="437.4703889562098"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="4"
-    />
-    <title>9:10:line</title>
-  </g>
-  <circle
-    fill="#ff0000"
-    fill-opacity="1"
-    cx="406.5946991116449"
-    cy="458.8273208942751"
-    stroke="#b30000"
-    stroke-opacity="1"
-    stroke-width="2"
-    r="20"
-  >
-    <title>`H3`.icon</title>
-  </circle>
-  <text
-    fill="#ffffff"
-    fill-opacity="1"
-    stroke="none"
-    transform="rotate(0, 406.5946991116449, 458.8273208942751)"
-    style="
-      font: Bold 12px HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica,
-        Arial, sans-serif;
-    "
-    x="406.5946991116449"
-    y="463.3273208942751"
-    width="8"
-    height="9"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="9"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-  >
-    <title>`H3`.text</title>
-    H
-  </text>
-  <g>
-    <line
-      x1="624.4863013615345"
-      y1="193.61007167963558"
-      x2="588.1628203911932"
-      y2="202.64838516010877"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="4"
-    />
-    <title>9:0:line</title>
-  </g>
-  <g>
-    <line
-      x1="546.1793564528032"
-      y1="188.4242212208534"
-      x2="519.1963537888261"
-      y2="138.45234265616077"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="4"
-    />
-    <title>10:2:line1</title>
-  </g>
-  <g>
-    <line
-      x1="554.9785429948837"
-      y1="183.67297950800847"
-      x2="527.9955403309065"
-      y2="133.70110094331582"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="4"
-    />
-    <title>10:2:line2</title>
-  </g>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="562.9321781772403"
-    cy="208.92648537384014"
-    stroke="#808080"
-    stroke-opacity="1"
-    stroke-width="2"
-    r="20"
-  >
-    <title>`C4`.icon</title>
-  </circle>
-  <text
-    fill="#ffffff"
-    fill-opacity="1"
-    stroke="none"
-    transform="rotate(0, 562.9321781772403, 208.92648537384014)"
-    style="
-      font: Bold 12px HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica,
-        Arial, sans-serif;
-    "
-    x="562.9321781772403"
-    y="213.42648537384014"
-    width="9"
-    height="9"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="9"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-  >
-    <title>`C4`.text</title>
-    C
-  </text>
-  <g>
-    <line
-      x1="711.5291291399576"
-      y1="408.9767661610455"
-      x2="697.654829081186"
-      y2="376.74881328690947"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="4"
-    />
-    <title>9:15:line</title>
-  </g>
-  <g>
-    <line
-      x1="670.0536825939072"
-      y1="469.66371684977724"
-      x2="698.6640273964102"
-      y2="445.71322522228706"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="4"
-    />
-    <title>10:3:line1</title>
-  </g>
-  <g>
-    <line
-      x1="676.4726773299002"
-      y1="477.3316034025285"
-      x2="705.0830221324034"
-      y2="453.38111177503833"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="4"
-    />
-    <title>10:3:line2</title>
-  </g>
-  <circle
-    fill="#0000ff"
-    fill-opacity="1"
-    cx="721.8100298015601"
-    cy="432.8577821850808"
-    stroke="#0000b3"
-    stroke-opacity="1"
-    stroke-width="2"
-    r="20"
-  >
-    <title>`N4`.icon</title>
-  </circle>
-  <text
-    fill="#ffffff"
-    fill-opacity="1"
-    stroke="none"
-    transform="rotate(0, 721.8100298015601, 432.8577821850808)"
-    style="
-      font: Bold 12px HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica,
-        Arial, sans-serif;
-    "
-    x="721.8100298015601"
-    y="437.3577821850808"
-    width="8"
-    height="9"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="9"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-  >
-    <title>`N4`.text</title>
-    N
-  </text>
-  <g>
-    <line
-      x1="452.4576281296945"
-      y1="362.90470655594646"
-      x2="449.01116517699876"
-      y2="330.96616901967866"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="4"
-    />
-    <title>9:9:line</title>
-  </g>
-  <circle
-    fill="#ff0000"
-    fill-opacity="1"
-    cx="446.22171927238253"
-    cy="305.11623999018207"
-    stroke="#b30000"
-    stroke-opacity="1"
-    stroke-width="2"
-    r="20"
-  >
-    <title>`H4`.icon</title>
-  </circle>
-  <text
-    fill="#ffffff"
-    fill-opacity="1"
-    stroke="none"
-    transform="rotate(0, 446.22171927238253, 305.11623999018207)"
-    style="
-      font: Bold 12px HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica,
-        Arial, sans-serif;
-    "
-    x="446.22171927238253"
-    y="309.61623999018207"
-    width="8"
-    height="9"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="9"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-  >
-    <title>`H4`.text</title>
-    H
-  </text>
-  <g>
-    <line
-      x1="395.5576845022746"
-      y1="374.02786211381726"
-      x2="430.0040309707481"
-      y2="382.5265843380424"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="4"
-    />
-    <title>9:11:line</title>
-  </g>
-  <circle
-    fill="#ff0000"
-    fill-opacity="1"
-    cx="370.314641438712"
-    cy="367.7998108664166"
-    stroke="#b30000"
-    stroke-opacity="1"
-    stroke-width="2"
-    r="20"
-  >
-    <title>`H2`.icon</title>
-  </circle>
-  <text
-    fill="#ffffff"
-    fill-opacity="1"
-    stroke="none"
-    transform="rotate(0, 370.314641438712, 367.7998108664166)"
-    style="
-      font: Bold 12px HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica,
-        Arial, sans-serif;
-    "
-    x="370.314641438712"
-    y="372.2998108664166"
-    width="8"
-    height="9"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="9"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-  >
-    <title>`H2`.text</title>
-    H
-  </text>
-  <g>
-    <line
-      x1="661.4574123176358"
-      y1="354.94962199796186"
-      x2="645.5382104631949"
-      y2="356.22838138263614"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="4"
-    />
-    <title>9:2:line</title>
-  </g>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="687.3739284195835"
-    cy="352.86779726287415"
-    stroke="#808080"
-    stroke-opacity="1"
-    stroke-width="2"
-    r="20"
-  >
-    <title>`C6`.icon</title>
-  </circle>
-  <text
-    fill="#ffffff"
-    fill-opacity="1"
-    stroke="none"
-    transform="rotate(0, 687.3739284195835, 352.86779726287415)"
-    style="
-      font: Bold 12px HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica,
-        Arial, sans-serif;
-    "
-    x="687.3739284195835"
-    y="357.36779726287415"
-    width="9"
-    height="9"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="9"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-  >
-    <title>`C6`.text</title>
-    C
-  </text>
-  <circle
-    fill="#0000ff"
-    fill-opacity="1"
-    cx="649.7169435754876"
-    cy="187.3319714659042"
-    stroke="#0000b3"
-    stroke-opacity="1"
-    stroke-width="2"
-    r="20"
-  >
-    <title>`N2`.icon</title>
-  </circle>
-  <text
-    fill="#ffffff"
-    fill-opacity="1"
-    stroke="none"
-    transform="rotate(0, 649.7169435754876, 187.3319714659042)"
-    style="
-      font: Bold 12px HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica,
-        Arial, sans-serif;
-    "
-    x="649.7169435754876"
-    y="191.8319714659042"
-    width="8"
-    height="9"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="9"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-  >
-    <title>`N2`.text</title>
-    N
-  </text>
-  <circle
-    fill="#ff0000"
-    fill-opacity="1"
-    cx="491.53557214787634"
-    cy="182.723720980958"
-    stroke="#b30000"
-    stroke-opacity="1"
-    stroke-width="2"
-    r="20"
-  >
-    <title>`H7`.icon</title>
-  </circle>
-  <text
-    fill="#ffffff"
-    fill-opacity="1"
-    stroke="none"
-    transform="rotate(0, 491.53557214787634, 182.723720980958)"
-    style="
-      font: Bold 12px HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica,
-        Arial, sans-serif;
-    "
-    x="491.53557214787634"
-    y="187.223720980958"
-    width="8"
-    height="9"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="9"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-  >
-    <title>`H7`.text</title>
-    H
-  </text>
-  <circle
-    fill="#ff0000"
-    fill-opacity="1"
-    cx="578.4510211942772"
-    cy="40.00782011127774"
-    stroke="#b30000"
-    stroke-opacity="1"
-    stroke-width="2"
-    r="20"
-  >
-    <title>`H5`.icon</title>
-  </circle>
-  <text
-    fill="#ffffff"
-    fill-opacity="1"
-    stroke="none"
-    transform="rotate(0, 578.4510211942772, 40.00782011127774)"
-    style="
-      font: Bold 12px HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica,
-        Arial, sans-serif;
-    "
-    x="578.4510211942772"
-    y="44.50782011127774"
-    width="8"
-    height="9"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="9"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-  >
-    <title>`H5`.text</title>
-    H
-  </text>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="511.24271860646945"
-    cy="113.1988367903291"
-    stroke="#808080"
-    stroke-opacity="1"
-    stroke-width="2"
-    r="20"
-  >
-    <title>`O1`.icon</title>
-  </circle>
-  <text
-    fill="#000000"
-    fill-opacity="1"
-    stroke="none"
-    transform="rotate(0, 511.24271860646945, 113.1988367903291)"
-    style="
-      font: Bold 12px HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica,
-        Arial, sans-serif;
-    "
-    x="511.24271860646945"
-    y="117.6988367903291"
-    width="9"
-    height="9"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="9"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-  >
-    <title>`O1`.text</title>
-    O
-  </text>
-  <g>
-    <line
-      x1="633.4737806043754"
-      y1="473.39828562860225"
-      x2="567.330692655016"
-      y2="417.46384780953633"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="4"
-    />
-    <title>9:14:line</title>
-  </g>
-  <g>
-    <line
-      x1="521.6922766252301"
-      y1="397.3424116776075"
-      x2="481.0325957437217"
-      y2="392.08731090623934"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="4"
-    />
-    <title>9:12:line</title>
-  </g>
-  <circle
-    fill="#0000ff"
-    fill-opacity="1"
-    cx="547.4777983346411"
-    cy="400.6750869984038"
-    stroke="#0000b3"
-    stroke-opacity="1"
-    stroke-width="2"
-    r="20"
-  >
-    <title>`N3`.icon</title>
-  </circle>
-  <text
-    fill="#ffffff"
-    fill-opacity="1"
-    stroke="none"
-    transform="rotate(0, 547.4777983346411, 400.6750869984038)"
-    style="
-      font: Bold 12px HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica,
-        Arial, sans-serif;
-    "
-    x="547.4777983346411"
-    y="405.1750869984038"
-    width="8"
-    height="9"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="9"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-  >
-    <title>`N3`.text</title>
-    N
-  </text>
-  <g>
-    <line
-      x1="669.6447652216589"
-      y1="510.4285821785816"
-      x2="690.0440555402371"
-      y2="535.732582617214"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="4"
-    />
-    <title>9:16:line</title>
-  </g>
-  <circle
-    fill="#ff0000"
-    fill-opacity="1"
-    cx="706.3621458371455"
-    cy="555.9741183560609"
-    stroke="#b30000"
-    stroke-opacity="1"
-    stroke-width="2"
-    r="20"
-  >
-    <title>`H1`.icon</title>
-  </circle>
-  <text
-    fill="#ffffff"
-    fill-opacity="1"
-    stroke="none"
-    transform="rotate(0, 706.3621458371455, 555.9741183560609)"
-    style="
-      font: Bold 12px HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica,
-        Arial, sans-serif;
-    "
-    x="706.3621458371455"
-    y="560.4741183560609"
-    width="8"
-    height="9"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="9"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-  >
-    <title>`H1`.text</title>
-    H
-  </text>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="455.24707403431074"
-    cy="388.75463558544305"
-    stroke="#808080"
-    stroke-opacity="1"
-    stroke-width="2"
-    r="20"
-  >
-    <title>`C7`.icon</title>
-  </circle>
-  <text
-    fill="#ffffff"
-    fill-opacity="1"
-    stroke="none"
-    transform="rotate(0, 455.24707403431074, 388.75463558544305)"
-    style="
-      font: Bold 12px HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica,
-        Arial, sans-serif;
-    "
-    x="455.24707403431074"
-    y="393.25463558544305"
-    width="9"
-    height="9"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="9"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-  >
-    <title>`C7`.text</title>
-    C
-  </text>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="622.4726295548967"
-    cy="261.8425129859471"
-    stroke="#808080"
-    stroke-opacity="1"
-    stroke-width="2"
-    r="20"
-  >
-    <title>`O2`.icon</title>
-  </circle>
-  <text
-    fill="#000000"
-    fill-opacity="1"
-    stroke="none"
-    transform="rotate(0, 622.4726295548967, 261.8425129859471)"
-    style="
-      font: Bold 12px HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica,
-        Arial, sans-serif;
-    "
-    x="622.4726295548967"
-    y="266.3425129859471"
-    width="9"
-    height="9"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="9"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-  >
-    <title>`O2`.text</title>
-    O
-  </text>
-  <circle
-    fill="#0000ff"
-    fill-opacity="1"
-    cx="619.6216943612471"
-    cy="358.31020611772385"
-    stroke="#0000b3"
-    stroke-opacity="1"
-    stroke-width="2"
-    r="20"
-  >
-    <title>`N1`.icon</title>
-  </circle>
-  <text
-    fill="#ffffff"
-    fill-opacity="1"
-    stroke="none"
-    transform="rotate(0, 619.6216943612471, 358.31020611772385)"
-    style="
-      font: Bold 12px HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica,
-        Arial, sans-serif;
-    "
-    x="619.6216943612471"
-    y="362.81020611772385"
-    width="8"
-    height="9"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="9"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
-  >
-    <title>`N1`.text</title>
-    N
-  </text>
-  <circle
-    fill="#ff0000"
-    fill-opacity="1"
-    cx="579.2184545624131"
-    cy="559.9987237392165"
-    stroke="#b30000"
-    stroke-opacity="1"
-    stroke-width="2"
-    r="20"
+    stroke-width="3"
+    r="18.75"
   >
     <title>`H10`.icon</title>
   </circle>
-  <text
+  <g>
+    <line
+      x1="633.1069872519128"
+      y1="348.0207477464128"
+      x2="641.1247460213991"
+      y2="317.7910073810751"
+      stroke="#1ab399"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>15:17:line</title>
+  </g>
+  <g>
+    <line
+      x1="633.1069872519128"
+      y1="348.0207477464128"
+      x2="641.1247460213991"
+      y2="317.7910073810751"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>15:17:innerLine</title>
+  </g>
+  <circle
     fill="#ffffff"
     fill-opacity="1"
+    cx="598.7532401757721"
+    cy="406.9852297099267"
+    stroke="#808080"
+    stroke-opacity="1"
+    stroke-width="3"
+    r="18.75"
+  >
+    <title>`H8`.icon</title>
+  </circle>
+  <g>
+    <line
+      x1="622.9849369775859"
+      y1="370.5144401495073"
+      x2="605.6707446456733"
+      y2="396.5737900213061"
+      stroke="#1ab399"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>15:18:line</title>
+  </g>
+  <g>
+    <line
+      x1="622.9849369775859"
+      y1="370.5144401495073"
+      x2="605.6707446456733"
+      y2="396.5737900213061"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>15:18:innerLine</title>
+  </g>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="629.902441447487"
+    cy="360.1030004608866"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="3"
+    r="25"
+  >
+    <title>`C3`.icon</title>
+  </circle>
+  <g>
+    <line
+      x1="555.8801043492226"
+      y1="325.15046333673604"
+      x2="618.5991897933764"
+      y2="354.76572878653434"
+      stroke="#1ab399"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>15:20:line</title>
+  </g>
+  <g>
+    <line
+      x1="555.8801043492226"
+      y1="325.15046333673604"
+      x2="618.5991897933764"
+      y2="354.76572878653434"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>15:20:innerLine</title>
+  </g>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="332.64904219643813"
+    cy="348.4307566236569"
+    stroke="#ff0000"
+    stroke-opacity="1"
+    stroke-width="3"
+    r="25"
+  >
+    <title>`O2`.icon</title>
+  </circle>
+  <g>
+    <line
+      x1="423.7072885692156"
+      y1="307.1244186395167"
+      x2="346.6201805199423"
+      y2="348.08469426011374"
+      stroke="#1ab399"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>16:1:line1</title>
+  </g>
+  <g>
+    <line
+      x1="423.7072885692156"
+      y1="307.1244186395167"
+      x2="346.6201805199423"
+      y2="348.08469426011374"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>16:1:innerLine1</title>
+  </g>
+  <g>
+    <line
+      x1="417.84198334897934"
+      y1="296.08593292613057"
+      x2="340.7548752997061"
+      y2="337.0462085467276"
+      stroke="#1ab399"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>16:1:line2</title>
+  </g>
+  <g>
+    <line
+      x1="417.84198334897934"
+      y1="296.08593292613057"
+      x2="340.7548752997061"
+      y2="337.0462085467276"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>16:1:innerLine2</title>
+  </g>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="431.8131216724836"
+    cy="295.7398705625874"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="3"
+    r="25"
+  >
+    <title>`C2`.icon</title>
+  </circle>
+  <g>
+    <line
+      x1="532.3523207683379"
+      y1="317.20344223586926"
+      x2="444.0376535992576"
+      y2="298.34961998910194"
+      stroke="#1ab399"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>15:3:line</title>
+  </g>
+  <g>
+    <line
+      x1="532.3523207683379"
+      y1="317.20344223586926"
+      x2="444.0376535992576"
+      y2="298.34961998910194"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>15:3:innerLine</title>
+  </g>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="544.5768526951118"
+    cy="319.81319166238376"
+    stroke="#0000ff"
+    stroke-opacity="1"
+    stroke-width="3"
+    r="25"
+  >
+    <title>`N1`.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 544.5768526951118, 319.81319166238376)translate(532.0848526951119, 313.66619166238377)"
+  >
+    <title>`N1`.labelText</title>
+    <svg
+      style="font-size: 18px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24.983999999999998"
+      height="12.294"
+      role="img"
+      focusable="false"
+      viewBox="0 -683 1388 683"
+    >
+      <g stroke="none" fill="none" stroke-width="0" transform="scale(1,-1)">
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D441"
+              d="M234 637Q231 637 226 637Q201 637 196 638T191 649Q191 676 202 682Q204 683 299 683Q376 683 387 683T401 677Q612 181 616 168L670 381Q723 592 723 606Q723 633 659 637Q635 637 635 648Q635 650 637 660Q641 676 643 679T653 683Q656 683 684 682T767 680Q817 680 843 681T873 682Q888 682 888 672Q888 650 880 642Q878 637 858 637Q787 633 769 597L620 7Q618 0 599 0Q585 0 582 2Q579 5 453 305L326 604L261 344Q196 88 196 79Q201 46 268 46H278Q284 41 284 38T282 19Q278 6 272 0H259Q228 2 151 2Q123 2 100 2T63 2T46 1Q31 1 31 10Q31 14 34 26T39 40Q41 46 62 46Q130 49 150 85Q154 91 221 362L289 634Q287 635 234 637Z"
+            />
+          </g>
+          <g data-mml-node="mn" transform="translate(888,0)">
+            <path
+              data-c="31"
+              d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g>
+    <line
+      x1="474.6409086929781"
+      y1="199.0248448647484"
+      x2="436.87438671080895"
+      y2="284.3103662080671"
+      stroke="#1ab399"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>15:4:line</title>
+  </g>
+  <g>
+    <line
+      x1="474.6409086929781"
+      y1="199.0248448647484"
+      x2="436.87438671080895"
+      y2="284.3103662080671"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>15:4:innerLine</title>
+  </g>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="367.7283294746564"
+    cy="66.68036402906617"
+    stroke="#ff0000"
+    stroke-opacity="1"
+    stroke-width="3"
+    r="25"
+  >
+    <title>`O1`.icon</title>
+  </circle>
+  <g>
+    <line
+      x1="398.13111775003665"
+      y1="131.01117276402508"
+      x2="368.6471549902223"
+      y2="80.62555003794319"
+      stroke="#1ab399"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>16:2:line1</title>
+  </g>
+  <g>
+    <line
+      x1="398.13111775003665"
+      y1="131.01117276402508"
+      x2="368.6471549902223"
+      y2="80.62555003794319"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>16:2:innerLine1</title>
+  </g>
+  <g>
+    <line
+      x1="408.9197363509119"
+      y1="124.69803794802155"
+      x2="379.4357735910976"
+      y2="74.31241522193966"
+      stroke="#1ab399"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>16:2:line2</title>
+  </g>
+  <g>
+    <line
+      x1="408.9197363509119"
+      y1="124.69803794802155"
+      x2="379.4357735910976"
+      y2="74.31241522193966"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>16:2:innerLine2</title>
+  </g>
+  <g>
+    <line
+      x1="502.91573078494594"
+      y1="275.62913736531453"
+      x2="536.0014891637093"
+      y2="310.7185175269726"
+      stroke="#1ab399"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>15:2:line</title>
+  </g>
+  <g>
+    <line
+      x1="502.91573078494594"
+      y1="275.62913736531453"
+      x2="536.0014891637093"
+      y2="310.7185175269726"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>15:2:innerLine</title>
+  </g>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="494.3403672535434"
+    cy="266.53446322990334"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="3"
+    r="25"
+  >
+    <title>`C6`.icon</title>
+  </circle>
+  <g>
+    <line
+      x1="419.4969204096316"
+      y1="220.74214438019368"
+      x2="486.1140424984319"
+      y2="255.23667397854942"
+      stroke="#1ab399"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>16:0:line1</title>
+  </g>
+  <g>
+    <line
+      x1="419.4969204096316"
+      y1="220.74214438019368"
+      x2="486.1140424984319"
+      y2="255.23667397854942"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>16:0:innerLine1</title>
+  </g>
+  <g>
+    <line
+      x1="413.7492189105931"
+      y1="231.84231988482446"
+      x2="480.36634099939334"
+      y2="266.33684948318023"
+      stroke="#1ab399"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>16:0:line2</title>
+  </g>
+  <g>
+    <line
+      x1="413.7492189105931"
+      y1="231.84231988482446"
+      x2="480.36634099939334"
+      y2="266.33684948318023"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>16:0:innerLine2</title>
+  </g>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="405.52289415548154"
+    cy="220.54453063347057"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="3"
+    r="25"
+  >
+    <title>`C5`.icon</title>
+  </circle>
+  <g>
+    <line
+      x1="409.18080554471754"
+      y1="151.12590469936626"
+      x2="406.18065047724184"
+      y2="208.06184989100288"
+      stroke="#1ab399"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>15:1:line</title>
+  </g>
+  <g>
+    <line
+      x1="409.18080554471754"
+      y1="151.12590469936626"
+      x2="406.18065047724184"
+      y2="208.06184989100288"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>15:1:innerLine</title>
+  </g>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="409.8385618664778"
+    cy="138.64322395689857"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="3"
+    r="25"
+  >
+    <title>`C4`.icon</title>
+  </circle>
+  <g>
+    <line
+      x1="469.465052952281"
+      y1="180.4223828550353"
+      x2="420.07568264550025"
+      y2="145.81618161209133"
+      stroke="#1ab399"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>15:0:line</title>
+  </g>
+  <g>
+    <line
+      x1="469.465052952281"
+      y1="180.4223828550353"
+      x2="420.07568264550025"
+      y2="145.81618161209133"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>15:0:innerLine</title>
+  </g>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="581.4664096487336"
+    cy="171.99943544491484"
+    stroke="#808080"
+    stroke-opacity="1"
+    stroke-width="3"
+    r="18.75"
+  >
+    <title>`H5`.icon</title>
+  </circle>
+  <g>
+    <line
+      x1="558.8772513301918"
+      y1="134.60912619471816"
+      x2="575.0026372345291"
+      y2="161.30038919972478"
+      stroke="#1ab399"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>15:8:line</title>
+  </g>
+  <g>
+    <line
+      x1="558.8772513301918"
+      y1="134.60912619471816"
+      x2="575.0026372345291"
+      y2="161.30038919972478"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>15:8:innerLine</title>
+  </g>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="596.3804001697208"
+    cy="87.92880740463156"
+    stroke="#808080"
+    stroke-opacity="1"
+    stroke-width="3"
+    r="18.75"
+  >
+    <title>`H6`.icon</title>
+  </circle>
+  <g>
+    <line
+      x1="562.087044405097"
+      y1="115.9935102553286"
+      x2="586.7068346806111"
+      y2="95.84537709883102"
+      stroke="#1ab399"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>15:7:line</title>
+  </g>
+  <g>
+    <line
+      x1="562.087044405097"
+      y1="115.9935102553286"
+      x2="586.7068346806111"
+      y2="95.84537709883102"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>15:7:innerLine</title>
+  </g>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="511.2639796778596"
+    cy="85.59915206000196"
+    stroke="#808080"
+    stroke-opacity="1"
+    stroke-width="3"
+    r="18.75"
+  >
+    <title>`H7`.icon</title>
+  </circle>
+  <g>
+    <line
+      x1="543.2647310348276"
+      y1="115.39243023704256"
+      x2="520.4127275590192"
+      y2="94.11680177248749"
+      stroke="#1ab399"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>15:6:line</title>
+  </g>
+  <g>
+    <line
+      x1="543.2647310348276"
+      y1="115.39243023704256"
+      x2="520.4127275590192"
+      y2="94.11680177248749"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>15:6:innerLine</title>
+  </g>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="552.4134789159873"
+    cy="123.9100799495281"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="3"
+    r="25"
+  >
+    <title>`C1`.icon</title>
+  </circle>
+  <g>
+    <line
+      x1="489.1053511453854"
+      y1="179.3594299844404"
+      x2="543.0103015019054"
+      y2="132.14599047531578"
+      stroke="#1ab399"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>15:5:line</title>
+  </g>
+  <g>
+    <line
+      x1="489.1053511453854"
+      y1="179.3594299844404"
+      x2="543.0103015019054"
+      y2="132.14599047531578"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>15:5:innerLine</title>
+  </g>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="479.70217373130345"
+    cy="187.59534051022808"
+    stroke="#0000ff"
+    stroke-opacity="1"
+    stroke-width="3"
+    r="25"
+  >
+    <title>`N2`.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 479.70217373130345, 187.59534051022808)translate(467.2101737313034, 181.4483405102281)"
+  >
+    <title>`N2`.labelText</title>
+    <svg
+      style="font-size: 18px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24.983999999999998"
+      height="12.294"
+      role="img"
+      focusable="false"
+      viewBox="0 -683 1388 683"
+    >
+      <g stroke="none" fill="none" stroke-width="0" transform="scale(1,-1)">
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D441"
+              d="M234 637Q231 637 226 637Q201 637 196 638T191 649Q191 676 202 682Q204 683 299 683Q376 683 387 683T401 677Q612 181 616 168L670 381Q723 592 723 606Q723 633 659 637Q635 637 635 648Q635 650 637 660Q641 676 643 679T653 683Q656 683 684 682T767 680Q817 680 843 681T873 682Q888 682 888 672Q888 650 880 642Q878 637 858 637Q787 633 769 597L620 7Q618 0 599 0Q585 0 582 2Q579 5 453 305L326 604L261 344Q196 88 196 79Q201 46 268 46H278Q284 41 284 38T282 19Q278 6 272 0H259Q228 2 151 2Q123 2 100 2T63 2T46 1Q31 1 31 10Q31 14 34 26T39 40Q41 46 62 46Q130 49 150 85Q154 91 221 362L289 634Q287 635 234 637Z"
+            />
+          </g>
+          <g data-mml-node="mn" transform="translate(888,0)">
+            <path
+              data-c="32"
+              d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <text
+    fill="#000000"
+    fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 579.2184545624131, 559.9987237392165)"
+    transform="rotate(0, 592.5056259383236, 206.77968608937874)"
     style="
-      font: Bold 12px HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica,
-        Arial, sans-serif;
+      font: 40px Roboto Condensed, Impact, Franklin Gothic Bold, sans-serif;
     "
-    x="579.2184545624131"
-    y="564.4987237392165"
-    width="8"
-    height="9"
+    x="592.5056259383236"
+    y="221.77968608937874"
+    width="160.13671875"
+    height="32"
     font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
-    ascent="9"
-    descent="0"
+    ascent="31"
+    descent="1"
     text-anchor="middle"
     visibility=""
   >
-    <title>`H10`.text</title>
-    H
+    <title>`title`.labelText</title>
+    caffeine
   </text>
+  <g
+    transform="rotate(0, 598.7532401757721, 406.9852297099267)translate(586.2612401757722, 400.6402297099267)"
+  >
+    <title>`H8`.labelText</title>
+    <svg
+      style="font-size: 18px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24.983999999999998"
+      height="12.69"
+      role="img"
+      focusable="false"
+      viewBox="0 -683 1388 705"
+    >
+      <g stroke="none" fill="none" stroke-width="0" transform="scale(1,-1)">
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D43B"
+              d="M228 637Q194 637 192 641Q191 643 191 649Q191 673 202 682Q204 683 219 683Q260 681 355 681Q389 681 418 681T463 682T483 682Q499 682 499 672Q499 670 497 658Q492 641 487 638H485Q483 638 480 638T473 638T464 637T455 637Q416 636 405 634T387 623Q384 619 355 500Q348 474 340 442T328 395L324 380Q324 378 469 378H614L615 381Q615 384 646 504Q674 619 674 627T617 637Q594 637 587 639T580 648Q580 650 582 660Q586 677 588 679T604 682Q609 682 646 681T740 680Q802 680 835 681T871 682Q888 682 888 672Q888 645 876 638H874Q872 638 869 638T862 638T853 637T844 637Q805 636 794 634T776 623Q773 618 704 340T634 58Q634 51 638 51Q646 48 692 46H723Q729 38 729 37T726 19Q722 6 716 0H701Q664 2 567 2Q533 2 504 2T458 2T437 1Q420 1 420 10Q420 15 423 24Q428 43 433 45Q437 46 448 46H454Q481 46 514 49Q520 50 522 50T528 55T534 64T540 82T547 110T558 153Q565 181 569 198Q602 330 602 331T457 332H312L279 197Q245 63 245 58Q245 51 253 49T303 46H334Q340 38 340 37T337 19Q333 6 327 0H312Q275 2 178 2Q144 2 115 2T69 2T48 1Q31 1 31 10Q31 12 34 24Q39 43 44 45Q48 46 59 46H65Q92 46 125 49Q139 52 144 61Q147 65 216 339T285 628Q285 635 228 637Z"
+            />
+          </g>
+          <g data-mml-node="mn" transform="translate(888,0)">
+            <path
+              data-c="38"
+              d="M70 417T70 494T124 618T248 666Q319 666 374 624T429 515Q429 485 418 459T392 417T361 389T335 371T324 363L338 354Q352 344 366 334T382 323Q457 264 457 174Q457 95 399 37T249 -22Q159 -22 101 29T43 155Q43 263 172 335L154 348Q133 361 127 368Q70 417 70 494ZM286 386L292 390Q298 394 301 396T311 403T323 413T334 425T345 438T355 454T364 471T369 491T371 513Q371 556 342 586T275 624Q268 625 242 625Q201 625 165 599T128 534Q128 511 141 492T167 463T217 431Q224 426 228 424L286 386ZM250 21Q308 21 350 55T392 137Q392 154 387 169T375 194T353 216T330 234T301 253T274 270Q260 279 244 289T218 306L210 311Q204 311 181 294T133 239T107 157Q107 98 150 60T250 21Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 511.2639796778596, 85.59915206000196)translate(498.7719796778596, 79.25415206000196)"
+  >
+    <title>`H7`.labelText</title>
+    <svg
+      style="font-size: 18px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24.983999999999998"
+      height="12.69"
+      role="img"
+      focusable="false"
+      viewBox="0 -683 1388 705"
+    >
+      <g stroke="none" fill="none" stroke-width="0" transform="scale(1,-1)">
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D43B"
+              d="M228 637Q194 637 192 641Q191 643 191 649Q191 673 202 682Q204 683 219 683Q260 681 355 681Q389 681 418 681T463 682T483 682Q499 682 499 672Q499 670 497 658Q492 641 487 638H485Q483 638 480 638T473 638T464 637T455 637Q416 636 405 634T387 623Q384 619 355 500Q348 474 340 442T328 395L324 380Q324 378 469 378H614L615 381Q615 384 646 504Q674 619 674 627T617 637Q594 637 587 639T580 648Q580 650 582 660Q586 677 588 679T604 682Q609 682 646 681T740 680Q802 680 835 681T871 682Q888 682 888 672Q888 645 876 638H874Q872 638 869 638T862 638T853 637T844 637Q805 636 794 634T776 623Q773 618 704 340T634 58Q634 51 638 51Q646 48 692 46H723Q729 38 729 37T726 19Q722 6 716 0H701Q664 2 567 2Q533 2 504 2T458 2T437 1Q420 1 420 10Q420 15 423 24Q428 43 433 45Q437 46 448 46H454Q481 46 514 49Q520 50 522 50T528 55T534 64T540 82T547 110T558 153Q565 181 569 198Q602 330 602 331T457 332H312L279 197Q245 63 245 58Q245 51 253 49T303 46H334Q340 38 340 37T337 19Q333 6 327 0H312Q275 2 178 2Q144 2 115 2T69 2T48 1Q31 1 31 10Q31 12 34 24Q39 43 44 45Q48 46 59 46H65Q92 46 125 49Q139 52 144 61Q147 65 216 339T285 628Q285 635 228 637Z"
+            />
+          </g>
+          <g data-mml-node="mn" transform="translate(888,0)">
+            <path
+              data-c="37"
+              d="M55 458Q56 460 72 567L88 674Q88 676 108 676H128V672Q128 662 143 655T195 646T364 644H485V605L417 512Q408 500 387 472T360 435T339 403T319 367T305 330T292 284T284 230T278 162T275 80Q275 66 275 52T274 28V19Q270 2 255 -10T221 -22Q210 -22 200 -19T179 0T168 40Q168 198 265 368Q285 400 349 489L395 552H302Q128 552 119 546Q113 543 108 522T98 479L95 458V455H55V458Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 332.64904219643813, 348.4307566236569)translate(321.2820421964381, 341.8967566236569)"
+  >
+    <title>`O2`.labelText</title>
+    <svg
+      style="font-size: 18px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="22.733999999999998"
+      height="13.068"
+      role="img"
+      focusable="false"
+      viewBox="0 -704 1263 726"
+    >
+      <g stroke="none" fill="none" stroke-width="0" transform="scale(1,-1)">
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D442"
+              d="M740 435Q740 320 676 213T511 42T304 -22Q207 -22 138 35T51 201Q50 209 50 244Q50 346 98 438T227 601Q351 704 476 704Q514 704 524 703Q621 689 680 617T740 435ZM637 476Q637 565 591 615T476 665Q396 665 322 605Q242 542 200 428T157 216Q157 126 200 73T314 19Q404 19 485 98T608 313Q637 408 637 476Z"
+            />
+          </g>
+          <g data-mml-node="mn" transform="translate(763,0)">
+            <path
+              data-c="32"
+              d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
   <circle
-    fill="#000000"
+    fill="#ffffff"
     fill-opacity="1"
-    cx="653.3266749247505"
-    cy="490.1870464397348"
+    cx="394.8605656726108"
+    cy="432.87860917080843"
     stroke="#808080"
     stroke-opacity="1"
-    stroke-width="2"
-    r="20"
+    stroke-width="3"
+    r="18.75"
+  >
+    <title>`H1`.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 394.8605656726108, 432.87860917080843)translate(382.36856567261077, 426.73160917080844)"
+  >
+    <title>`H1`.labelText</title>
+    <svg
+      style="font-size: 18px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24.983999999999998"
+      height="12.294"
+      role="img"
+      focusable="false"
+      viewBox="0 -683 1388 683"
+    >
+      <g stroke="none" fill="none" stroke-width="0" transform="scale(1,-1)">
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D43B"
+              d="M228 637Q194 637 192 641Q191 643 191 649Q191 673 202 682Q204 683 219 683Q260 681 355 681Q389 681 418 681T463 682T483 682Q499 682 499 672Q499 670 497 658Q492 641 487 638H485Q483 638 480 638T473 638T464 637T455 637Q416 636 405 634T387 623Q384 619 355 500Q348 474 340 442T328 395L324 380Q324 378 469 378H614L615 381Q615 384 646 504Q674 619 674 627T617 637Q594 637 587 639T580 648Q580 650 582 660Q586 677 588 679T604 682Q609 682 646 681T740 680Q802 680 835 681T871 682Q888 682 888 672Q888 645 876 638H874Q872 638 869 638T862 638T853 637T844 637Q805 636 794 634T776 623Q773 618 704 340T634 58Q634 51 638 51Q646 48 692 46H723Q729 38 729 37T726 19Q722 6 716 0H701Q664 2 567 2Q533 2 504 2T458 2T437 1Q420 1 420 10Q420 15 423 24Q428 43 433 45Q437 46 448 46H454Q481 46 514 49Q520 50 522 50T528 55T534 64T540 82T547 110T558 153Q565 181 569 198Q602 330 602 331T457 332H312L279 197Q245 63 245 58Q245 51 253 49T303 46H334Q340 38 340 37T337 19Q333 6 327 0H312Q275 2 178 2Q144 2 115 2T69 2T48 1Q31 1 31 10Q31 12 34 24Q39 43 44 45Q48 46 59 46H65Q92 46 125 49Q139 52 144 61Q147 65 216 339T285 628Q285 635 228 637Z"
+            />
+          </g>
+          <g data-mml-node="mn" transform="translate(888,0)">
+            <path
+              data-c="31"
+              d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 644.3292918258248, 305.70875466660124)translate(627.3372918258249, 299.3637546666012)"
+  >
+    <title>`H10`.labelText</title>
+    <svg
+      style="font-size: 18px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="33.983999999999995"
+      height="12.69"
+      role="img"
+      focusable="false"
+      viewBox="0 -683 1888 705"
+    >
+      <g stroke="none" fill="none" stroke-width="0" transform="scale(1,-1)">
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D43B"
+              d="M228 637Q194 637 192 641Q191 643 191 649Q191 673 202 682Q204 683 219 683Q260 681 355 681Q389 681 418 681T463 682T483 682Q499 682 499 672Q499 670 497 658Q492 641 487 638H485Q483 638 480 638T473 638T464 637T455 637Q416 636 405 634T387 623Q384 619 355 500Q348 474 340 442T328 395L324 380Q324 378 469 378H614L615 381Q615 384 646 504Q674 619 674 627T617 637Q594 637 587 639T580 648Q580 650 582 660Q586 677 588 679T604 682Q609 682 646 681T740 680Q802 680 835 681T871 682Q888 682 888 672Q888 645 876 638H874Q872 638 869 638T862 638T853 637T844 637Q805 636 794 634T776 623Q773 618 704 340T634 58Q634 51 638 51Q646 48 692 46H723Q729 38 729 37T726 19Q722 6 716 0H701Q664 2 567 2Q533 2 504 2T458 2T437 1Q420 1 420 10Q420 15 423 24Q428 43 433 45Q437 46 448 46H454Q481 46 514 49Q520 50 522 50T528 55T534 64T540 82T547 110T558 153Q565 181 569 198Q602 330 602 331T457 332H312L279 197Q245 63 245 58Q245 51 253 49T303 46H334Q340 38 340 37T337 19Q333 6 327 0H312Q275 2 178 2Q144 2 115 2T69 2T48 1Q31 1 31 10Q31 12 34 24Q39 43 44 45Q48 46 59 46H65Q92 46 125 49Q139 52 144 61Q147 65 216 339T285 628Q285 635 228 637Z"
+            />
+          </g>
+          <g data-mml-node="mn" transform="translate(888,0)">
+            <path
+              data-c="31"
+              d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"
+            />
+            <path
+              data-c="30"
+              d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"
+              transform="translate(500,0)"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 367.7283294746564, 66.68036402906617)translate(356.3613294746564, 60.14636402906617)"
+  >
+    <title>`O1`.labelText</title>
+    <svg
+      style="font-size: 18px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="22.733999999999998"
+      height="13.068"
+      role="img"
+      focusable="false"
+      viewBox="0 -704 1263 726"
+    >
+      <g stroke="none" fill="none" stroke-width="0" transform="scale(1,-1)">
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D442"
+              d="M740 435Q740 320 676 213T511 42T304 -22Q207 -22 138 35T51 201Q50 209 50 244Q50 346 98 438T227 601Q351 704 476 704Q514 704 524 703Q621 689 680 617T740 435ZM637 476Q637 565 591 615T476 665Q396 665 322 605Q242 542 200 428T157 216Q157 126 200 73T314 19Q404 19 485 98T608 313Q637 408 637 476Z"
+            />
+          </g>
+          <g data-mml-node="mn" transform="translate(763,0)">
+            <path
+              data-c="31"
+              d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 552.4134789159873, 123.9100799495281)translate(541.0734789159873, 117.36707994952809)"
+  >
+    <title>`C1`.labelText</title>
+    <svg
+      style="font-size: 18px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="22.68"
+      height="13.086"
+      role="img"
+      focusable="false"
+      viewBox="0 -705 1260 727"
+    >
+      <g stroke="none" fill="none" stroke-width="0" transform="scale(1,-1)">
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D436"
+              d="M50 252Q50 367 117 473T286 641T490 704Q580 704 633 653Q642 643 648 636T656 626L657 623Q660 623 684 649Q691 655 699 663T715 679T725 690L740 705H746Q760 705 760 698Q760 694 728 561Q692 422 692 421Q690 416 687 415T669 413H653Q647 419 647 422Q647 423 648 429T650 449T651 481Q651 552 619 605T510 659Q484 659 454 652T382 628T299 572T226 479Q194 422 175 346T156 222Q156 108 232 58Q280 24 350 24Q441 24 512 92T606 240Q610 253 612 255T628 257Q648 257 648 248Q648 243 647 239Q618 132 523 55T319 -22Q206 -22 128 53T50 252Z"
+            />
+          </g>
+          <g data-mml-node="mn" transform="translate(760,0)">
+            <path
+              data-c="31"
+              d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="277.48857644384384"
+    cy="194.526161484955"
+    stroke="#808080"
+    stroke-opacity="1"
+    stroke-width="3"
+    r="18.75"
+  >
+    <title>`H4`.icon</title>
+  </circle>
+  <g>
+    <line
+      x1="260.40311575328667"
+      y1="234.53581481498753"
+      x2="272.5795268292657"
+      y2="206.02186398993646"
+      stroke="#1ab399"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>15:9:line</title>
+  </g>
+  <g>
+    <line
+      x1="260.40311575328667"
+      y1="234.53581481498753"
+      x2="272.5795268292657"
+      y2="206.02186398993646"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>15:9:innerLine</title>
+  </g>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="200.3690182623274"
+    cy="234.87119781149002"
+    stroke="#808080"
+    stroke-opacity="1"
+    stroke-width="3"
+    r="18.75"
+  >
+    <title>`H3`.icon</title>
+  </circle>
+  <g>
+    <line
+      x1="243.24262712913367"
+      y1="243.55115713793128"
+      x2="212.62045727190227"
+      y2="237.35155799352776"
+      stroke="#1ab399"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>15:10:line</title>
+  </g>
+  <g>
+    <line
+      x1="243.24262712913367"
+      y1="243.55115713793128"
+      x2="212.62045727190227"
+      y2="237.35155799352776"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>15:10:innerLine</title>
+  </g>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="255.49406613870855"
+    cy="246.031517319969"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="3"
+    r="25"
+  >
+    <title>`C7`.icon</title>
+  </circle>
+  <g>
+    <line
+      x1="225.4731971859524"
+      y1="315.28363451382097"
+      x2="250.52235389393874"
+      y2="257.5002592664708"
+      stroke="#1ab399"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>15:11:line</title>
+  </g>
+  <g>
+    <line
+      x1="225.4731971859524"
+      y1="315.28363451382097"
+      x2="250.52235389393874"
+      y2="257.5002592664708"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>15:11:innerLine</title>
+  </g>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="220.50148494118258"
+    cy="326.7523764603227"
+    stroke="#808080"
+    stroke-opacity="1"
+    stroke-width="3"
+    r="18.75"
+  >
+    <title>`H2`.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 220.50148494118258, 326.7523764603227)translate(208.0094849411826, 320.6053764603227)"
+  >
+    <title>`H2`.labelText</title>
+    <svg
+      style="font-size: 18px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24.983999999999998"
+      height="12.294"
+      role="img"
+      focusable="false"
+      viewBox="0 -683 1388 683"
+    >
+      <g stroke="none" fill="none" stroke-width="0" transform="scale(1,-1)">
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D43B"
+              d="M228 637Q194 637 192 641Q191 643 191 649Q191 673 202 682Q204 683 219 683Q260 681 355 681Q389 681 418 681T463 682T483 682Q499 682 499 672Q499 670 497 658Q492 641 487 638H485Q483 638 480 638T473 638T464 637T455 637Q416 636 405 634T387 623Q384 619 355 500Q348 474 340 442T328 395L324 380Q324 378 469 378H614L615 381Q615 384 646 504Q674 619 674 627T617 637Q594 637 587 639T580 648Q580 650 582 660Q586 677 588 679T604 682Q609 682 646 681T740 680Q802 680 835 681T871 682Q888 682 888 672Q888 645 876 638H874Q872 638 869 638T862 638T853 637T844 637Q805 636 794 634T776 623Q773 618 704 340T634 58Q634 51 638 51Q646 48 692 46H723Q729 38 729 37T726 19Q722 6 716 0H701Q664 2 567 2Q533 2 504 2T458 2T437 1Q420 1 420 10Q420 15 423 24Q428 43 433 45Q437 46 448 46H454Q481 46 514 49Q520 50 522 50T528 55T534 64T540 82T547 110T558 153Q565 181 569 198Q602 330 602 331T457 332H312L279 197Q245 63 245 58Q245 51 253 49T303 46H334Q340 38 340 37T337 19Q333 6 327 0H312Q275 2 178 2Q144 2 115 2T69 2T48 1Q31 1 31 10Q31 12 34 24Q39 43 44 45Q48 46 59 46H65Q92 46 125 49Q139 52 144 61Q147 65 216 339T285 628Q285 635 228 637Z"
+            />
+          </g>
+          <g data-mml-node="mn" transform="translate(888,0)">
+            <path
+              data-c="32"
+              d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g>
+    <line
+      x1="480.9378468318945"
+      y1="351.3056116325308"
+      x2="492.38833397336816"
+      y2="278.8811038373903"
+      stroke="#1ab399"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>15:15:line</title>
+  </g>
+  <g>
+    <line
+      x1="480.9378468318945"
+      y1="351.3056116325308"
+      x2="492.38833397336816"
+      y2="278.8811038373903"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>15:15:innerLine</title>
+  </g>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="478.9858135517193"
+    cy="363.6522522400178"
+    stroke="#0000ff"
+    stroke-opacity="1"
+    stroke-width="3"
+    r="25"
+  >
+    <title>`N4`.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 478.9858135517193, 363.6522522400178)translate(466.49381355171926, 357.5052522400178)"
+  >
+    <title>`N4`.labelText</title>
+    <svg
+      style="font-size: 18px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24.983999999999998"
+      height="12.294"
+      role="img"
+      focusable="false"
+      viewBox="0 -683 1388 683"
+    >
+      <g stroke="none" fill="none" stroke-width="0" transform="scale(1,-1)">
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D441"
+              d="M234 637Q231 637 226 637Q201 637 196 638T191 649Q191 676 202 682Q204 683 299 683Q376 683 387 683T401 677Q612 181 616 168L670 381Q723 592 723 606Q723 633 659 637Q635 637 635 648Q635 650 637 660Q641 676 643 679T653 683Q656 683 684 682T767 680Q817 680 843 681T873 682Q888 682 888 672Q888 650 880 642Q878 637 858 637Q787 633 769 597L620 7Q618 0 599 0Q585 0 582 2Q579 5 453 305L326 604L261 344Q196 88 196 79Q201 46 268 46H278Q284 41 284 38T282 19Q278 6 272 0H259Q228 2 151 2Q123 2 100 2T63 2T46 1Q31 1 31 10Q31 14 34 26T39 40Q41 46 62 46Q130 49 150 85Q154 91 221 362L289 634Q287 635 234 637Z"
+            />
+          </g>
+          <g data-mml-node="mn" transform="translate(888,0)">
+            <path
+              data-c="34"
+              d="M462 0Q444 3 333 3Q217 3 199 0H190V46H221Q241 46 248 46T265 48T279 53T286 61Q287 63 287 115V165H28V211L179 442Q332 674 334 675Q336 677 355 677H373L379 671V211H471V165H379V114Q379 73 379 66T385 54Q393 47 442 46H471V0H462ZM293 211V545L74 212L183 211H293Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 409.8385618664778, 138.64322395689857)translate(398.4985618664778, 132.10022395689856)"
+  >
+    <title>`C4`.labelText</title>
+    <svg
+      style="font-size: 18px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="22.68"
+      height="13.086"
+      role="img"
+      focusable="false"
+      viewBox="0 -705 1260 727"
+    >
+      <g stroke="none" fill="none" stroke-width="0" transform="scale(1,-1)">
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D436"
+              d="M50 252Q50 367 117 473T286 641T490 704Q580 704 633 653Q642 643 648 636T656 626L657 623Q660 623 684 649Q691 655 699 663T715 679T725 690L740 705H746Q760 705 760 698Q760 694 728 561Q692 422 692 421Q690 416 687 415T669 413H653Q647 419 647 422Q647 423 648 429T650 449T651 481Q651 552 619 605T510 659Q484 659 454 652T382 628T299 572T226 479Q194 422 175 346T156 222Q156 108 232 58Q280 24 350 24Q441 24 512 92T606 240Q610 253 612 255T628 257Q648 257 648 248Q648 243 647 239Q618 132 523 55T319 -22Q206 -22 128 53T50 252Z"
+            />
+          </g>
+          <g data-mml-node="mn" transform="translate(760,0)">
+            <path
+              data-c="34"
+              d="M462 0Q444 3 333 3Q217 3 199 0H190V46H221Q241 46 248 46T265 48T279 53T286 61Q287 63 287 115V165H28V211L179 442Q332 674 334 675Q336 677 355 677H373L379 671V211H471V165H379V114Q379 73 379 66T385 54Q393 47 442 46H471V0H462ZM293 211V545L74 212L183 211H293Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 200.3690182623274, 234.87119781149002)translate(187.8770182623274, 228.52619781149002)"
+  >
+    <title>`H3`.labelText</title>
+    <svg
+      style="font-size: 18px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24.983999999999998"
+      height="12.69"
+      role="img"
+      focusable="false"
+      viewBox="0 -683 1388 705"
+    >
+      <g stroke="none" fill="none" stroke-width="0" transform="scale(1,-1)">
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D43B"
+              d="M228 637Q194 637 192 641Q191 643 191 649Q191 673 202 682Q204 683 219 683Q260 681 355 681Q389 681 418 681T463 682T483 682Q499 682 499 672Q499 670 497 658Q492 641 487 638H485Q483 638 480 638T473 638T464 637T455 637Q416 636 405 634T387 623Q384 619 355 500Q348 474 340 442T328 395L324 380Q324 378 469 378H614L615 381Q615 384 646 504Q674 619 674 627T617 637Q594 637 587 639T580 648Q580 650 582 660Q586 677 588 679T604 682Q609 682 646 681T740 680Q802 680 835 681T871 682Q888 682 888 672Q888 645 876 638H874Q872 638 869 638T862 638T853 637T844 637Q805 636 794 634T776 623Q773 618 704 340T634 58Q634 51 638 51Q646 48 692 46H723Q729 38 729 37T726 19Q722 6 716 0H701Q664 2 567 2Q533 2 504 2T458 2T437 1Q420 1 420 10Q420 15 423 24Q428 43 433 45Q437 46 448 46H454Q481 46 514 49Q520 50 522 50T528 55T534 64T540 82T547 110T558 153Q565 181 569 198Q602 330 602 331T457 332H312L279 197Q245 63 245 58Q245 51 253 49T303 46H334Q340 38 340 37T337 19Q333 6 327 0H312Q275 2 178 2Q144 2 115 2T69 2T48 1Q31 1 31 10Q31 12 34 24Q39 43 44 45Q48 46 59 46H65Q92 46 125 49Q139 52 144 61Q147 65 216 339T285 628Q285 635 228 637Z"
+            />
+          </g>
+          <g data-mml-node="mn" transform="translate(888,0)">
+            <path
+              data-c="33"
+              d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 255.49406613870855, 246.031517319969)translate(244.15406613870854, 239.488517319969)"
+  >
+    <title>`C7`.labelText</title>
+    <svg
+      style="font-size: 18px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="22.68"
+      height="13.086"
+      role="img"
+      focusable="false"
+      viewBox="0 -705 1260 727"
+    >
+      <g stroke="none" fill="none" stroke-width="0" transform="scale(1,-1)">
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D436"
+              d="M50 252Q50 367 117 473T286 641T490 704Q580 704 633 653Q642 643 648 636T656 626L657 623Q660 623 684 649Q691 655 699 663T715 679T725 690L740 705H746Q760 705 760 698Q760 694 728 561Q692 422 692 421Q690 416 687 415T669 413H653Q647 419 647 422Q647 423 648 429T650 449T651 481Q651 552 619 605T510 659Q484 659 454 652T382 628T299 572T226 479Q194 422 175 346T156 222Q156 108 232 58Q280 24 350 24Q441 24 512 92T606 240Q610 253 612 255T628 257Q648 257 648 248Q648 243 647 239Q618 132 523 55T319 -22Q206 -22 128 53T50 252Z"
+            />
+          </g>
+          <g data-mml-node="mn" transform="translate(760,0)">
+            <path
+              data-c="37"
+              d="M55 458Q56 460 72 567L88 674Q88 676 108 676H128V672Q128 662 143 655T195 646T364 644H485V605L417 512Q408 500 387 472T360 435T339 403T319 367T305 330T292 284T284 230T278 162T275 80Q275 66 275 52T274 28V19Q270 2 255 -10T221 -22Q210 -22 200 -19T179 0T168 40Q168 198 265 368Q285 400 349 489L395 552H302Q128 552 119 546Q113 543 108 522T98 479L95 458V455H55V458Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 581.4664096487336, 171.99943544491484)translate(568.9744096487336, 165.65443544491484)"
+  >
+    <title>`H5`.labelText</title>
+    <svg
+      style="font-size: 18px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24.983999999999998"
+      height="12.69"
+      role="img"
+      focusable="false"
+      viewBox="0 -683 1388 705"
+    >
+      <g stroke="none" fill="none" stroke-width="0" transform="scale(1,-1)">
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D43B"
+              d="M228 637Q194 637 192 641Q191 643 191 649Q191 673 202 682Q204 683 219 683Q260 681 355 681Q389 681 418 681T463 682T483 682Q499 682 499 672Q499 670 497 658Q492 641 487 638H485Q483 638 480 638T473 638T464 637T455 637Q416 636 405 634T387 623Q384 619 355 500Q348 474 340 442T328 395L324 380Q324 378 469 378H614L615 381Q615 384 646 504Q674 619 674 627T617 637Q594 637 587 639T580 648Q580 650 582 660Q586 677 588 679T604 682Q609 682 646 681T740 680Q802 680 835 681T871 682Q888 682 888 672Q888 645 876 638H874Q872 638 869 638T862 638T853 637T844 637Q805 636 794 634T776 623Q773 618 704 340T634 58Q634 51 638 51Q646 48 692 46H723Q729 38 729 37T726 19Q722 6 716 0H701Q664 2 567 2Q533 2 504 2T458 2T437 1Q420 1 420 10Q420 15 423 24Q428 43 433 45Q437 46 448 46H454Q481 46 514 49Q520 50 522 50T528 55T534 64T540 82T547 110T558 153Q565 181 569 198Q602 330 602 331T457 332H312L279 197Q245 63 245 58Q245 51 253 49T303 46H334Q340 38 340 37T337 19Q333 6 327 0H312Q275 2 178 2Q144 2 115 2T69 2T48 1Q31 1 31 10Q31 12 34 24Q39 43 44 45Q48 46 59 46H65Q92 46 125 49Q139 52 144 61Q147 65 216 339T285 628Q285 635 228 637Z"
+            />
+          </g>
+          <g data-mml-node="mn" transform="translate(888,0)">
+            <path
+              data-c="35"
+              d="M164 157Q164 133 148 117T109 101H102Q148 22 224 22Q294 22 326 82Q345 115 345 210Q345 313 318 349Q292 382 260 382H254Q176 382 136 314Q132 307 129 306T114 304Q97 304 95 310Q93 314 93 485V614Q93 664 98 664Q100 666 102 666Q103 666 123 658T178 642T253 634Q324 634 389 662Q397 666 402 666Q410 666 410 648V635Q328 538 205 538Q174 538 149 544L139 546V374Q158 388 169 396T205 412T256 420Q337 420 393 355T449 201Q449 109 385 44T229 -22Q148 -22 99 32T50 154Q50 178 61 192T84 210T107 214Q132 214 148 197T164 157Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 596.3804001697208, 87.92880740463156)translate(583.8884001697209, 81.58380740463156)"
+  >
+    <title>`H6`.labelText</title>
+    <svg
+      style="font-size: 18px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24.983999999999998"
+      height="12.69"
+      role="img"
+      focusable="false"
+      viewBox="0 -683 1388 705"
+    >
+      <g stroke="none" fill="none" stroke-width="0" transform="scale(1,-1)">
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D43B"
+              d="M228 637Q194 637 192 641Q191 643 191 649Q191 673 202 682Q204 683 219 683Q260 681 355 681Q389 681 418 681T463 682T483 682Q499 682 499 672Q499 670 497 658Q492 641 487 638H485Q483 638 480 638T473 638T464 637T455 637Q416 636 405 634T387 623Q384 619 355 500Q348 474 340 442T328 395L324 380Q324 378 469 378H614L615 381Q615 384 646 504Q674 619 674 627T617 637Q594 637 587 639T580 648Q580 650 582 660Q586 677 588 679T604 682Q609 682 646 681T740 680Q802 680 835 681T871 682Q888 682 888 672Q888 645 876 638H874Q872 638 869 638T862 638T853 637T844 637Q805 636 794 634T776 623Q773 618 704 340T634 58Q634 51 638 51Q646 48 692 46H723Q729 38 729 37T726 19Q722 6 716 0H701Q664 2 567 2Q533 2 504 2T458 2T437 1Q420 1 420 10Q420 15 423 24Q428 43 433 45Q437 46 448 46H454Q481 46 514 49Q520 50 522 50T528 55T534 64T540 82T547 110T558 153Q565 181 569 198Q602 330 602 331T457 332H312L279 197Q245 63 245 58Q245 51 253 49T303 46H334Q340 38 340 37T337 19Q333 6 327 0H312Q275 2 178 2Q144 2 115 2T69 2T48 1Q31 1 31 10Q31 12 34 24Q39 43 44 45Q48 46 59 46H65Q92 46 125 49Q139 52 144 61Q147 65 216 339T285 628Q285 635 228 637Z"
+            />
+          </g>
+          <g data-mml-node="mn" transform="translate(888,0)">
+            <path
+              data-c="36"
+              d="M42 313Q42 476 123 571T303 666Q372 666 402 630T432 550Q432 525 418 510T379 495Q356 495 341 509T326 548Q326 592 373 601Q351 623 311 626Q240 626 194 566Q147 500 147 364L148 360Q153 366 156 373Q197 433 263 433H267Q313 433 348 414Q372 400 396 374T435 317Q456 268 456 210V192Q456 169 451 149Q440 90 387 34T253 -22Q225 -22 199 -14T143 16T92 75T56 172T42 313ZM257 397Q227 397 205 380T171 335T154 278T148 216Q148 133 160 97T198 39Q222 21 251 21Q302 21 329 59Q342 77 347 104T352 209Q352 289 347 316T329 361Q302 397 257 397Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g>
+    <line
+      x1="332.58577786590473"
+      y1="272.26856253974944"
+      x2="267.3275137335904"
+      y2="250.05885946475746"
+      stroke="#1ab399"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>15:12:line</title>
+  </g>
+  <g>
+    <line
+      x1="332.58577786590473"
+      y1="272.26856253974944"
+      x2="267.3275137335904"
+      y2="250.05885946475746"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>15:12:innerLine</title>
+  </g>
+  <g>
+    <line
+      x1="353.6532220468434"
+      y1="267.87074775610904"
+      x2="396.28889756942476"
+      y2="228.9696875618994"
+      stroke="#1ab399"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>15:13:line</title>
+  </g>
+  <g>
+    <line
+      x1="353.6532220468434"
+      y1="267.87074775610904"
+      x2="396.28889756942476"
+      y2="228.9696875618994"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>15:13:innerLine</title>
+  </g>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="344.4192254607866"
+    cy="276.2959046845379"
+    stroke="#0000ff"
+    stroke-opacity="1"
+    stroke-width="3"
+    r="25"
+  >
+    <title>`N3`.icon</title>
+  </circle>
+  <g>
+    <line
+      x1="393.6004254089925"
+      y1="366.2848632350313"
+      x2="350.4139222945858"
+      y2="287.26465952312753"
+      stroke="#1ab399"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>15:14:line</title>
+  </g>
+  <g>
+    <line
+      x1="393.6004254089925"
+      y1="366.2848632350313"
+      x2="350.4139222945858"
+      y2="287.26465952312753"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>15:14:innerLine</title>
+  </g>
+  <g>
+    <line
+      x1="398.53501011862943"
+      y1="389.7085811930701"
+      x2="395.92067779677313"
+      y2="420.4236460513593"
+      stroke="#1ab399"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>15:16:line</title>
+  </g>
+  <g>
+    <line
+      x1="398.53501011862943"
+      y1="389.7085811930701"
+      x2="395.92067779677313"
+      y2="420.4236460513593"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>15:16:innerLine</title>
+  </g>
+  <g>
+    <line
+      x1="410.8602321763116"
+      y1="368.98259941269333"
+      x2="465.60993266286516"
+      y2="359.60277548975847"
+      stroke="#1ab399"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>16:3:line1</title>
+  </g>
+  <g>
+    <line
+      x1="410.8602321763116"
+      y1="368.98259941269333"
+      x2="465.60993266286516"
+      y2="359.60277548975847"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>16:3:innerLine1</title>
+  </g>
+  <g>
+    <line
+      x1="412.9710031316458"
+      y1="381.3030948238803"
+      x2="467.7207036181993"
+      y2="371.92327090094545"
+      stroke="#1ab399"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>16:3:line2</title>
+  </g>
+  <g>
+    <line
+      x1="412.9710031316458"
+      y1="381.3030948238803"
+      x2="467.7207036181993"
+      y2="371.92327090094545"
+      stroke="#ffffff"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>16:3:innerLine2</title>
+  </g>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="399.5951222427917"
+    cy="377.25361807362094"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="3"
+    r="25"
   >
     <title>`C8`.icon</title>
   </circle>
-  <text
-    fill="#ffffff"
-    fill-opacity="1"
-    stroke="none"
-    transform="rotate(0, 653.3266749247505, 490.1870464397348)"
-    style="
-      font: Bold 12px HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica,
-        Arial, sans-serif;
-    "
-    x="653.3266749247505"
-    y="494.6870464397348"
-    width="9"
-    height="9"
-    font-size-adjust=""
-    alignment-baseline="alphabetic"
-    dominant-baseline="alphabetic"
-    ascent="9"
-    descent="0"
-    text-anchor="middle"
-    visibility=""
+  <g
+    transform="rotate(0, 399.5951222427917, 377.25361807362094)translate(388.25512224279174, 370.71061807362094)"
   >
-    <title>`C8`.text</title>
-    C
-  </text>
+    <title>`C8`.labelText</title>
+    <svg
+      style="font-size: 18px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="22.68"
+      height="13.086"
+      role="img"
+      focusable="false"
+      viewBox="0 -705 1260 727"
+    >
+      <g stroke="none" fill="none" stroke-width="0" transform="scale(1,-1)">
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D436"
+              d="M50 252Q50 367 117 473T286 641T490 704Q580 704 633 653Q642 643 648 636T656 626L657 623Q660 623 684 649Q691 655 699 663T715 679T725 690L740 705H746Q760 705 760 698Q760 694 728 561Q692 422 692 421Q690 416 687 415T669 413H653Q647 419 647 422Q647 423 648 429T650 449T651 481Q651 552 619 605T510 659Q484 659 454 652T382 628T299 572T226 479Q194 422 175 346T156 222Q156 108 232 58Q280 24 350 24Q441 24 512 92T606 240Q610 253 612 255T628 257Q648 257 648 248Q648 243 647 239Q618 132 523 55T319 -22Q206 -22 128 53T50 252Z"
+            />
+          </g>
+          <g data-mml-node="mn" transform="translate(760,0)">
+            <path
+              data-c="38"
+              d="M70 417T70 494T124 618T248 666Q319 666 374 624T429 515Q429 485 418 459T392 417T361 389T335 371T324 363L338 354Q352 344 366 334T382 323Q457 264 457 174Q457 95 399 37T249 -22Q159 -22 101 29T43 155Q43 263 172 335L154 348Q133 361 127 368Q70 417 70 494ZM286 386L292 390Q298 394 301 396T311 403T323 413T334 425T345 438T355 454T364 471T369 491T371 513Q371 556 342 586T275 624Q268 625 242 625Q201 625 165 599T128 534Q128 511 141 492T167 463T217 431Q224 426 228 424L286 386ZM250 21Q308 21 350 55T392 137Q392 154 387 169T375 194T353 216T330 234T301 253T274 270Q260 279 244 289T218 306L210 311Q204 311 181 294T133 239T107 157Q107 98 150 60T250 21Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 494.3403672535434, 266.53446322990334)translate(483.0003672535434, 259.99146322990333)"
+  >
+    <title>`C6`.labelText</title>
+    <svg
+      style="font-size: 18px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="22.68"
+      height="13.086"
+      role="img"
+      focusable="false"
+      viewBox="0 -705 1260 727"
+    >
+      <g stroke="none" fill="none" stroke-width="0" transform="scale(1,-1)">
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D436"
+              d="M50 252Q50 367 117 473T286 641T490 704Q580 704 633 653Q642 643 648 636T656 626L657 623Q660 623 684 649Q691 655 699 663T715 679T725 690L740 705H746Q760 705 760 698Q760 694 728 561Q692 422 692 421Q690 416 687 415T669 413H653Q647 419 647 422Q647 423 648 429T650 449T651 481Q651 552 619 605T510 659Q484 659 454 652T382 628T299 572T226 479Q194 422 175 346T156 222Q156 108 232 58Q280 24 350 24Q441 24 512 92T606 240Q610 253 612 255T628 257Q648 257 648 248Q648 243 647 239Q618 132 523 55T319 -22Q206 -22 128 53T50 252Z"
+            />
+          </g>
+          <g data-mml-node="mn" transform="translate(760,0)">
+            <path
+              data-c="36"
+              d="M42 313Q42 476 123 571T303 666Q372 666 402 630T432 550Q432 525 418 510T379 495Q356 495 341 509T326 548Q326 592 373 601Q351 623 311 626Q240 626 194 566Q147 500 147 364L148 360Q153 366 156 373Q197 433 263 433H267Q313 433 348 414Q372 400 396 374T435 317Q456 268 456 210V192Q456 169 451 149Q440 90 387 34T253 -22Q225 -22 199 -14T143 16T92 75T56 172T42 313ZM257 397Q227 397 205 380T171 335T154 278T148 216Q148 133 160 97T198 39Q222 21 251 21Q302 21 329 59Q342 77 347 104T352 209Q352 289 347 316T329 361Q302 397 257 397Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 277.48857644384384, 194.526161484955)translate(264.9965764438438, 188.379161484955)"
+  >
+    <title>`H4`.labelText</title>
+    <svg
+      style="font-size: 18px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24.983999999999998"
+      height="12.294"
+      role="img"
+      focusable="false"
+      viewBox="0 -683 1388 683"
+    >
+      <g stroke="none" fill="none" stroke-width="0" transform="scale(1,-1)">
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D43B"
+              d="M228 637Q194 637 192 641Q191 643 191 649Q191 673 202 682Q204 683 219 683Q260 681 355 681Q389 681 418 681T463 682T483 682Q499 682 499 672Q499 670 497 658Q492 641 487 638H485Q483 638 480 638T473 638T464 637T455 637Q416 636 405 634T387 623Q384 619 355 500Q348 474 340 442T328 395L324 380Q324 378 469 378H614L615 381Q615 384 646 504Q674 619 674 627T617 637Q594 637 587 639T580 648Q580 650 582 660Q586 677 588 679T604 682Q609 682 646 681T740 680Q802 680 835 681T871 682Q888 682 888 672Q888 645 876 638H874Q872 638 869 638T862 638T853 637T844 637Q805 636 794 634T776 623Q773 618 704 340T634 58Q634 51 638 51Q646 48 692 46H723Q729 38 729 37T726 19Q722 6 716 0H701Q664 2 567 2Q533 2 504 2T458 2T437 1Q420 1 420 10Q420 15 423 24Q428 43 433 45Q437 46 448 46H454Q481 46 514 49Q520 50 522 50T528 55T534 64T540 82T547 110T558 153Q565 181 569 198Q602 330 602 331T457 332H312L279 197Q245 63 245 58Q245 51 253 49T303 46H334Q340 38 340 37T337 19Q333 6 327 0H312Q275 2 178 2Q144 2 115 2T69 2T48 1Q31 1 31 10Q31 12 34 24Q39 43 44 45Q48 46 59 46H65Q92 46 125 49Q139 52 144 61Q147 65 216 339T285 628Q285 635 228 637Z"
+            />
+          </g>
+          <g data-mml-node="mn" transform="translate(888,0)">
+            <path
+              data-c="34"
+              d="M462 0Q444 3 333 3Q217 3 199 0H190V46H221Q241 46 248 46T265 48T279 53T286 61Q287 63 287 115V165H28V211L179 442Q332 674 334 675Q336 677 355 677H373L379 671V211H471V165H379V114Q379 73 379 66T385 54Q393 47 442 46H471V0H462ZM293 211V545L74 212L183 211H293Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 431.8131216724836, 295.7398705625874)translate(420.4731216724836, 289.1968705625874)"
+  >
+    <title>`C2`.labelText</title>
+    <svg
+      style="font-size: 18px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="22.68"
+      height="13.086"
+      role="img"
+      focusable="false"
+      viewBox="0 -705 1260 727"
+    >
+      <g stroke="none" fill="none" stroke-width="0" transform="scale(1,-1)">
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D436"
+              d="M50 252Q50 367 117 473T286 641T490 704Q580 704 633 653Q642 643 648 636T656 626L657 623Q660 623 684 649Q691 655 699 663T715 679T725 690L740 705H746Q760 705 760 698Q760 694 728 561Q692 422 692 421Q690 416 687 415T669 413H653Q647 419 647 422Q647 423 648 429T650 449T651 481Q651 552 619 605T510 659Q484 659 454 652T382 628T299 572T226 479Q194 422 175 346T156 222Q156 108 232 58Q280 24 350 24Q441 24 512 92T606 240Q610 253 612 255T628 257Q648 257 648 248Q648 243 647 239Q618 132 523 55T319 -22Q206 -22 128 53T50 252Z"
+            />
+          </g>
+          <g data-mml-node="mn" transform="translate(760,0)">
+            <path
+              data-c="32"
+              d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 344.4192254607866, 276.2959046845379)translate(331.9272254607866, 269.9509046845379)"
+  >
+    <title>`N3`.labelText</title>
+    <svg
+      style="font-size: 18px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24.983999999999998"
+      height="12.69"
+      role="img"
+      focusable="false"
+      viewBox="0 -683 1388 705"
+    >
+      <g stroke="none" fill="none" stroke-width="0" transform="scale(1,-1)">
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D441"
+              d="M234 637Q231 637 226 637Q201 637 196 638T191 649Q191 676 202 682Q204 683 299 683Q376 683 387 683T401 677Q612 181 616 168L670 381Q723 592 723 606Q723 633 659 637Q635 637 635 648Q635 650 637 660Q641 676 643 679T653 683Q656 683 684 682T767 680Q817 680 843 681T873 682Q888 682 888 672Q888 650 880 642Q878 637 858 637Q787 633 769 597L620 7Q618 0 599 0Q585 0 582 2Q579 5 453 305L326 604L261 344Q196 88 196 79Q201 46 268 46H278Q284 41 284 38T282 19Q278 6 272 0H259Q228 2 151 2Q123 2 100 2T63 2T46 1Q31 1 31 10Q31 14 34 26T39 40Q41 46 62 46Q130 49 150 85Q154 91 221 362L289 634Q287 635 234 637Z"
+            />
+          </g>
+          <g data-mml-node="mn" transform="translate(888,0)">
+            <path
+              data-c="33"
+              d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 681.6074685415552, 383.4523768426912)translate(669.1154685415553, 377.10737684269117)"
+  >
+    <title>`H9`.labelText</title>
+    <svg
+      style="font-size: 18px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24.983999999999998"
+      height="12.69"
+      role="img"
+      focusable="false"
+      viewBox="0 -683 1388 705"
+    >
+      <g stroke="none" fill="none" stroke-width="0" transform="scale(1,-1)">
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D43B"
+              d="M228 637Q194 637 192 641Q191 643 191 649Q191 673 202 682Q204 683 219 683Q260 681 355 681Q389 681 418 681T463 682T483 682Q499 682 499 672Q499 670 497 658Q492 641 487 638H485Q483 638 480 638T473 638T464 637T455 637Q416 636 405 634T387 623Q384 619 355 500Q348 474 340 442T328 395L324 380Q324 378 469 378H614L615 381Q615 384 646 504Q674 619 674 627T617 637Q594 637 587 639T580 648Q580 650 582 660Q586 677 588 679T604 682Q609 682 646 681T740 680Q802 680 835 681T871 682Q888 682 888 672Q888 645 876 638H874Q872 638 869 638T862 638T853 637T844 637Q805 636 794 634T776 623Q773 618 704 340T634 58Q634 51 638 51Q646 48 692 46H723Q729 38 729 37T726 19Q722 6 716 0H701Q664 2 567 2Q533 2 504 2T458 2T437 1Q420 1 420 10Q420 15 423 24Q428 43 433 45Q437 46 448 46H454Q481 46 514 49Q520 50 522 50T528 55T534 64T540 82T547 110T558 153Q565 181 569 198Q602 330 602 331T457 332H312L279 197Q245 63 245 58Q245 51 253 49T303 46H334Q340 38 340 37T337 19Q333 6 327 0H312Q275 2 178 2Q144 2 115 2T69 2T48 1Q31 1 31 10Q31 12 34 24Q39 43 44 45Q48 46 59 46H65Q92 46 125 49Q139 52 144 61Q147 65 216 339T285 628Q285 635 228 637Z"
+            />
+          </g>
+          <g data-mml-node="mn" transform="translate(888,0)">
+            <path
+              data-c="39"
+              d="M352 287Q304 211 232 211Q154 211 104 270T44 396Q42 412 42 436V444Q42 537 111 606Q171 666 243 666Q245 666 249 666T257 665H261Q273 665 286 663T323 651T370 619T413 560Q456 472 456 334Q456 194 396 97Q361 41 312 10T208 -22Q147 -22 108 7T68 93T121 149Q143 149 158 135T173 96Q173 78 164 65T148 49T135 44L131 43Q131 41 138 37T164 27T206 22H212Q272 22 313 86Q352 142 352 280V287ZM244 248Q292 248 321 297T351 430Q351 508 343 542Q341 552 337 562T323 588T293 615T246 625Q208 625 181 598Q160 576 154 546T147 441Q147 358 152 329T172 282Q197 248 244 248Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 629.902441447487, 360.1030004608866)translate(618.562441447487, 353.5600004608866)"
+  >
+    <title>`C3`.labelText</title>
+    <svg
+      style="font-size: 18px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="22.68"
+      height="13.086"
+      role="img"
+      focusable="false"
+      viewBox="0 -705 1260 727"
+    >
+      <g stroke="none" fill="none" stroke-width="0" transform="scale(1,-1)">
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D436"
+              d="M50 252Q50 367 117 473T286 641T490 704Q580 704 633 653Q642 643 648 636T656 626L657 623Q660 623 684 649Q691 655 699 663T715 679T725 690L740 705H746Q760 705 760 698Q760 694 728 561Q692 422 692 421Q690 416 687 415T669 413H653Q647 419 647 422Q647 423 648 429T650 449T651 481Q651 552 619 605T510 659Q484 659 454 652T382 628T299 572T226 479Q194 422 175 346T156 222Q156 108 232 58Q280 24 350 24Q441 24 512 92T606 240Q610 253 612 255T628 257Q648 257 648 248Q648 243 647 239Q618 132 523 55T319 -22Q206 -22 128 53T50 252Z"
+            />
+          </g>
+          <g data-mml-node="mn" transform="translate(760,0)">
+            <path
+              data-c="33"
+              d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 405.52289415548154, 220.54453063347057)translate(394.18289415548156, 214.00153063347057)"
+  >
+    <title>`C5`.labelText</title>
+    <svg
+      style="font-size: 18px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="22.68"
+      height="13.086"
+      role="img"
+      focusable="false"
+      viewBox="0 -705 1260 727"
+    >
+      <g stroke="none" fill="none" stroke-width="0" transform="scale(1,-1)">
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D436"
+              d="M50 252Q50 367 117 473T286 641T490 704Q580 704 633 653Q642 643 648 636T656 626L657 623Q660 623 684 649Q691 655 699 663T715 679T725 690L740 705H746Q760 705 760 698Q760 694 728 561Q692 422 692 421Q690 416 687 415T669 413H653Q647 419 647 422Q647 423 648 429T650 449T651 481Q651 552 619 605T510 659Q484 659 454 652T382 628T299 572T226 479Q194 422 175 346T156 222Q156 108 232 58Q280 24 350 24Q441 24 512 92T606 240Q610 253 612 255T628 257Q648 257 648 248Q648 243 647 239Q618 132 523 55T319 -22Q206 -22 128 53T50 252Z"
+            />
+          </g>
+          <g data-mml-node="mn" transform="translate(760,0)">
+            <path
+              data-c="35"
+              d="M164 157Q164 133 148 117T109 101H102Q148 22 224 22Q294 22 326 82Q345 115 345 210Q345 313 318 349Q292 382 260 382H254Q176 382 136 314Q132 307 129 306T114 304Q97 304 95 310Q93 314 93 485V614Q93 664 98 664Q100 666 102 666Q103 666 123 658T178 642T253 634Q324 634 389 662Q397 666 402 666Q410 666 410 648V635Q328 538 205 538Q174 538 149 544L139 546V374Q158 388 169 396T205 412T256 420Q337 420 393 355T449 201Q449 109 385 44T229 -22Q148 -22 99 32T50 154Q50 178 61 192T84 210T107 214Q132 214 148 197T164 157Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
 </svg>

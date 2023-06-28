@@ -4,13 +4,22 @@
   viewBox="0 0 500 500"
   penrose="0"
 >
-  <penrose>
-    <croppedViewBox>
-      79.574544745347 182.12083511715787 252.68459306942736 256.9170318253016
-    </croppedViewBox>
-  </penrose>
+  <penrose><croppedViewBox>0 0 500 500</croppedViewBox></penrose>
+  <rect
+    x="0"
+    y="0"
+    width="500"
+    height="500"
+    fill="#f6f4f2"
+    fill-opacity="1"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 250, 250)"
+  >
+    <title>global.background</title>
+  </rect>
   <g
-    transform="rotate(0, 96.14403596696891, 404.5676454329211)translate(88.50403596696891, 397.7676454329211)"
+    transform="rotate(0, 20.694573594491885, 136.47366357459111)translate(13.054573594491885, 129.6736635745911)"
   >
     <title>`E`.text</title>
     <svg
@@ -24,7 +33,7 @@
     >
       <g
         stroke="none"
-        fill="#000000"
+        fill="#425664"
         stroke-width="0"
         transform="scale(1,-1)"
         fill-opacity="1"
@@ -41,7 +50,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 257.8224051207643, 254.4878715229244)translate(253.5324051207643, 247.43787152292438)"
+    transform="rotate(0, 310.68474150758044, 359.6905377257078)translate(306.3947415075804, 352.6405377257078)"
   >
     <title>`b`.text</title>
     <svg
@@ -55,7 +64,7 @@
     >
       <g
         stroke="none"
-        fill="#000000"
+        fill="#425664"
         stroke-width="0"
         transform="scale(1,-1)"
         fill-opacity="1"
@@ -72,7 +81,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 218.42019749715044, 343.22700044284505)translate(210.93019749715043, 336.42700044284504)"
+    transform="rotate(0, 267.142090602998, 219.42749247164744)translate(259.652090602998, 212.62749247164743)"
   >
     <title>`F`.text</title>
     <svg
@@ -86,7 +95,7 @@
     >
       <g
         stroke="none"
-        fill="#000000"
+        fill="#425664"
         stroke-width="0"
         transform="scale(1,-1)"
         fill-opacity="1"
@@ -103,7 +112,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 152.10312499799466, 278.7266846193016)translate(146.90312499799467, 271.68668461930156)"
+    transform="rotate(0, 92.64884446169827, 297.0857751995925)translate(87.44884446169827, 290.04577519959247)"
   >
     <title>`d`.text</title>
     <svg
@@ -117,7 +126,7 @@
     >
       <g
         stroke="none"
-        fill="#000000"
+        fill="#425664"
         stroke-width="0"
         transform="scale(1,-1)"
         fill-opacity="1"
@@ -134,7 +143,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 282.2075446061143, 204.75495155008906)translate(274.61754460611434, 197.92495155008905)"
+    transform="rotate(0, 335.63579111258093, 489.50568551361624)translate(328.04579111258096, 482.67568551361626)"
   >
     <title>`B`.text</title>
     <svg
@@ -148,7 +157,7 @@
     >
       <g
         stroke="none"
-        fill="#000000"
+        fill="#425664"
         stroke-width="0"
         transform="scale(1,-1)"
         fill-opacity="1"
@@ -165,7 +174,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 203.3038469211961, 189.39083511715788)translate(195.70384692119612, 182.12083511715787)"
+    transform="rotate(0, 106.6391348472196, 453.07444846250985)translate(99.0391348472196, 445.80444846250987)"
   >
     <title>`C`.text</title>
     <svg
@@ -179,7 +188,7 @@
     >
       <g
         stroke="none"
-        fill="#000000"
+        fill="#425664"
         stroke-width="0"
         transform="scale(1,-1)"
         fill-opacity="1"
@@ -196,7 +205,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 324.75913781477436, 272.09858715149716)translate(317.25913781477436, 264.93858715149713)"
+    transform="rotate(0, 492.49919357377223, 343.76051877835647)translate(484.99919357377223, 336.60051877835645)"
   >
     <title>`A`.text</title>
     <svg
@@ -210,7 +219,7 @@
     >
       <g
         stroke="none"
-        fill="#000000"
+        fill="#425664"
         stroke-width="0"
         transform="scale(1,-1)"
         fill-opacity="1"
@@ -228,11 +237,11 @@
   </g>
   <g>
     <line
-      x1="208.17765830201245"
-      y1="322.7002524265646"
-      x2="109.2876422206929"
-      y2="263.10048110530516"
-      stroke="#000000"
+      x1="256.7257508187804"
+      y1="239.9182422195806"
+      x2="27.535665995471078"
+      y2="307.7877143630372"
+      stroke="#425664"
       stroke-opacity="1"
       stroke-width="1.75"
     />
@@ -240,21 +249,21 @@
   </g>
   <circle
     fill="none"
-    cx="208.17765830201245"
-    cy="322.7002524265646"
-    stroke="#000000"
+    cx="256.7257508187804"
+    cy="239.9182422195806"
+    stroke="#425664"
     stroke-opacity="1"
     stroke-width="1.75"
-    r="115.46261451589488"
+    r="239.0274733744799"
   >
     <title>`c`.icon</title>
   </circle>
   <circle
-    fill="#000000"
+    fill="#425664"
     fill-opacity="1"
-    cx="109.2876422206929"
-    cy="263.10048110530516"
-    stroke="#000000"
+    cx="27.535665995471078"
+    cy="307.7877143630372"
+    stroke="#425664"
     stroke-opacity="1"
     stroke-width="0"
     r="4"
@@ -262,7 +271,7 @@
     <title>`D`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 87.854544745347, 251.47505110412988)translate(79.574544745347, 244.64505110412986)"
+    transform="rotate(0, 8.280323341132203, 323.3092132376278)translate(0.00032334113220322536, 316.4792132376278)"
   >
     <title>`D`.text</title>
     <svg
@@ -276,7 +285,7 @@
     >
       <g
         stroke="none"
-        fill="#000000"
+        fill="#425664"
         stroke-width="0"
         transform="scale(1,-1)"
         fill-opacity="1"
@@ -293,11 +302,11 @@
     </svg>
   </g>
   <circle
-    fill="#000000"
+    fill="#425664"
     fill-opacity="1"
-    cx="111.80625421064693"
-    cy="386.2940212673915"
-    stroke="#000000"
+    cx="32.69844902862269"
+    cy="156.5761698188649"
+    stroke="#425664"
     stroke-opacity="1"
     stroke-width="0"
     r="4"
@@ -305,11 +314,11 @@
     <title>`E`.icon</title>
   </circle>
   <circle
-    fill="#000000"
+    fill="#425664"
     fill-opacity="1"
-    cx="304.538843788261"
-    cy="259.09099886040747"
-    stroke="#000000"
+    cx="480.75319887068656"
+    cy="323.25992160513215"
+    stroke="#425664"
     stroke-opacity="1"
     stroke-width="0"
     r="4"
@@ -317,11 +326,11 @@
     <title>`A`.icon</title>
   </circle>
   <circle
-    fill="#000000"
+    fill="#425664"
     fill-opacity="1"
-    cx="208.17765830201245"
-    cy="322.7002524265646"
-    stroke="#000000"
+    cx="256.7257508187804"
+    cy="239.9182422195806"
+    stroke="#425664"
     stroke-opacity="1"
     stroke-width="0"
     r="4"
@@ -330,22 +339,22 @@
   </circle>
   <g>
     <line
-      x1="208.17765830201245"
-      y1="322.7002524265646"
-      x2="267.7770734681973"
-      y2="223.80003258812403"
-      stroke="#000000"
+      x1="256.7257508187804"
+      y1="239.9182422195806"
+      x2="324.5917945036356"
+      y2="469.10844460666226"
+      stroke="#425664"
       stroke-opacity="1"
       stroke-width="1.75"
     />
     <title>`FB`.icon</title>
   </g>
   <circle
-    fill="#000000"
+    fill="#425664"
     fill-opacity="1"
-    cx="219.404374923751"
-    cy="207.78473482889058"
-    stroke="#000000"
+    cx="114.19919780760742"
+    cy="431.8044447317493"
+    stroke="#425664"
     stroke-opacity="1"
     stroke-width="0"
     r="4"
@@ -354,22 +363,22 @@
   </circle>
   <g>
     <line
-      x1="208.17765830201245"
-      y1="322.7002524265646"
-      x2="219.404374923751"
-      y2="207.78473482889058"
-      stroke="#000000"
+      x1="256.7257508187804"
+      y1="239.9182422195806"
+      x2="114.19919780760742"
+      y2="431.8044447317493"
+      stroke="#425664"
       stroke-opacity="1"
       stroke-width="1.75"
     />
     <title>`FC`.icon</title>
   </g>
   <circle
-    fill="#000000"
+    fill="#425664"
     fill-opacity="1"
-    cx="267.7770734681973"
-    cy="223.80003258812403"
-    stroke="#000000"
+    cx="324.5917945036356"
+    cy="469.10844460666226"
+    stroke="#425664"
     stroke-opacity="1"
     stroke-width="0"
     r="4"
@@ -378,22 +387,22 @@
   </circle>
   <g>
     <line
-      x1="304.538843788261"
-      y1="259.09099886040747"
-      x2="219.404374923751"
-      y2="207.78473482889058"
-      stroke="#000000"
+      x1="480.75319887068656"
+      y1="323.25992160513215"
+      x2="114.19919780760742"
+      y2="431.8044447317493"
+      stroke="#425664"
       stroke-opacity="1"
       stroke-width="1.75"
     />
     <title>`AC`.icon</title>
   </g>
   <circle
-    fill="#000000"
+    fill="#425664"
     fill-opacity="1"
-    cx="261.971609356006"
-    cy="233.43786684464902"
-    stroke="#000000"
+    cx="297.476198339147"
+    cy="377.5321831684407"
+    stroke="#425664"
     stroke-opacity="1"
     stroke-width="0"
     r="4"
@@ -401,11 +410,11 @@
     <title>`b`.icon</title>
   </circle>
   <circle
-    fill="#000000"
+    fill="#425664"
     fill-opacity="1"
-    cx="165.60531456719895"
-    cy="297.03937804814103"
-    stroke="#000000"
+    cx="73.44882341811507"
+    cy="294.1903072753071"
+    stroke="#425664"
     stroke-opacity="1"
     stroke-width="0"
     r="4"
@@ -414,27 +423,15 @@
   </circle>
   <g>
     <line
-      x1="111.80625421064693"
-      y1="386.2940212673915"
-      x2="304.538843788261"
-      y2="259.09099886040747"
-      stroke="#000000"
+      x1="32.69844902862269"
+      y1="156.5761698188649"
+      x2="480.75319887068656"
+      y2="323.25992160513215"
+      stroke="#425664"
       stroke-opacity="1"
       stroke-width="1.75"
     />
     <title>`EA`.icon</title>
-  </g>
-  <g>
-    <line
-      x1="208.17765830201245"
-      y1="322.7002524265646"
-      x2="261.971609356006"
-      y2="233.43786684464902"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="1.75"
-    />
-    <title>`Fb`.icon</title>
   </g>
   <g>
     <filter
@@ -457,37 +454,37 @@
     </filter>
     <path
       fill="none"
-      stroke="#000000"
+      stroke="#425664"
       stroke-opacity="1"
       stroke-width="2"
       stroke-linecap="butt"
-      d="M 251.64834041507663 250.56766665701363 L 234.518540602712 240.24439771608428 L 244.84181141806368 223.11459887184589"
+      d="M 291.7975136141661 358.3553094906695 L 272.6206399363949 364.0339942156504 L 278.2993243297302 383.21086799625454"
     />
     <title>`Fb`.mark</title>
   </g>
   <g>
     <line
-      x1="111.80625421064693"
-      y1="386.2940212673915"
-      x2="219.404374923751"
-      y2="207.78473482889058"
-      stroke="#000000"
+      x1="256.7257508187804"
+      y1="239.9182422195806"
+      x2="297.476198339147"
+      y2="377.5321831684407"
+      stroke="#425664"
+      stroke-opacity="1"
+      stroke-width="1.75"
+    />
+    <title>`Fb`.icon</title>
+  </g>
+  <g>
+    <line
+      x1="32.69844902862269"
+      y1="156.5761698188649"
+      x2="114.19919780760742"
+      y2="431.8044447317493"
+      stroke="#425664"
       stroke-opacity="1"
       stroke-width="1.75"
     />
     <title>`EC`.icon</title>
-  </g>
-  <g>
-    <line
-      x1="208.17765830201245"
-      y1="322.7002524265646"
-      x2="165.60531456719895"
-      y2="297.03937804814103"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="1.75"
-    />
-    <title>`Fd`.icon</title>
   </g>
   <g>
     <filter
@@ -510,12 +507,24 @@
     </filter>
     <path
       fill="none"
-      stroke="#000000"
+      stroke="#425664"
       stroke-opacity="1"
       stroke-width="2"
       stroke-linecap="butt"
-      d="M 182.73428297922868 307.36402236161916 L 193.0589272927068 290.2350539495894 L 175.9299596455285 279.91040764002753"
+      d="M 92.62570240840597 288.5116392678955 L 98.3043704158176 307.6885182581864 L 79.12749131849537 313.367185935198"
     />
     <title>`Fd`.mark</title>
+  </g>
+  <g>
+    <line
+      x1="256.7257508187804"
+      y1="239.9182422195806"
+      x2="73.44882341811507"
+      y2="294.1903072753071"
+      stroke="#425664"
+      stroke-opacity="1"
+      stroke-width="1.75"
+    />
+    <title>`Fd`.icon</title>
   </g>
 </svg>

@@ -6,34 +6,34 @@
 >
   <penrose>
     <croppedViewBox>
-      51.04363511389403 8.960466947202633 624.3294710336106 647.6087470678353
+      88.36030327790854 8.21553527026748 645.9357645140942 661.7724330709395
     </croppedViewBox>
   </penrose>
   <g>
     <line
-      x1="665.3731061475046"
-      y1="624.536080853758"
-      x2="567.8305972307825"
-      y2="646.5692140150379"
-      stroke="#000000"
+      x1="102.53783815024372"
+      y1="569.6967125931876"
+      x2="98.36030327790854"
+      y2="469.78400675706496"
+      stroke="#2a3166"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="3"
     />
     <title>`SBond_H4_O2`.symbol</title>
   </g>
   <g>
     <circle
-      fill="#ffffff"
+      fill="#f4abaa"
       fill-opacity="1"
-      cx="665.3731061475046"
-      cy="624.536080853758"
+      cx="102.53783815024372"
+      cy="569.6967125931876"
       stroke="none"
       r="10"
     >
       <title>`H4`.background</title>
     </circle>
     <g
-      transform="rotate(0, 665.3731061475046, 624.536080853758)translate(658.2691061475045, 619.0720808537579)"
+      transform="rotate(0, 102.53783815024372, 569.6967125931876)translate(95.43383815024372, 564.2327125931876)"
     >
       <title>`H4`.symbol</title>
       <svg
@@ -47,7 +47,7 @@
       >
         <g
           stroke="none"
-          fill="#000000"
+          fill="#2a3166"
           stroke-width="0"
           transform="scale(1,-1)"
           fill-opacity="1"
@@ -67,29 +67,29 @@
   </g>
   <g>
     <line
-      x1="522.0764521661846"
-      y1="557.6503845530488"
-      x2="567.8305972307825"
-      y2="646.5692140150379"
-      stroke="#000000"
+      x1="194.03471485804306"
+      y1="440.69091878549693"
+      x2="98.36030327790854"
+      y2="469.78400675706496"
+      stroke="#2a3166"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="3"
     />
     <title>`SBond_H3_O2`.symbol</title>
   </g>
   <g>
     <circle
-      fill="#ffffff"
+      fill="#f4abaa"
       fill-opacity="1"
-      cx="567.8305972307825"
-      cy="646.5692140150379"
+      cx="98.36030327790854"
+      cy="469.78400675706496"
       stroke="none"
       r="10"
     >
       <title>`O2`.background</title>
     </circle>
     <g
-      transform="rotate(0, 567.8305972307825, 646.5692140150379)translate(561.7265972307824, 640.7612140150379)"
+      transform="rotate(0, 98.36030327790854, 469.78400675706496)translate(92.25630327790854, 463.97600675706497)"
     >
       <title>`O2`.symbol</title>
       <svg
@@ -103,7 +103,7 @@
       >
         <g
           stroke="none"
-          fill="#000000"
+          fill="#2a3166"
           stroke-width="0"
           transform="scale(1,-1)"
           fill-opacity="1"
@@ -123,29 +123,29 @@
   </g>
   <g>
     <line
-      x1="655.0576675706747"
-      y1="86.20588358901244"
-      x2="557.4601085026422"
-      y2="107.99387236023048"
-      stroke="#000000"
+      x1="440.79021739575967"
+      y1="18.21553527026748"
+      x2="493.3349107314372"
+      y2="103.29817197213652"
+      stroke="#2a3166"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="3"
     />
     <title>`SBond_H7_O4`.symbol</title>
   </g>
   <g>
     <circle
-      fill="#ffffff"
+      fill="#f4abaa"
       fill-opacity="1"
-      cx="655.0576675706747"
-      cy="86.20588358901244"
+      cx="440.79021739575967"
+      cy="18.21553527026748"
       stroke="none"
       r="10"
     >
       <title>`H7`.background</title>
     </circle>
     <g
-      transform="rotate(0, 655.0576675706747, 86.20588358901244)translate(647.9536675706746, 80.74188358901245)"
+      transform="rotate(0, 440.79021739575967, 18.21553527026748)translate(433.6862173957597, 12.75153527026748)"
     >
       <title>`H7`.symbol</title>
       <svg
@@ -159,7 +159,7 @@
       >
         <g
           stroke="none"
-          fill="#000000"
+          fill="#2a3166"
           stroke-width="0"
           transform="scale(1,-1)"
           fill-opacity="1"
@@ -179,23 +179,23 @@
   </g>
   <g>
     <line
-      x1="511.9293195031232"
-      y1="18.960466947202633"
-      x2="557.4601085026422"
-      y2="107.99387236023048"
-      stroke="#000000"
+      x1="588.8564962434618"
+      y1="73.70716868832613"
+      x2="493.3349107314372"
+      y2="103.29817197213652"
+      stroke="#2a3166"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="3"
     />
     <title>`SBond_H8_O4`.symbol</title>
   </g>
   <g>
     <line
-      x1="472.77435765699244"
-      y1="289.17975380085244"
-      x2="557.4601085026422"
-      y2="107.99387236023048"
-      stroke="#000000"
+      x1="421.90082637236236"
+      y1="290.1060257631416"
+      x2="493.3349107314372"
+      y2="103.29817197213652"
+      stroke="#2a3166"
       stroke-opacity="1"
       stroke-width="5"
       stroke-dasharray="7,5"
@@ -204,17 +204,17 @@
   </g>
   <g>
     <circle
-      fill="#ffffff"
+      fill="#f4abaa"
       fill-opacity="1"
-      cx="557.4601085026422"
-      cy="107.99387236023048"
+      cx="493.3349107314372"
+      cy="103.29817197213652"
       stroke="none"
       r="10"
     >
       <title>`O4`.background</title>
     </circle>
     <g
-      transform="rotate(0, 557.4601085026422, 107.99387236023048)translate(551.3561085026422, 102.18587236023049)"
+      transform="rotate(0, 493.3349107314372, 103.29817197213652)translate(487.23091073143723, 97.49017197213652)"
     >
       <title>`O4`.symbol</title>
       <svg
@@ -228,7 +228,7 @@
       >
         <g
           stroke="none"
-          fill="#000000"
+          fill="#2a3166"
           stroke-width="0"
           transform="scale(1,-1)"
           fill-opacity="1"
@@ -248,11 +248,11 @@
   </g>
   <g>
     <line
-      x1="430.543959817332"
-      y1="379.8251812178231"
-      x2="522.0764521661846"
-      y2="557.6503845530488"
-      stroke="#000000"
+      x1="385.62145117261707"
+      y1="383.292979839605"
+      x2="194.03471485804306"
+      y2="440.69091878549693"
+      stroke="#2a3166"
       stroke-opacity="1"
       stroke-width="5"
       stroke-dasharray="7,5"
@@ -261,17 +261,17 @@
   </g>
   <g>
     <circle
-      fill="#ffffff"
+      fill="#f4abaa"
       fill-opacity="1"
-      cx="522.0764521661846"
-      cy="557.6503845530488"
+      cx="194.03471485804306"
+      cy="440.69091878549693"
       stroke="none"
       r="10"
     >
       <title>`H3`.background</title>
     </circle>
     <g
-      transform="rotate(0, 522.0764521661846, 557.6503845530488)translate(514.9724521661846, 552.1863845530487)"
+      transform="rotate(0, 194.03471485804306, 440.69091878549693)translate(186.93071485804305, 435.22691878549693)"
     >
       <title>`H3`.symbol</title>
       <svg
@@ -285,7 +285,7 @@
       >
         <g
           stroke="none"
-          fill="#000000"
+          fill="#2a3166"
           stroke-width="0"
           transform="scale(1,-1)"
           fill-opacity="1"
@@ -305,17 +305,17 @@
   </g>
   <g>
     <circle
-      fill="#ffffff"
+      fill="#f4abaa"
       fill-opacity="1"
-      cx="511.9293195031232"
-      cy="18.960466947202633"
+      cx="588.8564962434618"
+      cy="73.70716868832613"
       stroke="none"
       r="10"
     >
       <title>`H8`.background</title>
     </circle>
     <g
-      transform="rotate(0, 511.9293195031232, 18.960466947202633)translate(504.82531950312324, 13.496466947202633)"
+      transform="rotate(0, 588.8564962434618, 73.70716868832613)translate(581.7524962434618, 68.24316868832614)"
     >
       <title>`H8`.symbol</title>
       <svg
@@ -329,7 +329,7 @@
       >
         <g
           stroke="none"
-          fill="#000000"
+          fill="#2a3166"
           stroke-width="0"
           transform="scale(1,-1)"
           fill-opacity="1"
@@ -349,29 +349,29 @@
   </g>
   <g>
     <line
-      x1="61.04363511389403"
-      y1="391.792137866682"
-      x2="135.57397886905358"
-      y2="325.11959591637503"
-      stroke="#000000"
+      x1="724.2960677920028"
+      y1="532.8868328687556"
+      x2="628.0453118576702"
+      y2="560.0123066535216"
+      stroke="#2a3166"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="3"
     />
     <title>`SBond_H6_O3`.symbol</title>
   </g>
   <g>
     <circle
-      fill="#ffffff"
+      fill="#f4abaa"
       fill-opacity="1"
-      cx="61.04363511389403"
-      cy="391.792137866682"
+      cx="724.2960677920028"
+      cy="532.8868328687556"
       stroke="none"
       r="10"
     >
       <title>`H6`.background</title>
     </circle>
     <g
-      transform="rotate(0, 61.04363511389403, 391.792137866682)translate(53.93963511389403, 386.328137866682)"
+      transform="rotate(0, 724.2960677920028, 532.8868328687556)translate(717.1920677920027, 527.4228328687556)"
     >
       <title>`H6`.symbol</title>
       <svg
@@ -385,7 +385,7 @@
       >
         <g
           stroke="none"
-          fill="#000000"
+          fill="#2a3166"
           stroke-width="0"
           transform="scale(1,-1)"
           fill-opacity="1"
@@ -405,11 +405,11 @@
   </g>
   <g>
     <line
-      x1="332.21234863824395"
-      y1="361.6346823335138"
-      x2="135.57397886905358"
-      y2="325.11959591637503"
-      stroke="#000000"
+      x1="466.7004791433649"
+      y1="441.82666088187693"
+      x2="628.0453118576702"
+      y2="560.0123066535216"
+      stroke="#2a3166"
       stroke-opacity="1"
       stroke-width="5"
       stroke-dasharray="7,5"
@@ -418,29 +418,29 @@
   </g>
   <g>
     <line
-      x1="89.6850609407544"
-      y1="236.27024465859753"
-      x2="135.57397886905358"
-      y2="325.11959591637503"
-      stroke="#000000"
+      x1="630.2513336477997"
+      y1="659.9879683412071"
+      x2="628.0453118576702"
+      y2="560.0123066535216"
+      stroke="#2a3166"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="3"
     />
     <title>`SBond_H5_O3`.symbol</title>
   </g>
   <g>
     <circle
-      fill="#ffffff"
+      fill="#f4abaa"
       fill-opacity="1"
-      cx="135.57397886905358"
-      cy="325.11959591637503"
+      cx="628.0453118576702"
+      cy="560.0123066535216"
       stroke="none"
       r="10"
     >
       <title>`O3`.background</title>
     </circle>
     <g
-      transform="rotate(0, 135.57397886905358, 325.11959591637503)translate(129.46997886905356, 319.31159591637504)"
+      transform="rotate(0, 628.0453118576702, 560.0123066535216)translate(621.9413118576701, 554.2043066535216)"
     >
       <title>`O3`.symbol</title>
       <svg
@@ -454,7 +454,7 @@
       >
         <g
           stroke="none"
-          fill="#000000"
+          fill="#2a3166"
           stroke-width="0"
           transform="scale(1,-1)"
           fill-opacity="1"
@@ -474,41 +474,41 @@
   </g>
   <g>
     <line
-      x1="472.77435765699244"
-      y1="289.17975380085244"
-      x2="430.543959817332"
-      y2="379.8251812178231"
-      stroke="#000000"
+      x1="421.90082637236236"
+      y1="290.1060257631416"
+      x2="385.62145117261707"
+      y2="383.292979839605"
+      stroke="#2a3166"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="3"
     />
     <title>`SBond_H2_O1`.symbol</title>
   </g>
   <g>
     <line
-      x1="332.21234863824395"
-      y1="361.6346823335138"
-      x2="430.543959817332"
-      y2="379.8251812178231"
-      stroke="#000000"
+      x1="466.7004791433649"
+      y1="441.82666088187693"
+      x2="385.62145117261707"
+      y2="383.292979839605"
+      stroke="#2a3166"
       stroke-opacity="1"
-      stroke-width="1"
+      stroke-width="3"
     />
     <title>`SBond_H1_O1`.symbol</title>
   </g>
   <g>
     <circle
-      fill="#ffffff"
+      fill="#f4abaa"
       fill-opacity="1"
-      cx="430.543959817332"
-      cy="379.8251812178231"
+      cx="385.62145117261707"
+      cy="383.292979839605"
       stroke="none"
       r="10"
     >
       <title>`O1`.background</title>
     </circle>
     <g
-      transform="rotate(0, 430.543959817332, 379.8251812178231)translate(424.439959817332, 374.0171812178231)"
+      transform="rotate(0, 385.62145117261707, 383.292979839605)translate(379.5174511726171, 377.484979839605)"
     >
       <title>`O1`.symbol</title>
       <svg
@@ -522,7 +522,7 @@
       >
         <g
           stroke="none"
-          fill="#000000"
+          fill="#2a3166"
           stroke-width="0"
           transform="scale(1,-1)"
           fill-opacity="1"
@@ -542,17 +542,17 @@
   </g>
   <g>
     <circle
-      fill="#ffffff"
+      fill="#f4abaa"
       fill-opacity="1"
-      cx="472.77435765699244"
-      cy="289.17975380085244"
+      cx="421.90082637236236"
+      cy="290.1060257631416"
       stroke="none"
       r="10"
     >
       <title>`H2`.background</title>
     </circle>
     <g
-      transform="rotate(0, 472.77435765699244, 289.17975380085244)translate(465.67035765699245, 283.71575380085244)"
+      transform="rotate(0, 421.90082637236236, 290.1060257631416)translate(414.7968263723624, 284.6420257631416)"
     >
       <title>`H2`.symbol</title>
       <svg
@@ -566,7 +566,7 @@
       >
         <g
           stroke="none"
-          fill="#000000"
+          fill="#2a3166"
           stroke-width="0"
           transform="scale(1,-1)"
           fill-opacity="1"
@@ -586,17 +586,17 @@
   </g>
   <g>
     <circle
-      fill="#ffffff"
+      fill="#f4abaa"
       fill-opacity="1"
-      cx="332.21234863824395"
-      cy="361.6346823335138"
+      cx="466.7004791433649"
+      cy="441.82666088187693"
       stroke="none"
       r="10"
     >
       <title>`H1`.background</title>
     </circle>
     <g
-      transform="rotate(0, 332.21234863824395, 361.6346823335138)translate(325.10834863824397, 356.1706823335138)"
+      transform="rotate(0, 466.7004791433649, 441.82666088187693)translate(459.5964791433649, 436.36266088187693)"
     >
       <title>`H1`.symbol</title>
       <svg
@@ -610,7 +610,7 @@
       >
         <g
           stroke="none"
-          fill="#000000"
+          fill="#2a3166"
           stroke-width="0"
           transform="scale(1,-1)"
           fill-opacity="1"
@@ -630,17 +630,17 @@
   </g>
   <g>
     <circle
-      fill="#ffffff"
+      fill="#f4abaa"
       fill-opacity="1"
-      cx="89.6850609407544"
-      cy="236.27024465859753"
+      cx="630.2513336477997"
+      cy="659.9879683412071"
       stroke="none"
       r="10"
     >
       <title>`H5`.background</title>
     </circle>
     <g
-      transform="rotate(0, 89.6850609407544, 236.27024465859753)translate(82.5810609407544, 230.80624465859754)"
+      transform="rotate(0, 630.2513336477997, 659.9879683412071)translate(623.1473336477997, 654.523968341207)"
     >
       <title>`H5`.symbol</title>
       <svg
@@ -654,7 +654,7 @@
       >
         <g
           stroke="none"
-          fill="#000000"
+          fill="#2a3166"
           stroke-width="0"
           transform="scale(1,-1)"
           fill-opacity="1"

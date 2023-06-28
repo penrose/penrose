@@ -4,70 +4,423 @@
   viewBox="0 0 800 700"
   penrose="0"
 >
-  <penrose>
-    <croppedViewBox>
-      0.5337893549955766 0.08857610208639244 699.8941569829024 699.8941569829026
-    </croppedViewBox>
-  </penrose>
+  <penrose><croppedViewBox>0 0 800 700</croppedViewBox></penrose>
+  <g transform="rotate(0, 400, 350)translate(0, 0)" opacity="0.6">
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="mobius__uuid-6d98e446-f872-4ccb-b987-47081e6968f7--inject-20"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="800"
+      height="700"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 100.000000000000909 99.999999986531293"
+      preserveAspectRatio="none"
+    >
+      <defs>
+        <linearGradient
+          id="mobius__uuid-403fa7fb-1c6a-467c-b68f-bcc65b719694--inject-20"
+          x1=".000000013469617"
+          y1="49.999999993266101"
+          x2="99.999999999999091"
+          y2="49.999999993266101"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#5c4e3c" />
+          <stop offset=".062881300669385" stop-color="#7d684c" />
+          <stop offset=".136673260640224" stop-color="#9d815c" />
+          <stop offset=".207987683699488" stop-color="#b49467" />
+          <stop offset=".275003131887368" stop-color="#c29f6e" />
+          <stop offset=".3333333" stop-color="#c7a371" />
+          <stop offset=".666666" stop-color="#c7a371" />
+          <stop offset=".738132354590403" stop-color="#c09d6c" />
+          <stop offset=".838005415510445" stop-color="#ae8d60" />
+          <stop offset=".954106369455158" stop-color="#90734d" />
+          <stop offset="1" stop-color="#836844" />
+        </linearGradient>
+      </defs>
+      <rect
+        x=".000000006734808"
+        y="-.000000006734808"
+        width="99.999999986531293"
+        height="100.000000000000909"
+        transform="translate(99.999999993266101 -.000000006734808) rotate(90)"
+        style="
+          fill: url(#mobius__uuid-403fa7fb-1c6a-467c-b68f-bcc65b719694--inject-20);
+        "
+      />
+    </svg>
+    <title>global.background</title>
+  </g>
   <circle
-    fill="#c53856"
-    fill-opacity="0.5"
-    cx="328.3291883259039"
-    cy="434.2901074766697"
-    stroke="none"
-    r="31.97665688777967"
+    fill="#000000"
+    fill-opacity="0"
+    cx="447.71252874922965"
+    cy="400.15314704290574"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="2"
+    stroke-dasharray="7,5"
+    r="232.6054160939852"
   >
-    <title>`c3`.circle</title>
+    <title>`r`.circle</title>
   </circle>
+  <g
+    transform="rotate(0, 385.14378432781075, 350.0030675969445)translate(35.16017923937011, 0.019462508503863774)"
+    opacity="0.5"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="mobius__uuid-8f417527-4a34-4660-89a9-6726a90799cf--inject-21"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="699.9672101768813"
+      height="699.9672101768813"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 100.043170206619834 100.043165467624931"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-21"
+          cx="50.021585103309917"
+          cy="50.021582733812465"
+          fx="50.021585103309917"
+          fy="50.021582733812465"
+          r="50.021583918561213"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".275479015218788" stop-color="#fcfcfc" />
+          <stop offset=".413120254141251" stop-color="#f5f5f5" />
+          <stop offset=".520244753357196" stop-color="#e7e7e7" />
+          <stop offset=".611630713477417" stop-color="#d5d5d5" />
+          <stop offset=".692972013991141" stop-color="#bcbcbc" />
+          <stop offset=".767163724013948" stop-color="#9e9e9e" />
+          <stop offset=".83602052346659" stop-color="#7a7a7a" />
+          <stop offset=".900599660612128" stop-color="#515151" />
+          <stop offset=".95947636631665" stop-color="#232323" />
+          <stop offset="1" stop-color="#000" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="50.021585103309917"
+        cy="50.021583918562101"
+        r="50.021583326186281"
+        style="
+          fill: url(#mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-21);
+        "
+      />
+    </svg>
+    <title>`ic2`.shading</title>
+  </g>
   <circle
-    fill="#685477"
+    fill="#63a8c3"
     fill-opacity="0.5"
-    cx="350.4808678464468"
-    cy="350.03565459353763"
+    cx="385.14378432781075"
+    cy="350.0030675969445"
     stroke="none"
-    r="349.94707849145124"
+    r="349.98360508844064"
   >
     <title>`ic2`.circle</title>
   </circle>
-  <circle
-    fill="#685477"
-    fill-opacity="0.5"
-    cx="450.852341017331"
-    cy="495.4233035857118"
-    stroke="none"
-    r="104.95105156533592"
+  <g
+    transform="rotate(0, 145.8701300357194, 518.9019084142526)translate(88.76645558657438, 461.79823396510756)"
+    opacity="0.5"
   >
-    <title>`c2`.circle</title>
-  </circle>
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="mobius__uuid-8f417527-4a34-4660-89a9-6726a90799cf--inject-22"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="114.20734889829004"
+      height="114.20734889829004"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 100.043170206619834 100.043165467624931"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-22"
+          cx="50.021585103309917"
+          cy="50.021582733812465"
+          fx="50.021585103309917"
+          fy="50.021582733812465"
+          r="50.021583918561213"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".275479015218788" stop-color="#fcfcfc" />
+          <stop offset=".413120254141251" stop-color="#f5f5f5" />
+          <stop offset=".520244753357196" stop-color="#e7e7e7" />
+          <stop offset=".611630713477417" stop-color="#d5d5d5" />
+          <stop offset=".692972013991141" stop-color="#bcbcbc" />
+          <stop offset=".767163724013948" stop-color="#9e9e9e" />
+          <stop offset=".83602052346659" stop-color="#7a7a7a" />
+          <stop offset=".900599660612128" stop-color="#515151" />
+          <stop offset=".95947636631665" stop-color="#232323" />
+          <stop offset="1" stop-color="#000" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="50.021585103309917"
+        cy="50.021583918562101"
+        r="50.021583326186281"
+        style="
+          fill: url(#mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-22);
+        "
+      />
+    </svg>
+    <title>`ic3`.shading</title>
+  </g>
   <circle
-    fill="#c53856"
+    fill="#909980"
     fill-opacity="0.5"
-    cx="105.2977198413671"
-    cy="372.36243906549424"
+    cx="145.8701300357194"
+    cy="518.9019084142526"
     stroke="none"
-    r="103.74962001797303"
+    r="57.10367444914502"
   >
     <title>`ic3`.circle</title>
   </circle>
+  <g
+    transform="rotate(0, 476.8813975903141, 423.5325692009833)translate(313.72284346308834, 260.3740150737575)"
+    opacity="0.5"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="mobius__uuid-8f417527-4a34-4660-89a9-6726a90799cf--inject-23"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="326.31710825445157"
+      height="326.31710825445157"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 100.043170206619834 100.043165467624931"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-23"
+          cx="50.021585103309917"
+          cy="50.021582733812465"
+          fx="50.021585103309917"
+          fy="50.021582733812465"
+          r="50.021583918561213"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".275479015218788" stop-color="#fcfcfc" />
+          <stop offset=".413120254141251" stop-color="#f5f5f5" />
+          <stop offset=".520244753357196" stop-color="#e7e7e7" />
+          <stop offset=".611630713477417" stop-color="#d5d5d5" />
+          <stop offset=".692972013991141" stop-color="#bcbcbc" />
+          <stop offset=".767163724013948" stop-color="#9e9e9e" />
+          <stop offset=".83602052346659" stop-color="#7a7a7a" />
+          <stop offset=".900599660612128" stop-color="#515151" />
+          <stop offset=".95947636631665" stop-color="#232323" />
+          <stop offset="1" stop-color="#000" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="50.021585103309917"
+        cy="50.021583918562101"
+        r="50.021583326186281"
+        style="
+          fill: url(#mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-23);
+        "
+      />
+    </svg>
+    <title>`c2`.shading</title>
+  </g>
   <circle
-    fill="#36cdcc"
+    fill="#63a8c3"
     fill-opacity="0.5"
-    cx="153.06032610537554"
-    cy="543.2678464193468"
+    cx="476.8813975903141"
+    cy="423.5325692009833"
     stroke="none"
-    r="73.7023899678094"
+    r="163.15855412722578"
+  >
+    <title>`c2`.circle</title>
+  </circle>
+  <g
+    transform="rotate(0, 287.52239693651546, 463.1740474125965)translate(257.21702838661525, 432.8686788626963)"
+    opacity="0.5"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="mobius__uuid-8f417527-4a34-4660-89a9-6726a90799cf--inject-24"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="60.61073709980047"
+      height="60.61073709980047"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 100.043170206619834 100.043165467624931"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-24"
+          cx="50.021585103309917"
+          cy="50.021582733812465"
+          fx="50.021585103309917"
+          fy="50.021582733812465"
+          r="50.021583918561213"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".275479015218788" stop-color="#fcfcfc" />
+          <stop offset=".413120254141251" stop-color="#f5f5f5" />
+          <stop offset=".520244753357196" stop-color="#e7e7e7" />
+          <stop offset=".611630713477417" stop-color="#d5d5d5" />
+          <stop offset=".692972013991141" stop-color="#bcbcbc" />
+          <stop offset=".767163724013948" stop-color="#9e9e9e" />
+          <stop offset=".83602052346659" stop-color="#7a7a7a" />
+          <stop offset=".900599660612128" stop-color="#515151" />
+          <stop offset=".95947636631665" stop-color="#232323" />
+          <stop offset="1" stop-color="#000" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="50.021585103309917"
+        cy="50.021583918562101"
+        r="50.021583326186281"
+        style="
+          fill: url(#mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-24);
+        "
+      />
+    </svg>
+    <title>`c3`.shading</title>
+  </g>
+  <circle
+    fill="#909980"
+    fill-opacity="0.5"
+    cx="287.52239693651546"
+    cy="463.1740474125965"
+    stroke="none"
+    r="30.305368549900233"
+  >
+    <title>`c3`.circle</title>
+  </circle>
+  <g
+    transform="rotate(0, 109.18857441405595, 397.1805342341288)translate(39.163857846318066, 327.15581766639093)"
+    opacity="0.5"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="mobius__uuid-8f417527-4a34-4660-89a9-6726a90799cf--inject-25"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="140.04943313547577"
+      height="140.04943313547577"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 100.043170206619834 100.043165467624931"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-25"
+          cx="50.021585103309917"
+          cy="50.021582733812465"
+          fx="50.021585103309917"
+          fy="50.021582733812465"
+          r="50.021583918561213"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".275479015218788" stop-color="#fcfcfc" />
+          <stop offset=".413120254141251" stop-color="#f5f5f5" />
+          <stop offset=".520244753357196" stop-color="#e7e7e7" />
+          <stop offset=".611630713477417" stop-color="#d5d5d5" />
+          <stop offset=".692972013991141" stop-color="#bcbcbc" />
+          <stop offset=".767163724013948" stop-color="#9e9e9e" />
+          <stop offset=".83602052346659" stop-color="#7a7a7a" />
+          <stop offset=".900599660612128" stop-color="#515151" />
+          <stop offset=".95947636631665" stop-color="#232323" />
+          <stop offset="1" stop-color="#000" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="50.021585103309917"
+        cy="50.021583918562101"
+        r="50.021583326186281"
+        style="
+          fill: url(#mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-25);
+        "
+      />
+    </svg>
+    <title>`ic1`.shading</title>
+  </g>
+  <circle
+    fill="#b1dbb7"
+    fill-opacity="0.5"
+    cx="109.18857441405595"
+    cy="397.1805342341288"
+    stroke="none"
+    r="70.02471656773788"
   >
     <title>`ic1`.circle</title>
   </circle>
   <g
-    transform="rotate(0, 315.90147687208764, 495.0102677417978)translate(309.37947687208765, 490.5702677417978)"
+    transform="rotate(0, 280.75453828561444, 398.6870721769351)translate(246.21876670663113, 364.1513005979518)"
+    opacity="0.5"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="mobius__uuid-8f417527-4a34-4660-89a9-6726a90799cf--inject-26"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="69.0715431579666"
+      height="69.0715431579666"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 100.043170206619834 100.043165467624931"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-26"
+          cx="50.021585103309917"
+          cy="50.021582733812465"
+          fx="50.021585103309917"
+          fy="50.021582733812465"
+          r="50.021583918561213"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".275479015218788" stop-color="#fcfcfc" />
+          <stop offset=".413120254141251" stop-color="#f5f5f5" />
+          <stop offset=".520244753357196" stop-color="#e7e7e7" />
+          <stop offset=".611630713477417" stop-color="#d5d5d5" />
+          <stop offset=".692972013991141" stop-color="#bcbcbc" />
+          <stop offset=".767163724013948" stop-color="#9e9e9e" />
+          <stop offset=".83602052346659" stop-color="#7a7a7a" />
+          <stop offset=".900599660612128" stop-color="#515151" />
+          <stop offset=".95947636631665" stop-color="#232323" />
+          <stop offset="1" stop-color="#000" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="50.021585103309917"
+        cy="50.021583918562101"
+        r="50.021583326186281"
+        style="
+          fill: url(#mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-26);
+        "
+      />
+    </svg>
+    <title>`c1`.shading</title>
+  </g>
+  <circle
+    fill="#b1dbb7"
+    fill-opacity="0.5"
+    cx="280.75453828561444"
+    cy="398.6870721769351"
+    stroke="none"
+    r="34.5357715789833"
+  >
+    <title>`c1`.circle</title>
+  </circle>
+  <g
+    transform="rotate(0, 280.75453828561444, 398.6870721769351)translate(269.88453828561444, 391.2870721769351)"
   >
     <title>`c1`.eq</title>
     <svg
-      style="font-size: 15px"
+      style="font-size: 25px"
       xmlns="http://www.w3.org/2000/svg"
-      width="13.044"
-      height="8.879999999999999"
+      width="21.740000000000002"
+      height="14.799999999999999"
       role="img"
       focusable="false"
       viewBox="0 -442 869.6 592"
@@ -99,14 +452,14 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 350.4808678464468, 350.03565459353763)translate(343.9588678464468, 342.1156545935376)"
+    transform="rotate(0, 385.14378432781075, 350.0030675969445)translate(374.27378432781074, 336.8030675969445)"
   >
     <title>`ic2`.eq</title>
     <svg
-      style="font-size: 15px"
+      style="font-size: 25px"
       xmlns="http://www.w3.org/2000/svg"
-      width="13.044"
-      height="15.84"
+      width="21.740000000000002"
+      height="26.400000000000002"
       role="img"
       focusable="false"
       viewBox="0 -809 869.6 1056"
@@ -144,14 +497,14 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 450.852341017331, 495.4233035857118)translate(444.330341017331, 490.9833035857118)"
+    transform="rotate(0, 476.8813975903141, 423.5325692009833)translate(466.0113975903141, 416.1325692009833)"
   >
     <title>`c2`.eq</title>
     <svg
-      style="font-size: 15px"
+      style="font-size: 25px"
       xmlns="http://www.w3.org/2000/svg"
-      width="13.044"
-      height="8.879999999999999"
+      width="21.740000000000002"
+      height="14.799999999999999"
       role="img"
       focusable="false"
       viewBox="0 -442 869.6 592"
@@ -183,14 +536,14 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 328.3291883259039, 434.2901074766697)translate(321.8071883259039, 429.73310747666966)"
+    transform="rotate(0, 287.52239693651546, 463.1740474125965)translate(276.65239693651546, 455.5790474125965)"
   >
     <title>`c3`.eq</title>
     <svg
-      style="font-size: 15px"
+      style="font-size: 25px"
       xmlns="http://www.w3.org/2000/svg"
-      width="13.044"
-      height="9.114"
+      width="21.740000000000002"
+      height="15.190000000000001"
       role="img"
       focusable="false"
       viewBox="0 -442 869.6 607.6"
@@ -221,38 +574,15 @@
       </g>
     </svg>
   </g>
-  <circle
-    fill="#36cdcc"
-    fill-opacity="0.5"
-    cx="315.90147687208764"
-    cy="495.0102677417978"
-    stroke="none"
-    r="30.00154029736863"
-  >
-    <title>`c1`.circle</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="0"
-    cx="427.69530659485235"
-    cy="461.8804384074447"
-    stroke="#000000"
-    stroke-opacity="1"
-    stroke-width="2"
-    stroke-dasharray="7,5"
-    r="176.6002886733865"
-  >
-    <title>`r`.circle</title>
-  </circle>
   <g
-    transform="rotate(0, 153.06032610537554, 543.2678464193468)translate(146.53832610537555, 535.3478464193469)"
+    transform="rotate(0, 109.18857441405595, 397.1805342341288)translate(98.31857441405594, 383.9805342341288)"
   >
     <title>`ic1`.eq</title>
     <svg
-      style="font-size: 15px"
+      style="font-size: 25px"
       xmlns="http://www.w3.org/2000/svg"
-      width="13.044"
-      height="15.84"
+      width="21.740000000000002"
+      height="26.400000000000002"
       role="img"
       focusable="false"
       viewBox="0 -809 869.6 1056"
@@ -290,63 +620,14 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 573.5939317660093, 336.3426955099305)translate(565.0949317660093, 329.5484455099305)"
-  >
-    <title>`r`.eq</title>
-    <svg
-      style="font-size: 15px"
-      xmlns="http://www.w3.org/2000/svg"
-      width="16.998"
-      height="13.5885"
-      role="img"
-      focusable="false"
-      viewBox="0 -883.9 1133.2 905.9"
-    >
-      <g
-        stroke="none"
-        fill="#000000"
-        stroke-width="0"
-        transform="scale(1,-1)"
-        fill-opacity="1"
-      >
-        <g data-mml-node="math">
-          <g data-mml-node="msup">
-            <g data-mml-node="mi">
-              <path
-                data-c="1D446"
-                d="M308 24Q367 24 416 76T466 197Q466 260 414 284Q308 311 278 321T236 341Q176 383 176 462Q176 523 208 573T273 648Q302 673 343 688T407 704H418H425Q521 704 564 640Q565 640 577 653T603 682T623 704Q624 704 627 704T632 705Q645 705 645 698T617 577T585 459T569 456Q549 456 549 465Q549 471 550 475Q550 478 551 494T553 520Q553 554 544 579T526 616T501 641Q465 662 419 662Q362 662 313 616T263 510Q263 480 278 458T319 427Q323 425 389 408T456 390Q490 379 522 342T554 242Q554 216 546 186Q541 164 528 137T492 78T426 18T332 -20Q320 -22 298 -22Q199 -22 144 33L134 44L106 13Q83 -14 78 -18T65 -22Q52 -22 52 -14Q52 -11 110 221Q112 227 130 227H143Q149 221 149 216Q149 214 148 207T144 186T142 153Q144 114 160 87T203 47T255 29T308 24Z"
-              />
-            </g>
-            <g data-mml-node="mn" transform="translate(729.6,413) scale(0.707)">
-              <path
-                data-c="31"
-                d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"
-              />
-            </g>
-          </g>
-        </g>
-      </g>
-    </svg>
-  </g>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="427.69530659485235"
-    cy="461.8804384074447"
-    stroke="none"
-    r="3"
-  >
-    <title>`r`.point</title>
-  </circle>
-  <g
-    transform="rotate(0, 105.2977198413671, 372.36243906549424)translate(98.77571984136709, 364.32618906549425)"
+    transform="rotate(0, 145.8701300357194, 518.9019084142526)translate(135.0001300357194, 505.5081584142526)"
   >
     <title>`ic3`.eq</title>
     <svg
-      style="font-size: 15px"
+      style="font-size: 25px"
       xmlns="http://www.w3.org/2000/svg"
-      width="13.044"
-      height="16.072499999999998"
+      width="21.740000000000002"
+      height="26.787499999999998"
       role="img"
       focusable="false"
       viewBox="0 -809 869.6 1071.5"
@@ -383,4 +664,53 @@
       </g>
     </svg>
   </g>
+  <g
+    transform="rotate(0, 673.5273729682783, 280.8447462342116)translate(659.3623729682784, 269.52099623421157)"
+  >
+    <title>`r`.eq</title>
+    <svg
+      style="font-size: 25px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="28.33"
+      height="22.647499999999997"
+      role="img"
+      focusable="false"
+      viewBox="0 -883.9 1133.2 905.9"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="msup">
+            <g data-mml-node="mi">
+              <path
+                data-c="1D446"
+                d="M308 24Q367 24 416 76T466 197Q466 260 414 284Q308 311 278 321T236 341Q176 383 176 462Q176 523 208 573T273 648Q302 673 343 688T407 704H418H425Q521 704 564 640Q565 640 577 653T603 682T623 704Q624 704 627 704T632 705Q645 705 645 698T617 577T585 459T569 456Q549 456 549 465Q549 471 550 475Q550 478 551 494T553 520Q553 554 544 579T526 616T501 641Q465 662 419 662Q362 662 313 616T263 510Q263 480 278 458T319 427Q323 425 389 408T456 390Q490 379 522 342T554 242Q554 216 546 186Q541 164 528 137T492 78T426 18T332 -20Q320 -22 298 -22Q199 -22 144 33L134 44L106 13Q83 -14 78 -18T65 -22Q52 -22 52 -14Q52 -11 110 221Q112 227 130 227H143Q149 221 149 216Q149 214 148 207T144 186T142 153Q144 114 160 87T203 47T255 29T308 24Z"
+              />
+            </g>
+            <g data-mml-node="mn" transform="translate(729.6,413) scale(0.707)">
+              <path
+                data-c="31"
+                d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"
+              />
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="447.71252874922965"
+    cy="400.15314704290574"
+    stroke="none"
+    r="3"
+  >
+    <title>`r`.point</title>
+  </circle>
 </svg>

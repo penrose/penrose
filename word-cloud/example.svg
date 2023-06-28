@@ -16,7 +16,7 @@
     height="180"
     fill="none"
     stroke="#000000"
-    stroke-opacity="0.05"
+    stroke-opacity="0"
     stroke-width="1"
     rx="0"
     transform="rotate(0, 120, 90)"

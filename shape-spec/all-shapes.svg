@@ -807,6 +807,7 @@
       xml:space="preserve"
       width="100"
       height="100"
+      preserveAspectRatio=""
     >
       <path
         style="
