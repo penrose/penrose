@@ -28,3 +28,6 @@ Label hydroxy_anion1 $\mathrm{OH}$
 Label hydroxy_anion2 $\mathrm{OH}$
 Label hydroxy_anion3 $\mathrm{OH}$
 Label hydroxy_methyl $\mathrm{CH}_2\mathrm{OH}$
+
+Title title
+Label title "glucose"

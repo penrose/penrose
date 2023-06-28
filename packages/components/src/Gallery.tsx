@@ -14,6 +14,7 @@ const Container = styled.div`
   width: 200px;
   height: 200px;
   padding: 1.5em;
+  background-color: white;
   box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.1);
   transition: 0.3s;
   &:hover {
@@ -57,7 +58,18 @@ export default ({ ideLink }: { ideLink: string }) => {
             )
           );
           if (svg.ok) {
-            const trio = { id, preview: await svg.text() };
+            const preview = await svg.text();
+
+            // crop the SVG
+            const svgDoc = parser.parseFromString(preview, "image/svg+xml");
+            const cropped = svgDoc.querySelector("croppedViewBox")?.innerHTML;
+            const svgNode = svgDoc.querySelector("svg")!;
+            if (cropped !== undefined) {
+              svgNode.setAttribute("viewBox", cropped!);
+            }
+            const croppedPreview = serializer.serializeToString(svgNode);
+
+            const trio = { id, preview: croppedPreview };
             setExamples((ex) => [...ex, trio]);
           }
         }
