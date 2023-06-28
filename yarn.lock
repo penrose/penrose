@@ -2961,6 +2961,11 @@
   resolved "https://registry.yarnpkg.com/@remix-run/router/-/router-1.6.1.tgz#3a3a408481a3796f45223a549c2571517bc8af2d"
   integrity sha512-YUkWj+xs0oOzBe74OgErsuR3wVn+efrFhXBWrit50kOiED+pvQe2r6MWY0iJMQU/mSVKxvNzL4ZaYvjdX+G7ZA==
 
+"@rollup/plugin-virtual@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@rollup/plugin-virtual/-/plugin-virtual-3.0.1.tgz#cea7e489481cc0ca91516c047f8c53c1cfb1adf6"
+  integrity sha512-fK8O0IL5+q+GrsMLuACVNk2x21g3yaw+sG2qn16SnUd3IlBsQyvWxLMGHmCmXRMecPjGRSZ/1LmZB4rjQm68og==
+
 "@spyke/conventional-changelog-preset@^1.0.5":
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/@spyke/conventional-changelog-preset/-/conventional-changelog-preset-1.0.5.tgz#5863160c21e249db0f6d69feb7d6d4aa806ecf42"
@@ -16558,6 +16563,15 @@ vite-plugin-top-level-await@^1.2.3:
   resolved "https://registry.yarnpkg.com/vite-plugin-top-level-await/-/vite-plugin-top-level-await-1.2.3.tgz#6aa76335045acbca1d93e0c68a519c5d7fe4c759"
   integrity sha512-Hc4W7R+Hw4413lzv+kuVdXLrgNU+Pb07853Q15n/4JytEtyLykpN2rmtlG7J5uWij2btDXEEiv+DcrCiRZo/zA==
   dependencies:
+    "@swc/core" "^1.3.10"
+    uuid "^9.0.0"
+
+vite-plugin-top-level-await@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/vite-plugin-top-level-await/-/vite-plugin-top-level-await-1.3.1.tgz#7e7293be01489b508692627529c0a3b3218a23a3"
+  integrity sha512-55M1h4NAwkrpxPNOJIBzKZFihqLUzIgnElLSmPNPMR2Fn9+JHKaNg3sVX1Fq+VgvuBksQYxiD3OnwQAUu7kaPQ==
+  dependencies:
+    "@rollup/plugin-virtual" "^3.0.1"
     "@swc/core" "^1.3.10"
     uuid "^9.0.0"
 

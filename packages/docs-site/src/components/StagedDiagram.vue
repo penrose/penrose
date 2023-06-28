@@ -9,11 +9,11 @@ let StagedDiagram = defineComponent((props) => {
 
 onMounted(() => {
   StagedDiagram = defineAsyncComponent(async () => {
-    const { applyReactInVue } = await import("veaury");
+    const { applyPureReactInVue } = await import("veaury");
     const StagedDiagram = (
       await import("@penrose/components/dist/StagedDiagram.js")
     ).default;
-    return applyReactInVue(StagedDiagram);
+    return applyPureReactInVue(StagedDiagram);
   });
 });
 const props = defineProps(["trio"]);
