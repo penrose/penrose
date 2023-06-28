@@ -31,8 +31,8 @@
     "name": "A Water Molecule",
     "gallery": false
   },
-  "graph-domain/other-examples/hamiltonian-cycle": {
-    "name": "Hamiltonian Cycle",
+  "structural-formula/molecules/caffeine": {
+    "name": "A Caffeine Molecule",
     "gallery": true
   },
   "walk-on-spheres/walk-on-stars": {
@@ -199,6 +199,10 @@
     "name": "Circle Example",
     "gallery": true
   },
+  "curve-examples/catmull-rom/catmull-rom": {
+    "name": "Catmull-Rom Interpolation Test",
+    "gallery": true
+  },
   "word-cloud/example": { "name": "Word Cloud", "gallery": true },
   "geometry-domain/siggraph-teaser": {
     "name": "SIGGRAPH teaser - Euclidean Geometry",
@@ -236,8 +240,8 @@
   "shape-distance/lines-around-rect": {},
   "fake-3d-linear-algebra/projection": {},
   "animation/center-shrink-circle": {},
-  "structural-formula/molecules/caffeine": {
-    "name": "A Caffeine Molecule",
+  "graph-domain/other-examples/hamiltonian-cycle": {
+    "name": "Hamiltonian Cycle",
     "gallery": true
   },
   "structural-formula/reactions/methane-combustion": {
@@ -401,10 +405,6 @@
   },
   "box-arrow-diagram/computer-architecture": {
     "name": "Computer Architecture Box-Arrow Diagram",
-    "gallery": true
-  },
-  "curve-examples/catmull-rom/catmull-rom": {
-    "name": "Catmull-Rom Interpolation Test",
     "gallery": true
   },
   "stochastic-process/stochastic-process": {
