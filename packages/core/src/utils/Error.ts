@@ -624,7 +624,6 @@ export const errLocs = (
       return [];
     }
     case "ParseError":
-      // Don't know in Style, Substance, or Domain
       if (e.fileType === undefined || e.location === undefined) {
         return [];
       } else {
