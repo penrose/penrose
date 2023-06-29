@@ -46,7 +46,7 @@ const Example = ({
             examples: example.id,
           });
           // https://stackoverflow.com/questions/32828160/appending-parameter-to-url-without-refresh
-          window.history.replaceState(null, "", query);
+          window.history.replaceState(null, "", `?${query}`);
         }}
       >
         <ExampleTab key={`example-tab-${k}`}>
