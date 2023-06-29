@@ -5,7 +5,7 @@ import {
   PenroseState,
   PenroseWarning,
 } from "@penrose/core";
-import { PathResolver, Trio, TrioMeta } from "@penrose/examples/dist";
+import { PathResolver, Trio, TrioMeta } from "@penrose/examples/dist/";
 import registry from "@penrose/examples/dist/registry.js";
 import { Actions, BorderNode, TabNode } from "flexlayout-react";
 import localforage from "localforage";
@@ -63,6 +63,8 @@ export type WorkspaceMetadata = {
   forkedFromGist: string | null;
   editorVersion: number;
   location: WorkspaceLocation;
+  // Diagram-specific
+  variation?: string;
 };
 
 export type ProgramFile = {
@@ -146,6 +148,7 @@ const saveWorkspaceEffect: AtomEffect<Workspace> = ({ onSet, setSelf }) => {
                 newValue.metadata.location.kind === "gist"
                   ? newValue.metadata.location.id
                   : null,
+              variation: newValue.metadata.variation,
             } as WorkspaceMetadata,
           };
         });
@@ -426,6 +429,7 @@ export type GistMetadata = {
     style: string;
     domain: string;
   };
+  variation?: string;
 };
 
 export type Settings = {

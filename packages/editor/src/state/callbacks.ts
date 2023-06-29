@@ -81,6 +81,16 @@ const _compileDiagram = async (
       state: initialState,
     })
   );
+  set(
+    currentWorkspaceState,
+    (workspace: Workspace): Workspace => ({
+      ...workspace,
+      metadata: {
+        ...workspace.metadata,
+        variation,
+      },
+    })
+  );
   // update grid state too
   set(diagramGridState, ({ gridSize }: DiagramGrid) => ({
     variations: range(gridSize).map((i) =>
@@ -221,7 +231,9 @@ export const useLoadLocalWorkspace = () =>
       loadedWorkspace.files.substance.contents,
       loadedWorkspace.files.style.contents,
       loadedWorkspace.files.domain.contents,
-      uuid(),
+      loadedWorkspace.metadata.variation === undefined
+        ? uuid()
+        : loadedWorkspace.metadata.variation,
       set
     );
   });
@@ -345,6 +357,16 @@ export const useCheckURL = () =>
         files,
       };
       set(currentWorkspaceState, workspace);
+      set(diagramState, (state) => ({
+        ...state,
+        metadata: {
+          ...state.metadata,
+          variation:
+            gistMetadata.variation === undefined
+              ? uuid()
+              : gistMetadata.variation,
+        },
+      }));
     } else if ("examples" in parsed) {
       const t = toast.loading("Loading example...");
       const id = parsed["examples"];
@@ -394,6 +416,7 @@ export const usePublishGist = () =>
   useRecoilCallback(({ snapshot }) => async () => {
     const workspace = snapshot.getLoadable(currentWorkspaceState)
       .contents as Workspace;
+    const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
     const settings = snapshot.getLoadable(settingsState).contents as Settings;
     if (settings.github === null) {
       console.error(`Not authorized with GitHub`);
@@ -409,6 +432,7 @@ export const usePublishGist = () =>
         style: workspace.files.style.name,
         substance: workspace.files.substance.name,
       },
+      variation: diagram.metadata.variation,
     };
     const res = await fetch("https://api.github.com/gists", {
       method: "POST",
