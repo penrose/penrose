@@ -1,4 +1,4 @@
-import registry from "@penrose/examples/dist/registry";
+import registry from "@penrose/examples/dist/registry.js";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 
@@ -50,51 +50,50 @@ const Example = ({
   dark?: boolean;
   example: TrioWithPreview;
 }) => {
-  const svgDoc = parser.parseFromString(example.preview!, "image/svg+xml");
-  const cropped = svgDoc.querySelector("croppedViewBox")?.innerHTML;
-  const svgNode = svgDoc.querySelector("svg")!;
-  if (cropped !== undefined) {
-    svgNode.setAttribute("viewBox", cropped!);
-  }
-  const croppedPreview = serializer.serializeToString(svgNode);
   return (
     <a href={`${ideLink}?examples=${example.id}`} target="_blank">
       <ExampleContainer
         dark={dark}
         shadow={"rgb(46, 154, 216, .7)"}
-        dangerouslySetInnerHTML={{ __html: croppedPreview }}
+        dangerouslySetInnerHTML={{ __html: example.preview ?? "" }}
       ></ExampleContainer>
     </a>
   );
 };
 
 export default ({ ideLink, dark }: { ideLink: string; dark?: boolean }) => {
-  let [examples, setExamples] = useState<TrioWithPreview[]>([]);
+  const entries = [...registry.entries()].filter(
+    ([, meta]) => meta.trio && meta.gallery
+  );
+  let [examples, setExamples] = useState<TrioWithPreview[]>(
+    entries.map((e) => ({ id: e[0] }))
+  );
   useEffect(() => {
     const load = async () => {
-      const entries = registry.entries();
-      for (const [id, meta] of entries) {
-        if (meta.trio && meta.gallery) {
-          const svg = await fetch(
-            encodeURI(
-              `https://raw.githubusercontent.com/penrose/penrose/ci/refs/heads/main/${id}.svg`
+      for (const [id] of entries) {
+        const svg = await fetch(
+          encodeURI(
+            `https://raw.githubusercontent.com/penrose/penrose/ci/refs/heads/main/${id}.svg`
+          )
+        );
+        if (svg.ok) {
+          const preview = await svg.text();
+
+          // crop the SVG
+          const svgDoc = parser.parseFromString(preview, "image/svg+xml");
+          const cropped = svgDoc.querySelector("croppedViewBox")?.innerHTML;
+          const svgNode = svgDoc.querySelector("svg")!;
+          if (cropped !== undefined) {
+            svgNode.setAttribute("viewBox", cropped!);
+          }
+          const croppedPreview = serializer.serializeToString(svgNode);
+
+          const trio = { id, preview: croppedPreview };
+          setExamples((ex) =>
+            ex.map((e) =>
+              e.id === id ? { ...trio, preview: croppedPreview } : e
             )
           );
-          if (svg.ok) {
-            const preview = await svg.text();
-
-            // crop the SVG
-            const svgDoc = parser.parseFromString(preview, "image/svg+xml");
-            const cropped = svgDoc.querySelector("croppedViewBox")?.innerHTML;
-            const svgNode = svgDoc.querySelector("svg")!;
-            if (cropped !== undefined) {
-              svgNode.setAttribute("viewBox", cropped!);
-            }
-            const croppedPreview = serializer.serializeToString(svgNode);
-
-            const trio = { id, preview: croppedPreview };
-            setExamples((ex) => [...ex, trio]);
-          }
         }
       }
     };
