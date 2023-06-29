@@ -58,6 +58,7 @@ forall Node n {
       center : (cx,cy) + (0.,-2.*R)
       fillColor : rgba( 0, 0, 0, 1 )
       strokeColor : Colors.clear
+      style: "filter:blur(5px);"
       strokeWidth : 3.
    }
 

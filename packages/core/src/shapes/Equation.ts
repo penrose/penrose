@@ -28,7 +28,6 @@ export const sampleEquation = (
   canvas: Canvas
 ): EquationProps<ad.Num> => ({
   name: strV("defaultEquation"),
-  style: strV(""),
   fillColor: black(),
   center: vectorV([
     context.makeInput({

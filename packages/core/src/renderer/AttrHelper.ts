@@ -48,11 +48,7 @@ export const attrAutoFillSvg = (
   attrAlreadyMapped: string[]
 ): void => {
   // Internal properties to never auto-map to SVG
-  const attrToNeverAutoMap: string[] = [
-    "strokeStyle",
-    "name",
-    "ensureOnCanvas",
-  ];
+  const attrToNeverAutoMap: string[] = ["name", "ensureOnCanvas"];
 
   // Merge the mapped and never-map properties.  Convert to Set
   const attrToNotAutoMap = new Set<string>(

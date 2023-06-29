@@ -398,7 +398,7 @@ const mapPassthrough = <T, S>(
 
 const mapNamed = <T, S>(f: (arg: T) => S, v: Named<T>): Named<S> => {
   // Cannot use "spread" operator since `v` might have more things than just Named.
-  return { name: v.name, style: v.style, ensureOnCanvas: v.ensureOnCanvas };
+  return { name: v.name, ensureOnCanvas: v.ensureOnCanvas };
 };
 
 const mapStroke = <T, S>(f: (arg: T) => S, v: Stroke<T>): Stroke<S> => {
