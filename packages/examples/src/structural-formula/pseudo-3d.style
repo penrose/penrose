@@ -15,18 +15,25 @@ global {
 }
 
 Colors {
-   vec4 clear     = rgba( 0., 0., 0., 0. )
-   vec4 black     = rgba( 0., 0., 0., 1. )
-   vec4 gray      = rgba( .5, .5, .5, 1. )
-   vec4 lightGray = rgba( .9, .9, .9, 1. )
-   vec4 white     = rgba( 1., 1., 1., 1. )
-   vec4 red       = rgba( 1., 0., 0., 1. )
-   vec4 green     = rgba( 0., .7, 0., 1. )
-   vec4 blue      = rgba( 0., 0., 1., 1. )
-   vec4 darkRed   = rgba( .7, 0., 0., 1. )
-   vec4 darkBlue  = rgba( 0., 0., .7, 1. )
-   vec4 purple    = rgba( .66, .36, .95, 1. )
-   vec4 turquoise  = rgba( .1, .7, .6, 1. )
+   scalar a = .4
+   vec4 clear           = rgba( 0., 0., 0., 0. )
+   vec4 black           = rgba( 0., 0., 0., 1. )
+   vec4 clearblack      = rgba( a, a, a, 1. )
+   vec4 gray            = rgba( .5, .5, .5, 1. )
+   vec4 cleargray       = rgba( .8, .8, .8, 1. )
+   vec4 lightGray       = rgba( .9, .9, .9, 1. )
+   vec4 white           = rgba( 1., 1., 1., 1. )
+   vec4 red             = rgba( 1., 0., 0., 1. )
+   vec4 clearred        = rgba( 1., a, a, 1. )
+   vec4 green           = rgba( 0., .7, 0., 1. )
+   vec4 cleargreen      = rgba( a, .7, a, 1. )
+   vec4 blue            = rgba( 0., 0., 1., 1. )
+   vec4 clearblue       = rgba( a, a, 1., 1. )
+   vec4 darkRed         = rgba( .7, 0., 0., 1. )
+   vec4 darkBlue        = rgba( 0., 0., .7, 1. )
+   vec4 purple          = rgba( .66, .36, .95, 1. )
+   vec4 clearpurple     = rgba( .86, .56, 1., 1. )
+   vec4 turquoise       = rgba( .1, .7, .6, 1. )
 }
 
 Global {
@@ -52,6 +59,14 @@ forall Node n {
       strokeWidth : 3.
    }
 
+   shape n.shading = Image {
+      href: "node-shading.svg"
+      center: n.icon.center
+      width: 2*n.icon.r - n.icon.strokeWidth/2
+      height: 2*n.icon.r - n.icon.strokeWidth/2
+      ensureOnCanvas: false
+   }
+
    shape n.shadow = Ellipse {
       rx : 2.*Global.atomRadius
       ry : Global.atomRadius
@@ -61,6 +76,7 @@ forall Node n {
       strokeWidth : 3.
    }
 
+   layer n.shading above n.icon
    layer n.icon above n.shadow
    layer n.shadow above global.background
 }
@@ -72,6 +88,7 @@ collect Node n into nodes {
    shape nodeShadows = Group {
       shapes: shadows
       opacity: .1
+      style: "filter:blur(5px);"
    }
 }
 
@@ -114,25 +131,25 @@ where g has label {
 }
 
 forall Oxygen a {
-   override a.icon.fillColor = Colors.white
+   override a.icon.fillColor = Colors.clearred
    override a.icon.strokeColor = Colors.red
    override a.labelText.fillColor = none()
 }
 
 forall Carbon a {
-   override a.icon.fillColor = Colors.white
+   override a.icon.fillColor = Colors.clearblack
    override a.icon.strokeColor = Colors.black
    override a.labelText.fillColor = none()
 }
 
 forall Nitrogen a {
-   override a.icon.fillColor = Colors.white
+   override a.icon.fillColor = Colors.clearblue
    override a.icon.strokeColor = Colors.blue
    override a.labelText.fillColor = none()
 }
 
 forall Hydrogen a {
-   override a.icon.fillColor = Colors.white
+   override a.icon.fillColor = Colors.cleargray
    override a.icon.strokeColor = Colors.gray
    override a.labelText.fillColor = none()
 
@@ -143,13 +160,13 @@ forall Hydrogen a {
 }
 
 forall Chlorine a {
-   override a.icon.fillColor = Colors.white
+   override a.icon.fillColor = Colors.cleargreen
    override a.icon.strokeColor = Colors.green
    override a.labelText.fillColor = none()
 }
 
 forall Sodium a {
-   override a.icon.fillColor = Colors.white
+   override a.icon.fillColor = Colors.clearpurple
    override a.icon.strokeColor = Colors.purple
    override a.labelText.fillColor = none()
 }
@@ -167,7 +184,7 @@ where SingleBond( n1, n2 ) {
       start : x1 - .5*r*u
         end : x2 + .5*r*u
       strokeWidth : 10.
-      strokeColor : Colors.turquoise
+      strokeColor : Colors.gray
       strokeLinecap: "round"
    }
 
@@ -175,13 +192,13 @@ where SingleBond( n1, n2 ) {
       start : x1 - .5*r*u
         end : x2 + .5*r*u
       strokeWidth : 4.
-      strokeColor : Colors.white
+      strokeColor : Colors.lightGray
       strokeLinecap: "round"
    }
 
    encourage equal( norm(x1-x2), Global.bondLength )
 
-   layer line above n2.icon
+   layer line above n2.shading
    layer innerLine above line
    layer innerLine below n1.icon
 }
@@ -199,7 +216,7 @@ where DoubleBond( n1, n2 ) {
       start : x1 - .5*r*u - .25*r*v
         end : x2 + .5*r*u - .25*r*v
       strokeWidth : 10.
-      strokeColor : Colors.turquoise
+      strokeColor : Colors.gray
       strokeLinecap: "round"
    }
 
@@ -207,7 +224,7 @@ where DoubleBond( n1, n2 ) {
       start : x1 - .5*r*u - .25*r*v
         end : x2 + .5*r*u - .25*r*v
       strokeWidth : 4.
-      strokeColor : Colors.white
+      strokeColor : Colors.lightGray
       strokeLinecap: "round"
    }
 
@@ -215,7 +232,7 @@ where DoubleBond( n1, n2 ) {
       start : x1 - .5*r*u + .25*r*v
         end : x2 + .5*r*u + .25*r*v
       strokeWidth : 10.
-      strokeColor : Colors.turquoise
+      strokeColor : Colors.gray
       strokeLinecap: "round"
    }
 
@@ -223,17 +240,17 @@ where DoubleBond( n1, n2 ) {
       start : x1 - .5*r*u + .25*r*v
         end : x2 + .5*r*u + .25*r*v
       strokeWidth : 4.
-      strokeColor : Colors.white
+      strokeColor : Colors.lightGray
       strokeLinecap: "round"
    }
 
    encourage equal( norm(x1-x2), Global.bondLength )
 
-   layer line1 above n2.icon
+   layer line1 above n2.shading
    layer innerLine1 above line1
    layer innerLine1 below n1.icon
 
-   layer line2 above n2.icon
+   layer line2 above n2.shading
    layer innerLine2 above line2
    layer innerLine2 below n1.icon
 
@@ -299,7 +316,8 @@ where t has label
       string : t.label
       fillColor : Colors.black
       fontSize : "40px"
-      fontFamily: "Roboto Condensed, Impact, Franklin Gothic Bold, Ubuntu Condensed, sans-serif"
+      fontFamily: "HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica, Arial, sans-serif"
+      fontWeight: "bold"
       center : (?,?)
    }
    layer t.labelText above global.background
