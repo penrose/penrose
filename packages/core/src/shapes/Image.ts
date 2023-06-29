@@ -23,7 +23,6 @@ export const sampleImage = (
   canvas: Canvas
 ): ImageProps<ad.Num> => ({
   name: strV("defaultImage"),
-  style: strV(""),
   center: sampleVector(context, canvas),
   width: sampleWidth(context, canvas),
   height: sampleHeight(context, canvas),

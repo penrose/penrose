@@ -15,8 +15,8 @@
     "name": "Walk on Stars - Signed Angle Outside",
     "gallery": true
   },
-  "spectral-graphs/examples/7d-cube": {
-    "name": "7D Cube",
+  "spectral-graphs/examples/hypercube": {
+    "name": "Hypercube",
     "gallery": true
   },
   "group-theory/quaternion-cayley-graph": {

@@ -27,7 +27,6 @@ export const samplePolyline = (
   _canvas: Canvas
 ): PolylineProps<ad.Num> => ({
   name: strV("defaultPolyline"),
-  style: strV(""),
   strokeWidth: floatV(1),
   strokeStyle: strV("solid"),
   strokeColor: black(),

@@ -24,7 +24,6 @@ export const sampleCircle = (
 ): CircleProps<ad.Num> => {
   return {
     name: strV("defaultCircle"),
-    style: strV(""),
     strokeWidth: floatV(0),
     strokeStyle: strV("solid"),
     strokeColor: noPaint(),

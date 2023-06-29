@@ -3,7 +3,6 @@ import { BoolV, ColorV, FloatV, PtListV, StrV, VectorV } from "./value.js";
 //#region shape hierarchy interfaces
 export interface Named<T> {
   name: StrV;
-  style: StrV; // TODO: very temporary; remove this and just use passthrough
   ensureOnCanvas: BoolV;
 }
 
