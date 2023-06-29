@@ -227,7 +227,7 @@
       </g>
     </svg>
   </g>
-  <g>
+  <g style="solid">
     <marker
       id="c01p01__registry-GoldbrownFly7869-`BE`.icon-endArrowId"
       markerUnits="strokeWidth"
@@ -280,7 +280,7 @@
   >
     <title>`E`.icon</title>
   </circle>
-  <g>
+  <g style="solid">
     <marker
       id="c01p01__registry-GoldbrownFly7869-`BA`.icon-startArrowId"
       markerUnits="strokeWidth"

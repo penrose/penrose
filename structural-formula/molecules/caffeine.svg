@@ -6,45 +6,45 @@
 >
   <penrose><croppedViewBox>0 0 800 600</croppedViewBox></penrose>
   <g transform="rotate(0, 400, 300)translate(0, 0)">
-    <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 27.2.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
-      version="1.1"
-      id="caffeine__Layer_1--inject-15"
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="caffeine__uuid-ce5cac0c-dd6f-4329-b1fb-fd64856f8b6c--inject-15"
+      data-name="Layer 1"
       xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      x="0px"
-      y="0px"
-      viewBox="0 0 100 100"
-      style="enable-background: new 0 0 100 100"
-      xml:space="preserve"
       width="800"
       height="600"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 100 100"
       preserveAspectRatio="none"
     >
-      <linearGradient
-        id="caffeine__SVGID_1_--inject-15"
-        gradientUnits="userSpaceOnUse"
-        x1="37.2857"
-        y1="158.1429"
-        x2="137.2857"
-        y2="158.1429"
-        gradientTransform="matrix(6.123234e-17 -1 1 6.123234e-17 -108.1429 137.2857)"
-      >
-        <stop offset="1.240079e-03" style="stop-color: #fac7d1" />
-        <stop offset="1" style="stop-color: #9494f0" />
-      </linearGradient>
+      <defs>
+        <linearGradient
+          id="caffeine__uuid-e0f6b897-4010-4fc1-bd22-60ee8a3f792c--inject-15"
+          x1="-1360.714294433595569"
+          y1="-476.142898559568494"
+          x2="-1260.714294433594659"
+          y2="-476.142898559568494"
+          gradientTransform="translate(-426.142898559570312 -1260.714294433594659) rotate(-90) scale(1 -1)"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset=".001240078955889" stop-color="#fac7d1" />
+          <stop offset="1" stop-color="#9494f0" />
+        </linearGradient>
+      </defs>
       <polygon
-        points="100,0 100,100 0,100 0,0 "
-        style="fill: url(#caffeine__SVGID_1_--inject-15)"
+        points="100 0 100 100 0 100 0 0 100 0"
+        style="
+          fill: url(#caffeine__uuid-e0f6b897-4010-4fc1-bd22-60ee8a3f792c--inject-15);
+        "
       />
     </svg>
     <title>global.background</title>
   </g>
-  <g opacity="0.1">
+  <g style="filter: blur(5px)" opacity="0.1">
     <ellipse
       fill="#000000"
       fill-opacity="1"
-      cx="399.5951222427917"
-      cy="427.25361807362094"
+      cx="469.9403092828063"
+      cy="445.54712102380773"
       stroke="#000000"
       stroke-opacity="0"
       stroke-width="3"
@@ -56,8 +56,8 @@
     <ellipse
       fill="#000000"
       fill-opacity="1"
-      cx="644.3292918258248"
-      cy="355.70875466660124"
+      cx="154.32563586476738"
+      cy="531.912976441404"
       stroke="#000000"
       stroke-opacity="0"
       stroke-width="3"
@@ -69,8 +69,8 @@
     <ellipse
       fill="#000000"
       fill-opacity="1"
-      cx="394.8605656726108"
-      cy="482.87860917080843"
+      cx="505.83219432860466"
+      cy="487.90345049591394"
       stroke="#000000"
       stroke-opacity="0"
       stroke-width="3"
@@ -82,8 +82,8 @@
     <ellipse
       fill="#000000"
       fill-opacity="1"
-      cx="596.3804001697208"
-      cy="137.92880740463156"
+      cx="178.21709816677108"
+      cy="173.9944017408486"
       stroke="#000000"
       stroke-opacity="0"
       stroke-width="3"
@@ -95,8 +95,8 @@
     <ellipse
       fill="#000000"
       fill-opacity="1"
-      cx="552.4134789159873"
-      cy="173.9100799495281"
+      cx="229.60270617346595"
+      cy="151.06602740604805"
       stroke="#000000"
       stroke-opacity="0"
       stroke-width="3"
@@ -108,8 +108,8 @@
     <ellipse
       fill="#000000"
       fill-opacity="1"
-      cx="598.7532401757721"
-      cy="456.9852297099267"
+      cx="144.21376959277794"
+      cy="446.33626095073066"
       stroke="#000000"
       stroke-opacity="0"
       stroke-width="3"
@@ -121,8 +121,8 @@
     <ellipse
       fill="#000000"
       fill-opacity="1"
-      cx="681.6074685415552"
-      cy="433.4523768426912"
+      cx="236.8980695844801"
+      cy="507.420191947804"
       stroke="#000000"
       stroke-opacity="0"
       stroke-width="3"
@@ -134,8 +134,8 @@
     <ellipse
       fill="#000000"
       fill-opacity="1"
-      cx="544.5768526951118"
-      cy="369.8131916623838"
+      cx="236.9617402845962"
+      cy="405.5853055435063"
       stroke="#000000"
       stroke-opacity="0"
       stroke-width="3"
@@ -147,8 +147,8 @@
     <ellipse
       fill="#000000"
       fill-opacity="1"
-      cx="478.9858135517193"
-      cy="413.6522522400178"
+      cx="388.948058409667"
+      cy="468.88692518088334"
       stroke="#000000"
       stroke-opacity="0"
       stroke-width="3"
@@ -160,8 +160,8 @@
     <ellipse
       fill="#000000"
       fill-opacity="1"
-      cx="511.2639796778596"
-      cy="135.59915206000196"
+      cx="215.51351203183094"
+      cy="96.12952738984214"
       stroke="#000000"
       stroke-opacity="0"
       stroke-width="3"
@@ -173,8 +173,8 @@
     <ellipse
       fill="#000000"
       fill-opacity="1"
-      cx="431.8131216724836"
-      cy="345.7398705625874"
+      cx="202.88346837813495"
+      cy="319.80363357650765"
       stroke="#000000"
       stroke-opacity="0"
       stroke-width="3"
@@ -186,8 +186,8 @@
     <ellipse
       fill="#000000"
       fill-opacity="1"
-      cx="494.3403672535434"
-      cy="316.53446322990334"
+      cx="328.3951011754575"
+      cy="411.147681527093"
       stroke="#000000"
       stroke-opacity="0"
       stroke-width="3"
@@ -199,8 +199,8 @@
     <ellipse
       fill="#000000"
       fill-opacity="1"
-      cx="479.70217373130345"
-      cy="237.59534051022808"
+      cx="252.25779757855832"
+      cy="242.09636868069688"
       stroke="#000000"
       stroke-opacity="0"
       stroke-width="3"
@@ -212,8 +212,8 @@
     <ellipse
       fill="#000000"
       fill-opacity="1"
-      cx="629.902441447487"
-      cy="410.1030004608866"
+      cx="185.51312261978154"
+      cy="484.52508467883456"
       stroke="#000000"
       stroke-opacity="0"
       stroke-width="3"
@@ -225,8 +225,8 @@
     <ellipse
       fill="#000000"
       fill-opacity="1"
-      cx="220.50148494118258"
-      cy="376.7523764603227"
+      cx="591.1868711019346"
+      cy="370.3743736230684"
       stroke="#000000"
       stroke-opacity="0"
       stroke-width="3"
@@ -238,8 +238,8 @@
     <ellipse
       fill="#000000"
       fill-opacity="1"
-      cx="277.48857644384384"
-      cy="244.526161484955"
+      cx="589.3119432353145"
+      cy="273.48135591567103"
       stroke="#000000"
       stroke-opacity="0"
       stroke-width="3"
@@ -251,8 +251,8 @@
     <ellipse
       fill="#000000"
       fill-opacity="1"
-      cx="409.8385618664778"
-      cy="188.64322395689857"
+      cx="340.47588445958525"
+      cy="264.055170636035"
       stroke="#000000"
       stroke-opacity="0"
       stroke-width="3"
@@ -264,8 +264,8 @@
     <ellipse
       fill="#000000"
       fill-opacity="1"
-      cx="200.3690182623274"
-      cy="284.87119781149"
+      cx="501.3054599504155"
+      cy="259.32228209001346"
       stroke="#000000"
       stroke-opacity="0"
       stroke-width="3"
@@ -277,8 +277,8 @@
     <ellipse
       fill="#000000"
       fill-opacity="1"
-      cx="344.4192254607866"
-      cy="326.2959046845379"
+      cx="471.0470728412074"
+      cy="359.08992150609515"
       stroke="#000000"
       stroke-opacity="0"
       stroke-width="3"
@@ -290,8 +290,8 @@
     <ellipse
       fill="#000000"
       fill-opacity="1"
-      cx="367.7283294746564"
-      cy="116.68036402906617"
+      cx="294.0060081937148"
+      cy="325.5850148218608"
       stroke="#000000"
       stroke-opacity="0"
       stroke-width="3"
@@ -303,8 +303,8 @@
     <ellipse
       fill="#000000"
       fill-opacity="1"
-      cx="581.4664096487336"
-      cy="221.99943544491484"
+      cx="285.6814683172073"
+      cy="146.34651678936837"
       stroke="#000000"
       stroke-opacity="0"
       stroke-width="3"
@@ -316,8 +316,8 @@
     <ellipse
       fill="#000000"
       fill-opacity="1"
-      cx="405.52289415548154"
-      cy="270.5445306334706"
+      cx="386.17482375317826"
+      cy="341.6420331028386"
       stroke="#000000"
       stroke-opacity="0"
       stroke-width="3"
@@ -329,8 +329,8 @@
     <ellipse
       fill="#000000"
       fill-opacity="1"
-      cx="255.49406613870855"
-      cy="296.031517319969"
+      cx="539.8159451834841"
+      cy="300.0168664668742"
       stroke="#000000"
       stroke-opacity="0"
       stroke-width="3"
@@ -342,8 +342,8 @@
     <ellipse
       fill="#000000"
       fill-opacity="1"
-      cx="332.64904219643813"
-      cy="398.4307566236569"
+      cx="120.28416302092398"
+      cy="307.1222865245035"
       stroke="#000000"
       stroke-opacity="0"
       stroke-width="3"
@@ -355,10 +355,10 @@
     <title>5:0:nodeShadows</title>
   </g>
   <circle
-    fill="#ffffff"
+    fill="#cccccc"
     fill-opacity="1"
-    cx="681.6074685415552"
-    cy="383.4523768426912"
+    cx="236.8980695844801"
+    cy="457.420191947804"
     stroke="#808080"
     stroke-opacity="1"
     stroke-width="3"
@@ -366,13 +366,55 @@
   >
     <title>`H9`.icon</title>
   </circle>
+  <g
+    transform="rotate(0, 236.8980695844801, 457.420191947804)translate(218.8980695844801, 439.420191947804)"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="caffeine__uuid-61c4681b-4632-4ad3-a199-4a7aac9b6e61--inject-16"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="36"
+      height="36"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 221.800003051757812 221.800003051757812"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-16"
+          cx="75.43280029296875"
+          cy="928.985107421875"
+          fx="75.43280029296875"
+          fy="928.985107421875"
+          r="157.934097290039062"
+          gradientTransform="translate(0 -858)"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".784400024414063" stop-color="#5f5f5f" />
+          <stop offset="1" stop-color="#7f7f7f" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="110.900001525878906"
+        cy="110.900001525878906"
+        r="110.900001525878906"
+        style="
+          fill: url(#caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-16);
+          isolation: isolate;
+          opacity: 0.600000023841858;
+        "
+      />
+    </svg>
+    <title>`H9`.shading</title>
+  </g>
   <g>
     <line
-      x1="641.2946778062022"
-      y1="365.2475991492535"
-      x2="670.21523218284"
-      y2="378.3077781543243"
-      stroke="#1ab399"
+      x1="196.93103024184043"
+      y1="439.6124543315426"
+      x2="225.48016196242122"
+      y2="452.33282229509587"
+      stroke="#808080"
       stroke-opacity="1"
       stroke-width="10"
       stroke-linecap="round"
@@ -381,11 +423,11 @@
   </g>
   <g>
     <line
-      x1="641.2946778062022"
-      y1="365.2475991492535"
-      x2="670.21523218284"
-      y2="378.3077781543243"
-      stroke="#ffffff"
+      x1="196.93103024184043"
+      y1="439.6124543315426"
+      x2="225.48016196242122"
+      y2="452.33282229509587"
+      stroke="#e6e6e6"
       stroke-opacity="1"
       stroke-width="4"
       stroke-linecap="round"
@@ -393,10 +435,10 @@
     <title>15:19:innerLine</title>
   </g>
   <circle
-    fill="#ffffff"
+    fill="#cccccc"
     fill-opacity="1"
-    cx="644.3292918258248"
-    cy="305.70875466660124"
+    cx="154.32563586476738"
+    cy="481.912976441404"
     stroke="#808080"
     stroke-opacity="1"
     stroke-width="3"
@@ -404,13 +446,55 @@
   >
     <title>`H10`.icon</title>
   </circle>
+  <g
+    transform="rotate(0, 154.32563586476738, 481.912976441404)translate(136.32563586476738, 463.912976441404)"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="caffeine__uuid-61c4681b-4632-4ad3-a199-4a7aac9b6e61--inject-17"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="36"
+      height="36"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 221.800003051757812 221.800003051757812"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-17"
+          cx="75.43280029296875"
+          cy="928.985107421875"
+          fx="75.43280029296875"
+          fy="928.985107421875"
+          r="157.934097290039062"
+          gradientTransform="translate(0 -858)"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".784400024414063" stop-color="#5f5f5f" />
+          <stop offset="1" stop-color="#7f7f7f" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="110.900001525878906"
+        cy="110.900001525878906"
+        r="110.900001525878906"
+        style="
+          fill: url(#caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-17);
+          isolation: isolate;
+          opacity: 0.600000023841858;
+        "
+      />
+    </svg>
+    <title>`H10`.shading</title>
+  </g>
   <g>
     <line
-      x1="633.1069872519128"
-      y1="348.0207477464128"
-      x2="641.1247460213991"
-      y2="317.7910073810751"
-      stroke="#1ab399"
+      x1="178.64118881330742"
+      y1="444.9666588261448"
+      x2="161.1975696712415"
+      y2="471.47140229409376"
+      stroke="#808080"
       stroke-opacity="1"
       stroke-width="10"
       stroke-linecap="round"
@@ -419,11 +503,11 @@
   </g>
   <g>
     <line
-      x1="633.1069872519128"
-      y1="348.0207477464128"
-      x2="641.1247460213991"
-      y2="317.7910073810751"
-      stroke="#ffffff"
+      x1="178.64118881330742"
+      y1="444.9666588261448"
+      x2="161.1975696712415"
+      y2="471.47140229409376"
+      stroke="#e6e6e6"
       stroke-opacity="1"
       stroke-width="4"
       stroke-linecap="round"
@@ -431,10 +515,10 @@
     <title>15:17:innerLine</title>
   </g>
   <circle
-    fill="#ffffff"
+    fill="#cccccc"
     fill-opacity="1"
-    cx="598.7532401757721"
-    cy="406.9852297099267"
+    cx="144.21376959277794"
+    cy="396.33626095073066"
     stroke="#808080"
     stroke-opacity="1"
     stroke-width="3"
@@ -442,13 +526,55 @@
   >
     <title>`H8`.icon</title>
   </circle>
+  <g
+    transform="rotate(0, 144.21376959277794, 396.33626095073066)translate(126.21376959277794, 378.33626095073066)"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="caffeine__uuid-61c4681b-4632-4ad3-a199-4a7aac9b6e61--inject-18"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="36"
+      height="36"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 221.800003051757812 221.800003051757812"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-18"
+          cx="75.43280029296875"
+          cy="928.985107421875"
+          fx="75.43280029296875"
+          fy="928.985107421875"
+          r="157.934097290039062"
+          gradientTransform="translate(0 -858)"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".784400024414063" stop-color="#5f5f5f" />
+          <stop offset="1" stop-color="#7f7f7f" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="110.900001525878906"
+        cy="110.900001525878906"
+        r="110.900001525878906"
+        style="
+          fill: url(#caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-18);
+          isolation: isolate;
+          opacity: 0.600000023841858;
+        "
+      />
+    </svg>
+    <title>`H8`.shading</title>
+  </g>
   <g>
     <line
-      x1="622.9849369775859"
-      y1="370.5144401495073"
-      x2="605.6707446456733"
-      y2="396.5737900213061"
-      stroke="#1ab399"
+      x1="176.3354326945895"
+      y1="426.038627698378"
+      x2="153.39145951796996"
+      y2="404.82271793118724"
+      stroke="#808080"
       stroke-opacity="1"
       stroke-width="10"
       stroke-linecap="round"
@@ -457,11 +583,11 @@
   </g>
   <g>
     <line
-      x1="622.9849369775859"
-      y1="370.5144401495073"
-      x2="605.6707446456733"
-      y2="396.5737900213061"
-      stroke="#ffffff"
+      x1="176.3354326945895"
+      y1="426.038627698378"
+      x2="153.39145951796996"
+      y2="404.82271793118724"
+      stroke="#e6e6e6"
       stroke-opacity="1"
       stroke-width="4"
       stroke-linecap="round"
@@ -469,10 +595,10 @@
     <title>15:18:innerLine</title>
   </g>
   <circle
-    fill="#ffffff"
+    fill="#666666"
     fill-opacity="1"
-    cx="629.902441447487"
-    cy="360.1030004608866"
+    cx="185.51312261978154"
+    cy="434.52508467883456"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="3"
@@ -480,13 +606,55 @@
   >
     <title>`C3`.icon</title>
   </circle>
+  <g
+    transform="rotate(0, 185.51312261978154, 434.52508467883456)translate(161.26312261978154, 410.27508467883456)"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="caffeine__uuid-61c4681b-4632-4ad3-a199-4a7aac9b6e61--inject-19"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="48.5"
+      height="48.5"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 221.800003051757812 221.800003051757812"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-19"
+          cx="75.43280029296875"
+          cy="928.985107421875"
+          fx="75.43280029296875"
+          fy="928.985107421875"
+          r="157.934097290039062"
+          gradientTransform="translate(0 -858)"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".784400024414063" stop-color="#5f5f5f" />
+          <stop offset="1" stop-color="#7f7f7f" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="110.900001525878906"
+        cy="110.900001525878906"
+        r="110.900001525878906"
+        style="
+          fill: url(#caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-19);
+          isolation: isolate;
+          opacity: 0.600000023841858;
+        "
+      />
+    </svg>
+    <title>`C3`.shading</title>
+  </g>
   <g>
     <line
-      x1="555.8801043492226"
-      y1="325.15046333673604"
-      x2="618.5991897933764"
-      y2="354.76572878653434"
-      stroke="#1ab399"
+      x1="230.13654431701215"
+      y1="366.0574909333362"
+      x2="192.3383185873656"
+      y2="424.0528992890046"
+      stroke="#808080"
       stroke-opacity="1"
       stroke-width="10"
       stroke-linecap="round"
@@ -495,11 +663,11 @@
   </g>
   <g>
     <line
-      x1="555.8801043492226"
-      y1="325.15046333673604"
-      x2="618.5991897933764"
-      y2="354.76572878653434"
-      stroke="#ffffff"
+      x1="230.13654431701215"
+      y1="366.0574909333362"
+      x2="192.3383185873656"
+      y2="424.0528992890046"
+      stroke="#e6e6e6"
       stroke-opacity="1"
       stroke-width="4"
       stroke-linecap="round"
@@ -507,10 +675,10 @@
     <title>15:20:innerLine</title>
   </g>
   <circle
-    fill="#ffffff"
+    fill="#ff6666"
     fill-opacity="1"
-    cx="332.64904219643813"
-    cy="348.4307566236569"
+    cx="120.28416302092398"
+    cy="257.1222865245035"
     stroke="#ff0000"
     stroke-opacity="1"
     stroke-width="3"
@@ -518,13 +686,55 @@
   >
     <title>`O2`.icon</title>
   </circle>
+  <g
+    transform="rotate(0, 120.28416302092398, 257.1222865245035)translate(96.03416302092398, 232.87228652450352)"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="caffeine__uuid-61c4681b-4632-4ad3-a199-4a7aac9b6e61--inject-20"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="48.5"
+      height="48.5"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 221.800003051757812 221.800003051757812"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-20"
+          cx="75.43280029296875"
+          cy="928.985107421875"
+          fx="75.43280029296875"
+          fy="928.985107421875"
+          r="157.934097290039062"
+          gradientTransform="translate(0 -858)"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".784400024414063" stop-color="#5f5f5f" />
+          <stop offset="1" stop-color="#7f7f7f" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="110.900001525878906"
+        cy="110.900001525878906"
+        r="110.900001525878906"
+        style="
+          fill: url(#caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-20);
+          isolation: isolate;
+          opacity: 0.600000023841858;
+        "
+      />
+    </svg>
+    <title>`O2`.shading</title>
+  </g>
   <g>
     <line
-      x1="423.7072885692156"
-      y1="307.1244186395167"
-      x2="346.6201805199423"
-      y2="348.08469426011374"
-      stroke="#1ab399"
+      x1="189.57979414321582"
+      y1="274.0843700910912"
+      x2="131.69095677354227"
+      y2="265.19678400368866"
+      stroke="#808080"
       stroke-opacity="1"
       stroke-width="10"
       stroke-linecap="round"
@@ -533,11 +743,11 @@
   </g>
   <g>
     <line
-      x1="423.7072885692156"
-      y1="307.1244186395167"
-      x2="346.6201805199423"
-      y2="348.08469426011374"
-      stroke="#ffffff"
+      x1="189.57979414321582"
+      y1="274.0843700910912"
+      x2="131.69095677354227"
+      y2="265.19678400368866"
+      stroke="#e6e6e6"
       stroke-opacity="1"
       stroke-width="4"
       stroke-linecap="round"
@@ -546,11 +756,11 @@
   </g>
   <g>
     <line
-      x1="417.84198334897934"
-      y1="296.08593292613057"
-      x2="340.7548752997061"
-      y2="337.0462085467276"
-      stroke="#1ab399"
+      x1="191.47667462551667"
+      y1="261.7291360973225"
+      x2="133.5878372558431"
+      y2="252.84155000991998"
+      stroke="#808080"
       stroke-opacity="1"
       stroke-width="10"
       stroke-linecap="round"
@@ -559,11 +769,11 @@
   </g>
   <g>
     <line
-      x1="417.84198334897934"
-      y1="296.08593292613057"
-      x2="340.7548752997061"
-      y2="337.0462085467276"
-      stroke="#ffffff"
+      x1="191.47667462551667"
+      y1="261.7291360973225"
+      x2="133.5878372558431"
+      y2="252.84155000991998"
+      stroke="#e6e6e6"
       stroke-opacity="1"
       stroke-width="4"
       stroke-linecap="round"
@@ -571,10 +781,10 @@
     <title>16:1:innerLine2</title>
   </g>
   <circle
-    fill="#ffffff"
+    fill="#666666"
     fill-opacity="1"
-    cx="431.8131216724836"
-    cy="295.7398705625874"
+    cx="202.88346837813495"
+    cy="269.80363357650765"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="3"
@@ -582,13 +792,55 @@
   >
     <title>`C2`.icon</title>
   </circle>
+  <g
+    transform="rotate(0, 202.88346837813495, 269.80363357650765)translate(178.63346837813495, 245.55363357650765)"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="caffeine__uuid-61c4681b-4632-4ad3-a199-4a7aac9b6e61--inject-21"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="48.5"
+      height="48.5"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 221.800003051757812 221.800003051757812"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-21"
+          cx="75.43280029296875"
+          cy="928.985107421875"
+          fx="75.43280029296875"
+          fy="928.985107421875"
+          r="157.934097290039062"
+          gradientTransform="translate(0 -858)"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".784400024414063" stop-color="#5f5f5f" />
+          <stop offset="1" stop-color="#7f7f7f" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="110.900001525878906"
+        cy="110.900001525878906"
+        r="110.900001525878906"
+        style="
+          fill: url(#caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-21);
+          isolation: isolate;
+          opacity: 0.600000023841858;
+        "
+      />
+    </svg>
+    <title>`C2`.shading</title>
+  </g>
   <g>
     <line
-      x1="532.3523207683379"
-      y1="317.20344223586926"
-      x2="444.0376535992576"
-      y2="298.34961998910194"
-      stroke="#1ab399"
+      x1="232.3467347988506"
+      y1="343.9684346003213"
+      x2="207.49847386388055"
+      y2="281.4205045196927"
+      stroke="#808080"
       stroke-opacity="1"
       stroke-width="10"
       stroke-linecap="round"
@@ -597,11 +849,11 @@
   </g>
   <g>
     <line
-      x1="532.3523207683379"
-      y1="317.20344223586926"
-      x2="444.0376535992576"
-      y2="298.34961998910194"
-      stroke="#ffffff"
+      x1="232.3467347988506"
+      y1="343.9684346003213"
+      x2="207.49847386388055"
+      y2="281.4205045196927"
+      stroke="#e6e6e6"
       stroke-opacity="1"
       stroke-width="4"
       stroke-linecap="round"
@@ -609,10 +861,10 @@
     <title>15:3:innerLine</title>
   </g>
   <circle
-    fill="#ffffff"
+    fill="#6666ff"
     fill-opacity="1"
-    cx="544.5768526951118"
-    cy="319.81319166238376"
+    cx="236.9617402845962"
+    cy="355.5853055435063"
     stroke="#0000ff"
     stroke-opacity="1"
     stroke-width="3"
@@ -621,7 +873,7 @@
     <title>`N1`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 544.5768526951118, 319.81319166238376)translate(532.0848526951119, 313.66619166238377)"
+    transform="rotate(0, 236.9617402845962, 355.5853055435063)translate(224.4697402845962, 349.4383055435063)"
   >
     <title>`N1`.labelText</title>
     <svg
@@ -653,11 +905,11 @@
   </g>
   <g>
     <line
-      x1="474.6409086929781"
-      y1="199.0248448647484"
-      x2="436.87438671080895"
-      y2="284.3103662080671"
-      stroke="#1ab399"
+      x1="245.55417639710356"
+      y1="202.64679185290692"
+      x2="209.5870895595897"
+      y2="259.25321040429765"
+      stroke="#808080"
       stroke-opacity="1"
       stroke-width="10"
       stroke-linecap="round"
@@ -666,11 +918,11 @@
   </g>
   <g>
     <line
-      x1="474.6409086929781"
-      y1="199.0248448647484"
-      x2="436.87438671080895"
-      y2="284.3103662080671"
-      stroke="#ffffff"
+      x1="245.55417639710356"
+      y1="202.64679185290692"
+      x2="209.5870895595897"
+      y2="259.25321040429765"
+      stroke="#e6e6e6"
       stroke-opacity="1"
       stroke-width="4"
       stroke-linecap="round"
@@ -678,10 +930,10 @@
     <title>15:4:innerLine</title>
   </g>
   <circle
-    fill="#ffffff"
+    fill="#ff6666"
     fill-opacity="1"
-    cx="367.7283294746564"
-    cy="66.68036402906617"
+    cx="294.0060081937148"
+    cy="275.5850148218608"
     stroke="#ff0000"
     stroke-opacity="1"
     stroke-width="3"
@@ -689,13 +941,55 @@
   >
     <title>`O1`.icon</title>
   </circle>
+  <g
+    transform="rotate(0, 294.0060081937148, 275.5850148218608)translate(269.7560081937148, 251.3350148218608)"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="caffeine__uuid-61c4681b-4632-4ad3-a199-4a7aac9b6e61--inject-22"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="48.5"
+      height="48.5"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 221.800003051757812 221.800003051757812"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-22"
+          cx="75.43280029296875"
+          cy="928.985107421875"
+          fx="75.43280029296875"
+          fy="928.985107421875"
+          r="157.934097290039062"
+          gradientTransform="translate(0 -858)"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".784400024414063" stop-color="#5f5f5f" />
+          <stop offset="1" stop-color="#7f7f7f" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="110.900001525878906"
+        cy="110.900001525878906"
+        r="110.900001525878906"
+        style="
+          fill: url(#caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-22);
+          isolation: isolate;
+          opacity: 0.600000023841858;
+        "
+      />
+    </svg>
+    <title>`O1`.shading</title>
+  </g>
   <g>
     <line
-      x1="398.13111775003665"
-      y1="131.01117276402508"
-      x2="368.6471549902223"
-      y2="80.62555003794319"
-      stroke="#1ab399"
+      x1="337.92989181082794"
+      y1="227.79672698063644"
+      x2="306.5268488586504"
+      y2="269.3768751341058"
+      stroke="#808080"
       stroke-opacity="1"
       stroke-width="10"
       stroke-linecap="round"
@@ -704,11 +998,11 @@
   </g>
   <g>
     <line
-      x1="398.13111775003665"
-      y1="131.01117276402508"
-      x2="368.6471549902223"
-      y2="80.62555003794319"
-      stroke="#ffffff"
+      x1="337.92989181082794"
+      y1="227.79672698063644"
+      x2="306.5268488586504"
+      y2="269.3768751341058"
+      stroke="#e6e6e6"
       stroke-opacity="1"
       stroke-width="4"
       stroke-linecap="round"
@@ -717,11 +1011,11 @@
   </g>
   <g>
     <line
-      x1="408.9197363509119"
-      y1="124.69803794802155"
-      x2="379.4357735910976"
-      y2="74.31241522193966"
-      stroke="#1ab399"
+      x1="327.95504379464967"
+      y1="220.26331032379"
+      x2="296.5520008424721"
+      y2="261.8434584772593"
+      stroke="#808080"
       stroke-opacity="1"
       stroke-width="10"
       stroke-linecap="round"
@@ -730,24 +1024,66 @@
   </g>
   <g>
     <line
-      x1="408.9197363509119"
-      y1="124.69803794802155"
-      x2="379.4357735910976"
-      y2="74.31241522193966"
-      stroke="#ffffff"
+      x1="327.95504379464967"
+      y1="220.26331032379"
+      x2="296.5520008424721"
+      y2="261.8434584772593"
+      stroke="#e6e6e6"
       stroke-opacity="1"
       stroke-width="4"
       stroke-linecap="round"
     />
     <title>16:2:innerLine2</title>
   </g>
+  <g
+    transform="rotate(0, 236.9617402845962, 355.5853055435063)translate(212.7117402845962, 331.3353055435063)"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="caffeine__uuid-61c4681b-4632-4ad3-a199-4a7aac9b6e61--inject-23"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="48.5"
+      height="48.5"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 221.800003051757812 221.800003051757812"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-23"
+          cx="75.43280029296875"
+          cy="928.985107421875"
+          fx="75.43280029296875"
+          fy="928.985107421875"
+          r="157.934097290039062"
+          gradientTransform="translate(0 -858)"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".784400024414063" stop-color="#5f5f5f" />
+          <stop offset="1" stop-color="#7f7f7f" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="110.900001525878906"
+        cy="110.900001525878906"
+        r="110.900001525878906"
+        style="
+          fill: url(#caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-23);
+          isolation: isolate;
+          opacity: 0.600000023841858;
+        "
+      />
+    </svg>
+    <title>`N1`.shading</title>
+  </g>
   <g>
     <line
-      x1="502.91573078494594"
-      y1="275.62913736531453"
-      x2="536.0014891637093"
-      y2="310.7185175269726"
-      stroke="#1ab399"
+      x1="315.9181693667888"
+      y1="360.38864363145854"
+      x2="249.43867209326493"
+      y2="356.3443434391408"
+      stroke="#808080"
       stroke-opacity="1"
       stroke-width="10"
       stroke-linecap="round"
@@ -756,11 +1092,11 @@
   </g>
   <g>
     <line
-      x1="502.91573078494594"
-      y1="275.62913736531453"
-      x2="536.0014891637093"
-      y2="310.7185175269726"
-      stroke="#ffffff"
+      x1="315.9181693667888"
+      y1="360.38864363145854"
+      x2="249.43867209326493"
+      y2="356.3443434391408"
+      stroke="#e6e6e6"
       stroke-opacity="1"
       stroke-width="4"
       stroke-linecap="round"
@@ -768,10 +1104,10 @@
     <title>15:2:innerLine</title>
   </g>
   <circle
-    fill="#ffffff"
+    fill="#666666"
     fill-opacity="1"
-    cx="494.3403672535434"
-    cy="266.53446322990334"
+    cx="328.3951011754575"
+    cy="361.147681527093"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="3"
@@ -779,13 +1115,55 @@
   >
     <title>`C6`.icon</title>
   </circle>
+  <g
+    transform="rotate(0, 328.3951011754575, 361.147681527093)translate(304.1451011754575, 336.897681527093)"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="caffeine__uuid-61c4681b-4632-4ad3-a199-4a7aac9b6e61--inject-24"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="48.5"
+      height="48.5"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 221.800003051757812 221.800003051757812"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-24"
+          cx="75.43280029296875"
+          cy="928.985107421875"
+          fx="75.43280029296875"
+          fy="928.985107421875"
+          r="157.934097290039062"
+          gradientTransform="translate(0 -858)"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".784400024414063" stop-color="#5f5f5f" />
+          <stop offset="1" stop-color="#7f7f7f" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="110.900001525878906"
+        cy="110.900001525878906"
+        r="110.900001525878906"
+        style="
+          fill: url(#caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-24);
+          isolation: isolate;
+          opacity: 0.600000023841858;
+        "
+      />
+    </svg>
+    <title>`C6`.shading</title>
+  </g>
   <g>
     <line
-      x1="419.4969204096316"
-      y1="220.74214438019368"
-      x2="486.1140424984319"
-      y2="255.23667397854942"
-      stroke="#1ab399"
+      x1="382.99028283775783"
+      y1="305.24979397450073"
+      x2="341.1920344220395"
+      y2="355.5306577364321"
+      stroke="#808080"
       stroke-opacity="1"
       stroke-width="10"
       stroke-linecap="round"
@@ -794,11 +1172,11 @@
   </g>
   <g>
     <line
-      x1="419.4969204096316"
-      y1="220.74214438019368"
-      x2="486.1140424984319"
-      y2="255.23667397854942"
-      stroke="#ffffff"
+      x1="382.99028283775783"
+      y1="305.24979397450073"
+      x2="341.1920344220395"
+      y2="355.5306577364321"
+      stroke="#e6e6e6"
       stroke-opacity="1"
       stroke-width="4"
       stroke-linecap="round"
@@ -807,11 +1185,11 @@
   </g>
   <g>
     <line
-      x1="413.7492189105931"
-      y1="231.84231988482446"
-      x2="480.36634099939334"
-      y2="266.33684948318023"
-      stroke="#1ab399"
+      x1="373.3778905065963"
+      y1="297.2590568934995"
+      x2="331.579642090878"
+      y2="347.5399206554309"
+      stroke="#808080"
       stroke-opacity="1"
       stroke-width="10"
       stroke-linecap="round"
@@ -820,11 +1198,11 @@
   </g>
   <g>
     <line
-      x1="413.7492189105931"
-      y1="231.84231988482446"
-      x2="480.36634099939334"
-      y2="266.33684948318023"
-      stroke="#ffffff"
+      x1="373.3778905065963"
+      y1="297.2590568934995"
+      x2="331.579642090878"
+      y2="347.5399206554309"
+      stroke="#e6e6e6"
       stroke-opacity="1"
       stroke-width="4"
       stroke-linecap="round"
@@ -832,10 +1210,10 @@
     <title>16:0:innerLine2</title>
   </g>
   <circle
-    fill="#ffffff"
+    fill="#666666"
     fill-opacity="1"
-    cx="405.52289415548154"
-    cy="220.54453063347057"
+    cx="386.17482375317826"
+    cy="291.6420331028386"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="3"
@@ -843,13 +1221,55 @@
   >
     <title>`C5`.icon</title>
   </circle>
+  <g
+    transform="rotate(0, 386.17482375317826, 291.6420331028386)translate(361.92482375317826, 267.3920331028386)"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="caffeine__uuid-61c4681b-4632-4ad3-a199-4a7aac9b6e61--inject-25"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="48.5"
+      height="48.5"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 221.800003051757812 221.800003051757812"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-25"
+          cx="75.43280029296875"
+          cy="928.985107421875"
+          fx="75.43280029296875"
+          fy="928.985107421875"
+          r="157.934097290039062"
+          gradientTransform="translate(0 -858)"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".784400024414063" stop-color="#5f5f5f" />
+          <stop offset="1" stop-color="#7f7f7f" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="110.900001525878906"
+        cy="110.900001525878906"
+        r="110.900001525878906"
+        style="
+          fill: url(#caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-25);
+          isolation: isolate;
+          opacity: 0.600000023841858;
+        "
+      />
+    </svg>
+    <title>`C5`.shading</title>
+  </g>
   <g>
     <line
-      x1="409.18080554471754"
-      y1="151.12590469936626"
-      x2="406.18065047724184"
-      y2="208.06184989100288"
-      stroke="#1ab399"
+      x1="346.8197819112282"
+      y1="224.82572913679064"
+      x2="379.8309263015353"
+      y2="280.8714746020829"
+      stroke="#808080"
       stroke-opacity="1"
       stroke-width="10"
       stroke-linecap="round"
@@ -858,11 +1278,11 @@
   </g>
   <g>
     <line
-      x1="409.18080554471754"
-      y1="151.12590469936626"
-      x2="406.18065047724184"
-      y2="208.06184989100288"
-      stroke="#ffffff"
+      x1="346.8197819112282"
+      y1="224.82572913679064"
+      x2="379.8309263015353"
+      y2="280.8714746020829"
+      stroke="#e6e6e6"
       stroke-opacity="1"
       stroke-width="4"
       stroke-linecap="round"
@@ -870,10 +1290,10 @@
     <title>15:1:innerLine</title>
   </g>
   <circle
-    fill="#ffffff"
+    fill="#666666"
     fill-opacity="1"
-    cx="409.8385618664778"
-    cy="138.64322395689857"
+    cx="340.47588445958525"
+    cy="214.05517063603497"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="3"
@@ -881,13 +1301,55 @@
   >
     <title>`C4`.icon</title>
   </circle>
+  <g
+    transform="rotate(0, 340.47588445958525, 214.05517063603497)translate(316.22588445958525, 189.80517063603497)"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="caffeine__uuid-61c4681b-4632-4ad3-a199-4a7aac9b6e61--inject-26"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="48.5"
+      height="48.5"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 221.800003051757812 221.800003051757812"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-26"
+          cx="75.43280029296875"
+          cy="928.985107421875"
+          fx="75.43280029296875"
+          fy="928.985107421875"
+          r="157.934097290039062"
+          gradientTransform="translate(0 -858)"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".784400024414063" stop-color="#5f5f5f" />
+          <stop offset="1" stop-color="#7f7f7f" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="110.900001525878906"
+        cy="110.900001525878906"
+        r="110.900001525878906"
+        style="
+          fill: url(#caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-26);
+          isolation: isolate;
+          opacity: 0.600000023841858;
+        "
+      />
+    </svg>
+    <title>`C4`.shading</title>
+  </g>
   <g>
     <line
-      x1="469.465052952281"
-      y1="180.4223828550353"
-      x2="420.07568264550025"
-      y2="145.81618161209133"
-      stroke="#1ab399"
+      x1="264.38766795605403"
+      y1="195.11567493387562"
+      x2="328.34601408208954"
+      y2="211.03586438285623"
+      stroke="#808080"
       stroke-opacity="1"
       stroke-width="10"
       stroke-linecap="round"
@@ -896,11 +1358,11 @@
   </g>
   <g>
     <line
-      x1="469.465052952281"
-      y1="180.4223828550353"
-      x2="420.07568264550025"
-      y2="145.81618161209133"
-      stroke="#ffffff"
+      x1="264.38766795605403"
+      y1="195.11567493387562"
+      x2="328.34601408208954"
+      y2="211.03586438285623"
+      stroke="#e6e6e6"
       stroke-opacity="1"
       stroke-width="4"
       stroke-linecap="round"
@@ -908,10 +1370,10 @@
     <title>15:0:innerLine</title>
   </g>
   <circle
-    fill="#ffffff"
+    fill="#cccccc"
     fill-opacity="1"
-    cx="581.4664096487336"
-    cy="171.99943544491484"
+    cx="285.6814683172073"
+    cy="96.34651678936837"
     stroke="#808080"
     stroke-opacity="1"
     stroke-width="3"
@@ -919,13 +1381,55 @@
   >
     <title>`H5`.icon</title>
   </circle>
+  <g
+    transform="rotate(0, 285.6814683172073, 96.34651678936837)translate(267.6814683172073, 78.34651678936837)"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="caffeine__uuid-61c4681b-4632-4ad3-a199-4a7aac9b6e61--inject-27"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="36"
+      height="36"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 221.800003051757812 221.800003051757812"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-27"
+          cx="75.43280029296875"
+          cy="928.985107421875"
+          fx="75.43280029296875"
+          fy="928.985107421875"
+          r="157.934097290039062"
+          gradientTransform="translate(0 -858)"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".784400024414063" stop-color="#5f5f5f" />
+          <stop offset="1" stop-color="#7f7f7f" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="110.900001525878906"
+        cy="110.900001525878906"
+        r="110.900001525878906"
+        style="
+          fill: url(#caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-27);
+          isolation: isolate;
+          opacity: 0.600000023841858;
+        "
+      />
+    </svg>
+    <title>`H5`.shading</title>
+  </g>
   <g>
     <line
-      x1="558.8772513301918"
-      y1="134.60912619471816"
-      x2="575.0026372345291"
-      y2="161.30038919972478"
-      stroke="#1ab399"
+      x1="242.0586710289714"
+      y1="100.01775073000684"
+      x2="273.22550346170186"
+      y2="97.39479346540958"
+      stroke="#808080"
       stroke-opacity="1"
       stroke-width="10"
       stroke-linecap="round"
@@ -934,11 +1438,11 @@
   </g>
   <g>
     <line
-      x1="558.8772513301918"
-      y1="134.60912619471816"
-      x2="575.0026372345291"
-      y2="161.30038919972478"
-      stroke="#ffffff"
+      x1="242.0586710289714"
+      y1="100.01775073000684"
+      x2="273.22550346170186"
+      y2="97.39479346540958"
+      stroke="#e6e6e6"
       stroke-opacity="1"
       stroke-width="4"
       stroke-linecap="round"
@@ -946,10 +1450,10 @@
     <title>15:8:innerLine</title>
   </g>
   <circle
-    fill="#ffffff"
+    fill="#cccccc"
     fill-opacity="1"
-    cx="596.3804001697208"
-    cy="87.92880740463156"
+    cx="178.21709816677108"
+    cy="123.99440174084859"
     stroke="#808080"
     stroke-opacity="1"
     stroke-width="3"
@@ -957,13 +1461,55 @@
   >
     <title>`H6`.icon</title>
   </circle>
+  <g
+    transform="rotate(0, 178.21709816677108, 123.99440174084859)translate(160.21709816677108, 105.99440174084859)"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="caffeine__uuid-61c4681b-4632-4ad3-a199-4a7aac9b6e61--inject-28"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="36"
+      height="36"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 221.800003051757812 221.800003051757812"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-28"
+          cx="75.43280029296875"
+          cy="928.985107421875"
+          fx="75.43280029296875"
+          fy="928.985107421875"
+          r="157.934097290039062"
+          gradientTransform="translate(0 -858)"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".784400024414063" stop-color="#5f5f5f" />
+          <stop offset="1" stop-color="#7f7f7f" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="110.900001525878906"
+        cy="110.900001525878906"
+        r="110.900001525878906"
+        style="
+          fill: url(#caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-28);
+          isolation: isolate;
+          opacity: 0.600000023841858;
+        "
+      />
+    </svg>
+    <title>`H6`.shading</title>
+  </g>
   <g>
     <line
-      x1="562.087044405097"
-      y1="115.9935102553286"
-      x2="586.7068346806111"
-      y2="95.84537709883102"
-      stroke="#1ab399"
+      x1="218.18752322396918"
+      y1="106.15950781659791"
+      x2="189.63228111626785"
+      y2="118.90092133029873"
+      stroke="#808080"
       stroke-opacity="1"
       stroke-width="10"
       stroke-linecap="round"
@@ -972,11 +1518,11 @@
   </g>
   <g>
     <line
-      x1="562.087044405097"
-      y1="115.9935102553286"
-      x2="586.7068346806111"
-      y2="95.84537709883102"
-      stroke="#ffffff"
+      x1="218.18752322396918"
+      y1="106.15950781659791"
+      x2="189.63228111626785"
+      y2="118.90092133029873"
+      stroke="#e6e6e6"
       stroke-opacity="1"
       stroke-width="4"
       stroke-linecap="round"
@@ -984,10 +1530,10 @@
     <title>15:7:innerLine</title>
   </g>
   <circle
-    fill="#ffffff"
+    fill="#cccccc"
     fill-opacity="1"
-    cx="511.2639796778596"
-    cy="85.59915206000196"
+    cx="215.51351203183094"
+    cy="46.12952738984214"
     stroke="#808080"
     stroke-opacity="1"
     stroke-width="3"
@@ -995,13 +1541,55 @@
   >
     <title>`H7`.icon</title>
   </circle>
+  <g
+    transform="rotate(0, 215.51351203183094, 46.12952738984214)translate(197.51351203183094, 28.12952738984214)"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="caffeine__uuid-61c4681b-4632-4ad3-a199-4a7aac9b6e61--inject-29"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="36"
+      height="36"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 221.800003051757812 221.800003051757812"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-29"
+          cx="75.43280029296875"
+          cy="928.985107421875"
+          fx="75.43280029296875"
+          fy="928.985107421875"
+          r="157.934097290039062"
+          gradientTransform="translate(0 -858)"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".784400024414063" stop-color="#5f5f5f" />
+          <stop offset="1" stop-color="#7f7f7f" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="110.900001525878906"
+        cy="110.900001525878906"
+        r="110.900001525878906"
+        style="
+          fill: url(#caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-29);
+          isolation: isolate;
+          opacity: 0.600000023841858;
+        "
+      />
+    </svg>
+    <title>`H7`.shading</title>
+  </g>
   <g>
     <line
-      x1="543.2647310348276"
-      y1="115.39243023704256"
-      x2="520.4127275590192"
-      y2="94.11680177248749"
-      stroke="#1ab399"
+      x1="226.4974126100777"
+      y1="88.95788564999975"
+      x2="218.6188055952192"
+      y2="58.237669145890436"
+      stroke="#808080"
       stroke-opacity="1"
       stroke-width="10"
       stroke-linecap="round"
@@ -1010,11 +1598,11 @@
   </g>
   <g>
     <line
-      x1="543.2647310348276"
-      y1="115.39243023704256"
-      x2="520.4127275590192"
-      y2="94.11680177248749"
-      stroke="#ffffff"
+      x1="226.4974126100777"
+      y1="88.95788564999975"
+      x2="218.6188055952192"
+      y2="58.237669145890436"
+      stroke="#e6e6e6"
       stroke-opacity="1"
       stroke-width="4"
       stroke-linecap="round"
@@ -1022,10 +1610,10 @@
     <title>15:6:innerLine</title>
   </g>
   <circle
-    fill="#ffffff"
+    fill="#666666"
     fill-opacity="1"
-    cx="552.4134789159873"
-    cy="123.9100799495281"
+    cx="229.60270617346595"
+    cy="101.06602740604805"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="3"
@@ -1033,13 +1621,55 @@
   >
     <title>`C1`.icon</title>
   </circle>
+  <g
+    transform="rotate(0, 229.60270617346595, 101.06602740604805)translate(205.35270617346595, 76.81602740604805)"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="caffeine__uuid-61c4681b-4632-4ad3-a199-4a7aac9b6e61--inject-30"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="48.5"
+      height="48.5"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 221.800003051757812 221.800003051757812"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-30"
+          cx="75.43280029296875"
+          cy="928.985107421875"
+          fx="75.43280029296875"
+          fy="928.985107421875"
+          r="157.934097290039062"
+          gradientTransform="translate(0 -858)"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".784400024414063" stop-color="#5f5f5f" />
+          <stop offset="1" stop-color="#7f7f7f" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="110.900001525878906"
+        cy="110.900001525878906"
+        r="110.900001525878906"
+        style="
+          fill: url(#caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-30);
+          isolation: isolate;
+          opacity: 0.600000023841858;
+        "
+      />
+    </svg>
+    <title>`C1`.shading</title>
+  </g>
   <g>
     <line
-      x1="489.1053511453854"
-      y1="179.3594299844404"
-      x2="543.0103015019054"
-      y2="132.14599047531578"
-      stroke="#1ab399"
+      x1="249.2389584397769"
+      y1="179.96638199722804"
+      x2="232.62154531224738"
+      y2="113.1960140895169"
+      stroke="#808080"
       stroke-opacity="1"
       stroke-width="10"
       stroke-linecap="round"
@@ -1048,11 +1678,11 @@
   </g>
   <g>
     <line
-      x1="489.1053511453854"
-      y1="179.3594299844404"
-      x2="543.0103015019054"
-      y2="132.14599047531578"
-      stroke="#ffffff"
+      x1="249.2389584397769"
+      y1="179.96638199722804"
+      x2="232.62154531224738"
+      y2="113.1960140895169"
+      stroke="#e6e6e6"
       stroke-opacity="1"
       stroke-width="4"
       stroke-linecap="round"
@@ -1060,10 +1690,10 @@
     <title>15:5:innerLine</title>
   </g>
   <circle
-    fill="#ffffff"
+    fill="#6666ff"
     fill-opacity="1"
-    cx="479.70217373130345"
-    cy="187.59534051022808"
+    cx="252.25779757855832"
+    cy="192.09636868069688"
     stroke="#0000ff"
     stroke-opacity="1"
     stroke-width="3"
@@ -1072,7 +1702,7 @@
     <title>`N2`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 479.70217373130345, 187.59534051022808)translate(467.2101737313034, 181.4483405102281)"
+    transform="rotate(0, 252.25779757855832, 192.09636868069688)translate(239.76579757855833, 185.9493686806969)"
   >
     <title>`N2`.labelText</title>
     <svg
@@ -1106,19 +1736,20 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 592.5056259383236, 206.77968608937874)"
+    transform="rotate(0, 282.67703794983623, 315.5852233934963)"
     style="
-      font: 40px Roboto Condensed, Impact, Franklin Gothic Bold, sans-serif;
+      font: bold 40px HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica,
+        Arial, sans-serif;
     "
-    x="592.5056259383236"
-    y="221.77968608937874"
-    width="160.13671875"
-    height="32"
+    x="282.67703794983623"
+    y="330.5852233934963"
+    width="150.92578125"
+    height="30"
     font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
-    ascent="31"
-    descent="1"
+    ascent="30"
+    descent="0"
     text-anchor="middle"
     visibility=""
   >
@@ -1126,7 +1757,7 @@
     caffeine
   </text>
   <g
-    transform="rotate(0, 598.7532401757721, 406.9852297099267)translate(586.2612401757722, 400.6402297099267)"
+    transform="rotate(0, 144.21376959277794, 396.33626095073066)translate(131.72176959277795, 389.99126095073063)"
   >
     <title>`H8`.labelText</title>
     <svg
@@ -1157,7 +1788,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 511.2639796778596, 85.59915206000196)translate(498.7719796778596, 79.25415206000196)"
+    transform="rotate(0, 215.51351203183094, 46.12952738984214)translate(203.02151203183095, 39.78452738984214)"
   >
     <title>`H7`.labelText</title>
     <svg
@@ -1187,8 +1818,662 @@
       </g>
     </svg>
   </g>
+  <circle
+    fill="#cccccc"
+    fill-opacity="1"
+    cx="589.3119432353145"
+    cy="223.48135591567103"
+    stroke="#808080"
+    stroke-opacity="1"
+    stroke-width="3"
+    r="18.75"
+  >
+    <title>`H4`.icon</title>
+  </circle>
   <g
-    transform="rotate(0, 332.64904219643813, 348.4307566236569)translate(321.2820421964381, 341.8967566236569)"
+    transform="rotate(0, 589.3119432353145, 223.48135591567103)translate(571.3119432353145, 205.48135591567103)"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="caffeine__uuid-61c4681b-4632-4ad3-a199-4a7aac9b6e61--inject-31"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="36"
+      height="36"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 221.800003051757812 221.800003051757812"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-31"
+          cx="75.43280029296875"
+          cy="928.985107421875"
+          fx="75.43280029296875"
+          fy="928.985107421875"
+          r="157.934097290039062"
+          gradientTransform="translate(0 -858)"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".784400024414063" stop-color="#5f5f5f" />
+          <stop offset="1" stop-color="#7f7f7f" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="110.900001525878906"
+        cy="110.900001525878906"
+        r="110.900001525878906"
+        style="
+          fill: url(#caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-31);
+          isolation: isolate;
+          opacity: 0.600000023841858;
+        "
+      />
+    </svg>
+    <title>`H4`.shading</title>
+  </g>
+  <g>
+    <line
+      x1="550.8326081251608"
+      y1="244.1106763255664"
+      x2="578.2952802936378"
+      y2="229.38754605697886"
+      stroke="#808080"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>15:9:line</title>
+  </g>
+  <g>
+    <line
+      x1="550.8326081251608"
+      y1="244.1106763255664"
+      x2="578.2952802936378"
+      y2="229.38754605697886"
+      stroke="#e6e6e6"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>15:9:innerLine</title>
+  </g>
+  <circle
+    fill="#cccccc"
+    fill-opacity="1"
+    cx="501.3054599504155"
+    cy="209.32228209001346"
+    stroke="#808080"
+    stroke-opacity="1"
+    stroke-width="3"
+    r="18.75"
+  >
+    <title>`H3`.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 501.3054599504155, 209.32228209001346)translate(483.3054599504155, 191.32228209001346)"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="caffeine__uuid-61c4681b-4632-4ad3-a199-4a7aac9b6e61--inject-32"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="36"
+      height="36"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 221.800003051757812 221.800003051757812"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-32"
+          cx="75.43280029296875"
+          cy="928.985107421875"
+          fx="75.43280029296875"
+          fy="928.985107421875"
+          r="157.934097290039062"
+          gradientTransform="translate(0 -858)"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".784400024414063" stop-color="#5f5f5f" />
+          <stop offset="1" stop-color="#7f7f7f" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="110.900001525878906"
+        cy="110.900001525878906"
+        r="110.900001525878906"
+        style="
+          fill: url(#caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-32);
+          isolation: isolate;
+          opacity: 0.600000023841858;
+        "
+      />
+    </svg>
+    <title>`H3`.shading</title>
+  </g>
+  <g>
+    <line
+      x1="531.2241109499262"
+      y1="240.9377514919923"
+      x2="509.89729418397343"
+      y2="218.40139706489543"
+      stroke="#808080"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>15:10:line</title>
+  </g>
+  <g>
+    <line
+      x1="531.2241109499262"
+      y1="240.9377514919923"
+      x2="509.89729418397343"
+      y2="218.40139706489543"
+      stroke="#e6e6e6"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>15:10:innerLine</title>
+  </g>
+  <circle
+    fill="#666666"
+    fill-opacity="1"
+    cx="539.8159451834841"
+    cy="250.01686646687423"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="3"
+    r="25"
+  >
+    <title>`C7`.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 539.8159451834841, 250.01686646687423)translate(515.5659451834841, 225.76686646687423)"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="caffeine__uuid-61c4681b-4632-4ad3-a199-4a7aac9b6e61--inject-33"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="48.5"
+      height="48.5"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 221.800003051757812 221.800003051757812"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-33"
+          cx="75.43280029296875"
+          cy="928.985107421875"
+          fx="75.43280029296875"
+          fy="928.985107421875"
+          r="157.934097290039062"
+          gradientTransform="translate(0 -858)"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".784400024414063" stop-color="#5f5f5f" />
+          <stop offset="1" stop-color="#7f7f7f" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="110.900001525878906"
+        cy="110.900001525878906"
+        r="110.900001525878906"
+        style="
+          fill: url(#caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-33);
+          isolation: isolate;
+          opacity: 0.600000023841858;
+        "
+      />
+    </svg>
+    <title>`C7`.shading</title>
+  </g>
+  <g>
+    <line
+      x1="480.5290323037637"
+      y1="300.94483646786193"
+      x2="530.3339857209279"
+      y2="258.1619515051075"
+      stroke="#808080"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>15:12:line</title>
+  </g>
+  <g>
+    <line
+      x1="480.5290323037637"
+      y1="300.94483646786193"
+      x2="530.3339857209279"
+      y2="258.1619515051075"
+      stroke="#e6e6e6"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>15:12:innerLine</title>
+  </g>
+  <g>
+    <line
+      x1="458.8031263193906"
+      y1="306.5728324125032"
+      x2="398.4187702749951"
+      y2="294.1591221964306"
+      stroke="#808080"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>15:13:line</title>
+  </g>
+  <g>
+    <line
+      x1="458.8031263193906"
+      y1="306.5728324125032"
+      x2="398.4187702749951"
+      y2="294.1591221964306"
+      stroke="#e6e6e6"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>15:13:innerLine</title>
+  </g>
+  <circle
+    fill="#6666ff"
+    fill-opacity="1"
+    cx="471.0470728412074"
+    cy="309.08992150609515"
+    stroke="#0000ff"
+    stroke-opacity="1"
+    stroke-width="3"
+    r="25"
+  >
+    <title>`N3`.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 471.0470728412074, 309.08992150609515)translate(446.7970728412074, 284.83992150609515)"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="caffeine__uuid-61c4681b-4632-4ad3-a199-4a7aac9b6e61--inject-34"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="48.5"
+      height="48.5"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 221.800003051757812 221.800003051757812"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-34"
+          cx="75.43280029296875"
+          cy="928.985107421875"
+          fx="75.43280029296875"
+          fy="928.985107421875"
+          r="157.934097290039062"
+          gradientTransform="translate(0 -858)"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".784400024414063" stop-color="#5f5f5f" />
+          <stop offset="1" stop-color="#7f7f7f" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="110.900001525878906"
+        cy="110.900001525878906"
+        r="110.900001525878906"
+        style="
+          fill: url(#caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-34);
+          isolation: isolate;
+          opacity: 0.600000023841858;
+        "
+      />
+    </svg>
+    <title>`N3`.shading</title>
+  </g>
+  <g>
+    <line
+      x1="470.1003122616503"
+      y1="383.0481465496888"
+      x2="470.8870698623635"
+      y2="321.5888959802141"
+      stroke="#808080"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>15:14:line</title>
+  </g>
+  <g>
+    <line
+      x1="470.1003122616503"
+      y1="383.0481465496888"
+      x2="470.8870698623635"
+      y2="321.5888959802141"
+      stroke="#e6e6e6"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>15:14:innerLine</title>
+  </g>
+  <circle
+    fill="#cccccc"
+    fill-opacity="1"
+    cx="505.83219432860466"
+    cy="437.90345049591394"
+    stroke="#808080"
+    stroke-opacity="1"
+    stroke-width="3"
+    r="18.75"
+  >
+    <title>`H1`.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 505.83219432860466, 437.90345049591394)translate(487.83219432860466, 419.90345049591394)"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="caffeine__uuid-61c4681b-4632-4ad3-a199-4a7aac9b6e61--inject-35"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="36"
+      height="36"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 221.800003051757812 221.800003051757812"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-35"
+          cx="75.43280029296875"
+          cy="928.985107421875"
+          fx="75.43280029296875"
+          fy="928.985107421875"
+          r="157.934097290039062"
+          gradientTransform="translate(0 -858)"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".784400024414063" stop-color="#5f5f5f" />
+          <stop offset="1" stop-color="#7f7f7f" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="110.900001525878906"
+        cy="110.900001525878906"
+        r="110.900001525878906"
+        style="
+          fill: url(#caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-35);
+          isolation: isolate;
+          opacity: 0.600000023841858;
+        "
+      />
+    </svg>
+    <title>`H1`.shading</title>
+  </g>
+  <g>
+    <line
+      x1="478.02139534485036"
+      y1="405.08368181741395"
+      x2="497.75110826656066"
+      y2="428.36688970230773"
+      stroke="#808080"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>15:16:line</title>
+  </g>
+  <g>
+    <line
+      x1="478.02139534485036"
+      y1="405.08368181741395"
+      x2="497.75110826656066"
+      y2="428.36688970230773"
+      stroke="#e6e6e6"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>15:16:innerLine</title>
+  </g>
+  <g>
+    <line
+      x1="379.9015418671085"
+      y1="410.2607730204116"
+      x2="337.441617718016"
+      y2="369.7738336875648"
+      stroke="#808080"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>15:15:line</title>
+  </g>
+  <g>
+    <line
+      x1="379.9015418671085"
+      y1="410.2607730204116"
+      x2="337.441617718016"
+      y2="369.7738336875648"
+      stroke="#e6e6e6"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>15:15:innerLine</title>
+  </g>
+  <circle
+    fill="#6666ff"
+    fill-opacity="1"
+    cx="388.948058409667"
+    cy="418.88692518088334"
+    stroke="#0000ff"
+    stroke-opacity="1"
+    stroke-width="3"
+    r="25"
+  >
+    <title>`N4`.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 388.948058409667, 418.88692518088334)translate(364.698058409667, 394.63692518088334)"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="caffeine__uuid-61c4681b-4632-4ad3-a199-4a7aac9b6e61--inject-36"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="48.5"
+      height="48.5"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 221.800003051757812 221.800003051757812"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-36"
+          cx="75.43280029296875"
+          cy="928.985107421875"
+          fx="75.43280029296875"
+          fy="928.985107421875"
+          r="157.934097290039062"
+          gradientTransform="translate(0 -858)"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".784400024414063" stop-color="#5f5f5f" />
+          <stop offset="1" stop-color="#7f7f7f" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="110.900001525878906"
+        cy="110.900001525878906"
+        r="110.900001525878906"
+        style="
+          fill: url(#caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-36);
+          isolation: isolate;
+          opacity: 0.600000023841858;
+        "
+      />
+    </svg>
+    <title>`N4`.shading</title>
+  </g>
+  <g>
+    <line
+      x1="459.65975000571535"
+      y1="405.01403998438957"
+      x2="402.689929144387"
+      y2="421.4312212262071"
+      stroke="#808080"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>16:3:line1</title>
+  </g>
+  <g>
+    <line
+      x1="459.65975000571535"
+      y1="405.01403998438957"
+      x2="402.689929144387"
+      y2="421.4312212262071"
+      stroke="#e6e6e6"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>16:3:innerLine1</title>
+  </g>
+  <g>
+    <line
+      x1="456.1984385480863"
+      y1="393.002824978484"
+      x2="399.228617686758"
+      y2="409.4200062203015"
+      stroke="#808080"
+      stroke-opacity="1"
+      stroke-width="10"
+      stroke-linecap="round"
+    />
+    <title>16:3:line2</title>
+  </g>
+  <g>
+    <line
+      x1="456.1984385480863"
+      y1="393.002824978484"
+      x2="399.228617686758"
+      y2="409.4200062203015"
+      stroke="#e6e6e6"
+      stroke-opacity="1"
+      stroke-width="4"
+      stroke-linecap="round"
+    />
+    <title>16:3:innerLine2</title>
+  </g>
+  <circle
+    fill="#666666"
+    fill-opacity="1"
+    cx="469.9403092828063"
+    cy="395.54712102380773"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="3"
+    r="25"
+  >
+    <title>`C8`.icon</title>
+  </circle>
+  <g
+    transform="rotate(0, 469.9403092828063, 395.54712102380773)translate(445.6903092828063, 371.29712102380773)"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="caffeine__uuid-61c4681b-4632-4ad3-a199-4a7aac9b6e61--inject-37"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="48.5"
+      height="48.5"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 221.800003051757812 221.800003051757812"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-37"
+          cx="75.43280029296875"
+          cy="928.985107421875"
+          fx="75.43280029296875"
+          fy="928.985107421875"
+          r="157.934097290039062"
+          gradientTransform="translate(0 -858)"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".784400024414063" stop-color="#5f5f5f" />
+          <stop offset="1" stop-color="#7f7f7f" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="110.900001525878906"
+        cy="110.900001525878906"
+        r="110.900001525878906"
+        style="
+          fill: url(#caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-37);
+          isolation: isolate;
+          opacity: 0.600000023841858;
+        "
+      />
+    </svg>
+    <title>`C8`.shading</title>
+  </g>
+  <g
+    transform="rotate(0, 252.25779757855832, 192.09636868069688)translate(228.00779757855832, 167.84636868069688)"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="caffeine__uuid-61c4681b-4632-4ad3-a199-4a7aac9b6e61--inject-38"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="48.5"
+      height="48.5"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 221.800003051757812 221.800003051757812"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-38"
+          cx="75.43280029296875"
+          cy="928.985107421875"
+          fx="75.43280029296875"
+          fy="928.985107421875"
+          r="157.934097290039062"
+          gradientTransform="translate(0 -858)"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".784400024414063" stop-color="#5f5f5f" />
+          <stop offset="1" stop-color="#7f7f7f" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="110.900001525878906"
+        cy="110.900001525878906"
+        r="110.900001525878906"
+        style="
+          fill: url(#caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-38);
+          isolation: isolate;
+          opacity: 0.600000023841858;
+        "
+      />
+    </svg>
+    <title>`N2`.shading</title>
+  </g>
+  <g
+    transform="rotate(0, 120.28416302092398, 257.1222865245035)translate(108.91716302092398, 250.58828652450353)"
   >
     <title>`O2`.labelText</title>
     <svg
@@ -1218,20 +2503,8 @@
       </g>
     </svg>
   </g>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="394.8605656726108"
-    cy="432.87860917080843"
-    stroke="#808080"
-    stroke-opacity="1"
-    stroke-width="3"
-    r="18.75"
-  >
-    <title>`H1`.icon</title>
-  </circle>
   <g
-    transform="rotate(0, 394.8605656726108, 432.87860917080843)translate(382.36856567261077, 426.73160917080844)"
+    transform="rotate(0, 505.83219432860466, 437.90345049591394)translate(493.34019432860464, 431.75645049591395)"
   >
     <title>`H1`.labelText</title>
     <svg
@@ -1262,7 +2535,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 644.3292918258248, 305.70875466660124)translate(627.3372918258249, 299.3637546666012)"
+    transform="rotate(0, 154.32563586476738, 481.912976441404)translate(137.3336358647674, 475.56797644140397)"
   >
     <title>`H10`.labelText</title>
     <svg
@@ -1298,7 +2571,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 367.7283294746564, 66.68036402906617)translate(356.3613294746564, 60.14636402906617)"
+    transform="rotate(0, 294.0060081937148, 275.5850148218608)translate(282.6390081937148, 269.0510148218608)"
   >
     <title>`O1`.labelText</title>
     <svg
@@ -1329,7 +2602,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 552.4134789159873, 123.9100799495281)translate(541.0734789159873, 117.36707994952809)"
+    transform="rotate(0, 229.60270617346595, 101.06602740604805)translate(218.26270617346594, 94.52302740604804)"
   >
     <title>`C1`.labelText</title>
     <svg
@@ -1359,101 +2632,13 @@
       </g>
     </svg>
   </g>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="277.48857644384384"
-    cy="194.526161484955"
-    stroke="#808080"
-    stroke-opacity="1"
-    stroke-width="3"
-    r="18.75"
-  >
-    <title>`H4`.icon</title>
-  </circle>
   <g>
     <line
-      x1="260.40311575328667"
-      y1="234.53581481498753"
-      x2="272.5795268292657"
-      y2="206.02186398993646"
-      stroke="#1ab399"
-      stroke-opacity="1"
-      stroke-width="10"
-      stroke-linecap="round"
-    />
-    <title>15:9:line</title>
-  </g>
-  <g>
-    <line
-      x1="260.40311575328667"
-      y1="234.53581481498753"
-      x2="272.5795268292657"
-      y2="206.02186398993646"
-      stroke="#ffffff"
-      stroke-opacity="1"
-      stroke-width="4"
-      stroke-linecap="round"
-    />
-    <title>15:9:innerLine</title>
-  </g>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="200.3690182623274"
-    cy="234.87119781149002"
-    stroke="#808080"
-    stroke-opacity="1"
-    stroke-width="3"
-    r="18.75"
-  >
-    <title>`H3`.icon</title>
-  </circle>
-  <g>
-    <line
-      x1="243.24262712913367"
-      y1="243.55115713793128"
-      x2="212.62045727190227"
-      y2="237.35155799352776"
-      stroke="#1ab399"
-      stroke-opacity="1"
-      stroke-width="10"
-      stroke-linecap="round"
-    />
-    <title>15:10:line</title>
-  </g>
-  <g>
-    <line
-      x1="243.24262712913367"
-      y1="243.55115713793128"
-      x2="212.62045727190227"
-      y2="237.35155799352776"
-      stroke="#ffffff"
-      stroke-opacity="1"
-      stroke-width="4"
-      stroke-linecap="round"
-    />
-    <title>15:10:innerLine</title>
-  </g>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="255.49406613870855"
-    cy="246.031517319969"
-    stroke="#000000"
-    stroke-opacity="1"
-    stroke-width="3"
-    r="25"
-  >
-    <title>`C7`.icon</title>
-  </circle>
-  <g>
-    <line
-      x1="225.4731971859524"
-      y1="315.28363451382097"
-      x2="250.52235389393874"
-      y2="257.5002592664708"
-      stroke="#1ab399"
+      x1="583.8157972201163"
+      y1="310.278967045968"
+      x2="547.1870190653024"
+      y2="260.1122730439746"
+      stroke="#808080"
       stroke-opacity="1"
       stroke-width="10"
       stroke-linecap="round"
@@ -1462,11 +2647,11 @@
   </g>
   <g>
     <line
-      x1="225.4731971859524"
-      y1="315.28363451382097"
-      x2="250.52235389393874"
-      y2="257.5002592664708"
-      stroke="#ffffff"
+      x1="583.8157972201163"
+      y1="310.278967045968"
+      x2="547.1870190653024"
+      y2="260.1122730439746"
+      stroke="#e6e6e6"
       stroke-opacity="1"
       stroke-width="4"
       stroke-linecap="round"
@@ -1474,10 +2659,10 @@
     <title>15:11:innerLine</title>
   </g>
   <circle
-    fill="#ffffff"
+    fill="#cccccc"
     fill-opacity="1"
-    cx="220.50148494118258"
-    cy="326.7523764603227"
+    cx="591.1868711019346"
+    cy="320.3743736230684"
     stroke="#808080"
     stroke-opacity="1"
     stroke-width="3"
@@ -1486,7 +2671,7 @@
     <title>`H2`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 220.50148494118258, 326.7523764603227)translate(208.0094849411826, 320.6053764603227)"
+    transform="rotate(0, 591.1868711019346, 320.3743736230684)translate(578.6948711019346, 314.2273736230684)"
   >
     <title>`H2`.labelText</title>
     <svg
@@ -1516,46 +2701,8 @@
       </g>
     </svg>
   </g>
-  <g>
-    <line
-      x1="480.9378468318945"
-      y1="351.3056116325308"
-      x2="492.38833397336816"
-      y2="278.8811038373903"
-      stroke="#1ab399"
-      stroke-opacity="1"
-      stroke-width="10"
-      stroke-linecap="round"
-    />
-    <title>15:15:line</title>
-  </g>
-  <g>
-    <line
-      x1="480.9378468318945"
-      y1="351.3056116325308"
-      x2="492.38833397336816"
-      y2="278.8811038373903"
-      stroke="#ffffff"
-      stroke-opacity="1"
-      stroke-width="4"
-      stroke-linecap="round"
-    />
-    <title>15:15:innerLine</title>
-  </g>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="478.9858135517193"
-    cy="363.6522522400178"
-    stroke="#0000ff"
-    stroke-opacity="1"
-    stroke-width="3"
-    r="25"
-  >
-    <title>`N4`.icon</title>
-  </circle>
   <g
-    transform="rotate(0, 478.9858135517193, 363.6522522400178)translate(466.49381355171926, 357.5052522400178)"
+    transform="rotate(0, 388.948058409667, 418.88692518088334)translate(376.456058409667, 412.73992518088335)"
   >
     <title>`N4`.labelText</title>
     <svg
@@ -1586,7 +2733,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 409.8385618664778, 138.64322395689857)translate(398.4985618664778, 132.10022395689856)"
+    transform="rotate(0, 340.47588445958525, 214.05517063603497)translate(329.13588445958527, 207.51217063603497)"
   >
     <title>`C4`.labelText</title>
     <svg
@@ -1617,7 +2764,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 200.3690182623274, 234.87119781149002)translate(187.8770182623274, 228.52619781149002)"
+    transform="rotate(0, 501.3054599504155, 209.32228209001346)translate(488.8134599504155, 202.97728209001346)"
   >
     <title>`H3`.labelText</title>
     <svg
@@ -1648,7 +2795,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 255.49406613870855, 246.031517319969)translate(244.15406613870854, 239.488517319969)"
+    transform="rotate(0, 539.8159451834841, 250.01686646687423)translate(528.4759451834841, 243.47386646687423)"
   >
     <title>`C7`.labelText</title>
     <svg
@@ -1679,7 +2826,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 581.4664096487336, 171.99943544491484)translate(568.9744096487336, 165.65443544491484)"
+    transform="rotate(0, 285.6814683172073, 96.34651678936837)translate(273.1894683172073, 90.00151678936837)"
   >
     <title>`H5`.labelText</title>
     <svg
@@ -1710,7 +2857,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 596.3804001697208, 87.92880740463156)translate(583.8884001697209, 81.58380740463156)"
+    transform="rotate(0, 178.21709816677108, 123.99440174084859)translate(165.7250981667711, 117.64940174084859)"
   >
     <title>`H6`.labelText</title>
     <svg
@@ -1740,188 +2887,8 @@
       </g>
     </svg>
   </g>
-  <g>
-    <line
-      x1="332.58577786590473"
-      y1="272.26856253974944"
-      x2="267.3275137335904"
-      y2="250.05885946475746"
-      stroke="#1ab399"
-      stroke-opacity="1"
-      stroke-width="10"
-      stroke-linecap="round"
-    />
-    <title>15:12:line</title>
-  </g>
-  <g>
-    <line
-      x1="332.58577786590473"
-      y1="272.26856253974944"
-      x2="267.3275137335904"
-      y2="250.05885946475746"
-      stroke="#ffffff"
-      stroke-opacity="1"
-      stroke-width="4"
-      stroke-linecap="round"
-    />
-    <title>15:12:innerLine</title>
-  </g>
-  <g>
-    <line
-      x1="353.6532220468434"
-      y1="267.87074775610904"
-      x2="396.28889756942476"
-      y2="228.9696875618994"
-      stroke="#1ab399"
-      stroke-opacity="1"
-      stroke-width="10"
-      stroke-linecap="round"
-    />
-    <title>15:13:line</title>
-  </g>
-  <g>
-    <line
-      x1="353.6532220468434"
-      y1="267.87074775610904"
-      x2="396.28889756942476"
-      y2="228.9696875618994"
-      stroke="#ffffff"
-      stroke-opacity="1"
-      stroke-width="4"
-      stroke-linecap="round"
-    />
-    <title>15:13:innerLine</title>
-  </g>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="344.4192254607866"
-    cy="276.2959046845379"
-    stroke="#0000ff"
-    stroke-opacity="1"
-    stroke-width="3"
-    r="25"
-  >
-    <title>`N3`.icon</title>
-  </circle>
-  <g>
-    <line
-      x1="393.6004254089925"
-      y1="366.2848632350313"
-      x2="350.4139222945858"
-      y2="287.26465952312753"
-      stroke="#1ab399"
-      stroke-opacity="1"
-      stroke-width="10"
-      stroke-linecap="round"
-    />
-    <title>15:14:line</title>
-  </g>
-  <g>
-    <line
-      x1="393.6004254089925"
-      y1="366.2848632350313"
-      x2="350.4139222945858"
-      y2="287.26465952312753"
-      stroke="#ffffff"
-      stroke-opacity="1"
-      stroke-width="4"
-      stroke-linecap="round"
-    />
-    <title>15:14:innerLine</title>
-  </g>
-  <g>
-    <line
-      x1="398.53501011862943"
-      y1="389.7085811930701"
-      x2="395.92067779677313"
-      y2="420.4236460513593"
-      stroke="#1ab399"
-      stroke-opacity="1"
-      stroke-width="10"
-      stroke-linecap="round"
-    />
-    <title>15:16:line</title>
-  </g>
-  <g>
-    <line
-      x1="398.53501011862943"
-      y1="389.7085811930701"
-      x2="395.92067779677313"
-      y2="420.4236460513593"
-      stroke="#ffffff"
-      stroke-opacity="1"
-      stroke-width="4"
-      stroke-linecap="round"
-    />
-    <title>15:16:innerLine</title>
-  </g>
-  <g>
-    <line
-      x1="410.8602321763116"
-      y1="368.98259941269333"
-      x2="465.60993266286516"
-      y2="359.60277548975847"
-      stroke="#1ab399"
-      stroke-opacity="1"
-      stroke-width="10"
-      stroke-linecap="round"
-    />
-    <title>16:3:line1</title>
-  </g>
-  <g>
-    <line
-      x1="410.8602321763116"
-      y1="368.98259941269333"
-      x2="465.60993266286516"
-      y2="359.60277548975847"
-      stroke="#ffffff"
-      stroke-opacity="1"
-      stroke-width="4"
-      stroke-linecap="round"
-    />
-    <title>16:3:innerLine1</title>
-  </g>
-  <g>
-    <line
-      x1="412.9710031316458"
-      y1="381.3030948238803"
-      x2="467.7207036181993"
-      y2="371.92327090094545"
-      stroke="#1ab399"
-      stroke-opacity="1"
-      stroke-width="10"
-      stroke-linecap="round"
-    />
-    <title>16:3:line2</title>
-  </g>
-  <g>
-    <line
-      x1="412.9710031316458"
-      y1="381.3030948238803"
-      x2="467.7207036181993"
-      y2="371.92327090094545"
-      stroke="#ffffff"
-      stroke-opacity="1"
-      stroke-width="4"
-      stroke-linecap="round"
-    />
-    <title>16:3:innerLine2</title>
-  </g>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="399.5951222427917"
-    cy="377.25361807362094"
-    stroke="#000000"
-    stroke-opacity="1"
-    stroke-width="3"
-    r="25"
-  >
-    <title>`C8`.icon</title>
-  </circle>
   <g
-    transform="rotate(0, 399.5951222427917, 377.25361807362094)translate(388.25512224279174, 370.71061807362094)"
+    transform="rotate(0, 469.9403092828063, 395.54712102380773)translate(458.60030928280634, 389.0041210238077)"
   >
     <title>`C8`.labelText</title>
     <svg
@@ -1952,7 +2919,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 494.3403672535434, 266.53446322990334)translate(483.0003672535434, 259.99146322990333)"
+    transform="rotate(0, 328.3951011754575, 361.147681527093)translate(317.05510117545754, 354.604681527093)"
   >
     <title>`C6`.labelText</title>
     <svg
@@ -1983,7 +2950,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 277.48857644384384, 194.526161484955)translate(264.9965764438438, 188.379161484955)"
+    transform="rotate(0, 589.3119432353145, 223.48135591567103)translate(576.8199432353146, 217.33435591567104)"
   >
     <title>`H4`.labelText</title>
     <svg
@@ -2014,7 +2981,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 431.8131216724836, 295.7398705625874)translate(420.4731216724836, 289.1968705625874)"
+    transform="rotate(0, 202.88346837813495, 269.80363357650765)translate(191.54346837813495, 263.26063357650764)"
   >
     <title>`C2`.labelText</title>
     <svg
@@ -2045,7 +3012,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 344.4192254607866, 276.2959046845379)translate(331.9272254607866, 269.9509046845379)"
+    transform="rotate(0, 471.0470728412074, 309.08992150609515)translate(458.5550728412074, 302.7449215060951)"
   >
     <title>`N3`.labelText</title>
     <svg
@@ -2076,7 +3043,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 681.6074685415552, 383.4523768426912)translate(669.1154685415553, 377.10737684269117)"
+    transform="rotate(0, 236.8980695844801, 457.420191947804)translate(224.40606958448012, 451.075191947804)"
   >
     <title>`H9`.labelText</title>
     <svg
@@ -2107,7 +3074,49 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 629.902441447487, 360.1030004608866)translate(618.562441447487, 353.5600004608866)"
+    transform="rotate(0, 591.1868711019346, 320.3743736230684)translate(573.1868711019346, 302.3743736230684)"
+  >
+    <!--?xml version="1.0" encoding="UTF-8"?--><svg
+      id="caffeine__uuid-61c4681b-4632-4ad3-a199-4a7aac9b6e61--inject-39"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      width="36"
+      height="36"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 221.800003051757812 221.800003051757812"
+      preserveAspectRatio=""
+    >
+      <defs>
+        <radialGradient
+          id="caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-39"
+          cx="75.43280029296875"
+          cy="928.985107421875"
+          fx="75.43280029296875"
+          fy="928.985107421875"
+          r="157.934097290039062"
+          gradientTransform="translate(0 -858)"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stop-color="#fff" />
+          <stop offset=".784400024414063" stop-color="#5f5f5f" />
+          <stop offset="1" stop-color="#7f7f7f" />
+        </radialGradient>
+      </defs>
+      <circle
+        cx="110.900001525878906"
+        cy="110.900001525878906"
+        r="110.900001525878906"
+        style="
+          fill: url(#caffeine__uuid-edffd131-03eb-43e5-abfb-64430e9c2b27--inject-39);
+          isolation: isolate;
+          opacity: 0.600000023841858;
+        "
+      />
+    </svg>
+    <title>`H2`.shading</title>
+  </g>
+  <g
+    transform="rotate(0, 185.51312261978154, 434.52508467883456)translate(174.17312261978154, 427.98208467883455)"
   >
     <title>`C3`.labelText</title>
     <svg
@@ -2138,7 +3147,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 405.52289415548154, 220.54453063347057)translate(394.18289415548156, 214.00153063347057)"
+    transform="rotate(0, 386.17482375317826, 291.6420331028386)translate(374.8348237531783, 285.0990331028386)"
   >
     <title>`C5`.labelText</title>
     <svg

@@ -35,7 +35,7 @@
       >
         <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
           version="1.1"
-          id="walk-on-stars__Layer_1--inject-16"
+          id="walk-on-stars__Layer_1--inject-40"
           xmlns="http://www.w3.org/2000/svg"
           xmlns:xlink="http://www.w3.org/1999/xlink"
           x="0px"
@@ -50,12 +50,12 @@
           <style type="text/css">
             .walk-on-stars__st0 {
               opacity: 0.6;
-              fill: url(#walk-on-stars__SVGID_1_--inject-16);
+              fill: url(#walk-on-stars__SVGID_1_--inject-40);
               enable-background: new;
             }
           </style>
           <radialGradient
-            id="walk-on-stars__SVGID_1_--inject-16"
+            id="walk-on-stars__SVGID_1_--inject-40"
             cx="75.4328"
             cy="151.0149"
             r="157.9341"
@@ -105,7 +105,7 @@
       >
         <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
           version="1.1"
-          id="walk-on-stars__Layer_1--inject-17"
+          id="walk-on-stars__Layer_1--inject-41"
           xmlns="http://www.w3.org/2000/svg"
           xmlns:xlink="http://www.w3.org/1999/xlink"
           x="0px"
@@ -120,12 +120,12 @@
           <style type="text/css">
             .walk-on-stars__st0 {
               opacity: 0.6;
-              fill: url(#walk-on-stars__SVGID_1_--inject-17);
+              fill: url(#walk-on-stars__SVGID_1_--inject-41);
               enable-background: new;
             }
           </style>
           <radialGradient
-            id="walk-on-stars__SVGID_1_--inject-17"
+            id="walk-on-stars__SVGID_1_--inject-41"
             cx="75.4328"
             cy="151.0149"
             r="157.9341"
@@ -175,7 +175,7 @@
       >
         <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
           version="1.1"
-          id="walk-on-stars__Layer_1--inject-18"
+          id="walk-on-stars__Layer_1--inject-42"
           xmlns="http://www.w3.org/2000/svg"
           xmlns:xlink="http://www.w3.org/1999/xlink"
           x="0px"
@@ -190,12 +190,12 @@
           <style type="text/css">
             .walk-on-stars__st0 {
               opacity: 0.6;
-              fill: url(#walk-on-stars__SVGID_1_--inject-18);
+              fill: url(#walk-on-stars__SVGID_1_--inject-42);
               enable-background: new;
             }
           </style>
           <radialGradient
-            id="walk-on-stars__SVGID_1_--inject-18"
+            id="walk-on-stars__SVGID_1_--inject-42"
             cx="75.4328"
             cy="151.0149"
             r="157.9341"
@@ -258,7 +258,7 @@
       >
         <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
           version="1.1"
-          id="walk-on-stars__Layer_1--inject-19"
+          id="walk-on-stars__Layer_1--inject-43"
           xmlns="http://www.w3.org/2000/svg"
           xmlns:xlink="http://www.w3.org/1999/xlink"
           x="0px"
@@ -273,12 +273,12 @@
           <style type="text/css">
             .walk-on-stars__st0 {
               opacity: 0.6;
-              fill: url(#walk-on-stars__SVGID_1_--inject-19);
+              fill: url(#walk-on-stars__SVGID_1_--inject-43);
               enable-background: new;
             }
           </style>
           <radialGradient
-            id="walk-on-stars__SVGID_1_--inject-19"
+            id="walk-on-stars__SVGID_1_--inject-43"
             cx="75.4328"
             cy="151.0149"
             r="157.9341"
@@ -385,6 +385,7 @@
       stroke-linecap="butt"
       transform="scale(1)"
       points="185.57084578716018,185.3804342794105,100.20003883130995,169.30055254422206,22.15557373539677,172.75415644717668"
+      style="dashed"
     >
       <title>`U`.poly1</title>
     </polyline>
@@ -397,6 +398,7 @@
       stroke-linecap="butt"
       transform="scale(1)"
       points="15.782304296410501,6.792924137209937,112.07081042342449,18.735188942762846,180.16936399520444,5.408675063490932"
+      style="dashed"
     >
       <title>`U`.poly3</title>
     </polyline>

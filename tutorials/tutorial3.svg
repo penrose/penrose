@@ -22,7 +22,7 @@
   >
     <title>`U`.background</title>
   </rect>
-  <g>
+  <g style="solid">
     <marker
       id="tutorial3__registry--`U`.xAxis-startArrowId"
       markerUnits="strokeWidth"
@@ -68,7 +68,7 @@
     />
     <title>`U`.xAxis</title>
   </g>
-  <g>
+  <g style="solid">
     <marker
       id="tutorial3__registry--`U`.yAxis-startArrowId"
       markerUnits="strokeWidth"

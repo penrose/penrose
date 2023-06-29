@@ -183,7 +183,7 @@
   >
     <title>`M`.box</title>
   </rect>
-  <g fill="none">
+  <g fill="none" style="dashed">
     <line
       x1="303.17073184005096"
       y1="409.17719113157665"
@@ -270,7 +270,7 @@
     />
     <title>`rR`.icon</title>
   </g>
-  <g fill="none">
+  <g style="dashed" fill="none">
     <line
       x1="503.1921802306599"
       y1="126.29931618329138"
@@ -321,7 +321,7 @@
   >
     <title>`P`.icon</title>
   </polygon>
-  <g fill="none">
+  <g fill="none" style="dashed">
     <line
       x1="584.4075360372126"
       y1="398.04806514572107"
@@ -386,7 +386,7 @@
   >
     <title>`C`.icon</title>
   </circle>
-  <g fill="none">
+  <g fill="none" style="dashed">
     <line
       x1="140.0916856431537"
       y1="398.00101860113756"
@@ -439,7 +439,7 @@
   >
     <title>`E`.icon</title>
   </ellipse>
-  <g fill="none">
+  <g style="dashed" fill="none">
     <line
       x1="556.4263805256883"
       y1="299.0405569211371"
@@ -534,7 +534,7 @@
   >
     <title>`M`.icon</title>
   </polyline>
-  <g fill="none">
+  <g style="dashed" fill="none">
     <line
       x1="243.56499990987146"
       y1="304.58228346392417"

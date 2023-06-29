@@ -18,7 +18,7 @@
   >
     <title>global.background</title>
   </rect>
-  <g>
+  <g style="solid">
     <line
       x1="304.3121905662303"
       y1="176.04019791347974"
@@ -30,7 +30,7 @@
     />
     <title>`PML`.side1</title>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="304.3121905662303"
       y1="176.04019791347974"
@@ -42,7 +42,7 @@
     />
     <title>`PLM`.PQ</title>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="258.94829105033915"
       y1="110.14705754966172"
@@ -66,7 +66,7 @@
   >
     <title>`P`.icon</title>
   </circle>
-  <g>
+  <g style="solid">
     <line
       x1="258.94829105033915"
       y1="110.14705754966172"
@@ -78,7 +78,7 @@
     />
     <title>`PML`.side2</title>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="360.6436716990417"
       y1="40.13523348101836"
@@ -114,7 +114,7 @@
   >
     <title>`JKL`.incenterIcon</title>
   </circle>
-  <g>
+  <g style="solid">
     <line
       x1="182.09313127623076"
       y1="169.37462830138946"
@@ -126,7 +126,7 @@
     />
     <title>`JKL`.QR</title>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="360.6436716990417"
       y1="40.13523348101836"
@@ -138,7 +138,7 @@
     />
     <title>`JKL`.RP</title>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="182.09313127623076"
       y1="169.37462830138946"
@@ -286,7 +286,7 @@
       </g>
     </svg>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="414.9397484343548"
       y1="380.07325474741134"

@@ -7,7 +7,7 @@
   <penrose><croppedViewBox>0 0 800 700</croppedViewBox></penrose>
   <g transform="rotate(0, 400, 350)translate(0, 0)" opacity="0.6">
     <!--?xml version="1.0" encoding="UTF-8"?--><svg
-      id="mobius__uuid-6d98e446-f872-4ccb-b987-47081e6968f7--inject-20"
+      id="mobius__uuid-6d98e446-f872-4ccb-b987-47081e6968f7--inject-44"
       data-name="Layer 1"
       xmlns="http://www.w3.org/2000/svg"
       width="800"
@@ -18,7 +18,7 @@
     >
       <defs>
         <linearGradient
-          id="mobius__uuid-403fa7fb-1c6a-467c-b68f-bcc65b719694--inject-20"
+          id="mobius__uuid-403fa7fb-1c6a-467c-b68f-bcc65b719694--inject-44"
           x1=".000000013469617"
           y1="49.999999993266101"
           x2="99.999999999999091"
@@ -45,7 +45,7 @@
         height="100.000000000000909"
         transform="translate(99.999999993266101 -.000000006734808) rotate(90)"
         style="
-          fill: url(#mobius__uuid-403fa7fb-1c6a-467c-b68f-bcc65b719694--inject-20);
+          fill: url(#mobius__uuid-403fa7fb-1c6a-467c-b68f-bcc65b719694--inject-44);
         "
       />
     </svg>
@@ -69,7 +69,7 @@
     opacity="0.5"
   >
     <!--?xml version="1.0" encoding="UTF-8"?--><svg
-      id="mobius__uuid-8f417527-4a34-4660-89a9-6726a90799cf--inject-21"
+      id="mobius__uuid-8f417527-4a34-4660-89a9-6726a90799cf--inject-45"
       data-name="Layer 1"
       xmlns="http://www.w3.org/2000/svg"
       width="699.9672101768813"
@@ -80,7 +80,7 @@
     >
       <defs>
         <radialGradient
-          id="mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-21"
+          id="mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-45"
           cx="50.021585103309917"
           cy="50.021582733812465"
           fx="50.021585103309917"
@@ -106,7 +106,7 @@
         cy="50.021583918562101"
         r="50.021583326186281"
         style="
-          fill: url(#mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-21);
+          fill: url(#mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-45);
         "
       />
     </svg>
@@ -127,7 +127,7 @@
     opacity="0.5"
   >
     <!--?xml version="1.0" encoding="UTF-8"?--><svg
-      id="mobius__uuid-8f417527-4a34-4660-89a9-6726a90799cf--inject-22"
+      id="mobius__uuid-8f417527-4a34-4660-89a9-6726a90799cf--inject-46"
       data-name="Layer 1"
       xmlns="http://www.w3.org/2000/svg"
       width="114.20734889829004"
@@ -138,7 +138,7 @@
     >
       <defs>
         <radialGradient
-          id="mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-22"
+          id="mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-46"
           cx="50.021585103309917"
           cy="50.021582733812465"
           fx="50.021585103309917"
@@ -164,7 +164,7 @@
         cy="50.021583918562101"
         r="50.021583326186281"
         style="
-          fill: url(#mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-22);
+          fill: url(#mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-46);
         "
       />
     </svg>
@@ -185,7 +185,7 @@
     opacity="0.5"
   >
     <!--?xml version="1.0" encoding="UTF-8"?--><svg
-      id="mobius__uuid-8f417527-4a34-4660-89a9-6726a90799cf--inject-23"
+      id="mobius__uuid-8f417527-4a34-4660-89a9-6726a90799cf--inject-47"
       data-name="Layer 1"
       xmlns="http://www.w3.org/2000/svg"
       width="326.31710825445157"
@@ -196,7 +196,7 @@
     >
       <defs>
         <radialGradient
-          id="mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-23"
+          id="mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-47"
           cx="50.021585103309917"
           cy="50.021582733812465"
           fx="50.021585103309917"
@@ -222,7 +222,7 @@
         cy="50.021583918562101"
         r="50.021583326186281"
         style="
-          fill: url(#mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-23);
+          fill: url(#mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-47);
         "
       />
     </svg>
@@ -243,7 +243,7 @@
     opacity="0.5"
   >
     <!--?xml version="1.0" encoding="UTF-8"?--><svg
-      id="mobius__uuid-8f417527-4a34-4660-89a9-6726a90799cf--inject-24"
+      id="mobius__uuid-8f417527-4a34-4660-89a9-6726a90799cf--inject-48"
       data-name="Layer 1"
       xmlns="http://www.w3.org/2000/svg"
       width="60.61073709980047"
@@ -254,7 +254,7 @@
     >
       <defs>
         <radialGradient
-          id="mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-24"
+          id="mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-48"
           cx="50.021585103309917"
           cy="50.021582733812465"
           fx="50.021585103309917"
@@ -280,7 +280,7 @@
         cy="50.021583918562101"
         r="50.021583326186281"
         style="
-          fill: url(#mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-24);
+          fill: url(#mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-48);
         "
       />
     </svg>
@@ -301,7 +301,7 @@
     opacity="0.5"
   >
     <!--?xml version="1.0" encoding="UTF-8"?--><svg
-      id="mobius__uuid-8f417527-4a34-4660-89a9-6726a90799cf--inject-25"
+      id="mobius__uuid-8f417527-4a34-4660-89a9-6726a90799cf--inject-49"
       data-name="Layer 1"
       xmlns="http://www.w3.org/2000/svg"
       width="140.04943313547577"
@@ -312,7 +312,7 @@
     >
       <defs>
         <radialGradient
-          id="mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-25"
+          id="mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-49"
           cx="50.021585103309917"
           cy="50.021582733812465"
           fx="50.021585103309917"
@@ -338,7 +338,7 @@
         cy="50.021583918562101"
         r="50.021583326186281"
         style="
-          fill: url(#mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-25);
+          fill: url(#mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-49);
         "
       />
     </svg>
@@ -359,7 +359,7 @@
     opacity="0.5"
   >
     <!--?xml version="1.0" encoding="UTF-8"?--><svg
-      id="mobius__uuid-8f417527-4a34-4660-89a9-6726a90799cf--inject-26"
+      id="mobius__uuid-8f417527-4a34-4660-89a9-6726a90799cf--inject-50"
       data-name="Layer 1"
       xmlns="http://www.w3.org/2000/svg"
       width="69.0715431579666"
@@ -370,7 +370,7 @@
     >
       <defs>
         <radialGradient
-          id="mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-26"
+          id="mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-50"
           cx="50.021585103309917"
           cy="50.021582733812465"
           fx="50.021585103309917"
@@ -396,7 +396,7 @@
         cy="50.021583918562101"
         r="50.021583326186281"
         style="
-          fill: url(#mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-26);
+          fill: url(#mobius__uuid-1af6088e-3e62-408d-8b94-f64946df4939--inject-50);
         "
       />
     </svg>

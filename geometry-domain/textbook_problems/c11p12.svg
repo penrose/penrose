@@ -235,7 +235,7 @@
       </g>
     </svg>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="256.7257508187804"
       y1="239.9182422195806"
@@ -337,7 +337,7 @@
   >
     <title>`F`.icon</title>
   </circle>
-  <g>
+  <g style="solid">
     <line
       x1="256.7257508187804"
       y1="239.9182422195806"
@@ -361,7 +361,7 @@
   >
     <title>`C`.icon</title>
   </circle>
-  <g>
+  <g style="solid">
     <line
       x1="256.7257508187804"
       y1="239.9182422195806"
@@ -385,7 +385,7 @@
   >
     <title>`B`.icon</title>
   </circle>
-  <g>
+  <g style="solid">
     <line
       x1="480.75319887068656"
       y1="323.25992160513215"
@@ -421,7 +421,7 @@
   >
     <title>`d`.icon</title>
   </circle>
-  <g>
+  <g style="solid">
     <line
       x1="32.69844902862269"
       y1="156.5761698188649"
@@ -462,7 +462,7 @@
     />
     <title>`Fb`.mark</title>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="256.7257508187804"
       y1="239.9182422195806"
@@ -474,7 +474,7 @@
     />
     <title>`Fb`.icon</title>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="32.69844902862269"
       y1="156.5761698188649"
@@ -515,7 +515,7 @@
     />
     <title>`Fd`.mark</title>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="256.7257508187804"
       y1="239.9182422195806"

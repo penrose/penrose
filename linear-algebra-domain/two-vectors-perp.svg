@@ -79,7 +79,7 @@
     />
     <title>`u`.arrow</title>
   </g>
-  <g>
+  <g style="solid">
     <marker
       id="two-vectors-perp__registry--`V`.xAxis-startArrowId"
       markerUnits="strokeWidth"
@@ -125,7 +125,7 @@
     />
     <title>`V`.xAxis</title>
   </g>
-  <g>
+  <g style="solid">
     <marker
       id="two-vectors-perp__registry--`V`.yAxis-startArrowId"
       markerUnits="strokeWidth"

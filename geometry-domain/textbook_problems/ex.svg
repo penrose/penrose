@@ -9,7 +9,7 @@
       26.29742840596532 24.769364142961876 452.3639469749684 406.64543390782814
     </croppedViewBox>
   </penrose>
-  <g>
+  <g style="solid">
     <line
       x1="319.2165058865047"
       y1="312.3260310804311"
@@ -21,7 +21,7 @@
     />
     <title>`aTUS`.side1</title>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="438.6613739492831"
       y1="64.76936511747917"
@@ -33,7 +33,7 @@
     />
     <title>`ST`.icon</title>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="438.6613739492831"
       y1="64.76936511747917"
@@ -45,7 +45,7 @@
     />
     <title>`aUST`.side2</title>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="164.54854036738084"
       y1="85.10533767915754"
@@ -57,7 +57,7 @@
     />
     <title>`UT`.icon</title>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="164.54854036738084"
       y1="85.10533767915754"
@@ -69,7 +69,7 @@
     />
     <title>`UTS`.PQ</title>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="319.2165058865047"
       y1="312.3260310804311"
@@ -81,7 +81,7 @@
     />
     <title>`UTS`.QR</title>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="164.54854036738084"
       y1="85.10533767915754"
@@ -93,7 +93,7 @@
     />
     <title>`aUTS`.side1</title>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="319.2165058865047"
       y1="312.3260310804311"
@@ -117,7 +117,7 @@
   >
     <title>`T`.icon</title>
   </circle>
-  <g>
+  <g style="solid">
     <line
       x1="164.54854036738084"
       y1="85.10533767915754"
@@ -129,7 +129,7 @@
     />
     <title>`aTUS`.side2</title>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="164.54854036738084"
       y1="85.10533767915754"
@@ -141,7 +141,7 @@
     />
     <title>`aUST`.side1</title>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="438.6613739492831"
       y1="64.76936511747917"
@@ -153,7 +153,7 @@
     />
     <title>`UTS`.RP</title>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="164.54854036738084"
       y1="85.10533767915754"
@@ -189,7 +189,7 @@
   >
     <title>`S`.icon</title>
   </circle>
-  <g>
+  <g style="solid">
     <line
       x1="307.80526915659163"
       y1="118.16079674015518"
@@ -201,7 +201,7 @@
     />
     <title>`aXYZ`.side1</title>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="278.07954692750303"
       y1="391.41479646611305"
@@ -213,7 +213,7 @@
     />
     <title>`aZXY`.side1</title>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="307.80526915659163"
       y1="118.16079674015518"
@@ -225,7 +225,7 @@
     />
     <title>`aZXY`.side2</title>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="307.80526915659163"
       y1="118.16079674015518"
@@ -237,7 +237,7 @@
     />
     <title>`XY`.icon</title>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="307.80526915659163"
       y1="118.16079674015518"
@@ -249,7 +249,7 @@
     />
     <title>`XYZ`.PQ</title>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="278.07954692750303"
       y1="391.41479646611305"
@@ -261,7 +261,7 @@
     />
     <title>`XYZ`.RP</title>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="307.80526915659163"
       y1="118.16079674015518"
@@ -273,7 +273,7 @@
     />
     <title>`XZ`.icon</title>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="278.07954692750303"
       y1="391.41479646611305"
@@ -297,7 +297,7 @@
   >
     <title>`X`.icon</title>
   </circle>
-  <g>
+  <g style="solid">
     <line
       x1="56.29742965886024"
       y1="229.04448388967717"
@@ -309,7 +309,7 @@
     />
     <title>`aXYZ`.side2</title>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="56.29742965886024"
       y1="229.04448388967717"
@@ -321,7 +321,7 @@
     />
     <title>`XYZ`.QR</title>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="278.07954692750303"
       y1="391.41479646611305"
@@ -333,7 +333,7 @@
     />
     <title>`ZY`.icon</title>
   </g>
-  <g>
+  <g style="solid">
     <line
       x1="56.29742965886024"
       y1="229.04448388967717"

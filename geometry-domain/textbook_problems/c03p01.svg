@@ -9,7 +9,7 @@
       28.438973140784782 3.552134661522615 471.48813789891335 496.4129164486079
     </croppedViewBox>
   </penrose>
-  <g>
+  <g style="solid">
     <line
       x1="364.7849673834448"
       y1="61.60753674803999"
@@ -33,7 +33,7 @@
   >
     <title>`J`.icon</title>
   </circle>
-  <g>
+  <g style="solid">
     <line
       x1="60.9604074875964"
       y1="387.0996511013139"
@@ -224,7 +224,7 @@
       </g>
     </svg>
   </g>
-  <g>
+  <g style="solid">
     <marker
       id="c03p01__registry-LemongrassOyster4884-`KM`.icon-startArrowId"
       markerUnits="strokeWidth"
@@ -270,7 +270,7 @@
     />
     <title>`KM`.icon</title>
   </g>
-  <g>
+  <g style="solid">
     <marker
       id="c03p01__registry-LemongrassOyster4884-`JK`.icon-startArrowId"
       markerUnits="strokeWidth"
@@ -316,7 +316,7 @@
     />
     <title>`JK`.icon</title>
   </g>
-  <g>
+  <g style="solid">
     <marker
       id="c03p01__registry-LemongrassOyster4884-`NL`.icon-startArrowId"
       markerUnits="strokeWidth"

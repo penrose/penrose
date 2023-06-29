@@ -10,7 +10,7 @@
       936.2389096053638
     </croppedViewBox>
   </penrose>
-  <g>
+  <g style="dashed">
     <line
       x1="10"
       y1="265.92617934707187"
@@ -1253,7 +1253,7 @@
   >
     <title>`r4`.icon</title>
   </circle>
-  <g>
+  <g style="dashed">
     <line
       x1="10"
       y1="168.18092648274626"
@@ -2166,7 +2166,7 @@
   >
     <title>`r2`.icon</title>
   </circle>
-  <g>
+  <g style="dashed">
     <line
       x1="10"
       y1="406.45989051831225"
@@ -3079,7 +3079,7 @@
   >
     <title>`r5`.icon</title>
   </circle>
-  <g>
+  <g style="dashed">
     <line
       x1="10"
       y1="460.3907715278167"
@@ -3992,7 +3992,7 @@
   >
     <title>`r3`.icon</title>
   </circle>
-  <g>
+  <g style="dashed">
     <line
       x1="10"
       y1="111.3859418487128"
