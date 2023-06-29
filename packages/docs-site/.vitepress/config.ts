@@ -290,16 +290,16 @@ export default defineConfig({
           text: "June 2023",
           items: [
             {
-              text: "What Have We Done to the Languages?",
-              link: "/blog/2023/06/13/new-language-features",
-            },
-            {
-              text: "Porting the Penrose Optimizer from TypeScript to Rust and WebAssembly for 10x Speedup",
-              link: "/blog/2023/06/13/wasm",
-            },
-            {
               text: "Diagram Layout in Stages",
-              link: "/blog/2023/06/13/staged-layout",
+              link: "/blog/2023/06/29/staged-layout",
+            },
+            {
+              text: "What Have We Done to the Languages?",
+              link: "/blog/2023/06/29/new-language-features",
+            },
+            {
+              text: "Switching to Wasm for 10x Speedup",
+              link: "/blog/2023/06/29/wasm",
             },
           ],
         },
