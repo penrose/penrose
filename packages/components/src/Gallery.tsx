@@ -23,15 +23,10 @@ const Container = styled.div`
   }
 `;
 
-const Example = ({
-  example,
-  ideLink,
-}: {
-  ideLink: string;
-  example: TrioWithPreview;
-}) => {
-  // determine whether to crop the SVG
-  const svgDoc = parser.parseFromString(example.preview!, "image/svg+xml");
+// crop the SVG if necessary, i.e. if the
+// cropped view box is smaller than the current view box
+const cropSVG = (svg: string) => {
+  const svgDoc = parser.parseFromString(svg, "image/svg+xml");
   const cropped = svgDoc.querySelector("croppedViewBox")?.innerHTML;
   const svgNode = svgDoc.querySelector("svg")!;
   const viewBox = svgNode.getAttribute("viewBox");
@@ -53,7 +48,18 @@ const Example = ({
       svgNode.setAttribute("viewBox", cropped);
     }
   }
-  const croppedPreview = serializer.serializeToString(svgNode);
+
+  return serializer.serializeToString(svgNode);
+};
+
+const Example = ({
+  example,
+  ideLink,
+}: {
+  ideLink: string;
+  example: TrioWithPreview;
+}) => {
+  const croppedPreview = cropSVG(example.preview!);
   return (
     <a href={`${ideLink}?examples=${example.id}`} target="_blank">
       <Container
@@ -76,32 +82,7 @@ export default ({ ideLink }: { ideLink: string }) => {
           );
           if (svg.ok) {
             const preview = await svg.text();
-
-            // determine whether to crop the SVG
-            const svgDoc = parser.parseFromString(preview, "image/svg+xml");
-            const cropped = svgDoc.querySelector("croppedViewBox")?.innerHTML;
-            const svgNode = svgDoc.querySelector("svg")!;
-            const viewBox = svgNode.getAttribute("viewBox");
-            if (cropped && viewBox) {
-              const viewBoxNums = svgNode.viewBox.baseVal;
-              const croppedNums = cropped.split(/\s+|,/);
-
-              const croppedWidth = parseFloat(croppedNums[3]);
-              const croppedHeight = parseFloat(croppedNums[4]);
-              const viewBoxWidth = viewBoxNums.width;
-              const viewBoxHeight = viewBoxNums.height;
-
-              // if area of cropped view box is leq area of current view box
-              // then set the view box to the cropped view box
-              if (
-                Math.abs(croppedWidth * croppedHeight) <
-                Math.abs(viewBoxWidth * viewBoxHeight)
-              ) {
-                svgNode.setAttribute("viewBox", cropped);
-              }
-            }
-            const croppedPreview = serializer.serializeToString(svgNode);
-
+            const croppedPreview = cropSVG(preview);
             const trio = { id, preview: croppedPreview };
             setExamples((ex) => [...ex, trio]);
           }
