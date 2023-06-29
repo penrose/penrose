@@ -3,7 +3,7 @@ layout: home
 hero:
   name: Penrose
   text: Create beautiful diagrams
-  tagline: just by typing math notation in plain text.
+  tagline: just by typing notation in plain text.
   actions:
     - theme: brand
       text: Examples

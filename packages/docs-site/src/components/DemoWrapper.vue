@@ -5,11 +5,6 @@ import treeVenn from "@penrose/examples/dist/set-theory-domain/tree-venn-3d.trio
 import hexagonal from "@penrose/examples/dist/spectral-graphs/examples/hexagonal-lattice.trio.js";
 import caffieine from "@penrose/examples/dist/structural-formula/molecules/caffeine.trio.js";
 
-import { useMediaQuery } from "@vueuse/core";
-
-const isVertical = useMediaQuery("(min-width: 960px)");
-const isMobile = useMediaQuery("(min-width: 640px)");
-
 const demo = [
   {
     sub: siggraphTeaser.substance,
@@ -36,7 +31,7 @@ const demo = [
     sty: caffieine.style.map(({ contents }) => contents).join("\n"),
     dsl: caffieine.domain,
     variation: caffieine.variation,
-    stepSize: 1,
+    stepSize: 5,
     imageResolver: caffieine.style[0].resolver,
   },
 ];
@@ -47,6 +42,27 @@ const Demo = defineAsyncComponent(async () => {
   return applyPureReactInVue(Demo);
 });
 </script>
+
+<style scoped>
+.demo-container {
+  width: 200px;
+  height: 200px;
+}
+
+@media (min-width: 640px) {
+  .demo-container {
+    width: 250px;
+    height: 250px;
+  }
+}
+
+@media (min-width: 960px) {
+  .demo-container {
+    width: 400px;
+    height: 400px;
+  }
+}
+</style>
 
 <template>
   <div
@@ -59,14 +75,7 @@ const Demo = defineAsyncComponent(async () => {
       height: 100%;
     "
   >
-    <!-- TODO: bad hardcoded width -->
-    <div
-      :style="`width: ${
-        isVertical.valueOf() ? 400 : isMobile.valueOf() ? 250 : 200
-      }px; height: ${
-        isVertical.valueOf() ? 400 : isMobile.valueOf() ? 250 : 200
-      }px;`"
-    >
+    <div class="demo-container">
       <Demo :examples="demo" />
     </div>
   </div>

@@ -299,7 +299,7 @@ where t has label
       string : t.label
       fillColor : Colors.black
       fontSize : "40px"
-      fontFamily: "Roboto Condensed, Impact, Franklin Gothic Bold, sans-serif"
+      fontFamily: "Roboto Condensed, Impact, Franklin Gothic Bold, Ubuntu Condensed, sans-serif"
       center : (?,?)
    }
    layer t.labelText above global.background
