@@ -24,10 +24,10 @@ forall Node n {
     scalar fillHue = global.colorOffset + 1.7 * norm(n.center)
     shape n.icon = Circle {
         center: n.center
-        r: 4 - 0.02 * norm(n.center)
+        r: 6 - 0.03 * norm(n.center)
         fillColor: hsva(fillHue, 100, 100, 1)
         strokeColor: colors.contour
-        strokeWidth: 1.75 - 0.005 * norm(n.center)
+        strokeWidth: 2.6 - 0.008 * norm(n.center)
         ensureOnCanvas: false
     }
     shape n.bloom = Circle {
@@ -56,7 +56,7 @@ where e := MakeEdge(a, b) {
     shape e.icon = Line {
         start: a.center
         end: b.center
-        strokeWidth: 50 / vdist(a.center, b.center)
+        strokeWidth: 75 / vdist(a.center, b.center)
         strokeColor: colors.contour
         ensureOnCanvas: false
     }
