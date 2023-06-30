@@ -98,7 +98,7 @@ const blob = {
 
 # Diagram Layout in Stages
 
-<BlogMeta github="wodeni" date="2023-06-13" />
+<BlogMeta github="wodeni" date="2023-06-30" />
 
 ## Layout optimization becomes complicated quickly
 

@@ -4,7 +4,7 @@ import BlogMeta from "../../../../src/components/BlogMeta.vue";
 
 # What Have We Done to the Languages?
 
-<BlogMeta github="liangyiliang" date="2023-06-13" />
+<BlogMeta github="liangyiliang" date="2023-06-30" />
 
 I joined the Penrose team in July 2022, and worked on of a few language-related improvements to Penrose that make Penrose more natural, flexible and expressive, from allowing Style programs to leverage symmetric properties of relations to letting users write more natural, mathematical expressions in constraints and objectives.
 
