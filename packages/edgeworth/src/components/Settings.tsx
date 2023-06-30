@@ -99,6 +99,7 @@ interface SettingState {
   style: string;
   prompt: string;
   llmInput: string;
+  llmRunning: boolean;
   currentTab: number;
   domainSelect: string;
   presetSelect: string;
@@ -174,6 +175,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
       style: this.props.defaultStyle,
       prompt: "",
       llmInput: "",
+      llmRunning: false,
       currentTab: 0,
       domainSelect: "moleculesDomain",
       presetSelect: "lewis_0",
@@ -280,8 +282,9 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
               onClick={this.onLLMGenerateClick}
               color="primary"
               variant="contained"
+              disabled={this.state.llmRunning}
             >
-              Generate Input Scenario
+              {this.state.llmRunning ? "Generating" : "Generate Input Scenario"}
             </Button>
           </ButtonContainer>
         </TabPanel>
@@ -329,6 +332,8 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
   onLLMGenerateClick = () => {
     let output = "";
 
+    this.setState({ llmRunning: true });
+
     const apiUrl = "https://api.openai.com/v1/chat/completions";
 
     const headers = {
@@ -361,6 +366,7 @@ ${this.state.llmInput}.`;
     console.log(prompt);
     const data = {
       model: "gpt-3.5-turbo",
+      // model: "gpt-4",
       messages: [{ role: "user", content: prompt }],
       max_tokens: 2000,
       temperature: 0.7,
@@ -376,11 +382,12 @@ ${this.state.llmInput}.`;
         //console.log(result);
         // Process the result
         output = result.choices[0].message.content;
-        this.setState({ substance: output });
+        this.setState({ substance: output, llmRunning: false });
       })
       .catch((error) => {
         // Handle any errors
         console.error("Error:", error);
+        this.setState({ llmRunning: false });
       });
   };
 
