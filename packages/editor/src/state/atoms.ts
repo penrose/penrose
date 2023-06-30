@@ -150,6 +150,7 @@ const saveWorkspaceEffect: AtomEffect<Workspace> = ({ onSet, setSelf }) => {
                   ? newValue.metadata.location.id
                   : null,
               variation: newValue.metadata.variation,
+              excludeWarnings: newValue.metadata.excludeWarnings,
             } as WorkspaceMetadata,
           };
         });
