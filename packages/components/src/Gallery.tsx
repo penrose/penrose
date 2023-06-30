@@ -1,14 +1,13 @@
 import registry from "@penrose/examples/dist/registry.js";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
+import { cropSVG } from "./util.js";
 
 export interface TrioWithPreview {
   id: string;
   name?: string;
   preview?: string;
 }
-const parser = new DOMParser();
-const serializer = new XMLSerializer();
 
 const Container = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -78,16 +77,7 @@ export default ({ ideLink, dark }: { ideLink: string; dark?: boolean }) => {
         );
         if (svg.ok) {
           const preview = await svg.text();
-
-          // crop the SVG
-          const svgDoc = parser.parseFromString(preview, "image/svg+xml");
-          const cropped = svgDoc.querySelector("croppedViewBox")?.innerHTML;
-          const svgNode = svgDoc.querySelector("svg")!;
-          if (cropped !== undefined) {
-            svgNode.setAttribute("viewBox", cropped!);
-          }
-          const croppedPreview = serializer.serializeToString(svgNode);
-
+          const croppedPreview = cropSVG(preview);
           const trio = { id, preview: croppedPreview };
           setExamples((ex) =>
             ex.map((e) =>
