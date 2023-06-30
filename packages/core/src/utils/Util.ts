@@ -1056,8 +1056,8 @@ type AreUnionsEqual<T, U> = IsSubset<T, U> extends true
   ? IsSubset<U, T>
   : false;
 
-// If this fails, then allWarnings and the actual tags of StyleWarning variants
-// are different.
+// If this fails to compile, then allWarnings and the actual tags of
+// StyleWarning variants are different.
 const _warningTagsCheck: AreUnionsEqual<
   AssertedWarningTags,
   ActualWarningTags
