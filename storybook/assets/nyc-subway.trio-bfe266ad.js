@@ -1,0 +1,196 @@
+import{m as n}from"./resolver-33472b42.js";import{d as e}from"./simple-graph.domain-b2957daf.js";import"./iframe-39c020d4.js";const r=`
+Vertex TimesSquare, GrandCentral, WallStreet, UnionSquare, CentralPark, Broadway, FultonStreet, ConeyIsland, BarclaysCenter, JFKAirport
+
+Edge(TimesSquare, GrandCentral)
+Edge(TimesSquare, UnionSquare)
+Edge(GrandCentral, UnionSquare)
+Edge(GrandCentral, WallStreet)
+Edge(WallStreet, FultonStreet)
+Edge(UnionSquare, Broadway)
+Edge(Broadway, CentralPark)
+Edge(CentralPark, TimesSquare)
+Edge(FultonStreet, BarclaysCenter)
+Edge(BarclaysCenter, ConeyIsland)
+Edge(JFKAirport, FultonStreet)
+
+AutoLabel All
+`,t=n("graph-domain"),o=`canvas {
+  width = 800
+  height = 800
+}
+
+layout = [boxes, text, adjust]
+
+color {
+  black = #000000
+  white = #ffffff
+}
+
+num {
+  radius = 5
+  labelDist = 5
+  edgeDist = 100
+  repelDist = 1.5 * edgeDist
+}
+
+forall Vertex v {
+  v.center = (?, ?)
+
+  v.text = Text {
+    center: v.center
+    string: v.label
+    fillColor: color.black
+    fontFamily: "serif"
+    fontSize: "18px"
+    strokeColor: color.white
+    strokeWidth: 4
+    paintOrder: "stroke"
+  }
+
+  scalar padding = 5
+  v.box = Rectangle {
+    center: v.center
+    width: padding + v.text.width
+    height: padding + v.text.height
+    fillColor : #0000
+    strokeColor : color.black
+    strokeWidth: 1
+  }
+  v.box2 = Rectangle {
+    center: v.center
+    width: padding + v.text.width
+    height: padding + v.text.height
+    fillColor : #ffffffff
+    strokeColor : #0000
+  }
+  v.text above v.box2 
+  v.box above v.text
+
+  encourage shapeDistance(v.box, v.text) == num.labelDist except boxes
+}
+
+forall Vertex u; Vertex v {
+  d = vdist(u.box.center, v.box.center)
+  dHat = num.repelDist
+  -- equation 6 from https://ipc-sim.github.io/
+  encourage minimal(max(0, -sqr(d - dHat) * log(d / dHat))) in boxes
+
+  ensure disjoint(u.box, v.box, num.labelDist) in text
+}
+
+forall Vertex u; Vertex v where Edge(u, v) as e {
+  a = u.box.center
+  b = v.box.center
+
+  vec2 p1 = (?, ?)
+  vec2 p2 = (?, ?)
+  vec2 p3 = (?, ?)
+  vec2 p4 = (?, ?)
+  vec2 p5 = (?, ?)
+  vec2 p6 = (?, ?)
+  vec2 p7 = (?, ?)
+  vec2 p8 = (?, ?)
+  vec2 p9 = (?, ?)
+
+  radius = 6
+  shape e.c1 = Circle {
+      center: p1
+      r: radius
+      fillColor: #0000
+  }
+  shape e.c2 = Circle {
+      center: p2
+      r: radius
+      fillColor: #0000
+  }
+  shape e.c3 = Circle {
+      center: p3
+      r: radius
+      fillColor: #0000
+  }
+  shape e.c4 = Circle {
+      center: p4
+      r: radius
+      fillColor: #0000
+  }
+  shape e.c5 = Circle {
+      center: p5
+      r: radius
+      fillColor: #0000
+  }
+  shape e.c6 = Circle {
+      center: p6
+      r: radius
+      fillColor: #0000
+  }
+  shape e.c7 = Circle {
+      center: p7
+      r: radius
+      fillColor: #0000
+  }
+  shape e.c8 = Circle {
+      center: p8
+      r: radius
+      fillColor: #0000
+  }
+  shape e.c9 = Circle {
+      center: p9
+      r: radius
+      fillColor: #0000
+  }
+
+  shape e.poly = Polyline {
+    points: [a, p1, p2, p3, p4, p5, p6, p7, p8, p9, b]
+    strokeWidth: 2
+    strokeColor: #000
+  }
+
+  encourage minimal(elasticEnergy(e.poly.points, false))
+  encourage isEquilateral(e.poly.points, false)
+
+  e.start = a
+  e.end = b
+  e.arrow = Line {
+    start: a
+    end: b
+    strokeColor: #0000
+  }
+
+  e.arrow below u.box
+  e.arrow below v.box
+
+  -- -- Gravity - very optional and useless
+  -- encourage minimal(a[1])
+  -- encourage minimal(b[1])
+
+  encourage vdist(u.box.center, v.box.center) < num.edgeDist in boxes
+}
+
+forall Vertex u; Vertex v where Edge(u, v) as e; u has label {
+  ensure disjoint(u.box, e.c3) in adjust
+  ensure disjoint(u.box, e.c4) in adjust
+  ensure disjoint(u.box, e.c5) in adjust
+  ensure disjoint(u.box, e.c6) in adjust
+  ensure disjoint(u.box, e.c7) in adjust
+  u.box2 above e.poly
+}
+
+forall Vertex u; Vertex v where Edge(u, v) as e; v has label {
+  ensure disjoint(v.box, e.c3) in adjust
+  ensure disjoint(v.box, e.c4) in adjust
+  ensure disjoint(v.box, e.c5) in adjust
+  ensure disjoint(v.box, e.c6) in adjust
+  ensure disjoint(v.box, e.c7) in adjust
+  v.box2 above e.poly
+}
+
+forall Vertex u; Vertex v; Vertex w where Edge(u, v) as e; w has label {
+  ensure disjoint(w.box, e.c3) in adjust
+  ensure disjoint(w.box, e.c4) in adjust
+  ensure disjoint(w.box, e.c5) in adjust
+  ensure disjoint(w.box, e.c6) in adjust
+  ensure disjoint(w.box, e.c7) in adjust
+  w.box2 above e.poly
+}
+`,l={substance:r,style:[{contents:o,resolver:t}],domain:e,variation:"BasilTapir4665",excludeWarnings:[]};export{l as default};
+//# sourceMappingURL=nyc-subway.trio-bfe266ad.js.map
