@@ -36,6 +36,8 @@ export const callCompFunc = (
     return ok({
       value,
       warnings: warnings.map((w) => {
+        // Attach location information to the top of `BBoxApproximationWarnings`
+        // since only the top stack element is resulted from the user call to Style function
         if (w.tag === "BBoxApproximationWarning") {
           w.stack[w.stack.length - 1].location = range;
         }
@@ -63,6 +65,8 @@ export const callObjConstrFunc = (
     return ok({
       value,
       warnings: warnings.map((w) => {
+        // Attach location information to the top of `BBoxApproximationWarnings`
+        // since only the top stack element is resulted from the user call to Style function
         if (w.tag === "BBoxApproximationWarning") {
           w.stack[w.stack.length - 1].location = range;
         }
