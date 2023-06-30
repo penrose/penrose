@@ -27,11 +27,28 @@ const Example = ({
   loadExample: (t: TrioWithPreview) => Promise<void>;
   k: number;
 }) => {
+  // determine whether to crop the SVG
   const svgDoc = parser.parseFromString(example.preview!, "image/svg+xml");
   const cropped = svgDoc.querySelector("croppedViewBox")?.innerHTML;
   const svgNode = svgDoc.querySelector("svg")!;
-  if (cropped !== undefined) {
-    svgNode.setAttribute("viewBox", cropped!);
+  const viewBox = svgNode.getAttribute("viewBox");
+  if (cropped && viewBox) {
+    const viewBoxNums = svgNode.viewBox.baseVal;
+    const croppedNums = cropped.split(/\s+|,/);
+
+    const croppedWidth = parseFloat(croppedNums[3]);
+    const croppedHeight = parseFloat(croppedNums[4]);
+    const viewBoxWidth = viewBoxNums.width;
+    const viewBoxHeight = viewBoxNums.height;
+
+    // if area of cropped view box is leq area of current view box
+    // then set the view box to the cropped view box
+    if (
+      Math.abs(croppedWidth * croppedHeight) <
+      Math.abs(viewBoxWidth * viewBoxHeight)
+    ) {
+      svgNode.setAttribute("viewBox", cropped);
+    }
   }
   const croppedPreview = serializer.serializeToString(svgNode);
 
@@ -46,7 +63,7 @@ const Example = ({
             examples: example.id,
           });
           // https://stackoverflow.com/questions/32828160/appending-parameter-to-url-without-refresh
-          window.history.replaceState(null, "", query);
+          window.history.replaceState(null, "", `?${query}`);
         }}
       >
         <ExampleTab key={`example-tab-${k}`}>

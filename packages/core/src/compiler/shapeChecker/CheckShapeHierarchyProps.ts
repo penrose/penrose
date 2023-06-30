@@ -52,15 +52,11 @@ export const checkNamed = (
   const name = checkProp(path, "name", trans, checkStrV);
   if (name.isErr()) return err(name.error);
 
-  const style = checkProp(path, "style", trans, checkStrV);
-  if (style.isErr()) return err(style.error);
-
   const ensureOnCanvas = checkProp(path, "ensureOnCanvas", trans, checkBoolV);
   if (ensureOnCanvas.isErr()) return err(ensureOnCanvas.error);
 
   return ok({
     name: name.value,
-    style: style.value,
     ensureOnCanvas: ensureOnCanvas.value,
   });
 };

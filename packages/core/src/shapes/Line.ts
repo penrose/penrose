@@ -17,7 +17,6 @@ export const sampleLine = (
   canvas: Canvas
 ): LineProps<ad.Num> => ({
   name: strV("defaultLine"),
-  style: strV(""),
   strokeWidth: floatV(1),
   strokeStyle: strV("solid"),
   strokeColor: black(),

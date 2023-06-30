@@ -1,6 +1,6 @@
 {
   "substance": "./caffeine.substance",
-  "style": ["../structural-formula.style"],
+  "style": ["../pseudo-3d.style"],
   "domain": "../structural-formula.domain",
-  "variation": ""
+  "variation": "AmouretteEchidna3389"
 }

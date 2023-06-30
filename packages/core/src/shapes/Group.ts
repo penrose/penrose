@@ -15,7 +15,6 @@ export const sampleGroup = (
 ): GroupProps<ad.Num> => {
   return {
     name: strV("defaultGroup"),
-    style: strV(""),
     ensureOnCanvas: boolV(true),
     shapes: shapeListV([]),
     clipPath: clipDataV(noClip()),
