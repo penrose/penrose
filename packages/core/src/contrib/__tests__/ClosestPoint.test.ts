@@ -35,7 +35,7 @@ const compareClosestPoint = async (
   pt: [number, number],
   expected: [number, number]
 ) => {
-  const result = compDict.closestPoint.body(context, shape, pt);
+  const result = compDict.closestPoint.body(context, shape, pt).value;
   const [x, y] = result.contents;
   expect(numOf(x)).toBeCloseTo(expected[0]);
   expect(numOf(y)).toBeCloseTo(expected[1]);

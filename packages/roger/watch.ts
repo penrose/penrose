@@ -68,7 +68,8 @@ export default async function (port = 9160): Promise<void> {
           // get containing dir of the trio file
           const parentDir = parse(path).dir;
           const contents = await fs.readFile(path, "utf8");
-          const { substance, style, domain } = JSON.parse(contents);
+          const pathContents = JSON.parse(contents);
+          const { style, domain, substance, excludeWarnings } = pathContents;
           let combinedStyle = "";
           // concat all the style files
           for (const s of style) {
@@ -104,6 +105,7 @@ export default async function (port = 9160): Promise<void> {
                           : relative(".", resolve(parentDir, style[0])), // HACK: use the first style path as the path to the combined Style because the combined Style doesn't exist in the file system
                     },
                   },
+                  excludeWarnings: excludeWarnings ?? [],
                   token,
                 })
               );

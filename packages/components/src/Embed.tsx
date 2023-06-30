@@ -61,6 +61,7 @@ class Embed extends React.Component<SimpleProps, EmbedState> {
           style={this.props.style}
           variation={this.state.variation}
           interactive={this.props.interactive}
+          excludeWarnings={[]}
         />
         <div style={{ width: "100%", height: "100%" }} />
         <div className="embed-footer" style={footerStyle}>

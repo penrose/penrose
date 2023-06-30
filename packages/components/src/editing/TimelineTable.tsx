@@ -299,6 +299,7 @@ export default function (props: Data): React.ReactElement {
             style={timelineStyle}
             domain={timelineDomain}
             variation=""
+            excludeWarnings={[]}
           ></Simple>
         </div>
       </div>
