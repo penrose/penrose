@@ -205,6 +205,7 @@ export default defineConfig({
           text: "Reference",
           items: [
             { text: "Overview", link: "/docs/ref" },
+            { text: "Using Penrose", link: "/docs/ref/using" },
             {
               text: "Domain",
               items: [

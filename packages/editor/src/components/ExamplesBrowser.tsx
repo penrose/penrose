@@ -5,9 +5,6 @@ import { TrioWithPreview, exampleTriosState } from "../state/atoms.js";
 import { useLoadExampleWorkspace } from "../state/callbacks.js";
 import FileButton from "./FileButton.js";
 
-const parser = new DOMParser();
-const serializer = new XMLSerializer();
-
 const ExampleContainer = styled.div`
   margin: 0;
 `;
@@ -27,6 +24,8 @@ const Example = ({
   loadExample: (t: TrioWithPreview) => Promise<void>;
   k: number;
 }) => {
+  const parser = new DOMParser();
+  const serializer = new XMLSerializer();
   // determine whether to crop the SVG
   const svgDoc = parser.parseFromString(example.preview!, "image/svg+xml");
   const cropped = svgDoc.querySelector("croppedViewBox")?.innerHTML;
@@ -68,7 +67,7 @@ const Example = ({
       >
         <ExampleTab key={`example-tab-${k}`}>
           <div
-            style={{ width: "50px", flexShrink: 0 }}
+            style={{ width: "50px", height: "50px", flexShrink: 0 }}
             dangerouslySetInnerHTML={{ __html: croppedPreview }}
           ></div>
           {example.name}
