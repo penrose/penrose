@@ -2,5 +2,6 @@
   "substance": "./vector-wedge.substance",
   "style": ["./exterior-algebra.style"],
   "domain": "./exterior-algebra.domain",
-  "variation": "SnorlaxIbis743"
+  "variation": "SnorlaxIbis743",
+  "excludeWarnings": ["BBoxApproximationWarning"]
 }
