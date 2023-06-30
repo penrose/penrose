@@ -67,7 +67,7 @@ const Example = ({
       >
         <ExampleTab key={`example-tab-${k}`}>
           <div
-            style={{ width: "50px", flexShrink: 0 }}
+            style={{ width: "50px", height: "50px", flexShrink: 0 }}
             dangerouslySetInnerHTML={{ __html: croppedPreview }}
           ></div>
           {example.name}

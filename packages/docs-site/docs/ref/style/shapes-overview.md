@@ -50,8 +50,8 @@ override myShape.r = true
 
 Penrose will report an error as follows.
 
-```error
-Shape property myShape.r expects type FloatV and does not accept type BoolV.
+```
+Shape property myShape.r expects type FloatV and does not accept type BoolV. // [!code error]
 ```
 
 The expected types of each field of each shape can be found within each shape's specification.
