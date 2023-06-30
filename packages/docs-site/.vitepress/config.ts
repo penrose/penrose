@@ -204,11 +204,10 @@ export default defineConfig({
         {
           text: "Reference",
           items: [
-            { text: "Penrose Overview", link: "/docs/ref" },
+            { text: "Overview", link: "/docs/ref" },
             {
               text: "Domain",
               items: [
-                { text: "Overview", link: "/docs/ref/domain" },
                 { text: "Usage", link: "/docs/ref/domain/usage" },
                 { text: "Examples", link: "/docs/ref/domain/examples" },
               ],
@@ -216,7 +215,6 @@ export default defineConfig({
             {
               text: "Substance",
               items: [
-                { text: "Overview", link: "/docs/ref/substance" },
                 { text: "Usage", link: "/docs/ref/substance/usage" },
                 { text: "Examples", link: "/docs/ref/substance/examples" },
               ],
@@ -224,7 +222,6 @@ export default defineConfig({
             {
               text: "Style",
               items: [
-                { text: "Overview", link: "/docs/ref/style" },
                 {
                   text: "Usage",
                   link: "/docs/ref/style/usage",

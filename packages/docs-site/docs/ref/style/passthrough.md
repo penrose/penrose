@@ -24,8 +24,9 @@ generates the error
 Passthrough shape property 1:6:myShape.colorInterpolation expects type StrV or FloatV and does not accept type BoolV.
 ```
 
-## CAUTION
+::: warning Caution
 
 - Passthrough values are passed through as-is: Penrose does not optimize or consider their values. This means your passthrough property could interact unfavorably with (or violate) the constraints in your Style program. If you have problems with a rendered diagram, commenting out any SVG passthrough properties is a good troubleshooting step.
 - If Penrose is already writing to an SVG property, it wins: it will override the passthrough value.
 - You are responsible for ensuring the SVG property is allowed for the given shape type and that the property value is a valid SVG value.
+  :::
