@@ -2,5 +2,6 @@
   "substance": "./c11p12.substance",
   "style": ["../euclidean.style", "./c11p12.style"],
   "domain": "../geometry.domain",
-  "variation": "EdwardGuanaco94367"
+  "variation": "EdwardGuanaco94367",
+  "excludeWarnings": ["NoopDeleteWarning"]
 }

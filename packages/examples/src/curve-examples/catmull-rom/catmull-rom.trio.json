@@ -2,5 +2,6 @@
   "substance": "./test.substance",
   "style": ["./catmull-rom.style"],
   "domain": "./catmull-rom.domain",
-  "variation": "UranusYak398"
+  "variation": "UranusYak398",
+  "excludeWarnings": ["BBoxApproximationWarning"]
 }
