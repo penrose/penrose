@@ -73,6 +73,7 @@ export class Grid extends React.Component<GridProps, GridState> {
           gridIndex={i}
           substance={substance}
           variation={variation}
+          excludeWarnings={[]}
           onSelected={this.props.onSelected}
           onStateUpdate={(n, state) => {
             // record opt status

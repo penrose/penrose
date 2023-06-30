@@ -6,7 +6,7 @@ import ShapeProps from "../../../../src/components/ShapeProps.vue";
 
 A group is a shape that contains multiple shapes, rendered under `<g>` tag. For example, one can write,
 
-```
+```style
 t.s1 = Circle {}
 t.s2 = Rectangle {}
 t.s3 = Text {
@@ -23,14 +23,14 @@ t.g2 = Group {
 
 and get something like,
 
-```
+```html
 <svg ...>
   <g>
     <circle ... />
     <g>
       <circle ... />
       <rect ... />
-      <text .../>
+      <text ... />
     </g>
   </g>
 </svg>
@@ -46,7 +46,7 @@ A `Group` shape has a property, `shapes`, which is an _unordered_ list of paths 
 
 We prohibit inline shape declarations within groups. In other words,
 
-```
+```style
 -- this is bad
 bad_group = Group {
     shapes: [ Circle {}, Rectangle {} ]
@@ -63,7 +63,7 @@ Inherently, shapes within a group are to stay together and be drawn together (me
 
 Hence, the following layering should not be allowed (and will hence generate a warning),
 
-```
+```style
 s1 = // some shape
 s2 = // some shape
 g = Group {
@@ -96,7 +96,7 @@ Since the SVG standard does not allow `Group` shapes (`<g>` tags) to clip other 
 
 As an example, to define a `Group` shape with members `s1` and `s2`, clipped by `s3`, one can write,
 
-```
+```style
 g = Group {
   shapes: [s1, s2]
   clipPath: clip(s3)

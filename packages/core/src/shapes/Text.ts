@@ -42,7 +42,6 @@ export const sampleText = (
   canvas: Canvas
 ): TextProps<ad.Num> => ({
   name: strV("defaultText"),
-  style: strV(""),
   strokeWidth: floatV(0),
   strokeStyle: strV("solid"),
   strokeColor: noPaint(),

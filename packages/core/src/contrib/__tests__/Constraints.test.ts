@@ -30,7 +30,7 @@ describe("simple constraint", () => {
   ])(
     "equal(%p, %p) should return %p",
     (x: number, y: number, expected: number) => {
-      const result = constrDict.equal.body(x, y);
+      const result = constrDict.equal.body(x, y).value;
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -45,7 +45,7 @@ describe("simple constraint", () => {
   ])(
     "lessThan(%p, %p, padding=%p) should return %p",
     (x: number, y: number, padding: number, expected: number) => {
-      const result = constrDict.lessThan.body(x, y, padding);
+      const result = constrDict.lessThan.body(x, y, padding).value;
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -60,7 +60,7 @@ describe("simple constraint", () => {
   ])(
     "greaterThan(%p, %p, padding=%p) should return %p",
     (x: number, y: number, padding: number, expected: number) => {
-      const result = constrDict.greaterThan.body(x, y, padding);
+      const result = constrDict.greaterThan.body(x, y, padding).value;
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -73,7 +73,7 @@ describe("simple constraint", () => {
   ])(
     "lessThanSq(%p, %p) should return %p",
     (x: number, y: number, expected: number) => {
-      const result = constrDict.lessThanSq.body(x, y);
+      const result = constrDict.lessThanSq.body(x, y).value;
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -86,7 +86,7 @@ describe("simple constraint", () => {
   ])(
     "greaterThanSq(%p, %p) should return %p",
     (x: number, y: number, expected: number) => {
-      const result = constrDict.greaterThanSq.body(x, y);
+      const result = constrDict.greaterThanSq.body(x, y).value;
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -100,7 +100,7 @@ describe("simple constraint", () => {
   ])(
     "inRange(%p, %p, %p) should return %p",
     (x: number, x0: number, x1: number, expected: number) => {
-      const result = constrDict.inRange.body(x, x0, x1);
+      const result = constrDict.inRange.body(x, x0, x1).value;
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -116,7 +116,7 @@ describe("simple constraint", () => {
   ])(
     "contains1D([%p, %p], [%p, %p]) should return %p",
     (l1: number, r1: number, l2: number, r2: number, expected: number) => {
-      const result = constrDict.contains1D.body([l1, r1], [l2, r2]);
+      const result = constrDict.contains1D.body([l1, r1], [l2, r2]).value;
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -130,7 +130,7 @@ describe("simple constraint", () => {
   ])(
     "disjointScalar(%p, %p, %p) should return %p",
     (c: number, left: number, right: number, expected: number) => {
-      const result = constrDict.disjointScalar.body(c, left, right);
+      const result = constrDict.disjointScalar.body(c, left, right).value;
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -144,7 +144,7 @@ describe("simple constraint", () => {
   ])(
     "perpendicular(%p, %p, %p) should return %p",
     (q: number[], p: number[], r: number[], expected: number) => {
-      const result = constrDict.perpendicular.body(q, p, r);
+      const result = constrDict.perpendicular.body(q, p, r).value;
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -158,7 +158,7 @@ describe("simple constraint", () => {
   ])(
     "collinear(%p, %p, %p) should return %p",
     (c1: number[], c2: number[], c3: number[], expected: number) => {
-      const result = constrDict.collinear.body(c1, c2, c3);
+      const result = constrDict.collinear.body(c1, c2, c3).value;
       expect(numOf(result)).toBeCloseTo(expected, 1);
     }
   );
@@ -172,7 +172,7 @@ describe("simple constraint", () => {
   ])(
     "collinearOrdered(%p, %p, %p) should return %p",
     (c1: number[], c2: number[], c3: number[], expected: number) => {
-      const result = constrDict.collinearOrdered.body(c1, c2, c3);
+      const result = constrDict.collinearOrdered.body(c1, c2, c3).value;
       expect(numOf(result)).toBeCloseTo(expected, 1);
     }
   );
@@ -240,17 +240,33 @@ describe("general constraints", () => {
     (padding: number, shape0: Shape<ad.Num>, shape1: Shape<ad.Num>) => {
       // The condition should be satisfied
       const overlap = -padding;
-      expectSatified(constrDict.overlapping.body(shape0, shape1, overlap));
-      expectSatified(constrDict.overlapping.body(shape1, shape0, overlap));
+      expectSatified(
+        constrDict.overlapping.body(shape0, shape1, overlap).value
+      );
+      expectSatified(
+        constrDict.overlapping.body(shape1, shape0, overlap).value
+      );
       // The condition should NOT be satisfied
-      expectNotSatisfied(constrDict.disjoint.body(shape0, shape1, padding));
-      expectNotSatisfied(constrDict.disjoint.body(shape1, shape0, padding));
+      expectNotSatisfied(
+        constrDict.disjoint.body(shape0, shape1, padding).value
+      );
+      expectNotSatisfied(
+        constrDict.disjoint.body(shape1, shape0, padding).value
+      );
       // The condition should NOT be satisfied
-      expectNotSatisfied(constrDict.contains.body(shape0, shape1, padding));
-      expectNotSatisfied(constrDict.contains.body(shape1, shape0, padding));
+      expectNotSatisfied(
+        constrDict.contains.body(shape0, shape1, padding).value
+      );
+      expectNotSatisfied(
+        constrDict.contains.body(shape1, shape0, padding).value
+      );
       // The condition should NOT be satisfied
-      expectNotSatisfied(constrDict.touching.body(shape0, shape1, padding));
-      expectNotSatisfied(constrDict.touching.body(shape1, shape0, padding));
+      expectNotSatisfied(
+        constrDict.touching.body(shape0, shape1, padding).value
+      );
+      expectNotSatisfied(
+        constrDict.touching.body(shape1, shape0, padding).value
+      );
     }
   );
 
@@ -303,17 +319,29 @@ describe("general constraints", () => {
     (padding: number, shape0: Shape<ad.Num>, shape1: Shape<ad.Num>) => {
       // The condition should NOT be satisfied
       const overlap = -padding;
-      expectNotSatisfied(constrDict.overlapping.body(shape0, shape1, overlap));
-      expectNotSatisfied(constrDict.overlapping.body(shape1, shape0, overlap));
+      expectNotSatisfied(
+        constrDict.overlapping.body(shape0, shape1, overlap).value
+      );
+      expectNotSatisfied(
+        constrDict.overlapping.body(shape1, shape0, overlap).value
+      );
       // The condition should be satisfied
-      expectSatified(constrDict.disjoint.body(shape0, shape1, padding));
-      expectSatified(constrDict.disjoint.body(shape1, shape0, padding));
+      expectSatified(constrDict.disjoint.body(shape0, shape1, padding).value);
+      expectSatified(constrDict.disjoint.body(shape1, shape0, padding).value);
       // The condition should NOT be satisfied
-      expectNotSatisfied(constrDict.contains.body(shape0, shape1, padding));
-      expectNotSatisfied(constrDict.contains.body(shape1, shape0, padding));
+      expectNotSatisfied(
+        constrDict.contains.body(shape0, shape1, padding).value
+      );
+      expectNotSatisfied(
+        constrDict.contains.body(shape1, shape0, padding).value
+      );
       // The condition should NOT be satisfied
-      expectNotSatisfied(constrDict.touching.body(shape0, shape1, padding));
-      expectNotSatisfied(constrDict.touching.body(shape1, shape0, padding));
+      expectNotSatisfied(
+        constrDict.touching.body(shape0, shape1, padding).value
+      );
+      expectNotSatisfied(
+        constrDict.touching.body(shape1, shape0, padding).value
+      );
     }
   );
 
@@ -351,17 +379,29 @@ describe("general constraints", () => {
     (padding: number, shape0: Shape<ad.Num>, shape1: Shape<ad.Num>) => {
       // The condition should JUST be satisfied
       const overlap = -padding;
-      expectJustSatified(constrDict.overlapping.body(shape0, shape1, overlap));
-      expectJustSatified(constrDict.overlapping.body(shape1, shape0, overlap));
+      expectJustSatified(
+        constrDict.overlapping.body(shape0, shape1, overlap).value
+      );
+      expectJustSatified(
+        constrDict.overlapping.body(shape1, shape0, overlap).value
+      );
       // The condition should JUST be satisfied
-      expectJustSatified(constrDict.disjoint.body(shape0, shape1, padding));
-      expectJustSatified(constrDict.disjoint.body(shape1, shape0, padding));
+      expectJustSatified(
+        constrDict.disjoint.body(shape0, shape1, padding).value
+      );
+      expectJustSatified(
+        constrDict.disjoint.body(shape1, shape0, padding).value
+      );
       // The condition should NOT be satisfied
-      expectNotSatisfied(constrDict.contains.body(shape0, shape1, padding));
-      expectNotSatisfied(constrDict.contains.body(shape1, shape0, padding));
+      expectNotSatisfied(
+        constrDict.contains.body(shape0, shape1, padding).value
+      );
+      expectNotSatisfied(
+        constrDict.contains.body(shape1, shape0, padding).value
+      );
       // The condition should be satisfied
-      expectSatified(constrDict.touching.body(shape0, shape1, padding));
-      expectSatified(constrDict.touching.body(shape1, shape0, padding));
+      expectSatified(constrDict.touching.body(shape0, shape1, padding).value);
+      expectSatified(constrDict.touching.body(shape1, shape0, padding).value);
     }
   );
 
@@ -402,17 +442,31 @@ describe("general constraints", () => {
     (padding: number, shape0: Shape<ad.Num>, shape1: Shape<ad.Num>) => {
       // The condition should be satisfied
       const overlap = -padding;
-      expectSatified(constrDict.overlapping.body(shape0, shape1, overlap));
-      expectSatified(constrDict.overlapping.body(shape1, shape0, overlap));
+      expectSatified(
+        constrDict.overlapping.body(shape0, shape1, overlap).value
+      );
+      expectSatified(
+        constrDict.overlapping.body(shape1, shape0, overlap).value
+      );
       // The condition should NOT be satisfied
-      expectNotSatisfied(constrDict.disjoint.body(shape0, shape1, padding));
-      expectNotSatisfied(constrDict.disjoint.body(shape1, shape0, padding));
+      expectNotSatisfied(
+        constrDict.disjoint.body(shape0, shape1, padding).value
+      );
+      expectNotSatisfied(
+        constrDict.disjoint.body(shape1, shape0, padding).value
+      );
       // The condition should be satisfied ONLY ONE WAY
-      expectSatified(constrDict.contains.body(shape0, shape1, padding));
-      expectNotSatisfied(constrDict.contains.body(shape1, shape0, padding));
+      expectSatified(constrDict.contains.body(shape0, shape1, padding).value);
+      expectNotSatisfied(
+        constrDict.contains.body(shape1, shape0, padding).value
+      );
       // The condition should NOT be satisfied
-      expectNotSatisfied(constrDict.touching.body(shape1, shape0, padding));
-      expectNotSatisfied(constrDict.touching.body(shape1, shape0, padding));
+      expectNotSatisfied(
+        constrDict.touching.body(shape1, shape0, padding).value
+      );
+      expectNotSatisfied(
+        constrDict.touching.body(shape1, shape0, padding).value
+      );
     }
   );
 });

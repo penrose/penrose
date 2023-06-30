@@ -20,6 +20,8 @@ import {
 import * as BBox from "../engine/BBox.js";
 import { Shape, computeShapeBbox } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
+import { MayWarn } from "../types/functions.js";
+import { noWarn } from "../utils/Util.js";
 import { msign, signedDistancePolygon } from "./Functions.js";
 import {
   convexPartitions,
@@ -278,136 +280,183 @@ export const rectLineDist = (
   ]);
 };
 
-export const shapeDistance = (s1: Shape<ad.Num>, s2: Shape<ad.Num>): ad.Num => {
+export const shapeDistance = (
+  s1: Shape<ad.Num>,
+  s2: Shape<ad.Num>
+): MayWarn<ad.Num> => {
   const t1 = s1.shapeType;
   const t2 = s2.shapeType;
   // Same shapes
   if (t1 === "Circle" && t2 === "Circle") {
-    return shapeDistanceCircles(
-      toPt(s1.center.contents),
-      s1.r.contents,
-      toPt(s2.center.contents),
-      s2.r.contents
+    return noWarn(
+      shapeDistanceCircles(
+        toPt(s1.center.contents),
+        s1.r.contents,
+        toPt(s2.center.contents),
+        s2.r.contents
+      )
     );
   } else if (isRectlike(s1) && isRectlike(s2)) {
-    return shapeDistanceRects(
-      bboxPts(BBox.bboxFromRectlike(s1)),
-      bboxPts(BBox.bboxFromRectlike(s2))
+    return noWarn(
+      shapeDistanceRects(
+        bboxPts(BBox.bboxFromRectlike(s1)),
+        bboxPts(BBox.bboxFromRectlike(s2))
+      )
     );
   }
   // HACK: text/label-line, mainly to skip convex partitioning
   else if (isRectlike(s1) && t2 === "Line") {
-    return shapeDistanceRectLine(
-      bboxPts(BBox.bboxFromRectlike(s1)),
-      toPt(s2.start.contents),
-      toPt(s2.end.contents)
+    return noWarn(
+      shapeDistanceRectLine(
+        bboxPts(BBox.bboxFromRectlike(s1)),
+        toPt(s2.start.contents),
+        toPt(s2.end.contents)
+      )
     );
   } else if (t1 === "Line" && isRectlike(s2)) {
-    return shapeDistanceRectLine(
-      bboxPts(BBox.bboxFromRectlike(s2)),
-      toPt(s1.start.contents),
-      toPt(s1.end.contents)
+    return noWarn(
+      shapeDistanceRectLine(
+        bboxPts(BBox.bboxFromRectlike(s2)),
+        toPt(s1.start.contents),
+        toPt(s1.end.contents)
+      )
     );
   } else if (isPolygonlike(s1) && isPolygonlike(s2)) {
-    return shapeDistancePolys(polygonLikePoints(s1), polygonLikePoints(s2));
+    return noWarn(
+      shapeDistancePolys(polygonLikePoints(s1), polygonLikePoints(s2))
+    );
   }
   // Rectangle x Circle
   else if (isRectlike(s1) && t2 === "Circle") {
-    return shapeDistanceRectCircle(
-      bboxPts(BBox.bboxFromRectlike(s1)),
-      toPt(s2.center.contents),
-      s2.r.contents
+    return noWarn(
+      shapeDistanceRectCircle(
+        bboxPts(BBox.bboxFromRectlike(s1)),
+        toPt(s2.center.contents),
+        s2.r.contents
+      )
     );
   } else if (t1 === "Circle" && isRectlike(s2)) {
-    return shapeDistanceRectCircle(
-      bboxPts(BBox.bboxFromRectlike(s2)),
-      toPt(s1.center.contents),
-      s1.r.contents
+    return noWarn(
+      shapeDistanceRectCircle(
+        bboxPts(BBox.bboxFromRectlike(s2)),
+        toPt(s1.center.contents),
+        s1.r.contents
+      )
     );
   }
   // Polygon x Ellipse
   else if (isPolygonlike(s1) && t2 === "Ellipse") {
-    return shapeDistancePolyEllipse(
-      polygonLikePoints(s1),
-      toPt(s2.center.contents),
-      s2.rx.contents,
-      s2.ry.contents
+    return noWarn(
+      shapeDistancePolyEllipse(
+        polygonLikePoints(s1),
+        toPt(s2.center.contents),
+        s2.rx.contents,
+        s2.ry.contents
+      )
     );
   } else if (t1 === "Ellipse" && isPolygonlike(s2)) {
-    return shapeDistancePolyEllipse(
-      polygonLikePoints(s2),
-      toPt(s1.center.contents),
-      s1.rx.contents,
-      s1.ry.contents
+    return noWarn(
+      shapeDistancePolyEllipse(
+        polygonLikePoints(s2),
+        toPt(s1.center.contents),
+        s1.rx.contents,
+        s1.ry.contents
+      )
     );
   }
   // Circle x Line
   else if (t1 === "Circle" && t2 === "Line") {
-    return shapeDistanceCircleLine(
-      toPt(s1.center.contents),
-      s1.r.contents,
-      toPt(s2.start.contents),
-      toPt(s2.end.contents)
+    return noWarn(
+      shapeDistanceCircleLine(
+        toPt(s1.center.contents),
+        s1.r.contents,
+        toPt(s2.start.contents),
+        toPt(s2.end.contents)
+      )
     );
   } else if (t1 === "Line" && t2 === "Circle") {
-    return shapeDistanceCircleLine(
-      toPt(s2.center.contents),
-      s2.r.contents,
-      toPt(s1.start.contents),
-      toPt(s1.end.contents)
+    return noWarn(
+      shapeDistanceCircleLine(
+        toPt(s2.center.contents),
+        s2.r.contents,
+        toPt(s1.start.contents),
+        toPt(s1.end.contents)
+      )
     );
   }
   // Line x Line
   else if (t1 === "Line" && t2 === "Line") {
-    return shapeDistanceLines(
-      toPt(s1.start.contents),
-      toPt(s1.end.contents),
-      toPt(s2.start.contents),
-      toPt(s2.end.contents)
+    return noWarn(
+      shapeDistanceLines(
+        toPt(s1.start.contents),
+        toPt(s1.end.contents),
+        toPt(s2.start.contents),
+        toPt(s2.end.contents)
+      )
     );
   } else if (t1 === "Polyline" && t2 === "Circle") {
-    return shapeDistanceCirclePolyline(
-      s2.center.contents,
-      s2.r.contents,
-      s1.points.contents
+    return noWarn(
+      shapeDistanceCirclePolyline(
+        s2.center.contents,
+        s2.r.contents,
+        s1.points.contents
+      )
     );
   } else if (t2 === "Polyline" && t1 === "Circle") {
-    return shapeDistanceCirclePolyline(
-      s1.center.contents,
-      s1.r.contents,
-      s2.points.contents
+    return noWarn(
+      shapeDistanceCirclePolyline(
+        s1.center.contents,
+        s1.r.contents,
+        s2.points.contents
+      )
     );
   } else if (t1 === "Polyline" && isRectlike(s2)) {
     const bbox = bboxFromShape(s2);
     const corners = BBox.corners(bbox);
-    return shapeDistanceRectlikePolyline(
-      [
-        corners.topRight,
-        corners.topLeft,
-        corners.bottomLeft,
-        corners.bottomRight,
-      ],
-      s1.points.contents
+    return noWarn(
+      shapeDistanceRectlikePolyline(
+        [
+          corners.topRight,
+          corners.topLeft,
+          corners.bottomLeft,
+          corners.bottomRight,
+        ],
+        s1.points.contents
+      )
     );
   } else if (t2 === "Polyline" && isRectlike(s1)) {
     const bbox = bboxFromShape(s1);
     const corners = BBox.corners(bbox);
-    return shapeDistanceRectlikePolyline(
-      [
-        corners.topRight,
-        corners.topLeft,
-        corners.bottomLeft,
-        corners.bottomRight,
-      ],
-      s2.points.contents
+    return noWarn(
+      shapeDistanceRectlikePolyline(
+        [
+          corners.topRight,
+          corners.topLeft,
+          corners.bottomLeft,
+          corners.bottomRight,
+        ],
+        s2.points.contents
+      )
     );
   }
   // Default to axis-aligned bounding boxes
   else {
-    return shapeDistanceRects(
-      bboxPts(bboxFromShape(s1)),
-      bboxPts(bboxFromShape(s2))
-    );
+    return {
+      value: shapeDistanceRects(
+        bboxPts(bboxFromShape(s1)),
+        bboxPts(bboxFromShape(s2))
+      ),
+      warnings: [
+        {
+          tag: "BBoxApproximationWarning",
+          stack: [
+            {
+              signature: `shapeDistance(${t1}, ${t2})`,
+            },
+          ],
+        },
+      ],
+    };
   }
 };
 

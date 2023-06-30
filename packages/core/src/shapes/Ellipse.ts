@@ -25,7 +25,6 @@ export const sampleEllipse = (
   canvas: Canvas
 ): EllipseProps<ad.Num> => ({
   name: strV("defaultEllipse"),
-  style: strV(""),
   strokeWidth: floatV(0),
   strokeStyle: strV("solid"),
   strokeColor: noPaint(),

@@ -1,6 +1,7 @@
 import {
   Action,
   Actions,
+  DockLocation,
   IJsonRowNode,
   Layout,
   Model,
@@ -27,10 +28,12 @@ import StateInspector from "./components/StateInspector.js";
 import SvgUploader from "./components/SvgUploader.js";
 import TopBar from "./components/TopBar.js";
 import {
+  Diagram,
   RogerState,
   Workspace,
   currentRogerState,
   currentWorkspaceState,
+  diagramState,
   fileContentsSelector,
   localFilesState,
   settingsState,
@@ -43,6 +46,7 @@ const mainRowLayout: IJsonRowNode = {
   children: [
     {
       type: "tabset",
+      id: "mainEditor",
       weight: process.env.NODE_ENV === "development" ? 25 : 50,
       children: [
         ...(process.env.NODE_ENV === "development"
@@ -109,6 +113,8 @@ export const layoutModel = Model.fromJson({
     {
       type: "border",
       location: "left",
+      // auto-expand examples tab on start
+      selected: process.env.NODE_ENV === "development" ? -1 : 1,
       children: [
         {
           type: "tab",
@@ -118,6 +124,7 @@ export const layoutModel = Model.fromJson({
         {
           type: "tab",
           name: "examples",
+          id: "examples",
           component: "examplesPanel",
         },
         {
@@ -260,6 +267,20 @@ function App() {
     []
   );
 
+  const updateExcludeWarnings = useRecoilCallback(
+    ({ set }) =>
+      async (excludeWarnings: string[]) => {
+        await set(diagramState, (state: Diagram) => ({
+          ...state,
+          metadata: {
+            ...state.metadata,
+            excludeWarnings,
+          },
+        }));
+      },
+    []
+  );
+
   const connectRoger = useCallback(() => {
     ws.current = new WebSocket("ws://localhost:9160");
     ws.current.onclose = () => {
@@ -290,6 +311,7 @@ function App() {
           break;
         case "trio_files":
           updateTrio(parsed.files);
+          updateExcludeWarnings(parsed.excludeWarnings);
           break;
       }
     };
@@ -305,6 +327,12 @@ function App() {
         rootOrientationVertical: isTabletOrMobile && isPortrait,
       })
     );
+    // on mobile, move example browser to the center panel
+    if (isTabletOrMobile && isPortrait) {
+      layoutModel.doAction(
+        Actions.moveNode("examples", "mainEditor", DockLocation.CENTER, 0)
+      );
+    }
   }, [isTabletOrMobile, isPortrait]);
 
   const checkURL = useCheckURL();

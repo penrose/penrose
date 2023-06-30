@@ -31,7 +31,7 @@ import { attrMapSvg } from "./AttrMapSvg.js";
  * Auto-map to SVG any input properties for which we lack specific logic.
  *
  * Apply a map, AttrMapSvg, to perform any target-specific property name translation,
- * i.e., map from Penrose camel case formal to SVG mixed-case/kebab format.  Property names
+ * i.e., map from Penrose camel case format to SVG mixed-case/kebab format.  Property names
  * not found in the map are mapped straight across.
  *
  * Note: Right now we are neither validating the SVG property names nor its contents.  The
@@ -48,11 +48,7 @@ export const attrAutoFillSvg = (
   attrAlreadyMapped: string[]
 ): void => {
   // Internal properties to never auto-map to SVG
-  const attrToNeverAutoMap: string[] = [
-    "strokeStyle",
-    "name",
-    "ensureOnCanvas",
-  ];
+  const attrToNeverAutoMap: string[] = ["name", "ensureOnCanvas"];
 
   // Merge the mapped and never-map properties.  Convert to Set
   const attrToNotAutoMap = new Set<string>(

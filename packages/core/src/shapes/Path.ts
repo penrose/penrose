@@ -23,7 +23,6 @@ export const samplePath = (
   _canvas: Canvas
 ): PathProps<ad.Num> => ({
   name: strV("defaultPath"),
-  style: strV(""),
   strokeWidth: floatV(1),
   strokeStyle: strV("solid"),
   strokeColor: black(),

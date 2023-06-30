@@ -1,6 +1,6 @@
 {
   "substance": "./wet-floor.substance",
-  "style": ["./atoms-and-bonds.style"],
+  "style": ["./atoms-and-bonds.style", "./wet-floor.style"],
   "domain": "./atoms-and-bonds.domain",
-  "variation": "SinisterPigeon34750"
+  "variation": "MosslandsFerret98651"
 }

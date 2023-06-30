@@ -1,3 +1,5 @@
+import { allWarnings } from "@penrose/core";
+import Select from "react-select";
 import { useRecoilState } from "recoil";
 import { diagramGridState, diagramMetadataSelector } from "../state/atoms.js";
 import {
@@ -77,6 +79,25 @@ export default function DiagramOptions() {
                 interactive: e.target.checked,
               }))
             }
+          />
+        </label>
+      </div>
+      <div>
+        <label>
+          exclude warnings:{" "}
+          <Select
+            options={allWarnings.map((tag) => ({ val: tag }))}
+            isMulti
+            isSearchable
+            getOptionLabel={({ val }) => val}
+            getOptionValue={({ val }) => val}
+            value={diagramMetadata.excludeWarnings.map((tag) => ({ val: tag }))}
+            onChange={(values) => {
+              setDiagramMetadata((metadata) => ({
+                ...metadata,
+                excludeWarnings: values.map((v) => v.val),
+              }));
+            }}
           />
         </label>
       </div>
