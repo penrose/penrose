@@ -93,6 +93,7 @@ describe("Determinism", () => {
       style,
       domain,
       variation,
+      excludeWarnings: [],
     });
     if (resCompile.isErr()) {
       throw Error(showError(resCompile.error));
@@ -147,6 +148,7 @@ describe("Determinism", () => {
       style,
       domain,
       variation,
+      excludeWarnings: [],
     });
     if (resCompile.isErr()) {
       throw Error(showError(resCompile.error));
@@ -188,6 +190,7 @@ describe("Energy API", () => {
       style: vennStyle,
       domain: setDomain,
       variation: "energy overall",
+      excludeWarnings: [],
     });
     if (res.isOk()) {
       const stateEvaled = await prepareState(res.value);
@@ -211,6 +214,7 @@ describe("Energy API", () => {
       style: vennStyle,
       domain: setDomain,
       variation: "energy filtered",
+      excludeWarnings: [],
     });
     if (res.isOk()) {
       // NOTE: delibrately not cache the overall objective and re-generate for original and filtered states
@@ -253,12 +257,14 @@ describe("Cross-instance energy eval", () => {
       style: vennStyle,
       domain: setDomain,
       variation: "cross-instance state0",
+      excludeWarnings: [],
     });
     const state2 = await compileTrio({
       substance: twoSubsets,
       style: vennStyle,
       domain: setDomain,
       variation: "cross-instance state1",
+      excludeWarnings: [],
     });
     if (state1.isOk() && state2.isOk()) {
       const state1Done = stepUntilConvergence(await prepareState(state1.value));
@@ -296,6 +302,7 @@ describe("Run individual functions", () => {
       style: vennStyle,
       domain: setDomain,
       variation: "individual functions",
+      excludeWarnings: [],
     });
 
     if (res.isOk()) {

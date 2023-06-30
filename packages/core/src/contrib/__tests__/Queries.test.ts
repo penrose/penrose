@@ -60,7 +60,7 @@ const shapes: Shape<ad.Num>[] = [
       [-11, 0],
       [33, 0],
       [33, 44],
-    ]),
+    ]).value,
   }),
   // shapes[4]
   makeLine(context, canvas, {

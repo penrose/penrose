@@ -5,7 +5,7 @@ import {
   PenroseState,
   PenroseWarning,
 } from "@penrose/core";
-import { PathResolver, Trio, TrioMeta } from "@penrose/examples/dist/";
+import { PathResolver, Trio, TrioMeta } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
 import { Actions, BorderNode, TabNode } from "flexlayout-react";
 import localforage from "localforage";
@@ -65,6 +65,7 @@ export type WorkspaceMetadata = {
   location: WorkspaceLocation;
   // Diagram-specific
   variation?: string;
+  excludeWarnings?: string[];
 };
 
 export type ProgramFile = {
@@ -281,6 +282,7 @@ export type DiagramMetadata = {
   stepSize: number;
   autostep: boolean;
   interactive: boolean;
+  excludeWarnings: string[];
   source: {
     domain: string;
     substance: string;
@@ -306,6 +308,7 @@ export const diagramState = atom<Diagram>({
       stepSize: 10000,
       autostep: true,
       interactive: false,
+      excludeWarnings: [],
       source: {
         substance: "",
         style: "",
@@ -386,7 +389,9 @@ export const exampleTriosState = atom<TrioWithPreview[]>({
       try {
         const trios: [string, TrioMeta][] = [];
         for (const [id, meta] of registry.entries()) {
-          if (meta.trio && meta.gallery) trios.push([id, meta]);
+          if (meta.trio && meta.gallery) {
+            trios.push([id, meta]);
+          }
         }
         return Promise.all(
           trios.map(async ([id, { get, name }]) => {
@@ -430,6 +435,7 @@ export type GistMetadata = {
     domain: string;
   };
   variation?: string;
+  excludeWarnings?: string[];
 };
 
 export type Settings = {

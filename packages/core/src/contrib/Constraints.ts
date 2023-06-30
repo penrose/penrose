@@ -20,9 +20,18 @@ import * as BBox from "../engine/BBox.js";
 import { Line } from "../shapes/Line.js";
 import { Shape } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
-import { ConstrFunc } from "../types/functions.js";
+import { BBoxApproximationWarningItem } from "../types/errors.js";
+import { ConstrFunc, MayWarn } from "../types/functions.js";
 import { ClipData } from "../types/value.js";
-import { real2NT, real2T, realNT, realT, shapeT } from "../utils/Util.js";
+import {
+  noWarn,
+  noWarnFn,
+  real2NT,
+  real2T,
+  realNT,
+  realT,
+  shapeT,
+} from "../utils/Util.js";
 import { constrDictCurves } from "./CurveConstraints.js";
 import {
   absCircleToImplicitEllipse,
@@ -184,41 +193,69 @@ export const overlapping = (
   s1: Shape<ad.Num>,
   s2: Shape<ad.Num>,
   overlap: ad.Num = 0
-): ad.Num => {
+): MayWarn<ad.Num> => {
   const t1 = s1.shapeType;
   const t2 = s2.shapeType;
   // for some cases with ellipses, we can't easily compute the distance
   if (t1 === "Ellipse" && t2 === "Ellipse")
-    return overlappingEllipses(
-      toPt(s1.center.contents),
-      s1.rx.contents,
-      s1.ry.contents,
-      toPt(s2.center.contents),
-      s2.rx.contents,
-      s2.ry.contents,
-      overlap
+    return noWarn(
+      overlappingEllipses(
+        toPt(s1.center.contents),
+        s1.rx.contents,
+        s1.ry.contents,
+        toPt(s2.center.contents),
+        s2.rx.contents,
+        s2.ry.contents,
+        overlap
+      )
     );
   // Circle x Ellipse
   else if (t1 === "Circle" && t2 === "Ellipse")
-    return overlappingCircleEllipse(
-      toPt(s1.center.contents),
-      s1.r.contents,
-      toPt(s2.center.contents),
-      s2.rx.contents,
-      s2.ry.contents,
-      overlap
+    return noWarn(
+      overlappingCircleEllipse(
+        toPt(s1.center.contents),
+        s1.r.contents,
+        toPt(s2.center.contents),
+        s2.rx.contents,
+        s2.ry.contents,
+        overlap
+      )
     );
   else if (t1 === "Ellipse" && t2 === "Circle")
-    return overlappingCircleEllipse(
-      toPt(s2.center.contents),
-      s2.r.contents,
-      toPt(s1.center.contents),
-      s1.rx.contents,
-      s1.ry.contents,
-      overlap
+    return noWarn(
+      overlappingCircleEllipse(
+        toPt(s2.center.contents),
+        s2.r.contents,
+        toPt(s1.center.contents),
+        s1.rx.contents,
+        s1.ry.contents,
+        overlap
+      )
     );
   // for other cases, we know how to compute the distance, so we just use that
-  else return add(shapeDistance(s1, s2), overlap);
+  else {
+    const { value: dist, warnings } = shapeDistance(s1, s2);
+
+    // If the computation of shape distance issues bbox approximation warnings, adapt that warning to use `overlapping`
+    return {
+      value: add(dist, overlap),
+      warnings: warnings.map((warning) => {
+        if (warning.tag === "BBoxApproximationWarning") {
+          return {
+            ...warning,
+            stack: [
+              ...warning.stack,
+              {
+                signature: `overlapping(${t1}, ${t2})`,
+              },
+            ],
+          };
+        } else {
+          return warning;
+        }
+      }),
+    };
+  }
 };
 
 export const overlappingEllipses = (
@@ -267,72 +304,138 @@ export const disjoint = (
   s1: Shape<ad.Num>,
   s2: Shape<ad.Num>,
   padding: ad.Num = 0
-): ad.Num => neg(overlapping(s1, s2, neg(padding)));
+): MayWarn<ad.Num> => {
+  const { value: overlap, warnings } = overlapping(s1, s2, neg(padding));
+  return {
+    value: neg(overlap),
+    warnings: warnings.map((warning) => {
+      if (warning.tag === "BBoxApproximationWarning") {
+        return {
+          ...warning,
+          stack: [
+            ...warning.stack,
+            {
+              signature: `disjoint(${s1.shapeType}, ${s2.shapeType})`,
+            },
+          ],
+        };
+      } else return warning;
+    }),
+  };
+};
 
 export const touching = (
   s1: Shape<ad.Num>,
   s2: Shape<ad.Num>,
   padding: ad.Num = 0
-): ad.Num => absVal(overlapping(s1, s2, neg(padding)));
+): MayWarn<ad.Num> => {
+  const { value: overlap, warnings } = overlapping(s1, s2, neg(padding));
+  return {
+    value: absVal(overlap),
+    warnings: warnings.map((warning) => {
+      if (warning.tag === "BBoxApproximationWarning") {
+        return {
+          ...warning,
+          stack: [
+            ...warning.stack,
+            {
+              signature: `overlapping(${s1.shapeType}, ${s2.shapeType})`,
+            },
+          ],
+        };
+      } else return warning;
+    }),
+  };
+};
 
 export const contains = (
   s1: Shape<ad.Num>,
   s2: Shape<ad.Num>,
   padding: ad.Num = 0.0
-): ad.Num => {
+): MayWarn<ad.Num> => {
   const t1 = s1.shapeType,
     t2 = s2.shapeType;
   if (t1 === "Circle" && t2 === "Circle")
-    return containsCircles(
-      toPt(s1.center.contents),
-      s1.r.contents,
-      toPt(s2.center.contents),
-      s2.r.contents,
-      padding
+    return noWarn(
+      containsCircles(
+        toPt(s1.center.contents),
+        s1.r.contents,
+        toPt(s2.center.contents),
+        s2.r.contents,
+        padding
+      )
     );
   else if (t1 === "Polygon" && t2 === "Polygon") {
-    return containsPolys(polygonLikePoints(s1), polygonLikePoints(s2), padding);
+    return noWarn(
+      containsPolys(polygonLikePoints(s1), polygonLikePoints(s2), padding)
+    );
   } else if (t1 === "Polygon" && t2 === "Circle") {
-    return containsPolyCircle(
-      polygonLikePoints(s1),
-      toPt(s2.center.contents),
-      s2.r.contents,
-      padding
+    return noWarn(
+      containsPolyCircle(
+        polygonLikePoints(s1),
+        toPt(s2.center.contents),
+        s2.r.contents,
+        padding
+      )
     );
   } else if (t1 === "Circle" && t2 === "Polygon") {
-    return containsCirclePoly(
-      toPt(s1.center.contents),
-      s1.r.contents,
-      polygonLikePoints(s2),
-      padding
+    return noWarn(
+      containsCirclePoly(
+        toPt(s1.center.contents),
+        s1.r.contents,
+        polygonLikePoints(s2),
+        padding
+      )
     );
   } else if (t1 === "Circle" && isRectlike(s2)) {
-    const rectPts = bboxPts(bboxFromShape(s2));
-    return containsCircleRect(
-      toPt(s1.center.contents),
-      s1.r.contents,
-      rectPts,
-      padding
+    const rPts = bboxPts(bboxFromShape(s2));
+    return noWarn(
+      containsCircleRect(toPt(s1.center.contents), s1.r.contents, rPts, padding)
     );
   } else if (isRectlike(s1) && t2 === "Circle") {
-    const rectPts = bboxPts(bboxFromShape(s1));
-    return containsRectCircle(
-      rectPts,
-      toPt(s2.center.contents),
-      s2.r.contents,
-      padding
+    const rPts = bboxPts(bboxFromShape(s1));
+    return noWarn(
+      containsRectCircle(rPts, toPt(s2.center.contents), s2.r.contents, padding)
     );
   } else if (t1 === "Group") {
-    return containsGroupShape(
+    const { value, warnings } = containsGroupShape(
       s1.shapes.contents,
       s1.clipPath.contents,
       s2,
       padding
     );
+
+    return {
+      value,
+      warnings: warnings.map((warning) => {
+        if (warning.tag === "BBoxApproximationWarning") {
+          return {
+            ...warning,
+            stack: [...warning.stack, { signature: `contains(${t1}, ${t2})` }],
+          };
+        } else return warning;
+      }),
+    };
+  } else if (isRectlike(s1) && isRectlike(s2)) {
+    return noWarn(
+      containsRects(
+        bboxPts(bboxFromShape(s1)),
+        bboxPts(bboxFromShape(s2)),
+        padding
+      )
+    );
   } else {
     const s1BboxPts = bboxPts(bboxFromShape(s1));
     const s2BboxPts = bboxPts(bboxFromShape(s2));
-    return containsRects(s1BboxPts, s2BboxPts, padding);
+    return {
+      value: containsRects(s1BboxPts, s2BboxPts, padding),
+      warnings: [
+        {
+          tag: "BBoxApproximationWarning",
+          stack: [{ signature: `contains(${t1}, ${t2})` }],
+        },
+      ],
+    };
   }
 };
 
@@ -389,9 +492,7 @@ export const containsCirclePoly = (
   pts: ad.Pt2[],
   padding: ad.Num
 ): ad.Num => {
-  return maxN(
-    pts.map((pt) => constrDict.containsCirclePoint.body(c, r, pt, padding))
-  );
+  return maxN(pts.map((pt) => containsCirclePoint(c, r, pt, padding)));
 };
 
 export const containsCircleRect = (
@@ -409,7 +510,7 @@ export const containsCircleRect = (
   const bbox = BBox.bboxFromPoints(rect);
   const rectr = max(bbox.width, bbox.height);
   const rectc = bbox.center;
-  return constrDict.containsCircles.body(c, r, [rectc[0], rectc[1]], rectr, 0);
+  return containsCircles(c, r, [rectc[0], rectc[1]], rectr, 0);
 };
 
 export const containsRectCircle = (
@@ -468,18 +569,68 @@ export const containsGroupShape = (
   clip: ClipData<ad.Num>,
   s2: Shape<ad.Num>,
   padding: ad.Num
-): ad.Num => {
-  const vals = shapes.map((s) => constrDict.contains.body(s, s2, padding));
+): MayWarn<ad.Num> => {
+  const results = shapes.map((s) => contains(s, s2, padding));
+  const energies = results.map((r) => r.value);
+  const warningss = results.map((r) => {
+    return r.warnings.map((warning) => {
+      if (warning.tag === "BBoxApproximationWarning") {
+        const newStack: [
+          BBoxApproximationWarningItem,
+          ...BBoxApproximationWarningItem[]
+        ] = [
+          ...warning.stack,
+          {
+            signature: `containsGroupShape([${shapes
+              .map((s) => s.shapeType)
+              .join(", ")}], ..., ${s2.shapeType}, ...)`,
+          },
+        ];
+        return {
+          ...warning,
+          stack: newStack,
+        };
+      } else {
+        return warning;
+      }
+    });
+  });
   if (clip.tag === "NoClip") {
     // If a group does not have a clipping shape, checking whether a group contains a shape is equivalent to checking whether some group member contains the shape.
-    return minN(vals);
+    return {
+      value: minN(energies),
+      warnings: warningss.flat(),
+    };
   } else {
     // Otherwise, then (1) the group members (excluding the clipping shape) contains the other shape, and
     // (2) the clipping shape contains the other shape.
-    return andConstraint(
-      minN(vals),
-      constrDict.contains.body(clip.contents, s2)
-    );
+    const clipResult = contains(clip.contents, s2);
+    const clipEnergy = clipResult.value;
+    const clipWarnings = clipResult.warnings.map((warning) => {
+      if (warning.tag === "BBoxApproximationWarning") {
+        const newStack: [
+          BBoxApproximationWarningItem,
+          ...BBoxApproximationWarningItem[]
+        ] = [
+          ...warning.stack,
+          {
+            signature: `containsGroupShape([${shapes
+              .map((s) => s.shapeType)
+              .join(", ")}], clip(${clip.contents.shapeType}), ${
+              s2.shapeType
+            }, ...)`,
+          },
+        ];
+        return {
+          ...warning,
+          stack: newStack,
+        };
+      } else return warning;
+    });
+    return {
+      value: andConstraint(minN(energies), clipEnergy),
+      warnings: warningss.flat().concat(...clipWarnings),
+    };
   }
 };
 
@@ -507,7 +658,7 @@ const constrDictSimple = {
       { name: "x", description: "First value", type: realT() },
       { name: "y", description: "Second value", type: realT() },
     ],
-    body: equal,
+    body: noWarnFn(equal),
   },
 
   lessThan: {
@@ -520,7 +671,7 @@ const constrDictSimple = {
       { name: "y", description: "Second value", type: realT() },
       { name: "padding", description: "Padding", type: realT(), default: 0 },
     ],
-    body: lessThan,
+    body: noWarnFn(lessThan),
   },
 
   greaterThan: {
@@ -533,7 +684,7 @@ const constrDictSimple = {
       { name: "y", description: "Second value", type: realT() },
       { name: "padding", description: "Padding", type: realT(), default: 0 },
     ],
-    body: greaterThan,
+    body: noWarnFn(greaterThan),
   },
 
   lessThanSq: {
@@ -544,7 +695,7 @@ const constrDictSimple = {
       { name: "x", description: "First value", type: realT() },
       { name: "y", description: "Second value", type: realT() },
     ],
-    body: lessThanSq,
+    body: noWarnFn(lessThanSq),
   },
 
   greaterThanSq: {
@@ -555,7 +706,7 @@ const constrDictSimple = {
       { name: "x", description: "First value", type: realT() },
       { name: "y", description: "Second value", type: realT() },
     ],
-    body: greaterThanSq,
+    body: noWarnFn(greaterThanSq),
   },
 
   inRange: {
@@ -567,7 +718,7 @@ const constrDictSimple = {
       { name: "x0", description: "Lower bound", type: realT() },
       { name: "x1", description: "Upper bound", type: realT() },
     ],
-    body: inRange,
+    body: noWarnFn(inRange),
   },
 
   contains1D: {
@@ -587,7 +738,7 @@ const constrDictSimple = {
         type: real2T(),
       },
     ],
-    body: contains1D,
+    body: noWarnFn(contains1D),
   },
 
   disjointScalar: {
@@ -598,7 +749,7 @@ const constrDictSimple = {
       { name: "left", description: "Left bound", type: realT() },
       { name: "right", description: "Right bound", type: realT() },
     ],
-    body: disjointScalar,
+    body: noWarnFn(disjointScalar),
   },
 
   perpendicular: {
@@ -610,7 +761,7 @@ const constrDictSimple = {
       { name: "p", description: "Second point", type: realNT() },
       { name: "r", description: "Third point", type: realNT() },
     ],
-    body: perpendicular,
+    body: noWarnFn(perpendicular),
   },
 
   collinear: {
@@ -621,7 +772,7 @@ const constrDictSimple = {
       { name: "c2", description: "Second point", type: realNT() },
       { name: "c3", description: "Third point", type: realNT() },
     ],
-    body: collinear,
+    body: noWarnFn(collinear),
   },
 
   collinearOrdered: {
@@ -633,7 +784,7 @@ const constrDictSimple = {
       { name: "c2", description: "Second point", type: realNT() },
       { name: "c3", description: "Third point", type: realNT() },
     ],
-    body: collinearOrdered,
+    body: noWarnFn(collinearOrdered),
   },
 };
 
@@ -648,7 +799,7 @@ const constrDictGeneral = {
       { name: "canvasWidth", description: "Width of canvas", type: realT() },
       { name: "canvasHeight", description: "Height of canvas", type: realT() },
     ],
-    body: onCanvas,
+    body: noWarnFn(onCanvas),
   },
 
   /**
@@ -686,7 +837,7 @@ const constrDictGeneral = {
         default: 0,
       },
     ],
-    body: overlappingEllipses,
+    body: noWarnFn(overlappingEllipses),
   },
 
   overlappingCircleEllipse: {
@@ -705,7 +856,7 @@ const constrDictGeneral = {
         default: 0,
       },
     ],
-    body: overlappingCircleEllipse,
+    body: noWarnFn(overlappingCircleEllipse),
   },
 
   /**
@@ -771,7 +922,7 @@ const constrDictGeneral = {
         default: 0,
       },
     ],
-    body: containsCircles,
+    body: noWarnFn(containsCircles),
   },
 
   containsPolys: {
@@ -787,7 +938,7 @@ const constrDictGeneral = {
         default: 0,
       },
     ],
-    body: containsPolys,
+    body: noWarnFn(containsPolys),
   },
 
   containsPolyCircle: {
@@ -804,7 +955,7 @@ const constrDictGeneral = {
         default: 0,
       },
     ],
-    body: containsPolyCircle,
+    body: noWarnFn(containsPolyCircle),
   },
 
   containsPolyPoint: {
@@ -824,7 +975,7 @@ const constrDictGeneral = {
         default: 0,
       },
     ],
-    body: containsPolyPoint,
+    body: noWarnFn(containsPolyPoint),
   },
 
   containsCirclePoint: {
@@ -841,7 +992,7 @@ const constrDictGeneral = {
         default: 0,
       },
     ],
-    body: containsCirclePoint,
+    body: noWarnFn(containsCirclePoint),
   },
 
   containsCirclePoly: {
@@ -862,7 +1013,7 @@ const constrDictGeneral = {
         default: 0,
       },
     ],
-    body: containsCirclePoly,
+    body: noWarnFn(containsCirclePoly),
   },
 
   containsCircleRect: {
@@ -884,7 +1035,7 @@ const constrDictGeneral = {
         default: 0,
       },
     ],
-    body: containsCircleRect,
+    body: noWarnFn(containsCircleRect),
   },
 
   containsRectCircle: {
@@ -907,7 +1058,7 @@ const constrDictGeneral = {
         default: 0,
       },
     ],
-    body: containsRectCircle,
+    body: noWarnFn(containsRectCircle),
   },
 
   containsRects: {
@@ -933,7 +1084,7 @@ const constrDictGeneral = {
         default: 0,
       },
     ],
-    body: containsRects,
+    body: noWarnFn(containsRects),
   },
 };
 
@@ -949,7 +1100,7 @@ const constrDictSpecific = {
       { name: "s1", description: "Line 1", type: shapeT("Line") },
       { name: "s2", description: "Line 2", type: shapeT("Line") },
     ],
-    body: disjointIntervals,
+    body: noWarnFn(disjointIntervals),
   },
 };
 

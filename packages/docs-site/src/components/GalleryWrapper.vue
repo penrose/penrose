@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { withBase } from "vitepress";
+import { withBase, useData } from "vitepress";
 import { defineAsyncComponent } from "vue";
 
 const Gallery = defineAsyncComponent(async () => {
@@ -11,5 +11,7 @@ const link = withBase(`/try/index.html`);
 </script>
 
 <template>
-  <div style="width: 100%"><Gallery :ideLink="link" /></div>
+  <div style="width: 100%">
+    <Gallery :ideLink="link" :dark="useData().isDark.value" />
+  </div>
 </template>

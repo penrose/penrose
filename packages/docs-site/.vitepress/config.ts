@@ -163,6 +163,7 @@ export default defineConfig({
       },
       { text: "Documentation", link: "/docs/ref", activeMatch: "/docs/ref" },
       { text: "Try Penrose", link: "pathname:///try/index.html" },
+      { text: "Join Discord", link: "https://discord.gg/Y3K2kHxp2b" },
       { text: "Team", link: "/docs/team" },
       {
         text: "News",
@@ -183,6 +184,7 @@ export default defineConfig({
     socialLinks: [
       { icon: "github", link: "https://github.com/penrose/penrose" },
       { icon: "twitter", link: "https://twitter.com/UsePenrose" },
+      { icon: "discord", link: "https://discord.gg/Y3K2kHxp2b" },
     ],
 
     sidebar: {
@@ -286,6 +288,10 @@ export default defineConfig({
       ],
     },
 
-    footer: { copyright: "made with ❤️ in Pittsburgh and abroad" },
+    footer: {
+      message:
+        'Released under the <a href="https://github.com/penrose/penrose/blob/main/LICENSE">MIT License</a>.',
+      copyright: "Copyright © 2017-present Penrose contributors",
+    },
   },
 });

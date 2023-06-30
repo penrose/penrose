@@ -56,6 +56,7 @@ const renderTrio = async (
     style: style.map(({ contents }) => contents).join("\n"),
     domain,
     variation,
+    excludeWarnings: [],
   });
   if (compilerOutput.isErr()) {
     const err = compilerOutput.error;

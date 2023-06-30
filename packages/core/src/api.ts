@@ -44,8 +44,8 @@ export const onCanvasRect = (
   const hw = div(width, 2);
   const hh = div(height, 2);
   return add(
-    constrDict.contains1D.body(canvasXRange, [sub(x, hw), add(x, hw)]),
-    constrDict.contains1D.body(canvasYRange, [sub(y, hh), add(y, hh)])
+    constrDict.contains1D.body(canvasXRange, [sub(x, hw), add(x, hw)]).value,
+    constrDict.contains1D.body(canvasYRange, [sub(y, hh), add(y, hh)]).value
   );
 };
 

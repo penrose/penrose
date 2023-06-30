@@ -3,6 +3,7 @@ import { useCallback } from "react";
 import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from "recoil";
 import {
   ProgramType,
+  diagramState,
   domainCacheState,
   fileContentsSelector,
   settingsState,
@@ -17,6 +18,8 @@ export default function ProgramEditor({ kind }: { kind: ProgramType }) {
   const domainCache = useRecoilValue(domainCacheState);
   const compileDiagram = useCompileDiagram();
   const settings = useRecoilValueLoadable(settingsState);
+  const [diagram] = useRecoilState(diagramState);
+  const { error, warnings } = diagram;
   const onChange = useCallback(
     (v: string) => {
       setProgramState((state) => ({ ...state, contents: v }));
@@ -35,6 +38,8 @@ export default function ProgramEditor({ kind }: { kind: ProgramType }) {
       onChange={onChange}
       readOnly={workspaceMetadata.location.kind === "roger"}
       onWrite={compileDiagram}
+      error={error}
+      warnings={warnings}
     />
   );
 }
