@@ -28,10 +28,12 @@ import StateInspector from "./components/StateInspector.js";
 import SvgUploader from "./components/SvgUploader.js";
 import TopBar from "./components/TopBar.js";
 import {
+  Diagram,
   RogerState,
   Workspace,
   currentRogerState,
   currentWorkspaceState,
+  diagramState,
   fileContentsSelector,
   localFilesState,
   settingsState,
@@ -265,6 +267,20 @@ function App() {
     []
   );
 
+  const updateExcludeWarnings = useRecoilCallback(
+    ({ set }) =>
+      async (excludeWarnings: string[]) => {
+        await set(diagramState, (state: Diagram) => ({
+          ...state,
+          metadata: {
+            ...state.metadata,
+            excludeWarnings,
+          },
+        }));
+      },
+    []
+  );
+
   const connectRoger = useCallback(() => {
     ws.current = new WebSocket("ws://localhost:9160");
     ws.current.onclose = () => {
@@ -295,6 +311,7 @@ function App() {
           break;
         case "trio_files":
           updateTrio(parsed.files);
+          updateExcludeWarnings(parsed.excludeWarnings);
           break;
       }
     };

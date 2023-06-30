@@ -38,6 +38,7 @@ const _compileDiagram = async (
   style: string,
   domain: string,
   variation: string,
+  excludeWarnings: string[],
   set: any
 ) => {
   const compiledDomain = compileDomain(domain);
@@ -53,6 +54,7 @@ const _compileDiagram = async (
     substance,
     style,
     variation,
+    excludeWarnings,
   });
   if (compileResult.isErr()) {
     set(diagramState, (state: Diagram) => ({
@@ -72,6 +74,7 @@ const _compileDiagram = async (
       metadata: {
         ...state.metadata,
         variation,
+        excludeWarnings,
         source: {
           domain,
           substance,
@@ -135,6 +138,7 @@ export const useCompileDiagram = () =>
       styleFile,
       domainFile,
       diagram.metadata.variation,
+      diagram.metadata.excludeWarnings,
       set
     );
   });
@@ -216,12 +220,14 @@ export const useLoadLocalWorkspace = () =>
       toast.error(`Could not retrieve workspace ${id}`);
       return;
     }
+
     set(currentWorkspaceState, loadedWorkspace as Workspace);
     await _compileDiagram(
       loadedWorkspace.files.substance.contents,
       loadedWorkspace.files.style.contents,
       loadedWorkspace.files.domain.contents,
       uuid(),
+      [],
       set
     );
   });
@@ -237,7 +243,8 @@ export const useLoadExampleWorkspace = () =>
           return;
         }
         const id = toast.loading("Loading example...");
-        const { domain, style, substance, variation } = await meta.get();
+        const { domain, style, substance, variation, excludeWarnings } =
+          await meta.get();
         toast.dismiss(id);
         const styleJoined = style.map(({ contents }) => contents).join("\n");
         // HACK: we should really use each Style's individual `resolver`
@@ -270,7 +277,14 @@ export const useLoadExampleWorkspace = () =>
           },
         });
         reset(diagramState);
-        await _compileDiagram(substance, styleJoined, domain, variation, set);
+        await _compileDiagram(
+          substance,
+          styleJoined,
+          domain,
+          variation,
+          excludeWarnings,
+          set
+        );
       }
   );
 
@@ -351,7 +365,8 @@ export const useCheckURL = () =>
       if (typeof id !== "string") return;
       const ex = registry.get(id);
       if (ex === undefined || !ex.trio) return;
-      const { domain, style, substance, variation } = await ex.get();
+      const { domain, style, substance, variation, excludeWarnings } =
+        await ex.get();
       toast.dismiss(t);
       const styleJoined = style.map(({ contents }: any) => contents).join("\n");
       // HACK: we should really use each Style's individual `resolver`
@@ -384,7 +399,14 @@ export const useCheckURL = () =>
         },
       });
       reset(diagramState);
-      await _compileDiagram(substance, styleJoined, domain, variation, set);
+      await _compileDiagram(
+        substance,
+        styleJoined,
+        domain,
+        variation,
+        excludeWarnings,
+        set
+      );
       toast.dismiss(t);
     }
     // TODO: implementing loading individual registry examples by URL

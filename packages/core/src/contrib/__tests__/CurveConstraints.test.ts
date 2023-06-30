@@ -180,7 +180,7 @@ describe("isLocallyConvex", () => {
   ])("locally convex %p", (shape: Shape<ad.Num>) => {
     const points: ad.Num[][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
-    const result = constrDictCurves.isLocallyConvex.body(points, closed);
+    const result = constrDictCurves.isLocallyConvex.body(points, closed).value;
     expect(numOf(result)).toBeLessThanOrEqual(1e-5);
   });
 
@@ -189,7 +189,10 @@ describe("isLocallyConvex", () => {
     (shape: Shape<ad.Num>) => {
       const points: ad.Num[][] = extractPoints(shape);
       const closed: boolean = isClosed(shape);
-      const result = constrDictCurves.isLocallyConvex.body(points, closed);
+      const result = constrDictCurves.isLocallyConvex.body(
+        points,
+        closed
+      ).value;
       expect(numOf(result)).toBeGreaterThan(0.01);
     }
   );
@@ -201,7 +204,7 @@ describe("isConvex", () => {
     (shape: Polygon<ad.Num>) => {
       const points: ad.Num[][] = extractPoints(shape);
       const closed: boolean = isClosed(shape);
-      const result = constrDictCurves.isConvex.body(points, closed);
+      const result = constrDictCurves.isConvex.body(points, closed).value;
       expect(numOf(result)).toBeLessThanOrEqual(1e-5);
     }
   );
@@ -211,7 +214,7 @@ describe("isConvex", () => {
     (shape: Polygon<ad.Num>) => {
       const points: ad.Num[][] = extractPoints(shape);
       const closed: boolean = isClosed(shape);
-      const result = constrDictCurves.isConvex.body(points, closed);
+      const result = constrDictCurves.isConvex.body(points, closed).value;
       expect(numOf(result)).toBeGreaterThan(0.01);
     }
   );
@@ -227,7 +230,7 @@ describe("isEquidistant", () => {
   ])("equidistant %p", (shape: Polyline<ad.Num> | Polygon<ad.Num>) => {
     const points: ad.Num[][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
-    const result = constrDictCurves.isEquilateral.body(points, closed);
+    const result = constrDictCurves.isEquilateral.body(points, closed).value;
     expect(numOf(result)).toBeLessThanOrEqual(1e-5);
   });
 
@@ -240,7 +243,7 @@ describe("isEquidistant", () => {
   ])("non-equidistant %p", (shape: Polyline<ad.Num> | Polygon<ad.Num>) => {
     const points: ad.Num[][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
-    const result = constrDictCurves.isEquilateral.body(points, closed);
+    const result = constrDictCurves.isEquilateral.body(points, closed).value;
     expect(numOf(result)).toBeGreaterThan(0.01);
   });
 });
@@ -256,7 +259,7 @@ describe("isEquiangular", () => {
   ])("equiangular %p", (shape: Polygon<ad.Num> | Polyline<ad.Num>) => {
     const points: ad.Num[][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
-    const result = constrDictCurves.isEquiangular.body(points, closed);
+    const result = constrDictCurves.isEquiangular.body(points, closed).value;
     expect(numOf(result)).toBeLessThanOrEqual(1e-5);
   });
 
@@ -270,7 +273,7 @@ describe("isEquiangular", () => {
   ])("non-equiangular %p", (shape: Polygon<ad.Num> | Polyline<ad.Num>) => {
     const points: ad.Num[][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
-    const result = constrDictCurves.isEquiangular.body(points, closed);
+    const result = constrDictCurves.isEquiangular.body(points, closed).value;
     expect(numOf(result)).toBeGreaterThan(0.01);
   });
 });

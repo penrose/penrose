@@ -165,6 +165,7 @@ export default defineConfig({
       { text: "Try Penrose", link: "pathname:///try/index.html" },
       { text: "Join Discord", link: "https://discord.gg/Y3K2kHxp2b" },
       { text: "Team", link: "/docs/team" },
+      { text: "Blog", link: "/blog", activeMatch: "/blog" },
       {
         text: "News",
         items: [
@@ -280,6 +281,25 @@ export default defineConfig({
             {
               text: "Writing Constraints & Objectives",
               link: "/docs/ref/constraints",
+            },
+          ],
+        },
+      ],
+      "/blog": [
+        {
+          text: "June 2023",
+          items: [
+            {
+              text: "Diagram Layout in Stages",
+              link: "/blog/2023/06/30/staged-layout",
+            },
+            {
+              text: "What Have We Done to the Languages?",
+              link: "/blog/2023/06/30/new-language-features",
+            },
+            {
+              text: "Switching to Wasm for 10x Speedup",
+              link: "/blog/2023/06/30/wasm",
             },
           ],
         },

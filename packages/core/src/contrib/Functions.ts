@@ -61,7 +61,7 @@ import { Polyline } from "../shapes/Polyline.js";
 import { Context, uniform } from "../shapes/Samplers.js";
 import { Shape } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
-import { CompFunc } from "../types/functions.js";
+import { CompFunc, MayWarn } from "../types/functions.js";
 import {
   ClipDataV,
   Color,
@@ -84,6 +84,7 @@ import {
   linePts,
   natT,
   noClip,
+  noWarn,
   pathCmdT,
   pathTypeT,
   posIntT,
@@ -169,7 +170,7 @@ export const compDict = {
       end: [ad.Num, ad.Num],
       curveHeight: ad.Num,
       padding: ad.Num
-    ): PathDataV<ad.Num> => {
+    ): MayWarn<PathDataV<ad.Num>> => {
       // Two vectors for moving from `start` to the control point: `unit` is the direction of vector [start, end] (along the line passing through both labels) and `normalVec` is perpendicular to `unit` through the `rot90` operation.
       const unit: ad.Num[] = ops.vnormalize(ops.vsub(start, end));
       const normalVec: ad.Num[] = ops.rot90(toPt(unit));
@@ -183,10 +184,12 @@ export const compDict = {
       const curveEnd: ad.Num[] = ops.vmove(end, padding, unit);
       // Both the start and end points of the curve should be padded by some distance such that they don't overlap with the texts
       const path = new PathBuilder();
-      return path
-        .moveTo(toPt(ops.vmove(start, padding, ops.vneg(unit))))
-        .quadraticCurveTo(toPt(controlPt), toPt(curveEnd))
-        .getPath();
+      return noWarn(
+        path
+          .moveTo(toPt(ops.vmove(start, padding, ops.vneg(unit))))
+          .quadraticCurveTo(toPt(controlPt), toPt(curveEnd))
+          .getPath()
+      );
     },
     returns: pathCmdT(),
   },
@@ -206,12 +209,16 @@ export const compDict = {
         type: natT(),
       },
     ],
-    body: (_context: Context, xs: ad.Num[], i: number): FloatV<ad.Num> => {
+    body: (
+      _context: Context,
+      xs: ad.Num[],
+      i: number
+    ): MayWarn<FloatV<ad.Num>> => {
       const res = xs[i];
-      return {
+      return noWarn({
         tag: "FloatV",
         contents: res,
-      };
+      });
     },
     returns: realT(),
   },
@@ -235,14 +242,14 @@ export const compDict = {
       g: ad.Num,
       b: ad.Num,
       a: ad.Num
-    ): ColorV<ad.Num> => {
-      return {
+    ): MayWarn<ColorV<ad.Num>> => {
+      return noWarn({
         tag: "ColorV",
         contents: {
           tag: "RGBA",
           contents: [r, g, b, a],
         },
-      };
+      });
     },
     returns: valueT("Color"),
   },
@@ -259,13 +266,13 @@ export const compDict = {
       color1: Color<ad.Num>,
       color2: Color<ad.Num>,
       level: ad.Num
-    ): ColorV<ad.Num> => {
+    ): MayWarn<ColorV<ad.Num>> => {
       const half = div(level, 2);
       const even = eq(half, trunc(half)); // autodiff doesn't have a mod operator
       if (!(color1.tag === "RGBA" && color2.tag === "RGBA")) {
         throw Error("selectColor only supports RGBA");
       }
-      return {
+      return noWarn({
         tag: "ColorV",
         contents: {
           tag: "RGBA",
@@ -277,7 +284,7 @@ export const compDict = {
             ifCond(even, color1.contents[3], color2.contents[3]),
           ],
         },
-      };
+      });
     },
     returns: colorT(),
   },
@@ -301,14 +308,14 @@ export const compDict = {
       s: ad.Num,
       v: ad.Num,
       a: ad.Num
-    ): ColorV<ad.Num> => {
-      return {
+    ): MayWarn<ColorV<ad.Num>> => {
+      return noWarn({
         tag: "ColorV",
         contents: {
           tag: "HSVA",
           contents: [h, s, v, a],
         },
-      };
+      });
     },
     returns: colorT(),
   },
@@ -320,13 +327,13 @@ export const compDict = {
     name: "none",
     description: "Return a paint of none (no paint)",
     params: [],
-    body: (_context: Context): ColorV<ad.Num> => {
-      return {
+    body: (_context: Context): MayWarn<ColorV<ad.Num>> => {
+      return noWarn({
         tag: "ColorV",
         contents: {
           tag: "NONE",
         },
-      };
+      });
     },
     returns: valueT("Color"),
   },
@@ -338,11 +345,11 @@ export const compDict = {
     name: "acosh",
     description: "Return `acosh(x)`.",
     params: [{ name: "x", description: "`x`", type: realT() }],
-    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context, x: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: acosh(x),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -354,11 +361,11 @@ export const compDict = {
     name: "acos",
     description: "Return `acos(x)`.",
     params: [{ name: "x", description: "`x`", type: realT() }],
-    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context, x: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: acos(x),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -370,11 +377,11 @@ export const compDict = {
     name: "asin",
     description: "Return `asin(x)`.",
     params: [{ name: "x", description: "`x`", type: realT() }],
-    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context, x: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: asin(x),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -386,11 +393,11 @@ export const compDict = {
     name: "asinh",
     description: "Return `asinh(x)`.",
     params: [{ name: "x", description: "`x`", type: realT() }],
-    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context, x: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: asinh(x),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -402,11 +409,11 @@ export const compDict = {
     name: "atan",
     description: "Return `atan(x)`.",
     params: [{ name: "x", description: "`x`", type: realT() }],
-    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context, x: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: atan(x),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -421,11 +428,15 @@ export const compDict = {
       { name: "x", description: "`x`", type: realT() },
       { name: "y", description: "`y`", type: realT() },
     ],
-    body: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (
+      _context: Context,
+      x: ad.Num,
+      y: ad.Num
+    ): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: atan2(y, x),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -437,11 +448,11 @@ export const compDict = {
     name: "atanh",
     description: "Return `atanh(x)`.",
     params: [{ name: "x", description: "`x`", type: realT() }],
-    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context, x: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: atanh(x),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -453,11 +464,11 @@ export const compDict = {
     name: "cbrt",
     description: "Return `cbrt(x)`.",
     params: [{ name: "x", description: "`x`", type: realT() }],
-    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context, x: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: cbrt(x),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -469,11 +480,11 @@ export const compDict = {
     name: "ceil",
     description: "Return `ceil(x)`.",
     params: [{ name: "x", description: "`x`", type: realT() }],
-    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context, x: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: ceil(x),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -485,11 +496,11 @@ export const compDict = {
     name: "cos",
     description: "Return `cos(x)`.",
     params: [{ name: "x", description: "`x`", type: realT() }],
-    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context, x: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: cos(x),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -501,11 +512,11 @@ export const compDict = {
     name: "cosh",
     description: "Return `cosh(x)`.",
     params: [{ name: "x", description: "`x`", type: realT() }],
-    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context, x: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: cosh(x),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -517,11 +528,11 @@ export const compDict = {
     name: "exp",
     description: "Return `exp(x)`.",
     params: [{ name: "x", description: "`x`", type: realT() }],
-    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context, x: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: exp(x),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -533,11 +544,11 @@ export const compDict = {
     name: "expm1",
     description: "Return `expm1(x)`.",
     params: [{ name: "x", description: "`x`", type: realT() }],
-    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context, x: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: expm1(x),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -549,11 +560,11 @@ export const compDict = {
     name: "floor",
     description: "Return `floor(x)`.",
     params: [{ name: "x", description: "`x`", type: realT() }],
-    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context, x: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: floor(x),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -565,11 +576,11 @@ export const compDict = {
     name: "log",
     description: "Return `log(x)`.",
     params: [{ name: "x", description: "`x`", type: realT() }],
-    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context, x: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: ln(x),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -581,11 +592,11 @@ export const compDict = {
     name: "log2",
     description: "Return `log2(x)`.",
     params: [{ name: "x", description: "`x`", type: realT() }],
-    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context, x: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: log2(x),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -597,11 +608,11 @@ export const compDict = {
     name: "log10",
     description: "Return `log10(x)`.",
     params: [{ name: "x", description: "`x`", type: realT() }],
-    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context, x: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: log10(x),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -613,11 +624,11 @@ export const compDict = {
     name: "log1p",
     description: "Return `log1p(x)`.",
     params: [{ name: "x", description: "`x`", type: realT() }],
-    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context, x: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: log1p(x),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -632,11 +643,15 @@ export const compDict = {
       { name: "x", description: "`x`", type: realT() },
       { name: "y", description: "`y`", type: realT() },
     ],
-    body: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (
+      _context: Context,
+      x: ad.Num,
+      y: ad.Num
+    ): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: pow(x, y),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -648,11 +663,11 @@ export const compDict = {
     name: "round",
     description: "Return `round(x)`.",
     params: [{ name: "x", description: "`x`", type: realT() }],
-    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context, x: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: round(x),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -664,11 +679,11 @@ export const compDict = {
     name: "sign",
     description: "Return `sign(x)`.",
     params: [{ name: "x", description: "`x`", type: realT() }],
-    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context, x: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: sign(x),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -680,11 +695,11 @@ export const compDict = {
     name: "sin",
     description: "Return `sin(x)`.",
     params: [{ name: "x", description: "`x`", type: realT() }],
-    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context, x: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: sin(x),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -696,11 +711,11 @@ export const compDict = {
     name: "sinh",
     description: "Return `sinh(x)`.",
     params: [{ name: "x", description: "`x`", type: realT() }],
-    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context, x: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: sinh(x),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -712,11 +727,11 @@ export const compDict = {
     name: "tan",
     description: "Return `tan(x)`.",
     params: [{ name: "x", description: "`x`", type: realT() }],
-    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context, x: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: tan(x),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -728,11 +743,11 @@ export const compDict = {
     name: "tanh",
     description: "Return `tanh(x)`.",
     params: [{ name: "x", description: "`x`", type: realT() }],
-    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context, x: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: tanh(x),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -744,11 +759,11 @@ export const compDict = {
     name: "trunc",
     description: "Return `trunc(x)`.",
     params: [{ name: "x", description: "`x`", type: realT() }],
-    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context, x: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: trunc(x),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -757,11 +772,11 @@ export const compDict = {
     name: "sum",
     description: "Return the sum of elements in a vector.",
     params: [{ name: "xs", description: "elements", type: realNT() }],
-    body: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context, xs: ad.Num[]): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: addN(xs),
-      };
+      });
     },
     returns: realT(),
   },
@@ -770,13 +785,15 @@ export const compDict = {
     name: "sumVectors",
     description: "Return the sum of vectors in a list of vectors.",
     params: [{ name: "vecs", description: "vectors", type: realNMT() }],
-    body: (_context: Context, vecs: ad.Num[][]): VectorV<ad.Num> => {
+    body: (_context: Context, vecs: ad.Num[][]): MayWarn<VectorV<ad.Num>> => {
       if (vecs.length === 0) {
         throw new Error("Expect a non-empty list of vectors");
       }
       const vlen = vecs[0].length;
       const zeros: ad.Num[] = new Array(vlen).fill(0);
-      return vectorV(vecs.reduce((curr, v) => ops.vadd(curr, v), zeros));
+      return noWarn(
+        vectorV(vecs.reduce((curr, v) => ops.vadd(curr, v), zeros))
+      );
     },
     returns: realNT(),
   },
@@ -785,10 +802,11 @@ export const compDict = {
     name: "maxList",
     description: "Return the maximum of the elements in a vector.",
     params: [{ name: "xs", description: "elements", type: realNT() }],
-    body: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => ({
-      tag: "FloatV",
-      contents: maxN(xs),
-    }),
+    body: (_context: Context, xs: ad.Num[]): MayWarn<FloatV<ad.Num>> =>
+      noWarn({
+        tag: "FloatV",
+        contents: maxN(xs),
+      }),
     returns: realT(),
   },
 
@@ -796,10 +814,11 @@ export const compDict = {
     name: "minList",
     description: "Return the minimum of the elements in a vector.",
     params: [{ name: "xs", description: "elements", type: realNT() }],
-    body: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => ({
-      tag: "FloatV",
-      contents: minN(xs),
-    }),
+    body: (_context: Context, xs: ad.Num[]): MayWarn<FloatV<ad.Num>> =>
+      noWarn({
+        tag: "FloatV",
+        contents: minN(xs),
+      }),
     returns: realT(),
   },
 
@@ -807,10 +826,11 @@ export const compDict = {
     name: "count",
     description: "Return the number of the elements in a vector.",
     params: [{ name: "xs", description: "elements", type: realNT() }],
-    body: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => ({
-      tag: "FloatV",
-      contents: xs.length,
-    }),
+    body: (_context: Context, xs: ad.Num[]): MayWarn<FloatV<ad.Num>> =>
+      noWarn({
+        tag: "FloatV",
+        contents: xs.length,
+      }),
     returns: realT(),
   },
   /**
@@ -823,11 +843,15 @@ export const compDict = {
       { name: "v", description: "Vector `v`", type: realNT() },
       { name: "w", description: "Vector `w`", type: realNT() },
     ],
-    body: (_context: Context, v: ad.Num[], w: ad.Num[]): FloatV<ad.Num> => {
-      return {
+    body: (
+      _context: Context,
+      v: ad.Num[],
+      w: ad.Num[]
+    ): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: ops.vdot(v, w),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -842,11 +866,15 @@ export const compDict = {
       { name: "v", description: "Vector `v`", type: realNT() },
       { name: "w", description: "Vector `w`", type: realNT() },
     ],
-    body: (_context: Context, u: ad.Num[], v: ad.Num[]): MatrixV<ad.Num> => {
-      return {
+    body: (
+      _context: Context,
+      u: ad.Num[],
+      v: ad.Num[]
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
         tag: "MatrixV",
         contents: ops.vouter(u, v),
-      };
+      });
     },
     returns: valueT("RealNM"),
   },
@@ -858,12 +886,12 @@ export const compDict = {
     name: "length",
     description: "Return the length of the Line shape.",
     params: [{ name: "l", description: "A line", type: shapeT("Line") }],
-    body: (_context: Context, shape: Line<ad.Num>): FloatV<ad.Num> => {
+    body: (_context: Context, shape: Line<ad.Num>): MayWarn<FloatV<ad.Num>> => {
       const [p1, p2] = linePts(shape);
-      return {
+      return noWarn({
         tag: "FloatV",
         contents: ops.vdist(p1, p2),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -874,11 +902,11 @@ export const compDict = {
     name: "normalize",
     description: "Return the normalized version of vector `v`.",
     params: [{ type: realNT(), name: "v", description: "Vector `v`" }],
-    body: (_context: Context, v: ad.Num[]): VectorV<ad.Num> => {
-      return {
+    body: (_context: Context, v: ad.Num[]): MayWarn<VectorV<ad.Num>> => {
+      return noWarn({
         tag: "VectorV",
         contents: ops.vnormalize(v),
-      };
+      });
     },
     returns: valueT("RealN"),
   },
@@ -898,13 +926,13 @@ export const compDict = {
       _context: Context,
       pathType: string,
       pts: ad.Pt2[]
-    ): PathDataV<ad.Num> => {
+    ): MayWarn<PathDataV<ad.Num>> => {
       const path = new PathBuilder();
       const [start, ...tailpts] = pts;
       path.moveTo(start);
       tailpts.forEach((pt: ad.Pt2) => path.lineTo(pt));
       if (pathType === "closed") path.closePath();
-      return path.getPath();
+      return noWarn(path.getPath());
     },
     returns: valueT("PathCmd"),
   },
@@ -924,14 +952,14 @@ export const compDict = {
       _context: Context,
       pathType: string,
       pts: ad.Pt2[]
-    ): PathDataV<ad.Num> => {
+    ): MayWarn<PathDataV<ad.Num>> => {
       const path = new PathBuilder();
       const [start, cp, second, ...tailpts] = pts;
       path.moveTo(start);
       path.quadraticCurveTo(cp, second);
       tailpts.forEach((pt: ad.Pt2) => path.quadraticCurveJoin(pt));
       if (pathType === "closed") path.closePath();
-      return path.getPath();
+      return noWarn(path.getPath());
     },
     returns: valueT("PathCmd"),
   },
@@ -959,7 +987,7 @@ export const compDict = {
       p0: ad.Pt2,
       p1: ad.Pt2,
       p2: ad.Pt2
-    ): PathDataV<ad.Num> => {
+    ): MayWarn<PathDataV<ad.Num>> => {
       const path = new PathBuilder();
       path.moveTo(p0);
       // Compute the control point location q1 such that the
@@ -975,7 +1003,7 @@ export const compDict = {
       }
       path.quadraticCurveTo(q1, p2);
       if (pathType === "closed") path.closePath();
-      return path.getPath();
+      return noWarn(path.getPath());
     },
     returns: valueT("PathCmd"),
   },
@@ -996,14 +1024,14 @@ export const compDict = {
       _context: Context,
       pathType: string,
       pts: ad.Pt2[]
-    ): PathDataV<ad.Num> => {
+    ): MayWarn<PathDataV<ad.Num>> => {
       const path = new PathBuilder();
       const [start, cp1, cp2, second, ...tailpts] = pts;
       path.moveTo(start);
       path.bezierCurveTo(cp1, cp2, second);
       _.chunk(tailpts, 2).forEach(([cp, pt]) => path.cubicCurveJoin(cp, pt));
       if (pathType === "closed") path.closePath();
-      return path.getPath();
+      return noWarn(path.getPath());
     },
     returns: valueT("PathCmd"),
   },
@@ -1014,11 +1042,11 @@ export const compDict = {
     params: [
       { name: "points", type: realNMT(), description: "list of points" },
     ],
-    body: (_context: Context, points: ad.Num[][]): VectorV<ad.Num> => {
-      return {
+    body: (_context: Context, points: ad.Num[][]): MayWarn<VectorV<ad.Num>> => {
+      return noWarn({
         tag: "VectorV",
         contents: points[0],
-      };
+      });
     },
     returns: valueT("Real2"),
   },
@@ -1029,11 +1057,11 @@ export const compDict = {
     params: [
       { name: "points", type: realNMT(), description: "list of points" },
     ],
-    body: (_context: Context, points: ad.Num[][]): VectorV<ad.Num> => {
-      return {
+    body: (_context: Context, points: ad.Num[][]): MayWarn<VectorV<ad.Num>> => {
+      return noWarn({
         tag: "VectorV",
         contents: points[points.length - 1],
-      };
+      });
     },
     returns: valueT("Real2"),
   },
@@ -1044,16 +1072,16 @@ export const compDict = {
     params: [
       { name: "points", type: realNMT(), description: "list of points" },
     ],
-    body: (_context: Context, points: ad.Num[][]): VectorV<ad.Num> => {
+    body: (_context: Context, points: ad.Num[][]): MayWarn<VectorV<ad.Num>> => {
       let mean: ad.Num[] = [0, 0];
       for (let i = 0; i < points.length; i++) {
         mean = ops.vadd(mean, points[i]);
       }
       mean = ops.vdiv(mean, points.length);
-      return {
+      return noWarn({
         tag: "VectorV",
         contents: mean,
-      };
+      });
     },
     returns: valueT("Real2"),
   },
@@ -1085,8 +1113,8 @@ export const compDict = {
       pathType: string,
       points: ad.Num[][],
       tension: ad.Num
-    ): PathDataV<ad.Num> => {
-      return catmullRom(_context, pathType, points, tension);
+    ): MayWarn<PathDataV<ad.Num>> => {
+      return noWarn(catmullRom(_context, pathType, points, tension));
     },
     returns: valueT("PathCmd"),
   },
@@ -1107,12 +1135,12 @@ export const compDict = {
       X0: ad.Num[],
       A: ad.Num[][],
       omega: ad.Num[]
-    ): PtListV<ad.Num> => {
+    ): MayWarn<PtListV<ad.Num>> => {
       const Xt = diffusionProcess(_context, n, X0, A, omega);
-      return {
+      return noWarn({
         tag: "PtListV",
         contents: Xt.map(toPt),
-      };
+      });
     },
     returns: valueT("Real2N"),
   },
@@ -1134,7 +1162,7 @@ export const compDict = {
       s1: Line<ad.Num>,
       s2: Line<ad.Num>,
       padding: ad.Num
-    ): PtListV<ad.Num> => {
+    ): MayWarn<PtListV<ad.Num>> => {
       const [start1, end1] = linePts(s1);
       const [start2, end2] = linePts(s2);
 
@@ -1143,10 +1171,10 @@ export const compDict = {
       const markStart = ops.vmove(start1, padding, normalDir);
       const markEnd = ops.vmove(end1, padding, normalDir);
 
-      return {
+      return noWarn({
         tag: "PtListV",
         contents: [markStart, markEnd].map(toPt),
-      };
+      });
     },
     returns: valueT("Real2N"),
   },
@@ -1167,7 +1195,7 @@ export const compDict = {
       [start, end]: [ad.Pt2, ad.Pt2],
       t: string,
       size: ad.Num
-    ): PtListV<ad.Num> => {
+    ): MayWarn<PtListV<ad.Num>> => {
       const dir = ops.vnormalize(ops.vsub(end, start));
       const normalDir = ops.rot90(toPt(dir));
       const base = t === "start" ? start : end;
@@ -1175,10 +1203,10 @@ export const compDict = {
         ops.vmove(base, size, normalDir),
         ops.vmove(base, neg(size), normalDir),
       ];
-      return {
+      return noWarn({
         tag: "PtListV",
         contents: [markStart, markEnd].map(toPt),
-      };
+      });
     },
     returns: valueT("Real2N"),
   },
@@ -1243,11 +1271,11 @@ export const compDict = {
       rotation: ad.Num,
       largeArc: ad.Num,
       arcSweep: ad.Num
-    ): PathDataV<ad.Num> => {
+    ): MayWarn<PathDataV<ad.Num>> => {
       const path = new PathBuilder();
       path.moveTo(start).arcTo(radius, end, [rotation, largeArc, arcSweep]);
       if (pathType === "closed") path.closePath();
-      return path.getPath();
+      return noWarn(path.getPath());
     },
     returns: valueT("PathCmd"),
   },
@@ -1289,7 +1317,7 @@ export const compDict = {
       r: ad.Num,
       theta0: ad.Num,
       theta1: ad.Num
-    ): PathDataV<ad.Num> => {
+    ): MayWarn<PathDataV<ad.Num>> => {
       const path = new PathBuilder();
       //path.moveTo(start).arcTo(radius, end, [rotation, largeArc, arcSweep]);
       const u0 = [mul(r, cos(theta0)), mul(r, sin(theta0))];
@@ -1300,7 +1328,7 @@ export const compDict = {
       const arcSweep = ifCond(gt(theta0, theta1), 1, 0);
       path.moveTo(x0).arcTo([r, r], x1, [0, largeArc, arcSweep]);
       if (pathType === "closed") path.closePath();
-      return path.getPath();
+      return noWarn(path.getPath());
     },
     returns: valueT("PathCmd"),
   },
@@ -1362,7 +1390,7 @@ export const compDict = {
       repeat: number,
       spacing: ad.Num,
       arcSweep: ad.Num
-    ): PathDataV<ad.Num> => {
+    ): MayWarn<PathDataV<ad.Num>> => {
       const path = new PathBuilder();
       const startDir = ops.vnormalize(ops.vsub(outerStart, innerStart));
       const endDir = ops.vnormalize(ops.vsub(outerEnd, innerEnd));
@@ -1376,7 +1404,7 @@ export const compDict = {
         end = ops.vmove(end, spacing, endDir) as ad.Pt2;
         radius = ops.vadd(radius, [spacing, spacing]) as ad.Pt2;
       }
-      return path.getPath();
+      return noWarn(path.getPath());
     },
     returns: valueT("PathCmd"),
   },
@@ -1442,14 +1470,14 @@ export const compDict = {
       rotation: ad.Num,
       largeArc: ad.Num,
       arcSweep: ad.Num
-    ): PathDataV<ad.Num> => {
+    ): MayWarn<PathDataV<ad.Num>> => {
       const path = new PathBuilder();
       path
         .moveTo(start)
         .arcTo(radius, end, [rotation, largeArc, arcSweep])
         .lineTo(center);
       path.closePath();
-      return path.getPath();
+      return noWarn(path.getPath());
     },
     returns: valueT("PathCmd"),
   },
@@ -1482,10 +1510,10 @@ export const compDict = {
       p1: ad.Num[],
       p2: ad.Num[],
       r: ad.Num
-    ): VectorV<ad.Num> => {
+    ): MayWarn<VectorV<ad.Num>> => {
       // find unit vector pointing towards v2
       const unit = ops.vnormalize(ops.vsub(p2, p1));
-      return { tag: "VectorV", contents: ops.vmove(p1, r, unit) };
+      return noWarn({ tag: "VectorV", contents: ops.vmove(p1, r, unit) });
     },
     returns: valueT("RealN"),
   },
@@ -1516,14 +1544,14 @@ export const compDict = {
       [x1, y1]: ad.Num[],
       start: ad.Pt2,
       end: ad.Pt2
-    ): FloatV<ad.Num> => {
+    ): MayWarn<FloatV<ad.Num>> => {
       const st = ops.vnormalize([sub(start[0], x1), sub(start[1], y1)]);
       const en = ops.vnormalize([sub(end[0], x1), sub(end[1], y1)]);
       const cross = ops.cross2(st, en);
-      return {
+      return noWarn({
         tag: "FloatV",
         contents: ifCond(gt(cross, 0), 0, 1),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -1540,12 +1568,16 @@ export const compDict = {
       { name: "u", type: realNT(), description: "A vector" },
       { name: "v", type: realNT(), description: "A vector" },
     ],
-    body: (_context: Context, u: ad.Num[], v: ad.Num[]): FloatV<ad.Num> => {
+    body: (
+      _context: Context,
+      u: ad.Num[],
+      v: ad.Num[]
+    ): MayWarn<FloatV<ad.Num>> => {
       const theta = ops.angleBetween(u, v);
-      return {
+      return noWarn({
         tag: "FloatV",
         contents: theta,
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -1562,12 +1594,16 @@ export const compDict = {
       { name: "u", type: realNT(), description: "A vector" },
       { name: "v", type: realNT(), description: "A vector" },
     ],
-    body: (_context: Context, u: ad.Num[], v: ad.Num[]): FloatV<ad.Num> => {
+    body: (
+      _context: Context,
+      u: ad.Num[],
+      v: ad.Num[]
+    ): MayWarn<FloatV<ad.Num>> => {
       const theta = ops.angleFrom(u, v);
-      return {
+      return noWarn({
         tag: "FloatV",
         contents: theta,
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -1582,12 +1618,16 @@ export const compDict = {
       { name: "u", type: real2T(), description: "A vector" },
       { name: "v", type: real2T(), description: "A vector" },
     ],
-    body: (_context: Context, u: ad.Num[], v: ad.Num[]): FloatV<ad.Num> => {
+    body: (
+      _context: Context,
+      u: ad.Num[],
+      v: ad.Num[]
+    ): MayWarn<FloatV<ad.Num>> => {
       const det = sub(mul(u[0], v[1]), mul(u[1], v[0]));
-      return {
+      return noWarn({
         tag: "FloatV",
         contents: det,
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -1601,12 +1641,16 @@ export const compDict = {
       { name: "u", type: real3T(), description: "A vector" },
       { name: "v", type: real3T(), description: "A vector" },
     ],
-    body: (_context: Context, u: ad.Num[], v: ad.Num[]): VectorV<ad.Num> => {
+    body: (
+      _context: Context,
+      u: ad.Num[],
+      v: ad.Num[]
+    ): MayWarn<VectorV<ad.Num>> => {
       const result = ops.cross3(u, v);
-      return {
+      return noWarn({
         tag: "VectorV",
         contents: result,
-      };
+      });
     },
     returns: real3T(),
   },
@@ -1634,17 +1678,17 @@ export const compDict = {
       a1: ad.Num[],
       b0: ad.Num[],
       b1: ad.Num[]
-    ): VectorV<ad.Num> => {
+    ): MayWarn<VectorV<ad.Num>> => {
       const A0 = [a0[0], a0[1], 1];
       const A1 = [a1[0], a1[1], 1];
       const B0 = [b0[0], b0[1], 1];
       const B1 = [b1[0], b1[1], 1];
       const X = ops.cross3(ops.cross3(A0, A1), ops.cross3(B0, B1));
       const x = [div(X[0], X[2]), div(X[1], X[2])];
-      return {
+      return noWarn({
         tag: "VectorV",
         contents: toPt(x),
-      };
+      });
     },
     returns: valueT("Real2"),
   },
@@ -1663,12 +1707,12 @@ export const compDict = {
       _context: Context,
       start: ad.Num[],
       end: ad.Num[]
-    ): VectorV<ad.Num> => {
+    ): MayWarn<VectorV<ad.Num>> => {
       const midpointLoc = ops.vmul(0.5, ops.vadd(start, end));
-      return {
+      return noWarn({
         tag: "VectorV",
         contents: midpointLoc,
-      };
+      });
     },
     returns: valueT("RealN"),
   },
@@ -1691,16 +1735,16 @@ export const compDict = {
       _context: Context,
       s1: Line<ad.Num>,
       padding: ad.Num
-    ): TupV<ad.Num> => {
+    ): MayWarn<TupV<ad.Num>> => {
       const [start, end] = linePts(s1);
       // TODO: Cache these operations in Style!
       const normalDir = ops.rot90(ops.vnormalize(ops.vsub(end, start)));
       const midpointLoc = ops.vmul(0.5, ops.vadd(start, end));
       const midpointOffsetLoc = ops.vmove(midpointLoc, padding, normalDir);
-      return {
+      return noWarn({
         tag: "TupV",
         contents: toPt(midpointOffsetLoc),
-      };
+      });
     },
     returns: valueT("Real2"),
   },
@@ -1721,7 +1765,7 @@ export const compDict = {
       // TODO reimplement with variable tick marks when #629 is merged
       s1: Line<ad.Num>,
       padding: ad.Num
-    ): PtListV<ad.Num> => {
+    ): MayWarn<PtListV<ad.Num>> => {
       // tickPlacement(padding, ticks);
       const [start, end] = linePts(s1);
       const dir = ops.vnormalize(ops.vsub(end, start)); // TODO make direction face "positive direction"
@@ -1729,14 +1773,14 @@ export const compDict = {
       const endDir = ops.vrot(dir, 225);
       const center = ops.vmul(0.5, ops.vadd(start, end));
       // if even, evenly divide tick marks about center. if odd, start in center and move outwards
-      return {
+      return noWarn({
         tag: "PtListV",
         contents: [
           ops.vmove(center, padding, startDir),
           center,
           ops.vmove(center, padding, endDir),
         ].map(toPt),
-      };
+      });
     },
     returns: valueT("Real2N"),
   },
@@ -1764,7 +1808,7 @@ export const compDict = {
       pt2: ad.Num[],
       pt3: ad.Num[],
       padding: ad.Num
-    ): VectorV<ad.Num> => {
+    ): MayWarn<VectorV<ad.Num>> => {
       // unit vector towards first corner
       const vec1unit = ops.vnormalize(ops.vsub(pt2, pt1));
       const normalDir = ops.vneg(ops.rot90(vec1unit)); // rot90 rotates CW, neg to point in CCW direction
@@ -1782,10 +1826,10 @@ export const compDict = {
       const intoEndUnit = ops.vnormalize(ops.vsub([xp, yp], endpt));
       // vector from B->E needs to be parallel to original vector, only care about positive 1 case bc intoEndUnit should point the same direction as vec1unit
       const cond = gt(ops.vdot(vec1unit, intoEndUnit), 0.95);
-      return {
+      return noWarn({
         tag: "VectorV",
         contents: [ifCond(cond, xp, xn), ifCond(cond, yp, yn)],
-      };
+      });
     },
     returns: valueT("Real2"),
   },
@@ -1827,7 +1871,7 @@ export const compDict = {
       spacing: ad.Num,
       numTicks: ad.Num,
       tickLength: ad.Num
-    ): PathDataV<ad.Num> => {
+    ): MayWarn<PathDataV<ad.Num>> => {
       const path = new PathBuilder();
       // calculate scalar multipliers to determine the placement of each tick mark
       const multipliers = tickPlacement(spacing, numOf(numTicks));
@@ -1846,7 +1890,7 @@ export const compDict = {
         const [ex, ey] = ops.vmove([x2p, y2p], multiplier, unit);
         path.moveTo([sx, sy]).lineTo([ex, ey]);
       });
-      return path.getPath();
+      return noWarn(path.getPath());
     },
     returns: valueT("PathCmd"),
   },
@@ -1879,17 +1923,19 @@ export const compDict = {
       s2: Line<ad.Num>,
       intersection: ad.Pt2,
       len: ad.Num
-    ): PathDataV<ad.Num> => {
+    ): MayWarn<PathDataV<ad.Num>> => {
       const [seg1, seg2] = [linePts(s1), linePts(s2)];
       const [ptL, ptLR, ptR] = perpPathFlat(len, seg1, seg2);
       const path = new PathBuilder();
-      return path
-        .moveTo(toPt(ptL))
-        .lineTo(toPt(ptLR))
-        .lineTo(toPt(ptR))
-        .lineTo(intersection)
-        .closePath()
-        .getPath();
+      return noWarn(
+        path
+          .moveTo(toPt(ptL))
+          .lineTo(toPt(ptLR))
+          .lineTo(toPt(ptR))
+          .lineTo(intersection)
+          .closePath()
+          .getPath()
+      );
     },
     returns: valueT("PathCmd"),
   },
@@ -1911,14 +1957,16 @@ export const compDict = {
       l1: Line<ad.Num>,
       l2: Line<ad.Num>,
       l3: Line<ad.Num>
-    ): PathDataV<ad.Num> => {
+    ): MayWarn<PathDataV<ad.Num>> => {
       const path = new PathBuilder();
-      return path
-        .moveTo(toPt(getStart(l1)))
-        .lineTo(toPt(getStart(l2)))
-        .lineTo(toPt(getStart(l3)))
-        .closePath()
-        .getPath();
+      return noWarn(
+        path
+          .moveTo(toPt(getStart(l1)))
+          .lineTo(toPt(getStart(l2)))
+          .lineTo(toPt(getStart(l3)))
+          .closePath()
+          .getPath()
+      );
     },
     returns: valueT("PathCmd"),
   },
@@ -1933,11 +1981,15 @@ export const compDict = {
       { name: "x", type: realT(), description: "`x`" },
       { name: "y", type: realT(), description: "`y`" },
     ],
-    body: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (
+      _context: Context,
+      x: ad.Num,
+      y: ad.Num
+    ): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: div(add(x, y), 2),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -1949,12 +2001,12 @@ export const compDict = {
     name: "average",
     description: "Return the average of the floats in the list `xs`.",
     params: [{ name: "xs", type: realNT(), description: "`xs`" }],
-    body: (_context: Context, xs: ad.Num[]): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context, xs: ad.Num[]): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: div(addN(xs), max(1, xs.length)),
         // To avoid divide-by-0
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -1966,11 +2018,11 @@ export const compDict = {
     name: "unit",
     description: "Return the normalized version of vector `v`.",
     params: [{ name: "v", type: realNT(), description: "`v`" }],
-    body: (_context: Context, v: ad.Num[]): VectorV<ad.Num> => {
-      return {
+    body: (_context: Context, v: ad.Num[]): MayWarn<VectorV<ad.Num>> => {
+      return noWarn({
         tag: "VectorV",
         contents: ops.vnormalize(v),
-      };
+      });
     },
     returns: valueT("RealN"),
   },
@@ -1990,17 +2042,17 @@ export const compDict = {
       { makeInput }: Context,
       minVal: ad.Num,
       maxVal: ad.Num
-    ): FloatV<ad.Num> => {
+    ): MayWarn<FloatV<ad.Num>> => {
       if (typeof minVal === "number" && typeof maxVal === "number") {
         const val = makeInput({
           init: { tag: "Sampled", sampler: uniform(minVal, maxVal) },
           stages: new Set(),
         });
 
-        return {
+        return noWarn({
           tag: "FloatV",
           contents: val,
-        };
+        });
       } else {
         throw new Error(
           "Expects the minimum and maximum values to be constants. Got a computed or optimized value instead."
@@ -2017,16 +2069,16 @@ export const compDict = {
     name: "unitRandom",
     description: "Uniformly sample a random value in the range [0,1).",
     params: [],
-    body: ({ makeInput }: Context): FloatV<ad.Num> => {
+    body: ({ makeInput }: Context): MayWarn<FloatV<ad.Num>> => {
       const val = makeInput({
         init: { tag: "Sampled", sampler: uniform(0, 1) },
         stages: new Set(),
       });
 
-      return {
+      return noWarn({
         tag: "FloatV",
         contents: val,
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -2038,7 +2090,7 @@ export const compDict = {
     name: "diskRandom",
     description: "Sample the uniform distribution on the unit disk.",
     params: [],
-    body: ({ makeInput }: Context): VectorV<ad.Num> => {
+    body: ({ makeInput }: Context): MayWarn<VectorV<ad.Num>> => {
       const u1 = makeInput({
         init: { tag: "Sampled", sampler: uniform(0, 1) },
         stages: new Set(),
@@ -2054,10 +2106,10 @@ export const compDict = {
         mul(sqrt(u1), sin(mul(2 * Math.PI, u2))),
       ];
 
-      return {
+      return noWarn({
         tag: "VectorV",
         contents: x,
-      };
+      });
     },
     returns: valueT("RealN"),
   },
@@ -2069,7 +2121,7 @@ export const compDict = {
     name: "circleRandom",
     description: "Sample the uniform distribution on the unit circle.",
     params: [],
-    body: ({ makeInput }: Context): VectorV<ad.Num> => {
+    body: ({ makeInput }: Context): MayWarn<VectorV<ad.Num>> => {
       const u = makeInput({
         init: { tag: "Sampled", sampler: uniform(0, 2 * Math.PI) },
         stages: new Set(),
@@ -2077,10 +2129,10 @@ export const compDict = {
 
       const x = [cos(u), sin(u)];
 
-      return {
+      return noWarn({
         tag: "VectorV",
         contents: x,
-      };
+      });
     },
     returns: valueT("RealN"),
   },
@@ -2092,7 +2144,7 @@ export const compDict = {
     name: "sphereRandom",
     description: "Sample the uniform distribution on the unit sphere.",
     params: [],
-    body: ({ makeInput }: Context): VectorV<ad.Num> => {
+    body: ({ makeInput }: Context): MayWarn<VectorV<ad.Num>> => {
       const u1 = makeInput({
         init: { tag: "Sampled", sampler: uniform(0, 1) },
         stages: new Set(),
@@ -2108,10 +2160,10 @@ export const compDict = {
       const phi = mul(2 * Math.PI, u2);
       const x = [mul(r, cos(phi)), mul(r, sin(phi)), z];
 
-      return {
+      return noWarn({
         tag: "VectorV",
         contents: x,
-      };
+      });
     },
     returns: valueT("RealN"),
   },
@@ -2124,11 +2176,11 @@ export const compDict = {
     description:
       "Sample a normal distribution with mean 0 and standard deviation 1.",
     params: [],
-    body: ({ makeInput }: Context): FloatV<ad.Num> => {
-      return {
+    body: ({ makeInput }: Context): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: randn({ makeInput }),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -2150,7 +2202,7 @@ export const compDict = {
       a: ad.Num[],
       b: ad.Num[],
       c: ad.Num[]
-    ): VectorV<ad.Num> => {
+    ): MayWarn<VectorV<ad.Num>> => {
       const u1 = makeInput({
         init: { tag: "Sampled", sampler: uniform(0, 1) },
         stages: new Set(),
@@ -2168,10 +2220,10 @@ export const compDict = {
         ops.vmul(mul(s, t), c)
       );
 
-      return {
+      return noWarn({
         tag: "VectorV",
         contents: x,
-      };
+      });
     },
     returns: valueT("RealN"),
   },
@@ -2191,7 +2243,7 @@ export const compDict = {
       { makeInput }: Context,
       alpha: ad.Num,
       colorType: "rgb" | "hsv"
-    ): ColorV<ad.Num> => {
+    ): MayWarn<ColorV<ad.Num>> => {
       if (colorType === "rgb") {
         const rgb = _.range(3).map(() =>
           makeInput({
@@ -2200,25 +2252,25 @@ export const compDict = {
           })
         );
 
-        return {
+        return noWarn({
           tag: "ColorV",
           contents: {
             tag: "RGBA",
             contents: [rgb[0], rgb[1], rgb[2], alpha],
           },
-        };
+        });
       } else {
         const h = makeInput({
           init: { tag: "Sampled", sampler: uniform(0, 360) },
           stages: new Set(),
         });
-        return {
+        return noWarn({
           tag: "ColorV",
           contents: {
             tag: "HSVA",
             contents: [h, 100, 80, alpha], // HACK: for the color to look good
           },
-        };
+        });
       }
     },
     returns: valueT("Color"),
@@ -2238,23 +2290,23 @@ export const compDict = {
       _context: Context,
       color: Color<ad.Num>,
       frac: ad.Num
-    ): ColorV<ad.Num> => {
+    ): MayWarn<ColorV<ad.Num>> => {
       // If paint=none, opacity is irreelevant
       if (color.tag === "NONE") {
-        return {
+        return noWarn({
           tag: "ColorV",
           contents: color,
-        };
+        });
         // Otherwise, retain tag and color; only modify opacity
       } else {
         const props = color.contents;
-        return {
+        return noWarn({
           tag: "ColorV",
           contents: {
             tag: color.tag,
             contents: [props[0], props[1], props[2], mul(frac, props[3])],
           },
-        };
+        });
       }
     },
     returns: valueT("Color"),
@@ -2271,7 +2323,11 @@ export const compDict = {
       { name: "m", type: realNMT(), description: "A matrix" },
       { name: "v", type: realNT(), description: "A vector" },
     ],
-    body: (_context: Context, m: ad.Num[][], v: ad.Num[]): VectorV<ad.Num> => {
+    body: (
+      _context: Context,
+      m: ad.Num[][],
+      v: ad.Num[]
+    ): MayWarn<VectorV<ad.Num>> => {
       if (!m.length) {
         throw Error("empty matrix");
       }
@@ -2279,10 +2335,10 @@ export const compDict = {
         throw Error("empty vector");
       }
 
-      return {
+      return noWarn({
         tag: "VectorV",
         contents: m.map((row) => ops.vdot(row, v)),
-      };
+      });
     },
     returns: valueT("RealN"),
   },
@@ -2307,12 +2363,12 @@ export const compDict = {
       a: ad.Num[],
       b: ad.Num[],
       c: ad.Num[]
-    ): VectorV<ad.Num> => {
+    ): MayWarn<VectorV<ad.Num>> => {
       const x = ops.vmul(1 / 3, ops.vadd(a, ops.vadd(b, c)));
-      return {
+      return noWarn({
         tag: "VectorV",
         contents: toPt(x),
-      };
+      });
     },
     returns: valueT("Real2"),
   },
@@ -2335,7 +2391,7 @@ export const compDict = {
       p: ad.Num[],
       q: ad.Num[],
       r: ad.Num[]
-    ): VectorV<ad.Num> => {
+    ): MayWarn<VectorV<ad.Num>> => {
       // edge vectors
       const u = ops.vsub(r, q);
       const v = ops.vsub(p, r);
@@ -2363,10 +2419,10 @@ export const compDict = {
         ops.vmul(br, r)
       );
 
-      return {
+      return noWarn({
         tag: "VectorV",
         contents: toPt(x),
-      };
+      });
     },
     returns: valueT("Real2"),
   },
@@ -2388,7 +2444,7 @@ export const compDict = {
       p: ad.Num[],
       q: ad.Num[],
       r: ad.Num[]
-    ): FloatV<ad.Num> => {
+    ): MayWarn<FloatV<ad.Num>> => {
       // side lengths
       const a = ops.vnorm(ops.vsub(r, q));
       const b = ops.vnorm(ops.vsub(p, r));
@@ -2412,10 +2468,10 @@ export const compDict = {
         )
       );
 
-      return {
+      return noWarn({
         tag: "FloatV",
         contents: R,
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -2438,7 +2494,7 @@ export const compDict = {
       p: ad.Num[],
       q: ad.Num[],
       r: ad.Num[]
-    ): VectorV<ad.Num> => {
+    ): MayWarn<VectorV<ad.Num>> => {
       // side lengths
       const a = ops.vnorm(ops.vsub(r, q));
       const b = ops.vnorm(ops.vsub(p, r));
@@ -2456,10 +2512,10 @@ export const compDict = {
         ops.vmul(br, r)
       );
 
-      return {
+      return noWarn({
         tag: "VectorV",
         contents: toPt(x),
-      };
+      });
     },
     returns: valueT("Real2"),
   },
@@ -2482,7 +2538,7 @@ export const compDict = {
       p: ad.Num[],
       q: ad.Num[],
       r: ad.Num[]
-    ): FloatV<ad.Num> => {
+    ): MayWarn<FloatV<ad.Num>> => {
       // side lengths
       const a = ops.vnorm(ops.vsub(r, q));
       const b = ops.vnorm(ops.vsub(p, r));
@@ -2494,10 +2550,10 @@ export const compDict = {
       // inradius
       const R = sqrt(div(mul(mul(sub(s, a), sub(s, b)), sub(s, c)), s));
 
-      return {
+      return noWarn({
         tag: "FloatV",
         contents: R,
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -2511,8 +2567,8 @@ export const compDict = {
     name: "sqr",
     description: "Return the square of the number `x`.",
     params: [{ name: "x", type: realT(), description: "`x`" }],
-    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-      return { tag: "FloatV", contents: squared(x) };
+    body: (_context: Context, x: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({ tag: "FloatV", contents: squared(x) });
     },
     returns: valueT("Real"),
   },
@@ -2525,8 +2581,8 @@ export const compDict = {
     description:
       "Return the square root of number `x`. (Note: if `x < 0` you may get `NaN`s)",
     params: [{ name: "x", type: realT(), description: "`x`" }],
-    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-      return { tag: "FloatV", contents: sqrt(x) };
+    body: (_context: Context, x: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({ tag: "FloatV", contents: sqrt(x) });
     },
     returns: valueT("Real"),
   },
@@ -2541,8 +2597,12 @@ export const compDict = {
       { name: "x", type: realT(), description: "`x`" },
       { name: "y", type: realT(), description: "`y`" },
     ],
-    body: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
-      return { tag: "FloatV", contents: max(x, y) };
+    body: (
+      _context: Context,
+      x: ad.Num,
+      y: ad.Num
+    ): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({ tag: "FloatV", contents: max(x, y) });
     },
     returns: valueT("Real"),
   },
@@ -2557,8 +2617,12 @@ export const compDict = {
       { name: "x", type: realT(), description: "`x`" },
       { name: "y", type: realT(), description: "`y`" },
     ],
-    body: (_context: Context, x: ad.Num, y: ad.Num): FloatV<ad.Num> => {
-      return { tag: "FloatV", contents: min(x, y) };
+    body: (
+      _context: Context,
+      x: ad.Num,
+      y: ad.Num
+    ): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({ tag: "FloatV", contents: min(x, y) });
     },
     returns: valueT("Real"),
   },
@@ -2570,8 +2634,8 @@ export const compDict = {
     name: "abs",
     description: "Return the absolute value of the number `x`.",
     params: [{ name: "x", type: realT(), description: "`x`" }],
-    body: (_context: Context, x: ad.Num): FloatV<ad.Num> => {
-      return { tag: "FloatV", contents: absVal(x) };
+    body: (_context: Context, x: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({ tag: "FloatV", contents: absVal(x) });
     },
     returns: valueT("Real"),
   },
@@ -2583,11 +2647,11 @@ export const compDict = {
     name: "toRadians",
     description: "Convert the angle `theta` from degrees to radians.",
     params: [{ name: "theta", type: realT(), description: "`theta`" }],
-    body: (_context: Context, theta: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context, theta: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: mul(Math.PI / 180, theta),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -2599,11 +2663,11 @@ export const compDict = {
     name: "toDegrees",
     description: "Convert the angle `theta` from radians to degrees.",
     params: [{ name: "theta", type: realT(), description: "`theta`" }],
-    body: (_context: Context, theta: ad.Num): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context, theta: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: mul(180 / Math.PI, theta),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -2615,8 +2679,8 @@ export const compDict = {
     name: "norm",
     description: "Return the Euclidean norm of the vector `v`.",
     params: [{ name: "v", type: realNT(), description: "A vector" }],
-    body: (_context: Context, v: ad.Num[]): FloatV<ad.Num> => {
-      return { tag: "FloatV", contents: ops.vnorm(v) };
+    body: (_context: Context, v: ad.Num[]): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({ tag: "FloatV", contents: ops.vnorm(v) });
     },
     returns: valueT("Real"),
   },
@@ -2628,8 +2692,8 @@ export const compDict = {
     name: "normsq",
     description: "Return the Euclidean norm squared of the vector `v`.",
     params: [{ name: "v", type: realNT(), description: "A vector" }],
-    body: (_context: Context, v: ad.Num[]): FloatV<ad.Num> => {
-      return { tag: "FloatV", contents: ops.vnormsq(v) };
+    body: (_context: Context, v: ad.Num[]): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({ tag: "FloatV", contents: ops.vnormsq(v) });
     },
     returns: valueT("Real"),
   },
@@ -2645,8 +2709,12 @@ export const compDict = {
       { name: "v", type: realNT(), description: "A vector" },
       { name: "w", type: realNT(), description: "A vector" },
     ],
-    body: (_context: Context, v: ad.Num[], w: ad.Num[]): FloatV<ad.Num> => {
-      return { tag: "FloatV", contents: ops.vdist(v, w) };
+    body: (
+      _context: Context,
+      v: ad.Num[],
+      w: ad.Num[]
+    ): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({ tag: "FloatV", contents: ops.vdist(v, w) });
     },
     returns: valueT("Real"),
   },
@@ -2658,8 +2726,12 @@ export const compDict = {
       { name: "s", type: realT(), description: "A scalar" },
       { name: "v", type: realNT(), description: "A vector" },
     ],
-    body: (_context: Context, s: ad.Num, v: ad.Num[]): VectorV<ad.Num> => {
-      return { tag: "VectorV", contents: ops.vmul(s, v) };
+    body: (
+      _context: Context,
+      s: ad.Num,
+      v: ad.Num[]
+    ): MayWarn<VectorV<ad.Num>> => {
+      return noWarn({ tag: "VectorV", contents: ops.vmul(s, v) });
     },
     returns: valueT("RealN"),
   },
@@ -2675,8 +2747,12 @@ export const compDict = {
       { name: "v", type: realNT(), description: "A vector" },
       { name: "w", type: realNT(), description: "A vector" },
     ],
-    body: (_context: Context, v: ad.Num[], w: ad.Num[]): FloatV<ad.Num> => {
-      return { tag: "FloatV", contents: ops.vdistsq(v, w) };
+    body: (
+      _context: Context,
+      v: ad.Num[],
+      w: ad.Num[]
+    ): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({ tag: "FloatV", contents: ops.vdistsq(v, w) });
     },
     returns: valueT("Real"),
   },
@@ -2689,8 +2765,8 @@ export const compDict = {
     description:
       "Return the angle made by the vector `v` with the positive x-axis.",
     params: [{ name: "v", type: realNT(), description: "A vector" }],
-    body: (_context: Context, v: ad.Num[]): FloatV<ad.Num> => {
-      return { tag: "FloatV", contents: atan2(v[1], v[0]) };
+    body: (_context: Context, v: ad.Num[]): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({ tag: "FloatV", contents: atan2(v[1], v[0]) });
     },
     returns: valueT("Real"),
   },
@@ -2704,11 +2780,11 @@ export const compDict = {
     name: "MathE",
     description: "Base e of the natural logarithm.",
     params: [],
-    body: (_context: Context): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: Math.E,
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -2720,11 +2796,11 @@ export const compDict = {
     name: "MathPI",
     description: "Ratio of the circumference of a circle to its diameter.",
     params: [],
-    body: (_context: Context): FloatV<ad.Num> => {
-      return {
+    body: (_context: Context): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: Math.PI,
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -2738,12 +2814,12 @@ export const compDict = {
     name: "rot90",
     description: "Rotate a 2D vector `v` by 90 degrees counterclockwise.",
     params: [{ name: "v", type: real2T(), description: "A vector" }],
-    body: (_context: Context, v: ad.Num[]): VectorV<ad.Num> => {
+    body: (_context: Context, v: ad.Num[]): MayWarn<VectorV<ad.Num>> => {
       if (v.length !== 2) {
         throw Error("expected 2D vector in `rot90`");
       }
       const [x, y] = v;
-      return { tag: "VectorV", contents: [neg(y), x] };
+      return noWarn({ tag: "VectorV", contents: [neg(y), x] });
     },
     returns: valueT("Real2"),
   },
@@ -2762,14 +2838,18 @@ export const compDict = {
         description: "degrees to rotate counterclockwise",
       },
     ],
-    body: (_context: Context, v: ad.Num[], theta: ad.Num): VectorV<ad.Num> => {
+    body: (
+      _context: Context,
+      v: ad.Num[],
+      theta: ad.Num
+    ): MayWarn<VectorV<ad.Num>> => {
       if (v.length !== 2) {
         throw Error("expected 2D vector in `rotateBy`");
       }
       const [x, y] = v;
       const X = add(mul(cos(theta), x), mul(sin(theta), y));
       const Y = add(neg(mul(sin(theta), x)), mul(cos(theta), y));
-      return { tag: "VectorV", contents: [X, Y] };
+      return noWarn({ tag: "VectorV", contents: [X, Y] });
     },
     returns: valueT("Real2"),
   },
@@ -2796,7 +2876,7 @@ export const compDict = {
       _context: Context,
       shape: Shape<ad.Num>,
       pt: ad.Pt2
-    ): FloatV<ad.Num> => floatV(signedDistance(shape, pt)),
+    ): MayWarn<FloatV<ad.Num>> => noWarn(floatV(signedDistance(shape, pt))),
     returns: valueT("Real"),
   },
 
@@ -2807,8 +2887,11 @@ export const compDict = {
       { name: "rect", type: real2NT() },
       { name: "pt", type: real2T() },
     ],
-    body: (_context: Context, rect: ad.Pt2[], pt: ad.Pt2): FloatV<ad.Num> =>
-      floatV(signedDistanceRect(rect, pt)),
+    body: (
+      _context: Context,
+      rect: ad.Pt2[],
+      pt: ad.Pt2
+    ): MayWarn<FloatV<ad.Num>> => noWarn(floatV(signedDistanceRect(rect, pt))),
     returns: realT(),
   },
 
@@ -2825,7 +2908,8 @@ export const compDict = {
       c: ad.Pt2,
       r: ad.Num,
       pt: ad.Pt2
-    ): FloatV<ad.Num> => floatV(signedDistanceCircle(c, r, pt)),
+    ): MayWarn<FloatV<ad.Num>> =>
+      noWarn(floatV(signedDistanceCircle(c, r, pt))),
     returns: realT(),
   },
 
@@ -2836,8 +2920,12 @@ export const compDict = {
       { name: "pts", type: real2NT(), description: "points of the polygon" },
       { name: "pt", type: real2T(), description: "the point" },
     ],
-    body: (_context: Context, pts: ad.Pt2[], pt: ad.Pt2): FloatV<ad.Num> =>
-      floatV(signedDistancePolygon(pts, pt)),
+    body: (
+      _context: Context,
+      pts: ad.Pt2[],
+      pt: ad.Pt2
+    ): MayWarn<FloatV<ad.Num>> =>
+      noWarn(floatV(signedDistancePolygon(pts, pt))),
     returns: realT(),
   },
 
@@ -2860,7 +2948,8 @@ export const compDict = {
       rx: ad.Num,
       ry: ad.Num,
       pt: ad.Pt2
-    ): FloatV<ad.Num> => floatV(signedDistanceEllipse(c, rx, ry, pt)),
+    ): MayWarn<FloatV<ad.Num>> =>
+      noWarn(floatV(signedDistanceEllipse(c, rx, ry, pt))),
     returns: realT(),
   },
 
@@ -2877,7 +2966,8 @@ export const compDict = {
       start: ad.Pt2,
       end: ad.Pt2,
       pt: ad.Pt2
-    ): FloatV<ad.Num> => floatV(signedDistanceLine(start, end, pt)),
+    ): MayWarn<FloatV<ad.Num>> =>
+      noWarn(floatV(signedDistanceLine(start, end, pt))),
     returns: realT(),
   },
 
@@ -2888,8 +2978,12 @@ export const compDict = {
       { name: "pts", type: real2NT(), description: "points of the polyline" },
       { name: "pt", type: real2T(), description: "the point" },
     ],
-    body: (_context: Context, pts: ad.Pt2[], pt: ad.Pt2): FloatV<ad.Num> =>
-      floatV(signedDistancePolyline(pts, pt)),
+    body: (
+      _context: Context,
+      pts: ad.Pt2[],
+      pt: ad.Pt2
+    ): MayWarn<FloatV<ad.Num>> =>
+      noWarn(floatV(signedDistancePolyline(pts, pt))),
     returns: realT(),
   },
 
@@ -2905,7 +2999,8 @@ export const compDict = {
       _context: Context,
       shapes: Shape<ad.Num>[],
       pt: ad.Pt2
-    ): FloatV<ad.Num> => floatV(signedDistanceGroup(shapes, pt)),
+    ): MayWarn<FloatV<ad.Num>> =>
+      noWarn(floatV(signedDistanceGroup(shapes, pt))),
     returns: realT(),
   },
   //#endregion
@@ -2919,8 +3014,8 @@ export const compDict = {
     description:
       "Construct a unit vector u in the direction of the given angle theta (in radians).",
     params: [{ name: "theta", type: realT(), description: "direction" }],
-    body: (_context: Context, theta: ad.Num): VectorV<ad.Num> => {
-      return { tag: "VectorV", contents: [cos(theta), sin(theta)] };
+    body: (_context: Context, theta: ad.Num): MayWarn<VectorV<ad.Num>> => {
+      return noWarn({ tag: "VectorV", contents: [cos(theta), sin(theta)] });
     },
     returns: valueT("Real2"),
   },
@@ -2959,8 +3054,8 @@ export const compDict = {
         | Group<ad.Num>,
       p: ad.Num[],
       v: ad.Num[]
-    ): VectorV<ad.Num> => {
-      return vectorV(safeRI(rawRayIntersect(S, p, v), p));
+    ): MayWarn<VectorV<ad.Num>> => {
+      return noWarn(vectorV(safeRI(rawRayIntersect(S, p, v), p)));
     },
     returns: valueT("Real2"),
   },
@@ -2997,8 +3092,8 @@ export const compDict = {
         | Group<ad.Num>,
       p: ad.Num[],
       v: ad.Num[]
-    ): FloatV<ad.Num> => {
-      return floatV(distRI(rawRayIntersect(S, p, v), p));
+    ): MayWarn<FloatV<ad.Num>> => {
+      return noWarn(floatV(distRI(rawRayIntersect(S, p, v), p)));
     },
     returns: valueT("Real"),
   },
@@ -3016,7 +3111,8 @@ export const compDict = {
       r: ad.Num,
       p: ad.Num[],
       v: ad.Num[]
-    ): VectorV<ad.Num> => vectorV(safeRI(rawRayIntersectCircle(c, r, p, v), p)),
+    ): MayWarn<VectorV<ad.Num>> =>
+      noWarn(vectorV(safeRI(rawRayIntersectCircle(c, r, p, v), p))),
     returns: valueT("Real2"),
   },
   rayIntersectCircleDistance: {
@@ -3033,7 +3129,8 @@ export const compDict = {
       r: ad.Num,
       p: ad.Num[],
       v: ad.Num[]
-    ): FloatV<ad.Num> => floatV(distRI(rawRayIntersectCircle(c, r, p, v), p)),
+    ): MayWarn<FloatV<ad.Num>> =>
+      noWarn(floatV(distRI(rawRayIntersectCircle(c, r, p, v), p))),
     returns: valueT("Real"),
   },
   rayIntersectEllipse: {
@@ -3052,8 +3149,8 @@ export const compDict = {
       ry: ad.Num,
       p: ad.Num[],
       v: ad.Num[]
-    ): VectorV<ad.Num> =>
-      vectorV(safeRI(rawRayIntersectEllipse(c, rx, ry, p, v), p)),
+    ): MayWarn<VectorV<ad.Num>> =>
+      noWarn(vectorV(safeRI(rawRayIntersectEllipse(c, rx, ry, p, v), p))),
     returns: real2T(),
   },
   rayIntersectEllipseDistance: {
@@ -3072,8 +3169,8 @@ export const compDict = {
       ry: ad.Num,
       p: ad.Num[],
       v: ad.Num[]
-    ): FloatV<ad.Num> =>
-      floatV(distRI(rawRayIntersectEllipse(c, rx, ry, p, v), p)),
+    ): MayWarn<FloatV<ad.Num>> =>
+      noWarn(floatV(distRI(rawRayIntersectEllipse(c, rx, ry, p, v), p))),
     returns: valueT("Real"),
   },
   rayIntersectLine: {
@@ -3090,8 +3187,8 @@ export const compDict = {
       end: ad.Num[],
       p: ad.Num[],
       v: ad.Num[]
-    ): VectorV<ad.Num> =>
-      vectorV(safeRI(rawRayIntersectLine(start, end, p, v), p)),
+    ): MayWarn<VectorV<ad.Num>> =>
+      noWarn(vectorV(safeRI(rawRayIntersectLine(start, end, p, v), p))),
     returns: real2T(),
   },
   rayIntersectLineDistance: {
@@ -3108,8 +3205,8 @@ export const compDict = {
       end: ad.Num[],
       p: ad.Num[],
       v: ad.Num[]
-    ): FloatV<ad.Num> =>
-      floatV(distRI(rawRayIntersectLine(start, end, p, v), p)),
+    ): MayWarn<FloatV<ad.Num>> =>
+      noWarn(floatV(distRI(rawRayIntersectLine(start, end, p, v), p))),
     returns: valueT("Real"),
   },
   rayIntersectRect: {
@@ -3129,7 +3226,8 @@ export const compDict = {
       rect: ad.Pt2[],
       p: ad.Num[],
       v: ad.Num[]
-    ): VectorV<ad.Num> => vectorV(safeRI(rawRayIntersectRect(rect, p, v), p)),
+    ): MayWarn<VectorV<ad.Num>> =>
+      noWarn(vectorV(safeRI(rawRayIntersectRect(rect, p, v), p))),
     returns: real2T(),
   },
   rayIntersectRectDistance: {
@@ -3149,7 +3247,8 @@ export const compDict = {
       rect: ad.Pt2[],
       p: ad.Num[],
       v: ad.Num[]
-    ): FloatV<ad.Num> => floatV(distRI(rawRayIntersectRect(rect, p, v), p)),
+    ): MayWarn<FloatV<ad.Num>> =>
+      noWarn(floatV(distRI(rawRayIntersectRect(rect, p, v), p))),
     returns: valueT("Real"),
   },
   rayIntersectPoly: {
@@ -3173,8 +3272,8 @@ export const compDict = {
       closed: boolean,
       p: ad.Num[],
       v: ad.Num[]
-    ): VectorV<ad.Num> =>
-      vectorV(safeRI(rawRayIntersectPoly(pts, closed, p, v), p)),
+    ): MayWarn<VectorV<ad.Num>> =>
+      noWarn(vectorV(safeRI(rawRayIntersectPoly(pts, closed, p, v), p))),
     returns: real2T(),
   },
   rayIntersectPolyDistance: {
@@ -3198,8 +3297,8 @@ export const compDict = {
       closed: boolean,
       p: ad.Num[],
       v: ad.Num[]
-    ): FloatV<ad.Num> =>
-      floatV(distRI(rawRayIntersectPoly(pts, closed, p, v), p)),
+    ): MayWarn<FloatV<ad.Num>> =>
+      noWarn(floatV(distRI(rawRayIntersectPoly(pts, closed, p, v), p))),
     returns: valueT("Real"),
   },
   rayIntersectGroup: {
@@ -3215,8 +3314,8 @@ export const compDict = {
       shapes: Shape<ad.Num>[],
       p: ad.Num[],
       v: ad.Num[]
-    ): VectorV<ad.Num> =>
-      vectorV(safeRI(rawRayIntersectGroup(shapes, p, v), p)),
+    ): MayWarn<VectorV<ad.Num>> =>
+      noWarn(vectorV(safeRI(rawRayIntersectGroup(shapes, p, v), p))),
     returns: real2T(),
   },
   rayIntersectGroupDistance: {
@@ -3232,7 +3331,8 @@ export const compDict = {
       shapes: Shape<ad.Num>[],
       p: ad.Num[],
       v: ad.Num[]
-    ): FloatV<ad.Num> => floatV(distRI(rawRayIntersectGroup(shapes, p, v), p)),
+    ): MayWarn<FloatV<ad.Num>> =>
+      noWarn(floatV(distRI(rawRayIntersectGroup(shapes, p, v), p))),
     returns: valueT("Real"),
   },
   rayIntersectNormal: {
@@ -3268,7 +3368,8 @@ export const compDict = {
         | Group<ad.Num>,
       p: ad.Num[],
       v: ad.Num[]
-    ): VectorV<ad.Num> => vectorV(safeRIN(rawRayIntersect(S, p, v), p)),
+    ): MayWarn<VectorV<ad.Num>> =>
+      noWarn(vectorV(safeRIN(rawRayIntersect(S, p, v), p))),
     returns: valueT("Real2"),
   },
   rayIntersectNormalCircle: {
@@ -3285,8 +3386,8 @@ export const compDict = {
       r: ad.Num,
       p: ad.Num[],
       v: ad.Num[]
-    ): VectorV<ad.Num> =>
-      vectorV(safeRIN(rawRayIntersectCircle(c, r, p, v), p)),
+    ): MayWarn<VectorV<ad.Num>> =>
+      noWarn(vectorV(safeRIN(rawRayIntersectCircle(c, r, p, v), p))),
     returns: valueT("Real2"),
   },
   rayIntersectNormalEllipse: {
@@ -3305,8 +3406,8 @@ export const compDict = {
       ry: ad.Num,
       p: ad.Num[],
       v: ad.Num[]
-    ): VectorV<ad.Num> =>
-      vectorV(safeRIN(rawRayIntersectEllipse(c, rx, ry, p, v), p)),
+    ): MayWarn<VectorV<ad.Num>> =>
+      noWarn(vectorV(safeRIN(rawRayIntersectEllipse(c, rx, ry, p, v), p))),
     returns: real2T(),
   },
   rayIntersectNormalLine: {
@@ -3323,8 +3424,8 @@ export const compDict = {
       end: ad.Num[],
       p: ad.Num[],
       v: ad.Num[]
-    ): VectorV<ad.Num> =>
-      vectorV(safeRIN(rawRayIntersectLine(start, end, p, v), p)),
+    ): MayWarn<VectorV<ad.Num>> =>
+      noWarn(vectorV(safeRIN(rawRayIntersectLine(start, end, p, v), p))),
     returns: real2T(),
   },
   rayIntersectNormalRect: {
@@ -3344,7 +3445,8 @@ export const compDict = {
       rect: ad.Pt2[],
       p: ad.Num[],
       v: ad.Num[]
-    ): VectorV<ad.Num> => vectorV(safeRIN(rawRayIntersectRect(rect, p, v), p)),
+    ): MayWarn<VectorV<ad.Num>> =>
+      noWarn(vectorV(safeRIN(rawRayIntersectRect(rect, p, v), p))),
     returns: real2T(),
   },
   rayIntersectNormalPoly: {
@@ -3367,8 +3469,8 @@ export const compDict = {
       closed: boolean,
       p: ad.Num[],
       v: ad.Num[]
-    ): VectorV<ad.Num> =>
-      vectorV(safeRIN(rawRayIntersectPoly(pts, closed, p, v), p)),
+    ): MayWarn<VectorV<ad.Num>> =>
+      noWarn(vectorV(safeRIN(rawRayIntersectPoly(pts, closed, p, v), p))),
     returns: real2T(),
   },
   rayIntersectNormalGroup: {
@@ -3384,8 +3486,8 @@ export const compDict = {
       shapes: Shape<ad.Num>[],
       p: ad.Num[],
       v: ad.Num[]
-    ): VectorV<ad.Num> =>
-      vectorV(safeRIN(rawRayIntersectGroup(shapes, p, v), p)),
+    ): MayWarn<VectorV<ad.Num>> =>
+      noWarn(vectorV(safeRIN(rawRayIntersectGroup(shapes, p, v), p))),
     returns: real2T(),
   },
   //#endregion
@@ -3412,7 +3514,7 @@ export const compDict = {
       { name: "p", type: real2T(), description: "A vector" },
     ],
     body: (_context: Context, shape: Shape<ad.Num>, p: ad.Pt2) =>
-      vectorV(closestPoint(shape, p)),
+      noWarn(vectorV(closestPoint(shape, p))),
     returns: valueT("Real2"),
   },
   closestPointCircle: {
@@ -3427,7 +3529,8 @@ export const compDict = {
       c: ad.Pt2,
       r: ad.Num,
       pt: ad.Pt2
-    ): VectorV<ad.Num> => vectorV(closestPointCircle(c, r, pt)),
+    ): MayWarn<VectorV<ad.Num>> =>
+      noWarn(vectorV(closestPointCircle(c, r, pt))),
     returns: valueT("Real2"),
   },
   closestPointRect: {
@@ -3441,8 +3544,11 @@ export const compDict = {
       },
       { name: "pt", type: real2T(), description: "the point" },
     ],
-    body: (_context: Context, rect: ad.Pt2[], pt: ad.Pt2): VectorV<ad.Num> =>
-      vectorV(closestPointRect(rect, pt)),
+    body: (
+      _context: Context,
+      rect: ad.Pt2[],
+      pt: ad.Pt2
+    ): MayWarn<VectorV<ad.Num>> => noWarn(vectorV(closestPointRect(rect, pt))),
     returns: valueT("Real2"),
   },
   closestPointLine: {
@@ -3457,7 +3563,8 @@ export const compDict = {
       start: ad.Pt2,
       end: ad.Pt2,
       pt: ad.Pt2
-    ): VectorV<ad.Num> => vectorV(closestPointLine(start, end, pt)),
+    ): MayWarn<VectorV<ad.Num>> =>
+      noWarn(vectorV(closestPointLine(start, end, pt))),
     returns: valueT("Real2"),
   },
   closestPointEllipse: {
@@ -3478,7 +3585,8 @@ export const compDict = {
       rx: ad.Num,
       ry: ad.Num,
       pt: ad.Pt2
-    ): VectorV<ad.Num> => vectorV(closestPointEllipse(c, rx, ry, pt)),
+    ): MayWarn<VectorV<ad.Num>> =>
+      noWarn(vectorV(closestPointEllipse(c, rx, ry, pt))),
     returns: valueT("Real2"),
   },
   closestPointPoly: {
@@ -3497,7 +3605,8 @@ export const compDict = {
       pts: ad.Pt2[],
       closed: boolean,
       pt: ad.Pt2
-    ): VectorV<ad.Num> => vectorV(closestPointPoly(pts, closed, pt)),
+    ): MayWarn<VectorV<ad.Num>> =>
+      noWarn(vectorV(closestPointPoly(pts, closed, pt))),
     returns: valueT("Real2"),
   },
   closestPointGroup: {
@@ -3514,7 +3623,8 @@ export const compDict = {
       _context: Context,
       shapes: Shape<ad.Num>[],
       pt: ad.Pt2
-    ): VectorV<ad.Num> => vectorV(closestPointGroup(shapes, pt)),
+    ): MayWarn<VectorV<ad.Num>> =>
+      noWarn(vectorV(closestPointGroup(shapes, pt))),
     returns: real2T(),
   },
   //#endregion
@@ -3551,7 +3661,8 @@ export const compDict = {
         | Ellipse<ad.Num>
         | Group<ad.Num>,
       p: ad.Num[]
-    ): VectorV<ad.Num> => vectorV(safeCSP(rawClosestSilhouettePoint(s, p), p)),
+    ): MayWarn<VectorV<ad.Num>> =>
+      noWarn(vectorV(safeCSP(rawClosestSilhouettePoint(s, p), p))),
     returns: valueT("Real2"),
   },
   closestSilhouettePointCircle: {
@@ -3566,8 +3677,8 @@ export const compDict = {
       c: ad.Pt2,
       r: ad.Num,
       p: ad.Pt2
-    ): VectorV<ad.Num> =>
-      vectorV(safeCSP(rawClosestSilhouettePointCircle(c, r, p), p)),
+    ): MayWarn<VectorV<ad.Num>> =>
+      noWarn(vectorV(safeCSP(rawClosestSilhouettePointCircle(c, r, p), p))),
     returns: real2T(),
   },
   closestSilhouettePointEllipse: {
@@ -3584,8 +3695,8 @@ export const compDict = {
       rx: ad.Num,
       ry: ad.Num,
       p: ad.Pt2
-    ): VectorV<ad.Num> =>
-      vectorV(safeCSP(closestPointEllipse(c, rx, ry, p), p)),
+    ): MayWarn<VectorV<ad.Num>> =>
+      noWarn(vectorV(safeCSP(closestPointEllipse(c, rx, ry, p), p))),
     returns: real2T(),
   },
   closestSilhouettePointLine: {
@@ -3600,8 +3711,8 @@ export const compDict = {
       start: ad.Pt2,
       end: ad.Pt2,
       p: ad.Pt2
-    ): VectorV<ad.Num> =>
-      vectorV(safeCSP(rawClosestSilhouettePointLine(start, end, p), p)),
+    ): MayWarn<VectorV<ad.Num>> =>
+      noWarn(vectorV(safeCSP(rawClosestSilhouettePointLine(start, end, p), p))),
     returns: real2T(),
   },
   closestSilhouettePointRect: {
@@ -3615,8 +3726,12 @@ export const compDict = {
       },
       { name: "p", type: real2T(), description: "A point" },
     ],
-    body: (_context: Context, rect: ad.Pt2[], p: ad.Pt2): VectorV<ad.Num> =>
-      vectorV(safeCSP(rawClosestSilhouettePointRect(rect, p), p)),
+    body: (
+      _context: Context,
+      rect: ad.Pt2[],
+      p: ad.Pt2
+    ): MayWarn<VectorV<ad.Num>> =>
+      noWarn(vectorV(safeCSP(rawClosestSilhouettePointRect(rect, p), p))),
     returns: real2T(),
   },
   closestSilhouettePointPolyline: {
@@ -3628,8 +3743,12 @@ export const compDict = {
       },
       { name: "p", type: real2T(), description: "A point" },
     ],
-    body: (_context: Context, points: ad.Pt2[], p: ad.Pt2): VectorV<ad.Num> =>
-      vectorV(safeCSP(rawClosestSilhouettePointPolyline(points, p), p)),
+    body: (
+      _context: Context,
+      points: ad.Pt2[],
+      p: ad.Pt2
+    ): MayWarn<VectorV<ad.Num>> =>
+      noWarn(vectorV(safeCSP(rawClosestSilhouettePointPolyline(points, p), p))),
     returns: real2T(),
   },
   closestSilhouettePointPolygon: {
@@ -3641,8 +3760,12 @@ export const compDict = {
       },
       { name: "p", type: real2T(), description: "A point" },
     ],
-    body: (_context: Context, points: ad.Pt2[], p: ad.Pt2): VectorV<ad.Num> =>
-      vectorV(safeCSP(rawClosestSilhouettePointPolygon(points, p), p)),
+    body: (
+      _context: Context,
+      points: ad.Pt2[],
+      p: ad.Pt2
+    ): MayWarn<VectorV<ad.Num>> =>
+      noWarn(vectorV(safeCSP(rawClosestSilhouettePointPolygon(points, p), p))),
     returns: real2T(),
   },
   closestSilhouettePointGroup: {
@@ -3658,8 +3781,8 @@ export const compDict = {
       _context: Context,
       shapes: Shape<ad.Num>[],
       p: ad.Pt2
-    ): VectorV<ad.Num> =>
-      vectorV(safeCSP(rawClosestSilhouettePointGroup(shapes, p), p)),
+    ): MayWarn<VectorV<ad.Num>> =>
+      noWarn(vectorV(safeCSP(rawClosestSilhouettePointGroup(shapes, p), p))),
     returns: real2T(),
   },
   //#endregion
@@ -3695,10 +3818,10 @@ export const compDict = {
         | Ellipse<ad.Num>
         | Group<ad.Num>,
       p: ad.Num[]
-    ): FloatV<ad.Num> => {
+    ): MayWarn<FloatV<ad.Num>> => {
       const q = rawClosestSilhouettePoint(s, p);
       const d = ifCond(eq(q[0], Infinity), Infinity, ops.vdist(p, q));
-      return { tag: "FloatV", contents: d };
+      return noWarn({ tag: "FloatV", contents: d });
     },
     returns: valueT("Real"),
   },
@@ -3727,17 +3850,19 @@ export const compDict = {
       topRight: ad.Pt2,
       start: ad.Pt2,
       end: ad.Pt2
-    ): FloatV<ad.Num> =>
-      floatV(
-        rectLineDist(
-          bottomLeft[0],
-          bottomLeft[1],
-          topRight[0],
-          topRight[1],
-          start[0],
-          start[1],
-          end[0],
-          end[1]
+    ): MayWarn<FloatV<ad.Num>> =>
+      noWarn(
+        floatV(
+          rectLineDist(
+            bottomLeft[0],
+            bottomLeft[1],
+            topRight[0],
+            topRight[1],
+            start[0],
+            start[1],
+            end[0],
+            end[1]
+          )
         )
       ),
     returns: valueT("Real"),
@@ -3755,7 +3880,13 @@ export const compDict = {
       _context: Context,
       s1: Shape<ad.Num>,
       s2: Shape<ad.Num>
-    ): FloatV<ad.Num> => floatV(shapeDistance(s1, s2)),
+    ): MayWarn<FloatV<ad.Num>> => {
+      const dist = shapeDistance(s1, s2);
+      return {
+        value: floatV(dist.value),
+        warnings: dist.warnings,
+      };
+    },
     returns: valueT("Real"),
   },
   shapeDistanceCircles: {
@@ -3773,7 +3904,8 @@ export const compDict = {
       r1: ad.Num,
       c2: ad.Pt2,
       r2: ad.Num
-    ): FloatV<ad.Num> => floatV(shapeDistanceCircles(c1, r1, c2, r2)),
+    ): MayWarn<FloatV<ad.Num>> =>
+      noWarn(floatV(shapeDistanceCircles(c1, r1, c2, r2))),
     returns: realT(),
   },
   shapeDistanceRects: {
@@ -3797,7 +3929,8 @@ export const compDict = {
       _context: Context,
       rect1: ad.Pt2[],
       rect2: ad.Pt2[]
-    ): FloatV<ad.Num> => floatV(shapeDistanceRects(rect1, rect2)),
+    ): MayWarn<FloatV<ad.Num>> =>
+      noWarn(floatV(shapeDistanceRects(rect1, rect2))),
     returns: realT(),
   },
   shapeDistanceRectLine: {
@@ -3822,7 +3955,8 @@ export const compDict = {
       rect: ad.Pt2[],
       start: ad.Pt2,
       end: ad.Pt2
-    ): FloatV<ad.Num> => floatV(shapeDistanceRectLine(rect, start, end)),
+    ): MayWarn<FloatV<ad.Num>> =>
+      noWarn(floatV(shapeDistanceRectLine(rect, start, end))),
     returns: realT(),
   },
   shapeDistanceRectlikePolyline: {
@@ -3845,7 +3979,8 @@ export const compDict = {
       _context: Context,
       rect: ad.Pt2[],
       points: ad.Num[][]
-    ): FloatV<ad.Num> => floatV(shapeDistanceRectlikePolyline(rect, points)),
+    ): MayWarn<FloatV<ad.Num>> =>
+      noWarn(floatV(shapeDistanceRectlikePolyline(rect, points))),
     returns: realT(),
   },
   shapeDistancePolys: {
@@ -3863,8 +3998,12 @@ export const compDict = {
         description: "The list of points for the second polygon",
       },
     ],
-    body: (_context: Context, pts1: ad.Pt2[], pts2: ad.Pt2[]): FloatV<ad.Num> =>
-      floatV(shapeDistancePolys(pts1, pts2)),
+    body: (
+      _context: Context,
+      pts1: ad.Pt2[],
+      pts2: ad.Pt2[]
+    ): MayWarn<FloatV<ad.Num>> =>
+      noWarn(floatV(shapeDistancePolys(pts1, pts2))),
     returns: realT(),
   },
   shapeDistanceRectCircle: {
@@ -3885,7 +4024,8 @@ export const compDict = {
       rect: ad.Pt2[],
       c: ad.Pt2,
       r: ad.Num
-    ): FloatV<ad.Num> => floatV(shapeDistanceRectCircle(rect, c, r)),
+    ): MayWarn<FloatV<ad.Num>> =>
+      noWarn(floatV(shapeDistanceRectCircle(rect, c, r))),
     returns: realT(),
   },
   shapeDistancePolyEllipse: {
@@ -3911,7 +4051,8 @@ export const compDict = {
       c: ad.Pt2,
       rx: ad.Num,
       ry: ad.Num
-    ): FloatV<ad.Num> => floatV(shapeDistancePolyEllipse(pts, c, rx, ry)),
+    ): MayWarn<FloatV<ad.Num>> =>
+      noWarn(floatV(shapeDistancePolyEllipse(pts, c, rx, ry))),
     returns: realT(),
   },
   shapeDistanceCircleLine: {
@@ -3929,7 +4070,8 @@ export const compDict = {
       r: ad.Num,
       start: ad.Pt2,
       end: ad.Pt2
-    ): FloatV<ad.Num> => floatV(shapeDistanceCircleLine(c, r, start, end)),
+    ): MayWarn<FloatV<ad.Num>> =>
+      noWarn(floatV(shapeDistanceCircleLine(c, r, start, end))),
     returns: realT(),
   },
   shapeDistanceLines: {
@@ -3947,7 +4089,7 @@ export const compDict = {
       end1: ad.Pt2,
       start2: ad.Pt2,
       end2: ad.Pt2
-    ) => floatV(shapeDistanceLines(start1, end1, start2, end2)),
+    ) => noWarn(floatV(shapeDistanceLines(start1, end1, start2, end2))),
     returns: realT(),
   },
   //#endregion
@@ -3975,8 +4117,8 @@ export const compDict = {
       _context: Context,
       points: ad.Num[][],
       closed: boolean
-    ): FloatV<ad.Num> => {
-      return { tag: "FloatV", contents: signedArea(points, closed) };
+    ): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({ tag: "FloatV", contents: signedArea(points, closed) });
     },
     returns: valueT("Real"),
   },
@@ -4004,11 +4146,11 @@ export const compDict = {
       _context: Context,
       points: ad.Num[][],
       closed: boolean
-    ): FloatV<ad.Num> => {
-      return {
+    ): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: turningNumber(points, closed),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -4035,8 +4177,8 @@ export const compDict = {
       _context: Context,
       points: ad.Num[][],
       closed: boolean
-    ): FloatV<ad.Num> => {
-      return { tag: "FloatV", contents: perimeter(points, closed) };
+    ): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({ tag: "FloatV", contents: perimeter(points, closed) });
     },
     returns: valueT("Real"),
   },
@@ -4064,8 +4206,11 @@ export const compDict = {
       _context: Context,
       points: ad.Num[][],
       closed: boolean
-    ): FloatV<ad.Num> => {
-      return { tag: "FloatV", contents: isoperimetricRatio(points, closed) };
+    ): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
+        tag: "FloatV",
+        contents: isoperimetricRatio(points, closed),
+      });
     },
     returns: valueT("Real"),
   },
@@ -4092,8 +4237,8 @@ export const compDict = {
       _context: Context,
       points: ad.Num[][],
       closed: boolean
-    ): FloatV<ad.Num> => {
-      return { tag: "FloatV", contents: elasticEnergy(points, closed) };
+    ): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({ tag: "FloatV", contents: elasticEnergy(points, closed) });
     },
     returns: valueT("Real"),
   },
@@ -4126,11 +4271,11 @@ export const compDict = {
       points: ad.Num[][],
       closed: boolean,
       signed = true
-    ): FloatV<ad.Num> => {
-      return {
+    ): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: totalCurvature(points, closed, signed),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -4163,8 +4308,8 @@ export const compDict = {
       points: ad.Num[][],
       closed: boolean,
       k: number
-    ): FloatV<ad.Num> => {
-      return { tag: "FloatV", contents: lengthK(points, closed, k) };
+    ): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({ tag: "FloatV", contents: lengthK(points, closed, k) });
     },
     returns: valueT("Real"),
   },
@@ -4191,8 +4336,8 @@ export const compDict = {
       _context: Context,
       points: ad.Num[][],
       closed: boolean
-    ): FloatV<ad.Num> => {
-      return { tag: "FloatV", contents: maxCurvature(points, closed) };
+    ): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({ tag: "FloatV", contents: maxCurvature(points, closed) });
     },
     returns: valueT("Real"),
   },
@@ -4225,8 +4370,11 @@ export const compDict = {
       points: ad.Num[][],
       closed: boolean,
       p: number
-    ): FloatV<ad.Num> => {
-      return { tag: "FloatV", contents: pElasticEnergy(points, closed, p) };
+    ): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
+        tag: "FloatV",
+        contents: pElasticEnergy(points, closed, p),
+      });
     },
     returns: valueT("Real"),
   },
@@ -4260,8 +4408,11 @@ export const compDict = {
       points: ad.Num[][],
       closed: boolean,
       p: number
-    ): FloatV<ad.Num> => {
-      return { tag: "FloatV", contents: inflectionEnergy(points, closed, p) };
+    ): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
+        tag: "FloatV",
+        contents: inflectionEnergy(points, closed, p),
+      });
     },
     returns: valueT("Real"),
   },
@@ -4279,8 +4430,11 @@ export const compDict = {
         description: "points of curve",
       },
     ],
-    body: (_context: Context, points: [ad.Num, ad.Num][]): VectorV<ad.Num> => {
-      return { tag: "VectorV", contents: centerOfMass(points) };
+    body: (
+      _context: Context,
+      points: [ad.Num, ad.Num][]
+    ): MayWarn<VectorV<ad.Num>> => {
+      return noWarn({ tag: "VectorV", contents: centerOfMass(points) });
     },
     returns: valueT("Real2"),
   },
@@ -4289,7 +4443,8 @@ export const compDict = {
     name: "noClip",
     description: "Describes no shape clipping",
     params: [],
-    body: (_context: Context): ClipDataV<ad.Num> => clipDataV(noClip()),
+    body: (_context: Context): MayWarn<ClipDataV<ad.Num>> =>
+      noWarn(clipDataV(noClip())),
     returns: valueT("ClipData"),
   },
 
@@ -4297,8 +4452,10 @@ export const compDict = {
     name: "clip",
     description: "Describes clipping to a shape",
     params: [{ name: "shape", type: shapeT("AnyShape") }],
-    body: (_context: Context, shape: Shape<ad.Num>): ClipDataV<ad.Num> =>
-      clipDataV(clipShape(shape)),
+    body: (
+      _context: Context,
+      shape: Shape<ad.Num>
+    ): MayWarn<ClipDataV<ad.Num>> => noWarn(clipDataV(clipShape(shape))),
     returns: valueT("ClipData"),
   },
 
@@ -4307,8 +4464,8 @@ export const compDict = {
     description:
       "Returns the top-left, top-right, bottom-right, bottom-left points (in that order) of the axis-aligned bounding box of a shape",
     params: [{ name: "s", type: shapeT("AnyShape"), description: "a shape" }],
-    body: (_context: Context, s: Shape<ad.Num>): PtListV<ad.Num> => {
-      return { tag: "PtListV", contents: bboxPts(bboxFromShape(s)) };
+    body: (_context: Context, s: Shape<ad.Num>): MayWarn<PtListV<ad.Num>> => {
+      return noWarn({ tag: "PtListV", contents: bboxPts(bboxFromShape(s)) });
     },
     returns: valueT("Real2N"),
   },
@@ -4332,11 +4489,11 @@ export const compDict = {
       _context: Context,
       points: ad.Num[][],
       projectedPoints: ad.Num[][]
-    ): FloatV<ad.Num> => {
-      return {
+    ): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
         tag: "FloatV",
         contents: calculateTsneEnergy(points, projectedPoints),
-      };
+      });
     },
     returns: valueT("Real"),
   },
@@ -4345,13 +4502,18 @@ export const compDict = {
     description:
       "Returns the top-left, top-right, bottom-right, bottom-left points of a rect-like shape. This takes into account rotation.",
     params: [{ name: "s", type: rectlikeT() }],
-    body: (_context: Context, s: Rectlike<ad.Num>): PtListV<ad.Num> => {
-      return ptListV(
-        rectPts(
-          s.center.contents,
-          s.width.contents,
-          s.height.contents,
-          s.rotation.contents
+    body: (
+      _context: Context,
+      s: Rectlike<ad.Num>
+    ): MayWarn<PtListV<ad.Num>> => {
+      return noWarn(
+        ptListV(
+          rectPts(
+            s.center.contents,
+            s.width.contents,
+            s.height.contents,
+            s.rotation.contents
+          )
         )
       );
     },

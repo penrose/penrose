@@ -36,6 +36,7 @@ const Demo = (props: {
       animate={true}
       stepSize={example.stepSize}
       imageResolver={example.imageResolver}
+      excludeWarnings={[]}
     />
   );
 };

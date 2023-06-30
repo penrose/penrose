@@ -798,6 +798,7 @@ predicate IsSubset(Set s1, Set s2)
         : await S.compileStyle(
             "Style compiler errors test seed",
             preamble + styProg,
+            [],
             ...subRes.value
           );
       expectErrorOf(styRes, errorType);

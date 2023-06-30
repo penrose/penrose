@@ -20,6 +20,7 @@ export interface Trio {
   style: Style[];
   domain: string;
   variation: string;
+  excludeWarnings: string[];
 }
 
 export interface BaseMeta {

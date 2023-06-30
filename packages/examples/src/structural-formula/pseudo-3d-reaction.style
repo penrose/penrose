@@ -61,7 +61,7 @@ Global {
       string : "reactants"
       center : (reactantCenter,-24.+reactionBoxBottom) -- TODO make issue about non-commutativity of + here
       fillColor : Colors.black
-      fontSize : "18px"
+      fontSize : "30px"
       fontFamily: Global.fontFamily
       fontWeight: "bold"
    }
@@ -82,7 +82,7 @@ Global {
       string : "products"
       center : (productCenter,-24.+reactionBoxBottom)
       fillColor : Colors.black
-      fontSize : "18px"
+      fontSize : "30px"
       fontFamily: Global.fontFamily
       fontWeight: "bold"
    }
@@ -117,7 +117,7 @@ forall Node n {
       string : n.label
       center : n.center
       fillColor : Colors.black
-      fontSize : "10.5px"
+      fontSize : "17.5px"
    }
 
    ensure contains( Global.bbox, n.icon )
@@ -373,7 +373,7 @@ forall Molecule m {
    m.text = Equation {
       string : m.label
       fillColor : Colors.black
-      fontSize : "13.5px"
+      fontSize : "22.5px"
       center : m.labelCenter
       --center : m.box.center - (0.,3.*Global.atomRadius)
       -- TODO add stroke (have to expose SVG text stroke in Penrose renderer)
@@ -421,7 +421,7 @@ forall Reaction r {
    r.text = Text {
       string : r.label
       center : (0.,h)
-      fontSize : "30px"
+      fontSize : "50px"
       fontFamily: Global.fontFamily
       fontVariant: "small-caps"
       fillColor : Colors.black
