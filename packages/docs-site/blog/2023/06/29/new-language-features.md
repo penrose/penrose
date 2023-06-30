@@ -6,17 +6,19 @@ import BlogMeta from "../../../../src/components/BlogMeta.vue";
 
 <BlogMeta github="liangyiliang" date="2023-06-13" />
 
-I joined the Penrose team in July 2022, and worked on of a few language-related improvements to Penrose which have the potential of making Penrose more flexible.
+I joined the Penrose team in July 2022, and worked on of a few language-related improvements to Penrose that make Penrose more natural, flexible and expressive, from allowing Style programs to leverage symmetric properties of relations to letting users write more natural, mathematical expressions in constraints and objectives.
 
 ## Binary Symmetric Predicates
+
+Mathematical relations can be symmetric. For example, if set `A` is equal to set `B`, then by symmetry, set `B` is equal to set `A`. Penrose didn't have the notion of symmetry and one would need to duplicate code to simulate this.
 
 In July 2022, we implemented support for binary symmetric predicates which allowed for more flexible style-substance matching. By marking a binary predicate with the `symmetric` keyword, the Domain author basically tells Penrose that it does not care about the order of input to the predicate, just like a symmetric mathematical relation.
 
 ### Why did we need this?
 
-The necessity of this feature was pointed out in [Professor Keenan Crane](https://www.cs.cmu.edu/~kmcrane/)'s [GitHub issue](https://github.com/penrose/penrose/issues/744) using an interesting example. Consider the Domain program
+The necessity of this feature was pointed out in [Keenan Crane](https://www.cs.cmu.edu/~kmcrane/)'s [GitHub issue](https://github.com/penrose/penrose/issues/744) using an interesting example. Consider the Domain program
 
-```
+```domain
 type Atom
 type Hydrogen <: Atom
 type Oxygen <: Atom
@@ -26,7 +28,7 @@ predicate Bond(Atom, Atom)
 
 Under this Domain, one can construct a water molecule in multiple different ways, two examples being
 
-```
+```substance
 -- version 1
 Hydrogen H1, H2
 Oxygen O
@@ -36,7 +38,7 @@ Bond(O, H2)
 
 and
 
-```
+```substance
 -- version 2
 Hydrogen H1, H2
 Oxygen O
@@ -46,10 +48,10 @@ Bond(O, H2)
 
 Now suppose the Style author wants to enforce that the angle between the two bonds in a water molecule is 104.5 degrees. They can write,
 
-```
+```style
 forall Oxygen o; Hydrogen h1; Hydrogen h2
 where Bond(o, h1); Bond(o, h2) {
-  -- enforce that the
+  -- enforce that the angle between the two bonds are 104.5 degrees
 }
 ```
 
@@ -65,7 +67,7 @@ But, intuitively, `Bond(o, h1)` should match `Bond(H1, O)`. Even though we intui
 
 We added (in a [pull request](https://github.com/penrose/penrose/pull/1061)) a keyword, `symmetric`, to the Domain language that applies to binary predicates. The domain author can now write,
 
-```
+```domain
 symmetric predicate Bond(Atom, Atom)
 ```
 
@@ -108,7 +110,7 @@ In other words, the algorithm would attempt to match the original substance pred
 But sometimes, even if matching on the original substance predicate succeeds, we still actively seek for the alternative version with flipped arguments.
 As an example, if `Equal` is a symmetric predicate between two `Set` objects, one can write the Substance program
 
-```
+```substance
 Set A, B, C
 Equal(B, A)
 Equal(B, C)
@@ -116,7 +118,7 @@ Equal(B, C)
 
 and the Style program
 
-```
+```style
 forall Set x, y, z
 where Equal(x, y); Equal(y, z) {
   -- some code
@@ -127,7 +129,7 @@ However, using the aforementioned algorithm, this Style block does not match aga
 
 If the symmetric version of `Equal(B, A)` is considered, however, the matcher can also produce `{x -> A, y -> B}`, which would be compatible with the mapping `{y -> B, z -> C}` produced from matching `Equal(y, z)` against `Equal(B, C)`.
 
-This bug was first realized by Nimo and written up by me in [this issue](https://github.com/penrose/penrose/issues/1126) in October 2022. The [fix](https://github.com/penrose/penrose/pull/1127) involves requiring the predicate matcher to always attempt _both_ versions of the symmetric predicate:
+This bug was first discovered by [Nimo](https://www.cs.cmu.edu/~woden/) and written up by me in [this issue](https://github.com/penrose/penrose/issues/1126) in October 2022. The [fix](https://github.com/penrose/penrose/pull/1127) involves requiring the predicate matcher to always attempt _both_ versions of the symmetric predicate:
 
 ```
 if (StyName !== SubName)
@@ -163,7 +165,7 @@ We changed the Style language to allow the Style writer to give an alias to a ma
 
 As an example, say we would like to draw a line between two `Atom`s whenever a `Bond` predicate exists between them. We could write,
 
-```
+```style
 forall Atom a; Atom b
 where Bond(a, b) {
   ???.bondLine = Line {
@@ -185,7 +187,7 @@ The idea of predicate aliasing was first envisioned in July 2021 by [Helena Yang
 
 Predicate aliasing allows the Style author to write:
 
-```
+```style
 forall Atom a; Atom b
 where Bond(a, b) as bond {
   --                ^^^^
@@ -239,18 +241,24 @@ We [added](https://github.com/penrose/penrose/pull/1074) two reserved variables 
 
 As an example,
 
-```
--- dsl
+::: code-group
+
+```domain
 type MyType
+```
 
--- sub
+```substance
 MyType T1, T2, T3, T4
+```
 
--- sty, canvas specifications omitted
+```style
+-- canvas specifications omitted
 forall MyType t {
   // can use `match_id` and `match_total`
 }
 ```
+
+:::
 
 Since the Style block is matched four times, `match_total` equals to 4 within the Style block. Furthermore, `match_id` is one of 1, 2, 3, or 4, depending on which matching it represents currently.
 
@@ -267,13 +275,13 @@ Then we process the Style block as usual. Notice that now, `match_total` and `ma
 
 We add syntactic sugars of `<`, `==`, and `>` to correspond to function calls `lessThan`, `equal`, and `greaterThan`. This makes Style-writing more convenient as it allows the users to write, for example,
 
-```
+```style
 ensure circle1.r < circle2.r
 ```
 
 and have it be treated as equivalent to
 
-```
+```style
 ensure lessThan(circle1.r, circle2.r)
 ```
 
@@ -300,3 +308,7 @@ In the Style compiler where we handle constraints and objectives, we proceed as 
 ### Caveats
 
 Originally we wanted to implement operators `<=` and `>=`. However, there are no corresponding functions to these operators in the Penrose system. From an optimizer's perspective, in fact, `<=` and `<` are treated the same, and `>=` and `>` are treated the same.
+
+## Conclusion
+
+It has been an extremely joyful journey working on these features. These features, albeit basic, allow users to write clean, readable, and flexible Penrose programs that can draw more complex diagrams more easily. I'd love to continue this exploration of ways to improve programming language user experiences like in Penrose -- indeed, there are other exciting features that I worked on throughout these months which I can't wait to share in future blogposts!
