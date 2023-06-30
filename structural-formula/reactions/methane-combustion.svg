@@ -26,17 +26,17 @@
     stroke="none"
     transform="rotate(0, 312, 609)"
     style="
-      font: bold 18px Palatino, Palatino Linotype, Palatino LT STD, Book Antiqua,
+      font: bold 30px Palatino, Palatino Linotype, Palatino LT STD, Book Antiqua,
         Georgia, serif;
     "
     x="312"
-    y="615.5"
-    width="94.9375"
-    height="13"
+    y="619.5"
+    width="157.5625"
+    height="21"
     font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
-    ascent="13"
+    ascent="21"
     descent="0"
     text-anchor="middle"
     visibility=""
@@ -50,18 +50,18 @@
     stroke="none"
     transform="rotate(0, 936, 609)"
     style="
-      font: bold 18px Palatino, Palatino Linotype, Palatino LT STD, Book Antiqua,
+      font: bold 30px Palatino, Palatino Linotype, Palatino LT STD, Book Antiqua,
         Georgia, serif;
     "
     x="936"
-    y="614"
-    width="89.0224609375"
-    height="18"
+    y="617.5"
+    width="147.7041015625"
+    height="29"
     font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
-    ascent="14"
-    descent="4"
+    ascent="23"
+    descent="6"
     text-anchor="middle"
     visibility=""
   >
@@ -71,8 +71,8 @@
   <ellipse
     fill="#f2f2f2"
     fill-opacity="1"
-    cx="437.13982035159233"
-    cy="534.8792703198267"
+    cx="427.62136801785624"
+    cy="500.993734075901"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -84,8 +84,8 @@
   <ellipse
     fill="#f2f2f2"
     fill-opacity="1"
-    cx="479.8455180656849"
-    cy="503.55332383602996"
+    cx="468.03159148162325"
+    cy="464.5794673382553"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -97,8 +97,8 @@
   <ellipse
     fill="#f2f2f2"
     fill-opacity="1"
-    cx="404.25993249832595"
-    cy="236.02199248030294"
+    cx="199.00391979035226"
+    cy="482.69645122800705"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -110,8 +110,8 @@
   <ellipse
     fill="#f2f2f2"
     fill-opacity="1"
-    cx="385.02258926554384"
-    cy="545.993451444973"
+    cx="371.98843352179153"
+    cy="502.84318286190813"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -123,8 +123,8 @@
   <ellipse
     fill="#f2f2f2"
     fill-opacity="1"
-    cx="147.00708476718154"
-    cy="240.46751625552716"
+    cx="287.0785015630331"
+    cy="317.7523487786638"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -136,8 +136,8 @@
   <ellipse
     fill="#f2f2f2"
     fill-opacity="1"
-    cx="402.4293767672334"
-    cy="317.53707856237"
+    cx="198.95800780894353"
+    cy="565.7178292456824"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -149,8 +149,8 @@
   <ellipse
     fill="#f2f2f2"
     fill-opacity="1"
-    cx="216.1929982367148"
-    cy="236.73590314224987"
+    cx="289.44218120305334"
+    cy="236.02134598953447"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -162,8 +162,8 @@
   <ellipse
     fill="#f2f2f2"
     fill-opacity="1"
-    cx="406.3058933946363"
-    cy="488.6127594663298"
+    cx="402.6617667118529"
+    cy="450.9738047637321"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -175,8 +175,8 @@
   <ellipse
     fill="#f2f2f2"
     fill-opacity="1"
-    cx="483.14038718256654"
-    cy="572.2108980943751"
+    cx="483.24239747664546"
+    cy="526.2431310709725"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -203,8 +203,8 @@
   <ellipse
     fill="#f2f2f2"
     fill-opacity="1"
-    cx="937.419251226206"
-    cy="258.18988864299473"
+    cx="1033.0813439995106"
+    cy="262.552156070773"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -216,8 +216,8 @@
   <ellipse
     fill="#f2f2f2"
     fill-opacity="1"
-    cx="824.694236302842"
-    cy="531.7996847785328"
+    cx="773.4420835738871"
+    cy="466.9660335883291"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -229,8 +229,8 @@
   <ellipse
     fill="#f2f2f2"
     fill-opacity="1"
-    cx="990.8751072099662"
-    cy="256.07198405068317"
+    cx="981.8702416577349"
+    cy="245.20940388821788"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -242,8 +242,8 @@
   <ellipse
     fill="#f2f2f2"
     fill-opacity="1"
-    cx="1083.2281943047146"
-    cy="481.7337935599659"
+    cx="1071.1966208375209"
+    cy="565.9742578113377"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -255,8 +255,8 @@
   <ellipse
     fill="#f2f2f2"
     fill-opacity="1"
-    cx="771.0259303692717"
-    cy="533.8817511170072"
+    cx="827.1819604387312"
+    cy="469.0362871283483"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -268,8 +268,8 @@
   <ellipse
     fill="#f2f2f2"
     fill-opacity="1"
-    cx="1083.2967738050947"
-    cy="562.3978587980212"
+    cx="1001.3558916111552"
+    cy="562.3747344180819"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -281,8 +281,8 @@
   <ellipse
     fill="#f2f2f2"
     fill-opacity="1"
-    cx="771.0259510423431"
-    cy="460.3806958348641"
+    cx="827.1819488091086"
+    cy="395.5352343266073"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -294,8 +294,8 @@
   <ellipse
     fill="#f2f2f2"
     fill-opacity="1"
-    cx="1013.5135927316098"
-    cy="565.989555030772"
+    cx="1002.5348593661706"
+    cy="481.1883949281991"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -307,8 +307,8 @@
   <ellipse
     fill="#f2f2f2"
     fill-opacity="1"
-    cx="886.162012674549"
-    cy="240.78158724374424"
+    cx="1086.5678326699124"
+    cy="260.4384923142404"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -320,8 +320,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="479.8455180656849"
-    cy="453.55332383602996"
+    cx="468.03159148162325"
+    cy="414.5794673382553"
     stroke="#808080"
     stroke-opacity="1"
     stroke-width="3"
@@ -331,10 +331,10 @@
   </circle>
   <g>
     <line
-      x1="447.21893147639776"
-      y1="477.48593143062965"
-      x2="469.7664069408795"
-      y2="460.946662725227"
+      x1="436.9073920804951"
+      y1="442.62595661353885"
+      x2="458.7455674189844"
+      y2="422.9472448006174"
       stroke="#1ab399"
       stroke-opacity="1"
       stroke-width="10"
@@ -344,10 +344,10 @@
   </g>
   <g>
     <line
-      x1="447.21893147639776"
-      y1="477.48593143062965"
-      x2="469.7664069408795"
-      y2="460.946662725227"
+      x1="436.9073920804951"
+      y1="442.62595661353885"
+      x2="458.7455674189844"
+      y2="422.9472448006174"
       stroke="#ffffff"
       stroke-opacity="1"
       stroke-width="4"
@@ -358,8 +358,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="385.02258926554384"
-    cy="495.99345144497295"
+    cx="371.98843352179153"
+    cy="452.84318286190813"
     stroke="#808080"
     stroke-opacity="1"
     stroke-width="3"
@@ -369,10 +369,10 @@
   </circle>
   <g>
     <line
-      x1="424.9147130431407"
-      y1="487.48631705022854"
-      x2="397.2476965739955"
-      y2="493.3864047145711"
+      x1="415.1282717212375"
+      y1="451.4090517647582"
+      x2="384.4815298184102"
+      y2="452.4278651730509"
       stroke="#1ab399"
       stroke-opacity="1"
       stroke-width="10"
@@ -382,10 +382,10 @@
   </g>
   <g>
     <line
-      x1="424.9147130431407"
-      y1="487.48631705022854"
-      x2="397.2476965739955"
-      y2="493.3864047145711"
+      x1="415.1282717212375"
+      y1="451.4090517647582"
+      x2="384.4815298184102"
+      y2="452.4278651730509"
       stroke="#ffffff"
       stroke-opacity="1"
       stroke-width="4"
@@ -396,8 +396,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="406.3058933946363"
-    cy="438.6127594663298"
+    cx="402.6617667118529"
+    cy="400.9738047637321"
     stroke="#808080"
     stroke-opacity="1"
     stroke-width="3"
@@ -407,10 +407,10 @@
   </circle>
   <g>
     <line
-      x1="430.2076900636497"
-      y1="474.4775630818001"
-      x2="413.23802368257896"
-      y2="449.0144667043563"
+      x1="422.04021019341013"
+      y1="439.8088951661662"
+      x2="408.24292453629903"
+      y2="412.1586436734669"
       stroke="#1ab399"
       stroke-opacity="1"
       stroke-width="10"
@@ -420,10 +420,10 @@
   </g>
   <g>
     <line
-      x1="430.2076900636497"
-      y1="474.4775630818001"
-      x2="413.23802368257896"
-      y2="449.0144667043563"
+      x1="422.04021019341013"
+      y1="439.8088951661662"
+      x2="408.24292453629903"
+      y2="412.1586436734669"
       stroke="#ffffff"
       stroke-opacity="1"
       stroke-width="4"
@@ -434,8 +434,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="483.14038718256654"
-    cy="522.2108980943751"
+    cx="483.24239747664546"
+    cy="476.2431310709725"
     stroke="#808080"
     stroke-opacity="1"
     stroke-width="3"
@@ -445,10 +445,10 @@
   </circle>
   <g>
     <line
-      x1="446.845768466252"
-      y1="492.75610461073757"
-      x2="473.43443906790685"
-      y2="514.3340638034642"
+      x1="439.00348115329456"
+      y1="456.1606915377803"
+      x2="471.86028434120715"
+      y2="471.0761736090932"
       stroke="#1ab399"
       stroke-opacity="1"
       stroke-width="10"
@@ -458,10 +458,10 @@
   </g>
   <g>
     <line
-      x1="446.845768466252"
-      y1="492.75610461073757"
-      x2="473.43443906790685"
-      y2="514.3340638034642"
+      x1="439.00348115329456"
+      y1="456.1606915377803"
+      x2="471.86028434120715"
+      y2="471.0761736090932"
       stroke="#ffffff"
       stroke-opacity="1"
       stroke-width="4"
@@ -472,8 +472,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="437.13982035159233"
-    cy="484.8792703198267"
+    cx="427.62136801785624"
+    cy="450.993734075901"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="3"
@@ -482,14 +482,14 @@
     <title>`C1`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 405.02287432346975, 529.1834015330674)translate(360.0773243234697, 522.4334015330674)"
+    transform="rotate(0, 407.55361131442794, 491.3385673913661)translate(332.6443613144279, 480.0885673913661)"
   >
     <title>`methane`.text</title>
     <svg
-      style="font-size: 13.5px"
+      style="font-size: 22.5px"
       xmlns="http://www.w3.org/2000/svg"
-      width="89.89110000000001"
-      height="13.5"
+      width="149.81850000000003"
+      height="22.5"
       role="img"
       focusable="false"
       viewBox="0 -750 6658.6 1000"
@@ -596,8 +596,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="771.0259510423431"
-    cy="410.3806958348641"
+    cx="827.1819488091086"
+    cy="345.5352343266073"
     stroke="#808080"
     stroke-opacity="1"
     stroke-width="3"
@@ -607,10 +607,10 @@
   </circle>
   <g>
     <line
-      x1="771.0259338850492"
-      y1="471.3817528176633"
-      x2="771.0259475265656"
-      y2="422.88069413420806"
+      x1="827.1819584609327"
+      y1="406.53628882900415"
+      x2="827.181950786907"
+      y2="358.03523262595144"
       stroke="#1ab399"
       stroke-opacity="1"
       stroke-width="10"
@@ -620,10 +620,10 @@
   </g>
   <g>
     <line
-      x1="771.0259338850492"
-      y1="471.3817528176633"
-      x2="771.0259475265656"
-      y2="422.88069413420806"
+      x1="827.1819584609327"
+      y1="406.53628882900415"
+      x2="827.181950786907"
+      y2="358.03523262595144"
       stroke="#ffffff"
       stroke-opacity="1"
       stroke-width="4"
@@ -634,8 +634,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="824.694236302842"
-    cy="481.7996847785327"
+    cx="773.4420835738871"
+    cy="416.9660335883291"
     stroke="#808080"
     stroke-opacity="1"
     stroke-width="3"
@@ -645,10 +645,10 @@
   </circle>
   <g>
     <line
-      x1="783.5165320334775"
-      y1="483.3971771991249"
-      x2="812.2036346386363"
-      y2="482.284258696415"
+      x1="814.6912278736936"
+      y1="418.5550991387435"
+      x2="785.9328161389247"
+      y2="417.4472215779339"
       stroke="#1ab399"
       stroke-opacity="1"
       stroke-width="10"
@@ -658,10 +658,10 @@
   </g>
   <g>
     <line
-      x1="783.5165320334775"
-      y1="483.3971771991249"
-      x2="812.2036346386363"
-      y2="482.284258696415"
+      x1="814.6912278736936"
+      y1="418.5550991387435"
+      x2="785.9328161389247"
+      y2="417.4472215779339"
       stroke="#ffffff"
       stroke-opacity="1"
       stroke-width="4"
@@ -672,8 +672,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="771.0259303692717"
-    cy="483.8817511170072"
+    cx="827.1819604387312"
+    cy="419.0362871283483"
     stroke="#ff0000"
     stroke-opacity="1"
     stroke-width="3"
@@ -682,14 +682,14 @@
     <title>`O8`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 791.0259458325145, 443.5704822324537)translate(754.3086458325145, 436.8204822324537)"
+    transform="rotate(0, 807.1819789144128, 378.7250136655179)translate(745.9864789144127, 367.4750136655179)"
   >
     <title>`water2`.text</title>
     <svg
-      style="font-size: 13.5px"
+      style="font-size: 22.5px"
       xmlns="http://www.w3.org/2000/svg"
-      width="73.4346"
-      height="13.5"
+      width="122.391"
+      height="22.5"
       role="img"
       focusable="false"
       viewBox="0 -750 5439.6 1000"
@@ -778,8 +778,8 @@
   <circle
     fill="#000000"
     fill-opacity="0"
-    cx="791.0259458325145"
-    cy="443.5704822324537"
+    cx="807.1819789144128"
+    cy="378.7250136655179"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -790,8 +790,8 @@
   <circle
     fill="#000000"
     fill-opacity="0"
-    cx="831.0259458325145"
-    cy="443.5704822324537"
+    cx="847.1819789144128"
+    cy="378.7250136655179"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -802,8 +802,8 @@
   <circle
     fill="#000000"
     fill-opacity="0"
-    cx="751.0259458325145"
-    cy="443.5704822324537"
+    cx="767.1819789144128"
+    cy="378.7250136655179"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -814,8 +814,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="1013.5135927316098"
-    cy="515.989555030772"
+    cx="1002.5348593661706"
+    cy="431.1883949281991"
     stroke="#ff0000"
     stroke-opacity="1"
     stroke-width="3"
@@ -825,10 +825,10 @@
   </circle>
   <g>
     <line
-      x1="1071.1345578815958"
-      y1="519.2821124196741"
-      x2="1026.3183251830317"
-      y2="521.5887755965794"
+      x1="995.2880540009116"
+      y1="499.78530239649433"
+      x2="996.1040163150469"
+      y2="443.59632422934646"
       stroke="#1ab399"
       stroke-opacity="1"
       stroke-width="10"
@@ -838,10 +838,10 @@
   </g>
   <g>
     <line
-      x1="1071.1345578815958"
-      y1="519.2821124196741"
-      x2="1026.3183251830317"
-      y2="521.5887755965794"
+      x1="995.2880540009116"
+      y1="499.78530239649433"
+      x2="996.1040163150469"
+      y2="443.59632422934646"
       stroke="#ffffff"
       stroke-opacity="1"
       stroke-width="4"
@@ -851,10 +851,10 @@
   </g>
   <g>
     <line
-      x1="1070.492041353673"
-      y1="506.79863823221376"
-      x2="1025.6758086551088"
-      y2="509.10530140911897"
+      x1="1007.7867346622791"
+      y1="499.96680511693444"
+      x2="1008.6026969764143"
+      y2="443.7778269497866"
       stroke="#1ab399"
       stroke-opacity="1"
       stroke-width="10"
@@ -864,10 +864,10 @@
   </g>
   <g>
     <line
-      x1="1070.492041353673"
-      y1="506.79863823221376"
-      x2="1025.6758086551088"
-      y2="509.10530140911897"
+      x1="1007.7867346622791"
+      y1="499.96680511693444"
+      x2="1008.6026969764143"
+      y2="443.7778269497866"
       stroke="#ffffff"
       stroke-opacity="1"
       stroke-width="4"
@@ -878,8 +878,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="1083.2281943047146"
-    cy="431.7337935599659"
+    cx="1071.1966208375209"
+    cy="515.9742578113377"
     stroke="#ff0000"
     stroke-opacity="1"
     stroke-width="3"
@@ -889,10 +889,10 @@
   </circle>
   <g>
     <line
-      x1="1077.0361495124557"
-      y1="499.90317852839064"
-      x2="1076.9888246645937"
-      y2="444.2391011558555"
+      x1="1014.1610130500296"
+      y1="506.77640349904925"
+      x2="1059.0348832389702"
+      y2="509.0891592116577"
       stroke="#1ab399"
       stroke-opacity="1"
       stroke-width="10"
@@ -902,10 +902,10 @@
   </g>
   <g>
     <line
-      x1="1077.0361495124557"
-      y1="499.90317852839064"
-      x2="1076.9888246645937"
-      y2="444.2391011558555"
+      x1="1014.1610130500296"
+      y1="506.77640349904925"
+      x2="1059.0348832389702"
+      y2="509.0891592116577"
       stroke="#ffffff"
       stroke-opacity="1"
       stroke-width="4"
@@ -915,10 +915,10 @@
   </g>
   <g>
     <line
-      x1="1089.5361434452159"
-      y1="499.8925512021316"
-      x2="1089.4888185973537"
-      y2="444.22847382959645"
+      x1="1013.517629209706"
+      y1="519.2598330177618"
+      x2="1058.3914993986464"
+      y2="521.5725887303703"
       stroke="#1ab399"
       stroke-opacity="1"
       stroke-width="10"
@@ -928,10 +928,10 @@
   </g>
   <g>
     <line
-      x1="1089.5361434452159"
-      y1="499.8925512021316"
-      x2="1089.4888185973537"
-      y2="444.22847382959645"
+      x1="1013.517629209706"
+      y1="519.2598330177618"
+      x2="1058.3914993986464"
+      y2="521.5725887303703"
       stroke="#ffffff"
       stroke-opacity="1"
       stroke-width="4"
@@ -942,8 +942,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="1083.2967738050947"
-    cy="512.3978587980212"
+    cx="1001.3558916111552"
+    cy="512.3747344180819"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="3"
@@ -952,14 +952,14 @@
     <title>`C2`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 1063.2209333587596, 472.0488953249268)translate(1000.4283833587596, 465.2988953249268)"
+    transform="rotate(0, 1021.3559103844561, 472.06342457974256)translate(916.7016603844561, 460.81342457974256)"
   >
     <title>`carbonDioxide`.text</title>
     <svg
-      style="font-size: 13.5px"
+      style="font-size: 22.5px"
       xmlns="http://www.w3.org/2000/svg"
-      width="125.5851"
-      height="13.5"
+      width="209.3085"
+      height="22.5"
       role="img"
       focusable="false"
       viewBox="0 -750 9302.6 1000"
@@ -1083,10 +1083,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 406.3058933946363, 438.6127594663298)"
-    style="font: 10.5px sans-serif"
-    x="406.3058933946363"
-    y="438.6127594663298"
+    transform="rotate(0, 402.6617667118529, 400.9738047637321)"
+    style="font: 17.5px sans-serif"
+    x="402.6617667118529"
+    y="400.9738047637321"
     width="0"
     height="0"
     font-size-adjust=""
@@ -1102,8 +1102,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="990.8751072099662"
-    cy="206.07198405068317"
+    cx="981.8702416577349"
+    cy="195.20940388821788"
     stroke="#808080"
     stroke-opacity="1"
     stroke-width="3"
@@ -1113,10 +1113,10 @@
   </circle>
   <g>
     <line
-      x1="949.9094496761454"
-      y1="207.69503081742656"
-      x2="978.3849087600269"
-      y2="206.56684187625135"
+      x1="1021.2418322174915"
+      y1="208.5426794258912"
+      x2="993.7097534397541"
+      y2="199.21888053309962"
       stroke="#1ab399"
       stroke-opacity="1"
       stroke-width="10"
@@ -1126,10 +1126,10 @@
   </g>
   <g>
     <line
-      x1="949.9094496761454"
-      y1="207.69503081742656"
-      x2="978.3849087600269"
-      y2="206.56684187625135"
+      x1="1021.2418322174915"
+      y1="208.5426794258912"
+      x2="993.7097534397541"
+      y2="199.21888053309962"
       stroke="#ffffff"
       stroke-opacity="1"
       stroke-width="4"
@@ -1140,8 +1140,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="886.162012674549"
-    cy="190.78158724374424"
+    cx="1086.5678326699124"
+    cy="210.43849231424042"
     stroke="#808080"
     stroke-opacity="1"
     stroke-width="3"
@@ -1151,10 +1151,10 @@
   </circle>
   <g>
     <line
-      x1="925.5832463961868"
-      y1="204.17007124225225"
-      x2="897.9980175045682"
-      y2="194.80140464448672"
+      x1="1045.5715927722026"
+      y1="212.0585699932946"
+      x2="1074.0775838972204"
+      y2="210.93207839171876"
       stroke="#1ab399"
       stroke-opacity="1"
       stroke-width="10"
@@ -1164,10 +1164,10 @@
   </g>
   <g>
     <line
-      x1="925.5832463961868"
-      y1="204.17007124225225"
-      x2="897.9980175045682"
-      y2="194.80140464448672"
+      x1="1045.5715927722026"
+      y1="212.0585699932946"
+      x2="1074.0775838972204"
+      y2="210.93207839171876"
       stroke="#ffffff"
       stroke-opacity="1"
       stroke-width="4"
@@ -1178,8 +1178,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="937.419251226206"
-    cy="208.18988864299473"
+    cx="1033.0813439995106"
+    cy="212.55215607077295"
     stroke="#ff0000"
     stroke-opacity="1"
     stroke-width="3"
@@ -1188,14 +1188,14 @@
     <title>`O7`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 957.4192595175323, 167.87855367460273)translate(920.7019595175323, 161.12855367460273)"
+    transform="rotate(0, 1053.0782070195605, 172.23931687551877)translate(991.8827070195605, 160.98931687551877)"
   >
     <title>`water1`.text</title>
     <svg
-      style="font-size: 13.5px"
+      style="font-size: 22.5px"
       xmlns="http://www.w3.org/2000/svg"
-      width="73.4346"
-      height="13.5"
+      width="122.391"
+      height="22.5"
       role="img"
       focusable="false"
       viewBox="0 -750 5439.6 1000"
@@ -1284,8 +1284,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="216.1929982367148"
-    cy="186.73590314224987"
+    cx="289.44218120305334"
+    cy="186.02134598953447"
     stroke="#ff0000"
     stroke-opacity="1"
     stroke-width="3"
@@ -1295,10 +1295,10 @@
   </circle>
   <g>
     <line
-      x1="159.15232985462012"
-      y1="183.55336660514985"
-      x2="203.37453146394978"
-      y2="181.16819686252538"
+      x1="281.19246616140396"
+      y1="255.07689851144372"
+      x2="282.8334422302548"
+      y2="198.33544447116986"
       stroke="#1ab399"
       stroke-opacity="1"
       stroke-width="10"
@@ -1308,10 +1308,10 @@
   </g>
   <g>
     <line
-      x1="159.15232985462012"
-      y1="183.55336660514985"
-      x2="203.37453146394978"
-      y2="181.16819686252538"
+      x1="281.19246616140396"
+      y1="255.07689851144372"
+      x2="282.8334422302548"
+      y2="198.33544447116986"
       stroke="#ffffff"
       stroke-opacity="1"
       stroke-width="4"
@@ -1321,10 +1321,10 @@
   </g>
   <g>
     <line
-      x1="159.82555153994656"
-      y1="196.03522253525165"
-      x2="204.04775314927622"
-      y2="193.65005279262718"
+      x1="293.6872405358317"
+      y1="255.43825029702842"
+      x2="295.3282166046825"
+      y2="198.69679625675457"
       stroke="#1ab399"
       stroke-opacity="1"
       stroke-width="10"
@@ -1334,10 +1334,10 @@
   </g>
   <g>
     <line
-      x1="159.82555153994656"
-      y1="196.03522253525165"
-      x2="204.04775314927622"
-      y2="193.65005279262718"
+      x1="293.6872405358317"
+      y1="255.43825029702842"
+      x2="295.3282166046825"
+      y2="198.69679625675457"
       stroke="#ffffff"
       stroke-opacity="1"
       stroke-width="4"
@@ -1348,8 +1348,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="147.00708476718154"
-    cy="190.46751625552716"
+    cx="287.0785015630331"
+    cy="267.7523487786638"
     stroke="#ff0000"
     stroke-opacity="1"
     stroke-width="3"
@@ -1358,14 +1358,14 @@
     <title>`O3`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 167.0403262545338, 230.79527416026468)translate(131.27477625453378, 224.04527416026468)"
+    transform="rotate(0, 269.4635795783467, 226.343238446244)translate(209.8543295783467, 215.093238446244)"
   >
     <title>`oxygen2`.text</title>
     <svg
-      style="font-size: 13.5px"
+      style="font-size: 22.5px"
       xmlns="http://www.w3.org/2000/svg"
-      width="71.53110000000001"
-      height="13.5"
+      width="119.2185"
+      height="22.5"
       role="img"
       focusable="false"
       viewBox="0 -750 5298.6 1000"
@@ -1447,8 +1447,8 @@
   <circle
     fill="#000000"
     fill-opacity="0"
-    cx="167.0403262545338"
-    cy="230.79527416026468"
+    cx="269.4635795783467"
+    cy="226.343238446244"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -1459,8 +1459,8 @@
   <circle
     fill="#000000"
     fill-opacity="0"
-    cx="207.0403262545338"
-    cy="230.79527416026468"
+    cx="309.4635795783467"
+    cy="226.343238446244"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -1471,8 +1471,8 @@
   <circle
     fill="#000000"
     fill-opacity="0"
-    cx="127.0403262545338"
-    cy="230.79527416026468"
+    cx="229.4635795783467"
+    cy="226.343238446244"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -1484,10 +1484,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 483.14038718256654, 522.2108980943751)"
-    style="font: 10.5px sans-serif"
-    x="483.14038718256654"
-    y="522.2108980943751"
+    transform="rotate(0, 483.24239747664546, 476.2431310709725)"
+    style="font: 17.5px sans-serif"
+    x="483.24239747664546"
+    y="476.2431310709725"
     width="0"
     height="0"
     font-size-adjust=""
@@ -1503,8 +1503,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="402.4293767672334"
-    cy="267.53707856237"
+    cx="198.95800780894353"
+    cy="515.7178292456824"
     stroke="#ff0000"
     stroke-opacity="1"
     stroke-width="3"
@@ -1514,10 +1514,10 @@
   </circle>
   <g>
     <line
-      x1="410.22771905428544"
-      y1="198.65915892353772"
-      x2="408.9584379882456"
-      y2="255.1805494516616"
+      x1="205.24700540916473"
+      y1="445.1999041473033"
+      x2="205.21491877309307"
+      y2="503.22128899905465"
       stroke="#1ab399"
       stroke-opacity="1"
       stroke-width="10"
@@ -1527,10 +1527,10 @@
   </g>
   <g>
     <line
-      x1="410.22771905428544"
-      y1="198.65915892353772"
-      x2="408.9584379882456"
-      y2="255.1805494516616"
+      x1="205.24700540916473"
+      y1="445.1999041473033"
+      x2="205.21491877309307"
+      y2="503.22128899905465"
       stroke="#ffffff"
       stroke-opacity="1"
       stroke-width="4"
@@ -1540,10 +1540,10 @@
   </g>
   <g>
     <line
-      x1="397.7308712773138"
-      y1="198.37852159101138"
-      x2="396.4615902112739"
-      y2="254.89991211913525"
+      x1="192.74700882620272"
+      y1="445.19299147463477"
+      x2="192.71492219013106"
+      y2="503.2143763263861"
       stroke="#1ab399"
       stroke-opacity="1"
       stroke-width="10"
@@ -1553,10 +1553,10 @@
   </g>
   <g>
     <line
-      x1="397.7308712773138"
-      y1="198.37852159101138"
-      x2="396.4615902112739"
-      y2="254.89991211913525"
+      x1="192.74700882620272"
+      y1="445.19299147463477"
+      x2="192.71492219013106"
+      y2="503.2143763263861"
       stroke="#ffffff"
       stroke-opacity="1"
       stroke-width="4"
@@ -1567,8 +1567,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="404.25993249832595"
-    cy="186.02199248030294"
+    cx="199.00391979035226"
+    cy="432.69645122800705"
     stroke="#ff0000"
     stroke-opacity="1"
     stroke-width="3"
@@ -1577,14 +1577,14 @@
     <title>`O1`.icon</title>
   </circle>
   <g
-    transform="rotate(0, 384.2973017309946, 226.3517970254503)translate(348.5317517309946, 219.6017970254503)"
+    transform="rotate(0, 181.60679531523397, 474.1975331415771)translate(121.99754531523396, 462.9475331415771)"
   >
     <title>`oxygen1`.text</title>
     <svg
-      style="font-size: 13.5px"
+      style="font-size: 22.5px"
       xmlns="http://www.w3.org/2000/svg"
-      width="71.53110000000001"
-      height="13.5"
+      width="119.2185"
+      height="22.5"
       role="img"
       focusable="false"
       viewBox="0 -750 5298.6 1000"
@@ -1666,8 +1666,8 @@
   <circle
     fill="#000000"
     fill-opacity="0"
-    cx="405.02287432346975"
-    cy="529.1834015330674"
+    cx="407.55361131442794"
+    cy="491.3385673913661"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -1678,8 +1678,8 @@
   <circle
     fill="#000000"
     fill-opacity="0"
-    cx="445.02287432346975"
-    cy="529.1834015330674"
+    cx="447.55361131442794"
+    cy="491.3385673913661"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -1690,8 +1690,8 @@
   <circle
     fill="#000000"
     fill-opacity="0"
-    cx="365.02287432346975"
-    cy="529.1834015330674"
+    cx="367.55361131442794"
+    cy="491.3385673913661"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -1731,8 +1731,8 @@
   <circle
     fill="#000000"
     fill-opacity="0"
-    cx="384.2973017309946"
-    cy="226.3517970254503"
+    cx="181.60679531523397"
+    cy="474.1975331415771"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -1743,8 +1743,8 @@
   <circle
     fill="#000000"
     fill-opacity="0"
-    cx="424.2973017309946"
-    cy="226.3517970254503"
+    cx="221.60679531523397"
+    cy="474.1975331415771"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -1755,8 +1755,8 @@
   <circle
     fill="#000000"
     fill-opacity="0"
-    cx="344.2973017309946"
-    cy="226.3517970254503"
+    cx="141.60679531523397"
+    cy="474.1975331415771"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -1768,10 +1768,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 385.02258926554384, 495.99345144497295)"
-    style="font: 10.5px sans-serif"
-    x="385.02258926554384"
-    y="495.99345144497295"
+    transform="rotate(0, 371.98843352179153, 452.84318286190813)"
+    style="font: 17.5px sans-serif"
+    x="371.98843352179153"
+    y="452.84318286190813"
     width="0"
     height="0"
     font-size-adjust=""
@@ -1788,10 +1788,10 @@
     fill="#ffffff"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 437.13982035159233, 484.8792703198267)"
-    style="font: 10.5px sans-serif"
-    x="437.13982035159233"
-    y="484.8792703198267"
+    transform="rotate(0, 427.62136801785624, 450.993734075901)"
+    style="font: 17.5px sans-serif"
+    x="427.62136801785624"
+    y="450.993734075901"
     width="0"
     height="0"
     font-size-adjust=""
@@ -1808,10 +1808,10 @@
     fill="#ffffff"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 937.419251226206, 208.18988864299473)"
-    style="font: 10.5px sans-serif"
-    x="937.419251226206"
-    y="208.18988864299473"
+    transform="rotate(0, 1033.0813439995106, 212.55215607077295)"
+    style="font: 17.5px sans-serif"
+    x="1033.0813439995106"
+    y="212.55215607077295"
     width="0"
     height="0"
     font-size-adjust=""
@@ -1827,8 +1827,8 @@
   <circle
     fill="#000000"
     fill-opacity="0"
-    cx="1063.2209333587596"
-    cy="472.0488953249268"
+    cx="1021.3559103844561"
+    cy="472.06342457974256"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -1839,8 +1839,8 @@
   <circle
     fill="#000000"
     fill-opacity="0"
-    cx="1103.2209333587596"
-    cy="472.0488953249268"
+    cx="1061.3559103844561"
+    cy="472.06342457974256"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -1851,8 +1851,8 @@
   <circle
     fill="#000000"
     fill-opacity="0"
-    cx="1023.2209333587596"
-    cy="472.0488953249268"
+    cx="981.3559103844561"
+    cy="472.06342457974256"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -1863,8 +1863,8 @@
   <circle
     fill="#000000"
     fill-opacity="0"
-    cx="957.4192595175323"
-    cy="167.87855367460273"
+    cx="1053.0782070195605"
+    cy="172.23931687551877"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -1875,8 +1875,8 @@
   <circle
     fill="#000000"
     fill-opacity="0"
-    cx="997.4192595175323"
-    cy="167.87855367460273"
+    cx="1093.0782070195605"
+    cy="172.23931687551877"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -1887,8 +1887,8 @@
   <circle
     fill="#000000"
     fill-opacity="0"
-    cx="917.4192595175323"
-    cy="167.87855367460273"
+    cx="1013.0782070195604"
+    cy="172.23931687551877"
     stroke="#000000"
     stroke-opacity="0"
     stroke-width="3"
@@ -1900,10 +1900,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 479.8455180656849, 453.55332383602996)"
-    style="font: 10.5px sans-serif"
-    x="479.8455180656849"
-    y="453.55332383602996"
+    transform="rotate(0, 468.03159148162325, 414.5794673382553)"
+    style="font: 17.5px sans-serif"
+    x="468.03159148162325"
+    y="414.5794673382553"
     width="0"
     height="0"
     font-size-adjust=""
@@ -1920,10 +1920,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 886.162012674549, 190.78158724374424)"
-    style="font: 10.5px sans-serif"
-    x="886.162012674549"
-    y="190.78158724374424"
+    transform="rotate(0, 1086.5678326699124, 210.43849231424042)"
+    style="font: 17.5px sans-serif"
+    x="1086.5678326699124"
+    y="210.43849231424042"
     width="0"
     height="0"
     font-size-adjust=""
@@ -1940,10 +1940,10 @@
     fill="#ffffff"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 771.0259303692717, 483.8817511170072)"
-    style="font: 10.5px sans-serif"
-    x="771.0259303692717"
-    y="483.8817511170072"
+    transform="rotate(0, 827.1819604387312, 419.0362871283483)"
+    style="font: 17.5px sans-serif"
+    x="827.1819604387312"
+    y="419.0362871283483"
     width="0"
     height="0"
     font-size-adjust=""
@@ -1960,10 +1960,10 @@
     fill="#ffffff"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 1083.2281943047146, 431.7337935599659)"
-    style="font: 10.5px sans-serif"
-    x="1083.2281943047146"
-    y="431.7337935599659"
+    transform="rotate(0, 1071.1966208375209, 515.9742578113377)"
+    style="font: 17.5px sans-serif"
+    x="1071.1966208375209"
+    y="515.9742578113377"
     width="0"
     height="0"
     font-size-adjust=""
@@ -1980,10 +1980,10 @@
     fill="#ffffff"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 404.25993249832595, 186.02199248030294)"
-    style="font: 10.5px sans-serif"
-    x="404.25993249832595"
-    y="186.02199248030294"
+    transform="rotate(0, 199.00391979035226, 432.69645122800705)"
+    style="font: 17.5px sans-serif"
+    x="199.00391979035226"
+    y="432.69645122800705"
     width="0"
     height="0"
     font-size-adjust=""
@@ -2000,10 +2000,10 @@
     fill="#ffffff"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 1083.2967738050947, 512.3978587980212)"
-    style="font: 10.5px sans-serif"
-    x="1083.2967738050947"
-    y="512.3978587980212"
+    transform="rotate(0, 1001.3558916111552, 512.3747344180819)"
+    style="font: 17.5px sans-serif"
+    x="1001.3558916111552"
+    y="512.3747344180819"
     width="0"
     height="0"
     font-size-adjust=""
@@ -2020,10 +2020,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 771.0259510423431, 410.3806958348641)"
-    style="font: 10.5px sans-serif"
-    x="771.0259510423431"
-    y="410.3806958348641"
+    transform="rotate(0, 827.1819488091086, 345.5352343266073)"
+    style="font: 17.5px sans-serif"
+    x="827.1819488091086"
+    y="345.5352343266073"
     width="0"
     height="0"
     font-size-adjust=""
@@ -2040,10 +2040,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 990.8751072099662, 206.07198405068317)"
-    style="font: 10.5px sans-serif"
-    x="990.8751072099662"
-    y="206.07198405068317"
+    transform="rotate(0, 981.8702416577349, 195.20940388821788)"
+    style="font: 17.5px sans-serif"
+    x="981.8702416577349"
+    y="195.20940388821788"
     width="0"
     height="0"
     font-size-adjust=""
@@ -2060,10 +2060,10 @@
     fill="#ffffff"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 1013.5135927316098, 515.989555030772)"
-    style="font: 10.5px sans-serif"
-    x="1013.5135927316098"
-    y="515.989555030772"
+    transform="rotate(0, 1002.5348593661706, 431.1883949281991)"
+    style="font: 17.5px sans-serif"
+    x="1002.5348593661706"
+    y="431.1883949281991"
     width="0"
     height="0"
     font-size-adjust=""
@@ -2080,10 +2080,10 @@
     fill="#ffffff"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 402.4293767672334, 267.53707856237)"
-    style="font: 10.5px sans-serif"
-    x="402.4293767672334"
-    y="267.53707856237"
+    transform="rotate(0, 198.95800780894353, 515.7178292456824)"
+    style="font: 17.5px sans-serif"
+    x="198.95800780894353"
+    y="515.7178292456824"
     width="0"
     height="0"
     font-size-adjust=""
@@ -2100,10 +2100,10 @@
     fill="#000000"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 824.694236302842, 481.7996847785327)"
-    style="font: 10.5px sans-serif"
-    x="824.694236302842"
-    y="481.7996847785327"
+    transform="rotate(0, 773.4420835738871, 416.9660335883291)"
+    style="font: 17.5px sans-serif"
+    x="773.4420835738871"
+    y="416.9660335883291"
     width="0"
     height="0"
     font-size-adjust=""
@@ -2120,10 +2120,10 @@
     fill="#ffffff"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 216.1929982367148, 186.73590314224987)"
-    style="font: 10.5px sans-serif"
-    x="216.1929982367148"
-    y="186.73590314224987"
+    transform="rotate(0, 289.44218120305334, 186.02134598953447)"
+    style="font: 17.5px sans-serif"
+    x="289.44218120305334"
+    y="186.02134598953447"
     width="0"
     height="0"
     font-size-adjust=""
@@ -2140,10 +2140,10 @@
     fill="#ffffff"
     fill-opacity="1"
     stroke="none"
-    transform="rotate(0, 147.00708476718154, 190.46751625552716)"
-    style="font: 10.5px sans-serif"
-    x="147.00708476718154"
-    y="190.46751625552716"
+    transform="rotate(0, 287.0785015630331, 267.7523487786638)"
+    style="font: 17.5px sans-serif"
+    x="287.0785015630331"
+    y="267.7523487786638"
     width="0"
     height="0"
     font-size-adjust=""
@@ -2162,18 +2162,18 @@
     stroke="none"
     transform="rotate(0, 624, 58.5)"
     style="
-      font: small-caps 30px Palatino, Palatino Linotype, Palatino LT STD,
+      font: small-caps 50px Palatino, Palatino Linotype, Palatino LT STD,
         Book Antiqua, Georgia, serif;
     "
     x="624"
-    y="69.5"
-    width="471.0400390625"
-    height="22"
+    y="77.5"
+    width="784.7333984375"
+    height="40"
     font-size-adjust=""
     alignment-baseline="alphabetic"
     dominant-baseline="alphabetic"
-    ascent="22"
-    descent="0"
+    ascent="39"
+    descent="1"
     text-anchor="middle"
     visibility=""
   >
