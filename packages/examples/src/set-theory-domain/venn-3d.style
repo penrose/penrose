@@ -1,6 +1,6 @@
 canvas {
   width = 800
-  height = 700
+  height = 800
 }
 
 forall Set x {
