@@ -22,7 +22,6 @@ export const samplePolygon = (
   _canvas: Canvas
 ): PolygonProps<ad.Num> => ({
   name: strV("defaultPolygon"),
-  style: strV(""),
   strokeWidth: floatV(0),
   strokeStyle: strV("solid"),
   strokeColor: noPaint(),

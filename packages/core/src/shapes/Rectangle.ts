@@ -33,7 +33,6 @@ export const sampleRectangle = (
   canvas: Canvas
 ): RectangleProps<ad.Num> => ({
   name: strV("defaultRectangle"),
-  style: strV(""),
   strokeWidth: floatV(0),
   strokeStyle: strV("solid"),
   strokeColor: noPaint(),

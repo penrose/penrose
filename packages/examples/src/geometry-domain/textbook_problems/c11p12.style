@@ -1,0 +1,33 @@
+global {
+    shape background = Rectangle {
+        center: (0, 0)
+        width: canvas.width
+        height: canvas.height
+        fillColor: #F6F4F2
+    } 
+}
+
+forall Point p {
+  override p.color = #425664
+  override p.icon.fillColor = #425664
+  override p.icon.strokeColor = #425664
+  override p.text.fillColor = #425664
+}
+
+forall Linelike l {
+  override l.color = #425664
+
+  override l.icon.strokeColor = #425664
+}
+
+forall Circle c {
+  override c.icon.strokeColor = #425664
+}
+
+forall Segment s
+where s := PerpendicularBisectorLabelPts(s2, p1, p2)
+with Segment s2; Point p1, p2 {
+  override s.icon.strokeColor = #425664
+  override s.mark.strokeColor = #425664
+}
+

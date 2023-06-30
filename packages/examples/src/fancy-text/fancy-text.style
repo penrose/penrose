@@ -9,9 +9,9 @@ Global {
       center: (0.,0.)
       width: canvas.width
       height: canvas.height
-      fillColor: rgba( .8,.95,.9,1. )
-      strokeColor: rgba(0.,0.,0.,1.)
-      strokeWidth: 2.
+      fillColor: rgba( .8,.95,.9, 1. )
+      strokeColor: rgba( .6,.85,.6, 1. )
+      strokeWidth: 4.
    }
 
 }
@@ -31,30 +31,41 @@ forall Text t {
       fontFamily: "Palatino"
       fontStyle: "italic"
       fontSize: "38px"
-   }
-   shape t.innerStroke = Text {
-      string: t.titleString
-      center: t.titleCenter
-      fillColor: rgba(0.,0.,0.,1.)
-      fontFamily: "Palatino"
-      fontStyle: "italic"
-      fontSize: "38px"
-      style: "stroke:#FF0303;stroke-width:4;stroke-miterlimit:2;"
+      strokeWidth: 4
+      strokeColor: #ff0303
+      paintOrder: "stroke"
    }
    shape t.outerStroke = Text {
       string: t.titleString
       center: t.titleCenter
-      fillColor: rgba(0.,0.,0.,1.)
+      fillColor: #ff6603
       fontFamily: "Palatino"
       fontStyle: "italic"
       fontSize: "38px"
-      style: "stroke:#FF6603;stroke-width:8;stroke-miterlimit:2;"
+      strokeWidth: 8
+      strokeColor: #ff6603
+      paintOrder: "stroke"
    }
+   -- shape t.innerStroke = Text {
+   --    string: t.titleString
+   --    center: t.titleCenter
+   --    fillColor: rgba(0.,0.,0.,1.)
+   --    fontFamily: "Palatino"
+   --    fontStyle: "italic"
+   --    fontSize: "38px"
+   --    style: "stroke:#FF0303;stroke-width:4;stroke-miterlimit:2;"
+   -- }
+   -- shape t.outerStroke = Text {
+   --    string: t.titleString
+   --    center: t.titleCenter
+   --    fillColor: rgba(0.,0.,0.,1.)
+   --    fontFamily: "Palatino"
+   --    fontStyle: "italic"
+   --    fontSize: "38px"
+   --    style: "stroke:#FF6603;stroke-width:8;stroke-miterlimit:2;"
+   -- }
 
-   -- make sure the text and strokes
-   -- appear in the right order
-   layer t.text above t.innerStroke
-   layer t.innerStroke above t.outerStroke
+   layer t.text above t.outerStroke
    layer t.outerStroke above Global.bbox
 }
 
@@ -62,22 +73,23 @@ forall Text t {
 -- draw each point as a circular disk,
 -- whose size is allowed to vary
 forall Point p {
+
+   vec3 c = unit(sphereRandom())
+
    shape p.icon = Circle {
       center: (?,?)
-      r: ?
-      fillColor: rgba(0.,0.,1.,.15)
+      r: random(18,38)
+      fillColor: rgba(abs(c[0]/2),abs(c[1]/2),abs(c[2]),.25)
    }
    layer p.icon above Global.bbox
 
    shape p.text = Equation {
       center: p.icon.center
       string: p.label
-      fillColor: rgba(.25,.5,1.,.5)
+      fillColor: rgba(abs(c[0]/4),abs(c[1]/4),abs(c[2]/2),.25)
       fontSize: "28px"
    }
    layer p.text above Global.bbox
-
-   ensure inRange( p.icon.r, 30., 60. )
 
    -- keep all disks on the canvas
    ensure contains( Global.bbox, p.icon )

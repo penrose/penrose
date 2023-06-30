@@ -1,0 +1,6 @@
+{
+  "substance": "./ReflectingBoundary.substance",
+  "style": ["./EpsilonShell.style"],
+  "domain": "./EpsilonShell.domain",
+  "variation": "ZincTarsier056"
+}
