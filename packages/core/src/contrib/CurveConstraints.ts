@@ -17,7 +17,7 @@ import {
 } from "../engine/AutodiffFunctions.js";
 import * as ad from "../types/ad.js";
 import { ConstrFunc } from "../types/functions.js";
-import { booleanT, realNMT } from "../utils/Util.js";
+import { booleanT, noWarnFn, realNMT } from "../utils/Util.js";
 import { consecutiveTriples, consecutiveTuples } from "./Utils.js";
 
 /**
@@ -257,7 +257,7 @@ export const constrDictCurves: { [k: string]: ConstrFunc } = {
         description: "whether the polygonic chain is closed",
       },
     ],
-    body: (points: ad.Num[][], closed: boolean): ad.Num => {
+    body: noWarnFn((points: ad.Num[][], closed: boolean): ad.Num => {
       const triples = consecutiveTriples(points, closed);
       const angles = triples.map(([p1, p2, p3]: ad.Num[][]) =>
         ops.angleFrom(ops.vsub(p2, p1), ops.vsub(p3, p2))
@@ -268,7 +268,7 @@ export const constrDictCurves: { [k: string]: ConstrFunc } = {
           ifCond(lte(mul(meanSign, angle), 0), squared(angle), 0)
         )
       );
-    },
+    }),
   },
 
   /**
@@ -290,15 +290,15 @@ export const constrDictCurves: { [k: string]: ConstrFunc } = {
         description: "whether the polygonic chain is closed",
       },
     ],
-    body: (points: ad.Num[][], closed: boolean): ad.Num => {
+    body: noWarnFn((points: ad.Num[][], closed: boolean): ad.Num => {
       const localPenalty = constrDictCurves.isLocallyConvex.body(
         points,
         closed
-      );
+      ).value;
       const tn = turningNumber(points, closed);
       const globalPenalty = squared(sub(absVal(tn), 1));
       return add(localPenalty, globalPenalty);
-    },
+    }),
   },
 
   /**
@@ -319,10 +319,10 @@ export const constrDictCurves: { [k: string]: ConstrFunc } = {
         description: "whether the polygonic chain is closed",
       },
     ],
-    body: (points: ad.Num[][], closed: boolean): ad.Num => {
+    body: noWarnFn((points: ad.Num[][], closed: boolean): ad.Num => {
       const hs = consecutiveTuples(points, closed);
       return equivalued(hs.map(([p1, p2]: ad.Num[][]) => ops.vdist(p1, p2)));
-    },
+    }),
   },
 
   /**
@@ -343,13 +343,13 @@ export const constrDictCurves: { [k: string]: ConstrFunc } = {
         description: "whether the polygonic chain is closed",
       },
     ],
-    body: (points: ad.Num[][], closed: boolean): ad.Num => {
+    body: noWarnFn((points: ad.Num[][], closed: boolean): ad.Num => {
       const hs = consecutiveTriples(points, closed);
       return equivalued(
         hs.map(([p1, p2, p3]: ad.Num[][]) =>
           ops.angleFrom(ops.vsub(p2, p1), ops.vsub(p3, p2))
         )
       );
-    },
+    }),
   },
 };

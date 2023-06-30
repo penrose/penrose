@@ -604,6 +604,21 @@ canvas {
         .join("; ")}.`;
     }
 
+    case "BBoxApproximationWarning": {
+      const topItem = error.stack[error.stack.length - 1];
+      const rest = error.stack.slice(0, -1).reverse();
+      const loc =
+        topItem.location === undefined
+          ? ""
+          : `(at ${locc("Style", topItem.location)}) `;
+      const topStr = `Function call ${topItem.signature} ${loc}uses bounding box approximations`;
+      const restStrs = rest.map(
+        (item) =>
+          `- Function call ${item.signature} uses bounding box approximations`
+      );
+      return [topStr, ...restStrs].join(", because\n");
+    }
+
     // ----- END STYLE WARNINGS
 
     case "Fatal": {
@@ -836,6 +851,10 @@ export const errLocs = (
     case "ImplicitOverrideWarning":
     case "NoopDeleteWarning": {
       return locOrNone({ ...e.path, nodeType: "Style" });
+    }
+    case "BBoxApproximationWarning": {
+      const l = e.stack[e.stack.length - 1].location;
+      return l === undefined ? [] : [toErrorLoc({ ...l, nodeType: "Style" })];
     }
 
     case "LayerCycleWarning":

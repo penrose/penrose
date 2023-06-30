@@ -6,6 +6,8 @@ import { Shape, ShapeType } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
 import { A, ASTNode, NodeType, SourceLoc, SourceRange } from "../types/ast.js";
 import { Either, Left, Right } from "../types/common.js";
+import { StyleWarning } from "../types/errors.js";
+import { MayWarn } from "../types/functions.js";
 import { Fn } from "../types/state.js";
 import { BindingForm, Expr, Path } from "../types/style.js";
 import {
@@ -1023,7 +1025,7 @@ export const getValueAsShapeList = <T>(val: Value<T>): Shape<T>[] => {
 
 //#endregion
 
-//#region AST
+//#region errors and warnings
 
 export type ErrorLoc = {
   type: NodeType;
@@ -1048,6 +1050,46 @@ export const locOrNone = (node: ASTNode<A>): ErrorLoc[] => {
   if (isConcrete(node)) {
     return [toErrorLoc(node)];
   } else return [];
+};
+
+export const allWarnings = [
+  "BBoxApproximationWarning",
+  "GroupCycleWarning",
+  "ImplicitOverrideWarning",
+  "LayerCycleWarning",
+  "NoopDeleteWarning",
+  "ShapeBelongsToMultipleGroups",
+] as const;
+
+// These are type-level assertions that allWarnings
+// covers each variant in StyleWarning
+type AssertedWarningTags = (typeof allWarnings)[number];
+type ActualWarningTags = StyleWarning["tag"];
+
+type IsSubset<T, U> = T extends U ? true : false;
+type AreUnionsEqual<T, U> = IsSubset<T, U> extends true
+  ? IsSubset<U, T>
+  : false;
+
+// If this fails to compile, then allWarnings and the actual tags of
+// StyleWarning variants are different.
+const _warningTagsCheck: AreUnionsEqual<
+  AssertedWarningTags,
+  ActualWarningTags
+> = true;
+
+//#endregion
+
+//#region functions
+export const noWarn = <T>(value: T): MayWarn<T> => ({
+  value,
+  warnings: [],
+});
+
+export const noWarnFn = <T extends any[], S>(
+  f: (...args: T) => S
+): ((...args: T) => MayWarn<S>) => {
+  return (...args: T) => noWarn(f(...args));
 };
 
 //#endregion

@@ -167,6 +167,7 @@ export const diagram = async (
     style: string;
     domain: string;
     variation: string;
+    excludeWarnings: string[];
   },
   node: HTMLElement,
   pathResolver: PathResolver,
@@ -199,6 +200,7 @@ export const interactiveDiagram = async (
     style: string;
     domain: string;
     variation: string;
+    excludeWarnings: string[];
   },
   node: HTMLElement,
   pathResolver: PathResolver,
@@ -243,6 +245,7 @@ export const compileTrio = async (prog: {
   style: string;
   domain: string;
   variation: string;
+  excludeWarnings: string[];
 }): Promise<Result<State, PenroseError>> => {
   const domainRes: Result<Env, PenroseError> = compileDomain(prog.domain);
 
@@ -253,7 +256,12 @@ export const compileTrio = async (prog: {
 
   const styRes: Result<State, PenroseError> = subRes.isErr()
     ? err(subRes.error)
-    : await compileStyle(prog.variation, prog.style, ...subRes.value);
+    : await compileStyle(
+        prog.variation,
+        prog.style,
+        prog.excludeWarnings,
+        ...subRes.value
+      );
 
   return styRes;
 };
@@ -363,6 +371,7 @@ export * as Value from "./types/value.js";
 export { errLocs, showError } from "./utils/Error.js";
 export type { Result } from "./utils/Error.js";
 export {
+  allWarnings,
   describeType,
   hexToRgba,
   prettyPrintExpr,

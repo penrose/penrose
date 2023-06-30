@@ -3066,7 +3066,11 @@ const evalExpr = (
       const f = compDict[name.value];
       const x = callCompFunc(f, { start, end }, mut, argsWithSourceLoc);
       if (x.isErr()) return err(oneErr(x.error));
-      return ok(val(x.value));
+      const { value, warnings } = x.value;
+
+      trans.diagnostics.warnings = trans.diagnostics.warnings.push(...warnings);
+
+      return ok(val(value));
     }
     case "ConstrFn":
     case "Layering":
@@ -3397,6 +3401,8 @@ const translateExpr = (
         return addDiags(oneErr(output.error), trans);
       }
 
+      const { value, warnings } = output.value;
+
       const optStages: OptStages = stageExpr(
         layoutStages,
         exclude,
@@ -3404,10 +3410,14 @@ const translateExpr = (
       );
       return {
         ...trans,
+        diagnostics: {
+          ...trans.diagnostics,
+          warnings: trans.diagnostics.warnings.push(...warnings),
+        },
         constraints: trans.constraints.push({
           ast: { context: e.context, expr: e.expr },
           optStages,
-          output: output.value,
+          output: value,
         }),
       };
     }
@@ -3451,12 +3461,17 @@ const translateExpr = (
       if (output.isErr()) {
         return addDiags(oneErr(output.error), trans);
       }
+      const { value, warnings } = output.value;
       return {
         ...trans,
+        diagnostics: {
+          ...trans.diagnostics,
+          warnings: trans.diagnostics.warnings.push(...warnings),
+        },
         objectives: trans.objectives.push({
           ast: { context: e.context, expr: e.expr },
           optStages,
-          output: output.value,
+          output: value,
         }),
       };
     }
@@ -3770,7 +3785,7 @@ const onCanvases = (canvas: Canvas, shapes: Shape<ad.Num>[]): Fn[] => {
         shape,
         canvas.width,
         canvas.height
-      );
+      ).value;
       fns.push({
         ast: {
           context: {
@@ -4034,11 +4049,17 @@ export const compileStyleHelper = async (
 export const compileStyle = async (
   variation: string,
   stySource: string,
+  excludeWarnings: string[],
   subEnv: SubstanceEnv,
   varEnv: Env
 ): Promise<Result<State, PenroseError>> =>
   (await compileStyleHelper(variation, stySource, subEnv, varEnv)).map(
-    ({ state }) => state
+    ({ state }) => ({
+      ...state,
+      warnings: state.warnings.filter(
+        (warning) => !excludeWarnings.includes(warning.tag)
+      ),
+    })
   );
 
 //#endregion Main funcitons

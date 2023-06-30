@@ -125,6 +125,7 @@ const ProblemChoice = ({
         substance={substance}
         variation={variation}
         interactive={false}
+        excludeWarnings={[]}
       />
     </OptionContainer>
   );
