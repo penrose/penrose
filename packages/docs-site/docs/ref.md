@@ -1,5 +1,7 @@
 # Penrose Overview
 
+For more information on any of the items summarized below, please use the navigation. More detailed documentation and example snippets for several aspects of Penrose (such as, types, shapes, and functions) can be found on the [wiki](https://github.com/penrose/penrose/wiki/).
+
 Penrose effortlessly creates beautiful diagrams using a 'trio':
 
 - A **Domain-specific Language (.domain) program**.  
