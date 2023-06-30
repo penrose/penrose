@@ -5,6 +5,7 @@ import {
   AbstractNode,
   C,
   Identifier,
+  NodeType,
   SourceLoc,
   SourceRange,
 } from "./ast.js";
@@ -285,6 +286,7 @@ export interface ParseError {
   tag: "ParseError";
   message: string;
   location?: SourceLoc;
+  fileType?: NodeType;
 }
 
 export interface InvalidColorLiteral {

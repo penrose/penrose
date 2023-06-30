@@ -3723,10 +3723,12 @@ export const parseStyle = (p: string): Result<StyProg<C>, ParseError> => {
       const ast: StyProg<C> = results[0] as StyProg<C>;
       return ok(ast);
     } else {
-      return err(parseError(`Unexpected end of input`, lastLocation(parser)));
+      return err(
+        parseError(`Unexpected end of input`, lastLocation(parser), "Style")
+      );
     }
   } catch (e) {
-    return err(parseError(prettyParseError(e), lastLocation(parser)));
+    return err(parseError(prettyParseError(e), lastLocation(parser), "Style"));
   }
 };
 

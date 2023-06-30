@@ -31,6 +31,7 @@ import {
   RuntimeError,
   SelectorFieldNotSupported,
   StyleError,
+  StyleErrorList,
   StyleWarning,
   SubstanceError,
   SymmetricArgLengthMismatch,
@@ -54,9 +55,12 @@ import { BindingForm, ColorLit } from "../types/style.js";
 import { Deconstructor, SubExpr } from "../types/substance.js";
 import { ArgVal, ArgValWithSourceLoc, ShapeVal, Val } from "../types/value.js";
 import {
+  ErrorLoc,
   describeType,
+  locOrNone,
   prettyPrintPath,
   prettyPrintResolvedPath,
+  toErrorLoc,
 } from "./Util.js";
 const {
   or,
@@ -623,6 +627,250 @@ canvas {
   }
 };
 
+export const errLocs = (
+  e: Exclude<
+    DomainError | SubstanceError | StyleError | StyleWarning | RuntimeError,
+    StyleErrorList
+  >
+): ErrorLoc[] => {
+  switch (e.tag) {
+    case "RuntimeError":
+    case "NaNError": {
+      return [];
+    }
+    case "ParseError":
+      if (e.fileType === undefined || e.location === undefined) {
+        return [];
+      } else {
+        return [
+          {
+            type: e.fileType,
+            range: {
+              start: e.location,
+              end: e.location,
+            },
+          },
+        ];
+      }
+    case "InvalidColorLiteral":
+      return [toErrorLoc(e.color)];
+    case "TypeDeclared": {
+      return locOrNone(e.typeName);
+    }
+    // TODO: abstract out this pattern if it becomes more common
+    case "VarNotFound": {
+      return locOrNone(e.variable);
+    }
+    case "TypeNotFound": {
+      return locOrNone(e.typeName);
+    }
+    case "TypeVarNotFound": {
+      return locOrNone(e.typeVar);
+    }
+    case "DuplicateName": {
+      return locOrNone(e.name);
+    }
+    case "CyclicSubtypes": {
+      return [];
+    }
+    case "SymmetricTypeMismatch":
+    case "SymmetricArgLengthMismatch":
+    case "TypeMismatch":
+    case "TypeArgLengthMismatch":
+    case "ArgLengthMismatch":
+    case "UnexpectedExprForNestedPred": {
+      return locOrNone(e.sourceExpr);
+    }
+    case "DeconstructNonconstructor": {
+      return locOrNone(e.deconstructor);
+    }
+
+    // ---- BEGIN STYLE ERRORS
+    // COMBAK suggest improvements after reporting errors
+
+    case "GenericStyleError": {
+      return [];
+    }
+
+    case "SelectorVarMultipleDecl": {
+      return locOrNone(e.varName);
+    }
+
+    case "SelectorFieldNotSupported": {
+      return locOrNone(e.field);
+    }
+
+    case "SelectorDeclTypeMismatch": {
+      // COMBAK: Add code for prettyprinting types
+      return locOrNone(e.styType);
+    }
+
+    case "SelectorRelTypeMismatch": {
+      // COMBAK: Add code for prettyprinting types
+      return locOrNone(e.exprType);
+    }
+
+    case "TaggedSubstanceError": {
+      switch (e.error.tag) {
+        // special handling for VarNotFound
+        case "VarNotFound":
+          return locOrNone(e.error.variable);
+        default:
+          return errLocs(e.error);
+      }
+    }
+
+    case "SelectorAliasNamingError": {
+      return locOrNone(e.alias);
+    }
+
+    case "MultipleLayoutError": {
+      return e.decls.map(locOrNone).flat();
+    }
+    // --- BEGIN BLOCK STATIC ERRORS
+    case "InvalidGPIPropertyError": {
+      return [];
+    }
+    case "InvalidGPITypeError": {
+      return locOrNone(e.givenType);
+    }
+    case "InvalidFunctionNameError":
+    case "InvalidObjectiveNameError":
+    case "InvalidConstraintNameError": {
+      return locOrNone(e.givenName);
+    }
+
+    // --- END BLOCK STATIC ERRORS
+
+    // --- BEGIN COMPILATION ERRORS
+
+    case "AssignAccessError": {
+      return locOrNone(e.path);
+    }
+
+    case "BadElementError": {
+      return locOrNone(e.coll);
+    }
+
+    case "BadIndexError":
+    case "BinOpTypeError": {
+      return locOrNone(e.expr);
+    }
+
+    case "CanvasNonexistentDimsError": {
+      return [];
+    }
+
+    case "CyclicAssignmentError": {
+      const cycleLocs = e.cycles
+        .map((c) =>
+          c
+            .map(({ id, src }) =>
+              src === undefined ? [] : toErrorLoc({ ...src, nodeType: "Style" })
+            )
+            .flat()
+        )
+        .flat();
+      return cycleLocs;
+    }
+
+    case "DeleteGlobalError":
+    case "DeleteSubstanceError":
+    case "MissingPathError":
+    case "MissingShapeError":
+    case "NotShapeError":
+    case "PropertyMemberError":
+    case "AssignGlobalError":
+    case "AssignSubstanceError": {
+      return locOrNone({ ...e.path, nodeType: "Style" });
+    }
+
+    case "NestedShapeError":
+    case "NotCollError":
+    case "IndexIntoShapeListError":
+    case "NotValueError":
+    case "OutOfBoundsError":
+    case "UOpTypeError": {
+      return locOrNone(e.expr);
+    }
+
+    case "BadShapeParamTypeError": {
+      // TODO: incorporate location information in shape parameter errors
+      return [];
+    }
+
+    case "BadArgumentTypeError": {
+      return [
+        toErrorLoc({
+          nodeType: "Style",
+          start: e.provided.start,
+          end: e.provided.end,
+        }),
+      ];
+    }
+
+    case "MissingArgumentError": {
+      return [
+        toErrorLoc({
+          ...e.funcLocation,
+          nodeType: "Style",
+        }),
+      ];
+    }
+
+    case "TooManyArgumentsError": {
+      return [
+        toErrorLoc({
+          ...e.funcLocation,
+          nodeType: "Style",
+        }),
+      ];
+    }
+
+    case "FunctionInternalError":
+    case "RedeclareNamespaceError":
+    case "UnexpectedCollectionAccessError": {
+      return [
+        toErrorLoc({
+          ...e.location,
+          nodeType: "Style",
+        }),
+      ];
+    }
+    // --- END COMPILATION ERRORS
+
+    // TODO(errors): use identifiers here
+    case "RuntimeValueTypeError": {
+      return locOrNone({ ...e.path, nodeType: "Style" });
+    }
+
+    // ----- END STYLE ERRORS
+
+    // ---- BEGIN STYLE WARNINGS
+
+    case "ImplicitOverrideWarning":
+    case "NoopDeleteWarning": {
+      return locOrNone({ ...e.path, nodeType: "Style" });
+    }
+    case "BBoxApproximationWarning": {
+      const l = e.stack[e.stack.length - 1].location;
+      return l === undefined ? [] : [toErrorLoc({ ...l, nodeType: "Style" })];
+    }
+
+    case "LayerCycleWarning":
+    case "ShapeBelongsToMultipleGroups":
+    case "GroupCycleWarning": {
+      return [];
+    }
+
+    // ----- END STYLE WARNINGS
+
+    case "Fatal": {
+      return [];
+    }
+  }
+};
+
 const showCycles = (cycles: string[][]) => {
   // repeats the cycle start again
   const pathString = (path: string[]) => [...path, path[0]].join(" -> ");
@@ -753,11 +1001,13 @@ export const fatalError = (message: string): FatalError => ({
 
 export const parseError = (
   message: string,
-  location?: SourceLoc
+  location?: SourceLoc,
+  fileType?: NodeType
 ): ParseError => ({
   tag: "ParseError",
   message,
   location,
+  fileType,
 });
 
 export const invalidColorLiteral = (
