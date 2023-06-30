@@ -165,6 +165,10 @@ export const useResampleDiagram = () =>
       metadata: { ...state.metadata, variation },
       state: resampled,
     }));
+    set(currentWorkspaceState, (state) => ({
+      ...state,
+      metadata: { ...state.metadata, variation },
+    }));
     // update grid state too
     set(diagramGridState, ({ gridSize }) => ({
       variations: range(gridSize).map((i) =>
