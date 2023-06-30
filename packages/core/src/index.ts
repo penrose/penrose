@@ -245,7 +245,7 @@ export const compileTrio = async (prog: {
   style: string;
   domain: string;
   variation: string;
-  excludeWarnings: string[];
+  excludeWarnings?: string[];
 }): Promise<Result<State, PenroseError>> => {
   const domainRes: Result<Env, PenroseError> = compileDomain(prog.domain);
 
@@ -259,7 +259,7 @@ export const compileTrio = async (prog: {
     : await compileStyle(
         prog.variation,
         prog.style,
-        prog.excludeWarnings,
+        prog.excludeWarnings ?? [],
         ...subRes.value
       );
 

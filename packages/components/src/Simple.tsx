@@ -20,7 +20,7 @@ export interface SimpleProps {
   substance: string;
   style: string;
   variation: string;
-  excludeWarnings: string[];
+  excludeWarnings?: string[];
   stepSize?: number;
   interactive?: boolean; // considered true by default
   animate?: boolean; // considered false by default
