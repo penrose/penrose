@@ -320,8 +320,14 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
     );
   };
 
-  getSamplePreset = () => {
+  getSampleSubstancePreset = () => {
     return Object.entries(presets).find(
+      ([_, { domain }]) => domain === this.state.domain
+    )![1];
+  };
+
+  getDomainPreset = () => {
+    return Object.entries(domains).find(
       ([_, { domain }]) => domain === this.state.domain
     )![1];
   };
@@ -336,12 +342,12 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
       Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
     };
 
-    const samplePreset = this.getSamplePreset();
+    const samplePreset = this.getSampleSubstancePreset();
 
     const prompt = `
-You are a code generator that is generating a new program in the Substance programming language, which draws from the Domain programming language program also given below. To write comments, begin with \`--\`. Return only the Substance program; explain your reasoning only in Substance comments.
+You are a code generator that is generating a new program in the Substance programming language, which draws from the Domain programming language program also given below. To write comments, begin with \`--\`. Return only the Substance program; explain your reasoning in Substance comments only.
 
-We have been working on a platform called Penrose for authoring mathematical diagrams. The system involves a family of 3 domain specific languages: Substance (for specifying the mathematical objects and the relationships between those objects, Style (for mapping the mathematical objects to shapes and mathematical relationships to layout constraints and objectives), and Domain (for specifying the types of mathematical objects and relationships; this is a meta-language or schema language). Those three programs are used to synthesize a layout problem which we then solve to create a corresponding diagram.\n
+We have been working on a platform called Penrose for authoring mathematical diagrams. The system involves a family of 3 domain specific languages: Substance (for specifying the mathematical objects and the relationships between those objects, Style (for mapping the mathematical objects to shapes and mathematical relationships to layout constraints and objectives), and Domain (for specifying the types of mathematical objects and relationships; this is a meta-language or schema language). Those three programs are used to synthesize a layout problem which we then solve to create a corresponding diagram.
 
 Here is a Domain program which would inform a Substance program:
 
@@ -355,27 +361,37 @@ Here is a sample Substance program named \"${samplePreset.displayName}\":
 ${samplePreset.substance}
 \`\`\`
 
-Question: Given the context above, can you generate a new Substance program which describes the following:
-${this.state.llmInput}.`;
+Question: Given the context above, can you generate a new Substance program which describes the following: ${this.state.llmInput}?
+
+To write comments, begin with \`--\`. Return only the Substance program; explain your reasoning in Substance comments only.`;
 
     console.log(prompt);
     const data = {
       model: "gpt-3.5-turbo",
       messages: [{ role: "user", content: prompt }],
       max_tokens: 2000,
-      temperature: 0.7,
+      temperature: 0.1,
     };
+
+    const start = Date.now();
 
     fetch(apiUrl, {
       method: "POST",
       headers: headers,
       body: JSON.stringify(data),
     })
-      .then((response) => response.json())
+      .then((response) => {
+        console.log(Date.now() - start + "ms");
+        return response.json();
+      })
       .then((result) => {
         //console.log(result);
         // Process the result
         output = result.choices[0].message.content;
+
+        // remove backticks from output
+        output = output.replace(/`/g, "");
+
         this.setState({ substance: output });
       })
       .catch((error) => {
