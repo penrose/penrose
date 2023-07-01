@@ -176,15 +176,14 @@ install` to build `wasm-bindgen-cli` from source in every CI run is too slow, so
 instead I stashed a Linux binary in a GitHub Gist to use until the next
 release.)
 
-By default, `wasm-bindgen` exports exports Rust types as JavaScript classes
-which point to data living in the Wasm memory. This is great for efficiency
-because it means data doesn't get unnecessarily copied back and forth, but the
-downside is that the user on the JS side needs to remember to manually call
-`.free()` or some other thing that consumes the object, or a memory leak springs
-up. For our purposes I wanted our optimizer interface to just return plain old
-JavaScript data, so I made use of the very nice
-[`serde-wasm-bindgen`][serde-wasm-bindgen] and [ts-rs][] crates. These work
-great together as long as you use the
+By default, `wasm-bindgen` exports Rust types as JavaScript classes which point
+to data living in the Wasm memory. This is great for efficiency because it means
+data doesn't get unnecessarily copied back and forth, but the downside is that
+the user on the JS side needs to remember to manually call `.free()` or some
+other thing that consumes the object, or a memory leak springs up. For our
+purposes I wanted our optimizer interface to just return plain old JavaScript
+data, so I made use of the very nice [`serde-wasm-bindgen`][serde-wasm-bindgen]
+and [ts-rs][] crates. These work great together as long as you use the
 [`Serializer::json_compatible()`][json_compatible] preset.
 
 To bundle this all up into an actual `@penrose/optimizer` package, I had to
@@ -479,8 +478,8 @@ effort.
 This project took a lot of trial and error, though! I also leaned heavily on
 experts like Ben and Alex to get me through some of the trickier parts. I'm
 super excited about all the work going on in the [Rust/Wasm][rustwasm] space;
-there's a lot of great tools and resources there already, and I'm hoping that
-going forward we can continue making all of this more accessible to newcomers.
+there are a lot of great tools and resources already, and I'm hoping that going
+forward we can continue making all of this more accessible to newcomers.
 
 [automatic differentiation]: https://en.wikipedia.org/wiki/Automatic_differentiation
 [alex crichton]: https://github.com/alexcrichton
