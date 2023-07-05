@@ -1,0 +1,7 @@
+import{conf as t,language as e}from"./typescript-8a798572.js";import"./Listing.stories-fb33d935.js";import"./jsx-runtime-acc8c52a.js";import"./iframe-71d88643.js";import"./index-a2c56baa.js";import"./svg-3ca9f996.js";import"./PenrosePrograms-678371fe.js";import"./vector-wedge.substance-a1ff3086.js";import"./resolver-1df37e9f.js";import"./twoVectorsPerp-unsugared.substance-e42b5c97.js";import"./functions.domain-64347d53.js";/*!-----------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Version: 0.31.1(337587859b1c171314b40503171188b6cea6a32a)
+ * Released under the MIT license
+ * https://github.com/microsoft/monaco-editor/blob/main/LICENSE.txt
+ *-----------------------------------------------------------------------------*/var f=t,m={defaultToken:"invalid",tokenPostfix:".js",keywords:["break","case","catch","class","continue","const","constructor","debugger","default","delete","do","else","export","extends","false","finally","for","from","function","get","if","import","in","instanceof","let","new","null","return","set","super","switch","symbol","this","throw","true","try","typeof","undefined","var","void","while","with","yield","async","await","of"],typeKeywords:[],operators:e.operators,symbols:e.symbols,escapes:e.escapes,digits:e.digits,octaldigits:e.octaldigits,binarydigits:e.binarydigits,hexdigits:e.hexdigits,regexpctl:e.regexpctl,regexpesc:e.regexpesc,tokenizer:e.tokenizer};export{f as conf,m as language};
+//# sourceMappingURL=javascript-837c75f5.js.map
