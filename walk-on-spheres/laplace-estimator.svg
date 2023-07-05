@@ -21,7 +21,7 @@
     <title>`U`.geometry</title>
   </polygon>
   <g
-    transform="rotate(0, 128.156862124906, 170.91559785018347)translate(123.34364912490601, 166.22238185018347)"
+    transform="rotate(0, 128.15686212492972, 170.91559785018313)translate(123.34364912492971, 166.22238185018313)"
     font-family="Linux Libertine"
   >
     <title>`U`.labelText</title>
@@ -416,7 +416,7 @@
     <title>`x0`.dot</title>
   </circle>
   <g
-    transform="rotate(0, 92.38505433685049, 122.9024748665392)translate(85.6612224368505, 118.8519094665392)"
+    transform="rotate(0, 92.38505433685135, 122.90247486654022)translate(85.66122243685136, 118.85190946654022)"
     font-family="Linux Libertine"
     font-style="italic"
   >
