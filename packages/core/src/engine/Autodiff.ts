@@ -191,7 +191,7 @@ const binarySensitivities = (z: ad.Binary): { left: ad.Num; right: ad.Num } => {
       return { left: 1, right: -1 };
     }
     case "/": {
-      return { left: inverse(w), right: neg(div(v, squared(w))) };
+      return { left: inverse(w), right: neg(div(z, w)) };
     }
     case "max": {
       const cond = gt(v, w);
