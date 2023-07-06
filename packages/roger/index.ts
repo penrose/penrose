@@ -82,7 +82,7 @@ const render = async (
 
   const convergeStart = process.hrtime();
   let optimizedState;
-  const optimizedOutput = optimize(initialState, 10000);
+  const optimizedOutput = optimize(initialState);
   if (optimizedOutput.isOk()) {
     optimizedState = optimizedOutput.value;
   } else {

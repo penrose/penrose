@@ -7,7 +7,7 @@ import {
   optimize,
   resample,
   showError,
-  stepState,
+  stepTimes,
   toInteractiveSVG,
   toSVG,
 } from "@penrose/core";
@@ -73,10 +73,12 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
       this.penroseState &&
       !isOptimized(this.penroseState)
     ) {
-      this.penroseState = stepState(
-        this.penroseState,
-        this.props.stepSize ?? 1
-      );
+      const state = stepTimes(this.penroseState, this.props.stepSize ?? 1);
+      if (state.isErr()) {
+        this.setState({ error: state.error });
+      } else {
+        this.penroseState = state.value;
+      }
       this.renderCanvas();
     }
   };

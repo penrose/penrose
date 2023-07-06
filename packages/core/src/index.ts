@@ -40,20 +40,30 @@ export const resample = (state: State): State => {
   });
 };
 
-const step = (state: State, numSteps: number): State => {
+const step = (
+  state: State,
+  until: () => boolean
+): Result<State, PenroseError> => {
   const { constraintSets, optStages, currentStageIndex } = state;
   const stage = optStages[currentStageIndex];
   const masks = safe(constraintSets.get(stage), "missing stage");
   const xs = new Float64Array(state.varyingValues);
-  let i = 0;
   const params = stepUntil(
     (x: Float64Array, weight: number, grad: Float64Array): number =>
       state.gradient(masks, x, weight, grad).phi,
     xs,
     state.params,
-    (): boolean => i++ >= numSteps
+    until
   );
-  return { ...state, varyingValues: Array.from(xs), params };
+  // if there is an optimizer error, wrap it around a `PenroseError`
+  if (params.optStatus === "Error") {
+    return err({
+      errorType: "RuntimeError",
+      ...nanError("", state),
+    });
+  } else {
+    return ok({ ...state, varyingValues: Array.from(xs), params });
+  }
 };
 
 /**
@@ -61,16 +71,29 @@ const step = (state: State, numSteps: number): State => {
  * @param state current state
  * @param numSteps number of steps to take (default: 10000)
  */
-export const stepState = (state: State, numSteps = 10000): State => {
-  const steppedState = step(state, numSteps);
-  if (isOptimized(steppedState) && !finalStage(steppedState)) {
-    const nextInitState = nextStage(steppedState);
-    return nextInitState;
-  } else {
+export const stepTimes = (
+  state: State,
+  numSteps = 10000
+): Result<State, PenroseError> => {
+  let i = 0;
+  const steppedState = step(state, (): boolean => i++ >= numSteps);
+  if (steppedState.isErr()) {
     return steppedState;
+  } else {
+    const state = steppedState.value;
+    if (isOptimized(state) && !finalStage(state)) {
+      const nextInitState = nextStage(state);
+      return ok(nextInitState);
+    } else {
+      return steppedState;
+    }
   }
 };
 
+/**
+ * Move the current state to the next layout stage. If the current state is already at the final stage, return the current state.
+ * @param state current state
+ */
 export const nextStage = (state: State): State => {
   if (finalStage(state)) {
     return state;
@@ -83,53 +106,39 @@ export const nextStage = (state: State): State => {
   }
 };
 
-export const stepNextStage = (state: State, numSteps = 10000): State => {
+/**
+ * Run the optimizer on the current state until the current layout stage converges.
+ * @param state current state
+ */
+export const stepNextStage = (state: State): Result<State, PenroseError> => {
   let currentState = state;
-  while (
-    !(currentState.params.optStatus === "Error") &&
-    !isOptimized(currentState)
-  ) {
-    currentState = step(currentState, numSteps);
+  while (!isError(currentState) && !isOptimized(currentState)) {
+    // step until convergence of the current stage.
+    const res = step(currentState, () => false);
+    if (res.isOk()) {
+      currentState = res.value;
+    } else {
+      return res;
+    }
   }
-  return nextStage(currentState);
+  return ok(nextStage(currentState));
 };
 
 /**
- * Take n steps in the optimizer given the current state.
- * @param state current state
- * @param numSteps number of steps to take (default: 10000)
- */
-export const stepStateSafe = (
-  state: State,
-  numSteps = 10000
-): Result<State, PenroseError> => {
-  const res = stepState(state, numSteps);
-  if (res.params.optStatus === "Error") {
-    return err({
-      errorType: "RuntimeError",
-      ...nanError("", res),
-    });
-  }
-  return ok(res);
-};
-
-/**
- * Repeatedly take one step in the optimizer given the current state until convergence.
+ * Run the optimizer on the current state until it converges.
  * @param state current state
  */
-export const optimize = (
-  state: State,
-  numSteps = 10000
-): Result<State, PenroseError> => {
+export const optimize = (state: State): Result<State, PenroseError> => {
   let currentState = state;
   while (
-    !(currentState.params.optStatus === "Error") &&
+    !isError(currentState) &&
     (!isOptimized(currentState) || !finalStage(currentState))
   ) {
     if (isOptimized(currentState)) {
       currentState = nextStage(currentState);
     }
-    currentState = stepState(currentState, numSteps);
+    // step until convergence of the current stage. Unsafely unwrap is okay because we check for errors in the while loop condition
+    currentState = step(currentState, () => false).unsafelyUnwrap();
   }
   if (currentState.params.optStatus === "Error") {
     return err({
@@ -278,11 +287,18 @@ export const compile = async (prog: {
 };
 
 /**
- * Returns true if state is converged
+ * Returns true if state is optimized
  * @param state current state
  */
 export const isOptimized = (state: State): boolean =>
   state.params.optStatus === "EPConverged";
+
+/**
+ * Returns true if state results in an error
+ * @param state current state
+ */
+export const isError = (state: State): boolean =>
+  state.params.optStatus === "Error";
 
 /**
  * Returns true if the diagram state is on the last layout stage in the layout pipeline

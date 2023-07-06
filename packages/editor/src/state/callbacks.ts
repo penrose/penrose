@@ -3,8 +3,9 @@ import {
   compileDomain,
   resample,
   stepNextStage,
-  stepState,
+  stepTimes,
 } from "@penrose/core";
+import { Style } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
 import localforage from "localforage";
 import { range } from "lodash";
@@ -101,10 +102,21 @@ export const useStepDiagram = () =>
             toast.error(`No diagram`);
             return diagram;
           }
-          return {
-            ...diagram,
-            state: stepState(diagram.state, diagram.metadata.stepSize),
-          };
+          const stateOrError = stepTimes(
+            diagram.state,
+            diagram.metadata.stepSize
+          );
+          if (stateOrError.isOk()) {
+            return {
+              ...diagram,
+              state: stateOrError.value,
+            };
+          } else {
+            return {
+              ...diagram,
+              error: stateOrError.error,
+            };
+          }
         })
   );
 
@@ -117,10 +129,18 @@ export const useStepStage = () =>
             toast.error(`No diagram`);
             return diagram;
           }
-          return {
-            ...diagram,
-            state: stepNextStage(diagram.state, diagram.metadata.stepSize),
-          };
+          const stateOrError = stepNextStage(diagram.state);
+          if (stateOrError.isOk()) {
+            return {
+              ...diagram,
+              state: stateOrError.value,
+            };
+          } else {
+            return {
+              ...diagram,
+              error: stateOrError.error,
+            };
+          }
         })
   );
 
@@ -245,7 +265,9 @@ export const useLoadExampleWorkspace = () =>
         const { domain, style, substance, variation, excludeWarnings } =
           await meta.get();
         toast.dismiss(id);
-        const styleJoined = style.map(({ contents }) => contents).join("\n");
+        const styleJoined = style
+          .map(({ contents }: Style) => contents)
+          .join("\n");
         // HACK: we should really use each Style's individual `resolver`
         const { resolver } = style[0];
         set(currentWorkspaceState, {
