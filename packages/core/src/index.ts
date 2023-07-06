@@ -121,7 +121,7 @@ export const stepStateSafe = (
  * Repeatedly take one step in the optimizer given the current state until convergence.
  * @param state current state
  */
-export const stepUntilConvergence = (
+export const optimize = (
   state: State,
   numSteps = 10000
 ): Result<State, PenroseError> => {
@@ -145,7 +145,7 @@ export const stepUntilConvergence = (
 };
 
 const stepUntilConvergenceOrThrow = (state: State): State => {
-  const result = stepUntilConvergence(state);
+  const result = optimize(state);
   if (result.isErr()) {
     throw Error(showError(result.error));
   } else {

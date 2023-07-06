@@ -1,15 +1,15 @@
 import {
-  compile,
   PathResolver,
   PenroseError,
   PenroseState,
   RenderInteractive,
   RenderStatic,
+  compile,
+  optimize,
   resample,
   showError,
   stateConverged,
   stepState,
-  stepUntilConvergence,
 } from "@penrose/core";
 import React from "react";
 import fetchResolver from "./fetchPathResolver.js";
@@ -58,7 +58,7 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
 
   converge = async (): Promise<void> => {
     if (this.penroseState) {
-      const stepped = stepUntilConvergence(this.penroseState);
+      const stepped = optimize(this.penroseState);
       if (stepped.isOk()) {
         this.penroseState = stepped.value;
       } else {

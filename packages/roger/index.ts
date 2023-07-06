@@ -5,16 +5,16 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
 import {
-  compile,
-  makeCanvas,
   PenroseState,
   RenderStatic,
-  sampleShape,
   ShapeType,
+  compile,
+  makeCanvas,
+  optimize,
+  sampleShape,
   shapeTypes,
   showError,
   simpleContext,
-  stepUntilConvergence,
 } from "@penrose/core";
 import chalk from "chalk";
 import convertHrtime from "convert-hrtime";
@@ -82,7 +82,7 @@ const render = async (
 
   const convergeStart = process.hrtime();
   let optimizedState;
-  const optimizedOutput = stepUntilConvergence(initialState, 10000);
+  const optimizedOutput = optimize(initialState, 10000);
   if (optimizedOutput.isOk()) {
     optimizedState = optimizedOutput.value;
   } else {

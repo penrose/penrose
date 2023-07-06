@@ -1,13 +1,8 @@
 // @vitest-environment jsdom
 
-import { optimize } from "svgo";
+import { optimize as optimizeSVG } from "svgo";
 
-import {
-  RenderStatic,
-  compile,
-  showError,
-  stepUntilConvergence,
-} from "@penrose/core";
+import { RenderStatic, compile, optimize, showError } from "@penrose/core";
 import * as fs from "fs/promises";
 import rawFetch, { RequestInit, Response } from "node-fetch";
 import * as path from "path";
@@ -64,7 +59,7 @@ const renderTrio = async (
 
   const optimizing = process.hrtime.bigint();
 
-  const optimizedOutput = stepUntilConvergence(initialState);
+  const optimizedOutput = optimize(initialState);
   if (optimizedOutput.isErr()) {
     const err = optimizedOutput.error;
     throw new Error(`Optimization failed:\n${showError(err)}`);
@@ -92,7 +87,7 @@ const renderTrio = async (
 
   const svg = (await RenderStatic(optimizedState, resolvePath, "registry"))
     .outerHTML;
-  const svgOptimized = optimize(svg, {
+  const svgOptimized = optimizeSVG(svg, {
     plugins: ["inlineStyles", "prefixIds"],
     path: id,
   }).data;
