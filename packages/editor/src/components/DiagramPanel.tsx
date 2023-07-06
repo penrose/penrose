@@ -1,10 +1,10 @@
 import {
   PenroseState,
-  RenderInteractive,
-  RenderStatic,
   showError,
   stateConverged,
   stepStateSafe,
+  toInteractiveSVG,
+  toSVG,
 } from "@penrose/core";
 import localforage from "localforage";
 import { useEffect, useRef, useState } from "react";
@@ -298,7 +298,7 @@ export default function DiagramPanel() {
       (async () => {
         // render the current frame
         const rendered = interactive
-          ? await RenderInteractive(
+          ? await toInteractiveSVG(
               state,
               (newState: PenroseState) => {
                 setDiagram({
@@ -310,7 +310,7 @@ export default function DiagramPanel() {
               (path) => pathResolver(path, rogerState, workspace),
               "diagramPanel"
             )
-          : await RenderStatic(
+          : await toSVG(
               state,
               (path) => pathResolver(path, rogerState, workspace),
               "diagramPanel"
@@ -388,7 +388,7 @@ export default function DiagramPanel() {
     if (canvasRef.current !== null) {
       const { state } = snapshot.getLoadable(diagramState).contents as Diagram;
       if (state !== null) {
-        const svg = await RenderStatic(
+        const svg = await toSVG(
           state,
           (path) => pathResolver(path, rogerState, workspace),
           "diagramPanel",

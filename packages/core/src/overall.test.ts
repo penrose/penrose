@@ -5,7 +5,6 @@ import { describe, expect, test } from "vitest";
 import { genGradient } from "./engine/Autodiff.js";
 import { pow, sub } from "./engine/AutodiffFunctions.js";
 import {
-  RenderStatic,
   compile,
   evalEnergy,
   evalFns,
@@ -13,6 +12,7 @@ import {
   problem,
   resample,
   showError,
+  toSVG,
   variable,
 } from "./index.js";
 import * as ad from "./types/ad.js";
@@ -79,7 +79,7 @@ describe("API", () => {
 
 describe("Determinism", () => {
   const render = async (state: State): Promise<string> =>
-    (await RenderStatic(state, async () => undefined, "")).outerHTML;
+    (await toSVG(state, async () => undefined, "")).outerHTML;
 
   const substance = "Set A, B\nIsSubset(B, A)\nAutoLabel All";
   const style = vennStyle;

@@ -2,14 +2,14 @@ import {
   PathResolver,
   PenroseError,
   PenroseState,
-  RenderInteractive,
-  RenderStatic,
   compile,
   optimize,
   resample,
   showError,
   stateConverged,
   stepState,
+  toInteractiveSVG,
+  toSVG,
 } from "@penrose/core";
 import React from "react";
 import fetchResolver from "./fetchPathResolver.js";
@@ -138,12 +138,12 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
       if (this.penroseState) {
         const renderedState: SVGSVGElement = await (this.props.interactive ===
         false
-          ? RenderStatic(
+          ? toSVG(
               this.penroseState,
               this.props.imageResolver ?? fetchResolver,
               this.props.name ?? ""
             )
-          : RenderInteractive(
+          : toInteractiveSVG(
               this.penroseState,
               async (newState: PenroseState) => {
                 this.penroseState = newState;

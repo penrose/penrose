@@ -2,7 +2,7 @@
 
 import { optimize as optimizeSVG } from "svgo";
 
-import { RenderStatic, compile, optimize, showError } from "@penrose/core";
+import { compile, optimize, showError, toSVG } from "@penrose/core";
 import * as fs from "fs/promises";
 import rawFetch, { RequestInit, Response } from "node-fetch";
 import * as path from "path";
@@ -85,8 +85,7 @@ const renderTrio = async (
     return await resolver(filePath);
   };
 
-  const svg = (await RenderStatic(optimizedState, resolvePath, "registry"))
-    .outerHTML;
+  const svg = (await toSVG(optimizedState, resolvePath, "registry")).outerHTML;
   const svgOptimized = optimizeSVG(svg, {
     plugins: ["inlineStyles", "prefixIds"],
     path: id,

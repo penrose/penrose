@@ -3,11 +3,7 @@ import seedrandom from "seedrandom";
 import { compileDomain } from "./compiler/Domain.js";
 import { compileStyle } from "./compiler/Style.js";
 import { compileSubstance } from "./compiler/Substance.js";
-import {
-  PathResolver,
-  RenderInteractive,
-  RenderStatic,
-} from "./renderer/Renderer.js";
+import { PathResolver, toInteractiveSVG, toSVG } from "./renderer/Renderer.js";
 import * as ad from "./types/ad.js";
 import { Env } from "./types/domain.js";
 import { PenroseError } from "./types/errors.js";
@@ -177,7 +173,7 @@ export const diagram = async (
   if (res.isOk()) {
     const state: State = res.value;
     const optimized = stepUntilConvergenceOrThrow(state);
-    const rendered = await RenderStatic(optimized, pathResolver, name ?? "");
+    const rendered = await toSVG(optimized, pathResolver, name ?? "");
     node.appendChild(rendered);
   } else {
     throw Error(
@@ -208,7 +204,7 @@ export const interactiveDiagram = async (
 ): Promise<void> => {
   const updateData = async (state: State) => {
     const stepped = stepUntilConvergenceOrThrow(state);
-    const rendering = await RenderInteractive(
+    const rendering = await toInteractiveSVG(
       stepped,
       updateData,
       pathResolver,
@@ -220,7 +216,7 @@ export const interactiveDiagram = async (
   if (res.isOk()) {
     const state: State = res.value;
     const optimized = stepUntilConvergenceOrThrow(state);
-    const rendering = await RenderInteractive(
+    const rendering = await toInteractiveSVG(
       optimized,
       updateData,
       pathResolver,
@@ -351,7 +347,7 @@ export {
 export { constrDict } from "./contrib/Constraints.js";
 export { compDict } from "./contrib/Functions.js";
 export { objDict } from "./contrib/Objectives.js";
-export { RenderInteractive, RenderStatic } from "./renderer/Renderer.js";
+export { toInteractiveSVG, toSVG } from "./renderer/Renderer.js";
 export type { PathResolver } from "./renderer/Renderer.js";
 export { makeCanvas, simpleContext } from "./shapes/Samplers.js";
 export type { Canvas } from "./shapes/Samplers.js";

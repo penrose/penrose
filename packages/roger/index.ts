@@ -6,7 +6,6 @@ import { hideBin } from "yargs/helpers";
 
 import {
   PenroseState,
-  RenderStatic,
   ShapeType,
   compile,
   makeCanvas,
@@ -15,6 +14,7 @@ import {
   shapeTypes,
   showError,
   simpleContext,
+  toSVG,
 } from "@penrose/core";
 import chalk from "chalk";
 import convertHrtime from "convert-hrtime";
@@ -93,9 +93,8 @@ const render = async (
   const convergeEnd = process.hrtime(convergeStart);
   const reactRenderStart = process.hrtime();
 
-  const canvas = (
-    await RenderStatic(optimizedState, resolvePath, "roger", texLabels)
-  ).outerHTML;
+  const canvas = (await toSVG(optimizedState, resolvePath, "roger", texLabels))
+    .outerHTML;
 
   const reactRenderEnd = process.hrtime(reactRenderStart);
   const overallEnd = process.hrtime(overallStart);
