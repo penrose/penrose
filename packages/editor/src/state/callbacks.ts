@@ -1,6 +1,6 @@
 import {
+  compile,
   compileDomain,
-  compileTrio,
   resample,
   stepNextStage,
   stepState,
@@ -48,7 +48,7 @@ const _compileDiagram = async (
     }));
     return;
   }
-  const compileResult = await compileTrio({
+  const compileResult = await compile({
     domain,
     substance,
     style,

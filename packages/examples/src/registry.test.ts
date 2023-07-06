@@ -4,7 +4,7 @@ import { optimize } from "svgo";
 
 import {
   RenderStatic,
-  compileTrio,
+  compile,
   showError,
   stepUntilConvergence,
 } from "@penrose/core";
@@ -49,7 +49,7 @@ const renderTrio = async (
 ): Promise<Rendered> => {
   const compiling = process.hrtime.bigint();
 
-  const compilerOutput = await compileTrio({
+  const compilerOutput = await compile({
     substance,
     style: style.map(({ contents }) => contents).join("\n"),
     domain,

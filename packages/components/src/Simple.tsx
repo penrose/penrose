@@ -1,5 +1,5 @@
 import {
-  compileTrio,
+  compile,
   PathResolver,
   PenroseError,
   PenroseState,
@@ -47,7 +47,7 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
   compile = async (): Promise<void> => {
     this.penroseState = undefined;
     this.setState({ error: undefined });
-    const compilerResult = await compileTrio(this.props);
+    const compilerResult = await compile(this.props);
     if (compilerResult.isOk()) {
       this.penroseState = compilerResult.value;
       this.setState({ error: undefined }); // clear out errors

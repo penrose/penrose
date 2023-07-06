@@ -6,7 +6,7 @@ import { genGradient } from "./engine/Autodiff.js";
 import { pow, sub } from "./engine/AutodiffFunctions.js";
 import {
   RenderStatic,
-  compileTrio,
+  compile,
   evalEnergy,
   evalFns,
   problem,
@@ -87,7 +87,7 @@ describe("Determinism", () => {
   const variation = "determinism";
 
   test("with initial optimization", async () => {
-    const resCompile = await compileTrio({
+    const resCompile = await compile({
       substance,
       style,
       domain,
@@ -142,7 +142,7 @@ describe("Determinism", () => {
   });
 
   test("without initial optimization", async () => {
-    const resCompile = await compileTrio({
+    const resCompile = await compile({
       substance,
       style,
       domain,
@@ -184,7 +184,7 @@ describe("Determinism", () => {
 describe("Energy API", () => {
   test("eval overall energy - init vs. optimized", async () => {
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
-    const res = await compileTrio({
+    const res = await compile({
       substance: twoSubsets,
       style: vennStyle,
       domain: setDomain,
@@ -208,7 +208,7 @@ describe("Energy API", () => {
 
   test("filtered constraints", async () => {
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
-    const res = await compileTrio({
+    const res = await compile({
       substance: twoSubsets,
       style: vennStyle,
       domain: setDomain,
@@ -251,14 +251,14 @@ describe("Cross-instance energy eval", () => {
     const twosets = `Set A, B\nNot(Intersecting(A, B))\nAutoLabel All`;
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
     // compile and optimize both states
-    const state1 = await compileTrio({
+    const state1 = await compile({
       substance: twosets,
       style: vennStyle,
       domain: setDomain,
       variation: "cross-instance state0",
       excludeWarnings: [],
     });
-    const state2 = await compileTrio({
+    const state2 = await compile({
       substance: twoSubsets,
       style: vennStyle,
       domain: setDomain,
@@ -296,7 +296,7 @@ describe("Run individual functions", () => {
 
   test("Check each individual function is minimized/satisfied", async () => {
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
-    const res = await compileTrio({
+    const res = await compile({
       substance: twoSubsets,
       style: vennStyle,
       domain: setDomain,

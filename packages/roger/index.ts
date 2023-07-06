@@ -5,7 +5,7 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
 import {
-  compileTrio,
+  compile,
   makeCanvas,
   PenroseState,
   RenderStatic,
@@ -64,7 +64,7 @@ const render = async (
   if (verbose) console.debug(`Compiling ${meta.id} ...`);
   const overallStart = process.hrtime();
   const compileStart = process.hrtime();
-  const compilerOutput = await compileTrio({
+  const compilerOutput = await compile({
     substance,
     style,
     domain,

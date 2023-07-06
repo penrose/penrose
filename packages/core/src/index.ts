@@ -173,7 +173,7 @@ export const diagram = async (
   pathResolver: PathResolver,
   name?: string
 ): Promise<void> => {
-  const res = await compileTrio(prog);
+  const res = await compile(prog);
   if (res.isOk()) {
     const state: State = res.value;
     const optimized = stepUntilConvergenceOrThrow(state);
@@ -216,7 +216,7 @@ export const interactiveDiagram = async (
     );
     node.replaceChild(rendering, node.firstChild!);
   };
-  const res = await compileTrio(prog);
+  const res = await compile(prog);
   if (res.isOk()) {
     const state: State = res.value;
     const optimized = stepUntilConvergenceOrThrow(state);
@@ -240,7 +240,7 @@ export const interactiveDiagram = async (
  * @param subProg a Substance program string
  * @param styProg a Style program string
  */
-export const compileTrio = async (prog: {
+export const compile = async (prog: {
   substance: string;
   style: string;
   domain: string;
