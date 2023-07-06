@@ -175,7 +175,7 @@ export const diagram = async (
 ): Promise<void> => {
   const res = await compileTrio(prog);
   if (res.isOk()) {
-    const state: State = await prepareState(res.value);
+    const state: State = res.value;
     const optimized = stepUntilConvergenceOrThrow(state);
     const rendered = await RenderStatic(optimized, pathResolver, name ?? "");
     node.appendChild(rendered);
@@ -218,7 +218,7 @@ export const interactiveDiagram = async (
   };
   const res = await compileTrio(prog);
   if (res.isOk()) {
-    const state: State = await prepareState(res.value);
+    const state: State = res.value;
     const optimized = stepUntilConvergenceOrThrow(state);
     const rendering = await RenderInteractive(
       optimized,
@@ -235,7 +235,7 @@ export const interactiveDiagram = async (
 };
 
 /**
- * Given a trio of Domain, Substance, and Style programs, compile them into an initial `State`. Note that this function does _not_ evaluate the shapes. Generation of shapes is handled in `prepareState`.
+ * Given a trio of Domain, Substance, and Style programs, compile them into an initial `State`.
  * @param domainProg a Domain program string
  * @param subProg a Substance program string
  * @param styProg a Style program string
@@ -263,25 +263,22 @@ export const compileTrio = async (prog: {
         ...subRes.value
       );
 
-  return styRes;
-};
+  if (styRes.isErr()) {
+    return styRes;
+  } else {
+    const state = styRes.value;
+    // collect labels and return state
+    const convert = mathjaxInit();
+    const labelCache: Result<LabelCache, PenroseError> = await collectLabels(
+      state.shapes,
+      convert
+    );
 
-/**
- * Collect labels and images (if applicable).
- * @param state an initial diagram state
- */
-export const prepareState = async (state: State): Promise<State> => {
-  const convert = mathjaxInit();
-  const labelCache: Result<LabelCache, PenroseError> = await collectLabels(
-    state.shapes,
-    convert
-  );
-
-  if (labelCache.isErr()) {
-    throw Error(showError(labelCache.error));
+    if (labelCache.isErr()) {
+      return err(labelCache.error);
+    }
+    return ok(insertPending({ ...state, labelCache: labelCache.value }));
   }
-
-  return insertPending({ ...state, labelCache: labelCache.value });
 };
 
 /**

@@ -3,7 +3,6 @@ import {
   PathResolver,
   PenroseError,
   PenroseState,
-  prepareState,
   RenderInteractive,
   RenderStatic,
   resample,
@@ -50,7 +49,7 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
     this.setState({ error: undefined });
     const compilerResult = await compileTrio(this.props);
     if (compilerResult.isOk()) {
-      this.penroseState = await prepareState(compilerResult.value);
+      this.penroseState = compilerResult.value;
       this.setState({ error: undefined }); // clear out errors
     } else {
       this.setState({ error: compilerResult.error });

@@ -1,7 +1,6 @@
 import {
   compileDomain,
   compileTrio,
-  prepareState,
   resample,
   stepNextStage,
   stepState,
@@ -63,7 +62,7 @@ const _compileDiagram = async (
     }));
     return;
   }
-  const initialState = await prepareState(compileResult.value);
+  const initialState = compileResult.value;
 
   set(
     diagramState,

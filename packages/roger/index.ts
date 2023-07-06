@@ -8,7 +8,6 @@ import {
   compileTrio,
   makeCanvas,
   PenroseState,
-  prepareState,
   RenderStatic,
   sampleShape,
   ShapeType,
@@ -77,11 +76,7 @@ const render = async (
     const err = compilerOutput.error;
     throw new Error(`Compilation failed:\n${showError(err)}`);
   }
-  const compiledState = compilerOutput.value;
-
-  const labelStart = process.hrtime();
-  const initialState = await prepareState(compiledState);
-  const labelEnd = process.hrtime(labelStart);
+  const initialState = compilerOutput.value;
 
   if (verbose) console.debug(`Stepping for ${meta.id} ...`);
 
@@ -113,7 +108,6 @@ const render = async (
       // includes overhead like JSON, recollecting labels
       overall: convertHrtime(overallEnd).milliseconds,
       compilation: convertHrtime(compileEnd).milliseconds,
-      labelling: convertHrtime(labelEnd).milliseconds,
       optimization: convertHrtime(convergeEnd).milliseconds,
       rendering: convertHrtime(reactRenderEnd).milliseconds,
     },

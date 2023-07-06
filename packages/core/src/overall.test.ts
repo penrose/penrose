@@ -9,7 +9,6 @@ import {
   compileTrio,
   evalEnergy,
   evalFns,
-  prepareState,
   problem,
   resample,
   showError,
@@ -98,7 +97,7 @@ describe("Determinism", () => {
     if (resCompile.isErr()) {
       throw Error(showError(resCompile.error));
     }
-    const stateSample1NotOpt = await prepareState(resCompile.value);
+    const stateSample1NotOpt = resCompile.value;
     const svgSample1NotOpt = await render(stateSample1NotOpt);
 
     const resSample1Opt = stepUntilConvergence(stateSample1NotOpt);
@@ -154,7 +153,7 @@ describe("Determinism", () => {
       throw Error(showError(resCompile.error));
     }
 
-    const state1NotOpt = resample(await prepareState(resCompile.value));
+    const state1NotOpt = resample(resCompile.value);
     const svg1NotOpt = await render(state1NotOpt);
 
     const resOptimize1 = stepUntilConvergence(state1NotOpt);
@@ -193,7 +192,7 @@ describe("Energy API", () => {
       excludeWarnings: [],
     });
     if (res.isOk()) {
-      const stateEvaled = await prepareState(res.value);
+      const stateEvaled = res.value;
       const stateOpt = stepUntilConvergence(stateEvaled);
       if (stateOpt.isErr()) {
         throw Error("optimization failed");
@@ -267,21 +266,21 @@ describe("Cross-instance energy eval", () => {
       excludeWarnings: [],
     });
     if (state1.isOk() && state2.isOk()) {
-      const state1Done = stepUntilConvergence(await prepareState(state1.value));
-      const state2Done = stepUntilConvergence(await prepareState(state2.value));
+      const state1Done = stepUntilConvergence(state1.value);
+      const state2Done = stepUntilConvergence(state2.value);
       if (state1Done.isOk() && state2Done.isOk()) {
         const crossState21 = {
           ...state2Done.value,
           constrFns: state1Done.value.constrFns,
           objFns: state1Done.value.objFns,
         };
-        expect(evalEnergy(await prepareState(crossState21))).toBeCloseTo(0);
+        expect(evalEnergy(await crossState21)).toBeCloseTo(0);
         const crossState12 = {
           ...state1Done.value,
           constrFns: state2Done.value.constrFns,
           objFns: state2Done.value.objFns,
         };
-        expect(evalEnergy(await prepareState(crossState12))).toBeGreaterThan(0);
+        expect(evalEnergy(await crossState12)).toBeGreaterThan(0);
       } else {
         throw Error("optimization failed");
       }
@@ -306,7 +305,7 @@ describe("Run individual functions", () => {
     });
 
     if (res.isOk()) {
-      const stateEvaled = await prepareState(res.value);
+      const stateEvaled = res.value;
       const stateOpt = stepUntilConvergence(stateEvaled);
       if (stateOpt.isErr()) {
         throw Error("optimization failed");

@@ -5,7 +5,6 @@ import { optimize } from "svgo";
 import {
   RenderStatic,
   compileTrio,
-  prepareState,
   showError,
   stepUntilConvergence,
 } from "@penrose/core";
@@ -25,7 +24,6 @@ const fetch = rawFetch as unknown as (
 
 interface TrioTime {
   compiling: number;
-  labeling: number;
   optimizing: number;
   rendering: number;
 }
@@ -62,11 +60,7 @@ const renderTrio = async (
     const err = compilerOutput.error;
     throw new Error(`Compilation failed:\n${showError(err)}`);
   }
-  const compiledState = compilerOutput.value;
-
-  const labeling = process.hrtime.bigint();
-
-  const initialState = await prepareState(compiledState);
+  const initialState = compilerOutput.value;
 
   const optimizing = process.hrtime.bigint();
 
@@ -109,8 +103,7 @@ const renderTrio = async (
     svg: svgOptimized,
     data: {
       seconds: {
-        compiling: nanoToSeconds(labeling - compiling),
-        labeling: nanoToSeconds(optimizing - labeling),
+        compiling: nanoToSeconds(optimizing - compiling),
         optimizing: nanoToSeconds(rendering - optimizing),
         rendering: nanoToSeconds(done - rendering),
       },
@@ -205,8 +198,8 @@ const textChart = (datas: Map<string, AllData>): string => {
     "```",
     "     0s   1s   2s   3s   4s   5s   6s   7s   8s",
     "     |    |    |    |    |    |    |    |    |",
-    "name ▝▀▀▀▀▀▀▀▀▀▚▄▄▄▄▄▄▄▄▞▀▀▀▀▀▀▀▀▀▀▚▄▄▄▄▄▄▄▄▄▖",
-    "      compiling labeling optimizing rendering",
+    "name ▝▀▀▀▀▀▀▀▀▀▚▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▞▀▀▀▀▀▀▀▀▀▀",
+    "      compiling     optimizing      rendering",
     "```",
     "",
     "If a row has only one bar instead of four, that means it's not a trio and the bar just shows the total time spent for that example, again rounded up to the nearest 100ms.",
@@ -242,7 +235,6 @@ const textChart = (datas: Map<string, AllData>): string => {
       lines.push(
         `${trimName(key).padEnd(longestName)} ${makeContinuousBar([
           seconds.compiling,
-          seconds.labeling,
           seconds.optimizing,
           seconds.rendering,
         ])}`
