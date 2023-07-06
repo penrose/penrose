@@ -1,7 +1,7 @@
 import {
   PenroseState,
+  isOptimized,
   showError,
-  stateConverged,
   stepStateSafe,
   toInteractiveSVG,
   toSVG,
@@ -337,7 +337,7 @@ export default function DiagramPanel() {
 
   const step = () => {
     if (state) {
-      if (!stateConverged(state) && metadata.autostep) {
+      if (!isOptimized(state) && metadata.autostep) {
         const stepResult = stepStateSafe(state, metadata.stepSize);
         if (stepResult.isErr()) {
           setDiagram({

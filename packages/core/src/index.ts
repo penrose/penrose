@@ -63,7 +63,7 @@ const step = (state: State, numSteps: number): State => {
  */
 export const stepState = (state: State, numSteps = 10000): State => {
   const steppedState = step(state, numSteps);
-  if (stateConverged(steppedState) && !finalStage(steppedState)) {
+  if (isOptimized(steppedState) && !finalStage(steppedState)) {
     const nextInitState = nextStage(steppedState);
     return nextInitState;
   } else {
@@ -87,7 +87,7 @@ export const stepNextStage = (state: State, numSteps = 10000): State => {
   let currentState = state;
   while (
     !(currentState.params.optStatus === "Error") &&
-    !stateConverged(currentState)
+    !isOptimized(currentState)
   ) {
     currentState = step(currentState, numSteps);
   }
@@ -124,9 +124,9 @@ export const optimize = (
   let currentState = state;
   while (
     !(currentState.params.optStatus === "Error") &&
-    (!stateConverged(currentState) || !finalStage(currentState))
+    (!isOptimized(currentState) || !finalStage(currentState))
   ) {
-    if (stateConverged(currentState)) {
+    if (isOptimized(currentState)) {
       currentState = nextStage(currentState);
     }
     currentState = stepState(currentState, numSteps);
@@ -140,7 +140,7 @@ export const optimize = (
   return ok(currentState);
 };
 
-const stepUntilConvergenceOrThrow = (state: State): State => {
+const optimizeOrThrow = (state: State): State => {
   const result = optimize(state);
   if (result.isErr()) {
     throw Error(showError(result.error));
@@ -172,7 +172,7 @@ export const diagram = async (
   const res = await compile(prog);
   if (res.isOk()) {
     const state: State = res.value;
-    const optimized = stepUntilConvergenceOrThrow(state);
+    const optimized = optimizeOrThrow(state);
     const rendered = await toSVG(optimized, pathResolver, name ?? "");
     node.appendChild(rendered);
   } else {
@@ -203,7 +203,7 @@ export const interactiveDiagram = async (
   name?: string
 ): Promise<void> => {
   const updateData = async (state: State) => {
-    const stepped = stepUntilConvergenceOrThrow(state);
+    const stepped = optimizeOrThrow(state);
     const rendering = await toInteractiveSVG(
       stepped,
       updateData,
@@ -215,7 +215,7 @@ export const interactiveDiagram = async (
   const res = await compile(prog);
   if (res.isOk()) {
     const state: State = res.value;
-    const optimized = stepUntilConvergenceOrThrow(state);
+    const optimized = optimizeOrThrow(state);
     const rendering = await toInteractiveSVG(
       optimized,
       updateData,
@@ -281,7 +281,7 @@ export const compile = async (prog: {
  * Returns true if state is converged
  * @param state current state
  */
-export const stateConverged = (state: State): boolean =>
+export const isOptimized = (state: State): boolean =>
   state.params.optStatus === "EPConverged";
 
 /**
@@ -295,7 +295,7 @@ export const finalStage = (state: State): boolean =>
  * Returns true if state is the initial frame
  * @param state current state
  */
-export const stateInitial = (state: State): boolean =>
+export const isInitial = (state: State): boolean =>
   state.params.optStatus === "NewIter";
 
 const evalGrad = (s: State): ad.OptOutputs => {

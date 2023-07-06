@@ -3,10 +3,10 @@ import {
   PenroseError,
   PenroseState,
   compile,
+  isOptimized,
   optimize,
   resample,
   showError,
-  stateConverged,
   stepState,
   toInteractiveSVG,
   toSVG,
@@ -71,7 +71,7 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
     if (
       this.props.animate &&
       this.penroseState &&
-      !stateConverged(this.penroseState)
+      !isOptimized(this.penroseState)
     ) {
       this.penroseState = stepState(
         this.penroseState,
