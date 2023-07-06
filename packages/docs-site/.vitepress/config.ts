@@ -279,8 +279,12 @@ export default defineConfig({
           text: "For Developers",
           items: [
             {
-              text: "The Core API",
+              text: "The Language API",
               link: "/docs/ref/api",
+            },
+            {
+              text: "The Optimization API",
+              link: "/docs/ref/optimization-api",
             },
             {
               text: "Using Penrose with React",
