@@ -71,7 +71,7 @@ const getPosition = (
  * @param pathResolver Resolves paths to static strings
  * @returns
  */
-export const RenderInteractive = async (
+export const toInteractiveSVG = async (
   state: State,
   updateState: (newState: State) => void,
   pathResolver: PathResolver,
@@ -112,7 +112,7 @@ export const RenderInteractive = async (
  * Renders a static SVG of the shapes and labels.
  * @param pathResolver Resolves paths to static strings
  */
-export const RenderStatic = async (
+export const toSVG = async (
   state: State,
   pathResolver: PathResolver,
   namespace: string,

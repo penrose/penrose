@@ -1,14 +1,8 @@
 // @vitest-environment jsdom
 
-import { optimize } from "svgo";
+import { optimize as optimizeSVG } from "svgo";
 
-import {
-  RenderStatic,
-  compileTrio,
-  prepareState,
-  showError,
-  stepUntilConvergence,
-} from "@penrose/core";
+import { compile, optimize, showError, toSVG } from "@penrose/core";
 import * as fs from "fs/promises";
 import rawFetch, { RequestInit, Response } from "node-fetch";
 import * as path from "path";
@@ -25,7 +19,6 @@ const fetch = rawFetch as unknown as (
 
 interface TrioTime {
   compiling: number;
-  labeling: number;
   optimizing: number;
   rendering: number;
 }
@@ -51,7 +44,7 @@ const renderTrio = async (
 ): Promise<Rendered> => {
   const compiling = process.hrtime.bigint();
 
-  const compilerOutput = await compileTrio({
+  const compilerOutput = await compile({
     substance,
     style: style.map(({ contents }) => contents).join("\n"),
     domain,
@@ -62,15 +55,11 @@ const renderTrio = async (
     const err = compilerOutput.error;
     throw new Error(`Compilation failed:\n${showError(err)}`);
   }
-  const compiledState = compilerOutput.value;
-
-  const labeling = process.hrtime.bigint();
-
-  const initialState = await prepareState(compiledState);
+  const initialState = compilerOutput.value;
 
   const optimizing = process.hrtime.bigint();
 
-  const optimizedOutput = stepUntilConvergence(initialState);
+  const optimizedOutput = optimize(initialState);
   if (optimizedOutput.isErr()) {
     const err = optimizedOutput.error;
     throw new Error(`Optimization failed:\n${showError(err)}`);
@@ -96,9 +85,8 @@ const renderTrio = async (
     return await resolver(filePath);
   };
 
-  const svg = (await RenderStatic(optimizedState, resolvePath, "registry"))
-    .outerHTML;
-  const svgOptimized = optimize(svg, {
+  const svg = (await toSVG(optimizedState, resolvePath, "registry")).outerHTML;
+  const svgOptimized = optimizeSVG(svg, {
     plugins: ["inlineStyles", "prefixIds"],
     path: id,
   }).data;
@@ -109,8 +97,7 @@ const renderTrio = async (
     svg: svgOptimized,
     data: {
       seconds: {
-        compiling: nanoToSeconds(labeling - compiling),
-        labeling: nanoToSeconds(optimizing - labeling),
+        compiling: nanoToSeconds(optimizing - compiling),
         optimizing: nanoToSeconds(rendering - optimizing),
         rendering: nanoToSeconds(done - rendering),
       },
@@ -203,10 +190,10 @@ const textChart = (datas: Map<string, AllData>): string => {
     "Note that each bar component rounds up to the nearest 100ms, so each full bar is an overestimate by up to 400ms.",
     "",
     "```",
-    "     0s   1s   2s   3s   4s   5s   6s   7s   8s",
-    "     |    |    |    |    |    |    |    |    |",
-    "name ▝▀▀▀▀▀▀▀▀▀▚▄▄▄▄▄▄▄▄▞▀▀▀▀▀▀▀▀▀▀▚▄▄▄▄▄▄▄▄▄▖",
-    "      compiling labeling optimizing rendering",
+    "     0s   1s   2s   3s   4s   5s   6s",
+    "     |    |    |    |    |    |    |",
+    "name ▝▀▀▀▀▀▀▀▀▀▚▄▄▄▄▄▄▄▄▄▄▞▀▀▀▀▀▀▀▀▀▘",
+    "      compiling optimizing rendering",
     "```",
     "",
     "If a row has only one bar instead of four, that means it's not a trio and the bar just shows the total time spent for that example, again rounded up to the nearest 100ms.",
@@ -242,7 +229,6 @@ const textChart = (datas: Map<string, AllData>): string => {
       lines.push(
         `${trimName(key).padEnd(longestName)} ${makeContinuousBar([
           seconds.compiling,
-          seconds.labeling,
           seconds.optimizing,
           seconds.rendering,
         ])}`

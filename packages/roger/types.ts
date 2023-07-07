@@ -1,7 +1,6 @@
 export interface TimeTaken {
   overall: number;
   compilation: number;
-  labelling: number;
   optimization: number;
   rendering: number;
 }

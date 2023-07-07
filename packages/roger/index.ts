@@ -5,17 +5,16 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
 import {
-  compileTrio,
-  makeCanvas,
   PenroseState,
-  prepareState,
-  RenderStatic,
-  sampleShape,
   ShapeType,
+  compile,
+  makeCanvas,
+  optimize,
+  sampleShape,
   shapeTypes,
   showError,
   simpleContext,
-  stepUntilConvergence,
+  toSVG,
 } from "@penrose/core";
 import chalk from "chalk";
 import convertHrtime from "convert-hrtime";
@@ -65,7 +64,7 @@ const render = async (
   if (verbose) console.debug(`Compiling ${meta.id} ...`);
   const overallStart = process.hrtime();
   const compileStart = process.hrtime();
-  const compilerOutput = await compileTrio({
+  const compilerOutput = await compile({
     substance,
     style,
     domain,
@@ -77,17 +76,13 @@ const render = async (
     const err = compilerOutput.error;
     throw new Error(`Compilation failed:\n${showError(err)}`);
   }
-  const compiledState = compilerOutput.value;
-
-  const labelStart = process.hrtime();
-  const initialState = await prepareState(compiledState);
-  const labelEnd = process.hrtime(labelStart);
+  const initialState = compilerOutput.value;
 
   if (verbose) console.debug(`Stepping for ${meta.id} ...`);
 
   const convergeStart = process.hrtime();
   let optimizedState;
-  const optimizedOutput = stepUntilConvergence(initialState, 10000);
+  const optimizedOutput = optimize(initialState);
   if (optimizedOutput.isOk()) {
     optimizedState = optimizedOutput.value;
   } else {
@@ -98,9 +93,8 @@ const render = async (
   const convergeEnd = process.hrtime(convergeStart);
   const reactRenderStart = process.hrtime();
 
-  const canvas = (
-    await RenderStatic(optimizedState, resolvePath, "roger", texLabels)
-  ).outerHTML;
+  const canvas = (await toSVG(optimizedState, resolvePath, "roger", texLabels))
+    .outerHTML;
 
   const reactRenderEnd = process.hrtime(reactRenderStart);
   const overallEnd = process.hrtime(overallStart);
@@ -113,7 +107,6 @@ const render = async (
       // includes overhead like JSON, recollecting labels
       overall: convertHrtime(overallEnd).milliseconds,
       compilation: convertHrtime(compileEnd).milliseconds,
-      labelling: convertHrtime(labelEnd).milliseconds,
       optimization: convertHrtime(convergeEnd).milliseconds,
       rendering: convertHrtime(reactRenderEnd).milliseconds,
     },
