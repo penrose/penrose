@@ -42,7 +42,9 @@ export const resample = (state: State): State => {
 
 const step = (
   state: State,
-  until: () => boolean
+  options: {
+    until: () => boolean;
+  }
 ): Result<State, PenroseError> => {
   const { constraintSets, optStages, currentStageIndex } = state;
   const stage = optStages[currentStageIndex];
@@ -53,7 +55,7 @@ const step = (
       state.gradient(masks, x, weight, grad).phi,
     xs,
     state.params,
-    until
+    options.until
   );
   // if there is an optimizer error, wrap it around a `PenroseError`
   if (params.optStatus === "Error") {
@@ -76,7 +78,7 @@ export const stepTimes = (
   numSteps = 10000
 ): Result<State, PenroseError> => {
   let i = 0;
-  const steppedState = step(state, (): boolean => i++ >= numSteps);
+  const steppedState = step(state, { until: (): boolean => i++ >= numSteps });
   if (steppedState.isErr()) {
     return steppedState;
   } else {
@@ -112,9 +114,9 @@ export const nextStage = (state: State): State => {
  */
 export const stepNextStage = (state: State): Result<State, PenroseError> => {
   let currentState = state;
-  while (!isError(currentState) && !isOptimized(currentState)) {
+  while (!isOptimized(currentState)) {
     // step until convergence of the current stage.
-    const res = step(currentState, () => false);
+    const res = step(currentState, { until: () => false });
     if (res.isOk()) {
       currentState = res.value;
     } else {
@@ -130,21 +132,16 @@ export const stepNextStage = (state: State): Result<State, PenroseError> => {
  */
 export const optimize = (state: State): Result<State, PenroseError> => {
   let currentState = state;
-  while (
-    !isError(currentState) &&
-    (!isOptimized(currentState) || !finalStage(currentState))
-  ) {
+  while (!isOptimized(currentState) || !finalStage(currentState)) {
     if (isOptimized(currentState)) {
       currentState = nextStage(currentState);
     }
-    // step until convergence of the current stage. Unsafely unwrap is okay because we check for errors in the while loop condition
-    currentState = step(currentState, () => false).unsafelyUnwrap();
-  }
-  if (currentState.params.optStatus === "Error") {
-    return err({
-      errorType: "RuntimeError",
-      ...nanError("", currentState),
-    });
+    const res = step(currentState, { until: () => false });
+    if (res.isOk()) {
+      currentState = res.value;
+    } else {
+      return res;
+    }
   }
   return ok(currentState);
 };
