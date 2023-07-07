@@ -1,4 +1,4 @@
-import GenericGraph from "../utils/Graph";
+import GenericGraph from "../utils/Graph.js";
 
 // The following three regions define the core types for our automatic
 // differentiation engine.
@@ -35,36 +35,12 @@ export type Expr = Bool | Num | Vec;
 
 export type Bool = Comp | Logic | Not;
 
-export type Num = number | Input | Unary | Binary | Ternary | Nary | Index;
+export type Num = number | Var | Unary | Binary | Ternary | Nary | Index;
 
 export type Vec = PolyRoots;
 
-export interface Input extends InputNode {
-  // HACK: Historically, every Num contained a `val` field which would hold
-  // the "value of this node at the time the computational graph was created".
-  // In particular, every function in `engine/AutodiffFunctions` contained code
-  // to compute the initial value of a node based on the initial values of its
-  // inputs, completely independent of the semantics defined by the logic for
-  // generating JavaScript code from a computation graph (which is what actually
-  // gets used in the optimizer loop). This makes maintenance harder because
-  // discrepancies between these two semantics can result in subtle bugs (and
-  // indeed, there were some minor discrepancies; see the description of PR #907
-  // for more details). Thus, the new implementation does not keep track of
-  // initial values for intermediate nodes. However, some functions used while
-  // constructing the computation graph (such as `convexPartitions` in
-  // `contrib/Minkowski`) need to do ahead-of-time computation on these initial
-  // values, because their results affect the shape of the computation graph
-  // itself, and we currently don't have a way for the shape of the graph to
-  // change during optimization. This isn't a perfect solution because the
-  // precomputed graph can be wrong if the inputs change in unexpected ways, but
-  // until we find a better solution, we need some escape hatch to allow those
-  // few functions to access the initial values for their arguments at graph
-  // construction time. The approach we ended up with is to store the initial
-  // values of just the `Input` nodes in the `val` field defined here, and when
-  // a function needs to compute the initial values of its arguments, it can
-  // compile them to JavaScript code and evaluate that with the initial values
-  // of those `Input`s. This is hacky, but that's understood: it should be used
-  // sparingly.
+export interface Var {
+  tag: "Var";
   val: number;
 }
 
@@ -115,7 +91,7 @@ export interface Index extends IndexNode {
 //#region Types for explicit autodiff graph
 
 export type Node =
-  | number
+  | ConstNode
   | InputNode
   | UnaryNode
   | BinaryNode
@@ -127,8 +103,13 @@ export type Node =
   | IndexNode
   | NotNode;
 
+export interface ConstNode {
+  tag: "Const";
+  val: number;
+}
+
 export interface InputNode {
-  tag: "Input";
+  tag: "Var";
   key: number;
 }
 
@@ -224,14 +205,17 @@ export interface Graph extends Outputs<Id> {
  */
 export interface Outputs<T> {
   /** Derivatives of primary output with respect to inputs. */
-  gradient: T[];
+  gradient: Map<Var, T>;
   /** Primary output. */
   primary: T;
   /** Secondary outputs. */
   secondary: T[];
 }
 
-export type Compiled = (inputs: number[], mask?: boolean[]) => Outputs<number>;
+export type Compiled = (
+  inputs: (x: Var) => number,
+  mask?: boolean[]
+) => Outputs<number>;
 
 export interface OptOutputs {
   phi: number; // see `Fn` from `@penrose/optimizer`
@@ -253,6 +237,37 @@ export type Gradient = (
   weight: number,
   grad: Float64Array
 ) => OptOutputs;
+
+export interface Description {
+  /** zero by default */
+  objective?: Num;
+  /** empty by default */
+  constraints?: Num[];
+}
+
+export interface Options {
+  /** always false by default */
+  until?(): boolean;
+}
+
+export interface Run {
+  converged: boolean;
+  /** doesn't include frozen */
+  vals: Map<Var, number>;
+  /** returns a new `Run`, leaving this one unchanged */
+  run(opts: Options): Run;
+}
+
+export interface Config {
+  /** uses `val` field by default */
+  vals?(x: Var): number;
+  /** always false by default */
+  freeze?(x: Var): boolean;
+}
+
+export interface Problem {
+  start(config: Config): Run;
+}
 
 //#endregion
 

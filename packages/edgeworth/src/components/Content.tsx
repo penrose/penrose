@@ -12,9 +12,9 @@ import {
   compileSubstance,
   PenroseState,
   prettySubstance,
-  RenderStatic,
   showError,
   SubProg,
+  toSVG,
 } from "@penrose/core";
 import { A } from "@penrose/core/dist/types/ast";
 import { saveAs } from "file-saver";
@@ -22,13 +22,13 @@ import JSZip from "jszip";
 import { shuffle } from "lodash";
 import React, { memo } from "react";
 import * as sc from "styled-components";
-import { showMutations } from "../synthesis/Mutation";
+import { showMutations } from "../synthesis/Mutation.js";
 import {
   SynthesizedSubstance,
   Synthesizer,
   SynthesizerSetting,
-} from "../synthesis/Synthesizer";
-import { Settings } from "./Settings";
+} from "../synthesis/Synthesizer.js";
+import { Settings } from "./Settings.js";
 
 const edgeworthPurple = {
   primary: "#3f51b5",
@@ -127,47 +127,49 @@ export class Content extends React.Component<ContentProps, ContentState> {
 
   onPrompt = (prompt: string) => this.setState({ prompt });
 
-  generateProgs = () => (
-    setting: SynthesizerSetting,
-    seed: string,
-    numPrograms: number,
-    dsl: string,
-    sub: string,
-    sty: string
-  ) => {
-    const envOrError = compileDomain(dsl);
+  generateProgs =
+    () =>
+    (
+      setting: SynthesizerSetting,
+      seed: string,
+      numPrograms: number,
+      dsl: string,
+      sub: string,
+      sty: string
+    ) => {
+      const envOrError = compileDomain(dsl);
 
-    // initialize synthesizer
-    if (envOrError.isOk()) {
-      const env = envOrError.value;
-      let subResult;
-      if (sub.length > 0) {
-        const subRes = compileSubstance(sub, env);
-        if (subRes.isOk()) {
-          subResult = subRes.value;
-        } else {
-          console.log(
-            `Error when compiling the template Substance program: ${showError(
-              subRes.error
-            )}`
-          );
+      // initialize synthesizer
+      if (envOrError.isOk()) {
+        const env = envOrError.value;
+        let subResult;
+        if (sub.length > 0) {
+          const subRes = compileSubstance(sub, env);
+          if (subRes.isOk()) {
+            subResult = subRes.value;
+          } else {
+            console.log(
+              `Error when compiling the template Substance program: ${showError(
+                subRes.error
+              )}`
+            );
+          }
+        }
+        const synth = new Synthesizer(env, setting, subResult, seed);
+        let progs = synth.generateSubstances(numPrograms);
+        const template: SubProg<A> | undefined = synth.getTemplate();
+
+        if (template) {
+          this.setState({
+            progs: [{ prog: template, ops: [] }, ...progs],
+            staged: [],
+            domain: dsl,
+            style: sty,
+            layoutDone: false,
+          });
         }
       }
-      const synth = new Synthesizer(env, setting, subResult, seed);
-      let progs = synth.generateSubstances(numPrograms);
-      const template: SubProg<A> | undefined = synth.getTemplate();
-
-      if (template) {
-        this.setState({
-          progs: [{ prog: template, ops: [] }, ...progs],
-          staged: [],
-          domain: dsl,
-          style: sty,
-          layoutDone: false,
-        });
-      }
-    }
-  };
+    };
 
   exportDiagrams = async (indices: number[]) => {
     const zip = JSZip();
@@ -176,7 +178,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
     for (const idx of indices) {
       const state = this.state.states[idx];
       const { prog, ops } = this.state.progs[idx];
-      const svg = await RenderStatic(
+      const svg = await toSVG(
         state,
         async (path: string) => {
           const response = await fetch(path);

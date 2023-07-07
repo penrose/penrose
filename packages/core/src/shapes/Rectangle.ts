@@ -1,4 +1,4 @@
-import * as ad from "../types/ad";
+import * as ad from "../types/ad.js";
 import {
   Center,
   Corner,
@@ -8,8 +8,8 @@ import {
   Rotate,
   ShapeCommon,
   Stroke,
-} from "../types/shapes";
-import { boolV, floatV, noPaint, strV } from "../utils/Util";
+} from "../types/shapes.js";
+import { boolV, floatV, noPaint, strV } from "../utils/Util.js";
 import {
   Canvas,
   Context,
@@ -17,7 +17,7 @@ import {
   sampleHeight,
   sampleVector,
   sampleWidth,
-} from "./Samplers";
+} from "./Samplers.js";
 
 export interface RectangleProps<T>
   extends Named<T>,
@@ -33,7 +33,6 @@ export const sampleRectangle = (
   canvas: Canvas
 ): RectangleProps<ad.Num> => ({
   name: strV("defaultRectangle"),
-  style: strV(""),
   strokeWidth: floatV(0),
   strokeStyle: strV("solid"),
   strokeColor: noPaint(),

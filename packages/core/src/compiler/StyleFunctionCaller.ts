@@ -1,19 +1,25 @@
-import * as ad from "../types/ad";
-import { SourceRange } from "../types/ast";
-import { CompFunc, ConstrFunc, FuncParam, ObjFunc } from "../types/functions";
+import * as ad from "../types/ad.js";
+import { SourceRange } from "../types/ast.js";
+import {
+  CompFunc,
+  ConstrFunc,
+  FuncParam,
+  MayWarn,
+  ObjFunc,
+} from "../types/functions.js";
 
 import { Result } from "true-myth";
-import { Context } from "../shapes/Samplers";
-import { Shape } from "../shapes/Shapes";
-import { StyleError } from "../types/errors";
-import { ArgValWithSourceLoc, Value } from "../types/value";
+import { Context } from "../shapes/Samplers.js";
+import { Shape } from "../shapes/Shapes.js";
+import { StyleError } from "../types/errors.js";
+import { ArgValWithSourceLoc, Value } from "../types/value.js";
 import {
   badArgumentTypeError,
   functionInternalError,
   missingArgumentError,
   tooManyArgumentsError,
-} from "../utils/Error";
-import { checkType } from "./StyleTypeChecker";
+} from "../utils/Error.js";
+import { checkType } from "./StyleTypeChecker.js";
 
 const { ok, err } = Result;
 
@@ -22,11 +28,22 @@ export const callCompFunc = (
   range: SourceRange,
   context: Context,
   args: ArgValWithSourceLoc<ad.Num>[]
-): Result<Value<ad.Num>, StyleError> => {
+): Result<MayWarn<Value<ad.Num>>, StyleError> => {
   const checkedArgs = checkArgs(func, range, args);
   if (checkedArgs.isErr()) return err(checkedArgs.error);
   try {
-    return ok(func.body(context, ...checkedArgs.value));
+    const { value, warnings } = func.body(context, ...checkedArgs.value);
+    return ok({
+      value,
+      warnings: warnings.map((w) => {
+        // Attach location information to the top of `BBoxApproximationWarnings`
+        // since only the top stack element is resulted from the user call to Style function
+        if (w.tag === "BBoxApproximationWarning") {
+          w.stack[w.stack.length - 1].location = range;
+        }
+        return w;
+      }),
+    });
   } catch (e) {
     if (e instanceof Error) {
       return err(functionInternalError(func, range, e.message));
@@ -40,11 +57,22 @@ export const callObjConstrFunc = (
   func: ObjFunc | ConstrFunc,
   range: SourceRange,
   args: ArgValWithSourceLoc<ad.Num>[]
-): Result<ad.Num, StyleError> => {
+): Result<MayWarn<ad.Num>, StyleError> => {
   const checkedArgs = checkArgs(func, range, args);
   if (checkedArgs.isErr()) return err(checkedArgs.error);
   try {
-    return ok(func.body(...checkedArgs.value));
+    const { value, warnings } = func.body(...checkedArgs.value);
+    return ok({
+      value,
+      warnings: warnings.map((w) => {
+        // Attach location information to the top of `BBoxApproximationWarnings`
+        // since only the top stack element is resulted from the user call to Style function
+        if (w.tag === "BBoxApproximationWarning") {
+          w.stack[w.stack.length - 1].location = range;
+        }
+        return w;
+      }),
+    });
   } catch (e) {
     if (e instanceof Error) {
       return err(functionInternalError(func, range, e.message));

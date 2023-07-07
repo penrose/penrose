@@ -1,0 +1,6 @@
+{
+  "substance": "./AbsorbingBoundary.substance",
+  "style": ["./EpsilonShell.style"],
+  "domain": "./EpsilonShell.domain",
+  "variation": "BookstoneShrew61995"
+}

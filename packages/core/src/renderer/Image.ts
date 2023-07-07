@@ -1,14 +1,14 @@
-import { Image } from "../shapes/Image";
+import { Image } from "../shapes/Image.js";
 import {
   attrAutoFillSvg,
   attrRotation,
   attrTitle,
   attrTransformCoords,
   attrWH,
-} from "./AttrHelper";
-import * as notFound from "./not_found";
-import { RenderProps } from "./Renderer";
-import { makeIdsUnique } from "./util";
+} from "./AttrHelper.js";
+import * as notFound from "./not_found.js";
+import { RenderProps } from "./Renderer.js";
+import { makeIdsUnique } from "./util.js";
 
 const RenderImage = async (
   shape: Image<number>,
@@ -29,12 +29,15 @@ const RenderImage = async (
   elem.innerHTML = rawSVG;
   // We assume the first svg element in the file is the one to display
   const svg = elem.querySelector("svg")!;
+  // make sure the SVG has unique IDs so multiple diagrams can appear on the screen
   makeIdsUnique(elem, false);
 
   attrToNotAutoMap.push(...attrWH(shape, svg));
   attrToNotAutoMap.push(...attrRotation(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrTransformCoords(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrTitle(shape, elem));
+  svg.setAttribute("preserveAspectRatio", shape.preserveAspectRatio.contents);
+  attrToNotAutoMap.push("preserveAspectRatio");
   // Directly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);
 

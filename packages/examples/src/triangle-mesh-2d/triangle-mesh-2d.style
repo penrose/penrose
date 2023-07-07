@@ -28,7 +28,6 @@ Global {
    shape box = Rectangle {
       center: (0.,0.)
       fillColor: none()
-      strokeColor: Colors.lightGray
       strokeWidth: 2.
       width: canvas.width
       height: canvas.height
@@ -36,7 +35,7 @@ Global {
 
    -- string fontFamily = "Linux Libertine O"
    string fontFamily = "Palatino"
-   string fontSize = "14px"
+   string fontSize = "18px"
 }
 
 forall Vertex v {

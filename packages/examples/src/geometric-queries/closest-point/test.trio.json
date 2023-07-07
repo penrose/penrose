@@ -1,0 +1,7 @@
+{
+  "substance": "./test.substance",
+  "style": ["./closest-point.style"],
+  "domain": "./closest-point.domain",
+  "variation": "LimeadeHedgehog00321",
+  "excludeWarnings": ["BBoxApproximationWarning"]
+}

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Latex from "react-latex-next";
 import styled from "styled-components";
-import { Simple } from "./Simple";
+import { Simple } from "./Simple.js";
 
 type DiagramOption = {
   style: string;
@@ -125,6 +125,7 @@ const ProblemChoice = ({
         substance={substance}
         variation={variation}
         interactive={false}
+        excludeWarnings={[]}
       />
     </OptionContainer>
   );

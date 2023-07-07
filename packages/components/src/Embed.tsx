@@ -1,7 +1,7 @@
 import React, { CSSProperties } from "react";
-import Logo from "./icons/Logo";
-import Resample from "./icons/Resample";
-import { Simple, SimpleProps } from "./Simple";
+import { Simple, SimpleProps } from "./Simple.js";
+import Logo from "./icons/Logo.js";
+import Resample from "./icons/Resample.js";
 
 const footerStyle: CSSProperties = {
   display: "flex",
@@ -61,6 +61,7 @@ class Embed extends React.Component<SimpleProps, EmbedState> {
           style={this.props.style}
           variation={this.state.variation}
           interactive={this.props.interactive}
+          excludeWarnings={[]}
         />
         <div style={{ width: "100%", height: "100%" }} />
         <div className="embed-footer" style={footerStyle}>

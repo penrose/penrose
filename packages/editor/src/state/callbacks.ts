@@ -1,12 +1,12 @@
 import {
+  compile,
   compileDomain,
-  compileTrio,
-  prepareState,
   resample,
   stepNextStage,
-  stepState,
-  Trio,
+  stepTimes,
 } from "@penrose/core";
+import { Style } from "@penrose/examples/dist/index.js";
+import registry from "@penrose/examples/dist/registry.js";
 import localforage from "localforage";
 import { range } from "lodash";
 import queryString from "query-string";
@@ -14,29 +14,31 @@ import toast from "react-hot-toast";
 import { useRecoilCallback } from "recoil";
 import { v4 as uuid } from "uuid";
 import {
-  currentWorkspaceState,
   Diagram,
   DiagramGrid,
-  diagramGridState,
-  diagramState,
   EDITOR_VERSION,
   GistMetadata,
-  localFilesState,
   LocalGithubUser,
   Settings,
-  settingsState,
+  TrioWithPreview,
   Workspace,
   WorkspaceLocation,
   WorkspaceMetadata,
+  currentWorkspaceState,
+  diagramGridState,
+  diagramState,
+  localFilesState,
+  settingsState,
   workspaceMetadataSelector,
-} from "./atoms";
-import { generateVariation } from "./variation";
+} from "./atoms.js";
+import { generateVariation } from "./variation.js";
 
 const _compileDiagram = async (
   substance: string,
   style: string,
   domain: string,
   variation: string,
+  excludeWarnings: string[],
   set: any
 ) => {
   const compiledDomain = compileDomain(domain);
@@ -47,11 +49,12 @@ const _compileDiagram = async (
     }));
     return;
   }
-  const compileResult = await compileTrio({
+  const compileResult = await compile({
     domain,
     substance,
     style,
     variation,
+    excludeWarnings,
   });
   if (compileResult.isErr()) {
     set(diagramState, (state: Diagram) => ({
@@ -60,15 +63,18 @@ const _compileDiagram = async (
     }));
     return;
   }
-  const initialState = await prepareState(compileResult.value);
+  const initialState = compileResult.value;
+
   set(
     diagramState,
     (state: Diagram): Diagram => ({
       ...state,
       error: null,
+      warnings: initialState.warnings,
       metadata: {
         ...state.metadata,
         variation,
+        excludeWarnings,
         source: {
           domain,
           substance,
@@ -88,31 +94,54 @@ const _compileDiagram = async (
 };
 
 export const useStepDiagram = () =>
-  useRecoilCallback(({ set }) => () =>
-    set(diagramState, (diagram: Diagram) => {
-      if (diagram.state === null) {
-        toast.error(`No diagram`);
-        return diagram;
-      }
-      return {
-        ...diagram,
-        state: stepState(diagram.state, diagram.metadata.stepSize),
-      };
-    })
+  useRecoilCallback(
+    ({ set }) =>
+      () =>
+        set(diagramState, (diagram: Diagram) => {
+          if (diagram.state === null) {
+            toast.error(`No diagram`);
+            return diagram;
+          }
+          const stateOrError = stepTimes(
+            diagram.state,
+            diagram.metadata.stepSize
+          );
+          if (stateOrError.isOk()) {
+            return {
+              ...diagram,
+              state: stateOrError.value,
+            };
+          } else {
+            return {
+              ...diagram,
+              error: stateOrError.error,
+            };
+          }
+        })
   );
 
 export const useStepStage = () =>
-  useRecoilCallback(({ set }) => () =>
-    set(diagramState, (diagram: Diagram) => {
-      if (diagram.state === null) {
-        toast.error(`No diagram`);
-        return diagram;
-      }
-      return {
-        ...diagram,
-        state: stepNextStage(diagram.state, diagram.metadata.stepSize),
-      };
-    })
+  useRecoilCallback(
+    ({ set }) =>
+      () =>
+        set(diagramState, (diagram: Diagram) => {
+          if (diagram.state === null) {
+            toast.error(`No diagram`);
+            return diagram;
+          }
+          const stateOrError = stepNextStage(diagram.state);
+          if (stateOrError.isOk()) {
+            return {
+              ...diagram,
+              state: stateOrError.value,
+            };
+          } else {
+            return {
+              ...diagram,
+              error: stateOrError.error,
+            };
+          }
+        })
   );
 
 export const useCompileDiagram = () =>
@@ -128,6 +157,7 @@ export const useCompileDiagram = () =>
       styleFile,
       domainFile,
       diagram.metadata.variation,
+      diagram.metadata.excludeWarnings,
       set
     );
   });
@@ -209,68 +239,78 @@ export const useLoadLocalWorkspace = () =>
       toast.error(`Could not retrieve workspace ${id}`);
       return;
     }
+
     set(currentWorkspaceState, loadedWorkspace as Workspace);
     await _compileDiagram(
       loadedWorkspace.files.substance.contents,
       loadedWorkspace.files.style.contents,
       loadedWorkspace.files.domain.contents,
       uuid(),
+      [],
       set
     );
   });
 
 export const useLoadExampleWorkspace = () =>
-  useRecoilCallback(({ set, reset, snapshot }) => async (trio: Trio) => {
-    const currentWorkspace = snapshot.getLoadable(currentWorkspaceState)
-      .contents;
-    if (!_confirmDirtyWorkspace(currentWorkspace)) {
-      return;
-    }
-    const id = toast.loading("Loading example...");
-    const domainReq = await fetch(trio.domainURI);
-    const styleReq = await fetch(trio.styleURI);
-    const substanceReq = await fetch(trio.substanceURI);
-    toast.dismiss(id);
-    const domain = await domainReq.text();
-    const style = await styleReq.text();
-    const substance = await substanceReq.text();
-    const styleParentURI = trio.styleURI.substring(
-      0,
-      trio.styleURI.lastIndexOf("/") + 1
-    );
-    set(currentWorkspaceState, {
-      metadata: {
-        id: uuid(),
-        name: trio.name,
-        lastModified: new Date().toISOString(),
-        editorVersion: EDITOR_VERSION,
-        location: {
-          kind: "example",
-          root: styleParentURI,
-        },
-        forkedFromGist: null,
-      },
-      files: {
-        domain: {
-          contents: domain,
-          name: `${trio.domainID}.domain`,
-        },
-        style: {
-          contents: style,
-          name: `${trio.styleID}.style`,
-        },
-        substance: {
-          contents: substance,
-          name: `${trio.substanceID}.substance`,
-        },
-      },
-    });
-    reset(diagramState);
-    await _compileDiagram(substance, style, domain, trio.variation, set);
-  });
+  useRecoilCallback(
+    ({ set, reset, snapshot }) =>
+      async (meta: TrioWithPreview) => {
+        const currentWorkspace = snapshot.getLoadable(
+          currentWorkspaceState
+        ).contents;
+        if (!_confirmDirtyWorkspace(currentWorkspace)) {
+          return;
+        }
+        const id = toast.loading("Loading example...");
+        const { domain, style, substance, variation, excludeWarnings } =
+          await meta.get();
+        toast.dismiss(id);
+        const styleJoined = style
+          .map(({ contents }: Style) => contents)
+          .join("\n");
+        // HACK: we should really use each Style's individual `resolver`
+        const { resolver } = style[0];
+        set(currentWorkspaceState, {
+          metadata: {
+            id: uuid(),
+            name: meta.name!,
+            lastModified: new Date().toISOString(),
+            editorVersion: EDITOR_VERSION,
+            location: {
+              kind: "example",
+              resolver,
+            },
+            forkedFromGist: null,
+          },
+          files: {
+            domain: {
+              contents: domain,
+              name: `.domain`,
+            },
+            style: {
+              contents: styleJoined,
+              name: `.style`,
+            },
+            substance: {
+              contents: substance,
+              name: `.substance`,
+            },
+          },
+        });
+        reset(diagramState);
+        await _compileDiagram(
+          substance,
+          styleJoined,
+          domain,
+          variation,
+          excludeWarnings,
+          set
+        );
+      }
+  );
 
 export const useCheckURL = () =>
-  useRecoilCallback(({ set }) => async () => {
+  useRecoilCallback(({ set, snapshot, reset }) => async () => {
     const parsed = queryString.parse(window.location.search);
     if (
       "access_token" in parsed &&
@@ -340,47 +380,57 @@ export const useCheckURL = () =>
         files,
       };
       set(currentWorkspaceState, workspace);
-    } else if ("example_trio" in parsed) {
-      const root = `https://raw.githubusercontent.com/${parsed["example_trio"]}`;
-      const trioRes = await fetch(`${root}/trio.json`);
-      const trioJson = await trioRes.json();
-      const id = toast.loading("Loading example...");
-      const domainReq = await fetch(`${root}/${trioJson.domain}`);
-      const styleReq = await fetch(`${root}/${trioJson.style}`);
-      const substanceReq = await fetch(`${root}/${trioJson.substance}`);
-      toast.dismiss(id);
-      const domain = await domainReq.text();
-      const style = await styleReq.text();
-      const substance = await substanceReq.text();
-      const workspace: Workspace = {
+    } else if ("examples" in parsed) {
+      const t = toast.loading("Loading example...");
+      const id = parsed["examples"];
+      if (typeof id !== "string") return;
+      const ex = registry.get(id);
+      if (ex === undefined || !ex.trio) return;
+      const { domain, style, substance, variation, excludeWarnings } =
+        await ex.get();
+      toast.dismiss(t);
+      const styleJoined = style.map(({ contents }: any) => contents).join("\n");
+      // HACK: we should really use each Style's individual `resolver`
+      const { resolver } = style[0];
+      set(currentWorkspaceState, {
         metadata: {
           id: uuid(),
-          name: trioJson.name,
-          editorVersion: EDITOR_VERSION,
+          name: ex.name!,
           lastModified: new Date().toISOString(),
+          editorVersion: EDITOR_VERSION,
           location: {
             kind: "example",
-            root,
+            resolver,
           },
           forkedFromGist: null,
         },
         files: {
           domain: {
             contents: domain,
-            name: trioJson.domain,
+            name: `.domain`,
           },
           style: {
-            contents: style,
-            name: trioJson.style,
+            contents: styleJoined,
+            name: `.style`,
           },
           substance: {
             contents: substance,
-            name: trioJson.substance,
+            name: `.substance`,
           },
         },
-      };
-      set(currentWorkspaceState, workspace);
+      });
+      reset(diagramState);
+      await _compileDiagram(
+        substance,
+        styleJoined,
+        domain,
+        variation,
+        excludeWarnings,
+        set
+      );
+      toast.dismiss(t);
     }
+    // TODO: implementing loading individual registry examples by URL
   });
 
 export const usePublishGist = () =>
@@ -457,25 +507,25 @@ export const useSignIn = () =>
 
 export const useDeleteLocalFile = () =>
   useRecoilCallback(
-    ({ set, snapshot, reset }) => async (
-      workspaceMetadata: WorkspaceMetadata
-    ) => {
-      const { id, name } = workspaceMetadata;
-      const shouldDelete = confirm(`Delete ${name}?`);
-      if (!shouldDelete) {
-        return;
+    ({ set, snapshot, reset }) =>
+      async (workspaceMetadata: WorkspaceMetadata) => {
+        const { id, name } = workspaceMetadata;
+        const shouldDelete = confirm(`Delete ${name}?`);
+        if (!shouldDelete) {
+          return;
+        }
+        const currentWorkspace = snapshot.getLoadable(
+          currentWorkspaceState
+        ).contents;
+        // removes from index
+        set(localFilesState, (localFiles) => {
+          const { [id]: removedFile, ...newFiles } = localFiles;
+          return newFiles;
+        });
+        await localforage.removeItem(id);
+        if (currentWorkspace.metadata.id === id) {
+          reset(currentWorkspaceState);
+        }
+        toast.success(`Removed ${name}`);
       }
-      const currentWorkspace = snapshot.getLoadable(currentWorkspaceState)
-        .contents;
-      // removes from index
-      set(localFilesState, (localFiles) => {
-        const { [id]: removedFile, ...newFiles } = localFiles;
-        return newFiles;
-      });
-      await localforage.removeItem(id);
-      if (currentWorkspace.metadata.id === id) {
-        reset(currentWorkspaceState);
-      }
-      toast.success(`Removed ${name}`);
-    }
   );

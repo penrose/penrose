@@ -1,4 +1,5 @@
-import * as ad from "../types/ad";
+import { FloatV } from "src/types/value.js";
+import * as ad from "../types/ad.js";
 import {
   Center,
   Fill,
@@ -7,9 +8,9 @@ import {
   Rotate,
   ShapeCommon,
   String,
-} from "../types/shapes";
-import { black, boolV, floatV, strV, vectorV } from "../utils/Util";
-import { Canvas, Context, uniform } from "./Samplers";
+} from "../types/shapes.js";
+import { black, boolV, floatV, strV, vectorV } from "../utils/Util.js";
+import { Canvas, Context, uniform } from "./Samplers.js";
 
 export interface EquationProps<T>
   extends Named<T>,
@@ -17,14 +18,16 @@ export interface EquationProps<T>
     Center<T>,
     Rect<T>,
     Rotate<T>,
-    String<T> {}
+    String<T> {
+  ascent: FloatV<T>;
+  descent: FloatV<T>;
+}
 
 export const sampleEquation = (
   context: Context,
   canvas: Canvas
 ): EquationProps<ad.Num> => ({
   name: strV("defaultEquation"),
-  style: strV(""),
   fillColor: black(),
   center: vectorV([
     context.makeInput({
@@ -48,9 +51,21 @@ export const sampleEquation = (
       stages: new Set(),
     })
   ),
+  descent: floatV(
+    context.makeInput({
+      init: { tag: "Pending", pending: 0 },
+      stages: new Set(),
+    })
+  ),
+  ascent: floatV(
+    context.makeInput({
+      init: { tag: "Pending", pending: 0 },
+      stages: new Set(),
+    })
+  ),
   rotation: floatV(0),
   string: strV("defaultLabelText"),
-  fontSize: strV("12pt"),
+  fontSize: strV("16px"),
   ensureOnCanvas: boolV(true),
 });
 

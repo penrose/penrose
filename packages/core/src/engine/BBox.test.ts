@@ -1,17 +1,18 @@
-import { compDict } from "../contrib/Functions";
-import { makeCircle } from "../shapes/Circle";
-import { makeEllipse } from "../shapes/Ellipse";
-import { makeImage } from "../shapes/Image";
-import { makeLine } from "../shapes/Line";
-import { makePath } from "../shapes/Path";
-import { makePolygon } from "../shapes/Polygon";
-import { makePolyline } from "../shapes/Polyline";
-import { makeRectangle } from "../shapes/Rectangle";
-import { makeCanvas, simpleContext } from "../shapes/Samplers";
-import * as ad from "../types/ad";
-import { Poly, Scale } from "../types/shapes";
-import { black, floatV, ptListV, vectorV } from "../utils/Util";
-import { genCodeSync, secondaryGraph } from "./Autodiff";
+import { describe, expect, test } from "vitest";
+import { compDict } from "../contrib/Functions.js";
+import { numsOf } from "../contrib/Utils.js";
+import { makeCircle } from "../shapes/Circle.js";
+import { makeEllipse } from "../shapes/Ellipse.js";
+import { makeImage } from "../shapes/Image.js";
+import { makeLine } from "../shapes/Line.js";
+import { makePath } from "../shapes/Path.js";
+import { makePolygon } from "../shapes/Polygon.js";
+import { makePolyline } from "../shapes/Polyline.js";
+import { makeRectangle } from "../shapes/Rectangle.js";
+import { makeCanvas, simpleContext } from "../shapes/Samplers.js";
+import * as ad from "../types/ad.js";
+import { Poly, Scale } from "../types/shapes.js";
+import { black, floatV, ptListV, vectorV } from "../utils/Util.js";
 import {
   BBox,
   bboxFromCircle,
@@ -21,7 +22,7 @@ import {
   bboxFromPolygon,
   bboxFromRect,
   bboxFromRectlike,
-} from "./BBox";
+} from "./BBox.js";
 
 const canvas = makeCanvas(800, 700);
 
@@ -29,14 +30,12 @@ const expectBbox = (
   actual: BBox,
   expected: { width: number; height: number; center: [number, number] }
 ) => {
-  const g = secondaryGraph([
+  const [width, height, x, y] = numsOf([
     actual.width,
     actual.height,
     actual.center[0],
     actual.center[1],
   ]);
-  const f = genCodeSync(g);
-  const [width, height, x, y] = f([]).secondary; // no inputs, so, empty array
   expect(width).toBeCloseTo(expected.width);
   expect(height).toBeCloseTo(expected.height);
   expect(x).toBeCloseTo(expected.center[0]);
@@ -168,7 +167,7 @@ describe("bbox", () => {
         [-100, -100],
         [100, -50],
         [-50, 100],
-      ]),
+      ]).value,
     });
     expectBbox(bboxFromPath(shape), {
       width: 200,
@@ -180,7 +179,7 @@ describe("bbox", () => {
   test("Path (quadratic)", () => {
     const context = simpleContext("bbox Path (quadratic)");
     const shape = makePath(context, canvas, {
-      d: compDict.makePath.body(context, [-100, 0], [100, 0], 50, 10),
+      d: compDict.makePath.body(context, [-100, 0], [100, 0], 50, 10).value,
     });
     expectBbox(bboxFromPath(shape), {
       width: 180,
@@ -197,7 +196,7 @@ describe("bbox", () => {
         [50, 50],
         [200, 0],
         [75, -25],
-      ]),
+      ]).value,
     });
     expectBbox(bboxFromPath(shape), {
       width: 200,
@@ -214,7 +213,7 @@ describe("bbox", () => {
         [50, 50],
         [75, -25],
         [200, 0],
-      ]),
+      ]).value,
     });
     expectBbox(bboxFromPath(shape), {
       width: 200,
@@ -233,7 +232,7 @@ describe("bbox", () => {
         [75, -25],
         [0, -100],
         [100, -75],
-      ]),
+      ]).value,
     });
     expectBbox(bboxFromPath(shape), {
       width: 250,
@@ -254,7 +253,7 @@ describe("bbox", () => {
         30,
         1,
         0
-      ),
+      ).value,
     });
     expectBbox(bboxFromPath(shape), {
       width: 400,
@@ -275,7 +274,7 @@ describe("bbox", () => {
         30,
         0,
         0
-      ),
+      ).value,
     });
     expectBbox(bboxFromPath(shape), {
       width: 400,
@@ -296,7 +295,7 @@ describe("bbox", () => {
         60,
         0,
         0
-      ),
+      ).value,
     });
     expectBbox(bboxFromPath(shape), {
       width: 311.512,

@@ -1,68 +1,49 @@
 {
   "name": "@penrose/roger",
-  "version": "2.3.0",
-  "description": "The Penrose CLI",
-  "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
-  "bin": {
-    "roger": "./bin/run"
+  "version": "3.0.0-alpha.4",
+  "description": "",
+  "type": "module",
+  "main": "index.tsx",
+  "scripts": {
+    "build": ":",
+    "build-decls": ":",
+    "start": "ts-node --esm --swc ./index.ts",
+    "typecheck": "tsc"
   },
-  "homepage": "https://github.com/penrose/penrose",
+  "bin": {
+    "roger": "./bin/run.js"
+  },
+  "nx": {
+    "targets": {
+      "build": {
+        "dependsOn": [
+          "^build",
+          "^build-decls"
+        ]
+      }
+    }
+  },
+  "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
   "license": "MIT",
-  "main": "dist/index.js",
-  "repository": "penrose/penrose",
-  "files": [
-    "bin",
-    "dist",
-    "oclif.manifest.json"
-  ],
   "dependencies": {
-    "@oclif/core": "^1",
-    "@oclif/plugin-help": "^5",
-    "@oclif/plugin-plugins": "^2.0.1",
+    "@penrose/core": "^3.0.0-alpha.0",
+    "canvas": "^2.8.0",
+    "chalk": "^3.0.0",
     "chokidar": "^3.5.3",
-    "ws": "^8.6.0"
+    "convert-hrtime": "^3.0.0",
+    "global-jsdom": "^8.8.0",
+    "jsdom": "^22.0.0",
+    "node-fetch": "^3.3.1",
+    "prettier": "2.8.8",
+    "regenerator-runtime": "^0.13.11",
+    "true-myth": "^4.1.1",
+    "ts-node": "^10.9.1",
+    "ws": "^8.6.0",
+    "yargs": "^17.7.2"
   },
   "devDependencies": {
-    "@oclif/test": "^2",
-    "@types/chai": "^4",
-    "@types/mocha": "^9.0.0",
-    "@types/node": "^16.9.4",
-    "@types/ws": "^8.5.3",
-    "chai": "^4",
-    "eslint": "^7.32.0",
-    "eslint-config-oclif": "^4",
-    "eslint-config-oclif-typescript": "^1.0.2",
-    "globby": "^11",
-    "mocha": "^9",
-    "oclif": "^3",
-    "shx": "^0.3.3",
-    "ts-node": "^10.2.1",
-    "tslib": "^2.3.1"
-  },
-  "oclif": {
-    "bin": "roger",
-    "dirname": "roger",
-    "commands": "./dist/commands",
-    "plugins": [],
-    "topicSeparator": " ",
-    "topics": {}
-  },
-  "scripts": {
-    "build": "shx rm -rf dist && tsc -b",
-    "build-decls": ":",
-    "typecheck": ":",
-    "postpack": "shx rm -f oclif.manifest.json",
-    "prepack": "yarn build && oclif manifest && oclif readme && prettier --write README.md",
-    "version": "oclif readme && git add README.md",
-    "preinstall-global": "yarn build",
-    "install-global": "yarn link"
-  },
-  "engines": {
-    "node": ">=12.0.0"
-  },
-  "bugs": "https://github.com/penrose/penrose/issues",
-  "keywords": [
-    "oclif"
-  ],
-  "types": "dist/index.d.ts"
+    "@types/node": "^12.12.68",
+    "@types/ws": "^8.5.4",
+    "@types/yargs": "^17.0.24"
+  }
 }

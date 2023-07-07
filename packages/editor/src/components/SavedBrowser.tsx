@@ -1,13 +1,13 @@
 import { useRecoilValue } from "recoil";
-import { localFilesState, workspaceMetadataSelector } from "../state/atoms";
+import { localFilesState, workspaceMetadataSelector } from "../state/atoms.js";
 import {
   useDeleteLocalFile,
   useDuplicate,
   useLoadLocalWorkspace,
   useSaveLocally,
-} from "../state/callbacks";
-import BlueButton from "./BlueButton";
-import FileButton from "./FileButton";
+} from "../state/callbacks.js";
+import BlueButton from "./BlueButton.js";
+import FileButton from "./FileButton.js";
 
 export default function SavedFilesBrowser() {
   const localFiles = useRecoilValue(localFilesState);

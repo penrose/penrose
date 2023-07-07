@@ -1,9 +1,10 @@
-import { Polygon } from "../../shapes/Polygon";
-import { Polyline } from "../../shapes/Polyline";
-import * as ad from "../../types/ad";
-import { objDict, objDictSpecific } from "../Objectives";
-import { numOf } from "../Utils";
-import { _polygons, _polylines } from "../__testfixtures__/TestShapes.input";
+import { describe, expect, it, test } from "vitest";
+import { Polygon } from "../../shapes/Polygon.js";
+import { Polyline } from "../../shapes/Polyline.js";
+import * as ad from "../../types/ad.js";
+import { objDict, objDictSpecific } from "../Objectives.js";
+import { extractPoints, isClosed, numOf } from "../Utils.js";
+import { _polygons, _polylines } from "../__testfixtures__/TestShapes.input.js";
 
 const digitPrecision = 4;
 
@@ -24,7 +25,7 @@ describe("simple objective", () => {
   ])(
     "equal(%p, %p) should return %p",
     (x: number, y: number, expected: number) => {
-      const result = objDict.equal.body(x, y);
+      const result = objDict.equal.body(x, y).value;
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -38,7 +39,7 @@ describe("simple objective", () => {
   ])(
     "repelPt(%p, %p, %p) should return %p",
     (weight: number, a: number[], b: number[], expected: number) => {
-      const result = objDict.repelPt.body(weight, a, b);
+      const result = objDict.repelPt.body(weight, a, b).value;
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -52,7 +53,7 @@ describe("simple objective", () => {
   ])(
     "repelScalar(%p, %p) should return %p",
     (c: number, d: number, expected: number) => {
-      const result = objDict.repelScalar.body(c, d);
+      const result = objDict.repelScalar.body(c, d).value;
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     }
   );
@@ -62,7 +63,9 @@ describe("isRegular", () => {
   it.each([[_polylines[6]], [_polygons[6]]])(
     "convex %p",
     (shape: Polyline<ad.Num> | Polygon<ad.Num>) => {
-      const result = objDictSpecific.isRegular.body(shape);
+      const points: ad.Num[][] = extractPoints(shape);
+      const closed: boolean = isClosed(shape);
+      const result = objDictSpecific.isRegular.body(points, closed).value;
       expect(numOf(result)).toBeLessThanOrEqual(1e-5);
     }
   );
@@ -75,7 +78,9 @@ describe("isRegular", () => {
     [_polylines[9]],
     [_polygons[9]],
   ])("non-convex %p", (shape: Polyline<ad.Num> | Polygon<ad.Num>) => {
-    const result = objDictSpecific.isRegular.body(shape);
+    const points: ad.Num[][] = extractPoints(shape);
+    const closed: boolean = isClosed(shape);
+    const result = objDictSpecific.isRegular.body(points, closed).value;
     expect(numOf(result)).toBeGreaterThan(0.01);
   });
 });

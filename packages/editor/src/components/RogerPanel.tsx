@@ -1,9 +1,13 @@
 import localforage from "localforage";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Select from "react-select";
 import { useRecoilCallback, useRecoilValue } from "recoil";
 import { v4 as uuid } from "uuid";
-import { currentWorkspaceState, ProgramType, RogerState } from "../state/atoms";
+import {
+  ProgramType,
+  RogerState,
+  currentWorkspaceState,
+} from "../state/atoms.js";
 export default function RogerPanel({
   rogerState,
   ws,
@@ -11,55 +15,57 @@ export default function RogerPanel({
   rogerState: RogerState;
   ws: WebSocket | null;
 }) {
+  const [trio, setTrio] = useState(".trio.json");
   const workspace = useRecoilValue(currentWorkspaceState);
   const { substance, style, domain } = workspace.files;
   const onSelection = useRecoilCallback(
-    ({ set }) => (val: string, key: ProgramType) => {
-      set(currentWorkspaceState, (state) => {
-        const files = {
-          ...state.files,
-          [key]: { ...state.files[key], name: val },
-        };
-        localforage.setItem("selected_roger_files", {
-          substance: files.substance.name,
-          style: files.style.name,
-          domain: files.domain.name,
-        });
-        const { location } = state.metadata;
+    ({ set }) =>
+      (val: string, key: ProgramType) => {
+        set(currentWorkspaceState, (state) => {
+          const files = {
+            ...state.files,
+            [key]: { ...state.files[key], name: val },
+          };
+          localforage.setItem("selected_roger_files", {
+            substance: files.substance.name,
+            style: files.style.name,
+            domain: files.domain.name,
+          });
+          const { location } = state.metadata;
 
-        const fileLocations =
-          location.kind === "roger"
-            ? { ...location, [key]: val }
-            : {
-                substance: undefined,
-                style: undefined,
-                domain: undefined,
-              };
+          const fileLocations =
+            location.kind === "roger"
+              ? { ...location, [key]: val }
+              : {
+                  substance: undefined,
+                  style: undefined,
+                  domain: undefined,
+                };
 
-        return {
-          ...state,
-          metadata: {
-            ...state.metadata,
-            location: {
-              kind: "roger" as const,
-              // TODO: only set the root of the location if a style file is selected
-              // TODO: do path processing in a more principled way
-              ...fileLocations,
+          return {
+            ...state,
+            metadata: {
+              ...state.metadata,
+              location: {
+                kind: "roger" as const,
+                // TODO: only set the root of the location if a style file is selected
+                // TODO: do path processing in a more principled way
+                ...fileLocations,
+              },
+              id: uuid(),
             },
-            id: uuid(),
-          },
-          files,
-        };
-      });
-      if (ws !== null) {
-        ws.send(
-          JSON.stringify({
-            kind: "retrieve_file",
-            fileName: val,
-          })
-        );
+            files,
+          };
+        });
+        if (ws !== null) {
+          ws.send(
+            JSON.stringify({
+              kind: "retrieve_file",
+              fileName: val,
+            })
+          );
+        }
       }
-    }
   );
   useEffect(() => {
     if (rogerState.kind === "connected") {
@@ -110,6 +116,33 @@ export default function RogerPanel({
         getOptionValue={({ val }) => val}
         onChange={(e) => onSelection(e?.val ?? "", "domain")}
         value={{ val: domain.name }}
+      />
+      <h2>trio</h2>
+      <Select
+        options={rogerState.trio.map((val) => ({ val }))}
+        getOptionLabel={({ val }) => val}
+        getOptionValue={({ val }) => val}
+        onChange={(e) => {
+          const token = uuid();
+          if (e?.val) {
+            setTrio(e?.val);
+            ws?.send(
+              JSON.stringify({
+                kind: "retrieve_trio",
+                path: e?.val,
+                token,
+              })
+            );
+            ws?.addEventListener("message", (e) => {
+              const parsed = JSON.parse(e.data);
+              if (parsed.kind !== "trio_file" && parsed.token !== token) return;
+              const key: "substance" | "style" | "domain" = parsed.type;
+              const val = parsed.fileName;
+              onSelection(val, key);
+            });
+          }
+        }}
+        value={{ val: trio }}
       />
     </div>
   );

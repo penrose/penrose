@@ -1,7 +1,7 @@
-import { Shape } from "../shapes/Shapes";
-import * as ad from "../types/ad";
-import Graph from "./Graph";
-import { getAdValueAsString, getValueAsShapeList, shapeListV } from "./Util";
+import { Shape } from "../shapes/Shapes.js";
+import * as ad from "../types/ad.js";
+import Graph from "./Graph.js";
+import { shapeListV } from "./Util.js";
 
 export type GroupGraph = Graph<string, number>; // shape name and index
 
@@ -11,7 +11,7 @@ export const makeGroupGraph = (shapes: Shape<ad.Num>[]): GroupGraph => {
   // populate the nodes
   for (let i = 0; i < shapes.length; i++) {
     const shape = shapes[i];
-    const shapeName = getAdValueAsString(shape.name);
+    const shapeName = shape.name.contents;
 
     graph.setNode(shapeName, i);
     nameShapeMap.set(shapeName, shape);
@@ -19,13 +19,21 @@ export const makeGroupGraph = (shapes: Shape<ad.Num>[]): GroupGraph => {
   // then populate the edges
   for (const [name, shape] of nameShapeMap.entries()) {
     if (shape.shapeType === "Group") {
-      const subShapes = getValueAsShapeList(shape.shapes);
+      const subShapes = shape.shapes.contents;
       const subNames = subShapes.map((subShape) => {
-        return getAdValueAsString(subShape.name);
+        return subShape.name.contents;
       });
+      const clip = shape.clipPath.contents;
+      if (clip.tag === "Clip") {
+        // if the group is clipped, the clipping shape is implicitly a member of the group
+        const clipName = clip.contents.name.contents;
+        graph.setEdge({ i: name, j: clipName, e: undefined });
+      }
 
       for (const subName of subNames) {
-        graph.setEdge({ i: name, j: subName, e: undefined });
+        if (clip.tag !== "Clip" || subName !== clip.contents.name.contents) {
+          graph.setEdge({ i: name, j: subName, e: undefined });
+        }
       }
     }
   }
@@ -81,10 +89,8 @@ export const buildRenderGraphNode = (
 
   // If shape is group, recursively handle all the sub-shapes.
 
-  const subShapes = getValueAsShapeList(shape.shapes);
-  const childrenNames = subShapes.map((subShape) =>
-    getAdValueAsString(subShape.name)
-  );
+  const subShapes = shape.shapes.contents;
+  const childrenNames = subShapes.map((subShape) => subShape.name.contents);
 
   shape.shapes = shapeListV(
     buildRenderGraph(childrenNames, groupGraph, nameShapeMap)

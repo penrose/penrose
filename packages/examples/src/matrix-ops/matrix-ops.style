@@ -5,7 +5,7 @@ canvas {
 
 global {
    scalar scale = 18.0
-   string labelSize = "7px"
+   string labelSize = "10px"
 
    shape box = Rectangle {
       center: (0,0)

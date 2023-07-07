@@ -128,43 +128,6 @@ Previously, we've talked about how we convert everything to zero-based inequalit
 
 One common operation is to access the parameter of a shape via `shapeName.propertyName.contents`, which will return a `ad.Num`. For example, if you have a circle `c` as input, and you want its radius, `c.r.contents` will give you something like `5.0` (of type `ad.Num`).
 
-## Constraints Example: minSize & maxSize
-
-We will go through simplified examples of `minSize` and `maxSize` constraints that are specifically for _**circles only**_.
-
-```typescript
-minSize: ([shapeType, props]: [string, any]) => {
-  const limit = 20;
-  return sub(constOf(limit), props.r.contents);
-};
-```
-
-If you have never used Typescript before, we are defining an [arrow function](https://www.tutorialsteacher.com/typescript/arrow-function). It takes two parameters, a `shapeType`, which is of type `string`, and `props`, which has type `any`. Generally speaking, function declarations will follow this pattern:
-
-```typescript
-functionName: (param1: param1Type, param2: param2Type): returnType => {
-  /* function body */
-};
-```
-
-You can read more about function declarations in Typescript [here](https://www.typescriptlang.org/docs/handbook/2/functions.html).
-
-Going back to our `minSize` function, we see several things in play:
-
-- **Input:** The function takes in the shape, which is represented by a string of its name, `"Circle"` in this case, and a `prop` which is an Object containing the properties of the circle. All Shape objects that are passed into objective functions or constraints must have the type `[string, any]`. For example, [this](https://github.com/penrose/penrose/blob/526a635d2f741f82a067365774e04e201f930f7e/packages/core/src/shapes/Circle.ts) is Penrose's definition of a Circle object.
-- **Numbers:** Instead of directly using constant numbers like `20`, we have to return `constOf(limit)` in order to pass it as a valid input for the autodiff function.
-- **Operations:** Instead of using the subtraction operator `-` like we normally do, we have to use the autodiff function `sub` .
-- **Accessing the Shape Property:** We access the shape's property value by `shapeName.propertyName.contents` , where `propertyName = r` for radius in this case.
-- **Logic:** We want the input circle to have a minimum size (at least `r = 20`) as the function name suggests, so we want to express our returned answer in terms of energy, where `energy > 0` is bad (the constraint is unsatisfied), and `energy <= 0` is good (the constraint is satisfied). For example, with a small circle of `r = 1`, we will return 19 (not good), whereas with a big circle of `r = 30`, we will return -10, a negative number that satisfies the constraint.
-
-```typescript
-maxSize: ([shapeType, props]: [string, any], limit: ad.Num) => {
-  return sub(props.r.contents, div(limit, constOf(2)));
-};
-```
-
-The function `maxSize` is very similar to `minSize` with the addition of another input parameter `limit` that is used to limit the circle's diameter. If you're curious about the full implementations of `minSize` and `maxSize` in Penrose, you can find the code [here](https://github.com/penrose/penrose/blob/9bf6901c3e246bd00f2cab470aa17088595fbf77/packages/core/src/contrib/Constraints.ts#L266).
-
 ## Objectives Example: Circle Repel
 
 Unlike constraints, which are binary in that they are either satisfied (`<=0`) or unsatisfied (`>0`), objective functions should output the "badness" of the inputs (as a number or Tensor), and have **local minima** where we want the solution to be.

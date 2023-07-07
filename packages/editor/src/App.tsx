@@ -1,6 +1,7 @@
 import {
   Action,
   Actions,
+  DockLocation,
   IJsonRowNode,
   Layout,
   Model,
@@ -14,27 +15,30 @@ import {
   useRecoilState,
   useRecoilValueLoadable,
 } from "recoil";
-import DiagramOptions from "./components/DiagramOptions";
-import DiagramPanel from "./components/DiagramPanel";
-import ExamplesBrowser from "./components/ExamplesBrowser";
-import GridPanel from "./components/GridPanel";
-import Opt from "./components/Opt";
-import ProgramEditor from "./components/ProgramEditor";
-import RogerPanel from "./components/RogerPanel";
-import SavedFilesBrowser from "./components/SavedBrowser";
-import Settings from "./components/Settings";
-import StateInspector from "./components/StateInspector";
-import SvgUploader from "./components/SvgUploader";
-import TopBar from "./components/TopBar";
+import DiagramOptions from "./components/DiagramOptions.js";
+import DiagramPanel from "./components/DiagramPanel.js";
+import ExamplesBrowser from "./components/ExamplesBrowser.js";
+import GridPanel from "./components/GridPanel.js";
+import Opt from "./components/Opt.js";
+import ProgramEditor from "./components/ProgramEditor.js";
+import RogerPanel from "./components/RogerPanel.js";
+import SavedFilesBrowser from "./components/SavedBrowser.js";
+import Settings from "./components/Settings.js";
+import StateInspector from "./components/StateInspector.js";
+import SvgUploader from "./components/SvgUploader.js";
+import TopBar from "./components/TopBar.js";
 import {
+  Diagram,
+  RogerState,
+  Workspace,
   currentRogerState,
   currentWorkspaceState,
+  diagramState,
   fileContentsSelector,
   localFilesState,
-  RogerState,
   settingsState,
-} from "./state/atoms";
-import { useCheckURL, useCompileDiagram } from "./state/callbacks";
+} from "./state/atoms.js";
+import { useCheckURL, useCompileDiagram } from "./state/callbacks.js";
 
 const mainRowLayout: IJsonRowNode = {
   type: "row",
@@ -42,6 +46,7 @@ const mainRowLayout: IJsonRowNode = {
   children: [
     {
       type: "tabset",
+      id: "mainEditor",
       weight: process.env.NODE_ENV === "development" ? 25 : 50,
       children: [
         ...(process.env.NODE_ENV === "development"
@@ -108,6 +113,8 @@ export const layoutModel = Model.fromJson({
     {
       type: "border",
       location: "left",
+      // auto-expand examples tab on start
+      selected: process.env.NODE_ENV === "development" ? -1 : 1,
       children: [
         {
           type: "tab",
@@ -117,6 +124,7 @@ export const layoutModel = Model.fromJson({
         {
           type: "tab",
           name: "examples",
+          id: "examples",
           component: "examplesPanel",
         },
         {
@@ -156,9 +164,8 @@ function App() {
   const compileDiagram = useCompileDiagram();
 
   const ws = useRef<WebSocket | null>(null);
-  const [rogerState, setRogerState] = useRecoilState<RogerState>(
-    currentRogerState
-  );
+  const [rogerState, setRogerState] =
+    useRecoilState<RogerState>(currentRogerState);
 
   const panelFactory = useCallback(
     (node: TabNode) => {
@@ -191,43 +198,86 @@ function App() {
     [rogerState]
   );
   const onAction = useRecoilCallback(
-    ({ set, snapshot }) => (action: Action) => {
-      if (action.type === Actions.RENAME_TAB) {
-        const node = layoutModel.getNodeById(action.data.node) as TabNode;
-        const { kind } = node.getConfig();
-        const program = snapshot.getLoadable(fileContentsSelector(kind))
-          .contents;
-        set(fileContentsSelector(kind), {
-          ...program,
-          name: action.data.text,
-        });
-      }
-      return action;
-    },
+    ({ set, snapshot }) =>
+      (action: Action) => {
+        if (action.type === Actions.RENAME_TAB) {
+          const node = layoutModel.getNodeById(action.data.node) as TabNode;
+          const { kind } = node.getConfig();
+          const program = snapshot.getLoadable(
+            fileContentsSelector(kind)
+          ).contents;
+          set(fileContentsSelector(kind), {
+            ...program,
+            name: action.data.text,
+          });
+        }
+        return action;
+      },
     []
   );
   const updatedFile = useRecoilCallback(
-    ({ snapshot, set }) => async (fileName: string, contents: string) => {
-      const workspace = await snapshot.getPromise(currentWorkspaceState);
-      if (fileName === workspace.files.domain.name) {
-        set(fileContentsSelector("domain"), (file) => {
-          return {
+    ({ snapshot, set }) =>
+      async (fileName: string, contents: string) => {
+        const workspace = await snapshot.getPromise(currentWorkspaceState);
+        if (fileName === workspace.files.domain.name) {
+          set(fileContentsSelector("domain"), (file) => {
+            return {
+              ...file,
+              contents,
+            };
+          });
+          await compileDiagram();
+        } else if (fileName === workspace.files.style.name) {
+          set(fileContentsSelector("style"), (file) => ({ ...file, contents }));
+          await compileDiagram();
+        } else if (fileName === workspace.files.substance.name) {
+          set(fileContentsSelector("substance"), (file) => ({
             ...file,
             contents,
-          };
-        });
-        await compileDiagram();
-      } else if (fileName === workspace.files.style.name) {
-        set(fileContentsSelector("style"), (file) => ({ ...file, contents }));
-        await compileDiagram();
-      } else if (fileName === workspace.files.substance.name) {
-        set(fileContentsSelector("substance"), (file) => ({
-          ...file,
-          contents,
+          }));
+          await compileDiagram();
+        }
+      },
+    []
+  );
+
+  //
+  const updateTrio = useRecoilCallback(
+    ({ set }) =>
+      async (files: any) => {
+        await set(currentWorkspaceState, (workspace: Workspace) => ({
+          ...workspace,
+          files: {
+            domain: {
+              name: files.domain.fileName,
+              contents: files.domain.contents,
+            },
+            style: {
+              name: files.style.fileName,
+              contents: files.style.contents,
+            },
+            substance: {
+              name: files.substance.fileName,
+              contents: files.substance.contents,
+            },
+          },
         }));
         await compileDiagram();
-      }
-    },
+      },
+    []
+  );
+
+  const updateExcludeWarnings = useRecoilCallback(
+    ({ set }) =>
+      async (excludeWarnings: string[]) => {
+        await set(diagramState, (state: Diagram) => ({
+          ...state,
+          metadata: {
+            ...state.metadata,
+            excludeWarnings,
+          },
+        }));
+      },
     []
   );
 
@@ -259,8 +309,10 @@ function App() {
         case "file_change":
           updatedFile(parsed.fileName, parsed.contents);
           break;
-        default:
-          toast.error(`Couldn't handle Roger message ${parsed.kind}`);
+        case "trio_files":
+          updateTrio(parsed.files);
+          updateExcludeWarnings(parsed.excludeWarnings);
+          break;
       }
     };
   }, []);
@@ -275,6 +327,12 @@ function App() {
         rootOrientationVertical: isTabletOrMobile && isPortrait,
       })
     );
+    // on mobile, move example browser to the center panel
+    if (isTabletOrMobile && isPortrait) {
+      layoutModel.doAction(
+        Actions.moveNode("examples", "mainEditor", DockLocation.CENTER, 0)
+      );
+    }
   }, [isTabletOrMobile, isPortrait]);
 
   const checkURL = useCheckURL();

@@ -1,6 +1,6 @@
 canvas {
   width = 800
-  height = 700
+  height = 800
 }
 
 forall Set x {
@@ -12,7 +12,7 @@ forall Set x {
         center : x.shape.center 
         width : x.shape.r * 2.0
         height : x.shape.r * 2.0
-        href : "https://raw.githubusercontent.com/penrose/penrose/main/packages/examples/src/set-theory-domain/shading.svg"
+        href : "shading.svg"
     }
 
     x.shadow = Image {
@@ -40,7 +40,6 @@ forall Set x {
 
 forall Set x; Set y
 where IsSubset(x, y) {
-    ensure smallerThan(x.shape, y.shape)
     ensure disjoint(y.text, x.shape, 5.0)
     ensure contains(y.shape, x.shape, 5.0)
     x.shape above y.shape

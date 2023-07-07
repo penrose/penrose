@@ -1,22 +1,28 @@
 import { start, stepUntil } from "@penrose/optimizer";
 import seedrandom from "seedrandom";
-import { compileDomain } from "./compiler/Domain";
-import { compileStyle } from "./compiler/Style";
-import { compileSubstance } from "./compiler/Substance";
+import { compileDomain } from "./compiler/Domain.js";
+import { compileStyle } from "./compiler/Style.js";
+import { compileSubstance } from "./compiler/Substance.js";
+import { PathResolver, toInteractiveSVG, toSVG } from "./renderer/Renderer.js";
+import * as ad from "./types/ad.js";
+import { Env } from "./types/domain.js";
+import { PenroseError } from "./types/errors.js";
+import { Fn, LabelCache, State } from "./types/state.js";
+import { SubstanceEnv } from "./types/substance.js";
 import {
-  PathResolver,
-  RenderInteractive,
-  RenderStatic,
-} from "./renderer/Renderer";
-import * as ad from "./types/ad";
-import { Env } from "./types/domain";
-import { PenroseError } from "./types/errors";
-import { Registry, Trio } from "./types/io";
-import { Fn, LabelCache, State } from "./types/state";
-import { SubstanceEnv } from "./types/substance";
-import { collectLabels, insertPending } from "./utils/CollectLabels";
-import { andThen, err, nanError, ok, Result, showError } from "./utils/Error";
-import { safe } from "./utils/Util";
+  collectLabels,
+  insertPending,
+  mathjaxInit,
+} from "./utils/CollectLabels.js";
+import {
+  Result,
+  andThen,
+  err,
+  nanError,
+  ok,
+  showError,
+} from "./utils/Error.js";
+import { safe } from "./utils/Util.js";
 
 /**
  * Use the current resample seed to sample all shapes in the State.
@@ -26,7 +32,7 @@ export const resample = (state: State): State => {
   const rng = seedrandom(state.variation);
   return insertPending({
     ...state,
-    varyingValues: state.inputs.map((meta) =>
+    varyingValues: state.inputs.map(({ meta }) =>
       meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending
     ),
     currentStageIndex: 0,
@@ -34,20 +40,37 @@ export const resample = (state: State): State => {
   });
 };
 
-const step = (state: State, numSteps: number): State => {
+/**
+ * Take steps in the optimizer until either `until` evaluates to `true`, or the optimizer reaches convergence.
+ * @param state current state
+ * @param options `until` is a function that returns the early-stop condition.
+ */
+export const step = (
+  state: State,
+  options: {
+    until: () => boolean;
+  }
+): Result<State, PenroseError> => {
   const { constraintSets, optStages, currentStageIndex } = state;
   const stage = optStages[currentStageIndex];
   const masks = safe(constraintSets.get(stage), "missing stage");
   const xs = new Float64Array(state.varyingValues);
-  let i = 0;
   const params = stepUntil(
     (x: Float64Array, weight: number, grad: Float64Array): number =>
       state.gradient(masks, x, weight, grad).phi,
     xs,
     state.params,
-    (): boolean => i++ >= numSteps
+    options.until
   );
-  return { ...state, varyingValues: Array.from(xs), params };
+  // if there is an optimizer error, wrap it around a `PenroseError`
+  if (params.optStatus === "Error") {
+    return err({
+      errorType: "RuntimeError",
+      ...nanError("", state),
+    });
+  } else {
+    return ok({ ...state, varyingValues: Array.from(xs), params });
+  }
 };
 
 /**
@@ -55,16 +78,29 @@ const step = (state: State, numSteps: number): State => {
  * @param state current state
  * @param numSteps number of steps to take (default: 10000)
  */
-export const stepState = (state: State, numSteps = 10000): State => {
-  const steppedState = step(state, numSteps);
-  if (stateConverged(steppedState) && !finalStage(steppedState)) {
-    const nextInitState = nextStage(steppedState);
-    return nextInitState;
-  } else {
+export const stepTimes = (
+  state: State,
+  numSteps = 10000
+): Result<State, PenroseError> => {
+  let i = 0;
+  const steppedState = step(state, { until: (): boolean => i++ >= numSteps });
+  if (steppedState.isErr()) {
     return steppedState;
+  } else {
+    const state = steppedState.value;
+    if (isOptimized(state) && !finalStage(state)) {
+      const nextInitState = nextStage(state);
+      return ok(nextInitState);
+    } else {
+      return steppedState;
+    }
   }
 };
 
+/**
+ * Move the current state to the next layout stage. If the current state is already at the final stage, return the current state.
+ * @param state current state
+ */
 export const nextStage = (state: State): State => {
   if (finalStage(state)) {
     return state;
@@ -77,65 +113,46 @@ export const nextStage = (state: State): State => {
   }
 };
 
-export const stepNextStage = (state: State, numSteps = 10000): State => {
+/**
+ * Run the optimizer on the current state until the current layout stage converges.
+ * @param state current state
+ */
+export const stepNextStage = (state: State): Result<State, PenroseError> => {
   let currentState = state;
-  while (
-    !(currentState.params.optStatus === "Error") &&
-    !stateConverged(currentState)
-  ) {
-    currentState = step(currentState, numSteps);
+  while (!isOptimized(currentState)) {
+    // step until convergence of the current stage.
+    const res = step(currentState, { until: () => false });
+    if (res.isOk()) {
+      currentState = res.value;
+    } else {
+      return res;
+    }
   }
-  return nextStage(currentState);
+  return ok(nextStage(currentState));
 };
 
 /**
- * Take n steps in the optimizer given the current state.
- * @param state current state
- * @param numSteps number of steps to take (default: 10000)
- */
-export const stepStateSafe = (
-  state: State,
-  numSteps = 10000
-): Result<State, PenroseError> => {
-  const res = stepState(state, numSteps);
-  if (res.params.optStatus === "Error") {
-    return err({
-      errorType: "RuntimeError",
-      ...nanError("", res),
-    });
-  }
-  return ok(res);
-};
-
-/**
- * Repeatedly take one step in the optimizer given the current state until convergence.
+ * Run the optimizer on the current state until it converges.
  * @param state current state
  */
-export const stepUntilConvergence = (
-  state: State,
-  numSteps = 10000
-): Result<State, PenroseError> => {
+export const optimize = (state: State): Result<State, PenroseError> => {
   let currentState = state;
-  while (
-    !(currentState.params.optStatus === "Error") &&
-    (!stateConverged(currentState) || !finalStage(currentState))
-  ) {
-    if (stateConverged(currentState)) {
+  while (!isOptimized(currentState) || !finalStage(currentState)) {
+    if (isOptimized(currentState)) {
       currentState = nextStage(currentState);
     }
-    currentState = stepState(currentState, numSteps);
-  }
-  if (currentState.params.optStatus === "Error") {
-    return err({
-      errorType: "RuntimeError",
-      ...nanError("", currentState),
-    });
+    const res = step(currentState, { until: () => false });
+    if (res.isOk()) {
+      currentState = res.value;
+    } else {
+      return res;
+    }
   }
   return ok(currentState);
 };
 
-const stepUntilConvergenceOrThrow = (state: State): State => {
-  const result = stepUntilConvergence(state);
+const optimizeOrThrow = (state: State): State => {
+  const result = optimize(state);
   if (result.isErr()) {
     throw Error(showError(result.error));
   } else {
@@ -157,16 +174,17 @@ export const diagram = async (
     style: string;
     domain: string;
     variation: string;
+    excludeWarnings: string[];
   },
   node: HTMLElement,
   pathResolver: PathResolver,
   name?: string
 ): Promise<void> => {
-  const res = await compileTrio(prog);
+  const res = await compile(prog);
   if (res.isOk()) {
-    const state: State = await prepareState(res.value);
-    const optimized = stepUntilConvergenceOrThrow(state);
-    const rendered = await RenderStatic(optimized, pathResolver, name ?? "");
+    const state: State = res.value;
+    const optimized = optimizeOrThrow(state);
+    const rendered = await toSVG(optimized, pathResolver, name ?? "");
     node.appendChild(rendered);
   } else {
     throw Error(
@@ -189,14 +207,15 @@ export const interactiveDiagram = async (
     style: string;
     domain: string;
     variation: string;
+    excludeWarnings: string[];
   },
   node: HTMLElement,
   pathResolver: PathResolver,
   name?: string
 ): Promise<void> => {
   const updateData = async (state: State) => {
-    const stepped = stepUntilConvergenceOrThrow(state);
-    const rendering = await RenderInteractive(
+    const stepped = optimizeOrThrow(state);
+    const rendering = await toInteractiveSVG(
       stepped,
       updateData,
       pathResolver,
@@ -204,11 +223,11 @@ export const interactiveDiagram = async (
     );
     node.replaceChild(rendering, node.firstChild!);
   };
-  const res = await compileTrio(prog);
+  const res = await compile(prog);
   if (res.isOk()) {
-    const state: State = await prepareState(res.value);
-    const optimized = stepUntilConvergenceOrThrow(state);
-    const rendering = await RenderInteractive(
+    const state: State = res.value;
+    const optimized = optimizeOrThrow(state);
+    const rendering = await toInteractiveSVG(
       optimized,
       updateData,
       pathResolver,
@@ -223,16 +242,17 @@ export const interactiveDiagram = async (
 };
 
 /**
- * Given a trio of Domain, Substance, and Style programs, compile them into an initial `State`. Note that this function does _not_ evaluate the shapes. Generation of shapes is handled in `prepareState`.
+ * Given a trio of Domain, Substance, and Style programs, compile them into an initial `State`.
  * @param domainProg a Domain program string
  * @param subProg a Substance program string
  * @param styProg a Style program string
  */
-export const compileTrio = async (prog: {
+export const compile = async (prog: {
   substance: string;
   style: string;
   domain: string;
   variation: string;
+  excludeWarnings?: string[];
 }): Promise<Result<State, PenroseError>> => {
   const domainRes: Result<Env, PenroseError> = compileDomain(prog.domain);
 
@@ -243,33 +263,44 @@ export const compileTrio = async (prog: {
 
   const styRes: Result<State, PenroseError> = subRes.isErr()
     ? err(subRes.error)
-    : await compileStyle(prog.variation, prog.style, ...subRes.value);
+    : await compileStyle(
+        prog.variation,
+        prog.style,
+        prog.excludeWarnings ?? [],
+        ...subRes.value
+      );
 
-  return styRes;
-};
+  if (styRes.isErr()) {
+    return styRes;
+  } else {
+    const state = styRes.value;
+    // collect labels and return state
+    const convert = mathjaxInit();
+    const labelCache: Result<LabelCache, PenroseError> = await collectLabels(
+      state.shapes,
+      convert
+    );
 
-/**
- * Collect labels and images (if applicable).
- * @param state an initial diagram state
- */
-export const prepareState = async (state: State): Promise<State> => {
-  const labelCache: Result<LabelCache, PenroseError> = await collectLabels(
-    state.shapes
-  );
-
-  if (labelCache.isErr()) {
-    throw Error(showError(labelCache.error));
+    if (labelCache.isErr()) {
+      return err(labelCache.error);
+    }
+    return ok(insertPending({ ...state, labelCache: labelCache.value }));
   }
-
-  return insertPending({ ...state, labelCache: labelCache.value });
 };
 
 /**
- * Returns true if state is converged
+ * Returns true if state is optimized
  * @param state current state
  */
-export const stateConverged = (state: State): boolean =>
+export const isOptimized = (state: State): boolean =>
   state.params.optStatus === "EPConverged";
+
+/**
+ * Returns true if state results in an error
+ * @param state current state
+ */
+export const isError = (state: State): boolean =>
+  state.params.optStatus === "Error";
 
 /**
  * Returns true if the diagram state is on the last layout stage in the layout pipeline
@@ -282,51 +313,8 @@ export const finalStage = (state: State): boolean =>
  * Returns true if state is the initial frame
  * @param state current state
  */
-export const stateInitial = (state: State): boolean =>
+export const isInitial = (state: State): boolean =>
   state.params.optStatus === "NewIter";
-
-/**
- * Read and flatten the registry file for Penrose examples into a list of program trios.
- *
- * @param registry JSON file of the registry
- * @param galleryOnly Only return trios where `gallery === true`
- */
-export const readRegistry = (
-  registry: Registry,
-  galleryOnly: boolean
-): Trio[] => {
-  const { substances, styles, domains, trios } = registry;
-  const res = [];
-  for (const trioEntry of trios) {
-    const {
-      domain: dslID,
-      style: styID,
-      substance: subID,
-      variation,
-      gallery,
-      name,
-    } = trioEntry;
-    const domain = domains[dslID];
-    const substance = substances[subID];
-    const style = styles[styID];
-    const trio: Trio = {
-      substanceURI: registry.root + substance.URI,
-      styleURI: registry.root + style.URI,
-      domainURI: registry.root + domain.URI,
-      substanceID: subID,
-      domainID: dslID,
-      styleID: styID,
-      variation,
-      name: name ?? `${subID}-${styID}`,
-      id: `${subID}-${styID}`,
-      gallery: gallery ?? false,
-    };
-    if (!galleryOnly || trioEntry.gallery) {
-      res.push(trio);
-    }
-  }
-  return res;
-};
 
 const evalGrad = (s: State): ad.OptOutputs => {
   const { constraintSets, optStages, currentStageIndex } = s;
@@ -366,34 +354,40 @@ export const evalFns = (
 export type PenroseState = State;
 export type PenroseFn = Fn;
 
-export { checkDomain, compileDomain, parseDomain } from "./compiler/Domain";
+export * from "./api.js";
+export { checkDomain, compileDomain, parseDomain } from "./compiler/Domain.js";
 export {
   checkSubstance,
   compileSubstance,
   parseSubstance,
   prettySubstance,
-} from "./compiler/Substance";
-export { constrDict } from "./contrib/Constraints";
-export { compDict } from "./contrib/Functions";
-export { objDict } from "./contrib/Objectives";
-export { RenderInteractive, RenderStatic } from "./renderer/Renderer";
-export type { PathResolver } from "./renderer/Renderer";
-export { makeCanvas, simpleContext } from "./shapes/Samplers";
-export type { Canvas } from "./shapes/Samplers";
-export { sampleShape, shapeTypes } from "./shapes/Shapes";
-export type { ShapeType } from "./shapes/Shapes";
-export type { Env } from "./types/domain";
-export type { PenroseError } from "./types/errors";
-export type { Trio } from "./types/io";
-export type { SubProg } from "./types/substance";
-export * as Value from "./types/value";
-export { showError } from "./utils/Error";
-export type { Result } from "./utils/Error";
+} from "./compiler/Substance.js";
+export { constrDict } from "./contrib/Constraints.js";
+export { compDict } from "./contrib/Functions.js";
+export { objDict } from "./contrib/Objectives.js";
+export { toInteractiveSVG, toSVG } from "./renderer/Renderer.js";
+export type { PathResolver } from "./renderer/Renderer.js";
+export { makeCanvas, simpleContext } from "./shapes/Samplers.js";
+export type { Canvas } from "./shapes/Samplers.js";
+export { sampleShape, shapeTypes } from "./shapes/Shapes.js";
+export type { ShapeType } from "./shapes/Shapes.js";
+export type { Env } from "./types/domain.js";
+export type {
+  PenroseError,
+  Warning as PenroseWarning,
+} from "./types/errors.js";
+export type { CompFunc } from "./types/functions.js";
+export type { SubProg } from "./types/substance.js";
+export * as Value from "./types/value.js";
+export { errLocs, showError } from "./utils/Error.js";
+export type { Result } from "./utils/Error.js";
 export {
+  allWarnings,
+  describeType,
   hexToRgba,
   prettyPrintExpr,
   prettyPrintFn,
   prettyPrintPath,
   rgbaToHex,
   zip2,
-} from "./utils/Util";
+} from "./utils/Util.js";

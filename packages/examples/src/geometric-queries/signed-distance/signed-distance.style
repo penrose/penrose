@@ -1,0 +1,59 @@
+canvas {
+   width = 320
+   height = 240
+
+   shape background = Rectangle {
+      center: (0,0)
+      width: width
+      height: height
+      fillColor: #000
+      ensureOnCanvas: false
+   }
+}
+
+forall Polygon P {
+
+   vec2 p0 = (?,?)
+   vec2 p1 = (?,?)
+   vec2 p2 = (?,?)
+   vec2 p3 = (?,?)
+
+   shape P.icon = Polygon {
+      points: [p0,p1,p2,p3]
+      fillColor: none()
+      strokeColor: #fff
+      strokeWidth: 1
+   }
+
+   layer P.icon above canvas.background
+}
+
+forall Point p {
+   scalar x = canvas.width * random(-.5,.5)
+   scalar y = canvas.height * random(-.5,.5)
+   vec2 p.location = (x,y)
+   shape p.icon = Circle {
+      center: p.location
+      r: 1
+      fillColor: #000
+      ensureOnCanvas: false
+   }
+
+   layer p.icon above canvas.background
+}
+
+forall Point p; Polygon P {
+   scalar d = signedDistance( P.icon, p.location )
+   override p.icon.r = 1 + abs(d/20)
+   scalar s = d/40
+   scalar r = max(0,min(1,s))
+   scalar b = max(0,min(1,-s))
+   override p.icon.fillColor = rgba( r, 0, b, 1 )
+
+   layer P.icon above p.icon
+}
+
+-- forall Point p; Point q {
+--    encourage 10/norm(p.location - q.location) == 0
+-- }
+

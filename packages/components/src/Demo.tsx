@@ -1,5 +1,6 @@
+import { PathResolver } from "@penrose/core";
 import { useEffect, useState } from "react";
-import { Simple } from "./Simple";
+import { Simple } from "./Simple.js";
 
 const Demo = (props: {
   examples: {
@@ -7,8 +8,9 @@ const Demo = (props: {
     sty: string;
     dsl: string;
     variation: string;
+    stepSize?: number;
+    imageResolver?: PathResolver;
   }[];
-  width: string;
   darkMode: boolean;
 }) => {
   const [index, setIndex] = useState(0);
@@ -24,17 +26,18 @@ const Demo = (props: {
   const example = props.examples[index];
 
   return (
-    <div style={{ width: props.width, height: props.width }}>
-      <Simple
-        name="demo"
-        substance={example.sub}
-        style={example.sty}
-        domain={example.dsl}
-        variation={example.variation}
-        interactive={false}
-        animate={true}
-      />
-    </div>
+    <Simple
+      name="demo"
+      substance={example.sub}
+      style={example.sty}
+      domain={example.dsl}
+      variation={example.variation}
+      interactive={false}
+      animate={true}
+      stepSize={example.stepSize}
+      imageResolver={example.imageResolver}
+      excludeWarnings={[]}
+    />
   );
 };
 

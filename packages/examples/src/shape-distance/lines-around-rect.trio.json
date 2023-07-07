@@ -1,0 +1,6 @@
+{
+  "substance": "./lines-around-rect.substance",
+  "style": ["./rect-line-dist.style"],
+  "domain": "./shapes.domain",
+  "variation": ""
+}

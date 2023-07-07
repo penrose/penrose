@@ -1,7 +1,7 @@
 import { Result } from "true-myth";
-import { isConcrete } from "../engine/EngineUtils";
-import { shapeTypes } from "../shapes/Shapes";
-import * as ad from "../types/ad";
+import { isConcrete } from "../engine/EngineUtils.js";
+import { shapeTypes } from "../shapes/Shapes.js";
+import * as ad from "../types/ad.js";
 import {
   A,
   AbstractNode,
@@ -10,8 +10,8 @@ import {
   NodeType,
   SourceLoc,
   SourceRange,
-} from "../types/ast";
-import { Arg, Type, TypeConstructor } from "../types/domain";
+} from "../types/ast.js";
+import { Arg, Type, TypeConstructor } from "../types/domain.js";
 import {
   ArgLengthMismatch,
   BadArgumentTypeError,
@@ -27,9 +27,11 @@ import {
   NaNError,
   ParseError,
   PenroseError,
+  RedeclareNamespaceError,
   RuntimeError,
   SelectorFieldNotSupported,
   StyleError,
+  StyleErrorList,
   StyleWarning,
   SubstanceError,
   SymmetricArgLengthMismatch,
@@ -38,15 +40,28 @@ import {
   TypeArgLengthMismatch,
   TypeMismatch,
   TypeNotFound,
+  UnexpectedCollectionAccessError,
   UnexpectedExprForNestedPred,
   VarNotFound,
-} from "../types/errors";
-import { CompFunc, ConstrFunc, FuncParam, ObjFunc } from "../types/functions";
-import { State } from "../types/state";
-import { BindingForm, ColorLit } from "../types/style";
-import { Deconstructor, SubExpr } from "../types/substance";
-import { ArgVal, ArgValWithSourceLoc, ShapeVal, Val } from "../types/value";
-import { describeType, prettyPrintPath, prettyPrintResolvedPath } from "./Util";
+} from "../types/errors.js";
+import {
+  CompFunc,
+  ConstrFunc,
+  FuncParam,
+  ObjFunc,
+} from "../types/functions.js";
+import { State } from "../types/state.js";
+import { BindingForm, ColorLit } from "../types/style.js";
+import { Deconstructor, SubExpr } from "../types/substance.js";
+import { ArgVal, ArgValWithSourceLoc, ShapeVal, Val } from "../types/value.js";
+import {
+  ErrorLoc,
+  describeType,
+  locOrNone,
+  prettyPrintPath,
+  prettyPrintResolvedPath,
+  toErrorLoc,
+} from "./Util.js";
 const {
   or,
   and,
@@ -352,9 +367,27 @@ export const showError = (
     }
 
     case "BadElementError": {
-      return `Wrong element type at index ${error.index} in ${
-        error.coll.tag
-      } (at ${loc(error.coll)}).`;
+      if (error.coll.tag === "CollectionAccess") {
+        const preamble = `The collection access (at ${locc(
+          "Style",
+          error.coll
+        )}) failed`;
+        if (error.index === 0) {
+          return (
+            preamble +
+            ` because the collection contains elements that cannot be collected`
+          );
+        } else {
+          return (
+            preamble +
+            ` because some elements of the collection (in particular, index ${error.index}) have different type from other elements.`
+          );
+        }
+      } else {
+        return `Wrong element type at index ${error.index} in ${
+          error.coll.tag
+        } (at ${loc(error.coll)}).`;
+      }
     }
 
     case "BadIndexError": {
@@ -511,6 +544,17 @@ canvas {
       const locStr = locc("Style", location);
       return `Function \`${func.name}\` (at ${locStr}) failed with message: ${message}`;
     }
+    case "RedeclareNamespaceError": {
+      return `Namespace ${
+        error.existingNamespace
+      } already exists and is redeclared in ${locc("Style", error.location)}.`;
+    }
+
+    case "UnexpectedCollectionAccessError": {
+      const { name, location } = error;
+      const locStr = locc("Style", location);
+      return `Style variable \`${name}\` cannot be accessed via the collection access operator (at ${locStr}) because it is not a collection.`;
+    }
     // --- END COMPILATION ERRORS
 
     // TODO(errors): use identifiers here
@@ -560,10 +604,269 @@ canvas {
         .join("; ")}.`;
     }
 
+    case "BBoxApproximationWarning": {
+      const topItem = error.stack[error.stack.length - 1];
+      const rest = error.stack.slice(0, -1).reverse();
+      const loc =
+        topItem.location === undefined
+          ? ""
+          : `(at ${locc("Style", topItem.location)}) `;
+      const topStr = `Function call ${topItem.signature} ${loc}uses bounding box approximations`;
+      const restStrs = rest.map(
+        (item) =>
+          `- Function call ${item.signature} uses bounding box approximations`
+      );
+      return [topStr, ...restStrs].join(", because\n");
+    }
+
     // ----- END STYLE WARNINGS
 
     case "Fatal": {
       return `FATAL: ${error.message}`;
+    }
+  }
+};
+
+export const errLocs = (
+  e: Exclude<
+    DomainError | SubstanceError | StyleError | StyleWarning | RuntimeError,
+    StyleErrorList
+  >
+): ErrorLoc[] => {
+  switch (e.tag) {
+    case "RuntimeError":
+    case "NaNError": {
+      return [];
+    }
+    case "ParseError":
+      if (e.fileType === undefined || e.location === undefined) {
+        return [];
+      } else {
+        return [
+          {
+            type: e.fileType,
+            range: {
+              start: e.location,
+              end: e.location,
+            },
+          },
+        ];
+      }
+    case "InvalidColorLiteral":
+      return [toErrorLoc(e.color)];
+    case "TypeDeclared": {
+      return locOrNone(e.typeName);
+    }
+    // TODO: abstract out this pattern if it becomes more common
+    case "VarNotFound": {
+      return locOrNone(e.variable);
+    }
+    case "TypeNotFound": {
+      return locOrNone(e.typeName);
+    }
+    case "TypeVarNotFound": {
+      return locOrNone(e.typeVar);
+    }
+    case "DuplicateName": {
+      return locOrNone(e.name);
+    }
+    case "CyclicSubtypes": {
+      return [];
+    }
+    case "SymmetricTypeMismatch":
+    case "SymmetricArgLengthMismatch":
+    case "TypeMismatch":
+    case "TypeArgLengthMismatch":
+    case "ArgLengthMismatch":
+    case "UnexpectedExprForNestedPred": {
+      return locOrNone(e.sourceExpr);
+    }
+    case "DeconstructNonconstructor": {
+      return locOrNone(e.deconstructor);
+    }
+
+    // ---- BEGIN STYLE ERRORS
+    // COMBAK suggest improvements after reporting errors
+
+    case "GenericStyleError": {
+      return [];
+    }
+
+    case "SelectorVarMultipleDecl": {
+      return locOrNone(e.varName);
+    }
+
+    case "SelectorFieldNotSupported": {
+      return locOrNone(e.field);
+    }
+
+    case "SelectorDeclTypeMismatch": {
+      // COMBAK: Add code for prettyprinting types
+      return locOrNone(e.styType);
+    }
+
+    case "SelectorRelTypeMismatch": {
+      // COMBAK: Add code for prettyprinting types
+      return locOrNone(e.exprType);
+    }
+
+    case "TaggedSubstanceError": {
+      switch (e.error.tag) {
+        // special handling for VarNotFound
+        case "VarNotFound":
+          return locOrNone(e.error.variable);
+        default:
+          return errLocs(e.error);
+      }
+    }
+
+    case "SelectorAliasNamingError": {
+      return locOrNone(e.alias);
+    }
+
+    case "MultipleLayoutError": {
+      return e.decls.map(locOrNone).flat();
+    }
+    // --- BEGIN BLOCK STATIC ERRORS
+    case "InvalidGPIPropertyError": {
+      return [];
+    }
+    case "InvalidGPITypeError": {
+      return locOrNone(e.givenType);
+    }
+    case "InvalidFunctionNameError":
+    case "InvalidObjectiveNameError":
+    case "InvalidConstraintNameError": {
+      return locOrNone(e.givenName);
+    }
+
+    // --- END BLOCK STATIC ERRORS
+
+    // --- BEGIN COMPILATION ERRORS
+
+    case "AssignAccessError": {
+      return locOrNone(e.path);
+    }
+
+    case "BadElementError": {
+      return locOrNone(e.coll);
+    }
+
+    case "BadIndexError":
+    case "BinOpTypeError": {
+      return locOrNone(e.expr);
+    }
+
+    case "CanvasNonexistentDimsError": {
+      return [];
+    }
+
+    case "CyclicAssignmentError": {
+      const cycleLocs = e.cycles
+        .map((c) =>
+          c
+            .map(({ id, src }) =>
+              src === undefined ? [] : toErrorLoc({ ...src, nodeType: "Style" })
+            )
+            .flat()
+        )
+        .flat();
+      return cycleLocs;
+    }
+
+    case "DeleteGlobalError":
+    case "DeleteSubstanceError":
+    case "MissingPathError":
+    case "MissingShapeError":
+    case "NotShapeError":
+    case "PropertyMemberError":
+    case "AssignGlobalError":
+    case "AssignSubstanceError": {
+      return locOrNone({ ...e.path, nodeType: "Style" });
+    }
+
+    case "NestedShapeError":
+    case "NotCollError":
+    case "IndexIntoShapeListError":
+    case "NotValueError":
+    case "OutOfBoundsError":
+    case "UOpTypeError": {
+      return locOrNone(e.expr);
+    }
+
+    case "BadShapeParamTypeError": {
+      // TODO: incorporate location information in shape parameter errors
+      return [];
+    }
+
+    case "BadArgumentTypeError": {
+      return [
+        toErrorLoc({
+          nodeType: "Style",
+          start: e.provided.start,
+          end: e.provided.end,
+        }),
+      ];
+    }
+
+    case "MissingArgumentError": {
+      return [
+        toErrorLoc({
+          ...e.funcLocation,
+          nodeType: "Style",
+        }),
+      ];
+    }
+
+    case "TooManyArgumentsError": {
+      return [
+        toErrorLoc({
+          ...e.funcLocation,
+          nodeType: "Style",
+        }),
+      ];
+    }
+
+    case "FunctionInternalError":
+    case "RedeclareNamespaceError":
+    case "UnexpectedCollectionAccessError": {
+      return [
+        toErrorLoc({
+          ...e.location,
+          nodeType: "Style",
+        }),
+      ];
+    }
+    // --- END COMPILATION ERRORS
+
+    // TODO(errors): use identifiers here
+    case "RuntimeValueTypeError": {
+      return locOrNone({ ...e.path, nodeType: "Style" });
+    }
+
+    // ----- END STYLE ERRORS
+
+    // ---- BEGIN STYLE WARNINGS
+
+    case "ImplicitOverrideWarning":
+    case "NoopDeleteWarning": {
+      return locOrNone({ ...e.path, nodeType: "Style" });
+    }
+    case "BBoxApproximationWarning": {
+      const l = e.stack[e.stack.length - 1].location;
+      return l === undefined ? [] : [toErrorLoc({ ...l, nodeType: "Style" })];
+    }
+
+    case "LayerCycleWarning":
+    case "ShapeBelongsToMultipleGroups":
+    case "GroupCycleWarning": {
+      return [];
+    }
+
+    // ----- END STYLE WARNINGS
+
+    case "Fatal": {
+      return [];
     }
   }
 };
@@ -698,11 +1001,13 @@ export const fatalError = (message: string): FatalError => ({
 
 export const parseError = (
   message: string,
-  location?: SourceLoc
+  location?: SourceLoc,
+  fileType?: NodeType
 ): ParseError => ({
   tag: "ParseError",
   message,
   location,
+  fileType,
 });
 
 export const invalidColorLiteral = (
@@ -767,6 +1072,24 @@ export const functionInternalError = (
   func,
   location,
   message,
+});
+
+export const redeclareNamespaceError = (
+  existingNamespace: string,
+  location: SourceRange
+): RedeclareNamespaceError => ({
+  tag: "RedeclareNamespaceError",
+  existingNamespace,
+  location,
+});
+
+export const unexpectedCollectionAccessError = (
+  name: string,
+  location: SourceRange
+): UnexpectedCollectionAccessError => ({
+  tag: "UnexpectedCollectionAccessError",
+  name,
+  location,
 });
 
 export const nanError = (message: string, lastState: State): NaNError => ({

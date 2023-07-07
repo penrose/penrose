@@ -3,11 +3,24 @@ canvas {
     height = 700
 }
 
-forall Shape s {
+global {
+   shape background = Image {
+      href: "background.svg"
+      center: (0,0)
+      width: canvas.width
+      height: canvas.height
+      opacity: .6
+      preserveAspectRatio: "none"
+   }
+}
+
+forall Shape s
+where s has label
+{
     shape s.eq = Equation {
         center: s.center
         string: s.label
-        fontSize: "15"
+        fontSize: "25px"
     }
 }
 
@@ -27,11 +40,16 @@ forall Center c {
         fillColor: rgba(0, 0, 0, 1)
         r: 3
     }
+    ensure lessThan(100, c.r)
+}
+
+forall Center c
+where c has label
+{
     shape c.eq = Equation {
         string: c.label
-        fontSize: "15"
+        fontSize: "25px"
     }
-    ensure lessThan(100, c.r)
     ensure touching(c.eq, c.circle, 5)
 }
 
@@ -43,6 +61,16 @@ forall Circle c {
         r: c.r
     }
     ensure lessThan(30, c.r)
+
+    shape c.shading = Image {
+        href: "sphere-shading.svg"
+        center: c.center
+        width: 2*c.r
+        height: 2*c.r
+        ensureOnCanvas: false
+        opacity: .5
+    }
+    layer c.circle above c.shading
 }
 
 forall Point p {
@@ -90,6 +118,16 @@ where s := Inversion( c, r ) {
         center: s.center
     }
 
+    shape s.shading = Image {
+        href: "sphere-shading.svg"
+        center: s.circle.center
+        width: 2*s.circle.r
+        height: 2*s.circle.r
+        ensureOnCanvas: false
+        opacity: .5
+    }
+    layer s.circle above s.shading
+
     ensure lessThan(30, s.r)
 }
 
@@ -103,4 +141,8 @@ forall Center r; Circle c {
 
 forall Shape s1; Shape s2 {
     s1.eq above s2.circle
+    s1.eq above s1.circle
+    s2.eq above s1.circle
+    s2.eq above s2.circle
 }
+

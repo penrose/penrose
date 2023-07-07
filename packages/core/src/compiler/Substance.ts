@@ -1,10 +1,10 @@
 import im from "immutable";
 import _ from "lodash";
 import nearley from "nearley";
-import { dummyIdentifier } from "../engine/EngineUtils";
-import { idOf, lastLocation, prettyParseError } from "../parser/ParserUtil";
-import substanceGrammar from "../parser/SubstanceParser";
-import { A, ASTNode, C, Identifier } from "../types/ast";
+import { dummyIdentifier } from "../engine/EngineUtils.js";
+import { idOf, lastLocation, prettyParseError } from "../parser/ParserUtil.js";
+import substanceGrammar from "../parser/SubstanceParser.js";
+import { A, ASTNode, C, Identifier } from "../types/ast.js";
 import {
   Arg,
   ConstructorDecl,
@@ -12,8 +12,8 @@ import {
   FunctionDecl,
   Type,
   TypeConstructor,
-} from "../types/domain";
-import { ParseError, PenroseError, SubstanceError } from "../types/errors";
+} from "../types/domain.js";
+import { ParseError, PenroseError, SubstanceError } from "../types/errors.js";
 import {
   ApplyConstructor,
   ApplyFunction,
@@ -29,11 +29,12 @@ import {
   SubPredArg,
   SubProg,
   SubRes,
-  SubstanceEnv,
   SubStmt,
+  SubstanceEnv,
   TypeConsApp,
-} from "../types/substance";
+} from "../types/substance.js";
 import {
+  Result,
   and,
   andThen,
   argLengthMismatch,
@@ -43,16 +44,20 @@ import {
   every,
   ok,
   parseError,
-  Result,
   safeChain,
   typeArgLengthMismatch,
   typeMismatch,
   typeNotFound,
   unexpectedExprForNestedPred,
   varNotFound,
-} from "../utils/Error";
-import { zip2 } from "../utils/Util";
-import { bottomType, checkTypeConstructor, isSubtype, topType } from "./Domain";
+} from "../utils/Error.js";
+import { zip2 } from "../utils/Util.js";
+import {
+  bottomType,
+  checkTypeConstructor,
+  isSubtype,
+  topType,
+} from "./Domain.js";
 
 export const parseSubstance = (
   prog: string
@@ -66,10 +71,14 @@ export const parseSubstance = (
       const ast: SubProg<C> = results[0];
       return ok(ast);
     } else {
-      return err(parseError(`Unexpected end of input`, lastLocation(parser)));
+      return err(
+        parseError(`Unexpected end of input`, lastLocation(parser), "Substance")
+      );
     }
   } catch (e) {
-    return err(parseError(prettyParseError(e), lastLocation(parser)));
+    return err(
+      parseError(prettyParseError(e), lastLocation(parser), "Substance")
+    );
   }
 };
 
@@ -633,13 +642,12 @@ const checkFunc = (
         ([expr, arg], { substEnv: cxt, env: e }) => matchArg(expr, arg, cxt, e),
         ok({ substEnv: substContext, env, contents: func.args[0] })
       );
-      const outputOk: ResultWithType<
-        ApplyConstructor<A> | ApplyFunction<A>
-      > = andThen(
-        ({ substEnv, env }) =>
-          withType(env, applySubstitution(output.type, substEnv), consOrFunc),
-        argsOk
-      );
+      const outputOk: ResultWithType<ApplyConstructor<A> | ApplyFunction<A>> =
+        andThen(
+          ({ substEnv, env }) =>
+            withType(env, applySubstitution(output.type, substEnv), consOrFunc),
+          argsOk
+        );
       // if the func is a constructor and bounded by a variable, cache the binding to env
       if (
         variable &&

@@ -1,6 +1,6 @@
 {
   "name": "@penrose/components",
-  "version": "2.3.0",
+  "version": "3.0.0-alpha.0",
   "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
@@ -49,15 +49,18 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.0.11",
-    "@penrose/core": "^2.3.0",
+    "@penrose/core": "^3.0.0-alpha.0",
     "monaco-editor": "^0.31.0",
     "monaco-vim": "^0.3.4",
-    "styled-components": "^5.3.5",
-    "react-latex-next": "^2.2.0"
+    "react-datasheet-grid": "^4.11.0",
+    "react-latex-next": "^2.2.0",
+    "react-select": "^5.7.3",
+    "styled-components": "^5.3.5"
   },
   "devDependencies": {
     "@babel/core": "^7.18.0",
     "@mdx-js/preact": "^2.1.5",
+    "@penrose/examples": "^3.0.0-alpha.0",
     "@storybook/addon-actions": "^6.5.15",
     "@storybook/addon-essentials": "^6.5.15",
     "@storybook/addon-interactions": "^6.5.15",

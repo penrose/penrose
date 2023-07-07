@@ -18,8 +18,6 @@ extern "C" {
     fn call_stop(stop: JsValue) -> bool;
 }
 
-type Vector = nalgebra::DVector<f64>;
-
 // the ts-rs crate defines a `TS` trait and `ts` macro which generate Rust tests that, when run,
 // generate TypeScript definitions in the `bindings/` directory of this package; that's why the
 // `build-decls` script for this package is `cargo test`
@@ -211,7 +209,7 @@ fn step_until(
 
             opt_params.last_uo_state = Some(xs.clone());
             opt_params.last_uo_energy = Some(energy_val);
-            opt_params.uo_round = opt_params.uo_round + 1;
+            opt_params.uo_round += 1;
             opt_params.lbfgs_info = new_lbfgs_info;
             opt_params.last_gradient = gradient;
             opt_params.last_gradient_preconditioned = gradient_preconditioned;
@@ -253,7 +251,7 @@ fn step_until(
             if opt_params.ep_round > 1
                 && ep_converged(
                     &opt_params.last_ep_state.unwrap(),
-                    &opt_params.last_uo_state.as_ref().unwrap(),
+                    opt_params.last_uo_state.as_ref().unwrap(),
                     opt_params.last_ep_energy.unwrap(),
                     opt_params.last_uo_energy.unwrap(),
                 )
@@ -270,7 +268,7 @@ fn step_until(
                 opt_params.opt_status = OptStatus::UnconstrainedRunning;
 
                 opt_params.weight = WEIGHT_GROWTH_FACTOR * weight;
-                opt_params.ep_round = opt_params.ep_round + 1;
+                opt_params.ep_round += 1;
                 opt_params.uo_round = 0;
 
                 log::info!(
@@ -410,7 +408,7 @@ fn minimize(
     // TODO: Log stats for last one?
 
     let (s_list, y_list) = state.s_y.into_iter().unzip();
-    return OptInfo {
+    OptInfo {
         xs,
         energy_val: fxs,
         norm_grad: norm_gradfxs,
@@ -423,7 +421,7 @@ fn minimize(
         gradient: gradfxs,
         gradient_preconditioned,
         failed,
-    };
+    }
 }
 
 fn start(n: usize) -> Params {
@@ -453,8 +451,8 @@ fn contains_nan(number_list: &[f64]) -> bool {
 }
 
 fn to_js_value(value: &(impl Serialize + ?Sized)) -> Result<JsValue, serde_wasm_bindgen::Error> {
-    // ts-rs expects `Option::None` to become `null` instead of `undefined`
-    value.serialize(&serde_wasm_bindgen::Serializer::new().serialize_missing_as_null(true))
+    // ts-rs expects us to produce data that looks like JSON
+    value.serialize(&serde_wasm_bindgen::Serializer::json_compatible())
 }
 
 #[wasm_bindgen]

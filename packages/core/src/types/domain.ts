@@ -1,9 +1,9 @@
 //#region Domain AST
 
 import im from "immutable";
-import Graph from "../utils/Graph";
-import { A, ASTNode, C, Identifier, StringLit } from "./ast";
-import { ApplyConstructor, TypeConsApp } from "./substance";
+import Graph from "../utils/Graph.js";
+import { A, ASTNode, C, Identifier, StringLit } from "./ast.js";
+import { ApplyConstructor, TypeConsApp } from "./substance.js";
 
 export type Var<T> = Identifier<T>;
 

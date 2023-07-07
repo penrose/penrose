@@ -1,12 +1,15 @@
-import { compileDomain } from "@penrose/core/dist/compiler/Domain";
+// @vitest-environment jsdom
+
+import { compileDomain } from "@penrose/core";
 import {
   compileSubstance,
   prettyStmt,
 } from "@penrose/core/dist/compiler/Substance";
 import { SubRes } from "@penrose/core/dist/types/substance";
 import { showError } from "@penrose/core/dist/utils/Error";
-import { enumerateStmtMutations } from "./Mutation";
-import { initContext } from "./Synthesizer";
+import { describe, expect, test } from "vitest";
+import { enumerateStmtMutations } from "./Mutation.js";
+import { initContext } from "./Synthesizer.js";
 
 const domainSrc = `
 type Set

@@ -1,5 +1,27 @@
 import markdownItKatex from "markdown-it-katex";
 import { defineConfig } from "vitepress";
+import domainGrammar from "../../vscode/syntaxes/domain.tmGrammar.json";
+import styleGrammar from "../../vscode/syntaxes/style.tmGrammar.json";
+import substanceGrammar from "../../vscode/syntaxes/substance.tmGrammar.json";
+
+const styleLang = {
+  id: "style",
+  scopeName: "source.penrose-style",
+  grammar: styleGrammar,
+  path: "style.tmGrammar.json",
+};
+const domainLang = {
+  id: "domain",
+  scopeName: "source.penrose-domain",
+  grammar: domainGrammar,
+  path: "domain.tmGrammar.json",
+};
+const substanceLang = {
+  id: "substance",
+  scopeName: "source.penrose-substance",
+  grammar: substanceGrammar,
+  path: "substance.tmGrammar.json",
+};
 
 // https://github.com/vuejs/vitepress/issues/529#issuecomment-1151186631
 const customElements = [
@@ -95,7 +117,7 @@ export default defineConfig({
   description:
     "Create beautiful diagrams just by typing math notation in plain text.",
 
-  cleanUrls: "without-subfolders",
+  cleanUrls: true,
   ignoreDeadLinks: true,
   outDir: "build",
 
@@ -105,8 +127,7 @@ export default defineConfig({
       "link",
       {
         rel: "stylesheet",
-        href:
-          "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css",
+        href: "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css",
       },
     ],
   ],
@@ -115,6 +136,8 @@ export default defineConfig({
     config: (md) => {
       md.use(markdownItKatex);
     },
+    // TODO: figure out the current types of language configs
+    languages: [substanceLang as any, domainLang as any, styleLang as any],
   },
   vue: {
     template: {
@@ -129,26 +152,31 @@ export default defineConfig({
     outline: "deep",
     nav: [
       {
+        text: "Examples",
+        link: "/examples",
+        activeMatch: "/examples",
+      },
+      {
         text: "Learn Penrose",
         link: "/docs/tutorial/welcome",
         activeMatch: "/docs/tutorial",
       },
       { text: "Documentation", link: "/docs/ref", activeMatch: "/docs/ref" },
       { text: "Try Penrose", link: "pathname:///try/index.html" },
+      { text: "Join Discord", link: "https://discord.gg/Y3K2kHxp2b" },
       { text: "Team", link: "/docs/team" },
+      { text: "Blog", link: "/blog", activeMatch: "/blog" },
       {
         text: "News",
         items: [
           { text: "SIGGRAPH'20 paper", link: "pathname:///siggraph20.html" },
           {
             text: "CHI'20 paper",
-            link:
-              "https://www.cs.cmu.edu/~woden/assets/chi-20-natural-diagramming.pdf",
+            link: "https://www.cs.cmu.edu/~woden/assets/chi-20-natural-diagramming.pdf",
           },
           {
             text: "Popular Mechanics",
-            link:
-              "https://www.popularmechanics.com/science/math/a32743509/cmu-penrose-math-equations-into-pictures/",
+            link: "https://www.popularmechanics.com/science/math/a32743509/cmu-penrose-math-equations-into-pictures/",
           },
         ],
       },
@@ -157,6 +185,7 @@ export default defineConfig({
     socialLinks: [
       { icon: "github", link: "https://github.com/penrose/penrose" },
       { icon: "twitter", link: "https://twitter.com/UsePenrose" },
+      { icon: "discord", link: "https://discord.gg/Y3K2kHxp2b" },
     ],
 
     sidebar: {
@@ -178,11 +207,11 @@ export default defineConfig({
         {
           text: "Reference",
           items: [
-            { text: "Penrose Overview", link: "/docs/ref" },
+            { text: "Overview", link: "/docs/ref" },
+            { text: "Using Penrose", link: "/docs/ref/using" },
             {
               text: "Domain",
               items: [
-                { text: "Overview", link: "/docs/ref/domain" },
                 { text: "Usage", link: "/docs/ref/domain/usage" },
                 { text: "Examples", link: "/docs/ref/domain/examples" },
               ],
@@ -190,7 +219,6 @@ export default defineConfig({
             {
               text: "Substance",
               items: [
-                { text: "Overview", link: "/docs/ref/substance" },
                 { text: "Usage", link: "/docs/ref/substance/usage" },
                 { text: "Examples", link: "/docs/ref/substance/examples" },
               ],
@@ -198,7 +226,6 @@ export default defineConfig({
             {
               text: "Style",
               items: [
-                { text: "Overview", link: "/docs/ref/style" },
                 {
                   text: "Usage",
                   link: "/docs/ref/style/usage",
@@ -234,6 +261,10 @@ export default defineConfig({
                     { text: "Text", link: "/docs/ref/style/shapes/text" },
                   ],
                 },
+                {
+                  text: "Random Sampling",
+                  link: "/docs/ref/style/random-sampling",
+                },
                 { text: "Function Library", link: "/docs/ref/style/functions" },
                 {
                   text: "Passthrough SVG",
@@ -254,8 +285,31 @@ export default defineConfig({
           ],
         },
       ],
+      "/blog": [
+        {
+          text: "June 2023",
+          items: [
+            {
+              text: "Diagram Layout in Stages",
+              link: "/blog/2023/06/30/staged-layout",
+            },
+            {
+              text: "What Have We Done to the Languages?",
+              link: "/blog/2023/06/30/new-language-features",
+            },
+            {
+              text: "Switching to Wasm for 10x Speedup",
+              link: "/blog/2023/06/30/wasm",
+            },
+          ],
+        },
+      ],
     },
 
-    footer: { copyright: "made with ❤️ in Pittsburgh and abroad" },
+    footer: {
+      message:
+        'Released under the <a href="https://github.com/penrose/penrose/blob/main/LICENSE">MIT License</a>.',
+      copyright: "Copyright © 2017-present Penrose contributors",
+    },
   },
 });

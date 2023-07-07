@@ -1,7 +1,14 @@
-import * as ad from "../types/ad";
-import { Fill, Named, Poly, Scale, ShapeCommon, Stroke } from "../types/shapes";
-import { boolV, floatV, noPaint, ptListV, strV } from "../utils/Util";
-import { Canvas, Context, sampleColor } from "./Samplers";
+import * as ad from "../types/ad.js";
+import {
+  Fill,
+  Named,
+  Poly,
+  Scale,
+  ShapeCommon,
+  Stroke,
+} from "../types/shapes.js";
+import { boolV, floatV, noPaint, ptListV, strV } from "../utils/Util.js";
+import { Canvas, Context, sampleColor } from "./Samplers.js";
 
 export interface PolygonProps<T>
   extends Named<T>,
@@ -15,7 +22,6 @@ export const samplePolygon = (
   _canvas: Canvas
 ): PolygonProps<ad.Num> => ({
   name: strV("defaultPolygon"),
-  style: strV(""),
   strokeWidth: floatV(0),
   strokeStyle: strV("solid"),
   strokeColor: noPaint(),

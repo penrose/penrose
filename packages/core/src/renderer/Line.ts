@@ -1,4 +1,4 @@
-import { Line } from "../shapes/Line";
+import { Line } from "../shapes/Line.js";
 import {
   ArrowheadSpec,
   getArrowhead,
@@ -6,9 +6,9 @@ import {
   toScreen,
   toSvgOpacityProperty,
   toSvgPaintProperty,
-} from "../utils/Util";
-import { attrAutoFillSvg, attrTitle, DASH_ARRAY } from "./AttrHelper";
-import { RenderProps } from "./Renderer";
+} from "../utils/Util.js";
+import { attrAutoFillSvg, attrStroke, attrTitle } from "./AttrHelper.js";
+import { RenderProps } from "./Renderer.js";
 
 export const arrowHead = (
   id: string,
@@ -82,6 +82,16 @@ const makeRoomForArrows = (
   // multiplied by thickness since the arrow size uses markerUnits, which is strokeWidth by default:
   // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/markerUnits
   const length = Math.sqrt((lineSX - lineEX) ** 2 + (lineSY - lineEY) ** 2);
+  // zero length arrow doesn't need to be moved. Render as just the arrowhead by default
+  if (length === 0) {
+    return [
+      [
+        [lineSX, lineSY],
+        [lineEX, lineEY],
+      ],
+      attrMapped,
+    ];
+  }
 
   // Subtract off the arrowHeight from each side.
   // See https://math.stackexchange.com/a/2045181 for a derivation.
@@ -128,18 +138,21 @@ const RenderLine = (
 ): SVGGElement => {
   const startArrowhead = getArrowhead(shape.startArrowhead.contents);
   const endArrowhead = getArrowhead(shape.endArrowhead.contents);
-  const [
-    [[arrowSX, arrowSY], [arrowEX, arrowEY]],
-    attrToNotAutoMap,
-  ] = makeRoomForArrows(shape, startArrowhead, endArrowhead);
-  const [sx, sy] = toScreen([arrowSX, arrowSY], canvasSize);
-  const [ex, ey] = toScreen([arrowEX, arrowEY], canvasSize);
+  const [[[arrowSX, arrowSY], [arrowEX, arrowEY]], attrToNotAutoMap] =
+    makeRoomForArrows(shape, startArrowhead, endArrowhead);
 
-  const path = `M ${sx} ${sy} L ${ex} ${ey}`;
   const color = toSvgPaintProperty(shape.strokeColor.contents);
-  const thickness = shape.strokeWidth.contents;
   const opacity = toSvgOpacityProperty(shape.strokeColor.contents);
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+
+  // set line start and end
+  const [sx, sy] = toScreen([arrowSX, arrowSY], canvasSize);
+  const [ex, ey] = toScreen([arrowEX, arrowEY], canvasSize);
+  line.setAttribute("x1", sx.toString());
+  line.setAttribute("y1", sy.toString());
+  line.setAttribute("x2", ex.toString());
+  line.setAttribute("y2", ey.toString());
 
   // an unique id for this instance is determined by the variation and namespace
   const unique = `${namespace}-${variation}-${shape.name.contents}`;
@@ -175,52 +188,25 @@ const RenderLine = (
 
   // Map/Fill the shape attributes while keeping track of input properties mapped
   attrToNotAutoMap.push(
-    "strokeColor",
-    "strokeWidth",
     "startArrowhead",
     "flipStartArrowhead",
     "endArrowhead",
     "startArrowheadSize",
     "endArrowheadSize"
   );
-  const pathElem = document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "path"
-  );
-  pathElem.setAttribute("d", path);
 
-  // Opacity and width only relevant if stroke is present
-  if (shape.strokeColor.contents.tag !== "NONE") {
-    pathElem.setAttribute("stroke-opacity", opacity.toString());
-    pathElem.setAttribute("stroke-width", thickness.toString());
-  }
-  pathElem.setAttribute("stroke", color);
-
-  // factor out an AttrHelper
-  if (shape.strokeDasharray.contents !== "") {
-    pathElem.setAttribute("stroke-dasharray", shape.strokeDasharray.contents);
-  } else if (shape.strokeStyle.contents === "dashed") {
-    pathElem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
-  }
-  attrToNotAutoMap.push("strokeDasharray", "strokeStyle");
-
-  if (shape.strokeLinecap.contents !== "") {
-    pathElem.setAttribute("stroke-linecap", shape.strokeLinecap.contents);
-  } else {
-    pathElem.setAttribute("stroke-linecap", "butt"); // same default as SVG
-  }
-  attrToNotAutoMap.push("strokeLinecap");
+  attrToNotAutoMap.push(...attrStroke(shape, line));
 
   // TODO: dedup in AttrHelper
   if (startArrowhead) {
-    pathElem.setAttribute("marker-start", `url(#${startArrowId})`);
+    line.setAttribute("marker-start", `url(#${startArrowId})`);
     attrToNotAutoMap.push("startArrowhead");
   }
   if (endArrowhead) {
-    pathElem.setAttribute("marker-end", `url(#${endArrowId})`);
+    line.setAttribute("marker-end", `url(#${endArrowId})`);
     attrToNotAutoMap.push("endArrowhead");
   }
-  elem.appendChild(pathElem);
+  elem.appendChild(line);
   attrToNotAutoMap.push(...attrTitle(shape, elem));
 
   // Directly Map across any "unknown" SVG properties

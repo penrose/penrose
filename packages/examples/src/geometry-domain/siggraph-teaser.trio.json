@@ -1,0 +1,7 @@
+{
+  "substance": "./teaser.substance",
+  "style": ["./euclidean-teaser.style"],
+  "domain": "./geometry.domain",
+  "variation": "StromboliCat61816",
+  "excludeWarnings": ["BBoxApproximationWarning"]
+}

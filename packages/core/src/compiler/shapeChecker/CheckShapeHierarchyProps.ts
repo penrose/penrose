@@ -1,6 +1,6 @@
 import { Result } from "true-myth";
-import * as ad from "../../types/ad";
-import { StyleError } from "../../types/errors";
+import * as ad from "../../types/ad.js";
+import { StyleError } from "../../types/errors.js";
 import {
   Arrow,
   Center,
@@ -13,10 +13,10 @@ import {
   Scale,
   String as StringProps,
   Stroke,
-} from "../../types/shapes";
-import { Translation } from "../../types/styleSemantics";
-import { Value } from "../../types/value";
-import { internalMissingPathError } from "../Style";
+} from "../../types/shapes.js";
+import { Translation } from "../../types/styleSemantics.js";
+import { Value } from "../../types/value.js";
+import { internalMissingPathError } from "../Style.js";
 import {
   checkBoolV,
   checkColorV,
@@ -24,7 +24,7 @@ import {
   checkPtListV,
   checkStrV,
   checkVectorV,
-} from "./CheckValues";
+} from "./CheckValues.js";
 const { err, ok } = Result;
 const getTransProp = (path: string, trans: Translation): Value<ad.Num> => {
   const v = trans.symbols.get(path);
@@ -52,15 +52,11 @@ export const checkNamed = (
   const name = checkProp(path, "name", trans, checkStrV);
   if (name.isErr()) return err(name.error);
 
-  const style = checkProp(path, "style", trans, checkStrV);
-  if (style.isErr()) return err(style.error);
-
   const ensureOnCanvas = checkProp(path, "ensureOnCanvas", trans, checkBoolV);
   if (ensureOnCanvas.isErr()) return err(ensureOnCanvas.error);
 
   return ok({
     name: name.value,
-    style: style.value,
     ensureOnCanvas: ensureOnCanvas.value,
   });
 };

@@ -6,10 +6,10 @@
 /* eslint-disable */
 import moo from "moo";
 import _ from 'lodash'
-import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil'
-import { C, ConcreteNode, Identifier, StringLit  } from "../types/ast";
-import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit, LayoutStages, FunctionCall, InlineComparison, ComparisonOp
-} from "../types/style";
+import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil.js'
+import { C, ConcreteNode, Identifier, StringLit  } from "../types/ast.js";
+import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, Collector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, CollectionAccess, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit, LayoutStages, FunctionCall, InlineComparison, ComparisonOp
+} from "../types/style.js";
 
 const styleTypes: string[] =
   [ "scalar"
@@ -45,8 +45,13 @@ const lexer = moo.compile({
       // NOTE: the next line add type annotation keywords into the keyword set and thereby forbidding users to use keywords like `shape`
       // "type-keyword": styleTypes, 
       forall: "forall",
+      foreach: "foreach",
+      collect: "collect",
       where: "where",
       with: "with",
+      groupby: "groupby",
+      from: "from",
+      listof: "listof",
       delete: "delete",
       as: "as",
       true: "true",
@@ -64,15 +69,15 @@ const lexer = moo.compile({
 const nodeData = { nodeType: "Style" as const };
 
 // Node constructors
+const decl = (t: StyT<C>, i: BindingForm<C>): DeclPattern<C> => ({
+  ...nodeData,
+  ...rangeFrom([t, i]),
+  tag: "DeclPattern",
+  type: t,
+  id: i 
+});
 
 const declList = (type: StyT<C>, ids: BindingForm<C>[]): DeclPattern<C>[] => {
-  const decl = (t: StyT<C>, i: BindingForm<C>): DeclPattern<C> => ({
-    ...nodeData,
-    ...rangeFrom([t, i]),
-    tag: "DeclPattern",
-    type: t,
-    id: i 
-  });
   return ids.map((i: BindingForm<C>) => decl(type, i));
 }
 
@@ -90,6 +95,25 @@ const selector = (
     head: hd,
     with: wth,
     where: whr,
+  };
+}
+
+const collector = (
+  hd: DeclPattern<C>,
+  it: BindingForm<C>,
+  whr?: RelationPatterns<C>,
+  wth?: DeclPatterns<C>,
+  fe?: DeclPatterns<C>
+): Collector<C> => {
+  return {
+    ...nodeData,
+    ...rangeFrom(_.compact([hd, it, whr, wth, fe])),
+    tag: "Collector",
+    head: hd,
+    into: it,
+    where: whr,
+    with: wth,
+    foreach: fe
   };
 }
 
@@ -150,6 +174,7 @@ item
 
 header 
   -> selector  {% id %}
+  |  collector {% id %}
   |  namespace {% id %}
 
 selector -> 
@@ -162,11 +187,51 @@ selector ->
   | forall decl_patterns _ml select_where select_with 
     {% (d) => selector(d[1], d[4], d[3]) %} 
   | forall decl_patterns _ml select_with select_where 
-    {% (d) => selector(d[1], d[3], d[4]) %} 
+    {% (d) => selector(d[1], d[3], d[4]) %}
+
+collector ->
+    collect decl _ml into _ml
+    {% (d) => collector(d[1], d[3], undefined, undefined, undefined) %}
+  | collect decl _ml into _ml select_where
+    {% (d) => collector(d[1], d[3], d[5], undefined, undefined) %}
+  | collect decl _ml into _ml select_where select_with
+    {% (d) => collector(d[1], d[3], d[5], d[6], undefined) %}
+  | collect decl _ml into _ml select_where select_with foreach
+    {% (d) => collector(d[1], d[3], d[5], d[6], d[7]) %}
+  | collect decl _ml into _ml select_where foreach
+    {% (d) => collector(d[1], d[3], d[5], undefined, d[6]) %}
+  | collect decl _ml into _ml select_where foreach select_with
+    {% (d) => collector(d[1], d[3], d[5], d[7], d[6]) %}
+  | collect decl _ml into _ml select_with
+    {% (d) => collector(d[1], d[3], undefined, d[5], undefined) %}
+  | collect decl _ml into _ml select_with select_where
+    {% (d) => collector(d[1], d[3], d[6], d[5], undefined) %}
+  | collect decl _ml into _ml select_with select_where foreach
+    {% (d) => collector(d[1], d[3], d[6], d[5], d[7]) %}
+  | collect decl _ml into _ml select_with foreach
+    {% (d) => collector(d[1], d[3], undefined, d[5], d[6]) %}
+  | collect decl _ml into _ml select_with foreach select_where
+    {% (d) => collector(d[1], d[3], d[7], d[5], d[6]) %}
+  | collect decl _ml into _ml foreach
+    {% (d) => collector(d[1], d[3], undefined, undefined, d[5]) %}
+  | collect decl _ml into _ml foreach select_where
+    {% (d) => collector(d[1], d[3], d[6], undefined, d[5]) %}
+  | collect decl _ml into _ml foreach select_where select_with
+    {% (d) => collector(d[1], d[3], d[6], d[7], d[5]) %}
+  | collect decl _ml into _ml foreach select_with
+    {% (d) => collector(d[1], d[3], undefined, d[6], d[5]) %}
+  | collect decl _ml into _ml foreach select_with select_where
+    {% (d) => collector(d[1], d[3], d[7], d[6], d[5]) %}
+
+into -> "into" __ binding_form {% nth(2) %}
 
 forall -> "forall" __ {% nth(0) %}
 
+collect -> "collect" __ {% nth(0) %}
+
 select_with -> "with" __ decl_patterns _ml {% d => d[2] %}
+
+foreach -> "foreach" __ decl_patterns _ml {% d => d[2] %}
 
 decl_patterns -> sepBy1[decl_list, ";"] {% 
   ([d]): DeclPatterns<C> => {
@@ -182,6 +247,13 @@ decl_patterns -> sepBy1[decl_list, ";"] {%
 decl_list -> identifier __ sepBy1[binding_form, ","] {% 
   ([type, , ids]): DeclPattern<C>[] => {
     return declList(type, ids);
+  }
+%}
+
+
+decl -> identifier __ binding_form {%
+  ([type, , id]): DeclPattern<C> => {
+    return decl(type, id);
   }
 %}
 
@@ -464,6 +536,7 @@ expr_literal
   |  string_lit {% id %}
   |  annotated_float {% id %}
   |  computation_function {% id %}
+  |  collection_access {% id %}
   |  path {% id %}
   |  list {% id %}
   |  tuple {% id %}
@@ -471,8 +544,8 @@ expr_literal
   # TODO: 
   # |  transformExpr 
 
-list -> "[" _ expr_list _ "]" {% 
-  ([lbracket, , exprs, , rbracket]): List<C> => ({
+list -> "[" expr_list "]" {% 
+  ([lbracket, exprs, rbracket]): List<C> => ({
     ...nodeData,
     ...rangeBetween(lbracket, rbracket),
     tag: 'List',
@@ -561,6 +634,15 @@ computation_function -> identifier _ "(" expr_list ")" {%
     name, args
   }) 
 %}
+
+
+collection_access
+  -> "listof" _ identifier _ "from" _ identifier {% ([, , field, , , , name]): CollectionAccess<C> => ({
+    ...nodeData,
+    ...rangeBetween(field, name),
+    tag: "CollectionAccess",
+    name, field
+  })%}
 
 stage_list 
   -> identifier {% (d) => d %}

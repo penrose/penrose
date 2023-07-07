@@ -1,5 +1,6 @@
-import { Shape as RealShape } from "../shapes/Shapes";
-import { SourceRange } from "./ast";
+import { Group } from "../shapes/Group.js";
+import { Shape as RealShape, Shape } from "../shapes/Shapes.js";
+import { SourceRange } from "./ast.js";
 
 /**
  * The input parameters to computations/objectives/constraints in Style.
@@ -41,7 +42,8 @@ export type Value<T> =
   | MatrixV<T>
   | TupV<T>
   | LListV<T>
-  | ShapeListV<T>;
+  | ShapeListV<T>
+  | ClipDataV<T>;
 
 /** A floating point number **/
 export interface FloatV<T> {
@@ -146,4 +148,20 @@ export interface CoordV<T> {
 export interface ShapeListV<T> {
   tag: "ShapeListV";
   contents: RealShape<T>[];
+}
+
+export interface ClipDataV<T> {
+  tag: "ClipDataV";
+  contents: ClipData<T>;
+}
+
+export type ClipData<T> = NoClip | Clip<T>;
+
+export interface NoClip {
+  tag: "NoClip";
+}
+
+export interface Clip<T> {
+  tag: "Clip";
+  contents: Exclude<Shape<T>, Group<T>>;
 }

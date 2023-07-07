@@ -1,11 +1,20 @@
-import { Context } from "../shapes/Samplers";
-import * as ad from "../types/ad";
-import { ValueShapeT } from "./types";
-import { Value } from "./value";
+import { Context } from "../shapes/Samplers.js";
+import * as ad from "../types/ad.js";
+import { FunctionInternalWarning } from "./errors.js";
+import { ValueShapeT } from "./types.js";
+import { Value } from "./value.js";
 
-export type CompFuncBody = (context: Context, ...args: any[]) => Value<ad.Num>;
-export type ObjFuncBody = (...args: any[]) => ad.Num;
-export type ConstrFuncBody = (...args: any[]) => ad.Num;
+export type MayWarn<T> = {
+  value: T;
+  warnings: FunctionInternalWarning[];
+};
+
+export type CompFuncBody = (
+  context: Context,
+  ...args: any[]
+) => MayWarn<Value<ad.Num>>;
+export type ObjFuncBody = (...args: any[]) => MayWarn<ad.Num>;
+export type ConstrFuncBody = (...args: any[]) => MayWarn<ad.Num>;
 
 export interface FuncParam {
   name: string;

@@ -38,18 +38,20 @@ import pr from "pandemonium/random";
 import pwc from "pandemonium/weighted-choice";
 import seedrandom from "seedrandom";
 import {
+  ArgExpr,
+  ArgStmtDecl,
+  SubStmtKind,
   appendStmt,
   applyBind,
   applyConstructor,
   applyFunction,
   applyPredicate,
   applyTypeDecl,
-  ArgExpr,
   argMatches,
-  ArgStmtDecl,
   autoLabelStmt,
   cascadingDelete,
   dedupStmts,
+  dedupSynthesizedSubstances,
   desugarAutoLabel,
   domainToSubType,
   findDecl,
@@ -58,10 +60,13 @@ import {
   matchSignatures,
   nullaryTypeCons,
   sortStmts,
-  SubStmtKind,
-} from "../analysis/SubstanceAnalysis";
+} from "../analysis/SubstanceAnalysis.js";
 import {
   Add,
+  Delete,
+  Mutation,
+  MutationGroup,
+  MutationType,
   addMutation,
   checkAddStmt,
   checkAddStmts,
@@ -74,14 +79,10 @@ import {
   checkSwapInExprArgs,
   checkSwapInStmtArgs,
   checkSwapStmtArgs,
-  Delete,
   deleteMutation,
   executeMutations,
-  Mutation,
-  MutationGroup,
-  MutationType,
   showMutations,
-} from "./Mutation";
+} from "./Mutation.js";
 
 type RandomFunction = (min: number, max: number) => number;
 
@@ -432,8 +433,8 @@ export class Synthesizer {
    * @param numProgs number of Substance programs to generate
    * @returns an array of Substance programs and some metadata (e.g. mutation operation record)
    */
-  generateSubstances = (numProgs: number): SynthesizedSubstance[] =>
-    _.times(numProgs, (n: number) => {
+  generateSubstances = (numProgs: number): SynthesizedSubstance[] => {
+    const oneSubstance = (n: number) => {
       const sub = this.generateSubstance();
       // DEBUG: report results
       log.info(
@@ -444,7 +445,20 @@ export class Synthesizer {
       // reset synthesizer after generating each Substance diagram
       this.reset();
       return sub;
-    });
+    };
+
+    let substances = dedupSynthesizedSubstances(
+      _.times(numProgs, oneSubstance)
+    );
+
+    // Generate until there are numProgs unique Substance programs
+    while (substances.length < numProgs) {
+      const sub = oneSubstance(substances.length);
+      substances.push(sub);
+      substances = dedupSynthesizedSubstances(substances);
+    }
+    return substances;
+  };
 
   generateSubstance = (): SynthesizedSubstance => {
     const numStmts = this.random(...this.setting.mutationCount);
@@ -619,11 +633,11 @@ export class Synthesizer {
           const options = argMatches(oldStmt, ctx.env);
           if (options.length > 0) {
             const pick = this.choice(options);
-            const { res, stmts, ctx: newCtx } = generateArgStmt(
-              pick,
-              ctx,
-              oldStmt.args
-            );
+            const {
+              res,
+              stmts,
+              ctx: newCtx,
+            } = generateArgStmt(pick, ctx, oldStmt.args);
             const deleteOp: Delete = deleteMutation(oldStmt, newCtx);
             const addOps: Add[] = stmts.map((s) => addMutation(s, newCtx));
             return {
@@ -640,11 +654,11 @@ export class Synthesizer {
           const options = argMatches(oldStmt, ctx.env);
           if (options.length > 0) {
             const pick = this.choice(options);
-            const { res, stmts, ctx: newCtx } = generateArgStmt(
-              pick,
-              ctx,
-              oldExpr.args
-            );
+            const {
+              res,
+              stmts,
+              ctx: newCtx,
+            } = generateArgStmt(pick, ctx, oldExpr.args);
             let toDelete: SubStmt<A>[];
             // remove old statement if (1) the new stmt becomes a predicate OR (2) the return type of the new stmt is different from the old stmt
             if (
@@ -686,9 +700,9 @@ export class Synthesizer {
     const mutations = this.currentProg.statements.map((stmt) => {
       const mutations = this.findMutations(stmt, ctx);
       log.debug(
-        `Possible update mutations for ${prettyStmt(
-          stmt
-        )} are:\n${mutations.map(showMutations).join("\n")}`
+        `Possible update mutations for ${prettyStmt(stmt)} are:\n${mutations
+          .map(showMutations)
+          .join("\n")}`
       );
       return mutations;
     });

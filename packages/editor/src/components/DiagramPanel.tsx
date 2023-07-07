@@ -1,28 +1,30 @@
 import {
   PenroseState,
-  RenderInteractive,
-  RenderStatic,
+  isOptimized,
   showError,
-  stateConverged,
-  stepStateSafe,
+  stepTimes,
+  toInteractiveSVG,
+  toSVG,
 } from "@penrose/core";
 import localforage from "localforage";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
+import { optimize } from "svgo";
 import { v4 as uuid } from "uuid";
 import {
-  currentRogerState,
+  Diagram,
   DiagramMetadata,
-  diagramMetadataSelector,
-  diagramState,
-  fileContentsSelector,
   ProgramFile,
   RogerState,
   WorkspaceMetadata,
+  currentRogerState,
+  diagramMetadataSelector,
+  diagramState,
+  fileContentsSelector,
   workspaceMetadataSelector,
-} from "../state/atoms";
-import BlueButton from "./BlueButton";
+} from "../state/atoms.js";
+import BlueButton from "./BlueButton.js";
 
 /**
  * Fetch url, but try local storage first using a name.
@@ -83,11 +85,7 @@ export const pathResolver = async (
   // Handle relative paths
   switch (location.kind) {
     case "example": {
-      return fetchResource(
-        relativePath,
-        workspace,
-        new URL(relativePath, location.root).href
-      );
+      return location.resolver(relativePath);
     }
     case "roger": {
       if (rogerState.kind === "connected") {
@@ -109,13 +107,18 @@ export const pathResolver = async (
             })
           );
         });
+      } else {
+        return undefined;
       }
     }
     // TODO: publish images in the gist
     case "gist":
       return undefined;
     case "local": {
-      return fetchResource(relativePath, workspace);
+      const { resolver } = location;
+      return resolver
+        ? resolver(relativePath)
+        : fetchResource(relativePath, workspace);
     }
   }
 };
@@ -135,7 +138,12 @@ export const DownloadSVG = (
   variationStr: string
 ): void => {
   SVGaddCode(svg, dslStr, subStr, styleStr, versionStr, variationStr);
-  const blob = new Blob([svg.outerHTML], {
+  // optimize the svg output
+  const svgStr = optimize(svg.outerHTML, {
+    plugins: ["inlineStyles", "prefixIds"],
+    path: title,
+  }).data;
+  const blob = new Blob([svgStr], {
     type: "image/svg+xml;charset=utf-8",
   });
   const url = URL.createObjectURL(blob);
@@ -166,13 +174,18 @@ const SVGaddCode = (
   versionStr: string,
   variationStr: string
 ): void => {
-  svg.setAttribute("penrose", "0");
+  // Create custom <penrose> tag to store metadata, or grab it if it already exists
+  const metadataQuery = document.querySelector("penrose");
+  let metadata: Element;
 
-  // Create custom <penrose> tag to store metadata
-  const metadata = document.createElementNS(
-    "https://penrose.cs.cmu.edu/metadata",
-    "penrose"
-  );
+  if (metadataQuery === null) {
+    metadata = document.createElementNS(
+      "https://penrose.cs.cmu.edu/metadata",
+      "penrose"
+    );
+  } else {
+    metadata = metadataQuery!;
+  }
 
   // Create <version> tag for penrose version
   const version = document.createElementNS(
@@ -271,7 +284,7 @@ export const DownloadPNG = (
 export default function DiagramPanel() {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [diagram, setDiagram] = useRecoilState(diagramState);
-  const { state, error, metadata } = diagram;
+  const { state, error, warnings, metadata } = diagram;
   const [showEasterEgg, setShowEasterEgg] = useState(false);
   const { interactive } = useRecoilValue(diagramMetadataSelector);
   const workspace = useRecoilValue(workspaceMetadataSelector);
@@ -285,7 +298,7 @@ export default function DiagramPanel() {
       (async () => {
         // render the current frame
         const rendered = interactive
-          ? await RenderInteractive(
+          ? await toInteractiveSVG(
               state,
               (newState: PenroseState) => {
                 setDiagram({
@@ -297,7 +310,7 @@ export default function DiagramPanel() {
               (path) => pathResolver(path, rogerState, workspace),
               "diagramPanel"
             )
-          : await RenderStatic(
+          : await toSVG(
               state,
               (path) => pathResolver(path, rogerState, workspace),
               "diagramPanel"
@@ -324,8 +337,8 @@ export default function DiagramPanel() {
 
   const step = () => {
     if (state) {
-      if (!stateConverged(state) && metadata.autostep) {
-        const stepResult = stepStateSafe(state, metadata.stepSize);
+      if (!isOptimized(state) && metadata.autostep) {
+        const stepResult = stepTimes(state, metadata.stepSize);
         if (stepResult.isErr()) {
           setDiagram({
             ...diagram,
@@ -370,6 +383,41 @@ export default function DiagramPanel() {
     }
   });
 
+  // download an svg with raw TeX labels
+  const downloadSvgTex = useRecoilCallback(({ snapshot }) => async () => {
+    if (canvasRef.current !== null) {
+      const { state } = snapshot.getLoadable(diagramState).contents as Diagram;
+      if (state !== null) {
+        const svg = await toSVG(
+          state,
+          (path) => pathResolver(path, rogerState, workspace),
+          "diagramPanel",
+          true
+        );
+        const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+          .contents as WorkspaceMetadata;
+        const diagram = snapshot.getLoadable(diagramMetadataSelector)
+          .contents as DiagramMetadata;
+        const domain = snapshot.getLoadable(fileContentsSelector("domain"))
+          .contents as ProgramFile;
+        const substance = snapshot.getLoadable(
+          fileContentsSelector("substance")
+        ).contents as ProgramFile;
+        const style = snapshot.getLoadable(fileContentsSelector("style"))
+          .contents as ProgramFile;
+        DownloadSVG(
+          svg,
+          metadata.name,
+          domain.contents,
+          substance.contents,
+          style.contents,
+          metadata.editorVersion.toString(),
+          diagram.variation
+        );
+      }
+    }
+  });
+
   const downloadPng = useRecoilCallback(({ snapshot }) => async () => {
     if (canvasRef.current !== null) {
       const svg = canvasRef.current.firstElementChild as SVGSVGElement;
@@ -387,32 +435,33 @@ export default function DiagramPanel() {
   });
 
   const downloadPdf = useRecoilCallback(
-    ({ snapshot }) => () => {
-      if (canvasRef.current !== null) {
-        const svg = canvasRef.current.firstElementChild as SVGSVGElement;
-        if (svg !== null && state) {
-          const metadata = snapshot.getLoadable(workspaceMetadataSelector)
-            .contents as WorkspaceMetadata;
-          const openedWindow = window.open(
-            "",
-            "PRINT",
-            `height=${state.canvas.height},width=${state.canvas.width}`
-          );
-          if (openedWindow === null) {
-            toast.error("Couldn't open popup to print");
-            return;
+    ({ snapshot }) =>
+      () => {
+        if (canvasRef.current !== null) {
+          const svg = canvasRef.current.firstElementChild as SVGSVGElement;
+          if (svg !== null && state) {
+            const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+              .contents as WorkspaceMetadata;
+            const openedWindow = window.open(
+              "",
+              "PRINT",
+              `height=${state.canvas.height},width=${state.canvas.width}`
+            );
+            if (openedWindow === null) {
+              toast.error("Couldn't open popup to print");
+              return;
+            }
+            openedWindow.document.write(
+              `<!DOCTYPE html><head><title>${metadata.name}</title></head><body>`
+            );
+            openedWindow.document.write(svg.outerHTML);
+            openedWindow.document.write("</body></html>");
+            openedWindow.document.close();
+            openedWindow.focus();
+            openedWindow.print();
           }
-          openedWindow.document.write(
-            `<!DOCTYPE html><head><title>${metadata.name}</title></head><body>`
-          );
-          openedWindow.document.write(svg.outerHTML);
-          openedWindow.document.write("</body></html>");
-          openedWindow.document.close();
-          openedWindow.focus();
-          openedWindow.print();
         }
-      }
-    },
+      },
     [state]
   );
 
@@ -434,6 +483,7 @@ export default function DiagramPanel() {
         {state && (
           <div style={{ display: "flex" }}>
             <BlueButton onClick={downloadSvg}>SVG</BlueButton>
+            <BlueButton onClick={downloadSvgTex}>SVG (TeX)</BlueButton>
             <BlueButton onClick={downloadPng}>PNG</BlueButton>
             <BlueButton onClick={downloadPdf}>PDF</BlueButton>
           </div>
@@ -458,6 +508,29 @@ export default function DiagramPanel() {
             </span>
             <pre style={{ whiteSpace: "pre-wrap" }}>
               {showError(error).toString()}
+            </pre>
+          </div>
+        )}
+        {warnings.length > 0 && (
+          <div
+            style={{
+              bottom: 0,
+              backgroundColor: "#FFF2C5",
+              maxHeight: "100%",
+              maxWidth: "100%",
+              minHeight: "100px",
+              overflow: "auto",
+              padding: "10px",
+              boxSizing: "border-box",
+            }}
+          >
+            <span
+              style={{ fontWeight: "bold", color: "#F0C324", fontSize: 14 }}
+            >
+              warnings
+            </span>
+            <pre style={{ whiteSpace: "pre-wrap" }}>
+              {warnings.map((w) => showError(w).toString()).join("\n")}
             </pre>
           </div>
         )}

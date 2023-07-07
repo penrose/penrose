@@ -1,0 +1,7 @@
+{
+  "substance": "./test-random-sampling.substance",
+  "style": ["./random-sampling.style"],
+  "domain": "./random-sampling.domain",
+  "variation": "CocoaMagpie2612",
+  "excludeWarnings": ["BBoxApproximationWarning"]
+}

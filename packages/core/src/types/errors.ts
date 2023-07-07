@@ -1,29 +1,33 @@
 import im from "immutable";
-import * as ad from "./ad";
-import { A, AbstractNode, C, Identifier, SourceLoc, SourceRange } from "./ast";
-import { Arg, TypeConstructor, TypeVar } from "./domain";
-import { CompFunc, ConstrFunc, FuncParam, ObjFunc } from "./functions";
-import { State } from "./state";
+import * as ad from "./ad.js";
 import {
-  BindingForm,
+  A,
+  AbstractNode,
+  C,
+  Identifier,
+  NodeType,
+  SourceLoc,
+  SourceRange,
+} from "./ast.js";
+import { Arg, TypeConstructor, TypeVar } from "./domain.js";
+import { CompFunc, ConstrFunc, FuncParam, ObjFunc } from "./functions.js";
+import { State } from "./state.js";
+import {
   BinOp,
+  BindingForm,
   ColorLit,
   Expr,
   GPIDecl,
   LayoutStages,
   Path,
   UOp,
-} from "./style";
-import { ResolvedPath } from "./styleSemantics";
-import { Deconstructor, SubExpr, TypeConsApp } from "./substance";
-import { ArgValWithSourceLoc, ShapeVal, Val, Value } from "./value";
+} from "./style.js";
+import { ResolvedPath } from "./styleSemantics.js";
+import { Deconstructor, SubExpr, TypeConsApp } from "./substance.js";
+import { ArgValWithSourceLoc, ShapeVal, Val, Value } from "./value.js";
 
 //#region ErrorTypes
 
-// type PenroseError = LanguageError | RuntimeError;
-// type LanguageError = DomainError | SubstanceError | StyleError | PluginError;
-// type RuntimeError = OptimizerError | EvaluatorError;
-// type StyleError = StyleParseError | StyleCheckError | TranslationError;
 export type PenroseError =
   | (DomainError & { errorType: "DomainError" })
   | (SubstanceError & { errorType: "SubstanceError" })
@@ -42,7 +46,7 @@ export interface NaNError {
   lastState: State;
 }
 
-export type Warning = StyleError;
+export type Warning = StyleWarning;
 
 // TODO: does type var ever appear in Substance? If not, can we encode that at the type level?
 export type SubstanceError =
@@ -208,6 +212,8 @@ export type StyleError =
   | MissingArgumentError
   | TooManyArgumentsError
   | FunctionInternalError
+  | RedeclareNamespaceError
+  | UnexpectedCollectionAccessError
   // Runtime errors
   | RuntimeValueTypeError;
 
@@ -217,7 +223,10 @@ export type StyleWarning =
   | NoopDeleteWarning
   | LayerCycleWarning
   | ShapeBelongsToMultipleGroupsWarning
-  | GroupCycleWarning;
+  | GroupCycleWarning
+  | FunctionInternalWarning;
+
+export type FunctionInternalWarning = BBoxApproximationWarning;
 
 export interface StyleDiagnostics {
   errors: im.List<StyleError>;
@@ -250,6 +259,17 @@ export interface GroupCycleWarning {
   cycles: string[][];
 }
 
+export interface BBoxApproximationWarning {
+  tag: "BBoxApproximationWarning";
+  // tail is the top of stack
+  stack: [BBoxApproximationWarningItem, ...BBoxApproximationWarningItem[]];
+}
+
+export interface BBoxApproximationWarningItem {
+  signature: string;
+  location?: SourceRange;
+}
+
 //#endregion
 
 export interface GenericStyleError {
@@ -266,6 +286,7 @@ export interface ParseError {
   tag: "ParseError";
   message: string;
   location?: SourceLoc;
+  fileType?: NodeType;
 }
 
 export interface InvalidColorLiteral {
@@ -486,6 +507,18 @@ export interface FunctionInternalError {
   func: CompFunc | ObjFunc | ConstrFunc;
   location: SourceRange;
   message: string;
+}
+
+export interface RedeclareNamespaceError {
+  tag: "RedeclareNamespaceError";
+  existingNamespace: string;
+  location: SourceRange; // location of the duplicated declaration
+}
+
+export interface UnexpectedCollectionAccessError {
+  tag: "UnexpectedCollectionAccessError";
+  name: string;
+  location: SourceRange;
 }
 
 //#endregion

@@ -1,25 +1,25 @@
 import {
-  compileTrio,
   PathResolver,
   PenroseError,
   PenroseState,
-  prepareState,
-  RenderInteractive,
-  RenderStatic,
+  compile,
+  isOptimized,
+  optimize,
   resample,
   showError,
-  stateConverged,
-  stepState,
-  stepUntilConvergence,
+  stepTimes,
+  toInteractiveSVG,
+  toSVG,
 } from "@penrose/core";
 import React from "react";
-import fetchResolver from "./fetchPathResolver";
+import fetchResolver from "./fetchPathResolver.js";
 
 export interface SimpleProps {
   domain: string;
   substance: string;
   style: string;
   variation: string;
+  excludeWarnings?: string[];
   stepSize?: number;
   interactive?: boolean; // considered true by default
   animate?: boolean; // considered false by default
@@ -47,9 +47,9 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
   compile = async (): Promise<void> => {
     this.penroseState = undefined;
     this.setState({ error: undefined });
-    const compilerResult = await compileTrio(this.props);
+    const compilerResult = await compile(this.props);
     if (compilerResult.isOk()) {
-      this.penroseState = await prepareState(compilerResult.value);
+      this.penroseState = compilerResult.value;
       this.setState({ error: undefined }); // clear out errors
     } else {
       this.setState({ error: compilerResult.error });
@@ -58,7 +58,7 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
 
   converge = async (): Promise<void> => {
     if (this.penroseState) {
-      const stepped = stepUntilConvergence(this.penroseState);
+      const stepped = optimize(this.penroseState);
       if (stepped.isOk()) {
         this.penroseState = stepped.value;
       } else {
@@ -71,12 +71,14 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
     if (
       this.props.animate &&
       this.penroseState &&
-      !stateConverged(this.penroseState)
+      !isOptimized(this.penroseState)
     ) {
-      this.penroseState = stepState(
-        this.penroseState,
-        this.props.stepSize ?? 1
-      );
+      const state = stepTimes(this.penroseState, this.props.stepSize ?? 1);
+      if (state.isErr()) {
+        this.setState({ error: state.error });
+      } else {
+        this.penroseState = state.value;
+      }
       this.renderCanvas();
     }
   };
@@ -138,12 +140,12 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
       if (this.penroseState) {
         const renderedState: SVGSVGElement = await (this.props.interactive ===
         false
-          ? RenderStatic(
+          ? toSVG(
               this.penroseState,
               this.props.imageResolver ?? fetchResolver,
               this.props.name ?? ""
             )
-          : RenderInteractive(
+          : toInteractiveSVG(
               this.penroseState,
               async (newState: PenroseState) => {
                 this.penroseState = newState;
@@ -155,9 +157,6 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
               this.props.imageResolver ?? fetchResolver,
               this.props.name ?? ""
             ));
-        // to avoid overflowing the parent div, force the height and width to be 100%
-        renderedState.setAttribute("height", "100%");
-        renderedState.setAttribute("width", "100%");
         if (node.firstChild !== null) {
           node.replaceChild(renderedState, node.firstChild);
         } else {

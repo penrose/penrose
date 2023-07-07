@@ -1,1266 +1,433 @@
 {
-  "$schema": "./registry-schema.json",
-  "root": "https://raw.githubusercontent.com/penrose/penrose/main/packages/examples/src/",
-  "trios": [
-    {
-      "name": "Sets as Venn Diagram",
-      "substance": "tree",
-      "style": "venn",
-      "domain": "set-theory",
-      "variation": "PlumvilleCapybara104",
-      "gallery": true
-    },
-    {
-      "name": "Sets as Tree Diagram",
-      "substance": "tree",
-      "style": "tree",
-      "domain": "set-theory",
-      "variation": "",
-      "gallery": true
-    },
-    {
-      "name": "Sets as Venn Diagram in 2.5D",
-      "substance": "tree",
-      "style": "venn-3d",
-      "domain": "set-theory",
-      "variation": "",
-      "gallery": true
-    },
-    {
-      "name": "Quaternions as table",
-      "substance": "quaternion-group",
-      "style": "group-theory-multiplication-table",
-      "domain": "group-theory",
-      "variation": "MeadowbrookChimpanzee02726",
-      "gallery": true
-    },
-    {
-      "name": "Quaternions as Cayley graph",
-      "substance": "quaternion-group",
-      "style": "group-theory-cayley-graph",
-      "domain": "group-theory",
-      "variation": "MeadowbrookChimpanzee02726",
-      "gallery": true
-    },
-    {
-      "name": "Wet Floor",
-      "substance": "wet-floor",
-      "style": "atoms-and-bonds",
-      "domain": "atoms-and-bonds",
-      "variation": "SinisterPigeon34750",
-      "gallery": true
-    },
-    {
-      "name": "A Water Molecule",
-      "substance": "one-water-molecule",
-      "style": "atoms-and-bonds",
-      "domain": "atoms-and-bonds",
-      "variation": "PorcellanaFlamingo3169",
-      "gallery": true
-    },
-    {
-      "name": "Continous Map",
-      "substance": "continuousmap",
-      "style": "continuousmap",
-      "domain": "functions",
-      "variation": "",
-      "gallery": true
-    },
-    {
-      "name": "Two Perpendicular Vectors",
-      "substance": "two-vectors-perp",
-      "style": "vectors-dashed",
-      "domain": "linear-algebra",
-      "variation": "",
-      "gallery": true
-    },
-    {
-      "name": "Lewis Structure of Nitric Acid",
-      "substance": "nitricacid",
-      "style": "lewis",
-      "domain": "molecules",
-      "variation": "DeadlockWren0150",
-      "gallery": true
-    },
-    {
-      "substance": "vector-wedge",
-      "style": "exterior-algebra",
-      "domain": "exterior-algebra",
-      "variation": "ArtemisCrane740"
-    },
-    {
-      "substance": "allShapes",
-      "style": "allShapes",
-      "domain": "shape-spec",
-      "variation": ""
-    },
-    {
-      "substance": "arrowheads",
-      "style": "arrowheads",
-      "domain": "shape-spec",
-      "variation": ""
-    },
-    {
-      "substance": "computer-network-graph",
-      "style": "simple-graph",
-      "domain": "simple-graph",
-      "variation": ""
-    },
-    {
-      "substance": "computer-network-multiple-links-graph",
-      "style": "pseudograph",
-      "domain": "pseudograph",
-      "variation": ""
-    },
-    {
-      "substance": "computer-network-diagnostic-links-graph",
-      "style": "pseudograph",
-      "domain": "pseudograph",
-      "variation": ""
-    },
-    {
-      "substance": "communications-network-one-way-links-graph",
-      "style": "simple-directed-graph",
-      "domain": "simple-directed-graph",
-      "variation": ""
-    },
-    {
-      "substance": "computer-network-multiple-one-way-links-graph",
-      "style": "directed-multigraph",
-      "domain": "directed-multigraph",
-      "variation": "ColumbineMosquito92625"
-    },
-    {
-      "substance": "acquaintanceship-graph",
-      "style": "simple-graph",
-      "domain": "simple-graph",
-      "variation": ""
-    },
-    {
-      "substance": "influence-graph",
-      "style": "simple-directed-graph",
-      "domain": "simple-directed-graph",
-      "variation": "BurdockWallaby5484"
-    },
-    {
-      "substance": "call-directed-graph",
-      "style": "directed-multigraph",
-      "domain": "directed-multigraph",
-      "variation": ""
-    },
-    {
-      "substance": "call-undirected-graph",
-      "style": "pseudograph",
-      "domain": "pseudograph",
-      "variation": ""
-    },
-    {
-      "substance": "module-dependency-graph",
-      "style": "simple-directed-graph",
-      "domain": "simple-directed-graph",
-      "variation": "TurquishMongoose642"
-    },
-    {
-      "substance": "precedence-graph",
-      "style": "simple-directed-graph",
-      "domain": "simple-directed-graph",
-      "variation": "WineberryGull921"
-    },
-    {
-      "substance": "niche-overlap-graph",
-      "style": "simple-graph",
-      "domain": "simple-graph",
-      "variation": "RustiqueOpossum386"
-    },
-    {
-      "substance": "protein-interaction-graph",
-      "style": "simple-graph",
-      "domain": "simple-graph",
-      "variation": "AtmosphereBear54663"
-    },
-    {
-      "substance": "round-robin-graph",
-      "style": "simple-directed-graph",
-      "domain": "simple-directed-graph",
-      "variation": "MetalShrew80769"
-    },
-    {
-      "substance": "complete-graphs",
-      "style": "simple-graph",
-      "domain": "simple-graph",
-      "variation": "PerfectionPorcupine953"
-    },
-    {
-      "substance": "cycle-graphs",
-      "style": "simple-graph",
-      "domain": "simple-graph",
-      "variation": "AutonomousPigeon86039"
-    },
-    {
-      "substance": "wheel-graphs",
-      "style": "simple-graph",
-      "domain": "simple-graph",
-      "variation": "IonianElephant37708"
-    },
-    {
-      "substance": "cube-graphs",
-      "style": "simple-graph",
-      "domain": "simple-graph",
-      "variation": ""
-    },
-    {
-      "substance": "complete-bipartite-graphs",
-      "style": "simple-graph",
-      "domain": "simple-graph",
-      "variation": ""
-    },
-    {
-      "substance": "jobs-trained-matching-graph",
-      "style": "simple-graph",
-      "domain": "simple-graph",
-      "variation": ""
-    },
-    {
-      "substance": "jobs-trained-no-matching-graph",
-      "style": "simple-graph",
-      "domain": "simple-graph",
-      "variation": ""
-    },
-    {
-      "substance": "star-topology-graph",
-      "style": "simple-graph",
-      "domain": "simple-graph",
-      "variation": "IonianElephant37708"
-    },
-    {
-      "substance": "ring-topology-graph",
-      "style": "simple-graph",
-      "domain": "simple-graph",
-      "variation": "IonianElephant37708"
-    },
-    {
-      "substance": "hybrid-topology-graph",
-      "style": "simple-graph",
-      "domain": "simple-graph",
-      "variation": "IonianElephant37708"
-    },
-    {
-      "substance": "linear-array-graph",
-      "style": "simple-graph",
-      "domain": "simple-graph",
-      "variation": "MelodySalmon16237"
-    },
-    {
-      "substance": "mesh-network-graph",
-      "style": "simple-graph",
-      "domain": "simple-graph",
-      "variation": "MelodySalmon16237"
-    },
-    {
-      "substance": "hypercube-network-graph",
-      "style": "simple-graph",
-      "domain": "simple-graph",
-      "variation": "TanagerTarsier789"
-    },
-    {
-      "substance": "union-graph",
-      "style": "simple-graph",
-      "domain": "simple-graph",
-      "variation": "WickerworkCrane44939"
-    },
-    {
-      "name": "Triangle Incenter",
-      "substance": "incenter-triangle",
-      "style": "euclidean",
-      "domain": "geometry",
-      "variation": "RationalityZebra567",
-      "gallery": true
-    },
-    {
-      "name": "Collinear Points",
-      "substance": "collinear",
-      "style": "euclidean",
-      "domain": "geometry",
-      "variation": "GoldbrownFly7869",
-      "gallery": true
-    },
-    {
-      "substance": "parallel-lines",
-      "style": "euclidean",
-      "domain": "geometry",
-      "variation": "LemongrassOyster4884"
-    },
-    {
-      "substance": "midsegment-triangles",
-      "style": "euclidean",
-      "domain": "geometry",
-      "variation": "FollyCamel2864"
-    },
-    {
-      "substance": "congruent-triangles",
-      "style": "euclidean",
-      "domain": "geometry",
-      "variation": "WaterspoutFish94072"
-    },
-    {
-      "name": "Two 3D Triangles",
-      "substance": "two-triangles",
-      "style": "triangle-mesh-3d",
-      "domain": "triangle-mesh-3d",
-      "variation": "LightheartedCormorant8083",
-      "gallery": true
-    },
-    {
-      "substance": "circle-example",
-      "style": "euclidean",
-      "domain": "geometry",
-      "variation": "CosmopolitanBeaver4985"
-    },
-    {
-      "name": "Word Cloud",
-      "substance": "word-cloud-example",
-      "style": "word-cloud",
-      "domain": "word-cloud",
-      "variation": "JazlynMouse32496",
-      "gallery": true
-    },
-    {
-      "name": "SIGGRAPH teaser - Euclidean Geometry",
-      "substance": "siggraph-teaser",
-      "style": "euclidean-teaser",
-      "domain": "geometry",
-      "variation": "StromboliCat61816",
-      "gallery": true
-    },
-    {
-      "substance": "non-convex",
-      "style": "non-convex",
-      "domain": "non-convex",
-      "variation": ""
-    },
-    {
-      "name": "Lagrange Bases",
-      "substance": "lagrange-bases",
-      "style": "lagrange-bases",
-      "domain": "lagrange-bases",
-      "variation": "RainmakerMarten88256",
-      "gallery": true
-    },
-    {
-      "substance": "hypergraph",
-      "style": "hypergraph",
-      "domain": "hypergraph",
-      "variation": "ConceptualMeerkat694"
-    },
-    {
-      "name": "Persistent Homology",
-      "substance": "persistent-homology",
-      "style": "persistent-homology",
-      "domain": "persistent-homology",
-      "variation": "RainmakerMarten88256",
-      "gallery": true
-    },
-    {
-      "name": "Walk on Spheres - Laplace Estimator",
-      "gallery": true,
-      "substance": "wos-laplace-estimator",
-      "style": "walk-on-spheres",
-      "domain": "walk-on-spheres",
-      "variation": "LilyDunlin3394"
-    },
-    {
-      "name": "Walk on Spheres - Poisson Estimator",
-      "substance": "wos-poisson-estimator",
-      "style": "walk-on-spheres",
-      "domain": "walk-on-spheres",
-      "variation": "CoraletteStingray87534"
-    },
-    {
-      "name": "Walk on Spheres - Nested Estimator",
-      "substance": "wos-nested-estimator",
-      "style": "walk-on-spheres",
-      "domain": "walk-on-spheres",
-      "variation": "ElmCrane34650"
-    },
-    {
-      "name": "Walk on Spheres - Off-Center Estimator",
-      "substance": "wos-offcenter-estimator",
-      "style": "walk-on-spheres",
-      "domain": "walk-on-spheres",
-      "variation": "PlumburnPartridge8506"
-    },
-    {
-      "substance": "points-around-star",
-      "style": "shape-distance",
-      "domain": "shape-distance",
-      "variation": "ReformLapwing68793"
-    },
-    {
-      "substance": "points-around-polyline",
-      "style": "shape-distance",
-      "domain": "shape-distance",
-      "variation": "SharkskinWalrus24396"
-    },
-    {
-      "substance": "points-around-line",
-      "style": "shape-distance",
-      "domain": "shape-distance",
-      "variation": "GalapagosLocust418"
-    },
-    {
-      "substance": "lines-around-rect",
-      "style": "rect-line-dist",
-      "domain": "shape-distance",
-      "variation": ""
-    },
-    {
-      "name": "Closest point test",
-      "substance": "closest-point-test",
-      "style": "closest-point",
-      "domain": "closest-point",
-      "variation": "MobileCalder1939",
-      "gallery": false
-    },
-    {
-      "substance": "3d-projection",
-      "style": "fake-3d-linear-algebra",
-      "domain": "fake-3d-linear-algebra",
-      "variation": "PurpletiniSeahorse9761"
-    },
-    {
-      "substance": "vector-wedge",
-      "style": "exterior-algebra",
-      "domain": "exterior-algebra",
-      "variation": "ArtemisCrane740"
-    },
-    {
-      "substance": "center-shrink-circle",
-      "style": "animation",
-      "domain": "animation",
-      "variation": ""
-    },
-    {
-      "name": "A Caffeine Molecule",
-      "substance": "caffeine",
-      "style": "structural-formula",
-      "domain": "structural-formula",
-      "variation": "",
-      "gallery": true
-    },
-    {
-      "substance": "mobius",
-      "style": "mobius",
-      "domain": "mobius",
-      "variation": "BrimstoneAntelope3300"
-    },
-    {
-      "substance": "glutamine",
-      "style": "molecules-basic",
-      "domain": "molecules",
-      "variation": "MemoriesDeer750"
-    },
-    {
-      "name": "Matrix-matrix addition",
-      "substance": "matrix-matrix-addition",
-      "style": "matrix-ops",
-      "domain": "matrix-ops",
-      "variation": "DoesNotMatter",
-      "gallery": false
-    },
-    {
-      "name": "Matrix-matrix division (elementwise)",
-      "substance": "matrix-matrix-division-elementwise",
-      "style": "matrix-ops",
-      "domain": "matrix-ops",
-      "variation": "DoesNotMatter",
-      "gallery": false
-    },
-    {
-      "name": "Matrix-matrix multiplication (elementwise)",
-      "substance": "matrix-matrix-multiplication-elementwise",
-      "style": "matrix-ops",
-      "domain": "matrix-ops",
-      "variation": "DoesNotMatter",
-      "gallery": false
-    },
-    {
-      "name": "Matrix-matrix multiplication",
-      "substance": "matrix-matrix-multiplication",
-      "style": "matrix-ops",
-      "domain": "matrix-ops",
-      "variation": "DoesNotMatter",
-      "gallery": false
-    },
-    {
-      "name": "Matrix-matrix subtraction",
-      "substance": "matrix-matrix-subtraction",
-      "style": "matrix-ops",
-      "domain": "matrix-ops",
-      "variation": "DoesNotMatter",
-      "gallery": false
-    },
-    {
-      "name": "Matrix transpose",
-      "substance": "matrix-transpose",
-      "style": "matrix-ops",
-      "domain": "matrix-ops",
-      "variation": "DoesNotMatter",
-      "gallery": false
-    },
-    {
-      "name": "Matrix-vector left multiplication",
-      "substance": "matrix-vector-left-multiplication",
-      "style": "matrix-ops",
-      "domain": "matrix-ops",
-      "variation": "DoesNotMatter",
-      "gallery": false
-    },
-    {
-      "name": "Matrix-vector right multiplication",
-      "substance": "matrix-vector-right-multiplication",
-      "style": "matrix-ops",
-      "domain": "matrix-ops",
-      "variation": "DoesNotMatter",
-      "gallery": false
-    },
-    {
-      "name": "Scalar-vector division",
-      "substance": "scalar-vector-division",
-      "style": "matrix-ops",
-      "domain": "matrix-ops",
-      "variation": "DoesNotMatter",
-      "gallery": false
-    },
-    {
-      "name": "Scalar-vector left multiplication",
-      "substance": "scalar-vector-left-multiplication",
-      "style": "matrix-ops",
-      "domain": "matrix-ops",
-      "variation": "DoesNotMatter",
-      "gallery": false
-    },
-    {
-      "name": "Scalar-vector right multiplication",
-      "substance": "scalar-vector-right-multiplication",
-      "style": "matrix-ops",
-      "domain": "matrix-ops",
-      "variation": "DoesNotMatter",
-      "gallery": false
-    },
-    {
-      "name": "Vector-vector addition",
-      "substance": "vector-vector-addition",
-      "style": "matrix-ops",
-      "domain": "matrix-ops",
-      "variation": "DoesNotMatter",
-      "gallery": false
-    },
-    {
-      "name": "Vector-vector division elementwise",
-      "substance": "vector-vector-division-elementwise",
-      "style": "matrix-ops",
-      "domain": "matrix-ops",
-      "variation": "DoesNotMatter",
-      "gallery": false
-    },
-    {
-      "name": "Vector-vector multiplication elementwise",
-      "substance": "vector-vector-multiplication-elementwise",
-      "style": "matrix-ops",
-      "domain": "matrix-ops",
-      "variation": "DoesNotMatter",
-      "gallery": false
-    },
-    {
-      "name": "Vector-vector outerproduct",
-      "substance": "vector-vector-outerproduct",
-      "style": "matrix-ops",
-      "domain": "matrix-ops",
-      "variation": "DoesNotMatter",
-      "gallery": false
-    },
-    {
-      "name": "Vector-vector subtraction",
-      "substance": "vector-vector-subtraction",
-      "style": "matrix-ops",
-      "domain": "matrix-ops",
-      "variation": "DoesNotMatter",
-      "gallery": false
-    },
-    {
-      "substance": "half-adder",
-      "style": "distinctive-shape",
-      "domain": "logic-gates",
-      "variation": "CauliflowerDeer97138"
-    },
-    {
-      "substance": "cubic-bezier",
-      "style": "cubic-bezier",
-      "domain": "curve-examples",
-      "variation": "CauliflowerDeer97138"
-    },
-    {
-      "name": "Cotan Formula",
-      "substance": "cotan-formula",
-      "style": "triangle-mesh-2d",
-      "domain": "triangle-mesh-2d",
-      "variation": "RamonaFly25691",
-      "gallery": true
-    },
-    {
-      "gallery": true,
-      "name": "Concyclic Euclidean Edge Flip",
-      "substance": "concyclic-pair",
-      "style": "triangle-mesh-2d",
-      "domain": "triangle-mesh-2d",
-      "variation": "DamaskWeasel66717"
-    },
-    {
-      "name": "Half Edge Mesh",
-      "substance": "halfedge-mesh",
-      "style": "triangle-mesh-2d",
-      "domain": "triangle-mesh-2d",
-      "variation": "BlackadderDogfish563",
-      "gallery": true
-    },
-    {
-      "substance": "relative-orientation",
-      "style": "triangle-mesh-2d",
-      "domain": "triangle-mesh-2d",
-      "variation": "SylvanDolphin4902"
-    },
-    {
-      "name": "Triangle Centers",
-      "substance": "triangle-centers",
-      "style": "triangle-mesh-2d",
-      "domain": "triangle-mesh-2d",
-      "variation": "ClamshellKookabura228"
-    },
-    {
-      "name": "Rigid Conformal Mapping of a 2D Mesh",
-      "substance": "angle-equivalence",
-      "style": "triangle-mesh-2d",
-      "domain": "triangle-mesh-2d",
-      "variation": "ClamshellKookabura228"
-    }
-  ],
-  "domains": {
-    "animation": {
-      "URI": "animation/animation.domain"
-    },
-    "set-theory": {
-      "URI": "set-theory-domain/setTheory.domain"
-    },
-    "group-theory": {
-      "URI": "group-theory/Group.domain"
-    },
-    "functions": {
-      "URI": "set-theory-domain/functions.domain"
-    },
-    "linear-algebra": {
-      "URI": "linear-algebra-domain/linear-algebra.domain"
-    },
-    "exterior-algebra": {
-      "URI": "exterior-algebra/exterior-algebra.domain"
-    },
-    "shape-spec": {
-      "URI": "shape-spec/all-shapes.domain"
-    },
-    "simple-graph": {
-      "URI": "graph-domain/simple-graph.domain"
-    },
-    "pseudograph": {
-      "URI": "graph-domain/pseudograph.domain"
-    },
-    "simple-directed-graph": {
-      "URI": "graph-domain/simple-directed-graph.domain"
-    },
-    "directed-multigraph": {
-      "URI": "graph-domain/directed-multigraph.domain"
-    },
-    "geometry": {
-      "URI": "geometry-domain/geometry.domain"
-    },
-    "closest-point": {
-      "URI": "closest-point/closest-point.domain"
-    },
-    "triangle-mesh-3d": {
-      "URI": "triangle-mesh-3d/triangle-mesh-3d.domain"
-    },
-    "triangle-mesh-2d": {
-      "URI": "triangle-mesh-2d/triangle-mesh-2d.domain"
-    },
-    "word-cloud": {
-      "URI": "word-cloud/word-cloud.domain"
-    },
-    "non-convex": {
-      "URI": "minkowski-tests/maze/maze.domain"
-    },
-    "lagrange-bases": {
-      "URI": "lagrange-bases/lagrange-bases.domain"
-    },
-    "hypergraph": {
-      "URI": "hypergraph/hypergraph.domain"
-    },
-    "persistent-homology": {
-      "URI": "persistent-homology/persistent-homology.domain"
-    },
-    "walk-on-spheres": {
-      "URI": "walk-on-spheres/walk-on-spheres.domain"
-    },
-    "shape-distance": {
-      "URI": "shape-distance/shapes.domain"
-    },
-    "fake-3d-linear-algebra": {
-      "URI": "fake-3d-linear-algebra/fake3d.domain"
-    },
-    "atoms-and-bonds": {
-      "URI": "atoms-and-bonds/atoms-and-bonds.domain"
-    },
-    "structural-formula": {
-      "URI": "structural-formula/structural-formula.domain"
-    },
-    "mobius": {
-      "URI": "mobius/mobius.domain"
-    },
-    "full-moon": {
-      "URI": "full-moon/full-moon.domain"
-    },
-    "molecules": {
-      "URI": "molecules/molecules.domain"
-    },
-    "matrix-ops": {
-      "URI": "matrix-ops/matrix-ops.domain"
-    },
-    "logic-gates": {
-      "URI": "logic-circuit-domain/logic-gates.domain"
-    },
-    "curve-examples": {
-      "URI": "curve-examples/curves.domain"
-    }
+  "set-theory-domain/tree-venn": {
+    "name": "Sets as Venn Diagram",
+    "gallery": true
   },
-  "styles": {
-    "venn": {
-      "domain": "set-theory",
-      "URI": "set-theory-domain/venn.style"
-    },
-    "tree": {
-      "domain": "set-theory",
-      "URI": "set-theory-domain/tree.style"
-    },
-    "group-theory-multiplication-table": {
-      "domain": "group-theory",
-      "URI": "group-theory/MultiplicationTable.style"
-    },
-    "group-theory-cayley-graph": {
-      "domain": "group-theory",
-      "URI": "group-theory/CayleyGraph.style"
-    },
-    "continuousmap": {
-      "domain": "set-theory",
-      "URI": "set-theory-domain/continuousmap.style"
-    },
-    "venn-3d": {
-      "domain": "set-theory",
-      "URI": "set-theory-domain/venn-3d.style"
-    },
-    "linear-algebra-simple": {
-      "domain": "linear-algebra",
-      "URI": "linear-algebra-domain/linear-algebra-paper-simple.style"
-    },
-    "allShapes": {
-      "domain": "shape-spec",
-      "URI": "shape-spec/shape-spec.style"
-    },
-    "arrowheads": {
-      "domain": "shape-spec",
-      "URI": "shape-spec/arrows.style"
-    },
-    "vectors-dashed": {
-      "domain": "linear-algebra",
-      "URI": "linear-algebra-domain/linearalgebra-paper-dashes.style"
-    },
-    "exterior-algebra": {
-      "domain": "linear-algebra",
-      "URI": "exterior-algebra/exterior-algebra.style"
-    },
-    "simple-graph": {
-      "domain": "simple-graph",
-      "URI": "graph-domain/simple-graph.style"
-    },
-    "pseudograph": {
-      "domain": "pseudograph",
-      "URI": "graph-domain/pseudograph.style"
-    },
-    "simple-directed-graph": {
-      "domain": "simple-directed-graph",
-      "URI": "graph-domain/simple-directed-graph.style"
-    },
-    "directed-multigraph": {
-      "domain": "directed-multigraph",
-      "URI": "graph-domain/directed-multigraph.style"
-    },
-    "euclidean": {
-      "domain": "geometry",
-      "URI": "geometry-domain/euclidean.style"
-    },
-    "closest-point": {
-      "domain": "closest-point",
-      "URI": "closest-point/closest-point.style"
-    },
-    "triangle-mesh-2d": {
-      "domain": "triangle-mesh-2d",
-      "URI": "triangle-mesh-2d/triangle-mesh-2d.style"
-    },
-    "triangle-mesh-3d": {
-      "domain": "triangle-mesh-3d",
-      "URI": "triangle-mesh-3d/triangle-mesh-3d.style"
-    },
-    "word-cloud": {
-      "domain": "word-cloud",
-      "URI": "word-cloud/word-cloud.style"
-    },
-    "euclidean-teaser": {
-      "domain": "geometry",
-      "URI": "geometry-domain/euclidean-teaser.style"
-    },
-    "non-convex": {
-      "domain": "non-convex",
-      "URI": "minkowski-tests/maze/maze.style"
-    },
-    "lagrange-bases": {
-      "domain": "lagrange-bases",
-      "URI": "lagrange-bases/lagrange-bases.style"
-    },
-    "hypergraph": {
-      "domain": "hypergraph",
-      "URI": "hypergraph/hypergraph.style"
-    },
-    "persistent-homology": {
-      "domain": "persistent-homology",
-      "URI": "persistent-homology/persistent-homology.style"
-    },
-    "walk-on-spheres": {
-      "domain": "walk-on-spheres",
-      "URI": "walk-on-spheres/walk-on-spheres.style"
-    },
-    "shape-distance": {
-      "domain": "shape-distance",
-      "URI": "shape-distance/shape-distance.style"
-    },
-    "rect-line-dist": {
-      "domain": "shape-distance",
-      "URI": "shape-distance/rect-line-dist.style"
-    },
-    "fake-3d-linear-algebra": {
-      "domain": "fake-3d-linear-algebra",
-      "URI": "fake-3d-linear-algebra/fake3d.style"
-    },
-    "atoms-and-bonds": {
-      "domain": "atoms-and-bonds",
-      "URI": "atoms-and-bonds/atoms-and-bonds.style"
-    },
-    "animation": {
-      "domain": "animation",
-      "URI": "animation/animation.style"
-    },
-    "structural-formula": {
-      "domain": "structural-formula",
-      "URI": "structural-formula/structural-formula.style"
-    },
-    "mobius": {
-      "domain": "mobius",
-      "URI": "mobius/mobius.style"
-    },
-    "full-moon": {
-      "domain": "full-moon",
-      "URI": "full-moon/full-moon.style"
-    },
-    "molecules-basic": {
-      "domain": "molecules",
-      "URI": "molecules/molecules-basic.style"
-    },
-    "lewis": {
-      "domain": "molecules",
-      "URI": "molecules/lewis.style"
-    },
-    "matrix-ops": {
-      "domain": "matrix-ops",
-      "URI": "matrix-ops/matrix-ops.style"
-    },
-    "distinctive-shape": {
-      "domain": "logic-gates",
-      "URI": "logic-circuit-domain/distinctive-shape.style"
-    },
-    "cubic-bezier": {
-      "domain": "curve-examples",
-      "URI": "curve-examples/cubic-bezier.style"
-    }
+  "set-theory-domain/tree-tree": {
+    "name": "Sets as Tree Diagram",
+    "gallery": false
   },
-  "substances": {
-    "two-vectors-perp": {
-      "domain": "linear-algebra",
-      "URI": "linear-algebra-domain/twoVectorsPerp-unsugared.substance"
-    },
-    "vector-wedge": {
-      "domain": "exterior-algebra",
-      "URI": "exterior-algebra/vector-wedge.substance"
-    },
-    "quaternion-group": {
-      "domain": "group-theory",
-      "URI": "group-theory/groups/quaternions.substance"
-    },
-    "continuousmap": {
-      "domain": "set-theory",
-      "URI": "set-theory-domain/continuousmap.substance"
-    },
-    "nested": {
-      "domain": "set-theory",
-      "URI": "set-theory-domain/nested.substance"
-    },
-    "tree": {
-      "domain": "set-theory",
-      "URI": "set-theory-domain/tree.substance"
-    },
-    "allShapes": {
-      "domain": "shape-spec",
-      "URI": "shape-spec/all-shapes.substance"
-    },
-    "arrowheads": {
-      "domain": "shape-spec",
-      "URI": "shape-spec/arrows.substance"
-    },
-    "computer-network-graph": {
-      "domain": "simple-graph",
-      "URI": "graph-domain/textbook/sec1/fig1.substance"
-    },
-    "computer-network-multiple-links-graph": {
-      "domain": "pseudograph",
-      "URI": "graph-domain/textbook/sec1/fig2.substance"
-    },
-    "computer-network-diagnostic-links-graph": {
-      "domain": "pseudograph",
-      "URI": "graph-domain/textbook/sec1/fig3.substance"
-    },
-    "communications-network-one-way-links-graph": {
-      "domain": "simple-directed-graph",
-      "URI": "graph-domain/textbook/sec1/fig4.substance"
-    },
-    "computer-network-multiple-one-way-links-graph": {
-      "domain": "directed-multigraph",
-      "URI": "graph-domain/textbook/sec1/fig5.substance"
-    },
-    "acquaintanceship-graph": {
-      "domain": "simple-graph",
-      "URI": "graph-domain/textbook/sec1/fig6.substance"
-    },
-    "influence-graph": {
-      "domain": "simple-directed-graph",
-      "URI": "graph-domain/textbook/sec1/fig7.substance"
-    },
-    "call-directed-graph": {
-      "domain": "directed-multigraph",
-      "URI": "graph-domain/textbook/sec1/fig8a.substance"
-    },
-    "call-undirected-graph": {
-      "domain": "pseudograph",
-      "URI": "graph-domain/textbook/sec1/fig8b.substance"
-    },
-    "module-dependency-graph": {
-      "domain": "simple-directed-graph",
-      "URI": "graph-domain/textbook/sec1/fig9.substance"
-    },
-    "precedence-graph": {
-      "domain": "simple-directed-graph",
-      "URI": "graph-domain/textbook/sec1/fig10.substance"
-    },
-    "niche-overlap-graph": {
-      "domain": "simple-graph",
-      "URI": "graph-domain/textbook/sec1/fig11.substance"
-    },
-    "protein-interaction-graph": {
-      "domain": "simple-graph",
-      "URI": "graph-domain/textbook/sec1/fig12.substance"
-    },
-    "round-robin-graph": {
-      "domain": "simple-directed-graph",
-      "URI": "graph-domain/textbook/sec1/fig13.substance"
-    },
-    "complete-graphs": {
-      "domain": "simple-graph",
-      "URI": "graph-domain/textbook/sec2/fig3.substance"
-    },
-    "cycle-graphs": {
-      "domain": "simple-graph",
-      "URI": "graph-domain/textbook/sec2/fig4.substance"
-    },
-    "wheel-graphs": {
-      "domain": "simple-graph",
-      "URI": "graph-domain/textbook/sec2/fig5.substance"
-    },
-    "cube-graphs": {
-      "domain": "simple-graph",
-      "URI": "graph-domain/textbook/sec2/fig6.substance"
-    },
-    "complete-bipartite-graphs": {
-      "domain": "simple-graph",
-      "URI": "graph-domain/textbook/sec2/fig9.substance"
-    },
-    "jobs-trained-matching-graph": {
-      "domain": "simple-graph",
-      "URI": "graph-domain/textbook/sec2/fig10a.substance"
-    },
-    "jobs-trained-no-matching-graph": {
-      "domain": "simple-graph",
-      "URI": "graph-domain/textbook/sec2/fig10b.substance"
-    },
-    "star-topology-graph": {
-      "domain": "simple-graph",
-      "URI": "graph-domain/textbook/sec2/fig11a.substance"
-    },
-    "ring-topology-graph": {
-      "domain": "simple-graph",
-      "URI": "graph-domain/textbook/sec2/fig11b.substance"
-    },
-    "hybrid-topology-graph": {
-      "domain": "simple-graph",
-      "URI": "graph-domain/textbook/sec2/fig11c.substance"
-    },
-    "linear-array-graph": {
-      "domain": "simple-graph",
-      "URI": "graph-domain/textbook/sec2/fig12.substance"
-    },
-    "mesh-network-graph": {
-      "domain": "simple-graph",
-      "URI": "graph-domain/textbook/sec2/fig13.substance"
-    },
-    "hypercube-network-graph": {
-      "domain": "simple-graph",
-      "URI": "graph-domain/textbook/sec2/fig14.substance"
-    },
-    "union-graph": {
-      "domain": "simple-graph",
-      "URI": "graph-domain/textbook/sec2/fig16b.substance"
-    },
-    "siggraph-teaser": {
-      "domain": "geometry",
-      "URI": "geometry-domain/teaser.substance"
-    },
-    "collinear": {
-      "domain": "geometry",
-      "URI": "geometry-domain/textbook_problems/c01p01.substance"
-    },
-    "incenter-triangle": {
-      "domain": "geometry",
-      "URI": "geometry-domain/textbook_problems/c05p13.substance"
-    },
-    "parallel-lines": {
-      "domain": "geometry",
-      "URI": "geometry-domain/textbook_problems/c03p01.substance"
-    },
-    "midsegment-triangles": {
-      "domain": "geometry",
-      "URI": "geometry-domain/textbook_problems/c05p01.substance"
-    },
-    "congruent-triangles": {
-      "domain": "geometry",
-      "URI": "geometry-domain/textbook_problems/ex.substance"
-    },
-    "closest-point-test": {
-      "domain": "closest-point",
-      "URI": "closest-point/test.substance"
-    },
-    "circle-example": {
-      "domain": "geometry",
-      "URI": "geometry-domain/textbook_problems/c11p12.substance"
-    },
-    "word-cloud-example": {
-      "domain": "word-cloud",
-      "URI": "word-cloud/example.substance"
-    },
-    "non-convex": {
-      "domain": "non-convex",
-      "URI": "minkowski-tests/maze/maze.substance"
-    },
-    "two-triangles": {
-      "domain": "triangle-mesh-3d",
-      "URI": "triangle-mesh-3d/two-triangles.substance"
-    },
-    "lagrange-bases": {
-      "domain": "lagrange-bases",
-      "URI": "lagrange-bases/example.substance"
-    },
-    "hypergraph": {
-      "domain": "hypergraph",
-      "URI": "hypergraph/hypergraph.substance"
-    },
-    "persistent-homology": {
-      "domain": "persistent-homology",
-      "URI": "persistent-homology/persistent-homology.substance"
-    },
-    "wos-laplace-estimator": {
-      "domain": "walk-on-spheres",
-      "URI": "walk-on-spheres/Laplace.substance"
-    },
-    "wos-poisson-estimator": {
-      "domain": "walk-on-spheres",
-      "URI": "walk-on-spheres/Poisson.substance"
-    },
-    "wos-nested-estimator": {
-      "domain": "walk-on-spheres",
-      "URI": "walk-on-spheres/Nested.substance"
-    },
-    "wos-offcenter-estimator": {
-      "domain": "walk-on-spheres",
-      "URI": "walk-on-spheres/OffCenter.substance"
-    },
-    "points-around-star": {
-      "domain": "shape-distance",
-      "URI": "shape-distance/hundred-points-around-star.substance"
-    },
-    "points-around-polyline": {
-      "domain": "shape-distance",
-      "URI": "shape-distance/ninety-points-around-polyline.substance"
-    },
-    "points-around-line": {
-      "domain": "shape-distance",
-      "URI": "shape-distance/hundred-points-around-line.substance"
-    },
-    "lines-around-rect": {
-      "domain": "shape-distance",
-      "URI": "shape-distance/lines-around-rect.substance"
-    },
-    "3d-projection": {
-      "domain": "fake-3d-linear-algebra",
-      "URI": "fake-3d-linear-algebra/projection.substance"
-    },
-    "wet-floor": {
-      "domain": "atoms-and-bonds",
-      "URI": "atoms-and-bonds/wet-floor.substance"
-    },
-    "one-water-molecule": {
-      "domain": "atoms-and-bonds",
-      "URI": "atoms-and-bonds/one-water-molecule.substance"
-    },
-    "center-shrink-circle": {
-      "domain": "animation",
-      "URI": "animation/center-shrink-circle.substance"
-    },
-    "caffeine": {
-      "domain": "structural-formula",
-      "URI": "structural-formula/molecules/caffeine.substance"
-    },
-    "mobius": {
-      "domain": "mobius",
-      "URI": "mobius/mobius.substance"
-    },
-    "full-moon": {
-      "domain": "full-moon",
-      "URI": "full-moon/full-moon.substance"
-    },
-    "glutamine": {
-      "domain": "molecules",
-      "URI": "molecules/glutamine.substance"
-    },
-    "nitricacid": {
-      "domain": "molecules",
-      "URI": "molecules/nitricacid.substance"
-    },
-    "matrix-matrix-addition": {
-      "domain": "matrix-ops",
-      "URI": "matrix-ops/tests/matrix-matrix-addition.substance"
-    },
-    "matrix-matrix-division-elementwise": {
-      "domain": "matrix-ops",
-      "URI": "matrix-ops/tests/matrix-matrix-division-elementwise.substance"
-    },
-    "matrix-matrix-multiplication-elementwise": {
-      "domain": "matrix-ops",
-      "URI": "matrix-ops/tests/matrix-matrix-multiplication-elementwise.substance"
-    },
-    "matrix-matrix-multiplication": {
-      "domain": "matrix-ops",
-      "URI": "matrix-ops/tests/matrix-matrix-multiplication.substance"
-    },
-    "matrix-matrix-subtraction": {
-      "domain": "matrix-ops",
-      "URI": "matrix-ops/tests/matrix-matrix-subtraction.substance"
-    },
-    "matrix-transpose": {
-      "domain": "matrix-ops",
-      "URI": "matrix-ops/tests/matrix-transpose.substance"
-    },
-    "matrix-vector-left-multiplication": {
-      "domain": "matrix-ops",
-      "URI": "matrix-ops/tests/matrix-vector-left-multiplication.substance"
-    },
-    "matrix-vector-right-multiplication": {
-      "domain": "matrix-ops",
-      "URI": "matrix-ops/tests/matrix-vector-right-multiplication.substance"
-    },
-    "scalar-vector-division": {
-      "domain": "matrix-ops",
-      "URI": "matrix-ops/tests/scalar-vector-division.substance"
-    },
-    "scalar-vector-left-multiplication": {
-      "domain": "matrix-ops",
-      "URI": "matrix-ops/tests/scalar-vector-left-multiplication.substance"
-    },
-    "scalar-vector-right-multiplication": {
-      "domain": "matrix-ops",
-      "URI": "matrix-ops/tests/scalar-vector-right-multiplication.substance"
-    },
-    "vector-vector-addition": {
-      "domain": "matrix-ops",
-      "URI": "matrix-ops/tests/vector-vector-addition.substance"
-    },
-    "vector-vector-division-elementwise": {
-      "domain": "matrix-ops",
-      "URI": "matrix-ops/tests/vector-vector-division-elementwise.substance"
-    },
-    "vector-vector-multiplication-elementwise": {
-      "domain": "matrix-ops",
-      "URI": "matrix-ops/tests/vector-vector-multiplication-elementwise.substance"
-    },
-    "vector-vector-outerproduct": {
-      "domain": "matrix-ops",
-      "URI": "matrix-ops/tests/vector-vector-outerproduct.substance"
-    },
-    "vector-vector-subtraction": {
-      "domain": "matrix-ops",
-      "URI": "matrix-ops/tests/vector-vector-subtraction.substance"
-    },
-    "half-adder": {
-      "domain": "logic-gates",
-      "URI": "logic-circuit-domain/half-adder.substance"
-    },
-    "cubic-bezier": {
-      "domain": "curve-examples",
-      "URI": "curve-examples/cubic-bezier.substance"
-    },
-    "concyclic-pair": {
-      "domain": "triangle-mesh-2d",
-      "URI": "triangle-mesh-2d/diagrams/concyclic-pair.substance"
-    },
-    "cotan-formula": {
-      "domain": "triangle-mesh-2d",
-      "URI": "triangle-mesh-2d/diagrams/cotan-formula.substance"
-    },
-    "halfedge-mesh": {
-      "domain": "triangle-mesh-2d",
-      "URI": "triangle-mesh-2d/diagrams/halfedge-mesh.substance"
-    },
-    "relative-orientation": {
-      "domain": "triangle-mesh-2d",
-      "URI": "triangle-mesh-2d/diagrams/relative-orientation.substance"
-    },
-    "triangle-centers": {
-      "domain": "triangle-mesh-2d",
-      "URI": "triangle-mesh-2d/diagrams/triangleCenters.substance"
-    },
-    "angle-equivalence": {
-      "domain": "triangle-mesh-2d",
-      "URI": "triangle-mesh-2d/diagrams/angle-equivalence.substance"
-    }
-  }
+  "group-theory/quaternion-multiplication-table": {
+    "name": "Quaternions as table",
+    "gallery": true
+  },
+  "walk-on-spheres/SignedAngleOutside": {
+    "name": "Walk on Stars - Signed Angle Outside",
+    "gallery": true
+  },
+  "spectral-graphs/examples/hypercube": {
+    "name": "Hypercube",
+    "gallery": true
+  },
+  "group-theory/quaternion-cayley-graph": {
+    "name": "Quaternions as Cayley graph",
+    "gallery": true
+  },
+  "set-theory-domain/tree-venn-3d": {
+    "name": "Sets as Venn Diagram in 2.5D",
+    "gallery": true
+  },
+  "atoms-and-bonds/one-water-molecule": {
+    "name": "A Water Molecule",
+    "gallery": false
+  },
+  "structural-formula/molecules/caffeine": {
+    "name": "A Caffeine Molecule",
+    "gallery": true
+  },
+  "walk-on-spheres/walk-on-stars": {
+    "name": "Walk on Stars - Laplace Estimator",
+    "gallery": true
+  },
+  "set-theory-domain/continuousmap": {
+    "name": "Continuous Map",
+    "gallery": true
+  },
+  "mobius/mobius": {
+    "name": "Mobius Transformation of Circles",
+    "gallery": true
+  },
+  "linear-algebra-domain/two-vectors-perp": {
+    "name": "Two Perpendicular Vectors",
+    "gallery": false
+  },
+  "tutorials/tutorial1": { "name": "Tutorial 1 - Two Sets" },
+  "tutorials/tutorial2": { "name": "Tutorial 2 - Subset" },
+  "tutorials/tutorial3": { "name": "Tutorial 3 - Vector" },
+  "molecules/nitricacid-lewis": {
+    "name": "Lewis Structure of Nitric Acid",
+    "gallery": false
+  },
+  "exterior-algebra/vector-wedge": {
+    "name": "Wedge Product",
+    "gallery": true
+  },
+  "shape-spec/all-shapes": {},
+  "shape-spec/arrowheads": {},
+  "graph-domain/textbook/sec1/fig1": {
+    "name": "Computer Network",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec1/fig2": {
+    "name": "Computer Network with Multiple Links between Data Centers",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec1/fig3": {
+    "name": "Computer Network with Diagnostic Links",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec1/fig4": {
+    "name": "Communications Network with One-Way Communications Links",
+    "gallery": false
+  },
+  "spectral-graphs/examples/hexagonal-lattice": {
+    "name": "Hexagonal Lattice Graph",
+    "gallery": true
+  },
+  "graph-domain/textbook/sec1/fig5": {
+    "name": "Computer Network with Multiple One-Way Links",
+    "gallery": true
+  },
+  "graph-domain/textbook/sec1/fig6": {
+    "name": "Acquaintanceship Graph",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec1/fig7": {
+    "name": "Influence Graph",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec1/fig8a": {
+    "name": "Call Graph",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec1/fig8b": {
+    "name": "Call Graph",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec1/fig9": {
+    "name": "Module Dependency Graph",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec1/fig10": {
+    "name": "Precedence Graph",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec1/fig11": {
+    "name": "Niche Overlap Graph",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec1/fig12": {
+    "name": "Module of a Protein Interaction Graph",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec1/fig13": {
+    "name": "Graph Model of a Round-Robin Tournament",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec2/fig3": {
+    "name": "Complete Graphs",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec2/fig4": {
+    "name": "Cycle Graphs",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec2/fig5": {
+    "name": "Wheel Graphs",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec2/fig6": {
+    "name": "Cube Graphs",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec2/fig9": {
+    "name": "Complete Bipartite Graphs",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec2/fig10a": {
+    "name": "Modeling the Jobs for Which Employees Have Been Trained"
+  },
+  "graph-domain/textbook/sec2/fig10b": {
+    "name": "Modeling the Jobs for Which Employees Have Been Trained",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec2/fig11a": {
+    "name": "Star Topology for Local Area Network",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec2/fig11b": {
+    "name": "Ring Topology for Local Area Network",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec2/fig11c": {
+    "name": "Hybrid Topology for Local Area Network",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec2/fig12": {
+    "name": "Linear Array for Six Processors",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec2/fig13": {
+    "name": "Mesh Network for 16 Processors",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec2/fig14": {
+    "name": "Hypercube Network for Eight Processors",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec2/fig16b": {},
+  "geometry-domain/textbook_problems/c05p13": {
+    "name": "Triangle Incenter",
+    "gallery": false
+  },
+  "geometry-domain/textbook_problems/c01p01": {
+    "name": "Collinear Points",
+    "gallery": false
+  },
+  "geometry-domain/textbook_problems/c03p01": { "name": "Parallel Lines" },
+  "geometry-domain/textbook_problems/c05p01": {
+    "name": "Midsegment Triangles",
+    "gallery": false
+  },
+  "geometry-domain/textbook_problems/ex": { "name": "Congruent Triangles" },
+  "triangle-mesh-3d/two-triangles": {
+    "name": "Two 3D Triangles",
+    "gallery": true
+  },
+  "random-sampling/test": { "name": "Random Sampling", "gallery": true },
+  "geometry-domain/textbook_problems/c11p12": {
+    "name": "Circle Example",
+    "gallery": true
+  },
+  "curve-examples/catmull-rom/catmull-rom": {
+    "name": "Catmull-Rom Interpolation Test",
+    "gallery": true
+  },
+  "word-cloud/example": { "name": "Word Cloud", "gallery": true },
+  "geometry-domain/siggraph-teaser": {
+    "name": "SIGGRAPH teaser - Euclidean Geometry",
+    "gallery": true
+  },
+  "minkowski-tests/maze/non-convex": {},
+  "lagrange-bases/lagrange-bases": {
+    "name": "Lagrange Bases",
+    "gallery": true
+  },
+  "hypergraph/hypergraph": { "name": "Hypergraph", "gallery": true },
+  "persistent-homology/persistent-homology": {
+    "name": "Persistent Homology",
+    "gallery": true
+  },
+  "walk-on-spheres/laplace-estimator": {
+    "name": "Walk on Spheres - Laplace Estimator",
+    "gallery": true
+  },
+  "walk-on-spheres/poisson-estimator": {
+    "name": "Walk on Spheres - Poisson Estimator",
+    "gallery": false
+  },
+  "walk-on-spheres/nested-estimator": {
+    "name": "Walk on Spheres - Nested Estimator",
+    "gallery": false
+  },
+  "walk-on-spheres/offcenter-estimator": {
+    "name": "Walk on Spheres - Off-Center Estimator",
+    "gallery": false
+  },
+  "shape-distance/points-around-star": {},
+  "shape-distance/points-around-polyline": {},
+  "shape-distance/points-around-line": {},
+  "shape-distance/lines-around-rect": {},
+  "fake-3d-linear-algebra/projection": {},
+  "animation/center-shrink-circle": {},
+  "graph-domain/other-examples/hamiltonian-cycle": {
+    "name": "Hamiltonian Cycle",
+    "gallery": true
+  },
+  "structural-formula/reactions/methane-combustion": {
+    "name": "Methane Combustion Reaction",
+    "gallery": true
+  },
+  "mobius/mobius": {},
+  "molecules/glutamine": {},
+  "matrix-ops/tests/matrix-matrix-addition": {
+    "name": "Matrix-matrix addition",
+    "gallery": false
+  },
+  "matrix-ops/tests/matrix-matrix-division-elementwise": {
+    "name": "Matrix-matrix division (elementwise)",
+    "gallery": false
+  },
+  "matrix-ops/tests/matrix-matrix-multiplication-elementwise": {
+    "name": "Matrix-matrix multiplication (elementwise)",
+    "gallery": false
+  },
+  "matrix-ops/tests/matrix-matrix-multiplication": {
+    "name": "Matrix-matrix multiplication",
+    "gallery": true
+  },
+  "matrix-ops/tests/matrix-matrix-subtraction": {
+    "name": "Matrix-matrix subtraction",
+    "gallery": false
+  },
+  "matrix-ops/tests/matrix-transpose": {
+    "name": "Matrix transpose",
+    "gallery": false
+  },
+  "matrix-ops/tests/matrix-vector-left-multiplication": {
+    "name": "Matrix-vector left multiplication",
+    "gallery": false
+  },
+  "matrix-ops/tests/matrix-vector-right-multiplication": {
+    "name": "Matrix-vector right multiplication",
+    "gallery": false
+  },
+  "matrix-ops/tests/scalar-vector-division": {
+    "name": "Scalar-vector division",
+    "gallery": false
+  },
+  "matrix-ops/tests/scalar-vector-left-multiplication": {
+    "name": "Scalar-vector left multiplication",
+    "gallery": false
+  },
+  "matrix-ops/tests/scalar-vector-right-multiplication": {
+    "name": "Scalar-vector right multiplication",
+    "gallery": false
+  },
+  "matrix-ops/tests/vector-vector-addition": {
+    "name": "Vector-vector addition",
+    "gallery": false
+  },
+  "matrix-ops/tests/vector-vector-division-elementwise": {
+    "name": "Vector-vector division elementwise",
+    "gallery": false
+  },
+  "matrix-ops/tests/vector-vector-multiplication-elementwise": {
+    "name": "Vector-vector multiplication elementwise",
+    "gallery": false
+  },
+  "matrix-ops/tests/vector-vector-outerproduct": {
+    "name": "Vector-vector outerproduct",
+    "gallery": false
+  },
+  "matrix-ops/tests/vector-vector-subtraction": {
+    "name": "Vector-vector subtraction",
+    "gallery": false
+  },
+  "logic-circuit-domain/half-adder": { "name": "Half Adder", "gallery": true },
+  "curve-examples/cubic-bezier": {},
+  "triangle-mesh-2d/diagrams/cotan-formula": {
+    "name": "Cotan Formula",
+    "gallery": true
+  },
+  "triangle-mesh-2d/diagrams/concyclic-pair": {
+    "name": "Concyclic Euclidean Edge Flip",
+    "gallery": true
+  },
+  "triangle-mesh-2d/diagrams/halfedge-mesh": {
+    "name": "Half Edge Mesh",
+    "gallery": false
+  },
+  "triangle-mesh-2d/diagrams/relative-orientation": {
+    "name": "Relative Orientation",
+    "gallery": false
+  },
+  "triangle-mesh-2d/diagrams/triangle-centers": {
+    "name": "Triangle Centers",
+    "gallery": false
+  },
+  "triangle-mesh-2d/diagrams/angle-equivalence": {
+    "name": "Rigid Conformal Mapping of a 2D Mesh",
+    "gallery": false
+  },
+  "timeline/penrose": { "name": "Penrose project timeline", "gallery": false },
+  "graph-domain/textbook/sec5/ex32": {
+    "name": "Curved graph example",
+    "gallery": false
+  },
+  "curve-examples/open-elastic-curve": {
+    "name": "Open elastic curve example",
+    "gallery": false
+  },
+  "curve-examples/closed-elastic-curve": {
+    "name": "Closed elastic curve example",
+    "gallery": false
+  },
+  "graph-domain/other-examples/arpanet": {
+    "name": "Curved graph example with dots",
+    "gallery": true
+  },
+  "graph-domain/other-examples/nyc-subway": {
+    "name": "Curved graph example with boxes",
+    "gallery": false
+  },
+  "fancy-text/fancy-text": {
+    "name": "Fancy Text + Equations",
+    "gallery": true
+  },
+  "curve-examples/blobs": { "name": "Blobs", "gallery": true },
+  "curve-examples/space-curves": { "name": "Space Curves", "gallery": false },
+  "geometric-queries/ray-intersect/test-group": {
+    "name": "Ray Casting",
+    "gallery": true
+  },
+  "ray-tracing/path-trace": {
+    "name": "Path Tracing",
+    "gallery": false
+  },
+  "ray-tracing/bidirectional": {
+    "name": "Bidirectional Path Tracing",
+    "gallery": false
+  },
+  "ray-tracing/next-event-estimation": {
+    "name": "Next Event Estimation",
+    "gallery": true
+  },
+  "geometric-queries/test": {
+    "name": "Geometric Queries",
+    "gallery": true
+  },
+  "geometric-queries/closest-point/test-group": {
+    "name": "Closest Point Queries",
+    "gallery": true
+  },
+  "geometric-queries/closest-point/test": {
+    "name": "More Closest Point Queries",
+    "gallery": false
+  },
+  "geometric-queries/closest-silhouette-point/test": {
+    "name": "Silhouette Point Queries",
+    "gallery": false
+  },
+  "geometric-queries/ray-intersect/test": {
+    "name": "Ray Intersection Tests",
+    "gallery": false
+  },
+  "box-arrow-diagram/computer-architecture": {
+    "name": "Computer Architecture Box-Arrow Diagram",
+    "gallery": true
+  },
+  "stochastic-process/stochastic-process": {
+    "name": "Brownian Motion in a Ball",
+    "gallery": true
+  },
+  "stochastic-process/epsilon-shell/AbsorbingBoundary": {
+    "name": "Brownian Motion Absorbed at Boundary",
+    "gallery": true
+  },
+  "solid/eigenspace": { "trio": false },
+  "solid/triangles": { "trio": false },
+  "solid/vectors": { "trio": false },
+  "tsne/tsne": {
+    "name": "T-SNE Test"
+  },
+  "spectral-graphs/examples/4x4-sudoku-graph": {
+    "name": "4 x 4 Sudoku Graph",
+    "gallery": false
+  },
+  "spectral-graphs/examples/dodecahedral-graph": {
+    "name": "Dodecahedral Graph",
+    "gallery": true
+  },
+  "atoms-and-bonds/wet-floor": { "name": "Wet Floor", "gallery": true }
 }

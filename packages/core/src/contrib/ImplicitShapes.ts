@@ -1,4 +1,4 @@
-import { EPS_DENOM, ops } from "../engine/Autodiff";
+import { EPS_DENOM, ops } from "../engine/Autodiff.js";
 import {
   absVal,
   add,
@@ -10,12 +10,13 @@ import {
   neg,
   squared,
   sub,
-} from "../engine/AutodiffFunctions";
-import { Circle } from "../shapes/Circle";
-import { Ellipse } from "../shapes/Ellipse";
-import * as ad from "../types/ad";
-import { msign } from "./Functions";
-import { outwardUnitNormal } from "./Queries";
+} from "../engine/AutodiffFunctions.js";
+import { Circle } from "../shapes/Circle.js";
+import { Ellipse } from "../shapes/Ellipse.js";
+import * as ad from "../types/ad.js";
+import { msign } from "./Functions.js";
+import { outwardUnitNormal } from "./Queries.js";
+import { toPt } from "./Utils.js";
 
 /**
  * Parameters of implicitly defined ellipse:
@@ -107,25 +108,41 @@ export const halfPlaneToImplicit = (
 
 /**
  * Return implicit ellipse parameters from an explicit representation.
- * @param ellipse Explicit ellipse shape.
+ * @param e Explicit ellipse shape.
  * @param padding Padding added to the ellipse.
  * Note: this is an approximation of Minkowski sum of ellipse and circle.
  * But the difference should be negligable for small `padding` and/or eccentricity.
  * @param factor Multiplication factor for the implicit function (the function is not uniquely given).
  */
 export const ellipseToImplicit = (
-  ellipse: Ellipse<ad.Num>,
+  e: Ellipse<ad.Num>,
   padding: ad.Num,
   factor: ad.Num = 1
 ): ImplicitEllipse => {
-  const rx = add(ellipse.rx.contents, padding);
-  const ry = add(ellipse.ry.contents, padding);
+  return absEllipseToImplicit(
+    toPt(e.center.contents),
+    e.rx.contents,
+    e.ry.contents,
+    padding,
+    factor
+  );
+};
+
+export const absEllipseToImplicit = (
+  c: ad.Pt2,
+  rx: ad.Num,
+  ry: ad.Num,
+  padding: ad.Num,
+  factor: ad.Num = 1
+): ImplicitEllipse => {
+  const rxp = add(rx, padding);
+  const ryp = add(ry, padding);
   return {
-    a: mul(factor, div(ry, rx)),
-    b: mul(factor, div(rx, ry)),
-    c: mul(factor, mul(rx, ry)),
-    x: ellipse.center.contents[0],
-    y: ellipse.center.contents[1],
+    a: mul(factor, div(ryp, rxp)),
+    b: mul(factor, div(rxp, ryp)),
+    c: mul(factor, mul(rxp, ryp)),
+    x: c[0],
+    y: c[1],
   };
 };
 
@@ -138,12 +155,26 @@ export const circleToImplicitEllipse = (
   padding: ad.Num,
   factor: ad.Num = 1
 ): ImplicitEllipse => {
+  return absCircleToImplicitEllipse(
+    toPt(circle.center.contents),
+    circle.r.contents,
+    padding,
+    factor
+  );
+};
+
+export const absCircleToImplicitEllipse = (
+  c: ad.Pt2,
+  r: ad.Num,
+  padding: ad.Num,
+  factor: ad.Num = 1
+): ImplicitEllipse => {
   return {
     a: factor,
     b: factor,
-    c: mul(factor, squared(add(circle.r.contents, padding))),
-    x: circle.center.contents[0],
-    y: circle.center.contents[1],
+    c: mul(factor, squared(add(r, padding))),
+    x: c[0],
+    y: c[1],
   };
 };
 

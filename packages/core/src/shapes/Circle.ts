@@ -1,14 +1,14 @@
-import * as ad from "../types/ad";
-import { Center, Fill, Named, ShapeCommon, Stroke } from "../types/shapes";
-import { FloatV } from "../types/value";
-import { boolV, floatV, noPaint, strV } from "../utils/Util";
+import * as ad from "../types/ad.js";
+import { Center, Fill, Named, ShapeCommon, Stroke } from "../types/shapes.js";
+import { FloatV } from "../types/value.js";
+import { boolV, floatV, noPaint, strV } from "../utils/Util.js";
 import {
   Canvas,
   Context,
   sampleColor,
   sampleVector,
   sampleWidth,
-} from "./Samplers";
+} from "./Samplers.js";
 
 export interface CircleProps<T>
   extends Named<T>,
@@ -24,7 +24,6 @@ export const sampleCircle = (
 ): CircleProps<ad.Num> => {
   return {
     name: strV("defaultCircle"),
-    style: strV(""),
     strokeWidth: floatV(0),
     strokeStyle: strV("solid"),
     strokeColor: noPaint(),

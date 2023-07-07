@@ -3,10 +3,10 @@ import {
   Env,
   PenroseError,
   PenroseState,
-  readRegistry,
-  Trio,
+  PenroseWarning,
 } from "@penrose/core";
-import { registry } from "@penrose/examples";
+import { PathResolver, Trio, TrioMeta } from "@penrose/examples/dist/index.js";
+import registry from "@penrose/examples/dist/registry.js";
 import { Actions, BorderNode, TabNode } from "flexlayout-react";
 import localforage from "localforage";
 import { debounce, range } from "lodash";
@@ -19,8 +19,8 @@ import {
   selectorFamily,
 } from "recoil";
 import { v4 as uuid } from "uuid";
-import { layoutModel } from "../App";
-import { generateVariation } from "./variation";
+import { layoutModel } from "../App.js";
+import { generateVariation } from "./variation.js";
 
 export const EDITOR_VERSION = 0.1;
 
@@ -40,11 +40,12 @@ export type WorkspaceLocation =
        * True if file is explicitly saved to localStorage
        */
       saved: boolean;
+      resolver?: PathResolver;
     }
   | GistLocation
   | {
       kind: "example";
-      root: string; // URL to the parent folder of the Style file
+      resolver: PathResolver;
     }
   | {
       kind: "roger";
@@ -92,6 +93,7 @@ export type RogerState =
       substance: string[];
       style: string[];
       domain: string[];
+      trio: string[];
     };
 
 const localFilesEffect: AtomEffect<LocalWorkspaces> = ({ setSelf, onSet }) => {
@@ -130,17 +132,23 @@ const saveWorkspaceEffect: AtomEffect<Workspace> = ({ onSet, setSelf }) => {
         newValue.metadata.location.kind !== "local" &&
         newValue.metadata.location.kind !== "roger"
       ) {
-        setSelf((workspace) => ({
-          ...(workspace as Workspace),
-          metadata: {
-            ...(workspace as Workspace).metadata,
-            location: { kind: "local", saved: false },
-            forkedFromGist:
-              newValue.metadata.location.kind === "gist"
-                ? newValue.metadata.location.id
-                : null,
-          } as WorkspaceMetadata,
-        }));
+        setSelf((workspaceOrDefault) => {
+          const workspace = workspaceOrDefault as Workspace;
+          let resolver: PathResolver | undefined = undefined;
+          if (workspace.metadata.location.kind === "example")
+            resolver = workspace.metadata.location.resolver;
+          return {
+            ...workspace,
+            metadata: {
+              ...workspace.metadata,
+              location: { kind: "local", saved: false, resolver },
+              forkedFromGist:
+                newValue.metadata.location.kind === "gist"
+                  ? newValue.metadata.location.id
+                  : null,
+            } as WorkspaceMetadata,
+          };
+        });
       }
       // If the workspace is already in localStorage
       if (
@@ -213,15 +221,19 @@ export const currentRogerState = atom<RogerState>({
  */
 export const fileContentsSelector = selectorFamily<ProgramFile, ProgramType>({
   key: "fileContents",
-  get: (programType: ProgramType) => ({ get }) => {
-    return get(currentWorkspaceState).files[programType];
-  },
-  set: (programType: ProgramType) => ({ set }, newValue) => {
-    set(currentWorkspaceState, (state) => ({
-      ...state,
-      files: { ...state.files, [programType]: newValue },
-    }));
-  },
+  get:
+    (programType: ProgramType) =>
+    ({ get }) => {
+      return get(currentWorkspaceState).files[programType];
+    },
+  set:
+    (programType: ProgramType) =>
+    ({ set }, newValue) => {
+      set(currentWorkspaceState, (state) => ({
+        ...state,
+        files: { ...state.files, [programType]: newValue },
+      }));
+    },
 });
 
 /**
@@ -266,6 +278,7 @@ export type DiagramMetadata = {
   stepSize: number;
   autostep: boolean;
   interactive: boolean;
+  excludeWarnings: string[];
   source: {
     domain: string;
     substance: string;
@@ -276,6 +289,7 @@ export type DiagramMetadata = {
 export type Diagram = {
   state: PenroseState | null;
   error: PenroseError | null;
+  warnings: PenroseWarning[];
   metadata: DiagramMetadata;
 };
 
@@ -284,11 +298,13 @@ export const diagramState = atom<Diagram>({
   default: {
     state: null,
     error: null,
+    warnings: [],
     metadata: {
       variation: generateVariation(),
       stepSize: 10000,
       autostep: true,
       interactive: false,
+      excludeWarnings: [],
       source: {
         substance: "",
         style: "",
@@ -354,7 +370,10 @@ export const diagramMetadataSelector = selector<DiagramMetadata>({
   },
 });
 
-interface TrioWithPreview extends Trio {
+export interface TrioWithPreview {
+  id: string;
+  get: () => Promise<Trio>;
+  name?: string;
   preview?: string;
 }
 
@@ -364,20 +383,30 @@ export const exampleTriosState = atom<TrioWithPreview[]>({
     key: "exampleTrios/default",
     get: async () => {
       try {
-        const trios = readRegistry(registry, true).map(async (t: Trio) => {
-          const svg = await fetch(
-            `https://raw.githubusercontent.com/penrose/penrose/ci/refs/heads/main/${t.id}.svg`
-          );
-          if (!svg.ok) {
-            console.error(`could not fetch preview for ${t.id}`);
-            return t;
+        const trios: [string, TrioMeta][] = [];
+        for (const [id, meta] of registry.entries()) {
+          if (meta.trio && meta.gallery) {
+            trios.push([id, meta]);
           }
-          return {
-            ...t,
-            preview: await svg.text(),
-          };
-        });
-        return Promise.all(trios);
+        }
+        return Promise.all(
+          trios.map(async ([id, { get, name }]) => {
+            const svg = await fetch(
+              encodeURI(
+                `https://raw.githubusercontent.com/penrose/penrose/ci/refs/heads/main/${id}.svg`
+              )
+            );
+            const trio: TrioWithPreview = { id, get, name };
+            if (!svg.ok) {
+              console.error(`could not fetch preview for ${id}`);
+              return {
+                ...trio,
+                preview: `<svg><rect fill="#cbcbcb" width="50" height="50"/></svg>`,
+              };
+            }
+            return { ...trio, preview: await svg.text() };
+          })
+        );
       } catch (err) {
         toast.error(`Could not retrieve examples: ${err}`);
         return [];

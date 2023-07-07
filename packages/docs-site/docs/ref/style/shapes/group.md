@@ -6,7 +6,7 @@ import ShapeProps from "../../../../src/components/ShapeProps.vue";
 
 A group is a shape that contains multiple shapes, rendered under `<g>` tag. For example, one can write,
 
-```
+```style
 t.s1 = Circle {}
 t.s2 = Rectangle {}
 t.s3 = Text {
@@ -23,14 +23,14 @@ t.g2 = Group {
 
 and get something like,
 
-```
+```html
 <svg ...>
   <g>
     <circle ... />
     <g>
       <circle ... />
       <rect ... />
-      <text .../>
+      <text ... />
     </g>
   </g>
 </svg>
@@ -42,11 +42,11 @@ and get something like,
 
 ## Constructing a Group
 
-A `Group` shape only contains one parameter, `shapes`, which is an _unordered_ list of paths to previously-defined shapes. In the example above, shape `t.g2` is a group that contains shape `t.s4` (a `Circle`) and shape `t.g` (another `Group`). As illustrated, `Group` shapes can be nested.
+A `Group` shape has a property, `shapes`, which is an _unordered_ list of paths to previously-defined shapes. In the example above, shape `t.g2` is a group that contains shape `t.s4` (a `Circle`) and shape `t.g` (another `Group`). As illustrated, `Group` shapes can be nested.
 
 We prohibit inline shape declarations within groups. In other words,
 
-```
+```style
 -- this is bad
 bad_group = Group {
     shapes: [ Circle {}, Rectangle {} ]
@@ -55,13 +55,15 @@ bad_group = Group {
 
 does not compile. All shapes within a group must be declared previously and referred to by their paths.
 
+We follow the convention that a shape cannot be contained within multiple groups. If Penrose detects that multiple groups contain the same shape, it will fire a warning and attempt to find the "best" grouping that does not have this issue.
+
 ## Layering Semantics
 
 Inherently, shapes within a group are to stay together and be drawn together (meaning rendered on consecutive layers). In other words, if Group `g` only contains `s1` and `s2`, then they must be drawn in the order of either `s1, s2` or `s2, s1`, consecutively.
 
 Hence, the following layering should not be allowed (and will hence generate a warning),
 
-```
+```style
 s1 = // some shape
 s2 = // some shape
 g = Group {
@@ -81,23 +83,33 @@ To achieve this goal, `Group` shapes have the following layering semantics:
 - Layering directives on a group applies also to all members of the group.
 - Layering directives on a group member applies to the entire group too.
 
-## Constraints and Objectives
+## Clipping
 
-The `Group` shape has a bounding box, taken as the smallest axis-aligned rectangle that contains the bounding boxes of all its member shapes. With this bounding box defined, some constraints and objectives (such as `contains`, `disjoint`, and `overlapping`) can work as well.
+A `Group` shape also has an optional `clipPath` property that allows shapes within the group to be clipped by another shape, analogous to the `clipPath` property in SVG (see [link](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/clipPath)). Parts of a `Group` shape that lie outside of the region bounded by the clipping shape are not drawn.
 
-For example,
+In Penrose, the `clipPath` property can take in two types of values:
 
-```
-s1 = // some shape
-s2 = // some shape
+- `noClip()` denotes that this `Group` shape is not clipped by any other shape.
+- `clip(someShape)` denotes that this `Group` shape is clipped by `someShape`, which, just like other group members, must be declared previously and referred to by its path.
 
+Since the SVG standard does not allow `Group` shapes (`<g>` tags) to clip other shapes, we disallow this too. That is, `clip(g)` where `g` is a `Group` shape is not allowed.
+
+As an example, to define a `Group` shape with members `s1` and `s2`, clipped by `s3`, one can write,
+
+```style
 g = Group {
-    shapes: [s1, s2]
+  shapes: [s1, s2]
+  clipPath: clip(s3)
 }
-
-s3 = // some shape
-
-ensure contains(g, s3)
 ```
 
-will ensure that group `g` (and hence both members `s1` and `s2`) is contained within `s3`.
+A shape that is used to clip a `Group` is conceptually a member of that group. So the prohibition of multiple groups having the same shape as their member still stands.
+
+## Bounding Box
+
+The bounding box of a `Group` shape that is not clipped by any other shape is computed as the smallest axis-aligned rectangle that contains the bounding boxes of all its member shapes.
+
+If this group is clipped by another shape, then the bounding box of the clipped `Group` shape is computed as the intersection of the following two bounding boxes:
+
+- The bounding box of the `Group` shape, excluding the clipped shape, and
+- The bounding box of the clipping shape.
