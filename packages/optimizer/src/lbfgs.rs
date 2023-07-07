@@ -99,7 +99,7 @@ pub fn first_step(
     let x0 = x.to_vec();
 
     let mut grad = vec![0.; n];
-    let fx = f(&x, &mut grad);
+    let fx = f(x, &mut grad);
 
     let r = grad.clone();
     line_search(cfg, f, &x0, &r, fx, &mut grad, x);
@@ -191,7 +191,7 @@ pub fn step_until<T>(
         let t = line_search(cfg, &mut f, &state.x, &r, fx, &mut grad, x);
 
         if let Some(msg) = stop(Info {
-            state: &state,
+            state,
             fx,
             r: &r,
             t,
