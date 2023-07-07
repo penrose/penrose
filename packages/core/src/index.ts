@@ -40,7 +40,12 @@ export const resample = (state: State): State => {
   });
 };
 
-const step = (
+/**
+ * Take steps in the optimizer until either `until` evaluates to `true`, or the optimizer reaches convergence.
+ * @param state current state
+ * @param options `until` is a function that returns the early-stop condition.
+ */
+export const step = (
   state: State,
   options: {
     until: () => boolean;
