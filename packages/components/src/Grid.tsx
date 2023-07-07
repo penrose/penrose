@@ -1,5 +1,4 @@
-import { PathResolver, PenroseState } from "@penrose/core";
-import { OptStatus } from "@penrose/optimizer";
+import { PathResolver, PenroseState, isOptimized } from "@penrose/core";
 
 import * as _ from "lodash";
 import React from "react";
@@ -48,14 +47,14 @@ const PlaceholderText = styled.h3`
 `;
 
 interface GridState {
-  optStatuses: OptStatus[];
+  optimized: boolean[];
 }
 
 export class Grid extends React.Component<GridProps, GridState> {
   constructor(props: GridProps) {
     super(props);
     this.state = {
-      optStatuses: Array(props.diagrams.length),
+      optimized: Array(props.diagrams.length),
     };
   }
 
@@ -78,13 +77,10 @@ export class Grid extends React.Component<GridProps, GridState> {
           onStateUpdate={(n, state) => {
             // record opt status
             this.setState((prev) => {
-              const optStatuses = [...prev.optStatuses];
-              optStatuses[n] = state.params.optStatus;
+              const optStatuses = [...prev.optimized];
+              optStatuses[n] = isOptimized(state);
               // report opt completion when all are done
-              if (
-                this.props.onComplete &&
-                _.every(optStatuses, (s) => s === "EPConverged")
-              )
+              if (this.props.onComplete && _.every(optStatuses))
                 this.props.onComplete();
               return { ...prev, optStatuses };
             });

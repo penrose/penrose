@@ -12,9 +12,9 @@ import {
   compileSubstance,
   PenroseState,
   prettySubstance,
-  RenderStatic,
   showError,
   SubProg,
+  toSVG,
 } from "@penrose/core";
 import { A } from "@penrose/core/dist/types/ast";
 import { saveAs } from "file-saver";
@@ -178,7 +178,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
     for (const idx of indices) {
       const state = this.state.states[idx];
       const { prog, ops } = this.state.progs[idx];
-      const svg = await RenderStatic(
+      const svg = await toSVG(
         state,
         async (path: string) => {
           const response = await fetch(path);
