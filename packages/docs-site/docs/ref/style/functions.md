@@ -1,6 +1,7 @@
-<script setup>
+<script setup lang="ts">
 import Function from "../../../src/components/Function.vue"
-import { constrDict, objDict, compDict } from "@penrose/core"
+import { data } from "./functions.data.js"
+const { objDict, compDict, constrDict } = data;
 </script>
 
 # Style Functions
