@@ -1,4 +1,4 @@
-import { browserAdaptor } from "mathjax-full/js/adaptors/browserAdaptor.js";
+import { chooseAdaptor } from "mathjax-full/js/adaptors/chooseAdaptor.js";
 import { RegisterHTMLHandler } from "mathjax-full/js/handlers/html.js";
 import { TeX } from "mathjax-full/js/input/tex.js";
 import { AllPackages } from "mathjax-full/js/input/tex/AllPackages.js";
@@ -19,22 +19,18 @@ export const mathjaxInit = (): ((
   input: string
 ) => Result<HTMLElement, string>) => {
   // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
-  // const adaptor = chooseAdaptor();
-  const adaptor = browserAdaptor();
+  const adaptor = chooseAdaptor() as any;
   RegisterHTMLHandler(adaptor);
   const tex = new TeX({
     packages: AllPackages,
-    macros: {
-      textsc: ["\\style{font-variant-caps: small-caps}{\\text{#1}}", 1],
-    },
     inlineMath: [
       ["$", "$"],
       ["\\(", "\\)"],
     ],
     processEscapes: true,
     // https://github.com/mathjax/MathJax-demos-node/issues/25#issuecomment-711247252
-    formatError: (jax: unknown, err: Error) => {
-      throw Error(err.message);
+    formatError: (jax: unknown, error: Error) => {
+      return err(error.message);
     },
   });
   const svg = new SVG({ fontCache: "none" });
