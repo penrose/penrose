@@ -147,8 +147,6 @@ const example = async (trio) => {
 };
 ```
 
-### `isInitial`
-
 ### `PenroseError`
 
 This type represents an error returned from Penrose. To consume it, see
