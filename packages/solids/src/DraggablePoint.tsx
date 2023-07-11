@@ -87,12 +87,9 @@ export default ({
   constrain: (xy: number[]) => number[];
 }) => {
   const [xd, yd] = [x, y].map(signalNum);
-  const canvasXY = transform.toScreen([num(xd), num(yd)]);
   return (
     <g onMouseDown={(e) => onMouseDown(e, svg, [x, y], transform, constrain)}>
       <circle
-        // cx={canvasXY[0]}
-        // cy={canvasXY[1]}
         cx={transform.toScreen([num(xd), num(yd)])[0]}
         cy={transform.toScreen([num(xd), num(yd)])[1]}
         r="22.91"

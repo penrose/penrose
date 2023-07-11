@@ -41,8 +41,8 @@ const toModel = (xy: number[]): number[] => [xy[0] / (w / 5), xy[1] / (h / 5)];
 const toScreen = (xy: number[]) => [(xy[0] * w) / 5 + ox, oy - (xy[1] * h) / 5];
 const inWorld = (xy: number[]) => {
   const minmax = (n: number) => Math.max(0, Math.min(5, n));
-  const x = minmax(Math.round(xy[0] * 2) / 2);
-  const y = minmax(Math.round(xy[1] * 2) / 2);
+  const x = minmax(xy[0]);
+  const y = minmax(xy[1]);
   return [x, y];
 };
 
