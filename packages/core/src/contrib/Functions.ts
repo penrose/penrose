@@ -5782,3 +5782,25 @@ const diffusionProcess = (
 
   return Xt;
 };
+
+const identity3D = (): ad.Num[][] => {
+   return [ [1,0,0], [0,1,0], [0,0,1] ];
+};
+
+const skew3D = (
+  v: ad.Num[]
+): ad.Num[][] => {
+   return [ [    0,  -v[2], v[1] ],
+            [  v[2],    0, -v[0] ],
+            [ -v[1],  v[0],   0  ] ];
+};
+
+const rotate3D = (
+  angle: ad.Num,
+  v: ad.Num[]
+): ad.Num[][] => {
+   const I = identity3D();
+   const vhat = skew3D(v);
+   return ops.mmadd( ops.mmadd( I, ops.smmul(sin(angle), vhat) ), ops.smmul( sub(1.,cos(angle)), ops.mmmul(vhat,vhat) ) );
+};
+
