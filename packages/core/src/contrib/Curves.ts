@@ -463,3 +463,28 @@ export const principalNormalVectors = (
 
   return principalNormals;
 };
+
+/**
+ * Returns list of `n` binormal vectors given a list of `n` points in 3D.
+ */
+export const binormalVectors = (
+  points: ad.Num[][],
+  closed: boolean
+): ad.Num[][] => {
+  const tangents = tangentVectors(points, closed);
+  const normals = principalNormalVectors(points, closed);
+
+  let binormals: ad.Num[][] = [];
+
+  for (let i = 0; i < points.length; i++) {
+    const tangent = tangents[i];
+    const normal = normals[i];
+
+    // Binormal is the cross product of the tangent and the normal
+    const binormal = ops.cross3(tangent, normal);
+
+    binormals.push(binormal);
+  }
+
+  return binormals;
+};
