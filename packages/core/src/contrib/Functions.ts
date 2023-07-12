@@ -5783,24 +5783,118 @@ const diffusionProcess = (
   return Xt;
 };
 
-const identity3D = (): ad.Num[][] => {
-   return [ [1,0,0], [0,1,0], [0,0,1] ];
+// Returns the n x n identity matrix.
+const identity = (n: number): ad.Num[][] => {
+   const I = new Array(n);
+   for (let i = 0; i < n; i++) {
+      I[i] = new Array(n);
+      for (let j = 0; j < n; j++) {
+         I[i][j] = (i===j ? 1 : 0);
+      }
+   }
+   return D;
 };
 
+// Given a vector v of length n, returns a
+// diagonal matrix D with diagonal entries v.
+const diagonal = (
+  v: ad.Num[]
+): ad.Num[][] => {
+   const n = v.length;
+   const D = new Array(n);
+   for (let i = 0; i < n; i++) {
+      D[i] = new Array(n);
+      for (let j = 0; j < n; j++) {
+         D[i][j] = (i===j ? v[i] : 0);
+      }
+   }
+   return D;
+};
+
+// Given a square matrix A, returns the sum
+// of diagonal entries.
+const trace = (
+  A: ad.Num[][]
+): ad.Num => {
+   const n = A.length;
+   let sum = 0;
+   for (let i = 0; i < n; i++) {
+      sum = add(sum, A[i]);
+   }
+   return sum;
+};
+
+// Given a square n x n matrix A representing a spatial transformation in n
+// dimensions, returns an (n+1) x (n+1) matrix representing the same
+// transformation in homogeneous coordinates.
+const toHomogeneous = (
+  A: ad.Num[][]
+): ad.Num => {
+   const n = A.length;
+   let B = new Array(n+1);
+   for (let i = 0; i < n; i++) {
+      let B[i] = new Array(n+1);
+      for (let j = 0; i < n; i++) {
+         B[i][j] = A[i][j];
+      }
+      B[i][n] = 0;
+   }
+   for (let j = 0; i < n; i++) {
+      B[n][j] = 0;
+   }
+   B[n][n] = 1;
+   return B;
+};
+
+// Given a 3-vector v, returns a 3x3 skew symmetric
+// matrix v̂ such that v̂u = v x u for any vector u.
 const skew3D = (
   v: ad.Num[]
 ): ad.Num[][] => {
-   return [ [    0,  -v[2], v[1] ],
-            [  v[2],    0, -v[0] ],
-            [ -v[1],  v[0],   0  ] ];
+   return [ [    0,  neg(v[2]), v[1] ],
+            [  v[2],    0, neg(v[0]) ],
+            [ neg(v[1]),  v[0],   0  ] ];
 };
 
+// Returns the 2x2 matrix representing a rotation by a given angle theta.
+const rotate2D = (
+  theta: ad.Num
+): ad.Num[][] => {
+   return [ [  cos(theta), sin(theta) ],
+            [ -sin(theta), cos(theta) ] ];
+};
+
+// Given an angle theta and a unit 3-vector v, returns
+// the 3x3 matrix representing a rotation by theta around v.
 const rotate3D = (
-  angle: ad.Num,
+  theta: ad.Num,
   v: ad.Num[]
 ): ad.Num[][] => {
+   // Construct matrix via Rodrigues' formula
+   //    I + sin(θ)v̂ + (1-cos(θ))v̂²
+   // where v̂ is the skew-symmetric matrix such
+   // that v̂u = v x u for any vector u.
    const I = identity3D();
    const vhat = skew3D(v);
-   return ops.mmadd( ops.mmadd( I, ops.smmul(sin(angle), vhat) ), ops.smmul( sub(1.,cos(angle)), ops.mmmul(vhat,vhat) ) );
+   return ops.mmadd( ops.mmadd( I, ops.smmul(sin(theta), vhat) ), ops.smmul( sub(1.,cos(theta)), ops.mmmul(vhat,vhat) ) );
+};
+
+// Returns a 2x2 matrix representing nonuniform scaling by factors sx, sy
+// along x, y axes, respectively.
+const scale2D = (
+  sx: ad.Num,
+  sy: ad.Num
+): ad.Num[][] => {
+   return diagonal( [ sx, sy ] );
+};
+
+// Returns a 3x3 matrix representing nonuniform scaling by factors sx, sy, sz
+// along x, y, z axes, respectively.
+const scale3D = (
+  sx: ad.Num,
+  sy: ad.Num,
+  sz: ad.Num
+): ad.Num[][] => {
+   return diagonal( [ sx, sy, sz ] );
 };
 
