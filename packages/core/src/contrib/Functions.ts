@@ -67,6 +67,7 @@ import {
   Color,
   ColorV,
   FloatV,
+  LListV,
   MatrixV,
   PathDataV,
   PtListV,
@@ -105,15 +106,18 @@ import {
   vectorV,
 } from "../utils/Util.js";
 import {
+  binormalVectors,
   centerOfMass,
   elasticEnergy,
   inflectionEnergy,
   isoperimetricRatio,
   lengthK,
   maxCurvature,
+  normalVectors,
   pElasticEnergy,
   perimeter,
   signedArea,
+  tangentVectors,
   totalCurvature,
   turningNumber,
 } from "./Curves.js";
@@ -4415,6 +4419,104 @@ export const compDict = {
       });
     },
     returns: valueT("Real"),
+  },
+
+  /**
+   * Returns list of `n` tangent vectors given a list of `n` points.
+   */
+  tangentVectors: {
+    name: "tangentVectors",
+    description:
+      "Returns list of `n` tangent vectors given a list of `n` points.",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      closed: boolean
+    ): MayWarn<LListV<ad.Num>> => {
+      return noWarn({
+        tag: "LListV",
+        contents: tangentVectors(points, closed),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  /**
+   * Returns list of `n` normal vectors given a list of `n` points.
+   * If points are 2D, it calculates a normal vector as a perpendicular vector to the tangent.
+   * Otherwise, it calculates the principal normal vector.
+   */
+  normalVectors: {
+    name: "normalVectors",
+    description:
+      "Returns list of `n` normal vectors given a list of `n` points.",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      closed: boolean
+    ): MayWarn<LListV<ad.Num>> => {
+      return noWarn({
+        tag: "LListV",
+        contents: normalVectors(points, closed),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  /**
+   * Returns list of `n` binormal vectors given a list of `n` points.
+   */
+  binormalVectors: {
+    name: "binormalVectors",
+    description:
+      "Returns list of `n` binormal vectors given a list of `n` points.",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      closed: boolean
+    ): MayWarn<LListV<ad.Num>> => {
+      return noWarn({
+        tag: "LListV",
+        contents: binormalVectors(points, closed),
+      });
+    },
+    returns: valueT("RealNM"),
   },
 
   /**
