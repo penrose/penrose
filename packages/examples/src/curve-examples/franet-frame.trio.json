@@ -1,0 +1,6 @@
+{
+  "substance": "./cubic-bezier.substance",
+  "style": ["./frenet-frame.style"],
+  "domain": "./curves.domain",
+  "variation": "ClaretPorpoise01614"
+}

@@ -433,5 +433,9 @@
   "curve-examples/offset": {
     "name": "Offset Curve",
     "gallery": false
+  },
+  "curve-examples/frenet-frame": {
+    "name": "Frenet Frame",
+    "gallery": false
   }
 }
