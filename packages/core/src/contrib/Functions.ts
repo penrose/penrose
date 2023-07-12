@@ -109,6 +109,7 @@ import {
   binormalVectors,
   centerOfMass,
   elasticEnergy,
+  evoluteCurve,
   inflectionEnergy,
   isoperimetricRatio,
   lengthK,
@@ -4514,6 +4515,37 @@ export const compDict = {
       return noWarn({
         tag: "LListV",
         contents: binormalVectors(points, closed),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  /**
+   * Returns evolute curve from a list of `n` points.
+   */
+  evoluteCurve: {
+    name: "evoluteCurve",
+    description: " Returns evolute curve from a list of `n` points.",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      closed: boolean
+    ): MayWarn<LListV<ad.Num>> => {
+      return noWarn({
+        tag: "LListV",
+        contents: evoluteCurve(points, closed),
       });
     },
     returns: valueT("RealNM"),
