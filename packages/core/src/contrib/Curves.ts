@@ -402,3 +402,15 @@ export const tangentVectors = (
 
   return tangents;
 };
+
+/**
+ * Returns list of `n` normal vectors given a list of `n` points.
+ */
+export const normalVectors2D = (
+  points: ad.Num[][],
+  closed: boolean
+): ad.Num[][] => {
+  return tangentVectors(points, closed).map((tangent: ad.Num[]) =>
+    ops.rot90(tangent)
+  );
+};
