@@ -502,3 +502,50 @@ export const normalVectors = (
     return normalVectors2D(points, closed);
   } else return principalNormalVectors(points, closed);
 };
+
+/**
+ * Returns list of `n` curvatures given a list of `n` points.
+ */
+export const curvatures = (
+  points: ad.Num[][],
+  closed: boolean,
+  mode: CurvatureApproximationMode = CurvatureApproximationMode.Angle
+): ad.Num[] => {
+  const curvaturesList: ad.Num[] = [];
+
+  // Compute curvatures for all internal points
+  for (let i = 1; i < points.length - 1; i++) {
+    const prevPoint = points[i - 1];
+    const currentPoint = points[i];
+    const nextPoint = points[i + 1];
+
+    const curvatureValue = curvature(prevPoint, currentPoint, nextPoint, mode);
+    curvaturesList.push(curvatureValue);
+  }
+
+  if (closed) {
+    // If the curve is closed, compute the curvature at the first and last points using
+    // the points at the ends and the points at the other end of the list
+    const firstPoint = points[0];
+    const secondPoint = points[1];
+    const penultimatePoint = points[points.length - 2];
+    const lastPoint = points[points.length - 1];
+
+    const firstCurvature = curvature(lastPoint, firstPoint, secondPoint, mode);
+    const lastCurvature = curvature(
+      penultimatePoint,
+      lastPoint,
+      firstPoint,
+      mode
+    );
+
+    curvaturesList.unshift(firstCurvature);
+    curvaturesList.push(lastCurvature);
+  } else {
+    // If the curve is open, duplicate the second and second-to-last curvatures
+    curvaturesList.unshift(curvaturesList[0]);
+    curvaturesList.push(curvaturesList[curvaturesList.length - 1]);
+  }
+
+  return curvaturesList;
+};
