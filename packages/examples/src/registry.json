@@ -429,5 +429,9 @@
     "name": "Dodecahedral Graph",
     "gallery": true
   },
-  "atoms-and-bonds/wet-floor": { "name": "Wet Floor", "gallery": true }
+  "atoms-and-bonds/wet-floor": { "name": "Wet Floor", "gallery": true },
+  "curve-examples/offset": {
+    "name": "Offset Curve",
+    "gallery": false
+  }
 }
