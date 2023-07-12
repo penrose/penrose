@@ -115,6 +115,7 @@ import {
   lengthK,
   maxCurvature,
   normalVectors,
+  offsetCurve,
   pElasticEnergy,
   perimeter,
   signedArea,
@@ -4525,7 +4526,7 @@ export const compDict = {
    */
   evoluteCurve: {
     name: "evoluteCurve",
-    description: " Returns evolute curve from a list of `n` points.",
+    description: "Returns evolute curve from a list of `n` points.",
     params: [
       {
         name: "points",
@@ -4546,6 +4547,43 @@ export const compDict = {
       return noWarn({
         tag: "LListV",
         contents: evoluteCurve(points, closed),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  /**
+   * Returns an offset version of the input curve.
+   */
+  offsetCurve: {
+    name: "offsetCurve",
+    description: "Returns an offset version of the input curve.",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+      {
+        name: "magnitude",
+        type: realT(),
+        description: "magnitude of the offset",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      closed: boolean,
+      magnitude: ad.Num
+    ): MayWarn<LListV<ad.Num>> => {
+      return noWarn({
+        tag: "LListV",
+        contents: offsetCurve(points, closed, magnitude),
       });
     },
     returns: valueT("RealNM"),

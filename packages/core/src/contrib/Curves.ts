@@ -584,7 +584,7 @@ export const evoluteCurve = (
 export const offsetCurve = (
   points: ad.Num[][],
   closed: boolean,
-  magnitude: number
+  magnitude: ad.Num
 ): ad.Num[][] => {
   const normals = normalVectors(points, closed);
   const offsetPoints: ad.Num[][] = [];
