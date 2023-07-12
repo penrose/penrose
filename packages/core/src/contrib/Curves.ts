@@ -404,7 +404,7 @@ export const tangentVectors = (
 };
 
 /**
- * Returns list of `n` normal vectors given a list of `n` points.
+ * Returns list of `n` normal vectors given a list of `n` points 2D.
  */
 export const normalVectors2D = (
   points: ad.Num[][],
@@ -413,4 +413,53 @@ export const normalVectors2D = (
   return tangentVectors(points, closed).map((tangent: ad.Num[]) =>
     ops.rot90(tangent)
   );
+};
+
+/**
+ * Returns list of `n` principal normal vectors given a list of `n` points in 3D.
+ */
+export const principalNormalVectors = (
+  points: ad.Num[][],
+  closed: boolean
+): ad.Num[][] => {
+  const tangents = tangentVectors(points, closed);
+
+  const principalNormals: ad.Num[][] = [];
+
+  for (let i = 1; i < tangents.length - 1; i++) {
+    const prevTangent = tangents[i - 1];
+    const nextTangent = tangents[i + 1];
+
+    // Approximate derivative of the tangent vector
+    const tangentDerivative = ops.vsub(nextTangent, prevTangent);
+
+    // Principal normal is the normalized derivative of the tangent vector
+    const principalNormal = ops.vnormalize(tangentDerivative);
+
+    principalNormals.push(principalNormal);
+  }
+
+  if (closed) {
+    // If the curve is closed, compute the principal normal at the first and last points using
+    // the tangent vectors at the ends and the tangent vectors at the other end of the list
+    const firstTangent = tangents[0];
+    const secondTangent = tangents[1];
+    const penultimateTangent = tangents[tangents.length - 2];
+    const lastTangent = tangents[tangents.length - 1];
+
+    const firstTangentDerivative = ops.vsub(secondTangent, lastTangent);
+    const lastTangentDerivative = ops.vsub(firstTangent, penultimateTangent);
+
+    const firstPrincipalNormal = ops.vnormalize(firstTangentDerivative);
+    const lastPrincipalNormal = ops.vnormalize(lastTangentDerivative);
+
+    principalNormals.unshift(firstPrincipalNormal);
+    principalNormals.push(lastPrincipalNormal);
+  } else {
+    // If the curve is open, duplicate the second and second-to-last principal normal vectors
+    principalNormals.unshift(principalNormals[0]);
+    principalNormals.push(principalNormals[principalNormals.length - 1]);
+  }
+
+  return principalNormals;
 };
