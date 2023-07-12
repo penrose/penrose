@@ -576,3 +576,27 @@ export const evoluteCurve = (
 
   return evolute;
 };
+
+/**
+ * Returns an offset version of the input curve. Each point in the input curve is translated
+ * by a constant `magnitude` in the direction of the normal vector.
+ */
+export const offsetCurve = (
+  points: ad.Num[][],
+  closed: boolean,
+  magnitude: number
+): ad.Num[][] => {
+  const normals = normalVectors(points, closed);
+  const offsetPoints: ad.Num[][] = [];
+
+  for (let i = 0; i < points.length; i++) {
+    const p = points[i];
+    const n = normals[i];
+
+    // Translate the point by `magnitude` in the direction of the normal vector
+    const q = ops.vadd(p, ops.vmul(magnitude, n));
+    offsetPoints.push(q);
+  }
+
+  return offsetPoints;
+};
