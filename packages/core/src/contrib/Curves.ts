@@ -473,8 +473,7 @@ export const binormalVectors = (
 ): ad.Num[][] => {
   const tangents = tangentVectors(points, closed);
   const normals = principalNormalVectors(points, closed);
-
-  let binormals: ad.Num[][] = [];
+  const binormals: ad.Num[][] = [];
 
   for (let i = 0; i < points.length; i++) {
     const tangent = tangents[i];
