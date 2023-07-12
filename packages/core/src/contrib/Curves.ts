@@ -478,10 +478,7 @@ export const binormalVectors = (
   for (let i = 0; i < points.length; i++) {
     const tangent = tangents[i];
     const normal = normals[i];
-
-    // Binormal is the cross product of the tangent and the normal
     const binormal = ops.cross3(tangent, normal);
-
     binormals.push(binormal);
   }
 
@@ -509,7 +506,7 @@ export const normalVectors = (
 export const curvatures = (
   points: ad.Num[][],
   closed: boolean,
-  mode: CurvatureApproximationMode = CurvatureApproximationMode.Angle
+  mode: CurvatureApproximationMode = CurvatureApproximationMode.FiniteDifferences
 ): ad.Num[] => {
   const curvaturesList: ad.Num[] = [];
 
@@ -561,7 +558,7 @@ export const evoluteCurve = (
   const curvatureList = curvatures(
     points,
     closed,
-    CurvatureApproximationMode.OsculatingCircle
+    CurvatureApproximationMode.FiniteDifferences
   );
   const evolute: ad.Num[][] = [];
 

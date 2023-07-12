@@ -68,6 +68,7 @@ import {
   ColorV,
   FloatV,
   LListV,
+  ListV,
   MatrixV,
   PathDataV,
   PtListV,
@@ -108,6 +109,7 @@ import {
 import {
   binormalVectors,
   centerOfMass,
+  curvatures,
   elasticEnergy,
   evoluteCurve,
   inflectionEnergy,
@@ -4587,6 +4589,38 @@ export const compDict = {
       });
     },
     returns: valueT("RealNM"),
+  },
+
+  /**
+   * Returns list of `n` curvature values given a list of `n` points.
+   */
+  curvatures: {
+    name: "curvatures",
+    description:
+      "Returns list of `n` curvature values given a list of `n` points.",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      closed: boolean
+    ): MayWarn<ListV<ad.Num>> => {
+      return noWarn({
+        tag: "ListV",
+        contents: curvatures(points, closed),
+      });
+    },
+    returns: valueT("RealN"),
   },
 
   /**
