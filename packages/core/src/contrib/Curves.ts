@@ -353,3 +353,52 @@ export const constrDictCurves: { [k: string]: ConstrFunc } = {
     }),
   },
 };
+
+/**
+ * Returns list of `n` tangent vectors given a list of `n` points.
+ */
+export const tangentVectors = (
+  points: ad.Num[][],
+  closed: boolean
+): ad.Num[][] => {
+  // The list of tangent vectors to return
+  const tangents: ad.Num[][] = [];
+
+  // Compute tangents for all internal points
+  for (let i = 1; i < points.length - 1; i++) {
+    const previousPoint = points[i - 1];
+    const nextPoint = points[i + 1];
+    const tangent = ops.vnormalize(ops.vsub(nextPoint, previousPoint));
+    tangents.push(tangent);
+  }
+
+  // Compute tangent for the first and last points
+  if (closed) {
+    // If the curve is closed, the tangent at the first and last points is the same
+    const firstPoint = points[0];
+    const secondPoint = points[1];
+    const penultimatePoint = points[points.length - 2];
+    const lastPoint = points[points.length - 1];
+
+    const firstTangent = ops.vnormalize(ops.vsub(secondPoint, lastPoint));
+    const lastTangent = ops.vnormalize(ops.vsub(penultimatePoint, firstPoint));
+
+    tangents.unshift(firstTangent);
+    tangents.push(lastTangent);
+  } else {
+    // If the curve is not closed, the tangent at the first point is simply the vector between the first and second points
+    // Similarly, the tangent at the last point is the vector between the last point and the penultimate point
+    const firstPoint = points[0];
+    const secondPoint = points[1];
+    const penultimatePoint = points[points.length - 2];
+    const lastPoint = points[points.length - 1];
+
+    const firstTangent = ops.vnormalize(ops.vsub(secondPoint, firstPoint));
+    const lastTangent = ops.vnormalize(ops.vsub(lastPoint, penultimatePoint));
+
+    tangents.unshift(firstTangent);
+    tangents.push(lastTangent);
+  }
+
+  return tangents;
+};
