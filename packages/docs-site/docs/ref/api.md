@@ -82,7 +82,7 @@ import { fetchResolver } from "@penrose/components";
 import { diagram } from "@penrose/core";
 import continuousMap from "@penrose/examples/dist/set-theory-domain/continuousmap.trio";
 
-diagram(continuousMap, document.getElementById("diagram"), fetchResolver);
+await diagram(continuousMap, document.getElementById("diagram"), fetchResolver);
 ```
 
 ### `compile`
@@ -140,9 +140,9 @@ import { compile, isOptimized, showError } from "@penrose/core";
 const example = async (trio) => {
   const compiled = await compile(trio);
   if (compiled.isErr()) throw Error(showError(compiled.error));
-  console.log(isOptimized(compiled)); // false
+  console.log(isOptimized(compiled.value)); // false
   const optimized = optimize(trio);
-  console.log(isOptimized(optimized)); // true
+  console.log(isOptimized(optimized.value)); // true
   return optimized;
 };
 ```
@@ -172,7 +172,7 @@ if (compiled.isErr()) {
 
 ### `toSVG`
 
-Turn a `PenroseState` into
+This function renders a `PenroseState` as an `SVGSVGElement`.
 
 [continuous map]: https://penrose.cs.cmu.edu/try/?examples=set-theory-domain%2Fcontinuousmap
 [promise]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise

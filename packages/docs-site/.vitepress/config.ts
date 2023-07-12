@@ -287,6 +287,10 @@ export default defineConfig({
               link: "/docs/ref/optimization-api",
             },
             {
+              text: "Using Penrose with Vanilla JS",
+              link: "/docs/ref/vanilla-js",
+            },
+            {
               text: "Using Penrose with React",
               link: "/docs/ref/react",
             },
