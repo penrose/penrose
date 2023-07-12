@@ -549,3 +549,26 @@ export const curvatures = (
 
   return curvaturesList;
 };
+
+/**
+ * Return evolute curve from a list of points.
+ */
+export const evoluteCurve = (
+  points: ad.Num[][],
+  closed: boolean
+): ad.Num[][] => {
+  const normals = principalNormalVectors(points, closed);
+  const curvatureList = curvatures(points, closed);
+  const evolute: ad.Num[][] = [];
+
+  for (let i = 0; i < points.length; i++) {
+    const p = points[i];
+    const n = normals[i];
+    const kappa = curvatureList[i];
+
+    const q = ops.vadd(p, ops.vmul(kappa, n));
+    evolute.push(q);
+  }
+
+  return evolute;
+};
