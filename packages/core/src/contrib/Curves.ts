@@ -381,7 +381,7 @@ export const tangentVectors = (
     const lastPoint = points[points.length - 1];
 
     const firstTangent = ops.vnormalize(ops.vsub(secondPoint, lastPoint));
-    const lastTangent = ops.vnormalize(ops.vsub(penultimatePoint, firstPoint));
+    const lastTangent = ops.vnormalize(ops.vsub(firstPoint, penultimatePoint));
 
     tangents.unshift(firstTangent);
     tangents.push(lastTangent);
@@ -557,7 +557,7 @@ export const evoluteCurve = (
   points: ad.Num[][],
   closed: boolean
 ): ad.Num[][] => {
-  const normals = principalNormalVectors(points, closed);
+  const normals = normalVectors(points, closed);
   const curvatureList = curvatures(
     points,
     closed,
