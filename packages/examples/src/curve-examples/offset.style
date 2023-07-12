@@ -82,8 +82,8 @@ forall Curve c {
   }
 
   ensure isEquilateral(points, settings.closed)
-  ensure elasticEnergy(points, settings.closed) == 20000 in blob
-  ensure signedArea(points, settings.closed) == 50000 in convex
-  ensure perimeter(points, settings.closed) == 800
+  ensure elasticEnergy(points, settings.closed) == 60000 in blob
+  ensure signedArea(points, settings.closed) == 80000 in convex
+  ensure perimeter(points, settings.closed) == 1000
 
 }
