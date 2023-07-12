@@ -116,7 +116,7 @@ import {
   signedArea,
   totalCurvature,
   turningNumber,
-} from "./CurveConstraints.js";
+} from "./Curves.js";
 import {
   bboxFromShape,
   bboxPts,

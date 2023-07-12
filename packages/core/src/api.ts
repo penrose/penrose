@@ -1,9 +1,5 @@
 import { constrDict } from "./contrib/Constraints.js";
-import {
-  elasticEnergy,
-  equivalued,
-  perimeter,
-} from "./contrib/CurveConstraints.js";
+import { elasticEnergy, equivalued, perimeter } from "./contrib/Curves.js";
 import { signedDistanceRect } from "./contrib/Functions.js";
 import { rectPts } from "./contrib/Queries.js";
 import { consecutiveTuples } from "./contrib/Utils.js";
