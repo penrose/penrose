@@ -564,9 +564,9 @@ export const evoluteCurve = (
   for (let i = 0; i < points.length; i++) {
     const p = points[i];
     const n = normals[i];
-    const kappa = curvatureList[i];
+    const r = div(1, curvatureList[i]);
 
-    const q = ops.vadd(p, ops.vmul(kappa, n));
+    const q = ops.vadd(p, ops.vmul(r, n));
     evolute.push(q);
   }
 
