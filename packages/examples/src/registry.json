@@ -437,5 +437,9 @@
   "curve-examples/frenet-frame": {
     "name": "Frenet Frame",
     "gallery": false
+  },
+  "curve-examples/osculating-circle": {
+    "name": "Osculating Circle",
+    "gallery": false
   }
 }

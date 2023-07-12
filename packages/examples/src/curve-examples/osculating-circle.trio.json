@@ -1,0 +1,6 @@
+{
+  "substance": "./cubic-bezier.substance",
+  "style": ["./osculating-circle.style"],
+  "domain": "./curves.domain",
+  "variation": "WoodbineCod7138"
+}
