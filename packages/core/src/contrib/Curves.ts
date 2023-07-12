@@ -488,3 +488,18 @@ export const binormalVectors = (
 
   return binormals;
 };
+
+/**
+ * Returns list of `n` normal vectors given a list of `n` points.
+ * If points are 2D, it calculates a normal vector as a perpendicular vector to the tangent.
+ * Otherwise, it calculates the principal normal vector.
+ */
+export const normalVectors = (
+  points: ad.Num[][],
+  closed: boolean
+): ad.Num[][] => {
+  const dimension = points[0].length;
+  if (dimension === 2) {
+    return normalVectors2D(points, closed);
+  } else return principalNormalVectors(points, closed);
+};
