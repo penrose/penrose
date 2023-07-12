@@ -557,11 +557,11 @@ export const evoluteCurve = (
   points: ad.Num[][],
   closed: boolean
 ): ad.Num[][] => {
-  const normals = normalVectors(points, closed);
+  const normals = principalNormalVectors(points, closed);
   const curvatureList = curvatures(
     points,
     closed,
-    CurvatureApproximationMode.SteinerLineSegment
+    CurvatureApproximationMode.OsculatingCircle
   );
   const evolute: ad.Num[][] = [];
 
