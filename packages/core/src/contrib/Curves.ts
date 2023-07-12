@@ -46,6 +46,18 @@ export const curvature = (
   p3: ad.Num[],
   mode: CurvatureApproximationMode = CurvatureApproximationMode.Angle
 ): ad.Num => {
+  // Curvature approximation schemes using angle adapted from [1].
+  // [1] K. Crane, M. Wardetzky and J. Hass,
+  //     "A Glimpse into Discrete Differential Geometry",
+  //     Notices of the American Mathematical Society 64(10):1153-1159
+  //     DOI: 10.1090/noti1578
+  const v1 = ops.vsub(p2, p1);
+  const v2 = ops.vsub(p3, p2);
+
+  // Compute signed angle for 2D and positive angle otherwise
+  const angle =
+    p1.length === 2 ? ops.angleFrom(v1, v2) : ops.angleBetween(v1, v2);
+
   // Finite difference approximation of the $\partial_s T = \kappa N$
   if (mode === CurvatureApproximationMode.FiniteDifferences) {
     const v12 = ops.vsub(p2, p1);
@@ -58,20 +70,8 @@ export const curvature = (
     const p23 = ops.vmul(0.5, ops.vadd(p2, p3));
     // Distance between the edge centers
     const l123 = ops.vdist(p12, p23);
-    return div(ops.vdist(t23, t12), l123);
+    return mul(sign(angle), div(ops.vdist(t23, t12), l123));
   }
-
-  // Curvature approximation schemes using angle adapted from [1].
-  // [1] K. Crane, M. Wardetzky and J. Hass,
-  //     "A Glimpse into Discrete Differential Geometry",
-  //     Notices of the American Mathematical Society 64(10):1153-1159
-  //     DOI: 10.1090/noti1578
-  const v1 = ops.vsub(p2, p1);
-  const v2 = ops.vsub(p3, p2);
-
-  // Compute signed angle for 2D and positive angle otherwise
-  const angle =
-    p1.length === 2 ? ops.angleFrom(v1, v2) : ops.angleBetween(v1, v2);
 
   // $\kappa^A$ from [1]
   if (mode === CurvatureApproximationMode.Angle) return angle;
