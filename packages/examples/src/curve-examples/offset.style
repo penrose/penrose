@@ -81,6 +81,15 @@ forall Curve c {
     strokeLinejoin: settings.strokeLinejoin
   }
 
+  offset1 above bloom
+  offset2 above bloom
+  offset3 above bloom
+  offset4 above bloom
+  offset5 above bloom
+  offset6 above bloom
+  offset7 above bloom
+  offset8 above bloom
+
   ensure isEquilateral(points, settings.closed)
   ensure elasticEnergy(points, settings.closed) == 60000 in blob
   ensure signedArea(points, settings.closed) == 80000 in convex
