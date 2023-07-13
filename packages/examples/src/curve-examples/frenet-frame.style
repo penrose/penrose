@@ -16,396 +16,70 @@ settings {
   arrowSize = .5
 }
 
+global {
+   color black = #000
+}
+
+forall Point p {
+   p.x = (?,?)
+
+  shape p.dot = Circle {
+    center: p.x
+    r: settings.dotRadius
+    fillColor: settings.dotColor
+  }
+}
+
+collect Point p into ps
+where In(c,p)
+foreach Curve c {
+   xs = listof x from ps
+   c.points = xs
+}
+
 forall Curve c {
 
-  points = [(?, ?), (?, ?), (?, ?), (?, ?), (?, ?), (?, ?), (?, ?), (?, ?), (?, ?), (?, ?), (?, ?), (?, ?), (?, ?), (?, ?), (?, ?), (?, ?)]
-
   shape curve = Path {
-    d: interpolatingSpline( "closed", points, settings.tension )
+    d: interpolatingSpline( "closed", c.points, settings.tension )
     strokeColor: #0a600a7b
     strokeWidth: 2
     strokeLinejoin: "round"
   }
 
-  ts = tangentVectors(points, true)
-  ns = normalVectors(points, true)
+  c.ts = tangentVectors(c.points, true)
+  c.ns = normalVectors(c.points, true)
 
-  shape dot0 = Circle {
-    center: (points[0][0], points[0][1])
-    r: settings.dotRadius
-    fillColor: settings.dotColor
-  }
-  shape dot1 = Circle {
-    center: (points[1][0], points[1][1])
-    r: settings.dotRadius
-    fillColor: settings.dotColor
-  }
-  shape dot2 = Circle {
-    center: (points[2][0], points[2][1])
-    r: settings.dotRadius
-    fillColor: settings.dotColor
-  }
-  shape dot3 = Circle {
-    center: (points[3][0], points[3][1])
-    r: settings.dotRadius
-    fillColor: settings.dotColor
-  }
-  shape dot4 = Circle {
-    center: (points[4][0], points[4][1])
-    r: settings.dotRadius
-    fillColor: settings.dotColor
-  }
-  shape dot5 = Circle {
-    center: (points[5][0], points[5][1])
-    r: settings.dotRadius
-    fillColor: settings.dotColor
-  }
-  shape dot6 = Circle {
-    center: (points[6][0], points[6][1])
-    r: settings.dotRadius
-    fillColor: settings.dotColor
-  }
-  shape dot7 = Circle {
-    center: (points[7][0], points[7][1])
-    r: settings.dotRadius
-    fillColor: settings.dotColor
-  }
-  shape dot8 = Circle {
-    center: (points[8][0], points[8][1])
-    r: settings.dotRadius
-    fillColor: settings.dotColor
-  }
-  shape dot9 = Circle {
-    center: (points[9][0], points[9][1])
-    r: settings.dotRadius
-    fillColor: settings.dotColor
-  }
-  shape dot10 = Circle {
-    center: (points[10][0], points[10][1])
-    r: settings.dotRadius
-    fillColor: settings.dotColor
-  }
-  shape dot11 = Circle {
-    center: (points[11][0], points[11][1])
-    r: settings.dotRadius
-    fillColor: settings.dotColor
-  }
-  shape dot12 = Circle {
-    center: (points[12][0], points[12][1])
-    r: settings.dotRadius
-    fillColor: settings.dotColor
-  }
-  shape dot13 = Circle {
-    center: (points[13][0], points[13][1])
-    r: settings.dotRadius
-    fillColor: settings.dotColor
-  }
-  shape dot14 = Circle {
-    center: (points[14][0], points[14][1])
-    r: settings.dotRadius
-    fillColor: settings.dotColor
-  }
-  shape dot15 = Circle {
-    center: (points[15][0], points[15][1])
-    r: settings.dotRadius
-    fillColor: settings.dotColor
-  }
-
-  lineT0 = Line {
-	start: (points[0][0], points[0][1])
-	end: (points[0][0] + settings.scale * ts[0][0], points[0][1] + settings.scale * ts[0][1])
-	strokeColor: settings.tangentColor
-	strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineT1 = Line {
-	start: (points[1][0], points[1][1])
-	end: (points[1][0] + settings.scale * ts[1][0], points[1][1] + settings.scale * ts[1][1])
-	strokeColor: settings.tangentColor
-	strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineT2 = Line {
-	start: (points[2][0], points[2][1])
-	end: (points[2][0] + settings.scale * ts[2][0], points[2][1] + settings.scale * ts[2][1])
-	strokeColor: settings.tangentColor
-	strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineT3 = Line {
-	start: (points[3][0], points[3][1])
-	end: (points[3][0] + settings.scale * ts[3][0], points[3][1] + settings.scale * ts[3][1])
-	strokeColor: settings.tangentColor
-	strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineT4 = Line {
-	start: (points[4][0], points[4][1])
-	end: (points[4][0] + settings.scale * ts[4][0], points[4][1] + settings.scale * ts[4][1])
-	strokeColor: settings.tangentColor
-	strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineT5 = Line {
-	start: (points[5][0], points[5][1])
-	end: (points[5][0] + settings.scale * ts[5][0], points[5][1] + settings.scale * ts[5][1])
-	strokeColor: settings.tangentColor
-	strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineT6 = Line {
-	start: (points[6][0], points[6][1])
-	end: (points[6][0] + settings.scale * ts[6][0], points[6][1] + settings.scale * ts[6][1])
-	strokeColor: settings.tangentColor
-	strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineT7 = Line {
-	start: (points[7][0], points[7][1])
-	end: (points[7][0] + settings.scale * ts[7][0], points[7][1] + settings.scale * ts[7][1])
-	strokeColor: settings.tangentColor
-	strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineT8 = Line {
-	start: (points[8][0], points[8][1])
-	end: (points[8][0] + settings.scale * ts[8][0], points[8][1] + settings.scale * ts[8][1])
-	strokeColor: settings.tangentColor
-	strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineT9 = Line {
-	start: (points[9][0], points[9][1])
-	end: (points[9][0] + settings.scale * ts[9][0], points[9][1] + settings.scale * ts[9][1])
-	strokeColor: settings.tangentColor
-	strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineT10 = Line {
-	start: (points[10][0], points[10][1])
-	end: (points[10][0] + settings.scale * ts[10][0], points[10][1] + settings.scale * ts[10][1])
-	strokeColor: settings.tangentColor
-	strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineT11 = Line {
-	start: (points[11][0], points[11][1])
-	end: (points[11][0] + settings.scale * ts[11][0], points[11][1] + settings.scale * ts[11][1])
-	strokeColor: settings.tangentColor
-	strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineT12 = Line {
-	start: (points[12][0], points[12][1])
-	end: (points[12][0] + settings.scale * ts[12][0], points[12][1] + settings.scale * ts[12][1])
-	strokeColor: settings.tangentColor
-	strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineT13 = Line {
-	start: (points[13][0], points[13][1])
-	end: (points[13][0] + settings.scale * ts[13][0], points[13][1] + settings.scale * ts[13][1])
-	strokeColor: settings.tangentColor
-	strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineT14 = Line {
-	start: (points[14][0], points[14][1])
-	end: (points[14][0] + settings.scale * ts[14][0], points[14][1] + settings.scale * ts[14][1])
-	strokeColor: settings.tangentColor
-	strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineT15 = Line {
-	start: (points[15][0], points[15][1])
-	end: (points[15][0] + settings.scale * ts[15][0], points[15][1] + settings.scale * ts[15][1])
-	strokeColor: settings.tangentColor
-	strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-
-  dot0 above lineT0
-  dot1 above lineT1
-  dot2 above lineT2
-  dot3 above lineT3
-  dot4 above lineT4
-  dot5 above lineT5
-  dot6 above lineT6
-  dot7 above lineT7
-  dot8 above lineT8
-  dot9 above lineT9
-  dot10 above lineT10
-  dot11 above lineT11
-  dot12 above lineT12
-  dot13 above lineT13
-  dot14 above lineT14
-  dot15 above lineT15
-
-  lineN0 = Line {
-    start: (points[0][0], points[0][1])
-    end: (points[0][0] + settings.scale * ns[0][0], points[0][1] + settings.scale * ns[0][1])
-    strokeColor: settings.normalColor
-    strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineN1 = Line {
-    start: (points[1][0], points[1][1])
-    end: (points[1][0] + settings.scale * ns[1][0], points[1][1] + settings.scale * ns[1][1])
-    strokeColor: settings.normalColor
-    strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineN2 = Line {
-    start: (points[2][0], points[2][1])
-    end: (points[2][0] + settings.scale * ns[2][0], points[2][1] + settings.scale * ns[2][1])
-    strokeColor: settings.normalColor
-    strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineN3 = Line {
-    start: (points[3][0], points[3][1])
-    end: (points[3][0] + settings.scale * ns[3][0], points[3][1] + settings.scale * ns[3][1])
-    strokeColor: settings.normalColor
-    strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineN4 = Line {
-    start: (points[4][0], points[4][1])
-    end: (points[4][0] + settings.scale * ns[4][0], points[4][1] + settings.scale * ns[4][1])
-    strokeColor: settings.normalColor
-    strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineN5 = Line {
-    start: (points[5][0], points[5][1])
-    end: (points[5][0] + settings.scale * ns[5][0], points[5][1] + settings.scale * ns[5][1])
-    strokeColor: settings.normalColor
-    strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineN6 = Line {
-    start: (points[6][0], points[6][1])
-    end: (points[6][0] + settings.scale * ns[6][0], points[6][1] + settings.scale * ns[6][1])
-    strokeColor: settings.normalColor
-    strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineN7 = Line {
-    start: (points[7][0], points[7][1])
-    end: (points[7][0] + settings.scale * ns[7][0], points[7][1] + settings.scale * ns[7][1])
-    strokeColor: settings.normalColor
-    strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineN8 = Line {
-    start: (points[8][0], points[8][1])
-    end: (points[8][0] + settings.scale * ns[8][0], points[8][1] + settings.scale * ns[8][1])
-    strokeColor: settings.normalColor
-    strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineN9 = Line {
-    start: (points[9][0], points[9][1])
-    end: (points[9][0] + settings.scale * ns[9][0], points[9][1] + settings.scale * ns[9][1])
-    strokeColor: settings.normalColor
-    strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineN10 = Line {
-	start: (points[10][0], points[10][1])
-	end: (points[10][0] + settings.scale * ns[10][0], points[10][1] + settings.scale * ns[10][1])
-    strokeColor: settings.normalColor
-    strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineN11 = Line {
-	start: (points[11][0], points[11][1])
-	end: (points[11][0] + settings.scale * ns[11][0], points[11][1] + settings.scale * ns[11][1])
-    strokeColor: settings.normalColor
-    strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineN12 = Line {
-	start: (points[12][0], points[12][1])
-	end: (points[12][0] + settings.scale * ns[12][0], points[12][1] + settings.scale * ns[12][1])
-    strokeColor: settings.normalColor
-    strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineN13 = Line {
-	start: (points[13][0], points[13][1])
-	end: (points[13][0] + settings.scale * ns[13][0], points[13][1] + settings.scale * ns[13][1])
-    strokeColor: settings.normalColor
-    strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineN14 = Line {
-	start: (points[14][0], points[14][1])
-	end: (points[14][0] + settings.scale * ns[14][0], points[14][1] + settings.scale * ns[14][1])
-    strokeColor: settings.normalColor
-    strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-  lineN15 = Line {
-	start: (points[15][0], points[15][1])
-	end: (points[15][0] + settings.scale * ns[15][0], points[15][1] + settings.scale * ns[15][1])
-    strokeColor: settings.normalColor
-    strokeWidth: settings.arrowThickness
-    endArrowhead: "straight"
-    endArrowheadSize: settings.arrowSize
-  }
-
-  dot0 above lineN0
-  dot1 above lineN1
-  dot2 above lineN2
-  dot3 above lineN3
-  dot4 above lineN4
-  dot5 above lineN5
-  dot6 above lineN6
-  dot7 above lineN7
-  dot8 above lineN8
-  dot9 above lineN9
-  dot10 above lineN10
-  dot11 above lineN11
-  dot12 above lineN12
-  dot13 above lineN13
-  dot14 above lineN14
-  dot15 above lineN15
-
-  ensure isEquilateral(points, true)
-  encourage elasticEnergy(points, true) == 8000 in blob
-  ensure signedArea(points, true) == 40000 in convex
-  ensure perimeter(points, true) == 1000
-
+  ensure isEquilateral(c.points, true)
+  encourage elasticEnergy(c.points, true) == 8000 in blob
+  ensure signedArea(c.points, true) == 40000 in convex
+  ensure perimeter(c.points, true) == 1000
 }
+
+forall Point p; Curve c
+where In(c,p) {
+
+   vec2 x = p.x
+   vec2 t = oneBasedElement( c.ts, match_id )
+   vec2 n = oneBasedElement( c.ns, match_id )
+
+   p.lineT = Line {
+         start: x
+         end: x + settings.scale * t
+         strokeColor: settings.tangentColor
+         strokeWidth: settings.arrowThickness
+     endArrowhead: "straight"
+     endArrowheadSize: settings.arrowSize
+   }
+   p.lineN = Line {
+     start: x
+     end: x + settings.scale * n
+     strokeColor: settings.normalColor
+     strokeWidth: settings.arrowThickness
+     endArrowhead: "straight"
+     endArrowheadSize: settings.arrowSize
+   }
+
+   layer p.dot above p.lineT
+   layer p.dot above p.lineN
+}
+

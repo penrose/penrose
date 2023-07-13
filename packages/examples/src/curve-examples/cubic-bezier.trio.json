@@ -1,5 +1,5 @@
 {
-  "substance": "./cubic-bezier.substance",
+  "substance": "./curve.substance",
   "style": ["./cubic-bezier.style"],
   "domain": "./curves.domain",
   "variation": "CauliflowerDeer97138"

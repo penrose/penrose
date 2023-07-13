@@ -346,6 +346,34 @@ export const compDict = {
     returns: valueT("Color"),
   },
 
+  oneBasedElement: {
+    name: "oneBasedElement",
+    description:
+      "Index a point list using 1-based indexing.",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "list of points",
+      },
+      { name: "i",
+        type: posIntT(),
+        description: "1-based index"
+      }
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      i: number
+    ): MayWarn<ad.Num[]> => {
+      return noWarn({
+        tag: "VectorV",
+        contents: points[i-1]
+      });
+    },
+    returns: valueT("Real2"),
+  },
+
   /**
    * Return `acosh(x)`.
    */
