@@ -1,5 +1,5 @@
 <script setup lang="ts">
-defineProps<{ github: string; date: string }>();
+defineProps<{ github: string }>();
 </script>
 
 <template>
@@ -10,6 +10,5 @@ defineProps<{ github: string; date: string }>();
       style="border-radius: 50%"
     />
     <a :href="`https://github.com/${github}`">@{{ github }}</a>
-    {{ date }}
   </div>
 </template>

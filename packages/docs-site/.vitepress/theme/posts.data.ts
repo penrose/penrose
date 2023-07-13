@@ -2,9 +2,10 @@
 
 import { createContentLoader } from "vitepress";
 
-interface Post {
+export interface Post {
   title: string;
   url: string;
+  github: string;
   date: {
     time: number;
     string: string;
@@ -21,6 +22,7 @@ export default createContentLoader("blog/*.md", {
     return raw
       .map(({ url, frontmatter, excerpt }) => ({
         title: frontmatter.title,
+        github: frontmatter.github,
         url,
         excerpt,
         date: formatDate(frontmatter.date),

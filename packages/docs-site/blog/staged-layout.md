@@ -2,12 +2,11 @@
 title: "Diagram Layout in Stages"
 date: 2023-06-30
 author: Wode Ni
-gravatar: eca93da2c67aadafe35d477aa8f454b8
 twitter: "@wodenimoni"
+github: "wodeni"
 ---
 
 <script setup>
-import BlogMeta from "../src/components/BlogMeta.vue";
 import StagedDiagram from "../src/components/StagedDiagram.vue";
 import { ref } from 'vue'
 import vector from "@penrose/examples/dist/exterior-algebra/vector-wedge.trio";
@@ -104,16 +103,16 @@ const blob = {
 }
 </script>
 
-# Diagram Layout in Stages
+<BlogMeta />
 
-<BlogMeta github="wodeni" date="2023-06-30" />
+Layout optimization can get pretty complicated even for simple diagrams. We introduced layout stages to make it simpler!
+
+---
 
 ## Layout optimization becomes complicated quickly
 
 In Style, we can write `ensure` and `encourage` statements to declare constraints and objectives. The compiler turns them into a numerical optimization problem, and the optimizer finds a good layout. This simple approach worked fairly well in the early years of Penrose. However, as we authored more complex diagrams in Penrose, the optimizer started to struggle.
 For example, we have built a series of diagrams in 2D Euclidean geometry where the optimizer was unable to consistently produce good layouts, like this one:
-
----
 
 <!-- <div style="width: 55%; float:right; margin-left: 16px; margin-top: 16px"> -->
 <div style="display: flex; justify-content: center">

@@ -1,10 +1,16 @@
-<script setup>
-import BlogMeta from "../../../../src/components/BlogMeta.vue";
-</script>
+---
+title: "Switching to Wasm for 10x Speedup"
+date: 2023-06-30
+author: Sam Estep
+twitter: "@samestep"
+github: "samestep"
+---
 
-# Switching to Wasm for 10x Speedup
+<BlogMeta />
 
-<BlogMeta github="samestep" date="2023-06-30" />
+We switched our optimizer from JS to Wasm, and everything is 10x faster!
+
+---
 
 When you write `encourage` and `ensure` statements in your Style program,
 Penrose uses numerical optimization to find a layout of shapes that minimizes
