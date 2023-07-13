@@ -5824,7 +5824,7 @@ const trace = (
    return sum;
 };
 
-// Given a 2x2 or 3x3 matrix A, returns its determinant.
+// Given a 2x2, 3x3, or 4x4 matrix A, returns its determinant.
 const determinant = (
   A: ad.Num[][]
 ): ad.Num => {
@@ -5837,14 +5837,20 @@ const determinant = (
        mul( A[0][0], sub(mul(A[1][1],A[2][2]), mul(A[1][2],A[2][1])) ),
        mul( A[0][1], sub(mul(A[1][2],A[2][0]), mul(A[1][0],A[2][2])) )),
        mul( A[0][2], sub(mul(A[1][0],A[2][1]), mul(A[1][1],A[2][0])) ));
+   } else if( n == 4 ) {
+      const C00 = add(add(sub(mul(mul(A[1][2],A[2][3]),A[3][1]), mul(mul(A[1][3],A[2][2]),A[3][1])), sub(mul(mul(A[1][3],A[2][1]),A[3][2]), mul(mul(A[1][1],A[2][3]),A[3][2]))), sub(mul(mul(A[1][1],A[2][2]),A[3][3]), mul(mul(A[1][2],A[2][1]),A[3][3])));
+      const C10 = add(add(sub(mul(mul(A[1][3],A[2][2]),A[3][0]), mul(mul(A[1][2],A[2][3]),A[3][0])), sub(mul(mul(A[1][0],A[2][3]),A[3][2]), mul(mul(A[1][3],A[2][0]),A[3][2]))), sub(mul(mul(A[1][2],A[2][0]),A[3][3]), mul(mul(A[1][0],A[2][2]),A[3][3])));
+      const C20 = add(add(sub(mul(mul(A[1][1],A[2][3]),A[3][0]), mul(mul(A[1][3],A[2][1]),A[3][0])), sub(mul(mul(A[1][3],A[2][0]),A[3][1]), mul(mul(A[1][0],A[2][3]),A[3][1]))), sub(mul(mul(A[1][0],A[2][1]),A[3][3]), mul(mul(A[1][1],A[2][0]),A[3][3])));
+      const C30 = add(add(sub(mul(mul(A[1][2],A[2][1]),A[3][0]), mul(mul(A[1][1],A[2][2]),A[3][0])), sub(mul(mul(A[1][0],A[2][2]),A[3][1]), mul(mul(A[1][2],A[2][0]),A[3][1]))), sub(mul(mul(A[1][1],A[2][0]),A[3][2]), mul(mul(A[1][0],A[2][1]),A[3][2])));
+      return add( add( add( mul(A[0][0],C00), mul(A[0][1],C10)), mul(A[0][2],C20)), mul(A[0][3],C30));
    } else {
-      throw Error("matrix must be 2x2 or 3x3");
+      throw Error("matrix must be 2x2, 3x3, or 4x4");
    }
 
    return 0;
 };
 
-// Given a 2x2 or 3x3 matrix A, returns its inverse.  If the matrix is
+// Given a 2x2, 3x3, or 4x4 matrix A, returns its inverse.  If the matrix is
 // not invertible, evaluation of this function within the optimizer
 // may produce a numerically invalid matrix (with INF or NaN entries).
 const inverse = (
@@ -5852,22 +5858,32 @@ const inverse = (
 ): ad.Num[][] => {
 
    const n = A.length;
+   let C: ad.Num[][] = [];
+   let detA: ad.Num = 0;
+
    if( n == 2 ) {
-      const B = new Array(2);
-      B[0] = [ A[1][1], neg(A[0][1]) ];
-      B[1] = [ neg(A[1][0]), A[0][0] ];
-      return ops.msdiv( B, determinant(A) );
+      C = new Array(2);
+      C[0] = [ A[1][1], neg(A[0][1]) ];
+      C[1] = [ neg(A[1][0]), A[0][0] ];
+      detA = add( mul(A[0][0],C[0][0]), mul(A[0][1],C[1][0]));
    } else if( n == 3 ) {
-      const B = new Array(3);
-      B[0] = [ sub(mul(A[1][1],A[2][2]), mul(A[1][2],A[2][1])), sub(mul(A[0][2],A[2][1]), mul(A[0][1],A[2][2])), sub(mul(A[0][1],A[1][2]), mul(A[0][2],A[1][1])) ];
-      B[1] = [ sub(mul(A[1][2],A[2][0]), mul(A[1][0],A[2][2])), sub(mul(A[0][0],A[2][2]), mul(A[0][2],A[2][0])), sub(mul(A[0][2],A[1][0]), mul(A[0][0],A[1][2])) ];
-      B[2] = [ sub(mul(A[1][0],A[2][1]), mul(A[1][1],A[2][0])), sub(mul(A[0][1],A[2][0]), mul(A[0][0],A[2][1])), sub(mul(A[0][0],A[1][1]), mul(A[0][1],A[1][0])) ];
-      return ops.msdiv( B, determinant(A) );
+      C = new Array(3);
+      C[0] = [ sub(mul(A[1][1],A[2][2]), mul(A[1][2],A[2][1])), sub(mul(A[0][2],A[2][1]), mul(A[0][1],A[2][2])), sub(mul(A[0][1],A[1][2]), mul(A[0][2],A[1][1])) ];
+      C[1] = [ sub(mul(A[1][2],A[2][0]), mul(A[1][0],A[2][2])), sub(mul(A[0][0],A[2][2]), mul(A[0][2],A[2][0])), sub(mul(A[0][2],A[1][0]), mul(A[0][0],A[1][2])) ];
+      C[2] = [ sub(mul(A[1][0],A[2][1]), mul(A[1][1],A[2][0])), sub(mul(A[0][1],A[2][0]), mul(A[0][0],A[2][1])), sub(mul(A[0][0],A[1][1]), mul(A[0][1],A[1][0])) ];
+      detA = add( add( mul(A[0][0],C[0][0]), mul(A[0][1],C[1][0])), mul(A[0][2],C[2][0]));
+   } else if( n == 4 ) {
+      C = new Array(4);
+      C[0] = [ add(add(sub(mul(mul(A[1][2],A[2][3]),A[3][1]), mul(mul(A[1][3],A[2][2]),A[3][1])), sub(mul(mul(A[1][3],A[2][1]),A[3][2]), mul(mul(A[1][1],A[2][3]),A[3][2]))), sub(mul(mul(A[1][1],A[2][2]),A[3][3]), mul(mul(A[1][2],A[2][1]),A[3][3]))), add(add(sub(mul(mul(A[0][3],A[2][2]),A[3][1]), mul(mul(A[0][2],A[2][3]),A[3][1])), sub(mul(mul(A[0][1],A[2][3]),A[3][2]), mul(mul(A[0][3],A[2][1]),A[3][2]))), sub(mul(mul(A[0][2],A[2][1]),A[3][3]), mul(mul(A[0][1],A[2][2]),A[3][3]))), add(add(sub(mul(mul(A[0][2],A[1][3]),A[3][1]), mul(mul(A[0][3],A[1][2]),A[3][1])), sub(mul(mul(A[0][3],A[1][1]),A[3][2]), mul(mul(A[0][1],A[1][3]),A[3][2]))), sub(mul(mul(A[0][1],A[1][2]),A[3][3]), mul(mul(A[0][2],A[1][1]),A[3][3]))), add(add(sub(mul(mul(A[0][3],A[1][2]),A[2][1]), mul(mul(A[0][2],A[1][3]),A[2][1])), sub(mul(mul(A[0][1],A[1][3]),A[2][2]), mul(mul(A[0][3],A[1][1]),A[2][2]))), sub(mul(mul(A[0][2],A[1][1]),A[2][3]), mul(mul(A[0][1],A[1][2]),A[2][3]))) ];
+      C[1] = [ add(add(sub(mul(mul(A[1][3],A[2][2]),A[3][0]), mul(mul(A[1][2],A[2][3]),A[3][0])), sub(mul(mul(A[1][0],A[2][3]),A[3][2]), mul(mul(A[1][3],A[2][0]),A[3][2]))), sub(mul(mul(A[1][2],A[2][0]),A[3][3]), mul(mul(A[1][0],A[2][2]),A[3][3]))), add(add(sub(mul(mul(A[0][2],A[2][3]),A[3][0]), mul(mul(A[0][3],A[2][2]),A[3][0])), sub(mul(mul(A[0][3],A[2][0]),A[3][2]), mul(mul(A[0][0],A[2][3]),A[3][2]))), sub(mul(mul(A[0][0],A[2][2]),A[3][3]), mul(mul(A[0][2],A[2][0]),A[3][3]))), add(add(sub(mul(mul(A[0][3],A[1][2]),A[3][0]), mul(mul(A[0][2],A[1][3]),A[3][0])), sub(mul(mul(A[0][0],A[1][3]),A[3][2]), mul(mul(A[0][3],A[1][0]),A[3][2]))), sub(mul(mul(A[0][2],A[1][0]),A[3][3]), mul(mul(A[0][0],A[1][2]),A[3][3]))), add(add(sub(mul(mul(A[0][2],A[1][3]),A[2][0]), mul(mul(A[0][3],A[1][2]),A[2][0])), sub(mul(mul(A[0][3],A[1][0]),A[2][2]), mul(mul(A[0][0],A[1][3]),A[2][2]))), sub(mul(mul(A[0][0],A[1][2]),A[2][3]), mul(mul(A[0][2],A[1][0]),A[2][3]))) ];
+      C[2] = [ add(add(sub(mul(mul(A[1][1],A[2][3]),A[3][0]), mul(mul(A[1][3],A[2][1]),A[3][0])), sub(mul(mul(A[1][3],A[2][0]),A[3][1]), mul(mul(A[1][0],A[2][3]),A[3][1]))), sub(mul(mul(A[1][0],A[2][1]),A[3][3]), mul(mul(A[1][1],A[2][0]),A[3][3]))), add(add(sub(mul(mul(A[0][3],A[2][1]),A[3][0]), mul(mul(A[0][1],A[2][3]),A[3][0])), sub(mul(mul(A[0][0],A[2][3]),A[3][1]), mul(mul(A[0][3],A[2][0]),A[3][1]))), sub(mul(mul(A[0][1],A[2][0]),A[3][3]), mul(mul(A[0][0],A[2][1]),A[3][3]))), add(add(sub(mul(mul(A[0][1],A[1][3]),A[3][0]), mul(mul(A[0][3],A[1][1]),A[3][0])), sub(mul(mul(A[0][3],A[1][0]),A[3][1]), mul(mul(A[0][0],A[1][3]),A[3][1]))), sub(mul(mul(A[0][0],A[1][1]),A[3][3]), mul(mul(A[0][1],A[1][0]),A[3][3]))), add(add(sub(mul(mul(A[0][3],A[1][1]),A[2][0]), mul(mul(A[0][1],A[1][3]),A[2][0])), sub(mul(mul(A[0][0],A[1][3]),A[2][1]), mul(mul(A[0][3],A[1][0]),A[2][1]))), sub(mul(mul(A[0][1],A[1][0]),A[2][3]), mul(mul(A[0][0],A[1][1]),A[2][3]))) ];
+      C[3] = [ add(add(sub(mul(mul(A[1][2],A[2][1]),A[3][0]), mul(mul(A[1][1],A[2][2]),A[3][0])), sub(mul(mul(A[1][0],A[2][2]),A[3][1]), mul(mul(A[1][2],A[2][0]),A[3][1]))), sub(mul(mul(A[1][1],A[2][0]),A[3][2]), mul(mul(A[1][0],A[2][1]),A[3][2]))), add(add(sub(mul(mul(A[0][1],A[2][2]),A[3][0]), mul(mul(A[0][2],A[2][1]),A[3][0])), sub(mul(mul(A[0][2],A[2][0]),A[3][1]), mul(mul(A[0][0],A[2][2]),A[3][1]))), sub(mul(mul(A[0][0],A[2][1]),A[3][2]), mul(mul(A[0][1],A[2][0]),A[3][2]))), add(add(sub(mul(mul(A[0][2],A[1][1]),A[3][0]), mul(mul(A[0][1],A[1][2]),A[3][0])), sub(mul(mul(A[0][0],A[1][2]),A[3][1]), mul(mul(A[0][2],A[1][0]),A[3][1]))), sub(mul(mul(A[0][1],A[1][0]),A[3][2]), mul(mul(A[0][0],A[1][1]),A[3][2]))), add(add(sub(mul(mul(A[0][1],A[1][2]),A[2][0]), mul(mul(A[0][2],A[1][1]),A[2][0])), sub(mul(mul(A[0][2],A[1][0]),A[2][1]), mul(mul(A[0][0],A[1][2]),A[2][1]))), sub(mul(mul(A[0][0],A[1][1]),A[2][2]), mul(mul(A[0][1],A[1][0]),A[2][2]))) ];
+      detA = add( add( add( mul(A[0][0],C[0][0]), mul(A[0][1],C[1][0])), mul(A[0][2],C[2][0])), mul(A[0][3],C[3][0]));
    } else {
-      throw Error("matrix must be 2x2 or 3x3");
+      throw Error("matrix must be 2x2, 3x3, or 4x4");
    }
 
-   return A;
+   return ops.msdiv( C, detA );
 };
 
 // Given a square n x n matrix A representing a spatial transformation in n
