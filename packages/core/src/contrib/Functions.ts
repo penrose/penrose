@@ -5824,6 +5824,26 @@ const trace = (
    return sum;
 };
 
+// Given a 2x2 or 3x3 matrix A, returns its determinant.
+const determinant = (
+  A: ad.Num[][]
+): ad.Num => {
+
+   const n = A.length;
+   if( n == 2 ) {
+      return sub(mul(A[0][0],A[1][1]), mul(A[0][1],A[1][0]));
+   } else if( n == 3 ) {
+      return add( add(
+       mul( A[0][0], sub(mul(A[1][1],A[2][2]), mul(A[1][2],A[2][1])) ),
+       mul( A[0][1], sub(mul(A[1][2],A[2][0]), mul(A[1][0],A[2][2])) )),
+       mul( A[0][2], sub(mul(A[1][0],A[2][1]), mul(A[1][1],A[2][0])) ));
+   } else {
+      throw Error("matrix must be 2x2 or 3x3");
+   }
+
+   return 0;
+};
+
 // Given a square n x n matrix A representing a spatial transformation in n
 // dimensions, returns an (n+1) x (n+1) matrix representing the same
 // transformation in homogeneous coordinates.
