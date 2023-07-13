@@ -5844,6 +5844,32 @@ const determinant = (
    return 0;
 };
 
+// Given a 2x2 or 3x3 matrix A, returns its inverse.  If the matrix is
+// not invertible, evaluation of this function within the optimizer
+// may produce a numerically invalid matrix (with INF or NaN entries).
+const inverse = (
+  A: ad.Num[][]
+): ad.Num[][] => {
+
+   const n = A.length;
+   if( n == 2 ) {
+      const B = new Array(2);
+      B[0] = [ A[1][1], neg(A[0][1]) ];
+      B[1] = [ neg(A[1][0]), A[0][0] ];
+      return ops.msdiv( B, determinant(A) );
+   } else if( n == 3 ) {
+      const B = new Array(3);
+      B[0] = [ sub(mul(A[1][1],A[2][2]), mul(A[1][2],A[2][1])), sub(mul(A[0][2],A[2][1]), mul(A[0][1],A[2][2])), sub(mul(A[0][1],A[1][2]), mul(A[0][2],A[1][1])) ];
+      B[1] = [ sub(mul(A[1][2],A[2][0]), mul(A[1][0],A[2][2])), sub(mul(A[0][0],A[2][2]), mul(A[0][2],A[2][0])), sub(mul(A[0][2],A[1][0]), mul(A[0][0],A[1][2])) ];
+      B[2] = [ sub(mul(A[1][0],A[2][1]), mul(A[1][1],A[2][0])), sub(mul(A[0][1],A[2][0]), mul(A[0][0],A[2][1])), sub(mul(A[0][0],A[1][1]), mul(A[0][1],A[1][0])) ];
+      return ops.msdiv( B, determinant(A) );
+   } else {
+      throw Error("matrix must be 2x2 or 3x3");
+   }
+
+   return A;
+};
+
 // Given a square n x n matrix A representing a spatial transformation in n
 // dimensions, returns an (n+1) x (n+1) matrix representing the same
 // transformation in homogeneous coordinates.
@@ -5851,7 +5877,7 @@ const toHomogeneous = (
   A: ad.Num[][]
 ): ad.Num[][] => {
    const n = A.length;
-   let B = new Array(n+1);
+   const B = new Array(n+1);
    for( let i = 0; i < n; i++ ) {
       B[i] = new Array(n+1);
       for( let j = 0; i < n; i++ ) {
