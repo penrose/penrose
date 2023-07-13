@@ -441,5 +441,9 @@
   "curve-examples/osculating-circle": {
     "name": "Osculating Circle",
     "gallery": false
+  },
+  "curve-examples/evolute-of-cardioid": {
+    "name": "Evolute of Cardioid",
+    "gallery": false
   }
 }
