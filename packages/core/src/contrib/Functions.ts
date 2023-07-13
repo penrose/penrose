@@ -5886,10 +5886,24 @@ const inverse = (
    return ops.msdiv( C, detA );
 };
 
+// Given a vector v of length n, encoding a point in n-dimensional Cartesian coordinates,
+// returns a vector of length n+1, encoding the same point in homogeneous coordinates.
+const toHomogeneous = (
+  p: ad.Num[]
+): ad.Num[] => {
+   const n = p.length;
+   const q: ad.Num[] = new Array(n+1);
+   for( let i = 0; i < n; i++ ) {
+      q[i] = p[i]
+   }
+   q[n] = 1;
+   return q;
+};
+
 // Given a square n x n matrix A representing a spatial transformation in n
 // dimensions, returns an (n+1) x (n+1) matrix representing the same
 // transformation in homogeneous coordinates.
-const toHomogeneous = (
+const toHomogeneousMatrix = (
   A: ad.Num[][]
 ): ad.Num[][] => {
    const n = A.length;
@@ -5907,7 +5921,6 @@ const toHomogeneous = (
    B[n][n] = 1;
    return B;
 };
-
 
 // Given n-dimensional vectors u and v, returns the n x n matrix
 // given by their outer product.
@@ -6097,9 +6110,6 @@ const lookAt =(
 //         aspect ratio is the ratio of x (width) to y (height).
 // zNear   Specifies the distance from the viewer to the near clipping plane (always positive).
 // zFar    Specifies the distance from the viewer to the far clipping plane (always positive).
-
-gluPerspective
-
 const perspective = (
    fovy: ad.Num,
    aspect: ad.Num,
@@ -6151,12 +6161,41 @@ const ortho =
    return M;
 }
 
-// TODO project()
-// TODO unProject()
-// TODO frustum()
+// (adapted from gluProject man page:)
+// project transforms the specified object coordinates into window coordinates using a given
+// model and projection transformation, and a given viewport.  It returns the projected x,y
+// coordinates, as well as the depth relative to the view.
+// p       3D object coordinates (x,y,z)
+// model   4x4 modelview matrix
+// proj    4x4 projection matrix
+// view    viewport (x, y, width, height)
+const project = (
+   p: ad.Num[],
+   modelMatrix: ad.Num[][],
+   projMatrix: ad.Num[][],
+   viewport: ad.Num[]
+): ad.Num[] => {
+   // adapted from MESA implementation of gluProject()
+
+   /* Apply modelview and projection transformations */
+   const q = ops.mvmul( projMatrix, ops.mvmul( modelMatrix, toHomogeneous(p) ));
+
+   /* Homogeneous divide by w to get x, y, z */
+   let r = ops.vdiv( q, q[3] ).slice( 0, 3 );
+   
+   /* Map x, y and z to range 0-1 */
+   r = ops.vadd( ops.vmul( 0.5, r ), [ 0.5, 0.5, 0.5] );
+
+   /* Map x,y to viewport */
+   r[0] = add( mul( r[0], viewport[2] ), viewport[0] );
+   r[1] = add( mul( r[1], viewport[3] ), viewport[1] );
+
+   /* Return x, y, and depth */
+   return r;
+}
 
 // TODO:
-//    - implement methods described at https://glm.g-truc.net/0.9.5/api/a00176.html (you may be able to use MESA)
+//    + implement methods described at https://glm.g-truc.net/0.9.5/api/a00176.html (you may be able to use MESA)
 //    - write Style wrappers (2D, 2DH, 3D, 3DH)
 //    - refactor non-wrapped methods into MatrixFunctions.ts
 //    - add `then` operator to parser/compiler
