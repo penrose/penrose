@@ -873,7 +873,7 @@ export const compDict = {
     ): MayWarn<MatrixV<ad.Num>> => {
       return noWarn({
         tag: "MatrixV",
-        contents: ops.vouter(u, v),
+        contents: outer(u, v),
       });
     },
     returns: valueT("RealNM"),
@@ -5792,7 +5792,7 @@ const identity = (n: number): ad.Num[][] => {
          I[i][j] = (i===j ? 1 : 0);
       }
    }
-   return D;
+   return I;
 };
 
 // Given a vector v of length n, returns a
@@ -5817,9 +5817,9 @@ const trace = (
   A: ad.Num[][]
 ): ad.Num => {
    const n = A.length;
-   let sum = 0;
+   let sum: ad.Num = 0;
    for (let i = 0; i < n; i++) {
-      sum = add(sum, A[i]);
+      sum = add(sum, A[i][i]);
    }
    return sum;
 };
@@ -5829,28 +5829,54 @@ const trace = (
 // transformation in homogeneous coordinates.
 const toHomogeneous = (
   A: ad.Num[][]
-): ad.Num => {
+): ad.Num[][] => {
    const n = A.length;
    let B = new Array(n+1);
-   for (let i = 0; i < n; i++) {
-      let B[i] = new Array(n+1);
-      for (let j = 0; i < n; i++) {
+   for( let i = 0; i < n; i++ ) {
+      B[i] = new Array(n+1);
+      for( let j = 0; i < n; i++ ) {
          B[i][j] = A[i][j];
       }
       B[i][n] = 0;
    }
-   for (let j = 0; i < n; i++) {
+   for( let j = 0; j < n; j++ ) {
       B[n][j] = 0;
    }
    B[n][n] = 1;
    return B;
 };
 
+
+// Given n-dimensional vectors u and v, returns the n x n matrix
+// given by their outer product.
+const outer = (
+   u: ad.Num[],
+   v: ad.Num[]
+): ad.Num[][] => {
+
+  if (u.length !== v.length) {
+    throw Error("vectors must have equal length");
+  }
+
+  const A: ad.Num[][] = [];
+  for (let i = 0; i < u.length; i++) {
+    const row = v.map((e) => mul(u[i], e));
+    A.push(row);
+  }
+
+  return A;
+};
+
 // Given a 3-vector v, returns a 3x3 skew symmetric
 // matrix v̂ such that v̂u = v x u for any vector u.
-const skew3D = (
+const skew = (
   v: ad.Num[]
 ): ad.Num[][] => {
+
+   if (v.length !== 3) {
+      throw Error("vector must have length 3");
+   }
+
    return [ [    0,  neg(v[2]), v[1] ],
             [  v[2],    0, neg(v[0]) ],
             [ neg(v[1]),  v[0],   0  ] ];
@@ -5870,12 +5896,17 @@ const rotate3D = (
   theta: ad.Num,
   v: ad.Num[]
 ): ad.Num[][] => {
+
+   if (v.length !== 3) {
+      throw Error("rotation axis must have length 3");
+   }
+
    // Construct matrix via Rodrigues' formula
    //    I + sin(θ)v̂ + (1-cos(θ))v̂²
    // where v̂ is the skew-symmetric matrix such
    // that v̂u = v x u for any vector u.
-   const I = identity3D();
-   const vhat = skew3D(v);
+   const I = identity(3);
+   const vhat = skew(v);
    return ops.mmadd( ops.mmadd( I, ops.smmul(sin(theta), vhat) ), ops.smmul( sub(1.,cos(theta)), ops.mmmul(vhat,vhat) ) );
 };
 
@@ -5897,4 +5928,39 @@ const scale3D = (
 ): ad.Num[][] => {
    return diagonal( [ sx, sy, sz ] );
 };
+
+// Given n-dimensional vectors u and v, returns an n x n matrix A such that
+// Ax displaces any given point x in the direction u according to its extent
+// along the direction v, i.e., Ax = x + <v,x>u.
+const shear = (
+   u: ad.Num[],
+   v: ad.Num[]
+): ad.Num[][] => {
+
+   if (u.length !== v.length) {
+      throw Error("vectors must have equal length");
+   }
+
+   const n = v.length;
+   const I = identity(n);
+   return ops.mmadd( I, outer(u,v) );
+}
+
+// Given an n-dimensional vector v, returns an (n+1)x(n+1) matrix representing a
+// translation of n-dimensional space by v, encoded in homogeneous coordinates.
+const translate = (
+  v: ad.Num[]
+): ad.Num[][] => {
+   const n = v.length;
+   const A = new Array(n+1);
+   for( let i = 0; i < n+1; i++ ) {
+      A[i] = new Array(n+1);
+      for( let j = 0; j < n; j++ ) {
+         A[i][j] = (i===j ? 1 : 0);
+      }
+      A[i][n] = v[i];
+   }
+   A[n][n] = 1;
+   return A;
+}
 
