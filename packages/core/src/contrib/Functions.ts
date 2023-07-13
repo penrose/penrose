@@ -6097,12 +6097,17 @@ const lookAt =(
 //         aspect ratio is the ratio of x (width) to y (height).
 // zNear   Specifies the distance from the viewer to the near clipping plane (always positive).
 // zFar    Specifies the distance from the viewer to the far clipping plane (always positive).
+
+gluPerspective
+
 const perspective = (
    fovy: ad.Num,
    aspect: ad.Num,
    zNear: ad.Num,
    zFar: ad.Num
 ): ad.Num[][] => {
+   // adapted from MESA implementation of gluPerspective()
+
    const radians = mul(Math.PI/180.,div(fovy,2));
    const deltaZ = sub(zFar,zNear);
    const cotangent = div(cos(radians),sin(radians));
@@ -6111,14 +6116,41 @@ const perspective = (
    M[0][0] = div(cotangent,aspect);
    M[1][1] = cotangent;
    M[2][2] = div(neg(add(zFar,zNear)),deltaZ);
-   M[2][3] = -1;
-   M[3][2] = mul(-2, div(mul(zNear,zFar),deltaZ) );
+   M[3][2] = -1;
+   M[2][3] = mul(-2, div(mul(zNear,zFar),deltaZ) );
    M[3][3] = 0;
    
    return M;
 }
 
-// TODO ortho()
+
+// (adapted from glOrtho man page:)
+// ortho describes a 4x4 transformation that produces a parallel projection.
+// left, right Specify the coordinates for the left and right vertical clipping planes.
+// bottom, top Specify the coordinates for the bottom and top horizontal clipping planes.
+// zNear, zFar Specify the distances to the nearer and farther depth clipping planes.  These values
+//             are negative if the plane is to be behind the viewer.
+const ortho =
+(
+    Left: ad.Num, 
+    Right: ad.Num, 
+    Bottom: ad.Num, 
+    Top: ad.Num, 
+    zNear: ad.Num, 
+    zFar: ad.Num
+): ad.Num[][] => {
+   // adapted from MESA implementation of glOrtho()
+
+   const M = identity(4);
+   M[0][0] = div(2, sub(Right, Left));
+   M[1][1] = div(2, sub(Top, Bottom));
+   M[2][2] = div(-2, sub(zFar, zNear));
+   M[0][3] = div( add(Right,Left), sub(Left,Right) );
+   M[1][3] = div( add(Top,Bottom), sub(Bottom,Top) );
+   M[2][3] = div( add(zFar,zNear), sub(zNear,zFar) );
+   return M;
+}
+
 // TODO project()
 // TODO unProject()
 // TODO frustum()
