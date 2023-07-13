@@ -1,3 +1,3 @@
 # Examples
 
-See the [Tutorial](/docs/tutorial/welcome) for extensive examples of using the language.
+The best way to get a feel for the Substance language is to take a look at the many working examples in the [example gallery](https://penrose.cs.cmu.edu/examples).  The [tutorial](/docs/tutorial/welcome) also walks through several examples.
