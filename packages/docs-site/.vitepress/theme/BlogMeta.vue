@@ -10,6 +10,5 @@
 <script setup lang="ts">
 import { useData } from "vitepress";
 import Author from "./Author.vue";
-import Date from "./Date.vue";
 const { frontmatter } = useData();
 </script>
