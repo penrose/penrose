@@ -6027,7 +6027,7 @@ const translate = (
 }
 
 // TODO:
-//    - implement methods described at https://glm.g-truc.net/0.9.5/api/a00176.html
+//    - implement methods described at https://glm.g-truc.net/0.9.5/api/a00176.html (you may be able to use MESA)
 //    - write Style wrappers (2D, 2DH, 3D, 3DH)
 //    - refactor non-wrapped methods into MatrixFunctions.ts
 //    - add `then` operator to parser/compiler
