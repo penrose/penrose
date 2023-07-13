@@ -6031,4 +6031,6 @@ const translate = (
 //    - write Style wrappers (2D, 2DH, 3D, 3DH)
 //    - refactor non-wrapped methods into MatrixFunctions.ts
 //    - add `then` operator to parser/compiler
+//    - write unit tests (i.e., trivially checkable examples)
+//    - write usage examples
 
