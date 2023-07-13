@@ -6026,6 +6026,103 @@ const translate = (
    return A;
 }
 
+// (adapted from gluLookAt man page:)
+// lookAt returns a 4x4 viewing matrix derived from an eye point, a reference point
+// indicating the center of the scene, and an UP vector.  The matrix maps the
+// reference point to the negative z axis and the eye point to the origin. When
+// a typical projection matrix is used, the center of the scene therefore maps
+// to the center of the viewport. Similarly, the direction described by the UP
+// vector projected onto the viewing plane is mapped to the positive y axis so
+// that it points upward in the viewport. The UP vector must not be parallel to
+// the line of sight from the eye point to the reference point.
+const lookAt =(
+   eye: ad.Num[],
+   center: ad.Num[],
+   up: ad.Num[]
+): ad.Num[][] =>
+{
+   // adapted from MESA implementation of gluLookAt()
+
+   if (eye.length !== 3) {
+      throw Error("eye vector must have length 3");
+   }
+   if (center.length !== 3) {
+      throw Error("center vector must have length 3");
+   }
+   if (up.length !== 3) {
+      throw Error("up vector must have length 3");
+   }
+
+   const forward = ops.vnormalize(ops.vsub( center, eye ));
+   const side = ops.vnormalize( ops.cross3( forward, up ));
+   const vert = ops.cross3( side, forward );
+
+   const M: ad.Num[][] = new Array(4);
+   for( let i = 0; i < 4; i++ ) {
+      M[i] = new Array(4);
+   }
+
+   M[0][0] = side[0];
+   M[1][0] = side[1];
+   M[2][0] = side[2];
+   M[3][0] = 0;
+
+   M[0][1] = vert[0];
+   M[1][1] = vert[1];
+   M[2][1] = vert[2];
+   M[3][1] = 0;
+
+   M[0][2] = -forward[0];
+   M[1][2] = -forward[1];
+   M[2][2] = -forward[2];
+   M[3][2] = 0;
+
+   M[0][1] = 0;
+   M[1][1] = 0;
+   M[2][1] = 0;
+   M[3][1] = 1;
+
+   const T = translate( ops.vneg(eye) );
+   return ops.mmmul( M, T );
+}
+
+// (adapted from gluPerspective man page:)
+// perspective sets up a 4x4 perspective projection matrix.
+// The aspect ratio should match the aspect ratio of the associated viewport.
+// For example, aspect = 2.0 means the viewer's angle of view is twice as wide
+// in x as it is in y.  If the viewport is twice as wide as it is tall, it displays
+// the image without distortion.
+// fovy    Specifies the field of view angle, in degrees, in the y direction.
+// aspect  Specifies the aspect ratio that determines the field of view in the x direction.  The
+//         aspect ratio is the ratio of x (width) to y (height).
+// zNear   Specifies the distance from the viewer to the near clipping plane (always positive).
+// zFar    Specifies the distance from the viewer to the far clipping plane (always positive).
+const perspective = (
+   fovy: ad.Num,
+   aspect: ad.Num,
+   zNear: ad.Num,
+   zFar: ad.Num
+): ad.Num[][] => {
+   const radians = mul(Math.PI/180.,div(fovy,2));
+   const deltaZ = sub(zFar,zNear);
+   const cotangent = div(cos(radians),sin(radians));
+
+   const M = identity(4);
+   M[0][0] = div(cotangent,aspect);
+   M[1][1] = cotangent;
+   M[2][2] = div(neg(add(zFar,zNear)),deltaZ);
+   M[2][3] = -1;
+   M[3][2] = mul(-2, div(mul(zNear,zFar),deltaZ) );
+   M[3][3] = 0;
+   
+   return M;
+}
+
+// TODO ortho()
+// TODO project()
+// TODO unProject()
+// TODO frustum()
+
 // TODO:
 //    - implement methods described at https://glm.g-truc.net/0.9.5/api/a00176.html (you may be able to use MESA)
 //    - write Style wrappers (2D, 2DH, 3D, 3DH)
