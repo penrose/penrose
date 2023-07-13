@@ -6,20 +6,14 @@ For lower-level integration, check out the [optimization API](./optimization-api
 
 ## Example
 
-Below is an example of compiling, optimizing, and rendering a diagram in Penrose programmatically. Here we use the [continuous map]() example from `@penrose/examples`.
+Below is an example of compiling, optimizing, and rendering a diagram in Penrose programmatically. Here we define a simple trio of Substance, Style, and Domain programs in `trio.js`.
 
 ::: code-group
 
 ```javascript [script.js]
 import { compile, optimize, toSVG, showError } from "@penrose/core";
-import continuousMap from "@penrose/examples/dist/set-theory-domain/continuousmap.trio";
+import trio from "./trio.js";
 
-const trio = {
-  domain: continuousMap.domain,
-  substance: continuousMap.substance,
-  style: continuousMap.style[0].contents,
-  variation: continuousMap.variation,
-};
 const compiled = await compile(trio);
 // handle compilation errors
 if (compiled.isErr()) {
@@ -30,9 +24,63 @@ const converged = optimize(compiled.value);
 if (converged.isErr()) {
   throw new Error(showError(converged.error));
 }
-const rendered = await toSVG(converged.value, continuousMap[0].resolver);
+// render the diagram state as an SVG
+const rendered = await toSVG(converged.value, async () => undefined);
 const container = document.getElementById("diagram");
 container.appendChild(rendered);
+```
+
+```javascript [trio.js]
+const domain = `
+type Set
+predicate IsSubset(Set s1, Set s2)
+`;
+const style = `
+canvas {
+  width = 800
+  height = 700
+}
+
+forall Set x {
+  x.icon = Circle {
+    strokeWidth : 0
+  }
+
+  x.text = Equation {
+    string : x.label
+    fontSize : "32px"
+  }
+
+  ensure contains(x.icon, x.text)
+  encourage sameCenter(x.text, x.icon)
+  x.textLayering = x.text above x.icon
+}
+
+forall Set x; Set y
+where IsSubset(x, y) {
+  ensure disjoint(y.text, x.icon, 10)
+  ensure contains(y.icon, x.icon, 5)
+  x.icon above y.icon
+}
+`;
+const substance = `
+Set A, B, C, D, E, F, G
+
+IsSubset(B, A)
+IsSubset(C, A)
+IsSubset(D, B)
+IsSubset(E, B)
+IsSubset(F, C)
+IsSubset(G, C)
+
+Not(Intersecting(E, D))
+Not(Intersecting(F, G))
+Not(Intersecting(B, C))
+
+AutoLabel All
+`;
+
+export default { domain, substance, style, variation: "test" };
 ```
 
 ```html [index.html]
@@ -80,9 +128,9 @@ Example:
 ```javascript
 import { fetchResolver } from "@penrose/components";
 import { diagram } from "@penrose/core";
-import continuousMap from "@penrose/examples/dist/set-theory-domain/continuousmap.trio";
+import trio from "./trio.js";
 
-await diagram(continuousMap, document.getElementById("diagram"), fetchResolver);
+await diagram(trio, document.getElementById("diagram"), fetchResolver);
 ```
 
 ### `compile`
