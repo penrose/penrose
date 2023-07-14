@@ -174,13 +174,14 @@ in Pittsburgh, PA USA—and other locations around the world.
 
 ## Past Members
 
-- [Kai Ye](https://www.cs.cmu.edu/~kqy/)
-- [Will Rinkoff](https://dsm0.github.io/)
-- [Helena Yang](https://heleaf.me/)
-- [Josh Pollock](https://joshmpollock.com/)
-- [Mia Tang](https://mia-tang.com/#/)
-- [Jenna Wise](https://www.cs.cmu.edu/~jlwise/)
-- [Stella Trout](https://miyehn.me/)
-- [Dor Ma'ayan](http://www.cs.technion.ac.il/people/dorma10/)
-- [Lily Shellhammer](https://www.linkedin.com/in/lily-shellhammer-899b43105)
 - [Matt Davis](https://cmumatt.github.io/)
+- [Josh Pollock](https://joshmpollock.com/)
+- [Max Krieger](https://a9.io/)
+- [Dor Ma'ayan](http://www.cs.technion.ac.il/people/dorma10/)
+- [Will Rinkoff](https://dsm0.github.io/)
+- [Lily Shellhammer](https://www.linkedin.com/in/lily-shellhammer-899b43105)
+- [Mia Tang](https://mia-tang.com/#/)
+- [Stella Trout](https://miyehn.me/)
+- [Helena Yang](https://heleaf.me/)
+- [Kai Ye](https://www.cs.cmu.edu/~kqy/)
+- [Jenna Wise](https://www.cs.cmu.edu/~jlwise/)
