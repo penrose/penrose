@@ -1,7 +1,7 @@
 # `@penrose/roger`: a CLI for Penrose
 
 This package is a command-line application that depends on `@penrose/core` and
-processes Penrose diagrams. See [the docs on the Penrose website][].
+processes Penrose diagrams. See [the docs on the Penrose website][website docs].
 
 Usage:
 

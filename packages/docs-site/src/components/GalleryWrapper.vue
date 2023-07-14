@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import registry from "@penrose/examples/dist/registry.js";
 import { withBase, useData } from "vitepress";
 import { defineAsyncComponent } from "vue";
 
@@ -12,6 +13,10 @@ const link = withBase(`/try/index.html`);
 
 <template>
   <div style="width: 100%">
-    <Gallery :ideLink="link" :dark="useData().isDark.value" />
+    <Gallery
+      :registry="registry"
+      :ideLink="link"
+      :dark="useData().isDark.value"
+    />
   </div>
 </template>
