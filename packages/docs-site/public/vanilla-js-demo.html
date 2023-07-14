@@ -8,17 +8,17 @@
   <body>
     <!--
     JSPM Generator Import Map
-    Edit URL: https://generator.jspm.io/#U2VhYGBkDM0rySzJSU1hcChIzSvKL07VT84vSnUw1jPQM9BNzCnISNQzAAA0lZvKKgA
+    Edit URL: https://generator.jspm.io/#U2VhYGBkTM4vSmVwKEjNK8ovTtUH8RyM9Qz0DAA+kyABHgA
   -->
     <script type="importmap">
       {
         "imports": {
-          "@penrose/core": "https://ga.jspm.io/npm:@penrose/core@3.0.0-alpha.0/dist/index.js"
+          "@penrose/core": "https://ga.jspm.io/npm:@penrose/core@3.0.0/dist/index.js"
         },
         "scopes": {
           "https://ga.jspm.io/": {
             "@datastructures-js/queue": "https://ga.jspm.io/npm:@datastructures-js/queue@4.2.3/index.js",
-            "@penrose/optimizer": "https://ga.jspm.io/npm:@penrose/optimizer@3.0.0-alpha.1/index.js",
+            "@penrose/optimizer": "https://ga.jspm.io/npm:@penrose/optimizer@3.0.0-beta.0/dist/index.js",
             "consola": "https://ga.jspm.io/npm:consola@2.15.3/dist/consola.browser.js",
             "crypto": "https://ga.jspm.io/npm:@jspm/core@2.0.1/nodelibs/browser/crypto.js",
             "immutable": "https://ga.jspm.io/npm:immutable@4.3.1/dist/immutable.es.js",
@@ -43,13 +43,7 @@
     ></script>
 
     <script type="module">
-      import {
-        compileTrio,
-        prepareState,
-        stepUntilConvergence,
-        RenderStatic,
-        showError,
-      } from "@penrose/core";
+      import { compile, optimize, toSVG, showError } from "@penrose/core";
       const trio = {
         substance: `
           Set A
@@ -74,14 +68,13 @@
         domain: `type Set`,
         variation: `test`,
       };
-      const compiled = await compileTrio(trio);
+      const compiled = await compile(trio);
       if (compiled.isErr()) console.error(showError(compiled.error));
-      const prepared = await prepareState(compiled.value);
-      const optimized = stepUntilConvergence(prepared);
+      const optimized = optimize(compiled.value);
       if (optimized.isErr()) console.error(showError(optimized.error));
       document
         .getElementById("penrose")
-        .appendChild(await RenderStatic(optimized.value));
+        .appendChild(await toSVG(optimized.value));
     </script>
     <div id="penrose"></div>
   </body>
