@@ -35,7 +35,7 @@ IsProduct( b, c, a )
 IsProduct( e, c, b )
 IsProduct( a, c, c )
 
--- IsGenerator(a)
--- IsGenerator(b)
+IsGenerator(a)
+IsGenerator(b)
 IsGenerator(c)
 

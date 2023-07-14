@@ -1,0 +1,112 @@
+Group G
+Label G "G"
+
+Element g1
+Element g2
+Element g3
+Element g4
+Element g5
+Element g6
+Element g7
+Element g8
+
+IsIdentity(g1)
+IsGenerator(g2)
+IsGenerator(g5)
+
+In(G,g1)
+In(G,g2)
+In(G,g3)
+In(G,g4)
+In(G,g5)
+In(G,g6)
+In(G,g7)
+In(G,g8)
+
+IsProduct(g1,g1,g1)
+IsProduct(g2,g1,g2)
+IsProduct(g3,g1,g3)
+IsProduct(g4,g1,g4)
+IsProduct(g5,g1,g5)
+IsProduct(g6,g1,g6)
+IsProduct(g7,g1,g7)
+IsProduct(g8,g1,g8)
+IsProduct(g2,g2,g1)
+IsProduct(g3,g2,g2)
+IsProduct(g4,g2,g3)
+IsProduct(g1,g2,g4)
+IsProduct(g8,g2,g5)
+IsProduct(g5,g2,g6)
+IsProduct(g6,g2,g7)
+IsProduct(g7,g2,g8)
+IsProduct(g3,g3,g1)
+IsProduct(g4,g3,g2)
+IsProduct(g1,g3,g3)
+IsProduct(g2,g3,g4)
+IsProduct(g7,g3,g5)
+IsProduct(g8,g3,g6)
+IsProduct(g5,g3,g7)
+IsProduct(g6,g3,g8)
+IsProduct(g4,g4,g1)
+IsProduct(g1,g4,g2)
+IsProduct(g2,g4,g3)
+IsProduct(g3,g4,g4)
+IsProduct(g6,g4,g5)
+IsProduct(g7,g4,g6)
+IsProduct(g8,g4,g7)
+IsProduct(g5,g4,g8)
+IsProduct(g5,g5,g1)
+IsProduct(g6,g5,g2)
+IsProduct(g7,g5,g3)
+IsProduct(g8,g5,g4)
+IsProduct(g3,g5,g5)
+IsProduct(g4,g5,g6)
+IsProduct(g1,g5,g7)
+IsProduct(g2,g5,g8)
+IsProduct(g6,g6,g1)
+IsProduct(g7,g6,g2)
+IsProduct(g8,g6,g3)
+IsProduct(g5,g6,g4)
+IsProduct(g2,g6,g5)
+IsProduct(g3,g6,g6)
+IsProduct(g4,g6,g7)
+IsProduct(g1,g6,g8)
+IsProduct(g7,g7,g1)
+IsProduct(g8,g7,g2)
+IsProduct(g5,g7,g3)
+IsProduct(g6,g7,g4)
+IsProduct(g1,g7,g5)
+IsProduct(g2,g7,g6)
+IsProduct(g3,g7,g7)
+IsProduct(g4,g7,g8)
+IsProduct(g8,g8,g1)
+IsProduct(g5,g8,g2)
+IsProduct(g6,g8,g3)
+IsProduct(g7,g8,g4)
+IsProduct(g4,g8,g5)
+IsProduct(g1,g8,g6)
+IsProduct(g2,g8,g7)
+IsProduct(g3,g8,g8)
+Let H := Subgroup(G)
+In(H,g1)
+In(H,g3)
+Label H "H"
+
+Label g1 $1$
+Label g2 $a$
+Label g3 $a^2$
+Label g4 $a^3$
+Label g5 $x$
+Label g6 $a\circ x$
+Label g7 $a^2\circ x$
+Label g8 $a^3\circ x$
+
+Let C1 := Coset(g2,H)
+Label C1 $aH$
+
+Let C2 := Coset(g5,H)
+Label C2 $xH$
+
+Let C3 := Coset(g6,H)
+Label C3 $(a\circ x)H$
+

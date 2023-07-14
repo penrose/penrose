@@ -25,6 +25,33 @@ global {
    scalar pathWidth = 1.
    scalar pathOutlineWidth = 3.
    string labelSize = "5px"
+   scalar cornerRadius = 5
+   scalar padding = 5
+   string arrowStyle = "opacity:1;"
+}
+
+-- draw a group as a box containing its elements
+forall Group G
+{
+   shape G.icon = Rectangle {
+      fillColor: #00000008
+      strokeColor: #ccc
+      strokeWidth: 1.25
+      cornerRadius: global.cornerRadius
+   }
+
+   encourage G.icon.width == 0
+   encourage G.icon.height == 0
+}
+
+forall Group G
+where G has label {
+   shape G.labelText = Equation {
+      center: G.icon.center - (G.icon.width,-G.icon.height)/2 + (7,-7)
+      string: G.label
+      fontSize: global.labelSize
+      fillColor: G.icon.strokeColor
+   }
 }
 
 -- draw each group element as a dot
@@ -54,6 +81,12 @@ where g has label
    scalar w = abs(box[1][0] - box[0][0])
    scalar h = abs(box[1][1] - box[2][1])
    override g.icon.r = max( w, h )/2 + 2
+}
+
+forall Group G; Element g
+where In(G,g) {
+   ensure contains( G.icon, g.icon, 2*global.padding )
+   layer G.icon above g.icon
 }
 
 -- draw a circle around the identity element
@@ -87,7 +120,7 @@ where s has label; IsGenerator(s)
    override s.labelText.fillColor = s.icon.strokeColor
 }
 
--- encourage all nodes to avoid each other
+-- encourage all elements to avoid each other
 forall Element g1; Element g2
 {
    vec2 x1 = g1.icon.center
@@ -122,12 +155,14 @@ where IsGenerator(s); IsProduct( g2, g1, s )
       endArrowhead: "straight"
       endArrowheadSize: 0.75
       strokeWidth: global.pathWidth
+      style: global.arrowStyle
    }
    shape pathOutline = Path {
       d: interpolateQuadraticFromPoints( "open", p0, p1, p2 )
       strokeColor: colors.white
       endArrowhead: "none"
       strokeWidth: global.pathOutlineWidth
+      style: global.arrowStyle
    }
    layer pathOutline below orientedPath
 
@@ -135,7 +170,7 @@ where IsGenerator(s); IsProduct( g2, g1, s )
    layer g2.icon above orientedPath
    layer s.icon above orientedPath
 
-   -- encourage these nodes to be close together, by minimizing a spring energy
+   -- encourage these elements to be close together, by minimizing a spring energy
    vec2 x1 = g1.icon.center
    scalar d = norm( x1 - x2 )
    scalar k = 1. -- spring stiffness
@@ -164,19 +199,21 @@ where IsGenerator(s); IsProduct( s, e, s )
       endArrowhead: "straight"
       endArrowheadSize: 0.75
       strokeWidth: global.pathWidth
+      style: global.arrowStyle
    }
    shape pathOutline = Path {
       d: interpolateQuadraticFromPoints( "open", p0, p1, p2 )
       strokeColor: colors.white
       endArrowhead: "none"
       strokeWidth: global.pathOutlineWidth
+      style: global.arrowStyle
    }
    layer pathOutline below orientedPath
 
    layer s.icon above orientedPath
    layer e.icon above orientedPath
 
-   -- encourage these nodes to be close together, by minimizing a spring energy
+   -- encourage these elements to be close together, by minimizing a spring energy
    vec2 x1 = e.icon.center
    scalar d = norm( x1 - x2 )
    scalar k = 1. -- spring stiffness
@@ -205,19 +242,21 @@ where IsGenerator(s); IsProduct( g, s, s )
       endArrowhead: "straight"
       endArrowheadSize: 0.75
       strokeWidth: global.pathWidth
+      style: global.arrowStyle
    }
    shape pathOutline = Path {
       d: interpolateQuadraticFromPoints( "open", p0, p1, p2 )
       strokeColor: colors.white
       endArrowhead: "none"
       strokeWidth: global.pathOutlineWidth
+      style: global.arrowStyle
    }
    layer pathOutline below orientedPath
 
    layer g.icon above orientedPath
    layer s.icon above orientedPath
 
-   -- encourage these nodes to be close together, by minimizing a spring energy
+   -- encourage these elements to be close together, by minimizing a spring energy
    vec2 x1 = s.icon.center
    scalar d = norm( x1 - x2 )
    scalar k = 1. -- spring stiffness
@@ -241,11 +280,11 @@ forall Subgroup H {
    vec3 p = sphereRandom()
    vec3 C = .5*( abs(p[0]), abs(p[1]), abs(p[2]) )
 
-   shape H.icon = Rectangle {
+   override H.icon = Rectangle {
       center: (?,?)
       width: w
       height: h
-      cornerRadius: 10
+      cornerRadius: global.cornerRadius
       fillColor: rgba( C[0], C[1], C[2], .1 )
       strokeColor: rgba( C[0], C[1], C[2], 1 )
       strokeWidth: .75*global.pathWidth
@@ -255,14 +294,14 @@ forall Subgroup H {
 -- make sure the region used to represent the subgroup contains all of its elements
 forall Element g; Subgroup H
 where In(H,g) {
-   ensure contains( H.icon, g.icon, 10 )
+   ensure contains( H.icon, g.icon, global.padding )
    layer H.icon above g.icon
 }
 
 -- if the subgroup has a label, put it in the lower-left corner
 forall Subgroup H
 where H has label {
-   shape H.labelText = Equation {
+   override H.labelText = Equation {
        center: H.icon.center - (H.icon.width,H.icon.height)/2 + (7,7)
        string: H.label
        fontSize: global.labelSize
@@ -297,17 +336,17 @@ where C := Coset(g,H) {
 
 forall Coset C; Subgroup H; Element h; Element g; Element f
 where C := Coset(g,H); In(H,h); IsProduct(f,g,h) {
-   ensure contains( C.icon, f.icon, 10 )
+   ensure contains( C.icon, f.icon, global.padding )
    layer C.icon above f.icon
 }
 forall Coset C; Subgroup H; Element g; Element f
 where C := Coset(g,H); In(H,g); IsProduct(f,g,g) {
-   ensure contains( C.icon, f.icon, 10 )
+   ensure contains( C.icon, f.icon, global.padding )
    layer C.icon above f.icon
 }
 forall Coset C; Subgroup H; Element h; Element g
 where C := Coset(g,H); In(H,h); IsProduct(g,g,h) {
-   ensure contains( C.icon, g.icon, 10 )
+   ensure contains( C.icon, g.icon, global.padding )
    layer C.icon above g.icon
 }
 
@@ -343,5 +382,23 @@ forall Coset C; Subgroup H; Element h; Element g
 where C has label; C := Coset(g,H); In(H,h); IsProduct(g,g,h) {
    ensure disjoint( C.labelText, g.icon, 4 )
    layer C.labelText above g.icon
+}
+
+-- make sure the box for the group contains all subgroups and cosets
+forall Group G; Subgroup H
+where H := Subgroup(G) {
+   ensure contains( G.icon, H.icon, 2*global.padding )
+}
+forall Group G; Subgroup H; Coset C; Element g
+where H := Subgroup(G); C := Coset(g,H) {
+   ensure contains( G.icon, C.icon, 2*global.padding )
+}
+
+-- if there are any cosets, fade out and blur the arrows
+-- to make the diagram a bit less "busy"-looking
+collect Coset C into cosets
+{
+   -- blurring is achieved by applying a CSS filter within the "style" attribute
+   override global.arrowStyle = "filter:blur(.75px);opacity:.75"
 }
 
