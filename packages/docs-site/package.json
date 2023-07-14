@@ -1,6 +1,6 @@
 {
   "name": "@penrose/docs-site",
-  "version": "3.0.0",
+  "version": "3.0.0-beta.1",
   "type": "module",
   "private": true,
   "scripts": {
@@ -46,14 +46,14 @@
     }
   },
   "dependencies": {
-    "@penrose/components": "^3.0.0",
-    "@penrose/examples": "^3.0.0",
+    "@penrose/components": "^3.0.0-beta.1",
+    "@penrose/examples": "^3.0.0-beta.1",
     "veaury": "^2.3.11"
   },
   "devDependencies": {
-    "@penrose/core": "^3.0.0",
-    "@penrose/editor": "^3.0.0",
-    "@penrose/roger": "^3.0.0",
+    "@penrose/core": "^3.0.0-beta.1",
+    "@penrose/editor": "^3.0.0-beta.1",
+    "@penrose/roger": "^3.0.0-beta.1",
     "@tailwindcss/typography": "^0.5.4",
     "@types/markdown-it": "^12.2.3",
     "markdown-it": "^13.0.1",

@@ -1,6 +1,6 @@
 {
   "name": "@penrose/roger",
-  "version": "3.0.0",
+  "version": "3.0.0-beta.1",
   "description": "",
   "type": "module",
   "main": "index.tsx",
@@ -26,7 +26,7 @@
   "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
   "license": "MIT",
   "dependencies": {
-    "@penrose/core": "^3.0.0",
+    "@penrose/core": "^3.0.0-beta.1",
     "canvas": "^2.8.0",
     "chalk": "^3.0.0",
     "chokidar": "^3.5.3",

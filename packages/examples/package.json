@@ -1,11 +1,11 @@
 {
   "name": "@penrose/examples",
-  "version": "3.0.0",
+  "version": "3.0.0-beta.1",
   "private": true,
   "type": "module",
   "dependencies": {
-    "@penrose/core": "^3.0.0",
-    "@penrose/solids": "^3.0.0",
+    "@penrose/core": "^3.0.0-beta.1",
+    "@penrose/solids": "^3.0.0-beta.1",
     "solid-js": "^1"
   },
   "devDependencies": {

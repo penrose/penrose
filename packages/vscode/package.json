@@ -3,7 +3,7 @@
   "displayName": "Penrose",
   "publisher": "penrose",
   "description": "Penrose languages bundle",
-  "version": "3.0.0",
+  "version": "3.0.0-beta.1",
   "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
   "license": "MIT",
   "private": true,

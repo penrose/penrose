@@ -1,6 +1,6 @@
 {
   "name": "@penrose/optimizer",
-  "version": "3.0.0",
+  "version": "3.0.0-beta.1",
   "type": "module",
   "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
   "license": "MIT",
