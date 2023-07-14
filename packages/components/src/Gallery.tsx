@@ -60,23 +60,20 @@ const Example = ({
 };
 
 export default ({
-  registry,
+  trios,
   ideLink,
   dark,
 }: {
-  registry: Map<string, { trio: boolean; gallery?: boolean }>;
+  trios: string[];
   ideLink: string;
   dark?: boolean;
 }) => {
-  const entries = [...registry.entries()].filter(
-    ([, meta]) => meta.trio && meta.gallery
-  );
   let [examples, setExamples] = useState<TrioWithPreview[]>(
-    entries.map((e) => ({ id: e[0] }))
+    trios.map((id) => ({ id }))
   );
   useEffect(() => {
     const load = async () => {
-      for (const [id] of entries) {
+      for (const id of trios) {
         const svg = await fetch(
           encodeURI(
             `https://raw.githubusercontent.com/penrose/penrose/ci/refs/heads/main/${id}.svg`

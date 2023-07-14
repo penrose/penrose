@@ -4,7 +4,23 @@
   <h1>
     {{ frontmatter.title }}
   </h1>
-  <Author :github="frontmatter.github" :name="frontmatter.name"></Author>
+
+  <div
+    style="
+      margin: 10px;
+      margin-left: 0;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    "
+  >
+    <Author
+      v-for="(author, index) in frontmatter.authors"
+      :key="index"
+      :github="author.github"
+      :name="author.name"
+    ></Author>
+  </div>
 </template>
 
 <script setup lang="ts">

@@ -1,9 +1,10 @@
 ---
 title: "Diagram Layout in Stages"
 date: 2023-06-30
-author: Wode Ni
-twitter: "@wodenimoni"
-github: "wodeni"
+authors:
+  - author: Wode Ni
+    twitter: "@wodenimoni"
+    github: "wodeni"
 ---
 
 <script setup>

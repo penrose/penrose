@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## [v3.0.0-beta.1](https://github.com/penrose/penrose/compare/v2.3.0...v3.0.0-beta.1) (2023-07-14)
+## [v3.0.0](https://github.com/penrose/penrose/compare/v2.3.0...v3.0.0) (2023-07-14)
 
 ### :warning: BREAKING CHANGE
 
@@ -51,6 +51,8 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 ### :house: Internal
 
 - Revert "fix: Diagram panel empty on iOS Chrome and iOS/macOS Safari" ([#1466](https://github.com/penrose/penrose/issues/1466)) ([fad7125](https://github.com/penrose/penrose/commit/fad7125dc99698185bd8d2d7a9ee5388969f2a03))
+- bump version to 3.0.0-beta.0 ([#1542](https://github.com/penrose/penrose/issues/1542)) ([ef4fffb](https://github.com/penrose/penrose/commit/ef4fffbf22e03fdd3af84c439163ff24bc5ccb41))
+- bump version to 3.0.0-beta.1 ([#1543](https://github.com/penrose/penrose/issues/1543)) ([abe43d9](https://github.com/penrose/penrose/commit/abe43d9be98a719204b54cbf3abf4bbec9367d16))
 - enable example panel on `editor` startup ([#1510](https://github.com/penrose/penrose/issues/1510)) ([8888e7f](https://github.com/penrose/penrose/commit/8888e7fc0b635b7909f08e8bc3adcf15fed01ac6))
 - switch from jest to vitest ([#1406](https://github.com/penrose/penrose/issues/1406)) ([8ef8c77](https://github.com/penrose/penrose/commit/8ef8c778488b17eb0f02a62d1399e0b0337f5355))
 

@@ -311,6 +311,15 @@ export default defineConfig({
       ],
       "/blog": [
         {
+          text: "July 2023",
+          items: [
+            {
+              text: "Announcing Penrose 3.0",
+              link: "/blog/v3",
+            },
+          ],
+        },
+        {
           text: "June 2023",
           items: [
             {

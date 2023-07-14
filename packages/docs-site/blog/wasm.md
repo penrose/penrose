@@ -1,9 +1,10 @@
 ---
 title: "Switching to Wasm for 10x Speedup"
 date: 2023-06-30
-author: Sam Estep
-twitter: "@samestep"
-github: "samestep"
+authors:
+  - author: Sam Estep
+    twitter: "@samestep"
+    github: "samestep"
 ---
 
 <BlogMeta />
