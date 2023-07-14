@@ -12,7 +12,7 @@ Let H := Subgroup(G)
 In(H,e)
 In(H,a)
 
-Let bH := Coset(b,H)
+Let bH := LeftCoset(b,H)
 Label bH "bH = cH"
 
 IsProduct( e, e, e )

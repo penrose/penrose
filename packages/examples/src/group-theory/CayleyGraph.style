@@ -311,8 +311,8 @@ where H has label {
 
 -- Draw each coset as a rounded rectangle in the same
 -- style as its corresponding subgroup, but faded out
-forall Coset C; Element g; Subgroup H
-where C := Coset(g,H) {
+forall LeftCoset C; Element g; Subgroup H
+where C := LeftCoset(g,H) {
 
    -- pick a width/height that try to be as small as possible
    scalar w = ? -- width
@@ -334,24 +334,24 @@ where C := Coset(g,H) {
    }
 }
 
-forall Coset C; Subgroup H; Element h; Element g; Element f
-where C := Coset(g,H); In(H,h); IsProduct(f,g,h) {
+forall LeftCoset C; Subgroup H; Element h; Element g; Element f
+where C := LeftCoset(g,H); In(H,h); IsProduct(f,g,h) {
    ensure contains( C.icon, f.icon, global.padding )
    layer C.icon above f.icon
 }
-forall Coset C; Subgroup H; Element g; Element f
-where C := Coset(g,H); In(H,g); IsProduct(f,g,g) {
+forall LeftCoset C; Subgroup H; Element g; Element f
+where C := LeftCoset(g,H); In(H,g); IsProduct(f,g,g) {
    ensure contains( C.icon, f.icon, global.padding )
    layer C.icon above f.icon
 }
-forall Coset C; Subgroup H; Element h; Element g
-where C := Coset(g,H); In(H,h); IsProduct(g,g,h) {
+forall LeftCoset C; Subgroup H; Element h; Element g
+where C := LeftCoset(g,H); In(H,h); IsProduct(g,g,h) {
    ensure contains( C.icon, g.icon, global.padding )
    layer C.icon above g.icon
 }
 
 -- if the coset has a label, put it in the lower-left corner
-forall Coset C
+forall LeftCoset C
 where C has label {
 
    vec2 labelCenter = (?,?)
@@ -368,18 +368,18 @@ where C has label {
 }
 
 -- make sure the coset's label doesn't overlap elements in the coset
-forall Coset C; Subgroup H; Element h; Element g; Element f
-where C has label; C := Coset(g,H); In(H,h); IsProduct(f,g,h) {
+forall LeftCoset C; Subgroup H; Element h; Element g; Element f
+where C has label; C := LeftCoset(g,H); In(H,h); IsProduct(f,g,h) {
    ensure disjoint( C.labelText, f.icon, 4 )
    layer C.labelText above f.icon
 }
-forall Coset C; Subgroup H; Element g; Element f
-where C has label; C := Coset(g,H); In(H,g); IsProduct(f,g,g) {
+forall LeftCoset C; Subgroup H; Element g; Element f
+where C has label; C := LeftCoset(g,H); In(H,g); IsProduct(f,g,g) {
    ensure disjoint( C.labelText, f.icon, 4 )
    layer C.labelText above f.icon
 }
-forall Coset C; Subgroup H; Element h; Element g
-where C has label; C := Coset(g,H); In(H,h); IsProduct(g,g,h) {
+forall LeftCoset C; Subgroup H; Element h; Element g
+where C has label; C := LeftCoset(g,H); In(H,h); IsProduct(g,g,h) {
    ensure disjoint( C.labelText, g.icon, 4 )
    layer C.labelText above g.icon
 }
@@ -389,14 +389,14 @@ forall Group G; Subgroup H
 where H := Subgroup(G) {
    ensure contains( G.icon, H.icon, 2*global.padding )
 }
-forall Group G; Subgroup H; Coset C; Element g
-where H := Subgroup(G); C := Coset(g,H) {
+forall Group G; Subgroup H; LeftCoset C; Element g
+where H := Subgroup(G); C := LeftCoset(g,H) {
    ensure contains( G.icon, C.icon, 2*global.padding )
 }
 
 -- if there are any cosets, fade out and blur the arrows
 -- to make the diagram a bit less "busy"-looking
-collect Coset C into cosets
+collect LeftCoset C into cosets
 {
    -- blurring is achieved by applying a CSS filter within the "style" attribute
    override global.arrowStyle = "filter:blur(.75px);opacity:.75"

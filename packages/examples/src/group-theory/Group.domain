@@ -9,6 +9,6 @@ predicate In( Group G, Element g ) -- asserts that g is an element of G
 type Subgroup <: Group
 constructor Subgroup( Group G )
 
-type Coset
-constructor Coset( Element g, Subgroup H ) -- defines a coset gH
+type LeftCoset
+constructor LeftCoset( Element g, Subgroup H ) -- defines a coset gH
 
