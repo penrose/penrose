@@ -314,6 +314,10 @@ export default defineConfig({
           text: "June 2023",
           items: [
             {
+              text: "Announcing Penrose 3.0",
+              link: "/blog/v3",
+            },
+            {
               text: "Diagram Layout in Stages",
               link: "/blog/staged-layout",
             },
