@@ -1,0 +1,2 @@
+var c=Object.defineProperty;var r=(e,t)=>c(e,"name",{value:t,configurable:!0});import{L as a}from"./svg-2a15fa16.js";import{r as i,E as m}from"./triangles-8715104f.js";import"./iframe-02305a86.js";import"./CollectLabels-4809b232.js";const s=r((e,t)=>[a(e),a(t)],"vec"),v=r(async()=>{const e=s(1,.5),t=s(.5,1),n=s(2,3),o=document.createElement("svg");return i(()=>m({a1:e,a2:t,v:n}),o),(o.firstChild?.firstChild).outerHTML},"eigenspace");export{v as default};
+//# sourceMappingURL=eigenspace-60f32b46.js.map
