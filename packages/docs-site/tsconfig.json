@@ -5,5 +5,6 @@
     "strict": true,
     "jsx": "preserve"
   },
-  "include": ["./.vitepress/**/*"]
+  "extends": "../../tsconfig.json",
+  "include": ["./src/**/*", "./.vitepress/theme/**/*"]
 }

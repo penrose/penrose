@@ -52,9 +52,3 @@ import { useData } from "vitepress";
 import Date from "./Date.vue";
 const { frontmatter } = useData();
 </script>
-
-<style>
-li {
-  list-style-type: none;
-}
-</style>
