@@ -88,10 +88,10 @@ IsProduct(g1,g8,g6)
 IsProduct(g2,g8,g7)
 IsProduct(g3,g8,g8)
 
--- Let H := Subgroup(G)
--- In(H,g1)
--- In(H,g3)
--- Label H "H"
+Let H := Subgroup(G)
+In(H,g1)
+In(H,g3)
+Label H "H"
 
 Label g1 $1$
 Label g2 $a$
@@ -102,12 +102,12 @@ Label g6 $a\circ x$
 Label g7 $a^2\circ x$
 Label g8 $a^3\circ x$
 
--- Let C1 := Coset(g2,H)
--- Label C1 $aH$
--- 
--- Let C2 := Coset(g5,H)
--- Label C2 $xH$
--- 
--- Let C3 := Coset(g6,H)
--- Label C3 $(a\circ x)H$
+Let C1 := LeftCoset(g2,H)
+Label C1 $aH$
+
+Let C2 := LeftCoset(g5,H)
+Label C2 $xH$
+
+Let C3 := LeftCoset(g6,H)
+Label C3 $(a\circ x)H$
 
