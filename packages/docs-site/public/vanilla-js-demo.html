@@ -8,12 +8,12 @@
   <body>
     <!--
     JSPM Generator Import Map
-    Edit URL: https://generator.jspm.io/#U2VhYGBkDM0rySzJSU1hcChIzSvKL07VT84vSnUw1jPQM9BNzCnISNQzAAA0lZvKKgA
+    Edit URL: https://generator.jspm.io/#U2VhYGBkTM4vSmVwKEjNK8ovTtUH8RyM9Qz0DHSTUksS9QwAkYytvSUA
   -->
     <script type="importmap">
       {
         "imports": {
-          "@penrose/core": "https://ga.jspm.io/npm:@penrose/core@3.0.0-alpha.0/dist/index.js"
+          "@penrose/core": "https://ga.jspm.io/npm:@penrose/core@3.0.0-beta.0/dist/index.js"
         },
         "scopes": {
           "https://ga.jspm.io/": {
@@ -43,13 +43,7 @@
     ></script>
 
     <script type="module">
-      import {
-        compileTrio,
-        prepareState,
-        stepUntilConvergence,
-        RenderStatic,
-        showError,
-      } from "@penrose/core";
+      import { compile, optimize, toSVG, showError } from "@penrose/core";
       const trio = {
         substance: `
           Set A
@@ -74,14 +68,13 @@
         domain: `type Set`,
         variation: `test`,
       };
-      const compiled = await compileTrio(trio);
+      const compiled = await compile(trio);
       if (compiled.isErr()) console.error(showError(compiled.error));
-      const prepared = await prepareState(compiled.value);
-      const optimized = stepUntilConvergence(prepared);
+      const optimized = optimize(compiled.value);
       if (optimized.isErr()) console.error(showError(optimized.error));
       document
         .getElementById("penrose")
-        .appendChild(await RenderStatic(optimized.value));
+        .appendChild(await toSVG(optimized.value));
     </script>
     <div id="penrose"></div>
   </body>
