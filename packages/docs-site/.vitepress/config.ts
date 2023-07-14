@@ -315,15 +315,15 @@ export default defineConfig({
           items: [
             {
               text: "Diagram Layout in Stages",
-              link: "/blog/2023/06/30/staged-layout",
+              link: "/blog/staged-layout",
             },
             {
               text: "What Have We Done to the Languages?",
-              link: "/blog/2023/06/30/new-language-features",
+              link: "/blog/new-language-features",
             },
             {
               text: "Switching to Wasm for 10x Speedup",
-              link: "/blog/2023/06/30/wasm",
+              link: "/blog/wasm",
             },
           ],
         },

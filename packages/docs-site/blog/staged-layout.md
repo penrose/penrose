@@ -1,6 +1,13 @@
+---
+title: "Diagram Layout in Stages"
+date: 2023-06-30
+author: Wode Ni
+twitter: "@wodenimoni"
+github: "wodeni"
+---
+
 <script setup>
-import BlogMeta from "../../../../src/components/BlogMeta.vue";
-import StagedDiagram from "../../../../src/components/StagedDiagram.vue";
+import StagedDiagram from "../src/components/StagedDiagram.vue";
 import { ref } from 'vue'
 import vector from "@penrose/examples/dist/exterior-algebra/vector-wedge.trio";
 import laplace from "@penrose/examples/dist/walk-on-spheres/laplace-estimator.trio.js";
@@ -96,9 +103,11 @@ const blob = {
 }
 </script>
 
-# Diagram Layout in Stages
+<BlogMeta />
 
-<BlogMeta github="wodeni" date="2023-06-30" />
+Layout optimization can get pretty complicated even for simple diagrams. We introduced layout stages to make it simpler!
+
+---
 
 ## Layout optimization becomes complicated quickly
 

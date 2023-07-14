@@ -1,10 +1,17 @@
-<script setup>
-import BlogMeta from "../../../../src/components/BlogMeta.vue";
-</script>
+---
+title: "What Have We Done to the Languages?"
+date: 2023-06-30
+author: Yiliang Liang
+twitter: "@liangyilinag"
+github: liangyiliang
+blog: true
+---
 
-# What Have We Done to the Languages?
+<BlogMeta  />
 
-<BlogMeta github="liangyiliang" date="2023-06-30" />
+Exciting new language features in Penrose!
+
+---
 
 I joined the Penrose team in July 2022, and worked on of a few language-related improvements to Penrose that make Penrose more natural, flexible and expressive, from allowing Style programs to leverage symmetric properties of relations to letting users write more natural, mathematical expressions in constraints and objectives.
 
