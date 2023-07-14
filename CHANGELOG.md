@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## [v3.0.0-beta.1](https://github.com/penrose/penrose/compare/v2.3.0...v3.0.0-beta.1) (2023-07-14)
+## [v3.0.0](https://github.com/penrose/penrose/compare/v2.3.0...v3.0.0) (2023-07-14)
 
 ### :warning: BREAKING CHANGE
 
@@ -130,6 +130,8 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 - Point to gallery ([#1540](https://github.com/penrose/penrose/issues/1540)) ([6d4d613](https://github.com/penrose/penrose/commit/6d4d613cf74dc53b4c2cc8c0298a3d26a7e5377e))
 - Remove old assets ([#1500](https://github.com/penrose/penrose/issues/1500)) ([04ee09f](https://github.com/penrose/penrose/commit/04ee09f0df7cb5fae6c7c43414122bd632d88062))
 - Revert "fix: Diagram panel empty on iOS Chrome and iOS/macOS Safari" ([#1466](https://github.com/penrose/penrose/issues/1466)) ([fad7125](https://github.com/penrose/penrose/commit/fad7125dc99698185bd8d2d7a9ee5388969f2a03))
+- bump version to 3.0.0-beta.0 ([#1542](https://github.com/penrose/penrose/issues/1542)) ([ef4fffb](https://github.com/penrose/penrose/commit/ef4fffbf22e03fdd3af84c439163ff24bc5ccb41))
+- bump version to 3.0.0-beta.1 ([#1543](https://github.com/penrose/penrose/issues/1543)) ([abe43d9](https://github.com/penrose/penrose/commit/abe43d9be98a719204b54cbf3abf4bbec9367d16))
 - choose easier Hamilton circuit example ([#1349](https://github.com/penrose/penrose/issues/1349)) ([bc77c2a](https://github.com/penrose/penrose/commit/bc77c2adc3e8afd402d644ddbe7e6bf3b2f36704))
 - delete AD syntax transform and remove test folders in `core` ([#1371](https://github.com/penrose/penrose/issues/1371)) ([46c7220](https://github.com/penrose/penrose/commit/46c72209bcc8f04b79a9c32752b5c0a33493eadf))
 - don't use a multi-root VS Code workspace ([#1412](https://github.com/penrose/penrose/issues/1412)) ([7b2883b](https://github.com/penrose/penrose/commit/7b2883bdbacb1b8d5760c981906aec5657189ecd))
