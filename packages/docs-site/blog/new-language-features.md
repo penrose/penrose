@@ -1,9 +1,10 @@
 ---
 title: "What Have We Done to the Languages?"
 date: 2023-06-30
-author: Yiliang Liang
-twitter: "@liangyilinag"
-github: liangyiliang
+authors:
+  - author: Yiliang Liang
+    twitter: "@liangyilinag"
+    github: liangyiliang
 blog: true
 ---
 
