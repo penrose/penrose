@@ -3,26 +3,35 @@
 //! - _Convex Optimization_ by Boyd and Vandenberghe, 2009 edition
 //! - _Engineering Optimization_ by Rao, 2009 edition
 //! - _Numerical Optimization_ by Nocedal and Wright, 1999 edition
+//!
+//! A few functions in this module take a parameter of type `impl FnMut(&[f64], &mut [f64]) -> f64`.
+//! The first parameter is the point at which to evaluate the objective function, and the second
+//! parameter is an output parameter to hold the gradient at that point. The function should store
+//! the gradient in that output parameter and then return the objective value.
 
+/// Configuration options for L-BFGS.
 #[derive(Clone, Copy, Debug)]
 pub struct Config {
     /// The number of vector pairs to store for L-BFGS. See page 224 of Nocedal and Wright.
     pub m: usize,
 
-    /// Constant for the Armijo condition. See TODO.
+    /// Constant for the Armijo condition. See page 37 of Nocedal and Wright.
     pub armijo: f64,
 
-    /// Constant for the Wolfe condition. See TODO.
+    /// Constant for the Wolfe condition. See page 39 of Nocedal and Wright.
     pub wolfe: f64,
 
+    /// The minimum interval size for line search.
     pub min_interval: f64,
 
-    /// The maximum number of steps for line search. See TODO.
+    /// The maximum number of steps for line search.
     pub max_steps: usize,
 
+    /// A small positive constant to add to a denominator that might be zero.
     pub epsd: f64,
 }
 
+/// All L-BFGS state that needs to be kept between iterations, other than the current point.
 #[derive(Clone, Debug)]
 pub struct State {
     /// The previous point.
@@ -35,10 +44,18 @@ pub struct State {
     pub s_y: Vec<(Vec<f64>, Vec<f64>)>,
 }
 
+/// Return the dot product of `u` and `v`.
 fn dot(u: &[f64], v: &[f64]) -> f64 {
     u.iter().zip(v).map(|(a, b)| a * b).sum()
 }
 
+/// Return the line search step size, having set `x` to the new point.
+///
+/// - `x0` is the current point.
+/// - `r` is the descent direction, preconditioned by L-BFGS.
+/// - `fx0` is the objective at `x0`.
+/// - `grad` is the gradient at `x0`, and is then used as scratch space; don't depend on its value.
+/// - `x` will hold the new point.
 fn line_search(
     cfg: Config,
     mut f: impl FnMut(&[f64], &mut [f64]) -> f64,
@@ -75,13 +92,13 @@ fn line_search(
         } else if !is_wolfe {
             a = t;
         } else {
-            break;
+            break; // found good interval
         }
 
         if b < f64::INFINITY {
-            t = (a + b) / 2.;
+            t = (a + b) / 2.; // already found Armijo
         } else {
-            t = 2. * a;
+            t = 2. * a; // did not find Armijo
         }
 
         j += 1;
@@ -90,6 +107,7 @@ fn line_search(
     t
 }
 
+/// Perform the first step of L-BFGS at point `x`, updating it and returning the initial `State`.
 pub fn first_step(
     cfg: Config,
     mut f: impl FnMut(&[f64], &mut [f64]) -> f64,
@@ -111,19 +129,26 @@ pub fn first_step(
     }
 }
 
+/// Information after a step of L-BFGS.
 #[derive(Clone, Copy, Debug)]
 pub struct Info<'a> {
+    /// Data about previous steps.
     pub state: &'a State,
 
+    /// The objective value at the current point.
     pub fx: f64,
 
+    /// The preconditioned descent direction.
     pub r: &'a [f64],
 
+    /// The current point.
     pub x: &'a [f64],
 
+    /// The line search step size.
     pub t: f64,
 }
 
+/// Perform L-BFGS steps on `x`, returning once `stop` returns `Some`.
 pub fn step_until<T>(
     cfg: Config,
     mut f: impl FnMut(&[f64], &mut [f64]) -> f64,
