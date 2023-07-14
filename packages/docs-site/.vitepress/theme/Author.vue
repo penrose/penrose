@@ -3,7 +3,7 @@ defineProps<{ github: string }>();
 </script>
 
 <template>
-  <div style="margin: 10px; display: flex; align-items: center; gap: 5px">
+  <div style="display: flex; gap: 5px; align-items: center">
     <img
       :src="`https://www.github.com/${github}.png`"
       width="30"
