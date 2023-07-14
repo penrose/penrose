@@ -1,2 +1,0 @@
-var o=Object.defineProperty;var r=(e,n)=>o(e,"name",{value:n,configurable:!0});import{r as i,T as a}from"./triangles-fdc06d13.js";import"./svg-142e91b5.js";import"./iframe-f5449c82.js";import"./CollectLabels-d14adb93.js";const p=r(async()=>{const e=document.createElement("div");return await new Promise(n=>{const t=r(()=>{n(void 0)},"onFinish");i(()=>a({seed:"foobar",theta:0,onFinish:t}),e)}),e.innerHTML},"triangles");export{p as default};
-//# sourceMappingURL=triangles-0f8a2a0a.js.map
