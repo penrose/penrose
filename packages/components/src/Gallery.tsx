@@ -1,4 +1,3 @@
-import registry from "@penrose/examples/dist/registry.js";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { cropSVG } from "./util.js";
@@ -60,7 +59,15 @@ const Example = ({
   );
 };
 
-export default ({ ideLink, dark }: { ideLink: string; dark?: boolean }) => {
+export default ({
+  registry,
+  ideLink,
+  dark,
+}: {
+  registry: Map<string, { trio: boolean; gallery?: boolean }>;
+  ideLink: string;
+  dark?: boolean;
+}) => {
   const entries = [...registry.entries()].filter(
     ([, meta]) => meta.trio && meta.gallery
   );
