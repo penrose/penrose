@@ -291,6 +291,10 @@ export default defineConfig({
               link: "/docs/ref/vanilla-js",
             },
             {
+              text: "Using Penrose with a Bundler",
+              link: "/docs/ref/bundle",
+            },
+            {
               text: "Using Penrose with React",
               link: "/docs/ref/react",
             },
