@@ -174,7 +174,7 @@ in Pittsburgh, PA USA—and other locations around the world.
 
 ## Past Members
 
-- [Kai Ye](https://www.cs.cmu.edu/~kqy/)
+- [Kai Ye](https://www.linkedin.com/in/kai-ye-83946725a/)
 - [Will Rinkoff](https://dsm0.github.io/)
 - [Helena Yang](https://heleaf.me/)
 - [Josh Pollock](https://joshmpollock.com/)
