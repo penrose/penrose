@@ -279,6 +279,30 @@ export default defineConfig({
           text: "For Developers",
           items: [
             {
+              text: "The Language API",
+              link: "/docs/ref/api",
+            },
+            {
+              text: "The Optimization API",
+              link: "/docs/ref/optimization-api",
+            },
+            {
+              text: "Using Penrose with Vanilla JS",
+              link: "/docs/ref/vanilla-js",
+            },
+            {
+              text: "Using Penrose with a Bundler",
+              link: "/docs/ref/bundle",
+            },
+            {
+              text: "Using Penrose with React",
+              link: "/docs/ref/react",
+            },
+            {
+              text: "Using Penrose with SolidJS",
+              link: "/docs/ref/solid",
+            },
+            {
               text: "Writing Constraints & Objectives",
               link: "/docs/ref/constraints",
             },
