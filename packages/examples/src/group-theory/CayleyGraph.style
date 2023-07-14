@@ -48,7 +48,7 @@ forall Group G
 where G has label {
    shape G.labelText = Equation {
       center: G.icon.center - (G.icon.width,-G.icon.height)/2 + (7,-7)
-      string: "<" + G.label + ">"
+      string: G.label
       fontSize: global.labelSize
       fillColor: G.icon.strokeColor
    }

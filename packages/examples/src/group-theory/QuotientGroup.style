@@ -74,3 +74,39 @@ where H := Subgroup(G); G has label; H has label
    }
 }
 
+-- Ok, and now the moment you've been avoiding.  What kinds of arrows can
+-- we draw between elements of the quotient group?  I don't want to have
+-- to name generators for the quotient; just seem like it takes the magic
+-- out of the picture.  Can we somehow draw arrows that are automatically
+-- labeled by *all* the elements that will take one coset to another?
+-- Basically what we have access to is:
+--   1. the multiplication table for the original group,
+--   2. the elements of the subgroup, and
+--   3. the element defining each coset
+-- How about this: for each element g of G, we can ask what it does to a
+-- given coset aH.  In particular, we can draw an arrow from aH to (ga)H,
+-- labeled with g.  If we're clever, we can just draw one arrow, and
+-- group the labels (which may require us to define a "string riffle" function…)
+
+forall  Subgroup H; Element g; Element a; LeftCoset gH; LeftCoset agH; Element b
+where gH := LeftCoset(g,H); IsProduct(b,a,g); agH := LeftCoset(b,H)
+{
+   vec2 x0 = gH.icon.center
+   vec2 x1 = agH.icon.center
+   vec2 u = unit(x1-x0)
+   vec2 n = rot90(u)
+   vec2 m = (x0 + x1)/2
+
+   vec2 p0 = x0
+   vec2 p1 = m + 6*n
+   vec2 p2 = x1 - 5*u + 2*n
+
+   shape arrow = Path {
+      d: interpolateQuadraticFromPoints( "open", p0, p1, p2 )
+      strokeColor: #000
+      strokeWidth: 1
+      endArrowhead: "straight"
+      endArrowheadSize: 0.5
+   }
+}
+
