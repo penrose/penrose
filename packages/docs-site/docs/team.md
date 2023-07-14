@@ -180,7 +180,7 @@ in Pittsburgh, PA USA—and other locations around the world.
 - [Josh Pollock](https://joshmpollock.com/)
 - [Mia Tang](https://mia-tang.com/#/)
 - [Jenna Wise](https://www.cs.cmu.edu/~jlwise/)
-- [Stella Trout](https://miyehn.me/)
+- [Stella Trout](https://github.com/strout18)
 - [Dor Ma'ayan](http://www.cs.technion.ac.il/people/dorma10/)
 - [Lily Shellhammer](https://www.linkedin.com/in/lily-shellhammer-899b43105)
 - [Matt Davis](https://cmumatt.github.io/)
