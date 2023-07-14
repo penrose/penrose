@@ -3,6 +3,57 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v3.0.0-beta.0](https://github.com/penrose/penrose/compare/v2.3.0...v3.0.0-beta.0) (2023-07-14)
+
+### :warning: BREAKING CHANGE
+
+- combine `automator` and `roger` (#1387)
+- more readable `core` language API (#1527)
+- put each trio in its own JSON file (#1393)
+- support non-trio examples in the registry (#1418)
+
+### :rocket: New Feature
+
+- Walk on stars ([#1493](https://github.com/penrose/penrose/issues/1493)) ([1678a91](https://github.com/penrose/penrose/commit/1678a912c5535f2f9896d20a851f421fb75f669e))
+- `renderer` adds tightest viewbox metadata to SVG ([#1444](https://github.com/penrose/penrose/issues/1444)) ([0c7b9f0](https://github.com/penrose/penrose/commit/0c7b9f0b16a1754ee0fdae8aabf1f0b1386e81cd))
+- box-arrow style and computer architecture diagram ([#1492](https://github.com/penrose/penrose/issues/1492)) ([2c428c3](https://github.com/penrose/penrose/commit/2c428c3227e728fa6cda1d91aaf7ef00843eebe3))
+- cropping picks smaller viewbox in gallery and `editor` ([#1518](https://github.com/penrose/penrose/issues/1518)) ([b59854a](https://github.com/penrose/penrose/commit/b59854a69bd40e0d543fa16d6875150fb57207a9))
+- error and warning markings in IDE editor ([#1513](https://github.com/penrose/penrose/issues/1513)) ([c91a6c9](https://github.com/penrose/penrose/commit/c91a6c9794cc26a2e9134fe60e02f5d33e572a5b))
+- export SVGs with plain TeX labels ([#1433](https://github.com/penrose/penrose/issues/1433)) ([3e589a0](https://github.com/penrose/penrose/commit/3e589a08fc1c5b46d4e9143655722058970219dc))
+- function warnings ([#1498](https://github.com/penrose/penrose/issues/1498)) ([3e68a94](https://github.com/penrose/penrose/commit/3e68a94ab933a841d882ea26c26a58b5728629bf))
+- homepage gallery component ([#1464](https://github.com/penrose/penrose/issues/1464)) ([130b2b7](https://github.com/penrose/penrose/commit/130b2b77904b926863c7348b7de085a792117ca9))
+- line wrap in error pane ([#1357](https://github.com/penrose/penrose/issues/1357)) ([58bd78b](https://github.com/penrose/penrose/commit/58bd78b4f9a8d1e8ae7d2fa1c937dcbf194b0df4))
+- show warnings in `editor` ([#1381](https://github.com/penrose/penrose/issues/1381)) ([31a59f9](https://github.com/penrose/penrose/commit/31a59f9fab695281beef2528f172a4764655481c))
+- support non-trio examples in the registry ([#1418](https://github.com/penrose/penrose/issues/1418)) ([4fe953f](https://github.com/penrose/penrose/commit/4fe953fb26778e28debae7221de3f05ef30c4e2b))
+- support trio switching in `roger watch` and `editor` ([#1486](https://github.com/penrose/penrose/issues/1486)) ([8581efc](https://github.com/penrose/penrose/commit/8581efc9cac3211ca6732e1d7f1d5d542aa4fbc3))
+
+### :bug: Bug Fix
+
+- Diagram panel empty on iOS Chrome and iOS/macOS Safari ([#1465](https://github.com/penrose/penrose/issues/1465)) ([cb89d4c](https://github.com/penrose/penrose/commit/cb89d4cb8bf815f2ff39e9e8f28ec532b956db43))
+- query string for examples in `editor` ([#1519](https://github.com/penrose/penrose/issues/1519)) ([5c11a6d](https://github.com/penrose/penrose/commit/5c11a6d152d74735f666945852ea57045356e289))
+- remove width and height attributes in `editor` SVG export ([#1410](https://github.com/penrose/penrose/issues/1410)) ([3f68541](https://github.com/penrose/penrose/commit/3f685410b3543e59c77fd8c88893acb18ddfec2d))
+- reuse resolver when example becomes local ([#1473](https://github.com/penrose/penrose/issues/1473)) ([5ba3c00](https://github.com/penrose/penrose/commit/5ba3c00eae4709bdf79c48de32a5f98e4eb95a6f))
+
+### :nail_care: Polish
+
+- bump TypeScript version to 5.0 ([#1395](https://github.com/penrose/penrose/issues/1395)) ([b4ae329](https://github.com/penrose/penrose/commit/b4ae3298c9a03926ca690c63f368adcaa031b56d))
+- combine `automator` and `roger` ([#1387](https://github.com/penrose/penrose/issues/1387)) ([678c6e5](https://github.com/penrose/penrose/commit/678c6e528d20d6cbbfd3a04f1fcad656e72bdc6e))
+- more readable `core` language API ([#1527](https://github.com/penrose/penrose/issues/1527)) ([22c8fc6](https://github.com/penrose/penrose/commit/22c8fc68f225974a353df244832b3b1c90e5f0e0))
+- pull out base `tsconfig.json` ([#1392](https://github.com/penrose/penrose/issues/1392)) ([e6c5f55](https://github.com/penrose/penrose/commit/e6c5f5524837fe4c970713f05bbed821b9cda411))
+- put each trio in its own JSON file ([#1393](https://github.com/penrose/penrose/issues/1393)) ([803d7fc](https://github.com/penrose/penrose/commit/803d7fc20199262f833c2f60606ed1b778c92b72))
+
+### :memo: Documentation
+
+- add a page about tools and update docs overview ([#1521](https://github.com/penrose/penrose/issues/1521)) ([d179143](https://github.com/penrose/penrose/commit/d179143ea72a8d4cbdfee766ea7cfc98cbf4999d))
+- fix the tutorial ([#1501](https://github.com/penrose/penrose/issues/1501)) ([60332b7](https://github.com/penrose/penrose/commit/60332b7b0418fbdf92bf61de0771f1b6c3ded355))
+- homepage tweaks ([#1515](https://github.com/penrose/penrose/issues/1515)) ([0fa290e](https://github.com/penrose/penrose/commit/0fa290e3264c8c20c768a9ef509a768ee10d5030))
+
+### :house: Internal
+
+- Revert "fix: Diagram panel empty on iOS Chrome and iOS/macOS Safari" ([#1466](https://github.com/penrose/penrose/issues/1466)) ([fad7125](https://github.com/penrose/penrose/commit/fad7125dc99698185bd8d2d7a9ee5388969f2a03))
+- enable example panel on `editor` startup ([#1510](https://github.com/penrose/penrose/issues/1510)) ([8888e7f](https://github.com/penrose/penrose/commit/8888e7fc0b635b7909f08e8bc3adcf15fed01ac6))
+- switch from jest to vitest ([#1406](https://github.com/penrose/penrose/issues/1406)) ([8ef8c77](https://github.com/penrose/penrose/commit/8ef8c778488b17eb0f02a62d1399e0b0337f5355))
+
 ## [v2.3.0](https://github.com/penrose/penrose/compare/v2.2.0...v2.3.0) (2023-03-14)
 
 ### :rocket: New Feature

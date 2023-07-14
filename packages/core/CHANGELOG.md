@@ -3,6 +3,96 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v3.0.0-beta.0](https://github.com/penrose/penrose/compare/v2.3.0...v3.0.0-beta.0) (2023-07-14)
+
+### :warning: BREAKING CHANGE
+
+- clean up `core` exports and synthesizer modules (#1367)
+- cleanup optimizer interface (#1368)
+- combine `automator` and `roger` (#1387)
+- consolidate shape types (#1337)
+- decouple optimizer from codegen (#1338)
+- more readable `core` language API (#1527)
+- put each trio in its own JSON file (#1393)
+- support non-trio examples in the registry (#1418)
+
+### :rocket: New Feature
+
+- Additional curve support ([#1503](https://github.com/penrose/penrose/issues/1503)) ([daa593d](https://github.com/penrose/penrose/commit/daa593d0342a6189038324e3e300855ed74fe478))
+- Blobs ([#1388](https://github.com/penrose/penrose/issues/1388)) ([5c192ae](https://github.com/penrose/penrose/commit/5c192ae31d10ea9280e99a6cede0ffe6cc69668e))
+- Expose random sampling in Style ([#1404](https://github.com/penrose/penrose/issues/1404)) ([2afb63c](https://github.com/penrose/penrose/commit/2afb63cbfae50a20654a6a7f55486b31aa51c0f4))
+- Geometric Queries ([#1428](https://github.com/penrose/penrose/issues/1428)) ([092063a](https://github.com/penrose/penrose/commit/092063ae8e653ce1195bf6186c715d6b7c908775))
+- Improve elastic energy ([#1384](https://github.com/penrose/penrose/issues/1384)) ([291e244](https://github.com/penrose/penrose/commit/291e24435c489dd8ead4827c30c9481998d2a403))
+- Substance variable collection ([#1390](https://github.com/penrose/penrose/issues/1390)) ([c2d2467](https://github.com/penrose/penrose/commit/c2d2467a8f094695e0786a4464e556bfc2bda1a8))
+- Update curves ([#1533](https://github.com/penrose/penrose/issues/1533)) ([41655a4](https://github.com/penrose/penrose/commit/41655a4c5d74df3c12f1bd6278ffbaf8d84edf07))
+- Update not found image ([#1532](https://github.com/penrose/penrose/issues/1532)) ([d09b3d6](https://github.com/penrose/penrose/commit/d09b3d64f49710c0ee58b96f79f1c26561caa4f8))
+- Walk on stars ([#1493](https://github.com/penrose/penrose/issues/1493)) ([1678a91](https://github.com/penrose/penrose/commit/1678a912c5535f2f9896d20a851f421fb75f669e))
+- `renderer` adds tightest viewbox metadata to SVG ([#1444](https://github.com/penrose/penrose/issues/1444)) ([0c7b9f0](https://github.com/penrose/penrose/commit/0c7b9f0b16a1754ee0fdae8aabf1f0b1386e81cd))
+- abstract shape parameters ([#1361](https://github.com/penrose/penrose/issues/1361)) ([627ee5c](https://github.com/penrose/penrose/commit/627ee5c3b350a205cd0e06b1ede9ce3fcfedb756))
+- accurate `Equation` measurements ([#1445](https://github.com/penrose/penrose/issues/1445)) ([93d30f5](https://github.com/penrose/penrose/commit/93d30f5315aba02b0846d70185638fa65ca6960e))
+- additional constructor declaration syntax in Domain and Substance ([#1472](https://github.com/penrose/penrose/issues/1472)) ([ff1a7d7](https://github.com/penrose/penrose/commit/ff1a7d70a643d0cc19d4f14c7b962207f28c46b7))
+- allow namespace updates in Style ([#1379](https://github.com/penrose/penrose/issues/1379)) ([5991b84](https://github.com/penrose/penrose/commit/5991b848c8d7f9bc1e582892aeda5f692944b2a5))
+- cleanup optimizer interface ([#1368](https://github.com/penrose/penrose/issues/1368)) ([fec7838](https://github.com/penrose/penrose/commit/fec78388610690b7743596bd3f797f34cf4b29ba))
+- decouple optimizer from codegen ([#1338](https://github.com/penrose/penrose/issues/1338)) ([99f2633](https://github.com/penrose/penrose/commit/99f263315478dae3055fd299a0d588632c501d3f))
+- error and warning markings in IDE editor ([#1513](https://github.com/penrose/penrose/issues/1513)) ([c91a6c9](https://github.com/penrose/penrose/commit/c91a6c9794cc26a2e9134fe60e02f5d33e572a5b))
+- export SVGs with plain TeX labels ([#1433](https://github.com/penrose/penrose/issues/1433)) ([3e589a0](https://github.com/penrose/penrose/commit/3e589a08fc1c5b46d4e9143655722058970219dc))
+- export `core` API functions for optimization specification and solving ([#1391](https://github.com/penrose/penrose/issues/1391)) ([71aa047](https://github.com/penrose/penrose/commit/71aa047cb276b5ec366a7893620d2250f3fd07f8))
+- function as data ([#1352](https://github.com/penrose/penrose/issues/1352)) ([8df3229](https://github.com/penrose/penrose/commit/8df3229de606c912dd03ed4e766f30655fb13eca))
+- function warnings ([#1498](https://github.com/penrose/penrose/issues/1498)) ([3e68a94](https://github.com/penrose/penrose/commit/3e68a94ab933a841d882ea26c26a58b5728629bf))
+- homepage gallery component ([#1464](https://github.com/penrose/penrose/issues/1464)) ([130b2b7](https://github.com/penrose/penrose/commit/130b2b77904b926863c7348b7de085a792117ca9))
+- shape clipping ([#1411](https://github.com/penrose/penrose/issues/1411)) ([03873af](https://github.com/penrose/penrose/commit/03873af0592cba7b343efa0ad95d7043cb170003))
+- show warnings in `editor` ([#1381](https://github.com/penrose/penrose/issues/1381)) ([31a59f9](https://github.com/penrose/penrose/commit/31a59f9fab695281beef2528f172a4764655481c))
+- space curves ([#1399](https://github.com/penrose/penrose/issues/1399)) ([20e187d](https://github.com/penrose/penrose/commit/20e187dd4c0379b6975cec81ad55cf9f3e5a00f6))
+- support non-trio examples in the registry ([#1418](https://github.com/penrose/penrose/issues/1418)) ([4fe953f](https://github.com/penrose/penrose/commit/4fe953fb26778e28debae7221de3f05ef30c4e2b))
+- t-SNE Experiment ([#1453](https://github.com/penrose/penrose/issues/1453)) ([42bac33](https://github.com/penrose/penrose/commit/42bac33a28650d3f081c2bec3a32bb1be7419a69))
+- timeline ([#1369](https://github.com/penrose/penrose/issues/1369)) ([71aaf38](https://github.com/penrose/penrose/commit/71aaf38314b7d2ce8bdd5c5e53e1d956a97fa347))
+- updated examples visible in gallery ([#1505](https://github.com/penrose/penrose/issues/1505)) ([230d534](https://github.com/penrose/penrose/commit/230d5344502a1b6506f03614f8b74c2035f50f71))
+
+### :bug: Bug Fix
+
+- `halfPlaneSDF` and padding ([#1360](https://github.com/penrose/penrose/issues/1360)) ([d234a96](https://github.com/penrose/penrose/commit/d234a9673a479cfeca5f3192f4289f4a525e27f9))
+- `style` passthrough in `core` renderer ([#1517](https://github.com/penrose/penrose/issues/1517)) ([18b9218](https://github.com/penrose/penrose/commit/18b9218b7cf1e64042176a04c8aa8a297ae817fb))
+- bad clipping on transformed shape ([#1495](https://github.com/penrose/penrose/issues/1495)) ([6ed899f](https://github.com/penrose/penrose/commit/6ed899f41230732572662b89cc601d25a889ca7b))
+- baseline center for TeX SVG `Equation`s ([#1452](https://github.com/penrose/penrose/issues/1452)) ([dc7d41f](https://github.com/penrose/penrose/commit/dc7d41f031cb7a8aad65ab09d139c7ac536f6f75))
+- corrected `triangle` function signature ([#1351](https://github.com/penrose/penrose/issues/1351)) ([499cd21](https://github.com/penrose/penrose/commit/499cd21f39549abd317976f492b803a09ce2277d))
+- dependency graph for paths with indices ([#1429](https://github.com/penrose/penrose/issues/1429)) ([d7e101e](https://github.com/penrose/penrose/commit/d7e101e0e8c332f3c1227a30a8f847135fc2e3d5))
+- fill and stroke settings for `Path`, `Line`, and `Polyline` ([#1423](https://github.com/penrose/penrose/issues/1423)) ([284ad80](https://github.com/penrose/penrose/commit/284ad80acdd6a2274293770b2c1e487112362067))
+- list whitespace parsing in Style ([#1475](https://github.com/penrose/penrose/issues/1475)) ([e05a990](https://github.com/penrose/penrose/commit/e05a990fbaa44d234c7fb56aa69e64e51568bc46))
+- passthrough auto fill ([#1396](https://github.com/penrose/penrose/issues/1396)) ([de70455](https://github.com/penrose/penrose/commit/de70455798218948a02338f8fd0fc9100bb053ed))
+- remove width and height attributes in `editor` SVG export ([#1410](https://github.com/penrose/penrose/issues/1410)) ([3f68541](https://github.com/penrose/penrose/commit/3f685410b3543e59c77fd8c88893acb18ddfec2d))
+- render zero-length `Line`s ([#1491](https://github.com/penrose/penrose/issues/1491)) ([6b2550e](https://github.com/penrose/penrose/commit/6b2550eee5afdcc3e106bdb41e129bead6a51947))
+- separate type exports in core API and remove solid examples from registry ([#1482](https://github.com/penrose/penrose/issues/1482)) ([d3dd1f9](https://github.com/penrose/penrose/commit/d3dd1f9adb12ce7fef6038af8cf2b6c3741523b9))
+- unique line arrow ([#1341](https://github.com/penrose/penrose/issues/1341)) ([52c6877](https://github.com/penrose/penrose/commit/52c687759093be8243440aff761e98fae668598f))
+
+### :nail_care: Polish
+
+- bump TypeScript version to 5.0 ([#1395](https://github.com/penrose/penrose/issues/1395)) ([b4ae329](https://github.com/penrose/penrose/commit/b4ae3298c9a03926ca690c63f368adcaa031b56d))
+- clean up `core` exports and synthesizer modules ([#1367](https://github.com/penrose/penrose/issues/1367)) ([cf24aaa](https://github.com/penrose/penrose/commit/cf24aaad28c3589d5770e75669f3e6e66d19d2aa))
+- combine `automator` and `roger` ([#1387](https://github.com/penrose/penrose/issues/1387)) ([678c6e5](https://github.com/penrose/penrose/commit/678c6e528d20d6cbbfd3a04f1fcad656e72bdc6e))
+- consolidate shape types ([#1337](https://github.com/penrose/penrose/issues/1337)) ([0d69c97](https://github.com/penrose/penrose/commit/0d69c9709d68f4dd4f8cc6a7773740fa6f872ccf))
+- don't concatenate tag in `updateExpr` ([#1377](https://github.com/penrose/penrose/issues/1377)) ([2ce26c2](https://github.com/penrose/penrose/commit/2ce26c2fb67f8642a19e84f82505f2473bb3f18a))
+- more readable `core` language API ([#1527](https://github.com/penrose/penrose/issues/1527)) ([22c8fc6](https://github.com/penrose/penrose/commit/22c8fc68f225974a353df244832b3b1c90e5f0e0))
+- pull out base `tsconfig.json` ([#1392](https://github.com/penrose/penrose/issues/1392)) ([e6c5f55](https://github.com/penrose/penrose/commit/e6c5f5524837fe4c970713f05bbed821b9cda411))
+- put each trio in its own JSON file ([#1393](https://github.com/penrose/penrose/issues/1393)) ([803d7fc](https://github.com/penrose/penrose/commit/803d7fc20199262f833c2f60606ed1b778c92b72))
+- remove `key` field from `ad.Input` ([#1366](https://github.com/penrose/penrose/issues/1366)) ([73664bf](https://github.com/penrose/penrose/commit/73664bf8661c3c5f44cd1575077be4a6080b7957))
+- restore the 2D triangle mesh domain ([#1354](https://github.com/penrose/penrose/issues/1354)) ([a09d193](https://github.com/penrose/penrose/commit/a09d1939e5788e5f6587546fb6aee1f7dcc803a7))
+- simplify derivative of `div` ([#1524](https://github.com/penrose/penrose/issues/1524)) ([b3bbd66](https://github.com/penrose/penrose/commit/b3bbd666e70128601751517916fb909f58e73e0b))
+- unify default strokeColor for outline shapes ([#1169](https://github.com/penrose/penrose/issues/1169)) ([a105c7c](https://github.com/penrose/penrose/commit/a105c7c6be43752bf23437fd3d347432597bf92e))
+
+### :memo: Documentation
+
+- auto-generate documentation for Style functions ([#1427](https://github.com/penrose/penrose/issues/1427)) ([72d84fc](https://github.com/penrose/penrose/commit/72d84fca833c7629eaa23ff24d84f53881686130))
+- fix the tutorial ([#1501](https://github.com/penrose/penrose/issues/1501)) ([60332b7](https://github.com/penrose/penrose/commit/60332b7b0418fbdf92bf61de0771f1b6c3ded355))
+- start a blog ([#1325](https://github.com/penrose/penrose/issues/1325)) ([6669567](https://github.com/penrose/penrose/commit/6669567917464c72d5dd445a6def540b0d11da93))
+- using Penrose programmatically ([#1525](https://github.com/penrose/penrose/issues/1525)) ([7952b2b](https://github.com/penrose/penrose/commit/7952b2baa81fd4e5631135b707703cbc07646380))
+
+### :house: Internal
+
+- Remove old assets ([#1500](https://github.com/penrose/penrose/issues/1500)) ([04ee09f](https://github.com/penrose/penrose/commit/04ee09f0df7cb5fae6c7c43414122bd632d88062))
+- delete AD syntax transform and remove test folders in `core` ([#1371](https://github.com/penrose/penrose/issues/1371)) ([46c7220](https://github.com/penrose/penrose/commit/46c72209bcc8f04b79a9c32752b5c0a33493eadf))
+- get rid of cross-instance energy eval ([#1541](https://github.com/penrose/penrose/issues/1541)) ([e1a2e39](https://github.com/penrose/penrose/commit/e1a2e399b6b63f928d304d3339de0635949ee0c8))
+- switch from jest to vitest ([#1406](https://github.com/penrose/penrose/issues/1406)) ([8ef8c77](https://github.com/penrose/penrose/commit/8ef8c778488b17eb0f02a62d1399e0b0337f5355))
+
 ## [v2.3.0](https://github.com/penrose/penrose/compare/v2.2.0...v2.3.0) (2023-03-14)
 
 ### :rocket: New Feature
