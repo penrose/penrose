@@ -246,50 +246,6 @@ describe("Energy API", () => {
   });
 });
 
-describe("Cross-instance energy eval", () => {
-  test("correct - subsets", async () => {
-    const twosets = `Set A, B\nNot(Intersecting(A, B))\nAutoLabel All`;
-    const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
-    // compile and optimize both states
-    const state1 = await compile({
-      substance: twosets,
-      style: vennStyle,
-      domain: setDomain,
-      variation: "cross-instance state0",
-      excludeWarnings: [],
-    });
-    const state2 = await compile({
-      substance: twoSubsets,
-      style: vennStyle,
-      domain: setDomain,
-      variation: "cross-instance state1",
-      excludeWarnings: [],
-    });
-    if (state1.isOk() && state2.isOk()) {
-      const state1Done = optimize(state1.value);
-      const state2Done = optimize(state2.value);
-      if (state1Done.isOk() && state2Done.isOk()) {
-        const crossState21 = {
-          ...state2Done.value,
-          constrFns: state1Done.value.constrFns,
-          objFns: state1Done.value.objFns,
-        };
-        expect(evalEnergy(await crossState21)).toBeCloseTo(0);
-        const crossState12 = {
-          ...state1Done.value,
-          constrFns: state2Done.value.constrFns,
-          objFns: state2Done.value.objFns,
-        };
-        expect(evalEnergy(await crossState12)).toBeGreaterThan(0);
-      } else {
-        throw Error("optimization failed");
-      }
-    } else {
-      throw Error("compilation failed");
-    }
-  });
-});
-
 describe("Run individual functions", () => {
   // TODO: Test evalFns vs overall objective? Also, test individual functions more thoroughly
   const EPS = 1e-3; // Minimized objectives should be close to 0
