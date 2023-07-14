@@ -31,19 +31,29 @@ global {
 forall Element g
 {
    shape g.icon = Circle {
-      r: 5.0 -- radius
+      r: 5
       fillColor: colors.lightGray
       strokeColor: colors.mediumGray
       strokeWidth: .55
       ensureOnCanvas: true
    }
+}
 
+forall Element g
+where g has label
+{
    shape g.labelText = Equation {
        string: g.label
        center: g.icon.center
        fontSize: global.labelSize
        fillColor: colors.darkGray
    }
+   layer g.labelText above g.icon
+
+   box = bboxPts( g.labelText )
+   scalar w = abs(box[1][0] - box[0][0])
+   scalar h = abs(box[1][1] - box[2][1])
+   override g.icon.r = max( w, h )/2 + 2
 }
 
 -- draw a circle around the identity element
@@ -59,18 +69,23 @@ where IsIdentity(e)
    layer identityMarker below e.icon
 }
 
- -- highlight any generating element by changing its color
- forall Element s
- where IsGenerator(s)
- {
-    scalar r = random(.4,.85)
-    scalar g = random(.4,.85)
-    scalar b = random(.4,.85)
+-- highlight any generating element by changing its color
+forall Element s
+where IsGenerator(s)
+{
+   scalar r = random(.4,.85)
+   scalar g = random(.4,.85)
+   scalar b = random(.4,.85)
 
-    override s.icon.fillColor = rgba(r,g,b,1.0)
-    override s.icon.strokeColor = rgba(.7*r,.7*g,.7*b,1.0)
-    override s.labelText.fillColor = s.icon.strokeColor
- }
+   override s.icon.fillColor = rgba(r,g,b,1.0)
+   override s.icon.strokeColor = rgba(.7*r,.7*g,.7*b,1.0)
+}
+
+forall Element s
+where s has label; IsGenerator(s)
+{
+   override s.labelText.fillColor = s.icon.strokeColor
+}
 
 -- encourage all nodes to avoid each other
 forall Element g1; Element g2
@@ -94,10 +109,11 @@ where IsGenerator(s); IsProduct( g2, g1, s )
    -- draw an arrow from g1 to g2
    vec2 x0 = g1.icon.center
    vec2 x2 = g2.icon.center
-   vec2 u = (x2-x0)/norm(x2-x0)
-   vec2 n = rot90(u)
+   scalar r = g2.icon.r
+   vec2 u = (x2-x0)/norm(x2-x0) -- unit vector from g1 to g2
+   vec2 n = rot90(u) -- vector perpendicular to u
    vec2 p0 = x0
-   vec2 p2 = x2 - 10*u + 3*n
+   vec2 p2 = x2 - (r + 5)*u + 3*n
    vec2 m = (p0+p2)/2
    vec2 p1 = m + 3.*n
    shape orientedPath = Path {
@@ -135,10 +151,11 @@ where IsGenerator(s); IsProduct( s, e, s )
    -- draw an arrow from e to s
    vec2 x0 = e.icon.center
    vec2 x2 = s.icon.center
+   scalar r = s.icon.r
    vec2 u = (x2-x0)/norm(x2-x0)
    vec2 n = rot90(u)
    vec2 p0 = x0
-   vec2 p2 = x2 - 10*u + 3*n
+   vec2 p2 = x2 - (r + 5)*u + 3*n
    vec2 m = (p0+p2)/2
    vec2 p1 = m + 3.*n
    shape orientedPath = Path {
@@ -175,10 +192,11 @@ where IsGenerator(s); IsProduct( g, s, s )
    -- draw an arrow from s to g
    vec2 x0 = s.icon.center
    vec2 x2 = g.icon.center
+   scalar r = g.icon.r
    vec2 u = (x2-x0)/norm(x2-x0)
    vec2 n = rot90(u)
    vec2 p0 = x0
-   vec2 p2 = x2 - 10*u + 3*n
+   vec2 p2 = x2 - (r + 5)*u + 3*n
    vec2 m = (p0+p2)/2
    vec2 p1 = m + 3.*n
    shape orientedPath = Path {
@@ -304,11 +322,13 @@ where C has label {
        string: C.label
        fontSize: global.labelSize
        fillColor: C.icon.strokeColor
+       opacity: C.icon.opacity
    }
 
    ensure contains( C.icon, C.labelText, 5 )
 }
 
+-- make sure the coset's label doesn't overlap elements in the coset
 forall Coset C; Subgroup H; Element h; Element g; Element f
 where C has label; C := Coset(g,H); In(H,h); IsProduct(f,g,h) {
    ensure disjoint( C.labelText, f.icon, 4 )
