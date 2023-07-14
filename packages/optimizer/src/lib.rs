@@ -367,6 +367,7 @@ fn minimize(
             if BREAK_EARLY && unconstrained_converged(norm_gradfxs) {
                 // This is on the original gradient, not the preconditioned one
                 log::info!("descent converged, stopping early");
+                return Some(false);
             }
 
             let norm_grad = norm_list(&gradfxs);
