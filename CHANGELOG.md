@@ -28,6 +28,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 - Spectral graph ([#1487](https://github.com/penrose/penrose/issues/1487)) ([9a347ad](https://github.com/penrose/penrose/commit/9a347adf2c5a7689d8254bed92b123110ef0b057))
 - Substance as spreadsheet for timeline diagrams ([#1419](https://github.com/penrose/penrose/issues/1419)) ([8c54f24](https://github.com/penrose/penrose/commit/8c54f24dfac463396422cd9837e2a55ee57f8787))
 - Substance variable collection ([#1390](https://github.com/penrose/penrose/issues/1390)) ([c2d2467](https://github.com/penrose/penrose/commit/c2d2467a8f094695e0786a4464e556bfc2bda1a8))
+- Update curves ([#1533](https://github.com/penrose/penrose/issues/1533)) ([41655a4](https://github.com/penrose/penrose/commit/41655a4c5d74df3c12f1bd6278ffbaf8d84edf07))
 - Update not found image ([#1532](https://github.com/penrose/penrose/issues/1532)) ([d09b3d6](https://github.com/penrose/penrose/commit/d09b3d64f49710c0ee58b96f79f1c26561caa4f8))
 - Walk on stars ([#1493](https://github.com/penrose/penrose/issues/1493)) ([1678a91](https://github.com/penrose/penrose/commit/1678a912c5535f2f9896d20a851f421fb75f669e))
 - `renderer` adds tightest viewbox metadata to SVG ([#1444](https://github.com/penrose/penrose/issues/1444)) ([0c7b9f0](https://github.com/penrose/penrose/commit/0c7b9f0b16a1754ee0fdae8aabf1f0b1386e81cd))

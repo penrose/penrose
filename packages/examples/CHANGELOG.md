@@ -22,6 +22,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 - Geometric Queries ([#1428](https://github.com/penrose/penrose/issues/1428)) ([092063a](https://github.com/penrose/penrose/commit/092063ae8e653ce1195bf6186c715d6b7c908775))
 - Improve elastic energy ([#1384](https://github.com/penrose/penrose/issues/1384)) ([291e244](https://github.com/penrose/penrose/commit/291e24435c489dd8ead4827c30c9481998d2a403))
 - Spectral graph ([#1487](https://github.com/penrose/penrose/issues/1487)) ([9a347ad](https://github.com/penrose/penrose/commit/9a347adf2c5a7689d8254bed92b123110ef0b057))
+- Update curves ([#1533](https://github.com/penrose/penrose/issues/1533)) ([41655a4](https://github.com/penrose/penrose/commit/41655a4c5d74df3c12f1bd6278ffbaf8d84edf07))
 - Walk on stars ([#1493](https://github.com/penrose/penrose/issues/1493)) ([1678a91](https://github.com/penrose/penrose/commit/1678a912c5535f2f9896d20a851f421fb75f669e))
 - abstract shape parameters ([#1361](https://github.com/penrose/penrose/issues/1361)) ([627ee5c](https://github.com/penrose/penrose/commit/627ee5c3b350a205cd0e06b1ede9ce3fcfedb756))
 - accurate `Equation` measurements ([#1445](https://github.com/penrose/penrose/issues/1445)) ([93d30f5](https://github.com/penrose/penrose/commit/93d30f5315aba02b0846d70185638fa65ca6960e))
