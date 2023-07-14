@@ -1,0 +1,40 @@
+AutoLabel All
+
+Group G
+Element e, a, b, c
+In(G,e)
+In(G,a)
+In(G,b)
+In(G,c)
+
+Let H := Subgroup(G)
+In(H,e)
+In(H,a)
+
+Let bH := Coset(b,H)
+Label bH "bH = cH"
+
+IsProduct( e, e, e )
+IsProduct( a, e, a )
+IsProduct( b, e, b )
+IsProduct( c, e, c )
+
+IsProduct( a, a, e )
+IsProduct( e, a, a )
+IsProduct( c, a, b )
+IsProduct( b, a, c )
+
+IsProduct( b, b, e )
+IsProduct( c, b, a )
+IsProduct( a, b, b )
+IsProduct( e, b, c )
+
+IsProduct( c, c, e )
+IsProduct( b, c, a )
+IsProduct( e, c, b )
+IsProduct( a, c, c )
+
+IsGenerator(a)
+IsGenerator(b)
+IsGenerator(c)
+

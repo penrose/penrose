@@ -24,6 +24,7 @@ global {
    scalar targetEdgeLength = 40.
    scalar pathWidth = 1.
    scalar pathOutlineWidth = 3.
+   string labelSize = "5px"
 }
 
 -- draw each group element as a dot
@@ -40,7 +41,7 @@ forall Element g
    shape g.labelText = Equation {
        string: g.label
        center: g.icon.center
-       fontSize: "5px"
+       fontSize: global.labelSize
        fillColor: colors.darkGray
    }
 }
@@ -60,12 +61,9 @@ where IsIdentity(e)
  forall Element s
  where IsGenerator(s)
  {
-    scalar r = ?
-    scalar g = ?
-    scalar b = ?
-    ensure inRange(r,.25,1.0)
-    ensure inRange(g,.25,1.0)
-    ensure inRange(b,.25,1.0)
+    scalar r = random(.4,.85)
+    scalar g = random(.4,.85)
+    scalar b = random(.4,.85)
 
     override s.icon.fillColor = rgba(r,g,b,1.0)
     override s.icon.strokeColor = rgba(.7*r,.7*g,.7*b,1.0)
@@ -115,6 +113,10 @@ where IsGenerator(s); IsProduct( g2, g1, s )
    }
    layer pathOutline below orientedPath
 
+   layer g1.icon above orientedPath
+   layer g2.icon above orientedPath
+   layer s.icon above orientedPath
+
    -- encourage these nodes to be close together, by minimizing a spring energy
    vec2 x1 = g1.icon.center
    scalar d = norm( x1 - x2 )
@@ -151,6 +153,9 @@ where IsGenerator(s); IsProduct( s, e, s )
       strokeWidth: global.pathOutlineWidth
    }
    layer pathOutline below orientedPath
+
+   layer s.icon above orientedPath
+   layer e.icon above orientedPath
 
    -- encourage these nodes to be close together, by minimizing a spring energy
    vec2 x1 = e.icon.center
@@ -189,6 +194,9 @@ where IsGenerator(s); IsProduct( g, s, s )
    }
    layer pathOutline below orientedPath
 
+   layer g.icon above orientedPath
+   layer s.icon above orientedPath
+
    -- encourage these nodes to be close together, by minimizing a spring energy
    vec2 x1 = s.icon.center
    scalar d = norm( x1 - x2 )
@@ -196,3 +204,122 @@ where IsGenerator(s); IsProduct( g, s, s )
    scalar L = global.targetEdgeLength -- rest length
    encourage equal( 0., k*(d-L)*(d-L)/2. ) -- minimize ½ k(d-L)²
 }
+
+-- draw each Subgroup H as a region that tries to
+-- fit snugly around the elements contained in H
+forall Subgroup H {
+
+   -- pick a width/height that try to be as small as possible
+   scalar w = ? -- width
+   scalar h = ? -- height
+   ensure w > 0
+   ensure h > 0
+   encourage 2*w == 0
+   encourage 2*h == 0
+
+   -- random bright color
+   vec3 p = sphereRandom()
+   vec3 C = .5*( abs(p[0]), abs(p[1]), abs(p[2]) )
+
+   shape H.icon = Rectangle {
+      center: (?,?)
+      width: w
+      height: h
+      cornerRadius: 10
+      fillColor: rgba( C[0], C[1], C[2], .1 )
+      strokeColor: rgba( C[0], C[1], C[2], 1 )
+      strokeWidth: .75*global.pathWidth
+   }
+}
+
+-- make sure the region used to represent the subgroup contains all of its elements
+forall Element g; Subgroup H
+where In(H,g) {
+   ensure contains( H.icon, g.icon, 10 )
+   layer H.icon above g.icon
+}
+
+-- if the subgroup has a label, put it in the lower-left corner
+forall Subgroup H
+where H has label {
+   shape H.labelText = Equation {
+       center: H.icon.center - (H.icon.width,H.icon.height)/2 + (7,7)
+       string: H.label
+       fontSize: global.labelSize
+       fillColor: H.icon.strokeColor
+   }
+}
+
+-- Draw each coset as a rounded rectangle in the same
+-- style as its corresponding subgroup, but faded out
+forall Coset C; Element g; Subgroup H
+where C := Coset(g,H) {
+
+   -- pick a width/height that try to be as small as possible
+   scalar w = ? -- width
+   scalar h = ? -- height
+   ensure w > 0
+   ensure h > 0
+   encourage 2*w == 0
+   encourage 2*h == 0
+
+   shape C.icon = Rectangle {
+      center: (?,?)
+      width: w
+      height: h
+      cornerRadius: H.icon.cornerRadius
+      fillColor: H.icon.fillColor
+      strokeColor: H.icon.strokeColor
+      strokeWidth: H.icon.strokeWidth
+      opacity: .4
+   }
+}
+
+forall Coset C; Subgroup H; Element h; Element g; Element f
+where C := Coset(g,H); In(H,h); IsProduct(f,g,h) {
+   ensure contains( C.icon, f.icon, 10 )
+   layer C.icon above f.icon
+}
+forall Coset C; Subgroup H; Element g; Element f
+where C := Coset(g,H); In(H,g); IsProduct(f,g,g) {
+   ensure contains( C.icon, f.icon, 10 )
+   layer C.icon above f.icon
+}
+forall Coset C; Subgroup H; Element h; Element g
+where C := Coset(g,H); In(H,h); IsProduct(g,g,h) {
+   ensure contains( C.icon, g.icon, 10 )
+   layer C.icon above g.icon
+}
+
+-- if the coset has a label, put it in the lower-left corner
+forall Coset C
+where C has label {
+
+   vec2 labelCenter = (?,?)
+
+   shape C.labelText = Equation {
+       center: labelCenter
+       string: C.label
+       fontSize: global.labelSize
+       fillColor: C.icon.strokeColor
+   }
+
+   ensure contains( C.icon, C.labelText, 5 )
+}
+
+forall Coset C; Subgroup H; Element h; Element g; Element f
+where C has label; C := Coset(g,H); In(H,h); IsProduct(f,g,h) {
+   ensure disjoint( C.labelText, f.icon, 4 )
+   layer C.labelText above f.icon
+}
+forall Coset C; Subgroup H; Element g; Element f
+where C has label; C := Coset(g,H); In(H,g); IsProduct(f,g,g) {
+   ensure disjoint( C.labelText, f.icon, 4 )
+   layer C.labelText above f.icon
+}
+forall Coset C; Subgroup H; Element h; Element g
+where C has label; C := Coset(g,H); In(H,h); IsProduct(g,g,h) {
+   ensure disjoint( C.labelText, g.icon, 4 )
+   layer C.labelText above g.icon
+}
+

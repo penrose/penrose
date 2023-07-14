@@ -8,6 +8,7 @@ Element g7
 Element g8
 Element g9
 Element g10
+IsIdentity(g1)
 IsGenerator(g2)
 IsGenerator(g4)
 IsProduct(g1,g1,g1)

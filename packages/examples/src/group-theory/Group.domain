@@ -1,4 +1,14 @@
-type Element -- an element of the group
+type Element
 predicate IsIdentity( Element e ) -- asserts that e is the identity element
 predicate IsGenerator( Element g ) -- asserts that g is a generator of the group
 predicate IsProduct( Element a, Element b, Element c ) -- asserts that a = b*c
+
+type Group
+predicate In( Group G, Element g ) -- asserts that g is an element of G
+
+type Subgroup <: Group
+constructor Subgroup( Group G )
+
+type Coset
+constructor Coset( Element g, Subgroup H ) -- defines a coset gH
+
