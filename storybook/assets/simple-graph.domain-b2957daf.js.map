@@ -1,1 +1,0 @@
-{"version":3,"file":"simple-graph.domain-b2957daf.js","sources":["../../../examples/dist/graph-domain/simple-graph.domain.js"],"sourcesContent":["export default \"type Vertex\\nsymmetric predicate Edge(Vertex, Vertex)\\n\";\n//# sourceMappingURL=simple-graph.domain.js.map"],"names":["domain"],"mappings":"AAAA,MAAAA,EAAe;AAAA;"}
