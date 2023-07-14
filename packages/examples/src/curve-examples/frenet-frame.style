@@ -1,0 +1,85 @@
+canvas {
+  width = 800
+  height = 800
+}
+
+layout = [convex, blob]
+
+settings {
+  scale = 40
+  tension = 0.19
+  dotRadius = 5
+  dotColor = #000 
+  tangentColor = #112b9eff
+  normalColor = #a01111ff
+  arrowThickness = 3
+  arrowSize = .5
+}
+
+global {
+   color black = #000
+}
+
+forall Point p {
+   p.x = (?,?)
+
+  shape p.dot = Circle {
+    center: p.x
+    r: settings.dotRadius
+    fillColor: settings.dotColor
+  }
+}
+
+collect Point p into ps
+where In(c,p)
+foreach Curve c {
+   xs = listof x from ps
+   c.points = xs
+}
+
+forall Curve c {
+
+  shape curve = Path {
+    d: interpolatingSpline( "closed", c.points, settings.tension )
+    strokeColor: #0a600a7b
+    strokeWidth: 2
+    strokeLinejoin: "round"
+  }
+
+  c.ts = tangentVectors(c.points, true)
+  c.ns = normalVectors(c.points, true)
+
+  ensure isEquilateral(c.points, true)
+  encourage elasticEnergy(c.points, true) == 8000 in blob
+  ensure signedArea(c.points, true) == 40000 in convex
+  ensure perimeter(c.points, true) == 1000
+}
+
+forall Point p; Curve c
+where In(c,p) {
+
+   vec2 x = p.x
+   vec2 t = oneBasedElement( c.ts, match_id )
+   vec2 n = oneBasedElement( c.ns, match_id )
+
+   p.lineT = Line {
+         start: x
+         end: x + settings.scale * t
+         strokeColor: settings.tangentColor
+         strokeWidth: settings.arrowThickness
+     endArrowhead: "straight"
+     endArrowheadSize: settings.arrowSize
+   }
+   p.lineN = Line {
+     start: x
+     end: x + settings.scale * n
+     strokeColor: settings.normalColor
+     strokeWidth: settings.arrowThickness
+     endArrowhead: "straight"
+     endArrowheadSize: settings.arrowSize
+   }
+
+   layer p.dot above p.lineT
+   layer p.dot above p.lineN
+}
+

@@ -1,0 +1,18 @@
+Point p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16
+Curve c
+In(c, p1)
+In(c, p2)
+In(c, p3)
+In(c, p4)
+In(c, p5)
+In(c, p6)
+In(c, p7)
+In(c, p8)
+In(c, p9)
+In(c, p10)
+In(c, p11)
+In(c, p12)
+In(c, p13)
+In(c, p14)
+In(c, p15)
+In(c, p16)

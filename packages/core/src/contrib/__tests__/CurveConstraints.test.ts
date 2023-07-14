@@ -18,7 +18,7 @@ import {
   signedArea,
   totalCurvature,
   turningNumber,
-} from "../CurveConstraints.js";
+} from "../Curves.js";
 import { extractPoints, isClosed, numOf } from "../Utils.js";
 import { _polygons, _polylines } from "../__testfixtures__/TestShapes.input.js";
 
