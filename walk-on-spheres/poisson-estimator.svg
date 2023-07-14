@@ -6,7 +6,7 @@
 >
   <penrose>
     <croppedViewBox>
-      7.81265964094959 21.672858287387044 182.98148573620398 161.01727385630144
+      5.000573272860578 21.672858287387044 185.793572104293 161.01727385630144
     </croppedViewBox>
   </penrose>
   <polygon
@@ -21,7 +21,7 @@
     <title>`U`.geometry</title>
   </polygon>
   <g
-    transform="rotate(0, 19.580306903333096, 158.72057741672788)translate(10.117359934699074, 149.25763044809386)"
+    transform="rotate(0, 19.580631027530288, 158.72002319544941)translate(10.117390176971094, 149.2567823448902)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -33,8 +33,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="18.925893937268043"
-      height="18.925893937268043"
+      width="18.926481701118387"
+      height="18.926481701118387"
       preserveAspectRatio=""
     >
       <style type="text/css">
@@ -61,7 +61,7 @@
     <title>`B3`.shading</title>
   </g>
   <g
-    transform="rotate(0, 63.164611891097174, 145.85621867611488)translate(31.882021861091445, 114.57362864610914)"
+    transform="rotate(0, 63.16572716811408, 145.85566766572333)translate(31.88267721754785, 114.5726177151571)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -73,8 +73,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="62.56518006001146"
-      height="62.56518006001146"
+      width="62.56609990113246"
+      height="62.56609990113246"
       preserveAspectRatio=""
     >
       <style type="text/css">
@@ -101,7 +101,7 @@
     <title>`B1`.shading</title>
   </g>
   <g
-    transform="rotate(0, 70.78866804466873, 89.49119819081437)translate(13.910491717129318, 32.613021863274966)"
+    transform="rotate(0, 70.78877281961756, 89.49058355790818)translate(13.910524888108093, 32.61233562639871)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -113,8 +113,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="113.75635265507881"
-      height="113.75635265507881"
+      width="113.75649586301894"
+      height="113.75649586301894"
       preserveAspectRatio=""
     >
       <style type="text/css">
@@ -143,22 +143,22 @@
   <circle
     fill="#9acca0"
     fill-opacity="1"
-    cx="70.78866804466873"
-    cy="89.49119819081437"
+    cx="70.78877281961756"
+    cy="89.49058355790818"
     stroke="#1b8a1f"
     stroke-opacity="1"
     stroke-width="0.6666666666666666"
-    r="56.87817632753941"
+    r="56.87824793150947"
     opacity="0.35"
   >
     <title>`B0`.ball</title>
   </circle>
   <g fill="none">
     <line
-      x1="70.78866804466873"
-      y1="89.49119819081437"
-      x2="63.164611891097174"
-      y2="145.85621867611488"
+      x1="70.78877281961756"
+      y1="89.49058355790818"
+      x2="63.16572716811408"
+      y2="145.85566766572333"
       stroke="#006600"
       stroke-opacity="0.2980392156862745"
       stroke-width="1.3333333333333333"
@@ -168,22 +168,22 @@
   <circle
     fill="#9acca0"
     fill-opacity="1"
-    cx="63.164611891097174"
-    cy="145.85621867611488"
+    cx="63.16572716811408"
+    cy="145.85566766572333"
     stroke="#1b8a1f"
     stroke-opacity="1"
     stroke-width="0.6666666666666666"
-    r="31.28259003000573"
+    r="31.28304995056623"
     opacity="0.35"
   >
     <title>`B1`.ball</title>
   </circle>
   <g fill="none">
     <line
-      x1="63.164611891097174"
-      y1="145.85621867611488"
-      x2="36.44547360435168"
-      y2="162.1254711849598"
+      x1="63.16572716811408"
+      y1="145.85566766572333"
+      x2="36.44616012808826"
+      y2="162.1250969159087"
       stroke="#006600"
       stroke-opacity="0.2980392156862745"
       stroke-width="1.3333333333333333"
@@ -191,7 +191,7 @@
     <title>`x2`.walkLine</title>
   </g>
   <g
-    transform="rotate(0, 36.44547360435168, 162.1254711849598)translate(19.240004034440027, 144.92000161504814)"
+    transform="rotate(0, 36.44616012808826, 162.1250969159087)translate(19.240372473399752, 144.91930926122018)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -203,8 +203,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="34.41093913982331"
-      height="34.41093913982331"
+      width="34.411575309377014"
+      height="34.411575309377014"
       preserveAspectRatio=""
     >
       <style type="text/css">
@@ -233,22 +233,22 @@
   <circle
     fill="#9acca0"
     fill-opacity="1"
-    cx="36.44547360435168"
-    cy="162.1254711849598"
+    cx="36.44616012808826"
+    cy="162.1250969159087"
     stroke="#1b8a1f"
     stroke-opacity="1"
     stroke-width="0.6666666666666666"
-    r="17.205469569911656"
+    r="17.205787654688507"
     opacity="0.35"
   >
     <title>`B2`.ball</title>
   </circle>
   <g fill="none">
     <line
-      x1="36.44547360435168"
-      y1="162.1254711849598"
-      x2="19.580306903333096"
-      y2="158.72057741672788"
+      x1="36.44616012808826"
+      y1="162.1250969159087"
+      x2="19.580631027530288"
+      y2="158.72002319544941"
       stroke="#006600"
       stroke-opacity="0.2980392156862745"
       stroke-width="1.3333333333333333"
@@ -258,12 +258,12 @@
   <circle
     fill="#9acca0"
     fill-opacity="1"
-    cx="19.580306903333096"
-    cy="158.72057741672788"
+    cx="19.580631027530288"
+    cy="158.72002319544941"
     stroke="#1b8a1f"
     stroke-opacity="1"
     stroke-width="0.6666666666666666"
-    r="9.462946968634022"
+    r="9.463240850559194"
     opacity="0.35"
   >
     <title>`B3`.ball</title>
@@ -271,8 +271,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="14.647897258378507"
-    cy="162.57336602403024"
+    cx="14.647566199165496"
+    cy="162.57254179453193"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
@@ -283,8 +283,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="19.580306903333096"
-    cy="158.72057741672788"
+    cx="19.580631027530288"
+    cy="158.72002319544941"
     stroke="none"
     r="2"
   >
@@ -293,8 +293,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="70.78866804466873"
-    cy="89.49119819081437"
+    cx="70.78877281961756"
+    cy="89.49058355790818"
     stroke="none"
     r="2"
   >
@@ -303,8 +303,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="36.44547360435168"
-    cy="162.1254711849598"
+    cx="36.44616012808826"
+    cy="162.1250969159087"
     stroke="none"
     r="2"
   >
@@ -313,8 +313,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="77.72017052440563"
-    cy="108.98789090529543"
+    cx="77.7199657952537"
+    cy="108.98741467506741"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
@@ -325,8 +325,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="65.16429979085157"
-    cy="121.89435994814573"
+    cx="65.16477983322645"
+    cy="121.89325280529985"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
@@ -337,8 +337,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="63.164611891097174"
-    cy="145.85621867611488"
+    cx="63.16572716811408"
+    cy="145.85566766572333"
     stroke="none"
     r="2"
   >
@@ -347,8 +347,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="39.96995739262178"
-    cy="159.27576723084002"
+    cx="39.97061099664023"
+    cy="159.27534215814146"
     stroke="#000000"
     stroke-opacity="1"
     stroke-width="1"
@@ -357,7 +357,7 @@
     <title>`y2`.dot</title>
   </circle>
   <g
-    transform="rotate(0, 36.99636786080599, 153.14234725626966)translate(29.18322986080599, 152.34236725626965)"
+    transform="rotate(0, 37.942404706751404, 170.9998505553525)translate(30.129266706751405, 170.1998705553525)"
     font-family="Linux Libertine"
     font-style="italic"
   >
@@ -390,7 +390,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 16.831951140823676, 167.2906731339694)translate(10.009455040823676, 163.2921064339694)"
+    transform="rotate(0, 11.823069372860573, 154.1571033874758)translate(5.0005732728605725, 150.1585366874758)"
     font-family="Linux Libertine"
     font-style="italic"
   >
@@ -431,7 +431,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 56.748710750757645, 118.70408392431159)translate(50.571531850757644, 114.39085842431159)"
+    transform="rotate(0, 56.36764597029263, 119.99313812517575)translate(50.19046707029263, 115.67991262517575)"
     font-family="Linux Libertine"
     font-style="italic"
   >
@@ -472,7 +472,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 106.81196021144275, 166.13401869187612)translate(101.99874721144275, 161.44080269187612)"
+    transform="rotate(0, 117.89813813685876, 165.7408365703468)translate(113.08492513685876, 161.0476205703468)"
     font-family="Linux Libertine"
   >
     <title>`U`.labelText</title>
@@ -504,7 +504,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 69.1222539014556, 80.64681783358756)translate(62.39842200145559, 76.59625243358757)"
+    transform="rotate(0, 68.91049548280397, 80.6887613462288)translate(62.186663582803966, 76.6381959462288)"
     font-family="Linux Libertine"
     font-style="italic"
   >
@@ -545,7 +545,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 86.72011151251041, 108.9552993322838)translate(80.54293261251041, 104.6420738322838)"
+    transform="rotate(0, 86.71989655242783, 109.02271858520774)translate(80.54271765242783, 104.70949308520774)"
     font-family="Linux Libertine"
     font-style="italic"
   >
@@ -586,7 +586,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 70.15882845394577, 151.52022208995336)translate(63.43499655394577, 147.57365408995335)"
+    transform="rotate(0, 69.88641827219314, 151.84167727844135)translate(63.16258637219314, 147.89510927844134)"
     font-family="Linux Libertine"
     font-style="italic"
   >

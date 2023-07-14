@@ -22,7 +22,7 @@
     <title>`U`.geometry</title>
   </polygon>
   <g
-    transform="rotate(0, 91.98965383441927, 35.35593928679762)translate(82.09392042614549, 25.460205878523844)"
+    transform="rotate(0, 91.98936231062979, 35.35613363700523)translate(82.09347828636695, 25.460249612742395)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -34,8 +34,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="19.79146681654756"
-      height="19.79146681654756"
+      width="19.791768048525668"
+      height="19.791768048525668"
       preserveAspectRatio=""
     >
       <style type="text/css">
@@ -62,7 +62,7 @@
     <title>`B3`.shading</title>
   </g>
   <g
-    transform="rotate(0, 140.07147855888348, 51.45667914683876)translate(107.35777381559328, 18.74297440354856)"
+    transform="rotate(0, 140.07158269037726, 51.45684161783101)translate(107.35770224271332, 18.742961170167078)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -74,8 +74,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="65.4274094865804"
-      height="65.4274094865804"
+      width="65.42776089532786"
+      height="65.42776089532786"
       preserveAspectRatio=""
     >
       <style type="text/css">
@@ -102,7 +102,7 @@
     <title>`B1`.shading</title>
   </g>
   <g
-    transform="rotate(0, 114.45637020022016, 105.13806477497907)translate(54.97678556450356, 45.658480139262466)"
+    transform="rotate(0, 114.45607252859885, 105.13833134266368)translate(54.97620043002976, 45.65845924409459)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -114,8 +114,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="118.95916927143321"
-      height="118.95916927143321"
+      width="118.95974419713818"
+      height="118.95974419713818"
       preserveAspectRatio=""
     >
       <style type="text/css">
@@ -144,22 +144,22 @@
   <circle
     fill="#9acca0"
     fill-opacity="1"
-    cx="114.45637020022016"
-    cy="105.13806477497907"
+    cx="114.45607252859885"
+    cy="105.13833134266368"
     stroke="#1b8a1f"
     stroke-opacity="1"
     stroke-width="0.6666666666666666"
-    r="59.479584635716606"
+    r="59.47987209856909"
     opacity="0.35"
   >
     <title>`B0`.ball</title>
   </circle>
   <g fill="none">
     <line
-      x1="114.45637020022016"
-      y1="105.13806477497907"
-      x2="140.07147855888348"
-      y2="51.45667914683876"
+      x1="114.45607252859885"
+      y1="105.13833134266368"
+      x2="140.07158269037726"
+      y2="51.45684161783101"
       stroke="#006600"
       stroke-opacity="0.2980392156862745"
       stroke-width="1.3333333333333333"
@@ -169,22 +169,22 @@
   <circle
     fill="#9acca0"
     fill-opacity="1"
-    cx="140.07147855888348"
-    cy="51.45667914683876"
+    cx="140.07158269037726"
+    cy="51.45684161783101"
     stroke="#1b8a1f"
     stroke-opacity="1"
     stroke-width="0.6666666666666666"
-    r="32.7137047432902"
+    r="32.71388044766393"
     opacity="0.35"
   >
     <title>`B1`.ball</title>
   </circle>
   <g fill="none">
     <line
-      x1="140.07147855888348"
-      y1="51.45667914683876"
-      x2="109.05084331245077"
-      y2="41.06905003123639"
+      x1="140.07158269037726"
+      y1="51.45684161783101"
+      x2="109.0507572834356"
+      y2="41.069242772015556"
       stroke="#006600"
       stroke-opacity="0.2980392156862745"
       stroke-width="1.3333333333333333"
@@ -192,7 +192,7 @@
     <title>`x2`.walkLine</title>
   </g>
   <g
-    transform="rotate(0, 109.05084331245077, 41.06905003123639)translate(91.05847961250419, 23.076686331289814)"
+    transform="rotate(0, 109.0507572834356, 41.069242772015556)translate(91.05821514314772, 23.07670063172768)"
   >
     <!--?xml version="1.0" encoding="utf-8"?--><!--Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)--><svg
       version="1.1"
@@ -204,8 +204,8 @@
       viewBox="0 0 221.7 221.7"
       style="enable-background: new 0 0 221.7 221.7"
       xml:space="preserve"
-      width="35.984727399893146"
-      height="35.984727399893146"
+      width="35.985084280575755"
+      height="35.985084280575755"
       preserveAspectRatio=""
     >
       <style type="text/css">
@@ -234,22 +234,22 @@
   <circle
     fill="#9acca0"
     fill-opacity="1"
-    cx="109.05084331245077"
-    cy="41.06905003123639"
+    cx="109.0507572834356"
+    cy="41.069242772015556"
     stroke="#1b8a1f"
     stroke-opacity="1"
     stroke-width="0.6666666666666666"
-    r="17.992363699946573"
+    r="17.992542140287878"
     opacity="0.35"
   >
     <title>`B2`.ball</title>
   </circle>
   <g fill="none">
     <line
-      x1="109.05084331245077"
-      y1="41.06905003123639"
-      x2="91.98965383441927"
-      y2="35.35593928679762"
+      x1="109.0507572834356"
+      y1="41.069242772015556"
+      x2="91.98936231062979"
+      y2="35.35613363700523"
       stroke="#006600"
       stroke-opacity="0.2980392156862745"
       stroke-width="1.3333333333333333"
@@ -259,12 +259,12 @@
   <circle
     fill="#9acca0"
     fill-opacity="1"
-    cx="91.98965383441927"
-    cy="35.35593928679762"
+    cx="91.98936231062979"
+    cy="35.35613363700523"
     stroke="#1b8a1f"
     stroke-opacity="1"
     stroke-width="0.6666666666666666"
-    r="9.89573340827378"
+    r="9.895884024262834"
     opacity="0.35"
   >
     <title>`B3`.ball</title>
@@ -272,31 +272,31 @@
   <circle
     fill="#ffffff"
     fill-opacity="0.2"
-    cx="159.78413488295453"
-    cy="106.83956046344345"
+    cx="159.784052656737"
+    cy="106.83983511843233"
     stroke="#ffffff"
     stroke-opacity="0.5"
     stroke-width="1"
-    r="15.119896158929151"
+    r="15.119968024642274"
   >
     <title>`B00`.shading</title>
   </circle>
   <circle
     fill="none"
-    cx="159.78413488295453"
-    cy="106.83956046344345"
+    cx="159.784052656737"
+    cy="106.83983511843233"
     stroke="none"
-    r="15.119896158929151"
+    r="15.119968024642274"
     opacity="0.35"
   >
     <title>`B00`.ball</title>
   </circle>
   <g fill="none">
     <line
-      x1="159.78413488295453"
-      y1="106.83956046344345"
-      x2="149.2670808224028"
-      y2="82.35351818605942"
+      x1="159.784052656737"
+      y1="106.83983511843233"
+      x2="149.26697520250335"
+      y2="82.35375012481643"
       stroke="#ffffff"
       stroke-opacity="1"
       stroke-width="1.3333333333333333"
@@ -306,21 +306,21 @@
   <circle
     fill="#ffffff"
     fill-opacity="0.2"
-    cx="133.34659038008402"
-    cy="23.548173500438807"
+    cx="133.34658613837723"
+    cy="23.54817707535088"
     stroke="#ffffff"
     stroke-opacity="0.5"
     stroke-width="1"
-    r="4.129952730480611"
+    r="4.12995566135982"
   >
     <title>`B12`.shading</title>
   </circle>
   <circle
     fill="none"
-    cx="133.34659038008402"
-    cy="23.548173500438807"
+    cx="133.34658613837723"
+    cy="23.54817707535088"
     stroke="none"
-    r="4.129952730480611"
+    r="4.12995566135982"
     opacity="0.35"
   >
     <title>`B12`.ball</title>
@@ -328,21 +328,21 @@
   <circle
     fill="#ffffff"
     fill-opacity="0.2"
-    cx="149.2670808224028"
-    cy="82.35351818605942"
+    cx="149.26697520250335"
+    cy="82.35375012481643"
     stroke="#ffffff"
     stroke-opacity="0.5"
     stroke-width="1"
-    r="25.548048872986875"
+    r="25.54814571825411"
   >
     <title>`B01`.shading</title>
   </circle>
   <circle
     fill="none"
-    cx="149.2670808224028"
-    cy="82.35351818605942"
+    cx="149.26697520250335"
+    cy="82.35375012481643"
     stroke="none"
-    r="25.548048872986875"
+    r="25.54814571825411"
     opacity="0.35"
   >
     <title>`B01`.ball</title>
@@ -350,21 +350,21 @@
   <circle
     fill="#ffffff"
     fill-opacity="0.2"
-    cx="136.4518137176874"
-    cy="26.43182473834834"
+    cx="136.45189898471796"
+    cy="26.43185678830247"
     stroke="#ffffff"
     stroke-opacity="0.5"
     stroke-width="1"
-    r="8.428426185822552"
+    r="8.42847011191598"
   >
     <title>`B10`.shading</title>
   </circle>
   <circle
     fill="none"
-    cx="136.4518137176874"
-    cy="26.43182473834834"
+    cx="136.45189898471796"
+    cy="26.43185678830247"
     stroke="none"
-    r="8.428426185822552"
+    r="8.42847011191598"
     opacity="0.35"
   >
     <title>`B10`.ball</title>
@@ -372,21 +372,21 @@
   <circle
     fill="#ffffff"
     fill-opacity="0.2"
-    cx="144.0941244367578"
-    cy="46.589103284148"
+    cx="144.09390065986338"
+    cy="46.589257603036415"
     stroke="#ffffff"
     stroke-opacity="0.5"
     stroke-width="1"
-    r="28.472116216209493"
+    r="28.47223691135435"
   >
     <title>`B02`.shading</title>
   </circle>
   <circle
     fill="none"
-    cx="144.0941244367578"
-    cy="46.589103284148"
+    cx="144.09390065986338"
+    cy="46.589257603036415"
     stroke="none"
-    r="28.472116216209493"
+    r="28.47223691135435"
     opacity="0.35"
   >
     <title>`B02`.ball</title>
@@ -394,21 +394,21 @@
   <circle
     fill="#ffffff"
     fill-opacity="0.2"
-    cx="128.02972115311815"
-    cy="26.105604250633263"
+    cx="128.02974822990396"
+    cy="26.10561597557526"
     stroke="#ffffff"
     stroke-opacity="0.5"
     stroke-width="1"
-    r="5.899917315826644"
+    r="5.899932796132907"
   >
     <title>`B11`.shading</title>
   </circle>
   <circle
     fill="none"
-    cx="128.02972115311815"
-    cy="26.105604250633263"
+    cx="128.02974822990396"
+    cy="26.10561597557526"
     stroke="none"
-    r="5.899917315826644"
+    r="5.899932796132907"
     opacity="0.35"
   >
     <title>`B11`.ball</title>
@@ -416,8 +416,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="128.02972115311815"
-    cy="26.105604250633263"
+    cx="128.02974822990396"
+    cy="26.10561597557526"
     stroke="none"
     r="2.5"
   >
@@ -425,10 +425,10 @@
   </circle>
   <g fill="none">
     <line
-      x1="128.02972115311815"
-      y1="26.105604250633263"
-      x2="133.34659038008402"
-      y2="23.548173500438807"
+      x1="128.02974822990396"
+      y1="26.10561597557526"
+      x2="133.34658613837723"
+      y2="23.54817707535088"
       stroke="#ffffff"
       stroke-opacity="1"
       stroke-width="1.3333333333333333"
@@ -436,7 +436,7 @@
     <title>`y12`.walkLine</title>
   </g>
   <g
-    transform="rotate(0, 67.2340876239357, 40.2871442637187)translate(62.420874623935696, 35.5939282637187)"
+    transform="rotate(0, 67.20397245788685, 36.033638658801664)translate(62.39075945788685, 31.340422658801664)"
     font-family="Linux Libertine"
   >
     <title>`U`.labelText</title>
@@ -470,8 +470,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="140.07147855888348"
-    cy="51.45667914683876"
+    cx="140.07158269037726"
+    cy="51.45684161783101"
     stroke="none"
     r="2"
   >
@@ -480,8 +480,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="109.05084331245077"
-    cy="41.06905003123639"
+    cx="109.0507572834356"
+    cy="41.069242772015556"
     stroke="none"
     r="2"
   >
@@ -490,8 +490,8 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="91.98965383441927"
-    cy="35.35593928679762"
+    cx="91.98936231062979"
+    cy="35.35613363700523"
     stroke="none"
     r="2"
   >
@@ -500,15 +500,15 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="114.45637020022016"
-    cy="105.13806477497907"
+    cx="114.45607252859885"
+    cy="105.13833134266368"
     stroke="none"
     r="2"
   >
     <title>`x0`.dot</title>
   </circle>
   <g
-    transform="rotate(0, 113.58892935509239, 114.09616425981423)translate(106.8650974550924, 110.04559885981423)"
+    transform="rotate(0, 112.93781048770965, 114.0093448346608)translate(106.21397858770966, 109.9587794346608)"
     font-family="Linux Libertine"
     font-style="italic"
   >
@@ -551,15 +551,15 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="159.78413488295453"
-    cy="106.83956046344345"
+    cx="159.784052656737"
+    cy="106.83983511843233"
     stroke="none"
     r="2.5"
   >
     <title>`y00`.dot</title>
   </circle>
   <g
-    transform="rotate(0, 84.71261686979727, 30.060211478882536)translate(77.89012076979728, 26.061644778882535)"
+    transform="rotate(0, 83.03077058137586, 34.493791345021734)translate(76.20827448137587, 30.495224645021732)"
     font-family="Linux Libertine"
     font-style="italic"
   >
@@ -600,7 +600,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 111.42404076306744, 49.75052075113094)translate(103.61090276306744, 48.950540751130944)"
+    transform="rotate(0, 115.87955435856627, 35.206860107374254)translate(108.06641635856627, 34.406880107374256)"
     font-family="Linux Libertine"
     font-style="italic"
   >
@@ -635,8 +635,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="133.34659038008402"
-    cy="23.548173500438807"
+    cx="133.34658613837723"
+    cy="23.54817707535088"
     stroke="none"
     r="2.5"
   >
@@ -645,8 +645,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="144.0941244367578"
-    cy="46.589103284148"
+    cx="144.09390065986338"
+    cy="46.589257603036415"
     stroke="none"
     r="2.5"
   >
@@ -655,15 +655,15 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="149.2670808224028"
-    cy="82.35351818605942"
+    cx="149.26697520250335"
+    cy="82.35375012481643"
     stroke="none"
     r="2.5"
   >
     <title>`y01`.dot</title>
   </circle>
   <g
-    transform="rotate(0, 149.06867767656112, 51.2321618048349)translate(142.34484577656113, 47.2855938048349)"
+    transform="rotate(0, 148.48416152348747, 54.65504695468886)translate(141.76032962348748, 50.708478954688864)"
     font-family="Linux Libertine"
     font-style="italic"
   >
@@ -706,8 +706,8 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="136.4518137176874"
-    cy="26.43182473834834"
+    cx="136.45189898471796"
+    cy="26.43185678830247"
     stroke="none"
     r="2.5"
   >
@@ -715,10 +715,10 @@
   </circle>
   <g fill="none">
     <line
-      x1="149.2670808224028"
-      y1="82.35351818605942"
-      x2="144.0941244367578"
-      y2="46.589103284148"
+      x1="149.26697520250335"
+      y1="82.35375012481643"
+      x2="144.09390065986338"
+      y2="46.589257603036415"
       stroke="#ffffff"
       stroke-opacity="1"
       stroke-width="1.3333333333333333"
@@ -727,10 +727,10 @@
   </g>
   <g fill="none">
     <line
-      x1="136.4518137176874"
-      y1="26.43182473834834"
-      x2="128.02972115311815"
-      y2="26.105604250633263"
+      x1="136.45189898471796"
+      y1="26.43185678830247"
+      x2="128.02974822990396"
+      y2="26.10561597557526"
       stroke="#ffffff"
       stroke-opacity="1"
       stroke-width="1.3333333333333333"

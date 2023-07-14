@@ -6,7 +6,7 @@
 >
   <penrose>
     <croppedViewBox>
-      15.782304296410501 5.408675063490932 170.6440340750154 179.97175921591958
+      15.782304296410501 5.408675063490932 170.64404518937064 179.97175921591958
     </croppedViewBox>
   </penrose>
   <polygon
@@ -463,7 +463,7 @@
     <title>`x0`.dot</title>
   </circle>
   <g
-    transform="rotate(0, 71.95985386469005, 76.99462333711233)translate(65.23602196469005, 72.94405793711233)"
+    transform="rotate(0, 71.95991441030654, 76.99455265241544)translate(65.23608251030655, 72.94398725241544)"
     font-family="Linux Libertine"
     font-style="italic"
   >
@@ -504,7 +504,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 91.58974733453783, 175.11039364223817)translate(85.29390473453783, 173.04377864223815)"
+    transform="rotate(0, 91.58972457352377, 175.11036612000953)translate(85.29388197352377, 173.04375112000952)"
     font-family="Linux Libertine"
     font-style="italic"
   >
@@ -555,7 +555,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 117.98793711905293, 154.86155073959964)translate(111.26410521905294, 150.91498273959962)"
+    transform="rotate(0, 117.98798181930687, 154.86163336433168)translate(111.26414991930687, 150.91506536433167)"
     font-family="Linux Libertine"
     font-style="italic"
   >
@@ -596,7 +596,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 134.1799061119367, 103.23887286967376)translate(127.45607421193671, 99.29230486967376)"
+    transform="rotate(0, 134.17991009254195, 103.23887411106118)translate(127.45607819254195, 99.29230611106118)"
     font-family="Linux Libertine"
     font-style="italic"
   >
@@ -637,7 +637,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 179.60384227142592, 146.46172615426127)translate(172.78134617142592, 142.46315945426127)"
+    transform="rotate(0, 179.60385338578115, 146.46168038070454)translate(172.78135728578116, 142.46311368070454)"
     font-family="Linux Libertine"
     font-style="italic"
   >
@@ -678,7 +678,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 28.480110673202105, 125.94259104460616)translate(23.666897673202104, 121.24937504460615)"
+    transform="rotate(0, 28.480108953894316, 125.94259747625358)translate(23.666895953894315, 121.24938147625357)"
     font-family="Linux Libertine"
   >
     <title>`U`.labelText</title>

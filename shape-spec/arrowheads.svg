@@ -54,7 +54,9 @@
     />
     <title>`none`.icon</title>
   </g>
-  <g transform="rotate(0, 273.664, 70)translate(254.624, 66.336)">
+  <g
+    transform="rotate(0, 273.6640000015996, 70)translate(254.62400000159963, 66.336)"
+  >
     <title>`none`.text</title>
     <svg
       style="font-size: 16px"
@@ -144,7 +146,9 @@
     />
     <title>`concave`.icon</title>
   </g>
-  <g transform="rotate(0, 273.672, 140)translate(242.24000000000004, 136.328)">
+  <g
+    transform="rotate(0, 273.67200000024036, 140)translate(242.24000000024037, 136.328)"
+  >
     <title>`concave`.text</title>
     <svg
       style="font-size: 16px"
@@ -249,7 +253,9 @@
     />
     <title>`straight`.icon</title>
   </g>
-  <g transform="rotate(0, 277.168, 210)translate(245.856, 202.832)">
+  <g
+    transform="rotate(0, 277.16800000050335, 210)translate(245.85600000050334, 202.832)"
+  >
     <title>`straight`.text</title>
     <svg
       style="font-size: 16px"
@@ -363,7 +369,9 @@
     />
     <title>`line`.icon</title>
   </g>
-  <g transform="rotate(0, 275.608, 280)translate(261.176, 274.392)">
+  <g
+    transform="rotate(0, 275.6080000005109, 280)translate(261.1760000005109, 274.392)"
+  >
     <title>`line`.text</title>
     <svg
       style="font-size: 16px"
@@ -457,7 +465,9 @@
     />
     <title>`doubleLine`.icon</title>
   </g>
-  <g transform="rotate(0, 275.608, 350)translate(231.488, 344.392)">
+  <g
+    transform="rotate(0, 275.60800000019253, 350)translate(231.48800000019253, 344.392)"
+  >
     <title>`doubleLine`.text</title>
     <svg
       style="font-size: 16px"
@@ -573,7 +583,9 @@
     />
     <title>`loopup`.icon</title>
   </g>
-  <g transform="rotate(0, 277.104, 420)translate(250.016, 412.896)">
+  <g
+    transform="rotate(0, 277.10399999982985, 420)translate(250.01599999982986, 412.896)"
+  >
     <title>`loopup`.text</title>
     <svg
       style="font-size: 16px"
@@ -669,7 +681,9 @@
     />
     <title>`loopdown`.icon</title>
   </g>
-  <g transform="rotate(0, 277.104, 490)translate(238.76799999999997, 482.896)">
+  <g
+    transform="rotate(0, 277.10400000031655, 490)translate(238.76800000031653, 482.896)"
+  >
     <title>`loopdown`.text</title>
     <svg
       style="font-size: 16px"
@@ -783,7 +797,9 @@
     />
     <title>`loop`.icon</title>
   </g>
-  <g transform="rotate(0, 277.104, 560)translate(260.24, 552.896)">
+  <g
+    transform="rotate(0, 277.1040000001742, 560)translate(260.24000000017423, 552.896)"
+  >
     <title>`loop`.text</title>
     <svg
       style="font-size: 16px"
