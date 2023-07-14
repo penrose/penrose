@@ -1,6 +1,5 @@
 import Demo from "./Demo.js";
 import { Embed } from "./Embed.js";
-import Gallery from "./Gallery.js";
 import { Grid } from "./Grid.js";
 import Listing from "./Listing.js";
 import MultipleChoiceProblem from "./MultipleChoiceProblem.js";
@@ -13,7 +12,6 @@ import { SetupSubstanceMonaco } from "./editing/languages/SubstanceConfig.js";
 import fetchResolver from "./fetchPathResolver.js";
 import penroseBlue from "./themes/penroseBlue.js";
 export {
-  Gallery,
   Simple,
   Embed,
   Grid,
