@@ -2,6 +2,7 @@ AutoLabel All
 
 Group G
 Element e, a, b, c
+IsIdentity(e)
 In(G,e)
 In(G,a)
 In(G,b)
@@ -34,7 +35,7 @@ IsProduct( b, c, a )
 IsProduct( e, c, b )
 IsProduct( a, c, c )
 
-IsGenerator(a)
-IsGenerator(b)
+-- IsGenerator(a)
+-- IsGenerator(b)
 IsGenerator(c)
 

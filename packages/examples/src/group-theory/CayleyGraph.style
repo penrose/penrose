@@ -52,9 +52,11 @@ where IsIdentity(e)
 {
    shape identityMarker = Circle {
       center: e.icon.center
-      r: 1.5*e.icon.r
+      r: 1.75*e.icon.r
       fillColor: rgba(0,0,0,.1)
+      strokeColor: #fff
    }
+   layer identityMarker below e.icon
 }
 
  -- highlight any generating element by changing its color
