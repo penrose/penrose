@@ -98,15 +98,6 @@ const members = [
     ],
   },
   {
-    name: "Max Krieger",
-    title: "🦆",
-    avatar: "https://www.github.com/maxkrieger.png",
-    links: [
-      { icon: { svg: website }, link: "http://a9.io/" },
-      { icon: "github", link: "https://github.com/maxkrieger" },
-    ],
-  },
-  {
     name: "Hwei-Shin Harriman",
     title: "Software engineer @ Tableau",
     avatar: "https://www.github.com/hsharriman.png",
@@ -134,15 +125,6 @@ const members = [
     ],
   },
   {
-    name: "Josh Sunshine",
-    title: "Professor @ CMU",
-    avatar: "https://www.github.com/joshsunshine.png",
-    links: [
-      { icon: { svg: website }, link: "https://www.cs.cmu.edu/~jssunshi/" },
-      { icon: "github", link: "https://github.com/joshsunshine" },
-    ],
-  },
-  {
     name: "Keenan Crane",
     title: "Professor @ CMU",
     avatar: "https://www.github.com/keenancrane.png",
@@ -152,12 +134,12 @@ const members = [
     ],
   },
   {
-    name: "Jonathan Aldrich",
+    name: "Josh Sunshine",
     title: "Professor @ CMU",
-    avatar: "https://www.github.com/JonathanAldrich.png",
+    avatar: "https://www.github.com/joshsunshine.png",
     links: [
-      { icon: { svg: website }, link: "https://www.cs.cmu.edu/~./aldrich/" },
-      { icon: "github", link: "https://github.com/JonathanAldrich" },
+      { icon: { svg: website }, link: "https://www.cs.cmu.edu/~jssunshi/" },
+      { icon: "github", link: "https://github.com/joshsunshine" },
     ],
   },
 ];
@@ -174,13 +156,16 @@ in Pittsburgh, PA USA—and other locations around the world.
 
 ## Past Members
 
-- [Kai Ye](https://www.cs.cmu.edu/~kqy/)
-- [Will Rinkoff](https://dsm0.github.io/)
-- [Helena Yang](https://heleaf.me/)
-- [Josh Pollock](https://joshmpollock.com/)
-- [Mia Tang](https://mia-tang.com/#/)
-- [Jenna Wise](https://www.cs.cmu.edu/~jlwise/)
-- [Stella Trout](https://miyehn.me/)
-- [Dor Ma'ayan](http://www.cs.technion.ac.il/people/dorma10/)
-- [Lily Shellhammer](https://www.linkedin.com/in/lily-shellhammer-899b43105)
+- [Jonathan Aldrich](https://www.cs.cmu.edu/~aldrich/)
 - [Matt Davis](https://cmumatt.github.io/)
+- [Rain Du](https://miyehn.me/)
+- [Josh Pollock](https://joshmpollock.com/)
+- [Max Krieger](https://a9.io/)
+- [Dor Ma'ayan](http://www.cs.technion.ac.il/people/dorma10/)
+- [Will Rinkoff](https://dsm0.github.io/)
+- [Lily Shellhammer](https://www.linkedin.com/in/lily-shellhammer-899b43105)
+- [Mia Tang](https://mia-tang.com/#/)
+- [Stella Trout](https://github.com/strout18)
+- [Helena Yang](https://heleaf.me/)
+- [Kai Ye](https://www.linkedin.com/in/kai-ye-83946725a/)
+- [Jenna Wise](https://www.cs.cmu.edu/~jlwise/)
