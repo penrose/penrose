@@ -78,8 +78,10 @@ Penrose.diagram(
   `,
     domain: `type Set
   predicate IsSubset(Set, Set)`,
+    variation: "",
   },
-  document.getElementById("penrose-diagram")
+  document.getElementById("penrose-diagram"),
+  async () => undefined
 );
 ```
 
