@@ -26,7 +26,7 @@ console.log(problem.converged); // true
 console.log(x); // a value closer to 5
 ```
 
-## All the arithematic functions
+## All the arithmatic functions
 
 :::info
 Coming soon!
