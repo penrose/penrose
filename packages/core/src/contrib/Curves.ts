@@ -46,6 +46,18 @@ export const curvature = (
   p3: ad.Num[],
   mode: CurvatureApproximationMode = CurvatureApproximationMode.Angle
 ): ad.Num => {
+  // Curvature approximation schemes using angle adapted from [1].
+  // [1] K. Crane, M. Wardetzky and J. Hass,
+  //     "A Glimpse into Discrete Differential Geometry",
+  //     Notices of the American Mathematical Society 64(10):1153-1159
+  //     DOI: 10.1090/noti1578
+  const v1 = ops.vsub(p2, p1);
+  const v2 = ops.vsub(p3, p2);
+
+  // Compute signed angle for 2D and positive angle otherwise
+  const angle =
+    p1.length === 2 ? ops.angleFrom(v1, v2) : ops.angleBetween(v1, v2);
+
   // Finite difference approximation of the $\partial_s T = \kappa N$
   if (mode === CurvatureApproximationMode.FiniteDifferences) {
     const v12 = ops.vsub(p2, p1);
@@ -58,20 +70,8 @@ export const curvature = (
     const p23 = ops.vmul(0.5, ops.vadd(p2, p3));
     // Distance between the edge centers
     const l123 = ops.vdist(p12, p23);
-    return div(ops.vdist(t23, t12), l123);
+    return mul(sign(angle), div(ops.vdist(t23, t12), l123));
   }
-
-  // Curvature approximation schemes using angle adapted from [1].
-  // [1] K. Crane, M. Wardetzky and J. Hass,
-  //     "A Glimpse into Discrete Differential Geometry",
-  //     Notices of the American Mathematical Society 64(10):1153-1159
-  //     DOI: 10.1090/noti1578
-  const v1 = ops.vsub(p2, p1);
-  const v2 = ops.vsub(p3, p2);
-
-  // Compute signed angle for 2D and positive angle otherwise
-  const angle =
-    p1.length === 2 ? ops.angleFrom(v1, v2) : ops.angleBetween(v1, v2);
 
   // $\kappa^A$ from [1]
   if (mode === CurvatureApproximationMode.Angle) return angle;
@@ -352,4 +352,248 @@ export const constrDictCurves: { [k: string]: ConstrFunc } = {
       );
     }),
   },
+};
+
+/**
+ * Returns list of `n` tangent vectors given a list of `n` points.
+ */
+export const tangentVectors = (
+  points: ad.Num[][],
+  closed: boolean
+): ad.Num[][] => {
+  // The list of tangent vectors to return
+  const tangents: ad.Num[][] = [];
+
+  // Compute tangents for all internal points
+  for (let i = 1; i < points.length - 1; i++) {
+    const previousPoint = points[i - 1];
+    const nextPoint = points[i + 1];
+    const tangent = ops.vnormalize(ops.vsub(nextPoint, previousPoint));
+    tangents.push(tangent);
+  }
+
+  // Compute tangent for the first and last points
+  if (closed) {
+    // If the curve is closed, the tangent at the first and last points is the same
+    const firstPoint = points[0];
+    const secondPoint = points[1];
+    const penultimatePoint = points[points.length - 2];
+    const lastPoint = points[points.length - 1];
+
+    const firstTangent = ops.vnormalize(ops.vsub(secondPoint, lastPoint));
+    const lastTangent = ops.vnormalize(ops.vsub(firstPoint, penultimatePoint));
+
+    tangents.unshift(firstTangent);
+    tangents.push(lastTangent);
+  } else {
+    // If the curve is not closed, the tangent at the first point is simply the vector between the first and second points
+    // Similarly, the tangent at the last point is the vector between the last point and the penultimate point
+    const firstPoint = points[0];
+    const secondPoint = points[1];
+    const penultimatePoint = points[points.length - 2];
+    const lastPoint = points[points.length - 1];
+
+    const firstTangent = ops.vnormalize(ops.vsub(secondPoint, firstPoint));
+    const lastTangent = ops.vnormalize(ops.vsub(lastPoint, penultimatePoint));
+
+    tangents.unshift(firstTangent);
+    tangents.push(lastTangent);
+  }
+
+  return tangents;
+};
+
+/**
+ * Returns list of `n` normal vectors given a list of `n` points 2D.
+ */
+export const normalVectors2D = (
+  points: ad.Num[][],
+  closed: boolean
+): ad.Num[][] => {
+  return tangentVectors(points, closed).map((tangent: ad.Num[]) =>
+    ops.rot90(tangent)
+  );
+};
+
+/**
+ * Returns list of `n` principal normal vectors given a list of `n` points in 3D.
+ */
+export const principalNormalVectors = (
+  points: ad.Num[][],
+  closed: boolean
+): ad.Num[][] => {
+  const tangents = tangentVectors(points, closed);
+
+  const principalNormals: ad.Num[][] = [];
+
+  for (let i = 1; i < tangents.length - 1; i++) {
+    const prevTangent = tangents[i - 1];
+    const nextTangent = tangents[i + 1];
+
+    // Approximate derivative of the tangent vector
+    const tangentDerivative = ops.vsub(nextTangent, prevTangent);
+
+    // Principal normal is the normalized derivative of the tangent vector
+    const principalNormal = ops.vnormalize(tangentDerivative);
+
+    principalNormals.push(principalNormal);
+  }
+
+  if (closed) {
+    // If the curve is closed, compute the principal normal at the first and last points using
+    // the tangent vectors at the ends and the tangent vectors at the other end of the list
+    const firstTangent = tangents[0];
+    const secondTangent = tangents[1];
+    const penultimateTangent = tangents[tangents.length - 2];
+    const lastTangent = tangents[tangents.length - 1];
+
+    const firstTangentDerivative = ops.vsub(secondTangent, lastTangent);
+    const lastTangentDerivative = ops.vsub(firstTangent, penultimateTangent);
+
+    const firstPrincipalNormal = ops.vnormalize(firstTangentDerivative);
+    const lastPrincipalNormal = ops.vnormalize(lastTangentDerivative);
+
+    principalNormals.unshift(firstPrincipalNormal);
+    principalNormals.push(lastPrincipalNormal);
+  } else {
+    // If the curve is open, duplicate the second and second-to-last principal normal vectors
+    principalNormals.unshift(principalNormals[0]);
+    principalNormals.push(principalNormals[principalNormals.length - 1]);
+  }
+
+  return principalNormals;
+};
+
+/**
+ * Returns list of `n` binormal vectors given a list of `n` points in 3D.
+ */
+export const binormalVectors = (
+  points: ad.Num[][],
+  closed: boolean
+): ad.Num[][] => {
+  const tangents = tangentVectors(points, closed);
+  const normals = principalNormalVectors(points, closed);
+  const binormals: ad.Num[][] = [];
+
+  for (let i = 0; i < points.length; i++) {
+    const tangent = tangents[i];
+    const normal = normals[i];
+    const binormal = ops.cross3(tangent, normal);
+    binormals.push(binormal);
+  }
+
+  return binormals;
+};
+
+/**
+ * Returns list of `n` normal vectors given a list of `n` points.
+ * If points are 2D, it calculates a normal vector as a perpendicular vector to the tangent.
+ * Otherwise, it calculates the principal normal vector.
+ */
+export const normalVectors = (
+  points: ad.Num[][],
+  closed: boolean
+): ad.Num[][] => {
+  const dimension = points[0].length;
+  if (dimension === 2) {
+    return normalVectors2D(points, closed);
+  } else return principalNormalVectors(points, closed);
+};
+
+/**
+ * Returns list of `n` curvatures given a list of `n` points.
+ */
+export const curvatures = (
+  points: ad.Num[][],
+  closed: boolean,
+  mode: CurvatureApproximationMode = CurvatureApproximationMode.FiniteDifferences
+): ad.Num[] => {
+  const curvaturesList: ad.Num[] = [];
+
+  // Compute curvatures for all internal points
+  for (let i = 1; i < points.length - 1; i++) {
+    const prevPoint = points[i - 1];
+    const currentPoint = points[i];
+    const nextPoint = points[i + 1];
+
+    const curvatureValue = curvature(prevPoint, currentPoint, nextPoint, mode);
+    curvaturesList.push(curvatureValue);
+  }
+
+  if (closed) {
+    // If the curve is closed, compute the curvature at the first and last points using
+    // the points at the ends and the points at the other end of the list
+    const firstPoint = points[0];
+    const secondPoint = points[1];
+    const penultimatePoint = points[points.length - 2];
+    const lastPoint = points[points.length - 1];
+
+    const firstCurvature = curvature(lastPoint, firstPoint, secondPoint, mode);
+    const lastCurvature = curvature(
+      penultimatePoint,
+      lastPoint,
+      firstPoint,
+      mode
+    );
+
+    curvaturesList.unshift(firstCurvature);
+    curvaturesList.push(lastCurvature);
+  } else {
+    // If the curve is open, duplicate the second and second-to-last curvatures
+    curvaturesList.unshift(curvaturesList[0]);
+    curvaturesList.push(curvaturesList[curvaturesList.length - 1]);
+  }
+
+  return curvaturesList;
+};
+
+/**
+ * Return evolute curve from a list of points.
+ */
+export const evoluteCurve = (
+  points: ad.Num[][],
+  closed: boolean
+): ad.Num[][] => {
+  const normals = principalNormalVectors(points, closed);
+  const curvatureList = curvatures(
+    points,
+    closed,
+    CurvatureApproximationMode.FiniteDifferences
+  );
+  const evolute: ad.Num[][] = [];
+
+  for (let i = 0; i < points.length; i++) {
+    const p = points[i];
+    const n = normals[i];
+    const r = div(1, curvatureList[i]);
+
+    const q = ops.vadd(p, ops.vmul(r, n));
+    evolute.push(q);
+  }
+
+  return evolute;
+};
+
+/**
+ * Returns an offset version of the input curve. Each point in the input curve is translated
+ * by a constant `magnitude` in the direction of the normal vector.
+ */
+export const offsetCurve = (
+  points: ad.Num[][],
+  closed: boolean,
+  magnitude: ad.Num
+): ad.Num[][] => {
+  const normals = normalVectors(points, closed);
+  const offsetPoints: ad.Num[][] = [];
+
+  for (let i = 0; i < points.length; i++) {
+    const p = points[i];
+    const n = normals[i];
+
+    // Translate the point by `magnitude` in the direction of the normal vector
+    const q = ops.vadd(p, ops.vmul(magnitude, n));
+    offsetPoints.push(q);
+  }
+
+  return offsetPoints;
 };

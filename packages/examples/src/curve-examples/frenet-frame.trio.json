@@ -1,0 +1,6 @@
+{
+  "substance": "./curve.substance",
+  "style": ["./frenet-frame.style"],
+  "domain": "./curves.domain",
+  "variation": "WoodbineCod7138"
+}

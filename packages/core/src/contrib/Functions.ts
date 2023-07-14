@@ -67,6 +67,8 @@ import {
   Color,
   ColorV,
   FloatV,
+  LListV,
+  ListV,
   MatrixV,
   PathDataV,
   PtListV,
@@ -105,18 +107,24 @@ import {
   vectorV,
 } from "../utils/Util.js";
 import {
+  binormalVectors,
   centerOfMass,
+  curvatures,
   elasticEnergy,
+  evoluteCurve,
   inflectionEnergy,
   isoperimetricRatio,
   lengthK,
   maxCurvature,
+  normalVectors,
+  offsetCurve,
   pElasticEnergy,
   perimeter,
   signedArea,
+  tangentVectors,
   totalCurvature,
   turningNumber,
-} from "./CurveConstraints.js";
+} from "./Curves.js";
 import {
   bboxFromShape,
   bboxPts,
@@ -336,6 +344,30 @@ export const compDict = {
       });
     },
     returns: valueT("Color"),
+  },
+
+  oneBasedElement: {
+    name: "oneBasedElement",
+    description: "Index a point list using 1-based indexing.",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "list of points",
+      },
+      { name: "i", type: posIntT(), description: "1-based index" },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      i: number
+    ): MayWarn<VectorV<ad.Num>> => {
+      return noWarn({
+        tag: "VectorV",
+        contents: points[i - 1],
+      });
+    },
+    returns: valueT("Real2"),
   },
 
   /**
@@ -4415,6 +4447,204 @@ export const compDict = {
       });
     },
     returns: valueT("Real"),
+  },
+
+  /**
+   * Returns list of `n` tangent vectors given a list of `n` points.
+   */
+  tangentVectors: {
+    name: "tangentVectors",
+    description:
+      "Returns list of `n` tangent vectors given a list of `n` points.",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      closed: boolean
+    ): MayWarn<LListV<ad.Num>> => {
+      return noWarn({
+        tag: "LListV",
+        contents: tangentVectors(points, closed),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  /**
+   * Returns list of `n` normal vectors given a list of `n` points.
+   * If points are 2D, it calculates a normal vector as a perpendicular vector to the tangent.
+   * Otherwise, it calculates the principal normal vector.
+   */
+  normalVectors: {
+    name: "normalVectors",
+    description:
+      "Returns list of `n` normal vectors given a list of `n` points.",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      closed: boolean
+    ): MayWarn<LListV<ad.Num>> => {
+      return noWarn({
+        tag: "LListV",
+        contents: normalVectors(points, closed),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  /**
+   * Returns list of `n` binormal vectors given a list of `n` points.
+   */
+  binormalVectors: {
+    name: "binormalVectors",
+    description:
+      "Returns list of `n` binormal vectors given a list of `n` points.",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      closed: boolean
+    ): MayWarn<LListV<ad.Num>> => {
+      return noWarn({
+        tag: "LListV",
+        contents: binormalVectors(points, closed),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  /**
+   * Returns evolute curve from a list of `n` points.
+   */
+  evoluteCurve: {
+    name: "evoluteCurve",
+    description: "Returns evolute curve from a list of `n` points.",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      closed: boolean
+    ): MayWarn<LListV<ad.Num>> => {
+      return noWarn({
+        tag: "LListV",
+        contents: evoluteCurve(points, closed),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  /**
+   * Returns an offset version of the input curve.
+   */
+  offsetCurve: {
+    name: "offsetCurve",
+    description: "Returns an offset version of the input curve.",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+      {
+        name: "magnitude",
+        type: realT(),
+        description: "magnitude of the offset",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      closed: boolean,
+      magnitude: ad.Num
+    ): MayWarn<LListV<ad.Num>> => {
+      return noWarn({
+        tag: "LListV",
+        contents: offsetCurve(points, closed, magnitude),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  /**
+   * Returns list of `n` curvature values given a list of `n` points.
+   */
+  curvatures: {
+    name: "curvatures",
+    description:
+      "Returns list of `n` curvature values given a list of `n` points.",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      closed: boolean
+    ): MayWarn<ListV<ad.Num>> => {
+      return noWarn({
+        tag: "ListV",
+        contents: curvatures(points, closed),
+      });
+    },
+    returns: valueT("RealN"),
   },
 
   /**

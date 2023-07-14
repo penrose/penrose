@@ -32,7 +32,7 @@ import {
   realT,
   shapeT,
 } from "../utils/Util.js";
-import { constrDictCurves } from "./CurveConstraints.js";
+import { constrDictCurves } from "./Curves.js";
 import {
   absCircleToImplicitEllipse,
   absEllipseToImplicit,

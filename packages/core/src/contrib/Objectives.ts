@@ -29,7 +29,7 @@ import {
   shapeT,
   unionT,
 } from "../utils/Util.js";
-import { constrDictCurves } from "./CurveConstraints.js";
+import { constrDictCurves } from "./Curves.js";
 import { inDirection } from "./ObjectivesUtils.js";
 import { bboxFromShape, shapeCenter } from "./Queries.js";
 import {
