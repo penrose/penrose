@@ -1,0 +1,76 @@
+canvas {
+    width = 240
+    height = 200
+}
+
+global {
+   scalar dotSize = 2
+   scalar padding = 5
+   string labelSize = "12px"
+}
+
+-- If we take a quotient of G by H, then H effectively
+-- serves as the identity element of the new group.  So,
+-- let's draw it in a distinguished style (a white dot
+-- rather than a black one).
+forall Group G; Subgroup H
+where H := Subgroup(G)
+{
+   shape H.icon = Circle {
+      center: (?,?) -- put it wherever it makes sense with the rest of the constraints
+      r: global.dotSize
+      fillColor: #fff
+      strokeColor: #000
+      strokeWidth: 1
+   }
+}
+
+-- If the subgroup has a name, label the corresponding dot
+forall Group G; Subgroup H
+where H := Subgroup(G); H has label
+{
+   shape H.labelText = Equation {
+      string: H.label
+      fontSize: global.labelSize
+   }
+
+   -- put the label near the dot, but not so close that it overlaps
+   encourage norm( H.labelText.center - H.icon.center ) == 0
+   ensure disjoint( H.labelText, H.icon, global.padding )
+}
+
+
+-- Assuming our (left) cosets come from a normal subgroup, they will correspond
+-- to elements of the quotient group.  Draw each of them as a black dot.
+forall LeftCoset C {
+   shape C.icon = Circle {
+      center: (?,?) -- put it wherever it makes sense with the rest of the constraints
+      r: global.dotSize
+      fillColor: #000
+   }
+}
+
+-- If a coset has a name, use that same name for the point in the quotient group.
+forall LeftCoset C
+where C has label {
+   shape C.labelText = Equation {
+      string: C.label
+      fontSize: global.labelSize
+   }
+
+   -- put the label near the dot, but not so close that it overlaps
+   encourage norm( C.labelText.center - C.icon.center ) == 0
+   ensure disjoint( C.labelText, C.icon, global.padding )
+}
+
+-- If both G and H have labels, label their
+-- quotient using the usual slash notation
+forall Group G; Subgroup H
+where H := Subgroup(G); G has label; H has label
+{
+   shape quotientLabel = Equation {
+      string: G.label + "/" + H.label
+      fontSize: global.labelSize
+   }
+}
+
