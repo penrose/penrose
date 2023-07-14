@@ -3,6 +3,43 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v3.0.0-beta.0](https://github.com/penrose/penrose/compare/v2.3.0...v3.0.0-beta.0) (2023-07-14)
+
+### :warning: BREAKING CHANGE
+
+- combine `automator` and `roger` (#1387)
+- more readable `core` language API (#1527)
+- put each trio in its own JSON file (#1393)
+- remove old file extensions from Roger (#1499)
+- support non-trio examples in the registry (#1418)
+
+### :rocket: New Feature
+
+- add command to render multiple trios in `roger` ([#1471](https://github.com/penrose/penrose/issues/1471)) ([9c052fe](https://github.com/penrose/penrose/commit/9c052feef479aa644b678fcf432721a5c2538845))
+- export SVGs with plain TeX labels ([#1433](https://github.com/penrose/penrose/issues/1433)) ([3e589a0](https://github.com/penrose/penrose/commit/3e589a08fc1c5b46d4e9143655722058970219dc))
+- function warnings ([#1498](https://github.com/penrose/penrose/issues/1498)) ([3e68a94](https://github.com/penrose/penrose/commit/3e68a94ab933a841d882ea26c26a58b5728629bf))
+- remove old file extensions from Roger ([#1499](https://github.com/penrose/penrose/issues/1499)) ([744aa0a](https://github.com/penrose/penrose/commit/744aa0aca3c9175879711d1ad8d1f8199cf1028c))
+- support non-trio examples in the registry ([#1418](https://github.com/penrose/penrose/issues/1418)) ([4fe953f](https://github.com/penrose/penrose/commit/4fe953fb26778e28debae7221de3f05ef30c4e2b))
+- support trio switching in `roger watch` and `editor` ([#1486](https://github.com/penrose/penrose/issues/1486)) ([8581efc](https://github.com/penrose/penrose/commit/8581efc9cac3211ca6732e1d7f1d5d542aa4fbc3))
+
+### :bug: Bug Fix
+
+- find the correct working directory for `roger` ([#1434](https://github.com/penrose/penrose/issues/1434)) ([3e1e970](https://github.com/penrose/penrose/commit/3e1e970d6f0dec7020449a93aa369bd49adb4a3c))
+
+### :nail_care: Polish
+
+- combine `automator` and `roger` ([#1387](https://github.com/penrose/penrose/issues/1387)) ([678c6e5](https://github.com/penrose/penrose/commit/678c6e528d20d6cbbfd3a04f1fcad656e72bdc6e))
+- more readable `core` language API ([#1527](https://github.com/penrose/penrose/issues/1527)) ([22c8fc6](https://github.com/penrose/penrose/commit/22c8fc68f225974a353df244832b3b1c90e5f0e0))
+- put each trio in its own JSON file ([#1393](https://github.com/penrose/penrose/issues/1393)) ([803d7fc](https://github.com/penrose/penrose/commit/803d7fc20199262f833c2f60606ed1b778c92b72))
+
+### :memo: Documentation
+
+- using Penrose programmatically ([#1525](https://github.com/penrose/penrose/issues/1525)) ([7952b2b](https://github.com/penrose/penrose/commit/7952b2baa81fd4e5631135b707703cbc07646380))
+
+### :house: Internal
+
+- switch from jest to vitest ([#1406](https://github.com/penrose/penrose/issues/1406)) ([8ef8c77](https://github.com/penrose/penrose/commit/8ef8c778488b17eb0f02a62d1399e0b0337f5355))
+
 ## [v2.3.0](https://github.com/penrose/penrose/compare/v2.2.0...v2.3.0) (2023-03-14)
 
 ### :bug: Bug Fix
