@@ -454,7 +454,7 @@
     "name": "Periodic 2D Grid",
     "gallery": false
   },
-  "spectral-graphs/examples/periodic-hexagonal-grid": {
+  "spectral-graphs/examples/periodic-hexagonal-lattice": {
     "name": "Periodic Hexagonal Grid",
     "gallery": false
   }
