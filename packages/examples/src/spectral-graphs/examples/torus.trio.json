@@ -1,0 +1,6 @@
+{
+  "substance": "./torus.substance",
+  "style": ["./../3d.style"],
+  "domain": "./../graph.domain",
+  "variation": "LagoonDogfish071"
+}
