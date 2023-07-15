@@ -427,7 +427,7 @@
   },
   "spectral-graphs/examples/dodecahedral-graph": {
     "name": "Dodecahedral Graph",
-    "gallery": true
+    "gallery": false
   },
   "atoms-and-bonds/wet-floor": { "name": "Wet Floor", "gallery": true },
   "curve-examples/offset": {
@@ -445,5 +445,9 @@
   "curve-examples/evolute-of-cardioid": {
     "name": "Evolute of Cardioid",
     "gallery": false
+  },
+  "spectral-graphs/examples/torus": {
+    "name": "Periodic 2D Grid",
+    "gallery": true
   }
 }
