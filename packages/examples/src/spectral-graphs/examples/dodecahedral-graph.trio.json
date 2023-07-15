@@ -1,6 +1,6 @@
 {
   "substance": "./dodecahedral-graph.substance",
-  "style": ["./../3d.style"],
+  "style": ["./../colors.style"],
   "domain": "./../graph.domain",
-  "variation": "MeridianTarsier82735"
+  "variation": "StromboliCat61816"
 }
