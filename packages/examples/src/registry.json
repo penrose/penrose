@@ -453,5 +453,9 @@
   "spectral-graphs/examples/torus": {
     "name": "Periodic 2D Grid",
     "gallery": false
+  },
+  "spectral-graphs/examples/periodic-hexagonal-grid": {
+    "name": "Periodic Hexagonal Grid",
+    "gallery": false
   }
 }
