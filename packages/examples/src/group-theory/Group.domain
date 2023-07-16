@@ -6,9 +6,11 @@ predicate IsProduct( Element a, Element b, Element c ) -- asserts that a = b*c
 type Group
 predicate In( Group G, Element g ) -- asserts that g is an element of G
 
-type Subgroup <: Group
+type Subset
+
+type Subgroup <: Group, Subset
 constructor Subgroup( Group G )
 
-type LeftCoset
+type LeftCoset <: Subset
 constructor LeftCoset( Element g, Subgroup H ) -- defines a coset gH
 
