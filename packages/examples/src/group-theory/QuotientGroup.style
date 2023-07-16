@@ -150,10 +150,20 @@ where gH := LeftCoset(g,H)
    layer gH.icon above arrow
 }
 
+-- place nodes at evenly-spaced locations
 forall Subset S {
    scalar theta = 2*MathPI()*(match_id - 1)/(match_total)
    scalar r = .9 * min( canvas.width, canvas.height ) / 2.
    override S.icon.center = r*(cos(theta),sin(theta))
 }
 
+-- -- For each coset aH, collect the elements b such that bH = aH,
+-- -- or equivalently such that b^-1 a = h for some element h in H.
+-- -- We can then concatenate these elements' labels into a single
+-- -- that labels the arrow between cosets.
+-- Collect Element b into elements
+-- Where IsProduct(a,b,h); In(H,h); aH := LeftCoset(a,H)
+-- Foreach LeftCoset aH; Subgroup H; Element h; Element a {
+--    labels = listof label from elements
+-- }
 
