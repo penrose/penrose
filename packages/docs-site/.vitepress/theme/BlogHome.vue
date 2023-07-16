@@ -26,7 +26,7 @@
                 </h2>
                 <div
                   v-if="excerpt"
-                  class="prose dark:prose-invert max-w-none text-slate-900 dark:text-gray-400"
+                  class="max-w-none py-4"
                   v-html="excerpt"
                 ></div>
               </div>
