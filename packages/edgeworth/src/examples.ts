@@ -1,42 +1,42 @@
-import euclideanStyle from "@penrose/examples/dist/geometry-domain/euclidean.style";
-import geometryDomain from "@penrose/examples/dist/geometry-domain/geometry.domain";
-import c01p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c01p01.substance";
-import c01p10 from "@penrose/examples/dist/geometry-domain/textbook_problems/c01p10.substance";
-import c02p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c02p01.substance";
-import c03p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c03p01.substance";
-import c04p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c04p01.substance";
-import c04p12 from "@penrose/examples/dist/geometry-domain/textbook_problems/c04p12.substance";
-import c05p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c05p01.substance";
-import c05p13 from "@penrose/examples/dist/geometry-domain/textbook_problems/c05p13.substance";
-import c06p06 from "@penrose/examples/dist/geometry-domain/textbook_problems/c06p06.substance";
-import c07p06 from "@penrose/examples/dist/geometry-domain/textbook_problems/c07p06.substance";
-import c07p10 from "@penrose/examples/dist/geometry-domain/textbook_problems/c07p10.substance";
-import c07p22 from "@penrose/examples/dist/geometry-domain/textbook_problems/c07p22.substance";
-import c08p08 from "@penrose/examples/dist/geometry-domain/textbook_problems/c08p08.substance";
-import c10p08 from "@penrose/examples/dist/geometry-domain/textbook_problems/c10p08.substance";
-import c11p07 from "@penrose/examples/dist/geometry-domain/textbook_problems/c11p07.substance";
-import c11p25 from "@penrose/examples/dist/geometry-domain/textbook_problems/c11p25.substance";
-import c12p20 from "@penrose/examples/dist/geometry-domain/textbook_problems/c12p20.substance";
-import simpleDirectedGraphDomain from "@penrose/examples/dist/graph-domain/simple-directed-graph.domain";
-import simpleDirectedGraphStyle from "@penrose/examples/dist/graph-domain/simple-directed-graph.style";
-import simpleGraphDomain from "@penrose/examples/dist/graph-domain/simple-graph.domain";
-import simpleGraphStyle from "@penrose/examples/dist/graph-domain/simple-graph.style";
-import sec2eg9 from "@penrose/examples/dist/graph-domain/textbook/sec2/eg9.substance";
-import sec2ex22 from "@penrose/examples/dist/graph-domain/textbook/sec2/ex22.substance";
-import sec3ex50 from "@penrose/examples/dist/graph-domain/textbook/sec3/ex50.substance";
-import sec4ex12b from "@penrose/examples/dist/graph-domain/textbook/sec4/ex12b.substance";
-import sec5ex18 from "@penrose/examples/dist/graph-domain/textbook/sec5/ex18.substance";
-import sec5ex21 from "@penrose/examples/dist/graph-domain/textbook/sec5/ex21.substance";
-import sec5ex47d from "@penrose/examples/dist/graph-domain/textbook/sec5/ex47d.substance";
-import hydrazine from "@penrose/examples/dist/molecules/hydrazine.substance";
-import hydrogencyanide from "@penrose/examples/dist/molecules/hydrogencyanide.substance";
-import lewisStyle from "@penrose/examples/dist/molecules/lewis.style";
-import methane from "@penrose/examples/dist/molecules/methane.substance";
-import moleculesDomain from "@penrose/examples/dist/molecules/molecules.domain";
-import nitrogen from "@penrose/examples/dist/molecules/nitrogen.substance";
-import phosgene from "@penrose/examples/dist/molecules/phosgene.substance";
-import phosphorustrichloride from "@penrose/examples/dist/molecules/phosphorustrichloride.substance";
-import xenontetroxide from "@penrose/examples/dist/molecules/xenontetroxide.substance";
+import euclideanStyle from "@penrose/examples/dist/geometry-domain/euclidean.style.js";
+import geometryDomain from "@penrose/examples/dist/geometry-domain/geometry.domain.js";
+import c01p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c01p01.substance.js";
+import c01p10 from "@penrose/examples/dist/geometry-domain/textbook_problems/c01p10.substance.js";
+import c02p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c02p01.substance.js";
+import c03p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c03p01.substance.js";
+import c04p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c04p01.substance.js";
+import c04p12 from "@penrose/examples/dist/geometry-domain/textbook_problems/c04p12.substance.js";
+import c05p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c05p01.substance.js";
+import c05p13 from "@penrose/examples/dist/geometry-domain/textbook_problems/c05p13.substance.js";
+import c06p06 from "@penrose/examples/dist/geometry-domain/textbook_problems/c06p06.substance.js";
+import c07p06 from "@penrose/examples/dist/geometry-domain/textbook_problems/c07p06.substance.js";
+import c07p10 from "@penrose/examples/dist/geometry-domain/textbook_problems/c07p10.substance.js";
+import c07p22 from "@penrose/examples/dist/geometry-domain/textbook_problems/c07p22.substance.js";
+import c08p08 from "@penrose/examples/dist/geometry-domain/textbook_problems/c08p08.substance.js";
+import c10p08 from "@penrose/examples/dist/geometry-domain/textbook_problems/c10p08.substance.js";
+import c11p07 from "@penrose/examples/dist/geometry-domain/textbook_problems/c11p07.substance.js";
+import c11p25 from "@penrose/examples/dist/geometry-domain/textbook_problems/c11p25.substance.js";
+import c12p20 from "@penrose/examples/dist/geometry-domain/textbook_problems/c12p20.substance.js";
+import simpleDirectedGraphDomain from "@penrose/examples/dist/graph-domain/simple-directed-graph.domain.js";
+import simpleDirectedGraphStyle from "@penrose/examples/dist/graph-domain/simple-directed-graph.style.js";
+import simpleGraphDomain from "@penrose/examples/dist/graph-domain/simple-graph.domain.js";
+import simpleGraphStyle from "@penrose/examples/dist/graph-domain/simple-graph.style.js";
+import sec2eg9 from "@penrose/examples/dist/graph-domain/textbook/sec2/eg9.substance.js";
+import sec2ex22 from "@penrose/examples/dist/graph-domain/textbook/sec2/ex22.substance.js";
+import sec3ex50 from "@penrose/examples/dist/graph-domain/textbook/sec3/ex50.substance.js";
+import sec4ex12b from "@penrose/examples/dist/graph-domain/textbook/sec4/ex12b.substance.js";
+import sec5ex18 from "@penrose/examples/dist/graph-domain/textbook/sec5/ex18.substance.js";
+import sec5ex21 from "@penrose/examples/dist/graph-domain/textbook/sec5/ex21.substance.js";
+import sec5ex47d from "@penrose/examples/dist/graph-domain/textbook/sec5/ex47d.substance.js";
+import hydrazine from "@penrose/examples/dist/molecules/hydrazine.substance.js";
+import hydrogencyanide from "@penrose/examples/dist/molecules/hydrogencyanide.substance.js";
+import lewisStyle from "@penrose/examples/dist/molecules/lewis.style.js";
+import methane from "@penrose/examples/dist/molecules/methane.substance.js";
+import moleculesDomain from "@penrose/examples/dist/molecules/molecules.domain.js";
+import nitrogen from "@penrose/examples/dist/molecules/nitrogen.substance.js";
+import phosgene from "@penrose/examples/dist/molecules/phosgene.substance.js";
+import phosphorustrichloride from "@penrose/examples/dist/molecules/phosphorustrichloride.substance.js";
+import xenontetroxide from "@penrose/examples/dist/molecules/xenontetroxide.substance.js";
 import { SynthesizerSetting } from "./synthesis/Synthesizer.js";
 
 export interface Preset {
@@ -295,7 +295,7 @@ forall Point \`D\`, \`E\`, \`A\` {
     },
   },
   c05p01: {
-    displayName: "c05p01: Mid-segement",
+    displayName: "c05p01: Mid-segment",
     prompt:
       "Which diagram shows that $HK$ is a midsegment of $\\triangle GJF$?",
     substance: c05p01,
