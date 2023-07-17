@@ -3477,18 +3477,70 @@ const translateExpr = (
     }
     case "Layering": {
       const { expr, context } = e;
-      const left = prettyPrintResolvedPath(
+
+      const leftPp = prettyPrintResolvedPath(
         resolveRhsPath({ context: context, expr: expr.left })
       );
-      const rightList = expr.right.map((r: Path<C>) =>
+      const leftResolved = evalExpr(
+        mut,
+        canvas,
+        layoutStages,
+        { context, expr: expr.left },
+        trans
+      );
+      const rightListPp = expr.right.map((r: Path<C>) =>
         prettyPrintResolvedPath(resolveRhsPath({ context: context, expr: r }))
       );
-      const layeringRelations = rightList.map((r: string) => {
+      const rightListResolved = evalExprs(
+        mut,
+        canvas,
+        layoutStages,
+        context,
+        expr.right,
+        trans
+      );
+      if (leftResolved.isErr()) {
+        return addDiags(leftResolved.error, trans);
+      }
+      if (leftResolved.value.tag !== "ShapeVal") {
+        return addDiags(
+          oneErr({
+            tag: "LayerOnNonShapesError",
+            location: {
+              start: expr.left.start,
+              end: expr.left.end,
+            },
+            expr: leftPp,
+          }),
+          trans
+        );
+      }
+
+      if (rightListResolved.isErr()) {
+        return addDiags(rightListResolved.error, trans);
+      }
+      for (let i = 0; i < expr.right.length; i++) {
+        if (rightListResolved.value[i].tag !== "ShapeVal") {
+          return addDiags(
+            oneErr({
+              tag: "LayerOnNonShapesError",
+              location: {
+                start: expr.right[i].start,
+                end: expr.right[i].end,
+              },
+              expr: rightListPp[i],
+            }),
+            trans
+          );
+        }
+      }
+
+      const layeringRelations = rightListPp.map((r: string) => {
         switch (expr.layeringOp) {
           case "below":
-            return { below: left, above: r };
+            return { below: leftPp, above: r };
           case "above":
-            return { below: r, above: left };
+            return { below: r, above: leftPp };
         }
       });
       return {

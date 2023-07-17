@@ -927,6 +927,9 @@ delete x.z.p }`,
            x.z = 1.0
            x.y = x.z.p
 }`,
+        `forall Set x {
+          layer AAA above BBB
+        }`,
       ],
       CanvasNonexistentDimsError: [
         `foo {
@@ -1064,6 +1067,13 @@ delete x.z.p }`,
         }`,
         `collect Set a into aa foreach Set b {
           x = listof c from x
+        }`,
+      ],
+      LayerOnNonShapesError: [
+        `block {
+          x = 100
+          y = 200
+          layer x above y
         }`,
       ],
       BadElementError: [
