@@ -51,7 +51,7 @@
       stroke="none"
       r="1.5"
     >
-      <title>`FourValenceElectrons_o1`.circle11</title>
+      <title>`FourDots_o1`.circle11</title>
     </circle>
     <circle
       fill="#000000"
@@ -61,9 +61,9 @@
       stroke="none"
       r="1.5"
     >
-      <title>`FourValenceElectrons_o1`.circle12</title>
+      <title>`FourDots_o1`.circle12</title>
     </circle>
-    <title>`FourValenceElectrons_o1`.icon1</title>
+    <title>`FourDots_o1`.icon1</title>
   </g>
   <g>
     <circle
@@ -74,7 +74,7 @@
       stroke="none"
       r="1.5"
     >
-      <title>`FourValenceElectrons_o1`.circle21</title>
+      <title>`FourDots_o1`.circle21</title>
     </circle>
     <circle
       fill="#000000"
@@ -84,9 +84,9 @@
       stroke="none"
       r="1.5"
     >
-      <title>`FourValenceElectrons_o1`.circle22</title>
+      <title>`FourDots_o1`.circle22</title>
     </circle>
-    <title>`FourValenceElectrons_o1`.icon2</title>
+    <title>`FourDots_o1`.icon2</title>
   </g>
   <g>
     <line
@@ -118,7 +118,7 @@
       stroke="none"
       r="1.5"
     >
-      <title>`SixValenceElectrons_o3`.circle21</title>
+      <title>`SixDots_o3`.circle21</title>
     </circle>
     <circle
       fill="#000000"
@@ -128,9 +128,9 @@
       stroke="none"
       r="1.5"
     >
-      <title>`SixValenceElectrons_o3`.circle22</title>
+      <title>`SixDots_o3`.circle22</title>
     </circle>
-    <title>`SixValenceElectrons_o3`.icon2</title>
+    <title>`SixDots_o3`.icon2</title>
   </g>
   <g>
     <circle
@@ -141,7 +141,7 @@
       stroke="none"
       r="1.5"
     >
-      <title>`SixValenceElectrons_o3`.circle31</title>
+      <title>`SixDots_o3`.circle31</title>
     </circle>
     <circle
       fill="#000000"
@@ -151,9 +151,9 @@
       stroke="none"
       r="1.5"
     >
-      <title>`SixValenceElectrons_o3`.circle32</title>
+      <title>`SixDots_o3`.circle32</title>
     </circle>
-    <title>`SixValenceElectrons_o3`.icon3</title>
+    <title>`SixDots_o3`.icon3</title>
   </g>
   <g>
     <circle
@@ -164,7 +164,7 @@
       stroke="none"
       r="1.5"
     >
-      <title>`SixValenceElectrons_o3`.circle11</title>
+      <title>`SixDots_o3`.circle11</title>
     </circle>
     <circle
       fill="#000000"
@@ -174,9 +174,9 @@
       stroke="none"
       r="1.5"
     >
-      <title>`SixValenceElectrons_o3`.circle12</title>
+      <title>`SixDots_o3`.circle12</title>
     </circle>
-    <title>`SixValenceElectrons_o3`.icon1</title>
+    <title>`SixDots_o3`.icon1</title>
   </g>
   <g>
     <line
@@ -229,7 +229,7 @@
       stroke="none"
       r="1.5"
     >
-      <title>`FourValenceElectrons_o2`.circle11</title>
+      <title>`FourDots_o2`.circle11</title>
     </circle>
     <circle
       fill="#000000"
@@ -239,9 +239,9 @@
       stroke="none"
       r="1.5"
     >
-      <title>`FourValenceElectrons_o2`.circle12</title>
+      <title>`FourDots_o2`.circle12</title>
     </circle>
-    <title>`FourValenceElectrons_o2`.icon1</title>
+    <title>`FourDots_o2`.icon1</title>
   </g>
   <g>
     <circle
@@ -252,7 +252,7 @@
       stroke="none"
       r="1.5"
     >
-      <title>`FourValenceElectrons_o2`.circle21</title>
+      <title>`FourDots_o2`.circle21</title>
     </circle>
     <circle
       fill="#000000"
@@ -262,9 +262,9 @@
       stroke="none"
       r="1.5"
     >
-      <title>`FourValenceElectrons_o2`.circle22</title>
+      <title>`FourDots_o2`.circle22</title>
     </circle>
-    <title>`FourValenceElectrons_o2`.icon2</title>
+    <title>`FourDots_o2`.icon2</title>
   </g>
   <text
     fill="#000000"
