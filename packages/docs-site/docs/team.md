@@ -111,7 +111,7 @@ const members = [
     title: "REUSE student",
     avatar: "https://www.github.com/rjainrjain.png",
     links: [
-      { icon: { svg: website }, link: "https://github.com/rjainrjain" },
+      { icon: { svg: website }, link: "https://rijuljain.com" },
       { icon: "github", link: "https://github.com/rjainrjain" },
     ],
   },
