@@ -1,1 +1,0 @@
-import{v as a}from"./index-7196a63e.js";import{r as o,E as c}from"./triangles-d7110e8a.js";const s=(e,t)=>[a(e),a(t)],m=async()=>{const e=s(1,.5),t=s(.5,1),n=s(2,3),r=document.createElement("svg");return o(()=>c({a1:e,a2:t,v:n}),r),(r.firstChild?.firstChild).outerHTML};export{m as default};
