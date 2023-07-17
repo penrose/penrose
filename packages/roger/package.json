@@ -7,8 +7,7 @@
   "scripts": {
     "build": "tsc",
     "build-decls": ":",
-    "start": "ts-node --esm --swc ./index.ts",
-    "typecheck": "tsc"
+    "typecheck": ":"
   },
   "files": [
     "dist/**/*.js"
