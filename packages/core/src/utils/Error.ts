@@ -555,6 +555,12 @@ canvas {
       const locStr = locc("Style", location);
       return `Style variable \`${name}\` cannot be accessed via the collection access operator (at ${locStr}) because it is not a collection.`;
     }
+
+    case "LayerOnNonShapesError": {
+      const { location, expr } = error;
+      const locStr = locc("Style", location);
+      return `Expects \`${expr}\` (at ${locStr}) to be a shape, but provided with a non-shape.`;
+    }
     // --- END COMPILATION ERRORS
 
     // TODO(errors): use identifiers here
@@ -829,7 +835,8 @@ export const errLocs = (
 
     case "FunctionInternalError":
     case "RedeclareNamespaceError":
-    case "UnexpectedCollectionAccessError": {
+    case "UnexpectedCollectionAccessError":
+    case "LayerOnNonShapesError": {
       return [
         toErrorLoc({
           ...e.location,

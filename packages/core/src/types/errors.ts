@@ -214,6 +214,7 @@ export type StyleError =
   | FunctionInternalError
   | RedeclareNamespaceError
   | UnexpectedCollectionAccessError
+  | LayerOnNonShapesError
   // Runtime errors
   | RuntimeValueTypeError;
 
@@ -519,6 +520,12 @@ export interface UnexpectedCollectionAccessError {
   tag: "UnexpectedCollectionAccessError";
   name: string;
   location: SourceRange;
+}
+
+export interface LayerOnNonShapesError {
+  tag: "LayerOnNonShapesError";
+  location: SourceRange;
+  expr: string;
 }
 
 //#endregion
