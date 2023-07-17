@@ -150,6 +150,10 @@ export default defineConfig({
   themeConfig: {
     logo: "img/favicon.ico",
     outline: "deep",
+    editLink: {
+      pattern:
+        "https://github.com/penrose/penrose/edit/main/packages/docs-site/:path",
+    },
     nav: [
       {
         text: "Examples",
