@@ -1,13 +1,13 @@
 Bromine br
 Oxygen o1, o2, o3
 -- bromine 
-TwoValenceElectrons(br)
+TwoDots(br)
 -- single bond
 Bond b1 := MakeSingleBond(o1, br)
-SixValenceElectrons(o1)
+SixDots(o1)
 -- double bond 1
 Bond b2 := MakeSingleBond(o2, br)
-SixValenceElectrons(o2)
+SixDots(o2)
 -- double bond 2
 Bond b3 := MakeSingleBond(o3, br)
-SixValenceElectrons(o3)
+SixDots(o3)

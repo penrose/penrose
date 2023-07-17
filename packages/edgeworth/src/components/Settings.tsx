@@ -5,20 +5,23 @@ import {
   Box,
   Button,
   Drawer,
+  InputLabel,
   MenuItem,
   Select,
   Slider,
-  styled,
+  Tab,
+  Tabs,
   TextField,
   Toolbar,
   Typography,
+  styled,
 } from "@material-ui/core";
 import { Listing } from "@penrose/components";
-import { compileDomain, Env, showError } from "@penrose/core";
+import { Env, compileDomain, showError } from "@penrose/core";
 import c04p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c04p01.substance";
 import React from "react";
 import Latex from "react-latex-next";
-import { Preset, presets } from "../examples.js";
+import { Preset, domains, presets } from "../examples.js";
 import {
   DeclTypes,
   MatchSetting,
@@ -61,6 +64,13 @@ const defaultEnv: PartialEnv = {
   },
 };
 
+// derived from https://mui.com/material-ui/react-tabs/
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  currentTab: number;
+}
+
 export interface SettingsProps {
   generateCallback: (
     setting: SynthesizerSetting,
@@ -68,7 +78,11 @@ export interface SettingsProps {
     numPrograms: number,
     dsl: string,
     prompt: string,
-    sty: string
+    sty: string,
+    llmInput: string,
+    currentTab: number,
+    domainSelect: string,
+    presetSelect: string
   ) => void;
   onPrompt: (prompt: string) => void;
   defaultDomain: string;
@@ -84,6 +98,11 @@ interface SettingState {
   domain: string;
   style: string;
   prompt: string;
+  llmInput: string;
+  llmRunning: boolean;
+  currentTab: number;
+  domainSelect: string;
+  presetSelect: string;
   env?: Env;
 }
 
@@ -134,6 +153,15 @@ const AccordionBodyStyled = styled(AccordionDetails)(({ theme }) => ({
   borderTop: "0px solid black",
 }));
 
+// derived from https://mui.com/material-ui/react-tabs/
+const TabPanel = ({ index, currentTab, children }: TabPanelProps) => {
+  return (
+    <div hidden={currentTab !== index}>
+      {currentTab === index && <>{children}</>}
+    </div>
+  );
+};
+
 export class Settings extends React.Component<SettingsProps, SettingState> {
   constructor(props: SettingsProps) {
     super(props);
@@ -146,6 +174,11 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
       domain: this.props.defaultDomain,
       style: this.props.defaultStyle,
       prompt: "",
+      llmInput: "",
+      llmRunning: false,
+      currentTab: 0,
+      domainSelect: "moleculesDomain",
+      presetSelect: "lewis_0",
     };
   }
 
@@ -211,6 +244,169 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
     }
   };
 
+  displayNaturalLangOrPresetTabs = () => {
+    const handleTabSwitch = (
+      event: React.ChangeEvent<{}>,
+      newValue: number
+    ) => {
+      this.setState({ currentTab: newValue });
+    };
+
+    return (
+      <>
+        <Tabs
+          textColor="primary"
+          indicatorColor="primary"
+          value={this.state.currentTab}
+          onChange={handleTabSwitch}
+        >
+          <Tab label="Generate new problem" />
+          <Tab label="Select from presets" />
+        </Tabs>
+
+        <br />
+
+        <TabPanel index={0} currentTab={this.state.currentTab}>
+          <TextField
+            fullWidth
+            multiline
+            label="Description of input scenario"
+            value={this.state.llmInput}
+            onChange={(e) => {
+              this.setState({ llmInput: e.target.value });
+            }}
+            variant="outlined"
+          />
+          <ButtonContainer>
+            <Button
+              onClick={this.onLLMGenerateClick}
+              color="primary"
+              variant="contained"
+              disabled={this.state.llmRunning}
+            >
+              {this.state.llmRunning ? "Generating" : "Generate Input Scenario"}
+            </Button>
+          </ButtonContainer>
+        </TabPanel>
+
+        <TabPanel index={1} currentTab={this.state.currentTab}>
+          <InputLabel id="preset-select-label">Preset</InputLabel>
+          <Select
+            key="preset"
+            labelId="preset-select-label"
+            id="preset-select"
+            label="preset"
+            // defaultValue={"c04p01"}
+            value={this.state.presetSelect}
+            onChange={(e) => {
+              const key = e.target.value as string;
+              this.handlePreset(key);
+
+              const domainSelectStr = Object.entries(domains).find(
+                ([_, { domain }]) => domain === presets[key].domain
+              )![0];
+
+              this.setState({
+                presetSelect: key,
+                domainSelect: domainSelectStr,
+              });
+            }}
+          >
+            {this.presets()}
+          </Select>
+          <SettingLabel>Prompt:</SettingLabel>
+          <div>
+            <Latex>{this.state.prompt}</Latex>
+          </div>
+        </TabPanel>
+      </>
+    );
+  };
+
+  getSampleSubstancePreset = () => {
+    return Object.entries(presets).find(
+      ([_, { domain }]) => domain === this.state.domain
+    )![1];
+  };
+
+  getDomainPreset = () => {
+    return Object.entries(domains).find(
+      ([_, { domain }]) => domain === this.state.domain
+    )![1];
+  };
+
+  onLLMGenerateClick = () => {
+    let output = "";
+
+    this.setState({ llmRunning: true });
+
+    const apiUrl = "https://api.openai.com/v1/chat/completions";
+
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
+    };
+
+    const samplePreset = this.getSampleSubstancePreset();
+
+    const prompt = `
+You are a code generator that is generating a new program in the Substance programming language, which draws from the Domain programming language program also given below. To write comments, begin with \`--\`. Return only the Substance program; explain your reasoning in Substance comments only.
+
+We have been working on a platform called Penrose for authoring mathematical diagrams. The system involves a family of 3 domain specific languages: Substance (for specifying the mathematical objects and the relationships between those objects, Style (for mapping the mathematical objects to shapes and mathematical relationships to layout constraints and objectives), and Domain (for specifying the types of mathematical objects and relationships; this is a meta-language or schema language). Those three programs are used to synthesize a layout problem which we then solve to create a corresponding diagram.
+
+Here is a Domain program which would inform a Substance program:
+
+\`\`\`
+${this.state.domain}
+\`\`\`
+
+Here is a sample Substance program named \"${samplePreset.displayName}\":
+
+\`\`\`
+${samplePreset.substance}
+\`\`\`
+
+Question: Given the context above, can you generate a new Substance program which describes the following: ${this.state.llmInput}?
+
+To write comments, begin with \`--\`. Return only the Substance program; explain your reasoning in Substance comments only.`;
+
+    console.log(prompt);
+    const data = {
+      model: "gpt-3.5-turbo",
+      // model: "gpt-4",
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: 2000,
+      temperature: 0.1,
+    };
+
+    const start = Date.now();
+
+    fetch(apiUrl, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify(data),
+    })
+      .then((response) => {
+        console.log(Date.now() - start + "ms");
+        return response.json();
+      })
+      .then((result) => {
+        //console.log(result);
+        // Process the result
+        output = result.choices[0].message.content;
+
+        // remove backticks from output
+        output = output.replace(/`/g, "");
+
+        this.setState({ substance: output, llmRunning: false });
+      })
+      .catch((error) => {
+        // Handle any errors
+        console.error("Error:", error);
+        this.setState({ llmRunning: false });
+      });
+  };
+
   onGenerateClick = () => {
     if (this.state.setting)
       this.props.generateCallback(
@@ -219,7 +415,11 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
         this.state.numPrograms,
         this.state.domain,
         this.state.substance,
-        this.state.style
+        this.state.style,
+        this.state.llmInput,
+        this.state.currentTab,
+        this.state.presetSelect,
+        this.state.domainSelect
       );
   };
 
@@ -339,10 +539,23 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
       </MenuItem>
     ));
 
+  // NOTE: some graph domains are not yet included
+  domains = () =>
+    Object.entries(domains).map(([name, { displayName }]: [string, Preset]) => (
+      <MenuItem key={name} value={name}>
+        {displayName}
+      </MenuItem>
+    ));
+
   handlePreset = (key: string) => {
     this.setState({ ...this.state, ...presets[key] });
     this.updateDomainEnv(presets[key].domain);
     this.props.onPrompt(presets[key].prompt);
+  };
+
+  handleDomain = (key: string) => {
+    this.setState({ ...this.state, ...domains[key] });
+    this.updateDomainEnv(domains[key].domain);
   };
 
   componentDidMount = () => {
@@ -358,22 +571,25 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
         <Toolbar />
         <SettingContainer>
           <SettingDiv>
+            <InputLabel id="domain-select-label">Pick a Domain</InputLabel>
             <Select
-              key="preset"
-              labelId="preset-select-label"
-              id="preset-select"
-              label="preset"
-              // defaultValue={"c04p01"}
-              defaultValue={"lewis_0"}
-              onChange={(e) => this.handlePreset(e.target.value as string)}
+              key="domain"
+              labelId="domain-select-label"
+              id="domain-select"
+              label="domain"
+              value={this.state.domainSelect}
+              onChange={(e) => {
+                this.handleDomain(e.target.value as string);
+                this.setState({
+                  presetSelect: "",
+                  domainSelect: e.target.value as string,
+                });
+              }}
             >
-              {this.presets()}
+              {this.domains()}
             </Select>
-            <SettingLabel>Prompt:</SettingLabel>
-            <div>
-              <Latex>{this.state.prompt}</Latex>
-            </div>
           </SettingDiv>
+          <SettingDiv>{this.displayNaturalLangOrPresetTabs()}</SettingDiv>
           <br />
           <Accordion key="substance" elevation={0}>
             <AccordionHeaderStyled>{`Input Scenario`}</AccordionHeaderStyled>
