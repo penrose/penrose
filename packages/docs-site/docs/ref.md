@@ -10,7 +10,7 @@ Penrose, instead, provides the level of abstraction needed to separate _content_
 
 Penrose already understands the diagram's domain and how to style the diagram. You just define the objects and relationships. Penrose goes to work by converting the three programs into an optimization problem that it solves using symbolic differentiation. If you need to add a new shape, it's not a painstaking exercise -- Penrose automatically creates a new diagram that meets all of your constraints.
 
-## Why "Penrose"?
+## Why "Penrose?"
 
 We named Penrose after Sir Roger Penrose, who, in addition to possessing a euphonious name, is known for his Escher-inspired illustrations of impossible objects, Penrose notations, and Penrose diagrams. "Pen" and "rose" also encapsulate our goal of turning notations ✍️ to beautiful diagrams 🌹.
 
