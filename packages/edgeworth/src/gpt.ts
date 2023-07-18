@@ -48,7 +48,7 @@ export const systemInsts = [
   `You are a code generator that is generating a new program in the Substance programming language, which draws from the Domain programming language program also given below. To write comments, begin with \`--\`. Return only the Substance program; do not explain your reasoning whatsoever.
 
 `,
-  `You are a code generator that is generating a new program in the Substance programming language, which draws from the specific Domain whose BNF grammar is given below. To write comments, begin with \`--\`. Return only the Substance program; do not explain your reasoning whatsoever.
+  `You are a code generator that is generating a new program in the Substance programming language, whose BNF grammar is given below. To write comments, begin with \`--\`. Return only the Substance program; do not explain your reasoning whatsoever.
 
 `,
 ];
@@ -161,60 +161,60 @@ FourDots(o4)
 Point A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q
 
 -- Defining the Line, Segment and Ray
-Line AB := Line(A, B)
-Segment BC := Segment(B, C)
-Ray CD := Ray(C, D)
+Line lineAB := Line(A, B)
+Segment segmentBC := Segment(B, C)
+Ray rayCD := Ray(C, D)
 
 -- Defining a Point as Midpoint of a Line
-Point MID_AB := Midpoint(AB)
+Point AB := Midpoint(lineAB)
 
 -- Defining the Angles
-Angle ABC := InteriorAngle(A, B, C)
-Angle BCD := InteriorAngle(B, C, D)
+Angle angleABC := InteriorAngle(A, B, C)
+Angle angleBCD := InteriorAngle(B, C, D)
 
 -- Defining Polygons/Shapes
-Triangle ABC_T := Triangle(A, B, C)
-Rectangle EFGH := Rectangle(E, F, G, H)
-Quadrilateral IJKL := Quadrilateral(I, J, K, L)
-Circle M_Circle := CircleR(M, N)
+Triangle triangleABC := Triangle(A, B, C)
+Rectangle rectangleEFGH := Rectangle(E, F, G, H)
+Quadrilateral quadrilateralIJKL := Quadrilateral(I, J, K, L)
+Circle circleMN := CircleR(M, N)
 
 -- Defining the Plane
-Plane plane
+Plane V
 
 -- Using the functions
-Ray BA := Bisector(ABC)
-Segment EF := PerpendicularBisector(BC, E)
-Segment FG := PerpendicularBisectorLabelPts(BC, F, G)
-Segment KL := MidSegment(ABC_T, K, L)
-Segment MN := Radius(M_Circle, N)
-Segment NO := Chord(M_Circle, N, O)
-Segment MO := Diameter(M_Circle, O, P)
+Ray rayBA := Bisector(angleABC)
+Segment segmentEF := PerpendicularBisector(segmentBC, E)
+Segment segmentFG := PerpendicularBisectorLabelPts(segmentBC, F, G)
+Segment segmentKL := MidSegment(triangleABC, K, L)
+Segment segmentMN := Radius(circleMN, N)
+Segment segmentNO := Chord(circleMN, N, O)
+Segment segmentMO := Diameter(circleMN, O, P)
 
 -- Using the predicates
-On(A, AB)
-In(A, plane)
-Midpoint(AB, MID_AB)
+On(A, lineAB)
+In(A, V)
+Midpoint(lineAB, AB)
 Collinear(A, B, C)
-ParallelMarker1(AB, CD)
-EqualLengthMarker(BC, EF)
-EqualLength(BC, EF)
-Parallel(AB, CD)
-Acute(ABC)
-Obtuse(BCD)
-RightMarked(ABC)
-RightUnmarked(BCD)
-AngleBisector(ABC, BA)
-EqualAngleMarker(ABC, BCD)
-EqualAngle(ABC, BCD)
-Parallelogram(IJKL)
-OnCircle(M_Circle, N)
-CircleCenter(M_Circle, M)
-Incenter(A, ABC_T)
-Orthocenter(B, ABC_T)
-Centroid(C, ABC_T)
-Circumcenter(D, ABC_T)
+ParallelMarker1(lineAB, rayCD)
+EqualLengthMarker(segmentBC, segmentEF)
+EqualLength(segmentBC, segmentEF)
+Parallel(lineAB, rayCD)
+Acute(angleABC)
+Obtuse(angleBCD)
+RightMarked(angleABC)
+RightUnmarked(angleBCD)
+-- AngleBisector(angleABC, rayBA)
+EqualAngleMarker(angleABC, angleBCD)
+EqualAngle(angleABC, angleBCD)
+Parallelogram(quadrilateralIJKL)
+OnCircle(circleMN, N)
+-- CircleCenter(circleMN, M)
+-- Incenter(A, triangleABC)
+-- Orthocenter(B, triangleABC)
+-- Centroid(C, triangleABC)
+-- Circumcenter(D, triangleABC)
 
-AutoLabel All
+AutoLabel A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, V, AB
 `,
     name: "Complete Geometry domain",
   },
@@ -227,23 +227,23 @@ export const descriptionPreludes = [
 
 export const finalInsts = [
   `To write comments, begin with \`--\`. Return only the Substance program; do not explain your reasoning whatsoever.`,
+  `To write comments, begin with \`--\`. Return only the Substance program; do not explain your reasoning whatsoever. Avoid duplicate naming of variables.`,
 ];
 
-export const generatePromptText = (
+export const generatePrompt = (
   systemInst: string,
   penroseContext: string,
   domain: string,
   descriptionPrelude: string,
   description: string,
   finalInst: string,
+  style: string,
   sampleSubstance?: { prog: string; name: string },
   bnf?: string
 ) => {
+  let prompt = "";
   if (sampleSubstance && bnf) {
-    return `${systemInst}${penroseContext}Here is a Domain program which would inform a Substance program:
-\`\`\`
-${domain}
-\`\`\`
+    prompt = `${systemInst}${penroseContext}
 
 Here is a BNF grammar that the Substance program you generate should conform to:
 
@@ -260,8 +260,20 @@ ${sampleSubstance.prog}
 ${descriptionPrelude} ${description} 
 
 ${finalInst}`;
+    return {
+      systemInst,
+      penroseContext,
+      domain,
+      descriptionPrelude,
+      description,
+      finalInst,
+      prompt,
+      style,
+      sampleSubstance,
+      bnf,
+    };
   } else if (sampleSubstance) {
-    return `${systemInst}${penroseContext}Here is a Domain program which would inform a Substance program:
+    prompt = `${systemInst}${penroseContext}Here is a Domain program which would inform a Substance program:
 \`\`\`
 ${domain}
 \`\`\`
@@ -275,8 +287,19 @@ ${sampleSubstance.prog}
 ${descriptionPrelude} ${description} 
 
 ${finalInst}`;
+    return {
+      systemInst,
+      penroseContext,
+      domain,
+      descriptionPrelude,
+      description,
+      finalInst,
+      prompt,
+      style,
+      sampleSubstance,
+    };
   } else {
-    return `${systemInst}${penroseContext}Here is a Domain program which would inform a Substance program:
+    prompt = `${systemInst}${penroseContext}Here is a Domain program which would inform a Substance program:
 \`\`\`
 ${domain}
 \`\`\`
@@ -290,805 +313,401 @@ ${bnf}
 ${descriptionPrelude} ${description} 
 
 ${finalInst}`;
+    return {
+      systemInst,
+      penroseContext,
+      domain,
+      descriptionPrelude,
+      description,
+      finalInst,
+      prompt,
+      style,
+      bnf,
+    };
   }
 };
 
 export const llmPrompts: LLMPromptCollection = {
-  lewis_0_0_0: {
-    systemInst: systemInsts[0],
-    penroseContext: penroseContexts[0],
-    domain: moleculesDomain,
-    sampleSubstance: sampleSubstances.acetyleneAndSulfuricAcid,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `the Lewis structure of water?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[0],
-      penroseContexts[0],
-      moleculesDomain,
-      descriptionPreludes[0],
-      `the Lewis structure of water?`,
-      finalInsts[0],
-      sampleSubstances.acetyleneAndSulfuricAcid
-    ),
-    style: lewisStyle,
-  },
-  lewis_0_0_1: {
-    systemInst: systemInsts[0],
-    penroseContext: penroseContexts[0],
-    domain: moleculesDomain,
-    sampleSubstance: sampleSubstances.acetyleneAndSulfuricAcid,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `the Lewis structure of H2O, with two hydrogen atoms each single bonded to one oxygen atom and with four dots on the oxygen atom?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[0],
-      penroseContexts[0],
-      moleculesDomain,
-      descriptionPreludes[0],
-      `the Lewis structure of H2O, with two hydrogen atoms each single bonded to one oxygen atom and with four dots on the oxygen atom?`,
-      finalInsts[0],
-      sampleSubstances.acetyleneAndSulfuricAcid
-    ),
-    style: lewisStyle,
-  },
-  lewis_0_1_0: {
-    systemInst: systemInsts[1],
-    penroseContext: penroseContexts[0],
-    domain: moleculesDomain,
-    bnf: grammars.moleculesGrammar,
-    sampleSubstance: sampleSubstances.acetyleneAndSulfuricAcid,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `the Lewis structure of water?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[1],
-      penroseContexts[0],
-      moleculesDomain,
-      descriptionPreludes[0],
-      `the Lewis structure of water?`,
-      finalInsts[0],
-      sampleSubstances.acetyleneAndSulfuricAcid,
-      grammars.moleculesGrammar
-    ),
-    style: lewisStyle,
-  },
-  lewis_0_1_1: {
-    systemInst: systemInsts[1],
-    penroseContext: penroseContexts[0],
-    domain: moleculesDomain,
-    bnf: grammars.moleculesGrammar,
-    sampleSubstance: sampleSubstances.acetyleneAndSulfuricAcid,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `the Lewis structure of H2O, with two hydrogen atoms each single bonded to one oxygen atom and with four dots on the oxygen atom?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[1],
-      penroseContexts[0],
-      moleculesDomain,
-      descriptionPreludes[0],
-      `the Lewis structure of H2O, with two hydrogen atoms each single bonded to one oxygen atom and with four dots on the oxygen atom?`,
-      finalInsts[0],
-      sampleSubstances.acetyleneAndSulfuricAcid,
-      grammars.moleculesGrammar
-    ),
-    style: lewisStyle,
-  },
-  lewis_1_0_0: {
-    systemInst: systemInsts[0],
-    penroseContext: penroseContexts[0],
-    domain: moleculesDomain,
-    sampleSubstance: sampleSubstances.acetyleneAndSulfuricAcid,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `the Lewis structure of nitric acid?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[0],
-      penroseContexts[0],
-      moleculesDomain,
-      descriptionPreludes[0],
-      `the Lewis structure of nitric acid?`,
-      finalInsts[0],
-      sampleSubstances.acetyleneAndSulfuricAcid
-    ),
-    style: lewisStyle,
-  },
-  lewis_1_0_1: {
-    systemInst: systemInsts[0],
-    penroseContext: penroseContexts[0],
-    domain: moleculesDomain,
-    sampleSubstance: sampleSubstances.acetyleneAndSulfuricAcid,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `the Lewis structure of nitric acid? Draw 3 oxygen atoms, 1 nitrogen, and 1 hydrogen; draw a single bond from one of the oxygen atoms to the nitrogen and the hydrogen and draw 4 dots on it. Draw 6 dots on another oxygen atom and a single bond from it to the nitrogen. Draw 4 dots on the last oxygen and a double bond to the nitrogen.
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[0],
-      penroseContexts[0],
-      moleculesDomain,
-      descriptionPreludes[0],
-      `the Lewis structure of nitric acid? Draw 3 oxygen atoms, 1 nitrogen, and 1 hydrogen; draw a single bond from one of the oxygen atoms to the nitrogen and the hydrogen and draw 4 dots on it. Draw 6 dots on another oxygen atom and a single bond from it to the nitrogen. Draw 4 dots on the last oxygen and a double bond to the nitrogen.`,
-      finalInsts[0],
-      sampleSubstances.acetyleneAndSulfuricAcid
-    ),
-    style: lewisStyle,
-  },
-  lewis_1_1_0: {
-    systemInst: systemInsts[1],
-    penroseContext: penroseContexts[0],
-    domain: moleculesDomain,
-    bnf: grammars.moleculesGrammar,
-    sampleSubstance: sampleSubstances.acetyleneAndSulfuricAcid,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `the Lewis structure of nitric acid?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[1],
-      penroseContexts[0],
-      moleculesDomain,
-      descriptionPreludes[0],
-      `the Lewis structure of nitric acid?
+  lewis_0_0_0: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    moleculesDomain,
+    descriptionPreludes[0],
+    `the Lewis structure of water?`,
+    finalInsts[0],
+    lewisStyle,
+    sampleSubstances.acetyleneAndSulfuricAcid
+  ),
+  lewis_0_0_1: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    moleculesDomain,
+    descriptionPreludes[0],
+    `the Lewis structure of H2O, with two hydrogen atoms each single bonded to one oxygen atom and with four dots on the oxygen atom?`,
+    finalInsts[0],
+    lewisStyle,
+    sampleSubstances.acetyleneAndSulfuricAcid
+  ),
+  lewis_0_1_0: generatePrompt(
+    systemInsts[1],
+    penroseContexts[0],
+    moleculesDomain,
+    descriptionPreludes[0],
+    `the Lewis structure of water?`,
+    finalInsts[0],
+    lewisStyle,
+    sampleSubstances.acetyleneAndSulfuricAcid,
+    grammars.moleculesGrammar
+  ),
+  lewis_0_1_1: generatePrompt(
+    systemInsts[1],
+    penroseContexts[0],
+    moleculesDomain,
+    descriptionPreludes[0],
+    `the Lewis structure of H2O, with two hydrogen atoms each single bonded to one oxygen atom and with four dots on the oxygen atom?`,
+    finalInsts[0],
+    lewisStyle,
+    sampleSubstances.acetyleneAndSulfuricAcid,
+    grammars.moleculesGrammar
+  ),
+  lewis_1_0_0: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    moleculesDomain,
+    descriptionPreludes[0],
+    `the Lewis structure of nitric acid?`,
+    finalInsts[0],
+    lewisStyle,
+    sampleSubstances.acetyleneAndSulfuricAcid
+  ),
+  lewis_1_0_1: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    moleculesDomain,
+    descriptionPreludes[0],
+    `the Lewis structure of nitric acid? Draw 3 oxygen atoms, 1 nitrogen, and 1 hydrogen; draw a single bond from one of the oxygen atoms to the nitrogen and the hydrogen and draw 4 dots on it. Draw 6 dots on another oxygen atom and a single bond from it to the nitrogen. Draw 4 dots on the last oxygen and a double bond to the nitrogen.`,
+    finalInsts[0],
+    lewisStyle,
+    sampleSubstances.acetyleneAndSulfuricAcid
+  ),
+  lewis_1_1_0: generatePrompt(
+    systemInsts[1],
+    penroseContexts[0],
+    moleculesDomain,
+    descriptionPreludes[0],
+    `the Lewis structure of nitric acid?
       
       `,
-      finalInsts[0],
-      sampleSubstances.acetyleneAndSulfuricAcid,
-      grammars.moleculesGrammar
-    ),
-    style: lewisStyle,
-  },
-  lewis_1_1_1: {
-    systemInst: systemInsts[1],
-    penroseContext: penroseContexts[0],
-    domain: moleculesDomain,
-    bnf: grammars.moleculesGrammar,
-    sampleSubstance: sampleSubstances.acetyleneAndSulfuricAcid,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `the Lewis structure of nitric acid? Draw 3 oxygen atoms, 1 nitrogen, and 1 hydrogen; draw a single bond from one of the oxygen atoms to the nitrogen and the hydrogen and draw 4 dots on it. Draw 6 dots on another oxygen atom and a single bond from it to the nitrogen. Draw 4 dots on the last oxygen and a double bond to the nitrogen.
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[1],
-      penroseContexts[0],
-      moleculesDomain,
-      descriptionPreludes[0],
-      `the Lewis structure of nitric acid? Draw 3 oxygen atoms, 1 nitrogen, and 1 hydrogen; draw a single bond from one of the oxygen atoms to the nitrogen and the hydrogen and draw 4 dots on it. Draw 6 dots on another oxygen atom and a single bond from it to the nitrogen. Draw 4 dots on the last oxygen and a double bond to the nitrogen.`,
-      finalInsts[0],
-      sampleSubstances.acetyleneAndSulfuricAcid,
-      grammars.moleculesGrammar
-    ),
-    style: lewisStyle,
-  },
-  lewis_2_0_0: {
-    systemInst: systemInsts[0],
-    penroseContext: penroseContexts[0],
-    domain: moleculesDomain,
-    sampleSubstance: sampleSubstances.acetyleneAndSulfuricAcid,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `the Lewis structure of salt?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[0],
-      penroseContexts[0],
-      moleculesDomain,
-      descriptionPreludes[0],
-      `the Lewis structure of salt?`,
-      finalInsts[0],
-      sampleSubstances.acetyleneAndSulfuricAcid
-    ),
-    style: lewisStyle,
-  },
-  lewis_2_0_1: {
-    systemInst: systemInsts[0],
-    penroseContext: penroseContexts[0],
-    domain: moleculesDomain,
-    sampleSubstance: sampleSubstances.acetyleneAndSulfuricAcid,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `the Lewis structure of salt? Draw 1 sodium and 1 chlorine atom with a single bond between them and 6 dots on the chlorine.
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[0],
-      penroseContexts[0],
-      moleculesDomain,
-      descriptionPreludes[0],
-      `the Lewis structure of salt? Draw 1 sodium and 1 chlorine atom with a single bond between them and 6 dots on the chlorine.`,
-      finalInsts[0],
-      sampleSubstances.acetyleneAndSulfuricAcid
-    ),
-    style: lewisStyle,
-  },
-  lewis_2_1_0: {
-    systemInst: systemInsts[1],
-    penroseContext: penroseContexts[0],
-    domain: moleculesDomain,
-    bnf: grammars.moleculesGrammar,
-    sampleSubstance: sampleSubstances.acetyleneAndSulfuricAcid,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `the Lewis structure of salt?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[1],
-      penroseContexts[0],
-      moleculesDomain,
-      descriptionPreludes[0],
-      `the Lewis structure of salt?`,
-      finalInsts[0],
-      sampleSubstances.acetyleneAndSulfuricAcid,
-      grammars.moleculesGrammar
-    ),
-    style: lewisStyle,
-  },
-  lewis_2_1_1: {
-    systemInst: systemInsts[1],
-    penroseContext: penroseContexts[0],
-    domain: moleculesDomain,
-    bnf: grammars.moleculesGrammar,
-    sampleSubstance: sampleSubstances.acetyleneAndSulfuricAcid,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `the Lewis structure of salt? Draw 1 sodium and 1 chlorine atom with a single bond between them and 6 dots on the chlorine.
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[1],
-      penroseContexts[0],
-      moleculesDomain,
-      descriptionPreludes[0],
-      `the Lewis structure of salt? Draw 1 sodium and 1 chlorine atom with a single bond between them and 6 dots on the chlorine.`,
-      finalInsts[0],
-      sampleSubstances.acetyleneAndSulfuricAcid,
-      grammars.moleculesGrammar
-    ),
-    style: lewisStyle,
-  },
-  graph_0_0_0: {
-    systemInst: systemInsts[0],
-    penroseContext: penroseContexts[0],
-    domain: simpleDirectedGraphDomain,
-    sampleSubstance: sampleSubstances.eulerCircuit1,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `a Hamiltonian graph?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[0],
-      penroseContexts[0],
-      simpleDirectedGraphDomain,
-      descriptionPreludes[0],
-      `a Hamiltonian graph?`,
-      finalInsts[0],
-      sampleSubstances.eulerCircuit1
-    ),
-    style: simpleDirectedGraphStyle,
-  },
-  graph_0_0_1: {
-    systemInst: systemInsts[0],
-    penroseContext: penroseContexts[0],
-    domain: simpleDirectedGraphDomain,
-    sampleSubstance: sampleSubstances.eulerCircuit1,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `a Hamiltonian graph with 5 nodes and 8 edges with a cycle that visits each node exactly once?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[0],
-      penroseContexts[0],
-      simpleDirectedGraphDomain,
-      descriptionPreludes[0],
-      `a Hamiltonian graph with 5 nodes and 8 edges with a cycle that visits each node exactly once?`,
-      finalInsts[0],
-      sampleSubstances.eulerCircuit1
-    ),
-    style: simpleDirectedGraphStyle,
-  },
-  graph_0_1_0: {
-    systemInst: systemInsts[1],
-    penroseContext: penroseContexts[0],
-    domain: simpleDirectedGraphDomain,
-    bnf: grammars.simpleDirectedGraphGrammar,
-    sampleSubstance: sampleSubstances.eulerCircuit1,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `a Hamiltonian graph?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[1],
-      penroseContexts[0],
-      simpleDirectedGraphDomain,
-      descriptionPreludes[0],
-      `a Hamiltonian graph?`,
-      finalInsts[0],
-      sampleSubstances.eulerCircuit1,
-      grammars.simpleDirectedGraphGrammar
-    ),
-    style: simpleDirectedGraphStyle,
-  },
-  graph_0_1_1: {
-    systemInst: systemInsts[1],
-    penroseContext: penroseContexts[0],
-    domain: simpleDirectedGraphDomain,
-    bnf: grammars.simpleDirectedGraphGrammar,
-    sampleSubstance: sampleSubstances.eulerCircuit1,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `a Hamiltonian graph with 5 nodes and 8 edges with a cycle that visits each node exactly once?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[1],
-      penroseContexts[0],
-      simpleDirectedGraphDomain,
-      descriptionPreludes[0],
-      `a Hamiltonian graph with 5 nodes and 8 edges with a cycle that visits each node exactly once?`,
-      finalInsts[0],
-      sampleSubstances.eulerCircuit1,
-      grammars.simpleDirectedGraphGrammar
-    ),
-
-    style: simpleDirectedGraphStyle,
-  },
-  graph_1_0_0: {
-    systemInst: systemInsts[0],
-    penroseContext: penroseContexts[0],
-    domain: simpleDirectedGraphDomain,
-    sampleSubstance: sampleSubstances.eulerCircuit1,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `a bipartite graph?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[0],
-      penroseContexts[0],
-      simpleDirectedGraphDomain,
-      descriptionPreludes[0],
-      `a bipartite graph?`,
-      finalInsts[0],
-      sampleSubstances.eulerCircuit1
-    ),
-    style: simpleDirectedGraphStyle,
-  },
-  graph_1_0_1: {
-    systemInst: systemInsts[0],
-    penroseContext: penroseContexts[0],
-    domain: simpleDirectedGraphDomain,
-    sampleSubstance: sampleSubstances.eulerCircuit1,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `a bipartite graph with 3 nodes in one set and 3 nodes in the other, where nodes are only connected to nodes in the other set?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[0],
-      penroseContexts[0],
-      simpleDirectedGraphDomain,
-      descriptionPreludes[0],
-      `a bipartite graph with 3 nodes in one set and 3 nodes in the other, where nodes are only connected to nodes in the other set?`,
-      finalInsts[0],
-      sampleSubstances.eulerCircuit1
-    ),
-    style: simpleDirectedGraphStyle,
-  },
-  graph_1_1_0: {
-    systemInst: systemInsts[1],
-    penroseContext: penroseContexts[0],
-    domain: simpleDirectedGraphDomain,
-    bnf: grammars.simpleDirectedGraphGrammar,
-    sampleSubstance: sampleSubstances.eulerCircuit1,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `a bipartite graph?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[1],
-      penroseContexts[0],
-      simpleDirectedGraphDomain,
-      descriptionPreludes[0],
-      `a bipartite graph?`,
-      finalInsts[0],
-      sampleSubstances.eulerCircuit1,
-      grammars.simpleDirectedGraphGrammar
-    ),
-    style: simpleDirectedGraphStyle,
-  },
-  graph_1_1_1: {
-    systemInst: systemInsts[1],
-    penroseContext: penroseContexts[0],
-    domain: simpleDirectedGraphDomain,
-    bnf: grammars.simpleDirectedGraphGrammar,
-    sampleSubstance: sampleSubstances.eulerCircuit1,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `a bipartite graph with 3 nodes in one set and 3 nodes in the other, where nodes are only connected to nodes in the other set?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[1],
-      penroseContexts[0],
-      simpleDirectedGraphDomain,
-      descriptionPreludes[0],
-      `a bipartite graph with 3 nodes in one set and 3 nodes in the other, where nodes are only connected to nodes in the other set?`,
-      finalInsts[0],
-      sampleSubstances.eulerCircuit1,
-      grammars.simpleDirectedGraphGrammar
-    ),
-    style: simpleDirectedGraphStyle,
-  },
-  graph_2_0_0: {
-    systemInst: systemInsts[0],
-    penroseContext: penroseContexts[0],
-    domain: simpleDirectedGraphDomain,
-    sampleSubstance: sampleSubstances.eulerCircuit1,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `a strongly connected graph?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[0],
-      penroseContexts[0],
-      simpleDirectedGraphDomain,
-      descriptionPreludes[0],
-      `a strongly connected graph?`,
-      finalInsts[0],
-      sampleSubstances.eulerCircuit1
-    ),
-    style: simpleDirectedGraphStyle,
-  },
-  graph_2_0_1: {
-    systemInst: systemInsts[0],
-    penroseContext: penroseContexts[0],
-    domain: simpleDirectedGraphDomain,
-    sampleSubstance: sampleSubstances.eulerCircuit1,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `a strongly connected graph with 5 nodes where each node is connected to every other node by an edge?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[0],
-      penroseContexts[0],
-      simpleDirectedGraphDomain,
-      descriptionPreludes[0],
-      `a strongly connected graph with 5 nodes where each node is connected to every other node by an edge?`,
-      finalInsts[0],
-      sampleSubstances.eulerCircuit1
-    ),
-    style: simpleDirectedGraphStyle,
-  },
-  graph_2_1_0: {
-    systemInst: systemInsts[1],
-    penroseContext: penroseContexts[0],
-    domain: simpleDirectedGraphDomain,
-    bnf: grammars.simpleDirectedGraphGrammar,
-    sampleSubstance: sampleSubstances.eulerCircuit1,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `a strongly connected graph?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[1],
-      penroseContexts[0],
-      simpleDirectedGraphDomain,
-      descriptionPreludes[0],
-      `a strongly connected graph?`,
-      finalInsts[0],
-      sampleSubstances.eulerCircuit1,
-      grammars.simpleDirectedGraphGrammar
-    ),
-    style: simpleDirectedGraphStyle,
-  },
-  graph_2_1_1: {
-    systemInst: systemInsts[1],
-    penroseContext: penroseContexts[0],
-    domain: simpleDirectedGraphDomain,
-    bnf: grammars.simpleDirectedGraphGrammar,
-    sampleSubstance: sampleSubstances.eulerCircuit1,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `a strongly connected graph with 5 nodes where each node is connected to every other node by an edge?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[1],
-      penroseContexts[0],
-      simpleDirectedGraphDomain,
-      descriptionPreludes[0],
-      `a strongly connected graph with 5 nodes where each node is connected to every other node by an edge?`,
-      finalInsts[0],
-      sampleSubstances.eulerCircuit1,
-      grammars.simpleDirectedGraphGrammar
-    ),
-    style: simpleDirectedGraphStyle,
-  },
-  geometry_0_0_0: {
-    systemInst: systemInsts[0],
-    penroseContext: penroseContexts[0],
-    domain: geometryDomain,
-    sampleSubstance: sampleSubstances.geometry,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `two congruent triangles that demonstrate the SAS theorem?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[0],
-      penroseContexts[0],
-      geometryDomain,
-      descriptionPreludes[0],
-      `two congruent triangles that demonstrate the SAS theorem?`,
-      finalInsts[0],
-      sampleSubstances.geometry
-    ),
-    style: euclideanStyle,
-  },
-  geometry_0_0_1: {
-    systemInst: systemInsts[0],
-    penroseContext: penroseContexts[0],
-    domain: geometryDomain,
-    sampleSubstance: sampleSubstances.geometry,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `two triangles ABC and DEF where AB is equal to DE, BC is equal to EF, and angle B is equal to angle E?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[0],
-      penroseContexts[0],
-      geometryDomain,
-      descriptionPreludes[0],
-      `two triangles ABC and DEF where AB is equal to DE, BC is equal to EF, and angle B is equal to angle E?`,
-      finalInsts[0],
-      sampleSubstances.geometry
-    ),
-    style: euclideanStyle,
-  },
-  geometry_0_1_0: {
-    systemInst: systemInsts[1],
-    penroseContext: penroseContexts[0],
-    domain: geometryDomain,
-    bnf: grammars.geometryGrammar,
-    sampleSubstance: sampleSubstances.geometry,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `two congruent triangles that demonstrate the SAS theorem?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[1],
-      penroseContexts[0],
-      geometryDomain,
-      descriptionPreludes[0],
-      `two congruent triangles that demonstrate the SAS theorem?`,
-      finalInsts[0],
-      sampleSubstances.geometry,
-      grammars.geometryGrammar
-    ),
-    style: euclideanStyle,
-  },
-  geometry_0_1_1: {
-    systemInst: systemInsts[1],
-    penroseContext: penroseContexts[0],
-    domain: geometryDomain,
-    bnf: grammars.geometryGrammar,
-    sampleSubstance: sampleSubstances.geometry,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `two triangles ABC and DEF where AB is equal to DE, BC is equal to EF, and angle B is equal to angle E?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[1],
-      penroseContexts[0],
-      geometryDomain,
-      descriptionPreludes[0],
-      `two triangles ABC and DEF where AB is equal to DE, BC is equal to EF, and angle B is equal to angle E?`,
-      finalInsts[0],
-      sampleSubstances.geometry,
-      grammars.geometryGrammar
-    ),
-    style: euclideanStyle,
-  },
-  geometry_1_0_0: {
-    systemInst: systemInsts[0],
-    penroseContext: penroseContexts[0],
-    domain: geometryDomain,
-    sampleSubstance: sampleSubstances.geometry,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `a pair of complementary angles?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[0],
-      penroseContexts[0],
-      geometryDomain,
-      descriptionPreludes[0],
-      `a pair of complementary angles?`,
-      finalInsts[0],
-      sampleSubstances.geometry
-    ),
-    style: euclideanStyle,
-  },
-  geometry_1_0_1: {
-    systemInst: systemInsts[0],
-    penroseContext: penroseContexts[0],
-    domain: geometryDomain,
-    sampleSubstance: sampleSubstances.geometry,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `a right angle ABC and a pair of angles ABD and DBC that add up to 90 degrees and are adjacent to each other?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[0],
-      penroseContexts[0],
-      geometryDomain,
-      descriptionPreludes[0],
-      `a right angle ABC and a pair of angles ABD and DBC that add up to 90 degrees and are adjacent to each other?`,
-      finalInsts[0],
-      sampleSubstances.geometry
-    ),
-    style: euclideanStyle,
-  },
-  geometry_1_1_0: {
-    systemInst: systemInsts[1],
-    penroseContext: penroseContexts[0],
-    domain: geometryDomain,
-    bnf: grammars.geometryGrammar,
-    sampleSubstance: sampleSubstances.geometry,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `a pair of complementary angles?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[1],
-      penroseContexts[0],
-      geometryDomain,
-      descriptionPreludes[0],
-      `a pair of complementary angles?`,
-      finalInsts[0],
-      sampleSubstances.geometry,
-      grammars.geometryGrammar
-    ),
-    style: euclideanStyle,
-  },
-  geometry_1_1_1: {
-    systemInst: systemInsts[1],
-    penroseContext: penroseContexts[0],
-    domain: geometryDomain,
-    bnf: grammars.geometryGrammar,
-    sampleSubstance: sampleSubstances.geometry,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `a right angle ABC and a pair of angles ABD and DBC that add up to 90 degrees and are adjacent to each other?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[1],
-      penroseContexts[0],
-      geometryDomain,
-      descriptionPreludes[0],
-      `a right angle ABC and a pair of angles ABD and DBC that add up to 90 degrees and are adjacent to each other?`,
-      finalInsts[0],
-      sampleSubstances.geometry,
-      grammars.geometryGrammar
-    ),
-    style: euclideanStyle,
-  },
-  geometry_2_0_0: {
-    systemInst: systemInsts[0],
-    penroseContext: penroseContexts[0],
-    domain: geometryDomain,
-    sampleSubstance: sampleSubstances.geometry,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `a square inscribed in a circle?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[0],
-      penroseContexts[0],
-      geometryDomain,
-      descriptionPreludes[0],
-      `a square inscribed in a circle?`,
-      finalInsts[0],
-      sampleSubstances.geometry
-    ),
-    style: euclideanStyle,
-  },
-  geometry_2_0_1: {
-    systemInst: systemInsts[0],
-    penroseContext: penroseContexts[0],
-    domain: geometryDomain,
-    sampleSubstance: sampleSubstances.geometry,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `a circle with four chords AB, BC, CD, and DA of equal length such that AB is parallel to CD and BC is parallel to DA to form a square?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[0],
-      penroseContexts[0],
-      geometryDomain,
-      descriptionPreludes[0],
-      `a circle with four chords AB, BC, CD, and DA of equal length such that AB is parallel to CD and BC is parallel to DA to form a square?`,
-      finalInsts[0],
-      sampleSubstances.geometry
-    ),
-    style: euclideanStyle,
-  },
-  geometry_2_1_0: {
-    systemInst: systemInsts[1],
-    penroseContext: penroseContexts[0],
-    domain: geometryDomain,
-    bnf: grammars.geometryGrammar,
-    sampleSubstance: sampleSubstances.geometry,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `a square inscribed in a circle?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[1],
-      penroseContexts[0],
-      geometryDomain,
-      descriptionPreludes[0],
-      `a square inscribed in a circle?`,
-      finalInsts[0],
-      sampleSubstances.geometry,
-      grammars.geometryGrammar
-    ),
-    style: euclideanStyle,
-  },
-  geometry_2_1_1: {
-    systemInst: systemInsts[1],
-    penroseContext: penroseContexts[0],
-    domain: geometryDomain,
-    bnf: grammars.geometryGrammar,
-    sampleSubstance: sampleSubstances.geometry,
-    descriptionPrelude: `${descriptionPreludes[0]} `,
-    description: `a circle with four chords AB, BC, CD, and DA of equal length such that AB is parallel to CD and BC is parallel to DA to form a square?
-    
-    `,
-    finalInst: finalInsts[0],
-    prompt: generatePromptText(
-      systemInsts[1],
-      penroseContexts[0],
-      geometryDomain,
-      descriptionPreludes[0],
-      `a circle with four chords AB, BC, CD, and DA of equal length such that AB is parallel to CD and BC is parallel to DA to form a square?`,
-      finalInsts[0],
-      sampleSubstances.geometry,
-      grammars.geometryGrammar
-    ),
-    style: euclideanStyle,
-  },
+    finalInsts[0],
+    lewisStyle,
+    sampleSubstances.acetyleneAndSulfuricAcid,
+    grammars.moleculesGrammar
+  ),
+  lewis_1_1_1: generatePrompt(
+    systemInsts[1],
+    penroseContexts[0],
+    moleculesDomain,
+    descriptionPreludes[0],
+    `the Lewis structure of nitric acid? Draw 3 oxygen atoms, 1 nitrogen, and 1 hydrogen; draw a single bond from one of the oxygen atoms to the nitrogen and the hydrogen and draw 4 dots on it. Draw 6 dots on another oxygen atom and a single bond from it to the nitrogen. Draw 4 dots on the last oxygen and a double bond to the nitrogen.`,
+    finalInsts[0],
+    lewisStyle,
+    sampleSubstances.acetyleneAndSulfuricAcid,
+    grammars.moleculesGrammar
+  ),
+  lewis_2_0_0: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    moleculesDomain,
+    descriptionPreludes[0],
+    `the Lewis structure of salt?`,
+    finalInsts[0],
+    lewisStyle,
+    sampleSubstances.acetyleneAndSulfuricAcid
+  ),
+  lewis_2_0_1: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    moleculesDomain,
+    descriptionPreludes[0],
+    `the Lewis structure of salt? Draw 1 sodium and 1 chlorine atom with a single bond between them and 6 dots on the chlorine.`,
+    finalInsts[0],
+    lewisStyle,
+    sampleSubstances.acetyleneAndSulfuricAcid
+  ),
+  lewis_2_1_0: generatePrompt(
+    systemInsts[1],
+    penroseContexts[0],
+    moleculesDomain,
+    descriptionPreludes[0],
+    `the Lewis structure of salt?`,
+    finalInsts[0],
+    lewisStyle,
+    sampleSubstances.acetyleneAndSulfuricAcid,
+    grammars.moleculesGrammar
+  ),
+  lewis_2_1_1: generatePrompt(
+    systemInsts[1],
+    penroseContexts[0],
+    moleculesDomain,
+    descriptionPreludes[0],
+    `the Lewis structure of salt? Draw 1 sodium and 1 chlorine atom with a single bond between them and 6 dots on the chlorine.`,
+    finalInsts[0],
+    lewisStyle,
+    sampleSubstances.acetyleneAndSulfuricAcid,
+    grammars.moleculesGrammar
+  ),
+  graph_0_0_0: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    simpleDirectedGraphDomain,
+    descriptionPreludes[0],
+    `a Hamiltonian graph?`,
+    finalInsts[0],
+    lewisStyle,
+    sampleSubstances.eulerCircuit1
+  ),
+  graph_0_0_1: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    simpleDirectedGraphDomain,
+    descriptionPreludes[0],
+    `a Hamiltonian graph with 5 nodes and 8 edges with a cycle that visits each node exactly once?`,
+    finalInsts[0],
+    simpleDirectedGraphStyle,
+    sampleSubstances.eulerCircuit1
+  ),
+  graph_0_1_0: generatePrompt(
+    systemInsts[1],
+    penroseContexts[0],
+    simpleDirectedGraphDomain,
+    descriptionPreludes[0],
+    `a Hamiltonian graph?`,
+    finalInsts[0],
+    simpleDirectedGraphStyle,
+    sampleSubstances.eulerCircuit1,
+    grammars.simpleDirectedGraphGrammar
+  ),
+  graph_0_1_1: generatePrompt(
+    systemInsts[1],
+    penroseContexts[0],
+    simpleDirectedGraphDomain,
+    descriptionPreludes[0],
+    `a Hamiltonian graph with 5 nodes and 8 edges with a cycle that visits each node exactly once?`,
+    finalInsts[0],
+    simpleDirectedGraphStyle,
+    sampleSubstances.eulerCircuit1,
+    grammars.simpleDirectedGraphGrammar
+  ),
+  graph_1_0_0: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    simpleDirectedGraphDomain,
+    descriptionPreludes[0],
+    `a bipartite graph?`,
+    finalInsts[0],
+    simpleDirectedGraphStyle,
+    sampleSubstances.eulerCircuit1
+  ),
+  graph_1_0_1: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    simpleDirectedGraphDomain,
+    descriptionPreludes[0],
+    `a bipartite graph with 3 nodes in one set and 3 nodes in the other, where nodes are only connected to nodes in the other set?`,
+    finalInsts[0],
+    simpleDirectedGraphStyle,
+    sampleSubstances.eulerCircuit1
+  ),
+  graph_1_1_0: generatePrompt(
+    systemInsts[1],
+    penroseContexts[0],
+    simpleDirectedGraphDomain,
+    descriptionPreludes[0],
+    `a bipartite graph?`,
+    finalInsts[0],
+    simpleDirectedGraphStyle,
+    sampleSubstances.eulerCircuit1,
+    grammars.simpleDirectedGraphGrammar
+  ),
+  graph_1_1_1: generatePrompt(
+    systemInsts[1],
+    penroseContexts[0],
+    simpleDirectedGraphDomain,
+    descriptionPreludes[0],
+    `a bipartite graph with 3 nodes in one set and 3 nodes in the other, where nodes are only connected to nodes in the other set?`,
+    finalInsts[0],
+    simpleDirectedGraphStyle,
+    sampleSubstances.eulerCircuit1,
+    grammars.simpleDirectedGraphGrammar
+  ),
+  graph_2_0_0: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    simpleDirectedGraphDomain,
+    descriptionPreludes[0],
+    `a strongly connected graph?`,
+    finalInsts[0],
+    simpleDirectedGraphStyle,
+    sampleSubstances.eulerCircuit1
+  ),
+  graph_2_0_1: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    simpleDirectedGraphDomain,
+    descriptionPreludes[0],
+    `a strongly connected graph with 5 nodes where each node is connected to every other node by an edge?`,
+    finalInsts[0],
+    simpleDirectedGraphStyle,
+    sampleSubstances.eulerCircuit1
+  ),
+  graph_2_1_0: generatePrompt(
+    systemInsts[1],
+    penroseContexts[0],
+    simpleDirectedGraphDomain,
+    descriptionPreludes[0],
+    `a strongly connected graph?`,
+    finalInsts[0],
+    simpleDirectedGraphStyle,
+    sampleSubstances.eulerCircuit1,
+    grammars.simpleDirectedGraphGrammar
+  ),
+  graph_2_1_1: generatePrompt(
+    systemInsts[1],
+    penroseContexts[0],
+    simpleDirectedGraphDomain,
+    descriptionPreludes[0],
+    `a strongly connected graph with 5 nodes where each node is connected to every other node by an edge?`,
+    finalInsts[0],
+    simpleDirectedGraphStyle,
+    sampleSubstances.eulerCircuit1,
+    grammars.simpleDirectedGraphGrammar
+  ),
+  geometry_0_0_0: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    geometryDomain,
+    descriptionPreludes[0],
+    `two congruent triangles that demonstrate the SAS theorem?`,
+    finalInsts[1],
+    euclideanStyle,
+    sampleSubstances.geometry
+  ),
+  geometry_0_0_1: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    geometryDomain,
+    descriptionPreludes[0],
+    `two triangles ABC and DEF where AB is equal to DE, BC is equal to EF, and angle B is equal to angle E?`,
+    finalInsts[1],
+    euclideanStyle,
+    sampleSubstances.geometry
+  ),
+  geometry_0_1_0: generatePrompt(
+    systemInsts[1],
+    penroseContexts[0],
+    geometryDomain,
+    descriptionPreludes[0],
+    `two congruent triangles that demonstrate the SAS theorem?`,
+    finalInsts[1],
+    euclideanStyle,
+    sampleSubstances.geometry,
+    grammars.geometryGrammar
+  ),
+  geometry_0_1_1: generatePrompt(
+    systemInsts[1],
+    penroseContexts[0],
+    geometryDomain,
+    descriptionPreludes[0],
+    `two triangles ABC and DEF where AB is equal to DE, BC is equal to EF, and angle B is equal to angle E?`,
+    finalInsts[1],
+    euclideanStyle,
+    sampleSubstances.geometry,
+    grammars.geometryGrammar
+  ),
+  geometry_1_0_0: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    geometryDomain,
+    descriptionPreludes[0],
+    `a pair of complementary angles?`,
+    finalInsts[1],
+    euclideanStyle,
+    sampleSubstances.geometry
+  ),
+  geometry_1_0_1: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    geometryDomain,
+    descriptionPreludes[0],
+    `a right angle ABC and a pair of angles ABD and DBC that add up to 90 degrees and are adjacent to each other?`,
+    finalInsts[1],
+    euclideanStyle,
+    sampleSubstances.geometry
+  ),
+  geometry_1_1_0: generatePrompt(
+    systemInsts[1],
+    penroseContexts[0],
+    geometryDomain,
+    descriptionPreludes[0],
+    `a pair of complementary angles?`,
+    finalInsts[1],
+    euclideanStyle,
+    sampleSubstances.geometry,
+    grammars.geometryGrammar
+  ),
+  geometry_1_1_1: generatePrompt(
+    systemInsts[1],
+    penroseContexts[0],
+    geometryDomain,
+    descriptionPreludes[0],
+    `a right angle ABC and a pair of angles ABD and DBC that add up to 90 degrees and are adjacent to each other?`,
+    finalInsts[1],
+    euclideanStyle,
+    sampleSubstances.geometry,
+    grammars.geometryGrammar
+  ),
+  geometry_2_0_0: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    geometryDomain,
+    descriptionPreludes[0],
+    `a square inscribed in a circle?`,
+    finalInsts[1],
+    euclideanStyle,
+    sampleSubstances.geometry
+  ),
+  geometry_2_0_1: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    geometryDomain,
+    descriptionPreludes[0],
+    `a circle with four chords AB, BC, CD, and DA of equal length such that AB is parallel to CD and BC is parallel to DA to form a square?`,
+    finalInsts[1],
+    euclideanStyle,
+    sampleSubstances.geometry
+  ),
+  geometry_2_1_0: generatePrompt(
+    systemInsts[1],
+    penroseContexts[0],
+    geometryDomain,
+    descriptionPreludes[0],
+    `a square inscribed in a circle?`,
+    finalInsts[1],
+    euclideanStyle,
+    sampleSubstances.geometry,
+    grammars.geometryGrammar
+  ),
+  geometry_2_1_1: generatePrompt(
+    systemInsts[1],
+    penroseContexts[0],
+    geometryDomain,
+    descriptionPreludes[0],
+    `a circle with four chords AB, BC, CD, and DA of equal length such that AB is parallel to CD and BC is parallel to DA to form a square?`,
+    finalInsts[1],
+    euclideanStyle,
+    sampleSubstances.geometry,
+    grammars.geometryGrammar
+  ),
 };
 
 // takes in LLMPrompt
@@ -1110,7 +729,7 @@ export const generateSubstanceLLM = async ({
 
   console.log(prompt.prompt);
   const data = {
-    //model: "gpt-3.5-turbo",
+    //model: "gpt-3.5-turbo-16k",
     model: "gpt-4",
     messages: [{ role: "user", content: prompt.prompt }],
     max_tokens: 2000,
