@@ -7,7 +7,7 @@
     "build": "vitepress build",
     "build-decls": ":",
     "copy-editor": "shx mkdir -p ./public/try/ && shx cp -r ../editor/dist/* ./public/try",
-    "build-shapedefs": "shx rm -f ./src/shapedefs.json && yarn roger shapedefs -o ./src/shapedefs.json",
+    "build-shapedefs": "shx rm -f ./src/shapedefs.json && node ./scripts/shapedefs.js ./src/shapedefs.json",
     "dev": "vitepress dev",
     "preview": "vitepress preview",
     "typecheck": ":"
@@ -61,6 +61,7 @@
     "shx": "^0.3.3",
     "tailwindcss": "^3.1.8",
     "vite-plugin-top-level-await": "^1.2.3",
-    "vitepress": "^1.0.0-beta.1"
+    "vitepress": "^1.0.0-beta.1",
+    "chalk": "^3.0.0"
   }
 }

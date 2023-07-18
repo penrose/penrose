@@ -259,7 +259,7 @@ git clean -dfx
 
 ### Roger
 
-Under the hood, `roger` is an executable script (`packages/roger/bin/run.js`) that rely on [tsx][], which is symlinked by `npm link`. If `roger` is not working as expected and you think it might be out of date, run
+Under the hood, `roger` is an executable script (`packages/roger/bin/run.js`), which is symlinked by `npm link`. If `roger` is not working as expected and you think it might be out of date, run
 these commands to re-install it:
 
 ```sh

@@ -6,14 +6,9 @@ import { hideBin } from "yargs/helpers";
 
 import {
   PenroseState,
-  ShapeType,
   compile,
-  makeCanvas,
   optimize,
-  sampleShape,
-  shapeTypes,
   showError,
-  simpleContext,
   toSVG,
 } from "@penrose/core";
 import chalk from "chalk";
@@ -165,53 +160,6 @@ const readTrio = (sub: string, sty: string[], dsl: string, prefix: string) => {
     style: styles.join("\n"),
     domain,
   };
-};
-
-/**
- * Retrieves defintions for all shapes and writes their properties to a JSON
- * file.  If a filename is not provided, the result is written to stdout.
- *
- * @param outFile The output file (optional)
- */
-const getShapeDefs = (outFile?: string): void => {
-  const outShapes = {}; // List of shapes with properties
-  const size = 19; // greater than 3*6; see randFloat usage in Samplers.ts
-
-  // Loop over the shapes
-  for (const shapeName of shapeTypes) {
-    const shapeSample1 = sampleShape(
-      shapeName as ShapeType,
-      simpleContext("ShapeProps sample 1"),
-      makeCanvas(size, size)
-    );
-    const shapeSample2 = sampleShape(
-      shapeName as ShapeType,
-      simpleContext("ShapeProps sample 2"),
-      makeCanvas(size, size)
-    );
-    const outThisShapeDef = { sampled: {}, defaulted: {} };
-    outShapes[shapeName] = outThisShapeDef;
-
-    // Loop over the properties
-    for (const propName in shapeSample1) {
-      const sample1Str = JSON.stringify(shapeSample1[propName].contents);
-      const sample2Str = JSON.stringify(shapeSample2[propName].contents);
-
-      if (sample1Str === sample2Str) {
-        outThisShapeDef.defaulted[propName] = shapeSample1[propName];
-      } else {
-        outThisShapeDef.sampled[propName] = shapeSample1[propName];
-      }
-    }
-  }
-
-  // Write the shape definition output
-  if (outFile === undefined) {
-    console.log(JSON.stringify(outShapes, null, 2));
-  } else {
-    fs.writeFileSync(outFile, JSON.stringify(outShapes, null, 2));
-    console.log(chalk.green(`Wrote shape definitions to: ${outFile}`));
-  }
 };
 
 const orderTrio = (unordered: string[]): string[] => {
@@ -422,17 +370,6 @@ yargs(hideBin(process.argv))
         alias: "p",
       }),
     (options) => watch(+options.port)
-  )
-  .command(
-    "shapedefs",
-    "Generate a JSON file that contains all shape definitions in the Penrose system.",
-    (yargs) =>
-      yargs.option("out", {
-        alias: "o",
-        desc: "Output JSON file.",
-        type: "string",
-      }),
-    (options) => getShapeDefs(options.out)
   )
 
   .demandCommand()
