@@ -1738,8 +1738,12 @@
     stroke="none"
     transform="rotate(0, 216.04404711444715, 525.3543839747119)"
     style="
-      font: bold 40px HelveticaNeue-CondensedBold, Helvetica Neue, Helvetica,
-        Arial, sans-serif;
+      font:
+        bold 40px HelveticaNeue-CondensedBold,
+        Helvetica Neue,
+        Helvetica,
+        Arial,
+        sans-serif;
     "
     x="216.04404711444715"
     y="540.3543839747119"

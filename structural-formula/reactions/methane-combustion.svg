@@ -26,8 +26,13 @@
     stroke="none"
     transform="rotate(0, 312, 609)"
     style="
-      font: bold 30px Palatino, Palatino Linotype, Palatino LT STD, Book Antiqua,
-        Georgia, serif;
+      font:
+        bold 30px Palatino,
+        Palatino Linotype,
+        Palatino LT STD,
+        Book Antiqua,
+        Georgia,
+        serif;
     "
     x="312"
     y="619.5"
@@ -50,8 +55,13 @@
     stroke="none"
     transform="rotate(0, 936, 609)"
     style="
-      font: bold 30px Palatino, Palatino Linotype, Palatino LT STD, Book Antiqua,
-        Georgia, serif;
+      font:
+        bold 30px Palatino,
+        Palatino Linotype,
+        Palatino LT STD,
+        Book Antiqua,
+        Georgia,
+        serif;
     "
     x="936"
     y="617.5"
@@ -2162,8 +2172,13 @@
     stroke="none"
     transform="rotate(0, 624, 58.5)"
     style="
-      font: small-caps 50px Palatino, Palatino Linotype, Palatino LT STD,
-        Book Antiqua, Georgia, serif;
+      font:
+        small-caps 50px Palatino,
+        Palatino Linotype,
+        Palatino LT STD,
+        Book Antiqua,
+        Georgia,
+        serif;
     "
     x="624"
     y="77.5"
