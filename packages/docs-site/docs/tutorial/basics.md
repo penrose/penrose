@@ -24,7 +24,7 @@ For example, if we want Penrose to know that there are objects of type plant, we
 
 The answer is a **Set**. A set is a **type** of element in set theory. Therefore in our `.domain`, we write the following line:
 
-```substance
+```domain
 type Set
 ```
 
