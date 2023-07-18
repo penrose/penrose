@@ -19,6 +19,8 @@ import {
 import { Listing } from "@penrose/components";
 import { Env, compileDomain, showError } from "@penrose/core";
 import c04p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c04p01.substance.js";
+import simpleDirectedGraphDomain from "@penrose/examples/dist/graph-domain/simple-directed-graph.domain.js";
+import moleculesDomain from "@penrose/examples/dist/molecules/molecules.domain.js";
 import React from "react";
 import Latex from "react-latex-next";
 import { Preset, domains, presets } from "../examples.js";
@@ -26,8 +28,9 @@ import {
   LLMPrompt,
   descriptionPreludes,
   finalInsts,
-  generatePromptText,
+  generatePrompt,
   generateSubstanceLLM,
+  grammars,
   penroseContexts,
   sampleSubstances,
   systemInsts,
@@ -92,7 +95,7 @@ export interface SettingsProps {
     llmInput: string,
     currentTab: number,
     domainSelect: string,
-    presetSelect: string,
+    presetSelect: string
   ) => void;
   onPrompt: (prompt: string) => void;
   defaultDomain: string;
@@ -257,7 +260,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
   displayNaturalLangOrPresetTabs = () => {
     const handleTabSwitch = (
       event: React.ChangeEvent<{}>,
-      newValue: number,
+      newValue: number
     ) => {
       this.setState({ currentTab: newValue });
     };
@@ -313,7 +316,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
               this.handlePreset(key);
 
               const domainSelectStr = Object.entries(domains).find(
-                ([_, { domain }]) => domain === presets[key].domain,
+                ([_, { domain }]) => domain === presets[key].domain
               )![0];
 
               this.setState({
@@ -333,10 +336,24 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
     );
   };
 
-  getSampleSubstancePreset = () => {
-    return Object.entries(presets).find(
-      ([_, { domain }]) => domain === this.state.domain,
-    )![1];
+  getSampleSubstance = () => {
+    if (this.state.domain == moleculesDomain) {
+      return sampleSubstances.acetyleneAndSulfuricAcid;
+    } else if (this.state.domain == simpleDirectedGraphDomain) {
+      return sampleSubstances.eulerCircuit1;
+    } else {
+      return sampleSubstances.geometry;
+    }
+  };
+
+  getBNF = () => {
+    if (this.state.domain == moleculesDomain) {
+      return grammars.moleculesGrammar;
+    } else if (this.state.domain == simpleDirectedGraphDomain) {
+      return grammars.simpleDirectedGraphGrammar;
+    } else {
+      return grammars.geometryGrammar;
+    }
   };
 
   getDomainPreset = () => {
@@ -348,34 +365,20 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
   onLLMGenerateClick = async () => {
     this.setState({ llmRunning: true });
 
-    const samplePreset = this.getSampleSubstancePreset();
+    const sampleSubstance = this.getSampleSubstance();
+    const bnf = this.getBNF();
 
-    const prompt: LLMPrompt = {
-      systemInst: systemInsts[0],
-      penroseContext: penroseContexts[0],
-      domain: this.state.domain,
-      /*sampleSubstance: {
-        prog: samplePreset.substance,
-        name: samplePreset.displayName,
-      },*/
-      sampleSubstance: sampleSubstances.acetyleneAndSulfuricAcid,
-      descriptionPrelude: descriptionPreludes[0],
-      description: this.state.llmInput,
-      finalInst: finalInsts[0],
-      prompt: generatePromptText(
-        systemInsts[0],
-        penroseContexts[0],
-        this.state.domain,
-        descriptionPreludes[0],
-        this.state.llmInput,
-        finalInsts[0],
-        {
-          prog: sampleSubstances.acetyleneAndSulfuricAcid.prog,
-          name: sampleSubstances.acetyleneAndSulfuricAcid.name,
-        }
-      ),
-      style: this.state.style,
-    };
+    const prompt: LLMPrompt = generatePrompt(
+      systemInsts[1],
+      penroseContexts[0],
+      this.state.domain,
+      descriptionPreludes[0],
+      this.state.llmInput,
+      finalInsts[1],
+      this.state.style,
+      sampleSubstance,
+      bnf
+    );
 
     const res = await generateSubstanceLLM({
       prompt,
@@ -401,7 +404,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
         this.state.llmInput,
         this.state.currentTab,
         this.state.presetSelect,
-        this.state.domainSelect,
+        this.state.domainSelect
       );
   };
 
@@ -424,7 +427,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
       const typeSelect = (
         stmtType: string,
         op: DeclTypes,
-        arr: string[],
+        arr: string[]
       ): DeclTypes => {
         let newMatchSetting: MatchSetting = "*";
         if (!arr.includes(wildcardType)) {

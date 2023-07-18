@@ -1,12 +1,6 @@
 import "global-jsdom/register";
 
-import {
-  PenroseError,
-  RenderStatic,
-  compileTrio,
-  prepareState,
-  stepUntilConvergence,
-} from "@penrose/core";
+import { PenroseError, compile, optimize, toSVG } from "@penrose/core";
 import { config } from "dotenv";
 import * as fs from "fs";
 import {
@@ -74,7 +68,7 @@ const testPrompts = async (prompts: LLMPromptCollection) => {
     });
 
     if (result.tag === "Ok") {
-      const compilerOutput = await compileTrio({
+      const compilerOutput = await compile({
         substance: result.substance,
         style: result.prompt.style,
         domain: result.prompt.domain,
@@ -85,7 +79,7 @@ const testPrompts = async (prompts: LLMPromptCollection) => {
         handlePenroseErr(err, result);
         continue;
       }
-      let initialState;
+      /*let initialState;
       try {
         initialState = await prepareState(compilerOutput.value);
       } catch (e) {
@@ -98,9 +92,9 @@ const testPrompts = async (prompts: LLMPromptCollection) => {
           result
         );
         continue;
-      }
+      }*/
       let optimizedState;
-      const optimizedOutput = stepUntilConvergence(initialState, 10000);
+      const optimizedOutput = optimize(compilerOutput.value);
       if (optimizedOutput.isOk()) {
         optimizedState = optimizedOutput.value;
       } else {
@@ -109,7 +103,7 @@ const testPrompts = async (prompts: LLMPromptCollection) => {
       }
 
       const canvas = (
-        await RenderStatic(optimizedState, async () => undefined, "roger")
+        await toSVG(optimizedState, async () => undefined, "roger")
       ).outerHTML;
 
       const date = new Date();
