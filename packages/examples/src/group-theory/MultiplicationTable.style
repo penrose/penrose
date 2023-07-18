@@ -85,7 +85,7 @@ forall Element g
 -- }
 
 -- draw a box for each product in the multiplication table
-forall Element a; Element b; Element c
+forall repeatable Element a; Element b; Element c
 where IsProduct( a, b, c )
 {
    shape productShape = Rectangle {
@@ -101,89 +101,5 @@ where IsProduct( a, b, c )
       center: productShape.center
       fontSize: "8px"
       fillColor: a.labelColor
-   }
-}
-
--- draw a box for each product in the multiplication table
--- (since we can't match on non-distinct tuples, we must duplicate and specialize the rule for distinct tuples)
-forall Element a; Element e
-where IsProduct( a, e, a )
-{
-   shape productShape = Rectangle {
-      center: ( e.u, a.v )
-      width: a.width - global.boxPadding
-      height: a.height - global.boxPadding
-      cornerRadius: 2.0
-      fillColor: a.boxColor
-   }
-
-   shape productText = Equation {
-      string: a.label
-      center: productShape.center
-      fontSize: "8px"
-      fillColor: a.labelColor
-   }
-}
-
--- draw a box for each product in the multiplication table
--- (since we can't match on non-distinct tuples, we must duplicate and specialize the rule for distinct tuples)
-forall Element a; Element e
-where IsProduct( a, a, e )
-{
-   shape productShape = Rectangle {
-      center: ( a.u, e.v )
-      width: a.width - global.boxPadding
-      height: a.height - global.boxPadding
-      cornerRadius: 2.0
-      fillColor: a.boxColor
-   }
-
-   shape productText = Equation {
-      string: a.label
-      center: productShape.center
-      fontSize: "8px"
-      fillColor: a.labelColor
-   }
-}
-
--- draw a box for each product in the multiplication table
--- (since we can't match on non-distinct tuples, we must duplicate and specialize the rule for distinct tuples)
-forall Element a; Element b
-where IsProduct( a, b, b )
-{
-   shape productShape = Rectangle {
-      center: ( b.u, b.v )
-      width: a.width - global.boxPadding
-      height: a.height - global.boxPadding
-      cornerRadius: 2.0
-      fillColor: a.boxColor
-   }
-
-   shape productText = Equation {
-      string: a.label
-      center: productShape.center
-      fontSize: "8px"
-      fillColor: a.labelColor
-   }
-}
-
--- draw a box for each product in the multiplication table
--- (since we can't match on non-distinct tuples, we must duplicate and specialize the rule for distinct tuples)
-forall Element e
-where IsProduct( e, e, e )
-{
-   shape productShape = Rectangle {
-      center: ( e.u, e.v )
-      width: e.width - global.boxPadding
-      height: e.height - global.boxPadding
-      cornerRadius: 2.0
-      fillColor: e.boxColor
-   }
-
-   shape productText = Equation {
-      string: e.label
-      center: productShape.center
-      fontSize: "8px"
-      fillColor: e.labelColor
    }
 }
