@@ -113,7 +113,7 @@ const render = async (
   };
 
   return {
-    diagram: prettier.format(canvas, { parser: "html" }),
+    diagram: await prettier.format(canvas, { parser: "html" }),
     state: optimizedState,
     metadata,
   };
