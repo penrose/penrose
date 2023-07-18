@@ -39,7 +39,7 @@ const _compileDiagram = async (
   domain: string,
   variation: string,
   excludeWarnings: string[],
-  set: any
+  set: any,
 ) => {
   const compiledDomain = compileDomain(domain);
   if (compiledDomain.isErr()) {
@@ -82,12 +82,12 @@ const _compileDiagram = async (
         },
       },
       state: initialState,
-    })
+    }),
   );
   // update grid state too
   set(diagramGridState, ({ gridSize }: DiagramGrid) => ({
     variations: range(gridSize).map((i) =>
-      i === 0 ? variation : generateVariation()
+      i === 0 ? variation : generateVariation(),
     ),
     gridSize,
   }));
@@ -104,7 +104,7 @@ export const useStepDiagram = () =>
           }
           const stateOrError = stepTimes(
             diagram.state,
-            diagram.metadata.stepSize
+            diagram.metadata.stepSize,
           );
           if (stateOrError.isOk()) {
             return {
@@ -117,7 +117,7 @@ export const useStepDiagram = () =>
               error: stateOrError.error,
             };
           }
-        })
+        }),
   );
 
 export const useStepStage = () =>
@@ -141,7 +141,7 @@ export const useStepStage = () =>
               error: stateOrError.error,
             };
           }
-        })
+        }),
   );
 
 export const useCompileDiagram = () =>
@@ -158,7 +158,7 @@ export const useCompileDiagram = () =>
       domainFile,
       diagram.metadata.variation,
       diagram.metadata.excludeWarnings,
-      set
+      set,
     );
   });
 
@@ -181,7 +181,7 @@ export const useResampleDiagram = () =>
     // update grid state too
     set(diagramGridState, ({ gridSize }) => ({
       variations: range(gridSize).map((i) =>
-        i === 0 ? variation : generateVariation()
+        i === 0 ? variation : generateVariation(),
       ),
       gridSize,
     }));
@@ -247,7 +247,7 @@ export const useLoadLocalWorkspace = () =>
       loadedWorkspace.files.domain.contents,
       uuid(),
       [],
-      set
+      set,
     );
   });
 
@@ -256,7 +256,7 @@ export const useLoadExampleWorkspace = () =>
     ({ set, reset, snapshot }) =>
       async (meta: TrioWithPreview) => {
         const currentWorkspace = snapshot.getLoadable(
-          currentWorkspaceState
+          currentWorkspaceState,
         ).contents;
         if (!_confirmDirtyWorkspace(currentWorkspace)) {
           return;
@@ -304,9 +304,9 @@ export const useLoadExampleWorkspace = () =>
           domain,
           variation,
           excludeWarnings,
-          set
+          set,
         );
-      }
+      },
   );
 
 export const useCheckURL = () =>
@@ -335,7 +335,7 @@ export const useCheckURL = () =>
           headers: {
             accept: "application/vnd.github.v3+json",
           },
-        }
+        },
       );
       toast.dismiss(id);
       if (res.status !== 200) {
@@ -346,7 +346,7 @@ export const useCheckURL = () =>
       const json = await res.json();
       const gistFiles = json.files;
       const gistMetadata = JSON.parse(
-        gistFiles["metadata.json"].content
+        gistFiles["metadata.json"].content,
       ) as GistMetadata;
       const metadata: WorkspaceMetadata = {
         name: gistMetadata.name,
@@ -426,7 +426,7 @@ export const useCheckURL = () =>
         domain,
         variation,
         excludeWarnings,
-        set
+        set,
       );
       toast.dismiss(t);
     }
@@ -515,7 +515,7 @@ export const useDeleteLocalFile = () =>
           return;
         }
         const currentWorkspace = snapshot.getLoadable(
-          currentWorkspaceState
+          currentWorkspaceState,
         ).contents;
         // removes from index
         set(localFilesState, (localFiles) => {
@@ -527,5 +527,5 @@ export const useDeleteLocalFile = () =>
           reset(currentWorkspaceState);
         }
         toast.success(`Removed ${name}`);
-      }
+      },
   );

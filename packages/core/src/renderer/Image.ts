@@ -12,7 +12,7 @@ import { makeIdsUnique } from "./util.js";
 
 const RenderImage = async (
   shape: Image<number>,
-  { canvasSize, pathResolver }: RenderProps
+  { canvasSize, pathResolver }: RenderProps,
 ): Promise<SVGGElement> => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
   // Keep track of which input properties we programatically mapped

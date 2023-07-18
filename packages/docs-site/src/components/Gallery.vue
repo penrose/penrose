@@ -61,15 +61,15 @@ export default {
         for (const id of props.trios) {
           const svg = await fetch(
             encodeURI(
-              `https://raw.githubusercontent.com/penrose/penrose/ci/refs/heads/main/${id}.svg`
-            )
+              `https://raw.githubusercontent.com/penrose/penrose/ci/refs/heads/main/${id}.svg`,
+            ),
           );
           if (svg.ok) {
             const preview = await svg.text();
             const croppedPreview = cropSVG(preview);
             const trio = { id, preview: croppedPreview };
             examples.value = examples.value.map((e) =>
-              e.id === id ? { ...trio, preview: croppedPreview } : e
+              e.id === id ? { ...trio, preview: croppedPreview } : e,
             );
           }
         }
@@ -111,7 +111,8 @@ export default {
 }
 
 .dark .example-container:hover {
-  box-shadow: 0px 1px 2px 0px rgba(46, 154, 216, 0.7),
+  box-shadow:
+    0px 1px 2px 0px rgba(46, 154, 216, 0.7),
     1px 2px 4px 0px rgba(46, 154, 216, 0.7),
     2px 4px 8px 0px rgba(46, 154, 216, 0.7),
     2px 4px 16px 0px rgba(46, 154, 216, 0.7);

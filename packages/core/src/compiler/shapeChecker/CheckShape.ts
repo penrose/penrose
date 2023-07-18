@@ -43,7 +43,7 @@ const { err, ok } = Result;
 export const checkShape = (
   shapeType: ShapeType,
   path: string,
-  trans: Translation
+  trans: Translation,
 ): Result<Shape<ad.Num>, StyleError> => {
   switch (shapeType) {
     case "Circle":
@@ -78,7 +78,7 @@ export const checkShape = (
 
 export const checkCircle = (
   path: string,
-  trans: Translation
+  trans: Translation,
 ): Result<Circle<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
   if (named.isErr()) return err(named.error);
@@ -108,7 +108,7 @@ export const checkCircle = (
 
 export const checkEllipse = (
   path: string,
-  trans: Translation
+  trans: Translation,
 ): Result<Ellipse<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
   if (named.isErr()) return err(named.error);
@@ -142,7 +142,7 @@ export const checkEllipse = (
 
 export const checkEquation = (
   path: string,
-  trans: Translation
+  trans: Translation,
 ): Result<Equation<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
   if (named.isErr()) return err(named.error);
@@ -184,7 +184,7 @@ export const checkEquation = (
 
 export const checkGroup = (
   path: string,
-  trans: Translation
+  trans: Translation,
 ): Result<Group<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
   if (named.isErr()) return err(named.error);
@@ -206,7 +206,7 @@ export const checkGroup = (
 
 export const checkImage = (
   path: string,
-  trans: Translation
+  trans: Translation,
 ): Result<Image<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
   if (named.isErr()) return err(named.error);
@@ -227,7 +227,7 @@ export const checkImage = (
     path,
     "preserveAspectRatio",
     trans,
-    checkStrV
+    checkStrV,
   );
   if (preserveAspectRatio.isErr()) return err(preserveAspectRatio.error);
 
@@ -245,7 +245,7 @@ export const checkImage = (
 
 export const checkLine = (
   path: string,
-  trans: Translation
+  trans: Translation,
 ): Result<Line<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
   if (named.isErr()) return err(named.error);
@@ -283,7 +283,7 @@ export const checkLine = (
 
 export const checkPath = (
   path: string,
-  trans: Translation
+  trans: Translation,
 ): Result<Path<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
   if (named.isErr()) return err(named.error);
@@ -317,7 +317,7 @@ export const checkPath = (
 
 export const checkPolygon = (
   path: string,
-  trans: Translation
+  trans: Translation,
 ): Result<Polygon<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
   if (named.isErr()) return err(named.error);
@@ -347,7 +347,7 @@ export const checkPolygon = (
 
 export const checkPolyline = (
   path: string,
-  trans: Translation
+  trans: Translation,
 ): Result<Polyline<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
   if (named.isErr()) return err(named.error);
@@ -381,7 +381,7 @@ export const checkPolyline = (
 
 export const checkRectangle = (
   path: string,
-  trans: Translation
+  trans: Translation,
 ): Result<Rectangle<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
   if (named.isErr()) return err(named.error);
@@ -419,7 +419,7 @@ export const checkRectangle = (
 
 export const checkText = (
   path: string,
-  trans: Translation
+  trans: Translation,
 ): Result<Text<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
   if (named.isErr()) return err(named.error);
@@ -473,7 +473,7 @@ export const checkText = (
     path,
     "alignmentBaseline",
     trans,
-    checkStrV
+    checkStrV,
   );
   if (alignmentBaseline.isErr()) return err(alignmentBaseline.error);
 
@@ -481,7 +481,7 @@ export const checkText = (
     path,
     "dominantBaseline",
     trans,
-    checkStrV
+    checkStrV,
   );
   if (dominantBaseline.isErr()) return err(dominantBaseline.error);
 

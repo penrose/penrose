@@ -64,7 +64,7 @@ function EditableTitle() {
         if (metadata.location.kind !== "local" || !metadata.location.saved) {
           saveLocally();
         }
-      }
+      },
   );
   const onKey = useCallback((e: React.KeyboardEvent) => {
     if (e.key === "Enter" || e.key === "Escape") {

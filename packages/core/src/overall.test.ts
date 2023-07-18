@@ -235,7 +235,7 @@ describe("Energy API", () => {
         gradient: await genGradient(
           state.inputs.map(({ handle }) => handle),
           state.objFns.map(({ output }) => output),
-          smallerThanFns.map(({ output }) => output)
+          smallerThanFns.map(({ output }) => output),
         ),
         params: start(state.varyingValues.length),
       };

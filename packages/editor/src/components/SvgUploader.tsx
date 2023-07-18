@@ -12,7 +12,7 @@ export default function SvgUploader() {
   const setSubstance = useRecoilState(fileContentsSelector("substance"))[1];
   const setStyle = useRecoilState(fileContentsSelector("style"))[1];
   const [diagramMetadata, setDiagramMetadata] = useRecoilState(
-    diagramMetadataSelector
+    diagramMetadataSelector,
   );
   const compileDiagram = useCompileDiagram();
 
@@ -36,7 +36,7 @@ export default function SvgUploader() {
 
       if (variationElem.length === 0) {
         toast.error(
-          "Could not load SVG. Make sure the SVG was exported from Penrose."
+          "Could not load SVG. Make sure the SVG was exported from Penrose.",
         );
         return;
       }
@@ -48,7 +48,7 @@ export default function SvgUploader() {
 
       if (styElem.length === 0) {
         toast.error(
-          "Could not load SVG. Make sure the SVG was exported from Penrose."
+          "Could not load SVG. Make sure the SVG was exported from Penrose.",
         );
         return;
       }
@@ -60,7 +60,7 @@ export default function SvgUploader() {
 
       if (subElem.length === 0) {
         toast.error(
-          "Could not load SVG. Make sure the SVG was exported from Penrose."
+          "Could not load SVG. Make sure the SVG was exported from Penrose.",
         );
         return;
       }
@@ -72,7 +72,7 @@ export default function SvgUploader() {
 
       if (dslElem.length === 0) {
         toast.error(
-          "Could not load SVG. Make sure the SVG was exported from Penrose."
+          "Could not load SVG. Make sure the SVG was exported from Penrose.",
         );
         return;
       }

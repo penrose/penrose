@@ -55,7 +55,7 @@ export type InteractiveProps = {
  */
 const getPosition = (
   { clientX, clientY }: { clientX: number; clientY: number },
-  svg: SVGSVGElement
+  svg: SVGSVGElement,
 ) => {
   const CTM = svg.getScreenCTM();
   if (CTM !== null) {
@@ -75,14 +75,14 @@ export const toInteractiveSVG = async (
   state: State,
   updateState: (newState: State) => void,
   pathResolver: PathResolver,
-  namespace: string
+  namespace: string,
 ): Promise<SVGSVGElement> => {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
   svg.setAttribute("version", "1.2");
   svg.setAttribute(
     "viewBox",
-    `0 0 ${state.canvas.width} ${state.canvas.height}`
+    `0 0 ${state.canvas.width} ${state.canvas.height}`,
   );
   const onDrag = (id: string, dx: number, dy: number) => {
     updateState(dragUpdate(state, id, dx, dy));
@@ -103,7 +103,7 @@ export const toInteractiveSVG = async (
       updateState,
       onDrag,
       parentSVG: svg,
-    }
+    },
   );
   return svg;
 };
@@ -116,7 +116,7 @@ export const toSVG = async (
   state: State,
   pathResolver: PathResolver,
   namespace: string,
-  texLabels = false
+  texLabels = false,
 ): Promise<SVGSVGElement> => {
   const {
     varyingValues,
@@ -142,7 +142,7 @@ export const toSVG = async (
   const viewBoxRanges = [MinX, MinY, MaxX, MaxY];
 
   const [mx, my, Mx, My] = (await genCode(secondaryGraph(viewBoxRanges)))(
-    (x) => x.val
+    (x) => x.val,
   ).secondary;
 
   // toScreen flips the y-axis and therefore the max will become min
@@ -157,17 +157,17 @@ export const toSVG = async (
   svg.setAttribute("penrose", "0");
   const metadata = document.createElementNS(
     "https://penrose.cs.cmu.edu/metadata",
-    "penrose"
+    "penrose",
   );
 
   const croppedViewBox = document.createElementNS(
     "https://penrose.cs.cmu.edu/croppedViewBox",
-    "croppedViewBox"
+    "croppedViewBox",
   );
 
   croppedViewBox.insertAdjacentText(
     "afterbegin",
-    `${topLeft[0]} ${topLeft[1]} ${croppedCanvasSize[0]} ${croppedCanvasSize[1]}`
+    `${topLeft[0]} ${topLeft[1]} ${croppedCanvasSize[0]} ${croppedCanvasSize[1]}`,
   );
   metadata.appendChild(croppedViewBox);
   svg.appendChild(metadata);
@@ -183,7 +183,7 @@ export const toSVG = async (
       texLabels,
       pathResolver,
     },
-    undefined
+    undefined,
   );
   return svg;
 };
@@ -191,7 +191,7 @@ export const toSVG = async (
 const RenderGroup = async (
   groupShape: Group<number>,
   shapeProps: RenderProps,
-  interactiveProp?: InteractiveProps
+  interactiveProp?: InteractiveProps,
 ): Promise<SVGGElement> => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
 
@@ -206,12 +206,12 @@ const RenderGroup = async (
     const clipShapeSvg = await RenderShape(
       clipShape,
       shapeProps,
-      interactiveProp
+      interactiveProp,
     );
 
     const clipPathSvg = document.createElementNS(
       "http://www.w3.org/2000/svg",
-      "clipPath"
+      "clipPath",
     );
     // use the renderer namespace to make sure the clip path id is unique
     clipPathSvgId = shapeProps.namespace + clipShapeName + "-clip";
@@ -231,7 +231,7 @@ const RenderGroup = async (
         // wraps the shape in a <g> tag so that clipping is applied after all the transformations etc.
         const wrapper = document.createElementNS(
           "http://www.w3.org/2000/svg",
-          "g"
+          "g",
         );
         wrapper.appendChild(childSvg);
         wrapper.setAttribute("clip-path", `url(#${clipPathSvgId})`);
@@ -253,7 +253,7 @@ const RenderGroup = async (
 
 const RenderShapeSvg = async (
   shape: Exclude<Shape<number>, Group<number>>,
-  renderProps: RenderProps
+  renderProps: RenderProps,
 ): Promise<SVGElement> => {
   switch (shape.shapeType) {
     case "Circle":
@@ -282,7 +282,7 @@ const RenderShapeSvg = async (
 export const RenderShape = async (
   shape: Shape<number>,
   renderProps: RenderProps,
-  interactiveProp?: InteractiveProps
+  interactiveProp?: InteractiveProps,
 ): Promise<SVGElement> => {
   if (shape.shapeType === "Group") {
     const outSvg = await RenderGroup(shape, renderProps, interactiveProp);
@@ -305,7 +305,7 @@ export const RenderShape = async (
         const { clientX, clientY } = e;
         const { x: tempX, y: tempY } = getPosition(
           { clientX, clientY },
-          interactiveProp.parentSVG
+          interactiveProp.parentSVG,
         );
         const {
           width: bboxW,
@@ -348,7 +348,7 @@ const RenderShapes = async (
   shapes: Shape<number>[],
   svg: SVGSVGElement,
   renderProps: RenderProps,
-  interactiveProp?: InteractiveProps
+  interactiveProp?: InteractiveProps,
 ) => {
   for (const shape of shapes) {
     const elem = await RenderShape(shape, renderProps, interactiveProp);

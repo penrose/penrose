@@ -33,7 +33,7 @@ const compareClosestPoint = async (
     | Polyline<ad.Num>
     | Rectlike<ad.Num>,
   pt: [number, number],
-  expected: [number, number]
+  expected: [number, number],
 ) => {
   const result = compDict.closestPoint.body(context, shape, pt).value;
   const [x, y] = result.contents;
@@ -54,7 +54,7 @@ const testCircle = (
   radius: number,
   strokeWidth: number,
   pt: [number, number],
-  expected: [number, number]
+  expected: [number, number],
 ) => {
   const context = simpleContext("closestPoint Circle");
   const shape = makeCircle(context, canvas, {
@@ -81,7 +81,7 @@ const testRectangle = (
   height: number,
   strokeWidth: number,
   pt: [number, number],
-  expected: [number, number]
+  expected: [number, number],
 ) => {
   const context = simpleContext("closestPoint Rectangle");
   const shape = makeRectangle(context, canvas, {
@@ -107,7 +107,7 @@ const testLine = (
   end: number[],
   strokeWidth: number,
   pt: [number, number],
-  expected: [number, number]
+  expected: [number, number],
 ) => {
   const context = simpleContext("closestPoint Line");
   const shape = makeLine(context, canvas, {
@@ -130,7 +130,7 @@ const testPolyline = (
   points: number[][],
   strokeWidth: number,
   pt: [number, number],
-  expected: [number, number]
+  expected: [number, number],
 ) => {
   const context = simpleContext("Polyline");
   const shape = makePolyline(context, canvas, {
@@ -152,7 +152,7 @@ const testPolygon = (
   points: number[][],
   strokeWidth: number,
   pt: [number, number],
-  expected: [number, number]
+  expected: [number, number],
 ) => {
   const context = simpleContext("Polygon");
   const shape = makePolygon(context, canvas, {
@@ -176,7 +176,7 @@ const testEllipse = (
   rx: number,
   ry: number,
   pt: [number, number],
-  expected: [number, number]
+  expected: [number, number],
 ) => {
   const context = simpleContext("Ellipse");
   const shape = makeEllipse(context, canvas, {
@@ -233,7 +233,7 @@ describe("closest point", () => {
       ],
       4,
       [3, 3],
-      [3, 2]
+      [3, 2],
     );
     testPolyline(
       [
@@ -244,7 +244,7 @@ describe("closest point", () => {
       ],
       4,
       [5, 2],
-      [4, 1]
+      [4, 1],
     );
   });
 
@@ -258,7 +258,7 @@ describe("closest point", () => {
       ],
       0,
       [5, 0],
-      [4, 0]
+      [4, 0],
     );
     testPolygon(
       [
@@ -269,7 +269,7 @@ describe("closest point", () => {
       ],
       0,
       [0, 2],
-      [0, 2]
+      [0, 2],
     );
   });
 
@@ -282,7 +282,7 @@ describe("closest point", () => {
     ],
     0,
     [-2, -2],
-    [-2, -4]
+    [-2, -4],
   );
 
   test("convex heptagon", () => {
@@ -297,7 +297,7 @@ describe("closest point", () => {
       ],
       0,
       [3, 6],
-      [4, 6]
+      [4, 6],
     );
   });
 });

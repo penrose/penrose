@@ -33,7 +33,7 @@ export const resample = (state: State): State => {
   return insertPending({
     ...state,
     varyingValues: state.inputs.map(({ meta }) =>
-      meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending
+      meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending,
     ),
     currentStageIndex: 0,
     params: start(state.varyingValues.length),
@@ -49,7 +49,7 @@ export const step = (
   state: State,
   options: {
     until: () => boolean;
-  }
+  },
 ): Result<State, PenroseError> => {
   const { constraintSets, optStages, currentStageIndex } = state;
   const stage = optStages[currentStageIndex];
@@ -60,7 +60,7 @@ export const step = (
       state.gradient(masks, x, weight, grad).phi,
     xs,
     state.params,
-    options.until
+    options.until,
   );
   // if there is an optimizer error, wrap it around a `PenroseError`
   if (params.optStatus === "Error") {
@@ -80,7 +80,7 @@ export const step = (
  */
 export const stepTimes = (
   state: State,
-  numSteps = 10000
+  numSteps = 10000,
 ): Result<State, PenroseError> => {
   let i = 0;
   const steppedState = step(state, { until: (): boolean => i++ >= numSteps });
@@ -178,7 +178,7 @@ export const diagram = async (
   },
   node: HTMLElement,
   pathResolver: PathResolver,
-  name?: string
+  name?: string,
 ): Promise<void> => {
   const res = await compile(prog);
   if (res.isOk()) {
@@ -188,7 +188,7 @@ export const diagram = async (
     node.appendChild(rendered);
   } else {
     throw Error(
-      `Error when generating Penrose diagram: ${showError(res.error)}`
+      `Error when generating Penrose diagram: ${showError(res.error)}`,
     );
   }
 };
@@ -211,7 +211,7 @@ export const interactiveDiagram = async (
   },
   node: HTMLElement,
   pathResolver: PathResolver,
-  name?: string
+  name?: string,
 ): Promise<void> => {
   const updateData = async (state: State) => {
     const stepped = optimizeOrThrow(state);
@@ -219,7 +219,7 @@ export const interactiveDiagram = async (
       stepped,
       updateData,
       pathResolver,
-      name ?? ""
+      name ?? "",
     );
     node.replaceChild(rendering, node.firstChild!);
   };
@@ -231,12 +231,12 @@ export const interactiveDiagram = async (
       optimized,
       updateData,
       pathResolver,
-      name ?? ""
+      name ?? "",
     );
     node.appendChild(rendering);
   } else {
     throw Error(
-      `Error when generating Penrose diagram: ${showError(res.error)}`
+      `Error when generating Penrose diagram: ${showError(res.error)}`,
     );
   }
 };
@@ -258,7 +258,7 @@ export const compile = async (prog: {
 
   const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
     (env) => compileSubstance(prog.substance, env),
-    domainRes
+    domainRes,
   );
 
   const styRes: Result<State, PenroseError> = subRes.isErr()
@@ -267,7 +267,7 @@ export const compile = async (prog: {
         prog.variation,
         prog.style,
         prog.excludeWarnings ?? [],
-        ...subRes.value
+        ...subRes.value,
       );
 
   if (styRes.isErr()) {
@@ -278,7 +278,7 @@ export const compile = async (prog: {
     const convert = mathjaxInit();
     const labelCache: Result<LabelCache, PenroseError> = await collectLabels(
       state.shapes,
-      convert
+      convert,
     );
 
     if (labelCache.isErr()) {
@@ -340,7 +340,7 @@ export const evalEnergy = (s: State): number => evalGrad(s).phi;
  * @returns a list of the energies of the requested functions, evaluated at the `varyingValues` in the `State`
  */
 export const evalFns = (
-  s: State
+  s: State,
 ): {
   constrEngs: number[];
   objEngs: number[];

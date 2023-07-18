@@ -62,16 +62,16 @@ export default function RogerPanel({
             JSON.stringify({
               kind: "retrieve_file",
               fileName: val,
-            })
+            }),
           );
         }
-      }
+      },
   );
   useEffect(() => {
     if (rogerState.kind === "connected") {
       (async () => {
         const selectedFiles = (await localforage.getItem(
-          "selected_roger_files"
+          "selected_roger_files",
         )) as any;
         if (selectedFiles !== null) {
           onSelection(selectedFiles.domain, "domain");
@@ -131,7 +131,7 @@ export default function RogerPanel({
                 kind: "retrieve_trio",
                 path: e?.val,
                 token,
-              })
+              }),
             );
             ws?.addEventListener("message", (e) => {
               const parsed = JSON.parse(e.data);

@@ -23,7 +23,7 @@ export const _rectangles = [
     height: floatV(x.height),
     strokeWidth: floatV(0),
     strokeColor: black(),
-  })
+  }),
 );
 
 export const _circles = [
@@ -40,7 +40,7 @@ export const _circles = [
     center: vectorV(x.center),
     strokeWidth: floatV(0),
     strokeColor: black(),
-  })
+  }),
 );
 
 export const _lines = [
@@ -53,7 +53,7 @@ export const _lines = [
     start: vectorV(x.start),
     end: vectorV(x.end),
     strokeWidth: floatV(0),
-  })
+  }),
 );
 
 const polyPts: Pt2[][] = [
@@ -163,19 +163,19 @@ export const _ellipses = [
     center: vectorV(x.center),
     strokeWidth: floatV(0),
     strokeColor: black(),
-  })
+  }),
 );
 
 export const _polygons = polyPts.map((pts) =>
   makePolygon(context, canvas, {
     points: ptListV(pts),
     scale: floatV(1),
-  })
+  }),
 );
 
 export const _polylines = polyPts.map((pts) =>
   makePolyline(context, canvas, {
     points: ptListV(pts),
     scale: floatV(1),
-  })
+  }),
 );

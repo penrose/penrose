@@ -84,7 +84,7 @@ export default { domain, substance, style, variation: "test" };
 ```
 
 ```html [index.html]
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <body>
     <div id="diagram"></div>
@@ -117,7 +117,7 @@ function for resolving paths to embedded SVG images.
 Example:
 
 ```html
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <body>
     <div id="diagram"></div>

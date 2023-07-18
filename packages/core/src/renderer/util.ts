@@ -35,7 +35,7 @@ let uniqueIdCounter = 1;
  */
 export const makeIdsUnique = (
   svgElem: Element,
-  onlyReferenced: boolean
+  onlyReferenced: boolean,
 ): boolean => {
   const ID_SUFFIX = "--inject-";
 
@@ -84,7 +84,7 @@ export const makeIdsUnique = (
     // Get all properties that are mapped to the found IRI referenceable tags
     iriTagNames.forEach((tagName) => {
       (IRI_TAG_PROPERTIES_MAP[tagName] || [tagName]).forEach(function (
-        mappedProperty: string
+        mappedProperty: string,
       ) {
         // Add mapped properties to array of iri referencing properties.
         // Use linear search here because the number of possible entries is very small (maximum 11)

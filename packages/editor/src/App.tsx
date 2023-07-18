@@ -195,7 +195,7 @@ function App() {
       }
       return <div>Placeholder</div>;
     },
-    [rogerState]
+    [rogerState],
   );
   const onAction = useRecoilCallback(
     ({ set, snapshot }) =>
@@ -204,7 +204,7 @@ function App() {
           const node = layoutModel.getNodeById(action.data.node) as TabNode;
           const { kind } = node.getConfig();
           const program = snapshot.getLoadable(
-            fileContentsSelector(kind)
+            fileContentsSelector(kind),
           ).contents;
           set(fileContentsSelector(kind), {
             ...program,
@@ -213,7 +213,7 @@ function App() {
         }
         return action;
       },
-    []
+    [],
   );
   const updatedFile = useRecoilCallback(
     ({ snapshot, set }) =>
@@ -238,7 +238,7 @@ function App() {
           await compileDiagram();
         }
       },
-    []
+    [],
   );
 
   //
@@ -264,7 +264,7 @@ function App() {
         }));
         await compileDiagram();
       },
-    []
+    [],
   );
 
   const updateExcludeWarnings = useRecoilCallback(
@@ -278,7 +278,7 @@ function App() {
           },
         }));
       },
-    []
+    [],
   );
 
   const connectRoger = useCallback(() => {
@@ -325,12 +325,12 @@ function App() {
     layoutModel.doAction(
       Actions.updateModelAttributes({
         rootOrientationVertical: isTabletOrMobile && isPortrait,
-      })
+      }),
     );
     // on mobile, move example browser to the center panel
     if (isTabletOrMobile && isPortrait) {
       layoutModel.doAction(
-        Actions.moveNode("examples", "mainEditor", DockLocation.CENTER, 0)
+        Actions.moveNode("examples", "mainEditor", DockLocation.CENTER, 0),
       );
     }
   }, [isTabletOrMobile, isPortrait]);

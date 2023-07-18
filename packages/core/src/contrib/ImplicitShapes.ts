@@ -49,11 +49,11 @@ export interface ImplicitHalfPlane {
 export const implicitEllipseFunc = (
   ei: ImplicitEllipse,
   x: ad.Num,
-  y: ad.Num
+  y: ad.Num,
 ): ad.Num => {
   return sub(
     add(mul(ei.a, squared(sub(x, ei.x))), mul(ei.b, squared(sub(y, ei.y)))),
-    ei.c
+    ei.c,
   );
 };
 
@@ -68,7 +68,7 @@ export const implicitIntersectionOfEllipsesFunc = (
   ei1: ImplicitEllipse,
   ei2: ImplicitEllipse,
   x: ad.Num,
-  y: ad.Num
+  y: ad.Num,
 ): ad.Num => {
   return max(implicitEllipseFunc(ei1, x, y), implicitEllipseFunc(ei2, x, y));
 };
@@ -82,7 +82,7 @@ export const implicitIntersectionOfEllipsesFunc = (
 export const implicitHalfPlaneFunc = (
   hpi: ImplicitHalfPlane,
   x: ad.Num,
-  y: ad.Num
+  y: ad.Num,
 ): ad.Num => {
   return sub(add(mul(hpi.a, x), mul(hpi.b, y)), hpi.c);
 };
@@ -96,7 +96,7 @@ export const implicitHalfPlaneFunc = (
 export const halfPlaneToImplicit = (
   lineSegment: ad.Num[][],
   insidePoint: ad.Num[],
-  padding: ad.Num
+  padding: ad.Num,
 ): ImplicitHalfPlane => {
   const normal = outwardUnitNormal(lineSegment, insidePoint);
   return {
@@ -117,14 +117,14 @@ export const halfPlaneToImplicit = (
 export const ellipseToImplicit = (
   e: Ellipse<ad.Num>,
   padding: ad.Num,
-  factor: ad.Num = 1
+  factor: ad.Num = 1,
 ): ImplicitEllipse => {
   return absEllipseToImplicit(
     toPt(e.center.contents),
     e.rx.contents,
     e.ry.contents,
     padding,
-    factor
+    factor,
   );
 };
 
@@ -133,7 +133,7 @@ export const absEllipseToImplicit = (
   rx: ad.Num,
   ry: ad.Num,
   padding: ad.Num,
-  factor: ad.Num = 1
+  factor: ad.Num = 1,
 ): ImplicitEllipse => {
   const rxp = add(rx, padding);
   const ryp = add(ry, padding);
@@ -153,13 +153,13 @@ export const absEllipseToImplicit = (
 export const circleToImplicitEllipse = (
   circle: Circle<ad.Num>,
   padding: ad.Num,
-  factor: ad.Num = 1
+  factor: ad.Num = 1,
 ): ImplicitEllipse => {
   return absCircleToImplicitEllipse(
     toPt(circle.center.contents),
     circle.r.contents,
     padding,
-    factor
+    factor,
   );
 };
 
@@ -167,7 +167,7 @@ export const absCircleToImplicitEllipse = (
   c: ad.Pt2,
   r: ad.Num,
   padding: ad.Num,
-  factor: ad.Num = 1
+  factor: ad.Num = 1,
 ): ImplicitEllipse => {
   return {
     a: factor,
@@ -181,21 +181,21 @@ export const absCircleToImplicitEllipse = (
 // Constant coefficient from the ellipse-ellipse polynomial
 const ellipsePolynomialAlpha0 = (
   a: ImplicitEllipse,
-  b: ImplicitEllipse
+  b: ImplicitEllipse,
 ): ad.Num => {
   return mul(
     mul(squared(a.a), squared(a.b)),
     add(
       sub(a.c, b.c),
-      add(mul(b.a, squared(sub(b.x, a.x))), mul(b.b, squared(sub(b.y, a.y))))
-    )
+      add(mul(b.a, squared(sub(b.x, a.x))), mul(b.b, squared(sub(b.y, a.y)))),
+    ),
   );
 };
 
 // Linear coefficient from the ellipse-ellipse polynomial
 const ellipsePolynomialAlpha1 = (
   a: ImplicitEllipse,
-  b: ImplicitEllipse
+  b: ImplicitEllipse,
 ): ad.Num => {
   const coef = mul(2, mul(a.a, a.b));
   return mul(
@@ -204,49 +204,49 @@ const ellipsePolynomialAlpha1 = (
       mul(sub(a.c, b.c), sub(add(mul(a.a, b.b), mul(a.b, b.a)), coef)),
       add(
         mul(mul(a.a, b.a), mul(squared(sub(b.x, a.x)), sub(b.b, mul(2, a.b)))),
-        mul(mul(a.b, b.b), mul(squared(sub(b.y, a.y)), sub(b.a, mul(2, a.a))))
-      )
-    )
+        mul(mul(a.b, b.b), mul(squared(sub(b.y, a.y)), sub(b.a, mul(2, a.a)))),
+      ),
+    ),
   );
 };
 
 // Quadratic coefficient from the ellipse-ellipse polynomial
 const ellipsePolynomialAlpha2 = (
   a: ImplicitEllipse,
-  b: ImplicitEllipse
+  b: ImplicitEllipse,
 ): ad.Num => {
   const coeff1 = add(
     add(
       mul(squared(a.a), squared(sub(b.b, a.b))),
-      mul(squared(a.b), squared(sub(b.a, a.a)))
+      mul(squared(a.b), squared(sub(b.a, a.a))),
     ),
-    mul(mul(4, mul(a.a, a.b)), mul(sub(b.b, a.b), sub(b.a, a.a)))
+    mul(mul(4, mul(a.a, a.b)), mul(sub(b.b, a.b), sub(b.a, a.a))),
   );
   const coeff2 = sub(
     mul(squared(a.b), sub(mul(6, a.a), b.a)),
-    mul(mul(a.a, b.b), sub(mul(6, a.b), b.b))
+    mul(mul(a.a, b.b), sub(mul(6, a.b), b.b)),
   );
   const coeff3 = sub(
     mul(squared(a.a), sub(mul(6, a.b), b.b)),
-    mul(mul(a.b, b.a), sub(mul(6, a.a), b.a))
+    mul(mul(a.b, b.a), sub(mul(6, a.a), b.a)),
   );
   return add(
     mul(coeff1, sub(a.c, b.c)),
     add(
       mul(mul(coeff2, mul(a.a, b.a)), squared(sub(b.x, a.x))),
-      mul(mul(coeff3, mul(a.b, b.b)), squared(sub(b.y, a.y)))
-    )
+      mul(mul(coeff3, mul(a.b, b.b)), squared(sub(b.y, a.y))),
+    ),
   );
 };
 
 // Cubic coefficient from the ellipse-ellipse polynomial
 const ellipsePolynomialAlpha3 = (
   a: ImplicitEllipse,
-  b: ImplicitEllipse
+  b: ImplicitEllipse,
 ): ad.Num => {
   const factor = mul(
     2,
-    sub(mul(2, mul(a.a, a.b)), add(mul(a.b, b.a), mul(a.a, b.b)))
+    sub(mul(2, mul(a.a, a.b)), add(mul(a.b, b.a), mul(a.a, b.b))),
   );
   return mul(
     factor,
@@ -254,16 +254,16 @@ const ellipsePolynomialAlpha3 = (
       mul(mul(sub(b.a, a.a), sub(b.b, a.b)), sub(b.c, a.c)),
       add(
         mul(mul(a.a, b.a), mul(squared(sub(b.x, a.x)), sub(b.b, a.b))),
-        mul(mul(a.b, b.b), mul(squared(sub(b.y, a.y)), sub(b.a, a.a)))
-      )
-    )
+        mul(mul(a.b, b.b), mul(squared(sub(b.y, a.y)), sub(b.a, a.a))),
+      ),
+    ),
   );
 };
 
 // Quartic coefficient from the ellipse-ellipse polynomial
 const ellipsePolynomialAlpha4 = (
   a: ImplicitEllipse,
-  b: ImplicitEllipse
+  b: ImplicitEllipse,
 ): ad.Num => {
   return neg(
     add(
@@ -271,14 +271,14 @@ const ellipsePolynomialAlpha4 = (
       add(
         mul(
           mul(mul(a.a, b.a), squared(sub(b.x, a.x))),
-          mul(sub(b.a, a.a), squared(sub(b.b, a.b)))
+          mul(sub(b.a, a.a), squared(sub(b.b, a.b))),
         ),
         mul(
           mul(mul(a.b, b.b), squared(sub(b.y, a.y))),
-          mul(squared(sub(b.a, a.a)), sub(b.b, a.b))
-        )
-      )
-    )
+          mul(squared(sub(b.a, a.a)), sub(b.b, a.b)),
+        ),
+      ),
+    ),
   );
 };
 
@@ -286,7 +286,7 @@ const ellipsePolynomialAlpha4 = (
 // (ordered from the lowest by their corresponding deggree)
 const ellipsePolynomialParams = (
   a: ImplicitEllipse,
-  b: ImplicitEllipse
+  b: ImplicitEllipse,
 ): ad.Num[] => {
   return [
     ellipsePolynomialAlpha0(a, b),
@@ -301,7 +301,7 @@ const ellipsePolynomialParams = (
 // (the highest order coefficient is omitted and assumed to be 1)
 export const ellipsePolynomial = (
   a: ImplicitEllipse,
-  b: ImplicitEllipse
+  b: ImplicitEllipse,
 ): ad.Num[] => {
   const params = ellipsePolynomialParams(a, b);
   // Prevent division by zero (note that `params[4]` being close 0
@@ -309,7 +309,7 @@ export const ellipsePolynomial = (
   params[4] = ifCond(
     lte(absVal(params[4]), 1e-14),
     mul(msign(params[4]), EPS_DENOM),
-    params[4]
+    params[4],
   );
   return Array.from(Array(4).keys()).map((i) => div(params[i], params[4]));
 };

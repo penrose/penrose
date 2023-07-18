@@ -82,7 +82,7 @@ export interface SettingsProps {
     llmInput: string,
     currentTab: number,
     domainSelect: string,
-    presetSelect: string
+    presetSelect: string,
   ) => void;
   onPrompt: (prompt: string) => void;
   defaultDomain: string;
@@ -247,7 +247,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
   displayNaturalLangOrPresetTabs = () => {
     const handleTabSwitch = (
       event: React.ChangeEvent<{}>,
-      newValue: number
+      newValue: number,
     ) => {
       this.setState({ currentTab: newValue });
     };
@@ -303,7 +303,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
               this.handlePreset(key);
 
               const domainSelectStr = Object.entries(domains).find(
-                ([_, { domain }]) => domain === presets[key].domain
+                ([_, { domain }]) => domain === presets[key].domain,
               )![0];
 
               this.setState({
@@ -325,13 +325,13 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
 
   getSampleSubstancePreset = () => {
     return Object.entries(presets).find(
-      ([_, { domain }]) => domain === this.state.domain
+      ([_, { domain }]) => domain === this.state.domain,
     )![1];
   };
 
   getDomainPreset = () => {
     return Object.entries(domains).find(
-      ([_, { domain }]) => domain === this.state.domain
+      ([_, { domain }]) => domain === this.state.domain,
     )![1];
   };
 
@@ -419,7 +419,7 @@ To write comments, begin with \`--\`. Return only the Substance program; explain
         this.state.llmInput,
         this.state.currentTab,
         this.state.presetSelect,
-        this.state.domainSelect
+        this.state.domainSelect,
       );
   };
 
@@ -442,7 +442,7 @@ To write comments, begin with \`--\`. Return only the Substance program; explain
       const typeSelect = (
         stmtType: string,
         op: DeclTypes,
-        arr: string[]
+        arr: string[],
       ): DeclTypes => {
         let newMatchSetting: MatchSetting = "*";
         if (!arr.includes(wildcardType)) {
