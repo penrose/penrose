@@ -684,6 +684,19 @@ predicate Bond(Atom, Atom)`;
       const { state } = await loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toEqual(1);
     });
+
+    test("repeatable", async () => {
+      const dsl = `type T`;
+      const sub = `T t1, t2`;
+      const sty =
+        canvasPreamble +
+        `forall repeatable T t1; T t2 {
+          Circle {}
+        }`;
+
+      const { state } = await loadProgs({ dsl, sub, sty });
+      expect(state.shapes.length).toEqual(3);
+    });
   });
 
   describe("predicate alias", () => {

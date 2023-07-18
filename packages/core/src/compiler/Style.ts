@@ -1684,9 +1684,11 @@ const getSubsts = (
   const filteredSubsts = deduplicate(varEnv, subEnv, subProg, rels, rawSubsts);
   const { repeatable } = header;
 
+  // If we want repeatable matchings, this is good
   if (repeatable) {
     return filteredSubsts.toArray();
   } else {
+    // Otherwise need to remove all duplications
     const correctSubsts = filteredSubsts.filter(uniqueKeysAndVals);
     return correctSubsts.toArray();
   }
