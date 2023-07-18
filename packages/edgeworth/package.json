@@ -1,12 +1,7 @@
 {
   "name": "@penrose/edgeworth",
   "private": true,
-<<<<<<< HEAD
-  "version": "3.0.0-alpha.0",
-  "type": "module",
-=======
   "version": "3.0.0",
->>>>>>> 745c7054393b3d65ebaf92313574a82017519047
   "scripts": {
     "dev": "vite",
     "watch": "vite",
