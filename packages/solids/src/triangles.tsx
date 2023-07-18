@@ -68,7 +68,7 @@ export const Triangles = (props: TriangleProps) => {
   const triangleWithShadow = (
     qs: Num[][],
     fillColor: string,
-    names: string[]
+    names: string[],
   ) => {
     // triangle
     const [qi, qj, qk] = qs.map((p) => rotate(p, props.theta));
@@ -82,7 +82,7 @@ export const Triangles = (props: TriangleProps) => {
       createMutable(variable(y)),
     ]);
     const bboxes = labels.map(([x, y], i) =>
-      textBBox(measureText(names[i], "italic bold Palatino"), x, y)
+      textBBox(measureText(names[i], "italic bold Palatino"), x, y),
     );
     const labelSet = new Set(labels.flat());
     const [compiling] = createResource(() => {
@@ -98,9 +98,9 @@ export const Triangles = (props: TriangleProps) => {
                 textCorners.topRight,
                 textCorners.topLeft,
               ].map(([x, y]) => [neg(x), neg(y)]),
-              0
+              0,
             ),
-            10
+            10,
           );
         }),
       });
@@ -117,7 +117,7 @@ export const Triangles = (props: TriangleProps) => {
           const run = prob.start({ freeze: (x) => !labelSet.has(x) }).run({});
           for (const [v, x] of run.vals) v.val = x;
         }
-      })
+      }),
     );
 
     createEffect(async () => {
@@ -177,7 +177,7 @@ export const Triangles = (props: TriangleProps) => {
         qs1: [corners(3), corners(3), corners(3)],
         qs2: [corners(3), corners(3), corners(3)],
       };
-    }
+    },
   );
   const tri1 = triangleWithShadow(qs1, "#34379a", ["A", "B", "C"]);
   const tri2 = triangleWithShadow(qs2, "#340000", ["D", "E", "F"]);

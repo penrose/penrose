@@ -120,7 +120,7 @@ NoLabel B, C
     sameASTs(results);
     expect(results[0].statements[3].option.tag).toEqual("DefaultLabels");
     expect(
-      results[0].statements[4].option.variables.map((a: any) => a.value)
+      results[0].statements[4].option.variables.map((a: any) => a.value),
     ).toEqual(["B", "C"]);
   });
   test("bind and exprs", () => {

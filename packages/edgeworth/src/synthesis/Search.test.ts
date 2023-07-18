@@ -78,12 +78,16 @@ const getSubRes = (domainSrc: string, substanceSrc: string): SubRes => {
       return subResult;
     } else {
       throw new Error(
-        `Error when compiling the Substance program: ${showError(subRes.error)}`
+        `Error when compiling the Substance program: ${showError(
+          subRes.error,
+        )}`,
       );
     }
   } else {
     throw new Error(
-      `Error when compiling the Domain program:\n${showError(envOrError.error)}`
+      `Error when compiling the Domain program:\n${showError(
+        envOrError.error,
+      )}`,
     );
   }
 };
@@ -141,10 +145,10 @@ describe("AST diff tests", () => {
     const swappedDiffs: StmtDiff[] = diffs.map((d: StmtDiff) => {
       if (d.diffType === "Identifier") {
         const matchingIDs = ids.filter(
-          (id) => typeOf(id.value, env) === typeOf(d.diff.val, env)
+          (id) => typeOf(id.value, env) === typeOf(d.diff.val, env),
         );
         const choices = matchingIDs.filter(
-          (id) => ![d.diff.val, d.originalValue].includes(id.value)
+          (id) => ![d.diff.val, d.originalValue].includes(id.value),
         );
         return swapDiffID(d, choice(choices));
       } else return d;
@@ -178,7 +182,7 @@ describe("AST diff tests", () => {
     const ast2From1 = applyStmtDiffs(ast1, diffs);
     // the result should be semantically equivalent to the second program
     expect(prettySubstance(sortStmts(ast2From1))).toEqual(
-      prettySubstance(sortStmts(ast2))
+      prettySubstance(sortStmts(ast2)),
     );
     // ...but different in the source because the diff is applied to the 2nd statement
     expect(prettySubstance(ast2From1)).not.toEqual(prettySubstance(ast2));
@@ -226,7 +230,7 @@ describe("Mutation recognition tests", () => {
     const ast2: SubProg<A> = getSubRes(domainSrc, prog2)[0].ast;
     const mutationGroups = findMutationPaths(ast1, ast2, env);
     expect(mutationGroups.map(showMutations)).toContain(
-      "Swap arguments 0 and 1 of IsSubset(A, B)"
+      "Swap arguments 0 and 1 of IsSubset(A, B)",
     );
   });
   test("recognizing swap mutation - stepwise", () => {
@@ -289,15 +293,15 @@ describe("Mutation recognition tests", () => {
     expect(mutationGroups[0].filter((m) => m.tag === "Add")).toHaveLength(3);
     expect(mutationGroups[0].filter((m) => m.tag === "Delete")).toHaveLength(1);
     expect(
-      mutationGroups[0].filter((m) => m.tag === "SwapStmtArgs")
+      mutationGroups[0].filter((m) => m.tag === "SwapStmtArgs"),
     ).toHaveLength(1);
     const { res: ast2from1 } = executeMutations(
       mutationGroups[0],
       ast1,
-      initContext(env, "existing", "distinct", "test1")
+      initContext(env, "existing", "distinct", "test1"),
     );
     expect(prettySubstance(sortStmts(ast2from1))).toEqual(
-      prettySubstance(sortStmts(ast2))
+      prettySubstance(sortStmts(ast2)),
     );
   });
   test("recognizing multiple mutations on multiple stmts", () => {
@@ -320,10 +324,10 @@ describe("Mutation recognition tests", () => {
     expect(shortestPath?.mutations).toHaveLength(3);
     expect(shortestPath?.mutations.map((m) => m.tag)).toContain("SwapStmtArgs");
     expect(shortestPath?.mutations.map((m) => m.tag)).toContain(
-      "ChangeExprType"
+      "ChangeExprType",
     );
     expect(shortestPath?.mutations.map((m) => m.tag)).toContain(
-      "ReplaceStmtName"
+      "ReplaceStmtName",
     );
 
     // console.log(
@@ -349,11 +353,11 @@ describe("Mutation recognition tests", () => {
     expect(twoStepPaths).toHaveLength(1);
     // the output should be the same as the
     expect(prettySubstance(twoStepPaths[0].prog)).toEqual(
-      prettySubstance(ast2)
+      prettySubstance(ast2),
     );
     // there should be at least a swap operation
     expect(twoStepPaths[0].mutations.map((m) => m.tag)).toContain(
-      "SwapStmtArgs"
+      "SwapStmtArgs",
     );
     // console.log(
     //   paths.map((p) => [prettySubstance(p.prog), showMutations(p.mutations)])

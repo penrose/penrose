@@ -5,7 +5,7 @@ import { ArgVal, Value } from "../types/value.js";
 
 export const checkType = (
   expectedType: ValueShapeT,
-  arg: ArgVal<ad.Num>
+  arg: ArgVal<ad.Num>,
 ): Shape<ad.Num> | Value<ad.Num>["contents"] | undefined => {
   if (expectedType.tag === "UnionT") {
     for (const t of expectedType.types) {
@@ -24,7 +24,7 @@ export const checkType = (
 
 export const checkShape = (
   expectedType: ShapeType | "AnyShape",
-  arg: ArgVal<ad.Num>
+  arg: ArgVal<ad.Num>,
 ): Shape<ad.Num> | undefined => {
   if (expectedType === "AnyShape") {
     if (arg.tag === "ShapeVal") {
@@ -40,7 +40,7 @@ export const checkShape = (
 
 export const checkArgValAgainstValueType = (
   expected: ValueType,
-  given: ArgVal<ad.Num>
+  given: ArgVal<ad.Num>,
 ): Value<ad.Num>["contents"] | undefined => {
   if (given.tag === "ShapeVal") {
     return undefined;
@@ -51,7 +51,7 @@ export const checkArgValAgainstValueType = (
 
 export const checkValueAgainstValueType = (
   expected: ValueType,
-  given: Value<ad.Num>
+  given: Value<ad.Num>,
 ): Value<ad.Num>["contents"] | undefined => {
   const { tag, contents } = given;
   if (

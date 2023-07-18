@@ -55,7 +55,7 @@ export const cartesianProduct = <Tin, Tout>(
   t1: Tin[],
   t2: Tin[],
   consistent: (t1: Tin, t2: Tin) => boolean,
-  merge: (t1: Tin, t2: Tin) => Tout
+  merge: (t1: Tin, t2: Tin) => Tout,
 ): Tout[] => {
   const product: Tout[] = [];
   for (const i in t1) {
@@ -86,7 +86,7 @@ export const combinations2 = <T>(list: T[]): [T, T][] =>
  */
 export const safe = <T extends unknown>(
   argument: T | undefined,
-  message: string
+  message: string,
 ): T => {
   if (argument === undefined) {
     throw new TypeError(message);
@@ -115,7 +115,7 @@ export const zip2 = <T1, T2>(a1: T1[], a2: T2[]): [T1, T2][] => {
   const l = a1.length;
   if (l !== a2.length) {
     throw Error(
-      `can't zip2 vectors of different length: ${a1.length} vs ${a2.length}`
+      `can't zip2 vectors of different length: ${a1.length} vs ${a2.length}`,
     );
   }
   const a: [T1, T2][] = [];
@@ -131,12 +131,12 @@ export const zip2 = <T1, T2>(a1: T1[], a2: T2[]): [T1, T2][] => {
 export const zip3 = <T1, T2, T3>(
   a1: T1[],
   a2: T2[],
-  a3: T3[]
+  a3: T3[],
 ): [T1, T2, T3][] => {
   const l = a1.length;
   if (l !== a2.length || l !== a3.length) {
     throw Error(
-      `can't zip3 vectors of different length: ${a1.length} vs ${a2.length} vs ${a3.length}`
+      `can't zip3 vectors of different length: ${a1.length} vs ${a2.length} vs ${a3.length}`,
     );
   }
   const a: [T1, T2, T3][] = [];
@@ -150,7 +150,7 @@ export const zip3 = <T1, T2, T3>(
 /** returns whether `key` is in `obj`, in a way that informs TypeScript */
 export const isKeyOf = <T extends Record<string, unknown>>(
   key: string | number | symbol,
-  obj: T
+  obj: T,
 ): key is keyof T => key in obj;
 
 //#endregion
@@ -167,7 +167,7 @@ const RAND_RANGE = 100;
 export const randFloats = (
   rng: seedrandom.prng,
   count: number,
-  [min, max]: [number, number]
+  [min, max]: [number, number],
 ): number[] => _.times(count, () => randFloat(rng, min, max));
 
 /**
@@ -178,12 +178,12 @@ export const randFloats = (
 export const randFloat = (
   rng: seedrandom.prng,
   min: number,
-  max: number
+  max: number,
 ): number => {
   // TODO: better error reporting
   console.assert(
     max > min,
-    "min should be smaller than max for random number generation!"
+    "min should be smaller than max for random number generation!",
   );
   return rng() * (max - min) + min;
 };
@@ -309,7 +309,7 @@ export const getArrowhead = (style: string): ArrowheadSpec | undefined => {
 
 export const toScreen = (
   [x, y]: [number, number],
-  canvasSize: [number, number]
+  canvasSize: [number, number],
 ): [number, number] => {
   const [width, height] = canvasSize;
   return [width / 2 + x, height / 2 - y];
@@ -320,7 +320,7 @@ export const toScreen = (
 //#region color
 
 export const hexToRgba = (
-  hex: string
+  hex: string,
 ): [number, number, number, number] | undefined => {
   const parseIntHex = (value: string) => {
     return parseInt(value, 16);
@@ -393,7 +393,7 @@ const hsv2rgb = (
   r1: number,
   g1: number,
   b1: number,
-  m: number
+  m: number,
 ): [number, number, number] => {
   return [r1 + m, g1 + m, b1 + m];
 };
@@ -402,7 +402,7 @@ const hsv2rgb = (
 // Returns rgb in range [0, 1]
 // From https://github.com/d3/d3-hsv/blob/master/src/hsv.js
 export const hsvToRGB = (
-  hsv: [number, number, number]
+  hsv: [number, number, number],
 ): [number, number, number] => {
   const [h0, s0, v0] = hsv;
   const h = isNaN(h0) ? 0 : (h0 % 360) + Number(h0 < 0) * 360;
@@ -435,7 +435,7 @@ export const toSvgPaintProperty = (color: Color<number>): string => {
       ]);
     case "HSVA":
       return rgbToHex(
-        hsvToRGB([color.contents[0], color.contents[1], color.contents[2]])
+        hsvToRGB([color.contents[0], color.contents[1], color.contents[2]]),
       );
     case "NONE":
       return "none";
@@ -545,7 +545,7 @@ export const addv = (xs: number[], ys: number[]): number[] => {
   if (xs.length !== ys.length) {
     console.error("xs", xs, "ys", ys);
     throw Error(
-      `can't add vectors of different length: ${xs.length} vs ${ys.length}`
+      `can't add vectors of different length: ${xs.length} vs ${ys.length}`,
     );
   }
 
@@ -556,7 +556,7 @@ export const subv = (xs: number[], ys: number[]): number[] => {
   if (xs.length !== ys.length) {
     console.error("xs", xs, "ys", ys);
     throw Error(
-      `can't sub vectors of different length: ${xs.length} vs ${ys.length}`
+      `can't sub vectors of different length: ${xs.length} vs ${ys.length}`,
     );
   }
 
@@ -569,7 +569,7 @@ export const dot = (xs: number[], ys: number[]): number => {
   if (xs.length !== ys.length) {
     console.error("xs", xs, "ys", ys);
     throw Error(
-      `can't dot vectors of different length: ${xs.length} vs ${ys.length}`
+      `can't dot vectors of different length: ${xs.length} vs ${ys.length}`,
     );
   }
 
@@ -735,7 +735,7 @@ export const rectlikeT = (): UnionT =>
     shapeT("Equation"),
     shapeT("Image"),
     shapeT("Rectangle"),
-    shapeT("Text")
+    shapeT("Text"),
   );
 
 //#endregion
@@ -744,7 +744,7 @@ export const rectlikeT = (): UnionT =>
 
 export const resolveRhsName = (
   { block, subst, locals }: Context,
-  name: BindingForm<A>
+  name: BindingForm<A>,
 ): ResolvedName => {
   const { value } = name.contents;
   switch (name.tag) {
@@ -824,14 +824,14 @@ export const prettyPrintPath = (p: Path<A>): string => {
     ...p.members.map((m) => m.value),
   ].join(".");
   const indices: string[] = p.indices.map(
-    (i) => `[${prettyPrintExpr(i, prettyPrintPath)}]`
+    (i) => `[${prettyPrintExpr(i, prettyPrintPath)}]`,
   );
   return [base, ...indices].join("");
 };
 
 export const prettyPrintExpr = (
   arg: Expr<A>,
-  ppPath: (p: Path<A>) => string
+  ppPath: (p: Path<A>) => string,
 ): string => {
   // TODO: only handles paths and floats for now; generalize to other exprs
   if (arg.tag === "Path") {
@@ -898,9 +898,9 @@ export const prettyPrintFn = (fn: Fn): string => {
       .map((arg) =>
         prettyPrintExpr(arg, (p) =>
           prettyPrintResolvedPath(
-            resolveRhsPath({ context: fn.ast.context, expr: p })
-          )
-        )
+            resolveRhsPath({ context: fn.ast.context, expr: p }),
+          ),
+        ),
       )
       .join(", ");
     return [name, "(", args, ")"].join("");
@@ -908,13 +908,13 @@ export const prettyPrintFn = (fn: Fn): string => {
     const { op, arg1, arg2 } = body;
     const ppArg1 = prettyPrintExpr(arg1, (p) =>
       prettyPrintResolvedPath(
-        resolveRhsPath({ context: fn.ast.context, expr: p })
-      )
+        resolveRhsPath({ context: fn.ast.context, expr: p }),
+      ),
     );
     const ppArg2 = prettyPrintExpr(arg2, (p) =>
       prettyPrintResolvedPath(
-        resolveRhsPath({ context: fn.ast.context, expr: p })
-      )
+        resolveRhsPath({ context: fn.ast.context, expr: p }),
+      ),
     );
     return ppArg1 + " " + op.op + " " + ppArg2;
   }
@@ -971,7 +971,7 @@ export function ToRight<A, B>(val: B): Either<A, B> {
 export function foldM<A, B, C>(
   xs: A[],
   f: (acc: B, curr: A, i: number) => Either<C, B>,
-  init: B
+  init: B,
 ): Either<C, B> {
   let res = init;
   let resW: Either<C, B> = toRight(init); // wrapped
@@ -997,7 +997,7 @@ export function foldM<A, B, C>(
  */
 export const getAdValueAsString = (
   prop: Value<ad.Num>,
-  dft?: string
+  dft?: string,
 ): string => {
   switch (prop.tag) {
     case "FloatV":
@@ -1009,8 +1009,8 @@ export const getAdValueAsString = (
   if (dft !== undefined) return dft;
   throw new Error(
     `getAdValueAsString: unexpected tag ${prop.tag} w/value ${JSON.stringify(
-      prop.contents
-    )}`
+      prop.contents,
+    )}`,
   );
 };
 
@@ -1087,7 +1087,7 @@ export const noWarn = <T>(value: T): MayWarn<T> => ({
 });
 
 export const noWarnFn = <T extends any[], S>(
-  f: (...args: T) => S
+  f: (...args: T) => S,
 ): ((...args: T) => MayWarn<S>) => {
   return (...args: T) => noWarn(f(...args));
 };

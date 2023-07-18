@@ -13,7 +13,7 @@ import { RenderProps } from "./Renderer.js";
 const placeholderString = (
   label: string,
   [x, y]: [number, number],
-  shape: Equation<number>
+  shape: Equation<number>,
 ): SVGGElement => {
   const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
   // fake font
@@ -30,7 +30,7 @@ const placeholderString = (
 
 const RenderEquation = (
   shape: Equation<number>,
-  renderOptions: RenderProps
+  renderOptions: RenderProps,
 ): SVGGElement => {
   const { canvasSize, labels, texLabels } = renderOptions;
   const { center } = shape;
@@ -44,7 +44,7 @@ const RenderEquation = (
     let txt = placeholderString(
       `$${getAdValueAsString(shape.string)}$`,
       [x, baselineY],
-      shape
+      shape,
     );
 
     // If the Equation has a texContourColor passthrough value, give the
@@ -53,10 +53,10 @@ const RenderEquation = (
       if (propKey === "texContourColor" && propVal.contents !== "") {
         txt = placeholderString(
           `\\contour{${propVal.contents}}{$${getAdValueAsString(
-            shape.string
+            shape.string,
           )}$}`,
           [x, baselineY],
-          shape
+          shape,
         );
       }
     }
@@ -79,7 +79,7 @@ const RenderEquation = (
   if (retrievedLabel && retrievedLabel.tag === "EquationData") {
     // Clone the retrieved node first to avoid mutating existing labels
     const renderedLabel = retrievedLabel.rendered.cloneNode(
-      true
+      true,
     ) as HTMLElement;
     const g = renderedLabel.getElementsByTagName("g")[0];
 

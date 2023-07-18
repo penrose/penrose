@@ -20,7 +20,7 @@ export interface ImageProps<T> extends Named<T>, Center<T>, Rect<T>, Rotate<T> {
 
 export const sampleImage = (
   context: Context,
-  canvas: Canvas
+  canvas: Canvas,
 ): ImageProps<ad.Num> => ({
   name: strV("defaultImage"),
   center: sampleVector(context, canvas),
@@ -37,7 +37,7 @@ export type Image<T> = ShapeCommon<T> & { shapeType: "Image" } & ImageProps<T>;
 export const makeImage = (
   context: Context,
   canvas: Canvas,
-  properties: Partial<ImageProps<ad.Num>>
+  properties: Partial<ImageProps<ad.Num>>,
 ): Image<ad.Num> => ({
   ...sampleImage(context, canvas),
   ...properties,

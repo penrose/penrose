@@ -90,7 +90,7 @@ export class Grid extends React.Component<GridProps, GridState> {
           imageResolver={this.props.imageResolver}
           selected={this.props.selected && this.props.selected.includes(i)}
         />
-      )
+      ),
     );
   }
 

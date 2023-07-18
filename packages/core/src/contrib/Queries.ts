@@ -48,7 +48,7 @@ export const rectPts = (
   center: ad.Num[],
   width: ad.Num,
   height: ad.Num,
-  rotation: ad.Num = 0
+  rotation: ad.Num = 0,
 ): ad.Pt2[] => {
   const counterclockwise = neg(rotation);
   const down = ops.vrot([0, -1], counterclockwise);
@@ -115,10 +115,10 @@ export const polygonLikePoints = (s: Shape<ad.Num>): ad.Pt2[] => {
  */
 export const outwardUnitNormal = (
   lineSegment: ad.Num[][],
-  insidePoint: ad.Num[]
+  insidePoint: ad.Num[],
 ): ad.Num[] => {
   const normal = ops.vnormalize(
-    ops.rot90(ops.vsub(lineSegment[1], lineSegment[0]))
+    ops.rot90(ops.vsub(lineSegment[1], lineSegment[0])),
   );
   const insideValue = ops.vdot(ops.vsub(insidePoint, lineSegment[0]), normal);
   return ops.vmul(neg(msign(insideValue)), normal);
@@ -182,11 +182,11 @@ export const convexPolygonOriginSignedDistance = (p: ad.Pt2[]): ad.Num => {
         ifCond(
           goodRight,
           edgeSignedDist,
-          ifCond(next.goodLeft, -Infinity, next.fromStart)
+          ifCond(next.goodLeft, -Infinity, next.fromStart),
         ),
-        -Infinity
+        -Infinity,
       );
-    })
+    }),
   );
 };
 
@@ -203,7 +203,7 @@ export const rectLineDist = (
   lxs: ad.Num,
   lys: ad.Num,
   lxe: ad.Num,
-  lye: ad.Num
+  lye: ad.Num,
 ): ad.Num => {
   const px = gt(lxs, lxe);
   const py = gt(lys, lye);
@@ -282,7 +282,7 @@ export const rectLineDist = (
 
 export const shapeDistance = (
   s1: Shape<ad.Num>,
-  s2: Shape<ad.Num>
+  s2: Shape<ad.Num>,
 ): MayWarn<ad.Num> => {
   const t1 = s1.shapeType;
   const t2 = s2.shapeType;
@@ -293,15 +293,15 @@ export const shapeDistance = (
         toPt(s1.center.contents),
         s1.r.contents,
         toPt(s2.center.contents),
-        s2.r.contents
-      )
+        s2.r.contents,
+      ),
     );
   } else if (isRectlike(s1) && isRectlike(s2)) {
     return noWarn(
       shapeDistanceRects(
         bboxPts(BBox.bboxFromRectlike(s1)),
-        bboxPts(BBox.bboxFromRectlike(s2))
-      )
+        bboxPts(BBox.bboxFromRectlike(s2)),
+      ),
     );
   }
   // HACK: text/label-line, mainly to skip convex partitioning
@@ -310,20 +310,20 @@ export const shapeDistance = (
       shapeDistanceRectLine(
         bboxPts(BBox.bboxFromRectlike(s1)),
         toPt(s2.start.contents),
-        toPt(s2.end.contents)
-      )
+        toPt(s2.end.contents),
+      ),
     );
   } else if (t1 === "Line" && isRectlike(s2)) {
     return noWarn(
       shapeDistanceRectLine(
         bboxPts(BBox.bboxFromRectlike(s2)),
         toPt(s1.start.contents),
-        toPt(s1.end.contents)
-      )
+        toPt(s1.end.contents),
+      ),
     );
   } else if (isPolygonlike(s1) && isPolygonlike(s2)) {
     return noWarn(
-      shapeDistancePolys(polygonLikePoints(s1), polygonLikePoints(s2))
+      shapeDistancePolys(polygonLikePoints(s1), polygonLikePoints(s2)),
     );
   }
   // Rectangle x Circle
@@ -332,16 +332,16 @@ export const shapeDistance = (
       shapeDistanceRectCircle(
         bboxPts(BBox.bboxFromRectlike(s1)),
         toPt(s2.center.contents),
-        s2.r.contents
-      )
+        s2.r.contents,
+      ),
     );
   } else if (t1 === "Circle" && isRectlike(s2)) {
     return noWarn(
       shapeDistanceRectCircle(
         bboxPts(BBox.bboxFromRectlike(s2)),
         toPt(s1.center.contents),
-        s1.r.contents
-      )
+        s1.r.contents,
+      ),
     );
   }
   // Polygon x Ellipse
@@ -351,8 +351,8 @@ export const shapeDistance = (
         polygonLikePoints(s1),
         toPt(s2.center.contents),
         s2.rx.contents,
-        s2.ry.contents
-      )
+        s2.ry.contents,
+      ),
     );
   } else if (t1 === "Ellipse" && isPolygonlike(s2)) {
     return noWarn(
@@ -360,8 +360,8 @@ export const shapeDistance = (
         polygonLikePoints(s2),
         toPt(s1.center.contents),
         s1.rx.contents,
-        s1.ry.contents
-      )
+        s1.ry.contents,
+      ),
     );
   }
   // Circle x Line
@@ -371,8 +371,8 @@ export const shapeDistance = (
         toPt(s1.center.contents),
         s1.r.contents,
         toPt(s2.start.contents),
-        toPt(s2.end.contents)
-      )
+        toPt(s2.end.contents),
+      ),
     );
   } else if (t1 === "Line" && t2 === "Circle") {
     return noWarn(
@@ -380,8 +380,8 @@ export const shapeDistance = (
         toPt(s2.center.contents),
         s2.r.contents,
         toPt(s1.start.contents),
-        toPt(s1.end.contents)
-      )
+        toPt(s1.end.contents),
+      ),
     );
   }
   // Line x Line
@@ -391,24 +391,24 @@ export const shapeDistance = (
         toPt(s1.start.contents),
         toPt(s1.end.contents),
         toPt(s2.start.contents),
-        toPt(s2.end.contents)
-      )
+        toPt(s2.end.contents),
+      ),
     );
   } else if (t1 === "Polyline" && t2 === "Circle") {
     return noWarn(
       shapeDistanceCirclePolyline(
         s2.center.contents,
         s2.r.contents,
-        s1.points.contents
-      )
+        s1.points.contents,
+      ),
     );
   } else if (t2 === "Polyline" && t1 === "Circle") {
     return noWarn(
       shapeDistanceCirclePolyline(
         s1.center.contents,
         s1.r.contents,
-        s2.points.contents
-      )
+        s2.points.contents,
+      ),
     );
   } else if (t1 === "Polyline" && isRectlike(s2)) {
     const bbox = bboxFromShape(s2);
@@ -421,8 +421,8 @@ export const shapeDistance = (
           corners.bottomLeft,
           corners.bottomRight,
         ],
-        s1.points.contents
-      )
+        s1.points.contents,
+      ),
     );
   } else if (t2 === "Polyline" && isRectlike(s1)) {
     const bbox = bboxFromShape(s1);
@@ -435,8 +435,8 @@ export const shapeDistance = (
           corners.bottomLeft,
           corners.bottomRight,
         ],
-        s2.points.contents
-      )
+        s2.points.contents,
+      ),
     );
   }
   // Default to axis-aligned bounding boxes
@@ -444,7 +444,7 @@ export const shapeDistance = (
     return {
       value: shapeDistanceRects(
         bboxPts(bboxFromShape(s1)),
-        bboxPts(bboxFromShape(s2))
+        bboxPts(bboxFromShape(s2)),
       ),
       warnings: [
         {
@@ -464,12 +464,12 @@ export const shapeDistanceCircles = (
   c1: ad.Pt2,
   r1: ad.Num,
   c2: ad.Pt2,
-  r2: ad.Num
+  r2: ad.Num,
 ): ad.Num => sub(ops.vdist(c1, c2), add(r1, r2));
 
 export const shapeDistanceRects = (
   rect1: ad.Pt2[],
-  rect2: ad.Pt2[]
+  rect2: ad.Pt2[],
 ): ad.Num => {
   if (rect1.length !== 4 || rect2.length !== 4) {
     throw new Error("Expects rect1 and rect2 to have four points each");
@@ -481,7 +481,7 @@ export const shapeDistanceRects = (
 export const shapeDistanceRectLine = (
   rect: ad.Pt2[],
   start: ad.Pt2,
-  end: ad.Pt2
+  end: ad.Pt2,
 ): ad.Num => {
   if (rect.length !== 4) {
     throw new Error("Expects rect to have four points");
@@ -498,13 +498,13 @@ export const shapeDistanceRectLine = (
     start[0],
     start[1],
     end[0],
-    end[1]
+    end[1],
   );
 };
 
 export const shapeDistanceRectlikePolyline = (
   rect: ad.Pt2[],
-  points: ad.Num[][]
+  points: ad.Num[][],
 ): ad.Num => {
   let dMin: ad.Num = Infinity;
 
@@ -524,7 +524,7 @@ export const shapeDistanceRectlikePolyline = (
       a[0],
       a[1],
       b[0],
-      b[1]
+      b[1],
     );
     dMin = min(dMin, d);
   }
@@ -537,7 +537,7 @@ export const shapeDistancePolys = (pts1: ad.Pt2[], pts2: ad.Pt2[]): ad.Num =>
 export const shapeDistanceRectCircle = (
   rect: ad.Pt2[],
   c: ad.Pt2,
-  r: ad.Num
+  r: ad.Num,
 ): ad.Num => {
   if (rect.length !== 4) {
     throw new Error("Expects rect to have four points");
@@ -558,7 +558,7 @@ export const shapeDistancePolyEllipse = (
   pts: ad.Pt2[],
   c: ad.Pt2,
   rx: ad.Num,
-  ry: ad.Num
+  ry: ad.Num,
 ): ad.Num => {
   const cp = convexPartitions(pts);
   return minN(cp.map((p) => overlappingPolygonPointsEllipse(p, c, rx, ry, 0)));
@@ -568,7 +568,7 @@ export const shapeDistanceCircleLine = (
   c: ad.Pt2,
   r: ad.Num,
   start: ad.Pt2,
-  end: ad.Pt2
+  end: ad.Pt2,
 ): ad.Num => {
   const [a, b] = [start, end];
   // Return the distance between the circle center c and the
@@ -591,7 +591,7 @@ export const shapeDistanceCircleLine = (
 const shapeDistanceCirclePolyline = (
   c: ad.Num[],
   r: ad.Num,
-  points: ad.Num[][]
+  points: ad.Num[][],
 ): ad.Num => {
   // compute the smallest distance to any segment
   let dMin: ad.Num = Infinity;
@@ -608,7 +608,7 @@ export const shapeDistanceLines = (
   start1: ad.Pt2,
   end1: ad.Pt2,
   start2: ad.Pt2,
-  end2: ad.Pt2
+  end2: ad.Pt2,
 ): ad.Num => {
   // line endpoints
   const a0 = start1;
@@ -625,6 +625,6 @@ export const shapeDistanceLines = (
   // how far is Minkowski polygon from containing the origin?
   return signedDistancePolygon(
     [toPt(p0), toPt(p1), toPt(p2), toPt(p3)],
-    [0, 0]
+    [0, 0],
   );
 };

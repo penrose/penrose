@@ -21,15 +21,15 @@ describe("containsConvexPolygonPoints", () => {
     const pt = [0.25, 0.25];
 
     expect(
-      numsOf([containsConvexPolygonPoints(poly, pt, 0)])[0]
+      numsOf([containsConvexPolygonPoints(poly, pt, 0)])[0],
     ).toBeLessThanOrEqual(0);
 
     expect(
-      numsOf([containsConvexPolygonPoints(poly, pt, 0.1)])[0]
+      numsOf([containsConvexPolygonPoints(poly, pt, 0.1)])[0],
     ).toBeLessThanOrEqual(0);
 
     expect(
-      numsOf([containsConvexPolygonPoints(poly, pt, 0.26)])[0]
+      numsOf([containsConvexPolygonPoints(poly, pt, 0.26)])[0],
     ).toBeGreaterThan(0);
   });
 });
@@ -37,7 +37,7 @@ describe("containsConvexPolygonPoints", () => {
 describe("rectangleDifference", () => {
   const expectRectDiff = (
     result: [ad.Pt2, ad.Pt2],
-    expected: [[number, number], [number, number]]
+    expected: [[number, number], [number, number]],
   ) => {
     const [result00, result01, result10, result11] = numsOf([
       result[0][0],

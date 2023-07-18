@@ -18,7 +18,7 @@ const generateProgs = (
   seed: string,
   numPrograms: number,
   domain: string,
-  substance: string
+  substance: string,
 ) => {
   const envOrError = compileDomain(domain);
   // initialize synthesizer
@@ -32,8 +32,8 @@ const generateProgs = (
       } else {
         console.log(
           `Error when compiling the template Substance program: ${showError(
-            subRes.error
-          )}`
+            subRes.error,
+          )}`,
         );
       }
     }
@@ -51,7 +51,7 @@ export const multipleChoiceProblem = (
   answer: {
     correct: number[];
     incorrect: number[];
-  }
+  },
 ) => {
   const { prompt, substance, style, domain, setting } = preset;
   const progs = generateProgs(setting, seed, numPrograms, domain, substance)!;
@@ -66,7 +66,7 @@ export const multipleChoiceProblem = (
         answer: boolean;
       }[],
       p: SynthesizedSubstance,
-      i: number
+      i: number,
     ) => {
       const substance = prettySubstance(p.prog);
       if (answer.correct.includes(i)) {
@@ -87,7 +87,7 @@ export const multipleChoiceProblem = (
         ];
       } else return problems;
     },
-    []
+    [],
   );
 
   return (

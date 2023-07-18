@@ -18,7 +18,7 @@ import { RenderProps } from "./Renderer.js";
 
 const toPathString = (
   pathData: PathCmd<number>[],
-  canvasSize: [number, number]
+  canvasSize: [number, number],
 ) =>
   pathData
     .map((pathCmd) => {
@@ -39,7 +39,7 @@ const toPathString = (
               return c.contents;
             }
           }
-        })
+        }),
       ).join(" ");
       return `${cmd} ${pathStr}`;
     })
@@ -69,7 +69,7 @@ const Shadow = (id: string) => {
 
 export const RenderPath = (
   shape: Path<number>,
-  { canvasSize }: RenderProps
+  { canvasSize }: RenderProps,
 ): SVGGElement => {
   // TODO: distinguish between fill opacity and stroke opacity
   const startArrowId = shape.name.contents + "-startArrowId";
@@ -95,8 +95,8 @@ export const RenderPath = (
         strokeOpacity,
         startArrowhead,
         startArrowheadSize,
-        flip
-      )
+        flip,
+      ),
     );
   }
   if (endArrowhead) {
@@ -109,8 +109,8 @@ export const RenderPath = (
         strokeOpacity,
         endArrowhead,
         endArrowheadSize,
-        false
-      )
+        false,
+      ),
     );
   }
 
@@ -120,7 +120,7 @@ export const RenderPath = (
     "name",
     "startArrowhead",
     "flipStartArrowhead",
-    "endArrowhead"
+    "endArrowhead",
   );
   elem.appendChild(Shadow(shadowId));
 

@@ -42,7 +42,7 @@ export default defineConfig({ plugins: [topLevelAwait()] });
 In `index.html`:
 
 ```html
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <body>
     <div id="penrose-diagram"></div>
@@ -81,7 +81,7 @@ Penrose.diagram(
     variation: "",
   },
   document.getElementById("penrose-diagram"),
-  async () => undefined
+  async () => undefined,
 );
 ```
 

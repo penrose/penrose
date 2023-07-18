@@ -116,7 +116,7 @@ Now we look at an objective that makes two circles repel, encouraging the two ci
 const repel = (s1: Circle<Num>, s2: Circle<Num>, weight: Num = 10e6) => {
   const epsDenom = 10e-6;
   const res = inverse(
-    add(ops.vdistsq(s1.center.contents, s2.center.contents), epsDenom)
+    add(ops.vdistsq(s1.center.contents, s2.center.contents), epsDenom),
   );
   return mul(res, weight);
 };

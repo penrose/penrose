@@ -81,7 +81,10 @@ const Body = styled.div`
   border-radius: 5px;
   padding: 0.5rem;
   font-size: 0.8rem;
-  font-family: Roboto Mono, Courier New, sans-serif;
+  font-family:
+    Roboto Mono,
+    Courier New,
+    sans-serif;
   whitespace: pre-wrap;
   overflow: scroll;
 `;

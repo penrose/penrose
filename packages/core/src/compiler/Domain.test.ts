@@ -13,7 +13,7 @@ const contextHas = (
   expectedTypes: string[],
   expectedConstructors: string[],
   expectedFunctions: string[],
-  expectedPredicates: string[]
+  expectedPredicates: string[],
 ) => {
   if (res.isOk()) {
     const { types, typeVars, constructors, functions, predicates } = res.value;
@@ -151,10 +151,10 @@ symmetric predicate MyExcellentPredicate2(MySubType, MySubType)
       let env = res.value;
       expect(env.predicates.get("MyNormalPredicate")!.symmetric).toEqual(false);
       expect(env.predicates.get("MyExcellentPredicate1")!.symmetric).toEqual(
-        true
+        true,
       );
       expect(env.predicates.get("MyExcellentPredicate2")!.symmetric).toEqual(
-        true
+        true,
       );
     }
   });

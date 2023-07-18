@@ -107,7 +107,7 @@ export const objDictSimple = {
       { name: "y", description: "Second value", type: realT() },
     ],
     body: noWarnFn(
-      (x: ad.Num, y: ad.Num): ad.Num => squared(max(0, sub(y, x)))
+      (x: ad.Num, y: ad.Num): ad.Num => squared(max(0, sub(y, x))),
     ),
   },
 
@@ -122,7 +122,7 @@ export const objDictSimple = {
       { name: "y", description: "Second value", type: realT() },
     ],
     body: noWarnFn(
-      (x: ad.Num, y: ad.Num): ad.Num => squared(max(0, sub(x, y)))
+      (x: ad.Num, y: ad.Num): ad.Num => squared(max(0, sub(x, y))),
     ),
   },
 
@@ -140,7 +140,7 @@ export const objDictSimple = {
     ],
     body: noWarnFn(
       (weight: ad.Num, a: ad.Num[], b: ad.Num[]): ad.Num =>
-        mul(weight, inverse(add(ops.vdistsq(a, b), EPS_DENOM)))
+        mul(weight, inverse(add(ops.vdistsq(a, b), EPS_DENOM))),
     ),
   },
 
@@ -208,9 +208,9 @@ export const objDictGeneral = {
           shapeCenter(bottom),
           shapeCenter(top),
           [0, 1],
-          offset
+          offset,
         );
-      }
+      },
     ),
   },
 
@@ -245,9 +245,9 @@ export const objDictGeneral = {
           shapeCenter(top),
           shapeCenter(bottom),
           [0, 1],
-          offset
+          offset,
         );
-      }
+      },
     ),
   },
 
@@ -282,9 +282,9 @@ export const objDictGeneral = {
           shapeCenter(left),
           shapeCenter(right),
           [1, 0],
-          offset
+          offset,
         );
-      }
+      },
     ),
   },
 
@@ -319,9 +319,9 @@ export const objDictGeneral = {
           shapeCenter(right),
           shapeCenter(left),
           [1, 0],
-          offset
+          offset,
         );
-      }
+      },
     ),
   },
 
@@ -373,19 +373,19 @@ export const objDictGeneral = {
           const c2 = shapeCenter(s2);
           const lineSamplePts = sampleSeg(linePts(line));
           const allForces = addN(
-            lineSamplePts.map((p) => repelPoint(weight, c2, p))
+            lineSamplePts.map((p) => repelPoint(weight, c2, p)),
           );
           res = mul(weight, allForces);
         } else {
           // Repel any two shapes with a center.
           // 1 / (d^2(cx, cy) + eps)
           res = inverse(
-            add(ops.vdistsq(shapeCenter(s1), shapeCenter(s2)), EPS_DENOM)
+            add(ops.vdistsq(shapeCenter(s1), shapeCenter(s2)), EPS_DENOM),
           );
         }
 
         return mul(res, repelWeight);
-      }
+      },
     ),
   },
 
@@ -410,7 +410,7 @@ export const objDictGeneral = {
       (s1: Shape<ad.Num>, s2: Shape<ad.Num>, offset = 10.0): ad.Num => {
         const res = absVal(ops.vdistsq(shapeCenter(s1), shapeCenter(s2)));
         return sub(res, squared(offset));
-      }
+      },
     ),
   },
 
@@ -450,7 +450,7 @@ export const objDictGeneral = {
         s1: Shape<ad.Num>,
         s2: Shape<ad.Num>,
         strength = 20,
-        range = 10
+        range = 10,
       ): ad.Num => {
         const c0 = shapeCenter(s0);
         const c1 = shapeCenter(s1);
@@ -463,9 +463,9 @@ export const objDictGeneral = {
         return ifCond(
           lt(cosine, range * (Math.PI / 180)),
           0,
-          mul(strength, cosine)
+          mul(strength, cosine),
         );
-      }
+      },
     ),
   },
 };
@@ -490,10 +490,10 @@ export const objDictSpecific = {
         const textBB = bboxFromShape(text);
         const lh = squared(sub(mx, textBB.center[0]));
         const rh = squared(
-          sub(add(my, mul(textBB.height, 1.1)), textBB.center[1])
+          sub(add(my, mul(textBB.height, 1.1)), textBB.center[1]),
         );
         return mul(add(lh, rh), w);
-      }
+      },
     ),
   },
 
@@ -514,27 +514,27 @@ export const objDictSpecific = {
         s1: Linelike<ad.Num> | Rectlike<ad.Num>,
         s2: Rectlike<ad.Num>,
         w: number,
-        padding = 10
+        padding = 10,
       ): ad.Num => {
         if (isLinelike(s1)) {
           // The distance between the midpoint of the arrow and the center of the text should be approx. the label's "radius" plus some padding
           const [arr, text] = [s1, s2];
           const midpt = ops.vdiv(
             ops.vadd(arr.start.contents, arr.end.contents),
-            2
+            2,
           );
           const textBB = bboxFromShape(text);
           // is (x-y)^2 = x^2-2xy+y^2 better? or x^2 - y^2?
           return add(
             sub(ops.vdistsq(midpt, textBB.center), squared(textBB.width)),
-            squared(padding)
+            squared(padding),
           );
         } else {
           // Try to center label in the rectangle
           // TODO: This should be applied generically on any two GPIs with a center
           return ops.vdistsq(shapeCenter(s1), shapeCenter(s2));
         }
-      }
+      },
     ),
   },
 
@@ -556,12 +556,12 @@ export const objDictSpecific = {
           sub(
             ops.vdist(
               closestPt_PtSeg(point, [s1.start.contents, s1.end.contents]),
-              point
+              point,
             ),
-            padding
-          )
+            padding,
+          ),
         );
-      }
+      },
     ),
   },
 
@@ -586,11 +586,11 @@ export const objDictSpecific = {
     body: noWarnFn((points: ad.Num[][], closed: boolean): ad.Num => {
       const equilater = constrDictCurves.isEquilateral.body(
         points,
-        closed
+        closed,
       ).value;
       const equiangular = constrDictCurves.isEquiangular.body(
         points,
-        closed
+        closed,
       ).value;
       return add(equilater, equiangular);
     }),

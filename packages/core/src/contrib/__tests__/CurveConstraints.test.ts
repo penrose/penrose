@@ -36,7 +36,7 @@ describe("equivalued", () => {
     (values: number[]) => {
       const result = equivalued(values);
       expect(numOf(result)).toBeCloseTo(0, 4);
-    }
+    },
   );
 
   it.each([
@@ -82,7 +82,7 @@ describe("curvature", () => {
     (p1: number[], p2: number[], p3: number[], expected: number) => {
       const result = curvature([p1[0], p1[1]], [p2[0], p2[1]], [p3[0], p3[1]]);
       expect(numOf(result)).toBeCloseTo(expected, 4);
-    }
+    },
   );
 });
 
@@ -191,10 +191,10 @@ describe("isLocallyConvex", () => {
       const closed: boolean = isClosed(shape);
       const result = constrDictCurves.isLocallyConvex.body(
         points,
-        closed
+        closed,
       ).value;
       expect(numOf(result)).toBeGreaterThan(0.01);
-    }
+    },
   );
 });
 
@@ -206,7 +206,7 @@ describe("isConvex", () => {
       const closed: boolean = isClosed(shape);
       const result = constrDictCurves.isConvex.body(points, closed).value;
       expect(numOf(result)).toBeLessThanOrEqual(1e-5);
-    }
+    },
   );
 
   it.each([[_polygons[5]], [_polygons[8]]])(
@@ -216,7 +216,7 @@ describe("isConvex", () => {
       const closed: boolean = isClosed(shape);
       const result = constrDictCurves.isConvex.body(points, closed).value;
       expect(numOf(result)).toBeGreaterThan(0.01);
-    }
+    },
   );
 });
 

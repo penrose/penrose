@@ -216,7 +216,7 @@ const flatErrs = (es: StyleDiagnostics[]): StyleDiagnostics => {
 
 const addDiags = <T extends { diagnostics: StyleDiagnostics }>(
   { errors, warnings }: StyleDiagnostics,
-  x: T
+  x: T,
 ): T => ({
   ...x,
   diagnostics: {
@@ -316,7 +316,7 @@ const addMapping = (
   k: BindingForm<A>,
   v: StyT<A>,
   m: SelEnv,
-  p: ProgType
+  p: ProgType,
 ): SelEnv => {
   m.sTypeVarMap[toString(k)] = v;
   m.varProgTypeMap[toString(k)] = [p, k];
@@ -337,7 +337,7 @@ const addErrSel = (selEnv: SelEnv, err: StyleError): SelEnv => {
 const checkDeclPatternAndMakeEnv = (
   varEnv: Env,
   selEnv: SelEnv,
-  stmt: DeclPattern<A>
+  stmt: DeclPattern<A>,
 ): SelEnv => {
   const [styType, bVar] = [stmt.type, stmt.id];
 
@@ -397,11 +397,11 @@ const checkDeclPatternAndMakeEnv = (
 const checkDeclPatternsAndMakeEnv = (
   varEnv: Env,
   selEnv: SelEnv,
-  decls: DeclPattern<A>[]
+  decls: DeclPattern<A>[],
 ): SelEnv => {
   return decls.reduce(
     (s, p) => checkDeclPatternAndMakeEnv(varEnv, s, p),
-    selEnv
+    selEnv,
   );
 };
 
@@ -447,7 +447,7 @@ const getSelectorStyVarNames = (selEnv: SelEnv): string[] => {
 const aliasConflictsWithDomainOrSelectorKeyword = (
   alias: Identifier<A>,
   varEnv: Env,
-  selEnv: SelEnv
+  selEnv: SelEnv,
 ): boolean => {
   const domainKeywords = getDomainKeywords(varEnv);
   const selectorKeywords = getSelectorStyVarNames(selEnv);
@@ -462,7 +462,7 @@ const aliasConflictsWithDomainOrSelectorKeyword = (
 const checkRelPattern = (
   varEnv: Env,
   selEnv: SelEnv,
-  rel: RelationPattern<A>
+  rel: RelationPattern<A>,
 ): StyleError[] => {
   // rule Bind-Context
   switch (rel.tag) {
@@ -545,10 +545,10 @@ const checkRelPattern = (
 const checkRelPatterns = (
   varEnv: Env,
   selEnv: SelEnv,
-  rels: RelationPattern<A>[]
+  rels: RelationPattern<A>[],
 ): StyleError[] => {
   return _.flatMap(rels, (rel: RelationPattern<A>): StyleError[] =>
-    checkRelPattern(varEnv, selEnv, rel)
+    checkRelPattern(varEnv, selEnv, rel),
   );
 };
 
@@ -567,7 +567,7 @@ const toSubstanceType = (styT: StyT<A>): TypeConsApp<A> => {
 const mergeMapping = (
   varProgTypeMap: { [k: string]: [ProgType, BindingForm<A>] },
   varEnv: Env,
-  [varName, styType]: [string, StyT<A>]
+  [varName, styType]: [string, StyT<A>],
 ): Env => {
   const res = varProgTypeMap[varName];
   if (!res) {
@@ -576,7 +576,7 @@ const mergeMapping = (
   const [, bindingForm] = res;
   const vars = varEnv.vars.set(
     bindingForm.contents.value,
-    toSubstanceType(styType)
+    toSubstanceType(styType),
   );
   switch (bindingForm.tag) {
     case "StyVar":
@@ -605,7 +605,7 @@ const mergeMapping = (
 const mergeEnv = (varEnv: Env, selEnv: SelEnv): Env => {
   return Object.entries(selEnv.sTypeVarMap).reduce(
     (acc, curr) => mergeMapping(selEnv.varProgTypeMap, acc, curr),
-    varEnv
+    varEnv,
   );
 };
 
@@ -614,14 +614,14 @@ const checkSelector = (varEnv: Env, sel: Selector<A>): SelEnv => {
   const selEnv_afterHead = checkDeclPatternsAndMakeEnv(
     varEnv,
     initSelEnv(),
-    sel.head.contents
+    sel.head.contents,
   );
   // Check `with` statements
   // TODO: Did we get rid of `with` statements?
   const selEnv_decls = checkDeclPatternsAndMakeEnv(
     varEnv,
     selEnv_afterHead,
-    safeContentsList(sel.with)
+    safeContentsList(sel.with),
   );
 
   // Basically creates a new, empty environment.
@@ -629,7 +629,7 @@ const checkSelector = (varEnv: Env, sel: Selector<A>): SelEnv => {
   const relErrs = checkRelPatterns(
     mergeEnv(emptyVarsEnv, selEnv_decls),
     selEnv_decls,
-    safeContentsList(sel.where)
+    safeContentsList(sel.where),
   );
 
   // TODO(error): The errors returned in the top 3 statements
@@ -643,23 +643,23 @@ const checkCollector = (varEnv: Env, col: Collector<A>): SelEnv => {
   const selEnv_afterHead = checkDeclPatternAndMakeEnv(
     varEnv,
     initSelEnv(),
-    col.head
+    col.head,
   );
   const selEnv_afterWith = checkDeclPatternsAndMakeEnv(
     varEnv,
     selEnv_afterHead,
-    safeContentsList(col.with)
+    safeContentsList(col.with),
   );
   const selEnv_afterGroupby = checkDeclPatternsAndMakeEnv(
     varEnv,
     selEnv_afterWith,
-    safeContentsList(col.foreach)
+    safeContentsList(col.foreach),
   );
   const emptyVarsEnv: Env = { ...varEnv, vars: im.Map(), varIDs: [] };
   const relErrs = checkRelPatterns(
     mergeEnv(emptyVarsEnv, selEnv_afterGroupby),
     selEnv_afterGroupby,
-    safeContentsList(col.where)
+    safeContentsList(col.where),
   );
 
   return {
@@ -716,7 +716,7 @@ export const uniqueKeysAndVals = (subst: Subst): boolean => {
  * Returns the substitution for a predicate alias
  */
 const getSubPredAliasInstanceName = (
-  pred: ApplyPredicate<A> | ApplyFunction<A> | ApplyConstructor<A>
+  pred: ApplyPredicate<A> | ApplyFunction<A> | ApplyConstructor<A>,
 ): string => {
   let name = pred.name.value;
   for (const arg of pred.args) {
@@ -743,7 +743,7 @@ const getSubPredAliasInstanceName = (
 const substituteBform = (
   lv: LocalVarSubst | undefined,
   subst: Subst,
-  bform: BindingForm<A>
+  bform: BindingForm<A>,
 ): BindingForm<A> => {
   // theta(B) = ...
   switch (bform.tag) {
@@ -817,7 +817,7 @@ const substitutePredArg = (subst: Subst, predArg: PredArg<A>): PredArg<A> => {
 // theta(|S_r) = ...
 export const substituteRel = (
   subst: Subst,
-  rel: RelationPattern<A>
+  rel: RelationPattern<A>,
 ): RelationPattern<A> => {
   switch (rel.tag) {
     case "RelBind": {
@@ -884,7 +884,7 @@ const toSubExpr = <T>(env: Env, e: SelExpr<T>): SubExpr<T> => {
       } else {
         // TODO: return TypeNotFound instead
         throw new Error(
-          `Style internal error: expected '${e.name.value}' to be either a constructor or function, but was not found`
+          `Style internal error: expected '${e.name.value}' to be either a constructor or function, but was not found`,
         );
       }
       const res: SubExpr<T> = {
@@ -950,7 +950,7 @@ const subFnsEq = (p1: SubPredArg<A>, p2: SubPredArg<A>, env: Env): boolean => {
     const predicateDecl = env.predicates.get(p1.name.value);
     if (predicateDecl && predicateDecl.symmetric) {
       return zip2(p1.args, [p2.args[1], p2.args[0]]).every(([a1, a2]) =>
-        argsEq(a1, a2, env)
+        argsEq(a1, a2, env),
       );
     } else {
       return false;
@@ -988,7 +988,7 @@ const deduplicate = (
   subEnv: SubstanceEnv,
   subProg: SubProg<A>,
   rels: RelationPattern<A>[],
-  pSubsts: im.List<[Subst, im.Set<SubStmt<A> | undefined>]>
+  pSubsts: im.List<[Subst, im.Set<SubStmt<A> | undefined>]>,
 ): im.List<Subst> => {
   const initSubsts: im.List<Subst> = im.List();
 
@@ -1009,7 +1009,7 @@ const deduplicate = (
         return [currMatches.add(record), currSubsts.push(subst)];
       }
     },
-    [initMatches, initSubsts]
+    [initMatches, initSubsts],
   );
   return goodSubsts;
 };
@@ -1039,7 +1039,7 @@ const combine = (s1: Subst, s2: Subst): Subst => {
  */
 const merge = (
   s1: im.List<[Subst, im.Set<SubStmt<A>>]>,
-  s2: im.List<[Subst, im.Set<SubStmt<A>>]>
+  s2: im.List<[Subst, im.Set<SubStmt<A>>]>,
 ): im.List<[Subst, im.Set<SubStmt<A>>]> => {
   if (s1.size === 0 || s2.size === 0) {
     return im.List();
@@ -1057,7 +1057,7 @@ const merge = (
     ([aSubst, aStmts], [bSubst, bStmts]) => [
       combine(aSubst, bSubst),
       aStmts.union(bStmts),
-    ]
+    ],
   );
   return im.List(result);
 };
@@ -1089,7 +1089,7 @@ const consistentSubsts = (a: Subst, b: Subst): boolean => {
 const typesMatched = (
   varEnv: Env,
   substanceType: TypeConsApp<A>,
-  styleType: StyT<A>
+  styleType: StyT<A>,
 ): boolean => {
   if (substanceType.args.length === 0) {
     // Style type needs to be more generic than Style type
@@ -1098,14 +1098,14 @@ const typesMatched = (
 
   // TODO(errors)
   throw Error(
-    "internal error: expected two nullary types (parametrized types to be implemented)"
+    "internal error: expected two nullary types (parametrized types to be implemented)",
   );
 };
 
 // Judgment 10. theta |- x <| B
 const matchBvar = (
   subVar: Identifier<A>,
-  bf: BindingForm<A>
+  bf: BindingForm<A>,
 ): Subst | undefined => {
   switch (bf.tag) {
     case "StyVar": {
@@ -1129,7 +1129,7 @@ const matchBvar = (
 const matchDeclLine = (
   varEnv: Env,
   line: SubStmt<A>,
-  decl: DeclPattern<A>
+  decl: DeclPattern<A>,
 ): Subst | undefined => {
   if (line.tag === "Decl") {
     const [subT, subVar] = [line.type, line.name];
@@ -1149,7 +1149,7 @@ const matchDeclLine = (
 const matchDecl = (
   varEnv: Env,
   subProg: SubProg<A>,
-  decl: DeclPattern<A>
+  decl: DeclPattern<A>,
 ): im.List<Subst> => {
   const initDSubsts: im.List<Subst> = im.List();
   // Judgment 14. G; [theta] |- [S] <| |S_o
@@ -1174,7 +1174,7 @@ const matchStyArgToSubArg = (
   subTypeMap: { [k: string]: TypeConsApp<A> },
   varEnv: Env,
   styArg: PredArg<A> | SelExpr<A>,
-  subArg: SubPredArg<A> | SubExpr<A>
+  subArg: SubPredArg<A> | SubExpr<A>,
 ): Subst[] => {
   if (styArg.tag === "SEBind" && subArg.tag === "Identifier") {
     const styBForm = styArg.contents;
@@ -1206,7 +1206,7 @@ const matchStyArgToSubArg = (
       subTypeMap,
       varEnv,
       styArg,
-      subArg
+      subArg,
     );
   }
   if (
@@ -1218,7 +1218,7 @@ const matchStyArgToSubArg = (
       subTypeMap,
       varEnv,
       styArg,
-      subArg
+      subArg,
     );
   }
   if (
@@ -1230,7 +1230,7 @@ const matchStyArgToSubArg = (
       subTypeMap,
       varEnv,
       styArg,
-      subArg
+      subArg,
     );
   }
   return [];
@@ -1245,7 +1245,7 @@ const matchStyArgsToSubArgs = (
   subTypeMap: { [k: string]: TypeConsApp<A> },
   varEnv: Env,
   styArgs: PredArg<A>[] | SelExpr<A>[],
-  subArgs: SubPredArg<A>[] | SubExpr<A>[]
+  subArgs: SubPredArg<A>[] | SubExpr<A>[],
 ): Subst[] => {
   const stySubArgPairs = zip2<
     PredArg<A> | SelExpr<A>,
@@ -1258,7 +1258,7 @@ const matchStyArgsToSubArgs = (
       subTypeMap,
       varEnv,
       styArg,
-      subArg
+      subArg,
     );
     return argSubsts;
   });
@@ -1279,10 +1279,10 @@ const matchStyArgsToSubArgs = (
           currSubsts,
           substsForArg,
           (aSubst, bSubst) => consistentSubsts(aSubst, bSubst),
-          (aSubst, bSubst) => combine(aSubst, bSubst)
+          (aSubst, bSubst) => combine(aSubst, bSubst),
         );
       },
-      first
+      first,
     );
     return substs;
   } else {
@@ -1308,7 +1308,7 @@ const matchStyApplyToSubApply = (
   subTypeMap: { [k: string]: TypeConsApp<A> },
   varEnv: Env,
   styRel: RelPred<A> | SelExpr<A>,
-  subRel: ApplyPredicate<A> | SubExpr<A>
+  subRel: ApplyPredicate<A> | SubExpr<A>,
 ): Subst[] => {
   // Predicate Applications
   if (styRel.tag === "RelPred" && subRel.tag === "ApplyPredicate") {
@@ -1323,7 +1323,7 @@ const matchStyApplyToSubApply = (
       subTypeMap,
       varEnv,
       styRel.args,
-      subRel.args
+      subRel.args,
     );
 
     // Consider the symmetric, flipped-argument version
@@ -1337,7 +1337,7 @@ const matchStyApplyToSubApply = (
         subTypeMap,
         varEnv,
         flippedStyArgs,
-        subRel.args
+        subRel.args,
       );
     }
 
@@ -1374,7 +1374,7 @@ const matchStyApplyToSubApply = (
       subTypeMap,
       varEnv,
       styRel.args,
-      subRel.args
+      subRel.args,
     );
     return rSubst;
   }
@@ -1396,7 +1396,7 @@ const matchRelField = (
   varEnv: Env,
   subEnv: SubstanceEnv,
   rel: RelField<A>,
-  subDecl: Decl<A>
+  subDecl: Decl<A>,
 ): Subst | undefined => {
   const styName = toString(rel.name);
   const styType = styTypeMap[styName];
@@ -1422,7 +1422,7 @@ const matchRelField = (
 };
 
 const getStyPredOrFuncOrConsArgNames = (
-  arg: PredArg<A> | SelExpr<A>
+  arg: PredArg<A> | SelExpr<A>,
 ): im.Set<string> => {
   if (arg.tag === "RelPred") {
     return getStyRelArgNames(arg);
@@ -1460,7 +1460,7 @@ const matchStyRelToSubRels = (
   varEnv: Env,
   subEnv: SubstanceEnv,
   rel: RelationPattern<A>,
-  subProg: SubProg<A>
+  subProg: SubProg<A>,
 ): [im.Set<string>, im.List<[Subst, im.Set<SubStmt<A>>]>] => {
   const initUsedStyVars = im.Set<string>();
   const initRSubsts = im.List<[Subst, im.Set<SubStmt<A>>]>();
@@ -1476,7 +1476,7 @@ const matchStyRelToSubRels = (
           subTypeMap,
           varEnv,
           styPred,
-          statement
+          statement,
         );
 
         return rSubstsForPred.reduce((rSubsts, rSubstForPred) => {
@@ -1486,7 +1486,7 @@ const matchStyRelToSubRels = (
           ]);
         }, rSubsts);
       },
-      initRSubsts
+      initRSubsts,
     );
     return [getStyRelArgNames(rel), newRSubsts];
   } else if (rel.tag === "RelBind") {
@@ -1506,7 +1506,7 @@ const matchStyRelToSubRels = (
         subTypeMap,
         varEnv,
         styBindedExpr,
-        subBindedExpr
+        subBindedExpr,
       );
 
       return rSubstsForExpr.reduce((rSubsts, rSubstForExpr) => {
@@ -1529,7 +1529,7 @@ const matchStyRelToSubRels = (
           varEnv,
           subEnv,
           rel,
-          statement
+          statement,
         );
         if (rSubst === undefined) {
           return rSubsts;
@@ -1566,7 +1566,7 @@ const makeListRSubstsForStyleRels = (
   varEnv: Env,
   subEnv: SubstanceEnv,
   rels: RelationPattern<A>[],
-  subProg: SubProg<A>
+  subProg: SubProg<A>,
 ): [im.Set<string>, im.List<im.List<[Subst, im.Set<SubStmt<A>>]>>] => {
   const initUsedStyVars: im.Set<string> = im.Set();
   const initListRSubsts: im.List<im.List<[Subst, im.Set<SubStmt<A>>]>> =
@@ -1580,11 +1580,11 @@ const makeListRSubstsForStyleRels = (
         varEnv,
         subEnv,
         rel,
-        subProg
+        subProg,
       );
       return [usedStyVars.union(relUsedStyVars), listRSubsts.push(relRSubsts)];
     },
-    [initUsedStyVars, initListRSubsts]
+    [initUsedStyVars, initListRSubsts],
   );
 
   return [newUsedStyVars, newListRSubsts];
@@ -1599,7 +1599,7 @@ const makePotentialSubsts = (
   subEnv: SubstanceEnv,
   subProg: SubProg<A>,
   decls: DeclPattern<A>[],
-  rels: RelationPattern<A>[]
+  rels: RelationPattern<A>[],
 ): im.List<[Subst, im.Set<SubStmt<A>>]> => {
   const subTypeMap = subProg.statements.reduce<{ [k: string]: TypeConsApp<A> }>(
     (result, statement) => {
@@ -1610,7 +1610,7 @@ const makePotentialSubsts = (
         return result;
       }
     },
-    {}
+    {},
   );
   const styTypeMap: { [k: string]: StyT<A> } = selEnv.sTypeVarMap;
   const [usedStyVars, listRSubsts] = makeListRSubstsForStyleRels(
@@ -1619,7 +1619,7 @@ const makePotentialSubsts = (
     varEnv,
     subEnv,
     rels,
-    subProg
+    subProg,
   );
   // Add in variables that are not present in the relations.
   const listPSubsts = decls.reduce((currListPSubsts, decl) => {
@@ -1628,7 +1628,7 @@ const makePotentialSubsts = (
     } else {
       const pSubsts = matchDecl(varEnv, subProg, decl);
       return currListPSubsts.push(
-        pSubsts.map((pSubst) => [pSubst, im.Set<SubStmt<A>>()])
+        pSubsts.map((pSubst) => [pSubst, im.Set<SubStmt<A>>()]),
       );
     }
   }, listRSubsts);
@@ -1665,7 +1665,7 @@ const getSubsts = (
   subEnv: SubstanceEnv,
   selEnv: SelEnv,
   subProg: SubProg<A>,
-  header: Collector<A> | Selector<A>
+  header: Collector<A> | Selector<A>,
 ): Subst[] => {
   const decls = getDecls(header);
   const rels = safeContentsList(header.where);
@@ -1675,7 +1675,7 @@ const getSubsts = (
     subEnv,
     subProg,
     decls,
-    rels
+    rels,
   );
   log.debug("total number of raw substs: ", rawSubsts.size);
 
@@ -1696,7 +1696,7 @@ const collectSubsts = (
   substs: Subst[],
   toCollect: string,
   collectInto: string,
-  groupbys: string[]
+  groupbys: string[],
 ): CollectionSubst[] => {
   const buckets: Map<string, GroupbyBucket> = new Map();
 
@@ -1734,7 +1734,7 @@ const findSubstsSel = (
   varEnv: Env,
   subEnv: SubstanceEnv,
   subProg: SubProg<A>,
-  [header, selEnv]: [Header<A>, SelEnv]
+  [header, selEnv]: [Header<A>, SelEnv],
 ): StySubst[] => {
   if (header.tag === "Selector") {
     return getSubsts(varEnv, subEnv, selEnv, subProg, header).map((subst) => ({
@@ -1769,7 +1769,7 @@ const updateExpr = (
   errTagGlobal: "AssignGlobalError" | "DeleteGlobalError",
   errTagSubstance: "AssignSubstanceError" | "DeleteSubstanceError",
   // this function performs the actual dictionary updates. `updateExpr` only needs to extract the path to pass to `f`.
-  f: (field: Field, prop: PropID | undefined, fielded: FieldDict) => FieldedRes
+  f: (field: Field, prop: PropID | undefined, fielded: FieldDict) => FieldedRes,
 ): BlockAssignment => {
   switch (path.tag) {
     case "Global": {
@@ -1778,7 +1778,7 @@ const updateExpr = (
       } else if (path.members.length > 2) {
         return addDiags(
           oneErr({ tag: "PropertyMemberError", path }),
-          assignment
+          assignment,
         );
       }
       const field = path.members[0].value;
@@ -1799,7 +1799,7 @@ const updateExpr = (
       if (path.members.length > 1) {
         return addDiags(
           oneErr({ tag: "PropertyMemberError", path }),
-          assignment
+          assignment,
         );
       }
       // remember, we don't use `--noUncheckedIndexedAccess`
@@ -1818,7 +1818,7 @@ const updateExpr = (
       } else if (path.members.length > 2) {
         return addDiags(
           oneErr({ tag: "PropertyMemberError", path }),
-          assignment
+          assignment,
         );
       }
       const field = path.members[0].value;
@@ -1840,7 +1840,7 @@ const updateExpr = (
 
 const processExpr = (
   context: Context,
-  expr: Expr<C>
+  expr: Expr<C>,
 ): Result<FieldSource, StyleError> => {
   if (expr.tag !== "GPIDecl") {
     return ok({ tag: "OtherSource", expr: { context, expr } });
@@ -1857,7 +1857,7 @@ const processExpr = (
       }
       return ok(m.set(name.value, { context, expr: value }));
     },
-    ok(im.Map())
+    ok(im.Map()),
   );
   return andThen((props) => ok({ tag: "ShapeSource", shapeType, props }), res);
 };
@@ -1866,7 +1866,7 @@ const insertExpr = (
   block: BlockInfo,
   path: ResolvedPath<C>,
   expr: Expr<C>,
-  assignment: BlockAssignment
+  assignment: BlockAssignment,
 ): BlockAssignment =>
   updateExpr(
     path,
@@ -1878,7 +1878,7 @@ const insertExpr = (
       if (prop === undefined) {
         const source = processExpr(
           { ...block, locals: assignment.locals },
-          expr
+          expr,
         );
         if (source.isErr()) {
           return err(source.error);
@@ -1912,12 +1912,12 @@ const insertExpr = (
           warns,
         });
       }
-    }
+    },
   );
 
 const deleteExpr = (
   path: ResolvedPath<C>,
-  assignment: BlockAssignment
+  assignment: BlockAssignment,
 ): BlockAssignment =>
   updateExpr(
     path,
@@ -1946,13 +1946,13 @@ const deleteExpr = (
           warns: [],
         });
       }
-    }
+    },
   );
 
 const resolveLhsName = (
   { block, subst }: BlockInfo,
   assignment: BlockAssignment,
-  name: BindingForm<C>
+  name: BindingForm<C>,
 ): ResolvedName => {
   const { value } = name.contents;
   switch (name.tag) {
@@ -1981,7 +1981,7 @@ const resolveLhsName = (
 const resolveLhsPath = (
   block: BlockInfo,
   assignment: BlockAssignment,
-  path: Path<C>
+  path: Path<C>,
 ): Result<ResolvedPath<C>, StyleError> => {
   const { start, end, name, members, indices } = path;
   return indices.length > 0
@@ -1998,7 +1998,7 @@ const processStmt = (
   block: BlockInfo,
   index: number,
   stmt: Stmt<C>,
-  assignment: BlockAssignment
+  assignment: BlockAssignment,
 ): BlockAssignment => {
   switch (stmt.tag) {
     case "PathAssign": {
@@ -2019,7 +2019,7 @@ const processStmt = (
         block,
         path.value,
         stmt.value,
-        deleteExpr(path.value, assignment)
+        deleteExpr(path.value, assignment),
       );
     }
     case "Delete": {
@@ -2044,7 +2044,7 @@ const processStmt = (
           members: [],
         },
         stmt.contents,
-        assignment
+        assignment,
       );
     }
   }
@@ -2053,7 +2053,7 @@ const processStmt = (
 const blockId = (
   blockIndex: number,
   substIndex: number,
-  header: Header<A>
+  header: Header<A>,
 ): LocalVarSubst => {
   switch (header.tag) {
     case "Selector":
@@ -2110,7 +2110,7 @@ const processBlock = (
   subEnv: SubstanceEnv,
   blockIndex: number,
   hb: HeaderBlock<C>,
-  assignment: Assignment
+  assignment: Assignment,
 ): Assignment => {
   // Run static checks first
   const selEnv = checkHeader(varEnv, hb.header);
@@ -2137,7 +2137,7 @@ const processBlock = (
           redeclareNamespaceError(block.contents, {
             start: hb.header.start,
             end: hb.header.end,
-          })
+          }),
         );
       } else {
         // prepopulate with an empty namespace if it doesn't exist
@@ -2150,7 +2150,7 @@ const processBlock = (
 
     const matchTotalAssignment = makeFakeIntPathAssign(
       "match_total",
-      substs.length
+      substs.length,
     );
 
     const augmentedStatements = im
@@ -2164,7 +2164,7 @@ const processBlock = (
       augmentedStatements.reduce(
         (assignment, stmt, stmtIndex) =>
           processStmt({ block, subst }, stmtIndex, stmt, assignment),
-        withLocals
+        withLocals,
       );
 
     switch (block.tag) {
@@ -2192,7 +2192,7 @@ const processBlock = (
 export const buildAssignment = (
   varEnv: Env,
   subEnv: SubstanceEnv,
-  styProg: StyProg<C>
+  styProg: StyProg<C>,
 ): Assignment => {
   // insert Substance label string; use dummy AST node location pattern from
   // `engine/ParserUtil`
@@ -2226,7 +2226,7 @@ export const buildAssignment = (
             },
           },
         ],
-      ])
+      ]),
     ),
   };
   return styProg.items.reduce(
@@ -2234,7 +2234,7 @@ export const buildAssignment = (
       item.tag === "HeaderBlock"
         ? processBlock(varEnv, subEnv, index, item, assignment)
         : assignment,
-    assignment
+    assignment,
   );
 };
 
@@ -2268,7 +2268,7 @@ const findPathsExpr = <T>(expr: Expr<T>, context: Context): Path<T>[] => {
     }
     case "GPIDecl": {
       return expr.properties.flatMap((prop) =>
-        findPathsExpr(prop.value, context)
+        findPathsExpr(prop.value, context),
       );
     }
     case "Layering": {
@@ -2322,7 +2322,7 @@ const findPathsExpr = <T>(expr: Expr<T>, context: Context): Path<T>[] => {
               },
             ],
             indices: [],
-          })
+          }),
         );
         return paths.flatMap((p) => findPathsExpr(p, context));
       } else {
@@ -2346,7 +2346,7 @@ const resolveRhsPath = (p: WithContext<Path<C>>): ResolvedPath<C> => {
 const gatherExpr = (
   graph: DepGraph,
   w: string,
-  expr: WithContext<NotShape>
+  expr: WithContext<NotShape>,
 ): void => {
   graph.setNode(w, expr);
   for (const p of findPathsWithContext(expr)) {
@@ -2356,7 +2356,7 @@ const gatherExpr = (
         j: w,
         e: undefined,
       },
-      () => undefined
+      () => undefined,
     );
   }
 };
@@ -2426,12 +2426,12 @@ const evalExprs = (
   stages: OptPipeline,
   context: Context,
   args: Expr<C>[],
-  trans: Translation
+  trans: Translation,
 ): Result<ArgVal<ad.Num>[], StyleDiagnostics> =>
   all(
     args.map((expr) => {
       return evalExpr(mut, canvas, stages, { context, expr }, trans);
-    })
+    }),
   ).mapErr(flatErrs);
 
 const evalVals = (
@@ -2440,7 +2440,7 @@ const evalVals = (
   stages: OptPipeline,
   context: Context,
   args: Expr<C>[],
-  trans: Translation
+  trans: Translation,
 ): Result<Value<ad.Num>[], StyleDiagnostics> =>
   evalExprs(mut, canvas, stages, context, args, trans).andThen((argVals) =>
     all(
@@ -2453,15 +2453,15 @@ const evalVals = (
             return ok(argVal.contents);
           }
         }
-      })
-    ).mapErr(flatErrs)
+      }),
+    ).mapErr(flatErrs),
   );
 
 const evalBinOpScalars = (
   error: BinOpTypeError,
   op: BinaryOp,
   left: ad.Num,
-  right: ad.Num
+  right: ad.Num,
 ): Result<ad.Num, StyleError> => {
   switch (op) {
     case "BPlus": {
@@ -2490,7 +2490,7 @@ const evalBinOpVectors = (
   error: BinOpTypeError,
   op: BinaryOp,
   left: ad.Num[],
-  right: ad.Num[]
+  right: ad.Num[],
 ): Result<ad.Num[], StyleError> => {
   switch (op) {
     case "BPlus": {
@@ -2517,7 +2517,7 @@ const evalBinOpScalarVector = (
   error: BinOpTypeError,
   op: BinaryOp,
   left: ad.Num,
-  right: ad.Num[]
+  right: ad.Num[],
 ): Result<ad.Num[], StyleError> => {
   switch (op) {
     case "Multiply": {
@@ -2538,7 +2538,7 @@ const evalBinOpVectorScalar = (
   error: BinOpTypeError,
   op: BinaryOp,
   left: ad.Num[],
-  right: ad.Num
+  right: ad.Num,
 ): Result<ad.Num[], StyleError> => {
   switch (op) {
     case "Multiply": {
@@ -2561,7 +2561,7 @@ const evalBinOpScalarMatrix = (
   error: BinOpTypeError,
   op: BinaryOp,
   left: ad.Num,
-  right: ad.Num[][]
+  right: ad.Num[][],
 ): Result<ad.Num[][], StyleError> => {
   switch (op) {
     case "Multiply": {
@@ -2582,7 +2582,7 @@ const evalBinOpMatrixScalar = (
   error: BinOpTypeError,
   op: BinaryOp,
   left: ad.Num[][],
-  right: ad.Num
+  right: ad.Num,
 ): Result<ad.Num[][], StyleError> => {
   switch (op) {
     case "Multiply": {
@@ -2605,7 +2605,7 @@ const evalBinOpMatrixVector = (
   error: BinOpTypeError,
   op: BinaryOp,
   left: ad.Num[][],
-  right: ad.Num[]
+  right: ad.Num[],
 ): Result<ad.Num[], StyleError> => {
   switch (op) {
     case "Multiply": {
@@ -2626,7 +2626,7 @@ const evalBinOpVectorMatrix = (
   error: BinOpTypeError,
   op: BinaryOp,
   left: ad.Num[],
-  right: ad.Num[][]
+  right: ad.Num[][],
 ): Result<ad.Num[], StyleError> => {
   switch (op) {
     case "Multiply": {
@@ -2647,7 +2647,7 @@ const evalBinOpMatrixMatrix = (
   error: BinOpTypeError,
   op: BinaryOp,
   left: ad.Num[][],
-  right: ad.Num[][]
+  right: ad.Num[][],
 ): Result<ad.Num[][], StyleError> => {
   switch (op) {
     case "BPlus": {
@@ -2676,7 +2676,7 @@ const evalBinOpStrings = (
   error: BinOpTypeError,
   op: BinaryOp,
   left: string,
-  right: string
+  right: string,
 ): Result<string, StyleError> => {
   switch (op) {
     case "BPlus": {
@@ -2696,7 +2696,7 @@ const evalBinOpStrings = (
 const evalBinOp = (
   expr: BinOp<C>,
   left: Value<ad.Num>,
-  right: Value<ad.Num>
+  right: Value<ad.Num>,
 ): Result<Value<ad.Num>, StyleError> => {
   const error: BinOpTypeError = {
     tag: "BinOpTypeError",
@@ -2706,64 +2706,64 @@ const evalBinOp = (
   };
   if (left.tag === "FloatV" && right.tag === "FloatV") {
     return evalBinOpScalars(error, expr.op, left.contents, right.contents).map(
-      floatV
+      floatV,
     );
   } else if (left.tag === "VectorV" && right.tag === "VectorV") {
     return evalBinOpVectors(error, expr.op, left.contents, right.contents).map(
-      vectorV
+      vectorV,
     );
   } else if (left.tag === "FloatV" && right.tag === "VectorV") {
     return evalBinOpScalarVector(
       error,
       expr.op,
       left.contents,
-      right.contents
+      right.contents,
     ).map(vectorV);
   } else if (left.tag === "VectorV" && right.tag === "FloatV") {
     return evalBinOpVectorScalar(
       error,
       expr.op,
       left.contents,
-      right.contents
+      right.contents,
     ).map(vectorV);
   } else if (left.tag === "FloatV" && right.tag === "MatrixV") {
     return evalBinOpScalarMatrix(
       error,
       expr.op,
       left.contents,
-      right.contents
+      right.contents,
     ).map(matrixV);
   } else if (left.tag === "MatrixV" && right.tag === "FloatV") {
     return evalBinOpMatrixScalar(
       error,
       expr.op,
       left.contents,
-      right.contents
+      right.contents,
     ).map(matrixV);
   } else if (left.tag === "MatrixV" && right.tag === "VectorV") {
     return evalBinOpMatrixVector(
       error,
       expr.op,
       left.contents,
-      right.contents
+      right.contents,
     ).map(vectorV);
   } else if (left.tag === "VectorV" && right.tag === "MatrixV") {
     return evalBinOpVectorMatrix(
       error,
       expr.op,
       left.contents,
-      right.contents
+      right.contents,
     ).map(vectorV);
   } else if (left.tag === "MatrixV" && right.tag === "MatrixV") {
     return evalBinOpMatrixMatrix(
       error,
       expr.op,
       left.contents,
-      right.contents
+      right.contents,
     ).map(matrixV);
   } else if (left.tag === "StrV" && right.tag === "StrV") {
     return evalBinOpStrings(error, expr.op, left.contents, right.contents).map(
-      strV
+      strV,
     );
   } else {
     return err(error);
@@ -2773,7 +2773,7 @@ const evalBinOp = (
 const eval1D = (
   coll: List<C> | Vector<C> | CollectionAccess<C>,
   first: FloatV<ad.Num>,
-  rest: ArgVal<ad.Num>[]
+  rest: ArgVal<ad.Num>[],
 ): Result<ListV<ad.Num> | VectorV<ad.Num>, StyleDiagnostics> => {
   const elems = [first.contents];
   for (const v of rest) {
@@ -2799,7 +2799,7 @@ const eval1D = (
 const eval2D = (
   coll: List<C> | Vector<C> | CollectionAccess<C>,
   first: VectorV<ad.Num> | ListV<ad.Num> | TupV<ad.Num>,
-  rest: ArgVal<ad.Num>[]
+  rest: ArgVal<ad.Num>[],
 ): Result<
   LListV<ad.Num> | MatrixV<ad.Num> | PtListV<ad.Num>,
   StyleDiagnostics
@@ -2835,7 +2835,7 @@ const eval2D = (
 const evalShapeList = (
   coll: List<C> | Vector<C> | CollectionAccess<C>,
   first: Shape<ad.Num>,
-  rest: ArgVal<ad.Num>[]
+  rest: ArgVal<ad.Num>[],
 ): Result<ShapeListV<ad.Num>, StyleDiagnostics> => {
   const elems = [first];
   for (const v of rest) {
@@ -2854,7 +2854,7 @@ const evalListOrVector = (
   stages: OptPipeline,
   context: Context,
   coll: List<C> | Vector<C>,
-  trans: Translation
+  trans: Translation,
 ): Result<Value<ad.Num>, StyleDiagnostics> => {
   return evalExprs(mut, canvas, stages, context, coll.contents, trans).andThen(
     (argVals) => {
@@ -2894,7 +2894,7 @@ const evalListOrVector = (
           }
         }
       }
-    }
+    },
   );
 };
 
@@ -2904,7 +2904,7 @@ const isValidIndex = (a: unknown[], i: number): boolean =>
 const evalAccess = (
   expr: Path<C>,
   coll: Value<ad.Num>,
-  indices: number[]
+  indices: number[],
 ): Result<FloatV<ad.Num>, StyleError> => {
   switch (coll.tag) {
     case "ListV":
@@ -2952,7 +2952,7 @@ const evalAccess = (
 
 const evalUMinus = (
   expr: UOp<C>,
-  arg: Value<ad.Num>
+  arg: Value<ad.Num>,
 ): Result<Value<ad.Num>, StyleError> => {
   switch (arg.tag) {
     case "FloatV": {
@@ -2979,7 +2979,7 @@ const evalUMinus = (
 
 const evalUTranspose = (
   expr: UOp<C>,
-  arg: Value<ad.Num>
+  arg: Value<ad.Num>,
 ): Result<Value<ad.Num>, StyleError> => {
   switch (arg.tag) {
     case "MatrixV": {
@@ -3007,7 +3007,7 @@ const evalExpr = (
   canvas: Canvas,
   layoutStages: OptPipeline,
   { context, expr }: WithContext<Expr<C>>,
-  trans: Translation
+  trans: Translation,
 ): Result<ArgVal<ad.Num>, StyleDiagnostics> => {
   switch (expr.tag) {
     case "BinOp": {
@@ -3017,7 +3017,7 @@ const evalExpr = (
         layoutStages,
         context,
         [expr.left, expr.right],
-        trans
+        trans,
       ).andThen(([left, right]) => {
         const res = evalBinOp(expr, left, right);
         if (res.isErr()) {
@@ -3045,7 +3045,7 @@ const evalExpr = (
         layoutStages,
         context,
         expr.args,
-        trans
+        trans,
       );
       if (args.isErr()) {
         return err(args.error);
@@ -3060,7 +3060,7 @@ const evalExpr = (
       const { name, start, end } = expr;
       if (!isKeyOf(name.value, compDict)) {
         return err(
-          oneErr({ tag: "InvalidFunctionNameError", givenName: name })
+          oneErr({ tag: "InvalidFunctionNameError", givenName: name }),
         );
       }
       const f = compDict[name.value];
@@ -3089,7 +3089,7 @@ const evalExpr = (
         layoutStages,
         context,
         expr,
-        trans
+        trans,
       ).map(val);
     }
     case "Path": {
@@ -3116,7 +3116,7 @@ const evalExpr = (
             canvas,
             layoutStages,
             { context, expr: e },
-            trans
+            trans,
           ).andThen<number>((i) => {
             if (i.tag === "ShapeVal") {
               return err(oneErr({ tag: "NotValueError", expr: e }));
@@ -3128,8 +3128,8 @@ const evalExpr = (
             } else {
               return err(oneErr({ tag: "BadIndexError", expr: e }));
             }
-          })
-        )
+          }),
+        ),
       );
       if (res.isErr()) {
         return err(flatErrs(res.error));
@@ -3150,7 +3150,7 @@ const evalExpr = (
         layoutStages,
         context,
         expr.contents,
-        trans
+        trans,
       ).andThen(([left, right]) => {
         if (left.tag !== "FloatV") {
           return err(oneErr({ tag: "BadElementError", coll: expr, index: 0 }));
@@ -3167,7 +3167,7 @@ const evalExpr = (
         canvas,
         layoutStages,
         { context, expr: expr.arg },
-        trans
+        trans,
       ).andThen((argVal) => {
         if (argVal.tag === "ShapeVal") {
           return err(oneErr({ tag: "NotValueError", expr }));
@@ -3195,7 +3195,7 @@ const evalExpr = (
       const stages: OptStages = stageExpr(
         layoutStages,
         exclude,
-        expr.stages.map((s) => s.value)
+        expr.stages.map((s) => s.value),
       );
       return ok(
         val(
@@ -3203,9 +3203,9 @@ const evalExpr = (
             mut.makeInput({
               init: { tag: "Sampled", sampler: uniform(...canvas.xRange) },
               stages,
-            })
-          )
-        )
+            }),
+          ),
+        ),
       );
     }
     case "CollectionAccess": {
@@ -3234,8 +3234,8 @@ const evalExpr = (
             unexpectedCollectionAccessError(name.value, {
               start: expr.start,
               end: expr.end,
-            })
-          )
+            }),
+          ),
         );
       }
     }
@@ -3253,7 +3253,7 @@ type CollectionType<T> =
 
 const collectIntoVal = (
   coll: ArgVal<ad.Num>[],
-  expr: CollectionAccess<C>
+  expr: CollectionAccess<C>,
 ): Result<CollectionType<ad.Num>, StyleDiagnostics> => {
   if (coll.length === 0) {
     return ok(vectorV([]));
@@ -3278,7 +3278,7 @@ const collectIntoVal = (
           tag: "BadElementError",
           coll: expr,
           index: 0,
-        })
+        }),
       );
     }
   }
@@ -3287,7 +3287,7 @@ const collectIntoVal = (
 const stageExpr = (
   overallStages: string[],
   excludeFlag: boolean,
-  stageList: string[]
+  stageList: string[],
 ): OptStages => {
   if (excludeFlag) {
     const stages = new Set(overallStages);
@@ -3301,7 +3301,7 @@ const stageExpr = (
 };
 
 const extractObjConstrBody = (
-  body: InlineComparison<C> | FunctionCall<C>
+  body: InlineComparison<C> | FunctionCall<C>,
 ): { name: Identifier<C>; argExprs: Expr<C>[] } => {
   if (body.tag === "InlineComparison") {
     const mapInlineOpToFunctionName = (op: "<" | "==" | ">"): string => {
@@ -3341,7 +3341,7 @@ const translateExpr = (
   layoutStages: OptPipeline,
   path: string,
   e: WithContext<NotShape>,
-  trans: Translation
+  trans: Translation,
 ): Translation => {
   switch (e.expr.tag) {
     case "BinOp":
@@ -3374,7 +3374,7 @@ const translateExpr = (
         layoutStages,
         e.context,
         argExprs,
-        trans
+        trans,
       );
       if (args.isErr()) {
         return addDiags(args.error, trans);
@@ -3389,13 +3389,13 @@ const translateExpr = (
       if (!isKeyOf(fname, constrDict)) {
         return addDiags(
           oneErr({ tag: "InvalidConstraintNameError", givenName: name }),
-          trans
+          trans,
         );
       }
       const output = callObjConstrFunc(
         constrDict[fname],
         { start: e.expr.start, end: e.expr.end },
-        argsWithSourceLoc
+        argsWithSourceLoc,
       );
       if (output.isErr()) {
         return addDiags(oneErr(output.error), trans);
@@ -3406,7 +3406,7 @@ const translateExpr = (
       const optStages: OptStages = stageExpr(
         layoutStages,
         exclude,
-        stages.map((s) => s.value)
+        stages.map((s) => s.value),
       );
       return {
         ...trans,
@@ -3429,7 +3429,7 @@ const translateExpr = (
         layoutStages,
         e.context,
         argExprs,
-        trans
+        trans,
       );
       if (args.isErr()) {
         return addDiags(args.error, trans);
@@ -3444,19 +3444,19 @@ const translateExpr = (
       if (!isKeyOf(fname, objDict)) {
         return addDiags(
           oneErr({ tag: "InvalidObjectiveNameError", givenName: name }),
-          trans
+          trans,
         );
       }
 
       const optStages: OptStages = stageExpr(
         layoutStages,
         exclude,
-        stages.map((s) => s.value)
+        stages.map((s) => s.value),
       );
       const output = callObjConstrFunc(
         objDict[fname],
         { start: e.expr.start, end: e.expr.end },
-        argsWithSourceLoc
+        argsWithSourceLoc,
       );
       if (output.isErr()) {
         return addDiags(oneErr(output.error), trans);
@@ -3479,17 +3479,17 @@ const translateExpr = (
       const { expr, context } = e;
 
       const leftPp = prettyPrintResolvedPath(
-        resolveRhsPath({ context: context, expr: expr.left })
+        resolveRhsPath({ context: context, expr: expr.left }),
       );
       const leftResolved = evalExpr(
         mut,
         canvas,
         layoutStages,
         { context, expr: expr.left },
-        trans
+        trans,
       );
       const rightListPp = expr.right.map((r: Path<C>) =>
-        prettyPrintResolvedPath(resolveRhsPath({ context: context, expr: r }))
+        prettyPrintResolvedPath(resolveRhsPath({ context: context, expr: r })),
       );
       const rightListResolved = evalExprs(
         mut,
@@ -3497,7 +3497,7 @@ const translateExpr = (
         layoutStages,
         context,
         expr.right,
-        trans
+        trans,
       );
       if (leftResolved.isErr()) {
         return addDiags(leftResolved.error, trans);
@@ -3512,7 +3512,7 @@ const translateExpr = (
             },
             expr: leftPp,
           }),
-          trans
+          trans,
         );
       }
 
@@ -3530,7 +3530,7 @@ const translateExpr = (
               },
               expr: rightListPp[i],
             }),
-            trans
+            trans,
           );
         }
       }
@@ -3554,7 +3554,7 @@ const translateExpr = (
 const evalGPI = (
   path: string,
   shapeType: ShapeType,
-  trans: Translation
+  trans: Translation,
 ): Result<Shape<ad.Num>, StyleError> => {
   return checkShape(shapeType, path, trans);
 };
@@ -3564,7 +3564,7 @@ export const translate = (
   canvas: Canvas,
   stages: OptPipeline,
   graph: DepGraph,
-  warnings: im.List<StyleWarning>
+  warnings: im.List<StyleWarning>,
 ): Translation => {
   let symbols = im.Map<string, ArgVal<ad.Num>>();
   for (const path of graph.nodes()) {
@@ -3595,7 +3595,7 @@ export const translate = (
             ? undefined
             : { start: e.expr.start, end: e.expr.end },
       };
-    })
+    }),
   );
   if (cycles.length > 0) {
     return {
@@ -3660,7 +3660,7 @@ export type LayerGraph = Graph<string>;
 export const processLayering = (
   { below, above }: Layer,
   groupGraph: GroupGraph,
-  layerGraph: LayerGraph
+  layerGraph: LayerGraph,
 ): void => {
   // Path from the root to the node, excluding the root
   // [..., below]
@@ -3687,7 +3687,7 @@ export const processLayering = (
 export const computeLayerOrdering = (
   allGPINames: string[],
   partialOrderings: Layer[],
-  groupGraph: GroupGraph
+  groupGraph: GroupGraph,
 ): {
   shapeOrdering: string[];
   warning?: LayerCycleWarning;
@@ -3720,7 +3720,7 @@ export const computeLayerOrdering = (
 
 const pseudoTopsort = (graph: Graph<string>): string[] => {
   const indegree = new Map<string, number>(
-    graph.nodes().map((i) => [i, graph.inEdges(i).length])
+    graph.nodes().map((i) => [i, graph.inEdges(i).length]),
   );
   // Nodes with lower in-degrees have highest priority.
   // Swap if a has higher in-degree than b.
@@ -3747,7 +3747,7 @@ const pseudoTopsort = (graph: Graph<string>): string[] => {
 // Check that canvas dimensions exist and have the proper type.
 export const getCanvasDim = (
   attr: "width" | "height",
-  graph: DepGraph
+  graph: DepGraph,
 ): Result<number, StyleError> => {
   const i = `canvas.${attr}`;
   if (!graph.hasNode(i))
@@ -3776,7 +3776,7 @@ export const parseStyle = (p: string): Result<StyProg<C>, ParseError> => {
       return ok(ast);
     } else {
       return err(
-        parseError(`Unexpected end of input`, lastLocation(parser), "Style")
+        parseError(`Unexpected end of input`, lastLocation(parser), "Style"),
       );
     }
   } catch (e) {
@@ -3785,10 +3785,10 @@ export const parseStyle = (p: string): Result<StyProg<C>, ParseError> => {
 };
 
 export const getLayoutStages = (
-  prog: StyProg<C>
+  prog: StyProg<C>,
 ): Result<OptPipeline, MultipleLayoutError> => {
   const layoutStmts: LayoutStages<C>[] = prog.items.filter(
-    (i): i is LayoutStages<C> => i.tag === "LayoutStages"
+    (i): i is LayoutStages<C> => i.tag === "LayoutStages",
   );
   if (layoutStmts.length === 0) {
     // if no stages specified, default to "" because that way nobody can refer
@@ -3808,7 +3808,7 @@ export const getLayoutStages = (
 
 const getShapesList = (
   { symbols }: Translation,
-  shapeOrdering: string[]
+  shapeOrdering: string[],
 ): Shape<ad.Num>[] => {
   return shapeOrdering.map((path) => {
     const shape = symbols.get(path);
@@ -3836,7 +3836,7 @@ const onCanvases = (canvas: Canvas, shapes: Shape<ad.Num>[]): Fn[] => {
       const output = constrDict.onCanvas.body(
         shape,
         canvas.width,
-        canvas.height
+        canvas.height,
       ).value;
       fns.push({
         ast: {
@@ -3878,7 +3878,7 @@ export const stageConstraints = (
   inputs: InputMeta[],
   constrFns: Fn[],
   objFns: Fn[],
-  stages: OptPipeline
+  stages: OptPipeline,
 ): StagedConstraints =>
   new Map(
     stages.map((stage) => [
@@ -3886,18 +3886,18 @@ export const stageConstraints = (
       {
         inputMask: inputs.map((i) => i.stages === "All" || i.stages.has(stage)),
         constrMask: constrFns.map(
-          ({ optStages }) => optStages === "All" || optStages.has(stage)
+          ({ optStages }) => optStages === "All" || optStages.has(stage),
         ),
         objMask: objFns.map(
-          ({ optStages }) => optStages === "All" || optStages.has(stage)
+          ({ optStages }) => optStages === "All" || optStages.has(stage),
         ),
       },
-    ])
+    ]),
   );
 
 const processPassthrough = (
   { symbols }: Translation,
-  nameShapeMap: Map<string, Shape<ad.Num>>
+  nameShapeMap: Map<string, Shape<ad.Num>>,
 ): Result<void, StyleError> => {
   for (const [key, value] of symbols) {
     const i = key.lastIndexOf(".");
@@ -3912,7 +3912,7 @@ const processPassthrough = (
           shape.passthrough.set(propName, value.contents);
         } else {
           return err(
-            badShapeParamTypeError(key, value, "StrV or FloatV", true)
+            badShapeParamTypeError(key, value, "StrV or FloatV", true),
           );
         }
       } else {
@@ -3927,7 +3927,7 @@ export const compileStyleHelper = async (
   variation: string,
   stySource: string,
   subEnv: SubstanceEnv,
-  varEnv: Env
+  varEnv: Env,
 ): Promise<
   Result<
     {
@@ -3968,7 +3968,7 @@ export const compileStyleHelper = async (
   const graph = gatherDependencies(assignment);
 
   const canvas = getCanvasDim("width", graph).andThen((w) =>
-    getCanvasDim("height", graph).map((h) => makeCanvas(w, h))
+    getCanvasDim("height", graph).map((h) => makeCanvas(w, h)),
   );
   if (canvas.isErr()) {
     return err(toStyleErrors([canvas.error]));
@@ -3994,7 +3994,7 @@ export const compileStyleHelper = async (
     canvas.value,
     optimizationStages.value,
     graph,
-    assignment.diagnostics.warnings
+    assignment.diagnostics.warnings,
   );
 
   log.info("translation (before genOptProblem)", translation);
@@ -4006,7 +4006,7 @@ export const compileStyleHelper = async (
   const groupGraph: GroupGraph = makeGroupGraph(
     getShapesList(translation, [
       ...graph.nodes().filter((p) => typeof graph.node(p) === "string"),
-    ])
+    ]),
   );
 
   const groupWarnings = checkGroupGraph(groupGraph);
@@ -4015,7 +4015,7 @@ export const compileStyleHelper = async (
     computeLayerOrdering(
       [...graph.nodes().filter((p) => typeof graph.node(p) === "string")],
       [...translation.layering],
-      groupGraph
+      groupGraph,
     );
 
   // Fix the ordering between nodes of the group graph
@@ -4041,7 +4041,7 @@ export const compileStyleHelper = async (
   const renderGraph = buildRenderGraph(
     findOrderedRoots(groupGraph),
     groupGraph,
-    nameShapeMap
+    nameShapeMap,
   );
 
   const objFns = [...translation.objectives];
@@ -4055,7 +4055,7 @@ export const compileStyleHelper = async (
     metas,
     constrFns,
     objFns,
-    optimizationStages.value
+    optimizationStages.value,
   );
 
   const computeShapes = await compileCompGraph(inputs, renderGraph);
@@ -4063,7 +4063,7 @@ export const compileStyleHelper = async (
   const gradient = await genGradient(
     inputs,
     objFns.map(({ output }) => output),
-    constrFns.map(({ output }) => output)
+    constrFns.map(({ output }) => output),
   );
 
   const params = genOptProblem(varyingValues.length);
@@ -4103,15 +4103,15 @@ export const compileStyle = async (
   stySource: string,
   excludeWarnings: string[],
   subEnv: SubstanceEnv,
-  varEnv: Env
+  varEnv: Env,
 ): Promise<Result<State, PenroseError>> =>
   (await compileStyleHelper(variation, stySource, subEnv, varEnv)).map(
     ({ state }) => ({
       ...state,
       warnings: state.warnings.filter(
-        (warning) => !excludeWarnings.includes(warning.tag)
+        (warning) => !excludeWarnings.includes(warning.tag),
       ),
-    })
+    }),
   );
 
 //#endregion Main funcitons

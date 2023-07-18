@@ -8,7 +8,7 @@ export const dragUpdate = (
   state: State,
   id: string,
   dx: number,
-  dy: number
+  dy: number,
 ): State => {
   const xs = [...state.varyingValues];
   // TODO: fix dragging
