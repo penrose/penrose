@@ -1,6 +1,7 @@
 import {
   Action,
   Actions,
+  DockLocation,
   IJsonRowNode,
   Layout,
   Model,
@@ -27,9 +28,12 @@ import StateInspector from "./components/StateInspector.js";
 import SvgUploader from "./components/SvgUploader.js";
 import TopBar from "./components/TopBar.js";
 import {
+  Diagram,
   RogerState,
+  Workspace,
   currentRogerState,
   currentWorkspaceState,
+  diagramState,
   fileContentsSelector,
   localFilesState,
   settingsState,
@@ -42,6 +46,7 @@ const mainRowLayout: IJsonRowNode = {
   children: [
     {
       type: "tabset",
+      id: "mainEditor",
       weight: process.env.NODE_ENV === "development" ? 25 : 50,
       children: [
         ...(process.env.NODE_ENV === "development"
@@ -108,6 +113,8 @@ export const layoutModel = Model.fromJson({
     {
       type: "border",
       location: "left",
+      // auto-expand examples tab on start
+      selected: process.env.NODE_ENV === "development" ? -1 : 1,
       children: [
         {
           type: "tab",
@@ -117,6 +124,7 @@ export const layoutModel = Model.fromJson({
         {
           type: "tab",
           name: "examples",
+          id: "examples",
           component: "examplesPanel",
         },
         {
@@ -187,7 +195,7 @@ function App() {
       }
       return <div>Placeholder</div>;
     },
-    [rogerState]
+    [rogerState],
   );
   const onAction = useRecoilCallback(
     ({ set, snapshot }) =>
@@ -196,7 +204,7 @@ function App() {
           const node = layoutModel.getNodeById(action.data.node) as TabNode;
           const { kind } = node.getConfig();
           const program = snapshot.getLoadable(
-            fileContentsSelector(kind)
+            fileContentsSelector(kind),
           ).contents;
           set(fileContentsSelector(kind), {
             ...program,
@@ -205,7 +213,7 @@ function App() {
         }
         return action;
       },
-    []
+    [],
   );
   const updatedFile = useRecoilCallback(
     ({ snapshot, set }) =>
@@ -230,7 +238,47 @@ function App() {
           await compileDiagram();
         }
       },
-    []
+    [],
+  );
+
+  //
+  const updateTrio = useRecoilCallback(
+    ({ set }) =>
+      async (files: any) => {
+        await set(currentWorkspaceState, (workspace: Workspace) => ({
+          ...workspace,
+          files: {
+            domain: {
+              name: files.domain.fileName,
+              contents: files.domain.contents,
+            },
+            style: {
+              name: files.style.fileName,
+              contents: files.style.contents,
+            },
+            substance: {
+              name: files.substance.fileName,
+              contents: files.substance.contents,
+            },
+          },
+        }));
+        await compileDiagram();
+      },
+    [],
+  );
+
+  const updateExcludeWarnings = useRecoilCallback(
+    ({ set }) =>
+      async (excludeWarnings: string[]) => {
+        await set(diagramState, (state: Diagram) => ({
+          ...state,
+          metadata: {
+            ...state.metadata,
+            excludeWarnings,
+          },
+        }));
+      },
+    [],
   );
 
   const connectRoger = useCallback(() => {
@@ -261,8 +309,10 @@ function App() {
         case "file_change":
           updatedFile(parsed.fileName, parsed.contents);
           break;
-        default:
-          toast.error(`Couldn't handle Roger message ${parsed.kind}`);
+        case "trio_files":
+          updateTrio(parsed.files);
+          updateExcludeWarnings(parsed.excludeWarnings);
+          break;
       }
     };
   }, []);
@@ -275,8 +325,14 @@ function App() {
     layoutModel.doAction(
       Actions.updateModelAttributes({
         rootOrientationVertical: isTabletOrMobile && isPortrait,
-      })
+      }),
     );
+    // on mobile, move example browser to the center panel
+    if (isTabletOrMobile && isPortrait) {
+      layoutModel.doAction(
+        Actions.moveNode("examples", "mainEditor", DockLocation.CENTER, 0),
+      );
+    }
   }, [isTabletOrMobile, isPortrait]);
 
   const checkURL = useCheckURL();

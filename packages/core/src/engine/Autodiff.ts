@@ -191,7 +191,7 @@ const binarySensitivities = (z: ad.Binary): { left: ad.Num; right: ad.Num } => {
       return { left: 1, right: -1 };
     }
     case "/": {
-      return { left: inverse(w), right: neg(div(v, squared(w))) };
+      return { left: inverse(w), right: neg(div(z, w)) };
     }
     case "max": {
       const cond = gt(v, w);
@@ -291,7 +291,7 @@ const children = (x: ad.Expr): Child[] => {
         }
 
         const minusDerivative = neg(
-          addN(zip2(derivCoeffs, powers).map(([c, p]) => mul(c, p)))
+          addN(zip2(derivCoeffs, powers).map(([c, p]) => mul(c, p))),
         );
 
         // if the root is `NaN` then it doesn't contribute to the gradient
@@ -315,7 +315,7 @@ const children = (x: ad.Expr): Child[] => {
 };
 
 const getInputNodes = (
-  graph: ad.Graph["graph"]
+  graph: ad.Graph["graph"],
 ): { id: ad.Id; label: ad.InputNode }[] => {
   const inputs = [];
   // every input must be a source
@@ -350,7 +350,7 @@ const getInputKey = (graph: ad.Graph["graph"], id: ad.Id): number => {
  */
 export const makeGraph = (
   outputs: Omit<ad.Outputs<ad.Num>, "gradient">,
-  getKey?: (x: ad.Var) => number
+  getKey?: (x: ad.Var) => number,
 ): ad.Graph => {
   const graph = new Graph<ad.Id, ad.Node, ad.Edge>();
   const nodes = new Map<ad.Expr, ad.Id>();
@@ -397,7 +397,7 @@ export const makeGraph = (
   const addEdge = (
     child: ad.Expr,
     parent: ad.Expr,
-    e: ad.Edge
+    e: ad.Edge,
   ): [ad.Id, ad.Id] => {
     const i = safe(nodes.get(child), "missing child");
     const j = safe(nodes.get(parent), "missing parent");
@@ -467,7 +467,7 @@ export const makeGraph = (
 
     // control the order in which partial derivatives are added
     const edges = [...graph.outEdges(id)].sort((a, b) =>
-      a.j === b.j ? a.e - b.e : a.j - b.j
+      a.j === b.j ? a.e - b.e : a.j - b.j,
     );
 
     // we call graph.setEdge in this loop, so it may seem like it would be
@@ -512,7 +512,7 @@ export const makeGraph = (
           });
           return gradID;
         }
-      })
+      }),
     );
   }
 
@@ -546,7 +546,7 @@ export const makeGraph = (
  */
 export const primaryGraph = (
   output: ad.Num,
-  getKey?: (x: ad.Var) => number
+  getKey?: (x: ad.Var) => number,
 ): ad.Graph => makeGraph({ primary: output, secondary: [] }, getKey);
 
 /**
@@ -555,7 +555,7 @@ export const primaryGraph = (
  */
 export const secondaryGraph = (
   outputs: ad.Num[],
-  getKey?: (x: ad.Var) => number
+  getKey?: (x: ad.Var) => number,
 ): ad.Graph =>
   // use 1 because makeGraph always constructs a constant gradient node 1 for
   // the primary output, and so if that's already present in the graph then we
@@ -971,7 +971,7 @@ export const ops = {
 
     return atan2(
       ops.cross2(u, v), // y = |u||v|sin(theta)
-      ops.vdot(u, v) // x = |u||v|cos(theta)
+      ops.vdot(u, v), // x = |u||v|cos(theta)
     );
   },
 
@@ -1269,7 +1269,7 @@ const modulePrefix = (gradientFunctionSizes: number[]): wasm.Module => {
 const compileUnary = (
   t: wasm.Target,
   { unop }: ad.UnaryNode,
-  param: number
+  param: number,
 ): void => {
   switch (unop) {
     case "squared": {
@@ -1359,7 +1359,7 @@ const compileBinary = (
   t: wasm.Target,
   { binop }: ad.BinaryNode | ad.CompNode | ad.LogicNode,
   left: number,
-  right: number
+  right: number,
 ): void => {
   switch (binop) {
     case "+":
@@ -1417,7 +1417,7 @@ const naryOps = {
 const compileNary = (
   t: wasm.Target,
   { op }: ad.NaryNode,
-  params: number[]
+  params: number[],
 ): void => {
   if (params.length === 0) {
     // only spend bytes on an f64 constant when necessary
@@ -1439,7 +1439,7 @@ const compileNary = (
 const compileNode = (
   t: wasm.Target,
   node: Exclude<ad.Node, ad.InputNode>,
-  preds: number[]
+  preds: number[],
 ): void => {
   switch (node.tag) {
     case "Const": {
@@ -1581,7 +1581,7 @@ const getIndex = (locals: Locals, id: ad.Id): number => {
 
 const compileGraph = (
   t: wasm.Target,
-  { graph, nodes, gradient, primary, secondary }: ad.Graph
+  { graph, nodes, gradient, primary, secondary }: ad.Graph,
 ): void => {
   const counts = { i32: 0, f64: 0 };
   const indices = new Map<ad.Id, Local>();
@@ -1750,7 +1750,7 @@ const genBytes = (graphs: ad.Graph[]): Uint8Array => {
 
   if (mod.count.size !== mod.bytes.length)
     throw Error(
-      `allocated ${mod.bytes.length} bytes but used ${mod.count.size}`
+      `allocated ${mod.bytes.length} bytes but used ${mod.count.size}`,
     );
   return mod.bytes;
 };
@@ -1778,8 +1778,8 @@ const makeMeta = (graphs: ad.Graph[]): Metadata => {
   const numInputs = Math.max(
     0,
     ...graphs.flatMap(({ graph }) =>
-      getInputNodes(graph).map(({ label: { key } }) => key + 1)
-    )
+      getInputNodes(graph).map(({ label: { key } }) => key + 1),
+    ),
   );
 
   const offsetMask = offsetInputs + numInputs * bytesF64;
@@ -1853,14 +1853,14 @@ const makeImports = (memory: WebAssembly.Memory): WebAssembly.Imports => ({
             polyRoots(new Float64Array(memory.buffer, p, n));
           },
         }[name],
-      ])
+      ]),
     ),
   },
 });
 
 const getExport = (
   meta: Metadata,
-  instance: WebAssembly.Instance
+  instance: WebAssembly.Instance,
 ): (() => number) => {
   // we generated a WebAssembly function which exports a function that takes in
   // integers representing pointers to the various arrays it deals with
@@ -1869,7 +1869,7 @@ const getExport = (
     mask: number,
     gradient: number,
     secondary: number,
-    stackPointer: number
+    stackPointer: number,
   ) => number;
   return () =>
     f(
@@ -1877,14 +1877,14 @@ const getExport = (
       meta.offsetMask,
       meta.offsetGradient,
       meta.offsetSecondary,
-      meta.offsetStack
+      meta.offsetStack,
     );
 };
 
 const makeCompiled = (
   graphs: ad.Graph[],
   meta: Metadata,
-  instance: WebAssembly.Instance
+  instance: WebAssembly.Instance,
 ): ad.Compiled => {
   const indices = new Map<ad.Var, number>();
   for (const { graph, nodes } of graphs) {
@@ -1904,7 +1904,7 @@ const makeCompiled = (
   // terms of arrays, using the `meta` data to translate between the two
   return (
     inputs: (x: ad.Var) => number,
-    mask?: boolean[]
+    mask?: boolean[],
   ): ad.Outputs<number> => {
     for (const [x, i] of indices) meta.arrInputs[i] = inputs(x);
     for (let i = 0; i < graphs.length; i++)
@@ -1934,7 +1934,7 @@ export const genCode = async (...graphs: ad.Graph[]): Promise<ad.Compiled> => {
   const meta = makeMeta(graphs);
   const instance = await WebAssembly.instantiate(
     await WebAssembly.compile(genBytes(graphs)),
-    makeImports(meta.memory)
+    makeImports(meta.memory),
   );
   return makeCompiled(graphs, meta, instance);
 };
@@ -1948,7 +1948,7 @@ export const genCodeSync = (...graphs: ad.Graph[]): ad.Compiled => {
   const meta = makeMeta(graphs);
   const instance = new WebAssembly.Instance(
     new WebAssembly.Module(genBytes(graphs)),
-    makeImports(meta.memory)
+    makeImports(meta.memory),
   );
   return makeCompiled(graphs, meta, instance);
 };
@@ -1957,7 +1957,7 @@ export const genCodeSync = (...graphs: ad.Graph[]): ad.Compiled => {
 export const genGradient = async (
   inputs: ad.Var[],
   objectives: ad.Num[],
-  constraints: ad.Num[]
+  constraints: ad.Num[],
 ): Promise<ad.Gradient> => {
   const n = inputs.length;
 
@@ -1981,7 +1981,7 @@ export const genGradient = async (
     secondary[objectives.length + i] = x;
     return makeGraph(
       { primary: mul(lambda, fns.toPenalty(x)), secondary },
-      getKey
+      getKey,
     );
   });
 
@@ -1989,7 +1989,7 @@ export const genGradient = async (
   const meta = makeMeta(graphs);
   const instance = await WebAssembly.instantiate(
     await WebAssembly.compile(genBytes(graphs)),
-    makeImports(meta.memory)
+    makeImports(meta.memory),
   );
   const f = getExport(meta, instance);
 
@@ -1997,25 +1997,25 @@ export const genGradient = async (
     { inputMask, objMask, constrMask }: ad.Masks,
     inputs: Float64Array,
     weight: number,
-    grad: Float64Array
+    grad: Float64Array,
   ): ad.OptOutputs => {
     if (inputMask.length !== n)
       throw Error(
-        `expected ${n} inputs, got input mask with length ${inputMask.length}`
+        `expected ${n} inputs, got input mask with length ${inputMask.length}`,
       );
     if (objMask.length !== objectives.length)
       throw Error(
-        `expected ${objectives.length} objectives, got objective mask with length ${objMask.length}`
+        `expected ${objectives.length} objectives, got objective mask with length ${objMask.length}`,
       );
     if (constrMask.length !== constraints.length)
       throw Error(
-        `expected ${constraints.length} constraints, got constraint mask with length ${constrMask.length}`
+        `expected ${constraints.length} constraints, got constraint mask with length ${constrMask.length}`,
       );
     if (inputs.length !== n)
       throw Error(`expected ${n} inputs, got ${inputs.length}`);
     if (grad.length !== n)
       throw Error(
-        `expected ${n} inputs, got gradient with length ${grad.length}`
+        `expected ${n} inputs, got gradient with length ${grad.length}`,
       );
 
     // the computation graph might not use all the inputs, so we truncate the
@@ -2062,13 +2062,13 @@ export const problem = async ({
   };
   const obj = primaryGraph(objective ?? 0, getKey);
   const constrs = (constraints ?? []).map((x) =>
-    primaryGraph(mul(lambda, fns.toPenalty(x)), getKey)
+    primaryGraph(mul(lambda, fns.toPenalty(x)), getKey),
   );
   const graphs = [obj, ...constrs];
   const meta = makeMeta(graphs);
   const instance = await WebAssembly.instantiate(
     await WebAssembly.compile(genBytes(graphs)),
-    makeImports(meta.memory)
+    makeImports(meta.memory),
   );
   const f = getExport(meta, instance);
   const n = vars.size;
@@ -2102,13 +2102,13 @@ export const problem = async ({
                 (
                   inputs: Float64Array /*read-only*/,
                   weight: number,
-                  grad: Float64Array /*write-only*/
+                  grad: Float64Array /*write-only*/,
                 ): number => {
                   if (inputs.length !== n)
                     throw Error(`expected ${n} inputs, got ${inputs.length}`);
                   if (grad.length !== n)
                     throw Error(
-                      `expected ${n} inputs, got gradient with length ${grad.length}`
+                      `expected ${n} inputs, got gradient with length ${grad.length}`,
                     );
                   meta.arrInputs.set(inputs.subarray(0, n), 1);
                   // the first input is the weight
@@ -2128,7 +2128,7 @@ export const problem = async ({
                 () => {
                   if (until) stop = until();
                   return stop;
-                }
+                },
               );
             }
             return wrap(Array.from(arr), after);
@@ -2141,7 +2141,7 @@ export const problem = async ({
 };
 
 export const compile = async (
-  xs: ad.Num[]
+  xs: ad.Num[],
 ): Promise<(inputs: (x: ad.Var) => number) => number[]> => {
   const indices = new Map<ad.Var, number>();
   const graph = secondaryGraph(xs, (x: ad.Var): number => {
@@ -2157,7 +2157,7 @@ export const compile = async (
   meta.arrMask[0] = 1; // only one graph, always run it
   const instance = await WebAssembly.instantiate(
     await WebAssembly.compile(genBytes(graphs)),
-    makeImports(meta.memory)
+    makeImports(meta.memory),
   );
   const f = getExport(meta, instance);
   return (inputs: (x: ad.Var) => number): number[] => {

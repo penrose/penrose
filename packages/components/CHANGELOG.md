@@ -3,6 +3,55 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v3.0.0](https://github.com/penrose/penrose/compare/v2.3.0...v3.0.0) (2023-07-14)
+
+### :warning: BREAKING CHANGE
+
+- clean up `core` exports and synthesizer modules (#1367)
+- combine `automator` and `roger` (#1387)
+- consolidate shape types (#1337)
+- more readable `core` language API (#1527)
+- put each trio in its own JSON file (#1393)
+
+### :rocket: New Feature
+
+- Substance as spreadsheet for timeline diagrams ([#1419](https://github.com/penrose/penrose/issues/1419)) ([8c54f24](https://github.com/penrose/penrose/commit/8c54f24dfac463396422cd9837e2a55ee57f8787))
+- Substance variable collection ([#1390](https://github.com/penrose/penrose/issues/1390)) ([c2d2467](https://github.com/penrose/penrose/commit/c2d2467a8f094695e0786a4464e556bfc2bda1a8))
+- add multiple choice component to `synthesizer-ui` ([#1344](https://github.com/penrose/penrose/issues/1344)) ([8767e36](https://github.com/penrose/penrose/commit/8767e360ba8cf92210b1177ba2f07586d945d613))
+- additional constructor declaration syntax in Domain and Substance ([#1472](https://github.com/penrose/penrose/issues/1472)) ([ff1a7d7](https://github.com/penrose/penrose/commit/ff1a7d70a643d0cc19d4f14c7b962207f28c46b7))
+- cropping picks smaller viewbox in gallery and `editor` ([#1518](https://github.com/penrose/penrose/issues/1518)) ([b59854a](https://github.com/penrose/penrose/commit/b59854a69bd40e0d543fa16d6875150fb57207a9))
+- error and warning markings in IDE editor ([#1513](https://github.com/penrose/penrose/issues/1513)) ([c91a6c9](https://github.com/penrose/penrose/commit/c91a6c9794cc26a2e9134fe60e02f5d33e572a5b))
+- function warnings ([#1498](https://github.com/penrose/penrose/issues/1498)) ([3e68a94](https://github.com/penrose/penrose/commit/3e68a94ab933a841d882ea26c26a58b5728629bf))
+- homepage gallery component ([#1464](https://github.com/penrose/penrose/issues/1464)) ([130b2b7](https://github.com/penrose/penrose/commit/130b2b77904b926863c7348b7de085a792117ca9))
+- updated examples visible in gallery ([#1505](https://github.com/penrose/penrose/issues/1505)) ([230d534](https://github.com/penrose/penrose/commit/230d5344502a1b6506f03614f8b74c2035f50f71))
+
+### :bug: Bug Fix
+
+- remove width and height attributes in `editor` SVG export ([#1410](https://github.com/penrose/penrose/issues/1410)) ([3f68541](https://github.com/penrose/penrose/commit/3f685410b3543e59c77fd8c88893acb18ddfec2d))
+- repeated state updates in `Gridbox` of `components` ([#1430](https://github.com/penrose/penrose/issues/1430)) ([7c5657c](https://github.com/penrose/penrose/commit/7c5657ccdb7a29a15c9800a4a57fe6e13ca60075))
+
+### :nail_care: Polish
+
+- bump TypeScript version to 5.0 ([#1395](https://github.com/penrose/penrose/issues/1395)) ([b4ae329](https://github.com/penrose/penrose/commit/b4ae3298c9a03926ca690c63f368adcaa031b56d))
+- clean up `core` exports and synthesizer modules ([#1367](https://github.com/penrose/penrose/issues/1367)) ([cf24aaa](https://github.com/penrose/penrose/commit/cf24aaad28c3589d5770e75669f3e6e66d19d2aa))
+- combine `automator` and `roger` ([#1387](https://github.com/penrose/penrose/issues/1387)) ([678c6e5](https://github.com/penrose/penrose/commit/678c6e528d20d6cbbfd3a04f1fcad656e72bdc6e))
+- consolidate shape types ([#1337](https://github.com/penrose/penrose/issues/1337)) ([0d69c97](https://github.com/penrose/penrose/commit/0d69c9709d68f4dd4f8cc6a7773740fa6f872ccf))
+- more readable `core` language API ([#1527](https://github.com/penrose/penrose/issues/1527)) ([22c8fc6](https://github.com/penrose/penrose/commit/22c8fc68f225974a353df244832b3b1c90e5f0e0))
+- pull out base `tsconfig.json` ([#1392](https://github.com/penrose/penrose/issues/1392)) ([e6c5f55](https://github.com/penrose/penrose/commit/e6c5f5524837fe4c970713f05bbed821b9cda411))
+- put each trio in its own JSON file ([#1393](https://github.com/penrose/penrose/issues/1393)) ([803d7fc](https://github.com/penrose/penrose/commit/803d7fc20199262f833c2f60606ed1b778c92b72))
+
+### :memo: Documentation
+
+- homepage tweaks ([#1515](https://github.com/penrose/penrose/issues/1515)) ([0fa290e](https://github.com/penrose/penrose/commit/0fa290e3264c8c20c768a9ef509a768ee10d5030))
+- start a blog ([#1325](https://github.com/penrose/penrose/issues/1325)) ([6669567](https://github.com/penrose/penrose/commit/6669567917464c72d5dd445a6def540b0d11da93))
+- using Penrose programmatically ([#1525](https://github.com/penrose/penrose/issues/1525)) ([7952b2b](https://github.com/penrose/penrose/commit/7952b2baa81fd4e5631135b707703cbc07646380))
+
+### :house: Internal
+
+- bump version to 3.0.0-beta.0 ([#1542](https://github.com/penrose/penrose/issues/1542)) ([ef4fffb](https://github.com/penrose/penrose/commit/ef4fffbf22e03fdd3af84c439163ff24bc5ccb41))
+- bump version to 3.0.0-beta.1 ([#1543](https://github.com/penrose/penrose/issues/1543)) ([abe43d9](https://github.com/penrose/penrose/commit/abe43d9be98a719204b54cbf3abf4bbec9367d16))
+- switch from jest to vitest ([#1406](https://github.com/penrose/penrose/issues/1406)) ([8ef8c77](https://github.com/penrose/penrose/commit/8ef8c778488b17eb0f02a62d1399e0b0337f5355))
+
 ## [v2.3.0](https://github.com/penrose/penrose/compare/v2.2.0...v2.3.0) (2023-03-14)
 
 ### :rocket: New Feature

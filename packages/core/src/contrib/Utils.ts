@@ -53,9 +53,16 @@ export const isLinelike = <T>(s: Shape<T>): s is Linelike<T> => {
 
 export const bboxPts = (s: Shape<ad.Num>): [ad.Pt2, ad.Pt2, ad.Pt2, ad.Pt2] => {
   const { topRight, topLeft, bottomLeft, bottomRight } = BBox.corners(
-    bboxFromShape(s)
+    bboxFromShape(s),
   );
   return [topRight, topLeft, bottomLeft, bottomRight];
+};
+
+export const toPt = (v: ad.Num[]): ad.Pt2 => {
+  if (v.length !== 2) {
+    throw Error("expected vector of length 2");
+  }
+  return [v[0], v[1]];
 };
 
 /**
@@ -66,7 +73,7 @@ export const noIntersectCircles = (
   r1: ad.Num,
   center2: ad.Num[],
   r2: ad.Num,
-  padding = 10
+  padding = 10,
 ): ad.Num => {
   // noIntersect [[x1, y1, s1], [x2, y2, s2]] = - dist (x1, y1) (x2, y2) + (s1 + s2 + 10)
   const res = add(add(r1, r2), padding);
@@ -81,7 +88,7 @@ export const noIntersectCircles = (
 export const pointInBox = (p: ad.Pt2, rect: BBox.BBox): ad.Bool => {
   return and(
     and(lt(BBox.minX(rect), p[0]), lt(p[0], BBox.maxX(rect))),
-    and(lt(BBox.minY(rect), p[1]), lt(p[1], BBox.maxY(rect)))
+    and(lt(BBox.minY(rect), p[1]), lt(p[1], BBox.maxY(rect))),
   );
 };
 
@@ -92,7 +99,7 @@ export const pointInBox = (p: ad.Pt2, rect: BBox.BBox): ad.Bool => {
 export const atDistOutside = (
   pt: ad.Pt2,
   rect: BBox.BBox,
-  offset: ad.Num
+  offset: ad.Num,
 ): ad.Num => {
   const dsqRes = dsqBP(pt, rect);
   const WEIGHT = 1;
@@ -107,11 +114,11 @@ export const atDistOutside = (
 const dsqBP = (p: ad.Pt2, rect: BBox.BBox): ad.Num => {
   const dx = max(
     max(sub(BBox.minX(rect), p[0]), 0),
-    sub(p[0], BBox.maxX(rect))
+    sub(p[0], BBox.maxX(rect)),
   );
   const dy = max(
     max(sub(BBox.minY(rect), p[1]), 0),
-    sub(p[1], BBox.maxY(rect))
+    sub(p[1], BBox.maxY(rect)),
   );
   return add(squared(dx), squared(dy));
 };
@@ -123,14 +130,14 @@ const dsqBP = (p: ad.Pt2, rect: BBox.BBox): ad.Num => {
  */
 export const overlap1D = (
   [l1, r1]: [ad.Num, ad.Num],
-  [l2, r2]: [ad.Num, ad.Num]
+  [l2, r2]: [ad.Num, ad.Num],
 ): ad.Num => {
   const d = (x: ad.Num, y: ad.Num) => absVal(sub(x, y)); // Distance between two reals
   // const d = (x: ad.Num, y: ad.Num) => squared(sub(x, y)); // Distance squared, if just the asymptotic behavior matters
   return ifCond(
     or(lt(r1, l2), lt(r2, l1)), // disjoint intervals => overlap is 0
     0,
-    min(d(l2, r1), d(l1, r2))
+    min(d(l2, r1), d(l1, r2)),
   );
 };
 
@@ -189,7 +196,7 @@ export const clamp = ([l, r]: [ad.Num, ad.Num], x: ad.Num): ad.Num => {
  */
 export const closestPt_PtSeg = (
   pt: ad.Num[],
-  [start, end]: ad.Num[][]
+  [start, end]: ad.Num[][],
 ): ad.Num[] => {
   const EPS0 = 10e-3;
   const lensq = max(ops.vdistsq(start, end), EPS0); // Avoid a divide-by-0 if the line is too small
@@ -234,7 +241,7 @@ export const consecutiveTuples = <T>(items: T[], closed: boolean): [T, T][] => {
  */
 export const consecutiveTriples = <T>(
   items: T[],
-  closed: boolean
+  closed: boolean,
 ): [T, T, T][] => {
   const resLength = closed ? items.length : items.length - 2;
   if (resLength <= 0) return [];

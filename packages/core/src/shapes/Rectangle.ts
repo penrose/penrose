@@ -30,10 +30,9 @@ export interface RectangleProps<T>
 
 export const sampleRectangle = (
   context: Context,
-  canvas: Canvas
+  canvas: Canvas,
 ): RectangleProps<ad.Num> => ({
   name: strV("defaultRectangle"),
-  style: strV(""),
   strokeWidth: floatV(0),
   strokeStyle: strV("solid"),
   strokeColor: noPaint(),
@@ -54,7 +53,7 @@ export type Rectangle<T> = ShapeCommon<T> & {
 export const makeRectangle = (
   context: Context,
   canvas: Canvas,
-  properties: Partial<RectangleProps<ad.Num>>
+  properties: Partial<RectangleProps<ad.Num>>,
 ): Rectangle<ad.Num> => ({
   ...sampleRectangle(context, canvas),
   ...properties,

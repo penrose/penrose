@@ -1,5 +1,5 @@
 import localforage from "localforage";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Select from "react-select";
 import { useRecoilCallback, useRecoilValue } from "recoil";
 import { v4 as uuid } from "uuid";
@@ -15,6 +15,7 @@ export default function RogerPanel({
   rogerState: RogerState;
   ws: WebSocket | null;
 }) {
+  const [trio, setTrio] = useState(".trio.json");
   const workspace = useRecoilValue(currentWorkspaceState);
   const { substance, style, domain } = workspace.files;
   const onSelection = useRecoilCallback(
@@ -61,16 +62,16 @@ export default function RogerPanel({
             JSON.stringify({
               kind: "retrieve_file",
               fileName: val,
-            })
+            }),
           );
         }
-      }
+      },
   );
   useEffect(() => {
     if (rogerState.kind === "connected") {
       (async () => {
         const selectedFiles = (await localforage.getItem(
-          "selected_roger_files"
+          "selected_roger_files",
         )) as any;
         if (selectedFiles !== null) {
           onSelection(selectedFiles.domain, "domain");
@@ -115,6 +116,33 @@ export default function RogerPanel({
         getOptionValue={({ val }) => val}
         onChange={(e) => onSelection(e?.val ?? "", "domain")}
         value={{ val: domain.name }}
+      />
+      <h2>trio</h2>
+      <Select
+        options={rogerState.trio.map((val) => ({ val }))}
+        getOptionLabel={({ val }) => val}
+        getOptionValue={({ val }) => val}
+        onChange={(e) => {
+          const token = uuid();
+          if (e?.val) {
+            setTrio(e?.val);
+            ws?.send(
+              JSON.stringify({
+                kind: "retrieve_trio",
+                path: e?.val,
+                token,
+              }),
+            );
+            ws?.addEventListener("message", (e) => {
+              const parsed = JSON.parse(e.data);
+              if (parsed.kind !== "trio_file" && parsed.token !== token) return;
+              const key: "substance" | "style" | "domain" = parsed.type;
+              const val = parsed.fileName;
+              onSelection(val, key);
+            });
+          }
+        }}
+        value={{ val: trio }}
       />
     </div>
   );

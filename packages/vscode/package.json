@@ -3,7 +3,7 @@
   "displayName": "Penrose",
   "publisher": "penrose",
   "description": "Penrose languages bundle",
-  "version": "3.0.0-alpha.0",
+  "version": "3.0.0",
   "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
   "license": "MIT",
   "private": true,
@@ -55,10 +55,6 @@
       }
     ],
     "grammars": [
-      {
-        "scopeName": "source.penrose-common",
-        "path": "./syntaxes/common.tmGrammar.json"
-      },
       {
         "language": "penrose-style",
         "scopeName": "source.penrose-style",

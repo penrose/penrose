@@ -1,14 +1,23 @@
 import MonacoEditor, { useMonaco } from "@monaco-editor/react";
-import { Env } from "@penrose/core";
-import { editor } from "monaco-editor";
-import { initVimMode, VimMode } from "monaco-vim";
+import { Env, errLocs, showError } from "@penrose/core";
+import {
+  DomainError,
+  RuntimeError,
+  StyleError,
+  StyleErrorList,
+  StyleWarning,
+  SubstanceError,
+} from "@penrose/core/dist/types/errors.js";
+import { ErrorLoc } from "@penrose/core/dist/utils/Util.js";
+import { MarkerSeverity, editor } from "monaco-editor";
+import { VimMode, initVimMode } from "monaco-vim";
 import { useEffect, useRef } from "react";
 import { SetupDomainMonaco } from "./languages/DomainConfig.js";
 import { SetupStyleMonaco } from "./languages/StyleConfig.js";
 import { SetupSubstanceMonaco } from "./languages/SubstanceConfig.js";
 
 const monacoOptions = (
-  vimMode: boolean
+  vimMode: boolean,
 ): editor.IEditorConstructionOptions => ({
   automaticLayout: true,
   minimap: { enabled: false },
@@ -18,7 +27,30 @@ const monacoOptions = (
   copyWithSyntaxHighlighting: true,
   glyphMargin: false,
   cursorStyle: vimMode ? "block" : "line",
+  fixedOverflowWidgets: true,
 });
+
+type IndividualError = Exclude<
+  StyleError | DomainError | SubstanceError | RuntimeError | StyleWarning,
+  StyleErrorList
+>;
+
+type ErrLocPair = {
+  err: IndividualError;
+  loc: ErrorLoc;
+};
+
+const errLocPairs = (
+  err: StyleError | DomainError | SubstanceError | RuntimeError | StyleWarning,
+): ErrLocPair[] => {
+  if (err.tag === "StyleErrorList") {
+    const pairs = err.errors.map(errLocPairs);
+    return pairs.flat(1);
+  } else {
+    const locs = errLocs(err);
+    return locs.length > 0 ? [{ err, loc: locs[0] }] : [];
+  }
+};
 
 export default function EditorPane({
   value,
@@ -28,6 +60,8 @@ export default function EditorPane({
   domainCache,
   readOnly,
   onWrite,
+  error,
+  warnings,
 }: {
   value: string;
   vimMode: boolean;
@@ -37,6 +71,8 @@ export default function EditorPane({
   readOnly?: boolean;
   /// In vim mode, this is called when the user calls :w
   onWrite?: () => void;
+  error: StyleError | DomainError | SubstanceError | RuntimeError | null;
+  warnings: StyleWarning[];
 }) {
   const monaco = useMonaco();
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
@@ -45,7 +81,7 @@ export default function EditorPane({
   if (monaco !== null && onWrite !== undefined) {
     editorRef.current?.addCommand(
       monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
-      onWrite
+      onWrite,
     );
   }
 
@@ -83,6 +119,36 @@ export default function EditorPane({
   const onEditorMount = (editorArg: editor.IStandaloneCodeEditor) => {
     editorRef.current = editorArg;
   };
+
+  useEffect(() => {
+    const errPairs = error === null ? [] : errLocPairs(error);
+    const warningPairs = warnings.map(errLocPairs).flat(1);
+    const errMarkers: editor.IMarkerData[] = errPairs
+      .filter(({ loc }) => loc.type.toLowerCase() === languageType)
+      .map(({ loc, err }) => ({
+        startLineNumber: loc.range.start.line,
+        startColumn: loc.range.start.col + 1,
+        endLineNumber: loc.range.end.line,
+        endColumn: loc.range.end.col + 1,
+        message: showError(err),
+        severity: MarkerSeverity.Error,
+      }));
+    const warningMarkers: editor.IMarkerData[] = warningPairs
+      .filter(({ loc }) => loc.type.toLowerCase() === languageType)
+      .map(({ loc, err: warn }) => ({
+        startLineNumber: loc.range.start.line,
+        startColumn: loc.range.start.col + 1,
+        endLineNumber: loc.range.end.line,
+        endColumn: loc.range.end.col + 1,
+        message: showError(warn),
+        severity: MarkerSeverity.Warning,
+      }));
+
+    const markers = [...errMarkers, ...warningMarkers];
+    if (monaco && editorRef.current) {
+      monaco.editor.setModelMarkers(editorRef.current.getModel()!, "", markers);
+    }
+  }, [monaco, editorRef.current, languageType, error, warnings, value]);
 
   return (
     <div style={{ width: "100%", height: "100%", position: "relative" }}>

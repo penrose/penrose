@@ -11,9 +11,9 @@ A _style_ schema is composed of _blocks_, of which there are two types:
 
 The syntax for a namespace is as follows:
 
-```
+```style
 namespace_name {
-    ... (the namespace body)
+    -- ... (the namespace body)
 }
 ```
 
@@ -21,7 +21,7 @@ Refer to [this section](usage#block-body) for a detailed explanation of what may
 
 Values declared within a namespace can be read outside of the namespace using the "dot" operator:
 
-```
+```style
 namespace_name.field_name
 ```
 
@@ -31,7 +31,7 @@ Hence they are also called _global_ variables. Overwriting these values is not a
 
 Each _style_ schema _must_ contain a _canvas preamble block_, a special type of namespace which describes the width and height of the canvas. For example, preamble block
 
-```
+```style
 canvas {
     width = 800
     height = 700
@@ -44,7 +44,7 @@ tells Penrose that the drawing canvas should have a width of 800 pixels and a he
 
 Selector Blocks are the most important component in a _style_ schema, since they actually describe _how_ to draw elements of a diagram. The syntax for Selector Blocks is as follows:
 
-```
+```style
 forall list_object_declarations
 where list_relations
 with list_object_declarations {
@@ -63,28 +63,25 @@ If the `where` or `with` clause is empty, it needs to be omitted.
 
 In the set-theory example, a style block may look like
 
-```
+```style
 forall Set x {
-    ...
 }
 ```
 
 or
 
-```
+```style
 forall Set x; Set y
 where IsSubset (x, y) {
-    ...
 }
 ```
 
 or
 
-```
+```style
 forall Set x
 where IsSubst(x, y)
 with Set y {
-
 }
 ```
 
@@ -92,10 +89,9 @@ with Set y {
 
 Penrose functions by matching a style block against a _substance_ program. In a nutshell, given a style block
 
-```
+```style
 forall Set x; Set y
 where IsSubset (x, y) {
-    ...
 }
 ```
 
@@ -103,7 +99,7 @@ the Penrose compiler searches through the _substance_ program to find sets of ob
 
 For instance, consider a simple set-theory _substance_ program that works with the previous style block:
 
-```
+```substance
 Set A, B, C
 IsSubset (A, B)
 IsSubset (B, C)
@@ -130,15 +126,14 @@ In the list of object declarations in a _style_ block, we can declare two types 
 
 We can declare a _substance_ object, whose object name is surrounded by backticks. For instance,
 
-```
+```style
 forall Set `A` {
-    ...
 }
 ```
 
 can only be mapped to the _substance_ object with the exact same name (`A`) provided that the types match (subtyping allowed). In other words, given _substance_ program
 
-```
+```substance
 Set A, B, C
 ```
 
@@ -156,7 +151,7 @@ A _style_ block supports three types of relations, two of which can also be seen
 
 Just like in the _substance_ program, each predicate application has syntax
 
-```
+```substance
 predicate_name (argument_list)
 ```
 
@@ -164,7 +159,7 @@ where elements of `argument_list` can refer to objects declared in `list_object_
 
 Optionally, one can give an alias to a predicate application:
 
-```
+```substance
 predicate_name (argument_list) as alias_name
 ```
 
@@ -175,7 +170,7 @@ If such an alias is set, then `alias_name` will be accessible in the style block
 If a predicate is declared as symmetric, then it gets special treatment.
 Suppose we have the following domain schema:
 
-```
+```domain
 type Atom
 type Hydrogen <: Atom
 type Oxygen <: Atom
@@ -184,7 +179,7 @@ symmetric predicate Bond (Atom, Atom)
 
 and the following style block:
 
-```
+```style
 forall Hydrogen h; Oxygen o
 where Bond (h, o) {
     ...
@@ -193,7 +188,7 @@ where Bond (h, o) {
 
 The style block will successfully match the following substance schema:
 
-```
+```substance
 Hydrogen H
 Oxygen O
 Bond (O, H)
@@ -205,7 +200,7 @@ where `Bond (h, o)` in the style block matches against `Bond (O, H)` in the subs
 
 Each function or constructor application has syntax
 
-```
+```substance
 object_name := function_name (argument_list)
 ```
 
@@ -215,7 +210,7 @@ We do not allow aliasing for function and constructor applications. Arguments in
 
 Aside from predicate applications and function (constructor) applications, Penrose also supports a predicate-like relation that checks whether an object has a certain property, say `label`. For instance, we may write
 
-```
+```style
 forall Set s
 where s has label {
     ... some code that uses s.label
@@ -232,15 +227,14 @@ The matching algorithm is designed to avoid duplicated mappings. If two mappings
 
 For instance, say Penrose tries to match the _style_ block
 
-```
+```style
 forall Set x; Set y {
-    ...
 }
 ```
 
 against _substance_ program
 
-```
+```substance
 Set A, B
 ```
 
@@ -263,7 +257,7 @@ The body of a block contains declarations of variables, shapes, and the relation
 
 We can assign an expression to a field:
 
-```
+```style
 type_annotation field = expression
 ```
 
@@ -280,12 +274,12 @@ where
 
 For example, consider the following _style_ block:
 
-```
+```style
 forall MyType t1; MyType t2
 where MyPredicate (t1, t2) as r1 {
-	x = ... // this is a local assignment not accessible outside of this substitution or this block
-	t1.a = ... // this is bound to the substance instance of `MyType t1`
-	r1.c = ... // this is bound to the substance instance of `MyPredicate (t1, t2)`
+	x = -- this is a local assignment not accessible outside of this substitution or this block
+	t1.a = -- this is bound to the substance instance of `MyType t1`
+	r1.c =  -- this is bound to the substance instance of `MyPredicate (t1, t2)`
 }
 ```
 
@@ -295,8 +289,7 @@ Refer to [this section](usage#expressions-and-their-types) for a detailed explan
 
 The _style_ language allows users to modify fields that are previously declared. The `override` keyword changes the value of the field. As an example,
 
-```
-
+```style
 forall Set X {
     shape X.shape = Circle {
         x: X.x
@@ -313,10 +306,10 @@ the radius of the circle for every `Set` is `100`, except if the `Set` has name 
 
 Deletion of fields works similarly, with the `delete` keyword. This feature can be helpful for, e.g., removing visual elements for a subtype. For instance,
 
-```
+```style
 -- by default, draw a circle for all instances of type T
 forall T x {
-    x.widget = Circle { ... }
+    x.widget = Circle { }
 }
 
 -- but don't draw this circle for instances of a subtype S <: T
@@ -327,7 +320,7 @@ forall S x {
 
 Note that one must be careful not to reference deleted attributes in a later generic block. For instance, the following block will produce an error if invoked for an instance of `S`:
 
-```
+```style
 forall T x {
     shape x.newWidget = Circle {
         center : x.widget.center -- not defined for instances of S
@@ -339,13 +332,13 @@ forall T x {
 
 A good diagram must satisfy some basic constraints, while trying to optimize upon some objectives (specifying diagram beauty). We declare these constraints and objectives within the style blocks. A constraint declaration has syntax
 
-```
+```style
 ensure constraint_name (argument_list)
 ```
 
 and an objective declaration has syntax
 
-```
+```style
 encourage objective_name (argument_list)
 ```
 
@@ -361,13 +354,13 @@ We also provide syntax sugar expressions for some commonly-used objectives and c
 
 We can specify the layering between two shapes (particularly useful when two shapes overlap) using layering statements: either
 
-```
+```style
 layer shape_1 above shape_2
 ```
 
 or
 
-```
+```style
 layer shape_1 below shape_2
 ```
 
@@ -381,11 +374,11 @@ Selector blocks match _style_ variables against _substance_ variables to produce
 
 Collector Blocks enables these types of aggregations by introducing collections of _substance_ variables. The syntax is as follows:
 
-```
+```style
 collect <COLLECT> into <INTO>
 where <WHERE>
 with <WITH>
-foreach <FOREACH> { ... }
+foreach <FOREACH> { }
 ```
 
 The `where`, `with`, and `foreach` clauses are optional, and if they are empty, they must be omitted.
@@ -398,7 +391,7 @@ The `where`, `with`, and `foreach` clauses are optional, and if they are empty, 
 
 For example, suppose we have the Substance program that defines one set `s1` that contains elements `e1, e2`, and another set `s2` that contains elements `e3, e4, e5`, as follows:
 
-```
+```substance
 Set s1
 Element e1, e2
 In(e1, s1)
@@ -413,7 +406,7 @@ In(e5, s2)
 
 We can write a Collector Block:
 
-```
+```style
 collect Element e into es
 where In(e, s)
 foreach Set s {
@@ -434,7 +427,7 @@ Within the body of the Collector Blocks, we can do everything that can be done i
 
 Within the Collector Block, the name in the `<INTO>` clause conceptually means a list of Substance objects. We can access the fields of each element in the collection using the "Collection Access" expression with syntax:
 
-```
+```style
 listof <FIELD NAME> from <COLLECTION NAME>
 ```
 
@@ -479,23 +472,22 @@ These are what may appear in the optional `type_annotation` field of field assig
 
 Shape declarations have syntax
 
-```
+```style
 shape_name {
     property_name_1 : value_1
     property_name_2 : value_2
-    ...
 }
 ```
 
 Once declared, the value of each property can be accessed using
 
-```
+```style
 path_to_shape.property_name
 ```
 
 For example,
 
-```
+```style
 forall Set x {
     -- declares a circle with radius 50
     x.shape = Circle {
@@ -517,7 +509,7 @@ The `?` expression evaluates to a scalar whose value is automatically determined
 
 Strings have type `string` and string literals are delimited by double quotes. Strings can be concatenated using the `+` operator. For instance, to put parentheses around the label associated of `x`, write
 
-```
+```style
 string fancyLabel = "(" + x.label + ")"
 ```
 
@@ -533,31 +525,31 @@ Style is designed to support n-dimensional dense vectors of type `vecN`, and squ
 
 A vector is constructed by specifying its components. For instance,
 
-```
+```style
 vec2 u = (1.23, 4.56)
 ```
 
 constructs a 2-dimension vector with `x`-component `1.23` and `y`-component `4.56`. As noted above, unknown values can be used as components, e.g.,
 
-```
+```style
 vec2 p = (?, 0.0)
 ```
 
 specifies a point `p` that sits on the `x`-axis with an unknown `x`-coordinate which is determined by the optimizer, according to any constraints and objectives involving `p`. More advanced initializers (e.g., initializing a 3-vector from a 2-vector and a scalar) are currently not supported, but are planned for future language versions. In most cases, the same functionality can currently be emulated by directly referencing components of a vector, e.g.,
 
-```
+```style
 vec3 a = ( b[0], b[1], 1.0 )
 ```
 
 A matrix is constructed by specifying a list of vectors. Each vector corresponds to a row (not a column) of the matrix. For instance,
 
-```
+```style
 mat2x2 A = ((1,2),(3,4))
 ```
 
 initializes a 2x2 matrix where the top row has entries 1, 2 and the bottom row has entries 3, 4. Rows can also reference existing vectors, e.g.,
 
-```
+```style
 vec2 a1 = (1, 2)
 vec2 a2 = (3, 4)
 mat2x2 A = (a1, a2)
@@ -565,7 +557,7 @@ mat2x2 A = (a1, a2)
 
 builds the same matrix as above. As with vectors, matrix entries can be unknown. E.g.,
 
-```
+```style
 scalar d = ?
 mat3x3 D = ((d, 0, 0), (0, d, 0), (0, 0, d))
 ```
@@ -576,14 +568,14 @@ describes a 3x3 diagonal matrix, where all three diagonal entries take the same,
 
 Individual elements of a `vecN` can be accessed using square brackets, and an index `i` between `0` and `N`-1 (inclusive). For instance,
 
-```
+```style
 vec3 u = (1, 2, 3)
 scalar y = u[1]
 ```
 
 will extract the `y`-coordinate of `u` (i.e. `y=2`). Matrix entries are similarly accessed:
 
-```
+```style
 mat2x2 M = ((?, ?), (?, ?))
 scalar trM = M[0][0] + M[1][1]
 ```
@@ -600,7 +592,7 @@ Colors have type `color`, and include an alpha (i.e., opacity) channel. Colors c
 
 To specify that a color should be omitted altogether, you can also use `none()`. E.g.,
 
-```
+```style
 fillColor: none()
 strokeColor: none()
 ```

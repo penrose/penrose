@@ -25,9 +25,9 @@ describe("simple objective", () => {
   ])(
     "equal(%p, %p) should return %p",
     (x: number, y: number, expected: number) => {
-      const result = objDict.equal.body(x, y);
+      const result = objDict.equal.body(x, y).value;
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
-    }
+    },
   );
 
   it.each([
@@ -39,9 +39,9 @@ describe("simple objective", () => {
   ])(
     "repelPt(%p, %p, %p) should return %p",
     (weight: number, a: number[], b: number[], expected: number) => {
-      const result = objDict.repelPt.body(weight, a, b);
+      const result = objDict.repelPt.body(weight, a, b).value;
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
-    }
+    },
   );
 
   it.each([
@@ -53,9 +53,9 @@ describe("simple objective", () => {
   ])(
     "repelScalar(%p, %p) should return %p",
     (c: number, d: number, expected: number) => {
-      const result = objDict.repelScalar.body(c, d);
+      const result = objDict.repelScalar.body(c, d).value;
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
-    }
+    },
   );
 });
 
@@ -65,9 +65,9 @@ describe("isRegular", () => {
     (shape: Polyline<ad.Num> | Polygon<ad.Num>) => {
       const points: ad.Num[][] = extractPoints(shape);
       const closed: boolean = isClosed(shape);
-      const result = objDictSpecific.isRegular.body(points, closed);
+      const result = objDictSpecific.isRegular.body(points, closed).value;
       expect(numOf(result)).toBeLessThanOrEqual(1e-5);
-    }
+    },
   );
 
   it.each([
@@ -80,7 +80,7 @@ describe("isRegular", () => {
   ])("non-convex %p", (shape: Polyline<ad.Num> | Polygon<ad.Num>) => {
     const points: ad.Num[][] = extractPoints(shape);
     const closed: boolean = isClosed(shape);
-    const result = objDictSpecific.isRegular.body(points, closed);
+    const result = objDictSpecific.isRegular.body(points, closed).value;
     expect(numOf(result)).toBeGreaterThan(0.01);
   });
 });

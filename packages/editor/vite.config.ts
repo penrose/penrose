@@ -8,6 +8,9 @@ export default defineConfig({
   base: "/try/",
   plugins: [react({ jsxRuntime: "classic" }), topLevelAwait()],
   build: { target: "esnext" },
+  optimizeDeps: {
+    exclude: ["@penrose/examples"],
+  },
   server: {
     port: 3000,
   },

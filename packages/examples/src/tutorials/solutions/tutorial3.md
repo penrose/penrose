@@ -95,8 +95,7 @@ where In(u,U) {
 
   ensure contains(U.background, u.shape)
   ensure contains(U.background, u.text)
-  ensure atDist(u.shape, u.text, 15.0)
-  ensure minSize(u.shape)
+  ensure vdist(u.shape.end, u.text.center) == 15.0
 
   layer u.text above U.xAxis
   layer u.text above U.yAxis
@@ -156,8 +155,7 @@ where In(u,U) {
 
   ensure contains(U.background, u.shape)
   ensure contains(U.background, u.text)
-  ensure atDist(u.shape, u.text, 15.0)
-  ensure minSize(u.shape)
+  ensure vdist(u.shape.end, u.text.center) == 15.0
 
   layer u.text above U.xAxis
   layer u.text above U.yAxis

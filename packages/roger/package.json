@@ -1,6 +1,6 @@
 {
   "name": "@penrose/roger",
-  "version": "3.0.0-alpha.4",
+  "version": "3.0.0",
   "description": "",
   "type": "module",
   "main": "index.tsx",
@@ -26,7 +26,7 @@
   "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
   "license": "MIT",
   "dependencies": {
-    "@penrose/core": "^3.0.0-alpha.0",
+    "@penrose/core": "^3.0.0",
     "canvas": "^2.8.0",
     "chalk": "^3.0.0",
     "chokidar": "^3.5.3",
@@ -34,7 +34,7 @@
     "global-jsdom": "^8.8.0",
     "jsdom": "^22.0.0",
     "node-fetch": "^3.3.1",
-    "prettier": "2.8.8",
+    "prettier": "3.0.0",
     "regenerator-runtime": "^0.13.11",
     "true-myth": "^4.1.1",
     "ts-node": "^10.9.1",

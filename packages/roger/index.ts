@@ -5,17 +5,16 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
 import {
-  compileTrio,
-  makeCanvas,
   PenroseState,
-  prepareState,
-  RenderStatic,
-  sampleShape,
   ShapeType,
+  compile,
+  makeCanvas,
+  optimize,
+  sampleShape,
   shapeTypes,
   showError,
   simpleContext,
-  stepUntilConvergence,
+  toSVG,
 } from "@penrose/core";
 import chalk from "chalk";
 import convertHrtime from "convert-hrtime";
@@ -36,6 +35,7 @@ interface Trio {
   style: string[];
   domain: string;
   variation: string;
+  excludeWarnings?: string[];
 }
 
 // In an async context, communicate with the backend to compile and optimize the diagram
@@ -52,7 +52,8 @@ const render = async (
     styleNames: string[];
     domainName: string;
     id: string;
-  }
+  },
+  excludeWarnings: string[],
 ): Promise<{
   diagram: string;
   metadata: InstanceData;
@@ -63,41 +64,37 @@ const render = async (
   if (verbose) console.debug(`Compiling ${meta.id} ...`);
   const overallStart = process.hrtime();
   const compileStart = process.hrtime();
-  const compilerOutput = await compileTrio({
+  const compilerOutput = await compile({
     substance,
     style,
     domain,
     variation,
+    excludeWarnings,
   });
   const compileEnd = process.hrtime(compileStart);
   if (compilerOutput.isErr()) {
     const err = compilerOutput.error;
     throw new Error(`Compilation failed:\n${showError(err)}`);
   }
-  const compiledState = compilerOutput.value;
-
-  const labelStart = process.hrtime();
-  const initialState = await prepareState(compiledState);
-  const labelEnd = process.hrtime(labelStart);
+  const initialState = compilerOutput.value;
 
   if (verbose) console.debug(`Stepping for ${meta.id} ...`);
 
   const convergeStart = process.hrtime();
   let optimizedState;
-  const optimizedOutput = stepUntilConvergence(initialState, 10000);
+  const optimizedOutput = optimize(initialState);
   if (optimizedOutput.isOk()) {
     optimizedState = optimizedOutput.value;
   } else {
     throw new Error(
-      `Optimization failed:\n${showError(optimizedOutput.error)}`
+      `Optimization failed:\n${showError(optimizedOutput.error)}`,
     );
   }
   const convergeEnd = process.hrtime(convergeStart);
   const reactRenderStart = process.hrtime();
 
-  const canvas = (
-    await RenderStatic(optimizedState, resolvePath, "roger", texLabels)
-  ).outerHTML;
+  const canvas = (await toSVG(optimizedState, resolvePath, "roger", texLabels))
+    .outerHTML;
 
   const reactRenderEnd = process.hrtime(reactRenderStart);
   const overallEnd = process.hrtime(overallStart);
@@ -110,7 +107,6 @@ const render = async (
       // includes overhead like JSON, recollecting labels
       overall: convertHrtime(overallEnd).milliseconds,
       compilation: convertHrtime(compileEnd).milliseconds,
-      labelling: convertHrtime(labelEnd).milliseconds,
       optimization: convertHrtime(convergeEnd).milliseconds,
       rendering: convertHrtime(reactRenderEnd).milliseconds,
     },
@@ -122,7 +118,7 @@ const render = async (
   };
 
   return {
-    diagram: prettier.format(canvas, { parser: "html" }),
+    diagram: await prettier.format(canvas, { parser: "html" }),
     state: optimizedState,
     metadata,
   };
@@ -134,8 +130,8 @@ const resolvePath = (prefix: string, stylePaths: string[]) => {
   if (new Set(stylePrefixes).size > 1) {
     console.warn(
       chalk.yellow(
-        "Warning: the styles in this trio are not co-located. The first style will be used for image resolution."
-      )
+        "Warning: the styles in this trio are not co-located. The first style will be used for image resolution.",
+      ),
     );
   }
   const stylePrefix = stylePrefixes[0];
@@ -161,7 +157,7 @@ const resolvePath = (prefix: string, stylePaths: string[]) => {
 const readTrio = (sub: string, sty: string[], dsl: string, prefix: string) => {
   // Fetch Substance, Style, and Domain files
   const [substance, domain] = [sub, dsl].map((arg) =>
-    fs.readFileSync(join(prefix, arg), "utf8")
+    fs.readFileSync(join(prefix, arg), "utf8"),
   );
   const styles = sty.map((arg) => fs.readFileSync(join(prefix, arg), "utf8"));
   return {
@@ -186,12 +182,12 @@ const getShapeDefs = (outFile?: string): void => {
     const shapeSample1 = sampleShape(
       shapeName as ShapeType,
       simpleContext("ShapeProps sample 1"),
-      makeCanvas(size, size)
+      makeCanvas(size, size),
     );
     const shapeSample2 = sampleShape(
       shapeName as ShapeType,
       simpleContext("ShapeProps sample 2"),
-      makeCanvas(size, size)
+      makeCanvas(size, size),
     );
     const outThisShapeDef = { sampled: {}, defaulted: {} };
     outShapes[shapeName] = outThisShapeDef;
@@ -236,7 +232,7 @@ const orderTrio = (unordered: string[]): string[] => {
     }
     if (type in ordered) {
       console.error(
-        `Duplicate ${type} files: ${ordered[type]} and ${filename}`
+        `Duplicate ${type} files: ${ordered[type]} and ${filename}`,
       );
       process.exit(1);
     }
@@ -291,25 +287,32 @@ yargs(hideBin(process.argv))
       let prefix = options.path;
       const texLabels = options.texLabels;
       let variation = options.variation as string | undefined;
+      let excludeWarnings: string[] | undefined = undefined;
       if (options.trio.length === 1) {
         const trioPath = options.trio[0] as string;
         prefix = join(trioPath, "..");
         // read trio from a JSON file
         const paths: Trio = JSON.parse(
-          fs.readFileSync(resolve(trioPath), "utf8")
+          fs.readFileSync(resolve(trioPath), "utf8"),
         );
         dom = paths.domain;
         sub = paths.substance;
         sty = paths.style;
         variation ??= paths.variation;
+        excludeWarnings = paths.excludeWarnings;
       } else {
         // load all three files
         const trio = orderTrio(options.trio as string[]);
         [sub, sty, dom] = [trio[0], [trio[1]], trio[2]];
       }
+
+      if (excludeWarnings === undefined) {
+        excludeWarnings = [];
+      }
+
       const { substance, style, domain } = readTrio(sub, sty, dom, prefix);
       // draw diagram and get metadata
-      const { diagram } = await render(
+      const { diagram, state } = await render(
         variation ?? "",
         substance,
         style,
@@ -322,17 +325,22 @@ yargs(hideBin(process.argv))
           styleNames: sty,
           domainName: dom,
           id: options.trio.join(", "),
-        }
+        },
+        excludeWarnings,
       );
       if (options.out) {
         fs.writeFileSync(options.out, diagram);
         console.log(
-          chalk.green(`The diagram has been saved as ${resolve(options.out)}`)
+          chalk.green(`The diagram has been saved as ${resolve(options.out)}`),
         );
       } else {
         console.log(diagram);
+        for (const warning of state.warnings) {
+          const warnStr = showError(warning);
+          console.warn(chalk.yellow("Warning in diagram: " + warnStr));
+        }
       }
-    }
+    },
   )
   .command(
     "trios [trios..]",
@@ -363,14 +371,16 @@ yargs(hideBin(process.argv))
         const trioName = basename(trioPath, ".trio.json");
         // read trio from a JSON file
         const paths: Trio = JSON.parse(
-          fs.readFileSync(resolve(trioPath), "utf8")
+          fs.readFileSync(resolve(trioPath), "utf8"),
         );
         const dom = paths.domain;
         const sub = paths.substance;
         const sty = paths.style;
         const variation = paths.variation;
+        const excludeWarnings =
+          paths.excludeWarnings === undefined ? [] : paths.excludeWarnings;
         const { substance, style, domain } = readTrio(sub, sty, dom, prefix);
-        const { diagram } = await render(
+        const { diagram, state } = await render(
           variation,
           substance,
           style,
@@ -383,7 +393,8 @@ yargs(hideBin(process.argv))
             styleNames: sty,
             domainName: dom,
             id: trioName,
-          }
+          },
+          excludeWarnings,
         );
         // create out folder if it doesn't exist
         if (!fs.existsSync(options.out)) fs.mkdirSync(options.out);
@@ -391,21 +402,26 @@ yargs(hideBin(process.argv))
         const outputPath = join(options.out, `${trioName}.svg`);
         fs.writeFileSync(outputPath, diagram);
         console.log(
-          chalk.green(`The diagram has been saved as ${resolve(outputPath)}`)
+          chalk.green(`The diagram has been saved as ${resolve(outputPath)}`),
         );
+        // TODO: print warning here
+        for (const warning of state.warnings) {
+          const warnStr = showError(warning);
+          console.warn(chalk.yellow("Warning in diagram: " + warnStr));
+        }
       }
-    }
+    },
   )
   .command(
     "watch",
-    "Watch the current folder for files & changes (must end in .sub,.substance,.sty,.style,.dsl,.domain)",
+    "Watch the current folder for files & changes (must end in .substance, .style, .domain)",
     (yargs) =>
       yargs.option("port", {
         desc: "Port number for the WebSocket connection.",
         default: 9160,
         alias: "p",
       }),
-    (options) => watch(+options.port)
+    (options) => watch(+options.port),
   )
   .command(
     "shapedefs",
@@ -416,7 +432,7 @@ yargs(hideBin(process.argv))
         desc: "Output JSON file.",
         type: "string",
       }),
-    (options) => getShapeDefs(options.out)
+    (options) => getShapeDefs(options.out),
   )
 
   .demandCommand()

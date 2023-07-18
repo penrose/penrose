@@ -17,15 +17,13 @@ import {
   squared,
   sub,
 } from "../engine/AutodiffFunctions.js";
-import * as BBox from "../engine/BBox.js";
-import { Ellipse } from "../shapes/Ellipse.js";
 import * as ad from "../types/ad.js";
 import { safe } from "../utils/Util.js";
 import {
   ImplicitEllipse,
   ImplicitHalfPlane,
+  absEllipseToImplicit,
   ellipsePolynomial,
-  ellipseToImplicit,
   halfPlaneToImplicit,
   implicitEllipseFunc,
   implicitHalfPlaneFunc,
@@ -43,23 +41,13 @@ import { numsOf } from "./Utils.js";
  * @param padding Additional padding added to one of the boxes.
  */
 export const rectangleDifference = (
-  box1: BBox.BBox,
-  box2: BBox.BBox,
-  padding: ad.Num
+  [, tl1, , br1]: ad.Pt2[],
+  [, tl2, , br2]: ad.Pt2[],
+  padding: ad.Num,
 ): [ad.Pt2, ad.Pt2] => {
   // Prepare coordinates
-  const [xa1, xa2, ya1, ya2] = [
-    BBox.minX(box1),
-    BBox.maxX(box1),
-    BBox.minY(box1),
-    BBox.maxY(box1),
-  ];
-  const [xb1, xb2, yb1, yb2] = [
-    BBox.minX(box2),
-    BBox.maxX(box2),
-    BBox.minY(box2),
-    BBox.maxY(box2),
-  ];
+  const [xa1, xa2, ya1, ya2] = [tl1[0], br1[0], br1[1], tl1[1]];
+  const [xb1, xb2, yb1, yb2] = [tl2[0], br2[0], br2[1], tl2[1]];
   // Compute coordinates of the new rectangle
   const xs = [sub(xa1, xb1), sub(xa2, xb2), sub(xa1, xb2), sub(xa2, xb1)];
   const ys = [sub(ya1, yb1), sub(ya2, yb2), sub(ya1, yb2), sub(ya2, yb1)];
@@ -81,7 +69,7 @@ export const halfPlaneSDF = (
   lineSegment: ad.Num[][],
   otherPoints: ad.Num[][],
   insidePoint: ad.Num[],
-  padding: ad.Num
+  padding: ad.Num,
 ): ad.Num => {
   const normal = outwardUnitNormal(lineSegment, insidePoint);
   const alpha = ops.vdot(normal, lineSegment[0]);
@@ -99,7 +87,7 @@ export const halfPlaneSDF = (
 const convexPolygonMinkowskiSDFOneSided = (
   p1: ad.Num[][],
   p2: ad.Num[][],
-  padding: ad.Num
+  padding: ad.Num,
 ): ad.Num => {
   const center = ops.vdiv(p1.reduce(ops.vadd), p1.length);
   // Create a list of all sides given by two subsequent vertices
@@ -108,7 +96,7 @@ const convexPolygonMinkowskiSDFOneSided = (
     p1[i > 0 ? i - 1 : p1.length - 1],
   ]);
   const sdfs = sides.map((s: ad.Num[][]) =>
-    halfPlaneSDF(s, p2, center, padding)
+    halfPlaneSDF(s, p2, center, padding),
   );
   return maxN(sdfs);
 };
@@ -122,11 +110,11 @@ const convexPolygonMinkowskiSDFOneSided = (
 export const convexPolygonMinkowskiSDF = (
   p1: ad.Num[][],
   p2: ad.Num[][],
-  padding: ad.Num
+  padding: ad.Num,
 ): ad.Num => {
   return max(
     convexPolygonMinkowskiSDFOneSided(p1, p2, padding),
-    convexPolygonMinkowskiSDFOneSided(p2, p1, padding)
+    convexPolygonMinkowskiSDFOneSided(p2, p1, padding),
   );
 };
 
@@ -157,7 +145,7 @@ export const convexPartitions = (p: ad.Num[][]): ad.Num[][][] => {
     p.map((point, i) => {
       const j = 2 * i;
       return [{ x: coords[j], y: coords[j + 1] }, point];
-    })
+    }),
   );
 
   const contour = [...pointMap.keys()];
@@ -170,9 +158,9 @@ export const convexPartitions = (p: ad.Num[][]): ad.Num[][][] => {
     poly.map((point) =>
       safe(
         pointMap.get(point),
-        "polygon decomposition unexpectedly created a new point"
-      )
-    )
+        "polygon decomposition unexpectedly created a new point",
+      ),
+    ),
   );
 };
 
@@ -185,16 +173,16 @@ export const convexPartitions = (p: ad.Num[][]): ad.Num[][][] => {
 export const overlappingPolygonPoints = (
   polygonPoints1: ad.Num[][],
   polygonPoints2: ad.Num[][],
-  overlap: ad.Num = 0
+  overlap: ad.Num = 0,
 ): ad.Num => {
   const cp1 = convexPartitions(polygonPoints1);
   const cp2 = convexPartitions(
-    polygonPoints2.map((p: ad.Num[]) => ops.vneg(p))
+    polygonPoints2.map((p: ad.Num[]) => ops.vneg(p)),
   );
   return maxN(
     cp1.map((p1) =>
-      minN(cp2.map((p2) => convexPolygonMinkowskiSDF(p1, p2, neg(overlap))))
-    )
+      minN(cp2.map((p2) => convexPolygonMinkowskiSDF(p1, p2, neg(overlap)))),
+    ),
   );
 };
 
@@ -203,7 +191,7 @@ export const overlappingPolygonPoints = (
  */
 export const rectangleSignedDistance = (
   bottomLeft: ad.Pt2,
-  topRight: ad.Pt2
+  topRight: ad.Pt2,
 ): ad.Num => {
   // Calculate relative coordinates for rectangle signed distance
   const [xp, yp] = ops
@@ -213,7 +201,7 @@ export const rectangleSignedDistance = (
   const [xq, yq] = ops.vsub([xp, yp], [xr, yr]);
   // Positive distance (nonzero when the rectangle does not contain the origin)
   const e1 = sqrt(
-    add(squared(max(sub(xp, xr), 0)), squared(max(sub(yp, yr), 0)))
+    add(squared(max(sub(xp, xr), 0)), squared(max(sub(yp, yr), 0))),
   );
   // Negative distance (nonzero when the rectangle does contain the origin)
   const ne2 = min(max(xq, yq), 0);
@@ -230,7 +218,7 @@ export const rectangleSignedDistance = (
 export const containsConvexPolygonPoints = (
   p1: ad.Num[][],
   p2: ad.Num[],
-  padding: ad.Num
+  padding: ad.Num,
 ): ad.Num => {
   const center = ops.vdiv(p1.reduce(ops.vadd), p1.length);
   // Create a list of all sides given by two subsequent vertices
@@ -239,24 +227,9 @@ export const containsConvexPolygonPoints = (
     p1[i > 0 ? i - 1 : p1.length - 1],
   ]);
   const sdfs = sides.map((s: ad.Num[][]) =>
-    halfPlaneSDF(s, [ops.vneg(p2)], center, padding)
+    halfPlaneSDF(s, [ops.vneg(p2)], center, padding),
   );
   return maxN(sdfs);
-};
-
-/**
- * Constraint checking whether `point` is inside a polygon with vertices `polygonPoints`.
- * @param polygonPoints Sequence of points defining a polygon.
- * @param point Testing point.
- * @param padding Padding applied to the polygon.
- */
-export const containsPolygonPoints = (
-  polygonPoints: ad.Num[][],
-  point: ad.Num[],
-  padding: ad.Num = 0
-): ad.Num => {
-  const cp1 = convexPartitions(polygonPoints);
-  return maxN(cp1.map((p1) => containsConvexPolygonPoints(p1, point, padding)));
 };
 
 /**
@@ -268,7 +241,7 @@ export const containsPolygonPoints = (
 const pointCandidates = (
   ei: ImplicitEllipse,
   hpi: ImplicitHalfPlane,
-  lambda: ad.Num
+  lambda: ad.Num,
 ): [ad.Num, ad.Num] => {
   const c = div(lambda, mul(2, sub(lambda, 1)));
   return [
@@ -280,35 +253,39 @@ const pointCandidates = (
 /**
  * Helper for Signed Distance Function (SDF) of a polygon and ellipse.
  * @param lineSegment Two points defining the line segment.
- * @param ellipse Ellipse shape.
+ * @param c center of ellipse
+ * @param rx horizontal radius of ellipse
+ * @param ry vertical radius of ellipse
  * @param insidePoint Any point inside of the half-plane.
  * @param padding Padding around the Minkowski sum.
  */
 export const halfPlaneEllipseSDF = (
   lineSegment: ad.Num[][],
-  ellipse: Ellipse<ad.Num>,
+  c: ad.Pt2,
+  rx: ad.Num,
+  ry: ad.Num,
   insidePoint: ad.Num[],
-  padding: ad.Num
+  padding: ad.Num,
 ): ad.Num => {
   const hpi = halfPlaneToImplicit(lineSegment, insidePoint, 0);
-  const ei = ellipseToImplicit(ellipse, padding);
+  const ei = absEllipseToImplicit(c, rx, ry, padding);
   const e = div(
     add(mul(ei.b, squared(hpi.a)), mul(ei.a, squared(hpi.b))),
     mul(
       mul(ei.a, ei.b),
-      mul(4, add(add(mul(ei.x, hpi.a), mul(ei.y, hpi.b)), sub(ei.c, hpi.c)))
-    )
+      mul(4, add(add(mul(ei.x, hpi.a), mul(ei.y, hpi.b)), sub(ei.c, hpi.c))),
+    ),
   );
   const ed = sqrt(div(e, add(1, e)));
   const point1 = pointCandidates(ei, hpi, add(1, ed));
   const point2 = pointCandidates(ei, hpi, sub(1, ed));
   const m1 = min(
     implicitHalfPlaneFunc(hpi, point1[0], point1[1]),
-    implicitHalfPlaneFunc(hpi, point2[0], point2[1])
+    implicitHalfPlaneFunc(hpi, point2[0], point2[1]),
   );
   const m2 = max(
     implicitEllipseFunc(ei, ei.x, ei.y),
-    implicitHalfPlaneFunc(hpi, ei.x, ei.y)
+    implicitHalfPlaneFunc(hpi, ei.x, ei.y),
   );
   return min(m1, m2);
 };
@@ -321,20 +298,22 @@ export const halfPlaneEllipseSDF = (
  */
 export const overlappingPolygonPointsEllipse = (
   polygonPoints: ad.Num[][],
-  ellipse: Ellipse<ad.Num>,
-  padding: ad.Num
+  c: ad.Pt2,
+  rx: ad.Num,
+  ry: ad.Num,
+  padding: ad.Num,
 ): ad.Num => {
   const center = ops.vdiv(polygonPoints.reduce(ops.vadd), polygonPoints.length);
   // Create a list of all sides given by two subsequent vertices
   const sides = Array.from(
     { length: polygonPoints.length },
-    (_, key) => key
+    (_, key) => key,
   ).map((i) => [
     polygonPoints[i],
     polygonPoints[i > 0 ? i - 1 : polygonPoints.length - 1],
   ]);
   const sdfs = sides.map((s: ad.Num[][]) =>
-    halfPlaneEllipseSDF(s, ellipse, center, padding)
+    halfPlaneEllipseSDF(s, c, rx, ry, center, padding),
   );
   return maxN(sdfs);
 };
@@ -348,21 +327,21 @@ export const overlappingPolygonPointsEllipse = (
 export const pointCandidatesEllipse = (
   ei1: ImplicitEllipse,
   ei2: ImplicitEllipse,
-  lambda: ad.Num
+  lambda: ad.Num,
 ): [ad.Num, ad.Num] => {
   const x = div(
     add(
       mul(ei1.x, ei1.a),
-      mul(lambda, sub(mul(ei2.x, ei2.a), mul(ei1.x, ei1.a)))
+      mul(lambda, sub(mul(ei2.x, ei2.a), mul(ei1.x, ei1.a))),
     ),
-    add(ei1.a, mul(lambda, sub(ei2.a, ei1.a)))
+    add(ei1.a, mul(lambda, sub(ei2.a, ei1.a))),
   );
   const y = div(
     add(
       mul(ei1.y, ei1.b),
-      mul(lambda, sub(mul(ei2.y, ei2.b), mul(ei1.y, ei1.b)))
+      mul(lambda, sub(mul(ei2.y, ei2.b), mul(ei1.y, ei1.b))),
     ),
-    add(ei1.b, mul(lambda, sub(ei2.b, ei1.b)))
+    add(ei1.b, mul(lambda, sub(ei2.b, ei1.b))),
   );
   return [x, y];
 };
@@ -374,21 +353,21 @@ export const pointCandidatesEllipse = (
  */
 export const overlappingImplicitEllipses = (
   ei1: ImplicitEllipse,
-  ei2: ImplicitEllipse
+  ei2: ImplicitEllipse,
 ): ad.Num => {
   const poly = ellipsePolynomial(ei1, ei2);
   const roots = polyRoots(poly).map((r) => ifCond(eq(r, r), r, 0));
   const points = roots.map((root: ad.Num) =>
-    pointCandidatesEllipse(ei1, ei2, root)
+    pointCandidatesEllipse(ei1, ei2, root),
   );
   const m1 = minN(
     points.map(([x, y]: [ad.Num, ad.Num]) =>
-      implicitIntersectionOfEllipsesFunc(ei1, ei2, x, y)
-    )
+      implicitIntersectionOfEllipsesFunc(ei1, ei2, x, y),
+    ),
   );
   const m2 = min(
     implicitIntersectionOfEllipsesFunc(ei1, ei2, ei1.x, ei1.y),
-    implicitIntersectionOfEllipsesFunc(ei1, ei2, ei2.x, ei2.y)
+    implicitIntersectionOfEllipsesFunc(ei1, ei2, ei2.x, ei2.y),
   );
   return min(m1, m2);
 };

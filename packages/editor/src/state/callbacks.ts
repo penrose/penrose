@@ -1,11 +1,12 @@
 import {
+  compile,
   compileDomain,
-  compileTrio,
-  prepareState,
   resample,
   stepNextStage,
-  stepState,
+  stepTimes,
 } from "@penrose/core";
+import { Style } from "@penrose/examples/dist/index.js";
+import registry from "@penrose/examples/dist/registry.js";
 import localforage from "localforage";
 import { range } from "lodash";
 import queryString from "query-string";
@@ -26,7 +27,6 @@ import {
   currentWorkspaceState,
   diagramGridState,
   diagramState,
-  exampleTriosState,
   localFilesState,
   settingsState,
   workspaceMetadataSelector,
@@ -38,7 +38,8 @@ const _compileDiagram = async (
   style: string,
   domain: string,
   variation: string,
-  set: any
+  excludeWarnings: string[],
+  set: any,
 ) => {
   const compiledDomain = compileDomain(domain);
   if (compiledDomain.isErr()) {
@@ -48,11 +49,12 @@ const _compileDiagram = async (
     }));
     return;
   }
-  const compileResult = await compileTrio({
+  const compileResult = await compile({
     domain,
     substance,
     style,
     variation,
+    excludeWarnings,
   });
   if (compileResult.isErr()) {
     set(diagramState, (state: Diagram) => ({
@@ -61,7 +63,7 @@ const _compileDiagram = async (
     }));
     return;
   }
-  const initialState = await prepareState(compileResult.value);
+  const initialState = compileResult.value;
 
   set(
     diagramState,
@@ -72,6 +74,7 @@ const _compileDiagram = async (
       metadata: {
         ...state.metadata,
         variation,
+        excludeWarnings,
         source: {
           domain,
           substance,
@@ -79,12 +82,12 @@ const _compileDiagram = async (
         },
       },
       state: initialState,
-    })
+    }),
   );
   // update grid state too
   set(diagramGridState, ({ gridSize }: DiagramGrid) => ({
     variations: range(gridSize).map((i) =>
-      i === 0 ? variation : generateVariation()
+      i === 0 ? variation : generateVariation(),
     ),
     gridSize,
   }));
@@ -99,11 +102,22 @@ export const useStepDiagram = () =>
             toast.error(`No diagram`);
             return diagram;
           }
-          return {
-            ...diagram,
-            state: stepState(diagram.state, diagram.metadata.stepSize),
-          };
-        })
+          const stateOrError = stepTimes(
+            diagram.state,
+            diagram.metadata.stepSize,
+          );
+          if (stateOrError.isOk()) {
+            return {
+              ...diagram,
+              state: stateOrError.value,
+            };
+          } else {
+            return {
+              ...diagram,
+              error: stateOrError.error,
+            };
+          }
+        }),
   );
 
 export const useStepStage = () =>
@@ -115,11 +129,19 @@ export const useStepStage = () =>
             toast.error(`No diagram`);
             return diagram;
           }
-          return {
-            ...diagram,
-            state: stepNextStage(diagram.state, diagram.metadata.stepSize),
-          };
-        })
+          const stateOrError = stepNextStage(diagram.state);
+          if (stateOrError.isOk()) {
+            return {
+              ...diagram,
+              state: stateOrError.value,
+            };
+          } else {
+            return {
+              ...diagram,
+              error: stateOrError.error,
+            };
+          }
+        }),
   );
 
 export const useCompileDiagram = () =>
@@ -135,7 +157,8 @@ export const useCompileDiagram = () =>
       styleFile,
       domainFile,
       diagram.metadata.variation,
-      set
+      diagram.metadata.excludeWarnings,
+      set,
     );
   });
 
@@ -158,7 +181,7 @@ export const useResampleDiagram = () =>
     // update grid state too
     set(diagramGridState, ({ gridSize }) => ({
       variations: range(gridSize).map((i) =>
-        i === 0 ? variation : generateVariation()
+        i === 0 ? variation : generateVariation(),
       ),
       gridSize,
     }));
@@ -216,13 +239,15 @@ export const useLoadLocalWorkspace = () =>
       toast.error(`Could not retrieve workspace ${id}`);
       return;
     }
+
     set(currentWorkspaceState, loadedWorkspace as Workspace);
     await _compileDiagram(
       loadedWorkspace.files.substance.contents,
       loadedWorkspace.files.style.contents,
       loadedWorkspace.files.domain.contents,
       uuid(),
-      set
+      [],
+      set,
     );
   });
 
@@ -231,15 +256,18 @@ export const useLoadExampleWorkspace = () =>
     ({ set, reset, snapshot }) =>
       async (meta: TrioWithPreview) => {
         const currentWorkspace = snapshot.getLoadable(
-          currentWorkspaceState
+          currentWorkspaceState,
         ).contents;
         if (!_confirmDirtyWorkspace(currentWorkspace)) {
           return;
         }
         const id = toast.loading("Loading example...");
-        const { domain, style, substance, variation } = await meta.get();
+        const { domain, style, substance, variation, excludeWarnings } =
+          await meta.get();
         toast.dismiss(id);
-        const styleJoined = style.map(({ contents }) => contents).join("\n");
+        const styleJoined = style
+          .map(({ contents }: Style) => contents)
+          .join("\n");
         // HACK: we should really use each Style's individual `resolver`
         const { resolver } = style[0];
         set(currentWorkspaceState, {
@@ -270,8 +298,15 @@ export const useLoadExampleWorkspace = () =>
           },
         });
         reset(diagramState);
-        await _compileDiagram(substance, styleJoined, domain, variation, set);
-      }
+        await _compileDiagram(
+          substance,
+          styleJoined,
+          domain,
+          variation,
+          excludeWarnings,
+          set,
+        );
+      },
   );
 
 export const useCheckURL = () =>
@@ -300,7 +335,7 @@ export const useCheckURL = () =>
           headers: {
             accept: "application/vnd.github.v3+json",
           },
-        }
+        },
       );
       toast.dismiss(id);
       if (res.status !== 200) {
@@ -311,7 +346,7 @@ export const useCheckURL = () =>
       const json = await res.json();
       const gistFiles = json.files;
       const gistMetadata = JSON.parse(
-        gistFiles["metadata.json"].content
+        gistFiles["metadata.json"].content,
       ) as GistMetadata;
       const metadata: WorkspaceMetadata = {
         name: gistMetadata.name,
@@ -348,9 +383,11 @@ export const useCheckURL = () =>
     } else if ("examples" in parsed) {
       const t = toast.loading("Loading example...");
       const id = parsed["examples"];
-      const examples = await snapshot.getPromise(exampleTriosState);
-      const ex = examples.find((e: TrioWithPreview) => e.id === id)!;
-      const { domain, style, substance, variation } = await ex.get();
+      if (typeof id !== "string") return;
+      const ex = registry.get(id);
+      if (ex === undefined || !ex.trio) return;
+      const { domain, style, substance, variation, excludeWarnings } =
+        await ex.get();
       toast.dismiss(t);
       const styleJoined = style.map(({ contents }: any) => contents).join("\n");
       // HACK: we should really use each Style's individual `resolver`
@@ -383,7 +420,14 @@ export const useCheckURL = () =>
         },
       });
       reset(diagramState);
-      await _compileDiagram(substance, styleJoined, domain, variation, set);
+      await _compileDiagram(
+        substance,
+        styleJoined,
+        domain,
+        variation,
+        excludeWarnings,
+        set,
+      );
       toast.dismiss(t);
     }
     // TODO: implementing loading individual registry examples by URL
@@ -471,7 +515,7 @@ export const useDeleteLocalFile = () =>
           return;
         }
         const currentWorkspace = snapshot.getLoadable(
-          currentWorkspaceState
+          currentWorkspaceState,
         ).contents;
         // removes from index
         set(localFilesState, (localFiles) => {
@@ -483,5 +527,5 @@ export const useDeleteLocalFile = () =>
           reset(currentWorkspaceState);
         }
         toast.success(`Removed ${name}`);
-      }
+      },
   );

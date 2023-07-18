@@ -1,14 +1,20 @@
 import chokidar from "chokidar";
 import { promises as fs } from "fs";
-import { parse, resolve } from "path";
+import { parse, relative, resolve } from "path";
 import WS, { WebSocketServer } from "ws";
 
 let wss: WS.Server | null = null;
 
-const files: { substance: string[]; style: string[]; domain: string[] } = {
+const files: {
+  substance: string[];
+  style: string[];
+  domain: string[];
+  trio: string[];
+} = {
   substance: [],
   style: [],
   domain: [],
+  trio: [],
 };
 
 const broadcastFiles = () => {
@@ -22,12 +28,13 @@ const broadcastFiles = () => {
 };
 
 const broadcastFileChange = async (fileName: string, token?: string) => {
+  if (fileName === "combined_style") return;
   try {
     const contents = await fs.readFile(fileName, "utf8");
     if (wss) {
       for (const ws of wss.clients) {
         ws.send(
-          JSON.stringify({ kind: "file_change", fileName, contents, token })
+          JSON.stringify({ kind: "file_change", fileName, contents, token }),
         );
       }
     } else {
@@ -56,6 +63,58 @@ export default async function (port = 9160): Promise<void> {
           const joined = resolve(parentDir, relativePath);
           broadcastFileChange(joined, token);
           break;
+        case "retrieve_trio": {
+          const { path, token } = parsed;
+          // get containing dir of the trio file
+          const parentDir = parse(path).dir;
+          const contents = await fs.readFile(path, "utf8");
+          const pathContents = JSON.parse(contents);
+          const { style, domain, substance, excludeWarnings } = pathContents;
+          let combinedStyle = "";
+          // concat all the style files
+          for (const s of style) {
+            const styPath = resolve(parentDir, s);
+            combinedStyle += `-- ${styPath}\n`;
+            const sty = await fs.readFile(styPath, "utf8");
+            combinedStyle += sty + "\n";
+          }
+          // send all files
+          if (wss) {
+            const domainPath = resolve(parentDir, domain);
+            const domainText = await fs.readFile(domainPath, "utf8");
+            const substancePath = resolve(parentDir, substance);
+            const substanceText = await fs.readFile(substancePath, "utf8");
+            for (const ws of wss.clients) {
+              ws.send(
+                JSON.stringify({
+                  kind: "trio_files",
+                  files: {
+                    domain: {
+                      fileName: relative(".", domainPath),
+                      contents: domainText,
+                    },
+                    substance: {
+                      fileName: relative(".", substancePath),
+                      contents: substanceText,
+                    },
+                    style: {
+                      contents: combinedStyle,
+                      fileName:
+                        style.length > 1
+                          ? "combined_style"
+                          : relative(".", resolve(parentDir, style[0])), // HACK: use the first style path as the path to the combined Style because the combined Style doesn't exist in the file system
+                    },
+                  },
+                  excludeWarnings: excludeWarnings ?? [],
+                  token,
+                }),
+              );
+            }
+          } else {
+            console.warn("Websocket server not defined");
+          }
+          break;
+        }
         default:
           console.error(`unknown message kind: ${parsed.kind}`);
       }
@@ -68,18 +127,18 @@ export default async function (port = 9160): Promise<void> {
   const watcher = chokidar.watch(".", { persistent: true });
   watcher.on("add", (p) => {
     switch (p.split(".").pop()) {
-      case "sub":
       case "substance":
         files.substance.push(p);
         break;
-      case "sty":
       case "style":
         files.style.push(p);
         break;
-      case "dsl":
       case "domain":
         files.domain.push(p);
         break;
+      case "json":
+        // filter out non-trio json files
+        if (p.split(".").slice(1).join(".") === "trio.json") files.trio.push(p);
     }
 
     broadcastFiles();
@@ -89,8 +148,8 @@ export default async function (port = 9160): Promise<void> {
   });
   watcher.on("change", async (p) => {
     if (
-      ["sub", "substance", "sty", "style", "dsl", "domain"].includes(
-        p.split(".").pop() ?? ""
+      ["json", "substance", "style", "domain"].includes(
+        p.split(".").pop() ?? "",
       )
     ) {
       console.info(`file ${p} changed`);
@@ -99,17 +158,17 @@ export default async function (port = 9160): Promise<void> {
   });
   watcher.on("unlink", (p) => {
     switch (p.split(".").pop()) {
-      case "sub":
       case "substance":
         files.substance = files.substance.filter((f) => f !== p);
         break;
-      case "sty":
       case "style":
         files.style = files.style.filter((f) => f !== p);
         break;
-      case "dsl":
       case "domain":
         files.domain = files.domain.filter((f) => f !== p);
+        break;
+      case "json":
+        files.trio = files.trio.filter((f) => f !== p);
         break;
     }
 

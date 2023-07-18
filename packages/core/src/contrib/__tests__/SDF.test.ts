@@ -11,19 +11,19 @@ import { Context, InputFactory, makeCanvas } from "../../shapes/Samplers.js";
 import * as ad from "../../types/ad.js";
 import { FloatV } from "../../types/value.js";
 import { black, floatV, ptListV, vectorV } from "../../utils/Util.js";
-import { compDict, sdEllipse } from "../Functions.js";
-import { Rectlike } from "../Utils.js";
+import { compDict, signedDistanceEllipse } from "../Functions.js";
+import { Rectlike, toPt } from "../Utils.js";
 
 const canvas = makeCanvas(800, 700);
 
 export const makeContext = (
-  pt: number[]
+  pt: number[],
 ): { context: Context; p: ad.Var[] } => {
   const rng = seedrandom("sdf");
   const inputs: ad.Var[] = [];
   const makeInput: InputFactory = (meta) => {
     const x = variable(
-      meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending
+      meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending,
     );
     inputs.push(x);
     return x;
@@ -48,7 +48,7 @@ const compareDistance = (
     | Circle<ad.Num>
     | Rectlike<ad.Num>,
   p: ad.Var[],
-  expected: number
+  expected: number,
 ) => {
   const result = getResult(context, shape, p);
   const g = primaryGraph(result.contents);
@@ -80,15 +80,20 @@ const getResult = (
     | Line<ad.Num>
     | Circle<ad.Num>
     | Rectlike<ad.Num>,
-  p: ad.Var[]
+  p: ad.Var[],
 ): FloatV<ad.Num> => {
   if (s.shapeType === "Ellipse") {
     return {
       tag: "FloatV",
-      contents: sdEllipse(s, p),
+      contents: signedDistanceEllipse(
+        toPt(s.center.contents),
+        s.rx.contents,
+        s.ry.contents,
+        toPt(p),
+      ),
     };
   } else {
-    const result = compDict.signedDistance.body(context, s, p);
+    const result = compDict.signedDistance.body(context, s, [p[0], p[1]]).value;
     if (result.tag === "FloatV") {
       return result;
     } else {
@@ -103,7 +108,7 @@ const testRectangle = (
   height: number,
   strokeWidth: number,
   pt: number[],
-  expected: number
+  expected: number,
 ) => {
   const { context, p } = makeContext(pt);
   const shape = makeRectangle(context, canvas, {
@@ -121,7 +126,7 @@ const testCircle = (
   radius: number,
   strokeWidth: number,
   pt: number[],
-  expected: number
+  expected: number,
 ) => {
   const { context, p } = makeContext(pt);
   const shape = makeCircle(context, canvas, {
@@ -137,7 +142,7 @@ const testPolygon = (
   points: number[][],
   strokeWidth: number,
   pt: number[],
-  expected: number
+  expected: number,
 ) => {
   const { context, p } = makeContext(pt);
   const shape = makePolygon(context, canvas, {
@@ -153,7 +158,7 @@ function testLine(
   end: number[],
   strokeWidth: number,
   pt: number[],
-  expected: number
+  expected: number,
 ) {
   const { context, p } = makeContext(pt);
   const shape = makeLine(context, canvas, {
@@ -170,7 +175,7 @@ function testEllipse(
   rx: number,
   ry: number,
   pt: number[],
-  expected: number
+  expected: number,
 ) {
   const { context, p } = makeContext(pt);
   const shape = makeEllipse(context, canvas, {
@@ -230,7 +235,7 @@ describe("sdf", () => {
       ],
       0,
       [5, 0],
-      1
+      1,
     );
     testPolygon(
       [
@@ -241,7 +246,7 @@ describe("sdf", () => {
       ],
       0,
       [0, 2],
-      0
+      0,
     );
   });
   testPolygon(
@@ -253,7 +258,7 @@ describe("sdf", () => {
     ],
     0,
     [-2, -2],
-    -2
+    -2,
   );
 
   test("convex heptagon", () => {
@@ -268,7 +273,7 @@ describe("sdf", () => {
       ],
       0,
       [3, 6],
-      1
+      1,
     );
   });
 

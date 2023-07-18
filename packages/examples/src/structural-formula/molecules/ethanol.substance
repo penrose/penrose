@@ -13,3 +13,6 @@ SingleBond(O1, C2)
 SingleBond(H6, O1)
 
 AutoLabel All
+
+Title title
+Label title "ethanol"

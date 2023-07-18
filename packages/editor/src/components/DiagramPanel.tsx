@@ -1,10 +1,10 @@
 import {
   PenroseState,
-  RenderInteractive,
-  RenderStatic,
+  isOptimized,
   showError,
-  stateConverged,
-  stepStateSafe,
+  stepTimes,
+  toInteractiveSVG,
+  toSVG,
 } from "@penrose/core";
 import localforage from "localforage";
 import { useEffect, useRef, useState } from "react";
@@ -37,13 +37,13 @@ import BlueButton from "./BlueButton.js";
 const fetchResource = async (
   name: string,
   { id }: WorkspaceMetadata,
-  url?: string
+  url?: string,
 ): Promise<string | undefined> => {
   const localFilePrefix = "localfile://" + id + "/";
   try {
     // Attempt to retrieve the resource from local storage
     const localImage = await localforage.getItem<string>(
-      localFilePrefix + name
+      localFilePrefix + name,
     );
     if (localImage) {
       return localImage;
@@ -72,7 +72,7 @@ const fetchResource = async (
 export const pathResolver = async (
   relativePath: string,
   rogerState: RogerState,
-  workspace: WorkspaceMetadata
+  workspace: WorkspaceMetadata,
 ): Promise<string | undefined> => {
   const { location } = workspace;
 
@@ -104,7 +104,7 @@ export const pathResolver = async (
               relativePath,
               stylePath: location.style,
               token,
-            })
+            }),
           );
         });
       } else {
@@ -135,7 +135,7 @@ export const DownloadSVG = (
   subStr: string,
   styleStr: string,
   versionStr: string,
-  variationStr: string
+  variationStr: string,
 ): void => {
   SVGaddCode(svg, dslStr, subStr, styleStr, versionStr, variationStr);
   // optimize the svg output
@@ -172,7 +172,7 @@ const SVGaddCode = (
   subStr: string,
   styleStr: string,
   versionStr: string,
-  variationStr: string
+  variationStr: string,
 ): void => {
   // Create custom <penrose> tag to store metadata, or grab it if it already exists
   const metadataQuery = document.querySelector("penrose");
@@ -181,7 +181,7 @@ const SVGaddCode = (
   if (metadataQuery === null) {
     metadata = document.createElementNS(
       "https://penrose.cs.cmu.edu/metadata",
-      "penrose"
+      "penrose",
     );
   } else {
     metadata = metadataQuery!;
@@ -190,28 +190,28 @@ const SVGaddCode = (
   // Create <version> tag for penrose version
   const version = document.createElementNS(
     "https://penrose.cs.cmu.edu/version",
-    "version"
+    "version",
   );
   version.insertAdjacentText("afterbegin", versionStr);
 
   // Create <variation> tag for variation string
   const variation = document.createElementNS(
     "https://penrose.cs.cmu.edu/variation",
-    "variation"
+    "variation",
   );
   variation.insertAdjacentText("afterbegin", variationStr);
 
   // Create <sub> tag to store .substance code
   const substance = document.createElementNS(
     "https://penrose.cs.cmu.edu/substance",
-    "sub"
+    "sub",
   );
   substance.insertAdjacentText("afterbegin", subStr);
 
   // Create <sty> tag to store .style code
   const style = document.createElementNS(
     "https://penrose.cs.cmu.edu/style",
-    "sty"
+    "sty",
   );
   style.insertAdjacentText("afterbegin", styleStr);
 
@@ -242,7 +242,7 @@ export const DownloadPNG = (
   title = "illustration",
   width: number,
   height: number,
-  scale: number
+  scale: number,
 ): void => {
   // duplicate node to set concrete dimensions
   const svgNode = svg.cloneNode(true) as SVGSVGElement;
@@ -298,7 +298,7 @@ export default function DiagramPanel() {
       (async () => {
         // render the current frame
         const rendered = interactive
-          ? await RenderInteractive(
+          ? await toInteractiveSVG(
               state,
               (newState: PenroseState) => {
                 setDiagram({
@@ -308,12 +308,12 @@ export default function DiagramPanel() {
                 step();
               },
               (path) => pathResolver(path, rogerState, workspace),
-              "diagramPanel"
+              "diagramPanel",
             )
-          : await RenderStatic(
+          : await toSVG(
               state,
               (path) => pathResolver(path, rogerState, workspace),
-              "diagramPanel"
+              "diagramPanel",
             );
         rendered.setAttribute("width", "100%");
         rendered.setAttribute("height", "100%");
@@ -337,8 +337,8 @@ export default function DiagramPanel() {
 
   const step = () => {
     if (state) {
-      if (!stateConverged(state) && metadata.autostep) {
-        const stepResult = stepStateSafe(state, metadata.stepSize);
+      if (!isOptimized(state) && metadata.autostep) {
+        const stepResult = stepTimes(state, metadata.stepSize);
         if (stepResult.isErr()) {
           setDiagram({
             ...diagram,
@@ -366,7 +366,7 @@ export default function DiagramPanel() {
         const domain = snapshot.getLoadable(fileContentsSelector("domain"))
           .contents as ProgramFile;
         const substance = snapshot.getLoadable(
-          fileContentsSelector("substance")
+          fileContentsSelector("substance"),
         ).contents as ProgramFile;
         const style = snapshot.getLoadable(fileContentsSelector("style"))
           .contents as ProgramFile;
@@ -377,7 +377,7 @@ export default function DiagramPanel() {
           substance.contents,
           style.contents,
           metadata.editorVersion.toString(),
-          diagram.variation
+          diagram.variation,
         );
       }
     }
@@ -388,11 +388,11 @@ export default function DiagramPanel() {
     if (canvasRef.current !== null) {
       const { state } = snapshot.getLoadable(diagramState).contents as Diagram;
       if (state !== null) {
-        const svg = await RenderStatic(
+        const svg = await toSVG(
           state,
           (path) => pathResolver(path, rogerState, workspace),
           "diagramPanel",
-          true
+          true,
         );
         const metadata = snapshot.getLoadable(workspaceMetadataSelector)
           .contents as WorkspaceMetadata;
@@ -401,7 +401,7 @@ export default function DiagramPanel() {
         const domain = snapshot.getLoadable(fileContentsSelector("domain"))
           .contents as ProgramFile;
         const substance = snapshot.getLoadable(
-          fileContentsSelector("substance")
+          fileContentsSelector("substance"),
         ).contents as ProgramFile;
         const style = snapshot.getLoadable(fileContentsSelector("style"))
           .contents as ProgramFile;
@@ -412,7 +412,7 @@ export default function DiagramPanel() {
           substance.contents,
           style.contents,
           metadata.editorVersion.toString(),
-          diagram.variation
+          diagram.variation,
         );
       }
     }
@@ -445,14 +445,14 @@ export default function DiagramPanel() {
             const openedWindow = window.open(
               "",
               "PRINT",
-              `height=${state.canvas.height},width=${state.canvas.width}`
+              `height=${state.canvas.height},width=${state.canvas.width}`,
             );
             if (openedWindow === null) {
               toast.error("Couldn't open popup to print");
               return;
             }
             openedWindow.document.write(
-              `<!DOCTYPE html><head><title>${metadata.name}</title></head><body>`
+              `<!DOCTYPE html><head><title>${metadata.name}</title></head><body>`,
             );
             openedWindow.document.write(svg.outerHTML);
             openedWindow.document.write("</body></html>");
@@ -462,7 +462,7 @@ export default function DiagramPanel() {
           }
         }
       },
-    [state]
+    [state],
   );
 
   return (

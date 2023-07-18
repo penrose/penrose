@@ -43,10 +43,10 @@ import {
 import Graph from "../utils/Graph.js";
 
 export const parseDomain = (
-  prog: string
+  prog: string,
 ): Result<DomainProg<C>, ParseError> => {
   const parser = new nearley.Parser(
-    nearley.Grammar.fromCompiled(domainGrammar)
+    nearley.Grammar.fromCompiled(domainGrammar),
   );
   try {
     const { results } = parser.feed(prog).feed("\n"); // NOTE: extra newline to avoid trailing comments
@@ -54,10 +54,12 @@ export const parseDomain = (
       const ast: DomainProg<C> = results[0];
       return ok(ast);
     } else {
-      return err(parseError(`Unexpected end of input`, lastLocation(parser)));
+      return err(
+        parseError(`Unexpected end of input`, lastLocation(parser), "Domain"),
+      );
     }
   } catch (e) {
-    return err(parseError(prettyParseError(e), lastLocation(parser)));
+    return err(parseError(prettyParseError(e), lastLocation(parser), "Domain"));
   }
 };
 
@@ -155,7 +157,7 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       return safeChain(
         superTypes,
         (superType, env) => addSubtype(subType, superType, env),
-        updatedEnv
+        updatedEnv,
       );
     }
     case "ConstructorDecl": {
@@ -262,7 +264,7 @@ const checkSymPred = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
  */
 export const checkType = (
   type: Type<A>,
-  env: Env
+  env: Env,
 ): Result<Env, TypeNotFound | TypeVarNotFound> => {
   switch (type.tag) {
     case "TypeVar": {
@@ -284,7 +286,7 @@ export const checkType = (
  */
 export const checkTypeConstructor = (
   type: TypeConstructor<A>,
-  env: Env
+  env: Env,
 ): Result<Env, TypeNotFound | TypeVarNotFound> => {
   const { name, args } = type;
   // check if name of the type exists
@@ -293,8 +295,8 @@ export const checkTypeConstructor = (
     return err(
       typeNotFound(
         name,
-        suggestions.map((t: TypeDecl<C>) => t.name)
-      )
+        suggestions.map((t: TypeDecl<C>) => t.name),
+      ),
     );
   }
   // check if the arguments are well-formed types
@@ -314,7 +316,7 @@ const checkArg = (arg: Arg<C>, env: Env): CheckerResult =>
 const checkSymmetricArgs = (
   args: Arg<C>[],
   envOk: Result<Env, DomainError>,
-  expr: PredicateDecl<C>
+  expr: PredicateDecl<C>,
 ): CheckerResult => {
   if (envOk.isOk()) {
     const env = envOk.value;
@@ -344,7 +346,7 @@ const areSameTypes = (type1: Type<C>, type2: Type<C>, env: Env): boolean => {
 const addSubtype = (
   subType: TypeConstructor<C>, // assume already checked
   superType: TypeConstructor<C>,
-  env: Env
+  env: Env,
 ): CheckerResult => {
   const superOk = checkType(superType, env);
   const updatedEnv: CheckerResult = ok({
@@ -368,7 +370,7 @@ const computeTypeGraph = (env: Env): CheckerResult => {
         j: superType.name.value,
         e: undefined,
       });
-    }
+    },
   );
   const cycles = typeGraph.findCycles();
   if (cycles.length > 0) return err(cyclicSubtypes(cycles));
@@ -385,7 +387,7 @@ const computeTypeGraph = (env: Env): CheckerResult => {
 export const isDeclaredSubtype = (
   subType: TypeConstructor<A>,
   superType: TypeConstructor<A>,
-  env: Env
+  env: Env,
 ): boolean => {
   // HACK: subtyping among parametrized types is not handled and assumed to be false
   // if (subType.args.length > 0 || superType.args.length > 0) return false;
@@ -399,7 +401,7 @@ export const isDeclaredSubtype = (
 
 export const superTypesOf = (
   subType: TypeConstructor<A>,
-  env: Env
+  env: Env,
 ): Set<string> => {
   const g = env.typeGraph;
   const i = subType.name.value;
@@ -414,13 +416,13 @@ export const superTypesOf = (
 // TODO: add in top and bottom in the type graph and simplify `subTypesOf` using `inEdges(t, bot)`
 export const subTypesOf = (
   superType: TypeConstructor<A>,
-  env: Env
+  env: Env,
 ): string[] => {
   let toVisit = [superType.name.value];
   const subTypes = [];
   while (toVisit.length > 0) {
     const newSubTypes: string[] = toVisit.flatMap((t) =>
-      env.typeGraph.inEdges(t).map(({ i }) => i)
+      env.typeGraph.inEdges(t).map(({ i }) => i),
     );
     subTypes.push(...newSubTypes);
     toVisit = newSubTypes;
@@ -431,7 +433,7 @@ export const subTypesOf = (
 export const isSubtype = (
   subType: Type<A>,
   superType: Type<A>,
-  env: Env
+  env: Env,
 ): boolean => {
   if (
     subType.tag === "TypeConstructor" &&
@@ -440,8 +442,8 @@ export const isSubtype = (
     const argsMatch = (args1: Type<A>[], args2: Type<A>[]): boolean =>
       _.every(
         _.zipWith(args1, args2, (sub: Type<A>, sup: Type<A>): boolean =>
-          isSubtype(sub, sup, env)
-        )
+          isSubtype(sub, sup, env),
+        ),
       );
     return (
       (subType.name.value === superType.name.value ||

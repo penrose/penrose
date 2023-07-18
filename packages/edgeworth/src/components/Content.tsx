@@ -12,9 +12,9 @@ import {
   compileSubstance,
   PenroseState,
   prettySubstance,
-  RenderStatic,
   showError,
   SubProg,
+  toSVG,
 } from "@penrose/core";
 import { A } from "@penrose/core/dist/types/ast";
 import { saveAs } from "file-saver";
@@ -135,7 +135,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
       numPrograms: number,
       dsl: string,
       sub: string,
-      sty: string
+      sty: string,
     ) => {
       const envOrError = compileDomain(dsl);
 
@@ -150,8 +150,8 @@ export class Content extends React.Component<ContentProps, ContentState> {
           } else {
             console.log(
               `Error when compiling the template Substance program: ${showError(
-                subRes.error
-              )}`
+                subRes.error,
+              )}`,
             );
           }
         }
@@ -178,7 +178,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
     for (const idx of indices) {
       const state = this.state.states[idx];
       const { prog, ops } = this.state.progs[idx];
-      const svg = await RenderStatic(
+      const svg = await toSVG(
         state,
         async (path: string) => {
           const response = await fetch(path);
@@ -188,7 +188,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
           }
           return await response.text();
         },
-        "diagram" // standalone SVG exports don't require distinct namespaces
+        "diagram", // standalone SVG exports don't require distinct namespaces
       );
       zip.file(`diagram_${idx}.svg`, svg.outerHTML.toString());
       zip.file(`substance_${idx}.substance`, prettySubstance(prog));
@@ -244,7 +244,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
           answer: boolean;
         }[],
         p: SynthesizedSubstance,
-        i: number
+        i: number,
       ) => {
         const substance = prettySubstance(p.prog);
         if (answer.correct.includes(i)) {
@@ -265,7 +265,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
           ];
         } else return problems;
       },
-      []
+      [],
     );
     return (
       <div
@@ -300,7 +300,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
   render() {
     const Problem = memo(
       ({ correct, incorrect }: { correct: number[]; incorrect: number[] }) =>
-        this.problem({ correct, incorrect })
+        this.problem({ correct, incorrect }),
     );
     return (
       <div>

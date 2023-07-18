@@ -5,7 +5,7 @@ import {
   PenroseState,
   PenroseWarning,
 } from "@penrose/core";
-import { PathResolver, Trio, TrioMeta } from "@penrose/examples/dist";
+import { PathResolver, Trio, TrioMeta } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
 import { Actions, BorderNode, TabNode } from "flexlayout-react";
 import localforage from "localforage";
@@ -93,6 +93,7 @@ export type RogerState =
       substance: string[];
       style: string[];
       domain: string[];
+      trio: string[];
     };
 
 const localFilesEffect: AtomEffect<LocalWorkspaces> = ({ setSelf, onSet }) => {
@@ -101,8 +102,8 @@ const localFilesEffect: AtomEffect<LocalWorkspaces> = ({ setSelf, onSet }) => {
       .getItem("local_files")
       .then(
         (savedValue) =>
-          (savedValue != null ? savedValue : {}) as LocalWorkspaces
-      )
+          (savedValue != null ? savedValue : {}) as LocalWorkspaces,
+      ),
   );
 
   onSet((newValue, _, isReset) => {
@@ -156,7 +157,7 @@ const saveWorkspaceEffect: AtomEffect<Workspace> = ({ onSet, setSelf }) => {
       ) {
         await localforage.setItem(newValue.metadata.id, newValue);
       }
-    }, 500)
+    }, 500),
   );
 };
 
@@ -173,7 +174,7 @@ const syncFilenamesEffect: AtomEffect<Workspace> = ({ onSet }) => {
         if (node.getType() === "tab" && (node as TabNode).getConfig()) {
           const kind = (node as TabNode).getConfig().kind as ProgramType;
           layoutModel.doAction(
-            Actions.renameTab(node.getId(), newValue.files[kind].name)
+            Actions.renameTab(node.getId(), newValue.files[kind].name),
           );
         }
       });
@@ -277,6 +278,7 @@ export type DiagramMetadata = {
   stepSize: number;
   autostep: boolean;
   interactive: boolean;
+  excludeWarnings: string[];
   source: {
     domain: string;
     substance: string;
@@ -302,6 +304,7 @@ export const diagramState = atom<Diagram>({
       stepSize: 10000,
       autostep: true,
       interactive: false,
+      excludeWarnings: [],
       source: {
         substance: "",
         style: "",
@@ -328,7 +331,7 @@ const gridSizeEffect: AtomEffect<DiagramGrid> = ({ onSet, setSelf }) => {
         variations: [
           ...old.variations,
           ...range(newValue.gridSize - old.gridSize).map(() =>
-            generateVariation()
+            generateVariation(),
           ),
         ],
       });
@@ -360,7 +363,7 @@ export const diagramMetadataSelector = selector<DiagramMetadata>({
     }));
     set(diagramGridState, ({ gridSize }) => ({
       variations: range(gridSize).map((i) =>
-        i === 0 ? (newValue as DiagramMetadata).variation : generateVariation()
+        i === 0 ? (newValue as DiagramMetadata).variation : generateVariation(),
       ),
       gridSize,
     }));
@@ -382,22 +385,27 @@ export const exampleTriosState = atom<TrioWithPreview[]>({
       try {
         const trios: [string, TrioMeta][] = [];
         for (const [id, meta] of registry.entries()) {
-          if (meta.trio && meta.gallery) trios.push([id, meta]);
+          if (meta.trio && meta.gallery) {
+            trios.push([id, meta]);
+          }
         }
         return Promise.all(
           trios.map(async ([id, { get, name }]) => {
             const svg = await fetch(
               encodeURI(
-                `https://raw.githubusercontent.com/penrose/penrose/ci/refs/heads/main/${id}.svg`
-              )
+                `https://raw.githubusercontent.com/penrose/penrose/ci/refs/heads/main/${id}.svg`,
+              ),
             );
             const trio: TrioWithPreview = { id, get, name };
             if (!svg.ok) {
               console.error(`could not fetch preview for ${id}`);
-              return trio;
+              return {
+                ...trio,
+                preview: `<svg><rect fill="#cbcbcb" width="50" height="50"/></svg>`,
+              };
             }
             return { ...trio, preview: await svg.text() };
-          })
+          }),
         );
       } catch (err) {
         toast.error(`Could not retrieve examples: ${err}`);
@@ -436,8 +444,8 @@ const settingsEffect: AtomEffect<Settings> = ({ setSelf, onSet }) => {
       .getItem("settings")
       .then(
         (savedValue) =>
-          (savedValue != null ? savedValue : new DefaultValue()) as Settings
-      )
+          (savedValue != null ? savedValue : new DefaultValue()) as Settings,
+      ),
   );
 
   onSet((newValue, _, isReset) => {
@@ -456,7 +464,7 @@ const debugModeEffect: AtomEffect<Settings> = ({ onSet }) => {
         layoutModel.doAction(
           Actions.updateNodeAttributes(node.getId(), {
             show: newValue.debugMode,
-          })
+          }),
         );
       }
     });

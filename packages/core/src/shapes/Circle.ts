@@ -20,11 +20,10 @@ export interface CircleProps<T>
 
 export const sampleCircle = (
   context: Context,
-  canvas: Canvas
+  canvas: Canvas,
 ): CircleProps<ad.Num> => {
   return {
     name: strV("defaultCircle"),
-    style: strV(""),
     strokeWidth: floatV(0),
     strokeStyle: strV("solid"),
     strokeColor: noPaint(),
@@ -43,7 +42,7 @@ export type Circle<T> = ShapeCommon<T> & {
 export const makeCircle = (
   context: Context,
   canvas: Canvas,
-  properties: Partial<CircleProps<ad.Num>>
+  properties: Partial<CircleProps<ad.Num>>,
 ): Circle<ad.Num> => ({
   ...sampleCircle(context, canvas),
   ...properties,

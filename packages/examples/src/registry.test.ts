@@ -1,14 +1,8 @@
 // @vitest-environment jsdom
 
-import { optimize } from "svgo";
+import { optimize as optimizeSVG } from "svgo";
 
-import {
-  RenderStatic,
-  compileTrio,
-  prepareState,
-  showError,
-  stepUntilConvergence,
-} from "@penrose/core";
+import { compile, optimize, showError, toSVG } from "@penrose/core";
 import * as fs from "fs/promises";
 import rawFetch, { RequestInit, Response } from "node-fetch";
 import * as path from "path";
@@ -20,12 +14,11 @@ import registry from "./registry.js";
 // dunno why TypeScript doesn't like `node-fetch`
 const fetch = rawFetch as unknown as (
   url: RequestInfo,
-  init?: RequestInit
+  init?: RequestInit,
 ) => Promise<Response>;
 
 interface TrioTime {
   compiling: number;
-  labeling: number;
   optimizing: number;
   rendering: number;
 }
@@ -47,29 +40,26 @@ const nanoToSeconds = (n: bigint): number =>
 
 const renderTrio = async (
   id: string,
-  { substance, style, domain, variation }: Trio
+  { substance, style, domain, variation }: Trio,
 ): Promise<Rendered> => {
   const compiling = process.hrtime.bigint();
 
-  const compilerOutput = await compileTrio({
+  const compilerOutput = await compile({
     substance,
     style: style.map(({ contents }) => contents).join("\n"),
     domain,
     variation,
+    excludeWarnings: [],
   });
   if (compilerOutput.isErr()) {
     const err = compilerOutput.error;
     throw new Error(`Compilation failed:\n${showError(err)}`);
   }
-  const compiledState = compilerOutput.value;
-
-  const labeling = process.hrtime.bigint();
-
-  const initialState = await prepareState(compiledState);
+  const initialState = compilerOutput.value;
 
   const optimizing = process.hrtime.bigint();
 
-  const optimizedOutput = stepUntilConvergence(initialState);
+  const optimizedOutput = optimize(initialState);
   if (optimizedOutput.isErr()) {
     const err = optimizedOutput.error;
     throw new Error(`Optimization failed:\n${showError(err)}`);
@@ -95,9 +85,8 @@ const renderTrio = async (
     return await resolver(filePath);
   };
 
-  const svg = (await RenderStatic(optimizedState, resolvePath, "registry"))
-    .outerHTML;
-  const svgOptimized = optimize(svg, {
+  const svg = (await toSVG(optimizedState, resolvePath, "registry")).outerHTML;
+  const svgOptimized = optimizeSVG(svg, {
     plugins: ["inlineStyles", "prefixIds"],
     path: id,
   }).data;
@@ -108,8 +97,7 @@ const renderTrio = async (
     svg: svgOptimized,
     data: {
       seconds: {
-        compiling: nanoToSeconds(labeling - compiling),
-        labeling: nanoToSeconds(optimizing - labeling),
+        compiling: nanoToSeconds(optimizing - compiling),
         optimizing: nanoToSeconds(rendering - optimizing),
         rendering: nanoToSeconds(done - rendering),
       },
@@ -202,10 +190,10 @@ const textChart = (datas: Map<string, AllData>): string => {
     "Note that each bar component rounds up to the nearest 100ms, so each full bar is an overestimate by up to 400ms.",
     "",
     "```",
-    "     0s   1s   2s   3s   4s   5s   6s   7s   8s",
-    "     |    |    |    |    |    |    |    |    |",
-    "name ▝▀▀▀▀▀▀▀▀▀▚▄▄▄▄▄▄▄▄▞▀▀▀▀▀▀▀▀▀▀▚▄▄▄▄▄▄▄▄▄▖",
-    "      compiling labeling optimizing rendering",
+    "     0s   1s   2s   3s   4s   5s   6s",
+    "     |    |    |    |    |    |    |",
+    "name ▝▀▀▀▀▀▀▀▀▀▚▄▄▄▄▄▄▄▄▄▄▞▀▀▀▀▀▀▀▀▀▘",
+    "      compiling optimizing rendering",
     "```",
     "",
     "If a row has only one bar instead of four, that means it's not a trio and the bar just shows the total time spent for that example, again rounded up to the nearest 100ms.",
@@ -217,14 +205,14 @@ const textChart = (datas: Map<string, AllData>): string => {
 
   const longestName = Math.min(
     MAX_NAME_LENGTH,
-    Math.max(...[...datas.keys()].map((k) => k.length))
+    Math.max(...[...datas.keys()].map((k) => k.length)),
   );
   const longestSeconds = Math.max(
-    ...[...datas.values()].map((v) => v.totalSeconds)
+    ...[...datas.values()].map((v) => v.totalSeconds),
   );
   const numSeconds = Math.min(
     MAX_SECONDS,
-    Math.max(0, Math.ceil(longestSeconds))
+    Math.max(0, Math.ceil(longestSeconds)),
   );
   const labelParts = [" ".repeat(longestName), " 0s"];
   const tickParts = [" ".repeat(longestName), " |"];
@@ -241,17 +229,16 @@ const textChart = (datas: Map<string, AllData>): string => {
       lines.push(
         `${trimName(key).padEnd(longestName)} ${makeContinuousBar([
           seconds.compiling,
-          seconds.labeling,
           seconds.optimizing,
           seconds.rendering,
-        ])}`
+        ])}`,
       );
     } else {
       const { totalSeconds } = data;
       lines.push(
         `${trimName(key).padEnd(longestName)} ${makeContinuousBar([
           totalSeconds,
-        ])}`
+        ])}`,
       );
     }
   }
@@ -281,16 +268,19 @@ describe("registry", () => {
         const filePath = path.join(out, `${key}.svg`);
         const fileDir = path.dirname(filePath);
         await fs.mkdir(fileDir, { recursive: true });
-        await fs.writeFile(filePath, prettier.format(svg, { parser: "html" }));
+        await fs.writeFile(
+          filePath,
+          await prettier.format(svg, { parser: "html" }),
+        );
       },
-      { timeout: MAX_SECONDS * 1000 }
+      { timeout: MAX_SECONDS * 1000 },
     );
   }
 
   afterAll(async () => {
     await fs.writeFile(
       path.join(out, "data.json"),
-      `${JSON.stringify(Object.fromEntries(datas), null, 2)}\n`
+      `${JSON.stringify(Object.fromEntries(datas), null, 2)}\n`,
     );
     await fs.writeFile(path.join(out, "stats.md"), textChart(datas));
   });

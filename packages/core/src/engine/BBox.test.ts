@@ -28,7 +28,7 @@ const canvas = makeCanvas(800, 700);
 
 const expectBbox = (
   actual: BBox,
-  expected: { width: number; height: number; center: [number, number] }
+  expected: { width: number; height: number; center: [number, number] },
 ) => {
   const [width, height, x, y] = numsOf([
     actual.width,
@@ -58,7 +58,7 @@ const polyProps = (): Poly<ad.Num> & Scale<ad.Num> => ({
       [701, 120],
       [591, 90],
       [528, 129],
-    ]
+    ],
   ),
   scale: floatV(0.5),
 });
@@ -112,7 +112,7 @@ describe("bbox", () => {
     const shape = makePolygon(
       simpleContext("bbox Polygon"),
       canvas,
-      polyProps()
+      polyProps(),
     );
     expectBbox(bboxFromPolygon(shape), {
       width: 113.5,
@@ -125,7 +125,7 @@ describe("bbox", () => {
     const shape = makePolyline(
       simpleContext("bbox Polyline"),
       canvas,
-      polyProps()
+      polyProps(),
     );
     expectBbox(bboxFromPolygon(shape), {
       width: 113.5,
@@ -167,7 +167,7 @@ describe("bbox", () => {
         [-100, -100],
         [100, -50],
         [-50, 100],
-      ]),
+      ]).value,
     });
     expectBbox(bboxFromPath(shape), {
       width: 200,
@@ -179,7 +179,7 @@ describe("bbox", () => {
   test("Path (quadratic)", () => {
     const context = simpleContext("bbox Path (quadratic)");
     const shape = makePath(context, canvas, {
-      d: compDict.makePath.body(context, [-100, 0], [100, 0], 50, 10),
+      d: compDict.makePath.body(context, [-100, 0], [100, 0], 50, 10).value,
     });
     expectBbox(bboxFromPath(shape), {
       width: 180,
@@ -196,7 +196,7 @@ describe("bbox", () => {
         [50, 50],
         [200, 0],
         [75, -25],
-      ]),
+      ]).value,
     });
     expectBbox(bboxFromPath(shape), {
       width: 200,
@@ -213,7 +213,7 @@ describe("bbox", () => {
         [50, 50],
         [75, -25],
         [200, 0],
-      ]),
+      ]).value,
     });
     expectBbox(bboxFromPath(shape), {
       width: 200,
@@ -232,7 +232,7 @@ describe("bbox", () => {
         [75, -25],
         [0, -100],
         [100, -75],
-      ]),
+      ]).value,
     });
     expectBbox(bboxFromPath(shape), {
       width: 250,
@@ -252,8 +252,8 @@ describe("bbox", () => {
         [200, 100],
         30,
         1,
-        0
-      ),
+        0,
+      ).value,
     });
     expectBbox(bboxFromPath(shape), {
       width: 400,
@@ -273,8 +273,8 @@ describe("bbox", () => {
         [200, 100],
         30,
         0,
-        0
-      ),
+        0,
+      ).value,
     });
     expectBbox(bboxFromPath(shape), {
       width: 400,
@@ -294,8 +294,8 @@ describe("bbox", () => {
         [25, 50],
         60,
         0,
-        0
-      ),
+        0,
+      ).value,
     });
     expectBbox(bboxFromPath(shape), {
       width: 311.512,

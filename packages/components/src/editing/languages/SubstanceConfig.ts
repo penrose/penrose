@@ -28,7 +28,7 @@ export const SubstanceConfig: languages.LanguageConfiguration = {
 };
 
 export const SubstanceLanguageTokens = (
-  domainCache: Env
+  domainCache: Env,
 ): languages.IMonarchLanguage => {
   const refs = {
     types: [...domainCache.types.keys()],
@@ -66,7 +66,7 @@ export const SubstanceLanguageTokens = (
 
 export const SubstanceCompletions = (
   range: IRange,
-  domainCache: any
+  domainCache: any,
 ): languages.CompletionItem[] => {
   const types = [...domainCache.types.keys()].map((type) => ({
     label: type,
@@ -126,7 +126,7 @@ export const SetupSubstanceMonaco =
     if (domainCache) {
       const provideCompletion = (
         model: editor.ITextModel,
-        position: Position
+        position: Position,
       ) => {
         const word = model.getWordUntilPosition(position);
         const range: IRange = {
@@ -140,13 +140,13 @@ export const SetupSubstanceMonaco =
 
       monaco.languages.setMonarchTokensProvider(
         "substance",
-        SubstanceLanguageTokens(domainCache)
+        SubstanceLanguageTokens(domainCache),
       );
       const dispose = monaco.languages.registerCompletionItemProvider(
         "substance",
         {
           provideCompletionItems: provideCompletion,
-        } as any
+        } as any,
       );
       // HACK ^
       return () => {

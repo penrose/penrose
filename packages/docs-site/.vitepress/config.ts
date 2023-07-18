@@ -1,5 +1,27 @@
 import markdownItKatex from "markdown-it-katex";
 import { defineConfig } from "vitepress";
+import domainGrammar from "../../vscode/syntaxes/domain.tmGrammar.json";
+import styleGrammar from "../../vscode/syntaxes/style.tmGrammar.json";
+import substanceGrammar from "../../vscode/syntaxes/substance.tmGrammar.json";
+
+const styleLang = {
+  id: "style",
+  scopeName: "source.penrose-style",
+  grammar: styleGrammar,
+  path: "style.tmGrammar.json",
+};
+const domainLang = {
+  id: "domain",
+  scopeName: "source.penrose-domain",
+  grammar: domainGrammar,
+  path: "domain.tmGrammar.json",
+};
+const substanceLang = {
+  id: "substance",
+  scopeName: "source.penrose-substance",
+  grammar: substanceGrammar,
+  path: "substance.tmGrammar.json",
+};
 
 // https://github.com/vuejs/vitepress/issues/529#issuecomment-1151186631
 const customElements = [
@@ -114,6 +136,8 @@ export default defineConfig({
     config: (md) => {
       md.use(markdownItKatex);
     },
+    // TODO: figure out the current types of language configs
+    languages: [substanceLang as any, domainLang as any, styleLang as any],
   },
   vue: {
     template: {
@@ -126,6 +150,10 @@ export default defineConfig({
   themeConfig: {
     logo: "img/favicon.ico",
     outline: "deep",
+    editLink: {
+      pattern:
+        "https://github.com/penrose/penrose/edit/main/packages/docs-site/:path",
+    },
     nav: [
       {
         text: "Examples",
@@ -139,7 +167,9 @@ export default defineConfig({
       },
       { text: "Documentation", link: "/docs/ref", activeMatch: "/docs/ref" },
       { text: "Try Penrose", link: "pathname:///try/index.html" },
+      { text: "Join Discord", link: "https://discord.gg/a7VXJU4dfR" },
       { text: "Team", link: "/docs/team" },
+      { text: "Blog", link: "/blog", activeMatch: "/blog" },
       {
         text: "News",
         items: [
@@ -159,6 +189,7 @@ export default defineConfig({
     socialLinks: [
       { icon: "github", link: "https://github.com/penrose/penrose" },
       { icon: "twitter", link: "https://twitter.com/UsePenrose" },
+      { icon: "discord", link: "https://discord.gg/a7VXJU4dfR" },
     ],
 
     sidebar: {
@@ -180,11 +211,11 @@ export default defineConfig({
         {
           text: "Reference",
           items: [
-            { text: "Penrose Overview", link: "/docs/ref" },
+            { text: "Overview", link: "/docs/ref" },
+            { text: "Using Penrose", link: "/docs/ref/using" },
             {
               text: "Domain",
               items: [
-                { text: "Overview", link: "/docs/ref/domain" },
                 { text: "Usage", link: "/docs/ref/domain/usage" },
                 { text: "Examples", link: "/docs/ref/domain/examples" },
               ],
@@ -192,7 +223,6 @@ export default defineConfig({
             {
               text: "Substance",
               items: [
-                { text: "Overview", link: "/docs/ref/substance" },
                 { text: "Usage", link: "/docs/ref/substance/usage" },
                 { text: "Examples", link: "/docs/ref/substance/examples" },
               ],
@@ -200,7 +230,6 @@ export default defineConfig({
             {
               text: "Style",
               items: [
-                { text: "Overview", link: "/docs/ref/style" },
                 {
                   text: "Usage",
                   link: "/docs/ref/style/usage",
@@ -254,14 +283,70 @@ export default defineConfig({
           text: "For Developers",
           items: [
             {
+              text: "The Language API",
+              link: "/docs/ref/api",
+            },
+            {
+              text: "The Optimization API",
+              link: "/docs/ref/optimization-api",
+            },
+            {
+              text: "Using Penrose with Vanilla JS",
+              link: "/docs/ref/vanilla-js",
+            },
+            {
+              text: "Using Penrose with a Bundler",
+              link: "/docs/ref/bundle",
+            },
+            {
+              text: "Using Penrose with React",
+              link: "/docs/ref/react",
+            },
+            {
+              text: "Using Penrose with SolidJS",
+              link: "/docs/ref/solid",
+            },
+            {
               text: "Writing Constraints & Objectives",
               link: "/docs/ref/constraints",
             },
           ],
         },
       ],
+      "/blog": [
+        {
+          text: "July 2023",
+          items: [
+            {
+              text: "Announcing Penrose 3.0",
+              link: "/blog/v3",
+            },
+          ],
+        },
+        {
+          text: "June 2023",
+          items: [
+            {
+              text: "Diagram Layout in Stages",
+              link: "/blog/staged-layout",
+            },
+            {
+              text: "What Have We Done to the Languages?",
+              link: "/blog/new-language-features",
+            },
+            {
+              text: "Switching to Wasm for 10x Speedup",
+              link: "/blog/wasm",
+            },
+          ],
+        },
+      ],
     },
 
-    footer: { copyright: "made with ❤️ in Pittsburgh and abroad" },
+    footer: {
+      message:
+        'Released under the <a href="https://github.com/penrose/penrose/blob/main/LICENSE">MIT License</a>.',
+      copyright: "Copyright © 2017-present Penrose contributors",
+    },
   },
 });

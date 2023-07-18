@@ -1,7 +1,12 @@
 {
+  // Prettier pretty much needs you to specify all the individual filetypes you
+  // want it to run on, because if you just turn it on by default then it'll try
+  // to also run on other code (e.g. Rust) and break. You can find the list of
+  // Prettier-supported languages here: https://prettier.io/docs/en/index.html
   "[css]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
   "[html]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
   "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[javascriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
   "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
   "[jsonc]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
   "[markdown]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },

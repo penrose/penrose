@@ -5,15 +5,14 @@ import { describe, expect, test } from "vitest";
 import { genGradient } from "./engine/Autodiff.js";
 import { pow, sub } from "./engine/AutodiffFunctions.js";
 import {
-  RenderStatic,
-  compileTrio,
+  compile,
   evalEnergy,
   evalFns,
-  prepareState,
+  optimize,
   problem,
   resample,
   showError,
-  stepUntilConvergence,
+  toSVG,
   variable,
 } from "./index.js";
 import * as ad from "./types/ad.js";
@@ -50,7 +49,6 @@ forall Set x {
 
 forall Set x; Set y
 where IsSubset(x, y) {
-  ensure smallerThan(x.icon, y.icon)
   ensure disjoint(y.text, x.icon, 10)
   ensure contains(y.icon, x.icon, 5)
   x.icon above y.icon
@@ -81,7 +79,7 @@ describe("API", () => {
 
 describe("Determinism", () => {
   const render = async (state: State): Promise<string> =>
-    (await RenderStatic(state, async () => undefined, "")).outerHTML;
+    (await toSVG(state, async () => undefined, "")).outerHTML;
 
   const substance = "Set A, B\nIsSubset(B, A)\nAutoLabel All";
   const style = vennStyle;
@@ -89,19 +87,20 @@ describe("Determinism", () => {
   const variation = "determinism";
 
   test("with initial optimization", async () => {
-    const resCompile = await compileTrio({
+    const resCompile = await compile({
       substance,
       style,
       domain,
       variation,
+      excludeWarnings: [],
     });
     if (resCompile.isErr()) {
       throw Error(showError(resCompile.error));
     }
-    const stateSample1NotOpt = await prepareState(resCompile.value);
+    const stateSample1NotOpt = resCompile.value;
     const svgSample1NotOpt = await render(stateSample1NotOpt);
 
-    const resSample1Opt = stepUntilConvergence(stateSample1NotOpt);
+    const resSample1Opt = optimize(stateSample1NotOpt);
     if (resSample1Opt.isErr()) {
       throw Error(showError(resSample1Opt.error));
     }
@@ -111,7 +110,7 @@ describe("Determinism", () => {
     const stateSample2NotOpt = resample(stateSample1Opt);
     const svgSample2NotOpt = await render(stateSample2NotOpt);
 
-    const resSample2Opt = stepUntilConvergence(stateSample2NotOpt);
+    const resSample2Opt = optimize(stateSample2NotOpt);
     if (resSample2Opt.isErr()) {
       throw Error(showError(resSample2Opt.error));
     }
@@ -121,7 +120,7 @@ describe("Determinism", () => {
     const stateSample3NotOpt = resample(stateSample2Opt);
     const svgSample3NotOpt = await render(stateSample3NotOpt);
 
-    const resSample3Opt = stepUntilConvergence(stateSample3NotOpt);
+    const resSample3Opt = optimize(stateSample3NotOpt);
     if (resSample3Opt.isErr()) {
       throw Error(showError(resSample3Opt.error));
     }
@@ -143,20 +142,21 @@ describe("Determinism", () => {
   });
 
   test("without initial optimization", async () => {
-    const resCompile = await compileTrio({
+    const resCompile = await compile({
       substance,
       style,
       domain,
       variation,
+      excludeWarnings: [],
     });
     if (resCompile.isErr()) {
       throw Error(showError(resCompile.error));
     }
 
-    const state1NotOpt = resample(await prepareState(resCompile.value));
+    const state1NotOpt = resample(resCompile.value);
     const svg1NotOpt = await render(state1NotOpt);
 
-    const resOptimize1 = stepUntilConvergence(state1NotOpt);
+    const resOptimize1 = optimize(state1NotOpt);
     if (resOptimize1.isErr()) {
       throw Error(showError(resOptimize1.error));
     }
@@ -168,7 +168,7 @@ describe("Determinism", () => {
     const state2NotOpt = resample(state1Opt);
     const svg2NotOpt = await render(state2NotOpt);
 
-    const resOptimize2 = stepUntilConvergence(state2NotOpt);
+    const resOptimize2 = optimize(state2NotOpt);
     if (resOptimize2.isErr()) {
       throw Error(showError(resOptimize2.error));
     }
@@ -184,15 +184,16 @@ describe("Determinism", () => {
 describe("Energy API", () => {
   test("eval overall energy - init vs. optimized", async () => {
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
-    const res = await compileTrio({
+    const res = await compile({
       substance: twoSubsets,
       style: vennStyle,
       domain: setDomain,
       variation: "energy overall",
+      excludeWarnings: [],
     });
     if (res.isOk()) {
-      const stateEvaled = await prepareState(res.value);
-      const stateOpt = stepUntilConvergence(stateEvaled);
+      const stateEvaled = res.value;
+      const stateOpt = optimize(stateEvaled);
       if (stateOpt.isErr()) {
         throw Error("optimization failed");
       }
@@ -204,13 +205,15 @@ describe("Energy API", () => {
       console.log(showError(res.error));
     }
   });
+
   test("filtered constraints", async () => {
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
-    const res = await compileTrio({
+    const res = await compile({
       substance: twoSubsets,
       style: vennStyle,
       domain: setDomain,
       variation: "energy filtered",
+      excludeWarnings: [],
     });
     if (res.isOk()) {
       // NOTE: delibrately not cache the overall objective and re-generate for original and filtered states
@@ -218,7 +221,7 @@ describe("Energy API", () => {
       const smallerThanFns = state.constrFns.filter((c) => {
         return (
           c.ast.expr.body.tag === "FunctionCall" &&
-          c.ast.expr.body.name.value === "smallerThan"
+          c.ast.expr.body.name.value === "disjoint"
         );
       });
       const masks: ad.Masks = {
@@ -232,7 +235,7 @@ describe("Energy API", () => {
         gradient: await genGradient(
           state.inputs.map(({ handle }) => handle),
           state.objFns.map(({ output }) => output),
-          smallerThanFns.map(({ output }) => output)
+          smallerThanFns.map(({ output }) => output),
         ),
         params: start(state.varyingValues.length),
       };
@@ -243,64 +246,23 @@ describe("Energy API", () => {
   });
 });
 
-describe("Cross-instance energy eval", () => {
-  test("correct - subsets", async () => {
-    const twosets = `Set A, B\nNot(Intersecting(A, B))\nAutoLabel All`;
-    const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
-    // compile and optimize both states
-    const state1 = await compileTrio({
-      substance: twosets,
-      style: vennStyle,
-      domain: setDomain,
-      variation: "cross-instance state0",
-    });
-    const state2 = await compileTrio({
-      substance: twoSubsets,
-      style: vennStyle,
-      domain: setDomain,
-      variation: "cross-instance state1",
-    });
-    if (state1.isOk() && state2.isOk()) {
-      const state1Done = stepUntilConvergence(await prepareState(state1.value));
-      const state2Done = stepUntilConvergence(await prepareState(state2.value));
-      if (state1Done.isOk() && state2Done.isOk()) {
-        const crossState21 = {
-          ...state2Done.value,
-          constrFns: state1Done.value.constrFns,
-          objFns: state1Done.value.objFns,
-        };
-        expect(evalEnergy(await prepareState(crossState21))).toBeCloseTo(0);
-        const crossState12 = {
-          ...state1Done.value,
-          constrFns: state2Done.value.constrFns,
-          objFns: state2Done.value.objFns,
-        };
-        expect(evalEnergy(await prepareState(crossState12))).toBeGreaterThan(0);
-      } else {
-        throw Error("optimization failed");
-      }
-    } else {
-      throw Error("compilation failed");
-    }
-  });
-});
-
 describe("Run individual functions", () => {
   // TODO: Test evalFns vs overall objective? Also, test individual functions more thoroughly
   const EPS = 1e-3; // Minimized objectives should be close to 0
 
   test("Check each individual function is minimized/satisfied", async () => {
     const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
-    const res = await compileTrio({
+    const res = await compile({
       substance: twoSubsets,
       style: vennStyle,
       domain: setDomain,
       variation: "individual functions",
+      excludeWarnings: [],
     });
 
     if (res.isOk()) {
-      const stateEvaled = await prepareState(res.value);
-      const stateOpt = stepUntilConvergence(stateEvaled);
+      const stateEvaled = res.value;
+      const stateOpt = optimize(stateEvaled);
       if (stateOpt.isErr()) {
         throw Error("optimization failed");
       }

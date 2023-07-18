@@ -23,7 +23,7 @@ describe("toImplicit", () => {
         [2, 3],
       ],
       [1, 6],
-      0
+      0,
     );
     let [a, b, c] = numsOf([result.a, result.b, result.c]);
     expect(a).toBeCloseTo(1 / Math.sqrt(2), 4);
@@ -38,7 +38,7 @@ describe("toImplicit", () => {
         [3, 4],
       ],
       [5, 6],
-      1
+      1,
     );
     let [a, b, c] = numsOf([result.a, result.b, result.c]);
     expect(a).toBeCloseTo(1 / Math.sqrt(2), 4);
@@ -56,7 +56,7 @@ describe("toImplicit", () => {
         center: vectorV([-11, 22]),
         strokeWidth: floatV(0),
         strokeColor: black(),
-      }
+      },
     );
     let result = ellipseToImplicit(ellipse, 0);
     let [a, b, c, x, y] = numsOf([
@@ -83,7 +83,7 @@ describe("toImplicit", () => {
         center: vectorV([-11, 22]),
         strokeWidth: floatV(0),
         strokeColor: black(),
-      }
+      },
     );
     let result = ellipseToImplicit(ellipse, 1);
     let [a, b, c, x, y] = numsOf([
@@ -109,7 +109,7 @@ describe("toImplicit", () => {
         center: vectorV([3, 4]),
         strokeWidth: floatV(0),
         strokeColor: black(),
-      }
+      },
     );
     let result = circleToImplicitEllipse(circle, 0);
     let [a, b, c, x, y] = numsOf([
@@ -135,7 +135,7 @@ describe("toImplicit", () => {
         center: vectorV([3, 4]),
         strokeWidth: floatV(0),
         strokeColor: black(),
-      }
+      },
     );
     let result = circleToImplicitEllipse(circle, 1);
     let [a, b, c, x, y] = numsOf([
@@ -164,12 +164,12 @@ describe("ellipsePolynomial", () => {
       .filter(([_, rn]) => !Number.isNaN(rn))
       .map(([r, _]) => r);
     const points = lambdas.map((lambda: ad.Num) =>
-      pointCandidatesEllipse(ellipse1, ellipse2, lambda)
+      pointCandidatesEllipse(ellipse1, ellipse2, lambda),
     );
     points.forEach(function ([x, y]) {
       const result = sub(
         implicitEllipseFunc(ellipse1, x, y),
-        implicitEllipseFunc(ellipse2, x, y)
+        implicitEllipseFunc(ellipse2, x, y),
       );
       expect(numOf(result)).toBeCloseTo(0, 4);
     });
@@ -189,7 +189,7 @@ describe("ellipsePolynomial", () => {
         powers.push(power);
       }
       const result = addN(
-        zip2([...poly, 1], powers).map(([c, p]) => mul(c, p))
+        zip2([...poly, 1], powers).map(([c, p]) => mul(c, p)),
       );
       expect(numOf(result)).toBeCloseTo(0, 4);
     });

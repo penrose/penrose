@@ -96,7 +96,7 @@ describe("Substance AST queries", () => {
     const similarMap = similarMappings(leftFiltered, rightFiltered);
     expect(similarMap[0].similarStmts).toHaveLength(1);
     expect(prettyStmt(similarMap[0].similarStmts[0])).toEqual(
-      "C := Subset(A, B)"
+      "C := Subset(A, B)",
     );
   });
   // TODO: this test is out of date because the equality checks don't clean nodes anymore

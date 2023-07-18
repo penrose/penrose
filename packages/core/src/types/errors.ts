@@ -5,6 +5,7 @@ import {
   AbstractNode,
   C,
   Identifier,
+  NodeType,
   SourceLoc,
   SourceRange,
 } from "./ast.js";
@@ -213,6 +214,7 @@ export type StyleError =
   | FunctionInternalError
   | RedeclareNamespaceError
   | UnexpectedCollectionAccessError
+  | LayerOnNonShapesError
   // Runtime errors
   | RuntimeValueTypeError;
 
@@ -222,7 +224,10 @@ export type StyleWarning =
   | NoopDeleteWarning
   | LayerCycleWarning
   | ShapeBelongsToMultipleGroupsWarning
-  | GroupCycleWarning;
+  | GroupCycleWarning
+  | FunctionInternalWarning;
+
+export type FunctionInternalWarning = BBoxApproximationWarning;
 
 export interface StyleDiagnostics {
   errors: im.List<StyleError>;
@@ -255,6 +260,17 @@ export interface GroupCycleWarning {
   cycles: string[][];
 }
 
+export interface BBoxApproximationWarning {
+  tag: "BBoxApproximationWarning";
+  // tail is the top of stack
+  stack: [BBoxApproximationWarningItem, ...BBoxApproximationWarningItem[]];
+}
+
+export interface BBoxApproximationWarningItem {
+  signature: string;
+  location?: SourceRange;
+}
+
 //#endregion
 
 export interface GenericStyleError {
@@ -271,6 +287,7 @@ export interface ParseError {
   tag: "ParseError";
   message: string;
   location?: SourceLoc;
+  fileType?: NodeType;
 }
 
 export interface InvalidColorLiteral {
@@ -503,6 +520,12 @@ export interface UnexpectedCollectionAccessError {
   tag: "UnexpectedCollectionAccessError";
   name: string;
   location: SourceRange;
+}
+
+export interface LayerOnNonShapesError {
+  tag: "LayerOnNonShapesError";
+  location: SourceRange;
+  expr: string;
 }
 
 //#endregion

@@ -82,7 +82,7 @@ const shapeSampler: Map<
     Rectangle: sampleRectangle,
     Text: sampleText,
     Group: sampleGroup,
-  })
+  }),
 );
 
 const bboxFromGroup = ({ shapes, clipPath }: GroupProps<ad.Num>): BBox.BBox => {
@@ -126,7 +126,7 @@ export const shapeTypes = [
 export const sampleShape = (
   shapeType: ShapeType,
   context: Context,
-  canvas: Canvas
+  canvas: Canvas,
 ): ShapeProps<ad.Num> => {
   const sampler = shapeSampler.get(shapeType);
   if (sampler) {

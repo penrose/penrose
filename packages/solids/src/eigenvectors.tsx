@@ -111,7 +111,7 @@ const Point = ({
  */
 const getPosition = (
   { clientX, clientY }: { clientX: number; clientY: number },
-  svg: SVGSVGElement
+  svg: SVGSVGElement,
 ) => {
   const CTM = svg.getScreenCTM();
   if (CTM !== null) {
@@ -426,10 +426,10 @@ ${num(v1d[1]).toFixed(2)} & ${num(v2d[1]).toFixed(2)}
 `}
         </$>
         <$>{`\\textcolor{${vColor}}{v}= [${num(vd[0]).toFixed(2)}, ${num(
-          vd[1]
+          vd[1],
         ).toFixed(2)}]`}</$>
         <$>{`\\textcolor{${vColor}}{Av}= [${num(avd[0]).toFixed(2)}, ${num(
-          avd[1]
+          avd[1],
         ).toFixed(2)}]`}</$>
       </div>
     </div>

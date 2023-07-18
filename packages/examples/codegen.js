@@ -24,7 +24,7 @@ const codegen = (dir) => {
             `import substance from "${trio.substance}.js";`,
             ...trio.style.map(
               (style, i) =>
-                `import style${i}, { resolver as resolver${i} } from "${style}.js";`
+                `import style${i}, { resolver as resolver${i} } from "${style}.js";`,
             ),
             `import domain from "${trio.domain}.js";`,
             "export default {",
@@ -32,14 +32,19 @@ const codegen = (dir) => {
             "  style: [",
             ...trio.style.map(
               (style, i) =>
-                `    { contents: style${i}, resolver: resolver${i} },`
+                `    { contents: style${i}, resolver: resolver${i} },`,
             ),
             "  ],",
             "  domain,",
-            `  variation: ${JSON.stringify(trio.variation)}`,
+            `  variation: ${JSON.stringify(trio.variation)},`,
+            `  excludeWarnings: ${
+              trio.excludeWarnings === undefined
+                ? JSON.stringify([])
+                : JSON.stringify(trio.excludeWarnings)
+            }`,
             "};",
             "",
-          ].join("\n")
+          ].join("\n"),
         );
       } else if (ext === ".style") {
         fs.writeFileSync(
@@ -52,18 +57,18 @@ const codegen = (dir) => {
             `export const resolver = makeResolver(${JSON.stringify(dir)});`,
             `export default ${JSON.stringify(contents)};`,
             "",
-          ].join("\n")
+          ].join("\n"),
         );
       } else if (ext === ".domain" || ext === ".substance") {
         fs.writeFileSync(
           `${srcDirChild}.ts`,
-          `export default ${JSON.stringify(contents)};`
+          `export default ${JSON.stringify(contents)};`,
         );
       } else if (ext === ".svg") {
         svgs.push(dirChild);
         fs.writeFileSync(
           `${srcDirChild}.ts`,
-          `export default ${JSON.stringify(contents)};`
+          `export default ${JSON.stringify(contents)};`,
         );
       }
     }
@@ -87,14 +92,14 @@ for (const [k, v] of Object.entries(registry)) {
   lines.push(`    trio: ${isTrio},`);
   if (isTrio) {
     lines.push(
-      `    get: () => trio(import(${JSON.stringify(`./${k}.trio.js`)})),`
+      `    get: () => trio(import(${JSON.stringify(`./${k}.trio.js`)})),`,
     );
     if ("gallery" in v) lines.push(`    gallery: ${v.gallery},`);
   } else {
     lines.push(
       `    f: async () => (await import(${JSON.stringify(
-        `./${k}.js`
-      )})).default(),`
+        `./${k}.js`,
+      )})).default(),`,
     );
   }
   if ("name" in v) lines.push(`    name: ${JSON.stringify(v.name)},`);
@@ -122,5 +127,5 @@ fs.writeFileSync(
     "  }",
     "};",
     "",
-  ].join("\n")
+  ].join("\n"),
 );

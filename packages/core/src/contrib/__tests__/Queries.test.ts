@@ -15,13 +15,13 @@ import { black, floatV, ptListV, vectorV } from "../../utils/Util.js";
 import { compDict } from "../Functions.js";
 import {
   bboxFromShape,
+  bboxPts,
   convexPolygonOriginSignedDistance,
   outwardUnitNormal,
   polygonLikePoints,
   shapeCenter,
-  shapeDistanceAABBs,
-  shapeDistancePolygonlikes,
-  shapeSize,
+  shapeDistancePolys,
+  shapeDistanceRects,
 } from "../Queries.js";
 import { numOf, numsOf } from "../Utils.js";
 import { _rectangles } from "../__testfixtures__/TestShapes.input.js";
@@ -60,7 +60,7 @@ const shapes: Shape<ad.Num>[] = [
       [-11, 0],
       [33, 0],
       [33, 44],
-    ]),
+    ]).value,
   }),
   // shapes[4]
   makeLine(context, canvas, {
@@ -99,12 +99,6 @@ describe("simple queries", () => {
     const [x, y] = numsOf([center[0], center[1]]);
     expect(x).toBeCloseTo(11, precisionDigits);
     expect(y).toBeCloseTo(22, precisionDigits);
-  });
-
-  it.each(shapes)("shapeSize for %p", (shape: Shape<ad.Num>) => {
-    const size = shapeSize(shape);
-    const sizeNum = numOf(size);
-    expect(sizeNum).toBeCloseTo(44, precisionDigits);
   });
 });
 
@@ -150,7 +144,7 @@ describe("polygonLikePoints", () => {
     "unsupported shape %p",
     (shape: Shape<ad.Num>) => {
       expect(() => polygonLikePoints(shape)).toThrowError();
-    }
+    },
   );
 });
 
@@ -203,7 +197,7 @@ describe("convexPolygonOriginSignedDistance", () => {
         [-1, -1],
         [1, -1],
         [0, 1],
-      ])
+      ]),
     );
     const [x, y] = [2 / 5, 1 / 5]; // closest
     expect(d).toBeCloseTo(-Math.sqrt(x ** 2 + y ** 2));
@@ -215,7 +209,7 @@ describe("convexPolygonOriginSignedDistance", () => {
         [-1, 1],
         [1, 1],
         [0, 3],
-      ])
+      ]),
     );
     expect(d).toBeCloseTo(1);
   });
@@ -226,7 +220,7 @@ describe("convexPolygonOriginSignedDistance", () => {
         [-1, -3],
         [1, -3],
         [0, -1],
-      ])
+      ]),
     );
     expect(d).toBeCloseTo(1);
   });
@@ -238,7 +232,7 @@ describe("convexPolygonOriginSignedDistance", () => {
         [2, -3],
         [1, -2],
         [-1, -2],
-      ])
+      ]),
     );
     expect(d).toBeCloseTo(2);
   });
@@ -251,8 +245,14 @@ test("shapeDistanceAABBs should return the same value as shapeDistancePolygonlik
     for (const j in _rectangles) {
       const r2 = _rectangles[j];
 
-      const result1 = shapeDistanceAABBs(r1, r2);
-      const result2 = shapeDistancePolygonlikes(r1, r2);
+      const result1 = shapeDistanceRects(
+        bboxPts(bboxFromShape(r1)),
+        bboxPts(bboxFromShape(r2)),
+      );
+      const result2 = shapeDistancePolys(
+        polygonLikePoints(r1),
+        polygonLikePoints(r2),
+      );
 
       const [result1num, result2num] = numsOf([result1, result2]);
 

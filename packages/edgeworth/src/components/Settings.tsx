@@ -18,6 +18,7 @@ import {
 } from "@material-ui/core";
 import { Listing } from "@penrose/components";
 import { Env, compileDomain, showError } from "@penrose/core";
+<<<<<<< HEAD
 import c04p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c04p01.substance.js";
 import React from "react";
 import Latex from "react-latex-next";
@@ -32,6 +33,12 @@ import {
   sampleSubstances,
   systemInsts,
 } from "../gpt.js";
+=======
+import c04p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c04p01.substance";
+import React from "react";
+import Latex from "react-latex-next";
+import { Preset, domains, presets } from "../examples.js";
+>>>>>>> 745c7054393b3d65ebaf92313574a82017519047
 import {
   DeclTypes,
   MatchSetting,
@@ -92,7 +99,11 @@ export interface SettingsProps {
     llmInput: string,
     currentTab: number,
     domainSelect: string,
+<<<<<<< HEAD
     presetSelect: string
+=======
+    presetSelect: string,
+>>>>>>> 745c7054393b3d65ebaf92313574a82017519047
   ) => void;
   onPrompt: (prompt: string) => void;
   defaultDomain: string;
@@ -257,7 +268,11 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
   displayNaturalLangOrPresetTabs = () => {
     const handleTabSwitch = (
       event: React.ChangeEvent<{}>,
+<<<<<<< HEAD
       newValue: number
+=======
+      newValue: number,
+>>>>>>> 745c7054393b3d65ebaf92313574a82017519047
     ) => {
       this.setState({ currentTab: newValue });
     };
@@ -313,7 +328,11 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
               this.handlePreset(key);
 
               const domainSelectStr = Object.entries(domains).find(
+<<<<<<< HEAD
                 ([_, { domain }]) => domain === presets[key].domain
+=======
+                ([_, { domain }]) => domain === presets[key].domain,
+>>>>>>> 745c7054393b3d65ebaf92313574a82017519047
               )![0];
 
               this.setState({
@@ -335,7 +354,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
 
   getSampleSubstancePreset = () => {
     return Object.entries(presets).find(
-      ([_, { domain }]) => domain === this.state.domain
+      ([_, { domain }]) => domain === this.state.domain,
     )![1];
   };
 
@@ -401,7 +420,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
         this.state.llmInput,
         this.state.currentTab,
         this.state.presetSelect,
-        this.state.domainSelect
+        this.state.domainSelect,
       );
   };
 
@@ -424,7 +443,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
       const typeSelect = (
         stmtType: string,
         op: DeclTypes,
-        arr: string[]
+        arr: string[],
       ): DeclTypes => {
         let newMatchSetting: MatchSetting = "*";
         if (!arr.includes(wildcardType)) {
