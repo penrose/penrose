@@ -460,5 +460,4 @@ Our repo uses [semantic versioning][] and maintains the same version number for 
 [yarn]: https://classic.yarnpkg.com/lang/en/docs/install/
 [semantic versioning]: https://semver.org
 [github release]: https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository
-[tsx]: https://github.com/esbuild-kit/tsx
 [Python]: https://www.python.org/
