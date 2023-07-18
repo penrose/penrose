@@ -66,6 +66,16 @@ Set D
 });
 
 describe("statements", () => {
+  test.each([
+    "Set s_{1}, s_{2}, ... ,s_{10}",
+    "Set s_{0}, s_{1}, ... ,s_{10}",
+    "Set s{1}, s{2},...,s{10}",
+    "Set s{ 1}, s{2    },...    ,s{10}",
+  ])("decl sequence %s", (seq: string) => {
+    const { results } = parser.feed(seq);
+    sameASTs(results);
+  });
+
   test("decl and decl list", () => {
     const prog = `
 Set A
@@ -120,7 +130,7 @@ NoLabel B, C
     sameASTs(results);
     expect(results[0].statements[3].option.tag).toEqual("DefaultLabels");
     expect(
-      results[0].statements[4].option.variables.map((a: any) => a.value),
+      results[0].statements[4].option.variables.map((a: any) => a.value)
     ).toEqual(["B", "C"]);
   });
   test("bind and exprs", () => {

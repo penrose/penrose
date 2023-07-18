@@ -140,7 +140,7 @@ export const rangeFrom = (children: SourceRange[]): SourceRange => {
 export const rangeBetween = (
   // alternatively, beginToken could be undefined if endToken isn't
   beginToken: moo.Token | SourceRange,
-  endToken: moo.Token | SourceRange | undefined,
+  endToken: moo.Token | SourceRange | undefined
 ): SourceRange => {
   // handle undefined cases for easier use in postprocessors
   if (!endToken) return rangeOf(beginToken);
@@ -172,13 +172,11 @@ export const nth = <T>(n: number) => {
   };
 };
 
-export const optional = <T>(
-  optionalValue: T | undefined,
-  defaultValue: T,
-): T => (optionalValue ? optionalValue : defaultValue);
+export const optional = <T>(optionalValue: T | undefined, defaultValue: T): T =>
+  optionalValue ? optionalValue : defaultValue;
 // Helper that takes in a mix of single token or list of tokens, drops all undefined (i.e. optional ealues), and finally flattten the mixture to a list of tokens.
 export const tokensIn = (
-  tokenList: (moo.Token | moo.Token[] | undefined)[],
+  tokenList: (moo.Token | moo.Token[] | undefined)[]
 ): moo.Token[] => _.flatten(_.compact(tokenList));
 
 // HACK: locations for dummy AST nodes. Revisit if this pattern becomes widespread.

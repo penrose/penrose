@@ -9,15 +9,15 @@ import moo from "moo";
 import _ from 'lodash'
 import { optional, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil.js'
 import { C, ConcreteNode, Identifier, StringLit } from "../types/ast.js";
-import { SubProg, SubStmt, Decl, Bind, ApplyPredicate, Deconstructor, Func, EqualExprs, EqualPredicates, LabelDecl, NoLabel, AutoLabel, LabelOption, TypeConsApp } from "../types/substance.js";
+import { IndexedIdentifier, SubProg, SubStmt, Decl, Bind, ApplyPredicate, Deconstructor, Func, EqualExprs, EqualPredicates, LabelDecl, NoLabel, AutoLabel, LabelOption, TypeConsApp } from "../types/substance.js";
 
 
 // NOTE: ordering matters here. Top patterns get matched __first__
 const lexer = moo.compile({
   tex_literal: /\$.*?\$/, // TeX string enclosed by dollar signs
   double_arrow: "<->",
+  ellipsis: "...",
   ...basicSymbols,
-  // tex_literal: /\$(?:[^\n\$]|\\["\\ntbfr])*\$/,
   identifier: {
     match: /[A-z_][A-Za-z_0-9]*/,
     type: moo.keywords({
@@ -63,7 +63,8 @@ statements
     |  _ statement _c_ nl statements {% d => [d[1], ...d[4]] %}
 
 statement 
-  -> decl            {% id %}
+  -> decl_seq        {% id %}
+  |  decl            {% id %}
   |  bind            {% id %}
   |  let_bind        {% id %}   
   |  decl_bind       {% id %} 
@@ -72,12 +73,32 @@ statement
   |  equal_exprs     {% id %}
   |  equal_predicates {% id %}
 
-decl -> type_constructor __ sepBy1[identifier, ","] {%
+decl -> type_constructor __ sepEndBy1[identifier, ","] {%
   ([type, , ids]): Decl<C>[] => ids.map((name: Identifier<C>): Decl<C> => ({
     ...nodeData,
     ...rangeBetween(type, name),
     tag: "Decl", type, name
   }))
+%}
+
+ellipsis_sep -> "," _ "..." _ "," {% id %}
+
+indexed_identifier -> identifier "{" _ %float_literal _ "}" {%
+  ([name, , , index]): IndexedIdentifier<C> => ({
+    ...nodeData,
+    ...rangeBetween(name, index),
+    tag: "IndexedIdentifier", name, index: +index.value
+  }) 
+%}
+
+decl_seq -> type_constructor __ sepBy1[indexed_identifier, ","] _ ellipsis_sep _ indexed_identifier {%
+  ([type, , leading, , , , last]): DeclSeq<C> => {
+    return {
+      ...nodeData,
+      ...rangeBetween(type, last),
+      tag: "DeclSeq", type, leading, last
+    };
+  }
 %}
 
 bind -> identifier _ ":=" _ sub_expr {%
@@ -125,7 +146,7 @@ let_bind -> "Let" __ identifier _ ":=" _ sub_expr {%
   }
 %}
 
-apply_predicate -> identifier _ "(" _ sepBy1[pred_arg, ","] _ ")" {%
+apply_predicate -> identifier _ "(" _ sepEndBy1[pred_arg, ","] _ ")" {%
   ([name, , , , args]): ApplyPredicate<C> => ({
     ...nodeData,
     ...rangeFrom([name, ...args]),
@@ -150,7 +171,7 @@ deconstructor -> identifier _ "." _ identifier {%
 %}
 
 # NOTE: generic func type for consturction, predicate, or function
-func -> identifier _ "(" _ sepBy[sub_expr, ","] _ ")" {%
+func -> identifier _ "(" _ sepEndBy[sub_expr, ","] _ ")" {%
   ([name, , , , args]): Func<C> => ({
     ...nodeData,
     ...rangeFrom([name, ...args]),
@@ -199,7 +220,7 @@ label_decl
     })
   %}
 
-no_label -> "NoLabel" __ sepBy1[identifier, ","] {%
+no_label -> "NoLabel" __ sepEndBy1[identifier, ","] {%
   ([kw, , args]): NoLabel<C> => ({
     ...nodeData,
     ...rangeFrom([rangeOf(kw), ...args]),
@@ -217,7 +238,7 @@ auto_label -> "AutoLabel" __ label_option {%
 
 label_option 
   -> "All" {% ([kw]): LabelOption<C> => ({ ...nodeData, ...rangeOf(kw), tag: "DefaultLabels" }) %}
-  |  sepBy1[identifier, ","] {% 
+  |  sepEndBy1[identifier, ","] {% 
        ([variables]): LabelOption<C> => ({ ...nodeData, ...rangeFrom(variables), tag: "LabelIDs", variables }) 
      %}
 
@@ -235,7 +256,7 @@ type_constructor -> identifier type_arg_list:? {%
 %}
 
 # NOTE: only type constructors are alloed in Substance
-type_arg_list -> _ "(" _ sepBy1[type_constructor, ","] _ ")" {% 
+type_arg_list -> _ "(" _ sepEndBy1[type_constructor, ","] _ ")" {% 
   ([, , , d]): TypeConsApp<C>[] => _.flatten(d) 
 %}
 

@@ -24,6 +24,7 @@ export type SubProg<T> = ASTNode<T> & {
 
 export type SubStmt<T> =
   | Decl<T>
+  | DeclSeq<T>
   | Bind<T>
   | EqualExprs<T>
   | EqualPredicates<T>
@@ -73,6 +74,19 @@ export type Decl<T> = ASTNode<T> & {
   tag: "Decl";
   type: TypeConsApp<T>;
   name: Identifier<T>;
+};
+
+export type IndexedIdentifier<T> = {
+  tag: "IndexedIdentifier";
+  name: Identifier<T>;
+  index: number;
+};
+
+export type DeclSeq<T> = ASTNode<T> & {
+  tag: "DeclSeq";
+  type: TypeConsApp<T>;
+  leading: IndexedIdentifier<T>[];
+  last: IndexedIdentifier<T>;
 };
 
 type TypeConsAppArgs<T> = {
