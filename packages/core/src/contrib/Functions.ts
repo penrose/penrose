@@ -435,6 +435,22 @@ export const compDict = {
   },
 
   /**
+   * Return `mod(x)`.
+   */
+  mod: {
+    name: "mod",
+    description: "Return `mod(a, n)`.",
+    params: [{ name: "a", description: "`a`", type: realT() }, { name: "n", description: "`n`", type: realT() }],
+    body: (_context: Context, a: ad.Num, n: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
+        tag: "FloatV",
+        contents: sub(a, mul(n, floor(div(a, n)))),
+      });
+    },
+    returns: valueT("Real"),
+  },
+
+  /**
    * Return `atan(x)`.
    */
   atan: {
