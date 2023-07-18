@@ -7,7 +7,7 @@
     "build": "vitepress build",
     "build-decls": ":",
     "copy-editor": "shx mkdir -p ./public/try/ && shx cp -r ../editor/dist/* ./public/try",
-    "build-shapedefs": "shx rm -f ./src/shapedefs.json && roger shapedefs -o ./src/shapedefs.json",
+    "build-shapedefs": "shx rm -f ./src/shapedefs.json && yarn roger shapedefs -o ./src/shapedefs.json",
     "dev": "vitepress dev",
     "preview": "vitepress preview",
     "typecheck": ":"
