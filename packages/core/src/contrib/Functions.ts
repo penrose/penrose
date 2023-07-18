@@ -435,7 +435,7 @@ export const compDict = {
   },
 
   /**
-   * Return `mod(x)`.
+   * Return `mod(a, n)`.
    */
   mod: {
     name: "mod",
