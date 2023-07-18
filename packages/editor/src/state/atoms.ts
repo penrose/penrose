@@ -102,8 +102,8 @@ const localFilesEffect: AtomEffect<LocalWorkspaces> = ({ setSelf, onSet }) => {
       .getItem("local_files")
       .then(
         (savedValue) =>
-          (savedValue != null ? savedValue : {}) as LocalWorkspaces
-      )
+          (savedValue != null ? savedValue : {}) as LocalWorkspaces,
+      ),
   );
 
   onSet((newValue, _, isReset) => {
@@ -157,7 +157,7 @@ const saveWorkspaceEffect: AtomEffect<Workspace> = ({ onSet, setSelf }) => {
       ) {
         await localforage.setItem(newValue.metadata.id, newValue);
       }
-    }, 500)
+    }, 500),
   );
 };
 
@@ -174,7 +174,7 @@ const syncFilenamesEffect: AtomEffect<Workspace> = ({ onSet }) => {
         if (node.getType() === "tab" && (node as TabNode).getConfig()) {
           const kind = (node as TabNode).getConfig().kind as ProgramType;
           layoutModel.doAction(
-            Actions.renameTab(node.getId(), newValue.files[kind].name)
+            Actions.renameTab(node.getId(), newValue.files[kind].name),
           );
         }
       });
@@ -331,7 +331,7 @@ const gridSizeEffect: AtomEffect<DiagramGrid> = ({ onSet, setSelf }) => {
         variations: [
           ...old.variations,
           ...range(newValue.gridSize - old.gridSize).map(() =>
-            generateVariation()
+            generateVariation(),
           ),
         ],
       });
@@ -363,7 +363,7 @@ export const diagramMetadataSelector = selector<DiagramMetadata>({
     }));
     set(diagramGridState, ({ gridSize }) => ({
       variations: range(gridSize).map((i) =>
-        i === 0 ? (newValue as DiagramMetadata).variation : generateVariation()
+        i === 0 ? (newValue as DiagramMetadata).variation : generateVariation(),
       ),
       gridSize,
     }));
@@ -393,8 +393,8 @@ export const exampleTriosState = atom<TrioWithPreview[]>({
           trios.map(async ([id, { get, name }]) => {
             const svg = await fetch(
               encodeURI(
-                `https://raw.githubusercontent.com/penrose/penrose/ci/refs/heads/main/${id}.svg`
-              )
+                `https://raw.githubusercontent.com/penrose/penrose/ci/refs/heads/main/${id}.svg`,
+              ),
             );
             const trio: TrioWithPreview = { id, get, name };
             if (!svg.ok) {
@@ -405,7 +405,7 @@ export const exampleTriosState = atom<TrioWithPreview[]>({
               };
             }
             return { ...trio, preview: await svg.text() };
-          })
+          }),
         );
       } catch (err) {
         toast.error(`Could not retrieve examples: ${err}`);
@@ -444,8 +444,8 @@ const settingsEffect: AtomEffect<Settings> = ({ setSelf, onSet }) => {
       .getItem("settings")
       .then(
         (savedValue) =>
-          (savedValue != null ? savedValue : new DefaultValue()) as Settings
-      )
+          (savedValue != null ? savedValue : new DefaultValue()) as Settings,
+      ),
   );
 
   onSet((newValue, _, isReset) => {
@@ -464,7 +464,7 @@ const debugModeEffect: AtomEffect<Settings> = ({ onSet }) => {
         layoutModel.doAction(
           Actions.updateNodeAttributes(node.getId(), {
             show: newValue.debugMode,
-          })
+          }),
         );
       }
     });

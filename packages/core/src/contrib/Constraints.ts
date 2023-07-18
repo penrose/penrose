@@ -98,7 +98,7 @@ export const greaterThanSq = (x: ad.Num, y: ad.Num): ad.Num => {
 export const inRange = (x: ad.Num, x0: ad.Num, x1: ad.Num): ad.Num => {
   return add(
     ifCond(lt(x, x1), 0, sub(x, x1)),
-    ifCond(lt(x0, x), 0, sub(x0, x))
+    ifCond(lt(x0, x), 0, sub(x0, x)),
   );
 };
 
@@ -107,7 +107,7 @@ export const inRange = (x: ad.Num, x0: ad.Num, x1: ad.Num): ad.Num => {
  */
 export const contains1D = (
   [l1, r1]: [ad.Num, ad.Num],
-  [l2, r2]: [ad.Num, ad.Num]
+  [l2, r2]: [ad.Num, ad.Num],
 ): ad.Num => {
   // [if len2 <= len1,] require that (l2 > l1) & (r2 < r1)
   return add(max(0, sub(l1, l2)), max(0, sub(r2, r1)));
@@ -119,7 +119,7 @@ export const contains1D = (
 export const disjointScalar = (
   c: ad.Num,
   left: ad.Num,
-  right: ad.Num
+  right: ad.Num,
 ): ad.Num => {
   const d = (x: ad.Num, y: ad.Num) => absVal(sub(x, y));
 
@@ -133,7 +133,7 @@ export const disjointScalar = (
 export const perpendicular = (
   q: ad.Num[],
   p: ad.Num[],
-  r: ad.Num[]
+  r: ad.Num[],
 ): ad.Num => {
   const v1 = ops.vsub(q, p);
   const v2 = ops.vsub(r, p);
@@ -158,7 +158,7 @@ export const collinear = (c1: ad.Num[], c2: ad.Num[], c3: ad.Num[]): ad.Num => {
 export const collinearOrdered = (
   c1: ad.Num[],
   c2: ad.Num[],
-  c3: ad.Num[]
+  c3: ad.Num[],
 ): ad.Num => {
   const v1 = ops.vnorm(ops.vsub(c1, c2));
   const v2 = ops.vnorm(ops.vsub(c2, c3));
@@ -172,7 +172,7 @@ export const collinearOrdered = (
 export const onCanvas = (
   shape: Shape<ad.Num>,
   canvasWidth: ad.Num,
-  canvasHeight: ad.Num
+  canvasHeight: ad.Num,
 ): ad.Num => {
   const box = bboxFromShape(shape);
   const canvasXRange: [ad.Num, ad.Num] = [
@@ -185,14 +185,14 @@ export const onCanvas = (
   ];
   return add(
     contains1D(canvasXRange, BBox.xRange(box)),
-    contains1D(canvasYRange, BBox.yRange(box))
+    contains1D(canvasYRange, BBox.yRange(box)),
   );
 };
 
 export const overlapping = (
   s1: Shape<ad.Num>,
   s2: Shape<ad.Num>,
-  overlap: ad.Num = 0
+  overlap: ad.Num = 0,
 ): MayWarn<ad.Num> => {
   const t1 = s1.shapeType;
   const t2 = s2.shapeType;
@@ -206,8 +206,8 @@ export const overlapping = (
         toPt(s2.center.contents),
         s2.rx.contents,
         s2.ry.contents,
-        overlap
-      )
+        overlap,
+      ),
     );
   // Circle x Ellipse
   else if (t1 === "Circle" && t2 === "Ellipse")
@@ -218,8 +218,8 @@ export const overlapping = (
         toPt(s2.center.contents),
         s2.rx.contents,
         s2.ry.contents,
-        overlap
-      )
+        overlap,
+      ),
     );
   else if (t1 === "Ellipse" && t2 === "Circle")
     return noWarn(
@@ -229,8 +229,8 @@ export const overlapping = (
         toPt(s1.center.contents),
         s1.rx.contents,
         s1.ry.contents,
-        overlap
-      )
+        overlap,
+      ),
     );
   // for other cases, we know how to compute the distance, so we just use that
   else {
@@ -265,7 +265,7 @@ export const overlappingEllipses = (
   c2: ad.Pt2,
   rx2: ad.Num,
   ry2: ad.Num,
-  overlap: ad.Num
+  overlap: ad.Num,
 ): ad.Num => {
   const d = ops.vdist(c1, c2);
   const factor = div(1, add(1, d));
@@ -274,7 +274,7 @@ export const overlappingEllipses = (
     rx1,
     ry1,
     neg(overlap),
-    mul(Math.PI / 3, factor)
+    mul(Math.PI / 3, factor),
   );
   const ei2 = absEllipseToImplicit(c2, rx2, ry2, 0, factor);
   return overlappingImplicitEllipses(ei1, ei2);
@@ -286,7 +286,7 @@ export const overlappingCircleEllipse = (
   c2: ad.Pt2,
   rx2: ad.Num,
   ry2: ad.Num,
-  overlap: ad.Num
+  overlap: ad.Num,
 ): ad.Num => {
   const d = ops.vdist(c1, c2);
   const factor = div(1, add(1, d));
@@ -294,7 +294,7 @@ export const overlappingCircleEllipse = (
     c1,
     r1,
     neg(overlap),
-    mul(Math.PI / 3, factor)
+    mul(Math.PI / 3, factor),
   );
   const ei2 = absEllipseToImplicit(c2, rx2, ry2, 0, factor);
   return overlappingImplicitEllipses(ei1, ei2);
@@ -303,7 +303,7 @@ export const overlappingCircleEllipse = (
 export const disjoint = (
   s1: Shape<ad.Num>,
   s2: Shape<ad.Num>,
-  padding: ad.Num = 0
+  padding: ad.Num = 0,
 ): MayWarn<ad.Num> => {
   const { value: overlap, warnings } = overlapping(s1, s2, neg(padding));
   return {
@@ -327,7 +327,7 @@ export const disjoint = (
 export const touching = (
   s1: Shape<ad.Num>,
   s2: Shape<ad.Num>,
-  padding: ad.Num = 0
+  padding: ad.Num = 0,
 ): MayWarn<ad.Num> => {
   const { value: overlap, warnings } = overlapping(s1, s2, neg(padding));
   return {
@@ -351,7 +351,7 @@ export const touching = (
 export const contains = (
   s1: Shape<ad.Num>,
   s2: Shape<ad.Num>,
-  padding: ad.Num = 0.0
+  padding: ad.Num = 0.0,
 ): MayWarn<ad.Num> => {
   const t1 = s1.shapeType,
     t2 = s2.shapeType;
@@ -362,12 +362,12 @@ export const contains = (
         s1.r.contents,
         toPt(s2.center.contents),
         s2.r.contents,
-        padding
-      )
+        padding,
+      ),
     );
   else if (t1 === "Polygon" && t2 === "Polygon") {
     return noWarn(
-      containsPolys(polygonLikePoints(s1), polygonLikePoints(s2), padding)
+      containsPolys(polygonLikePoints(s1), polygonLikePoints(s2), padding),
     );
   } else if (t1 === "Polygon" && t2 === "Circle") {
     return noWarn(
@@ -375,8 +375,8 @@ export const contains = (
         polygonLikePoints(s1),
         toPt(s2.center.contents),
         s2.r.contents,
-        padding
-      )
+        padding,
+      ),
     );
   } else if (t1 === "Circle" && t2 === "Polygon") {
     return noWarn(
@@ -384,25 +384,35 @@ export const contains = (
         toPt(s1.center.contents),
         s1.r.contents,
         polygonLikePoints(s2),
-        padding
-      )
+        padding,
+      ),
     );
   } else if (t1 === "Circle" && isRectlike(s2)) {
     const rPts = bboxPts(bboxFromShape(s2));
     return noWarn(
-      containsCircleRect(toPt(s1.center.contents), s1.r.contents, rPts, padding)
+      containsCircleRect(
+        toPt(s1.center.contents),
+        s1.r.contents,
+        rPts,
+        padding,
+      ),
     );
   } else if (isRectlike(s1) && t2 === "Circle") {
     const rPts = bboxPts(bboxFromShape(s1));
     return noWarn(
-      containsRectCircle(rPts, toPt(s2.center.contents), s2.r.contents, padding)
+      containsRectCircle(
+        rPts,
+        toPt(s2.center.contents),
+        s2.r.contents,
+        padding,
+      ),
     );
   } else if (t1 === "Group") {
     const { value, warnings } = containsGroupShape(
       s1.shapes.contents,
       s1.clipPath.contents,
       s2,
-      padding
+      padding,
     );
 
     return {
@@ -421,8 +431,8 @@ export const contains = (
       containsRects(
         bboxPts(bboxFromShape(s1)),
         bboxPts(bboxFromShape(s2)),
-        padding
-      )
+        padding,
+      ),
     );
   } else {
     const s1BboxPts = bboxPts(bboxFromShape(s1));
@@ -444,7 +454,7 @@ export const containsCircles = (
   r1: ad.Num,
   c2: ad.Pt2,
   r2: ad.Num,
-  padding: ad.Num
+  padding: ad.Num,
 ): ad.Num => {
   const d = ops.vdist(c1, c2);
   const o = padding ? sub(sub(r1, r2), padding) : sub(r1, r2);
@@ -454,7 +464,7 @@ export const containsCircles = (
 export const containsPolys = (
   pts1: ad.Pt2[],
   pts2: ad.Pt2[],
-  padding: ad.Num
+  padding: ad.Num,
 ): ad.Num => {
   return maxN(pts2.map((x) => containsPolyPoint(pts1, x, padding)));
 };
@@ -463,7 +473,7 @@ export const containsPolyCircle = (
   pts: ad.Pt2[],
   c: ad.Pt2,
   r: ad.Num,
-  padding: ad.Num
+  padding: ad.Num,
 ): ad.Num => {
   return containsPolyPoint(pts, c, add(padding, r));
 };
@@ -471,7 +481,7 @@ export const containsPolyCircle = (
 export const containsPolyPoint = (
   pts: ad.Pt2[],
   pt: ad.Pt2,
-  padding: ad.Num
+  padding: ad.Num,
 ): ad.Num => {
   const cp1 = convexPartitions(pts);
   return maxN(cp1.map((p1) => containsConvexPolygonPoints(p1, pt, padding)));
@@ -481,7 +491,7 @@ export const containsCirclePoint = (
   c: ad.Pt2,
   r: ad.Num,
   pt: ad.Pt2,
-  padding: ad.Num
+  padding: ad.Num,
 ): ad.Num => {
   return sub(add(ops.vdist(pt, c), padding), r);
 };
@@ -490,7 +500,7 @@ export const containsCirclePoly = (
   c: ad.Pt2,
   r: ad.Num,
   pts: ad.Pt2[],
-  padding: ad.Num
+  padding: ad.Num,
 ): ad.Num => {
   return maxN(pts.map((pt) => containsCirclePoint(c, r, pt, padding)));
 };
@@ -499,7 +509,7 @@ export const containsCircleRect = (
   c: ad.Pt2,
   r: ad.Num,
   rect: ad.Pt2[],
-  padding: ad.Num
+  padding: ad.Num,
 ): ad.Num => {
   // Bad implementation
   // Treats the rectangle as a circle
@@ -517,7 +527,7 @@ export const containsRectCircle = (
   rect: ad.Pt2[],
   c: ad.Pt2,
   r: ad.Num,
-  padding: ad.Num
+  padding: ad.Num,
 ): ad.Num => {
   if (rect.length !== 4) {
     throw new Error("`rect` should be a list of four 2d-points.");
@@ -538,13 +548,13 @@ export const containsRectCircle = (
   //         |cy-ry| - (h/2-r-o) )
   return max(
     sub(absVal(sub(cx, rx)), sub(sub(halfW, r), padding)),
-    sub(absVal(sub(cy, ry)), sub(sub(halfH, r), padding))
+    sub(absVal(sub(cy, ry)), sub(sub(halfH, r), padding)),
   );
 };
 export const containsRects = (
   rect1: ad.Pt2[],
   rect2: ad.Pt2[],
-  padding: ad.Num
+  padding: ad.Num,
 ): ad.Num => {
   // TODO: add padding.
   if (rect1.length !== 4 || rect2.length !== 4) {
@@ -568,7 +578,7 @@ export const containsGroupShape = (
   shapes: Shape<ad.Num>[],
   clip: ClipData<ad.Num>,
   s2: Shape<ad.Num>,
-  padding: ad.Num
+  padding: ad.Num,
 ): MayWarn<ad.Num> => {
   const results = shapes.map((s) => contains(s, s2, padding));
   const energies = results.map((r) => r.value);
@@ -577,7 +587,7 @@ export const containsGroupShape = (
       if (warning.tag === "BBoxApproximationWarning") {
         const newStack: [
           BBoxApproximationWarningItem,
-          ...BBoxApproximationWarningItem[]
+          ...BBoxApproximationWarningItem[],
         ] = [
           ...warning.stack,
           {
@@ -610,7 +620,7 @@ export const containsGroupShape = (
       if (warning.tag === "BBoxApproximationWarning") {
         const newStack: [
           BBoxApproximationWarningItem,
-          ...BBoxApproximationWarningItem[]
+          ...BBoxApproximationWarningItem[],
         ] = [
           ...warning.stack,
           {
@@ -639,11 +649,11 @@ export const containsGroupShape = (
  */
 export const disjointIntervals = (
   s1: Line<ad.Num>,
-  s2: Line<ad.Num>
+  s2: Line<ad.Num>,
 ): ad.Num => {
   return overlap1D(
     [s1.start.contents[0], s1.end.contents[0]],
-    [s2.start.contents[0], s2.end.contents[0]]
+    [s2.start.contents[0], s2.end.contents[0]],
   );
 };
 

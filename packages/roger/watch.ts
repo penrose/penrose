@@ -34,7 +34,7 @@ const broadcastFileChange = async (fileName: string, token?: string) => {
     if (wss) {
       for (const ws of wss.clients) {
         ws.send(
-          JSON.stringify({ kind: "file_change", fileName, contents, token })
+          JSON.stringify({ kind: "file_change", fileName, contents, token }),
         );
       }
     } else {
@@ -107,7 +107,7 @@ export default async function (port = 9160): Promise<void> {
                   },
                   excludeWarnings: excludeWarnings ?? [],
                   token,
-                })
+                }),
               );
             }
           } else {
@@ -149,7 +149,7 @@ export default async function (port = 9160): Promise<void> {
   watcher.on("change", async (p) => {
     if (
       ["json", "substance", "style", "domain"].includes(
-        p.split(".").pop() ?? ""
+        p.split(".").pop() ?? "",
       )
     ) {
       console.info(`file ${p} changed`);

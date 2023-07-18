@@ -36,7 +36,7 @@
     "global-jsdom": "^8.8.0",
     "jsdom": "^22.0.0",
     "node-fetch": "^3.3.1",
-    "prettier": "2.8.8",
+    "prettier": "3.0.0",
     "regenerator-runtime": "^0.13.11",
     "true-myth": "^4.1.1",
     "ws": "^8.6.0",

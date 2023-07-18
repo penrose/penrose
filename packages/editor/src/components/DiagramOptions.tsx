@@ -11,7 +11,7 @@ import BlueButton from "./BlueButton.js";
 
 export default function DiagramOptions() {
   const [diagramMetadata, setDiagramMetadata] = useRecoilState(
-    diagramMetadataSelector
+    diagramMetadataSelector,
   );
   const [{ gridSize }, setSettingsState] = useRecoilState(diagramGridState);
   const compileDiagram = useCompileDiagram();

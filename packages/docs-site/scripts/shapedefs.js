@@ -23,12 +23,12 @@ const getShapeDefs = (outFile) => {
     const shapeSample1 = sampleShape(
       shapeName,
       simpleContext("ShapeProps sample 1"),
-      makeCanvas(size, size)
+      makeCanvas(size, size),
     );
     const shapeSample2 = sampleShape(
       shapeName,
       simpleContext("ShapeProps sample 2"),
-      makeCanvas(size, size)
+      makeCanvas(size, size),
     );
     const outThisShapeDef = { sampled: {}, defaulted: {} };
     outShapes[shapeName] = outThisShapeDef;

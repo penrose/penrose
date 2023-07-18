@@ -11,7 +11,7 @@ export interface GroupProps<T> extends Named<T> {
 
 export const sampleGroup = (
   context: Context,
-  canvas: Canvas
+  canvas: Canvas,
 ): GroupProps<ad.Num> => {
   return {
     name: strV("defaultGroup"),

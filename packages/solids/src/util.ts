@@ -38,7 +38,7 @@ const evalComp = (op: Comp["binop"]): ((x: number, y: number) => boolean) => {
 };
 
 const evalLogic = (
-  op: Logic["binop"]
+  op: Logic["binop"],
 ): ((x: boolean, y: boolean) => boolean) => {
   switch (op) {
     case "&&": {
@@ -96,7 +96,7 @@ const evalUnary = (op: Unary["unop"]): ((x: number) => number) => {
 };
 
 const evalBinary = (
-  op: Binary["binop"]
+  op: Binary["binop"],
 ): ((x: number, y: number) => number) => {
   switch (op) {
     case "+": {
@@ -179,7 +179,7 @@ const boolWith = (x: Bool, signal: Accessor<boolean>): Accessor<boolean> => {
 
 const numWith = (
   x: Exclude<Num, number>,
-  signal: Accessor<number>
+  signal: Accessor<number>,
 ): Accessor<number> => {
   const mem = createMemo(signal);
   (x as any)[secret] = mem;
@@ -288,7 +288,7 @@ export type Sampler = (x: number) => number;
 
 export const sample = <T>(
   seed: Accessor<string>,
-  f: (makeVar: (sampler: Sampler) => Var) => T
+  f: (makeVar: (sampler: Sampler) => Var) => T,
 ): T => {
   const vars: { sampler: Sampler; setter: SetStoreFunction<Var> }[] = [];
   const rng = seedrandom(seed());
@@ -307,8 +307,8 @@ export const sample = <T>(
         const rng = seedrandom(s);
         vars.forEach(({ sampler, setter }) => setter({ val: sampler(rng()) }));
       },
-      { defer: true }
-    )
+      { defer: true },
+    ),
   );
   return res;
 };

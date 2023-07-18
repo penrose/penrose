@@ -22,9 +22,7 @@
 /packages/optimizer/bindings/
 /packages/optimizer/build/
 /README.md
-/target/
 coverage/
-dist/
 public/app.css
 public/app.js
 tsconfig.tsbuildinfo

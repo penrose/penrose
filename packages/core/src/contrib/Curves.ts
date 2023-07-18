@@ -44,7 +44,7 @@ export const curvature = (
   p1: ad.Num[],
   p2: ad.Num[],
   p3: ad.Num[],
-  mode: CurvatureApproximationMode = CurvatureApproximationMode.Angle
+  mode: CurvatureApproximationMode = CurvatureApproximationMode.Angle,
 ): ad.Num => {
   // Curvature approximation schemes using angle adapted from [1].
   // [1] K. Crane, M. Wardetzky and J. Hass,
@@ -103,9 +103,9 @@ export const signedArea = (points: ad.Num[][], closed: boolean): ad.Num => {
     0.5,
     addN(
       sides.map(([p1, p2]: ad.Num[][]) =>
-        sub(mul(p1[0], p2[1]), mul(p1[1], p2[0]))
-      )
-    )
+        sub(mul(p1[0], p2[1]), mul(p1[1], p2[0])),
+      ),
+    ),
   );
 };
 
@@ -121,7 +121,7 @@ export const turningNumber = (points: ad.Num[][], closed: boolean): ad.Num => {
  */
 export const isoperimetricRatio = (
   points: ad.Num[][],
-  closed: boolean
+  closed: boolean,
 ): ad.Num => {
   return div(squared(perimeter(points, closed)), signedArea(points, closed));
 };
@@ -132,16 +132,16 @@ export const isoperimetricRatio = (
 export const totalCurvature = (
   points: ad.Num[][],
   closed: boolean,
-  signed = true
+  signed = true,
 ): ad.Num => {
   const triples = consecutiveTriples(points, closed);
   if (signed) {
     return addN(
-      triples.map(([p1, p2, p3]: ad.Num[][]) => curvature(p1, p2, p3))
+      triples.map(([p1, p2, p3]: ad.Num[][]) => curvature(p1, p2, p3)),
     );
   }
   return addN(
-    triples.map(([p1, p2, p3]: ad.Num[][]) => absVal(curvature(p1, p2, p3)))
+    triples.map(([p1, p2, p3]: ad.Num[][]) => absVal(curvature(p1, p2, p3))),
   );
 };
 
@@ -154,11 +154,11 @@ export const elasticEnergy = (points: ad.Num[][], closed: boolean): ad.Num => {
     triples.map(([p1, p2, p3]: ad.Num[][]) =>
       mul(
         squared(
-          curvature(p1, p2, p3, CurvatureApproximationMode.SteinerLineSegment)
+          curvature(p1, p2, p3, CurvatureApproximationMode.SteinerLineSegment),
         ),
-        mul(0.5, mul(ops.vdist(p1, p2), ops.vdist(p2, p3)))
-      )
-    )
+        mul(0.5, mul(ops.vdist(p1, p2), ops.vdist(p2, p3))),
+      ),
+    ),
   );
 };
 
@@ -168,7 +168,7 @@ export const elasticEnergy = (points: ad.Num[][], closed: boolean): ad.Num => {
 export const lengthK = (
   points: ad.Num[][],
   closed: boolean,
-  k: number
+  k: number,
 ): ad.Num => {
   const tuples = consecutiveTuples(points, closed);
   return addN(tuples.map(([p1, p2]: ad.Num[][]) => pow(ops.vdist(p1, p2), k)));
@@ -181,8 +181,10 @@ export const maxCurvature = (points: ad.Num[][], closed: boolean): ad.Num => {
   const triples = consecutiveTriples(points, closed);
   return maxN(
     triples.map(([p1, p2, p3]: ad.Num[][]) =>
-      absVal(curvature(p1, p2, p3, CurvatureApproximationMode.OsculatingCircle))
-    )
+      absVal(
+        curvature(p1, p2, p3, CurvatureApproximationMode.OsculatingCircle),
+      ),
+    ),
   );
 };
 
@@ -192,7 +194,7 @@ export const maxCurvature = (points: ad.Num[][], closed: boolean): ad.Num => {
 export const pElasticEnergy = (
   points: ad.Num[][],
   closed: boolean,
-  p = 2
+  p = 2,
 ): ad.Num => {
   const triples = consecutiveTriples(points, closed);
   return addN(
@@ -200,11 +202,11 @@ export const pElasticEnergy = (
       mul(
         pow(
           curvature(p1, p2, p3, CurvatureApproximationMode.SteinerLineSegment),
-          p
+          p,
         ),
-        mul(0.5, mul(ops.vdist(p1, p2), ops.vdist(p2, p3)))
-      )
-    )
+        mul(0.5, mul(ops.vdist(p1, p2), ops.vdist(p2, p3))),
+      ),
+    ),
   );
 };
 
@@ -214,17 +216,17 @@ export const pElasticEnergy = (
 export const inflectionEnergy = (
   points: ad.Num[][],
   closed: boolean,
-  p: number
+  p: number,
 ): ad.Num => {
   const triples = consecutiveTriples(points, closed);
   const curvatures = triples.map(([p1, p2, p3]: ad.Num[][]) =>
-    curvature(p1, p2, p3, CurvatureApproximationMode.SteinerLineSegment)
+    curvature(p1, p2, p3, CurvatureApproximationMode.SteinerLineSegment),
   );
   const tuples = consecutiveTuples(curvatures, closed);
   return addN(
     tuples.map(([kappa1, kappa2]: [ad.Num, ad.Num]) =>
-      pow(absVal(sub(kappa2, kappa1)), p)
-    )
+      pow(absVal(sub(kappa2, kappa1)), p),
+    ),
   );
 };
 
@@ -260,13 +262,13 @@ export const constrDictCurves: { [k: string]: ConstrFunc } = {
     body: noWarnFn((points: ad.Num[][], closed: boolean): ad.Num => {
       const triples = consecutiveTriples(points, closed);
       const angles = triples.map(([p1, p2, p3]: ad.Num[][]) =>
-        ops.angleFrom(ops.vsub(p2, p1), ops.vsub(p3, p2))
+        ops.angleFrom(ops.vsub(p2, p1), ops.vsub(p3, p2)),
       );
       const meanSign = sign(addN(angles));
       return addN(
         angles.map((angle: ad.Num) =>
-          ifCond(lte(mul(meanSign, angle), 0), squared(angle), 0)
-        )
+          ifCond(lte(mul(meanSign, angle), 0), squared(angle), 0),
+        ),
       );
     }),
   },
@@ -293,7 +295,7 @@ export const constrDictCurves: { [k: string]: ConstrFunc } = {
     body: noWarnFn((points: ad.Num[][], closed: boolean): ad.Num => {
       const localPenalty = constrDictCurves.isLocallyConvex.body(
         points,
-        closed
+        closed,
       ).value;
       const tn = turningNumber(points, closed);
       const globalPenalty = squared(sub(absVal(tn), 1));
@@ -347,8 +349,8 @@ export const constrDictCurves: { [k: string]: ConstrFunc } = {
       const hs = consecutiveTriples(points, closed);
       return equivalued(
         hs.map(([p1, p2, p3]: ad.Num[][]) =>
-          ops.angleFrom(ops.vsub(p2, p1), ops.vsub(p3, p2))
-        )
+          ops.angleFrom(ops.vsub(p2, p1), ops.vsub(p3, p2)),
+        ),
       );
     }),
   },
@@ -359,7 +361,7 @@ export const constrDictCurves: { [k: string]: ConstrFunc } = {
  */
 export const tangentVectors = (
   points: ad.Num[][],
-  closed: boolean
+  closed: boolean,
 ): ad.Num[][] => {
   // The list of tangent vectors to return
   const tangents: ad.Num[][] = [];
@@ -408,10 +410,10 @@ export const tangentVectors = (
  */
 export const normalVectors2D = (
   points: ad.Num[][],
-  closed: boolean
+  closed: boolean,
 ): ad.Num[][] => {
   return tangentVectors(points, closed).map((tangent: ad.Num[]) =>
-    ops.rot90(tangent)
+    ops.rot90(tangent),
   );
 };
 
@@ -420,7 +422,7 @@ export const normalVectors2D = (
  */
 export const principalNormalVectors = (
   points: ad.Num[][],
-  closed: boolean
+  closed: boolean,
 ): ad.Num[][] => {
   const tangents = tangentVectors(points, closed);
 
@@ -469,7 +471,7 @@ export const principalNormalVectors = (
  */
 export const binormalVectors = (
   points: ad.Num[][],
-  closed: boolean
+  closed: boolean,
 ): ad.Num[][] => {
   const tangents = tangentVectors(points, closed);
   const normals = principalNormalVectors(points, closed);
@@ -492,7 +494,7 @@ export const binormalVectors = (
  */
 export const normalVectors = (
   points: ad.Num[][],
-  closed: boolean
+  closed: boolean,
 ): ad.Num[][] => {
   const dimension = points[0].length;
   if (dimension === 2) {
@@ -506,7 +508,7 @@ export const normalVectors = (
 export const curvatures = (
   points: ad.Num[][],
   closed: boolean,
-  mode: CurvatureApproximationMode = CurvatureApproximationMode.FiniteDifferences
+  mode: CurvatureApproximationMode = CurvatureApproximationMode.FiniteDifferences,
 ): ad.Num[] => {
   const curvaturesList: ad.Num[] = [];
 
@@ -533,7 +535,7 @@ export const curvatures = (
       penultimatePoint,
       lastPoint,
       firstPoint,
-      mode
+      mode,
     );
 
     curvaturesList.unshift(firstCurvature);
@@ -552,13 +554,13 @@ export const curvatures = (
  */
 export const evoluteCurve = (
   points: ad.Num[][],
-  closed: boolean
+  closed: boolean,
 ): ad.Num[][] => {
   const normals = principalNormalVectors(points, closed);
   const curvatureList = curvatures(
     points,
     closed,
-    CurvatureApproximationMode.FiniteDifferences
+    CurvatureApproximationMode.FiniteDifferences,
   );
   const evolute: ad.Num[][] = [];
 
@@ -581,7 +583,7 @@ export const evoluteCurve = (
 export const offsetCurve = (
   points: ad.Num[][],
   closed: boolean,
-  magnitude: ad.Num
+  magnitude: ad.Num,
 ): ad.Num[][] => {
   const normals = normalVectors(points, closed);
   const offsetPoints: ad.Num[][] = [];

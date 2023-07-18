@@ -19,7 +19,7 @@ describe("inDirection", () => {
       toPt(testShape.center.contents),
       toPt(testRefShape.center.contents),
       [-1, 0],
-      0
+      0,
     );
     expect(numOf(result)).toBeCloseTo(1);
   });
@@ -29,7 +29,7 @@ describe("inDirection", () => {
       toPt(testShape.center.contents),
       toPt(testRefShape.center.contents),
       [-1, 0],
-      1
+      1,
     );
     expect(numOf(result)).toBeCloseTo(0);
   });
@@ -39,7 +39,7 @@ describe("inDirection", () => {
       toPt(testShape.center.contents),
       toPt(testRefShape.center.contents),
       [-1, 0],
-      -2
+      -2,
     );
     expect(numOf(result)).toBeCloseTo(9);
   });

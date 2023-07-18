@@ -14,7 +14,7 @@ import { RenderProps } from "./Renderer.js";
 
 const RenderText = (
   shape: Text<number>,
-  { canvasSize, labels }: RenderProps
+  { canvasSize, labels }: RenderProps,
 ): SVGTextElement => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "text");
 
@@ -64,7 +64,7 @@ const RenderText = (
     "ascent",
     "descent",
     "textAnchor",
-    "visibility"
+    "visibility",
   );
   // Directly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);

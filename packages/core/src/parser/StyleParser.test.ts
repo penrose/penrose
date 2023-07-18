@@ -178,7 +178,7 @@ where IsSubset(A, B) as foo; IsSubset(B,C) as bar; Union(C,D) as yeet;
   where Bond(a1, a2) as b {}";
     const { results } = parser.feed(prog);
     expect(results[0].items[0].header.where.contents[0].alias.value).toEqual(
-      "b"
+      "b",
     );
   });
   test("alias expression location test", () => {
@@ -391,7 +391,7 @@ const {
       stringAssign.value.tag === "StringLit"
     ) {
       expect(stringAssign.value.contents).toEqual(
-        "abs1232189y790yh97dasyhfda7fhnasopufn9"
+        "abs1232189y790yh97dasyhfda7fhnasopufn9",
       );
     } else throw Error("First stmt is not an assignment to string");
   });

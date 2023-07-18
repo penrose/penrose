@@ -134,7 +134,7 @@ return withVec(Uint8Array, n, (vInputs) => {
       numObjEngs,
       numConstrEngs,
       vXs.byteOffset,
-      n
+      n,
     );
     return Array.from(vXs);
   });
@@ -447,7 +447,7 @@ JavaScript function to compute the objective and gradient:
 export type Fn = (
   x: Float64Array,
   weight: number,
-  grad: Float64Array
+  grad: Float64Array,
 ) => number;
 
 /**
@@ -462,7 +462,7 @@ export const stepUntil = (
   f: Fn,
   x: Float64Array,
   state: Params,
-  stop: () => boolean
+  stop: () => boolean,
 ): Params => penrose_step_until(f, x, state, stop);
 ```
 

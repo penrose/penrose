@@ -17,7 +17,7 @@ import { SetupStyleMonaco } from "./languages/StyleConfig.js";
 import { SetupSubstanceMonaco } from "./languages/SubstanceConfig.js";
 
 const monacoOptions = (
-  vimMode: boolean
+  vimMode: boolean,
 ): editor.IEditorConstructionOptions => ({
   automaticLayout: true,
   minimap: { enabled: false },
@@ -41,7 +41,7 @@ type ErrLocPair = {
 };
 
 const errLocPairs = (
-  err: StyleError | DomainError | SubstanceError | RuntimeError | StyleWarning
+  err: StyleError | DomainError | SubstanceError | RuntimeError | StyleWarning,
 ): ErrLocPair[] => {
   if (err.tag === "StyleErrorList") {
     const pairs = err.errors.map(errLocPairs);
@@ -81,7 +81,7 @@ export default function EditorPane({
   if (monaco !== null && onWrite !== undefined) {
     editorRef.current?.addCommand(
       monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
-      onWrite
+      onWrite,
     );
   }
 

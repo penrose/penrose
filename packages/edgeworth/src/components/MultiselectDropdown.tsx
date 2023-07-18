@@ -103,7 +103,7 @@ export class MultiselectDropdown extends React.Component<
 
   onDelete = (chipToDelete: string) => {
     const newSelected = this.state.selected.filter(
-      (chip) => chip !== chipToDelete
+      (chip) => chip !== chipToDelete,
     );
     if (chipToDelete !== wildcardType) {
       const newOptions = [...this.state.options, chipToDelete];

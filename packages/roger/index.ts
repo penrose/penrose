@@ -48,7 +48,7 @@ const render = async (
     domainName: string;
     id: string;
   },
-  excludeWarnings: string[]
+  excludeWarnings: string[],
 ): Promise<{
   diagram: string;
   metadata: InstanceData;
@@ -82,7 +82,7 @@ const render = async (
     optimizedState = optimizedOutput.value;
   } else {
     throw new Error(
-      `Optimization failed:\n${showError(optimizedOutput.error)}`
+      `Optimization failed:\n${showError(optimizedOutput.error)}`,
     );
   }
   const convergeEnd = process.hrtime(convergeStart);
@@ -125,8 +125,8 @@ const resolvePath = (prefix: string, stylePaths: string[]) => {
   if (new Set(stylePrefixes).size > 1) {
     console.warn(
       chalk.yellow(
-        "Warning: the styles in this trio are not co-located. The first style will be used for image resolution."
-      )
+        "Warning: the styles in this trio are not co-located. The first style will be used for image resolution.",
+      ),
     );
   }
   const stylePrefix = stylePrefixes[0];
@@ -152,7 +152,7 @@ const resolvePath = (prefix: string, stylePaths: string[]) => {
 const readTrio = (sub: string, sty: string[], dsl: string, prefix: string) => {
   // Fetch Substance, Style, and Domain files
   const [substance, domain] = [sub, dsl].map((arg) =>
-    fs.readFileSync(join(prefix, arg), "utf8")
+    fs.readFileSync(join(prefix, arg), "utf8"),
   );
   const styles = sty.map((arg) => fs.readFileSync(join(prefix, arg), "utf8"));
   return {
@@ -180,7 +180,7 @@ const orderTrio = (unordered: string[]): string[] => {
     }
     if (type in ordered) {
       console.error(
-        `Duplicate ${type} files: ${ordered[type]} and ${filename}`
+        `Duplicate ${type} files: ${ordered[type]} and ${filename}`,
       );
       process.exit(1);
     }
@@ -241,7 +241,7 @@ yargs(hideBin(process.argv))
         prefix = join(trioPath, "..");
         // read trio from a JSON file
         const paths: Trio = JSON.parse(
-          fs.readFileSync(resolve(trioPath), "utf8")
+          fs.readFileSync(resolve(trioPath), "utf8"),
         );
         dom = paths.domain;
         sub = paths.substance;
@@ -274,12 +274,12 @@ yargs(hideBin(process.argv))
           domainName: dom,
           id: options.trio.join(", "),
         },
-        excludeWarnings
+        excludeWarnings,
       );
       if (options.out) {
         fs.writeFileSync(options.out, diagram);
         console.log(
-          chalk.green(`The diagram has been saved as ${resolve(options.out)}`)
+          chalk.green(`The diagram has been saved as ${resolve(options.out)}`),
         );
       } else {
         console.log(diagram);
@@ -288,7 +288,7 @@ yargs(hideBin(process.argv))
           console.warn(chalk.yellow("Warning in diagram: " + warnStr));
         }
       }
-    }
+    },
   )
   .command(
     "trios [trios..]",
@@ -319,7 +319,7 @@ yargs(hideBin(process.argv))
         const trioName = basename(trioPath, ".trio.json");
         // read trio from a JSON file
         const paths: Trio = JSON.parse(
-          fs.readFileSync(resolve(trioPath), "utf8")
+          fs.readFileSync(resolve(trioPath), "utf8"),
         );
         const dom = paths.domain;
         const sub = paths.substance;
@@ -342,7 +342,7 @@ yargs(hideBin(process.argv))
             domainName: dom,
             id: trioName,
           },
-          excludeWarnings
+          excludeWarnings,
         );
         // create out folder if it doesn't exist
         if (!fs.existsSync(options.out)) fs.mkdirSync(options.out);
@@ -350,7 +350,7 @@ yargs(hideBin(process.argv))
         const outputPath = join(options.out, `${trioName}.svg`);
         fs.writeFileSync(outputPath, diagram);
         console.log(
-          chalk.green(`The diagram has been saved as ${resolve(outputPath)}`)
+          chalk.green(`The diagram has been saved as ${resolve(outputPath)}`),
         );
         // TODO: print warning here
         for (const warning of state.warnings) {
@@ -358,7 +358,7 @@ yargs(hideBin(process.argv))
           console.warn(chalk.yellow("Warning in diagram: " + warnStr));
         }
       }
-    }
+    },
   )
   .command(
     "watch",
@@ -369,7 +369,7 @@ yargs(hideBin(process.argv))
         default: 9160,
         alias: "p",
       }),
-    (options) => watch(+options.port)
+    (options) => watch(+options.port),
   )
 
   .demandCommand()
