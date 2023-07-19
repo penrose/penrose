@@ -7,23 +7,22 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### :bug: Bug Fix
 
-* compile `@penrose/roger` for distribution 💂‍♂️ ([#1562](https://github.com/penrose/penrose/issues/1562)) ([7b36125](https://github.com/penrose/penrose/commit/7b3612539bb104ea16edf01ad4884a919c3eac4a))
-* gallery loading by switching to pure Vue ([#1549](https://github.com/penrose/penrose/issues/1549)) ([7c96d70](https://github.com/penrose/penrose/commit/7c96d70f93d9da1810c32d3c7bcd467a343f5be1))
+- compile `@penrose/roger` for distribution 💂‍♂️ ([#1562](https://github.com/penrose/penrose/issues/1562)) ([7b36125](https://github.com/penrose/penrose/commit/7b3612539bb104ea16edf01ad4884a919c3eac4a))
+- gallery loading by switching to pure Vue ([#1549](https://github.com/penrose/penrose/issues/1549)) ([7c96d70](https://github.com/penrose/penrose/commit/7c96d70f93d9da1810c32d3c7bcd467a343f5be1))
 
 ### :memo: Documentation
 
-* Correct domain code snippet type ([#1566](https://github.com/penrose/penrose/issues/1566)) ([ad0005a](https://github.com/penrose/penrose/commit/ad0005a92230efd5338f6e143f4bc5eb78009596))
-* add "Edit this page" button to pages ([#1555](https://github.com/penrose/penrose/issues/1555)) ([2ca37bd](https://github.com/penrose/penrose/commit/2ca37bd5d03e444f8cbd6b809558f349a9b78ebf))
-* add a short intro to v3 blog post ([#1551](https://github.com/penrose/penrose/issues/1551)) ([4c8f75c](https://github.com/penrose/penrose/commit/4c8f75c6fa5eba192dec51ff5fa74bf68ef46d9a))
-* explain the origin of the project name ([#1554](https://github.com/penrose/penrose/issues/1554)) ([add467a](https://github.com/penrose/penrose/commit/add467abaa9ded9ab46234aff673a6f3ba09c313))
-* fix `npx` command for roger ([#1568](https://github.com/penrose/penrose/issues/1568)) ([cea1d0e](https://github.com/penrose/penrose/commit/cea1d0ee81f24264a68ad3fb39d4c33c3db9169a))
-* improve blog excerpt styling ([#1552](https://github.com/penrose/penrose/issues/1552)) ([b4514ca](https://github.com/penrose/penrose/commit/b4514cafb0b0ae037641f7cafab2811c4f67b144))
-* update Vanilla JS usage for v3 ([#1544](https://github.com/penrose/penrose/issues/1544)) ([d1ee0ea](https://github.com/penrose/penrose/commit/d1ee0ead2160d35e414cf562245e327904d808e5))
+- Correct domain code snippet type ([#1566](https://github.com/penrose/penrose/issues/1566)) ([ad0005a](https://github.com/penrose/penrose/commit/ad0005a92230efd5338f6e143f4bc5eb78009596))
+- add "Edit this page" button to pages ([#1555](https://github.com/penrose/penrose/issues/1555)) ([2ca37bd](https://github.com/penrose/penrose/commit/2ca37bd5d03e444f8cbd6b809558f349a9b78ebf))
+- add a short intro to v3 blog post ([#1551](https://github.com/penrose/penrose/issues/1551)) ([4c8f75c](https://github.com/penrose/penrose/commit/4c8f75c6fa5eba192dec51ff5fa74bf68ef46d9a))
+- explain the origin of the project name ([#1554](https://github.com/penrose/penrose/issues/1554)) ([add467a](https://github.com/penrose/penrose/commit/add467abaa9ded9ab46234aff673a6f3ba09c313))
+- fix `npx` command for roger ([#1568](https://github.com/penrose/penrose/issues/1568)) ([cea1d0e](https://github.com/penrose/penrose/commit/cea1d0ee81f24264a68ad3fb39d4c33c3db9169a))
+- improve blog excerpt styling ([#1552](https://github.com/penrose/penrose/issues/1552)) ([b4514ca](https://github.com/penrose/penrose/commit/b4514cafb0b0ae037641f7cafab2811c4f67b144))
+- update Vanilla JS usage for v3 ([#1544](https://github.com/penrose/penrose/issues/1544)) ([d1ee0ea](https://github.com/penrose/penrose/commit/d1ee0ead2160d35e414cf562245e327904d808e5))
 
 ### :house: Internal
 
-* Update `team.md` with new website URL for Rijul Jain ([#1559](https://github.com/penrose/penrose/issues/1559)) ([93ecea1](https://github.com/penrose/penrose/commit/93ecea130e478f383fc8f2ae305b4fd09ab47cb2))
-
+- Update `team.md` with new website URL for Rijul Jain ([#1559](https://github.com/penrose/penrose/issues/1559)) ([93ecea1](https://github.com/penrose/penrose/commit/93ecea130e478f383fc8f2ae305b4fd09ab47cb2))
 
 ## [v3.0.0](https://github.com/penrose/penrose/compare/v2.3.0...v3.0.0) (2023-07-14)
 

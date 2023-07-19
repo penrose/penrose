@@ -7,12 +7,11 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### :rocket: New Feature
 
-* nondistinct matching ([#1567](https://github.com/penrose/penrose/issues/1567)) ([77e2714](https://github.com/penrose/penrose/commit/77e2714fb5bcf888136a2f65340b56c5d0025661))
+- nondistinct matching ([#1567](https://github.com/penrose/penrose/issues/1567)) ([77e2714](https://github.com/penrose/penrose/commit/77e2714fb5bcf888136a2f65340b56c5d0025661))
 
 ### :bug: Bug Fix
 
-* gallery loading by switching to pure Vue ([#1549](https://github.com/penrose/penrose/issues/1549)) ([7c96d70](https://github.com/penrose/penrose/commit/7c96d70f93d9da1810c32d3c7bcd467a343f5be1))
-
+- gallery loading by switching to pure Vue ([#1549](https://github.com/penrose/penrose/issues/1549)) ([7c96d70](https://github.com/penrose/penrose/commit/7c96d70f93d9da1810c32d3c7bcd467a343f5be1))
 
 ## [v3.0.0](https://github.com/penrose/penrose/compare/v2.3.0...v3.0.0) (2023-07-14)
 
