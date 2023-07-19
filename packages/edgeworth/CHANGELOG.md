@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v3.1.0](https://github.com/penrose/penrose/compare/v3.0.0...v3.1.0) (2023-07-19)
+
+### :rocket: New Feature
+
+* added UI for LLM program generation in `edgeworth` ([#1556](https://github.com/penrose/penrose/issues/1556)) ([865ee9e](https://github.com/penrose/penrose/commit/865ee9e7f6b598bc0f07e416ab73bea978bba6e7))
+
+
 ## [v3.0.0](https://github.com/penrose/penrose/compare/v2.3.0...v3.0.0) (2023-07-14)
 
 ### :warning: BREAKING CHANGE

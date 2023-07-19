@@ -3,6 +3,38 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v3.1.0](https://github.com/penrose/penrose/compare/v3.0.0...v3.1.0) (2023-07-19)
+
+### :rocket: New Feature
+
+* added UI for LLM program generation in `edgeworth` ([#1556](https://github.com/penrose/penrose/issues/1556)) ([865ee9e](https://github.com/penrose/penrose/commit/865ee9e7f6b598bc0f07e416ab73bea978bba6e7))
+* added `mod` function to `Functions.ts` ([#1565](https://github.com/penrose/penrose/issues/1565)) ([b7a7c3b](https://github.com/penrose/penrose/commit/b7a7c3b2710865f05e7040e913d5f7d5e825c1d1))
+* nondistinct matching ([#1567](https://github.com/penrose/penrose/issues/1567)) ([77e2714](https://github.com/penrose/penrose/commit/77e2714fb5bcf888136a2f65340b56c5d0025661))
+
+### :bug: Bug Fix
+
+* `CircleCenter` behavior in Euclidean geometry Style ([#1571](https://github.com/penrose/penrose/issues/1571)) ([a2ed8e1](https://github.com/penrose/penrose/commit/a2ed8e171cd406666ecf25f398dbea7e7a54c2cb))
+* compile `@penrose/roger` for distribution 💂‍♂️ ([#1562](https://github.com/penrose/penrose/issues/1562)) ([7b36125](https://github.com/penrose/penrose/commit/7b3612539bb104ea16edf01ad4884a919c3eac4a))
+* gallery loading by switching to pure Vue ([#1549](https://github.com/penrose/penrose/issues/1549)) ([7c96d70](https://github.com/penrose/penrose/commit/7c96d70f93d9da1810c32d3c7bcd467a343f5be1))
+* layering on nonexistent objects ([#1560](https://github.com/penrose/penrose/issues/1560)) ([0bbe47c](https://github.com/penrose/penrose/commit/0bbe47c505b9920db83dd152a914b452129b6668))
+
+### :memo: Documentation
+
+* Correct domain code snippet type ([#1566](https://github.com/penrose/penrose/issues/1566)) ([ad0005a](https://github.com/penrose/penrose/commit/ad0005a92230efd5338f6e143f4bc5eb78009596))
+* add "Edit this page" button to pages ([#1555](https://github.com/penrose/penrose/issues/1555)) ([2ca37bd](https://github.com/penrose/penrose/commit/2ca37bd5d03e444f8cbd6b809558f349a9b78ebf))
+* add Discord badge to GitHub README ([#1548](https://github.com/penrose/penrose/issues/1548)) ([84cf567](https://github.com/penrose/penrose/commit/84cf567302ffdfd404cfaf245b32d93d26575609))
+* add a short intro to v3 blog post ([#1551](https://github.com/penrose/penrose/issues/1551)) ([4c8f75c](https://github.com/penrose/penrose/commit/4c8f75c6fa5eba192dec51ff5fa74bf68ef46d9a))
+* explain the origin of the project name ([#1554](https://github.com/penrose/penrose/issues/1554)) ([add467a](https://github.com/penrose/penrose/commit/add467abaa9ded9ab46234aff673a6f3ba09c313))
+* fix `npx` command for roger ([#1568](https://github.com/penrose/penrose/issues/1568)) ([cea1d0e](https://github.com/penrose/penrose/commit/cea1d0ee81f24264a68ad3fb39d4c33c3db9169a))
+* improve blog excerpt styling ([#1552](https://github.com/penrose/penrose/issues/1552)) ([b4514ca](https://github.com/penrose/penrose/commit/b4514cafb0b0ae037641f7cafab2811c4f67b144))
+* update Vanilla JS usage for v3 ([#1544](https://github.com/penrose/penrose/issues/1544)) ([d1ee0ea](https://github.com/penrose/penrose/commit/d1ee0ead2160d35e414cf562245e327904d808e5))
+
+### :house: Internal
+
+* Update `team.md` with new website URL for Rijul Jain ([#1559](https://github.com/penrose/penrose/issues/1559)) ([93ecea1](https://github.com/penrose/penrose/commit/93ecea130e478f383fc8f2ae305b4fd09ab47cb2))
+* enable Prettier for `*.jsx` in VS Code ([#1558](https://github.com/penrose/penrose/issues/1558)) ([fb47302](https://github.com/penrose/penrose/commit/fb47302c01e6a45713034acc321caaa921b64fab))
+
+
 ## [v3.0.0](https://github.com/penrose/penrose/compare/v2.3.0...v3.0.0) (2023-07-14)
 
 ### :warning: BREAKING CHANGE
