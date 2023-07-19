@@ -686,16 +686,26 @@ predicate Bond(Atom, Atom)`;
     });
 
     test("repeatable", async () => {
-      const dsl = `type T`;
-      const sub = `T t1, t2`;
-      const sty =
+      const dsl = "type T\npredicate P(T, T, T)";
+      const sub =
+        "T t1, t2, t3\nP(t1, t2, t3)\nP(t1, t1, t3)\nP(t2,t2,t3)\nP(t1,t3,t1)";
+      const sty1 =
         canvasPreamble +
         `forall repeatable T t1; T t2 {
           Circle {}
         }`;
 
-      const { state } = await loadProgs({ dsl, sub, sty });
-      expect(state.shapes.length).toEqual(3);
+      const res1 = await loadProgs({ dsl, sub, sty: sty1 });
+      expect(res1.state.shapes.length).toEqual(6);
+
+      const sty2 =
+        canvasPreamble +
+        `forall repeatable T t1; T t2; T t3
+        where P(t1, t2, t3) {
+          Circle {}
+        }`;
+      const res2 = await loadProgs({ dsl, sub, sty: sty2 });
+      expect(res2.state.shapes.length).toEqual(4);
     });
   });
 
