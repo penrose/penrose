@@ -10,7 +10,9 @@
     "typecheck": ":"
   },
   "files": [
-    "dist/**/*.js"
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "bin/run.js"
   ],
   "bin": {
     "roger": "./bin/run.js"
