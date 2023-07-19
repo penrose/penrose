@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v3.1.0](https://github.com/penrose/penrose/compare/v3.0.0...v3.1.0) (2023-07-19)
+
+### :bug: Bug Fix
+
+- compile `@penrose/roger` for distribution 💂‍♂️ ([#1562](https://github.com/penrose/penrose/issues/1562)) ([7b36125](https://github.com/penrose/penrose/commit/7b3612539bb104ea16edf01ad4884a919c3eac4a))
+
 ## [v3.0.0](https://github.com/penrose/penrose/compare/v2.3.0...v3.0.0) (2023-07-14)
 
 ### :warning: BREAKING CHANGE

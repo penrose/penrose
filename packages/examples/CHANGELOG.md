@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v3.1.0](https://github.com/penrose/penrose/compare/v3.0.0...v3.1.0) (2023-07-19)
+
+### :rocket: New Feature
+
+- added UI for LLM program generation in `edgeworth` ([#1556](https://github.com/penrose/penrose/issues/1556)) ([865ee9e](https://github.com/penrose/penrose/commit/865ee9e7f6b598bc0f07e416ab73bea978bba6e7))
+- nondistinct matching ([#1567](https://github.com/penrose/penrose/issues/1567)) ([77e2714](https://github.com/penrose/penrose/commit/77e2714fb5bcf888136a2f65340b56c5d0025661))
+
+### :bug: Bug Fix
+
+- `CircleCenter` behavior in Euclidean geometry Style ([#1571](https://github.com/penrose/penrose/issues/1571)) ([a2ed8e1](https://github.com/penrose/penrose/commit/a2ed8e171cd406666ecf25f398dbea7e7a54c2cb))
+
 ## [v3.0.0](https://github.com/penrose/penrose/compare/v2.3.0...v3.0.0) (2023-07-14)
 
 ### :warning: BREAKING CHANGE
