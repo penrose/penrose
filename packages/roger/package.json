@@ -3,13 +3,17 @@
   "version": "3.0.0",
   "description": "",
   "type": "module",
-  "main": "index.tsx",
+  "main": "dist/index.js",
   "scripts": {
-    "build": ":",
+    "build": "tsc",
     "build-decls": ":",
-    "start": "ts-node --esm --swc ./index.ts",
-    "typecheck": "tsc"
+    "typecheck": ":"
   },
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "bin/run.js"
+  ],
   "bin": {
     "roger": "./bin/run.js"
   },
@@ -37,7 +41,6 @@
     "prettier": "3.0.0",
     "regenerator-runtime": "^0.13.11",
     "true-myth": "^4.1.1",
-    "ts-node": "^10.9.1",
     "ws": "^8.6.0",
     "yargs": "^17.7.2"
   },
