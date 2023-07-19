@@ -66,6 +66,7 @@ const styleCustoms = {
     "text",
     "in",
     "except",
+    "repeatable",
   ],
   types: [
     "scalar",
