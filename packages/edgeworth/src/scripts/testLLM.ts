@@ -11,7 +11,7 @@ import {
   llmPrompts,
 } from "../gpt.js";
 
-config({ path: "../.env.development.local" });
+config({ path: ".env.development.local" });
 
 type Metadata = {
   date: Date;
@@ -38,30 +38,52 @@ const formatDate = (date: Date): string => {
   return formattedDate;
 };
 
-const handlePenroseErr = (err: PenroseError, result: LLMResult) => {
-  const date = new Date();
+const writeToJSON = (
+  metadata: Metadata,
+  enclosingFolder: string,
+  date: Date,
+) => {
+  fs.writeFileSync(
+    `${process.env.LLM_OUTPUT_PATH}/json/${enclosingFolder}/${formatDate(
+      date,
+    )}.json`,
+    JSON.stringify(metadata),
+  );
+};
+
+const handlePenroseErr = (
+  err: PenroseError,
+  result: LLMResult,
+  enclosingFolder: string,
+) => {
   if (result.tag === "Ok") {
-    fs.writeFileSync(
-      `/Users/rijuljain/Library/CloudStorage/Box-Box/llm-output/json/${formatDate(
-        date,
-      )}.json`,
-      JSON.stringify({
+    const date = new Date();
+    writeToJSON(
+      {
         date,
         prompt: result.prompt,
         output: result.substance,
         inferenceTime: result.inferenceTime,
         penroseError: err,
-      }),
+      },
+      enclosingFolder,
+      date,
     );
   }
 };
 
 const testPrompts = async (prompts: LLMPromptCollection) => {
   const dateString = formatDate(new Date());
+  fs.mkdirSync(`${process.env.LLM_OUTPUT_PATH}/json/${dateString}`, {
+    recursive: true,
+  });
+  fs.mkdirSync(`${process.env.LLM_OUTPUT_PATH}/svg/${dateString}`, {
+    recursive: true,
+  });
   for (const key in prompts) {
-    /*if (!/^geometry_[0-2]_1_1/.test(key)) {
+    if (!/^geometry_[0]_1_1/.test(key)) {
       continue;
-    }*/
+    }
     const result = await generateSubstanceLLM({
       prompt: prompts[key],
       openaiApiKey: process.env.OPENAI_API_KEY!,
@@ -76,7 +98,7 @@ const testPrompts = async (prompts: LLMPromptCollection) => {
       });
       if (compilerOutput.isErr()) {
         const err = compilerOutput.error;
-        handlePenroseErr(err, result);
+        handlePenroseErr(err, result, dateString);
         continue;
       }
       let optimizedState;
@@ -84,7 +106,7 @@ const testPrompts = async (prompts: LLMPromptCollection) => {
       if (optimizedOutput.isOk()) {
         optimizedState = optimizedOutput.value;
       } else {
-        handlePenroseErr(optimizedOutput.error, result);
+        handlePenroseErr(optimizedOutput.error, result, dateString);
         continue;
       }
 
@@ -93,12 +115,9 @@ const testPrompts = async (prompts: LLMPromptCollection) => {
       ).outerHTML;
 
       const date = new Date();
-      const svgOutputPath = `/Users/rijuljain/Library/CloudStorage/Box-Box/llm-output/svg/${formatDate(
-        date,
-      )}.svg`;
-      const jsonOutputPath = `/Users/rijuljain/Library/CloudStorage/Box-Box/llm-output/json/${formatDate(
-        date,
-      )}.json`;
+      const svgOutputPath = `${
+        process.env.LLM_OUTPUT_PATH
+      }/svg/${dateString}/${formatDate(date)}.svg`;
       fs.writeFileSync(svgOutputPath, canvas);
 
       const metadata: Metadata = {
@@ -107,7 +126,7 @@ const testPrompts = async (prompts: LLMPromptCollection) => {
         output: result.substance,
         inferenceTime: result.inferenceTime,
       };
-      fs.writeFileSync(jsonOutputPath, JSON.stringify(metadata));
+      writeToJSON(metadata, dateString, date);
     } else {
       const date = new Date();
       const metadata: Metadata = {
@@ -117,28 +136,20 @@ const testPrompts = async (prompts: LLMPromptCollection) => {
         inferenceTime: result.inferenceTime,
         APIError: result.APIError,
       };
-      fs.writeFileSync(
-        `/Users/rijuljain/Library/CloudStorage/Box-Box/llm-output/json/${formatDate(
-          date,
-        )}.json`,
-        JSON.stringify(metadata),
-      );
+      writeToJSON(metadata, dateString, date);
     }
   }
   return dateString;
 };
 
-const analyzeJSONs = (date: string) => {
+const analyzeJSONs = (enclosingFolder: string) => {
   const jsons = fs.readdirSync(
-    "/Users/rijuljain/Library/CloudStorage/Box-Box/llm-output/json",
+    `${process.env.LLM_OUTPUT_PATH}/json/${enclosingFolder}`,
   );
   const metadata: Metadata[] = [];
   for (const json of jsons) {
-    if (json.replace(".json", "") < date) {
-      continue;
-    }
     const data = fs.readFileSync(
-      `/Users/rijuljain/Library/CloudStorage/Box-Box/llm-output/json/${json}`,
+      `${process.env.LLM_OUTPUT_PATH}/json/${enclosingFolder}/${json}`,
     );
     metadata.push(JSON.parse(data.toString()));
   }
