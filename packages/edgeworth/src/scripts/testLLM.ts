@@ -43,7 +43,7 @@ const handlePenroseErr = (err: PenroseError, result: LLMResult) => {
   if (result.tag === "Ok") {
     fs.writeFileSync(
       `/Users/rijuljain/Library/CloudStorage/Box-Box/llm-output/json/${formatDate(
-        date
+        date,
       )}.json`,
       JSON.stringify({
         date,
@@ -51,7 +51,7 @@ const handlePenroseErr = (err: PenroseError, result: LLMResult) => {
         output: result.substance,
         inferenceTime: result.inferenceTime,
         penroseError: err,
-      })
+      }),
     );
   }
 };
@@ -59,9 +59,9 @@ const handlePenroseErr = (err: PenroseError, result: LLMResult) => {
 const testPrompts = async (prompts: LLMPromptCollection) => {
   const dateString = formatDate(new Date());
   for (const key in prompts) {
-    if (!key.startsWith("geometry")) {
+    /*if (!/^geometry_[0-2]_1_1/.test(key)) {
       continue;
-    }
+    }*/
     const result = await generateSubstanceLLM({
       prompt: prompts[key],
       openaiApiKey: process.env.OPENAI_API_KEY!,
@@ -79,20 +79,6 @@ const testPrompts = async (prompts: LLMPromptCollection) => {
         handlePenroseErr(err, result);
         continue;
       }
-      /*let initialState;
-      try {
-        initialState = await prepareState(compilerOutput.value);
-      } catch (e) {
-        handlePenroseErr(
-          {
-            tag: "RuntimeError",
-            message: "prepareState failed",
-            errorType: "RuntimeError",
-          },
-          result
-        );
-        continue;
-      }*/
       let optimizedState;
       const optimizedOutput = optimize(compilerOutput.value);
       if (optimizedOutput.isOk()) {
@@ -108,10 +94,10 @@ const testPrompts = async (prompts: LLMPromptCollection) => {
 
       const date = new Date();
       const svgOutputPath = `/Users/rijuljain/Library/CloudStorage/Box-Box/llm-output/svg/${formatDate(
-        date
+        date,
       )}.svg`;
       const jsonOutputPath = `/Users/rijuljain/Library/CloudStorage/Box-Box/llm-output/json/${formatDate(
-        date
+        date,
       )}.json`;
       fs.writeFileSync(svgOutputPath, canvas);
 
@@ -133,9 +119,9 @@ const testPrompts = async (prompts: LLMPromptCollection) => {
       };
       fs.writeFileSync(
         `/Users/rijuljain/Library/CloudStorage/Box-Box/llm-output/json/${formatDate(
-          date
+          date,
         )}.json`,
-        JSON.stringify(metadata)
+        JSON.stringify(metadata),
       );
     }
   }
@@ -144,7 +130,7 @@ const testPrompts = async (prompts: LLMPromptCollection) => {
 
 const analyzeJSONs = (date: string) => {
   const jsons = fs.readdirSync(
-    "/Users/rijuljain/Library/CloudStorage/Box-Box/llm-output/json"
+    "/Users/rijuljain/Library/CloudStorage/Box-Box/llm-output/json",
   );
   const metadata: Metadata[] = [];
   for (const json of jsons) {
@@ -152,7 +138,7 @@ const analyzeJSONs = (date: string) => {
       continue;
     }
     const data = fs.readFileSync(
-      `/Users/rijuljain/Library/CloudStorage/Box-Box/llm-output/json/${json}`
+      `/Users/rijuljain/Library/CloudStorage/Box-Box/llm-output/json/${json}`,
     );
     metadata.push(JSON.parse(data.toString()));
   }
@@ -164,8 +150,8 @@ const analyzeJSONs = (date: string) => {
   console.log("API Errors", APIErrors.length);
   console.log("Successes", successes.length);
   console.log("Errors", errors.length);
-  console.log("Errors: Domain without BNF", noBNF.length);
-  console.log("Errors: Domain with BNF", yesBNF.length);
+  console.log("Errors: Domain", noBNF.length);
+  console.log("Errors: BNF", yesBNF.length);
 };
 
 // Run tests and analyze results

@@ -66,26 +66,36 @@ stmt      ::= decl | predicate | function
 decl      ::= tname id
 predicate ::= pname "(" id ")"
 function  ::= tname id ":=" fname "(" id "," id ")"
-tname     ::= "Atom" | "Hydrogen" | "Helium" | "Lithium" | "Beryllium" | "Boron" | "Carbon" | "Nitrogen" | "Oxygen" | "Fluorine" | "Neon" | "Sodium" | "Magnesium" | "Aluminium" | "Silicon" | "Phosphorus" | "Sulfur" | "Chlorine" | "Argon" | "Potassium" | "Calcium" | "Scandium" | "Titanium" | "Vanadium" | "Chromium" | "Manganese" | "Iron" | "Cobalt" | "Nickel" | "Copper" | "Zinc" | "Gallium" | "Germanium" | "Arsenic" | "Selenium" | "Bromine" | "Krypton" | "Rubidium" | "Strontium" | "Yttrium" | "Zirconium" | "Niobium" | "Molybdenum" | "Technetium" | "Ruthenium" | "Rhodium" | "Palladium" | "Silver" | "Cadmium" | "Indium" | "Tin" | "Antimony" | "Tellurium" | "Iodine" | "Xenon" | "Cesium" | "Barium" | "Lanthanum" | "Cerium" | "Praseodymium" | "Neodymium" | "Promethium" | "Samarium" | "Europium" | "Gadolinium" | "Terbium" | "Dysprosium" | "Holmium" | "Erbium" | "Thulium" | "Ytterbium" | "Lutetium" | "Hafnium" | "Tantalum" | "Tungsten" | "Rhenium" | "Osmium" | "Iridium" | "Platinum" | "Gold" | "Mercury" | "Thallium" | "Lead" | "Bismuth" | "Polonium" | "Astatine" | "Radon" | "Francium" | "Radium" | "Actinium" | "Thorium" | "Protactinium" | "Uranium" | "Neptunium" | "Plutonium" | "Americium" | "Curium" | "Berkelium" | "Californium" | "Einsteinium" | "Fermium" | "Mendelevium" | "Nobelium" | "Lawrencium" | "Rutherfordium" | "Dubnium" | "Seaborgium" | "Bohrium" | "Hassium" | "Meitnerium" | "Darmstadtium" | "Roentgenium" | "Copernicium" | "Bond"
-fname     ::= "MakeSingleBond" | "MakeDoubleBond" | "MakeTripleBond"
-pname     ::= "ZeroDots" | "TwoDots" | "FourDots" | "SixDots"
+tname     ::= "Hydrogen" // This type describes a hydrogen atom. Example usage which holds for all following elements: \n\t\t'Hydrogen h1\n\t\tHydrogen h2, h3'
+            | "Helium" | "Lithium" | "Beryllium" | "Boron" | "Carbon" | "Nitrogen" | "Oxygen" | "Fluorine" | "Neon" | "Sodium" | "Magnesium" | "Aluminium" | "Silicon" | "Phosphorus" | "Sulfur" | "Chlorine" | "Argon" | "Potassium" | "Calcium" | "Scandium" | "Titanium" | "Vanadium" | "Chromium" | "Manganese" | "Iron" | "Cobalt" | "Nickel" | "Copper" | "Zinc" | "Gallium" | "Germanium" | "Arsenic" | "Selenium" | "Bromine" | "Krypton" | "Rubidium" | "Strontium" | "Yttrium" | "Zirconium" | "Niobium" | "Molybdenum" | "Technetium" | "Ruthenium" | "Rhodium" | "Palladium" | "Silver" | "Cadmium" | "Indium" | "Tin" | "Antimony" | "Tellurium" | "Iodine" | "Xenon" | "Cesium" | "Barium" | "Lanthanum" | "Cerium" | "Praseodymium" | "Neodymium" | "Promethium" | "Samarium" | "Europium" | "Gadolinium" | "Terbium" | "Dysprosium" | "Holmium" | "Erbium" | "Thulium" | "Ytterbium" | "Lutetium" | "Hafnium" | "Tantalum" | "Tungsten" | "Rhenium" | "Osmium" | "Iridium" | "Platinum" | "Gold" | "Mercury" | "Thallium" | "Lead" | "Bismuth" | "Polonium" | "Astatine" | "Radon" | "Francium" | "Radium" | "Actinium" | "Thorium" | "Protactinium" | "Uranium" | "Neptunium" | "Plutonium" | "Americium" | "Curium" | "Berkelium" | "Californium" | "Einsteinium" | "Fermium" | "Mendelevium" | "Nobelium" | "Lawrencium" | "Rutherfordium" | "Dubnium" | "Seaborgium" | "Bohrium" | "Hassium" | "Meitnerium" | "Darmstadtium" | "Roentgenium" | "Copernicium" // This type describes an atom. Example usage: 'Hydrogen h1\nCarbon c1, c2\n' 
+            | "Bond" // This type describes a bond. See construction of a bond below.
+fname     ::= "MakeSingleBond" // This function creates a single bond between two atoms. Example usage: \n\t\t'Hydrogen h1, h2\n\t\tBond b1\n\t\tb1 := MakeSingleBond(h1, h2)'
+            | "MakeDoubleBond" // This function creates a double bond between two atoms. Example usage: \n\t\t'Oxygen o1, o2\n\t\tBond b1\n\t\tb1 := MakeDoubleBond(o1, o2)\n\t\tFourDots(o1)\n\t\tFourDots(o2)'
+            | "MakeTripleBond" // This function creates a triple bond between two atoms. Example usage: \n\t\t'Nitrogen n1, n2\n\t\tBond b1\n\t\tb1 := MakeTripleBond(n1, n2)\n\t\tTwoDots(n1)\n\t\tTwoDots(n2)'
+pname     ::= "ZeroDots" // This predicate displays no dots on an atom. Example usage: \n\t\t'Hydrogen h1, h2\n\t\tBond b1 := MakeSingleBond(h1, h2)\n\t\tZeroDots(h1)\n\t\tZeroDots(h2)'
+            | "TwoDots" // This predicate displays two dots on an atom. Example usage: \n\t\t'Nitrogen n1, n2\n\t\tBond b1 := MakeTripleBond(n1, n2)\n\t\tTwoDots(n1)\n\t\tTwoDots(n2)'
+            | "FourDots" // This predicate displays four dots on an atom. Example usage: \n\t\t'Oxygen o1, o2\n\t\tBond b1 := MakeDoubleBond(o1, o2)\n\t\tFourDots(o1)\n\t\tFourDots(o2)'
+            | "SixDots" // This predicate displays six dots on an atom. Example usage: \n\t\t'Fluorine f1, f2\n\t\tBond b1 := MakeSingleBond(f1, f2)\n\t\tSixDots(f1)\n\t\tSixDots(f2)'
 letter    ::= "A" | "B" | ... | "Z" | "a" | "b" | ... | "z"
 digit     ::= "0" | "1" | ... | "9"
 `,
   simpleDirectedGraphGrammar: `id ::= letter (letter | digit)*
 substance ::= stmt*
-stmt      ::= decl | predicate
+stmt      ::= decl | predicate | ctrl
 decl      ::= tname id
 predicate ::= pname "(" id "," id ")"
-tname     ::= "Vertex"
-pname     ::= "Arc"
+ctrl      ::= "AutoLabel All" 
+tname     ::= "Vertex" // This type describes a vertex. Example usage: 'Vertex v1, v2, v3'
+pname     ::= "Arc" // This predicate creates an arc from one vertex to another. Example usage: \n\t\t'Vertex v1, v2, v3\n\t\tArc(v1, v2)\n\t\tArc(v2, v3)\n\t\tAutoLabel All'
+            | "HighlightVertex" // This predicate highlights a vertex. Example usage: \n\t\t'Vertex v1, v2, v3\n\t\tArc(v1, v2)\n\t\tArc(v2, v3)\n\t\tHighlightVertex(v1)\n\t\tAutoLabel All'
+            | "HighlightArc" // This predicate highlights an arc given the outgoing and incoming vertices of the arc. Example usage: \n\t\t'Vertex v1, v2, v3\n\t\tArc(v1, v2)\n\t\tArc(v2, v3)\n\t\tHighlightArc(v1, v2)\n\t\tAutoLabel All'
 letter    ::= "A" | "B" | ... | "Z" | "a" | "b" | ... | "z"
 digit     ::= "0" | "1" | ... | "9"
 `,
 
   geometryGrammar: `id ::= letter (letter | digit)*
 substance ::= stmt*
-stmt      ::= decl | func1 | func2 | func3 | func4 | pred1 | pred2 | pred3
+stmt      ::= decl | func1 | func2 | func3 | func4 | pred1 | pred2 | pred3 | ctrl
 decl      ::= tname id
 func1     ::= tname id ":=" f1name "(" id ")"
 func2     ::= tname id ":=" f2name "(" id "," id ")"
@@ -94,14 +104,55 @@ func4     ::= tname id ":=" f4name "(" id "," id "," id "," id ")"
 pred1     ::= p1name "(" id ")"
 pred2     ::= p2name "(" id "," id ")"
 pred3     ::= p3name "(" id "," id "," id ")"
-tname     ::= "Shape" | "Point" | "Linelike" | "Ray" | "Line" | "Segment" | "Angle" | "Triangle" | "Quadrilateral" | "Rectangle" | "Circle" | "Plane"
-f1name    ::= "Midpoint" | "Bisector"
-f2name    ::= "Segment" | "Ray" | "Line" | "CircleR" | "PerpendicularBisector" | "Radius"
-f3name    ::= "InteriorAngle" | "Triangle" | "PerpendicularBisectorLabelPts" | "MidSegment" | "Chord" | "Diameter"
-f4name    ::= "Rectangle" | "Quadrilateral"
-p1name    ::= "Acute" | "Obtuse" | "RightMarked" | "RightUnmarked" | "Parallelogram"
-p2name    ::= "On" | "In" | "Midpoint" | "ParallelMarker1" | "EqualLengthMarker" | "EqualLength" | "Parallel" | "AngleBisector" | "EqualAngleMarker" | "EqualAngle" | "OnCircle" | "CircleCenter" | "Incenter" | "Orthocenter" | "Centroid" | "Circumcenter"
-p3name    ::= "Collinear"
+ctrl      ::= "AutoLabel " id ("," id)* // This control statement automatically labels the given point(s) or plane(s). Example usage: 'Point A, B, C\n\t\tAutoLabel A, B, C'
+tname     ::= "Point" // This type describes a point. Example usage: \n\t\t'Point A, B, C\n\t\tAutoLabel A, B, C'
+            | "Plane" // This type describes a plane. Example usage: \n\t\t'Plane p\n\t\tAutoLabel p'
+            | "Ray" // This type describes a ray. See construction of a ray below.
+            | "Line" // This type describes a line. See construction of a line below.
+            | "Segment" // This type describes a line segment. See construction of a line segment below.
+            | "Angle" // This type describes an angle. See construction of an angle below.
+            | "Triangle" // This type describes a triangle. See construction of a triangle below.
+            | "Quadrilateral" // This type describes a quadrilateral. See construction of a quadrilateral below.
+            | "Rectangle" // This type describes a rectangle. See construction of a rectangle below.
+            | "Circle" // This type describes a circle. See construction of a circle below.
+f1name    ::= "Midpoint" // This function creates a point as the midpoint of a line. Example usage: \n\t\t'Point A, B\n\t\tSegment segmentAB\n\t\tsegmentAB := Segment(A, B)\n\t\tPoint midpointAB := Midpoint(AB)\n\t\tAutoLabel A, B, midpointAB'
+            | "Bisector" // This function creates a ray as the angle bisector of an angle. Example usage: \n\t\t'Point A, B, C\n\t\tAngle angleABC\n\t\tangleABC := InteriorAngle(A, B, C)\n\t\tRay bisectorABC := Bisector(angleABC)\n\t\tAutoLabel A, B, C, bisectorABC'
+f2name    ::= "Segment" // This function creates a line segment from two points. Example usage: \n\t\t'Point A, B\n\t\tSegment AB := Segment(A, B)\n\t\tAutoLabel A, B'
+            | "Ray" // This function creates a ray from two points, a base and a direction point. Example usage: \n\t\t'Point A, B\n\t\tRay rayAB := Ray(A, B)\n\t\tAutoLabel A, B'
+            | "Line" // This function creates a line from two points. Example usage: \n\t\t'Point A, B\n\t\tLine lineAB := Line(A, B)\n\t\tAutoLabel A, B'
+            | "CircleR" // This function creates a circle from a center point and a radius point. Example usage: \n\t\t'Point A, B\n\t\tCircle circleAB := CircleR(A, B)\n\t\tAutoLabel A, B'
+            | "PerpendicularBisector" // This function creates a perpendicular bisector from a line segment. Example usage: \n\t\t'Point A, B, C\n\t\tSegment AB\n\t\tAB := Segment(A, B)\n\t\tSegment perpendicularBisectorAB := PerpendicularBisector(AB, C)\n\t\tAutoLabel A, B, C'
+            | "Radius" // This function creates a radius from a circle and a point on the circle. Example usage: \n\t\t'Point A, B\n\t\tCircle circleAB\n\t\tcircleAB := CircleR(A, B)\n\t\tSegment radiusAB := Radius(circleAB, B)\n\t\tAutoLabel A, B'
+f3name    ::= "InteriorAngle" // This function creates an angle from three points. Example usage: \n\t\t'Point A, B, C\n\t\tAngle angleABC := InteriorAngle(A, B, C)\n\t\tAutoLabel A, B, C'
+            | "Triangle" // This function creates a triangle from three points. Example usage: 'Point A, B, C\n\t\tTriangle triangleABC := Triangle(A, B, C)\n\t\tAutoLabel A, B, C'
+            | "PerpendicularBisectorLabelPts" // This function creates a perpendicular bisector from a segment to bisect, a base point, and a direction point. Example usage: \n\t\t'Point A, B, C, D, d\n\t\tSegment AB, CD\n\t\tAB := Segment(A, B)\n\t\tCD := Segment(C, D)\n\t\tPerpendicularBisectorLabelPts(AB, C, d)\n\t\tAutoLabel A, B, C, D, d'
+            | "MidSegment" // This function creates a midsegment from a triangle and two points on the triangle. Example usage: \n\t\t'Point A, B, C, D, E\n\t\tTriangle triangleABC := Triangle(A, B, C)\n\t\tSegment midsegmentDE := MidSegment(triangleABC, D, E)\n\t\tAutoLabel A, B, C, D, E'
+            | "Chord" // This function creates a chord from a circle and two points on the circle. Example usage: \n\t\t'Point A, B, C\n\t\tCircle circleAB\n\t\tcircleAB := CircleR(A, B)\n\t\tSegment chordAC := Chord(circleAB, A, C)\n\t\tAutoLabel A, B, C'
+            | "Diameter" // This function creates a diameter from a circle and two points. Example usage: \n\t\t'Point A, B\n\t\tCircle circleAB\n\t\t\n\t\tSegment diameterAC := Diameter(circleAB, A, B)\n\t\tAutoLabel A, B'
+f4name    ::= "Rectangle" // This function creates a rectangle from four points. Example usage: \n\t\t'Point A, B, C, D\n\t\tRectangle rectangleABCD := Rectangle(A, B, C, D)\n\t\tAutoLabel A, B, C, D'
+            | "Quadrilateral" // This function creates a quadrilateral from four points. Example usage: \n\t\t'Point A, B, C, D\n\t\tQuadrilateral quadrilateralABCD := Quadrilateral(A, B, C, D)\n\t\tAutoLabel A, B, C, D'
+p1name    ::= "Acute" // This predicate makes an angle acute. Example use: 'Point A, B, C\n\t\tAngle angleABC\n\t\tangleABC := InteriorAngle(A, B, C)\n\t\tAcute(angleABC)\n\t\tAutoLabel A, B, C'
+            | "Obtuse" // This predicate makes an angle obtuse. Example use: 'Point A, B, C\n\t\tAngle angleABC\n\t\tangleABC := InteriorAngle(A, B, C)\n\t\tObtuse(angleABC)\n\t\tAutoLabel A, B, C'
+            | "RightMarked" // This predicate makes an angle right and marks it with a square. Example use: 'Point A, B, C\n\t\tAngle angleABC\n\t\tangleABC := InteriorAngle(A, B, C)\n\t\tRightMarked(angleABC)\n\t\tAutoLabel A, B, C'
+            | "RightUnmarked" // This predicate makes an angle right and does not mark it with a square. Example use: 'Point A, B, C\n\t\tAngle angleABC\n\t\tangleABC := InteriorAngle(A, B, C)\n\t\tRightUnmarked(angleABC)\n\t\tAutoLabel A, B, C'
+            | "Parallelogram" // This predicate makes a quadrilateral a parallelogram. Example use: 'Point A, B, C, D\n\t\tQuadrilateral quadrilateralABCD\n\t\tquadrilateralABCD := Quadrilateral(A, B, C, D)\n\t\tParallelogram(quadrilateralABCD)\n\t\tAutoLabel A, B, C, D'
+p2name    ::= "On" // This predicate makes a point be on a line. Example use: 'Point A, B\n\t\tLine lineAB\n\t\tlineAB := Line(A, B)\n\t\tOn(A, lineAB)\n\t\tAutoLabel A, B'
+            | "In" // This predicate makes a point be in a plane. Example use: 'Point A, B\n\t\tPlane planeAB\n\t\tplaneAB := Plane(A, B)\n\t\tIn(A, planeAB)\n\t\tAutoLabel A, B'
+            | "Midpoint" // This predicate makes a point be the midpoint of a line. Example use: 'Point A, B, C\n\t\tSegment segmentAB\n\t\tsegmentAB := Segment(A, B)\n\t\tMidpoint(segmentAB, C)\n\t\tAutoLabel A, B, C'
+            | "EqualLength" // This predicate makes two segments have equal length. Example use: 'Point A, B, C, D\n\t\tSegment segmentAB, segmentCD\n\t\tsegmentAB := Segment(A, B)\n\t\tsegmentCD := Segment(C, D)\n\t\tEqualLength(segmentAB, segmentCD)\n\t\tAutoLabel A, B, C, D'
+            | "EqualLengthMarker" // This predicate only marks two segments with a tick indicating that they have equal length. Only use if 'EqualLength' precedes it. Example use: 'Point A, B, C, D\n\t\tSegment segmentAB, segmentCD\n\t\tsegmentAB := Segment(A, B)\n\t\tsegmentCD := Segment(C, D)\n\t\tEqualLength(segmentAB, segmentCD)\n\t\tEqualLengthMarker(segmentAB, segmentCD)\n\t\tAutoLabel A, B, C, D'
+            | "Parallel" // This predicate makes two lines parallel. Example use: 'Point A, B, C, D\n\t\tLine lineAB, lineCD\n\t\tlineAB := Line(A, B)\n\t\tlineCD := Line(C, D)\n\t\tParallel(lineAB, lineCD)\n\t\tAutoLabel A, B, C, D'
+            | "ParallelMarker1" // This predicate marks two lines parallel. Only use if 'Parallel' precedes it. Example use: 'Point A, B, C, D\n\t\tLine lineAB, lineCD\n\t\tlineAB := Line(A, B)\n\t\tlineCD := Line(C, D)\n\t\tParallel(lineAB, lineCD)\n\t\tParallelMarker1(lineAB, lineCD)\n\t\tAutoLabel A, B, C, D'
+            | "AngleBisector" // This predicate makes a ray be the angle bisector of an angle. Example use: 'Point A, B, C\n\t\tAngle angleABC\n\t\tangleABC := InteriorAngle(A, B, C)\n\t\tRay rayABC\n\t\trayABC := Ray(A, B)\n\t\tAngleBisector(angleABC, rayABC)\n\t\tAutoLabel A, B, C'
+            | "EqualAngle" // This predicate makes two angles have equal measure. Example use: 'Point A, B, C, D, E, F\n\t\tAngle angleABC, angleDEF\n\t\tangleABC := InteriorAngle(A, B, C)\n\t\tangleDEF := InteriorAngle(D, E, F)\n\t\tEqualAngle(angleABC, angleDEF)\n\t\tAutoLabel A, B, C, D, E, F'
+            | "EqualAngleMarker" // This predicate only marks two angles with a tick indicating that they have equal measure. Only use if 'EqualAngle' precedes it. Example use: 'Point A, B, C, D, E, F\n\t\tAngle angleABC, angleDEF\n\t\tangleABC := InteriorAngle(A, B, C)\n\t\tangleDEF := InteriorAngle(D, E, F)\n\t\tEqualAngle(angleABC, angleDEF)\n\t\tEqualAngleMarker(angleABC, angleDEF)\n\t\tAutoLabel A, B, C, D, E, F'
+            | "OnCircle" // This predicate makes a point be on a circle. Example use: 'Point A, B, C\n\t\tCircle circleAB\n\t\tcircleAB := CircleR(A, B)\n\t\tOnCircle(circleAB, C)\n\t\tAutoLabel A, B, C'
+            | "CircleCenter" // Do not use.
+            | "Incenter" // This predicate makes a point be the incenter of a triangle. Example use: 'Point A, B, C, D\n\t\tTriangle triangleABC\n\t\ttriangleABC := Triangle(A, B, C)\n\t\tIncenter(D, triangleABC)\n\t\tAutoLabel A, B, C, D'
+            | "Orthocenter" // This predicate makes a point be the orthocenter of a triangle. Example use: 'Point A, B, C, D\n\t\tTriangle triangleABC\n\t\ttriangleABC := Triangle(A, B, C)\n\t\tOrthocenter(D, triangleABC)\n\t\tAutoLabel A, B, C, D'
+            | "Centroid" // This predicate makes a point be the centroid of a triangle. Example use: 'Point A, B, C, D\n\t\tTriangle triangleABC\n\t\ttriangleABC := Triangle(A, B, C)\n\t\tCentroid(D, triangleABC)\n\t\tAutoLabel A, B, C, D'
+            | "Circumcenter" // This predicate makes a point be the circumcenter of a triangle. Example use: 'Point A, B, C, D\n\t\tTriangle triangleABC\n\t\ttriangleABC := Triangle(A, B, C)\n\t\tCircumcenter(D, triangleABC)\n\t\tAutoLabel A, B, C, D'
+p3name    ::= "Collinear" // This predicate makes three points collinear. Example use: 'Point A, B, C\n Segment AB, BC\n AB := Segment(A, B)\n BC := Segment(B, C)\n Collinear(A, B, C)'
 letter    ::= "A" | "B" | ... | "Z" | "a" | "b" | ... | "z"
 digit     ::= "0" | "1" | ... | "9"
 `,
@@ -239,7 +290,7 @@ export const generatePrompt = (
   finalInst: string,
   style: string,
   sampleSubstance?: { prog: string; name: string },
-  bnf?: string
+  bnf?: string,
 ) => {
   let prompt = "";
   if (sampleSubstance && bnf) {
@@ -249,12 +300,6 @@ Here is a BNF grammar that the Substance program you generate should conform to:
 
 \`\`\`
 ${bnf}
-\`\`\`
-
-Here is a sample Substance program named \"${sampleSubstance.name}\":
-
-\`\`\`
-${sampleSubstance.prog}
 \`\`\`
 
 ${descriptionPrelude} ${description} 
@@ -336,7 +381,7 @@ export const llmPrompts: LLMPromptCollection = {
     `the Lewis structure of water?`,
     finalInsts[0],
     lewisStyle,
-    sampleSubstances.acetyleneAndSulfuricAcid
+    sampleSubstances.acetyleneAndSulfuricAcid,
   ),
   lewis_0_0_1: generatePrompt(
     systemInsts[0],
@@ -346,7 +391,7 @@ export const llmPrompts: LLMPromptCollection = {
     `the Lewis structure of H2O, with two hydrogen atoms each single bonded to one oxygen atom and with four dots on the oxygen atom?`,
     finalInsts[0],
     lewisStyle,
-    sampleSubstances.acetyleneAndSulfuricAcid
+    sampleSubstances.acetyleneAndSulfuricAcid,
   ),
   lewis_0_1_0: generatePrompt(
     systemInsts[1],
@@ -357,7 +402,7 @@ export const llmPrompts: LLMPromptCollection = {
     finalInsts[0],
     lewisStyle,
     sampleSubstances.acetyleneAndSulfuricAcid,
-    grammars.moleculesGrammar
+    grammars.moleculesGrammar,
   ),
   lewis_0_1_1: generatePrompt(
     systemInsts[1],
@@ -368,7 +413,7 @@ export const llmPrompts: LLMPromptCollection = {
     finalInsts[0],
     lewisStyle,
     sampleSubstances.acetyleneAndSulfuricAcid,
-    grammars.moleculesGrammar
+    grammars.moleculesGrammar,
   ),
   lewis_1_0_0: generatePrompt(
     systemInsts[0],
@@ -378,7 +423,7 @@ export const llmPrompts: LLMPromptCollection = {
     `the Lewis structure of nitric acid?`,
     finalInsts[0],
     lewisStyle,
-    sampleSubstances.acetyleneAndSulfuricAcid
+    sampleSubstances.acetyleneAndSulfuricAcid,
   ),
   lewis_1_0_1: generatePrompt(
     systemInsts[0],
@@ -388,7 +433,7 @@ export const llmPrompts: LLMPromptCollection = {
     `the Lewis structure of nitric acid? Draw 3 oxygen atoms, 1 nitrogen, and 1 hydrogen; draw a single bond from one of the oxygen atoms to the nitrogen and the hydrogen and draw 4 dots on it. Draw 6 dots on another oxygen atom and a single bond from it to the nitrogen. Draw 4 dots on the last oxygen and a double bond to the nitrogen.`,
     finalInsts[0],
     lewisStyle,
-    sampleSubstances.acetyleneAndSulfuricAcid
+    sampleSubstances.acetyleneAndSulfuricAcid,
   ),
   lewis_1_1_0: generatePrompt(
     systemInsts[1],
@@ -401,7 +446,7 @@ export const llmPrompts: LLMPromptCollection = {
     finalInsts[0],
     lewisStyle,
     sampleSubstances.acetyleneAndSulfuricAcid,
-    grammars.moleculesGrammar
+    grammars.moleculesGrammar,
   ),
   lewis_1_1_1: generatePrompt(
     systemInsts[1],
@@ -412,7 +457,7 @@ export const llmPrompts: LLMPromptCollection = {
     finalInsts[0],
     lewisStyle,
     sampleSubstances.acetyleneAndSulfuricAcid,
-    grammars.moleculesGrammar
+    grammars.moleculesGrammar,
   ),
   lewis_2_0_0: generatePrompt(
     systemInsts[0],
@@ -422,7 +467,7 @@ export const llmPrompts: LLMPromptCollection = {
     `the Lewis structure of salt?`,
     finalInsts[0],
     lewisStyle,
-    sampleSubstances.acetyleneAndSulfuricAcid
+    sampleSubstances.acetyleneAndSulfuricAcid,
   ),
   lewis_2_0_1: generatePrompt(
     systemInsts[0],
@@ -432,7 +477,7 @@ export const llmPrompts: LLMPromptCollection = {
     `the Lewis structure of salt? Draw 1 sodium and 1 chlorine atom with a single bond between them and 6 dots on the chlorine.`,
     finalInsts[0],
     lewisStyle,
-    sampleSubstances.acetyleneAndSulfuricAcid
+    sampleSubstances.acetyleneAndSulfuricAcid,
   ),
   lewis_2_1_0: generatePrompt(
     systemInsts[1],
@@ -443,7 +488,7 @@ export const llmPrompts: LLMPromptCollection = {
     finalInsts[0],
     lewisStyle,
     sampleSubstances.acetyleneAndSulfuricAcid,
-    grammars.moleculesGrammar
+    grammars.moleculesGrammar,
   ),
   lewis_2_1_1: generatePrompt(
     systemInsts[1],
@@ -454,7 +499,7 @@ export const llmPrompts: LLMPromptCollection = {
     finalInsts[0],
     lewisStyle,
     sampleSubstances.acetyleneAndSulfuricAcid,
-    grammars.moleculesGrammar
+    grammars.moleculesGrammar,
   ),
   graph_0_0_0: generatePrompt(
     systemInsts[0],
@@ -463,8 +508,8 @@ export const llmPrompts: LLMPromptCollection = {
     descriptionPreludes[0],
     `a Hamiltonian graph?`,
     finalInsts[0],
-    lewisStyle,
-    sampleSubstances.eulerCircuit1
+    simpleDirectedGraphStyle,
+    sampleSubstances.eulerCircuit1,
   ),
   graph_0_0_1: generatePrompt(
     systemInsts[0],
@@ -474,7 +519,7 @@ export const llmPrompts: LLMPromptCollection = {
     `a Hamiltonian graph with 5 nodes and 8 edges with a cycle that visits each node exactly once?`,
     finalInsts[0],
     simpleDirectedGraphStyle,
-    sampleSubstances.eulerCircuit1
+    sampleSubstances.eulerCircuit1,
   ),
   graph_0_1_0: generatePrompt(
     systemInsts[1],
@@ -485,7 +530,7 @@ export const llmPrompts: LLMPromptCollection = {
     finalInsts[0],
     simpleDirectedGraphStyle,
     sampleSubstances.eulerCircuit1,
-    grammars.simpleDirectedGraphGrammar
+    grammars.simpleDirectedGraphGrammar,
   ),
   graph_0_1_1: generatePrompt(
     systemInsts[1],
@@ -496,7 +541,7 @@ export const llmPrompts: LLMPromptCollection = {
     finalInsts[0],
     simpleDirectedGraphStyle,
     sampleSubstances.eulerCircuit1,
-    grammars.simpleDirectedGraphGrammar
+    grammars.simpleDirectedGraphGrammar,
   ),
   graph_1_0_0: generatePrompt(
     systemInsts[0],
@@ -506,7 +551,7 @@ export const llmPrompts: LLMPromptCollection = {
     `a bipartite graph?`,
     finalInsts[0],
     simpleDirectedGraphStyle,
-    sampleSubstances.eulerCircuit1
+    sampleSubstances.eulerCircuit1,
   ),
   graph_1_0_1: generatePrompt(
     systemInsts[0],
@@ -516,7 +561,7 @@ export const llmPrompts: LLMPromptCollection = {
     `a bipartite graph with 3 nodes in one set and 3 nodes in the other, where nodes are only connected to nodes in the other set?`,
     finalInsts[0],
     simpleDirectedGraphStyle,
-    sampleSubstances.eulerCircuit1
+    sampleSubstances.eulerCircuit1,
   ),
   graph_1_1_0: generatePrompt(
     systemInsts[1],
@@ -527,7 +572,7 @@ export const llmPrompts: LLMPromptCollection = {
     finalInsts[0],
     simpleDirectedGraphStyle,
     sampleSubstances.eulerCircuit1,
-    grammars.simpleDirectedGraphGrammar
+    grammars.simpleDirectedGraphGrammar,
   ),
   graph_1_1_1: generatePrompt(
     systemInsts[1],
@@ -538,7 +583,7 @@ export const llmPrompts: LLMPromptCollection = {
     finalInsts[0],
     simpleDirectedGraphStyle,
     sampleSubstances.eulerCircuit1,
-    grammars.simpleDirectedGraphGrammar
+    grammars.simpleDirectedGraphGrammar,
   ),
   graph_2_0_0: generatePrompt(
     systemInsts[0],
@@ -548,7 +593,7 @@ export const llmPrompts: LLMPromptCollection = {
     `a strongly connected graph?`,
     finalInsts[0],
     simpleDirectedGraphStyle,
-    sampleSubstances.eulerCircuit1
+    sampleSubstances.eulerCircuit1,
   ),
   graph_2_0_1: generatePrompt(
     systemInsts[0],
@@ -558,7 +603,7 @@ export const llmPrompts: LLMPromptCollection = {
     `a strongly connected graph with 5 nodes where each node is connected to every other node by an edge?`,
     finalInsts[0],
     simpleDirectedGraphStyle,
-    sampleSubstances.eulerCircuit1
+    sampleSubstances.eulerCircuit1,
   ),
   graph_2_1_0: generatePrompt(
     systemInsts[1],
@@ -569,7 +614,7 @@ export const llmPrompts: LLMPromptCollection = {
     finalInsts[0],
     simpleDirectedGraphStyle,
     sampleSubstances.eulerCircuit1,
-    grammars.simpleDirectedGraphGrammar
+    grammars.simpleDirectedGraphGrammar,
   ),
   graph_2_1_1: generatePrompt(
     systemInsts[1],
@@ -580,7 +625,7 @@ export const llmPrompts: LLMPromptCollection = {
     finalInsts[0],
     simpleDirectedGraphStyle,
     sampleSubstances.eulerCircuit1,
-    grammars.simpleDirectedGraphGrammar
+    grammars.simpleDirectedGraphGrammar,
   ),
   geometry_0_0_0: generatePrompt(
     systemInsts[0],
@@ -590,7 +635,7 @@ export const llmPrompts: LLMPromptCollection = {
     `two congruent triangles that demonstrate the SAS theorem?`,
     finalInsts[1],
     euclideanStyle,
-    sampleSubstances.geometry
+    sampleSubstances.geometry,
   ),
   geometry_0_0_1: generatePrompt(
     systemInsts[0],
@@ -600,7 +645,7 @@ export const llmPrompts: LLMPromptCollection = {
     `two triangles ABC and DEF where AB is equal to DE, BC is equal to EF, and angle B is equal to angle E?`,
     finalInsts[1],
     euclideanStyle,
-    sampleSubstances.geometry
+    sampleSubstances.geometry,
   ),
   geometry_0_1_0: generatePrompt(
     systemInsts[1],
@@ -611,7 +656,7 @@ export const llmPrompts: LLMPromptCollection = {
     finalInsts[1],
     euclideanStyle,
     sampleSubstances.geometry,
-    grammars.geometryGrammar
+    grammars.geometryGrammar,
   ),
   geometry_0_1_1: generatePrompt(
     systemInsts[1],
@@ -622,7 +667,7 @@ export const llmPrompts: LLMPromptCollection = {
     finalInsts[1],
     euclideanStyle,
     sampleSubstances.geometry,
-    grammars.geometryGrammar
+    grammars.geometryGrammar,
   ),
   geometry_1_0_0: generatePrompt(
     systemInsts[0],
@@ -632,7 +677,7 @@ export const llmPrompts: LLMPromptCollection = {
     `a pair of complementary angles?`,
     finalInsts[1],
     euclideanStyle,
-    sampleSubstances.geometry
+    sampleSubstances.geometry,
   ),
   geometry_1_0_1: generatePrompt(
     systemInsts[0],
@@ -642,7 +687,7 @@ export const llmPrompts: LLMPromptCollection = {
     `a right angle ABC and a pair of angles ABD and DBC that add up to 90 degrees and are adjacent to each other?`,
     finalInsts[1],
     euclideanStyle,
-    sampleSubstances.geometry
+    sampleSubstances.geometry,
   ),
   geometry_1_1_0: generatePrompt(
     systemInsts[1],
@@ -653,7 +698,7 @@ export const llmPrompts: LLMPromptCollection = {
     finalInsts[1],
     euclideanStyle,
     sampleSubstances.geometry,
-    grammars.geometryGrammar
+    grammars.geometryGrammar,
   ),
   geometry_1_1_1: generatePrompt(
     systemInsts[1],
@@ -664,7 +709,7 @@ export const llmPrompts: LLMPromptCollection = {
     finalInsts[1],
     euclideanStyle,
     sampleSubstances.geometry,
-    grammars.geometryGrammar
+    grammars.geometryGrammar,
   ),
   geometry_2_0_0: generatePrompt(
     systemInsts[0],
@@ -674,7 +719,7 @@ export const llmPrompts: LLMPromptCollection = {
     `a square inscribed in a circle?`,
     finalInsts[1],
     euclideanStyle,
-    sampleSubstances.geometry
+    sampleSubstances.geometry,
   ),
   geometry_2_0_1: generatePrompt(
     systemInsts[0],
@@ -684,7 +729,7 @@ export const llmPrompts: LLMPromptCollection = {
     `a circle with four chords AB, BC, CD, and DA of equal length such that AB is parallel to CD and BC is parallel to DA to form a square?`,
     finalInsts[1],
     euclideanStyle,
-    sampleSubstances.geometry
+    sampleSubstances.geometry,
   ),
   geometry_2_1_0: generatePrompt(
     systemInsts[1],
@@ -695,7 +740,7 @@ export const llmPrompts: LLMPromptCollection = {
     finalInsts[1],
     euclideanStyle,
     sampleSubstances.geometry,
-    grammars.geometryGrammar
+    grammars.geometryGrammar,
   ),
   geometry_2_1_1: generatePrompt(
     systemInsts[1],
@@ -706,7 +751,7 @@ export const llmPrompts: LLMPromptCollection = {
     finalInsts[1],
     euclideanStyle,
     sampleSubstances.geometry,
-    grammars.geometryGrammar
+    grammars.geometryGrammar,
   ),
 };
 

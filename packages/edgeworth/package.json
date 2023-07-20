@@ -2,6 +2,7 @@
   "name": "@penrose/edgeworth",
   "private": true,
   "version": "3.0.0",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "watch": "vite",
