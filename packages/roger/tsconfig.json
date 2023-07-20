@@ -5,7 +5,6 @@
     "sourceMap": true,
     "noImplicitThis": true,
     "resolveJsonModule": true,
-    "strictNullChecks": true,
-    "strict": false // COMBAK: strict disabled for now due to errors
+    "strictNullChecks": true
   }
 }
