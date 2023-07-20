@@ -34,6 +34,7 @@ export type Header<T> = Selector<T> | Namespace<T> | Collector<T>;
 
 export type Selector<T> = ASTNode<T> & {
   tag: "Selector";
+  repeatable: boolean;
   head: DeclPatterns<T>;
   with?: DeclPatterns<T>;
   where?: RelationPatterns<T>;
@@ -41,6 +42,7 @@ export type Selector<T> = ASTNode<T> & {
 
 export type Collector<T> = ASTNode<T> & {
   tag: "Collector";
+  repeatable: boolean;
   head: DeclPattern<T>;
   into: BindingForm<T>;
   where?: RelationPatterns<T>;

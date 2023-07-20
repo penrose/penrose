@@ -1,13 +1,13 @@
 {
   "name": "@penrose/docs-site",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "type": "module",
   "private": true,
   "scripts": {
     "build": "vitepress build",
     "build-decls": ":",
     "copy-editor": "shx mkdir -p ./public/try/ && shx cp -r ../editor/dist/* ./public/try",
-    "build-shapedefs": "shx rm -f ./src/shapedefs.json && roger shapedefs -o ./src/shapedefs.json",
+    "build-shapedefs": "shx rm -f ./src/shapedefs.json && node ./scripts/shapedefs.js ./src/shapedefs.json",
     "dev": "vitepress dev",
     "preview": "vitepress preview",
     "typecheck": ":"
@@ -46,16 +46,17 @@
     }
   },
   "dependencies": {
-    "@penrose/components": "^3.0.0",
-    "@penrose/examples": "^3.0.0",
+    "@penrose/components": "^3.1.0",
+    "@penrose/examples": "^3.1.0",
     "veaury": "^2.3.11"
   },
   "devDependencies": {
-    "@penrose/core": "^3.0.0",
-    "@penrose/editor": "^3.0.0",
-    "@penrose/roger": "^3.0.0",
+    "@penrose/core": "^3.1.0",
+    "@penrose/editor": "^3.1.0",
+    "@penrose/roger": "^3.1.0",
     "@tailwindcss/typography": "^0.5.4",
     "@types/markdown-it": "^12.2.3",
+    "chalk": "^3.0.0",
     "markdown-it": "^13.0.1",
     "markdown-it-katex": "^2.0.3",
     "shx": "^0.3.3",

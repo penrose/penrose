@@ -58,9 +58,9 @@
   },
   "dependencies": {
     "@material-ui/core": "^4.12.3",
-    "@penrose/components": "^3.0.0",
-    "@penrose/core": "^3.0.0",
-    "@penrose/examples": "^3.0.0",
+    "@penrose/components": "^3.1.0",
+    "@penrose/core": "^3.1.0",
+    "@penrose/examples": "^3.1.0",
     "@types/file-saver": "^2.0.5",
     "@types/jszip": "^3.4.1",
     "file-saver": "^2.0.5",

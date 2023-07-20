@@ -1682,9 +1682,16 @@ const getSubsts = (
   // Ensures there are no duplicated substitutions in terms of both
   // matched relations and substitution targets.
   const filteredSubsts = deduplicate(varEnv, subEnv, subProg, rels, rawSubsts);
-  const correctSubsts = filteredSubsts.filter(uniqueKeysAndVals);
+  const { repeatable } = header;
 
-  return correctSubsts.toArray();
+  // If we want repeatable matchings, this is good
+  if (repeatable) {
+    return filteredSubsts.toArray();
+  } else {
+    // Otherwise need to remove all duplications
+    const correctSubsts = filteredSubsts.filter(uniqueKeysAndVals);
+    return correctSubsts.toArray();
+  }
 };
 
 type GroupbyBucket = {
