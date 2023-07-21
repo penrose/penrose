@@ -50,6 +50,7 @@ const styleCustoms = {
     "where",
     "with",
     "listof",
+    "countof",
     "from",
     "delete",
     "as",

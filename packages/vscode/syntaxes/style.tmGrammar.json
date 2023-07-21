@@ -31,7 +31,7 @@
       "patterns": [
         {
           "name": "keyword.control.penrose",
-          "match": "\\b(forall|where|with|delete|as|true|false|layer|encourage|ensure|override|in|except|has|collect|foreach|listof|from)\\b"
+          "match": "\\b(forall|repeatable|where|with|delete|as|true|false|layer|encourage|ensure|override|in|except|has|collect|foreach|listof|countof|from)\\b"
         },
         {
           "name": "entity.other.attribute-name.penrose.layering",

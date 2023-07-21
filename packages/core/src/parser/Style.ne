@@ -8,7 +8,7 @@ import moo from "moo";
 import _ from 'lodash'
 import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil.js'
 import { C, ConcreteNode, Identifier, StringLit  } from "../types/ast.js";
-import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, Collector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, CollectionAccess, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit, LayoutStages, FunctionCall, InlineComparison, ComparisonOp
+import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, Collector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, CollectionAccess, CountOf, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit, LayoutStages, FunctionCall, InlineComparison, ComparisonOp
 } from "../types/style.js";
 
 const styleTypes: string[] =
@@ -52,6 +52,7 @@ const lexer = moo.compile({
       groupby: "groupby",
       from: "from",
       listof: "listof",
+      countof: "countof",
       delete: "delete",
       as: "as",
       true: "true",
@@ -541,7 +542,7 @@ expr_literal
   |  string_lit {% id %}
   |  annotated_float {% id %}
   |  computation_function {% id %}
-  |  collection_access {% id %}
+  |  sty_var_expr {% id %}
   |  path {% id %}
   |  list {% id %}
   |  tuple {% id %}
@@ -640,14 +641,23 @@ computation_function -> identifier _ "(" expr_list ")" {%
   }) 
 %}
 
-
-collection_access
-  -> "listof" _ identifier _ "from" _ identifier {% ([, , field, , , , name]): CollectionAccess<C> => ({
-    ...nodeData,
-    ...rangeBetween(field, name),
-    tag: "CollectionAccess",
-    name, field
-  })%}
+sty_var_expr
+  -> "listof" _ identifier _ "from" _ identifier {%
+      ([kw, , field, , , , name]): CollectionAccess<C> => ({
+       ...nodeData,
+       ...rangeBetween(kw, name),
+       tag: "CollectionAccess",
+       name, field
+      })
+    %}
+  | "countof" _ identifier {%
+      ([kw, , name]): CountOf<C> => ({
+        ...nodeData,
+        ...rangeBetween(kw, name),
+        tag: "CountOf",
+        name
+      })
+  %}
 
 stage_list 
   -> identifier {% (d) => d %}

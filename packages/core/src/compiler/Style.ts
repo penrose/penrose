@@ -131,13 +131,13 @@ import {
   err,
   invalidColorLiteral,
   isErr,
+  notCollectionError,
   ok,
   parseError,
   redeclareNamespaceError,
   safeChain,
   selectorFieldNotSupported,
   toStyleErrors,
-  unexpectedCollectionAccessError,
 } from "../utils/Error.js";
 import Graph from "../utils/Graph.js";
 import {
@@ -2336,6 +2336,9 @@ const findPathsExpr = <T>(expr: Expr<T>, context: Context): Path<T>[] => {
         return [];
       }
     }
+    case "CountOf": {
+      return [];
+    }
   }
 };
 
@@ -3238,7 +3241,23 @@ const evalExpr = (
       } else {
         return err(
           oneErr(
-            unexpectedCollectionAccessError(name.value, {
+            notCollectionError(name.value, {
+              start: expr.start,
+              end: expr.end,
+            }),
+          ),
+        );
+      }
+    }
+    case "CountOf": {
+      const { subst } = context;
+      const { name } = expr;
+      if (subst.tag === "CollectionSubst" && name.value === subst.collName) {
+        return ok(val(floatV(subst.collContent.length)));
+      } else {
+        return err(
+          oneErr(
+            notCollectionError(name.value, {
               start: expr.start,
               end: expr.end,
             }),
@@ -3363,7 +3382,8 @@ const translateExpr = (
     case "UOp":
     case "Vary":
     case "Vector":
-    case "CollectionAccess": {
+    case "CollectionAccess":
+    case "CountOf": {
       const res = evalExpr(mut, canvas, layoutStages, e, trans);
       if (res.isErr()) {
         return addDiags(res.error, trans);

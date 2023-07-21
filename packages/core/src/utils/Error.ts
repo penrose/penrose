@@ -25,6 +25,7 @@ import {
   InvalidColorLiteral,
   MissingArgumentError,
   NaNError,
+  NotCollectionError,
   ParseError,
   PenroseError,
   RedeclareNamespaceError,
@@ -40,7 +41,6 @@ import {
   TypeArgLengthMismatch,
   TypeMismatch,
   TypeNotFound,
-  UnexpectedCollectionAccessError,
   UnexpectedExprForNestedPred,
   VarNotFound,
 } from "../types/errors.js";
@@ -555,10 +555,10 @@ canvas {
       } already exists and is redeclared in ${locc("Style", error.location)}.`;
     }
 
-    case "UnexpectedCollectionAccessError": {
+    case "NotCollectionError": {
       const { name, location } = error;
       const locStr = locc("Style", location);
-      return `Style variable \`${name}\` cannot be accessed via the collection access operator (at ${locStr}) because it is not a collection.`;
+      return `The expression at ${locStr} expects \`${name}\` to be a collection, but it is not.`;
     }
 
     case "LayerOnNonShapesError": {
@@ -842,7 +842,7 @@ export const errLocs = (
 
     case "FunctionInternalError":
     case "RedeclareNamespaceError":
-    case "UnexpectedCollectionAccessError":
+    case "NotCollectionError":
     case "LayerOnNonShapesError": {
       return [
         toErrorLoc({
@@ -1097,11 +1097,11 @@ export const redeclareNamespaceError = (
   location,
 });
 
-export const unexpectedCollectionAccessError = (
+export const notCollectionError = (
   name: string,
   location: SourceRange,
-): UnexpectedCollectionAccessError => ({
-  tag: "UnexpectedCollectionAccessError",
+): NotCollectionError => ({
+  tag: "NotCollectionError",
   name,
   location,
 });
