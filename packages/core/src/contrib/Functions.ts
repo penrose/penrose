@@ -856,9 +856,62 @@ export const compDict = {
     returns: valueT("Real"),
   },
 
-  /**
-   * Return the outer product of `u` and `v`.
-   */
+   /* ============ MATRIX FUNCTIONS ============= */
+
+  identity: {
+    name: "identity",
+    description: "Returns the `n` x `n` identity matrix",
+    params: [
+      { name: "n", description: "dimension", type: posIntT() },
+    ],
+    body: (
+      _context: Context,
+      n: number
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: identity(n),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+   
+  diagonal: {
+    name: "diagonal",
+    description: "Given a vector `v` of length `n`, returns a diagonal matrix `D` with diagonal entries `v`.",
+    params: [
+      { name: "v", description: "vector of diagonal entries", type: realNT() },
+    ],
+    body: (
+      _context: Context,
+      v: ad.Num[]
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: diagonal(v),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  trace: {
+    name: "trace",
+    description: "Given a square matrix `A`, returns the sum of diagonal entries.",
+    params: [
+      { name: "A", description: "a square matrix", type: realNMT() },
+    ],
+    body: (
+      _context: Context,
+      A: ad.Num[][]
+    ): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
+        tag: "FloatV",
+        contents: trace(A),
+      });
+    },
+    returns: valueT("Real"),
+  },
+
   outerProduct: {
     name: "outerProduct",
     description: "Return the outer product of `v` and `w`.",
@@ -878,6 +931,8 @@ export const compDict = {
     },
     returns: valueT("RealNM"),
   },
+
+   /* ======== END MATRIX FUNCTIONS ======== */
 
   /**
    * Return the length of the line or arrow shape `[type, props]`.
@@ -6197,6 +6252,25 @@ const project = (
 // TODO:
 //    + implement methods described at https://glm.g-truc.net/0.9.5/api/a00176.html (you may be able to use MESA)
 //    - write Style wrappers (2D, 2DH, 3D, 3DH)
+//       + identity
+//       + diagonal
+//       + trace
+//       - determinant
+//       - inverse
+//       - toHomogeneous
+//       - toHomogeneousMatrix
+//       - outer
+//       - skew
+//       - rotate2D
+//       - rotate3D
+//       - scale2D
+//       - scale3D
+//       - shear
+//       - translate
+//       - lookAt
+//       - perspective
+//       - ortho
+//       - project
 //    - refactor non-wrapped methods into MatrixFunctions.ts
 //    - add `then` operator to parser/compiler
 //    - write unit tests (i.e., trivially checkable examples)
