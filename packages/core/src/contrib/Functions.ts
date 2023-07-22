@@ -968,29 +968,11 @@ export const compDict = {
     returns: valueT("RealNM"),
   },
 
-  rotate2D: {
-    name: "rotate2D",
-    description: "Returns a 2D rotation by a given angle `theta`.  (Note: this transformation is encoded as a 2x2 matrix that cannot directly be composed with 2D affine transformations; for the 3x3 affine version, see `rotate()`.)",
-    params: [
-      { name: "theta", description: "angle of rotation", type: realT() },
-    ],
-    body: (
-      _context: Context,
-      theta: ad.Num
-    ): MayWarn<MatrixV<ad.Num>> => {
-      return noWarn({
-        tag: "MatrixV",
-        contents: toHomogeneousMatrix(rotate2D(theta)),
-      });
-    },
-    returns: valueT("RealNM"),
-  },
-
   rotate: {
     name: "rotate",
-    description: "Returns a 2D rotation by a given angle `theta`.  (Note: this transformation is encoded as a 3x3 matrix in homogeneous coordinates, so that it can easily be composed with other common 2D transformations.  For the 2x2 linear version, see `rotate2D()`.)",
+    description: "Returns a 2D rotation by an angle `theta`.  (Note: this transformation is encoded as a 3x3 matrix in homogeneous coordinates, so that it can be composed with 2D affine transformations.  For the 2x2 linear version, see `rotate2D()`.)",
     params: [
-      { name: "theta", description: "angle of rotation", type: realT() },
+      { name: "theta", description: "angle of rotation (in radians)", type: realT() },
     ],
     body: (
       _context: Context,
@@ -1004,7 +986,205 @@ export const compDict = {
     returns: valueT("RealNM"),
   },
 
-  // TODO rotate3D, rotate3DH
+  rotate2D: {
+    name: "rotate2D",
+    description: "Returns a 2D rotation by a given angle `theta`.  (Note: this transformation is encoded as a 2x2 matrix that cannot directly be composed with 2D affine transformations.  For the 3x3 affine version, see `rotate()`.)",
+    params: [
+      { name: "theta", description: "angle of rotation (in radians)", type: realT() },
+    ],
+    body: (
+      _context: Context,
+      theta: ad.Num
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: toHomogeneousMatrix(rotate2D(theta)),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  rotate3D: {
+    name: "rotate3D",
+    description: "Returns a 3D rotation by a given angle `theta` around a unit axis `v`.  (Note: this transformation is encoded as a 3x3 matrix that cannot directly be composed with 3D affine transformations.  For the 4x4 affine version, see `rotate3DH()`.)",
+    params: [
+      { name: "theta", description: "angle of rotation (in radians)", type: realT() },
+      { name: "v", description: "axis of rotation (unit vector)", type: realNT() },
+    ],
+    body: (
+      _context: Context,
+      theta: ad.Num,
+      v: ad.Num[]
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: rotate3D(theta,v),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  rotate3DH: {
+    name: "rotate3DH",
+    description: "Returns a 3D rotation by a given angle `theta` around a unit axis `v`.  (Note: this transformation is encoded as a 4x4 matrix in homogeneous coordinates, so that it can be composed with 3D affine transformations.  For the 3x3 linear version, see `rotate3D()`.)",
+    params: [
+      { name: "theta", description: "angle of rotation (in radians)", type: realT() },
+      { name: "v", description: "axis of rotation (unit vector)", type: realNT() },
+    ],
+    body: (
+      _context: Context,
+      theta: ad.Num,
+      v: ad.Num[]
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: toHomogeneousMatrix(rotate3D(theta,v)),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  scale: {
+    name: "scale",
+    description: "Returns a nonuniform scaling by factors `sx`, `sy` along `x`, `y` axes, respectively.  (Note: this transformation is encoded as a 3x3 matrix in homogeneous coordinates, so that it can be composed with 2D affine transformations.  For the 2x2 linear version, see `scale2D()`.)",
+    params: [
+      { name: "sx", description: "horizontal scale factor", type: realT() },
+      { name: "sy", description: "vertical scale factor", type: realT() },
+    ],
+    body: (
+      _context: Context,
+      sx: ad.Num,
+      sy: ad.Num
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: toHomogeneousMatrix(scale2D(sx,sy)),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  scale2D: {
+    name: "scale",
+    description: "Returns a 2x2 matrix representing nonuniform scaling by factors `sx`, `sy` along `x`, `y` axes, respectively.  (Note: this transformation is encoded as a 2x2 matrix that cannot directly be composed with 2D affine transformations.  For the 3x3 affine version, see `rotate()`.)",
+    params: [
+      { name: "sx", description: "horizontal scale factor", type: realT() },
+      { name: "sy", description: "vertical scale factor", type: realT() },
+    ],
+    body: (
+      _context: Context,
+      sx: ad.Num,
+      sy: ad.Num
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: scale2D(sx,sy),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  scale3D: {
+    name: "scale",
+    description: "Returns a nonuniform scaling by factors `sx`, `sy`, `sz` along `x`, `y`, `z` axes, respectively.  (Note: this transformation is encoded as a 3x3 matrix that cannot directly be composed with 3D affine transformations.  For the 4x4 affine version, see `scale3DH()`.)",
+    params: [
+      { name: "sx", description: "x scale factor", type: realT() },
+      { name: "sy", description: "y scale factor", type: realT() },
+      { name: "sz", description: "z scale factor", type: realT() },
+    ],
+    body: (
+      _context: Context,
+      sx: ad.Num,
+      sy: ad.Num,
+      sz: ad.Num
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: scale3D(sx,sy,sz),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  scale3DH: {
+    name: "scale",
+    description: "Returns a 4x4 matrix representing nonuniform scaling by factors `sx`, `sy`, `sz` along `x`, `y`, `z` axes, respectively.  (Note: this transformation is encoded as a 4x4 matrix in homogeneous coordinates, so that it can be composed with 3D affine transformations.  For the 3x3 linear version, see `scale3D()`.)",
+    params: [
+      { name: "sx", description: "x scale factor", type: realT() },
+      { name: "sy", description: "y scale factor", type: realT() },
+      { name: "sz", description: "z scale factor", type: realT() },
+    ],
+    body: (
+      _context: Context,
+      sx: ad.Num,
+      sy: ad.Num,
+      sz: ad.Num
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: toHomogeneousMatrix(scale3D(sx,sy,sz)),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  shear: {
+    name: "shear",
+    description: "Given `n`-dimensional vectors `u` and `v`, returns a shear transformation `A` such that `Ax` displaces any given point `x` in the direction `u` according to its extent along the direction `v`, i.e., `Ax = x + <v,x>u`.  (Note: this transformation is encoded as an (`n`+1)x(`n`+1) matrix in homogeneous coordinates, so that it can be composed with affine transformations.  For the linear version, see `shearND()`.)",
+    params: [
+      { name: "u", description: "offset direction", type: realNT() },
+      { name: "v", description: "shear axis", type: realNT() },
+    ],
+    body: (
+      _context: Context,
+      u: ad.Num[],
+      v: ad.Num[]
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: toHomogeneousMatrix(shear(u,v)),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  shearND: {
+    name: "shearND",
+    description: "Given `n`-dimensional vectors `u` and `v`, returns a shear transformation `A` such that `Ax` displaces any given point `x` in the direction `u` according to its extent along the direction `v`, i.e., `Ax = x + <v,x>u`.  (Note: this transformation is encoded as a `n` x `n` matrix that cannot directly be composed with `n`-dimensional affine transformations.  For the affine version, see `shear()`.)",
+    params: [
+      { name: "u", description: "offset direction", type: realNT() },
+      { name: "v", description: "shear axis", type: realNT() },
+    ],
+    body: (
+      _context: Context,
+      u: ad.Num[],
+      v: ad.Num[]
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: shear(u,v),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  translate: {
+    name: "translate",
+    description: "Given an `n`-dimensional vector `v`, returns a translation of `n`-dimensional space by `v`.  (Note: since this transformation is affine rather than linear, it is encoded as a (`n`+1)x(`n`+1) matrix in homogeneous coordinates.)",
+    params: [
+      { name: "v", description: "direction of translation", type: realNT() },
+    ],
+    body: (
+      _context: Context,
+      v: ad.Num[]
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: translate(v),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
 
   skew: {
     name: "skew",
@@ -6351,12 +6531,12 @@ const project = (
 //       + inverse
 //       + outer
 //       + skew
-//       + rotate2D
-//       - rotate3D
-//       - scale2D
-//       - scale3D
-//       - shear
-//       - translate
+//       + rotate[2D]
+//       + rotate3D[H]
+//       + scale2D
+//       + scale3D
+//       + shear
+//       + translate
 //       - lookAt
 //       - perspective
 //       - ortho
