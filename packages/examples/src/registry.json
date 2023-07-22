@@ -445,5 +445,17 @@
   "curve-examples/evolute-of-cardioid": {
     "name": "Evolute of Cardioid",
     "gallery": false
+  },
+  "spectral-graphs/examples/truncated-cube-graph": {
+    "name": "Truncated Cube Graph",
+    "gallery": false
+  },
+  "spectral-graphs/examples/torus": {
+    "name": "Periodic 2D Grid",
+    "gallery": false
+  },
+  "spectral-graphs/examples/periodic-hexagonal-lattice": {
+    "name": "Periodic Hexagonal Grid",
+    "gallery": false
   }
 }
