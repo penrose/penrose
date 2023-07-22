@@ -6288,15 +6288,28 @@ const inverse = (
    return ops.msdiv( C, detA );
 };
 
-// Given a vector v of length n, encoding a point in n-dimensional Cartesian coordinates,
-// returns a vector of length n+1, encoding the same point in homogeneous coordinates.
+// Given a vector q of length n+1, encoding a point in n-dimensional homogeneous coordinates,
+// returns a vector p of length n, encoding the same point in Cartesian coordinates.
+const fromHomogeneous = (
+  q: ad.Num[]
+): ad.Num[] => {
+   const n = q.length - 1;
+   const p: ad.Num[] = new Array(n);
+   for( let i = 0; i < n; i++ ) {
+      p[i] = q[i]/q[n];
+   }
+   return p;
+};
+
+// Given a vector p of length n, encoding a point in n-dimensional Cartesian coordinates,
+// returns a vector q of length n+1, encoding the same point in homogeneous coordinates.
 const toHomogeneous = (
   p: ad.Num[]
 ): ad.Num[] => {
    const n = p.length;
    const q: ad.Num[] = new Array(n+1);
    for( let i = 0; i < n; i++ ) {
-      q[i] = p[i]
+      q[i] = p[i];
    }
    q[n] = 1;
    return q;
@@ -6616,6 +6629,7 @@ const project = (
 //       + perspective
 //       + ortho
 //       - project
+//       - fromHomogeneous
 //       - toHomogeneous
 //       - toHomogeneousMatrix
 //    - refactor non-wrapped methods into MatrixFunctions.ts
