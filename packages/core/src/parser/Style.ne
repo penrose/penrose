@@ -521,6 +521,7 @@ term
   |  term _ "/" _ factor  {% (d): BinOp<C> => binop('Divide', d[0], d[4]) %}
   |  term _ ".*" _ factor  {% (d): BinOp<C> => binop('EWMultiply', d[0], d[4]) %}
   |  term _ "./" _ factor  {% (d): BinOp<C> => binop('EWDivide', d[0], d[4]) %}
+  |  term _ "then" _ factor  {% (d): BinOp<C> => binop('Multiply', d[4], d[0]) %} # for matrix-matrix multiplication in natural language order
   |  factor               {% id %}
 
 # Addition and subtraction
