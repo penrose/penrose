@@ -1016,7 +1016,7 @@ export const compDict = {
     ): MayWarn<MatrixV<ad.Num>> => {
       return noWarn({
         tag: "MatrixV",
-        contents: toHomogeneousMatrix(rotate2D(theta)),
+        contents: rotate2D(theta),
       });
     },
     returns: valueT("RealNM"),
@@ -6400,15 +6400,16 @@ const toHomogeneousMatrix = (
 ): ad.Num[][] => {
    const n = A.length;
    const B = new Array(n+1);
-   for( let i = 0; i < n; i++ ) {
+   for( let i = 0; i < n+1; i++ ) {
       B[i] = new Array(n+1);
-      for( let j = 0; i < n; i++ ) {
+      for( let j = 0; j < n+1; j++ ) {
+         B[i][j] = 0;
+      }
+   }
+   for( let i = 0; i < n; i++ ) {
+      for( let j = 0; j < n; j++ ) {
          B[i][j] = A[i][j];
       }
-      B[i][n] = 0;
-   }
-   for( let j = 0; j < n; j++ ) {
-      B[n][j] = 0;
    }
    B[n][n] = 1;
    return B;
@@ -6453,8 +6454,8 @@ const skew = (
 const rotate2D = (
   theta: ad.Num
 ): ad.Num[][] => {
-   return [ [  cos(theta), sin(theta) ],
-            [ -sin(theta), cos(theta) ] ];
+   return [ [ cos(theta), neg(sin(theta)) ],
+            [ sin(theta), cos(theta) ] ];
 };
 
 // Given an angle theta and a unit 3-vector v, returns
