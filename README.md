@@ -58,31 +58,29 @@ It's specified by the following trio of Domain, Substance, and Style programs
 - `venn.style`:
 
   ```
-  canvas {
+    canvas {
     width = 800
     height = 700
   }
   
   forall Set x {
-    x.icon = Circle {
-      strokeWidth : 0
-    }
+    shape x.icon = Circle {}
   
-    x.text = Equation {
-      string : x.label
-      fontSize : "32px"
+    shape x.text = Equation {
+      string: x.label
+      fontSize: "32px"
     }
   
     ensure contains(x.icon, x.text)
     encourage sameCenter(x.text, x.icon)
-    x.textLayering = x.text above x.icon
+    layer x.text above x.icon
   }
   
   forall Set x; Set y
   where IsSubset(x, y) {
     ensure disjoint(y.text, x.icon, 10)
     ensure contains(y.icon, x.icon, 5)
-    x.icon above y.icon
+    layer x.icon above y.icon
   }
   
   forall Set x; Set y
