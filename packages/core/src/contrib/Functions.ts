@@ -968,6 +968,44 @@ export const compDict = {
     returns: valueT("RealNM"),
   },
 
+  rotate2D: {
+    name: "rotate2D",
+    description: "Returns a 2D rotation by a given angle `theta`.  (Note: this transformation is encoded as a 2x2 matrix that cannot directly be composed with 2D affine transformations; for the 3x3 affine version, see `rotate()`.)",
+    params: [
+      { name: "theta", description: "angle of rotation", type: realT() },
+    ],
+    body: (
+      _context: Context,
+      theta: ad.Num
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: toHomogeneousMatrix(rotate2D(theta)),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  rotate: {
+    name: "rotate",
+    description: "Returns a 2D rotation by a given angle `theta`.  (Note: this transformation is encoded as a 3x3 matrix in homogeneous coordinates, so that it can easily be composed with other common 2D transformations.  For the 2x2 linear version, see `rotate2D()`.)",
+    params: [
+      { name: "theta", description: "angle of rotation", type: realT() },
+    ],
+    body: (
+      _context: Context,
+      theta: ad.Num
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: toHomogeneousMatrix(rotate2D(theta)),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  // TODO rotate3D, rotate3DH
+
   skew: {
     name: "skew",
     description: "Given a 3-vector `v`, returns a 3x3 skew symmetric matrix `A` such that `Au = v x u` for any vector `u`.",
@@ -6313,7 +6351,7 @@ const project = (
 //       + inverse
 //       + outer
 //       + skew
-//       - rotate2D
+//       + rotate2D
 //       - rotate3D
 //       - scale2D
 //       - scale3D
