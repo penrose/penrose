@@ -912,6 +912,42 @@ export const compDict = {
     returns: valueT("Real"),
   },
 
+  determinant: {
+    name: "determinant",
+    description: "Given a 2x2, 3x3, or 4x4 matrix `A`, returns its determinant.",
+    params: [
+      { name: "A", description: "a square matrix", type: realNMT() },
+    ],
+    body: (
+      _context: Context,
+      A: ad.Num[][]
+    ): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
+        tag: "FloatV",
+        contents: determinant(A),
+      });
+    },
+    returns: valueT("Real"),
+  },
+
+  inverse: {
+    name: "inverse",
+    description: "Given a 2x2, 3x3, or 4x4 matrix `A`, returns its inverse.  If the matrix is not invertible, evaluation of this function within the optimizer may produce a numerically invalid matrix (with `INF` or `NaN` entries).",
+    params: [
+      { name: "A", description: "a 2x2, 3x3, or 4x4 matrix", type: realNMT() },
+    ],
+    body: (
+      _context: Context,
+      A: ad.Num[][]
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: inverse(A),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
   outerProduct: {
     name: "outerProduct",
     description: "Return the outer product of `v` and `w`.",
@@ -932,7 +968,25 @@ export const compDict = {
     returns: valueT("RealNM"),
   },
 
-   /* ======== END MATRIX FUNCTIONS ======== */
+  skew: {
+    name: "skew",
+    description: "Given a 3-vector `v`, returns a 3x3 skew symmetric matrix `A` such that `Au = v x u` for any vector `u`.",
+    params: [
+      { name: "v", description: "Vector `v`", type: realNT() },
+    ],
+    body: (
+      _context: Context,
+      v: ad.Num[]
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: skew(v),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  /* ======== END MATRIX FUNCTIONS ======== */
 
   /**
    * Return the length of the line or arrow shape `[type, props]`.
@@ -6255,12 +6309,10 @@ const project = (
 //       + identity
 //       + diagonal
 //       + trace
-//       - determinant
-//       - inverse
-//       - toHomogeneous
-//       - toHomogeneousMatrix
-//       - outer
-//       - skew
+//       + determinant
+//       + inverse
+//       + outer
+//       + skew
 //       - rotate2D
 //       - rotate3D
 //       - scale2D
@@ -6271,6 +6323,8 @@ const project = (
 //       - perspective
 //       - ortho
 //       - project
+//       - toHomogeneous
+//       - toHomogeneousMatrix
 //    - refactor non-wrapped methods into MatrixFunctions.ts
 //    - add `then` operator to parser/compiler
 //    - write unit tests (i.e., trivially checkable examples)
