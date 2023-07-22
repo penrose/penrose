@@ -6296,7 +6296,7 @@ const fromHomogeneous = (
    const n = q.length - 1;
    const p: ad.Num[] = new Array(n);
    for( let i = 0; i < n; i++ ) {
-      p[i] = q[i]/q[n];
+      p[i] = div(q[i],q[n]);
    }
    return p;
 };
