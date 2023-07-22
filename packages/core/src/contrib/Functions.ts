@@ -1220,7 +1220,7 @@ export const compDict = {
     ): MayWarn<MatrixV<ad.Num>> => {
       return noWarn({
         tag: "MatrixV",
-        contents: lookAt(eye,center,up),
+        contents: lookAt(eye, center, up),
       });
     },
     returns: valueT("RealNM"),
@@ -1244,7 +1244,7 @@ export const compDict = {
     ): MayWarn<MatrixV<ad.Num>> => {
       return noWarn({
         tag: "MatrixV",
-        contents: perspective(fovy,aspect,zNear,zFar),
+        contents: perspective(fovy, aspect, zNear, zFar),
       });
     },
     returns: valueT("RealNM"),
@@ -1272,12 +1272,35 @@ export const compDict = {
     ): MayWarn<MatrixV<ad.Num>> => {
       return noWarn({
         tag: "MatrixV",
-        contents: ortho(Left,Right,Bottom,Top,zNear,zFar),
+        contents: ortho(Left, Right, Bottom, Top, zNear, zFar),
       });
     },
     returns: valueT("RealNM"),
   },
 
+  project: {
+    name: "project",
+    description: "Transforms the specified object coordinates into window coordinates using a given model and projection transformation, and a given viewport.  It returns the projected x,y coordinates, as well as the depth relative to the view.",
+    params: [
+      { name: "p", description: "3D object coordinates (x,y,z)", type: realNT() },
+      { name: "model", description: "4x4 modelview matrix", type: realNMT() },
+      { name: "proj", description: "4x4 projection matrix", type: realNMT() },
+      { name: "view", description: "viewport (x, y, width, height)", type: realNT() },
+    ],
+    body: (
+      _context: Context,
+      p: ad.Num[],
+      model: ad.Num[][],
+      proj: ad.Num[][],
+      view: ad.Num[]
+    ): MayWarn<VectorV<ad.Num>> => {
+      return noWarn({
+        tag: "VectorV",
+        contents: project(p, model, proj, view)
+      });
+    },
+    returns: valueT("RealN"),
+  },
 
   /* ======== END MATRIX FUNCTIONS ======== */
 
@@ -6628,7 +6651,7 @@ const project = (
 //       + lookAt
 //       + perspective
 //       + ortho
-//       - project
+//       + project
 //       - fromHomogeneous
 //       - toHomogeneous
 //       - toHomogeneousMatrix
