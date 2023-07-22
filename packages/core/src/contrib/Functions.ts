@@ -968,6 +968,24 @@ export const compDict = {
     returns: valueT("RealNM"),
   },
 
+  skew: {
+    name: "skew",
+    description: "Given a 3-vector `v`, returns a 3x3 skew symmetric matrix `A` such that `Au = v x u` for any vector `u`.",
+    params: [
+      { name: "v", description: "Vector `v`", type: realNT() },
+    ],
+    body: (
+      _context: Context,
+      v: ad.Num[]
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: skew(v),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
   rotate: {
     name: "rotate",
     description: "Returns a 2D rotation by an angle `theta`.  (Note: this transformation is encoded as a 3x3 matrix in homogeneous coordinates, so that it can be composed with 2D affine transformations.  For the 2x2 linear version, see `rotate2D()`.)",
@@ -1186,23 +1204,80 @@ export const compDict = {
     returns: valueT("RealNM"),
   },
 
-  skew: {
-    name: "skew",
-    description: "Given a 3-vector `v`, returns a 3x3 skew symmetric matrix `A` such that `Au = v x u` for any vector `u`.",
+  lookAt: {
+    name: "lookAt",
+    description: "Returns a 4x4 viewing matrix derived from an eye point, a reference point indicating the center of the scene, and an up vector.  The matrix maps the reference point to the negative z axis and the eye point to the origin. When a typical projection matrix is used, the center of the scene therefore maps to the center of the viewport. Similarly, the direction described by the up vector projected onto the viewing plane is mapped to the positive y axis so that it points upward in the viewport. The up vector must not be parallel to the line of sight from the eye point to the reference point.",
     params: [
-      { name: "v", description: "Vector `v`", type: realNT() },
+      { name: "eye", description: "position of the eye point", type: realNT() },
+      { name: "center", description: "position of the reference point", type: realNT() },
+      { name: "up", description: "direction of the up vector", type: realNT() },
     ],
     body: (
       _context: Context,
-      v: ad.Num[]
+      eye: ad.Num[],
+      center: ad.Num[],
+      up: ad.Num[]
     ): MayWarn<MatrixV<ad.Num>> => {
       return noWarn({
         tag: "MatrixV",
-        contents: skew(v),
+        contents: lookAt(eye,center,up),
       });
     },
     returns: valueT("RealNM"),
   },
+
+  perspective: {
+    name: "perspective",
+    description: "Returns a 4x4 perspective projection matrix.  The aspect ratio should match the aspect ratio of the associated viewport.  For example, aspect = 2.0 means the viewer's angle of view is twice as wide in x as it is in y.  If the viewport is twice as wide as it is tall, it displays the image without distortion.",
+    params: [
+      { name: "fovy", description: "field of view angle, in degrees, in the y direction", type: realT() },
+      { name: "aspect", description: "aspect ratio that determines the field of view in the x direction, equal to the ratio of x (width) to y (height)", type: realT() },
+      { name: "zNear", description: "distance from the viewer to the near clipping plane (always positive)", type: realT() },
+      { name: "zFar", description: "distance from the viewer to the far clipping plane (always positive)", type: realT() },
+    ],
+    body: (
+      _context: Context,
+      fovy: ad.Num,
+      aspect: ad.Num,
+      zNear: ad.Num,
+      zFar: ad.Num
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: perspective(fovy,aspect,zNear,zFar),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  ortho: {
+    name: "ortho",
+    description: "Returns a 4x4 transformation that produces a parallel projection.",
+    params: [
+      { name: "Left", description: "coordinate of the left vertical clipping plane", type: realT() },
+      { name: "Right", description: "coordinate of the right vertical clipping plane", type: realT() },
+      { name: "Bottom", description: "coordinate of the bottom horizontal clipping plane", type: realT() },
+      { name: "Top", description: "coordinate of the top horizontal clipping plane", type: realT() },
+      { name: "zNear", description: "distance to the nearer depth clipping plane (negative if the plane is behind the viewer)", type: realT() },
+      { name: "zFar", description: "distance to the farther depth clipping plane (negative if the plane is behind the viewer)", type: realT() },
+    ],
+    body: (
+      _context: Context,
+      Left: ad.Num,
+      Right: ad.Num,
+      Bottom: ad.Num,
+      Top: ad.Num,
+      zNear: ad.Num,
+      zFar: ad.Num
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: ortho(Left,Right,Bottom,Top,zNear,zFar),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
 
   /* ======== END MATRIX FUNCTIONS ======== */
 
@@ -6537,9 +6612,9 @@ const project = (
 //       + scale3D
 //       + shear
 //       + translate
-//       - lookAt
-//       - perspective
-//       - ortho
+//       + lookAt
+//       + perspective
+//       + ortho
 //       - project
 //       - toHomogeneous
 //       - toHomogeneousMatrix
