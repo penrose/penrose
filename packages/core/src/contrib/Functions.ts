@@ -1302,6 +1302,60 @@ export const compDict = {
     returns: valueT("RealN"),
   },
 
+  fromHomogeneous: {
+    name: "fromHomogeneous",
+    description: "Given a vector `q` of length `n`+1, encoding a point in `n`-dimensional homogeneous coordinates, returns a vector `p` of length `n`, encoding the same point in Cartesian coordinates.",
+    params: [
+      { name: "q", description: "homogeneous coordinates", type: realNT() },
+    ],
+    body: (
+      _context: Context,
+      q: ad.Num[]
+    ): MayWarn<VectorV<ad.Num>> => {
+      return noWarn({
+        tag: "VectorV",
+        contents: fromHomogeneous(q)
+      });
+    },
+    returns: valueT("RealN"),
+  },
+
+  toHomogeneous: {
+    name: "toHomogeneous",
+    description: "Given a vector `p` of length `n`, encoding a point in `n`-dimensional Cartesian coordinates, returns a vector `q` of length `n`+1, encoding the same point in homogeneous coordinates.",
+    params: [
+      { name: "p", description: "Cartesian coordinates", type: realNT() },
+    ],
+    body: (
+      _context: Context,
+      p: ad.Num[]
+    ): MayWarn<VectorV<ad.Num>> => {
+      return noWarn({
+        tag: "VectorV",
+        contents: toHomogeneous(p)
+      });
+    },
+    returns: valueT("RealN"),
+  },
+
+  toHomogeneousMatrix: {
+    name: "toHomogeneousMatrix",
+    description: "Given a square `n` x `n` matrix `A` representing a spatial transformation in `n` dimensions, returns an (`n`+1) x (`n`+1) matrix representing the same transformation in homogeneous coordinates.",
+    params: [
+      { name: "A", description: "matrix encoding linear transformation", type: realNMT() },
+    ],
+    body: (
+      _context: Context,
+      A: ad.Num[][]
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: toHomogeneousMatrix(A)
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
   /* ======== END MATRIX FUNCTIONS ======== */
 
   /**
@@ -6634,7 +6688,7 @@ const project = (
 
 // TODO:
 //    + implement methods described at https://glm.g-truc.net/0.9.5/api/a00176.html (you may be able to use MESA)
-//    - write Style wrappers (2D, 2DH, 3D, 3DH)
+//    + write Style wrappers (2D, 2DH, 3D, 3DH)
 //       + identity
 //       + diagonal
 //       + trace
@@ -6652,9 +6706,9 @@ const project = (
 //       + perspective
 //       + ortho
 //       + project
-//       - fromHomogeneous
-//       - toHomogeneous
-//       - toHomogeneousMatrix
+//       + fromHomogeneous
+//       + toHomogeneous
+//       + toHomogeneousMatrix
 //    - refactor non-wrapped methods into MatrixFunctions.ts
 //    - add `then` operator to parser/compiler
 //    - write unit tests (i.e., trivially checkable examples)
