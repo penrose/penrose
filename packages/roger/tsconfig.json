@@ -2,9 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "dist",
-    "sourceMap": true,
-    "noImplicitThis": true,
     "resolveJsonModule": true,
-    "strictNullChecks": true
+    "sourceMap": true
   }
 }
