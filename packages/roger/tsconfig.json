@@ -3,8 +3,6 @@
   "compilerOptions": {
     "outDir": "dist",
     "sourceMap": true,
-    "noImplicitThis": true,
-    "resolveJsonModule": true,
-    "strictNullChecks": true
+    "resolveJsonModule": true
   }
 }
