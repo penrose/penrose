@@ -21,6 +21,7 @@ const styleTypes: string[] =
   , "file"
   , "style"
   , "shape" // TODO: make sure this is the intended keyword
+  , "list"
   , "vec2"
   , "vec3"
   , "vec4"
