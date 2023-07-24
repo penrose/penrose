@@ -473,5 +473,9 @@
   "alloy-models/river-crossing/river-crossing": {
     "name": "Alloy: River Crossing",
     "gallery": false
+  },
+  "alloy-models/generic/generic": {
+    "name": "Alloy: Generic Style",
+    "gallery": false
   }
 }

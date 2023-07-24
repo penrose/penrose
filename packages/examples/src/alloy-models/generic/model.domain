@@ -1,0 +1,12 @@
+type Univ
+
+type Edge
+type Subset
+
+type C <: Univ
+
+constructor A(Univ u) -> Subset
+constructor B(Univ u) -> Subset
+
+constructor R(Univ u1, Univ u2) -> Edge
+constructor Aux(Univ u1, Univ u2, Univ u3) -> Edge
