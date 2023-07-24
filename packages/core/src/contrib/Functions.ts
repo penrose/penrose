@@ -1188,17 +1188,41 @@ export const compDict = {
 
   translate: {
     name: "translate",
-    description: "Given an `n`-dimensional vector `v`, returns a translation of `n`-dimensional space by `v`.  (Note: since this transformation is affine rather than linear, it is encoded as a (`n`+1)x(`n`+1) matrix in homogeneous coordinates.)",
+    description: "Returns a translation by the given offset (`x`,`y`).  (Note: since this transformation is affine rather than linear, it is encoded as a 3x3 matrix in homogeneous coordinates.)",
     params: [
-      { name: "v", description: "direction of translation", type: realNT() },
+      { name: "x", description: "horizontal offset", type: realT() },
+      { name: "y", description: "vertical offset", type: realT() },
     ],
     body: (
       _context: Context,
-      v: ad.Num[]
+      x: ad.Num,
+      y: ad.Num
     ): MayWarn<MatrixV<ad.Num>> => {
       return noWarn({
         tag: "MatrixV",
-        contents: translate(v),
+        contents: translate([x,y]),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  translate3D: {
+    name: "translate3D",
+    description: "Returns a translation by the given offset (`x`,`y`,`z`).  (Note: since this transformation is affine rather than linear, it is encoded as a 4x4 matrix in homogeneous coordinates.)",
+    params: [
+      { name: "x", description: "x offset", type: realT() },
+      { name: "y", description: "y offset", type: realT() },
+      { name: "z", description: "z offset", type: realT() },
+    ],
+    body: (
+      _context: Context,
+      x: ad.Num,
+      y: ad.Num,
+      z: ad.Num
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: translate([x,y,z]),
       });
     },
     returns: valueT("RealNM"),
