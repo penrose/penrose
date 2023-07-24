@@ -968,8 +968,8 @@ export const compDict = {
     returns: valueT("RealNM"),
   },
 
-  skew: {
-    name: "skew",
+  crossProductMatrix: {
+    name: "crossProductMatrix",
     description: "Given a 3-vector `v`, returns a 3x3 skew symmetric matrix `A` such that `Au = v x u` for any vector `u`.",
     params: [
       { name: "v", description: "Vector `v`", type: realNT() },
@@ -980,7 +980,7 @@ export const compDict = {
     ): MayWarn<MatrixV<ad.Num>> => {
       return noWarn({
         tag: "MatrixV",
-        contents: skew(v),
+        contents: crossProductMatrix(v),
       });
     },
     returns: valueT("RealNM"),
@@ -1176,6 +1176,82 @@ export const compDict = {
       return noWarn({
         tag: "MatrixV",
         contents: toHomogeneousMatrix(scale3D(sx,sy,sz)),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  skew: {
+    name: "skew",
+    description: "Given angles `ax` and `ay`, returns a transformation skewing an element on the 2D plane.  If `ay` is not defined, its default value is `0`, resulting in a purely horizontal skewing.  (Note: this transformation is encoded as a 3x3 matrix in homogeneous coordinates, so that it can be composed with affine transformations.  For the linear version, see `skew2D()`.)",
+    params: [
+      { name: "ax", description: "horizontal angle", type: realT() },
+      { name: "ay", description: "vertical angle", type: realT(), default: 0 },
+    ],
+    body: (
+      _context: Context,
+      ax: ad.Num,
+      ay: ad.Num
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: toHomogeneousMatrix(skew(ax,ay)),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  skewX: {
+    name: "skewX",
+    description: "Given an angle `a`, returns a transformation skewing an element horizontally on the 2D plane. (Note: this transformation is encoded as a 3x3 matrix in homogeneous coordinates, so that it can be composed with affine transformations..)",
+    params: [
+      { name: "a", description: "skew angle", type: realT() },
+    ],
+    body: (
+      _context: Context,
+      a: ad.Num
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: toHomogeneousMatrix(skew(a,0)),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  skewY: {
+    name: "skewY",
+    description: "Given an angle `a`, returns a transformation skewing an element vertically on the 2D plane. (Note: this transformation is encoded as a 3x3 matrix in homogeneous coordinates, so that it can be composed with affine transformations..)",
+    params: [
+      { name: "a", description: "skew angle", type: realT() },
+    ],
+    body: (
+      _context: Context,
+      a: ad.Num
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: toHomogeneousMatrix(skew(0,a)),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  skew2D: {
+    name: "skew2D",
+    description: "Given angles `ax` and `ay`, returns a transformation skewing an element on the 2D plane.  If `ay` is not defined, its default value is `0`, resulting in a purely horizontal skewing.  (Note: this transformation is encoded as a 2x2 matrix that cannot directly be composed with 2D affine transformations.  For the 3x3 affine version, see `skew()`.)",
+    params: [
+      { name: "ax", description: "horizontal angle", type: realT() },
+      { name: "ay", description: "vertical angle", type: realT(), default: 0 },
+    ],
+    body: (
+      _context: Context,
+      ax: ad.Num,
+      ay: ad.Num
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: skew(ax,ay),
       });
     },
     returns: valueT("RealNM"),
@@ -6494,9 +6570,20 @@ const outer = (
   return A;
 };
 
+// Given angles `ax` and `ay`, returns a 2x2 matrix
+// skewing an element on the 2D plane.
+const skew = (
+  ax: ad.Num,
+  ay: ad.Num
+): ad.Num[][] => {
+
+   return [ [        1,  tan(ax) ],
+            [  tan(ay),  1       ] ];
+};
+
 // Given a 3-vector v, returns a 3x3 skew symmetric
 // matrix v̂ such that v̂u = v x u for any vector u.
-const skew = (
+const crossProductMatrix = (
   v: ad.Num[]
 ): ad.Num[][] => {
 
@@ -6533,7 +6620,7 @@ const rotate3D = (
    // where v̂ is the skew-symmetric matrix such
    // that v̂u = v x u for any vector u.
    const I = identity(3);
-   const vhat = skew(v);
+   const vhat = crossProductMatrix(v);
    return ops.mmadd( ops.mmadd( I, ops.smmul(sin(theta), vhat) ), ops.smmul( sub(1.,cos(theta)), ops.mmmul(vhat,vhat) ) );
 };
 
@@ -6755,7 +6842,8 @@ const project = (
 //       + determinant
 //       + inverse
 //       + outer
-//       + skew
+//       - skew
+//       + crossProductMatrix
 //       + rotate[2D]
 //       + rotate3D[H]
 //       + scale2D
