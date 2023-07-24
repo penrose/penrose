@@ -6447,9 +6447,9 @@ const diffusionProcess = (
 
 // Returns the n x n identity matrix.
 const identity = (n: number): ad.Num[][] => {
-   const I = new Array(n);
+   const I = [];
    for (let i = 0; i < n; i++) {
-      I[i] = new Array(n);
+      I[i] = [];
       for (let j = 0; j < n; j++) {
          I[i][j] = (i===j ? 1 : 0);
       }
@@ -6463,9 +6463,9 @@ const diagonal = (
   v: ad.Num[]
 ): ad.Num[][] => {
    const n = v.length;
-   const D = new Array(n);
+   const D = [];
    for (let i = 0; i < n; i++) {
-      D[i] = new Array(n);
+      D[i] = [];
       for (let j = 0; j < n; j++) {
          D[i][j] = (i===j ? v[i] : 0);
       }
@@ -6524,18 +6524,18 @@ const inverse = (
    let detA: ad.Num = 0;
 
    if( n == 2 ) {
-      C = new Array(2);
+      C = [];
       C[0] = [ A[1][1], neg(A[0][1]) ];
       C[1] = [ neg(A[1][0]), A[0][0] ];
       detA = add( mul(A[0][0],C[0][0]), mul(A[0][1],C[1][0]));
    } else if( n == 3 ) {
-      C = new Array(3);
+      C = [];
       C[0] = [ sub(mul(A[1][1],A[2][2]), mul(A[1][2],A[2][1])), sub(mul(A[0][2],A[2][1]), mul(A[0][1],A[2][2])), sub(mul(A[0][1],A[1][2]), mul(A[0][2],A[1][1])) ];
       C[1] = [ sub(mul(A[1][2],A[2][0]), mul(A[1][0],A[2][2])), sub(mul(A[0][0],A[2][2]), mul(A[0][2],A[2][0])), sub(mul(A[0][2],A[1][0]), mul(A[0][0],A[1][2])) ];
       C[2] = [ sub(mul(A[1][0],A[2][1]), mul(A[1][1],A[2][0])), sub(mul(A[0][1],A[2][0]), mul(A[0][0],A[2][1])), sub(mul(A[0][0],A[1][1]), mul(A[0][1],A[1][0])) ];
       detA = add( add( mul(A[0][0],C[0][0]), mul(A[0][1],C[1][0])), mul(A[0][2],C[2][0]));
    } else if( n == 4 ) {
-      C = new Array(4);
+      C = [];
       C[0] = [ add(add(sub(mul(mul(A[1][2],A[2][3]),A[3][1]), mul(mul(A[1][3],A[2][2]),A[3][1])), sub(mul(mul(A[1][3],A[2][1]),A[3][2]), mul(mul(A[1][1],A[2][3]),A[3][2]))), sub(mul(mul(A[1][1],A[2][2]),A[3][3]), mul(mul(A[1][2],A[2][1]),A[3][3]))), add(add(sub(mul(mul(A[0][3],A[2][2]),A[3][1]), mul(mul(A[0][2],A[2][3]),A[3][1])), sub(mul(mul(A[0][1],A[2][3]),A[3][2]), mul(mul(A[0][3],A[2][1]),A[3][2]))), sub(mul(mul(A[0][2],A[2][1]),A[3][3]), mul(mul(A[0][1],A[2][2]),A[3][3]))), add(add(sub(mul(mul(A[0][2],A[1][3]),A[3][1]), mul(mul(A[0][3],A[1][2]),A[3][1])), sub(mul(mul(A[0][3],A[1][1]),A[3][2]), mul(mul(A[0][1],A[1][3]),A[3][2]))), sub(mul(mul(A[0][1],A[1][2]),A[3][3]), mul(mul(A[0][2],A[1][1]),A[3][3]))), add(add(sub(mul(mul(A[0][3],A[1][2]),A[2][1]), mul(mul(A[0][2],A[1][3]),A[2][1])), sub(mul(mul(A[0][1],A[1][3]),A[2][2]), mul(mul(A[0][3],A[1][1]),A[2][2]))), sub(mul(mul(A[0][2],A[1][1]),A[2][3]), mul(mul(A[0][1],A[1][2]),A[2][3]))) ];
       C[1] = [ add(add(sub(mul(mul(A[1][3],A[2][2]),A[3][0]), mul(mul(A[1][2],A[2][3]),A[3][0])), sub(mul(mul(A[1][0],A[2][3]),A[3][2]), mul(mul(A[1][3],A[2][0]),A[3][2]))), sub(mul(mul(A[1][2],A[2][0]),A[3][3]), mul(mul(A[1][0],A[2][2]),A[3][3]))), add(add(sub(mul(mul(A[0][2],A[2][3]),A[3][0]), mul(mul(A[0][3],A[2][2]),A[3][0])), sub(mul(mul(A[0][3],A[2][0]),A[3][2]), mul(mul(A[0][0],A[2][3]),A[3][2]))), sub(mul(mul(A[0][0],A[2][2]),A[3][3]), mul(mul(A[0][2],A[2][0]),A[3][3]))), add(add(sub(mul(mul(A[0][3],A[1][2]),A[3][0]), mul(mul(A[0][2],A[1][3]),A[3][0])), sub(mul(mul(A[0][0],A[1][3]),A[3][2]), mul(mul(A[0][3],A[1][0]),A[3][2]))), sub(mul(mul(A[0][2],A[1][0]),A[3][3]), mul(mul(A[0][0],A[1][2]),A[3][3]))), add(add(sub(mul(mul(A[0][2],A[1][3]),A[2][0]), mul(mul(A[0][3],A[1][2]),A[2][0])), sub(mul(mul(A[0][3],A[1][0]),A[2][2]), mul(mul(A[0][0],A[1][3]),A[2][2]))), sub(mul(mul(A[0][0],A[1][2]),A[2][3]), mul(mul(A[0][2],A[1][0]),A[2][3]))) ];
       C[2] = [ add(add(sub(mul(mul(A[1][1],A[2][3]),A[3][0]), mul(mul(A[1][3],A[2][1]),A[3][0])), sub(mul(mul(A[1][3],A[2][0]),A[3][1]), mul(mul(A[1][0],A[2][3]),A[3][1]))), sub(mul(mul(A[1][0],A[2][1]),A[3][3]), mul(mul(A[1][1],A[2][0]),A[3][3]))), add(add(sub(mul(mul(A[0][3],A[2][1]),A[3][0]), mul(mul(A[0][1],A[2][3]),A[3][0])), sub(mul(mul(A[0][0],A[2][3]),A[3][1]), mul(mul(A[0][3],A[2][0]),A[3][1]))), sub(mul(mul(A[0][1],A[2][0]),A[3][3]), mul(mul(A[0][0],A[2][1]),A[3][3]))), add(add(sub(mul(mul(A[0][1],A[1][3]),A[3][0]), mul(mul(A[0][3],A[1][1]),A[3][0])), sub(mul(mul(A[0][3],A[1][0]),A[3][1]), mul(mul(A[0][0],A[1][3]),A[3][1]))), sub(mul(mul(A[0][0],A[1][1]),A[3][3]), mul(mul(A[0][1],A[1][0]),A[3][3]))), add(add(sub(mul(mul(A[0][3],A[1][1]),A[2][0]), mul(mul(A[0][1],A[1][3]),A[2][0])), sub(mul(mul(A[0][0],A[1][3]),A[2][1]), mul(mul(A[0][3],A[1][0]),A[2][1]))), sub(mul(mul(A[0][1],A[1][0]),A[2][3]), mul(mul(A[0][0],A[1][1]),A[2][3]))) ];
@@ -6554,7 +6554,7 @@ const fromHomogeneous = (
   q: ad.Num[]
 ): ad.Num[] => {
    const n = q.length - 1;
-   const p: ad.Num[] = new Array(n);
+   const p: ad.Num[] = [];
    for( let i = 0; i < n; i++ ) {
       p[i] = div(q[i],q[n]);
    }
@@ -6567,7 +6567,7 @@ const toHomogeneous = (
   p: ad.Num[]
 ): ad.Num[] => {
    const n = p.length;
-   const q: ad.Num[] = new Array(n+1);
+   const q: ad.Num[] = [];
    for( let i = 0; i < n; i++ ) {
       q[i] = p[i];
    }
@@ -6582,9 +6582,9 @@ const toHomogeneousMatrix = (
   A: ad.Num[][]
 ): ad.Num[][] => {
    const n = A.length;
-   const B = new Array(n+1);
+   const B = [];
    for( let i = 0; i < n+1; i++ ) {
-      B[i] = new Array(n+1);
+      B[i] = [];
       for( let j = 0; j < n+1; j++ ) {
          B[i][j] = 0;
       }
@@ -6714,9 +6714,9 @@ const translate = (
   v: ad.Num[]
 ): ad.Num[][] => {
    const n = v.length;
-   const A = new Array(n+1);
+   const A = [];
    for( let i = 0; i < n+1; i++ ) {
-      A[i] = new Array(n+1);
+      A[i] = [];
       for( let j = 0; j < n; j++ ) {
          A[i][j] = (i===j ? 1 : 0);
       }
@@ -6757,9 +6757,9 @@ const lookAt =(
    const side = ops.vnormalize( ops.cross3( forward, up ));
    const vert = ops.cross3( side, forward );
 
-   const M: ad.Num[][] = new Array(4);
+   const M: ad.Num[][] = [];
    for( let i = 0; i < 4; i++ ) {
-      M[i] = new Array(4);
+      M[i] = [];
    }
 
    M[0][0] = side[0];
@@ -6777,10 +6777,10 @@ const lookAt =(
    M[2][2] = -forward[2];
    M[3][2] = 0;
 
-   M[0][1] = 0;
-   M[1][1] = 0;
-   M[2][1] = 0;
-   M[3][1] = 1;
+   M[0][3] = 0;
+   M[1][3] = 0;
+   M[2][3] = 0;
+   M[3][3] = 1;
 
    const T = translate( ops.vneg(eye) );
    return ops.mmmul( M, T );
@@ -6948,10 +6948,10 @@ const matrix3d = (
 //       + fromHomogeneous
 //       + toHomogeneous
 //       + toHomogeneousMatrix
-//       - matrix
-//       - matrix3d
+//       + matrix
+//       + matrix3d
 //    - refactor non-wrapped methods into MatrixFunctions.ts
-//    - add `then` operator to parser/compiler
+//    + add `then` operator to parser/compiler
 //    - write unit tests (i.e., trivially checkable examples)
 //    - write usage examples
 
