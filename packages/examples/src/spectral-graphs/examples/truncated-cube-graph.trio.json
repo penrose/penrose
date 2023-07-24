@@ -1,0 +1,6 @@
+{
+  "substance": "./truncated-cube-graph.substance",
+  "style": ["../3d.style"],
+  "domain": "../graph.domain",
+  "variation": "ParamountMonkey376"
+}

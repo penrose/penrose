@@ -1,0 +1,6 @@
+{
+  "substance": "./periodic-hexagonal-lattice.substance",
+  "style": ["../3d.style"],
+  "domain": "../graph.domain",
+  "variation": "BeetrootFrog89085"
+}
