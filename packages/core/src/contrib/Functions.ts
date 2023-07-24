@@ -1059,7 +1059,7 @@ export const compDict = {
 
   rotate3D: {
     name: "rotate3D",
-    description: "Returns a 3D rotation by a given angle `theta` around a unit axis `v`.  (Note: this transformation is encoded as a 3x3 matrix that cannot directly be composed with 3D affine transformations.  For the 4x4 affine version, see `rotate3DH()`.)",
+    description: "Returns a 3D rotation by a given angle `theta` around a unit axis `v`.  (Note: this transformation is encoded as a 3x3 matrix that cannot directly be composed with 3D affine transformations.  For the 4x4 affine version, see `rotate3dh()`.)",
     params: [
       { name: "theta", description: "angle of rotation (in radians)", type: realT() },
       { name: "v", description: "axis of rotation (unit vector)", type: realNT() },
@@ -1077,8 +1077,8 @@ export const compDict = {
     returns: valueT("RealNM"),
   },
 
-  rotate3DH: {
-    name: "rotate3DH",
+  rotate3dh: {
+    name: "rotate3dh",
     description: "Returns a 3D rotation by a given angle `theta` around a unit axis `v`.  (Note: this transformation is encoded as a 4x4 matrix in homogeneous coordinates, so that it can be composed with 3D affine transformations.  For the 3x3 linear version, see `rotate3D()`.)",
     params: [
       { name: "theta", description: "angle of rotation (in radians)", type: realT() },
@@ -1139,7 +1139,7 @@ export const compDict = {
 
   scale3D: {
     name: "scale",
-    description: "Returns a nonuniform scaling by factors `sx`, `sy`, `sz` along `x`, `y`, `z` axes, respectively.  (Note: this transformation is encoded as a 3x3 matrix that cannot directly be composed with 3D affine transformations.  For the 4x4 affine version, see `scale3DH()`.)",
+    description: "Returns a nonuniform scaling by factors `sx`, `sy`, `sz` along `x`, `y`, `z` axes, respectively.  (Note: this transformation is encoded as a 3x3 matrix that cannot directly be composed with 3D affine transformations.  For the 4x4 affine version, see `scale3dh()`.)",
     params: [
       { name: "sx", description: "x scale factor", type: realT() },
       { name: "sy", description: "y scale factor", type: realT() },
@@ -1159,7 +1159,7 @@ export const compDict = {
     returns: valueT("RealNM"),
   },
 
-  scale3DH: {
+  scale3dh: {
     name: "scale",
     description: "Returns a 4x4 matrix representing nonuniform scaling by factors `sx`, `sy`, `sz` along `x`, `y`, `z` axes, respectively.  (Note: this transformation is encoded as a 4x4 matrix in homogeneous coordinates, so that it can be composed with 3D affine transformations.  For the 3x3 linear version, see `scale3D()`.)",
     params: [
@@ -1317,8 +1317,8 @@ export const compDict = {
     returns: valueT("RealNM"),
   },
 
-  translate3D: {
-    name: "translate3D",
+  translate3d: {
+    name: "translate3d",
     description: "Returns a translation by the given offset (`x`,`y`,`z`).  (Note: since this transformation is affine rather than linear, it is encoded as a 4x4 matrix in homogeneous coordinates.)",
     params: [
       { name: "x", description: "x offset", type: realT() },
@@ -6606,7 +6606,7 @@ const rotate2D = (
 
 // Given an angle theta and a unit 3-vector v, returns
 // the 3x3 matrix representing a rotation by theta around v.
-const rotate3D = (
+const rotate3d = (
   theta: ad.Num,
   v: ad.Num[]
 ): ad.Num[][] => {
@@ -6635,7 +6635,7 @@ const scale2D = (
 
 // Returns a 3x3 matrix representing nonuniform scaling by factors sx, sy, sz
 // along x, y, z axes, respectively.
-const scale3D = (
+const scale3d = (
   sx: ad.Num,
   sy: ad.Num,
   sz: ad.Num
@@ -6835,7 +6835,7 @@ const project = (
 
 // TODO:
 //    + implement methods described at https://glm.g-truc.net/0.9.5/api/a00176.html (you may be able to use MESA)
-//    + write Style wrappers (2D, 2DH, 3D, 3DH)
+//    + write Style wrappers (2d, 2dh, 3d, 3dh)
 //       + identity
 //       + diagonal
 //       + trace
@@ -6844,10 +6844,10 @@ const project = (
 //       + outer
 //       - skew
 //       + crossProductMatrix
-//       + rotate[2D]
-//       + rotate3D[H]
-//       + scale2D
-//       + scale3D
+//       + rotate[2d]
+//       + rotate3d[h]
+//       + scale2d
+//       + scale3d
 //       + shear
 //       + translate
 //       + lookAt
