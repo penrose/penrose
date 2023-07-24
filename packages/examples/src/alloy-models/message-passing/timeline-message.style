@@ -1,0 +1,129 @@
+canvas {
+    width = 1000
+    height = 1000
+}
+
+general {
+    startY = ?
+    endY = ?
+
+    startX = ?
+    endX = ?
+}
+
+forall Party p {
+    p.iconTop = Circle {
+        r : 50
+        fillColor: #ffffffff
+        strokeColor: #000000ff
+        strokeWidth: 2
+    }
+
+    p.textTop = Text {
+        string: p.label
+        fontSize: "20px"
+        center: p.iconTop.center
+    }
+
+    p.xCoord = p.iconTop.center[0]
+    p.yCoord = p.iconTop.center[1]
+
+    p.line = Line {
+        start: (p.xCoord, p.iconTop.center[1])
+        end: (p.xCoord, p.iconTop.center[1] - 800)
+        endArrowhead: "straight"
+        strokeStyle: "dashed"
+        strokeWidth: 2
+    }
+
+    override general.startY = p.line.start[1] - 150
+    override general.endY = p.line.end[1]
+
+    p.icon = Group {
+        shapes: [p.iconTop, p.textTop, p.line]
+    }
+
+    layer p.line below p.iconTop
+}
+
+collect Party party into parties {
+    xs = listof xCoord from parties
+    override general.startX = minList(xs)
+    override general.endX = maxList(xs)
+}
+
+forall Party p1; Party p2 {
+    ensure p1.yCoord == p2.yCoord
+    ensure disjoint(p1.icon, p2.icon)
+}
+
+forall Time t {
+    t.lineYCoord = general.startY - (match_id - 1) * (general.startY - general.endY) / match_total
+
+    t.topYCoord = t.lineYCoord + (general.startY - general.endY) / match_total
+    t.bottomYCoord = t.lineYCoord
+
+    t.line = Line {
+        start: (general.startX - 50, t.lineYCoord)
+        end: (general.endX, t.lineYCoord)
+        strokeStyle: "dashed"
+        strokeColor: #aaaaaaff
+    }
+    t.text = Equation {
+        string: t.label
+        center: (general.startX - 25, t.lineYCoord + 50)
+        fontSize: "25px"
+    }
+}
+
+forall Message m
+where m := MkMessage(t, ff, tt)
+with Time t; Party ff; Party tt {
+    m.yCoord = ?
+    ensure m.yCoord > t.bottomYCoord + 30
+    ensure m.yCoord < t.topYCoord - 30
+
+    m.line = Line {
+        start: (ff.xCoord, m.yCoord)
+        end: (tt.xCoord, m.yCoord)
+        endArrowhead: "straight"
+        strokeWidth: 3
+    }
+    m.marker1 = Circle {
+        center: (ff.xCoord, m.yCoord)
+        r: 5
+        fillColor: #00000055
+    }
+    m.marker2 = Circle {
+        center: (tt.xCoord, m.yCoord)
+        r: 5
+        fillColor: #00000055
+    }
+    m.text = Text {
+        string: m.label
+        fontSize: "15px"
+        strokeColor: #ffffffff
+        strokeWidth: 4
+        paintOrder: "stroke"
+    }
+
+    ensure shapeDistanceRectLine(rectPts(m.text), m.line.start, m.line.end) == 5
+    encourage 1000 * vdist(m.text.center, ((ff.xCoord + tt.xCoord) / 2, m.yCoord)) == 0
+    ensure m.text.width < abs(tt.xCoord - ff.xCoord) - 70
+}
+
+forall Message m1; Message m2 {
+    encourage notTooClose(m1.line, m2.line)
+}
+
+collect Message m into ms
+where m := MkMessage(t, ff, tt)
+with Party ff; Party tt
+foreach Time t;  {
+    avgY = (t.topYCoord + t.bottomYCoord) / 2
+    ensure average(listof yCoord from ms) == avgY
+}
+
+forall Message m; Party p {
+    layer m.text above p.icon
+}

@@ -1,0 +1,11 @@
+type Node
+type InboxNode
+
+
+type Edge
+
+constructor MakeEdge(Node a, Node b) -> Edge
+constructor MakeInboxNode(Node a, Node b) -> InboxNode
+
+
+predicate Leader(Node)

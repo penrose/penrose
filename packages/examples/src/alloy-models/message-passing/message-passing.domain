@@ -1,0 +1,7 @@
+type Time
+type Message
+
+type Party
+
+
+constructor MkMessage(Time t, Party from, Party to) -> Message

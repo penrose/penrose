@@ -1,0 +1,13 @@
+type Phil
+type Fork
+
+predicate LeftFork(Phil, Fork)
+predicate RightFork(Phil, Fork)
+predicate LeftPhil(Phil, Phil)
+predicate RightPhil(Phil, Phil)
+
+predicate Using(Fork, Phil)
+
+predicate PhilNext(Phil, Phil)
+
+predicate PhilFirst(Phil)
