@@ -457,5 +457,21 @@
   "spectral-graphs/examples/periodic-hexagonal-lattice": {
     "name": "Periodic Hexagonal Grid",
     "gallery": false
+  },
+  "alloy-models/dining-philosophers/dining-philosophers": {
+    "name": "Alloy: Dining Philosophers Problem",
+    "gallery": false
+  },
+  "alloy-models/message-passing/message-passing": {
+    "name": "Alloy: Conversation between Four Parties",
+    "gallery": false
+  },
+  "alloy-models/ring-leader-election/ring-leader-election": {
+    "name": "Alloy: Leader Election in Ring",
+    "gallery": false
+  },
+  "alloy-models/river-crossing/river-crossing": {
+    "name": "Alloy: River Crossing",
+    "gallery": false
   }
 }

@@ -1,0 +1,10 @@
+type Object
+type Chicken <: Object
+type Farmer <: Object
+type Grain <: Object
+type Fox <: Object
+
+predicate near(Object)
+predicate far(Object)
+
+predicate eats(Object, Object)

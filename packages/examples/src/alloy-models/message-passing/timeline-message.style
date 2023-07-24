@@ -54,7 +54,7 @@ collect Party party into parties {
 
 forall Party p1; Party p2 {
     ensure p1.yCoord == p2.yCoord
-    ensure disjoint(p1.icon, p2.icon)
+    ensure shapeDistanceRects(bboxPts(p1.icon), bboxPts(p2.icon)) > 0
 }
 
 forall Time t {
