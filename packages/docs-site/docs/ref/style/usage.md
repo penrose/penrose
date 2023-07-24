@@ -447,6 +447,24 @@ Due to technical constraints, we cannot access _any_ field of each element of th
 
 If, in the above example, `e1.field`, `e2.field`, etc. are numbers, then the expresion `listof field from elements` gives us a vector that contains all the values. We can directly plug the vector into accumulation functions such as `average` and `sum`.
 
+### Collection Count Expression
+
+We may want to count the number of elements in a collection of Substance variables. This is particularly useful when computing the spacing required between two objects. Using the aforementioned `listof` expressions, we can write
+
+```style
+collect Object o into os {
+    total = count(listof someprop from os)
+}
+```
+
+The `count` function takes a vector of numbers and returns the number of elements in the vector. Though this method works, it relies on the assumption that the `someprop` field exists in each `Object o` and that such a field is a number. To simplify this, we support the `countof` expression:
+
+```style
+countof <COLLECTION NAME>
+```
+
+This expression simply returns the number of elements in `<COLLECTION NAME>`.
+
 ## Expressions and their Types
 
 The list of supported Style types is:
@@ -650,3 +668,38 @@ Note that _elementside_ multiplication `.*` and division `./` get applied indepe
 - `A .* B` — elementwise product of `A` and `B`
 - `A ./ B` — elementwise quotient of `A` and `B`
 - `A'` — matrix transpose Aᵀ
+
+### Style-Variable-Level Expressions
+
+Some expressions directly take Style variables (in the header of selector or collector blocks) as arguments.
+
+Aside from the "[collection access expression](usage#collection-access-expression)" and "[collection count expression](usage#collection-count-expression)", we currently support the `nameof` expression that takes in any Style variable, and returns the name of the Substance variable that this Style variable maps to. This can be useful for displaying errors in the Substance program on the canvas.
+
+In the following example, we declare a set that is both empty and non-empty. This is logically inconsistent, so the Style program renders an error message onto the canvas containing the Substance name of the set that is inconsistent.
+
+::: code-group
+
+```domain
+type Set
+
+predicate IsEmpty(Set)
+predicate IsNonEmpty(Set)
+```
+
+```substance
+Set A
+IsEmpty(A)
+IsNonEmpty(A)
+```
+
+```style
+-- canvas specifications omitted
+forall Set x
+where IsEmpty(x); IsNonEmpty(x) {
+    errorText = Text {
+        string: "Set " + (nameof x) + " is both empty and non-empty, which is inconsistent"
+    }
+}
+```
+
+:::
