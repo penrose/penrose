@@ -1016,17 +1016,24 @@ export const compDict = {
 
   rotate: {
     name: "rotate",
-    description: "Returns a 2D rotation by an angle `theta`.  (Note: this transformation is encoded as a 3x3 matrix in homogeneous coordinates, so that it can be composed with 2D affine transformations.  For the 2x2 linear version, see `rotate2D()`.)",
+    description: "Returns a 2D rotation by an angle `theta` around the point (`x`,`y`).  If no point is specified, the rotation is around the origin.  (Note: this transformation is encoded as a 3x3 matrix in homogeneous coordinates, since in general it is an affine transformation.  For the 2x2 linear version, see `rotate2D()`.)",
     params: [
       { name: "theta", description: "angle of rotation (in radians)", type: realT() },
+      { name: "x", description: "center of rotation (x coordinate)", type: realT(), default: 0 },
+      { name: "y", description: "center of rotation (y coordinate)", type: realT(), default: 0 },
     ],
     body: (
       _context: Context,
-      theta: ad.Num
+      theta: ad.Num,
+      x: ad.Num,
+      y: ad.Num
     ): MayWarn<MatrixV<ad.Num>> => {
+       const R = toHomogeneousMatrix(rotate2D(theta));
+       const T = translate( [ x, y ] );
+       const Ti = translate( [ -x, -y ] );
       return noWarn({
         tag: "MatrixV",
-        contents: toHomogeneousMatrix(rotate2D(theta)),
+        contents: ops.mmmul( T, ops.mmmul( R, Ti )),
       });
     },
     returns: valueT("RealNM"),
@@ -1034,7 +1041,7 @@ export const compDict = {
 
   rotate2D: {
     name: "rotate2D",
-    description: "Returns a 2D rotation by a given angle `theta`.  (Note: this transformation is encoded as a 2x2 matrix that cannot directly be composed with 2D affine transformations.  For the 3x3 affine version, see `rotate()`.)",
+    description: "Returns a 2D rotation around the origin by a given angle `theta`.  (Note: this transformation is encoded as a 2x2 matrix that cannot directly be composed with 2D affine transformations.  For the 3x3 affine version, see `rotate()`.)",
     params: [
       { name: "theta", description: "angle of rotation (in radians)", type: realT() },
     ],
