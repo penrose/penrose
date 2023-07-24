@@ -213,7 +213,8 @@ export type StyleError =
   | TooManyArgumentsError
   | FunctionInternalError
   | RedeclareNamespaceError
-  | NotCollectionError
+  | NotSubstanceCollectionError
+  | NotStyleVariableError
   | LayerOnNonShapesError
   // Runtime errors
   | RuntimeValueTypeError;
@@ -516,8 +517,14 @@ export interface RedeclareNamespaceError {
   location: SourceRange; // location of the duplicated declaration
 }
 
-export interface NotCollectionError {
-  tag: "NotCollectionError";
+export interface NotSubstanceCollectionError {
+  tag: "NotSubstanceCollectionError";
+  name: string;
+  location: SourceRange;
+}
+
+export interface NotStyleVariableError {
+  tag: "NotStyleVariableError";
   name: string;
   location: SourceRange;
 }

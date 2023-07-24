@@ -51,6 +51,7 @@ const styleCustoms = {
     "with",
     "listof",
     "countof",
+    "nameof",
     "from",
     "delete",
     "as",

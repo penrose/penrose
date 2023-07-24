@@ -1080,7 +1080,7 @@ delete x.z.p }`,
         }
         `,
       ],
-      UnexpectedCollectionAccessError: [
+      NotSubstanceCollectionError: [
         `forall Set a {
           a.c = 10
           x = listof c from a
@@ -1354,7 +1354,7 @@ delete x.z.p }`,
         }
         collect T t into ts {
           Circle {
-            r: count(listof value from ts)
+            r: countof ts
           }
         }
       `;

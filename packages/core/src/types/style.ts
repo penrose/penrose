@@ -284,7 +284,7 @@ export type AvoidFn<T> = ASTNode<T> & {
   contents: [string, Expr<T>[]];
 };
 
-export type StyVarExpr<T> = CollectionAccess<T> | CountOf<T>;
+export type StyVarExpr<T> = CollectionAccess<T> | UnaryStyVarExpr<T>;
 
 export type CollectionAccess<T> = ASTNode<T> & {
   tag: "CollectionAccess";
@@ -292,9 +292,10 @@ export type CollectionAccess<T> = ASTNode<T> & {
   field: Identifier<T>;
 };
 
-export type CountOf<T> = ASTNode<T> & {
-  tag: "CountOf";
-  name: Identifier<T>;
+export type UnaryStyVarExpr<T> = ASTNode<T> & {
+  tag: "UnaryStyVarExpr";
+  op: "countof" | "nameof";
+  arg: Identifier<T>;
 };
 
 export type BinaryOp =

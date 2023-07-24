@@ -25,7 +25,8 @@ import {
   InvalidColorLiteral,
   MissingArgumentError,
   NaNError,
-  NotCollectionError,
+  NotStyleVariableError,
+  NotSubstanceCollectionError,
   ParseError,
   PenroseError,
   RedeclareNamespaceError,
@@ -555,10 +556,16 @@ canvas {
       } already exists and is redeclared in ${locc("Style", error.location)}.`;
     }
 
-    case "NotCollectionError": {
+    case "NotSubstanceCollectionError": {
       const { name, location } = error;
       const locStr = locc("Style", location);
-      return `The expression at ${locStr} expects \`${name}\` to be a collection, but it is not.`;
+      return `The expression at ${locStr} expects \`${name}\` to be a collection.`;
+    }
+
+    case "NotStyleVariableError": {
+      const { name, location } = error;
+      const locStr = locc("Style", location);
+      return `The expression at ${locStr} expects \`${name}\` to be a non-collection style variable.`;
     }
 
     case "LayerOnNonShapesError": {
@@ -842,7 +849,8 @@ export const errLocs = (
 
     case "FunctionInternalError":
     case "RedeclareNamespaceError":
-    case "NotCollectionError":
+    case "NotSubstanceCollectionError":
+    case "NotStyleVariableError":
     case "LayerOnNonShapesError": {
       return [
         toErrorLoc({
@@ -1097,11 +1105,20 @@ export const redeclareNamespaceError = (
   location,
 });
 
-export const notCollectionError = (
+export const notSubstanceCollectionError = (
   name: string,
   location: SourceRange,
-): NotCollectionError => ({
-  tag: "NotCollectionError",
+): NotSubstanceCollectionError => ({
+  tag: "NotSubstanceCollectionError",
+  name,
+  location,
+});
+
+export const notStyleVariableError = (
+  name: string,
+  location: SourceRange,
+): NotStyleVariableError => ({
+  tag: "NotStyleVariableError",
   name,
   location,
 });

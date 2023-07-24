@@ -131,7 +131,8 @@ import {
   err,
   invalidColorLiteral,
   isErr,
-  notCollectionError,
+  notStyleVariableError,
+  notSubstanceCollectionError,
   ok,
   parseError,
   redeclareNamespaceError,
@@ -2336,7 +2337,7 @@ const findPathsExpr = <T>(expr: Expr<T>, context: Context): Path<T>[] => {
         return [];
       }
     }
-    case "CountOf": {
+    case "UnaryStyVarExpr": {
       return [];
     }
   }
@@ -3241,7 +3242,7 @@ const evalExpr = (
       } else {
         return err(
           oneErr(
-            notCollectionError(name.value, {
+            notSubstanceCollectionError(name.value, {
               start: expr.start,
               end: expr.end,
             }),
@@ -3249,22 +3250,41 @@ const evalExpr = (
         );
       }
     }
-    case "CountOf": {
+    case "UnaryStyVarExpr": {
       const { subst } = context;
-      const { name } = expr;
-      if (subst.tag === "CollectionSubst" && name.value === subst.collName) {
-        return ok(val(floatV(subst.collContent.length)));
+      const { op, arg } = expr;
+      if (expr.op === "countof") {
+        return evalCountOf(subst, arg, { start: expr.start, end: expr.end });
       } else {
-        return err(
-          oneErr(
-            notCollectionError(name.value, {
-              start: expr.start,
-              end: expr.end,
-            }),
-          ),
-        );
+        return evalNameOf(subst, arg, { start: expr.start, end: expr.end });
       }
     }
+  }
+};
+
+const evalCountOf = (
+  subst: StySubst,
+  arg: Identifier<C>,
+  loc: SourceRange,
+): Result<ArgVal<ad.Num>, StyleDiagnostics> => {
+  if (subst.tag === "CollectionSubst" && arg.value === subst.collName) {
+    return ok(val(floatV(subst.collContent.length)));
+  } else {
+    return err(oneErr(notSubstanceCollectionError(arg.value, loc)));
+  }
+};
+
+const evalNameOf = (
+  subst: StySubst,
+  arg: Identifier<C>,
+  loc: SourceRange,
+): Result<ArgVal<ad.Num>, StyleDiagnostics> => {
+  if (subst.tag === "StySubSubst" && arg.value in subst.contents) {
+    return ok(val(strV(subst.contents[arg.value])));
+  } else if (subst.tag === "CollectionSubst" && arg.value in subst.groupby) {
+    return ok(val(strV(subst.groupby[arg.value])));
+  } else {
+    return err(oneErr(notStyleVariableError(arg.value, loc)));
   }
 };
 
@@ -3383,7 +3403,7 @@ const translateExpr = (
     case "Vary":
     case "Vector":
     case "CollectionAccess":
-    case "CountOf": {
+    case "UnaryStyVarExpr": {
       const res = evalExpr(mut, canvas, layoutStages, e, trans);
       if (res.isErr()) {
         return addDiags(res.error, trans);

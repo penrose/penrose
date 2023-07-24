@@ -89,7 +89,7 @@ describe("Selector Grammar", () => {
 
   forall Set A, B { }
 
-  forall Set A, \`B\`; Map f
+  forall repeatable Set A, \`B\`; Map f
   {
 
   }`;
@@ -480,6 +480,18 @@ const {
     r : 3.0
   }
 }`;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
+
+  test("styvar expr", () => {
+    const prog = `
+      forall A a {
+        x = countof a
+        y = listof a from a
+        z = nameof a
+      }
+    `;
     const { results } = parser.feed(prog);
     sameASTs(results);
   });

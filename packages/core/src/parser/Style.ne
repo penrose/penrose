@@ -8,7 +8,7 @@ import moo from "moo";
 import _ from 'lodash'
 import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil.js'
 import { C, ConcreteNode, Identifier, StringLit  } from "../types/ast.js";
-import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, Collector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, CollectionAccess, CountOf, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit, LayoutStages, FunctionCall, InlineComparison, ComparisonOp
+import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, Collector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, CollectionAccess, UnaryStyVarExpr, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit, LayoutStages, FunctionCall, InlineComparison, ComparisonOp
 } from "../types/style.js";
 
 const styleTypes: string[] =
@@ -53,6 +53,7 @@ const lexer = moo.compile({
       from: "from",
       listof: "listof",
       countof: "countof",
+      nameof: "nameof",
       delete: "delete",
       as: "as",
       true: "true",
@@ -650,12 +651,13 @@ sty_var_expr
        name, field
       })
     %}
-  | "countof" _ identifier {%
-      ([kw, , name]): CountOf<C> => ({
+  | ("countof" | "nameof") _ identifier {%
+      ([kw, , name]): UnaryStyVarExpr<C> => ({
         ...nodeData,
-        ...rangeBetween(kw, name),
-        tag: "CountOf",
-        name
+        ...rangeBetween(kw[0], name),
+        tag: "UnaryStyVarExpr",
+        op: kw[0].text,
+        arg: name
       })
   %}
 
