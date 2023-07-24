@@ -986,6 +986,34 @@ export const compDict = {
     returns: valueT("RealNM"),
   },
 
+  matrix: {
+    name: "matrix",
+    description: "Specifies a transformation matrix `[ a c e; b d f; 0 0 1]`, mirroring the SVG/CSS `matrix` transform function.",
+    params: [
+      { name: "a", description: "top left entry", type: realT() },
+      { name: "b", description: "middle left entry", type: realT() },
+      { name: "c", description: "top center entry", type: realT() },
+      { name: "d", description: "middle center entry", type: realT() },
+      { name: "e", description: "top right entry", type: realT() },
+      { name: "f", description: "middle right entry", type: realT() },
+    ],
+    body: (
+      _context: Context,
+      a: ad.Num,
+      b: ad.Num,
+      c: ad.Num,
+      d: ad.Num,
+      e: ad.Num,
+      f: ad.Num
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: [ [a,c,e], [b,d,f], [0,0,1] ],
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
   rotate: {
     name: "rotate",
     description: "Returns a 2D rotation by an angle `theta`.  (Note: this transformation is encoded as a 3x3 matrix in homogeneous coordinates, so that it can be composed with 2D affine transformations.  For the 2x2 linear version, see `rotate2D()`.)",
@@ -1188,10 +1216,10 @@ export const compDict = {
 
   translate: {
     name: "translate",
-    description: "Returns a translation by the given offset (`x`,`y`).  (Note: since this transformation is affine rather than linear, it is encoded as a 3x3 matrix in homogeneous coordinates.)",
+    description: "Returns a translation by the given offset `x`,`y`.  If `y` is not specified, it is assumed to be `0`. (Note: since this transformation is affine rather than linear, it is encoded as a 3x3 matrix in homogeneous coordinates.)",
     params: [
       { name: "x", description: "horizontal offset", type: realT() },
-      { name: "y", description: "vertical offset", type: realT() },
+      { name: "y", description: "vertical offset", type: realT(), default: 0 },
     ],
     body: (
       _context: Context,
