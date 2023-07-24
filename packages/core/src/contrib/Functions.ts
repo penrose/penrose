@@ -1008,7 +1008,55 @@ export const compDict = {
     ): MayWarn<MatrixV<ad.Num>> => {
       return noWarn({
         tag: "MatrixV",
-        contents: [ [a,c,e], [b,d,f], [0,0,1] ],
+        contents: matrix( a, b, c, d, e, f ),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  matrix3d: {
+    name: "matrix3d",
+    description: "Specifies a transformation matrix `[ a1 a2 a3 a4; b1 b2 b3 b4; c1 c2 c3 c4; d1 d2 d3 d4 ]`, mirroring the CSS `matrix3d` transform function.",
+    params: [
+      { name: "a1", description: "1st column of 1st row", type: realT() },
+      { name: "b1", description: "1st column of 2nd row", type: realT() },
+      { name: "c1", description: "1st column of 3rd row", type: realT() },
+      { name: "d1", description: "1st column of 4th row", type: realT() },
+      { name: "a2", description: "2nd column of 1st row", type: realT() },
+      { name: "b2", description: "2nd column of 2nd row", type: realT() },
+      { name: "c2", description: "2nd column of 3rd row", type: realT() },
+      { name: "d2", description: "2nd column of 4th row", type: realT() },
+      { name: "a3", description: "3rd column of 1st row", type: realT() },
+      { name: "b3", description: "3rd column of 2nd row", type: realT() },
+      { name: "c3", description: "3rd column of 3rd row", type: realT() },
+      { name: "d3", description: "3rd column of 4th row", type: realT() },
+      { name: "a4", description: "4th column of 1st row", type: realT() },
+      { name: "b4", description: "4th column of 2nd row", type: realT() },
+      { name: "c4", description: "4th column of 3rd row", type: realT() },
+      { name: "d4", description: "4th column of 4th row", type: realT() },
+    ],
+    body: (
+      _context: Context,
+      a1: ad.Num,
+      b1: ad.Num,
+      c1: ad.Num,
+      d1: ad.Num,
+      a2: ad.Num,
+      b2: ad.Num,
+      c2: ad.Num,
+      d2: ad.Num,
+      a3: ad.Num,
+      b3: ad.Num,
+      c3: ad.Num,
+      d3: ad.Num,
+      a4: ad.Num,
+      b4: ad.Num,
+      c4: ad.Num,
+      d4: ad.Num
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: matrix3d( a1, a2, a3, a4, b1, b2, b3, b4, c1, c2, c3, c4, d1, d2, d3, d4 ),
       });
     },
     returns: valueT("RealNM"),
@@ -1016,7 +1064,7 @@ export const compDict = {
 
   rotate: {
     name: "rotate",
-    description: "Returns a 2D rotation by an angle `theta` around the point (`x`,`y`).  If no point is specified, the rotation is around the origin.  (Note: this transformation is encoded as a 3x3 matrix in homogeneous coordinates, since in general it is an affine transformation.  For the 2x2 linear version, see `rotate2D()`.)",
+    description: "Returns a 2D rotation by an angle `theta` around the point (`x`,`y`).  If no point is specified, the rotation is around the origin.  (Note: this transformation is encoded as a 3x3 matrix in homogeneous coordinates, since in general it is an affine transformation.  For the 2x2 linear version, see `rotate2d()`.)",
     params: [
       { name: "theta", description: "angle of rotation (in radians)", type: realT() },
       { name: "x", description: "center of rotation (x coordinate)", type: realT(), default: 0 },
@@ -1028,7 +1076,7 @@ export const compDict = {
       x: ad.Num,
       y: ad.Num
     ): MayWarn<MatrixV<ad.Num>> => {
-       const R = toHomogeneousMatrix(rotate2D(theta));
+       const R = toHomogeneousMatrix(rotate2d(theta));
        const T = translate( [ x, y ] );
        const Ti = translate( [ -x, -y ] );
       return noWarn({
@@ -1039,8 +1087,8 @@ export const compDict = {
     returns: valueT("RealNM"),
   },
 
-  rotate2D: {
-    name: "rotate2D",
+  rotate2d: {
+    name: "rotate2d",
     description: "Returns a 2D rotation around the origin by a given angle `theta`.  (Note: this transformation is encoded as a 2x2 matrix that cannot directly be composed with 2D affine transformations.  For the 3x3 affine version, see `rotate()`.)",
     params: [
       { name: "theta", description: "angle of rotation (in radians)", type: realT() },
@@ -1051,14 +1099,14 @@ export const compDict = {
     ): MayWarn<MatrixV<ad.Num>> => {
       return noWarn({
         tag: "MatrixV",
-        contents: rotate2D(theta),
+        contents: rotate2d(theta),
       });
     },
     returns: valueT("RealNM"),
   },
 
-  rotate3D: {
-    name: "rotate3D",
+  rotate3d: {
+    name: "rotate3d",
     description: "Returns a 3D rotation by a given angle `theta` around a unit axis `v`.  (Note: this transformation is encoded as a 3x3 matrix that cannot directly be composed with 3D affine transformations.  For the 4x4 affine version, see `rotate3dh()`.)",
     params: [
       { name: "theta", description: "angle of rotation (in radians)", type: realT() },
@@ -1071,7 +1119,7 @@ export const compDict = {
     ): MayWarn<MatrixV<ad.Num>> => {
       return noWarn({
         tag: "MatrixV",
-        contents: rotate3D(theta,v),
+        contents: rotate3d(theta,v),
       });
     },
     returns: valueT("RealNM"),
@@ -1079,7 +1127,7 @@ export const compDict = {
 
   rotate3dh: {
     name: "rotate3dh",
-    description: "Returns a 3D rotation by a given angle `theta` around a unit axis `v`.  (Note: this transformation is encoded as a 4x4 matrix in homogeneous coordinates, so that it can be composed with 3D affine transformations.  For the 3x3 linear version, see `rotate3D()`.)",
+    description: "Returns a 3D rotation by a given angle `theta` around a unit axis `v`.  (Note: this transformation is encoded as a 4x4 matrix in homogeneous coordinates, so that it can be composed with 3D affine transformations.  For the 3x3 linear version, see `rotate3d()`.)",
     params: [
       { name: "theta", description: "angle of rotation (in radians)", type: realT() },
       { name: "v", description: "axis of rotation (unit vector)", type: realNT() },
@@ -1091,7 +1139,7 @@ export const compDict = {
     ): MayWarn<MatrixV<ad.Num>> => {
       return noWarn({
         tag: "MatrixV",
-        contents: toHomogeneousMatrix(rotate3D(theta,v)),
+        contents: toHomogeneousMatrix(rotate3d(theta,v)),
       });
     },
     returns: valueT("RealNM"),
@@ -1099,7 +1147,7 @@ export const compDict = {
 
   scale: {
     name: "scale",
-    description: "Returns a nonuniform scaling by factors `sx`, `sy` along `x`, `y` axes, respectively.  (Note: this transformation is encoded as a 3x3 matrix in homogeneous coordinates, so that it can be composed with 2D affine transformations.  For the 2x2 linear version, see `scale2D()`.)",
+    description: "Returns a nonuniform scaling by factors `sx`, `sy` along `x`, `y` axes, respectively.  (Note: this transformation is encoded as a 3x3 matrix in homogeneous coordinates, so that it can be composed with 2D affine transformations.  For the 2x2 linear version, see `scale2d()`.)",
     params: [
       { name: "sx", description: "horizontal scale factor", type: realT() },
       { name: "sy", description: "vertical scale factor", type: realT() },
@@ -1111,13 +1159,13 @@ export const compDict = {
     ): MayWarn<MatrixV<ad.Num>> => {
       return noWarn({
         tag: "MatrixV",
-        contents: toHomogeneousMatrix(scale2D(sx,sy)),
+        contents: toHomogeneousMatrix(scale2d(sx,sy)),
       });
     },
     returns: valueT("RealNM"),
   },
 
-  scale2D: {
+  scale2d: {
     name: "scale",
     description: "Returns a 2x2 matrix representing nonuniform scaling by factors `sx`, `sy` along `x`, `y` axes, respectively.  (Note: this transformation is encoded as a 2x2 matrix that cannot directly be composed with 2D affine transformations.  For the 3x3 affine version, see `rotate()`.)",
     params: [
@@ -1131,13 +1179,13 @@ export const compDict = {
     ): MayWarn<MatrixV<ad.Num>> => {
       return noWarn({
         tag: "MatrixV",
-        contents: scale2D(sx,sy),
+        contents: scale2d(sx,sy),
       });
     },
     returns: valueT("RealNM"),
   },
 
-  scale3D: {
+  scale3d: {
     name: "scale",
     description: "Returns a nonuniform scaling by factors `sx`, `sy`, `sz` along `x`, `y`, `z` axes, respectively.  (Note: this transformation is encoded as a 3x3 matrix that cannot directly be composed with 3D affine transformations.  For the 4x4 affine version, see `scale3dh()`.)",
     params: [
@@ -1153,7 +1201,7 @@ export const compDict = {
     ): MayWarn<MatrixV<ad.Num>> => {
       return noWarn({
         tag: "MatrixV",
-        contents: scale3D(sx,sy,sz),
+        contents: scale3d(sx,sy,sz),
       });
     },
     returns: valueT("RealNM"),
@@ -1175,7 +1223,7 @@ export const compDict = {
     ): MayWarn<MatrixV<ad.Num>> => {
       return noWarn({
         tag: "MatrixV",
-        contents: toHomogeneousMatrix(scale3D(sx,sy,sz)),
+        contents: toHomogeneousMatrix(scale3d(sx,sy,sz)),
       });
     },
     returns: valueT("RealNM"),
@@ -1183,7 +1231,7 @@ export const compDict = {
 
   skew: {
     name: "skew",
-    description: "Given angles `ax` and `ay`, returns a transformation skewing an element on the 2D plane.  If `ay` is not defined, its default value is `0`, resulting in a purely horizontal skewing.  (Note: this transformation is encoded as a 3x3 matrix in homogeneous coordinates, so that it can be composed with affine transformations.  For the linear version, see `skew2D()`.)",
+    description: "Given angles `ax` and `ay`, returns a transformation skewing an element on the 2D plane.  If `ay` is not defined, its default value is `0`, resulting in a purely horizontal skewing.  (Note: this transformation is encoded as a 3x3 matrix in homogeneous coordinates, so that it can be composed with affine transformations.  For the linear version, see `skew2d()`.)",
     params: [
       { name: "ax", description: "horizontal angle", type: realT() },
       { name: "ay", description: "vertical angle", type: realT(), default: 0 },
@@ -1237,8 +1285,8 @@ export const compDict = {
     returns: valueT("RealNM"),
   },
 
-  skew2D: {
-    name: "skew2D",
+  skew2d: {
+    name: "skew2d",
     description: "Given angles `ax` and `ay`, returns a transformation skewing an element on the 2D plane.  If `ay` is not defined, its default value is `0`, resulting in a purely horizontal skewing.  (Note: this transformation is encoded as a 2x2 matrix that cannot directly be composed with 2D affine transformations.  For the 3x3 affine version, see `skew()`.)",
     params: [
       { name: "ax", description: "horizontal angle", type: realT() },
@@ -6597,7 +6645,7 @@ const crossProductMatrix = (
 };
 
 // Returns the 2x2 matrix representing a rotation by a given angle theta.
-const rotate2D = (
+const rotate2d = (
   theta: ad.Num
 ): ad.Num[][] => {
    return [ [ cos(theta), neg(sin(theta)) ],
@@ -6626,7 +6674,7 @@ const rotate3d = (
 
 // Returns a 2x2 matrix representing nonuniform scaling by factors sx, sy
 // along x, y axes, respectively.
-const scale2D = (
+const scale2d = (
   sx: ad.Num,
   sy: ad.Num
 ): ad.Num[][] => {
@@ -6833,6 +6881,49 @@ const project = (
    return r;
 }
 
+// Construct a 3x3 matrix with entries
+// [ a c e ]
+// [ b d f ]
+// [ 0 0 1 ]
+// (Note: this function corresponds to the SVG/CSS `matrix` function.)
+const matrix = (
+   a: ad.Num,
+   b: ad.Num,
+   c: ad.Num,
+   d: ad.Num,
+   e: ad.Num,
+   f: ad.Num
+): ad.Num[][] => {
+   return [ [a,c,e], [b,d,f], [0,0,1] ];
+}
+
+// Construct a 4x4 matrix with entries
+// [ a1 a2 a3 a4 ]
+// [ b1 b2 b3 b4 ]
+// [ c1 c2 c3 c4 ]
+// [ d1 d2 d3 d4 ]
+// (Note: this function corresponds to the CSS `matrix3d` function.)
+const matrix3d = (
+   a1: ad.Num,
+   b1: ad.Num,
+   c1: ad.Num,
+   d1: ad.Num,
+   a2: ad.Num,
+   b2: ad.Num,
+   c2: ad.Num,
+   d2: ad.Num,
+   a3: ad.Num,
+   b3: ad.Num,
+   c3: ad.Num,
+   d3: ad.Num,
+   a4: ad.Num,
+   b4: ad.Num,
+   c4: ad.Num,
+   d4: ad.Num
+): ad.Num[][] => {
+   return [ [a1, a2, a3, a4], [b1, b2, b3, b4], [c1, c2, c3, c4], [d1, d2, d3, d4] ];
+}
+
 // TODO:
 //    + implement methods described at https://glm.g-truc.net/0.9.5/api/a00176.html (you may be able to use MESA)
 //    + write Style wrappers (2d, 2dh, 3d, 3dh)
@@ -6842,7 +6933,7 @@ const project = (
 //       + determinant
 //       + inverse
 //       + outer
-//       - skew
+//       + skew
 //       + crossProductMatrix
 //       + rotate[2d]
 //       + rotate3d[h]
@@ -6857,6 +6948,8 @@ const project = (
 //       + fromHomogeneous
 //       + toHomogeneous
 //       + toHomogeneousMatrix
+//       - matrix
+//       - matrix3d
 //    - refactor non-wrapped methods into MatrixFunctions.ts
 //    - add `then` operator to parser/compiler
 //    - write unit tests (i.e., trivially checkable examples)
