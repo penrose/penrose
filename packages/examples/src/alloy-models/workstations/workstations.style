@@ -1,0 +1,136 @@
+canvas {
+  width = 800
+  height = 700
+}
+
+layout = [first, later]
+
+const{
+  color gray = rgba(0.6, 0.6, 0.6, 1.)
+  color lightBlue = rgba(0.2, 0.4, 0.8, 0.5)
+  color lightGray = rgba(252, 252, 252, 0.015)
+  color green = rgba(0., 0.8, 0., 1.)
+  color lightGreen = rgba(0., 0.8, 0., 0.5)
+  color lightRed = rgba(0.8, 0., 0., 0.5)
+  color black = rgba(0., 0., 0., 1.)
+  color white = rgba(1., 1., 1., 1.)
+  color none = rgba(0., 0., 0., 0.)
+  scalar x_start = -300
+  scalar x_end = 400
+}
+
+-- ################ Workstation ################
+forall Workstation w
+{
+  w.x_axis = const.x_start + (match_id - 1) * (const.x_end - const.x_start) / match_total
+  vec2 w.center = (w.x_axis, 0)
+  w.icon = Rectangle {
+    width : 120
+    height : 50
+    center: w.center
+  }
+  w.boundingCircle = Circle {
+    center: w.center
+    r: 110
+    fillColor: none()
+  }
+  w.text = Text {
+    string : w.label
+    center : w.icon.center
+  }
+}
+
+
+forall Workstation w1, w2
+where nextStep(w1, w2) as e
+{
+  ensure disjoint(w1.boundingCircle, w2.boundingCircle)
+  e.arrow = Line {
+    endArrowhead : "straight"
+    strokeWidth: 1
+    start: w1.icon.center+(60, 0)
+    end : w2.icon.center+(-60, 0)
+  }
+}
+
+
+
+-- ################ Worker ################
+forall Worker w
+{
+  w.icon = Circle {
+    center: (?, ?)
+    r: 20
+  }
+  w.text = Text {
+    string : w.label
+    center : w.icon.center
+  }
+
+  ensure w.icon.center[1] < -80 in first
+  encourage w.icon.center[1] == -120 in later
+}
+
+forall Robot r
+{
+  override r.icon.fillColor = const.lightRed
+}
+
+forall Human h
+{
+  override h.icon.fillColor = const.lightGreen
+}
+
+forall Worker w1, w2
+{
+  ensure disjoint(w1.icon, w2.icon, 10)
+}
+
+
+
+-- ################ Product ################
+forall Product p
+{
+  p.icon = Circle {
+    center: (?, ?)
+    fillColor : const.lightBlue
+    strokeColor: const.black
+    strokeWidth: 2
+    r: 20
+  }
+  p.text = Text {
+    string : p.label
+    center : p.icon.center
+  }
+  ensure p.icon.center[1] > 80 in first
+  encourage p.icon.center[1] == 120 in later
+}
+
+forall Product p1, p2
+{
+  ensure disjoint(p1.icon, p2.icon, 20)
+}
+
+
+-- ################ Relation ################
+forall Workstation w; Product p
+where produce(w, p) as s{
+  s.edge = Line{
+    strokeStyle : "dashed"
+    start : w.icon.center+(0,25)
+  }
+  -- ensure norm(w.icon.center+(0,25)-s.edge.start) < 5 in later
+  ensure signedDistance(p.icon, s.edge.end) < 2 in later
+  -- encourage norm(w.icon.center+(0,25) - p.icon.center) == 0 in first
+  encourage norm(s.edge.start - s.edge.end) == 0 
+}
+
+forall Workstation w; Worker p
+where manage(w, p) as s{
+  s.edge = Line{
+    strokeStyle : "dashed"
+    start : w.icon.center-(0,25)
+  }
+  ensure signedDistance(p.icon, s.edge.end) < 2  in later
+  encourage norm(s.edge.start - s.edge.end) == 0
+}
