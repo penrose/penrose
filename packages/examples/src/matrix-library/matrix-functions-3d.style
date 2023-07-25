@@ -25,12 +25,6 @@ camera {
    mat4x4 proj = perspective( fovy, aspect, near, far )
 
    list view = [ -canvas.width/2, -canvas.height/2, canvas.width, canvas.height ]
-
-   mat4x4 A = model
-   vec2 t = ( canvas.width, -canvas.height ) / 2
-   shape debug = Polyline {
-      points: [ ( A[0][0], A[0][1] ) - t, ( A[0][2], A[0][3] ) - t, ( A[1][0], A[1][1] ) - t, ( A[1][2], A[1][3] ) - t, ( A[2][0], A[2][1] ) - t, ( A[2][2], A[2][3] ) - t, ( A[3][0], A[3][1] ) - t, ( A[3][2], A[3][3] ) - t ]
-   }
 }
 
 forall Point p {

@@ -6775,7 +6775,7 @@ const lookAt =(
    M[3][3] = 1;
 
    const T = translate( ops.vneg(eye) );
-   return ops.mmmul( M, T );
+   return ops.mmmul( T, M );
 }
 
 // (adapted from gluPerspective man page:)
@@ -6795,23 +6795,22 @@ const perspective = (
    zNear: ad.Num,
    zFar: ad.Num
 ): ad.Num[][] => {
-   // adapted from MESA implementation of gluPerspective()
 
-   const radians = mul(Math.PI/180.,div(fovy,2));
+   const radians = mul(Math.PI/180.,fovy);
+   const f = div(radians,2);
    const deltaZ = sub(zFar,zNear);
-   const cotangent = div(cos(radians),sin(radians));
+   const cotangent = div(1,tan(f));
 
    const M = identity(4);
    M[0][0] = div(cotangent,aspect);
-   M[1][1] = cotangent;
+   M[1][1] = neg(cotangent);
    M[2][2] = div(neg(add(zFar,zNear)),deltaZ);
    M[3][2] = -1;
-   M[2][3] = mul(-2, div(mul(zNear,zFar),deltaZ) );
+   M[2][3] = mul(2, div(mul(zNear,zFar),deltaZ) );
    M[3][3] = 0;
    
    return M;
 }
-
 
 // (adapted from glOrtho man page:)
 // ortho describes a 4x4 transformation that produces a parallel projection.
