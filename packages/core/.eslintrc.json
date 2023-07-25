@@ -3,12 +3,16 @@
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
-    "prettier",
-    "prettier/@typescript-eslint"
+    "prettier"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": { "project": "tsconfig.json", "sourceType": "module" },
-  "plugins": ["eslint-comments", "eslint-plugin-import", "eslint-plugin-jsdoc"],
+  "plugins": [
+    "eslint-comments",
+    "eslint-plugin-import",
+    "eslint-plugin-jsdoc",
+    "unary-minus"
+  ],
   "rules": {
     "@typescript-eslint/consistent-type-assertions": [
       "warn",
@@ -24,7 +28,8 @@
     "eslint-comments/no-use": "error",
     "import/no-cycle": "error",
     "no-fallthrough": "error",
-    "no-template-curly-in-string": "error"
+    "no-template-curly-in-string": "error",
+    "unary-minus": "error"
   },
   "ignorePatterns": [
     "**/*.test.ts",
