@@ -4,24 +4,39 @@ canvas {
 }
 
 camera {
-   vec3 eye = (2,2,2)
+   vec3 eye = 4.5*(1,1,1)
    vec3 center = (0,0,0)
    vec3 up = (0,1,0)
    mat4x4 model = lookAt( eye, center, up )
 
-   scalar fovy = 30 -- degrees
+   shape background = Rectangle {
+      center: (0,0)
+      width: canvas.width
+      height: canvas.height
+      fillColor: none()
+      strokeColor: #000
+      strokeWidth: 4
+   }
+
+   scalar fovy = 40 -- degrees
    scalar aspect = canvas.width / canvas.height
    scalar near = 0.1
    scalar far = 100.0
    mat4x4 proj = perspective( fovy, aspect, near, far )
 
-   list view = [ -canvas.width/2, -canvas.height/2, canvas.width/2, canvas.height/2 ]
+   list view = [ -canvas.width/2, -canvas.height/2, canvas.width, canvas.height ]
+
+   mat4x4 A = model
+   vec2 t = ( canvas.width, -canvas.height ) / 2
+   shape debug = Polyline {
+      points: [ ( A[0][0], A[0][1] ) - t, ( A[0][2], A[0][3] ) - t, ( A[1][0], A[1][1] ) - t, ( A[1][2], A[1][3] ) - t, ( A[2][0], A[2][1] ) - t, ( A[2][2], A[2][3] ) - t, ( A[3][0], A[3][1] ) - t, ( A[3][2], A[3][3] ) - t ]
+   }
 }
 
 forall Point p {
    vec3 p.X = ( random(-1,1), random(-1,1), random(-1,1) )
    vec3 q = project( p.X, camera.model', camera.proj, camera.view )
-   vec2 p.x = .1*( q[0], q[1] )
+   vec2 p.x = ( q[0], q[1] )
 
    shape p.icon = Circle {
       center: p.x
@@ -33,44 +48,100 @@ forall Point p {
 
 forall Tetrahedron t {
    -- give the tetrahedron a random rotation
-   scalar angle = random(0,2) * MathPI()
+   scalar angle = ?
    vec3 axis = sphereRandom()
-   t.model = rotate3dh( angle, axis )
+   vec3 t.center = (?,?,?)
+   t.model = rotate3d( angle, axis )
+
+   ensure 100*norm( t.center ) < 400
 }
 
 forall Tetrahedron t; Point p1, p2, p3, p4
 where t := Tetrahedron(p1,p2,p3,p4) {
-   override p1.X = (1,1,0)
-   override p2.X = (0,1,1)
-   override p3.X = (1,0,1)
-   override p4.X = (0,0,0)
+   vec2 c = (1,1,1)/2
+   override p1.X = t.model * ( (1,1,0) - c ) + t.center
+   override p2.X = t.model * ( (0,1,1) - c ) + t.center
+   override p3.X = t.model * ( (1,0,1) - c ) + t.center
+   override p4.X = t.model * ( (0,0,0) - c ) + t.center
 
-   shape t123 = Polygon {
+   shape t.t123 = Polygon {
       points: [ p1.x, p2.x, p3.x ]
-      fillColor: #00000033
+      fillColor: #aa0000dd
       strokeColor: #000
       strokeWidth: 3
       ensureOnCanvas: false
+      opacity: max( 0, -cross2D( p2.x-p1.x, p3.x-p1.x ) )
    }
-   shape t134 = Polygon {
+   shape t.t134 = Polygon {
       points: [ p1.x, p3.x, p4.x ]
-      fillColor: #00000033
+      fillColor: #00aa00dd
       strokeColor: #000
       strokeWidth: 3
       ensureOnCanvas: false
+      opacity: max( 0, cross2D( p3.x-p4.x, p1.x-p4.x ) )
    }
-   shape t124 = Polygon {
+   shape t.t124 = Polygon {
       points: [ p1.x, p2.x, p4.x ]
-      fillColor: #00000033
+      fillColor: #0000aadd
       strokeColor: #000
       strokeWidth: 3
       ensureOnCanvas: false
+      opacity: max( 0, cross2D( p1.x-p4.x, p2.x-p4.x ) )
    }
-   -- shape t234 = Polygon {
-   --    points: [ p2.x, p3.x, p4.x ]
-   --    fillColor: #00000033
-   --    strokeColor: #000
-   --    strokeWidth: 3
-   -- }
+   shape t.t234 = Polygon {
+      points: [ p2.x, p3.x, p4.x ]
+      fillColor: #aacc00dd
+      strokeColor: #000
+      strokeWidth: 3
+      opacity: max( 0, cross2D( p2.x-p4.x, p3.x-p4.x ) )
+   }
+}
+
+forall Point p
+where p has label {
+   p.labelText = Equation {
+      center: (?,?)
+      string: p.label
+      fillColor: #000
+      fontSize: "48px"
+      ensureOnCanvas: false
+   }
+
+   scalar padding = 5
+   encourage near( p.labelText, p.icon )
+   ensure disjoint( p.labelText, p.icon, padding )
+}
+
+forall Tetrahedron t1, t2 {
+   scalar padding = 32
+
+   ensure disjoint( t1.t123, t2.t123, padding )
+   ensure disjoint( t1.t134, t2.t123, padding )
+   ensure disjoint( t1.t124, t2.t123, padding )
+
+   ensure disjoint( t1.t123, t2.t134, padding )
+   ensure disjoint( t1.t134, t2.t134, padding )
+   ensure disjoint( t1.t124, t2.t134, padding )
+
+   ensure disjoint( t1.t123, t2.t124, padding )
+   ensure disjoint( t1.t134, t2.t124, padding )
+   ensure disjoint( t1.t124, t2.t124, padding )
+}
+
+forall Tetrahedron t; Point p1, p2, p3, p4
+where t := Tetrahedron(p1,p2,p3,p4); p1 has label {
+   ensure disjoint( t.t123, p1.labelText, 10 )
+}
+forall Tetrahedron t; Point p1, p2, p3, p4
+where t := Tetrahedron(p1,p2,p3,p4); p2 has label {
+   ensure disjoint( t.t123, p2.labelText, 10 )
+}
+forall Tetrahedron t; Point p1, p2, p3, p4
+where t := Tetrahedron(p1,p2,p3,p4); p3 has label {
+   ensure disjoint( t.t123, p3.labelText, 10 )
+}
+forall Tetrahedron t; Point p1, p2, p3, p4
+where t := Tetrahedron(p1,p2,p3,p4); p4 has label {
+   ensure disjoint( t.t123, p4.labelText, 10 )
 }
 
