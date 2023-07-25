@@ -6447,7 +6447,7 @@ const diffusionProcess = (
 
 // Returns the n x n identity matrix.
 const identity = (n: number): ad.Num[][] => {
-   const I = [];
+   const I: ad.Num[][] = [];
    for (let i = 0; i < n; i++) {
       I[i] = [];
       for (let j = 0; j < n; j++) {
@@ -6463,7 +6463,7 @@ const diagonal = (
   v: ad.Num[]
 ): ad.Num[][] => {
    const n = v.length;
-   const D = [];
+   const D: ad.Num[][] = [];
    for (let i = 0; i < n; i++) {
       D[i] = [];
       for (let j = 0; j < n; j++) {
@@ -6524,18 +6524,15 @@ const inverse = (
    let detA: ad.Num = 0;
 
    if( n == 2 ) {
-      C = [];
       C[0] = [ A[1][1], neg(A[0][1]) ];
       C[1] = [ neg(A[1][0]), A[0][0] ];
       detA = add( mul(A[0][0],C[0][0]), mul(A[0][1],C[1][0]));
    } else if( n == 3 ) {
-      C = [];
       C[0] = [ sub(mul(A[1][1],A[2][2]), mul(A[1][2],A[2][1])), sub(mul(A[0][2],A[2][1]), mul(A[0][1],A[2][2])), sub(mul(A[0][1],A[1][2]), mul(A[0][2],A[1][1])) ];
       C[1] = [ sub(mul(A[1][2],A[2][0]), mul(A[1][0],A[2][2])), sub(mul(A[0][0],A[2][2]), mul(A[0][2],A[2][0])), sub(mul(A[0][2],A[1][0]), mul(A[0][0],A[1][2])) ];
       C[2] = [ sub(mul(A[1][0],A[2][1]), mul(A[1][1],A[2][0])), sub(mul(A[0][1],A[2][0]), mul(A[0][0],A[2][1])), sub(mul(A[0][0],A[1][1]), mul(A[0][1],A[1][0])) ];
       detA = add( add( mul(A[0][0],C[0][0]), mul(A[0][1],C[1][0])), mul(A[0][2],C[2][0]));
    } else if( n == 4 ) {
-      C = [];
       C[0] = [ add(add(sub(mul(mul(A[1][2],A[2][3]),A[3][1]), mul(mul(A[1][3],A[2][2]),A[3][1])), sub(mul(mul(A[1][3],A[2][1]),A[3][2]), mul(mul(A[1][1],A[2][3]),A[3][2]))), sub(mul(mul(A[1][1],A[2][2]),A[3][3]), mul(mul(A[1][2],A[2][1]),A[3][3]))), add(add(sub(mul(mul(A[0][3],A[2][2]),A[3][1]), mul(mul(A[0][2],A[2][3]),A[3][1])), sub(mul(mul(A[0][1],A[2][3]),A[3][2]), mul(mul(A[0][3],A[2][1]),A[3][2]))), sub(mul(mul(A[0][2],A[2][1]),A[3][3]), mul(mul(A[0][1],A[2][2]),A[3][3]))), add(add(sub(mul(mul(A[0][2],A[1][3]),A[3][1]), mul(mul(A[0][3],A[1][2]),A[3][1])), sub(mul(mul(A[0][3],A[1][1]),A[3][2]), mul(mul(A[0][1],A[1][3]),A[3][2]))), sub(mul(mul(A[0][1],A[1][2]),A[3][3]), mul(mul(A[0][2],A[1][1]),A[3][3]))), add(add(sub(mul(mul(A[0][3],A[1][2]),A[2][1]), mul(mul(A[0][2],A[1][3]),A[2][1])), sub(mul(mul(A[0][1],A[1][3]),A[2][2]), mul(mul(A[0][3],A[1][1]),A[2][2]))), sub(mul(mul(A[0][2],A[1][1]),A[2][3]), mul(mul(A[0][1],A[1][2]),A[2][3]))) ];
       C[1] = [ add(add(sub(mul(mul(A[1][3],A[2][2]),A[3][0]), mul(mul(A[1][2],A[2][3]),A[3][0])), sub(mul(mul(A[1][0],A[2][3]),A[3][2]), mul(mul(A[1][3],A[2][0]),A[3][2]))), sub(mul(mul(A[1][2],A[2][0]),A[3][3]), mul(mul(A[1][0],A[2][2]),A[3][3]))), add(add(sub(mul(mul(A[0][2],A[2][3]),A[3][0]), mul(mul(A[0][3],A[2][2]),A[3][0])), sub(mul(mul(A[0][3],A[2][0]),A[3][2]), mul(mul(A[0][0],A[2][3]),A[3][2]))), sub(mul(mul(A[0][0],A[2][2]),A[3][3]), mul(mul(A[0][2],A[2][0]),A[3][3]))), add(add(sub(mul(mul(A[0][3],A[1][2]),A[3][0]), mul(mul(A[0][2],A[1][3]),A[3][0])), sub(mul(mul(A[0][0],A[1][3]),A[3][2]), mul(mul(A[0][3],A[1][0]),A[3][2]))), sub(mul(mul(A[0][2],A[1][0]),A[3][3]), mul(mul(A[0][0],A[1][2]),A[3][3]))), add(add(sub(mul(mul(A[0][2],A[1][3]),A[2][0]), mul(mul(A[0][3],A[1][2]),A[2][0])), sub(mul(mul(A[0][3],A[1][0]),A[2][2]), mul(mul(A[0][0],A[1][3]),A[2][2]))), sub(mul(mul(A[0][0],A[1][2]),A[2][3]), mul(mul(A[0][2],A[1][0]),A[2][3]))) ];
       C[2] = [ add(add(sub(mul(mul(A[1][1],A[2][3]),A[3][0]), mul(mul(A[1][3],A[2][1]),A[3][0])), sub(mul(mul(A[1][3],A[2][0]),A[3][1]), mul(mul(A[1][0],A[2][3]),A[3][1]))), sub(mul(mul(A[1][0],A[2][1]),A[3][3]), mul(mul(A[1][1],A[2][0]),A[3][3]))), add(add(sub(mul(mul(A[0][3],A[2][1]),A[3][0]), mul(mul(A[0][1],A[2][3]),A[3][0])), sub(mul(mul(A[0][0],A[2][3]),A[3][1]), mul(mul(A[0][3],A[2][0]),A[3][1]))), sub(mul(mul(A[0][1],A[2][0]),A[3][3]), mul(mul(A[0][0],A[2][1]),A[3][3]))), add(add(sub(mul(mul(A[0][1],A[1][3]),A[3][0]), mul(mul(A[0][3],A[1][1]),A[3][0])), sub(mul(mul(A[0][3],A[1][0]),A[3][1]), mul(mul(A[0][0],A[1][3]),A[3][1]))), sub(mul(mul(A[0][0],A[1][1]),A[3][3]), mul(mul(A[0][1],A[1][0]),A[3][3]))), add(add(sub(mul(mul(A[0][3],A[1][1]),A[2][0]), mul(mul(A[0][1],A[1][3]),A[2][0])), sub(mul(mul(A[0][0],A[1][3]),A[2][1]), mul(mul(A[0][3],A[1][0]),A[2][1]))), sub(mul(mul(A[0][1],A[1][0]),A[2][3]), mul(mul(A[0][0],A[1][1]),A[2][3]))) ];
@@ -6582,7 +6579,7 @@ const toHomogeneousMatrix = (
   A: ad.Num[][]
 ): ad.Num[][] => {
    const n = A.length;
-   const B = [];
+   const B: ad.Num[][] = [];
    for( let i = 0; i < n+1; i++ ) {
       B[i] = [];
       for( let j = 0; j < n+1; j++ ) {
@@ -6714,15 +6711,10 @@ const translate = (
   v: ad.Num[]
 ): ad.Num[][] => {
    const n = v.length;
-   const A = [];
-   for( let i = 0; i < n+1; i++ ) {
-      A[i] = [];
-      for( let j = 0; j < n; j++ ) {
-         A[i][j] = (i===j ? 1 : 0);
-      }
-      A[i][n] = v[i];
+   const A = identity(4);
+   for( let i = 0; i < n; i++ ) {
+      A[n][i] = v[i];
    }
-   A[n][n] = 1;
    return A;
 }
 
@@ -6772,9 +6764,9 @@ const lookAt =(
    M[2][1] = vert[2];
    M[3][1] = 0;
 
-   M[0][2] = -forward[0];
-   M[1][2] = -forward[1];
-   M[2][2] = -forward[2];
+   M[0][2] = neg(forward[0]);
+   M[1][2] = neg(forward[1]);
+   M[2][2] = neg(forward[2]);
    M[3][2] = 0;
 
    M[0][3] = 0;
