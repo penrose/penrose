@@ -1,0 +1,249 @@
+canvas {
+    height = 900
+    width = 800
+}
+
+layout = [nodes, edges, loops, pointers, texts]
+
+color {
+  black = #000000
+  white = #ffffff
+}
+
+num {
+  radius = 5
+  labelDist = 5
+  edgeDist = 400
+  repelDist = 1.5 * edgeDist
+  offset = 50
+  loopRadius = 50
+  pointerX = 6
+  pointerY = 4
+  timesNForTextOnArrow = 15
+}
+
+forall Univ u {
+    u.icon = Circle {
+        center: (? in nodes, ? in nodes)
+        r: 60
+        fillColor: #bbff00ff
+    }
+    u.text = Text {
+        string: u.label
+        center: u.icon.center
+        fontSize: "30px"
+        fontWeight: "bold"
+    }
+    layer u.text above u.icon
+}
+
+forall Univ u1; Univ u2 {
+    d = vdist(u1.icon.center, u2.icon.center)
+    dHat = num.repelDist
+    encourage minimal(max(0, -sqr(d - dHat) * log(d / dHat))) in nodes
+    ensure disjoint(u1.icon, u2.icon) in nodes
+    encourage notTooClose(u1.icon, u2.icon) in nodes
+}
+
+forall C c {
+    override c.icon = Rectangle {
+        center: (? in nodes, ? in nodes)
+        width: 100
+        height: 100
+        fillColor: #ff0000ff
+    }
+}
+
+forall Subset s
+where s := A(u)
+with Univ u {
+    s.text = Text {
+        center: (? in nodes, ? in nodes)
+        string: "(A)"
+        fontSize: "20px"
+        fontStyle: "italic"
+    }
+    ensure contains(u.icon, s.text) in nodes
+    ensure disjoint(u.text, s.text, 10) in nodes
+    layer s.text above u.text
+}
+
+forall Subset s
+where s := B(u)
+with Univ u {
+    s.text = Text {
+        center: (? in nodes, ? in nodes)
+        string: "(B)"
+        fontSize: "20px"
+        fontStyle: "italic"
+    }
+    ensure contains(u.icon, s.text) in nodes
+    ensure disjoint(u.text, s.text, 10) in nodes
+    layer s.text above u.text
+}
+
+forall Subset s1; Subset s2 {
+   ensure disjoint(s1.text, s2.text) in nodes
+}
+
+
+forall repeatable Edge e
+where e := R(u1, u2)
+with Univ u1; Univ u2 {
+    a = u1.icon.center
+    b = u2.icon.center
+    e.tangent = normalize(b - a) -- tangent
+    e.normal = rot90(e.tangent) -- normal
+    m = (a + b) / 2 -- midpoint
+
+    e.start = a
+    e.end = b
+    e.theta = angleOf(e.tangent)
+    e.offset = ? in edges
+    encourage 10 * e.offset == 0 in edges
+
+    e.midpt = m + e.offset * e.normal
+    e.arrow = Path {
+        d: interpolateQuadraticFromPoints("open", a, e.midpt, b)
+        strokeColor: color.black
+        ensureOnCanvas: false
+    }
+
+    p = e.midpt
+    x = num.pointerX
+    y = num.pointerY
+    e.pointer = Path {
+        d: pathFromPoints("closed", [p - x * e.tangent + y * e.normal, p + x * e.tangent, p - x * e.tangent - y * e.normal])
+        strokeColor: none()
+        fillColor: color.black
+        ensureOnCanvas: false
+    }
+
+    e.arrow below u1.icon
+    e.arrow below u2.icon
+    e.pointer below e.arrow
+    encourage vdist(u1.icon.center, u2.icon.center) < num.edgeDist in nodes
+
+    e.text = Text {
+        string: "R"
+        strokeColor: color.white
+        strokeWidth: 4
+        paintOrder: "stroke"
+        ensureOnCanvas: false
+    }
+    encourage nearVec(p + num.timesNForTextOnArrow*e.normal, e.text.center, 0)
+    ensure disjoint(e.text, u1.icon) in texts
+    ensure disjoint(e.text, u2.icon) in texts
+
+    layer e.text above e.pointer
+    layer e.text above e.arrow
+}
+
+forall Edge e
+where e := R(u, u)
+with Univ u {
+    override e.midpt = (? in [edges, loops], ? in [edges, loops])
+    ensure signedDistance(u.icon, e.midpt) == 30 in [edges, loops]
+    loopCenter = closestPoint(u.icon, e.midpt)
+
+    override e.normal = normalize(e.midpt - u.icon.center)
+    override e.tangent = rot90(e.normal)
+    override e.arrow = Circle {
+        center: loopCenter
+        r: 30
+        fillColor: #00000000
+        strokeColor: color.black
+        strokeWidth: 1
+        ensureOnCanvas: false
+    }
+
+    layer e.arrow below u.icon
+}
+
+
+
+
+forall repeatable Edge e
+where e := Aux(u1, u_, u2)
+with Univ u1, u_, u2 {
+    a = u1.icon.center
+    b = u2.icon.center
+    e.tangent = normalize(b - a) -- tangent
+    e.normal = rot90(e.tangent) -- normal
+    m = (a + b) / 2 -- midpoint
+
+    e.start = a
+    e.end = b
+    e.theta = angleOf(e.tangent)
+    e.offset = ? in edges
+    encourage 10 * e.offset == 0 in edges
+
+    e.midpt = m + e.offset * e.normal
+    e.arrow = Path {
+        d: interpolateQuadraticFromPoints("open", a, e.midpt, b)
+        strokeColor: color.black
+        ensureOnCanvas: false
+    }
+
+    p = e.midpt
+    x = num.pointerX
+    y = num.pointerY
+    e.pointer = Path {
+        d: pathFromPoints("closed", [p - x * e.tangent + y * e.normal, p + x * e.tangent, p - x * e.tangent - y * e.normal])
+        strokeColor: none()
+        fillColor: color.black
+        ensureOnCanvas: false
+    }
+
+    e.arrow below u1.icon
+    e.arrow below u2.icon
+    e.pointer below e.arrow
+    encourage vdist(u1.icon.center, u2.icon.center) < num.edgeDist in nodes
+
+    e.text = Text {
+        center: (? in texts, ? in texts)
+        string: "Aux[" + u_.label + "]"
+        strokeColor: color.white
+        strokeWidth: 4
+        paintOrder: "stroke"
+        ensureOnCanvas: false
+    }
+    encourage nearVec(p, e.text.center, 0) in texts
+    ensure disjoint(e.text, u1.icon) in texts
+    ensure disjoint(e.text, u2.icon) in texts
+    ensure shapeDistanceRects(bboxPts(e.pointer), rectPts(e.text)) > 0 in texts
+
+    layer e.text above e.pointer
+    layer e.text above e.arrow
+}
+
+forall repeatable Edge e
+where e := Aux(u, u_, u)
+with Univ u, u_ {
+    override e.midpt = (? in [edges, loops], ? in [edges, loops])
+    ensure signedDistance(u.icon, e.midpt) == 30 in [edges, loops]
+    loopCenter = closestPoint(u.icon, e.midpt)
+
+    override e.normal = normalize(e.midpt - u.icon.center)
+    override e.tangent = rot90(e.normal)
+    override e.arrow = Circle {
+        center: loopCenter
+        r: 30
+        fillColor: #00000000
+        strokeColor: color.black
+        strokeWidth: 1
+        ensureOnCanvas: false
+    }
+
+    layer e.arrow below u.icon
+}
+
+
+forall Edge e1; Edge e2 {
+    ensure vdist(e1.midpt, e2.midpt) > 20 in edges
+    encourage notTooClose(e1.arrow, e2.arrow) in loops
+
+    ensure shapeDistanceRects(rectPts(e1.text), bboxPts(e2.pointer)) > 0 in texts
+    ensure shapeDistanceRects(bboxPts(e1.pointer), rectPts(e2.text)) > 0 in texts
+    ensure disjoint(e1.text, e2.text) in texts
+}

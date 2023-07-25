@@ -1,0 +1,15 @@
+Chicken chicken
+Fox fox
+Farmer farmer
+Grain grain
+
+near(farmer)
+near(grain)
+
+far(fox)
+far(chicken)
+
+eats(fox, chicken)
+eats(chicken, grain)
+
+AutoLabel All

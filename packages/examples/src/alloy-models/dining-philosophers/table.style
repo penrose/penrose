@@ -1,0 +1,136 @@
+canvas {
+    width = 1000
+    height = 1000
+}
+
+colors {
+    black = #000000ff
+    none = none()
+    white = #ffffffff
+    error = #ff0000ff
+}
+
+const {
+    tableCenter = (0, 0)
+    tableRadius = 300
+
+    philRadius = 50
+}
+
+global {
+    num_of_phil = 0 -- placeholder
+    angle_between_phil = 2 * MathPI() / num_of_phil
+    table = Circle {
+        r: const.tableRadius
+        center: const.tableCenter
+        fillColor: colors.none
+        strokeColor: colors.black
+        strokeWidth: 2
+    }
+}
+
+forall Phil p {
+    p.dummy = 1
+    p.angle = 12345 -- placeholder
+    
+    distFromCenter = const.tableRadius
+    center = (distFromCenter * cos(p.angle), distFromCenter * sin(p.angle))
+    p.icon = Circle {
+        center: center
+        r: const.philRadius
+        strokeColor: colors.black
+        strokeWidth: 2
+        fillColor: colors.white
+    }
+    p.labelText = Text {
+        string: p.label
+        center: center
+        strokeColor: colors.black
+        fontSize: "24px"
+        rotation: -toDegrees(p.angle) - 90
+    }
+    layer p.labelText above p.icon
+}
+
+forall Phil p where PhilFirst(p) {
+    override p.angle = -MathPI() / 2
+}
+
+forall Phil p0, p1
+where PhilNext(p0, p1) {
+    override p1.angle = p0.angle + global.angle_between_phil
+}
+
+collect Phil p into ps {
+    override global.num_of_phil = count(listof dummy from ps)
+}
+
+forall Fork f {
+    f.angle = 12345 -- dummy value
+    distFromCenter = 0.8 * const.tableRadius
+    center = (distFromCenter * cos(f.angle), distFromCenter * sin(f.angle))
+    f.comp1 = Text {
+        center: center
+        string: "∪"
+        fontSize: "40px"
+        rotation: -toDegrees(f.angle) - 90
+    }
+    f.comp2 = Text {
+        center: center
+        string: "|"
+        fontSize: "40px"
+        rotation: -toDegrees(f.angle) - 90
+    }
+
+    f.icon = Group {
+        shapes: [f.comp1, f.comp2]
+    }
+}
+
+forall Fork f; Phil p
+where RightFork(p, f) {
+    override f.angle = p.angle + global.angle_between_phil / 2
+}
+
+forall Fork f; Phil p
+where Using(f, p) as u {
+    u.errorText = Text {
+        string: "Error: philosopher using forks not adjacent to them"
+        fontSize: "20px"
+        fillColor: colors.error
+    }
+    override p.labelText.fillColor = colors.error
+    override f.comp1.fillColor = colors.error
+    override f.comp2.fillColor = colors.error
+}
+
+forall Fork f; Phil p
+where Using(f, p) as u; RightFork(p, f) {
+    delete u.errorText
+    override p.labelText.fillColor = colors.black
+    override f.comp1.fillColor = colors.black
+    override f.comp2.fillColor = colors.black
+    override f.angle = p.angle + atan(const.philRadius / const.tableRadius)
+    layer f.icon below p.icon
+}
+
+forall Fork f; Phil p
+where Using(f, p) as u; LeftFork(p, f) {
+    delete u.errorText
+    override p.labelText.fillColor = colors.black
+    override f.comp1.fillColor = colors.black
+    override f.comp2.fillColor = colors.black
+    override f.angle = p.angle - atan(const.philRadius / const.tableRadius)
+    layer f.icon below p.icon
+}
+
+forall Phil p1; Phil p2; Fork f
+where Using(f, p1); Using(f, p2) {
+    errorText = Text {
+        string: "Error: fork being used by two philosophers"
+        fontSize: "20px"
+        fillColor: colors.error
+    }
+    override f.comp1.fillColor = colors.error
+    override f.comp2.fillColor = colors.error
+}
