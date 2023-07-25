@@ -30,7 +30,6 @@ global {
 }
 
 forall Phil p {
-    p.dummy = 1
     p.angle = 12345 -- placeholder
     
     distFromCenter = const.tableRadius
@@ -62,7 +61,7 @@ where PhilNext(p0, p1) {
 }
 
 collect Phil p into ps {
-    override global.num_of_phil = count(listof dummy from ps)
+    override global.num_of_phil = numberof ps
 }
 
 forall Fork f {
@@ -95,7 +94,7 @@ where RightFork(p, f) {
 forall Fork f; Phil p
 where Using(f, p) as u {
     u.errorText = Text {
-        string: "Error: philosopher using forks not adjacent to them"
+        string: "Error: philosopher " + (nameof p) + " uses fork " + (nameof f) + " not adjacent to them"
         fontSize: "20px"
         fillColor: colors.error
     }
@@ -127,7 +126,7 @@ where Using(f, p) as u; LeftFork(p, f) {
 forall Phil p1; Phil p2; Fork f
 where Using(f, p1); Using(f, p2) {
     errorText = Text {
-        string: "Error: fork being used by two philosophers"
+        string: "Error: fork " + (nameof f) + " is used by two philosophers " + (nameof p1) + " and " + (nameof p2)
         fontSize: "20px"
         fillColor: colors.error
     }
