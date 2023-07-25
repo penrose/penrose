@@ -1,0 +1,3 @@
+Point a, b, c, d
+Let t := Tetrahedron( a, b, c, d )
+

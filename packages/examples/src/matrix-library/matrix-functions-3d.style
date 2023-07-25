@@ -1,0 +1,76 @@
+canvas {
+   width = 1920
+   height = 1080
+}
+
+camera {
+   vec3 eye = (2,2,2)
+   vec3 center = (0,0,0)
+   vec3 up = (0,1,0)
+   mat4x4 model = lookAt( eye, center, up )
+
+   scalar fovy = 30 -- degrees
+   scalar aspect = canvas.width / canvas.height
+   scalar near = 0.1
+   scalar far = 100.0
+   mat4x4 proj = perspective( fovy, aspect, near, far )
+
+   list view = [ -canvas.width/2, -canvas.height/2, canvas.width/2, canvas.height/2 ]
+}
+
+forall Point p {
+   vec3 p.X = ( random(-1,1), random(-1,1), random(-1,1) )
+   vec3 q = project( p.X, camera.model', camera.proj, camera.view )
+   vec2 p.x = .1*( q[0], q[1] )
+
+   shape p.icon = Circle {
+      center: p.x
+      r: 10
+      fillColor: #000
+      ensureOnCanvas: true
+   }
+}
+
+forall Tetrahedron t {
+   -- give the tetrahedron a random rotation
+   scalar angle = random(0,2) * MathPI()
+   vec3 axis = sphereRandom()
+   t.model = rotate3dh( angle, axis )
+}
+
+forall Tetrahedron t; Point p1, p2, p3, p4
+where t := Tetrahedron(p1,p2,p3,p4) {
+   override p1.X = (1,1,0)
+   override p2.X = (0,1,1)
+   override p3.X = (1,0,1)
+   override p4.X = (0,0,0)
+
+   shape t123 = Polygon {
+      points: [ p1.x, p2.x, p3.x ]
+      fillColor: #00000033
+      strokeColor: #000
+      strokeWidth: 3
+      ensureOnCanvas: false
+   }
+   shape t134 = Polygon {
+      points: [ p1.x, p3.x, p4.x ]
+      fillColor: #00000033
+      strokeColor: #000
+      strokeWidth: 3
+      ensureOnCanvas: false
+   }
+   shape t124 = Polygon {
+      points: [ p1.x, p2.x, p4.x ]
+      fillColor: #00000033
+      strokeColor: #000
+      strokeWidth: 3
+      ensureOnCanvas: false
+   }
+   -- shape t234 = Polygon {
+   --    points: [ p2.x, p3.x, p4.x ]
+   --    fillColor: #00000033
+   --    strokeColor: #000
+   --    strokeWidth: 3
+   -- }
+}
+
