@@ -294,7 +294,7 @@ export type CollectionAccess<T> = ASTNode<T> & {
 
 export type UnaryStyVarExpr<T> = ASTNode<T> & {
   tag: "UnaryStyVarExpr";
-  op: "countof" | "nameof";
+  op: "numberof" | "nameof";
   arg: Identifier<T>;
 };
 

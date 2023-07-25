@@ -1354,7 +1354,7 @@ delete x.z.p }`,
         }
         collect T t into ts {
           Circle {
-            r: countof ts
+            r: numberof ts
           }
         }
       `;

@@ -52,7 +52,7 @@ const lexer = moo.compile({
       groupby: "groupby",
       from: "from",
       listof: "listof",
-      countof: "countof",
+      numberof: "numberof",
       nameof: "nameof",
       delete: "delete",
       as: "as",
@@ -651,7 +651,7 @@ sty_var_expr
        name, field
       })
     %}
-  | ("countof" | "nameof") _ identifier {%
+  | ("numberof" | "nameof") _ identifier {%
       ([kw, , name]): UnaryStyVarExpr<C> => ({
         ...nodeData,
         ...rangeBetween(kw[0], name),

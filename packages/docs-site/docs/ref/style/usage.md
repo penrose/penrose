@@ -457,10 +457,10 @@ collect Object o into os {
 }
 ```
 
-The `count` function takes a vector of numbers and returns the number of elements in the vector. Though this method works, it relies on the assumption that the `someprop` field exists in each `Object o` and that such a field is a number. To simplify this, we support the `countof` expression:
+The `count` function takes a vector of numbers and returns the number of elements in the vector. Though this method works, it relies on the assumption that the `someprop` field exists in each `Object o` and that such a field is a number. To simplify this, we support the `numberof` expression:
 
 ```style
-countof <COLLECTION NAME>
+numberof <COLLECTION NAME>
 ```
 
 This expression simply returns the number of elements in `<COLLECTION NAME>`.

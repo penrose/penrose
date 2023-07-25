@@ -3253,8 +3253,8 @@ const evalExpr = (
     case "UnaryStyVarExpr": {
       const { subst } = context;
       const { op, arg } = expr;
-      if (expr.op === "countof") {
-        return evalCountOf(subst, arg, { start: expr.start, end: expr.end });
+      if (expr.op === "numberof") {
+        return evalNumberOf(subst, arg, { start: expr.start, end: expr.end });
       } else {
         return evalNameOf(subst, arg, { start: expr.start, end: expr.end });
       }
@@ -3262,7 +3262,7 @@ const evalExpr = (
   }
 };
 
-const evalCountOf = (
+const evalNumberOf = (
   subst: StySubst,
   arg: Identifier<C>,
   loc: SourceRange,

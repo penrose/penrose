@@ -487,7 +487,7 @@ const {
   test("styvar expr", () => {
     const prog = `
       forall A a {
-        x = countof a
+        x = numberof a
         y = listof a from a
         z = nameof a
       }
