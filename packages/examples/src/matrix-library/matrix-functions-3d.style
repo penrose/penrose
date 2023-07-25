@@ -1,13 +1,6 @@
 canvas {
    width = 1920
    height = 1080
-}
-
-camera {
-   vec3 eye = 4.5*(1,1,1)
-   vec3 center = (0,0,0)
-   vec3 up = (0,1,0)
-   mat4x4 model = lookAt( eye, center, up )
 
    shape background = Rectangle {
       center: (0,0)
@@ -16,21 +9,36 @@ camera {
       fillColor: none()
       strokeColor: #000
       strokeWidth: 4
+      ensureOnCanvas: false
    }
+}
 
+camera {
+   -- define the camera viewpoint
+   vec3 eye = 4.5*(1,1,1)
+   vec3 center = (0,0,0)
+   vec3 up = (0,1,0)
+   mat4x4 model = lookAt( eye, center, up )
+
+   -- define the camera projection
    scalar fovy = 40 -- degrees
    scalar aspect = canvas.width / canvas.height
    scalar near = 0.1
    scalar far = 100.0
    mat4x4 proj = perspective( fovy, aspect, near, far )
 
+   -- define the canvas / "viewport"
    list view = [ -canvas.width/2, -canvas.height/2, canvas.width, canvas.height ]
 }
 
 forall Point p {
+   -- pick some random 3D location for each point
+   -- (which gets overridden later if this point is used in a shape)
    vec3 p.X = ( random(-1,1), random(-1,1), random(-1,1) )
+
+   -- transform and project the point to (x,y,depth)
    vec3 q = project( p.X, camera.model', camera.proj, camera.view )
-   vec2 p.x = ( q[0], q[1] )
+   vec2 p.x = ( q[0], q[1] ) -- keep just (x,y)
 
    shape p.icon = Circle {
       center: p.x
@@ -47,17 +55,21 @@ forall Tetrahedron t {
    vec3 t.center = (?,?,?)
    t.model = rotate3d( angle, axis )
 
+   -- keep the tet somewhat near the origin
    ensure 100*norm( t.center ) < 400
 }
 
 forall Tetrahedron t; Point p1, p2, p3, p4
 where t := Tetrahedron(p1,p2,p3,p4) {
+
+   -- replace the original points with vertices of an equilateral tet
    vec2 c = (1,1,1)/2
    override p1.X = t.model * ( (1,1,0) - c ) + t.center
    override p2.X = t.model * ( (0,1,1) - c ) + t.center
    override p3.X = t.model * ( (1,0,1) - c ) + t.center
    override p4.X = t.model * ( (0,0,0) - c ) + t.center
 
+   -- draw the four faces, using opacity to perform backface culling
    shape t.t123 = Polygon {
       points: [ p1.x, p2.x, p3.x ]
       fillColor: #aa0000dd
@@ -91,6 +103,7 @@ where t := Tetrahedron(p1,p2,p3,p4) {
    }
 }
 
+-- label points if they have labels
 forall Point p
 where p has label {
    p.labelText = Equation {
@@ -106,6 +119,7 @@ where p has label {
    ensure disjoint( p.labelText, p.icon, padding )
 }
 
+-- make sure tets don't overlap in screen space
 forall Tetrahedron t1, t2 {
    scalar padding = 32
 
@@ -122,6 +136,7 @@ forall Tetrahedron t1, t2 {
    ensure disjoint( t1.t124, t2.t124, padding )
 }
 
+-- also make sure a tet doesn't overlap its labels
 forall Tetrahedron t; Point p1, p2, p3, p4
 where t := Tetrahedron(p1,p2,p3,p4); p1 has label {
    ensure disjoint( t.t123, p1.labelText, 10 )
