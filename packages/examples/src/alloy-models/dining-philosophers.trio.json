@@ -1,0 +1,6 @@
+{
+  "substance": "./dining-philosophers/five-philosophers.substance",
+  "style": ["./dining-philosophers/table.style"],
+  "domain": "./dining-philosophers/dining-philosophers.domain",
+  "variation": "ValentinoDonkey58541"
+}

@@ -1,0 +1,6 @@
+{
+  "substance": "./message-passing/conversation.substance",
+  "style": ["./message-passing/timeline-message.style"],
+  "domain": "./message-passing/message-passing.domain",
+  "variation": "ValentinoDonkey58541"
+}

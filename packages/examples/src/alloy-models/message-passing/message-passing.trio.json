@@ -1,6 +1,0 @@
-{
-  "substance": "./conversation.substance",
-  "style": ["./timeline-message.style"],
-  "domain": "./message-passing.domain",
-  "variation": "ValentinoDonkey58541"
-}

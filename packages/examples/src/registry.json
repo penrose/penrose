@@ -458,27 +458,27 @@
     "name": "Periodic Hexagonal Grid",
     "gallery": false
   },
-  "alloy-models/dining-philosophers/dining-philosophers": {
+  "alloy-models/dining-philosophers": {
     "name": "Alloy: Dining Philosophers Problem",
     "gallery": false
   },
-  "alloy-models/message-passing/message-passing": {
+  "alloy-models/message-passing": {
     "name": "Alloy: Conversation between Four Parties",
     "gallery": false
   },
-  "alloy-models/ring-leader-election/ring-leader-election": {
+  "alloy-models/ring-leader-election": {
     "name": "Alloy: Leader Election in Ring",
     "gallery": false
   },
-  "alloy-models/river-crossing/river-crossing": {
+  "alloy-models/river-crossing": {
     "name": "Alloy: River Crossing",
     "gallery": false
   },
-  "alloy-models/workstations/workstations": {
+  "alloy-models/workstations": {
     "name": "Alloy: Workstations",
     "gallery": false
   },
-  "alloy-models/generic/generic": {
+  "alloy-models/generic": {
     "name": "Alloy: Generic Style",
     "gallery": false
   }
