@@ -40,6 +40,8 @@ forall Point p {
    vec3 q = project( p.X, camera.model', camera.proj, camera.view )
    vec2 p.x = ( q[0], q[1] ) -- keep just (x,y)
 
+   -- use the projected point to draw a dot; later these same
+   -- coordinates will be used to draw vertices of the tetrahedron
    shape p.icon = Circle {
       center: p.x
       r: 10
