@@ -81,7 +81,8 @@ const testPrompts = async (prompts: LLMPromptCollection) => {
     recursive: true,
   });
   for (const key in prompts) {
-    if (!/^geometry_[0]_1_1/.test(key)) {
+    //if (!/^geometry_[0]_1_1/.test(key)) {
+    if (!key.endsWith("_1_1")) {
       continue;
     }
     const result = await generateSubstanceLLM({
