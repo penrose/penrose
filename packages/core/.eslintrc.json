@@ -7,12 +7,7 @@
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": { "project": "tsconfig.json", "sourceType": "module" },
-  "plugins": [
-    "eslint-comments",
-    "eslint-plugin-import",
-    "eslint-plugin-jsdoc",
-    "unary-minus"
-  ],
+  "plugins": ["eslint-comments", "import", "jsdoc", "unary-minus"],
   "rules": {
     "@typescript-eslint/consistent-type-assertions": [
       "warn",
