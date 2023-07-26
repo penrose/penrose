@@ -9,14 +9,14 @@ import moo from "moo";
 import _ from 'lodash'
 import { optional, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil.js'
 import { C, ConcreteNode, Identifier, StringLit } from "../types/ast.js";
-import { IndexedIdentifier, SubProg, SubStmt, Decl, Bind, ApplyPredicate, Deconstructor, Func, EqualExprs, EqualPredicates, LabelDecl, NoLabel, AutoLabel, LabelOption, TypeConsApp } from "../types/substance.js";
+import { Sequence, RangeAssign, IntRange, BinaryExpr, ComparisonExpr, IndexedIdentifier, SubProg, SubStmt, Decl, Bind, ApplyPredicate, Deconstructor, Func, EqualExprs, EqualPredicates, LabelDecl, NoLabel, AutoLabel, LabelOption, TypeConsApp, IntLit, Index } from "../types/substance.js";
 
 
 // NOTE: ordering matters here. Top patterns get matched __first__
 const lexer = moo.compile({
   tex_literal: /\$.*?\$/, // TeX string enclosed by dollar signs
   double_arrow: "<->",
-  ellipsis: "...",
+  int_literal: /(?:0|[1-9][0-9]*)/,              
   ...basicSymbols,
   identifier: {
     match: /[A-z_][A-Za-z_0-9]*/,
@@ -27,7 +27,9 @@ const lexer = moo.compile({
       label: "Label",
       noLabel: "NoLabel",
       autoLabel: "AutoLabel",
-      let: "Let"
+      let: "Let",
+      bool_true: "true",
+      bool_false: "false"
     })
   }
 });
@@ -63,8 +65,82 @@ statements
     |  _ statement _c_ nl statements {% d => [d[1], ...d[4]] %}
 
 statement 
-  -> decl_seq        {% id %}
-  |  decl            {% id %}
+  -> stmt_seq {% id %}
+  |  stmt     {% id %}
+
+# TODO: `stmt` should include indexed_variable
+stmt_seq -> stmt __ "for" __ sequence {% 
+  ([[stmt], , , , seq]) => {
+    return {
+      ...nodeData,
+      ...rangeFrom([stmt, seq]),
+      tag: "StmtSeq",
+      stmt, seq
+    }
+  }
+%}
+
+# TODO: add comparsion expression
+sequence -> sepBy1[range_assign, ","] {% 
+  ([d]): Sequence<C> => ({
+    ...nodeData,
+    ...rangeFrom(d),
+    tag: "Sequence", 
+    indices: d, conditions: []
+  })
+%}
+
+range_assign -> identifier _ "=" _ int_range {%
+  ([variable, , , , range]): RangeAssign<C> => ({
+    ...nodeData,
+    ...rangeBetween(variable, range),
+    tag: "RangeAssign", variable, range
+  })
+%}
+
+int_range -> "[" _ int_lit _ "," _ int_lit _ "]" {%
+  ([lbracket, , low, , , , high, , rbracket]): IntRange<C> => ({
+    ...nodeData,
+    ...rangeBetween(lbracket, rbracket),
+    tag: "IntRange", low, high
+  })
+%}
+
+int_lit -> %int_literal {% 
+  ([d]): IntLit<C> => ({
+    ...nodeData,
+    ...rangeOf(d),
+    tag: "IntLit", value: +d.value
+  })
+%}
+
+# TODO: `stmt` should include indexed_variable 
+indexed_identifier -> identifier "{" _ index _ "}" {%
+  ([name, , , index , , rbrace]): IndexedIdentifier<C> => ({
+    ...nodeData,
+    ...rangeBetween(name, rbrace),
+    tag: "IndexedIdentifier", name, index
+  }) 
+%}
+
+index 
+  -> int_lit {% 
+    ([d]): Index<C> => ({
+      ...nodeData,
+      ...rangeOf(d),
+      tag: "Index", content: d
+    })
+  %}
+  |  identifier {% 
+    ([d]): Index<C> => ({
+      ...nodeData,
+      ...rangeOf(d),
+      tag: "Index", content: d
+    })
+  %}
+
+stmt 
+  -> decl            {% id %}
   |  bind            {% id %}
   |  let_bind        {% id %}   
   |  decl_bind       {% id %} 
@@ -79,26 +155,6 @@ decl -> type_constructor __ sepEndBy1[identifier, ","] {%
     ...rangeBetween(type, name),
     tag: "Decl", type, name
   }))
-%}
-
-ellipsis_sep -> "," _ "..." _ "," {% id %}
-
-indexed_identifier -> identifier "{" _ %float_literal _ "}" {%
-  ([name, , , index]): IndexedIdentifier<C> => ({
-    ...nodeData,
-    ...rangeBetween(name, index),
-    tag: "IndexedIdentifier", name, index: +index.value
-  }) 
-%}
-
-decl_seq -> type_constructor __ sepBy1[indexed_identifier, ","] _ ellipsis_sep _ indexed_identifier {%
-  ([type, , leading, , , , last]): DeclSeq<C> => {
-    return {
-      ...nodeData,
-      ...rangeBetween(type, last),
-      tag: "DeclSeq", type, leading, last
-    };
-  }
 %}
 
 bind -> identifier _ ":=" _ sub_expr {%
@@ -259,6 +315,31 @@ type_constructor -> identifier type_arg_list:? {%
 type_arg_list -> _ "(" _ sepEndBy1[type_constructor, ","] _ ")" {% 
   ([, , , d]): TypeConsApp<C>[] => _.flatten(d) 
 %}
+
+# Exprs
+
+# TODO: `mod` operator and other arithmetic ops
+expr -> 
+    expr _ "+" _ term {% ([left, , , , right]): BinaryExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryExpr", operator: "+", left, right}) %}
+  | expr _ "-" _ term {% ([left, , , , right]): BinaryExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryExpr", operator: "-", left, right}) %}
+  | term {% id %}
+
+term -> 
+    term _ "*" _ factor {% ([left, , , , right]): BinaryExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryExpr", operator: "*", left, right}) %}
+  | term _ "/" _ factor {% ([left, , , , right]): BinaryExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryExpr", operator: "/", left, right}) %}
+  | factor {% id %}
+
+factor -> 
+    "(" _ expr _ ")" {% nth(2) %}
+  | int_lit {% id %}
+  | identifier {% id %}
+
+comparison_expr -> 
+    expr _ "<" _ expr {% ([left, , , , right]): ComparisonExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "ComparisonExpr", operator: "<", left, right}) %}
+  | expr _ ">" _ expr {% ([left, , , , right]): ComparisonExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "ComparisonExpr", operator: ">", left, right}) %}
+  | expr _ "<=" _ expr {% ([left, , , , right]): ComparisonExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "ComparisonExpr", operator: "<=", left, right}) %}
+  | expr _ ">=" _ expr {% ([left, , , , right]): ComparisonExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "ComparisonExpr", operator: ">=", left, right}) %}
+  | expr _ "==" _ expr {% ([left, , , , right]): ComparisonExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "ComparisonExpr", operator: "==", left, right}) %}
 
 # Common 
 

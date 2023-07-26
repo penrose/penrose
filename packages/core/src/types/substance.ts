@@ -19,12 +19,13 @@ export interface SubstanceEnv {
 //#region Substance AST
 export type SubProg<T> = ASTNode<T> & {
   tag: "SubProg";
-  statements: SubStmt<T>[];
+  statements: Stmt<T>[];
 };
+
+export type Stmt<T> = SubStmt<T> | StmtSeq<T>;
 
 export type SubStmt<T> =
   | Decl<T>
-  | DeclSeq<T>
   | Bind<T>
   | EqualExprs<T>
   | EqualPredicates<T>
@@ -74,19 +75,6 @@ export type Decl<T> = ASTNode<T> & {
   tag: "Decl";
   type: TypeConsApp<T>;
   name: Identifier<T>;
-};
-
-export type IndexedIdentifier<T> = {
-  tag: "IndexedIdentifier";
-  name: Identifier<T>;
-  index: number;
-};
-
-export type DeclSeq<T> = ASTNode<T> & {
-  tag: "DeclSeq";
-  type: TypeConsApp<T>;
-  leading: IndexedIdentifier<T>[];
-  last: IndexedIdentifier<T>;
 };
 
 type TypeConsAppArgs<T> = {
@@ -151,3 +139,79 @@ export type ApplyPredicate<T> = ASTNode<T> & {
 };
 
 export type SubPredArg<T> = SubExpr<T> | ApplyPredicate<T>; // NOTE: the parser only parse nested preds into `Func`, but the checker will look up and fix the type dynamically
+
+//#region basic expression parser
+
+export type ComparisonExpr<T> = ASTNode<T> & {
+  tag: "ComparisonExpr";
+  operator: string;
+  left: Expr<T>;
+  right: Expr<T>;
+};
+
+export type Expr<T> = BinaryExpr<T> | Number<T> | Identifier<T>;
+
+export type BinaryExpr<T> = ASTNode<T> & {
+  tag: "BinaryExpr";
+  operator: "+" | "-" | "*" | "/" | "^" | "%";
+  left: Expr<T>;
+  right: Expr<T>;
+};
+
+export type Number<T> = ASTNode<T> & {
+  tag: "Number";
+  value: number;
+};
+
+//#endregion
+
+//#region Substance Sequences
+
+export type StmtSeq<T> = ASTNode<T> & {
+  tag: "StmtSeq";
+  stmt: SubStmt<T>;
+  seq: Sequence<T>;
+};
+
+export type IntLit<T> = ASTNode<T> & {
+  tag: "IntLit";
+  value: number;
+};
+
+export type IntRange<T> = ASTNode<T> & {
+  tag: "IntRange";
+  low: IntLit<T>;
+  high: IntLit<T>;
+};
+
+export type Sequence<T> = ASTNode<T> & {
+  tag: "Sequence";
+  indices: RangeAssign<T>[];
+  conditions: ComparisonExpr<T>[];
+};
+
+export type RangeAssign<T> = ASTNode<T> & {
+  tag: "RangeAssign";
+  variable: Identifier<T>;
+  range: IntRange<T>;
+};
+
+export type DeclSeq<T> = ASTNode<T> & {
+  tag: "DeclSeq";
+  type: TypeConsApp<T>;
+  leading: IndexedIdentifier<T>[];
+  last: IndexedIdentifier<T>;
+};
+
+export type IndexedIdentifier<T> = {
+  tag: "IndexedIdentifier";
+  name: Identifier<T>;
+  index: Index<T>;
+};
+
+export type Index<T> = ASTNode<T> & {
+  tag: "Index";
+  content: Identifier<T> | IntLit<T>;
+};
+
+//#endregion
