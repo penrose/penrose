@@ -3,12 +3,11 @@
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
-    "prettier",
-    "prettier/@typescript-eslint"
+    "prettier"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": { "project": "tsconfig.json", "sourceType": "module" },
-  "plugins": ["eslint-comments", "eslint-plugin-import", "eslint-plugin-jsdoc"],
+  "plugins": ["eslint-comments", "import", "jsdoc", "unary-minus"],
   "rules": {
     "@typescript-eslint/consistent-type-assertions": [
       "warn",
@@ -16,15 +15,18 @@
     ],
     "@typescript-eslint/no-base-to-string": "warn",
     "@typescript-eslint/no-confusing-void-expression": "error",
+    "@typescript-eslint/no-explicit-any": "warn",
     "@typescript-eslint/no-unnecessary-boolean-literal-compare": "error",
     "@typescript-eslint/no-unnecessary-condition": "warn",
+    "@typescript-eslint/no-unused-vars": "warn",
     "@typescript-eslint/non-nullable-type-assertion-style": "warn",
     "@typescript-eslint/prefer-ts-expect-error": "error",
     "eqeqeq": "error",
     "eslint-comments/no-use": "error",
     "import/no-cycle": "error",
     "no-fallthrough": "error",
-    "no-template-curly-in-string": "error"
+    "no-template-curly-in-string": "error",
+    "unary-minus/only-numbers": "error"
   },
   "ignorePatterns": [
     "**/*.test.ts",

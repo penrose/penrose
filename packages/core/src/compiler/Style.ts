@@ -3777,7 +3777,7 @@ const pseudoTopsort = (graph: Graph<string>): string[] => {
 
   while (toVisit.size() > 0) {
     // remove element with fewest incoming edges and append to result
-    const node: string = toVisit.extractRoot() as string;
+    const node: string = toVisit.extractRoot()!;
     res.push(node);
     // remove all edges with `node`
     for (const { j } of graph.outEdges(node)) {
