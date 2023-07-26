@@ -8310,10 +8310,10 @@ eslint-plugin-jsdoc@^46.4.4:
     semver "^7.5.1"
     spdx-expression-parse "^3.0.1"
 
-eslint-plugin-unary-minus@^0.2.2:
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-unary-minus/-/eslint-plugin-unary-minus-0.2.2.tgz#9168fdef03b6c7e7143f2acbc3abe58010da6c0a"
-  integrity sha512-3ZPy1G7cnEoOIV0jGck2wEVoml70TxfGaJK+MzalGOOnTlpyAHXr4P0mXAPoR+TPiN+XQthaULFD0HbTFi0R0A==
+eslint-plugin-unary-minus@^0.2.3:
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-unary-minus/-/eslint-plugin-unary-minus-0.2.3.tgz#51ed9832d58c5f27ae14b7428f29041119fce262"
+  integrity sha512-3f3CSyTIOLr1WcpvkEPDbqaY/re+QMm+bf6zkUj8Z95FnegKIHIaLajqoLwLFHuUD3St9vwTlxq0i3HL2auATw==
   dependencies:
     "@typescript-eslint/utils" "^6"
 
