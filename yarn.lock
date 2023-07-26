@@ -8310,10 +8310,10 @@ eslint-plugin-jsdoc@^46.4.4:
     semver "^7.5.1"
     spdx-expression-parse "^3.0.1"
 
-eslint-plugin-unary-minus@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-unary-minus/-/eslint-plugin-unary-minus-0.2.0.tgz#c61b99a0e4464e1f9fe97449c1e87450c206b0a2"
-  integrity sha512-W/899q3/T2uNCqgInfBORE+ua9DBk9YdiKelImQzOSbsqJZzW5sRUo+ON/Ft+IErluvB9DFMZjpOL6eGbe3xig==
+eslint-plugin-unary-minus@^0.2.2:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-unary-minus/-/eslint-plugin-unary-minus-0.2.2.tgz#9168fdef03b6c7e7143f2acbc3abe58010da6c0a"
+  integrity sha512-3ZPy1G7cnEoOIV0jGck2wEVoml70TxfGaJK+MzalGOOnTlpyAHXr4P0mXAPoR+TPiN+XQthaULFD0HbTFi0R0A==
   dependencies:
     "@typescript-eslint/utils" "^6"
 
@@ -16574,10 +16574,10 @@ typedoc@^0.24.7:
     minimatch "^9.0.0"
     shiki "^0.14.1"
 
-typescript@^5.0.4:
-  version "5.0.4"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.0.4.tgz#b217fd20119bd61a94d4011274e0ab369058da3b"
-  integrity sha512-cW9T5W9xY37cc+jfEnaUvX91foxtHkza3Nw3wkoF4sSlKn0MONdkdEndig/qPBWXNkmplh3NzayQzCiHM4/hqw==
+typescript@^5.1.6:
+  version "5.1.6"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.1.6.tgz#02f8ac202b6dad2c0dd5e0913745b47a37998274"
+  integrity sha512-zaWCozRZ6DLEWAWFrVDz1H6FVXzUSfTy5FUMWsQlU8Ym5JP9eO4xkTIROFCQvhQf61z6O/G6ugw3SgAnvvm+HA==
 
 uc.micro@^1.0.1, uc.micro@^1.0.5:
   version "1.0.6"
