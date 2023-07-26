@@ -101,7 +101,7 @@
     "eslint-plugin-eslint-comments": "^3.2.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-jsdoc": "^46.4.4",
-    "eslint-plugin-unary-minus": "^0.1.1",
+    "eslint-plugin-unary-minus": "^0.2.0",
     "svgo": "^3.0.2",
     "tslib": "^2.1.0",
     "typedoc": "^0.24.7",

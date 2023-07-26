@@ -29,7 +29,7 @@
     "import/no-cycle": "error",
     "no-fallthrough": "error",
     "no-template-curly-in-string": "error",
-    "unary-minus": "error"
+    "unary-minus/only-numbers": "error"
   },
   "ignorePatterns": [
     "**/*.test.ts",
