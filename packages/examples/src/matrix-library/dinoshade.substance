@@ -1,2 +1,4 @@
-Dinosaur D1, D2, D3
-Floor F
+Dinosaur D1, D2
+IsReflected(D2)
+
+

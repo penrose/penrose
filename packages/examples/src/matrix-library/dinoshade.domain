@@ -1,2 +1,2 @@
 type Dinosaur
-type Floor
+predicate IsReflected(Dinosaur D)
