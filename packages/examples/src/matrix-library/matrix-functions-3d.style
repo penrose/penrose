@@ -37,7 +37,7 @@ forall Point p {
    vec3 p.X = ( random(-1,1), random(-1,1), random(-1,1) )
 
    -- transform and project the point to (x,y,depth)
-   vec3 q = project( p.X, camera.model', camera.proj, camera.view )
+   vec3 q = project( p.X, camera.model, camera.proj, camera.view )
    vec2 p.x = ( q[0], q[1] ) -- keep just (x,y)
 
    -- use the projected point to draw a dot; later these same
@@ -52,13 +52,13 @@ forall Point p {
 
 forall Tetrahedron t {
    -- give the tetrahedron a random rotation
-   scalar angle = ?
+   scalar angle = 0
    vec3 axis = sphereRandom()
-   vec3 t.center = (?,?,?)
+   vec3 t.center = (0,0,0)
    t.model = rotate3d( angle, axis )
 
    -- keep the tet somewhat near the origin
-   ensure 100*norm( t.center ) < 400
+   -- ensure 100*norm( t.center ) < 400
 }
 
 forall Tetrahedron t; Point p1, p2, p3, p4
@@ -66,10 +66,10 @@ where t := Tetrahedron(p1,p2,p3,p4) {
 
    -- replace the original points with vertices of an equilateral tet
    vec2 c = (1,1,1)/2
-   override p1.X = t.model * ( (1,1,0) - c ) + t.center
-   override p2.X = t.model * ( (0,1,1) - c ) + t.center
-   override p3.X = t.model * ( (1,0,1) - c ) + t.center
-   override p4.X = t.model * ( (0,0,0) - c ) + t.center
+   override p1.X = t.model * ( (0,0,0) - c ) + t.center
+   override p2.X = t.model * ( (1,1,0) - c ) + t.center
+   override p3.X = t.model * ( (0,1,1) - c ) + t.center
+   override p4.X = t.model * ( (1,0,1) - c ) + t.center
 
    -- draw the four faces, using opacity to perform backface culling
    shape t.t123 = Polygon {
@@ -78,7 +78,7 @@ where t := Tetrahedron(p1,p2,p3,p4) {
       strokeColor: #000
       strokeWidth: 3
       ensureOnCanvas: false
-      opacity: max( 0, -cross2D( p2.x-p1.x, p3.x-p1.x ) )
+      --opacity: max( 0, cross2D( p2.x-p1.x, p3.x-p1.x ) )
    }
    shape t.t134 = Polygon {
       points: [ p1.x, p3.x, p4.x ]
@@ -86,7 +86,7 @@ where t := Tetrahedron(p1,p2,p3,p4) {
       strokeColor: #000
       strokeWidth: 3
       ensureOnCanvas: false
-      opacity: max( 0, cross2D( p3.x-p4.x, p1.x-p4.x ) )
+      --opacity: max( 0, cross2D( p3.x-p4.x, p1.x-p4.x ) )
    }
    shape t.t124 = Polygon {
       points: [ p1.x, p2.x, p4.x ]
@@ -94,14 +94,14 @@ where t := Tetrahedron(p1,p2,p3,p4) {
       strokeColor: #000
       strokeWidth: 3
       ensureOnCanvas: false
-      opacity: max( 0, cross2D( p1.x-p4.x, p2.x-p4.x ) )
+      --opacity: max( 0, cross2D( p1.x-p4.x, p2.x-p4.x ) )
    }
    shape t.t234 = Polygon {
       points: [ p2.x, p3.x, p4.x ]
       fillColor: #aacc00dd
       strokeColor: #000
       strokeWidth: 3
-      opacity: max( 0, cross2D( p2.x-p4.x, p3.x-p4.x ) )
+      --opacity: max( 0, cross2D( p2.x-p4.x, p3.x-p4.x ) )
    }
 }
 
@@ -154,5 +154,10 @@ where t := Tetrahedron(p1,p2,p3,p4); p3 has label {
 forall Tetrahedron t; Point p1, p2, p3, p4
 where t := Tetrahedron(p1,p2,p3,p4); p4 has label {
    ensure disjoint( t.t123, p4.labelText, 10 )
+}
+
+forall Cube c {
+   list points3d = [ (-1,-1,-1), (-1,-1,+1), (-1,+1,-1), (-1,+1,+1), (+1,-1,-1), (+1,-1,+1), (+1,+1,-1), (+1,+1,+1) ]
+   list points2d = projectList( points3d, camera.model, camera.proj, camera.view )
 }
 
