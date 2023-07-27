@@ -67,7 +67,7 @@ decl      ::= tname id
 predicate ::= pname "(" id ")"
 function  ::= tname id ":=" fname "(" id "," id ")"
 tname     ::= "Hydrogen" // This type describes a hydrogen atom. Example usage which holds for all following elements: \n\t\t'Hydrogen h1\n\t\tHydrogen h2, h3'
-            | "Helium" | "Lithium" | "Beryllium" | "Boron" | "Carbon" | "Nitrogen" | "Oxygen" | "Fluorine" | "Neon" | "Sodium" | "Magnesium" | "Aluminium" | "Silicon" | "Phosphorus" | "Sulfur" | "Chlorine" | "Argon" | "Potassium" | "Calcium" | "Scandium" | "Titanium" | "Vanadium" | "Chromium" | "Manganese" | "Iron" | "Cobalt" | "Nickel" | "Copper" | "Zinc" | "Gallium" | "Germanium" | "Arsenic" | "Selenium" | "Bromine" | "Krypton" | "Rubidium" | "Strontium" | "Yttrium" | "Zirconium" | "Niobium" | "Molybdenum" | "Technetium" | "Ruthenium" | "Rhodium" | "Palladium" | "Silver" | "Cadmium" | "Indium" | "Tin" | "Antimony" | "Tellurium" | "Iodine" | "Xenon" | "Cesium" | "Barium" | "Lanthanum" | "Cerium" | "Praseodymium" | "Neodymium" | "Promethium" | "Samarium" | "Europium" | "Gadolinium" | "Terbium" | "Dysprosium" | "Holmium" | "Erbium" | "Thulium" | "Ytterbium" | "Lutetium" | "Hafnium" | "Tantalum" | "Tungsten" | "Rhenium" | "Osmium" | "Iridium" | "Platinum" | "Gold" | "Mercury" | "Thallium" | "Lead" | "Bismuth" | "Polonium" | "Astatine" | "Radon" | "Francium" | "Radium" | "Actinium" | "Thorium" | "Protactinium" | "Uranium" | "Neptunium" | "Plutonium" | "Americium" | "Curium" | "Berkelium" | "Californium" | "Einsteinium" | "Fermium" | "Mendelevium" | "Nobelium" | "Lawrencium" | "Rutherfordium" | "Dubnium" | "Seaborgium" | "Bohrium" | "Hassium" | "Meitnerium" | "Darmstadtium" | "Roentgenium" | "Copernicium" // This type describes an atom. Example usage: 'Hydrogen h1\nCarbon c1, c2\n' 
+            | "Helium" | "Lithium" | "Beryllium" | "Boron" | "Carbon" | "Nitrogen" | "Oxygen" | "Fluorine" | "Neon" | "Sodium" | "Magnesium" | "Aluminium" | "Silicon" | "Phosphorus" | "Sulfur" | "Chlorine" | "Argon" | "Potassium" | "Calcium" | "Scandium" | "Titanium" | "Vanadium" | "Chromium" | "Manganese" | "Iron" | "Cobalt" | "Nickel" | "Copper" | "Zinc" | "Gallium" | "Germanium" | "Arsenic" | "Selenium" | "Bromine" | "Krypton" | "Rubidium" | "Strontium" | "Yttrium" | "Zirconium" | "Niobium" | "Molybdenum" | "Technetium" | "Ruthenium" | "Rhodium" | "Palladium" | "Silver" | "Cadmium" | "Indium" | "Tin" | "Antimony" | "Tellurium" | "Iodine" | "Xenon" | "Cesium" | "Barium" | "Lanthanum" | "Cerium" | "Praseodymium" | "Neodymium" | "Promethium" | "Samarium" | "Europium" | "Gadolinium" | "Terbium" | "Dysprosium" | "Holmium" | "Erbium" | "Thulium" | "Ytterbium" | "Lutetium" | "Hafnium" | "Tantalum" | "Tungsten" | "Rhenium" | "Osmium" | "Iridium" | "Platinum" | "Gold" | "Mercury" | "Thallium" | "Lead" | "Bismuth" | "Polonium" | "Astatine" | "Radon" | "Francium" | "Radium" | "Actinium" | "Thorium" | "Protactinium" | "Uranium" | "Neptunium" | "Plutonium" | "Americium" | "Curium" | "Berkelium" | "Californium" | "Einsteinium" | "Fermium" | "Mendelevium" | "Nobelium" | "Lawrencium" | "Rutherfordium" | "Dubnium" | "Seaborgium" | "Bohrium" | "Hassium" | "Meitnerium" | "Darmstadtium" | "Roentgenium" | "Copernicium"
             | "Bond" // This type describes a bond. See construction of a bond below.
 fname     ::= "MakeSingleBond" // This function creates a single bond between two atoms. Example usage: \n\t\t'Hydrogen h1, h2\n\t\tBond b1\n\t\tb1 := MakeSingleBond(h1, h2)'
             | "MakeDoubleBond" // This function creates a double bond between two atoms. Example usage: \n\t\t'Oxygen o1, o2\n\t\tBond b1\n\t\tb1 := MakeDoubleBond(o1, o2)\n\t\tFourDots(o1)\n\t\tFourDots(o2)'
@@ -155,6 +155,445 @@ p2name    ::= "On" // This predicate makes a point be on a line. Example use: 'P
 p3name    ::= "Collinear" // This predicate makes three points collinear. Example use: 'Point A, B, C\n Segment AB, BC\n AB := Segment(A, B)\n BC := Segment(B, C)\n Collinear(A, B, C)'
 letter    ::= "A" | "B" | ... | "Z" | "a" | "b" | ... | "z"
 digit     ::= "0" | "1" | ... | "9"
+`,
+};
+
+export const commentedDomains = {
+  molecules: `-- Atoms
+
+type Atom
+
+type Hydrogen <: Atom -- This type describes a hydrogen atom. Example usage which holds for all following elements: 
+-- Hydrogen h1
+-- Hydrogen h2, h3
+type Helium <: Atom
+type Lithium <: Atom
+type Beryllium <: Atom
+type Boron <: Atom
+type Carbon <: Atom
+type Nitrogen <: Atom
+type Oxygen <: Atom
+type Fluorine <: Atom
+type Neon <: Atom
+type Sodium <: Atom
+type Magnesium <: Atom
+type Aluminium <: Atom
+type Silicon <: Atom
+type Phosphorus <: Atom
+type Sulfur <: Atom
+type Chlorine <: Atom
+type Argon <: Atom
+type Potassium <: Atom
+type Calcium <: Atom
+type Scandium <: Atom
+type Titanium <: Atom
+type Vanadium <: Atom
+type Chromium <: Atom
+type Manganese <: Atom
+type Iron <: Atom
+type Cobalt <: Atom
+type Nickel <: Atom
+type Copper <: Atom
+type Zinc <: Atom
+type Gallium <: Atom
+type Germanium <: Atom
+type Arsenic <: Atom
+type Selenium <: Atom
+type Bromine <: Atom
+type Krypton <: Atom
+type Rubidium <: Atom
+type Strontium <: Atom
+type Yttrium <: Atom
+type Zirconium <: Atom
+type Niobium <: Atom
+type Molybdenum <: Atom
+type Technetium <: Atom
+type Ruthenium <: Atom
+type Rhodium <: Atom
+type Palladium <: Atom
+type Silver <: Atom
+type Cadmium <: Atom
+type Indium <: Atom
+type Tin <: Atom
+type Antimony <: Atom
+type Tellurium <: Atom
+type Iodine <: Atom
+type Xenon <: Atom
+type Cesium <: Atom
+type Barium <: Atom
+type Lanthanum <: Atom
+type Cerium <: Atom
+type Praseodymium <: Atom
+type Neodymium <: Atom
+type Promethium <: Atom
+type Samarium <: Atom
+type Europium <: Atom
+type Gadolinium <: Atom
+type Terbium <: Atom
+type Dysprosium <: Atom
+type Holmium <: Atom
+type Erbium <: Atom
+type Thulium <: Atom
+type Ytterbium <: Atom
+type Lutetium <: Atom
+type Hafnium <: Atom
+type Tantalum <: Atom
+type Tungsten <: Atom
+type Rhenium <: Atom
+type Osmium <: Atom
+type Iridium <: Atom
+type Platinum <: Atom
+type Gold <: Atom
+type Mercury <: Atom
+type Thallium <: Atom
+type Lead <: Atom
+type Bismuth <: Atom
+type Polonium <: Atom
+type Astatine <: Atom
+type Radon <: Atom
+type Francium <: Atom
+type Radium <: Atom
+type Actinium <: Atom
+type Thorium <: Atom
+type Protactinium <: Atom
+type Uranium <: Atom
+type Neptunium <: Atom
+type Plutonium <: Atom
+type Americium <: Atom
+type Curium <: Atom
+type Berkelium <: Atom
+type Californium <: Atom
+type Einsteinium <: Atom
+type Fermium <: Atom
+type Mendelevium <: Atom
+type Nobelium <: Atom
+type Lawrencium <: Atom
+type Rutherfordium <: Atom
+type Dubnium <: Atom
+type Seaborgium <: Atom
+type Bohrium <: Atom
+type Hassium <: Atom
+type Meitnerium <: Atom
+type Darmstadtium <: Atom
+type Roentgenium <: Atom
+type Copernicium <: Atom
+
+-- Bonds
+
+type Bond -- This type describes a bond. See construction of a bond below.
+
+constructor MakeSingleBond(Atom a, Atom b) -> Bond -- This function creates a single bond between two atoms. Example usage: 
+-- Hydrogen h1, h2
+-- Bond b1
+-- b1 := MakeSingleBond(h1, h2)
+constructor MakeDoubleBond(Atom a, Atom b) -> Bond -- This function creates a double bond between two atoms. Example usage: 
+-- Oxygen o1, o2
+-- Bond b1
+-- b1 := MakeDoubleBond(o1, o2)
+-- FourDots(o1)
+-- FourDots(o2)
+constructor MakeTripleBond(Atom a, Atom b) -> Bond -- This function creates a triple bond between two atoms. Example usage: 
+-- Nitrogen n1, n2
+-- Bond b1
+-- b1 := MakeTripleBond(n1, n2)
+-- TwoDots(n1)
+-- TwoDots(n2)
+
+-- Electrons 
+
+-- these correspond to dots in a Lewis structure
+predicate ZeroDots(Atom) -- This predicate displays no dots on an atom. Example usage: 
+-- Hydrogen h1, h2
+-- Bond b1 := MakeSingleBond(h1, h2)
+-- ZeroDots(h1)
+-- ZeroDots(h2)
+predicate TwoDots(Atom) -- This predicate displays two dots on an atom. Example usage: 
+-- Nitrogen n1, n2
+-- Bond b1 := MakeTripleBond(n1, n2)
+-- TwoDots(n1)
+-- TwoDots(n2)
+predicate FourDots(Atom) -- This predicate displays four dots on an atom. Example usage: 
+-- Oxygen o1, o2
+-- Bond b1 := MakeDoubleBond(o1, o2)
+-- FourDots(o1)
+-- FourDots(o2)
+predicate SixDots(Atom) -- This predicate displays six dots on an atom. Example usage: ]
+-- Fluorine f1, f2
+-- Bond b1 := MakeSingleBond(f1, f2)
+-- SixDots(f1)
+-- SixDots(f2)
+
+-- layout
+-- predicate Collinear(Atom, Atom, Atom)
+-- predicate VerticalAlign(Atom, Atom)
+-- predicate HorizontalAlign(Atom, Atom)
+`,
+  simpleDirectedGraph: `
+type Vertex -- This type describes a vertex. Example usage: 
+-- Vertex v1, v2, v3
+predicate Arc(Vertex a, Vertex b) -- This predicate creates an arc from one vertex to another. Example usage: 
+-- Vertex v1, v2, v3
+-- Arc(v1, v2)
+-- Arc(v2, v3)
+-- AutoLabel All
+predicate HighlightVertex(Vertex a) -- This predicate highlights a vertex. Example usage: 
+-- Vertex v1, v2, v3
+-- Arc(v1, v2)\n\t\tArc(v2, v3)
+-- HighlightVertex(v1)
+-- AutoLabel All
+predicate HighlightArc(Vertex a, Vertex b) -- This predicate highlights an arc given the outgoing and incoming vertices of the arc. Example usage: 
+-- Vertex v1, v2, v3
+-- Arc(v1, v2)
+-- Arc(v2, v3)
+-- HighlightArc(v1, v2)
+-- AutoLabel All  
+`,
+  geometry: `-- ~~~~~~~~~~~~~~~~ TYPES ~~~~~~~~~~~~~~~~
+type Shape
+type Point <: Shape -- This type describes a point. Example usage: 
+-- Point A, B, C
+-- AutoLabel A, B, C
+type Linelike <: Shape -- This type describes a plane. Example usage: 
+-- Plane p
+-- AutoLabel p
+type Ray <: Linelike -- This type describes a ray. See construction of a ray below.
+type Line <: Linelike -- This type describes a line. See construction of a line below.
+type Segment <: Linelike -- This type describes a line segment. See construction of a line segment below.
+
+type Angle <: Shape -- This type describes an angle. See construction of an angle below.
+
+type Triangle <: Shape -- This type describes a triangle. See construction of a triangle below.
+type Quadrilateral <: Shape -- This type describes a quadrilateral. See construction of a quadrilateral below.
+type Rectangle <: Quadrilateral -- This type describes a rectangle. See construction of a rectangle below.
+type Circle <: Shape -- This type describes a circle. See construction of a circle below.
+
+type Plane <: Shape -- This type describes a plane. Example usage: 
+-- Plane p
+-- AutoLabel p
+
+-- ~~~~~~~~~~~~~~~~ CONSTRUCTORS ~~~~~~~~~~~~~~~~
+-- Lines and Points
+constructor Segment(Point p, Point q) -- This constructor creates a line segment from two points. Example usage: 
+-- Point A, B
+-- Segment AB := Segment(A, B)
+-- AutoLabel A, B
+constructor Ray(Point base, Point direction) -- This constructor creates a ray from two points, a base and a direction point. Example usage: 
+-- Point A, B
+-- Ray rayAB := Ray(A, B)
+-- AutoLabel A, B
+constructor Line(Point p, Point q) -- This constructor creates a line from two points. Example usage: 
+-- Point A, B
+-- Line lineAB := Line(A, B)
+-- AutoLabel A, B
+constructor Midpoint(Linelike l) -> Point -- This constructor creates a point as the midpoint of a line. Example usage: 
+-- Point A, B
+-- Segment segmentAB
+-- segmentAB := Segment(A, B)
+-- Point midpointAB := Midpoint(AB)
+-- AutoLabel A, B, midpointAB
+
+-- Angles
+constructor InteriorAngle(Point p, Point q, Point r) -> Angle -- This constructor creates an angle from three points. Example usage: 
+-- Point A, B, C
+-- Angle angleABC := InteriorAngle(A, B, C)
+-- AutoLabel A, B, C
+
+-- Polygons/Shapes
+constructor Triangle(Point p, Point q, Point r) -- This constructor creates a triangle from three points. Example usage: Point A, B, C
+-- Triangle triangleABC := Triangle(A, B, C)
+-- AutoLabel A, B, C
+constructor Rectangle(Point p, Point q, Point r, Point s) -- This constructor creates a rectangle from four points. Example usage: 
+-- Point A, B, C, D
+-- Rectangle rectangleABCD := Rectangle(A, B, C, D)
+-- AutoLabel A, B, C, D
+constructor Quadrilateral(Point p, Point q, Point r, Point s) -- This function creates a quadrilateral from four points. Example usage: 
+-- Point A, B, C, D
+-- Quadrilateral quadrilateralABCD := Quadrilateral(A, B, C, D)
+-- AutoLabel A, B, C, D
+constructor CircleR(Point center, Point radius) -> Circle -- This constructor creates a circle from a center point and a radius point. Example usage: 
+-- Point A, B
+-- Circle circleAB := CircleR(A, B)
+-- AutoLabel A, B
+-- constructor CircleD(Point diam1, Point diam2) -> Circle  -- TODO can be reimplemented when #621 is resolved
+
+-- ~~~~~~~~~~~~~~~~ FUNCTIONS ~~~~~~~~~~~~~~~~
+-- Lines and Points
+function Bisector(Angle) -> Ray -- This function creates a ray as the angle bisector of an angle. Example usage: 
+-- Point A, B, C
+-- Angle angleABC
+-- angleABC := InteriorAngle(A, B, C)
+-- Ray bisectorABC := Bisector(angleABC)
+-- AutoLabel A, B, C, bisectorABC
+function PerpendicularBisector(Segment, Point) -> Segment -- This function creates a perpendicular bisector from a line segment. Example usage: 
+-- Point A, B, C
+-- Segment AB
+-- AB := Segment(A, B)
+-- Segment perpendicularBisectorAB := PerpendicularBisector(AB, C)
+-- AutoLabel A, B, C
+function PerpendicularBisectorLabelPts(Segment, Point, Point) -> Segment -- This function creates a perpendicular bisector from a segment to bisect, a base point, and a direction point. Example usage: 
+-- Point A, B, C, D, d
+-- Segment AB, CD
+-- AB := Segment(A, B)
+-- CD := Segment(C, D)
+-- PerpendicularBisectorLabelPts(AB, C, d)
+-- AutoLabel A, B, C, D, d
+
+-- Polygons/Shapes
+function MidSegment(Triangle, Point, Point) -> Segment -- This function creates a midsegment from a triangle and two points on the triangle. Example usage: 
+-- Point A, B, C, D, E
+-- Triangle triangleABC := Triangle(A, B, C)
+-- Segment midsegmentDE := MidSegment(triangleABC, D, E)
+-- AutoLabel A, B, C, D, E
+function Radius(Circle c, Point p) -> Segment -- This function creates a radius from a circle and a point on the circle. Example usage: 
+-- Point A, B
+-- Circle circleAB
+-- circleAB := CircleR(A, B)
+-- Segment radiusAB := Radius(circleAB, B)
+-- AutoLabel A, B
+function Chord(Circle c, Point p, Point q) -> Segment -- This function creates a chord from a circle and two points on the circle. Example usage: 
+-- Point A, B, C
+-- Circle circleAB
+-- circleAB := CircleR(A, B)
+-- Segment chordAC := Chord(circleAB, A, C)
+-- AutoLabel A, B, C
+function Diameter(Circle c, Point p, Point q) -> Segment -- This function creates a diameter from a circle and two points. Example usage: 
+-- Point A, B
+-- Circle circleAB
+-- 
+-- Segment diameterAC := Diameter(circleAB, A, B)
+-- AutoLabel A, B
+
+-- Unimplemented
+-- function Sum(Angle, Angle) -> Angle
+-- function Intersection(Linelike, Linelike) -> Point
+-- function Altitude(Triangle, Angle) -> Segment
+-- function Endpoint(Segment) -> Point
+
+-- ~~~~~~~~~~~~~~~~ PREDICATES ~~~~~~~~~~~~~~~~
+-- Lines and Points
+predicate On(Point, Linelike) -- This predicate makes a point be on a line. Example use: Point A, B
+-- Line lineAB
+-- lineAB := Line(A, B)
+-- On(A, lineAB)
+-- AutoLabel A, B
+predicate In(Point, Plane) -- This predicate makes a point be in a plane. Example use: Point A, B
+-- Plane planeAB
+-- planeAB := Plane(A, B)
+-- In(A, planeAB)
+-- AutoLabel A, B
+predicate Midpoint(Linelike, Point) -- This predicate makes a point be the midpoint of a line. Example use: Point A, B, C
+-- Segment segmentAB
+-- segmentAB := Segment(A, B)
+-- Midpoint(segmentAB, C)
+-- AutoLabel A, B, C
+predicate Collinear(Point, Point, Point) -- This predicate makes three points collinear. Example use: Point A, B, C\n Segment AB, BC\n AB := Segment(A, B)\n BC := Segment(B, C)\n Collinear(A, B, C)
+predicate ParallelMarker1(Linelike, Linelike) -- This predicate marks two lines parallel. Only use if Parallel precedes it. Example use: Point A, B, C, D
+-- Line lineAB, lineCD
+-- lineAB := Line(A, B)
+-- lineCD := Line(C, D)
+-- Parallel(lineAB, lineCD)
+-- ParallelMarker1(lineAB, lineCD)
+-- AutoLabel A, B, C, D
+predicate EqualLengthMarker(Linelike, Linelike) -- This predicate only marks two segments with a tick indicating that they have equal length. Only use if EqualLength precedes it. Example use: Point A, B, C, D
+-- Segment segmentAB, segmentCD
+-- segmentAB := Segment(A, B)
+-- segmentCD := Segment(C, D)
+-- EqualLength(segmentAB, segmentCD)
+-- EqualLengthMarker(segmentAB, segmentCD)
+-- AutoLabel A, B, C, D
+predicate EqualLength(Linelike, Linelike) -- This predicate makes two segments have equal length. Example use: Point A, B, C, D
+-- Segment segmentAB, segmentCD
+-- segmentAB := Segment(A, B)
+-- segmentCD := Segment(C, D)
+-- EqualLength(segmentAB, segmentCD)
+-- AutoLabel A, B, C, D
+predicate Parallel(Linelike, Linelike) -- This predicate makes two lines parallel. Example use: Point A, B, C, D
+-- Line lineAB, lineCD
+-- lineAB := Line(A, B)
+-- lineCD := Line(C, D)
+-- Parallel(lineAB, lineCD)
+-- AutoLabel A, B, C, D
+
+-- Angles
+predicate Acute(Angle) -- This predicate makes an angle acute. Example use: Point A, B, C
+-- Angle angleABC
+-- angleABC := InteriorAngle(A, B, C)
+-- Acute(angleABC)
+-- AutoLabel A, B, C
+predicate Obtuse(Angle) -- This predicate makes an angle obtuse. Example use: Point A, B, C
+-- Angle angleABC
+-- angleABC := InteriorAngle(A, B, C)
+-- Obtuse(angleABC)
+-- AutoLabel A, B, C
+predicate RightMarked(Angle) -- This predicate makes an angle right and marks it with a square. Example use: Point A, B, C
+-- Angle angleABC
+-- angleABC := InteriorAngle(A, B, C)
+-- RightMarked(angleABC)
+-- AutoLabel A, B, C
+predicate RightUnmarked(Angle) -- This predicate makes an angle right and does not mark it with a square. Example use: Point A, B, C
+-- Angle angleABC
+-- angleABC := InteriorAngle(A, B, C)
+-- RightUnmarked(angleABC)
+-- AutoLabel A, B, C
+predicate AngleBisector(Angle, Linelike) -- This predicate makes a ray be the angle bisector of an angle. Example use: Point A, B, C
+-- Angle angleABC
+-- angleABC := InteriorAngle(A, B, C)
+-- Ray rayABC
+-- rayABC := Ray(A, B)
+-- AngleBisector(angleABC, rayABC)
+-- AutoLabel A, B, C
+predicate EqualAngleMarker(Angle, Angle) -- This predicate only marks two angles with a tick indicating that they have equal measure. Only use if EqualAngle precedes it. Example use: Point A, B, C, D, E, F
+-- Angle angleABC, angleDEF
+-- angleABC := InteriorAngle(A, B, C)
+-- angleDEF := InteriorAngle(D, E, F)
+-- EqualAngle(angleABC, angleDEF)
+-- EqualAngleMarker(angleABC, angleDEF)
+-- AutoLabel A, B, C, D, E, F
+predicate EqualAngle(Angle, Angle) -- This predicate makes two angles have equal measure. Example use: Point A, B, C, D, E, F
+-- Angle angleABC, angleDEF
+-- angleABC := InteriorAngle(A, B, C)
+-- angleDEF := InteriorAngle(D, E, F)
+-- EqualAngle(angleABC, angleDEF)
+-- AutoLabel A, B, C, D, E, F
+
+-- Polygons/Shapes
+predicate Parallelogram(Quadrilateral) -- This predicate makes a quadrilateral a parallelogram. Example use: Point A, B, C, D
+-- Quadrilateral quadrilateralABCD
+-- quadrilateralABCD := Quadrilateral(A, B, C, D)
+-- Parallelogram(quadrilateralABCD)
+-- AutoLabel A, B, C, D
+predicate OnCircle(Circle, Point) -- This predicate makes a point be on a circle. Example use: Point A, B, C
+-- Circle circleAB
+-- circleAB := CircleR(A, B)
+-- OnCircle(circleAB, C)
+-- AutoLabel A, B, C
+predicate CircleCenter(Circle, Point) -- Do not use.
+predicate Incenter(Point, Triangle) -- This predicate makes a point be the incenter of a triangle. Example use: Point A, B, C, D
+-- Triangle triangleABC
+-- triangleABC := Triangle(A, B, C)
+-- Incenter(D, triangleABC)
+-- AutoLabel A, B, C, D
+predicate Orthocenter(Point, Triangle) -- This predicate makes a point be the orthocenter of a triangle. Example use: Point A, B, C, D
+-- Triangle triangleABC
+-- triangleABC := Triangle(A, B, C)
+-- Orthocenter(D, triangleABC)
+-- AutoLabel A, B, C, D
+predicate Centroid(Point, Triangle) -- This predicate makes a point be the centroid of a triangle. Example use: Point A, B, C, D
+-- Triangle triangleABC
+-- triangleABC := Triangle(A, B, C)
+-- Centroid(D, triangleABC)
+-- AutoLabel A, B, C, D
+predicate Circumcenter(Point, Triangle) -- This predicate makes a point be the circumcenter of a triangle. Example use: Point A, B, C, D
+-- Triangle triangleABC
+-- triangleABC := Triangle(A, B, C)
+-- Circumcenter(D, triangleABC)
+-- AutoLabel A, B, C, D
+
+-- notation "{p, q}" ~ "Segment(p, q)"
+-- notation "{p, q, r}" ~ "Triangle(p, q, r)"
+-- notation "{p, q, r, s}" ~ "Rectangle(p, q, r, s)"
+-- notation "∠(p, q, r)" ~ "InteriorAngle(p, q, r)"
+
 `,
 };
 
