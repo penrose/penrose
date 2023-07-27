@@ -10,14 +10,10 @@ global {
    scalar W = 300
    scalar H = 300
 
-   vec4 lightZeroPosition = ( 10.0, 4.0, 10.0, 1.0 )
-   color lightZeroColor = ( 0.8, 1.0, 0.8, 1.0 ) -- green tinted
-   vec4 lightOnePosition = ( -1.0, -2.0, 1.0, 0.0 )
-   vec4 lightOneColor = ( 0.6, 0.3, 0.2, 1.0 ) -- red tinted
    color floorColor = rgba( 0.3, 0.3, 0.3, 0.2 )
    color skinColor = rgba( 0.1, 1.0, 0.1, 0.2 )
    color eyeColor = rgba( 1.0, 0.2, 0.2, 1.0 )
-   color wireColor = #0009
+   color wireColor = #0a09
    scalar wireWidth = 2.0
 
    scalar dinoAngle = random(0,2) * MathPI()
@@ -26,7 +22,7 @@ global {
    list dinoPoints = [ (-8, 3, -1.5), (-7, 1, -1.5), (-7, 1, 1.5), (-8, 3, 1.5), (-3, 1, -1.5), (-3, 1, 1.5), (0, 4, -1.5), (0, 4, 1.5), (2, 4, -1.5), (2, 4, 1.5), (3, 5, -1.5), (3, 5, 1.5), (3, 11.5, -1.5), (3, 11.5, 1.5), (5, 12, -1.5), (5, 12, 1.5), (5, 13, -1.5), (5, 13, 1.5), (2, 13.5, -1.5), (2, 13.5, 1.5), (5, 14, -1.5), (5, 14, 1.5), (5, 15, -1.5), (5, 15, 1.5), (3, 16, -1.5), (3, 16, 1.5), (0, 16, -1.5), (0, 16, 1.5), (-1, 15, -1.5), (-1, 15, 1.5), (-1, 13, -1.5), (-1, 13, 1.5), (0, 12, -1.5), (0, 12, 1.5), (-1, 11, -1.5), (-1, 11, 1.5), (-2, 6, -1.5), (-2, 6, 1.5), (-4, 3, -1.5), (-4, 3, 1.5), (-5, 2, -1.5), (-5, 2, 1.5), (-7, 2, -1.5), (-7, 2, 1.5), (0, 10, 1.5), (1, 9, 1.5), (1, 9, 2.25), (0, 10, 2.25), (2, 9, 1.5), (2, 9, 2.25), (5, 8, 1.5), (5, 8, 2.25), (6, 9, 1.5), (6, 9, 2.25), (8, 9, 1.5), (8, 9, 2.25), (7, 9.5, 1.5), (7, 9.5, 2.25), (8, 10, 1.5), (8, 10, 2.25), (7, 10, 1.5), (7, 10, 2.25), (7.5, 11, 1.5), (7.5, 11, 2.25), (6.5, 10, 1.5), (6.5, 10, 2.25), (6, 11, 1.5), (6, 11, 2.25), (6, 10, 1.5), (6, 10, 2.25), (5, 9, 1.5), (5, 9, 2.25), (3, 11, 1.5), (3, 11, 2.25), (1, 11, 1.5), (1, 11, 2.25), (0, 6, 1.5), (0, 4, 3), (0, 6, 3), (1, 3, 1.5), (1, 3, 3), (1, 2, 1.5), (1, 2, 3), (0, 1, 1.5), (0, 1, 3), (0, 0.5, 1.5), (0, 0.5, 3), (1, 0, 1.5), (1, 0, 3), (4, 0, 1.5), (4, 0, 3), (2, 1, 1.5), (2, 1, 3), (2, 2, 1.5), (2, 2, 3), (4, 4, 1.5), (4, 4, 3), (3, 6, 1.5), (3, 6, 3), (2, 7, 1.5), (2, 7, 3), (1, 7, 1.5), (1, 7, 3), (0, 10, -2.25), (1, 9, -2.25), (1, 9, -1.5), (0, 10, -1.5), (2, 9, -2.25), (2, 9, -1.5), (5, 8, -2.25), (5, 8, -1.5), (6, 9, -2.25), (6, 9, -1.5), (8, 9, -2.25), (8, 9, -1.5), (7, 9.5, -2.25), (7, 9.5, -1.5), (8, 10, -2.25), (8, 10, -1.5), (7, 10, -2.25), (7, 10, -1.5), (7.5, 11, -2.25), (7.5, 11, -1.5), (6.5, 10, -2.25), (6.5, 10, -1.5), (6, 11, -2.25), (6, 11, -1.5), (6, 10, -2.25), (6, 10, -1.5), (5, 9, -2.25), (5, 9, -1.5), (3, 11, -2.25), (3, 11, -1.5), (1, 11, -2.25), (1, 11, -1.5), (0, 6, -3), (0, 4, -3), (0, 6, -1.5), (1, 3, -3), (1, 3, -1.5), (1, 2, -3), (1, 2, -1.5), (0, 1, -3), (0, 1, -1.5), (0, 0.5, -3), (0, 0.5, -1.5), (1, 0, -3), (1, 0, -1.5), (4, 0, -3), (4, 0, -1.5), (2, 1, -3), (2, 1, -1.5), (2, 2, -3), (2, 2, -1.5), (4, 4, -3), (4, 4, -1.5), (3, 6, -3), (3, 6, -1.5), (2, 7, -3), (2, 7, -1.5), (1, 7, -3), (1, 7, -1.5), (0.75, 15, -1.6), (1, 14.7, -1.6), (1, 14.7, 1.6), (0.75, 15, 1.6), (1.6, 14.7, -1.6), (1.6, 14.7, 1.6), (2.0999999, 15, -1.6), (2.0999999, 15, 1.6), (1.6, 15.25, -1.6), (1.6, 15.25, 1.6), (1, 15.25, -1.6), (1, 15.25, 1.6) ]
 
    shape title = Text {
-      center: (-canvas.width/2 + 300,canvas.height/2 - 80)
+      center: (canvas.width/2 - 300,canvas.height/2 - 80)
       string: "Leaping Lizards!"
       fontSize: "60pt"
       fontFamily: "Arial Narrow,Arial,sans-serif;"
@@ -39,8 +35,8 @@ global {
    shape floor = Polygon {
       points: [ (p[0][0],p[0][1]), (p[1][0],p[1][1]), (p[2][0],p[2][1]), (p[3][0],p[3][1]) ]
       fillColor: global.floorColor
-      strokeColor: global.wireColor
-      strokeWidth: global.wireWidth
+      strokeColor: #bbb
+      strokeWidth: 2*global.wireWidth
       ensureOnCanvas: false
    }
 }
@@ -62,708 +58,728 @@ camera {
   list view = [ -canvas.width/2, -canvas.height/2, canvas.width, canvas.height ]
 }
 
+light {
+  scalar angle = random(0,2) * MathPI()
+  scalar height = 40
+  vec4 pos = ( -10, 30, 10, 1 )
+
+  vec2 q = project( (pos[0],pos[1],pos[2]), camera.model, camera.proj, camera.view )
+  shape lightBall = Circle {
+     center: q
+     r: 10
+     fillColor: #ffcc00
+     strokeColor: #ff6600
+     strokeWidth: 2
+  }
+}
+
 forall Dinosaur D {
    mat4x4 D.model = rotate3dh( global.dinoAngle, (0,1,0) ) then translate3dh( global.dinoX, 0, global.dinoY )
 
    list p = projectList( global.dinoPoints, camera.model * D.model, camera.proj, camera.view )
 
+   -- define colors locally so they can be overridden by shadows & reflections
+   color D.skinColor = global.skinColor
+   color D.eyeColor = global.eyeColor
+   color D.wireColor = global.wireColor
+
    shape f0 = Polygon {
       points: [ (p[0][0],p[0][1]), (p[1][0],p[1][1]), (p[2][0],p[2][1]), (p[3][0],p[3][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f1 = Polygon {
       points: [ (p[1][0],p[1][1]), (p[4][0],p[4][1]), (p[5][0],p[5][1]), (p[2][0],p[2][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f2 = Polygon {
       points: [ (p[4][0],p[4][1]), (p[6][0],p[6][1]), (p[7][0],p[7][1]), (p[5][0],p[5][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f3 = Polygon {
       points: [ (p[6][0],p[6][1]), (p[8][0],p[8][1]), (p[9][0],p[9][1]), (p[7][0],p[7][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f4 = Polygon {
       points: [ (p[8][0],p[8][1]), (p[10][0],p[10][1]), (p[11][0],p[11][1]), (p[9][0],p[9][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f5 = Polygon {
       points: [ (p[10][0],p[10][1]), (p[12][0],p[12][1]), (p[13][0],p[13][1]), (p[11][0],p[11][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f6 = Polygon {
       points: [ (p[12][0],p[12][1]), (p[14][0],p[14][1]), (p[15][0],p[15][1]), (p[13][0],p[13][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f7 = Polygon {
       points: [ (p[14][0],p[14][1]), (p[16][0],p[16][1]), (p[17][0],p[17][1]), (p[15][0],p[15][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f8 = Polygon {
       points: [ (p[16][0],p[16][1]), (p[18][0],p[18][1]), (p[19][0],p[19][1]), (p[17][0],p[17][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f9 = Polygon {
       points: [ (p[18][0],p[18][1]), (p[20][0],p[20][1]), (p[21][0],p[21][1]), (p[19][0],p[19][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f10 = Polygon {
       points: [ (p[20][0],p[20][1]), (p[22][0],p[22][1]), (p[23][0],p[23][1]), (p[21][0],p[21][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f11 = Polygon {
       points: [ (p[22][0],p[22][1]), (p[24][0],p[24][1]), (p[25][0],p[25][1]), (p[23][0],p[23][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f12 = Polygon {
       points: [ (p[24][0],p[24][1]), (p[26][0],p[26][1]), (p[27][0],p[27][1]), (p[25][0],p[25][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f13 = Polygon {
       points: [ (p[26][0],p[26][1]), (p[28][0],p[28][1]), (p[29][0],p[29][1]), (p[27][0],p[27][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f14 = Polygon {
       points: [ (p[28][0],p[28][1]), (p[30][0],p[30][1]), (p[31][0],p[31][1]), (p[29][0],p[29][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f15 = Polygon {
       points: [ (p[30][0],p[30][1]), (p[32][0],p[32][1]), (p[33][0],p[33][1]), (p[31][0],p[31][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f16 = Polygon {
       points: [ (p[32][0],p[32][1]), (p[34][0],p[34][1]), (p[35][0],p[35][1]), (p[33][0],p[33][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f17 = Polygon {
       points: [ (p[34][0],p[34][1]), (p[36][0],p[36][1]), (p[37][0],p[37][1]), (p[35][0],p[35][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f18 = Polygon {
       points: [ (p[36][0],p[36][1]), (p[38][0],p[38][1]), (p[39][0],p[39][1]), (p[37][0],p[37][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f19 = Polygon {
       points: [ (p[38][0],p[38][1]), (p[40][0],p[40][1]), (p[41][0],p[41][1]), (p[39][0],p[39][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f20 = Polygon {
       points: [ (p[40][0],p[40][1]), (p[42][0],p[42][1]), (p[43][0],p[43][1]), (p[41][0],p[41][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f21 = Polygon {
       points: [ (p[42][0],p[42][1]), (p[0][0],p[0][1]), (p[3][0],p[3][1]), (p[43][0],p[43][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f22 = Polygon {
       points: [ (p[44][0],p[44][1]), (p[45][0],p[45][1]), (p[46][0],p[46][1]), (p[47][0],p[47][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f23 = Polygon {
       points: [ (p[45][0],p[45][1]), (p[48][0],p[48][1]), (p[49][0],p[49][1]), (p[46][0],p[46][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f24 = Polygon {
       points: [ (p[48][0],p[48][1]), (p[50][0],p[50][1]), (p[51][0],p[51][1]), (p[49][0],p[49][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f25 = Polygon {
       points: [ (p[50][0],p[50][1]), (p[52][0],p[52][1]), (p[53][0],p[53][1]), (p[51][0],p[51][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f26 = Polygon {
       points: [ (p[52][0],p[52][1]), (p[54][0],p[54][1]), (p[55][0],p[55][1]), (p[53][0],p[53][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f27 = Polygon {
       points: [ (p[54][0],p[54][1]), (p[56][0],p[56][1]), (p[57][0],p[57][1]), (p[55][0],p[55][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f28 = Polygon {
       points: [ (p[56][0],p[56][1]), (p[58][0],p[58][1]), (p[59][0],p[59][1]), (p[57][0],p[57][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f29 = Polygon {
       points: [ (p[58][0],p[58][1]), (p[60][0],p[60][1]), (p[61][0],p[61][1]), (p[59][0],p[59][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f30 = Polygon {
       points: [ (p[60][0],p[60][1]), (p[62][0],p[62][1]), (p[63][0],p[63][1]), (p[61][0],p[61][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f31 = Polygon {
       points: [ (p[62][0],p[62][1]), (p[64][0],p[64][1]), (p[65][0],p[65][1]), (p[63][0],p[63][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f32 = Polygon {
       points: [ (p[64][0],p[64][1]), (p[66][0],p[66][1]), (p[67][0],p[67][1]), (p[65][0],p[65][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f33 = Polygon {
       points: [ (p[66][0],p[66][1]), (p[68][0],p[68][1]), (p[69][0],p[69][1]), (p[67][0],p[67][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f34 = Polygon {
       points: [ (p[68][0],p[68][1]), (p[70][0],p[70][1]), (p[71][0],p[71][1]), (p[69][0],p[69][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f35 = Polygon {
       points: [ (p[70][0],p[70][1]), (p[72][0],p[72][1]), (p[73][0],p[73][1]), (p[71][0],p[71][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f36 = Polygon {
       points: [ (p[72][0],p[72][1]), (p[74][0],p[74][1]), (p[75][0],p[75][1]), (p[73][0],p[73][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f37 = Polygon {
       points: [ (p[74][0],p[74][1]), (p[44][0],p[44][1]), (p[47][0],p[47][1]), (p[75][0],p[75][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f38 = Polygon {
       points: [ (p[76][0],p[76][1]), (p[7][0],p[7][1]), (p[77][0],p[77][1]), (p[78][0],p[78][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f39 = Polygon {
       points: [ (p[7][0],p[7][1]), (p[79][0],p[79][1]), (p[80][0],p[80][1]), (p[77][0],p[77][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f40 = Polygon {
       points: [ (p[79][0],p[79][1]), (p[81][0],p[81][1]), (p[82][0],p[82][1]), (p[80][0],p[80][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f41 = Polygon {
       points: [ (p[81][0],p[81][1]), (p[83][0],p[83][1]), (p[84][0],p[84][1]), (p[82][0],p[82][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f42 = Polygon {
       points: [ (p[83][0],p[83][1]), (p[85][0],p[85][1]), (p[86][0],p[86][1]), (p[84][0],p[84][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f43 = Polygon {
       points: [ (p[85][0],p[85][1]), (p[87][0],p[87][1]), (p[88][0],p[88][1]), (p[86][0],p[86][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f44 = Polygon {
       points: [ (p[87][0],p[87][1]), (p[89][0],p[89][1]), (p[90][0],p[90][1]), (p[88][0],p[88][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f45 = Polygon {
       points: [ (p[89][0],p[89][1]), (p[91][0],p[91][1]), (p[92][0],p[92][1]), (p[90][0],p[90][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f46 = Polygon {
       points: [ (p[91][0],p[91][1]), (p[93][0],p[93][1]), (p[94][0],p[94][1]), (p[92][0],p[92][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f47 = Polygon {
       points: [ (p[93][0],p[93][1]), (p[95][0],p[95][1]), (p[96][0],p[96][1]), (p[94][0],p[94][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f48 = Polygon {
       points: [ (p[95][0],p[95][1]), (p[97][0],p[97][1]), (p[98][0],p[98][1]), (p[96][0],p[96][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f49 = Polygon {
       points: [ (p[97][0],p[97][1]), (p[99][0],p[99][1]), (p[100][0],p[100][1]), (p[98][0],p[98][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f50 = Polygon {
       points: [ (p[99][0],p[99][1]), (p[101][0],p[101][1]), (p[102][0],p[102][1]), (p[100][0],p[100][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f51 = Polygon {
       points: [ (p[101][0],p[101][1]), (p[76][0],p[76][1]), (p[78][0],p[78][1]), (p[102][0],p[102][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f52 = Polygon {
       points: [ (p[103][0],p[103][1]), (p[104][0],p[104][1]), (p[105][0],p[105][1]), (p[106][0],p[106][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f53 = Polygon {
       points: [ (p[104][0],p[104][1]), (p[107][0],p[107][1]), (p[108][0],p[108][1]), (p[105][0],p[105][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f54 = Polygon {
       points: [ (p[107][0],p[107][1]), (p[109][0],p[109][1]), (p[110][0],p[110][1]), (p[108][0],p[108][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f55 = Polygon {
       points: [ (p[109][0],p[109][1]), (p[111][0],p[111][1]), (p[112][0],p[112][1]), (p[110][0],p[110][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f56 = Polygon {
       points: [ (p[111][0],p[111][1]), (p[113][0],p[113][1]), (p[114][0],p[114][1]), (p[112][0],p[112][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f57 = Polygon {
       points: [ (p[113][0],p[113][1]), (p[115][0],p[115][1]), (p[116][0],p[116][1]), (p[114][0],p[114][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f58 = Polygon {
       points: [ (p[115][0],p[115][1]), (p[117][0],p[117][1]), (p[118][0],p[118][1]), (p[116][0],p[116][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f59 = Polygon {
       points: [ (p[117][0],p[117][1]), (p[119][0],p[119][1]), (p[120][0],p[120][1]), (p[118][0],p[118][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f60 = Polygon {
       points: [ (p[119][0],p[119][1]), (p[121][0],p[121][1]), (p[122][0],p[122][1]), (p[120][0],p[120][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f61 = Polygon {
       points: [ (p[121][0],p[121][1]), (p[123][0],p[123][1]), (p[124][0],p[124][1]), (p[122][0],p[122][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f62 = Polygon {
       points: [ (p[123][0],p[123][1]), (p[125][0],p[125][1]), (p[126][0],p[126][1]), (p[124][0],p[124][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f63 = Polygon {
       points: [ (p[125][0],p[125][1]), (p[127][0],p[127][1]), (p[128][0],p[128][1]), (p[126][0],p[126][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f64 = Polygon {
       points: [ (p[127][0],p[127][1]), (p[129][0],p[129][1]), (p[130][0],p[130][1]), (p[128][0],p[128][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f65 = Polygon {
       points: [ (p[129][0],p[129][1]), (p[131][0],p[131][1]), (p[132][0],p[132][1]), (p[130][0],p[130][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f66 = Polygon {
       points: [ (p[131][0],p[131][1]), (p[133][0],p[133][1]), (p[134][0],p[134][1]), (p[132][0],p[132][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f67 = Polygon {
       points: [ (p[133][0],p[133][1]), (p[103][0],p[103][1]), (p[106][0],p[106][1]), (p[134][0],p[134][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f68 = Polygon {
       points: [ (p[135][0],p[135][1]), (p[136][0],p[136][1]), (p[6][0],p[6][1]), (p[137][0],p[137][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f69 = Polygon {
       points: [ (p[136][0],p[136][1]), (p[138][0],p[138][1]), (p[139][0],p[139][1]), (p[6][0],p[6][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f70 = Polygon {
       points: [ (p[138][0],p[138][1]), (p[140][0],p[140][1]), (p[141][0],p[141][1]), (p[139][0],p[139][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f71 = Polygon {
       points: [ (p[140][0],p[140][1]), (p[142][0],p[142][1]), (p[143][0],p[143][1]), (p[141][0],p[141][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f72 = Polygon {
       points: [ (p[142][0],p[142][1]), (p[144][0],p[144][1]), (p[145][0],p[145][1]), (p[143][0],p[143][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f73 = Polygon {
       points: [ (p[144][0],p[144][1]), (p[146][0],p[146][1]), (p[147][0],p[147][1]), (p[145][0],p[145][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f74 = Polygon {
       points: [ (p[146][0],p[146][1]), (p[148][0],p[148][1]), (p[149][0],p[149][1]), (p[147][0],p[147][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f75 = Polygon {
       points: [ (p[148][0],p[148][1]), (p[150][0],p[150][1]), (p[151][0],p[151][1]), (p[149][0],p[149][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f76 = Polygon {
       points: [ (p[150][0],p[150][1]), (p[152][0],p[152][1]), (p[153][0],p[153][1]), (p[151][0],p[151][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f77 = Polygon {
       points: [ (p[152][0],p[152][1]), (p[154][0],p[154][1]), (p[155][0],p[155][1]), (p[153][0],p[153][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f78 = Polygon {
       points: [ (p[154][0],p[154][1]), (p[156][0],p[156][1]), (p[157][0],p[157][1]), (p[155][0],p[155][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f79 = Polygon {
       points: [ (p[156][0],p[156][1]), (p[158][0],p[158][1]), (p[159][0],p[159][1]), (p[157][0],p[157][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f80 = Polygon {
       points: [ (p[158][0],p[158][1]), (p[160][0],p[160][1]), (p[161][0],p[161][1]), (p[159][0],p[159][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f81 = Polygon {
       points: [ (p[160][0],p[160][1]), (p[135][0],p[135][1]), (p[137][0],p[137][1]), (p[161][0],p[161][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f82 = Polygon {
       points: [ (p[162][0],p[162][1]), (p[163][0],p[163][1]), (p[164][0],p[164][1]), (p[165][0],p[165][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f83 = Polygon {
       points: [ (p[163][0],p[163][1]), (p[166][0],p[166][1]), (p[167][0],p[167][1]), (p[164][0],p[164][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f84 = Polygon {
       points: [ (p[166][0],p[166][1]), (p[168][0],p[168][1]), (p[169][0],p[169][1]), (p[167][0],p[167][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f85 = Polygon {
       points: [ (p[168][0],p[168][1]), (p[170][0],p[170][1]), (p[171][0],p[171][1]), (p[169][0],p[169][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f86 = Polygon {
       points: [ (p[170][0],p[170][1]), (p[172][0],p[172][1]), (p[173][0],p[173][1]), (p[171][0],p[171][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f87 = Polygon {
       points: [ (p[172][0],p[172][1]), (p[162][0],p[162][1]), (p[165][0],p[165][1]), (p[173][0],p[173][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f88 = Polygon {
       points: [ (p[162][0],p[162][1]), (p[163][0],p[163][1]), (p[166][0],p[166][1]), (p[168][0],p[168][1]), (p[170][0],p[170][1]), (p[172][0],p[172][1]) ]
-      fillColor: global.eyeColor
-      strokeColor: global.wireColor
+      fillColor: D.eyeColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f89 = Polygon {
       points: [ (p[165][0],p[165][1]), (p[164][0],p[164][1]), (p[167][0],p[167][1]), (p[169][0],p[169][1]), (p[171][0],p[171][1]), (p[173][0],p[173][1]) ]
-      fillColor: global.eyeColor
-      strokeColor: global.wireColor
+      fillColor: D.eyeColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f90 = Polygon {
       points: [ (p[76][0],p[76][1]), (p[7][0],p[7][1]), (p[79][0],p[79][1]), (p[81][0],p[81][1]), (p[83][0],p[83][1]), (p[85][0],p[85][1]), (p[87][0],p[87][1]), (p[89][0],p[89][1]), (p[91][0],p[91][1]), (p[93][0],p[93][1]), (p[95][0],p[95][1]), (p[97][0],p[97][1]), (p[99][0],p[99][1]), (p[101][0],p[101][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f91 = Polygon {
       points: [ (p[78][0],p[78][1]), (p[77][0],p[77][1]), (p[80][0],p[80][1]), (p[82][0],p[82][1]), (p[84][0],p[84][1]), (p[86][0],p[86][1]), (p[88][0],p[88][1]), (p[90][0],p[90][1]), (p[92][0],p[92][1]), (p[94][0],p[94][1]), (p[96][0],p[96][1]), (p[98][0],p[98][1]), (p[100][0],p[100][1]), (p[102][0],p[102][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f92 = Polygon {
       points: [ (p[135][0],p[135][1]), (p[136][0],p[136][1]), (p[138][0],p[138][1]), (p[140][0],p[140][1]), (p[142][0],p[142][1]), (p[144][0],p[144][1]), (p[146][0],p[146][1]), (p[148][0],p[148][1]), (p[150][0],p[150][1]), (p[152][0],p[152][1]), (p[154][0],p[154][1]), (p[156][0],p[156][1]), (p[158][0],p[158][1]), (p[160][0],p[160][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f93 = Polygon {
       points: [ (p[137][0],p[137][1]), (p[6][0],p[6][1]), (p[139][0],p[139][1]), (p[141][0],p[141][1]), (p[143][0],p[143][1]), (p[145][0],p[145][1]), (p[147][0],p[147][1]), (p[149][0],p[149][1]), (p[151][0],p[151][1]), (p[153][0],p[153][1]), (p[155][0],p[155][1]), (p[157][0],p[157][1]), (p[159][0],p[159][1]), (p[161][0],p[161][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f94 = Polygon {
       points: [ (p[44][0],p[44][1]), (p[45][0],p[45][1]), (p[48][0],p[48][1]), (p[50][0],p[50][1]), (p[52][0],p[52][1]), (p[54][0],p[54][1]), (p[56][0],p[56][1]), (p[58][0],p[58][1]), (p[60][0],p[60][1]), (p[62][0],p[62][1]), (p[64][0],p[64][1]), (p[66][0],p[66][1]), (p[68][0],p[68][1]), (p[70][0],p[70][1]), (p[72][0],p[72][1]), (p[74][0],p[74][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f95 = Polygon {
       points: [ (p[47][0],p[47][1]), (p[46][0],p[46][1]), (p[49][0],p[49][1]), (p[51][0],p[51][1]), (p[53][0],p[53][1]), (p[55][0],p[55][1]), (p[57][0],p[57][1]), (p[59][0],p[59][1]), (p[61][0],p[61][1]), (p[63][0],p[63][1]), (p[65][0],p[65][1]), (p[67][0],p[67][1]), (p[69][0],p[69][1]), (p[71][0],p[71][1]), (p[73][0],p[73][1]), (p[75][0],p[75][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f96 = Polygon {
       points: [ (p[103][0],p[103][1]), (p[104][0],p[104][1]), (p[107][0],p[107][1]), (p[109][0],p[109][1]), (p[111][0],p[111][1]), (p[113][0],p[113][1]), (p[115][0],p[115][1]), (p[117][0],p[117][1]), (p[119][0],p[119][1]), (p[121][0],p[121][1]), (p[123][0],p[123][1]), (p[125][0],p[125][1]), (p[127][0],p[127][1]), (p[129][0],p[129][1]), (p[131][0],p[131][1]), (p[133][0],p[133][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f97 = Polygon {
       points: [ (p[106][0],p[106][1]), (p[105][0],p[105][1]), (p[108][0],p[108][1]), (p[110][0],p[110][1]), (p[112][0],p[112][1]), (p[114][0],p[114][1]), (p[116][0],p[116][1]), (p[118][0],p[118][1]), (p[120][0],p[120][1]), (p[122][0],p[122][1]), (p[124][0],p[124][1]), (p[126][0],p[126][1]), (p[128][0],p[128][1]), (p[130][0],p[130][1]), (p[132][0],p[132][1]), (p[134][0],p[134][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f98 = Polygon {
       points: [ (p[0][0],p[0][1]), (p[1][0],p[1][1]), (p[4][0],p[4][1]), (p[6][0],p[6][1]), (p[8][0],p[8][1]), (p[10][0],p[10][1]), (p[12][0],p[12][1]), (p[14][0],p[14][1]), (p[16][0],p[16][1]), (p[18][0],p[18][1]), (p[20][0],p[20][1]), (p[22][0],p[22][1]), (p[24][0],p[24][1]), (p[26][0],p[26][1]), (p[28][0],p[28][1]), (p[30][0],p[30][1]), (p[32][0],p[32][1]), (p[34][0],p[34][1]), (p[36][0],p[36][1]), (p[38][0],p[38][1]), (p[40][0],p[40][1]), (p[42][0],p[42][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
    shape f99 = Polygon {
       points: [ (p[3][0],p[3][1]), (p[2][0],p[2][1]), (p[5][0],p[5][1]), (p[7][0],p[7][1]), (p[9][0],p[9][1]), (p[11][0],p[11][1]), (p[13][0],p[13][1]), (p[15][0],p[15][1]), (p[17][0],p[17][1]), (p[19][0],p[19][1]), (p[21][0],p[21][1]), (p[23][0],p[23][1]), (p[25][0],p[25][1]), (p[27][0],p[27][1]), (p[29][0],p[29][1]), (p[31][0],p[31][1]), (p[33][0],p[33][1]), (p[35][0],p[35][1]), (p[37][0],p[37][1]), (p[39][0],p[39][1]), (p[41][0],p[41][1]), (p[43][0],p[43][1]) ]
-      fillColor: global.skinColor
-      strokeColor: global.wireColor
+      fillColor: D.skinColor
+      strokeColor: D.wireColor
       strokeWidth: global.wireWidth
       ensureOnCanvas: false
    }
@@ -788,5 +804,36 @@ where IsReflected(D) {
       ensureOnCanvas: false
    }
    override D.mesh.clipPath = clip( floor )
+}
+
+forall Dinosaur D
+where IsShadow(D) {
+
+  -- find dot product between light position vector and ground plane normal
+  vec4 groundplane = ( 0, 1, 0, 0 )
+  scalar d = dot( groundplane, light.pos )
+
+  -- define shadow matrix
+  mat4x4 shadowMat = diagonal([d,d,d,d]) - outerProduct(light.pos,groundplane)
+
+  -- replace base transformation with shadow transformation
+  override D.model = rotate3dh( global.dinoAngle, (0,1,0) ) then translate3dh( global.dinoX, 0, global.dinoY ) then shadowMat
+
+  -- draw as semi-transparent black
+  override D.skinColor = #000
+  override D.eyeColor = #000
+  override D.wireColor = #000
+  override D.mesh.opacity = .1
+   override D.mesh.style = "filter:blur(3px);"
+
+  -- clip shadow against ground plane
+  shape floor = Polygon {
+     points: global.floor.points
+     fillColor: global.floor.fillColor
+     strokeColor: global.floor.strokeColor
+     strokeWidth: global.floor.strokeWidth
+     ensureOnCanvas: false
+  }
+  override D.mesh.clipPath = clip( floor )
 }
 

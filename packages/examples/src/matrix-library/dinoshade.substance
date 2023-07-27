@@ -1,4 +1,4 @@
-Dinosaur D1, D2
+Dinosaur D1, D2, D3
 IsReflected(D2)
-
+IsShadow(D3)
 

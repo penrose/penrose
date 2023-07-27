@@ -1,2 +1,3 @@
 type Dinosaur
 predicate IsReflected(Dinosaur D)
+predicate IsShadow(Dinosaur D)
