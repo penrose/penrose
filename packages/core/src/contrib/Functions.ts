@@ -1365,8 +1365,8 @@ export const compDict = {
     returns: valueT("RealNM"),
   },
 
-  translate3d: {
-    name: "translate3d",
+  translate3dh: {
+    name: "translate3dh",
     description: "Returns a translation by the given offset (`x`,`y`,`z`).  (Note: since this transformation is affine rather than linear, it is encoded as a 4x4 matrix in homogeneous coordinates.)",
     params: [
       { name: "x", description: "x offset", type: realT() },
@@ -1463,6 +1463,31 @@ export const compDict = {
 
   project: {
     name: "project",
+    description: "Transforms the specified object coordinates into window coordinates using a given model and projection transformation, and a given viewport.  It returns the projected x,y coordinates.  To get the depth, see `projectDepth()`",
+    params: [
+      { name: "p", description: "3D object coordinates (x,y,z)", type: realNT() },
+      { name: "model", description: "4x4 modelview matrix", type: realNMT() },
+      { name: "proj", description: "4x4 projection matrix", type: realNMT() },
+      { name: "view", description: "viewport (x, y, width, height)", type: realNT() },
+    ],
+    body: (
+      _context: Context,
+      p: ad.Num[],
+      model: ad.Num[][],
+      proj: ad.Num[][],
+      view: ad.Num[]
+    ): MayWarn<VectorV<ad.Num>> => {
+       const q: ad.Num[] = project(p, model, proj, view);
+      return noWarn({
+        tag: "VectorV",
+        contents: [ q[0], q[1] ]
+      });
+    },
+    returns: valueT("RealN"),
+  },
+
+  projectDepth: {
+    name: "projectDepth",
     description: "Transforms the specified object coordinates into window coordinates using a given model and projection transformation, and a given viewport.  It returns the projected x,y coordinates, as well as the depth relative to the view.",
     params: [
       { name: "p", description: "3D object coordinates (x,y,z)", type: realNT() },
@@ -1484,6 +1509,37 @@ export const compDict = {
     },
     returns: valueT("RealN"),
   },
+
+  projectList: {
+    name: "projectList",
+    description: "Transforms the specified list of object coordinates into window coordinates using a given model and projection transformation, and a given viewport.  It returns the list of projected x,y coordinates.  To get the depth, see `projectDepth()`",
+    params: [
+      { name: "p", description: "list of 3D object coordinates (x,y,z)", type: realNMT() },
+      { name: "model", description: "4x4 modelview matrix", type: realNMT() },
+      { name: "proj", description: "4x4 projection matrix", type: realNMT() },
+      { name: "view", description: "viewport (x, y, width, height)", type: realNT() },
+    ],
+    body: (
+      _context: Context,
+      p: ad.Num[][],
+      model: ad.Num[][],
+      proj: ad.Num[][],
+      view: ad.Num[]
+    ): MayWarn<PtListV<ad.Num>> => {
+
+       const q: ad.Num[][] = [];
+       for( let i = 0; i < p.length; i++ ) {
+          q[i] = project(p[i], model, proj, view).slice(0,2);
+       }
+
+      return noWarn({
+        tag: "PtListV",
+        contents: q.map(toPt)
+      });
+    },
+    returns: valueT("Real2N"),
+  },
+
 
   fromHomogeneous: {
     name: "fromHomogeneous",
@@ -6711,9 +6767,9 @@ const translate = (
   v: ad.Num[]
 ): ad.Num[][] => {
    const n = v.length;
-   const A = identity(4);
+   const A = identity(n+1);
    for( let i = 0; i < n; i++ ) {
-      A[n][i] = v[i];
+      A[i][n] = v[i];
    }
    return A;
 }
@@ -6755,27 +6811,27 @@ const lookAt =(
    }
 
    M[0][0] = side[0];
-   M[1][0] = side[1];
-   M[2][0] = side[2];
-   M[3][0] = 0;
-
-   M[0][1] = vert[0];
-   M[1][1] = vert[1];
-   M[2][1] = vert[2];
-   M[3][1] = 0;
-
-   M[0][2] = neg(forward[0]);
-   M[1][2] = neg(forward[1]);
-   M[2][2] = neg(forward[2]);
-   M[3][2] = 0;
-
+   M[0][1] = side[1];
+   M[0][2] = side[2];
    M[0][3] = 0;
+         
+   M[1][0] = vert[0];
+   M[1][1] = vert[1];
+   M[1][2] = vert[2];
    M[1][3] = 0;
+         
+   M[2][0] = neg(forward[0]);
+   M[2][1] = neg(forward[1]);
+   M[2][2] = neg(forward[2]);
    M[2][3] = 0;
+         
+   M[3][0] = 0;
+   M[3][1] = 0;
+   M[3][2] = 0;
    M[3][3] = 1;
 
    const T = translate( ops.vneg(eye) );
-   return ops.mmmul( T, M );
+   return ops.mmmul( M, T );
 }
 
 // (adapted from gluPerspective man page:)
