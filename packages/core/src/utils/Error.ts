@@ -188,7 +188,7 @@ export const showError = (
     }
     case "DuplicateName": {
       const { firstDefined, name, location } = error;
-      return `Name ${name.value} (at ${loc(
+      return `Name ${name} (at ${loc(
         location,
       )}) already exists, first declared at ${loc(firstDefined)}.`;
     }
@@ -679,7 +679,7 @@ export const errLocs = (
       return locOrNone(e.typeVar);
     }
     case "DuplicateName": {
-      return locOrNone(e.name);
+      return locOrNone(e.location);
     }
     case "CyclicSubtypes": {
       return [];

@@ -13,10 +13,11 @@ export interface SubstanceEnv {
   bindings: im.Map<string, SubExpr<A>>;
   labels: LabelMap;
   predicates: ApplyPredicate<A>[];
-  ast: SubProg<A>;
+  ast: CompiledSubProg<A>;
 }
 
 //#region Substance AST
+
 export type SubProg<T> = ASTNode<T> & {
   tag: "SubProg";
   statements: Stmt<T>[];
@@ -26,13 +27,24 @@ export type Stmt<T> = SubStmt<T> | StmtSeq<T>;
 
 export type SubStmt<T> =
   | Decl<T>
+  | DeclList<T>
   | Bind<T>
+  | DeclBind<T>
   | EqualExprs<T>
   | EqualPredicates<T>
   | ApplyPredicate<T>
   | LabelDecl<T>
   | AutoLabel<T>
   | NoLabel<T>;
+
+// DeclList compiles into two Decl
+// DeclBind compiles into Decl and Bind
+export type AggregateSubStmt<T> = DeclList<T> | DeclBind<T>;
+export type SingleNonSeqStmt<T> = Exclude<SubStmt<T>, AggregateSubStmt<T>>;
+
+export type CompiledSubProg<T> = SubProg<T> & {
+  statements: SingleNonSeqStmt<T>;
+};
 
 // An application of relation
 // A relation is a predicate or a binding.
@@ -77,6 +89,12 @@ export type Decl<T> = ASTNode<T> & {
   name: Identifier<T>;
 };
 
+export type DeclList<T> = ASTNode<T> & {
+  tag: "DeclList";
+  type: TypeConsApp<T>;
+  names: Identifier<T>[];
+};
+
 type TypeConsAppArgs<T> = {
   args: TypeConsApp<T>[];
 };
@@ -88,6 +106,13 @@ export type TypeConsApp<T> = Omit<
 
 export type Bind<T> = ASTNode<T> & {
   tag: "Bind";
+  variable: Identifier<T>;
+  expr: SubExpr<T>;
+};
+
+export type DeclBind<T> = ASTNode<T> & {
+  tag: "DeclBind";
+  type: TypeConsApp<T>;
   variable: Identifier<T>;
   expr: SubExpr<T>;
 };
@@ -194,24 +219,6 @@ export type RangeAssign<T> = ASTNode<T> & {
   tag: "RangeAssign";
   variable: Identifier<T>;
   range: IntRange<T>;
-};
-
-export type DeclSeq<T> = ASTNode<T> & {
-  tag: "DeclSeq";
-  type: TypeConsApp<T>;
-  leading: IndexedIdentifier<T>[];
-  last: IndexedIdentifier<T>;
-};
-
-export type IndexedIdentifier<T> = {
-  tag: "IndexedIdentifier";
-  name: Identifier<T>;
-  index: Index<T>;
-};
-
-export type Index<T> = ASTNode<T> & {
-  tag: "Index";
-  content: Identifier<T> | IntLit<T>;
 };
 
 //#endregion

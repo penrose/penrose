@@ -29,7 +29,9 @@ const lexer = moo.compile({
       autoLabel: "AutoLabel",
       let: "Let",
       bool_true: "true",
-      bool_false: "false"
+      bool_false: "false",
+      for: "for",
+      where: "where",
     })
   }
 });
@@ -68,8 +70,7 @@ statement
   -> stmt_seq {% id %}
   |  stmt     {% id %}
 
-# TODO: `stmt` should include indexed_variable
-stmt_seq -> stmt __ "for" __ sequence {% 
+stmt_seq -> stmt __ sequence {% 
   ([[stmt], , , , seq]) => {
     return {
       ...nodeData,
@@ -81,16 +82,16 @@ stmt_seq -> stmt __ "for" __ sequence {%
 %}
 
 # TODO: add comparsion expression
-sequence -> sepBy1[range_assign, ","] {% 
-  ([d]): Sequence<C> => ({
+sequence -> "for" __ sepBy1[range_assign, ","] {% 
+  ([kw, , d]): Sequence<C> => ({
     ...nodeData,
-    ...rangeFrom(d),
+    ...rangeFrom([kw, d]),
     tag: "Sequence", 
     indices: d, conditions: []
   })
 %}
 
-range_assign -> identifier _ "=" _ int_range {%
+range_assign -> identifier _ "in" _ int_range {%
   ([variable, , , , range]): RangeAssign<C> => ({
     ...nodeData,
     ...rangeBetween(variable, range),
@@ -112,15 +113,6 @@ int_lit -> %int_literal {%
     ...rangeOf(d),
     tag: "IntLit", value: +d.value
   })
-%}
-
-# TODO: `stmt` should include indexed_variable 
-indexed_identifier -> identifier "{" _ index _ "}" {%
-  ([name, , , index , , rbrace]): IndexedIdentifier<C> => ({
-    ...nodeData,
-    ...rangeBetween(name, rbrace),
-    tag: "IndexedIdentifier", name, index
-  }) 
 %}
 
 index 
@@ -150,11 +142,24 @@ stmt
   |  equal_predicates {% id %}
 
 decl -> type_constructor __ sepEndBy1[identifier, ","] {%
-  ([type, , ids]): Decl<C>[] => ids.map((name: Identifier<C>): Decl<C> => ({
-    ...nodeData,
-    ...rangeBetween(type, name),
-    tag: "Decl", type, name
-  }))
+  ([type, , ids]): Decl<C> | DeclList<C> => {
+    if (ids.length === 1) {
+      // single identifier means one decl
+      return {
+        ...nodeData,
+        ...rangeBetween(type, ids),
+        tag: "Decl",
+        type, name: ids[0]
+      };
+    } else {
+      return {
+        ...nodeData,
+        ...rangeBetween(type, ids),
+        tag: "DeclList",
+        type, names: ids
+      }
+    }
+  }
 %}
 
 bind -> identifier _ ":=" _ sub_expr {%
@@ -166,39 +171,29 @@ bind -> identifier _ ":=" _ sub_expr {%
 %}
 
 decl_bind -> type_constructor __ identifier _ ":=" _ sub_expr {%
-  ([type, , variable, , , , expr]): [Decl<C>, Bind<C>] => {
-    const decl: Decl<C> = {
+  ([type, , variable, , , , expr]): DeclBind<C> => {
+    return {
       ...nodeData,
-      ...rangeBetween(type, variable),
-      tag: "Decl", type, name: variable
+      ...rangeBetween(type, expr),
+      tag: "DeclBind",
+      type, variable, expr
     };
-    const bind: Bind<C> = {
-      ...nodeData,
-      ...rangeBetween(variable, expr),
-      tag: "Bind", variable, expr
-    };
-    return [decl, bind];
   }
 %}
 
 let_bind -> "Let" __ identifier _ ":=" _ sub_expr {%
   ([prefix, , variable, , , , expr]): [Decl<C>, Bind<C>] => {
     const type: TypeConsApp<C> = {
-        ...nodeData,
-        ...rangeBetween(variable, expr),
-        tag: "TypeConstructor", args: [], name: expr.name
-      };
-    const decl: Decl<C> = {
-      ...nodeData,
-      ...rangeBetween(type, variable),
-      tag: "Decl", type, name: variable
-    };
-    const bind: Bind<C> = {
       ...nodeData,
       ...rangeBetween(variable, expr),
-      tag: "Bind", variable, expr
+      tag: "TypeConstructor", args: [], name: expr.name
     };
-    return [decl, bind];
+    return {
+      ...nodeData,
+      ...rangeBetween(type, expr),
+      tag: "DeclBind",
+      type, variable, expr
+    };
   }
 %}
 
@@ -327,6 +322,7 @@ expr ->
 term -> 
     term _ "*" _ factor {% ([left, , , , right]): BinaryExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryExpr", operator: "*", left, right}) %}
   | term _ "/" _ factor {% ([left, , , , right]): BinaryExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryExpr", operator: "/", left, right}) %}
+  | term _ "%" _ factor {% ([left, , , , right]): BinaryExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryExpr", operator: "%", left, right}) %}
   | factor {% id %}
 
 factor -> 

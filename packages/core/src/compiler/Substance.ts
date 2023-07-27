@@ -19,12 +19,18 @@ import {
   ApplyFunction,
   ApplyPredicate,
   Bind,
+  ComparisonExpr,
+  CompiledSubProg,
   Decl,
   Deconstructor,
   Func,
   LabelMap,
   LabelOption,
   LabelValue,
+  Sequence,
+  SingleNonSeqStmt,
+  Stmt,
+  StmtSeq,
   SubExpr,
   SubPredArg,
   SubProg,
@@ -35,6 +41,7 @@ import {
 } from "../types/substance.js";
 import {
   Result,
+  all,
   and,
   andThen,
   argLengthMismatch,
@@ -51,7 +58,7 @@ import {
   unexpectedExprForNestedPred,
   varNotFound,
 } from "../utils/Error.js";
-import { zip2 } from "../utils/Util.js";
+import { cartesianProduct, zip2 } from "../utils/Util.js";
 import {
   bottomType,
   checkTypeConstructor,
@@ -221,7 +228,7 @@ interface WithEnvAndType<T> {
   contents: T;
   type: TypeConsApp<A>;
 }
-type CheckerResult<T> = Result<WithEnv<T>, SubstanceError>;
+type CheckerResult<T> = Result<WithEnv<T>, SubstanceError | SubstanceError[]>;
 type ResultWithType<T> = Result<WithEnvAndType<T>, SubstanceError>;
 
 const stringName = idOf("String", "Substance");
@@ -241,7 +248,7 @@ const stringType: TypeConsApp<A> = {
 export const checkSubstance = (
   prog: SubProg<A>,
   env: Env,
-): CheckerResult<SubProg<A>> => {
+): CheckerResult<CompiledSubProg<A>> => {
   const { statements } = prog;
   // check all statements
   const contents: SubStmt<A>[] = [];
@@ -251,7 +258,7 @@ export const checkSubstance = (
       andThen(
         ({ env, contents: checkedStmt }) =>
           ok({ env, contents: [...stmts, checkedStmt] }),
-        checkStmt(stmt, env),
+        checkSingleStmt(stmt, env),
       ),
     ok({ env, contents }),
   );
@@ -265,34 +272,21 @@ export const checkSubstance = (
   );
 };
 
-const checkStmt = (stmt: SubStmt<A>, env: Env): CheckerResult<SubStmt<A>> => {
+const checkSingleStmt = (
+  stmt: SubStmt<A>,
+  env: Env,
+): CheckerResult<SingleNonSeqStmt<A>[]> => {
+  // Each non-sequenced SubStmt can compile into multiple single, non-sequenced statements
   switch (stmt.tag) {
     case "Decl": {
       const { type, name } = stmt;
-      // check type constructor
-      const typeOk = checkTypeConstructor(type, env);
-      // check name collisions
-      const existingName = env.vars.get(name.value);
-      if (existingName) {
-        return err(
-          duplicateName(
-            name,
-            stmt,
-            env.varIDs.filter((v) => v.value === name.value)[0],
-          ),
-        );
-      } else {
-        const updatedEnv: Env = {
-          ...env,
-          vars: env.vars.set(name.value, type),
-          varIDs: [name, ...env.varIDs],
-        };
-        const res: WithEnv<SubStmt<A>> = {
-          env: updatedEnv,
-          contents: stmt,
-        };
-        return and(ok(res), typeOk);
-      }
+      const res = checkDecl(stmt, env, type, name);
+      return andThen(
+        ({ env, contents }) => ok({ env, contents: [contents] }),
+        res,
+      );
+    }
+    case "DeclList": {
     }
     case "Bind": {
       const { variable, expr } = stmt;
@@ -350,6 +344,188 @@ const checkStmt = (stmt: SubStmt<A>, env: Env): CheckerResult<SubStmt<A>> => {
       const argsOk = every(...stmt.args.map((a) => checkVar(a, env)));
       return andThen(({ env }) => ok({ env, contents: stmt }), argsOk);
     }
+  }
+};
+
+type SeqSubst = Map<string, number>;
+
+const evalSeq = (seq: Sequence<A>): SeqSubst[] => {
+  const { indices, conditions } = seq;
+
+  type VarValPair = [string, number];
+  const possValsPerVar: [VarValPair][][] = [];
+  for (const { variable, range } of indices) {
+    const name = variable.value;
+    const { high, low } = range;
+
+    // a list of [name, value]
+    const possVals = im
+      .Range(low.value, high.value + 1)
+      .toArray()
+      .map((n): [VarValPair] => [[name, n]]);
+    // for example, if we write `i in [1, 3]`,
+    // then possVals would contain `["i", 1], ["i", 2], ["i", 3]`
+    possValsPerVar.push(possVals);
+  }
+
+  const [first, ...rest] = possValsPerVar;
+  if (first !== undefined) {
+    const cprod = rest.reduce(
+      (p: VarValPair[][], c: VarValPair[][]) =>
+        cartesianProduct(
+          p,
+          c,
+          () => true,
+          (p1, p2) => [...p1, ...p2],
+        ),
+      first,
+    );
+
+    // Each element of "cprod" represents a substitution.
+
+    const substitutions = cprod.map((cprod) => new Map(cprod));
+    return substitutions.filter((subst) => evalCond(conditions, subst));
+  } else {
+    return [];
+  }
+};
+
+const evalCond = (
+  conditions: ComparisonExpr<A>[],
+  subst: SeqSubst,
+): boolean => {
+  // TODO: Implement this.
+
+  return true;
+};
+
+const substSeqVar = (
+  v: string,
+  subst: SeqSubst,
+): Result<string, SubstanceError> => {
+  const underscorePos = v.lastIndexOf("_");
+  if (underscorePos === -1) {
+    return ok(v);
+  }
+
+  const prefix = v.slice(0, underscorePos);
+  const seqVarName = v.slice(underscorePos + 1);
+
+  const seqVarValue = subst.get(seqVarName);
+
+  if (seqVarValue === undefined) {
+    throw new Error("Cannot find sequence variable " + seqVarName);
+  }
+
+  return ok(`${prefix}_${+seqVarValue}`);
+};
+
+const checkDecl = (
+  stmt: Decl<A> | (StmtSeq<A> & { stmt: Decl<A> }),
+  env: Env,
+): CheckerResult<Decl<A>[]> => {
+  if (stmt.tag === "StmtSeq") {
+    const decl = stmt.stmt;
+    const { type, name } = decl;
+    const typeOk = checkTypeConstructor(type, env);
+    if (typeOk.isErr()) {
+      return err(typeOk.error);
+    }
+
+    const seqSubsts = evalSeq(stmt.seq);
+    const substitutedNamesResult = all(
+      seqSubsts.map((subst) => substSeqVar(name.value, subst)),
+    );
+
+    if (substitutedNamesResult.isErr()) {
+      return err(substitutedNamesResult.error);
+    }
+
+    const substitutedNames = substitutedNamesResult.value;
+
+    // check duplicate within sequence (not necessary, but sanity check)
+
+    if (new Set(substitutedNames).size !== substitutedNames.length) {
+      throw new Error("got duplicates within sequence");
+    }
+
+    const duplErrs = substitutedNames
+      // first find the potential duplicate of each name
+      .map((sName) => ({
+        varName: sName,
+        found: env.varIDs.find((v) => v.value === sName),
+      }))
+      // only consider those that have duplicates
+      .filter(({ found }) => found !== undefined)
+      // and generate the Error object
+      .map(({ varName, found }) =>
+        duplicateName(
+          {
+            ...name,
+            value: varName,
+          },
+          decl,
+          found as Identifier<A>,
+        ),
+      );
+
+    if (duplErrs.length > 0) {
+      return err(duplErrs);
+    }
+
+    const updatedEnv: Env = {
+      ...env,
+      vars: env.vars.merge(substitutedNames.map((sName) => [sName, type])),
+      varIDs: [
+        ...substitutedNames.map((sName) => ({
+          ...name,
+          value: sName,
+        })),
+        ...env.varIDs,
+      ],
+    };
+
+    const res: WithEnv<Decl<A>[]> = {
+      env: updatedEnv,
+      contents: substitutedNames.map((sName) => ({
+        ...decl,
+        name: {
+          ...name,
+          value: sName,
+        },
+      })),
+    };
+    return ok(res);
+  } else {
+    const decl = stmt;
+    const { type, name } = decl;
+    // check type constructor
+    const typeOk = checkTypeConstructor(type, env);
+    if (typeOk.isErr()) {
+      return err(typeOk.error);
+    }
+    // check name collisions
+    const existingName = env.vars.get(name.value);
+    if (existingName) {
+      return err(
+        duplicateName(
+          name,
+          decl,
+          env.varIDs.filter((v) => v.value === name.value)[0],
+        ),
+      );
+    }
+
+    const updatedEnv: Env = {
+      ...env,
+      vars: env.vars.set(name.value, type),
+      varIDs: [name, ...env.varIDs],
+    };
+    const res: WithEnv<Decl<A>[]> = {
+      env: updatedEnv,
+      contents: [decl],
+    };
+    return and(ok(res), typeOk);
   }
 };
 
@@ -736,15 +912,35 @@ export const checkVar = (
 export const prettySubstance = (prog: SubProg<A>): string =>
   prog.statements.map((stmt) => prettyStmt(stmt)).join("\n");
 
-export const prettyStmt = (stmt: SubStmt<A>): string => {
+export const prettyStmt = (stmt: Stmt<A>): string => {
+  if (stmt.tag !== "StmtSeq") {
+    return prettySingleStmt(stmt);
+  } else {
+    // TOOD: use more informative pretty-printing
+    return `${prettySingleStmt(stmt.stmt)} seq`;
+  }
+};
+
+const prettySingleStmt = (stmt: SubStmt<A>): string => {
   switch (stmt.tag) {
     case "Decl": {
       const { type, name } = stmt;
       return `${prettyType(type)} ${prettyVar(name)}`;
     }
+    case "DeclList": {
+      const { type, names } = stmt;
+      const pNames = names.map(prettyVar).join(", ");
+      return `${prettyType(type)} ${pNames}`;
+    }
     case "Bind": {
       const { variable, expr } = stmt;
       return `${prettyVar(variable)} := ${prettyExpr(expr)}`;
+    }
+    case "DeclBind": {
+      const { type, variable, expr } = stmt;
+      return `${prettyType(type)} ${prettyVar(variable)} := ${prettyExpr(
+        expr,
+      )}`;
     }
     case "AutoLabel":
       return `AutoLabel ${prettyLabelOpt(stmt.option)}`;
@@ -758,8 +954,6 @@ export const prettyStmt = (stmt: SubStmt<A>): string => {
       return `${prettyExpr(stmt.left)} = ${prettyExpr(stmt.right)}`;
     case "EqualPredicates":
       return `${prettyPredicate(stmt.left)} <-> ${prettyPredicate(stmt.right)}`;
-    default:
-      throw new Error(`unsupported substance statement type`);
   }
 };
 
@@ -777,6 +971,8 @@ export const prettySubNode = (
     case "ApplyPredicate":
     case "EqualExprs":
     case "EqualPredicates":
+    case "DeclList":
+    case "DeclBind":
       return prettyStmt(node);
     default:
       return prettyExpr(node);
@@ -813,7 +1009,9 @@ const prettyLabelOpt = (opt: LabelOption<A>): string => {
   }
 };
 
-const prettyVar = (v: Identifier<A>): string => v.value;
+export const prettyVar = (v: Identifier<A>): string => {
+  return v.value;
+};
 const prettyExpr = (expr: SubExpr<A>): string => {
   switch (expr.tag) {
     case "Identifier":
