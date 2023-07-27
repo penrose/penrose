@@ -220,7 +220,7 @@ export type Expr<T> =
   | ObjFn<T>
   | ConstrFn<T>
   | BinOp<T>
-  | CollectionAccess<T>
+  | StyVarExpr<T>
   | UOp<T>
   | List<T>
   | Tuple<T>
@@ -284,10 +284,18 @@ export type AvoidFn<T> = ASTNode<T> & {
   contents: [string, Expr<T>[]];
 };
 
+export type StyVarExpr<T> = CollectionAccess<T> | UnaryStyVarExpr<T>;
+
 export type CollectionAccess<T> = ASTNode<T> & {
   tag: "CollectionAccess";
   name: Identifier<T>;
   field: Identifier<T>;
+};
+
+export type UnaryStyVarExpr<T> = ASTNode<T> & {
+  tag: "UnaryStyVarExpr";
+  op: "numberof" | "nameof";
+  arg: Identifier<T>;
 };
 
 export type BinaryOp =
