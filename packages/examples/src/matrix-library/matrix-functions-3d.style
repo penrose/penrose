@@ -45,7 +45,7 @@ forall Shape S {
    vec3 S.r3 = ( S.referencePoints[3][0], S.referencePoints[3][1] )
 
    color red = #f00
-   color green = #0f0
+   color green = #0e0
 
    shape S.reference0 = Polyline {
       points: [ S.r0, S.r1 ]
@@ -138,7 +138,6 @@ forall Shape S {
    }
    shape S.computed = Group {
       shapes: [ S.computed0, S.computed1, S.computed2, S.computed3, S.computed4, S.computed5 ]
-      opacity: .95
    }
    layer S.computed above S.reference
 }
