@@ -1512,7 +1512,7 @@ export const compDict = {
 
   projectList: {
     name: "projectList",
-    description: "Transforms the specified list of object coordinates into window coordinates using a given model and projection transformation, and a given viewport.  It returns the list of projected x,y coordinates.  To get the depth, see `projectDepth()`",
+    description: "Transforms the specified list of object coordinates into window coordinates using a given model and projection transformation, and a given viewport.  Returns the list of projected x,y coordinates.",
     params: [
       { name: "p", description: "list of 3D object coordinates (x,y,z)", type: realNMT() },
       { name: "model", description: "4x4 modelview matrix", type: realNMT() },
@@ -1540,6 +1540,31 @@ export const compDict = {
     returns: valueT("Real2N"),
   },
 
+  matrixMultiplyList: {
+    name: "matrixMultiplyList",
+    description: "Multiplies each list element by the given matrix, returning the list of products.  List elements must have dimensions compatible with the matrix.",
+    params: [
+      { name: "A", description: "`n`x`n` matrix", type: realNMT() },
+      { name: "V", description: "list of `n`-dimensional vectors", type: realNMT() },
+    ],
+    body: (
+      _context: Context,
+      A: ad.Num[][],
+      V: ad.Num[][]
+    ): MayWarn<MatrixV<ad.Num>> => {
+
+       const AV: ad.Num[][] = [];
+       for( let i = 0; i < V.length; i++ ) {
+          AV[i] = ops.mvmul( A, V[i] );
+       }
+
+      return noWarn({
+        tag: "MatrixV",
+        contents: AV
+      });
+    },
+    returns: valueT("RealNM"),
+  },
 
   fromHomogeneous: {
     name: "fromHomogeneous",
@@ -7000,5 +7025,5 @@ const matrix3d = (
 //    - refactor non-wrapped methods into MatrixFunctions.ts
 //    + add `then` operator to parser/compiler
 //    - write unit tests (i.e., trivially checkable examples)
-//    - write usage examples
+//    + write usage examples
 
