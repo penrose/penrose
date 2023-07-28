@@ -1584,6 +1584,28 @@ export const compDict = {
     returns: valueT("RealN"),
   },
 
+  fromHomogeneousList: {
+    name: "fromHomogeneousList",
+    description: "Given a list `Q` of vectors of length `n`+1, encoding points in `n`-dimensional homogeneous coordinates, returns a list `P` of vectors of length `n`, encoding the same points in Cartesian coordinates.",
+    params: [
+      { name: "Q", description: "list of points in homogeneous coordinates", type: realNMT() },
+    ],
+    body: (
+      _context: Context,
+      Q: ad.Num[][]
+    ): MayWarn<MatrixV<ad.Num>> => {
+       const P: ad.Num[][] = []
+       for( let i = 0; i < Q.length; i++ ) {
+          P[i] = fromHomogeneous( Q[i] );
+       }
+      return noWarn({
+        tag: "MatrixV",
+        contents: P
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
   toHomogeneous: {
     name: "toHomogeneous",
     description: "Given a vector `p` of length `n`, encoding a point in `n`-dimensional Cartesian coordinates, returns a vector `q` of length `n`+1, encoding the same point in homogeneous coordinates.",
@@ -1600,6 +1622,28 @@ export const compDict = {
       });
     },
     returns: valueT("RealN"),
+  },
+
+  toHomogeneousList: {
+    name: "toHomogeneousList",
+    description: "Given a list `P` of vectors of length `n`, encoding points in `n`-dimensional Cartesian coordinates, returns a list `Q` of vectors of length `n`+1, encoding the same points in homogeneous coordinates.",
+    params: [
+      { name: "P", description: "list of points in Cartesian coordinates", type: realNMT() },
+    ],
+    body: (
+      _context: Context,
+      P: ad.Num[][]
+    ): MayWarn<MatrixV<ad.Num>> => {
+       const Q: ad.Num[][] = []
+       for( let i = 0; i < P.length; i++ ) {
+          Q[i] = toHomogeneous( P[i] );
+       }
+      return noWarn({
+        tag: "MatrixV",
+        contents: Q
+      });
+    },
+    returns: valueT("RealNM"),
   },
 
   toHomogeneousMatrix: {
