@@ -9,7 +9,7 @@ import moo from "moo";
 import _ from 'lodash'
 import { optional, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil.js'
 import { C, ConcreteNode, Identifier, StringLit } from "../types/ast.js";
-import { Sequence, RangeAssign, IntRange, BinaryExpr, ComparisonExpr, IndexedIdentifier, SubProg, SubStmt, Decl, Bind, ApplyPredicate, Deconstructor, Func, EqualExprs, EqualPredicates, LabelDecl, NoLabel, AutoLabel, LabelOption, TypeConsApp, IntLit, Index } from "../types/substance.js";
+import { Sequence, RangeAssign, IntRange, BinaryExpr, ComparisonExpr, SubProg, SubStmt, Decl, DeclList, Bind, DeclBind, ApplyPredicate, Deconstructor, Func, EqualExprs, EqualPredicates, LabelDecl, NoLabel, AutoLabel, LabelOption, TypeConsApp, IntLit } from "../types/substance.js";
 
 
 // NOTE: ordering matters here. Top patterns get matched __first__
@@ -31,6 +31,7 @@ const lexer = moo.compile({
       bool_true: "true",
       bool_false: "false",
       for: "for",
+      in: "in",
       where: "where",
     })
   }
@@ -71,7 +72,7 @@ statement
   |  stmt     {% id %}
 
 stmt_seq -> stmt __ sequence {% 
-  ([[stmt], , , , seq]) => {
+  ([stmt, , seq]) => {
     return {
       ...nodeData,
       ...rangeFrom([stmt, seq]),
@@ -83,12 +84,14 @@ stmt_seq -> stmt __ sequence {%
 
 # TODO: add comparsion expression
 sequence -> "for" __ sepBy1[range_assign, ","] {% 
-  ([kw, , d]): Sequence<C> => ({
-    ...nodeData,
-    ...rangeFrom([kw, d]),
-    tag: "Sequence", 
-    indices: d, conditions: []
-  })
+  ([kw, , d]): Sequence<C> => {
+    return {
+      ...nodeData,
+      ...rangeBetween(kw, d[d.length - 1]),
+      tag: "Sequence", 
+      indices: d, conditions: []
+    };
+  }
 %}
 
 range_assign -> identifier _ "in" _ int_range {%
@@ -115,22 +118,6 @@ int_lit -> %int_literal {%
   })
 %}
 
-index 
-  -> int_lit {% 
-    ([d]): Index<C> => ({
-      ...nodeData,
-      ...rangeOf(d),
-      tag: "Index", content: d
-    })
-  %}
-  |  identifier {% 
-    ([d]): Index<C> => ({
-      ...nodeData,
-      ...rangeOf(d),
-      tag: "Index", content: d
-    })
-  %}
-
 stmt 
   -> decl            {% id %}
   |  bind            {% id %}
@@ -141,20 +128,20 @@ stmt
   |  equal_exprs     {% id %}
   |  equal_predicates {% id %}
 
-decl -> type_constructor __ sepEndBy1[identifier, ","] {%
+decl -> type_constructor __ sepBy1[identifier, ","] {%
   ([type, , ids]): Decl<C> | DeclList<C> => {
     if (ids.length === 1) {
       // single identifier means one decl
       return {
         ...nodeData,
-        ...rangeBetween(type, ids),
+        ...rangeFrom([type, ...ids]),
         tag: "Decl",
         type, name: ids[0]
       };
     } else {
       return {
         ...nodeData,
-        ...rangeBetween(type, ids),
+        ...rangeFrom([type, ...ids]),
         tag: "DeclList",
         type, names: ids
       }
@@ -182,7 +169,7 @@ decl_bind -> type_constructor __ identifier _ ":=" _ sub_expr {%
 %}
 
 let_bind -> "Let" __ identifier _ ":=" _ sub_expr {%
-  ([prefix, , variable, , , , expr]): [Decl<C>, Bind<C>] => {
+  ([prefix, , variable, , , , expr]): DeclBind<C> => {
     const type: TypeConsApp<C> = {
       ...nodeData,
       ...rangeBetween(variable, expr),

@@ -66,7 +66,7 @@ Set D
 });
 
 describe("statements", () => {
-  test.each(["Set A for i = [0, 10]", "Set A for i = [0, 10], j = [1, 5]"])(
+  test.each(["Set A for i in [0, 10]", "Set A for i in [0, 10], j in [1, 5]"])(
     "decl sequence %s",
     (seq: string) => {
       const { results } = parser.feed(seq);
@@ -85,15 +85,26 @@ List(Map) l1
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);
-    expect(results[0].statements.map((s: any) => s.name.value)).toEqual([
-      "A",
-      "f",
-      "g",
-      "h",
-      "l",
-      "l1",
-    ]);
+    expect(
+      results[0].statements
+        .map((statement: any) => {
+          if (statement.tag === "Decl") {
+            return statement.name.value;
+          } else if (statement.tag === "DeclList") {
+            return statement.names.map((n: any) => n.value);
+          }
+        })
+        .flat(),
+    ).toEqual(["A", "f", "g", "h", "l", "l1"]);
   });
+
+  test.each(["Set a", "Set a, b"])("decl list %s", (seq: string) => {
+    const { results } = parser.feed(seq);
+    console.log(results[0].statements[0]);
+
+    sameASTs(results);
+  });
+
   test("label decl", () => {
     const prog = `
 Set A, B, C

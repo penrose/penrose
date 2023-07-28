@@ -188,7 +188,7 @@ export const showError = (
     }
     case "DuplicateName": {
       const { firstDefined, name, location } = error;
-      return `Name ${name} (at ${loc(
+      return `Name ${name.value} (at ${loc(
         location,
       )}) already exists, first declared at ${loc(firstDefined)}.`;
     }

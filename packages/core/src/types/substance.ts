@@ -40,10 +40,10 @@ export type SubStmt<T> =
 // DeclList compiles into two Decl
 // DeclBind compiles into Decl and Bind
 export type AggregateSubStmt<T> = DeclList<T> | DeclBind<T>;
-export type SingleNonSeqStmt<T> = Exclude<SubStmt<T>, AggregateSubStmt<T>>;
+export type CompiledSubStmt<T> = Exclude<SubStmt<T>, AggregateSubStmt<T>>;
 
 export type CompiledSubProg<T> = SubProg<T> & {
-  statements: SingleNonSeqStmt<T>;
+  statements: CompiledSubStmt<T>[];
 };
 
 // An application of relation

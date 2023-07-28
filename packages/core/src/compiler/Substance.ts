@@ -21,14 +21,16 @@ import {
   Bind,
   ComparisonExpr,
   CompiledSubProg,
+  CompiledSubStmt,
   Decl,
+  DeclBind,
+  DeclList,
   Deconstructor,
   Func,
   LabelMap,
   LabelOption,
   LabelValue,
   Sequence,
-  SingleNonSeqStmt,
   Stmt,
   StmtSeq,
   SubExpr,
@@ -119,14 +121,16 @@ export const compileSubstance = (
     const checkerOk = checkSubstance(astWithPrelude, env);
     return checkerOk.match({
       Ok: ({ env, contents: ast }) => ok([postprocessSubstance(ast, env), env]),
-      Err: (e) => err({ ...e, errorType: "SubstanceError" }),
+      Err: (e) => {
+        return err({ ...e[0], errorType: "SubstanceError" });
+      },
     });
   } else {
     return err({ ...astOk.error, errorType: "SubstanceError" });
   }
 };
 
-const initEnv = (ast: SubProg<A>, env: Env): SubstanceEnv => ({
+const initEnv = (ast: CompiledSubProg<A>, env: Env): SubstanceEnv => ({
   exprEqualities: [],
   predEqualities: [],
   bindings: im.Map<string, SubExpr<C>>(),
@@ -142,13 +146,13 @@ const initEnv = (ast: SubProg<A>, env: Env): SubstanceEnv => ({
 const EMPTY_LABEL: LabelValue = { value: "", type: "NoLabel" };
 
 export const postprocessSubstance = (
-  prog: SubProg<A>,
+  prog: CompiledSubProg<A>,
   env: Env,
 ): SubstanceEnv => {
   // post process all statements
   const subEnv = initEnv(prog, env);
   return prog.statements.reduce(
-    (e, stmt) => processLabelStmt(stmt, env, e),
+    (e, stmt: CompiledSubStmt<A>) => processLabelStmt(stmt, env, e),
     subEnv,
   );
 };
@@ -228,8 +232,8 @@ interface WithEnvAndType<T> {
   contents: T;
   type: TypeConsApp<A>;
 }
-type CheckerResult<T> = Result<WithEnv<T>, SubstanceError | SubstanceError[]>;
-type ResultWithType<T> = Result<WithEnvAndType<T>, SubstanceError>;
+type CheckerResult<T> = Result<WithEnv<T>, SubstanceError[]>;
+type ResultWithType<T> = Result<WithEnvAndType<T>, SubstanceError[]>;
 
 const stringName = idOf("String", "Substance");
 const stringType: TypeConsApp<A> = {
@@ -251,14 +255,14 @@ export const checkSubstance = (
 ): CheckerResult<CompiledSubProg<A>> => {
   const { statements } = prog;
   // check all statements
-  const contents: SubStmt<A>[] = [];
-  const stmtsOk: CheckerResult<SubStmt<A>[]> = safeChain(
+  const contents: CompiledSubStmt<A>[] = [];
+  const stmtsOk: CheckerResult<CompiledSubStmt<A>[]> = safeChain(
     statements,
     (stmt, { env, contents: stmts }) =>
       andThen(
         ({ env, contents: checkedStmt }) =>
-          ok({ env, contents: [...stmts, checkedStmt] }),
-        checkSingleStmt(stmt, env),
+          ok({ env, contents: [...stmts, ...checkedStmt] }),
+        checkStmt(stmt, env),
       ),
     ok({ env, contents }),
   );
@@ -272,36 +276,67 @@ export const checkSubstance = (
   );
 };
 
+const checkStmt = (
+  stmt: Stmt<A>,
+  env: Env,
+): CheckerResult<CompiledSubStmt<A>[]> => {
+  if (stmt.tag === "StmtSeq") return checkStmtSeqHelper(stmt, env);
+  else return checkSingleStmt(stmt, env);
+};
+
+const checkStmtSeqHelper = (
+  stmtSeq: StmtSeq<A>,
+  env: Env,
+): CheckerResult<CompiledSubStmt<A>[]> => {
+  const { stmt } = stmtSeq;
+  switch (stmt.tag) {
+    case "Decl": {
+      return checkDeclSeq({ ...stmtSeq, stmt }, env);
+    }
+    case "DeclList": {
+      return checkDeclListSeq({ ...stmtSeq, stmt }, env);
+    }
+    case "Bind": {
+      return checkStmtSeq({ ...stmtSeq, stmt }, env, substSeqBind, checkBind);
+    }
+    case "DeclBind": {
+      return checkStmtSeq(
+        { ...stmtSeq, stmt },
+        env,
+        substSeqDeclBind,
+        checkDeclBind,
+      );
+    }
+    case "ApplyPredicate": {
+      return checkStmtSeq(
+        { ...stmtSeq, stmt },
+        env,
+        substSeqPredicate,
+        checkPredicate,
+      );
+    }
+    default: {
+      throw new Error("Not supported yet");
+    }
+  }
+};
+
 const checkSingleStmt = (
   stmt: SubStmt<A>,
   env: Env,
-): CheckerResult<SingleNonSeqStmt<A>[]> => {
-  // Each non-sequenced SubStmt can compile into multiple single, non-sequenced statements
+): CheckerResult<CompiledSubStmt<A>[]> => {
   switch (stmt.tag) {
     case "Decl": {
-      const { type, name } = stmt;
-      const res = checkDecl(stmt, env, type, name);
-      return andThen(
-        ({ env, contents }) => ok({ env, contents: [contents] }),
-        res,
-      );
+      return checkDecl(stmt, env);
     }
     case "DeclList": {
+      return checkDeclList(stmt, env);
     }
     case "Bind": {
-      const { variable, expr } = stmt;
-      const varOk = checkVar(variable, env);
-      const exprOk = checkExpr(expr, env, variable);
-      return andThen(
-        ({ env, contents: [e, v] }) => {
-          const updatedBind: Bind<A> = { ...stmt, variable: v, expr: e };
-          return ok({
-            env,
-            contents: updatedBind,
-          });
-        },
-        subtypeOf(exprOk, varOk),
-      );
+      return checkBind(stmt, env);
+    }
+    case "DeclBind": {
+      return checkDeclBind(stmt, env);
     }
     case "ApplyPredicate": {
       return checkPredicate(stmt, env);
@@ -311,7 +346,7 @@ const checkSingleStmt = (
       const leftOk = checkExpr(left, env);
       const rightOk = checkExpr(right, env);
       return andThen(
-        ({ env }) => ok({ env, contents: stmt }),
+        ({ env }) => ok({ env, contents: [stmt] }),
         every(leftOk, rightOk),
       );
     }
@@ -320,29 +355,29 @@ const checkSingleStmt = (
       const leftOk = checkPredicate(left, env);
       const rightOk = checkPredicate(right, env);
       return andThen(
-        ({ env }) => ok({ env, contents: stmt }),
+        ({ env }) => ok({ env, contents: [stmt] }),
         every(leftOk, rightOk),
       );
     }
     case "AutoLabel": {
       // NOTE: no checking required
       if (stmt.option.tag === "DefaultLabels") {
-        return ok({ env, contents: stmt });
+        return ok({ env, contents: [stmt] });
       } else {
         const varsOk = every(
           ...stmt.option.variables.map((v) => checkVar(v, env)),
         );
-        return andThen(({ env }) => ok({ env, contents: stmt }), varsOk);
+        return andThen(({ env }) => ok({ env, contents: [stmt] }), varsOk);
       }
     }
     case "LabelDecl":
       return andThen(
-        ({ env }) => ok({ env, contents: stmt }),
+        ({ env }) => ok({ env, contents: [stmt] }),
         checkVar(stmt.variable, env),
       );
     case "NoLabel": {
       const argsOk = every(...stmt.args.map((a) => checkVar(a, env)));
-      return andThen(({ env }) => ok({ env, contents: stmt }), argsOk);
+      return andThen(({ env }) => ok({ env, contents: [stmt] }), argsOk);
     }
   }
 };
@@ -399,7 +434,7 @@ const evalCond = (
   return true;
 };
 
-const substSeqVar = (
+const substSeqVarStr = (
   v: string,
   subst: SeqSubst,
 ): Result<string, SubstanceError> => {
@@ -417,122 +452,302 @@ const substSeqVar = (
     throw new Error("Cannot find sequence variable " + seqVarName);
   }
 
-  return ok(`${prefix}_${+seqVarValue}`);
+  return ok(`${prefix}_${seqVarValue}`);
 };
 
-const checkDecl = (
-  stmt: Decl<A> | (StmtSeq<A> & { stmt: Decl<A> }),
+const substSeqId = (
+  id: Identifier<A>,
+  subst: SeqSubst,
+): Result<Identifier<A>, SubstanceError> => {
+  const substContents = substSeqVarStr(id.value, subst);
+  if (substContents.isErr()) return err(substContents.error);
+
+  return ok({
+    ...id,
+    value: substContents.value,
+  });
+};
+
+const substSeqExpr = (
+  expr: SubExpr<A>,
+  subst: SeqSubst,
+): Result<SubExpr<A>, SubstanceError> => {
+  const { tag } = expr;
+  switch (tag) {
+    case "Identifier":
+      return substSeqId(expr, subst);
+    case "ApplyFunction":
+    case "ApplyConstructor":
+    case "Func":
+      return substSeqFunc(expr, subst);
+    case "Deconstructor":
+      return substSeqDeconstructor(expr, subst);
+    case "StringLit":
+      return ok(expr);
+  }
+};
+
+const substSeqFunc = (
+  func: ApplyFunction<A> | ApplyConstructor<A> | Func<A>,
+  subst: SeqSubst,
+): Result<ApplyFunction<A> | ApplyConstructor<A> | Func<A>, SubstanceError> => {
+  // Don't substitute over function names
+  const substArgs = safeChain<SubExpr<A>, SubExpr<A>[], SubstanceError>(
+    func.args,
+    (arg, curr: SubExpr<A>[]) => {
+      const substArg = substSeqExpr(arg, subst);
+      return andThen((sArg) => ok([...curr, sArg]), substArg);
+    },
+    ok([]),
+  );
+  if (substArgs.isErr()) {
+    return err(substArgs.error);
+  }
+
+  return ok({
+    ...func,
+    args: substArgs.value,
+  });
+};
+
+const substSeqDeconstructor = (
+  deconstr: Deconstructor<A>,
+  subst: SeqSubst,
+): Result<Deconstructor<A>, SubstanceError> => {
+  const { variable } = deconstr;
+  const substVariable = substSeqId(variable, subst);
+  if (substVariable.isErr()) return err(substVariable.error);
+  return ok({ ...deconstr, variable: substVariable.value });
+};
+
+const substSeqBind = (
+  bind: Bind<A>,
+  subst: SeqSubst,
+): Result<Bind<A>, SubstanceError> => {
+  const { variable, expr } = bind;
+  const substVariable = substSeqId(variable, subst);
+  if (substVariable.isErr()) return err(substVariable.error);
+  const substExpr = substSeqExpr(expr, subst);
+  if (substExpr.isErr()) return err(substExpr.error);
+  return ok({
+    ...bind,
+    variable: substVariable.value,
+    expr: substExpr.value,
+  });
+};
+
+const substSeqDeclBind = (
+  declBind: DeclBind<A>,
+  subst: SeqSubst,
+): Result<DeclBind<A>, SubstanceError> => {
+  const { variable, expr } = declBind;
+  const substVariable = substSeqId(variable, subst);
+  if (substVariable.isErr()) return err(substVariable.error);
+  const substExpr = substSeqExpr(expr, subst);
+  if (substExpr.isErr()) return err(substExpr.error);
+  return ok({
+    ...declBind,
+    variable: substVariable.value,
+    expr: substExpr.value,
+  });
+};
+
+const substSeqPredicate = (
+  pred: ApplyPredicate<A>,
+  subst: SeqSubst,
+): Result<ApplyPredicate<A>, SubstanceError> => {
+  const { args } = pred;
+
+  const substArgs = safeChain<SubPredArg<A>, SubPredArg<A>[], SubstanceError>(
+    args,
+    (arg, curr: SubPredArg<A>[]) => {
+      if (arg.tag === "ApplyPredicate") {
+        const substArg = substSeqPredicate(arg, subst);
+        return andThen((sArg) => ok([...curr, sArg]), substArg);
+      } else {
+        const substArg = substSeqExpr(arg, subst);
+        return andThen((sArg) => ok([...curr, sArg]), substArg);
+      }
+    },
+    ok([]),
+  );
+
+  if (substArgs.isErr()) return err(substArgs.error);
+  return ok({ ...pred, args: substArgs.value });
+};
+
+const checkDecl = (stmt: Decl<A>, env: Env): CheckerResult<Decl<A>[]> => {
+  const decl = stmt;
+  const { type, name: nameId } = decl;
+  // check type constructor
+  const typeOk = checkTypeConstructor(type, env);
+  if (typeOk.isErr()) return err([typeOk.error]);
+
+  return createVars(type, [nameId], env, decl);
+};
+
+const checkDeclSeq = (
+  stmtSeq: StmtSeq<A> & { stmt: Decl<A> },
   env: Env,
 ): CheckerResult<Decl<A>[]> => {
-  if (stmt.tag === "StmtSeq") {
-    const decl = stmt.stmt;
-    const { type, name } = decl;
-    const typeOk = checkTypeConstructor(type, env);
-    if (typeOk.isErr()) {
-      return err(typeOk.error);
-    }
+  const { stmt: decl, seq } = stmtSeq;
+  const { type, name: uncompiledNameId } = decl;
+  const typeOk = checkTypeConstructor(type, env);
+  if (typeOk.isErr()) return err([typeOk.error]);
 
-    const seqSubsts = evalSeq(stmt.seq);
-    const substitutedNamesResult = all(
-      seqSubsts.map((subst) => substSeqVar(name.value, subst)),
-    );
+  const seqSubsts = evalSeq(seq);
+  const substIdsResult = all(
+    seqSubsts.map((subst) => substSeqId(uncompiledNameId, subst)),
+  );
 
-    if (substitutedNamesResult.isErr()) {
-      return err(substitutedNamesResult.error);
-    }
-
-    const substitutedNames = substitutedNamesResult.value;
-
-    // check duplicate within sequence (not necessary, but sanity check)
-
-    if (new Set(substitutedNames).size !== substitutedNames.length) {
-      throw new Error("got duplicates within sequence");
-    }
-
-    const duplErrs = substitutedNames
-      // first find the potential duplicate of each name
-      .map((sName) => ({
-        varName: sName,
-        found: env.varIDs.find((v) => v.value === sName),
-      }))
-      // only consider those that have duplicates
-      .filter(({ found }) => found !== undefined)
-      // and generate the Error object
-      .map(({ varName, found }) =>
-        duplicateName(
-          {
-            ...name,
-            value: varName,
-          },
-          decl,
-          found as Identifier<A>,
-        ),
-      );
-
-    if (duplErrs.length > 0) {
-      return err(duplErrs);
-    }
-
-    const updatedEnv: Env = {
-      ...env,
-      vars: env.vars.merge(substitutedNames.map((sName) => [sName, type])),
-      varIDs: [
-        ...substitutedNames.map((sName) => ({
-          ...name,
-          value: sName,
-        })),
-        ...env.varIDs,
-      ],
-    };
-
-    const res: WithEnv<Decl<A>[]> = {
-      env: updatedEnv,
-      contents: substitutedNames.map((sName) => ({
-        ...decl,
-        name: {
-          ...name,
-          value: sName,
-        },
-      })),
-    };
-    return ok(res);
-  } else {
-    const decl = stmt;
-    const { type, name } = decl;
-    // check type constructor
-    const typeOk = checkTypeConstructor(type, env);
-    if (typeOk.isErr()) {
-      return err(typeOk.error);
-    }
-    // check name collisions
-    const existingName = env.vars.get(name.value);
-    if (existingName) {
-      return err(
-        duplicateName(
-          name,
-          decl,
-          env.varIDs.filter((v) => v.value === name.value)[0],
-        ),
-      );
-    }
-
-    const updatedEnv: Env = {
-      ...env,
-      vars: env.vars.set(name.value, type),
-      varIDs: [name, ...env.varIDs],
-    };
-    const res: WithEnv<Decl<A>[]> = {
-      env: updatedEnv,
-      contents: [decl],
-    };
-    return and(ok(res), typeOk);
+  if (substIdsResult.isErr()) {
+    return err(substIdsResult.error);
   }
+
+  const substIds = substIdsResult.value;
+
+  return createVars(type, substIds, env, decl);
+};
+
+const checkDeclList = (
+  stmt: DeclList<A>,
+  env: Env,
+): CheckerResult<Decl<A>[]> => {
+  const declList = stmt;
+  const { type, names: nameIds } = declList;
+
+  // check type constructor
+  const typeOk = checkTypeConstructor(type, env);
+  if (typeOk.isErr()) {
+    return err([typeOk.error]);
+  }
+
+  return createVars(type, nameIds, env, declList);
+};
+
+const checkDeclListSeq = (
+  stmtSeq: StmtSeq<A> & { stmt: DeclList<A> },
+  env: Env,
+): CheckerResult<Decl<A>[]> => {
+  const { stmt: declList, seq } = stmtSeq;
+  const { type, names: uncompiledNameIds } = declList;
+  const typeOk = checkTypeConstructor(type, env);
+  if (typeOk.isErr()) return err([typeOk.error]);
+
+  const seqSubsts = evalSeq(seq);
+  const substIdsResult = all(
+    seqSubsts
+      .map((subst) =>
+        uncompiledNameIds.map((uncompiledNameId) =>
+          substSeqId(uncompiledNameId, subst),
+        ),
+      )
+      .flat(),
+  );
+
+  if (substIdsResult.isErr()) {
+    return err(substIdsResult.error);
+  }
+
+  const substIds = substIdsResult.value;
+
+  return createVars(type, substIds, env, declList);
+};
+
+const createVars = (
+  type: TypeConsApp<A>,
+  nameIds: Identifier<A>[],
+  env: Env,
+  node:
+    | Decl<A>
+    | DeclList<A>
+    | (StmtSeq<A> & { stmt: Decl<A> })
+    | (StmtSeq<A> & { stmt: DeclList<A> }),
+): CheckerResult<Decl<A>[]> => {
+  let vars = env.vars;
+  const varIDs = env.varIDs;
+  const equivalentDecls: Decl<A>[] = [];
+  const errs: SubstanceError[] = [];
+
+  for (const nameId of nameIds) {
+    const { value: name } = nameId;
+    const dup = varIDs.find((id) => id.value === name);
+    if (dup !== undefined) {
+      errs.push(duplicateName(nameId, node, dup));
+    }
+
+    vars = vars.set(name, type);
+    varIDs.push(nameId);
+    equivalentDecls.push({
+      ...node, // inherit location information
+      tag: "Decl",
+      type,
+      name: nameId,
+    });
+  }
+
+  if (errs.length > 0) {
+    return err(errs);
+  }
+
+  return ok({
+    env: { ...env, vars, varIDs },
+    contents: equivalentDecls,
+  });
+};
+
+const checkBind = (stmt: Bind<A>, env: Env): CheckerResult<Bind<A>[]> => {
+  const { variable, expr } = stmt;
+  const varOk = checkVar(variable, env);
+  const exprOk = checkExpr(expr, env, variable);
+  return andThen(
+    ({ env, contents: [e, v] }) => {
+      const updatedBind: Bind<A> = { ...stmt, variable: v, expr: e };
+      return ok({
+        env,
+        contents: [updatedBind],
+      });
+    },
+    subtypeOf(exprOk, varOk),
+  );
+};
+
+const checkDeclBind = (
+  stmt: DeclBind<A>,
+  env: Env,
+): CheckerResult<(Decl<A> | Bind<A>)[]> => {
+  const declBind = stmt;
+  const { type, variable, expr } = declBind;
+
+  const decl: Decl<A> = {
+    ...declBind,
+    tag: "Decl",
+    name: variable,
+  };
+
+  const declResult = checkDecl(decl, env);
+  if (declResult.isErr()) return err(declResult.error);
+  const { env: checkedDeclEnv, contents: checkedDecls } = declResult.value;
+
+  const bind: Bind<A> = {
+    ...declBind,
+    tag: "Bind",
+  };
+
+  const bindResult = checkBind(bind, checkedDeclEnv);
+  if (bindResult.isErr()) return err(bindResult.error);
+  const { env: checkedBindEnv, contents: checkedBinds } = bindResult.value;
+
+  return ok({
+    env: checkedBindEnv,
+    contents: [...checkedDecls, ...checkedBinds],
+  });
 };
 
 export const checkPredicate = (
   stmt: ApplyPredicate<A>,
   env: Env,
-): CheckerResult<ApplyPredicate<A>> => {
+): CheckerResult<[ApplyPredicate<A>]> => {
   const { name, args } = stmt;
   const predDecl = env.predicates.get(name.value);
   // check if predicate exists and retrieve its decl
@@ -552,17 +767,55 @@ export const checkPredicate = (
     );
     // NOTE: throw away the substitution because this layer above doesn't need to typecheck
     return andThen(
-      ({ env, contents: args }) => ok({ env, contents: { ...stmt, args } }),
+      ({ env, contents: args }) => ok({ env, contents: [{ ...stmt, args }] }),
       argsOk,
     );
   } else {
-    return err(
+    return err([
       typeNotFound(
         name,
         [...env.predicates.values()].map((p) => p.name),
       ),
-    );
+    ]);
   }
+};
+
+const checkStmtSeq = <T extends StmtSeq<A>>(
+  stmtSeq: T,
+  env: Env,
+  substFunc: (
+    stmt: T["stmt"],
+    seqSubst: SeqSubst,
+  ) => Result<T["stmt"], SubstanceError>,
+  checkerFunc: (
+    stmt: T["stmt"],
+    env: Env,
+  ) => CheckerResult<CompiledSubStmt<A>[]>,
+): CheckerResult<CompiledSubStmt<A>[]> => {
+  const { stmt, seq } = stmtSeq;
+  const seqSubsts = evalSeq(seq);
+  const substStmtsResult = all(
+    seqSubsts.map((subst) => substFunc(stmt, subst)),
+  );
+  if (substStmtsResult.isErr()) {
+    return err(substStmtsResult.error);
+  }
+  const substStmts = substStmtsResult.value;
+
+  return safeChain(
+    substStmts,
+    (substStmt, curr: WithEnv<CompiledSubStmt<A>[]>) => {
+      const { env: currEnv, contents: currStmts } = curr;
+      const checked = checkerFunc(substStmt, currEnv);
+      if (checked.isErr()) return err(checked.error);
+      const { env: checkedEnv, contents: newStmts } = checked.value;
+      return ok({
+        env: checkedEnv,
+        contents: [...currStmts, ...newStmts],
+      });
+    },
+    ok({ env, contents: [] }),
+  );
 };
 
 const checkPredArg = (
@@ -588,7 +841,7 @@ const checkPredArg = (
     // NOTE: throw out the env from the check because it's not updating anything
     return andThen(
       ({ env, contents: predArg }) =>
-        ok({ substEnv: subst, env, contents: predArg }),
+        ok({ substEnv: subst, env, contents: predArg[0] }),
       predOk,
     );
   } else {
@@ -621,7 +874,7 @@ export const subtypeOf = <T1 extends ASTNode<A>, T2 extends ASTNode<A>>(
           if (isSubtype(t1, t2, updatedenv))
             return ok({ env: updatedenv, contents: [expr1, expr2] });
           else {
-            return err(typeMismatch(t1, t2, expr1, expr2));
+            return err([typeMismatch(t1, t2, expr1, expr2)]);
           }
         },
         Err: (e) => err(e),
@@ -662,7 +915,7 @@ export const checkExpr = (
 type SubstitutionEnv = im.Map<string, TypeConsApp<A>>; // mapping from type var to concrete types
 type SubstitutionResult<T> = Result<
   WithEnv<T> & { substEnv: SubstitutionEnv },
-  SubstanceError
+  SubstanceError[]
 >; // included env as a potential error accumulator TODO: check if the env passing chain is intact
 
 /**
@@ -687,15 +940,15 @@ const substituteArg = (
     // TODO: check ordering of types
     if (expectedArgs.length !== type.args.length) {
       if (type.name.value === formalType.name.value) {
-        return err(
+        return err([
           typeArgLengthMismatch(type, formalType, sourceExpr, expectedExpr),
-        );
+        ]);
       } else
-        return err(typeMismatch(type, formalType, sourceExpr, expectedExpr));
+        return err([typeMismatch(type, formalType, sourceExpr, expectedExpr)]);
     } else {
       // if there are no arguments, check for type equality and return mismatch error if types do not match
       if (type.args.length === 0 && !isSubtype(type, formalType, env)) {
-        return err(typeMismatch(type, formalType, sourceExpr, expectedExpr));
+        return err([typeMismatch(type, formalType, sourceExpr, expectedExpr)]);
       }
       // if there are more arguments, substitute them one by one
       // NOTE: we already know the lengths are the same, so `zipStrict` shouldn't throw
@@ -725,7 +978,9 @@ const substituteArg = (
         return ok({ substEnv, env, contents: sourceExpr });
       // type doesn't match with the previous substitution
       else {
-        return err(typeMismatch(type, expectedType, sourceExpr, expectedExpr));
+        return err([
+          typeMismatch(type, expectedType, sourceExpr, expectedExpr),
+        ]);
       }
     } else {
       // if type var is not substituted yet, add new substitution to the env
@@ -736,7 +991,7 @@ const substituteArg = (
       });
     }
   } else {
-    return err(unexpectedExprForNestedPred(type, sourceExpr, expectedExpr));
+    return err([unexpectedExprForNestedPred(type, sourceExpr, expectedExpr)]);
   }
 };
 const matchArg = (
@@ -800,12 +1055,12 @@ const checkFunc = (
     func = { ...func, tag: "ApplyFunction" };
     funcDecl = env.functions.get(name);
   } else {
-    return err(
+    return err([
       typeNotFound(func.name, [
         ...[...env.constructors.values()].map((c) => c.name),
         ...[...env.functions.values()].map((c) => c.name),
       ]),
-    );
+    ]);
   }
   // reassign `func` so the type is more precise
   const consOrFunc: ApplyConstructor<A> | ApplyFunction<A> = func;
@@ -815,9 +1070,9 @@ const checkFunc = (
     // initialize substitution environment
     const substContext: SubstitutionEnv = im.Map<string, TypeConsApp<C>>();
     if (funcDecl.args.length !== func.args.length) {
-      return err(
+      return err([
         argLengthMismatch(func.name, func.args, funcDecl.args, func, funcDecl),
-      );
+      ]);
     } else {
       const argPairs = zip2(func.args, funcDecl.args);
       const argsOk: SubstitutionResult<SubExpr<A>> = safeChain(
@@ -850,7 +1105,7 @@ const checkFunc = (
         );
       } else return outputOk;
     }
-  } else return err(typeNotFound(func.name)); // TODO: suggest possible types
+  } else return err([typeNotFound(func.name)]); // TODO: suggest possible types
 };
 
 const checkDeconstructor = (
@@ -889,7 +1144,7 @@ const checkField = (
         }),
       fieldType,
     );
-  } else return err(deconstructNonconstructor(decons));
+  } else return err([deconstructNonconstructor(decons)]);
 };
 
 export const checkVar = (
@@ -902,7 +1157,7 @@ export const checkVar = (
   } else {
     const possibleVars = env.varIDs;
     // TODO: find vars of the same type for error reporting (need to check expr first)
-    return err(varNotFound(variable, possibleVars));
+    return err([varNotFound(variable, possibleVars)]);
   }
 };
 //#endregion

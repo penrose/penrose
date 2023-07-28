@@ -101,6 +101,8 @@ import {
   ApplyConstructor,
   ApplyFunction,
   ApplyPredicate,
+  CompiledSubProg,
+  CompiledSubStmt,
   Decl,
   SubExpr,
   SubPredArg,
@@ -474,10 +476,10 @@ const checkRelPattern = (
 
       // TODO(error)
       if (isErr(res1)) {
-        const subErr1: SubstanceError = res1.error;
+        const subErr1 = res1.error;
         // TODO(error): Do we need to wrap this error further, or is returning SubstanceError with no additional Style info ok?
         // return ["substance typecheck error in B"];
-        return [{ tag: "TaggedSubstanceError", error: subErr1 }];
+        return [{ tag: "TaggedSubstanceError", error: subErr1[0] }];
       }
 
       const { type: vtype } = res1.value; // ignore env
@@ -487,8 +489,8 @@ const checkRelPattern = (
 
       // TODO(error)
       if (isErr(res2)) {
-        const subErr2: SubstanceError = res2.error;
-        return [{ tag: "TaggedSubstanceError", error: subErr2 }];
+        const subErr2 = res2.error;
+        return [{ tag: "TaggedSubstanceError", error: subErr2[0] }];
         // return ["substance typecheck error in E"];
       }
 
@@ -518,7 +520,7 @@ const checkRelPattern = (
       }
       const res = checkPredicate(toSubPred(rel), varEnv);
       if (isErr(res)) {
-        const subErr3: SubstanceError = res.error;
+        const subErr3: SubstanceError = res.error[0];
         return [{ tag: "TaggedSubstanceError", error: subErr3 }];
         // return ["substance typecheck error in Pred"];
       }
@@ -528,7 +530,7 @@ const checkRelPattern = (
       // check if the Substance name exists
       const nameOk = checkVar(rel.name.contents, varEnv);
       if (isErr(nameOk)) {
-        const subErr1: SubstanceError = nameOk.error;
+        const subErr1: SubstanceError = nameOk.error[0];
         return [{ tag: "TaggedSubstanceError", error: subErr1 }];
       }
       // check if the field is supported. Currently, we only support matching on `label`
@@ -1128,7 +1130,7 @@ const matchBvar = (
 // Judgment 12. G; theta |- S <| |S_o
 const matchDeclLine = (
   varEnv: Env,
-  line: SubStmt<A>,
+  line: CompiledSubStmt<A>,
   decl: DeclPattern<A>,
 ): Subst | undefined => {
   if (line.tag === "Decl") {
@@ -1148,19 +1150,22 @@ const matchDeclLine = (
 // Judgment 16. G; [theta] |- [S] <| [|S_o] ~> [theta']
 const matchDecl = (
   varEnv: Env,
-  subProg: SubProg<A>,
+  subProg: CompiledSubProg<A>,
   decl: DeclPattern<A>,
 ): im.List<Subst> => {
   const initDSubsts: im.List<Subst> = im.List();
   // Judgment 14. G; [theta] |- [S] <| |S_o
-  const newDSubsts = subProg.statements.reduce((dSubsts, line) => {
-    const subst = matchDeclLine(varEnv, line, decl);
-    if (subst === undefined) {
-      return dSubsts;
-    } else {
-      return dSubsts.push(subst);
-    }
-  }, initDSubsts);
+  const newDSubsts = subProg.statements.reduce(
+    (dSubsts, line: CompiledSubStmt<A>) => {
+      const subst = matchDeclLine(varEnv, line, decl);
+      if (subst === undefined) {
+        return dSubsts;
+      } else {
+        return dSubsts.push(subst);
+      }
+    },
+    initDSubsts,
+  );
   return newDSubsts;
 };
 
@@ -1460,14 +1465,14 @@ const matchStyRelToSubRels = (
   varEnv: Env,
   subEnv: SubstanceEnv,
   rel: RelationPattern<A>,
-  subProg: SubProg<A>,
-): [im.Set<string>, im.List<[Subst, im.Set<SubStmt<A>>]>] => {
+  subProg: CompiledSubProg<A>,
+): [im.Set<string>, im.List<[Subst, im.Set<CompiledSubStmt<A>>]>] => {
   const initUsedStyVars = im.Set<string>();
-  const initRSubsts = im.List<[Subst, im.Set<SubStmt<A>>]>();
+  const initRSubsts = im.List<[Subst, im.Set<CompiledSubStmt<A>>]>();
   if (rel.tag === "RelPred") {
     const styPred = rel;
     const newRSubsts = subProg.statements.reduce(
-      (rSubsts, statement: SubStmt<A>) => {
+      (rSubsts, statement: CompiledSubStmt<A>) => {
         if (statement.tag !== "ApplyPredicate") {
           return rSubsts;
         }
@@ -1482,7 +1487,7 @@ const matchStyRelToSubRels = (
         return rSubstsForPred.reduce((rSubsts, rSubstForPred) => {
           return rSubsts.push([
             rSubstForPred,
-            im.Set<SubStmt<A>>().add(statement),
+            im.Set<CompiledSubStmt<A>>().add(statement),
           ]);
         }, rSubsts);
       },
@@ -1514,7 +1519,7 @@ const matchStyRelToSubRels = (
         rSubstForBind[styBindedName] = subBindedName;
         return rSubsts.push([
           rSubstForBind,
-          im.Set<SubStmt<A>>().add(statement),
+          im.Set<CompiledSubStmt<A>>().add(statement),
         ]);
       }, rSubsts);
     }, initRSubsts);
@@ -1534,7 +1539,7 @@ const matchStyRelToSubRels = (
         if (rSubst === undefined) {
           return rSubsts;
         } else {
-          return rSubsts.push([rSubst, im.Set<SubStmt<A>>()]);
+          return rSubsts.push([rSubst, im.Set<CompiledSubStmt<A>>()]);
         }
       } else {
         return rSubsts;
@@ -1566,7 +1571,7 @@ const makeListRSubstsForStyleRels = (
   varEnv: Env,
   subEnv: SubstanceEnv,
   rels: RelationPattern<A>[],
-  subProg: SubProg<A>,
+  subProg: CompiledSubProg<A>,
 ): [im.Set<string>, im.List<im.List<[Subst, im.Set<SubStmt<A>>]>>] => {
   const initUsedStyVars: im.Set<string> = im.Set();
   const initListRSubsts: im.List<im.List<[Subst, im.Set<SubStmt<A>>]>> =
@@ -1597,7 +1602,7 @@ const makePotentialSubsts = (
   varEnv: Env,
   selEnv: SelEnv,
   subEnv: SubstanceEnv,
-  subProg: SubProg<A>,
+  subProg: CompiledSubProg<A>,
   decls: DeclPattern<A>[],
   rels: RelationPattern<A>[],
 ): im.List<[Subst, im.Set<SubStmt<A>>]> => {
@@ -1664,7 +1669,7 @@ const getSubsts = (
   varEnv: Env,
   subEnv: SubstanceEnv,
   selEnv: SelEnv,
-  subProg: SubProg<A>,
+  subProg: CompiledSubProg<A>,
   header: Collector<A> | Selector<A>,
 ): Subst[] => {
   const decls = getDecls(header);
@@ -1733,7 +1738,7 @@ const collectSubsts = (
 const findSubstsSel = (
   varEnv: Env,
   subEnv: SubstanceEnv,
-  subProg: SubProg<A>,
+  subProg: CompiledSubProg<A>,
   [header, selEnv]: [Header<A>, SelEnv],
 ): StySubst[] => {
   if (header.tag === "Selector") {
