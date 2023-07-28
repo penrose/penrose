@@ -72,7 +72,7 @@ It's specified by the following trio of Domain, Substance, and Style programs
     }
   
     ensure contains(x.icon, x.text)
-    encourage sameCenter(x.text, x.icon)
+    encourage norm(x.text.center - x.icon.center) == 0
     layer x.text above x.icon
   }
   
