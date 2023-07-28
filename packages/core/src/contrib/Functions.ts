@@ -1271,7 +1271,7 @@ export const compDict = {
 
   shear: {
     name: "shear",
-    description: "Given `n`-dimensional vectors `u` and `v`, returns a shear transformation `A` such that `Ax` displaces any given point `x` in the direction `u` according to its extent along the direction `v`, i.e., `Ax = x + <v,x>u`.  (Note: this transformation is encoded as an (`n`+1)x(`n`+1) matrix in homogeneous coordinates, so that it can be composed with affine transformations.  For the linear version, see `shearND()`.)",
+    description: "Given `n`-dimensional vectors `u` and `v`, returns a shear transformation `A` such that `Ax` displaces any given point `x` in the direction `u` according to its extent along the direction `v`, i.e., `Ax = x + <v,x>u`.  (Note: this transformation is encoded as an (`n`+1)x(`n`+1) matrix in homogeneous coordinates, so that it can be composed with affine transformations.  For the linear version, see `shear2d()` or `shear3d()`.)",
     params: [
       { name: "u", description: "offset direction", type: realNT() },
       { name: "v", description: "shear axis", type: realNT() },
@@ -1289,9 +1289,9 @@ export const compDict = {
     returns: valueT("RealNM"),
   },
 
-  shearND: {
-    name: "shearND",
-    description: "Given `n`-dimensional vectors `u` and `v`, returns a shear transformation `A` such that `Ax` displaces any given point `x` in the direction `u` according to its extent along the direction `v`, i.e., `Ax = x + <v,x>u`.  (Note: this transformation is encoded as a `n` x `n` matrix that cannot directly be composed with `n`-dimensional affine transformations.  For the affine version, see `shear()`.)",
+  shear2d: {
+    name: "shear2d",
+    description: "Given 2-dimensional vectors `u` and `v`, returns a shear transformation `A` such that `Ax` displaces any given point `x` in the direction `u` according to its extent along the direction `v`, i.e., `Ax = x + <v,x>u`.  (Note: this transformation is encoded as a 2x2 matrix that cannot directly be composed with 2-dimensional affine transformations.  For the affine version, see `shear()`.)",
     params: [
       { name: "u", description: "offset direction", type: realNT() },
       { name: "v", description: "shear axis", type: realNT() },
@@ -1301,6 +1301,38 @@ export const compDict = {
       u: ad.Num[],
       v: ad.Num[]
     ): MayWarn<MatrixV<ad.Num>> => {
+      if (u.length !== 2) {
+        throw new Error("Expected a 2D vector u");
+      }
+      if (v.length !== 2) {
+        throw new Error("Expected a 2D vector v");
+      }
+      return noWarn({
+        tag: "MatrixV",
+        contents: shear(u,v),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  shear3D: {
+    name: "shear3D",
+    description: "Given 3-dimensional vectors `u` and `v`, returns a shear transformation `A` such that `Ax` displaces any given point `x` in the direction `u` according to its extent along the direction `v`, i.e., `Ax = x + <v,x>u`.  (Note: this transformation is encoded as a 3x3 matrix that cannot directly be composed with 3-dimensional affine transformations.  For the affine version, see `shear()`.)",
+    params: [
+      { name: "u", description: "offset direction", type: realNT() },
+      { name: "v", description: "shear axis", type: realNT() },
+    ],
+    body: (
+      _context: Context,
+      u: ad.Num[],
+      v: ad.Num[]
+    ): MayWarn<MatrixV<ad.Num>> => {
+      if (u.length !== 3) {
+        throw new Error("Expected a 3D vector u");
+      }
+      if (v.length !== 3) {
+        throw new Error("Expected a 3D vector v");
+      }
       return noWarn({
         tag: "MatrixV",
         contents: shear(u,v),
