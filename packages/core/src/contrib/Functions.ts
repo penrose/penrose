@@ -1249,42 +1249,6 @@ export const compDict = {
     returns: valueT("RealNM"),
   },
 
-  skewX: {
-    name: "skewX",
-    description: "Given an angle `a`, returns a transformation skewing an element horizontally on the 2D plane. (Note: this transformation is encoded as a 3x3 matrix in homogeneous coordinates, so that it can be composed with affine transformations..)",
-    params: [
-      { name: "a", description: "skew angle", type: realT() },
-    ],
-    body: (
-      _context: Context,
-      a: ad.Num
-    ): MayWarn<MatrixV<ad.Num>> => {
-      return noWarn({
-        tag: "MatrixV",
-        contents: toHomogeneousMatrix(skew(a,0)),
-      });
-    },
-    returns: valueT("RealNM"),
-  },
-
-  skewY: {
-    name: "skewY",
-    description: "Given an angle `a`, returns a transformation skewing an element vertically on the 2D plane. (Note: this transformation is encoded as a 3x3 matrix in homogeneous coordinates, so that it can be composed with affine transformations..)",
-    params: [
-      { name: "a", description: "skew angle", type: realT() },
-    ],
-    body: (
-      _context: Context,
-      a: ad.Num
-    ): MayWarn<MatrixV<ad.Num>> => {
-      return noWarn({
-        tag: "MatrixV",
-        contents: toHomogeneousMatrix(skew(0,a)),
-      });
-    },
-    returns: valueT("RealNM"),
-  },
-
   skew2d: {
     name: "skew2d",
     description: "Given angles `ax` and `ay`, returns a transformation skewing an element on the 2D plane.  If `ay` is not defined, its default value is `0`, resulting in a purely horizontal skewing.  (Note: this transformation is encoded as a 2x2 matrix that cannot directly be composed with 2D affine transformations.  For the 3x3 affine version, see `skew()`.)",
