@@ -41,7 +41,7 @@ forall Shape S {
 
    shape S.computed = Polygon {
       points: S.points
-      fillColor: #0f09
+      fillColor: #00ff00f2
       strokeColor: #0f0
       strokeWidth: global.tolerance
       ensureOnCanvas: false

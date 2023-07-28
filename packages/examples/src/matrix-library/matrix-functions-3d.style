@@ -138,7 +138,7 @@ forall Shape S {
    }
    shape S.computed = Group {
       shapes: [ S.computed0, S.computed1, S.computed2, S.computed3, S.computed4, S.computed5 ]
-      opacity: .6
+      opacity: .95
    }
    layer S.computed above S.reference
 }
