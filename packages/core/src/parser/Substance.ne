@@ -9,7 +9,7 @@ import moo from "moo";
 import _ from 'lodash'
 import { optional, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil.js'
 import { C, ConcreteNode, Identifier, StringLit } from "../types/ast.js";
-import { Sequence, RangeAssign, IntRange, BinaryExpr, ComparisonExpr, SubProg, SubStmt, Decl, DeclList, Bind, DeclBind, ApplyPredicate, Deconstructor, Func, EqualExprs, EqualPredicates, LabelDecl, NoLabel, AutoLabel, LabelOption, TypeConsApp, IntLit } from "../types/substance.js";
+import { Sequence, RangeAssign, Range, Number, BinaryExpr, ComparisonExpr, BooleanExpr, BinaryBooleanExpr, UnaryBooleanExpr, BooleanConstant, SubProg, SubStmt, Decl, DeclList, Bind, DeclBind, ApplyPredicate, Deconstructor, Func, EqualExprs, EqualPredicates, LabelDecl, NoLabel, AutoLabel, LabelOption, TypeConsApp } from "../types/substance.js";
 
 
 // NOTE: ordering matters here. Top patterns get matched __first__
@@ -83,13 +83,13 @@ stmt_seq -> stmt __ sequence {%
 %}
 
 # TODO: add comparsion expression
-sequence -> "for" __ sepBy1[range_assign, ","] {% 
-  ([kw, , d]): Sequence<C> => {
+sequence -> "for" __ sepBy1[range_assign, ","] __ "where" __ boolean_expr {% 
+  ([kw, , d, , , , b]): Sequence<C> => {
     return {
       ...nodeData,
-      ...rangeBetween(kw, d[d.length - 1]),
+      ...rangeBetween(kw, b),
       tag: "Sequence", 
-      indices: d, conditions: []
+      indices: d, condition: b
     };
   }
 %}
@@ -102,19 +102,19 @@ range_assign -> identifier _ "in" _ int_range {%
   })
 %}
 
-int_range -> "[" _ int_lit _ "," _ int_lit _ "]" {%
-  ([lbracket, , low, , , , high, , rbracket]): IntRange<C> => ({
+int_range -> "[" _ number _ "," _ number _ "]" {%
+  ([lbracket, , low, , , , high, , rbracket]): Range<C> => ({
     ...nodeData,
     ...rangeBetween(lbracket, rbracket),
-    tag: "IntRange", low, high
+    tag: "Range", low, high
   })
 %}
 
-int_lit -> %int_literal {% 
-  ([d]): IntLit<C> => ({
+number -> %int_literal {% 
+  ([d]): Number<C> => ({
     ...nodeData,
     ...rangeOf(d),
-    tag: "IntLit", value: +d.value
+    tag: "Number", value: +d.value
   })
 %}
 
@@ -300,7 +300,6 @@ type_arg_list -> _ "(" _ sepEndBy1[type_constructor, ","] _ ")" {%
 
 # Exprs
 
-# TODO: `mod` operator and other arithmetic ops
 expr -> 
     expr _ "+" _ term {% ([left, , , , right]): BinaryExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryExpr", operator: "+", left, right}) %}
   | expr _ "-" _ term {% ([left, , , , right]): BinaryExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryExpr", operator: "-", left, right}) %}
@@ -314,7 +313,7 @@ term ->
 
 factor -> 
     "(" _ expr _ ")" {% nth(2) %}
-  | int_lit {% id %}
+  | number {% id %}
   | identifier {% id %}
 
 comparison_expr -> 
@@ -323,7 +322,22 @@ comparison_expr ->
   | expr _ "<=" _ expr {% ([left, , , , right]): ComparisonExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "ComparisonExpr", operator: "<=", left, right}) %}
   | expr _ ">=" _ expr {% ([left, , , , right]): ComparisonExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "ComparisonExpr", operator: ">=", left, right}) %}
   | expr _ "==" _ expr {% ([left, , , , right]): ComparisonExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "ComparisonExpr", operator: "==", left, right}) %}
+  | expr _ "!=" _ expr {% ([left, , , , right]): ComparisonExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "ComparisonExpr", operator: "!=", left, right}) %}
 
+boolean_expr ->
+    boolean_expr _ "||" _ boolean_term {% ([left, , , , right]): BinaryBooleanExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryBooleanExpr", operator: "||", left, right}) %}
+  | boolean_term {% id %}
+
+boolean_term ->
+    boolean_term _ "&&" _ boolean_factor {% ([left, , , , right]): BinaryBooleanExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryBooleanExpr", operator: "&&", left, right}) %}
+  | "!" _ boolean_factor {% ([op, , arg]): UnaryBooleanExpr<C> => ({...nodeData, ...rangeBetween(op, arg), tag: "UnaryBooleanExpr", operator: "!", arg}) %}
+  | boolean_factor {% id %}
+
+boolean_factor ->
+    "(" _ boolean_expr _ ")" {% nth(2) %}
+  | "true" {% ([kw]): BooleanConstant<C> => ({...nodeData, ...rangeOf(kw), tag: "BooleanConstant", value: "true"}) %}
+  | "false" {% ([kw]): BooleanConstant<C> => ({...nodeData, ...rangeOf(kw), tag: "BooleanConstant", value: "false"}) %}
+  | comparison_expr {% id %}
 # Common 
 
 string_lit -> %string_literal {%

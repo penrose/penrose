@@ -19,7 +19,7 @@ import {
   ApplyFunction,
   ApplyPredicate,
   Bind,
-  ComparisonExpr,
+  BooleanExpr,
   CompiledSubProg,
   CompiledSubStmt,
   Decl,
@@ -30,6 +30,7 @@ import {
   LabelMap,
   LabelOption,
   LabelValue,
+  NumExpr,
   Sequence,
   Stmt,
   StmtSeq,
@@ -291,9 +292,11 @@ const checkStmtSeqHelper = (
   const { stmt } = stmtSeq;
   switch (stmt.tag) {
     case "Decl": {
+      // special, smarter handling for decl
       return checkDeclSeq({ ...stmtSeq, stmt }, env);
     }
     case "DeclList": {
+      // special, smarter handling for declList
       return checkDeclListSeq({ ...stmtSeq, stmt }, env);
     }
     case "Bind": {
@@ -385,7 +388,7 @@ const checkSingleStmt = (
 type SeqSubst = Map<string, number>;
 
 const evalSeq = (seq: Sequence<A>): SeqSubst[] => {
-  const { indices, conditions } = seq;
+  const { indices, condition } = seq;
 
   type VarValPair = [string, number];
   const possValsPerVar: [VarValPair][][] = [];
@@ -419,19 +422,118 @@ const evalSeq = (seq: Sequence<A>): SeqSubst[] => {
     // Each element of "cprod" represents a substitution.
 
     const substitutions = cprod.map((cprod) => new Map(cprod));
-    return substitutions.filter((subst) => evalCond(conditions, subst));
+
+    const condVals = all(substitutions.map((s) => evalCond(condition, s)));
+    if (condVals.isErr()) throw new Error("Handle this");
+    else return substitutions.filter((s, i) => condVals.value[i]);
   } else {
     return [];
   }
 };
 
 const evalCond = (
-  conditions: ComparisonExpr<A>[],
+  b: BooleanExpr<A>,
   subst: SeqSubst,
-): boolean => {
-  // TODO: Implement this.
+): Result<boolean, SubstanceError> => {
+  if (b.tag === "BooleanConstant") {
+    const { value } = b;
+    return ok(value === "true");
+  } else if (b.tag === "BinaryBooleanExpr") {
+    const { operator, left, right } = b;
+    if (operator === "&&") {
+      const lValRes = evalCond(left, subst);
+      if (lValRes.isErr()) return err(lValRes.error);
+      if (!lValRes.value) return ok(false);
+      else {
+        const rValRes = evalCond(right, subst);
+        if (rValRes.isErr()) return err(rValRes.error);
+        return ok(rValRes.value);
+      }
+    } else {
+      const lValRes = evalCond(left, subst);
+      if (lValRes.isErr()) return err(lValRes.error);
+      if (lValRes.value) return ok(true);
+      else {
+        const rValRes = evalCond(right, subst);
+        if (rValRes.isErr()) return err(rValRes.error);
+        return ok(rValRes.value);
+      }
+    }
+  } else if (b.tag === "UnaryBooleanExpr") {
+    const { arg } = b;
+    const argValRes = evalCond(arg, subst);
+    if (argValRes.isErr()) return err(argValRes.error);
+    return ok(!argValRes.value);
+  } else {
+    const { operator, left, right } = b;
+    const lValRes = evalNum(left, subst);
+    if (lValRes.isErr()) return err(lValRes.error);
+    const rValRes = evalNum(right, subst);
+    if (rValRes.isErr()) return err(rValRes.error);
 
-  return true;
+    const lVal = lValRes.value,
+      rVal = rValRes.value;
+    if (operator === "<")
+      return ok(closeEqual(lVal, rVal) ? false : lVal < rVal);
+    else if (operator === ">")
+      return ok(closeEqual(lVal, rVal) ? false : lVal > rVal);
+    else if (operator === "<=")
+      return ok(closeEqual(lVal, rVal) ? true : lVal <= rVal);
+    else if (operator === ">=")
+      return ok(closeEqual(lVal, rVal) ? true : lVal >= rVal);
+    else if (operator === "==") return ok(closeEqual(lVal, rVal));
+    else return ok(!closeEqual(lVal, rVal));
+  }
+};
+
+const closeEqual = (x: number, y: number): boolean => {
+  const EPS = 0.00001;
+  return Math.abs(x - y) < EPS;
+};
+
+const evalNum = (
+  n: NumExpr<A>,
+  subst: SeqSubst,
+): Result<number, SubstanceError> => {
+  if (n.tag === "Number") {
+    return ok(n.value);
+  } else if (n.tag === "Identifier") {
+    const strRes = substSeqVarNumber(n.value, subst);
+    if (strRes.isErr()) return err(strRes.error);
+    return ok(strRes.value);
+  } else {
+    const { operator, left, right } = n;
+    const lValRes = evalNum(left, subst);
+    if (lValRes.isErr()) return err(lValRes.error);
+    const rValRes = evalNum(right, subst);
+    if (rValRes.isErr()) return err(rValRes.error);
+
+    const lVal = lValRes.value,
+      rVal = rValRes.value;
+
+    if (operator === "+") return ok(lVal + rVal);
+    else if (operator === "-") return ok(lVal - rVal);
+    else if (operator === "*") return ok(lVal * rVal);
+    else if (operator === "^") return ok(lVal ** rVal);
+    else {
+      if (rVal === 0) {
+        throw new Error("Divide by zero");
+      }
+      if (operator === "/") return ok(lVal / rVal);
+      else return ok(lVal % rVal);
+    }
+  }
+};
+
+const substSeqVarNumber = (
+  v: string,
+  subst: SeqSubst,
+): Result<number, SubstanceError> => {
+  const seqVarValue = subst.get(v);
+  if (seqVarValue === undefined) {
+    throw new Error("Cannot find sequence variable " + v);
+  }
+  return ok(seqVarValue);
 };
 
 const substSeqVarStr = (
@@ -446,13 +548,9 @@ const substSeqVarStr = (
   const prefix = v.slice(0, underscorePos);
   const seqVarName = v.slice(underscorePos + 1);
 
-  const seqVarValue = subst.get(seqVarName);
-
-  if (seqVarValue === undefined) {
-    throw new Error("Cannot find sequence variable " + seqVarName);
-  }
-
-  return ok(`${prefix}_${seqVarValue}`);
+  const seqVarValue = substSeqVarNumber(seqVarName, subst);
+  if (seqVarValue.isErr()) return err(seqVarValue.error);
+  return ok(`${prefix}_${seqVarValue.value}`);
 };
 
 const substSeqId = (

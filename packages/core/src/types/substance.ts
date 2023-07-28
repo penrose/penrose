@@ -167,20 +167,44 @@ export type SubPredArg<T> = SubExpr<T> | ApplyPredicate<T>; // NOTE: the parser 
 
 //#region basic expression parser
 
-export type ComparisonExpr<T> = ASTNode<T> & {
-  tag: "ComparisonExpr";
-  operator: string;
-  left: Expr<T>;
-  right: Expr<T>;
+export type BooleanExpr<T> =
+  | ComparisonExpr<T>
+  | BinaryBooleanExpr<T>
+  | UnaryBooleanExpr<T>
+  | BooleanConstant<T>;
+
+export type BinaryBooleanExpr<T> = ASTNode<T> & {
+  tag: "BinaryBooleanExpr";
+  operator: "&&" | "||";
+  left: BooleanExpr<T>;
+  right: BooleanExpr<T>;
 };
 
-export type Expr<T> = BinaryExpr<T> | Number<T> | Identifier<T>;
+export type UnaryBooleanExpr<T> = ASTNode<T> & {
+  tag: "UnaryBooleanExpr";
+  operator: "!";
+  arg: BooleanExpr<T>;
+};
+
+export type BooleanConstant<T> = ASTNode<T> & {
+  tag: "BooleanConstant";
+  value: "true" | "false";
+};
+
+export type ComparisonExpr<T> = ASTNode<T> & {
+  tag: "ComparisonExpr";
+  operator: "<" | ">" | "<=" | ">=" | "==" | "!=";
+  left: NumExpr<T>;
+  right: NumExpr<T>;
+};
+
+export type NumExpr<T> = BinaryExpr<T> | Number<T> | Identifier<T>;
 
 export type BinaryExpr<T> = ASTNode<T> & {
   tag: "BinaryExpr";
   operator: "+" | "-" | "*" | "/" | "^" | "%";
-  left: Expr<T>;
-  right: Expr<T>;
+  left: NumExpr<T>;
+  right: NumExpr<T>;
 };
 
 export type Number<T> = ASTNode<T> & {
@@ -198,27 +222,22 @@ export type StmtSeq<T> = ASTNode<T> & {
   seq: Sequence<T>;
 };
 
-export type IntLit<T> = ASTNode<T> & {
-  tag: "IntLit";
-  value: number;
-};
-
-export type IntRange<T> = ASTNode<T> & {
-  tag: "IntRange";
-  low: IntLit<T>;
-  high: IntLit<T>;
+export type Range<T> = ASTNode<T> & {
+  tag: "Range";
+  low: Number<T>;
+  high: Number<T>;
 };
 
 export type Sequence<T> = ASTNode<T> & {
   tag: "Sequence";
   indices: RangeAssign<T>[];
-  conditions: ComparisonExpr<T>[];
+  condition: BooleanExpr<T>;
 };
 
 export type RangeAssign<T> = ASTNode<T> & {
   tag: "RangeAssign";
   variable: Identifier<T>;
-  range: IntRange<T>;
+  range: Range<T>;
 };
 
 //#endregion
