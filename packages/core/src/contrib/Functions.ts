@@ -1315,8 +1315,8 @@ export const compDict = {
     returns: valueT("RealNM"),
   },
 
-  shear3D: {
-    name: "shear3D",
+  shear3d: {
+    name: "shear3d",
     description: "Given 3-dimensional vectors `u` and `v`, returns a shear transformation `A` such that `Ax` displaces any given point `x` in the direction `u` according to its extent along the direction `v`, i.e., `Ax = x + <v,x>u`.  (Note: this transformation is encoded as a 3x3 matrix that cannot directly be composed with 3-dimensional affine transformations.  For the affine version, see `shear()`.)",
     params: [
       { name: "u", description: "offset direction", type: realNT() },
