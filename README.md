@@ -21,7 +21,7 @@ Here's a simple Penrose visualization in the domain of set theory.
 <img src="docs/assets/output.svg" width=500>
 
 It's specified by the following trio of Domain, Substance, and Style programs
-(with variation `PlumvilleCapybara104`):
+(with variation `MonsoonCaterpillar95943`):
 
 - `setTheory.domain`:
 
