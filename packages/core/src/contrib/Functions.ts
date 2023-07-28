@@ -6996,34 +6996,3 @@ const matrix3d = (
    return [ [a1, a2, a3, a4], [b1, b2, b3, b4], [c1, c2, c3, c4], [d1, d2, d3, d4] ];
 }
 
-// TODO:
-//    + implement methods described at https://glm.g-truc.net/0.9.5/api/a00176.html (you may be able to use MESA)
-//    + write Style wrappers (2d, 2dh, 3d, 3dh)
-//       + identity
-//       + diagonal
-//       + trace
-//       + determinant
-//       + inverse
-//       + outer
-//       + skew
-//       + crossProductMatrix
-//       + rotate[2d]
-//       + rotate3d[h]
-//       + scale2d
-//       + scale3d
-//       + shear
-//       + translate
-//       + lookAt
-//       + perspective
-//       + ortho
-//       + project
-//       + fromHomogeneous
-//       + toHomogeneous
-//       + toHomogeneousMatrix
-//       + matrix
-//       + matrix3d
-//    - refactor non-wrapped methods into MatrixFunctions.ts
-//    + add `then` operator to parser/compiler
-//    - write unit tests (i.e., trivially checkable examples)
-//    + write usage examples
-
