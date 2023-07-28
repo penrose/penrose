@@ -1,7 +1,0 @@
-Point p1, p2, p3, p4, p5
-Let t1 := Tetrahedron( p1, p2, p3, p4 )
-Let t2 := Tetrahedron( p3, p2, p1, p5 )
-Point c1 := TetCircumcenter( t1 )
-Point c2 := TetCircumcenter( t2 )
-Let s := Segment( c1, c2 )
-

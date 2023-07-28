@@ -1,0 +1,13 @@
+type Shape
+predicate identity2d( Shape S )
+predicate diagonal2d( Shape S )
+predicate inverse2d( Shape S )
+predicate outerProduct2d( Shape S )
+predicate skew2d( Shape S )
+predicate shear2d( Shape S )
+predicate translate2d( Shape S )
+predicate scale2d( Shape S )
+predicate rotate( Shape S )
+predicate rotate2d( Shape S )
+predicate matrix( Shape S )
+
