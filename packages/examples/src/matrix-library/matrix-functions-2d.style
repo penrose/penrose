@@ -85,6 +85,44 @@ where outerProduct2d(S) {
 }
 
 forall Shape S
+where skew2d(S) {
+   mat2x2 A = skew2d(0.8,-0.4)
+   override S.computed.points = matrixMultiplyList( A, S.points )
+   override S.reference.points = [(-35.5928,-13.6581),(-5.59277,-26.3419),(5.59277,26.3419)]
+}
+
+forall Shape S
+where shear2d(S) {
+   mat2x2 A = shear2d([.3,.4],[-.7,.2])
+   override S.computed.points = matrixMultiplyList( A, S.points )
+   override S.reference.points = [(-13.05,-17.4),(10.65,-25.8),(-10.65,25.8)]
+}
+
+forall Shape S
+where translate2d(S) {
+   mat3x3 A = translate(12.34, -23.21)
+   override S.computed.points = fromHomogeneousList( matrixMultiplyList( A, toHomogeneousList(S.points) ))
+   override S.reference.points = [(-2.66,-43.21),(27.34,-43.21),(-2.66,-3.21)]
+}
+
+forall Shape S
+where scale2d(S) {
+   mat2x2 A = scale2d(2,-.5)
+   override S.computed.points = matrixMultiplyList( A, S.points )
+   override S.reference.points = [(-30.,10.),(30.,10.),(-30.,-10.)]
+}
+
+forall Shape S
+where rotate(S) {
+   scalar θ = 3.21
+   scalar x = -12
+   scalar y = 3.4
+   mat2x2 A = rotate(θ,x,y)
+   override S.computed.points = fromHomogeneousList( matrixMultiplyList( A, toHomogeneousList(S.points) ))
+   override S.reference.points = [(-10.6065,26.9503),(-40.5363,24.8997),(-7.87234,-12.9561)]
+}
+
+forall Shape S
 where rotate2d(S) {
    scalar θ = 1.3*MathPI()
    mat3x3 A = rotate2d(θ)
@@ -93,9 +131,9 @@ where rotate2d(S) {
 }
 
 forall Shape S
-where translate2d(S) {
-   mat3x3 A = translate(12.34, -23.21)
-   override S.computed.points = fromHomogeneousList( matrixMultiplyList( A, toHomogeneousList(S.points) ))
-   override S.reference.points = [(-2.66,-43.21),(27.34,-43.21),(-2.66,-3.21)]
+where matrix2d(S) {
+   mat2x2 A = [ [-1.6, 0.9], [0.7, -1.1] ]
+   override S.computed.points = matrixMultiplyList( A, S.points )
+   override S.reference.points = [(6.,11.5),(-42.,32.5),(42.,-32.5)]
 }
 

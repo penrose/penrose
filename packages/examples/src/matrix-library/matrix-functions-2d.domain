@@ -9,5 +9,5 @@ predicate translate2d( Shape S )
 predicate scale2d( Shape S )
 predicate rotate( Shape S )
 predicate rotate2d( Shape S )
-predicate matrix( Shape S )
+predicate matrix2d( Shape S )
 
