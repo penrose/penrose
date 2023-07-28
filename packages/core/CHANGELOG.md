@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v3.1.0](https://github.com/penrose/penrose/compare/v3.0.0...v3.1.0) (2023-07-19)
+
+### :rocket: New Feature
+
+- added `mod` function to `Functions.ts` ([#1565](https://github.com/penrose/penrose/issues/1565)) ([b7a7c3b](https://github.com/penrose/penrose/commit/b7a7c3b2710865f05e7040e913d5f7d5e825c1d1))
+- nondistinct matching ([#1567](https://github.com/penrose/penrose/issues/1567)) ([77e2714](https://github.com/penrose/penrose/commit/77e2714fb5bcf888136a2f65340b56c5d0025661))
+
+### :bug: Bug Fix
+
+- layering on nonexistent objects ([#1560](https://github.com/penrose/penrose/issues/1560)) ([0bbe47c](https://github.com/penrose/penrose/commit/0bbe47c505b9920db83dd152a914b452129b6668))
+
 ## [v3.0.0](https://github.com/penrose/penrose/compare/v2.3.0...v3.0.0) (2023-07-14)
 
 ### :warning: BREAKING CHANGE

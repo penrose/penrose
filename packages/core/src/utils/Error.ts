@@ -25,6 +25,8 @@ import {
   InvalidColorLiteral,
   MissingArgumentError,
   NaNError,
+  NotStyleVariableError,
+  NotSubstanceCollectionError,
   ParseError,
   PenroseError,
   RedeclareNamespaceError,
@@ -40,7 +42,6 @@ import {
   TypeArgLengthMismatch,
   TypeMismatch,
   TypeNotFound,
-  UnexpectedCollectionAccessError,
   UnexpectedExprForNestedPred,
   VarNotFound,
 } from "../types/errors.js";
@@ -555,10 +556,16 @@ canvas {
       } already exists and is redeclared in ${locc("Style", error.location)}.`;
     }
 
-    case "UnexpectedCollectionAccessError": {
+    case "NotSubstanceCollectionError": {
       const { name, location } = error;
       const locStr = locc("Style", location);
-      return `Style variable \`${name}\` cannot be accessed via the collection access operator (at ${locStr}) because it is not a collection.`;
+      return `The expression at ${locStr} expects \`${name}\` to be a collection.`;
+    }
+
+    case "NotStyleVariableError": {
+      const { name, location } = error;
+      const locStr = locc("Style", location);
+      return `The expression at ${locStr} expects \`${name}\` to be a non-collection style variable.`;
     }
 
     case "LayerOnNonShapesError": {
@@ -842,7 +849,8 @@ export const errLocs = (
 
     case "FunctionInternalError":
     case "RedeclareNamespaceError":
-    case "UnexpectedCollectionAccessError":
+    case "NotSubstanceCollectionError":
+    case "NotStyleVariableError":
     case "LayerOnNonShapesError": {
       return [
         toErrorLoc({
@@ -1097,11 +1105,20 @@ export const redeclareNamespaceError = (
   location,
 });
 
-export const unexpectedCollectionAccessError = (
+export const notSubstanceCollectionError = (
   name: string,
   location: SourceRange,
-): UnexpectedCollectionAccessError => ({
-  tag: "UnexpectedCollectionAccessError",
+): NotSubstanceCollectionError => ({
+  tag: "NotSubstanceCollectionError",
+  name,
+  location,
+});
+
+export const notStyleVariableError = (
+  name: string,
+  location: SourceRange,
+): NotStyleVariableError => ({
+  tag: "NotStyleVariableError",
   name,
   location,
 });

@@ -34,6 +34,7 @@ export type Header<T> = Selector<T> | Namespace<T> | Collector<T>;
 
 export type Selector<T> = ASTNode<T> & {
   tag: "Selector";
+  repeatable: boolean;
   head: DeclPatterns<T>;
   with?: DeclPatterns<T>;
   where?: RelationPatterns<T>;
@@ -41,6 +42,7 @@ export type Selector<T> = ASTNode<T> & {
 
 export type Collector<T> = ASTNode<T> & {
   tag: "Collector";
+  repeatable: boolean;
   head: DeclPattern<T>;
   into: BindingForm<T>;
   where?: RelationPatterns<T>;
@@ -218,7 +220,7 @@ export type Expr<T> =
   | ObjFn<T>
   | ConstrFn<T>
   | BinOp<T>
-  | CollectionAccess<T>
+  | StyVarExpr<T>
   | UOp<T>
   | List<T>
   | Tuple<T>
@@ -282,10 +284,18 @@ export type AvoidFn<T> = ASTNode<T> & {
   contents: [string, Expr<T>[]];
 };
 
+export type StyVarExpr<T> = CollectionAccess<T> | UnaryStyVarExpr<T>;
+
 export type CollectionAccess<T> = ASTNode<T> & {
   tag: "CollectionAccess";
   name: Identifier<T>;
   field: Identifier<T>;
+};
+
+export type UnaryStyVarExpr<T> = ASTNode<T> & {
+  tag: "UnaryStyVarExpr";
+  op: "numberof" | "nameof";
+  arg: Identifier<T>;
 };
 
 export type BinaryOp =

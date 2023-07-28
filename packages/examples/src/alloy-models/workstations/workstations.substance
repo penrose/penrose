@@ -1,0 +1,37 @@
+Human h1, h2
+Robot r1, r2, r3, r4, r5
+Product p1, p2_1, p2_2, p2_3, p3, p4, p5_1, p5_2  
+Workstation  w1, w2, w3, w4, w5
+
+produce(w1, p1)
+produce(w2, p2_1)
+produce(w2, p2_2)
+produce(w2, p2_3)
+produce(w3, p3)
+produce(w4, p4)
+produce(w5, p5_1)
+produce(w5, p5_2)
+
+manage(w1, h1)
+manage(w1, r1)
+manage(w2, r2)
+manage(w2, r3)
+manage(w3, r4)
+manage(w4, h2)
+manage(w5, r5)
+
+
+
+
+nextStep(w1, w2)
+nextStep(w2, w3)
+nextStep(w3, w4)
+nextStep(w4, w5)
+
+-- Edge edge1 := MakeEdge(w1, w2)
+-- Edge edge2 := MakeEdge(w2, w3)
+-- Edge edge3 := MakeEdge(w3, w4)
+
+AutoLabel All
+
+

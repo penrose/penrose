@@ -50,6 +50,8 @@ const styleCustoms = {
     "where",
     "with",
     "listof",
+    "numberof",
+    "nameof",
     "from",
     "delete",
     "as",
@@ -66,6 +68,7 @@ const styleCustoms = {
     "text",
     "in",
     "except",
+    "repeatable",
   ],
   types: [
     "scalar",

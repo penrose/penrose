@@ -60,7 +60,7 @@ Toggle "debug mode" to enable advanced features for debugging:
 You can use `roger` without installation by:
 
 ```shell
-npx roger
+npx @penrose/roger
 ```
 
 Or install it globally:

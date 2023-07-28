@@ -17,6 +17,7 @@ export default defineComponent({
       return this.params.map((p: any) => ({
         ...p,
         type: describeType(p.type),
+        description: p.description ? md.render(p.description) : "",
       }));
     },
   },
@@ -46,7 +47,7 @@ export default defineComponent({
           </td>
           <td>{{ param.type.symbol }}</td>
           <td>{{ param.type.description }}</td>
-          <td>{{ param.description }}</td>
+          <td v-html="param.description"></td>
           <td v-if="parameters.filter((p: FuncParam) => p.default).length > 0">
             {{ param.default ?? "" }}
           </td>

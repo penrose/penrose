@@ -1,6 +1,6 @@
 {
   "substance": "./hypercube.substance",
-  "style": ["./../colors.style"],
-  "domain": "./../graph.domain",
+  "style": ["../colors.style"],
+  "domain": "../graph.domain",
   "variation": "DianthaGuanaco182"
 }

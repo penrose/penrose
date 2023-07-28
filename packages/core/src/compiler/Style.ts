@@ -133,13 +133,14 @@ import {
   err,
   invalidColorLiteral,
   isErr,
+  notStyleVariableError,
+  notSubstanceCollectionError,
   ok,
   parseError,
   redeclareNamespaceError,
   safeChain,
   selectorFieldNotSupported,
   toStyleErrors,
-  unexpectedCollectionAccessError,
 } from "../utils/Error.js";
 import Graph from "../utils/Graph.js";
 import {
@@ -1687,9 +1688,16 @@ const getSubsts = (
   // Ensures there are no duplicated substitutions in terms of both
   // matched relations and substitution targets.
   const filteredSubsts = deduplicate(varEnv, subEnv, subProg, rels, rawSubsts);
-  const correctSubsts = filteredSubsts.filter(uniqueKeysAndVals);
+  const { repeatable } = header;
 
-  return correctSubsts.toArray();
+  // If we want repeatable matchings, this is good
+  if (repeatable) {
+    return filteredSubsts.toArray();
+  } else {
+    // Otherwise need to remove all duplications
+    const correctSubsts = filteredSubsts.filter(uniqueKeysAndVals);
+    return correctSubsts.toArray();
+  }
 };
 
 type GroupbyBucket = {
@@ -2333,6 +2341,9 @@ const findPathsExpr = <T>(expr: Expr<T>, context: Context): Path<T>[] => {
       } else {
         return [];
       }
+    }
+    case "UnaryStyVarExpr": {
+      return [];
     }
   }
 };
@@ -3236,7 +3247,7 @@ const evalExpr = (
       } else {
         return err(
           oneErr(
-            unexpectedCollectionAccessError(name.value, {
+            notSubstanceCollectionError(name.value, {
               start: expr.start,
               end: expr.end,
             }),
@@ -3244,6 +3255,41 @@ const evalExpr = (
         );
       }
     }
+    case "UnaryStyVarExpr": {
+      const { subst } = context;
+      const { op, arg } = expr;
+      if (expr.op === "numberof") {
+        return evalNumberOf(subst, arg, { start: expr.start, end: expr.end });
+      } else {
+        return evalNameOf(subst, arg, { start: expr.start, end: expr.end });
+      }
+    }
+  }
+};
+
+const evalNumberOf = (
+  subst: StySubst,
+  arg: Identifier<C>,
+  loc: SourceRange,
+): Result<ArgVal<ad.Num>, StyleDiagnostics> => {
+  if (subst.tag === "CollectionSubst" && arg.value === subst.collName) {
+    return ok(val(floatV(subst.collContent.length)));
+  } else {
+    return err(oneErr(notSubstanceCollectionError(arg.value, loc)));
+  }
+};
+
+const evalNameOf = (
+  subst: StySubst,
+  arg: Identifier<C>,
+  loc: SourceRange,
+): Result<ArgVal<ad.Num>, StyleDiagnostics> => {
+  if (subst.tag === "StySubSubst" && arg.value in subst.contents) {
+    return ok(val(strV(subst.contents[arg.value])));
+  } else if (subst.tag === "CollectionSubst" && arg.value in subst.groupby) {
+    return ok(val(strV(subst.groupby[arg.value])));
+  } else {
+    return err(oneErr(notStyleVariableError(arg.value, loc)));
   }
 };
 
@@ -3361,7 +3407,8 @@ const translateExpr = (
     case "UOp":
     case "Vary":
     case "Vector":
-    case "CollectionAccess": {
+    case "CollectionAccess":
+    case "UnaryStyVarExpr": {
       const res = evalExpr(mut, canvas, layoutStages, e, trans);
       if (res.isErr()) {
         return addDiags(res.error, trans);
