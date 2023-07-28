@@ -1415,8 +1415,8 @@ export const compDict = {
     params: [
       { name: "fovy", description: "field of view angle, in degrees, in the y direction", type: realT() },
       { name: "aspect", description: "aspect ratio that determines the field of view in the x direction, equal to the ratio of x (width) to y (height)", type: realT() },
-      { name: "zNear", description: "distance from the viewer to the near clipping plane (always positive)", type: realT() },
-      { name: "zFar", description: "distance from the viewer to the far clipping plane (always positive)", type: realT() },
+      { name: "zNear", description: "distance from the viewer to the near clipping plane (always positive), with a default value of 0.1", type: realT(), default: 0.1 },
+      { name: "zFar", description: "distance from the viewer to the far clipping plane (always positive), with a default value of 100.0", type: realT(), default: 100.0 },
     ],
     body: (
       _context: Context,
@@ -1441,8 +1441,8 @@ export const compDict = {
       { name: "Right", description: "coordinate of the right vertical clipping plane", type: realT() },
       { name: "Bottom", description: "coordinate of the bottom horizontal clipping plane", type: realT() },
       { name: "Top", description: "coordinate of the top horizontal clipping plane", type: realT() },
-      { name: "zNear", description: "distance to the nearer depth clipping plane (negative if the plane is behind the viewer)", type: realT() },
-      { name: "zFar", description: "distance to the farther depth clipping plane (negative if the plane is behind the viewer)", type: realT() },
+      { name: "zNear", description: "distance to the nearer depth clipping plane (negative if the plane is behind the viewer), with a default value of 0.1", type: realT(), default: 0.1 },
+      { name: "zFar", description: "distance to the farther depth clipping plane (negative if the plane is behind the viewer), with a default value of 100", type: realT(), default: 100.0 },
     ],
     body: (
       _context: Context,
