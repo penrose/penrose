@@ -1,6 +1,8 @@
 # matrix-library
 
-This directory contains end-to-end regression tests of basic 2D and 3D matrix transformations.  Each test draws a reference solution in red; the solution computed via Penrose library functions is then drawn in green on top of the reference solution.  Since the background is also green, the test passes if the entire image is green; it fails if any part of the image is red.  Note that to avoid the impression that tests are bogus or redundant, and to provide some visualization of what is actually drawn, the computed solution is drawn in a slightly darker shade of green than the background.
+Penrose provides a library of functions for constructing standard matrices used in the construction of 2D and 3D diagrams, such as spatial transformations and camera projection matrices.  (See the [Function Library Documentation](https://penrose.cs.cmu.edu/docs/ref/style/functions) for more information.)
+
+This directory contains end-to-end regression tests of matrix library functions.  Each test draws a reference solution in red; the solution computed via Penrose library functions is then drawn in green on top of the reference solution.  Since the background is also green, the test passes if the entire image is green; it fails if any part of the image is red.  Note that to avoid the impression that tests are bogus or redundant, and to provide some visualization of what is actually drawn, the computed solution is drawn in a slightly darker shade of green than the background.
 
 **Example.** For example, here's what the `rotate3d` test will look like if the rotation matches the reference rotation (left), versus what it looks like if we use a bogus angle (right).
 
