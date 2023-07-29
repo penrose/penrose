@@ -127,11 +127,11 @@ list points2D = projectList( points3D, camera.model, camera.proj, camera.view )
 
 The function `projectList()` takes each of the points in the input list, applies the given modelview and projection transformations, and maps the final coordinates to the given viewport.  In fact, this function is equivalent to applying `gluProject()` to each point in the list.  A projection for a single point can also be computed, using just `project()` (or `projectDepth()`, which also provides the z-depth relative to the viewer).
 
+Note that this transformation is directly analogous to applying a standard [vertex shader](https://www.khronos.org/opengl/wiki/Vertex_Shader#:~:text=The%20Vertex%20Shader%20is%20the,object%20by%20a%20drawing%20command.), and indeed one could expand on it to do any other kind of vertex processing.
+
 ### Drawing the Dinosaur
 
-Next we get to the main event: drawing our dinosaur!
-
-TODO: continue here
+Next we get to the main event: drawing our dinosaur!  In brief: we first set some constants, like the color of the dinosaur and some lighting parameters.  We then grab the light vector `L` and normal vectors `N` that will be used to compute simple [Lambertian shading](https://en.wikipedia.org/wiki/Lambertian_reflectance#Use_in_computer_graphics).  To let the dinosaur "leap" around the scene, we construct a transformation matrix `D.model` based on a random location and orientation (chosen above).  Finally, we transform our vertex coordinates according to the local model transformation `D.model`, and the usual camera data, to get the 2D projection of the points in window coordinates:
 
 ```haskell
 -- Rule for drawing the main dinosaur geometry
@@ -158,3 +158,34 @@ forall Dinosaur D {
    list p = projectList( global.dinoPoints, camera.model * D.model, camera.proj, camera.view )
 ```
 
+Once we have the projected 2D coordinates, we need to actually drawn the final polygons.  Unlike OpenGL, we do _not_ need to tessellate these polygons into triangles: Style/Penrose (and SVG) can directly handle `n`-gons with any number of sides.  For each polygon we do a simple lighting calculation, and also use the orientation of the projected polygon to determine back face culling, or really "back face fading": if the orientation is positive, we draw the polygon as usual; if the orientation is negative, we draw it using an alpha value of 0.2.  This way we get a nice effect where the edges of the back-facing polygons are slightly visible through the front-facing polygons, giving a nice sense of volume:
+
+```haskell
+   -- compute the color for the first polygon
+   vec3 C0 = (ambient + (1-ambient)*max(0, dot((N[0][0],N[0][1],N[0][2]),L))) * D.skinColor
+
+   -- draw the first polygon
+   shape f0 = Polygon {
+      points: [ (p[0][0],p[0][1]), (p[1][0],p[1][1]), (p[2][0],p[2][1]), (p[3][0],p[3][1]) ]
+      fillColor: rgba( C0[0], C0[1], C0[2], D.alpha )
+      strokeColor: D.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      opacity: max( .2, -cross2D( (p[1][0],p[1][1])-(p[0][0],p[0][1]), (p[2][0],p[2][1])-(p[0][0],p[0][1]) ))
+   }
+```
+
+Here we encounter a couple minor blemishes in the Style language, which make it a bit uglier to write than necessary (and will hopefully be addressed in future language updates!):
+
+   * To extract the `i`th point from a list of points `p`, we can't simply write `p[i]`, but must rather write out both of its components as a tuple `(p[i][0], p[i][1])`.  (See [issue #1509](https://github.com/penrose/penrose/issues/1509).)
+   * Unlike, say, the [OpenGL shading language (GLSL)](https://en.wikipedia.org/wiki/OpenGL_Shading_Language), there is currently no implicit conversion between `vec3` and `color` types, nor any way to directly do arithmetic on the `color` type.  Instead, we must compute our polygon color via a `vec3`, and extract the components of this vector to define a color (in this case appending an alpha value).  (See for instance [issue #811](https://github.com/penrose/penrose/issues/811) and [issue #765](https://github.com/penrose/penrose/issues/765).)
+
+An even bigger blemish (in this case a really big one!) is that there is currently no way to emit a _list_ of shapes, such as a list of `Polygon`s, given a list of indices into a point list—as with standard OpenGL mechanisms like [`glDrawArrays()`](https://registry.khronos.org/OpenGL-Refpages/gl4/html/glDrawArrays.xhtml).  Moreover, Style has no looping semantics that would enable us to draw one polygon at a time from a list, a la "immediate mode" in [legacy OpenGL](https://www.khronos.org/opengl/wiki/Legacy_OpenGL).  Instead, we need to draw the polygons explicitly, one at a time, resulting in an _extremely_ long Style program!  (Omitted here, but take a look at the Style program `dinoshade.style` to see how this works.)  We're having active discussions about how to improve this setup in the next language release—if you have thoughts or feedback, please don't hesitate to get in touch!
+
+After drawing the individual polygons `f0` through `f99`, they are grouped into a single `Group` shape that can be referenced later.  A group has no direct analogue in OpenGL/Direct3D; it can perhaps be thought of as a node in a scene hierarchy (and is directly analogous to the [group tag in SVG](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/g)).
+
+### Reflections and Shadows
+
+Given this setup, perspective-correct 3D reflections and shadows are remarkably easy to draw via Style.
+
+TODO: continue here
