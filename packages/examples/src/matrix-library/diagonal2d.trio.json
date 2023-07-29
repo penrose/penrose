@@ -1,0 +1,6 @@
+{
+  "substance": "./diagonal2d.substance",
+  "style": ["./matrix-functions-2d.style"],
+  "domain": "./matrix-functions-2d.domain",
+  "variation": "Deterministic"
+}
