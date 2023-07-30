@@ -1,4 +1,4 @@
-Dinosaur D1, D2, D3
-IsReflected(D2)
-IsShadow(D3)
+Geometry dino
+Let r := Reflection(dino)
+Let s := Shadow(dino)
 

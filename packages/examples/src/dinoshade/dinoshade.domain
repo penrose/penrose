@@ -1,3 +1,5 @@
-type Dinosaur
-predicate IsReflected(Dinosaur D)
-predicate IsShadow(Dinosaur D)
+type Geometry
+type Reflection <: Geometry
+type Shadow <: Geometry
+constructor Reflection(Geometry G)
+constructor Shadow(Geometry G)
