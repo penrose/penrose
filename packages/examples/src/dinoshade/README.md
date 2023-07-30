@@ -77,7 +77,7 @@ light {
 }
 ```
 
-You'll notice here that the light has _four_ coordinates rather than three, following the standard practice in computer graphics and computer vision of using [homogeneous coordinates](https://en.wikipedia.org/wiki/Homogeneous_coordinates#Use_in_computer_graphics_and_computer_vision).  Here for instance, the final coordinate provides the ability to render with a point light (final coordinate 1) or a directional light source "at infinity" (final coordinate 0).  This value is not merely a binary "flag" used to toggle between these options—rather, it directly and naturally factors into the shadow calculations themselves.  More generally, many of the 3D transformation functions in Penrose offer both homogeneous and non-homogeneous versions, as well as conversions to/from homogeneous coordinates, to make standard calculations straightforward to implement.
+> **Homogeneous Coordinates.** You'll notice here that the light has _four_ coordinates rather than three, following the standard practice in computer graphics and computer vision of using [homogeneous coordinates](https://en.wikipedia.org/wiki/Homogeneous_coordinates#Use_in_computer_graphics_and_computer_vision).  Here for instance, the final coordinate provides the ability to render with a point light (final coordinate 1) or a directional light source "at infinity" (final coordinate 0).  This value is not merely a binary "flag" used to toggle between these options—rather, it directly and naturally factors into the shadow calculations themselves.  More generally, many of the 3D transformation functions in Penrose offer both homogeneous and non-homogeneous versions, as well as helper functions to convert to/from homogeneous coordinates (`toHomogeneous()` and `fromHomogeneous()`), to make standard calculations straightforward to implement.
 
 Finally, we have some global data that we need only define once, such as the title of the diagram, the geometry and shape/shading of the ground plane, and the vertex coordinates of the dinosaur model:
 
@@ -103,13 +103,6 @@ global {
       strokeWidth: 4.0
       ensureOnCanvas: false
    }
-
-   -- geometry used to define the dinosaur mesh
-   list dinoPoints = [ (-8, 3, -1.5), (-7, 1, -1.5), (-7, 1, 1.5), (-8, 3, 1.5), (-3, 1, -1.5), (-3, 1, 1.5), (0, 4, -1.5), (0, 4, 1.5), (2, 4, -1.5), (2, 4, 1.5), (3, 5, -1.5), (3, 5, 1.5), (3, 11.5, -1.5), (3, 11.5, 1.5), (5, 12, -1.5), (5, 12, 1.5), (5, 13, -1.5), (5, 13, 1.5), (2, 13.5, -1.5), (2, 13.5, 1.5), (5, 14, -1.5), (5, 14, 1.5), (5, 15, -1.5), (5, 15, 1.5), (3, 16, -1.5), (3, 16, 1.5), (0, 16, -1.5), (0, 16, 1.5), (-1, 15, -1.5), (-1, 15, 1.5), (-1, 13, -1.5), (-1, 13, 1.5), (0, 12, -1.5), (0, 12, 1.5), (-1, 11, -1.5), (-1, 11, 1.5), (-2, 6, -1.5), (-2, 6, 1.5), (-4, 3, -1.5), (-4, 3, 1.5), (-5, 2, -1.5), (-5, 2, 1.5), (-7, 2, -1.5), (-7, 2, 1.5), (0, 10, 1.5), (1, 9, 1.5), (1, 9, 2.25), (0, 10, 2.25), (2, 9, 1.5), (2, 9, 2.25), (5, 8, 1.5), (5, 8, 2.25), (6, 9, 1.5), (6, 9, 2.25), (8, 9, 1.5), (8, 9, 2.25), (7, 9.5, 1.5), (7, 9.5, 2.25), (8, 10, 1.5), (8, 10, 2.25), (7, 10, 1.5), (7, 10, 2.25), (7.5, 11, 1.5), (7.5, 11, 2.25), (6.5, 10, 1.5), (6.5, 10, 2.25), (6, 11, 1.5), (6, 11, 2.25), (6, 10, 1.5), (6, 10, 2.25), (5, 9, 1.5), (5, 9, 2.25), (3, 11, 1.5), (3, 11, 2.25), (1, 11, 1.5), (1, 11, 2.25), (0, 6, 1.5), (0, 4, 3), (0, 6, 3), (1, 3, 1.5), (1, 3, 3), (1, 2, 1.5), (1, 2, 3), (0, 1, 1.5), (0, 1, 3), (0, 0.5, 1.5), (0, 0.5, 3), (1, 0, 1.5), (1, 0, 3), (4, 0, 1.5), (4, 0, 3), (2, 1, 1.5), (2, 1, 3), (2, 2, 1.5), (2, 2, 3), (4, 4, 1.5), (4, 4, 3), (3, 6, 1.5), (3, 6, 3), (2, 7, 1.5), (2, 7, 3), (1, 7, 1.5), (1, 7, 3), (0, 10, -2.25), (1, 9, -2.25), (1, 9, -1.5), (0, 10, -1.5), (2, 9, -2.25), (2, 9, -1.5), (5, 8, -2.25), (5, 8, -1.5), (6, 9, -2.25), (6, 9, -1.5), (8, 9, -2.25), (8, 9, -1.5), (7, 9.5, -2.25), (7, 9.5, -1.5), (8, 10, -2.25), (8, 10, -1.5), (7, 10, -2.25), (7, 10, -1.5), (7.5, 11, -2.25), (7.5, 11, -1.5), (6.5, 10, -2.25), (6.5, 10, -1.5), (6, 11, -2.25), (6, 11, -1.5), (6, 10, -2.25), (6, 10, -1.5), (5, 9, -2.25), (5, 9, -1.5), (3, 11, -2.25), (3, 11, -1.5), (1, 11, -2.25), (1, 11, -1.5), (0, 6, -3), (0, 4, -3), (0, 6, -1.5), (1, 3, -3), (1, 3, -1.5), (1, 2, -3), (1, 2, -1.5), (0, 1, -3), (0, 1, -1.5), (0, 0.5, -3), (0, 0.5, -1.5), (1, 0, -3), (1, 0, -1.5), (4, 0, -3), (4, 0, -1.5), (2, 1, -3), (2, 1, -1.5), (2, 2, -3), (2, 2, -1.5), (4, 4, -3), (4, 4, -1.5), (3, 6, -3), (3, 6, -1.5), (2, 7, -3), (2, 7, -1.5), (1, 7, -3), (1, 7, -1.5), (0.75, 15, -1.6), (1, 14.7, -1.6), (1, 14.7, 1.6), (0.75, 15, 1.6), (1.6, 14.7, -1.6), (1.6, 14.7, 1.6), (2.0999999, 15, -1.6), (2.0999999, 15, 1.6), (1.6, 15.25, -1.6), (1.6, 15.25, 1.6), (1, 15.25, -1.6), (1, 15.25, 1.6) ]
-   list dinoNormals = [ (-0.894427, -0.447214, 0.), (0., -1., 0.), (0.707107, -0.707107, 0.), (0., -1., 0.), (0.707107, -0.707107, 0.), (1., 0., 0.), (0.242536, -0.970143, 0.), (1., 0., 0.), (0.164399, 0.986394, 0.), (0.164399, -0.986394, 0.), (1., 0., 0.), (0.447214, 0.894427, 0.), (0., 1., 0.), (-0.707107, 0.707107, 0.), (-1., 0., 0.), (-0.707107, -0.707107, 0.), (-0.707107, 0.707107, 0.), (-0.980581, 0.196116, 0.), (-0.83205, 0.5547, 0.), (-0.707107, 0.707107, 0.), (0., 1., 0.), (0.707107, 0.707107, 0.), (0., 0., 1.), (0., 0., 1.), (-0.707107, -0.707107, 0.), (0., -1., 0.), (-0.316228, -0.948683, 0.), (0.707107, -0.707107, 0.), (0., -1., 0.), (0.447214, 0.894427, 0.), (0.447214, -0.894427, 0.), (0., 1., 0.), (0.894427, -0.447214, 0.), (-0.707107, 0.707107, 0.), (0.894427, 0.447214, 0.), (-1., 0., 0.), (-0.707107, 0.707107, 0.), (0.707107, 0.707107, 0.), (0., 1., 0.), (-0.707107, 0.707107, 0.), (0., 0., 1.), (0., 0., 1.), (-1., 0., 0.), (-0.707107, -0.707107, 0.), (-1., 0., 0.), (-0.707107, 0.707107, 0.), (-1., 0., 0.), (-0.447214, -0.894427, 0.), (0., -1., 0.), (0.447214, 0.894427, 0.), (1., 0., 0.), (0.707107, -0.707107, 0.), (0.894427, 0.447214, 0.), (0.707107, 0.707107, 0.), (0., 1., 0.), (-0.707107, 0.707107, 0.), (0., 0., 1.), (0., 0., 1.), (-0.707107, -0.707107, 0.), (0., -1., 0.), (-0.316228, -0.948683, 0.), (0.707107, -0.707107, 0.), (0., -1., 0.), (0.447214, 0.894427, 0.), (0.447214, -0.894427, 0.), (0., 1., 0.), (0.894427, -0.447214, 0.), (-0.707107, 0.707107, 0.), (0.894427, 0.447214, 0.), (-1., 0., 0.), (-0.707107, 0.707107, 0.), (0.707107, 0.707107, 0.), (0., 1., 0.), (-0.707107, 0.707107, 0.), (0., 0., 1.), (0., 0., 1.), (-1., 0., 0.), (-0.707107, -0.707107, 0.), (-1., 0., 0.), (-0.707107, 0.707107, 0.), (-1., 0., 0.), (-0.447214, -0.894427, 0.), (0., -1., 0.), (0.447214, 0.894427, 0.), (1., 0., 0.), (0.707107, -0.707107, 0.), (0.894427, 0.447214, 0.), (0.707107, 0.707107, 0.), (0., 1., 0.), (-0.707107, 0.707107, 0.), (0., 0., 1.), (0., 0., 1.), (-0.768221, -0.640184, 0.), (0., -1., 0.), (0.514496, -0.857493, 0.), (0.447214, 0.894427, 0.), (0., 1., 0.), (-0.707107, 0.707107, 0.), (0., 0., 1.), (0., 0., 1.) ]
-   scalar dinoAngle = random(0,2) * MathPI()
-   scalar dinoX = 15*random(-1,1)
-   scalar dinoY = 15*random(-1,1)
 }
 ```
 
@@ -135,12 +128,16 @@ Next we get to the main event: drawing our dinosaur!  In brief: we first set som
 
 ```haskell
 -- Rule for drawing the main dinosaur geometry
-forall Dinosaur D {
+forall Dinosaur G {
+   -- geometry used to define the dinosaur mesh
+   list dinoPoints = [ (-8, 3, -1.5), (-7, 1, -1.5), (-7, 1, 1.5), (-8, 3, 1.5), (-3, 1, -1.5), (-3, 1, 1.5), (0, 4, -1.5), (0, 4, 1.5), (2, 4, -1.5), (2, 4, 1.5), (3, 5, -1.5), (3, 5, 1.5), (3, 11.5, -1.5), (3, 11.5, 1.5), (5, 12, -1.5), (5, 12, 1.5), (5, 13, -1.5), (5, 13, 1.5), (2, 13.5, -1.5), (2, 13.5, 1.5), (5, 14, -1.5), (5, 14, 1.5), (5, 15, -1.5), (5, 15, 1.5), (3, 16, -1.5), (3, 16, 1.5), (0, 16, -1.5), (0, 16, 1.5), (-1, 15, -1.5), (-1, 15, 1.5), (-1, 13, -1.5), (-1, 13, 1.5), (0, 12, -1.5), (0, 12, 1.5), (-1, 11, -1.5), (-1, 11, 1.5), (-2, 6, -1.5), (-2, 6, 1.5), (-4, 3, -1.5), (-4, 3, 1.5), (-5, 2, -1.5), (-5, 2, 1.5), (-7, 2, -1.5), (-7, 2, 1.5), (0, 10, 1.5), (1, 9, 1.5), (1, 9, 2.25), (0, 10, 2.25), (2, 9, 1.5), (2, 9, 2.25), (5, 8, 1.5), (5, 8, 2.25), (6, 9, 1.5), (6, 9, 2.25), (8, 9, 1.5), (8, 9, 2.25), (7, 9.5, 1.5), (7, 9.5, 2.25), (8, 10, 1.5), (8, 10, 2.25), (7, 10, 1.5), (7, 10, 2.25), (7.5, 11, 1.5), (7.5, 11, 2.25), (6.5, 10, 1.5), (6.5, 10, 2.25), (6, 11, 1.5), (6, 11, 2.25), (6, 10, 1.5), (6, 10, 2.25), (5, 9, 1.5), (5, 9, 2.25), (3, 11, 1.5), (3, 11, 2.25), (1, 11, 1.5), (1, 11, 2.25), (0, 6, 1.5), (0, 4, 3), (0, 6, 3), (1, 3, 1.5), (1, 3, 3), (1, 2, 1.5), (1, 2, 3), (0, 1, 1.5), (0, 1, 3), (0, 0.5, 1.5), (0, 0.5, 3), (1, 0, 1.5), (1, 0, 3), (4, 0, 1.5), (4, 0, 3), (2, 1, 1.5), (2, 1, 3), (2, 2, 1.5), (2, 2, 3), (4, 4, 1.5), (4, 4, 3), (3, 6, 1.5), (3, 6, 3), (2, 7, 1.5), (2, 7, 3), (1, 7, 1.5), (1, 7, 3), (0, 10, -2.25), (1, 9, -2.25), (1, 9, -1.5), (0, 10, -1.5), (2, 9, -2.25), (2, 9, -1.5), (5, 8, -2.25), (5, 8, -1.5), (6, 9, -2.25), (6, 9, -1.5), (8, 9, -2.25), (8, 9, -1.5), (7, 9.5, -2.25), (7, 9.5, -1.5), (8, 10, -2.25), (8, 10, -1.5), (7, 10, -2.25), (7, 10, -1.5), (7.5, 11, -2.25), (7.5, 11, -1.5), (6.5, 10, -2.25), (6.5, 10, -1.5), (6, 11, -2.25), (6, 11, -1.5), (6, 10, -2.25), (6, 10, -1.5), (5, 9, -2.25), (5, 9, -1.5), (3, 11, -2.25), (3, 11, -1.5), (1, 11, -2.25), (1, 11, -1.5), (0, 6, -3), (0, 4, -3), (0, 6, -1.5), (1, 3, -3), (1, 3, -1.5), (1, 2, -3), (1, 2, -1.5), (0, 1, -3), (0, 1, -1.5), (0, 0.5, -3), (0, 0.5, -1.5), (1, 0, -3), (1, 0, -1.5), (4, 0, -3), (4, 0, -1.5), (2, 1, -3), (2, 1, -1.5), (2, 2, -3), (2, 2, -1.5), (4, 4, -3), (4, 4, -1.5), (3, 6, -3), (3, 6, -1.5), (2, 7, -3), (2, 7, -1.5), (1, 7, -3), (1, 7, -1.5), (0.75, 15, -1.6), (1, 14.7, -1.6), (1, 14.7, 1.6), (0.75, 15, 1.6), (1.6, 14.7, -1.6), (1.6, 14.7, 1.6), (2.0999999, 15, -1.6), (2.0999999, 15, 1.6), (1.6, 15.25, -1.6), (1.6, 15.25, 1.6), (1, 15.25, -1.6), (1, 15.25, 1.6) ]
+   list dinoNormals = [ (-0.894427, -0.447214, 0.), (0., -1., 0.), (0.707107, -0.707107, 0.), (0., -1., 0.), (0.707107, -0.707107, 0.), (1., 0., 0.), (0.242536, -0.970143, 0.), (1., 0., 0.), (0.164399, 0.986394, 0.), (0.164399, -0.986394, 0.), (1., 0., 0.), (0.447214, 0.894427, 0.), (0., 1., 0.), (-0.707107, 0.707107, 0.), (-1., 0., 0.), (-0.707107, -0.707107, 0.), (-0.707107, 0.707107, 0.), (-0.980581, 0.196116, 0.), (-0.83205, 0.5547, 0.), (-0.707107, 0.707107, 0.), (0., 1., 0.), (0.707107, 0.707107, 0.), (0., 0., 1.), (0., 0., 1.), (-0.707107, -0.707107, 0.), (0., -1., 0.), (-0.316228, -0.948683, 0.), (0.707107, -0.707107, 0.), (0., -1., 0.), (0.447214, 0.894427, 0.), (0.447214, -0.894427, 0.), (0., 1., 0.), (0.894427, -0.447214, 0.), (-0.707107, 0.707107, 0.), (0.894427, 0.447214, 0.), (-1., 0., 0.), (-0.707107, 0.707107, 0.), (0.707107, 0.707107, 0.), (0., 1., 0.), (-0.707107, 0.707107, 0.), (0., 0., 1.), (0., 0., 1.), (-1., 0., 0.), (-0.707107, -0.707107, 0.), (-1., 0., 0.), (-0.707107, 0.707107, 0.), (-1., 0., 0.), (-0.447214, -0.894427, 0.), (0., -1., 0.), (0.447214, 0.894427, 0.), (1., 0., 0.), (0.707107, -0.707107, 0.), (0.894427, 0.447214, 0.), (0.707107, 0.707107, 0.), (0., 1., 0.), (-0.707107, 0.707107, 0.), (0., 0., 1.), (0., 0., 1.), (-0.707107, -0.707107, 0.), (0., -1., 0.), (-0.316228, -0.948683, 0.), (0.707107, -0.707107, 0.), (0., -1., 0.), (0.447214, 0.894427, 0.), (0.447214, -0.894427, 0.), (0., 1., 0.), (0.894427, -0.447214, 0.), (-0.707107, 0.707107, 0.), (0.894427, 0.447214, 0.), (-1., 0., 0.), (-0.707107, 0.707107, 0.), (0.707107, 0.707107, 0.), (0., 1., 0.), (-0.707107, 0.707107, 0.), (0., 0., 1.), (0., 0., 1.), (-1., 0., 0.), (-0.707107, -0.707107, 0.), (-1., 0., 0.), (-0.707107, 0.707107, 0.), (-1., 0., 0.), (-0.447214, -0.894427, 0.), (0., -1., 0.), (0.447214, 0.894427, 0.), (1., 0., 0.), (0.707107, -0.707107, 0.), (0.894427, 0.447214, 0.), (0.707107, 0.707107, 0.), (0., 1., 0.), (-0.707107, 0.707107, 0.), (0., 0., 1.), (0., 0., 1.), (-0.768221, -0.640184, 0.), (0., -1., 0.), (0.514496, -0.857493, 0.), (0.447214, 0.894427, 0.), (0., 1., 0.), (-0.707107, 0.707107, 0.), (0., 0., 1.), (0., 0., 1.) ]
+
    -- Shading / appearance parameters
-   scalar D.alpha = .5
-   vec3 D.skinColor = ( 0.1, 1.0, 0.1 )
-   vec3 D.eyeColor = ( 1.0, 0.2, 0.2 )
-   color D.wireColor = #0309
+   scalar G.alpha = .5
+   vec3 G.skinColor = ( 0.1, 1.0, 0.1 )
+   vec3 G.eyeColor = ( 1.0, 0.2, 0.2 )
+   color G.wireColor = #0309
    scalar wireWidth = 2.0
    scalar ambient = .5
 
@@ -150,13 +147,18 @@ forall Dinosaur D {
 
    -- Define a transformation that positions the dinosaur in space.
    -- (The base transformation will be elaborated on to draw shadows and reflections.)
-   mat4x4 D.baseTransform = rotate3dh( global.dinoAngle, (0,1,0) ) then translate3dh( global.dinoX, 0, global.dinoY )
-   mat4x4 D.model = D.baseTransform
+   scalar G.dinoAngle = random(0,2) * MathPI()
+   scalar G.dinoX = 15*random(-1,1)
+   scalar G.dinoY = 15*random(-1,1)
+   mat4x4 G.baseTransform = rotate3dh( G.dinoAngle, (0,1,0) ) then translate3dh( G.dinoX, 0, G.dinoY )
+   mat4x4 G.model = G.baseTransform
 
    -- Transform all the 3D vertex coordinates defining the dino geometry,
    -- and project them to 2D window coordinates.
-   list p = projectList( global.dinoPoints, camera.model * D.model, camera.proj, camera.view )
+   list p = projectList( dinoPoints, camera.model * G.model, camera.proj, camera.view )
 ```
+
+> **Transformation Order.** An important comment here about transformation order: APIs like OpenGL follow a "last transformation first" rule.  For instance, if we write `glTranslate(a,b,c); glRotate(theta,1,0,0);` we get a rotation by `theta` around the x-axis, followed by a translation by the vector (`a`,`b`,`c`).  You'll notice that in our Style code we instead use a special keyword `then`, which composes transformations in the same order one would expect from natural language.  For instance, if I say _"I turned around and then walked out the door,"_ the order of operations is unambiguous: first a rotation, then a translation.  Likewise, the expression `A then B` describes a transformation first by the matrix `A`, then by the matrix `B`.  Of course, the Style language also permits ordinary matrix multiplication—e.g., the same transformation could be applied using the matrix `B*A`, since then any matrix-vector multiply `B*A*x` will first apply `A`, then apply `B`.
 
 Once we have the projected 2D coordinates, we need to actually drawn the final polygons.  Unlike OpenGL, we do _not_ need to tessellate these polygons into triangles: Style/Penrose (and SVG) can directly handle `n`-gons with any number of sides.  For each polygon we do a simple lighting calculation, and also use the orientation of the projected polygon to determine back face culling, or really "back face fading": if the orientation is positive, we draw the polygon as usual; if the orientation is negative, we draw it using an alpha value of 0.2.  This way we get a nice effect where the edges of the back-facing polygons are slightly visible through the front-facing polygons, giving a nice sense of volume:
 
@@ -184,8 +186,88 @@ An even bigger blemish (in this case a really big one!) is that there is current
 
 After drawing the individual polygons `f0` through `f99`, they are grouped into a single `Group` shape that can be referenced later.  A group has no direct analogue in OpenGL/Direct3D; it can perhaps be thought of as a node in a scene hierarchy (and is directly analogous to the [group tag in SVG](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/g)).
 
+```haskell
+   shape G.mesh = Group {
+      shapes: [ f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24, f25, f26, f27, f28, f29, f30, f31, f32, f33, f34, f35, f36, f37, f38, f39, f40, f41, f42, f43, f44, f45, f46, f47, f48, f49, f50, f51, f52, f53, f54, f55, f56, f57, f58, f59, f60, f61, f62, f63, f64, f65, f66, f67, f68, f69, f70, f71, f72, f73, f74, f75, f76, f77, f78, f79, f80, f81, f82, f83, f84, f85, f86, f87, f88, f89, f90, f91, f92, f93, f94, f95, f96, f97, f98, f99 ]
+      ensureOnCanvas: false
+   }
+```
+
 ### Reflections and Shadows
 
-Given this setup, perspective-correct 3D reflections and shadows are remarkably easy to draw via Style.
+Given this setup, perspective-correct 3D reflections and shadows are remarkably easy to draw via Style.  To emulate these effects, we use the same basic tricks used by Kilgard in the original OpenGL example: rather than tracing rays, the reflection is drawn by literally reflecting the geometry of the base model in the ground plane (by just scaling the y-component by -1).  This reflected copy is clipped against the 2D projection of the ground plane, to prevent the reflection from showing up outside the floor.  In our version, we also use a [CSS blur effect](https://developer.mozilla.org/en-US/docs/Web/CSS/filter-function/blur) to emulate a glossy reflection:
 
-TODO: continue here
+```haskell
+-- A reflection effect is achieved by drawing
+-- a processed copy of the original geometry
+forall Reflection R; Geometry G
+where R := Reflection(G) {
+
+   -- give the reflection the same configuration as the
+   -- geometry it reflects
+   override R.dinoAngle = G.dinoAngle
+   override R.dinoX = G.dinoX
+   override R.dinoY = G.dinoY
+
+   -- flip the geometry, fade it out, and blur it
+   override R.model = scale3dh(1,-1,1) then R.baseTransform
+   override R.mesh.opacity = .4
+   override R.mesh.style = "filter:blur(3px);"
+
+   -- clip the reflection so that it doesn't extend outside the floor
+   shape floor = Polygon {
+      points: global.floor.points
+      fillColor: global.floor.fillColor
+      strokeColor: global.floor.strokeColor
+      strokeWidth: global.floor.strokeWidth
+      ensureOnCanvas: false
+   }
+   override R.mesh.clipPath = clip( floor )
+}
+```
+
+Similarly, the shadow is drawn by geometrically projecting the vertices of the mesh from the light source to the ground plane.
+
+```haskell
+-- A shadow effect is achieved by projecting each
+-- original vertex from the light to the floor
+forall Shadow S; Geometry G
+where S := Shadow(G) {
+
+  -- give the shadow the same configuration as the occluder
+  override S.dinoAngle = G.dinoAngle
+  override S.dinoX = G.dinoX
+  override S.dinoY = G.dinoY
+
+  -- find dot product between light position vector and ground plane normal
+  vec4 groundplane = ( 0, 1, 0, 0 )
+  scalar d = dot( groundplane, light.pos )
+
+  -- define shadow matrix
+  mat4x4 shadowMat = diagonal([d,d,d,d]) - outerProduct(light.pos,groundplane)
+
+  -- replace base transformation with shadow transformation
+  override S.model = S.baseTransform then shadowMat
+
+  -- draw as semi-transparent black
+  override S.skinColor = (0,0,0)
+  override S.eyeColor = (0,0,0)
+  override S.alpha = 1
+  override S.wireColor = #000
+  override S.mesh.opacity = .1
+  override S.mesh.style = "filter:blur(3px);"
+
+  -- clip shadow against ground plane
+  shape floor = Polygon {
+     points: global.floor.points
+     fillColor: global.floor.fillColor
+     strokeColor: global.floor.strokeColor
+     strokeWidth: global.floor.strokeWidth
+     ensureOnCanvas: false
+  }
+  override S.mesh.clipPath = clip( floor )
+}
+```
+
+TODO: talk about depth sorting
+
