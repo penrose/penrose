@@ -121,6 +121,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[1][0],p[1][1])-(p[0][0],p[0][1]), (p[2][0],p[2][1])-(p[0][0],p[0][1]) ))
    }
    vec3 C1 = (ambient + (1-ambient)*max(0, dot((N[1][0],N[1][1],N[1][2]),L))) * G.skinColor
@@ -130,6 +131,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[4][0],p[4][1])-(p[1][0],p[1][1]), (p[5][0],p[5][1])-(p[1][0],p[1][1]) ))
    }
    vec3 C2 = (ambient + (1-ambient)*max(0, dot((N[2][0],N[2][1],N[2][2]),L))) * G.skinColor
@@ -139,6 +141,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[6][0],p[6][1])-(p[4][0],p[4][1]), (p[7][0],p[7][1])-(p[4][0],p[4][1]) ))
    }
    vec3 C3 = (ambient + (1-ambient)*max(0, dot((N[3][0],N[3][1],N[3][2]),L))) * G.skinColor
@@ -148,6 +151,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[8][0],p[8][1])-(p[6][0],p[6][1]), (p[9][0],p[9][1])-(p[6][0],p[6][1]) ))
    }
    vec3 C4 = (ambient + (1-ambient)*max(0, dot((N[4][0],N[4][1],N[4][2]),L))) * G.skinColor
@@ -157,6 +161,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[10][0],p[10][1])-(p[8][0],p[8][1]), (p[11][0],p[11][1])-(p[8][0],p[8][1]) ))
    }
    vec3 C5 = (ambient + (1-ambient)*max(0, dot((N[5][0],N[5][1],N[5][2]),L))) * G.skinColor
@@ -166,6 +171,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[12][0],p[12][1])-(p[10][0],p[10][1]), (p[13][0],p[13][1])-(p[10][0],p[10][1]) ))
    }
    vec3 C6 = (ambient + (1-ambient)*max(0, dot((N[6][0],N[6][1],N[6][2]),L))) * G.skinColor
@@ -175,6 +181,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[14][0],p[14][1])-(p[12][0],p[12][1]), (p[15][0],p[15][1])-(p[12][0],p[12][1]) ))
    }
    vec3 C7 = (ambient + (1-ambient)*max(0, dot((N[7][0],N[7][1],N[7][2]),L))) * G.skinColor
@@ -184,6 +191,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[16][0],p[16][1])-(p[14][0],p[14][1]), (p[17][0],p[17][1])-(p[14][0],p[14][1]) ))
    }
    vec3 C8 = (ambient + (1-ambient)*max(0, dot((N[8][0],N[8][1],N[8][2]),L))) * G.skinColor
@@ -193,6 +201,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[18][0],p[18][1])-(p[16][0],p[16][1]), (p[19][0],p[19][1])-(p[16][0],p[16][1]) ))
    }
    vec3 C9 = (ambient + (1-ambient)*max(0, dot((N[9][0],N[9][1],N[9][2]),L))) * G.skinColor
@@ -202,6 +211,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[20][0],p[20][1])-(p[18][0],p[18][1]), (p[21][0],p[21][1])-(p[18][0],p[18][1]) ))
    }
    vec3 C10 = (ambient + (1-ambient)*max(0, dot((N[10][0],N[10][1],N[10][2]),L))) * G.skinColor
@@ -211,6 +221,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[22][0],p[22][1])-(p[20][0],p[20][1]), (p[23][0],p[23][1])-(p[20][0],p[20][1]) ))
    }
    vec3 C11 = (ambient + (1-ambient)*max(0, dot((N[11][0],N[11][1],N[11][2]),L))) * G.skinColor
@@ -220,6 +231,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[24][0],p[24][1])-(p[22][0],p[22][1]), (p[25][0],p[25][1])-(p[22][0],p[22][1]) ))
    }
    vec3 C12 = (ambient + (1-ambient)*max(0, dot((N[12][0],N[12][1],N[12][2]),L))) * G.skinColor
@@ -229,6 +241,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[26][0],p[26][1])-(p[24][0],p[24][1]), (p[27][0],p[27][1])-(p[24][0],p[24][1]) ))
    }
    vec3 C13 = (ambient + (1-ambient)*max(0, dot((N[13][0],N[13][1],N[13][2]),L))) * G.skinColor
@@ -238,6 +251,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[28][0],p[28][1])-(p[26][0],p[26][1]), (p[29][0],p[29][1])-(p[26][0],p[26][1]) ))
    }
    vec3 C14 = (ambient + (1-ambient)*max(0, dot((N[14][0],N[14][1],N[14][2]),L))) * G.skinColor
@@ -247,6 +261,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[30][0],p[30][1])-(p[28][0],p[28][1]), (p[31][0],p[31][1])-(p[28][0],p[28][1]) ))
    }
    vec3 C15 = (ambient + (1-ambient)*max(0, dot((N[15][0],N[15][1],N[15][2]),L))) * G.skinColor
@@ -256,6 +271,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[32][0],p[32][1])-(p[30][0],p[30][1]), (p[33][0],p[33][1])-(p[30][0],p[30][1]) ))
    }
    vec3 C16 = (ambient + (1-ambient)*max(0, dot((N[16][0],N[16][1],N[16][2]),L))) * G.skinColor
@@ -265,6 +281,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[34][0],p[34][1])-(p[32][0],p[32][1]), (p[35][0],p[35][1])-(p[32][0],p[32][1]) ))
    }
    vec3 C17 = (ambient + (1-ambient)*max(0, dot((N[17][0],N[17][1],N[17][2]),L))) * G.skinColor
@@ -274,6 +291,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[36][0],p[36][1])-(p[34][0],p[34][1]), (p[37][0],p[37][1])-(p[34][0],p[34][1]) ))
    }
    vec3 C18 = (ambient + (1-ambient)*max(0, dot((N[18][0],N[18][1],N[18][2]),L))) * G.skinColor
@@ -283,6 +301,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[38][0],p[38][1])-(p[36][0],p[36][1]), (p[39][0],p[39][1])-(p[36][0],p[36][1]) ))
    }
    vec3 C19 = (ambient + (1-ambient)*max(0, dot((N[19][0],N[19][1],N[19][2]),L))) * G.skinColor
@@ -292,6 +311,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[40][0],p[40][1])-(p[38][0],p[38][1]), (p[41][0],p[41][1])-(p[38][0],p[38][1]) ))
    }
    vec3 C20 = (ambient + (1-ambient)*max(0, dot((N[20][0],N[20][1],N[20][2]),L))) * G.skinColor
@@ -301,6 +321,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[42][0],p[42][1])-(p[40][0],p[40][1]), (p[43][0],p[43][1])-(p[40][0],p[40][1]) ))
    }
    vec3 C21 = (ambient + (1-ambient)*max(0, dot((N[21][0],N[21][1],N[21][2]),L))) * G.skinColor
@@ -310,6 +331,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[0][0],p[0][1])-(p[42][0],p[42][1]), (p[3][0],p[3][1])-(p[42][0],p[42][1]) ))
    }
    vec3 C22 = (ambient + (1-ambient)*max(0, dot((N[22][0],N[22][1],N[22][2]),L))) * G.skinColor
@@ -319,6 +341,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[45][0],p[45][1])-(p[44][0],p[44][1]), (p[46][0],p[46][1])-(p[44][0],p[44][1]) ))
    }
    vec3 C23 = (ambient + (1-ambient)*max(0, dot((N[23][0],N[23][1],N[23][2]),L))) * G.skinColor
@@ -328,6 +351,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[48][0],p[48][1])-(p[45][0],p[45][1]), (p[49][0],p[49][1])-(p[45][0],p[45][1]) ))
    }
    vec3 C24 = (ambient + (1-ambient)*max(0, dot((N[24][0],N[24][1],N[24][2]),L))) * G.skinColor
@@ -337,6 +361,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[50][0],p[50][1])-(p[48][0],p[48][1]), (p[51][0],p[51][1])-(p[48][0],p[48][1]) ))
    }
    vec3 C25 = (ambient + (1-ambient)*max(0, dot((N[25][0],N[25][1],N[25][2]),L))) * G.skinColor
@@ -346,6 +371,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[52][0],p[52][1])-(p[50][0],p[50][1]), (p[53][0],p[53][1])-(p[50][0],p[50][1]) ))
    }
    vec3 C26 = (ambient + (1-ambient)*max(0, dot((N[26][0],N[26][1],N[26][2]),L))) * G.skinColor
@@ -355,6 +381,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[54][0],p[54][1])-(p[52][0],p[52][1]), (p[55][0],p[55][1])-(p[52][0],p[52][1]) ))
    }
    vec3 C27 = (ambient + (1-ambient)*max(0, dot((N[27][0],N[27][1],N[27][2]),L))) * G.skinColor
@@ -364,6 +391,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[56][0],p[56][1])-(p[54][0],p[54][1]), (p[57][0],p[57][1])-(p[54][0],p[54][1]) ))
    }
    vec3 C28 = (ambient + (1-ambient)*max(0, dot((N[28][0],N[28][1],N[28][2]),L))) * G.skinColor
@@ -373,6 +401,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[58][0],p[58][1])-(p[56][0],p[56][1]), (p[59][0],p[59][1])-(p[56][0],p[56][1]) ))
    }
    vec3 C29 = (ambient + (1-ambient)*max(0, dot((N[29][0],N[29][1],N[29][2]),L))) * G.skinColor
@@ -382,6 +411,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[60][0],p[60][1])-(p[58][0],p[58][1]), (p[61][0],p[61][1])-(p[58][0],p[58][1]) ))
    }
    vec3 C30 = (ambient + (1-ambient)*max(0, dot((N[30][0],N[30][1],N[30][2]),L))) * G.skinColor
@@ -391,6 +421,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[62][0],p[62][1])-(p[60][0],p[60][1]), (p[63][0],p[63][1])-(p[60][0],p[60][1]) ))
    }
    vec3 C31 = (ambient + (1-ambient)*max(0, dot((N[31][0],N[31][1],N[31][2]),L))) * G.skinColor
@@ -400,6 +431,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[64][0],p[64][1])-(p[62][0],p[62][1]), (p[65][0],p[65][1])-(p[62][0],p[62][1]) ))
    }
    vec3 C32 = (ambient + (1-ambient)*max(0, dot((N[32][0],N[32][1],N[32][2]),L))) * G.skinColor
@@ -409,6 +441,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[66][0],p[66][1])-(p[64][0],p[64][1]), (p[67][0],p[67][1])-(p[64][0],p[64][1]) ))
    }
    vec3 C33 = (ambient + (1-ambient)*max(0, dot((N[33][0],N[33][1],N[33][2]),L))) * G.skinColor
@@ -418,6 +451,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[68][0],p[68][1])-(p[66][0],p[66][1]), (p[69][0],p[69][1])-(p[66][0],p[66][1]) ))
    }
    vec3 C34 = (ambient + (1-ambient)*max(0, dot((N[34][0],N[34][1],N[34][2]),L))) * G.skinColor
@@ -427,6 +461,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[70][0],p[70][1])-(p[68][0],p[68][1]), (p[71][0],p[71][1])-(p[68][0],p[68][1]) ))
    }
    vec3 C35 = (ambient + (1-ambient)*max(0, dot((N[35][0],N[35][1],N[35][2]),L))) * G.skinColor
@@ -436,6 +471,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[72][0],p[72][1])-(p[70][0],p[70][1]), (p[73][0],p[73][1])-(p[70][0],p[70][1]) ))
    }
    vec3 C36 = (ambient + (1-ambient)*max(0, dot((N[36][0],N[36][1],N[36][2]),L))) * G.skinColor
@@ -445,6 +481,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[74][0],p[74][1])-(p[72][0],p[72][1]), (p[75][0],p[75][1])-(p[72][0],p[72][1]) ))
    }
    vec3 C37 = (ambient + (1-ambient)*max(0, dot((N[37][0],N[37][1],N[37][2]),L))) * G.skinColor
@@ -454,6 +491,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[44][0],p[44][1])-(p[74][0],p[74][1]), (p[47][0],p[47][1])-(p[74][0],p[74][1]) ))
    }
    vec3 C38 = (ambient + (1-ambient)*max(0, dot((N[38][0],N[38][1],N[38][2]),L))) * G.skinColor
@@ -463,6 +501,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[7][0],p[7][1])-(p[76][0],p[76][1]), (p[77][0],p[77][1])-(p[76][0],p[76][1]) ))
    }
    vec3 C39 = (ambient + (1-ambient)*max(0, dot((N[39][0],N[39][1],N[39][2]),L))) * G.skinColor
@@ -472,6 +511,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[79][0],p[79][1])-(p[7][0],p[7][1]), (p[80][0],p[80][1])-(p[7][0],p[7][1]) ))
    }
    vec3 C40 = (ambient + (1-ambient)*max(0, dot((N[40][0],N[40][1],N[40][2]),L))) * G.skinColor
@@ -481,6 +521,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[81][0],p[81][1])-(p[79][0],p[79][1]), (p[82][0],p[82][1])-(p[79][0],p[79][1]) ))
    }
    vec3 C41 = (ambient + (1-ambient)*max(0, dot((N[41][0],N[41][1],N[41][2]),L))) * G.skinColor
@@ -490,6 +531,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[83][0],p[83][1])-(p[81][0],p[81][1]), (p[84][0],p[84][1])-(p[81][0],p[81][1]) ))
    }
    vec3 C42 = (ambient + (1-ambient)*max(0, dot((N[42][0],N[42][1],N[42][2]),L))) * G.skinColor
@@ -499,6 +541,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[85][0],p[85][1])-(p[83][0],p[83][1]), (p[86][0],p[86][1])-(p[83][0],p[83][1]) ))
    }
    vec3 C43 = (ambient + (1-ambient)*max(0, dot((N[43][0],N[43][1],N[43][2]),L))) * G.skinColor
@@ -508,6 +551,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[87][0],p[87][1])-(p[85][0],p[85][1]), (p[88][0],p[88][1])-(p[85][0],p[85][1]) ))
    }
    vec3 C44 = (ambient + (1-ambient)*max(0, dot((N[44][0],N[44][1],N[44][2]),L))) * G.skinColor
@@ -517,6 +561,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[89][0],p[89][1])-(p[87][0],p[87][1]), (p[90][0],p[90][1])-(p[87][0],p[87][1]) ))
    }
    vec3 C45 = (ambient + (1-ambient)*max(0, dot((N[45][0],N[45][1],N[45][2]),L))) * G.skinColor
@@ -526,6 +571,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[91][0],p[91][1])-(p[89][0],p[89][1]), (p[92][0],p[92][1])-(p[89][0],p[89][1]) ))
    }
    vec3 C46 = (ambient + (1-ambient)*max(0, dot((N[46][0],N[46][1],N[46][2]),L))) * G.skinColor
@@ -535,6 +581,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[93][0],p[93][1])-(p[91][0],p[91][1]), (p[94][0],p[94][1])-(p[91][0],p[91][1]) ))
    }
    vec3 C47 = (ambient + (1-ambient)*max(0, dot((N[47][0],N[47][1],N[47][2]),L))) * G.skinColor
@@ -544,6 +591,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[95][0],p[95][1])-(p[93][0],p[93][1]), (p[96][0],p[96][1])-(p[93][0],p[93][1]) ))
    }
    vec3 C48 = (ambient + (1-ambient)*max(0, dot((N[48][0],N[48][1],N[48][2]),L))) * G.skinColor
@@ -553,6 +601,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[97][0],p[97][1])-(p[95][0],p[95][1]), (p[98][0],p[98][1])-(p[95][0],p[95][1]) ))
    }
    vec3 C49 = (ambient + (1-ambient)*max(0, dot((N[49][0],N[49][1],N[49][2]),L))) * G.skinColor
@@ -562,6 +611,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[99][0],p[99][1])-(p[97][0],p[97][1]), (p[100][0],p[100][1])-(p[97][0],p[97][1]) ))
    }
    vec3 C50 = (ambient + (1-ambient)*max(0, dot((N[50][0],N[50][1],N[50][2]),L))) * G.skinColor
@@ -571,6 +621,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[101][0],p[101][1])-(p[99][0],p[99][1]), (p[102][0],p[102][1])-(p[99][0],p[99][1]) ))
    }
    vec3 C51 = (ambient + (1-ambient)*max(0, dot((N[51][0],N[51][1],N[51][2]),L))) * G.skinColor
@@ -580,6 +631,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[76][0],p[76][1])-(p[101][0],p[101][1]), (p[78][0],p[78][1])-(p[101][0],p[101][1]) ))
    }
    vec3 C52 = (ambient + (1-ambient)*max(0, dot((N[52][0],N[52][1],N[52][2]),L))) * G.skinColor
@@ -589,6 +641,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[104][0],p[104][1])-(p[103][0],p[103][1]), (p[105][0],p[105][1])-(p[103][0],p[103][1]) ))
    }
    vec3 C53 = (ambient + (1-ambient)*max(0, dot((N[53][0],N[53][1],N[53][2]),L))) * G.skinColor
@@ -598,6 +651,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[107][0],p[107][1])-(p[104][0],p[104][1]), (p[108][0],p[108][1])-(p[104][0],p[104][1]) ))
    }
    vec3 C54 = (ambient + (1-ambient)*max(0, dot((N[54][0],N[54][1],N[54][2]),L))) * G.skinColor
@@ -607,6 +661,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[109][0],p[109][1])-(p[107][0],p[107][1]), (p[110][0],p[110][1])-(p[107][0],p[107][1]) ))
    }
    vec3 C55 = (ambient + (1-ambient)*max(0, dot((N[55][0],N[55][1],N[55][2]),L))) * G.skinColor
@@ -616,6 +671,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[111][0],p[111][1])-(p[109][0],p[109][1]), (p[112][0],p[112][1])-(p[109][0],p[109][1]) ))
    }
    vec3 C56 = (ambient + (1-ambient)*max(0, dot((N[56][0],N[56][1],N[56][2]),L))) * G.skinColor
@@ -625,6 +681,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[113][0],p[113][1])-(p[111][0],p[111][1]), (p[114][0],p[114][1])-(p[111][0],p[111][1]) ))
    }
    vec3 C57 = (ambient + (1-ambient)*max(0, dot((N[57][0],N[57][1],N[57][2]),L))) * G.skinColor
@@ -634,6 +691,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[115][0],p[115][1])-(p[113][0],p[113][1]), (p[116][0],p[116][1])-(p[113][0],p[113][1]) ))
    }
    vec3 C58 = (ambient + (1-ambient)*max(0, dot((N[58][0],N[58][1],N[58][2]),L))) * G.skinColor
@@ -643,6 +701,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[117][0],p[117][1])-(p[115][0],p[115][1]), (p[118][0],p[118][1])-(p[115][0],p[115][1]) ))
    }
    vec3 C59 = (ambient + (1-ambient)*max(0, dot((N[59][0],N[59][1],N[59][2]),L))) * G.skinColor
@@ -652,6 +711,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[119][0],p[119][1])-(p[117][0],p[117][1]), (p[120][0],p[120][1])-(p[117][0],p[117][1]) ))
    }
    vec3 C60 = (ambient + (1-ambient)*max(0, dot((N[60][0],N[60][1],N[60][2]),L))) * G.skinColor
@@ -661,6 +721,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[121][0],p[121][1])-(p[119][0],p[119][1]), (p[122][0],p[122][1])-(p[119][0],p[119][1]) ))
    }
    vec3 C61 = (ambient + (1-ambient)*max(0, dot((N[61][0],N[61][1],N[61][2]),L))) * G.skinColor
@@ -670,6 +731,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[123][0],p[123][1])-(p[121][0],p[121][1]), (p[124][0],p[124][1])-(p[121][0],p[121][1]) ))
    }
    vec3 C62 = (ambient + (1-ambient)*max(0, dot((N[62][0],N[62][1],N[62][2]),L))) * G.skinColor
@@ -679,6 +741,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[125][0],p[125][1])-(p[123][0],p[123][1]), (p[126][0],p[126][1])-(p[123][0],p[123][1]) ))
    }
    vec3 C63 = (ambient + (1-ambient)*max(0, dot((N[63][0],N[63][1],N[63][2]),L))) * G.skinColor
@@ -688,6 +751,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[127][0],p[127][1])-(p[125][0],p[125][1]), (p[128][0],p[128][1])-(p[125][0],p[125][1]) ))
    }
    vec3 C64 = (ambient + (1-ambient)*max(0, dot((N[64][0],N[64][1],N[64][2]),L))) * G.skinColor
@@ -697,6 +761,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[129][0],p[129][1])-(p[127][0],p[127][1]), (p[130][0],p[130][1])-(p[127][0],p[127][1]) ))
    }
    vec3 C65 = (ambient + (1-ambient)*max(0, dot((N[65][0],N[65][1],N[65][2]),L))) * G.skinColor
@@ -706,6 +771,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[131][0],p[131][1])-(p[129][0],p[129][1]), (p[132][0],p[132][1])-(p[129][0],p[129][1]) ))
    }
    vec3 C66 = (ambient + (1-ambient)*max(0, dot((N[66][0],N[66][1],N[66][2]),L))) * G.skinColor
@@ -715,6 +781,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[133][0],p[133][1])-(p[131][0],p[131][1]), (p[134][0],p[134][1])-(p[131][0],p[131][1]) ))
    }
    vec3 C67 = (ambient + (1-ambient)*max(0, dot((N[67][0],N[67][1],N[67][2]),L))) * G.skinColor
@@ -724,6 +791,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[103][0],p[103][1])-(p[133][0],p[133][1]), (p[106][0],p[106][1])-(p[133][0],p[133][1]) ))
    }
    vec3 C68 = (ambient + (1-ambient)*max(0, dot((N[68][0],N[68][1],N[68][2]),L))) * G.skinColor
@@ -733,6 +801,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[136][0],p[136][1])-(p[135][0],p[135][1]), (p[6][0],p[6][1])-(p[135][0],p[135][1]) ))
    }
    vec3 C69 = (ambient + (1-ambient)*max(0, dot((N[69][0],N[69][1],N[69][2]),L))) * G.skinColor
@@ -742,6 +811,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[138][0],p[138][1])-(p[136][0],p[136][1]), (p[139][0],p[139][1])-(p[136][0],p[136][1]) ))
    }
    vec3 C70 = (ambient + (1-ambient)*max(0, dot((N[70][0],N[70][1],N[70][2]),L))) * G.skinColor
@@ -751,6 +821,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[140][0],p[140][1])-(p[138][0],p[138][1]), (p[141][0],p[141][1])-(p[138][0],p[138][1]) ))
    }
    vec3 C71 = (ambient + (1-ambient)*max(0, dot((N[71][0],N[71][1],N[71][2]),L))) * G.skinColor
@@ -760,6 +831,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[142][0],p[142][1])-(p[140][0],p[140][1]), (p[143][0],p[143][1])-(p[140][0],p[140][1]) ))
    }
    vec3 C72 = (ambient + (1-ambient)*max(0, dot((N[72][0],N[72][1],N[72][2]),L))) * G.skinColor
@@ -769,6 +841,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[144][0],p[144][1])-(p[142][0],p[142][1]), (p[145][0],p[145][1])-(p[142][0],p[142][1]) ))
    }
    vec3 C73 = (ambient + (1-ambient)*max(0, dot((N[73][0],N[73][1],N[73][2]),L))) * G.skinColor
@@ -778,6 +851,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[146][0],p[146][1])-(p[144][0],p[144][1]), (p[147][0],p[147][1])-(p[144][0],p[144][1]) ))
    }
    vec3 C74 = (ambient + (1-ambient)*max(0, dot((N[74][0],N[74][1],N[74][2]),L))) * G.skinColor
@@ -787,6 +861,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[148][0],p[148][1])-(p[146][0],p[146][1]), (p[149][0],p[149][1])-(p[146][0],p[146][1]) ))
    }
    vec3 C75 = (ambient + (1-ambient)*max(0, dot((N[75][0],N[75][1],N[75][2]),L))) * G.skinColor
@@ -796,6 +871,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[150][0],p[150][1])-(p[148][0],p[148][1]), (p[151][0],p[151][1])-(p[148][0],p[148][1]) ))
    }
    vec3 C76 = (ambient + (1-ambient)*max(0, dot((N[76][0],N[76][1],N[76][2]),L))) * G.skinColor
@@ -805,6 +881,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[152][0],p[152][1])-(p[150][0],p[150][1]), (p[153][0],p[153][1])-(p[150][0],p[150][1]) ))
    }
    vec3 C77 = (ambient + (1-ambient)*max(0, dot((N[77][0],N[77][1],N[77][2]),L))) * G.skinColor
@@ -814,6 +891,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[154][0],p[154][1])-(p[152][0],p[152][1]), (p[155][0],p[155][1])-(p[152][0],p[152][1]) ))
    }
    vec3 C78 = (ambient + (1-ambient)*max(0, dot((N[78][0],N[78][1],N[78][2]),L))) * G.skinColor
@@ -823,6 +901,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[156][0],p[156][1])-(p[154][0],p[154][1]), (p[157][0],p[157][1])-(p[154][0],p[154][1]) ))
    }
    vec3 C79 = (ambient + (1-ambient)*max(0, dot((N[79][0],N[79][1],N[79][2]),L))) * G.skinColor
@@ -832,6 +911,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[158][0],p[158][1])-(p[156][0],p[156][1]), (p[159][0],p[159][1])-(p[156][0],p[156][1]) ))
    }
    vec3 C80 = (ambient + (1-ambient)*max(0, dot((N[80][0],N[80][1],N[80][2]),L))) * G.skinColor
@@ -841,6 +921,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[160][0],p[160][1])-(p[158][0],p[158][1]), (p[161][0],p[161][1])-(p[158][0],p[158][1]) ))
    }
    vec3 C81 = (ambient + (1-ambient)*max(0, dot((N[81][0],N[81][1],N[81][2]),L))) * G.skinColor
@@ -850,6 +931,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[135][0],p[135][1])-(p[160][0],p[160][1]), (p[137][0],p[137][1])-(p[160][0],p[160][1]) ))
    }
    vec3 C82 = (ambient + (1-ambient)*max(0, dot((N[82][0],N[82][1],N[82][2]),L))) * G.skinColor
@@ -859,6 +941,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[163][0],p[163][1])-(p[162][0],p[162][1]), (p[164][0],p[164][1])-(p[162][0],p[162][1]) ))
    }
    vec3 C83 = (ambient + (1-ambient)*max(0, dot((N[83][0],N[83][1],N[83][2]),L))) * G.skinColor
@@ -868,6 +951,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[166][0],p[166][1])-(p[163][0],p[163][1]), (p[167][0],p[167][1])-(p[163][0],p[163][1]) ))
    }
    vec3 C84 = (ambient + (1-ambient)*max(0, dot((N[84][0],N[84][1],N[84][2]),L))) * G.skinColor
@@ -877,6 +961,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[168][0],p[168][1])-(p[166][0],p[166][1]), (p[169][0],p[169][1])-(p[166][0],p[166][1]) ))
    }
    vec3 C85 = (ambient + (1-ambient)*max(0, dot((N[85][0],N[85][1],N[85][2]),L))) * G.skinColor
@@ -886,6 +971,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[170][0],p[170][1])-(p[168][0],p[168][1]), (p[171][0],p[171][1])-(p[168][0],p[168][1]) ))
    }
    vec3 C86 = (ambient + (1-ambient)*max(0, dot((N[86][0],N[86][1],N[86][2]),L))) * G.skinColor
@@ -895,6 +981,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[172][0],p[172][1])-(p[170][0],p[170][1]), (p[173][0],p[173][1])-(p[170][0],p[170][1]) ))
    }
    vec3 C87 = (ambient + (1-ambient)*max(0, dot((N[87][0],N[87][1],N[87][2]),L))) * G.skinColor
@@ -904,6 +991,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[162][0],p[162][1])-(p[172][0],p[172][1]), (p[165][0],p[165][1])-(p[172][0],p[172][1]) ))
    }
    vec3 C88 = (ambient + (1-ambient)*max(0, dot((N[88][0],N[88][1],N[88][2]),L))) * G.eyeColor
@@ -913,6 +1001,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, cross2D( (p[163][0],p[163][1])-(p[162][0],p[162][1]), (p[166][0],p[166][1])-(p[162][0],p[162][1]) ))
    }
    vec3 C89 = (ambient + (1-ambient)*max(0, dot((N[89][0],N[89][1],N[89][2]),L))) * G.eyeColor
@@ -922,6 +1011,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[164][0],p[164][1])-(p[165][0],p[165][1]), (p[167][0],p[167][1])-(p[165][0],p[165][1]) ))
    }
    vec3 C90 = (ambient + (1-ambient)*max(0, dot((N[90][0],N[90][1],N[90][2]),L))) * G.skinColor
@@ -931,6 +1021,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, cross2D( (p[7][0],p[7][1])-(p[76][0],p[76][1]), (p[79][0],p[79][1])-(p[76][0],p[76][1]) ))
    }
    vec3 C91 = (ambient + (1-ambient)*max(0, dot((N[91][0],N[91][1],N[91][2]),L))) * G.skinColor
@@ -940,6 +1031,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[77][0],p[77][1])-(p[78][0],p[78][1]), (p[80][0],p[80][1])-(p[78][0],p[78][1]) ))
    }
    vec3 C92 = (ambient + (1-ambient)*max(0, dot((N[92][0],N[92][1],N[92][2]),L))) * G.skinColor
@@ -949,6 +1041,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, cross2D( (p[136][0],p[136][1])-(p[135][0],p[135][1]), (p[138][0],p[138][1])-(p[135][0],p[135][1]) ))
    }
    vec3 C93 = (ambient + (1-ambient)*max(0, dot((N[93][0],N[93][1],N[93][2]),L))) * G.skinColor
@@ -958,6 +1051,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[6][0],p[6][1])-(p[137][0],p[137][1]), (p[139][0],p[139][1])-(p[137][0],p[137][1]) ))
    }
    vec3 C94 = (ambient + (1-ambient)*max(0, dot((N[94][0],N[94][1],N[94][2]),L))) * G.skinColor
@@ -967,6 +1061,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, cross2D( (p[45][0],p[45][1])-(p[44][0],p[44][1]), (p[48][0],p[48][1])-(p[44][0],p[44][1]) ))
    }
    vec3 C95 = (ambient + (1-ambient)*max(0, dot((N[95][0],N[95][1],N[95][2]),L))) * G.skinColor
@@ -976,6 +1071,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[46][0],p[46][1])-(p[47][0],p[47][1]), (p[49][0],p[49][1])-(p[47][0],p[47][1]) ))
    }
    vec3 C96 = (ambient + (1-ambient)*max(0, dot((N[96][0],N[96][1],N[96][2]),L))) * G.skinColor
@@ -985,6 +1081,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, cross2D( (p[104][0],p[104][1])-(p[103][0],p[103][1]), (p[107][0],p[107][1])-(p[103][0],p[103][1]) ))
    }
    vec3 C97 = (ambient + (1-ambient)*max(0, dot((N[97][0],N[97][1],N[97][2]),L))) * G.skinColor
@@ -994,6 +1091,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[105][0],p[105][1])-(p[106][0],p[106][1]), (p[108][0],p[108][1])-(p[106][0],p[106][1]) ))
    }
    vec3 C98 = (ambient + (1-ambient)*max(0, dot((N[98][0],N[98][1],N[98][2]),L))) * G.skinColor
@@ -1003,6 +1101,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, cross2D( (p[1][0],p[1][1])-(p[0][0],p[0][1]), (p[4][0],p[4][1])-(p[0][0],p[0][1]) ))
    }
    vec3 C99 = (ambient + (1-ambient)*max(0, dot((N[99][0],N[99][1],N[99][2]),L))) * G.skinColor
@@ -1012,6 +1111,7 @@ forall Geometry G {
       strokeColor: G.wireColor
       strokeWidth: wireWidth
       ensureOnCanvas: false
+      strokeLinejoin: "round"
       opacity: max( .2, -cross2D( (p[2][0],p[2][1])-(p[3][0],p[3][1]), (p[5][0],p[5][1])-(p[3][0],p[3][1]) ))
    }
 
