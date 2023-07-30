@@ -2,17 +2,18 @@
 
 ![Shadowy Leapin' Lizards!](dinoshade.png)
 
-This example shows how rich 3D graphics including lighting, shadows, reflections, and perspective projection can be turned into 2D vector diagrams using Penrose, using familiar concepts from standard 3D graphics APIs (such as OpenGL and Direct3D).  The example reimagines the [`dinoshade` OpenGL/GLUT C++ example](http://sgifiles.irixnet.org/sgi/opengl/contrib/mjk/tips/dinoshade.c), originally written by Mark Kilgard at SGI.  If you've never written 3D graphics code before, you may want to start with one of the [many terrific OpenGL tutorials](https://www.reddit.com/r/opengl/comments/5dbzp0/how_to_best_learn_opengl_in_20162017/) available online—while Penrose does a lot of things automatically, you do need to still know how to "think in 3D!"  If you do have prior experience with 3D graphics APIs, you should feel quite at home with this example.
+This exploratory example shows how rich 3D graphics including lighting, shadows, reflections, and perspective projection can be rendered as 2D vector art via Penrose, using familiar concepts from standard 3D graphics APIs (such as OpenGL and Direct3D).  Penrose was not originally built for 3D—but as the system evolves it becomes easier and easier to pull off some very cool and useful techniques!  This particular example reimagines the [`dinoshade` OpenGL/GLUT C++ example](http://sgifiles.irixnet.org/sgi/opengl/contrib/mjk/tips/dinoshade.c), originally written by Mark Kilgard at SGI.  This README is written mainly for folks to cross the bridge from 3D graphics APIs into Penrose/Style—if you've never written 3D graphics code before, you may want to start with one of the [many terrific tutorials](https://www.reddit.com/r/opengl/comments/5dbzp0/how_to_best_learn_opengl_in_20162017/) available online.
 
 ## Overview - The Vectorization Pipeline
 
 ![Rasterization vs. Vectorization Pipeline](pipeline.png)
 
-The output for this example is shown above: a dinosaur standing on a plane, with soft shadows and a blurry reflection; lighting and shadows are determined by a point light source (which from this view is off screen).  Construction of this example follows a pattern similar to the [real time graphics pipeline](https://en.wikipedia.org/wiki/Graphics_pipeline): the camera is defined via modelview and projection matrices, a list of 3D points is used to describe the scene geometry, and the camera matrices are used to transform these 3D points into 2D coordinates on the canvas.  The key difference, as illustrated in the diagram above, is that in the final stage projected primitives (such as triangles and line segments) are translated into vector graphics primitives, rather than rasterized to final pixel values.  In particular, they are translated into a [standard vector graphics (SVG) file](https://en.wikipedia.org/wiki/SVG), which is a human-readable file format for describing 2D graphics.  An SVG file can then be displayed by a variety of applications such as web browsers (Chrome, Safari, etc.), or specialized vector graphics editors (Inkscape, Adobe Illustrator, etc.).  These programs in effect complete the final stage of image generation, by rasterizing 2D shapes in the SVG file to pixel values that can be displayed by a hardware device.  However, deferring this final rasterization stage has a variety of benefits:
+The output for this example is shown at top: a dinosaur standing on a plane, with soft shadows and a blurry reflection; lighting and shadows are determined by a point light source (which from this view is off screen).  Construction of this example follows a pattern similar to the [real time graphics pipeline](https://en.wikipedia.org/wiki/Graphics_pipeline): the camera is defined via modelview and projection matrices, a list of 3D points is used to describe the scene geometry, and the camera matrices are used to transform these 3D points into 2D coordinates on the canvas.  The key difference, as illustrated in the diagram above, is that in the final stage projected primitives (such as triangles and line segments) are translated into vector graphics primitives, rather than rasterized to final pixel values.  In particular, they are translated into a [standard vector graphics (SVG) file](https://en.wikipedia.org/wiki/SVG), which is a human-readable file format for describing 2D graphics.  An SVG file can then be displayed by a variety of applications such as web browsers (Chrome, Safari, etc.), or specialized vector graphics editors (Inkscape, Adobe Illustrator, etc.).  These programs in effect complete the final stage of image generation, by rasterizing 2D shapes in the SVG file to pixel values that can be displayed by a hardware device.  However, deferring this final rasterization stage has a variety of benefits:
 
 - **Retargetability.**  Since the output of the 3D vectorization pipeline does not assume any definite size for the final rasterized image, graphics can be re-used on a variety of different devices, or in different contexts (e.g., full-screen vs. embedded in a document) without losing fidelity.  In other words, the output representation is "resolution-independent."
 - **File Size.** In many cases, a vectorized image is much smaller than a rasterized version, since the former stores a more minimal specification of the image (e.g., just the three corner locations of a triangles, rather than the many thousands of pixel values needed to fill in the same triangle).  E.g., the SVG and PNG versions of the `dinoshade` image above differ in file size by about 5x.
 - **Editability.** Unlike raster images, which can be edited only at the level of individual pixels, vectorized 3D graphics easily admit higher-level semantic edits such as "change the color of the dinosaur from green to blue" or "make the wireframe thinner" (or remove it altogether).  Moreover, such alterations can be made programmatically and automatically without needing access to the original runtime environment (e.g., OpenGL or Direct3D).
+- **Rich Functionality.** A lot of functionality that's hard to pull off in standard 3D APIs (like high-quality line drawing, dashed lines, and image-space filtering) are already built in to SVG/CSS, and can often be triggered by one or two simple commands (like the CSS blur used here to achieve glossy reflections).
 
 ## The Dinoshade Example
 
@@ -106,7 +107,11 @@ global {
 }
 ```
 
-Notice here that we often only need to declare _what needs to be drawn_ rather than _how to draw it_.  For instance, to draw the text we need only say what text we want, what font/color we want, and where on the canvas it should go.  We don't need to say _when_ the text gets drawn (i.e., we don't need to think about execution order, as in the usual [imperative programming](https://en.wikipedia.org/wiki/Imperative_programming) model of OpenGL/Direct3D), and generally avoid a lot of the crufty function calls needed to [draw text](https://users.cs.jmu.edu/bernstdh/web/common/lectures/summary_opengl-text.php) in a traditional 3D graphics API.  We just need to give the bare minimum specification.
+At this point our scene looks like this:
+
+![Ground plane and label text](global-data.png)
+
+Notice that unlike a traditional 3D graphics API, we only had to declare _what needs to be drawn_; we did not have to spell out the procedural steps of _how to draw it_.  For instance, to draw the text we simply stated what string we want to use, what font/color we want, and where on the canvas it should go.  We didn't need to say _when_ the text gets drawn (i.e., we don't need to think about execution order, as in the usual [imperative programming](https://en.wikipedia.org/wiki/Imperative_programming) model of OpenGL/Direct3D), and avoided the arcane sequence of function calls needed to [draw text](https://users.cs.jmu.edu/bernstdh/web/common/lectures/summary_opengl-text.php) in OpenGL.  Intsead, we just gave the bare minimum information needed to specify the label.
 
 The most important line in the snippet above is the one that transforms a list of 3D points into a list of 2D points that can be used to draw 2D shapes.  In general, the pattern we'll use is
 
@@ -160,7 +165,9 @@ forall Dinosaur G {
 
 > **Transformation Order.** An important comment here about transformation order: APIs like OpenGL follow a "last transformation first" rule.  For instance, if we write `glTranslate(a,b,c); glRotate(theta,1,0,0);` we get a rotation by `theta` around the x-axis, followed by a translation by the vector (`a`,`b`,`c`).  You'll notice that in our Style code we instead use a special keyword `then`, which composes transformations in the same order one would expect from natural language.  For instance, if I say _"I turned around and then walked out the door,"_ the order of operations is unambiguous: first a rotation, then a translation.  Likewise, the expression `A then B` describes a transformation first by the matrix `A`, then by the matrix `B`.  Of course, the Style language also permits ordinary matrix multiplication—e.g., the same transformation could be applied using the matrix `B*A`, since then any matrix-vector multiply `B*A*x` will first apply `A`, then apply `B`.
 
-Once we have the projected 2D coordinates, we need to actually drawn the final polygons.  Unlike OpenGL, we do _not_ need to tessellate these polygons into triangles: Style/Penrose (and SVG) can directly handle `n`-gons with any number of sides.  For each polygon we do a simple lighting calculation, and also use the orientation of the projected polygon to determine back face culling, or really "back face fading": if the orientation is positive, we draw the polygon as usual; if the orientation is negative, we draw it using an alpha value of 0.2.  This way we get a nice effect where the edges of the back-facing polygons are slightly visible through the front-facing polygons, giving a nice sense of volume:
+![Comparison of no culling, full culling, and partial culling](culling.png)
+
+Once we have the projected 2D coordinates, we need to actually draw the final polygons.  Unlike OpenGL, we do _not_ need to tessellate these polygons into triangles: Style/Penrose (and SVG) can directly handle `n`-gons with any number of sides.  For each polygon we do a simple lighting calculation, and also use the orientation of the projected polygon to determine backface culling, or really "back face fading": if the orientation is positive, we draw the polygon as usual; if the orientation is negative, we draw it using an alpha value of 0.2.  This way we get a nice effect where the edges of the back-facing polygons are slightly visible through the front-facing polygons, giving a nice sense of volume (see example images above).  Here we perform an explicit calculation inline, but in future language versions it might be nice to provide a convenience attribute `cullBackface: true|false`:
 
 ```haskell
    -- compute the color for the first polygon
@@ -226,6 +233,10 @@ where R := Reflection(G) {
 }
 ```
 
+With the reflection added, our scene now looks like this:
+
+![Dinosaur with reflection](reflection.png)
+
 Similarly, the shadow is drawn by geometrically projecting the vertices of the mesh from the light source to the ground plane.
 
 ```haskell
@@ -269,5 +280,11 @@ where S := Shadow(G) {
 }
 ```
 
-TODO: talk about depth sorting
+Showing just the shadow (and not the reflection), our scene now looks like this:
+
+![Dinosaur with shadow](shadow.png)
+
+The full scene, with both shadows and reflections, is shown at the very top.
+
+> **Depth Sorting.** At present, Style provides no mechanism for depth buffering or sorting.  Part of the limitation is a fundamental limitation of essentially all modern vector graphics APIs ([SVG](https://en.wikipedia.org/wiki/SVG), [Canvas](https://en.wikipedia.org/wiki/Canvas_element), [PDF](https://en.wikipedia.org/wiki/PDF), etc.).  Since these formats were not designed with 3D in mind, primitives have no notion of variable depth, nor is there any built-in mechanism for per-fragment depth testing.  In many situations, however (e.g., no intersecting primitives and no cyclic depth orderings) one can still obtain high-quality results by applying [Painter's algorithm](https://en.wikipedia.org/wiki/Painter%27s_algorithm) to determine a per-primitive ordering.  A secondary challenge is that, at present, the ordering of primitives in a Style program is determined at compile time (via the order of rules in the Style program, and any use of the `layer` keyword).  Hence, depths computed via camera projection cannot currently be used to re-order primitives.  Some possibilities for future improvement might be to use mechanisms like [`z-index`](https://developer.mozilla.org/en-US/docs/Web/CSS/z-index), or to use [CSS 3D transforms](https://www.w3schools.com/css/css3_3dtransforms.asp), though a path that is well-supported through SVG and/or CSS in modern browsers is not entirely clear.  Another possibility is to augment the Style language to enable dynamic layering via computed values ([issue #768](https://github.com/penrose/penrose/issues/768)).  If you have opinions, knowledge, or feedback about this question, please feel free to get in touch!
 

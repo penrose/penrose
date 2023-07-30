@@ -1143,6 +1143,9 @@ where R := Reflection(G) {
       ensureOnCanvas: false
    }
    override R.mesh.clipPath = clip( floorShape )
+
+   -- make sure the geometry is drawn in front of the reflection
+   layer G.mesh above R.mesh
 }
 
 -- A shadow effect is achieved by projecting each
@@ -1179,5 +1182,8 @@ where S := Shadow(G) {
      ensureOnCanvas: false
   }
   override S.mesh.clipPath = clip( floorShape )
+
+  -- make sure the geometry is drawn in front of the shadow
+  layer G.mesh above S.mesh
 }
 
