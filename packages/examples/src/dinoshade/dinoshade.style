@@ -1038,14 +1038,11 @@ where R := Reflection(G) {
    override R.mesh.style = "filter:blur(3px);"
 
    -- clip the reflection so that it doesn't extend outside the floor
-   shape floor = Polygon {
+   shape floorShape = Polygon {
       points: global.floor.points
-      fillColor: global.floor.fillColor
-      strokeColor: global.floor.strokeColor
-      strokeWidth: global.floor.strokeWidth
       ensureOnCanvas: false
    }
-   override R.mesh.clipPath = clip( floor )
+   override R.mesh.clipPath = clip( floorShape )
 }
 
 -- A shadow effect is achieved by projecting each
@@ -1077,13 +1074,10 @@ where S := Shadow(G) {
   override S.mesh.style = "filter:blur(3px);"
 
   -- clip shadow against ground plane
-  shape floor = Polygon {
+  shape floorShape = Polygon {
      points: global.floor.points
-     fillColor: global.floor.fillColor
-     strokeColor: global.floor.strokeColor
-     strokeWidth: global.floor.strokeWidth
      ensureOnCanvas: false
   }
-  override S.mesh.clipPath = clip( floor )
+  override S.mesh.clipPath = clip( floorShape )
 }
 
