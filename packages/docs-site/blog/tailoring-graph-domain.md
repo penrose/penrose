@@ -101,25 +101,38 @@ Here's what the resulting diagram should look like:
 In the graph shown above, it's rather unclear where exactly the Hamiltonian circuit is, so we might want to highlight its path. This would mean highlighting certain vertices and arcs. Let's therefore add predicates to the Domain which allow us to do so.
 
 ```domain
-predicate HighlightVertex(Vertex a)
-predicate HighlightArc(Vertex a, Vertex b)
+type Vertex
+predicate Arc(Vertex a, Vertex b)
+predicate HighlightVertex(Vertex a) // [!code focus]
+predicate HighlightArc(Vertex a, Vertex b) // [!code focus]
 ```
 
-This addition defines two new predicates which take existing vertices and (vertices which form) arcs and highlights them. Now we need to describe how to display this relation in a diagram – in this case, highlighting would involve changing the color of the vertices and nodes. We can inspect the Style program to identify which parts we need to add on to or otherwise modify. The following excerpt of the `simple-directed-graph` Style program, with some sections omitted for clarity, focuses on the relevant aspects:
+This addition defines two new predicates which take existing vertices and (vertices which form) arcs and highlights them. Now we need to describe how to display this relation in a diagram – in this case, highlighting would involve changing the color of the vertices and nodes. We can inspect the Style program to identify which parts we need to add on to or otherwise modify. The following excerpt of the `simple-directed-graph` Style program:
 
 ```style
 forall Vertex v {
-  v.dot = Circle {
---  [...]
-    fillColor : color.black
-  }
+  v.dot = Circle { // [!code focus]
+    center: (? in dots, ? in dots)
+    r: num.radius
+    fillColor : color.black // [!code focus]
+  } // [!code focus]
 
-  v.text = Text {
---  [...]
-    fillColor: color.black
---  [...]
-  }
---[...]
+  v.text = Text { // [!code focus]
+    string: v.label
+    fillColor: color.black // [!code focus]
+    fontFamily: "serif"
+    fontSize: "18px"
+    strokeColor: color.white
+    strokeWidth: 4
+    paintOrder: "stroke"
+  } // [!code focus]
+  v.halfSize = (v.text.width / 2, v.text.height / 2)
+  v.bottomLeft = v.text.center - v.halfSize
+  v.topRight = v.text.center + v.halfSize
+
+  v.text above v.dot
+
+  encourage shapeDistance(v.dot, v.text) == num.labelDist in text
 }
 ```
 
@@ -129,23 +142,38 @@ And the relevant portion of the Style program for arcs is below:
 
 ```style
 forall Vertex u; Vertex v where Arc(u, v) as e {
+  a = u.dot.center
+  b = v.dot.center
+  t = normalize(b - a) -- tangent
+  n = rot90(t) -- normal
+  m = (a + b) / 2 -- midpoint
 
---  [...]
+  e.start = a
+  e.end = b
+  e.offset = ? in dots
+  e.arrow = Path { // [!code focus]
+    d: quadraticCurveFromPoints("open", [a, m + e.offset * n, b])
+    strokeColor: color.black // [!code focus]
+  } // [!code focus]
 
-  e.arrow = Path {
---  [...]
-    strokeColor: color.black
-  }
+  e.step = ? in arrows
+  e.pointerCenter = m + (e.offset / 2) * n + e.step * t
+  p = e.pointerCenter
+  x = num.pointerX
+  y = num.pointerY
+  e.pointer = Path { // [!code focus]
+    d: pathFromPoints("closed", [p - x * t + y * n, p + x * t, p - x * t - y * n])
+    strokeColor: none()
+    fillColor: color.black // [!code focus]
+  } // [!code focus]
 
---  [...]
+  e.arrow below u.dot
+  e.arrow below v.dot
+  e.pointer below e.arrow
 
-  e.pointer = Path {
---  [...]
-    fillColor: color.black
-  }
-
---  [...]
-
+  encourage vdist(u.dot.center, v.dot.center) < num.edgeDist in dots
+  encourage minimal(sqr(e.offset)) in dots
+  encourage minimal(sqr(e.step))
 }
 ```
 
@@ -163,7 +191,7 @@ color {
 }
 ```
 
-Then, we add more constraints that account for `HighlightVertex` and `HighlightArc`, as shown below.
+Then, we match on the specific cases of `Vertex` and `Arc` with predicates `HighlightVertex` and `HighlightArc`, as shown below.
 
 ```style
 forall Vertex v where HighlightVertex(v) {
