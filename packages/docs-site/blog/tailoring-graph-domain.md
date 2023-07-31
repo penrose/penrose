@@ -54,8 +54,6 @@ To facilitate creating diagrams quickly, Penrose has many existing Domain and St
 <Embed :trio=highlighted.trio />
 </div>
 
----
-
 ## Directed graph domain: just vertices and arcs
 
 The simplest Domain schema that describes a directed graph, composed of vertices and directed edges (or, arcs) can be expressed in the following manner:

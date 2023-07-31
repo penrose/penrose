@@ -16,7 +16,6 @@ const footerStyle: CSSProperties = {
 const containerStyle: CSSProperties = {
   position: "relative",
   borderRadius: "10px",
-  border: "0.5px solid rgba(0, 0, 0, 0.2)",
   boxShadow: "0 5px 8px 0 rgba(0, 0, 0, 0.2)",
   overflow: "hidden",
   backgroundColor: "white",
