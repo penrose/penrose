@@ -1,9 +1,11 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import Markdown from "markdown-it";
+import markdownItKatex from "markdown-it-katex";
 import { describeType } from "@penrose/core";
 import { FuncParam } from "@penrose/core/dist/types/functions";
 const md = new Markdown();
+md.use(markdownItKatex);
 export default defineComponent({
   props: ["name", "description", "params", "returns"],
   computed: {
