@@ -1,4 +1,4 @@
-# dinoshade
+# Penrose for OpenGL/Direct3D Programmers
 
 ![Shadowy Leapin' Lizards!](dinoshade.png)
 
