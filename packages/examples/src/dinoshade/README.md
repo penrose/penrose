@@ -107,7 +107,7 @@ global {
 }
 ```
 
-At this point our scene looks like this:
+At this point our scene looks like this (here we've temporarily moved the light so that it's visible from this camera view):
 
 ![Ground plane and label text](global-data.png)
 
@@ -289,6 +289,10 @@ where S := Shadow(G) {
 Showing just the shadow (and not the reflection), our scene now looks like this:
 
 <p align="center"><img src="shadow.png" alt="figure" width="508"/></p>
+
+We can draw some additional `Line` shapes to visualize the lines from the light source to the shadow points (using the 2D projections for both `start` and `end` locations), verifying that our calculation works as expected:
+
+<p align="center"><img src="shadow-lines.png" alt="figure" width="622"/></p>
 
 As in the traditional 3D graphics pipeline, more complex/realistic shadows (such as self-shadows, or physically accurate soft shadows) are of course trickier to achieve.  The full scene, with both shadows and reflections, is shown at the very top.
 

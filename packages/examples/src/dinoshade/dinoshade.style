@@ -1144,7 +1144,7 @@ where R := Reflection(G) {
    }
    override R.mesh.clipPath = clip( floorShape )
 
-   -- make sure the geometry is drawn in front of the reflection
+   -- make sure the geometry is drawn in front of the shadow
    layer G.mesh above R.mesh
 }
 
