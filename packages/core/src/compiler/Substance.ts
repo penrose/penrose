@@ -1,10 +1,17 @@
 import im from "immutable";
 import _ from "lodash";
 import nearley from "nearley";
-import { dummyIdentifier, isConcrete } from "../engine/EngineUtils.js";
+import { dummyIdentifier } from "../engine/EngineUtils.js";
 import { idOf, lastLocation, prettyParseError } from "../parser/ParserUtil.js";
 import substanceGrammar from "../parser/SubstanceParser.js";
-import { A, ASTNode, AbstractNode, C, Identifier } from "../types/ast.js";
+import {
+  A,
+  ASTNode,
+  AbstractNode,
+  C,
+  Identifier,
+  location,
+} from "../types/ast.js";
 import {
   Arg,
   ConstructorDecl,
@@ -897,23 +904,12 @@ const checkDeclListSeq = (
 const sanitizeDecl = (decl: Decl<A>): Decl<A> | Decl<C> => {
   // Not using the spread operator because "spread" operator can
   // bring in extraneous things from "decl"
-  if (isConcrete(decl)) {
-    return {
-      start: decl.start,
-      end: decl.end,
-      nodeType: decl.nodeType,
-      tag: "Decl",
-      type: decl.type,
-      name: decl.name,
-    };
-  } else {
-    return {
-      nodeType: decl.nodeType,
-      tag: "Decl",
-      type: decl.type,
-      name: decl.name,
-    };
-  }
+  return {
+    ...location(decl),
+    tag: "Decl",
+    type: decl.type,
+    name: decl.name,
+  };
 };
 
 const createVars = (
