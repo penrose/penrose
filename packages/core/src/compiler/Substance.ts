@@ -555,7 +555,7 @@ const evalNumHelper = (
   n: NumExpr<A>,
   subst: SeqSubst,
 ): Result<number, SubstanceError> => {
-  if (n.tag === "Number") {
+  if (n.tag === "NumberConstant") {
     return ok(n.value);
   } else if (n.tag === "Identifier") {
     const strRes = substSeqVarNumber(n.value, n, subst);
@@ -1519,7 +1519,7 @@ const prettyCond = (cond: BooleanExpr<A>): string => {
 };
 
 const prettyNum = (n: NumExpr<A>): string => {
-  if (n.tag === "Number") {
+  if (n.tag === "NumberConstant") {
     return `${n.value}`;
   } else if (n.tag === "Identifier") {
     return n.value;

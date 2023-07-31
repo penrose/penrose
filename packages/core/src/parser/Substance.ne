@@ -9,7 +9,7 @@ import moo from "moo";
 import _ from 'lodash'
 import { optional, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil.js'
 import { C, ConcreteNode, Identifier, StringLit } from "../types/ast.js";
-import { Sequence, RangeAssign, Range, Number, BinaryExpr, UnaryExpr, ComparisonExpr, BooleanExpr, BinaryBooleanExpr, UnaryBooleanExpr, BooleanConstant, SubProg, SubStmt, Decl, DeclList, Bind, DeclBind, ApplyPredicate, Deconstructor, Func, EqualExprs, EqualPredicates, LabelDecl, NoLabel, AutoLabel, LabelOption, TypeConsApp } from "../types/substance.js";
+import { Sequence, RangeAssign, Range, NumberConstant, BinaryExpr, UnaryExpr, ComparisonExpr, BooleanExpr, BinaryBooleanExpr, UnaryBooleanExpr, BooleanConstant, SubProg, SubStmt, Decl, DeclList, Bind, DeclBind, ApplyPredicate, Deconstructor, Func, EqualExprs, EqualPredicates, LabelDecl, NoLabel, AutoLabel, LabelOption, TypeConsApp } from "../types/substance.js";
 
 
 // NOTE: ordering matters here. Top patterns get matched __first__
@@ -123,18 +123,18 @@ int_range -> "[" _ integer _ "," _ integer _ "]" {%
 %}
 
 integer -> %int_literal {% 
-  ([d]): Number<C> => ({
+  ([d]): NumberConstant<C> => ({
     ...nodeData,
     ...rangeOf(d),
-    tag: "Number", value: +d.value
+    tag: "NumberConstant", value: +d.value
   })
 %}
 
 float -> %float_literal {% 
-    ([d]): Number<C> => ({
+    ([d]): NumberConstant<C> => ({
       ...nodeData,
       ...rangeOf(d),
-      tag: "Number", value: +d.value
+      tag: "NumberConstant", value: +d.value
     })
   %}
 

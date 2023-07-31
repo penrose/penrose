@@ -201,7 +201,7 @@ export type ComparisonExpr<T> = ASTNode<T> & {
 export type NumExpr<T> =
   | BinaryExpr<T>
   | UnaryExpr<T>
-  | Number<T>
+  | NumberConstant<T>
   | Identifier<T>;
 
 export type BinaryExpr<T> = ASTNode<T> & {
@@ -217,8 +217,8 @@ export type UnaryExpr<T> = ASTNode<T> & {
   arg: NumExpr<T>;
 };
 
-export type Number<T> = ASTNode<T> & {
-  tag: "Number";
+export type NumberConstant<T> = ASTNode<T> & {
+  tag: "NumberConstant";
   value: number;
 };
 
@@ -234,8 +234,8 @@ export type StmtSeq<T> = ASTNode<T> & {
 
 export type Range<T> = ASTNode<T> & {
   tag: "Range";
-  low: Number<T>;
-  high: Number<T>;
+  low: NumberConstant<T>;
+  high: NumberConstant<T>;
 };
 
 export type Sequence<T> = ASTNode<T> & {
