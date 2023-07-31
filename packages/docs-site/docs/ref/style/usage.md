@@ -1,8 +1,8 @@
 # Style Usage
 
-Given a _domain_ schema (specifying the domain of the diagram) and a _substance_ program (specifying _what_ to draw), the _style_ schema describes the recipe of drawing the objects and relations on a canvas.
+Given a Domain schema (specifying the domain of the diagram), a Substance file specifies how the objects and relationships in any given Substance program should get translated into graphical icons and geometric relationships on a 2D canvas.
 
-A _style_ schema is composed of _blocks_, of which there are two types:
+A Style program is composed of _blocks_, of which there are two types:
 
 - _namespaces_, which can be used to help program organization;
 - _style blocks_, which carry out the meat of the diagram generation.
@@ -29,7 +29,7 @@ Hence they are also called _global_ variables. Overwriting these values is not a
 
 ### Canvas Preamble Block
 
-Each _style_ schema _must_ contain a _canvas preamble block_, a special type of namespace which describes the width and height of the canvas. For example, preamble block
+Each Style program _must_ contain a _canvas preamble block_, a special type of namespace which describes the width and height of the canvas. For example, preamble block
 
 ```style
 canvas {
@@ -42,7 +42,7 @@ tells Penrose that the drawing canvas should have a width of 800 pixels and a he
 
 ## Selector Blocks
 
-Selector Blocks are the most important component in a _style_ schema, since they actually describe _how_ to draw elements of a diagram. The syntax for Selector Blocks is as follows:
+Selector Blocks are the most important component in a Style program, since they actually describe _how_ to draw elements of a diagram. The syntax for Selector Blocks is as follows:
 
 ```style
 forall list_object_declarations
@@ -54,7 +54,7 @@ with list_object_declarations {
 
 where
 
-- `list_object_declarations` is a **semicolon**-separated list of object declarations, similar to the object declarations in the _substance_ schema. Each object declaration has syntax `type_name object_name`. The names declared in `list_object_declarations` are referred to as _style variables_.
+- `list_object_declarations` is a **semicolon**-separated list of object declarations, similar to the object declarations in the Substance program. Each object declaration has syntax `type_name object_name`. The names declared in `list_object_declarations` are referred to as _style variables_.
 - `list_relations` is a **semicolon**-separated list of constraints (about objects in `list_object_declaration`) that must be satisfied in order for this style block to be triggered.
 
 One might observe that both the `forall` clause and the `with` clause take in list of object declarations. The two clauses are treated equivalently in Selector Blocks. Variables declared in these clauses can be accessed within the body of the Selector Block.
@@ -87,7 +87,7 @@ with Set y {
 
 ### Matching style block against substance program in general
 
-Penrose functions by matching a style block against a _substance_ program. In a nutshell, given a style block
+Penrose functions by matching a style block against a Substance program. In a nutshell, given a style block
 
 ```style
 forall Set x; Set y
@@ -95,9 +95,9 @@ where IsSubset (x, y) {
 }
 ```
 
-the Penrose compiler searches through the _substance_ program to find sets of objects consistent with `Set x; Set y` such that `IsSubset(x, y)` is satisfied. This is done through generating mappings from _style variables_ to _substance variables_, which are the objects in the _substance_ program.
+the Penrose compiler searches through the Substance program to find sets of objects consistent with `Set x; Set y` such that `IsSubset(x, y)` is satisfied. This is done through generating mappings from _style variables_ to _substance variables_, which are the objects in the Substance program.
 
-For instance, consider a simple set-theory _substance_ program that works with the previous style block:
+For instance, consider a simple set-theory Substance program that works with the previous style block:
 
 ```substance
 Set A, B, C
@@ -105,9 +105,9 @@ IsSubset (A, B)
 IsSubset (B, C)
 ```
 
-By matching the style block against the _substance_ program, we essentially consider six possible mappings (note that repeated elements are not allowed), some of which are valid and some are invalid:
+By matching the style block against the Substance program, we essentially consider six possible mappings (note that repeated elements are not allowed), some of which are valid and some are invalid:
 
-| Mapping          | `IsSubset(x, y)` becomes | Satisfied by _substance_ |
+| Mapping          | `IsSubset(x, y)` becomes | Satisfied by Substance |
 | :--------------- | :----------------------- | ------------------------ |
 | `x -> A; y -> B` | `IsSubset(A, B)`         | Yes                      |
 | `x -> A; y -> C` | `IsSubset(A, C)`         | No                       |
@@ -116,40 +116,40 @@ By matching the style block against the _substance_ program, we essentially cons
 | `x -> C; y -> A` | `IsSubset(C, A)`         | No                       |
 | `x -> C; y -> B` | `IsSubset(C, B)`         | No                       |
 
-Here, Penrose filters out mappings which do not satisfy the constraints listed in the _style_ block, and keeps a list of _good_ mappings (in this example, two mappings are kept). For each _good_ mapping, the body of the _style_ block (`list_body_expressions`) is executed, where each instance of the _style_ variables (`x` and `y`) is substituted with the corresponding _substance_ variables (once with `A` and `B`, once with `B` and `C`).
+Here, Penrose filters out mappings which do not satisfy the constraints listed in the Style block, and keeps a list of _good_ mappings (in this example, two mappings are kept). For each _good_ mapping, the body of the Style block (`list_body_expressions`) is executed, where each instance of the Style variables (`x` and `y`) is substituted with the corresponding Substance variables (once with `A` and `B`, once with `B` and `C`).
 
 ### Object Declarations
 
-In the list of object declarations in a _style_ block, we can declare two types of objects, which are matched differently by the Penrose compiler.
+In the list of object declarations in a Style block, we can declare two types of objects, which are matched differently by the Penrose compiler.
 
 #### Substance objects
 
-We can declare a _substance_ object, whose object name is surrounded by backticks. For instance,
+We can declare a Substance object, whose object name is surrounded by backticks. For instance,
 
 ```style
 forall Set `A` {
 }
 ```
 
-can only be mapped to the _substance_ object with the exact same name (`A`) provided that the types match (subtyping allowed). In other words, given _substance_ program
+can only be mapped to the Substance object with the exact same name (`A`) provided that the types match (subtyping allowed). In other words, given Substance program
 
 ```substance
 Set A, B, C
 ```
 
-matching the _style_ block against the _substance_ block yields only one valid mapping: `` `A` -> A ``.
+matching the Style block against the Substance block yields only one valid mapping: `` `A` -> A ``.
 
 #### Style objects
 
-If an object name is not surrounded by backticks, then this object is a _style_ object with a _style_ variable. As seen before, the Penrose compiler will try to map _style_ variables to any _substance_ objects, provided that their types match (subtyping allowed).
+If an object name is not surrounded by backticks, then this object is a Style object with a Style variable. As seen before, the Penrose compiler will try to map Style variables to any Substance objects, provided that their types match (subtyping allowed).
 
 ### Allowed Relations
 
-A _style_ block supports three types of relations, two of which can also be seen in the _substance_ program.
+A Style block supports three types of relations, two of which can also be seen in the Substance program.
 
 #### Predicate Applications
 
-Just like in the _substance_ program, each predicate application has syntax
+Just like in the Substance program, each predicate application has syntax
 
 ```substance
 predicate_name (argument_list)
@@ -163,12 +163,12 @@ Optionally, one can give an alias to a predicate application:
 predicate_name (argument_list) as alias_name
 ```
 
-If such an alias is set, then `alias_name` will be accessible in the style block body, and it will always refer to the version of the predicate application within the _substance_ program.
+If such an alias is set, then `alias_name` will be accessible in the style block body, and it will always refer to the version of the predicate application within the Substance program.
 
 ##### Symmetry
 
 If a predicate is declared as symmetric, then it gets special treatment.
-Suppose we have the following domain schema:
+Suppose we have the following Domain schema:
 
 ```domain
 type Atom
@@ -204,7 +204,7 @@ Each function or constructor application has syntax
 object_name := function_name (argument_list)
 ```
 
-We do not allow aliasing for function and constructor applications. Arguments in `argument_list` must have types that match the domain argument types, similar to the substance schema.
+We do not allow aliasing for function and constructor applications. Arguments in `argument_list` must have types that match the Domain argument types, similar to the substance schema.
 
 #### Object Property Relations
 
@@ -217,22 +217,22 @@ where s has label {
 }
 ```
 
-If a certain `Set A` in the _substance_ program does not have a label (perhaps due to `NoLabel` declarations), then `s` will not be mapped to `A`, thus preventing an access of nonexistent properties.
+If a certain `Set A` in the Substance program does not have a label (perhaps due to `NoLabel` declarations), then `s` will not be mapped to `A`, thus preventing an access of nonexistent properties.
 
 We can further distinguish between math labels and text labels (see [substance labeling](../substance/usage#labeling-statements)): `where p has math label` matches math labels, whereas `where p has text label` matches text labels.
 
 ### Matching Deduplication
 
-The matching algorithm is designed to avoid duplicated mappings. If two mappings give us the same set of matched objects (in the _substance_ program) and the equivalent set of matched substance relations (predicate applications and function or constructor applications), then the algorithm only triggers on one of them.
+The matching algorithm is designed to avoid duplicated mappings. If two mappings give us the same set of matched objects (in the Substance program) and the equivalent set of matched substance relations (predicate applications and function or constructor applications), then the algorithm only triggers on one of them.
 
-For instance, say Penrose tries to match the _style_ block
+For instance, say Penrose tries to match the Style block
 
 ```style
 forall Set x; Set y {
 }
 ```
 
-against _substance_ program
+against Substance program
 
 ```substance
 Set A, B
@@ -242,9 +242,9 @@ Then, only one of mappings `x -> A; y -> B` and `x -> B; y -> A` triggers the St
 
 ### Reserved Variables
 
-Within a _style_ block body, some variable names are reserved for metadata purposes:
+Within a Style block body, some variable names are reserved for metadata purposes:
 
-- `match_total` is an integer that refers to the number of times that this _style_ blocks will be triggered (or matched) in total; and
+- `match_total` is an integer that refers to the number of times that this Style blocks will be triggered (or matched) in total; and
 - `match_id` is the 1-indexed ordinal of this current matching.
 
 These values can directly be read or overwritten within the style block body if needed.
@@ -270,9 +270,9 @@ where
 `field` can either be
 
 - A single identifier, which denotes a local assignment, not accessible outside of this matching; or
-- An object name (defined in `list_object_declarations`) or predicate application alias, followed by a dot operator and an identifier, which denotes an assignment bound to a _substance_ instance of object or predicate application after we substitute in the mapping. These assignments are accessible if the same _substance_ object or predicate application is matched again.
+- An object name (defined in `list_object_declarations`) or predicate application alias, followed by a dot operator and an identifier, which denotes an assignment bound to a Substance instance of object or predicate application after we substitute in the mapping. These assignments are accessible if the same Substance object or predicate application is matched again.
 
-For example, consider the following _style_ block:
+For example, consider the following Style block:
 
 ```style
 forall MyType t1; MyType t2
@@ -287,7 +287,7 @@ Refer to [this section](usage#expressions-and-their-types) for a detailed explan
 
 ### Override and Deletion
 
-The _style_ language allows users to modify fields that are previously declared. The `override` keyword changes the value of the field. As an example,
+The Style language allows users to modify fields that are previously declared. The `override` keyword changes the value of the field. As an example,
 
 ```style
 forall Set X {
@@ -370,9 +370,9 @@ We have special handling of layering statements for `Group` shapes, found [here]
 
 ## Collector Blocks
 
-Selector blocks match _style_ variables against _substance_ variables to produce multiple matches. Each match is independent from another. This characteristic makes it difficult to implement features that require aggregations over multiple matches. For example, we can't compute the sum of `center` fields of _all_ Substance variables that a selector matches on.
+Selector blocks match Style variables against Substance variables to produce multiple matches. Each match is independent from another. This characteristic makes it difficult to implement features that require aggregations over multiple matches. For example, we can't compute the sum of `center` fields of _all_ Substance variables that a selector matches on.
 
-Collector Blocks enables these types of aggregations by introducing collections of _substance_ variables. The syntax is as follows:
+Collector Blocks enables these types of aggregations by introducing collections of Substance variables. The syntax is as follows:
 
 ```style
 collect <COLLECT> into <INTO>
@@ -383,7 +383,7 @@ foreach <FOREACH> { }
 
 The `where`, `with`, and `foreach` clauses are optional, and if they are empty, they must be omitted.
 
-- `<COLLECT>` is an object declaration. The `<COLLECT> ` object is accessible, via the name given in the `<INTO>` clause, in the _style_ block body.
+- `<COLLECT>` is an object declaration. The `<COLLECT> ` object is accessible, via the name given in the `<INTO>` clause, in the Style block body.
 - `<INTO>` is the name assigned to the collection. The collection includes all the Substance objects that `<COLLECT>` matches to. Within the Style block, `<INTO>` conceptually represents a list of Substance objects.
 - The `<WHERE>` clause has the same meaning as in standard `forall` Style selectors.
 - `<WITH>` is a semicolon-separated list of object declarations. Objects in the `<WITH>` clause aren't collected, but may be used in `<WHERE>`.
@@ -513,75 +513,6 @@ Strings have type `string` and string literals are delimited by double quotes. S
 string fancyLabel = "(" + x.label + ")"
 ```
 
-### Vectors and matrices
-
-Style supports dense n-dimensional vector and matrix types, and standard operations on these types. These types behave largely like small, dense matrix types found in other languages (such as GLSL), with some specific differences noted below. Note that these types are meant largely for manipulating small 2D, 3D, and 4D vectors/matrices in the context of standard graphics operations (transformations, perspective projection, etc.), and may not perform well for larger matrix manipulations. Like all other objects in Style, the value of any vector or matrix entry can be declared as unknown (`?`) and determined automatically via optimization by the layout engine.
-
-#### Vector and matrix types
-
-Style is designed to support n-dimensional dense vectors of type `vecN`, and square n-dimensional matrices of type `matNxN`, where in both cases `N` is an integer greater than or equal to 2. E.g., types commonly used for diagramming are `vec2` and `mat3x3`. Some library functions may be available only for vectors or matrices of a specific size (e.g., the function `cross(u,v)`, which computes a 3D cross product, assumes that both `u` and `v` have type `vec3`).
-
-#### Initializing vectors and matrices
-
-A vector is constructed by specifying its components. For instance,
-
-```style
-vec2 u = (1.23, 4.56)
-```
-
-constructs a 2-dimension vector with `x`-component `1.23` and `y`-component `4.56`. As noted above, unknown values can be used as components, e.g.,
-
-```style
-vec2 p = (?, 0.0)
-```
-
-specifies a point `p` that sits on the `x`-axis with an unknown `x`-coordinate which is determined by the optimizer, according to any constraints and objectives involving `p`. More advanced initializers (e.g., initializing a 3-vector from a 2-vector and a scalar) are currently not supported, but are planned for future language versions. In most cases, the same functionality can currently be emulated by directly referencing components of a vector, e.g.,
-
-```style
-vec3 a = ( b[0], b[1], 1.0 )
-```
-
-A matrix is constructed by specifying a list of vectors. Each vector corresponds to a row (not a column) of the matrix. For instance,
-
-```style
-mat2x2 A = ((1,2),(3,4))
-```
-
-initializes a 2x2 matrix where the top row has entries 1, 2 and the bottom row has entries 3, 4. Rows can also reference existing vectors, e.g.,
-
-```style
-vec2 a1 = (1, 2)
-vec2 a2 = (3, 4)
-mat2x2 A = (a1, a2)
-```
-
-builds the same matrix as above. As with vectors, matrix entries can be unknown. E.g.,
-
-```style
-scalar d = ?
-mat3x3 D = ((d, 0, 0), (0, d, 0), (0, 0, d))
-```
-
-describes a 3x3 diagonal matrix, where all three diagonal entries take the same, undetermined value `d`.
-
-#### Vector and matrix element access
-
-Individual elements of a `vecN` can be accessed using square brackets, and an index `i` between `0` and `N`-1 (inclusive). For instance,
-
-```style
-vec3 u = (1, 2, 3)
-scalar y = u[1]
-```
-
-will extract the `y`-coordinate of `u` (i.e. `y=2`). Matrix entries are similarly accessed:
-
-```style
-mat2x2 M = ((?, ?), (?, ?))
-scalar trM = M[0][0] + M[1][1]
-```
-
-constructs an expression for the trace of `M`. In this case, since the elements of `M` are declared as unknown scalars, the value of the trace will depend on the entry values of the optimized matrix.
-
 ### Colors
 
 Colors have type `color`, and include an alpha (i.e., opacity) channel. Colors can be specified via two different color models:
@@ -607,46 +538,12 @@ See [the list of computation functions](functions#computation-functions).
 
 ### Operations between Numerical Expressions
 
-Aside from concatenation of strings using the operator `+`, the _style_ language supports the operations listed below on scalars, vectors, and matrices. Here we assume that `c` and `d` have type `scalar`, `u` and `v` have type `vecN`, and `A` and `B` have type `matNxN` (all for the same `N`).
-
-Note that _elementside_ multiplication `.*` and division `./` get applied independently to each entry of a vector or matrix. For instance, if `u = (6, 8, 9)` and `v = (3, 2, 3)`, then the elementwise dicision operation `u ./ v` yields the vector `(2, 4, 3)` (i.e. six divided by three, eight divided by two, and nine divided by three).
-
-#### Scalar-Scalar
+Aside from concatenation of strings using the operator `+`, the Style language supports standard arithmetic operations on scalars, vectors, and matrices.  For instance, in the case of `scalar` variables we can use the following operators:
 
 - `c + d` - sum of `c` and `d`
 - `c - d` - difference of `c` and `d`
 - `c * d` - multiplies `c` and `d`
 - `c / d` - divides `c` by `d`
 
-#### Scalar-Vector
+See the documentation on [Vectors and Matrices](vectors-matrices.md) for further information about operations on vector and matrix types.
 
-- `c * v` — scales `v` by `c` (from the left)
-- `v * c` — scales `v` by `c` (from the right)
-- `v / c` — divides `v` by `c`
-
-#### Scalar-Matrix
-
-- `c * A` — scales `A` by `c` (from the left)
-- `A * c` — scales `A` by `c` (from the right)
-- `A / c` — divides `A` by `c`
-
-#### Vector-Vector
-
-- `u + v` — sum of `u` and `v`
-- `u - v` — difference of `u` and `v`
-- `u .* v` — elementwise product of `u` and `v`
-- `u ./ v` — elementwise quotient of `u` and `v`
-
-#### Vector-Matrix
-
-- `A*u` — matrix-vector product Au
-- `u*A` — matrix vector product uᵀA
-
-#### Matrix-Matrix
-
-- `A * B` — matrix-matrix product AB
-- `A + B` — sum of `A` and `B`
-- `A - B` — difference of `A` and `B`
-- `A .* B` — elementwise product of `A` and `B`
-- `A ./ B` — elementwise quotient of `A` and `B`
-- `A'` — matrix transpose Aᵀ
