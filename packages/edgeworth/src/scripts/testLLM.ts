@@ -81,8 +81,8 @@ const testPrompts = async (prompts: LLMPromptCollection) => {
     recursive: true,
   });
   for (const key in prompts) {
-    //if (!/^geometry_[0]_1_1/.test(key)) {
-    if (!key.endsWith("_1_1")) {
+    if (!/^[a-z]+_[3-5]_[0]_[0-1]/.test(key)) {
+      //if (!key.endsWith("graph_3_1_1")) {
       continue;
     }
     const result = await generateSubstanceLLM({
@@ -155,10 +155,11 @@ const analyzeJSONs = (enclosingFolder: string) => {
     metadata.push(JSON.parse(data.toString()));
   }
   const errors = metadata.filter((m) => m.penroseError);
-  const yesBNF = errors.filter((m) => !m.prompt.bnf);
-  const noBNF = errors.filter((m) => m.prompt.bnf);
+  const yesBNF = errors.filter((m) => m.prompt.bnf);
+  const noBNF = errors.filter((m) => !m.prompt.bnf);
   const successes = metadata.filter((m) => !m.penroseError && !m.APIError);
   const APIErrors = metadata.filter((m) => m.APIError);
+  console.log("Run", enclosingFolder);
   console.log("API Errors", APIErrors.length);
   console.log("Successes", successes.length);
   console.log("Errors", errors.length);

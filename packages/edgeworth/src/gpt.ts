@@ -1,12 +1,10 @@
 import euclideanStyle from "@penrose/examples/dist/geometry-domain/euclidean.style.js";
 import geometryDomain from "@penrose/examples/dist/geometry-domain/geometry.domain.js";
 import c02p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c02p01.substance.js";
-import simpleDirectedGraphDomain from "@penrose/examples/dist/graph-domain/simple-directed-graph.domain.js";
 import simpleDirectedGraphStyle from "@penrose/examples/dist/graph-domain/simple-directed-graph.style.js";
 import sec5ex21 from "@penrose/examples/dist/graph-domain/textbook/sec5/ex21.substance.js";
 import lewisStyle from "@penrose/examples/dist/molecules/lewis.style.js";
 import methane from "@penrose/examples/dist/molecules/methane.substance.js";
-import moleculesDomain from "@penrose/examples/dist/molecules/molecules.domain.js";
 
 export type LLMPrompt = {
   systemInst: string;
@@ -159,7 +157,7 @@ digit     ::= "0" | "1" | ... | "9"
 };
 
 export const commentedDomains = {
-  molecules: `-- Atoms
+  moleculesDomain: `-- Atoms
 
 type Atom
 
@@ -317,7 +315,7 @@ predicate FourDots(Atom) -- This predicate displays four dots on an atom. Exampl
 -- Bond b1 := MakeDoubleBond(o1, o2)
 -- FourDots(o1)
 -- FourDots(o2)
-predicate SixDots(Atom) -- This predicate displays six dots on an atom. Example usage: ]
+predicate SixDots(Atom) -- This predicate displays six dots on an atom. Example usage:
 -- Fluorine f1, f2
 -- Bond b1 := MakeSingleBond(f1, f2)
 -- SixDots(f1)
@@ -328,7 +326,7 @@ predicate SixDots(Atom) -- This predicate displays six dots on an atom. Example 
 -- predicate VerticalAlign(Atom, Atom)
 -- predicate HorizontalAlign(Atom, Atom)
 `,
-  simpleDirectedGraph: `
+  simpleDirectedGraphDomain: `
 type Vertex -- This type describes a vertex. Example usage: 
 -- Vertex v1, v2, v3
 predicate Arc(Vertex a, Vertex b) -- This predicate creates an arc from one vertex to another. Example usage: 
@@ -338,7 +336,8 @@ predicate Arc(Vertex a, Vertex b) -- This predicate creates an arc from one vert
 -- AutoLabel All
 predicate HighlightVertex(Vertex a) -- This predicate highlights a vertex. Example usage: 
 -- Vertex v1, v2, v3
--- Arc(v1, v2)\n\t\tArc(v2, v3)
+-- Arc(v1, v2)
+-- Arc(v2, v3)
 -- HighlightVertex(v1)
 -- AutoLabel All
 predicate HighlightArc(Vertex a, Vertex b) -- This predicate highlights an arc given the outgoing and incoming vertices of the arc. Example usage: 
@@ -348,7 +347,7 @@ predicate HighlightArc(Vertex a, Vertex b) -- This predicate highlights an arc g
 -- HighlightArc(v1, v2)
 -- AutoLabel All  
 `,
-  geometry: `-- ~~~~~~~~~~~~~~~~ TYPES ~~~~~~~~~~~~~~~~
+  geometryDomain: `-- ~~~~~~~~~~~~~~~~ TYPES ~~~~~~~~~~~~~~~~
 type Shape
 type Point <: Shape -- This type describes a point. Example usage: 
 -- Point A, B, C
@@ -486,7 +485,11 @@ predicate Midpoint(Linelike, Point) -- This predicate makes a point be the midpo
 -- segmentAB := Segment(A, B)
 -- Midpoint(segmentAB, C)
 -- AutoLabel A, B, C
-predicate Collinear(Point, Point, Point) -- This predicate makes three points collinear. Example use: Point A, B, C\n Segment AB, BC\n AB := Segment(A, B)\n BC := Segment(B, C)\n Collinear(A, B, C)
+predicate Collinear(Point, Point, Point) -- This predicate makes three points collinear. Example use: Point A, B, C
+-- Segment AB, BC
+-- AB := Segment(A, B)
+-- BC := Segment(B, C)
+-- Collinear(A, B, C)
 predicate ParallelMarker1(Linelike, Linelike) -- This predicate marks two lines parallel. Only use if Parallel precedes it. Example use: Point A, B, C, D
 -- Line lineAB, lineCD
 -- lineAB := Line(A, B)
@@ -603,30 +606,22 @@ export const sampleSubstances = {
     name: "lewis_1; Methane",
   },
   acetyleneAndSulfuricAcid: {
-    prog: `-- Lewis structure of Acetylene
-Hydrogen h1, h2
-Carbon c1, c2
+    prog: ` -- Lewis structure of nitrogen molecule
+Nitrogen n1, n2
 
-Bond b1 := MakeTripleBond(c1, c2)
-Bond b2 := MakeSingleBond(c1, h1)
-Bond b3 := MakeSingleBond(c1, h2)
-
-ZeroDots(h1)
-ZeroDots(h2)
-ZeroDots(c1)
-ZeroDots(c2)
+Bond b1 := MakeTripleBond(n1, n2)
 
 -- Lewis structure of Sulfuric Acid
 Hydrogen h3, h4
 Sulfur s1
 Oxygen o1, o2, o3, o4
 
-Bond b4 := MakeSingleBond(h3, o1)
-Bond b5 := MakeSingleBond(h4, o2)
-Bond b6 := MakeSingleBond(o1, s1)
-Bond b7 := MakeSingleBond(o2, s1)
-Bond b8 := MakeDoubleBond(o3, s1)
-Bond b9 := MakeDoubleBond(o4, s1)
+Bond b2 := MakeSingleBond(h3, o1)
+Bond b3 := MakeSingleBond(h4, o2)
+Bond b4 := MakeSingleBond(o1, s1)
+Bond b5 := MakeSingleBond(o2, s1)
+Bond b6 := MakeDoubleBond(o3, s1)
+Bond b7 := MakeDoubleBond(o4, s1)
 
 ZeroDots(h3)
 ZeroDots(h4)
@@ -636,7 +631,7 @@ FourDots(o2)
 FourDots(o3)
 FourDots(o4)
 `,
-    name: "Lewis structures of acetylene and sulfuric acid",
+    name: "Lewis structures of nitrogen and sulfuric acid",
   },
   eulerCircuit1: {
     prog: sec5ex21,
@@ -733,9 +728,7 @@ export const generatePrompt = (
 ) => {
   let prompt = "";
   if (sampleSubstance && bnf) {
-    prompt = `${systemInst}${penroseContext}
-
-Here is a BNF grammar that the Substance program you generate should conform to:
+    prompt = `${systemInst}${penroseContext}Here is a BNF grammar that the Substance program you generate should conform to:
 
 \`\`\`
 ${bnf}
@@ -810,12 +803,13 @@ ${finalInst}`;
     };
   }
 };
+/**/
 
 export const llmPrompts: LLMPromptCollection = {
   lewis_0_0_0: generatePrompt(
     systemInsts[0],
     penroseContexts[0],
-    moleculesDomain,
+    commentedDomains.moleculesDomain,
     descriptionPreludes[0],
     `the Lewis structure of water?`,
     finalInsts[0],
@@ -825,7 +819,7 @@ export const llmPrompts: LLMPromptCollection = {
   lewis_0_0_1: generatePrompt(
     systemInsts[0],
     penroseContexts[0],
-    moleculesDomain,
+    commentedDomains.moleculesDomain,
     descriptionPreludes[0],
     `the Lewis structure of H2O, with two hydrogen atoms each single bonded to one oxygen atom and with four dots on the oxygen atom?`,
     finalInsts[0],
@@ -835,7 +829,7 @@ export const llmPrompts: LLMPromptCollection = {
   lewis_0_1_0: generatePrompt(
     systemInsts[1],
     penroseContexts[0],
-    moleculesDomain,
+    commentedDomains.moleculesDomain,
     descriptionPreludes[0],
     `the Lewis structure of water?`,
     finalInsts[0],
@@ -846,7 +840,7 @@ export const llmPrompts: LLMPromptCollection = {
   lewis_0_1_1: generatePrompt(
     systemInsts[1],
     penroseContexts[0],
-    moleculesDomain,
+    commentedDomains.moleculesDomain,
     descriptionPreludes[0],
     `the Lewis structure of H2O, with two hydrogen atoms each single bonded to one oxygen atom and with four dots on the oxygen atom?`,
     finalInsts[0],
@@ -857,7 +851,7 @@ export const llmPrompts: LLMPromptCollection = {
   lewis_1_0_0: generatePrompt(
     systemInsts[0],
     penroseContexts[0],
-    moleculesDomain,
+    commentedDomains.moleculesDomain,
     descriptionPreludes[0],
     `the Lewis structure of nitric acid?`,
     finalInsts[0],
@@ -867,7 +861,7 @@ export const llmPrompts: LLMPromptCollection = {
   lewis_1_0_1: generatePrompt(
     systemInsts[0],
     penroseContexts[0],
-    moleculesDomain,
+    commentedDomains.moleculesDomain,
     descriptionPreludes[0],
     `the Lewis structure of nitric acid? Draw 3 oxygen atoms, 1 nitrogen, and 1 hydrogen; draw a single bond from one of the oxygen atoms to the nitrogen and the hydrogen and draw 4 dots on it. Draw 6 dots on another oxygen atom and a single bond from it to the nitrogen. Draw 4 dots on the last oxygen and a double bond to the nitrogen.`,
     finalInsts[0],
@@ -877,7 +871,7 @@ export const llmPrompts: LLMPromptCollection = {
   lewis_1_1_0: generatePrompt(
     systemInsts[1],
     penroseContexts[0],
-    moleculesDomain,
+    commentedDomains.moleculesDomain,
     descriptionPreludes[0],
     `the Lewis structure of nitric acid?
       
@@ -890,7 +884,7 @@ export const llmPrompts: LLMPromptCollection = {
   lewis_1_1_1: generatePrompt(
     systemInsts[1],
     penroseContexts[0],
-    moleculesDomain,
+    commentedDomains.moleculesDomain,
     descriptionPreludes[0],
     `the Lewis structure of nitric acid? Draw 3 oxygen atoms, 1 nitrogen, and 1 hydrogen; draw a single bond from one of the oxygen atoms to the nitrogen and the hydrogen and draw 4 dots on it. Draw 6 dots on another oxygen atom and a single bond from it to the nitrogen. Draw 4 dots on the last oxygen and a double bond to the nitrogen.`,
     finalInsts[0],
@@ -901,7 +895,7 @@ export const llmPrompts: LLMPromptCollection = {
   lewis_2_0_0: generatePrompt(
     systemInsts[0],
     penroseContexts[0],
-    moleculesDomain,
+    commentedDomains.moleculesDomain,
     descriptionPreludes[0],
     `the Lewis structure of salt?`,
     finalInsts[0],
@@ -911,7 +905,7 @@ export const llmPrompts: LLMPromptCollection = {
   lewis_2_0_1: generatePrompt(
     systemInsts[0],
     penroseContexts[0],
-    moleculesDomain,
+    commentedDomains.moleculesDomain,
     descriptionPreludes[0],
     `the Lewis structure of salt? Draw 1 sodium and 1 chlorine atom with a single bond between them and 6 dots on the chlorine.`,
     finalInsts[0],
@@ -921,7 +915,7 @@ export const llmPrompts: LLMPromptCollection = {
   lewis_2_1_0: generatePrompt(
     systemInsts[1],
     penroseContexts[0],
-    moleculesDomain,
+    commentedDomains.moleculesDomain,
     descriptionPreludes[0],
     `the Lewis structure of salt?`,
     finalInsts[0],
@@ -932,9 +926,40 @@ export const llmPrompts: LLMPromptCollection = {
   lewis_2_1_1: generatePrompt(
     systemInsts[1],
     penroseContexts[0],
-    moleculesDomain,
+    commentedDomains.moleculesDomain,
     descriptionPreludes[0],
     `the Lewis structure of salt? Draw 1 sodium and 1 chlorine atom with a single bond between them and 6 dots on the chlorine.`,
+    finalInsts[0],
+    lewisStyle,
+    sampleSubstances.acetyleneAndSulfuricAcid,
+    grammars.moleculesGrammar,
+  ),
+  lewis_3_0_0: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    commentedDomains.moleculesDomain,
+    descriptionPreludes[0],
+    `the Lewis structure of acetylene?`,
+    finalInsts[0],
+    lewisStyle,
+    sampleSubstances.acetyleneAndSulfuricAcid,
+  ),
+  lewis_3_0_1: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    commentedDomains.moleculesDomain,
+    descriptionPreludes[0],
+    `the Lewis structure of acetylene? Draw 2 carbon atoms with a triple bond between them. Draw 2 hydrogen atoms, each single bonded to one of the carbon atoms.`,
+    finalInsts[0],
+    lewisStyle,
+    sampleSubstances.acetyleneAndSulfuricAcid,
+  ),
+  lewis_3_1_0: generatePrompt(
+    systemInsts[1],
+    penroseContexts[0],
+    commentedDomains.moleculesDomain,
+    descriptionPreludes[0],
+    `the Lewis structure of acetylene?`,
     finalInsts[0],
     lewisStyle,
     sampleSubstances.acetyleneAndSulfuricAcid,
@@ -943,9 +968,40 @@ export const llmPrompts: LLMPromptCollection = {
   lewis_3_1_1: generatePrompt(
     systemInsts[1],
     penroseContexts[0],
-    moleculesDomain,
+    commentedDomains.moleculesDomain,
     descriptionPreludes[0],
     `the Lewis structure of acetylene? Draw 2 carbon atoms with a triple bond between them. Draw 2 hydrogen atoms, each single bonded to one of the carbon atoms.`,
+    finalInsts[0],
+    lewisStyle,
+    sampleSubstances.acetyleneAndSulfuricAcid,
+    grammars.moleculesGrammar,
+  ),
+  lewis_4_0_0: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    commentedDomains.moleculesDomain,
+    descriptionPreludes[0],
+    `the Lewis structure of carbon tetrachloride?`,
+    finalInsts[0],
+    lewisStyle,
+    sampleSubstances.acetyleneAndSulfuricAcid,
+  ),
+  lewis_4_0_1: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    commentedDomains.moleculesDomain,
+    descriptionPreludes[0],
+    `the Lewis structure of carbon tetrachloride? Draw 1 carbon atom. Draw 4 chlorine atoms, each single bonded to the carbon atom. Draw six dots on each chlorine atom.`,
+    finalInsts[0],
+    lewisStyle,
+    sampleSubstances.acetyleneAndSulfuricAcid,
+  ),
+  lewis_4_1_0: generatePrompt(
+    systemInsts[1],
+    penroseContexts[0],
+    commentedDomains.moleculesDomain,
+    descriptionPreludes[0],
+    `the Lewis structure of carbon tetrachloride?`,
     finalInsts[0],
     lewisStyle,
     sampleSubstances.acetyleneAndSulfuricAcid,
@@ -954,9 +1010,40 @@ export const llmPrompts: LLMPromptCollection = {
   lewis_4_1_1: generatePrompt(
     systemInsts[1],
     penroseContexts[0],
-    moleculesDomain,
+    commentedDomains.moleculesDomain,
     descriptionPreludes[0],
     `the Lewis structure of carbon tetrachloride? Draw 1 carbon atom. Draw 4 chlorine atoms, each single bonded to the carbon atom. Draw six dots on each chlorine atom.`,
+    finalInsts[0],
+    lewisStyle,
+    sampleSubstances.acetyleneAndSulfuricAcid,
+    grammars.moleculesGrammar,
+  ),
+  lewis_5_0_0: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    commentedDomains.moleculesDomain,
+    descriptionPreludes[0],
+    `the Lewis structure of formaldehyde?`,
+    finalInsts[0],
+    lewisStyle,
+    sampleSubstances.acetyleneAndSulfuricAcid,
+  ),
+  lewis_5_0_1: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    commentedDomains.moleculesDomain,
+    descriptionPreludes[0],
+    `the Lewis structure of formaldehyde? Draw 1 carbon, 1 oxygen, and 2 hydrogen atoms. Draw a single bond from each hydrogen atom to the carbon atom. Draw a double bond from the oxygen atom to the carbon atom. Draw 4 dots on the oxygen atom.`,
+    finalInsts[0],
+    lewisStyle,
+    sampleSubstances.acetyleneAndSulfuricAcid,
+  ),
+  lewis_5_1_0: generatePrompt(
+    systemInsts[1],
+    penroseContexts[0],
+    commentedDomains.moleculesDomain,
+    descriptionPreludes[0],
+    `the Lewis structure of formaldehyde?`,
     finalInsts[0],
     lewisStyle,
     sampleSubstances.acetyleneAndSulfuricAcid,
@@ -965,7 +1052,7 @@ export const llmPrompts: LLMPromptCollection = {
   lewis_5_1_1: generatePrompt(
     systemInsts[1],
     penroseContexts[0],
-    moleculesDomain,
+    commentedDomains.moleculesDomain,
     descriptionPreludes[0],
     `the Lewis structure of formaldehyde? Draw 1 carbon, 1 oxygen, and 2 hydrogen atoms. Draw a single bond from each hydrogen atom to the carbon atom. Draw a double bond from the oxygen atom to the carbon atom. Draw 4 dots on the oxygen atom.`,
     finalInsts[0],
@@ -976,7 +1063,7 @@ export const llmPrompts: LLMPromptCollection = {
   graph_0_0_0: generatePrompt(
     systemInsts[0],
     penroseContexts[0],
-    simpleDirectedGraphDomain,
+    commentedDomains.simpleDirectedGraphDomain,
     descriptionPreludes[0],
     `a Hamiltonian graph?`,
     finalInsts[0],
@@ -986,7 +1073,7 @@ export const llmPrompts: LLMPromptCollection = {
   graph_0_0_1: generatePrompt(
     systemInsts[0],
     penroseContexts[0],
-    simpleDirectedGraphDomain,
+    commentedDomains.simpleDirectedGraphDomain,
     descriptionPreludes[0],
     `a Hamiltonian graph with 5 nodes and 8 edges with a cycle that visits each node exactly once?`,
     finalInsts[0],
@@ -996,7 +1083,7 @@ export const llmPrompts: LLMPromptCollection = {
   graph_0_1_0: generatePrompt(
     systemInsts[1],
     penroseContexts[0],
-    simpleDirectedGraphDomain,
+    commentedDomains.simpleDirectedGraphDomain,
     descriptionPreludes[0],
     `a Hamiltonian graph?`,
     finalInsts[0],
@@ -1007,7 +1094,7 @@ export const llmPrompts: LLMPromptCollection = {
   graph_0_1_1: generatePrompt(
     systemInsts[1],
     penroseContexts[0],
-    simpleDirectedGraphDomain,
+    commentedDomains.simpleDirectedGraphDomain,
     descriptionPreludes[0],
     `a Hamiltonian graph with 5 nodes and 8 edges with a cycle that visits each node exactly once?`,
     finalInsts[0],
@@ -1018,7 +1105,7 @@ export const llmPrompts: LLMPromptCollection = {
   graph_1_0_0: generatePrompt(
     systemInsts[0],
     penroseContexts[0],
-    simpleDirectedGraphDomain,
+    commentedDomains.simpleDirectedGraphDomain,
     descriptionPreludes[0],
     `a bipartite graph?`,
     finalInsts[0],
@@ -1028,7 +1115,7 @@ export const llmPrompts: LLMPromptCollection = {
   graph_1_0_1: generatePrompt(
     systemInsts[0],
     penroseContexts[0],
-    simpleDirectedGraphDomain,
+    commentedDomains.simpleDirectedGraphDomain,
     descriptionPreludes[0],
     `a bipartite graph with 3 nodes in one set and 3 nodes in the other, where nodes are only connected to nodes in the other set?`,
     finalInsts[0],
@@ -1038,7 +1125,7 @@ export const llmPrompts: LLMPromptCollection = {
   graph_1_1_0: generatePrompt(
     systemInsts[1],
     penroseContexts[0],
-    simpleDirectedGraphDomain,
+    commentedDomains.simpleDirectedGraphDomain,
     descriptionPreludes[0],
     `a bipartite graph?`,
     finalInsts[0],
@@ -1049,7 +1136,7 @@ export const llmPrompts: LLMPromptCollection = {
   graph_1_1_1: generatePrompt(
     systemInsts[1],
     penroseContexts[0],
-    simpleDirectedGraphDomain,
+    commentedDomains.simpleDirectedGraphDomain,
     descriptionPreludes[0],
     `a bipartite graph with 3 nodes in one set and 3 nodes in the other, where nodes are only connected to nodes in the other set?`,
     finalInsts[0],
@@ -1060,7 +1147,7 @@ export const llmPrompts: LLMPromptCollection = {
   graph_2_0_0: generatePrompt(
     systemInsts[0],
     penroseContexts[0],
-    simpleDirectedGraphDomain,
+    commentedDomains.simpleDirectedGraphDomain,
     descriptionPreludes[0],
     `a strongly connected graph?`,
     finalInsts[0],
@@ -1070,7 +1157,7 @@ export const llmPrompts: LLMPromptCollection = {
   graph_2_0_1: generatePrompt(
     systemInsts[0],
     penroseContexts[0],
-    simpleDirectedGraphDomain,
+    commentedDomains.simpleDirectedGraphDomain,
     descriptionPreludes[0],
     `a strongly connected graph with 5 nodes where each node is connected to every other node by an edge?`,
     finalInsts[0],
@@ -1080,7 +1167,7 @@ export const llmPrompts: LLMPromptCollection = {
   graph_2_1_0: generatePrompt(
     systemInsts[1],
     penroseContexts[0],
-    simpleDirectedGraphDomain,
+    commentedDomains.simpleDirectedGraphDomain,
     descriptionPreludes[0],
     `a strongly connected graph?`,
     finalInsts[0],
@@ -1091,9 +1178,40 @@ export const llmPrompts: LLMPromptCollection = {
   graph_2_1_1: generatePrompt(
     systemInsts[1],
     penroseContexts[0],
-    simpleDirectedGraphDomain,
+    commentedDomains.simpleDirectedGraphDomain,
     descriptionPreludes[0],
     `a strongly connected graph with 5 nodes where each node is connected to every other node by an edge?`,
+    finalInsts[0],
+    simpleDirectedGraphStyle,
+    sampleSubstances.eulerCircuit1,
+    grammars.simpleDirectedGraphGrammar,
+  ),
+  graph_3_0_0: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    commentedDomains.simpleDirectedGraphDomain,
+    descriptionPreludes[0],
+    `a graph with 7 nodes which is an arborescence?`,
+    finalInsts[0],
+    simpleDirectedGraphStyle,
+    sampleSubstances.eulerCircuit1,
+  ),
+  graph_3_0_1: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    commentedDomains.simpleDirectedGraphDomain,
+    descriptionPreludes[0],
+    `a graph with 7 nodes which is an arborescence, meaning it is connected and acyclic, with all arcs pointing outward from the root?`,
+    finalInsts[0],
+    simpleDirectedGraphStyle,
+    sampleSubstances.eulerCircuit1,
+  ),
+  graph_3_1_0: generatePrompt(
+    systemInsts[1],
+    penroseContexts[0],
+    commentedDomains.simpleDirectedGraphDomain,
+    descriptionPreludes[0],
+    `a graph with 7 nodes which is an arborescence?`,
     finalInsts[0],
     simpleDirectedGraphStyle,
     sampleSubstances.eulerCircuit1,
@@ -1102,9 +1220,40 @@ export const llmPrompts: LLMPromptCollection = {
   graph_3_1_1: generatePrompt(
     systemInsts[1],
     penroseContexts[0],
-    simpleDirectedGraphDomain,
+    commentedDomains.simpleDirectedGraphDomain,
     descriptionPreludes[0],
     `a graph with 7 nodes which is an arborescence, meaning it is connected and acyclic, with all arcs pointing outward from the root?`,
+    finalInsts[0],
+    simpleDirectedGraphStyle,
+    sampleSubstances.eulerCircuit1,
+    grammars.simpleDirectedGraphGrammar,
+  ),
+  graph_4_0_0: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    commentedDomains.simpleDirectedGraphDomain,
+    descriptionPreludes[0],
+    `a graph with one strong and one weak component?`,
+    finalInsts[0],
+    simpleDirectedGraphStyle,
+    sampleSubstances.eulerCircuit1,
+  ),
+  graph_4_0_1: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    commentedDomains.simpleDirectedGraphDomain,
+    descriptionPreludes[0],
+    `a graph with 9 nodes which has one strong component, where all nodes are reachable from all other nodes, and one weak component?`,
+    finalInsts[0],
+    simpleDirectedGraphStyle,
+    sampleSubstances.eulerCircuit1,
+  ),
+  graph_4_1_0: generatePrompt(
+    systemInsts[1],
+    penroseContexts[0],
+    commentedDomains.simpleDirectedGraphDomain,
+    descriptionPreludes[0],
+    `a graph with one strong and one weak component?`,
     finalInsts[0],
     simpleDirectedGraphStyle,
     sampleSubstances.eulerCircuit1,
@@ -1113,9 +1262,40 @@ export const llmPrompts: LLMPromptCollection = {
   graph_4_1_1: generatePrompt(
     systemInsts[1],
     penroseContexts[0],
-    simpleDirectedGraphDomain,
+    commentedDomains.simpleDirectedGraphDomain,
     descriptionPreludes[0],
     `a graph with 9 nodes which has one strong component, where all nodes are reachable from all other nodes, and one weak component?`,
+    finalInsts[0],
+    simpleDirectedGraphStyle,
+    sampleSubstances.eulerCircuit1,
+    grammars.simpleDirectedGraphGrammar,
+  ),
+  graph_5_0_0: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    commentedDomains.simpleDirectedGraphDomain,
+    descriptionPreludes[0],
+    `a graph with three different connected components?`,
+    finalInsts[0],
+    simpleDirectedGraphStyle,
+    sampleSubstances.eulerCircuit1,
+  ),
+  graph_5_0_1: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    commentedDomains.simpleDirectedGraphDomain,
+    descriptionPreludes[0],
+    `a graph with three different connected components, which are components in which all the nodes are always reachable from each other?`,
+    finalInsts[0],
+    simpleDirectedGraphStyle,
+    sampleSubstances.eulerCircuit1,
+  ),
+  graph_5_1_0: generatePrompt(
+    systemInsts[1],
+    penroseContexts[0],
+    commentedDomains.simpleDirectedGraphDomain,
+    descriptionPreludes[0],
+    `a graph with three different connected components?`,
     finalInsts[0],
     simpleDirectedGraphStyle,
     sampleSubstances.eulerCircuit1,
@@ -1124,9 +1304,9 @@ export const llmPrompts: LLMPromptCollection = {
   graph_5_1_1: generatePrompt(
     systemInsts[1],
     penroseContexts[0],
-    simpleDirectedGraphDomain,
+    commentedDomains.simpleDirectedGraphDomain,
     descriptionPreludes[0],
-    `a graph with 8 nodes which displays a topological ordering of the nodes, meaning that for every arc from node A to node B, A comes before B in the ordering?`,
+    `a graph with three different connected components, which are components in which all the nodes are always reachable from each other?`,
     finalInsts[0],
     simpleDirectedGraphStyle,
     sampleSubstances.eulerCircuit1,
@@ -1258,12 +1438,74 @@ export const llmPrompts: LLMPromptCollection = {
     sampleSubstances.geometry,
     grammars.geometryGrammar,
   ),
+  geometry_3_0_0: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    geometryDomain,
+    descriptionPreludes[0],
+    `a line segment which has a line segment at its midpoint forming an acute and an obtuse angle?`,
+    finalInsts[1],
+    euclideanStyle,
+    sampleSubstances.geometry,
+  ),
+  geometry_3_0_1: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    geometryDomain,
+    descriptionPreludes[0],
+    `Draw three points A, B, C, and D. Draw segments AB and CD. Make C the midpoint of AB. Draw an acute angle ACD and an obtuse angle DCB.`,
+    finalInsts[1],
+    euclideanStyle,
+    sampleSubstances.geometry,
+  ),
+  geometry_3_1_0: generatePrompt(
+    systemInsts[1],
+    penroseContexts[0],
+    geometryDomain,
+    descriptionPreludes[0],
+    `a line segment which has a line segment at its midpoint forming an acute and an obtuse angle?`,
+    finalInsts[1],
+    euclideanStyle,
+    sampleSubstances.geometry,
+    grammars.geometryGrammar,
+  ),
   geometry_3_1_1: generatePrompt(
     systemInsts[1],
     penroseContexts[0],
     geometryDomain,
     descriptionPreludes[0],
-    `Draw three points A, B, C, and D. Draw segments AB and CD. Make C the midpoint of AB. Draw an acute angle ACD and an obtuse angle DCB`,
+    `Draw three points A, B, C, and D. Draw segments AB and CD. Make C the midpoint of AB. Draw an acute angle ACD and an obtuse angle DCB.`,
+    finalInsts[1],
+    euclideanStyle,
+    sampleSubstances.geometry,
+    grammars.geometryGrammar,
+  ),
+  geometry_4_0_0: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    geometryDomain,
+    descriptionPreludes[0],
+    `a parallelogram with opposite sides and angles marked equal?`,
+    finalInsts[1],
+    euclideanStyle,
+    sampleSubstances.geometry,
+  ),
+  geometry_4_0_1: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    geometryDomain,
+    descriptionPreludes[0],
+    `Draw a parallelogram ABCD. Draw the segments AB, BC, CD, and DA. Draw all four angles ABC, BCD, CDA, and DAB. Mark the opposite angles (ABC & CDA; BCD & DAB) equal. Mark the opposite sides (AB & CD; BC & DA) equal.`,
+    finalInsts[1],
+    euclideanStyle,
+    sampleSubstances.geometry,
+  ),
+  geometry_4_1_0: generatePrompt(
+    systemInsts[1],
+    penroseContexts[0],
+    geometryDomain,
+    descriptionPreludes[0],
+    `a parallelogram with opposite sides and angles marked equal?`,
     finalInsts[1],
     euclideanStyle,
     sampleSubstances.geometry,
@@ -1275,6 +1517,37 @@ export const llmPrompts: LLMPromptCollection = {
     geometryDomain,
     descriptionPreludes[0],
     `Draw a parallelogram ABCD. Draw the segments AB, BC, CD, and DA. Draw all four angles ABC, BCD, CDA, and DAB. Mark the opposite angles (ABC & CDA; BCD & DAB) equal. Mark the opposite sides (AB & CD; BC & DA) equal.`,
+    finalInsts[1],
+    euclideanStyle,
+    sampleSubstances.geometry,
+    grammars.geometryGrammar,
+  ),
+  geometry_5_0_0: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    geometryDomain,
+    descriptionPreludes[0],
+    `a scalene triangle?`,
+    finalInsts[1],
+    euclideanStyle,
+    sampleSubstances.geometry,
+  ),
+  geometry_5_0_1: generatePrompt(
+    systemInsts[0],
+    penroseContexts[0],
+    geometryDomain,
+    descriptionPreludes[0],
+    `Draw a scalene triangle ABC. Draw the segments AB, BC, and CA. Draw all three angles ABC, BCA, and CAB. Make the angles ABC and BCA acute. Make the angle CAB obtuse.`,
+    finalInsts[1],
+    euclideanStyle,
+    sampleSubstances.geometry,
+  ),
+  geometry_5_1_0: generatePrompt(
+    systemInsts[1],
+    penroseContexts[0],
+    geometryDomain,
+    descriptionPreludes[0],
+    `a scalene triangle?`,
     finalInsts[1],
     euclideanStyle,
     sampleSubstances.geometry,
