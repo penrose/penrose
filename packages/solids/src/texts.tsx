@@ -16,7 +16,7 @@ import { JSX } from "solid-js/jsx-runtime";
 export default async function Text(
   rng: seedrandom.prng,
   canvas: [number, number],
-  names: string[]
+  names: string[],
 ): Promise<JSX.Element> {
   const [w, h] = canvas;
   const n = names.length;
@@ -41,7 +41,7 @@ export default async function Text(
       rect: textBBox(
         measureText(name, `font: 1.2em "Fira Sans", sans-serif;`),
         x,
-        y
+        y,
       ),
     };
   });
@@ -55,7 +55,7 @@ export default async function Text(
             x.val,
             y.val,
           ]),
-          10
+          10,
         ),
       ];
     }),

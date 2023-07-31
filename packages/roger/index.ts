@@ -6,14 +6,9 @@ import { hideBin } from "yargs/helpers";
 
 import {
   PenroseState,
-  ShapeType,
   compile,
-  makeCanvas,
   optimize,
-  sampleShape,
-  shapeTypes,
   showError,
-  simpleContext,
   toSVG,
 } from "@penrose/core";
 import chalk from "chalk";
@@ -53,7 +48,7 @@ const render = async (
     domainName: string;
     id: string;
   },
-  excludeWarnings: string[]
+  excludeWarnings: string[],
 ): Promise<{
   diagram: string;
   metadata: InstanceData;
@@ -87,7 +82,7 @@ const render = async (
     optimizedState = optimizedOutput.value;
   } else {
     throw new Error(
-      `Optimization failed:\n${showError(optimizedOutput.error)}`
+      `Optimization failed:\n${showError(optimizedOutput.error)}`,
     );
   }
   const convergeEnd = process.hrtime(convergeStart);
@@ -118,7 +113,7 @@ const render = async (
   };
 
   return {
-    diagram: prettier.format(canvas, { parser: "html" }),
+    diagram: await prettier.format(canvas, { parser: "html" }),
     state: optimizedState,
     metadata,
   };
@@ -130,8 +125,8 @@ const resolvePath = (prefix: string, stylePaths: string[]) => {
   if (new Set(stylePrefixes).size > 1) {
     console.warn(
       chalk.yellow(
-        "Warning: the styles in this trio are not co-located. The first style will be used for image resolution."
-      )
+        "Warning: the styles in this trio are not co-located. The first style will be used for image resolution.",
+      ),
     );
   }
   const stylePrefix = stylePrefixes[0];
@@ -157,7 +152,7 @@ const resolvePath = (prefix: string, stylePaths: string[]) => {
 const readTrio = (sub: string, sty: string[], dsl: string, prefix: string) => {
   // Fetch Substance, Style, and Domain files
   const [substance, domain] = [sub, dsl].map((arg) =>
-    fs.readFileSync(join(prefix, arg), "utf8")
+    fs.readFileSync(join(prefix, arg), "utf8"),
   );
   const styles = sty.map((arg) => fs.readFileSync(join(prefix, arg), "utf8"));
   return {
@@ -165,53 +160,6 @@ const readTrio = (sub: string, sty: string[], dsl: string, prefix: string) => {
     style: styles.join("\n"),
     domain,
   };
-};
-
-/**
- * Retrieves defintions for all shapes and writes their properties to a JSON
- * file.  If a filename is not provided, the result is written to stdout.
- *
- * @param outFile The output file (optional)
- */
-const getShapeDefs = (outFile?: string): void => {
-  const outShapes = {}; // List of shapes with properties
-  const size = 19; // greater than 3*6; see randFloat usage in Samplers.ts
-
-  // Loop over the shapes
-  for (const shapeName of shapeTypes) {
-    const shapeSample1 = sampleShape(
-      shapeName as ShapeType,
-      simpleContext("ShapeProps sample 1"),
-      makeCanvas(size, size)
-    );
-    const shapeSample2 = sampleShape(
-      shapeName as ShapeType,
-      simpleContext("ShapeProps sample 2"),
-      makeCanvas(size, size)
-    );
-    const outThisShapeDef = { sampled: {}, defaulted: {} };
-    outShapes[shapeName] = outThisShapeDef;
-
-    // Loop over the properties
-    for (const propName in shapeSample1) {
-      const sample1Str = JSON.stringify(shapeSample1[propName].contents);
-      const sample2Str = JSON.stringify(shapeSample2[propName].contents);
-
-      if (sample1Str === sample2Str) {
-        outThisShapeDef.defaulted[propName] = shapeSample1[propName];
-      } else {
-        outThisShapeDef.sampled[propName] = shapeSample1[propName];
-      }
-    }
-  }
-
-  // Write the shape definition output
-  if (outFile === undefined) {
-    console.log(JSON.stringify(outShapes, null, 2));
-  } else {
-    fs.writeFileSync(outFile, JSON.stringify(outShapes, null, 2));
-    console.log(chalk.green(`Wrote shape definitions to: ${outFile}`));
-  }
 };
 
 const orderTrio = (unordered: string[]): string[] => {
@@ -232,7 +180,7 @@ const orderTrio = (unordered: string[]): string[] => {
     }
     if (type in ordered) {
       console.error(
-        `Duplicate ${type} files: ${ordered[type]} and ${filename}`
+        `Duplicate ${type} files: ${ordered[type]} and ${filename}`,
       );
       process.exit(1);
     }
@@ -293,7 +241,7 @@ yargs(hideBin(process.argv))
         prefix = join(trioPath, "..");
         // read trio from a JSON file
         const paths: Trio = JSON.parse(
-          fs.readFileSync(resolve(trioPath), "utf8")
+          fs.readFileSync(resolve(trioPath), "utf8"),
         );
         dom = paths.domain;
         sub = paths.substance;
@@ -326,12 +274,12 @@ yargs(hideBin(process.argv))
           domainName: dom,
           id: options.trio.join(", "),
         },
-        excludeWarnings
+        excludeWarnings,
       );
       if (options.out) {
         fs.writeFileSync(options.out, diagram);
         console.log(
-          chalk.green(`The diagram has been saved as ${resolve(options.out)}`)
+          chalk.green(`The diagram has been saved as ${resolve(options.out)}`),
         );
       } else {
         console.log(diagram);
@@ -340,7 +288,7 @@ yargs(hideBin(process.argv))
           console.warn(chalk.yellow("Warning in diagram: " + warnStr));
         }
       }
-    }
+    },
   )
   .command(
     "trios [trios..]",
@@ -371,7 +319,7 @@ yargs(hideBin(process.argv))
         const trioName = basename(trioPath, ".trio.json");
         // read trio from a JSON file
         const paths: Trio = JSON.parse(
-          fs.readFileSync(resolve(trioPath), "utf8")
+          fs.readFileSync(resolve(trioPath), "utf8"),
         );
         const dom = paths.domain;
         const sub = paths.substance;
@@ -394,7 +342,7 @@ yargs(hideBin(process.argv))
             domainName: dom,
             id: trioName,
           },
-          excludeWarnings
+          excludeWarnings,
         );
         // create out folder if it doesn't exist
         if (!fs.existsSync(options.out)) fs.mkdirSync(options.out);
@@ -402,7 +350,7 @@ yargs(hideBin(process.argv))
         const outputPath = join(options.out, `${trioName}.svg`);
         fs.writeFileSync(outputPath, diagram);
         console.log(
-          chalk.green(`The diagram has been saved as ${resolve(outputPath)}`)
+          chalk.green(`The diagram has been saved as ${resolve(outputPath)}`),
         );
         // TODO: print warning here
         for (const warning of state.warnings) {
@@ -410,7 +358,7 @@ yargs(hideBin(process.argv))
           console.warn(chalk.yellow("Warning in diagram: " + warnStr));
         }
       }
-    }
+    },
   )
   .command(
     "watch",
@@ -421,18 +369,7 @@ yargs(hideBin(process.argv))
         default: 9160,
         alias: "p",
       }),
-    (options) => watch(+options.port)
-  )
-  .command(
-    "shapedefs",
-    "Generate a JSON file that contains all shape definitions in the Penrose system.",
-    (yargs) =>
-      yargs.option("out", {
-        alias: "o",
-        desc: "Output JSON file.",
-        type: "string",
-      }),
-    (options) => getShapeDefs(options.out)
+    (options) => watch(+options.port),
   )
 
   .demandCommand()

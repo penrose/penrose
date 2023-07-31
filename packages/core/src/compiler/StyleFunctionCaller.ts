@@ -27,7 +27,7 @@ export const callCompFunc = (
   func: CompFunc,
   range: SourceRange,
   context: Context,
-  args: ArgValWithSourceLoc<ad.Num>[]
+  args: ArgValWithSourceLoc<ad.Num>[],
 ): Result<MayWarn<Value<ad.Num>>, StyleError> => {
   const checkedArgs = checkArgs(func, range, args);
   if (checkedArgs.isErr()) return err(checkedArgs.error);
@@ -56,7 +56,7 @@ export const callCompFunc = (
 export const callObjConstrFunc = (
   func: ObjFunc | ConstrFunc,
   range: SourceRange,
-  args: ArgValWithSourceLoc<ad.Num>[]
+  args: ArgValWithSourceLoc<ad.Num>[],
 ): Result<MayWarn<ad.Num>, StyleError> => {
   const checkedArgs = checkArgs(func, range, args);
   if (checkedArgs.isErr()) return err(checkedArgs.error);
@@ -85,7 +85,7 @@ export const callObjConstrFunc = (
 export const checkArgs = (
   func: ObjFunc | ConstrFunc | CompFunc,
   range: SourceRange,
-  args: ArgValWithSourceLoc<ad.Num>[]
+  args: ArgValWithSourceLoc<ad.Num>[],
 ): Result<(Shape<ad.Num> | Value<ad.Num>["contents"])[], StyleError> => {
   if (args.length > func.params.length) {
     return err(tooManyArgumentsError(func, range, args.length));
@@ -105,7 +105,7 @@ export const checkArg = (
   funcName: string,
   location: SourceRange,
   funcArg: FuncParam,
-  arg: ArgValWithSourceLoc<ad.Num> | undefined
+  arg: ArgValWithSourceLoc<ad.Num> | undefined,
 ): Result<Shape<ad.Num> | Value<ad.Num>["contents"], StyleError> => {
   // If the argument is not provided
   if (!arg) {

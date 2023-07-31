@@ -67,6 +67,8 @@ import {
   Color,
   ColorV,
   FloatV,
+  LListV,
+  ListV,
   MatrixV,
   PathDataV,
   PtListV,
@@ -105,18 +107,24 @@ import {
   vectorV,
 } from "../utils/Util.js";
 import {
+  binormalVectors,
   centerOfMass,
+  curvatures,
   elasticEnergy,
+  evoluteCurve,
   inflectionEnergy,
   isoperimetricRatio,
   lengthK,
   maxCurvature,
+  normalVectors,
+  offsetCurve,
   pElasticEnergy,
   perimeter,
   signedArea,
+  tangentVectors,
   totalCurvature,
   turningNumber,
-} from "./CurveConstraints.js";
+} from "./Curves.js";
 import {
   bboxFromShape,
   bboxPts,
@@ -169,7 +177,7 @@ export const compDict = {
       start: [ad.Num, ad.Num],
       end: [ad.Num, ad.Num],
       curveHeight: ad.Num,
-      padding: ad.Num
+      padding: ad.Num,
     ): MayWarn<PathDataV<ad.Num>> => {
       // Two vectors for moving from `start` to the control point: `unit` is the direction of vector [start, end] (along the line passing through both labels) and `normalVec` is perpendicular to `unit` through the `rot90` operation.
       const unit: ad.Num[] = ops.vnormalize(ops.vsub(start, end));
@@ -179,7 +187,7 @@ export const compDict = {
       const controlPt: ad.Num[] = ops.vmove(
         ops.vmove(end, halfLen, unit),
         curveHeight,
-        normalVec
+        normalVec,
       );
       const curveEnd: ad.Num[] = ops.vmove(end, padding, unit);
       // Both the start and end points of the curve should be padded by some distance such that they don't overlap with the texts
@@ -188,7 +196,7 @@ export const compDict = {
         path
           .moveTo(toPt(ops.vmove(start, padding, ops.vneg(unit))))
           .quadraticCurveTo(toPt(controlPt), toPt(curveEnd))
-          .getPath()
+          .getPath(),
       );
     },
     returns: pathCmdT(),
@@ -212,7 +220,7 @@ export const compDict = {
     body: (
       _context: Context,
       xs: ad.Num[],
-      i: number
+      i: number,
     ): MayWarn<FloatV<ad.Num>> => {
       const res = xs[i];
       return noWarn({
@@ -241,7 +249,7 @@ export const compDict = {
       r: ad.Num,
       g: ad.Num,
       b: ad.Num,
-      a: ad.Num
+      a: ad.Num,
     ): MayWarn<ColorV<ad.Num>> => {
       return noWarn({
         tag: "ColorV",
@@ -265,7 +273,7 @@ export const compDict = {
       _context: Context,
       color1: Color<ad.Num>,
       color2: Color<ad.Num>,
-      level: ad.Num
+      level: ad.Num,
     ): MayWarn<ColorV<ad.Num>> => {
       const half = div(level, 2);
       const even = eq(half, trunc(half)); // autodiff doesn't have a mod operator
@@ -307,7 +315,7 @@ export const compDict = {
       h: ad.Num,
       s: ad.Num,
       v: ad.Num,
-      a: ad.Num
+      a: ad.Num,
     ): MayWarn<ColorV<ad.Num>> => {
       return noWarn({
         tag: "ColorV",
@@ -336,6 +344,30 @@ export const compDict = {
       });
     },
     returns: valueT("Color"),
+  },
+
+  oneBasedElement: {
+    name: "oneBasedElement",
+    description: "Index a point list using 1-based indexing.",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "list of points",
+      },
+      { name: "i", type: posIntT(), description: "1-based index" },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      i: number,
+    ): MayWarn<VectorV<ad.Num>> => {
+      return noWarn({
+        tag: "VectorV",
+        contents: points[i - 1],
+      });
+    },
+    returns: valueT("Real2"),
   },
 
   /**
@@ -403,6 +435,29 @@ export const compDict = {
   },
 
   /**
+   * Return `mod(a, n)`.
+   */
+  mod: {
+    name: "mod",
+    description: "Return `mod(a, n)`.",
+    params: [
+      { name: "a", description: "`a`", type: realT() },
+      { name: "n", description: "`n`", type: realT() },
+    ],
+    body: (
+      _context: Context,
+      a: ad.Num,
+      n: ad.Num,
+    ): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
+        tag: "FloatV",
+        contents: sub(a, mul(n, floor(div(a, n)))),
+      });
+    },
+    returns: valueT("Real"),
+  },
+
+  /**
    * Return `atan(x)`.
    */
   atan: {
@@ -431,7 +486,7 @@ export const compDict = {
     body: (
       _context: Context,
       x: ad.Num,
-      y: ad.Num
+      y: ad.Num,
     ): MayWarn<FloatV<ad.Num>> => {
       return noWarn({
         tag: "FloatV",
@@ -646,7 +701,7 @@ export const compDict = {
     body: (
       _context: Context,
       x: ad.Num,
-      y: ad.Num
+      y: ad.Num,
     ): MayWarn<FloatV<ad.Num>> => {
       return noWarn({
         tag: "FloatV",
@@ -792,7 +847,7 @@ export const compDict = {
       const vlen = vecs[0].length;
       const zeros: ad.Num[] = new Array(vlen).fill(0);
       return noWarn(
-        vectorV(vecs.reduce((curr, v) => ops.vadd(curr, v), zeros))
+        vectorV(vecs.reduce((curr, v) => ops.vadd(curr, v), zeros)),
       );
     },
     returns: realNT(),
@@ -846,7 +901,7 @@ export const compDict = {
     body: (
       _context: Context,
       v: ad.Num[],
-      w: ad.Num[]
+      w: ad.Num[],
     ): MayWarn<FloatV<ad.Num>> => {
       return noWarn({
         tag: "FloatV",
@@ -958,7 +1013,7 @@ export const compDict = {
     body: (
       _context: Context,
       u: ad.Num[],
-      v: ad.Num[]
+      v: ad.Num[],
     ): MayWarn<MatrixV<ad.Num>> => {
       return noWarn({
         tag: "MatrixV",
@@ -1708,7 +1763,7 @@ export const compDict = {
     body: (
       _context: Context,
       pathType: string,
-      pts: ad.Pt2[]
+      pts: ad.Pt2[],
     ): MayWarn<PathDataV<ad.Num>> => {
       const path = new PathBuilder();
       const [start, ...tailpts] = pts;
@@ -1734,7 +1789,7 @@ export const compDict = {
     body: (
       _context: Context,
       pathType: string,
-      pts: ad.Pt2[]
+      pts: ad.Pt2[],
     ): MayWarn<PathDataV<ad.Num>> => {
       const path = new PathBuilder();
       const [start, cp, second, ...tailpts] = pts;
@@ -1769,7 +1824,7 @@ export const compDict = {
       pathType: string,
       p0: ad.Pt2,
       p1: ad.Pt2,
-      p2: ad.Pt2
+      p2: ad.Pt2,
     ): MayWarn<PathDataV<ad.Num>> => {
       const path = new PathBuilder();
       path.moveTo(p0);
@@ -1806,7 +1861,7 @@ export const compDict = {
     body: (
       _context: Context,
       pathType: string,
-      pts: ad.Pt2[]
+      pts: ad.Pt2[],
     ): MayWarn<PathDataV<ad.Num>> => {
       const path = new PathBuilder();
       const [start, cp1, cp2, second, ...tailpts] = pts;
@@ -1895,7 +1950,7 @@ export const compDict = {
       _context: Context,
       pathType: string,
       points: ad.Num[][],
-      tension: ad.Num
+      tension: ad.Num,
     ): MayWarn<PathDataV<ad.Num>> => {
       return noWarn(catmullRom(_context, pathType, points, tension));
     },
@@ -1917,7 +1972,7 @@ export const compDict = {
       n: number,
       X0: ad.Num[],
       A: ad.Num[][],
-      omega: ad.Num[]
+      omega: ad.Num[],
     ): MayWarn<PtListV<ad.Num>> => {
       const Xt = diffusionProcess(_context, n, X0, A, omega);
       return noWarn({
@@ -1944,7 +1999,7 @@ export const compDict = {
       _context: Context,
       s1: Line<ad.Num>,
       s2: Line<ad.Num>,
-      padding: ad.Num
+      padding: ad.Num,
     ): MayWarn<PtListV<ad.Num>> => {
       const [start1, end1] = linePts(s1);
       const [start2, end2] = linePts(s2);
@@ -1977,7 +2032,7 @@ export const compDict = {
       _context: Context,
       [start, end]: [ad.Pt2, ad.Pt2],
       t: string,
-      size: ad.Num
+      size: ad.Num,
     ): MayWarn<PtListV<ad.Num>> => {
       const dir = ops.vnormalize(ops.vsub(end, start));
       const normalDir = ops.rot90(toPt(dir));
@@ -2053,7 +2108,7 @@ export const compDict = {
       radius: ad.Pt2,
       rotation: ad.Num,
       largeArc: ad.Num,
-      arcSweep: ad.Num
+      arcSweep: ad.Num,
     ): MayWarn<PathDataV<ad.Num>> => {
       const path = new PathBuilder();
       path.moveTo(start).arcTo(radius, end, [rotation, largeArc, arcSweep]);
@@ -2099,7 +2154,7 @@ export const compDict = {
       center: ad.Pt2,
       r: ad.Num,
       theta0: ad.Num,
-      theta1: ad.Num
+      theta1: ad.Num,
     ): MayWarn<PathDataV<ad.Num>> => {
       const path = new PathBuilder();
       //path.moveTo(start).arcTo(radius, end, [rotation, largeArc, arcSweep]);
@@ -2172,7 +2227,7 @@ export const compDict = {
       innerRadius: ad.Pt2,
       repeat: number,
       spacing: ad.Num,
-      arcSweep: ad.Num
+      arcSweep: ad.Num,
     ): MayWarn<PathDataV<ad.Num>> => {
       const path = new PathBuilder();
       const startDir = ops.vnormalize(ops.vsub(outerStart, innerStart));
@@ -2252,7 +2307,7 @@ export const compDict = {
       radius: ad.Pt2,
       rotation: ad.Num,
       largeArc: ad.Num,
-      arcSweep: ad.Num
+      arcSweep: ad.Num,
     ): MayWarn<PathDataV<ad.Num>> => {
       const path = new PathBuilder();
       path
@@ -2292,7 +2347,7 @@ export const compDict = {
       _context: Context,
       p1: ad.Num[],
       p2: ad.Num[],
-      r: ad.Num
+      r: ad.Num,
     ): MayWarn<VectorV<ad.Num>> => {
       // find unit vector pointing towards v2
       const unit = ops.vnormalize(ops.vsub(p2, p1));
@@ -2326,7 +2381,7 @@ export const compDict = {
       _context: Context,
       [x1, y1]: ad.Num[],
       start: ad.Pt2,
-      end: ad.Pt2
+      end: ad.Pt2,
     ): MayWarn<FloatV<ad.Num>> => {
       const st = ops.vnormalize([sub(start[0], x1), sub(start[1], y1)]);
       const en = ops.vnormalize([sub(end[0], x1), sub(end[1], y1)]);
@@ -2354,7 +2409,7 @@ export const compDict = {
     body: (
       _context: Context,
       u: ad.Num[],
-      v: ad.Num[]
+      v: ad.Num[],
     ): MayWarn<FloatV<ad.Num>> => {
       const theta = ops.angleBetween(u, v);
       return noWarn({
@@ -2380,7 +2435,7 @@ export const compDict = {
     body: (
       _context: Context,
       u: ad.Num[],
-      v: ad.Num[]
+      v: ad.Num[],
     ): MayWarn<FloatV<ad.Num>> => {
       const theta = ops.angleFrom(u, v);
       return noWarn({
@@ -2404,7 +2459,7 @@ export const compDict = {
     body: (
       _context: Context,
       u: ad.Num[],
-      v: ad.Num[]
+      v: ad.Num[],
     ): MayWarn<FloatV<ad.Num>> => {
       const det = sub(mul(u[0], v[1]), mul(u[1], v[0]));
       return noWarn({
@@ -2427,7 +2482,7 @@ export const compDict = {
     body: (
       _context: Context,
       u: ad.Num[],
-      v: ad.Num[]
+      v: ad.Num[],
     ): MayWarn<VectorV<ad.Num>> => {
       const result = ops.cross3(u, v);
       return noWarn({
@@ -2460,7 +2515,7 @@ export const compDict = {
       a0: ad.Num[],
       a1: ad.Num[],
       b0: ad.Num[],
-      b1: ad.Num[]
+      b1: ad.Num[],
     ): MayWarn<VectorV<ad.Num>> => {
       const A0 = [a0[0], a0[1], 1];
       const A1 = [a1[0], a1[1], 1];
@@ -2489,7 +2544,7 @@ export const compDict = {
     body: (
       _context: Context,
       start: ad.Num[],
-      end: ad.Num[]
+      end: ad.Num[],
     ): MayWarn<VectorV<ad.Num>> => {
       const midpointLoc = ops.vmul(0.5, ops.vadd(start, end));
       return noWarn({
@@ -2517,7 +2572,7 @@ export const compDict = {
     body: (
       _context: Context,
       s1: Line<ad.Num>,
-      padding: ad.Num
+      padding: ad.Num,
     ): MayWarn<TupV<ad.Num>> => {
       const [start, end] = linePts(s1);
       // TODO: Cache these operations in Style!
@@ -2547,7 +2602,7 @@ export const compDict = {
       _context: Context,
       // TODO reimplement with variable tick marks when #629 is merged
       s1: Line<ad.Num>,
-      padding: ad.Num
+      padding: ad.Num,
     ): MayWarn<PtListV<ad.Num>> => {
       // tickPlacement(padding, ticks);
       const [start, end] = linePts(s1);
@@ -2590,7 +2645,7 @@ export const compDict = {
       pt1: ad.Num[],
       pt2: ad.Num[],
       pt3: ad.Num[],
-      padding: ad.Num
+      padding: ad.Num,
     ): MayWarn<VectorV<ad.Num>> => {
       // unit vector towards first corner
       const vec1unit = ops.vnormalize(ops.vsub(pt2, pt1));
@@ -2653,7 +2708,7 @@ export const compDict = {
       pt2: ad.Num[],
       spacing: ad.Num,
       numTicks: ad.Num,
-      tickLength: ad.Num
+      tickLength: ad.Num,
     ): MayWarn<PathDataV<ad.Num>> => {
       const path = new PathBuilder();
       // calculate scalar multipliers to determine the placement of each tick mark
@@ -2705,7 +2760,7 @@ export const compDict = {
       s1: Line<ad.Num>,
       s2: Line<ad.Num>,
       intersection: ad.Pt2,
-      len: ad.Num
+      len: ad.Num,
     ): MayWarn<PathDataV<ad.Num>> => {
       const [seg1, seg2] = [linePts(s1), linePts(s2)];
       const [ptL, ptLR, ptR] = perpPathFlat(len, seg1, seg2);
@@ -2717,7 +2772,7 @@ export const compDict = {
           .lineTo(toPt(ptR))
           .lineTo(intersection)
           .closePath()
-          .getPath()
+          .getPath(),
       );
     },
     returns: valueT("PathCmd"),
@@ -2739,7 +2794,7 @@ export const compDict = {
       _context: Context,
       l1: Line<ad.Num>,
       l2: Line<ad.Num>,
-      l3: Line<ad.Num>
+      l3: Line<ad.Num>,
     ): MayWarn<PathDataV<ad.Num>> => {
       const path = new PathBuilder();
       return noWarn(
@@ -2748,7 +2803,7 @@ export const compDict = {
           .lineTo(toPt(getStart(l2)))
           .lineTo(toPt(getStart(l3)))
           .closePath()
-          .getPath()
+          .getPath(),
       );
     },
     returns: valueT("PathCmd"),
@@ -2767,7 +2822,7 @@ export const compDict = {
     body: (
       _context: Context,
       x: ad.Num,
-      y: ad.Num
+      y: ad.Num,
     ): MayWarn<FloatV<ad.Num>> => {
       return noWarn({
         tag: "FloatV",
@@ -2824,7 +2879,7 @@ export const compDict = {
     body: (
       { makeInput }: Context,
       minVal: ad.Num,
-      maxVal: ad.Num
+      maxVal: ad.Num,
     ): MayWarn<FloatV<ad.Num>> => {
       if (typeof minVal === "number" && typeof maxVal === "number") {
         const val = makeInput({
@@ -2838,7 +2893,7 @@ export const compDict = {
         });
       } else {
         throw new Error(
-          "Expects the minimum and maximum values to be constants. Got a computed or optimized value instead."
+          "Expects the minimum and maximum values to be constants. Got a computed or optimized value instead.",
         );
       }
     },
@@ -2984,7 +3039,7 @@ export const compDict = {
       { makeInput }: Context,
       a: ad.Num[],
       b: ad.Num[],
-      c: ad.Num[]
+      c: ad.Num[],
     ): MayWarn<VectorV<ad.Num>> => {
       const u1 = makeInput({
         init: { tag: "Sampled", sampler: uniform(0, 1) },
@@ -3000,7 +3055,7 @@ export const compDict = {
       const t = u2;
       const x = ops.vadd(
         ops.vadd(ops.vmul(sub(1, s), a), ops.vmul(mul(s, sub(1, t)), b)),
-        ops.vmul(mul(s, t), c)
+        ops.vmul(mul(s, t), c),
       );
 
       return noWarn({
@@ -3025,14 +3080,14 @@ export const compDict = {
     body: (
       { makeInput }: Context,
       alpha: ad.Num,
-      colorType: "rgb" | "hsv"
+      colorType: "rgb" | "hsv",
     ): MayWarn<ColorV<ad.Num>> => {
       if (colorType === "rgb") {
         const rgb = _.range(3).map(() =>
           makeInput({
             init: { tag: "Sampled", sampler: uniform(0.1, 0.9) },
             stages: new Set(),
-          })
+          }),
         );
 
         return noWarn({
@@ -3072,7 +3127,7 @@ export const compDict = {
     body: (
       _context: Context,
       color: Color<ad.Num>,
-      frac: ad.Num
+      frac: ad.Num,
     ): MayWarn<ColorV<ad.Num>> => {
       // If paint=none, opacity is irreelevant
       if (color.tag === "NONE") {
@@ -3109,7 +3164,7 @@ export const compDict = {
     body: (
       _context: Context,
       m: ad.Num[][],
-      v: ad.Num[]
+      v: ad.Num[],
     ): MayWarn<VectorV<ad.Num>> => {
       if (!m.length) {
         throw Error("empty matrix");
@@ -3145,7 +3200,7 @@ export const compDict = {
       _context: Context,
       a: ad.Num[],
       b: ad.Num[],
-      c: ad.Num[]
+      c: ad.Num[],
     ): MayWarn<VectorV<ad.Num>> => {
       const x = ops.vmul(1 / 3, ops.vadd(a, ops.vadd(b, c)));
       return noWarn({
@@ -3173,7 +3228,7 @@ export const compDict = {
       _context: Context,
       p: ad.Num[],
       q: ad.Num[],
-      r: ad.Num[]
+      r: ad.Num[],
     ): MayWarn<VectorV<ad.Num>> => {
       // edge vectors
       const u = ops.vsub(r, q);
@@ -3199,7 +3254,7 @@ export const compDict = {
       // circumcenter
       const x = ops.vadd(
         ops.vadd(ops.vmul(bp, p), ops.vmul(bq, q)),
-        ops.vmul(br, r)
+        ops.vmul(br, r),
       );
 
       return noWarn({
@@ -3226,7 +3281,7 @@ export const compDict = {
       _context: Context,
       p: ad.Num[],
       q: ad.Num[],
-      r: ad.Num[]
+      r: ad.Num[],
     ): MayWarn<FloatV<ad.Num>> => {
       // side lengths
       const a = ops.vnorm(ops.vsub(r, q));
@@ -3245,10 +3300,10 @@ export const compDict = {
           sqrt(
             mul(
               mul(mul(s, sub(add(a, b), s)), sub(add(a, c), s)),
-              sub(add(b, c), s)
-            )
-          )
-        )
+              sub(add(b, c), s),
+            ),
+          ),
+        ),
       );
 
       return noWarn({
@@ -3276,7 +3331,7 @@ export const compDict = {
       _context: Context,
       p: ad.Num[],
       q: ad.Num[],
-      r: ad.Num[]
+      r: ad.Num[],
     ): MayWarn<VectorV<ad.Num>> => {
       // side lengths
       const a = ops.vnorm(ops.vsub(r, q));
@@ -3292,7 +3347,7 @@ export const compDict = {
       // incenter
       const x = ops.vadd(
         ops.vadd(ops.vmul(bp, p), ops.vmul(bq, q)),
-        ops.vmul(br, r)
+        ops.vmul(br, r),
       );
 
       return noWarn({
@@ -3320,7 +3375,7 @@ export const compDict = {
       _context: Context,
       p: ad.Num[],
       q: ad.Num[],
-      r: ad.Num[]
+      r: ad.Num[],
     ): MayWarn<FloatV<ad.Num>> => {
       // side lengths
       const a = ops.vnorm(ops.vsub(r, q));
@@ -3383,7 +3438,7 @@ export const compDict = {
     body: (
       _context: Context,
       x: ad.Num,
-      y: ad.Num
+      y: ad.Num,
     ): MayWarn<FloatV<ad.Num>> => {
       return noWarn({ tag: "FloatV", contents: max(x, y) });
     },
@@ -3403,7 +3458,7 @@ export const compDict = {
     body: (
       _context: Context,
       x: ad.Num,
-      y: ad.Num
+      y: ad.Num,
     ): MayWarn<FloatV<ad.Num>> => {
       return noWarn({ tag: "FloatV", contents: min(x, y) });
     },
@@ -3495,7 +3550,7 @@ export const compDict = {
     body: (
       _context: Context,
       v: ad.Num[],
-      w: ad.Num[]
+      w: ad.Num[],
     ): MayWarn<FloatV<ad.Num>> => {
       return noWarn({ tag: "FloatV", contents: ops.vdist(v, w) });
     },
@@ -3512,7 +3567,7 @@ export const compDict = {
     body: (
       _context: Context,
       s: ad.Num,
-      v: ad.Num[]
+      v: ad.Num[],
     ): MayWarn<VectorV<ad.Num>> => {
       return noWarn({ tag: "VectorV", contents: ops.vmul(s, v) });
     },
@@ -3533,7 +3588,7 @@ export const compDict = {
     body: (
       _context: Context,
       v: ad.Num[],
-      w: ad.Num[]
+      w: ad.Num[],
     ): MayWarn<FloatV<ad.Num>> => {
       return noWarn({ tag: "FloatV", contents: ops.vdistsq(v, w) });
     },
@@ -3624,7 +3679,7 @@ export const compDict = {
     body: (
       _context: Context,
       v: ad.Num[],
-      theta: ad.Num
+      theta: ad.Num,
     ): MayWarn<VectorV<ad.Num>> => {
       if (v.length !== 2) {
         throw Error("expected 2D vector in `rotateBy`");
@@ -3649,7 +3704,7 @@ export const compDict = {
           shapeT("Circle"),
           shapeT("Polygon"),
           shapeT("Line"),
-          shapeT("Polyline")
+          shapeT("Polyline"),
         ),
         description: "A shape",
       },
@@ -3658,7 +3713,7 @@ export const compDict = {
     body: (
       _context: Context,
       shape: Shape<ad.Num>,
-      pt: ad.Pt2
+      pt: ad.Pt2,
     ): MayWarn<FloatV<ad.Num>> => noWarn(floatV(signedDistance(shape, pt))),
     returns: valueT("Real"),
   },
@@ -3673,7 +3728,7 @@ export const compDict = {
     body: (
       _context: Context,
       rect: ad.Pt2[],
-      pt: ad.Pt2
+      pt: ad.Pt2,
     ): MayWarn<FloatV<ad.Num>> => noWarn(floatV(signedDistanceRect(rect, pt))),
     returns: realT(),
   },
@@ -3690,7 +3745,7 @@ export const compDict = {
       _context: Context,
       c: ad.Pt2,
       r: ad.Num,
-      pt: ad.Pt2
+      pt: ad.Pt2,
     ): MayWarn<FloatV<ad.Num>> =>
       noWarn(floatV(signedDistanceCircle(c, r, pt))),
     returns: realT(),
@@ -3706,7 +3761,7 @@ export const compDict = {
     body: (
       _context: Context,
       pts: ad.Pt2[],
-      pt: ad.Pt2
+      pt: ad.Pt2,
     ): MayWarn<FloatV<ad.Num>> =>
       noWarn(floatV(signedDistancePolygon(pts, pt))),
     returns: realT(),
@@ -3730,7 +3785,7 @@ export const compDict = {
       c: ad.Pt2,
       rx: ad.Num,
       ry: ad.Num,
-      pt: ad.Pt2
+      pt: ad.Pt2,
     ): MayWarn<FloatV<ad.Num>> =>
       noWarn(floatV(signedDistanceEllipse(c, rx, ry, pt))),
     returns: realT(),
@@ -3748,7 +3803,7 @@ export const compDict = {
       _context: Context,
       start: ad.Pt2,
       end: ad.Pt2,
-      pt: ad.Pt2
+      pt: ad.Pt2,
     ): MayWarn<FloatV<ad.Num>> =>
       noWarn(floatV(signedDistanceLine(start, end, pt))),
     returns: realT(),
@@ -3764,7 +3819,7 @@ export const compDict = {
     body: (
       _context: Context,
       pts: ad.Pt2[],
-      pt: ad.Pt2
+      pt: ad.Pt2,
     ): MayWarn<FloatV<ad.Num>> =>
       noWarn(floatV(signedDistancePolyline(pts, pt))),
     returns: realT(),
@@ -3781,7 +3836,7 @@ export const compDict = {
     body: (
       _context: Context,
       shapes: Shape<ad.Num>[],
-      pt: ad.Pt2
+      pt: ad.Pt2,
     ): MayWarn<FloatV<ad.Num>> =>
       noWarn(floatV(signedDistanceGroup(shapes, pt))),
     returns: realT(),
@@ -3818,7 +3873,7 @@ export const compDict = {
           shapeT("Line"),
           shapeT("Polyline"),
           shapeT("Ellipse"),
-          shapeT("Group")
+          shapeT("Group"),
         ),
         description: "A shape",
       },
@@ -3836,7 +3891,7 @@ export const compDict = {
         | Ellipse<ad.Num>
         | Group<ad.Num>,
       p: ad.Num[],
-      v: ad.Num[]
+      v: ad.Num[],
     ): MayWarn<VectorV<ad.Num>> => {
       return noWarn(vectorV(safeRI(rawRayIntersect(S, p, v), p)));
     },
@@ -3856,7 +3911,7 @@ export const compDict = {
           shapeT("Line"),
           shapeT("Polyline"),
           shapeT("Ellipse"),
-          shapeT("Group")
+          shapeT("Group"),
         ),
         description: "A shape",
       },
@@ -3874,7 +3929,7 @@ export const compDict = {
         | Ellipse<ad.Num>
         | Group<ad.Num>,
       p: ad.Num[],
-      v: ad.Num[]
+      v: ad.Num[],
     ): MayWarn<FloatV<ad.Num>> => {
       return noWarn(floatV(distRI(rawRayIntersect(S, p, v), p)));
     },
@@ -3893,7 +3948,7 @@ export const compDict = {
       c: ad.Num[],
       r: ad.Num,
       p: ad.Num[],
-      v: ad.Num[]
+      v: ad.Num[],
     ): MayWarn<VectorV<ad.Num>> =>
       noWarn(vectorV(safeRI(rawRayIntersectCircle(c, r, p, v), p))),
     returns: valueT("Real2"),
@@ -3911,7 +3966,7 @@ export const compDict = {
       c: ad.Num[],
       r: ad.Num,
       p: ad.Num[],
-      v: ad.Num[]
+      v: ad.Num[],
     ): MayWarn<FloatV<ad.Num>> =>
       noWarn(floatV(distRI(rawRayIntersectCircle(c, r, p, v), p))),
     returns: valueT("Real"),
@@ -3931,7 +3986,7 @@ export const compDict = {
       rx: ad.Num,
       ry: ad.Num,
       p: ad.Num[],
-      v: ad.Num[]
+      v: ad.Num[],
     ): MayWarn<VectorV<ad.Num>> =>
       noWarn(vectorV(safeRI(rawRayIntersectEllipse(c, rx, ry, p, v), p))),
     returns: real2T(),
@@ -3951,7 +4006,7 @@ export const compDict = {
       rx: ad.Num,
       ry: ad.Num,
       p: ad.Num[],
-      v: ad.Num[]
+      v: ad.Num[],
     ): MayWarn<FloatV<ad.Num>> =>
       noWarn(floatV(distRI(rawRayIntersectEllipse(c, rx, ry, p, v), p))),
     returns: valueT("Real"),
@@ -3969,7 +4024,7 @@ export const compDict = {
       start: ad.Num[],
       end: ad.Num[],
       p: ad.Num[],
-      v: ad.Num[]
+      v: ad.Num[],
     ): MayWarn<VectorV<ad.Num>> =>
       noWarn(vectorV(safeRI(rawRayIntersectLine(start, end, p, v), p))),
     returns: real2T(),
@@ -3987,7 +4042,7 @@ export const compDict = {
       start: ad.Num[],
       end: ad.Num[],
       p: ad.Num[],
-      v: ad.Num[]
+      v: ad.Num[],
     ): MayWarn<FloatV<ad.Num>> =>
       noWarn(floatV(distRI(rawRayIntersectLine(start, end, p, v), p))),
     returns: valueT("Real"),
@@ -4008,7 +4063,7 @@ export const compDict = {
       _context: Context,
       rect: ad.Pt2[],
       p: ad.Num[],
-      v: ad.Num[]
+      v: ad.Num[],
     ): MayWarn<VectorV<ad.Num>> =>
       noWarn(vectorV(safeRI(rawRayIntersectRect(rect, p, v), p))),
     returns: real2T(),
@@ -4029,7 +4084,7 @@ export const compDict = {
       _context: Context,
       rect: ad.Pt2[],
       p: ad.Num[],
-      v: ad.Num[]
+      v: ad.Num[],
     ): MayWarn<FloatV<ad.Num>> =>
       noWarn(floatV(distRI(rawRayIntersectRect(rect, p, v), p))),
     returns: valueT("Real"),
@@ -4054,7 +4109,7 @@ export const compDict = {
       pts: ad.Pt2[],
       closed: boolean,
       p: ad.Num[],
-      v: ad.Num[]
+      v: ad.Num[],
     ): MayWarn<VectorV<ad.Num>> =>
       noWarn(vectorV(safeRI(rawRayIntersectPoly(pts, closed, p, v), p))),
     returns: real2T(),
@@ -4079,7 +4134,7 @@ export const compDict = {
       pts: ad.Pt2[],
       closed: boolean,
       p: ad.Num[],
-      v: ad.Num[]
+      v: ad.Num[],
     ): MayWarn<FloatV<ad.Num>> =>
       noWarn(floatV(distRI(rawRayIntersectPoly(pts, closed, p, v), p))),
     returns: valueT("Real"),
@@ -4096,7 +4151,7 @@ export const compDict = {
       _context: Context,
       shapes: Shape<ad.Num>[],
       p: ad.Num[],
-      v: ad.Num[]
+      v: ad.Num[],
     ): MayWarn<VectorV<ad.Num>> =>
       noWarn(vectorV(safeRI(rawRayIntersectGroup(shapes, p, v), p))),
     returns: real2T(),
@@ -4113,7 +4168,7 @@ export const compDict = {
       _context: Context,
       shapes: Shape<ad.Num>[],
       p: ad.Num[],
-      v: ad.Num[]
+      v: ad.Num[],
     ): MayWarn<FloatV<ad.Num>> =>
       noWarn(floatV(distRI(rawRayIntersectGroup(shapes, p, v), p))),
     returns: valueT("Real"),
@@ -4132,7 +4187,7 @@ export const compDict = {
           shapeT("Line"),
           shapeT("Polyline"),
           shapeT("Ellipse"),
-          shapeT("Group")
+          shapeT("Group"),
         ),
         description: "A shape",
       },
@@ -4150,7 +4205,7 @@ export const compDict = {
         | Ellipse<ad.Num>
         | Group<ad.Num>,
       p: ad.Num[],
-      v: ad.Num[]
+      v: ad.Num[],
     ): MayWarn<VectorV<ad.Num>> =>
       noWarn(vectorV(safeRIN(rawRayIntersect(S, p, v), p))),
     returns: valueT("Real2"),
@@ -4168,7 +4223,7 @@ export const compDict = {
       c: ad.Num[],
       r: ad.Num,
       p: ad.Num[],
-      v: ad.Num[]
+      v: ad.Num[],
     ): MayWarn<VectorV<ad.Num>> =>
       noWarn(vectorV(safeRIN(rawRayIntersectCircle(c, r, p, v), p))),
     returns: valueT("Real2"),
@@ -4188,7 +4243,7 @@ export const compDict = {
       rx: ad.Num,
       ry: ad.Num,
       p: ad.Num[],
-      v: ad.Num[]
+      v: ad.Num[],
     ): MayWarn<VectorV<ad.Num>> =>
       noWarn(vectorV(safeRIN(rawRayIntersectEllipse(c, rx, ry, p, v), p))),
     returns: real2T(),
@@ -4206,7 +4261,7 @@ export const compDict = {
       start: ad.Num[],
       end: ad.Num[],
       p: ad.Num[],
-      v: ad.Num[]
+      v: ad.Num[],
     ): MayWarn<VectorV<ad.Num>> =>
       noWarn(vectorV(safeRIN(rawRayIntersectLine(start, end, p, v), p))),
     returns: real2T(),
@@ -4227,7 +4282,7 @@ export const compDict = {
       _context: Context,
       rect: ad.Pt2[],
       p: ad.Num[],
-      v: ad.Num[]
+      v: ad.Num[],
     ): MayWarn<VectorV<ad.Num>> =>
       noWarn(vectorV(safeRIN(rawRayIntersectRect(rect, p, v), p))),
     returns: real2T(),
@@ -4251,7 +4306,7 @@ export const compDict = {
       pts: ad.Pt2[],
       closed: boolean,
       p: ad.Num[],
-      v: ad.Num[]
+      v: ad.Num[],
     ): MayWarn<VectorV<ad.Num>> =>
       noWarn(vectorV(safeRIN(rawRayIntersectPoly(pts, closed, p, v), p))),
     returns: real2T(),
@@ -4268,7 +4323,7 @@ export const compDict = {
       _context: Context,
       shapes: Shape<ad.Num>[],
       p: ad.Num[],
-      v: ad.Num[]
+      v: ad.Num[],
     ): MayWarn<VectorV<ad.Num>> =>
       noWarn(vectorV(safeRIN(rawRayIntersectGroup(shapes, p, v), p))),
     returns: real2T(),
@@ -4290,7 +4345,7 @@ export const compDict = {
           shapeT("Line"),
           shapeT("Polyline"),
           shapeT("Ellipse"),
-          shapeT("Group")
+          shapeT("Group"),
         ),
         description: "A shape",
       },
@@ -4311,7 +4366,7 @@ export const compDict = {
       _context: Context,
       c: ad.Pt2,
       r: ad.Num,
-      pt: ad.Pt2
+      pt: ad.Pt2,
     ): MayWarn<VectorV<ad.Num>> =>
       noWarn(vectorV(closestPointCircle(c, r, pt))),
     returns: valueT("Real2"),
@@ -4330,7 +4385,7 @@ export const compDict = {
     body: (
       _context: Context,
       rect: ad.Pt2[],
-      pt: ad.Pt2
+      pt: ad.Pt2,
     ): MayWarn<VectorV<ad.Num>> => noWarn(vectorV(closestPointRect(rect, pt))),
     returns: valueT("Real2"),
   },
@@ -4345,7 +4400,7 @@ export const compDict = {
       _context: Context,
       start: ad.Pt2,
       end: ad.Pt2,
-      pt: ad.Pt2
+      pt: ad.Pt2,
     ): MayWarn<VectorV<ad.Num>> =>
       noWarn(vectorV(closestPointLine(start, end, pt))),
     returns: valueT("Real2"),
@@ -4367,7 +4422,7 @@ export const compDict = {
       c: ad.Pt2,
       rx: ad.Num,
       ry: ad.Num,
-      pt: ad.Pt2
+      pt: ad.Pt2,
     ): MayWarn<VectorV<ad.Num>> =>
       noWarn(vectorV(closestPointEllipse(c, rx, ry, pt))),
     returns: valueT("Real2"),
@@ -4387,7 +4442,7 @@ export const compDict = {
       _context: Context,
       pts: ad.Pt2[],
       closed: boolean,
-      pt: ad.Pt2
+      pt: ad.Pt2,
     ): MayWarn<VectorV<ad.Num>> =>
       noWarn(vectorV(closestPointPoly(pts, closed, pt))),
     returns: valueT("Real2"),
@@ -4405,7 +4460,7 @@ export const compDict = {
     body: (
       _context: Context,
       shapes: Shape<ad.Num>[],
-      pt: ad.Pt2
+      pt: ad.Pt2,
     ): MayWarn<VectorV<ad.Num>> =>
       noWarn(vectorV(closestPointGroup(shapes, pt))),
     returns: real2T(),
@@ -4427,7 +4482,7 @@ export const compDict = {
           shapeT("Line"),
           shapeT("Polyline"),
           shapeT("Ellipse"),
-          shapeT("Group")
+          shapeT("Group"),
         ),
         description: "A shape",
       },
@@ -4443,7 +4498,7 @@ export const compDict = {
         | Polygon<ad.Num>
         | Ellipse<ad.Num>
         | Group<ad.Num>,
-      p: ad.Num[]
+      p: ad.Num[],
     ): MayWarn<VectorV<ad.Num>> =>
       noWarn(vectorV(safeCSP(rawClosestSilhouettePoint(s, p), p))),
     returns: valueT("Real2"),
@@ -4459,7 +4514,7 @@ export const compDict = {
       _context: Context,
       c: ad.Pt2,
       r: ad.Num,
-      p: ad.Pt2
+      p: ad.Pt2,
     ): MayWarn<VectorV<ad.Num>> =>
       noWarn(vectorV(safeCSP(rawClosestSilhouettePointCircle(c, r, p), p))),
     returns: real2T(),
@@ -4477,7 +4532,7 @@ export const compDict = {
       c: ad.Pt2,
       rx: ad.Num,
       ry: ad.Num,
-      p: ad.Pt2
+      p: ad.Pt2,
     ): MayWarn<VectorV<ad.Num>> =>
       noWarn(vectorV(safeCSP(closestPointEllipse(c, rx, ry, p), p))),
     returns: real2T(),
@@ -4493,7 +4548,7 @@ export const compDict = {
       _context: Context,
       start: ad.Pt2,
       end: ad.Pt2,
-      p: ad.Pt2
+      p: ad.Pt2,
     ): MayWarn<VectorV<ad.Num>> =>
       noWarn(vectorV(safeCSP(rawClosestSilhouettePointLine(start, end, p), p))),
     returns: real2T(),
@@ -4512,7 +4567,7 @@ export const compDict = {
     body: (
       _context: Context,
       rect: ad.Pt2[],
-      p: ad.Pt2
+      p: ad.Pt2,
     ): MayWarn<VectorV<ad.Num>> =>
       noWarn(vectorV(safeCSP(rawClosestSilhouettePointRect(rect, p), p))),
     returns: real2T(),
@@ -4529,7 +4584,7 @@ export const compDict = {
     body: (
       _context: Context,
       points: ad.Pt2[],
-      p: ad.Pt2
+      p: ad.Pt2,
     ): MayWarn<VectorV<ad.Num>> =>
       noWarn(vectorV(safeCSP(rawClosestSilhouettePointPolyline(points, p), p))),
     returns: real2T(),
@@ -4546,7 +4601,7 @@ export const compDict = {
     body: (
       _context: Context,
       points: ad.Pt2[],
-      p: ad.Pt2
+      p: ad.Pt2,
     ): MayWarn<VectorV<ad.Num>> =>
       noWarn(vectorV(safeCSP(rawClosestSilhouettePointPolygon(points, p), p))),
     returns: real2T(),
@@ -4563,7 +4618,7 @@ export const compDict = {
     body: (
       _context: Context,
       shapes: Shape<ad.Num>[],
-      p: ad.Pt2
+      p: ad.Pt2,
     ): MayWarn<VectorV<ad.Num>> =>
       noWarn(vectorV(safeCSP(rawClosestSilhouettePointGroup(shapes, p), p))),
     returns: real2T(),
@@ -4584,7 +4639,7 @@ export const compDict = {
           shapeT("Line"),
           shapeT("Polyline"),
           shapeT("Ellipse"),
-          shapeT("Group")
+          shapeT("Group"),
         ),
         description: "A shape",
       },
@@ -4600,7 +4655,7 @@ export const compDict = {
         | Polygon<ad.Num>
         | Ellipse<ad.Num>
         | Group<ad.Num>,
-      p: ad.Num[]
+      p: ad.Num[],
     ): MayWarn<FloatV<ad.Num>> => {
       const q = rawClosestSilhouettePoint(s, p);
       const d = ifCond(eq(q[0], Infinity), Infinity, ops.vdist(p, q));
@@ -4632,7 +4687,7 @@ export const compDict = {
       bottomLeft: ad.Pt2,
       topRight: ad.Pt2,
       start: ad.Pt2,
-      end: ad.Pt2
+      end: ad.Pt2,
     ): MayWarn<FloatV<ad.Num>> =>
       noWarn(
         floatV(
@@ -4644,9 +4699,9 @@ export const compDict = {
             start[0],
             start[1],
             end[0],
-            end[1]
-          )
-        )
+            end[1],
+          ),
+        ),
       ),
     returns: valueT("Real"),
   },
@@ -4662,7 +4717,7 @@ export const compDict = {
     body: (
       _context: Context,
       s1: Shape<ad.Num>,
-      s2: Shape<ad.Num>
+      s2: Shape<ad.Num>,
     ): MayWarn<FloatV<ad.Num>> => {
       const dist = shapeDistance(s1, s2);
       return {
@@ -4686,7 +4741,7 @@ export const compDict = {
       c1: ad.Pt2,
       r1: ad.Num,
       c2: ad.Pt2,
-      r2: ad.Num
+      r2: ad.Num,
     ): MayWarn<FloatV<ad.Num>> =>
       noWarn(floatV(shapeDistanceCircles(c1, r1, c2, r2))),
     returns: realT(),
@@ -4711,7 +4766,7 @@ export const compDict = {
     body: (
       _context: Context,
       rect1: ad.Pt2[],
-      rect2: ad.Pt2[]
+      rect2: ad.Pt2[],
     ): MayWarn<FloatV<ad.Num>> =>
       noWarn(floatV(shapeDistanceRects(rect1, rect2))),
     returns: realT(),
@@ -4737,7 +4792,7 @@ export const compDict = {
       _context: Context,
       rect: ad.Pt2[],
       start: ad.Pt2,
-      end: ad.Pt2
+      end: ad.Pt2,
     ): MayWarn<FloatV<ad.Num>> =>
       noWarn(floatV(shapeDistanceRectLine(rect, start, end))),
     returns: realT(),
@@ -4761,7 +4816,7 @@ export const compDict = {
     body: (
       _context: Context,
       rect: ad.Pt2[],
-      points: ad.Num[][]
+      points: ad.Num[][],
     ): MayWarn<FloatV<ad.Num>> =>
       noWarn(floatV(shapeDistanceRectlikePolyline(rect, points))),
     returns: realT(),
@@ -4784,7 +4839,7 @@ export const compDict = {
     body: (
       _context: Context,
       pts1: ad.Pt2[],
-      pts2: ad.Pt2[]
+      pts2: ad.Pt2[],
     ): MayWarn<FloatV<ad.Num>> =>
       noWarn(floatV(shapeDistancePolys(pts1, pts2))),
     returns: realT(),
@@ -4806,7 +4861,7 @@ export const compDict = {
       _context: Context,
       rect: ad.Pt2[],
       c: ad.Pt2,
-      r: ad.Num
+      r: ad.Num,
     ): MayWarn<FloatV<ad.Num>> =>
       noWarn(floatV(shapeDistanceRectCircle(rect, c, r))),
     returns: realT(),
@@ -4833,7 +4888,7 @@ export const compDict = {
       pts: ad.Pt2[],
       c: ad.Pt2,
       rx: ad.Num,
-      ry: ad.Num
+      ry: ad.Num,
     ): MayWarn<FloatV<ad.Num>> =>
       noWarn(floatV(shapeDistancePolyEllipse(pts, c, rx, ry))),
     returns: realT(),
@@ -4852,7 +4907,7 @@ export const compDict = {
       c: ad.Pt2,
       r: ad.Num,
       start: ad.Pt2,
-      end: ad.Pt2
+      end: ad.Pt2,
     ): MayWarn<FloatV<ad.Num>> =>
       noWarn(floatV(shapeDistanceCircleLine(c, r, start, end))),
     returns: realT(),
@@ -4871,7 +4926,7 @@ export const compDict = {
       start1: ad.Pt2,
       end1: ad.Pt2,
       start2: ad.Pt2,
-      end2: ad.Pt2
+      end2: ad.Pt2,
     ) => noWarn(floatV(shapeDistanceLines(start1, end1, start2, end2))),
     returns: realT(),
   },
@@ -4899,7 +4954,7 @@ export const compDict = {
     body: (
       _context: Context,
       points: ad.Num[][],
-      closed: boolean
+      closed: boolean,
     ): MayWarn<FloatV<ad.Num>> => {
       return noWarn({ tag: "FloatV", contents: signedArea(points, closed) });
     },
@@ -4928,7 +4983,7 @@ export const compDict = {
     body: (
       _context: Context,
       points: ad.Num[][],
-      closed: boolean
+      closed: boolean,
     ): MayWarn<FloatV<ad.Num>> => {
       return noWarn({
         tag: "FloatV",
@@ -4959,7 +5014,7 @@ export const compDict = {
     body: (
       _context: Context,
       points: ad.Num[][],
-      closed: boolean
+      closed: boolean,
     ): MayWarn<FloatV<ad.Num>> => {
       return noWarn({ tag: "FloatV", contents: perimeter(points, closed) });
     },
@@ -4988,7 +5043,7 @@ export const compDict = {
     body: (
       _context: Context,
       points: ad.Num[][],
-      closed: boolean
+      closed: boolean,
     ): MayWarn<FloatV<ad.Num>> => {
       return noWarn({
         tag: "FloatV",
@@ -5019,7 +5074,7 @@ export const compDict = {
     body: (
       _context: Context,
       points: ad.Num[][],
-      closed: boolean
+      closed: boolean,
     ): MayWarn<FloatV<ad.Num>> => {
       return noWarn({ tag: "FloatV", contents: elasticEnergy(points, closed) });
     },
@@ -5053,7 +5108,7 @@ export const compDict = {
       _context: Context,
       points: ad.Num[][],
       closed: boolean,
-      signed = true
+      signed = true,
     ): MayWarn<FloatV<ad.Num>> => {
       return noWarn({
         tag: "FloatV",
@@ -5090,7 +5145,7 @@ export const compDict = {
       _context: Context,
       points: ad.Num[][],
       closed: boolean,
-      k: number
+      k: number,
     ): MayWarn<FloatV<ad.Num>> => {
       return noWarn({ tag: "FloatV", contents: lengthK(points, closed, k) });
     },
@@ -5118,7 +5173,7 @@ export const compDict = {
     body: (
       _context: Context,
       points: ad.Num[][],
-      closed: boolean
+      closed: boolean,
     ): MayWarn<FloatV<ad.Num>> => {
       return noWarn({ tag: "FloatV", contents: maxCurvature(points, closed) });
     },
@@ -5152,7 +5207,7 @@ export const compDict = {
       _context: Context,
       points: ad.Num[][],
       closed: boolean,
-      p: number
+      p: number,
     ): MayWarn<FloatV<ad.Num>> => {
       return noWarn({
         tag: "FloatV",
@@ -5190,7 +5245,7 @@ export const compDict = {
       _context: Context,
       points: ad.Num[][],
       closed: boolean,
-      p: number
+      p: number,
     ): MayWarn<FloatV<ad.Num>> => {
       return noWarn({
         tag: "FloatV",
@@ -5198,6 +5253,204 @@ export const compDict = {
       });
     },
     returns: valueT("Real"),
+  },
+
+  /**
+   * Returns list of `n` tangent vectors given a list of `n` points.
+   */
+  tangentVectors: {
+    name: "tangentVectors",
+    description:
+      "Returns list of `n` tangent vectors given a list of `n` points.",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      closed: boolean,
+    ): MayWarn<LListV<ad.Num>> => {
+      return noWarn({
+        tag: "LListV",
+        contents: tangentVectors(points, closed),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  /**
+   * Returns list of `n` normal vectors given a list of `n` points.
+   * If points are 2D, it calculates a normal vector as a perpendicular vector to the tangent.
+   * Otherwise, it calculates the principal normal vector.
+   */
+  normalVectors: {
+    name: "normalVectors",
+    description:
+      "Returns list of `n` normal vectors given a list of `n` points.",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      closed: boolean,
+    ): MayWarn<LListV<ad.Num>> => {
+      return noWarn({
+        tag: "LListV",
+        contents: normalVectors(points, closed),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  /**
+   * Returns list of `n` binormal vectors given a list of `n` points.
+   */
+  binormalVectors: {
+    name: "binormalVectors",
+    description:
+      "Returns list of `n` binormal vectors given a list of `n` points.",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      closed: boolean,
+    ): MayWarn<LListV<ad.Num>> => {
+      return noWarn({
+        tag: "LListV",
+        contents: binormalVectors(points, closed),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  /**
+   * Returns evolute curve from a list of `n` points.
+   */
+  evoluteCurve: {
+    name: "evoluteCurve",
+    description: "Returns evolute curve from a list of `n` points.",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      closed: boolean,
+    ): MayWarn<LListV<ad.Num>> => {
+      return noWarn({
+        tag: "LListV",
+        contents: evoluteCurve(points, closed),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  /**
+   * Returns an offset version of the input curve.
+   */
+  offsetCurve: {
+    name: "offsetCurve",
+    description: "Returns an offset version of the input curve.",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+      {
+        name: "magnitude",
+        type: realT(),
+        description: "magnitude of the offset",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      closed: boolean,
+      magnitude: ad.Num,
+    ): MayWarn<LListV<ad.Num>> => {
+      return noWarn({
+        tag: "LListV",
+        contents: offsetCurve(points, closed, magnitude),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  /**
+   * Returns list of `n` curvature values given a list of `n` points.
+   */
+  curvatures: {
+    name: "curvatures",
+    description:
+      "Returns list of `n` curvature values given a list of `n` points.",
+    params: [
+      {
+        name: "points",
+        type: realNMT(),
+        description: "points of curve",
+      },
+      {
+        name: "closed",
+        type: booleanT(),
+        description: "whether curve is closed",
+      },
+    ],
+    body: (
+      _context: Context,
+      points: ad.Num[][],
+      closed: boolean,
+    ): MayWarn<ListV<ad.Num>> => {
+      return noWarn({
+        tag: "ListV",
+        contents: curvatures(points, closed),
+      });
+    },
+    returns: valueT("RealN"),
   },
 
   /**
@@ -5215,7 +5468,7 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      points: [ad.Num, ad.Num][]
+      points: [ad.Num, ad.Num][],
     ): MayWarn<VectorV<ad.Num>> => {
       return noWarn({ tag: "VectorV", contents: centerOfMass(points) });
     },
@@ -5237,7 +5490,7 @@ export const compDict = {
     params: [{ name: "shape", type: shapeT("AnyShape") }],
     body: (
       _context: Context,
-      shape: Shape<ad.Num>
+      shape: Shape<ad.Num>,
     ): MayWarn<ClipDataV<ad.Num>> => noWarn(clipDataV(clipShape(shape))),
     returns: valueT("ClipData"),
   },
@@ -5271,7 +5524,7 @@ export const compDict = {
     body: (
       _context: Context,
       points: ad.Num[][],
-      projectedPoints: ad.Num[][]
+      projectedPoints: ad.Num[][],
     ): MayWarn<FloatV<ad.Num>> => {
       return noWarn({
         tag: "FloatV",
@@ -5287,7 +5540,7 @@ export const compDict = {
     params: [{ name: "s", type: rectlikeT() }],
     body: (
       _context: Context,
-      s: Rectlike<ad.Num>
+      s: Rectlike<ad.Num>,
     ): MayWarn<PtListV<ad.Num>> => {
       return noWarn(
         ptListV(
@@ -5295,9 +5548,9 @@ export const compDict = {
             s.center.contents,
             s.width.contents,
             s.height.contents,
-            s.rotation.contents
-          )
-        )
+            s.rotation.contents,
+          ),
+        ),
       );
     },
     returns: real2NT(),
@@ -5332,7 +5585,7 @@ const signedDistance = (s: Shape<ad.Num>, p: ad.Pt2): ad.Num => {
     return signedDistanceGroup(s.shapes.contents, p);
   } else {
     throw new Error(
-      `Shape type ${s.shapeType} is not supported by signedDistance`
+      `Shape type ${s.shapeType} is not supported by signedDistance`,
     );
   }
 };
@@ -5367,7 +5620,7 @@ export const signedDistanceRect = (rect: ad.Pt2[], pt: ad.Pt2): ad.Num => {
 export const signedDistanceCircle = (
   c: ad.Pt2,
   r: ad.Num,
-  pt: ad.Pt2
+  pt: ad.Pt2,
 ): ad.Num => {
   /*     
       float sdCircle( vec2 p, float r )
@@ -5427,7 +5680,7 @@ export const signedDistanceEllipse = (
   center: ad.Pt2,
   radiusx: ad.Num,
   radiusy: ad.Num,
-  pInput: ad.Pt2
+  pInput: ad.Pt2,
 ) => {
   /*
     Ported code is here: https://www.shadertoy.com/view/4sS3zz
@@ -5442,22 +5695,22 @@ export const signedDistanceEllipse = (
   p[0] = ifCond(
     gt(pUnswizzled[0], pUnswizzled[1]),
     pUnswizzled[1],
-    pUnswizzled[0]
+    pUnswizzled[0],
   );
   p[1] = ifCond(
     gt(pUnswizzled[0], pUnswizzled[1]),
     pUnswizzled[0],
-    pUnswizzled[1]
+    pUnswizzled[1],
   );
   ab[0] = ifCond(
     gt(pUnswizzled[0], pUnswizzled[1]),
     abUnswizzled[1],
-    abUnswizzled[0]
+    abUnswizzled[0],
   );
   ab[1] = ifCond(
     gt(pUnswizzled[0], pUnswizzled[1]),
     abUnswizzled[0],
-    abUnswizzled[1]
+    abUnswizzled[1],
   );
   // float l = ab.y*ab.y - ab.x*ab.x;
   const l = sub(squared(ab[1]), squared(ab[0]));
@@ -5493,7 +5746,7 @@ export const signedDistanceEllipse = (
   // co = ry + sign(l)*rx + abs(g)/(rx*ry);
   const coif = add(
     add(ryif, mul(sign(l), rxif)),
-    div(absVal(g), mul(rxif, ryif))
+    div(absVal(g), mul(rxif, ryif)),
   );
   // elsebranch
   // float h = 2.0*m*n*sqrt(d);
@@ -5528,7 +5781,7 @@ export const signedDistanceEllipse = (
 export const signedDistanceLine = (
   start: ad.Pt2,
   end: ad.Pt2,
-  pt: ad.Pt2
+  pt: ad.Pt2,
 ): ad.Num => {
   /*
   Computes the signed distance for a line 
@@ -5557,7 +5810,7 @@ export const signedDistancePolyline = (pts: ad.Pt2[], pt: ad.Pt2): ad.Num => {
 
 export const signedDistanceGroup = (
   ss: Shape<ad.Num>[],
-  pt: ad.Pt2
+  pt: ad.Pt2,
 ): ad.Num => {
   const dists = ss.map((s) => signedDistance(s, pt));
   return minN(dists);
@@ -5585,12 +5838,12 @@ export const safeRIN = (hit: ad.Num[][], p: ad.Num[]): ad.Num[] => {
   const n0 = ifCond(
     eq(absVal(x[0]), Infinity),
     0.0,
-    ifCond(lt(s, 0), neg(n[0]), n[0])
+    ifCond(lt(s, 0), neg(n[0]), n[0]),
   );
   const n1 = ifCond(
     eq(absVal(x[1]), Infinity),
     0.0,
-    ifCond(lt(s, 0), neg(n[1]), n[1])
+    ifCond(lt(s, 0), neg(n[1]), n[1]),
   );
   return [n0, n1];
 };
@@ -5615,7 +5868,7 @@ export const rawRayIntersect = (
     | Path<ad.Num>
     | Group<ad.Num>,
   p: ad.Num[],
-  v: ad.Num[]
+  v: ad.Num[],
 ): ad.Num[][] => {
   const t = s.shapeType;
   if (t === "Circle") {
@@ -5646,7 +5899,7 @@ export const rawRayIntersect = (
       s.rx.contents,
       s.ry.contents,
       p,
-      v
+      v,
     );
   } else if (t === "Path") {
     throw new Error("Ray intersection not handled for Path");
@@ -5659,7 +5912,7 @@ export const rawRayIntersectCircle = (
   c: ad.Num[],
   r: ad.Num,
   p: ad.Num[],
-  v: ad.Num[]
+  v: ad.Num[],
 ): ad.Num[][] => {
   return rawRayIntersectCircleCoords(p, v, c, r);
 };
@@ -5669,7 +5922,7 @@ export const rawRayIntersectEllipse = (
   rx: ad.Num,
   ry: ad.Num,
   p0: ad.Num[],
-  v0: ad.Num[]
+  v0: ad.Num[],
 ): ad.Num[][] => {
   // map ray data to coordinate system for unit circle
   const r = [rx, ry];
@@ -5694,7 +5947,7 @@ const rawRayIntersectCircleCoords = (
   p: ad.Num[],
   v: ad.Num[],
   c: ad.Num[],
-  r: ad.Num
+  r: ad.Num,
 ): ad.Num[][] => {
   const w = ops.vnormalize(v);
   const u = ops.vsub(p, c);
@@ -5713,7 +5966,7 @@ export const rawRayIntersectLine = (
   start: ad.Num[],
   end: ad.Num[],
   p: ad.Num[],
-  v: ad.Num[]
+  v: ad.Num[],
 ): ad.Num[][] => {
   return rawRayIntersectLineCoords(p, v, start, end);
 };
@@ -5721,7 +5974,7 @@ export const rawRayIntersectLine = (
 export const rawRayIntersectRect = (
   [tr, tl, bl, br]: ad.Num[][],
   p: ad.Num[],
-  v: ad.Num[]
+  v: ad.Num[],
 ): ad.Num[][] => {
   const x0 = tl[0],
     x1 = tr[0];
@@ -5736,7 +5989,7 @@ const rawRayIntersectRectHelper = (
   y0: ad.Num,
   y1: ad.Num,
   p: ad.Num[],
-  v: ad.Num[]
+  v: ad.Num[],
 ) => {
   const points = [
     [x0, y0],
@@ -5776,7 +6029,7 @@ export const rawRayIntersectPoly = (
   points: ad.Num[][],
   closed: boolean,
   p: ad.Num[],
-  v: ad.Num[]
+  v: ad.Num[],
 ): ad.Num[][] => {
   const pts = closed ? [...points, points[0]] : points;
 
@@ -5810,7 +6063,7 @@ const rawRayIntersectLineCoords = (
   p: ad.Num[],
   v: ad.Num[],
   a: ad.Num[],
-  b: ad.Num[]
+  b: ad.Num[],
 ): ad.Num[][] => {
   const u = ops.vsub(b, a);
   const w = ops.vsub(p, a);
@@ -5822,7 +6075,7 @@ const rawRayIntersectLineCoords = (
   const T = ifCond(
     lt(t, 0),
     Infinity,
-    ifCond(lt(s, 0), Infinity, ifCond(gt(s, 1), Infinity, t))
+    ifCond(lt(s, 0), Infinity, ifCond(gt(s, 1), Infinity, t)),
   );
   const x = ops.vadd(p, ops.vmul(T, v));
 
@@ -5831,12 +6084,12 @@ const rawRayIntersectLineCoords = (
   const nX = ifCond(
     lt(t, 0),
     0,
-    ifCond(lt(s, 0), 0, ifCond(gt(s, 1), 0, n[0]))
+    ifCond(lt(s, 0), 0, ifCond(gt(s, 1), 0, n[0])),
   );
   const nY = ifCond(
     lt(t, 0),
     0,
-    ifCond(lt(s, 0), 0, ifCond(gt(s, 1), 0, n[1]))
+    ifCond(lt(s, 0), 0, ifCond(gt(s, 1), 0, n[1])),
   );
 
   return [x, [nX, nY]];
@@ -5845,7 +6098,7 @@ const rawRayIntersectLineCoords = (
 export const rawRayIntersectGroup = (
   shapes: Shape<ad.Num>[],
   p: ad.Num[],
-  v: ad.Num[]
+  v: ad.Num[],
 ): ad.Num[][] => {
   // t === "Group"
   const firstHits = shapes.map((shape) => rawRayIntersect(shape, p, v));
@@ -5881,7 +6134,7 @@ export const closestPoint = (
     | Ellipse<ad.Num>
     | Path<ad.Num>
     | Group<ad.Num>,
-  p: ad.Num[]
+  p: ad.Num[],
 ): ad.Num[] => {
   const t = s.shapeType;
   if (t === "Circle") {
@@ -5904,7 +6157,7 @@ export const closestPoint = (
       s.center.contents,
       s.rx.contents,
       s.ry.contents,
-      p
+      p,
     );
   } else if (t === "Path") {
     throw new Error("Closest point queries not handled for Path");
@@ -5917,7 +6170,7 @@ export const closestPoint = (
 export const closestPointCircle = (
   c: ad.Num[],
   r: ad.Num,
-  p: ad.Num[]
+  p: ad.Num[],
 ): ad.Num[] => {
   /**
    * Implementing formula
@@ -5935,7 +6188,7 @@ export const closestPointCircle = (
 export const closestPointLine = (
   start: ad.Num[],
   end: ad.Num[],
-  p: ad.Num[]
+  p: ad.Num[],
 ): ad.Num[] => {
   return closestPointLineCoords(p, start, end);
 };
@@ -5943,7 +6196,7 @@ export const closestPointLine = (
 export const closestPointPoly = (
   points: ad.Num[][],
   closed: boolean,
-  p: ad.Num[]
+  p: ad.Num[],
 ): ad.Num[] => {
   const allPts = closed ? [...points, points[0]] : points;
 
@@ -5993,14 +6246,14 @@ export const closestPointEllipse = (
   c: ad.Num[],
   rx: ad.Num,
   ry: ad.Num,
-  p: ad.Num[]
+  p: ad.Num[],
 ): ad.Num[] => {
   return closestPointEllipseCoords(rx, ry, c, p);
 };
 
 export const closestPointGroup = (
   shapes: Shape<ad.Num>[],
-  p: ad.Num[]
+  p: ad.Num[],
 ): ad.Num[] => {
   const closestPoints = shapes.map((shape) => closestPoint(shape, p));
   const dist = closestPoints.map((point) => ops.vdist(point, p));
@@ -6018,7 +6271,7 @@ export const closestPointGroup = (
 const closestPointLineCoords = (
   p: ad.Num[],
   a: ad.Num[],
-  b: ad.Num[]
+  b: ad.Num[],
 ): ad.Num[] => {
   const a_to_p = [sub(p[0], a[0]), sub(p[1], a[1])];
   const a_to_b = [sub(b[0], a[0]), sub(b[1], a[1])];
@@ -6033,7 +6286,7 @@ const closestPointEllipseCoords = (
   a: ad.Num, // horizontal radius
   b: ad.Num, // vertical radius
   c: ad.Num[], // center
-  p0: ad.Num[] // query point
+  p0: ad.Num[], // query point
 ): ad.Num[] => {
   const nNewtonIterations = 2;
 
@@ -6080,7 +6333,7 @@ export const rawClosestSilhouettePoint = (
     | Ellipse<ad.Num>
     | Path<ad.Num>
     | Group<ad.Num>,
-  p: ad.Num[]
+  p: ad.Num[],
 ): ad.Num[] => {
   const t = s.shapeType;
   if (t === "Circle") {
@@ -6103,7 +6356,7 @@ export const rawClosestSilhouettePoint = (
       s.center.contents,
       s.rx.contents,
       s.ry.contents,
-      p
+      p,
     );
   } else if (t === "Path") {
     throw new Error("Silhouette queries not handled for Path");
@@ -6116,7 +6369,7 @@ export const rawClosestSilhouettePoint = (
 export const rawClosestSilhouettePointCircle = (
   c: ad.Num[],
   r: ad.Num,
-  p: ad.Num[]
+  p: ad.Num[],
 ): ad.Num[] => {
   const y = rawClosestSilhouettePointEllipseCoords(ops.vsub(p, c), r, r);
   return ops.vadd(y, c);
@@ -6126,7 +6379,7 @@ export const rawClosestSilhouettePointEllipse = (
   c: ad.Num[],
   rx: ad.Num,
   ry: ad.Num,
-  p: ad.Num[]
+  p: ad.Num[],
 ): ad.Num[] => {
   const y = rawClosestSilhouettePointEllipseCoords(ops.vsub(p, c), rx, ry);
   return ops.vadd(y, c);
@@ -6135,7 +6388,7 @@ export const rawClosestSilhouettePointEllipse = (
 export const rawClosestSilhouettePointLine = (
   start: ad.Num[],
   end: ad.Num[],
-  p: ad.Num[]
+  p: ad.Num[],
 ): ad.Num[] => {
   const a = start,
     b = end;
@@ -6152,7 +6405,7 @@ export const rawClosestSilhouettePointLine = (
 const rawClosestSilhouettePointEllipseCoords = (
   p0: ad.Num[],
   a0: ad.Num,
-  b0: ad.Num
+  b0: ad.Num,
 ): ad.Num[] => {
   const b = div(b0, a0);
   const b2 = mul(b, b);
@@ -6169,13 +6422,13 @@ const rawClosestSilhouettePointEllipseCoords = (
   const u1 = ifCond(
     lt(e, 0),
     Infinity,
-    mul(a0, div(add(g, mul(mul(x, b2), sqrt(e))), mul(d, y)))
+    mul(a0, div(add(g, mul(mul(x, b2), sqrt(e))), mul(d, y))),
   );
   const v0 = ifCond(lt(e, 0), Infinity, mul(a0, div(add(f, sqrt(e)), d)));
   const v1 = ifCond(
     lt(e, 0),
     Infinity,
-    mul(a0, div(sub(g, mul(mul(x, b2), sqrt(e))), mul(d, y)))
+    mul(a0, div(sub(g, mul(mul(x, b2), sqrt(e))), mul(d, y))),
   );
   const du = ops.vdist([u0, u1], p0);
   const dv = ops.vdist([v0, v1], p0);
@@ -6186,7 +6439,7 @@ const rawClosestSilhouettePointEllipseCoords = (
 
 export const rawClosestSilhouettePointRect = (
   [tr, tl, bl, br]: ad.Num[][],
-  p: ad.Num[]
+  p: ad.Num[],
 ): ad.Num[] => {
   const x0 = tl[0],
     x1 = tr[0];
@@ -6217,12 +6470,12 @@ export const rawClosestSilhouettePointRect = (
     closestX = ifCond(
       eq(minDist, dist[i]),
       closestSilhouettePoints[i][0],
-      closestX
+      closestX,
     );
     closestY = ifCond(
       eq(minDist, dist[i]),
       closestSilhouettePoints[i][1],
-      closestY
+      closestY,
     );
   }
   return [closestX, closestY];
@@ -6230,7 +6483,7 @@ export const rawClosestSilhouettePointRect = (
 
 export const rawClosestSilhouettePointPolyline = (
   pts: ad.Num[][],
-  p: ad.Num[]
+  p: ad.Num[],
 ): ad.Num[] => {
   const closestSilhouettePoints: ad.Num[][] = [];
   const dist: ad.Num[] = [];
@@ -6251,12 +6504,12 @@ export const rawClosestSilhouettePointPolyline = (
     closestX = ifCond(
       eq(minDist, dist[i]),
       closestSilhouettePoints[i][0],
-      closestX
+      closestX,
     );
     closestY = ifCond(
       eq(minDist, dist[i]),
       closestSilhouettePoints[i][1],
-      closestY
+      closestY,
     );
   }
 
@@ -6277,7 +6530,7 @@ export const rawClosestSilhouettePointPolyline = (
 
 export const rawClosestSilhouettePointPolygon = (
   pts: ad.Num[][],
-  p: ad.Num[]
+  p: ad.Num[],
 ): ad.Num[] => {
   const closestSilhouettePoints: ad.Num[][] = [];
   const dist: ad.Num[] = [];
@@ -6298,12 +6551,12 @@ export const rawClosestSilhouettePointPolygon = (
     closestX = ifCond(
       eq(minDist, dist[i]),
       closestSilhouettePoints[i][0],
-      closestX
+      closestX,
     );
     closestY = ifCond(
       eq(minDist, dist[i]),
       closestSilhouettePoints[i][1],
-      closestY
+      closestY,
     );
   }
   return [closestX, closestY];
@@ -6316,11 +6569,11 @@ const rawClosestSilhouettePointCorner = (
   p: ad.Num[],
   a: ad.Num[],
   b: ad.Num[],
-  c: ad.Num[]
+  c: ad.Num[],
 ): ad.Num[] => {
   const s = mul(
     ops.cross2(ops.vsub(b, a), ops.vsub(p, a)),
-    ops.cross2(ops.vsub(c, b), ops.vsub(p, b))
+    ops.cross2(ops.vsub(c, b), ops.vsub(p, b)),
   );
   const y0 = ifCond(lt(s, 0), b[0], Infinity);
   const y1 = ifCond(lt(s, 0), b[1], Infinity);
@@ -6329,10 +6582,10 @@ const rawClosestSilhouettePointCorner = (
 
 export const rawClosestSilhouettePointGroup = (
   shapes: Shape<ad.Num>[],
-  p: ad.Num[]
+  p: ad.Num[],
 ): ad.Num[] => {
   const closestSilhouettePoints = shapes.map((shape) =>
-    rawClosestSilhouettePoint(shape, p)
+    rawClosestSilhouettePoint(shape, p),
   );
   const dist = closestSilhouettePoints.map((point) => ops.vdist(point, p));
   let closestX: ad.Num = Infinity;
@@ -6343,12 +6596,12 @@ export const rawClosestSilhouettePointGroup = (
     closestX = ifCond(
       eq(minDist, dist[i]),
       closestSilhouettePoints[i][0],
-      closestX
+      closestX,
     );
     closestY = ifCond(
       eq(minDist, dist[i]),
       closestSilhouettePoints[i][1],
-      closestY
+      closestY,
     );
   }
   return [closestX, closestY];
@@ -6362,7 +6615,7 @@ export const rawClosestSilhouettePointGroup = (
 const perpPathFlat = (
   len: ad.Num,
   [startR, endR]: [ad.Num[], ad.Num[]],
-  [startL, endL]: [ad.Num[], ad.Num[]]
+  [startL, endL]: [ad.Num[], ad.Num[]],
 ): [ad.Num[], ad.Num[], ad.Num[]] => {
   // perpPathFlat :: Autofloat a => a -> (Pt2 a, Pt2 a) -> (Pt2 a, Pt2 a) -> (Pt2 a, Pt2 a, Pt2 a)
   // perpPathFlat size (startR, endR) (startL, endL) =
@@ -6383,7 +6636,7 @@ const perpPathFlat = (
 const tickPlacement = (
   padding: ad.Num,
   numPts: number,
-  multiplier: ad.Num = 1
+  multiplier: ad.Num = 1,
 ): ad.Num[] => {
   if (numPts <= 0) throw Error(`number of ticks must be greater than 0`);
   const even = numPts % 2 === 0;
@@ -6458,11 +6711,11 @@ const calculateKLDivergence = (p: ad.Num[][], q: ad.Num[][]): ad.Num => {
         row.map((p_ij, j) =>
           mul(
             p_ij,
-            ln(div(add(p_ij, Number.EPSILON), add(q[i][j], Number.EPSILON)))
-          )
-        )
-      )
-    )
+            ln(div(add(p_ij, Number.EPSILON), add(q[i][j], Number.EPSILON))),
+          ),
+        ),
+      ),
+    ),
   );
 };
 
@@ -6489,7 +6742,7 @@ export const sdfRect = (
   center: ad.Num[],
   width: ad.Num,
   height: ad.Num,
-  p: ad.Num[]
+  p: ad.Num[],
 ): ad.Num => {
   const absp = ops.vabs(ops.vsub(p, center));
   const b = [div(width, 2), div(height, 2)];
@@ -6514,7 +6767,7 @@ const catmullRom = (
   _context: Context,
   pathType: string,
   points: ad.Num[][],
-  tension: ad.Num
+  tension: ad.Num,
 ): PathDataV<ad.Num> => {
   const n = points.length;
 
@@ -6540,7 +6793,7 @@ const catmullRom = (
     path.bezierCurveTo(
       toPt(ops.vadd(points[i], tangents[i])),
       toPt(ops.vsub(points[j], tangents[j])),
-      toPt(points[j])
+      toPt(points[j]),
     );
   }
 
@@ -6554,7 +6807,7 @@ const diffusionProcess = (
   n: number,
   X0: ad.Num[],
   A: ad.Num[][],
-  omega: ad.Num[]
+  omega: ad.Num[],
 ): ad.Num[][] => {
   const Xt: ad.Num[][] = [];
   Xt[0] = X0;

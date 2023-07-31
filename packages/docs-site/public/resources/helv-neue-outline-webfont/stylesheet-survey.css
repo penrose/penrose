@@ -15,7 +15,8 @@ p {
 
 @font-face {
   font-family: "helvnueoutlinenormal";
-  src: url("helveticaneueout-webfont.woff2") format("woff2"),
+  src:
+    url("helveticaneueout-webfont.woff2") format("woff2"),
     url("helveticaneueout-webfont.woff") format("woff");
   font-weight: lighter;
   font-style: normal !important;

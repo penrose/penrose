@@ -895,7 +895,7 @@ with Circle c {
 forall Point p
 where CircleCenter(c, p)
 with Circle c {
-  override p.vec = c.vec
+  ensure norm(p.vec - c.vec) == 0
 }
 
 forall Shape s1, s2

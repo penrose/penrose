@@ -14,7 +14,7 @@ import registry from "./registry.js";
 // dunno why TypeScript doesn't like `node-fetch`
 const fetch = rawFetch as unknown as (
   url: RequestInfo,
-  init?: RequestInit
+  init?: RequestInit,
 ) => Promise<Response>;
 
 interface TrioTime {
@@ -40,7 +40,7 @@ const nanoToSeconds = (n: bigint): number =>
 
 const renderTrio = async (
   id: string,
-  { substance, style, domain, variation }: Trio
+  { substance, style, domain, variation }: Trio,
 ): Promise<Rendered> => {
   const compiling = process.hrtime.bigint();
 
@@ -205,14 +205,14 @@ const textChart = (datas: Map<string, AllData>): string => {
 
   const longestName = Math.min(
     MAX_NAME_LENGTH,
-    Math.max(...[...datas.keys()].map((k) => k.length))
+    Math.max(...[...datas.keys()].map((k) => k.length)),
   );
   const longestSeconds = Math.max(
-    ...[...datas.values()].map((v) => v.totalSeconds)
+    ...[...datas.values()].map((v) => v.totalSeconds),
   );
   const numSeconds = Math.min(
     MAX_SECONDS,
-    Math.max(0, Math.ceil(longestSeconds))
+    Math.max(0, Math.ceil(longestSeconds)),
   );
   const labelParts = [" ".repeat(longestName), " 0s"];
   const tickParts = [" ".repeat(longestName), " |"];
@@ -231,14 +231,14 @@ const textChart = (datas: Map<string, AllData>): string => {
           seconds.compiling,
           seconds.optimizing,
           seconds.rendering,
-        ])}`
+        ])}`,
       );
     } else {
       const { totalSeconds } = data;
       lines.push(
         `${trimName(key).padEnd(longestName)} ${makeContinuousBar([
           totalSeconds,
-        ])}`
+        ])}`,
       );
     }
   }
@@ -268,16 +268,19 @@ describe("registry", () => {
         const filePath = path.join(out, `${key}.svg`);
         const fileDir = path.dirname(filePath);
         await fs.mkdir(fileDir, { recursive: true });
-        await fs.writeFile(filePath, prettier.format(svg, { parser: "html" }));
+        await fs.writeFile(
+          filePath,
+          await prettier.format(svg, { parser: "html" }),
+        );
       },
-      { timeout: MAX_SECONDS * 1000 }
+      { timeout: MAX_SECONDS * 1000 },
     );
   }
 
   afterAll(async () => {
     await fs.writeFile(
       path.join(out, "data.json"),
-      `${JSON.stringify(Object.fromEntries(datas), null, 2)}\n`
+      `${JSON.stringify(Object.fromEntries(datas), null, 2)}\n`,
     );
     await fs.writeFile(path.join(out, "stats.md"), textChart(datas));
   });

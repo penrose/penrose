@@ -51,12 +51,16 @@ const getSubRes = (domainSrc: string, substanceSrc: string): SubRes => {
       return subResult;
     } else {
       throw new Error(
-        `Error when compiling the Substance program: ${showError(subRes.error)}`
+        `Error when compiling the Substance program: ${showError(
+          subRes.error,
+        )}`,
       );
     }
   } else {
     throw new Error(
-      `Error when compiling the Domain program:\n${showError(envOrError.error)}`
+      `Error when compiling the Domain program:\n${showError(
+        envOrError.error,
+      )}`,
     );
   }
 };
@@ -75,7 +79,7 @@ describe("Mutation enumeration", () => {
     const mutations1 = enumerateStmtMutations(pred1, subEnv.ast, cxt);
     // Equal3 should only have 3 swap mutations
     expect(
-      mutations1.map((m) => m.tag).every((t) => t === "SwapStmtArgs")
+      mutations1.map((m) => m.tag).every((t) => t === "SwapStmtArgs"),
     ).toEqual(true);
     expect(mutations1).toHaveLength(3);
     // IsSubset will have one swap, two replace names, and a bumch of changetypes

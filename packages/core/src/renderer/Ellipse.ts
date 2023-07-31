@@ -10,11 +10,11 @@ import { RenderProps } from "./Renderer.js";
 
 const RenderEllipse = (
   shape: Ellipse<number>,
-  { canvasSize }: RenderProps
+  { canvasSize }: RenderProps,
 ): SVGEllipseElement => {
   const elem = document.createElementNS(
     "http://www.w3.org/2000/svg",
-    "ellipse"
+    "ellipse",
   );
 
   // Keep track of which input properties we programatically mapped

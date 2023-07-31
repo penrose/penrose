@@ -1,0 +1,123 @@
+canvas {
+    height = 1500
+    width = 1500
+}
+
+river {
+    icon = Rectangle {
+        center: (0, 0)
+        height: 1000
+        width: 50
+        fillColor: #35a4b8ff
+    }
+}
+
+forall Fox f {
+    h = 500
+    w = 500
+    f.icon = Image {
+        href: "character-svgs/fox.svg"
+        height: h
+        width: w
+        ensureOnCanvas: false
+    }
+    f.plate = Circle {
+        fillColor: #ffffffff
+        r: sqrt((h/2)^2 + (w/2)^2)
+        center: f.icon.center
+        ensureOnCanvas: false
+    }
+    f.anchor = (f.icon.center[0], f.icon.center[1] + 30)
+    layer f.plate below f.icon
+}
+
+forall Chicken c {
+    h = 120
+    w = 120
+    c.icon = Image {
+        href: "character-svgs/chicken.svg"
+        height: h
+        width: w
+        ensureOnCanvas: false
+    }
+    c.plate = Circle {
+        fillColor: #ffffffff
+        r: sqrt((h/2)^2 + (w/2)^2)
+        center: c.icon.center
+        ensureOnCanvas: false
+    }
+    c.anchor = c.icon.center
+    layer c.plate below c.icon
+}
+
+forall Grain g {
+    h = 30
+    w = 30
+    g.icon = Image {
+        href: "character-svgs/grain.svg"
+        height: 50
+        width: 50
+        ensureOnCanvas: false
+    }
+    g.plate = Circle {
+        fillColor: #ffffffff
+        r: sqrt((h/2)^2 + (w/2)^2)
+        center: g.icon.center
+        ensureOnCanvas: false
+    }
+    g.anchor = g.icon.center
+    layer g.plate below g.icon
+}
+
+forall Farmer f {
+    h = 500
+    w = 500
+    f.icon = Image {
+        href: "character-svgs/farmer.svg"
+        height: h
+        width: w
+        ensureOnCanvas: false
+    }
+    f.plate = Circle {
+        fillColor: #ffffffff
+        r: sqrt((h/2)^2 + (w/2)^2)
+        center: f.icon.center
+        ensureOnCanvas: false
+    }
+    f.anchor = f.icon.center
+    layer f.plate below f.icon
+}
+
+forall Object x where near(x) {
+    encourage nearPt(x.icon,-400,0)
+}
+
+forall Object x; Object y where near(x); near(y) {
+    encourage x.icon.center[0] == y.icon.center[0]
+}
+
+forall Object x; Object y where far(x); far(y) {
+    encourage x.icon.center[0] == y.icon.center[0]
+}
+
+forall Object x where far(x) {
+    encourage nearPt(x.icon,400,0)
+}
+
+forall Object x; Object y {
+    encourage shapeDistance(x.plate,y.plate) > 100
+}
+
+forall Object x; Object y
+where near(x); near(y); eats(x, y) {
+    ensure y.icon.center[0] == x.anchor[0]
+    ensure y.icon.center[1] == x.anchor[1]
+    layer y.plate above x.icon
+}
+
+forall Object x; Object y
+where far(x); far(y); eats(x, y) {
+    ensure y.icon.center[0] == x.anchor[0]
+    ensure y.icon.center[1] == x.anchor[1]
+    layer y.plate above x.icon
+}

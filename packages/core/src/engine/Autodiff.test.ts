@@ -114,7 +114,7 @@ describe("genCode tests", () => {
     const g1 = secondaryGraph([5]);
     const g2 = secondaryGraph([8]);
     expect(() => genCodeSync(g1, g2)).toThrow(
-      "secondary output 0 is present in 2 graphs"
+      "secondary output 0 is present in 2 graphs",
     );
   });
 
@@ -125,7 +125,7 @@ describe("genCode tests", () => {
     v2[1] = 8;
     const f = genCodeSync(
       makeGraph({ primary, secondary: v2 }),
-      makeGraph({ primary, secondary: v1 })
+      makeGraph({ primary, secondary: v1 }),
     );
     expect(f((x) => x.val, [true, false])).toEqual({
       gradient: new Map([[primary, 1]]),
@@ -362,7 +362,7 @@ const gradGraph8 = (): GradGraph => {
 };
 
 const makeFunc = (
-  g: GradGraph
+  g: GradGraph,
 ): ((xs: number[]) => { output: number; gradient: number[] }) => {
   const indices = new Map(g.inputs.map((x, i) => [x, i]));
   const f = genCodeSync(primaryGraph(g.output));
@@ -415,7 +415,7 @@ const gradGraph0 = (): GradGraph => {
   logAD.trace(
     "computational graphs for test 1 (input, output, gradient)",
     ref,
-    head
+    head,
   );
 
   return { inputs: [ref], output: head };
@@ -452,8 +452,8 @@ describe("polyRoots tests", () => {
     const closedForm = genCodeSync(
       primaryGraph(
         // c + bx + ax²
-        div(f1(neg(b), sqrt(sub(squared(b), mul(4, mul(a, c))))), mul(2, a))
-      )
+        div(f1(neg(b), sqrt(sub(squared(b), mul(4, mul(a, c))))), mul(2, a)),
+      ),
     );
 
     const [r1, r2] = polyRoots([c, b]); // c + bx + x²; recall that a = 1

@@ -150,6 +150,10 @@ export default defineConfig({
   themeConfig: {
     logo: "img/favicon.ico",
     outline: "deep",
+    editLink: {
+      pattern:
+        "https://github.com/penrose/penrose/edit/main/packages/docs-site/:path",
+    },
     nav: [
       {
         text: "Examples",
@@ -163,7 +167,7 @@ export default defineConfig({
       },
       { text: "Documentation", link: "/docs/ref", activeMatch: "/docs/ref" },
       { text: "Try Penrose", link: "pathname:///try/index.html" },
-      { text: "Join Discord", link: "https://discord.gg/Y3K2kHxp2b" },
+      { text: "Join Discord", link: "https://discord.gg/a7VXJU4dfR" },
       { text: "Team", link: "/docs/team" },
       { text: "Blog", link: "/blog", activeMatch: "/blog" },
       {
@@ -185,7 +189,7 @@ export default defineConfig({
     socialLinks: [
       { icon: "github", link: "https://github.com/penrose/penrose" },
       { icon: "twitter", link: "https://twitter.com/UsePenrose" },
-      { icon: "discord", link: "https://discord.gg/Y3K2kHxp2b" },
+      { icon: "discord", link: "https://discord.gg/a7VXJU4dfR" },
     ],
 
     sidebar: {
@@ -283,6 +287,30 @@ export default defineConfig({
           text: "For Developers",
           items: [
             {
+              text: "The Language API",
+              link: "/docs/ref/api",
+            },
+            {
+              text: "The Optimization API",
+              link: "/docs/ref/optimization-api",
+            },
+            {
+              text: "Using Penrose with Vanilla JS",
+              link: "/docs/ref/vanilla-js",
+            },
+            {
+              text: "Using Penrose with a Bundler",
+              link: "/docs/ref/bundle",
+            },
+            {
+              text: "Using Penrose with React",
+              link: "/docs/ref/react",
+            },
+            {
+              text: "Using Penrose with SolidJS",
+              link: "/docs/ref/solid",
+            },
+            {
               text: "Writing Constraints & Objectives",
               link: "/docs/ref/constraints",
             },
@@ -291,19 +319,28 @@ export default defineConfig({
       ],
       "/blog": [
         {
+          text: "July 2023",
+          items: [
+            {
+              text: "Announcing Penrose 3.0",
+              link: "/blog/v3",
+            },
+          ],
+        },
+        {
           text: "June 2023",
           items: [
             {
               text: "Diagram Layout in Stages",
-              link: "/blog/2023/06/30/staged-layout",
+              link: "/blog/staged-layout",
             },
             {
               text: "What Have We Done to the Languages?",
-              link: "/blog/2023/06/30/new-language-features",
+              link: "/blog/new-language-features",
             },
             {
               text: "Switching to Wasm for 10x Speedup",
-              link: "/blog/2023/06/30/wasm",
+              link: "/blog/wasm",
             },
           ],
         },

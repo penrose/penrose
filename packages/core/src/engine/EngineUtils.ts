@@ -73,7 +73,7 @@ export const wrapErr = (s: string): StyleError => {
 export const runtimeValueTypeError = (
   path: Path<A>,
   expectedType: string,
-  actualType: string
+  actualType: string,
 ): StyleError => {
   return {
     tag: "RuntimeValueTypeError",
@@ -350,7 +350,7 @@ const mapPolyline = <T, S>(f: (arg: T) => S, v: Polyline<T>): Polyline<S> => {
 
 const mapRectangle = <T, S>(
   f: (arg: T) => S,
-  v: Rectangle<T>
+  v: Rectangle<T>,
 ): Rectangle<S> => {
   return {
     ...v,
@@ -383,7 +383,7 @@ const mapText = <T, S>(f: (arg: T) => S, v: Text<T>): Text<S> => {
 
 const mapPassthrough = <T, S>(
   f: (arg: T) => S,
-  v: Map<string, CanPassthrough<T>>
+  v: Map<string, CanPassthrough<T>>,
 ): Map<string, CanPassthrough<S>> => {
   const vMapped = new Map<string, CanPassthrough<S>>();
   for (const [key, value] of v.entries()) {
@@ -450,7 +450,7 @@ const mapPoly = <T, S>(f: (arg: T) => S, v: Poly<T>): Poly<S> => {
 
 const mapString = <T, S>(
   f: (arg: T) => S,
-  v: StringProps<T>
+  v: StringProps<T>,
 ): StringProps<S> => {
   return { string: v.string, fontSize: v.fontSize };
 };
@@ -492,7 +492,7 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
 
 export const compileCompGraph = async (
   inputs: ad.Var[],
-  shapes: Shape<ad.Num>[]
+  shapes: Shape<ad.Num>[],
 ): Promise<ShapeFn> => {
   const indices = new Map(inputs.map((x, i) => [x, i]));
   const vars: ad.Num[] = [];
@@ -508,7 +508,7 @@ export const compileCompGraph = async (
   const evalFn = await genCode(compGraph);
   return (xs: number[]): Shape<number>[] => {
     const numbers = evalFn(
-      (x) => xs[safe(indices.get(x), "input not found")]
+      (x) => xs[safe(indices.get(x), "input not found")],
     ).secondary;
     const m = new Map(compGraph.secondary.map((id, i) => [id, numbers[i]]));
     return shapes.map((s: Shape<ad.Num>) =>
@@ -516,10 +516,10 @@ export const compileCompGraph = async (
         (x) =>
           safe(
             m.get(safe(compGraph.nodes.get(x), `missing node`)),
-            "missing output"
+            "missing output",
           ),
-        s
-      )
+        s,
+      ),
     );
   };
 };
@@ -538,7 +538,7 @@ export const isConcrete = (node: ASTNode<A>): node is ConcreteNode =>
 // COMBAK: Make fake identifier from string (e.g. if we don't have a source loc, make fake source loc)
 export const dummyIdentifier = (
   name: string,
-  nodeType: NodeType
+  nodeType: NodeType,
 ): Identifier<A> => {
   return {
     nodeType,

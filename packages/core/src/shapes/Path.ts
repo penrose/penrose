@@ -20,7 +20,7 @@ export interface PathProps<T> extends Named<T>, Stroke<T>, Fill<T>, Arrow<T> {
 
 export const samplePath = (
   context: Context,
-  _canvas: Canvas
+  _canvas: Canvas,
 ): PathProps<ad.Num> => ({
   name: strV("defaultPath"),
   strokeWidth: floatV(1),
@@ -43,7 +43,7 @@ export type Path<T> = ShapeCommon<T> & { shapeType: "Path" } & PathProps<T>;
 export const makePath = (
   context: Context,
   canvas: Canvas,
-  properties: Partial<PathProps<ad.Num>>
+  properties: Partial<PathProps<ad.Num>>,
 ): Path<ad.Num> => ({
   ...samplePath(context, canvas),
   ...properties,

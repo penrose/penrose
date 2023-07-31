@@ -155,6 +155,49 @@ const graphParams: SynthesizerSetting = {
   },
 };
 
+export const domains: PresetCollection = {
+  geometryDomain: {
+    displayName: "Geometry",
+    prompt: "",
+    substance: "",
+    domain: geometryDomain,
+    style: euclideanStyle,
+    setting: {
+      ...geometryParams,
+    },
+  },
+  moleculesDomain: {
+    displayName: "Molecules",
+    prompt: "",
+    substance: "",
+    domain: moleculesDomain,
+    style: lewisStyle,
+    setting: {
+      ...lewisParams,
+    },
+  },
+  undirectedGraphDomain: {
+    displayName: "Undirected Graphs",
+    prompt: "",
+    substance: "",
+    domain: simpleGraphDomain,
+    style: simpleGraphStyle,
+    setting: {
+      ...graphParams,
+    },
+  },
+  directedGraphDomain: {
+    displayName: "Directed Graphs",
+    prompt: "",
+    substance: "",
+    domain: simpleDirectedGraphDomain,
+    style: simpleDirectedGraphStyle,
+    setting: {
+      ...graphParams,
+    },
+  },
+};
+
 export const presets: PresetCollection = {
   c01p01: {
     displayName: "c01p01: Collinear Points",

@@ -28,7 +28,7 @@ const canvas = makeCanvas(800, 700);
 
 const expectBbox = (
   actual: BBox,
-  expected: { width: number; height: number; center: [number, number] }
+  expected: { width: number; height: number; center: [number, number] },
 ) => {
   const [width, height, x, y] = numsOf([
     actual.width,
@@ -58,7 +58,7 @@ const polyProps = (): Poly<ad.Num> & Scale<ad.Num> => ({
       [701, 120],
       [591, 90],
       [528, 129],
-    ]
+    ],
   ),
   scale: floatV(0.5),
 });
@@ -112,7 +112,7 @@ describe("bbox", () => {
     const shape = makePolygon(
       simpleContext("bbox Polygon"),
       canvas,
-      polyProps()
+      polyProps(),
     );
     expectBbox(bboxFromPolygon(shape), {
       width: 113.5,
@@ -125,7 +125,7 @@ describe("bbox", () => {
     const shape = makePolyline(
       simpleContext("bbox Polyline"),
       canvas,
-      polyProps()
+      polyProps(),
     );
     expectBbox(bboxFromPolygon(shape), {
       width: 113.5,
@@ -252,7 +252,7 @@ describe("bbox", () => {
         [200, 100],
         30,
         1,
-        0
+        0,
       ).value,
     });
     expectBbox(bboxFromPath(shape), {
@@ -273,7 +273,7 @@ describe("bbox", () => {
         [200, 100],
         30,
         0,
-        0
+        0,
       ).value,
     });
     expectBbox(bboxFromPath(shape), {
@@ -294,7 +294,7 @@ describe("bbox", () => {
         [25, 50],
         60,
         0,
-        0
+        0,
       ).value,
     });
     expectBbox(bboxFromPath(shape), {

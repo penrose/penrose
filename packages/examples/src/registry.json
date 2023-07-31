@@ -451,5 +451,57 @@
   "matrix-library/skew2d": {},
   "matrix-library/translate2d": {},
   "matrix-library/translate3dh": {},
-  "atoms-and-bonds/wet-floor": { "name": "Wet Floor", "gallery": true }
+  "atoms-and-bonds/wet-floor": { "name": "Wet Floor", "gallery": false },
+  "curve-examples/offset": {
+    "name": "Offset Curve",
+    "gallery": false
+  },
+  "curve-examples/frenet-frame": {
+    "name": "Frenet Frame",
+    "gallery": false
+  },
+  "curve-examples/osculating-circle": {
+    "name": "Osculating Circle",
+    "gallery": false
+  },
+  "curve-examples/evolute-of-cardioid": {
+    "name": "Evolute of Cardioid",
+    "gallery": false
+  },
+  "spectral-graphs/examples/truncated-cube-graph": {
+    "name": "Truncated Cube Graph",
+    "gallery": false
+  },
+  "spectral-graphs/examples/torus": {
+    "name": "Periodic 2D Grid",
+    "gallery": false
+  },
+  "spectral-graphs/examples/periodic-hexagonal-lattice": {
+    "name": "Periodic Hexagonal Grid",
+    "gallery": false
+  },
+  "alloy-models/dining-philosophers": {
+    "name": "Alloy: Dining Philosophers Problem",
+    "gallery": false
+  },
+  "alloy-models/message-passing": {
+    "name": "Alloy: Conversation between Four Parties",
+    "gallery": false
+  },
+  "alloy-models/ring-leader-election": {
+    "name": "Alloy: Leader Election in Ring",
+    "gallery": false
+  },
+  "alloy-models/river-crossing": {
+    "name": "Alloy: River Crossing",
+    "gallery": false
+  },
+  "alloy-models/workstations": {
+    "name": "Alloy: Workstations",
+    "gallery": false
+  },
+  "alloy-models/generic": {
+    "name": "Alloy: Generic Style",
+    "gallery": false
+  }
 }

@@ -19,7 +19,7 @@ export interface PolygonProps<T>
 
 export const samplePolygon = (
   context: Context,
-  _canvas: Canvas
+  _canvas: Canvas,
 ): PolygonProps<ad.Num> => ({
   name: strV("defaultPolygon"),
   strokeWidth: floatV(0),
@@ -43,7 +43,7 @@ export type Polygon<T> = ShapeCommon<T> & {
 export const makePolygon = (
   context: Context,
   canvas: Canvas,
-  properties: Partial<PolygonProps<ad.Num>>
+  properties: Partial<PolygonProps<ad.Num>>,
 ): Polygon<ad.Num> => ({
   ...samplePolygon(context, canvas),
   ...properties,

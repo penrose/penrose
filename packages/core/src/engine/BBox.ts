@@ -89,7 +89,7 @@ export const inflate = (b: BBox, delta: ad.Num): BBox => {
   return bbox(
     add(b.width, add(delta, delta)),
     add(b.height, add(delta, delta)),
-    b.center
+    b.center,
   );
 };
 
@@ -177,7 +177,7 @@ export const bboxFromRotatedRect = (
   w: ad.Num,
   h: ad.Num,
   clockwise: ad.Num,
-  strokeWidth: ad.Num
+  strokeWidth: ad.Num,
 ): BBox => {
   const counterclockwise = neg(clockwise);
   const down = ops.vrot([0, -1], counterclockwise);
@@ -190,7 +190,7 @@ export const bboxFromRotatedRect = (
 
   const topLeft = ops.vsub(
     [sub(center[0], div(w, 2)), add(center[1], div(h, 2))],
-    ops.vmul(div(strokeWidth, 2), ops.vadd(down, right))
+    ops.vmul(div(strokeWidth, 2), ops.vadd(down, right)),
   );
   const topRight = ops.vadd(topLeft, top);
   const botLeft = ops.vadd(topLeft, left);
@@ -217,7 +217,7 @@ export const bboxFromCircle = ({
   // https://github.com/penrose/penrose/issues/715
   if (!ad.isPt2(center.contents)) {
     throw new Error(
-      `bboxFromCircle expected center to be Pt2, but got length ${center.contents.length}`
+      `bboxFromCircle expected center to be Pt2, but got length ${center.contents.length}`,
     );
   }
 
@@ -234,7 +234,7 @@ export const bboxFromEllipse = ({
   // https://github.com/penrose/penrose/issues/715
   if (!ad.isPt2(center.contents)) {
     throw new Error(
-      `bboxFromEllipse expected center to be Pt2, but got length ${center.contents.length}`
+      `bboxFromEllipse expected center to be Pt2, but got length ${center.contents.length}`,
     );
   }
 
@@ -243,7 +243,7 @@ export const bboxFromEllipse = ({
   return bbox(
     add(dx, strokeWidth.contents),
     add(dy, strokeWidth.contents),
-    center.contents
+    center.contents,
   );
 };
 
@@ -256,7 +256,7 @@ export const bboxFromRect = ({
   // https://github.com/penrose/penrose/issues/715
   if (!ad.isPt2(center.contents)) {
     throw new Error(
-      `bboxFromRect expected center to be Pt2, but got length ${center.contents.length}`
+      `bboxFromRect expected center to be Pt2, but got length ${center.contents.length}`,
     );
   }
 
@@ -264,7 +264,7 @@ export const bboxFromRect = ({
   return bbox(
     add(width.contents, strokeWidth.contents),
     add(height.contents, strokeWidth.contents),
-    center.contents
+    center.contents,
   );
 };
 
@@ -277,7 +277,7 @@ export const bboxFromRectlike = ({
   // https://github.com/penrose/penrose/issues/715
   if (!ad.isPt2(center.contents)) {
     throw new Error(
-      `bboxFromRectlike expected center to be Pt2, but got length ${center.contents.length}`
+      `bboxFromRectlike expected center to be Pt2, but got length ${center.contents.length}`,
     );
   }
 
@@ -286,7 +286,7 @@ export const bboxFromRectlike = ({
     width.contents,
     height.contents,
     rotation.contents,
-    0
+    0,
   );
 };
 
@@ -301,10 +301,10 @@ export const bboxFromPolygon = ({
         return pt;
       } else {
         throw new Error(
-          `bboxFromPolygon expected each point to be Pt2, but got length ${point.length}`
+          `bboxFromPolygon expected each point to be Pt2, but got length ${point.length}`,
         );
       }
-    })
+    }),
   );
 };
 
@@ -316,18 +316,18 @@ export const bboxFromLinelike = ({
   // https://github.com/penrose/penrose/issues/715
   if (!ad.isPt2(start.contents)) {
     throw new Error(
-      `bboxFromLinelike expected start to be Pt2, but got length ${start.contents.length}`
+      `bboxFromLinelike expected start to be Pt2, but got length ${start.contents.length}`,
     );
   }
   if (!ad.isPt2(end.contents)) {
     throw new Error(
-      `bboxFromLinelike expected end to be Pt2, but got length ${end.contents.length}`
+      `bboxFromLinelike expected end to be Pt2, but got length ${end.contents.length}`,
     );
   }
 
   const d = ops.vmul(
     div(strokeWidth.contents, 2),
-    ops.rot90(ops.vnormalize(ops.vsub(end.contents, start.contents)))
+    ops.rot90(ops.vnormalize(ops.vsub(end.contents, start.contents))),
   );
   return bboxFromPoints(
     [
@@ -341,7 +341,7 @@ export const bboxFromLinelike = ({
       } else {
         throw new Error("ops did not preserve dimension");
       }
-    })
+    }),
   );
 };
 
@@ -352,18 +352,18 @@ export const bboxFromPath = ({ d }: PathProps<ad.Num>): BBox => {
   }
   if (p[0].cmd !== "M") {
     throw new Error(
-      `bboxFromPath expected first command to be M, but got ${p[0].cmd}`
+      `bboxFromPath expected first command to be M, but got ${p[0].cmd}`,
     );
   }
   const first = p[0].contents[0];
   if (first.tag !== "CoordV") {
     throw new Error(
-      `bboxFromPath expected first command subpath to be CoordV, but got ${first.tag}`
+      `bboxFromPath expected first command subpath to be CoordV, but got ${first.tag}`,
     );
   }
   if (!ad.isPt2(first.contents)) {
     throw new Error(
-      `bboxFromPath expected cursor to be Pt2, but got length ${first.contents.length}`
+      `bboxFromPath expected cursor to be Pt2, but got length ${first.contents.length}`,
     );
   }
   let cursor: ad.Pt2 = first.contents;
@@ -437,13 +437,13 @@ export const bboxFromPath = ({ d }: PathProps<ad.Num>): BBox => {
       // eq. 5.1
       const [x1Prime, y1Prime] = ops.vrot(
         ops.vdiv(ops.vsub(cursor, next.contents), 2),
-        neg(phi)
+        neg(phi),
       );
 
       // eq. 6.2
       const lambda = add(
         squared(div(x1Prime, rxPos)),
-        squared(div(y1Prime, ryPos))
+        squared(div(y1Prime, ryPos)),
       );
 
       // eq. 6.3
@@ -467,20 +467,20 @@ export const bboxFromPath = ({ d }: PathProps<ad.Num>): BBox => {
               div(
                 sub(
                   sub(squared(mul(rx, ry)), squared(mul(rx, y1Prime))),
-                  squared(mul(ry, x1Prime))
+                  squared(mul(ry, x1Prime)),
                 ),
-                add(squared(mul(rx, y1Prime)), squared(mul(ry, x1Prime)))
-              )
-            )
-          )
+                add(squared(mul(rx, y1Prime)), squared(mul(ry, x1Prime))),
+              ),
+            ),
+          ),
         ),
-        [div(mul(rx, y1Prime), ry), neg(div(mul(ry, x1Prime), rx))]
+        [div(mul(rx, y1Prime), ry), neg(div(mul(ry, x1Prime), rx))],
       );
 
       // eq. 5.3
       const [cx, cy] = ops.vadd(
         ops.vrot(cPrime, phi),
-        ops.vdiv(ops.vadd(cursor, next.contents), 2)
+        ops.vdiv(ops.vadd(cursor, next.contents), 2),
       );
 
       // very crude approach: we know that the ellipse is contained within a
@@ -528,6 +528,6 @@ export const intersectBbox = (bbox1: BBox, bbox2: BBox): BBox => {
   return bbox(
     ifCond(cond, intersection_w, 0),
     ifCond(cond, intersection_h, 0),
-    [ifCond(cond, intersection_x, 0), ifCond(cond, intersection_y, 0)]
+    [ifCond(cond, intersection_x, 0), ifCond(cond, intersection_y, 0)],
   );
 };

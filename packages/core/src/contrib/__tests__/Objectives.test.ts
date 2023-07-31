@@ -27,7 +27,7 @@ describe("simple objective", () => {
     (x: number, y: number, expected: number) => {
       const result = objDict.equal.body(x, y).value;
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
-    }
+    },
   );
 
   it.each([
@@ -41,7 +41,7 @@ describe("simple objective", () => {
     (weight: number, a: number[], b: number[], expected: number) => {
       const result = objDict.repelPt.body(weight, a, b).value;
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
-    }
+    },
   );
 
   it.each([
@@ -55,7 +55,7 @@ describe("simple objective", () => {
     (c: number, d: number, expected: number) => {
       const result = objDict.repelScalar.body(c, d).value;
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
-    }
+    },
   );
 });
 
@@ -67,7 +67,7 @@ describe("isRegular", () => {
       const closed: boolean = isClosed(shape);
       const result = objDictSpecific.isRegular.body(points, closed).value;
       expect(numOf(result)).toBeLessThanOrEqual(1e-5);
-    }
+    },
   );
 
   it.each([

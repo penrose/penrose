@@ -11,7 +11,7 @@ export const inDirection = (
   p: ad.Pt2,
   pRef: ad.Pt2,
   direction: ad.Pt2,
-  offset: ad.Num
+  offset: ad.Num,
 ): ad.Num => {
   const unitDirectionVector = ops.vnormalize(direction);
   const dotProduct = ops.vdot(ops.vsub(p, pRef), unitDirectionVector);

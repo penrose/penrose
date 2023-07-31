@@ -37,7 +37,7 @@ export const polyRoots: (v: Float64Array) => void = penrose_poly_roots;
 export type Fn = (
   x: Float64Array,
   weight: number,
-  grad: Float64Array
+  grad: Float64Array,
 ) => number;
 
 /**
@@ -57,7 +57,7 @@ export const stepUntil = (
   f: Fn,
   x: Float64Array,
   state: Params,
-  stop: () => boolean
+  stop: () => boolean,
 ): Params => penrose_step_until(f, x, state, stop);
 
 export type { LbfgsParams, OptStatus, Params };

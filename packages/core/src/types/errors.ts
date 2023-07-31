@@ -213,7 +213,9 @@ export type StyleError =
   | TooManyArgumentsError
   | FunctionInternalError
   | RedeclareNamespaceError
-  | UnexpectedCollectionAccessError
+  | NotSubstanceCollectionError
+  | NotStyleVariableError
+  | LayerOnNonShapesError
   // Runtime errors
   | RuntimeValueTypeError;
 
@@ -515,10 +517,22 @@ export interface RedeclareNamespaceError {
   location: SourceRange; // location of the duplicated declaration
 }
 
-export interface UnexpectedCollectionAccessError {
-  tag: "UnexpectedCollectionAccessError";
+export interface NotSubstanceCollectionError {
+  tag: "NotSubstanceCollectionError";
   name: string;
   location: SourceRange;
+}
+
+export interface NotStyleVariableError {
+  tag: "NotStyleVariableError";
+  name: string;
+  location: SourceRange;
+}
+
+export interface LayerOnNonShapesError {
+  tag: "LayerOnNonShapesError";
+  location: SourceRange;
+  expr: string;
 }
 
 //#endregion

@@ -156,7 +156,7 @@ export default function (props: MultiChoiceProblemProps) {
           })
         }
       />
-    )
+    ),
   );
   return (
     <Content onClick={(e) => e.stopPropagation()}>

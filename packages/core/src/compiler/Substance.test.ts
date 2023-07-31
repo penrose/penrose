@@ -147,7 +147,7 @@ NoLabel D, E
       });
     } else {
       throw Error(
-        "Unexpected error when processing labels: " + showError(res.error)
+        "Unexpected error when processing labels: " + showError(res.error),
       );
     }
   });
@@ -183,7 +183,7 @@ Set E := Subset(B, C)
     expect(res.isOk()).toBe(true);
     if (res.isOk()) {
       expect(res.value[1].constructorsBindings.get("E")![0].name.value).toEqual(
-        "Subset"
+        "Subset",
       );
       // TODO: not caching var bindings for now. Add to checker if needed
       // expect(res.value[1].bindings.get("A")![0].name.value).toEqual("Subset");
@@ -282,7 +282,7 @@ NoLabel B, C
 describe("Errors", () => {
   const expectErrorOf = (
     result: Result<[SubstanceEnv, Env], PenroseError>,
-    errorType: string
+    errorType: string,
   ) => {
     if (result.isErr()) {
       if (printError) console.log(showError(result.error));
@@ -502,13 +502,13 @@ Empty(Subset(A, B))
 Empty(AddPoint(p, A))`;
     const [subEnv] = subEnvOrError(prog, env);
     expect((subEnv.ast.statements[3] as ApplyPredicate<A>).args[0].tag).toEqual(
-      "ApplyPredicate"
+      "ApplyPredicate",
     );
     expect((subEnv.ast.statements[4] as ApplyPredicate<A>).args[0].tag).toEqual(
-      "ApplyConstructor"
+      "ApplyConstructor",
     );
     expect((subEnv.ast.statements[5] as ApplyPredicate<A>).args[0].tag).toEqual(
-      "ApplyFunction"
+      "ApplyFunction",
     );
   });
 });
@@ -548,7 +548,7 @@ NoLabel D, E`;
 
 const sameAsSource = (
   source: string,
-  res: Result<[SubstanceEnv, Env], PenroseError>
+  res: Result<[SubstanceEnv, Env], PenroseError>,
 ) => {
   if (res.isOk()) {
     const ast = res.value[0].ast;

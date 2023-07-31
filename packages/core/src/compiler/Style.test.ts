@@ -52,14 +52,14 @@ export const loadProgs = async ({
   const throwErr = (e: any): any => {
     throw Error(
       `Expected Style program to work without errors. Got error: ${showError(
-        e
-      )}`
+        e,
+      )}`,
     );
   };
   const env: Env = compileDomain(dsl).unwrapOrElse(throwErr);
   const [subEnv, varEnv]: [SubstanceEnv, Env] = compileSubstance(
     sub,
-    env
+    env,
   ).unwrapOrElse(throwErr);
   return (
     await S.compileStyleHelper("styletests", sty, subEnv, varEnv)
@@ -86,7 +86,7 @@ describe("Layering computation", () => {
     const { shapeOrdering, warning } = S.computeLayerOrdering(
       ["A", "B", "C"],
       partials,
-      simpleGroupGraph
+      simpleGroupGraph,
     );
     expect(shapeOrdering).toEqual(["A", "B", "C"]);
     expect(warning).toBeUndefined();
@@ -100,7 +100,7 @@ describe("Layering computation", () => {
     const { shapeOrdering, warning } = S.computeLayerOrdering(
       ["A", "B", "C"],
       partials,
-      simpleGroupGraph
+      simpleGroupGraph,
     );
     expect(shapeOrdering).toEqual(["A", "B", "C"]);
     expect(warning).toBeDefined();
@@ -118,7 +118,7 @@ describe("Layering computation", () => {
     const { shapeOrdering, warning } = S.computeLayerOrdering(
       ["A", "B", "C", "D", "E", "F"],
       partials,
-      simpleGroupGraph
+      simpleGroupGraph,
     );
     expect(shapeOrdering).toEqual(["A", "C", "F", "B", "D", "E"]);
     expect(warning).toBeDefined();
@@ -136,7 +136,7 @@ describe("Layering computation", () => {
     const { shapeOrdering, warning } = S.computeLayerOrdering(
       ["A", "B", "C", "D", "E", "F"],
       partials,
-      simpleGroupGraph
+      simpleGroupGraph,
     );
     expect(shapeOrdering).toEqual(["A", "B", "D", "E", "C", "F"]);
     expect(warning).toBeDefined();
@@ -157,7 +157,7 @@ describe("Layering computation", () => {
     const { shapeOrdering, warning } = S.computeLayerOrdering(
       ["G1", "B", "D", "A", "G2", "C"],
       partials,
-      groupGraph
+      groupGraph,
     );
     // Order is A, D, B, C
     // But, position of G1 and G2 are undetermined
@@ -185,7 +185,7 @@ describe("Layering computation", () => {
     const { shapeOrdering, warning } = S.computeLayerOrdering(
       ["g", "s3", "s1", "s2"],
       partials,
-      groupGraph
+      groupGraph,
     );
     expect(warning).toBeDefined();
     expect(warning!.cycles.length).toEqual(1);
@@ -195,7 +195,7 @@ describe("Layering computation", () => {
 const colorValMatches = (
   colorPath: string,
   expected: [number, number, number, number],
-  translation: Translation
+  translation: Translation,
 ) => {
   const val = translation.symbols.get(colorPath);
   const rgba = ((val?.contents as ColorV<number>).contents as RGBA<number>)
@@ -522,7 +522,7 @@ describe("Compiler", () => {
     ];
     stys.forEach((sty: string) => {
       expect(
-        async () => await loadProgs({ dsl, sub, sty: canvasPreamble + sty })
+        async () => await loadProgs({ dsl, sub, sty: canvasPreamble + sty }),
       ).not.toThrowError();
     });
   });
@@ -684,6 +684,29 @@ predicate Bond(Atom, Atom)`;
       const { state } = await loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toEqual(1);
     });
+
+    test("repeatable", async () => {
+      const dsl = "type T\npredicate P(T, T, T)";
+      const sub =
+        "T t1, t2, t3\nP(t1, t2, t3)\nP(t1, t1, t3)\nP(t2,t2,t3)\nP(t1,t3,t1)";
+      const sty1 =
+        canvasPreamble +
+        `forall repeatable T t1; T t2 {
+          Circle {}
+        }`;
+
+      const res1 = await loadProgs({ dsl, sub, sty: sty1 });
+      expect(res1.state.shapes.length).toEqual(6);
+
+      const sty2 =
+        canvasPreamble +
+        `forall repeatable T t1; T t2; T t3
+        where P(t1, t2, t3) {
+          Circle {}
+        }`;
+      const res2 = await loadProgs({ dsl, sub, sty: sty2 });
+      expect(res2.state.shapes.length).toEqual(4);
+    });
   });
 
   describe("predicate alias", () => {
@@ -732,19 +755,19 @@ Bond(O, H2)`;
 
   const expectErrorOf = (
     result: Result<State, PenroseError>,
-    errorType: string
+    errorType: string,
   ) => {
     if (result.isErr()) {
       const res: PenroseError = result.error;
       if (res.errorType !== "StyleError") {
         throw Error(
-          `Error ${errorType} was supposed to occur. Got a non-Style error '${res.errorType}'.`
+          `Error ${errorType} was supposed to occur. Got a non-Style error '${res.errorType}'.`,
         );
       }
 
       if (res.tag !== "StyleErrorList") {
         throw Error(
-          `Error ${errorType} was supposed to occur. Did not receive a Style list. Got ${res.tag}.`
+          `Error ${errorType} was supposed to occur. Did not receive a Style list. Got ${res.tag}.`,
         );
       }
 
@@ -788,7 +811,7 @@ predicate IsSubset(Set s1, Set s2)
 
     const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
       (env) => compileSubstance(subProg, env),
-      domainRes
+      domainRes,
     );
 
     const testStyProgForError = async (styProg: string, errorType: string) => {
@@ -799,7 +822,7 @@ predicate IsSubset(Set s1, Set s2)
             "Style compiler errors test seed",
             preamble + styProg,
             [],
-            ...subRes.value
+            ...subRes.value,
           );
       expectErrorOf(styRes, errorType);
     };
@@ -927,6 +950,9 @@ delete x.z.p }`,
            x.z = 1.0
            x.y = x.z.p
 }`,
+        `forall Set x {
+          layer AAA above BBB
+        }`,
       ],
       CanvasNonexistentDimsError: [
         `foo {
@@ -1054,7 +1080,7 @@ delete x.z.p }`,
         }
         `,
       ],
-      UnexpectedCollectionAccessError: [
+      NotSubstanceCollectionError: [
         `forall Set a {
           a.c = 10
           x = listof c from a
@@ -1064,6 +1090,13 @@ delete x.z.p }`,
         }`,
         `collect Set a into aa foreach Set b {
           x = listof c from x
+        }`,
+      ],
+      LayerOnNonShapesError: [
+        `block {
+          x = 100
+          y = 200
+          layer x above y
         }`,
       ],
       BadElementError: [
@@ -1200,7 +1233,7 @@ delete x.z.p }`,
           } else {
             return false;
           }
-        })
+        }),
       ).toEqual(true);
     });
 
@@ -1227,8 +1260,8 @@ delete x.z.p }`,
             } else {
               throw Error("Should be a FloatV");
             }
-          })
-        )
+          }),
+        ),
       ).toEqual(im.Set([1, 2, 3]));
     });
   });
@@ -1321,7 +1354,7 @@ delete x.z.p }`,
         }
         collect T t into ts {
           Circle {
-            r: count(listof value from ts)
+            r: numberof ts
           }
         }
       `;
@@ -1381,7 +1414,7 @@ delete x.z.p }`,
       // And this would fail:
       const { graph } = await loadProgs({ dsl, sub, sty });
       expect(graph.parents("`t`.val").sort()).toEqual(
-        ["`t`.vals", "1:0:match_id"].sort()
+        ["`t`.vals", "1:0:match_id"].sort(),
       );
     });
   });

@@ -16,11 +16,11 @@ export const arrowHead = (
   opacity: number,
   arrow: ArrowheadSpec,
   size: number,
-  flip: boolean
+  flip: boolean,
 ): SVGMarkerElement => {
   const marker = document.createElementNS(
     "http://www.w3.org/2000/svg",
-    "marker"
+    "marker",
   );
   marker.setAttribute("id", id);
   marker.setAttribute("markerUnits", "strokeWidth");
@@ -57,7 +57,7 @@ export const arrowHead = (
 const makeRoomForArrows = (
   shape: Line<number>,
   startArrowhead?: ArrowheadSpec,
-  endArrowhead?: ArrowheadSpec
+  endArrowhead?: ArrowheadSpec,
 ): [number[][], string[]] => {
   // Keep a list of which input properties we programatically mapped
   const attrMapped: string[] = [];
@@ -75,7 +75,7 @@ const makeRoomForArrows = (
     "endArrowhead",
     "startArrowheadSize",
     "endArrowheadSize",
-    "strokeWidth"
+    "strokeWidth",
   );
 
   // height * size = Penrose computed arrow size
@@ -134,7 +134,7 @@ const makeRoomForArrows = (
 
 const RenderLine = (
   shape: Line<number>,
-  { canvasSize, namespace, variation }: RenderProps
+  { canvasSize, namespace, variation }: RenderProps,
 ): SVGGElement => {
   const startArrowhead = getArrowhead(shape.startArrowhead.contents);
   const endArrowhead = getArrowhead(shape.endArrowhead.contents);
@@ -168,8 +168,8 @@ const RenderLine = (
         opacity,
         startArrowhead,
         startArrowheadSize,
-        flip
-      )
+        flip,
+      ),
     );
   }
   if (endArrowhead) {
@@ -181,8 +181,8 @@ const RenderLine = (
         opacity,
         endArrowhead,
         endArrowheadSize,
-        false
-      )
+        false,
+      ),
     );
   }
 
@@ -192,7 +192,7 @@ const RenderLine = (
     "flipStartArrowhead",
     "endArrowhead",
     "startArrowheadSize",
-    "endArrowheadSize"
+    "endArrowheadSize",
   );
 
   attrToNotAutoMap.push(...attrStroke(shape, line));

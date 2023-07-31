@@ -50,6 +50,8 @@ const styleCustoms = {
     "where",
     "with",
     "listof",
+    "numberof",
+    "nameof",
     "from",
     "delete",
     "as",
@@ -66,6 +68,7 @@ const styleCustoms = {
     "text",
     "in",
     "except",
+    "repeatable",
   ],
   types: [
     "scalar",
@@ -196,12 +199,12 @@ export const SetupStyleMonaco = (monaco: Monaco) => {
         true,
         false,
         null,
-        true
+        true,
       );
       return colorMatches.reduce(
         (
           colors: languages.IColorInformation[],
-          { matches, range }: editor.FindMatch
+          { matches, range }: editor.FindMatch,
         ) => {
           if (matches !== null) {
             const hexColor = hexToRgba(matches[1]);
@@ -224,7 +227,7 @@ export const SetupStyleMonaco = (monaco: Monaco) => {
             return colors;
           }
         },
-        []
+        [],
       );
     },
   });
@@ -241,7 +244,7 @@ export const SetupStyleMonaco = (monaco: Monaco) => {
         };
         return { suggestions: StyleCompletions(range) } as any;
       },
-    }
+    },
   );
   return () => {
     disposeColor.dispose();

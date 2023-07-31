@@ -12,7 +12,7 @@ import {
 import { useCompileDiagram } from "../state/callbacks.js";
 export default function ProgramEditor({ kind }: { kind: ProgramType }) {
   const [programState, setProgramState] = useRecoilState(
-    fileContentsSelector(kind)
+    fileContentsSelector(kind),
   );
   const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
   const domainCache = useRecoilValue(domainCacheState);
@@ -24,7 +24,7 @@ export default function ProgramEditor({ kind }: { kind: ProgramType }) {
     (v: string) => {
       setProgramState((state) => ({ ...state, contents: v }));
     },
-    [setProgramState]
+    [setProgramState],
   );
   if (settings.state !== "hasValue") {
     return <div>loading...</div>;

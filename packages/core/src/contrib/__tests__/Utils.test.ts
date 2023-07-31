@@ -38,7 +38,7 @@ describe("consecutiveTuples", () => {
     (points: [ad.Num, ad.Num][], expected: [ad.Num, ad.Num][][]) => {
       const result = consecutiveTuples(points, true);
       expect(result).toStrictEqual(expected);
-    }
+    },
   );
 
   it.each([
@@ -56,7 +56,7 @@ describe("consecutiveTuples", () => {
     (points: [ad.Num, ad.Num][], expected: [ad.Num, ad.Num][][]) => {
       const result = consecutiveTuples(points, false);
       expect(result).toStrictEqual(expected);
-    }
+    },
   );
 
   it.each([
@@ -90,7 +90,7 @@ describe("consecutiveTuples", () => {
     (points: [ad.Num, ad.Num][], expected: [ad.Num, ad.Num][][]) => {
       const result = consecutiveTriples(points, true);
       expect(result).toStrictEqual(expected);
-    }
+    },
   );
   it.each([
     [[a], []],
@@ -108,7 +108,7 @@ describe("consecutiveTuples", () => {
     (points: [ad.Num, ad.Num][], expected: [ad.Num, ad.Num][][]) => {
       const result = consecutiveTriples(points, false);
       expect(result).toStrictEqual(expected);
-    }
+    },
   );
 });
 
@@ -130,6 +130,6 @@ describe("extractPoints", () => {
     (shape: Polyline<ad.Num> | Polygon<ad.Num>) => {
       const result = extractPoints(shape);
       expect(result).toStrictEqual(shape.points.contents);
-    }
+    },
   );
 });

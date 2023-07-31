@@ -18,7 +18,7 @@ const Demo = (props: {
   useEffect(() => {
     const interval = window.setInterval(
       () => setIndex((i) => (i + 1) % props.examples.length),
-      5000
+      5000,
     );
     return () => clearInterval(interval);
   }, [index]);

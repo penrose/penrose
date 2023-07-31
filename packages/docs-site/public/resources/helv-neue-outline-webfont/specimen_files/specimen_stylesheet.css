@@ -152,7 +152,9 @@ h2 {
   padding-top: 10px;
   padding-bottom: 50px;
   color: #333;
-  font: 10px Arial, sans-serif;
+  font:
+    10px Arial,
+    sans-serif;
 }
 
 .tabs {
@@ -313,7 +315,10 @@ div.glyph_range {
   padding-right: 5px;
   padding-left: 0;
   padding: 5px;
-  font: 11px/12px "Courier New", Courier, mono;
+  font:
+    11px/12px "Courier New",
+    Courier,
+    mono;
 }
 
 code {
@@ -467,7 +472,9 @@ code {
   top: 0;
   display: block;
   text-align: center;
-  font: bold 9px Arial, sans-serif;
+  font:
+    bold 9px Arial,
+    sans-serif;
   background-color: #3a768f;
   width: 100%;
   color: #fff;
@@ -482,14 +489,18 @@ code {
 /* @group Installing */
 
 #installing {
-  font: 13px Arial, sans-serif;
+  font:
+    13px Arial,
+    sans-serif;
 }
 
 #installing p,
 #glyphs p {
   line-height: 1.2em;
   margin-bottom: 18px;
-  font: 13px Arial, sans-serif;
+  font:
+    13px Arial,
+    sans-serif;
 }
 
 #installing h3 {
@@ -503,6 +514,9 @@ code {
   font-family: Arial, sans-serif;
 }
 .render_table td {
-  font: 11px "Courier New", Courier, mono;
+  font:
+    11px "Courier New",
+    Courier,
+    mono;
   vertical-align: middle;
 }

@@ -1,0 +1,150 @@
+Node n0x0
+Node n0x1
+Node n0x2
+Node n0x3
+Node n0x4
+Node n0x5
+Node n0x6
+Node n0x7
+Node n0x8
+Node n0x9
+Node n1x0
+Node n1x1
+Node n1x2
+Node n1x3
+Node n1x4
+Node n1x5
+Node n1x6
+Node n1x7
+Node n1x8
+Node n1x9
+Node n2x0
+Node n2x1
+Node n2x2
+Node n2x3
+Node n2x4
+Node n2x5
+Node n2x6
+Node n2x7
+Node n2x8
+Node n2x9
+Node n3x0
+Node n3x1
+Node n3x2
+Node n3x3
+Node n3x4
+Node n3x5
+Node n3x6
+Node n3x7
+Node n3x8
+Node n3x9
+Node n4x0
+Node n4x1
+Node n4x2
+Node n4x3
+Node n4x4
+Node n4x5
+Node n4x6
+Node n4x7
+Node n4x8
+Node n4x9
+Node n5x0
+Node n5x1
+Node n5x2
+Node n5x3
+Node n5x4
+Node n5x5
+Node n5x6
+Node n5x7
+Node n5x8
+Node n5x9
+Edge e0 := MakeEdge(n0x0, n0x1)
+Edge e1 := MakeEdge(n0x0, n1x0)
+Edge e2 := MakeEdge(n0x0, n0x9)
+Edge e3 := MakeEdge(n0x1, n0x2)
+Edge e4 := MakeEdge(n0x1, n5x1)
+Edge e5 := MakeEdge(n0x2, n0x3)
+Edge e6 := MakeEdge(n0x2, n1x2)
+Edge e7 := MakeEdge(n0x3, n0x4)
+Edge e8 := MakeEdge(n0x3, n5x3)
+Edge e9 := MakeEdge(n0x4, n0x5)
+Edge e10 := MakeEdge(n0x4, n1x4)
+Edge e11 := MakeEdge(n0x5, n0x6)
+Edge e12 := MakeEdge(n0x5, n5x5)
+Edge e13 := MakeEdge(n0x6, n0x7)
+Edge e14 := MakeEdge(n0x6, n1x6)
+Edge e15 := MakeEdge(n0x7, n0x8)
+Edge e16 := MakeEdge(n0x7, n5x7)
+Edge e17 := MakeEdge(n0x8, n0x9)
+Edge e18 := MakeEdge(n0x8, n1x8)
+Edge e19 := MakeEdge(n0x9, n5x9)
+Edge e20 := MakeEdge(n1x0, n1x1)
+Edge e21 := MakeEdge(n1x0, n1x9)
+Edge e22 := MakeEdge(n1x1, n1x2)
+Edge e23 := MakeEdge(n1x1, n2x1)
+Edge e24 := MakeEdge(n1x2, n1x3)
+Edge e25 := MakeEdge(n1x3, n1x4)
+Edge e26 := MakeEdge(n1x3, n2x3)
+Edge e27 := MakeEdge(n1x4, n1x5)
+Edge e28 := MakeEdge(n1x5, n1x6)
+Edge e29 := MakeEdge(n1x5, n2x5)
+Edge e30 := MakeEdge(n1x6, n1x7)
+Edge e31 := MakeEdge(n1x7, n1x8)
+Edge e32 := MakeEdge(n1x7, n2x7)
+Edge e33 := MakeEdge(n1x8, n1x9)
+Edge e34 := MakeEdge(n1x9, n2x9)
+Edge e35 := MakeEdge(n2x0, n2x1)
+Edge e36 := MakeEdge(n2x0, n3x0)
+Edge e37 := MakeEdge(n2x0, n2x9)
+Edge e38 := MakeEdge(n2x1, n2x2)
+Edge e39 := MakeEdge(n2x2, n2x3)
+Edge e40 := MakeEdge(n2x2, n3x2)
+Edge e41 := MakeEdge(n2x3, n2x4)
+Edge e42 := MakeEdge(n2x4, n2x5)
+Edge e43 := MakeEdge(n2x4, n3x4)
+Edge e44 := MakeEdge(n2x5, n2x6)
+Edge e45 := MakeEdge(n2x6, n2x7)
+Edge e46 := MakeEdge(n2x6, n3x6)
+Edge e47 := MakeEdge(n2x7, n2x8)
+Edge e48 := MakeEdge(n2x8, n2x9)
+Edge e49 := MakeEdge(n2x8, n3x8)
+Edge e50 := MakeEdge(n3x0, n3x1)
+Edge e51 := MakeEdge(n3x0, n3x9)
+Edge e52 := MakeEdge(n3x1, n3x2)
+Edge e53 := MakeEdge(n3x1, n4x1)
+Edge e54 := MakeEdge(n3x2, n3x3)
+Edge e55 := MakeEdge(n3x3, n3x4)
+Edge e56 := MakeEdge(n3x3, n4x3)
+Edge e57 := MakeEdge(n3x4, n3x5)
+Edge e58 := MakeEdge(n3x5, n3x6)
+Edge e59 := MakeEdge(n3x5, n4x5)
+Edge e60 := MakeEdge(n3x6, n3x7)
+Edge e61 := MakeEdge(n3x7, n3x8)
+Edge e62 := MakeEdge(n3x7, n4x7)
+Edge e63 := MakeEdge(n3x8, n3x9)
+Edge e64 := MakeEdge(n3x9, n4x9)
+Edge e65 := MakeEdge(n4x0, n4x1)
+Edge e66 := MakeEdge(n4x0, n5x0)
+Edge e67 := MakeEdge(n4x0, n4x9)
+Edge e68 := MakeEdge(n4x1, n4x2)
+Edge e69 := MakeEdge(n4x2, n4x3)
+Edge e70 := MakeEdge(n4x2, n5x2)
+Edge e71 := MakeEdge(n4x3, n4x4)
+Edge e72 := MakeEdge(n4x4, n4x5)
+Edge e73 := MakeEdge(n4x4, n5x4)
+Edge e74 := MakeEdge(n4x5, n4x6)
+Edge e75 := MakeEdge(n4x6, n4x7)
+Edge e76 := MakeEdge(n4x6, n5x6)
+Edge e77 := MakeEdge(n4x7, n4x8)
+Edge e78 := MakeEdge(n4x8, n4x9)
+Edge e79 := MakeEdge(n4x8, n5x8)
+Edge e80 := MakeEdge(n5x0, n5x1)
+Edge e81 := MakeEdge(n5x0, n5x9)
+Edge e82 := MakeEdge(n5x1, n5x2)
+Edge e83 := MakeEdge(n5x2, n5x3)
+Edge e84 := MakeEdge(n5x3, n5x4)
+Edge e85 := MakeEdge(n5x4, n5x5)
+Edge e86 := MakeEdge(n5x5, n5x6)
+Edge e87 := MakeEdge(n5x6, n5x7)
+Edge e88 := MakeEdge(n5x7, n5x8)
+Edge e89 := MakeEdge(n5x8, n5x9)

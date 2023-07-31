@@ -1,9 +1,5 @@
 import { constrDict } from "./contrib/Constraints.js";
-import {
-  elasticEnergy,
-  equivalued,
-  perimeter,
-} from "./contrib/CurveConstraints.js";
+import { elasticEnergy, equivalued, perimeter } from "./contrib/Curves.js";
 import { signedDistanceRect } from "./contrib/Functions.js";
 import { rectPts } from "./contrib/Queries.js";
 import { consecutiveTuples } from "./contrib/Utils.js";
@@ -21,7 +17,7 @@ interface Rect {
 export const textBBox = (
   measure: TextMeasurement,
   x: ad.Num,
-  y: ad.Num
+  y: ad.Num,
 ): Rect => {
   const { height, width, actualDescent } = measure;
   y = add(y, sub(div(height, 2), actualDescent));
@@ -37,7 +33,7 @@ export const dist = (a: ad.Num[], b: ad.Num[]): ad.Num => ops.vdist(a, b);
 
 export const onCanvasRect = (
   [canvasWidth, canvasHeight]: [ad.Num, ad.Num],
-  { center: [x, y], width, height }: Rect
+  { center: [x, y], width, height }: Rect,
 ): ad.Num => {
   const canvasXRange: [ad.Num, ad.Num] = [0, canvasWidth];
   const canvasYRange: [ad.Num, ad.Num] = [0, canvasHeight];
@@ -45,13 +41,13 @@ export const onCanvasRect = (
   const hh = div(height, 2);
   return add(
     constrDict.contains1D.body(canvasXRange, [sub(x, hw), add(x, hw)]).value,
-    constrDict.contains1D.body(canvasYRange, [sub(y, hh), add(y, hh)]).value
+    constrDict.contains1D.body(canvasYRange, [sub(y, hh), add(y, hh)]).value,
   );
 };
 
 export const onCanvasPoint = (
   [x, y]: ad.Num[],
-  canvas: [ad.Num, ad.Num]
+  canvas: [ad.Num, ad.Num],
 ): ad.Num => {
   const [hcw, hch] = [div(canvas[0], 2), div(canvas[1], 2)];
   const xInRange = add(sub(x, neg(hcw)), sub(hcw, x));
@@ -88,14 +84,14 @@ export type {
   Vec,
 } from "./types/ad.js";
 export {
-  measureText,
-  variable,
-  signedDistanceRect,
-  perimeter,
   consecutiveTuples,
-  equivalued,
   elasticEnergy,
-  sub,
+  equivalued,
+  measureText,
+  perimeter,
   pow,
   rectPts,
+  signedDistanceRect,
+  sub,
+  variable,
 };

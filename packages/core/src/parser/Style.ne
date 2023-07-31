@@ -8,7 +8,7 @@ import moo from "moo";
 import _ from 'lodash'
 import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil.js'
 import { C, ConcreteNode, Identifier, StringLit  } from "../types/ast.js";
-import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, Collector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, CollectionAccess, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit, LayoutStages, FunctionCall, InlineComparison, ComparisonOp
+import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, Collector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, CollectionAccess, UnaryStyVarExpr, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit, LayoutStages, FunctionCall, InlineComparison, ComparisonOp
 } from "../types/style.js";
 
 const styleTypes: string[] =
@@ -53,6 +53,8 @@ const lexer = moo.compile({
       groupby: "groupby",
       from: "from",
       listof: "listof",
+      numberof: "numberof",
+      nameof: "nameof",
       delete: "delete",
       as: "as",
       true: "true",
@@ -63,6 +65,7 @@ const lexer = moo.compile({
       override: "override",
       in: "in",
       except: "except",
+      repeatable: "repeatable"
     })
   }
 });
@@ -84,15 +87,17 @@ const declList = (type: StyT<C>, ids: BindingForm<C>[]): DeclPattern<C>[] => {
 
 
 const selector = (
+  repeatable: any,
   hd: DeclPatterns<C>,
   wth?: DeclPatterns<C>,
   whr?: RelationPatterns<C>,
-  namespace?: Namespace<C>
+  namespace?: Namespace<C>,
 ): Selector<C> => {
   return {
     ...nodeData,
     ...rangeFrom(_.compact([hd, wth, whr])),
     tag: "Selector",
+    repeatable: repeatable ? true : false,
     head: hd,
     with: wth,
     where: whr,
@@ -100,6 +105,7 @@ const selector = (
 }
 
 const collector = (
+  repeatable: any,
   hd: DeclPattern<C>,
   it: BindingForm<C>,
   whr?: RelationPatterns<C>,
@@ -110,6 +116,7 @@ const collector = (
     ...nodeData,
     ...rangeFrom(_.compact([hd, it, whr, wth, fe])),
     tag: "Collector",
+    repeatable: repeatable ? true : false,
     head: hd,
     into: it,
     where: whr,
@@ -179,50 +186,50 @@ header
   |  namespace {% id %}
 
 selector -> 
-    forall decl_patterns _ml  
-    {% (d) => selector(d[1], undefined, undefined) %}
-  | forall decl_patterns _ml select_where 
-    {% (d) => selector(d[1], undefined, d[3]) %} 
-  | forall decl_patterns _ml select_with 
-    {% (d) => selector(d[1], d[3], undefined)%}   
-  | forall decl_patterns _ml select_where select_with 
-    {% (d) => selector(d[1], d[4], d[3]) %} 
-  | forall decl_patterns _ml select_with select_where 
-    {% (d) => selector(d[1], d[3], d[4]) %}
+    forall ("repeatable" __):? decl_patterns _ml  
+    {% (d) => selector(d[1], d[2], undefined, undefined) %}
+  | forall ("repeatable" __):? decl_patterns _ml select_where 
+    {% (d) => selector(d[1], d[2], undefined, d[4]) %} 
+  | forall ("repeatable" __):? decl_patterns _ml select_with 
+    {% (d) => selector(d[1], d[2], d[4], undefined)%}   
+  | forall ("repeatable" __):? decl_patterns _ml select_where select_with 
+    {% (d) => selector(d[1], d[2], d[5], d[4]) %} 
+  | forall ("repeatable" __):? decl_patterns _ml select_with select_where 
+    {% (d) => selector(d[1], d[2], d[4], d[5]) %}
 
 collector ->
-    collect decl _ml into _ml
-    {% (d) => collector(d[1], d[3], undefined, undefined, undefined) %}
-  | collect decl _ml into _ml select_where
-    {% (d) => collector(d[1], d[3], d[5], undefined, undefined) %}
-  | collect decl _ml into _ml select_where select_with
-    {% (d) => collector(d[1], d[3], d[5], d[6], undefined) %}
-  | collect decl _ml into _ml select_where select_with foreach
-    {% (d) => collector(d[1], d[3], d[5], d[6], d[7]) %}
-  | collect decl _ml into _ml select_where foreach
-    {% (d) => collector(d[1], d[3], d[5], undefined, d[6]) %}
-  | collect decl _ml into _ml select_where foreach select_with
-    {% (d) => collector(d[1], d[3], d[5], d[7], d[6]) %}
-  | collect decl _ml into _ml select_with
-    {% (d) => collector(d[1], d[3], undefined, d[5], undefined) %}
-  | collect decl _ml into _ml select_with select_where
-    {% (d) => collector(d[1], d[3], d[6], d[5], undefined) %}
-  | collect decl _ml into _ml select_with select_where foreach
-    {% (d) => collector(d[1], d[3], d[6], d[5], d[7]) %}
-  | collect decl _ml into _ml select_with foreach
-    {% (d) => collector(d[1], d[3], undefined, d[5], d[6]) %}
-  | collect decl _ml into _ml select_with foreach select_where
-    {% (d) => collector(d[1], d[3], d[7], d[5], d[6]) %}
-  | collect decl _ml into _ml foreach
-    {% (d) => collector(d[1], d[3], undefined, undefined, d[5]) %}
-  | collect decl _ml into _ml foreach select_where
-    {% (d) => collector(d[1], d[3], d[6], undefined, d[5]) %}
-  | collect decl _ml into _ml foreach select_where select_with
-    {% (d) => collector(d[1], d[3], d[6], d[7], d[5]) %}
-  | collect decl _ml into _ml foreach select_with
-    {% (d) => collector(d[1], d[3], undefined, d[6], d[5]) %}
-  | collect decl _ml into _ml foreach select_with select_where
-    {% (d) => collector(d[1], d[3], d[7], d[6], d[5]) %}
+    collect ("repeatable" __):? decl _ml into _ml
+    {% (d) => collector(d[1], d[2], d[4], undefined, undefined, undefined) %}
+  | collect ("repeatable" __):? decl _ml into _ml select_where
+    {% (d) => collector(d[1], d[2], d[4], d[6], undefined, undefined) %}
+  | collect ("repeatable" __):? decl _ml into _ml select_where select_with
+    {% (d) => collector(d[1], d[2], d[4], d[6], d[7], undefined) %}
+  | collect ("repeatable" __):? decl _ml into _ml select_where select_with foreach
+    {% (d) => collector(d[1], d[2], d[4], d[6], d[7], d[8]) %}
+  | collect ("repeatable" __):? decl _ml into _ml select_where foreach
+    {% (d) => collector(d[1], d[2], d[4], d[6], undefined, d[7]) %}
+  | collect ("repeatable" __):? decl _ml into _ml select_where foreach select_with
+    {% (d) => collector(d[1], d[2], d[4], d[6], d[8], d[7]) %}
+  | collect ("repeatable" __):? decl _ml into _ml select_with
+    {% (d) => collector(d[1], d[2], d[4], undefined, d[6], undefined) %}
+  | collect ("repeatable" __):? decl _ml into _ml select_with select_where
+    {% (d) => collector(d[1], d[2], d[4], d[7], d[6], undefined) %}
+  | collect ("repeatable" __):? decl _ml into _ml select_with select_where foreach
+    {% (d) => collector(d[1], d[2], d[4], d[7], d[6], d[8]) %}
+  | collect ("repeatable" __):? decl _ml into _ml select_with foreach
+    {% (d) => collector(d[1], d[2], d[4], undefined, d[6], d[7]) %}
+  | collect ("repeatable" __):? decl _ml into _ml select_with foreach select_where
+    {% (d) => collector(d[1], d[2], d[4], d[8], d[6], d[7]) %}
+  | collect ("repeatable" __):? decl _ml into _ml foreach
+    {% (d) => collector(d[1], d[2], d[4], undefined, undefined, d[6]) %}
+  | collect ("repeatable" __):? decl _ml into _ml foreach select_where
+    {% (d) => collector(d[1], d[2], d[4], d[7], undefined, d[6]) %}
+  | collect ("repeatable" __):? decl _ml into _ml foreach select_where select_with
+    {% (d) => collector(d[1], d[2], d[4], d[7], d[8], d[6]) %}
+  | collect ("repeatable" __):? decl _ml into _ml foreach select_with
+    {% (d) => collector(d[1], d[2], d[4], undefined, d[7], d[6]) %}
+  | collect ("repeatable" __):? decl _ml into _ml foreach select_with select_where
+    {% (d) => collector(d[1], d[2], d[4], d[8], d[7], d[6]) %}
 
 into -> "into" __ binding_form {% nth(2) %}
 
@@ -538,7 +545,7 @@ expr_literal
   |  string_lit {% id %}
   |  annotated_float {% id %}
   |  computation_function {% id %}
-  |  collection_access {% id %}
+  |  sty_var_expr {% id %}
   |  path {% id %}
   |  list {% id %}
   |  tuple {% id %}
@@ -637,14 +644,24 @@ computation_function -> identifier _ "(" expr_list ")" {%
   }) 
 %}
 
-
-collection_access
-  -> "listof" _ identifier _ "from" _ identifier {% ([, , field, , , , name]): CollectionAccess<C> => ({
-    ...nodeData,
-    ...rangeBetween(field, name),
-    tag: "CollectionAccess",
-    name, field
-  })%}
+sty_var_expr
+  -> "listof" _ identifier _ "from" _ identifier {%
+      ([kw, , field, , , , name]): CollectionAccess<C> => ({
+       ...nodeData,
+       ...rangeBetween(kw, name),
+       tag: "CollectionAccess",
+       name, field
+      })
+    %}
+  | ("numberof" | "nameof") _ identifier {%
+      ([kw, , name]): UnaryStyVarExpr<C> => ({
+        ...nodeData,
+        ...rangeBetween(kw[0], name),
+        tag: "UnaryStyVarExpr",
+        op: kw[0].text,
+        arg: name
+      })
+  %}
 
 stage_list 
   -> identifier {% (d) => d %}

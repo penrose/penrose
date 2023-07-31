@@ -144,7 +144,7 @@ describe("polygonLikePoints", () => {
     "unsupported shape %p",
     (shape: Shape<ad.Num>) => {
       expect(() => polygonLikePoints(shape)).toThrowError();
-    }
+    },
   );
 });
 
@@ -197,7 +197,7 @@ describe("convexPolygonOriginSignedDistance", () => {
         [-1, -1],
         [1, -1],
         [0, 1],
-      ])
+      ]),
     );
     const [x, y] = [2 / 5, 1 / 5]; // closest
     expect(d).toBeCloseTo(-Math.sqrt(x ** 2 + y ** 2));
@@ -209,7 +209,7 @@ describe("convexPolygonOriginSignedDistance", () => {
         [-1, 1],
         [1, 1],
         [0, 3],
-      ])
+      ]),
     );
     expect(d).toBeCloseTo(1);
   });
@@ -220,7 +220,7 @@ describe("convexPolygonOriginSignedDistance", () => {
         [-1, -3],
         [1, -3],
         [0, -1],
-      ])
+      ]),
     );
     expect(d).toBeCloseTo(1);
   });
@@ -232,7 +232,7 @@ describe("convexPolygonOriginSignedDistance", () => {
         [2, -3],
         [1, -2],
         [-1, -2],
-      ])
+      ]),
     );
     expect(d).toBeCloseTo(2);
   });
@@ -247,11 +247,11 @@ test("shapeDistanceAABBs should return the same value as shapeDistancePolygonlik
 
       const result1 = shapeDistanceRects(
         bboxPts(bboxFromShape(r1)),
-        bboxPts(bboxFromShape(r2))
+        bboxPts(bboxFromShape(r2)),
       );
       const result2 = shapeDistancePolys(
         polygonLikePoints(r1),
-        polygonLikePoints(r2)
+        polygonLikePoints(r2),
       );
 
       const [result1num, result2num] = numsOf([result1, result2]);

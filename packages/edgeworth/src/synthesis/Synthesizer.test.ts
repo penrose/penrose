@@ -49,7 +49,7 @@ const defaultSetting: SynthesizerSetting = {
 
 const initSynth = (
   substance: string,
-  setting: SynthesizerSetting
+  setting: SynthesizerSetting,
 ): Synthesizer => {
   let subResult;
   const subRes = compileSubstance(substance, env);
@@ -85,13 +85,13 @@ Set D`;
       synth.env,
       defaultSetting.argOption,
       defaultSetting.argReuse,
-      "test0"
+      "test0",
     );
     const toDelete = synth.currentProg.statements[0] as Decl<A>;
     expect("Set A").toEqual(prettyStmt(toDelete));
     const cascadedStmts: SubStmt<A>[] = cascadingDelete(
       toDelete,
-      synth.currentProg
+      synth.currentProg,
     );
     const ops: Delete[] = cascadedStmts.map((stmt) => ({
       tag: "Delete",

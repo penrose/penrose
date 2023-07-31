@@ -214,7 +214,7 @@ export interface Outputs<T> {
 
 export type Compiled = (
   inputs: (x: Var) => number,
-  mask?: boolean[]
+  mask?: boolean[],
 ) => Outputs<number>;
 
 export interface OptOutputs {
@@ -235,7 +235,7 @@ export type Gradient = (
   masks: Masks,
   inputs: Float64Array,
   weight: number,
-  grad: Float64Array
+  grad: Float64Array,
 ) => OptOutputs;
 
 export interface Description {

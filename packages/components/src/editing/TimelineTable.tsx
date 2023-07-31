@@ -94,7 +94,7 @@ const SelectComponent = ({
 };
 
 const selectColumn = (
-  options: SelectOptions
+  options: SelectOptions,
 ): Column<string | null, SelectOptions> => ({
   component: SelectComponent,
   columnData: options,
@@ -132,7 +132,7 @@ const substance = (
   start: Date,
   end: Date,
   categories: string[],
-  events: Event[]
+  events: Event[],
 ) => {
   const startYear = start.getUTCFullYear();
   const startQuarter = getQuarter(start);
@@ -149,7 +149,7 @@ const substance = (
       label: `q${i}_${y.value}`,
       value: i,
       year: y.label,
-    }))
+    })),
   );
 
   const preamble = `
@@ -197,7 +197,7 @@ export default function (props: Data): React.ReactElement {
     d: any,
     start: Date,
     end: Date,
-    categories: string[]
+    categories: string[],
   ): Event => {
     const validDate = (date: Date | undefined): Date | undefined => {
       if (date && !isNaN(date.getTime())) {
@@ -260,8 +260,8 @@ export default function (props: Data): React.ReactElement {
             onChange={(d) =>
               setEvents(
                 d.map((e) =>
-                  validate(e, bounds.start, bounds.end, categories)
-                ) as Event[]
+                  validate(e, bounds.start, bounds.end, categories),
+                ) as Event[],
               )
             }
             columns={[
@@ -274,7 +274,7 @@ export default function (props: Data): React.ReactElement {
                   "category",
                   selectColumn({
                     choices: categories.map((c) => ({ value: c, label: c })),
-                  })
+                  }),
                 ),
                 title: "Category",
               },
@@ -293,8 +293,8 @@ export default function (props: Data): React.ReactElement {
               bounds.end,
               categories,
               events.filter(
-                (e) => e.start >= bounds.start && e.end <= bounds.end
-              )
+                (e) => e.start >= bounds.start && e.end <= bounds.end,
+              ),
             )}
             style={timelineStyle}
             domain={timelineDomain}

@@ -39,7 +39,7 @@ export interface TextProps<T>
 
 export const sampleText = (
   context: Context,
-  canvas: Canvas
+  canvas: Canvas,
 ): TextProps<ad.Num> => ({
   name: strV("defaultText"),
   strokeWidth: floatV(0),
@@ -61,25 +61,25 @@ export const sampleText = (
     context.makeInput({
       init: { tag: "Pending", pending: 0 },
       stages: new Set(),
-    })
+    }),
   ),
   height: floatV(
     context.makeInput({
       init: { tag: "Pending", pending: 0 },
       stages: new Set(),
-    })
+    }),
   ),
   ascent: floatV(
     context.makeInput({
       init: { tag: "Pending", pending: 0 },
       stages: new Set(),
-    })
+    }),
   ),
   descent: floatV(
     context.makeInput({
       init: { tag: "Pending", pending: 0 },
       stages: new Set(),
-    })
+    }),
   ),
   rotation: floatV(0),
   string: strV("defaultText"),
@@ -104,7 +104,7 @@ export type Text<T> = ShapeCommon<T> & { shapeType: "Text" } & TextProps<T>;
 export const makeText = (
   context: Context,
   canvas: Canvas,
-  properties: Partial<TextProps<ad.Num>>
+  properties: Partial<TextProps<ad.Num>>,
 ): Text<ad.Num> => ({
   ...sampleText(context, canvas),
   ...properties,
