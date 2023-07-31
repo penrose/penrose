@@ -1,3 +1,4 @@
+import { showError } from "@penrose/core";
 import { compileDomain } from "@penrose/core/dist/compiler/Domain";
 import {
   compileSubstance,
@@ -7,7 +8,10 @@ import {
 import { dummyIdentifier } from "@penrose/core/dist/engine/EngineUtils";
 import { A } from "@penrose/core/dist/types/ast";
 import { Env } from "@penrose/core/dist/types/domain";
-import { SubProg, SubStmt } from "@penrose/core/dist/types/substance";
+import {
+  CompiledSubProg as SubProg,
+  CompiledSubStmt as SubStmt,
+} from "@penrose/core/dist/types/substance";
 import _ from "lodash";
 import { describe, expect, test } from "vitest";
 import { SubNode, similarMappings, similarNodes } from "../synthesis/Search.js";
@@ -29,8 +33,13 @@ function Subset(Set a, Set b) -> Set
 `;
 const env: Env = compileDomain(domain).unsafelyUnwrap();
 
-const compile = (src: string): SubProg<A> =>
-  compileSubstance(src, env).unsafelyUnwrap()[0].ast;
+const compile = (src: string): SubProg<A> => {
+  const compiled = compileSubstance(src, env);
+  if (compiled.isErr()) {
+    throw new Error(src + "    " + showError(compiled.error));
+  }
+  return compiled.value[0].ast;
+};
 
 describe("Substance AST queries", () => {
   test("Similar AST nodes", () => {
@@ -79,10 +88,10 @@ describe("Substance AST queries", () => {
     const leftAST = compile(left);
     const rightAST = compile(right);
     const commonStmts = intersection(leftAST, rightAST);
-    const leftFiltered = leftAST.statements.filter((a) => {
+    const leftFiltered = leftAST.statements.filter((a: SubStmt<A>) => {
       return _.intersectionWith(commonStmts, [a], nodesEqual).length === 0;
     });
-    const rightFiltered = rightAST.statements.filter((a) => {
+    const rightFiltered = rightAST.statements.filter((a: SubStmt<A>) => {
       return _.intersectionWith(commonStmts, [a], nodesEqual).length === 0;
     });
     expect(commonStmts.map(prettyStmt)).toEqual([

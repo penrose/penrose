@@ -23,7 +23,7 @@ import {
   UOp,
 } from "./style.js";
 import { ResolvedPath } from "./styleSemantics.js";
-import { Deconstructor, SubExpr, TypeConsApp } from "./substance.js";
+import { Deconstructor, StmtSeq, SubExpr, TypeConsApp } from "./substance.js";
 import { ArgValWithSourceLoc, ShapeVal, Val, Value } from "./value.js";
 
 //#region ErrorTypes
@@ -60,6 +60,11 @@ export type SubstanceError =
   | VarNotFound
   | DeconstructNonconstructor
   | UnexpectedExprForNestedPred
+  | InvalidSequenceIndexError
+  | DuplicateSequenceIndexError
+  | DivideByZeroError
+  | InvalidArithmeticValueError
+  | UnsupportedSequenceError
   | FatalError; // TODO: resolve all fatal errors in the Substance module
 
 export type DomainError =
@@ -80,6 +85,35 @@ export interface SymmetricTypeMismatch {
 export interface SymmetricArgLengthMismatch {
   tag: "SymmetricArgLengthMismatch";
   sourceExpr: AbstractNode;
+}
+
+export interface InvalidSequenceIndexError {
+  tag: "InvalidSequenceIndexError";
+  index: string;
+  location: AbstractNode;
+  suggestions: string[];
+}
+
+export interface DuplicateSequenceIndexError {
+  tag: "DuplicateSequenceIndexError";
+  index: string;
+  location: AbstractNode;
+}
+
+export interface DivideByZeroError {
+  tag: "DivideByZeroError";
+  location: AbstractNode;
+}
+
+export interface InvalidArithmeticValueError {
+  tag: "InvalidArithmeticValueError";
+  location: AbstractNode;
+  value: number;
+}
+
+export interface UnsupportedSequenceError {
+  tag: "UnsupportedSequenceError";
+  seq: StmtSeq<A>;
 }
 
 export interface UnexpectedExprForNestedPred {

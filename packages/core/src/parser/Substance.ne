@@ -9,14 +9,15 @@ import moo from "moo";
 import _ from 'lodash'
 import { optional, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil.js'
 import { C, ConcreteNode, Identifier, StringLit } from "../types/ast.js";
-import { Sequence, RangeAssign, Range, Number, BinaryExpr, ComparisonExpr, BooleanExpr, BinaryBooleanExpr, UnaryBooleanExpr, BooleanConstant, SubProg, SubStmt, Decl, DeclList, Bind, DeclBind, ApplyPredicate, Deconstructor, Func, EqualExprs, EqualPredicates, LabelDecl, NoLabel, AutoLabel, LabelOption, TypeConsApp } from "../types/substance.js";
+import { Sequence, RangeAssign, Range, Number, BinaryExpr, UnaryExpr, ComparisonExpr, BooleanExpr, BinaryBooleanExpr, UnaryBooleanExpr, BooleanConstant, SubProg, SubStmt, Decl, DeclList, Bind, DeclBind, ApplyPredicate, Deconstructor, Func, EqualExprs, EqualPredicates, LabelDecl, NoLabel, AutoLabel, LabelOption, TypeConsApp } from "../types/substance.js";
 
 
 // NOTE: ordering matters here. Top patterns get matched __first__
 const lexer = moo.compile({
   tex_literal: /\$.*?\$/, // TeX string enclosed by dollar signs
   double_arrow: "<->",
-  int_literal: /(?:0|[1-9][0-9]*)/,              
+  int_literal: /[+-]?(?<!\.)\b[0-9]+\b(?!\.[0-9])/,
+  float_literal: /([+-]?([0-9]*[.])?[0-9]+)/,
   ...basicSymbols,
   identifier: {
     match: /[A-z_][A-Za-z_0-9]*/,
@@ -82,17 +83,28 @@ stmt_seq -> stmt __ sequence {%
   }
 %}
 
-# TODO: add comparsion expression
-sequence -> "for" __ sepBy1[range_assign, ","] __ "where" __ boolean_expr {% 
-  ([kw, , d, , , , b]): Sequence<C> => {
-    return {
-      ...nodeData,
-      ...rangeBetween(kw, b),
-      tag: "Sequence", 
-      indices: d, condition: b
-    };
-  }
-%}
+
+sequence
+  -> "for" __ sepBy1[range_assign, ","] __ "where" __ boolean_expr {% 
+      ([kw, , d, ,,,b]): Sequence<C> => {
+        return {
+          ...nodeData,
+          ...rangeBetween(kw, b),
+          tag: "Sequence", 
+          indices: d, condition: b
+        };
+      }
+  %}
+  |  "for" __ sepBy1[range_assign, ","] {% 
+      ([kw, , d]): Sequence<C> => {
+        return {
+          ...nodeData,
+          ...rangeBetween(kw, d[d.length - 1]),
+          tag: "Sequence", 
+          indices: d, condition: undefined
+        };
+      }
+     %}
 
 range_assign -> identifier _ "in" _ int_range {%
   ([variable, , , , range]): RangeAssign<C> => ({
@@ -102,7 +114,7 @@ range_assign -> identifier _ "in" _ int_range {%
   })
 %}
 
-int_range -> "[" _ number _ "," _ number _ "]" {%
+int_range -> "[" _ integer _ "," _ integer _ "]" {%
   ([lbracket, , low, , , , high, , rbracket]): Range<C> => ({
     ...nodeData,
     ...rangeBetween(lbracket, rbracket),
@@ -110,13 +122,25 @@ int_range -> "[" _ number _ "," _ number _ "]" {%
   })
 %}
 
-number -> %int_literal {% 
+integer -> %int_literal {% 
   ([d]): Number<C> => ({
     ...nodeData,
     ...rangeOf(d),
     tag: "Number", value: +d.value
   })
 %}
+
+float -> %float_literal {% 
+    ([d]): Number<C> => ({
+      ...nodeData,
+      ...rangeOf(d),
+      tag: "Number", value: +d.value
+    })
+  %}
+
+number 
+  -> integer {%id%}
+  |  float {%id%}
 
 stmt 
   -> decl            {% id %}
@@ -128,7 +152,7 @@ stmt
   |  equal_exprs     {% id %}
   |  equal_predicates {% id %}
 
-decl -> type_constructor __ sepBy1[identifier, ","] {%
+decl -> type_constructor __ sepEndBy1[identifier, ","] {%
   ([type, , ids]): Decl<C> | DeclList<C> => {
     if (ids.length === 1) {
       // single identifier means one decl
@@ -306,9 +330,11 @@ expr ->
   | term {% id %}
 
 term -> 
-    term _ "*" _ factor {% ([left, , , , right]): BinaryExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryExpr", operator: "*", left, right}) %}
+    term _ "^" _ factor {% ([left, , , , right]): BinaryExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryExpr", operator: "^", left, right}) %}
+  | term _ "*" _ factor {% ([left, , , , right]): BinaryExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryExpr", operator: "*", left, right}) %}
   | term _ "/" _ factor {% ([left, , , , right]): BinaryExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryExpr", operator: "/", left, right}) %}
   | term _ "%" _ factor {% ([left, , , , right]): BinaryExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryExpr", operator: "%", left, right}) %}
+  | "-" _ factor {% ([op, , arg]): UnaryExpr<C> => ({...nodeData, ...rangeBetween(op, arg), tag: "UnaryExpr", operator: "-", arg }) %}
   | factor {% id %}
 
 factor -> 

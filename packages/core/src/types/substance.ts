@@ -198,13 +198,23 @@ export type ComparisonExpr<T> = ASTNode<T> & {
   right: NumExpr<T>;
 };
 
-export type NumExpr<T> = BinaryExpr<T> | Number<T> | Identifier<T>;
+export type NumExpr<T> =
+  | BinaryExpr<T>
+  | UnaryExpr<T>
+  | Number<T>
+  | Identifier<T>;
 
 export type BinaryExpr<T> = ASTNode<T> & {
   tag: "BinaryExpr";
   operator: "+" | "-" | "*" | "/" | "^" | "%";
   left: NumExpr<T>;
   right: NumExpr<T>;
+};
+
+export type UnaryExpr<T> = ASTNode<T> & {
+  tag: "UnaryExpr";
+  operator: "-";
+  arg: NumExpr<T>;
 };
 
 export type Number<T> = ASTNode<T> & {
@@ -231,7 +241,7 @@ export type Range<T> = ASTNode<T> & {
 export type Sequence<T> = ASTNode<T> & {
   tag: "Sequence";
   indices: RangeAssign<T>[];
-  condition: BooleanExpr<T>;
+  condition?: BooleanExpr<T>;
 };
 
 export type RangeAssign<T> = ASTNode<T> & {

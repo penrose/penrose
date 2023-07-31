@@ -514,6 +514,8 @@ Empty(AddPoint(p, A))`;
 });
 
 describe("Pretty printer", () => {
+  // Don't test for aggregated or sequenced statements
+  // since they get expanded during compilation.
   test("decls and args", () => {
     const env = envOrError(domainProg);
     const prog = `Set A

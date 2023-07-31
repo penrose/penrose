@@ -1,10 +1,10 @@
 import im from "immutable";
 import _ from "lodash";
 import nearley from "nearley";
-import { dummyIdentifier } from "../engine/EngineUtils.js";
+import { dummyIdentifier, isConcrete } from "../engine/EngineUtils.js";
 import { idOf, lastLocation, prettyParseError } from "../parser/ParserUtil.js";
 import substanceGrammar from "../parser/SubstanceParser.js";
-import { A, ASTNode, C, Identifier } from "../types/ast.js";
+import { A, ASTNode, AbstractNode, C, Identifier } from "../types/ast.js";
 import {
   Arg,
   ConstructorDecl,
@@ -18,6 +18,7 @@ import {
   ApplyConstructor,
   ApplyFunction,
   ApplyPredicate,
+  AutoLabel,
   Bind,
   BooleanExpr,
   CompiledSubProg,
@@ -27,9 +28,11 @@ import {
   DeclList,
   Deconstructor,
   Func,
+  LabelDecl,
   LabelMap,
   LabelOption,
   LabelValue,
+  NoLabel,
   NumExpr,
   Sequence,
   Stmt,
@@ -318,8 +321,37 @@ const checkStmtSeqHelper = (
         checkPredicate,
       );
     }
+    case "AutoLabel": {
+      return checkStmtSeq(
+        { ...stmtSeq, stmt },
+        env,
+        substSeqAutoLabel,
+        checkAutoLabel,
+      );
+    }
+    case "LabelDecl": {
+      return checkStmtSeq(
+        { ...stmtSeq, stmt },
+        env,
+        substSeqLabelDecl,
+        checkLabelDecl,
+      );
+    }
+    case "NoLabel": {
+      return checkStmtSeq(
+        { ...stmtSeq, stmt },
+        env,
+        substSeqNoLabel,
+        checkNoLabel,
+      );
+    }
     default: {
-      throw new Error("Not supported yet");
+      return err([
+        {
+          tag: "UnsupportedSequenceError",
+          seq: stmtSeq,
+        },
+      ]);
     }
   }
 };
@@ -363,32 +395,34 @@ const checkSingleStmt = (
       );
     }
     case "AutoLabel": {
-      // NOTE: no checking required
-      if (stmt.option.tag === "DefaultLabels") {
-        return ok({ env, contents: [stmt] });
-      } else {
-        const varsOk = every(
-          ...stmt.option.variables.map((v) => checkVar(v, env)),
-        );
-        return andThen(({ env }) => ok({ env, contents: [stmt] }), varsOk);
-      }
+      return checkAutoLabel(stmt, env);
     }
-    case "LabelDecl":
-      return andThen(
-        ({ env }) => ok({ env, contents: [stmt] }),
-        checkVar(stmt.variable, env),
-      );
+    case "LabelDecl": {
+      return checkLabelDecl(stmt, env);
+    }
     case "NoLabel": {
-      const argsOk = every(...stmt.args.map((a) => checkVar(a, env)));
-      return andThen(({ env }) => ok({ env, contents: [stmt] }), argsOk);
+      return checkNoLabel(stmt, env);
     }
   }
 };
 
 type SeqSubst = Map<string, number>;
 
-const evalSeq = (seq: Sequence<A>): SeqSubst[] => {
+const evalSeq = (seq: Sequence<A>): Result<SeqSubst[], SubstanceError> => {
   const { indices, condition } = seq;
+
+  // Check for duplication in sequence variable declarations
+  const variables = new Set<string>();
+  for (const varName of indices.map((i) => i.variable.value)) {
+    if (variables.has(varName)) {
+      return err({
+        tag: "DuplicateSequenceIndexError",
+        index: varName,
+        location: seq,
+      });
+    }
+    variables.add(varName);
+  }
 
   type VarValPair = [string, number];
   const possValsPerVar: [VarValPair][][] = [];
@@ -396,13 +430,14 @@ const evalSeq = (seq: Sequence<A>): SeqSubst[] => {
     const name = variable.value;
     const { high, low } = range;
 
-    // a list of [name, value]
+    // a list of [[name, value]]
     const possVals = im
       .Range(low.value, high.value + 1)
       .toArray()
       .map((n): [VarValPair] => [[name, n]]);
     // for example, if we write `i in [1, 3]`,
-    // then possVals would contain `["i", 1], ["i", 2], ["i", 3]`
+    // then possVals would contain `[["i", 1]], [["i", 2]], [["i", 3]]`
+    // This structure makes it easier to combine these using Cartesian products.
     possValsPerVar.push(possVals);
   }
 
@@ -424,17 +459,23 @@ const evalSeq = (seq: Sequence<A>): SeqSubst[] => {
     const substitutions = cprod.map((cprod) => new Map(cprod));
 
     const condVals = all(substitutions.map((s) => evalCond(condition, s)));
-    if (condVals.isErr()) throw new Error("Handle this");
-    else return substitutions.filter((s, i) => condVals.value[i]);
+    if (condVals.isErr()) {
+      // Outputting the first error because if there were to be multiple errors,
+      // the errors will all be the same, caused by different substitutions.
+      return err(condVals.error[0]);
+    } else return ok(substitutions.filter((s, i) => condVals.value[i]));
   } else {
-    return [];
+    return ok([]);
   }
 };
 
 const evalCond = (
-  b: BooleanExpr<A>,
+  b: BooleanExpr<A> | undefined,
   subst: SeqSubst,
 ): Result<boolean, SubstanceError> => {
+  if (b === undefined) {
+    return ok(true);
+  }
   if (b.tag === "BooleanConstant") {
     const { value } = b;
     return ok(value === "true");
@@ -495,12 +536,37 @@ const evalNum = (
   n: NumExpr<A>,
   subst: SeqSubst,
 ): Result<number, SubstanceError> => {
+  const result = evalNumHelper(n, subst);
+  if (result.isErr()) return err(result.error);
+
+  const value = result.value;
+
+  if (value !== value) {
+    return err({
+      tag: "InvalidArithmeticValueError",
+      location: n,
+      value,
+    });
+  }
+  return ok(value);
+};
+
+const evalNumHelper = (
+  n: NumExpr<A>,
+  subst: SeqSubst,
+): Result<number, SubstanceError> => {
   if (n.tag === "Number") {
     return ok(n.value);
   } else if (n.tag === "Identifier") {
-    const strRes = substSeqVarNumber(n.value, subst);
+    const strRes = substSeqVarNumber(n.value, n, subst);
     if (strRes.isErr()) return err(strRes.error);
     return ok(strRes.value);
+  } else if (n.tag === "UnaryExpr") {
+    const { arg } = n;
+    const argValRes = evalNum(arg, subst);
+    if (argValRes.isErr()) return err(argValRes.error);
+    const argVal = argValRes.value;
+    return ok(-argVal);
   } else {
     const { operator, left, right } = n;
     const lValRes = evalNum(left, subst);
@@ -516,8 +582,12 @@ const evalNum = (
     else if (operator === "*") return ok(lVal * rVal);
     else if (operator === "^") return ok(lVal ** rVal);
     else {
+      // div or mod
       if (rVal === 0) {
-        throw new Error("Divide by zero");
+        return err({
+          tag: "DivideByZeroError",
+          location: n,
+        });
       }
       if (operator === "/") return ok(lVal / rVal);
       else return ok(lVal % rVal);
@@ -527,17 +597,24 @@ const evalNum = (
 
 const substSeqVarNumber = (
   v: string,
+  location: AbstractNode,
   subst: SeqSubst,
 ): Result<number, SubstanceError> => {
   const seqVarValue = subst.get(v);
   if (seqVarValue === undefined) {
-    throw new Error("Cannot find sequence variable " + v);
+    return err({
+      tag: "InvalidSequenceIndexError",
+      index: v,
+      location,
+      suggestions: [...subst.keys()],
+    });
   }
   return ok(seqVarValue);
 };
 
 const substSeqVarStr = (
   v: string,
+  location: AbstractNode,
   subst: SeqSubst,
 ): Result<string, SubstanceError> => {
   const underscorePos = v.lastIndexOf("_");
@@ -548,7 +625,7 @@ const substSeqVarStr = (
   const prefix = v.slice(0, underscorePos);
   const seqVarName = v.slice(underscorePos + 1);
 
-  const seqVarValue = substSeqVarNumber(seqVarName, subst);
+  const seqVarValue = substSeqVarNumber(seqVarName, location, subst);
   if (seqVarValue.isErr()) return err(seqVarValue.error);
   return ok(`${prefix}_${seqVarValue.value}`);
 };
@@ -557,7 +634,7 @@ const substSeqId = (
   id: Identifier<A>,
   subst: SeqSubst,
 ): Result<Identifier<A>, SubstanceError> => {
-  const substContents = substSeqVarStr(id.value, subst);
+  const substContents = substSeqVarStr(id.value, id, subst);
   if (substContents.isErr()) return err(substContents.error);
 
   return ok({
@@ -674,6 +751,64 @@ const substSeqPredicate = (
   return ok({ ...pred, args: substArgs.value });
 };
 
+const substSeqLabelDecl = (
+  labelDecl: LabelDecl<A>,
+  subst: SeqSubst,
+): Result<LabelDecl<A>, SubstanceError> => {
+  const { variable } = labelDecl;
+
+  const substVariable = substSeqId(variable, subst);
+  if (substVariable.isErr()) return err(substVariable.error);
+
+  return ok({
+    ...labelDecl,
+    variable: substVariable.value,
+  });
+};
+
+const substSeqAutoLabel = (
+  autoLabel: AutoLabel<A>,
+  subst: SeqSubst,
+): Result<AutoLabel<A>, SubstanceError> => {
+  if (autoLabel.option.tag === "DefaultLabels") {
+    return ok(autoLabel);
+  } else {
+    const { variables } = autoLabel.option;
+    const substVariablesResult = all(
+      variables.map((variable) => substSeqId(variable, subst)),
+    );
+    if (substVariablesResult.isErr()) {
+      return err(substVariablesResult.error[0]);
+    }
+
+    return ok({
+      ...autoLabel,
+      option: {
+        ...autoLabel.option,
+        variables: substVariablesResult.value,
+      },
+    });
+  }
+};
+
+const substSeqNoLabel = (
+  noLabel: NoLabel<A>,
+  subst: SeqSubst,
+): Result<NoLabel<A>, SubstanceError> => {
+  const { args: variables } = noLabel;
+  const substVariablesResult = all(
+    variables.map((variable) => substSeqId(variable, subst)),
+  );
+  if (substVariablesResult.isErr()) {
+    return err(substVariablesResult.error[0]);
+  }
+
+  return ok({
+    ...noLabel,
+    args: substVariablesResult.value,
+  });
+};
+
 const checkDecl = (stmt: Decl<A>, env: Env): CheckerResult<Decl<A>[]> => {
   const decl = stmt;
   const { type, name: nameId } = decl;
@@ -693,7 +828,10 @@ const checkDeclSeq = (
   const typeOk = checkTypeConstructor(type, env);
   if (typeOk.isErr()) return err([typeOk.error]);
 
-  const seqSubsts = evalSeq(seq);
+  const seqSubstsResult = evalSeq(seq);
+  if (seqSubstsResult.isErr()) return err([seqSubstsResult.error]);
+
+  const seqSubsts = seqSubstsResult.value;
   const substIdsResult = all(
     seqSubsts.map((subst) => substSeqId(uncompiledNameId, subst)),
   );
@@ -732,7 +870,10 @@ const checkDeclListSeq = (
   const typeOk = checkTypeConstructor(type, env);
   if (typeOk.isErr()) return err([typeOk.error]);
 
-  const seqSubsts = evalSeq(seq);
+  const seqSubstsResult = evalSeq(seq);
+  if (seqSubstsResult.isErr()) return err([seqSubstsResult.error]);
+
+  const seqSubsts = seqSubstsResult.value;
   const substIdsResult = all(
     seqSubsts
       .map((subst) =>
@@ -752,6 +893,29 @@ const checkDeclListSeq = (
   return createVars(type, substIds, env, declList);
 };
 
+// This removes other extraneous things from "decl"
+const sanitizeDecl = (decl: Decl<A>): Decl<A> | Decl<C> => {
+  // Not using the spread operator because "spread" operator can
+  // bring in extraneous things from "decl"
+  if (isConcrete(decl)) {
+    return {
+      start: decl.start,
+      end: decl.end,
+      nodeType: decl.nodeType,
+      tag: "Decl",
+      type: decl.type,
+      name: decl.name,
+    };
+  } else {
+    return {
+      nodeType: decl.nodeType,
+      tag: "Decl",
+      type: decl.type,
+      name: decl.name,
+    };
+  }
+};
+
 const createVars = (
   type: TypeConsApp<A>,
   nameIds: Identifier<A>[],
@@ -763,7 +927,7 @@ const createVars = (
     | (StmtSeq<A> & { stmt: DeclList<A> }),
 ): CheckerResult<Decl<A>[]> => {
   let vars = env.vars;
-  const varIDs = env.varIDs;
+  const varIDs = [...env.varIDs];
   const equivalentDecls: Decl<A>[] = [];
   const errs: SubstanceError[] = [];
 
@@ -776,12 +940,14 @@ const createVars = (
 
     vars = vars.set(name, type);
     varIDs.push(nameId);
-    equivalentDecls.push({
-      ...node, // inherit location information
-      tag: "Decl",
-      type,
-      name: nameId,
-    });
+    equivalentDecls.push(
+      sanitizeDecl({
+        ...node,
+        tag: "Decl",
+        type,
+        name: nameId,
+      }),
+    );
   }
 
   if (errs.length > 0) {
@@ -823,6 +989,10 @@ const checkDeclBind = (
     name: variable,
   };
 
+  if ("expr" in decl) {
+    delete decl.expr;
+  }
+
   const declResult = checkDecl(decl, env);
   if (declResult.isErr()) return err(declResult.error);
   const { env: checkedDeclEnv, contents: checkedDecls } = declResult.value;
@@ -831,6 +1001,10 @@ const checkDeclBind = (
     ...declBind,
     tag: "Bind",
   };
+
+  if ("type" in bind) {
+    delete bind.type;
+  }
 
   const bindResult = checkBind(bind, checkedDeclEnv);
   if (bindResult.isErr()) return err(bindResult.error);
@@ -878,6 +1052,37 @@ export const checkPredicate = (
   }
 };
 
+const checkLabelDecl = (
+  stmt: LabelDecl<A>,
+  env: Env,
+): CheckerResult<LabelDecl<A>[]> => {
+  return andThen(
+    ({ env }) => ok({ env, contents: [stmt] }),
+    checkVar(stmt.variable, env),
+  );
+};
+
+const checkAutoLabel = (
+  stmt: AutoLabel<A>,
+  env: Env,
+): CheckerResult<AutoLabel<A>[]> => {
+  // NOTE: no checking required
+  if (stmt.option.tag === "DefaultLabels") {
+    return ok({ env, contents: [stmt] });
+  } else {
+    const varsOk = every(...stmt.option.variables.map((v) => checkVar(v, env)));
+    return andThen(({ env }) => ok({ env, contents: [stmt] }), varsOk);
+  }
+};
+
+const checkNoLabel = (
+  stmt: NoLabel<A>,
+  env: Env,
+): CheckerResult<NoLabel<A>[]> => {
+  const argsOk = every(...stmt.args.map((a) => checkVar(a, env)));
+  return andThen(({ env }) => ok({ env, contents: [stmt] }), argsOk);
+};
+
 const checkStmtSeq = <T extends StmtSeq<A>>(
   stmtSeq: T,
   env: Env,
@@ -891,7 +1096,10 @@ const checkStmtSeq = <T extends StmtSeq<A>>(
   ) => CheckerResult<CompiledSubStmt<A>[]>,
 ): CheckerResult<CompiledSubStmt<A>[]> => {
   const { stmt, seq } = stmtSeq;
-  const seqSubsts = evalSeq(seq);
+  const seqSubstsResult = evalSeq(seq);
+  if (seqSubstsResult.isErr()) return err([seqSubstsResult.error]);
+
+  const seqSubsts = seqSubstsResult.value;
   const substStmtsResult = all(
     seqSubsts.map((subst) => substFunc(stmt, subst)),
   );
@@ -1265,13 +1473,65 @@ export const checkVar = (
 export const prettySubstance = (prog: SubProg<A>): string =>
   prog.statements.map((stmt) => prettyStmt(stmt)).join("\n");
 
+export const prettyCompiledSubstance = (prog: CompiledSubProg<A>): string =>
+  prettySubstance(prog);
+
 export const prettyStmt = (stmt: Stmt<A>): string => {
   if (stmt.tag !== "StmtSeq") {
     return prettySingleStmt(stmt);
   } else {
     // TOOD: use more informative pretty-printing
-    return `${prettySingleStmt(stmt.stmt)} seq`;
+    return `${prettySingleStmt(stmt.stmt)} ${prettySequence(stmt.seq)}`;
   }
+};
+
+const prettySequence = (seq: Sequence<A>): string => {
+  const rangeStrings: string[] = [];
+  for (const range of seq.indices) {
+    const varName = range.variable.value;
+    const low = range.range.low.value;
+    const high = range.range.high.value;
+    rangeStrings.push(`${varName} in [${low}, ${high}]`);
+  }
+  const rangeString = rangeStrings.join(", ");
+
+  if (seq.condition === undefined) {
+    return `for ${rangeString}`;
+  } else {
+    return `for ${rangeString} where ${prettyCond(seq.condition)}`;
+  }
+};
+
+const prettyCond = (cond: BooleanExpr<A>): string => {
+  if (cond.tag === "BooleanConstant") {
+    return cond.value;
+  } else if (cond.tag === "BinaryBooleanExpr") {
+    return `(${prettyCond(cond.left)} ${cond.operator} ${prettyCond(
+      cond.right,
+    )})`;
+  } else if (cond.tag === "UnaryBooleanExpr") {
+    return `(${cond.operator}${prettyCond(cond.arg)})`;
+  } else {
+    return `(${prettyNum(cond.left)} ${cond.operator} ${prettyNum(
+      cond.right,
+    )})`;
+  }
+};
+
+const prettyNum = (n: NumExpr<A>): string => {
+  if (n.tag === "Number") {
+    return `${n.value}`;
+  } else if (n.tag === "Identifier") {
+    return n.value;
+  } else if (n.tag === "UnaryExpr") {
+    return `(${n.operator}${prettyNum(n.arg)})`;
+  } else {
+    return `(${prettyNum(n.left)} ${n.operator} ${prettyNum(n.right)})`;
+  }
+};
+
+const prettyCompiledStmt = (stmt: CompiledSubStmt<A>): string => {
+  return prettySingleStmt(stmt);
 };
 
 const prettySingleStmt = (stmt: SubStmt<A>): string => {

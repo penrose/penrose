@@ -252,6 +252,36 @@ export const showError = (
         sourceType,
       )}' type was given at ${loc(sourceExpr)}.`;
     }
+    case "InvalidSequenceIndexError": {
+      const { index, location, suggestions } = error;
+      return `Name \`${index}\` (which is used at ${loc(
+        location,
+      )}) is not a valid sequence index. Possible sequence indices are: ${suggestions.join(
+        ", ",
+      )}`;
+    }
+    case "DuplicateSequenceIndexError": {
+      const { index, location } = error;
+      return `Sequence index variable \`${index}\` has been declared multiple times at ${loc(
+        location,
+      )}.`;
+    }
+    case "DivideByZeroError": {
+      const { location } = error;
+      return `The expression at ${loc(location)} resulted in division-by-zero.`;
+    }
+    case "InvalidArithmeticValueError": {
+      const { value, location } = error;
+      return `The expression at ${loc(
+        location,
+      )} resulted in the invalid value of ${value}.`;
+    }
+    case "UnsupportedSequenceError": {
+      const { seq } = error;
+      return `Sequencing on expressions of type ${seq.stmt.tag} (at ${loc(
+        seq,
+      )}) is not supported`;
+    }
 
     // ---- BEGIN STYLE ERRORS
     // COMBAK suggest improvements after reporting errors
@@ -701,6 +731,15 @@ export const errLocs = (
     }
     case "DeconstructNonconstructor": {
       return locOrNone(e.deconstructor);
+    }
+    case "InvalidSequenceIndexError":
+    case "DuplicateSequenceIndexError":
+    case "DivideByZeroError":
+    case "InvalidArithmeticValueError": {
+      return locOrNone(e.location);
+    }
+    case "UnsupportedSequenceError": {
+      return locOrNone(e.seq);
     }
 
     // ---- BEGIN STYLE ERRORS

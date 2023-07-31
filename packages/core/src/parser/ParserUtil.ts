@@ -17,6 +17,7 @@ export const basicSymbols: moo.Rules = {
   gte: ">=",
   gt: ">",
   eq: "==",
+  neq: "!=",
   rarrow: "->",
   tilda: "~",
   lparen: "(",
