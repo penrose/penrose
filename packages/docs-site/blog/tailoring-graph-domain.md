@@ -1,6 +1,6 @@
 ---
 title: "Tailoring Penrose domains to your needs"
-date: 2023-07-27
+date: 2023-08-01
 authors:
   - author: Rijul Jain
     github: "rjainrjain"
@@ -105,7 +105,7 @@ predicate HighlightVertex(Vertex a) // [!code focus]
 predicate HighlightArc(Vertex a, Vertex b) // [!code focus]
 ```
 
-This addition defines two new predicates which take existing vertices and (vertices which form) arcs and highlights them. Now we need to describe how to display this relation in a diagram – in this case, highlighting would involve changing the color of the vertices and nodes. We can inspect the Style program to identify which parts we need to add on to or otherwise modify. The following excerpt of the `simple-directed-graph` Style program:
+This addition defines two new predicates which take existing vertices and (vertices which form) arcs and highlights them. Now we need to describe how to display this relation in a diagram – in this case, highlighting would involve changing the color of the vertices and nodes. We can inspect the Style program to identify which parts we need to add on to or otherwise modify. The following excerpt is from the `simple-directed-graph` Style program:
 
 ```style
 forall Vertex v {
