@@ -1148,7 +1148,7 @@ export const compDict = {
     ): MayWarn<MatrixV<ad.Num>> => {
       const R = toHomogeneousMatrix(rotate2d(theta));
       const T = translate([x, y]);
-      const Ti = translate([-x, -y]);
+      const Ti = translate([neg(x), neg(y)]);
       return noWarn({
         tag: "MatrixV",
         contents: ops.mmmul(T, ops.mmmul(R, Ti)),
@@ -6997,9 +6997,9 @@ const trace = (A: ad.Num[][]): ad.Num => {
 // Given a 2x2, 3x3, or 4x4 matrix A, returns its determinant.
 const determinant = (A: ad.Num[][]): ad.Num => {
   const n = A.length;
-  if (n == 2) {
+  if (n === 2) {
     return sub(mul(A[0][0], A[1][1]), mul(A[0][1], A[1][0]));
-  } else if (n == 3) {
+  } else if (n === 3) {
     return add(
       add(
         mul(A[0][0], sub(mul(A[1][1], A[2][2]), mul(A[1][2], A[2][1]))),
@@ -7007,7 +7007,7 @@ const determinant = (A: ad.Num[][]): ad.Num => {
       ),
       mul(A[0][2], sub(mul(A[1][0], A[2][1]), mul(A[1][1], A[2][0]))),
     );
-  } else if (n == 4) {
+  } else if (n === 4) {
     const C00 = add(
       add(
         sub(
@@ -7088,14 +7088,14 @@ const determinant = (A: ad.Num[][]): ad.Num => {
 // may produce a numerically invalid matrix (with INF or NaN entries).
 const inverse = (A: ad.Num[][]): ad.Num[][] => {
   const n = A.length;
-  let C: ad.Num[][] = [];
+  const C: ad.Num[][] = [];
   let detA: ad.Num = 0;
 
-  if (n == 2) {
+  if (n === 2) {
     C[0] = [A[1][1], neg(A[0][1])];
     C[1] = [neg(A[1][0]), A[0][0]];
     detA = add(mul(A[0][0], C[0][0]), mul(A[0][1], C[1][0]));
-  } else if (n == 3) {
+  } else if (n === 3) {
     C[0] = [
       sub(mul(A[1][1], A[2][2]), mul(A[1][2], A[2][1])),
       sub(mul(A[0][2], A[2][1]), mul(A[0][1], A[2][2])),
@@ -7115,7 +7115,7 @@ const inverse = (A: ad.Num[][]): ad.Num[][] => {
       add(mul(A[0][0], C[0][0]), mul(A[0][1], C[1][0])),
       mul(A[0][2], C[2][0]),
     );
-  } else if (n == 4) {
+  } else if (n === 4) {
     C[0] = [
       add(
         add(
