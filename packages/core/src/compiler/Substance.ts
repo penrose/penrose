@@ -148,7 +148,6 @@ const initEnv = (ast: CompiledSubProg<A>, env: Env): SubstanceEnv => ({
   labels: im.Map<string, LabelValue>(
     [...env.vars.keys()].map((id: string) => [id, EMPTY_LABEL]),
   ),
-  predicates: [],
   ast,
 });
 

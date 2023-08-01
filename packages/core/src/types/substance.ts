@@ -12,7 +12,6 @@ export interface SubstanceEnv {
   predEqualities: [ApplyPredicate<A>, ApplyPredicate<A>][];
   bindings: im.Map<string, SubExpr<A>>;
   labels: LabelMap;
-  predicates: ApplyPredicate<A>[];
   ast: CompiledSubProg<A>;
 }
 
