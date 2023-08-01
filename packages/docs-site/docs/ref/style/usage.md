@@ -108,13 +108,13 @@ IsSubset (B, C)
 By matching the style block against the Substance program, we essentially consider six possible mappings (note that repeated elements are not allowed), some of which are valid and some are invalid:
 
 | Mapping          | `IsSubset(x, y)` becomes | Satisfied by Substance |
-| :--------------- | :----------------------- | ------------------------ |
-| `x -> A; y -> B` | `IsSubset(A, B)`         | Yes                      |
-| `x -> A; y -> C` | `IsSubset(A, C)`         | No                       |
-| `x -> B; y -> A` | `IsSubset(B, A)`         | No                       |
-| `x -> B; y -> C` | `IsSubset(B, C)`         | Yes                      |
-| `x -> C; y -> A` | `IsSubset(C, A)`         | No                       |
-| `x -> C; y -> B` | `IsSubset(C, B)`         | No                       |
+| :--------------- | :----------------------- | ---------------------- |
+| `x -> A; y -> B` | `IsSubset(A, B)`         | Yes                    |
+| `x -> A; y -> C` | `IsSubset(A, C)`         | No                     |
+| `x -> B; y -> A` | `IsSubset(B, A)`         | No                     |
+| `x -> B; y -> C` | `IsSubset(B, C)`         | Yes                    |
+| `x -> C; y -> A` | `IsSubset(C, A)`         | No                     |
+| `x -> C; y -> B` | `IsSubset(C, B)`         | No                     |
 
 Here, Penrose filters out mappings which do not satisfy the constraints listed in the Style block, and keeps a list of _good_ mappings (in this example, two mappings are kept). For each _good_ mapping, the body of the Style block (`list_body_expressions`) is executed, where each instance of the Style variables (`x` and `y`) is substituted with the corresponding Substance variables (once with `A` and `B`, once with `B` and `C`).
 
@@ -556,7 +556,7 @@ See [the list of computation functions](functions#computation-functions).
 
 ### Operations between Numerical Expressions
 
-Aside from concatenation of strings using the operator `+`, the Style language supports standard arithmetic operations on scalars, vectors, and matrices.  For instance, in the case of `scalar` variables we can use the following operators:
+Aside from concatenation of strings using the operator `+`, the Style language supports standard arithmetic operations on scalars, vectors, and matrices. For instance, in the case of `scalar` variables we can use the following operators:
 
 - `c + d` - sum of `c` and `d`
 - `c - d` - difference of `c` and `d`
