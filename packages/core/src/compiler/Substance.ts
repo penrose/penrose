@@ -900,18 +900,6 @@ const checkDeclListSeq = (
   return createVars(type, substIds, env, declList);
 };
 
-// This removes other extraneous things from "decl"
-const sanitizeDecl = (decl: Decl<A>): Decl<A> | Decl<C> => {
-  // Not using the spread operator because "spread" operator can
-  // bring in extraneous things from "decl"
-  return {
-    ...location(decl),
-    tag: "Decl",
-    type: decl.type,
-    name: decl.name,
-  };
-};
-
 const createVars = (
   type: TypeConsApp<A>,
   nameIds: Identifier<A>[],
@@ -936,14 +924,12 @@ const createVars = (
 
     vars = vars.set(name, type);
     varIDs.push(nameId);
-    equivalentDecls.push(
-      sanitizeDecl({
-        ...node,
-        tag: "Decl",
-        type,
-        name: nameId,
-      }),
-    );
+    equivalentDecls.push({
+      ...location(node),
+      tag: "Decl",
+      type,
+      name: nameId,
+    });
   }
 
   if (errs.length > 0) {

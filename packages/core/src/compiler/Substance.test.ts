@@ -1,7 +1,7 @@
 import nearley from "nearley";
 import { beforeEach, describe, expect, test } from "vitest";
 import grammar from "../parser/SubstanceParser.js";
-import { A } from "../types/ast.js";
+import { A, Identifier } from "../types/ast.js";
 import { Env } from "../types/domain.js";
 import { PenroseError } from "../types/errors.js";
 import { ApplyPredicate, SubRes, SubstanceEnv } from "../types/substance.js";
@@ -265,7 +265,7 @@ Both(IsSubset(A, B), IsSubset(C, D))
     const env = envOrError(domainProg);
     subEnvOrError(prog, env);
   });
-  test("predicates: nesting", () => {
+  test("labeling", () => {
     const prog = `
 Set A, B, C
 Label A $\\vec{A}$
@@ -277,12 +277,93 @@ NoLabel B, C
     const env = envOrError(domainProg);
     subEnvOrError(prog, env);
   });
+  describe("sequences", () => {
+    test("sequence decl - sets with even indices", () => {
+      const env = envOrError(domainProg);
+      const prog = `Set a_i for i in [1, 10] where i % 2 == 0`;
+      const res = compileSubstance(prog, env);
+      expect(res.isOk()).toBe(true);
+      if (res.isOk()) {
+        hasVars(res.value[1], [
+          ["a_2", "Set"],
+          ["a_4", "Set"],
+          ["a_6", "Set"],
+          ["a_8", "Set"],
+          ["a_10", "Set"],
+        ]);
+      }
+    });
+
+    test("sequence decl - no satisfying indices", () => {
+      const env1 = envOrError(domainProg);
+      const prog1 = `Set a_i for i in [1, 10] where i % 2 == 0.5`;
+      const res1 = compileSubstance(prog1, env1);
+      expect(res1.isOk()).toBe(true);
+      if (res1.isOk()) {
+        expect(res1.value[1].vars.size).toBe(0);
+      }
+
+      const env2 = envOrError(domainProg);
+      const prog2 = `Set a_i for i in [11, 10]`;
+      const res2 = compileSubstance(prog2, env2);
+      expect(res2.isOk()).toBe(true);
+      if (res2.isOk()) {
+        expect(res2.value[1].vars.size).toBe(0);
+      }
+    });
+
+    test("sequence decllist", () => {
+      const env = envOrError(domainProg);
+      const prog = `Set a_i, a_j for i in [0, 9], j in [0, 9] where i % 2 == 0 && j == i + 1`;
+      // first iteration: a_0, a_1
+      // second iteration: a_2, a_3
+      // third iteration: a_4, a_5
+      // ...
+      const res = compileSubstance(prog, env);
+      expect(res.isOk()).toBe(true);
+      if (res.isOk()) {
+        hasVars(
+          res.value[1],
+          [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => [`a_${n}`, "Set"]),
+        );
+      }
+    });
+
+    test("sequence pred", () => {
+      const env = envOrError(domainProg);
+      const prog = `
+        Set s_i for i in [0, 5]
+        IsSubset(s_i, s_j) for i in [0, 4], j in [1, 5] where j == i + 1
+      `;
+      const res = compileSubstance(prog, env);
+      expect(res.isOk()).toBe(true);
+      if (res.isOk()) {
+        const preds = res.value[0].ast.statements.filter(
+          (s) => s.tag === "ApplyPredicate",
+        ) as ApplyPredicate<A>[];
+        expect(preds.length).toBe(5);
+        expect(preds.every((p) => p.name.value === "IsSubset")).toBe(true);
+        expect(
+          preds
+            .map((p) =>
+              [
+                (p.args[0] as Identifier<A>).value,
+                (p.args[1] as Identifier<A>).value,
+              ].join(" "),
+            )
+            .sort(),
+        ).toEqual(
+          ["s_0 s_1", "s_1 s_2", "s_2 s_3", "s_3 s_4", "s_4 s_5"].sort(),
+        );
+      }
+    });
+  });
 });
 
 describe("Errors", () => {
   const expectErrorOf = (
     result: Result<[SubstanceEnv, Env], PenroseError>,
-    errorType: string,
+    errorType: PenroseError["tag"],
   ) => {
     if (result.isErr()) {
       if (printError) console.log(showError(result.error));
@@ -308,6 +389,23 @@ AutoLabel All
     `;
     const res = compileSubstance(prog, env);
     expectErrorOf(res, "DuplicateName");
+
+    // some sequences
+    const env1 = envOrError(domainProg);
+    const prog1 = `Point p_i, p_j for i in [1, 2], j in [1, 2]`;
+    const res1 = compileSubstance(prog1, env1);
+    expectErrorOf(res1, "DuplicateName");
+
+    const env2 = envOrError(domainProg);
+    const prog2 = `Point p_10
+    Point p_j for j in [1, 11]`;
+    const res2 = compileSubstance(prog2, env2);
+    expectErrorOf(res2, "DuplicateName");
+
+    const env3 = envOrError(domainProg);
+    const prog3 = `Point p_i, p_i for i in [1, 10]`;
+    const res3 = compileSubstance(prog3, env3);
+    expectErrorOf(res3, "DuplicateName");
   });
   test("decl type not found", () => {
     const env = envOrError(domainProg);
@@ -319,6 +417,12 @@ NotExistentType b
     `;
     const res = compileSubstance(prog, env);
     expectErrorOf(res, "TypeNotFound");
+
+    // test sequence
+    const env1 = envOrError(domainProg);
+    const prog1 = `Sset a_i, a_j for i in [10, 20], j in [20, 30]`;
+    const res1 = compileSubstance(prog1, env1);
+    expectErrorOf(res1, "TypeNotFound");
   });
   test("func type not found", () => {
     const env = envOrError(domainProg);
@@ -466,6 +570,48 @@ Label D $\\vec{d}$
     `;
     const res = compileSubstance(prog, env);
     expectErrorOf(res, "VarNotFound");
+  });
+
+  test("invalid sequence index", () => {
+    const env1 = envOrError(domainProg);
+    const prog1 = `Set a_i for j in [1, 10]`;
+    const res1 = compileSubstance(prog1, env1);
+    expectErrorOf(res1, "InvalidSequenceIndexError");
+
+    const env2 = envOrError(domainProg);
+    const prog2 = `Set a_i for i in [1, 10] where hello > i`;
+    const res2 = compileSubstance(prog2, env2);
+    expectErrorOf(res2, "InvalidSequenceIndexError");
+  });
+
+  test("duplicate sequence index", () => {
+    const env = envOrError(domainProg);
+    const prog = `Set a_i for i in [1, 10], j in [2, 10], i in [1, 10]`;
+    const res = compileSubstance(prog, env);
+    expectErrorOf(res, "DuplicateSequenceIndexError");
+  });
+
+  test("divide by zero in sequence condition", () => {
+    const env = envOrError(domainProg);
+    const prog = `Set a_i for i in [1, 10] where i / (i - i) == 3`;
+    const res = compileSubstance(prog, env);
+    expectErrorOf(res, "DivideByZeroError");
+  });
+
+  test("NaN in sequence condition arithmetics", () => {
+    const env = envOrError(domainProg);
+    const prog = `Set a_i for i in [1, 10] where (-i) ^ 0.5 == 1 `;
+    const res = compileSubstance(prog, env);
+    expectErrorOf(res, "InvalidArithmeticValueError");
+    // error because -1 ^ 0.5 is NaN
+  });
+
+  test("unsupported sequence statement", () => {
+    const env = envOrError(domainProg);
+    const prog = `Set a, b
+    IsSubset(a, b) <-> IsSubset(b, a) for i in [1, 10]`;
+    const res = compileSubstance(prog, env);
+    expectErrorOf(res, "UnsupportedSequenceError");
   });
 });
 
