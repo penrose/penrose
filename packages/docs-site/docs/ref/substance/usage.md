@@ -14,9 +14,9 @@ AutoLabel All
 
 The first line declares the objects that are to be drawn, the last line tells Penrose to automatically label the objects based on their names. All other lines invoke the predicates defined in the _domain_ schema to declare relations between objects.
 
-Notably, like the _domain_ schema, the _substance_ program does not contain any instructions about how, say, a `Set` must be rendered, or how the relation `IsSubset` should be reflected in the diagram. The _substance_ program only declares the existence of these objects and relations, whereas the _style_ schema shows _how_ these objects and relations can be drawn.
+Notably, like the _domain_ schema, the _substance_ program does not contain any instructions about how, say, a `Set` must be rendered, or how the relation `IsSubset` should be reflected in the diagram. The _substance_ program only declares the existence of these objects and relations, whereas the _style_ program shows _how_ these objects and relations can be drawn.
 
-A _substance_ program may contain two types of statements: single statements or sequenced statements.
+A _substance_ program may contain two types of statements: single statements or indexed statements.
 
 ## Single Substance Statements
 
@@ -114,7 +114,7 @@ The rules for `argument_list` remain the same as in predicate applications. We f
 
 ### Labeling Statements
 
-Each declared object has a label, which can be accessed in the _style_ schema. In the _substance_ program, the _labeling statements_ specify the value of these labels.
+Each declared object has a label, which can be accessed in the _style_ language. In the _substance_ program, the _labeling statements_ specify the value of these labels.
 
 There are three types of labeling statements:
 
@@ -124,11 +124,11 @@ There are three types of labeling statements:
   - A text label is a plain-text string delimited by double quotes, e.g., `Label p "a point"`.
 - `NoLabel object_list`: this statement ensures that objects in `object_list` do not have a label.
 
-If an object has an assigned label, then in the _style_ schema, we can access the object's `label` property.
+If an object has an assigned label, then in the _style_ language, we can access the object's `label` property.
 
-## Substance Statement Sequences
+## Substance Indexed Statements
 
-The _substance_ schema allows users to define sequences that expand into multiple statements. A sequence of statements is a single substance statement (as described above) with templated identifiers and an indexing clause, like
+The _substance_ language allows users to define indexed expressions that expand into multiple statements. An indexed statement is a single substance statement (as described above) with templated identifiers and an indexing clause, like
 
 ```substance
 Vector v_i for i in [0, 2]
@@ -148,7 +148,7 @@ Vector v_i for i in [0, 10]
 Vector v_j for i in [0, 1]
   -- error: the range of `j` is not defined by `i in [0, 1]`
   -- notice that `v_j` here does not refer to the `v_j` defined above
-  -- since `v_j` occurs in a sequence statement.
+  -- since `v_j` occurs in an indexed statement.
 
 Orthogonal(v_i, vec1) for i in [0, 3]
   -- ok: expands into Orthogonal(v_0, vec1); Orthogonal(v_1, vec1);
@@ -204,7 +204,7 @@ The order of operations are the typical ones, and parentheses can be used to ove
 
 ### Duplications
 
-A sequence generates a list of _substance_ statements. The existing semantics on duplicates apply to them as well.
+An indexed statement generates a list of _substance_ statements. The existing semantics on duplicates apply to them as well.
 
 ```substance
 Vector v_0
@@ -221,7 +221,7 @@ Orthogonal(v_i, v_j) for i in [0, 2], j in [0, 2] where i != j
   -- ok, because duplicated predicates are ok
 ```
 
-### Accessing Individual Elements of Sequence
+### Accessing Individual Elements of an Indexed Set
 
 An indexing statement generates identifiers by replacing index variables with strings of integer values. Therefore, generated identifiers can be used just like regular identifiers as long as they exist:
 
