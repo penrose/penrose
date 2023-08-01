@@ -46,6 +46,8 @@ export const SubstanceLanguageTokens = (
       "for",
       "in",
       "where",
+      "true",
+      "false",
     ],
   };
   return {
