@@ -277,8 +277,8 @@ NoLabel B, C
     const env = envOrError(domainProg);
     subEnvOrError(prog, env);
   });
-  describe("sequences", () => {
-    test("sequence decl - sets with even indices", () => {
+  describe("indexed expressions", () => {
+    test("indexed set decl - sets with even indices", () => {
       const env = envOrError(domainProg);
       const prog = `Set a_i for i in [1, 10] where i % 2 == 0`;
       const res = compileSubstance(prog, env);
@@ -294,7 +294,7 @@ NoLabel B, C
       }
     });
 
-    test("sequence decl - no satisfying indices", () => {
+    test("indexed set decl - no satisfying indices", () => {
       const env1 = envOrError(domainProg);
       const prog1 = `Set a_i for i in [1, 10] where i % 2 == 0.5`;
       const res1 = compileSubstance(prog1, env1);
@@ -312,7 +312,7 @@ NoLabel B, C
       }
     });
 
-    test("sequence decllist", () => {
+    test("indexed set decllist", () => {
       const env = envOrError(domainProg);
       const prog = `Set a_i, a_j for i in [0, 9], j in [0, 9] where i % 2 == 0 && j == i + 1`;
       // first iteration: a_0, a_1
@@ -329,7 +329,7 @@ NoLabel B, C
       }
     });
 
-    test("sequence pred", () => {
+    test("indexed set pred", () => {
       const env = envOrError(domainProg);
       const prog = `
         Set s_i for i in [0, 5]
@@ -390,7 +390,7 @@ AutoLabel All
     const res = compileSubstance(prog, env);
     expectErrorOf(res, "DuplicateName");
 
-    // some sequences
+    // some indexed expressions
     const env1 = envOrError(domainProg);
     const prog1 = `Point p_i, p_j for i in [1, 2], j in [1, 2]`;
     const res1 = compileSubstance(prog1, env1);
@@ -418,7 +418,7 @@ NotExistentType b
     const res = compileSubstance(prog, env);
     expectErrorOf(res, "TypeNotFound");
 
-    // test sequence
+    // test set
     const env1 = envOrError(domainProg);
     const prog1 = `Sset a_i, a_j for i in [10, 20], j in [20, 30]`;
     const res1 = compileSubstance(prog1, env1);
@@ -572,7 +572,7 @@ Label D $\\vec{d}$
     expectErrorOf(res, "VarNotFound");
   });
 
-  test("invalid sequence index", () => {
+  test("invalid index", () => {
     const env1 = envOrError(domainProg);
     const prog1 = `Set a_i for j in [1, 10]`;
     const res1 = compileSubstance(prog1, env1);
@@ -584,21 +584,21 @@ Label D $\\vec{d}$
     expectErrorOf(res2, "InvalidSequenceIndexError");
   });
 
-  test("duplicate sequence index", () => {
+  test("duplicate index", () => {
     const env = envOrError(domainProg);
     const prog = `Set a_i for i in [1, 10], j in [2, 10], i in [1, 10]`;
     const res = compileSubstance(prog, env);
     expectErrorOf(res, "DuplicateSequenceIndexError");
   });
 
-  test("divide by zero in sequence condition", () => {
+  test("divide by zero in index condition", () => {
     const env = envOrError(domainProg);
     const prog = `Set a_i for i in [1, 10] where i / (i - i) == 3`;
     const res = compileSubstance(prog, env);
     expectErrorOf(res, "DivideByZeroError");
   });
 
-  test("NaN in sequence condition arithmetics", () => {
+  test("NaN in index condition arithmetics", () => {
     const env = envOrError(domainProg);
     const prog = `Set a_i for i in [1, 10] where (-i) ^ 0.5 == 1 `;
     const res = compileSubstance(prog, env);
@@ -606,7 +606,7 @@ Label D $\\vec{d}$
     // error because -1 ^ 0.5 is NaN
   });
 
-  test("unsupported sequence statement", () => {
+  test("unsupported indexing statement", () => {
     const env = envOrError(domainProg);
     const prog = `Set a, b
     IsSubset(a, b) <-> IsSubset(b, a) for i in [1, 10]`;
@@ -660,7 +660,7 @@ Empty(AddPoint(p, A))`;
 });
 
 describe("Pretty printer", () => {
-  // Don't test for aggregated or sequenced statements
+  // Don't test for aggregated or indexed statements
   // since they get expanded during compilation.
   test("decls and args", () => {
     const env = envOrError(domainProg);
