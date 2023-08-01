@@ -15,7 +15,7 @@ export interface SubstanceEnv {
   ast: CompiledSubProg<A>;
 }
 
-//#region Substance ASTx
+//#region Substance AST
 
 export type SubProg<T> = ASTNode<T> & {
   tag: "SubProg";
