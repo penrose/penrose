@@ -606,6 +606,11 @@ const substSeqVarNumber = (
   location: AbstractNode,
   subst: SeqSubst,
 ): Result<number, SubstanceError> => {
+  // If already a number, use that number.
+  if (!isNaN(Number(v))) {
+    return ok(Number(v));
+  }
+
   const seqVarValue = subst.get(v);
   if (seqVarValue === undefined) {
     return err({
