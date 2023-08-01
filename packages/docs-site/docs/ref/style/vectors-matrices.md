@@ -144,9 +144,104 @@ In general, `A1 then A2 then ... then An = An * ... * A2 * A1`.  The use of the 
 
 ## Vector and matrix functions
 
-A variety of methods are available for constructing standard matrices.
+A variety of methods are available for constructing standard matrices (click through for more detailed description):
+
+- [identity](functions#computation-identity)
+- [diagonal](functions#computation-diagonal)
+- [trace](functions#computation-trace)
+- [determinant](functions#computation-determinant)
+- [inverse](functions#computation-inverse)
+- [outerProduct](functions#computation-outerProduct)
+- [crossProductMatrix](functions#computation-crossProductMatrix)
+- [matrix](functions#computation-matrix)
+- [matrix3d](functions#computation-matrix3d)
 
 ## 2D and 3D transformation matrices
 
-_TODO explain all this business about linear vs. affine, homogeneous coordinates, etc., and how the library is designed.  Explain the naming for basic, composable 2D transformations is just the bare words._
+Penrose provides matrices which express basic 2D and 3D spatial transformations (rotation, translation, etc.).  The definitions of these functions are designed to closely follow the standard definitions found in SVG and CSS (2D) and OpenGL (3D), so that code from these languages can be easily ported to Style.  Since 2D is the most common case, 2D transformations are referred to by the simple names [`rotate`](functions#computation-rotate), [`translate`](functions#computation-translate), [`scale`](functions#computation-scale), [`skew`](functions#computation-skew), and [`shear`](functions#computation-shear).  Other functions are referred to by dimension, e.g., `rotate3d()`; a suffix of `h` indicates that a transformation is expressed in homogeneous coordinates (e.g., `rotate3dh()`).  A full list is given below (click through for more detailed descriptions).
+
+### Composition of transformations
+
+As noted above, transformations can be combined using the `then` keyword.  For instance,
+
+```style
+mat4x4 transform = translate(x,y) then rotate(theta) then scale(a,b),
+```
+
+which performs the given transformations in left-to-right order.  (If preferred, one can also compose transformations in right-to-left order using ordinary matrix multiplication.)
+
+### Linear vs. affine transformations, homogeneous coordinates
+
+An important concept when working with spatial transformations is the distinction between _linear_ and _affine_ transformations.  A linear transformation of a point $x$ in $n$-dimensional space is one that can be expressed via matrix-vector multiplication $Ax$ for some $n \times n$ matrix $A$.  Whereas some basic transformations, like rotation, can be expressed this way, other standard transformations cannot.  For instance, there is no way to encode translation by a vector $u$ as a linear transformation, i.e., there is no $n \times n$ matrix $A$ such that $Ax = x + u$.  This transformation is an example of an _affine transformation_.  Any affine transformation can be encoded as a linear transformation "one dimension up," by writing our points in _homogeneous coordinates_.  In particular, if we work with the coordinates $\hat{x} = (x,1)$ (i.e., we append 1 to the end of the original coordinate vector), then we can find a matrix $\hat{A}$ such that $\hat{y} := \hat{A}\hat{x}$ describes the result of translation, also in homogeneous coordinates.  To recover the translated vector in ordinary Cartesian coordinates, we then divide the first $n$ components of $\hat{y}$ by its final, "extra" coordinate.  For further information, see [this discussion](https://en.wikipedia.org/wiki/Homogeneous_coordinates#Use_in_computer_graphics_and_computer_vision).
+
+Transformations in Style follow a standard naming convention:
+
+- Transformations with no suffix refer to 2D transformations expressed in homogeneous coordinates (`rotate()`, `translate()`, `scale()`, etc.).  These functions can all be composed with each-other as one would naturally expect.
+- Transformations with a suffix `2D` refer to linear 2D transformations, expressed in ordinary Cartesian coordinates (`rotate2D()`, `scale2D()`, etc.).  Note that there is no `translate2D()`, because this transformation is affine; likewise, linear 2D transformations cannot be directly composed with affine 2D transformations.
+- Transformations with a suffix `3D` refer to linear 3D transformations, expressed in ordinary Cartesian coordinates (`rotate3D()`, `scale3D()`, etc.).
+- Transformations with a suffix `3dh` refer to affine 3D transformations, expressed in homogeneous coordinates (`rotate3Dh()`, `translate3Dh`, etc.).
+
+Style also provides helper functions for converting to/from homogeneous coordinates:
+
+- [fromHomogeneous](functions#computation-fromHomogeneous)
+- [fromHomogeneousList](functions#computation-fromHomogeneousList)
+- [toHomogeneous](functions#computation-toHomogeneous)
+- [toHomogeneousList](functions#computation-toHomogeneousList)
+- [toHomogeneousMatrix](functions#computation-toHomogeneousMatrix)
+
+Example usage:
+
+```style
+vec3 p = (1,2,3) -- express a 3D point in ordinary Cartesian coordinates
+
+-- express a 3D transformation in 3+1 homogeneous coordinates
+mat4x4 A = translate3dh(x,y,z) then rotate3dh(theta,u) then scale3dh(a,b,c)
+
+-- transform the point by converting to/from homogeneous coordinates
+vec3 q = fromHomogeneous( A * toHomogeneous(p) )
+```
+
+#### 2D transformations (affine)
+
+- [rotate](functions#computation-rotate)
+- [scale](functions#computation-scale)
+- [skew](functions#computation-skew)
+- [shear](functions#computation-shear)
+- [translate](functions#computation-translate)
+
+#### 2D transformations (linear)
+
+- [rotate2d](functions#computation-rotate2d)
+- [scale2d](functions#computation-scale2d)
+- [skew2d](functions#computation-skew2d)
+- [shear2d](functions#computation-shear2d)
+
+#### 3D transformations (linear)
+
+- [rotate3d](functions#computation-rotate3d)
+- [scale3d](functions#computation-scale3d)
+- [shear3d](functions#computation-shear3d)
+
+#### 3D transformations (affine)
+
+- [rotate3dh](functions#computation-rotate3dh)
+- [scale3dh](functions#computation-scale3dh)
+- [shear](functions#computation-shear)
+- [translate3dh](functions#computation-translate3dh)
+
+
+### Camera matrices
+
+Penrose also provides camera projection matrices, which are helpful for making 3D diagrams (see especially the [`dinoshade` example](https://github.com/penrose/penrose/tree/main/packages/examples/src/dinoshade)).  These functions closely match the standard definitions in OpenGL:
+
+- [lookAt](functions#computation-lookAt)
+- [perspective](functions#computation-perspective)
+- [ortho](functions#computation-ortho)
+- [project](functions#computation-project)
+- [projectDepth](functions#computation-projectDepth)
+- [projectList](functions#computation-projectList)
+
+Finally, the utility function `matrixMultiplyList` is useful for applying the same transformation to many points (e.g., points in a 3D mesh):
+
+- [matrixMultiplyList](functions#computation-matrixMultiplyList)
 
