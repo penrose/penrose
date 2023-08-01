@@ -63,7 +63,7 @@ type Vertex
 predicate Arc(Vertex a, Vertex b)
 ```
 
-Given a `Vertex` type and an `Arc` predicate, we can now create vertices and draw arcs between them in the Substance language. Let's write a Substance program in this domain; one, for example, depicting an intricate Hamiltonian graph. The Substance code could be written as follows:
+Given a `Vertex` type and an `Arc` predicate, we can now create vertices and draw arcs between them in the Substance language. Let's write a Substance program in this domain; one, for example, depicting an intricate Hamiltonian graph (which is a graph that contains a cycle that hits each vertex exactly once before returning to the start node). The Substance code could be written as follows:
 
 ```substance
 Vertex a, b, c, d, e, f, g
@@ -96,7 +96,7 @@ Here's what the resulting diagram should look like:
 
 ## Extending the Domain and understanding the Style
 
-In the graph shown above, it's rather unclear where exactly the Hamiltonian circuit is, so we might want to highlight its path. This would mean highlighting certain vertices and arcs. Let's therefore add predicates to the Domain which allow us to do so.
+In the graph shown above, it's rather unclear where exactly the Hamiltonian cycle is, so we might want to highlight its path. This would mean highlighting certain vertices and arcs. Let's therefore add predicates to the Domain which allow us to do so.
 
 ```domain
 type Vertex
