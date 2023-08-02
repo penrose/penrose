@@ -35,7 +35,7 @@ import {
   DeclList,
   Deconstructor,
   Func,
-  IndexedSet,
+  IndexSet,
   LabelDecl,
   LabelMap,
   LabelOption,
@@ -414,7 +414,7 @@ const checkSingleStmt = (
 
 type ISetSubst = Map<string, number>;
 
-const evalISet = (iset: IndexedSet<A>): Result<ISetSubst[], SubstanceError> => {
+const evalISet = (iset: IndexSet<A>): Result<ISetSubst[], SubstanceError> => {
   const { indices, condition } = iset;
 
   // Check for duplication in variable declarations
@@ -1467,11 +1467,11 @@ export const prettyStmt = (stmt: Stmt<A>): string => {
     return prettySingleStmt(stmt);
   } else {
     // TOOD: use more informative pretty-printing
-    return `${prettySingleStmt(stmt.stmt)} ${prettyIndexedSet(stmt.iset)}`;
+    return `${prettySingleStmt(stmt.stmt)} ${prettyIndexSet(stmt.iset)}`;
   }
 };
 
-const prettyIndexedSet = (iset: IndexedSet<A>): string => {
+const prettyIndexSet = (iset: IndexSet<A>): string => {
   const rangeStrings: string[] = [];
   for (const range of iset.indices) {
     const varName = range.variable.value;

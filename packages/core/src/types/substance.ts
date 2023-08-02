@@ -228,7 +228,7 @@ export type NumberConstant<T> = ASTNode<T> & {
 export type StmtSet<T> = ASTNode<T> & {
   tag: "StmtSet";
   stmt: SubStmt<T>;
-  iset: IndexedSet<T>;
+  iset: IndexSet<T>;
 };
 
 export type Range<T> = ASTNode<T> & {
@@ -237,8 +237,8 @@ export type Range<T> = ASTNode<T> & {
   high: NumberConstant<T>;
 };
 
-export type IndexedSet<T> = ASTNode<T> & {
-  tag: "IndexedSet";
+export type IndexSet<T> = ASTNode<T> & {
+  tag: "IndexSet";
   indices: RangeAssign<T>[];
   condition?: BooleanExpr<T>;
 };
