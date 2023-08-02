@@ -173,7 +173,7 @@ Orthogonal(v_i, v_j) for i in [0, 1], j in [1, 2]
 Sometimes, we don't want to iterate through all possible combinations, since some combinations are undesirable. _Substance_ allows users to filter the combinations using a Boolean expression in the `where` clause. _Substance_ would discard all combinations that make the Boolean expression false.
 
 ```substance
-Vector v_i for i in [0, 10] where i == 0 mod 2
+Vector v_i for i in [0, 10] where i % 2 == 0
   -- even indices: 0, 2, 4, 6, 8, 10
 
 Orthogonal(v_i, v_j) for i in [0, 2], j in [0, 2] where i <= j
@@ -181,6 +181,9 @@ Orthogonal(v_i, v_j) for i in [0, 2], j in [0, 2] where i <= j
 
 Orthogonal(v_i, v_j) for i in [0, 3], j in [0, 3] where i + 1 == j
   -- consecutive pairs: [0, 1], [1, 2], [2, 3]
+
+Edge(v_i, v_j) for i in [0, 4], j in [0, 4] where j == (i + 1) mod 5
+  -- cyclic pairs: [0, 1], [1, 2], [2, 3], [3, 4], [4, 0]
 
 Orthogonal(v_i, v_j) for i in [0, 3], j in [0, 3] where i % 2 == 0 && j == i + 1
   -- disjoint pairs of 2: [0, 1], [2, 3]
