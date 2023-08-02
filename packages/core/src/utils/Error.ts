@@ -252,17 +252,17 @@ export const showError = (
         sourceType,
       )}' type was given at ${loc(sourceExpr)}.`;
     }
-    case "InvalidSequenceIndexError": {
+    case "InvalidSetIndexingError": {
       const { index, location, suggestions } = error;
       return `Name \`${index}\` (which is used at ${loc(
         location,
-      )}) is not a valid sequence index. Possible sequence indices are: ${suggestions.join(
+      )}) is not a valid index. Possible indices are: ${suggestions.join(
         ", ",
       )}`;
     }
-    case "DuplicateSequenceIndexError": {
+    case "DuplicateIndexError": {
       const { index, location } = error;
-      return `Sequence index variable \`${index}\` has been declared multiple times at ${loc(
+      return `Index variable \`${index}\` has been declared multiple times at ${loc(
         location,
       )}.`;
     }
@@ -276,9 +276,9 @@ export const showError = (
         location,
       )} resulted in the invalid value of ${value}.`;
     }
-    case "UnsupportedSequenceError": {
+    case "UnsupportedIndexingError": {
       const { seq } = error;
-      return `Sequencing on expressions of type ${seq.stmt.tag} (at ${loc(
+      return `Indexing on expressions of type ${seq.stmt.tag} (at ${loc(
         seq,
       )}) is not supported`;
     }
@@ -732,13 +732,13 @@ export const errLocs = (
     case "DeconstructNonconstructor": {
       return locOrNone(e.deconstructor);
     }
-    case "InvalidSequenceIndexError":
-    case "DuplicateSequenceIndexError":
+    case "InvalidSetIndexingError":
+    case "DuplicateIndexError":
     case "DivideByZeroError":
     case "InvalidArithmeticValueError": {
       return locOrNone(e.location);
     }
-    case "UnsupportedSequenceError": {
+    case "UnsupportedIndexingError": {
       return locOrNone(e.seq);
     }
 

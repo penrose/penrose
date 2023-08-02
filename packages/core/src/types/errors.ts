@@ -60,11 +60,11 @@ export type SubstanceError =
   | VarNotFound
   | DeconstructNonconstructor
   | UnexpectedExprForNestedPred
-  | InvalidSequenceIndexError
-  | DuplicateSequenceIndexError
+  | InvalidSetIndexingError
+  | DuplicateIndexError
   | DivideByZeroError
   | InvalidArithmeticValueError
-  | UnsupportedSequenceError
+  | UnsupportedIndexingError
   | FatalError; // TODO: resolve all fatal errors in the Substance module
 
 export type DomainError =
@@ -87,15 +87,15 @@ export interface SymmetricArgLengthMismatch {
   sourceExpr: AbstractNode;
 }
 
-export interface InvalidSequenceIndexError {
-  tag: "InvalidSequenceIndexError";
+export interface InvalidSetIndexingError {
+  tag: "InvalidSetIndexingError";
   index: string;
   location: AbstractNode;
   suggestions: string[];
 }
 
-export interface DuplicateSequenceIndexError {
-  tag: "DuplicateSequenceIndexError";
+export interface DuplicateIndexError {
+  tag: "DuplicateIndexError";
   index: string;
   location: AbstractNode;
 }
@@ -111,8 +111,8 @@ export interface InvalidArithmeticValueError {
   value: number;
 }
 
-export interface UnsupportedSequenceError {
-  tag: "UnsupportedSequenceError";
+export interface UnsupportedIndexingError {
+  tag: "UnsupportedIndexingError";
   seq: StmtSeq<A>;
 }
 

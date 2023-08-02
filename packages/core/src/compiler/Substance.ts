@@ -354,7 +354,7 @@ const checkStmtSeqHelper = (
     default: {
       return err([
         {
-          tag: "UnsupportedSequenceError",
+          tag: "UnsupportedIndexingError",
           seq: stmtSeq,
         },
       ]);
@@ -422,7 +422,7 @@ const evalSeq = (seq: Sequence<A>): Result<SeqSubst[], SubstanceError> => {
   for (const varName of indices.map((i) => i.variable.value)) {
     if (variables.has(varName)) {
       return err({
-        tag: "DuplicateSequenceIndexError",
+        tag: "DuplicateIndexError",
         index: varName,
         location: seq,
       });
@@ -614,7 +614,7 @@ const substSeqVarNumber = (
   const seqVarValue = subst.get(v);
   if (seqVarValue === undefined) {
     return err({
-      tag: "InvalidSequenceIndexError",
+      tag: "InvalidSetIndexingError",
       index: v,
       location,
       suggestions: [...subst.keys()],

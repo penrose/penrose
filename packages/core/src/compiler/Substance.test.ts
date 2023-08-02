@@ -576,19 +576,19 @@ Label D $\\vec{d}$
     const env1 = envOrError(domainProg);
     const prog1 = `Set a_i for j in [1, 10]`;
     const res1 = compileSubstance(prog1, env1);
-    expectErrorOf(res1, "InvalidSequenceIndexError");
+    expectErrorOf(res1, "InvalidSetIndexingError");
 
     const env2 = envOrError(domainProg);
     const prog2 = `Set a_i for i in [1, 10] where hello > i`;
     const res2 = compileSubstance(prog2, env2);
-    expectErrorOf(res2, "InvalidSequenceIndexError");
+    expectErrorOf(res2, "InvalidSetIndexingError");
   });
 
   test("duplicate index", () => {
     const env = envOrError(domainProg);
     const prog = `Set a_i for i in [1, 10], j in [2, 10], i in [1, 10]`;
     const res = compileSubstance(prog, env);
-    expectErrorOf(res, "DuplicateSequenceIndexError");
+    expectErrorOf(res, "DuplicateIndexedElementError");
   });
 
   test("divide by zero in index condition", () => {
@@ -611,7 +611,7 @@ Label D $\\vec{d}$
     const prog = `Set a, b
     IsSubset(a, b) <-> IsSubset(b, a) for i in [1, 10]`;
     const res = compileSubstance(prog, env);
-    expectErrorOf(res, "UnsupportedSequenceError");
+    expectErrorOf(res, "UnsupportedIndexingError");
   });
 });
 
