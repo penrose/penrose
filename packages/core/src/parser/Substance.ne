@@ -334,6 +334,7 @@ term ->
   | term _ "*" _ factor {% ([left, , , , right]): BinaryExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryExpr", operator: "*", left, right}) %}
   | term _ "/" _ factor {% ([left, , , , right]): BinaryExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryExpr", operator: "/", left, right}) %}
   | term _ "%" _ factor {% ([left, , , , right]): BinaryExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryExpr", operator: "%", left, right}) %}
+  | term _ "mod" _ factor {% ([left, , , , right]): BinaryExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryExpr", operator: "%", left, right}) %}
   | "-" _ factor {% ([op, , arg]): UnaryExpr<C> => ({...nodeData, ...rangeBetween(op, arg), tag: "UnaryExpr", operator: "-", arg }) %}
   | factor {% id %}
 

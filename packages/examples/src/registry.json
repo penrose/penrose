@@ -454,6 +454,10 @@
     "name": "Periodic 2D Grid",
     "gallery": false
   },
+  "spectral-graphs/examples/mobius": {
+    "name": "Mobius Strip",
+    "gallery": true
+  },
   "spectral-graphs/examples/periodic-hexagonal-lattice": {
     "name": "Periodic Hexagonal Grid",
     "gallery": false
