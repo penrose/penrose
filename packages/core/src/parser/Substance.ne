@@ -34,6 +34,7 @@ const lexer = moo.compile({
       for: "for",
       in: "in",
       where: "where",
+      mod: "mod",
     })
   }
 });
