@@ -128,7 +128,7 @@ If an object has an assigned label, then in the _style_ language, we can access 
 
 ## Indexed Variables
 
-The _substance_ language allows users to define indexed expressions that expand into multiple statements. An indexed statement is a single substance statement (as described above) with templated identifiers and an indexing clause.  A common example is declaring an indexed set of variables:
+The _substance_ language allows users to define indexed expressions that expand into multiple statements. An indexed statement is a single substance statement (as described above) with templated identifiers and an indexing clause. A common example is declaring an indexed set of variables:
 
 ```substance
 Vector v_i for i in [0, 2]
