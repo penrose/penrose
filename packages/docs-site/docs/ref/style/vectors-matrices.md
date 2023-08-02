@@ -71,7 +71,9 @@ scalar trM = M[0][0] + M[1][1]
 
 constructs an expression for the trace of `M`. In this case, since the elements of `M` are declared as unknown scalars, the value of the trace will depend on the entry values of the optimized matrix.
 
-**Note:** At present, a single index cannot be used to extract a vector from a matrix or list. For instance, the following usage is not valid:
+::: warning
+
+At present, a single index cannot be used to extract a vector from a matrix or list. For instance, the following usage is not valid:
 
 ```style
 mat3x3 M = ( (1,2,3), (4,5,6), (7,8,9) )
@@ -86,6 +88,8 @@ vec3 row1 = ( M[0][0], M[0][1], M[0][2] ) -- extract row 1 of M
 ```
 
 More concise indexing is planned for future language versions; see [issue #1509](https://github.com/penrose/penrose/issues/1509).
+
+:::
 
 ## Vector and matrix operations
 
