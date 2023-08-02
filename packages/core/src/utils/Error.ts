@@ -277,9 +277,9 @@ export const showError = (
       )} resulted in the invalid value of ${value}.`;
     }
     case "UnsupportedIndexingError": {
-      const { seq } = error;
-      return `Indexing on expressions of type ${seq.stmt.tag} (at ${loc(
-        seq,
+      const { iset } = error;
+      return `Indexing on expressions of type ${iset.stmt.tag} (at ${loc(
+        iset,
       )}) is not supported`;
     }
 
@@ -739,7 +739,7 @@ export const errLocs = (
       return locOrNone(e.location);
     }
     case "UnsupportedIndexingError": {
-      return locOrNone(e.seq);
+      return locOrNone(e.iset);
     }
 
     // ---- BEGIN STYLE ERRORS

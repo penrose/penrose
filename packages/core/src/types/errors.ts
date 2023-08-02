@@ -113,7 +113,7 @@ export interface InvalidArithmeticValueError {
 
 export interface UnsupportedIndexingError {
   tag: "UnsupportedIndexingError";
-  seq: StmtSet<A>;
+  iset: StmtSet<A>;
 }
 
 export interface UnexpectedExprForNestedPred {

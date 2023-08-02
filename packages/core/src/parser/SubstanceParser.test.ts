@@ -70,32 +70,32 @@ describe("statements", () => {
     test.each([
       "Set A for i in [0, 10]",
       "Set A for i in [0, 10], j in [1, 5]",
-    ])("decl iset %s", (seq: string) => {
-      const { results } = parser.feed(seq);
+    ])("decl iset %s", (iset: string) => {
+      const { results } = parser.feed(iset);
       sameASTs(results);
     });
 
     test.each([
       "Set A := MakeSet(hello_j) for j in [0, 20]",
       "Let B := Set(hello_world) for abc in [80, 70]",
-    ])("declbind iset %s", (seq: string) => {
-      const { results } = parser.feed(seq);
+    ])("declbind iset %s", (iset: string) => {
+      const { results } = parser.feed(iset);
       sameASTs(results);
     });
 
     test.each([
       "Edge(a_i, a_j) for i in [0, 20], j in [20, 30] where i + 1 == j && j + 1 == i || !(j == 1 && y == 2)",
       "Edge(v_i, v_i) for i in [0, 20] where 20 != 20",
-    ])("pred conditional iset %s", (seq: string) => {
-      const { results } = parser.feed(seq);
+    ])("pred conditional iset %s", (iset: string) => {
+      const { results } = parser.feed(iset);
       sameASTs(results);
     });
 
     test.each([
       'Label x_i "abcde" for i in [0, 10]',
       "Label y $abc$ for j in [0, 15]",
-    ])("label iset %s", (seq: string) => {
-      const { results } = parser.feed(seq);
+    ])("label iset %s", (iset: string) => {
+      const { results } = parser.feed(iset);
       sameASTs(results);
     });
   });
@@ -122,8 +122,8 @@ List(Map) l1
     ).toEqual(["A", "f", "g", "h", "l", "l1"]);
   });
 
-  test.each(["Set a", "Set a, b"])("decl list %s", (seq: string) => {
-    const { results } = parser.feed(seq);
+  test.each(["Set a", "Set a, b"])("decl list %s", (iset: string) => {
+    const { results } = parser.feed(iset);
 
     sameASTs(results);
   });

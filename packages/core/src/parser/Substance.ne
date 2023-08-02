@@ -69,16 +69,16 @@ statements
     |  _ statement _c_ nl statements {% d => [d[1], ...d[4]] %}
 
 statement 
-  -> stmt_seq {% id %}
+  -> stmt_iset {% id %}
   |  stmt     {% id %}
 
-stmt_seq -> stmt __ iset {% 
-  ([stmt, , seq]) => {
+stmt_iset -> stmt __ iset {% 
+  ([stmt, , iset]) => {
     return {
       ...nodeData,
-      ...rangeFrom([stmt, seq]),
+      ...rangeFrom([stmt, iset]),
       tag: "StmtSet",
-      stmt, seq
+      stmt, iset
     }
   }
 %}

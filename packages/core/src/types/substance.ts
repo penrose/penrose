@@ -228,7 +228,7 @@ export type NumberConstant<T> = ASTNode<T> & {
 export type StmtSet<T> = ASTNode<T> & {
   tag: "StmtSet";
   stmt: SubStmt<T>;
-  seq: IndexedSet<T>;
+  iset: IndexedSet<T>;
 };
 
 export type Range<T> = ASTNode<T> & {
