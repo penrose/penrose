@@ -1251,15 +1251,15 @@ export const all = <Ok, Error>(
 export {
   Result,
   and,
-  or,
-  ok,
-  err,
   andThen,
   ap,
-  match,
-  unsafelyUnwrap,
+  err,
   isErr,
+  match,
+  ok,
+  or,
   unsafelyGetErr,
+  unsafelyUnwrap,
 };
 
 // #endregion

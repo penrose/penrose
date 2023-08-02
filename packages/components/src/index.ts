@@ -1,5 +1,5 @@
 import Demo from "./Demo.js";
-import { Embed } from "./Embed.js";
+import Embed from "./Embed.js";
 import { Grid } from "./Grid.js";
 import Listing from "./Listing.js";
 import MultipleChoiceProblem from "./MultipleChoiceProblem.js";
@@ -12,17 +12,17 @@ import { SetupSubstanceMonaco } from "./editing/languages/SubstanceConfig.js";
 import fetchResolver from "./fetchPathResolver.js";
 import penroseBlue from "./themes/penroseBlue.js";
 export {
-  Simple,
-  Embed,
-  Grid,
-  MultipleChoiceProblem,
-  StagedDiagram,
-  Listing,
   Demo,
   EditorPane,
+  Embed,
+  Grid,
+  Listing,
+  MultipleChoiceProblem,
   SetupDomainMonaco,
-  SetupSubstanceMonaco,
   SetupStyleMonaco,
+  SetupSubstanceMonaco,
+  Simple,
+  StagedDiagram,
   fetchResolver,
   penroseBlue,
 };

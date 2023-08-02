@@ -318,6 +318,10 @@ export default defineConfig({
           text: "July 2023",
           items: [
             {
+              text: "Tailoring Penrose domains to your needs",
+              link: "/blog/tailoring-graph-domain",
+            },
+            {
               text: "Announcing Penrose 3.0",
               link: "/blog/v3",
             },

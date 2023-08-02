@@ -84,10 +84,7 @@ export const combinations2 = <T>(list: T[]): [T, T][] =>
  * @param argument Possible unsafe function call
  * @param message Error message
  */
-export const safe = <T extends unknown>(
-  argument: T | undefined,
-  message: string,
-): T => {
+export const safe = <T>(argument: T | undefined, message: string): T => {
   if (argument === undefined) {
     throw new TypeError(message);
   }
