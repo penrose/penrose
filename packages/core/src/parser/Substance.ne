@@ -9,7 +9,7 @@ import moo from "moo";
 import _ from 'lodash'
 import { optional, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil.js'
 import { C, ConcreteNode, Identifier, StringLit } from "../types/ast.js";
-import { IndexedSet, RangeAssign, Range, NumberConstant, BinaryExpr, UnaryExpr, ComparisonExpr, BooleanExpr, BinaryBooleanExpr, UnaryBooleanExpr, BooleanConstant, SubProg, SubStmt, Decl, DeclList, Bind, DeclBind, ApplyPredicate, Deconstructor, Func, EqualExprs, EqualPredicates, LabelDecl, NoLabel, AutoLabel, LabelOption, TypeConsApp } from "../types/substance.js";
+import { IndexSet, RangeAssign, Range, NumberConstant, BinaryExpr, UnaryExpr, ComparisonExpr, BooleanExpr, BinaryBooleanExpr, UnaryBooleanExpr, BooleanConstant, SubProg, SubStmt, Decl, DeclList, Bind, DeclBind, ApplyPredicate, Deconstructor, Func, EqualExprs, EqualPredicates, LabelDecl, NoLabel, AutoLabel, LabelOption, TypeConsApp } from "../types/substance.js";
 
 
 // NOTE: ordering matters here. Top patterns get matched __first__
@@ -86,21 +86,21 @@ stmt_iset -> stmt __ iset {%
 
 iset
   -> "for" __ sepBy1[range_assign, ","] __ "where" __ boolean_expr {% 
-      ([kw, , d, ,,,b]): IndexedSet<C> => {
+      ([kw, , d, ,,,b]): IndexSet<C> => {
         return {
           ...nodeData,
           ...rangeBetween(kw, b),
-          tag: "IndexedSet", 
+          tag: "IndexSet", 
           indices: d, condition: b
         };
       }
   %}
   |  "for" __ sepBy1[range_assign, ","] {% 
-      ([kw, , d]): IndexedSet<C> => {
+      ([kw, , d]): IndexSet<C> => {
         return {
           ...nodeData,
           ...rangeBetween(kw, d[d.length - 1]),
-          tag: "IndexedSet", 
+          tag: "IndexSet", 
           indices: d, condition: undefined
         };
       }
