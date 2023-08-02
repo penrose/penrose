@@ -72,7 +72,7 @@ statement
   -> stmt_seq {% id %}
   |  stmt     {% id %}
 
-stmt_seq -> stmt __ sequence {% 
+stmt_seq -> stmt __ iset {% 
   ([stmt, , seq]) => {
     return {
       ...nodeData,
@@ -84,7 +84,7 @@ stmt_seq -> stmt __ sequence {%
 %}
 
 
-sequence
+iset
   -> "for" __ sepBy1[range_assign, ","] __ "where" __ boolean_expr {% 
       ([kw, , d, ,,,b]): IndexedSet<C> => {
         return {

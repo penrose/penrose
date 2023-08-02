@@ -66,11 +66,11 @@ Set D
 });
 
 describe("statements", () => {
-  describe("sequences", () => {
+  describe("isets", () => {
     test.each([
       "Set A for i in [0, 10]",
       "Set A for i in [0, 10], j in [1, 5]",
-    ])("decl sequence %s", (seq: string) => {
+    ])("decl iset %s", (seq: string) => {
       const { results } = parser.feed(seq);
       sameASTs(results);
     });
@@ -78,7 +78,7 @@ describe("statements", () => {
     test.each([
       "Set A := MakeSet(hello_j) for j in [0, 20]",
       "Let B := Set(hello_world) for abc in [80, 70]",
-    ])("declbind sequence %s", (seq: string) => {
+    ])("declbind iset %s", (seq: string) => {
       const { results } = parser.feed(seq);
       sameASTs(results);
     });
@@ -86,7 +86,7 @@ describe("statements", () => {
     test.each([
       "Edge(a_i, a_j) for i in [0, 20], j in [20, 30] where i + 1 == j && j + 1 == i || !(j == 1 && y == 2)",
       "Edge(v_i, v_i) for i in [0, 20] where 20 != 20",
-    ])("pred conditional sequence %s", (seq: string) => {
+    ])("pred conditional iset %s", (seq: string) => {
       const { results } = parser.feed(seq);
       sameASTs(results);
     });
@@ -94,7 +94,7 @@ describe("statements", () => {
     test.each([
       'Label x_i "abcde" for i in [0, 10]',
       "Label y $abc$ for j in [0, 15]",
-    ])("label sequence %s", (seq: string) => {
+    ])("label iset %s", (seq: string) => {
       const { results } = parser.feed(seq);
       sameASTs(results);
     });
