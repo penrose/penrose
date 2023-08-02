@@ -23,7 +23,7 @@ import {
   UOp,
 } from "./style.js";
 import { ResolvedPath } from "./styleSemantics.js";
-import { Deconstructor, StmtSeq, SubExpr, TypeConsApp } from "./substance.js";
+import { Deconstructor, StmtSet, SubExpr, TypeConsApp } from "./substance.js";
 import { ArgValWithSourceLoc, ShapeVal, Val, Value } from "./value.js";
 
 //#region ErrorTypes
@@ -113,7 +113,7 @@ export interface InvalidArithmeticValueError {
 
 export interface UnsupportedIndexingError {
   tag: "UnsupportedIndexingError";
-  seq: StmtSeq<A>;
+  seq: StmtSet<A>;
 }
 
 export interface UnexpectedExprForNestedPred {

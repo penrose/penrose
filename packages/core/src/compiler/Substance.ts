@@ -41,9 +41,9 @@ import {
   LabelValue,
   NoLabel,
   NumExpr,
-  Sequence,
+  IndexedSet,
   Stmt,
-  StmtSeq,
+  StmtSet,
   SubExpr,
   SubPredArg,
   SubProg,
@@ -290,30 +290,30 @@ const checkStmt = (
   stmt: Stmt<A>,
   env: Env,
 ): CheckerResult<CompiledSubStmt<A>[]> => {
-  if (stmt.tag === "StmtSeq") return checkStmtSeqHelper(stmt, env);
+  if (stmt.tag === "StmtSet") return checkStmtSeqHelper(stmt, env);
   else return checkSingleStmt(stmt, env);
 };
 
 const checkStmtSeqHelper = (
-  stmtSeq: StmtSeq<A>,
+  stmtSet: StmtSet<A>,
   env: Env,
 ): CheckerResult<CompiledSubStmt<A>[]> => {
-  const { stmt } = stmtSeq;
+  const { stmt } = stmtSet;
   switch (stmt.tag) {
     case "Decl": {
       // special, smarter handling for decl
-      return checkDeclSeq({ ...stmtSeq, stmt }, env);
+      return checkDeclSeq({ ...stmtSet, stmt }, env);
     }
     case "DeclList": {
       // special, smarter handling for declList
-      return checkDeclListSeq({ ...stmtSeq, stmt }, env);
+      return checkDeclListSeq({ ...stmtSet, stmt }, env);
     }
     case "Bind": {
-      return checkStmtSeq({ ...stmtSeq, stmt }, env, substSeqBind, checkBind);
+      return checkStmtSeq({ ...stmtSet, stmt }, env, substSeqBind, checkBind);
     }
     case "DeclBind": {
       return checkStmtSeq(
-        { ...stmtSeq, stmt },
+        { ...stmtSet, stmt },
         env,
         substSeqDeclBind,
         checkDeclBind,
@@ -321,7 +321,7 @@ const checkStmtSeqHelper = (
     }
     case "ApplyPredicate": {
       return checkStmtSeq(
-        { ...stmtSeq, stmt },
+        { ...stmtSet, stmt },
         env,
         substSeqPredicate,
         checkPredicate,
@@ -329,7 +329,7 @@ const checkStmtSeqHelper = (
     }
     case "AutoLabel": {
       return checkStmtSeq(
-        { ...stmtSeq, stmt },
+        { ...stmtSet, stmt },
         env,
         substSeqAutoLabel,
         checkAutoLabel,
@@ -337,7 +337,7 @@ const checkStmtSeqHelper = (
     }
     case "LabelDecl": {
       return checkStmtSeq(
-        { ...stmtSeq, stmt },
+        { ...stmtSet, stmt },
         env,
         substSeqLabelDecl,
         checkLabelDecl,
@@ -345,7 +345,7 @@ const checkStmtSeqHelper = (
     }
     case "NoLabel": {
       return checkStmtSeq(
-        { ...stmtSeq, stmt },
+        { ...stmtSet, stmt },
         env,
         substSeqNoLabel,
         checkNoLabel,
@@ -355,7 +355,7 @@ const checkStmtSeqHelper = (
       return err([
         {
           tag: "UnsupportedIndexingError",
-          seq: stmtSeq,
+          seq: stmtSet,
         },
       ]);
     }
@@ -414,10 +414,10 @@ const checkSingleStmt = (
 
 type SeqSubst = Map<string, number>;
 
-const evalSeq = (seq: Sequence<A>): Result<SeqSubst[], SubstanceError> => {
+const evalSeq = (seq: IndexedSet<A>): Result<SeqSubst[], SubstanceError> => {
   const { indices, condition } = seq;
 
-  // Check for duplication in sequence variable declarations
+  // Check for duplication in variable declarations
   const variables = new Set<string>();
   for (const varName of indices.map((i) => i.variable.value)) {
     if (variables.has(varName)) {
@@ -831,10 +831,10 @@ const checkDecl = (stmt: Decl<A>, env: Env): CheckerResult<Decl<A>[]> => {
 };
 
 const checkDeclSeq = (
-  stmtSeq: StmtSeq<A> & { stmt: Decl<A> },
+  stmtSet: StmtSet<A> & { stmt: Decl<A> },
   env: Env,
 ): CheckerResult<Decl<A>[]> => {
-  const { stmt: decl, seq } = stmtSeq;
+  const { stmt: decl, seq } = stmtSet;
   const { type, name: uncompiledNameId } = decl;
   const typeOk = checkTypeConstructor(type, env);
   if (typeOk.isErr()) return err([typeOk.error]);
@@ -873,10 +873,10 @@ const checkDeclList = (
 };
 
 const checkDeclListSeq = (
-  stmtSeq: StmtSeq<A> & { stmt: DeclList<A> },
+  stmtSet: StmtSet<A> & { stmt: DeclList<A> },
   env: Env,
 ): CheckerResult<Decl<A>[]> => {
-  const { stmt: declList, seq } = stmtSeq;
+  const { stmt: declList, seq } = stmtSet;
   const { type, names: uncompiledNameIds } = declList;
   const typeOk = checkTypeConstructor(type, env);
   if (typeOk.isErr()) return err([typeOk.error]);
@@ -911,8 +911,8 @@ const createVars = (
   node:
     | Decl<A>
     | DeclList<A>
-    | (StmtSeq<A> & { stmt: Decl<A> })
-    | (StmtSeq<A> & { stmt: DeclList<A> }),
+    | (StmtSet<A> & { stmt: Decl<A> })
+    | (StmtSet<A> & { stmt: DeclList<A> }),
 ): CheckerResult<Decl<A>[]> => {
   let vars = env.vars;
   const varIDs = [...env.varIDs];
@@ -1069,8 +1069,8 @@ const checkNoLabel = (
   return andThen(({ env }) => ok({ env, contents: [stmt] }), argsOk);
 };
 
-const checkStmtSeq = <T extends StmtSeq<A>>(
-  stmtSeq: T,
+const checkStmtSeq = <T extends StmtSet<A>>(
+  stmtSet: T,
   env: Env,
   substFunc: (
     stmt: T["stmt"],
@@ -1081,7 +1081,7 @@ const checkStmtSeq = <T extends StmtSeq<A>>(
     env: Env,
   ) => CheckerResult<CompiledSubStmt<A>[]>,
 ): CheckerResult<CompiledSubStmt<A>[]> => {
-  const { stmt, seq } = stmtSeq;
+  const { stmt, seq } = stmtSet;
   const seqSubstsResult = evalSeq(seq);
   if (seqSubstsResult.isErr()) return err([seqSubstsResult.error]);
 
@@ -1463,15 +1463,15 @@ export const prettyCompiledSubstance = (prog: CompiledSubProg<A>): string =>
   prettySubstance(prog);
 
 export const prettyStmt = (stmt: Stmt<A>): string => {
-  if (stmt.tag !== "StmtSeq") {
+  if (stmt.tag !== "StmtSet") {
     return prettySingleStmt(stmt);
   } else {
     // TOOD: use more informative pretty-printing
-    return `${prettySingleStmt(stmt.stmt)} ${prettySequence(stmt.seq)}`;
+    return `${prettySingleStmt(stmt.stmt)} ${prettyIndexedSet(stmt.seq)}`;
   }
 };
 
-const prettySequence = (seq: Sequence<A>): string => {
+const prettyIndexedSet = (seq: IndexedSet<A>): string => {
   const rangeStrings: string[] = [];
   for (const range of seq.indices) {
     const varName = range.variable.value;

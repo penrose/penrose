@@ -588,7 +588,7 @@ Label D $\\vec{d}$
     const env = envOrError(domainProg);
     const prog = `Set a_i for i in [1, 10], j in [2, 10], i in [1, 10]`;
     const res = compileSubstance(prog, env);
-    expectErrorOf(res, "DuplicateIndexedElementError");
+    expectErrorOf(res, "DuplicateIndexError");
   });
 
   test("divide by zero in index condition", () => {

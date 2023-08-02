@@ -9,7 +9,7 @@ import moo from "moo";
 import _ from 'lodash'
 import { optional, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil.js'
 import { C, ConcreteNode, Identifier, StringLit } from "../types/ast.js";
-import { Sequence, RangeAssign, Range, NumberConstant, BinaryExpr, UnaryExpr, ComparisonExpr, BooleanExpr, BinaryBooleanExpr, UnaryBooleanExpr, BooleanConstant, SubProg, SubStmt, Decl, DeclList, Bind, DeclBind, ApplyPredicate, Deconstructor, Func, EqualExprs, EqualPredicates, LabelDecl, NoLabel, AutoLabel, LabelOption, TypeConsApp } from "../types/substance.js";
+import { IndexedSet, RangeAssign, Range, NumberConstant, BinaryExpr, UnaryExpr, ComparisonExpr, BooleanExpr, BinaryBooleanExpr, UnaryBooleanExpr, BooleanConstant, SubProg, SubStmt, Decl, DeclList, Bind, DeclBind, ApplyPredicate, Deconstructor, Func, EqualExprs, EqualPredicates, LabelDecl, NoLabel, AutoLabel, LabelOption, TypeConsApp } from "../types/substance.js";
 
 
 // NOTE: ordering matters here. Top patterns get matched __first__
@@ -77,7 +77,7 @@ stmt_seq -> stmt __ sequence {%
     return {
       ...nodeData,
       ...rangeFrom([stmt, seq]),
-      tag: "StmtSeq",
+      tag: "StmtSet",
       stmt, seq
     }
   }
@@ -86,21 +86,21 @@ stmt_seq -> stmt __ sequence {%
 
 sequence
   -> "for" __ sepBy1[range_assign, ","] __ "where" __ boolean_expr {% 
-      ([kw, , d, ,,,b]): Sequence<C> => {
+      ([kw, , d, ,,,b]): IndexedSet<C> => {
         return {
           ...nodeData,
           ...rangeBetween(kw, b),
-          tag: "Sequence", 
+          tag: "IndexedSet", 
           indices: d, condition: b
         };
       }
   %}
   |  "for" __ sepBy1[range_assign, ","] {% 
-      ([kw, , d]): Sequence<C> => {
+      ([kw, , d]): IndexedSet<C> => {
         return {
           ...nodeData,
           ...rangeBetween(kw, d[d.length - 1]),
-          tag: "Sequence", 
+          tag: "IndexedSet", 
           indices: d, condition: undefined
         };
       }

@@ -22,7 +22,7 @@ export type SubProg<T> = ASTNode<T> & {
   statements: Stmt<T>[];
 };
 
-export type Stmt<T> = SubStmt<T> | StmtSeq<T>;
+export type Stmt<T> = SubStmt<T> | StmtSet<T>;
 
 export type SubStmt<T> =
   | Decl<T>
@@ -223,12 +223,12 @@ export type NumberConstant<T> = ASTNode<T> & {
 
 //#endregion
 
-//#region Substance Sequences
+//#region Substance Sets
 
-export type StmtSeq<T> = ASTNode<T> & {
-  tag: "StmtSeq";
+export type StmtSet<T> = ASTNode<T> & {
+  tag: "StmtSet";
   stmt: SubStmt<T>;
-  seq: Sequence<T>;
+  seq: IndexedSet<T>;
 };
 
 export type Range<T> = ASTNode<T> & {
@@ -237,8 +237,8 @@ export type Range<T> = ASTNode<T> & {
   high: NumberConstant<T>;
 };
 
-export type Sequence<T> = ASTNode<T> & {
-  tag: "Sequence";
+export type IndexedSet<T> = ASTNode<T> & {
+  tag: "IndexedSet";
   indices: RangeAssign<T>[];
   condition?: BooleanExpr<T>;
 };
