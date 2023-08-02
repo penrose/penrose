@@ -126,9 +126,9 @@ There are three types of labeling statements:
 
 If an object has an assigned label, then in the _style_ language, we can access the object's `label` property.
 
-## Substance Indexed Statements
+## Indexed Variables
 
-The _substance_ language allows users to define indexed expressions that expand into multiple statements. An indexed statement is a single substance statement (as described above) with templated identifiers and an indexing clause, like
+The _substance_ language allows users to define indexed expressions that expand into multiple statements. An indexed statement is a single substance statement (as described above) with templated identifiers and an indexing clause.  A common example is declaring an indexed set of variables:
 
 ```substance
 Vector v_i for i in [0, 2]
@@ -173,8 +173,8 @@ Orthogonal(v_i, v_j) for i in [0, 1], j in [1, 2]
 Sometimes, we don't want to iterate through all possible combinations, since some combinations are undesirable. _Substance_ allows users to filter the combinations using a Boolean expression in the `where` clause. _Substance_ would discard all combinations that make the Boolean expression false.
 
 ```substance
-Vector v_i for i in [0, 10] where i % 2 == 0
-  -- even number: 0, 2, 4, 6, 8, 10
+Vector v_i for i in [0, 10] where i == 0 mod 2
+  -- even indices: 0, 2, 4, 6, 8, 10
 
 Orthogonal(v_i, v_j) for i in [0, 2], j in [0, 2] where i <= j
   -- triangular range: [0, 0], [0, 1], [0, 2], [1, 1], [1, 2], [2, 2]
@@ -198,7 +198,7 @@ Numerical expressions may contain:
 - Floating-point constants,
 - Index variables defined in the ranges, like `i` in `for i in [0, 2]`,
 - Unary numerical operators (`-`) followed by a numerical expression, and
-- Binary numerical operators (`+` for plus, `-` for minus, `*` for multiplication, `/` for division, `%` for modulo, and `^` for power) between two numerical expressions.
+- Binary numerical operators (`+` for plus, `-` for minus, `*` for multiplication, `/` for division, either `%` or `mod` for modulo, and `^` for power) between two numerical expressions.
 
 The order of operations are the typical ones, and parentheses can be used to override the default order of operations, just like other programming languages.
 
