@@ -1,5 +1,6 @@
 import im from "immutable";
 import { describe, expect, test } from "vitest";
+import { numsOf } from "../contrib/Utils.js";
 import { C } from "../types/ast.js";
 import { Either } from "../types/common.js";
 import { Env } from "../types/domain.js";
@@ -1417,5 +1418,31 @@ delete x.z.p }`,
         ["`t`.vals", "1:0:match_id"].sort(),
       );
     });
+  });
+
+  test("Indexing", async () => {
+    const dsl = "type T";
+    const sub = "T t";
+    const sty =
+      canvasPreamble +
+      `
+      forall T t {
+        mat = [(1, 2, 3), (4, 5, 6), (7, 8, 9)]
+        t.row = mat[2]
+      }
+    `;
+
+    const { translation } = await loadProgs({ dsl, sub, sty });
+    const rowVal = translation.symbols.get("`t`.row");
+    expect(rowVal !== undefined).toBe(true);
+    if (rowVal !== undefined) {
+      expect(rowVal.tag).toEqual("Val");
+      if (rowVal.tag === "Val") {
+        expect(rowVal.contents.tag).toEqual("VectorV");
+        if (rowVal.contents.tag === "VectorV") {
+          expect(numsOf(rowVal.contents.contents)).toEqual([7, 8, 9]);
+        }
+      }
+    }
   });
 });
