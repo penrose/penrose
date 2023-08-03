@@ -203,7 +203,29 @@ Numerical expressions may contain:
 - Unary numerical operators (`-`) followed by a numerical expression, and
 - Binary numerical operators (`+` for plus, `-` for minus, `*` for multiplication, `/` for division, either `%` or `mod` for modulo, and `^` for power) between two numerical expressions.
 
-The order of operations are the typical ones, and parentheses can be used to override the default order of operations, just like other programming languages.
+:::warning
+
+Because of an internal tokenizer bug, expressions like `+1` are always parsed as one single token `+1` denoting the integer "positive one", instead of two tokens `+` and `1`, regardless of their locations in the program. Similarly, `-1` is always parsed as a single `-1` instead of `-` and `1`.
+
+As such, expressions like `2+1` are always interpreted as `2` and `+1` instead of the expected `2`, `+`, and `1`; the same occurs for `2-1` which is interpreted as `2` and `-1` instead of the expected `2`, `-`, and `1`. In other words, they are interpreted as two numbers side-by-side instead of a number, an operator, and another number. This bug causes errors like
+
+```error
+Error: Syntax error at line 1 col 39:
+
+  Node n0_i for i in [0,15] where i == 2+1
+                                        ^
+Unexpected int_literal token: "+1".
+```
+
+since the `+` operator is absorbed into the token `+1` so the parser can no longer find the `+` operator.
+
+This bug has been documented [here](https://github.com/penrose/penrose/issues/1516).
+
+The workaround to this bug is to always put spaces around the `+` and `-` operators, writing expressions like `2 + 1`, `n - 1`, etc., unless we specifically require numbers like `-1` and `+3`.
+
+:::
+
+The default order of operations is the same as other programming languages, and parentheses can be used to override the default order of operations.
 
 ### Duplications
 
