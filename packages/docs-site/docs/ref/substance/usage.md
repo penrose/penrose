@@ -221,8 +221,7 @@ since the `+` operator is absorbed into the token `+1` so the parser can no long
 
 This bug has been documented [here](https://github.com/penrose/penrose/issues/1516).
 
-The workaround to this bug is to always put spaces around the `+` and `-` operators, writing expressions like `2 + 1`, `n - 1`, etc., unless we specifically require numbers like `-1` and `+3`.
-
+The workaround to this bug is to always put spaces around the `+` and `-` operators, writing expressions like `2 + 1`, `n - 1`, etc., unless signed numbers like `-1` and `+3` are specifically required.
 :::
 
 The default order of operations is the same as other programming languages, and parentheses can be used to override the default order of operations.
