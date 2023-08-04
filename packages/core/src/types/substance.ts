@@ -187,7 +187,7 @@ export type UnaryBooleanExpr<T> = ASTNode<T> & {
 
 export type BooleanConstant<T> = ASTNode<T> & {
   tag: "BooleanConstant";
-  value: "true" | "false";
+  value: boolean;
 };
 
 export type ComparisonExpr<T> = ASTNode<T> & {

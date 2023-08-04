@@ -484,20 +484,20 @@ const evalCond = (
   }
   if (b.tag === "BooleanConstant") {
     const { value } = b;
-    return ok(value === "true");
+    return ok(value);
   } else if (b.tag === "BinaryBooleanExpr") {
     const { operator, left, right } = b;
     if (operator === "&&") {
       const lValRes = evalCond(left, subst);
       if (lValRes.isErr()) return err(lValRes.error);
       // short-circuiting - if left side is false, then return false.
-      if (lValRes.value === false) return ok(false);
+      if (!lValRes.value) return ok(false);
       else return evalCond(right, subst);
     } else {
       const lValRes = evalCond(left, subst);
       if (lValRes.isErr()) return err(lValRes.error);
       // short-cirsuiting - if left side is true, then return true
-      if (lValRes.value === true) return ok(true);
+      if (lValRes.value) return ok(true);
       else return evalCond(right, subst);
     }
   } else if (b.tag === "UnaryBooleanExpr") {
@@ -1483,7 +1483,7 @@ const prettyIndexSet = (iset: IndexSet<A>): string => {
 
 const prettyCond = (cond: BooleanExpr<A>): string => {
   if (cond.tag === "BooleanConstant") {
-    return cond.value;
+    return cond.value.toString();
   } else if (cond.tag === "BinaryBooleanExpr") {
     return `(${prettyCond(cond.left)} ${cond.operator} ${prettyCond(
       cond.right,

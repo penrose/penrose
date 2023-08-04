@@ -363,8 +363,8 @@ boolean_term ->
 
 boolean_factor ->
     "(" _ boolean_expr _ ")" {% nth(2) %}
-  | "true" {% ([kw]): BooleanConstant<C> => ({...nodeData, ...rangeOf(kw), tag: "BooleanConstant", value: "true"}) %}
-  | "false" {% ([kw]): BooleanConstant<C> => ({...nodeData, ...rangeOf(kw), tag: "BooleanConstant", value: "false"}) %}
+  | "true" {% ([kw]): BooleanConstant<C> => ({...nodeData, ...rangeOf(kw), tag: "BooleanConstant", value: true}) %}
+  | "false" {% ([kw]): BooleanConstant<C> => ({...nodeData, ...rangeOf(kw), tag: "BooleanConstant", value: false}) %}
   | comparison_expr {% id %}
 # Common 
 
