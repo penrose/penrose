@@ -71,7 +71,7 @@ statement
   |  subtype     {% id %}
 
 # not to be confused with `type`, defined below
-type_decl -> "type" __ identifier (_ "(" _ type_params _ ")"):? (_ "<:" _ sepBy1[type_constructor, ","]):? {%
+type_decl -> "type" __ identifier (_ "(" _ type_params _ ")"):? (_ "<:" _ sepEndBy1[type_constructor, ","]):? {%
   ([typ, , name, ps, sub]): TypeDecl<C> => {
     const params = ps ? ps[3] : [];
     const superTypes = sub ? sub[3] : [];
@@ -234,15 +234,15 @@ type_constructor -> identifier type_arg_list:? {%
 
 # Various kinds of parameters and arguments
 
-type_arg_list -> _ "(" _ sepBy1[type, ","] _ ")" {% ([, , , d]): Type<C>[] => _.flatten(d) %}
+type_arg_list -> _ "(" _ sepEndBy1[type, ","] _ ")" {% ([, , , d]): Type<C>[] => _.flatten(d) %}
 
 type_params_list 
   -> null {% d => [] %}
   |  _ "[" _ type_params _ "]" {% nth(3) %}
-type_params -> sepBy1[type_var, ","] {% ([d]) => d %}
+type_params -> sepEndBy1[type_var, ","] {% ([d]) => d %}
 
 args_list 
-  -> _ "(" _ sepBy[arg, ","] _ ")" {% ([, , , d]): Arg<C>[] => _.flatten(d) %}
+  -> _ "(" _ sepEndBy[arg, ","] _ ")" {% ([, , , d]): Arg<C>[] => _.flatten(d) %}
 arg -> type (__ var):? {% 
   ([type, v]): Arg<C> => {
     const variable = v ? v[1] : undefined;
@@ -255,7 +255,7 @@ arg -> type (__ var):? {%
   }
 %}
 named_args_list 
-  -> _ "(" _ sepBy[named_arg, ","] _ ")" {% ([, , , d]): Arg<C>[] => _.flatten(d) %}
+  -> _ "(" _ sepEndBy[named_arg, ","] _ ")" {% ([, , , d]): Arg<C>[] => _.flatten(d) %}
 named_arg -> type __ var {% 
   ([type, , variable]): Arg<C> => ({
      ...nodeData,

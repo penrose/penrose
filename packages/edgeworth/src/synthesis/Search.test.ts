@@ -7,7 +7,10 @@ import {
   prettySubstance,
 } from "@penrose/core/dist/compiler/Substance";
 import { A } from "@penrose/core/dist/types/ast";
-import { SubProg, SubRes } from "@penrose/core/dist/types/substance";
+import {
+  CompiledSubProg as SubProg,
+  SubRes,
+} from "@penrose/core/dist/types/substance";
 import { showError } from "@penrose/core/dist/utils/Error";
 import _ from "lodash";
 import pc from "pandemonium/choice";

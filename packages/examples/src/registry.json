@@ -84,6 +84,14 @@
     "name": "Hexagonal Lattice Graph",
     "gallery": true
   },
+  "spectral-graphs/examples/grid": {
+    "name": "5x5 Grid",
+    "gallery": false
+  },
+  "spectral-graphs/examples/box": {
+    "name": "4x4x4 Box",
+    "gallery": false
+  },
   "graph-domain/textbook/sec1/fig5": {
     "name": "Computer Network with Multiple One-Way Links",
     "gallery": true
@@ -453,6 +461,10 @@
   "spectral-graphs/examples/torus": {
     "name": "Periodic 2D Grid",
     "gallery": false
+  },
+  "spectral-graphs/examples/mobius": {
+    "name": "Mobius Strip",
+    "gallery": true
   },
   "spectral-graphs/examples/periodic-hexagonal-lattice": {
     "name": "Periodic Hexagonal Grid",
