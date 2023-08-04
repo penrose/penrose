@@ -137,6 +137,10 @@ Vector v_i for i in [0, 2]
 
 Templated identifiers (like `v_i` in the example) are regular _substance_ identifiers consisting alphanumeric characters and underscores, except that the last underscore and the substring following it denote an indexed variable. In the example, `_i` in `v_i` denotes an index variable `i` taking on the values in the range of `[0, 2]`, i.e. `0, 1, 2`. This line of code then gets expanded into three statements `Vector v_0`, `Vector v_1`, and `Vector v_2`.
 
+:::info
+The phrase `i in [x, y]` for some `x` and `y` requires that `i` is an integer, `i` $\geq$ `x`, and `i` $\leq$ `y`. As such, expressions like `Vector v_i for i in [3, 0]` has no effect, since there is no integer `i` that is at least `3` and at most `0`.
+:::
+
 When templated identifiers collide with regular identifiers, the latter is shadowed in indexing statements:
 
 ```substance
