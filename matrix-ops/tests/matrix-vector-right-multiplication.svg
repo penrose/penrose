@@ -4,9 +4,7 @@
   viewBox="0 0 240 200"
   penrose="0"
 >
-  <penrose>
-    <croppedViewBox>29 9 182 191.55494018588783</croppedViewBox>
-  </penrose>
+  <penrose><croppedViewBox>29 9 182 191.5549401858878</croppedViewBox></penrose>
   <g>
     <line
       x1="156"

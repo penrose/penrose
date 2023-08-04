@@ -504,7 +504,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 91.58972457352377, 175.11036612000953)translate(85.29388197352377, 173.04375112000952)"
+    transform="rotate(0, 91.58972457352368, 175.11036612000942)translate(85.29388197352368, 173.0437511200094)"
     font-family="Linux Libertine"
     font-style="italic"
   >
@@ -596,7 +596,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 134.17991009254195, 103.23887411106118)translate(127.45607819254195, 99.29230611106118)"
+    transform="rotate(0, 134.179910092542, 103.2388741110612)translate(127.45607819254201, 99.2923061110612)"
     font-family="Linux Libertine"
     font-style="italic"
   >
@@ -678,7 +678,7 @@
     </svg>
   </g>
   <g
-    transform="rotate(0, 28.480108953894316, 125.94259747625358)translate(23.666895953894315, 121.24938147625357)"
+    transform="rotate(0, 28.4801089538943, 125.94259747625358)translate(23.6668959538943, 121.24938147625357)"
     font-family="Linux Libertine"
   >
     <title>`U`.labelText</title>

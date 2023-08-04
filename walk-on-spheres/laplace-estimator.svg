@@ -6,7 +6,7 @@
 >
   <penrose>
     <croppedViewBox>
-      6.8906649366859085 9.616142118131592 184.00969127867774 183.81908916596507
+      6.890664936685894 9.616142118131592 184.00969127867774 183.81908916596507
     </croppedViewBox>
   </penrose>
   <polygon
@@ -21,7 +21,7 @@
     <title>`U`.geometry</title>
   </polygon>
   <g
-    transform="rotate(0, 128.97209011825137, 169.64559615713333)translate(124.15887711825137, 164.95238015713332)"
+    transform="rotate(0, 128.97209011825137, 169.64559615713335)translate(124.15887711825137, 164.95238015713335)"
     font-family="Linux Libertine"
   >
     <title>`U`.labelText</title>
