@@ -9,15 +9,16 @@ import moo from "moo";
 import _ from 'lodash'
 import { optional, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil.js'
 import { C, ConcreteNode, Identifier, StringLit } from "../types/ast.js";
-import { SubProg, SubStmt, Decl, Bind, ApplyPredicate, Deconstructor, Func, EqualExprs, EqualPredicates, LabelDecl, NoLabel, AutoLabel, LabelOption, TypeConsApp } from "../types/substance.js";
+import { IndexSet, RangeAssign, Range, NumberConstant, BinaryExpr, UnaryExpr, ComparisonExpr, BooleanExpr, BinaryBooleanExpr, UnaryBooleanExpr, BooleanConstant, SubProg, SubStmt, Decl, DeclList, Bind, DeclBind, ApplyPredicate, Deconstructor, Func, EqualExprs, EqualPredicates, LabelDecl, NoLabel, AutoLabel, LabelOption, TypeConsApp } from "../types/substance.js";
 
 
 // NOTE: ordering matters here. Top patterns get matched __first__
 const lexer = moo.compile({
   tex_literal: /\$.*?\$/, // TeX string enclosed by dollar signs
   double_arrow: "<->",
+  int_literal: /[+-]?(?<!\.)\b[0-9]+\b(?!\.[0-9])/,
+  float_literal: /([+-]?([0-9]*[.])?[0-9]+)/,
   ...basicSymbols,
-  // tex_literal: /\$(?:[^\n\$]|\\["\\ntbfr])*\$/,
   identifier: {
     match: /[A-z_][A-Za-z_0-9]*/,
     type: moo.keywords({
@@ -27,7 +28,13 @@ const lexer = moo.compile({
       label: "Label",
       noLabel: "NoLabel",
       autoLabel: "AutoLabel",
-      let: "Let"
+      let: "Let",
+      bool_true: "true",
+      bool_false: "false",
+      for: "for",
+      in: "in",
+      where: "where",
+      mod: "mod",
     })
   }
 });
@@ -63,6 +70,80 @@ statements
     |  _ statement _c_ nl statements {% d => [d[1], ...d[4]] %}
 
 statement 
+  -> stmt_iset {% id %}
+  |  stmt     {% id %}
+
+stmt_iset -> stmt __ iset {% 
+  ([stmt, , iset]) => {
+    return {
+      ...nodeData,
+      ...rangeFrom([stmt, iset]),
+      tag: "StmtSet",
+      stmt, iset
+    }
+  }
+%}
+
+
+iset
+  -> "for" __ sepBy1[range_assign, ","] __ "where" __ boolean_expr {% 
+      ([kw, , d, ,,,b]): IndexSet<C> => {
+        return {
+          ...nodeData,
+          ...rangeBetween(kw, b),
+          tag: "IndexSet", 
+          indices: d, condition: b
+        };
+      }
+  %}
+  |  "for" __ sepBy1[range_assign, ","] {% 
+      ([kw, , d]): IndexSet<C> => {
+        return {
+          ...nodeData,
+          ...rangeBetween(kw, d[d.length - 1]),
+          tag: "IndexSet", 
+          indices: d, condition: undefined
+        };
+      }
+     %}
+
+range_assign -> identifier _ "in" _ int_range {%
+  ([variable, , , , range]): RangeAssign<C> => ({
+    ...nodeData,
+    ...rangeBetween(variable, range),
+    tag: "RangeAssign", variable, range
+  })
+%}
+
+int_range -> "[" _ integer _ "," _ integer _ "]" {%
+  ([lbracket, , low, , , , high, , rbracket]): Range<C> => ({
+    ...nodeData,
+    ...rangeBetween(lbracket, rbracket),
+    tag: "Range", low, high
+  })
+%}
+
+integer -> %int_literal {% 
+  ([d]): NumberConstant<C> => ({
+    ...nodeData,
+    ...rangeOf(d),
+    tag: "NumberConstant", value: +d.value
+  })
+%}
+
+float -> %float_literal {% 
+    ([d]): NumberConstant<C> => ({
+      ...nodeData,
+      ...rangeOf(d),
+      tag: "NumberConstant", value: +d.value
+    })
+  %}
+
+number 
+  -> integer {%id%}
+  |  float {%id%}
+
+stmt 
   -> decl            {% id %}
   |  bind            {% id %}
   |  let_bind        {% id %}   
@@ -72,12 +153,25 @@ statement
   |  equal_exprs     {% id %}
   |  equal_predicates {% id %}
 
-decl -> type_constructor __ sepBy1[identifier, ","] {%
-  ([type, , ids]): Decl<C>[] => ids.map((name: Identifier<C>): Decl<C> => ({
-    ...nodeData,
-    ...rangeBetween(type, name),
-    tag: "Decl", type, name
-  }))
+decl -> type_constructor __ sepEndBy1[identifier, ","] {%
+  ([type, , ids]): Decl<C> | DeclList<C> => {
+    if (ids.length === 1) {
+      // single identifier means one decl
+      return {
+        ...nodeData,
+        ...rangeFrom([type, ...ids]),
+        tag: "Decl",
+        type, name: ids[0]
+      };
+    } else {
+      return {
+        ...nodeData,
+        ...rangeFrom([type, ...ids]),
+        tag: "DeclList",
+        type, names: ids
+      }
+    }
+  }
 %}
 
 bind -> identifier _ ":=" _ sub_expr {%
@@ -89,43 +183,33 @@ bind -> identifier _ ":=" _ sub_expr {%
 %}
 
 decl_bind -> type_constructor __ identifier _ ":=" _ sub_expr {%
-  ([type, , variable, , , , expr]): [Decl<C>, Bind<C>] => {
-    const decl: Decl<C> = {
+  ([type, , variable, , , , expr]): DeclBind<C> => {
+    return {
       ...nodeData,
-      ...rangeBetween(type, variable),
-      tag: "Decl", type, name: variable
+      ...rangeBetween(type, expr),
+      tag: "DeclBind",
+      type, variable, expr
     };
-    const bind: Bind<C> = {
-      ...nodeData,
-      ...rangeBetween(variable, expr),
-      tag: "Bind", variable, expr
-    };
-    return [decl, bind];
   }
 %}
 
 let_bind -> "Let" __ identifier _ ":=" _ sub_expr {%
-  ([prefix, , variable, , , , expr]): [Decl<C>, Bind<C>] => {
+  ([prefix, , variable, , , , expr]): DeclBind<C> => {
     const type: TypeConsApp<C> = {
-        ...nodeData,
-        ...rangeBetween(variable, expr),
-        tag: "TypeConstructor", args: [], name: expr.name
-      };
-    const decl: Decl<C> = {
-      ...nodeData,
-      ...rangeBetween(type, variable),
-      tag: "Decl", type, name: variable
-    };
-    const bind: Bind<C> = {
       ...nodeData,
       ...rangeBetween(variable, expr),
-      tag: "Bind", variable, expr
+      tag: "TypeConstructor", args: [], name: expr.name
     };
-    return [decl, bind];
+    return {
+      ...nodeData,
+      ...rangeBetween(type, expr),
+      tag: "DeclBind",
+      type, variable, expr
+    };
   }
 %}
 
-apply_predicate -> identifier _ "(" _ sepBy1[pred_arg, ","] _ ")" {%
+apply_predicate -> identifier _ "(" _ sepEndBy1[pred_arg, ","] _ ")" {%
   ([name, , , , args]): ApplyPredicate<C> => ({
     ...nodeData,
     ...rangeFrom([name, ...args]),
@@ -150,7 +234,7 @@ deconstructor -> identifier _ "." _ identifier {%
 %}
 
 # NOTE: generic func type for consturction, predicate, or function
-func -> identifier _ "(" _ sepBy[sub_expr, ","] _ ")" {%
+func -> identifier _ "(" _ sepEndBy[sub_expr, ","] _ ")" {%
   ([name, , , , args]): Func<C> => ({
     ...nodeData,
     ...rangeFrom([name, ...args]),
@@ -199,7 +283,7 @@ label_decl
     })
   %}
 
-no_label -> "NoLabel" __ sepBy1[identifier, ","] {%
+no_label -> "NoLabel" __ sepEndBy1[identifier, ","] {%
   ([kw, , args]): NoLabel<C> => ({
     ...nodeData,
     ...rangeFrom([rangeOf(kw), ...args]),
@@ -217,7 +301,7 @@ auto_label -> "AutoLabel" __ label_option {%
 
 label_option 
   -> "All" {% ([kw]): LabelOption<C> => ({ ...nodeData, ...rangeOf(kw), tag: "DefaultLabels" }) %}
-  |  sepBy1[identifier, ","] {% 
+  |  sepEndBy1[identifier, ","] {% 
        ([variables]): LabelOption<C> => ({ ...nodeData, ...rangeFrom(variables), tag: "LabelIDs", variables }) 
      %}
 
@@ -235,10 +319,53 @@ type_constructor -> identifier type_arg_list:? {%
 %}
 
 # NOTE: only type constructors are alloed in Substance
-type_arg_list -> _ "(" _ sepBy1[type_constructor, ","] _ ")" {% 
+type_arg_list -> _ "(" _ sepEndBy1[type_constructor, ","] _ ")" {% 
   ([, , , d]): TypeConsApp<C>[] => _.flatten(d) 
 %}
 
+# Exprs
+
+expr -> 
+    expr _ "+" _ term {% ([left, , , , right]): BinaryExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryExpr", operator: "+", left, right}) %}
+  | expr _ "-" _ term {% ([left, , , , right]): BinaryExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryExpr", operator: "-", left, right}) %}
+  | term {% id %}
+
+term -> 
+    term _ "^" _ factor {% ([left, , , , right]): BinaryExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryExpr", operator: "^", left, right}) %}
+  | term _ "*" _ factor {% ([left, , , , right]): BinaryExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryExpr", operator: "*", left, right}) %}
+  | term _ "/" _ factor {% ([left, , , , right]): BinaryExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryExpr", operator: "/", left, right}) %}
+  | term _ "%" _ factor {% ([left, , , , right]): BinaryExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryExpr", operator: "%", left, right}) %}
+  | term _ "mod" _ factor {% ([left, , , , right]): BinaryExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryExpr", operator: "%", left, right}) %}
+  | "-" _ factor {% ([op, , arg]): UnaryExpr<C> => ({...nodeData, ...rangeBetween(op, arg), tag: "UnaryExpr", operator: "-", arg }) %}
+  | factor {% id %}
+
+factor -> 
+    "(" _ expr _ ")" {% nth(2) %}
+  | number {% id %}
+  | identifier {% id %}
+
+comparison_expr -> 
+    expr _ "<" _ expr {% ([left, , , , right]): ComparisonExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "ComparisonExpr", operator: "<", left, right}) %}
+  | expr _ ">" _ expr {% ([left, , , , right]): ComparisonExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "ComparisonExpr", operator: ">", left, right}) %}
+  | expr _ "<=" _ expr {% ([left, , , , right]): ComparisonExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "ComparisonExpr", operator: "<=", left, right}) %}
+  | expr _ ">=" _ expr {% ([left, , , , right]): ComparisonExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "ComparisonExpr", operator: ">=", left, right}) %}
+  | expr _ "==" _ expr {% ([left, , , , right]): ComparisonExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "ComparisonExpr", operator: "==", left, right}) %}
+  | expr _ "!=" _ expr {% ([left, , , , right]): ComparisonExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "ComparisonExpr", operator: "!=", left, right}) %}
+
+boolean_expr ->
+    boolean_expr _ "||" _ boolean_term {% ([left, , , , right]): BinaryBooleanExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryBooleanExpr", operator: "||", left, right}) %}
+  | boolean_term {% id %}
+
+boolean_term ->
+    boolean_term _ "&&" _ boolean_factor {% ([left, , , , right]): BinaryBooleanExpr<C> => ({...nodeData, ...rangeBetween(left, right), tag: "BinaryBooleanExpr", operator: "&&", left, right}) %}
+  | "!" _ boolean_factor {% ([op, , arg]): UnaryBooleanExpr<C> => ({...nodeData, ...rangeBetween(op, arg), tag: "UnaryBooleanExpr", operator: "!", arg}) %}
+  | boolean_factor {% id %}
+
+boolean_factor ->
+    "(" _ boolean_expr _ ")" {% nth(2) %}
+  | "true" {% ([kw]): BooleanConstant<C> => ({...nodeData, ...rangeOf(kw), tag: "BooleanConstant", value: true}) %}
+  | "false" {% ([kw]): BooleanConstant<C> => ({...nodeData, ...rangeOf(kw), tag: "BooleanConstant", value: false}) %}
+  | comparison_expr {% id %}
 # Common 
 
 string_lit -> %string_literal {%

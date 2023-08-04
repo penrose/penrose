@@ -558,8 +558,31 @@ See [the list of computation functions](functions#computation-functions).
 
 Aside from concatenation of strings using the operator `+`, the Style language supports standard arithmetic operations on scalars, vectors, and matrices. For instance, in the case of `scalar` variables we can use the following operators:
 
+:::warning
+
+Because of an internal tokenizer bug, expressions like `+1` are always parsed as one single token `+1` denoting the integer "positive one", instead of two tokens `+` and `1`, regardless of their locations in the program. Similarly, `-1` is always parsed as a single `-1` instead of `-` and `1`.
+
+As such, expressions like `2+1` are always interpreted as `2` and `+1` instead of the expected `2`, `+`, and `1`; the same occurs for `2-1` which is interpreted as `2` and `-1` instead of the expected `2`, `-`, and `1`. In other words, they are interpreted as two numbers side-by-side instead of a number, an operator, and another number. This bug causes errors like
+
+```error
+Error: Syntax error at line 16 col 8:
+
+    y = 2+1
+         ^
+Unexpected float_literal token: "+1".
+```
+
+since the `+` operator is absorbed into the token `+1` so the parser can no longer find the `+` operator.
+
+This bug has been documented [here](https://github.com/penrose/penrose/issues/1516).
+
+The workaround to this bug is to always put spaces around the `+` and `-` operators, writing expressions like `2 + 1`, `n - 1`, etc., unless signed numbers like `-1` and `+3` are specifically required.
+
+:::
+
 - `c + d` - sum of `c` and `d`
 - `c - d` - difference of `c` and `d`
+
 - `c * d` - multiplies `c` and `d`
 - `c / d` - divides `c` by `d`
 

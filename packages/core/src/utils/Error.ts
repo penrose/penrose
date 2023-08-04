@@ -252,6 +252,36 @@ export const showError = (
         sourceType,
       )}' type was given at ${loc(sourceExpr)}.`;
     }
+    case "InvalidSetIndexingError": {
+      const { index, location, suggestions } = error;
+      return `Name \`${index}\` (which is used at ${loc(
+        location,
+      )}) is not a valid index. Possible indices are: ${suggestions.join(
+        ", ",
+      )}`;
+    }
+    case "DuplicateIndexError": {
+      const { index, location } = error;
+      return `Index variable \`${index}\` has been declared multiple times at ${loc(
+        location,
+      )}.`;
+    }
+    case "DivideByZeroError": {
+      const { location } = error;
+      return `The expression at ${loc(location)} resulted in division-by-zero.`;
+    }
+    case "InvalidArithmeticValueError": {
+      const { value, location } = error;
+      return `The expression at ${loc(
+        location,
+      )} resulted in the invalid value of ${value}.`;
+    }
+    case "UnsupportedIndexingError": {
+      const { iset } = error;
+      return `Indexing on expressions of type ${iset.stmt.tag} (at ${loc(
+        iset,
+      )}) is not supported`;
+    }
 
     // ---- BEGIN STYLE ERRORS
     // COMBAK suggest improvements after reporting errors
@@ -686,7 +716,7 @@ export const errLocs = (
       return locOrNone(e.typeVar);
     }
     case "DuplicateName": {
-      return locOrNone(e.name);
+      return locOrNone(e.location);
     }
     case "CyclicSubtypes": {
       return [];
@@ -701,6 +731,15 @@ export const errLocs = (
     }
     case "DeconstructNonconstructor": {
       return locOrNone(e.deconstructor);
+    }
+    case "InvalidSetIndexingError":
+    case "DuplicateIndexError":
+    case "DivideByZeroError":
+    case "InvalidArithmeticValueError": {
+      return locOrNone(e.location);
+    }
+    case "UnsupportedIndexingError": {
+      return locOrNone(e.iset);
     }
 
     // ---- BEGIN STYLE ERRORS

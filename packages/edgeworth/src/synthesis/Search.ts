@@ -12,8 +12,8 @@ import { Env, Type } from "@penrose/core/dist/types/domain";
 import {
   LabelOption,
   SubExpr,
-  SubProg,
-  SubStmt,
+  CompiledSubProg as SubProg,
+  CompiledSubStmt as SubStmt,
 } from "@penrose/core/dist/types/substance";
 import _ from "lodash";
 import rdiff from "recursive-diff";
@@ -133,7 +133,7 @@ const children = <T>(node: SubNode<T>): SubNode<T>[] => {
     case "ApplyPredicate":
     case "Func":
     case "TypeConstructor": {
-      return [node.name, ...node.args];
+      return [node.name, ...(node.args as SubNode<T>[])];
     }
     case "AutoLabel": {
       return [node.option];
@@ -155,7 +155,7 @@ const children = <T>(node: SubNode<T>): SubNode<T>[] => {
     }
     case "EqualExprs":
     case "EqualPredicates": {
-      return [node.left, node.right];
+      return [node.left as SubNode<T>, node.right as SubNode<T>];
     }
     case "LabelDecl": {
       return [node.variable, node.label];
@@ -184,12 +184,9 @@ const children = <T>(node: SubNode<T>): SubNode<T>[] => {
  */
 export const similarNodes = (left: SubNode<A>, right: SubNode<A>): boolean => {
   const equalNodes = nodesEqual(left, right);
-  const similarChildren = _.intersectionWith(
-    children(left),
-    children(right),
-    similarNodes,
-  );
-
+  const cLeft = children(left);
+  const cRight = children(right);
+  const similarChildren = _.intersectionWith(cLeft, cRight, similarNodes);
   const similarLeft = _.intersectionWith([left], children(right), similarNodes);
   const similarRight = _.intersectionWith(
     children(left),
@@ -222,10 +219,10 @@ interface SimilarMapping {
 
 export const subProgDiffs = (left: SubProg<A>, right: SubProg<A>): DiffSet => {
   const commonStmts = intersection(left, right);
-  const leftFiltered = left.statements.filter((a) => {
+  const leftFiltered = left.statements.filter((a: SubStmt<A>) => {
     return _.intersectionWith(commonStmts, [a], nodesEqual).length === 0;
   });
-  const rightFiltered = right.statements.filter((a) => {
+  const rightFiltered = right.statements.filter((a: SubStmt<A>) => {
     return _.intersectionWith(commonStmts, [a], nodesEqual).length === 0;
   });
   const similarMap = similarMappings(leftFiltered, rightFiltered);

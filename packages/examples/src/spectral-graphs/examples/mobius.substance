@@ -1,0 +1,30 @@
+Node n0_i for i in [0,15]
+Node n1_i for i in [0,15]
+Node n2_i for i in [0,15]
+Node n3_i for i in [0,15]
+Node n4_i for i in [0,15]
+Node n5_i for i in [0,15]
+
+-- horizontal edges
+Edge u0_i := MakeEdge( n0_i, n0_j ) for i in [0,15], j in [0,14] where j == (i + 1) mod 16
+Edge u1_i := MakeEdge( n1_i, n1_j ) for i in [0,15], j in [0,14] where j == (i + 1) mod 16
+Edge u2_i := MakeEdge( n2_i, n2_j ) for i in [0,15], j in [0,14] where j == (i + 1) mod 16
+Edge u3_i := MakeEdge( n3_i, n3_j ) for i in [0,15], j in [0,14] where j == (i + 1) mod 16
+Edge u4_i := MakeEdge( n4_i, n4_j ) for i in [0,15], j in [0,14] where j == (i + 1) mod 16
+Edge u5_i := MakeEdge( n5_i, n5_j ) for i in [0,15], j in [0,14] where j == (i + 1) mod 16
+
+-- join last column with opposite identification
+Edge u0_f := MakeEdge( n0_14, n5_15 )
+Edge u1_f := MakeEdge( n1_14, n4_15 )
+Edge u2_f := MakeEdge( n2_14, n3_15 )
+Edge u3_f := MakeEdge( n3_14, n2_15 )
+Edge u4_f := MakeEdge( n4_14, n1_15 )
+Edge u5_f := MakeEdge( n5_14, n0_15 )
+
+-- vertical edges
+Edge v0_i := MakeEdge( n0_i, n1_i ) for i in [0,15]
+Edge v1_i := MakeEdge( n1_i, n2_i ) for i in [0,15]
+Edge v2_i := MakeEdge( n2_i, n3_i ) for i in [0,15]
+Edge v3_i := MakeEdge( n3_i, n4_i ) for i in [0,15]
+Edge v4_i := MakeEdge( n4_i, n5_i ) for i in [0,15]
+

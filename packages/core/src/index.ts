@@ -360,6 +360,7 @@ export {
   checkSubstance,
   compileSubstance,
   parseSubstance,
+  prettyCompiledSubstance,
   prettySubstance,
 } from "./compiler/Substance.js";
 export { constrDict } from "./contrib/Constraints.js";

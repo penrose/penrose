@@ -7,7 +7,7 @@ import {
 } from "@penrose/core/dist/compiler/Substance";
 import { A } from "@penrose/core/dist/types/ast";
 import { Env } from "@penrose/core/dist/types/domain";
-import { Decl, SubStmt } from "@penrose/core/dist/types/substance";
+import { CompiledSubStmt, Decl } from "@penrose/core/dist/types/substance";
 import { describe, expect, test } from "vitest";
 import { cascadingDelete } from "../analysis/SubstanceAnalysis.js";
 import { Delete, executeMutations, removeStmtCtx } from "./Mutation.js";
@@ -89,7 +89,7 @@ Set D`;
     );
     const toDelete = synth.currentProg.statements[0] as Decl<A>;
     expect("Set A").toEqual(prettyStmt(toDelete));
-    const cascadedStmts: SubStmt<A>[] = cascadingDelete(
+    const cascadedStmts: CompiledSubStmt<A>[] = cascadingDelete(
       toDelete,
       synth.currentProg,
     );

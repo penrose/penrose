@@ -241,7 +241,7 @@ select_with -> "with" __ decl_patterns _ml {% d => d[2] %}
 
 foreach -> "foreach" __ decl_patterns _ml {% d => d[2] %}
 
-decl_patterns -> sepBy1[decl_list, ";"] {% 
+decl_patterns -> sepEndBy1[decl_list, ";"] {% 
   ([d]): DeclPatterns<C> => {
     const contents = _.flatten(d) as DeclPattern<C>[];
     return {
@@ -252,7 +252,7 @@ decl_patterns -> sepBy1[decl_list, ";"] {%
   }
 %}
 
-decl_list -> identifier __ sepBy1[binding_form, ","] {% 
+decl_list -> identifier __ sepEndBy1[binding_form, ","] {% 
   ([type, , ids]): DeclPattern<C>[] => {
     return declList(type, ids);
   }
@@ -267,7 +267,7 @@ decl -> identifier __ binding_form {%
 
 select_where -> "where" __ relation_list _ml {% d => d[2] %}
 
-relation_list -> sepBy1[relation, ";"]  {% 
+relation_list -> sepEndBy1[relation, ";"]  {% 
   ([d]): RelationPatterns<C> => ({
     ...nodeData,
     ...rangeFrom(d),
@@ -324,7 +324,7 @@ field_desc
 
 sel_expr_list 
   -> _ {% d => [] %}
-  |  _ sepBy1[sel_expr, ","] _ {% nth(1) %}
+  |  _ sepEndBy1[sel_expr, ","] _ {% nth(1) %}
 
 sel_expr 
   -> identifier _ "(" sel_expr_list ")" {% 
@@ -344,7 +344,7 @@ sel_expr
 
 pred_arg_list 
   -> _ {% d => [] %}
-  |  _ sepBy1[pred_arg, ","] _ {% nth(1) %}
+  |  _ sepEndBy1[pred_arg, ","] _ {% nth(1) %}
 
 # NOTE: resolve ambiguity here by allowing only rel_pred or `binding_form`
 # Can't use sel_expr because sel_expr has valcons or func, which looks exactly the same as predicates. 
@@ -610,6 +610,7 @@ string_lit -> %string_literal {%
   })
 %}
 
+number ->  %float_literal {% id %} 
 annotated_float 
   -> "?" (__ ("in"|"except") __ stage_list):? {% 
     ([d, stages]): Vary<C> => ({
@@ -620,7 +621,7 @@ annotated_float
       exclude: stages ? stages[1][0].value === "except" : true,
     })
   %}
-  |  %float_literal {% 
+  | number {% 
     ([d]): Fix<C> => ({ ...nodeData, ...rangeOf(d), tag: 'Fix', contents: parseFloat(d) }) 
   %}
 
@@ -633,7 +634,7 @@ layer_op
   -> "below" {% () => "below" %} 
   |  "above" {% () => "above" %}
 
-path_list -> sepBy1[expr, ","] {% id %}
+path_list -> sepEndBy1[expr, ","] {% id %}
 
 computation_function -> identifier _ "(" expr_list ")" {% 
   ([name, , , args, rparen]): CompApp<C> => ({
@@ -665,7 +666,7 @@ sty_var_expr
 
 stage_list 
   -> identifier {% (d) => d %}
-  |  "[" _ sepBy1[identifier, ","] _ "]" {% nth(2) %}
+  |  "[" _ sepEndBy1[identifier, ","] _ "]" {% nth(2) %}
 
 comparison_op
   -> "==" {%
@@ -743,7 +744,7 @@ constraint -> "ensure" __ obj_constr_body (__ ("in"|"except") __ stage_list):? {
 
 expr_list 
   -> _ {% d => [] %}
-  |  _ sepBy1[expr, ","] _ {% nth(1) %}
+  |  _ sepEndBy1[expr, ","] _ {% nth(1) %}
 
 gpi_decl -> identifier _ml "{" property_decl_list "}" {%
   ([shapeName, , , properties, rbrace]): GPIDecl<C> => ({

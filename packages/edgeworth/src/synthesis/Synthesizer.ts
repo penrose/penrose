@@ -24,9 +24,9 @@ import {
   Decl,
   SubExpr,
   SubPredArg,
-  SubProg,
+  CompiledSubProg as SubProg,
   SubRes,
-  SubStmt,
+  CompiledSubStmt as SubStmt,
   TypeConsApp,
 } from "@penrose/core/dist/types/substance";
 import { combinations2 } from "@penrose/core/dist/utils/Util";
@@ -697,7 +697,7 @@ export class Synthesizer {
     log.debug(`Picking a statement to edit...`);
     // enumerate all available edit mutations for all statements
     // NOTE: this implementation actually ignores the configuration. Need to clarify the semantics of configration first.
-    const mutations = this.currentProg.statements.map((stmt) => {
+    const mutations = this.currentProg.statements.map((stmt: SubStmt<A>) => {
       const mutations = this.findMutations(stmt, ctx);
       log.debug(
         `Possible update mutations for ${prettyStmt(stmt)} are:\n${mutations
@@ -821,7 +821,7 @@ export class Synthesizer {
     stmtType: DomainStmt<A>["tag"],
     name: string,
   ): SubStmt<A> | undefined => {
-    const stmts = this.currentProg.statements.filter((s) => {
+    const stmts = this.currentProg.statements.filter((s: SubStmt<A>) => {
       const subType = domainToSubType(stmtType);
       if (s.tag === "Bind") {
         const expr = s.expr;

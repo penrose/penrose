@@ -7,8 +7,8 @@ import { A, Identifier } from "@penrose/core/dist/types/ast";
 import {
   ApplyPredicate,
   Bind,
-  SubProg,
-  SubStmt,
+  CompiledSubProg as SubProg,
+  CompiledSubStmt as SubStmt,
 } from "@penrose/core/dist/types/substance";
 import consola from "consola";
 import _ from "lodash";
@@ -818,6 +818,8 @@ export const enumerateProgMutations = (
   prog: SubProg<A>,
   cxt: SynthesisContext,
 ): Mutation[] =>
-  prog.statements.map((stmt) => enumerateStmtMutations(stmt, prog, cxt)).flat();
+  prog.statements
+    .map((stmt: SubStmt<A>) => enumerateStmtMutations(stmt, prog, cxt))
+    .flat();
 
 //#endregion
