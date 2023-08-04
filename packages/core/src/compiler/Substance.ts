@@ -490,27 +490,20 @@ const evalCond = (
     if (operator === "&&") {
       const lValRes = evalCond(left, subst);
       if (lValRes.isErr()) return err(lValRes.error);
-      if (!lValRes.value) return ok(false);
-      else {
-        const rValRes = evalCond(right, subst);
-        if (rValRes.isErr()) return err(rValRes.error);
-        return ok(rValRes.value);
-      }
+      // short-circuiting - if left side is false, then return false.
+      if (lValRes.value === false) return ok(false);
+      else return evalCond(right, subst);
     } else {
       const lValRes = evalCond(left, subst);
       if (lValRes.isErr()) return err(lValRes.error);
-      if (lValRes.value) return ok(true);
-      else {
-        const rValRes = evalCond(right, subst);
-        if (rValRes.isErr()) return err(rValRes.error);
-        return ok(rValRes.value);
-      }
+      // short-cirsuiting - if left side is true, then return true
+      if (lValRes.value === true) return ok(true);
+      else return evalCond(right, subst);
     }
   } else if (b.tag === "UnaryBooleanExpr") {
     const { arg } = b;
     const argValRes = evalCond(arg, subst);
-    if (argValRes.isErr()) return err(argValRes.error);
-    return ok(!argValRes.value);
+    return argValRes.andThen((b) => ok(!b));
   } else {
     const { operator, left, right } = b;
     const lValRes = evalNum(left, subst);
@@ -520,6 +513,9 @@ const evalCond = (
 
     const lVal = lValRes.value,
       rVal = rValRes.value;
+
+    // We use closeEqual due to floating-point precision issues
+    // since numbers are internally represented as floating-point numbers
     if (operator === "<")
       return ok(closeEqual(lVal, rVal) ? false : lVal < rVal);
     else if (operator === ">")
@@ -547,6 +543,7 @@ const evalNum = (
 
   const value = result.value;
 
+  // This is the case of NaN
   if (value !== value) {
     return err({
       tag: "InvalidArithmeticValueError",
@@ -564,15 +561,11 @@ const evalNumHelper = (
   if (n.tag === "NumberConstant") {
     return ok(n.value);
   } else if (n.tag === "Identifier") {
-    const strRes = substISetVarNumber(n.value, n, subst);
-    if (strRes.isErr()) return err(strRes.error);
-    return ok(strRes.value);
+    return substISetVarNumber(n.value, n, subst);
   } else if (n.tag === "UnaryExpr") {
     const { arg } = n;
     const argValRes = evalNum(arg, subst);
-    if (argValRes.isErr()) return err(argValRes.error);
-    const argVal = argValRes.value;
-    return ok(-argVal);
+    return argValRes.andThen((n) => ok(-n));
   } else {
     const { operator, left, right } = n;
     const lValRes = evalNum(left, subst);
