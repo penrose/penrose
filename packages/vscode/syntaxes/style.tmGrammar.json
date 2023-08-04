@@ -43,7 +43,7 @@
         },
         {
           "name": "support.type.penrose",
-          "match": "^\\b(scalar|int|bool|string|path|color|file|style|shape|vec2|vec3|vec4|mat2x2|mat3x3|mat4x4|function|objective|constraint)\\b"
+          "match": "^\\b(scalar|int|bool|string|path|color|file|style|shape|list|vec2|vec3|vec4|mat2x2|mat3x3|mat4x4|function|objective|constraint)\\b"
         }
       ]
     },

@@ -1029,6 +1029,29 @@ export const ops = {
       sub(mul(u[0], v[1]), mul(u[1], v[0])),
     ];
   },
+
+  /**
+   * Return outer product matrix uv^T.  Vectors u and v must have
+   * the same length.
+   *
+   * NOTE: This functionality is duplicated in `outerProduct()`
+   * from Functions.ts.  Since `outerProduct` has a more directly
+   * interpretable name, we may wish to deprecate `vouter` and
+   * move `outerProduct` into `Autodiff.ts` in a future release.
+   */
+  vouter: (u: ad.Num[], v: ad.Num[]): ad.Num[][] => {
+    if (u.length !== v.length) {
+      throw Error("vectors must have same length");
+    }
+
+    const result: ad.Num[][] = [];
+    for (let i = 0; i < u.length; i++) {
+      const row = v.map((e) => mul(u[i], e));
+      result.push(row);
+    }
+
+    return result;
+  },
 };
 
 export const fns = {
