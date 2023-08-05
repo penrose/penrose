@@ -1,0 +1,41 @@
+<svg
+  version="1.2"
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 100 100"
+  penrose="0"
+>
+  <penrose><croppedViewBox>0 0 100 100</croppedViewBox></penrose>
+  <rect
+    x="0"
+    y="0"
+    width="100"
+    height="100"
+    fill="#00ff00"
+    fill-opacity="1"
+    stroke="none"
+    rx="0"
+    transform="rotate(0, 50, 50)"
+  >
+    <title>canvas.background</title>
+  </rect>
+  <polygon
+    fill="#ff0000"
+    fill-opacity="1"
+    stroke="none"
+    transform="scale(1)"
+    points="47.34,93.21000000000001,77.34,93.21000000000001,47.34,53.21"
+  >
+    <title>`S`.reference</title>
+  </polygon>
+  <polygon
+    fill="#00ee00"
+    fill-opacity="1"
+    stroke="#00ff00"
+    stroke-opacity="1"
+    stroke-width="0.25"
+    transform="scale(1)"
+    points="47.34,93.21000000000001,77.34,93.21000000000001,47.34,53.21"
+  >
+    <title>`S`.computed</title>
+  </polygon>
+</svg>
