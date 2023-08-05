@@ -16,7 +16,7 @@ The energy of a diagram can take on a range of values, and there are 3 specific 
 
 Often in the process of diagramming, there is not just one good diagram, but many solutions — that is, there are many local minima of the energy function. Given a Style program, which defines an energy function for your family of diagrams, Penrose looks for a **local minimum** of the energy function by using numerical optimization.
 
-Lastly, we write energy functions in a particular way using **autodiff helper functions**, where autodiff stands for **auto differentiation**. This is because Penrose takes the energy function's gradient $\nabla$, i.e. take the derivatives of the function, to find better and better solutions. For more on optimization, here's a wonderful [introduction video](https://www.youtube.com/watch?v=sDAEFFoiKZ0).
+Lastly, we write energy functions in a particular way using **autodiff helper functions**, where autodiff is short for **auto differentiation**. This is because Penrose uses the gradient $\nabla \Phi$ of the energy (or loss) function $\Phi$ to find better and better solutions. For more on optimization, here's a wonderful [introduction video](https://www.youtube.com/watch?v=sDAEFFoiKZ0).
 
 > In short, we write energy functions with a specific set of operations for Penrose to optimize, allowing it to find the best diagram for us.
 

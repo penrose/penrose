@@ -1,0 +1,139 @@
+canvas {
+   width = 100
+   height = 100
+
+   shape background = Rectangle {
+      fillColor: #0f0
+      center: (0,0)
+      width: width
+      height: height
+   }
+}
+
+global {
+   -- Due to rasterization effects (such as anti-aliasing),
+   -- the reference and computed shapes may not match exactly.
+   -- For instance, even two shapes with identical coordinates
+   -- but different colors may yield a "fringing" around the
+   -- border.  This parameter determines a "fudge factor" that
+   -- is used to compare shapes, e.g., by drawing a small
+   -- margin around the computed shape.
+   scalar tolerance = 0.25
+}
+
+-- Use a 3-4-5 right triangle as the test shape, since
+-- it does not have any Euclidean symmetries (i.e., it
+-- cannot be mapped to itself by rotation, reflection,
+-- translation, etc.), which makes it harder to get false
+-- positives.
+forall Shape S {
+
+   list S.points = [ (-15,-20), (15,-20), (-15,20) ]
+
+   shape S.reference = Polygon {
+      points: S.points
+      fillColor: #f00
+      strokeColor: none()
+      strokeWidth: 0
+      ensureOnCanvas: false
+   }
+   layer S.reference above canvas.background
+
+   shape S.computed = Polygon {
+      points: S.points
+      fillColor: #0e0
+      strokeColor: #0f0
+      strokeWidth: global.tolerance
+      ensureOnCanvas: false
+   }
+   layer S.computed above S.reference
+}
+
+-- For each function in the matrix library, compare the result provided
+-- by Penrose with the result computed by equivalent functions in an
+-- external reference program.  In this case, all reference values were
+-- computed in Mathematica, via the notebook `Reference2D.nb`.
+
+forall Shape S
+where identity2d(S) {
+   mat3x3 A = identity(2)
+   override S.computed.points = matrixMultiplyList( A, S.points )
+   override S.reference.points = [ (-15,-20), (15,-20), (-15,20) ]
+}
+
+forall Shape S
+where diagonal2d(S) {
+   mat3x3 A = diagonal([-.8,1.2])
+   override S.computed.points = matrixMultiplyList( A, S.points )
+   override S.reference.points = [(12.,-24.),(-12.,-24.),(12.,24.)]
+}
+
+forall Shape S
+where inverse2d(S) {
+   mat2x2 A = inverse( [ [1,2], [3,4] ] )
+   override S.computed.points = matrixMultiplyList( A, S.points )
+   override S.reference.points = [(10.,-12.5),(-50.,32.5),(50.,-32.5)]
+}
+
+forall Shape S
+where outerProduct2d(S) {
+   -- take a sum of two outer products, since otherwise we get a rank-1
+   -- matrix which yields a degenerate shape with extra symmetries
+   mat2x2 A = outerProduct( (1.0,2.1), (0.3,0.4) ) + outerProduct( (-1.0, 0.2), (0.4, -0.5) )
+   override S.computed.points = matrixMultiplyList( A, S.points )
+   override S.reference.points = [(-16.5,-25.45),(-19.5,-4.15),(19.5,4.15)]
+}
+
+forall Shape S
+where skew2d(S) {
+   mat2x2 A = skew2d(0.8,-0.4)
+   override S.computed.points = matrixMultiplyList( A, S.points )
+   override S.reference.points = [(-35.5928,-13.6581),(-5.59277,-26.3419),(5.59277,26.3419)]
+}
+
+forall Shape S
+where shear2d(S) {
+   mat2x2 A = shear2d([.3,.4],[-.7,.2])
+   override S.computed.points = matrixMultiplyList( A, S.points )
+   override S.reference.points = [(-13.05,-17.4),(10.65,-25.8),(-10.65,25.8)]
+}
+
+forall Shape S
+where translate2d(S) {
+   mat3x3 A = translate(12.34, -23.21)
+   override S.computed.points = fromHomogeneousList( matrixMultiplyList( A, toHomogeneousList(S.points) ))
+   override S.reference.points = [(-2.66,-43.21),(27.34,-43.21),(-2.66,-3.21)]
+}
+
+forall Shape S
+where scale2d(S) {
+   mat2x2 A = scale2d(2,-.5)
+   override S.computed.points = matrixMultiplyList( A, S.points )
+   override S.reference.points = [(-30.,10.),(30.,10.),(-30.,-10.)]
+}
+
+forall Shape S
+where rotate(S) {
+   scalar θ = 3.21
+   scalar x = -12
+   scalar y = 3.4
+   mat2x2 A = rotate(θ,x,y)
+   override S.computed.points = fromHomogeneousList( matrixMultiplyList( A, toHomogeneousList(S.points) ))
+   override S.reference.points = [(-10.6065,26.9503),(-40.5363,24.8997),(-7.87234,-12.9561)]
+}
+
+forall Shape S
+where rotate2d(S) {
+   scalar θ = 1.3*MathPI()
+   mat3x3 A = rotate2d(θ)
+   override S.computed.points = matrixMultiplyList( A, S.points )
+   override S.reference.points = [(-7.36356,23.891),(-24.9971,-0.37955),(24.9971,0.37955)]
+}
+
+forall Shape S
+where matrix2d(S) {
+   mat2x2 A = [ [-1.6, 0.9], [0.7, -1.1] ]
+   override S.computed.points = matrixMultiplyList( A, S.points )
+   override S.reference.points = [(6.,11.5),(-42.,32.5),(42.,-32.5)]
+}
+

@@ -8,7 +8,7 @@ if exists("b:current_syntax")
 endif
 
 " Keywords
-syn keyword dslKeywords type predicate constructor function notation symmetric
+syn keyword dslKeywords type predicate constructor function notation
 
 " Comments
 syn keyword dslTodo TODO FIXME XXX NOTE
@@ -17,7 +17,7 @@ syn match dslComment "--.*$" contains=dslTodo,@Spell
 " Types and values
 syn match dslString "\"[^"]*\""
 
-let b:current_syntax = "dsl"
+let b:current_syntax = "domain"
 
 hi def link dslTodo Todo
 hi def link dslKeywords Statement

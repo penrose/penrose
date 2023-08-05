@@ -1,0 +1,1189 @@
+-- dinoshade.sty
+-- Based on the "dinoshade" OpenGL example by Mark J. Kilgard
+
+-- We first just specify the output size of the generated image.
+-- (This canvas size is required in any Style program.)
+canvas {
+   width = 1920
+   height = 1080
+}
+
+-- We have a single global camera used by all objects in the scene.  The camera
+-- determines how points get projected from 3D to 2D.
+--
+-- (For more elaborate diagrams, one might instead define multiple cameras,
+-- e.g., declared via Substance.)
+camera {
+  -- Camera viewpoint
+  -- (same parameters as the gluLookAt() command from OpenGL)
+  vec3 eye = (30,30,30)
+  vec3 center = (0,0,0)
+  vec3 up = (0,-1,0) -- up is in positive Y direction
+  mat4x4 model = lookAt( eye, center, up )
+
+  -- Camera projection
+  -- (same parameters as the gluPerspective() command from OpenGL)
+  scalar fovy = 40 -- field of view in degrees
+  scalar aspect = canvas.width / canvas.height -- aspect ratio
+  scalar near = 1.0 -- Z near
+  scalar far = 40.0 -- Z far
+  mat4x4 proj = perspective( fovy, aspect, near, far )
+
+  -- Viewport
+  -- (same parameters as the glViewport() command from OpenGL)
+  list view = [ -canvas.width/2, -canvas.height/2, canvas.width, canvas.height ]
+}
+
+-- We also have a single global light used by all objects in the scene.  The
+-- light influences how polygons are shaded, and determines how our geometry
+-- gets projected onto the ground plane to draw a shadow.
+light {
+  -- Light position
+  scalar pointLight = 1 -- set to 0 for a directional light "at infinity"
+  vec4 pos = ( -10, 30, 10, 1 )
+
+  -- Draw a circle at the light location
+  -- (Note that this widget won't be visible from all camera views)
+  vec2 q = project( (pos[0],pos[1],pos[2]), camera.model, camera.proj, camera.view )
+  shape lightBall = Circle {
+     center: q
+     r: 10
+     fillColor: #ffcc00
+     strokeColor: #ff6600
+     strokeWidth: 2
+  }
+}
+
+global {
+
+   shape title = Text {
+      center: (canvas.width/2 - 460,canvas.height/2 - 80)
+      string: "Shadowy Leaping Lizards!"
+      fontSize: "60pt"
+      fontFamily: "Arial Narrow,Arial,sans-serif;"
+      fontStyle: "italic"
+   }
+
+   -- draw one floor for the whole scene
+   color floorColor = rgba( 0.3, 0.3, 0.3, 0.2 )
+   list floorPoints = [ ( -20.0, 0.0, 20.0 ), ( 20.0, 0.0, 20.0 ), ( 20.0, 0.0, -20.0 ), ( -20.0, 0.0, -20.0 ) ]
+   list p = projectList( floorPoints, camera.model, camera.proj, camera.view )
+   shape floor = Polygon {
+      points: [ (p[0][0],p[0][1]), (p[1][0],p[1][1]), (p[2][0],p[2][1]), (p[3][0],p[3][1]) ]
+      fillColor: global.floorColor
+      strokeColor: #bbb
+      strokeWidth: 4.0
+      ensureOnCanvas: false
+   }
+}
+
+-- Rule for drawing the main dinosaur geometry
+forall Geometry G {
+   -- geometry used to define the dinosaur mesh
+   list dinoPoints = [ (-8, 3, -1.5), (-7, 1, -1.5), (-7, 1, 1.5), (-8, 3, 1.5), (-3, 1, -1.5), (-3, 1, 1.5), (0, 4, -1.5), (0, 4, 1.5), (2, 4, -1.5), (2, 4, 1.5), (3, 5, -1.5), (3, 5, 1.5), (3, 11.5, -1.5), (3, 11.5, 1.5), (5, 12, -1.5), (5, 12, 1.5), (5, 13, -1.5), (5, 13, 1.5), (2, 13.5, -1.5), (2, 13.5, 1.5), (5, 14, -1.5), (5, 14, 1.5), (5, 15, -1.5), (5, 15, 1.5), (3, 16, -1.5), (3, 16, 1.5), (0, 16, -1.5), (0, 16, 1.5), (-1, 15, -1.5), (-1, 15, 1.5), (-1, 13, -1.5), (-1, 13, 1.5), (0, 12, -1.5), (0, 12, 1.5), (-1, 11, -1.5), (-1, 11, 1.5), (-2, 6, -1.5), (-2, 6, 1.5), (-4, 3, -1.5), (-4, 3, 1.5), (-5, 2, -1.5), (-5, 2, 1.5), (-7, 2, -1.5), (-7, 2, 1.5), (0, 10, 1.5), (1, 9, 1.5), (1, 9, 2.25), (0, 10, 2.25), (2, 9, 1.5), (2, 9, 2.25), (5, 8, 1.5), (5, 8, 2.25), (6, 9, 1.5), (6, 9, 2.25), (8, 9, 1.5), (8, 9, 2.25), (7, 9.5, 1.5), (7, 9.5, 2.25), (8, 10, 1.5), (8, 10, 2.25), (7, 10, 1.5), (7, 10, 2.25), (7.5, 11, 1.5), (7.5, 11, 2.25), (6.5, 10, 1.5), (6.5, 10, 2.25), (6, 11, 1.5), (6, 11, 2.25), (6, 10, 1.5), (6, 10, 2.25), (5, 9, 1.5), (5, 9, 2.25), (3, 11, 1.5), (3, 11, 2.25), (1, 11, 1.5), (1, 11, 2.25), (0, 6, 1.5), (0, 4, 3), (0, 6, 3), (1, 3, 1.5), (1, 3, 3), (1, 2, 1.5), (1, 2, 3), (0, 1, 1.5), (0, 1, 3), (0, 0.5, 1.5), (0, 0.5, 3), (1, 0, 1.5), (1, 0, 3), (4, 0, 1.5), (4, 0, 3), (2, 1, 1.5), (2, 1, 3), (2, 2, 1.5), (2, 2, 3), (4, 4, 1.5), (4, 4, 3), (3, 6, 1.5), (3, 6, 3), (2, 7, 1.5), (2, 7, 3), (1, 7, 1.5), (1, 7, 3), (0, 10, -2.25), (1, 9, -2.25), (1, 9, -1.5), (0, 10, -1.5), (2, 9, -2.25), (2, 9, -1.5), (5, 8, -2.25), (5, 8, -1.5), (6, 9, -2.25), (6, 9, -1.5), (8, 9, -2.25), (8, 9, -1.5), (7, 9.5, -2.25), (7, 9.5, -1.5), (8, 10, -2.25), (8, 10, -1.5), (7, 10, -2.25), (7, 10, -1.5), (7.5, 11, -2.25), (7.5, 11, -1.5), (6.5, 10, -2.25), (6.5, 10, -1.5), (6, 11, -2.25), (6, 11, -1.5), (6, 10, -2.25), (6, 10, -1.5), (5, 9, -2.25), (5, 9, -1.5), (3, 11, -2.25), (3, 11, -1.5), (1, 11, -2.25), (1, 11, -1.5), (0, 6, -3), (0, 4, -3), (0, 6, -1.5), (1, 3, -3), (1, 3, -1.5), (1, 2, -3), (1, 2, -1.5), (0, 1, -3), (0, 1, -1.5), (0, 0.5, -3), (0, 0.5, -1.5), (1, 0, -3), (1, 0, -1.5), (4, 0, -3), (4, 0, -1.5), (2, 1, -3), (2, 1, -1.5), (2, 2, -3), (2, 2, -1.5), (4, 4, -3), (4, 4, -1.5), (3, 6, -3), (3, 6, -1.5), (2, 7, -3), (2, 7, -1.5), (1, 7, -3), (1, 7, -1.5), (0.75, 15, -1.6), (1, 14.7, -1.6), (1, 14.7, 1.6), (0.75, 15, 1.6), (1.6, 14.7, -1.6), (1.6, 14.7, 1.6), (2.0999999, 15, -1.6), (2.0999999, 15, 1.6), (1.6, 15.25, -1.6), (1.6, 15.25, 1.6), (1, 15.25, -1.6), (1, 15.25, 1.6) ]
+   list dinoNormals = [ (-0.894427, -0.447214, 0.), (0., -1., 0.), (0.707107, -0.707107, 0.), (0., -1., 0.), (0.707107, -0.707107, 0.), (1., 0., 0.), (0.242536, -0.970143, 0.), (1., 0., 0.), (0.164399, 0.986394, 0.), (0.164399, -0.986394, 0.), (1., 0., 0.), (0.447214, 0.894427, 0.), (0., 1., 0.), (-0.707107, 0.707107, 0.), (-1., 0., 0.), (-0.707107, -0.707107, 0.), (-0.707107, 0.707107, 0.), (-0.980581, 0.196116, 0.), (-0.83205, 0.5547, 0.), (-0.707107, 0.707107, 0.), (0., 1., 0.), (0.707107, 0.707107, 0.), (0., 0., 1.), (0., 0., 1.), (-0.707107, -0.707107, 0.), (0., -1., 0.), (-0.316228, -0.948683, 0.), (0.707107, -0.707107, 0.), (0., -1., 0.), (0.447214, 0.894427, 0.), (0.447214, -0.894427, 0.), (0., 1., 0.), (0.894427, -0.447214, 0.), (-0.707107, 0.707107, 0.), (0.894427, 0.447214, 0.), (-1., 0., 0.), (-0.707107, 0.707107, 0.), (0.707107, 0.707107, 0.), (0., 1., 0.), (-0.707107, 0.707107, 0.), (0., 0., 1.), (0., 0., 1.), (-1., 0., 0.), (-0.707107, -0.707107, 0.), (-1., 0., 0.), (-0.707107, 0.707107, 0.), (-1., 0., 0.), (-0.447214, -0.894427, 0.), (0., -1., 0.), (0.447214, 0.894427, 0.), (1., 0., 0.), (0.707107, -0.707107, 0.), (0.894427, 0.447214, 0.), (0.707107, 0.707107, 0.), (0., 1., 0.), (-0.707107, 0.707107, 0.), (0., 0., 1.), (0., 0., 1.), (-0.707107, -0.707107, 0.), (0., -1., 0.), (-0.316228, -0.948683, 0.), (0.707107, -0.707107, 0.), (0., -1., 0.), (0.447214, 0.894427, 0.), (0.447214, -0.894427, 0.), (0., 1., 0.), (0.894427, -0.447214, 0.), (-0.707107, 0.707107, 0.), (0.894427, 0.447214, 0.), (-1., 0., 0.), (-0.707107, 0.707107, 0.), (0.707107, 0.707107, 0.), (0., 1., 0.), (-0.707107, 0.707107, 0.), (0., 0., 1.), (0., 0., 1.), (-1., 0., 0.), (-0.707107, -0.707107, 0.), (-1., 0., 0.), (-0.707107, 0.707107, 0.), (-1., 0., 0.), (-0.447214, -0.894427, 0.), (0., -1., 0.), (0.447214, 0.894427, 0.), (1., 0., 0.), (0.707107, -0.707107, 0.), (0.894427, 0.447214, 0.), (0.707107, 0.707107, 0.), (0., 1., 0.), (-0.707107, 0.707107, 0.), (0., 0., 1.), (0., 0., 1.), (-0.768221, -0.640184, 0.), (0., -1., 0.), (0.514496, -0.857493, 0.), (0.447214, 0.894427, 0.), (0., 1., 0.), (-0.707107, 0.707107, 0.), (0., 0., 1.), (0., 0., 1.) ]
+
+   -- Shading / appearance parameters
+   scalar G.alpha = .5
+   vec3 G.skinColor = ( 0.1, 1.0, 0.1 )
+   vec3 G.eyeColor = ( 1.0, 0.2, 0.2 )
+   color G.wireColor = #0309
+   scalar wireWidth = 2.0
+   scalar ambient = .5
+
+   -- Lighting information
+   vec3 L = unit(( light.pos[0], light.pos[1], light.pos[2] ))
+   list N = dinoNormals
+
+   -- Define a transformation that positions the dinosaur in space.
+   -- (The base transformation will be elaborated on to draw shadows and reflections.)
+   scalar G.dinoAngle = random(0,2) * MathPI()
+   scalar G.dinoX = 15*random(-1,1)
+   scalar G.dinoY = 15*random(-1,1)
+   mat4x4 G.baseTransform = rotate3dh( G.dinoAngle, (0,1,0) ) then translate3dh( G.dinoX, 0, G.dinoY )
+   mat4x4 G.model = G.baseTransform
+
+   -- Transform all the 3D vertex coordinates defining the dino geometry,
+   -- and project them to 2D window coordinates.
+   list p = projectList( dinoPoints, camera.model * G.model, camera.proj, camera.view )
+
+   -- Draw the polygons, using the 2D projected coordinates.
+   -- For each polygon we do a simple lighting calculation, and use the orientation
+   -- of the projected polygon to determine back face culling (or really, "back face
+   -- fading" using an alpha value of 0.2.
+   --
+   -- Since Style currently does not support generating a list of shapes, (nor performing arithmetic
+   -- operations elementwise on a point list), this part of the code was synthesized externally.
+   vec3 C0 = (ambient + (1-ambient)*max(0, dot((N[0][0],N[0][1],N[0][2]),L))) * G.skinColor
+   shape f0 = Polygon {
+      points: [ (p[0][0],p[0][1]), (p[1][0],p[1][1]), (p[2][0],p[2][1]), (p[3][0],p[3][1]) ]
+      fillColor: rgba( C0[0], C0[1], C0[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[1][0],p[1][1])-(p[0][0],p[0][1]), (p[2][0],p[2][1])-(p[0][0],p[0][1]) ))
+   }
+   vec3 C1 = (ambient + (1-ambient)*max(0, dot((N[1][0],N[1][1],N[1][2]),L))) * G.skinColor
+   shape f1 = Polygon {
+      points: [ (p[1][0],p[1][1]), (p[4][0],p[4][1]), (p[5][0],p[5][1]), (p[2][0],p[2][1]) ]
+      fillColor: rgba( C1[0], C1[1], C1[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[4][0],p[4][1])-(p[1][0],p[1][1]), (p[5][0],p[5][1])-(p[1][0],p[1][1]) ))
+   }
+   vec3 C2 = (ambient + (1-ambient)*max(0, dot((N[2][0],N[2][1],N[2][2]),L))) * G.skinColor
+   shape f2 = Polygon {
+      points: [ (p[4][0],p[4][1]), (p[6][0],p[6][1]), (p[7][0],p[7][1]), (p[5][0],p[5][1]) ]
+      fillColor: rgba( C2[0], C2[1], C2[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[6][0],p[6][1])-(p[4][0],p[4][1]), (p[7][0],p[7][1])-(p[4][0],p[4][1]) ))
+   }
+   vec3 C3 = (ambient + (1-ambient)*max(0, dot((N[3][0],N[3][1],N[3][2]),L))) * G.skinColor
+   shape f3 = Polygon {
+      points: [ (p[6][0],p[6][1]), (p[8][0],p[8][1]), (p[9][0],p[9][1]), (p[7][0],p[7][1]) ]
+      fillColor: rgba( C3[0], C3[1], C3[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[8][0],p[8][1])-(p[6][0],p[6][1]), (p[9][0],p[9][1])-(p[6][0],p[6][1]) ))
+   }
+   vec3 C4 = (ambient + (1-ambient)*max(0, dot((N[4][0],N[4][1],N[4][2]),L))) * G.skinColor
+   shape f4 = Polygon {
+      points: [ (p[8][0],p[8][1]), (p[10][0],p[10][1]), (p[11][0],p[11][1]), (p[9][0],p[9][1]) ]
+      fillColor: rgba( C4[0], C4[1], C4[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[10][0],p[10][1])-(p[8][0],p[8][1]), (p[11][0],p[11][1])-(p[8][0],p[8][1]) ))
+   }
+   vec3 C5 = (ambient + (1-ambient)*max(0, dot((N[5][0],N[5][1],N[5][2]),L))) * G.skinColor
+   shape f5 = Polygon {
+      points: [ (p[10][0],p[10][1]), (p[12][0],p[12][1]), (p[13][0],p[13][1]), (p[11][0],p[11][1]) ]
+      fillColor: rgba( C5[0], C5[1], C5[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[12][0],p[12][1])-(p[10][0],p[10][1]), (p[13][0],p[13][1])-(p[10][0],p[10][1]) ))
+   }
+   vec3 C6 = (ambient + (1-ambient)*max(0, dot((N[6][0],N[6][1],N[6][2]),L))) * G.skinColor
+   shape f6 = Polygon {
+      points: [ (p[12][0],p[12][1]), (p[14][0],p[14][1]), (p[15][0],p[15][1]), (p[13][0],p[13][1]) ]
+      fillColor: rgba( C6[0], C6[1], C6[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[14][0],p[14][1])-(p[12][0],p[12][1]), (p[15][0],p[15][1])-(p[12][0],p[12][1]) ))
+   }
+   vec3 C7 = (ambient + (1-ambient)*max(0, dot((N[7][0],N[7][1],N[7][2]),L))) * G.skinColor
+   shape f7 = Polygon {
+      points: [ (p[14][0],p[14][1]), (p[16][0],p[16][1]), (p[17][0],p[17][1]), (p[15][0],p[15][1]) ]
+      fillColor: rgba( C7[0], C7[1], C7[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[16][0],p[16][1])-(p[14][0],p[14][1]), (p[17][0],p[17][1])-(p[14][0],p[14][1]) ))
+   }
+   vec3 C8 = (ambient + (1-ambient)*max(0, dot((N[8][0],N[8][1],N[8][2]),L))) * G.skinColor
+   shape f8 = Polygon {
+      points: [ (p[16][0],p[16][1]), (p[18][0],p[18][1]), (p[19][0],p[19][1]), (p[17][0],p[17][1]) ]
+      fillColor: rgba( C8[0], C8[1], C8[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[18][0],p[18][1])-(p[16][0],p[16][1]), (p[19][0],p[19][1])-(p[16][0],p[16][1]) ))
+   }
+   vec3 C9 = (ambient + (1-ambient)*max(0, dot((N[9][0],N[9][1],N[9][2]),L))) * G.skinColor
+   shape f9 = Polygon {
+      points: [ (p[18][0],p[18][1]), (p[20][0],p[20][1]), (p[21][0],p[21][1]), (p[19][0],p[19][1]) ]
+      fillColor: rgba( C9[0], C9[1], C9[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[20][0],p[20][1])-(p[18][0],p[18][1]), (p[21][0],p[21][1])-(p[18][0],p[18][1]) ))
+   }
+   vec3 C10 = (ambient + (1-ambient)*max(0, dot((N[10][0],N[10][1],N[10][2]),L))) * G.skinColor
+   shape f10 = Polygon {
+      points: [ (p[20][0],p[20][1]), (p[22][0],p[22][1]), (p[23][0],p[23][1]), (p[21][0],p[21][1]) ]
+      fillColor: rgba( C10[0], C10[1], C10[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[22][0],p[22][1])-(p[20][0],p[20][1]), (p[23][0],p[23][1])-(p[20][0],p[20][1]) ))
+   }
+   vec3 C11 = (ambient + (1-ambient)*max(0, dot((N[11][0],N[11][1],N[11][2]),L))) * G.skinColor
+   shape f11 = Polygon {
+      points: [ (p[22][0],p[22][1]), (p[24][0],p[24][1]), (p[25][0],p[25][1]), (p[23][0],p[23][1]) ]
+      fillColor: rgba( C11[0], C11[1], C11[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[24][0],p[24][1])-(p[22][0],p[22][1]), (p[25][0],p[25][1])-(p[22][0],p[22][1]) ))
+   }
+   vec3 C12 = (ambient + (1-ambient)*max(0, dot((N[12][0],N[12][1],N[12][2]),L))) * G.skinColor
+   shape f12 = Polygon {
+      points: [ (p[24][0],p[24][1]), (p[26][0],p[26][1]), (p[27][0],p[27][1]), (p[25][0],p[25][1]) ]
+      fillColor: rgba( C12[0], C12[1], C12[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[26][0],p[26][1])-(p[24][0],p[24][1]), (p[27][0],p[27][1])-(p[24][0],p[24][1]) ))
+   }
+   vec3 C13 = (ambient + (1-ambient)*max(0, dot((N[13][0],N[13][1],N[13][2]),L))) * G.skinColor
+   shape f13 = Polygon {
+      points: [ (p[26][0],p[26][1]), (p[28][0],p[28][1]), (p[29][0],p[29][1]), (p[27][0],p[27][1]) ]
+      fillColor: rgba( C13[0], C13[1], C13[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[28][0],p[28][1])-(p[26][0],p[26][1]), (p[29][0],p[29][1])-(p[26][0],p[26][1]) ))
+   }
+   vec3 C14 = (ambient + (1-ambient)*max(0, dot((N[14][0],N[14][1],N[14][2]),L))) * G.skinColor
+   shape f14 = Polygon {
+      points: [ (p[28][0],p[28][1]), (p[30][0],p[30][1]), (p[31][0],p[31][1]), (p[29][0],p[29][1]) ]
+      fillColor: rgba( C14[0], C14[1], C14[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[30][0],p[30][1])-(p[28][0],p[28][1]), (p[31][0],p[31][1])-(p[28][0],p[28][1]) ))
+   }
+   vec3 C15 = (ambient + (1-ambient)*max(0, dot((N[15][0],N[15][1],N[15][2]),L))) * G.skinColor
+   shape f15 = Polygon {
+      points: [ (p[30][0],p[30][1]), (p[32][0],p[32][1]), (p[33][0],p[33][1]), (p[31][0],p[31][1]) ]
+      fillColor: rgba( C15[0], C15[1], C15[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[32][0],p[32][1])-(p[30][0],p[30][1]), (p[33][0],p[33][1])-(p[30][0],p[30][1]) ))
+   }
+   vec3 C16 = (ambient + (1-ambient)*max(0, dot((N[16][0],N[16][1],N[16][2]),L))) * G.skinColor
+   shape f16 = Polygon {
+      points: [ (p[32][0],p[32][1]), (p[34][0],p[34][1]), (p[35][0],p[35][1]), (p[33][0],p[33][1]) ]
+      fillColor: rgba( C16[0], C16[1], C16[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[34][0],p[34][1])-(p[32][0],p[32][1]), (p[35][0],p[35][1])-(p[32][0],p[32][1]) ))
+   }
+   vec3 C17 = (ambient + (1-ambient)*max(0, dot((N[17][0],N[17][1],N[17][2]),L))) * G.skinColor
+   shape f17 = Polygon {
+      points: [ (p[34][0],p[34][1]), (p[36][0],p[36][1]), (p[37][0],p[37][1]), (p[35][0],p[35][1]) ]
+      fillColor: rgba( C17[0], C17[1], C17[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[36][0],p[36][1])-(p[34][0],p[34][1]), (p[37][0],p[37][1])-(p[34][0],p[34][1]) ))
+   }
+   vec3 C18 = (ambient + (1-ambient)*max(0, dot((N[18][0],N[18][1],N[18][2]),L))) * G.skinColor
+   shape f18 = Polygon {
+      points: [ (p[36][0],p[36][1]), (p[38][0],p[38][1]), (p[39][0],p[39][1]), (p[37][0],p[37][1]) ]
+      fillColor: rgba( C18[0], C18[1], C18[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[38][0],p[38][1])-(p[36][0],p[36][1]), (p[39][0],p[39][1])-(p[36][0],p[36][1]) ))
+   }
+   vec3 C19 = (ambient + (1-ambient)*max(0, dot((N[19][0],N[19][1],N[19][2]),L))) * G.skinColor
+   shape f19 = Polygon {
+      points: [ (p[38][0],p[38][1]), (p[40][0],p[40][1]), (p[41][0],p[41][1]), (p[39][0],p[39][1]) ]
+      fillColor: rgba( C19[0], C19[1], C19[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[40][0],p[40][1])-(p[38][0],p[38][1]), (p[41][0],p[41][1])-(p[38][0],p[38][1]) ))
+   }
+   vec3 C20 = (ambient + (1-ambient)*max(0, dot((N[20][0],N[20][1],N[20][2]),L))) * G.skinColor
+   shape f20 = Polygon {
+      points: [ (p[40][0],p[40][1]), (p[42][0],p[42][1]), (p[43][0],p[43][1]), (p[41][0],p[41][1]) ]
+      fillColor: rgba( C20[0], C20[1], C20[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[42][0],p[42][1])-(p[40][0],p[40][1]), (p[43][0],p[43][1])-(p[40][0],p[40][1]) ))
+   }
+   vec3 C21 = (ambient + (1-ambient)*max(0, dot((N[21][0],N[21][1],N[21][2]),L))) * G.skinColor
+   shape f21 = Polygon {
+      points: [ (p[42][0],p[42][1]), (p[0][0],p[0][1]), (p[3][0],p[3][1]), (p[43][0],p[43][1]) ]
+      fillColor: rgba( C21[0], C21[1], C21[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[0][0],p[0][1])-(p[42][0],p[42][1]), (p[3][0],p[3][1])-(p[42][0],p[42][1]) ))
+   }
+   vec3 C22 = (ambient + (1-ambient)*max(0, dot((N[22][0],N[22][1],N[22][2]),L))) * G.skinColor
+   shape f22 = Polygon {
+      points: [ (p[44][0],p[44][1]), (p[45][0],p[45][1]), (p[46][0],p[46][1]), (p[47][0],p[47][1]) ]
+      fillColor: rgba( C22[0], C22[1], C22[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[45][0],p[45][1])-(p[44][0],p[44][1]), (p[46][0],p[46][1])-(p[44][0],p[44][1]) ))
+   }
+   vec3 C23 = (ambient + (1-ambient)*max(0, dot((N[23][0],N[23][1],N[23][2]),L))) * G.skinColor
+   shape f23 = Polygon {
+      points: [ (p[45][0],p[45][1]), (p[48][0],p[48][1]), (p[49][0],p[49][1]), (p[46][0],p[46][1]) ]
+      fillColor: rgba( C23[0], C23[1], C23[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[48][0],p[48][1])-(p[45][0],p[45][1]), (p[49][0],p[49][1])-(p[45][0],p[45][1]) ))
+   }
+   vec3 C24 = (ambient + (1-ambient)*max(0, dot((N[24][0],N[24][1],N[24][2]),L))) * G.skinColor
+   shape f24 = Polygon {
+      points: [ (p[48][0],p[48][1]), (p[50][0],p[50][1]), (p[51][0],p[51][1]), (p[49][0],p[49][1]) ]
+      fillColor: rgba( C24[0], C24[1], C24[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[50][0],p[50][1])-(p[48][0],p[48][1]), (p[51][0],p[51][1])-(p[48][0],p[48][1]) ))
+   }
+   vec3 C25 = (ambient + (1-ambient)*max(0, dot((N[25][0],N[25][1],N[25][2]),L))) * G.skinColor
+   shape f25 = Polygon {
+      points: [ (p[50][0],p[50][1]), (p[52][0],p[52][1]), (p[53][0],p[53][1]), (p[51][0],p[51][1]) ]
+      fillColor: rgba( C25[0], C25[1], C25[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[52][0],p[52][1])-(p[50][0],p[50][1]), (p[53][0],p[53][1])-(p[50][0],p[50][1]) ))
+   }
+   vec3 C26 = (ambient + (1-ambient)*max(0, dot((N[26][0],N[26][1],N[26][2]),L))) * G.skinColor
+   shape f26 = Polygon {
+      points: [ (p[52][0],p[52][1]), (p[54][0],p[54][1]), (p[55][0],p[55][1]), (p[53][0],p[53][1]) ]
+      fillColor: rgba( C26[0], C26[1], C26[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[54][0],p[54][1])-(p[52][0],p[52][1]), (p[55][0],p[55][1])-(p[52][0],p[52][1]) ))
+   }
+   vec3 C27 = (ambient + (1-ambient)*max(0, dot((N[27][0],N[27][1],N[27][2]),L))) * G.skinColor
+   shape f27 = Polygon {
+      points: [ (p[54][0],p[54][1]), (p[56][0],p[56][1]), (p[57][0],p[57][1]), (p[55][0],p[55][1]) ]
+      fillColor: rgba( C27[0], C27[1], C27[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[56][0],p[56][1])-(p[54][0],p[54][1]), (p[57][0],p[57][1])-(p[54][0],p[54][1]) ))
+   }
+   vec3 C28 = (ambient + (1-ambient)*max(0, dot((N[28][0],N[28][1],N[28][2]),L))) * G.skinColor
+   shape f28 = Polygon {
+      points: [ (p[56][0],p[56][1]), (p[58][0],p[58][1]), (p[59][0],p[59][1]), (p[57][0],p[57][1]) ]
+      fillColor: rgba( C28[0], C28[1], C28[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[58][0],p[58][1])-(p[56][0],p[56][1]), (p[59][0],p[59][1])-(p[56][0],p[56][1]) ))
+   }
+   vec3 C29 = (ambient + (1-ambient)*max(0, dot((N[29][0],N[29][1],N[29][2]),L))) * G.skinColor
+   shape f29 = Polygon {
+      points: [ (p[58][0],p[58][1]), (p[60][0],p[60][1]), (p[61][0],p[61][1]), (p[59][0],p[59][1]) ]
+      fillColor: rgba( C29[0], C29[1], C29[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[60][0],p[60][1])-(p[58][0],p[58][1]), (p[61][0],p[61][1])-(p[58][0],p[58][1]) ))
+   }
+   vec3 C30 = (ambient + (1-ambient)*max(0, dot((N[30][0],N[30][1],N[30][2]),L))) * G.skinColor
+   shape f30 = Polygon {
+      points: [ (p[60][0],p[60][1]), (p[62][0],p[62][1]), (p[63][0],p[63][1]), (p[61][0],p[61][1]) ]
+      fillColor: rgba( C30[0], C30[1], C30[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[62][0],p[62][1])-(p[60][0],p[60][1]), (p[63][0],p[63][1])-(p[60][0],p[60][1]) ))
+   }
+   vec3 C31 = (ambient + (1-ambient)*max(0, dot((N[31][0],N[31][1],N[31][2]),L))) * G.skinColor
+   shape f31 = Polygon {
+      points: [ (p[62][0],p[62][1]), (p[64][0],p[64][1]), (p[65][0],p[65][1]), (p[63][0],p[63][1]) ]
+      fillColor: rgba( C31[0], C31[1], C31[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[64][0],p[64][1])-(p[62][0],p[62][1]), (p[65][0],p[65][1])-(p[62][0],p[62][1]) ))
+   }
+   vec3 C32 = (ambient + (1-ambient)*max(0, dot((N[32][0],N[32][1],N[32][2]),L))) * G.skinColor
+   shape f32 = Polygon {
+      points: [ (p[64][0],p[64][1]), (p[66][0],p[66][1]), (p[67][0],p[67][1]), (p[65][0],p[65][1]) ]
+      fillColor: rgba( C32[0], C32[1], C32[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[66][0],p[66][1])-(p[64][0],p[64][1]), (p[67][0],p[67][1])-(p[64][0],p[64][1]) ))
+   }
+   vec3 C33 = (ambient + (1-ambient)*max(0, dot((N[33][0],N[33][1],N[33][2]),L))) * G.skinColor
+   shape f33 = Polygon {
+      points: [ (p[66][0],p[66][1]), (p[68][0],p[68][1]), (p[69][0],p[69][1]), (p[67][0],p[67][1]) ]
+      fillColor: rgba( C33[0], C33[1], C33[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[68][0],p[68][1])-(p[66][0],p[66][1]), (p[69][0],p[69][1])-(p[66][0],p[66][1]) ))
+   }
+   vec3 C34 = (ambient + (1-ambient)*max(0, dot((N[34][0],N[34][1],N[34][2]),L))) * G.skinColor
+   shape f34 = Polygon {
+      points: [ (p[68][0],p[68][1]), (p[70][0],p[70][1]), (p[71][0],p[71][1]), (p[69][0],p[69][1]) ]
+      fillColor: rgba( C34[0], C34[1], C34[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[70][0],p[70][1])-(p[68][0],p[68][1]), (p[71][0],p[71][1])-(p[68][0],p[68][1]) ))
+   }
+   vec3 C35 = (ambient + (1-ambient)*max(0, dot((N[35][0],N[35][1],N[35][2]),L))) * G.skinColor
+   shape f35 = Polygon {
+      points: [ (p[70][0],p[70][1]), (p[72][0],p[72][1]), (p[73][0],p[73][1]), (p[71][0],p[71][1]) ]
+      fillColor: rgba( C35[0], C35[1], C35[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[72][0],p[72][1])-(p[70][0],p[70][1]), (p[73][0],p[73][1])-(p[70][0],p[70][1]) ))
+   }
+   vec3 C36 = (ambient + (1-ambient)*max(0, dot((N[36][0],N[36][1],N[36][2]),L))) * G.skinColor
+   shape f36 = Polygon {
+      points: [ (p[72][0],p[72][1]), (p[74][0],p[74][1]), (p[75][0],p[75][1]), (p[73][0],p[73][1]) ]
+      fillColor: rgba( C36[0], C36[1], C36[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[74][0],p[74][1])-(p[72][0],p[72][1]), (p[75][0],p[75][1])-(p[72][0],p[72][1]) ))
+   }
+   vec3 C37 = (ambient + (1-ambient)*max(0, dot((N[37][0],N[37][1],N[37][2]),L))) * G.skinColor
+   shape f37 = Polygon {
+      points: [ (p[74][0],p[74][1]), (p[44][0],p[44][1]), (p[47][0],p[47][1]), (p[75][0],p[75][1]) ]
+      fillColor: rgba( C37[0], C37[1], C37[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[44][0],p[44][1])-(p[74][0],p[74][1]), (p[47][0],p[47][1])-(p[74][0],p[74][1]) ))
+   }
+   vec3 C38 = (ambient + (1-ambient)*max(0, dot((N[38][0],N[38][1],N[38][2]),L))) * G.skinColor
+   shape f38 = Polygon {
+      points: [ (p[76][0],p[76][1]), (p[7][0],p[7][1]), (p[77][0],p[77][1]), (p[78][0],p[78][1]) ]
+      fillColor: rgba( C38[0], C38[1], C38[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[7][0],p[7][1])-(p[76][0],p[76][1]), (p[77][0],p[77][1])-(p[76][0],p[76][1]) ))
+   }
+   vec3 C39 = (ambient + (1-ambient)*max(0, dot((N[39][0],N[39][1],N[39][2]),L))) * G.skinColor
+   shape f39 = Polygon {
+      points: [ (p[7][0],p[7][1]), (p[79][0],p[79][1]), (p[80][0],p[80][1]), (p[77][0],p[77][1]) ]
+      fillColor: rgba( C39[0], C39[1], C39[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[79][0],p[79][1])-(p[7][0],p[7][1]), (p[80][0],p[80][1])-(p[7][0],p[7][1]) ))
+   }
+   vec3 C40 = (ambient + (1-ambient)*max(0, dot((N[40][0],N[40][1],N[40][2]),L))) * G.skinColor
+   shape f40 = Polygon {
+      points: [ (p[79][0],p[79][1]), (p[81][0],p[81][1]), (p[82][0],p[82][1]), (p[80][0],p[80][1]) ]
+      fillColor: rgba( C40[0], C40[1], C40[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[81][0],p[81][1])-(p[79][0],p[79][1]), (p[82][0],p[82][1])-(p[79][0],p[79][1]) ))
+   }
+   vec3 C41 = (ambient + (1-ambient)*max(0, dot((N[41][0],N[41][1],N[41][2]),L))) * G.skinColor
+   shape f41 = Polygon {
+      points: [ (p[81][0],p[81][1]), (p[83][0],p[83][1]), (p[84][0],p[84][1]), (p[82][0],p[82][1]) ]
+      fillColor: rgba( C41[0], C41[1], C41[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[83][0],p[83][1])-(p[81][0],p[81][1]), (p[84][0],p[84][1])-(p[81][0],p[81][1]) ))
+   }
+   vec3 C42 = (ambient + (1-ambient)*max(0, dot((N[42][0],N[42][1],N[42][2]),L))) * G.skinColor
+   shape f42 = Polygon {
+      points: [ (p[83][0],p[83][1]), (p[85][0],p[85][1]), (p[86][0],p[86][1]), (p[84][0],p[84][1]) ]
+      fillColor: rgba( C42[0], C42[1], C42[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[85][0],p[85][1])-(p[83][0],p[83][1]), (p[86][0],p[86][1])-(p[83][0],p[83][1]) ))
+   }
+   vec3 C43 = (ambient + (1-ambient)*max(0, dot((N[43][0],N[43][1],N[43][2]),L))) * G.skinColor
+   shape f43 = Polygon {
+      points: [ (p[85][0],p[85][1]), (p[87][0],p[87][1]), (p[88][0],p[88][1]), (p[86][0],p[86][1]) ]
+      fillColor: rgba( C43[0], C43[1], C43[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[87][0],p[87][1])-(p[85][0],p[85][1]), (p[88][0],p[88][1])-(p[85][0],p[85][1]) ))
+   }
+   vec3 C44 = (ambient + (1-ambient)*max(0, dot((N[44][0],N[44][1],N[44][2]),L))) * G.skinColor
+   shape f44 = Polygon {
+      points: [ (p[87][0],p[87][1]), (p[89][0],p[89][1]), (p[90][0],p[90][1]), (p[88][0],p[88][1]) ]
+      fillColor: rgba( C44[0], C44[1], C44[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[89][0],p[89][1])-(p[87][0],p[87][1]), (p[90][0],p[90][1])-(p[87][0],p[87][1]) ))
+   }
+   vec3 C45 = (ambient + (1-ambient)*max(0, dot((N[45][0],N[45][1],N[45][2]),L))) * G.skinColor
+   shape f45 = Polygon {
+      points: [ (p[89][0],p[89][1]), (p[91][0],p[91][1]), (p[92][0],p[92][1]), (p[90][0],p[90][1]) ]
+      fillColor: rgba( C45[0], C45[1], C45[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[91][0],p[91][1])-(p[89][0],p[89][1]), (p[92][0],p[92][1])-(p[89][0],p[89][1]) ))
+   }
+   vec3 C46 = (ambient + (1-ambient)*max(0, dot((N[46][0],N[46][1],N[46][2]),L))) * G.skinColor
+   shape f46 = Polygon {
+      points: [ (p[91][0],p[91][1]), (p[93][0],p[93][1]), (p[94][0],p[94][1]), (p[92][0],p[92][1]) ]
+      fillColor: rgba( C46[0], C46[1], C46[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[93][0],p[93][1])-(p[91][0],p[91][1]), (p[94][0],p[94][1])-(p[91][0],p[91][1]) ))
+   }
+   vec3 C47 = (ambient + (1-ambient)*max(0, dot((N[47][0],N[47][1],N[47][2]),L))) * G.skinColor
+   shape f47 = Polygon {
+      points: [ (p[93][0],p[93][1]), (p[95][0],p[95][1]), (p[96][0],p[96][1]), (p[94][0],p[94][1]) ]
+      fillColor: rgba( C47[0], C47[1], C47[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[95][0],p[95][1])-(p[93][0],p[93][1]), (p[96][0],p[96][1])-(p[93][0],p[93][1]) ))
+   }
+   vec3 C48 = (ambient + (1-ambient)*max(0, dot((N[48][0],N[48][1],N[48][2]),L))) * G.skinColor
+   shape f48 = Polygon {
+      points: [ (p[95][0],p[95][1]), (p[97][0],p[97][1]), (p[98][0],p[98][1]), (p[96][0],p[96][1]) ]
+      fillColor: rgba( C48[0], C48[1], C48[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[97][0],p[97][1])-(p[95][0],p[95][1]), (p[98][0],p[98][1])-(p[95][0],p[95][1]) ))
+   }
+   vec3 C49 = (ambient + (1-ambient)*max(0, dot((N[49][0],N[49][1],N[49][2]),L))) * G.skinColor
+   shape f49 = Polygon {
+      points: [ (p[97][0],p[97][1]), (p[99][0],p[99][1]), (p[100][0],p[100][1]), (p[98][0],p[98][1]) ]
+      fillColor: rgba( C49[0], C49[1], C49[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[99][0],p[99][1])-(p[97][0],p[97][1]), (p[100][0],p[100][1])-(p[97][0],p[97][1]) ))
+   }
+   vec3 C50 = (ambient + (1-ambient)*max(0, dot((N[50][0],N[50][1],N[50][2]),L))) * G.skinColor
+   shape f50 = Polygon {
+      points: [ (p[99][0],p[99][1]), (p[101][0],p[101][1]), (p[102][0],p[102][1]), (p[100][0],p[100][1]) ]
+      fillColor: rgba( C50[0], C50[1], C50[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[101][0],p[101][1])-(p[99][0],p[99][1]), (p[102][0],p[102][1])-(p[99][0],p[99][1]) ))
+   }
+   vec3 C51 = (ambient + (1-ambient)*max(0, dot((N[51][0],N[51][1],N[51][2]),L))) * G.skinColor
+   shape f51 = Polygon {
+      points: [ (p[101][0],p[101][1]), (p[76][0],p[76][1]), (p[78][0],p[78][1]), (p[102][0],p[102][1]) ]
+      fillColor: rgba( C51[0], C51[1], C51[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[76][0],p[76][1])-(p[101][0],p[101][1]), (p[78][0],p[78][1])-(p[101][0],p[101][1]) ))
+   }
+   vec3 C52 = (ambient + (1-ambient)*max(0, dot((N[52][0],N[52][1],N[52][2]),L))) * G.skinColor
+   shape f52 = Polygon {
+      points: [ (p[103][0],p[103][1]), (p[104][0],p[104][1]), (p[105][0],p[105][1]), (p[106][0],p[106][1]) ]
+      fillColor: rgba( C52[0], C52[1], C52[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[104][0],p[104][1])-(p[103][0],p[103][1]), (p[105][0],p[105][1])-(p[103][0],p[103][1]) ))
+   }
+   vec3 C53 = (ambient + (1-ambient)*max(0, dot((N[53][0],N[53][1],N[53][2]),L))) * G.skinColor
+   shape f53 = Polygon {
+      points: [ (p[104][0],p[104][1]), (p[107][0],p[107][1]), (p[108][0],p[108][1]), (p[105][0],p[105][1]) ]
+      fillColor: rgba( C53[0], C53[1], C53[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[107][0],p[107][1])-(p[104][0],p[104][1]), (p[108][0],p[108][1])-(p[104][0],p[104][1]) ))
+   }
+   vec3 C54 = (ambient + (1-ambient)*max(0, dot((N[54][0],N[54][1],N[54][2]),L))) * G.skinColor
+   shape f54 = Polygon {
+      points: [ (p[107][0],p[107][1]), (p[109][0],p[109][1]), (p[110][0],p[110][1]), (p[108][0],p[108][1]) ]
+      fillColor: rgba( C54[0], C54[1], C54[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[109][0],p[109][1])-(p[107][0],p[107][1]), (p[110][0],p[110][1])-(p[107][0],p[107][1]) ))
+   }
+   vec3 C55 = (ambient + (1-ambient)*max(0, dot((N[55][0],N[55][1],N[55][2]),L))) * G.skinColor
+   shape f55 = Polygon {
+      points: [ (p[109][0],p[109][1]), (p[111][0],p[111][1]), (p[112][0],p[112][1]), (p[110][0],p[110][1]) ]
+      fillColor: rgba( C55[0], C55[1], C55[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[111][0],p[111][1])-(p[109][0],p[109][1]), (p[112][0],p[112][1])-(p[109][0],p[109][1]) ))
+   }
+   vec3 C56 = (ambient + (1-ambient)*max(0, dot((N[56][0],N[56][1],N[56][2]),L))) * G.skinColor
+   shape f56 = Polygon {
+      points: [ (p[111][0],p[111][1]), (p[113][0],p[113][1]), (p[114][0],p[114][1]), (p[112][0],p[112][1]) ]
+      fillColor: rgba( C56[0], C56[1], C56[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[113][0],p[113][1])-(p[111][0],p[111][1]), (p[114][0],p[114][1])-(p[111][0],p[111][1]) ))
+   }
+   vec3 C57 = (ambient + (1-ambient)*max(0, dot((N[57][0],N[57][1],N[57][2]),L))) * G.skinColor
+   shape f57 = Polygon {
+      points: [ (p[113][0],p[113][1]), (p[115][0],p[115][1]), (p[116][0],p[116][1]), (p[114][0],p[114][1]) ]
+      fillColor: rgba( C57[0], C57[1], C57[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[115][0],p[115][1])-(p[113][0],p[113][1]), (p[116][0],p[116][1])-(p[113][0],p[113][1]) ))
+   }
+   vec3 C58 = (ambient + (1-ambient)*max(0, dot((N[58][0],N[58][1],N[58][2]),L))) * G.skinColor
+   shape f58 = Polygon {
+      points: [ (p[115][0],p[115][1]), (p[117][0],p[117][1]), (p[118][0],p[118][1]), (p[116][0],p[116][1]) ]
+      fillColor: rgba( C58[0], C58[1], C58[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[117][0],p[117][1])-(p[115][0],p[115][1]), (p[118][0],p[118][1])-(p[115][0],p[115][1]) ))
+   }
+   vec3 C59 = (ambient + (1-ambient)*max(0, dot((N[59][0],N[59][1],N[59][2]),L))) * G.skinColor
+   shape f59 = Polygon {
+      points: [ (p[117][0],p[117][1]), (p[119][0],p[119][1]), (p[120][0],p[120][1]), (p[118][0],p[118][1]) ]
+      fillColor: rgba( C59[0], C59[1], C59[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[119][0],p[119][1])-(p[117][0],p[117][1]), (p[120][0],p[120][1])-(p[117][0],p[117][1]) ))
+   }
+   vec3 C60 = (ambient + (1-ambient)*max(0, dot((N[60][0],N[60][1],N[60][2]),L))) * G.skinColor
+   shape f60 = Polygon {
+      points: [ (p[119][0],p[119][1]), (p[121][0],p[121][1]), (p[122][0],p[122][1]), (p[120][0],p[120][1]) ]
+      fillColor: rgba( C60[0], C60[1], C60[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[121][0],p[121][1])-(p[119][0],p[119][1]), (p[122][0],p[122][1])-(p[119][0],p[119][1]) ))
+   }
+   vec3 C61 = (ambient + (1-ambient)*max(0, dot((N[61][0],N[61][1],N[61][2]),L))) * G.skinColor
+   shape f61 = Polygon {
+      points: [ (p[121][0],p[121][1]), (p[123][0],p[123][1]), (p[124][0],p[124][1]), (p[122][0],p[122][1]) ]
+      fillColor: rgba( C61[0], C61[1], C61[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[123][0],p[123][1])-(p[121][0],p[121][1]), (p[124][0],p[124][1])-(p[121][0],p[121][1]) ))
+   }
+   vec3 C62 = (ambient + (1-ambient)*max(0, dot((N[62][0],N[62][1],N[62][2]),L))) * G.skinColor
+   shape f62 = Polygon {
+      points: [ (p[123][0],p[123][1]), (p[125][0],p[125][1]), (p[126][0],p[126][1]), (p[124][0],p[124][1]) ]
+      fillColor: rgba( C62[0], C62[1], C62[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[125][0],p[125][1])-(p[123][0],p[123][1]), (p[126][0],p[126][1])-(p[123][0],p[123][1]) ))
+   }
+   vec3 C63 = (ambient + (1-ambient)*max(0, dot((N[63][0],N[63][1],N[63][2]),L))) * G.skinColor
+   shape f63 = Polygon {
+      points: [ (p[125][0],p[125][1]), (p[127][0],p[127][1]), (p[128][0],p[128][1]), (p[126][0],p[126][1]) ]
+      fillColor: rgba( C63[0], C63[1], C63[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[127][0],p[127][1])-(p[125][0],p[125][1]), (p[128][0],p[128][1])-(p[125][0],p[125][1]) ))
+   }
+   vec3 C64 = (ambient + (1-ambient)*max(0, dot((N[64][0],N[64][1],N[64][2]),L))) * G.skinColor
+   shape f64 = Polygon {
+      points: [ (p[127][0],p[127][1]), (p[129][0],p[129][1]), (p[130][0],p[130][1]), (p[128][0],p[128][1]) ]
+      fillColor: rgba( C64[0], C64[1], C64[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[129][0],p[129][1])-(p[127][0],p[127][1]), (p[130][0],p[130][1])-(p[127][0],p[127][1]) ))
+   }
+   vec3 C65 = (ambient + (1-ambient)*max(0, dot((N[65][0],N[65][1],N[65][2]),L))) * G.skinColor
+   shape f65 = Polygon {
+      points: [ (p[129][0],p[129][1]), (p[131][0],p[131][1]), (p[132][0],p[132][1]), (p[130][0],p[130][1]) ]
+      fillColor: rgba( C65[0], C65[1], C65[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[131][0],p[131][1])-(p[129][0],p[129][1]), (p[132][0],p[132][1])-(p[129][0],p[129][1]) ))
+   }
+   vec3 C66 = (ambient + (1-ambient)*max(0, dot((N[66][0],N[66][1],N[66][2]),L))) * G.skinColor
+   shape f66 = Polygon {
+      points: [ (p[131][0],p[131][1]), (p[133][0],p[133][1]), (p[134][0],p[134][1]), (p[132][0],p[132][1]) ]
+      fillColor: rgba( C66[0], C66[1], C66[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[133][0],p[133][1])-(p[131][0],p[131][1]), (p[134][0],p[134][1])-(p[131][0],p[131][1]) ))
+   }
+   vec3 C67 = (ambient + (1-ambient)*max(0, dot((N[67][0],N[67][1],N[67][2]),L))) * G.skinColor
+   shape f67 = Polygon {
+      points: [ (p[133][0],p[133][1]), (p[103][0],p[103][1]), (p[106][0],p[106][1]), (p[134][0],p[134][1]) ]
+      fillColor: rgba( C67[0], C67[1], C67[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[103][0],p[103][1])-(p[133][0],p[133][1]), (p[106][0],p[106][1])-(p[133][0],p[133][1]) ))
+   }
+   vec3 C68 = (ambient + (1-ambient)*max(0, dot((N[68][0],N[68][1],N[68][2]),L))) * G.skinColor
+   shape f68 = Polygon {
+      points: [ (p[135][0],p[135][1]), (p[136][0],p[136][1]), (p[6][0],p[6][1]), (p[137][0],p[137][1]) ]
+      fillColor: rgba( C68[0], C68[1], C68[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[136][0],p[136][1])-(p[135][0],p[135][1]), (p[6][0],p[6][1])-(p[135][0],p[135][1]) ))
+   }
+   vec3 C69 = (ambient + (1-ambient)*max(0, dot((N[69][0],N[69][1],N[69][2]),L))) * G.skinColor
+   shape f69 = Polygon {
+      points: [ (p[136][0],p[136][1]), (p[138][0],p[138][1]), (p[139][0],p[139][1]), (p[6][0],p[6][1]) ]
+      fillColor: rgba( C69[0], C69[1], C69[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[138][0],p[138][1])-(p[136][0],p[136][1]), (p[139][0],p[139][1])-(p[136][0],p[136][1]) ))
+   }
+   vec3 C70 = (ambient + (1-ambient)*max(0, dot((N[70][0],N[70][1],N[70][2]),L))) * G.skinColor
+   shape f70 = Polygon {
+      points: [ (p[138][0],p[138][1]), (p[140][0],p[140][1]), (p[141][0],p[141][1]), (p[139][0],p[139][1]) ]
+      fillColor: rgba( C70[0], C70[1], C70[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[140][0],p[140][1])-(p[138][0],p[138][1]), (p[141][0],p[141][1])-(p[138][0],p[138][1]) ))
+   }
+   vec3 C71 = (ambient + (1-ambient)*max(0, dot((N[71][0],N[71][1],N[71][2]),L))) * G.skinColor
+   shape f71 = Polygon {
+      points: [ (p[140][0],p[140][1]), (p[142][0],p[142][1]), (p[143][0],p[143][1]), (p[141][0],p[141][1]) ]
+      fillColor: rgba( C71[0], C71[1], C71[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[142][0],p[142][1])-(p[140][0],p[140][1]), (p[143][0],p[143][1])-(p[140][0],p[140][1]) ))
+   }
+   vec3 C72 = (ambient + (1-ambient)*max(0, dot((N[72][0],N[72][1],N[72][2]),L))) * G.skinColor
+   shape f72 = Polygon {
+      points: [ (p[142][0],p[142][1]), (p[144][0],p[144][1]), (p[145][0],p[145][1]), (p[143][0],p[143][1]) ]
+      fillColor: rgba( C72[0], C72[1], C72[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[144][0],p[144][1])-(p[142][0],p[142][1]), (p[145][0],p[145][1])-(p[142][0],p[142][1]) ))
+   }
+   vec3 C73 = (ambient + (1-ambient)*max(0, dot((N[73][0],N[73][1],N[73][2]),L))) * G.skinColor
+   shape f73 = Polygon {
+      points: [ (p[144][0],p[144][1]), (p[146][0],p[146][1]), (p[147][0],p[147][1]), (p[145][0],p[145][1]) ]
+      fillColor: rgba( C73[0], C73[1], C73[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[146][0],p[146][1])-(p[144][0],p[144][1]), (p[147][0],p[147][1])-(p[144][0],p[144][1]) ))
+   }
+   vec3 C74 = (ambient + (1-ambient)*max(0, dot((N[74][0],N[74][1],N[74][2]),L))) * G.skinColor
+   shape f74 = Polygon {
+      points: [ (p[146][0],p[146][1]), (p[148][0],p[148][1]), (p[149][0],p[149][1]), (p[147][0],p[147][1]) ]
+      fillColor: rgba( C74[0], C74[1], C74[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[148][0],p[148][1])-(p[146][0],p[146][1]), (p[149][0],p[149][1])-(p[146][0],p[146][1]) ))
+   }
+   vec3 C75 = (ambient + (1-ambient)*max(0, dot((N[75][0],N[75][1],N[75][2]),L))) * G.skinColor
+   shape f75 = Polygon {
+      points: [ (p[148][0],p[148][1]), (p[150][0],p[150][1]), (p[151][0],p[151][1]), (p[149][0],p[149][1]) ]
+      fillColor: rgba( C75[0], C75[1], C75[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[150][0],p[150][1])-(p[148][0],p[148][1]), (p[151][0],p[151][1])-(p[148][0],p[148][1]) ))
+   }
+   vec3 C76 = (ambient + (1-ambient)*max(0, dot((N[76][0],N[76][1],N[76][2]),L))) * G.skinColor
+   shape f76 = Polygon {
+      points: [ (p[150][0],p[150][1]), (p[152][0],p[152][1]), (p[153][0],p[153][1]), (p[151][0],p[151][1]) ]
+      fillColor: rgba( C76[0], C76[1], C76[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[152][0],p[152][1])-(p[150][0],p[150][1]), (p[153][0],p[153][1])-(p[150][0],p[150][1]) ))
+   }
+   vec3 C77 = (ambient + (1-ambient)*max(0, dot((N[77][0],N[77][1],N[77][2]),L))) * G.skinColor
+   shape f77 = Polygon {
+      points: [ (p[152][0],p[152][1]), (p[154][0],p[154][1]), (p[155][0],p[155][1]), (p[153][0],p[153][1]) ]
+      fillColor: rgba( C77[0], C77[1], C77[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[154][0],p[154][1])-(p[152][0],p[152][1]), (p[155][0],p[155][1])-(p[152][0],p[152][1]) ))
+   }
+   vec3 C78 = (ambient + (1-ambient)*max(0, dot((N[78][0],N[78][1],N[78][2]),L))) * G.skinColor
+   shape f78 = Polygon {
+      points: [ (p[154][0],p[154][1]), (p[156][0],p[156][1]), (p[157][0],p[157][1]), (p[155][0],p[155][1]) ]
+      fillColor: rgba( C78[0], C78[1], C78[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[156][0],p[156][1])-(p[154][0],p[154][1]), (p[157][0],p[157][1])-(p[154][0],p[154][1]) ))
+   }
+   vec3 C79 = (ambient + (1-ambient)*max(0, dot((N[79][0],N[79][1],N[79][2]),L))) * G.skinColor
+   shape f79 = Polygon {
+      points: [ (p[156][0],p[156][1]), (p[158][0],p[158][1]), (p[159][0],p[159][1]), (p[157][0],p[157][1]) ]
+      fillColor: rgba( C79[0], C79[1], C79[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[158][0],p[158][1])-(p[156][0],p[156][1]), (p[159][0],p[159][1])-(p[156][0],p[156][1]) ))
+   }
+   vec3 C80 = (ambient + (1-ambient)*max(0, dot((N[80][0],N[80][1],N[80][2]),L))) * G.skinColor
+   shape f80 = Polygon {
+      points: [ (p[158][0],p[158][1]), (p[160][0],p[160][1]), (p[161][0],p[161][1]), (p[159][0],p[159][1]) ]
+      fillColor: rgba( C80[0], C80[1], C80[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[160][0],p[160][1])-(p[158][0],p[158][1]), (p[161][0],p[161][1])-(p[158][0],p[158][1]) ))
+   }
+   vec3 C81 = (ambient + (1-ambient)*max(0, dot((N[81][0],N[81][1],N[81][2]),L))) * G.skinColor
+   shape f81 = Polygon {
+      points: [ (p[160][0],p[160][1]), (p[135][0],p[135][1]), (p[137][0],p[137][1]), (p[161][0],p[161][1]) ]
+      fillColor: rgba( C81[0], C81[1], C81[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[135][0],p[135][1])-(p[160][0],p[160][1]), (p[137][0],p[137][1])-(p[160][0],p[160][1]) ))
+   }
+   vec3 C82 = (ambient + (1-ambient)*max(0, dot((N[82][0],N[82][1],N[82][2]),L))) * G.skinColor
+   shape f82 = Polygon {
+      points: [ (p[162][0],p[162][1]), (p[163][0],p[163][1]), (p[164][0],p[164][1]), (p[165][0],p[165][1]) ]
+      fillColor: rgba( C82[0], C82[1], C82[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[163][0],p[163][1])-(p[162][0],p[162][1]), (p[164][0],p[164][1])-(p[162][0],p[162][1]) ))
+   }
+   vec3 C83 = (ambient + (1-ambient)*max(0, dot((N[83][0],N[83][1],N[83][2]),L))) * G.skinColor
+   shape f83 = Polygon {
+      points: [ (p[163][0],p[163][1]), (p[166][0],p[166][1]), (p[167][0],p[167][1]), (p[164][0],p[164][1]) ]
+      fillColor: rgba( C83[0], C83[1], C83[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[166][0],p[166][1])-(p[163][0],p[163][1]), (p[167][0],p[167][1])-(p[163][0],p[163][1]) ))
+   }
+   vec3 C84 = (ambient + (1-ambient)*max(0, dot((N[84][0],N[84][1],N[84][2]),L))) * G.skinColor
+   shape f84 = Polygon {
+      points: [ (p[166][0],p[166][1]), (p[168][0],p[168][1]), (p[169][0],p[169][1]), (p[167][0],p[167][1]) ]
+      fillColor: rgba( C84[0], C84[1], C84[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[168][0],p[168][1])-(p[166][0],p[166][1]), (p[169][0],p[169][1])-(p[166][0],p[166][1]) ))
+   }
+   vec3 C85 = (ambient + (1-ambient)*max(0, dot((N[85][0],N[85][1],N[85][2]),L))) * G.skinColor
+   shape f85 = Polygon {
+      points: [ (p[168][0],p[168][1]), (p[170][0],p[170][1]), (p[171][0],p[171][1]), (p[169][0],p[169][1]) ]
+      fillColor: rgba( C85[0], C85[1], C85[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[170][0],p[170][1])-(p[168][0],p[168][1]), (p[171][0],p[171][1])-(p[168][0],p[168][1]) ))
+   }
+   vec3 C86 = (ambient + (1-ambient)*max(0, dot((N[86][0],N[86][1],N[86][2]),L))) * G.skinColor
+   shape f86 = Polygon {
+      points: [ (p[170][0],p[170][1]), (p[172][0],p[172][1]), (p[173][0],p[173][1]), (p[171][0],p[171][1]) ]
+      fillColor: rgba( C86[0], C86[1], C86[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[172][0],p[172][1])-(p[170][0],p[170][1]), (p[173][0],p[173][1])-(p[170][0],p[170][1]) ))
+   }
+   vec3 C87 = (ambient + (1-ambient)*max(0, dot((N[87][0],N[87][1],N[87][2]),L))) * G.skinColor
+   shape f87 = Polygon {
+      points: [ (p[172][0],p[172][1]), (p[162][0],p[162][1]), (p[165][0],p[165][1]), (p[173][0],p[173][1]) ]
+      fillColor: rgba( C87[0], C87[1], C87[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[162][0],p[162][1])-(p[172][0],p[172][1]), (p[165][0],p[165][1])-(p[172][0],p[172][1]) ))
+   }
+   vec3 C88 = (ambient + (1-ambient)*max(0, dot((N[88][0],N[88][1],N[88][2]),L))) * G.eyeColor
+   shape f88 = Polygon {
+      points: [ (p[162][0],p[162][1]), (p[163][0],p[163][1]), (p[166][0],p[166][1]), (p[168][0],p[168][1]), (p[170][0],p[170][1]), (p[172][0],p[172][1]) ]
+      fillColor: rgba( C88[0], C88[1], C88[2], 1 )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, cross2D( (p[163][0],p[163][1])-(p[162][0],p[162][1]), (p[166][0],p[166][1])-(p[162][0],p[162][1]) ))
+   }
+   vec3 C89 = (ambient + (1-ambient)*max(0, dot((N[89][0],N[89][1],N[89][2]),L))) * G.eyeColor
+   shape f89 = Polygon {
+      points: [ (p[165][0],p[165][1]), (p[164][0],p[164][1]), (p[167][0],p[167][1]), (p[169][0],p[169][1]), (p[171][0],p[171][1]), (p[173][0],p[173][1]) ]
+      fillColor: rgba( C89[0], C89[1], C89[2], 1 )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[164][0],p[164][1])-(p[165][0],p[165][1]), (p[167][0],p[167][1])-(p[165][0],p[165][1]) ))
+   }
+   vec3 C90 = (ambient + (1-ambient)*max(0, dot((N[90][0],N[90][1],N[90][2]),L))) * G.skinColor
+   shape f90 = Polygon {
+      points: [ (p[76][0],p[76][1]), (p[7][0],p[7][1]), (p[79][0],p[79][1]), (p[81][0],p[81][1]), (p[83][0],p[83][1]), (p[85][0],p[85][1]), (p[87][0],p[87][1]), (p[89][0],p[89][1]), (p[91][0],p[91][1]), (p[93][0],p[93][1]), (p[95][0],p[95][1]), (p[97][0],p[97][1]), (p[99][0],p[99][1]), (p[101][0],p[101][1]) ]
+      fillColor: rgba( C90[0], C90[1], C90[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, cross2D( (p[7][0],p[7][1])-(p[76][0],p[76][1]), (p[79][0],p[79][1])-(p[76][0],p[76][1]) ))
+   }
+   vec3 C91 = (ambient + (1-ambient)*max(0, dot((N[91][0],N[91][1],N[91][2]),L))) * G.skinColor
+   shape f91 = Polygon {
+      points: [ (p[78][0],p[78][1]), (p[77][0],p[77][1]), (p[80][0],p[80][1]), (p[82][0],p[82][1]), (p[84][0],p[84][1]), (p[86][0],p[86][1]), (p[88][0],p[88][1]), (p[90][0],p[90][1]), (p[92][0],p[92][1]), (p[94][0],p[94][1]), (p[96][0],p[96][1]), (p[98][0],p[98][1]), (p[100][0],p[100][1]), (p[102][0],p[102][1]) ]
+      fillColor: rgba( C91[0], C91[1], C91[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[77][0],p[77][1])-(p[78][0],p[78][1]), (p[80][0],p[80][1])-(p[78][0],p[78][1]) ))
+   }
+   vec3 C92 = (ambient + (1-ambient)*max(0, dot((N[92][0],N[92][1],N[92][2]),L))) * G.skinColor
+   shape f92 = Polygon {
+      points: [ (p[135][0],p[135][1]), (p[136][0],p[136][1]), (p[138][0],p[138][1]), (p[140][0],p[140][1]), (p[142][0],p[142][1]), (p[144][0],p[144][1]), (p[146][0],p[146][1]), (p[148][0],p[148][1]), (p[150][0],p[150][1]), (p[152][0],p[152][1]), (p[154][0],p[154][1]), (p[156][0],p[156][1]), (p[158][0],p[158][1]), (p[160][0],p[160][1]) ]
+      fillColor: rgba( C92[0], C92[1], C92[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, cross2D( (p[136][0],p[136][1])-(p[135][0],p[135][1]), (p[138][0],p[138][1])-(p[135][0],p[135][1]) ))
+   }
+   vec3 C93 = (ambient + (1-ambient)*max(0, dot((N[93][0],N[93][1],N[93][2]),L))) * G.skinColor
+   shape f93 = Polygon {
+      points: [ (p[137][0],p[137][1]), (p[6][0],p[6][1]), (p[139][0],p[139][1]), (p[141][0],p[141][1]), (p[143][0],p[143][1]), (p[145][0],p[145][1]), (p[147][0],p[147][1]), (p[149][0],p[149][1]), (p[151][0],p[151][1]), (p[153][0],p[153][1]), (p[155][0],p[155][1]), (p[157][0],p[157][1]), (p[159][0],p[159][1]), (p[161][0],p[161][1]) ]
+      fillColor: rgba( C93[0], C93[1], C93[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[6][0],p[6][1])-(p[137][0],p[137][1]), (p[139][0],p[139][1])-(p[137][0],p[137][1]) ))
+   }
+   vec3 C94 = (ambient + (1-ambient)*max(0, dot((N[94][0],N[94][1],N[94][2]),L))) * G.skinColor
+   shape f94 = Polygon {
+      points: [ (p[44][0],p[44][1]), (p[45][0],p[45][1]), (p[48][0],p[48][1]), (p[50][0],p[50][1]), (p[52][0],p[52][1]), (p[54][0],p[54][1]), (p[56][0],p[56][1]), (p[58][0],p[58][1]), (p[60][0],p[60][1]), (p[62][0],p[62][1]), (p[64][0],p[64][1]), (p[66][0],p[66][1]), (p[68][0],p[68][1]), (p[70][0],p[70][1]), (p[72][0],p[72][1]), (p[74][0],p[74][1]) ]
+      fillColor: rgba( C94[0], C94[1], C94[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, cross2D( (p[45][0],p[45][1])-(p[44][0],p[44][1]), (p[48][0],p[48][1])-(p[44][0],p[44][1]) ))
+   }
+   vec3 C95 = (ambient + (1-ambient)*max(0, dot((N[95][0],N[95][1],N[95][2]),L))) * G.skinColor
+   shape f95 = Polygon {
+      points: [ (p[47][0],p[47][1]), (p[46][0],p[46][1]), (p[49][0],p[49][1]), (p[51][0],p[51][1]), (p[53][0],p[53][1]), (p[55][0],p[55][1]), (p[57][0],p[57][1]), (p[59][0],p[59][1]), (p[61][0],p[61][1]), (p[63][0],p[63][1]), (p[65][0],p[65][1]), (p[67][0],p[67][1]), (p[69][0],p[69][1]), (p[71][0],p[71][1]), (p[73][0],p[73][1]), (p[75][0],p[75][1]) ]
+      fillColor: rgba( C95[0], C95[1], C95[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[46][0],p[46][1])-(p[47][0],p[47][1]), (p[49][0],p[49][1])-(p[47][0],p[47][1]) ))
+   }
+   vec3 C96 = (ambient + (1-ambient)*max(0, dot((N[96][0],N[96][1],N[96][2]),L))) * G.skinColor
+   shape f96 = Polygon {
+      points: [ (p[103][0],p[103][1]), (p[104][0],p[104][1]), (p[107][0],p[107][1]), (p[109][0],p[109][1]), (p[111][0],p[111][1]), (p[113][0],p[113][1]), (p[115][0],p[115][1]), (p[117][0],p[117][1]), (p[119][0],p[119][1]), (p[121][0],p[121][1]), (p[123][0],p[123][1]), (p[125][0],p[125][1]), (p[127][0],p[127][1]), (p[129][0],p[129][1]), (p[131][0],p[131][1]), (p[133][0],p[133][1]) ]
+      fillColor: rgba( C96[0], C96[1], C96[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, cross2D( (p[104][0],p[104][1])-(p[103][0],p[103][1]), (p[107][0],p[107][1])-(p[103][0],p[103][1]) ))
+   }
+   vec3 C97 = (ambient + (1-ambient)*max(0, dot((N[97][0],N[97][1],N[97][2]),L))) * G.skinColor
+   shape f97 = Polygon {
+      points: [ (p[106][0],p[106][1]), (p[105][0],p[105][1]), (p[108][0],p[108][1]), (p[110][0],p[110][1]), (p[112][0],p[112][1]), (p[114][0],p[114][1]), (p[116][0],p[116][1]), (p[118][0],p[118][1]), (p[120][0],p[120][1]), (p[122][0],p[122][1]), (p[124][0],p[124][1]), (p[126][0],p[126][1]), (p[128][0],p[128][1]), (p[130][0],p[130][1]), (p[132][0],p[132][1]), (p[134][0],p[134][1]) ]
+      fillColor: rgba( C97[0], C97[1], C97[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[105][0],p[105][1])-(p[106][0],p[106][1]), (p[108][0],p[108][1])-(p[106][0],p[106][1]) ))
+   }
+   vec3 C98 = (ambient + (1-ambient)*max(0, dot((N[98][0],N[98][1],N[98][2]),L))) * G.skinColor
+   shape f98 = Polygon {
+      points: [ (p[0][0],p[0][1]), (p[1][0],p[1][1]), (p[4][0],p[4][1]), (p[6][0],p[6][1]), (p[8][0],p[8][1]), (p[10][0],p[10][1]), (p[12][0],p[12][1]), (p[14][0],p[14][1]), (p[16][0],p[16][1]), (p[18][0],p[18][1]), (p[20][0],p[20][1]), (p[22][0],p[22][1]), (p[24][0],p[24][1]), (p[26][0],p[26][1]), (p[28][0],p[28][1]), (p[30][0],p[30][1]), (p[32][0],p[32][1]), (p[34][0],p[34][1]), (p[36][0],p[36][1]), (p[38][0],p[38][1]), (p[40][0],p[40][1]), (p[42][0],p[42][1]) ]
+      fillColor: rgba( C98[0], C98[1], C98[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, cross2D( (p[1][0],p[1][1])-(p[0][0],p[0][1]), (p[4][0],p[4][1])-(p[0][0],p[0][1]) ))
+   }
+   vec3 C99 = (ambient + (1-ambient)*max(0, dot((N[99][0],N[99][1],N[99][2]),L))) * G.skinColor
+   shape f99 = Polygon {
+      points: [ (p[3][0],p[3][1]), (p[2][0],p[2][1]), (p[5][0],p[5][1]), (p[7][0],p[7][1]), (p[9][0],p[9][1]), (p[11][0],p[11][1]), (p[13][0],p[13][1]), (p[15][0],p[15][1]), (p[17][0],p[17][1]), (p[19][0],p[19][1]), (p[21][0],p[21][1]), (p[23][0],p[23][1]), (p[25][0],p[25][1]), (p[27][0],p[27][1]), (p[29][0],p[29][1]), (p[31][0],p[31][1]), (p[33][0],p[33][1]), (p[35][0],p[35][1]), (p[37][0],p[37][1]), (p[39][0],p[39][1]), (p[41][0],p[41][1]), (p[43][0],p[43][1]) ]
+      fillColor: rgba( C99[0], C99[1], C99[2], G.alpha )
+      strokeColor: G.wireColor
+      strokeWidth: wireWidth
+      ensureOnCanvas: false
+      strokeLinejoin: "round"
+      opacity: max( .2, -cross2D( (p[2][0],p[2][1])-(p[3][0],p[3][1]), (p[5][0],p[5][1])-(p[3][0],p[3][1]) ))
+   }
+
+   shape G.mesh = Group {
+      shapes: [ f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24, f25, f26, f27, f28, f29, f30, f31, f32, f33, f34, f35, f36, f37, f38, f39, f40, f41, f42, f43, f44, f45, f46, f47, f48, f49, f50, f51, f52, f53, f54, f55, f56, f57, f58, f59, f60, f61, f62, f63, f64, f65, f66, f67, f68, f69, f70, f71, f72, f73, f74, f75, f76, f77, f78, f79, f80, f81, f82, f83, f84, f85, f86, f87, f88, f89, f90, f91, f92, f93, f94, f95, f96, f97, f98, f99 ]
+      ensureOnCanvas: false
+   }
+}
+
+-- A reflection effect is achieved by drawing
+-- a processed copy of the original geometry
+forall Reflection R; Geometry G
+where R := Reflection(G) {
+
+   -- give the reflection the same configuration as the
+   -- geometry it reflects
+   override R.dinoAngle = G.dinoAngle
+   override R.dinoX = G.dinoX
+   override R.dinoY = G.dinoY
+
+   -- flip the geometry, fade it out, and blur it
+   override R.model = scale3dh(1,-1,1) then R.baseTransform
+   override R.mesh.opacity = .4
+   override R.mesh.style = "filter:blur(3px);"
+
+   -- clip the reflection so that it doesn't extend outside the floor
+   shape floorShape = Polygon {
+      points: global.floor.points
+      ensureOnCanvas: false
+   }
+   override R.mesh.clipPath = clip( floorShape )
+
+   -- make sure the geometry is drawn in front of the shadow
+   layer G.mesh above R.mesh
+}
+
+-- A shadow effect is achieved by projecting each
+-- original vertex from the light to the floor
+forall Shadow S; Geometry G
+where S := Shadow(G) {
+
+  -- give the shadow the same configuration as the occluder
+  override S.dinoAngle = G.dinoAngle
+  override S.dinoX = G.dinoX
+  override S.dinoY = G.dinoY
+
+  -- find dot product between light position vector and ground plane normal
+  vec4 groundplane = ( 0, 1, 0, 0 )
+  scalar d = dot( groundplane, light.pos )
+
+  -- define shadow matrix
+  mat4x4 shadowMat = diagonal([d,d,d,d]) - outerProduct(light.pos,groundplane)
+
+  -- replace base transformation with shadow transformation
+  override S.model = S.baseTransform then shadowMat
+
+  -- draw as semi-transparent black
+  override S.skinColor = (0,0,0)
+  override S.eyeColor = (0,0,0)
+  override S.alpha = 1
+  override S.wireColor = #000
+  override S.mesh.opacity = .1
+  override S.mesh.style = "filter:blur(3px);"
+
+  -- clip shadow against ground plane
+  shape floorShape = Polygon {
+     points: global.floor.points
+     ensureOnCanvas: false
+  }
+  override S.mesh.clipPath = clip( floorShape )
+
+  -- make sure the geometry is drawn in front of the shadow
+  layer G.mesh above S.mesh
+}
+

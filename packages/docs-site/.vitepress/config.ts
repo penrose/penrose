@@ -269,6 +269,10 @@ export default defineConfig({
                   text: "Random Sampling",
                   link: "/docs/ref/style/random-sampling",
                 },
+                {
+                  text: "Vectors and Matrices",
+                  link: "/docs/ref/style/vectors-matrices",
+                },
                 { text: "Function Library", link: "/docs/ref/style/functions" },
                 {
                   text: "Passthrough SVG",

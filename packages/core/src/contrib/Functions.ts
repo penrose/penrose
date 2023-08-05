@@ -911,12 +911,86 @@ export const compDict = {
     returns: valueT("Real"),
   },
 
-  /**
-   * Return the outer product of `u` and `v`.
-   */
+  /* ============ MATRIX FUNCTIONS ============= */
+
+  identity: {
+    name: "identity",
+    description:
+      "`identity(n)` returns the $n \\times n$ identity matrix\n$$I = \\left[ \\begin{array}{cccc} 1 & 0 & \\cdots & 0 \\\\ 0 & 1 & \\cdots & 0 \\\\ \\vdots & \\vdots & \\ddots & \\vdots \\\\ 0 & 0 & \\cdots & 1 \\end{array} \\right].$$",
+    params: [{ name: "n", description: "dimension", type: posIntT() }],
+    body: (_context: Context, n: number): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: identity(n),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  diagonal: {
+    name: "diagonal",
+    description:
+      "`diagonal(v)` takes a vector $v$ of length $n$, and returns the $n \\times n$ diagonal matrix\n$$D = \\left[ \\begin{array}{cccc} v_1 & 0 & \\cdots & 0 \\\\ 0 & v_2 & \\cdots & 0 \\\\ \\vdots & \\vdots & \\ddots & \\vdots \\\\ 0 & 0 & \\cdots & v_n \\end{array} \\right].$$",
+    params: [
+      { name: "v", description: "vector of diagonal entries", type: realNT() },
+    ],
+    body: (_context: Context, v: ad.Num[]): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: diagonal(v),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  trace: {
+    name: "trace",
+    description:
+      "`trace(A)` takes a square matrix $A$, and returns the trace $\\text{tr}(A)$, equal to the sum of its diagonal entries.",
+    params: [{ name: "A", description: "a square matrix", type: realNMT() }],
+    body: (_context: Context, A: ad.Num[][]): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
+        tag: "FloatV",
+        contents: trace(A),
+      });
+    },
+    returns: valueT("Real"),
+  },
+
+  determinant: {
+    name: "determinant",
+    description:
+      "`determinant(A)` takes a $2 \\times 2$, $3 \\times 3$, or $4 \\times 4$ matrix $A$, and returns its determinant $\\text{det}(A)$.",
+    params: [{ name: "A", description: "a square matrix", type: realNMT() }],
+    body: (_context: Context, A: ad.Num[][]): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
+        tag: "FloatV",
+        contents: determinant(A),
+      });
+    },
+    returns: valueT("Real"),
+  },
+
+  inverse: {
+    name: "inverse",
+    description:
+      "`inverse(A)` takes a $2 \\times 2$, $3 \\times 3$, or $4 \\times 4$ matrix $A$, and returns its inverse $A^{-1}$.  If the matrix is not invertible, the result may be numerically invalid (with `INF` or `NaN` entries).",
+    params: [
+      { name: "A", description: "a 2x2, 3x3, or 4x4 matrix", type: realNMT() },
+    ],
+    body: (_context: Context, A: ad.Num[][]): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: inverse(A),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
   outerProduct: {
     name: "outerProduct",
-    description: "Return the outer product of `v` and `w`.",
+    description:
+      "`outerProduct(u,v)` takes two vectors $u$, $v$ of equal length $n$, and returns the $n \\times n$ outer product matrix $A$, with entries $A_{ij} = u_i v_j$.",
     params: [
       { name: "v", description: "Vector `v`", type: realNT() },
       { name: "w", description: "Vector `w`", type: realNT() },
@@ -928,11 +1002,858 @@ export const compDict = {
     ): MayWarn<MatrixV<ad.Num>> => {
       return noWarn({
         tag: "MatrixV",
-        contents: ops.vouter(u, v),
+        contents: outer(u, v),
       });
     },
     returns: valueT("RealNM"),
   },
+
+  crossProductMatrix: {
+    name: "crossProductMatrix",
+    description:
+      "`crossProductMatrix(v)` takes a 3-vector $v$, and returns a $3 \\times 3$ skew symmetric matrix $A^T = -A$ such that $Au = v \\times u$ for any vector $u$.",
+    params: [{ name: "v", description: "Vector `v`", type: realNT() }],
+    body: (_context: Context, v: ad.Num[]): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: crossProductMatrix(v),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  matrix: {
+    name: "matrix",
+    description:
+      "`matrix(a,b,c,d,e,f)` specifies a transformation matrix\n$$\\left[ \\begin{array}{ccc} a & c & e \\\\ b & d & f \\\\ 0 & 0 & 1 \\end{array} \\right].$$\nThis function mirrors the SVG/CSS `matrix` transform function.",
+    params: [
+      { name: "a", description: "top left entry", type: realT() },
+      { name: "b", description: "middle left entry", type: realT() },
+      { name: "c", description: "top center entry", type: realT() },
+      { name: "d", description: "middle center entry", type: realT() },
+      { name: "e", description: "top right entry", type: realT() },
+      { name: "f", description: "middle right entry", type: realT() },
+    ],
+    body: (
+      _context: Context,
+      a: ad.Num,
+      b: ad.Num,
+      c: ad.Num,
+      d: ad.Num,
+      e: ad.Num,
+      f: ad.Num,
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: matrix(a, b, c, d, e, f),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  matrix3d: {
+    name: "matrix3d",
+    description:
+      "`matrix(a1, a2, a3, a4, b1, b2, b3, b4, c1, c2, c3, c4, d1, d2, d3, d4)` specifies a transformation matrix\n$$\\left[ \\begin{array}{cccc} a1 & a2 & a3 & a4 \\\\ b1 & b2 & b3 & b4 \\\\ c1 & c2 & c3 & c4 \\\\ d1 & d2 & d3 & d4 \\end{array} \\right].$$\nThis function mirrors the CSS `matrix3d` transform function.",
+    params: [
+      { name: "a1", description: "1st column of 1st row", type: realT() },
+      { name: "b1", description: "1st column of 2nd row", type: realT() },
+      { name: "c1", description: "1st column of 3rd row", type: realT() },
+      { name: "d1", description: "1st column of 4th row", type: realT() },
+      { name: "a2", description: "2nd column of 1st row", type: realT() },
+      { name: "b2", description: "2nd column of 2nd row", type: realT() },
+      { name: "c2", description: "2nd column of 3rd row", type: realT() },
+      { name: "d2", description: "2nd column of 4th row", type: realT() },
+      { name: "a3", description: "3rd column of 1st row", type: realT() },
+      { name: "b3", description: "3rd column of 2nd row", type: realT() },
+      { name: "c3", description: "3rd column of 3rd row", type: realT() },
+      { name: "d3", description: "3rd column of 4th row", type: realT() },
+      { name: "a4", description: "4th column of 1st row", type: realT() },
+      { name: "b4", description: "4th column of 2nd row", type: realT() },
+      { name: "c4", description: "4th column of 3rd row", type: realT() },
+      { name: "d4", description: "4th column of 4th row", type: realT() },
+    ],
+    body: (
+      _context: Context,
+      a1: ad.Num,
+      b1: ad.Num,
+      c1: ad.Num,
+      d1: ad.Num,
+      a2: ad.Num,
+      b2: ad.Num,
+      c2: ad.Num,
+      d2: ad.Num,
+      a3: ad.Num,
+      b3: ad.Num,
+      c3: ad.Num,
+      d3: ad.Num,
+      a4: ad.Num,
+      b4: ad.Num,
+      c4: ad.Num,
+      d4: ad.Num,
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: matrix3d(
+          a1,
+          a2,
+          a3,
+          a4,
+          b1,
+          b2,
+          b3,
+          b4,
+          c1,
+          c2,
+          c3,
+          c4,
+          d1,
+          d2,
+          d3,
+          d4,
+        ),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  rotate: {
+    name: "rotate",
+    description:
+      "`rotate(theta, [x], [y])` returns a counter-clockwise 2D rotation by an angle $\\theta$, optionally around the point $(x,y)$.  If no point is specified, the rotation is around the origin.  Since this transformation is in general an affine transformation, it is encoded in homogeneous coordinates via the $3 \\times 3$ matrix\n$$\\left[ \\begin{array}{rrr} \\cos(\\theta) & -\\sin(\\theta) & 0 \\\\ \\sin(\\theta) &  \\cos(\\theta) & 0 \\\\ 0 & 0 & 1 \\end{array} \\right].$$\nFor the $2 \\times 2$ linear version, see `rotate2d()`.)",
+    params: [
+      {
+        name: "theta",
+        description: "angle of rotation (in radians)",
+        type: realT(),
+      },
+      {
+        name: "x",
+        description: "center of rotation (x coordinate)",
+        type: realT(),
+        default: 0,
+      },
+      {
+        name: "y",
+        description: "center of rotation (y coordinate)",
+        type: realT(),
+        default: 0,
+      },
+    ],
+    body: (
+      _context: Context,
+      theta: ad.Num,
+      x: ad.Num,
+      y: ad.Num,
+    ): MayWarn<MatrixV<ad.Num>> => {
+      const R = toHomogeneousMatrix(rotate2d(theta));
+      const T = translate([x, y]);
+      const Ti = translate([neg(x), neg(y)]);
+      return noWarn({
+        tag: "MatrixV",
+        contents: ops.mmmul(T, ops.mmmul(R, Ti)),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  rotate2d: {
+    name: "rotate2d",
+    description:
+      "`rotate2d(theta)` returns a 2D rotation around the origin by a given angle $\\theta$, encoded via the $2 \\times 2$ matrix\n$$\\left[ \\begin{array}{rr} \\cos(\\theta) & -\\sin(\\theta) \\\\ \\sin(\\theta) &  \\cos(\\theta) \\end{array} \\right].$$\nThis matrix cannot directly be composed with 2D affine transformations; for the $3 \\times 3$ affine version, see `rotate()`.",
+    params: [
+      {
+        name: "theta",
+        description: "angle of rotation (in radians)",
+        type: realT(),
+      },
+    ],
+    body: (_context: Context, theta: ad.Num): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: rotate2d(theta),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  rotate3d: {
+    name: "rotate3d",
+    description:
+      "`rotate3d(theta, v)` returns a 3D rotation by an angle $\\theta$ around a unit axis $v$.  The matrix is constructed via Rodrigues' rotation formula\n$$I + \\sin(\\theta)\\hat{v} + (1-\\cos(\\theta))\\hat{v}^2,$$\nwhere $I$ is the $3 \\times 3$ identity matrix, and $\\hat{v}$ is the cross product matrix associated with $v$ (see `crossProductMatrix()`).  This matrix cannot directly be composed with 3D affine transformations; for the $4 \\times 4$ affine version, see `rotate3dh()`.",
+    params: [
+      {
+        name: "theta",
+        description: "angle of rotation (in radians)",
+        type: realT(),
+      },
+      {
+        name: "v",
+        description: "axis of rotation (unit vector)",
+        type: realNT(),
+      },
+    ],
+    body: (
+      _context: Context,
+      theta: ad.Num,
+      v: ad.Num[],
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: rotate3d(theta, v),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  rotate3dh: {
+    name: "rotate3dh",
+    description:
+      "`rotate3dh(theta, v)` returns a 3D rotation by a given angle $\\theta$ around a unit axis $v$.  This transformation is encoded as a $4 \\times 4$ matrix in homogeneous coordinates, so that it can be composed with 3D affine transformations.  For the $3 \\times 3$ linear version, see `rotate3d()`.",
+    params: [
+      {
+        name: "theta",
+        description: "angle of rotation (in radians)",
+        type: realT(),
+      },
+      {
+        name: "v",
+        description: "axis of rotation (unit vector)",
+        type: realNT(),
+      },
+    ],
+    body: (
+      _context: Context,
+      theta: ad.Num,
+      v: ad.Num[],
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: toHomogeneousMatrix(rotate3d(theta, v)),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  scale: {
+    name: "scale",
+    description:
+      "`scale(sx, sy)` returns a nonuniform scaling by factors $s_x$, $s_y$ along $x$, $y$ axes, encoded via the matrix\n$$\\left[ \\begin{array}{ccc} s_x & 0 & 0 \\\\ 0 & s_y & 0 \\\\ 0 & 0 & 1 \\end{array} \\right].$$\nThis transformation is encoded as a $3 \\times 3$ matrix in homogeneous coordinates, so that it can be composed with 2D affine transformations.  For the $2 \\times 2$ linear version, see `scale2d()`.",
+    params: [
+      { name: "sx", description: "horizontal scale factor", type: realT() },
+      { name: "sy", description: "vertical scale factor", type: realT() },
+    ],
+    body: (
+      _context: Context,
+      sx: ad.Num,
+      sy: ad.Num,
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: toHomogeneousMatrix(scale2d(sx, sy)),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  scale2d: {
+    name: "scale2d",
+    description:
+      "`scale2d(sx,sy)` returns a $2 \\times 2$ matrix representing nonuniform scaling by factors $s_x$, $s_y$ along $x$, $y$ axes, encoded via the matrix\n$$\\left[ \\begin{array}{cc} s_x & 0 \\\\ 0 & s_y \\end{array} \\right].$$\nThis transformation is encoded as a $2 \\times 2$ matrix that cannot directly be composed with 2D affine transformations.  For the $3 \\times 3$ affine version, see `rotate()`.",
+    params: [
+      { name: "sx", description: "horizontal scale factor", type: realT() },
+      { name: "sy", description: "vertical scale factor", type: realT() },
+    ],
+    body: (
+      _context: Context,
+      sx: ad.Num,
+      sy: ad.Num,
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: scale2d(sx, sy),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  scale3d: {
+    name: "scale3d",
+    description:
+      "`scale3d(sx, sy, sz)` returns a nonuniform scaling by factors $s_x$, $s_y$, $s_z$ along $x$, $y$, $z$ axes, via the matrix\n$$\\left[ \\begin{array}{ccc} s_x & 0 & 0 \\\\ 0 & s_y & 0 \\\\ 0 & 0 & s_z \\end{array} \\right].$$\nThis transformation is encoded as a $3 \\times 3$ matrix that cannot directly be composed with 3D affine transformations.  For the $4 \\times 4$ affine version, see `scale3dh()`.",
+    params: [
+      { name: "sx", description: "x scale factor", type: realT() },
+      { name: "sy", description: "y scale factor", type: realT() },
+      { name: "sz", description: "z scale factor", type: realT() },
+    ],
+    body: (
+      _context: Context,
+      sx: ad.Num,
+      sy: ad.Num,
+      sz: ad.Num,
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: scale3d(sx, sy, sz),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  scale3dh: {
+    name: "scale3dh",
+    description:
+      "`scale3dh(sx, sy, sz)` returns a $4 \\times 4$ matrix representing nonuniform scaling by factors $s_x$, $s_y$, $s_z$ along $x$, $y$, $z$ axes, via the matrix\n$$\\left[ \\begin{array}{cccc} s_x & 0 & 0 & 0 \\\\ 0 & s_y & 0 & 0 \\\\ 0 & 0 & s_z & 0 \\\\ 0 & 0 & 0 & 1 \\end{array} \\right].$$\nThis transformation is encoded as a $4 \\times 4$ matrix in homogeneous coordinates, so that it can be composed with 3D affine transformations.  For the $3 \\times 3$ linear version, see `scale3D()`.",
+    params: [
+      { name: "sx", description: "x scale factor", type: realT() },
+      { name: "sy", description: "y scale factor", type: realT() },
+      { name: "sz", description: "z scale factor", type: realT() },
+    ],
+    body: (
+      _context: Context,
+      sx: ad.Num,
+      sy: ad.Num,
+      sz: ad.Num,
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: toHomogeneousMatrix(scale3d(sx, sy, sz)),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  skew: {
+    name: "skew",
+    description:
+      "`skew(a_x, a_y)` takes angles $a_x$ and $a_y$, and returns a 2D skew transformation encoded by the matrix\n$$\\left[ \\begin{array}{ccc} 1 & \\tan(a_x) & 0 \\\\ \\tan(a_y) & 1 & 0 \\\\ 0 & 0 & 1 \\end{array} \\right].$$\nIf $a_y$ is not defined, its default value is 0, resulting in a purely horizontal skewing.  This transformation is encoded as a $3 \\times 3$ matrix in homogeneous coordinates, so that it can be composed with affine transformations.  For the linear version, see `skew2d()`.",
+    params: [
+      { name: "ax", description: "horizontal angle", type: realT() },
+      { name: "ay", description: "vertical angle", type: realT(), default: 0 },
+    ],
+    body: (
+      _context: Context,
+      ax: ad.Num,
+      ay: ad.Num,
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: toHomogeneousMatrix(skew(ax, ay)),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  skew2d: {
+    name: "skew2d",
+    description:
+      "`skew2d(a_x, a_y)` takes angles $a_x$ and $a_y$, and returns a 2D skew transformation encoded via the matrix\n$$\\left[ \\begin{array}{cc} 1 & \\tan(a_x) \\\\ \\tan(a_y) & 1 \\end{array} \\right].$$\nIf $a_y$ is not defined, its default value is 0, resulting in a purely horizontal skewing.  This transformation is encoded as a $2 \\times 2$ matrix that cannot directly be composed with 2D affine transformations.  For the $3 \\times 3$ affine version, see `skew()`.",
+    params: [
+      { name: "ax", description: "horizontal angle", type: realT() },
+      { name: "ay", description: "vertical angle", type: realT(), default: 0 },
+    ],
+    body: (
+      _context: Context,
+      ax: ad.Num,
+      ay: ad.Num,
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: skew(ax, ay),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  shear: {
+    name: "shear",
+    description:
+      "`shear(u,v)` takes two $n$-dimensional vectors $u$ and $v$, and returns a transformation that shears any given point $x$ in the direction $u$ according to its extent along the direction $v$, i.e., that performs the transformation\n$$x \\mapsto x + \\langle v,x \\rangle u.$$\n This transformation is encoded as an $(n+1) \\times (n+1)$ matrix in homogeneous coordinates, so that it can be composed with affine transformations.  For the linear version, see `shear2d()` or `shear3d()`.",
+    params: [
+      { name: "u", description: "offset direction", type: realNT() },
+      { name: "v", description: "shear axis", type: realNT() },
+    ],
+    body: (
+      _context: Context,
+      u: ad.Num[],
+      v: ad.Num[],
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: toHomogeneousMatrix(shear(u, v)),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  shear2d: {
+    name: "shear2d",
+    description:
+      "`shear2d(u,v)` takes two 2-dimensional vectors $u$ and $v$, and returns a transformation that shears any given point $x$ in the direction $u$ according to its extent along the direction $v$, i.e., that performs the transformation\n$$x \\mapsto x + \\langle v,x \\rangle u.$$\n This transformation is encoded as a $2 \\times 2$ matrix that cannot directly be composed with 2-dimensional affine transformations.  For the affine version, see `shear()`.",
+    params: [
+      { name: "u", description: "offset direction", type: realNT() },
+      { name: "v", description: "shear axis", type: realNT() },
+    ],
+    body: (
+      _context: Context,
+      u: ad.Num[],
+      v: ad.Num[],
+    ): MayWarn<MatrixV<ad.Num>> => {
+      if (u.length !== 2) {
+        throw new Error("Expected a 2D vector u");
+      }
+      if (v.length !== 2) {
+        throw new Error("Expected a 2D vector v");
+      }
+      return noWarn({
+        tag: "MatrixV",
+        contents: shear(u, v),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  shear3d: {
+    name: "shear3d",
+    description:
+      "`shear3d(u,v)` takes two 3-dimensional vectors $u$ and $v$, returns a transformation that shears any given point $x$ in the direction $u$ according to its extent along the direction $v$, i.e., that performs the transformation\n$$x \\mapsto x + \\langle v,x \\rangle u.$$\n This transformation is encoded as a $3 \\times 3$ matrix that cannot directly be composed with 3-dimensional affine transformations.  For the affine version, see `shear()`.",
+    params: [
+      { name: "u", description: "offset direction", type: realNT() },
+      { name: "v", description: "shear axis", type: realNT() },
+    ],
+    body: (
+      _context: Context,
+      u: ad.Num[],
+      v: ad.Num[],
+    ): MayWarn<MatrixV<ad.Num>> => {
+      if (u.length !== 3) {
+        throw new Error("Expected a 3D vector u");
+      }
+      if (v.length !== 3) {
+        throw new Error("Expected a 3D vector v");
+      }
+      return noWarn({
+        tag: "MatrixV",
+        contents: shear(u, v),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  translate: {
+    name: "translate",
+    description:
+      "`translate(x,y)` returns a translation by the given offset $(x,y)$.  If $y$ is not specified, it is assumed to be $0$.  Since translation is affine rather than linear, it is encoded as a $3 \\times 3$ matrix in homogeneous coordinates, namely\n$$T = \\left[ \\begin{array}{ccc} 1 & 0 & x \\\\ 0 & 1 & y \\\\ 0 & 0 & 1 \\end{array} \\right].$$",
+    params: [
+      { name: "x", description: "horizontal offset", type: realT() },
+      { name: "y", description: "vertical offset", type: realT(), default: 0 },
+    ],
+    body: (
+      _context: Context,
+      x: ad.Num,
+      y: ad.Num,
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: translate([x, y]),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  translate3dh: {
+    name: "translate3dh",
+    description:
+      "`translate3dh(x,y,z)` returns a translation by $(x,y,z)$.  Since translation is affine rather than linear, it is encoded as a $4 \\times 4$ matrix in homogeneous coordinates, namely\n$$T = \\left[ \\begin{array}{cccc} 1 & 0 & 0 & x \\\\ 0 & 1 & 0 & y \\\\ 0 & 0 & 0 & z \\\\ 0 & 0 & 0 & 1 \\end{array} \\right].$$",
+    params: [
+      { name: "x", description: "x offset", type: realT() },
+      { name: "y", description: "y offset", type: realT() },
+      { name: "z", description: "z offset", type: realT() },
+    ],
+    body: (
+      _context: Context,
+      x: ad.Num,
+      y: ad.Num,
+      z: ad.Num,
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: translate([x, y, z]),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  lookAt: {
+    name: "lookAt",
+    description:
+      "`lookAt(eye, center, up)` returns a $4 \\times 4$ viewing matrix derived from an eye point $e$, a reference point $c$ indicating the center of the scene, and an up vector $u$.  The matrix maps the reference point to the negative z axis and the eye point to the origin. When a typical projection matrix is used, the center of the scene therefore maps to the center of the viewport. Similarly, the direction described by the up vector projected onto the viewing plane is mapped to the positive y axis so that it points upward in the viewport. The up vector must not be parallel to the line of sight from the eye point to the reference point.  The matrix is given explicitly by $V = MT$ where $T$ is a translation by $-e$ (a la `translate3dh`), and $M$ is given by\n$$M = \\left[ \\begin{array}{rrrc} s_1 & s_2 & s_3 & 0 \\\\ v_1 & v_2 & v_3 & 0 \\\\ -f_1 & -f_2 & -f_3 & 0 \\\\ 0 & 0 & 0 & 1 \\end{array} \\right],$$\nwhere $f := (c-e)/|c-e|$ is the unit vector from the eye to the center, $s = f \\times u$ is a vector pointing to the side, and $v = s \\times f$ is a vector in roughly the same direction as $u$ that completes an orthonormal basis with $s$ and $f$ (hence, $M$ is a rotation matrix).",
+    params: [
+      { name: "eye", description: "position of the eye point", type: realNT() },
+      {
+        name: "center",
+        description: "position of the reference point",
+        type: realNT(),
+      },
+      {
+        name: "up",
+        description: "unit vector in the upward direction",
+        type: realNT(),
+      },
+    ],
+    body: (
+      _context: Context,
+      eye: ad.Num[],
+      center: ad.Num[],
+      up: ad.Num[],
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: lookAt(eye, center, up),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  perspective: {
+    name: "perspective",
+    description:
+      "`perspective(fovy, aspect, [zNear], [zFar])` returns a $4 \\times 4$ perspective projection matrix, given a vertical field of view $\\theta_y$, an aspect ratio $a$, and optional near/far $z$-values, $z_0$ and $z_1$.  The aspect ratio should match the aspect ratio of the associated viewport.  For example, an aspect ratio of 2 means the viewer's angle of view is twice as wide in $x$ as it is in $y$.  Coordinates within $[z_0,z_1]$ will get mapped to depth values in the range $[0,1]$.  Letting $f := \\cot(\\theta_y/2)$, the perspective matrix is given by\n$$P = \\left[ \\begin{array}{cccc} f/a & 0 & 0 & 0 \\\\ 0 & f & 0 & 0 \\\\ 0 & 0 & \\frac{z_0+z_1}{z_0-z_1} & \\frac{2 z_0 z_1}{z_0 - z_1} \\\\ 0 & 0 & -1 & 0 \\end{array} \\right].$$",
+    params: [
+      {
+        name: "fovy",
+        description: "field of view angle, in degrees, in the y direction",
+        type: realT(),
+      },
+      {
+        name: "aspect",
+        description:
+          "aspect ratio that determines the field of view in the x direction, equal to the ratio of x (width) to y (height)",
+        type: realT(),
+      },
+      {
+        name: "zNear",
+        description:
+          "distance from the viewer to the near clipping plane (always positive), with a default value of 0.1",
+        type: realT(),
+        default: 0.1,
+      },
+      {
+        name: "zFar",
+        description:
+          "distance from the viewer to the far clipping plane (always positive), with a default value of 100.0",
+        type: realT(),
+        default: 100.0,
+      },
+    ],
+    body: (
+      _context: Context,
+      fovy: ad.Num,
+      aspect: ad.Num,
+      zNear: ad.Num,
+      zFar: ad.Num,
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: perspective(fovy, aspect, zNear, zFar),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  ortho: {
+    name: "ortho",
+    description:
+      "`ortho(left, right, bottom, top, [zNear], [zFar])` returns a $4 \\times 4$ transformation that produces a parallel projection, given four horizontal/vertical clipping planes, and an optional near/far clipping plane.  Letting $l$, $r$, $b$, and $t$ denote the left/right/bottom/top clipping planes, respectively, the projection matrix is given by\n$$P = \\left[ \\begin{array}{cccc} \\frac{2}{r-l} & 0 & 0 & -u_x \\\\ 0 & \\frac{2}{t-b} & 0 & -u_y \\\\ 0 & 0 & \\frac{-2}{z_1-z_0} & -u_z \\\\ 0 & 0 & 0 & 1 \\\\ \\end{array} \\right],$$\nwhere\n$$\n\\begin{array}{rcl} u_x &=& (r + l) / (r - l), \\\\ u_y &=& (t + b) / (t - b), \\\\ u_z &=& (z_1 + z_0) / (z_1 - z_0).  \\end{array}$$",
+    params: [
+      {
+        name: "Left",
+        description: "coordinate of the left vertical clipping plane",
+        type: realT(),
+      },
+      {
+        name: "Right",
+        description: "coordinate of the right vertical clipping plane",
+        type: realT(),
+      },
+      {
+        name: "Bottom",
+        description: "coordinate of the bottom horizontal clipping plane",
+        type: realT(),
+      },
+      {
+        name: "Top",
+        description: "coordinate of the top horizontal clipping plane",
+        type: realT(),
+      },
+      {
+        name: "zNear",
+        description:
+          "distance to the nearer depth clipping plane (negative if the plane is behind the viewer), with a default value of 0.1",
+        type: realT(),
+        default: 0.1,
+      },
+      {
+        name: "zFar",
+        description:
+          "distance to the farther depth clipping plane (negative if the plane is behind the viewer), with a default value of 100",
+        type: realT(),
+        default: 100.0,
+      },
+    ],
+    body: (
+      _context: Context,
+      Left: ad.Num,
+      Right: ad.Num,
+      Bottom: ad.Num,
+      Top: ad.Num,
+      zNear: ad.Num,
+      zFar: ad.Num,
+    ): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: ortho(Left, Right, Bottom, Top, zNear, zFar),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  project: {
+    name: "project",
+    description:
+      "`project(p, model, proj, view)` transforms the specified 3D object coordinates $p$ into 2D window coordinates $q$ using a given $4 \\times 4$ model transformation $M$, $4 \\times 4$ projection transformation $P$, and viewport $V = [ \\begin{array}{cccc} x & y & w & h \\end{array} ]$, where $x$, $y$ give the lower-left corner of the canvas, and $w$, $h$ are its width and height.  To also recover the depth, see `projectDepth()`.  The projection is performed by first computing $r := PM\\hat{p}$, where $\\hat{p} := (p,1)$ are the homogeneous coordinates for $p$.  The first two components of $q := r/r_w$ (where $r_w$ is the final component of $r$) gives coordinates in the range $[-1,1] \\times [-1,1]$, which are then stretched to the range $[x,x+w] \\times [y,y+h]$.",
+    params: [
+      {
+        name: "p",
+        description: "3D object coordinates (x,y,z)",
+        type: realNT(),
+      },
+      { name: "model", description: "4x4 modelview matrix", type: realNMT() },
+      { name: "proj", description: "4x4 projection matrix", type: realNMT() },
+      {
+        name: "view",
+        description: "viewport (x, y, width, height)",
+        type: realNT(),
+      },
+    ],
+    body: (
+      _context: Context,
+      p: ad.Num[],
+      model: ad.Num[][],
+      proj: ad.Num[][],
+      view: ad.Num[],
+    ): MayWarn<VectorV<ad.Num>> => {
+      const q: ad.Num[] = project(p, model, proj, view);
+      return noWarn({
+        tag: "VectorV",
+        contents: [q[0], q[1]],
+      });
+    },
+    returns: valueT("RealN"),
+  },
+
+  projectDepth: {
+    name: "projectDepth",
+    description:
+      "`projectDepth(p, model, proj, view)` transforms the specified 3D object coordinates $p$ into 2D window coordinates $q$ using a given $4 \\times 4$ model transformation $M$, $4 \\times 4$ projection transformation $P$, and viewport $V = [ \\begin{array}{cccc} x & y & w & h \\end{array} ]$, where $x$, $y$ give the lower-left corner of the canvas, and $w$, $h$ are its width and height.  It returns the projected coordinates, as well as the depth relative to the view.  See `project()` for further information.",
+    params: [
+      {
+        name: "p",
+        description: "3D object coordinates (x,y,z)",
+        type: realNT(),
+      },
+      { name: "model", description: "4x4 modelview matrix", type: realNMT() },
+      { name: "proj", description: "4x4 projection matrix", type: realNMT() },
+      {
+        name: "view",
+        description: "viewport (x, y, width, height)",
+        type: realNT(),
+      },
+    ],
+    body: (
+      _context: Context,
+      p: ad.Num[],
+      model: ad.Num[][],
+      proj: ad.Num[][],
+      view: ad.Num[],
+    ): MayWarn<VectorV<ad.Num>> => {
+      return noWarn({
+        tag: "VectorV",
+        contents: project(p, model, proj, view),
+      });
+    },
+    returns: valueT("RealN"),
+  },
+
+  projectList: {
+    name: "projectList",
+    description:
+      "`projectList(P, model, proj, view)` transforms a list of 3D object coordinates $P = p_1, \\ldots, p_k$ into window 2D coordinates using a given $4 \\times 4$ model transformation $M$, $4 \\times 4$ projection transformation $P$, and viewport $V = [ \\begin{array}{cccc} x & y & w & h \\end{array} ]$, where $x$, $y$ give the lower-left corner of the canvas, and $w$, $h$ are its width and height.  Returns the list of projected 2D coordinates $q_1, \\ldots, q_k$.  See `project()` for further information.",
+    params: [
+      {
+        name: "p",
+        description: "list of 3D object coordinates (x,y,z)",
+        type: realNMT(),
+      },
+      { name: "model", description: "4x4 modelview matrix", type: realNMT() },
+      { name: "proj", description: "4x4 projection matrix", type: realNMT() },
+      {
+        name: "view",
+        description: "viewport (x, y, width, height)",
+        type: realNT(),
+      },
+    ],
+    body: (
+      _context: Context,
+      p: ad.Num[][],
+      model: ad.Num[][],
+      proj: ad.Num[][],
+      view: ad.Num[],
+    ): MayWarn<PtListV<ad.Num>> => {
+      const q: ad.Num[][] = [];
+      for (let i = 0; i < p.length; i++) {
+        q[i] = project(p[i], model, proj, view).slice(0, 2);
+      }
+
+      return noWarn({
+        tag: "PtListV",
+        contents: q.map(toPt),
+      });
+    },
+    returns: valueT("Real2N"),
+  },
+
+  matrixMultiplyList: {
+    name: "matrixMultiplyList",
+    description:
+      "`matrixMultiplyList(A, V)` multiplies each vector $v_1, \\ldots, v_k$ in the list $V$ by the given $n \\times n$ matrix $A$, returning the list of products.  List elements must all be vectors of length $n$.",
+    params: [
+      { name: "A", description: "`n`x`n` matrix", type: realNMT() },
+      {
+        name: "V",
+        description: "list of `n`-dimensional vectors",
+        type: realNMT(),
+      },
+    ],
+    body: (
+      _context: Context,
+      A: ad.Num[][],
+      V: ad.Num[][],
+    ): MayWarn<MatrixV<ad.Num>> => {
+      const AV: ad.Num[][] = [];
+      for (let i = 0; i < V.length; i++) {
+        AV[i] = ops.mvmul(A, V[i]);
+      }
+
+      return noWarn({
+        tag: "MatrixV",
+        contents: AV,
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  fromHomogeneous: {
+    name: "fromHomogeneous",
+    description:
+      "`fromHomogeneous(q)` takes a vector $q$ of length $n+1$, encoding a point in $n$-dimensional homogeneous coordinates, and returns a vector $p$ of length $n$, encoding the same point in Cartesian coordinates, i.e,. $p = (q_1, \\ldots, q_{k-1})/q_k$.",
+    params: [
+      { name: "q", description: "homogeneous coordinates", type: realNT() },
+    ],
+    body: (_context: Context, q: ad.Num[]): MayWarn<VectorV<ad.Num>> => {
+      return noWarn({
+        tag: "VectorV",
+        contents: fromHomogeneous(q),
+      });
+    },
+    returns: valueT("RealN"),
+  },
+
+  fromHomogeneousList: {
+    name: "fromHomogeneousList",
+    description:
+      "`fromHomogeneousList(Q)` takes a list $Q = q_1, \\ldots, q_k$ of vectors of length $n+1$, encoding points in $n$-dimensional homogeneous coordinates, and returns a list $P = p_1, \\ldots, p_k$ of vectors of length $n$, encoding the same points in Cartesian coordinates.",
+    params: [
+      {
+        name: "Q",
+        description: "list of points in homogeneous coordinates",
+        type: realNMT(),
+      },
+    ],
+    body: (_context: Context, Q: ad.Num[][]): MayWarn<MatrixV<ad.Num>> => {
+      const P: ad.Num[][] = [];
+      for (let i = 0; i < Q.length; i++) {
+        P[i] = fromHomogeneous(Q[i]);
+      }
+      return noWarn({
+        tag: "MatrixV",
+        contents: P,
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  toHomogeneous: {
+    name: "toHomogeneous",
+    description:
+      "`toHomogeneous(p)` takes a vector $p$ of length $n$, encoding a point in $n$-dimensional Cartesian coordinates, and returns a vector $q$ of length $n+1$, encoding the same point in homogeneous coordinates, i.e., $q = (p,1)$.",
+    params: [
+      { name: "p", description: "Cartesian coordinates", type: realNT() },
+    ],
+    body: (_context: Context, p: ad.Num[]): MayWarn<VectorV<ad.Num>> => {
+      return noWarn({
+        tag: "VectorV",
+        contents: toHomogeneous(p),
+      });
+    },
+    returns: valueT("RealN"),
+  },
+
+  toHomogeneousList: {
+    name: "toHomogeneousList",
+    description:
+      "`toHomogeneousList(P)` takes a list $P = p_1, \\ldots, p_k$ of vectors of length $n$, encoding points in $n$-dimensional Cartesian coordinates, and returns a list $Q = q_1, \\ldots, q_k$ of vectors of length $n+1$, encoding the same points in homogeneous coordinates.",
+    params: [
+      {
+        name: "P",
+        description: "list of points in Cartesian coordinates",
+        type: realNMT(),
+      },
+    ],
+    body: (_context: Context, P: ad.Num[][]): MayWarn<MatrixV<ad.Num>> => {
+      const Q: ad.Num[][] = [];
+      for (let i = 0; i < P.length; i++) {
+        Q[i] = toHomogeneous(P[i]);
+      }
+      return noWarn({
+        tag: "MatrixV",
+        contents: Q,
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  toHomogeneousMatrix: {
+    name: "toHomogeneousMatrix",
+    description:
+      "`toHomogeneousMatrix(A)` takes a square $n \\times n$ matrix $A$ representing a spatial transformation in $A$ dimensions, and returns an $(n+1) \\times (n+1)$ matrix representing the same transformation in homogeneous coordinates.",
+    params: [
+      {
+        name: "A",
+        description: "matrix encoding linear transformation",
+        type: realNMT(),
+      },
+    ],
+    body: (_context: Context, A: ad.Num[][]): MayWarn<MatrixV<ad.Num>> => {
+      return noWarn({
+        tag: "MatrixV",
+        contents: toHomogeneousMatrix(A),
+      });
+    },
+    returns: valueT("RealNM"),
+  },
+
+  /* ======== END MATRIX FUNCTIONS ======== */
 
   /**
    * Return the length of the line or arrow shape `[type, props]`.
@@ -6034,4 +6955,780 @@ const diffusionProcess = (
   }
 
   return Xt;
+};
+
+// Returns the n x n identity matrix.
+const identity = (n: number): ad.Num[][] => {
+  const I: ad.Num[][] = [];
+  for (let i = 0; i < n; i++) {
+    I[i] = [];
+    for (let j = 0; j < n; j++) {
+      I[i][j] = i === j ? 1 : 0;
+    }
+  }
+  return I;
+};
+
+// Given a vector v of length n, returns a
+// diagonal matrix D with diagonal entries v.
+const diagonal = (v: ad.Num[]): ad.Num[][] => {
+  const n = v.length;
+  const D: ad.Num[][] = [];
+  for (let i = 0; i < n; i++) {
+    D[i] = [];
+    for (let j = 0; j < n; j++) {
+      D[i][j] = i === j ? v[i] : 0;
+    }
+  }
+  return D;
+};
+
+// Given a square matrix A, returns the sum
+// of diagonal entries.
+const trace = (A: ad.Num[][]): ad.Num => {
+  const n = A.length;
+  let sum: ad.Num = 0;
+  for (let i = 0; i < n; i++) {
+    sum = add(sum, A[i][i]);
+  }
+  return sum;
+};
+
+// Given a 2x2, 3x3, or 4x4 matrix A, returns its determinant.
+const determinant = (A: ad.Num[][]): ad.Num => {
+  const n = A.length;
+  if (n === 2) {
+    return sub(mul(A[0][0], A[1][1]), mul(A[0][1], A[1][0]));
+  } else if (n === 3) {
+    return add(
+      add(
+        mul(A[0][0], sub(mul(A[1][1], A[2][2]), mul(A[1][2], A[2][1]))),
+        mul(A[0][1], sub(mul(A[1][2], A[2][0]), mul(A[1][0], A[2][2]))),
+      ),
+      mul(A[0][2], sub(mul(A[1][0], A[2][1]), mul(A[1][1], A[2][0]))),
+    );
+  } else if (n === 4) {
+    const C00 = add(
+      add(
+        sub(
+          mul(mul(A[1][2], A[2][3]), A[3][1]),
+          mul(mul(A[1][3], A[2][2]), A[3][1]),
+        ),
+        sub(
+          mul(mul(A[1][3], A[2][1]), A[3][2]),
+          mul(mul(A[1][1], A[2][3]), A[3][2]),
+        ),
+      ),
+      sub(
+        mul(mul(A[1][1], A[2][2]), A[3][3]),
+        mul(mul(A[1][2], A[2][1]), A[3][3]),
+      ),
+    );
+    const C10 = add(
+      add(
+        sub(
+          mul(mul(A[1][3], A[2][2]), A[3][0]),
+          mul(mul(A[1][2], A[2][3]), A[3][0]),
+        ),
+        sub(
+          mul(mul(A[1][0], A[2][3]), A[3][2]),
+          mul(mul(A[1][3], A[2][0]), A[3][2]),
+        ),
+      ),
+      sub(
+        mul(mul(A[1][2], A[2][0]), A[3][3]),
+        mul(mul(A[1][0], A[2][2]), A[3][3]),
+      ),
+    );
+    const C20 = add(
+      add(
+        sub(
+          mul(mul(A[1][1], A[2][3]), A[3][0]),
+          mul(mul(A[1][3], A[2][1]), A[3][0]),
+        ),
+        sub(
+          mul(mul(A[1][3], A[2][0]), A[3][1]),
+          mul(mul(A[1][0], A[2][3]), A[3][1]),
+        ),
+      ),
+      sub(
+        mul(mul(A[1][0], A[2][1]), A[3][3]),
+        mul(mul(A[1][1], A[2][0]), A[3][3]),
+      ),
+    );
+    const C30 = add(
+      add(
+        sub(
+          mul(mul(A[1][2], A[2][1]), A[3][0]),
+          mul(mul(A[1][1], A[2][2]), A[3][0]),
+        ),
+        sub(
+          mul(mul(A[1][0], A[2][2]), A[3][1]),
+          mul(mul(A[1][2], A[2][0]), A[3][1]),
+        ),
+      ),
+      sub(
+        mul(mul(A[1][1], A[2][0]), A[3][2]),
+        mul(mul(A[1][0], A[2][1]), A[3][2]),
+      ),
+    );
+    return add(
+      add(add(mul(A[0][0], C00), mul(A[0][1], C10)), mul(A[0][2], C20)),
+      mul(A[0][3], C30),
+    );
+  } else {
+    throw Error("matrix must be 2x2, 3x3, or 4x4");
+  }
+
+  return 0;
+};
+
+// Given a 2x2, 3x3, or 4x4 matrix A, returns its inverse.  If the matrix is
+// not invertible, evaluation of this function within the optimizer
+// may produce a numerically invalid matrix (with INF or NaN entries).
+const inverse = (A: ad.Num[][]): ad.Num[][] => {
+  const n = A.length;
+  const C: ad.Num[][] = [];
+  let detA: ad.Num = 0;
+
+  if (n === 2) {
+    C[0] = [A[1][1], neg(A[0][1])];
+    C[1] = [neg(A[1][0]), A[0][0]];
+    detA = add(mul(A[0][0], C[0][0]), mul(A[0][1], C[1][0]));
+  } else if (n === 3) {
+    C[0] = [
+      sub(mul(A[1][1], A[2][2]), mul(A[1][2], A[2][1])),
+      sub(mul(A[0][2], A[2][1]), mul(A[0][1], A[2][2])),
+      sub(mul(A[0][1], A[1][2]), mul(A[0][2], A[1][1])),
+    ];
+    C[1] = [
+      sub(mul(A[1][2], A[2][0]), mul(A[1][0], A[2][2])),
+      sub(mul(A[0][0], A[2][2]), mul(A[0][2], A[2][0])),
+      sub(mul(A[0][2], A[1][0]), mul(A[0][0], A[1][2])),
+    ];
+    C[2] = [
+      sub(mul(A[1][0], A[2][1]), mul(A[1][1], A[2][0])),
+      sub(mul(A[0][1], A[2][0]), mul(A[0][0], A[2][1])),
+      sub(mul(A[0][0], A[1][1]), mul(A[0][1], A[1][0])),
+    ];
+    detA = add(
+      add(mul(A[0][0], C[0][0]), mul(A[0][1], C[1][0])),
+      mul(A[0][2], C[2][0]),
+    );
+  } else if (n === 4) {
+    C[0] = [
+      add(
+        add(
+          sub(
+            mul(mul(A[1][2], A[2][3]), A[3][1]),
+            mul(mul(A[1][3], A[2][2]), A[3][1]),
+          ),
+          sub(
+            mul(mul(A[1][3], A[2][1]), A[3][2]),
+            mul(mul(A[1][1], A[2][3]), A[3][2]),
+          ),
+        ),
+        sub(
+          mul(mul(A[1][1], A[2][2]), A[3][3]),
+          mul(mul(A[1][2], A[2][1]), A[3][3]),
+        ),
+      ),
+      add(
+        add(
+          sub(
+            mul(mul(A[0][3], A[2][2]), A[3][1]),
+            mul(mul(A[0][2], A[2][3]), A[3][1]),
+          ),
+          sub(
+            mul(mul(A[0][1], A[2][3]), A[3][2]),
+            mul(mul(A[0][3], A[2][1]), A[3][2]),
+          ),
+        ),
+        sub(
+          mul(mul(A[0][2], A[2][1]), A[3][3]),
+          mul(mul(A[0][1], A[2][2]), A[3][3]),
+        ),
+      ),
+      add(
+        add(
+          sub(
+            mul(mul(A[0][2], A[1][3]), A[3][1]),
+            mul(mul(A[0][3], A[1][2]), A[3][1]),
+          ),
+          sub(
+            mul(mul(A[0][3], A[1][1]), A[3][2]),
+            mul(mul(A[0][1], A[1][3]), A[3][2]),
+          ),
+        ),
+        sub(
+          mul(mul(A[0][1], A[1][2]), A[3][3]),
+          mul(mul(A[0][2], A[1][1]), A[3][3]),
+        ),
+      ),
+      add(
+        add(
+          sub(
+            mul(mul(A[0][3], A[1][2]), A[2][1]),
+            mul(mul(A[0][2], A[1][3]), A[2][1]),
+          ),
+          sub(
+            mul(mul(A[0][1], A[1][3]), A[2][2]),
+            mul(mul(A[0][3], A[1][1]), A[2][2]),
+          ),
+        ),
+        sub(
+          mul(mul(A[0][2], A[1][1]), A[2][3]),
+          mul(mul(A[0][1], A[1][2]), A[2][3]),
+        ),
+      ),
+    ];
+    C[1] = [
+      add(
+        add(
+          sub(
+            mul(mul(A[1][3], A[2][2]), A[3][0]),
+            mul(mul(A[1][2], A[2][3]), A[3][0]),
+          ),
+          sub(
+            mul(mul(A[1][0], A[2][3]), A[3][2]),
+            mul(mul(A[1][3], A[2][0]), A[3][2]),
+          ),
+        ),
+        sub(
+          mul(mul(A[1][2], A[2][0]), A[3][3]),
+          mul(mul(A[1][0], A[2][2]), A[3][3]),
+        ),
+      ),
+      add(
+        add(
+          sub(
+            mul(mul(A[0][2], A[2][3]), A[3][0]),
+            mul(mul(A[0][3], A[2][2]), A[3][0]),
+          ),
+          sub(
+            mul(mul(A[0][3], A[2][0]), A[3][2]),
+            mul(mul(A[0][0], A[2][3]), A[3][2]),
+          ),
+        ),
+        sub(
+          mul(mul(A[0][0], A[2][2]), A[3][3]),
+          mul(mul(A[0][2], A[2][0]), A[3][3]),
+        ),
+      ),
+      add(
+        add(
+          sub(
+            mul(mul(A[0][3], A[1][2]), A[3][0]),
+            mul(mul(A[0][2], A[1][3]), A[3][0]),
+          ),
+          sub(
+            mul(mul(A[0][0], A[1][3]), A[3][2]),
+            mul(mul(A[0][3], A[1][0]), A[3][2]),
+          ),
+        ),
+        sub(
+          mul(mul(A[0][2], A[1][0]), A[3][3]),
+          mul(mul(A[0][0], A[1][2]), A[3][3]),
+        ),
+      ),
+      add(
+        add(
+          sub(
+            mul(mul(A[0][2], A[1][3]), A[2][0]),
+            mul(mul(A[0][3], A[1][2]), A[2][0]),
+          ),
+          sub(
+            mul(mul(A[0][3], A[1][0]), A[2][2]),
+            mul(mul(A[0][0], A[1][3]), A[2][2]),
+          ),
+        ),
+        sub(
+          mul(mul(A[0][0], A[1][2]), A[2][3]),
+          mul(mul(A[0][2], A[1][0]), A[2][3]),
+        ),
+      ),
+    ];
+    C[2] = [
+      add(
+        add(
+          sub(
+            mul(mul(A[1][1], A[2][3]), A[3][0]),
+            mul(mul(A[1][3], A[2][1]), A[3][0]),
+          ),
+          sub(
+            mul(mul(A[1][3], A[2][0]), A[3][1]),
+            mul(mul(A[1][0], A[2][3]), A[3][1]),
+          ),
+        ),
+        sub(
+          mul(mul(A[1][0], A[2][1]), A[3][3]),
+          mul(mul(A[1][1], A[2][0]), A[3][3]),
+        ),
+      ),
+      add(
+        add(
+          sub(
+            mul(mul(A[0][3], A[2][1]), A[3][0]),
+            mul(mul(A[0][1], A[2][3]), A[3][0]),
+          ),
+          sub(
+            mul(mul(A[0][0], A[2][3]), A[3][1]),
+            mul(mul(A[0][3], A[2][0]), A[3][1]),
+          ),
+        ),
+        sub(
+          mul(mul(A[0][1], A[2][0]), A[3][3]),
+          mul(mul(A[0][0], A[2][1]), A[3][3]),
+        ),
+      ),
+      add(
+        add(
+          sub(
+            mul(mul(A[0][1], A[1][3]), A[3][0]),
+            mul(mul(A[0][3], A[1][1]), A[3][0]),
+          ),
+          sub(
+            mul(mul(A[0][3], A[1][0]), A[3][1]),
+            mul(mul(A[0][0], A[1][3]), A[3][1]),
+          ),
+        ),
+        sub(
+          mul(mul(A[0][0], A[1][1]), A[3][3]),
+          mul(mul(A[0][1], A[1][0]), A[3][3]),
+        ),
+      ),
+      add(
+        add(
+          sub(
+            mul(mul(A[0][3], A[1][1]), A[2][0]),
+            mul(mul(A[0][1], A[1][3]), A[2][0]),
+          ),
+          sub(
+            mul(mul(A[0][0], A[1][3]), A[2][1]),
+            mul(mul(A[0][3], A[1][0]), A[2][1]),
+          ),
+        ),
+        sub(
+          mul(mul(A[0][1], A[1][0]), A[2][3]),
+          mul(mul(A[0][0], A[1][1]), A[2][3]),
+        ),
+      ),
+    ];
+    C[3] = [
+      add(
+        add(
+          sub(
+            mul(mul(A[1][2], A[2][1]), A[3][0]),
+            mul(mul(A[1][1], A[2][2]), A[3][0]),
+          ),
+          sub(
+            mul(mul(A[1][0], A[2][2]), A[3][1]),
+            mul(mul(A[1][2], A[2][0]), A[3][1]),
+          ),
+        ),
+        sub(
+          mul(mul(A[1][1], A[2][0]), A[3][2]),
+          mul(mul(A[1][0], A[2][1]), A[3][2]),
+        ),
+      ),
+      add(
+        add(
+          sub(
+            mul(mul(A[0][1], A[2][2]), A[3][0]),
+            mul(mul(A[0][2], A[2][1]), A[3][0]),
+          ),
+          sub(
+            mul(mul(A[0][2], A[2][0]), A[3][1]),
+            mul(mul(A[0][0], A[2][2]), A[3][1]),
+          ),
+        ),
+        sub(
+          mul(mul(A[0][0], A[2][1]), A[3][2]),
+          mul(mul(A[0][1], A[2][0]), A[3][2]),
+        ),
+      ),
+      add(
+        add(
+          sub(
+            mul(mul(A[0][2], A[1][1]), A[3][0]),
+            mul(mul(A[0][1], A[1][2]), A[3][0]),
+          ),
+          sub(
+            mul(mul(A[0][0], A[1][2]), A[3][1]),
+            mul(mul(A[0][2], A[1][0]), A[3][1]),
+          ),
+        ),
+        sub(
+          mul(mul(A[0][1], A[1][0]), A[3][2]),
+          mul(mul(A[0][0], A[1][1]), A[3][2]),
+        ),
+      ),
+      add(
+        add(
+          sub(
+            mul(mul(A[0][1], A[1][2]), A[2][0]),
+            mul(mul(A[0][2], A[1][1]), A[2][0]),
+          ),
+          sub(
+            mul(mul(A[0][2], A[1][0]), A[2][1]),
+            mul(mul(A[0][0], A[1][2]), A[2][1]),
+          ),
+        ),
+        sub(
+          mul(mul(A[0][0], A[1][1]), A[2][2]),
+          mul(mul(A[0][1], A[1][0]), A[2][2]),
+        ),
+      ),
+    ];
+    detA = add(
+      add(
+        add(mul(A[0][0], C[0][0]), mul(A[0][1], C[1][0])),
+        mul(A[0][2], C[2][0]),
+      ),
+      mul(A[0][3], C[3][0]),
+    );
+  } else {
+    throw Error("matrix must be 2x2, 3x3, or 4x4");
+  }
+
+  return ops.msdiv(C, detA);
+};
+
+// Given a vector q of length n+1, encoding a point in n-dimensional homogeneous coordinates,
+// returns a vector p of length n, encoding the same point in Cartesian coordinates.
+const fromHomogeneous = (q: ad.Num[]): ad.Num[] => {
+  const n = q.length - 1;
+  const p: ad.Num[] = [];
+  for (let i = 0; i < n; i++) {
+    p[i] = div(q[i], q[n]);
+  }
+  return p;
+};
+
+// Given a vector p of length n, encoding a point in n-dimensional Cartesian coordinates,
+// returns a vector q of length n+1, encoding the same point in homogeneous coordinates.
+const toHomogeneous = (p: ad.Num[]): ad.Num[] => {
+  const n = p.length;
+  const q: ad.Num[] = [];
+  for (let i = 0; i < n; i++) {
+    q[i] = p[i];
+  }
+  q[n] = 1;
+  return q;
+};
+
+// Given a square n x n matrix A representing a spatial transformation in n
+// dimensions, returns an (n+1) x (n+1) matrix representing the same
+// transformation in homogeneous coordinates.
+const toHomogeneousMatrix = (A: ad.Num[][]): ad.Num[][] => {
+  const n = A.length;
+  const B: ad.Num[][] = [];
+  for (let i = 0; i < n + 1; i++) {
+    B[i] = [];
+    for (let j = 0; j < n + 1; j++) {
+      B[i][j] = 0;
+    }
+  }
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      B[i][j] = A[i][j];
+    }
+  }
+  B[n][n] = 1;
+  return B;
+};
+
+// Given n-dimensional vectors u and v, returns the n x n matrix
+// given by their outer product.
+const outer = (u: ad.Num[], v: ad.Num[]): ad.Num[][] => {
+  if (u.length !== v.length) {
+    throw Error("vectors must have equal length");
+  }
+
+  const A: ad.Num[][] = [];
+  for (let i = 0; i < u.length; i++) {
+    const row = v.map((e) => mul(u[i], e));
+    A.push(row);
+  }
+
+  return A;
+};
+
+// Given angles `ax` and `ay`, returns a 2x2 matrix
+// skewing an element on the 2D plane.
+const skew = (ax: ad.Num, ay: ad.Num): ad.Num[][] => {
+  return [
+    [1, tan(ax)],
+    [tan(ay), 1],
+  ];
+};
+
+// Given a 3-vector v, returns a 3x3 skew symmetric
+// matrix v̂ such that v̂u = v x u for any vector u.
+const crossProductMatrix = (v: ad.Num[]): ad.Num[][] => {
+  if (v.length !== 3) {
+    throw Error("vector must have length 3");
+  }
+
+  return [
+    [0, neg(v[2]), v[1]],
+    [v[2], 0, neg(v[0])],
+    [neg(v[1]), v[0], 0],
+  ];
+};
+
+// Returns the 2x2 matrix representing a rotation by a given angle theta.
+const rotate2d = (theta: ad.Num): ad.Num[][] => {
+  return [
+    [cos(theta), neg(sin(theta))],
+    [sin(theta), cos(theta)],
+  ];
+};
+
+// Given an angle theta and a unit 3-vector v, returns
+// the 3x3 matrix representing a rotation by theta around v.
+const rotate3d = (theta: ad.Num, v: ad.Num[]): ad.Num[][] => {
+  if (v.length !== 3) {
+    throw Error("rotation axis must have length 3");
+  }
+
+  // Construct matrix via Rodrigues' formula
+  //    I + sin(θ)v̂ + (1-cos(θ))v̂²
+  // where v̂ is the skew-symmetric matrix such
+  // that v̂u = v x u for any vector u.
+  const I = identity(3);
+  const vhat = crossProductMatrix(v);
+  return ops.mmadd(
+    ops.mmadd(I, ops.smmul(sin(theta), vhat)),
+    ops.smmul(sub(1, cos(theta)), ops.mmmul(vhat, vhat)),
+  );
+};
+
+// Returns a 2x2 matrix representing nonuniform scaling by factors sx, sy
+// along x, y axes, respectively.
+const scale2d = (sx: ad.Num, sy: ad.Num): ad.Num[][] => {
+  return diagonal([sx, sy]);
+};
+
+// Returns a 3x3 matrix representing nonuniform scaling by factors sx, sy, sz
+// along x, y, z axes, respectively.
+const scale3d = (sx: ad.Num, sy: ad.Num, sz: ad.Num): ad.Num[][] => {
+  return diagonal([sx, sy, sz]);
+};
+
+// Given n-dimensional vectors u and v, returns an n x n matrix A such that
+// Ax displaces any given point x in the direction u according to its extent
+// along the direction v, i.e., Ax = x + <v,x>u.
+const shear = (u: ad.Num[], v: ad.Num[]): ad.Num[][] => {
+  if (u.length !== v.length) {
+    throw Error("vectors must have equal length");
+  }
+
+  const n = v.length;
+  const I = identity(n);
+  return ops.mmadd(I, outer(u, v));
+};
+
+// Given an n-dimensional vector v, returns an (n+1)x(n+1) matrix representing a
+// translation of n-dimensional space by v, encoded in homogeneous coordinates.
+const translate = (v: ad.Num[]): ad.Num[][] => {
+  const n = v.length;
+  const A = identity(n + 1);
+  for (let i = 0; i < n; i++) {
+    A[i][n] = v[i];
+  }
+  return A;
+};
+
+// (adapted from gluLookAt man page:)
+// lookAt returns a 4x4 viewing matrix derived from an eye point, a reference point
+// indicating the center of the scene, and an up vector.  The matrix maps the
+// reference point to the negative z axis and the eye point to the origin. When
+// a typical projection matrix is used, the center of the scene therefore maps
+// to the center of the viewport. Similarly, the direction described by the up
+// vector projected onto the viewing plane is mapped to the positive y axis so
+// that it points upward in the viewport. The up vector must not be parallel to
+// the line of sight from the eye point to the reference point.
+const lookAt = (eye: ad.Num[], center: ad.Num[], up: ad.Num[]): ad.Num[][] => {
+  if (eye.length !== 3) {
+    throw Error("eye vector must have length 3");
+  }
+  if (center.length !== 3) {
+    throw Error("center vector must have length 3");
+  }
+  if (up.length !== 3) {
+    throw Error("up vector must have length 3");
+  }
+
+  const forward = ops.vnormalize(ops.vsub(center, eye));
+  const side = ops.vnormalize(ops.cross3(forward, up));
+  const vert = ops.cross3(side, forward);
+
+  const M: ad.Num[][] = [];
+  for (let i = 0; i < 4; i++) {
+    M[i] = [];
+  }
+
+  M[0][0] = side[0];
+  M[0][1] = side[1];
+  M[0][2] = side[2];
+  M[0][3] = 0;
+
+  M[1][0] = vert[0];
+  M[1][1] = vert[1];
+  M[1][2] = vert[2];
+  M[1][3] = 0;
+
+  M[2][0] = neg(forward[0]);
+  M[2][1] = neg(forward[1]);
+  M[2][2] = neg(forward[2]);
+  M[2][3] = 0;
+
+  M[3][0] = 0;
+  M[3][1] = 0;
+  M[3][2] = 0;
+  M[3][3] = 1;
+
+  const T = translate(ops.vneg(eye));
+  return ops.mmmul(M, T);
+};
+
+// (adapted from gluPerspective man page:)
+// perspective sets up a 4x4 perspective projection matrix.
+// The aspect ratio should match the aspect ratio of the associated viewport.
+// For example, aspect = 2.0 means the viewer's angle of view is twice as wide
+// in x as it is in y.  If the viewport is twice as wide as it is tall, it displays
+// the image without distortion.
+// fovy    Specifies the field of view angle, in degrees, in the y direction.
+// aspect  Specifies the aspect ratio that determines the field of view in the x direction.  The
+//         aspect ratio is the ratio of x (width) to y (height).
+// zNear   Specifies the distance from the viewer to the near clipping plane (always positive).
+// zFar    Specifies the distance from the viewer to the far clipping plane (always positive).
+const perspective = (
+  fovy: ad.Num,
+  aspect: ad.Num,
+  zNear: ad.Num,
+  zFar: ad.Num,
+): ad.Num[][] => {
+  const radians = mul(Math.PI / 180, fovy);
+  const f = div(radians, 2);
+  const deltaZ = sub(zFar, zNear);
+  const cotangent = div(1, tan(f));
+
+  const M = identity(4);
+  M[0][0] = div(cotangent, aspect);
+  M[1][1] = neg(cotangent);
+  M[2][2] = div(neg(add(zFar, zNear)), deltaZ);
+  M[3][2] = -1;
+  M[2][3] = mul(2, div(mul(zNear, zFar), deltaZ));
+  M[3][3] = 0;
+
+  return M;
+};
+
+// (adapted from glOrtho man page:)
+// ortho describes a 4x4 transformation that produces a parallel projection.
+// left, right Specify the coordinates for the left and right vertical clipping planes.
+// bottom, top Specify the coordinates for the bottom and top horizontal clipping planes.
+// zNear, zFar Specify the distances to the nearer and farther depth clipping planes.  These values
+//             are negative if the plane is to be behind the viewer.
+const ortho = (
+  Left: ad.Num,
+  Right: ad.Num,
+  Bottom: ad.Num,
+  Top: ad.Num,
+  zNear: ad.Num,
+  zFar: ad.Num,
+): ad.Num[][] => {
+  const M = identity(4);
+  M[0][0] = div(2, sub(Right, Left));
+  M[1][1] = div(2, sub(Top, Bottom));
+  M[2][2] = div(-2, sub(zFar, zNear));
+  M[0][3] = div(add(Right, Left), sub(Left, Right));
+  M[1][3] = div(add(Top, Bottom), sub(Bottom, Top));
+  M[2][3] = div(add(zFar, zNear), sub(zNear, zFar));
+  return M;
+};
+
+// (adapted from gluProject man page:)
+// project transforms the specified object coordinates into window coordinates using a given
+// model and projection transformation, and a given viewport.  It returns the projected x,y
+// coordinates, as well as the depth relative to the view.
+// p       3D object coordinates (x,y,z)
+// model   4x4 modelview matrix
+// proj    4x4 projection matrix
+// view    viewport (x, y, width, height)
+const project = (
+  p: ad.Num[],
+  modelMatrix: ad.Num[][],
+  projMatrix: ad.Num[][],
+  viewport: ad.Num[],
+): ad.Num[] => {
+  // apply modelview and projection transformations
+  const q = ops.mvmul(projMatrix, ops.mvmul(modelMatrix, toHomogeneous(p)));
+
+  // homogeneous divide by w to get x, y, z
+  let r = ops.vdiv(q, q[3]).slice(0, 3);
+
+  // map x, y and z to range 0-1
+  r = ops.vadd(ops.vmul(0.5, r), [0.5, 0.5, 0.5]);
+
+  // map x,y to viewport
+  r[0] = add(mul(r[0], viewport[2]), viewport[0]);
+  r[1] = add(mul(r[1], viewport[3]), viewport[1]);
+
+  // return x, y, and depth
+  return r;
+};
+
+// Construct a 3x3 matrix with entries
+// [ a c e ]
+// [ b d f ]
+// [ 0 0 1 ]
+// (Note: this function corresponds to the SVG/CSS `matrix` function.)
+const matrix = (
+  a: ad.Num,
+  b: ad.Num,
+  c: ad.Num,
+  d: ad.Num,
+  e: ad.Num,
+  f: ad.Num,
+): ad.Num[][] => {
+  return [
+    [a, c, e],
+    [b, d, f],
+    [0, 0, 1],
+  ];
+};
+
+// Construct a 4x4 matrix with entries
+// [ a1 a2 a3 a4 ]
+// [ b1 b2 b3 b4 ]
+// [ c1 c2 c3 c4 ]
+// [ d1 d2 d3 d4 ]
+// (Note: this function corresponds to the CSS `matrix3d` function.)
+const matrix3d = (
+  a1: ad.Num,
+  b1: ad.Num,
+  c1: ad.Num,
+  d1: ad.Num,
+  a2: ad.Num,
+  b2: ad.Num,
+  c2: ad.Num,
+  d2: ad.Num,
+  a3: ad.Num,
+  b3: ad.Num,
+  c3: ad.Num,
+  d3: ad.Num,
+  a4: ad.Num,
+  b4: ad.Num,
+  c4: ad.Num,
+  d4: ad.Num,
+): ad.Num[][] => {
+  return [
+    [a1, a2, a3, a4],
+    [b1, b2, b3, b4],
+    [c1, c2, c3, c4],
+    [d1, d2, d3, d4],
+  ];
 };

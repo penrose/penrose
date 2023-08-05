@@ -1,27 +1,28 @@
 " Vim syntax file
 " Language: Penrose Style
 " Maintainer: Keenan Crane
-" Latest Revision: 3 January 2021
+" Latest Revision: 4 August 2023
 
 if exists("b:current_syntax")
   finish
 endif
 
 " Keywords
-syn keyword styKeywords forall where
+syn keyword styKeywords forall where with collect
 syn keyword styKeywords ensure encourage
 syn keyword styKeywords layer above below
 syn keyword styKeywords override delete
 syn keyword styKeywords LOCAL
 syn keyword styKeywords import
-syn keyword styKeywords has
+syn keyword styKeywords has math text label
+syn keyword styKeywords none
 
 " Comments
 syn keyword styTodo TODO FIXME XXX NOTE
 syn match styComment "--.*$" contains=styTodo,@Spell
 
 " Types and values
-syn keyword styTypes scalar color rgba vec2 vec3 constraint objective
+syn keyword styTypes bool color constraint file function int list mat2x2 mat3x3 mat4x4 objective path scalar shape string style vec2 vec3 vec4 then
 syn match styString "\"[^"]*\""
 
 " Highlight as a keyword only if preceded by
@@ -48,7 +49,7 @@ syn match styNumber '\<\d[[:digit:]]*\.\d*[eE][\-+]\=\d\+\>'
 " Undetermined numerical value
 syn match styUndetermined "?"
 
-let b:current_syntax = "sty"
+let b:current_syntax = "style"
 
 hi def link styTodo Todo
 hi def link styKeywords Statement
