@@ -1,34 +1,13 @@
 <script lang="ts">
 import { defineComponent } from "vue";
-import Markdown from "markdown-it";
-import markdownItKatex from "markdown-it-katex";
-import { describeType } from "@penrose/core";
-import { FuncParam } from "@penrose/core/dist/types/functions";
-const md = new Markdown();
-md.use(markdownItKatex);
 export default defineComponent({
   props: ["name", "description", "params", "returns"],
-  computed: {
-    desc() {
-      return md.render(this.description ?? "");
-    },
-    ret() {
-      return describeType(this.returns);
-    },
-    parameters() {
-      return this.params.map((p: any) => ({
-        ...p,
-        type: describeType(p.type),
-        description: p.description ? md.render(p.description) : "",
-      }));
-    },
-  },
 });
 </script>
 
 <template>
-  <div v-html="desc"></div>
-  <div v-if="parameters.length > 0">
+  <div v-html="description"></div>
+  <div v-if="params.length > 0">
     <h4>Parameters:</h4>
     <table>
       <thead>
@@ -37,20 +16,20 @@ export default defineComponent({
           <th>Type</th>
           <th>Type Description</th>
           <th>Description</th>
-          <th v-if="parameters.filter((p: FuncParam) => p.default).length > 0">
+          <th v-if="params.filter((p) => p.default).length > 0">
             Default Value
           </th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="param in parameters">
+        <tr v-for="param in params">
           <td>
             <code>{{ param.name }}</code>
           </td>
           <td>{{ param.type.symbol }}</td>
           <td>{{ param.type.description }}</td>
           <td v-html="param.description"></td>
-          <td v-if="parameters.filter((p: FuncParam) => p.default).length > 0">
+          <td v-if="params.filter((p) => p.default).length > 0">
             {{ param.default ?? "" }}
           </td>
         </tr>
@@ -58,6 +37,6 @@ export default defineComponent({
     </table>
   </div>
   <div v-if="returns">
-    <h4>Returns: {{ ret.symbol }} ({{ ret.description }})</h4>
+    <h4>Returns: {{ returns.symbol }} ({{ returns.description }})</h4>
   </div>
 </template>
