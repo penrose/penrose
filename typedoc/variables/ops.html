@@ -565,7 +565,12 @@ Note: if you want to compute a norm squared, use <code>vnormsq</code> instead, i
 <ul class="tsd-signatures">
 <li class="tsd-signature" id="__type.vouter.__type-65.__type-66"><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">u</span>, <span class="tsd-kind-parameter">v</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../types/Num.html" class="tsd-signature-type tsd-kind-type-alias">Num</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span></li>
 <li class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>Return 3D cross product of 3D vectors</p>
+<div class="tsd-comment tsd-typography"><p>Return outer product matrix uv^T.  Vectors u and v must have
+the same length.</p>
+<p>NOTE: This functionality is duplicated in <code>outerProduct()</code>
+from Functions.ts.  Since <code>outerProduct</code> has a more directly
+interpretable name, we may wish to deprecate <code>vouter</code> and
+move <code>outerProduct</code> into <code>Autodiff.ts</code> in a future release.</p>
 </div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
@@ -642,7 +647,7 @@ Note: if you want to compute a norm squared, use <code>vnormsq</code> instead, i
 <h5><span class="tsd-kind-parameter">v</span>: <a href="../types/Num.html" class="tsd-signature-type tsd-kind-type-alias">Num</a><span class="tsd-signature-symbol">[]</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="../types/Num.html" class="tsd-signature-type tsd-kind-type-alias">Num</a></h4></li></ul></li></ul></li></ul></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/penrose/penrose/blob/ec0fa7b/packages/core/src/engine/Autodiff.ts#L572">engine/Autodiff.ts:572</a></li></ul></aside></div>
+<li>Defined in <a href="https://github.com/penrose/penrose/blob/fdbe56e/packages/core/src/engine/Autodiff.ts#L572">engine/Autodiff.ts:572</a></li></ul></aside></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">
