@@ -2016,12 +2016,12 @@ export const compDict = {
     name: "Penrose",
     description: `Return path data describing an "impossible polygon."`,
     params: [
-      { name: "center", type: realNT(), description: "(x,y) translation" },
-      { name: "radius", type: realT(), description: "radius of outer polygon (must be positive)" },
-      { name: "holeSize", type: realT(), description: "radius of inner polygon as a fraction of the outer radius (in range (0,1])" },
-      { name: "angle", type: realT(), description: "angle of rotation" },
-      { name: "nSides", type: posIntT(), description: "number of sides (integer ≥ 3)" },
-      { name: "chirality", type: stringT(), description: "either \"cw\" for clockwise, or \"ccw\" for counterclockwise" },
+      { name: "center", type: realNT(), description: "(x,y) translation", default: [0,0] },
+      { name: "radius", type: realT(), description: "radius of outer polygon (must be positive)", default: 50 },
+      { name: "holeSize", type: realT(), description: "radius of inner polygon as a fraction of the outer radius (in range (0,1])", default: .25 },
+      { name: "angle", type: realT(), description: "angle of rotation", default: 0 },
+      { name: "nSides", type: posIntT(), description: "number of sides (integer ≥ 3)", default: 5 },
+      { name: "chirality", type: stringT(), description: "either \"cw\" for clockwise, or \"ccw\" for counterclockwise", default: "ccw" },
     ],
     body: (
       _context: Context,
@@ -2033,17 +2033,18 @@ export const compDict = {
       chirality: string
     ): MayWarn<PathDataV<ad.Num>> => {
 
+      const n = Math.floor( Math.max( nSides, 3 ));
       const R = radius; // shorthand for outer radius
       const r = mul( holeSize, R ); // inner radius
-      const alpha = mul( Math.PI, div( sub(nSides,2), nSides ) ); // interior angle of regular n-gon
+      const alpha = mul( Math.PI, div( sub(n,2), n ) ); // interior angle of regular n-gon
       const w = div( sub(R,r), mul(4,cos(div(alpha,2)))); // half-width
       const s = chirality === "cw" ? 1 : -1;
       
       // inner and outer polygons
       const a = [];
       const b = [];
-      for( let k = 0; k < nSides; k++ ) {
-         const theta = add( angle, 2*k*Math.PI/nSides );
+      for( let k = 0; k < n; k++ ) {
+         const theta = add( angle, 2*k*Math.PI/n );
          const p = [ mul(s,sin(theta)), cos(theta) ];
          a[k] = ops.vadd( center, ops.vmul(r,p) );
          b[k] = ops.vadd( center, ops.vmul(R,p) );
@@ -2051,25 +2052,25 @@ export const compDict = {
 
       // unit edge vectors
       const u = [];
-      for( let i = 0; i < nSides; i++ ) {
-         const j = (i+1) % nSides;
+      for( let i = 0; i < n; i++ ) {
+         const j = (i+1) % n;
          u[i] = ops.vnormalize( ops.vsub( a[j], a[i] ));
       }
 
       // inner and outer midpoints
       const c = [];
       const d = [];
-      for( let i = 0; i < nSides; i++ ) {
-         const l = (i-1+nSides) % nSides;
+      for( let i = 0; i < n; i++ ) {
+         const l = (i-1+n) % n;
          c[i] = ops.vsub( a[i], ops.vmul( w, u[i] ));
          d[i] = ops.vsub( b[i], ops.vmul( w, u[l] ));
       }
 
       // add polygons to path
       const path = new PathBuilder();
-      for( let i = 0; i < nSides; i++ ) {
-         const j = (i+1) % nSides;
-         const k = (i+2) % nSides;
+      for( let i = 0; i < n; i++ ) {
+         const j = (i+1) % n;
+         const k = (i+2) % n;
          
          path.moveTo( [ d[i][0], d[i][1] ] );
          path.lineTo( [ b[i][0], b[i][1] ] );
@@ -2376,7 +2377,10 @@ export const compDict = {
       const largeArc = ifCond(gt(absVal(sub(theta1, theta0)), Math.PI), 1, 0);
       const arcSweep = ifCond(gt(theta0, theta1), 1, 0);
       path.moveTo(x0).arcTo([r, r], x1, [0, largeArc, arcSweep]);
-      if (pathType === "closed") path.closePath();
+      if (pathType === "closed") {
+         path.lineTo(center);
+         path.closePath();
+      }
       return noWarn(path.getPath());
     },
     returns: valueT("PathCmd"),
