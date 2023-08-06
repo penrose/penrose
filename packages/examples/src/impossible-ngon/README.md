@@ -17,3 +17,7 @@ The `Penrose()` command can be used _without_ any parameters, producing a reason
 - `nSides` — number of sides (integer ≥ 3)
 - `chirality` — either `"cw"` for clockwise or `"ccw"` for counterclockwise
 
+If the given value of `nSides` is less than three, it gets clamped to three (since otherwise the shape is ill-defined).  The image below shows the shape generated for `nSides = 1` through `nSides = 9`, as well as the effect of the `chirality` parameter.
+
+<p align="center"><img src="nsides-chirality.svg" width="979" height="315"></p>
+
