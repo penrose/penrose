@@ -2921,7 +2921,7 @@ const evalAccess = (
   expr: Path<C>,
   coll: Value<ad.Num>,
   indices: number[],
-): Result<FloatV<ad.Num>, StyleError> => {
+): Result<Value<ad.Num>, StyleError> => {
   switch (coll.tag) {
     case "ListV":
     case "TupV":
@@ -2938,18 +2938,27 @@ const evalAccess = (
     case "LListV":
     case "MatrixV":
     case "PtListV": {
-      if (indices.length !== 2) {
+      if (indices.length === 1) {
+        // get i-th row
+        const [i] = indices;
+        if (!isValidIndex(coll.contents, i)) {
+          return err({ tag: "OutOfBoundsError", expr, indices });
+        }
+        return ok(vectorV(coll.contents[i]));
+      } else if (indices.length === 2) {
+        // get i-th row, j-th column
+        const [i, j] = indices;
+        if (!isValidIndex(coll.contents, i)) {
+          return err({ tag: "OutOfBoundsError", expr, indices });
+        }
+        const row = coll.contents[i];
+        if (!isValidIndex(row, j)) {
+          return err({ tag: "OutOfBoundsError", expr, indices });
+        }
+        return ok(floatV(row[j]));
+      } else {
         return err({ tag: "BadIndexError", expr });
       }
-      const [i, j] = indices;
-      if (!isValidIndex(coll.contents, i)) {
-        return err({ tag: "OutOfBoundsError", expr, indices });
-      }
-      const row = coll.contents[i];
-      if (!isValidIndex(row, j)) {
-        return err({ tag: "OutOfBoundsError", expr, indices });
-      }
-      return ok(floatV(row[j]));
     }
     case "ShapeListV": {
       return err({ tag: "IndexIntoShapeListError", expr });

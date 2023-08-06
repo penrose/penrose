@@ -84,6 +84,10 @@
     "name": "Hexagonal Lattice Graph",
     "gallery": true
   },
+  "dinoshade/dinoshade": {
+    "name": "3D Reflections and Shadows",
+    "gallery": true
+  },
   "spectral-graphs/examples/grid": {
     "name": "5x5 Grid",
     "gallery": false
