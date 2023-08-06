@@ -2012,6 +2012,79 @@ export const compDict = {
     returns: valueT("PathCmd"),
   },
 
+  Penrose: {
+    name: "Penrose",
+    description: `Return path data describing an "impossible polygon."`,
+    params: [
+      { name: "center", type: realNT(), description: "(x,y) translation" },
+      { name: "radius", type: realT(), description: "radius of outer polygon (must be positive)" },
+      { name: "holeSize", type: realT(), description: "radius of inner polygon as a fraction of the outer radius (in range (0,1])" },
+      { name: "angle", type: realT(), description: "angle of rotation" },
+      { name: "nSides", type: posIntT(), description: "number of sides (integer ≥ 3)" },
+      { name: "chirality", type: stringT(), description: "either \"cw\" for clockwise, or \"ccw\" for counterclockwise" },
+    ],
+    body: (
+      _context: Context,
+      center: ad.Num[],
+      radius: ad.Num,
+      holeSize: ad.Num,
+      angle: ad.Num,
+      nSides: number,
+      chirality: string
+    ): MayWarn<PathDataV<ad.Num>> => {
+
+      const R = radius; // shorthand for outer radius
+      const r = mul( holeSize, R ); // inner radius
+      const alpha = mul( Math.PI, div( sub(nSides,2), nSides ) ); // interior angle of regular n-gon
+      const w = div( sub(R,r), mul(4,cos(div(alpha,2)))); // half-width
+      const s = chirality === "cw" ? 1 : -1;
+      
+      // inner and outer polygons
+      const a = [];
+      const b = [];
+      for( let k = 0; k < nSides; k++ ) {
+         const theta = add( angle, 2*k*Math.PI/nSides );
+         const p = [ mul(s,sin(theta)), cos(theta) ];
+         a[k] = ops.vadd( center, ops.vmul(r,p) );
+         b[k] = ops.vadd( center, ops.vmul(R,p) );
+      }
+
+      // unit edge vectors
+      const u = [];
+      for( let i = 0; i < nSides; i++ ) {
+         const j = (i+1) % nSides;
+         u[i] = ops.vnormalize( ops.vsub( a[j], a[i] ));
+      }
+
+      // inner and outer midpoints
+      const c = [];
+      const d = [];
+      for( let i = 0; i < nSides; i++ ) {
+         const l = (i-1+nSides) % nSides;
+         c[i] = ops.vsub( a[i], ops.vmul( w, u[i] ));
+         d[i] = ops.vsub( b[i], ops.vmul( w, u[l] ));
+      }
+
+      // add polygons to path
+      const path = new PathBuilder();
+      for( let i = 0; i < nSides; i++ ) {
+         const j = (i+1) % nSides;
+         const k = (i+2) % nSides;
+         
+         path.moveTo( [ d[i][0], d[i][1] ] );
+         path.lineTo( [ b[i][0], b[i][1] ] );
+         path.lineTo( [ d[j][0], d[j][1] ] );
+         path.lineTo( [ c[k][0], c[k][1] ] );
+         path.lineTo( [ a[k][0], a[k][1] ] );
+         path.lineTo( [ c[j][0], c[j][1] ] );
+         path.closePath();
+      }
+
+      return noWarn(path.getPath());
+    },
+    returns: valueT("PathCmd"),
+  },
+
   firstPoint: {
     name: "firstPoint",
     description: "Returns the first point in a list.",
