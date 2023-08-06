@@ -2102,12 +2102,22 @@ export const compDict = {
         const j = (i + 1) % n;
         const k = (i + 2) % n;
 
-        path.moveTo([d[i][0], d[i][1]]);
-        path.lineTo([b[i][0], b[i][1]]);
-        path.lineTo([d[j][0], d[j][1]]);
-        path.lineTo([c[k][0], c[k][1]]);
-        path.lineTo([a[k][0], a[k][1]]);
-        path.lineTo([c[j][0], c[j][1]]);
+        // XXX We could add another parameter that offsets the individual
+        // XXX polygons, but with the current AD design this results in a
+        // XXX huge number of AD variables, causing us to hit the `local
+        // XXX count too large` issuse with wasm compilation.  Skipping
+        // XXX for now.
+        // const h = mul( 2.0, s ); // offset size, times sign
+        // const q = offsetPolygon( [ d[i], b[i], d[j], c[k], a[k], c[j] ], h );
+
+        const q = [d[i], b[i], d[j], c[k], a[k], c[j]];
+
+        path.moveTo([q[0][0], q[0][1]]);
+        path.lineTo([q[1][0], q[1][1]]);
+        path.lineTo([q[2][0], q[2][1]]);
+        path.lineTo([q[3][0], q[3][1]]);
+        path.lineTo([q[4][0], q[4][1]]);
+        path.lineTo([q[5][0], q[5][1]]);
         path.closePath();
       }
 
@@ -7838,4 +7848,34 @@ const matrix3d = (
     [c1, c2, c3, c4],
     [d1, d2, d3, d4],
   ];
+};
+
+const offsetPolygon = (
+  p: ad.Num[][], // vertices
+  w: ad.Num, // width
+): ad.Num[][] => {
+  const n = p.length;
+
+  // unit edge vectors
+  const e = [];
+  for (let i = 0; i < n; i++) {
+    const j = (i + 1) % n;
+    e[i] = ops.vnormalize(ops.vsub(p[j], p[i]));
+  }
+
+  // unit vertex normals
+  const v = [];
+  for (let i = 0; i < n; i++) {
+    const k = (i + n - 1) % n;
+    v[i] = ops.vnormalize(ops.rot90(ops.vadd(e[i], e[k])));
+  }
+
+  // offset polygon
+  const q = [];
+  for (let i = 0; i < n; i++) {
+    const r = div(w, ops.cross2(e[i], v[i]));
+    q[i] = ops.vsub(p[i], ops.vmul(r, v[i]));
+  }
+
+  return q;
 };
