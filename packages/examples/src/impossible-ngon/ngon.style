@@ -37,7 +37,9 @@ logo {
       center: center + (0,-(R + 10))
       string: "Penrose"
       fontSize: "172px"
-      fontFamily: "HelveticaNeue-CondensedBold"
+      fontFamily: "HelveticaNeue-CondensedBold,Helvetica,Arial,Geneva,Tahoma,sans-serif"
+      fontWeight: "600"
+      fontStretch: "condensed"
       fillColor: #fff
       strokeColor: #555
       strokeWidth: 12
