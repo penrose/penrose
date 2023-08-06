@@ -496,6 +496,10 @@
     "name": "Parameters for Penrose Logo",
     "gallery": false
   },
+  "impossible-ngon/nsides-chirality": {
+    "name": "nSides and Chirality for Penrose Logo",
+    "gallery": false
+  },
   "spectral-graphs/examples/periodic-hexagonal-lattice": {
     "name": "Periodic Hexagonal Grid",
     "gallery": false

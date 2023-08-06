@@ -1,0 +1,6 @@
+{
+  "substance": "./nsides-chirality.substance",
+  "style": ["./nsides-chirality.style"],
+  "domain": "./ngon.domain",
+  "variation": "Deterministic"
+}
