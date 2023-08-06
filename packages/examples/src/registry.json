@@ -488,6 +488,10 @@
     "name": "Mobius Strip",
     "gallery": true
   },
+  "impossible-ngon/ngon": {
+    "name": "Impossible Polygons",
+    "gallery": true
+  },
   "spectral-graphs/examples/periodic-hexagonal-lattice": {
     "name": "Periodic Hexagonal Grid",
     "gallery": false

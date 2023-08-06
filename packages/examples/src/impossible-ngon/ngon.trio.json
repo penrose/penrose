@@ -1,0 +1,6 @@
+{
+  "substance": "./ngon.substance",
+  "style": ["./ngon.style"],
+  "domain": "./ngon.domain",
+  "variation": "Deterministic"
+}
