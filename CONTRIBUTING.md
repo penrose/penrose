@@ -43,12 +43,6 @@ Be sure you have these tools installed:
 
 - [Rust][]
 
-  - the WebAssembly target for Rust:
-
-    ```sh
-    rustup target add wasm32-unknown-unknown
-    ```
-
   - `wasm-bindgen` CLI v0.2.84:
 
     ```sh
