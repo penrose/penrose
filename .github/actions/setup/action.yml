@@ -7,9 +7,6 @@ runs:
       with:
         node-version: "16"
         registry-url: "https://registry.npmjs.org"
-    - name: Install Wasm target
-      run: rustup target add wasm32-unknown-unknown
-      shell: bash
     - name: Install wasm-bindgen
       run: |
         wget https://github.com/rustwasm/wasm-bindgen/releases/download/0.2.84/wasm-bindgen-0.2.84-x86_64-unknown-linux-musl.tar.gz
