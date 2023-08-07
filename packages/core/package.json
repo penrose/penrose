@@ -7,6 +7,14 @@
   "types": "dist/index.d.ts",
   "author": "Penrose Team (https://penrose.cs.cmu.edu/)",
   "license": "MIT",
+  "exports": {
+    ".": "./dist/index.js",
+    "./bundle": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/bundle/index.js"
+    },
+    "./dist/*": "./dist/*.js"
+  },
   "files": [
     "dist/**/*.d.ts",
     "dist/**/*.js"
