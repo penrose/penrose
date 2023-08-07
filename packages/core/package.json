@@ -14,6 +14,7 @@
   "scripts": {
     "build-parsers": "nearleyc src/parser/Domain.ne > src/parser/DomainParser.ts && nearleyc src/parser/Substance.ne > src/parser/SubstanceParser.ts && nearleyc src/parser/Style.ne > src/parser/StyleParser.ts",
     "build": "tsc",
+    "bundle": "vite build",
     "watch": "yarn build --watch",
     "test": "vitest run --no-threads",
     "coverage": "yarn test --coverage",
@@ -105,6 +106,7 @@
     "svgo": "^3.0.2",
     "tslib": "^2.1.0",
     "typedoc": "^0.24.7",
-    "typedoc-plugin-markdown": "^3.11.13"
+    "typedoc-plugin-markdown": "^3.11.13",
+    "vite-plugin-dts": "^3.5.1"
   }
 }
