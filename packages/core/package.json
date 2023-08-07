@@ -30,10 +30,16 @@
     "typecheck": ":",
     "docs": "typedoc --out docs",
     "docs:md": "typedoc --plugin typedoc-plugin-markdown --out docs/md",
-    "lint": "eslint --ext js,ts,tsx src"
+    "lint": "eslint --ext js,ts,tsx src",
+    "prepack": "yarn bundle"
   },
   "nx": {
     "targets": {
+      "bundle": {
+        "dependsOn": [
+          "build"
+        ]
+      },
       "build": {
         "dependsOn": [
           "^build",
