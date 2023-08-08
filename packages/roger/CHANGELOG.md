@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v3.2.0](https://github.com/penrose/penrose/compare/v3.1.0...v3.2.0) (2023-08-08)
+
+### :house: Internal
+
+- enable strict TS checking in `roger` ([#1576](https://github.com/penrose/penrose/issues/1576)) ([3a698f9](https://github.com/penrose/penrose/commit/3a698f99cc1021e377e3f6e46f2fa7666f521f6a))
+- remove redundant TSConfig stuff for Roger ([#1581](https://github.com/penrose/penrose/issues/1581)) ([0d2ac0a](https://github.com/penrose/penrose/commit/0d2ac0aacef5267f6d90adc9b2247dc112973b4d))
+
 ## [v3.1.0](https://github.com/penrose/penrose/compare/v3.0.0...v3.1.0) (2023-07-19)
 
 ### :bug: Bug Fix

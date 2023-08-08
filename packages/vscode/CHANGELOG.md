@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v3.2.0](https://github.com/penrose/penrose/compare/v3.1.0...v3.2.0) (2023-08-08)
+
+### :rocket: New Feature
+
+- Add common matrix functions to standard library ([#1538](https://github.com/penrose/penrose/issues/1538)) ([fdbe56e](https://github.com/penrose/penrose/commit/fdbe56e6f983440f6225a8ea61ea5ef21236a1ed))
+- Substance indexed sets ([#1572](https://github.com/penrose/penrose/issues/1572)) ([83f3869](https://github.com/penrose/penrose/commit/83f386950415a0d839ce95ba080c9ed36c4413b7))
+- `numberof` and `nameof` ([#1583](https://github.com/penrose/penrose/issues/1583)) ([d3049af](https://github.com/penrose/penrose/commit/d3049afd47099e02dbfe3dc0d74bbbc7d2bb60fe))
+
 ## [v3.1.0](https://github.com/penrose/penrose/compare/v3.0.0...v3.1.0) (2023-07-19)
 
 **Note:** Version bump only for package penrose-vs

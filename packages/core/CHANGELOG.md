@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v3.2.0](https://github.com/penrose/penrose/compare/v3.1.0...v3.2.0) (2023-08-08)
+
+### :rocket: New Feature
+
+- Add common matrix functions to standard library ([#1538](https://github.com/penrose/penrose/issues/1538)) ([fdbe56e](https://github.com/penrose/penrose/commit/fdbe56e6f983440f6225a8ea61ea5ef21236a1ed))
+- Penrose logo ([#1605](https://github.com/penrose/penrose/issues/1605)) ([f3e7369](https://github.com/penrose/penrose/commit/f3e7369f33dfeeac2d7452d98e19f1d2e5448e9d))
+- Substance indexed sets ([#1572](https://github.com/penrose/penrose/issues/1572)) ([83f3869](https://github.com/penrose/penrose/commit/83f386950415a0d839ce95ba080c9ed36c4413b7))
+- `numberof` and `nameof` ([#1583](https://github.com/penrose/penrose/issues/1583)) ([d3049af](https://github.com/penrose/penrose/commit/d3049afd47099e02dbfe3dc0d74bbbc7d2bb60fe))
+- row-indexing of matrices ([#1599](https://github.com/penrose/penrose/issues/1599)) ([b35b82d](https://github.com/penrose/penrose/commit/b35b82da8857af07c240bf971918d823aade7cef))
+
+### :bug: Bug Fix
+
+- bounding boxes and points for rotated rects ([#1600](https://github.com/penrose/penrose/issues/1600)) ([ec0fa7b](https://github.com/penrose/penrose/commit/ec0fa7b5250d36571fc3e922e9857349d03c3ff1))
+
+### :house: Internal
+
+- add `eslint-plugin-unary-minus` ([#1589](https://github.com/penrose/penrose/issues/1589)) ([100dc7a](https://github.com/penrose/penrose/commit/100dc7a16f4dccf097c0a458b2ca741a37d10014))
+- go from `.eslintrc.cjs` to `.eslintrc.json` ([#1585](https://github.com/penrose/penrose/issues/1585)) ([7908f9f](https://github.com/penrose/penrose/commit/7908f9f1bad1b269656277af3884c9e6aee81be6))
+
 ## [v3.1.0](https://github.com/penrose/penrose/compare/v3.0.0...v3.1.0) (2023-07-19)
 
 ### :rocket: New Feature
