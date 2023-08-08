@@ -1,0 +1,135 @@
+canvas {
+   width = 550
+   height = 550
+}
+
+global {
+
+   color blue = #3fb4f7
+   color paleBlue = #3fb4f766
+   color paleGray = #0008
+
+   vec2 center = ( random(-200,200), random(-100,100) )
+   scalar R = random(100,200)
+   scalar s = random(0,1)
+   scalar theta = random(0,.1)*MathPI()
+
+   shape xAxis = Line {
+      start: (-20,0)
+      end: (20,0)
+      strokeColor: paleGray
+      strokeWidth: 1
+   }
+   shape yAxis = Line {
+      start: (0,-20)
+      end: (0,20)
+      strokeColor: paleGray
+      strokeWidth: 1
+   }
+
+   shape logo = Path {
+      d: Penrose( center, R, s, theta )
+      fillColor: #0001
+      strokeColor: paleGray
+      strokeWidth: 2
+   }
+
+   shape centerDot = Circle {
+      center: center
+      r: 3
+      fillColor: #000
+   }
+   shape centerLabel = Text {
+      string: "center"
+      center: center - (0,14)
+      fontFamily: "monospace"
+      fontSize: "18px"
+      fontStyle: "bold"
+      fillColor: #000
+      strokeColor: #fff
+      strokeWidth: 6
+      paintOrder: "stroke"
+   }
+
+   shape outerCircle = Circle {
+      center: center
+      r: R
+      fillColor: none()
+      strokeColor: paleBlue
+      strokeWidth: 2
+   }
+   shape outerRadius = Line {
+      start: center
+      end: center + R*(1,1)/sqrt(2)
+      strokeColor: paleBlue
+      strokeWidth: 2
+   }
+   shape outerRadiusLabel = Text {
+      string: "radius"
+      center: (outerRadius.start + outerRadius.end)/2 + 8*(-1,1)
+      fontFamily: "monospace"
+      fontSize: "18px"
+      fontStyle: "bold"
+      fillColor: blue
+      strokeColor: #fff
+      strokeWidth: 6
+      paintOrder: "stroke"
+      rotation: -45
+   }
+   layer outerRadiusLabel above logo
+
+   shape innerCircle = Circle {
+      center: center
+      r: s*R
+      fillColor: none()
+      strokeColor: paleBlue
+      strokeWidth: 2
+   }
+   shape innerRadius = Line {
+      start: center
+      end: center + s*R*(-1,1)/sqrt(2)
+      strokeColor: paleBlue
+      strokeWidth: 2
+   }
+   shape innerRadiusLabel = Text {
+      string: "holeSize"
+      center: (innerRadius.start + innerRadius.end)/2 + 8*(1,1)
+      fontFamily: "monospace"
+      fontSize: "18px"
+      fontStyle: "bold"
+      fillColor: blue
+      strokeColor: #fff
+      strokeWidth: 6
+      paintOrder: "stroke"
+      rotation: 45
+   }
+   layer innerRadiusLabel above logo
+
+   scalar phi = 3*2*MathPI()/5 - theta
+   vec2 x0 = center + R*(sin(phi), cos(phi))
+   shape angleHorizontal = Line {
+      start: x0
+      end: x0 + (1.4*R,0)
+      strokeColor: paleGray
+      strokeWidth: 1.5
+   }
+   shape angleMarker = Path {
+      d: circularArc( "closed", x0, .5*R, 0, theta )
+      fillColor: paleBlue
+      strokeColor: paleGray
+      strokeWidth: 1.5
+   }
+   shape angleLabel = Text {
+      string: "angle"
+      center: x0 + (.5*R + 35, 10)
+      fontFamily: "monospace"
+      fontSize: "18px"
+      fontStyle: "bold"
+      fillColor: blue
+      strokeColor: #fff
+      strokeWidth: 6
+      paintOrder: "stroke"
+   }
+   layer angleLabel above logo
+}
+

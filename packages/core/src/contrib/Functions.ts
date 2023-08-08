@@ -2012,6 +2012,120 @@ export const compDict = {
     returns: valueT("PathCmd"),
   },
 
+  Penrose: {
+    name: "Penrose",
+    description: `Return path data describing an "impossible polygon."`,
+    params: [
+      {
+        name: "center",
+        type: realNT(),
+        description: "(x,y) translation",
+        default: [0, 0],
+      },
+      {
+        name: "radius",
+        type: realT(),
+        description: "radius of outer polygon (must be positive)",
+        default: 50,
+      },
+      {
+        name: "holeSize",
+        type: realT(),
+        description:
+          "radius of inner polygon as a fraction of the outer radius (in range (0,1])",
+        default: 0.35,
+      },
+      {
+        name: "angle",
+        type: realT(),
+        description: "angle of rotation",
+        default: 0,
+      },
+      {
+        name: "nSides",
+        type: posIntT(),
+        description: "number of sides (integer ≥ 3)",
+        default: 5,
+      },
+      {
+        name: "chirality",
+        type: stringT(),
+        description: 'either "cw" for clockwise, or "ccw" for counterclockwise',
+        default: "ccw",
+      },
+    ],
+    body: (
+      _context: Context,
+      center: ad.Num[],
+      radius: ad.Num,
+      holeSize: ad.Num,
+      angle: ad.Num,
+      nSides: number,
+      chirality: string,
+    ): MayWarn<PathDataV<ad.Num>> => {
+      const n = Math.floor(Math.max(nSides, 3));
+      const R = radius; // shorthand for outer radius
+      const r = mul(holeSize, R); // inner radius
+      const alpha = mul(Math.PI, div(sub(n, 2), n)); // interior angle of regular n-gon
+      const w = div(sub(R, r), mul(4, cos(div(alpha, 2)))); // half-width
+      const s = chirality === "cw" ? 1 : -1;
+
+      // inner and outer polygons
+      const a = [];
+      const b = [];
+      for (let k = 0; k < n; k++) {
+        const theta = add(angle, (2 * k * Math.PI) / n);
+        const p = [mul(s, sin(theta)), cos(theta)];
+        a[k] = ops.vadd(center, ops.vmul(r, p));
+        b[k] = ops.vadd(center, ops.vmul(R, p));
+      }
+
+      // unit edge vectors
+      const u = [];
+      for (let i = 0; i < n; i++) {
+        const j = (i + 1) % n;
+        u[i] = ops.vnormalize(ops.vsub(a[j], a[i]));
+      }
+
+      // inner and outer midpoints
+      const c = [];
+      const d = [];
+      for (let i = 0; i < n; i++) {
+        const l = (i - 1 + n) % n;
+        c[i] = ops.vsub(a[i], ops.vmul(w, u[i]));
+        d[i] = ops.vsub(b[i], ops.vmul(w, u[l]));
+      }
+
+      // add polygons to path
+      const path = new PathBuilder();
+      for (let i = 0; i < n; i++) {
+        const j = (i + 1) % n;
+        const k = (i + 2) % n;
+
+        // XXX We could add another parameter that offsets the individual
+        // XXX polygons, but with the current AD design this results in a
+        // XXX huge number of AD variables, causing us to hit the `local
+        // XXX count too large` issuse with wasm compilation.  Skipping
+        // XXX for now.
+        // const h = mul( 2.0, s ); // offset size, times sign
+        // const q = offsetPolygon( [ d[i], b[i], d[j], c[k], a[k], c[j] ], h );
+
+        const q = [d[i], b[i], d[j], c[k], a[k], c[j]];
+
+        path.moveTo([q[0][0], q[0][1]]);
+        path.lineTo([q[1][0], q[1][1]]);
+        path.lineTo([q[2][0], q[2][1]]);
+        path.lineTo([q[3][0], q[3][1]]);
+        path.lineTo([q[4][0], q[4][1]]);
+        path.lineTo([q[5][0], q[5][1]]);
+        path.closePath();
+      }
+
+      return noWarn(path.getPath());
+    },
+    returns: valueT("PathCmd"),
+  },
+
   firstPoint: {
     name: "firstPoint",
     description: "Returns the first point in a list.",
@@ -2303,7 +2417,10 @@ export const compDict = {
       const largeArc = ifCond(gt(absVal(sub(theta1, theta0)), Math.PI), 1, 0);
       const arcSweep = ifCond(gt(theta0, theta1), 1, 0);
       path.moveTo(x0).arcTo([r, r], x1, [0, largeArc, arcSweep]);
-      if (pathType === "closed") path.closePath();
+      if (pathType === "closed") {
+        path.lineTo(center);
+        path.closePath();
+      }
       return noWarn(path.getPath());
     },
     returns: valueT("PathCmd"),
@@ -7731,4 +7848,34 @@ const matrix3d = (
     [c1, c2, c3, c4],
     [d1, d2, d3, d4],
   ];
+};
+
+const offsetPolygon = (
+  p: ad.Num[][], // vertices
+  w: ad.Num, // width
+): ad.Num[][] => {
+  const n = p.length;
+
+  // unit edge vectors
+  const e = [];
+  for (let i = 0; i < n; i++) {
+    const j = (i + 1) % n;
+    e[i] = ops.vnormalize(ops.vsub(p[j], p[i]));
+  }
+
+  // unit vertex normals
+  const v = [];
+  for (let i = 0; i < n; i++) {
+    const k = (i + n - 1) % n;
+    v[i] = ops.vnormalize(ops.rot90(ops.vadd(e[i], e[k])));
+  }
+
+  // offset polygon
+  const q = [];
+  for (let i = 0; i < n; i++) {
+    const r = div(w, ops.cross2(e[i], v[i]));
+    q[i] = ops.vsub(p[i], ops.vmul(r, v[i]));
+  }
+
+  return q;
 };

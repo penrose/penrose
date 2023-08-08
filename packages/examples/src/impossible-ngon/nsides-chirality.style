@@ -1,0 +1,75 @@
+canvas {
+   width = 800
+   height = 250
+}
+
+global {
+
+   scalar radius = .9*(canvas.width/9)/2
+
+   shape ccwLabel = Text {
+      string: "ccw"
+      center: (-canvas.width/2 + 20, radius)
+      fontFamily: "monospace"
+      fontSize: "18px"
+      fontStyle: "bold"
+      fillColor: #000
+      rotation: -90
+   }
+
+   shape cwLabel = Text {
+      string: "cw"
+      center: (-canvas.width/2 + 20, -2*radius)
+      fontFamily: "monospace"
+      fontSize: "18px"
+      fontStyle: "bold"
+      fillColor: #000
+      rotation: -90
+   }
+}
+
+colors {
+   color blue = #3fb4f7
+   color paleBlue = #3fb4f766
+   color paleGray = #0008
+   scalar fadeAlpha = .25
+}
+
+forall NGon P {
+
+   scalar R = global.radius
+   scalar padding = 5
+   scalar margin = 10
+
+   vec2 P.center = ((2*R+padding)*match_id,0) - (canvas.width,canvas.height)/2 + (margin+R)*(0,1) - (R,0) + (3*margin,0)
+
+   shape P.ccw = Path {
+      d: Penrose( P.center + (0,R*3), R, .5, 0, match_id, "ccw" )
+      fillColor: #0001
+      strokeColor: colors.paleGray
+      strokeWidth: 1.5
+   }
+
+   shape P.cw = Path {
+      d: Penrose( P.center, R, .5, 0, match_id, "cw" )
+      fillColor: #0001
+      strokeColor: colors.paleGray
+      strokeWidth: 1.5
+   }
+
+   shape nSides = Equation {
+      string: P.label
+      center: P.center + (0,R*4.5)
+      fontSize: "24px"
+   }
+}
+
+forall NGon `P_1` {
+   override `P_1`.ccw.opacity = colors.fadeAlpha
+   override `P_1`.cw.opacity = colors.fadeAlpha
+}
+forall NGon `P_2` {
+   override `P_2`.ccw.opacity = colors.fadeAlpha
+   override `P_2`.cw.opacity = colors.fadeAlpha
+}
+
