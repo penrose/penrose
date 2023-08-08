@@ -18,8 +18,34 @@ npx http-server .
 
 You can also check out this example live [here](pathname:///vanilla-js-demo.html).
 
+## Experimental bundled ESM
+
+::: info
+This feature is experimental as of `v3.2.0` and is subject to changes.
+:::
+
+The default ESM module requires a CDN or a bundler to download all the dependencies of `core`. This experimental release format is an ESM module that includes all dependencies in one ESM module. To import `@penrose/core` from the bundle:
+
+```ts
+import { compile, optimize } from "@penrose/core/bundle";
+```
+
+::: danger
+`@penrose/optimizer` uses [top-level `await`] and the bundled `core` module currently use [IIFE] around it to provide a seemingly synchronous API. However, be aware that any function imported from `@penrose/core/bundle` might be `undefined` when used immediately after `import`ing. To work around this, do explicit checks on whether the functions are loaded before using them:
+
+```ts
+import { compile, optimize } from "@penrose/core/bundle";
+if (compile && optimize) {
+  // actually call `compile` and `optimize`
+}
+```
+
+:::
+
 <!--@include: pathname:///vanilla-js-demo.html-->
 
+[top-level `await`]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await#top_level_await
 [ECMAScript module]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules
 [JSPM]: https://jspm.org/
 [JSPM Generator]: https://generator.jspm.io/
+[IIFE]: https://developer.mozilla.org/en-US/docs/Glossary/IIFE
