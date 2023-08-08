@@ -11,8 +11,9 @@ canvas {
 }
 
 global {
-   scalar lineSpacing = 40
-   scalar dotRadius = 6
+   scalar warpWidth = 40
+   scalar dotRadius = 5
+   scalar lineLength = .8 * canvas.width / (2*sqrt(2))
 }
 
 colors {
@@ -22,7 +23,7 @@ colors {
 }
 
 forall Line L {
-   scalar L.r = .8 * canvas.width / (2*sqrt(2))
+   r = global.lineLength
    scalar L.s = 1
    vec2 u = (1,L.s)/sqrt(2)
    vec2 v = (-L.s,1)/sqrt(2)
@@ -30,8 +31,8 @@ forall Line L {
    scalar a = 15
 
    shape L.icon = Line {
-      start: -(L.r+a)*u + L.h*v
-      end: (L.r+a)*u + L.h*v
+      start: -(r+a)*u + L.h*v
+      end: (r+a)*u + L.h*v
       strokeWidth: 2
       strokeColor: #fff
    }
@@ -43,19 +44,19 @@ forall SecondLine L {
 }
 
 forall FirstOnes L {
-   override L.h = -L.r + global.lineSpacing*(match_id - 1)
+   override L.h = -global.lineLength + global.warpWidth*(match_id - 1)
 }
 
 forall FirstTens L {
-   override L.h = L.r - global.lineSpacing*(match_id - 1)
+   override L.h = global.lineLength - global.warpWidth*(match_id - 1)
 }
 
 forall SecondOnes L {
-   override L.h = L.r - global.lineSpacing*(match_id - 1)
+   override L.h = global.lineLength - global.warpWidth*(match_id - 1)
 }
 
 forall SecondTens L {
-   override L.h = global.lineSpacing*(match_id - 1) - L.r
+   override L.h = -global.lineLength + global.warpWidth*(match_id - 1)
 }
 
 forall FirstTens L1; SecondTens L2 {
@@ -109,4 +110,92 @@ forall FirstOnes L1; SecondOnes L2 {
    layer dot above L1.icon
    layer dot above L2.icon
 }
+
+collect FirstOnes L into Ls {
+   global.nFirstOnes = numberof Ls
+}
+collect SecondOnes L into Ls {
+   global.nSecondOnes = numberof Ls
+}
+collect FirstTens L into Ls {
+   global.nFirstTens = numberof Ls
+}
+collect SecondTens L into Ls {
+   global.nSecondTens = numberof Ls
+}
+
+boxes {
+   scalar r = global.lineLength
+   scalar w = global.warpWidth
+   scalar d = .8*canvas.width/2
+   scalar pad = 50
+   scalar alpha = .5
+   scalar round = 40
+   vec2 u = (1,1)/sqrt(2)
+   vec2 v = (1,-1)/sqrt(2)
+
+   scalar n1 = (global.nFirstOnes - 1)
+   scalar m1 = (global.nSecondOnes - 1)
+
+   scalar n10 = (global.nFirstTens - 1)
+   scalar m10 = (global.nSecondTens - 1)
+
+   shape productHundreds = Rectangle{
+      center: ( -d, 0 ) + (m10*w*u + n10*w*v)/2
+      width: w*n10 + pad
+      height: w*m10 + pad
+      cornerRadius: round
+      fillColor: none()
+      strokeColor: colors.yellow
+      strokeWidth: 4
+      opacity: alpha
+      rotation: 45
+      ensureOnCanvas: false
+   }
+   layer productHundreds above canvas.background
+
+   shape productOnes = Rectangle{
+      center: ( d, 0 ) - (m1*w*u + n1*w*v)/2
+      width: w*n1 + pad
+      height: w*m1 + pad
+      cornerRadius: round
+      fillColor: none()
+      strokeColor: colors.red
+      strokeWidth: 4
+      opacity: alpha
+      rotation: 45
+      ensureOnCanvas: false
+   }
+   layer productOnes above canvas.background
+
+   shape productTensAB = Rectangle{
+      center: ( 0, d ) + (n10*w*v - m1*w*u)/2
+      width: w*n10 + pad
+      height: w*m1 + pad
+      cornerRadius: round
+      fillColor: none()
+      strokeColor: colors.blue
+      strokeWidth: 4
+      opacity: alpha
+      rotation: 45
+      ensureOnCanvas: false
+   }
+   layer productTensAB above canvas.background
+
+   shape productTensBA = Rectangle{
+      center: ( 0, -d ) - (n1*w*v - m10*w*u)/2
+      width: w*n1 + pad
+      height: w*m10 + pad
+      cornerRadius: round
+      fillColor: none()
+      strokeColor: colors.blue
+      strokeWidth: 4
+      opacity: alpha
+      rotation: 45
+      ensureOnCanvas: false
+   }
+   layer productTensBA above canvas.background
+}
+
+
 
