@@ -15,9 +15,9 @@ logo {
    -- Parameters for the Penrose logo.  Although we define the
    -- parameters explicitly, they are all optional (and have
    -- reasonable defaults).
-   vec2 center = (0,40) -- location on canvas
+   vec2 center = (0,60) -- location on canvas
    scalar R = 350 -- outer radius
-   scalar s = .25 -- inner radius, as fraction of outer radius
+   scalar s = .35 -- inner radius, as fraction of outer radius
    scalar theta = 0 -- angle of rotation
    scalar nSides = 5 -- number of sides
    string chirality = "ccw" -- clockwise or counter-clockwise
@@ -34,7 +34,7 @@ logo {
 
    -- Draw some text below the pentagon shape
    shape labelText = Text {
-      center: center + (0,-(R + 10))
+      center: center + (0,-(R + 25))
       string: "Penrose"
       fontSize: "172px"
       fontFamily: "HelveticaNeue-CondensedBold,Helvetica,Arial,Geneva,Tahoma,sans-serif"

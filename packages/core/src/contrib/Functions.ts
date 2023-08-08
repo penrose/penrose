@@ -2033,7 +2033,7 @@ export const compDict = {
         type: realT(),
         description:
           "radius of inner polygon as a fraction of the outer radius (in range (0,1])",
-        default: 0.25,
+        default: 0.35,
       },
       {
         name: "angle",
