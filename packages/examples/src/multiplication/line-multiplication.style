@@ -124,7 +124,7 @@ collect SecondTens L into Ls {
    global.nSecondTens = numberof Ls
 }
 
-boxes {
+product {
    scalar r = global.lineLength
    scalar w = global.warpWidth
    scalar d = .8*canvas.width/2
@@ -140,7 +140,7 @@ boxes {
    scalar n10 = (global.nFirstTens - 1)
    scalar m10 = (global.nSecondTens - 1)
 
-   shape productHundreds = Rectangle{
+   shape hundredsBox = Rectangle{
       center: ( -d, 0 ) + (m10*w*u + n10*w*v)/2
       width: w*n10 + pad
       height: w*m10 + pad
@@ -152,9 +152,9 @@ boxes {
       rotation: 45
       ensureOnCanvas: false
    }
-   layer productHundreds above canvas.background
+   layer hundredsBox above canvas.background
 
-   shape productOnes = Rectangle{
+   shape onesBox = Rectangle{
       center: ( d, 0 ) - (m1*w*u + n1*w*v)/2
       width: w*n1 + pad
       height: w*m1 + pad
@@ -166,9 +166,9 @@ boxes {
       rotation: 45
       ensureOnCanvas: false
    }
-   layer productOnes above canvas.background
+   layer onesBox above canvas.background
 
-   shape productTensAB = Rectangle{
+   shape tensABBox = Rectangle{
       center: ( 0, d ) + (n10*w*v - m1*w*u)/2
       width: w*n10 + pad
       height: w*m1 + pad
@@ -180,9 +180,9 @@ boxes {
       rotation: 45
       ensureOnCanvas: false
    }
-   layer productTensAB above canvas.background
+   layer tensABBox above canvas.background
 
-   shape productTensBA = Rectangle{
+   shape tendsBABox = Rectangle{
       center: ( 0, -d ) - (n1*w*v - m10*w*u)/2
       width: w*n1 + pad
       height: w*m10 + pad
@@ -194,8 +194,9 @@ boxes {
       rotation: 45
       ensureOnCanvas: false
    }
-   layer productTensBA above canvas.background
+   layer tendsBABox above canvas.background
 }
+
 
 
 
