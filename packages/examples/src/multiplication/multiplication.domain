@@ -1,0 +1,10 @@
+type Line
+type Ones
+type Tens
+type FirstLine <: Line
+type SecondLine <: Line
+type FirstOnes <: FirstLine, Ones
+type FirstTens <: FirstLine, Tens
+type SecondOnes <: SecondLine, Ones
+type SecondTens <: SecondLine, Tens
+
