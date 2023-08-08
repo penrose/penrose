@@ -1,0 +1,260 @@
+<svg
+  version="1.2"
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 550 550"
+  penrose="0"
+>
+  <penrose>
+    <croppedViewBox>
+      30.10651792925094 -6.167199645218716 399.6169047873942 480.2608640157124
+    </croppedViewBox>
+  </penrose>
+  <g>
+    <filter
+      id="parameters__global.logo-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <path
+      fill="#000000"
+      fill-opacity="0.06666666666666667"
+      stroke="#000000"
+      stroke-opacity="0.5333333333333333"
+      stroke-width="2"
+      stroke-linecap="butt"
+      d="M 227.88711042537068 16.104006901491402 L 189.94709836804202 -1.1082529109023085 L 60.44037260451347 140.70783601696095 L 147.4359969667667 293.8626812729063 L 188.2472239642874 285.4871124136333 L 109.1113232067234 146.1692122953301 Z  M 60.44037260451347 140.70783601696095 L 32.34643225726629 171.47205091877348 L 127.20176860081747 338.4638479147253 L 299.7438085478556 303.05354243079137 L 304.38953191009284 261.65156594172566 L 147.4359969667667 293.8626812729063 Z  M 127.20176860081747 338.4638479147253 L 147.77877064563535 374.68943817364516 L 335.90931828378166 336.0799556317027 L 355.5505390970402 161.0403380346694 L 317.61052703971154 143.8280782222757 L 299.7438085478556 303.05354243079137 Z  M 335.90931828378166 336.0799556317027 L 376.7205452813024 327.70438677242976 L 398.1362817002569 136.8506172775118 L 237.73318379635435 64.08048970869493 L 209.63924344910714 94.84470461050745 L 355.5505390970402 161.0403380346694 Z  M 398.1362817002569 136.8506172775118 L 402.7820050624942 95.44864078844608 L 227.88711042537068 16.104006901491402 L 109.1113232067234 146.1692122953301 L 129.68832525154127 182.39480255424996 L 237.73318379635435 64.08048970869493 Z "
+    />
+    <title>global.logo</title>
+  </g>
+  <text
+    fill="#3fb4f7"
+    fill-opacity="1"
+    stroke="#ffffff"
+    stroke-opacity="1"
+    stroke-width="6"
+    transform="rotate(0, 282.18299684248393, 364.68943817364516)"
+    style="font: bold 18px monospace"
+    x="282.18299684248393"
+    y="369.68943817364516"
+    width="54.34765625"
+    height="18"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="14"
+    descent="4"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
+  >
+    <title>global.angleLabel</title>
+    angle
+  </text>
+  <circle
+    fill="none"
+    cx="229.91497032294805"
+    cy="193.64125274847842"
+    stroke="#3fb4f7"
+    stroke-opacity="0.4"
+    stroke-width="2"
+    r="100.85565439895281"
+  >
+    <title>global.innerCircle</title>
+  </circle>
+  <text
+    fill="#3fb4f7"
+    fill-opacity="1"
+    stroke="#ffffff"
+    stroke-opacity="1"
+    stroke-width="6"
+    transform="rotate(-45, 292.2043727453411, 115.35185032608535)"
+    style="font: bold 18px monospace"
+    x="292.2043727453411"
+    y="122.85185032608535"
+    width="66.1845703125"
+    height="15"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="15"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
+  >
+    <title>global.outerRadiusLabel</title>
+    radius
+  </text>
+  <g>
+    <line
+      x1="229.91497032294805"
+      y1="193.64125274847842"
+      x2="158.59925317644166"
+      y2="122.32553560197204"
+      stroke="#3fb4f7"
+      stroke-opacity="0.4"
+      stroke-width="2"
+    />
+    <title>global.innerRadius</title>
+  </g>
+  <circle
+    fill="none"
+    cx="229.91497032294805"
+    cy="193.64125274847842"
+    stroke="#3fb4f7"
+    stroke-opacity="0.4"
+    stroke-width="2"
+    r="198.8084523936971"
+  >
+    <title>global.outerCircle</title>
+  </circle>
+  <text
+    fill="#3fb4f7"
+    fill-opacity="1"
+    stroke="#ffffff"
+    stroke-opacity="1"
+    stroke-width="6"
+    transform="rotate(45, 202.25711174969487, 149.98339417522521)"
+    style="font: bold 18px monospace"
+    x="202.25711174969487"
+    y="157.48339417522521"
+    width="87.8583984375"
+    height="15"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="15"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
+  >
+    <title>global.innerRadiusLabel</title>
+    holeSize
+  </text>
+  <g>
+    <line
+      x1="229.91497032294805"
+      y1="193.64125274847842"
+      x2="370.49377516773416"
+      y2="53.06244790369229"
+      stroke="#3fb4f7"
+      stroke-opacity="0.4"
+      stroke-width="2"
+    />
+    <title>global.outerRadius</title>
+  </g>
+  <g>
+    <filter
+      id="parameters__global.angleMarker-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <path
+      fill="#3fb4f7"
+      fill-opacity="0.4"
+      stroke="#000000"
+      stroke-opacity="0.5333333333333333"
+      stroke-width="1.5"
+      stroke-linecap="butt"
+      d="M 247.18299684248393 374.68943817364516 A 99.40422619684855 99.40422619684855 0 0 0 245.15352347532576 354.7055021961921 L 147.7787706456354 374.68943817364516 Z "
+    />
+    <title>global.angleMarker</title>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="229.91497032294805"
+    cy="193.64125274847842"
+    stroke="none"
+    r="3"
+  >
+    <title>global.centerDot</title>
+  </circle>
+  <g>
+    <line
+      x1="147.7787706456354"
+      y1="374.68943817364516"
+      x2="426.11060399681134"
+      y2="374.68943817364516"
+      stroke="#000000"
+      stroke-opacity="0.5333333333333333"
+      stroke-width="1.5"
+    />
+    <title>global.angleHorizontal</title>
+  </g>
+  <g>
+    <line
+      x1="255"
+      y1="275"
+      x2="295"
+      y2="275"
+      stroke="#000000"
+      stroke-opacity="0.5333333333333333"
+      stroke-width="1"
+    />
+    <title>global.xAxis</title>
+  </g>
+  <g>
+    <line
+      x1="275"
+      y1="295"
+      x2="275"
+      y2="255"
+      stroke="#000000"
+      stroke-opacity="0.5333333333333333"
+      stroke-width="1"
+    />
+    <title>global.yAxis</title>
+  </g>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    stroke="#ffffff"
+    stroke-opacity="1"
+    stroke-width="6"
+    transform="rotate(0, 229.91497032294805, 207.64125274847842)"
+    style="font: bold 18px monospace"
+    x="229.91497032294805"
+    y="214.14125274847842"
+    width="66.1845703125"
+    height="13"
+    font-size-adjust=""
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    ascent="13"
+    descent="0"
+    text-anchor="middle"
+    visibility=""
+    paint-order="stroke"
+  >
+    <title>global.centerLabel</title>
+    center
+  </text>
+</svg>
