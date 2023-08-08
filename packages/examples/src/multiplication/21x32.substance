@@ -1,7 +1,6 @@
--- 21
 FirstTens a010_i for i in [1,3]
 FirstOnes a001_i for i in [1,2]
 
--- 32
 SecondTens b010_i for i in [1,1]
 SecondOnes b001_i for i in [1,2]
+
