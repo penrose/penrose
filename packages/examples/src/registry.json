@@ -260,7 +260,6 @@
     "name": "Methane Combustion Reaction",
     "gallery": true
   },
-  "mobius/mobius": {},
   "molecules/glutamine": {},
   "matrix-ops/tests/matrix-matrix-addition": {
     "name": "Matrix-matrix addition",
