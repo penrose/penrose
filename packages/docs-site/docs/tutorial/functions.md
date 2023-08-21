@@ -62,7 +62,7 @@ u.shape = Line {
   strokeWidth : 3.0
   strokeColor : const.lightBlue /* or any color you want */
   endArrowhead: "straight"
-  arrowheadSize : const.arrowheadSize /* feel free to play with other values */
+  endArrowheadSize : const.arrowheadSize /* feel free to play with other values */
 }
 ```
 
