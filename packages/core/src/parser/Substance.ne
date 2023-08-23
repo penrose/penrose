@@ -16,7 +16,7 @@ import { IndexSet, RangeAssign, Range, NumberConstant, BinaryExpr, UnaryExpr, Co
 const lexer = moo.compile({
   tex_literal: /\$.*?\$/, // TeX string enclosed by dollar signs
   double_arrow: "<->",
-  int_literal: /[+-]?(?<!\.)\b[0-9]+\b(?!\.[0-9])/,
+  int_literal: /[+-]?[1-9][0-9]*|0(?!\.[0-9])/,
   float_literal: /([+-]?([0-9]*[.])?[0-9]+)/,
   ...basicSymbols,
   identifier: {
