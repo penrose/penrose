@@ -5817,17 +5817,24 @@ export const compDict = {
     description: "Returns the TeX-ified version of a string.",
     params: [{ name: "str", type: stringT() }],
     body: (_context: Context, str: string): MayWarn<StrV> => {
-      return noWarn(
-        strV(
-          str
-            .split("_")
-            .map((s) => `{${s}}`)
-            .join("_"),
-        ),
-      );
+      const splitted = str.split("_");
+      return noWarn(strV(TeXifyHelper(splitted)));
     },
     returns: stringT(),
   },
+};
+
+const TeXifyHelper = (segments: string[]): string => {
+  if (segments.length === 0) {
+    return "";
+  }
+
+  const [first, ...rest] = segments;
+  if (rest.length === 0) {
+    return `{${first}}`;
+  } else {
+    return `{${first}}_{${TeXifyHelper(rest)}}`;
+  }
 };
 
 // `_compDictVals` causes TypeScript to enforce that every function in
