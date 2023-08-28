@@ -5825,6 +5825,7 @@ export const compDict = {
 };
 
 const TeXifyHelper = (segments: string[]): string => {
+  // This function performs cascading.
   if (segments.length === 0) {
     return "";
   }
