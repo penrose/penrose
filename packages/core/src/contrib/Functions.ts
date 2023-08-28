@@ -72,6 +72,7 @@ import {
   MatrixV,
   PathDataV,
   PtListV,
+  StrV,
   TupV,
   VectorV,
 } from "../types/value.js";
@@ -100,6 +101,7 @@ import {
   rectlikeT,
   shapeListT,
   shapeT,
+  strV,
   stringT,
   unionT,
   unitT,
@@ -5809,6 +5811,22 @@ export const compDict = {
       );
     },
     returns: real2NT(),
+  },
+  TeXify: {
+    name: "TeXify",
+    description: "Returns the TeX-ified version of a string.",
+    params: [{ name: "str", type: stringT() }],
+    body: (_context: Context, str: string): MayWarn<StrV> => {
+      return noWarn(
+        strV(
+          str
+            .split("_")
+            .map((s) => `{${s}}`)
+            .join("_"),
+        ),
+      );
+    },
+    returns: stringT(),
   },
 };
 
