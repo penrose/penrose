@@ -5803,7 +5803,8 @@ export const compDict = {
   },
   TeXify: {
     name: "TeXify",
-    description: "Returns the TeX-ified version of a string.",
+    description:
+      'Returns the TeX-fied version of a string where subscripts are handled in a way suitable for equation rendering. For example, "hello_world" becomes "{hello}_{world}".',
     params: [{ name: "str", type: stringT() }],
     body: (_context: Context, str: string): MayWarn<StrV> => {
       const splitted = str.split("_");
