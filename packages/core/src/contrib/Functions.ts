@@ -842,16 +842,8 @@ export const compDict = {
     name: "sumVectors",
     description: "Return the sum of vectors in a list of vectors.",
     params: [{ name: "vecs", description: "vectors", type: realNMT() }],
-    body: (_context: Context, vecs: ad.Num[][]): MayWarn<VectorV<ad.Num>> => {
-      if (vecs.length === 0) {
-        throw new Error("Expect a non-empty list of vectors");
-      }
-      const vlen = vecs[0].length;
-      const zeros: ad.Num[] = new Array(vlen).fill(0);
-      return noWarn(
-        vectorV(vecs.reduce((curr, v) => ops.vadd(curr, v), zeros)),
-      );
-    },
+    body: (_context: Context, vecs: ad.Num[][]): MayWarn<VectorV<ad.Num>> =>
+      noWarn(vectorV(sumVectors(vecs))),
     returns: realNT(),
   },
 
@@ -2165,17 +2157,14 @@ export const compDict = {
       { name: "points", type: realNMT(), description: "list of points" },
     ],
     body: (_context: Context, points: ad.Num[][]): MayWarn<VectorV<ad.Num>> => {
-      let mean: ad.Num[] = [0, 0];
-      for (let i = 0; i < points.length; i++) {
-        mean = ops.vadd(mean, points[i]);
-      }
-      mean = ops.vdiv(mean, points.length);
+      const sum = sumVectors(points);
+      const mean = ops.vdiv(sum, points.length);
       return noWarn({
         tag: "VectorV",
         contents: mean,
       });
     },
-    returns: valueT("Real2"),
+    returns: valueT("RealN"),
   },
 
   interpolatingSpline: {
@@ -5841,6 +5830,15 @@ const TeXifyHelper = (segments: string[]): string => {
 // `_compDictVals` causes TypeScript to enforce that every function in
 // `compDict` actually has type `CompFunc` with the right function signature, etc.
 const _compDictVals: CompFunc[] = Object.values(compDict);
+
+const sumVectors = (vecs: ad.Num[][]): ad.Num[] => {
+  if (vecs.length === 0) {
+    throw new Error("Expect a non-empty list of vectors");
+  }
+  const vlen = vecs[0].length;
+  const zeros: ad.Num[] = new Array(vlen).fill(0);
+  return vecs.reduce((curr, v) => ops.vadd(curr, v), zeros);
+};
 
 /*
   float msign(in float x) { return (x<0.0)?-1.0:1.0; }
