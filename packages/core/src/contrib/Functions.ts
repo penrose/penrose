@@ -72,6 +72,7 @@ import {
   MatrixV,
   PathDataV,
   PtListV,
+  StrV,
   TupV,
   VectorV,
 } from "../types/value.js";
@@ -100,6 +101,7 @@ import {
   rectlikeT,
   shapeListT,
   shapeT,
+  strV,
   stringT,
   unionT,
   unitT,
@@ -5799,6 +5801,31 @@ export const compDict = {
     },
     returns: real2NT(),
   },
+  TeXify: {
+    name: "TeXify",
+    description:
+      'Returns the TeX-fied version of a string where subscripts are handled in a way suitable for equation rendering. For example, "hello_world" becomes "{hello}_{world}".',
+    params: [{ name: "str", type: stringT() }],
+    body: (_context: Context, str: string): MayWarn<StrV> => {
+      const splitted = str.split("_");
+      return noWarn(strV(TeXifyHelper(splitted)));
+    },
+    returns: stringT(),
+  },
+};
+
+const TeXifyHelper = (segments: string[]): string => {
+  // This function performs cascading.
+  if (segments.length === 0) {
+    return "";
+  }
+
+  const [first, ...rest] = segments;
+  if (rest.length === 0) {
+    return `{${first}}`;
+  } else {
+    return `{${first}}_{${TeXifyHelper(rest)}}`;
+  }
 };
 
 // `_compDictVals` causes TypeScript to enforce that every function in
