@@ -57,9 +57,9 @@ where
 - `list_object_declarations` is a **semicolon**-separated list of object declarations, similar to the object declarations in the Substance program. Each object declaration has syntax `type_name object_name`. The names declared in `list_object_declarations` are referred to as _style variables_.
 - `list_relations` is a **semicolon**-separated list of constraints (about objects in `list_object_declaration`) that must be satisfied in order for this style block to be triggered.
 
-One might observe that both the `forall` clause and the `with` clause take in list of object declarations. The two clauses are treated equivalently in Selector Blocks. Variables declared in these clauses can be accessed within the body of the Selector Block.
+The `forall`, `where`, and `with` clauses form the Selector Block Header. One might observe that both the `forall` clause and the `with` clause take in list of object declarations. The two clauses are treated equivalently in the header. Variables declared in these clauses can be accessed within the Selector Block Body.
 
-If the `where` or `with` clause is empty, it needs to be omitted.
+The first clause of a Selector Block Header must be `forall`; the other clauses `where` and `with` can be written in any order. The header does not allow for empty lists - that is, `list_object_declarations` and `list_relations` in the `where` and `with` clauses must not be empty. If it is desirable to not have any elements in a clause, the entire clause must be omitted.
 
 In the set-theory example, a style block may look like
 
@@ -87,12 +87,11 @@ with Set y {
 
 ### Matching style block against substance program in general
 
-Penrose functions by matching a style block against a Substance program. In a nutshell, given a style block
+Penrose functions by matching a Selector Block Header against a Substance program. In a nutshell, given a style block
 
 ```style
 forall Set x; Set y
-where IsSubset (x, y) {
-}
+where IsSubset (x, y)
 ```
 
 the Penrose compiler searches through the Substance program to find sets of objects consistent with `Set x; Set y` such that `IsSubset(x, y)` is satisfied. This is done through generating mappings from _style variables_ to _substance variables_, which are the objects in the Substance program.
@@ -105,7 +104,7 @@ IsSubset (A, B)
 IsSubset (B, C)
 ```
 
-By matching the style block against the Substance program, we essentially consider six possible mappings (note that repeated elements are not allowed), some of which are valid and some are invalid:
+By matching the style block against the Substance program, we essentially consider six possible mappings (note that repeated elements are, by default, disallowed; see next section), some of which are valid and some are invalid:
 
 | Mapping          | `IsSubset(x, y)` becomes | Satisfied by Substance |
 | :--------------- | :----------------------- | ---------------------- |
@@ -117,6 +116,33 @@ By matching the style block against the Substance program, we essentially consid
 | `x -> C; y -> B` | `IsSubset(C, B)`         | No                     |
 
 Here, Penrose filters out mappings which do not satisfy the constraints listed in the Style block, and keeps a list of _good_ mappings (in this example, two mappings are kept). For each _good_ mapping, the body of the Style block (`list_body_expressions`) is executed, where each instance of the Style variables (`x` and `y`) is substituted with the corresponding Substance variables (once with `A` and `B`, once with `B` and `C`).
+
+### Repeatable vs Non-Repeatable Matching
+
+Penrose, by default, performs "non-repeatable" matching. That is, if there are two style variables declared in a Selector Block Header (in `with` or `where` clause), then the two style variables must correspond to different substance variables.
+
+As an example, the header
+
+```style
+forall Node a; Node b
+where Edge(a, b)
+```
+
+does not generate a valid matching against the substance
+
+```substance
+Node X
+Edge(X, X)
+```
+
+This is a design feature because many times, we would want different visualization for self-edges like this. To override this behavior, one can add the `repeatable` keyword:
+
+```style
+forall repeatable Node a; Node b
+where Edge(a, b)
+```
+
+and this header will allow `a` and `b` to both map to `X`.
 
 ### Object Declarations
 
@@ -422,6 +448,16 @@ Under the above Substance program, this Collector Block would run twice:
 Notice that we have splitted the set of all elements `[e1, e2, e3, e4, e5]` into two groups based on the `Set` object that they are contained within.
 
 Within the body of the Collector Blocks, we can do everything that can be done in Selector Blocks, with the one exception that we can only access Style variables in `<INTO>` and `<FOREACH>`.
+
+### Repeatable vs Non-Repeatable Matching
+
+Collector Blocks run the same underlying matching algorithm as described [here](usage#matching-style-block-against-substance-program-in-general). As such, by default, it disallows two style variables that map to the same substance variable. To override this behavior, just as in [here](usage#repeatable-vs-non-repeatable-matching), one can add the `repeatable` keyword:
+
+```style
+collect repeatable Set s into ss
+where IsSubset(s, a)
+with Set a
+```
 
 ### Collection Access Expression
 
