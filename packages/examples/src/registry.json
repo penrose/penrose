@@ -532,7 +532,7 @@
     "gallery": false
   },
   "Dynamics/Lyapunov": {
-    "name" : "Lyapunov Exponent",
+    "name": "Lyapunov Exponent",
     "gallery": true
   }  
 }
