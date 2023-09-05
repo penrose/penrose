@@ -1,0 +1,16 @@
+
+Point a,b,c,d,e,f
+Vector m,n 
+IsEpsilonDist(a,b)
+IsPath(a,c,e)
+IsPath(b,d,f)
+IsBetween(a,b,m)
+IsBetween2(e,f,n)
+IsMidpoint(a,c)
+IsMidpoint(b,d)
+IsEndpoint(a,e)
+IsEndpoint(b,f)
+Label a $x$
+Label b $x_{\epsilon}$
+Label m $||\epsilon(0)||$
+Label n $||\epsilon(t)|| \approx ||\epsilon(0)|| e^{\lambda t}  $

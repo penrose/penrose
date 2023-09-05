@@ -1,0 +1,12 @@
+-- ~~~~~~~~~~~~~~~~ TYPES ~~~~~~~~~~~~~~~~
+type Point 
+type Vector
+
+-- ~~~~~~~~~~~~~~~~ PREDICATES ~~~~~~~~~~~~~~~~
+-- Lines and Points
+predicate IsPath(Point a, Point b, Point c)
+predicate IsEpsilonDist(Point a, Point b)
+predicate IsBetween(Point a, Point b, Vector m)
+predicate IsBetween2(Point a, Point b, Vector m)
+predicate IsMidpoint(Point a, Point b)
+predicate IsEndpoint(Point a, Point b)
