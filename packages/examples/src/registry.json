@@ -530,7 +530,7 @@
   "alloy-models/generic": {
     "name": "Alloy: Generic Style",
     "gallery": false
-  }
+  },
   "Dynamics/Lyapunov": {
     "name" : "Lyapunov Exponent",
     "gallery": true
