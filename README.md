@@ -14,6 +14,10 @@ out our [tutorials](https://penrose.cs.cmu.edu/docs/tutorial/welcome). Or, for
 more reference-style information, take a look at our
 [documentation](https://penrose.cs.cmu.edu/docs/ref).
 
+## Contributing
+To get started with contributing to Penrose, including instructions for setting up your local 
+See [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
 ## Example
 
 Here's a simple Penrose visualization in the domain of set theory.
@@ -90,10 +94,6 @@ It's specified by the following trio of Domain, Substance, and Style programs
     ensure disjoint(x.text, y.icon)
   }
   ```
-
-## Contributing
-
-See [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## License
 

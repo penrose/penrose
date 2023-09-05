@@ -1,10 +1,18 @@
-import { constrDict } from "./contrib/Constraints.js";
+import {
+  constrDict,
+  contains,
+  containsCircleRect,
+  containsCircles,
+  containsRectCircle,
+  disjoint,
+} from "./contrib/Constraints.js";
 import { elasticEnergy, equivalued, perimeter } from "./contrib/Curves.js";
 import { signedDistanceRect } from "./contrib/Functions.js";
 import { rectPts } from "./contrib/Queries.js";
 import { consecutiveTuples } from "./contrib/Utils.js";
 import { ops, variable } from "./engine/Autodiff.js";
 import { absVal, add, div, neg, pow, sub } from "./engine/AutodiffFunctions.js";
+import { bboxFromCircle } from "./engine/BBox.js";
 import * as ad from "./types/ad.js";
 import { TextMeasurement, measureText } from "./utils/CollectLabels.js";
 
@@ -84,7 +92,13 @@ export type {
   Vec,
 } from "./types/ad.js";
 export {
+  bboxFromCircle,
   consecutiveTuples,
+  contains,
+  containsCircleRect,
+  containsCircles,
+  containsRectCircle,
+  disjoint,
   elasticEnergy,
   equivalued,
   measureText,
