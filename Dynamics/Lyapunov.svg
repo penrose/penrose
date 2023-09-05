@@ -1,0 +1,535 @@
+<svg
+  version="1.2"
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 800 800"
+  penrose="0"
+>
+  <penrose>
+    <croppedViewBox>
+      324.90513647415634 0.14725062109698683 296.41069193793436
+      705.4829534994535
+    </croppedViewBox>
+  </penrose>
+  <g
+    transform="rotate(0, 463.60136907210085, 339.09577173880524)translate(383.57036907210085, 327.55877173880526)"
+  >
+    <title>`n`.text</title>
+    <svg
+      style="font-size: 20px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="160.062"
+      height="23.073999999999998"
+      role="img"
+      focusable="false"
+      viewBox="0 -903.7 8003.1 1153.7"
+    >
+      <g
+        stroke="none"
+        fill="#242985"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mo" transform="translate(0 -0.5)">
+            <path
+              data-c="7C"
+              d="M139 -249H137Q125 -249 119 -235V251L120 737Q130 750 139 750Q152 750 159 735V-235Q151 -249 141 -249H139Z"
+            />
+          </g>
+          <g data-mml-node="mo" transform="translate(278,0) translate(0 -0.5)">
+            <path
+              data-c="7C"
+              d="M139 -249H137Q125 -249 119 -235V251L120 737Q130 750 139 750Q152 750 159 735V-235Q151 -249 141 -249H139Z"
+            />
+          </g>
+          <g data-mml-node="mi" transform="translate(556,0)">
+            <path
+              data-c="1D716"
+              d="M227 -11Q149 -11 95 41T40 174Q40 262 87 322Q121 367 173 396T287 430Q289 431 329 431H367Q382 426 382 411Q382 385 341 385H325H312Q191 385 154 277L150 265H327Q340 256 340 246Q340 228 320 219H138V217Q128 187 128 143Q128 77 160 52T231 26Q258 26 284 36T326 57T343 68Q350 68 354 58T358 39Q358 36 357 35Q354 31 337 21T289 0T227 -11Z"
+            />
+          </g>
+          <g data-mml-node="mo" transform="translate(962,0)">
+            <path
+              data-c="28"
+              d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"
+            />
+          </g>
+          <g data-mml-node="mi" transform="translate(1351,0)">
+            <path
+              data-c="1D461"
+              d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"
+            />
+          </g>
+          <g data-mml-node="mo" transform="translate(1712,0)">
+            <path
+              data-c="29"
+              d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"
+            />
+          </g>
+          <g data-mml-node="mo" transform="translate(2101,0) translate(0 -0.5)">
+            <path
+              data-c="7C"
+              d="M139 -249H137Q125 -249 119 -235V251L120 737Q130 750 139 750Q152 750 159 735V-235Q151 -249 141 -249H139Z"
+            />
+          </g>
+          <g data-mml-node="mo" transform="translate(2379,0) translate(0 -0.5)">
+            <path
+              data-c="7C"
+              d="M139 -249H137Q125 -249 119 -235V251L120 737Q130 750 139 750Q152 750 159 735V-235Q151 -249 141 -249H139Z"
+            />
+          </g>
+          <g data-mml-node="mo" transform="translate(2934.8,0)">
+            <path
+              data-c="2248"
+              d="M55 319Q55 360 72 393T114 444T163 472T205 482Q207 482 213 482T223 483Q262 483 296 468T393 413L443 381Q502 346 553 346Q609 346 649 375T694 454Q694 465 698 474T708 483Q722 483 722 452Q722 386 675 338T555 289Q514 289 468 310T388 357T308 404T224 426Q164 426 125 393T83 318Q81 289 69 289Q55 289 55 319ZM55 85Q55 126 72 159T114 210T163 238T205 248Q207 248 213 248T223 249Q262 249 296 234T393 179L443 147Q502 112 553 112Q609 112 649 141T694 220Q694 249 708 249T722 217Q722 153 675 104T555 55Q514 55 468 76T388 123T308 170T224 192Q164 192 125 159T83 84Q80 55 69 55Q55 55 55 85Z"
+            />
+          </g>
+          <g
+            data-mml-node="mo"
+            transform="translate(3990.6,0) translate(0 -0.5)"
+          >
+            <path
+              data-c="7C"
+              d="M139 -249H137Q125 -249 119 -235V251L120 737Q130 750 139 750Q152 750 159 735V-235Q151 -249 141 -249H139Z"
+            />
+          </g>
+          <g
+            data-mml-node="mo"
+            transform="translate(4268.6,0) translate(0 -0.5)"
+          >
+            <path
+              data-c="7C"
+              d="M139 -249H137Q125 -249 119 -235V251L120 737Q130 750 139 750Q152 750 159 735V-235Q151 -249 141 -249H139Z"
+            />
+          </g>
+          <g data-mml-node="mi" transform="translate(4546.6,0)">
+            <path
+              data-c="1D716"
+              d="M227 -11Q149 -11 95 41T40 174Q40 262 87 322Q121 367 173 396T287 430Q289 431 329 431H367Q382 426 382 411Q382 385 341 385H325H312Q191 385 154 277L150 265H327Q340 256 340 246Q340 228 320 219H138V217Q128 187 128 143Q128 77 160 52T231 26Q258 26 284 36T326 57T343 68Q350 68 354 58T358 39Q358 36 357 35Q354 31 337 21T289 0T227 -11Z"
+            />
+          </g>
+          <g data-mml-node="mo" transform="translate(4952.6,0)">
+            <path
+              data-c="28"
+              d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"
+            />
+          </g>
+          <g data-mml-node="mn" transform="translate(5341.6,0)">
+            <path
+              data-c="30"
+              d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"
+            />
+          </g>
+          <g data-mml-node="mo" transform="translate(5841.6,0)">
+            <path
+              data-c="29"
+              d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"
+            />
+          </g>
+          <g
+            data-mml-node="mo"
+            transform="translate(6230.6,0) translate(0 -0.5)"
+          >
+            <path
+              data-c="7C"
+              d="M139 -249H137Q125 -249 119 -235V251L120 737Q130 750 139 750Q152 750 159 735V-235Q151 -249 141 -249H139Z"
+            />
+          </g>
+          <g
+            data-mml-node="mo"
+            transform="translate(6508.6,0) translate(0 -0.5)"
+          >
+            <path
+              data-c="7C"
+              d="M139 -249H137Q125 -249 119 -235V251L120 737Q130 750 139 750Q152 750 159 735V-235Q151 -249 141 -249H139Z"
+            />
+          </g>
+          <g data-mml-node="msup" transform="translate(6786.6,0)">
+            <g data-mml-node="mi">
+              <path
+                data-c="1D452"
+                d="M39 168Q39 225 58 272T107 350T174 402T244 433T307 442H310Q355 442 388 420T421 355Q421 265 310 237Q261 224 176 223Q139 223 138 221Q138 219 132 186T125 128Q125 81 146 54T209 26T302 45T394 111Q403 121 406 121Q410 121 419 112T429 98T420 82T390 55T344 24T281 -1T205 -11Q126 -11 83 42T39 168ZM373 353Q367 405 305 405Q272 405 244 391T199 357T170 316T154 280T149 261Q149 260 169 260Q282 260 327 284T373 353Z"
+              />
+            </g>
+            <g
+              data-mml-node="TeXAtom"
+              transform="translate(499,413) scale(0.707)"
+              data-mjx-texclass="ORD"
+            >
+              <g data-mml-node="mi">
+                <path
+                  data-c="1D706"
+                  d="M166 673Q166 685 183 694H202Q292 691 316 644Q322 629 373 486T474 207T524 67Q531 47 537 34T546 15T551 6T555 2T556 -2T550 -11H482Q457 3 450 18T399 152L354 277L340 262Q327 246 293 207T236 141Q211 112 174 69Q123 9 111 -1T83 -12Q47 -12 47 20Q47 37 61 52T199 187Q229 216 266 252T321 306L338 322Q338 323 288 462T234 612Q214 657 183 657Q166 657 166 673Z"
+                />
+              </g>
+              <g data-mml-node="mi" transform="translate(583,0)">
+                <path
+                  data-c="1D461"
+                  d="M26 385Q19 392 19 395Q19 399 22 411T27 425Q29 430 36 430T87 431H140L159 511Q162 522 166 540T173 566T179 586T187 603T197 615T211 624T229 626Q247 625 254 615T261 596Q261 589 252 549T232 470L222 433Q222 431 272 431H323Q330 424 330 420Q330 398 317 385H210L174 240Q135 80 135 68Q135 26 162 26Q197 26 230 60T283 144Q285 150 288 151T303 153H307Q322 153 322 145Q322 142 319 133Q314 117 301 95T267 48T216 6T155 -11Q125 -11 98 4T59 56Q57 64 57 83V101L92 241Q127 382 128 383Q128 385 77 385H26Z"
+                />
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g>
+    <marker
+      id="Lyapunov__5:1:orientedPath-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="19.9"
+      markerHeight="16.24"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      />
+    </marker>
+    <filter
+      id="Lyapunov__5:1:orientedPath-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <path
+      fill="none"
+      stroke="#000000"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
+      d="M 368.87863638796364 245.10540867104797 Q 392.9379672124725 19.528350302169486 620.8214418376754 705.5554919526749"
+      marker-end="url(#Lyapunov__5:1:orientedPath-endArrowId)"
+    />
+    <title>5:1:orientedPath</title>
+  </g>
+  <g
+    transform="rotate(0, 426.05485730919895, 244.11144879228573)translate(398.09485730919897, 234.11144879228573)"
+  >
+    <title>`m`.text</title>
+    <svg
+      style="font-size: 20px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="55.919999999999995"
+      height="20"
+      role="img"
+      focusable="false"
+      viewBox="0 -750 2796 1000"
+    >
+      <g
+        stroke="none"
+        fill="#8c90c1"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mo" transform="translate(0 -0.5)">
+            <path
+              data-c="7C"
+              d="M139 -249H137Q125 -249 119 -235V251L120 737Q130 750 139 750Q152 750 159 735V-235Q151 -249 141 -249H139Z"
+            />
+          </g>
+          <g data-mml-node="mo" transform="translate(278,0) translate(0 -0.5)">
+            <path
+              data-c="7C"
+              d="M139 -249H137Q125 -249 119 -235V251L120 737Q130 750 139 750Q152 750 159 735V-235Q151 -249 141 -249H139Z"
+            />
+          </g>
+          <g data-mml-node="mi" transform="translate(556,0)">
+            <path
+              data-c="1D716"
+              d="M227 -11Q149 -11 95 41T40 174Q40 262 87 322Q121 367 173 396T287 430Q289 431 329 431H367Q382 426 382 411Q382 385 341 385H325H312Q191 385 154 277L150 265H327Q340 256 340 246Q340 228 320 219H138V217Q128 187 128 143Q128 77 160 52T231 26Q258 26 284 36T326 57T343 68Q350 68 354 58T358 39Q358 36 357 35Q354 31 337 21T289 0T227 -11Z"
+            />
+          </g>
+          <g data-mml-node="mo" transform="translate(962,0)">
+            <path
+              data-c="28"
+              d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"
+            />
+          </g>
+          <g data-mml-node="mn" transform="translate(1351,0)">
+            <path
+              data-c="30"
+              d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"
+            />
+          </g>
+          <g data-mml-node="mo" transform="translate(1851,0)">
+            <path
+              data-c="29"
+              d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"
+            />
+          </g>
+          <g data-mml-node="mo" transform="translate(2240,0) translate(0 -0.5)">
+            <path
+              data-c="7C"
+              d="M139 -249H137Q125 -249 119 -235V251L120 737Q130 750 139 750Q152 750 159 735V-235Q151 -249 141 -249H139Z"
+            />
+          </g>
+          <g data-mml-node="mo" transform="translate(2518,0) translate(0 -0.5)">
+            <path
+              data-c="7C"
+              d="M139 -249H137Q125 -249 119 -235V251L120 737Q130 750 139 750Q152 750 159 735V-235Q151 -249 141 -249H139Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g>
+    <marker
+      id="Lyapunov__5:0:orientedPath-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="19.9"
+      markerHeight="16.24"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      />
+    </marker>
+    <filter
+      id="Lyapunov__5:0:orientedPath-shadow"
+      x="0"
+      y="0"
+      width="200%"
+      height="200%"
+    >
+      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <path
+      fill="none"
+      stroke="#000000"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke-linecap="butt"
+      d="M 380.3002671371659 272.8120061254566 Q 467.08711427271953 412.1704869713468 514.2307701521853 0.2219627889726894"
+      marker-end="url(#Lyapunov__5:0:orientedPath-endArrowId)"
+    />
+    <title>5:0:orientedPath</title>
+  </g>
+  <g
+    transform="rotate(0, 380.0389935853546, 291.7395061042267)translate(370.0289935853546, 283.81200610422667)"
+  >
+    <title>`a`.text</title>
+    <svg
+      style="font-size: 35px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="20.02"
+      height="15.855"
+      role="img"
+      focusable="false"
+      viewBox="0 -442 572 453"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="mi">
+            <path
+              data-c="1D465"
+              d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"
+            />
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <g
+    transform="rotate(0, 341.39188647415637, 242.77886145802373)translate(324.9051364741564, 232.28236145802373)"
+  >
+    <title>`b`.text</title>
+    <svg
+      style="font-size: 35px"
+      xmlns="http://www.w3.org/2000/svg"
+      width="32.9735"
+      height="20.993"
+      role="img"
+      focusable="false"
+      viewBox="0 -442 942.1 599.8"
+    >
+      <g
+        stroke="none"
+        fill="#000000"
+        stroke-width="0"
+        transform="scale(1,-1)"
+        fill-opacity="1"
+      >
+        <g data-mml-node="math">
+          <g data-mml-node="msub">
+            <g data-mml-node="mi">
+              <path
+                data-c="1D465"
+                d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"
+              />
+            </g>
+            <g
+              data-mml-node="TeXAtom"
+              transform="translate(605,-150) scale(0.707)"
+              data-mjx-texclass="ORD"
+            >
+              <g data-mml-node="mi">
+                <path
+                  data-c="1D716"
+                  d="M227 -11Q149 -11 95 41T40 174Q40 262 87 322Q121 367 173 396T287 430Q289 431 329 431H367Q382 426 382 411Q382 385 341 385H325H312Q191 385 154 277L150 265H327Q340 256 340 246Q340 228 320 219H138V217Q128 187 128 143Q128 77 160 52T231 26Q258 26 284 36T326 57T343 68Q350 68 354 58T358 39Q358 36 357 35Q354 31 337 21T289 0T227 -11Z"
+                />
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </g>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="380.3002671371659"
+    cy="272.8120061254566"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    r="4"
+  >
+    <title>`a`.icon</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="368.87863638796364"
+    cy="245.10540867104797"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    r="4"
+  >
+    <title>`b`.icon</title>
+  </circle>
+  <g strokewidth="3">
+    <marker
+      id="Lyapunov__registry-CedarEagle308-`m`.shape-startArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#8c90c1"
+        fill-opacity="1"
+      />
+    </marker>
+    <marker
+      id="Lyapunov__registry-CedarEagle308-`m`.shape-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#8c90c1"
+        fill-opacity="1"
+      />
+    </marker>
+    <line
+      x1="377.40755431214467"
+      y1="265.7948619405365"
+      x2="371.7713492129849"
+      y2="252.12255285596805"
+      stroke="#8c90c1"
+      stroke-opacity="1"
+      stroke-width="1"
+      marker-start="url(#Lyapunov__registry-CedarEagle308-`m`.shape-startArrowId)"
+      marker-end="url(#Lyapunov__registry-CedarEagle308-`m`.shape-endArrowId)"
+    />
+    <title>`m`.shape</title>
+  </g>
+  <g strokewidth="3">
+    <marker
+      id="Lyapunov__registry-CedarEagle308-`n`.shape-startArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#242985"
+        fill-opacity="1"
+      />
+    </marker>
+    <marker
+      id="Lyapunov__registry-CedarEagle308-`n`.shape-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#242985"
+        fill-opacity="1"
+      />
+    </marker>
+    <line
+      x1="515.3649008764366"
+      y1="7.72675109380242"
+      x2="619.687311113424"
+      y2="698.0507036478451"
+      stroke="#242985"
+      stroke-opacity="1"
+      stroke-width="1"
+      marker-start="url(#Lyapunov__registry-CedarEagle308-`n`.shape-startArrowId)"
+      marker-end="url(#Lyapunov__registry-CedarEagle308-`n`.shape-endArrowId)"
+    />
+    <title>`n`.shape</title>
+  </g>
+</svg>
