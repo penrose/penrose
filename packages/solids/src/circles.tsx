@@ -1,35 +1,32 @@
 import {
   BBox,
   Var,
+  add,
   containsCircleRect,
   containsCircles,
-  containsRectCircle,
   corners,
+  dist,
+  div,
   measureText,
   problem,
+  sub,
   textBBox,
   variable,
 } from "@penrose/core";
-import { inRange } from "@penrose/core/dist/contrib/Constraints";
+import { greaterThan, inRange } from "@penrose/core/dist/contrib/Constraints";
 import { toPt } from "@penrose/core/dist/contrib/Utils";
 import { Num, Pt2 } from "@penrose/core/dist/types/ad";
 import { createEffect, createResource, on } from "solid-js";
 import { createMutable } from "solid-js/store";
-import { num } from "./util.js";
+import { num, signalNum } from "./util.js";
 
-interface Rect {
-  center: Num[];
-  width: Num;
-  height: Num;
-}
-
-interface SetProps {
+interface SetCircleProps {
   center: Var[];
   r: number;
 }
 
 interface SetsProps {
-  sets: Set[];
+  sets: SetCircle[];
   labels: Label[];
   onFinish?: () => void;
 }
@@ -37,11 +34,12 @@ interface SetsProps {
 const canvasWidth = 800;
 const canvasHeight = 800;
 let svg: SVGSVGElement; // this should be the reference to the circle
+const ids = new Set(["s1-circle", "s2-circle", "s3-circle", "s1", "s2", "s3"]);
 
 class Label {
   pt: Var[];
   private txt: string;
-  private fontSize = "30px";
+  private fontSize = "40px";
   private fontFamily = "STIXGeneral-Italic";
 
   constructor(x: number, y: number, txt: string) {
@@ -51,33 +49,48 @@ class Label {
 
   getCorners = (): Pt2[] => {
     const bbox = textBBox(
-      measureText(this.txt, `${this.fontSize} "${this.fontFamily}", `),
+      measureText(this.txt, `${this.fontSize} "${this.fontFamily}"`),
       this.pt[0],
       this.pt[1],
     );
     const textCorners = corners(bbox as BBox);
+    // move bbox up and right.. with variable results when plotted?
+    const recenter = (pt: Pt2) =>
+      [add(pt[0], div(bbox.width, 2)), sub(pt[1], bbox.height)] as Pt2;
     return [
-      textCorners.topRight,
-      textCorners.topLeft,
-      textCorners.bottomLeft,
-      textCorners.bottomRight,
-    ]; // TODO order? should it be same as the canvas order?
+      recenter(textCorners.bottomRight),
+      recenter(textCorners.bottomLeft),
+      recenter(textCorners.topLeft),
+      recenter(textCorners.topRight),
+    ];
+  };
+
+  private renderPt = (pt: Num[]) => {
+    return (
+      <circle
+        cx={num(signalNum(pt[0]))}
+        cy={num(signalNum(pt[1]))}
+        r={3}
+        fill="yellow"
+      ></circle>
+    );
   };
 
   render = () => {
     // const [x, y] = toCanvas([num(pt[0]), num(pt[1])]);
     return (
-      <g onMouseDown={(e) => onMouseDown(e, svg, this.pt)}>
-        <circle
+      <g onMouseDown={(e) => onMouseDown(e, svg, this.pt)} id={`${this.txt}`}>
+        {/* {this.getCorners().map((c) => this.renderPt(c))} */}
+        {/* <circle
           cx={this.pt[0].val}
           cy={this.pt[1].val}
           r={3}
           fill="red"
-        ></circle>
+        ></circle> */}
         <text
           x={num(this.pt[0])}
           y={num(this.pt[1])}
-          fill-color="black"
+          fill-color="white"
           font-style="italic"
           font-weight="bold"
           font-family={this.fontFamily}
@@ -93,7 +106,7 @@ class Label {
   };
 }
 
-class Set {
+class SetCircle {
   center: Var[];
   r: number;
   constructor(cx: number, cy: number, r: number) {
@@ -102,7 +115,7 @@ class Set {
     this.r = r;
   }
 
-  getSet = (): SetProps => {
+  getSet = (): SetCircleProps => {
     return {
       center: this.center,
       r: this.r,
@@ -111,7 +124,10 @@ class Set {
 
   render = (fill: string, label: string) => {
     return (
-      <g onMouseDown={(e) => onMouseDown(e, svg, this.center)}>
+      <g
+        onMouseDown={(e) => onMouseDown(e, svg, this.center)}
+        id={`${label}-circle`}
+      >
         <circle
           cx={num(this.center[0])}
           cy={num(this.center[1])}
@@ -144,6 +160,7 @@ const getPosition = (
 //keep this
 const onMouseDown = (e: MouseEvent, parent: SVGSVGElement, val: Var[]) => {
   const target = e.target as SVGSVGElement;
+  console.log(target.innerHTML);
   const { clientX, clientY } = e;
   let { x: tempX, y: tempY } = getPosition({ clientX, clientY }, parent);
   let dx = 0,
@@ -155,7 +172,6 @@ const onMouseDown = (e: MouseEvent, parent: SVGSVGElement, val: Var[]) => {
     tempX = x;
     tempY = y;
     // set the actual values
-    // console.log(x, y, dx);
     val[0].val = val[0].val + dx;
     val[1].val = val[1].val + dy;
   };
@@ -163,6 +179,7 @@ const onMouseDown = (e: MouseEvent, parent: SVGSVGElement, val: Var[]) => {
     document.removeEventListener("mouseup", onMouseUp);
     document.removeEventListener("mousemove", onMouseMove);
     // remove transform
+    ids.delete(target.id);
     target.setAttribute(`transform`, "");
     //trigger re-optimization
   };
@@ -171,7 +188,7 @@ const onMouseDown = (e: MouseEvent, parent: SVGSVGElement, val: Var[]) => {
 };
 
 class Constraints {
-  static isSubset = (s1: Set, s2: Set, padding: number = 10) => {
+  static isSubset = (s1: SetCircle, s2: SetCircle, padding: number = 10) => {
     return containsCircles(
       toPt(s1.center),
       s1.r,
@@ -181,19 +198,43 @@ class Constraints {
     );
   };
 
-  static onCanvas = (s: Set, canvas: Pt2[], padding: number = 30) => {
-    return containsRectCircle(canvas, toPt(s.center), num(s.r), num(padding));
+  static onCanvas = (s: SetCircle, padding: number = 30) => {
+    return [
+      inRange(s.center[0], s.r + padding, canvasWidth - (s.r + padding)),
+      inRange(s.center[1], s.r + padding, canvasHeight - (s.r + padding)),
+    ];
+    // const canvasCorners = [
+    //   toPt([canvasWidth, 0]),
+    //   toPt([0, 0]),
+    //   toPt([0, canvasHeight]),
+    //   toPt([canvasWidth, canvasHeight]),
+    // ];
+    // return containsRectCircle(canvas, toPt(s.center), num(s.r), num(padding));
   };
 
-  static containsText = (s: Set, label: Label, padding: number = 50) => {
+  static containsText = (s: SetCircle, label: Label, padding: number = 50) => {
     return containsCircleRect(toPt(s.center), s.r, label.getCorners(), padding);
+  };
+
+  static disjointCircles = (
+    s1: SetCircle,
+    s2: SetCircle,
+    padding: number = 30,
+  ) => {
+    const toNumArr = (c: Var[]) => c.map((v) => v.val);
+    const minDist = Math.max(s1.r, s2.r);
+    return greaterThan(
+      dist(toNumArr(s2.center), toNumArr(s1.center)),
+      minDist,
+      padding,
+    );
   };
 }
 
 export const Sets = (props: SetsProps) => {
-  const a1Color = "#3498db";
-  const a2Color = "#2ecc71";
-  const vColor = "#E74C3C";
+  const s1color = "#3498db";
+  const s2color = "#ab91eb";
+  const s3color = "#cbbaf5";
   const [s1, s2, s3] = props.sets;
   const [l1, l2, l3] = props.labels;
 
@@ -206,27 +247,25 @@ export const Sets = (props: SetsProps) => {
   const s2l2 = Constraints.containsText(s2, l2);
   const s3l3 = Constraints.containsText(s3, l3);
 
-  const onCanvas = (set: Set) => {
-    const canvasCorners = [
-      toPt([canvasWidth, 0]),
-      toPt([0, 0]),
-      toPt([0, canvasHeight]),
-      toPt([canvasWidth, canvasHeight]),
-    ];
-    return Constraints.onCanvas(set, canvasCorners);
-  };
+  const s1onCanvas = Constraints.onCanvas(s1);
+  // const s2onCanvas = Constraints.onCanvas(s2);
+  // const s3onCanvas = Constraints.onCanvas(s3);
+
+  const s2s3disjoint = Constraints.disjointCircles(s2, s3);
 
   const waiting: Promise<void>[] = [];
   const [compiling] = createResource(() => {
     const prob = problem({
       constraints: [
-        inRange(s1.center[0], 300, 500),
-        inRange(s1.center[1], 300, 500),
         s1containss2,
         s1containss3,
-        // onCanvas(s1),
-        // onCanvas(s2),
-        // onCanvas(s3),
+        s1onCanvas[0],
+        s1onCanvas[1],
+        s2s3disjoint,
+        // s2onCanvas[0],
+        // s2onCanvas[1],
+        // s3onCanvas[0],
+        // s3onCanvas[1],
         s1l1,
         s2l2,
         s3l3,
@@ -237,19 +276,15 @@ export const Sets = (props: SetsProps) => {
   });
 
   // TODO need to create effect to RUN the optimization for something related to labels here?
-  // const centers = () => props.sets.map((pts) => pts.map((pt) => num(pt)));
   const centers = () => props.sets;
   createEffect(
     on([centers, compiling], ([ps, prob]) => {
-      // TODO something probably wrong here with centers, at least needs to include labels?
-      // ps.forEach((p, i) => {
-      //   props.sets[i][0].val = p[0];
-      //   props.sets[i][1].val = p[1];
-      // });
+      // TODO need this to be triggered by mouseup and onload conditions
       if (prob !== undefined) {
-        // const run = prob.start({ freeze: (x) => !labelSet.has(x) }).run({});
+        // TODO need a map between id and penrose object for freeze? :\
+        // const run = prob.start({ freeze: (x) => !ids.has(x) }).run({});
         const run = prob.start({}).run({});
-        // console.log(run);
+        console.log(run);
         for (const [v, x] of run.vals) v.val = x;
       }
     }),
@@ -269,12 +304,12 @@ export const Sets = (props: SetsProps) => {
         ref={svg}
         width={canvasWidth}
         height={canvasHeight}
-        style={{ "background-color": "purple" }}
+        style={{ "background-color": "lightgray" }}
       >
         <g>
-          {s1.render(a1Color, "s1")}
-          {s2.render(a2Color, "s2")}
-          {s3.render(vColor, "s3")}
+          {s1.render(s1color, "s1")}
+          {s2.render(s2color, "s2")}
+          {s3.render(s3color, "s3")}
           {l1.render()}
           {l2.render()}
           {l3.render()}
@@ -285,17 +320,17 @@ export const Sets = (props: SetsProps) => {
 };
 
 export default () => {
-  const s1 = new Set(
+  const s1 = new SetCircle(
     Math.random() * canvasWidth,
     Math.random() * canvasHeight,
     300,
   );
-  const s2 = new Set(
+  const s2 = new SetCircle(
     Math.random() * canvasWidth,
     Math.random() * canvasHeight,
     100,
   );
-  const s3 = new Set(230, 200, 100);
+  const s3 = new SetCircle(230, 200, 100);
   const l1 = new Label(
     Math.random() * canvasWidth,
     Math.random() * canvasHeight,
@@ -304,7 +339,7 @@ export default () => {
   const l2 = new Label(
     Math.random() * canvasWidth,
     Math.random() * canvasHeight,
-    "s2",
+    "s222",
   );
   const l3 = new Label(300, 300, "s3");
 
