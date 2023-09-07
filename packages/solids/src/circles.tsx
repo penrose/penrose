@@ -21,10 +21,6 @@ import { createMutable } from "solid-js/store";
 import { num, signalNum } from "./util.js";
 
 // TODO constraints vs encourages? disjoint is working ehhh, no label overlap
-interface SetCircleProps {
-  center: Var[];
-  r: number;
-}
 
 const [CANVAS_WIDTH, CANVAS_HEIGHT] = [800, 800];
 const frozen = new Set();
@@ -118,13 +114,6 @@ class SetCircle {
     this.color = color;
     this.label = label;
   }
-
-  getSet = (): SetCircleProps => {
-    return {
-      center: this.center,
-      r: this.r,
-    };
-  };
 
   render = () => {
     return (
