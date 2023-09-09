@@ -1,0 +1,23 @@
+type Thing
+type Point <: Thing
+
+type Object <: Thing
+type Curve <: Object
+type OpenCurve <: Curve  -- todo
+type ClosedCurve <: Curve  -- todo
+
+type Shape <: Object
+type Ball <: Shape
+type Plane <: Shape -- todo
+type Cyllinder <: Shape -- todo
+type Torus <: Shape -- todo
+
+predicate PointInside( Point p, Object s )
+predicate PointOnBoundary( Point p, Object s )
+
+predicate CurveInside( Curve c, Shape s )
+predicate CurveOnBoundary( Curve c, Shape s )
+
+predicate Display( Thing o )
+predicate DisplayShadow( Thing o ) -- todo
+predicate DisplayFrame( Curve c ) -- todo
