@@ -17,6 +17,7 @@ export const basicSymbols: moo.Rules = {
   gte: ">=",
   gt: ">",
   eq: "==",
+  neq: "!=",
   rarrow: "->",
   tilda: "~",
   lparen: "(",
@@ -59,6 +60,9 @@ export const basicSymbols: moo.Rules = {
   question: "?",
   dollar: "$",
   tick: "`",
+  and: "&&",
+  or: "||",
+  not: "!",
 };
 
 const tokenStart = (token: moo.Token): SourceLoc => {

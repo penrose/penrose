@@ -25,6 +25,8 @@ import {
   InvalidColorLiteral,
   MissingArgumentError,
   NaNError,
+  NotStyleVariableError,
+  NotSubstanceCollectionError,
   ParseError,
   PenroseError,
   RedeclareNamespaceError,
@@ -40,7 +42,6 @@ import {
   TypeArgLengthMismatch,
   TypeMismatch,
   TypeNotFound,
-  UnexpectedCollectionAccessError,
   UnexpectedExprForNestedPred,
   VarNotFound,
 } from "../types/errors.js";
@@ -250,6 +251,36 @@ export const showError = (
       )}), but an expression of '${showType(
         sourceType,
       )}' type was given at ${loc(sourceExpr)}.`;
+    }
+    case "InvalidSetIndexingError": {
+      const { index, location, suggestions } = error;
+      return `Name \`${index}\` (which is used at ${loc(
+        location,
+      )}) is not a valid index. Possible indices are: ${suggestions.join(
+        ", ",
+      )}`;
+    }
+    case "DuplicateIndexError": {
+      const { index, location } = error;
+      return `Index variable \`${index}\` has been declared multiple times at ${loc(
+        location,
+      )}.`;
+    }
+    case "DivideByZeroError": {
+      const { location } = error;
+      return `The expression at ${loc(location)} resulted in division-by-zero.`;
+    }
+    case "InvalidArithmeticValueError": {
+      const { value, location } = error;
+      return `The expression at ${loc(
+        location,
+      )} resulted in the invalid value of ${value}.`;
+    }
+    case "UnsupportedIndexingError": {
+      const { iset } = error;
+      return `Indexing on expressions of type ${iset.stmt.tag} (at ${loc(
+        iset,
+      )}) is not supported`;
     }
 
     // ---- BEGIN STYLE ERRORS
@@ -555,10 +586,16 @@ canvas {
       } already exists and is redeclared in ${locc("Style", error.location)}.`;
     }
 
-    case "UnexpectedCollectionAccessError": {
+    case "NotSubstanceCollectionError": {
       const { name, location } = error;
       const locStr = locc("Style", location);
-      return `Style variable \`${name}\` cannot be accessed via the collection access operator (at ${locStr}) because it is not a collection.`;
+      return `The expression at ${locStr} expects \`${name}\` to be a collection.`;
+    }
+
+    case "NotStyleVariableError": {
+      const { name, location } = error;
+      const locStr = locc("Style", location);
+      return `The expression at ${locStr} expects \`${name}\` to be a non-collection style variable.`;
     }
 
     case "LayerOnNonShapesError": {
@@ -679,7 +716,7 @@ export const errLocs = (
       return locOrNone(e.typeVar);
     }
     case "DuplicateName": {
-      return locOrNone(e.name);
+      return locOrNone(e.location);
     }
     case "CyclicSubtypes": {
       return [];
@@ -694,6 +731,15 @@ export const errLocs = (
     }
     case "DeconstructNonconstructor": {
       return locOrNone(e.deconstructor);
+    }
+    case "InvalidSetIndexingError":
+    case "DuplicateIndexError":
+    case "DivideByZeroError":
+    case "InvalidArithmeticValueError": {
+      return locOrNone(e.location);
+    }
+    case "UnsupportedIndexingError": {
+      return locOrNone(e.iset);
     }
 
     // ---- BEGIN STYLE ERRORS
@@ -842,7 +888,8 @@ export const errLocs = (
 
     case "FunctionInternalError":
     case "RedeclareNamespaceError":
-    case "UnexpectedCollectionAccessError":
+    case "NotSubstanceCollectionError":
+    case "NotStyleVariableError":
     case "LayerOnNonShapesError": {
       return [
         toErrorLoc({
@@ -1097,11 +1144,20 @@ export const redeclareNamespaceError = (
   location,
 });
 
-export const unexpectedCollectionAccessError = (
+export const notSubstanceCollectionError = (
   name: string,
   location: SourceRange,
-): UnexpectedCollectionAccessError => ({
-  tag: "UnexpectedCollectionAccessError",
+): NotSubstanceCollectionError => ({
+  tag: "NotSubstanceCollectionError",
+  name,
+  location,
+});
+
+export const notStyleVariableError = (
+  name: string,
+  location: SourceRange,
+): NotStyleVariableError => ({
+  tag: "NotStyleVariableError",
   name,
   location,
 });
@@ -1195,15 +1251,15 @@ export const all = <Ok, Error>(
 export {
   Result,
   and,
-  or,
-  ok,
-  err,
   andThen,
   ap,
-  match,
-  unsafelyUnwrap,
+  err,
   isErr,
+  match,
+  ok,
+  or,
   unsafelyGetErr,
+  unsafelyUnwrap,
 };
 
 // #endregion

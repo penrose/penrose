@@ -1,0 +1,171 @@
+canvas {
+  width = 800
+  height = 800
+}
+
+Colors {
+    -- Keenan palette
+    black = #000000
+    white = #fff
+    darkpurple = #8c90c1
+    lightpurple = #d0d3e6
+    purple2 = rgba(0.106, 0.122, 0.54, 0.2)
+    verylightpurple = rgba(0.953, 0.957, 0.977, 1.0)
+    purple3 = rgba(0.557, 0.627, 0.769, 1.0)
+    midnightblue = rgba(0.14, 0.16, 0.52, 1.0)
+    none = none()
+}
+
+const {
+    pi = 3.14159
+    arrowheadSize = 0.65
+    strokeWidth = 1.75
+    textPadding = 7.0
+    textPadding2 = 20.0
+    textPadding3 = 40.0
+    repelWeight = 0.7 -- TODO: Reverted from 0.0
+    repelWeight2 = 0.5
+    fontSize = "35px"
+    containPadding = 50.0
+    rayLength = 100.0
+    pointRadius = 4.0
+    pointStroke = 0.0
+    thetaRadius = 30.0
+    circleRadius = 150.0
+    labelPadding = 30.0
+    minSegmentLength = 80.0
+    minLineLength = 200.0
+}
+
+--------------------------------------------------------------------------------
+-- START of "Lyapunov.style"
+
+--Plane
+
+--Point
+forall Point p {
+  p.x = ?
+  p.y = ?
+  p.vec = (p.x, p.y)
+  p.color = Colors.black
+  
+}
+
+forall Point p1 ; Point p2
+where IsEpsilonDist(p1,p2) 
+{
+  p1.icon = Circle {
+     center: p1.vec
+    r : const.pointRadius
+    fillColor : Colors.black
+    strokeWidth : 0.0
+    strokeColor : Colors.black
+  }
+  p1.text = Equation {
+    string : p1.label
+    fillColor : Colors.black
+    fontSize : const.fontSize
+  }
+  ensure equal(signedDistance(p1.text, p1.vec), const.textPadding + const.pointRadius)
+
+  p2.icon = Circle {
+     center: p2.vec
+    r : const.pointRadius
+    fillColor : Colors.black
+    strokeWidth : 0.0
+    strokeColor : Colors.black
+  }
+
+    p2.text = Equation {
+    string : p2.label
+    fillColor : Colors.black
+    fontSize : const.fontSize
+  }
+  ensure equal(signedDistance(p2.text, p2.vec), const.textPadding + const.pointRadius)
+
+  -- want a way of ensuring they're close together here
+  scalar d = norm(p1.vec-p2.vec)
+  ensure d < 30
+  ensure d > 10
+
+}
+
+forall Point p1 ; Point p2 ; Point p3
+where IsPath(p1,p2,p3)
+{
+  -- now I want a CURVED LINE
+  shape orientedPath = Path {
+    d: interpolateQuadraticFromPoints("open", p1.vec , p2.vec, p3.vec)
+    strokeColor: Colors.black
+  
+    endArrowhead: "straight"
+    endArrowheadSize: 2.0
+    strokeWidth: 1.0
+  }
+ 
+}
+
+forall Vector m ; Point p1 ; Point p2
+where IsBetween(p1,p2,m)
+{
+  -- I want a straight arrow between two points
+  m.end = p2.vec
+  m.start = p1.vec 
+  
+  m.shape = Line {
+    start : m.start 
+    end : m.end
+    strokewidth: 3.0
+    strokeColor: Colors.darkpurple
+    startArrowhead: "straight"
+    startArrowheadSize: 1.0
+    endArrowhead: "straight"
+    endArrowheadSize: 1.0
+  }
+  m.text = Equation {
+    string : m.label 
+    fillColor : Colors.darkpurple
+    fontSize : "20px"
+  }
+  ensure equal(signedDistance(m.text, (m.start+m.end)/2), const.textPadding2 + const.pointRadius)
+}
+
+forall Vector m ; Point p1 ; Point p2
+where IsBetween2(p1,p2,m)
+{
+  -- I want a straight arrow between two points
+  m.end = p2.vec
+  m.start = p1.vec 
+  
+  m.shape = Line {
+    start : m.start 
+    end : m.end
+    strokewidth: 3.0
+    strokeColor: Colors.midnightblue
+    startArrowhead: "straight"
+    startArrowheadSize: 1.0
+    endArrowhead: "straight"
+    endArrowheadSize: 1.0
+  }
+  m.text = Equation {
+    string : m.label 
+    fillColor : Colors.midnightblue
+    fontSize : "20px"
+  }
+  ensure equal(signedDistance(m.text, (m.start+m.end)/2), const.textPadding2 + const.pointRadius)
+}
+
+forall Point p1 ; Point p2
+where IsMidpoint(p1, p2)
+{
+  scalar d = norm(p1.vec-p2.vec)
+  ensure d > 75
+  ensure d < 100
+}
+
+forall Point p1 ; Point p2
+where IsEndpoint(p1, p2)
+{
+  scalar d = norm(p1.vec-p2.vec)
+  ensure d > 150
+}

@@ -23,7 +23,7 @@ import {
   UOp,
 } from "./style.js";
 import { ResolvedPath } from "./styleSemantics.js";
-import { Deconstructor, SubExpr, TypeConsApp } from "./substance.js";
+import { Deconstructor, StmtSet, SubExpr, TypeConsApp } from "./substance.js";
 import { ArgValWithSourceLoc, ShapeVal, Val, Value } from "./value.js";
 
 //#region ErrorTypes
@@ -60,6 +60,11 @@ export type SubstanceError =
   | VarNotFound
   | DeconstructNonconstructor
   | UnexpectedExprForNestedPred
+  | InvalidSetIndexingError
+  | DuplicateIndexError
+  | DivideByZeroError
+  | InvalidArithmeticValueError
+  | UnsupportedIndexingError
   | FatalError; // TODO: resolve all fatal errors in the Substance module
 
 export type DomainError =
@@ -80,6 +85,35 @@ export interface SymmetricTypeMismatch {
 export interface SymmetricArgLengthMismatch {
   tag: "SymmetricArgLengthMismatch";
   sourceExpr: AbstractNode;
+}
+
+export interface InvalidSetIndexingError {
+  tag: "InvalidSetIndexingError";
+  index: string;
+  location: AbstractNode;
+  suggestions: string[];
+}
+
+export interface DuplicateIndexError {
+  tag: "DuplicateIndexError";
+  index: string;
+  location: AbstractNode;
+}
+
+export interface DivideByZeroError {
+  tag: "DivideByZeroError";
+  location: AbstractNode;
+}
+
+export interface InvalidArithmeticValueError {
+  tag: "InvalidArithmeticValueError";
+  location: AbstractNode;
+  value: number;
+}
+
+export interface UnsupportedIndexingError {
+  tag: "UnsupportedIndexingError";
+  iset: StmtSet<A>;
 }
 
 export interface UnexpectedExprForNestedPred {
@@ -213,7 +247,8 @@ export type StyleError =
   | TooManyArgumentsError
   | FunctionInternalError
   | RedeclareNamespaceError
-  | UnexpectedCollectionAccessError
+  | NotSubstanceCollectionError
+  | NotStyleVariableError
   | LayerOnNonShapesError
   // Runtime errors
   | RuntimeValueTypeError;
@@ -516,8 +551,14 @@ export interface RedeclareNamespaceError {
   location: SourceRange; // location of the duplicated declaration
 }
 
-export interface UnexpectedCollectionAccessError {
-  tag: "UnexpectedCollectionAccessError";
+export interface NotSubstanceCollectionError {
+  tag: "NotSubstanceCollectionError";
+  name: string;
+  location: SourceRange;
+}
+
+export interface NotStyleVariableError {
+  tag: "NotStyleVariableError";
   name: string;
   location: SourceRange;
 }

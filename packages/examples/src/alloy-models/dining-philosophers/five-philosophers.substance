@@ -1,0 +1,41 @@
+Phil P0, P1, P2, P3, P4
+PhilFirst(P0)
+PhilNext(P0, P1)
+PhilNext(P1, P2)
+PhilNext(P2, P3)
+PhilNext(P3, P4)
+
+LeftPhil(P0, P4)
+LeftPhil(P1, P0)
+LeftPhil(P2, P1)
+LeftPhil(P3, P2)
+LeftPhil(P4, P3)
+
+RightPhil(P0, P1)
+RightPhil(P1, P2)
+RightPhil(P2, P3)
+RightPhil(P3, P4)
+RightPhil(P4, P0)
+
+Fork F0, F1, F2, F3, F4
+
+LeftFork(P0, F4)
+LeftFork(P1, F3)
+LeftFork(P2, F2)
+LeftFork(P3, F1)
+LeftFork(P4, F0)
+
+RightFork(P0, F3)
+RightFork(P1, F2)
+RightFork(P2, F1)
+RightFork(P3, F0)
+RightFork(P4, F4)
+
+Using(F0, P3)
+Using(F1, P2)
+Using(F2, P2)
+Using(F3, P0)
+--Using(F4, P1)
+
+
+AutoLabel All

@@ -84,6 +84,18 @@
     "name": "Hexagonal Lattice Graph",
     "gallery": true
   },
+  "dinoshade/dinoshade": {
+    "name": "3D Reflections and Shadows",
+    "gallery": true
+  },
+  "spectral-graphs/examples/grid": {
+    "name": "5x5 Grid",
+    "gallery": false
+  },
+  "spectral-graphs/examples/box": {
+    "name": "4x4x4 Box",
+    "gallery": false
+  },
   "graph-domain/textbook/sec1/fig5": {
     "name": "Computer Network with Multiple One-Way Links",
     "gallery": true
@@ -248,7 +260,6 @@
     "name": "Methane Combustion Reaction",
     "gallery": true
   },
-  "mobius/mobius": {},
   "molecules/glutamine": {},
   "matrix-ops/tests/matrix-matrix-addition": {
     "name": "Matrix-matrix addition",
@@ -429,7 +440,29 @@
     "name": "Dodecahedral Graph",
     "gallery": true
   },
-  "atoms-and-bonds/wet-floor": { "name": "Wet Floor", "gallery": true },
+  "matrix-library/crossProductMatrix": {},
+  "matrix-library/diagonal2d": {},
+  "matrix-library/diagonal3d": {},
+  "matrix-library/identity2d": {},
+  "matrix-library/identity3d": {},
+  "matrix-library/inverse2d": {},
+  "matrix-library/inverse3d": {},
+  "matrix-library/matrix2d": {},
+  "matrix-library/matrix3d": {},
+  "matrix-library/outerProduct2d": {},
+  "matrix-library/outerProduct3d": {},
+  "matrix-library/rotate": {},
+  "matrix-library/rotate2d": {},
+  "matrix-library/rotate3d": {},
+  "matrix-library/rotate3dh": {},
+  "matrix-library/scale2d": {},
+  "matrix-library/scale3d": {},
+  "matrix-library/shear2d": {},
+  "matrix-library/shear3d": {},
+  "matrix-library/skew2d": {},
+  "matrix-library/translate2d": {},
+  "matrix-library/translate3dh": {},
+  "atoms-and-bonds/wet-floor": { "name": "Wet Floor", "gallery": false },
   "curve-examples/offset": {
     "name": "Offset Curve",
     "gallery": false
@@ -445,5 +478,61 @@
   "curve-examples/evolute-of-cardioid": {
     "name": "Evolute of Cardioid",
     "gallery": false
+  },
+  "spectral-graphs/examples/truncated-cube-graph": {
+    "name": "Truncated Cube Graph",
+    "gallery": false
+  },
+  "spectral-graphs/examples/torus": {
+    "name": "Periodic 2D Grid",
+    "gallery": false
+  },
+  "spectral-graphs/examples/mobius": {
+    "name": "Mobius Strip",
+    "gallery": true
+  },
+  "impossible-ngon/ngon": {
+    "name": "Impossible Polygons",
+    "gallery": true
+  },
+  "impossible-ngon/parameters": {
+    "name": "Parameters for Penrose Logo",
+    "gallery": false
+  },
+  "impossible-ngon/nsides-chirality": {
+    "name": "nSides and Chirality for Penrose Logo",
+    "gallery": false
+  },
+  "spectral-graphs/examples/periodic-hexagonal-lattice": {
+    "name": "Periodic Hexagonal Grid",
+    "gallery": false
+  },
+  "alloy-models/dining-philosophers": {
+    "name": "Alloy: Dining Philosophers Problem",
+    "gallery": false
+  },
+  "alloy-models/message-passing": {
+    "name": "Alloy: Conversation between Four Parties",
+    "gallery": false
+  },
+  "alloy-models/ring-leader-election": {
+    "name": "Alloy: Leader Election in Ring",
+    "gallery": false
+  },
+  "alloy-models/river-crossing": {
+    "name": "Alloy: River Crossing",
+    "gallery": false
+  },
+  "alloy-models/workstations": {
+    "name": "Alloy: Workstations",
+    "gallery": false
+  },
+  "alloy-models/generic": {
+    "name": "Alloy: Generic Style",
+    "gallery": false
+  },
+  "Dynamics/Lyapunov": {
+    "name": "Lyapunov Exponent",
+    "gallery": true
   }
 }

@@ -101,6 +101,8 @@ import {
   ApplyConstructor,
   ApplyFunction,
   ApplyPredicate,
+  CompiledSubProg,
+  CompiledSubStmt,
   Decl,
   SubExpr,
   SubPredArg,
@@ -131,13 +133,14 @@ import {
   err,
   invalidColorLiteral,
   isErr,
+  notStyleVariableError,
+  notSubstanceCollectionError,
   ok,
   parseError,
   redeclareNamespaceError,
   safeChain,
   selectorFieldNotSupported,
   toStyleErrors,
-  unexpectedCollectionAccessError,
 } from "../utils/Error.js";
 import Graph from "../utils/Graph.js";
 import {
@@ -474,10 +477,10 @@ const checkRelPattern = (
 
       // TODO(error)
       if (isErr(res1)) {
-        const subErr1: SubstanceError = res1.error;
+        const subErr1 = res1.error;
         // TODO(error): Do we need to wrap this error further, or is returning SubstanceError with no additional Style info ok?
         // return ["substance typecheck error in B"];
-        return [{ tag: "TaggedSubstanceError", error: subErr1 }];
+        return [{ tag: "TaggedSubstanceError", error: subErr1[0] }];
       }
 
       const { type: vtype } = res1.value; // ignore env
@@ -487,8 +490,8 @@ const checkRelPattern = (
 
       // TODO(error)
       if (isErr(res2)) {
-        const subErr2: SubstanceError = res2.error;
-        return [{ tag: "TaggedSubstanceError", error: subErr2 }];
+        const subErr2 = res2.error;
+        return [{ tag: "TaggedSubstanceError", error: subErr2[0] }];
         // return ["substance typecheck error in E"];
       }
 
@@ -518,7 +521,7 @@ const checkRelPattern = (
       }
       const res = checkPredicate(toSubPred(rel), varEnv);
       if (isErr(res)) {
-        const subErr3: SubstanceError = res.error;
+        const subErr3: SubstanceError = res.error[0];
         return [{ tag: "TaggedSubstanceError", error: subErr3 }];
         // return ["substance typecheck error in Pred"];
       }
@@ -528,7 +531,7 @@ const checkRelPattern = (
       // check if the Substance name exists
       const nameOk = checkVar(rel.name.contents, varEnv);
       if (isErr(nameOk)) {
-        const subErr1: SubstanceError = nameOk.error;
+        const subErr1: SubstanceError = nameOk.error[0];
         return [{ tag: "TaggedSubstanceError", error: subErr1 }];
       }
       // check if the field is supported. Currently, we only support matching on `label`
@@ -1128,7 +1131,7 @@ const matchBvar = (
 // Judgment 12. G; theta |- S <| |S_o
 const matchDeclLine = (
   varEnv: Env,
-  line: SubStmt<A>,
+  line: CompiledSubStmt<A>,
   decl: DeclPattern<A>,
 ): Subst | undefined => {
   if (line.tag === "Decl") {
@@ -1148,19 +1151,22 @@ const matchDeclLine = (
 // Judgment 16. G; [theta] |- [S] <| [|S_o] ~> [theta']
 const matchDecl = (
   varEnv: Env,
-  subProg: SubProg<A>,
+  subProg: CompiledSubProg<A>,
   decl: DeclPattern<A>,
 ): im.List<Subst> => {
   const initDSubsts: im.List<Subst> = im.List();
   // Judgment 14. G; [theta] |- [S] <| |S_o
-  const newDSubsts = subProg.statements.reduce((dSubsts, line) => {
-    const subst = matchDeclLine(varEnv, line, decl);
-    if (subst === undefined) {
-      return dSubsts;
-    } else {
-      return dSubsts.push(subst);
-    }
-  }, initDSubsts);
+  const newDSubsts = subProg.statements.reduce(
+    (dSubsts, line: CompiledSubStmt<A>) => {
+      const subst = matchDeclLine(varEnv, line, decl);
+      if (subst === undefined) {
+        return dSubsts;
+      } else {
+        return dSubsts.push(subst);
+      }
+    },
+    initDSubsts,
+  );
   return newDSubsts;
 };
 
@@ -1460,14 +1466,14 @@ const matchStyRelToSubRels = (
   varEnv: Env,
   subEnv: SubstanceEnv,
   rel: RelationPattern<A>,
-  subProg: SubProg<A>,
-): [im.Set<string>, im.List<[Subst, im.Set<SubStmt<A>>]>] => {
+  subProg: CompiledSubProg<A>,
+): [im.Set<string>, im.List<[Subst, im.Set<CompiledSubStmt<A>>]>] => {
   const initUsedStyVars = im.Set<string>();
-  const initRSubsts = im.List<[Subst, im.Set<SubStmt<A>>]>();
+  const initRSubsts = im.List<[Subst, im.Set<CompiledSubStmt<A>>]>();
   if (rel.tag === "RelPred") {
     const styPred = rel;
     const newRSubsts = subProg.statements.reduce(
-      (rSubsts, statement: SubStmt<A>) => {
+      (rSubsts, statement: CompiledSubStmt<A>) => {
         if (statement.tag !== "ApplyPredicate") {
           return rSubsts;
         }
@@ -1482,7 +1488,7 @@ const matchStyRelToSubRels = (
         return rSubstsForPred.reduce((rSubsts, rSubstForPred) => {
           return rSubsts.push([
             rSubstForPred,
-            im.Set<SubStmt<A>>().add(statement),
+            im.Set<CompiledSubStmt<A>>().add(statement),
           ]);
         }, rSubsts);
       },
@@ -1514,7 +1520,7 @@ const matchStyRelToSubRels = (
         rSubstForBind[styBindedName] = subBindedName;
         return rSubsts.push([
           rSubstForBind,
-          im.Set<SubStmt<A>>().add(statement),
+          im.Set<CompiledSubStmt<A>>().add(statement),
         ]);
       }, rSubsts);
     }, initRSubsts);
@@ -1534,7 +1540,7 @@ const matchStyRelToSubRels = (
         if (rSubst === undefined) {
           return rSubsts;
         } else {
-          return rSubsts.push([rSubst, im.Set<SubStmt<A>>()]);
+          return rSubsts.push([rSubst, im.Set<CompiledSubStmt<A>>()]);
         }
       } else {
         return rSubsts;
@@ -1566,7 +1572,7 @@ const makeListRSubstsForStyleRels = (
   varEnv: Env,
   subEnv: SubstanceEnv,
   rels: RelationPattern<A>[],
-  subProg: SubProg<A>,
+  subProg: CompiledSubProg<A>,
 ): [im.Set<string>, im.List<im.List<[Subst, im.Set<SubStmt<A>>]>>] => {
   const initUsedStyVars: im.Set<string> = im.Set();
   const initListRSubsts: im.List<im.List<[Subst, im.Set<SubStmt<A>>]>> =
@@ -1597,7 +1603,7 @@ const makePotentialSubsts = (
   varEnv: Env,
   selEnv: SelEnv,
   subEnv: SubstanceEnv,
-  subProg: SubProg<A>,
+  subProg: CompiledSubProg<A>,
   decls: DeclPattern<A>[],
   rels: RelationPattern<A>[],
 ): im.List<[Subst, im.Set<SubStmt<A>>]> => {
@@ -1664,7 +1670,7 @@ const getSubsts = (
   varEnv: Env,
   subEnv: SubstanceEnv,
   selEnv: SelEnv,
-  subProg: SubProg<A>,
+  subProg: CompiledSubProg<A>,
   header: Collector<A> | Selector<A>,
 ): Subst[] => {
   const decls = getDecls(header);
@@ -1682,9 +1688,16 @@ const getSubsts = (
   // Ensures there are no duplicated substitutions in terms of both
   // matched relations and substitution targets.
   const filteredSubsts = deduplicate(varEnv, subEnv, subProg, rels, rawSubsts);
-  const correctSubsts = filteredSubsts.filter(uniqueKeysAndVals);
+  const { repeatable } = header;
 
-  return correctSubsts.toArray();
+  // If we want repeatable matchings, this is good
+  if (repeatable) {
+    return filteredSubsts.toArray();
+  } else {
+    // Otherwise need to remove all duplications
+    const correctSubsts = filteredSubsts.filter(uniqueKeysAndVals);
+    return correctSubsts.toArray();
+  }
 };
 
 type GroupbyBucket = {
@@ -1733,7 +1746,7 @@ const collectSubsts = (
 const findSubstsSel = (
   varEnv: Env,
   subEnv: SubstanceEnv,
-  subProg: SubProg<A>,
+  subProg: CompiledSubProg<A>,
   [header, selEnv]: [Header<A>, SelEnv],
 ): StySubst[] => {
   if (header.tag === "Selector") {
@@ -2329,6 +2342,9 @@ const findPathsExpr = <T>(expr: Expr<T>, context: Context): Path<T>[] => {
         return [];
       }
     }
+    case "UnaryStyVarExpr": {
+      return [];
+    }
   }
 };
 
@@ -2905,7 +2921,7 @@ const evalAccess = (
   expr: Path<C>,
   coll: Value<ad.Num>,
   indices: number[],
-): Result<FloatV<ad.Num>, StyleError> => {
+): Result<Value<ad.Num>, StyleError> => {
   switch (coll.tag) {
     case "ListV":
     case "TupV":
@@ -2922,18 +2938,27 @@ const evalAccess = (
     case "LListV":
     case "MatrixV":
     case "PtListV": {
-      if (indices.length !== 2) {
+      if (indices.length === 1) {
+        // get i-th row
+        const [i] = indices;
+        if (!isValidIndex(coll.contents, i)) {
+          return err({ tag: "OutOfBoundsError", expr, indices });
+        }
+        return ok(vectorV(coll.contents[i]));
+      } else if (indices.length === 2) {
+        // get i-th row, j-th column
+        const [i, j] = indices;
+        if (!isValidIndex(coll.contents, i)) {
+          return err({ tag: "OutOfBoundsError", expr, indices });
+        }
+        const row = coll.contents[i];
+        if (!isValidIndex(row, j)) {
+          return err({ tag: "OutOfBoundsError", expr, indices });
+        }
+        return ok(floatV(row[j]));
+      } else {
         return err({ tag: "BadIndexError", expr });
       }
-      const [i, j] = indices;
-      if (!isValidIndex(coll.contents, i)) {
-        return err({ tag: "OutOfBoundsError", expr, indices });
-      }
-      const row = coll.contents[i];
-      if (!isValidIndex(row, j)) {
-        return err({ tag: "OutOfBoundsError", expr, indices });
-      }
-      return ok(floatV(row[j]));
     }
     case "ShapeListV": {
       return err({ tag: "IndexIntoShapeListError", expr });
@@ -3231,7 +3256,7 @@ const evalExpr = (
       } else {
         return err(
           oneErr(
-            unexpectedCollectionAccessError(name.value, {
+            notSubstanceCollectionError(name.value, {
               start: expr.start,
               end: expr.end,
             }),
@@ -3239,6 +3264,41 @@ const evalExpr = (
         );
       }
     }
+    case "UnaryStyVarExpr": {
+      const { subst } = context;
+      const { op, arg } = expr;
+      if (expr.op === "numberof") {
+        return evalNumberOf(subst, arg, { start: expr.start, end: expr.end });
+      } else {
+        return evalNameOf(subst, arg, { start: expr.start, end: expr.end });
+      }
+    }
+  }
+};
+
+const evalNumberOf = (
+  subst: StySubst,
+  arg: Identifier<C>,
+  loc: SourceRange,
+): Result<ArgVal<ad.Num>, StyleDiagnostics> => {
+  if (subst.tag === "CollectionSubst" && arg.value === subst.collName) {
+    return ok(val(floatV(subst.collContent.length)));
+  } else {
+    return err(oneErr(notSubstanceCollectionError(arg.value, loc)));
+  }
+};
+
+const evalNameOf = (
+  subst: StySubst,
+  arg: Identifier<C>,
+  loc: SourceRange,
+): Result<ArgVal<ad.Num>, StyleDiagnostics> => {
+  if (subst.tag === "StySubSubst" && arg.value in subst.contents) {
+    return ok(val(strV(subst.contents[arg.value])));
+  } else if (subst.tag === "CollectionSubst" && arg.value in subst.groupby) {
+    return ok(val(strV(subst.groupby[arg.value])));
+  } else {
+    return err(oneErr(notStyleVariableError(arg.value, loc)));
   }
 };
 
@@ -3356,7 +3416,8 @@ const translateExpr = (
     case "UOp":
     case "Vary":
     case "Vector":
-    case "CollectionAccess": {
+    case "CollectionAccess":
+    case "UnaryStyVarExpr": {
       const res = evalExpr(mut, canvas, layoutStages, e, trans);
       if (res.isErr()) {
         return addDiags(res.error, trans);
@@ -3730,7 +3791,7 @@ const pseudoTopsort = (graph: Graph<string>): string[] => {
 
   while (toVisit.size() > 0) {
     // remove element with fewest incoming edges and append to result
-    const node: string = toVisit.extractRoot() as string;
+    const node: string = toVisit.extractRoot()!;
     res.push(node);
     // remove all edges with `node`
     for (const { j } of graph.outEdges(node)) {

@@ -3,6 +3,73 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v3.2.0](https://github.com/penrose/penrose/compare/v3.1.0...v3.2.0) (2023-08-08)
+
+### :rocket: New Feature
+
+- Add common matrix functions to standard library ([#1538](https://github.com/penrose/penrose/issues/1538)) ([fdbe56e](https://github.com/penrose/penrose/commit/fdbe56e6f983440f6225a8ea61ea5ef21236a1ed))
+- Add dinoshade example to registry ([#1601](https://github.com/penrose/penrose/issues/1601)) ([ef2a536](https://github.com/penrose/penrose/commit/ef2a5363f12d9f986ff45e9eb93760f467819eaa))
+- Penrose logo ([#1605](https://github.com/penrose/penrose/issues/1605)) ([f3e7369](https://github.com/penrose/penrose/commit/f3e7369f33dfeeac2d7452d98e19f1d2e5448e9d))
+- Substance indexed sets ([#1572](https://github.com/penrose/penrose/issues/1572)) ([83f3869](https://github.com/penrose/penrose/commit/83f386950415a0d839ce95ba080c9ed36c4413b7))
+- Update 3D Spectral Graphs ([#1550](https://github.com/penrose/penrose/issues/1550)) ([a2b813b](https://github.com/penrose/penrose/commit/a2b813bff5f180bdd735d2dc97cb6a2692923af6))
+- `numberof` and `nameof` ([#1583](https://github.com/penrose/penrose/issues/1583)) ([d3049af](https://github.com/penrose/penrose/commit/d3049afd47099e02dbfe3dc0d74bbbc7d2bb60fe))
+- diagrams for selected and generic Alloy models ([#1584](https://github.com/penrose/penrose/issues/1584)) ([1ca7d33](https://github.com/penrose/penrose/commit/1ca7d3314a41f6ef9cdd848e20bbf791beb4e01e))
+- row-indexing of matrices ([#1599](https://github.com/penrose/penrose/issues/1599)) ([b35b82d](https://github.com/penrose/penrose/commit/b35b82da8857af07c240bf971918d823aade7cef))
+
+### :bug: Bug Fix
+
+- Alloy example dining-philosophers use `numberof` and `nameof` ([#1587](https://github.com/penrose/penrose/issues/1587)) ([0503d5b](https://github.com/penrose/penrose/commit/0503d5ba5c93d66248f80a1553bfd7f87792c39f))
+- bounding boxes and points for rotated rects ([#1600](https://github.com/penrose/penrose/issues/1600)) ([ec0fa7b](https://github.com/penrose/penrose/commit/ec0fa7b5250d36571fc3e922e9857349d03c3ff1))
+
+### :memo: Documentation
+
+- Update README.md ([#1580](https://github.com/penrose/penrose/issues/1580)) ([f2d865f](https://github.com/penrose/penrose/commit/f2d865f280787c1ca957f43cdda5460eab54f79b))
+- allow TeX in Style function docs ([#1592](https://github.com/penrose/penrose/issues/1592)) ([95ab946](https://github.com/penrose/penrose/commit/95ab946ea5e3c842ffa399c102c85513235f0059))
+- blog post for tailoring graph domain ([#1590](https://github.com/penrose/penrose/issues/1590)) ([90398ca](https://github.com/penrose/penrose/commit/90398ca487056f40ac606d70c429fbc42fccbd9f))
+- fix anchors for functions ([#1570](https://github.com/penrose/penrose/issues/1570)) ([a145853](https://github.com/penrose/penrose/commit/a1458536fdf2dabc4bcd2c9ca4b423beb2c4416f))
+- fix single quotation mark ([#1579](https://github.com/penrose/penrose/issues/1579)) ([098c33d](https://github.com/penrose/penrose/commit/098c33de3feb2307c7ca80c6d3e0a0f5b842669d))
+- render Style function docstrings at build-time ([#1602](https://github.com/penrose/penrose/issues/1602)) ([81de1f4](https://github.com/penrose/penrose/commit/81de1f4b156c11d3d894c6f5797c87b7af0ee5df))
+- render markdown in function param description ([#1575](https://github.com/penrose/penrose/issues/1575)) ([1bd1e2d](https://github.com/penrose/penrose/commit/1bd1e2d23c52239ef34977956db73c249edc9d31))
+
+### :house: Internal
+
+- add `eslint-plugin-unary-minus` ([#1589](https://github.com/penrose/penrose/issues/1589)) ([100dc7a](https://github.com/penrose/penrose/commit/100dc7a16f4dccf097c0a458b2ca741a37d10014))
+- enable strict TS checking in `roger` ([#1576](https://github.com/penrose/penrose/issues/1576)) ([3a698f9](https://github.com/penrose/penrose/commit/3a698f99cc1021e377e3f6e46f2fa7666f521f6a))
+- go from `.eslintrc.cjs` to `.eslintrc.json` ([#1585](https://github.com/penrose/penrose/issues/1585)) ([7908f9f](https://github.com/penrose/penrose/commit/7908f9f1bad1b269656277af3884c9e6aee81be6))
+- graphs blog post fixes ([#1594](https://github.com/penrose/penrose/issues/1594)) ([6d74d93](https://github.com/penrose/penrose/commit/6d74d93a1c2f6003fec237a7f9da305c9d0e89cc))
+- remove redundant TSConfig stuff for Roger ([#1581](https://github.com/penrose/penrose/issues/1581)) ([0d2ac0a](https://github.com/penrose/penrose/commit/0d2ac0aacef5267f6d90adc9b2247dc112973b4d))
+
+## [v3.1.0](https://github.com/penrose/penrose/compare/v3.0.0...v3.1.0) (2023-07-19)
+
+### :rocket: New Feature
+
+- added UI for LLM program generation in `edgeworth` ([#1556](https://github.com/penrose/penrose/issues/1556)) ([865ee9e](https://github.com/penrose/penrose/commit/865ee9e7f6b598bc0f07e416ab73bea978bba6e7))
+- added `mod` function to `Functions.ts` ([#1565](https://github.com/penrose/penrose/issues/1565)) ([b7a7c3b](https://github.com/penrose/penrose/commit/b7a7c3b2710865f05e7040e913d5f7d5e825c1d1))
+- nondistinct matching ([#1567](https://github.com/penrose/penrose/issues/1567)) ([77e2714](https://github.com/penrose/penrose/commit/77e2714fb5bcf888136a2f65340b56c5d0025661))
+
+### :bug: Bug Fix
+
+- `CircleCenter` behavior in Euclidean geometry Style ([#1571](https://github.com/penrose/penrose/issues/1571)) ([a2ed8e1](https://github.com/penrose/penrose/commit/a2ed8e171cd406666ecf25f398dbea7e7a54c2cb))
+- compile `@penrose/roger` for distribution 💂‍♂️ ([#1562](https://github.com/penrose/penrose/issues/1562)) ([7b36125](https://github.com/penrose/penrose/commit/7b3612539bb104ea16edf01ad4884a919c3eac4a))
+- gallery loading by switching to pure Vue ([#1549](https://github.com/penrose/penrose/issues/1549)) ([7c96d70](https://github.com/penrose/penrose/commit/7c96d70f93d9da1810c32d3c7bcd467a343f5be1))
+- layering on nonexistent objects ([#1560](https://github.com/penrose/penrose/issues/1560)) ([0bbe47c](https://github.com/penrose/penrose/commit/0bbe47c505b9920db83dd152a914b452129b6668))
+
+### :memo: Documentation
+
+- Correct domain code snippet type ([#1566](https://github.com/penrose/penrose/issues/1566)) ([ad0005a](https://github.com/penrose/penrose/commit/ad0005a92230efd5338f6e143f4bc5eb78009596))
+- add "Edit this page" button to pages ([#1555](https://github.com/penrose/penrose/issues/1555)) ([2ca37bd](https://github.com/penrose/penrose/commit/2ca37bd5d03e444f8cbd6b809558f349a9b78ebf))
+- add Discord badge to GitHub README ([#1548](https://github.com/penrose/penrose/issues/1548)) ([84cf567](https://github.com/penrose/penrose/commit/84cf567302ffdfd404cfaf245b32d93d26575609))
+- add a short intro to v3 blog post ([#1551](https://github.com/penrose/penrose/issues/1551)) ([4c8f75c](https://github.com/penrose/penrose/commit/4c8f75c6fa5eba192dec51ff5fa74bf68ef46d9a))
+- explain the origin of the project name ([#1554](https://github.com/penrose/penrose/issues/1554)) ([add467a](https://github.com/penrose/penrose/commit/add467abaa9ded9ab46234aff673a6f3ba09c313))
+- fix `npx` command for roger ([#1568](https://github.com/penrose/penrose/issues/1568)) ([cea1d0e](https://github.com/penrose/penrose/commit/cea1d0ee81f24264a68ad3fb39d4c33c3db9169a))
+- improve blog excerpt styling ([#1552](https://github.com/penrose/penrose/issues/1552)) ([b4514ca](https://github.com/penrose/penrose/commit/b4514cafb0b0ae037641f7cafab2811c4f67b144))
+- update Vanilla JS usage for v3 ([#1544](https://github.com/penrose/penrose/issues/1544)) ([d1ee0ea](https://github.com/penrose/penrose/commit/d1ee0ead2160d35e414cf562245e327904d808e5))
+
+### :house: Internal
+
+- Update `team.md` with new website URL for Rijul Jain ([#1559](https://github.com/penrose/penrose/issues/1559)) ([93ecea1](https://github.com/penrose/penrose/commit/93ecea130e478f383fc8f2ae305b4fd09ab47cb2))
+- enable Prettier for `*.jsx` in VS Code ([#1558](https://github.com/penrose/penrose/issues/1558)) ([fb47302](https://github.com/penrose/penrose/commit/fb47302c01e6a45713034acc321caaa921b64fab))
+
 ## [v3.0.0](https://github.com/penrose/penrose/compare/v2.3.0...v3.0.0) (2023-07-14)
 
 ### :warning: BREAKING CHANGE

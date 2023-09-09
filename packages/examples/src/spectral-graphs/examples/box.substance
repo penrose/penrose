@@ -1,0 +1,5 @@
+Node n_i for i in [0,63]
+
+Edge x_i := MakeEdge( n_i, n_j ) for i in [0,63], j in [0,63] where j == (i + 1) mod 64 && i % 4 < 3
+Edge y_i := MakeEdge( n_i, n_j ) for i in [0,63], j in [0,63] where j == (i + 4) mod 64 && i % 16 < 12
+Edge z_i := MakeEdge( n_i, n_j ) for i in [0,47], j in [0,63] where j == (i + 16) mod 64

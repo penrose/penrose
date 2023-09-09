@@ -1031,7 +1031,13 @@ export const ops = {
   },
 
   /**
-   * Return 3D cross product of 3D vectors
+   * Return outer product matrix uv^T.  Vectors u and v must have
+   * the same length.
+   *
+   * NOTE: This functionality is duplicated in `outerProduct()`
+   * from Functions.ts.  Since `outerProduct` has a more directly
+   * interpretable name, we may wish to deprecate `vouter` and
+   * move `outerProduct` into `Autodiff.ts` in a future release.
    */
   vouter: (u: ad.Num[], v: ad.Num[]): ad.Num[][] => {
     if (u.length !== v.length) {

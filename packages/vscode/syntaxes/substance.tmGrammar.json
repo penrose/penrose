@@ -4,10 +4,11 @@
   "scopeName": "source.penrose-substance",
   "fileTypes": [".substance"],
   "patterns": [
+    { "include": "#comments" },
     { "include": "#keywords" },
     { "include": "#latex" },
     { "include": "#strings" },
-    { "include": "#comments" }
+    { "include": "#numbers" }
   ],
   "repository": {
     "strings": {
@@ -31,16 +32,24 @@
       "patterns": [
         {
           "name": "keyword.control.penrose",
-          "match": "\\b(AutoLabel|Label|NoLabel|All|Let)\\b"
+          "match": "\\b(AutoLabel|Label|NoLabel|All|Let|for|where|in)\\b"
         },
         {
-          "name": "keyword.operator",
-          "match": ":="
+          "name": "keyword.operator.penrose",
+          "match": ":=|>=|<=|>|<|==|\\|\\||&&|!|\\+|\\*|-|%|/|mod|="
         }
       ]
     },
     "latex": {
       "patterns": [{ "name": "constant.language.penrose", "match": "\\$.*\\$" }]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.float",
+          "match": "\\b[+-]?(?:\\d+(?:[.]\\d*)?(?:[eE][+-]?\\d+)?|[.]\\d+(?:[eE][+-]?\\d+)?)\\b"
+        }
+      ]
     }
   }
 }

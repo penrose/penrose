@@ -84,14 +84,14 @@ export type {
   Vec,
 } from "./types/ad.js";
 export {
-  measureText,
-  variable,
-  signedDistanceRect,
-  perimeter,
   consecutiveTuples,
-  equivalued,
   elasticEnergy,
-  sub,
+  equivalued,
+  measureText,
+  perimeter,
   pow,
   rectPts,
+  signedDistanceRect,
+  sub,
+  variable,
 };

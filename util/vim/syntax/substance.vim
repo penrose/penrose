@@ -8,7 +8,7 @@ if exists("b:current_syntax")
 endif
 
 " Keywords
-syn keyword subKeywords Label AutoLabel NoLabel All None
+syn keyword subKeywords Label AutoLabel NoLabel All None Let for
 
 " Comments
 syn keyword subTodo TODO FIXME XXX NOTE
@@ -18,7 +18,7 @@ syn match subComment "--.*$" contains=subTodo,@Spell
 syn match subString "\$[^$]*\$"
 syn match subString "\"[^$]*\""
 
-let b:current_syntax = "sub"
+let b:current_syntax = "substance"
 
 hi def link subTodo Todo
 hi def link subKeywords Statement

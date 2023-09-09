@@ -1,3 +1,5 @@
+import { rectPts } from "../contrib/Queries.js";
+import { toPt } from "../contrib/Utils.js";
 import { CircleProps } from "../shapes/Circle.js";
 import { EllipseProps } from "../shapes/Ellipse.js";
 import { LineProps } from "../shapes/Line.js";
@@ -179,34 +181,9 @@ export const bboxFromRotatedRect = (
   clockwise: ad.Num,
   strokeWidth: ad.Num,
 ): BBox => {
-  const counterclockwise = neg(clockwise);
-  const down = ops.vrot([0, -1], counterclockwise);
-  const right = ops.rot90(down);
-
-  const width = add(w, strokeWidth);
-  const height = add(h, strokeWidth);
-  const top = ops.vmul(width, right);
-  const left = ops.vmul(height, down);
-
-  const topLeft = ops.vsub(
-    [sub(center[0], div(w, 2)), add(center[1], div(h, 2))],
-    ops.vmul(div(strokeWidth, 2), ops.vadd(down, right)),
+  return bboxFromPoints(
+    rectPts(center, add(w, strokeWidth), add(h, strokeWidth), clockwise),
   );
-  const topRight = ops.vadd(topLeft, top);
-  const botLeft = ops.vadd(topLeft, left);
-  const botRight = ops.vadd(topRight, left);
-  if (
-    !(
-      ad.isPt2(topLeft) &&
-      ad.isPt2(topRight) &&
-      ad.isPt2(botLeft) &&
-      ad.isPt2(botRight)
-    )
-  ) {
-    throw new Error("ops.vadd did not preserve dimension");
-  }
-
-  return bboxFromPoints([topLeft, topRight, botLeft, botRight]);
 };
 
 export const bboxFromCircle = ({
@@ -252,6 +229,7 @@ export const bboxFromRect = ({
   height,
   center,
   strokeWidth,
+  rotation,
 }: RectangleProps<ad.Num>): BBox => {
   // https://github.com/penrose/penrose/issues/715
   if (!ad.isPt2(center.contents)) {
@@ -261,10 +239,12 @@ export const bboxFromRect = ({
   }
 
   // rx just rounds the corners, doesn't change the bbox
-  return bbox(
-    add(width.contents, strokeWidth.contents),
-    add(height.contents, strokeWidth.contents),
-    center.contents,
+  return bboxFromRotatedRect(
+    toPt(center.contents),
+    width.contents,
+    height.contents,
+    rotation.contents,
+    strokeWidth.contents,
   );
 };
 

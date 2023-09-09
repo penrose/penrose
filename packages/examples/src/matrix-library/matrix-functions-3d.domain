@@ -1,0 +1,13 @@
+type Shape
+predicate identity3d( Shape S )
+predicate diagonal3d( Shape S )
+predicate inverse3d( Shape S )
+predicate outerProduct3d( Shape S )
+predicate crossProductMatrix( Shape S )
+predicate rotate3d( Shape S )
+predicate rotate3dh( Shape S )
+predicate scale3d( Shape S )
+predicate shear3d( Shape S )
+predicate translate3dh( Shape S )
+predicate matrix3d( Shape S )
+

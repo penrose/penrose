@@ -3,6 +3,37 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v3.2.0](https://github.com/penrose/penrose/compare/v3.1.0...v3.2.0) (2023-08-08)
+
+### :rocket: New Feature
+
+- Add common matrix functions to standard library ([#1538](https://github.com/penrose/penrose/issues/1538)) ([fdbe56e](https://github.com/penrose/penrose/commit/fdbe56e6f983440f6225a8ea61ea5ef21236a1ed))
+- Add dinoshade example to registry ([#1601](https://github.com/penrose/penrose/issues/1601)) ([ef2a536](https://github.com/penrose/penrose/commit/ef2a5363f12d9f986ff45e9eb93760f467819eaa))
+- Penrose logo ([#1605](https://github.com/penrose/penrose/issues/1605)) ([f3e7369](https://github.com/penrose/penrose/commit/f3e7369f33dfeeac2d7452d98e19f1d2e5448e9d))
+- Substance indexed sets ([#1572](https://github.com/penrose/penrose/issues/1572)) ([83f3869](https://github.com/penrose/penrose/commit/83f386950415a0d839ce95ba080c9ed36c4413b7))
+- Update 3D Spectral Graphs ([#1550](https://github.com/penrose/penrose/issues/1550)) ([a2b813b](https://github.com/penrose/penrose/commit/a2b813bff5f180bdd735d2dc97cb6a2692923af6))
+- diagrams for selected and generic Alloy models ([#1584](https://github.com/penrose/penrose/issues/1584)) ([1ca7d33](https://github.com/penrose/penrose/commit/1ca7d3314a41f6ef9cdd848e20bbf791beb4e01e))
+
+### :bug: Bug Fix
+
+- Alloy example dining-philosophers use `numberof` and `nameof` ([#1587](https://github.com/penrose/penrose/issues/1587)) ([0503d5b](https://github.com/penrose/penrose/commit/0503d5ba5c93d66248f80a1553bfd7f87792c39f))
+
+### :memo: Documentation
+
+- Update README.md ([#1580](https://github.com/penrose/penrose/issues/1580)) ([f2d865f](https://github.com/penrose/penrose/commit/f2d865f280787c1ca957f43cdda5460eab54f79b))
+- blog post for tailoring graph domain ([#1590](https://github.com/penrose/penrose/issues/1590)) ([90398ca](https://github.com/penrose/penrose/commit/90398ca487056f40ac606d70c429fbc42fccbd9f))
+
+## [v3.1.0](https://github.com/penrose/penrose/compare/v3.0.0...v3.1.0) (2023-07-19)
+
+### :rocket: New Feature
+
+- added UI for LLM program generation in `edgeworth` ([#1556](https://github.com/penrose/penrose/issues/1556)) ([865ee9e](https://github.com/penrose/penrose/commit/865ee9e7f6b598bc0f07e416ab73bea978bba6e7))
+- nondistinct matching ([#1567](https://github.com/penrose/penrose/issues/1567)) ([77e2714](https://github.com/penrose/penrose/commit/77e2714fb5bcf888136a2f65340b56c5d0025661))
+
+### :bug: Bug Fix
+
+- `CircleCenter` behavior in Euclidean geometry Style ([#1571](https://github.com/penrose/penrose/issues/1571)) ([a2ed8e1](https://github.com/penrose/penrose/commit/a2ed8e171cd406666ecf25f398dbea7e7a54c2cb))
+
 ## [v3.0.0](https://github.com/penrose/penrose/compare/v2.3.0...v3.0.0) (2023-07-14)
 
 ### :warning: BREAKING CHANGE

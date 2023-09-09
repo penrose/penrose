@@ -44,6 +44,8 @@ export const cropSVG = (svg) => {
       svgNode.setAttribute("viewBox", cropped);
     }
   }
+  svgNode.setAttribute("width", "100%");
+  svgNode.setAttribute("height", "100%");
   return serializer.serializeToString(svgNode);
 };
 
@@ -98,7 +100,9 @@ export default {
 .example-container {
   width: 200px;
   height: 200px;
-  padding: 1.5em;
+  padding: 1.2em;
+  display: flex;
+  justify-content: center;
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.1);

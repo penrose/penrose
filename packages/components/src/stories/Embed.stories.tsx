@@ -1,5 +1,5 @@
 import { ComponentMeta, ComponentStory } from "@storybook/react";
-import { Embed } from "../Embed.js";
+import Embed from "../Embed.js";
 import { continuousMap, error, oneSet } from "./PenrosePrograms.js";
 
 // const diagram = await getDiagram();
@@ -22,10 +22,17 @@ const Template: ComponentStory<typeof Embed> = (args) => (
 );
 
 export const ContinuousMap = Template.bind({});
-ContinuousMap.args = continuousMap;
+ContinuousMap.args = { trio: { ...continuousMap } };
 
 export const OneSet = Template.bind({});
-OneSet.args = oneSet;
+OneSet.args = { trio: { ...oneSet } };
 
 export const Error = Template.bind({});
-Error.args = error;
+Error.args = {
+  trio: {
+    domain: error.domain,
+    substance: "Set A + B",
+    style: error.style,
+    variation: "",
+  },
+};

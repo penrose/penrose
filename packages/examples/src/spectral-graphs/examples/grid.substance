@@ -1,0 +1,4 @@
+Node n_i for i in [0,24]
+
+Edge x_i := MakeEdge( n_i, n_j ) for i in [0,24], j in [0,24] where j == (i + 1) mod 25 && i % 5 < 4
+Edge y_i := MakeEdge( n_i, n_j ) for i in [0,19], j in [0,24] where j == (i + 5) mod 25

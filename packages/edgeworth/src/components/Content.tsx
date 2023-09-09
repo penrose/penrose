@@ -13,10 +13,8 @@ import {
   PenroseState,
   prettySubstance,
   showError,
-  SubProg,
   toSVG,
 } from "@penrose/core";
-import { A } from "@penrose/core/dist/types/ast";
 import { saveAs } from "file-saver";
 import JSZip from "jszip";
 import { shuffle } from "lodash";
@@ -157,7 +155,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
         }
         const synth = new Synthesizer(env, setting, subResult, seed);
         let progs = synth.generateSubstances(numPrograms);
-        const template: SubProg<A> | undefined = synth.getTemplate();
+        const template = synth.getTemplate();
 
         if (template) {
           this.setState({

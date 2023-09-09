@@ -269,6 +269,10 @@ export default defineConfig({
                   text: "Random Sampling",
                   link: "/docs/ref/style/random-sampling",
                 },
+                {
+                  text: "Vectors and Matrices",
+                  link: "/docs/ref/style/vectors-matrices",
+                },
                 { text: "Function Library", link: "/docs/ref/style/functions" },
                 {
                   text: "Passthrough SVG",
@@ -314,6 +318,15 @@ export default defineConfig({
         },
       ],
       "/blog": [
+        {
+          text: "August 2023",
+          items: [
+            {
+              text: "Tailoring Penrose domains to your needs",
+              link: "/blog/tailoring-graph-domain",
+            },
+          ],
+        },
         {
           text: "July 2023",
           items: [

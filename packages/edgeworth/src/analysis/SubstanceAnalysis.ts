@@ -30,8 +30,8 @@ import {
   LabelDecl,
   SubExpr,
   SubPredArg,
-  SubProg,
-  SubStmt,
+  CompiledSubProg as SubProg,
+  CompiledSubStmt as SubStmt,
   TypeConsApp,
 } from "@penrose/core/dist/types/substance";
 import consola from "consola";
@@ -132,7 +132,9 @@ export const replaceStmt = <T>(
   newStmt: SubStmt<T>,
 ): SubProg<T> => ({
   ...prog,
-  statements: prog.statements.map((s) => (s === originalStmt ? newStmt : s)),
+  statements: prog.statements.map((s: SubStmt<T>) =>
+    s === originalStmt ? newStmt : s,
+  ),
 });
 
 /**
@@ -329,7 +331,7 @@ export const cascadingDelete = <T>(
   while (ids.length > 0) {
     const id = ids.pop()!;
     // look for statements that take id as arg
-    const toDelete = prog.statements.filter((s): boolean => {
+    const toDelete = prog.statements.filter((s: SubStmt<T>): boolean => {
       switch (s.tag) {
         case "Bind": {
           const expr = s.expr as unknown as ApplyPredicate<T>;

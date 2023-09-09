@@ -66,6 +66,40 @@ Set D
 });
 
 describe("statements", () => {
+  describe("isets", () => {
+    test.each([
+      "Set A for i in [0, 10]",
+      "Set A for i in [0, 10], j in [1, 5]",
+    ])("decl iset %s", (iset: string) => {
+      const { results } = parser.feed(iset);
+      sameASTs(results);
+    });
+
+    test.each([
+      "Set A := MakeSet(hello_j) for j in [0, 20]",
+      "Let B := Set(hello_world) for abc in [80, 70]",
+    ])("declbind iset %s", (iset: string) => {
+      const { results } = parser.feed(iset);
+      sameASTs(results);
+    });
+
+    test.each([
+      "Edge(a_i, a_j) for i in [0, 20], j in [20, 30] where i + 1 == j && j + 1 == i || !(j == 1 && y == 2)",
+      "Edge(v_i, v_i) for i in [0, 20] where 20 != 20",
+    ])("pred conditional iset %s", (iset: string) => {
+      const { results } = parser.feed(iset);
+      sameASTs(results);
+    });
+
+    test.each([
+      'Label x_i "abcde" for i in [0, 10]',
+      "Label y $abc$ for j in [0, 15]",
+    ])("label iset %s", (iset: string) => {
+      const { results } = parser.feed(iset);
+      sameASTs(results);
+    });
+  });
+
   test("decl and decl list", () => {
     const prog = `
 Set A
@@ -75,15 +109,25 @@ List(Map) l1
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);
-    expect(results[0].statements.map((s: any) => s.name.value)).toEqual([
-      "A",
-      "f",
-      "g",
-      "h",
-      "l",
-      "l1",
-    ]);
+    expect(
+      results[0].statements
+        .map((statement: any) => {
+          if (statement.tag === "Decl") {
+            return statement.name.value;
+          } else if (statement.tag === "DeclList") {
+            return statement.names.map((n: any) => n.value);
+          }
+        })
+        .flat(),
+    ).toEqual(["A", "f", "g", "h", "l", "l1"]);
   });
+
+  test.each(["Set a", "Set a, b"])("decl list %s", (iset: string) => {
+    const { results } = parser.feed(iset);
+
+    sameASTs(results);
+  });
+
   test("label decl", () => {
     const prog = `
 Set A, B, C
@@ -92,8 +136,8 @@ Label B $B_1$
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);
-    expect(results[0].statements[3].label.contents).toEqual("\\vec{A}");
-    expect(results[0].statements[4].label.contents).toEqual("B_1");
+    expect(results[0].statements[1].label.contents).toEqual("\\vec{A}");
+    expect(results[0].statements[2].label.contents).toEqual("B_1");
   });
   test("no label decl", () => {
     const prog = `
@@ -103,8 +147,8 @@ NoLabel B, C
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);
-    expect(results[0].statements[3].args[0].value).toEqual("A");
-    expect(results[0].statements[4].args.map((a: any) => a.value)).toEqual([
+    expect(results[0].statements[1].args[0].value).toEqual("A");
+    expect(results[0].statements[2].args.map((a: any) => a.value)).toEqual([
       "B",
       "C",
     ]);
@@ -118,9 +162,9 @@ NoLabel B, C
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);
-    expect(results[0].statements[3].option.tag).toEqual("DefaultLabels");
+    expect(results[0].statements[1].option.tag).toEqual("DefaultLabels");
     expect(
-      results[0].statements[4].option.variables.map((a: any) => a.value),
+      results[0].statements[2].option.variables.map((a: any) => a.value),
     ).toEqual(["B", "C"]);
   });
   test("bind and exprs", () => {
@@ -143,7 +187,7 @@ Not(IsSubset(A, B))
     const { results } = parser.feed(prog);
     sameASTs(results);
   });
-  test("predicates", () => {
+  test("equal predicate", () => {
     const prog = `
 Set A, B, C
 IsSubset(Not(A), B) <-> IsSubset(B, C)

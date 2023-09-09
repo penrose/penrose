@@ -1,0 +1,12 @@
+type Workstation
+type Worker
+type Human <: Worker
+type Robot <: Worker
+type Product
+type Edge
+
+predicate nextStep(Workstation, Workstation)
+predicate produce(Workstation, Product)
+predicate manage(Workstation, Worker)
+
+-- constructor MakeEdge(Workstation a, Workstation b) -> Edge

@@ -3,6 +3,48 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [v3.2.0](https://github.com/penrose/penrose/compare/v3.1.0...v3.2.0) (2023-08-08)
+
+### :rocket: New Feature
+
+- Add common matrix functions to standard library ([#1538](https://github.com/penrose/penrose/issues/1538)) ([fdbe56e](https://github.com/penrose/penrose/commit/fdbe56e6f983440f6225a8ea61ea5ef21236a1ed))
+- Substance indexed sets ([#1572](https://github.com/penrose/penrose/issues/1572)) ([83f3869](https://github.com/penrose/penrose/commit/83f386950415a0d839ce95ba080c9ed36c4413b7))
+- `numberof` and `nameof` ([#1583](https://github.com/penrose/penrose/issues/1583)) ([d3049af](https://github.com/penrose/penrose/commit/d3049afd47099e02dbfe3dc0d74bbbc7d2bb60fe))
+
+### :memo: Documentation
+
+- allow TeX in Style function docs ([#1592](https://github.com/penrose/penrose/issues/1592)) ([95ab946](https://github.com/penrose/penrose/commit/95ab946ea5e3c842ffa399c102c85513235f0059))
+- blog post for tailoring graph domain ([#1590](https://github.com/penrose/penrose/issues/1590)) ([90398ca](https://github.com/penrose/penrose/commit/90398ca487056f40ac606d70c429fbc42fccbd9f))
+- fix anchors for functions ([#1570](https://github.com/penrose/penrose/issues/1570)) ([a145853](https://github.com/penrose/penrose/commit/a1458536fdf2dabc4bcd2c9ca4b423beb2c4416f))
+- fix single quotation mark ([#1579](https://github.com/penrose/penrose/issues/1579)) ([098c33d](https://github.com/penrose/penrose/commit/098c33de3feb2307c7ca80c6d3e0a0f5b842669d))
+- render Style function docstrings at build-time ([#1602](https://github.com/penrose/penrose/issues/1602)) ([81de1f4](https://github.com/penrose/penrose/commit/81de1f4b156c11d3d894c6f5797c87b7af0ee5df))
+- render markdown in function param description ([#1575](https://github.com/penrose/penrose/issues/1575)) ([1bd1e2d](https://github.com/penrose/penrose/commit/1bd1e2d23c52239ef34977956db73c249edc9d31))
+
+### :house: Internal
+
+- graphs blog post fixes ([#1594](https://github.com/penrose/penrose/issues/1594)) ([6d74d93](https://github.com/penrose/penrose/commit/6d74d93a1c2f6003fec237a7f9da305c9d0e89cc))
+
+## [v3.1.0](https://github.com/penrose/penrose/compare/v3.0.0...v3.1.0) (2023-07-19)
+
+### :bug: Bug Fix
+
+- compile `@penrose/roger` for distribution 💂‍♂️ ([#1562](https://github.com/penrose/penrose/issues/1562)) ([7b36125](https://github.com/penrose/penrose/commit/7b3612539bb104ea16edf01ad4884a919c3eac4a))
+- gallery loading by switching to pure Vue ([#1549](https://github.com/penrose/penrose/issues/1549)) ([7c96d70](https://github.com/penrose/penrose/commit/7c96d70f93d9da1810c32d3c7bcd467a343f5be1))
+
+### :memo: Documentation
+
+- Correct domain code snippet type ([#1566](https://github.com/penrose/penrose/issues/1566)) ([ad0005a](https://github.com/penrose/penrose/commit/ad0005a92230efd5338f6e143f4bc5eb78009596))
+- add "Edit this page" button to pages ([#1555](https://github.com/penrose/penrose/issues/1555)) ([2ca37bd](https://github.com/penrose/penrose/commit/2ca37bd5d03e444f8cbd6b809558f349a9b78ebf))
+- add a short intro to v3 blog post ([#1551](https://github.com/penrose/penrose/issues/1551)) ([4c8f75c](https://github.com/penrose/penrose/commit/4c8f75c6fa5eba192dec51ff5fa74bf68ef46d9a))
+- explain the origin of the project name ([#1554](https://github.com/penrose/penrose/issues/1554)) ([add467a](https://github.com/penrose/penrose/commit/add467abaa9ded9ab46234aff673a6f3ba09c313))
+- fix `npx` command for roger ([#1568](https://github.com/penrose/penrose/issues/1568)) ([cea1d0e](https://github.com/penrose/penrose/commit/cea1d0ee81f24264a68ad3fb39d4c33c3db9169a))
+- improve blog excerpt styling ([#1552](https://github.com/penrose/penrose/issues/1552)) ([b4514ca](https://github.com/penrose/penrose/commit/b4514cafb0b0ae037641f7cafab2811c4f67b144))
+- update Vanilla JS usage for v3 ([#1544](https://github.com/penrose/penrose/issues/1544)) ([d1ee0ea](https://github.com/penrose/penrose/commit/d1ee0ead2160d35e414cf562245e327904d808e5))
+
+### :house: Internal
+
+- Update `team.md` with new website URL for Rijul Jain ([#1559](https://github.com/penrose/penrose/issues/1559)) ([93ecea1](https://github.com/penrose/penrose/commit/93ecea130e478f383fc8f2ae305b4fd09ab47cb2))
+
 ## [v3.0.0](https://github.com/penrose/penrose/compare/v2.3.0...v3.0.0) (2023-07-14)
 
 ### :warning: BREAKING CHANGE

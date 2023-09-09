@@ -52,7 +52,7 @@ forall VectorSpace U {
         strokeColor : U.axisColor
         startArrowhead: "straight"
         endArrowhead: "straight"
-        arrowheadSize : const.arrowheadSize * 2.
+        endArrowheadSize : const.arrowheadSize * 2.
     }
 
     U.yAxis = Line {
@@ -63,7 +63,7 @@ forall VectorSpace U {
         strokeColor : U.axisColor
         startArrowhead: "straight"
         endArrowhead: "straight"
-        arrowheadSize : const.arrowheadSize * 2.
+        endArrowheadSize : const.arrowheadSize * 2.
     }
 
     U.text = Equation {
@@ -85,7 +85,7 @@ where In(u,U) {
     strokeWidth : 3.0
     strokeColor : const.lightBlue
     endArrowhead: "straight"
-    arrowheadSize : const.arrowheadSize
+    endArrowheadSize : const.arrowheadSize
   }
 
   u.text = Equation {
@@ -145,7 +145,7 @@ where In(u,U) {
     strokeWidth : 3.0
     strokeColor : const.lightBlue
     endArrowhead: "straight"
-    arrowheadSize : const.arrowheadSize
+    endArrowheadSize : const.arrowheadSize
   }
 
   u.text = Equation {
@@ -309,7 +309,7 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
     endArrowhead: "straight"
     strokeWidth : const.arrowThickness
     strokeStyle : "dashed"
-    arrowheadSize : const.arrowheadSize
+    endArrowheadSize : const.arrowheadSize
   }
 
   u.dashed_w = Line {
@@ -318,7 +318,7 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
     endArrowhead: "straight"
     strokeWidth : const.arrowThickness
     strokeStyle : "dashed"
-    arrowheadSize : const.arrowheadSize
+    endArrowheadSize : const.arrowheadSize
   }
 
   u.dashed_w below u.shape

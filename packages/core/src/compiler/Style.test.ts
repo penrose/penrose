@@ -1,5 +1,6 @@
 import im from "immutable";
 import { describe, expect, test } from "vitest";
+import { numsOf } from "../contrib/Utils.js";
 import { C } from "../types/ast.js";
 import { Either } from "../types/common.js";
 import { Env } from "../types/domain.js";
@@ -684,6 +685,29 @@ predicate Bond(Atom, Atom)`;
       const { state } = await loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toEqual(1);
     });
+
+    test("repeatable", async () => {
+      const dsl = "type T\npredicate P(T, T, T)";
+      const sub =
+        "T t1, t2, t3\nP(t1, t2, t3)\nP(t1, t1, t3)\nP(t2,t2,t3)\nP(t1,t3,t1)";
+      const sty1 =
+        canvasPreamble +
+        `forall repeatable T t1; T t2 {
+          Circle {}
+        }`;
+
+      const res1 = await loadProgs({ dsl, sub, sty: sty1 });
+      expect(res1.state.shapes.length).toEqual(6);
+
+      const sty2 =
+        canvasPreamble +
+        `forall repeatable T t1; T t2; T t3
+        where P(t1, t2, t3) {
+          Circle {}
+        }`;
+      const res2 = await loadProgs({ dsl, sub, sty: sty2 });
+      expect(res2.state.shapes.length).toEqual(4);
+    });
   });
 
   describe("predicate alias", () => {
@@ -1057,7 +1081,7 @@ delete x.z.p }`,
         }
         `,
       ],
-      UnexpectedCollectionAccessError: [
+      NotSubstanceCollectionError: [
         `forall Set a {
           a.c = 10
           x = listof c from a
@@ -1331,7 +1355,7 @@ delete x.z.p }`,
         }
         collect T t into ts {
           Circle {
-            r: count(listof value from ts)
+            r: numberof ts
           }
         }
       `;
@@ -1394,5 +1418,31 @@ delete x.z.p }`,
         ["`t`.vals", "1:0:match_id"].sort(),
       );
     });
+  });
+
+  test("Indexing", async () => {
+    const dsl = "type T";
+    const sub = "T t";
+    const sty =
+      canvasPreamble +
+      `
+      forall T t {
+        mat = [(1, 2, 3), (4, 5, 6), (7, 8, 9)]
+        t.row = mat[2]
+      }
+    `;
+
+    const { translation } = await loadProgs({ dsl, sub, sty });
+    const rowVal = translation.symbols.get("`t`.row");
+    expect(rowVal !== undefined).toBe(true);
+    if (rowVal !== undefined) {
+      expect(rowVal.tag).toEqual("Val");
+      if (rowVal.tag === "Val") {
+        expect(rowVal.contents.tag).toEqual("VectorV");
+        if (rowVal.contents.tag === "VectorV") {
+          expect(numsOf(rowVal.contents.contents)).toEqual([7, 8, 9]);
+        }
+      }
+    }
   });
 });

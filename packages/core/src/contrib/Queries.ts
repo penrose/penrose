@@ -48,23 +48,27 @@ export const rectPts = (
   center: ad.Num[],
   width: ad.Num,
   height: ad.Num,
-  rotation: ad.Num = 0,
+  clockwise: ad.Num = 0,
 ): ad.Pt2[] => {
-  const counterclockwise = neg(rotation);
-  const down = ops.vrot([0, -1], counterclockwise);
-  const right = ops.rot90(down);
-  const top = ops.vmul(width, right);
-  const left = ops.vmul(height, down);
+  const ccw = neg(clockwise);
 
-  const topLeft = [
-    sub(center[0], div(width, 2)),
-    add(center[1], div(height, 2)),
-  ];
-  const topRight = ops.vadd(topLeft, top);
-  const botLeft = ops.vadd(topLeft, left);
-  const botRight = ops.vadd(topRight, left);
+  const hw = div(width, 2);
+  const hh = div(height, 2);
 
-  return [toPt(topRight), toPt(topLeft), toPt(botLeft), toPt(botRight)];
+  const tl0 = [neg(hw), hh];
+  const tr0 = [hw, hh];
+  const br0 = [hw, neg(hh)];
+  const bl0 = [neg(hw), neg(hh)];
+
+  const pts0 = [tr0, tl0, bl0, br0];
+  const pts1 = pts0.map((pt) => ops.vrot(pt, ccw));
+  const pts2 = pts1.map((pt) => ops.vadd(pt, center));
+
+  const [tr2, tl2, bl2, br2] = pts2;
+  if (!(ad.isPt2(tr2) && ad.isPt2(tl2) && ad.isPt2(bl2) && ad.isPt2(br2))) {
+    throw new Error("ops.vadd did not preserve dimension");
+  }
+  return [tr2, tl2, bl2, br2];
 };
 
 /**

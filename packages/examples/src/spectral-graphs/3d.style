@@ -3,9 +3,29 @@ canvas {
   height = 400
 }
 
-color {
-  black = #000000ff
-  gray = #5b5b5ba2
+colors {
+  scalar hue = ?
+  color background = hsva(hue, 80, 40, 1)
+  color bloom = hsva(hue, 50, 80, .6)
+  color center = hsva(hue, 0, 100, 1)
+  color edge = hsva(hue, 20, 90, 0.5)
+  color black = #000000ff
+}
+
+global {
+  shape background = Rectangle {
+    center: (0,0)
+    width: canvas.width
+    height: canvas.height
+    fillColor: colors.background
+  }
+  shape shade = Circle {
+    center: (0,0)
+    r: canvas.width / 2
+    fillColor: colors.black
+    style: "filter:blur(50px);"
+  }
+  shade above background
 }
 
 forall Node n {
@@ -14,8 +34,16 @@ forall Node n {
     shape n.icon = Circle {
         center: (n.center[0], n.center[1])
         r: 4 + n.center[2] / 40
-        fillColor: color.black
+        fillColor: colors.bloom
+        style: "filter:blur(1.8px);"
     }
+    shape n.icon2 = Circle {
+        center: (n.center[0], n.center[1])
+        r: 0.5 * (4 + n.center[2] / 40)
+        fillColor: colors.center
+        style: "filter:blur(0.4px);"
+    }
+    n.icon2 above n.icon
 }
 
 forall Edge e; Node a; Node b
@@ -25,8 +53,9 @@ where e := MakeEdge(a, b) {
     shape e.icon = Line {
         start: a.icon.center
         end: b.icon.center
-        strokeWidth: 3 + e.z / 60
-        strokeColor: color.gray
+        strokeWidth: 0.5 * (3 + e.z / 60)
+        strokeColor: colors.edge
+        style: "filter:blur(0.3px);"
     }
 }
 
