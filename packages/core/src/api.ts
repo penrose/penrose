@@ -8,7 +8,7 @@ import {
 } from "./contrib/Constraints.js";
 import { elasticEnergy, equivalued, perimeter } from "./contrib/Curves.js";
 import { signedDistanceRect } from "./contrib/Functions.js";
-import { rectPts } from "./contrib/Queries.js";
+import { rectPts, shapeDistanceRects } from "./contrib/Queries.js";
 import { consecutiveTuples } from "./contrib/Utils.js";
 import { ops, variable } from "./engine/Autodiff.js";
 import { absVal, add, div, neg, pow, sub } from "./engine/AutodiffFunctions.js";
@@ -105,6 +105,7 @@ export {
   perimeter,
   pow,
   rectPts,
+  shapeDistanceRects,
   signedDistanceRect,
   sub,
   variable,
