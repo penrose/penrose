@@ -862,37 +862,12 @@ const toSubExpr = <T>(env: Env, e: SelExpr<T>): SubExpr<T> => {
     case "SEBind": {
       return e.contents.contents;
     }
-    case "SEFunc": {
-      return {
-        ...e, // Puts the remnants of e's ASTNode info here -- is that ok?
-        tag: "ApplyFunction",
-        name: e.name,
-        args: e.args.map((e) => toSubExpr(env, e)),
-      };
-    }
-    case "SEValCons": {
-      return {
-        ...e,
-        tag: "ApplyConstructor",
-        name: e.name,
-        args: e.args.map((e) => toSubExpr(env, e)),
-      };
-    }
+    case "SEFunc":
+    case "SEValCons":
     case "SEFuncOrValCons": {
-      let tag: "ApplyFunction" | "ApplyConstructor";
-      if (env.constructors.has(e.name.value)) {
-        tag = "ApplyConstructor";
-      } else if (env.functions.has(e.name.value)) {
-        tag = "ApplyFunction";
-      } else {
-        // TODO: return TypeNotFound instead
-        throw new Error(
-          `Style internal error: expected '${e.name.value}' to be either a constructor or function, but was not found`,
-        );
-      }
       const res: SubExpr<T> = {
         ...e,
-        tag,
+        tag: "Func",
         name: e.name,
         args: e.args.map((e) => toSubExpr(env, e)),
       };
