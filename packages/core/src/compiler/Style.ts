@@ -486,7 +486,7 @@ const checkRelPattern = (
       const { type: vtype } = res1.value; // ignore env
 
       // G |- E : T2
-      const res2 = checkExpr(toSubExpr(varEnv, rel.expr), varEnv);
+      const res2 = checkExpr(toSubExpr(rel.expr), varEnv);
 
       // TODO(error)
       if (isErr(res2)) {
@@ -857,7 +857,7 @@ export const substituteRel = (
 
 // Convert Style expression to Substance expression (for ease of comparison in matching)
 // Note: the env is needed to disambiguate SEFuncOrValCons
-const toSubExpr = <T>(env: Env, e: SelExpr<T>): SubExpr<T> => {
+const toSubExpr = <T>(e: SelExpr<T>): SubExpr<T> => {
   switch (e.tag) {
     case "SEBind": {
       return e.contents.contents;
@@ -865,11 +865,14 @@ const toSubExpr = <T>(env: Env, e: SelExpr<T>): SubExpr<T> => {
     case "SEFunc":
     case "SEValCons":
     case "SEFuncOrValCons": {
+      // keep everything as generic Func
+      // since the Substance checker would automatically distinguish
+      // between ValCons and Func.
       const res: SubExpr<T> = {
         ...e,
         tag: "Func",
         name: e.name,
-        args: e.args.map((e) => toSubExpr(env, e)),
+        args: e.args.map((e) => toSubExpr(e)),
       };
       return res;
     }
