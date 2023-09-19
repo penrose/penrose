@@ -856,7 +856,6 @@ export const substituteRel = (
 //#endregion (subregion? TODO fix)
 
 // Convert Style expression to Substance expression (for ease of comparison in matching)
-// Note: the env is needed to disambiguate SEFuncOrValCons
 const toSubExpr = <T>(e: SelExpr<T>): SubExpr<T> => {
   switch (e.tag) {
     case "SEBind": {
