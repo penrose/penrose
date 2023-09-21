@@ -1,12 +1,12 @@
 // @vitest-environment jsdom
 
-import { optimize as optimizeSVG } from "svgo";
-
 import { compile, optimize, showError, toSVG } from "@penrose/core";
+import "canvas";
 import * as fs from "fs/promises";
 import rawFetch, { RequestInit, Response } from "node-fetch";
 import * as path from "path";
 import prettier from "prettier";
+import { optimize as optimizeSVG } from "svgo";
 import { afterAll, describe, test } from "vitest";
 import { Trio } from "./index.js";
 import registry from "./registry.js";
