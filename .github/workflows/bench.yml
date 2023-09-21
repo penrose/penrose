@@ -20,25 +20,33 @@ jobs:
       - name: Checkout first commit
         uses: actions/checkout@v3
         with:
+          path: first/
           ref: e0207aff773856edcf4478ee71cb186f835a4a2a
       - name: Setup
         uses: ./.github/actions/setup
+        working_directory: first/
       - name: Generate diagrams and metadata for the first commit
         run: yarn registry
+        working_directory: first/
       - name: Upload generated diagrams and metadata
         uses: actions/upload-artifact@v3
         with:
           name: diagrams-1
-          path: packages/examples/diagrams/
+          path: first/packages/examples/diagrams/
       # run second commit
       - name: Checkout second commit
-        run: git checkout 90048e996c4e1cfb637005a25de70a42dacc0aea
-      - name: Clean target working tree
-        run: git rm -rf .
+        uses: actions/checkout@v3
+        with:
+          path: second/
+          ref: 90048e996c4e1cfb637005a25de70a42dacc0aea
+      - name: Setup
+        uses: ./.github/actions/setup
+        working_directory: second/
       - name: Generate diagrams and metadata for the second commit
         run: yarn registry
+        working_directory: second/
       - name: Upload generated diagrams and metadata
         uses: actions/upload-artifact@v3
         with:
           name: diagrams-2
-          path: packages/examples/diagrams/
+          path: second/packages/examples/diagrams/
