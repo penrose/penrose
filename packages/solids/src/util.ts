@@ -261,7 +261,7 @@ const vecSignal = (x: Vec): Accessor<number[]> => {
   switch (x.tag) {
     case "PolyRoots": {
       const ys = x.coeffs.map(numSignal);
-      const v = new Float64Array(x.degree);
+      const v = new Float64Array(x.coeffs.length);
       return vecWith(x, () => {
         ys.forEach((y, i) => {
           v[i] = y();

@@ -6,7 +6,7 @@
 
 import { bboxFromShape } from "../contrib/Queries.js";
 import { isLinelike, isRectlike } from "../contrib/Utils.js";
-import { genCode, secondaryGraph } from "../engine/Autodiff.js";
+import { compile } from "../engine/Autodiff.js";
 import { maxN, minN } from "../engine/AutodiffFunctions.js";
 import { maxX, maxY, minX, minY } from "../engine/BBox.js";
 import { Group } from "../shapes/Group.js";
@@ -141,9 +141,7 @@ export const toSVG = async (
   const MaxY = maxN(bboxs.map((bbox) => maxY(bbox)));
   const viewBoxRanges = [MinX, MinY, MaxX, MaxY];
 
-  const [mx, my, Mx, My] = (await genCode(secondaryGraph(viewBoxRanges)))(
-    (x) => x.val,
-  ).secondary;
+  const [mx, my, Mx, My] = (await compile(viewBoxRanges))((x) => x.val);
 
   // toScreen flips the y-axis and therefore the max will become min
   const [mxt, myt] = toScreen([mx, my], [canvas.width, canvas.height]);
