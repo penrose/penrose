@@ -797,7 +797,7 @@ const emitGraph = (
     for (const y of nodes.get(x)!.successors) {
       const node = nodes.get(y)!;
       const n = node.indegree!;
-      if (n === 1) sorted.push(x);
+      if (n === 1) sorted.push(y);
       node.indegree = n - 1;
     }
   }

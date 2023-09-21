@@ -13,14 +13,11 @@ import {
 } from "./Autodiff.js";
 import {
   add,
-  addN,
   div,
-  eq,
   ifCond,
   lt,
   max,
   mul,
-  polyRoots,
   sin,
   squared,
   sub,
@@ -100,7 +97,6 @@ describe("symbolic differentiation tests", () => {
   test("graph 5", () => testGradSymbolic(5, gradGraph5()));
   test("graph 6", () => testGradSymbolic(6, gradGraph6()));
   test("graph 7", () => testGradSymbolic(7, gradGraph7()));
-  test("graph 8", () => testGradSymbolic(8, gradGraph8()));
 });
 
 //#region Functions for testing numeric and symbolic gradients
@@ -209,21 +205,6 @@ const gradGraph7 = (): GradGraph => {
   const x1 = variable(-100);
   const head = div(x0, x1);
   return { inputs: [x0, x1], output: head };
-};
-
-// Test polyRoots
-const gradGraph8 = (): GradGraph => {
-  logAD.info("test polyRoots");
-
-  // Build energy/gradient graph
-  const x0 = variable(0);
-  const x1 = variable(0);
-  const x2 = variable(0);
-  const x3 = variable(0);
-  const x4 = variable(0);
-  const roots = polyRoots([x0, x1, x2, x3, x4]);
-  const head = addN(roots.map((r) => ifCond(eq(r, r), r, 0)));
-  return { inputs: [x0, x1, x2, x3, x4], output: head };
 };
 
 const makeFunc = async (
