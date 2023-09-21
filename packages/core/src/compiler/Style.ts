@@ -3204,7 +3204,13 @@ const evalExpr = (
         val(
           floatV(
             mut.makeInput({
-              init: { tag: "Sampled", sampler: init === undefined ? uniform(...canvas.xRange) : constSampler(init) },
+              init: {
+                tag: "Sampled",
+                sampler:
+                  init === undefined
+                    ? uniform(...canvas.xRange)
+                    : constSampler(init),
+              },
               stages,
             }),
           ),
