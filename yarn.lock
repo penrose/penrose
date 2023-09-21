@@ -3006,10 +3006,10 @@
   resolved "https://registry.yarnpkg.com/@remix-run/router/-/router-1.6.1.tgz#3a3a408481a3796f45223a549c2571517bc8af2d"
   integrity sha512-YUkWj+xs0oOzBe74OgErsuR3wVn+efrFhXBWrit50kOiED+pvQe2r6MWY0iJMQU/mSVKxvNzL4ZaYvjdX+G7ZA==
 
-"@rose-lang/wasm@0.3.1":
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/@rose-lang/wasm/-/wasm-0.3.1.tgz#4d98cbfa160088e903257b01fe7e16aa71319af4"
-  integrity sha512-UJLAY17p6CZDoyH7CB8y4/5awNZBGkt/zHoU+ErHbRG2/4m4Utv0aDW6msXlJbHUsc52NtAkcrtbUqejupsssQ==
+"@rose-lang/wasm@0.3.2":
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/@rose-lang/wasm/-/wasm-0.3.2.tgz#f299cf17173781be379b77d0e122c52ab2bbc528"
+  integrity sha512-tN6RHSQImTrNW43geXY2tsPqiHaUSF50s64O4u6glqnVnvye7J5zZIto1grwpj9auWFWLmsQAF0AbIdWLqb3gw==
 
 "@spyke/conventional-changelog-preset@^1.0.5":
   version "1.0.5"
@@ -14848,12 +14848,12 @@ rollup@^3.21.0:
   optionalDependencies:
     fsevents "~2.3.2"
 
-rose@^0.3.1:
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/rose/-/rose-0.3.1.tgz#d36c5c8004f878098ef2d9d3e3e9b5819df76329"
-  integrity sha512-pn8GAJo2cT4D51mI7hAxTAmsEIwJ5SLZp/kdkz+U72D6S++CohcTREZRD4/FO+0dN2Pwkt0q/AMIiRO1tMOUhg==
+rose@^0.3.2:
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/rose/-/rose-0.3.2.tgz#aa58371dce318d45e0250902f521896015128786"
+  integrity sha512-ZFZock3NzxrojRJ3/v6WUJsNC+KMgk4iNg3U7TO5U1lsuHS7RUPxJYRumY8Qds/vfBPe5RRROCT6Ww3cf6d4CA==
   dependencies:
-    "@rose-lang/wasm" "0.3.1"
+    "@rose-lang/wasm" "0.3.2"
 
 rrweb-cssom@^0.6.0:
   version "0.6.0"
