@@ -187,12 +187,8 @@ class Constraints {
     s2: SetCircle,
     padding: number = 30,
   ) => {
-    const toNumArr = (c: Var[]) => c.map((v) => v.val);
     const minDist = s1.r + s2.r + padding;
-    return greaterThanSq(
-      dist(toNumArr(s2.center), toNumArr(s1.center)),
-      minDist,
-    );
+    return greaterThanSq(dist(s2.center, s1.center), minDist);
   };
 
   static build = (sets: SetCircle[], labels: Label[]) => {
@@ -206,6 +202,7 @@ class Constraints {
     const s1l1 = Constraints.containsText(s1, l1);
     const s2l2 = Constraints.containsText(s2, l2);
     const s3l3 = Constraints.containsText(s3, l3);
+
     const disl1l2 = Constraints.disjointLabels(l1, l2);
     const disl1l3 = Constraints.disjointLabels(l1, l3);
     const disl2l3 = Constraints.disjointLabels(l2, l3);
@@ -283,11 +280,12 @@ const resample = () => {
 
 export default () => {
   const sets = [
-    new SetCircle(300, "#3498db", "s1"),
+    new SetCircle(350, "#3498db", "s1"),
     new SetCircle(100, "#ab91eb", "s2"),
     new SetCircle(100, "#cbbaf5", "s3"),
   ];
-  const labels = [new Label("s1"), new Label("s222"), new Label("s3")];
+  const labels = [new Label("xs1"), new Label("s222"), new Label("s3")];
+  // const labels = [];
   const constraints = Constraints.build(sets, labels);
 
   const [compiling] = createResource(() => {

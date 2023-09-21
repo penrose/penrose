@@ -12,6 +12,8 @@ export const dragUpdate = (
 ): State => {
   const xs = [...state.varyingValues];
   // TODO: fix dragging
+  // needs to update the state with frozen entries
+  // masking?
   const updated: State = {
     ...state,
     params: start(xs.length),
