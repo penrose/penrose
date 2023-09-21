@@ -94,10 +94,6 @@ jobs:
       - name: Clean target working tree
         working-directory: packages/examples/diagrams/
         run: git rm -rf .
-      - name: Tempt fate
-        run: |
-          jq 'del(.exports."." .browser)' node_modules/@rose-lang/wasm/package.json > temp.json
-          mv temp.json node_modules/@rose-lang/wasm/package.json
       - name: Generate diagrams and metadata
         run: yarn registry
       - name: Upload generated diagrams and metadata
