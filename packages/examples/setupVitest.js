@@ -1,6 +1,6 @@
 import * as fs from "fs/promises";
 
-fetch = async (url) => {
+global.fetch = async (url) => {
   if (url.href.startsWith("file:")) {
     // Extract the local file path from the URL
     const localFilePath = url.href.replace("file://", "");
