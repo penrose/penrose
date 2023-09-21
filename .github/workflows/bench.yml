@@ -1,11 +1,17 @@
 name: Benchmark
 on:
-  workflow_dispatch:
-    inputs:
-      sha:
-        description: "Commit SHA to benchmark"
-        required: true
-        type: string
+  # workflow_dispatch:
+  #   inputs:
+  #     commit_1:
+  #       description: "First Commit SHA to benchmark"
+  #       required: true
+  #       type: string
+  #     commit_2:
+  #       description: "Second Commit SHA to benchmark"
+  #       required: true
+  #       type: string
+  pull_request:
+
 jobs:
   bench-first:
     runs-on: ubuntu-latest
@@ -18,23 +24,22 @@ jobs:
         uses: actions/checkout@v3
         with:
           path: packages/examples/diagrams/
-          ref: ${{ inputs.sha }}/
+          ref: e0207aff773856edcf4478ee71cb186f835a4a2a
       - name: Generate diagrams and metadata for the first commit
         run: yarn registry
       - name: Upload generated diagrams and metadata
         uses: actions/upload-artifact@v3
         with:
-          name: diagrams-${{ inputs.sha }}
+          name: diagrams-1
           path: packages/examples/diagrams/
+
       - name: Checkout commit
         uses: actions/checkout@v3
         with:
           path: packages/examples/diagrams/
-          ref: ${{ inputs.sha }}/
-      - name: Generate diagrams and metadata for the first commit
-        run: yarn registry
+          ref: 90048e996c4e1cfb637005a25de70a42dacc0aea
       - name: Upload generated diagrams and metadata
         uses: actions/upload-artifact@v3
         with:
-          name: diagrams-${{ inputs.sha }}
+          name: diagrams-2
           path: packages/examples/diagrams/
