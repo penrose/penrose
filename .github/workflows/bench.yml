@@ -38,6 +38,11 @@ jobs:
         with:
           path: packages/examples/diagrams/
           ref: 90048e996c4e1cfb637005a25de70a42dacc0aea
+      - name: Clean target working tree
+        working-directory: packages/examples/diagrams/
+        run: git rm -rf .
+      - name: Generate diagrams and metadata for the first commit
+        run: yarn registry
       - name: Upload generated diagrams and metadata
         uses: actions/upload-artifact@v3
         with:
