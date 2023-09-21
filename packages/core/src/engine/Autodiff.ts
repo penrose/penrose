@@ -562,9 +562,12 @@ const topsort = (seed: (set: (x: ad.Expr) => void) => void): Topsort => {
 
   const stack: ad.Expr[] = [];
   const set = (x: ad.Expr): Node => {
-    stack.push(x);
-    const node = { successors: [] };
-    nodes.set(x, node);
+    let node = nodes.get(x);
+    if (node === undefined) {
+      stack.push(x);
+      node = { successors: [] };
+      nodes.set(x, node);
+    }
     return node;
   };
   seed((x) => {
@@ -572,7 +575,7 @@ const topsort = (seed: (set: (x: ad.Expr) => void) => void): Topsort => {
   });
   const make = (x: ad.Expr): number => {
     const succ = (y: ad.Expr): void => {
-      (nodes.get(y) ?? set(y)).successors.push(x);
+      set(y).successors.push(x);
     };
     if (typeof x === "number") return 0;
     switch (x.tag) {
