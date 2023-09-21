@@ -378,18 +378,6 @@
   },
   "curve-examples/blobs": { "name": "Blobs", "gallery": true },
   "curve-examples/space-curves": { "name": "Space Curves", "gallery": false },
-  "ray-tracing/path-trace": {
-    "name": "Path Tracing",
-    "gallery": false
-  },
-  "ray-tracing/bidirectional": {
-    "name": "Bidirectional Path Tracing",
-    "gallery": false
-  },
-  "ray-tracing/next-event-estimation": {
-    "name": "Next Event Estimation",
-    "gallery": true
-  },
   "geometric-queries/test": {
     "name": "Geometric Queries",
     "gallery": true

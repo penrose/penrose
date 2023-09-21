@@ -110,7 +110,7 @@ interface AllData extends Data {
 }
 
 const MAX_NAME_LENGTH = 100;
-const MAX_SECONDS = 60;
+const MAX_SECONDS = 3600;
 
 const trimName = (name: string): string =>
   name.length > MAX_NAME_LENGTH
