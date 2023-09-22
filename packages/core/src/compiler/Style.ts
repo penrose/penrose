@@ -16,6 +16,7 @@ import {
   Canvas,
   InputMeta,
   Context as MutableContext,
+  constSampler,
   makeCanvas,
   uniform,
 } from "../shapes/Samplers.js";
@@ -3193,7 +3194,7 @@ const evalExpr = (
       });
     }
     case "Vary": {
-      const { exclude } = expr;
+      const { exclude, init } = expr;
       const stages: OptStages = stageExpr(
         layoutStages,
         exclude,
@@ -3203,7 +3204,13 @@ const evalExpr = (
         val(
           floatV(
             mut.makeInput({
-              init: { tag: "Sampled", sampler: uniform(...canvas.xRange) },
+              init: {
+                tag: "Sampled",
+                sampler:
+                  init === undefined
+                    ? uniform(...canvas.xRange)
+                    : constSampler(init),
+              },
               stages,
             }),
           ),
