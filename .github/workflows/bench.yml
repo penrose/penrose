@@ -24,7 +24,6 @@ jobs:
           ref: e0207aff773856edcf4478ee71cb186f835a4a2a
       - name: Setup
         uses: ./.github/actions/setup
-        working-directory: first/
       - name: Generate diagrams and metadata for the first commit
         run: yarn registry
         working-directory: first/
@@ -41,7 +40,6 @@ jobs:
           ref: 90048e996c4e1cfb637005a25de70a42dacc0aea
       - name: Setup
         uses: ./.github/actions/setup
-        working-directory: second/
       - name: Generate diagrams and metadata for the second commit
         run: yarn registry
         working-directory: second/
