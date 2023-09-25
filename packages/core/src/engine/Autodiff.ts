@@ -816,24 +816,30 @@ export const genGradient = async (
   const o = objectives.length;
   const c = constraints.length;
 
+  const single = (x: ad.Num) =>
+    rose.fn([rose.Vec(n, rose.Real)], rose.Real, (varying) => {
+      const graph = topsort((set) => {
+        set(x);
+      });
+      const vars = new Map<ad.Expr, rose.Bool | rose.Real>();
+      for (let i = 0; i < n; i++) {
+        const v = inputs[i];
+        if (graph.nodes.has(v)) vars.set(v, varying[i]);
+      }
+      emitGraph(graph, vars);
+      return vars.get(x) as rose.Real;
+    });
+
+  const objFns = objectives.map(single);
+  const constrFns = constraints.map(single);
+
   const basic = rose.fn(
     [rose.Vec(n, rose.Real)],
     { objectives: rose.Vec(o, rose.Real), constraints: rose.Vec(c, rose.Real) },
-    (varying) => {
-      const vars = new Map<ad.Expr, rose.Bool | rose.Real>();
-      for (let i = 0; i < n; i++) vars.set(inputs[i], varying[i]);
-      emitGraph(
-        topsort((set) => {
-          objectives.forEach(set);
-          constraints.forEach(set);
-        }),
-        vars,
-      );
-      return {
-        objectives: objectives.map((x) => vars.get(x) as rose.Real),
-        constraints: constraints.map((x) => vars.get(x) as rose.Real),
-      };
-    },
+    (varying) => ({
+      objectives: objFns.map((f) => f(varying)),
+      constraints: constrFns.map((f) => f(varying)),
+    }),
   );
 
   const full = rose.fn(
