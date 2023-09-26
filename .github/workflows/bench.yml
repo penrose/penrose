@@ -20,10 +20,7 @@ jobs:
       - name: Checkout first commit
         uses: actions/checkout@v3
         with:
-          path: first/
           ref: e0207aff773856edcf4478ee71cb186f835a4a2a
-      - name: Change to first repo
-        run: cd first
       - name: Setup
         uses: ./.github/actions/setup
       - name: Generate diagrams and metadata for the first commit
@@ -34,17 +31,13 @@ jobs:
           name: diagrams-1
           path: packages/examples/diagrams/
       # run second commit
-      - name: Change to Home
-        run: cd
-      - name: Checkout second commit
-        uses: actions/checkout@v3
-        with:
-          path: second/
-          ref: 90048e996c4e1cfb637005a25de70a42dacc0aea
-      - name: Change to second repo
-        run: cd second
-      - name: Setup
-        uses: ./.github/actions/setup
+      - name: Fetch and checkout second commit
+        run: |
+          git fetch --no-tags --prune --progress --no-recurse-submodules --depth=1 origin 90048e996c4e1cfb637005a25de70a42dacc0aea
+          git checkout --force --progress 90048e996c4e1cfb637005a25de70a42dacc0aea
+      - name: Reinstall packages
+        run: yarn
+        shell: bash
       - name: Generate diagrams and metadata for the second commit
         run: yarn registry
       - name: Upload generated diagrams and metadata
