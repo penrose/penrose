@@ -885,7 +885,7 @@ export const genGradient = async (
     },
   );
 
-  const f = rose.interp(full);
+  const f = await rose.compile(full);
 
   return (
     { inputMask, objMask, constrMask }: ad.Masks,
@@ -961,7 +961,7 @@ export const problem = async (desc: ad.Description): Promise<ad.Problem> => {
     },
   );
 
-  const f = rose.interp(full);
+  const f = await rose.compile(full);
 
   return {
     start: (conf) => {
@@ -1024,9 +1024,7 @@ export const problem = async (desc: ad.Description): Promise<ad.Problem> => {
   };
 };
 
-export const compileSync = (
-  xs: ad.Num[],
-): ((inputs: (x: ad.Var) => number) => number[]) => {
+const makeFn = (xs: ad.Num[]): { inputs: ad.Var[]; f: rose.Fn } => {
   const graph = topsort((set) => {
     xs.forEach(set);
   });
@@ -1042,10 +1040,21 @@ export const compileSync = (
     emitGraph(graph, vars);
     return xs.map((x) => vars.get(x) as rose.Real);
   });
-  const g = rose.interp(f);
-  return (vals) => g(inputs.map((x) => vals(x))) as any;
+  return { inputs, f };
+};
+
+export const interp = (
+  xs: ad.Num[],
+): ((inputs: (x: ad.Var) => number) => number[]) => {
+  const { inputs, f } = makeFn(xs);
+  const g = rose.interp(f as any) as any;
+  return (vals) => g(inputs.map((x) => vals(x)));
 };
 
 export const compile = async (
   xs: ad.Num[],
-): Promise<(inputs: (x: ad.Var) => number) => number[]> => compileSync(xs);
+): Promise<(inputs: (x: ad.Var) => number) => number[]> => {
+  const { inputs, f } = makeFn(xs);
+  const g = (await rose.compile(f as any)) as any;
+  return (vals) => g(inputs.map((x) => vals(x)));
+};
