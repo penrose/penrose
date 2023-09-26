@@ -35,6 +35,8 @@ jobs:
         run: |
           git fetch --no-tags --prune --progress --no-recurse-submodules --depth=1 origin 90048e996c4e1cfb637005a25de70a42dacc0aea
           git checkout --force --progress 90048e996c4e1cfb637005a25de70a42dacc0aea
+      - name: Clean working tree
+        run: git rm -rf .
       - name: Reinstall packages
         run: yarn
         shell: bash
@@ -44,4 +46,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: diagrams-2
-          path: second/packages/examples/diagrams/
+          path: packages/examples/diagrams/
