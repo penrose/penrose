@@ -10,7 +10,8 @@ layout: docs
 
 We are always excited to see diagrams made with Penrose! Share them in [#gallery][] on [Discord][] and we are happy to include them in our [example gallery][].
 
-- \_\_If you want to make
+- **If you want to make diagrams using in existing domains**, check out our [tutorial][] and [gallery][example gallery] to learn how to use them!
+- **If you are making many diagrams in a new domain**, refer to our [docs][using penrose] to learn our toolings and [open a PR][contributing PR] in our repo so others can use your domain too!
 
 </div>
 
@@ -58,11 +59,22 @@ We maintain a [blog][] and a [mailing list][] on Penrose and diagramming in gene
 
 ## Technical Roadmap
 
+### 🚀 Active
+
+- Layout optimization on WebWorkers
+- Automatic differentiation based on [Rose][rose] 🌹
+
+### 🎯 Planned
+
+- [SolidJS API for Penrose](/docs/ref/solid.md)
+-
+
 <style>
   .action-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
     grid-gap: 20px;
+    /* grid-auto-row: min-content; */
     /* display: flex;
     width: 100%;
     flex-wrap: wrap; */
@@ -80,12 +92,12 @@ We maintain a [blog][] and a [mailing list][] on Penrose and diagramming in gene
   .action-header {
     font-size: 28px !important;
   }
-  .research {
-    grid-row: span 2
-  }
-  .posts {
+  /* .research {
     grid-row: span 1
   }
+  .code-and-docs {
+    grid-row: span 1
+  } */
 </style>
 
 [discord]: https://discord.gg/a7VXJU4dfR
@@ -96,3 +108,7 @@ We maintain a [blog][] and a [mailing list][] on Penrose and diagramming in gene
 [repository]: https://github.com/penrose/penrose
 [example gallery]: /examples
 [mailing list]: http://eepurl.com/cIapnn
+[tutorial]: /docs/tutorial/welcome
+[using penrose]: /docs/ref/using
+[contributing PR]: https://github.com/penrose/penrose/blob/main/CONTRIBUTING.md#contributing
+[rose]: https://rosejs.dev/

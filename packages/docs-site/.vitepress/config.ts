@@ -172,8 +172,8 @@ export default defineConfig({
       },
       { text: "Documentation", link: "/docs/ref", activeMatch: "/docs/ref" },
       { text: "Blog", link: "/blog", activeMatch: "/blog" },
-      { text: "Online Editor", link: "pathname:///try/index.html" },
       { text: "Team", link: "/docs/team" },
+      { text: "Online Editor", link: "pathname:///try/index.html" },
       //   {
       //     text: "News",
       //     items: [
