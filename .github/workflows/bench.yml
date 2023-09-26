@@ -1,17 +1,15 @@
 name: Benchmark
 on:
-  # workflow_dispatch:
-  #   inputs:
-  #     commit_1:
-  #       description: "First Commit SHA to benchmark"
-  #       required: true
-  #       type: string
-  #     commit_2:
-  #       description: "Second Commit SHA to benchmark"
-  #       required: true
-  #       type: string
-  pull_request:
-
+  workflow_dispatch:
+    inputs:
+      commit_1:
+        description: "First Commit SHA"
+        required: true
+        type: string
+      commit_2:
+        description: "Second Commit SHA"
+        required: true
+        type: string
 jobs:
   bench:
     runs-on: ubuntu-22.04
@@ -20,7 +18,7 @@ jobs:
       - name: Checkout first commit
         uses: actions/checkout@v3
         with:
-          ref: e0207aff773856edcf4478ee71cb186f835a4a2a
+          ref: ${{ inputs.commit_1 }}
       - name: Setup
         uses: ./.github/actions/setup
       - name: Generate diagrams and metadata for the first commit
