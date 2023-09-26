@@ -171,10 +171,9 @@ export default defineConfig({
         activeMatch: "/docs/tutorial",
       },
       { text: "Documentation", link: "/docs/ref", activeMatch: "/docs/ref" },
-      { text: "Try Penrose", link: "pathname:///try/index.html" },
-      { text: "Join Discord", link: "https://discord.gg/a7VXJU4dfR" },
-      { text: "Team", link: "/docs/team" },
       { text: "Blog", link: "/blog", activeMatch: "/blog" },
+      { text: "Online Editor", link: "pathname:///try/index.html" },
+      { text: "Team", link: "/docs/team" },
       //   {
       //     text: "News",
       //     items: [
