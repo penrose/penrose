@@ -378,6 +378,22 @@
   },
   "curve-examples/blobs": { "name": "Blobs", "gallery": true },
   "curve-examples/space-curves": { "name": "Space Curves", "gallery": false },
+  "geometric-queries/ray-intersect/test-group": {
+    "name": "Ray Casting",
+    "gallery": true
+  },
+  "ray-tracing/path-trace": {
+    "name": "Path Tracing",
+    "gallery": false
+  },
+  "ray-tracing/bidirectional": {
+    "name": "Bidirectional Path Tracing",
+    "gallery": false
+  },
+  "ray-tracing/next-event-estimation": {
+    "name": "Next Event Estimation",
+    "gallery": true
+  },
   "geometric-queries/test": {
     "name": "Geometric Queries",
     "gallery": true
@@ -385,6 +401,14 @@
   "geometric-queries/closest-point/test-group": {
     "name": "Closest Point Queries",
     "gallery": true
+  },
+  "geometric-queries/closest-point/test": {
+    "name": "More Closest Point Queries",
+    "gallery": false
+  },
+  "geometric-queries/closest-silhouette-point/test": {
+    "name": "Silhouette Point Queries",
+    "gallery": false
   },
   "geometric-queries/ray-intersect/test": {
     "name": "Ray Intersection Tests",

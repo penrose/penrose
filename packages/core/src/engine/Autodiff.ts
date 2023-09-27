@@ -817,14 +817,14 @@ export const genGradient = async (
   const c = constraints.length;
 
   const single = (x: ad.Num) =>
-    rose.fn([rose.Vec(n, rose.Real)], rose.Real, (varying) => {
+    rose.fn([rose.Vec(n, rose.Real), rose.Bool], rose.Real, (varying, mask) => {
       const graph = topsort((set) => {
         set(x);
       });
       const vars = new Map<ad.Expr, rose.Bool | rose.Real>();
       for (let i = 0; i < n; i++) {
         const v = inputs[i];
-        if (graph.nodes.has(v)) vars.set(v, varying[i]);
+        if (graph.nodes.has(v)) vars.set(v, builtins.mask(varying[i], mask));
       }
       emitGraph(graph, vars);
       return vars.get(x) as rose.Real;
@@ -834,11 +834,17 @@ export const genGradient = async (
   const constrFns = constraints.map(single);
 
   const basic = rose.fn(
-    [rose.Vec(n, rose.Real)],
+    [
+      {
+        varying: rose.Vec(n, rose.Real),
+        objMask: rose.Vec(o, rose.Bool),
+        constrMask: rose.Vec(c, rose.Bool),
+      },
+    ],
     { objectives: rose.Vec(o, rose.Real), constraints: rose.Vec(c, rose.Real) },
-    (varying) => ({
-      objectives: objFns.map((f) => f(varying)),
-      constraints: constrFns.map((f) => f(varying)),
+    ({ varying, objMask, constrMask }) => ({
+      objectives: objFns.map((f, i) => f(varying, objMask[i])),
+      constraints: constrFns.map((f, i) => f(varying, constrMask[i])),
     }),
   );
 
@@ -856,7 +862,7 @@ export const genGradient = async (
       constraints: rose.Vec(c, rose.Real),
     },
     (varying, weight, objMask, constrMask) => {
-      const { ret, grad } = rose.vjp(basic)(varying);
+      const { ret, grad } = rose.vjp(basic)({ varying, objMask, constrMask });
       const { objectives: objs, constraints: constrs } = ret;
       const Pair = { x: rose.Real, d: rose.Real } as const;
       const zero = { x: 0, d: 0 };
@@ -878,7 +884,7 @@ export const genGradient = async (
         gradient: grad({
           objectives: rose.vec(o, rose.Real, (i) => masked[i].d),
           constraints: rose.vec(c, rose.Real, (i) => penalties[i].d),
-        }),
+        }).varying,
         objectives: objs,
         constraints: constrs,
       };

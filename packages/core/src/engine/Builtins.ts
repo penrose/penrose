@@ -1,4 +1,5 @@
 import {
+  Bool,
   Dual,
   Real,
   add,
@@ -17,6 +18,11 @@ import {
   sub,
   subLin,
 } from "rose";
+
+export const mask = fn([Real, Bool], Real, (x) => x);
+mask.jvp = fn([Dual, Bool], Dual, (z, p) =>
+  select(p, Dual, z, { re: z.re, du: 0 }),
+);
 
 export const epsilon = 1e-5;
 
