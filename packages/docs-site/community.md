@@ -2,6 +2,12 @@
 layout: docs
 ---
 
+<script setup>
+  import PR  from "./src/components/GitHubPR.vue"
+</script>
+
+## What you can do
+
 <div class="action-grid">
 
 <div class="action-group diagrams">
@@ -32,6 +38,9 @@ Our team consist of interdisciplinary researchers in programming languages, comp
 
 We welcome contributions to our [repository][]. Take a look at the [contributor guide](https://github.com/penrose/penrose/blob/main/CONTRIBUTING.md) to get started!
 
+- Find out what's on the [roadmap][] for our next release. **We are looking for contributors to claim issues in the [planned](#🎯-planned) list**.
+- **Help us improve our docs!** We are planning to improve our [tutorial][] and start documenting our [gallery][example gallery] diagrams.
+
 </div>
 
 <div class="action-group integration">
@@ -44,7 +53,7 @@ We'd love to hear how you'd like to integrate Penrose with your favorite tools! 
 - [Obsidian](https://obsidian.md/): an experimental [`obsidian-penrose-plugin`](https://github.com/wodeni/obsidian-penrose-plugin).
 - [Alloy](http://alloytools.org/) visualizer using Penrose.
 
-Join [our Discord server] and chat with us on [#integration](https://discord.com/channels/1115349463603617954/1130497270664679444) about integrating with external tools!
+Join [our Discord server][discord] and chat with us on [#integration](https://discord.com/channels/1115349463603617954/1130497270664679444) about integrating with external tools!
 
 </div>
 
@@ -61,13 +70,16 @@ We maintain a [blog][] and a [mailing list][] on Penrose and diagramming in gene
 
 ### 🚀 Active
 
-- Layout optimization on WebWorkers
-- Automatic differentiation based on [Rose][rose] 🌹
+- Automatic differentiation based on [Rose][rose] 🌹 <PR pr="1636" />
+- Layout optimization on WebWorkers <PR pr="1528" />
 
 ### 🎯 Planned
 
-- [SolidJS API for Penrose](/docs/ref/solid.md)
+- Next iteration on [SolidJS API for Penrose](/docs/ref/solid.md) and docs
 -
+
+<!-- ### 💭 Potential
+- -->
 
 <style>
   .action-grid {
@@ -112,3 +124,4 @@ We maintain a [blog][] and a [mailing list][] on Penrose and diagramming in gene
 [using penrose]: /docs/ref/using
 [contributing PR]: https://github.com/penrose/penrose/blob/main/CONTRIBUTING.md#contributing
 [rose]: https://rosejs.dev/
+[roadmap]: #technical-roadmap
