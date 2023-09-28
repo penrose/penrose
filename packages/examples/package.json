@@ -17,7 +17,7 @@
     "build": "rimraf dist && tsc",
     "build-decls": ":",
     "codegen": "git clean -dfqX src && node codegen.js",
-    "test": "vitest run --no-threads --reporter=verbose",
+    "test": "cross-env NODE_OPTIONS='--max-old-space-size=8192' vitest run --no-threads --reporter=verbose",
     "typecheck": ":"
   },
   "nx": {
