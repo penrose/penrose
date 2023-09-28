@@ -1,0 +1,15 @@
+Code changes:
+
+Project:
+* Create list of diagram animations that I want to animate:
+  * Set animations
+  * Corps de ballet animation
+  * geometry animation
+  * an animation that involves deleting objects
+  * an animation that involves changing the type of an object?
+
+* make new module from packages, put animation related code in there
+* Basically need to need to regenerate “inputs” with constant samplers BETWEEN style 
+  compilation and optimization, then sample again with the new samplers to get the constant varying values.
+* start by testing the transition between 2 substance programs: take as much of the state from the first visual
+  and use it as a starting point for the second one

@@ -1,0 +1,9 @@
+Set A, B, C, D
+
+IsSubset(B, A)
+IsSubset(C, A)
+
+Not(Intersecting(B, C))
+IsSubset(A, D)
+
+AutoLabel All

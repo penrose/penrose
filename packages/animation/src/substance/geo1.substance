@@ -1,0 +1,5 @@
+Point A, B, C
+Let t := Triangle(A, B, C)
+Angle a := InteriorAngle(B, C, A)
+
+AutoLabel A, B, C
