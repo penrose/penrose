@@ -1,8 +1,7 @@
-import { Simple } from "@penrose/components/dist/Simple";
 import { toSVG } from "@penrose/core";
-import React from "react";
+import React, { RefObject } from "react";
 import { compileTrio } from "./animation";
-import { trio1 } from "./trio";
+import { trio1, trio2 } from "./trio";
 
 interface AnimationFrameState {
   isUpdating: boolean;
@@ -17,7 +16,8 @@ export class AnimationFrame extends React.Component<
   AnimationFrameState
 > {
   frameTitle: string;
-  readonly canvasRef = React.createRef<HTMLDivElement>();
+  readonly frameRef1 = React.createRef<HTMLDivElement>();
+  readonly frameRef2 = React.createRef<HTMLDivElement>();
   constructor(props: AnimationFrameProps) {
     super(props);
     this.frameTitle = props.frameTitle;
@@ -26,13 +26,14 @@ export class AnimationFrame extends React.Component<
 
   componentDidMount(): void {
     this.setState({ isUpdating: true });
-    this.renderSVG();
+    this.renderSVG(this.frameRef1, trio1);
+    this.renderSVG(this.frameRef2, trio2);
   }
 
-  renderSVG = async () => {
-    if (this.canvasRef.current !== null) {
-      const node = this.canvasRef.current;
-      const converged = await compileTrio(trio1);
+  renderSVG = async (ref: RefObject<HTMLDivElement>, trio: any) => {
+    if (ref.current !== null) {
+      const node = ref.current;
+      const converged = await compileTrio(trio);
       const rendered = await toSVG(converged, async () => undefined, "one");
       if (node.firstChild !== null) {
         node.replaceChild(rendered, node.firstChild);
@@ -41,22 +42,43 @@ export class AnimationFrame extends React.Component<
       }
       this.setState({ isUpdating: false });
     } else {
-      console.log(this.canvasRef, "is null");
+      console.log(ref.current, "is null");
     }
   };
 
   render = () => {
-    const simple = new Simple({
-      domain: trio1.domain,
-      substance: trio1.substance,
-      style: trio1.style,
-      variation: trio1.variation,
-    });
     return (
-      <div id={"frame"}>
-        <div id={"svg-bbox"} ref={this.canvasRef} />
-        {"hello!"}
-        {simple.render()}
+      <div style={{ padding: "20px", fontFamily: "Arial" }}>
+        <div>
+          <h1>{"Approach: Baseline"}</h1>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            width: "100vw",
+            overflow: "auto",
+          }}
+        >
+          <div
+            id={"frame1"}
+            ref={this.frameRef1}
+            style={{
+              width: "400px",
+              height: "400px",
+              border: "2px solid gray",
+            }}
+          />
+          <div
+            id={"frame2"}
+            ref={this.frameRef2}
+            style={{
+              width: "400px",
+              height: "400px",
+              border: "2px solid gray",
+              borderLeft: "none",
+            }}
+          />
+        </div>
       </div>
     );
   };

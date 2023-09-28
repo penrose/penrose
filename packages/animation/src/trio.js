@@ -8,8 +8,8 @@ predicate IsSubset(Set s1, Set s2)
 
 const setStyle = `
 canvas {
-  width = 800
-  height = 800
+  width = 400
+  height = 400
 }
 
 forall Set x {
