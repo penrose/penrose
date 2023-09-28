@@ -817,14 +817,14 @@ export const genGradient = async (
   const c = constraints.length;
 
   const single = (x: ad.Num) =>
-    rose.fn([rose.Vec(n, rose.Real), rose.Bool], rose.Real, (varying, mask) => {
+    rose.fn([rose.Vec(n, rose.Real)], rose.Real, (varying) => {
       const graph = topsort((set) => {
         set(x);
       });
       const vars = new Map<ad.Expr, rose.Bool | rose.Real>();
       for (let i = 0; i < n; i++) {
         const v = inputs[i];
-        if (graph.nodes.has(v)) vars.set(v, builtins.mask(varying[i], mask));
+        if (graph.nodes.has(v)) vars.set(v, varying[i]);
       }
       emitGraph(graph, vars);
       return vars.get(x) as rose.Real;
@@ -834,17 +834,11 @@ export const genGradient = async (
   const constrFns = constraints.map(single);
 
   const basic = rose.fn(
-    [
-      {
-        varying: rose.Vec(n, rose.Real),
-        objMask: rose.Vec(o, rose.Bool),
-        constrMask: rose.Vec(c, rose.Bool),
-      },
-    ],
+    [rose.Vec(n, rose.Real)],
     { objectives: rose.Vec(o, rose.Real), constraints: rose.Vec(c, rose.Real) },
-    ({ varying, objMask, constrMask }) => ({
-      objectives: objFns.map((f, i) => f(varying, objMask[i])),
-      constraints: constrFns.map((f, i) => f(varying, constrMask[i])),
+    (varying) => ({
+      objectives: objFns.map((f) => f(varying)),
+      constraints: constrFns.map((f) => f(varying)),
     }),
   );
 
@@ -862,34 +856,31 @@ export const genGradient = async (
       constraints: rose.Vec(c, rose.Real),
     },
     (varying, weight, objMask, constrMask) => {
-      const { ret, grad } = rose.vjp(basic)({ varying, objMask, constrMask });
+      const { ret, grad } = rose.vjp(basic)(varying);
       const { objectives: objs, constraints: constrs } = ret;
-      const masked = rose.vec(o, rose.Real, (i) =>
-        rose.select(objMask[i], rose.Real, objs[i], 0),
+      const Pair = { x: rose.Real, d: rose.Real } as const;
+      const zero = { x: 0, d: 0 };
+      const masked = rose.vec(o, Pair, (i) =>
+        rose.select(objMask[i], Pair, { x: objs[i], d: 1 }, zero),
       );
-      const Constr = { x: rose.Real, y: rose.Real, d: rose.Real } as const;
-      const penalties = rose.vec(c, Constr, (i) => {
-        const x = rose.select(constrMask[i], rose.Real, constrs[i], 0);
-        const { ret: y, grad } = rose.vjp(penalty)(x);
-        return { x, y, d: grad(weight) };
+      const penalties = rose.vec(c, Pair, (i) => {
+        const { ret: x, grad } = rose.vjp(penalty)(constrs[i]);
+        return rose.select(constrMask[i], Pair, { x, d: grad(weight) }, zero);
       });
       return {
         phi: rose.add(
-          sum(o, (i) => masked[i]),
+          sum(o, (i) => masked[i].x),
           rose.mul(
             weight,
-            sum(c, (i) => penalties[i].y),
+            sum(c, (i) => penalties[i].x),
           ),
         ),
         gradient: grad({
-          // these objective cotangents are wrong, but it doesn't matter because
-          // we already protected the gradients as necessary by calling
-          // `builtins.mask` in each individual function above
-          objectives: rose.vec(o, rose.Real, () => 1),
+          objectives: rose.vec(o, rose.Real, (i) => masked[i].d),
           constraints: rose.vec(c, rose.Real, (i) => penalties[i].d),
-        }).varying,
-        objectives: masked,
-        constraints: rose.vec(c, rose.Real, (i) => penalties[i].x),
+        }),
+        objectives: objs,
+        constraints: constrs,
       };
     },
   );
@@ -924,7 +915,11 @@ export const genGradient = async (
     const out = f(Array.from(inputs), weight, objMask, constrMask);
     const { phi, gradient, objectives: objs, constraints: constrs } = out;
     for (let i = 0; i < n; i++) grad[i] = inputMask[i] ? gradient[i] : 0;
-    return { phi, objectives: objs as any, constraints: constrs as any };
+    return {
+      phi,
+      objectives: objMask.map((p, i) => (p ? objs[i] : 0)),
+      constraints: constrMask.map((p, i) => (p ? constrs[i] : 0)),
+    };
   };
 };
 
