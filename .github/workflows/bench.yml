@@ -1,0 +1,47 @@
+name: Benchmark
+on:
+  workflow_dispatch:
+    inputs:
+      commit_1:
+        description: "First Commit SHA"
+        required: true
+        type: string
+      commit_2:
+        description: "Second Commit SHA"
+        required: true
+        type: string
+jobs:
+  bench:
+    runs-on: ubuntu-22.04
+    steps:
+      # run first commit
+      - name: Checkout first commit
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.commit_1 }}
+      - name: Setup
+        uses: ./.github/actions/setup
+      - name: Generate diagrams and metadata for the first commit
+        run: yarn registry
+      - name: Upload generated diagrams and metadata
+        uses: actions/upload-artifact@v3
+        with:
+          name: diagrams-1
+          path: packages/examples/diagrams/
+      # run second commit
+      - name: Fetch and checkout second commit
+        run: |
+          git fetch --no-tags --prune --progress --no-recurse-submodules --depth=1 origin 90048e996c4e1cfb637005a25de70a42dacc0aea
+          git checkout --force --progress 90048e996c4e1cfb637005a25de70a42dacc0aea
+      - name: Clean working tree
+        run: git clean -dfx
+      - name: Reinstall packages
+        run: yarn
+        shell: bash
+      - name: Generate diagrams and metadata for the second commit
+        run: yarn registry
+      - name: Upload generated diagrams and metadata
+        uses: actions/upload-artifact@v3
+        with:
+          name: diagrams-2
+          path: packages/examples/diagrams/
