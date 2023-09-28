@@ -864,29 +864,32 @@ export const genGradient = async (
     (varying, weight, objMask, constrMask) => {
       const { ret, grad } = rose.vjp(basic)({ varying, objMask, constrMask });
       const { objectives: objs, constraints: constrs } = ret;
-      const Pair = { x: rose.Real, d: rose.Real } as const;
-      const zero = { x: 0, d: 0 };
-      const masked = rose.vec(o, Pair, (i) =>
-        rose.select(objMask[i], Pair, { x: objs[i], d: 1 }, zero),
+      const masked = rose.vec(o, rose.Real, (i) =>
+        rose.select(objMask[i], rose.Real, objs[i], 0),
       );
-      const penalties = rose.vec(c, Pair, (i) => {
-        const { ret: x, grad } = rose.vjp(penalty)(constrs[i]);
-        return rose.select(constrMask[i], Pair, { x, d: grad(weight) }, zero);
+      const Constr = { x: rose.Real, y: rose.Real, d: rose.Real } as const;
+      const penalties = rose.vec(c, Constr, (i) => {
+        const x = rose.select(constrMask[i], rose.Real, constrs[i], 0);
+        const { ret: y, grad } = rose.vjp(penalty)(x);
+        return { x, y, d: grad(weight) };
       });
       return {
         phi: rose.add(
-          sum(o, (i) => masked[i].x),
+          sum(o, (i) => masked[i]),
           rose.mul(
             weight,
-            sum(c, (i) => penalties[i].x),
+            sum(c, (i) => penalties[i].y),
           ),
         ),
         gradient: grad({
-          objectives: rose.vec(o, rose.Real, (i) => masked[i].d),
+          // these objective cotangents are wrong, but it doesn't matter because
+          // we already protected the gradients as necessary by calling
+          // `builtins.mask` in each individual function above
+          objectives: rose.vec(o, rose.Real, () => 1),
           constraints: rose.vec(c, rose.Real, (i) => penalties[i].d),
         }).varying,
-        objectives: objs,
-        constraints: constrs,
+        objectives: masked,
+        constraints: rose.vec(c, rose.Real, (i) => penalties[i].x),
       };
     },
   );
@@ -921,11 +924,7 @@ export const genGradient = async (
     const out = f(Array.from(inputs), weight, objMask, constrMask);
     const { phi, gradient, objectives: objs, constraints: constrs } = out;
     for (let i = 0; i < n; i++) grad[i] = inputMask[i] ? gradient[i] : 0;
-    return {
-      phi,
-      objectives: objMask.map((p, i) => (p ? objs[i] : 0)),
-      constraints: constrMask.map((p, i) => (p ? constrs[i] : 0)),
-    };
+    return { phi, objectives: objs as any, constraints: constrs as any };
   };
 };
 
