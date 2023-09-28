@@ -17,29 +17,44 @@ export class AnimationFrame extends React.Component<
   AnimationFrameState
 > {
   frameTitle: string;
+  readonly canvasRef = React.createRef<HTMLDivElement>();
   constructor(props: AnimationFrameProps) {
     super(props);
     this.frameTitle = props.frameTitle;
     this.state = { isUpdating: false };
   }
 
+  componentDidMount(): void {
+    this.setState({ isUpdating: true });
+    this.renderSVG();
+  }
+
   renderSVG = async () => {
-    const converged = await compileTrio(trio1);
-    const rendered = await toSVG(converged, async () => undefined, "");
-    const ele = document.getElementById("frame");
-    ele?.appendChild(rendered);
-    return rendered;
+    if (this.canvasRef.current !== null) {
+      const node = this.canvasRef.current;
+      const converged = await compileTrio(trio1);
+      const rendered = await toSVG(converged, async () => undefined, "one");
+      if (node.firstChild !== null) {
+        node.replaceChild(rendered, node.firstChild);
+      } else {
+        node.appendChild(rendered);
+      }
+      this.setState({ isUpdating: false });
+    } else {
+      console.log(this.canvasRef, "is null");
+    }
   };
 
   render = () => {
     const simple = new Simple({
-      domain: trio1.setDomain,
-      substance: trio1.set1substance,
-      style: trio1.setStyle,
+      domain: trio1.domain,
+      substance: trio1.substance,
+      style: trio1.style,
       variation: trio1.variation,
     });
     return (
       <div id={"frame"}>
+        <div id={"svg-bbox"} ref={this.canvasRef} />
         {"hello!"}
         {simple.render()}
       </div>

@@ -10,6 +10,6 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <App />
-    <AnimationFrame frameTitle="frame 1" />
+    <AnimationFrame frameTitle={"frame 1"} />
   </React.StrictMode>,
 );

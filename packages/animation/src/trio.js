@@ -9,7 +9,7 @@ predicate IsSubset(Set s1, Set s2)
 const setStyle = `
 canvas {
   width = 800
-  height = 700
+  height = 800
 }
 
 forall Set x {
@@ -65,5 +65,15 @@ IsSubset(A, D)
 
 AutoLabel All`;
 
-export const trio1 = { setDomain, set1substance, setStyle, variation: "set1" };
-export const trio2 = { setDomain, set2substance, setStyle, variation: "set2" };
+export const trio1 = {
+  substance: set1substance,
+  domain: setDomain,
+  style: setStyle,
+  variation: "set1",
+};
+export const trio2 = {
+  substance: set2substance,
+  domain: setDomain,
+  style: setStyle,
+  variation: "set2",
+};
