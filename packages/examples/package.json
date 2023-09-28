@@ -11,13 +11,13 @@
   "devDependencies": {
     "prettier": "^3",
     "vite": "^4",
-    "vitest": "^0.34.5"
+    "vitest": "^0.31"
   },
   "scripts": {
     "build": "rimraf dist && tsc",
     "build-decls": ":",
     "codegen": "git clean -dfqX src && node codegen.js",
-    "test": "cross-env NODE_OPTIONS='--max-old-space-size=8192' vitest run --no-threads --reporter=verbose",
+    "test": "vitest run --no-threads --reporter=verbose --logHeapUsage",
     "typecheck": ":"
   },
   "nx": {
