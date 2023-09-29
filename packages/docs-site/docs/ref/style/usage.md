@@ -557,7 +557,9 @@ Each property of a shape has a default value. A full list of available shapes an
 
 ### Unknown Scalar
 
-The `?` expression evaluates to a scalar whose value is automatically determined by the Penrose engine.
+The `?` expression evaluates to a scalar whose value is automatically determined by the Penrose engine. The Penrose engine picks a random initial value in place of `?` and runs an optimization process to adjust it to a more suitable value.
+
+One can also provide an explicit initial value to guide the optimization process using a pair of square brackets next to the `?` expression. As an example, `?[3.14]` tells the Penrose engine to use the value `3.14` as a starting point and optimizing based on that `3.14` value. Values in these square brackets must be fixed and explicitly given, so `?[1 + 1]` is disallowed.
 
 ### Strings
 

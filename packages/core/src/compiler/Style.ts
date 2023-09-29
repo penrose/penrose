@@ -16,6 +16,7 @@ import {
   Canvas,
   InputMeta,
   Context as MutableContext,
+  constSampler,
   makeCanvas,
   uniform,
 } from "../shapes/Samplers.js";
@@ -486,7 +487,7 @@ const checkRelPattern = (
       const { type: vtype } = res1.value; // ignore env
 
       // G |- E : T2
-      const res2 = checkExpr(toSubExpr(varEnv, rel.expr), varEnv);
+      const res2 = checkExpr(toSubExpr(rel.expr), varEnv);
 
       // TODO(error)
       if (isErr(res2)) {
@@ -856,45 +857,22 @@ export const substituteRel = (
 //#endregion (subregion? TODO fix)
 
 // Convert Style expression to Substance expression (for ease of comparison in matching)
-// Note: the env is needed to disambiguate SEFuncOrValCons
-const toSubExpr = <T>(env: Env, e: SelExpr<T>): SubExpr<T> => {
+const toSubExpr = <T>(e: SelExpr<T>): SubExpr<T> => {
   switch (e.tag) {
     case "SEBind": {
       return e.contents.contents;
     }
-    case "SEFunc": {
-      return {
-        ...e, // Puts the remnants of e's ASTNode info here -- is that ok?
-        tag: "ApplyFunction",
-        name: e.name,
-        args: e.args.map((e) => toSubExpr(env, e)),
-      };
-    }
-    case "SEValCons": {
-      return {
-        ...e,
-        tag: "ApplyConstructor",
-        name: e.name,
-        args: e.args.map((e) => toSubExpr(env, e)),
-      };
-    }
+    case "SEFunc":
+    case "SEValCons":
     case "SEFuncOrValCons": {
-      let tag: "ApplyFunction" | "ApplyConstructor";
-      if (env.constructors.has(e.name.value)) {
-        tag = "ApplyConstructor";
-      } else if (env.functions.has(e.name.value)) {
-        tag = "ApplyFunction";
-      } else {
-        // TODO: return TypeNotFound instead
-        throw new Error(
-          `Style internal error: expected '${e.name.value}' to be either a constructor or function, but was not found`,
-        );
-      }
+      // keep everything as generic Func
+      // since the Substance checker would automatically distinguish
+      // between ValCons and Func.
       const res: SubExpr<T> = {
         ...e,
-        tag,
+        tag: "Func",
         name: e.name,
-        args: e.args.map((e) => toSubExpr(env, e)),
+        args: e.args.map((e) => toSubExpr(e)),
       };
       return res;
     }
@@ -3216,7 +3194,7 @@ const evalExpr = (
       });
     }
     case "Vary": {
-      const { exclude } = expr;
+      const { exclude, init } = expr;
       const stages: OptStages = stageExpr(
         layoutStages,
         exclude,
@@ -3226,7 +3204,13 @@ const evalExpr = (
         val(
           floatV(
             mut.makeInput({
-              init: { tag: "Sampled", sampler: uniform(...canvas.xRange) },
+              init: {
+                tag: "Sampled",
+                sampler:
+                  init === undefined
+                    ? uniform(...canvas.xRange)
+                    : constSampler(init),
+              },
               stages,
             }),
           ),

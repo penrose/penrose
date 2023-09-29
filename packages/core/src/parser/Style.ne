@@ -612,13 +612,14 @@ string_lit -> %string_literal {%
 
 number ->  %float_literal {% id %} 
 annotated_float 
-  -> "?" (__ ("in"|"except") __ stage_list):? {% 
-    ([d, stages]): Vary<C> => ({
+  -> "?" (_ "[" _ number _ "]"):? (__ ("in"|"except") __ stage_list):? {% 
+    ([d, init, stages]): Vary<C> => ({
       ...nodeData, 
       ...rangeOf(d), // TODO: fix range
       tag: 'Vary',
       stages: stages ? stages[3] : [],
       exclude: stages ? stages[1][0].value === "except" : true,
+      init: init ? parseFloat(init[3]) : undefined
     })
   %}
   | number {% 
