@@ -1,0 +1,6 @@
+{
+  "substance": "./star-graph.substance",
+  "style": ["../3d-disco.style"],
+  "domain": "../graph.domain",
+  "variation": "BelfastBat2857"
+}

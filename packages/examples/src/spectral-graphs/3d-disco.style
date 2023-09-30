@@ -5,7 +5,7 @@ canvas {
 
 colors {
   color hueOffset = ?
-  color background = hsva(hueOffset, 100, 10, 1)
+  color background = hsva(hueOffset, 100, 7, 1)
 }
 
 camera {
