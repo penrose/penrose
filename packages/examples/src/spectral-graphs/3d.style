@@ -52,7 +52,7 @@ forall Node n {
   vec3 n.center = (?, ?, ?)
   vec2 n.center2 = project( n.center, camera.model, camera.proj, camera.view )
   scalar n.normsq = normsq(n.center)
-  scalar n.size = (-820 + vdist(camera.eye, n.center)) / 12
+  scalar n.size = max(5, (-820 + vdist(camera.eye, n.center)) / 7)
   shape n.icon = Circle {
     center: n.center2
     r: n.size

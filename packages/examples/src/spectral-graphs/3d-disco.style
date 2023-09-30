@@ -40,7 +40,7 @@ forall Node n {
   vec3 n.center = (?, ?, ?)
   vec2 n.center2 = project( n.center, camera.model, camera.proj, camera.view )
   scalar n.normsq = normsq(n.center)
-  scalar n.size = (-820 + vdist(camera.eye, n.center)) / 7
+  scalar n.size = max(5, (-820 + vdist(camera.eye, n.center)) / 7)
 
   scalar n.hue = colors.hueOffset + 0.1 * n.normsq
   color n.colorBloom = hsva(n.hue, 50, 80, .6)
