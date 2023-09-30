@@ -1,0 +1,103 @@
+canvas {
+  width = 900
+  height = 900
+}
+
+colors {
+  color hueOffset = ?
+  color background = hsva(hueOffset, 100, 10, 1)
+}
+
+camera {
+  -- Camera viewpoint
+  vec3 eye = (500, 500, 500)
+  vec3 center = (0, 0, 0)
+  vec3 up = (0, 1, 0)
+  mat4x4 model = lookAt( eye, center, up )
+
+  -- Camera projection
+  scalar fovy = 10
+  scalar aspect = canvas.width / canvas.height
+  scalar near = 1
+  scalar far = 4
+  mat4x4 proj = perspective( fovy, aspect, near, far )
+
+  -- Viewport
+  list view = [ -canvas.width/2, -canvas.height/2, canvas.width, canvas.height ]
+}
+
+global {
+  shape background = Rectangle {
+    center: (0,0)
+    width: canvas.width
+    height: canvas.height
+    fillColor: colors.background
+    ensureOnCanvas: false
+  }
+}
+
+forall Node n {
+  vec3 n.center = (?, ?, ?)
+  vec2 n.center2 = project( n.center, camera.model, camera.proj, camera.view )
+  scalar n.normsq = normsq(n.center)
+  scalar n.size = (-820 + vdist(camera.eye, n.center)) / 7
+
+  scalar n.hue = colors.hueOffset + 0.1 * n.normsq
+  color n.colorBloom = hsva(n.hue, 50, 80, .6)
+  color n.colorCenter = hsva(n.hue, 0, 100, 1)
+
+  shape n.icon = Circle {
+    center: n.center2
+    r: n.size
+    fillColor: n.colorBloom
+    style: "filter:blur(1.8px);"
+    ensureOnCanvas: false
+  }
+  shape n.icon2 = Circle {
+    center: n.center2
+    r: 0.5 * n.size
+    fillColor: n.colorCenter
+    style: "filter:blur(0.4px);"
+    ensureOnCanvas: false
+  }
+  n.icon2 above n.icon
+}
+
+forall Edge e; Node a; Node b
+where e := MakeEdge(a, b) {
+  scalar e.distsq = vdistsq(a.center, b.center)
+  scalar e.size = 0.5 * (a.size + b.size)
+
+  scalar e.hue = colors.hueOffset + 0.1 * 0.5 * (a.normsq + b.normsq)
+  color e.colorEdge = hsva(e.hue, 20, 90, 0.5)
+
+  shape e.icon = Line {
+    start: a.icon.center
+    end: b.icon.center
+    strokeWidth: 0.3 * e.size
+    strokeColor: e.colorEdge
+    style: "filter:blur(0.3px);"
+    ensureOnCanvas: false
+  }
+}
+
+forall Node n; Edge e {
+  e.icon below n.icon
+}
+
+collect Node n into nodes {
+  normsqs = listof normsq from nodes
+  centers = listof center from nodes
+  scalar scaleFactor = 30
+  scalar scale = (canvas.width / scaleFactor) * (canvas.height / scaleFactor)
+
+  ensure sum(normsqs) / count(normsqs) == scale
+  ensure norm(sumVectors(centers)) == 0
+}
+
+collect Edge e into edges
+where e := MakeEdge(a, b)
+foreach Node a; Node b {
+  distsqs = listof distsq from edges
+  encourage sum(distsqs) == 0
+}
