@@ -3367,12 +3367,12 @@ export const compDict = {
     name: "randomIntBetween",
     description: "Sample a uniform distribution to get an integer between N and M.",
     params: [
-      { name: "N", type: valueT("Real"), description: "Lower bound" },
-      { name: "M", type: valueT("Real"), description: "Upper bound" },
+      { name: "n", type: valueT("Real"), description: "Lower bound" },
+      { name: "m", type: valueT("Real"), description: "Upper bound" },
     ],
-    body: ({ makeInput }: Context, N: number, M: number): MayWarn<FloatV<ad.Num>> => {
+    body: ({ makeInput }: Context, n: number, m: number): MayWarn<FloatV<ad.Num>> => {
       const randomFloat = makeInput({
-        init: { tag: "Sampled", sampler: uniform(N, M) },
+        init: { tag: "Sampled", sampler: uniform(n, m) },
         stages: new Set(),
       });
       const randomInt = Math.floor(randomFloat.val);
