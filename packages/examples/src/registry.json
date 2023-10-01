@@ -534,5 +534,9 @@
   "Dynamics/Lyapunov": {
     "name": "Lyapunov Exponent",
     "gallery": true
+  },
+  "chaos-game/chaos-game": {
+    "name": "Chaos Game",
+    "gallery": false
   }
 }
