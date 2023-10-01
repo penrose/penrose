@@ -3380,7 +3380,7 @@ export const compDict = {
           stages: new Set(),
         });
 
-        const randomIndex = Math.floor(randomFloatIndex.val);
+        const randomIndex = Math.floor(Number(randomFloatIndex));
         const val = items.contents[randomIndex];
 
         return noWarn({
