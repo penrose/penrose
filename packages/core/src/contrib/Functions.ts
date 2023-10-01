@@ -85,6 +85,7 @@ import {
   floatV,
   getStart,
   linePts,
+  listV,
   natT,
   noClip,
   noWarn,
@@ -3358,6 +3359,39 @@ export const compDict = {
       }
     },
     returns: valueT("Color"),
+  },
+
+  pickRandom: {
+    name: "pickRandom",
+    description: "Uniformly sample a random item from a list.",
+    params: [{ name: "items", type: listV, description: "List of items" }],
+    body: (
+      { makeInput }: Context,
+      items: ListV<ad.Num>
+    ): MayWarn<FloatV<ad.Num>> => {
+      if (Array.isArray(items.contents) && items.contents.length > 0) {
+        const randomFloatIndex = makeInput({
+          init: {
+            tag: "Sampled",
+            sampler: uniform(0, items.contents.length - 1),
+          },
+          stages: new Set(),
+        });
+
+        const randomIndex = Math.floor(randomFloatIndex.val);
+        const val = items.contents[randomIndex];
+
+        return noWarn({
+          tag: "FloatV",
+          contents: val,
+        });
+      } else {
+        throw new Error(
+          "Expects a list of items with at least one element. Got an empty list or non-list value instead."
+        );
+      }
+    },
+    returns: valueT("Real"),
   },
 
   /**
