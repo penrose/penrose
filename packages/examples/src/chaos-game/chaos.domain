@@ -1,3 +1,4 @@
+type Corner
 type Point
 type Seed <: Point
 constructor NextPoint(Point s) -> Point

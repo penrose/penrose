@@ -1,80 +1,54 @@
 canvas {
-    width = 1000
-    height = 1000
+  width = 1000
+  height = 1000
 }
 
 global {
-  vec2 corner1 = (?, ?)
-  vec2 corner2 = (?, ?)
-  vec2 corner3 = (?, ?)
-
-  scalar hue1 = ?
-  scalar hue2 = ?
-  scalar hue3 = ?
-  hues = [hue1, hue2, hue3]
-
   scalar alphaStep = 0.002
   scalar alphaMin = 0.1
-  scalar coef = random(-0.2, 0.8)
-
-  corners = [corner1, corner2, corner3]
-  encourage isEquilateral(corners, true)
-
-  shape icon1 = Circle {
-    center: corner1
-    r: 3
-    fillColor: hsva(hue1, 50, 80, 1)
-    strokeColor: #000
-    strokeWidth: 2
-  }
-  shape icon2 = Circle {
-    center: corner2
-    r: 3
-    fillColor: hsva(hue2, 50, 80, 1)
-    strokeColor: #000
-    strokeWidth: 2
-  }
-  shape icon3 = Circle {
-    center: corner3
-    r: 3
-    fillColor: hsva(hue3, 50, 80, 1)
-    strokeColor: #000
-    strokeWidth: 2
-  }
-
-  shape icon1b = Circle {
-    center: corner1
-    r: 8
-    fillColor: #ffffffff
-    style: "filter: blur(3px)"
-  }
-  shape icon2b = Circle {
-    center: corner2
-    r: 8
-    fillColor: #ffffffff
-    style: "filter: blur(3px)"
-  }
-  shape icon3b = Circle {
-    center: corner3
-    r: 8
-    fillColor: #ffffffff
-    style: "filter: blur(3px)"
-  }
-
-  icon1b below icon1
-  icon2b below icon2
-  icon3b below icon3
+  scalar coef = random(0.2, 0.4)
 }
 
-forall Point p; Point s 
-where p := NextPoint(s) {  
-  scalar cornerIndex = randomIntBetween(0, 3)
-  vec2 corner = global.corners[cornerIndex]
+forall Corner c {
+  vec2 c.pos = (?, ?)
+  scalar c.hue = ?
+
+  shape c.icon = Circle {
+    center: c.pos
+    r: 3
+    fillColor: hsva(c.hue, 50, 80, 1)
+    strokeColor: #000
+    strokeWidth: 2
+  }
+  shape c.iconb = Circle {
+    center: c.pos
+    r: 8
+    fillColor: #ffffffff
+    style: "filter: blur(3px)"
+  }
+
+  c.iconb below c.icon
+}
+
+collect Corner c into corners {
+  positions = listof pos from corners
+  ensure isEquilateral(positions, true)
+  ensure isEquiangular(positions, true)
+}
+
+collect Corner c into corners
+where p := NextPoint(s)
+foreach Point p; Point s {  
+  positions = listof pos from corners
+  hues = listof hue from corners
+  scalar cornerIndex = randomIntBetween(0, count(hues))
+  
+  vec2 corner = positions[cornerIndex]
   vec2 p.pos = global.coef * s.pos + (1 - global.coef) * corner
 
   scalar p.alpha = max(global.alphaMin, s.alpha - global.alphaStep)
   
-  scalar hue = global.hues[cornerIndex]
+  scalar hue = hues[cornerIndex]
   scalar p.hue = 0.3 * s.hue + 0.7 * hue
 
   shape p.line = Line {
@@ -84,11 +58,12 @@ where p := NextPoint(s) {
     style: "filter: blur(1px)"
     ensureOnCanvas: false
   }
-
-  p.line below global.icon1b
-  p.line below global.icon2b
-  p.line below global.icon3b
 }
+
+forall Point p; Point s; Corner c
+where p := NextPoint(s) {
+  p.line below c.iconb
+}  
 
 forall Seed s {
   vec2 s.pos = (?, ?)
@@ -110,12 +85,9 @@ forall Point p {
     fillColor: #000
     ensureOnCanvas: false
   } 
+}
 
-  p.blur below global.icon1b
-  p.blur below global.icon2b
-  p.blur below global.icon3b
-
-  p.icon below global.icon1b
-  p.icon below global.icon2b
-  p.icon below global.icon3b
+forall Point p; Corner c {
+  p.blur below c.iconb
+  p.icon below c.iconb
 }
