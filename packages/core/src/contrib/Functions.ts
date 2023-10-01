@@ -85,7 +85,6 @@ import {
   floatV,
   getStart,
   linePts,
-  listV,
   natT,
   noClip,
   noWarn,
@@ -3361,10 +3360,13 @@ export const compDict = {
     returns: valueT("Color"),
   },
 
+  /**
+   * Uniformly sample a random item from a list.
+   */
   pickRandom: {
     name: "pickRandom",
     description: "Uniformly sample a random item from a list.",
-    params: [{ name: "items", type: listV, description: "List of items" }],
+    params: [{ name: "items", type: realNT(), description: "List of items" }],
     body: (
       { makeInput }: Context,
       items: ListV<ad.Num>
