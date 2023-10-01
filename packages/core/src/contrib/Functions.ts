@@ -3361,26 +3361,38 @@ export const compDict = {
   },
 
   /**
-   * Return a random integer sampled from a uniform distribution between N and M.
+   * Return a uniform random integer value between minVal and maxVal.
    */
-  randomIntBetween: {
-    name: "randomIntBetween",
-    description: "Sample a uniform distribution to get an integer between N and M.",
+  randomInt: {
+    name: "randomInt",
+    description:
+      "Uniformly sample a random integer value in the range from `minVal` to `maxVal`.",
     params: [
-      { name: "n", type: valueT("Real"), description: "Lower bound" },
-      { name: "m", type: valueT("Real"), description: "Upper bound" },
+      { name: "minVal", type: realT(), description: "minimum value" },
+      { name: "maxVal", type: realT(), description: "maximum value" },
     ],
-    body: ({ makeInput }: Context, n: number, m: number): MayWarn<FloatV<ad.Num>> => {
-      const randomFloat = makeInput({
-        init: { tag: "Sampled", sampler: uniform(n, m) },
-        stages: new Set(),
-      });
-      const randomInt = Math.floor(randomFloat.val);
+    body: (
+      { makeInput }: Context,
+      minVal: ad.Num,
+      maxVal: ad.Num,
+    ): MayWarn<FloatV<ad.Num>> => {
+      if (typeof minVal === "number" && typeof maxVal === "number") {
+        const randomFloat = makeInput({
+          init: { tag: "Sampled", sampler: uniform(minVal, maxVal) },
+          stages: new Set(),
+        });
 
-      return noWarn({
-        tag: "FloatV",
-        contents: randomInt,
-      });
+        const randomInt = floor(randomFloat);
+
+        return noWarn({
+          tag: "FloatV",
+          contents: randomInt,
+        });
+      } else {
+        throw new Error(
+          "Expects the minimum and maximum values to be constants. Got a computed or optimized value instead."
+        );
+      }
     },
     returns: valueT("Real"),
   },
