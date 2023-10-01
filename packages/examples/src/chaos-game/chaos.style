@@ -11,13 +11,14 @@ global {
   scalar hue1 = ?
   scalar hue2 = ?
   scalar hue3 = ?
+  hues = [hue1, hue2, hue3]
 
   scalar alphaStep = 0.002
   scalar alphaMin = 0.1
-  scalar coef = random(0.3, 0.6)
+  scalar coef = random(-0.2, 0.8)
 
-  triangle = [corner1, corner2, corner3]
-  encourage isEquilateral(triangle, true)
+  corners = [corner1, corner2, corner3]
+  encourage isEquilateral(corners, true)
 
   shape icon1 = Circle {
     center: corner1
@@ -67,19 +68,13 @@ global {
 
 forall Point p; Point s 
 where p := NextPoint(s) {  
-  scalar r = random(0, 3)
-  scalar coef1 = max(0, min(1, 1 - floor(r)))
-  scalar coef2 = max(0, min(1, 1 - floor(r - 1))) - max(0, min(1, 1 - floor(r)))
-  scalar coef3 = 1 - max(0, min(1, 1 - floor(r - 1)))
-
-  vec2 corner = coef1 * global.corner1 + coef2 * global.corner2 + coef3 * global.corner3
+  scalar cornerIndex = randomIntBetween(0, 3)
+  vec2 corner = global.corners[cornerIndex]
   vec2 p.pos = global.coef * s.pos + (1 - global.coef) * corner
-
 
   scalar p.alpha = max(global.alphaMin, s.alpha - global.alphaStep)
   
-
-  scalar hue = coef1 * global.hue1 + coef2 * global.hue2 + coef3 * global.hue3
+  scalar hue = global.hues[cornerIndex]
   scalar p.hue = 0.3 * s.hue + 0.7 * hue
 
   shape p.line = Line {
