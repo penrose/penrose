@@ -3361,37 +3361,26 @@ export const compDict = {
   },
 
   /**
-   * Uniformly sample a random item from a list.
+   * Return a random integer sampled from a uniform distribution between N and M.
    */
-  pickRandom: {
-    name: "pickRandom",
-    description: "Uniformly sample a random item from a list.",
-    params: [{ name: "items", type: realNT(), description: "List of items" }],
-    body: (
-      { makeInput }: Context,
-      items: ListV<ad.Num>,
-    ): MayWarn<FloatV<ad.Num>> => {
-      if (Array.isArray(items.contents) && items.contents.length > 0) {
-        const randomFloatIndex = makeInput({
-          init: {
-            tag: "Sampled",
-            sampler: uniform(0, items.contents.length - 1),
-          },
-          stages: new Set(),
-        });
+  randomIntBetween: {
+    name: "randomIntBetween",
+    description: "Sample a uniform distribution to get an integer between N and M.",
+    params: [
+      { name: "N", type: valueT("Real"), description: "Lower bound" },
+      { name: "M", type: valueT("Real"), description: "Upper bound" },
+    ],
+    body: ({ makeInput }: Context, N: number, M: number): MayWarn<FloatV<ad.Num>> => {
+      const randomFloat = makeInput({
+        init: { tag: "Sampled", sampler: uniform(N, M) },
+        stages: new Set(),
+      });
+      const randomInt = Math.floor(randomFloat.val);
 
-        const randomIndex = Math.floor(Number(randomFloatIndex));
-        const val = items.contents[randomIndex];
-
-        return noWarn({
-          tag: "FloatV",
-          contents: val,
-        });
-      } else {
-        throw new Error(
-          "Expects a list of items with at least one element. Got an empty list or non-list value instead."
-        );
-      }
+      return noWarn({
+        tag: "FloatV",
+        contents: randomInt,
+      });
     },
     returns: valueT("Real"),
   },
