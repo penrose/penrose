@@ -3369,7 +3369,7 @@ export const compDict = {
     params: [{ name: "items", type: realNT(), description: "List of items" }],
     body: (
       { makeInput }: Context,
-      items: ListV<ad.Num>
+      items: ListV<ad.Num>,
     ): MayWarn<FloatV<ad.Num>> => {
       if (Array.isArray(items.contents) && items.contents.length > 0) {
         const randomFloatIndex = makeInput({
