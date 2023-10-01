@@ -538,5 +538,9 @@
   "chaos-game/chaos-game": {
     "name": "Chaos Game",
     "gallery": false
+  },
+  "chaos-game/chaos-game-4": {
+    "name": "Chaos Game 4 Corners",
+    "gallery": false
   }
 }
