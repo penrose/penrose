@@ -1,0 +1,2 @@
+Seed p_0
+Point p_i := NextPoint(p_j) for i in [1, 500], j in [0, 500] where i == j + 1
