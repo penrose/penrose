@@ -3361,29 +3361,27 @@ export const compDict = {
   },
 
   /**
-   * Return a uniform random integer value between minVal and maxVal.
+   * Return a uniform index value between minIndex and maxIndex.
    */
-  randomInt: {
-    name: "randomInt",
+  randomIndex: {
+    name: "randomIndex",
     description:
-      "Uniformly sample a random integer value in the range from `minVal` to `maxVal`.",
+      "Uniformly sample a random integer value in the range from `minIndex` to `maxIndex`.",
     params: [
-      { name: "minVal", type: realT(), description: "minimum value" },
-      { name: "maxVal", type: realT(), description: "maximum value" },
+      { name: "minIndex", type: realT(), description: "minimum index" },
+      { name: "maxIndex", type: realT(), description: "maximum index" },
     ],
     body: (
       { makeInput }: Context,
-      minVal: ad.Num,
-      maxVal: ad.Num,
-    ): MayWarn<FloatV<ad.Num>> => {
-      if (typeof minVal === "number" && typeof maxVal === "number") {
+      minIndex: ad.Num,
+      maxIndex: ad.Num,
+    ): MayWarn<FloatV<number>> => {
+      if (typeof minIndex === "number" && typeof maxIndex === "number") {
         const randomFloat = makeInput({
-          init: { tag: "Sampled", sampler: uniform(minVal, maxVal) },
+          init: { tag: "Sampled", sampler: uniform(minIndex, maxIndex) },
           stages: new Set(),
         });
-
-        const randomInt = floor(randomFloat);
-
+        const randomInt = Math.floor(randomFloat.val);
         return noWarn({
           tag: "FloatV",
           contents: randomInt,
@@ -3394,7 +3392,7 @@ export const compDict = {
         );
       }
     },
-    returns: valueT("Real"),
+    returns: valueT("PosInt"),
   },
 
   /**

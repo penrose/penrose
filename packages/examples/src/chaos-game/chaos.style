@@ -41,7 +41,7 @@ where p := NextPoint(s)
 foreach Point p; Point s {  
   positions = listof pos from corners
   hues = listof hue from corners
-  scalar cornerIndex = randomInt(0, count(hues))
+  scalar cornerIndex = randomIndex(0, count(hues))
   
   vec2 corner = positions[cornerIndex]
   vec2 p.pos = global.coef * s.pos + (1 - global.coef) * corner
