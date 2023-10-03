@@ -3387,9 +3387,7 @@ export const compDict = {
           contents: randomInt,
         });
       } else {
-        throw new Error(
-          "Expects the minimum and maximum values to be constants. Got a computed or optimized value instead."
-        );
+        throw new Error("Expects the minimum and maximum indices to be constants. Got a computed or optimized value instead.");
       }
     },
     returns: valueT("PosInt"),
