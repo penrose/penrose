@@ -1,6 +1,6 @@
 {
   "substance": "./sierpinski-triangle.substance",
-  "style": ["./chaos.style"],
+  "style": ["./chaos-day.style"],
   "domain": "./chaos.domain",
   "variation": "MoonrakerGnat186"
 }
