@@ -3365,7 +3365,8 @@ export const compDict = {
    */
   randomIndex: {
     name: "randomIndex",
-    description: "Uniformly sample a random integer value in the range from `minIndex` to `maxIndex`.",
+    description:
+      "Uniformly sample a random integer value in the range from `minIndex` to `maxIndex`.",
     params: [
       { name: "minIndex", type: realT(), description: "minimum index" },
       { name: "maxIndex", type: realT(), description: "maximum index" },
@@ -3381,12 +3382,11 @@ export const compDict = {
           stages: new Set(),
         });
         const randomInt = Math.floor(randomFloat.val);
-        return noWarn({
-          tag: "FloatV",
-          contents: randomInt,
-        });
+        return noWarn({ tag: "FloatV", contents: randomInt });
       } else {
-        throw new Error("Expects the minimum and maximum indices to be constants. Got a computed or optimized value instead.");
+        throw new Error(
+          "Expects the minimum and maximum indices to be constants. Got a computed or optimized value instead.",
+        );
       }
     },
     returns: valueT("PosInt"),
