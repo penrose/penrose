@@ -3365,8 +3365,7 @@ export const compDict = {
    */
   randomIndex: {
     name: "randomIndex",
-    description:
-      "Uniformly sample a random integer value in the range from `minIndex` to `maxIndex`.",
+    description: "Uniformly sample a random integer value in the range from `minIndex` to `maxIndex`.",
     params: [
       { name: "minIndex", type: realT(), description: "minimum index" },
       { name: "maxIndex", type: realT(), description: "maximum index" },
