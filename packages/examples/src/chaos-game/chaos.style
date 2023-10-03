@@ -68,7 +68,7 @@ where p := NextPoint(s) {
 forall Seed s {
   vec2 s.pos = (?, ?)
   scalar s.hue = ?
-  scaler s.alpha = 0.5
+  scalar s.alpha = 0.5
 }
 
 forall Point p {
