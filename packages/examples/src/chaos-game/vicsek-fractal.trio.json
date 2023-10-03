@@ -1,5 +1,5 @@
 {
-  "substance": "./chaos-4.substance",
+  "substance": "./vicsek-fractal.substance",
   "style": ["./chaos.style"],
   "domain": "./chaos.domain",
   "variation": "UranusMoose6651"

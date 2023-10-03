@@ -1,5 +1,5 @@
 {
-  "substance": "./chaos.substance",
+  "substance": "./sierpinski-triangle.substance",
   "style": ["./chaos.style"],
   "domain": "./chaos.domain",
   "variation": "MoonrakerGnat186"

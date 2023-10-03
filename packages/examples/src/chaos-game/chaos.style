@@ -1,15 +1,15 @@
 canvas {
-  width = 1000
-  height = 1000
+  width = 800
+  height = 800
 }
 
 global {
   scalar alphaStep = 0.002
   scalar alphaMin = 0.1
-  scalar coef = random(0.2, 0.4)
+  scalar coef = random(0.2, 0.5)
 }
 
-forall Corner c {
+forall Pivot c {
   vec2 c.pos = (?, ?)
   scalar c.hue = ?
 
@@ -36,15 +36,21 @@ collect Corner c into corners {
   ensure isEquiangular(positions, true)
 }
 
-collect Corner c into corners
+collect Corner c into corners 
+foreach Center ce {
+  positions = listof pos from corners
+  ensure vdist(ce.pos, centerOfMass(positions)) == 0
+}
+
+collect Pivot c into pivots
 where p := NextPoint(s)
 foreach Point p; Point s {  
-  positions = listof pos from corners
-  hues = listof hue from corners
+  positions = listof pos from pivots
+  hues = listof hue from pivots
   scalar cornerIndex = randomIndex(0, count(hues))
   
-  vec2 corner = positions[cornerIndex]
-  vec2 p.pos = global.coef * s.pos + (1 - global.coef) * corner
+  vec2 pivot = positions[cornerIndex]
+  vec2 p.pos = global.coef * s.pos + (1 - global.coef) * pivot
 
   scalar p.alpha = max(global.alphaMin, s.alpha - global.alphaStep)
   
@@ -54,13 +60,13 @@ foreach Point p; Point s {
   shape p.line = Line {
     start: s.pos
     end: p.pos
-    strokeColor: hsva(p.hue, 50, 80, p.alpha)
+    strokeColor: hsva( p.hue, 50, 80, p.alpha )
     style: "filter: blur(1px)"
     ensureOnCanvas: false
   }
 }
 
-forall Point p; Point s; Corner c
+forall Point p; Point s; Pivot c
 where p := NextPoint(s) {
   p.line below c.iconb
 }  
@@ -75,7 +81,7 @@ forall Point p {
   shape p.blur = Circle {
     center: p.pos
     r: 4
-    fillColor: hsva(p.hue, 50, 80, 1)
+    fillColor: hsva( p.hue, 50, 80, 1 )
     style: "filter: blur(2px)"
     ensureOnCanvas: false
   }
@@ -87,7 +93,7 @@ forall Point p {
   } 
 }
 
-forall Point p; Corner c {
+forall Point p; Pivot c {
   p.blur below c.iconb
   p.icon below c.iconb
 }

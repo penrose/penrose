@@ -1,4 +1,10 @@
-type Corner
+type Pivot
+
+type Corner <: Pivot
+type Center <: Pivot
+
 type Point
+
 type Seed <: Point
+
 constructor NextPoint(Point s) -> Point
