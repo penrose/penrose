@@ -75,5 +75,5 @@ export const trio2 = {
   substance: set2substance,
   domain: setDomain,
   style: setStyle,
-  variation: "set2",
+  variation: "set1",
 };

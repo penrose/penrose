@@ -44,6 +44,7 @@ export class AnimationFrame extends React.Component<
     } else {
       console.log(ref.current, "is null");
     }
+    // animation();  does nothing
   };
 
   render = () => {
