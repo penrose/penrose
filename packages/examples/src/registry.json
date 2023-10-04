@@ -535,12 +535,16 @@
     "name": "Lyapunov Exponent",
     "gallery": true
   },
-  "chaos-game/sierpinski-triangle": {
+  "fractals/chaos-game/sierpinski-triangle": {
     "name": "Chaos Game: Sierpinski Triangle",
     "gallery": true
   },
-  "chaos-game/vicsek-fractal": {
+  "fractals/chaos-game/vicsek-fractal": {
     "name": "Chaos Game: Vicsek Fractal",
+    "gallery": false
+  },
+  "fractals/l-systems/tree": {
+    "name": "L-System",
     "gallery": false
   }
 }
