@@ -534,5 +534,13 @@
   "Dynamics/Lyapunov": {
     "name": "Lyapunov Exponent",
     "gallery": true
+  },
+  "chaos-game/sierpinski-triangle": {
+    "name": "Chaos Game: Sierpinski Triangle",
+    "gallery": true
+  },
+  "chaos-game/vicsek-fractal": {
+    "name": "Chaos Game: Vicsek Fractal",
+    "gallery": false
   }
 }

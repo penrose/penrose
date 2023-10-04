@@ -1,0 +1,6 @@
+{
+  "substance": "./sierpinski-triangle.substance",
+  "style": ["./chaos-day.style"],
+  "domain": "./chaos.domain",
+  "variation": "DouroHippopotamus775"
+}
