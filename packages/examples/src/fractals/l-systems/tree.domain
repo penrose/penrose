@@ -1,0 +1,6 @@
+type Point
+type Seed <: Point
+
+type BranchRule
+
+constructor NextPoint(Point s, BranchRule f) -> Point
