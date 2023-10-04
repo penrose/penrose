@@ -1,3011 +1,2153 @@
 <svg
   version="1.2"
   xmlns="http://www.w3.org/2000/svg"
-  viewBox="0 0 400 400"
+  viewBox="0 0 900 900"
   penrose="0"
 >
-  <penrose><croppedViewBox>0 0 400 400</croppedViewBox></penrose>
+  <penrose><croppedViewBox>0 0 900 900</croppedViewBox></penrose>
   <rect
     x="0"
     y="0"
-    width="400"
-    height="400"
-    fill="#146651"
+    width="900"
+    height="900"
+    fill="#4a1466"
     fill-opacity="1"
     stroke="none"
     rx="0"
-    transform="rotate(0, 200, 200)"
+    transform="rotate(0, 450, 450)"
   >
     <title>global.background</title>
   </rect>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="200"
-    cy="200"
+    cx="450"
+    cy="450"
     stroke="none"
-    r="200"
-    style="filter: blur(50px)"
+    r="450"
+    style="filter: blur(100px)"
   >
     <title>global.shade</title>
   </circle>
   <g style="filter: blur(0.3px)">
     <line
-      x1="213.48380251453924"
-      y1="156.44489948515408"
-      x2="198.65806101666138"
-      y2="152.54185578540574"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.1080975174961154"
-    />
-    <title>`v0_9`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="292.6002548666887"
-      y1="179.64769022108538"
-      x2="278.5770137837577"
-      y2="198.73087058281573"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.9530043843035525"
-    />
-    <title>`u0_f`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="139.82420172057445"
-      y1="230.58123660345885"
-      x2="120.27388572199871"
-      y2="214.50102916055684"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.8310125384210831"
-    />
-    <title>`u4_4`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="162.61157863984891"
-      y1="273.30712143433027"
-      x2="157.24394606711817"
-      y2="264.51271860858265"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.454388490706135"
-    />
-    <title>`v0_4`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="128.31846234046435"
-      y1="224.37538127110133"
-      x2="121.36793863097562"
-      y2="202.425801928065"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.5601076745355513"
-    />
-    <title>`u3_5`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="267.64609700059117"
-      y1="196.08679885985634"
-      x2="257.52861912917643"
-      y2="201.4355504334841"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.4396632951985027"
-    />
-    <title>`v3_14`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="226.0533966001379"
-      y1="142.42029576212113"
-      x2="252.57560817334831"
-      y2="141.08507998788505"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.2092593475400122"
-    />
-    <title>`u1_10`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="135.31435554922137"
-      y1="220.63400972459664"
-      x2="113.78432372064097"
-      y2="205.839789485446"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.9361841775095088"
-    />
-    <title>`u5_4`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="139.82420172057445"
-      y1="230.58123660345885"
-      x2="135.31435554922137"
-      y2="220.63400972459664"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.9572708889472608"
-    />
-    <title>`v4_4`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="201.22384826061912"
-      y1="267.85051159729744"
-      x2="198.8359808315626"
-      y2="254.9382725113587"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.8668774271683328"
-    />
-    <title>`v2_2`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="285.93382066548224"
-      y1="184.65032217620586"
-      x2="277.3798631691468"
-      y2="190.34854240450414"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.6997727310939728"
-    />
-    <title>`v1_14`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="180.87885319032299"
-      y1="288.0206643480772"
-      x2="162.61157863984891"
-      y2="273.30712143433027"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.4469205792065256"
-    />
-    <title>`u0_3`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="125.46879493527939"
-      y1="179.46966612913974"
-      x2="140.1392812245203"
-      y2="159.00143790581484"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.2750730977246838"
-    />
-    <title>`u3_7`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="191.29325906874328"
-      y1="138.0929503202476"
-      x2="219.62416443128856"
-      y2="141.35728613062642"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.1381546242601508"
-    />
-    <title>`u3_10`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="111.42742983677708"
-      y1="172.89420377239048"
-      x2="124.0346348036101"
-      y2="153.92707905956766"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.3446294823924898"
-    />
-    <title>`u4_7`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="125.46879493527939"
-      y1="179.46966612913974"
-      x2="111.42742983677708"
-      y2="172.89420377239048"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.377940165257029"
-    />
-    <title>`v3_7`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="277.3798631691468"
-      y1="190.34854240450414"
-      x2="267.64609700059117"
-      y2="196.08679885985634"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.5687268362110547"
-    />
-    <title>`v2_14`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="259.396262314128"
-      y1="150.96945567171835"
-      x2="273.7200952184775"
-      y2="168.46186669957606"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.403313483453582"
-    />
-    <title>`u2_12`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="247.37710387971038"
-      y1="176.8145815811057"
-      x2="235.71071774106719"
-      y2="180.42054760583008"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.2216372653858856"
-    />
-    <title>`v4_13`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="174.22971283370148"
-      y1="137.00842876732486"
-      x2="159.7651853220085"
-      y2="136.63465630376646"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.102742261456353"
-    />
-    <title>`v4_10`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="227.7418953300865"
-      y1="248.06194338755236"
-      x2="227.08789962709923"
-      y2="236.59356467213786"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="2.0060517623725227"
-    />
-    <title>`v3_1`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="273.773766708343"
-      y1="148.94034649900001"
-      x2="259.396262314128"
-      y2="150.96945567171835"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.3697458157440232"
-    />
-    <title>`v1_12`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="254.29684748227925"
-      y1="223.6976890505941"
-      x2="227.08789962709923"
-      y2="236.59356467213786"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="2.048035324188528"
-    />
-    <title>`u4_0`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="110.7686225917808"
-      y1="149.79074499804938"
-      x2="132.0492914522564"
-      y2="138.7143556661275"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.2495776535398975"
-    />
-    <title>`u5_8`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="260.5990489909548"
-      y1="172.6692531735434"
-      x2="267.64609700059117"
-      y2="196.08679885985634"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.4346096047983519"
-    />
-    <title>`u3_13`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="166.3174967833584"
-      y1="240.32414465697934"
-      x2="139.82420172057445"
-      y2="230.58123660345885"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.9572153678378663"
-    />
-    <title>`u4_3`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="128.31846234046435"
-      y1="224.37538127110133"
-      x2="120.27388572199871"
-      y2="214.50102916055684"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.6977218273395165"
-    />
-    <title>`v3_5`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="228.3454228576952"
-      y1="259.70133808475657"
-      x2="227.7418953300865"
-      y2="248.06194338755236"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.8653541990895923"
-    />
-    <title>`v2_1`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="198.65806101666138"
-      y1="152.54185578540574"
-      x2="181.26121219351944"
-      y2="148.30354329013815"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.1162497048896298"
-    />
-    <title>`v1_9`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="157.33672973555196"
-      y1="224.30151318691458"
-      x2="146.18271136193098"
-      y2="218.11076568312012"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.2297714834779485"
-    />
-    <title>`v0_6`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="157.24394606711817"
-      y1="264.51271860858265"
-      x2="146.38914542125457"
-      y2="243.2521544709234"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.4495654284004913"
-    />
-    <title>`u1_4`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="240.38860050182998"
-      y1="144.97688058306136"
-      x2="226.0533966001379"
-      y2="142.42029576212113"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.1684680974931485"
-    />
-    <title>`v0_10`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="140.76158383316633"
-      y1="186.2367621525753"
-      x2="125.46879493527939"
-      y2="179.46966612913974"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.293698656141526"
-    />
-    <title>`v2_7`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="227.08789962709923"
-      y1="236.59356467213786"
-      x2="226.496781282378"
-      y2="226.67570959527288"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="2.1318356775841507"
-    />
-    <title>`v4_1`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="174.22971283370148"
-      y1="137.00842876732486"
-      x2="203.07847534684458"
-      y2="142.4544239836061"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.1095223630282236"
-    />
-    <title>`u4_10`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="145.3067851199502"
-      y1="242.07236535651586"
-      x2="128.31846234046435"
-      y2="224.37538127110133"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.7061425172994773"
-    />
-    <title>`u3_4`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="227.7418953300865"
-      y1="248.06194338755236"
-      x2="198.8359808315626"
-      y2="254.9382725113587"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.9373062581157878"
-    />
-    <title>`u3_1`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="113.78432372064097"
-      y1="205.839789485446"
-      x2="101.32027347032182"
-      y2="187.12423132224487"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.7724232310356296"
-    />
-    <title>`u5_5`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="169.97414110732552"
-      y1="252.83486651186772"
-      x2="145.3067851199502"
-      y2="242.07236535651586"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.8277928755940818"
-    />
-    <title>`u3_3`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="203.07847534684458"
-      y1="142.4544239836061"
-      x2="228.51846114317658"
-      y2="156.3623172290933"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.141389369098172"
-    />
-    <title>`u4_11`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="181.26121219351944"
-      y1="148.30354329013815"
-      x2="163.285844581893"
-      y2="144.3527550188342"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.1300980201247366"
-    />
-    <title>`v2_9`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="194.6854841384099"
-      y1="231.70217889743031"
-      x2="163.2580321671236"
-      y2="229.61542018769322"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="2.151521056829338"
-    />
-    <title>`u5_2`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="228.3454228576952"
-      y1="259.70133808475657"
-      x2="201.22384826061912"
-      y2="267.85051159729744"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.7949253681421375"
-    />
-    <title>`u2_1`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="252.59648192981626"
-      y1="233.36751739852937"
-      x2="254.29684748227925"
-      y2="223.6976890505941"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.951602739014166"
-    />
-    <title>`v3_0`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="228.51846114317658"
-      y1="156.3623172290933"
-      x2="215.18491440959914"
-      y2="159.02897047508526"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.1397153381460452"
-    />
-    <title>`v4_12`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="295.1456170568789"
-      y1="161.2734092313728"
-      x2="285.6179392988668"
-      y2="164.52929532359084"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.6354807427521232"
-    />
-    <title>`v0_13`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="145.3067851199502"
-      y1="242.07236535651586"
-      x2="139.82420172057445"
-      y2="230.58123660345885"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.839433228381044"
-    />
-    <title>`v3_4`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="209.06282250303187"
-      y1="139.96033314804092"
-      x2="236.59702319903462"
-      y2="140.87289692627914"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.1723585354082198"
-    />
-    <title>`u2_10`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="177.62026777177883"
-      y1="277.88475941896104"
-      x2="173.84515611591516"
-      y2="265.7179611814194"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.6758832718429235"
-    />
-    <title>`v1_3`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="162.61157863984891"
-      y1="273.30712143433027"
-      x2="154.68239068578447"
-      y2="250.541480205318"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.34321005636737"
-    />
-    <title>`u0_4`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="226.0533966001379"
-      y1="142.42029576212113"
-      x2="209.06282250303187"
-      y2="139.96033314804092"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.1470599286801424"
-    />
-    <title>`v1_10`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="120.27388572199871"
-      y1="214.50102916055684"
-      x2="110.25040386170117"
-      y2="194.28274314036244"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.6748050057130215"
-    />
-    <title>`u4_5`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="236.59702319903462"
-      y1="140.87289692627914"
-      x2="219.62416443128856"
-      y2="141.35728613062642"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.1828720714991756"
-    />
-    <title>`v2_11`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="277.3798631691468"
-      y1="190.34854240450414"
-      x2="269.9551316847404"
-      y2="213.1287901718812"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.7056713498916765"
-    />
-    <title>`u2_f`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="173.84515611591516"
-      y1="265.7179611814194"
-      x2="151.25427149396643"
-      y2="253.72322501339406"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.6915376408058194"
-    />
-    <title>`u2_3`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="251.7711048590566"
-      y1="232.95213241539082"
-      x2="245.25516669131875"
-      y2="258.6621229384911"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.4215321297285937"
-    />
-    <title>`u0_15`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="278.5770137837577"
-      y1="198.73087058281573"
-      x2="255.52026141354963"
-      y2="215.19110639094774"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="2.085218993593462"
-    />
-    <title>`u5_15`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="196.57715575692717"
-      y1="242.41388540377577"
-      x2="194.6854841384099"
-      y2="231.70217889743031"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="2.1261927920156873"
-    />
-    <title>`v4_2`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="180.87885319032299"
-      y1="288.0206643480772"
-      x2="177.62026777177883"
-      y2="277.88475941896104"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.5521723323261911"
-    />
-    <title>`v0_3`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="227.08789962709923"
-      y1="236.59356467213786"
-      x2="196.57715575692717"
-      y2="242.41388540377577"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="2.072337713791378"
-    />
-    <title>`u4_1`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="245.25516669131875"
-      y1="258.6621229384911"
-      x2="229.0486328946035"
-      y2="279.28058872352926"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.4998458026506556"
-    />
-    <title>`u0_0`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="163.285844581893"
-      y1="144.3527550188342"
-      x2="146.2657362775954"
-      y2="141.06892564318042"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.1488457056963508"
-    />
-    <title>`v3_9`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="146.38914542125457"
-      y1="243.2521544709234"
-      x2="146.18271136193098"
-      y2="218.11076568312012"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.3302381686931952"
-    />
-    <title>`u1_5`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="191.29325906874328"
-      y1="138.0929503202476"
-      x2="174.22971283370148"
-      y2="137.00842876732486"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.1125771129982376"
-    />
-    <title>`v3_10`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="235.71071774106719"
-      y1="180.42054760583008"
-      x2="248.35792303360805"
-      y2="205.8841185346553"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.2264174053161787"
-    />
-    <title>`u5_13`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="156.00241656339557"
-      y1="192.67781000185389"
-      x2="140.76158383316633"
-      y2="186.2367621525753"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.2142012572914196"
-    />
-    <title>`v1_7`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="157.38089445853026"
-      y1="164.5038375734398"
-      x2="181.26121219351944"
-      y2="148.30354329013815"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.1424666307280908"
-    />
-    <title>`u2_8`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="173.84515611591516"
-      y1="265.7179611814194"
-      x2="169.97414110732552"
-      y2="252.83486651186772"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.8113698626123809"
-    />
-    <title>`v2_3`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="198.65806101666138"
-      y1="152.54185578540574"
-      x2="226.0533966001379"
-      y2="142.42029576212113"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.1342138483852533"
-    />
-    <title>`u1_9`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="146.18271136193098"
-      y1="218.11076568312012"
-      x2="156.00241656339557"
-      y2="192.67781000185389"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.223991807952852"
-    />
-    <title>`u1_6`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="137.23618390188398"
-      y1="234.23867577297835"
-      x2="128.31846234046435"
-      y2="224.37538127110133"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.5734684155282912"
-    />
-    <title>`v2_5`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="247.8866368273121"
-      y1="251.69025529329193"
-      x2="250.43808384400725"
-      y2="242.97742169277598"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.6620754659055832"
-    />
-    <title>`v1_0`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="146.38914542125457"
-      y1="243.2521544709234"
-      x2="137.23618390188398"
-      y2="234.23867577297835"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.449557367628129"
-    />
-    <title>`v1_5`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="133.67338227983345"
-      y1="210.58144545008247"
-      x2="140.76158383316633"
-      y2="186.2367621525753"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.3126357208894013"
-    />
-    <title>`u2_6`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="156.00241656339557"
-      y1="192.67781000185389"
-      x2="174.27233411875653"
-      y2="169.97779509451453"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.147960050518875"
-    />
-    <title>`u1_7`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="198.8359808315626"
-      y1="254.9382725113587"
-      x2="169.97414110732552"
-      y2="252.83486651186772"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.908590050289522"
-    />
-    <title>`u3_2`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="101.32027347032182"
-      y1="187.12423132224487"
-      x2="100.03120483703269"
-      y2="167.23347800376334"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.5892330824879974"
-    />
-    <title>`u5_6`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="243.86951102273432"
-      y1="153.52837850978062"
-      x2="260.5990489909548"
-      y2="172.6692531735434"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.306257960474062"
-    />
-    <title>`u3_12`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="248.35792303360805"
-      y1="205.8841185346553"
-      x2="251.7711048590566"
-      y2="232.95213241539082"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.324262255839273"
-    />
-    <title>`u5_f`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="146.18271136193098"
-      y1="218.11076568312012"
-      x2="133.67338227983345"
-      y2="210.58144545008247"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.3224262715508337"
-    />
-    <title>`v1_6`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="257.52861912917643"
-      y1="201.4355504334841"
-      x2="248.35792303360805"
-      y2="205.8841185346553"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.3252238114970782"
-    />
-    <title>`v4_14`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="229.0486328946035"
-      y1="279.28058872352926"
-      x2="228.80435048549492"
-      y2="270.4887474937641"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.5921665152199604"
-    />
-    <title>`v0_1`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="228.80435048549492"
-      y1="270.4887474937641"
-      x2="203.54709744608957"
-      y2="280.06512014510616"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.6567690817664764"
-    />
-    <title>`u1_1`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="132.0492914522564"
-      y1="138.7143556661275"
-      x2="159.7651853220085"
-      y2="136.63465630376646"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.1398439834447853"
-    />
-    <title>`u5_9`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="188.86870234825227"
-      y1="143.82730341810745"
-      x2="215.18491440959914"
-      y2="159.02897047508526"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.0937915241194318"
-    />
-    <title>`u5_11`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="209.06282250303187"
-      y1="139.96033314804092"
-      x2="191.29325906874328"
-      y2="138.0929503202476"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.127641088169195"
-    />
-    <title>`v2_10`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="228.51846114317658"
-      y1="156.3623172290933"
-      x2="247.37710387971038"
-      y2="176.8145815811057"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.2169206767067873"
-    />
-    <title>`u4_12`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="254.29684748227925"
-      y1="223.6976890505941"
-      x2="255.52026141354963"
-      y2="215.19110639094774"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="2.0801960788097844"
-    />
-    <title>`v4_0`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="205.54442680738214"
-      y1="290.26226756683127"
-      x2="180.87885319032299"
-      y2="288.0206643480772"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.5199736435334237"
-    />
-    <title>`u0_2`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="274.86592210229605"
-      y1="205.50734418968307"
-      x2="254.29684748227925"
-      y2="223.6976890505941"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.968221350502425"
-    />
-    <title>`u4_15`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="228.80435048549492"
-      y1="270.4887474937641"
-      x2="228.3454228576952"
-      y2="259.70133808475657"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.72280984980092"
-    />
-    <title>`v1_1`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="257.52861912917643"
-      y1="201.4355504334841"
-      x2="257.7855890227771"
-      y2="227.45674532209705"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.4345996068458404"
-    />
-    <title>`u4_f`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="151.25427149396643"
-      y1="253.72322501339406"
-      x2="145.3067851199502"
-      y2="242.07236535651586"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.70796065378752"
-    />
-    <title>`v2_4`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="177.62026777177883"
-      y1="277.88475941896104"
-      x2="157.24394606711817"
-      y2="264.51271860858265"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.5596402438258006"
-    />
-    <title>`u1_3`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="157.38089445853026"
-      y1="164.5038375734398"
-      x2="140.1392812245203"
-      y2="159.00143790581484"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.1888749486046741"
-    />
-    <title>`v2_8`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="259.396262314128"
-      y1="150.96945567171835"
-      x2="243.86951102273432"
-      y2="153.52837850978062"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.2869234952709663"
-    />
-    <title>`v2_12`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="285.6179392988668"
-      y1="164.52929532359084"
-      x2="285.93382066548224"
-      y2="184.65032217620586"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.6761998733858876"
-    />
-    <title>`u1_13`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="240.38860050182998"
-      y1="144.97688058306136"
-      x2="265.8650094228061"
-      y2="141.79454250103186"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.2438176516412998"
-    />
-    <title>`u0_10`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="188.81579502409178"
-      y1="174.76887838556718"
-      x2="213.48380251453924"
-      y2="156.44489948515408"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.0960181181068123"
-    />
-    <title>`u0_8`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="124.0346348036101"
-      y1="153.92707905956766"
-      x2="110.7686225917808"
-      y2="149.79074499804938"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.2937982185214645"
-    />
-    <title>`v4_8`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="163.285844581893"
-      y1="144.3527550188342"
-      x2="191.29325906874328"
-      y2="138.0929503202476"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.1286433231094124"
-    />
-    <title>`u3_9`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="226.496781282378"
-      y1="226.67570959527288"
-      x2="194.6854841384099"
-      y2="231.70217889743031"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="2.1856907558084595"
-    />
-    <title>`u5_1`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="273.7200952184775"
-      y1="168.46186669957606"
-      x2="260.5990489909548"
-      y2="172.6692531735434"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.4226479486566777"
-    />
-    <title>`v2_13`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="295.1456170568789"
-      y1="161.2734092313728"
-      x2="292.6002548666887"
-      y2="179.64769022108538"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.7786292199071498"
+      x1="363.5034472500529"
+      y1="506.8787023853311"
+      x2="341.50266023031816"
+      y2="562.8176505743928"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
     />
     <title>`u0_13`.icon</title>
   </g>
   <g style="filter: blur(0.3px)">
     <line
-      x1="269.9551316847404"
-      y1="213.1287901718812"
-      x2="252.59648192981626"
-      y2="233.36751739852937"
-      stroke="#b8e6da"
+      x1="302.07651221028704"
+      y1="421.7814425515338"
+      x2="287.9235810616324"
+      y2="471.1163240279936"
+      stroke="#d6b8e6"
       stroke-opacity="0.5"
-      stroke-width="1.8288682388329087"
+      stroke-width="1.5693559302662663"
     />
-    <title>`u3_15`.icon</title>
+    <title>`u3_13`.icon</title>
   </g>
   <g style="filter: blur(0.3px)">
     <line
-      x1="285.52512880084316"
-      y1="147.58196981718217"
-      x2="295.1456170568789"
-      y2="161.2734092313728"
-      stroke="#b8e6da"
+      x1="381.65748604241503"
+      y1="553.5339242770378"
+      x2="381.7456632276064"
+      y2="594.423878598867"
+      stroke="#d6b8e6"
       stroke-opacity="0.5"
-      stroke-width="1.583364316542227"
+      stroke-width="2.543979949475797"
     />
-    <title>`u0_12`.icon</title>
+    <title>`v2_1`.icon</title>
   </g>
   <g style="filter: blur(0.3px)">
     <line
-      x1="157.33672973555196"
-      y1="224.30151318691458"
-      x2="169.32326230064965"
-      y2="198.12869316358103"
-      stroke="#b8e6da"
+      x1="514.3226782411228"
+      y1="360.4918265072532"
+      x2="472.20633864697487"
+      y2="324.251265985544"
+      stroke="#d6b8e6"
       stroke-opacity="0.5"
-      stroke-width="1.152624017736704"
+      stroke-width="2.203294060639482"
     />
-    <title>`u0_6`.icon</title>
+    <title>`u5_8`.icon</title>
   </g>
   <g style="filter: blur(0.3px)">
     <line
-      x1="250.43808384400725"
-      y1="242.97742169277598"
-      x2="228.3454228576952"
-      y2="259.70133808475657"
-      stroke="#b8e6da"
+      x1="567.9206176185941"
+      y1="448.32394812549364"
+      x2="549.760135922232"
+      y2="468.38497135239453"
+      stroke="#d6b8e6"
       stroke-opacity="0.5"
-      stroke-width="1.76342123771154"
-    />
-    <title>`u2_0`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="124.0346348036101"
-      y1="153.92707905956766"
-      x2="146.2657362775954"
-      y2="141.06892564318042"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.2141017825551752"
-    />
-    <title>`u4_8`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="166.3174967833584"
-      y1="240.32414465697934"
-      x2="163.2580321671236"
-      y2="229.61542018769322"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="2.065905439109676"
-    />
-    <title>`v4_3`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="267.64609700059117"
-      y1="196.08679885985634"
-      x2="264.1305627825886"
-      y2="220.64515523010917"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.5666215155235566"
-    />
-    <title>`u3_f`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="273.7200952184775"
-      y1="168.46186669957606"
-      x2="277.3798631691468"
-      y2="190.34854240450414"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.5567651800693807"
-    />
-    <title>`u2_13`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="196.57715575692717"
-      y1="242.41388540377577"
-      x2="166.3174967833584"
-      y2="240.32414465697934"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="2.0405771742960255"
-    />
-    <title>`u4_2`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="133.67338227983345"
-      y1="210.58144545008247"
-      x2="121.36793863097562"
-      y2="202.425801928065"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.4283847294930276"
-    />
-    <title>`v2_6`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="264.1305627825886"
-      y1="220.64515523010917"
-      x2="250.43808384400725"
-      y2="242.97742169277598"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.6823840061913777"
-    />
-    <title>`u2_15`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="229.0486328946035"
-      y1="279.28058872352926"
-      x2="205.54442680738214"
-      y2="290.26226756683127"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.5383093771201424"
-    />
-    <title>`u0_1`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="120.27388572199871"
-      y1="214.50102916055684"
-      x2="113.78432372064097"
-      y2="205.839789485446"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.8099258269833312"
-    />
-    <title>`v4_5`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="203.07847534684458"
-      y1="142.4544239836061"
-      x2="188.86870234825227"
-      y2="143.82730341810745"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.0954655550715586"
-    />
-    <title>`v4_11`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="269.9551316847404"
-      y1="213.1287901718812"
-      x2="274.86592210229605"
-      y2="205.50734418968307"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.8454868503211677"
-    />
-    <title>`v3_15`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="110.25040386170117"
-      y1="194.28274314036244"
-      x2="111.42742983677708"
-      y2="172.89420377239048"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.505683353420933"
-    />
-    <title>`u4_6`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="247.8866368273121"
-      y1="251.69025529329193"
-      x2="228.80435048549492"
-      y2="270.4887474937641"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.6214640779949632"
-    />
-    <title>`u1_0`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="140.1392812245203"
-      y1="159.00143790581484"
-      x2="163.285844581893"
-      y2="144.3527550188342"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.1765063380013199"
-    />
-    <title>`u3_8`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="260.5990489909548"
-      y1="172.6692531735434"
-      x2="247.37710387971038"
-      y2="176.8145815811057"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.3153899811666343"
-    />
-    <title>`v3_13`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="169.32326230064965"
-      y1="198.12869316358103"
-      x2="188.81579502409178"
-      y2="174.76887838556718"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.1018472667139403"
-    />
-    <title>`u0_7`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="274.86592210229605"
-      y1="205.50734418968307"
-      x2="278.5770137837577"
-      y2="198.73087058281573"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.9732442652861022"
-    />
-    <title>`v4_15`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="121.36793863097562"
-      y1="202.425801928065"
-      x2="110.25040386170117"
-      y2="194.28274314036244"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.5371908529090565"
-    />
-    <title>`v3_6`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="151.25427149396643"
-      y1="253.72322501339406"
-      x2="137.23618390188398"
-      y2="234.23867577297835"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.5752865520163342"
-    />
-    <title>`u2_4`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="146.2657362775954"
-      y1="141.06892564318042"
-      x2="132.0492914522564"
-      y2="138.7143556661275"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.1698812175736084"
-    />
-    <title>`v4_9`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="137.23618390188398"
-      y1="234.23867577297835"
-      x2="133.67338227983345"
-      y2="210.58144545008247"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.4417454704857675"
-    />
-    <title>`u2_5`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="159.7651853220085"
-      y1="136.63465630376646"
-      x2="188.86870234825227"
-      y2="143.82730341810745"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.088685453499688"
-    />
-    <title>`u5_10`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="292.6002548666887"
-      y1="179.64769022108538"
-      x2="285.93382066548224"
-      y2="184.65032217620586"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.8193483505409143"
-    />
-    <title>`v0_14`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="257.7855890227771"
-      y1="227.45674532209705"
-      x2="247.8866368273121"
-      y2="251.69025529329193"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.5412492868850998"
-    />
-    <title>`u1_15`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="140.76158383316633"
-      y1="186.2367621525753"
-      x2="157.38089445853026"
-      y2="164.5038375734398"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.2075005070215163"
-    />
-    <title>`u2_7`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="251.7711048590566"
-      y1="232.95213241539082"
-      x2="257.7855890227771"
-      y2="227.45674532209705"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.4336380511880351"
-    />
-    <title>`v0_15`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="181.26121219351944"
-      y1="148.30354329013815"
-      x2="209.06282250303187"
-      y2="139.96033314804092"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.129095785184519"
-    />
-    <title>`u2_9`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="169.97414110732552"
-      y1="252.83486651186772"
-      x2="166.3174967833584"
-      y2="240.32414465697934"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.9455750150509044"
-    />
-    <title>`v3_3`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="146.2657362775954"
-      y1="141.06892564318042"
-      x2="174.22971283370148"
-      y2="137.00842876732486"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.132779495585176"
-    />
-    <title>`u4_9`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="247.37710387971038"
-      y1="176.8145815811057"
-      x2="257.52861912917643"
-      y2="201.4355504334841"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.3204436715667853"
-    />
-    <title>`u4_13`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="198.8359808315626"
-      y1="254.9382725113587"
-      x2="196.57715575692717"
-      y2="242.41388540377577"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="2.0035922095346432"
-    />
-    <title>`v3_2`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="203.54709744608957"
-      y1="280.06512014510616"
-      x2="201.22384826061912"
-      y2="267.85051159729744"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.7288846001076943"
-    />
-    <title>`v1_2`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="213.48380251453924"
-      y1="156.44489948515408"
-      x2="240.38860050182998"
-      y2="144.97688058306136"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.1423517666040104"
-    />
-    <title>`u0_9`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="110.25040386170117"
-      y1="194.28274314036244"
-      x2="101.32027347032182"
-      y2="187.12423132224487"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.6373024097653202"
+      stroke-width="2.781174895354467"
     />
     <title>`v4_6`.icon</title>
   </g>
   <g style="filter: blur(0.3px)">
     <line
-      x1="245.25516669131875"
-      y1="258.6621229384911"
-      x2="247.8866368273121"
-      y2="251.69025529329193"
-      stroke="#b8e6da"
+      x1="312.22111620418633"
+      y1="548.8277521913487"
+      x2="325.93478245737765"
+      y2="582.8192571110856"
+      stroke="#d6b8e6"
       stroke-opacity="0.5"
-      stroke-width="1.5291433654256583"
+      stroke-width="1.6928366689307932"
     />
-    <title>`v0_0`.icon</title>
+    <title>`v3_15`.icon</title>
   </g>
   <g style="filter: blur(0.3px)">
     <line
-      x1="250.43808384400725"
-      y1="242.97742169277598"
-      x2="252.59648192981626"
-      y2="233.36751739852937"
-      stroke="#b8e6da"
+      x1="382.99170186376153"
+      y1="633.1403141597234"
+      x2="384.9705008295256"
+      y2="665.5617625283285"
+      stroke="#d6b8e6"
       stroke-opacity="0.5"
-      stroke-width="1.8076862158201081"
+      stroke-width="2.341232172189522"
     />
-    <title>`v2_0`.icon</title>
+    <title>`v4_1`.icon</title>
   </g>
   <g style="filter: blur(0.3px)">
     <line
-      x1="188.81579502409178"
-      y1="174.76887838556718"
-      x2="174.27233411875653"
-      y2="169.97779509451453"
-      stroke="#b8e6da"
+      x1="489.4034808382024"
+      y1="565.2555808351722"
+      x2="480.8120078104216"
+      y2="603.1735978741054"
+      stroke="#d6b8e6"
       stroke-opacity="0.5"
-      stroke-width="1.1029629750212078"
+      stroke-width="2.909327021496282"
     />
-    <title>`v0_8`.icon</title>
+    <title>`v3_3`.icon</title>
   </g>
   <g style="filter: blur(0.3px)">
     <line
-      x1="252.59648192981626"
-      y1="233.36751739852937"
-      x2="227.7418953300865"
-      y2="248.06194338755236"
-      stroke="#b8e6da"
+      x1="382.6280517560495"
+      y1="513.8462097547474"
+      x2="381.65748604241503"
+      y2="553.5339242770378"
+      stroke="#d6b8e6"
       stroke-opacity="0.5"
-      stroke-width="1.9096191771981605"
+      stroke-width="2.6403903943918485"
     />
-    <title>`u3_0`.icon</title>
+    <title>`v1_1`.icon</title>
   </g>
   <g style="filter: blur(0.3px)">
     <line
-      x1="174.27233411875653"
-      y1="169.97779509451453"
-      x2="157.38089445853026"
-      y2="164.5038375734398"
-      stroke="#b8e6da"
+      x1="480.8120078104216"
+      y1="603.1735978741054"
+      x2="473.3291497888115"
+      y2="634.7854684413644"
+      stroke="#d6b8e6"
       stroke-opacity="0.5"
-      stroke-width="1.1412593002489717"
+      stroke-width="2.917617890587618"
     />
-    <title>`v1_8`.icon</title>
+    <title>`v4_3`.icon</title>
   </g>
   <g style="filter: blur(0.3px)">
     <line
-      x1="140.1392812245203"
-      y1="159.00143790581484"
-      x2="124.0346348036101"
-      y2="153.92707905956766"
-      stroke="#b8e6da"
+      x1="414.91798421800337"
+      y1="359.3095257170704"
+      x2="361.78397799129925"
+      y2="401.43694696819836"
+      stroke="#d6b8e6"
       stroke-opacity="0.5"
-      stroke-width="1.2417624148601445"
-    />
-    <title>`v3_8`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="215.18491440959914"
-      y1="159.02897047508526"
-      x2="235.71071774106719"
-      y2="180.42054760583008"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.1444319268251437"
-    />
-    <title>`u5_12`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="285.52512880084316"
-      y1="147.58196981718217"
-      x2="273.773766708343"
-      y2="148.94034649900001"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.4475082284418403"
-    />
-    <title>`v0_12`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="219.62416443128856"
-      y1="141.35728613062642"
-      x2="243.86951102273432"
-      y2="153.52837850978062"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.2014991612061796"
-    />
-    <title>`u3_11`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="285.6179392988668"
-      y1="164.52929532359084"
-      x2="273.7200952184775"
-      y2="168.46186669957606"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.5331923223612953"
-    />
-    <title>`v1_13`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="154.68239068578447"
-      y1="250.541480205318"
-      x2="146.38914542125457"
-      y2="243.2521544709234"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.3383869940617261"
-    />
-    <title>`v0_5`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="273.773766708343"
-      y1="148.94034649900001"
-      x2="285.6179392988668"
-      y2="164.52929532359084"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.4996246546517364"
-    />
-    <title>`u1_12`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="201.22384826061912"
-      y1="267.85051159729744"
-      x2="173.84515611591516"
-      y2="265.7179611814194"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.7696572394911918"
-    />
-    <title>`u2_2`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="154.68239068578447"
-      y1="250.541480205318"
-      x2="157.33672973555196"
-      y2="224.30151318691458"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.2379203088464794"
-    />
-    <title>`u0_5`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="265.8650094228061"
-      y1="141.79454250103186"
-      x2="252.57560817334831"
-      y2="141.08507998788505"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.2846089016881634"
-    />
-    <title>`v0_11`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="169.32326230064965"
-      y1="198.12869316358103"
-      x2="156.00241656339557"
-      y2="192.67781000185389"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.1468443422116077"
-    />
-    <title>`v0_7`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="252.57560817334831"
-      y1="141.08507998788505"
-      x2="273.773766708343"
-      y2="148.94034649900001"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.3360073644481503"
-    />
-    <title>`u1_11`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="174.27233411875653"
-      y1="169.97779509451453"
-      x2="198.65806101666138"
-      y2="152.54185578540574"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.115042374410511"
-    />
-    <title>`u1_8`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="236.59702319903462"
-      y1="140.87289692627914"
-      x2="259.396262314128"
-      y2="150.96945567171835"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.2682964055639623"
+      stroke-width="1.5"
     />
     <title>`u2_11`.icon</title>
   </g>
   <g style="filter: blur(0.3px)">
     <line
-      x1="255.52026141354963"
-      y1="215.19110639094774"
-      x2="226.496781282378"
-      y2="226.67570959527288"
-      stroke="#b8e6da"
+      x1="430.40495224942975"
+      y1="628.6354857035437"
+      x2="480.8120078104216"
+      y2="603.1735978741054"
+      stroke="#d6b8e6"
       stroke-opacity="0.5"
-      stroke-width="2.163996432205407"
+      stroke-width="2.8114543398682486"
     />
-    <title>`u5_0`.icon</title>
+    <title>`u4_2`.icon</title>
   </g>
   <g style="filter: blur(0.3px)">
     <line
-      x1="285.93382066548224"
-      y1="184.65032217620586"
-      x2="274.86592210229605"
-      y2="205.50734418968307"
-      stroke="#b8e6da"
+      x1="608.4538819618515"
+      y1="400.56724842389355"
+      x2="588.3806422659552"
+      y2="424.84982669312166"
+      stroke="#d6b8e6"
       stroke-opacity="0.5"
-      stroke-width="1.839588231523464"
+      stroke-width="2.454072946599435"
     />
-    <title>`u1_f`.icon</title>
+    <title>`v2_6`.icon</title>
   </g>
   <g style="filter: blur(0.3px)">
     <line
-      x1="205.54442680738214"
-      y1="290.26226756683127"
-      x2="203.54709744608957"
-      y2="280.06512014510616"
-      stroke="#b8e6da"
+      x1="299.2086985764412"
+      y1="513.406290450114"
+      x2="312.22111620418633"
+      y2="548.8277521913487"
+      stroke="#d6b8e6"
       stroke-opacity="0.5"
-      stroke-width="1.6029119436666583"
-    />
-    <title>`v0_2`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="163.2580321671236"
-      y1="229.61542018769322"
-      x2="135.31435554922137"
-      y2="220.63400972459664"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="2.065960960219071"
-    />
-    <title>`u5_3`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="121.36793863097562"
-      y1="202.425801928065"
-      x2="125.46879493527939"
-      y2="179.46966612913974"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.4094476647451524"
-    />
-    <title>`u3_6`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="243.86951102273432"
-      y1="153.52837850978062"
-      x2="228.51846114317658"
-      y2="156.3623172290933"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.207788656014215"
-    />
-    <title>`v3_12`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="257.7855890227771"
-      y1="227.45674532209705"
-      x2="264.1305627825886"
-      y2="220.64515523010917"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.561557827170894"
-    />
-    <title>`v1_15`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="157.24394606711817"
-      y1="264.51271860858265"
-      x2="151.25427149396643"
-      y2="253.72322501339406"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.5752946127886964"
-    />
-    <title>`v1_4`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="100.03120483703269"
-      y1="167.23347800376334"
-      x2="110.7686225917808"
-      y2="149.79074499804938"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.406782762272585"
-    />
-    <title>`u5_7`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="203.54709744608957"
-      y1="280.06512014510616"
-      x2="177.62026777177883"
-      y2="277.88475941896104"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.6351106324594258"
-    />
-    <title>`u1_2`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="219.62416443128856"
-      y1="141.35728613062642"
-      x2="203.07847534684458"
-      y2="142.4544239836061"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.1350998742901366"
-    />
-    <title>`v3_11`.icon</title>
-  </g>
-  <g style="filter: blur(0.3px)">
-    <line
-      x1="264.1305627825886"
-      y1="220.64515523010917"
-      x2="269.9551316847404"
-      y2="213.1287901718812"
-      stroke="#b8e6da"
-      stroke-opacity="0.5"
-      stroke-width="1.703566029204178"
+      stroke-width="1.8765089724377575"
     />
     <title>`v2_15`.icon</title>
   </g>
   <g style="filter: blur(0.3px)">
     <line
-      x1="252.57560817334831"
-      y1="141.08507998788505"
-      x2="236.59702319903462"
-      y2="140.87289692627914"
-      stroke="#b8e6da"
+      x1="489.76933607352873"
+      y1="322.22522159366304"
+      x2="472.20633864697487"
+      y2="324.251265985544"
+      stroke="#d6b8e6"
       stroke-opacity="0.5"
-      stroke-width="1.2345579542680896"
+      stroke-width="1.9530578257888935"
     />
-    <title>`v1_11`.icon</title>
+    <title>`v4_9`.icon</title>
   </g>
   <g style="filter: blur(0.3px)">
     <line
-      x1="265.8650094228061"
-      y1="141.79454250103186"
-      x2="285.52512880084316"
-      y2="147.58196981718217"
-      stroke="#b8e6da"
+      x1="303.1728169136061"
+      y1="328.86014583079407"
+      x2="265.25684137571926"
+      y2="368.70453714078496"
+      stroke="#d6b8e6"
       stroke-opacity="0.5"
-      stroke-width="1.3961097656818535"
+      stroke-width="1.709076632174208"
+    />
+    <title>`u5_12`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="325.2011754139981"
+      y1="535.7018617183128"
+      x2="325.93478245737765"
+      y2="582.8192571110856"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.551809083943184"
+    />
+    <title>`u1_f`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="555.8262771851221"
+      y1="505.7481265583052"
+      x2="567.9206176185941"
+      y2="448.32394812549364"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.809666964771197"
+    />
+    <title>`u4_5`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="345.04024198987196"
+      y1="481.6758689883695"
+      x2="325.2011754139981"
+      y2="535.7018617183128"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`u1_13`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="572.9331443076744"
+      y1="476.7040195388181"
+      x2="555.8262771851221"
+      y2="505.7481265583052"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.8467790148738663"
+    />
+    <title>`v3_5`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="444.3290339765909"
+      y1="507.0863566889412"
+      x2="439.3310524304833"
+      y2="547.4669641284293"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.8099577197685615"
+    />
+    <title>`v1_2`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="434.5089049505236"
+      y1="311.29287812025166"
+      x2="418.32457603043036"
+      y2="305.1510537724205"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.715972366743099"
+    />
+    <title>`v4_10`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="603.7144769050072"
+      y1="416.3696867447939"
+      x2="589.3506356779761"
+      y2="446.06674345899876"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.5865117251245375"
+    />
+    <title>`v1_5`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="453.9291209459966"
+      y1="320.4145565302915"
+      x2="393.81628325626275"
+      y2="338.91897272475376"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`u3_10`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="382.99170186376153"
+      y1="633.1403141597234"
+      x2="430.40495224942975"
+      y2="628.6354857035437"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.547420783233799"
+    />
+    <title>`u4_1`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="384.1626416237627"
+      y1="479.86224984749975"
+      x2="382.6280517560495"
+      y2="513.8462097547474"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.720120208061737"
+    />
+    <title>`v0_1`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="588.3806422659552"
+      y1="424.84982669312166"
+      x2="567.9206176185941"
+      y2="448.32394812549364"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.628506748599561"
+    />
+    <title>`v3_6`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="328.0277616803061"
+      y1="504.74533357391874"
+      x2="382.6280517560495"
+      y2="513.8462097547474"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.5685068016190096"
+    />
+    <title>`u1_0`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="513.1290943203562"
+      y1="356.4026197718449"
+      x2="495.22558300253786"
+      y2="344.5563185781142"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`v0_10`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="312.22111620418633"
+      y1="548.8277521913487"
+      x2="338.8200615504954"
+      y2="580.3920348738949"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.9674626510928435"
+    />
+    <title>`u3_15`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="498.09695606671346"
+      y1="525.1566055558719"
+      x2="550.5044206685105"
+      y2="489.73916969101924"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.8561337402012854"
+    />
+    <title>`u2_3`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="439.3310524304833"
+      y1="547.4669641284293"
+      x2="498.09695606671346"
+      y2="525.1566055558719"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.837628474347573"
+    />
+    <title>`u2_2`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="436.03241444939545"
+      y1="379.8823667139876"
+      x2="383.58099516609616"
+      y2="427.5232147891508"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`u1_11`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="577.3612387236577"
+      y1="333.1372817245524"
+      x2="555.0501347904478"
+      y2="341.6660618245388"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.7583757095772212"
+    />
+    <title>`v2_8`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="560.1291241458574"
+      y1="394.8892646474489"
+      x2="540.8735630315412"
+      y2="410.03186285700417"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.5277822426200838"
+    />
+    <title>`v4_7`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="640.3341388000806"
+      y1="358.0073051204988"
+      x2="640.9937673884358"
+      y2="332.64420068094694"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.8122354144940938"
+    />
+    <title>`u0_6`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="353.70996916809884"
+      y1="647.6454276769934"
+      x2="384.9705008295256"
+      y2="665.5617625283285"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.08550258430198"
+    />
+    <title>`u5_0`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="533.1993825936775"
+      y1="351.28529983257897"
+      x2="489.76933607352873"
+      y2="322.22522159366304"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.9873220454991278"
+    />
+    <title>`u4_8`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="495.22558300253786"
+      y1="344.5563185781142"
+      x2="436.03241444939545"
+      y2="379.8823667139876"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`u1_10`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="257.2555814109989"
+      y1="413.6331567929448"
+      x2="280.023910464645"
+      y2="450.43546161214124"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.1638681415290306"
+    />
+    <title>`u5_f`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="341.50266023031816"
+      y1="562.8176505743928"
+      x2="338.38421105128157"
+      y2="611.6826242074787"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`u0_f`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="570.0278614465489"
+      y1="329.99102807673887"
+      x2="513.1290943203562"
+      y2="356.4026197718449"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`u0_9`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="640.3341388000806"
+      y1="358.0073051204988"
+      x2="626.3391834376902"
+      y2="377.450870349418"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.106826800606052"
+    />
+    <title>`v0_6`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="384.1626416237627"
+      y1="479.86224984749975"
+      x2="448.7777422553097"
+      y2="472.6152156298814"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.7978741501829636"
+    />
+    <title>`u0_1`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="624.6213231976773"
+      y1="345.1181991020735"
+      x2="604.3188661604293"
+      y2="360.64269326190845"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.8934845789823238"
+    />
+    <title>`v1_7`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="454.5699867691255"
+      y1="397.9653111781144"
+      x2="402.57976013317267"
+      y2="449.95059119562654"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
     />
     <title>`u0_11`.icon</title>
   </g>
   <g style="filter: blur(0.3px)">
     <line
-      x1="111.42742983677708"
-      y1="172.89420377239048"
-      x2="100.03120483703269"
-      y2="167.23347800376334"
-      stroke="#b8e6da"
+      x1="604.3188661604293"
+      y1="360.64269326190845"
+      x2="582.1763519936748"
+      y2="377.7133461908279"
+      stroke="#d6b8e6"
       stroke-opacity="0.5"
-      stroke-width="1.4576140261436104"
+      stroke-width="2.1159063777343956"
     />
-    <title>`v4_7`.icon</title>
+    <title>`v2_7`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="552.420802233075"
+      y1="325.98843232627496"
+      x2="531.7906167197509"
+      y2="322.8714541657263"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`v1_9`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="538.1074838617072"
+      y1="525.9047801911197"
+      x2="525.2518152319587"
+      y2="560.014042163919"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.9484374456667846"
+    />
+    <title>`v3_4`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="570.0278614465489"
+      y1="329.99102807673887"
+      x2="552.420802233075"
+      y2="325.98843232627496"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`v0_9`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="434.5089049505236"
+      y1="311.29287812025166"
+      x2="374.4809864341631"
+      y2="320.6184249317363"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5503493631912202"
+    />
+    <title>`u4_10`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="589.3506356779761"
+      y1="446.06674345899876"
+      x2="572.9331443076744"
+      y2="476.7040195388181"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.720232357682526"
+    />
+    <title>`v2_5`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="555.0501347904478"
+      y1="341.6660618245388"
+      x2="533.1993825936775"
+      y2="351.28529983257897"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.0112668030937813"
+    />
+    <title>`v3_8`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="361.78397799129925"
+      y1="401.43694696819836"
+      x2="323.7318935805517"
+      y2="452.20181759874396"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`u2_12`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="480.8120078104216"
+      y1="603.1735978741054"
+      x2="525.2518152319587"
+      y2="560.014042163919"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.949437304851941"
+    />
+    <title>`u4_3`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="338.38421105128157"
+      y1="611.6826242074787"
+      x2="353.70996916809884"
+      y2="647.6454276769934"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.688107768675636"
+    />
+    <title>`u5_15`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="614.8419998591586"
+      y1="391.0116336304027"
+      x2="603.7144769050072"
+      y2="416.3696867447939"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.4593620885562593"
+    />
+    <title>`v0_5`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="361.78397799129925"
+      y1="401.43694696819836"
+      x2="339.83162073361666"
+      y2="374.71547104889885"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`v2_12`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="598.3152603354793"
+      y1="326.4618375005118"
+      x2="577.3612387236577"
+      y2="333.1372817245524"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5643381743039517"
+    />
+    <title>`v1_8`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="506.1685795419347"
+      y1="486.3152057967112"
+      x2="561.5022026425798"
+      y2="454.61122163178726"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.7971421853489598"
+    />
+    <title>`u1_3`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="472.20633864697487"
+      y1="324.251265985544"
+      x2="418.32457603043036"
+      y2="305.1510537724205"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.9485880516621568"
+    />
+    <title>`u5_9`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="402.57976013317267"
+      y1="449.95059119562654"
+      x2="383.58099516609616"
+      y2="427.5232147891508"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`v0_12`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="577.3612387236577"
+      y1="333.1372817245524"
+      x2="531.7906167197509"
+      y2="322.8714541657263"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5643381743039517"
+    />
+    <title>`u2_8`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="374.4809864341631"
+      y1="320.6184249317363"
+      x2="358.7798079770785"
+      y2="306.2879343398632"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.588848446863529"
+    />
+    <title>`v4_11`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="626.3391834376902"
+      y1="377.450870349418"
+      x2="608.4538819618515"
+      y2="400.56724842389355"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.2741241077692838"
+    />
+    <title>`v1_6`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="338.8200615504954"
+      y1="580.3920348738949"
+      x2="346.31008921114955"
+      y2="616.9019717589146"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.0780346927548154"
+    />
+    <title>`v3_0`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="439.3310524304833"
+      y1="547.4669641284293"
+      x2="434.52013306237353"
+      y2="589.1572720265392"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.775306113029637"
+    />
+    <title>`v2_2`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="560.1291241458574"
+      y1="394.8892646474489"
+      x2="533.1993825936775"
+      y2="351.28529983257897"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.2872877941950085"
+    />
+    <title>`u4_7`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="358.7798079770785"
+      y1="306.2879343398632"
+      x2="303.1728169136061"
+      y2="328.86014583079407"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.6627965511724245"
+    />
+    <title>`u5_11`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="473.3291497888115"
+      y1="634.7854684413644"
+      x2="513.5637300195375"
+      y2="588.414093859302"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.9773091441775272"
+    />
+    <title>`u5_3`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="510.3582347149188"
+      y1="321.5635203274452"
+      x2="453.9291209459966"
+      y2="320.4145565302915"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5369121277863125"
+    />
+    <title>`u3_9`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="341.50266023031816"
+      y1="562.8176505743928"
+      x2="325.2011754139981"
+      y2="535.7018617183128"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`v0_14`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="550.5044206685105"
+      y1="489.73916969101924"
+      x2="589.3506356779761"
+      y2="446.06674345899876"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.7431522482408734"
+    />
+    <title>`u2_4`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="489.76933607352873"
+      y1="322.22522159366304"
+      x2="434.5089049505236"
+      y2="311.29287812025166"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.720442140869836"
+    />
+    <title>`u4_9`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="374.4809864341631"
+      y1="320.6184249317363"
+      x2="319.6045771162071"
+      y2="349.62880984279593"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`u4_11`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="382.6280517560495"
+      y1="513.8462097547474"
+      x2="444.3290339765909"
+      y2="507.0863566889412"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.7549573536946714"
+    />
+    <title>`u1_1`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="624.6213231976773"
+      y1="345.1181991020735"
+      x2="598.3152603354793"
+      y2="326.4618375005118"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.6418482308049542"
+    />
+    <title>`u1_7`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="582.1763519936748"
+      y1="377.7133461908279"
+      x2="555.0501347904478"
+      y2="341.6660618245388"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.058307564830295"
+    />
+    <title>`u3_7`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="448.7777422553097"
+      y1="472.6152156298814"
+      x2="444.3290339765909"
+      y2="507.0863566889412"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.8327112958158978"
+    />
+    <title>`v0_2`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="338.8200615504954"
+      y1="580.3920348738949"
+      x2="381.7456632276064"
+      y2="594.423878598867"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.322773681734865"
+    />
+    <title>`u3_0`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="513.1290943203562"
+      y1="356.4026197718449"
+      x2="454.5699867691255"
+      y2="397.9653111781144"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`u0_10`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="454.5699867691255"
+      y1="397.9653111781144"
+      x2="436.03241444939545"
+      y2="379.8823667139876"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`v0_11`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="525.2518152319587"
+      y1="560.014042163919"
+      x2="555.8262771851221"
+      y2="505.7481265583052"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.9450106046132416"
+    />
+    <title>`u4_4`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="603.7144769050072"
+      y1="416.3696867447939"
+      x2="626.3391834376902"
+      y2="377.450870349418"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.351949327314091"
+    />
+    <title>`u1_5`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="427.3613406252396"
+      y1="661.6310379841701"
+      x2="473.3291497888115"
+      y2="634.7854684413644"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.789784447840316"
+    />
+    <title>`u5_2`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="381.65748604241503"
+      y1="553.5339242770378"
+      x2="439.3310524304833"
+      y2="547.4669641284293"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.6953907604657386"
+    />
+    <title>`u2_1`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="345.04024198987196"
+      y1="481.6758689883695"
+      x2="323.7318935805517"
+      y2="452.20181759874396"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`v1_13`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="339.83162073361666"
+      y1="374.71547104889885"
+      x2="302.07651221028704"
+      y2="421.7814425515338"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`u3_12`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="506.1685795419347"
+      y1="486.3152057967112"
+      x2="498.09695606671346"
+      y2="525.1566055558719"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.863948726365544"
+    />
+    <title>`v1_3`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="325.2011754139981"
+      y1="535.7018617183128"
+      x2="306.5704513801289"
+      y2="503.94743191379473"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`v1_14`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="474.7009533495175"
+      y1="331.89304659171955"
+      x2="414.91798421800337"
+      y2="359.3095257170704"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`u2_10`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="510.3582347149188"
+      y1="321.5635203274452"
+      x2="489.76933607352873"
+      y2="322.22522159366304"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.7070049054649286"
+    />
+    <title>`v3_9`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="323.7318935805517"
+      y1="452.20181759874396"
+      x2="302.07651221028704"
+      y2="421.7814425515338"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`v2_13`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="402.57976013317267"
+      y1="449.95059119562654"
+      x2="363.5034472500529"
+      y2="506.8787023853311"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`u0_12`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="393.81628325626275"
+      y1="338.91897272475376"
+      x2="374.4809864341631"
+      y2="320.6184249317363"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`v3_11`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="323.7318935805517"
+      y1="452.20181759874396"
+      x2="306.5704513801289"
+      y2="503.94743191379473"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`u2_13`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="550.5044206685105"
+      y1="489.73916969101924"
+      x2="538.1074838617072"
+      y2="525.9047801911197"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.8731257464857567"
+    />
+    <title>`v2_4`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="582.1763519936748"
+      y1="377.7133461908279"
+      x2="560.1291241458574"
+      y2="394.8892646474489"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.3343285559315223"
+    />
+    <title>`v3_7`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="555.8262771851221"
+      y1="505.7481265583052"
+      x2="540.3284253865014"
+      y2="530.1378248925458"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.954896999967956"
+    />
+    <title>`v4_5`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="540.3284253865014"
+      y1="530.1378248925458"
+      x2="549.760135922232"
+      y2="468.38497135239453"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.926404930551226"
+    />
+    <title>`u5_5`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="448.7777422553097"
+      y1="472.6152156298814"
+      x2="512.783747588804"
+      y2="453.17653368140907"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.827500773031674"
+    />
+    <title>`u0_2`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="281.89109680630537"
+      y1="392.9212664334022"
+      x2="270.90013141171255"
+      y2="439.8986717853475"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.7134626366364112"
+    />
+    <title>`u4_13`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="561.5022026425798"
+      y1="454.61122163178726"
+      x2="550.5044206685105"
+      y2="489.73916969101924"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.7893271991847013"
+    />
+    <title>`v1_4`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="614.8419998591586"
+      y1="391.0116336304027"
+      x2="640.3341388000806"
+      y2="358.0073051204988"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.214239561848221"
+    />
+    <title>`u0_5`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="302.07651221028704"
+      y1="421.7814425515338"
+      x2="281.89109680630537"
+      y2="392.9212664334022"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.542333411171624"
+    />
+    <title>`v3_13`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="325.3825478718814"
+      y1="472.83061193041027"
+      x2="384.1626416237627"
+      y2="479.86224984749975"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.662196361549159"
+    />
+    <title>`u0_0`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="512.783747588804"
+      y1="453.17653368140907"
+      x2="570.1720114873478"
+      y2="424.5883900213528"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.7401800679064063"
+    />
+    <title>`u0_3`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="265.25684137571926"
+      y1="368.70453714078496"
+      x2="257.2555814109989"
+      y2="413.6331567929448"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.8941820737340118"
+    />
+    <title>`u5_13`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="414.91798421800337"
+      y1="359.3095257170704"
+      x2="393.81628325626275"
+      y2="338.91897272475376"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`v2_11`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="325.93478245737765"
+      y1="582.8192571110856"
+      x2="338.38421105128157"
+      y2="611.6826242074787"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.551809083943184"
+    />
+    <title>`v4_15`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="319.6045771162071"
+      y1="349.62880984279593"
+      x2="281.89109680630537"
+      y2="392.9212664334022"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.542333411171624"
+    />
+    <title>`u4_12`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="570.1720114873478"
+      y1="424.5883900213528"
+      x2="561.5022026425798"
+      y2="454.61122163178726"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.706254804253058"
+    />
+    <title>`v0_4`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="381.7456632276064"
+      y1="594.423878598867"
+      x2="382.99170186376153"
+      y2="633.1403141597234"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.4401759721928094"
+    />
+    <title>`v3_1`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="280.023910464645"
+      y1="450.43546161214124"
+      x2="325.3825478718814"
+      y2="472.83061193041027"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.4396398096934355"
+    />
+    <title>`u0_15`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="640.9937673884358"
+      y1="332.64420068094694"
+      x2="624.6213231976773"
+      y2="345.1181991020735"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.6895920026501372"
+    />
+    <title>`v0_7`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="270.90013141171255"
+      y1="439.8986717853475"
+      x2="288.14709858552953"
+      y2="479.3902667446777"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.998124603569488"
+    />
+    <title>`u4_f`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="384.9705008295256"
+      y1="665.5617625283285"
+      x2="427.3613406252396"
+      y2="661.6310379841701"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.4774322860766707"
+    />
+    <title>`u5_1`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="346.31008921114955"
+      y1="616.9019717589146"
+      x2="353.70996916809884"
+      y2="647.6454276769934"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.9397073953252173"
+    />
+    <title>`v4_0`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="531.7906167197509"
+      y1="322.8714541657263"
+      x2="510.3582347149188"
+      y2="321.5635203274452"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5369121277863125"
+    />
+    <title>`v2_9`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="332.5353680218718"
+      y1="541.9760376066222"
+      x2="381.65748604241503"
+      y2="553.5339242770378"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.4512048685769536"
+    />
+    <title>`u2_0`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="288.14709858552953"
+      y1="479.3902667446777"
+      x2="328.0277616803061"
+      y2="504.74533357391874"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.302753119178028"
+    />
+    <title>`u1_15`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="418.32457603043036"
+      y1="305.1510537724205"
+      x2="358.7798079770785"
+      y2="306.2879343398632"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.7544714504154082"
+    />
+    <title>`u5_10`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="281.89109680630537"
+      y1="392.9212664334022"
+      x2="265.25684137571926"
+      y2="368.70453714078496"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.6774619390369365"
+    />
+    <title>`v4_13`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="363.5034472500529"
+      y1="506.8787023853311"
+      x2="345.04024198987196"
+      y2="481.6758689883695"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`v0_13`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="434.52013306237353"
+      y1="589.1572720265392"
+      x2="489.4034808382024"
+      y2="565.2555808351722"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.829012794708718"
+    />
+    <title>`u3_2`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="640.9937673884358"
+      y1="332.64420068094694"
+      x2="615.7281382326288"
+      y2="321.9773370676536"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5477437718451832"
+    />
+    <title>`u0_7`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="444.3290339765909"
+      y1="507.0863566889412"
+      x2="506.1685795419347"
+      y2="486.3152057967112"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.836277971786532"
+    />
+    <title>`u1_2`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="538.1074838617072"
+      y1="525.9047801911197"
+      x2="572.9331443076744"
+      y2="476.7040195388181"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.8502058559274093"
+    />
+    <title>`u3_4`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="489.4034808382024"
+      y1="565.2555808351722"
+      x2="538.1074838617072"
+      y2="525.9047801911197"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.9083271623111253"
+    />
+    <title>`u3_3`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="552.420802233075"
+      y1="325.98843232627496"
+      x2="495.22558300253786"
+      y2="344.5563185781142"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`u1_9`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="549.760135922232"
+      y1="468.38497135239453"
+      x2="540.8735630315412"
+      y2="410.03186285700417"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.732675859787785"
+    />
+    <title>`u5_6`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="328.0277616803061"
+      y1="504.74533357391874"
+      x2="332.5353680218718"
+      y2="541.9760376066222"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.3793212758041142"
+    />
+    <title>`v1_0`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="325.3825478718814"
+      y1="472.83061193041027"
+      x2="328.0277616803061"
+      y2="504.74533357391874"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.5105829551064307"
+    />
+    <title>`v0_0`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="270.90013141171255"
+      y1="439.8986717853475"
+      x2="257.2555814109989"
+      y2="413.6331567929448"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.930182771333486"
+    />
+    <title>`v4_14`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="588.3806422659552"
+      y1="424.84982669312166"
+      x2="582.1763519936748"
+      y2="377.7133461908279"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.386554026344318"
+    />
+    <title>`u3_6`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="434.52013306237353"
+      y1="589.1572720265392"
+      x2="430.40495224942975"
+      y2="628.6354857035437"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.7311401130806847"
+    />
+    <title>`v3_2`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="436.03241444939545"
+      y1="379.8823667139876"
+      x2="414.91798421800337"
+      y2="359.3095257170704"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`v1_11`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="383.58099516609616"
+      y1="427.5232147891508"
+      x2="345.04024198987196"
+      y2="481.6758689883695"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`u1_12`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="288.14709858552953"
+      y1="479.3902667446777"
+      x2="299.2086985764412"
+      y2="513.406290450114"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.062476765554849"
+    />
+    <title>`v1_15`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="513.5637300195375"
+      y1="588.414093859302"
+      x2="540.3284253865014"
+      y2="530.1378248925458"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="3.0190149537965643"
+    />
+    <title>`u5_4`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="495.22558300253786"
+      y1="344.5563185781142"
+      x2="474.7009533495175"
+      y2="331.89304659171955"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`v1_10`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="567.9206176185941"
+      y1="448.32394812549364"
+      x2="560.1291241458574"
+      y2="394.8892646474489"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.5762812781867654"
+    />
+    <title>`u4_6`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="287.9235810616324"
+      y1="471.1163240279936"
+      x2="270.90013141171255"
+      y2="439.8986717853475"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.7404851557310532"
+    />
+    <title>`v3_14`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="555.0501347904478"
+      y1="341.6660618245388"
+      x2="510.3582347149188"
+      y2="321.5635203274452"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.730949663059582"
+    />
+    <title>`u3_8`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="533.1993825936775"
+      y1="351.28529983257897"
+      x2="514.3226782411228"
+      y2="360.4918265072532"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.2375582803497163"
+    />
+    <title>`v4_8`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="589.3506356779761"
+      y1="446.06674345899876"
+      x2="608.4538819618515"
+      y2="400.56724842389355"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.508686505579731"
+    />
+    <title>`u2_5`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="615.7281382326288"
+      y1="321.9773370676536"
+      x2="570.0278614465489"
+      y2="329.99102807673887"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`u0_8`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="453.9291209459966"
+      y1="320.4145565302915"
+      x2="434.5089049505236"
+      y2="311.29287812025166"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5503493631912202"
+    />
+    <title>`v3_10`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="381.7456632276064"
+      y1="594.423878598867"
+      x2="434.52013306237353"
+      y2="589.1572720265392"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.623895302039695"
+    />
+    <title>`u3_1`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="498.09695606671346"
+      y1="525.1566055558719"
+      x2="489.4034808382024"
+      y2="565.2555808351722"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.8913351560266545"
+    />
+    <title>`v2_3`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="299.2086985764412"
+      y1="513.406290450114"
+      x2="332.5353680218718"
+      y2="541.9760376066222"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.139044922180936"
+    />
+    <title>`u2_15`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="393.81628325626275"
+      y1="338.91897272475376"
+      x2="339.83162073361666"
+      y2="374.71547104889885"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`u3_11`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="626.3391834376902"
+      y1="377.450870349418"
+      x2="624.6213231976773"
+      y2="345.1181991020735"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.9841833887620954"
+    />
+    <title>`u1_6`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="306.5704513801289"
+      y1="503.94743191379473"
+      x2="287.9235810616324"
+      y2="471.1163240279936"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5693559302662663"
+    />
+    <title>`v2_14`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="598.3152603354793"
+      y1="326.4618375005118"
+      x2="552.420802233075"
+      y2="325.98843232627496"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`u1_8`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="608.4538819618515"
+      y1="400.56724842389355"
+      x2="604.3188661604293"
+      y2="360.64269326190845"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.183425297989512"
+    />
+    <title>`u2_6`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="319.6045771162071"
+      y1="349.62880984279593"
+      x2="303.1728169136061"
+      y2="328.86014583079407"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5739481043088954"
+    />
+    <title>`v4_12`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="561.5022026425798"
+      y1="454.61122163178726"
+      x2="603.7144769050072"
+      y2="416.3696867447939"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.6326866760683654"
+    />
+    <title>`u1_4`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="332.5353680218718"
+      y1="541.9760376066222"
+      x2="338.8200615504954"
+      y2="580.3920348738949"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.2299986008360215"
+    />
+    <title>`v2_0`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="604.3188661604293"
+      y1="360.64269326190845"
+      x2="577.3612387236577"
+      y2="333.1372817245524"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.8159745224813215"
+    />
+    <title>`u2_7`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="280.023910464645"
+      y1="450.43546161214124"
+      x2="288.14709858552953"
+      y2="479.3902667446777"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.2318099737650328"
+    />
+    <title>`v0_15`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="430.40495224942975"
+      y1="628.6354857035437"
+      x2="427.3613406252396"
+      y2="661.6310379841701"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.6836208971209468"
+    />
+    <title>`v4_2`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="540.8735630315412"
+      y1="410.03186285700417"
+      x2="514.3226782411228"
+      y2="360.4918265072532"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.478052728774791"
+    />
+    <title>`u5_7`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="346.31008921114955"
+      y1="616.9019717589146"
+      x2="382.99170186376153"
+      y2="633.1403141597234"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.195436983212759"
+    />
+    <title>`u4_0`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="287.9235810616324"
+      y1="471.1163240279936"
+      x2="299.2086985764412"
+      y2="513.406290450114"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.8048373177164145"
+    />
+    <title>`u3_f`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="615.7281382326288"
+      y1="321.9773370676536"
+      x2="598.3152603354793"
+      y2="326.4618375005118"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`v0_8`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="474.7009533495175"
+      y1="331.89304659171955"
+      x2="453.9291209459966"
+      y2="320.4145565302915"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`v2_10`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="325.93478245737765"
+      y1="582.8192571110856"
+      x2="346.31008921114955"
+      y2="616.9019717589146"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.8034087105927652"
+    />
+    <title>`u4_15`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="339.83162073361666"
+      y1="374.71547104889885"
+      x2="319.6045771162071"
+      y2="349.62880984279593"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`v3_12`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="570.1720114873478"
+      y1="424.5883900213528"
+      x2="614.8419998591586"
+      y2="391.0116336304027"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.5329302167409518"
+    />
+    <title>`u0_4`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="512.783747588804"
+      y1="453.17653368140907"
+      x2="506.1685795419347"
+      y2="486.3152057967112"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.8310674490023082"
+    />
+    <title>`v0_3`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="525.2518152319587"
+      y1="560.014042163919"
+      x2="513.5637300195375"
+      y2="588.414093859302"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="3.0091285584418506"
+    />
+    <title>`v4_4`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="306.5704513801289"
+      y1="503.94743191379473"
+      x2="312.22111620418633"
+      y2="548.8277521913487"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.6410275849876095"
+    />
+    <title>`u2_f`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="531.7906167197509"
+      y1="322.8714541657263"
+      x2="474.7009533495175"
+      y2="331.89304659171955"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`u2_9`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="383.58099516609616"
+      y1="427.5232147891508"
+      x2="361.78397799129925"
+      y2="401.43694696819836"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="1.5"
+    />
+    <title>`v1_12`.icon</title>
+  </g>
+  <g style="filter: blur(0.3px)">
+    <line
+      x1="572.9331443076744"
+      y1="476.7040195388181"
+      x2="588.3806422659552"
+      y2="424.84982669312166"
+      stroke="#d6b8e6"
+      stroke-opacity="0.5"
+      stroke-width="2.66561879870223"
+    />
+    <title>`u3_5`.icon</title>
   </g>
   <circle
-    fill="#66ccb2"
+    fill="#a966cc"
     fill-opacity="0.6"
-    cx="146.18271136193098"
-    cy="218.11076568312012"
+    cx="323.7318935805517"
+    cy="452.20181759874396"
     stroke="none"
-    r="3.3142098201046535"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n1_6`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="146.18271136193098"
-    cy="218.11076568312012"
-    stroke="none"
-    r="1.6571049100523267"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n1_6`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="228.51846114317658"
-    cy="156.3623172290933"
-    stroke="none"
-    r="3.0101296381255565"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n4_12`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="228.51846114317658"
-    cy="156.3623172290933"
-    stroke="none"
-    r="1.5050648190627782"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n4_12`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="120.27388572199871"
-    cy="214.50102916055684"
-    stroke="none"
-    r="4.775645484581607"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n4_5`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="120.27388572199871"
-    cy="214.50102916055684"
-    stroke="none"
-    r="2.3878227422908034"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n4_5`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="111.42742983677708"
-    cy="172.89420377239048"
-    stroke="none"
-    r="3.760915570829076"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n4_7`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="111.42742983677708"
-    cy="172.89420377239048"
-    stroke="none"
-    r="1.880457785414538"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n4_7`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="194.6854841384099"
-    cy="231.70217889743031"
-    stroke="none"
-    r="6.0465561674002775"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n5_2`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="194.6854841384099"
-    cy="231.70217889743031"
-    stroke="none"
-    r="3.0232780837001387"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n5_2`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="201.22384826061912"
-    cy="267.85051159729744"
-    stroke="none"
-    r="4.890311890495985"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n2_2`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="201.22384826061912"
-    cy="267.85051159729744"
-    stroke="none"
-    r="2.4451559452479925"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n2_2`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="209.06282250303187"
-    cy="139.96033314804092"
-    stroke="none"
-    r="2.90931145273161"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n2_10`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="209.06282250303187"
-    cy="139.96033314804092"
-    stroke="none"
-    r="1.454655726365805"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n2_10`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="163.285844581893"
-    cy="144.3527550188342"
-    stroke="none"
-    r="2.9153248623729153"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n3_9`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="163.285844581893"
-    cy="144.3527550188342"
-    stroke="none"
-    r="1.4576624311864577"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n3_9`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="162.61157863984891"
-    cy="273.30712143433027"
-    stroke="none"
-    r="3.696157565888382"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n0_4`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="162.61157863984891"
-    cy="273.30712143433027"
-    stroke="none"
-    r="1.848078782944191"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n0_4`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="174.22971283370148"
-    cy="137.00842876732486"
-    stroke="none"
-    r="2.8189276017058664"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n4_10`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="174.22971283370148"
-    cy="137.00842876732486"
-    stroke="none"
-    r="1.4094638008529332"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n4_10`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="285.6179392988668"
-    cy="164.52929532359084"
-    stroke="none"
-    r="4.264211707112345"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n1_13`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="285.6179392988668"
-    cy="164.52929532359084"
-    stroke="none"
-    r="2.1321058535561725"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n1_13`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="227.08789962709923"
-    cy="236.59356467213786"
-    stroke="none"
-    r="5.723425698054422"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n4_1`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="227.08789962709923"
-    cy="236.59356467213786"
-    stroke="none"
-    r="2.861712849027211"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n4_1`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="205.54442680738214"
-    cy="290.26226756683127"
-    stroke="none"
-    r="4.134475951849769"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n0_2`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="205.54442680738214"
-    cy="290.26226756683127"
-    stroke="none"
-    r="2.0672379759248845"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n0_2`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="137.23618390188398"
-    cy="234.23867577297835"
-    stroke="none"
-    r="4.0301250137142555"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n2_5`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="137.23618390188398"
-    cy="234.23867577297835"
-    stroke="none"
-    r="2.0150625068571277"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n2_5`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="177.62026777177883"
-    cy="277.88475941896104"
-    stroke="none"
-    r="4.327668084606374"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n1_3`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="177.62026777177883"
-    cy="277.88475941896104"
-    stroke="none"
-    r="2.163834042303187"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n1_3`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="188.86870234825227"
-    cy="143.82730341810745"
-    stroke="none"
-    r="2.7345867539658766"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n5_11`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="188.86870234825227"
-    cy="143.82730341810745"
-    stroke="none"
-    r="1.3672933769829383"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n5_11`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="146.38914542125457"
-    cy="243.2521544709234"
-    stroke="none"
-    r="3.6672191920545183"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n1_5`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="146.38914542125457"
-    cy="243.2521544709234"
-    stroke="none"
-    r="1.8336095960272591"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n1_5`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="228.3454228576952"
-    cy="259.70133808475657"
-    stroke="none"
-    r="4.879240318356841"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n2_1`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="228.3454228576952"
-    cy="259.70133808475657"
-    stroke="none"
-    r="2.4396201591784203"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n2_1`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="181.26121219351944"
-    cy="148.30354329013815"
-    stroke="none"
-    r="2.865263258375504"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n2_9`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="181.26121219351944"
-    cy="148.30354329013815"
-    stroke="none"
-    r="1.432631629187752"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n2_9`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="166.3174967833584"
-    cy="240.32414465697934"
-    stroke="none"
-    r="5.532862461082306"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n4_3`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="166.3174967833584"
-    cy="240.32414465697934"
-    stroke="none"
-    r="2.766431230541153"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n4_3`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="139.82420172057445"
-    cy="230.58123660345885"
-    stroke="none"
-    r="5.210429745944891"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n4_4`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="139.82420172057445"
-    cy="230.58123660345885"
-    stroke="none"
-    r="2.6052148729724456"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n4_4`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="198.65806101666138"
-    cy="152.54185578540574"
-    stroke="none"
-    r="2.8322349709622747"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n1_9`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="198.65806101666138"
-    cy="152.54185578540574"
-    stroke="none"
-    r="1.4161174854811374"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n1_9`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="254.29684748227925"
-    cy="223.6976890505941"
-    stroke="none"
-    r="5.5647862470767455"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n4_0`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="254.29684748227925"
-    cy="223.6976890505941"
-    stroke="none"
-    r="2.7823931235383728"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n4_0`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="133.67338227983345"
-    cy="210.58144545008247"
-    stroke="none"
-    r="3.620347809200349"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n2_6`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="133.67338227983345"
-    cy="210.58144545008247"
-    stroke="none"
-    r="1.8101739046001746"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n2_6`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="229.0486328946035"
-    cy="279.28058872352926"
-    stroke="none"
-    r="4.095380310871085"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n0_1`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="229.0486328946035"
-    cy="279.28058872352926"
-    stroke="none"
-    r="2.0476901554355424"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n0_1`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="259.396262314128"
-    cy="150.96945567171835"
-    stroke="none"
-    r="3.4849386736660657"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n2_12`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="259.396262314128"
-    cy="150.96945567171835"
-    stroke="none"
-    r="1.7424693368330328"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n2_12`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="174.27233411875653"
-    cy="169.97779509451453"
-    stroke="none"
-    r="2.8580192755007907"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n1_8`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="174.27233411875653"
-    cy="169.97779509451453"
-    stroke="none"
-    r="1.4290096377503954"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n1_8`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="252.57560817334831"
-    cy="141.08507998788505"
-    stroke="none"
-    r="3.2825079658908285"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n1_11`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="252.57560817334831"
-    cy="141.08507998788505"
-    stroke="none"
-    r="1.6412539829454142"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n1_11`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="157.38089445853026"
-    cy="164.5038375734398"
-    stroke="none"
-    r="2.9895365259930404"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n2_8`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="157.38089445853026"
-    cy="164.5038375734398"
-    stroke="none"
-    r="1.4947682629965202"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n2_8`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="269.9551316847404"
-    cy="213.1287901718812"
-    stroke="none"
-    r="4.828379245989202"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n3_15`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="269.9551316847404"
-    cy="213.1287901718812"
-    stroke="none"
-    r="2.414189622994601"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n3_15`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="257.52861912917643"
-    cy="201.4355504334841"
-    stroke="none"
-    r="3.6312676072855448"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n4_14`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="257.52861912917643"
-    cy="201.4355504334841"
-    stroke="none"
-    r="1.8156338036427724"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n4_14`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="245.25516669131875"
-    cy="258.6621229384911"
-    stroke="none"
-    r="3.903694505032849"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n0_0`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="245.25516669131875"
-    cy="258.6621229384911"
-    stroke="none"
-    r="1.9518472525164245"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n0_0`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="260.5990489909548"
-    cy="172.6692531735434"
-    stroke="none"
-    r="3.600945464884639"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n3_13`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="260.5990489909548"
-    cy="172.6692531735434"
-    stroke="none"
-    r="1.8004727324423195"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n3_13`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="125.46879493527939"
-    cy="179.46966612913974"
-    stroke="none"
-    r="3.506725420713098"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n3_7`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="125.46879493527939"
-    cy="179.46966612913974"
-    stroke="none"
-    r="1.753362710356549"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n3_7`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="247.8866368273121"
-    cy="251.69025529329193"
-    stroke="none"
-    r="4.271165687521101"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n1_0`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="247.8866368273121"
-    cy="251.69025529329193"
-    stroke="none"
-    r="2.1355828437605506"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n1_0`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="273.773766708343"
-    cy="148.94034649900001"
-    stroke="none"
-    r="3.7335362207980736"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n1_12`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="273.773766708343"
-    cy="148.94034649900001"
-    stroke="none"
-    r="1.8667681103990368"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n1_12`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="151.25427149396643"
-    cy="253.72322501339406"
-    stroke="none"
-    r="4.4215942983837495"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n2_4`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="151.25427149396643"
-    cy="253.72322501339406"
-    stroke="none"
-    r="2.2107971491918748"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n2_4`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="235.71071774106719"
-    cy="180.42054760583008"
-    stroke="none"
-    r="3.038429170200147"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n5_13`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="235.71071774106719"
-    cy="180.42054760583008"
-    stroke="none"
-    r="1.5192145851000736"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n5_13`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="128.31846234046435"
-    cy="224.37538127110133"
-    stroke="none"
-    r="4.410685479455491"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n3_5`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="128.31846234046435"
-    cy="224.37538127110133"
-    stroke="none"
-    r="2.2053427397277456"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n3_5`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="273.7200952184775"
-    cy="168.46186669957606"
-    stroke="none"
-    r="3.934942227055427"
+    r="5"
     style="filter: blur(1.8px)"
   >
     <title>`n2_13`.icon</title>
@@ -3013,901 +2155,21 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="273.7200952184775"
-    cy="168.46186669957606"
+    cx="323.7318935805517"
+    cy="452.20181759874396"
     stroke="none"
-    r="1.9674711135277134"
+    r="2.5"
     style="filter: blur(0.4px)"
   >
     <title>`n2_13`.icon2</title>
   </circle>
   <circle
-    fill="#66ccb2"
+    fill="#a966cc"
     fill-opacity="0.6"
-    cx="110.7686225917808"
-    cy="149.79074499804938"
+    cx="567.9206176185941"
+    cy="448.32394812549364"
     stroke="none"
-    r="3.4559279876029243"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n5_8`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="110.7686225917808"
-    cy="149.79074499804938"
-    stroke="none"
-    r="1.7279639938014622"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n5_8`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="252.59648192981626"
-    cy="233.36751739852937"
-    stroke="none"
-    r="5.14483018700825"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n3_0`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="252.59648192981626"
-    cy="233.36751739852937"
-    stroke="none"
-    r="2.572415093504125"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n3_0`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="180.87885319032299"
-    cy="288.0206643480772"
-    stroke="none"
-    r="3.9853659093507723"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n0_3`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="180.87885319032299"
-    cy="288.0206643480772"
-    stroke="none"
-    r="1.9926829546753861"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n0_3`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="285.93382066548224"
-    cy="184.65032217620586"
-    stroke="none"
-    r="4.7929875332029805"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n1_14`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="285.93382066548224"
-    cy="184.65032217620586"
-    stroke="none"
-    r="2.3964937666014903"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n1_14`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="267.64609700059117"
-    cy="196.08679885985634"
-    stroke="none"
-    r="4.006712163905472"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n3_14`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="267.64609700059117"
-    cy="196.08679885985634"
-    stroke="none"
-    r="2.003356081952736"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n3_14`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="247.37710387971038"
-    cy="176.8145815811057"
-    stroke="none"
-    r="3.2913944221151668"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n4_13`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="247.37710387971038"
-    cy="176.8145815811057"
-    stroke="none"
-    r="1.6456972110575834"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n4_13`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="196.57715575692717"
-    cy="242.41388540377577"
-    stroke="none"
-    r="5.710600584693847"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n4_2`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="196.57715575692717"
-    cy="242.41388540377577"
-    stroke="none"
-    r="2.8553002923469233"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n4_2`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="265.8650094228061"
-    cy="141.79454250103186"
-    stroke="none"
-    r="3.4251454442381526"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n0_11`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="265.8650094228061"
-    cy="141.79454250103186"
-    stroke="none"
-    r="1.7125727221190763"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n0_11`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="228.80435048549492"
-    cy="270.4887474937641"
-    stroke="none"
-    r="4.457618780448678"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n1_1`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="228.80435048549492"
-    cy="270.4887474937641"
-    stroke="none"
-    r="2.228809390224339"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n1_1`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="113.78432372064097"
-    cy="205.839789485446"
-    stroke="none"
-    r="5.08390947731838"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n5_5`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="113.78432372064097"
-    cy="205.839789485446"
-    stroke="none"
-    r="2.54195473865919"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n5_5`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="251.7711048590566"
-    cy="232.95213241539082"
-    stroke="none"
-    r="3.625498273338713"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n0_15`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="251.7711048590566"
-    cy="232.95213241539082"
-    stroke="none"
-    r="1.8127491366693564"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n0_15`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="243.86951102273432"
-    cy="153.52837850978062"
-    stroke="none"
-    r="3.236602297959733"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n3_12`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="243.86951102273432"
-    cy="153.52837850978062"
-    stroke="none"
-    r="1.6183011489798664"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n3_12`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="140.1392812245203"
-    cy="159.00143790581484"
-    stroke="none"
-    r="3.1437131656350044"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n3_8`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="140.1392812245203"
-    cy="159.00143790581484"
-    stroke="none"
-    r="1.5718565828175022"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n3_8`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="154.68239068578447"
-    cy="250.541480205318"
-    stroke="none"
-    r="3.3631027723158384"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n0_5`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="154.68239068578447"
-    cy="250.541480205318"
-    stroke="none"
-    r="1.6815513861579192"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n0_5`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="163.2580321671236"
-    cy="229.61542018769322"
-    stroke="none"
-    r="5.862570173575751"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n5_3`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="163.2580321671236"
-    cy="229.61542018769322"
-    stroke="none"
-    r="2.9312850867878755"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n5_3`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="213.48380251453924"
-    cy="156.44489948515408"
-    stroke="none"
-    r="2.8163501340144173"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n0_9`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="213.48380251453924"
-    cy="156.44489948515408"
-    stroke="none"
-    r="1.4081750670072086"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n0_9`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="159.7651853220085"
-    cy="136.63465630376646"
-    stroke="none"
-    r="2.797525967032251"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n5_10`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="159.7651853220085"
-    cy="136.63465630376646"
-    stroke="none"
-    r="1.3987629835161255"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n5_10`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="157.24394606711817"
-    cy="264.51271860858265"
-    stroke="none"
-    r="4.0301733783484295"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n1_4`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="157.24394606711817"
-    cy="264.51271860858265"
-    stroke="none"
-    r="2.0150866891742147"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n1_4`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="121.36793863097562"
-    cy="202.425801928065"
-    stroke="none"
-    r="3.9499605677578167"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n3_6`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="121.36793863097562"
-    cy="202.425801928065"
-    stroke="none"
-    r="1.9749802838789083"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n3_6`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="255.52026141354963"
-    cy="215.19110639094774"
-    stroke="none"
-    r="5.916390225781962"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n5_0`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="255.52026141354963"
-    cy="215.19110639094774"
-    stroke="none"
-    r="2.958195112890981"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n5_0`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="215.18491440959914"
-    cy="159.02897047508526"
-    stroke="none"
-    r="2.8281623907507147"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n5_12`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="215.18491440959914"
-    cy="159.02897047508526"
-    stroke="none"
-    r="1.4140811953753574"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n5_12`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="135.31435554922137"
-    cy="220.63400972459664"
-    stroke="none"
-    r="5.533195587738673"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n5_4`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="135.31435554922137"
-    cy="220.63400972459664"
-    stroke="none"
-    r="2.7665977938693365"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n5_4`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="264.1305627825886"
-    cy="220.64515523010917"
-    stroke="none"
-    r="4.393016929235867"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n2_15`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="264.1305627825886"
-    cy="220.64515523010917"
-    stroke="none"
-    r="2.1965084646179336"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n2_15`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="140.76158383316633"
-    cy="186.2367621525753"
-    stroke="none"
-    r="3.255466516136058"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n2_7`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="140.76158383316633"
-    cy="186.2367621525753"
-    stroke="none"
-    r="1.627733258068029"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n2_7`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="226.0533966001379"
-    cy="142.42029576212113"
-    stroke="none"
-    r="2.9730481193492446"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n1_10`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="226.0533966001379"
-    cy="142.42029576212113"
-    stroke="none"
-    r="1.4865240596746223"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n1_10`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="203.54709744608957"
-    cy="280.06512014510616"
-    stroke="none"
-    r="4.48299571015018"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n1_2`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="203.54709744608957"
-    cy="280.06512014510616"
-    stroke="none"
-    r="2.24149785507509"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n1_2`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="219.62416443128856"
-    cy="141.35728613062642"
-    stroke="none"
-    r="2.972392669277345"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n3_11`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="219.62416443128856"
-    cy="141.35728613062642"
-    stroke="none"
-    r="1.4861963346386724"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n3_11`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="145.3067851199502"
-    cy="242.07236535651586"
-    stroke="none"
-    r="4.826169624341372"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n3_4`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="145.3067851199502"
-    cy="242.07236535651586"
-    stroke="none"
-    r="2.413084812170686"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n3_4`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="274.86592210229605"
-    cy="205.50734418968307"
-    stroke="none"
-    r="5.244541855937804"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n4_15`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="274.86592210229605"
-    cy="205.50734418968307"
-    stroke="none"
-    r="2.622270927968902"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n4_15`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="100.03120483703269"
-    cy="167.23347800376334"
-    stroke="none"
-    r="3.9847685860325863"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n5_7`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="100.03120483703269"
-    cy="167.23347800376334"
-    stroke="none"
-    r="1.9923842930162932"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n5_7`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="285.52512880084316"
-    cy="147.58196981718217"
-    stroke="none"
-    r="3.9515131498529685"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n0_12`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="285.52512880084316"
-    cy="147.58196981718217"
-    stroke="none"
-    r="1.9757565749264843"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n0_12`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="240.38860050182998"
-    cy="144.97688058306136"
-    stroke="none"
-    r="3.0377604656096455"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n0_10`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="240.38860050182998"
-    cy="144.97688058306136"
-    stroke="none"
-    r="1.5188802328048228"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n0_10`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="191.29325906874328"
-    cy="138.0929503202476"
-    stroke="none"
-    r="2.8565350762835595"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n3_10`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="191.29325906874328"
-    cy="138.0929503202476"
-    stroke="none"
-    r="1.4282675381417798"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n3_10`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="292.6002548666887"
-    cy="179.64769022108538"
-    stroke="none"
-    r="5.123102570042505"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n0_14`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="292.6002548666887"
-    cy="179.64769022108538"
-    stroke="none"
-    r="2.5615512850212525"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n0_14`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="124.0346348036101"
-    cy="153.92707905956766"
-    stroke="none"
-    r="3.3068613235258626"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n4_8`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="124.0346348036101"
-    cy="153.92707905956766"
-    stroke="none"
-    r="1.6534306617629313"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n4_8`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="132.0492914522564"
-    cy="138.7143556661275"
-    stroke="none"
-    r="3.0415379336364605"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n5_9`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="132.0492914522564"
-    cy="138.7143556661275"
-    stroke="none"
-    r="1.5207689668182303"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n5_9`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="250.43808384400725"
-    cy="242.97742169277598"
-    stroke="none"
-    r="4.701287107912399"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n2_0`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="250.43808384400725"
-    cy="242.97742169277598"
-    stroke="none"
-    r="2.3506435539561994"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n2_0`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="146.2657362775954"
-    cy="141.06892564318042"
-    stroke="none"
-    r="2.9777493718051895"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n4_9`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="146.2657362775954"
-    cy="141.06892564318042"
-    stroke="none"
-    r="1.4888746859025948"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n4_9`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="157.33672973555196"
-    cy="224.30151318691458"
-    stroke="none"
-    r="3.064419080763038"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n0_6`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="157.33672973555196"
-    cy="224.30151318691458"
-    stroke="none"
-    r="1.532209540381519"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n0_6`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="295.1456170568789"
-    cy="161.2734092313728"
-    stroke="none"
-    r="4.548672749400395"
-    style="filter: blur(1.8px)"
-  >
-    <title>`n0_13`.icon</title>
-  </circle>
-  <circle
-    fill="#ffffff"
-    fill-opacity="1"
-    cx="295.1456170568789"
-    cy="161.2734092313728"
-    stroke="none"
-    r="2.2743363747001974"
-    style="filter: blur(0.4px)"
-  >
-    <title>`n0_13`.icon2</title>
-  </circle>
-  <circle
-    fill="#66ccb2"
-    fill-opacity="0.6"
-    cx="110.25040386170117"
-    cy="194.28274314036244"
-    stroke="none"
-    r="4.273184549696523"
+    r="9.041485012081791"
     style="filter: blur(1.8px)"
   >
     <title>`n4_6`.icon</title>
@@ -3915,87 +2177,87 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="110.25040386170117"
-    cy="194.28274314036244"
+    cx="567.9206176185941"
+    cy="448.32394812549364"
     stroke="none"
-    r="2.1365922748482613"
+    r="4.520742506040896"
     style="filter: blur(0.4px)"
   >
     <title>`n4_6`.icon2</title>
   </circle>
   <circle
-    fill="#66ccb2"
+    fill="#a966cc"
     fill-opacity="0.6"
-    cx="188.81579502409178"
-    cy="174.76887838556718"
+    cx="560.1291241458574"
+    cy="394.8892646474489"
     stroke="none"
-    r="2.7597585746264555"
+    r="8.133723509163312"
     style="filter: blur(1.8px)"
   >
-    <title>`n0_8`.icon</title>
+    <title>`n4_7`.icon</title>
   </circle>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="188.81579502409178"
-    cy="174.76887838556718"
+    cx="560.1291241458574"
+    cy="394.8892646474489"
     stroke="none"
-    r="1.3798792873132277"
+    r="4.066861754581656"
     style="filter: blur(0.4px)"
   >
-    <title>`n0_8`.icon2</title>
+    <title>`n4_7`.icon2</title>
   </circle>
   <circle
-    fill="#66ccb2"
+    fill="#a966cc"
     fill-opacity="0.6"
-    cx="248.35792303360805"
-    cy="205.8841185346553"
+    cx="608.4538819618515"
+    cy="400.56724842389355"
     stroke="none"
-    r="3.3200752616969247"
+    r="7.878592998747616"
     style="filter: blur(1.8px)"
   >
-    <title>`n5_14`.icon</title>
+    <title>`n2_6`.icon</title>
   </circle>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="248.35792303360805"
-    cy="205.8841185346553"
+    cx="608.4538819618515"
+    cy="400.56724842389355"
     stroke="none"
-    r="1.6600376308484623"
+    r="3.939296499373808"
     style="filter: blur(0.4px)"
   >
-    <title>`n5_14`.icon2</title>
+    <title>`n2_6`.icon2</title>
   </circle>
   <circle
-    fill="#66ccb2"
+    fill="#a966cc"
     fill-opacity="0.6"
-    cx="173.84515611591516"
-    cy="265.7179611814194"
+    cx="577.3612387236577"
+    cy="333.1372817245524"
     stroke="none"
-    r="4.727631546451166"
+    r="5.428921162026346"
     style="filter: blur(1.8px)"
   >
-    <title>`n2_3`.icon</title>
+    <title>`n2_8`.icon</title>
   </circle>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="173.84515611591516"
-    cy="265.7179611814194"
+    cx="577.3612387236577"
+    cy="333.1372817245524"
     stroke="none"
-    r="2.363815773225583"
+    r="2.714460581013173"
     style="filter: blur(0.4px)"
   >
-    <title>`n2_3`.icon2</title>
+    <title>`n2_8`.icon2</title>
   </circle>
   <circle
-    fill="#66ccb2"
+    fill="#a966cc"
     fill-opacity="0.6"
-    cx="169.97414110732552"
-    cy="252.83486651186772"
+    cx="489.4034808382024"
+    cy="565.2555808351722"
     stroke="none"
-    r="5.140587629223119"
+    r="9.676374055324361"
     style="filter: blur(1.8px)"
   >
     <title>`n3_3`.icon</title>
@@ -4003,87 +2265,109 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="169.97414110732552"
-    cy="252.83486651186772"
+    cx="489.4034808382024"
+    cy="565.2555808351722"
     stroke="none"
-    r="2.5702938146115595"
+    r="4.838187027662181"
     style="filter: blur(0.4px)"
   >
     <title>`n3_3`.icon2</title>
   </circle>
   <circle
-    fill="#66ccb2"
+    fill="#a966cc"
     fill-opacity="0.6"
-    cx="156.00241656339557"
-    cy="192.67781000185389"
+    cx="358.7798079770785"
+    cy="306.2879343398632"
     stroke="none"
-    r="3.0297410276124594"
+    r="5.592322979090194"
     style="filter: blur(1.8px)"
   >
-    <title>`n1_7`.icon</title>
+    <title>`n5_11`.icon</title>
   </circle>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="156.00241656339557"
-    cy="192.67781000185389"
+    cx="358.7798079770785"
+    cy="306.2879343398632"
     stroke="none"
-    r="1.5148705138062297"
+    r="2.796161489545097"
     style="filter: blur(0.4px)"
   >
-    <title>`n1_7`.icon2</title>
+    <title>`n5_11`.icon2</title>
   </circle>
   <circle
-    fill="#66ccb2"
+    fill="#a966cc"
     fill-opacity="0.6"
-    cx="203.07847534684458"
-    cy="142.4544239836061"
+    cx="512.783747588804"
+    cy="453.17653368140907"
     stroke="none"
-    r="2.838206576463475"
+    r="9.379985135765098"
     style="filter: blur(1.8px)"
   >
-    <title>`n4_11`.icon</title>
+    <title>`n0_3`.icon</title>
   </circle>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="203.07847534684458"
-    cy="142.4544239836061"
+    cx="512.783747588804"
+    cy="453.17653368140907"
     stroke="none"
-    r="1.4191032882317376"
+    r="4.689992567882549"
     style="filter: blur(0.4px)"
   >
-    <title>`n4_11`.icon2</title>
+    <title>`n0_3`.icon2</title>
   </circle>
   <circle
-    fill="#66ccb2"
+    fill="#a966cc"
     fill-opacity="0.6"
-    cx="169.32326230064965"
-    cy="198.12869316358103"
+    cx="454.5699867691255"
+    cy="397.9653111781144"
     stroke="none"
-    r="2.8513250256571867"
+    r="5"
     style="filter: blur(1.8px)"
   >
-    <title>`n0_7`.icon</title>
+    <title>`n0_11`.icon</title>
   </circle>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="169.32326230064965"
-    cy="198.12869316358103"
+    cx="454.5699867691255"
+    cy="397.9653111781144"
     stroke="none"
-    r="1.4256625128285934"
+    r="2.5"
     style="filter: blur(0.4px)"
   >
-    <title>`n0_7`.icon2</title>
+    <title>`n0_11`.icon2</title>
   </circle>
   <circle
-    fill="#66ccb2"
+    fill="#a966cc"
     fill-opacity="0.6"
-    cx="236.59702319903462"
-    cy="140.87289692627914"
+    cx="495.22558300253786"
+    cy="344.5563185781142"
     stroke="none"
-    r="3.1248397597177084"
+    r="5"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n1_10`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="495.22558300253786"
+    cy="344.5563185781142"
+    stroke="none"
+    r="2.5"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n1_10`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="414.91798421800337"
+    cy="359.3095257170704"
+    stroke="none"
+    r="5"
     style="filter: blur(1.8px)"
   >
     <title>`n2_11`.icon</title>
@@ -4091,131 +2375,131 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="236.59702319903462"
-    cy="140.87289692627914"
+    cx="414.91798421800337"
+    cy="359.3095257170704"
     stroke="none"
-    r="1.5624198798588542"
+    r="2.5"
     style="filter: blur(0.4px)"
   >
     <title>`n2_11`.icon2</title>
   </circle>
   <circle
-    fill="#66ccb2"
+    fill="#a966cc"
     fill-opacity="0.6"
-    cx="227.7418953300865"
-    cy="248.06194338755236"
+    cx="439.3310524304833"
+    cy="547.4669641284293"
     stroke="none"
-    r="5.312884876180714"
+    r="9.318329510797152"
     style="filter: blur(1.8px)"
   >
-    <title>`n3_1`.icon</title>
+    <title>`n2_2`.icon</title>
   </circle>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="227.7418953300865"
-    cy="248.06194338755236"
+    cx="439.3310524304833"
+    cy="547.4669641284293"
     stroke="none"
-    r="2.656442438090357"
+    r="4.659164755398576"
     style="filter: blur(0.4px)"
   >
-    <title>`n3_1`.icon2</title>
+    <title>`n2_2`.icon2</title>
   </circle>
   <circle
-    fill="#66ccb2"
+    fill="#a966cc"
     fill-opacity="0.6"
-    cx="198.8359808315626"
-    cy="254.9382725113587"
+    cx="640.3341388000806"
+    cy="358.0073051204988"
     stroke="none"
-    r="5.310952672514013"
+    r="6.763277617659404"
     style="filter: blur(1.8px)"
   >
-    <title>`n3_2`.icon</title>
+    <title>`n0_6`.icon</title>
   </circle>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="198.8359808315626"
-    cy="254.9382725113587"
+    cx="640.3341388000806"
+    cy="358.0073051204988"
     stroke="none"
-    r="2.6554763362570064"
+    r="3.381638808829702"
     style="filter: blur(0.4px)"
   >
-    <title>`n3_2`.icon2</title>
+    <title>`n0_6`.icon2</title>
   </circle>
   <circle
-    fill="#66ccb2"
+    fill="#a966cc"
     fill-opacity="0.6"
-    cx="277.3798631691468"
-    cy="190.34854240450414"
+    cx="257.2555814109989"
+    cy="413.6331567929448"
     stroke="none"
-    r="4.405648853360857"
+    r="6.7270236391246625"
     style="filter: blur(1.8px)"
   >
-    <title>`n2_14`.icon</title>
+    <title>`n5_14`.icon</title>
   </circle>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="277.3798631691468"
-    cy="190.34854240450414"
+    cx="257.2555814109989"
+    cy="413.6331567929448"
     stroke="none"
-    r="2.2028244266804284"
+    r="3.3635118195623313"
     style="filter: blur(0.4px)"
   >
-    <title>`n2_14`.icon2</title>
+    <title>`n5_14`.icon2</title>
   </circle>
   <circle
-    fill="#66ccb2"
+    fill="#a966cc"
     fill-opacity="0.6"
-    cx="257.7855890227771"
-    cy="227.45674532209705"
+    cx="473.3291497888115"
+    cy="634.7854684413644"
     stroke="none"
-    r="3.976330033789498"
+    r="9.731646515933269"
     style="filter: blur(1.8px)"
   >
-    <title>`n1_15`.icon</title>
+    <title>`n5_3`.icon</title>
   </circle>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="257.7855890227771"
-    cy="227.45674532209705"
+    cx="473.3291497888115"
+    cy="634.7854684413644"
     stroke="none"
-    r="1.988165016894749"
+    r="4.8658232579666345"
     style="filter: blur(0.4px)"
   >
-    <title>`n1_15`.icon2</title>
+    <title>`n5_3`.icon2</title>
   </circle>
   <circle
-    fill="#66ccb2"
+    fill="#a966cc"
     fill-opacity="0.6"
-    cx="226.496781282378"
-    cy="226.67570959527288"
+    cx="339.83162073361666"
+    cy="374.71547104889885"
     stroke="none"
-    r="6.067588367450481"
+    r="5"
     style="filter: blur(1.8px)"
   >
-    <title>`n5_1`.icon</title>
+    <title>`n3_12`.icon</title>
   </circle>
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="226.496781282378"
-    cy="226.67570959527288"
+    cx="339.83162073361666"
+    cy="374.71547104889885"
     stroke="none"
-    r="3.0337941837252407"
+    r="2.5"
     style="filter: blur(0.4px)"
   >
-    <title>`n5_1`.icon2</title>
+    <title>`n3_12`.icon2</title>
   </circle>
   <circle
-    fill="#66ccb2"
+    fill="#a966cc"
     fill-opacity="0.6"
-    cx="278.5770137837577"
-    cy="198.73087058281573"
+    cx="338.38421105128157"
+    cy="611.6826242074787"
     stroke="none"
-    r="5.59492373577881"
+    r="5"
     style="filter: blur(1.8px)"
   >
     <title>`n5_15`.icon</title>
@@ -4223,21 +2507,681 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="278.5770137837577"
-    cy="198.73087058281573"
+    cx="338.38421105128157"
+    cy="611.6826242074787"
     stroke="none"
-    r="2.797461867889405"
+    r="2.5"
     style="filter: blur(0.4px)"
   >
     <title>`n5_15`.icon2</title>
   </circle>
   <circle
-    fill="#66ccb2"
+    fill="#a966cc"
     fill-opacity="0.6"
-    cx="101.32027347032182"
-    cy="187.12423132224487"
+    cx="448.7777422553097"
+    cy="472.6152156298814"
     stroke="none"
-    r="4.550629908895398"
+    r="9.470020017779396"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n0_2`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="448.7777422553097"
+    cy="472.6152156298814"
+    stroke="none"
+    r="4.735010008889698"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n0_2`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="513.1290943203562"
+    cy="356.4026197718449"
+    stroke="none"
+    r="5"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n0_10`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="513.1290943203562"
+    cy="356.4026197718449"
+    stroke="none"
+    r="2.5"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n0_10`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="550.5044206685105"
+    cy="489.73916969101924"
+    stroke="none"
+    r="9.4416979498219"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n2_4`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="550.5044206685105"
+    cy="489.73916969101924"
+    stroke="none"
+    r="4.72084897491095"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n2_4`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="589.3506356779761"
+    cy="446.06674345899876"
+    stroke="none"
+    r="8.845983705117257"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n2_5`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="589.3506356779761"
+    cy="446.06674345899876"
+    stroke="none"
+    r="4.422991852558629"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n2_5`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="427.3613406252396"
+    cy="661.6310379841701"
+    stroke="none"
+    r="8.86691646966884"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n5_2`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="427.3613406252396"
+    cy="661.6310379841701"
+    stroke="none"
+    r="4.43345823483442"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n5_2`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="381.65748604241503"
+    cy="553.5339242770378"
+    stroke="none"
+    r="8.650942225641106"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n2_1`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="381.65748604241503"
+    cy="553.5339242770378"
+    stroke="none"
+    r="4.325471112820553"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n2_1`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="640.9937673884358"
+    cy="332.64420068094694"
+    stroke="none"
+    r="5.318291812301221"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n0_7`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="640.9937673884358"
+    cy="332.64420068094694"
+    stroke="none"
+    r="2.6591459061506106"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n0_7`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="418.32457603043036"
+    cy="305.1510537724205"
+    stroke="none"
+    r="6.104153357012527"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n5_10`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="418.32457603043036"
+    cy="305.1510537724205"
+    stroke="none"
+    r="3.0520766785062636"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n5_10`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="363.5034472500529"
+    cy="506.8787023853311"
+    stroke="none"
+    r="5"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n0_13`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="363.5034472500529"
+    cy="506.8787023853311"
+    stroke="none"
+    r="2.5"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n0_13`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="265.25684137571926"
+    cy="368.70453714078496"
+    stroke="none"
+    r="5.900856852435417"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n5_13`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="265.25684137571926"
+    cy="368.70453714078496"
+    stroke="none"
+    r="2.9504284262177083"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n5_13`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="570.0278614465489"
+    cy="329.99102807673887"
+    stroke="none"
+    r="5"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n0_9`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="570.0278614465489"
+    cy="329.99102807673887"
+    stroke="none"
+    r="2.5"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n0_9`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="472.20633864697487"
+    cy="324.251265985544"
+    stroke="none"
+    r="6.886433654068518"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n5_9`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="472.20633864697487"
+    cy="324.251265985544"
+    stroke="none"
+    r="3.443216827034259"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n5_9`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="514.3226782411228"
+    cy="360.4918265072532"
+    stroke="none"
+    r="7.802193416861363"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n5_8`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="514.3226782411228"
+    cy="360.4918265072532"
+    stroke="none"
+    r="3.9010967084306816"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n5_8`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="332.5353680218718"
+    cy="541.9760376066222"
+    stroke="none"
+    r="7.690423564871919"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n2_0`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="332.5353680218718"
+    cy="541.9760376066222"
+    stroke="none"
+    r="3.8452117824359595"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n2_0`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="299.2086985764412"
+    cy="513.406290450114"
+    stroke="none"
+    r="6.569875916334321"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n2_15`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="299.2086985764412"
+    cy="513.406290450114"
+    stroke="none"
+    r="3.2849379581671605"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n2_15`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="374.4809864341631"
+    cy="320.6184249317363"
+    stroke="none"
+    r="5"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n4_11`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="374.4809864341631"
+    cy="320.6184249317363"
+    stroke="none"
+    r="2.5"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n4_11`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="319.6045771162071"
+    cy="349.62880984279593"
+    stroke="none"
+    r="5"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n4_12`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="319.6045771162071"
+    cy="349.62880984279593"
+    stroke="none"
+    r="2.5"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n4_12`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="540.3284253865014"
+    cy="530.1378248925458"
+    stroke="none"
+    r="10.009685246726852"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n5_5`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="540.3284253865014"
+    cy="530.1378248925458"
+    stroke="none"
+    r="5.004842623363426"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n5_5`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="325.2011754139981"
+    cy="535.7018617183128"
+    stroke="none"
+    r="5"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n1_14`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="325.2011754139981"
+    cy="535.7018617183128"
+    stroke="none"
+    r="2.5"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n1_14`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="598.3152603354793"
+    cy="326.4618375005118"
+    stroke="none"
+    r="5"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n1_8`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="598.3152603354793"
+    cy="326.4618375005118"
+    stroke="none"
+    r="2.5"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n1_8`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="434.5089049505236"
+    cy="311.29287812025166"
+    stroke="none"
+    r="5.3356624212748"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n4_10`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="434.5089049505236"
+    cy="311.29287812025166"
+    stroke="none"
+    r="2.6678312106374"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n4_10`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="614.8419998591586"
+    cy="391.0116336304027"
+    stroke="none"
+    r="7.998319461328736"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n0_5`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="614.8419998591586"
+    cy="391.0116336304027"
+    stroke="none"
+    r="3.999159730664368"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n0_5`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="287.9235810616324"
+    cy="471.1163240279936"
+    stroke="none"
+    r="5.462372868441776"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n3_14`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="287.9235810616324"
+    cy="471.1163240279936"
+    stroke="none"
+    r="2.731186434220888"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n3_14`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="303.1728169136061"
+    cy="328.86014583079407"
+    stroke="none"
+    r="5.492987362059304"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n5_12`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="303.1728169136061"
+    cy="328.86014583079407"
+    stroke="none"
+    r="2.746493681029652"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n5_12`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="626.3391834376902"
+    cy="377.450870349418"
+    stroke="none"
+    r="7.282234386380943"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n1_6`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="626.3391834376902"
+    cy="377.450870349418"
+    stroke="none"
+    r="3.6411171931904716"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n1_6`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="341.50266023031816"
+    cy="562.8176505743928"
+    stroke="none"
+    r="5"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n0_14`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="341.50266023031816"
+    cy="562.8176505743928"
+    stroke="none"
+    r="2.5"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n0_14`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="510.3582347149188"
+    cy="321.5635203274452"
+    stroke="none"
+    r="5.246080851908752"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n3_9`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="510.3582347149188"
+    cy="321.5635203274452"
+    stroke="none"
+    r="2.623040425954376"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n3_9`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="540.8735630315412"
+    cy="410.03186285700417"
+    stroke="none"
+    r="8.718158108303912"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n5_7`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="540.8735630315412"
+    cy="410.03186285700417"
+    stroke="none"
+    r="4.359079054151956"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n5_7`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="382.6280517560495"
+    cy="513.8462097547474"
+    stroke="none"
+    r="8.951660403637886"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n1_1`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="382.6280517560495"
+    cy="513.8462097547474"
+    stroke="none"
+    r="4.475830201818943"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n1_1`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="288.14709858552953"
+    cy="479.3902667446777"
+    stroke="none"
+    r="7.179969187364675"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n1_15`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="288.14709858552953"
+    cy="479.3902667446777"
+    stroke="none"
+    r="3.5899845936823374"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n1_15`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="549.760135922232"
+    cy="468.38497135239453"
+    stroke="none"
+    r="9.499680956947989"
     style="filter: blur(1.8px)"
   >
     <title>`n5_6`.icon</title>
@@ -4245,12 +3189,1068 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
-    cx="101.32027347032182"
-    cy="187.12423132224487"
+    cx="549.760135922232"
+    cy="468.38497135239453"
     stroke="none"
-    r="2.275314954447699"
+    r="4.7498404784739945"
     style="filter: blur(0.4px)"
   >
     <title>`n5_6`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="306.5704513801289"
+    cy="503.94743191379473"
+    stroke="none"
+    r="5"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n2_14`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="306.5704513801289"
+    cy="503.94743191379473"
+    stroke="none"
+    r="2.5"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n2_14`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="498.09695606671346"
+    cy="525.1566055558719"
+    stroke="none"
+    r="9.599193651520002"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n2_3`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="498.09695606671346"
+    cy="525.1566055558719"
+    stroke="none"
+    r="4.799596825760001"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n2_3`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="281.89109680630537"
+    cy="392.9212664334022"
+    stroke="none"
+    r="5.282222741144161"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n4_13`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="281.89109680630537"
+    cy="392.9212664334022"
+    stroke="none"
+    r="2.6411113705720806"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n4_13`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="489.76933607352873"
+    cy="322.22522159366304"
+    stroke="none"
+    r="6.133951851190773"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n4_9`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="489.76933607352873"
+    cy="322.22522159366304"
+    stroke="none"
+    r="3.0669759255953863"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n4_9`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="588.3806422659552"
+    cy="424.84982669312166"
+    stroke="none"
+    r="8.481893311915282"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n3_6`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="588.3806422659552"
+    cy="424.84982669312166"
+    stroke="none"
+    r="4.240946655957641"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n3_6`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="345.04024198987196"
+    cy="481.6758689883695"
+    stroke="none"
+    r="5"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n1_13`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="345.04024198987196"
+    cy="481.6758689883695"
+    stroke="none"
+    r="2.5"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n1_13`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="382.99170186376153"
+    cy="633.1403141597234"
+    stroke="none"
+    r="7.958915710421187"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n4_1`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="382.99170186376153"
+    cy="633.1403141597234"
+    stroke="none"
+    r="3.9794578552105935"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n4_1`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="552.420802233075"
+    cy="325.98843232627496"
+    stroke="none"
+    r="5"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n1_9`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="552.420802233075"
+    cy="325.98843232627496"
+    stroke="none"
+    r="2.5"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n1_9`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="538.1074838617072"
+    cy="525.9047801911197"
+    stroke="none"
+    r="9.712473693416475"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n3_4`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="538.1074838617072"
+    cy="525.9047801911197"
+    stroke="none"
+    r="4.856236846708238"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n3_4`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="270.90013141171255"
+    cy="439.8986717853475"
+    stroke="none"
+    r="6.140861503098579"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n4_14`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="270.90013141171255"
+    cy="439.8986717853475"
+    stroke="none"
+    r="3.0704307515492895"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n4_14`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="525.2518152319587"
+    cy="560.014042163919"
+    stroke="none"
+    r="9.94377594436209"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n4_4`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="525.2518152319587"
+    cy="560.014042163919"
+    stroke="none"
+    r="4.971887972181045"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n4_4`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="393.81628325626275"
+    cy="338.91897272475376"
+    stroke="none"
+    r="5"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n3_11`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="393.81628325626275"
+    cy="338.91897272475376"
+    stroke="none"
+    r="2.5"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n3_11`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="624.6213231976773"
+    cy="345.1181991020735"
+    stroke="none"
+    r="5.945654872033027"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n1_7`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="624.6213231976773"
+    cy="345.1181991020735"
+    stroke="none"
+    r="2.9728274360165137"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n1_7`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="381.7456632276064"
+    cy="594.423878598867"
+    stroke="none"
+    r="8.308924104197542"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n3_1`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="381.7456632276064"
+    cy="594.423878598867"
+    stroke="none"
+    r="4.154462052098771"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n3_1`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="353.70996916809884"
+    cy="647.6454276769934"
+    stroke="none"
+    r="6.254051791170907"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n5_0`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="353.70996916809884"
+    cy="647.6454276769934"
+    stroke="none"
+    r="3.1270258955854535"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n5_0`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="302.07651221028704"
+    cy="421.7814425515338"
+    stroke="none"
+    r="5"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n3_13`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="302.07651221028704"
+    cy="421.7814425515338"
+    stroke="none"
+    r="2.5"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n3_13`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="384.9705008295256"
+    cy="665.5617625283285"
+    stroke="none"
+    r="7.649298770842295"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n5_1`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="384.9705008295256"
+    cy="665.5617625283285"
+    stroke="none"
+    r="3.8246493854211474"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n5_1`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="555.8262771851221"
+    cy="505.7481265583052"
+    stroke="none"
+    r="9.689628086392856"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n4_5`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="555.8262771851221"
+    cy="505.7481265583052"
+    stroke="none"
+    r="4.844814043196428"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n4_5`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="572.9331443076744"
+    cy="476.7040195388181"
+    stroke="none"
+    r="9.288898679432918"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n3_5`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="572.9331443076744"
+    cy="476.7040195388181"
+    stroke="none"
+    r="4.644449339716459"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n3_5`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="328.0277616803061"
+    cy="504.74533357391874"
+    stroke="none"
+    r="8.171718273822178"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n1_0`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="328.0277616803061"
+    cy="504.74533357391874"
+    stroke="none"
+    r="4.085859136911089"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n1_0`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="615.7281382326288"
+    cy="321.9773370676536"
+    stroke="none"
+    r="5"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n0_8`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="615.7281382326288"
+    cy="321.9773370676536"
+    stroke="none"
+    r="2.5"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n0_8`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="383.58099516609616"
+    cy="427.5232147891508"
+    stroke="none"
+    r="5"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n1_12`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="383.58099516609616"
+    cy="427.5232147891508"
+    stroke="none"
+    r="2.5"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n1_12`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="603.7144769050072"
+    cy="416.3696867447939"
+    stroke="none"
+    r="8.397427795712995"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n1_5`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="603.7144769050072"
+    cy="416.3696867447939"
+    stroke="none"
+    r="4.198713897856497"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n1_5`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="338.8200615504954"
+    cy="580.3920348738949"
+    stroke="none"
+    r="7.176233774034894"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n3_0`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="338.8200615504954"
+    cy="580.3920348738949"
+    stroke="none"
+    r="3.588116887017447"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n3_0`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="555.0501347904478"
+    cy="341.6660618245388"
+    stroke="none"
+    r="6.2935835684884625"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n3_8`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="555.0501347904478"
+    cy="341.6660618245388"
+    stroke="none"
+    r="3.1467917842442312"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n3_8`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="480.8120078104216"
+    cy="603.1735978741054"
+    stroke="none"
+    r="9.719139421317518"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n4_3`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="480.8120078104216"
+    cy="603.1735978741054"
+    stroke="none"
+    r="4.859569710658759"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n4_3`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="436.03241444939545"
+    cy="379.8823667139876"
+    stroke="none"
+    r="5"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n1_11`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="436.03241444939545"
+    cy="379.8823667139876"
+    stroke="none"
+    r="2.5"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n1_11`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="531.7906167197509"
+    cy="322.8714541657263"
+    stroke="none"
+    r="5"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n2_9`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="531.7906167197509"
+    cy="322.8714541657263"
+    stroke="none"
+    r="2.5"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n2_9`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="453.9291209459966"
+    cy="320.4145565302915"
+    stroke="none"
+    r="5"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n3_10`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="453.9291209459966"
+    cy="320.4145565302915"
+    stroke="none"
+    r="2.5"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n3_10`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="384.1626416237627"
+    cy="479.86224984749975"
+    stroke="none"
+    r="9.182474316773696"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n0_1`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="384.1626416237627"
+    cy="479.86224984749975"
+    stroke="none"
+    r="4.591237158386848"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n0_1`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="474.7009533495175"
+    cy="331.89304659171955"
+    stroke="none"
+    r="5"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n2_10`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="474.7009533495175"
+    cy="331.89304659171955"
+    stroke="none"
+    r="2.5"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n2_10`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="325.93478245737765"
+    cy="582.8192571110856"
+    stroke="none"
+    r="5.34539389295456"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n4_15`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="325.93478245737765"
+    cy="582.8192571110856"
+    stroke="none"
+    r="2.67269694647728"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n4_15`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="604.3188661604293"
+    cy="360.64269326190845"
+    stroke="none"
+    r="6.677575654515798"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n2_7`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="604.3188661604293"
+    cy="360.64269326190845"
+    stroke="none"
+    r="3.338787827257899"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n2_7`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="312.22111620418633"
+    cy="548.8277521913487"
+    stroke="none"
+    r="5.940183899917396"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n3_15`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="312.22111620418633"
+    cy="548.8277521913487"
+    stroke="none"
+    r="2.970091949958698"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n3_15`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="533.1993825936775"
+    cy="351.28529983257897"
+    stroke="none"
+    r="7.114861785470079"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n4_8`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="533.1993825936775"
+    cy="351.28529983257897"
+    stroke="none"
+    r="3.5574308927350393"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n4_8`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="570.1720114873478"
+    cy="424.5883900213528"
+    stroke="none"
+    r="8.887881983610944"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n0_4`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="570.1720114873478"
+    cy="424.5883900213528"
+    stroke="none"
+    r="4.443940991805472"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n0_4`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="561.5022026425798"
+    cy="454.61122163178726"
+    stroke="none"
+    r="9.153816711409442"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n1_4`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="561.5022026425798"
+    cy="454.61122163178726"
+    stroke="none"
+    r="4.576908355704721"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n1_4`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="361.78397799129925"
+    cy="401.43694696819836"
+    stroke="none"
+    r="5"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n2_12`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="361.78397799129925"
+    cy="401.43694696819836"
+    stroke="none"
+    r="2.5"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n2_12`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="402.57976013317267"
+    cy="449.95059119562654"
+    stroke="none"
+    r="5"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n0_12`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="402.57976013317267"
+    cy="449.95059119562654"
+    stroke="none"
+    r="2.5"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n0_12`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="444.3290339765909"
+    cy="507.0863566889412"
+    stroke="none"
+    r="9.41472195432659"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n1_2`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="444.3290339765909"
+    cy="507.0863566889412"
+    stroke="none"
+    r="4.707360977163295"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n1_2`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="513.5637300195375"
+    cy="588.414093859302"
+    stroke="none"
+    r="10.117081111916914"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n5_4`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="513.5637300195375"
+    cy="588.414093859302"
+    stroke="none"
+    r="5.058540555958457"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n5_4`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="506.1685795419347"
+    cy="486.3152057967112"
+    stroke="none"
+    r="9.493797857583624"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n1_3`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="506.1685795419347"
+    cy="486.3152057967112"
+    stroke="none"
+    r="4.746898928791812"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n1_3`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="280.023910464645"
+    cy="450.43546161214124"
+    stroke="none"
+    r="7.6987639710688756"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n0_15`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="280.023910464645"
+    cy="450.43546161214124"
+    stroke="none"
+    r="3.8493819855344378"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n0_15`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="325.3825478718814"
+    cy="472.83061193041027"
+    stroke="none"
+    r="8.56550142688736"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n0_0`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="325.3825478718814"
+    cy="472.83061193041027"
+    stroke="none"
+    r="4.28275071344368"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n0_0`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="434.52013306237353"
+    cy="589.1572720265392"
+    stroke="none"
+    r="9.183711242733759"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n3_2`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="434.52013306237353"
+    cy="589.1572720265392"
+    stroke="none"
+    r="4.5918556213668795"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n3_2`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="346.31008921114955"
+    cy="616.9019717589146"
+    stroke="none"
+    r="6.677330844330543"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n4_0`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="346.31008921114955"
+    cy="616.9019717589146"
+    stroke="none"
+    r="3.3386654221652714"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n4_0`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="582.1763519936748"
+    cy="377.7133461908279"
+    stroke="none"
+    r="7.428466863713505"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n3_7`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="582.1763519936748"
+    cy="377.7133461908279"
+    stroke="none"
+    r="3.7142334318567527"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n3_7`.icon2</title>
+  </circle>
+  <circle
+    fill="#a966cc"
+    fill-opacity="0.6"
+    cx="430.40495224942975"
+    cy="628.6354857035437"
+    stroke="none"
+    r="9.023889511137472"
+    style="filter: blur(1.8px)"
+  >
+    <title>`n4_2`.icon</title>
+  </circle>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
+    cx="430.40495224942975"
+    cy="628.6354857035437"
+    stroke="none"
+    r="4.511944755568736"
+    style="filter: blur(0.4px)"
+  >
+    <title>`n4_2`.icon2</title>
   </circle>
 </svg>
