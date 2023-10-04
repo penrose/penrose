@@ -1,60 +1,38 @@
-Node n0
-Node n1
-Node n2
-Node n3
-Node n4
-Node n5
-Node n6
-Node n7
-Node n8
-Node n9
-Node n10
-Node n11
-Node n12
-Node n13
-Node n14
-Node n15
-Node n16
-Node n17
-Node n18
-Node n19
-Node n20
-Node n21
-Node n22
-Node n23
-Edge e0 := MakeEdge(n0, n1)
-Edge e1 := MakeEdge(n0, n2)
-Edge e2 := MakeEdge(n0, n4)
-Edge e3 := MakeEdge(n1, n11)
-Edge e4 := MakeEdge(n1, n14)
-Edge e5 := MakeEdge(n2, n3)
-Edge e6 := MakeEdge(n2, n4)
-Edge e7 := MakeEdge(n3, n6)
-Edge e8 := MakeEdge(n3, n8)
-Edge e9 := MakeEdge(n4, n5)
-Edge e10 := MakeEdge(n5, n16)
-Edge e11 := MakeEdge(n5, n18)
-Edge e12 := MakeEdge(n6, n7)
-Edge e13 := MakeEdge(n6, n8)
-Edge e14 := MakeEdge(n7, n10)
-Edge e15 := MakeEdge(n7, n12)
-Edge e16 := MakeEdge(n8, n9)
-Edge e17 := MakeEdge(n9, n17)
-Edge e18 := MakeEdge(n9, n20)
-Edge e19 := MakeEdge(n10, n11)
-Edge e20 := MakeEdge(n10, n12)
-Edge e21 := MakeEdge(n11, n14)
-Edge e22 := MakeEdge(n12, n13)
-Edge e23 := MakeEdge(n13, n21)
-Edge e24 := MakeEdge(n13, n22)
-Edge e25 := MakeEdge(n14, n15)
-Edge e26 := MakeEdge(n15, n19)
-Edge e27 := MakeEdge(n15, n23)
-Edge e28 := MakeEdge(n16, n17)
-Edge e29 := MakeEdge(n16, n18)
-Edge e30 := MakeEdge(n17, n20)
-Edge e31 := MakeEdge(n18, n19)
-Edge e32 := MakeEdge(n19, n23)
-Edge e33 := MakeEdge(n20, n21)
-Edge e34 := MakeEdge(n21, n22)
-Edge e35 := MakeEdge(n22, n23)
+Node n_i for i in [0,23]
+
+Edge e0 := MakeEdge(n_0, n_1)
+Edge e1 := MakeEdge(n_0, n_2)
+Edge e2 := MakeEdge(n_0, n_4)
+Edge e3 := MakeEdge(n_1, n_11)
+Edge e4 := MakeEdge(n_1, n_14)
+Edge e5 := MakeEdge(n_2, n_3)
+Edge e6 := MakeEdge(n_2, n_4)
+Edge e7 := MakeEdge(n_3, n_6)
+Edge e8 := MakeEdge(n_3, n_8)
+Edge e9 := MakeEdge(n_4, n_5)
+Edge e10 := MakeEdge(n_5, n_16)
+Edge e11 := MakeEdge(n_5, n_18)
+Edge e12 := MakeEdge(n_6, n_7)
+Edge e13 := MakeEdge(n_6, n_8)
+Edge e14 := MakeEdge(n_7, n_10)
+Edge e15 := MakeEdge(n_7, n_12)
+Edge e16 := MakeEdge(n_8, n_9)
+Edge e17 := MakeEdge(n_9, n_17)
+Edge e18 := MakeEdge(n_9, n_20)
+Edge e19 := MakeEdge(n_10, n_11)
+Edge e20 := MakeEdge(n_10, n_12)
+Edge e21 := MakeEdge(n_11, n_14)
+Edge e22 := MakeEdge(n_12, n_13)
+Edge e23 := MakeEdge(n_13, n_21)
+Edge e24 := MakeEdge(n_13, n_22)
+Edge e25 := MakeEdge(n_14, n_15)
+Edge e26 := MakeEdge(n_15, n_19)
+Edge e27 := MakeEdge(n_15, n_23)
+Edge e28 := MakeEdge(n_16, n_17)
+Edge e29 := MakeEdge(n_16, n_18)
+Edge e30 := MakeEdge(n_17, n_20)
+Edge e31 := MakeEdge(n_18, n_19)
+Edge e32 := MakeEdge(n_19, n_23)
+Edge e33 := MakeEdge(n_20, n_21)
+Edge e34 := MakeEdge(n_21, n_22)
+Edge e35 := MakeEdge(n_22, n_23)
