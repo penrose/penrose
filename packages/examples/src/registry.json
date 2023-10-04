@@ -537,7 +537,7 @@
   },
   "chaos-game/sierpinski-triangle": {
     "name": "Chaos Game: Sierpinski Triangle",
-    "gallery": false
+    "gallery": true
   },
   "chaos-game/vicsek-fractal": {
     "name": "Chaos Game: Vicsek Fractal",
