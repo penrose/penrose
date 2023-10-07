@@ -546,5 +546,9 @@
   "fractals/l-systems/tree": {
     "name": "L-System",
     "gallery": false
+  },
+  "fractals/ifs/ifs": {
+    "name": "Iterated Functions System",
+    "gallery": false
   }
 }
