@@ -77,4 +77,3 @@ forall Point p {
   p.icon above p.blur
   p.blur above global.background
 }
-s

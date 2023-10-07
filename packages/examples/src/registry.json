@@ -549,6 +549,6 @@
   },
   "fractals/ifs/ifs": {
     "name": "Iterated Functions System",
-    "gallery": false
+    "gallery": true
   }
 }
