@@ -1,0 +1,2 @@
+Sphere S_i for i in [0, 200]
+Display(S_i) for i in [0, 2]
