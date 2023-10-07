@@ -1,0 +1,6 @@
+type Point
+type Seed <: Point
+
+type Transformation
+
+constructor NextPoint(Point s, Transformation f) -> Point

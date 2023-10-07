@@ -1,0 +1,80 @@
+canvas {
+  width = 800
+  height = 800
+}
+
+global {
+  scalar alphaScaling = 0.725
+  scalar sizeScaling = 0.925
+  scalar coef = random(0.2, 0.5)
+
+  background = Rectangle {
+    fillColor: #000000ff
+    center: (0, 0)
+    width: canvas.width
+    height: canvas.height
+  }
+}
+
+forall Transformation f {
+  scalar sx = random(0.55, 0.65)
+  scalar sy = random(0.55, 0.65)
+  scalar theta = random(-2, 2)
+  
+  mat2x2 ms = scale2d(sx, sy)
+  mat2x2 mr = rotate2d(theta)
+  
+  scalar ox = random(-150, 150)
+  scalar oy = random(-150, 150)
+
+  mat2x2 f.m = ms * mr
+  mat2x2 f.offset = (ox, oy)
+  scalar f.hue = ?
+}
+
+
+forall Point p; Point s; Transformation f 
+where p := NextPoint(s, f) {
+
+  vec2 p.pos = f.m * s.pos + f.offset
+
+  scalar p.hue = 0.7 * s.hue + 0.3 * f.hue
+  scalar p.size = global.sizeScaling * s.size
+  scalar p.alpha = global.alphaScaling * s.alpha
+
+  shape p.line = Line {
+    start: s.pos
+    end: p.pos
+    strokeColor: hsva( p.hue, 20, 100, p.alpha )
+    strokeWidth: 1
+    ensureOnCanvas: false
+  }
+  p.line above global.background
+}
+
+forall Seed s {
+  vec2 s.pos = (0, 0)
+  scalar s.hue = ?
+  scalar s.size = 3.5
+  scalar s.alpha = 0.3
+}
+
+forall Point p {
+  shape p.blur = Circle {
+    center: p.pos
+    r: p.size
+    fillColor: hsva( p.hue, 60, 100, 0.4 )
+    style: "filter: blur(2px)"
+    ensureOnCanvas: false
+  }
+  shape p.icon = Circle {
+    center: p.pos
+    r: 1
+    fillColor: hsva( p.hue, 60, 100, 1 )
+    ensureOnCanvas: false
+  }
+
+  p.icon above p.blur
+  p.blur above global.background
+}
+s
