@@ -17,10 +17,6 @@ jobs:
         run: yarn typecheck
       - name: Run all builds
         run: yarn build
-      - uses: actions/upload-artifact@v3
-        with:
-          name: optimizer
-          path: packages/optimizer/build/penrose_optimizer_bg.wasm
 
   format:
     runs-on: ubuntu-latest

@@ -1,0 +1,63 @@
+canvas {
+  width = 800
+  height = 800
+}
+
+global {
+  scalar alphaStep = 0.002
+  scalar alphaMin = 0.7
+  scalar coef = random(0.2, 0.5)
+  background = Rectangle {
+    fillColor: #210639ff
+    center: (0, 0)
+    width: canvas.width
+    height: canvas.height
+  }
+}
+
+forall BranchRule f {
+  scalar f.angle = random(-2, 2)
+  scalar f.scalingFactor = random(0.3, 0.9)
+  scalar f.hue = ?
+}
+
+forall Point p; Point s; BranchRule f 
+where p := NextPoint(s, f) {
+
+  vec2 p.pos = s.pos + s.jump * (cos(s.angle), sin(s.angle))
+
+  scalar p.angle = s.angle + f.angle
+  scalar p.jump = f.scalingFactor * s.jump
+
+  scalar p.hue = 0.7 * s.hue + 0.3 * f.hue
+  scalar p.size = f.scalingFactor * s.size
+  scalar p.alpha = 0.9 * s.alpha
+
+  shape p.blur = Line {
+    start: s.pos
+    end: p.pos
+    strokeColor: hsva( p.hue, 50, 80, p.alpha )
+    strokeWidth: 0.5 * (s.size + p.size)
+    style: "filter: blur(2px)"
+    ensureOnCanvas: false
+  }
+  shape p.line = Line {
+    start: s.pos
+    end: p.pos
+    strokeColor: hsva( p.hue, 0, 100, p.alpha )
+    strokeWidth: 0.2 * (s.size + p.size)
+    ensureOnCanvas: false
+  }
+
+  p.line above p.blur
+  p.blur above global.background
+}
+
+forall Seed s {
+  vec2 s.pos = (0, -300)
+  scalar s.size = random(2, 10)
+  scalar s.hue = ?
+  scalar s.angle = 3.14 / 2
+  scalar s.alpha = 1
+  scalar s.jump = random(100, 220)
+}
