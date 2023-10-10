@@ -3,7 +3,8 @@ layout: docs
 ---
 
 <script setup>
-  import PR  from "./src/components/GitHubPR.vue"
+  import PR from "./src/components/GitHubPR.vue"
+  import Issue from "./src/components/GitHubIssue.vue"
 </script>
 
 ## What you can do
@@ -25,7 +26,7 @@ We are always excited to see diagrams made with Penrose! Share them in [#gallery
 
 <h1 class="action-header">🔭 Do Research</h1>
 
-Our team consist of interdisciplinary researchers in programming languages, computer graphics, human-computer interaction, software engineering, and more!
+Our team consists of interdisciplinary researchers in programming languages, computer graphics, human-computer interaction, software engineering, and more!
 
 - If you are interested in **collaborating with us on research**, reach out to us on [Discord][] and/or [email][] us with a brief description of your background and interests in Penrose!
 - If you are **an undergrad looking for summer opportunities**, consider applying for the [REUSE][] program.
@@ -50,7 +51,7 @@ We welcome contributions to our [repository][]. Take a look at the [contributor 
 We'd love to hear how you'd like to integrate Penrose with your favorite tools! Here are some ongoing tool integration projects:
 
 - [Lean](https://leanprover.github.io/): [ProofWidgets](https://github.com/EdAyers/ProofWidgets4) based on Penrose.
-- [Obsidian](https://obsidian.md/): an experimental [`obsidian-penrose-plugin`](https://github.com/wodeni/obsidian-penrose-plugin).
+- [Obsidian](https://obsidian.md/): an experimental [`obsidian-penrose-plugin`][].
 - [Alloy](http://alloytools.org/) visualizer using Penrose.
 
 Join [our Discord server][discord] and chat with us on [#integration](https://discord.com/channels/1115349463603617954/1130497270664679444) about integrating with external tools!
@@ -76,7 +77,9 @@ We maintain a [blog][] and a [mailing list][] on Penrose and diagramming in gene
 ### 🎯 Planned
 
 - Next iteration on [SolidJS API for Penrose](/docs/ref/solid.md) and docs
--
+- Implement high-quality hidden strokes <Issue issue="517" />
+- Support arbitrary Penrose trios in [`obsidian-penrose-plugin`]
+- A single file format (`.penrose`) for Penrose trios
 
 <!-- ### 💭 Potential
 - -->
@@ -125,3 +128,4 @@ We maintain a [blog][] and a [mailing list][] on Penrose and diagramming in gene
 [contributing PR]: https://github.com/penrose/penrose/blob/main/CONTRIBUTING.md#contributing
 [rose]: https://rosejs.dev/
 [roadmap]: #technical-roadmap
+[`obsidian-penrose-plugin`]: https://github.com/wodeni/obsidian-penrose-plugin

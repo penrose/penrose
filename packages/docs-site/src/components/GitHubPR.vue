@@ -14,11 +14,7 @@ export default defineComponent({
       rel="noopener noreferrer"
       :aria-label="`PR ${pr} on GitHub`"
     >
-      <img
-        :src="`https://img.shields.io/badge/PR-${pr}-blue`"
-        width="50"
-        class="avatar"
-      />
+      <img :src="`https://img.shields.io/badge/PR-${pr}-blue`" class="avatar" />
     </a>
   </span>
 </template>
@@ -26,6 +22,6 @@ export default defineComponent({
 <style>
 .pr {
   display: inline-block;
-  width: 50px;
+  height: 1em;
 }
 </style>

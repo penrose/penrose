@@ -100,7 +100,7 @@ const members = [
   },
   {
     name: "Hwei-Shin Harriman",
-    title: "Software engineer @ Tableau",
+    title: "Ph.D. student @ CMU",
     avatar: "https://www.github.com/hsharriman.png",
     links: [
       { icon: { svg: website }, link: "https://hsharriman.github.io/" },
