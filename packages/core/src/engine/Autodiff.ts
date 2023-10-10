@@ -6,24 +6,13 @@ import * as builtins from "./Builtins.js";
 
 //#region Types for implicit autodiff graph
 
-export type Expr = Bool | Num | Vec | Rec;
+export type Expr = Bool | Num | Vec;
 
-export type Bool = Comp | Logic | Not | Index | Member | Call;
+export type Bool = Comp | Logic | Not;
 
-export type Num =
-  | number
-  | Var
-  | Unary
-  | Binary
-  | Ternary
-  | Nary
-  | Index
-  | Member
-  | Call;
+export type Num = number | Var | Unary | Binary | Ternary | Nary | Index;
 
-export type Vec = PolyRoots | Index | Member | Call;
-
-export type Rec = Index | Member | Call;
+export type Vec = PolyRoots;
 
 export interface Var {
   tag: "Var";
@@ -114,18 +103,6 @@ export interface Index {
   tag: "Index";
   index: number;
   vec: Vec;
-}
-
-export interface Member {
-  tag: "Member";
-  member: string;
-  rec: Rec;
-}
-
-export interface Call {
-  tag: "Call";
-  func: rose.Fn;
-  args: Expr[];
 }
 
 //#endregion
@@ -1132,14 +1109,6 @@ const topsort = (seed: (set: (x: Expr) => void) => void): Topsort => {
         succ(x.vec);
         return 1;
       }
-      case "Member": {
-        succ(x.rec);
-        return 1;
-      }
-      case "Call": {
-        x.args.forEach(succ);
-        return x.args.length;
-      }
     }
   };
   while (stack.length > 0) {
@@ -1321,13 +1290,8 @@ const emitGraph = (
       case "Nary":
         return emitNary(x);
       case "PolyRoots":
-        throw Error("polynomial roots not supported");
       case "Index":
-        return (vars.get(x.vec) as rose.Vec<unknown>)[x.index] as RoseVal;
-      case "Member":
-        return (vars.get(x.rec) as any)[x.member] as RoseVal;
-      case "Call":
-        return (x.func as any)(...x.args.map((y) => vars.get(y)));
+        throw Error("polynomial roots not supported");
     }
   };
   for (let i = 0; i < sorted.length; i++) {
