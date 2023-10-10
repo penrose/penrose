@@ -53,7 +53,11 @@ export const computeShapeBbox = (shape: Shape<ad.Num>): BBox.BBox => {
     case "Text":
       return BBox.bboxFromRectlike(shape);
     case "Line":
-      return BBox.bboxFromLinelike(shape);
+      return BBox.bboxFromLinelike.rose(
+        shape.start.contents,
+        shape.end.contents,
+        shape.strokeWidth.contents,
+      );
     case "Path":
       return BBox.bboxFromPath(shape);
     case "Polygon":

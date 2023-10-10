@@ -1,21 +1,31 @@
-import { Real, Vec, add, and, div, lt, mul, select, struct, sub } from "rose";
+import {
+  Real,
+  Vec,
+  add,
+  and,
+  div,
+  fn,
+  lt,
+  mul,
+  neg,
+  select,
+  sqrt,
+  struct,
+  sub,
+} from "rose";
 import { rectPts } from "../contrib/Queries.js";
 import { toPt } from "../contrib/Utils.js";
 import * as ad from "../engine/Autodiff.js";
 import { CircleProps } from "../shapes/Circle.js";
 import { EllipseProps } from "../shapes/Ellipse.js";
-import { LineProps } from "../shapes/Line.js";
 import { PathProps } from "../shapes/Path.js";
 import { RectangleProps } from "../shapes/Rectangle.js";
 import { Center, Poly, Rect, Rotate, Scale } from "../types/shapes.js";
 import { max, min } from "./Builtins.js";
 
-export const BBox = struct({
-  width: Real,
-  height: Real,
-  center: Vec(2, Real),
-});
+const Vec2 = Vec(2, Real);
 
+export const BBox = struct({ width: Real, height: Real, center: Vec2 });
 export type BBox = ad.FromRose<typeof BBox>;
 
 export interface Corners {
@@ -274,42 +284,58 @@ export const bboxFromPolygon = ({
   );
 };
 
-export const bboxFromLinelike = ({
-  start,
-  end,
-  strokeWidth,
-}: LineProps<ad.Num>): BBox => {
-  // https://github.com/penrose/penrose/issues/715
-  if (!ad.isPt2(start.contents)) {
-    throw new Error(
-      `bboxFromLinelike expected start to be Pt2, but got length ${start.contents.length}`,
-    );
-  }
-  if (!ad.isPt2(end.contents)) {
-    throw new Error(
-      `bboxFromLinelike expected end to be Pt2, but got length ${end.contents.length}`,
-    );
-  }
+const rot90 = fn([Vec2], Vec2, ([x, y]) => [neg(y), x]);
 
-  const d = ad.ops.vmul(
-    ad.div(strokeWidth.contents, 2),
-    ad.ops.rot90(ad.ops.vnormalize(ad.ops.vsub(end.contents, start.contents))),
-  );
-  return bboxFromPoints(
-    [
-      ad.ops.vadd(start.contents, d),
-      ad.ops.vsub(start.contents, d),
-      ad.ops.vadd(end.contents, d),
-      ad.ops.vsub(end.contents, d),
-    ].map((point) => {
-      if (ad.isPt2(point)) {
-        return point;
-      } else {
-        throw new Error("ops did not preserve dimension");
-      }
-    }),
-  );
-};
+const vadd = fn([Vec2, Vec2], Vec2, ([x1, y1], [x2, y2]) => {
+  return [add(x1, x2), add(y1, y2)];
+});
+
+const vsub = fn([Vec2, Vec2], Vec2, ([x1, y1], [x2, y2]) => {
+  return [sub(x1, x2), sub(y1, y2)];
+});
+
+const vmul = fn([Real, Vec2], Vec2, (c, [x, y]) => [mul(c, x), mul(c, y)]);
+
+const vdiv = fn([Vec2, Real], Vec2, ([x, y], c) => [div(x, c), div(y, c)]);
+
+const vnormsq = fn([Vec2], Real, ([x, y]) => add(mul(x, x), mul(y, y)));
+
+const vnorm = fn([Vec2], Real, (v) => sqrt(vnormsq(v)));
+
+const vnormalize = fn([Vec2], Vec2, (v) =>
+  vdiv(v, add(vnorm(v), ad.EPS_DENOM)),
+);
+
+const bboxFromFourPoints = fn([Vec(4, Vec2)], BBox, (points) => {
+  let minCorner = [points[0][0], points[0][1]];
+  for (let i = 1; i < 4; i++) {
+    const point = points[i];
+    minCorner = [min(minCorner[0], point[0]), min(minCorner[1], point[1])];
+  }
+  let maxCorner = [points[0][0], points[0][1]];
+  for (let i = 1; i < 4; i++) {
+    const point = points[i];
+    maxCorner = [max(maxCorner[0], point[0]), max(maxCorner[1], point[1])];
+  }
+  const width = sub(maxCorner[0], minCorner[0]);
+  const height = sub(maxCorner[1], minCorner[1]);
+  const center = vdiv(vadd(minCorner, maxCorner), 2);
+  return { width, height, center };
+});
+
+export const bboxFromLinelike = ad.fn(
+  [Vec2, Vec2, Real],
+  BBox,
+  (start, end, strokeWidth) => {
+    const d = vmul(div(strokeWidth, 2), rot90(vnormalize(vsub(end, start))));
+    return bboxFromFourPoints([
+      vadd(start, d),
+      vsub(start, d),
+      vadd(end, d),
+      vsub(end, d),
+    ]);
+  },
+);
 
 export const bboxFromPath = ({ d }: PathProps<ad.Num>): BBox => {
   const p = d.contents;

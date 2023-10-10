@@ -241,14 +241,12 @@ const toRose = <T>(t: T): ((x: FromRose<T>) => Expr) => {
   const syms = Object.getOwnPropertySymbols(t);
   const sym = syms.find((sym) => sym.description === "elem"); // scary! beware!
   if (sym === undefined) {
-    const mems = Object.fromEntries(
-      Object.entries(t as any).map(([k, v]) => [k, toRose(v)]),
+    const mems = Object.entries(t as any).map(
+      ([k, v]): [string, (x: any) => Expr] => [k, toRose(v)],
     );
-    return (x) => ({
+    return (x: any) => ({
       tag: "LitRec",
-      mems: Object.fromEntries(
-        Object.entries(x).map(([k, v]) => [k, mems[k](v)]),
-      ),
+      mems: Object.fromEntries(mems.map(([k, mem]) => [k, mem(x[k])])),
     });
   } else {
     const elem = toRose((t as any)[sym]);
@@ -1482,8 +1480,6 @@ export const genGradient = async (
       constraints: constrFns.map((f) => f(varying)),
     }),
   );
-
-  // fs.writeFileSync("pprint.txt", basic[rose.inner].pprint());
 
   const full = rose.fn(
     [
