@@ -3,7 +3,7 @@ import { data as contributors } from "../contributors.data.js";
 </script>
 
 <template>
-  <div class="container">
+  <div class="contributor-container">
     <a
       v-for="id in contributors"
       :key="id"
@@ -25,7 +25,7 @@ import { data as contributors } from "../contributors.data.js";
 </template>
 
 <style>
-.container {
+.contributor-container {
   display: flex;
   flex-wrap: wrap;
   gap: 2px;

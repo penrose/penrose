@@ -14,10 +14,7 @@ export default defineComponent({
       rel="noopener noreferrer"
       :aria-label="`Issue ${pr} on GitHub`"
     >
-      <img
-        :src="`https://img.shields.io/badge/Issue-${issue}-green`"
-        class="avatar"
-      />
+      <img :src="`https://img.shields.io/badge/Issue-${issue}-green`" />
     </a>
   </span>
 </template>
