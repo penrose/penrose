@@ -81,7 +81,7 @@ export const shapeCenter = (s: Shape<ad.Num>): ad.Pt2 => {
   } else {
     // Return center of bounding box
     const bbox = bboxFromShape(s);
-    return bbox.center;
+    return bbox.center as ad.Pt2;
   }
 };
 

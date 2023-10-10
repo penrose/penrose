@@ -216,6 +216,86 @@ export const isPt2 = (vec: Num[]): vec is Pt2 => vec.length === 2;
 
 //#endregion
 
+type SymbolicParams<T> = {
+  [K in keyof T]: rose.Symbolic<T[K]>;
+};
+
+type ValueParams<T> = {
+  [K in keyof T]: rose.Value<T[K]>;
+};
+
+export type FromRose<T> = T extends rose.Bools
+  ? Bool
+  : T extends rose.Reals
+  ? Num
+  : T extends rose.Vecs<unknown, infer V>
+  ? FromRose<V>[]
+  : { [K in keyof T]: FromRose<T[K]> };
+
+type RoseArgs<T> = {
+  [K in keyof T]: FromRose<T[K]>;
+};
+
+const toRose = <T>(t: T): ((x: FromRose<T>) => Expr) => {
+  if (t === rose.Bool || t === rose.Real) return (x: any) => x;
+  const syms = Object.getOwnPropertySymbols(t);
+  const sym = syms.find((sym) => sym.description === "elem"); // scary! beware!
+  if (sym === undefined) {
+    const mems = Object.fromEntries(
+      Object.entries(t as any).map(([k, v]) => [k, toRose(v)]),
+    );
+    return (x) => ({
+      tag: "LitRec",
+      mems: Object.fromEntries(
+        Object.entries(x).map(([k, v]) => [k, mems[k](v)]),
+      ),
+    });
+  } else {
+    const elem = toRose((t as any)[sym]);
+    return (x: any) => ({ tag: "LitVec", elems: x.map(elem) });
+  }
+};
+
+const fromRose = <T>(t: T): ((x: Expr) => FromRose<T>) => {
+  if (t === rose.Bool || t === rose.Real) return (x: any) => x;
+  const syms = Object.getOwnPropertySymbols(t);
+  const sym = syms.find((sym) => sym.description === "elem"); // scary! beware!
+  if (sym === undefined) {
+    const mems = Object.entries(t as any).map(
+      ([k, v]): [string, (x: Expr) => any] => [k, fromRose(v)],
+    );
+    return (x: any): any =>
+      Object.fromEntries(
+        mems.map(([k, mem]) => [k, mem({ tag: "Member", rec: x, member: k })]),
+      );
+  } else {
+    const n = (t as any)[syms.find((sym) => sym.description === "index")!];
+    const elem = fromRose((t as any)[sym]);
+    return (x: any): any => {
+      const elems = [];
+      for (let i = 0; i < n; i++)
+        elems.push(elem({ tag: "Index", vec: x, index: i }));
+      return elems;
+    };
+  }
+};
+
+export const fn = <const P extends readonly unknown[], const R>(
+  params: P,
+  ret: R,
+  f: (...args: SymbolicParams<P>) => rose.Value<R>,
+): rose.Fn &
+  ((...args: ValueParams<P>) => rose.Symbolic<R>) & {
+    rose(...args: RoseArgs<P>): FromRose<R>;
+  } => {
+  const g: any = rose.fn(params, ret, f);
+  const paramFns = params.map(toRose);
+  const retFn = fromRose(ret);
+  g.rose = (...args: any): any =>
+    retFn({ tag: "Call", fn: g, args: paramFns.map((h, i) => h(args[i])) });
+  return g;
+};
+
 // To view logs, use LogLevel.Trace, otherwese LogLevel.Warn
 // const log = consola.create({ level: LogLevel.Trace }).withScope("Optimizer");
 export const logAD = (consola as any)
@@ -1167,7 +1247,12 @@ const topsort = (seed: (set: (x: Expr) => void) => void): Topsort => {
 
 // this type is very incomplete but it excludes `undefined` so at least it makes
 // sure we handle all necessary cases in `switch` statements
-type RoseVal = rose.Bool | rose.Real | rose.Vec<unknown> | RoseVal[];
+type RoseVal =
+  | rose.Bool
+  | rose.Real
+  | rose.Vec<unknown>
+  | RoseVal[]
+  | { [K: string]: RoseVal };
 
 const emitGraph = (
   { sorted, nodes }: Topsort,

@@ -1,3 +1,4 @@
+import { Real, Vec, add, and, div, lt, mul, select, struct, sub } from "rose";
 import { rectPts } from "../contrib/Queries.js";
 import { toPt } from "../contrib/Utils.js";
 import * as ad from "../engine/Autodiff.js";
@@ -7,30 +8,15 @@ import { LineProps } from "../shapes/Line.js";
 import { PathProps } from "../shapes/Path.js";
 import { RectangleProps } from "../shapes/Rectangle.js";
 import { Center, Poly, Rect, Rotate, Scale } from "../types/shapes.js";
-import {
-  absVal,
-  add,
-  and,
-  div,
-  eq,
-  gt,
-  ifCond,
-  lt,
-  max,
-  min,
-  mul,
-  neg,
-  ops,
-  sqrt,
-  squared,
-  sub,
-} from "./Autodiff.js";
+import { max, min } from "./Builtins.js";
 
-export interface BBox {
-  width: ad.Num;
-  height: ad.Num;
-  center: ad.Pt2;
-}
+export const BBox = struct({
+  width: Real,
+  height: Real,
+  center: Vec(2, Real),
+});
+
+export type BBox = ad.FromRose<typeof BBox>;
 
 export interface Corners {
   topRight: ad.Pt2;
@@ -64,16 +50,16 @@ export const bbox = (width: ad.Num, height: ad.Num, center: ad.Pt2): BBox => {
 };
 
 export const corners = (b: BBox): Corners => {
-  const halfWidth = div(b.width, 2);
-  const halfHeight = div(b.height, 2);
-  const nhalfWidth = neg(halfWidth);
-  const nhalfHeight = neg(halfHeight);
+  const halfWidth = ad.div(b.width, 2);
+  const halfHeight = ad.div(b.height, 2);
+  const nhalfWidth = ad.neg(halfWidth);
+  const nhalfHeight = ad.neg(halfHeight);
   const pts = <ad.Pt2[]>[
     [halfWidth, halfHeight],
     [nhalfWidth, halfHeight],
     [nhalfWidth, nhalfHeight],
     [halfWidth, nhalfHeight],
-  ].map((p) => ops.vadd(b.center, p));
+  ].map((p) => ad.ops.vadd(b.center, p));
 
   return {
     topRight: pts[0],
@@ -89,9 +75,9 @@ export const corners = (b: BBox): Corners => {
  */
 export const inflate = (b: BBox, delta: ad.Num): BBox => {
   return bbox(
-    add(b.width, add(delta, delta)),
-    add(b.height, add(delta, delta)),
-    b.center,
+    ad.add(b.width, ad.add(delta, delta)),
+    ad.add(b.height, ad.add(delta, delta)),
+    b.center as ad.Pt2,
   );
 };
 
@@ -158,16 +144,16 @@ export const edges = (b: BBox): Edges => {
 
 export const bboxFromPoints = (points: ad.Pt2[]): BBox => {
   const minCorner = points.reduce((corner: ad.Pt2, point: ad.Pt2) => [
-    min(corner[0], point[0]),
-    min(corner[1], point[1]),
+    ad.min(corner[0], point[0]),
+    ad.min(corner[1], point[1]),
   ]);
   const maxCorner = points.reduce((corner: ad.Pt2, point: ad.Pt2) => [
-    max(corner[0], point[0]),
-    max(corner[1], point[1]),
+    ad.max(corner[0], point[0]),
+    ad.max(corner[1], point[1]),
   ]);
-  const w = sub(maxCorner[0], minCorner[0]);
-  const h = sub(maxCorner[1], minCorner[1]);
-  const center = ops.vdiv(ops.vadd(minCorner, maxCorner), 2);
+  const w = ad.sub(maxCorner[0], minCorner[0]);
+  const h = ad.sub(maxCorner[1], minCorner[1]);
+  const center = ad.ops.vdiv(ad.ops.vadd(minCorner, maxCorner), 2);
   if (!ad.isPt2(center)) {
     throw new Error("ops.vadd and ops.vdiv did not preserve dimension");
   }
@@ -182,7 +168,7 @@ export const bboxFromRotatedRect = (
   strokeWidth: ad.Num,
 ): BBox => {
   return bboxFromPoints(
-    rectPts(center, add(w, strokeWidth), add(h, strokeWidth), clockwise),
+    rectPts(center, ad.add(w, strokeWidth), ad.add(h, strokeWidth), clockwise),
   );
 };
 
@@ -198,7 +184,7 @@ export const bboxFromCircle = ({
     );
   }
 
-  const diameter = add(mul(2, r.contents), strokeWidth.contents);
+  const diameter = ad.add(ad.mul(2, r.contents), strokeWidth.contents);
   return bbox(diameter, diameter, center.contents);
 };
 
@@ -215,11 +201,11 @@ export const bboxFromEllipse = ({
     );
   }
 
-  const dx = mul(2, rx.contents);
-  const dy = mul(2, ry.contents);
+  const dx = ad.mul(2, rx.contents);
+  const dy = ad.mul(2, ry.contents);
   return bbox(
-    add(dx, strokeWidth.contents),
-    add(dy, strokeWidth.contents),
+    ad.add(dx, strokeWidth.contents),
+    ad.add(dy, strokeWidth.contents),
     center.contents,
   );
 };
@@ -276,7 +262,7 @@ export const bboxFromPolygon = ({
 }: Poly<ad.Num> & Scale<ad.Num>): BBox => {
   return bboxFromPoints(
     points.contents.map((point) => {
-      const pt = ops.vmul(scale.contents, point);
+      const pt = ad.ops.vmul(scale.contents, point);
       if (ad.isPt2(pt)) {
         return pt;
       } else {
@@ -305,16 +291,16 @@ export const bboxFromLinelike = ({
     );
   }
 
-  const d = ops.vmul(
-    div(strokeWidth.contents, 2),
-    ops.rot90(ops.vnormalize(ops.vsub(end.contents, start.contents))),
+  const d = ad.ops.vmul(
+    ad.div(strokeWidth.contents, 2),
+    ad.ops.rot90(ad.ops.vnormalize(ad.ops.vsub(end.contents, start.contents))),
   );
   return bboxFromPoints(
     [
-      ops.vadd(start.contents, d),
-      ops.vsub(start.contents, d),
-      ops.vadd(end.contents, d),
-      ops.vsub(end.contents, d),
+      ad.ops.vadd(start.contents, d),
+      ad.ops.vsub(start.contents, d),
+      ad.ops.vadd(end.contents, d),
+      ad.ops.vsub(end.contents, d),
     ].map((point) => {
       if (ad.isPt2(point)) {
         return point;
@@ -383,14 +369,14 @@ export const bboxFromPath = ({ d }: PathProps<ad.Num>): BBox => {
       points.push(cursor, cp1, cp2, next.contents);
       nextControl = cp2;
     } else if (cmd === "T") {
-      const cp = ops.vadd(cursor, ops.vsub(cursor, control));
+      const cp = ad.ops.vadd(cursor, ad.ops.vsub(cursor, control));
       if (!ad.isPt2(cp)) {
         throw new Error("ops did not preserve dimension");
       }
       points.push(cursor, cp, next.contents);
       nextControl = cp;
     } else if (cmd === "S") {
-      const cp1 = ops.vadd(cursor, ops.vsub(cursor, control));
+      const cp1 = ad.ops.vadd(cursor, ad.ops.vsub(cursor, control));
       const cp2 = contents[0].contents;
       if (!ad.isPt2(cp1)) {
         throw new Error("ops did not preserve dimension");
@@ -402,7 +388,7 @@ export const bboxFromPath = ({ d }: PathProps<ad.Num>): BBox => {
       nextControl = cp2;
     } else if (cmd === "A") {
       const [rxRaw, ryRaw, rotation, largeArc, sweep] = contents[0].contents;
-      const phi = neg(rotation); // phi is counterclockwise
+      const phi = ad.neg(rotation); // phi is counterclockwise
 
       // https://www.w3.org/TR/SVG/implnote.html#ArcCorrectionOutOfRangeRadii
       // note: we assume neither rxRaw nor ryRaw are zero; technically in that
@@ -410,64 +396,76 @@ export const bboxFromPath = ({ d }: PathProps<ad.Num>): BBox => {
       // any of these other calculations
 
       // eq. 6.1
-      const rxPos = absVal(rxRaw);
-      const ryPos = absVal(ryRaw);
+      const rxPos = ad.absVal(rxRaw);
+      const ryPos = ad.absVal(ryRaw);
 
       // https://www.w3.org/TR/SVG/implnote.html#ArcConversionEndpointToCenter
       // eq. 5.1
-      const [x1Prime, y1Prime] = ops.vrot(
-        ops.vdiv(ops.vsub(cursor, next.contents), 2),
-        neg(phi),
+      const [x1Prime, y1Prime] = ad.ops.vrot(
+        ad.ops.vdiv(ad.ops.vsub(cursor, next.contents), 2),
+        ad.neg(phi),
       );
 
       // eq. 6.2
-      const lambda = add(
-        squared(div(x1Prime, rxPos)),
-        squared(div(y1Prime, ryPos)),
+      const lambda = ad.add(
+        ad.squared(ad.div(x1Prime, rxPos)),
+        ad.squared(ad.div(y1Prime, ryPos)),
       );
 
       // eq. 6.3
-      const replace = gt(lambda, 1);
-      const rx = ifCond(replace, mul(sqrt(lambda), rxPos), rxPos);
-      const ry = ifCond(replace, mul(sqrt(lambda), ryPos), ryPos);
+      const replace = ad.gt(lambda, 1);
+      const rx = ad.ifCond(replace, ad.mul(ad.sqrt(lambda), rxPos), rxPos);
+      const ry = ad.ifCond(replace, ad.mul(ad.sqrt(lambda), ryPos), ryPos);
 
       // eq. 5.2
-      const cPrime = ops.vmul(
-        mul(
+      const cPrime = ad.ops.vmul(
+        ad.mul(
           // according to the linked doc it seems like this should be the other
           // way around, but Penrose seems to do it this way instead
-          ifCond(eq(largeArc, sweep), 1, -1),
-          sqrt(
+          ad.ifCond(ad.eq(largeArc, sweep), 1, -1),
+          ad.sqrt(
             // mathematically this radicand can never be negative, but when
             // Lambda is greater than 1, the radicand becomes very close to 0
             // and sometimes negative, so we manually clamp it to a very small
             // positive value in that case
-            max(
+            ad.max(
               1e-18,
-              div(
-                sub(
-                  sub(squared(mul(rx, ry)), squared(mul(rx, y1Prime))),
-                  squared(mul(ry, x1Prime)),
+              ad.div(
+                ad.sub(
+                  ad.sub(
+                    ad.squared(ad.mul(rx, ry)),
+                    ad.squared(ad.mul(rx, y1Prime)),
+                  ),
+                  ad.squared(ad.mul(ry, x1Prime)),
                 ),
-                add(squared(mul(rx, y1Prime)), squared(mul(ry, x1Prime))),
+                ad.add(
+                  ad.squared(ad.mul(rx, y1Prime)),
+                  ad.squared(ad.mul(ry, x1Prime)),
+                ),
               ),
             ),
           ),
         ),
-        [div(mul(rx, y1Prime), ry), neg(div(mul(ry, x1Prime), rx))],
+        [
+          ad.div(ad.mul(rx, y1Prime), ry),
+          ad.neg(ad.div(ad.mul(ry, x1Prime), rx)),
+        ],
       );
 
       // eq. 5.3
-      const [cx, cy] = ops.vadd(
-        ops.vrot(cPrime, phi),
-        ops.vdiv(ops.vadd(cursor, next.contents), 2),
+      const [cx, cy] = ad.ops.vadd(
+        ad.ops.vrot(cPrime, phi),
+        ad.ops.vdiv(ad.ops.vadd(cursor, next.contents), 2),
       );
 
       // very crude approach: we know that the ellipse is contained within a
       // concentric circle whose diameter is the major axis, so just use the
       // bounding box of that circle
-      const r = max(rx, ry);
-      points.push([sub(cx, r), sub(cy, r)], [add(cx, r), add(cy, r)]);
+      const r = ad.max(rx, ry);
+      points.push(
+        [ad.sub(cx, r), ad.sub(cy, r)],
+        [ad.add(cx, r), ad.add(cy, r)],
+      );
       // ideally we would instead do something more sophisticated, like this:
       // https://stackoverflow.com/a/65441277
     } else {
@@ -482,7 +480,7 @@ export const bboxFromPath = ({ d }: PathProps<ad.Num>): BBox => {
   return bboxFromPoints(points);
 };
 
-export const intersectBbox = (bbox1: BBox, bbox2: BBox): BBox => {
+export const intersectBbox = ad.fn([BBox, BBox], BBox, (bbox1, bbox2) => {
   const { center: center1, width: w1, height: h1 } = bbox1;
   const [x1, y1] = center1;
   const { center: center2, width: w2, height: h2 } = bbox2;
@@ -498,16 +496,14 @@ export const intersectBbox = (bbox1: BBox, bbox2: BBox): BBox => {
   const top = min(add(y1, hh1), add(y2, hh2));
   const bottom = max(sub(y1, hh1), sub(y2, hh2));
 
-  const intersection_x = div(add(left, right), 2);
-  const intersection_y = div(add(top, bottom), 2);
-  const intersection_w = sub(right, left);
-  const intersection_h = sub(top, bottom);
-
-  const cond = and(lt(left, right), lt(bottom, top));
-
-  return bbox(
-    ifCond(cond, intersection_w, 0),
-    ifCond(cond, intersection_h, 0),
-    [ifCond(cond, intersection_x, 0), ifCond(cond, intersection_y, 0)],
+  return select(
+    and(lt(left, right), lt(bottom, top)),
+    BBox,
+    {
+      width: sub(right, left),
+      height: sub(top, bottom),
+      center: [div(add(left, right), 2), div(add(top, bottom), 2)],
+    },
+    { width: 0, height: 0, center: [0, 0] },
   );
-};
+});

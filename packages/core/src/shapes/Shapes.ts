@@ -106,7 +106,7 @@ const bboxFromGroup = ({ shapes, clipPath }: GroupProps<ad.Num>): BBox.BBox => {
 
   const bboxClipPath = computeShapeBbox(clipPath.contents.contents);
 
-  return BBox.intersectBbox(bboxAllMembers, bboxClipPath);
+  return BBox.intersectBbox.rose(bboxAllMembers, bboxClipPath);
 };
 
 export const shapeTypes = [
