@@ -7,6 +7,10 @@ layout: docs
   import Issue from "./src/components/GitHubIssue.vue"
 </script>
 
+# Get Involved
+
+We are actively building a community of diagrammers! To get started, join the Penrose community now on [discord][] and see [what you can do](#what-you-can-do) to achieve the vision of democratizing diagramming and visual intuition.
+
 ## What you can do
 
 <div class="action-grid">
@@ -26,7 +30,7 @@ We are always excited to see diagrams made with Penrose! Share them in [#gallery
 
 <h1 class="action-header">🔭 Do Research</h1>
 
-Our team consists of interdisciplinary researchers in programming languages, computer graphics, human-computer interaction, software engineering, and more!
+Our [team][] consists of interdisciplinary researchers in programming languages, computer graphics, human-computer interaction, software engineering, and more!
 
 - If you are interested in **collaborating with us on research**, reach out to us on [Discord][] and/or [email][] us with a brief description of your background and interests in Penrose!
 - If you are **an undergrad looking for summer opportunities**, consider applying for the [REUSE][] program.
@@ -129,3 +133,4 @@ We maintain a [blog][] and a [mailing list][] on Penrose and diagramming in gene
 [rose]: https://rosejs.dev/
 [roadmap]: #technical-roadmap
 [`obsidian-penrose-plugin`]: https://github.com/wodeni/obsidian-penrose-plugin
+[team]: /docs/team
