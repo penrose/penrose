@@ -1,5 +1,6 @@
-import { EPS_DENOM, ops } from "../engine/Autodiff.js";
+import * as ad from "../engine/Autodiff.js";
 import {
+  EPS_DENOM,
   absVal,
   add,
   div,
@@ -8,12 +9,12 @@ import {
   max,
   mul,
   neg,
+  ops,
   squared,
   sub,
-} from "../engine/AutodiffFunctions.js";
+} from "../engine/Autodiff.js";
 import { Circle } from "../shapes/Circle.js";
 import { Ellipse } from "../shapes/Ellipse.js";
-import * as ad from "../types/ad.js";
 import { msign } from "./Functions.js";
 import { outwardUnitNormal } from "./Queries.js";
 import { toPt } from "./Utils.js";

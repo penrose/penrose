@@ -1,7 +1,7 @@
 import im from "immutable";
+import * as ad from "../engine/Autodiff.js";
 import { ShapeType } from "../shapes/Shapes.js";
 import Graph from "../utils/Graph.js";
-import * as ad from "./ad.js";
 import { A, C, Identifier } from "./ast.js";
 import { StyleDiagnostics, StyleError } from "./errors.js";
 import { Fn } from "./state.js";

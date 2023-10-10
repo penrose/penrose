@@ -7,8 +7,18 @@ import seedrandom from "seedrandom";
 import { constrDict } from "../contrib/Constraints.js";
 import { compDict } from "../contrib/Functions.js";
 import { objDict } from "../contrib/Objectives.js";
-import { genGradient, ops, variable } from "../engine/Autodiff.js";
-import { add, div, mul, neg, pow, sub } from "../engine/AutodiffFunctions.js";
+import * as ad from "../engine/Autodiff.js";
+import {
+  add,
+  div,
+  genGradient,
+  mul,
+  neg,
+  ops,
+  pow,
+  sub,
+  variable,
+} from "../engine/Autodiff.js";
 import { compileCompGraph, dummyIdentifier } from "../engine/EngineUtils.js";
 import { lastLocation, prettyParseError } from "../parser/ParserUtil.js";
 import styleGrammar from "../parser/StyleParser.js";
@@ -25,7 +35,6 @@ import {
   isShapeType,
   sampleShape,
 } from "../shapes/Shapes.js";
-import * as ad from "../types/ad.js";
 import { A, C, Identifier, SourceRange } from "../types/ast.js";
 import { Env } from "../types/domain.js";
 import {

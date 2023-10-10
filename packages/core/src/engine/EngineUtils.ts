@@ -1,5 +1,6 @@
 // Utils that are unrelated to the engine, but autodiff/opt/etc only
 
+import * as ad from "../engine/Autodiff.js";
 import { Circle } from "../shapes/Circle.js";
 import { Ellipse } from "../shapes/Ellipse.js";
 import { Equation } from "../shapes/Equation.js";
@@ -12,7 +13,6 @@ import { Polyline } from "../shapes/Polyline.js";
 import { Rectangle } from "../shapes/Rectangle.js";
 import { Shape } from "../shapes/Shapes.js";
 import { Text } from "../shapes/Text.js";
-import * as ad from "../types/ad.js";
 import {
   A,
   ASTNode,

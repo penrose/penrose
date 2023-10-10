@@ -6,8 +6,7 @@
 
 import { bboxFromShape } from "../contrib/Queries.js";
 import { isLinelike, isRectlike } from "../contrib/Utils.js";
-import { compile } from "../engine/Autodiff.js";
-import { maxN, minN } from "../engine/AutodiffFunctions.js";
+import { compile, maxN, minN } from "../engine/Autodiff.js";
 import { maxX, maxY, minX, minY } from "../engine/BBox.js";
 import { Group } from "../shapes/Group.js";
 import { Shape } from "../shapes/Shapes.js";

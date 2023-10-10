@@ -482,7 +482,7 @@ pub fn penrose_poly_roots(v: &mut [f64]) {
     let r = m.complex_eigenvalues();
     for i in 0..n {
         let z = r[i];
-        // as mentioned in the `polyRoots` docstring in `engine/AutodiffFunctions`, we discard any
+        // as mentioned in the `polyRoots` docstring in `engine/Autodiff`, we discard any
         // non-real root and replace with `NaN`
         v[i] = if z.im == 0. { z.re } else { f64::NAN };
     }

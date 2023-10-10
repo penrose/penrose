@@ -1,5 +1,5 @@
+import * as ad from "../engine/Autodiff.js";
 import { Shape, ShapeType } from "../shapes/Shapes.js";
-import * as ad from "../types/ad.js";
 import { ValueShapeT, ValueType } from "../types/types.js";
 import { ArgVal, Value } from "../types/value.js";
 

@@ -1,7 +1,7 @@
 import { Result } from "true-myth";
+import * as ad from "../engine/Autodiff.js";
 import { isConcrete } from "../engine/EngineUtils.js";
 import { shapeTypes } from "../shapes/Shapes.js";
-import * as ad from "../types/ad.js";
 import {
   A,
   AbstractNode,

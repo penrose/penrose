@@ -3,9 +3,16 @@ import { elasticEnergy, equivalued, perimeter } from "./contrib/Curves.js";
 import { signedDistanceRect } from "./contrib/Functions.js";
 import { rectPts } from "./contrib/Queries.js";
 import { consecutiveTuples } from "./contrib/Utils.js";
-import { ops, variable } from "./engine/Autodiff.js";
-import { absVal, add, div, neg, pow, sub } from "./engine/AutodiffFunctions.js";
-import * as ad from "./types/ad.js";
+import * as ad from "./engine/Autodiff.js";
+import {
+  absVal,
+  add,
+  div,
+  neg,
+  ops,
+  sub,
+  variable,
+} from "./engine/Autodiff.js";
 import { TextMeasurement, measureText } from "./utils/CollectLabels.js";
 
 interface Rect {
@@ -58,10 +65,60 @@ export const onCanvasPoint = (
 export const lessThan = (x: ad.Num, y: ad.Num): ad.Num => sub(x, y);
 
 export { convexPolygonMinkowskiSDF } from "./contrib/Minkowski.js";
-export { compile, ops, problem } from "./engine/Autodiff.js";
-export * from "./engine/AutodiffFunctions.js";
-export { corners } from "./engine/BBox.js";
-export type { BBox } from "./engine/BBox.js";
+export {
+  absVal,
+  acos,
+  acosh,
+  add,
+  addN,
+  and,
+  asinh,
+  atan,
+  atan2,
+  atanh,
+  cbrt,
+  ceil,
+  compile,
+  cos,
+  cosh,
+  div,
+  exp,
+  expm1,
+  floor,
+  gt,
+  gte,
+  ifCond,
+  inverse,
+  ln,
+  log10,
+  log1p,
+  log2,
+  lt,
+  lte,
+  max,
+  maxN,
+  min,
+  minN,
+  mul,
+  neg,
+  not,
+  ops,
+  or,
+  polyRoots,
+  pow,
+  problem,
+  round,
+  sign,
+  sin,
+  sinh,
+  sqrt,
+  squared,
+  sub,
+  tan,
+  tanh,
+  trunc,
+  xor,
+} from "./engine/Autodiff.js";
 export type {
   Binary,
   Bool,
@@ -82,16 +139,16 @@ export type {
   Unary,
   Var,
   Vec,
-} from "./types/ad.js";
+} from "./engine/Autodiff.js";
+export { corners } from "./engine/BBox.js";
+export type { BBox } from "./engine/BBox.js";
 export {
   consecutiveTuples,
   elasticEnergy,
   equivalued,
   measureText,
   perimeter,
-  pow,
   rectPts,
   signedDistanceRect,
-  sub,
   variable,
 };

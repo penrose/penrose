@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
+import * as ad from "../../engine/Autodiff.js";
 import * as BBox from "../../engine/BBox.js";
-import * as ad from "../../types/ad.js";
 import {
   containsConvexPolygonPoints,
   convexPartitions,

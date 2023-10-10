@@ -1,20 +1,23 @@
 import _ from "lodash";
-import { EPS_DENOM, interp, ops } from "../engine/Autodiff.js";
+import * as ad from "../engine/Autodiff.js";
 import {
+  EPS_DENOM,
   absVal,
   add,
   and,
   div,
   gt,
   ifCond,
+  interp,
   lt,
   max,
   min,
   mul,
+  ops,
   or,
   squared,
   sub,
-} from "../engine/AutodiffFunctions.js";
+} from "../engine/Autodiff.js";
 import * as BBox from "../engine/BBox.js";
 import { Equation } from "../shapes/Equation.js";
 import { Image } from "../shapes/Image.js";
@@ -24,7 +27,6 @@ import { Polyline } from "../shapes/Polyline.js";
 import { Rectangle } from "../shapes/Rectangle.js";
 import { Shape } from "../shapes/Shapes.js";
 import { Text } from "../shapes/Text.js";
-import * as ad from "../types/ad.js";
 import { bboxFromShape } from "./Queries.js";
 
 export type Rectlike<T> = Equation<T> | Image<T> | Rectangle<T> | Text<T>;

@@ -1,4 +1,4 @@
-import * as ad from "../types/ad.js";
+import * as ad from "../engine/Autodiff.js";
 import { Named, ShapeCommon } from "../types/shapes.js";
 import { ClipDataV, ShapeListV } from "../types/value.js";
 import { boolV, clipDataV, noClip, shapeListV, strV } from "../utils/Util.js";

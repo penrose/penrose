@@ -1,5 +1,5 @@
 import { convexPartition, isClockwise } from "poly-partition";
-import { ops } from "../engine/Autodiff.js";
+import * as ad from "../engine/Autodiff.js";
 import {
   absVal,
   add,
@@ -12,12 +12,12 @@ import {
   minN,
   mul,
   neg,
+  ops,
   polyRoots,
   sqrt,
   squared,
   sub,
-} from "../engine/AutodiffFunctions.js";
-import * as ad from "../types/ad.js";
+} from "../engine/Autodiff.js";
 import { safe } from "../utils/Util.js";
 import {
   ImplicitEllipse,

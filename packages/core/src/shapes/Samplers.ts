@@ -1,6 +1,6 @@
 import seedrandom from "seedrandom";
+import * as ad from "../engine/Autodiff.js";
 import { variable } from "../engine/Autodiff.js";
-import * as ad from "../types/ad.js";
 import { OptStages } from "../types/state.js";
 import { ColorV, FloatV, VectorV } from "../types/value.js";
 import { colorV, floatV, randFloat, vectorV } from "../utils/Util.js";

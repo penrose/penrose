@@ -2,8 +2,8 @@
 
 import { start } from "@penrose/optimizer";
 import { describe, expect, test } from "vitest";
-import { genGradient } from "./engine/Autodiff.js";
-import { pow, sub } from "./engine/AutodiffFunctions.js";
+import * as ad from "./engine/Autodiff.js";
+import { genGradient, pow, sub } from "./engine/Autodiff.js";
 import {
   compile,
   evalEnergy,
@@ -15,7 +15,6 @@ import {
   toSVG,
   variable,
 } from "./index.js";
-import * as ad from "./types/ad.js";
 import { State } from "./types/state.js";
 
 // copied from `packages/examples/src/set-theory-domain/setTheory.domain`

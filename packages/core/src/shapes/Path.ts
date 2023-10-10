@@ -1,4 +1,4 @@
-import * as ad from "../types/ad.js";
+import * as ad from "../engine/Autodiff.js";
 import { Arrow, Fill, Named, ShapeCommon, Stroke } from "../types/shapes.js";
 import { PathDataV, StrV } from "../types/value.js";
 import {

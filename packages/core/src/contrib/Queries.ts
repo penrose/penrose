@@ -1,4 +1,4 @@
-import { ops } from "../engine/Autodiff.js";
+import * as ad from "../engine/Autodiff.js";
 import {
   add,
   div,
@@ -12,14 +12,14 @@ import {
   minN,
   mul,
   neg,
+  ops,
   sqrt,
   squared,
   sub,
   xor,
-} from "../engine/AutodiffFunctions.js";
+} from "../engine/Autodiff.js";
 import * as BBox from "../engine/BBox.js";
 import { Shape, computeShapeBbox } from "../shapes/Shapes.js";
-import * as ad from "../types/ad.js";
 import { MayWarn } from "../types/functions.js";
 import { noWarn } from "../utils/Util.js";
 import { msign, signedDistancePolygon } from "./Functions.js";
