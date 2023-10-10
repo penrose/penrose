@@ -216,6 +216,10 @@ const boolSignal = (x: Bool): Accessor<boolean> => {
       const y = boolSignal(param);
       return boolWith(x, () => !y());
     }
+    case "Index":
+    case "Member":
+    case "Call":
+      throw Error("unsupported");
   }
 };
 
@@ -253,14 +257,19 @@ const numSignal = (x: Num): Accessor<number> => {
       const v = vecSignal(vec);
       return numWith(x, () => v()[index]);
     }
+    case "Member":
+    case "Call":
+      throw Error("unsupported");
   }
 };
 
 const vecSignal = (x: Vec): Accessor<number[]> => {
   if (secret in x) return x[secret] as Accessor<number[]>;
   switch (x.tag) {
+    case "LitVec":
+      throw Error("unsupported");
     case "PolyRoots": {
-      const ys = x.coeffs.map(numSignal);
+      const ys = (x.coeffs as Num[]).map(numSignal);
       const v = new Float64Array(x.coeffs.length);
       return vecWith(x, () => {
         ys.forEach((y, i) => {
@@ -270,6 +279,10 @@ const vecSignal = (x: Vec): Accessor<number[]> => {
         return Array.from(v);
       });
     }
+    case "Index":
+    case "Member":
+    case "Call":
+      throw Error("unsupported");
   }
 };
 

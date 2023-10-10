@@ -6,13 +6,17 @@ import * as builtins from "./Builtins.js";
 
 //#region Types for implicit autodiff graph
 
-export type Expr = Bool | Num | Vec;
+export type Common = Index | Member | Call;
 
-export type Bool = Comp | Logic | Not;
+export type Expr = Bool | Num | Vec | Rec;
 
-export type Num = number | Var | Unary | Binary | Ternary | Nary | Index;
+export type Bool = Comp | Logic | Not | Common;
 
-export type Vec = PolyRoots;
+export type Num = number | Var | Unary | Binary | Ternary | Nary | Common;
+
+export type Vec = LitVec | PolyRoots | Common;
+
+export type Rec = LitRec | PolyRoots | Common;
 
 export interface Var {
   tag: "Var";
@@ -93,16 +97,38 @@ export interface Nary {
   params: Num[];
 }
 
+export interface LitVec {
+  tag: "LitVec";
+  elems: Expr[];
+}
+
 export interface PolyRoots {
   tag: "PolyRoots";
   // coefficients of a monic polynomial with degree `coeffs.length`
-  coeffs: Num[];
+  coeffs: Expr[];
+}
+
+export interface LitRec {
+  tag: "LitRec";
+  mems: { [K: string]: Expr };
 }
 
 export interface Index {
   tag: "Index";
-  index: number;
   vec: Vec;
+  index: number;
+}
+
+export interface Member {
+  tag: "Member";
+  rec: Rec;
+  member: string;
+}
+
+export interface Call {
+  tag: "Call";
+  fn: rose.Fn;
+  args: Expr[];
 }
 
 //#endregion
@@ -1101,13 +1127,30 @@ const topsort = (seed: (set: (x: Expr) => void) => void): Topsort => {
         x.params.forEach(succ);
         return x.params.length;
       }
+      case "LitVec": {
+        x.elems.forEach(succ);
+        return x.elems.length;
+      }
       case "PolyRoots": {
         x.coeffs.forEach(succ);
         return x.coeffs.length;
       }
+      case "LitRec": {
+        const mems = Object.values(x.mems);
+        mems.forEach(succ);
+        return mems.length;
+      }
       case "Index": {
         succ(x.vec);
         return 1;
+      }
+      case "Member": {
+        succ(x.rec);
+        return 1;
+      }
+      case "Call": {
+        x.args.forEach(succ);
+        return x.args.length;
       }
     }
   };
@@ -1122,7 +1165,9 @@ const topsort = (seed: (set: (x: Expr) => void) => void): Topsort => {
   return { nodes, sorted };
 };
 
-type RoseVal = rose.Bool | rose.Real | rose.Vec<unknown>;
+// this type is very incomplete but it excludes `undefined` so at least it makes
+// sure we handle all necessary cases in `switch` statements
+type RoseVal = rose.Bool | rose.Real | rose.Vec<unknown> | RoseVal[];
 
 const emitGraph = (
   { sorted, nodes }: Topsort,
@@ -1289,9 +1334,20 @@ const emitGraph = (
         );
       case "Nary":
         return emitNary(x);
+      case "LitVec":
+        return x.elems.map((elem) => vars.get(elem)!);
       case "PolyRoots":
-      case "Index":
         throw Error("polynomial roots not supported");
+      case "LitRec":
+        return Object.fromEntries(
+          Object.entries(x.mems).map(([k, v]) => [k, vars.get(v)!]),
+        );
+      case "Index":
+        return (vars.get(x.vec) as RoseVal[])[x.index];
+      case "Member":
+        return (vars.get(x.rec) as Record<string, RoseVal>)[x.member];
+      case "Call":
+        return (x.fn as any)(...x.args.map((arg) => vars.get(arg)!));
     }
   };
   for (let i = 0; i < sorted.length; i++) {
