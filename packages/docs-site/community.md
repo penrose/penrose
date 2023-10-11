@@ -83,7 +83,7 @@ We maintain a [blog][] and a [mailing list][] on Penrose and diagramming in gene
 - Next iteration on [SolidJS API for Penrose](/docs/ref/solid.md) and docs
 - Implement high-quality hidden strokes <Issue issue="517" />
 - Support arbitrary Penrose trios in [`obsidian-penrose-plugin`]
-- A single file format (`.penrose`) for Penrose trios
+- A single file format (`.penrose`) for Penrose diagrams
 
 <!-- ### 💭 Potential
 - -->
