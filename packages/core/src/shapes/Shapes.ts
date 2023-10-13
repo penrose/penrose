@@ -13,7 +13,7 @@ import { Polyline, PolylineProps, samplePolyline } from "./Polyline.js";
 import { Rectangle, RectangleProps, sampleRectangle } from "./Rectangle.js";
 import { Canvas, Context } from "./Samplers.js";
 import { Text, TextProps, sampleText } from "./Text.js";
-import { TextPath, TextPathProps } from "./TextPath.js";
+import { TextPath, TextPathProps, sampleTextPath } from "./TextPath.js";
 //#region other shape types/globals
 
 export type Shape<T> =
@@ -87,6 +87,7 @@ const shapeSampler: Map<
     Rectangle: sampleRectangle,
     Text: sampleText,
     Group: sampleGroup,
+    TextPath: sampleTextPath,
   }),
 );
 
