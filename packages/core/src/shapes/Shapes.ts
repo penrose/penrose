@@ -58,7 +58,6 @@ export const computeShapeBbox = (shape: Shape<ad.Num>): BBox.BBox => {
     case "Line":
       return BBox.bboxFromLinelike(shape);
     case "Path":
-    case "TextPath":
       return BBox.bboxFromPath(shape);
     case "Polygon":
     case "Polyline":
@@ -67,6 +66,8 @@ export const computeShapeBbox = (shape: Shape<ad.Num>): BBox.BBox => {
       return BBox.bboxFromRect(shape);
     case "Group":
       return bboxFromGroup(shape);
+    case "TextPath":
+      throw new Error("TODO");
   }
 };
 

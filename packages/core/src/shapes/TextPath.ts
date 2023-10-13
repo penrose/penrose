@@ -19,7 +19,7 @@ export interface TextPathProps<T>
   startOffset: FloatV<T>;
   method: StrV;
   spacing: StrV;
-  d: PathDataV<T>;
+  path: PathDataV<T>;
 }
 
 // Default TextPath properties
@@ -38,7 +38,7 @@ export const sampleTextPath = (
   spacing: strV("auto"),
   strokeDasharray: strV(""),
   fontSize: strV("12px"),
-  d: pathDataV([]),
+  path: pathDataV([]),
   ensureOnCanvas: boolV(true),
 });
 
