@@ -126,6 +126,7 @@ export const shapeTypes = [
   "Rectangle",
   "Text",
   "Group",
+  "TextPath",
 ];
 
 export const sampleShape = (
