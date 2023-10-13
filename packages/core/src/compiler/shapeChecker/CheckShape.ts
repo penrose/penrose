@@ -68,6 +68,8 @@ export const checkShape = (
       return checkText(path, trans);
     case "Group":
       return checkGroup(path, trans);
+    case "TextPath":
+      return checkGroup(path, trans);
     default:
       return err({
         tag: "InvalidGPITypeError",
