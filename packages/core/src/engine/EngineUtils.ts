@@ -12,6 +12,7 @@ import { Polyline } from "../shapes/Polyline.js";
 import { Rectangle } from "../shapes/Rectangle.js";
 import { Shape } from "../shapes/Shapes.js";
 import { Text } from "../shapes/Text.js";
+import { TextPath } from "../shapes/TextPath.js";
 import * as ad from "../types/ad.js";
 import {
   A,
@@ -205,6 +206,8 @@ function mapShape<T, S>(f: (arg: T) => S, v: Shape<T>): Shape<S> {
       return mapText(f, v);
     case "Group":
       return mapGroup(f, v);
+    case "TextPath":
+      return mapTextPath(f, v);
   }
 }
 
@@ -377,6 +380,22 @@ const mapText = <T, S>(f: (arg: T) => S, v: Text<T>): Text<S> => {
     ...mapString(f, v),
     ascent: mapFloat(f, v.ascent),
     descent: mapFloat(f, v.descent),
+    passthrough: mapPassthrough(f, v.passthrough),
+  };
+};
+
+const mapTextPath = <T, S>(f: (arg: T) => S, v: TextPath<T>): TextPath<S> => {
+  return {
+    ...v,
+    ...mapNamed(f, v),
+    ...mapStroke(f, v),
+    ...mapFill(f, v),
+    ...mapNamed(f, v),
+    ...mapStroke(f, v),
+    ...mapFill(f, v),
+    ...mapString(f, v),
+    startOffset: mapFloat(f, v.startOffset),
+    path: mapPathData(f, v.path),
     passthrough: mapPassthrough(f, v.passthrough),
   };
 };
