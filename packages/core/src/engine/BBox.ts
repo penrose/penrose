@@ -1,3 +1,5 @@
+import { TextPathProps } from "src/shapes/TextPath.js";
+import { PathCmd } from "src/types/value.js";
 import { rectPts } from "../contrib/Queries.js";
 import { toPt } from "../contrib/Utils.js";
 import { CircleProps } from "../shapes/Circle.js";
@@ -325,8 +327,7 @@ export const bboxFromLinelike = ({
   );
 };
 
-export const bboxFromPath = ({ d }: PathProps<ad.Num>): BBox => {
-  const p = d.contents;
+const pointsFromPath = (p: PathCmd<ad.Num>[]): ad.Pt2[] => {
   if (p.length < 1) {
     throw new Error("bboxFromPath expected pathData to be nonempty");
   }
@@ -479,6 +480,18 @@ export const bboxFromPath = ({ d }: PathProps<ad.Num>): BBox => {
     cursor = next.contents;
     control = nextControl;
   }
+  return points;
+};
+
+export const bboxFromTextPath = ({ path }: TextPathProps<ad.Num>): BBox => {
+  const p = path.contents;
+  const points = pointsFromPath(p);
+  return bboxFromPoints(points);
+};
+
+export const bboxFromPath = ({ d }: PathProps<ad.Num>): BBox => {
+  const p = d.contents;
+  const points = pointsFromPath(p);
   return bboxFromPoints(points);
 };
 

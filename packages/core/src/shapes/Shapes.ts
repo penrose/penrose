@@ -67,7 +67,7 @@ export const computeShapeBbox = (shape: Shape<ad.Num>): BBox.BBox => {
     case "Group":
       return bboxFromGroup(shape);
     case "TextPath":
-      throw new Error("TODO");
+      return BBox.bboxFromTextPath(shape);
   }
 };
 
