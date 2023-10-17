@@ -42,11 +42,7 @@ export const RenderTextPath = (
     "http://www.w3.org/2000/svg",
     "textPath",
   );
-  textPathElem.setAttributeNS(
-    "http://www.w3.org/1999/xlink",
-    "xlink:href",
-    `#${uniqueID}`,
-  );
+  textPathElem.setAttribute("href", `#${uniqueID}`);
 
   textPathElem.setAttribute(
     "startOffset",
