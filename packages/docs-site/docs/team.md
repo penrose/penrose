@@ -1,5 +1,6 @@
 <script setup>
 import { VPTeamMembers } from "vitepress/theme";
+import Contributors from "../src/components/Contributors.vue"
 
 // https://commons.wikimedia.org/wiki/File:Globe_icon_2.svg
 // https://creativecommons.org/licenses/by-sa/3.0/deed.en
@@ -99,7 +100,7 @@ const members = [
   },
   {
     name: "Hwei-Shin Harriman",
-    title: "Software engineer @ Tableau",
+    title: "Ph.D. student @ CMU",
     avatar: "https://www.github.com/hsharriman.png",
     links: [
       { icon: { svg: website }, link: "https://hsharriman.github.io/" },
@@ -169,3 +170,7 @@ in Pittsburgh, PA USA—and other locations around the world.
 - [Jenna Wise](https://www.cs.cmu.edu/~jlwise/)
 - [Helena Yang](https://heleaf.me/)
 - [Kai Ye](https://www.linkedin.com/in/kai-ye-83946725a/)
+
+## Contributors
+
+<Contributors />
