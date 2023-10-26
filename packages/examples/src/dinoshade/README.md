@@ -2,7 +2,7 @@
 
 ![Shadowy Leapin' Lizards!](dinoshade.png)
 
-This exploratory example shows how rich 3D graphics including lighting, shadows, reflections, and perspective projection can be rendered as 2D vector art via Penrose, using familiar concepts from standard 3D graphics APIs (such as OpenGL and Direct3D). Penrose was not originally designed for 3D, and still lacks some major features common in the 3D world—but as the system evolves it becomes easier and easier to pull off some very cool and useful techniques! This particular example reimagines the [`dinoshade` OpenGL/GLUT C++ example](http://sgifiles.irixnet.org/sgi/opengl/lib/mjk/tips/dinoshade.c), originally written by Mark Kilgard at SGI. This README is written mainly for folks to cross the bridge from 3D graphics APIs into Penrose/Style—if you've never written 3D graphics code before, you may want to start with one of the [many terrific tutorials](https://www.reddit.com/r/opengl/comments/5dbzp0/how_to_best_learn_opengl_in_20162017/) available online.
+This exploratory example shows how rich 3D graphics including lighting, shadows, reflections, and perspective projection can be rendered as 2D vector art via Penrose, using familiar concepts from standard 3D graphics APIs (such as OpenGL and Direct3D). Penrose was not originally designed for 3D, and still lacks some major features common in the 3D world—but as the system evolves it becomes easier and easier to pull off some very cool and useful techniques! This particular example reimagines the [`dinoshade` OpenGL/GLUT C++ example](http://sgifiles.irixnet.org/sgi/opengl/contrib/mjk/tips/dinoshade.c), originally written by Mark Kilgard at SGI. This README is written mainly for folks to cross the bridge from 3D graphics APIs into Penrose/Style—if you've never written 3D graphics code before, you may want to start with one of the [many terrific tutorials](https://www.reddit.com/r/opengl/comments/5dbzp0/how_to_best_learn_opengl_in_20162017/) available online.
 
 ## Overview - The Vectorization Pipeline
 
@@ -19,7 +19,7 @@ Construction of this example follows a pattern similar to the [real time graphic
 
 ## The Dinoshade Example
 
-Let's walk through the `dinoshade` example step by step, which is largely contained in the Style program `dinoshade.style`. Since Style is a [specification language](https://en.wikipedia.org/wiki/Specification_language) rather than a [programming language](https://en.wikipedia.org/wiki/Programming_language), many pieces of this example are much shorter than in the [original C++ example](http://sgifiles.irixnet.org/sgi/opengl/lib/mjk/tips/dinoshade.c). In other words, we can focus more on _"what gets drawn"_ rather than _"how to draw it"_.
+Let's walk through the `dinoshade` example step by step, which is largely contained in the Style program `dinoshade.style`. Since Style is a [specification language](https://en.wikipedia.org/wiki/Specification_language) rather than a [programming language](https://en.wikipedia.org/wiki/Programming_language), many pieces of this example are much shorter than in the [original C++ example](http://sgifiles.irixnet.org/sgi/opengl/contrib/mjk/tips/dinoshade.c). In other words, we can focus more on _"what gets drawn"_ rather than _"how to draw it"_.
 
 ### Scene Setup
 
