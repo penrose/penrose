@@ -1,5 +1,5 @@
-import { rectPts } from "../contrib/Queries.js";
-import { toPt } from "../contrib/Utils.js";
+import { rectPts } from "../lib/Queries.js";
+import { toPt } from "../lib/Utils.js";
 import { CircleProps } from "../shapes/Circle.js";
 import { EllipseProps } from "../shapes/Ellipse.js";
 import { LineProps } from "../shapes/Line.js";

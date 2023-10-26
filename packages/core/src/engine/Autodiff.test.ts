@@ -1,7 +1,7 @@
 import _ from "lodash";
 import seedrandom from "seedrandom";
 import { describe, expect, test } from "vitest";
-import { numsOf } from "../contrib/Utils.js";
+import { numsOf } from "../lib/Utils.js";
 import * as ad from "../types/ad.js";
 import { eqList, randList } from "../utils/Util.js";
 import {

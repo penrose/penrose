@@ -1,6 +1,6 @@
 import im from "immutable";
 import { describe, expect, test } from "vitest";
-import { numsOf } from "../contrib/Utils.js";
+import { numsOf } from "../lib/Utils.js";
 import { C } from "../types/ast.js";
 import { Either } from "../types/common.js";
 import { Env } from "../types/domain.js";
