@@ -110,6 +110,10 @@ const lineSearch = (
   return t;
 };
 
+/**
+ * Perform the first step of L-BFGS at point `x`, updating it and returning the
+ * initial `State`.
+ */
 export const firstStep = (cfg: Config, f: Fn, x: Float64Array): State => {
   const n = x.length;
   const x0 = new Float64Array(x);
@@ -141,6 +145,7 @@ export interface Info {
   t: number;
 }
 
+/** Perform L-BFGS steps on `x`, giving `stop`'s first non-`undefined` value. */
 export const stepUntil = <T>(
   cfg: Config,
   f: Fn,
