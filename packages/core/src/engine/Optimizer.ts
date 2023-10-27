@@ -1,4 +1,6 @@
+import consola from "consola";
 import { EigenvalueDecomposition, Matrix } from "ml-matrix";
+import { zip2 } from "../utils/Util.js";
 import * as lbfgs from "./Lbfgs.js";
 
 // see page 443 of Engineering Optimization, Fourth Edition
@@ -69,6 +71,12 @@ interface OptInfo {
   failed: boolean;
 }
 
+// NOTE: to view logs, change `level` below to `LogLevel.Info`, otherwise it should be `LogLevel.Warn`
+// const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");
+const log = (consola as any)
+  .create({ level: (consola as any).LogLevel.Warn })
+  .withScope("Optimizer");
+
 // Intial weight for constraints
 const initConstraintWeight = 1e3;
 
@@ -95,6 +103,9 @@ const uoStop = 1e-2;
 // const uoStop = 1e-5;
 // const uoStop = 10;
 
+const DEBUG_GRAD_DESCENT = false;
+const BREAK_EARLY = true;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 const normList = (xs: Float64Array): number => {
@@ -115,7 +126,11 @@ const dot = (xs: Float64Array, ys: Float64Array): number => {
   return z;
 };
 
-const unconstrainedConverged = (normGrad: number): boolean => normGrad < uoStop;
+const unconstrainedConverged = (normGrad: number): boolean => {
+  if (DEBUG_GRAD_DESCENT)
+    log.info("UO convergence check: ||grad f(x)||", normGrad);
+  return normGrad < uoStop;
+};
 
 const epConverged = (
   xs0: Float64Array,
@@ -126,6 +141,12 @@ const epConverged = (
   // TODO: These dx and dfx should really be scaled to account for magnitudes
   const stateChange = normList(subv(xs1, xs0));
   const energyChange = Math.abs(fxs1 - fxs0);
+  log.info(
+    "epConverged?: stateChange: ",
+    stateChange,
+    " | energyChange: ",
+    energyChange,
+  );
 
   return stateChange < epStop || energyChange < epStop;
 };
@@ -156,6 +177,16 @@ export const stepUntil = (
   const optParams: Params = { ...state };
   const { optStatus, weight } = optParams;
   let xs = x;
+
+  log.info("===============");
+  log.info(
+    "step | weight: ",
+    weight,
+    "| EP round: ",
+    optParams.EPround,
+    " | UO round: ",
+    optParams.UOround,
+  );
 
   switch (optStatus) {
     case "UnconstrainedRunning": {
@@ -188,11 +219,24 @@ export const stepUntil = (
       if (unconstrainedConverged(normGrad)) {
         optParams.optStatus = "UnconstrainedConverged";
         optParams.lbfgsInfo = defaultLbfgsParams;
+        log.info(
+          "Unconstrained converged with energy",
+          energyVal,
+          "gradient norm",
+          normGrad,
+        );
       } else {
         optParams.optStatus = "UnconstrainedRunning";
         // Note that lbfgs prams have already been updated
+        log.info(
+          "Took some steps. Current energy",
+          energyVal,
+          "gradient norm",
+          normGrad,
+        );
       }
       if (failed) {
+        log.warn("Error detected after stepping");
         optParams.optStatus = "Error";
         return optParams;
       }
@@ -221,14 +265,24 @@ export const stepUntil = (
         )
       ) {
         optParams.optStatus = "EPConverged";
+        log.info("EP converged with energy", optParams.lastUOenergy);
       } else {
         // If EP has not converged, increase weight and continue.
         // The point is that, for the next round, the last converged UO state becomes both the last EP state and the initial state for the next round--starting with a harsher penalty.
+        log.info(
+          "step: UO converged but EP did not converge; starting next round",
+        );
         optParams.optStatus = "UnconstrainedRunning";
 
         optParams.weight *= weightGrowthFactor;
         optParams.EPround++;
         optParams.UOround = 0;
+
+        log.info(
+          "increased EP weight to",
+          optParams.weight,
+          "in compiled energy and gradient",
+        );
       }
 
       // Done with EP check, so save the curr EP state as the last EP state for the future.
@@ -239,10 +293,12 @@ export const stepUntil = (
     }
 
     case "EPConverged": {
+      log.info("step: EP converged");
       return state;
     }
 
     case "Error": {
+      log.warn("step: Error");
       return state;
     }
   }
@@ -259,6 +315,9 @@ const minimize = (
   stop: () => boolean,
 ): OptInfo => {
   // TODO: Do a UO convergence check here? Since the EP check is tied to the render cycle...
+
+  log.info("-------------------------------------");
+  log.info("minimize");
 
   const xs = new Float64Array(xs0); // Don't use xs
   let fxs = 0;
@@ -293,24 +352,59 @@ const minimize = (
     (info) => {
       if (stop()) return false;
 
-      if (containsNaN(info.state.x)) throw Error("NaN in xs");
+      if (containsNaN(info.state.x)) {
+        log.info("xs", xs);
+        throw Error("NaN in xs");
+      }
       fxs = info.fx;
       gradfxs.set(info.state.grad);
-      if (containsNaN(gradfxs)) throw Error("NaN in gradfxs");
+      if (containsNaN(gradfxs)) {
+        log.info("gradfxs", gradfxs);
+        throw Error("NaN in gradfxs");
+      }
 
       gradientPreconditioned.set(info.r);
 
       // Don't take the Euclidean norm. According to Boyd (485), we should use the Newton descent check, with the norm of the gradient pulled back to the nicer space.
       normGradfxs = dot(gradfxs, gradientPreconditioned);
 
-      if (unconstrainedConverged(normGradfxs)) {
+      if (BREAK_EARLY && unconstrainedConverged(normGradfxs)) {
         // This is on the original gradient, not the preconditioned one
+        log.info("descent converged, stopping early");
         return false;
       }
 
       const normGrad = normList(gradfxs);
 
-      if (Number.isNaN(fxs) || Number.isNaN(normGrad)) return true;
+      if (DEBUG_GRAD_DESCENT) {
+        log.info("-----");
+        log.info("input (xs):", info.state.x);
+        log.info("energy (f(xs)):", fxs);
+        log.info("grad (grad(f)(xs)):", gradfxs);
+        log.info("|grad f(x)|:", normGrad);
+        log.info("t", info.t);
+      }
+
+      if (Number.isNaN(fxs) || Number.isNaN(normGrad)) {
+        log.info("-----");
+
+        const pathMap = zip2(Array.from(info.state.x), Array.from(gradfxs));
+
+        log.info("[current val, gradient of val]", pathMap);
+
+        for (const [x, dx] of pathMap) {
+          if (Number.isNaN(dx)) {
+            log.info("NaN in varying val's gradient (current val):", x);
+          }
+        }
+
+        log.info("input (xs):", info.state.x);
+        log.info("energy (f(xs)):", fxs);
+        log.info("grad (grad(f)(xs)):", gradfxs);
+        log.info("|grad f(x)|:", normGrad);
+        log.info("t", info.t);
+        return true;
+      }
 
       return undefined;
     },
