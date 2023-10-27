@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "vitepress build",
+    "build": "cross-env NODE_OPTIONS='--max-old-space-size=8192' vitepress build",
     "build-decls": ":",
     "copy-editor": "shx mkdir -p ./public/try/ && shx cp -r ../editor/dist/* ./public/try",
     "build-shapedefs": "shx rm -f ./src/shapedefs.json && node ./scripts/shapedefs.js ./src/shapedefs.json",
