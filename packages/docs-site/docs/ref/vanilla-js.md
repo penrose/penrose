@@ -44,7 +44,6 @@ if (compile && optimize) {
 
 <!--@include: pathname:///vanilla-js-demo.html-->
 
-[top-level `await`]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await#top_level_await
 [ECMAScript module]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules
 [JSPM]: https://jspm.org/
 [JSPM Generator]: https://generator.jspm.io/

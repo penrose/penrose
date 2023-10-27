@@ -3935,7 +3935,7 @@
   resolved "https://registry.yarnpkg.com/@swc/core-win32-x64-msvc/-/core-win32-x64-msvc-1.3.32.tgz#aa9595cb93d9dd5bbc7e5cfdabd8bb086ea6c21d"
   integrity sha512-DPMoneNFQco7SqmVVOUv1Vn53YmoImEfrAPMY9KrqQzgfzqNTuL2JvfxUqfAxwQ6pEKYAdyKJvZ483rIhgG9XQ==
 
-"@swc/core@^1.3.10", "@swc/core@^1.3.22":
+"@swc/core@^1.3.22":
   version "1.3.32"
   resolved "https://registry.yarnpkg.com/@swc/core/-/core-1.3.32.tgz#ecb3c9d7717e0a15796230def1b17968b18228f1"
   integrity sha512-Yx/n1j+uUkcqlJAW8IRg8Qymgkdow6NHJZPFShiR0YiaYq2sXY+JHmvh16O6GkL91Y+gTlDUS7uVgDz50czJUQ==
@@ -17030,14 +17030,6 @@ vite-plugin-solid@^2:
     merge-anything "^5.1.4"
     solid-refresh "^0.5.0"
     vitefu "^0.2.3"
-
-vite-plugin-top-level-await@^1.2.3:
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/vite-plugin-top-level-await/-/vite-plugin-top-level-await-1.2.3.tgz#6aa76335045acbca1d93e0c68a519c5d7fe4c759"
-  integrity sha512-Hc4W7R+Hw4413lzv+kuVdXLrgNU+Pb07853Q15n/4JytEtyLykpN2rmtlG7J5uWij2btDXEEiv+DcrCiRZo/zA==
-  dependencies:
-    "@swc/core" "^1.3.10"
-    uuid "^9.0.0"
 
 "vite@^3.0.0 || ^4.0.0", vite@^4, vite@^4.0.4, vite@^4.3.8:
   version "4.3.9"
