@@ -25,7 +25,6 @@ extern "C" {
 #[derive(Clone, Deserialize, Serialize, TS)]
 #[ts(export)]
 enum OptStatus {
-    NewIter,
     UnconstrainedRunning,
     UnconstrainedConverged,
     EPConverged,
@@ -178,17 +177,6 @@ fn step_until(
     );
 
     match opt_status {
-        OptStatus::NewIter => {
-            return Params {
-                weight: INIT_CONSTRAINT_WEIGHT,
-                uo_round: 0,
-                ep_round: 0,
-                opt_status: OptStatus::UnconstrainedRunning,
-                lbfgs_info: DEFAULT_LBFGS_PARAMS,
-                ..state
-            }
-        }
-
         OptStatus::UnconstrainedRunning => {
             // NOTE: use cached varying values
 
