@@ -1,5 +1,4 @@
 import { Queue } from "@datastructures-js/queue";
-import { Params, polyRoots, start, stepUntil } from "@penrose/optimizer";
 import consola from "consola";
 import _ from "lodash";
 import * as ad from "../types/ad.js";
@@ -33,6 +32,7 @@ import {
   squared,
   sub,
 } from "./AutodiffFunctions.js";
+import { Params, polyRoots, start, stepUntil } from "./Optimizer.js";
 
 // To view logs, use LogLevel.Trace, otherwese LogLevel.Warn
 // const log = consola.create({ level: LogLevel.Trace }).withScope("Optimizer");

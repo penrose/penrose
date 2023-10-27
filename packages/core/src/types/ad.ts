@@ -218,7 +218,7 @@ export type Compiled = (
 ) => Outputs<number>;
 
 export interface OptOutputs {
-  phi: number; // see `Fn` from `@penrose/optimizer`
+  phi: number; // see `Fn` from `engine/Optimizer`
   objectives: number[];
   constraints: number[];
 }
@@ -229,7 +229,7 @@ export interface Masks {
   constrMask: boolean[];
 }
 
-// you can think of the `Fn` type from `@penrose/optimizer` as this type
+// you can think of the `Fn` type from `engine/Optimizer` as this type
 // partially applied with `masks` and projecting out the `phi` field
 export type Gradient = (
   masks: Masks,

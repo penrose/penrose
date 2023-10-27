@@ -12259,7 +12259,7 @@ ml-array-rescale@^1.3.7:
     ml-array-max "^1.2.4"
     ml-array-min "^1.2.3"
 
-ml-matrix@^6:
+ml-matrix@^6.10.7:
   version "6.10.7"
   resolved "https://registry.yarnpkg.com/ml-matrix/-/ml-matrix-6.10.7.tgz#e62f26bcfbf385396daf11d408621bc6a9545a8e"
   integrity sha512-v0AciHOXnCEYz8Dq4r5TeA+BFyIabBwng9y/rFVF43mhh3Ho2jDhJ6UZ0IUPRiedmfNcJDmI1j7YFdY30mHAcQ==

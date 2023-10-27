@@ -88,7 +88,7 @@ const lineSearch = (
   let t = 1;
   let j = 0;
 
-  while (true) {
+  for (;;) {
     for (let i = 0; i < n; i++) x[i] = x0[i] - t * r[i];
 
     if (Math.abs(a - b) < cfg.minInterval || j > cfg.maxSteps) break;
@@ -161,7 +161,7 @@ export const stepUntil = <T>(
   const q = new Float64Array(n);
   const r = new Float64Array(n);
 
-  while (true) {
+  for (;;) {
     const fx = f(x, grad);
 
     let m = state.s.length;

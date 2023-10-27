@@ -1,4 +1,3 @@
-import { start as genOptProblem } from "@penrose/optimizer";
 import consola from "consola";
 import im from "immutable";
 import _ from "lodash";
@@ -10,6 +9,7 @@ import { objDict } from "../contrib/Objectives.js";
 import { genGradient, ops, variable } from "../engine/Autodiff.js";
 import { add, div, mul, neg, pow, sub } from "../engine/AutodiffFunctions.js";
 import { compileCompGraph, dummyIdentifier } from "../engine/EngineUtils.js";
+import { start as genOptProblem } from "../engine/Optimizer.js";
 import { lastLocation, prettyParseError } from "../parser/ParserUtil.js";
 import styleGrammar from "../parser/StyleParser.js";
 import {

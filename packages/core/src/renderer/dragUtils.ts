@@ -1,4 +1,4 @@
-import { start } from "@penrose/optimizer";
+import { start } from "../engine/Optimizer.js";
 import { State } from "../types/state.js";
 
 /**

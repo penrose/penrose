@@ -10,9 +10,9 @@ import {
   Unary,
   Var,
   Vec,
+  polyRootsImpl,
   variable,
 } from "@penrose/core";
-import { polyRoots } from "@penrose/optimizer";
 import seedrandom from "seedrandom";
 import { Accessor, createEffect, createMemo, on } from "solid-js";
 import { SetStoreFunction, createStore } from "solid-js/store";
@@ -266,7 +266,7 @@ const vecSignal = (x: Vec): Accessor<number[]> => {
         ys.forEach((y, i) => {
           v[i] = y();
         });
-        polyRoots(v);
+        polyRootsImpl(v);
         return Array.from(v);
       });
     }

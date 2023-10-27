@@ -1,8 +1,8 @@
-import { start, stepUntil } from "@penrose/optimizer";
 import seedrandom from "seedrandom";
 import { compileDomain } from "./compiler/Domain.js";
 import { compileStyle } from "./compiler/Style.js";
 import { compileSubstance } from "./compiler/Substance.js";
+import { start, stepUntil } from "./engine/Optimizer.js";
 import { PathResolver, toInteractiveSVG, toSVG } from "./renderer/Renderer.js";
 import * as ad from "./types/ad.js";
 import { Env } from "./types/domain.js";

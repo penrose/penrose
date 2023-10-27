@@ -1,5 +1,5 @@
 import { EigenvalueDecomposition, Matrix } from "ml-matrix";
-import * as lbfgs from "./lbfgs.js";
+import * as lbfgs from "./Lbfgs.js";
 
 // see page 443 of Engineering Optimization, Fourth Edition
 /**
