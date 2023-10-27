@@ -309,13 +309,6 @@ export const isError = (state: State): boolean =>
 export const finalStage = (state: State): boolean =>
   state.currentStageIndex === state.optStages.length - 1;
 
-/**
- * Returns true if state is the initial frame
- * @param state current state
- */
-export const isInitial = (state: State): boolean =>
-  state.params.optStatus === "NewIter";
-
 const evalGrad = (s: State): ad.OptOutputs => {
   const { constraintSets, optStages, currentStageIndex } = s;
   const stage = optStages[currentStageIndex];

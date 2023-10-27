@@ -41,20 +41,6 @@ Be sure you have these tools installed:
 
   - [Yarn][] v1.x
 
-- [Rust][]
-
-  - the WebAssembly target for Rust:
-
-    ```sh
-    rustup target add wasm32-unknown-unknown
-    ```
-
-  - `wasm-bindgen` CLI v0.2.84:
-
-    ```sh
-    cargo install --version=0.2.84 wasm-bindgen-cli
-    ```
-
 Depending on your platform, here are some extra instructions:
 
 ### Apple Silicon
@@ -409,7 +395,7 @@ When your work is ready for review:
   reproducing specific examples_, and link(s) to any issue(s) you address).
 - Some things will be checked automatically by our [CI][]:
   - Make sure the system passes the regression tests.
-  - Run [Prettier][] and [rustfmt][] via `yarn format`.
+  - Run [Prettier][] via `yarn format`.
 - If you have permission, request review from the relevant person. Otherwise, no
   worries: we'll take a look at your PR and assign it to a maintainer.
 - When your PR is approved, a maintainer will merge it.
@@ -423,7 +409,6 @@ Our repo uses [semantic versioning][] and maintains the same version number for 
 
 - Make sure all PRs for the upcoming release are merged. Switch to `main` and check `git status` to make sure it's clean and up-to-date.
 - At repo root, run `yarn new-version` to create a new version.
-  - Note that the this script does not modify the Rust crate version in `packages/optimizer/Cargo.{toml,lock}`, which currently must be manually updated.
 - Run `yarn format` to clean up auto-generated file changes.
 - Create a new branch (`git switch --create release-X.Y.Z`) from main and commit the changes.
 - Open a new PR with a title `chore: bump version to X.Y.Z` and merge after CI passes.
@@ -452,11 +437,8 @@ Our repo uses [semantic versioning][] and maintains the same version number for 
 [prettier]: https://prettier.io/
 [push]: https://github.com/git-guides/git-push
 [remote]: https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes
-[rust]: https://www.rust-lang.org/tools/install
-[rustfmt]: https://github.com/rust-lang/rustfmt
 [that link]: http://localhost:3000/try/
 [this repo]: https://github.com/penrose/penrose
-[yaml]: https://yaml.org/
 [yarn]: https://classic.yarnpkg.com/lang/en/docs/install/
 [semantic versioning]: https://semver.org
 [github release]: https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository
