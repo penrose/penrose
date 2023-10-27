@@ -102,7 +102,7 @@ const lineSearch = (
     else break; // found good interval
 
     if (b < Infinity) t = (a + b) / 2; // already found Armijo
-    else t = 2 * a; // did not find Armijo;
+    else t = 2 * a; // did not find Armijo
 
     j++;
   }
