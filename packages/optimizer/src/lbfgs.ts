@@ -160,7 +160,7 @@ export const stepUntil = <T>(
     const fx = f(x, grad);
 
     let m = state.s.length;
-    if (state.s.length < cfg.m) {
+    if (m < cfg.m) {
       m++;
 
       const s = new Float64Array(n);
