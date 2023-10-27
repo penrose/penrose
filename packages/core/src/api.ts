@@ -58,11 +58,10 @@ export const onCanvasPoint = (
 export const lessThan = (x: ad.Num, y: ad.Num): ad.Num => sub(x, y);
 
 export { convexPolygonMinkowskiSDF } from "./contrib/Minkowski.js";
-export { compile, ops, problem } from "./engine/Autodiff.js";
+export { compile, ops, polyRootsImpl, problem } from "./engine/Autodiff.js";
 export * from "./engine/AutodiffFunctions.js";
 export { corners } from "./engine/BBox.js";
 export type { BBox } from "./engine/BBox.js";
-export { polyRoots as polyRootsImpl } from "./engine/Optimizer.js";
 export type {
   Binary,
   Bool,

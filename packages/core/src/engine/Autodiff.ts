@@ -1,6 +1,7 @@
 import { Queue } from "@datastructures-js/queue";
 import consola from "consola";
 import _ from "lodash";
+import { EigenvalueDecomposition, Matrix } from "ml-matrix";
 import * as ad from "../types/ad.js";
 import Graph from "../utils/Graph.js";
 import { safe, zip2 } from "../utils/Util.js";
@@ -32,7 +33,7 @@ import {
   squared,
   sub,
 } from "./AutodiffFunctions.js";
-import { Params, polyRoots, start, stepUntil } from "./Optimizer.js";
+import { Params, start, stepUntil } from "./Optimizer.js";
 
 // To view logs, use LogLevel.Trace, otherwese LogLevel.Warn
 // const log = consola.create({ level: LogLevel.Trace }).withScope("Optimizer");
@@ -1822,6 +1823,34 @@ const makeMeta = (graphs: ad.Graph[]): Metadata => {
   };
 };
 
+/**
+ * Replaces the contents of `v` with the roots of the monic polynomial whose
+ * degree is the length of the vector and whose coefficient with a given degree
+ * is the element of the vector at that index. Any root with a nonzero imaginary
+ * component is replaced with `NaN`.
+ */
+export const polyRootsImpl = (v: Float64Array): void => {
+  const n = v.length;
+  // https://en.wikipedia.org/wiki/Companion_matrix
+  const m = Matrix.zeros(n, n);
+  for (let i = 0; i + 1 < n; i++) {
+    m.set(i + 1, i, 1);
+    m.set(i, n - 1, -v[i]);
+  }
+  m.set(n - 1, n - 1, -v[n - 1]);
+
+  // the characteristic polynomial of the companion matrix is equal to the
+  // original polynomial, so by finding the eigenvalues of the companion matrix,
+  // we get the roots of its characteristic polynomial and thus of the original
+  // polynomial
+  const r = new EigenvalueDecomposition(m);
+  for (let i = 0; i < n; i++) {
+    // as mentioned in the `polyRoots` docstring in `engine/AutodiffFunctions`,
+    // we discard any non-real root and replace with `NaN`
+    v[i] = r.imaginaryEigenvalues[i] === 0 ? r.realEigenvalues[i] : NaN;
+  }
+};
+
 const makeImports = (memory: WebAssembly.Memory): WebAssembly.Imports => ({
   [importModule]: {
     [importMemoryName]: memory,
@@ -1856,7 +1885,7 @@ const makeImports = (memory: WebAssembly.Memory): WebAssembly.Imports => ({
           pow: Math.pow,
 
           polyRoots: (p: number, n: number): void => {
-            polyRoots(new Float64Array(memory.buffer, p, n));
+            polyRootsImpl(new Float64Array(memory.buffer, p, n));
           },
         }[name],
       ]),
