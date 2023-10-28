@@ -429,27 +429,23 @@ const minimize = (
 /**
  * @returns an initial state for optimizing in `n` dimensions
  */
-export const start = (n: number): Params => {
-  const lastGradient = new Float64Array(n);
-  const lastGradientPreconditioned = new Float64Array(n);
-  return {
-    lastGradient,
-    lastGradientPreconditioned,
+export const start = (n: number): Params => ({
+  lastGradient: new Float64Array(n),
+  lastGradientPreconditioned: new Float64Array(n),
 
-    weight: initConstraintWeight,
-    UOround: 0,
-    EPround: 0,
-    optStatus: "UnconstrainedRunning",
+  weight: initConstraintWeight,
+  UOround: 0,
+  EPround: 0,
+  optStatus: "UnconstrainedRunning",
 
-    lbfgsInfo: defaultLbfgsParams,
+  lbfgsInfo: defaultLbfgsParams,
 
-    lastUOstate: undefined,
-    lastUOenergy: undefined,
+  lastUOstate: undefined,
+  lastUOenergy: undefined,
 
-    lastEPstate: undefined,
-    lastEPenergy: undefined,
-  };
-};
+  lastEPstate: undefined,
+  lastEPenergy: undefined,
+});
 
 const containsNaN = (numberList: Float64Array): boolean => {
   for (const n of numberList) {
