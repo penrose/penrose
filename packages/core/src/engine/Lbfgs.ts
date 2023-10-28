@@ -49,10 +49,7 @@ export interface State {
   grad: Float64Array;
 
   /** See page 224 of Nocedal and Wright. */
-  s: Float64Array[];
-
-  /** See page 224 of Nocedal and Wright. */
-  y: Float64Array[];
+  s_y: { s: Float64Array; y: Float64Array }[];
 }
 
 const dot = (u: Float64Array, v: Float64Array): number => {
@@ -124,7 +121,7 @@ export const firstStep = (cfg: Config, f: Fn, x: Float64Array): State => {
   const r = new Float64Array(grad);
   lineSearch(cfg, f, x0, r, fx, grad, x);
 
-  return { x: x0, grad: r, s: [], y: [] };
+  return { x: x0, grad: r, s_y: [] };
 };
 
 /** Information after a step of L-BFGS. */
@@ -164,53 +161,45 @@ export const stepUntil = <T>(
   for (;;) {
     const fx = f(x, grad);
 
-    let m = state.s.length;
-    if (m < cfg.m) {
-      m++;
-
+    if (state.s_y.length < cfg.m) {
       const s = new Float64Array(n);
       for (let i = 0; i < n; i++) s[i] = x[i] - state.x[i];
-      state.s.push(s);
-
       const y = new Float64Array(n);
       for (let i = 0; i < n; i++) y[i] = grad[i] - state.grad[i];
-      state.y.push(y);
+      state.s_y.push({ s, y });
     } else {
-      const s = state.s[m - 1];
-      const y = state.y[m - 1];
+      const { s, y } = state.s_y[state.s_y.length - 1];
       for (let i = 0; i < n; i++) {
         s[i] = x[i] - state.x[i];
         y[i] = grad[i] - state.grad[i];
       }
     }
-    state.s.unshift(state.s.pop()!);
-    state.y.unshift(state.y.pop()!);
+    state.s_y.unshift(state.s_y.pop()!);
 
     state.x.set(x);
     state.grad.set(grad);
 
-    for (let j = 0; j < m; j++)
-      rho[j] = 1 / (dot(state.y[j], state.s[j]) + cfg.epsd);
+    for (let j = 0; j < state.s_y.length; j++) {
+      const { s: s_j, y: y_j } = state.s_y[j];
+      rho[j] = 1 / (dot(y_j, s_j) + cfg.epsd);
+    }
 
     q.set(grad);
 
-    for (let j = 0; j < m; j++) {
-      const s_j = state.s[j];
-      const y_j = state.y[j];
+    for (let j = 0; j < state.s_y.length; j++) {
+      const { s: s_j, y: y_j } = state.s_y[j];
       const alpha_j = rho[j] * dot(s_j, q);
       alpha[j] = alpha_j;
       for (let i = 0; i < n; i++) q[i] -= alpha_j * y_j[i];
     }
 
     // see page 226 of Nocedal and Wright
-    const s_k = state.s[0];
-    const y_k = state.y[0];
+    const { s: s_k, y: y_k } = state.s_y[0];
     const gamma = dot(s_k, y_k) / (dot(y_k, y_k) + cfg.epsd);
     for (let i = 0; i < n; i++) r[i] = gamma * q[i];
 
-    for (let j = m - 1; j >= 0; j--) {
-      const s_j = state.s[j];
-      const y_j = state.y[j];
+    for (let j = state.s_y.length - 1; j >= 0; j--) {
+      const { s: s_j, y: y_j } = state.s_y[j];
       const alpha_j = alpha[j];
       const beta = rho[j] * dot(y_j, r);
       for (let i = 0; i < n; i++) r[i] += s_j[i] * (alpha_j - beta);

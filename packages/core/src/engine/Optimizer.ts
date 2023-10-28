@@ -338,8 +338,7 @@ const minimize = (
       ? {
           x: lbfgsInfo.lastState,
           grad: lbfgsInfo.lastGrad,
-          s: lbfgsInfo.s_list,
-          y: lbfgsInfo.y_list,
+          s_y: lbfgsInfo.s_list.map((s, i) => ({ s, y: lbfgsInfo.y_list[i] })),
         }
       : lbfgs.firstStep(cfg, (x, grad) => f(x, weight, grad), xs);
 
@@ -418,8 +417,8 @@ const minimize = (
     newLbfgsInfo: {
       lastState: state.x,
       lastGrad: state.grad,
-      s_list: state.s,
-      y_list: state.y,
+      s_list: state.s_y.map(({ s }) => s),
+      y_list: state.s_y.map(({ y }) => y),
     },
     gradient: gradfxs,
     gradientPreconditioned,
