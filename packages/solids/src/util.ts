@@ -284,8 +284,20 @@ export const signalBool = (x: Bool): SignalBool => {
   return x as SignalBool;
 };
 
+/**
+ * A probability distribution; `x` is between zero (inclusive) and one
+ * (exclusive).
+ */
 export type Sampler = (x: number) => number;
 
+/**
+ * Call `f` once, passing in a function that can be called to construct reactive
+ * input `Var`s for a computation graph. The randomly generated values passed to
+ * each `sampler` are deterministic based on `seed`, and the returned `Var`s are
+ * reactive when `seed` changes: while `f` is being executed, the order of calls
+ * to `makeVar` is recorded, and when `seed` changes, the values of those `Var`s
+ * are regenerated in the same order with the same set of `sampler` functions.
+ */
 export const sample = <T>(
   seed: Accessor<string>,
   f: (makeVar: (sampler: Sampler) => Var) => T,
