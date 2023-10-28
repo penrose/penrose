@@ -1,3 +1,4 @@
+import { TextPath } from "src/shapes/TextPath.js";
 import { Result } from "true-myth";
 import { dummyIdentifier } from "../../engine/EngineUtils.js";
 import { Circle } from "../../shapes/Circle.js";
@@ -68,6 +69,8 @@ export const checkShape = (
       return checkText(path, trans);
     case "Group":
       return checkGroup(path, trans);
+    case "TextPath":
+      return checkTextPath(path, trans);
     default:
       return err({
         tag: "InvalidGPITypeError",
@@ -514,5 +517,47 @@ export const checkText = (
     descent: descent.value,
     passthrough: new Map(),
     shapeType: "Text",
+  });
+};
+
+export const checkTextPath = (
+  path: string,
+  trans: Translation,
+): Result<TextPath<ad.Num>, StyleError> => {
+  const named = checkNamed(path, trans);
+  if (named.isErr()) return err(named.error);
+
+  const stroke = checkStroke(path, trans);
+  if (stroke.isErr()) return err(stroke.error);
+
+  const fill = checkFill(path, trans);
+  if (fill.isErr()) return err(fill.error);
+
+  const string = checkString(path, trans);
+  if (string.isErr()) return err(string.error);
+
+  const startOffset = checkProp(path, "startOffset", trans, checkFloatV);
+  if (startOffset.isErr()) return err(startOffset.error);
+
+  const path_ = checkProp(path, "path", trans, checkPathDataV);
+  if (path_.isErr()) return err(path_.error);
+
+  const method = checkProp(path, "method", trans, checkStrV);
+  if (method.isErr()) return err(method.error);
+
+  const spacing = checkProp(path, "spacing", trans, checkStrV);
+  if (spacing.isErr()) return err(spacing.error);
+
+  return ok({
+    ...named.value,
+    ...stroke.value,
+    ...fill.value,
+    ...string.value,
+    startOffset: startOffset.value,
+    path: path_.value,
+    method: method.value,
+    spacing: spacing.value,
+    passthrough: new Map(),
+    shapeType: "TextPath",
   });
 };

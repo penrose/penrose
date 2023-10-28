@@ -13,6 +13,7 @@ import { Polyline, PolylineProps, samplePolyline } from "./Polyline.js";
 import { Rectangle, RectangleProps, sampleRectangle } from "./Rectangle.js";
 import { Canvas, Context } from "./Samplers.js";
 import { Text, TextProps, sampleText } from "./Text.js";
+import { TextPath, TextPathProps, sampleTextPath } from "./TextPath.js";
 //#region other shape types/globals
 
 export type Shape<T> =
@@ -26,7 +27,8 @@ export type Shape<T> =
   | Polyline<T>
   | Rectangle<T>
   | Text<T>
-  | Group<T>;
+  | Group<T>
+  | TextPath<T>;
 
 export type ShapeType = Shape<ad.Num>["shapeType"];
 export type ShapeProps<T> =
@@ -40,7 +42,8 @@ export type ShapeProps<T> =
   | PolylineProps<T>
   | RectangleProps<T>
   | TextProps<T>
-  | GroupProps<T>;
+  | GroupProps<T>
+  | TextPathProps<T>;
 
 export const computeShapeBbox = (shape: Shape<ad.Num>): BBox.BBox => {
   switch (shape.shapeType) {
@@ -63,6 +66,8 @@ export const computeShapeBbox = (shape: Shape<ad.Num>): BBox.BBox => {
       return BBox.bboxFromRect(shape);
     case "Group":
       return bboxFromGroup(shape);
+    case "TextPath":
+      return BBox.bboxFromTextPath(shape);
   }
 };
 
@@ -82,6 +87,7 @@ const shapeSampler: Map<
     Rectangle: sampleRectangle,
     Text: sampleText,
     Group: sampleGroup,
+    TextPath: sampleTextPath,
   }),
 );
 
@@ -121,6 +127,7 @@ export const shapeTypes = [
   "Rectangle",
   "Text",
   "Group",
+  "TextPath",
 ];
 
 export const sampleShape = (

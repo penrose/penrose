@@ -24,6 +24,7 @@ import RenderPolygon from "./Polygon.js";
 import RenderPolyline from "./Polyline.js";
 import RenderRectangle from "./Rectangle.js";
 import RenderText from "./Text.js";
+import RenderTextPath from "./TextPath.js";
 import { dragUpdate } from "./dragUtils.js";
 
 /**
@@ -276,6 +277,8 @@ const RenderShapeSvg = async (
       return RenderRectangle(shape, renderProps);
     case "Text":
       return RenderText(shape, renderProps);
+    case "TextPath":
+      return RenderTextPath(shape, renderProps);
   }
 };
 

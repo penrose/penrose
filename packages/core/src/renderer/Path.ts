@@ -16,7 +16,7 @@ import {
 import { arrowHead } from "./Line.js";
 import { RenderProps } from "./Renderer.js";
 
-const toPathString = (
+export const toPathString = (
   pathData: PathCmd<number>[],
   canvasSize: [number, number],
 ) =>

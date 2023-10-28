@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { TextPath } from "src/shapes/TextPath.js";
 import { ops } from "../engine/Autodiff.js";
 import {
   absVal,
@@ -6178,7 +6179,8 @@ export const rawRayIntersect = (
     | Polygon<ad.Num>
     | Ellipse<ad.Num>
     | Path<ad.Num>
-    | Group<ad.Num>,
+    | Group<ad.Num>
+    | TextPath<ad.Num>,
   p: ad.Num[],
   v: ad.Num[],
 ): ad.Num[][] => {
@@ -6215,6 +6217,8 @@ export const rawRayIntersect = (
     );
   } else if (t === "Path") {
     throw new Error("Ray intersection not handled for Path");
+  } else if (t === "TextPath") {
+    throw new Error("Ray intersection not handled for TextPath");
   } else {
     return rawRayIntersectGroup(s.shapes.contents, p, v);
   }
@@ -6445,7 +6449,8 @@ export const closestPoint = (
     | Polygon<ad.Num>
     | Ellipse<ad.Num>
     | Path<ad.Num>
-    | Group<ad.Num>,
+    | Group<ad.Num>
+    | TextPath<ad.Num>,
   p: ad.Num[],
 ): ad.Num[] => {
   const t = s.shapeType;
@@ -6473,6 +6478,8 @@ export const closestPoint = (
     );
   } else if (t === "Path") {
     throw new Error("Closest point queries not handled for Path");
+  } else if (t === "TextPath") {
+    throw new Error("Closest point queries not handled for PathText");
   } else {
     // t === "Group"
     return closestPointGroup(s.shapes.contents, p);
@@ -6644,7 +6651,8 @@ export const rawClosestSilhouettePoint = (
     | Polygon<ad.Num>
     | Ellipse<ad.Num>
     | Path<ad.Num>
-    | Group<ad.Num>,
+    | Group<ad.Num>
+    | TextPath<ad.Num>,
   p: ad.Num[],
 ): ad.Num[] => {
   const t = s.shapeType;
@@ -6672,6 +6680,8 @@ export const rawClosestSilhouettePoint = (
     );
   } else if (t === "Path") {
     throw new Error("Silhouette queries not handled for Path");
+  } else if (t === "TextPath") {
+    throw new Error("Silhouette queries not handled for TextPath");
   } else {
     // t === "Group"
     return rawClosestSilhouettePointGroup(s.shapes.contents, p);
