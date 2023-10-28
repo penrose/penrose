@@ -1,10 +1,10 @@
-import { constrDict } from "./contrib/Constraints.js";
-import { elasticEnergy, equivalued, perimeter } from "./contrib/Curves.js";
-import { signedDistanceRect } from "./contrib/Functions.js";
-import { rectPts } from "./contrib/Queries.js";
-import { consecutiveTuples } from "./contrib/Utils.js";
 import { ops, variable } from "./engine/Autodiff.js";
 import { absVal, add, div, neg, pow, sub } from "./engine/AutodiffFunctions.js";
+import { constrDict } from "./lib/Constraints.js";
+import { elasticEnergy, equivalued, perimeter } from "./lib/Curves.js";
+import { signedDistanceRect } from "./lib/Functions.js";
+import { rectPts } from "./lib/Queries.js";
+import { consecutiveTuples } from "./lib/Utils.js";
 import * as ad from "./types/ad.js";
 import { TextMeasurement, measureText } from "./utils/CollectLabels.js";
 
@@ -57,11 +57,11 @@ export const onCanvasPoint = (
 
 export const lessThan = (x: ad.Num, y: ad.Num): ad.Num => sub(x, y);
 
-export { convexPolygonMinkowskiSDF } from "./contrib/Minkowski.js";
 export { compile, ops, problem } from "./engine/Autodiff.js";
 export * from "./engine/AutodiffFunctions.js";
 export { corners } from "./engine/BBox.js";
 export type { BBox } from "./engine/BBox.js";
+export { convexPolygonMinkowskiSDF } from "./lib/Minkowski.js";
 export type {
   Binary,
   Bool,
