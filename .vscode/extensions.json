@@ -4,8 +4,6 @@
     "esbenp.prettier-vscode",
     "karyfoundation.nearley",
     "penrose.penrose-vs",
-    "rust-lang.rust-analyzer",
-    "tamasfe.even-better-toml",
     "vue.volar"
   ]
 }

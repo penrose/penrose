@@ -19,8 +19,6 @@
 /packages/docs-site/src/shapedefs.json
 /packages/examples/src/registry.ts
 /packages/examples/src/resolver.ts
-/packages/optimizer/bindings/
-/packages/optimizer/build/
 /README.md
 coverage/
 public/app.css

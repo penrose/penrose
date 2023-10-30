@@ -1,12 +1,11 @@
 import react from "@vitejs/plugin-react-swc";
 import * as path from "path";
 import { defineConfig } from "vite";
-import topLevelAwait from "vite-plugin-top-level-await";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   base: "/try/",
-  plugins: [react({ jsxRuntime: "classic" }), topLevelAwait()],
+  plugins: [react({ jsxRuntime: "classic" })],
   build: { target: "esnext" },
   optimizeDeps: {
     exclude: ["@penrose/examples"],
