@@ -356,9 +356,9 @@ export {
   prettyCompiledSubstance,
   prettySubstance,
 } from "./compiler/Substance.js";
-export { constrDict } from "./contrib/Constraints.js";
-export { compDict } from "./contrib/Functions.js";
-export { objDict } from "./contrib/Objectives.js";
+export { constrDict } from "./lib/Constraints.js";
+export { compDict } from "./lib/Functions.js";
+export { objDict } from "./lib/Objectives.js";
 export { toInteractiveSVG, toSVG } from "./renderer/Renderer.js";
 export type { PathResolver } from "./renderer/Renderer.js";
 export { makeCanvas, simpleContext } from "./shapes/Samplers.js";

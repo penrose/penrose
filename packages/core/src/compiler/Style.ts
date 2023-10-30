@@ -3,13 +3,13 @@ import im from "immutable";
 import _ from "lodash";
 import nearley from "nearley";
 import seedrandom from "seedrandom";
-import { constrDict } from "../contrib/Constraints.js";
-import { compDict } from "../contrib/Functions.js";
-import { objDict } from "../contrib/Objectives.js";
 import { genGradient, ops, variable } from "../engine/Autodiff.js";
 import { add, div, mul, neg, pow, sub } from "../engine/AutodiffFunctions.js";
 import { compileCompGraph, dummyIdentifier } from "../engine/EngineUtils.js";
 import { start as genOptProblem } from "../engine/Optimizer.js";
+import { constrDict } from "../lib/Constraints.js";
+import { compDict } from "../lib/Functions.js";
+import { objDict } from "../lib/Objectives.js";
 import { lastLocation, prettyParseError } from "../parser/ParserUtil.js";
 import styleGrammar from "../parser/StyleParser.js";
 import {

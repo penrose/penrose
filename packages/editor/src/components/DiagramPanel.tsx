@@ -183,6 +183,8 @@ const SVGaddCode = (
       "https://penrose.cs.cmu.edu/metadata",
       "penrose",
     );
+    // Add the <penrose> metadata tag to the parent <svg> tag
+    svg.appendChild(metadata);
   } else {
     metadata = metadataQuery!;
   }
@@ -225,9 +227,6 @@ const SVGaddCode = (
   metadata.appendChild(substance);
   metadata.appendChild(style);
   metadata.appendChild(dsl);
-
-  // Add the <penrose> metadata tag to the parent <svg> tag
-  svg.appendChild(metadata);
 };
 
 /**
