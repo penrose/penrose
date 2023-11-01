@@ -1,3 +1,4 @@
+import { scalar } from "@tensorflow/tfjs";
 import { describe, expect, it, test } from "vitest";
 import { Polygon } from "../../shapes/Polygon.js";
 import { Polyline } from "../../shapes/Polyline.js";
@@ -25,7 +26,7 @@ describe("simple objective", () => {
   ])(
     "equal(%p, %p) should return %p",
     (x: number, y: number, expected: number) => {
-      const result = objDict.equal.body(x, y).value;
+      const result = objDict.equal.body(scalar(x), scalar(y)).value;
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     },
   );
@@ -39,7 +40,11 @@ describe("simple objective", () => {
   ])(
     "repelPt(%p, %p, %p) should return %p",
     (weight: number, a: number[], b: number[], expected: number) => {
-      const result = objDict.repelPt.body(weight, a, b).value;
+      const result = objDict.repelPt.body(
+        scalar(weight),
+        a.map((x) => scalar(x)),
+        b.map((x) => scalar(x)),
+      ).value;
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     },
   );
@@ -53,7 +58,7 @@ describe("simple objective", () => {
   ])(
     "repelScalar(%p, %p) should return %p",
     (c: number, d: number, expected: number) => {
-      const result = objDict.repelScalar.body(c, d).value;
+      const result = objDict.repelScalar.body(scalar(c), scalar(d)).value;
       expect(numOf(result)).toBeCloseTo(expected, digitPrecision);
     },
   );

@@ -1,3 +1,4 @@
+import { scalar } from "@tensorflow/tfjs";
 import { StrV } from "src/types/value.js";
 import * as ad from "../types/ad.js";
 import {
@@ -27,17 +28,17 @@ export const samplePolyline = (
   _canvas: Canvas,
 ): PolylineProps<ad.Num> => ({
   name: strV("defaultPolyline"),
-  strokeWidth: floatV(1),
+  strokeWidth: floatV(scalar(1)),
   strokeStyle: strV("solid"),
   strokeColor: black(),
   strokeDasharray: strV(""),
   strokeLinecap: strV("butt"),
   fillColor: noPaint(),
-  scale: floatV(1),
+  scale: floatV(scalar(1)),
   points: ptListV([
-    [0, 0],
-    [0, 10],
-    [10, 0],
+    [scalar(0), scalar(0)],
+    [scalar(0), scalar(10)],
+    [scalar(10), scalar(0)],
   ]),
   ensureOnCanvas: boolV(true),
 });

@@ -1,3 +1,4 @@
+import { scalar } from "@tensorflow/tfjs";
 import { EPS_DENOM, ops } from "../engine/Autodiff.js";
 import {
   absVal,
@@ -207,7 +208,7 @@ export const objDictGeneral = {
         return inDirection(
           shapeCenter(bottom),
           shapeCenter(top),
-          [0, 1],
+          [scalar(0), scalar(1)],
           offset,
         );
       },
@@ -244,7 +245,7 @@ export const objDictGeneral = {
         return inDirection(
           shapeCenter(top),
           shapeCenter(bottom),
-          [0, 1],
+          [scalar(0), scalar(1)],
           offset,
         );
       },
@@ -281,7 +282,7 @@ export const objDictGeneral = {
         return inDirection(
           shapeCenter(left),
           shapeCenter(right),
-          [1, 0],
+          [scalar(1), scalar(0)],
           offset,
         );
       },
@@ -318,7 +319,7 @@ export const objDictGeneral = {
         return inDirection(
           shapeCenter(right),
           shapeCenter(left),
-          [1, 0],
+          [scalar(1), scalar(0)],
           offset,
         );
       },
@@ -521,7 +522,7 @@ export const objDictSpecific = {
           const [arr, text] = [s1, s2];
           const midpt = ops.vdiv(
             ops.vadd(arr.start.contents, arr.end.contents),
-            2,
+            scalar(2),
           );
           const textBB = bboxFromShape(text);
           // is (x-y)^2 = x^2-2xy+y^2 better? or x^2 - y^2?

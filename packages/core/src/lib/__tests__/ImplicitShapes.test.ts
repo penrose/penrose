@@ -1,3 +1,4 @@
+import { scalar } from "@tensorflow/tfjs";
 import { describe, expect, test } from "vitest";
 import { addN, mul, polyRoots, sub } from "../../engine/AutodiffFunctions.js";
 import { makeCircle } from "../../shapes/Circle.js";
@@ -19,11 +20,11 @@ describe("toImplicit", () => {
   test("halfPlaneToImplicit", async () => {
     let result = halfPlaneToImplicit(
       [
-        [1, 2],
-        [2, 3],
+        [scalar(1), scalar(2)],
+        [scalar(2), scalar(3)],
       ],
-      [1, 6],
-      0,
+      [scalar(1), scalar(6)],
+      scalar(0),
     );
     let [a, b, c] = numsOf([result.a, result.b, result.c]);
     expect(a).toBeCloseTo(1 / Math.sqrt(2), 4);
@@ -34,11 +35,11 @@ describe("toImplicit", () => {
   test("halfPlaneToImplicit with padding", async () => {
     let result = halfPlaneToImplicit(
       [
-        [1, 2],
-        [3, 4],
+        [scalar(1), scalar(2)],
+        [scalar(3), scalar(4)],
       ],
-      [5, 6],
-      1,
+      [scalar(5), scalar(6)],
+      scalar(1),
     );
     let [a, b, c] = numsOf([result.a, result.b, result.c]);
     expect(a).toBeCloseTo(1 / Math.sqrt(2), 4);
@@ -51,14 +52,14 @@ describe("toImplicit", () => {
       simpleContext("ImplicitShapes.test"),
       makeCanvas(800, 700),
       {
-        rx: floatV(6),
-        ry: floatV(3),
-        center: vectorV([-11, 22]),
-        strokeWidth: floatV(0),
+        rx: floatV(scalar(6)),
+        ry: floatV(scalar(3)),
+        center: vectorV([scalar(-11), scalar(22)]),
+        strokeWidth: floatV(scalar(0)),
         strokeColor: black(),
       },
     );
-    let result = ellipseToImplicit(ellipse, 0);
+    let result = ellipseToImplicit(ellipse, scalar(0));
     let [a, b, c, x, y] = numsOf([
       result.a,
       result.b,
@@ -78,14 +79,14 @@ describe("toImplicit", () => {
       simpleContext("ImplicitShapes.test"),
       makeCanvas(800, 700),
       {
-        rx: floatV(1),
-        ry: floatV(7),
-        center: vectorV([-11, 22]),
-        strokeWidth: floatV(0),
+        rx: floatV(scalar(1)),
+        ry: floatV(scalar(7)),
+        center: vectorV([scalar(-11), scalar(22)]),
+        strokeWidth: floatV(scalar(0)),
         strokeColor: black(),
       },
     );
-    let result = ellipseToImplicit(ellipse, 1);
+    let result = ellipseToImplicit(ellipse, scalar(1));
     let [a, b, c, x, y] = numsOf([
       result.a,
       result.b,
@@ -105,13 +106,13 @@ describe("toImplicit", () => {
       simpleContext("ImplicitShapes.test"),
       makeCanvas(800, 700),
       {
-        r: floatV(2),
-        center: vectorV([3, 4]),
-        strokeWidth: floatV(0),
+        r: floatV(scalar(2)),
+        center: vectorV([scalar(3), scalar(4)]),
+        strokeWidth: floatV(scalar(0)),
         strokeColor: black(),
       },
     );
-    let result = circleToImplicitEllipse(circle, 0);
+    let result = circleToImplicitEllipse(circle, scalar(0));
     let [a, b, c, x, y] = numsOf([
       result.a,
       result.b,
@@ -131,13 +132,13 @@ describe("toImplicit", () => {
       simpleContext("ImplicitShapes.test"),
       makeCanvas(800, 700),
       {
-        r: floatV(2),
-        center: vectorV([3, 4]),
-        strokeWidth: floatV(0),
+        r: floatV(scalar(2)),
+        center: vectorV([scalar(3), scalar(4)]),
+        strokeWidth: floatV(scalar(0)),
         strokeColor: black(),
       },
     );
-    let result = circleToImplicitEllipse(circle, 1);
+    let result = circleToImplicitEllipse(circle, scalar(1));
     let [a, b, c, x, y] = numsOf([
       result.a,
       result.b,
@@ -154,8 +155,20 @@ describe("toImplicit", () => {
 });
 
 describe("ellipsePolynomial", () => {
-  const ellipse1 = { a: 0.5, b: 2, c: 100, x: -11, y: 22 };
-  const ellipse2 = { a: 4, b: 0.25, c: 200, x: 33, y: -44 };
+  const ellipse1 = {
+    a: scalar(0.5),
+    b: scalar(2),
+    c: scalar(100),
+    x: scalar(-11),
+    y: scalar(22),
+  };
+  const ellipse2 = {
+    a: scalar(4),
+    b: scalar(0.25),
+    c: scalar(200),
+    x: scalar(33),
+    y: scalar(-44),
+  };
 
   test("ellipsePolynomial produces points on the constraint manifold", async () => {
     const poly = ellipsePolynomial(ellipse1, ellipse2);
@@ -182,7 +195,7 @@ describe("ellipsePolynomial", () => {
       .filter(([_, rn]) => !Number.isNaN(rn))
       .map(([r, _]) => r);
     lambdas.forEach(function (lambda) {
-      let power: ad.Num = 1;
+      let power: ad.Num = scalar(1);
       const powers: ad.Num[] = [power];
       for (let i = 1; i <= poly.length; i++) {
         power = mul(power, lambda);

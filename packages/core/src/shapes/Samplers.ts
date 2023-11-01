@@ -1,3 +1,4 @@
+import { scalar } from "@tensorflow/tfjs";
 import seedrandom from "seedrandom";
 import { variable } from "../engine/Autodiff.js";
 import * as ad from "../types/ad.js";
@@ -140,7 +141,7 @@ export const sampleColor = ({ makeInput }: Context): ColorV<ad.Num> => {
         init: { tag: "Sampled", sampler: uniform(min, max) },
         stages: "All",
       }),
-      0.5,
+      scalar(0.5),
     ],
   });
 };

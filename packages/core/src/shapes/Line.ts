@@ -1,3 +1,4 @@
+import { scalar } from "@tensorflow/tfjs";
 import * as ad from "../types/ad.js";
 import { Arrow, Fill, Named, ShapeCommon, Stroke } from "../types/shapes.js";
 import { StrV, VectorV } from "../types/value.js";
@@ -17,14 +18,14 @@ export const sampleLine = (
   canvas: Canvas,
 ): LineProps<ad.Num> => ({
   name: strV("defaultLine"),
-  strokeWidth: floatV(1),
+  strokeWidth: floatV(scalar(1)),
   strokeStyle: strV("solid"),
   strokeColor: black(),
   strokeDasharray: strV(""),
-  startArrowheadSize: floatV(1),
+  startArrowheadSize: floatV(scalar(1)),
   startArrowhead: strV("none"),
   flipStartArrowhead: boolV(false),
-  endArrowheadSize: floatV(1),
+  endArrowheadSize: floatV(scalar(1)),
   endArrowhead: strV("none"),
   start: sampleVector(context, canvas),
   end: sampleVector(context, canvas),

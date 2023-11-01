@@ -1,3 +1,4 @@
+import { scalar } from "@tensorflow/tfjs";
 import * as ad from "../types/ad.js";
 import {
   Fill,
@@ -22,16 +23,16 @@ export const samplePolygon = (
   _canvas: Canvas,
 ): PolygonProps<ad.Num> => ({
   name: strV("defaultPolygon"),
-  strokeWidth: floatV(0),
+  strokeWidth: floatV(scalar(0)),
   strokeStyle: strV("solid"),
   strokeColor: noPaint(),
   strokeDasharray: strV(""),
   fillColor: sampleColor(context),
-  scale: floatV(1),
+  scale: floatV(scalar(1)),
   points: ptListV([
-    [0, 0],
-    [0, 10],
-    [10, 0],
+    [scalar(0), scalar(0)],
+    [scalar(0), scalar(10)],
+    [scalar(10), scalar(0)],
   ]),
   ensureOnCanvas: boolV(true),
 });

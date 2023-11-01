@@ -1,6 +1,7 @@
 import im from "immutable";
 import { describe, expect, test } from "vitest";
 import { numsOf } from "../lib/Utils.js";
+import * as ad from "../types/ad.js";
 import { C } from "../types/ast.js";
 import { Either } from "../types/common.js";
 import { Env } from "../types/domain.js";
@@ -199,7 +200,7 @@ const colorValMatches = (
   translation: Translation,
 ) => {
   const val = translation.symbols.get(colorPath);
-  const rgba = ((val?.contents as ColorV<number>).contents as RGBA<number>)
+  const rgba = ((val?.contents as ColorV<ad.Num>).contents as RGBA<ad.Num>)
     .contents;
   zip2(rgba, expected).map(([a, b]) => expect(a).toBeCloseTo(b, 1));
 };
@@ -1230,7 +1231,7 @@ delete x.z.p }`,
           const val = shape.passthrough.get("ptProp");
           if (val && val.tag === "FloatV") {
             const v = val.contents;
-            return v === 3;
+            return v.arraySync() === 3;
           } else {
             return false;
           }

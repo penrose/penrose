@@ -1,3 +1,4 @@
+import { scalar } from "@tensorflow/tfjs";
 import consola from "consola";
 import im from "immutable";
 import _ from "lodash";
@@ -3082,7 +3083,7 @@ const evalExpr = (
       return err(oneErr({ tag: "NotValueError", expr, what: expr.tag }));
     }
     case "Fix": {
-      return ok(val(floatV(expr.contents)));
+      return ok(val(floatV(scalar(expr.contents))));
     }
     case "List":
     case "Vector": {
@@ -3266,7 +3267,7 @@ const evalNumberOf = (
   loc: SourceRange,
 ): Result<ArgVal<ad.Num>, StyleDiagnostics> => {
   if (subst.tag === "CollectionSubst" && arg.value === subst.collName) {
-    return ok(val(floatV(subst.collContent.length)));
+    return ok(val(floatV(scalar(subst.collContent.length))));
   } else {
     return err(oneErr(notSubstanceCollectionError(arg.value, loc)));
   }
@@ -3880,8 +3881,8 @@ const onCanvases = (canvas: Canvas, shapes: Shape<ad.Num>[]): Fn[] => {
     if (shape.ensureOnCanvas.contents) {
       const output = constrDict.onCanvas.body(
         shape,
-        canvas.width,
-        canvas.height,
+        scalar(canvas.width),
+        scalar(canvas.height),
       ).value;
       fns.push({
         ast: {

@@ -1,3 +1,4 @@
+import { scalar } from "@tensorflow/tfjs";
 import { makeCircle } from "../../shapes/Circle.js";
 import { makeEllipse } from "../../shapes/Ellipse.js";
 import { makeLine } from "../../shapes/Line.js";
@@ -12,156 +13,156 @@ const context = simpleContext("TestShapes.input");
 const canvas = makeCanvas(800, 700);
 
 export const _rectangles = [
-  { center: [0, 0], width: 400, height: 400 },
-  { center: [0, 0], width: 200, height: 200 },
-  { center: [200, 0], width: 200, height: 200 },
-  { center: [0, 300], width: 200, height: 200 },
+  { center: [scalar(0), scalar(0)], width: scalar(400), height: scalar(400) },
+  { center: [scalar(0), scalar(0)], width: scalar(200), height: scalar(200) },
+  { center: [scalar(200), scalar(0)], width: scalar(200), height: scalar(200) },
+  { center: [scalar(0), scalar(300)], width: scalar(200), height: scalar(200) },
 ].map((x) =>
   makeRectangle(context, canvas, {
     center: vectorV(x.center),
     width: floatV(x.width),
     height: floatV(x.height),
-    strokeWidth: floatV(0),
+    strokeWidth: floatV(scalar(0)),
     strokeColor: black(),
   }),
 );
 
 export const _circles = [
-  { center: [0, 0], r: 200 },
-  { center: [0, 0], r: 100 },
-  { center: [200, 0], r: 100 },
-  { center: [0, 300], r: 100 },
-  { center: [0, 200], r: 100 },
-  { center: [150, 150], r: 50 },
-  { center: [150, 150], r: 100 },
+  { center: [scalar(0), scalar(0)], r: scalar(200) },
+  { center: [scalar(0), scalar(0)], r: scalar(100) },
+  { center: [scalar(200), scalar(0)], r: scalar(100) },
+  { center: [scalar(0), scalar(300)], r: scalar(100) },
+  { center: [scalar(0), scalar(200)], r: scalar(100) },
+  { center: [scalar(150), scalar(150)], r: scalar(50) },
+  { center: [scalar(150), scalar(150)], r: scalar(100) },
 ].map((x) =>
   makeCircle(context, canvas, {
     r: floatV(x.r),
     center: vectorV(x.center),
-    strokeWidth: floatV(0),
+    strokeWidth: floatV(scalar(0)),
     strokeColor: black(),
   }),
 );
 
 export const _lines = [
-  { start: [100, 0], end: [100, 300] },
-  { start: [100, 100], end: [200, 200] },
-  { start: [100, 300], end: [400, 300] },
-  { start: [200, 400], end: [300, 100] },
+  { start: [scalar(100), scalar(0)], end: [scalar(100), scalar(300)] },
+  { start: [scalar(100), scalar(100)], end: [scalar(200), scalar(200)] },
+  { start: [scalar(100), scalar(300)], end: [scalar(400), scalar(300)] },
+  { start: [scalar(200), scalar(400)], end: [scalar(300), scalar(100)] },
 ].map((x) =>
   makeLine(context, canvas, {
     start: vectorV(x.start),
     end: vectorV(x.end),
-    strokeWidth: floatV(0),
+    strokeWidth: floatV(scalar(0)),
   }),
 );
 
 const polyPts: Pt2[][] = [
   [
     // 0
-    [100, 0],
-    [300, 200],
-    [100, 300],
-    [0, 100],
+    [scalar(100), scalar(0)],
+    [scalar(300), scalar(200)],
+    [scalar(100), scalar(300)],
+    [scalar(0), scalar(100)],
   ],
   [
     // 1
-    [100, 100],
-    [200, 200],
-    [100, 200],
+    [scalar(100), scalar(100)],
+    [scalar(200), scalar(200)],
+    [scalar(100), scalar(200)],
   ],
   [
     // 2
-    [300, 0],
-    [400, 100],
-    [400, 300],
-    [200, 100],
+    [scalar(300), scalar(0)],
+    [scalar(400), scalar(100)],
+    [scalar(400), scalar(300)],
+    [scalar(200), scalar(100)],
   ],
   [
     // 3
-    [300, 100],
-    [400, 200],
-    [300, 400],
-    [200, 400],
+    [scalar(300), scalar(100)],
+    [scalar(400), scalar(200)],
+    [scalar(300), scalar(400)],
+    [scalar(200), scalar(400)],
   ],
   [
     // 4
-    [100, 100],
-    [300, 0],
-    [200, 200],
-    [100, 200],
+    [scalar(100), scalar(100)],
+    [scalar(300), scalar(0)],
+    [scalar(200), scalar(200)],
+    [scalar(100), scalar(200)],
   ],
   [
     // 5
-    [0, 0],
-    [100, 100],
-    [100, -100],
-    [0, 100],
+    [scalar(0), scalar(0)],
+    [scalar(100), scalar(100)],
+    [scalar(100), scalar(-100)],
+    [scalar(0), scalar(100)],
   ],
   [
     // 6
-    [200, 0],
-    [300, 0],
-    [300, 100],
-    [200, 100],
+    [scalar(200), scalar(0)],
+    [scalar(300), scalar(0)],
+    [scalar(300), scalar(100)],
+    [scalar(200), scalar(100)],
   ],
   [
     // 7
-    [300, 0],
-    [200, 0],
-    [200, 200],
-    [300, 200],
+    [scalar(300), scalar(0)],
+    [scalar(200), scalar(0)],
+    [scalar(200), scalar(200)],
+    [scalar(300), scalar(200)],
   ],
   [
     // 8
-    [100, 0],
-    [300, 0],
-    [300, 200],
-    [0, 200],
-    [0, 100],
-    [200, 100],
-    [200, 200],
-    [100, 200],
+    [scalar(100), scalar(0)],
+    [scalar(300), scalar(0)],
+    [scalar(300), scalar(200)],
+    [scalar(0), scalar(200)],
+    [scalar(0), scalar(100)],
+    [scalar(200), scalar(100)],
+    [scalar(200), scalar(200)],
+    [scalar(100), scalar(200)],
   ],
   [
     // 9
-    [0, 0],
-    [100, 0],
-    [200, 0],
-    [200, 100],
-    [100, 100],
-    [0, 100],
+    [scalar(0), scalar(0)],
+    [scalar(100), scalar(0)],
+    [scalar(200), scalar(0)],
+    [scalar(200), scalar(100)],
+    [scalar(100), scalar(100)],
+    [scalar(0), scalar(100)],
   ],
   [
     // 10
-    [0, 0],
-    [0, 100],
-    [100, 100],
-    [100, 200],
+    [scalar(0), scalar(0)],
+    [scalar(0), scalar(100)],
+    [scalar(100), scalar(100)],
+    [scalar(100), scalar(200)],
   ],
 ];
 
 export const _ellipses = [
   // Circles
-  { rx: 200, ry: 200, center: [0, 0] },
-  { rx: 100, ry: 100, center: [0, 0] },
-  { rx: 100, ry: 100, center: [200, 0] },
-  { rx: 100, ry: 100, center: [0, 300] },
-  { rx: 100, ry: 100, center: [0, 200] },
-  { rx: 50, ry: 50, center: [150, 150] },
-  { rx: 100, ry: 100, center: [150, 150] },
+  { rx: scalar(200), ry: scalar(200), center: [scalar(0), scalar(0)] },
+  { rx: scalar(100), ry: scalar(100), center: [scalar(0), scalar(0)] },
+  { rx: scalar(100), ry: scalar(100), center: [scalar(200), scalar(0)] },
+  { rx: scalar(100), ry: scalar(100), center: [scalar(0), scalar(300)] },
+  { rx: scalar(100), ry: scalar(100), center: [scalar(0), scalar(200)] },
+  { rx: scalar(50), ry: scalar(50), center: [scalar(150), scalar(150)] },
+  { rx: scalar(100), ry: scalar(100), center: [scalar(150), scalar(150)] },
   // Non circles
-  { rx: 200, ry: 100, center: [0, 0] },
-  { rx: 50, ry: 150, center: [50, 150] },
-  { rx: 100, ry: 200, center: [300, 0] },
-  { rx: 150, ry: 100, center: [100, 250] },
-  { rx: 100, ry: 50, center: [0, 0] },
+  { rx: scalar(200), ry: scalar(100), center: [scalar(0), scalar(0)] },
+  { rx: scalar(50), ry: scalar(150), center: [scalar(50), scalar(150)] },
+  { rx: scalar(100), ry: scalar(200), center: [scalar(300), scalar(0)] },
+  { rx: scalar(150), ry: scalar(100), center: [scalar(100), scalar(250)] },
+  { rx: scalar(100), ry: scalar(50), center: [scalar(0), scalar(0)] },
 ].map((x) =>
   makeEllipse(context, canvas, {
     rx: floatV(x.rx),
     ry: floatV(x.ry),
     center: vectorV(x.center),
-    strokeWidth: floatV(0),
+    strokeWidth: floatV(scalar(0)),
     strokeColor: black(),
   }),
 );
@@ -169,13 +170,13 @@ export const _ellipses = [
 export const _polygons = polyPts.map((pts) =>
   makePolygon(context, canvas, {
     points: ptListV(pts),
-    scale: floatV(1),
+    scale: floatV(scalar(1)),
   }),
 );
 
 export const _polylines = polyPts.map((pts) =>
   makePolyline(context, canvas, {
     points: ptListV(pts),
-    scale: floatV(1),
+    scale: floatV(scalar(1)),
   }),
 );

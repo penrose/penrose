@@ -1,3 +1,4 @@
+import { scalar } from "@tensorflow/tfjs";
 import { ops } from "../engine/Autodiff.js";
 import {
   absVal,
@@ -192,7 +193,7 @@ export const onCanvas = (
 export const overlapping = (
   s1: Shape<ad.Num>,
   s2: Shape<ad.Num>,
-  overlap: ad.Num = 0,
+  overlap: ad.Num = scalar(0),
 ): MayWarn<ad.Num> => {
   const t1 = s1.shapeType;
   const t2 = s2.shapeType;
@@ -276,7 +277,7 @@ export const overlappingEllipses = (
     neg(overlap),
     mul(Math.PI / 3, factor),
   );
-  const ei2 = absEllipseToImplicit(c2, rx2, ry2, 0, factor);
+  const ei2 = absEllipseToImplicit(c2, rx2, ry2, scalar(0), factor);
   return overlappingImplicitEllipses(ei1, ei2);
 };
 
@@ -296,14 +297,14 @@ export const overlappingCircleEllipse = (
     neg(overlap),
     mul(Math.PI / 3, factor),
   );
-  const ei2 = absEllipseToImplicit(c2, rx2, ry2, 0, factor);
+  const ei2 = absEllipseToImplicit(c2, rx2, ry2, scalar(0), factor);
   return overlappingImplicitEllipses(ei1, ei2);
 };
 
 export const disjoint = (
   s1: Shape<ad.Num>,
   s2: Shape<ad.Num>,
-  padding: ad.Num = 0,
+  padding: ad.Num = scalar(0),
 ): MayWarn<ad.Num> => {
   const { value: overlap, warnings } = overlapping(s1, s2, neg(padding));
   return {
@@ -327,7 +328,7 @@ export const disjoint = (
 export const touching = (
   s1: Shape<ad.Num>,
   s2: Shape<ad.Num>,
-  padding: ad.Num = 0,
+  padding: ad.Num = scalar(0),
 ): MayWarn<ad.Num> => {
   const { value: overlap, warnings } = overlapping(s1, s2, neg(padding));
   return {
@@ -351,7 +352,7 @@ export const touching = (
 export const contains = (
   s1: Shape<ad.Num>,
   s2: Shape<ad.Num>,
-  padding: ad.Num = 0.0,
+  padding: ad.Num = scalar(0.0),
 ): MayWarn<ad.Num> => {
   const t1 = s1.shapeType,
     t2 = s2.shapeType;
@@ -520,7 +521,7 @@ export const containsCircleRect = (
   const bbox = BBox.bboxFromPoints(rect);
   const rectr = max(bbox.width, bbox.height);
   const rectc = bbox.center;
-  return containsCircles(c, r, [rectc[0], rectc[1]], rectr, 0);
+  return containsCircles(c, r, [rectc[0], rectc[1]], rectr, scalar(0));
 };
 
 export const containsRectCircle = (
@@ -537,7 +538,7 @@ export const containsRectCircle = (
   const h = sub(tl[1], br[1]);
   const halfW = mul(0.5, w);
   const halfH = mul(0.5, h);
-  const [rx, ry] = ops.vdiv(ops.vadd(tl, br), 2); // rectangle center
+  const [rx, ry] = ops.vdiv(ops.vadd(tl, br), scalar(2)); // rectangle center
   const [cx, cy] = c; // circle center
   // Return maximum violation in either the x- or y-direction.
   // In each direction, the distance from the circle center (cx,cy) to

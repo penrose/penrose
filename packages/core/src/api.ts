@@ -1,3 +1,4 @@
+import { scalar } from "@tensorflow/tfjs";
 import { ops, variable } from "./engine/Autodiff.js";
 import { absVal, add, div, neg, pow, sub } from "./engine/AutodiffFunctions.js";
 import { constrDict } from "./lib/Constraints.js";
@@ -23,8 +24,8 @@ export const textBBox = (
   y = add(y, sub(div(height, 2), actualDescent));
   return {
     center: [x, y],
-    width,
-    height,
+    width: scalar(width),
+    height: scalar(height),
   };
 };
 
@@ -35,8 +36,8 @@ export const onCanvasRect = (
   [canvasWidth, canvasHeight]: [ad.Num, ad.Num],
   { center: [x, y], width, height }: Rect,
 ): ad.Num => {
-  const canvasXRange: [ad.Num, ad.Num] = [0, canvasWidth];
-  const canvasYRange: [ad.Num, ad.Num] = [0, canvasHeight];
+  const canvasXRange: [ad.Num, ad.Num] = [scalar(0), canvasWidth];
+  const canvasYRange: [ad.Num, ad.Num] = [scalar(0), canvasHeight];
   const hw = div(width, 2);
   const hh = div(height, 2);
   return add(
@@ -57,31 +58,21 @@ export const onCanvasPoint = (
 
 export const lessThan = (x: ad.Num, y: ad.Num): ad.Num => sub(x, y);
 
-export { compile, ops, polyRootsImpl, problem } from "./engine/Autodiff.js";
+export { compile, ops, problem } from "./engine/Autodiff.js";
 export * from "./engine/AutodiffFunctions.js";
 export { corners } from "./engine/BBox.js";
 export type { BBox } from "./engine/BBox.js";
 export { convexPolygonMinkowskiSDF } from "./lib/Minkowski.js";
 export type {
-  Binary,
   Bool,
-  Comp,
   Config,
   Description,
   Expr,
-  Index,
-  Logic,
-  Nary,
-  Not,
   Num,
   Options,
-  PolyRoots,
   Problem,
   Run,
-  Ternary,
-  Unary,
   Var,
-  Vec,
 } from "./types/ad.js";
 export {
   consecutiveTuples,

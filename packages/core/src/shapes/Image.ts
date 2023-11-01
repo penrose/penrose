@@ -1,3 +1,4 @@
+import { scalar } from "@tensorflow/tfjs";
 import * as ad from "../types/ad.js";
 import { Center, Named, Rect, Rotate, ShapeCommon } from "../types/shapes.js";
 import { StrV } from "../types/value.js";
@@ -26,7 +27,7 @@ export const sampleImage = (
   center: sampleVector(context, canvas),
   width: sampleWidth(context, canvas),
   height: sampleHeight(context, canvas),
-  rotation: floatV(0),
+  rotation: floatV(scalar(0)),
   href: strV("defaultImage"),
   ensureOnCanvas: boolV(true),
   preserveAspectRatio: strV(""),

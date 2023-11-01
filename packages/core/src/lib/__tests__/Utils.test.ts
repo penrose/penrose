@@ -1,3 +1,4 @@
+import { scalar } from "@tensorflow/tfjs";
 import { describe, expect, it } from "vitest";
 import { Polygon } from "../../shapes/Polygon.js";
 import { Polyline } from "../../shapes/Polyline.js";
@@ -12,10 +13,10 @@ import {
 import { _polygons, _polylines } from "../__testfixtures__/TestShapes.input.js";
 
 describe("consecutiveTuples", () => {
-  const a: [ad.Num, ad.Num] = [1, 2];
-  const b: [ad.Num, ad.Num] = [3, 4];
-  const c: [ad.Num, ad.Num] = [5, 6];
-  const d: [ad.Num, ad.Num] = [7, 8];
+  const a: [ad.Num, ad.Num] = [scalar(1), scalar(2)];
+  const b: [ad.Num, ad.Num] = [scalar(3), scalar(4)];
+  const c: [ad.Num, ad.Num] = [scalar(5), scalar(6)];
+  const d: [ad.Num, ad.Num] = [scalar(7), scalar(8)];
   it.each([
     [[a], [[a, a]]],
     [

@@ -1,3 +1,4 @@
+import { scalar } from "@tensorflow/tfjs";
 import { describe, expect, test } from "vitest";
 import * as BBox from "../../engine/BBox.js";
 import * as ad from "../../types/ad.js";
@@ -13,23 +14,23 @@ import { numsOf } from "../Utils.js";
 describe("containsConvexPolygonPoints", () => {
   test("test", () => {
     const poly = [
-      [0, 0],
-      [1, 0],
-      [1, 1],
-      [0, 1],
+      [scalar(0), scalar(0)],
+      [scalar(1), scalar(0)],
+      [scalar(1), scalar(1)],
+      [scalar(0), scalar(1)],
     ];
-    const pt = [0.25, 0.25];
+    const pt = [scalar(0.25), scalar(0.25)];
 
     expect(
-      numsOf([containsConvexPolygonPoints(poly, pt, 0)])[0],
+      numsOf([containsConvexPolygonPoints(poly, pt, scalar(0))])[0],
     ).toBeLessThanOrEqual(0);
 
     expect(
-      numsOf([containsConvexPolygonPoints(poly, pt, 0.1)])[0],
+      numsOf([containsConvexPolygonPoints(poly, pt, scalar(0.1))])[0],
     ).toBeLessThanOrEqual(0);
 
     expect(
-      numsOf([containsConvexPolygonPoints(poly, pt, 0.26)])[0],
+      numsOf([containsConvexPolygonPoints(poly, pt, scalar(0.26))])[0],
     ).toBeGreaterThan(0);
   });
 });
@@ -51,11 +52,15 @@ describe("rectangleDifference", () => {
     expect(result11).toEqual(expected[1][1]);
   };
 
-  let testBBox1 = bboxPts(BBox.bbox(2, 2, [0, 0]));
-  let testBBox2 = bboxPts(BBox.bbox(3, 1, [0.5, 1.5]));
+  let testBBox1 = bboxPts(
+    BBox.bbox(scalar(2), scalar(2), [scalar(0), scalar(0)]),
+  );
+  let testBBox2 = bboxPts(
+    BBox.bbox(scalar(3), scalar(1), [scalar(0.5), scalar(1.5)]),
+  );
 
   test("without padding", async () => {
-    let result = rectangleDifference(testBBox1, testBBox2, 0);
+    let result = rectangleDifference(testBBox1, testBBox2, scalar(0));
     expectRectDiff(result, [
       [-3, -3],
       [2, 0],
@@ -63,7 +68,7 @@ describe("rectangleDifference", () => {
   });
 
   test("with padding", async () => {
-    let result = rectangleDifference(testBBox1, testBBox2, 10);
+    let result = rectangleDifference(testBBox1, testBBox2, scalar(10));
     expectRectDiff(result, [
       [-13, -13],
       [12, 10],
@@ -71,7 +76,7 @@ describe("rectangleDifference", () => {
   });
 
   test("reversed order", async () => {
-    let result = rectangleDifference(testBBox2, testBBox1, 0);
+    let result = rectangleDifference(testBBox2, testBBox1, scalar(0));
     expectRectDiff(result, [
       [-2, 0],
       [3, 3],
@@ -79,7 +84,7 @@ describe("rectangleDifference", () => {
   });
 
   test("same bounding box", async () => {
-    let result = rectangleDifference(testBBox1, testBBox1, 0);
+    let result = rectangleDifference(testBBox1, testBBox1, scalar(0));
     expectRectDiff(result, [
       [-2, -2],
       [2, 2],
@@ -88,24 +93,34 @@ describe("rectangleDifference", () => {
 });
 
 describe("halfPlaneSDF", () => {
-  let point1 = [2, 3];
-  let point2 = [1, 2];
-  let point3 = [1, 4];
-  let point4 = [2, 2];
-  let point5 = [0, 0];
+  let point1 = [scalar(2), scalar(3)];
+  let point2 = [scalar(1), scalar(2)];
+  let point3 = [scalar(1), scalar(4)];
+  let point4 = [scalar(2), scalar(2)];
+  let point5 = [scalar(0), scalar(0)];
 
   test("without padding", async () => {
-    let result = halfPlaneSDF([point2, point3], [point2, point4], point5, 0);
+    let result = halfPlaneSDF(
+      [point2, point3],
+      [point2, point4],
+      point5,
+      scalar(0),
+    );
     expect(numsOf([result])[0]).toBeCloseTo(-3, 4);
   });
 
   test("with padding", async () => {
-    let result = halfPlaneSDF([point2, point3], [point2, point4], point5, 10);
+    let result = halfPlaneSDF(
+      [point2, point3],
+      [point2, point4],
+      point5,
+      scalar(10),
+    );
     expect(numsOf([result])[0]).toBeCloseTo(7, 4);
   });
 
   test("zero outside", async () => {
-    let result = halfPlaneSDF([point2, point3], [point5], point1, 0);
+    let result = halfPlaneSDF([point2, point3], [point5], point1, scalar(0));
     expect(numsOf([result])[0]).toBeCloseTo(1, 4);
   });
 });
@@ -120,25 +135,25 @@ describe("convexPartitions", () => {
   // polygon is actually clockwise because screen coordinates are upside down
   // compared to math
   const hm83 = [
-    [-316.39758, -117.40885],
-    [-291.04166, -57.877602],
-    [-243.63715, -24.804688],
-    [-189.61806, -74.414062],
-    [-155.4427, 9.921875],
-    [-173.63281, 78.823784],
-    [-202.29601, 136.15016],
-    [-257.41754, 167.01823],
-    [-301.51477, 164.81337],
-    [-359.94357, 147.72569],
-    [-54.570312, 355.53384],
-    [288.28558, 232.61285],
-    [241.43228, 148.82812],
-    [151.5842, 66.145836],
-    [186.31076, 8.8194437],
-    [269.54428, -59.53125],
-    [219.38368, -151.03297],
-    [14.882812, -128.98438],
-    [-224.34462, -165.36458],
+    [scalar(-316.39758), scalar(-117.40885)],
+    [scalar(-291.04166), scalar(-57.877602)],
+    [scalar(-243.63715), scalar(-24.804688)],
+    [scalar(-189.61806), scalar(-74.414062)],
+    [scalar(-155.4427), scalar(9.921875)],
+    [scalar(-173.63281), scalar(78.823784)],
+    [scalar(-202.29601), scalar(136.15016)],
+    [scalar(-257.41754), scalar(167.01823)],
+    [scalar(-301.51477), scalar(164.81337)],
+    [scalar(-359.94357), scalar(147.72569)],
+    [scalar(-54.570312), scalar(355.53384)],
+    [scalar(288.28558), scalar(232.61285)],
+    [scalar(241.43228), scalar(148.82812)],
+    [scalar(151.5842), scalar(66.145836)],
+    [scalar(186.31076), scalar(8.8194437)],
+    [scalar(269.54428), scalar(-59.53125)],
+    [scalar(219.38368), scalar(-151.03297)],
+    [scalar(14.882812), scalar(-128.98438)],
+    [scalar(-224.34462), scalar(-165.36458)],
   ];
 
   test("Figure 1 from [HM83], unflipped", () => {
@@ -156,7 +171,7 @@ describe("convexPartitions", () => {
   });
 
   test("Figure 1 from [HM83], flipped", () => {
-    const p = hm83.map(([x, y]) => [x, -y]);
+    const p = hm83.map(([x, y]) => [x, scalar(-y.arraySync())]);
     expect(convexPartitions(p)).toEqual([
       [p[8], p[9], p[10]],
       [p[7], p[8], p[10]],
@@ -171,12 +186,12 @@ describe("convexPartitions", () => {
 
   test("yin-yang", () => {
     const p = [
-      [-41.942347636454556, -334.57387855868393],
-      [-28.8732769036464, -514.3771026404029],
-      [69.71110339328084, -340.36239072939577],
-      [-104.30360851772633, -241.77801043246853],
-      [-91.23453778491817, -421.58123451418754],
-      [-66.58844271068637, -378.07755653643574],
+      [scalar(-41.942347636454556), scalar(-334.57387855868393)],
+      [scalar(-28.8732769036464), scalar(-514.3771026404029)],
+      [scalar(69.71110339328084), scalar(-340.36239072939577)],
+      [scalar(-104.30360851772633), scalar(-241.77801043246853)],
+      [scalar(-91.23453778491817), scalar(-421.58123451418754)],
+      [scalar(-66.58844271068637), scalar(-378.07755653643574)],
     ];
     expect(convexPartitions(p)).toEqual([
       [p[3], p[4], p[5], p[0]],

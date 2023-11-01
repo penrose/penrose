@@ -1,3 +1,4 @@
+import { scalar } from "@tensorflow/tfjs";
 import _ from "lodash";
 import seedrandom from "seedrandom";
 import { isConcrete } from "../engine/EngineUtils.js";
@@ -642,9 +643,15 @@ export const shapeListV = (contents: Shape<ad.Num>[]): ShapeListV<ad.Num> => ({
 });
 
 export const black = (): ColorV<ad.Num> =>
-  colorV({ tag: "RGBA", contents: [0, 0, 0, 1] });
+  colorV({
+    tag: "RGBA",
+    contents: [scalar(0), scalar(0), scalar(0), scalar(1)],
+  });
 export const white = (): ColorV<ad.Num> =>
-  colorV({ tag: "RGBA", contents: [1, 1, 1, 1] });
+  colorV({
+    tag: "RGBA",
+    contents: [scalar(1), scalar(1), scalar(1), scalar(1)],
+  });
 
 export const noPaint = (): ColorV<ad.Num> => colorV({ tag: "NONE" });
 
@@ -998,7 +1005,7 @@ export const getAdValueAsString = (
 ): string => {
   switch (prop.tag) {
     case "FloatV":
-      if (typeof prop.contents === "number") return prop.contents.toString();
+      return prop.contents.arraySync().toString();
       break;
     case "StrV":
       return prop.contents;
