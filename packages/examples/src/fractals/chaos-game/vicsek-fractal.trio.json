@@ -1,0 +1,6 @@
+{
+  "substance": "./vicsek-fractal.substance",
+  "style": ["./chaos-night.style"],
+  "domain": "./chaos.domain",
+  "variation": "UranusMoose6651"
+}

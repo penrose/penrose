@@ -1,9 +1,9 @@
-import { start, stepUntil } from "@penrose/optimizer";
 import seedrandom from "seedrandom";
 import { compileDomain } from "./compiler/Domain.js";
 import { compileStyle } from "./compiler/Style.js";
 import { compileSubstance } from "./compiler/Substance.js";
 import * as ad from "./engine/Autodiff.js";
+import { start, stepUntil } from "./engine/Optimizer.js";
 import { PathResolver, toInteractiveSVG, toSVG } from "./renderer/Renderer.js";
 import { Env } from "./types/domain.js";
 import { PenroseError } from "./types/errors.js";
@@ -309,13 +309,6 @@ export const isError = (state: State): boolean =>
 export const finalStage = (state: State): boolean =>
   state.currentStageIndex === state.optStages.length - 1;
 
-/**
- * Returns true if state is the initial frame
- * @param state current state
- */
-export const isInitial = (state: State): boolean =>
-  state.params.optStatus === "NewIter";
-
 const evalGrad = (s: State): ad.OptOutputs => {
   const { constraintSets, optStages, currentStageIndex } = s;
   const stage = optStages[currentStageIndex];
@@ -363,9 +356,9 @@ export {
   prettyCompiledSubstance,
   prettySubstance,
 } from "./compiler/Substance.js";
-export { constrDict } from "./contrib/Constraints.js";
-export { compDict } from "./contrib/Functions.js";
-export { objDict } from "./contrib/Objectives.js";
+export { constrDict } from "./lib/Constraints.js";
+export { compDict } from "./lib/Functions.js";
+export { objDict } from "./lib/Objectives.js";
 export { toInteractiveSVG, toSVG } from "./renderer/Renderer.js";
 export type { PathResolver } from "./renderer/Renderer.js";
 export { makeCanvas, simpleContext } from "./shapes/Samplers.js";

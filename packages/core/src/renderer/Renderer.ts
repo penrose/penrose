@@ -4,10 +4,10 @@
  *
  */
 
-import { bboxFromShape } from "../contrib/Queries.js";
-import { isLinelike, isRectlike } from "../contrib/Utils.js";
 import { compile, maxN, minN } from "../engine/Autodiff.js";
 import { maxX, maxY, minX, minY } from "../engine/BBox.js";
+import { bboxFromShape } from "../lib/Queries.js";
+import { isLinelike, isRectlike } from "../lib/Utils.js";
 import { Group } from "../shapes/Group.js";
 import { Shape } from "../shapes/Shapes.js";
 import { LabelCache, State } from "../types/state.js";

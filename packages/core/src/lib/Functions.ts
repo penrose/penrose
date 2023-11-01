@@ -3361,6 +3361,38 @@ export const compDict = {
   },
 
   /**
+   * Return a uniform index value between minIndex and maxIndex.
+   */
+  randomIndex: {
+    name: "randomIndex",
+    description:
+      "Uniformly sample a random integer value in the range from `minIndex` to `maxIndex`.",
+    params: [
+      { name: "minIndex", type: realT(), description: "minimum index" },
+      { name: "maxIndex", type: realT(), description: "maximum index" },
+    ],
+    body: (
+      { makeInput }: Context,
+      minIndex: ad.Num,
+      maxIndex: ad.Num,
+    ): MayWarn<FloatV<number>> => {
+      if (typeof minIndex === "number" && typeof maxIndex === "number") {
+        const randomFloat = makeInput({
+          init: { tag: "Sampled", sampler: uniform(minIndex, maxIndex) },
+          stages: new Set(),
+        });
+        const randomInt = Math.floor(randomFloat.val);
+        return noWarn({ tag: "FloatV", contents: randomInt });
+      } else {
+        throw new Error(
+          "Expects the minimum and maximum indices to be constants. Got a computed or optimized value instead.",
+        );
+      }
+    },
+    returns: valueT("PosInt"),
+  },
+
+  /**
    * Set the opacity of a color `color` to `frac`.
    */
   setOpacity: {

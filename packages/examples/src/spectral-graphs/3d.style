@@ -1,6 +1,6 @@
 canvas {
-  width = 400
-  height = 400
+  width = 900
+  height = 900
 }
 
 colors {
@@ -12,68 +12,95 @@ colors {
   color black = #000000ff
 }
 
+camera {
+  -- Camera viewpoint
+  vec3 eye = (500, 500, 500)
+  vec3 center = (0, 0, 0)
+  vec3 up = (0, 1, 0)
+  mat4x4 model = lookAt( eye, center, up )
+
+  -- Camera projection
+  scalar fovy = 10
+  scalar aspect = canvas.width / canvas.height
+  scalar near = 1
+  scalar far = 4
+  mat4x4 proj = perspective( fovy, aspect, near, far )
+
+  -- Viewport
+  list view = [ -canvas.width/2, -canvas.height/2, canvas.width, canvas.height ]
+}
+
 global {
   shape background = Rectangle {
     center: (0,0)
     width: canvas.width
     height: canvas.height
     fillColor: colors.background
+    ensureOnCanvas: false
   }
   shape shade = Circle {
     center: (0,0)
     r: canvas.width / 2
     fillColor: colors.black
-    style: "filter:blur(50px);"
+    style: "filter:blur(100px);"
+    ensureOnCanvas: false
   }
   shade above background
 }
 
 forall Node n {
-    vec2 n.center = (?, ?, ?)
-    scalar n.normsq = normsq(n.center)
-    shape n.icon = Circle {
-        center: (n.center[0], n.center[1])
-        r: 4 + n.center[2] / 40
-        fillColor: colors.bloom
-        style: "filter:blur(1.8px);"
-    }
-    shape n.icon2 = Circle {
-        center: (n.center[0], n.center[1])
-        r: 0.5 * (4 + n.center[2] / 40)
-        fillColor: colors.center
-        style: "filter:blur(0.4px);"
-    }
-    n.icon2 above n.icon
+  vec3 n.center = (?, ?, ?)
+  vec2 n.center2 = project( n.center, camera.model, camera.proj, camera.view )
+  scalar n.normsq = normsq(n.center)
+  scalar n.size = max(5, (-820 + vdist(camera.eye, n.center)) / 7)
+  shape n.icon = Circle {
+    center: n.center2
+    r: n.size
+    fillColor: colors.bloom
+    style: "filter:blur(1.8px);"
+    ensureOnCanvas: false
+  }
+  shape n.icon2 = Circle {
+    center: n.center2
+    r: 0.5 * n.size
+    fillColor: colors.center
+    style: "filter:blur(0.4px);"
+    ensureOnCanvas: false
+  }
+  n.icon2 above n.icon
 }
 
 forall Edge e; Node a; Node b
 where e := MakeEdge(a, b) {
-    scalar e.distsq = vdistsq(a.center, b.center)
-    scalar e.z = 0.5 * (a.center[2] + b.center[2])
-    shape e.icon = Line {
-        start: a.icon.center
-        end: b.icon.center
-        strokeWidth: 0.5 * (3 + e.z / 60)
-        strokeColor: colors.edge
-        style: "filter:blur(0.3px);"
-    }
+  scalar e.distsq = vdistsq(a.center, b.center)
+  scalar e.size = 0.5 * (a.size + b.size)
+  shape e.icon = Line {
+    start: a.icon.center
+    end: b.icon.center
+    strokeWidth: 0.3 * e.size
+    strokeColor: colors.edge
+    style: "filter:blur(0.3px);"
+    ensureOnCanvas: false
+  }
 }
 
 forall Node n; Edge e {
-    e.icon below n.icon
+  e.icon below n.icon
 }
 
 collect Node n into nodes {
-    normsqs = listof normsq from nodes
-    centers = listof center from nodes
-    scalar scale = (canvas.width / 5) * (canvas.height / 5)
-    ensure sum(normsqs) / count(normsqs) == scale
-    ensure norm(sumVectors(centers)) == 0
+  normsqs = listof normsq from nodes
+  centers = listof center from nodes
+  scalar scaleFactor = 30
+  scalar scale = (canvas.width / scaleFactor) * (canvas.height / scaleFactor)
+
+  ensure sum(normsqs) / count(normsqs) == scale
+  ensure norm(sumVectors(centers)) == 0
 }
 
 collect Edge e into edges
 where e := MakeEdge(a, b)
 foreach Node a; Node b {
-    distsqs = listof distsq from edges
-    encourage sum(distsqs) == 0
+  distsqs = listof distsq from edges
+  encourage sum(distsqs) == 0
 }

@@ -1,5 +1,5 @@
-import { Params } from "@penrose/optimizer";
 import * as ad from "../engine/Autodiff.js";
+import { Params } from "../engine/Optimizer.js";
 import { Canvas, InputMeta } from "../shapes/Samplers.js";
 import { Shape } from "../shapes/Shapes.js";
 import { A } from "./ast.js";

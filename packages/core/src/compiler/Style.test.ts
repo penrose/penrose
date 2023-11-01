@@ -1,6 +1,6 @@
 import im from "immutable";
 import { describe, expect, test } from "vitest";
-import { numsOf } from "../contrib/Utils.js";
+import { numsOf } from "../lib/Utils.js";
 import { C } from "../types/ast.js";
 import { Either } from "../types/common.js";
 import { Env } from "../types/domain.js";
@@ -482,7 +482,7 @@ describe("Compiler", () => {
 `,
       `forall Object o {
     shape o.shape = Line {
-        start: (0., ?)
+        start: (0., ?[123.456])
     }
 }`,
       `forall Object o {
@@ -504,7 +504,7 @@ describe("Compiler", () => {
        o.shape = Circle {}
 }`,
       `forall Object o {
-        o.a = ?
+        o.a = ? [ 98765.4]
         o.b = ?
         ensure o.a > o.b
         ensure o.a < o.b
@@ -967,7 +967,7 @@ delete x.z.p }`,
   height = 100
 }`,
         `canvas {
-  width = ?
+  width = ?[300]
   height = 100
 }`,
         `canvas {

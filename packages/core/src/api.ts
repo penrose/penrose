@@ -1,8 +1,3 @@
-import { constrDict } from "./contrib/Constraints.js";
-import { elasticEnergy, equivalued, perimeter } from "./contrib/Curves.js";
-import { signedDistanceRect } from "./contrib/Functions.js";
-import { rectPts } from "./contrib/Queries.js";
-import { consecutiveTuples } from "./contrib/Utils.js";
 import * as ad from "./engine/Autodiff.js";
 import {
   absVal,
@@ -13,6 +8,11 @@ import {
   sub,
   variable,
 } from "./engine/Autodiff.js";
+import { constrDict } from "./lib/Constraints.js";
+import { elasticEnergy, equivalued, perimeter } from "./lib/Curves.js";
+import { signedDistanceRect } from "./lib/Functions.js";
+import { rectPts } from "./lib/Queries.js";
+import { consecutiveTuples } from "./lib/Utils.js";
 import { TextMeasurement, measureText } from "./utils/CollectLabels.js";
 
 interface Rect {
@@ -64,7 +64,6 @@ export const onCanvasPoint = (
 
 export const lessThan = (x: ad.Num, y: ad.Num): ad.Num => sub(x, y);
 
-export { convexPolygonMinkowskiSDF } from "./contrib/Minkowski.js";
 export {
   absVal,
   acos,
@@ -142,6 +141,7 @@ export type {
 } from "./engine/Autodiff.js";
 export { corners } from "./engine/BBox.js";
 export type { BBox } from "./engine/BBox.js";
+export { convexPolygonMinkowskiSDF } from "./lib/Minkowski.js";
 export {
   consecutiveTuples,
   elasticEnergy,

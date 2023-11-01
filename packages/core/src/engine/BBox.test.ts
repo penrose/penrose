@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
-import { compDict } from "../contrib/Functions.js";
-import { numsOf } from "../contrib/Utils.js";
 import * as ad from "../engine/Autodiff.js";
+import { compDict } from "../lib/Functions.js";
+import { numsOf } from "../lib/Utils.js";
 import { makeCircle } from "../shapes/Circle.js";
 import { makeEllipse } from "../shapes/Ellipse.js";
 import { makeImage } from "../shapes/Image.js";

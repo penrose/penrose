@@ -161,29 +161,33 @@ export default defineConfig({
         activeMatch: "/examples",
       },
       {
+        text: "Get Involved",
+        link: "/community",
+        activeMatch: "/community",
+      },
+      {
         text: "Learn Penrose",
         link: "/docs/tutorial/welcome",
         activeMatch: "/docs/tutorial",
       },
       { text: "Documentation", link: "/docs/ref", activeMatch: "/docs/ref" },
-      { text: "Try Penrose", link: "pathname:///try/index.html" },
-      { text: "Join Discord", link: "https://discord.gg/a7VXJU4dfR" },
-      { text: "Team", link: "/docs/team" },
       { text: "Blog", link: "/blog", activeMatch: "/blog" },
-      {
-        text: "News",
-        items: [
-          { text: "SIGGRAPH'20 paper", link: "pathname:///siggraph20.html" },
-          {
-            text: "CHI'20 paper",
-            link: "https://www.cs.cmu.edu/~woden/assets/chi-20-natural-diagramming.pdf",
-          },
-          {
-            text: "Popular Mechanics",
-            link: "https://www.popularmechanics.com/science/math/a32743509/cmu-penrose-math-equations-into-pictures/",
-          },
-        ],
-      },
+      { text: "Team", link: "/docs/team" },
+      { text: "Online Editor", link: "pathname:///try/index.html" },
+      //   {
+      //     text: "News",
+      //     items: [
+      //       { text: "SIGGRAPH'20 paper", link: "pathname:///siggraph20.html" },
+      //       {
+      //         text: "CHI'20 paper",
+      //         link: "https://www.cs.cmu.edu/~woden/assets/chi-20-natural-diagramming.pdf",
+      //       },
+      //       {
+      //         text: "Popular Mechanics",
+      //         link: "https://www.popularmechanics.com/science/math/a32743509/cmu-penrose-math-equations-into-pictures/",
+      //       },
+      //     ],
+      //   },
     ],
 
     socialLinks: [

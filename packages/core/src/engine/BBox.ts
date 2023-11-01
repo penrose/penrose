@@ -13,9 +13,9 @@ import {
   struct,
   sub,
 } from "rose";
-import { rectPts } from "../contrib/Queries.js";
-import { toPt } from "../contrib/Utils.js";
 import * as ad from "../engine/Autodiff.js";
+import { rectPts } from "../lib/Queries.js";
+import { toPt } from "../lib/Utils.js";
 import { CircleProps } from "../shapes/Circle.js";
 import { EllipseProps } from "../shapes/Ellipse.js";
 import { PathProps } from "../shapes/Path.js";

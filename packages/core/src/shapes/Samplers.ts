@@ -73,6 +73,11 @@ export const uniform =
   (rng: seedrandom.prng) =>
     randFloat(rng, min, max);
 
+export const constSampler =
+  (n: number): Sampler =>
+  (rng: seedrandom.prng) =>
+    n;
+
 export const sampleVector = (
   { makeInput }: Context,
   canvas: Canvas,

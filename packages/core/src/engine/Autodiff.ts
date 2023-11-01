@@ -1,8 +1,8 @@
-import { Params, start, stepUntil } from "@penrose/optimizer";
 import consola from "consola";
 import _ from "lodash";
 import * as rose from "rose";
 import * as builtins from "./Builtins.js";
+import { Params, start, stepUntil } from "./Optimizer.js";
 
 //#region Types for implicit autodiff graph
 

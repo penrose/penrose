@@ -1,0 +1,3 @@
+BranchRule f_i for i in [1, 2]
+Seed p_0
+Point p_i := NextPoint(p_j, f_k) for i in [1, 200], j in [0, 200], k in [1, 2] where i == 2 * j + k

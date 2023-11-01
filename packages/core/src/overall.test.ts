@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 
-import { start } from "@penrose/optimizer";
 import { describe, expect, test } from "vitest";
 import * as ad from "./engine/Autodiff.js";
 import { genGradient, pow, sub } from "./engine/Autodiff.js";
+import { start } from "./engine/Optimizer.js";
 import {
   compile,
   evalEnergy,

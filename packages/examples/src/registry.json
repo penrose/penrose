@@ -88,8 +88,8 @@
     "name": "3D Reflections and Shadows",
     "gallery": true
   },
-  "spectral-graphs/examples/grid": {
-    "name": "5x5 Grid",
+  "spectral-graphs/examples/star-graph": {
+    "name": "Star graph",
     "gallery": false
   },
   "spectral-graphs/examples/box": {
@@ -533,6 +533,22 @@
   },
   "Dynamics/Lyapunov": {
     "name": "Lyapunov Exponent",
+    "gallery": true
+  },
+  "fractals/chaos-game/sierpinski-triangle": {
+    "name": "Chaos Game: Sierpinski Triangle",
+    "gallery": true
+  },
+  "fractals/chaos-game/vicsek-fractal": {
+    "name": "Chaos Game: Vicsek Fractal",
+    "gallery": false
+  },
+  "fractals/l-systems/tree": {
+    "name": "L-System",
+    "gallery": false
+  },
+  "fractals/ifs/ifs": {
+    "name": "Iterated Functions System",
     "gallery": true
   }
 }
