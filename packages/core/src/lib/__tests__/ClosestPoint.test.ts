@@ -1,4 +1,3 @@
-import { scalar } from "@tensorflow/tfjs";
 import { describe, expect, test } from "vitest";
 import { Circle, makeCircle } from "../../shapes/Circle.js";
 import { Ellipse, makeEllipse } from "../../shapes/Ellipse.js";
@@ -36,10 +35,7 @@ const compareClosestPoint = async (
   pt: [number, number],
   expected: [number, number],
 ) => {
-  const result = compDict.closestPoint.body(context, shape, [
-    scalar(pt[0]),
-    scalar(pt[1]),
-  ]).value;
+  const result = compDict.closestPoint.body(context, shape, pt).value;
   const [x, y] = result.contents;
   expect(numOf(x)).toBeCloseTo(expected[0]);
   expect(numOf(y)).toBeCloseTo(expected[1]);
@@ -62,9 +58,9 @@ const testCircle = (
 ) => {
   const context = simpleContext("closestPoint Circle");
   const shape = makeCircle(context, canvas, {
-    center: vectorV([scalar(center[0]), scalar(center[1])]),
-    r: floatV(scalar(radius)),
-    strokeWidth: floatV(scalar(strokeWidth)),
+    center: vectorV(center),
+    r: floatV(radius),
+    strokeWidth: floatV(strokeWidth),
     strokeColor: black(),
   });
   compareClosestPoint(context, shape, pt, expected);
@@ -89,10 +85,10 @@ const testRectangle = (
 ) => {
   const context = simpleContext("closestPoint Rectangle");
   const shape = makeRectangle(context, canvas, {
-    center: vectorV([scalar(center[0]), scalar(center[1])]),
-    width: floatV(scalar(width)),
-    height: floatV(scalar(height)),
-    strokeWidth: floatV(scalar(strokeWidth)),
+    center: vectorV(center),
+    width: floatV(width),
+    height: floatV(height),
+    strokeWidth: floatV(strokeWidth),
     strokeColor: black(),
   });
   compareClosestPoint(context, shape, pt, expected);
@@ -115,9 +111,9 @@ const testLine = (
 ) => {
   const context = simpleContext("closestPoint Line");
   const shape = makeLine(context, canvas, {
-    start: vectorV([scalar(start[0]), scalar(start[1])]),
-    end: vectorV([scalar(end[0]), scalar(end[1])]),
-    strokeWidth: floatV(scalar(strokeWidth)),
+    start: vectorV(start),
+    end: vectorV(end),
+    strokeWidth: floatV(strokeWidth),
     strokeColor: black(),
   });
   compareClosestPoint(context, shape, pt, expected);
@@ -138,8 +134,8 @@ const testPolyline = (
 ) => {
   const context = simpleContext("Polyline");
   const shape = makePolyline(context, canvas, {
-    strokeWidth: floatV(scalar(strokeWidth)),
-    points: ptListV(points.map(([x, y]) => [scalar(x), scalar(y)])),
+    strokeWidth: floatV(strokeWidth),
+    points: ptListV(points),
     strokeColor: black(),
   });
   compareClosestPoint(context, shape, pt, expected);
@@ -160,9 +156,9 @@ const testPolygon = (
 ) => {
   const context = simpleContext("Polygon");
   const shape = makePolygon(context, canvas, {
-    strokeWidth: floatV(scalar(strokeWidth)),
+    strokeWidth: floatV(strokeWidth),
     strokeColor: black(),
-    points: ptListV(points.map(([x, y]) => [scalar(x), scalar(y)])),
+    points: ptListV(points),
   });
   compareClosestPoint(context, shape, pt, expected);
 };
@@ -184,9 +180,9 @@ const testEllipse = (
 ) => {
   const context = simpleContext("Ellipse");
   const shape = makeEllipse(context, canvas, {
-    center: vectorV([scalar(center[0]), scalar(center[1])]),
-    rx: floatV(scalar(rx)),
-    ry: floatV(scalar(ry)),
+    center: vectorV(center),
+    rx: floatV(rx),
+    ry: floatV(ry),
     strokeColor: black(),
   });
   compareClosestPoint(context, shape, pt, expected);

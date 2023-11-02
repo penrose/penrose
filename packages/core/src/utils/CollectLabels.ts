@@ -1,4 +1,3 @@
-import * as tf from "@tensorflow/tfjs";
 import { browserAdaptor } from "mathjax-full/js/adaptors/browserAdaptor.js";
 import { RegisterHTMLHandler } from "mathjax-full/js/handlers/html.js";
 import { TeX } from "mathjax-full/js/input/tex.js";
@@ -351,7 +350,7 @@ const setPendingProperty = (
   before: FloatV<ad.Num>,
   after: FloatV<number>,
 ) => {
-  if (before.contents instanceof tf.Variable) {
+  if (typeof before.contents !== "number" && before.contents.tag === "Var") {
     const { index, meta } = safe(inputs.get(before.contents), "missing input");
     if (meta.init.tag === "Pending") xs[index] = after.contents;
   }

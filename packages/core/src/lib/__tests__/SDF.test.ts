@@ -1,7 +1,6 @@
-import { scalar } from "@tensorflow/tfjs";
 import seedrandom from "seedrandom";
 import { describe, expect, test } from "vitest";
-import { variable } from "../../engine/Autodiff.js";
+import { genCodeSync, primaryGraph, variable } from "../../engine/Autodiff.js";
 import { Circle, makeCircle } from "../../shapes/Circle.js";
 import { Ellipse, makeEllipse } from "../../shapes/Ellipse.js";
 import { Line, makeLine } from "../../shapes/Line.js";
@@ -13,7 +12,7 @@ import * as ad from "../../types/ad.js";
 import { FloatV } from "../../types/value.js";
 import { black, floatV, ptListV, vectorV } from "../../utils/Util.js";
 import { compDict, signedDistanceEllipse } from "../Functions.js";
-import { Rectlike, numOf, toPt } from "../Utils.js";
+import { Rectlike, toPt } from "../Utils.js";
 
 const canvas = makeCanvas(800, 700);
 
@@ -52,7 +51,24 @@ const compareDistance = (
   expected: number,
 ) => {
   const result = getResult(context, shape, p);
-  expect(numOf(result.contents)).toBeCloseTo(expected);
+  const g = primaryGraph(result.contents);
+  //const g = secondaryGraph([result.contents]);
+  const f = genCodeSync(g);
+  /* const [dist] = 
+  const {
+    secondary: [dist],
+    stmts,
+  } = f([]); // no inputs, so, empty array
+  const code = stmts.join("\n");
+  console.log(code); */
+  const { primary: dist, gradient } = f((x) => x.val);
+  //TODO: debug gradient for ellipse
+  // the commented code in the next three lines is useful for debugging
+  // gradients
+  //const newfun = (xs: number[]) => f(xs).primary;
+  //const foo = _gradFiniteDiff(newfun)([p[0].val, p[1].val]);
+  //console.log("symbolic gradient", gradient, "computed gradient:", foo);
+  expect(dist).toBeCloseTo(expected);
 };
 
 const getResult = (
@@ -81,7 +97,7 @@ const getResult = (
     if (result.tag === "FloatV") {
       return result;
     } else {
-      return floatV(scalar(0));
+      return floatV(0);
     }
   }
 };
@@ -96,10 +112,10 @@ const testRectangle = (
 ) => {
   const { context, p } = makeContext(pt);
   const shape = makeRectangle(context, canvas, {
-    center: vectorV(center.map((x) => scalar(x))),
-    width: floatV(scalar(width)),
-    height: floatV(scalar(height)),
-    strokeWidth: floatV(scalar(strokeWidth)),
+    center: vectorV(center),
+    width: floatV(width),
+    height: floatV(height),
+    strokeWidth: floatV(strokeWidth),
     strokeColor: black(),
   });
   compareDistance(context, "Rectangle", shape, p, expected);
@@ -114,9 +130,9 @@ const testCircle = (
 ) => {
   const { context, p } = makeContext(pt);
   const shape = makeCircle(context, canvas, {
-    center: vectorV(center.map((x) => scalar(x))),
-    r: floatV(scalar(radius)),
-    strokeWidth: floatV(scalar(strokeWidth)),
+    center: vectorV(center),
+    r: floatV(radius),
+    strokeWidth: floatV(strokeWidth),
     strokeColor: black(),
   });
   compareDistance(context, "Circle", shape, p, expected);
@@ -130,9 +146,9 @@ const testPolygon = (
 ) => {
   const { context, p } = makeContext(pt);
   const shape = makePolygon(context, canvas, {
-    strokeWidth: floatV(scalar(strokeWidth)),
+    strokeWidth: floatV(strokeWidth),
     strokeColor: black(),
-    points: ptListV(points.map((p) => p.map((x) => scalar(x)))),
+    points: ptListV(points),
   });
   compareDistance(context, "Polygon", shape, p, expected);
 };
@@ -146,10 +162,10 @@ function testLine(
 ) {
   const { context, p } = makeContext(pt);
   const shape = makeLine(context, canvas, {
-    strokeWidth: floatV(scalar(strokeWidth)),
+    strokeWidth: floatV(strokeWidth),
     strokeColor: black(),
-    start: vectorV(start.map((x) => scalar(x))),
-    end: vectorV(end.map((x) => scalar(x))),
+    start: vectorV(start),
+    end: vectorV(end),
   });
   compareDistance(context, "Line", shape, p, expected);
 }
@@ -163,9 +179,9 @@ function testEllipse(
 ) {
   const { context, p } = makeContext(pt);
   const shape = makeEllipse(context, canvas, {
-    center: vectorV(center.map((x) => scalar(x))),
-    rx: floatV(scalar(rx)),
-    ry: floatV(scalar(ry)),
+    center: vectorV(center),
+    rx: floatV(rx),
+    ry: floatV(ry),
     strokeColor: black(),
   });
   compareDistance(context, "Ellipse", shape, p, expected);

@@ -1,4 +1,3 @@
-import { scalar } from "@tensorflow/tfjs";
 import { describe, expect, it, test } from "vitest";
 import { Polygon } from "../../shapes/Polygon.js";
 import { Polyline } from "../../shapes/Polyline.js";
@@ -35,7 +34,7 @@ describe("equivalued", () => {
   it.each([[[2]], [[3, 3, 3, 3, 3]], [[-5, -5, -5]], [[-5, -5, -5]]])(
     "same numbers",
     (values: number[]) => {
-      const result = equivalued(values.map((x) => scalar(x)));
+      const result = equivalued(values);
       expect(numOf(result)).toBeCloseTo(0, 4);
     },
   );
@@ -45,7 +44,7 @@ describe("equivalued", () => {
     [[-1, 0, 1], 2],
     [[-5, -1], 8],
   ])("different numbers", (values: number[], expected: number) => {
-    const result = equivalued(values.map((x) => scalar(x)));
+    const result = equivalued(values);
     expect(numOf(result)).toBeCloseTo(expected, 4);
   });
 });
@@ -68,11 +67,7 @@ describe("curvature", () => {
       [7, -7],
     ],
   ])("line segment", (p1: number[], p2: number[], p3: number[]) => {
-    const result = curvature(
-      [scalar(p1[0]), scalar(p1[1])],
-      [scalar(p2[0]), scalar(p2[1])],
-      [scalar(p3[0]), scalar(p3[1])],
-    );
+    const result = curvature([p1[0], p1[1]], [p2[0], p2[1]], [p3[0], p3[1]]);
     expect(numOf(result)).toBeCloseTo(0, 4);
   });
 
@@ -85,11 +80,7 @@ describe("curvature", () => {
   ])(
     "curved segment",
     (p1: number[], p2: number[], p3: number[], expected: number) => {
-      const result = curvature(
-        [scalar(p1[0]), scalar(p1[1])],
-        [scalar(p2[0]), scalar(p2[1])],
-        [scalar(p3[0]), scalar(p3[1])],
-      );
+      const result = curvature([p1[0], p1[1]], [p2[0], p2[1]], [p3[0], p3[1]]);
       expect(numOf(result)).toBeCloseTo(expected, 4);
     },
   );

@@ -1,6 +1,10 @@
-import { scalar } from "@tensorflow/tfjs";
 import _ from "lodash";
-import { EPS_DENOM, interp, ops } from "../engine/Autodiff.js";
+import {
+  EPS_DENOM,
+  genCodeSync,
+  ops,
+  secondaryGraph,
+} from "../engine/Autodiff.js";
 import {
   absVal,
   add,
@@ -201,7 +205,7 @@ export const closestPt_PtSeg = (
   const dir = ops.vsub(end, start);
   // t = ((p -: v) `dotv` dir) / lensq -- project vector onto line seg and normalize
   const t = div(ops.vdot(ops.vsub(pt, start), dir), add(lensq, EPS_DENOM));
-  const t1 = clamp([scalar(0.0), scalar(1.0)], t);
+  const t1 = clamp([0.0, 1.0], t);
 
   // v +: (t' *: dir) -- walk along vector of line seg
   return ops.vadd(start, ops.vmul(t1, dir));
@@ -214,7 +218,7 @@ export const closestPt_PtSeg = (
  * @returns a list of `number`s corresponding to nodes in `xs`
  */
 export const numsOf = (xs: ad.Num[]): number[] =>
-  interp(xs)((x) => x.arraySync());
+  genCodeSync(secondaryGraph(xs))((x) => x.val).secondary;
 
 export const numOf = (x: ad.Num): number => {
   return numsOf([x])[0];

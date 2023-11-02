@@ -1,4 +1,3 @@
-import { scalar } from "@tensorflow/tfjs";
 import * as ad from "../types/ad.js";
 import {
   Center,
@@ -34,7 +33,7 @@ export const sampleRectangle = (
   canvas: Canvas,
 ): RectangleProps<ad.Num> => ({
   name: strV("defaultRectangle"),
-  strokeWidth: floatV(scalar(0)),
+  strokeWidth: floatV(0),
   strokeStyle: strV("solid"),
   strokeColor: noPaint(),
   strokeDasharray: strV(""),
@@ -42,8 +41,8 @@ export const sampleRectangle = (
   center: sampleVector(context, canvas),
   width: sampleWidth(context, canvas),
   height: sampleHeight(context, canvas),
-  cornerRadius: floatV(scalar(0)),
-  rotation: floatV(scalar(0)),
+  cornerRadius: floatV(0),
+  rotation: floatV(0),
   ensureOnCanvas: boolV(true),
 });
 

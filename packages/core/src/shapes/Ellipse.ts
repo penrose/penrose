@@ -1,4 +1,3 @@
-import { scalar } from "@tensorflow/tfjs";
 import * as ad from "../types/ad.js";
 import { Center, Fill, Named, ShapeCommon, Stroke } from "../types/shapes.js";
 import { FloatV } from "../types/value.js";
@@ -26,7 +25,7 @@ export const sampleEllipse = (
   canvas: Canvas,
 ): EllipseProps<ad.Num> => ({
   name: strV("defaultEllipse"),
-  strokeWidth: floatV(scalar(0)),
+  strokeWidth: floatV(0),
   strokeStyle: strV("solid"),
   strokeColor: noPaint(),
   strokeDasharray: strV(""),

@@ -1,4 +1,3 @@
-import { scalar } from "@tensorflow/tfjs";
 import { EPS_DENOM, ops } from "../engine/Autodiff.js";
 import {
   absVal,
@@ -200,7 +199,7 @@ export const objDictGeneral = {
         name: "offset",
         type: realT(),
         description: "distance between the two centers",
-        default: scalar(100),
+        default: 100,
       },
     ],
     body: noWarnFn(
@@ -208,7 +207,7 @@ export const objDictGeneral = {
         return inDirection(
           shapeCenter(bottom),
           shapeCenter(top),
-          [scalar(0), scalar(1)],
+          [0, 1],
           offset,
         );
       },
@@ -237,7 +236,7 @@ export const objDictGeneral = {
         name: "offset",
         type: realT(),
         description: "distance between the two centers",
-        default: scalar(100),
+        default: 100,
       },
     ],
     body: noWarnFn(
@@ -245,7 +244,7 @@ export const objDictGeneral = {
         return inDirection(
           shapeCenter(top),
           shapeCenter(bottom),
-          [scalar(0), scalar(1)],
+          [0, 1],
           offset,
         );
       },
@@ -274,7 +273,7 @@ export const objDictGeneral = {
         name: "offset",
         type: realT(),
         description: "distance between the two centers",
-        default: scalar(100),
+        default: 100,
       },
     ],
     body: noWarnFn(
@@ -282,7 +281,7 @@ export const objDictGeneral = {
         return inDirection(
           shapeCenter(left),
           shapeCenter(right),
-          [scalar(1), scalar(0)],
+          [1, 0],
           offset,
         );
       },
@@ -311,7 +310,7 @@ export const objDictGeneral = {
         name: "offset",
         type: realT(),
         description: "distance between the two centers",
-        default: scalar(100),
+        default: 100,
       },
     ],
     body: noWarnFn(
@@ -319,7 +318,7 @@ export const objDictGeneral = {
         return inDirection(
           shapeCenter(right),
           shapeCenter(left),
-          [scalar(1), scalar(0)],
+          [1, 0],
           offset,
         );
       },
@@ -357,7 +356,7 @@ export const objDictGeneral = {
         name: "weight",
         type: realT(),
         description: "weight of repel",
-        default: scalar(10.0),
+        default: 10.0,
       },
     ],
     body: noWarnFn(
@@ -404,7 +403,7 @@ export const objDictGeneral = {
         name: "offset",
         type: realT(),
         description: "offset",
-        default: scalar(10.0),
+        default: 10.0,
       },
     ],
     body: noWarnFn(
@@ -442,18 +441,8 @@ export const objDictGeneral = {
       { name: "s0", type: shapeT("AnyShape"), description: "a shape" },
       { name: "s1", type: shapeT("AnyShape"), description: "a shape" },
       { name: "s2", type: shapeT("AnyShape"), description: "a shape" },
-      {
-        name: "strength",
-        type: realT(),
-        description: "strength",
-        default: scalar(20),
-      },
-      {
-        name: "range",
-        type: realT(),
-        description: "range",
-        default: scalar(10),
-      },
+      { name: "strength", type: realT(), description: "strength", default: 20 },
+      { name: "range", type: realT(), description: "range", default: 10 },
     ],
     body: noWarnFn(
       (
@@ -518,7 +507,7 @@ export const objDictSpecific = {
       { name: "s1", type: unionT(shapeT("Line"), rectlikeT()) },
       { name: "s2", type: rectlikeT() },
       { name: "w", type: realT() },
-      { name: "padding", type: realT(), default: scalar(10) },
+      { name: "padding", type: realT(), default: 10 },
     ],
     body: noWarnFn(
       (
@@ -532,7 +521,7 @@ export const objDictSpecific = {
           const [arr, text] = [s1, s2];
           const midpt = ops.vdiv(
             ops.vadd(arr.start.contents, arr.end.contents),
-            scalar(2),
+            2,
           );
           const textBB = bboxFromShape(text);
           // is (x-y)^2 = x^2-2xy+y^2 better? or x^2 - y^2?

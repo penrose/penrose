@@ -4,9 +4,7 @@
  *
  */
 
-import { scalar } from "@tensorflow/tfjs";
-import { mapShape } from "src/engine/EngineUtils.js";
-import { compile } from "../engine/Autodiff.js";
+import { genCode, secondaryGraph } from "../engine/Autodiff.js";
 import { maxN, minN } from "../engine/AutodiffFunctions.js";
 import { maxX, maxY, minX, minY } from "../engine/BBox.js";
 import { bboxFromShape } from "../lib/Queries.js";
@@ -135,9 +133,7 @@ export const toSVG = async (
   const shapes = computeShapes(varyingValues);
 
   // Find x and y ranges of shapes by using their bounding boxes
-  const bboxs = shapes.map((shape) =>
-    bboxFromShape(mapShape((x) => scalar(x), shape)),
-  );
+  const bboxs = shapes.map((shape) => bboxFromShape(shape));
 
   const MinX = minN(bboxs.map((bbox) => minX(bbox)));
   const MinY = minN(bboxs.map((bbox) => minY(bbox)));
@@ -145,7 +141,9 @@ export const toSVG = async (
   const MaxY = maxN(bboxs.map((bbox) => maxY(bbox)));
   const viewBoxRanges = [MinX, MinY, MaxX, MaxY];
 
-  const [mx, my, Mx, My] = (await compile(viewBoxRanges))((x) => x.arraySync());
+  const [mx, my, Mx, My] = (await genCode(secondaryGraph(viewBoxRanges)))(
+    (x) => x.val,
+  ).secondary;
 
   // toScreen flips the y-axis and therefore the max will become min
   const [mxt, myt] = toScreen([mx, my], [canvas.width, canvas.height]);

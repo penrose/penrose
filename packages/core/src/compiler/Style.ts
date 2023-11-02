@@ -1,4 +1,3 @@
-import { scalar } from "@tensorflow/tfjs";
 import consola from "consola";
 import im from "immutable";
 import _ from "lodash";
@@ -3037,9 +3036,7 @@ const evalExpr = (
       const hex = expr.contents;
       const rgba = hexToRgba(hex);
       if (rgba) {
-        return ok(
-          val(colorV({ tag: "RGBA", contents: rgba.map((x) => scalar(x)) })),
-        );
+        return ok(val(colorV({ tag: "RGBA", contents: rgba })));
       } else {
         return err(oneErr(invalidColorLiteral(expr)));
       }
@@ -3085,7 +3082,7 @@ const evalExpr = (
       return err(oneErr({ tag: "NotValueError", expr, what: expr.tag }));
     }
     case "Fix": {
-      return ok(val(floatV(scalar(expr.contents))));
+      return ok(val(floatV(expr.contents)));
     }
     case "List":
     case "Vector": {
@@ -3126,8 +3123,11 @@ const evalExpr = (
           ).andThen<number>((i) => {
             if (i.tag === "ShapeVal") {
               return err(oneErr({ tag: "NotValueError", expr: e }));
-            } else if (i.contents.tag === "FloatV") {
-              return ok(i.contents.contents.arraySync());
+            } else if (
+              i.contents.tag === "FloatV" &&
+              typeof i.contents.contents === "number"
+            ) {
+              return ok(i.contents.contents);
             } else {
               return err(oneErr({ tag: "BadIndexError", expr: e }));
             }
@@ -3266,7 +3266,7 @@ const evalNumberOf = (
   loc: SourceRange,
 ): Result<ArgVal<ad.Num>, StyleDiagnostics> => {
   if (subst.tag === "CollectionSubst" && arg.value === subst.collName) {
-    return ok(val(floatV(scalar(subst.collContent.length))));
+    return ok(val(floatV(subst.collContent.length)));
   } else {
     return err(oneErr(notSubstanceCollectionError(arg.value, loc)));
   }
@@ -3880,8 +3880,8 @@ const onCanvases = (canvas: Canvas, shapes: Shape<ad.Num>[]): Fn[] => {
     if (shape.ensureOnCanvas.contents) {
       const output = constrDict.onCanvas.body(
         shape,
-        scalar(canvas.width),
-        scalar(canvas.height),
+        canvas.width,
+        canvas.height,
       ).value;
       fns.push({
         ast: {

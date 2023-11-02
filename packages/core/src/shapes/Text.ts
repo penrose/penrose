@@ -1,4 +1,3 @@
-import { scalar } from "@tensorflow/tfjs";
 import * as ad from "../types/ad.js";
 import {
   Center,
@@ -43,7 +42,7 @@ export const sampleText = (
   canvas: Canvas,
 ): TextProps<ad.Num> => ({
   name: strV("defaultText"),
-  strokeWidth: floatV(scalar(0)),
+  strokeWidth: floatV(0),
   strokeStyle: strV("solid"),
   strokeColor: noPaint(),
   strokeDasharray: strV(""),
@@ -82,7 +81,7 @@ export const sampleText = (
       stages: new Set(),
     }),
   ),
-  rotation: floatV(scalar(0)),
+  rotation: floatV(0),
   string: strV("defaultText"),
   visibility: strV(""),
   fontFamily: strV("sans-serif"),

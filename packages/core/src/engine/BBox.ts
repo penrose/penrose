@@ -1,4 +1,3 @@
-import { scalar } from "@tensorflow/tfjs";
 import { rectPts } from "../lib/Queries.js";
 import { toPt } from "../lib/Utils.js";
 import { CircleProps } from "../shapes/Circle.js";
@@ -168,7 +167,7 @@ export const bboxFromPoints = (points: ad.Pt2[]): BBox => {
   ]);
   const w = sub(maxCorner[0], minCorner[0]);
   const h = sub(maxCorner[1], minCorner[1]);
-  const center = ops.vdiv(ops.vadd(minCorner, maxCorner), scalar(2));
+  const center = ops.vdiv(ops.vadd(minCorner, maxCorner), 2);
   if (!ad.isPt2(center)) {
     throw new Error("ops.vadd and ops.vdiv did not preserve dimension");
   }
@@ -267,7 +266,7 @@ export const bboxFromRectlike = ({
     width.contents,
     height.contents,
     rotation.contents,
-    scalar(0),
+    0,
   );
 };
 
@@ -417,7 +416,7 @@ export const bboxFromPath = ({ d }: PathProps<ad.Num>): BBox => {
       // https://www.w3.org/TR/SVG/implnote.html#ArcConversionEndpointToCenter
       // eq. 5.1
       const [x1Prime, y1Prime] = ops.vrot(
-        ops.vdiv(ops.vsub(cursor, next.contents), scalar(2)),
+        ops.vdiv(ops.vsub(cursor, next.contents), 2),
         neg(phi),
       );
 
@@ -461,7 +460,7 @@ export const bboxFromPath = ({ d }: PathProps<ad.Num>): BBox => {
       // eq. 5.3
       const [cx, cy] = ops.vadd(
         ops.vrot(cPrime, phi),
-        ops.vdiv(ops.vadd(cursor, next.contents), scalar(2)),
+        ops.vdiv(ops.vadd(cursor, next.contents), 2),
       );
 
       // very crude approach: we know that the ellipse is contained within a

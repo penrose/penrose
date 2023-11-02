@@ -1,4 +1,3 @@
-import { scalar } from "@tensorflow/tfjs";
 import { convexPartition, isClockwise } from "poly-partition";
 import { ops } from "../engine/Autodiff.js";
 import {
@@ -90,7 +89,7 @@ const convexPolygonMinkowskiSDFOneSided = (
   p2: ad.Num[][],
   padding: ad.Num,
 ): ad.Num => {
-  const center = ops.vdiv(p1.reduce(ops.vadd), scalar(p1.length));
+  const center = ops.vdiv(p1.reduce(ops.vadd), p1.length);
   // Create a list of all sides given by two subsequent vertices
   const sides = Array.from({ length: p1.length }, (_, key) => key).map((i) => [
     p1[i],
@@ -174,7 +173,7 @@ export const convexPartitions = (p: ad.Num[][]): ad.Num[][][] => {
 export const overlappingPolygonPoints = (
   polygonPoints1: ad.Num[][],
   polygonPoints2: ad.Num[][],
-  overlap: ad.Num = scalar(0),
+  overlap: ad.Num = 0,
 ): ad.Num => {
   const cp1 = convexPartitions(polygonPoints1);
   const cp2 = convexPartitions(
@@ -196,9 +195,9 @@ export const rectangleSignedDistance = (
 ): ad.Num => {
   // Calculate relative coordinates for rectangle signed distance
   const [xp, yp] = ops
-    .vmul(scalar(0.5), ops.vadd(bottomLeft, topRight))
+    .vmul(0.5, ops.vadd(bottomLeft, topRight))
     .map((x) => absVal(x));
-  const [xr, yr] = ops.vmul(scalar(0.5), ops.vsub(topRight, bottomLeft));
+  const [xr, yr] = ops.vmul(0.5, ops.vsub(topRight, bottomLeft));
   const [xq, yq] = ops.vsub([xp, yp], [xr, yr]);
   // Positive distance (nonzero when the rectangle does not contain the origin)
   const e1 = sqrt(
@@ -221,7 +220,7 @@ export const containsConvexPolygonPoints = (
   p2: ad.Num[],
   padding: ad.Num,
 ): ad.Num => {
-  const center = ops.vdiv(p1.reduce(ops.vadd), scalar(p1.length));
+  const center = ops.vdiv(p1.reduce(ops.vadd), p1.length);
   // Create a list of all sides given by two subsequent vertices
   const sides = Array.from({ length: p1.length }, (_, key) => key).map((i) => [
     p1[i],
@@ -268,7 +267,7 @@ export const halfPlaneEllipseSDF = (
   insidePoint: ad.Num[],
   padding: ad.Num,
 ): ad.Num => {
-  const hpi = halfPlaneToImplicit(lineSegment, insidePoint, scalar(0));
+  const hpi = halfPlaneToImplicit(lineSegment, insidePoint, 0);
   const ei = absEllipseToImplicit(c, rx, ry, padding);
   const e = div(
     add(mul(ei.b, squared(hpi.a)), mul(ei.a, squared(hpi.b))),
@@ -304,10 +303,7 @@ export const overlappingPolygonPointsEllipse = (
   ry: ad.Num,
   padding: ad.Num,
 ): ad.Num => {
-  const center = ops.vdiv(
-    polygonPoints.reduce(ops.vadd),
-    scalar(polygonPoints.length),
-  );
+  const center = ops.vdiv(polygonPoints.reduce(ops.vadd), polygonPoints.length);
   // Create a list of all sides given by two subsequent vertices
   const sides = Array.from(
     { length: polygonPoints.length },

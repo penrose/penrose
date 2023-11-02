@@ -1,4 +1,3 @@
-import { scalar } from "@tensorflow/tfjs";
 import { describe, expect, test } from "vitest";
 import { compDict } from "../lib/Functions.js";
 import { numsOf } from "../lib/Utils.js";
@@ -47,29 +46,29 @@ const polyProps = (): Poly<ad.Num> & Scale<ad.Num> => ({
   points: ptListV(
     // https://en.wikipedia.org/wiki/Polygon#/media/File:Assorted_polygons.svg
     [
-      [scalar(564), scalar(24)],
-      [scalar(733), scalar(54)],
-      [scalar(755), scalar(154)],
-      [scalar(693), scalar(257)],
-      [scalar(548), scalar(216)],
-      [scalar(571), scalar(145)],
-      [scalar(630), scalar(146)],
-      [scalar(617), scalar(180)],
-      [scalar(664), scalar(196)],
-      [scalar(701), scalar(120)],
-      [scalar(591), scalar(90)],
-      [scalar(528), scalar(129)],
+      [564, 24],
+      [733, 54],
+      [755, 154],
+      [693, 257],
+      [548, 216],
+      [571, 145],
+      [630, 146],
+      [617, 180],
+      [664, 196],
+      [701, 120],
+      [591, 90],
+      [528, 129],
     ],
   ),
-  scale: floatV(scalar(0.5)),
+  scale: floatV(0.5),
 });
 
 describe("bbox", () => {
   test("Circle", () => {
     const shape = makeCircle(simpleContext("bbox Circle"), canvas, {
-      r: floatV(scalar(100)),
-      center: vectorV([scalar(42), scalar(121)]),
-      strokeWidth: floatV(scalar(50)),
+      r: floatV(100),
+      center: vectorV([42, 121]),
+      strokeWidth: floatV(50),
       strokeColor: black(),
     });
     expectBbox(bboxFromCircle(shape), {
@@ -81,10 +80,10 @@ describe("bbox", () => {
 
   test("Ellipse", () => {
     const shape = makeEllipse(simpleContext("bbox Ellipse"), canvas, {
-      rx: floatV(scalar(200)),
-      ry: floatV(scalar(100)),
-      center: vectorV([scalar(42), scalar(121)]),
-      strokeWidth: floatV(scalar(50)),
+      rx: floatV(200),
+      ry: floatV(100),
+      center: vectorV([42, 121]),
+      strokeWidth: floatV(50),
       strokeColor: black(),
     });
     expectBbox(bboxFromEllipse(shape), {
@@ -96,10 +95,10 @@ describe("bbox", () => {
 
   test("Rectangle", () => {
     const shape = makeRectangle(simpleContext("bbox Rectangle"), canvas, {
-      center: vectorV([scalar(0), scalar(0)]),
-      width: floatV(scalar(150)),
-      height: floatV(scalar(200)),
-      strokeWidth: floatV(scalar(50)),
+      center: vectorV([0, 0]),
+      width: floatV(150),
+      height: floatV(200),
+      strokeWidth: floatV(50),
       strokeColor: black(),
     });
     expectBbox(bboxFromRect(shape), {
@@ -137,9 +136,9 @@ describe("bbox", () => {
 
   test("Image", () => {
     const shape = makeImage(simpleContext("bbox Image"), canvas, {
-      center: vectorV([scalar(0), scalar(0)]),
-      width: floatV(scalar(150)),
-      height: floatV(scalar(200)),
+      center: vectorV([0, 0]),
+      width: floatV(150),
+      height: floatV(200),
     });
     expectBbox(bboxFromRectlike(shape), {
       width: 150,
@@ -150,9 +149,9 @@ describe("bbox", () => {
 
   test("Line", () => {
     const shape = makeLine(simpleContext("bbox Line"), canvas, {
-      start: vectorV([scalar(-300), scalar(200)]),
-      end: vectorV([scalar(100), scalar(-150)]),
-      strokeWidth: floatV(scalar(50)),
+      start: vectorV([-300, 200]),
+      end: vectorV([100, -150]),
+      strokeWidth: floatV(50),
     });
     expectBbox(bboxFromLinelike(shape), {
       width: 432.925,
@@ -165,9 +164,9 @@ describe("bbox", () => {
     const context = simpleContext("bbox Path (lines)");
     const shape = makePath(context, canvas, {
       d: compDict.pathFromPoints.body(context, "open", [
-        [scalar(-100), scalar(-100)],
-        [scalar(100), scalar(-50)],
-        [scalar(-50), scalar(100)],
+        [-100, -100],
+        [100, -50],
+        [-50, 100],
       ]).value,
     });
     expectBbox(bboxFromPath(shape), {
@@ -180,13 +179,7 @@ describe("bbox", () => {
   test("Path (quadratic)", () => {
     const context = simpleContext("bbox Path (quadratic)");
     const shape = makePath(context, canvas, {
-      d: compDict.makePath.body(
-        context,
-        [scalar(-100), scalar(0)],
-        [scalar(100), scalar(0)],
-        scalar(50),
-        scalar(10),
-      ).value,
+      d: compDict.makePath.body(context, [-100, 0], [100, 0], 50, 10).value,
     });
     expectBbox(bboxFromPath(shape), {
       width: 180,
@@ -199,10 +192,10 @@ describe("bbox", () => {
     const context = simpleContext("bbox Path (cubic)");
     const shape = makePath(context, canvas, {
       d: compDict.cubicCurveFromPoints.body(context, "open", [
-        [scalar(0), scalar(0)],
-        [scalar(50), scalar(50)],
-        [scalar(200), scalar(0)],
-        [scalar(75), scalar(-25)],
+        [0, 0],
+        [50, 50],
+        [200, 0],
+        [75, -25],
       ]).value,
     });
     expectBbox(bboxFromPath(shape), {
@@ -216,10 +209,10 @@ describe("bbox", () => {
     const context = simpleContext("bbox Path (quadratic join)");
     const shape = makePath(context, canvas, {
       d: compDict.quadraticCurveFromPoints.body(context, "open", [
-        [scalar(0), scalar(0)],
-        [scalar(50), scalar(50)],
-        [scalar(75), scalar(-25)],
-        [scalar(200), scalar(0)],
+        [0, 0],
+        [50, 50],
+        [75, -25],
+        [200, 0],
       ]).value,
     });
     expectBbox(bboxFromPath(shape), {
@@ -233,12 +226,12 @@ describe("bbox", () => {
     const context = simpleContext("bbox Path (cubic join)");
     const shape = makePath(context, canvas, {
       d: compDict.cubicCurveFromPoints.body(context, "open", [
-        [scalar(0), scalar(0)],
-        [scalar(50), scalar(50)],
-        [scalar(200), scalar(0)],
-        [scalar(75), scalar(-25)],
-        [scalar(0), scalar(-100)],
-        [scalar(100), scalar(-75)],
+        [0, 0],
+        [50, 50],
+        [200, 0],
+        [75, -25],
+        [0, -100],
+        [100, -75],
       ]).value,
     });
     expectBbox(bboxFromPath(shape), {
@@ -254,12 +247,12 @@ describe("bbox", () => {
       d: compDict.arc.body(
         context,
         "open",
-        [scalar(-50), scalar(50)],
-        [scalar(100), scalar(-25)],
-        [scalar(200), scalar(100)],
-        scalar(30),
-        scalar(1),
-        scalar(0),
+        [-50, 50],
+        [100, -25],
+        [200, 100],
+        30,
+        1,
+        0,
       ).value,
     });
     expectBbox(bboxFromPath(shape), {
@@ -275,12 +268,12 @@ describe("bbox", () => {
       d: compDict.arc.body(
         context,
         "open",
-        [scalar(-50), scalar(50)],
-        [scalar(100), scalar(-25)],
-        [scalar(200), scalar(100)],
-        scalar(30),
-        scalar(0),
-        scalar(0),
+        [-50, 50],
+        [100, -25],
+        [200, 100],
+        30,
+        0,
+        0,
       ).value,
     });
     expectBbox(bboxFromPath(shape), {
@@ -296,12 +289,12 @@ describe("bbox", () => {
       d: compDict.arc.body(
         context,
         "open",
-        [scalar(-75), scalar(-50)],
-        [scalar(200), scalar(25)],
-        [scalar(25), scalar(50)],
-        scalar(60),
-        scalar(0),
-        scalar(0),
+        [-75, -50],
+        [200, 25],
+        [25, 50],
+        60,
+        0,
+        0,
       ).value,
     });
     expectBbox(bboxFromPath(shape), {

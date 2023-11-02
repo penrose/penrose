@@ -1,4 +1,3 @@
-import { scalar } from "@tensorflow/tfjs";
 import _ from "lodash";
 import { ops } from "../engine/Autodiff.js";
 import {
@@ -48,6 +47,7 @@ import {
   sub,
   tan,
   tanh,
+  trunc,
 } from "../engine/AutodiffFunctions.js";
 import { bboxFromRectlike } from "../engine/BBox.js";
 import { PathBuilder } from "../renderer/PathBuilder.js";
@@ -278,7 +278,7 @@ export const compDict = {
       level: ad.Num,
     ): MayWarn<ColorV<ad.Num>> => {
       const half = div(level, 2);
-      const even = eq(half, floor(half)); // autodiff doesn't have a mod operator
+      const even = eq(half, trunc(half)); // autodiff doesn't have a mod operator
       if (!(color1.tag === "RGBA" && color2.tag === "RGBA")) {
         throw Error("selectColor only supports RGBA");
       }
@@ -809,6 +809,22 @@ export const compDict = {
     returns: valueT("Real"),
   },
 
+  /**
+   * Return `trunc(x)`.
+   */
+  trunc: {
+    name: "trunc",
+    description: "Return `trunc(x)`.",
+    params: [{ name: "x", description: "`x`", type: realT() }],
+    body: (_context: Context, x: ad.Num): MayWarn<FloatV<ad.Num>> => {
+      return noWarn({
+        tag: "FloatV",
+        contents: trunc(x),
+      });
+    },
+    returns: valueT("Real"),
+  },
+
   sum: {
     name: "sum",
     description: "Return the sum of elements in a vector.",
@@ -862,7 +878,7 @@ export const compDict = {
     body: (_context: Context, xs: ad.Num[]): MayWarn<FloatV<ad.Num>> =>
       noWarn({
         tag: "FloatV",
-        contents: scalar(xs.length),
+        contents: xs.length,
       }),
     returns: realT(),
   },
@@ -1109,13 +1125,13 @@ export const compDict = {
         name: "x",
         description: "center of rotation (x coordinate)",
         type: realT(),
-        default: scalar(0),
+        default: 0,
       },
       {
         name: "y",
         description: "center of rotation (y coordinate)",
         type: realT(),
-        default: scalar(0),
+        default: 0,
       },
     ],
     body: (
@@ -1307,12 +1323,7 @@ export const compDict = {
       "`skew(a_x, a_y)` takes angles $a_x$ and $a_y$, and returns a 2D skew transformation encoded by the matrix\n$$\\left[ \\begin{array}{ccc} 1 & \\tan(a_x) & 0 \\\\ \\tan(a_y) & 1 & 0 \\\\ 0 & 0 & 1 \\end{array} \\right].$$\nIf $a_y$ is not defined, its default value is 0, resulting in a purely horizontal skewing.  This transformation is encoded as a $3 \\times 3$ matrix in homogeneous coordinates, so that it can be composed with affine transformations.  For the linear version, see `skew2d()`.",
     params: [
       { name: "ax", description: "horizontal angle", type: realT() },
-      {
-        name: "ay",
-        description: "vertical angle",
-        type: realT(),
-        default: scalar(0),
-      },
+      { name: "ay", description: "vertical angle", type: realT(), default: 0 },
     ],
     body: (
       _context: Context,
@@ -1333,12 +1344,7 @@ export const compDict = {
       "`skew2d(a_x, a_y)` takes angles $a_x$ and $a_y$, and returns a 2D skew transformation encoded via the matrix\n$$\\left[ \\begin{array}{cc} 1 & \\tan(a_x) \\\\ \\tan(a_y) & 1 \\end{array} \\right].$$\nIf $a_y$ is not defined, its default value is 0, resulting in a purely horizontal skewing.  This transformation is encoded as a $2 \\times 2$ matrix that cannot directly be composed with 2D affine transformations.  For the $3 \\times 3$ affine version, see `skew()`.",
     params: [
       { name: "ax", description: "horizontal angle", type: realT() },
-      {
-        name: "ay",
-        description: "vertical angle",
-        type: realT(),
-        default: scalar(0),
-      },
+      { name: "ay", description: "vertical angle", type: realT(), default: 0 },
     ],
     body: (
       _context: Context,
@@ -1434,12 +1440,7 @@ export const compDict = {
       "`translate(x,y)` returns a translation by the given offset $(x,y)$.  If $y$ is not specified, it is assumed to be $0$.  Since translation is affine rather than linear, it is encoded as a $3 \\times 3$ matrix in homogeneous coordinates, namely\n$$T = \\left[ \\begin{array}{ccc} 1 & 0 & x \\\\ 0 & 1 & y \\\\ 0 & 0 & 1 \\end{array} \\right].$$",
     params: [
       { name: "x", description: "horizontal offset", type: realT() },
-      {
-        name: "y",
-        description: "vertical offset",
-        type: realT(),
-        default: scalar(0),
-      },
+      { name: "y", description: "vertical offset", type: realT(), default: 0 },
     ],
     body: (
       _context: Context,
@@ -1529,14 +1530,14 @@ export const compDict = {
         description:
           "distance from the viewer to the near clipping plane (always positive), with a default value of 0.1",
         type: realT(),
-        default: scalar(0.1),
+        default: 0.1,
       },
       {
         name: "zFar",
         description:
           "distance from the viewer to the far clipping plane (always positive), with a default value of 100.0",
         type: realT(),
-        default: scalar(100.0),
+        default: 100.0,
       },
     ],
     body: (
@@ -1584,14 +1585,14 @@ export const compDict = {
         description:
           "distance to the nearer depth clipping plane (negative if the plane is behind the viewer), with a default value of 0.1",
         type: realT(),
-        default: scalar(0.1),
+        default: 0.1,
       },
       {
         name: "zFar",
         description:
           "distance to the farther depth clipping plane (negative if the plane is behind the viewer), with a default value of 100",
         type: realT(),
-        default: scalar(100.0),
+        default: 100.0,
       },
     ],
     body: (
@@ -1965,10 +1966,7 @@ export const compDict = {
       // (This expression can be derived by expressing the
       // interpolation condition in terms of the quadratic
       // Bernstein basis.)
-      const q1 = ops.vsub(
-        ops.vmul(scalar(2.0), p1),
-        ops.vmul(scalar(0.5), ops.vadd(p0, p2)),
-      );
+      const q1 = ops.vsub(ops.vmul(2.0, p1), ops.vmul(0.5, ops.vadd(p0, p2)));
       if (!ad.isPt2(q1)) {
         // XXX kludge to force TypeScript to know that q1 has length 2; see GitHub issue #715
         throw new Error("vector ops did not preserve dimension");
@@ -2016,32 +2014,32 @@ export const compDict = {
         name: "center",
         type: realNT(),
         description: "(x,y) translation",
-        default: [scalar(0), scalar(0)],
+        default: [0, 0],
       },
       {
         name: "radius",
         type: realT(),
         description: "radius of outer polygon (must be positive)",
-        default: scalar(50),
+        default: 50,
       },
       {
         name: "holeSize",
         type: realT(),
         description:
           "radius of inner polygon as a fraction of the outer radius (in range (0,1])",
-        default: scalar(0.35),
+        default: 0.35,
       },
       {
         name: "angle",
         type: realT(),
         description: "angle of rotation",
-        default: scalar(0),
+        default: 0,
       },
       {
         name: "nSides",
         type: posIntT(),
         description: "number of sides (integer ≥ 3)",
-        default: scalar(5),
+        default: 5,
       },
       {
         name: "chirality",
@@ -2160,7 +2158,7 @@ export const compDict = {
     ],
     body: (_context: Context, points: ad.Num[][]): MayWarn<VectorV<ad.Num>> => {
       const sum = sumVectors(points);
-      const mean = ops.vdiv(sum, scalar(points.length));
+      const mean = ops.vdiv(sum, points.length);
       return noWarn({
         tag: "VectorV",
         contents: mean,
@@ -2188,7 +2186,7 @@ export const compDict = {
         name: "tension",
         type: realT(),
         description: "smoothness of curve (0=piecewise linear, .25=default)",
-        default: scalar(0.25),
+        default: 0.25,
       },
     ],
     body: (
@@ -2409,7 +2407,7 @@ export const compDict = {
       const x1 = toPt(ops.vadd(center, u1));
       const largeArc = ifCond(gt(absVal(sub(theta1, theta0)), Math.PI), 1, 0);
       const arcSweep = ifCond(gt(theta0, theta1), 1, 0);
-      path.moveTo(x0).arcTo([r, r], x1, [scalar(0), largeArc, arcSweep]);
+      path.moveTo(x0).arcTo([r, r], x1, [0, largeArc, arcSweep]);
       if (pathType === "closed") {
         path.lineTo(center);
         path.closePath();
@@ -2484,7 +2482,7 @@ export const compDict = {
       let end: ad.Pt2 = innerEnd;
       let radius = innerRadius;
       for (let i = 0; i < repeat; i++) {
-        path.moveTo(start).arcTo(radius, end, [scalar(0), scalar(0), arcSweep]);
+        path.moveTo(start).arcTo(radius, end, [0, 0, arcSweep]);
         // TODO: avoid casting to `ad.Pt2`
         start = ops.vmove(start, spacing, startDir) as ad.Pt2;
         end = ops.vmove(end, spacing, endDir) as ad.Pt2;
@@ -2765,10 +2763,10 @@ export const compDict = {
       b0: ad.Num[],
       b1: ad.Num[],
     ): MayWarn<VectorV<ad.Num>> => {
-      const A0 = [a0[0], a0[1], scalar(1)];
-      const A1 = [a1[0], a1[1], scalar(1)];
-      const B0 = [b0[0], b0[1], scalar(1)];
-      const B1 = [b1[0], b1[1], scalar(1)];
+      const A0 = [a0[0], a0[1], 1];
+      const A1 = [a1[0], a1[1], 1];
+      const B0 = [b0[0], b0[1], 1];
+      const B1 = [b1[0], b1[1], 1];
       const X = ops.cross3(ops.cross3(A0, A1), ops.cross3(B0, B1));
       const x = [div(X[0], X[2]), div(X[1], X[2])];
       return noWarn({
@@ -2794,7 +2792,7 @@ export const compDict = {
       start: ad.Num[],
       end: ad.Num[],
     ): MayWarn<VectorV<ad.Num>> => {
-      const midpointLoc = ops.vmul(scalar(0.5), ops.vadd(start, end));
+      const midpointLoc = ops.vmul(0.5, ops.vadd(start, end));
       return noWarn({
         tag: "VectorV",
         contents: midpointLoc,
@@ -2825,7 +2823,7 @@ export const compDict = {
       const [start, end] = linePts(s1);
       // TODO: Cache these operations in Style!
       const normalDir = ops.rot90(ops.vnormalize(ops.vsub(end, start)));
-      const midpointLoc = ops.vmul(scalar(0.5), ops.vadd(start, end));
+      const midpointLoc = ops.vmul(0.5, ops.vadd(start, end));
       const midpointOffsetLoc = ops.vmove(midpointLoc, padding, normalDir);
       return noWarn({
         tag: "TupV",
@@ -2855,9 +2853,9 @@ export const compDict = {
       // tickPlacement(padding, ticks);
       const [start, end] = linePts(s1);
       const dir = ops.vnormalize(ops.vsub(end, start)); // TODO make direction face "positive direction"
-      const startDir = ops.vrot(dir, scalar(135));
-      const endDir = ops.vrot(dir, scalar(225));
-      const center = ops.vmul(scalar(0.5), ops.vadd(start, end));
+      const startDir = ops.vrot(dir, 135);
+      const endDir = ops.vrot(dir, 225);
+      const center = ops.vmul(0.5, ops.vadd(start, end));
       // if even, evenly divide tick marks about center. if odd, start in center and move outwards
       return noWarn({
         tag: "PtListV",
@@ -2964,7 +2962,7 @@ export const compDict = {
       const unit = ops.vnormalize(ops.vsub(pt2, pt1));
       const normalDir = ops.vneg(ops.rot90(unit)); // rot90 rotates CW, neg to point in CCW direction
 
-      const mid = ops.vmul(scalar(0.5), ops.vadd(pt1, pt2));
+      const mid = ops.vmul(0.5, ops.vadd(pt1, pt2));
 
       // start/end pts of each tick will be placed parallel to each other, offset at dist of tickLength
       // from the original pt1->pt2 line
@@ -3242,7 +3240,7 @@ export const compDict = {
 
       // Adapted from the section "Sampling the Unit Hemisphere" in Arvo, "Stratified Sampling of 2-Manifolds" (2001)
       const z = sub(1, mul(2, u1));
-      const r = sqrt(clamp([scalar(0), scalar(1)], sub(1, mul(z, z))));
+      const r = sqrt(clamp([0, 1], sub(1, mul(z, z))));
       const phi = mul(2 * Math.PI, u2);
       const x = [mul(r, cos(phi)), mul(r, sin(phi)), z];
 
@@ -3354,7 +3352,7 @@ export const compDict = {
           tag: "ColorV",
           contents: {
             tag: "HSVA",
-            contents: [h, scalar(100), scalar(80), alpha], // HACK: for the color to look good
+            contents: [h, 100, 80, alpha], // HACK: for the color to look good
           },
         });
       }
@@ -3377,14 +3375,14 @@ export const compDict = {
       { makeInput }: Context,
       minIndex: ad.Num,
       maxIndex: ad.Num,
-    ): MayWarn<FloatV<ad.Num>> => {
+    ): MayWarn<FloatV<number>> => {
       if (typeof minIndex === "number" && typeof maxIndex === "number") {
         const randomFloat = makeInput({
           init: { tag: "Sampled", sampler: uniform(minIndex, maxIndex) },
           stages: new Set(),
         });
-        const randomInt = Math.floor(randomFloat.arraySync());
-        return noWarn({ tag: "FloatV", contents: scalar(randomInt) });
+        const randomInt = Math.floor(randomFloat.val);
+        return noWarn({ tag: "FloatV", contents: randomInt });
       } else {
         throw new Error(
           "Expects the minimum and maximum indices to be constants. Got a computed or optimized value instead.",
@@ -3482,7 +3480,7 @@ export const compDict = {
       b: ad.Num[],
       c: ad.Num[],
     ): MayWarn<VectorV<ad.Num>> => {
-      const x = ops.vmul(scalar(1 / 3), ops.vadd(a, ops.vadd(b, c)));
+      const x = ops.vmul(1 / 3, ops.vadd(a, ops.vadd(b, c)));
       return noWarn({
         tag: "VectorV",
         contents: toPt(x),
@@ -3901,7 +3899,7 @@ export const compDict = {
     body: (_context: Context): MayWarn<FloatV<ad.Num>> => {
       return noWarn({
         tag: "FloatV",
-        contents: scalar(Math.E),
+        contents: Math.E,
       });
     },
     returns: valueT("Real"),
@@ -3917,7 +3915,7 @@ export const compDict = {
     body: (_context: Context): MayWarn<FloatV<ad.Num>> => {
       return noWarn({
         tag: "FloatV",
-        contents: scalar(Math.PI),
+        contents: Math.PI,
       });
     },
     returns: valueT("Real"),
@@ -5921,17 +5919,14 @@ export const signedDistanceRect = (rect: ad.Pt2[], pt: ad.Pt2): ad.Num => {
     throw new Error("Expects rect to have four points");
   }
   const [tr, tl, bl] = rect;
-  const center = ops.vmul(scalar(0.5), ops.vadd(tr, bl));
+  const center = ops.vmul(0.5, ops.vadd(tr, bl));
   const width = sub(tr[0], tl[0]);
   const height = sub(tl[1], bl[1]);
 
   const absp = ops.vabs(ops.vsub(pt, center));
   const b = [div(width, 2), div(height, 2)];
   const d = ops.vsub(absp, b);
-  return add(
-    ops.vnorm(ops.vmax(d, [scalar(0.0), scalar(0.0)])),
-    min(max(d[0], d[1]), 0.0),
-  );
+  return add(ops.vnorm(ops.vmax(d, [0.0, 0.0])), min(max(d[0], d[1]), 0.0));
 };
 
 export const signedDistanceCircle = (
@@ -5969,15 +5964,12 @@ export const signedDistancePolygon = (pts: ad.Pt2[], pt: ad.Pt2): ad.Num => {
   */
   const v = pts;
   let d = ops.vdot(ops.vsub(pt, v[0]), ops.vsub(pt, v[0]));
-  let ess: ad.Num = scalar(1.0);
+  let ess: ad.Num = 1.0;
   let j = v.length - 1;
   for (let i = 0; i < v.length; i++) {
     const e = ops.vsub(v[j], v[i]);
     const w = ops.vsub(pt, v[i]);
-    const clampedVal = clamp(
-      [scalar(0), scalar(1)],
-      div(ops.vdot(w, e), ops.vdot(e, e)),
-    );
+    const clampedVal = clamp([0, 1], div(ops.vdot(w, e), ops.vdot(e, e)));
     const b = ops.vsub(w, ops.vmul(clampedVal, e));
     d = min(d, ops.vdot(b, b));
     const c1 = gte(pt[1], v[i][1]);
@@ -6114,10 +6106,7 @@ export const signedDistanceLine = (
   */
   const pa = ops.vsub(pt, start);
   const ba = ops.vsub(end, start);
-  const h = clamp(
-    [scalar(0), scalar(1)],
-    div(ops.vdot(pa, ba), ops.vdot(ba, ba)),
-  );
+  const h = clamp([0, 1], div(ops.vdot(pa, ba), ops.vdot(ba, ba)));
   return ops.vnorm(ops.vsub(pa, ops.vmul(h, ba)));
 };
 
@@ -6254,7 +6243,7 @@ export const rawRayIntersectEllipse = (
   const v = ops.ewvvdiv(v0, r);
   const c = ops.ewvvdiv(c0, r);
 
-  const hit = rawRayIntersectCircleCoords(p, v, c, scalar(1));
+  const hit = rawRayIntersectCircleCoords(p, v, c, 1);
 
   // map hit point and normal back to ellipse coordinate system
   const x = ops.ewvvmul(hit[0], r);
@@ -6330,11 +6319,11 @@ const rawRayIntersectRectHelper = (
     dist[i] = ops.vdist(p, firstHits[i][0]);
   }
 
-  let hitX: ad.Num = scalar(Infinity);
-  let hitY: ad.Num = scalar(Infinity);
-  let nrmX: ad.Num = scalar(Infinity);
-  let nrmY: ad.Num = scalar(Infinity);
-  let firstDist: ad.Num = scalar(Infinity);
+  let hitX: ad.Num = Infinity;
+  let hitY: ad.Num = Infinity;
+  let nrmX: ad.Num = Infinity;
+  let nrmY: ad.Num = Infinity;
+  let firstDist: ad.Num = Infinity;
   for (let i = 0; i < 4; i++) {
     firstDist = ifCond(lt(firstDist, dist[i]), firstDist, dist[i]);
     hitX = ifCond(eq(firstDist, dist[i]), firstHits[i][0][0], hitX);
@@ -6364,11 +6353,11 @@ export const rawRayIntersectPoly = (
     firstHits[i] = rawRayIntersectLineCoords(p, v, a, b);
     dist[i] = ops.vdist(p, firstHits[i][0]);
   }
-  let firstDist: ad.Num = scalar(Infinity);
-  let hitX: ad.Num = scalar(Infinity);
-  let hitY: ad.Num = scalar(Infinity);
-  let nrmX: ad.Num = scalar(0);
-  let nrmY: ad.Num = scalar(0);
+  let firstDist: ad.Num = Infinity;
+  let hitX: ad.Num = Infinity;
+  let hitY: ad.Num = Infinity;
+  let nrmX: ad.Num = 0;
+  let nrmY: ad.Num = 0;
   for (let i = 0; i < pts.length - 1; i++) {
     firstDist = ifCond(lt(firstDist, dist[i]), firstDist, dist[i]);
     hitX = ifCond(eq(firstDist, dist[i]), firstHits[i][0][0], hitX);
@@ -6426,11 +6415,11 @@ export const rawRayIntersectGroup = (
   // t === "Group"
   const firstHits = shapes.map((shape) => rawRayIntersect(shape, p, v));
   const dist = firstHits.map((hit) => ops.vdist(hit[0], p));
-  let hitX: ad.Num = scalar(Infinity);
-  let hitY: ad.Num = scalar(Infinity);
-  let nrmX: ad.Num = scalar(Infinity);
-  let nrmY: ad.Num = scalar(Infinity);
-  let firstDist: ad.Num = scalar(Infinity);
+  let hitX: ad.Num = Infinity;
+  let hitY: ad.Num = Infinity;
+  let nrmX: ad.Num = Infinity;
+  let nrmY: ad.Num = Infinity;
+  let firstDist: ad.Num = Infinity;
   for (let i = 0; i < shapes.length; i++) {
     firstDist = ifCond(lt(firstDist, dist[i]), firstDist, dist[i]);
     hitX = ifCond(eq(firstDist, dist[i]), firstHits[i][0][0], hitX);
@@ -6531,9 +6520,9 @@ export const closestPointPoly = (
     closestPoints[i] = closestPointLineCoords(p, a, b);
     dist[i] = ops.vdist(p, closestPoints[i]);
   }
-  let closestX: ad.Num = scalar(Infinity);
-  let closestY: ad.Num = scalar(Infinity);
-  let minDist: ad.Num = scalar(Infinity);
+  let closestX: ad.Num = Infinity;
+  let closestY: ad.Num = Infinity;
+  let minDist: ad.Num = Infinity;
   for (let i = 0; i < allPts.length - 1; i++) {
     minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
     closestX = ifCond(eq(minDist, dist[i]), closestPoints[i][0], closestX);
@@ -6580,9 +6569,9 @@ export const closestPointGroup = (
 ): ad.Num[] => {
   const closestPoints = shapes.map((shape) => closestPoint(shape, p));
   const dist = closestPoints.map((point) => ops.vdist(point, p));
-  let closestX: ad.Num = scalar(Infinity);
-  let closestY: ad.Num = scalar(Infinity);
-  let minDist: ad.Num = scalar(Infinity);
+  let closestX: ad.Num = Infinity;
+  let closestY: ad.Num = Infinity;
+  let minDist: ad.Num = Infinity;
   for (let i = 0; i < shapes.length; i++) {
     minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
     closestX = ifCond(eq(minDist, dist[i]), closestPoints[i][0], closestX);
@@ -6600,7 +6589,7 @@ const closestPointLineCoords = (
   const a_to_b = [sub(b[0], a[0]), sub(b[1], a[1])];
   const atb2 = add(squared(a_to_b[0]), squared(a_to_b[1]));
   const atp_dot_atb = add(mul(a_to_p[0], a_to_b[0]), mul(a_to_p[1], a_to_b[1]));
-  const t = clamp([scalar(0), scalar(1)], div(atp_dot_atb, atb2));
+  const t = clamp([0, 1], div(atp_dot_atb, atb2));
   return [add(a[0], mul(a_to_b[0], t)), add(a[1], mul(a_to_b[1], t))];
 };
 
@@ -6785,9 +6774,9 @@ export const rawClosestSilhouettePointRect = (
     dist[i] = ops.vdist(p, closestSilhouettePoints[i]);
   }
 
-  let closestX: ad.Num = scalar(Infinity);
-  let closestY: ad.Num = scalar(Infinity);
-  let minDist: ad.Num = scalar(Infinity);
+  let closestX: ad.Num = Infinity;
+  let closestY: ad.Num = Infinity;
+  let minDist: ad.Num = Infinity;
   for (let i = 0; i < 4; i++) {
     minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
     closestX = ifCond(
@@ -6819,9 +6808,9 @@ export const rawClosestSilhouettePointPolyline = (
     closestSilhouettePoints[i] = rawClosestSilhouettePointCorner(p, a, b, c);
     dist[i] = ops.vdist(p, closestSilhouettePoints[i]);
   }
-  let closestX: ad.Num = scalar(Infinity);
-  let closestY: ad.Num = scalar(Infinity);
-  let minDist: ad.Num = scalar(Infinity);
+  let closestX: ad.Num = Infinity;
+  let closestY: ad.Num = Infinity;
+  let minDist: ad.Num = Infinity;
   for (let i = 0; i < pts.length - 2; i++) {
     minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
     closestX = ifCond(
@@ -6866,9 +6855,9 @@ export const rawClosestSilhouettePointPolygon = (
     closestSilhouettePoints[i] = rawClosestSilhouettePointCorner(p, a, b, c);
     dist[i] = ops.vdist(p, closestSilhouettePoints[i]);
   }
-  let closestX: ad.Num = scalar(Infinity);
-  let closestY: ad.Num = scalar(Infinity);
-  let minDist: ad.Num = scalar(Infinity);
+  let closestX: ad.Num = Infinity;
+  let closestY: ad.Num = Infinity;
+  let minDist: ad.Num = Infinity;
   for (let i = 0; i < pts.length; i++) {
     minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
     closestX = ifCond(
@@ -6911,9 +6900,9 @@ export const rawClosestSilhouettePointGroup = (
     rawClosestSilhouettePoint(shape, p),
   );
   const dist = closestSilhouettePoints.map((point) => ops.vdist(point, p));
-  let closestX: ad.Num = scalar(Infinity);
-  let closestY: ad.Num = scalar(Infinity);
-  let minDist: ad.Num = scalar(Infinity);
+  let closestX: ad.Num = Infinity;
+  let closestY: ad.Num = Infinity;
+  let minDist: ad.Num = Infinity;
   for (let i = 0; i < shapes.length; i++) {
     minDist = ifCond(lt(minDist, dist[i]), minDist, dist[i]);
     closestX = ifCond(
@@ -6959,11 +6948,11 @@ const perpPathFlat = (
 const tickPlacement = (
   padding: ad.Num,
   numPts: number,
-  multiplier: ad.Num = scalar(1),
+  multiplier: ad.Num = 1,
 ): ad.Num[] => {
   if (numPts <= 0) throw Error(`number of ticks must be greater than 0`);
   const even = numPts % 2 === 0;
-  const pts: ad.Num[] = even ? [div(padding, 2)] : [scalar(0)];
+  const pts: ad.Num[] = even ? [div(padding, 2)] : [0];
   for (let i = 1; i < numPts; i++) {
     if (even && i === 1) multiplier = neg(multiplier);
     const shift =
@@ -7070,10 +7059,7 @@ export const sdfRect = (
   const absp = ops.vabs(ops.vsub(p, center));
   const b = [div(width, 2), div(height, 2)];
   const d = ops.vsub(absp, b);
-  return add(
-    ops.vnorm(ops.vmax(d, [scalar(0.0), scalar(0.0)])),
-    min(max(d[0], d[1]), 0.0),
-  );
+  return add(ops.vnorm(ops.vmax(d, [0.0, 0.0])), min(max(d[0], d[1]), 0.0));
 };
 
 const randn = ({ makeInput }: Context): ad.Num => {
@@ -7151,7 +7137,7 @@ const identity = (n: number): ad.Num[][] => {
   for (let i = 0; i < n; i++) {
     I[i] = [];
     for (let j = 0; j < n; j++) {
-      I[i][j] = i === j ? scalar(1) : scalar(0);
+      I[i][j] = i === j ? 1 : 0;
     }
   }
   return I;
@@ -7165,7 +7151,7 @@ const diagonal = (v: ad.Num[]): ad.Num[][] => {
   for (let i = 0; i < n; i++) {
     D[i] = [];
     for (let j = 0; j < n; j++) {
-      D[i][j] = i === j ? v[i] : scalar(0);
+      D[i][j] = i === j ? v[i] : 0;
     }
   }
   return D;
@@ -7175,7 +7161,7 @@ const diagonal = (v: ad.Num[]): ad.Num[][] => {
 // of diagonal entries.
 const trace = (A: ad.Num[][]): ad.Num => {
   const n = A.length;
-  let sum: ad.Num = scalar(0);
+  let sum: ad.Num = 0;
   for (let i = 0; i < n; i++) {
     sum = add(sum, A[i][i]);
   }
@@ -7268,7 +7254,7 @@ const determinant = (A: ad.Num[][]): ad.Num => {
     throw Error("matrix must be 2x2, 3x3, or 4x4");
   }
 
-  return scalar(0);
+  return 0;
 };
 
 // Given a 2x2, 3x3, or 4x4 matrix A, returns its inverse.  If the matrix is
@@ -7277,7 +7263,7 @@ const determinant = (A: ad.Num[][]): ad.Num => {
 const inverse = (A: ad.Num[][]): ad.Num[][] => {
   const n = A.length;
   const C: ad.Num[][] = [];
-  let detA: ad.Num = scalar(0);
+  let detA: ad.Num = 0;
 
   if (n === 2) {
     C[0] = [A[1][1], neg(A[0][1])];
@@ -7601,7 +7587,7 @@ const toHomogeneous = (p: ad.Num[]): ad.Num[] => {
   for (let i = 0; i < n; i++) {
     q[i] = p[i];
   }
-  q[n] = scalar(1);
+  q[n] = 1;
   return q;
 };
 
@@ -7614,7 +7600,7 @@ const toHomogeneousMatrix = (A: ad.Num[][]): ad.Num[][] => {
   for (let i = 0; i < n + 1; i++) {
     B[i] = [];
     for (let j = 0; j < n + 1; j++) {
-      B[i][j] = scalar(0);
+      B[i][j] = 0;
     }
   }
   for (let i = 0; i < n; i++) {
@@ -7622,7 +7608,7 @@ const toHomogeneousMatrix = (A: ad.Num[][]): ad.Num[][] => {
       B[i][j] = A[i][j];
     }
   }
-  B[n][n] = scalar(1);
+  B[n][n] = 1;
   return B;
 };
 
@@ -7646,8 +7632,8 @@ const outer = (u: ad.Num[], v: ad.Num[]): ad.Num[][] => {
 // skewing an element on the 2D plane.
 const skew = (ax: ad.Num, ay: ad.Num): ad.Num[][] => {
   return [
-    [scalar(1), tan(ax)],
-    [tan(ay), scalar(1)],
+    [1, tan(ax)],
+    [tan(ay), 1],
   ];
 };
 
@@ -7659,9 +7645,9 @@ const crossProductMatrix = (v: ad.Num[]): ad.Num[][] => {
   }
 
   return [
-    [scalar(0), neg(v[2]), v[1]],
-    [v[2], scalar(0), neg(v[0])],
-    [neg(v[1]), v[0], scalar(0)],
+    [0, neg(v[2]), v[1]],
+    [v[2], 0, neg(v[0])],
+    [neg(v[1]), v[0], 0],
   ];
 };
 
@@ -7760,22 +7746,22 @@ const lookAt = (eye: ad.Num[], center: ad.Num[], up: ad.Num[]): ad.Num[][] => {
   M[0][0] = side[0];
   M[0][1] = side[1];
   M[0][2] = side[2];
-  M[0][3] = scalar(0);
+  M[0][3] = 0;
 
   M[1][0] = vert[0];
   M[1][1] = vert[1];
   M[1][2] = vert[2];
-  M[1][3] = scalar(0);
+  M[1][3] = 0;
 
   M[2][0] = neg(forward[0]);
   M[2][1] = neg(forward[1]);
   M[2][2] = neg(forward[2]);
-  M[2][3] = scalar(0);
+  M[2][3] = 0;
 
-  M[3][0] = scalar(0);
-  M[3][1] = scalar(0);
-  M[3][2] = scalar(0);
-  M[3][3] = scalar(1);
+  M[3][0] = 0;
+  M[3][1] = 0;
+  M[3][2] = 0;
+  M[3][3] = 1;
 
   const T = translate(ops.vneg(eye));
   return ops.mmmul(M, T);
@@ -7807,9 +7793,9 @@ const perspective = (
   M[0][0] = div(cotangent, aspect);
   M[1][1] = neg(cotangent);
   M[2][2] = div(neg(add(zFar, zNear)), deltaZ);
-  M[3][2] = scalar(-1);
+  M[3][2] = -1;
   M[2][3] = mul(2, div(mul(zNear, zFar), deltaZ));
-  M[3][3] = scalar(0);
+  M[3][3] = 0;
 
   return M;
 };
@@ -7859,11 +7845,7 @@ const project = (
   let r = ops.vdiv(q, q[3]).slice(0, 3);
 
   // map x, y and z to range 0-1
-  r = ops.vadd(ops.vmul(scalar(0.5), r), [
-    scalar(0.5),
-    scalar(0.5),
-    scalar(0.5),
-  ]);
+  r = ops.vadd(ops.vmul(0.5, r), [0.5, 0.5, 0.5]);
 
   // map x,y to viewport
   r[0] = add(mul(r[0], viewport[2]), viewport[0]);
@@ -7889,7 +7871,7 @@ const matrix = (
   return [
     [a, c, e],
     [b, d, f],
-    [scalar(0), scalar(0), scalar(1)],
+    [0, 0, 1],
   ];
 };
 

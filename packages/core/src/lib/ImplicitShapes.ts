@@ -1,4 +1,3 @@
-import { scalar } from "@tensorflow/tfjs";
 import { EPS_DENOM, ops } from "../engine/Autodiff.js";
 import {
   absVal,
@@ -118,7 +117,7 @@ export const halfPlaneToImplicit = (
 export const ellipseToImplicit = (
   e: Ellipse<ad.Num>,
   padding: ad.Num,
-  factor: ad.Num = scalar(1),
+  factor: ad.Num = 1,
 ): ImplicitEllipse => {
   return absEllipseToImplicit(
     toPt(e.center.contents),
@@ -134,7 +133,7 @@ export const absEllipseToImplicit = (
   rx: ad.Num,
   ry: ad.Num,
   padding: ad.Num,
-  factor: ad.Num = scalar(1),
+  factor: ad.Num = 1,
 ): ImplicitEllipse => {
   const rxp = add(rx, padding);
   const ryp = add(ry, padding);
@@ -154,7 +153,7 @@ export const absEllipseToImplicit = (
 export const circleToImplicitEllipse = (
   circle: Circle<ad.Num>,
   padding: ad.Num,
-  factor: ad.Num = scalar(1),
+  factor: ad.Num = 1,
 ): ImplicitEllipse => {
   return absCircleToImplicitEllipse(
     toPt(circle.center.contents),
@@ -168,7 +167,7 @@ export const absCircleToImplicitEllipse = (
   c: ad.Pt2,
   r: ad.Num,
   padding: ad.Num,
-  factor: ad.Num = scalar(1),
+  factor: ad.Num = 1,
 ): ImplicitEllipse => {
   return {
     a: factor,

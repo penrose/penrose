@@ -1,4 +1,3 @@
-import { scalar } from "@tensorflow/tfjs";
 import * as ad from "../types/ad.js";
 import { Arrow, Fill, Named, ShapeCommon, Stroke } from "../types/shapes.js";
 import { PathDataV, StrV } from "../types/value.js";
@@ -24,16 +23,16 @@ export const samplePath = (
   _canvas: Canvas,
 ): PathProps<ad.Num> => ({
   name: strV("defaultPath"),
-  strokeWidth: floatV(scalar(1)),
+  strokeWidth: floatV(1),
   strokeStyle: strV("solid"),
   strokeColor: black(),
   strokeDasharray: strV(""),
   strokeLinecap: strV("butt"),
   fillColor: noPaint(),
-  startArrowheadSize: floatV(scalar(1)),
+  startArrowheadSize: floatV(1),
   startArrowhead: strV("none"),
   flipStartArrowhead: boolV(false),
-  endArrowheadSize: floatV(scalar(1)),
+  endArrowheadSize: floatV(1),
   endArrowhead: strV("none"),
   d: pathDataV([]),
   ensureOnCanvas: boolV(true),

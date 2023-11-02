@@ -1,4 +1,3 @@
-import { scalar } from "@tensorflow/tfjs";
 import { FloatV } from "src/types/value.js";
 import * as ad from "../types/ad.js";
 import {
@@ -64,7 +63,7 @@ export const sampleEquation = (
       stages: new Set(),
     }),
   ),
-  rotation: floatV(scalar(0)),
+  rotation: floatV(0),
   string: strV("defaultLabelText"),
   fontSize: strV("16px"),
   ensureOnCanvas: boolV(true),

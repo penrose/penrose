@@ -1,4 +1,3 @@
-import { scalar } from "@tensorflow/tfjs";
 import { describe, expect, it, test } from "vitest";
 import { ops } from "../../engine/Autodiff.js";
 import { sub } from "../../engine/AutodiffFunctions.js";
@@ -34,49 +33,49 @@ const precisionDigits = 10;
 const shapes: Shape<ad.Num>[] = [
   // shapes[0]
   makeRectangle(context, canvas, {
-    center: vectorV([scalar(11), scalar(22)]),
-    width: floatV(scalar(44)),
-    height: floatV(scalar(44)),
-    strokeWidth: floatV(scalar(0)),
+    center: vectorV([11, 22]),
+    width: floatV(44),
+    height: floatV(44),
+    strokeWidth: floatV(0),
     strokeColor: black(),
   }),
   // shapes[1]
   makeCircle(context, canvas, {
-    r: floatV(scalar(22)),
-    center: vectorV([scalar(11), scalar(22)]),
-    strokeWidth: floatV(scalar(0)),
+    r: floatV(22),
+    center: vectorV([11, 22]),
+    strokeWidth: floatV(0),
     strokeColor: black(),
   }),
   // shapes[2]
   makeEllipse(context, canvas, {
-    rx: floatV(scalar(22)),
-    ry: floatV(scalar(22)),
-    center: vectorV([scalar(11), scalar(22)]),
-    strokeWidth: floatV(scalar(0)),
+    rx: floatV(22),
+    ry: floatV(22),
+    center: vectorV([11, 22]),
+    strokeWidth: floatV(0),
     strokeColor: black(),
   }),
   // shapes[3]
   makePath(context, canvas, {
     d: compDict.pathFromPoints.body(context, "open", [
-      [scalar(-11), scalar(0)],
-      [scalar(33), scalar(0)],
-      [scalar(33), scalar(44)],
+      [-11, 0],
+      [33, 0],
+      [33, 44],
     ]).value,
   }),
   // shapes[4]
   makeLine(context, canvas, {
-    start: vectorV([scalar(-11), scalar(0)]),
-    end: vectorV([scalar(33), scalar(44)]),
-    strokeWidth: floatV(scalar(0)),
+    start: vectorV([-11, 0]),
+    end: vectorV([33, 44]),
+    strokeWidth: floatV(0),
   }),
   // shapes[5]
   makePolygon(context, canvas, {
     points: ptListV([
-      [scalar(-11), scalar(0)],
-      [scalar(33), scalar(0)],
-      [scalar(33), scalar(44)],
+      [-11, 0],
+      [33, 0],
+      [33, 44],
     ]),
-    scale: floatV(scalar(1)),
+    scale: floatV(1),
   }),
 ];
 
@@ -150,10 +149,10 @@ describe("polygonLikePoints", () => {
 });
 
 describe("outwardUnitNormal", () => {
-  let point1 = [scalar(2), scalar(3)];
-  let point2 = [scalar(1), scalar(2)];
-  let point3 = [scalar(1), scalar(4)];
-  let point4 = [scalar(2), scalar(2)];
+  let point1 = [2, 3];
+  let point2 = [1, 2];
+  let point3 = [1, 4];
+  let point4 = [2, 2];
   let lineSegment = [point3, point4];
 
   test("inside point above", async () => {
@@ -195,9 +194,9 @@ describe("convexPolygonOriginSignedDistance", () => {
   test("inside point", () => {
     const d = numOf(
       convexPolygonOriginSignedDistance([
-        [scalar(-1), scalar(-1)],
-        [scalar(1), scalar(-1)],
-        [scalar(0), scalar(1)],
+        [-1, -1],
+        [1, -1],
+        [0, 1],
       ]),
     );
     const [x, y] = [2 / 5, 1 / 5]; // closest
@@ -207,9 +206,9 @@ describe("convexPolygonOriginSignedDistance", () => {
   test("outside point near edge", () => {
     const d = numOf(
       convexPolygonOriginSignedDistance([
-        [scalar(-1), scalar(1)],
-        [scalar(1), scalar(1)],
-        [scalar(0), scalar(3)],
+        [-1, 1],
+        [1, 1],
+        [0, 3],
       ]),
     );
     expect(d).toBeCloseTo(1);
@@ -218,9 +217,9 @@ describe("convexPolygonOriginSignedDistance", () => {
   test("outside point near vertex", () => {
     const d = numOf(
       convexPolygonOriginSignedDistance([
-        [scalar(-1), scalar(-3)],
-        [scalar(1), scalar(-3)],
-        [scalar(0), scalar(-1)],
+        [-1, -3],
+        [1, -3],
+        [0, -1],
       ]),
     );
     expect(d).toBeCloseTo(1);
@@ -229,10 +228,10 @@ describe("convexPolygonOriginSignedDistance", () => {
   test("outside point near edge with obtuse interior angles", () => {
     const d = numOf(
       convexPolygonOriginSignedDistance([
-        [scalar(-2), scalar(-3)],
-        [scalar(2), scalar(-3)],
-        [scalar(1), scalar(-2)],
-        [scalar(-1), scalar(-2)],
+        [-2, -3],
+        [2, -3],
+        [1, -2],
+        [-1, -2],
       ]),
     );
     expect(d).toBeCloseTo(2);

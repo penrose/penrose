@@ -1,4 +1,3 @@
-import { scalar } from "@tensorflow/tfjs";
 import { ops } from "../engine/Autodiff.js";
 import {
   add,
@@ -49,7 +48,7 @@ export const rectPts = (
   center: ad.Num[],
   width: ad.Num,
   height: ad.Num,
-  clockwise: ad.Num = scalar(0),
+  clockwise: ad.Num = 0,
 ): ad.Pt2[] => {
   const ccw = neg(clockwise);
 
@@ -479,7 +478,7 @@ export const shapeDistanceRects = (
   if (rect1.length !== 4 || rect2.length !== 4) {
     throw new Error("Expects rect1 and rect2 to have four points each");
   }
-  const [diffBL, diffTR] = rectangleDifference(rect1, rect2, scalar(0));
+  const [diffBL, diffTR] = rectangleDifference(rect1, rect2, 0);
   return rectangleSignedDistance(diffBL, diffTR);
 };
 
@@ -511,7 +510,7 @@ export const shapeDistanceRectlikePolyline = (
   rect: ad.Pt2[],
   points: ad.Num[][],
 ): ad.Num => {
-  let dMin: ad.Num = scalar(Infinity);
+  let dMin: ad.Num = Infinity;
 
   const topRight = rect[0];
   const bottomLeft = rect[2];
@@ -537,7 +536,7 @@ export const shapeDistanceRectlikePolyline = (
 };
 
 export const shapeDistancePolys = (pts1: ad.Pt2[], pts2: ad.Pt2[]): ad.Num =>
-  overlappingPolygonPoints(pts1, pts2, scalar(0));
+  overlappingPolygonPoints(pts1, pts2, 0);
 
 export const shapeDistanceRectCircle = (
   rect: ad.Pt2[],
@@ -566,9 +565,7 @@ export const shapeDistancePolyEllipse = (
   ry: ad.Num,
 ): ad.Num => {
   const cp = convexPartitions(pts);
-  return minN(
-    cp.map((p) => overlappingPolygonPointsEllipse(p, c, rx, ry, scalar(0))),
-  );
+  return minN(cp.map((p) => overlappingPolygonPointsEllipse(p, c, rx, ry, 0)));
 };
 
 export const shapeDistanceCircleLine = (
@@ -601,7 +598,7 @@ const shapeDistanceCirclePolyline = (
   points: ad.Num[][],
 ): ad.Num => {
   // compute the smallest distance to any segment
-  let dMin: ad.Num = scalar(Infinity);
+  let dMin: ad.Num = Infinity;
   for (let i = 0; i < points.length - 1; i++) {
     const a = points[i];
     const b = points[i + 1];
@@ -632,6 +629,6 @@ export const shapeDistanceLines = (
   // how far is Minkowski polygon from containing the origin?
   return signedDistancePolygon(
     [toPt(p0), toPt(p1), toPt(p2), toPt(p3)],
-    [scalar(0), scalar(0)],
+    [0, 0],
   );
 };

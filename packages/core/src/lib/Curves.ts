@@ -1,4 +1,3 @@
-import { scalar } from "@tensorflow/tfjs";
 import { ops } from "../engine/Autodiff.js";
 import {
   absVal,
@@ -67,8 +66,8 @@ export const curvature = (
     const t12 = ops.vnormalize(v12);
     const t23 = ops.vnormalize(v23);
     // Centers of the 2 edges
-    const p12 = ops.vmul(scalar(0.5), ops.vadd(p1, p2));
-    const p23 = ops.vmul(scalar(0.5), ops.vadd(p2, p3));
+    const p12 = ops.vmul(0.5, ops.vadd(p1, p2));
+    const p23 = ops.vmul(0.5, ops.vadd(p2, p3));
     // Distance between the edge centers
     const l123 = ops.vdist(p12, p23);
     return mul(sign(angle), div(ops.vdist(t23, t12), l123));
