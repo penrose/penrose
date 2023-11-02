@@ -200,7 +200,7 @@ export const objDictGeneral = {
         name: "offset",
         type: realT(),
         description: "distance between the two centers",
-        default: 100,
+        default: scalar(100),
       },
     ],
     body: noWarnFn(
@@ -237,7 +237,7 @@ export const objDictGeneral = {
         name: "offset",
         type: realT(),
         description: "distance between the two centers",
-        default: 100,
+        default: scalar(100),
       },
     ],
     body: noWarnFn(
@@ -274,7 +274,7 @@ export const objDictGeneral = {
         name: "offset",
         type: realT(),
         description: "distance between the two centers",
-        default: 100,
+        default: scalar(100),
       },
     ],
     body: noWarnFn(
@@ -311,7 +311,7 @@ export const objDictGeneral = {
         name: "offset",
         type: realT(),
         description: "distance between the two centers",
-        default: 100,
+        default: scalar(100),
       },
     ],
     body: noWarnFn(
@@ -357,7 +357,7 @@ export const objDictGeneral = {
         name: "weight",
         type: realT(),
         description: "weight of repel",
-        default: 10.0,
+        default: scalar(10.0),
       },
     ],
     body: noWarnFn(
@@ -404,7 +404,7 @@ export const objDictGeneral = {
         name: "offset",
         type: realT(),
         description: "offset",
-        default: 10.0,
+        default: scalar(10.0),
       },
     ],
     body: noWarnFn(
@@ -442,8 +442,18 @@ export const objDictGeneral = {
       { name: "s0", type: shapeT("AnyShape"), description: "a shape" },
       { name: "s1", type: shapeT("AnyShape"), description: "a shape" },
       { name: "s2", type: shapeT("AnyShape"), description: "a shape" },
-      { name: "strength", type: realT(), description: "strength", default: 20 },
-      { name: "range", type: realT(), description: "range", default: 10 },
+      {
+        name: "strength",
+        type: realT(),
+        description: "strength",
+        default: scalar(20),
+      },
+      {
+        name: "range",
+        type: realT(),
+        description: "range",
+        default: scalar(10),
+      },
     ],
     body: noWarnFn(
       (
@@ -508,7 +518,7 @@ export const objDictSpecific = {
       { name: "s1", type: unionT(shapeT("Line"), rectlikeT()) },
       { name: "s2", type: rectlikeT() },
       { name: "w", type: realT() },
-      { name: "padding", type: realT(), default: 10 },
+      { name: "padding", type: realT(), default: scalar(10) },
     ],
     body: noWarnFn(
       (

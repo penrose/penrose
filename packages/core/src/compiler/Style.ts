@@ -3037,7 +3037,9 @@ const evalExpr = (
       const hex = expr.contents;
       const rgba = hexToRgba(hex);
       if (rgba) {
-        return ok(val(colorV({ tag: "RGBA", contents: rgba })));
+        return ok(
+          val(colorV({ tag: "RGBA", contents: rgba.map((x) => scalar(x)) })),
+        );
       } else {
         return err(oneErr(invalidColorLiteral(expr)));
       }
@@ -3124,11 +3126,8 @@ const evalExpr = (
           ).andThen<number>((i) => {
             if (i.tag === "ShapeVal") {
               return err(oneErr({ tag: "NotValueError", expr: e }));
-            } else if (
-              i.contents.tag === "FloatV" &&
-              typeof i.contents.contents === "number"
-            ) {
-              return ok(i.contents.contents);
+            } else if (i.contents.tag === "FloatV") {
+              return ok(i.contents.contents.arraySync());
             } else {
               return err(oneErr({ tag: "BadIndexError", expr: e }));
             }

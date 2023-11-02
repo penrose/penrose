@@ -4,6 +4,8 @@
  *
  */
 
+import { scalar } from "@tensorflow/tfjs";
+import { mapShape } from "src/engine/EngineUtils.js";
 import { compile } from "../engine/Autodiff.js";
 import { maxN, minN } from "../engine/AutodiffFunctions.js";
 import { maxX, maxY, minX, minY } from "../engine/BBox.js";
@@ -133,7 +135,9 @@ export const toSVG = async (
   const shapes = computeShapes(varyingValues);
 
   // Find x and y ranges of shapes by using their bounding boxes
-  const bboxs = shapes.map((shape) => bboxFromShape(shape));
+  const bboxs = shapes.map((shape) =>
+    bboxFromShape(mapShape((x) => scalar(x), shape)),
+  );
 
   const MinX = minN(bboxs.map((bbox) => minX(bbox)));
   const MinY = minN(bboxs.map((bbox) => minY(bbox)));

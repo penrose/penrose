@@ -1109,13 +1109,13 @@ export const compDict = {
         name: "x",
         description: "center of rotation (x coordinate)",
         type: realT(),
-        default: 0,
+        default: scalar(0),
       },
       {
         name: "y",
         description: "center of rotation (y coordinate)",
         type: realT(),
-        default: 0,
+        default: scalar(0),
       },
     ],
     body: (
@@ -1307,7 +1307,12 @@ export const compDict = {
       "`skew(a_x, a_y)` takes angles $a_x$ and $a_y$, and returns a 2D skew transformation encoded by the matrix\n$$\\left[ \\begin{array}{ccc} 1 & \\tan(a_x) & 0 \\\\ \\tan(a_y) & 1 & 0 \\\\ 0 & 0 & 1 \\end{array} \\right].$$\nIf $a_y$ is not defined, its default value is 0, resulting in a purely horizontal skewing.  This transformation is encoded as a $3 \\times 3$ matrix in homogeneous coordinates, so that it can be composed with affine transformations.  For the linear version, see `skew2d()`.",
     params: [
       { name: "ax", description: "horizontal angle", type: realT() },
-      { name: "ay", description: "vertical angle", type: realT(), default: 0 },
+      {
+        name: "ay",
+        description: "vertical angle",
+        type: realT(),
+        default: scalar(0),
+      },
     ],
     body: (
       _context: Context,
@@ -1328,7 +1333,12 @@ export const compDict = {
       "`skew2d(a_x, a_y)` takes angles $a_x$ and $a_y$, and returns a 2D skew transformation encoded via the matrix\n$$\\left[ \\begin{array}{cc} 1 & \\tan(a_x) \\\\ \\tan(a_y) & 1 \\end{array} \\right].$$\nIf $a_y$ is not defined, its default value is 0, resulting in a purely horizontal skewing.  This transformation is encoded as a $2 \\times 2$ matrix that cannot directly be composed with 2D affine transformations.  For the $3 \\times 3$ affine version, see `skew()`.",
     params: [
       { name: "ax", description: "horizontal angle", type: realT() },
-      { name: "ay", description: "vertical angle", type: realT(), default: 0 },
+      {
+        name: "ay",
+        description: "vertical angle",
+        type: realT(),
+        default: scalar(0),
+      },
     ],
     body: (
       _context: Context,
@@ -1424,7 +1434,12 @@ export const compDict = {
       "`translate(x,y)` returns a translation by the given offset $(x,y)$.  If $y$ is not specified, it is assumed to be $0$.  Since translation is affine rather than linear, it is encoded as a $3 \\times 3$ matrix in homogeneous coordinates, namely\n$$T = \\left[ \\begin{array}{ccc} 1 & 0 & x \\\\ 0 & 1 & y \\\\ 0 & 0 & 1 \\end{array} \\right].$$",
     params: [
       { name: "x", description: "horizontal offset", type: realT() },
-      { name: "y", description: "vertical offset", type: realT(), default: 0 },
+      {
+        name: "y",
+        description: "vertical offset",
+        type: realT(),
+        default: scalar(0),
+      },
     ],
     body: (
       _context: Context,
@@ -1514,14 +1529,14 @@ export const compDict = {
         description:
           "distance from the viewer to the near clipping plane (always positive), with a default value of 0.1",
         type: realT(),
-        default: 0.1,
+        default: scalar(0.1),
       },
       {
         name: "zFar",
         description:
           "distance from the viewer to the far clipping plane (always positive), with a default value of 100.0",
         type: realT(),
-        default: 100.0,
+        default: scalar(100.0),
       },
     ],
     body: (
@@ -1569,14 +1584,14 @@ export const compDict = {
         description:
           "distance to the nearer depth clipping plane (negative if the plane is behind the viewer), with a default value of 0.1",
         type: realT(),
-        default: 0.1,
+        default: scalar(0.1),
       },
       {
         name: "zFar",
         description:
           "distance to the farther depth clipping plane (negative if the plane is behind the viewer), with a default value of 100",
         type: realT(),
-        default: 100.0,
+        default: scalar(100.0),
       },
     ],
     body: (
@@ -2001,32 +2016,32 @@ export const compDict = {
         name: "center",
         type: realNT(),
         description: "(x,y) translation",
-        default: [0, 0],
+        default: [scalar(0), scalar(0)],
       },
       {
         name: "radius",
         type: realT(),
         description: "radius of outer polygon (must be positive)",
-        default: 50,
+        default: scalar(50),
       },
       {
         name: "holeSize",
         type: realT(),
         description:
           "radius of inner polygon as a fraction of the outer radius (in range (0,1])",
-        default: 0.35,
+        default: scalar(0.35),
       },
       {
         name: "angle",
         type: realT(),
         description: "angle of rotation",
-        default: 0,
+        default: scalar(0),
       },
       {
         name: "nSides",
         type: posIntT(),
         description: "number of sides (integer ≥ 3)",
-        default: 5,
+        default: scalar(5),
       },
       {
         name: "chirality",
@@ -2173,7 +2188,7 @@ export const compDict = {
         name: "tension",
         type: realT(),
         description: "smoothness of curve (0=piecewise linear, .25=default)",
-        default: 0.25,
+        default: scalar(0.25),
       },
     ],
     body: (
@@ -3362,14 +3377,14 @@ export const compDict = {
       { makeInput }: Context,
       minIndex: ad.Num,
       maxIndex: ad.Num,
-    ): MayWarn<FloatV<number>> => {
+    ): MayWarn<FloatV<ad.Num>> => {
       if (typeof minIndex === "number" && typeof maxIndex === "number") {
         const randomFloat = makeInput({
           init: { tag: "Sampled", sampler: uniform(minIndex, maxIndex) },
           stages: new Set(),
         });
         const randomInt = Math.floor(randomFloat.arraySync());
-        return noWarn({ tag: "FloatV", contents: randomInt });
+        return noWarn({ tag: "FloatV", contents: scalar(randomInt) });
       } else {
         throw new Error(
           "Expects the minimum and maximum indices to be constants. Got a computed or optimized value instead.",

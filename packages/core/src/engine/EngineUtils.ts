@@ -181,7 +181,7 @@ function mapColor<T, S>(f: (arg: T) => S, v: ColorV<T>): ColorV<S> {
   };
 }
 
-function mapShape<T, S>(f: (arg: T) => S, v: Shape<T>): Shape<S> {
+export function mapShape<T, S>(f: (arg: T) => S, v: Shape<T>): Shape<S> {
   switch (v.shapeType) {
     case "Circle":
       return mapCircle(f, v);
