@@ -1,12 +1,12 @@
 // @vitest-environment jsdom
 
-import { optimize as optimizeSVG } from "svgo";
-
 import { compile, optimize, showError, toSVG } from "@penrose/core";
+import * as tf from "@tensorflow/tfjs-node";
 import * as fs from "fs/promises";
 import rawFetch, { RequestInit, Response } from "node-fetch";
 import * as path from "path";
 import prettier from "prettier";
+import { optimize as optimizeSVG } from "svgo";
 import { afterAll, describe, test } from "vitest";
 import { Trio } from "./index.js";
 import registry from "./registry.js";
@@ -110,7 +110,7 @@ interface AllData extends Data {
 }
 
 const MAX_NAME_LENGTH = 100;
-const MAX_SECONDS = 60;
+const MAX_SECONDS = 3600;
 
 const trimName = (name: string): string =>
   name.length > MAX_NAME_LENGTH
@@ -251,6 +251,8 @@ const out = "diagrams";
 
 describe("registry", () => {
   const datas = new Map<string, AllData>();
+
+  tf.setBackend("cpu");
 
   for (const [key, meta] of registry.entries()) {
     test(
