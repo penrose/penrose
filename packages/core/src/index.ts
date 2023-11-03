@@ -313,10 +313,9 @@ const evalGrad = (s: State): ad.OptOutputs => {
   const { constraintSets, optStages, currentStageIndex } = s;
   const stage = optStages[currentStageIndex];
   const masks = safe(constraintSets.get(stage), "missing stage");
-  const x = new Float64Array(s.varyingValues);
-  // we constructed `x` to throw away, so it's OK to update it in-place with the
-  // gradient after computing the energy
-  return s.gradient(masks, x, s.params.weight, x);
+  const inputs = new Float64Array(s.varyingValues);
+  const grad = new Float64Array(inputs.length);
+  return s.gradient(masks, inputs, s.params.weight, grad);
 };
 
 /**
