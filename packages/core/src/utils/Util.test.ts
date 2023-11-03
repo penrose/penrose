@@ -51,13 +51,13 @@ describe("topsort", () => {
           case "B":
             return ["A"];
           case "C":
-            return [""];
+            return [];
           case "D":
             return ["C"];
         }
         throw Error();
       },
-      ["D", "E"],
+      ["B", "D"],
     );
     expect(sorted).toEqual(["C", "D", "A", "B"]);
   });
