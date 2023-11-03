@@ -138,7 +138,7 @@ where p has math label {
    }
 
    -- in the labeling stage of layout, try to put the label near the point
-   encourage norm( p.labelText.center - p.x ) == 10 in labelingStage
+   p.near = encourage norm( p.labelText.center - p.x ) == 10 in labelingStage
 
    -- draw the label in front of the dot, which is in turn in front
    -- of other things like the scene geometry
@@ -458,6 +458,7 @@ forall Ray r; Light L {
 -- from the point.
 forall Scene S; Point p; Ray r
 where p := intersect(r,S); p has label {
+   delete p.near
    override p.labelText.center = p.x - 10*p.n
 }
 
