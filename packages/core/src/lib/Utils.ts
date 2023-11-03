@@ -1,10 +1,5 @@
 import _ from "lodash";
-import {
-  EPS_DENOM,
-  genCodeSync,
-  ops,
-  secondaryGraph,
-} from "../engine/Autodiff.js";
+import { EPS_DENOM, compile, ops } from "../engine/Autodiff.js";
 import {
   absVal,
   add,
@@ -212,13 +207,13 @@ export const closestPt_PtSeg = (
 };
 
 /**
- * Get numerical values of nodes in the computation graph. This function calls `secondaryGraph` to construct a partial computation graph and runs `genCode` to generate code to evaluate the values.
+ * Get numerical values of nodes in the computation graph. This function calls
+ * `interp` to construct and evaluate a partial computation graph.
  *
  * @param xs nodes in the computation graph
  * @returns a list of `number`s corresponding to nodes in `xs`
  */
-export const numsOf = (xs: ad.Num[]): number[] =>
-  genCodeSync(secondaryGraph(xs))((x) => x.val).secondary;
+export const numsOf = (xs: ad.Num[]): number[] => compile(xs)((x) => x.val);
 
 export const numOf = (x: ad.Num): number => {
   return numsOf([x])[0];

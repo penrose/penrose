@@ -263,7 +263,7 @@ export const compile = async (prog: {
 
   const styRes: Result<State, PenroseError> = subRes.isErr()
     ? err(subRes.error)
-    : await compileStyle(
+    : compileStyle(
         prog.variation,
         prog.style,
         prog.excludeWarnings ?? [],

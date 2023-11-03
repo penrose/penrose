@@ -1,34 +1,3 @@
-import GenericGraph from "../utils/Graph.js";
-
-// The following three regions define the core types for our automatic
-// differentiation engine.
-//
-// - The "implicit" representation is used essentially as a DSL to construct
-//   computation graphs, via the convenience functions provided in
-//   engine/AutodiffFunctions. It does not include any information about
-//   derivatives, because those can can be constructed symbolically from the
-//   implicit representation. Naïvely serializing the implicit representation
-//   would produce a tree structure with a lot of redundancy, because some nodes
-//   that can be reached by following different paths are actually identical.
-//
-// - The "explicit" representation is an intermediate structure used to
-//   represent a computation graph, with derivatives included alongside
-//   everything else. The number of nodes and edges are unambiguously stored,
-//   and each node has a unique ID so structural sharing is not represented
-//   purely by object identity. The main value of this representation is that we
-//   can call an off-the-shelf topological sort function on it, which is useful
-//   both while constructing the derivatives within it and also while compiling
-//   it to the final representation.
-//
-// - The "compiled" representation is a WebAssembly module which exports a
-//   function that computes a function and its gradient.
-//
-// We only need to compute the gradient of the energy, but we also need to to
-// compute other values that may not even be intermediate computations for the
-// energy. Thus, the explicit representation (but not the implicit
-// representation) distinguishes the "primary" output (for which the gradient is
-// computed) from "secondary" outputs (for which no derivatives are computed).
-
 //#region Types for implicit autodiff graph
 
 export type Expr = Bool | Num | Vec;
@@ -44,76 +13,7 @@ export interface Var {
   val: number;
 }
 
-export interface Unary extends UnaryNode {
-  param: Num;
-}
-
-export interface Binary extends BinaryNode {
-  left: Num;
-  right: Num;
-}
-
-export interface Comp extends CompNode {
-  left: Num;
-  right: Num;
-}
-
-export interface Logic extends LogicNode {
-  left: Bool;
-  right: Bool;
-}
-
-export interface Not extends NotNode {
-  param: Bool;
-}
-
-export interface Ternary extends TernaryNode {
-  cond: Bool;
-  then: Num;
-  els: Num;
-}
-
-export interface Nary extends NaryNode {
-  params: Num[];
-}
-
-export interface PolyRoots extends PolyRootsNode {
-  // coefficients of a monic polynomial with degree `coeffs.length`
-  coeffs: Num[];
-}
-
-export interface Index extends IndexNode {
-  vec: Vec;
-}
-
-//#endregion
-
-//#region Types for explicit autodiff graph
-
-export type Node =
-  | ConstNode
-  | InputNode
-  | UnaryNode
-  | BinaryNode
-  | CompNode
-  | LogicNode
-  | TernaryNode
-  | NaryNode
-  | PolyRootsNode
-  | IndexNode
-  | NotNode;
-
-export interface ConstNode {
-  tag: "Const";
-  val: number;
-}
-
-export interface InputNode {
-  tag: "Var";
-  key: number;
-}
-
-export interface UnaryNode {
+export interface Unary {
   tag: "Unary";
   unop:
     | "neg"
@@ -145,53 +45,58 @@ export interface UnaryNode {
     | "tan"
     | "tanh"
     | "trunc";
+  param: Num;
 }
 
-export interface BinaryNode {
+export interface Binary {
   tag: "Binary";
   binop: "+" | "*" | "-" | "/" | "max" | "min" | "atan2" | "pow";
+  left: Num;
+  right: Num;
 }
 
-export interface CompNode {
+export interface Comp {
   tag: "Comp";
   binop: ">" | "<" | "===" | ">=" | "<=";
+  left: Num;
+  right: Num;
 }
 
-export interface NotNode {
-  tag: "Not";
-}
-
-export interface LogicNode {
+export interface Logic {
   tag: "Logic";
   binop: "&&" | "||" | "!==";
+  left: Bool;
+  right: Bool;
 }
 
-export interface TernaryNode {
+export interface Not {
+  tag: "Not";
+  param: Bool;
+}
+
+export interface Ternary {
   tag: "Ternary";
+  cond: Bool;
+  then: Num;
+  els: Num;
 }
 
-export interface NaryNode {
+export interface Nary {
   tag: "Nary";
   op: "addN" | "maxN" | "minN";
+  params: Num[];
 }
 
-export interface PolyRootsNode {
+export interface PolyRoots {
   tag: "PolyRoots";
-  degree: number;
+  // coefficients of a monic polynomial with degree `coeffs.length`
+  coeffs: Num[];
 }
 
-export interface IndexNode {
+export interface Index {
   tag: "Index";
+  vec: Vec;
   index: number;
-}
-
-export type Edge = number;
-
-export type Id = number;
-
-export interface Graph extends Outputs<Id> {
-  graph: GenericGraph<Id, Node, Edge>; // edges point from children to parents
-  nodes: Map<Expr, Id>;
 }
 
 //#endregion

@@ -39,17 +39,17 @@ interface Trio {
   sty: string;
 }
 // Run the Domain + Substance parsers and checkers to yield the Style compiler's input
-export const loadProgs = async ({
+export const loadProgs = ({
   dsl,
   sub,
   sty,
-}: Trio): Promise<{
+}: Trio): {
   translation: Translation;
   assignment: Assignment;
   state: State;
   styleAST: StyProg<C>;
   graph: DepGraph;
-}> => {
+} => {
   const throwErr = (e: any): any => {
     throw Error(
       `Expected Style program to work without errors. Got error: ${showError(
@@ -62,9 +62,9 @@ export const loadProgs = async ({
     sub,
     env,
   ).unwrapOrElse(throwErr);
-  return (
-    await S.compileStyleHelper("styletests", sty, subEnv, varEnv)
-  ).unwrapOrElse(throwErr);
+  return S.compileStyleHelper("styletests", sty, subEnv, varEnv).unwrapOrElse(
+    throwErr,
+  );
 };
 
 const canvasPreamble = `canvas {
@@ -205,8 +205,8 @@ const colorValMatches = (
 };
 
 describe("Color literals", () => {
-  test("color literal values", async () => {
-    const { translation } = await loadProgs({
+  test("color literal values", () => {
+    const { translation } = loadProgs({
       dsl: "type T",
       sub: `
       T t
@@ -243,8 +243,8 @@ describe("Color literals", () => {
 });
 
 describe("Staged constraints", () => {
-  test("stage spec", async () => {
-    const { styleAST: ex2 } = await loadProgs({
+  test("stage spec", () => {
+    const { styleAST: ex2 } = loadProgs({
       dsl: "type Set",
       sub: `Set A`,
       sty:
@@ -259,8 +259,8 @@ describe("Staged constraints", () => {
       "Overall",
     ]);
   });
-  test("varying stages", async () => {
-    const { styleAST } = await loadProgs({
+  test("varying stages", () => {
+    const { styleAST } = loadProgs({
       dsl: "type Set",
       sub: `Set A`,
       sty:
@@ -285,8 +285,8 @@ describe("Staged constraints", () => {
     expect(stages1).toEqual(["Overall", "ShapeLayout"]);
     expect(stages2).toEqual(["Overall", "LabelLayout"]);
   });
-  test("constraint stages", async () => {
-    const { styleAST } = await loadProgs({
+  test("constraint stages", () => {
+    const { styleAST } = loadProgs({
       dsl: "type Set",
       sub: `Set A`,
       sty:
@@ -314,8 +314,8 @@ describe("Staged constraints", () => {
 });
 
 describe("Compiler", () => {
-  test("Label insertion", async () => {
-    const { assignment } = await loadProgs({
+  test("Label insertion", () => {
+    const { assignment } = loadProgs({
       dsl: "type Set",
       sub: `
       Set A, B, C
@@ -522,15 +522,15 @@ describe("Compiler", () => {
       }`,
     ];
     stys.forEach((sty: string) => {
-      expect(
-        async () => await loadProgs({ dsl, sub, sty: canvasPreamble + sty }),
+      expect(() =>
+        loadProgs({ dsl, sub, sty: canvasPreamble + sty }),
       ).not.toThrowError();
     });
   });
 
   // TODO: There are no tests directly for the substitution application part of the compiler, though I guess you could walk the AST (making the substitution-application code more generic to do so) and check that there are no Style variables anywhere? Except for, I guess, namespace names?
   describe("Symmetric predicates", () => {
-    test("non-symmetric predicate should not match", async () => {
+    test("non-symmetric predicate should not match", () => {
       const dsl = `type Atom
       type Hydrogen <: Atom
       type Oxygen <: Atom
@@ -546,10 +546,10 @@ describe("Compiler", () => {
           string: "Bond!"
         }
       }`;
-      const { state } = await loadProgs({ dsl, sub, sty });
+      const { state } = loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toEqual(0);
     });
-    test("symmetric predicate should match 1", async () => {
+    test("symmetric predicate should match 1", () => {
       const dsl = `type Atom
       type Hydrogen <: Atom
       type Oxygen <: Atom
@@ -565,10 +565,10 @@ describe("Compiler", () => {
           string: "Bond!"
         }
       }`;
-      const { state } = await loadProgs({ dsl, sub, sty });
+      const { state } = loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toBeGreaterThan(0);
     });
-    test("symmetric predicate should match 2", async () => {
+    test("symmetric predicate should match 2", () => {
       const dsl = `type Set
       symmetric predicate Equal(Set, Set)`;
       const sub = `Set A, B, C
@@ -582,10 +582,10 @@ describe("Compiler", () => {
           string: "Equality!"
         }
       }`;
-      const { state } = await loadProgs({ dsl, sub, sty });
+      const { state } = loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toBeGreaterThan(0);
     });
-    test("nested symmetric predicates", async () => {
+    test("nested symmetric predicates", () => {
       const dsl = `type Atom
       type Hydrogen <: Atom
       type Oxygen <: Atom
@@ -602,13 +602,13 @@ describe("Compiler", () => {
             string: "hello"
           }
         }`;
-      const { state } = await loadProgs({ dsl, sub, sty });
+      const { state } = loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toBeGreaterThan(0);
     });
   });
 
   describe("number of matchings", () => {
-    test("no double matching, non-symmetric", async () => {
+    test("no double matching, non-symmetric", () => {
       const dsl = `type Atom
 type Hydrogen <: Atom
 type Oxygen <: Atom
@@ -627,11 +627,11 @@ predicate Bond(Atom, Atom)`;
             }
         }`;
 
-      const { state } = await loadProgs({ dsl, sub, sty });
+      const { state } = loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toEqual(1);
     });
 
-    test("no double matching, symmetric", async () => {
+    test("no double matching, symmetric", () => {
       const dsl = `type Atom
       symmetric predicate Bond(Atom, Atom)`;
       const sub = `Atom A1, A2
@@ -644,11 +644,11 @@ predicate Bond(Atom, Atom)`;
                 string: "Bond"
             }
         }`;
-      const { state } = await loadProgs({ dsl, sub, sty });
+      const { state } = loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toEqual(1);
     });
 
-    test("extra variables not in relations", async () => {
+    test("extra variables not in relations", () => {
       const dsl = `type Atom
 type Hydrogen <: Atom
 type Oxygen <: Atom
@@ -667,11 +667,11 @@ predicate Bond(Atom, Atom)`;
                 fillColor: rgba(0, 0, 0, 255)
             }
         }`;
-      const { state } = await loadProgs({ dsl, sub, sty });
+      const { state } = loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toEqual(2);
     });
 
-    test("pure selector, no relations", async () => {
+    test("pure selector, no relations", () => {
       const dsl = `type Atom`;
       const sub = `Atom A1, A2`;
       const sty =
@@ -682,11 +682,11 @@ predicate Bond(Atom, Atom)`;
                 fillColor: rgba(0, 0, 0, 255)
             }
         }`;
-      const { state } = await loadProgs({ dsl, sub, sty });
+      const { state } = loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toEqual(1);
     });
 
-    test("repeatable", async () => {
+    test("repeatable", () => {
       const dsl = "type T\npredicate P(T, T, T)";
       const sub =
         "T t1, t2, t3\nP(t1, t2, t3)\nP(t1, t1, t3)\nP(t2,t2,t3)\nP(t1,t3,t1)";
@@ -696,7 +696,7 @@ predicate Bond(Atom, Atom)`;
           Circle {}
         }`;
 
-      const res1 = await loadProgs({ dsl, sub, sty: sty1 });
+      const res1 = loadProgs({ dsl, sub, sty: sty1 });
       expect(res1.state.shapes.length).toEqual(6);
 
       const sty2 =
@@ -705,13 +705,13 @@ predicate Bond(Atom, Atom)`;
         where P(t1, t2, t3) {
           Circle {}
         }`;
-      const res2 = await loadProgs({ dsl, sub, sty: sty2 });
+      const res2 = loadProgs({ dsl, sub, sty: sty2 });
       expect(res2.state.shapes.length).toEqual(4);
     });
   });
 
   describe("predicate alias", () => {
-    test("general predicate alias with symmetry", async () => {
+    test("general predicate alias with symmetry", () => {
       const dsl = `type Atom
 type Hydrogen <: Atom
 type Oxygen <: Atom
@@ -730,10 +730,10 @@ Bond(O, H2)`;
         }
     }
     `;
-      const { state } = await loadProgs({ dsl, sub, sty });
+      const { state } = loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toEqual(2);
     });
-    test("correct style programs with predicate aliasing", async () => {
+    test("correct style programs with predicate aliasing", () => {
       const dsl = "type Set \n predicate IsSubset(Set, Set)";
       const sub = "Set A\nSet B\nSet C\nIsSubset(B, A)\nIsSubset(C, B)";
 
@@ -747,7 +747,7 @@ Bond(O, H2)`;
         }
         `;
 
-      const { state } = await loadProgs({ dsl, sub, sty });
+      const { state } = loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toEqual(4);
     });
   });
@@ -815,11 +815,11 @@ predicate IsSubset(Set s1, Set s2)
       domainRes,
     );
 
-    const testStyProgForError = async (styProg: string, errorType: string) => {
+    const testStyProgForError = (styProg: string, errorType: string) => {
       let preamble = errorType.startsWith("Canvas") ? "" : canvasPreamble;
       const styRes: Result<State, PenroseError> = subRes.isErr()
         ? err(subRes.error)
-        : await S.compileStyle(
+        : S.compileStyle(
             "Style compiler errors test seed",
             preamble + styProg,
             [],
@@ -1150,19 +1150,19 @@ delete x.z.p }`,
     // delete x.icon2.strokeWidth
     // }
 
-    test("that each program yields its error type", async () => {
+    test("that each program yields its error type", () => {
       for (const [errorType, styProgs] of Object.entries(errorStyProgs)) {
         for (const styProg of styProgs) {
           // TODO(error): improve this so it becomes individual tests, using the framework
           // console.log("testing", errorType);
-          await testStyProgForError(styProg, errorType);
+          testStyProgForError(styProg, errorType);
         }
       }
     });
   });
 
   describe("faster matching", () => {
-    test("multiple predicates", async () => {
+    test("multiple predicates", () => {
       const sub = `
       MySet X, Y
  OtherType Z
@@ -1186,10 +1186,10 @@ delete x.z.p }`,
      }
  }`;
 
-      const { state } = await loadProgs({ dsl, sub, sty });
+      const { state } = loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toEqual(1);
     });
-    test("many declaration matches with only one relational match", async () => {
+    test("many declaration matches with only one relational match", () => {
       const sub = `
       T t1, t2, t3, t4, t5, t6, t7, t8
       S s := f( t1, t2, t3, t4, t5, t6, t7, t8 )`;
@@ -1209,12 +1209,12 @@ delete x.z.p }`,
               r: 10.0
            }
         }`;
-      const { state } = await loadProgs({ dsl, sub, sty });
+      const { state } = loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toEqual(1);
     });
   });
   describe("match metadata", () => {
-    test("match total", async () => {
+    test("match total", () => {
       const dsl = "type MyType\n";
       const sty =
         canvasPreamble +
@@ -1224,7 +1224,7 @@ delete x.z.p }`,
   }
 }`;
       const sub = "MyType t1, t2, t3\n";
-      const { state } = await loadProgs({ dsl, sub, sty });
+      const { state } = loadProgs({ dsl, sub, sty });
       expect(
         state.shapes.every((shape) => {
           const val = shape.passthrough.get("ptProp");
@@ -1238,7 +1238,7 @@ delete x.z.p }`,
       ).toEqual(true);
     });
 
-    test("match id", async () => {
+    test("match id", () => {
       const dsl = "type MyType\n";
       const sty =
         canvasPreamble +
@@ -1249,7 +1249,7 @@ delete x.z.p }`,
 }`;
       const sub = "MyType t1, t2, t3\n";
 
-      const { state } = await loadProgs({ dsl, sub, sty });
+      const { state } = loadProgs({ dsl, sub, sty });
 
       // Require that the match_id's are exactly [1, 2, 3]
       expect(
@@ -1267,7 +1267,7 @@ delete x.z.p }`,
     });
   });
   describe("group shapes", () => {
-    test("simple group", async () => {
+    test("simple group", () => {
       const dsl = "type T\n";
       const sty =
         canvasPreamble +
@@ -1285,7 +1285,7 @@ delete x.z.p }`,
       }\n
       `;
       const sub = "T t\n";
-      const { state } = await loadProgs({ dsl, sub, sty });
+      const { state } = loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toEqual(1);
     });
   });
@@ -1318,8 +1318,8 @@ delete x.z.p }`,
   });
 
   describe("Global namespace", () => {
-    test("namespace override", async () => {
-      const { translation } = await loadProgs({
+    test("namespace override", () => {
+      const { translation } = loadProgs({
         dsl: ``,
         sub: ``,
         sty:
@@ -1346,7 +1346,7 @@ delete x.z.p }`,
     const dsl = "type T \n type U \n predicate P(T, U)";
     const sub =
       "T t1, t2, t3 \n U u1, u2 \n P(t1, u1) \n P(t2, u1) \n P(t3, u2) \n AutoLabel All";
-    test("pure collection", async () => {
+    test("pure collection", () => {
       const sty =
         canvasPreamble +
         `
@@ -1359,7 +1359,7 @@ delete x.z.p }`,
           }
         }
       `;
-      const { state } = await loadProgs({ dsl, sub, sty });
+      const { state } = loadProgs({ dsl, sub, sty });
       const sh = state.shapes[0];
       if (sh.shapeType === "Circle") {
         expect(sh.r.contents).toBeCloseTo(3);
@@ -1367,7 +1367,7 @@ delete x.z.p }`,
         throw new Error("Bad shape type");
       }
     });
-    test("pure collection with foreach", async () => {
+    test("pure collection with foreach", () => {
       const sty =
         canvasPreamble +
         `
@@ -1382,7 +1382,7 @@ delete x.z.p }`,
           }
         }
       `;
-      const { state } = await loadProgs({ dsl, sub, sty });
+      const { state } = loadProgs({ dsl, sub, sty });
       const sh0 = state.shapes[0],
         sh1 = state.shapes[1];
       if (sh0.shapeType === "Circle" && sh1.shapeType === "Circle") {
@@ -1395,7 +1395,7 @@ delete x.z.p }`,
   });
 
   describe("gather dependencies", () => {
-    test("indexing", async () => {
+    test("indexing", () => {
       const dsl = "type T";
       const sub = "T t";
       const sty =
@@ -1413,14 +1413,14 @@ delete x.z.p }`,
 
       // This problem would have failed compilation when indexing is not handled correctly
       // And this would fail:
-      const { graph } = await loadProgs({ dsl, sub, sty });
+      const { graph } = loadProgs({ dsl, sub, sty });
       expect(graph.parents("`t`.val").sort()).toEqual(
         ["`t`.vals", "1:0:match_id"].sort(),
       );
     });
   });
 
-  test("Indexing", async () => {
+  test("Indexing", () => {
     const dsl = "type T";
     const sub = "T t";
     const sty =
@@ -1432,7 +1432,7 @@ delete x.z.p }`,
       }
     `;
 
-    const { translation } = await loadProgs({ dsl, sub, sty });
+    const { translation } = loadProgs({ dsl, sub, sty });
     const rowVal = translation.symbols.get("`t`.row");
     expect(rowVal !== undefined).toBe(true);
     if (rowVal !== undefined) {
