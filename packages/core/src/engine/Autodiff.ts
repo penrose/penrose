@@ -1,10 +1,8 @@
-import { Queue } from "@datastructures-js/queue";
 import consola from "consola";
 import _ from "lodash";
 import { EigenvalueDecomposition, Matrix } from "ml-matrix";
 import * as ad from "../types/ad.js";
-import Graph from "../utils/Graph.js";
-import { safe, zip2 } from "../utils/Util.js";
+import { safe, topsort, zip2 } from "../utils/Util.js";
 import * as wasm from "../utils/Wasm.js";
 import {
   absVal,
@@ -16,16 +14,13 @@ import {
   cosh,
   div,
   eq,
-  exp,
   gt,
   ifCond,
-  inverse,
   ln,
   lt,
   max,
   mul,
   neg,
-  pow,
   sign,
   sin,
   sinh,
@@ -44,528 +39,6 @@ export const logAD = (consola as any)
 export const EPS_DENOM = 10e-6; // Avoid divide-by-zero in denominator
 
 export const variable = (val: number): ad.Var => ({ tag: "Var", val });
-
-// most `ad.Num`s are already `ad.Node`s, but this function returns a new object
-// with all the children removed
-const makeNode = (getKey: (x: ad.Var) => number, x: ad.Expr): ad.Node => {
-  if (typeof x === "number") {
-    return { tag: "Const", val: x };
-  }
-  const { tag } = x;
-  switch (tag) {
-    case "Var": {
-      return { tag, key: getKey(x) };
-    }
-    case "Not": {
-      return { tag };
-    }
-    case "Unary": {
-      const { unop } = x;
-      return { tag, unop };
-    }
-    case "Binary": {
-      const { binop } = x;
-      return { tag, binop };
-    }
-    case "Comp": {
-      const { binop } = x;
-      return { tag, binop };
-    }
-    case "Logic": {
-      const { binop } = x;
-      return { tag, binop };
-    }
-    case "Ternary": {
-      return { tag };
-    }
-    case "Nary": {
-      const { op } = x;
-      return { tag, op };
-    }
-    case "PolyRoots": {
-      const { degree } = x;
-      return { tag, degree };
-    }
-    case "Index": {
-      const { index } = x;
-      return { tag, index };
-    }
-  }
-};
-
-const unarySensitivity = (z: ad.Unary): ad.Num => {
-  const { unop, param: v } = z;
-  switch (unop) {
-    case "neg": {
-      return -1;
-    }
-    case "squared": {
-      return mul(2, v);
-    }
-    case "sqrt": {
-      // NOTE: Watch out for divide by zero in 1 / [2 sqrt(x)]
-      return div(1 / 2, max(EPS_DENOM, z));
-    }
-    case "inverse": {
-      return neg(squared(z));
-    }
-    case "abs": {
-      return sign(v);
-    }
-    case "acosh": {
-      return inverse(mul(sqrt(sub(v, 1)), sqrt(add(v, 1))));
-    }
-    case "acos": {
-      return neg(inverse(sqrt(sub(1, squared(v)))));
-    }
-    case "asin": {
-      return inverse(sqrt(sub(1, squared(v))));
-    }
-    case "asinh": {
-      return inverse(sqrt(add(1, squared(v))));
-    }
-    case "atan": {
-      return inverse(add(1, squared(v)));
-    }
-    case "atanh": {
-      return inverse(sub(1, squared(v)));
-    }
-    case "cbrt": {
-      return div(1 / 3, squared(z));
-    }
-    case "ceil":
-    case "floor":
-    case "round":
-    case "sign":
-    case "trunc": {
-      return 0;
-    }
-    case "cos": {
-      return neg(sin(v));
-    }
-    case "cosh": {
-      return sinh(v);
-    }
-    case "exp": {
-      return z;
-    }
-    case "expm1": {
-      return exp(v);
-    }
-    case "log": {
-      return inverse(v);
-    }
-    case "log2": {
-      return div(Math.LOG2E, v);
-    }
-    case "log10": {
-      return div(Math.LOG10E, v);
-    }
-    case "log1p": {
-      return inverse(add(1, v));
-    }
-    case "sin": {
-      return cos(v);
-    }
-    case "sinh": {
-      return cosh(v);
-    }
-    case "tan": {
-      return squared(inverse(cos(v)));
-    }
-    case "tanh": {
-      return squared(inverse(cosh(v)));
-    }
-  }
-};
-
-const binarySensitivities = (z: ad.Binary): { left: ad.Num; right: ad.Num } => {
-  const { binop, left: v, right: w } = z;
-  switch (binop) {
-    case "+": {
-      return { left: 1, right: 1 };
-    }
-    case "*": {
-      return { left: w, right: v };
-    }
-    case "-": {
-      return { left: 1, right: -1 };
-    }
-    case "/": {
-      return { left: inverse(w), right: neg(div(z, w)) };
-    }
-    case "max": {
-      const cond = gt(v, w);
-      return { left: ifCond(cond, 1, 0), right: ifCond(cond, 0, 1) };
-    }
-    case "min": {
-      const cond = lt(v, w);
-      return { left: ifCond(cond, 1, 0), right: ifCond(cond, 0, 1) };
-    }
-    case "atan2": {
-      const y = v;
-      const x = w;
-      const denom = add(squared(x), squared(y));
-      return { left: div(x, denom), right: div(neg(y), denom) };
-    }
-    case "pow": {
-      return { left: mul(pow(v, sub(w, 1)), w), right: mul(z, ln(v)) };
-    }
-  }
-};
-
-interface Child {
-  child: ad.Expr;
-  sensitivity: ad.Num[][]; // rows for parent, columns for child
-}
-
-// note that this function constructs the sensitivities even when we don't need
-// them, such as for nodes in secondary outputs or the gradient
-const children = (x: ad.Expr): Child[] => {
-  if (typeof x === "number") {
-    return [];
-  }
-  switch (x.tag) {
-    case "Var": {
-      return [];
-    }
-    case "Not": {
-      return [{ child: x.param, sensitivity: [] }];
-    }
-    case "Unary": {
-      return [{ child: x.param, sensitivity: [[unarySensitivity(x)]] }];
-    }
-    case "Binary": {
-      const { left, right } = binarySensitivities(x);
-      return [
-        { child: x.left, sensitivity: [[left]] },
-        { child: x.right, sensitivity: [[right]] },
-      ];
-    }
-    case "Comp":
-    case "Logic": {
-      return [
-        { child: x.left, sensitivity: [] },
-        { child: x.right, sensitivity: [] },
-      ];
-    }
-    case "Ternary": {
-      return [
-        { child: x.cond, sensitivity: [[]] },
-        { child: x.then, sensitivity: [[ifCond(x.cond, 1, 0)]] },
-        { child: x.els, sensitivity: [[ifCond(x.cond, 0, 1)]] },
-      ];
-    }
-    case "Nary": {
-      return x.params.map((child) => {
-        switch (x.op) {
-          case "addN": {
-            return { child, sensitivity: [[1]] };
-          }
-          case "maxN": {
-            return { child, sensitivity: [[ifCond(lt(child, x), 0, 1)]] };
-          }
-          case "minN": {
-            return { child, sensitivity: [[ifCond(gt(child, x), 0, 1)]] };
-          }
-        }
-      });
-    }
-    case "PolyRoots": {
-      // https://www.skewray.com/articles/how-do-the-roots-of-a-polynomial-depend-on-the-coefficients
-
-      const n = x.coeffs.length;
-      const derivCoeffs: ad.Num[] = x.coeffs.map((c, i) => mul(i, c));
-      derivCoeffs.shift();
-      // the polynomial is assumed monic, so `x.coeffs` doesn't include the
-      // coefficient 1 on the highest-degree term
-      derivCoeffs.push(n);
-
-      const sensitivities: ad.Num[][] = x.coeffs.map((_, index) => {
-        const t: ad.Num = { tag: "Index", index, vec: x }; // a root
-
-        let power: ad.Num = 1;
-        const powers: ad.Num[] = [power];
-        for (let i = 1; i < n; i++) {
-          power = mul(power, t);
-          powers.push(power);
-        }
-
-        const minusDerivative = neg(
-          addN(zip2(derivCoeffs, powers).map(([c, p]) => mul(c, p))),
-        );
-
-        // if the root is `NaN` then it doesn't contribute to the gradient
-        const real = eq(t, t);
-        return powers.map((p) => ifCond(real, div(p, minusDerivative), 0));
-      });
-
-      return x.coeffs.map((child, i) => ({
-        child,
-        sensitivity: sensitivities.map((row) => [row[i]]),
-      }));
-    }
-    case "Index": {
-      // this node doesn't know how many elements are in `vec`, so here we just
-      // leave everything else undefined, to be treated as zeroes later
-      const row = [];
-      row[x.index] = 1;
-      return [{ child: x.vec, sensitivity: [row] }];
-    }
-  }
-};
-
-const getInputNodes = (
-  graph: ad.Graph["graph"],
-): { id: ad.Id; label: ad.InputNode }[] => {
-  const inputs = [];
-  // every input must be a source
-  for (const id of graph.sources()) {
-    const label: ad.Node = graph.node(id);
-    // other non-const sources include n-ary nodes with an empty params array
-    if (label.tag === "Var") {
-      inputs.push({ id, label });
-    }
-  }
-  return inputs;
-};
-
-const getInputKey = (graph: ad.Graph["graph"], id: ad.Id): number => {
-  const node = graph.node(id);
-  if (node.tag !== "Var")
-    throw Error(`expected node ${id} to be input, got ${JSON.stringify(node)}`);
-  return node.key;
-};
-
-/**
- * Construct an explicit graph from a primary output and array of secondary
- * outputs. All out-edges relevant to computing the gradient can be considered
- * totally ordered, first by the node the edge points to (where the nodes are
- * numbered by doing a breadth-first search from the primary output using the
- * `children` function) and then by the name of the edge (again according to the
- * order given by the `children` function). The partial derivatives contributing
- * to any given gradient node are added up according to that total order.
- *
- * If present, the `getKey` function should return a unique index for each
- * input. If absent, indices will be assigned via breadth-first search order.
- */
-export const makeGraph = (
-  outputs: Omit<ad.Outputs<ad.Num>, "gradient">,
-  getKey?: (x: ad.Var) => number,
-): ad.Graph => {
-  const graph = new Graph<ad.Id, ad.Node, ad.Edge>();
-  const nodes = new Map<ad.Expr, ad.Id>();
-
-  // we use this queue to essentially do a breadth-first search by following
-  // `ad.Expr` child pointers; it gets reused a few times because we add nodes
-  // in multiple stages
-  const queue = new Queue<ad.Expr>();
-  // at each stage, we need to add the edges after adding all the nodes, because
-  // when we first look at a node and its in-edges, its children are not
-  // guaranteed to exist in the graph yet, so we fill this queue during the
-  // node-adding part and then go through it during the edge-adding part,
-  // leaving it empty in preparation for the next stage; so the first element of
-  // every tuple in this queue stores information about the edge and child, the
-  // second element is the index of the edge with respect to the parent, and the
-  // third element of the tuple is the parent
-  const edges = new Queue<[Child, ad.Edge, ad.Expr]>();
-
-  // only call setNode in this one place, ensuring that we always use indexToID
-  const newNode = (node: ad.Node): ad.Id => {
-    const id = graph.nodeCount();
-    graph.setNode(id, node);
-    return id;
-  };
-
-  let numInputs = 0; // only used if `getKey === undefined`
-
-  // ensure that x is represented in the graph we're building, and if it wasn't
-  // already there, enqueue its children and in-edges (so queue and edges,
-  // respectively, should both be emptied after calling this)
-  const addNode = (x: ad.Expr): ad.Id => {
-    let name = nodes.get(x);
-    if (name === undefined) {
-      name = newNode(makeNode(getKey ?? (() => numInputs++), x));
-      nodes.set(x, name);
-      children(x).forEach((edge, index) => {
-        edges.enqueue([edge, index, x]);
-        queue.enqueue(edge.child);
-      });
-    }
-    return name;
-  };
-
-  const addEdge = (
-    child: ad.Expr,
-    parent: ad.Expr,
-    e: ad.Edge,
-  ): [ad.Id, ad.Id] => {
-    const i = safe(nodes.get(child), "missing child");
-    const j = safe(nodes.get(parent), "missing parent");
-    graph.setEdge({ i, j, e });
-    return [i, j];
-  };
-
-  // add all the nodes subtended by the primary output; we do these first, in a
-  // separate stage, because these are the only nodes for which we actually need
-  // to use the sensitivities of their in-edges, and then after we add the
-  // edges, we need to get a topological sort of just these nodes
-  const primary = addNode(outputs.primary);
-  while (!queue.isEmpty()) {
-    addNode(queue.dequeue());
-  }
-
-  // we need to keep track of these sensitivities so we can add them as nodes
-  // right after this, but we also need to know which edge each came from for
-  // when we construct the gradient nodes later; note that this simple string
-  // concatenation doesn't cause any problems, because no stringified Edge
-  // contains an underscore, and every Id starts with an underscore, so it's
-  // essentially just three components separated by underscores
-  const sensitivities = new Map<`${ad.Edge}_${ad.Id}_${ad.Id}`, ad.Num[][]>();
-  while (!edges.isEmpty()) {
-    const [{ child, sensitivity }, index, parent] = edges.dequeue();
-    const [v, w] = addEdge(child, parent, index);
-    sensitivities.set(`${index}_${v}_${w}`, sensitivity);
-  }
-  // we can use this reverse topological sort later when we construct all the
-  // gradient nodes, because it ensures that the gradients of a node's parents
-  // are always available before the node itself; note that we need to compute
-  // this right now, because we're just about to add the sensitivity nodes to
-  // the graph, and we don't want to try to compute the gradients of those
-  // sensitivities
-  const primaryNodes = [...graph.topsort()].reverse();
-
-  for (const matrix of sensitivities.values()) {
-    // `forEach` ignores holes
-    matrix.forEach((row) => {
-      row.forEach(addNode);
-    });
-  }
-  while (!queue.isEmpty()) {
-    addNode(queue.dequeue());
-  }
-  while (!edges.isEmpty()) {
-    const [{ child }, index, parent] = edges.dequeue();
-    addEdge(child, parent, index);
-  }
-
-  // map from each primary node ID to the IDs of its gradient nodes
-  const gradNodes = new Map<ad.Id, ad.Id[]>();
-  for (const id of primaryNodes) {
-    if (id === primary) {
-      // use addNode instead of newNode in case there's already a 1 in the graph
-      gradNodes.set(id, [addNode(1)]);
-      continue;
-    }
-
-    // our node needs to have some number of gradient nodes, depending on its
-    // type, so we assemble an array of the addends for each gradient node; we
-    // don't need to know the length of this array ahead of time, because
-    // JavaScript allows holes in arrays, so instead of actually looking at the
-    // node to see what type it is, we just accumulate into whatever slots are
-    // mentioned by the sensitivities of our out-edges, and let all else be zero
-    const grad: ad.Id[][] = [];
-
-    // control the order in which partial derivatives are added
-    const edges = [...graph.outEdges(id)].sort((a, b) =>
-      a.j === b.j ? a.e - b.e : a.j - b.j,
-    );
-
-    // we call graph.setEdge in this loop, so it may seem like it would be
-    // possible for those edges to get incorrectly included as addends in other
-    // gradient nodes; however, that is not the case, because none of those
-    // edges appear in our sensitivities map
-    for (const { j: w, e } of edges) {
-      const matrix = sensitivities.get(`${e}_${id}_${w}`);
-      if (matrix !== undefined) {
-        // `forEach` ignores holes
-        matrix.forEach((row, i) => {
-          row.forEach((x, j) => {
-            const sensitivityID = safe(nodes.get(x), "missing sensitivity");
-            const parentGradIDs = safe(gradNodes.get(w), "missing parent grad");
-            if (i in parentGradIDs) {
-              const parentGradID = parentGradIDs[i];
-
-              const addendID = newNode({ tag: "Binary", binop: "*" });
-              graph.setEdge({ i: sensitivityID, j: addendID, e: 0 });
-              graph.setEdge({ i: parentGradID, j: addendID, e: 1 });
-              if (!(j in grad)) {
-                grad[j] = [];
-              }
-              grad[j].push(addendID);
-            }
-          });
-        });
-      }
-    }
-
-    gradNodes.set(
-      id,
-      // `map` skips holes but also preserves indices
-      grad.map((addends) => {
-        if (addends.length === 0) {
-          // instead of newNode, in case there's already a 0 in the graph
-          return addNode(0);
-        } else {
-          const gradID = newNode({ tag: "Nary", op: "addN" });
-          addends.forEach((addendID, i) => {
-            graph.setEdge({ i: addendID, j: gradID, e: i });
-          });
-          return gradID;
-        }
-      }),
-    );
-  }
-
-  // we get the IDs for the input gradients before adding all the secondary
-  // nodes, because some of the inputs may only be reachable from the secondary
-  // outputs instead of the primary output; really, the gradients for all those
-  // inputs are just zero, so the caller needs to substitute zero whenever the
-  // gradient is missing a key
-  const gradient = new Map<ad.Var, ad.Id>();
-  for (const [x, id] of nodes) {
-    if (typeof x !== "number" && x.tag === "Var")
-      gradient.set(x, safe(gradNodes.get(id), "missing gradient")[0]);
-  }
-
-  // easiest case: final stage, just add all the nodes and edges for the
-  // secondary outputs
-  const secondary = outputs.secondary.map(addNode);
-  while (!queue.isEmpty()) {
-    addNode(queue.dequeue());
-  }
-  while (!edges.isEmpty()) {
-    const [{ child }, index, parent] = edges.dequeue();
-    addEdge(child, parent, index);
-  }
-
-  return { graph, nodes, gradient, primary, secondary };
-};
-
-/**
- * Construct a graph with a primary output but no secondary outputs.
- */
-export const primaryGraph = (
-  output: ad.Num,
-  getKey?: (x: ad.Var) => number,
-): ad.Graph => makeGraph({ primary: output, secondary: [] }, getKey);
-
-/**
- * Construct a graph from an array of only secondary outputs, for which we don't
- * care about the gradient. The primary output is just the constant 1.
- */
-export const secondaryGraph = (
-  outputs: ad.Num[],
-  getKey?: (x: ad.Var) => number,
-): ad.Graph =>
-  // use 1 because makeGraph always constructs a constant gradient node 1 for
-  // the primary output, and so if that's already present in the graph then we
-  // have one fewer node total
-  makeGraph({ primary: 1, secondary: outputs }, getKey);
-
-// ------------ Meta / debug ops
-
-// ----------------- Other ops
 
 /**
  * Some vector operations that can be used on `ad.Num`.
@@ -1071,6 +544,275 @@ export const fns = {
   },
 };
 
+// ----- Autodiff
+
+function* predsExpr(x: ad.Expr): Generator<ad.Expr, void, undefined> {
+  if (typeof x === "number") return;
+  switch (x.tag) {
+    case "Var":
+      return;
+    case "Not":
+    case "Unary":
+      yield x.param;
+      return;
+    case "Binary":
+    case "Comp":
+    case "Logic": {
+      yield x.left;
+      yield x.right;
+      return;
+    }
+    case "Ternary": {
+      yield x.cond;
+      yield x.then;
+      yield x.els;
+      return;
+    }
+    case "Nary": {
+      yield* x.params;
+      return;
+    }
+    case "PolyRoots": {
+      yield* x.coeffs;
+      return;
+    }
+    case "Index": {
+      yield x.vec;
+      return;
+    }
+  }
+}
+
+const gradUnary = (y: ad.Unary, dy: ad.Num): ad.Num => {
+  const x = y.param;
+  switch (y.unop) {
+    case "neg":
+      return neg(dy);
+    case "squared":
+      return mul(dy, mul(2, x));
+    case "sqrt":
+      // NOTE: Watch out for divide by zero in 1 / [2 sqrt(x)]
+      return mul(dy, div(1 / 2, max(EPS_DENOM, y)));
+    case "inverse":
+      return mul(dy, neg(squared(y)));
+    case "abs":
+      return mul(dy, sign(x));
+    case "acosh":
+      return div(dy, mul(sqrt(sub(x, 1)), sqrt(add(x, 1))));
+    case "acos":
+      return div(dy, neg(sqrt(sub(1, squared(x)))));
+    case "asin":
+      return div(dy, sqrt(sub(1, squared(x))));
+    case "asinh":
+      return div(dy, sqrt(add(1, squared(x))));
+    case "atan":
+      return div(dy, add(1, squared(x)));
+    case "atanh":
+      return div(dy, sub(1, squared(x)));
+    case "cbrt":
+      return mul(dy, div(1 / 3, squared(x)));
+    case "ceil":
+    case "floor":
+    case "round":
+    case "sign":
+    case "trunc":
+      return 0;
+    case "cos":
+      return mul(dy, neg(sin(x)));
+    case "cosh":
+      return mul(dy, sinh(x));
+    case "exp":
+      return mul(dy, y);
+    case "expm1":
+      return mul(dy, add(y, 1));
+    case "log":
+      return div(dy, x);
+    case "log2":
+      return mul(dy, div(Math.LOG2E, x));
+    case "log10":
+      return mul(dy, div(Math.LOG10E, x));
+    case "log1p":
+      return div(dy, add(1, x));
+    case "sin":
+      return mul(dy, cos(x));
+    case "sinh":
+      return mul(dy, cosh(x));
+    case "tan":
+      return mul(dy, add(1, squared(y)));
+    case "tanh":
+      return mul(dy, sub(1, squared(y)));
+  }
+};
+
+function* gradsBinary(z: ad.Binary, dz: ad.Num) {
+  const { binop, left: x, right: y } = z;
+  switch (binop) {
+    case "+": {
+      yield dz;
+      yield dz;
+      return;
+    }
+    case "*": {
+      yield mul(dz, y);
+      yield mul(dz, x);
+      return;
+    }
+    case "-": {
+      yield dz;
+      yield neg(dz);
+      return;
+    }
+    case "/": {
+      const dx = div(dz, y);
+      yield dx;
+      yield mul(dx, neg(z));
+      return;
+    }
+    case "max": {
+      const cond = gt(x, y);
+      yield ifCond(cond, dz, 0);
+      yield ifCond(cond, 0, dz);
+      return;
+    }
+    case "min": {
+      const cond = lt(x, y);
+      yield ifCond(cond, dz, 0);
+      yield ifCond(cond, 0, dz);
+      return;
+    }
+    case "atan2": {
+      const dw = div(dz, add(squared(x), squared(y)));
+      yield mul(dw, y);
+      yield mul(dw, neg(x));
+      return;
+    }
+    case "pow": {
+      const dw = mul(dz, z);
+      yield mul(dw, div(y, x));
+      yield mul(dw, ln(x));
+      return;
+    }
+  }
+}
+
+function* gradsNary(y: ad.Nary, dy: ad.Num) {
+  for (const x of y.params) {
+    switch (y.op) {
+      case "addN":
+        yield dy;
+        continue;
+      case "maxN":
+        yield ifCond(lt(x, y), 0, dy);
+        continue;
+      case "minN":
+        yield ifCond(gt(x, y), 0, dy);
+        continue;
+    }
+  }
+}
+
+// https://www.skewray.com/articles/how-do-the-roots-of-a-polynomial-depend-on-the-coefficients
+const gradsPolyRoots = (v: ad.PolyRoots, dv: ad.Num[]): ad.Num[] => {
+  const n = v.coeffs.length;
+  const derivCoeffs: ad.Num[] = v.coeffs.map((c, i) => mul(i, c));
+  derivCoeffs.shift();
+  // the polynomial is assumed monic, so `x.coeffs` doesn't include the
+  // coefficient 1 on the highest-degree term
+  derivCoeffs.push(n);
+
+  const sensitivities: ad.Num[][] = v.coeffs.map((_, index) => {
+    const t: ad.Num = { tag: "Index", index, vec: v }; // a root
+
+    let power: ad.Num = 1;
+    const powers: ad.Num[] = [power];
+    for (let i = 1; i < n; i++) {
+      power = mul(power, t);
+      powers.push(power);
+    }
+
+    const minusDerivative = neg(
+      addN(zip2(derivCoeffs, powers).map(([c, p]) => mul(c, p))),
+    );
+
+    // if the root is `NaN` then it doesn't contribute to the gradient
+    const real = eq(t, t);
+    return powers.map((p) => ifCond(real, div(p, minusDerivative), 0));
+  });
+
+  return v.coeffs.map((child, i) =>
+    addN(sensitivities.map((row, j) => mul(dv[j], row[i]))),
+  );
+};
+
+const singleton = (dx: ad.Num): ad.Nary => {
+  return { tag: "Nary", op: "addN", params: [dx] };
+};
+
+const gradsGraph = (y: ad.Num, dy: ad.Num): Map<ad.Num, ad.Num> => {
+  const grads = new Map<ad.Num, ad.Nary>();
+  grads.set(y, singleton(dy));
+  const get = (x: ad.Num): ad.Num => grads.get(x) ?? 0;
+  const accum = (x: ad.Num, dx: ad.Num) => {
+    const grad = grads.get(x);
+    if (grad === undefined) grads.set(x, singleton(dx));
+    else grad.params.push(dx);
+  };
+  const vecGrads = new Map<ad.Vec, ad.Num[]>();
+  for (const x of topsort(predsExpr, [y]).reverse()) {
+    if (typeof x === "number") continue;
+    switch (x.tag) {
+      case "Var":
+      case "Not":
+      case "Comp":
+      case "Logic":
+        continue;
+      case "Unary":
+        accum(x.param, gradUnary(x, get(x)));
+        continue;
+      case "Binary": {
+        const [da, db] = gradsBinary(x, get(x));
+        accum(x.left, da);
+        accum(x.right, db);
+        continue;
+      }
+      case "Ternary": {
+        const dx = get(x);
+        accum(x.then, ifCond(x.cond, dx, 0));
+        accum(x.els, ifCond(x.cond, 0, dx));
+        continue;
+      }
+      case "Nary": {
+        let i = 0;
+        for (const da of gradsNary(x, get(x))) {
+          accum(x.params[i], da);
+          i++;
+        }
+        continue;
+      }
+      case "PolyRoots": {
+        let i = 0;
+        for (const da of gradsPolyRoots(x, vecGrads.get(x) ?? [])) {
+          accum(x.coeffs[i], da);
+          i++;
+        }
+        continue;
+      }
+      case "Index": {
+        const { vec: v, index: i } = x;
+        let dv = vecGrads.get(v);
+        if (dv === undefined) {
+          dv = [];
+          vecGrads.set(v, dv);
+        }
+        if (i in dv) throw Error("multiple accesses to same vector element");
+        dv[i] = get(x);
+        continue;
+      }
+    }
+  }
+  return grads;
+};
+
 // ----- Codegen
 
 // Traverses the computational graph of ops obtained by interpreting the energy function, and generates WebAssembly code corresponding to just the ops
@@ -1275,7 +1017,7 @@ const modulePrefix = (gradientFunctionSizes: number[]): wasm.Module => {
 
 const compileUnary = (
   t: wasm.Target,
-  { unop }: ad.UnaryNode,
+  { unop }: ad.Unary,
   param: number,
 ): void => {
   switch (unop) {
@@ -1364,7 +1106,7 @@ const binaryOps = {
 
 const compileBinary = (
   t: wasm.Target,
-  { binop }: ad.BinaryNode | ad.CompNode | ad.LogicNode,
+  { binop }: ad.Binary | ad.Comp | ad.Logic,
   left: number,
   right: number,
 ): void => {
@@ -1423,7 +1165,7 @@ const naryOps = {
 
 const compileNary = (
   t: wasm.Target,
-  { op }: ad.NaryNode,
+  { op }: ad.Nary,
   params: number[],
 ): void => {
   if (params.length === 0) {
@@ -1445,18 +1187,18 @@ const compileNary = (
 
 const compileNode = (
   t: wasm.Target,
-  node: Exclude<ad.Node, ad.InputNode>,
-  preds: number[],
+  get: (child: ad.Expr) => number,
+  node: Exclude<ad.Expr, ad.Var>,
 ): void => {
-  switch (node.tag) {
-    case "Const": {
-      t.byte(wasm.OP.f64.const);
-      t.f64(node.val);
+  if (typeof node === "number") {
+    t.byte(wasm.OP.f64.const);
+    t.f64(node);
 
-      return;
-    }
+    return;
+  }
+  switch (node.tag) {
     case "Not": {
-      const [child] = preds;
+      const child = get(node.param);
 
       t.byte(wasm.OP.local.get);
       t.int(child);
@@ -1466,19 +1208,22 @@ const compileNode = (
       return;
     }
     case "Unary": {
-      const [param] = preds;
+      const param = get(node.param);
       compileUnary(t, node, param);
       return;
     }
     case "Binary":
     case "Comp":
     case "Logic": {
-      const [left, right] = preds;
+      const left = get(node.left);
+      const right = get(node.right);
       compileBinary(t, node, left, right);
       return;
     }
     case "Ternary": {
-      const [cond, then, els] = preds;
+      const cond = get(node.cond);
+      const then = get(node.then);
+      const els = get(node.els);
 
       t.byte(wasm.OP.local.get);
       t.int(then);
@@ -1494,16 +1239,16 @@ const compileNode = (
       return;
     }
     case "Nary": {
-      compileNary(t, node, preds);
+      compileNary(t, node, node.params.map(get));
       return;
     }
     case "PolyRoots": {
-      preds.forEach((index, i) => {
+      node.coeffs.forEach((index, i) => {
         t.byte(wasm.OP.local.get);
         t.int(getParamIndex(funcTypes.addend, "stackPointer"));
 
         t.byte(wasm.OP.local.get);
-        t.int(index);
+        t.int(get(index));
 
         t.byte(wasm.OP.f64.store);
         t.int(logAlignF64);
@@ -1514,12 +1259,12 @@ const compileNode = (
       t.int(getParamIndex(funcTypes.addend, "stackPointer"));
 
       t.byte(wasm.OP.i32.const);
-      t.int(node.degree);
+      t.int(node.coeffs.length);
 
       t.byte(wasm.OP.call);
       t.int(getBuiltindex("polyRoots"));
 
-      for (let i = 0; i < node.degree; i++) {
+      for (let i = 0; i < node.coeffs.length; i++) {
         t.byte(wasm.OP.local.get);
         t.int(getParamIndex(funcTypes.addend, "stackPointer"));
 
@@ -1531,7 +1276,7 @@ const compileNode = (
       return;
     }
     case "Index": {
-      const [vec] = preds;
+      const vec = get(node.vec);
 
       t.byte(wasm.OP.local.get);
       t.int(vec + node.index);
@@ -1543,14 +1288,14 @@ const compileNode = (
 
 type Typename = "i32" | "f64";
 
-const getLayout = (node: ad.Node): { typename: Typename; count: number } => {
+const getLayout = (node: ad.Expr): { typename: Typename; count: number } => {
+  if (typeof node === "number") return { typename: "f64", count: 1 };
   switch (node.tag) {
     case "Comp":
     case "Logic":
     case "Not": {
       return { typename: "i32", count: 1 };
     }
-    case "Const":
     case "Var":
     case "Unary":
     case "Binary":
@@ -1560,7 +1305,7 @@ const getLayout = (node: ad.Node): { typename: Typename; count: number } => {
       return { typename: "f64", count: 1 };
     }
     case "PolyRoots": {
-      return { typename: "f64", count: node.degree };
+      return { typename: "f64", count: node.coeffs.length };
     }
   }
 };
@@ -1572,13 +1317,13 @@ interface Local {
 
 interface Locals {
   counts: { i32: number; f64: number };
-  indices: Map<ad.Id, Local>;
+  indices: Map<ad.Expr, Local>;
 }
 
 const numAddendParams = Object.keys(funcTypes.addend.param).length;
 
-const getIndex = (locals: Locals, id: ad.Id): number => {
-  const local = safe(locals.indices.get(id), "missing local");
+const getIndex = (locals: Locals, node: ad.Expr): number => {
+  const local = safe(locals.indices.get(node), "missing local");
   return (
     numAddendParams +
     (local.typename === "i32" ? 0 : locals.counts.i32) +
@@ -1588,14 +1333,15 @@ const getIndex = (locals: Locals, id: ad.Id): number => {
 
 const compileGraph = (
   t: wasm.Target,
-  { graph, nodes, gradient, primary, secondary }: ad.Graph,
+  inputs: Map<ad.Var, number>,
+  grads: Map<ad.Var, ad.Num>,
+  nodes: ad.Expr[],
 ): void => {
   const counts = { i32: 0, f64: 0 };
-  const indices = new Map<ad.Id, Local>();
-  for (const id of graph.nodes()) {
-    const node = graph.node(id);
+  const indices = new Map<ad.Expr, Local>();
+  for (const node of nodes) {
     const { typename, count } = getLayout(node);
-    indices.set(id, { typename, index: counts[typename] });
+    indices.set(node, { typename, index: counts[typename] });
     counts[typename] += count;
   }
   const locals = { counts, indices };
@@ -1609,10 +1355,7 @@ const compileGraph = (
   t.int(counts.f64);
   t.byte(wasm.TYPE.f64);
 
-  for (const {
-    id,
-    label: { key },
-  } of getInputNodes(graph)) {
+  for (const [node, key] of inputs) {
     t.byte(wasm.OP.local.get);
     t.int(getParamIndex(funcTypes.addend, "input"));
 
@@ -1621,21 +1364,15 @@ const compileGraph = (
     t.int(key * bytesF64);
 
     t.byte(wasm.OP.local.set);
-    t.int(getIndex(locals, id));
+    t.int(getIndex(locals, node));
   }
 
-  for (const id of graph.topsort()) {
-    const node = graph.node(id);
+  for (const node of nodes) {
     // we already generated code for the inputs
-    if (node.tag !== "Var") {
-      const preds: number[] = [];
-      for (const { i: v, e } of graph.inEdges(id)) {
-        preds[e] = getIndex(locals, v);
-      }
+    if (typeof node === "number" || node.tag !== "Var") {
+      compileNode(t, (child) => getIndex(locals, child), node);
 
-      compileNode(t, node, preds);
-
-      const index = getIndex(locals, id);
+      const index = getIndex(locals, node);
       for (let i = getLayout(node).count - 1; i >= 0; i--) {
         t.byte(wasm.OP.local.set);
         t.int(index + i);
@@ -1643,8 +1380,8 @@ const compileGraph = (
     }
   }
 
-  for (const [x, id] of gradient) {
-    const i = getInputKey(graph, safe(nodes.get(x), "input not found"));
+  for (const [x, grad] of grads) {
+    const i = safe(inputs.get(x), "input not found");
 
     t.byte(wasm.OP.local.get);
     t.int(getParamIndex(funcTypes.addend, "gradient"));
@@ -1657,7 +1394,7 @@ const compileGraph = (
     t.int(i * bytesF64);
 
     t.byte(wasm.OP.local.get);
-    t.int(getIndex(locals, id));
+    t.int(getIndex(locals, grad));
 
     t.byte(wasm.OP.f64.add);
 
@@ -1957,37 +1694,6 @@ const makeCompiled = (
   };
 };
 
-/**
- * Compile an array of graphs into a function to compute the sum of their
- * primary outputs. The gradients are also summed. The keys present in the
- * secondary outputs must be disjoint; they all go into the same array, so the
- * expected secondary outputs would be ambiguous if keys were shared.
- * @param graphs an array of graphs to compile
- * @returns a compiled/instantiated WebAssembly function
- */
-export const genCode = async (...graphs: ad.Graph[]): Promise<ad.Compiled> => {
-  const meta = makeMeta(graphs);
-  const instance = await WebAssembly.instantiate(
-    await WebAssembly.compile(genBytes(graphs)),
-    makeImports(meta.memory),
-  );
-  return makeCompiled(graphs, meta, instance);
-};
-
-/**
- * Synchronous version of `genCode`. Should not be used in the browser because
- * this will fail if the generated module is larger than 4 kilobytes, but
- * currently is used in convex partitioning for convenience.
- */
-export const genCodeSync = (...graphs: ad.Graph[]): ad.Compiled => {
-  const meta = makeMeta(graphs);
-  const instance = new WebAssembly.Instance(
-    new WebAssembly.Module(genBytes(graphs)),
-    makeImports(meta.memory),
-  );
-  return makeCompiled(graphs, meta, instance);
-};
-
 /** Generate an energy function from the current state (using `ad.Num`s only) */
 export const genGradient = async (
   inputs: ad.Var[],
@@ -2192,6 +1898,33 @@ export const compile = async (
   meta.arrMask[0] = 1; // only one graph, always run it
   const instance = await WebAssembly.instantiate(
     await WebAssembly.compile(genBytes(graphs)),
+    makeImports(meta.memory),
+  );
+  const f = getExport(meta, instance);
+  return (inputs: (x: ad.Var) => number): number[] => {
+    for (const [x, i] of indices) meta.arrInputs[i] = inputs(x);
+    f();
+    return Array.from(meta.arrSecondary);
+  };
+};
+
+export const compileSync = (
+  xs: ad.Num[],
+): ((inputs: (x: ad.Var) => number) => number[]) => {
+  const indices = new Map<ad.Var, number>();
+  const graph = secondaryGraph(xs, (x: ad.Var): number => {
+    let i = indices.get(x);
+    if (i === undefined) {
+      i = indices.size;
+      indices.set(x, i);
+    }
+    return i;
+  });
+  const graphs = [graph];
+  const meta = makeMeta(graphs);
+  meta.arrMask[0] = 1; // only one graph, always run it
+  const instance = new WebAssembly.Instance(
+    new WebAssembly.Module(genBytes(graphs)),
     makeImports(meta.memory),
   );
   const f = getExport(meta, instance);
