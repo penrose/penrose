@@ -1,6 +1,7 @@
 import _ from "lodash";
 import seedrandom from "seedrandom";
 import { describe, expect, test } from "vitest";
+import { numsOf } from "../lib/Utils.js";
 import * as ad from "../types/ad.js";
 import { eqList, randList } from "../utils/Util.js";
 import {
@@ -14,11 +15,16 @@ import {
 import {
   add,
   div,
+  eq,
   ifCond,
   lt,
   max,
+  min,
   mul,
+  neg,
+  polyRoots,
   sin,
+  sqrt,
   squared,
   sub,
 } from "./AutodiffFunctions.js";
@@ -274,3 +280,100 @@ const gradGraph0 = (): GradGraph => {
 };
 
 //#endregion
+
+describe("polyRoots tests", () => {
+  test("degree 1", () => {
+    const x = 42;
+    const v = variable(x);
+    const [z] = polyRoots([v]);
+    const f = makeFunc({ inputs: [v], output: z });
+    expect(f([v.val])).toEqual({ output: -x, gradient: [-1] });
+  });
+
+  type F = (v: ad.Num, w: ad.Num) => ad.Num;
+
+  // check that `polyRoots` gives the same answer as just doing symbolic
+  // differentiation on the quadratic formula
+  const testQuadratic = (f1: F, f2: F) => {
+    const x1 = Math.PI;
+    const x2 = Math.E;
+
+    const a = 1;
+    const b = variable(-(x1 + x2));
+    const c = variable(x1 * x2);
+
+    const closedForm = makeFunc({
+      inputs: [b, c],
+      // c + bx + ax²
+      output: div(
+        f1(neg(b), sqrt(sub(squared(b), mul(4, mul(a, c))))),
+        mul(2, a),
+      ),
+    });
+
+    const [r1, r2] = polyRoots([c, b]); // c + bx + x²; recall that a = 1
+    const implicit = makeFunc({ inputs: [b, c], output: f2(r1, r2) });
+
+    const received = implicit([b.val, c.val]);
+    const expected = closedForm([b.val, c.val]);
+
+    expect(received.output).toBeCloseTo(expected.output);
+
+    const inputs = new Set([b, c]);
+    expect(received.gradient[0]).toBeCloseTo(expected.gradient[0]);
+    expect(received.gradient[1]).toBeCloseTo(expected.gradient[1]);
+  };
+
+  test("quadratic formula min root", () => {
+    testQuadratic(sub, min);
+  });
+
+  test("quadratic formula max root", () => {
+    testQuadratic(add, max);
+  });
+
+  test("cubic with only one real root", () => {
+    const inputs = [variable(8), variable(0), variable(0)];
+    const [c0, c1, c2] = inputs;
+
+    const roots = polyRoots([c0, c1, c2]);
+    const [r1, r2, r3] = roots;
+
+    // get the first real root we can find
+    const z = ifCond(eq(r1, r1), r1, ifCond(eq(r2, r2), r2, r3));
+
+    const f = makeFunc({ inputs, output: z });
+
+    const { output, gradient } = f([c0.val, c1.val, c2.val]);
+    const secondary = numsOf(roots);
+
+    expect(secondary.filter(Number.isNaN).length).toBe(2);
+    const realRoots = secondary.filter((x) => !Number.isNaN(x));
+    expect(realRoots.length).toBe(1);
+    const [x] = realRoots;
+    expect(x).toBeCloseTo(-2);
+
+    expect(output).toBeCloseTo(-2);
+
+    expect(gradient[0]).toBeCloseTo(-1 / 12);
+    expect(gradient[1]).toBeCloseTo(1 / 6);
+    expect(gradient[2]).toBeCloseTo(-1 / 3);
+  });
+
+  test("quintic", () => {
+    const [c0, c1, c2, c3, c4] = [
+      variable(-120),
+      variable(274),
+      variable(-225),
+      variable(85),
+      variable(-15),
+    ];
+    const roots = numsOf(polyRoots([c0, c1, c2, c3, c4]));
+    roots.sort((a, b) => a - b);
+    expect(roots[0]).toBeCloseTo(1);
+    expect(roots[1]).toBeCloseTo(2);
+    expect(roots[2]).toBeCloseTo(3);
+    expect(roots[3]).toBeCloseTo(4);
+    expect(roots[4]).toBeCloseTo(5);
+  });
+});

@@ -196,28 +196,66 @@ export const overlapping = (
 ): MayWarn<ad.Num> => {
   const t1 = s1.shapeType;
   const t2 = s2.shapeType;
+  // for some cases with ellipses, we can't easily compute the distance
+  if (t1 === "Ellipse" && t2 === "Ellipse")
+    return noWarn(
+      overlappingEllipses(
+        toPt(s1.center.contents),
+        s1.rx.contents,
+        s1.ry.contents,
+        toPt(s2.center.contents),
+        s2.rx.contents,
+        s2.ry.contents,
+        overlap,
+      ),
+    );
+  // Circle x Ellipse
+  else if (t1 === "Circle" && t2 === "Ellipse")
+    return noWarn(
+      overlappingCircleEllipse(
+        toPt(s1.center.contents),
+        s1.r.contents,
+        toPt(s2.center.contents),
+        s2.rx.contents,
+        s2.ry.contents,
+        overlap,
+      ),
+    );
+  else if (t1 === "Ellipse" && t2 === "Circle")
+    return noWarn(
+      overlappingCircleEllipse(
+        toPt(s2.center.contents),
+        s2.r.contents,
+        toPt(s1.center.contents),
+        s1.rx.contents,
+        s1.ry.contents,
+        overlap,
+      ),
+    );
+  // for other cases, we know how to compute the distance, so we just use that
+  else {
+    const { value: dist, warnings } = shapeDistance(s1, s2);
 
-  const { value: dist, warnings } = shapeDistance(s1, s2);
-
-  // If the computation of shape distance issues bbox approximation warnings, adapt that warning to use `overlapping`
-  return {
-    value: add(dist, overlap),
-    warnings: warnings.map((warning) => {
-      if (warning.tag === "BBoxApproximationWarning") {
-        return {
-          ...warning,
-          stack: [
-            ...warning.stack,
-            {
-              signature: `overlapping(${t1}, ${t2})`,
-            },
-          ],
-        };
-      } else {
-        return warning;
-      }
-    }),
-  };
+    // If the computation of shape distance issues bbox approximation warnings, adapt that warning to use `overlapping`
+    return {
+      value: add(dist, overlap),
+      warnings: warnings.map((warning) => {
+        if (warning.tag === "BBoxApproximationWarning") {
+          return {
+            ...warning,
+            stack: [
+              ...warning.stack,
+              {
+                signature: `overlapping(${t1}, ${t2})`,
+              },
+            ],
+          };
+        } else {
+          return warning;
+        }
+      }),
+    };
+  }
 };
 
 export const overlappingEllipses = (

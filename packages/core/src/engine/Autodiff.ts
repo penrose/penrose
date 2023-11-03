@@ -2,7 +2,7 @@ import consola from "consola";
 import _ from "lodash";
 import { EigenvalueDecomposition, Matrix } from "ml-matrix";
 import * as ad from "../types/ad.js";
-import { topsort } from "../utils/Util.js";
+import { topsort, zip2 } from "../utils/Util.js";
 import {
   absVal,
   acos,
@@ -12,6 +12,7 @@ import {
   cos,
   cosh,
   div,
+  eq,
   gt,
   ifCond,
   ln,
@@ -570,6 +571,14 @@ export const polyRootsImpl = (v: Float64Array): void => {
   }
 };
 
+const builtins = {
+  polyRoots: (v: number[]): Float64Array => {
+    const w = new Float64Array(v);
+    polyRootsImpl(w);
+    return w;
+  },
+};
+
 function* predsExpr(x: ad.Expr): Generator<ad.Expr, void, undefined> {
   if (typeof x === "number") return;
   switch (x.tag) {
@@ -719,21 +728,54 @@ function* gradsBinary(z: ad.Binary, dz: ad.Num) {
   }
 }
 
-function* gradsNary(y: ad.Nary, dz: ad.Num) {
+function* gradsNary(y: ad.Nary, dy: ad.Num) {
   for (const x of y.params) {
     switch (y.op) {
       case "addN":
-        yield dz;
+        yield dy;
         continue;
       case "maxN":
-        yield ifCond(lt(x, y), 0, dz);
+        yield ifCond(lt(x, y), 0, dy);
         continue;
       case "minN":
-        yield ifCond(gt(x, y), 0, dz);
+        yield ifCond(gt(x, y), 0, dy);
         continue;
     }
   }
 }
+
+// https://www.skewray.com/articles/how-do-the-roots-of-a-polynomial-depend-on-the-coefficients
+const gradsPolyRoots = (v: ad.PolyRoots, dv: ad.Num[]): ad.Num[] => {
+  const n = v.coeffs.length;
+  const derivCoeffs: ad.Num[] = v.coeffs.map((c, i) => mul(i, c));
+  derivCoeffs.shift();
+  // the polynomial is assumed monic, so `x.coeffs` doesn't include the
+  // coefficient 1 on the highest-degree term
+  derivCoeffs.push(n);
+
+  const sensitivities: ad.Num[][] = v.coeffs.map((_, index) => {
+    const t: ad.Num = { tag: "Index", index, vec: v }; // a root
+
+    let power: ad.Num = 1;
+    const powers: ad.Num[] = [power];
+    for (let i = 1; i < n; i++) {
+      power = mul(power, t);
+      powers.push(power);
+    }
+
+    const minusDerivative = neg(
+      addN(zip2(derivCoeffs, powers).map(([c, p]) => mul(c, p))),
+    );
+
+    // if the root is `NaN` then it doesn't contribute to the gradient
+    const real = eq(t, t);
+    return powers.map((p) => ifCond(real, div(p, minusDerivative), 0));
+  });
+
+  return v.coeffs.map((child, i) =>
+    addN(sensitivities.map((row, j) => mul(dv[j], row[i]))),
+  );
+};
 
 const singleton = (dx: ad.Num): ad.Nary => {
   return { tag: "Nary", op: "addN", params: [dx] };
@@ -748,6 +790,7 @@ const gradsGraph = (y: ad.Num, dy: ad.Num): Map<ad.Num, ad.Num> => {
     if (grad === undefined) grads.set(x, singleton(dx));
     else grad.params.push(dx);
   };
+  const vecGrads = new Map<ad.Vec, ad.Num[]>();
   for (const x of topsort(predsExpr, [y]).reverse()) {
     if (typeof x === "number") continue;
     switch (x.tag) {
@@ -772,16 +815,32 @@ const gradsGraph = (y: ad.Num, dy: ad.Num): Map<ad.Num, ad.Num> => {
         continue;
       }
       case "Nary": {
-        let j = 0;
+        let i = 0;
         for (const da of gradsNary(x, get(x))) {
-          accum(x.params[j], da);
-          j++;
+          accum(x.params[i], da);
+          i++;
         }
         continue;
       }
-      case "PolyRoots":
-      case "Index":
-        throw Error("TODO");
+      case "PolyRoots": {
+        let i = 0;
+        for (const da of gradsPolyRoots(x, vecGrads.get(x) ?? [])) {
+          accum(x.coeffs[i], da);
+          i++;
+        }
+        continue;
+      }
+      case "Index": {
+        const { vec: v, index: i } = x;
+        let dv = vecGrads.get(v);
+        if (dv === undefined) {
+          dv = [];
+          vecGrads.set(v, dv);
+        }
+        if (i in dv) throw Error("multiple accesses to same vector element");
+        dv[i] = get(x);
+        continue;
+      }
     }
   }
   return grads;
@@ -894,7 +953,7 @@ const emitExpr = (
     case "Nary":
       return emitNary(name, x);
     case "PolyRoots":
-      return `polyRoots([${x.coeffs.map(name).join(",")}])`;
+      return `builtins.polyRoots([${x.coeffs.map(name).join(",")}])`;
     case "Index":
       return `${name(x.vec)}[${x.index}]`;
   }
@@ -942,12 +1001,12 @@ export const genGradient = (
       if (grad !== 0) code.push(`dx[${i}]+=${vars.get(grad)}`);
     });
     code.push(`return {y:${vars.get(y)},z:${vars.get(z)}}`);
-    const g = new Function("x", "dx", "dz", code.join("\n"));
+    const g = new Function("builtins", "x", "dx", "dz", code.join("\n"));
     return (
       x: Float64Array,
       dx: Float64Array,
       dz: number,
-    ): { y: number; z: number } => g(x, dx, dz);
+    ): { y: number; z: number } => g(builtins, x, dx, dz);
   };
 
   const objFns = objectives.map((x) => single((y) => y, x));
@@ -1036,7 +1095,7 @@ export const problem = async (desc: ad.Description): Promise<ad.Problem> => {
   for (const [x, i] of indices)
     code.push(`dx[${i}]+=${vars.get(grads.get(x)!)}`);
   code.push(`return ${vars.get(y)}`);
-  const f = new Function("x", "weight", "dx", code.join("\n"));
+  const f = new Function("builtins", "x", "weight", "dx", code.join("\n"));
 
   return {
     start: (conf) => {
@@ -1078,7 +1137,7 @@ export const problem = async (desc: ad.Description): Promise<ad.Problem> => {
                       `expected ${n} inputs, got gradient with length ${grad.length}`,
                     );
                   grad.fill(0);
-                  const phi = f(v, weight, grad);
+                  const phi = f(builtins, v, weight, grad);
                   mask.forEach((p, i) => {
                     if (!p) grad[i] = 0;
                   });
@@ -1113,11 +1172,11 @@ export const compile = (
 
   const { vars, code } = emitGraph((x) => `x[${indices.get(x)}]`, sorted);
   code.push(`return [${ys.map((x) => vars.get(x)).join(",")}]`);
-  const f = new Function("x", code.join("\n"));
+  const f = new Function("builtins", "x", code.join("\n"));
 
   return (vals) => {
     const xs = new Float64Array(indices.size);
     for (const [x, i] of indices) xs[i] = vals(x);
-    return f(xs);
+    return f(builtins, xs);
   };
 };
