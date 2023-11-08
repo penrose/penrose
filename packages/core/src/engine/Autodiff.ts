@@ -4,7 +4,7 @@ import _ from "lodash";
 import { EigenvalueDecomposition, Matrix } from "ml-matrix";
 import * as ad from "../types/ad.js";
 import Graph from "../utils/Graph.js";
-import { safe, zip2 } from "../utils/Util.js";
+import { unwrap, zip2 } from "../utils/Util.js";
 import * as wasm from "../utils/Wasm.js";
 import {
   absVal,
@@ -400,8 +400,8 @@ export const makeGraph = (
     parent: ad.Expr,
     e: ad.Edge,
   ): [ad.Id, ad.Id] => {
-    const i = safe(nodes.get(child), "missing child");
-    const j = safe(nodes.get(parent), "missing parent");
+    const i = unwrap(nodes.get(child), () => "missing child");
+    const j = unwrap(nodes.get(parent), () => "missing parent");
     graph.setEdge({ i, j, e });
     return [i, j];
   };
@@ -481,8 +481,14 @@ export const makeGraph = (
         // `forEach` ignores holes
         matrix.forEach((row, i) => {
           row.forEach((x, j) => {
-            const sensitivityID = safe(nodes.get(x), "missing sensitivity");
-            const parentGradIDs = safe(gradNodes.get(w), "missing parent grad");
+            const sensitivityID = unwrap(
+              nodes.get(x),
+              () => "missing sensitivity",
+            );
+            const parentGradIDs = unwrap(
+              gradNodes.get(w),
+              () => `missing parent grad for node ${w}`,
+            );
             if (i in parentGradIDs) {
               const parentGradID = parentGradIDs[i];
 
@@ -525,7 +531,10 @@ export const makeGraph = (
   const gradient = new Map<ad.Var, ad.Id>();
   for (const [x, id] of nodes) {
     if (typeof x !== "number" && x.tag === "Var")
-      gradient.set(x, safe(gradNodes.get(id), "missing gradient")[0]);
+      gradient.set(
+        x,
+        unwrap(gradNodes.get(id), () => `missing gradient for node ${id}`)[0],
+      );
   }
 
   // easiest case: final stage, just add all the nodes and edges for the
@@ -1162,7 +1171,7 @@ const getParamIndex = (sig: Signature, name: string): number =>
 const builtindex = new Map([...builtins.keys()].map((name, i) => [name, i]));
 
 const getBuiltindex = (name: string): number =>
-  safe(builtindex.get(name), "unknown builtin");
+  unwrap(builtindex.get(name), () => `unknown builtin: ${name}`);
 
 const typeSection = (t: wasm.Target): void => {
   t.int(Object.keys(funcTypes).length);
@@ -1578,7 +1587,10 @@ interface Locals {
 const numAddendParams = Object.keys(funcTypes.addend.param).length;
 
 const getIndex = (locals: Locals, id: ad.Id): number => {
-  const local = safe(locals.indices.get(id), "missing local");
+  const local = unwrap(
+    locals.indices.get(id),
+    () => `missing local for node ${id}`,
+  );
   return (
     numAddendParams +
     (local.typename === "i32" ? 0 : locals.counts.i32) +
@@ -1644,7 +1656,10 @@ const compileGraph = (
   }
 
   for (const [x, id] of gradient) {
-    const i = getInputKey(graph, safe(nodes.get(x), "input not found"));
+    const i = getInputKey(
+      graph,
+      unwrap(nodes.get(x), () => "input not found"),
+    );
 
     t.byte(wasm.OP.local.get);
     t.int(getParamIndex(funcTypes.addend, "gradient"));
@@ -2004,7 +2019,8 @@ export const genGradient = async (
 
   const indices = new Map(inputs.map((x, i) => [x, i]));
   indices.set(lambda, n);
-  const getKey = (x: ad.Var): number => safe(indices.get(x), "missing input");
+  const getKey = (x: ad.Var): number =>
+    unwrap(indices.get(x), () => "missing input");
 
   const objs = objectives.map((x, i) => {
     const secondary = [];

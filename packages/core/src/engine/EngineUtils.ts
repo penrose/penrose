@@ -56,7 +56,7 @@ import {
   Value,
   VectorV,
 } from "../types/value.js";
-import { safe } from "../utils/Util.js";
+import { unwrap } from "../utils/Util.js";
 import { genCode, secondaryGraph } from "./Autodiff.js";
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?
@@ -508,18 +508,14 @@ export const compileCompGraph = async (
   const evalFn = await genCode(compGraph);
   return (xs: number[]): Shape<number>[] => {
     const numbers = evalFn(
-      (x) => xs[safe(indices.get(x), "input not found")],
+      (x) => xs[unwrap(indices.get(x), () => "input not found")],
     ).secondary;
     const m = new Map(compGraph.secondary.map((id, i) => [id, numbers[i]]));
     return shapes.map((s: Shape<ad.Num>) =>
-      mapShape(
-        (x) =>
-          safe(
-            m.get(safe(compGraph.nodes.get(x), `missing node`)),
-            "missing output",
-          ),
-        s,
-      ),
+      mapShape((x) => {
+        const id = unwrap(compGraph.nodes.get(x), () => "missing node");
+        return unwrap(m.get(id), () => `missing output for node ${id}`);
+      }, s),
     );
   };
 };
