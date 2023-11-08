@@ -1,3 +1,5 @@
+import { A } from "./ast.js";
+import { CompiledSubStmt } from "./substance.js";
 import { BoolV, ColorV, FloatV, PtListV, StrV, VectorV } from "./value.js";
 
 //#region shape hierarchy interfaces
@@ -60,9 +62,14 @@ export interface String<T> {
   fontSize: StrV;
 }
 
+export interface ShapeMeta {
+  causedBy: CompiledSubStmt<A>[];
+}
+
 export interface ShapeCommon<T> {
   shapeType: string;
   passthrough: Map<string, CanPassthrough<T>>;
+  meta: ShapeMeta;
 }
 
 export type CanPassthrough<T> = StrV | FloatV<T>;

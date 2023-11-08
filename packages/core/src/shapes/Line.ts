@@ -44,4 +44,5 @@ export const makeLine = (
   ...properties,
   shapeType: "Line",
   passthrough: new Map(),
+  meta: { causedBy: [] },
 });

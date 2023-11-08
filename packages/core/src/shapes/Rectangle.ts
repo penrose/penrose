@@ -59,4 +59,5 @@ export const makeRectangle = (
   ...properties,
   shapeType: "Rectangle",
   passthrough: new Map(),
+  meta: { causedBy: [] },
 });

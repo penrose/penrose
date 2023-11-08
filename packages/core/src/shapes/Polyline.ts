@@ -55,4 +55,5 @@ export const makePolyline = (
   ...properties,
   shapeType: "Polyline",
   passthrough: new Map(),
+  meta: { causedBy: [] },
 });

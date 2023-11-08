@@ -108,7 +108,6 @@ import {
   SubExpr,
   SubPredArg,
   SubProg,
-  SubStmt,
   SubstanceEnv,
   TypeConsApp,
 } from "../types/substance.js";
@@ -175,7 +174,12 @@ import {
 } from "../utils/Util.js";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain.js";
 import { callCompFunc, callObjConstrFunc } from "./StyleFunctionCaller.js";
-import { checkExpr, checkPredicate, checkVar } from "./Substance.js";
+import {
+  checkExpr,
+  checkPredicate,
+  checkVar,
+  prettyStmt,
+} from "./Substance.js";
 import { checkShape } from "./shapeChecker/CheckShape.js";
 
 const log = (consola as any)
@@ -969,12 +973,12 @@ const deduplicate = (
   subEnv: SubstanceEnv,
   subProg: SubProg<A>,
   rels: RelationPattern<A>[],
-  pSubsts: im.List<[Subst, im.Set<SubStmt<A> | undefined>]>,
-): im.List<Subst> => {
-  const initSubsts: im.List<Subst> = im.List();
+  pSubsts: im.List<[Subst, im.Set<CompiledSubStmt<A>>]>,
+): im.List<[Subst, im.Set<CompiledSubStmt<A>>]> => {
+  const initSubsts: im.List<[Subst, im.Set<CompiledSubStmt<A>>]> = im.List();
 
   type MatchesObject = {
-    rels: im.Set<SubStmt<A> | undefined>;
+    rels: im.Set<CompiledSubStmt<A> | undefined>;
     substTargets: im.Set<string>;
   };
   const initMatches: im.Set<im.Record<MatchesObject>> = im.Set();
@@ -987,7 +991,10 @@ const deduplicate = (
       if (currMatches.includes(record)) {
         return [currMatches, currSubsts];
       } else {
-        return [currMatches.add(record), currSubsts.push(subst)];
+        return [
+          currMatches.add(record),
+          currSubsts.push([subst, matchedSubStmts]),
+        ];
       }
     },
     [initMatches, initSubsts],
@@ -1019,26 +1026,29 @@ const combine = (s1: Subst, s2: Subst): Subst => {
  * In essence, we take the Cartesian product between the two lists. Both substitutions and their matched relations are merged.
  */
 const merge = (
-  s1: im.List<[Subst, im.Set<SubStmt<A>>]>,
-  s2: im.List<[Subst, im.Set<SubStmt<A>>]>,
-): im.List<[Subst, im.Set<SubStmt<A>>]> => {
+  s1: im.List<MatchedSubst<Subst>>,
+  s2: im.List<MatchedSubst<Subst>>,
+): im.List<MatchedSubst<Subst>> => {
   if (s1.size === 0 || s2.size === 0) {
     return im.List();
   }
   const s1Arr = s1.toArray();
   const s2Arr = s2.toArray();
 
-  const result: [Subst, im.Set<SubStmt<A>>][] = cartesianProduct(
+  const result: MatchedSubst<Subst>[] = cartesianProduct(
     s1Arr,
     s2Arr,
-    ([aSubst], [bSubst]) => {
+    ({ subst: aSubst }, { subst: bSubst }) => {
       // Requires that substitutions are consistent
       return consistentSubsts(aSubst, bSubst);
     },
-    ([aSubst, aStmts], [bSubst, bStmts]) => [
-      combine(aSubst, bSubst),
-      aStmts.union(bStmts),
-    ],
+    (
+      { subst: aSubst, matchedStmts: aStmts },
+      { subst: bSubst, matchedStmts: bStmts },
+    ) => ({
+      subst: combine(aSubst, bSubst),
+      matchedStmts: im.Set(aStmts).union(bStmts).toArray(),
+    }),
   );
   return im.List(result);
 };
@@ -1131,8 +1141,8 @@ const matchDecl = (
   varEnv: Env,
   subProg: CompiledSubProg<A>,
   decl: DeclPattern<A>,
-): im.List<Subst> => {
-  const initDSubsts: im.List<Subst> = im.List();
+): im.List<MatchedSubst<Subst>> => {
+  const initDSubsts: im.List<MatchedSubst<Subst>> = im.List();
   // Judgment 14. G; [theta] |- [S] <| |S_o
   const newDSubsts = subProg.statements.reduce(
     (dSubsts, line: CompiledSubStmt<A>) => {
@@ -1140,7 +1150,10 @@ const matchDecl = (
       if (subst === undefined) {
         return dSubsts;
       } else {
-        return dSubsts.push(subst);
+        return dSubsts.push({
+          subst,
+          matchedStmts: [line],
+        });
       }
     },
     initDSubsts,
@@ -1445,9 +1458,9 @@ const matchStyRelToSubRels = (
   subEnv: SubstanceEnv,
   rel: RelationPattern<A>,
   subProg: CompiledSubProg<A>,
-): [im.Set<string>, im.List<[Subst, im.Set<CompiledSubStmt<A>>]>] => {
+): [im.Set<string>, im.List<MatchedSubst<Subst>>] => {
   const initUsedStyVars = im.Set<string>();
-  const initRSubsts = im.List<[Subst, im.Set<CompiledSubStmt<A>>]>();
+  const initRSubsts = im.List<MatchedSubst<Subst>>();
   if (rel.tag === "RelPred") {
     const styPred = rel;
     const newRSubsts = subProg.statements.reduce(
@@ -1455,7 +1468,8 @@ const matchStyRelToSubRels = (
         if (statement.tag !== "ApplyPredicate") {
           return rSubsts;
         }
-        const rSubstsForPred = matchStyApplyToSubApply(
+        // generate the plain Subst
+        const rSubstsForPred: Subst[] = matchStyApplyToSubApply(
           styTypeMap,
           subTypeMap,
           varEnv,
@@ -1463,12 +1477,13 @@ const matchStyRelToSubRels = (
           statement,
         );
 
-        return rSubstsForPred.reduce((rSubsts, rSubstForPred) => {
-          return rSubsts.push([
-            rSubstForPred,
-            im.Set<CompiledSubStmt<A>>().add(statement),
-          ]);
-        }, rSubsts);
+        // decorate the plain Subst with the matched Substance statement
+        return rSubsts.push(
+          ...rSubstsForPred.map((s) => ({
+            subst: s,
+            matchedStmts: [statement],
+          })),
+        );
       },
       initRSubsts,
     );
@@ -1485,7 +1500,7 @@ const matchStyRelToSubRels = (
       const { variable: subBindedVar, expr: subBindedExpr } = statement;
       const subBindedName = subBindedVar.value;
       // substitutions for RHS expression
-      const rSubstsForExpr = matchStyApplyToSubApply(
+      const rSubstsForExpr: Subst[] = matchStyApplyToSubApply(
         styTypeMap,
         subTypeMap,
         varEnv,
@@ -1493,14 +1508,16 @@ const matchStyRelToSubRels = (
         subBindedExpr,
       );
 
-      return rSubstsForExpr.reduce((rSubsts, rSubstForExpr) => {
-        const rSubstForBind = { ...rSubstForExpr };
-        rSubstForBind[styBindedName] = subBindedName;
-        return rSubsts.push([
-          rSubstForBind,
-          im.Set<CompiledSubStmt<A>>().add(statement),
-        ]);
-      }, rSubsts);
+      // For each subst,
+      //  1. Add the LHS into subst
+      //  2. decorate with matched statement
+      return rSubsts.push(
+        ...rSubstsForExpr.map((rSubstForExpr) => {
+          const rSubstForBind = { ...rSubstForExpr };
+          rSubstForBind[styBindedName] = subBindedName;
+          return { subst: rSubstForBind, matchedStmts: [statement] };
+        }),
+      );
     }, initRSubsts);
 
     return [getStyRelArgNames(rel), newRSubsts];
@@ -1518,7 +1535,11 @@ const matchStyRelToSubRels = (
         if (rSubst === undefined) {
           return rSubsts;
         } else {
-          return rSubsts.push([rSubst, im.Set<CompiledSubStmt<A>>()]);
+          // TODO: how does RelField work with matchedStmts?
+          return rSubsts.push({
+            subst: rSubst,
+            matchedStmts: [],
+          });
         }
       } else {
         return rSubsts;
@@ -1551,10 +1572,9 @@ const makeListRSubstsForStyleRels = (
   subEnv: SubstanceEnv,
   rels: RelationPattern<A>[],
   subProg: CompiledSubProg<A>,
-): [im.Set<string>, im.List<im.List<[Subst, im.Set<SubStmt<A>>]>>] => {
+): [im.Set<string>, im.List<im.List<MatchedSubst<Subst>>>] => {
   const initUsedStyVars: im.Set<string> = im.Set();
-  const initListRSubsts: im.List<im.List<[Subst, im.Set<SubStmt<A>>]>> =
-    im.List();
+  const initListRSubsts: im.List<im.List<MatchedSubst<Subst>>> = im.List();
 
   const [newUsedStyVars, newListRSubsts] = rels.reduce(
     ([usedStyVars, listRSubsts], rel) => {
@@ -1566,6 +1586,29 @@ const makeListRSubstsForStyleRels = (
         rel,
         subProg,
       );
+      // relUsedStyVars contains all variables that have been matched by this relation
+      // relRSubsts is the list of substitutions (and corresponding Substance relations) that this rel matches
+      // Notably, relRSubsts lacks the Decl statements for things in relUsedStyVars.
+
+      // We need to add in the Substance Decl statements for everything in relUsedStyVars.
+      for (const rSubst of relRSubsts) {
+        const { subst, matchedStmts } = rSubst;
+        for (const v of relUsedStyVars) {
+          // find the Substance declaration of v
+          // if v in subst, then we need to look for subst[v];
+          // if v not in subst, then it must be a SubVar. Just directly look for v.
+          const whatToFind = v in subst ? subst[v] : v;
+          const declStmt = subProg.statements.find(
+            (st: CompiledSubStmt<A>) =>
+              st.tag === "Decl" && st.name.value === whatToFind,
+          );
+          if (declStmt === undefined) {
+            throw new Error("xxx");
+          }
+          matchedStmts.push(declStmt);
+        }
+      }
+
       return [usedStyVars.union(relUsedStyVars), listRSubsts.push(relRSubsts)];
     },
     [initUsedStyVars, initListRSubsts],
@@ -1584,7 +1627,7 @@ const makePotentialSubsts = (
   subProg: CompiledSubProg<A>,
   decls: DeclPattern<A>[],
   rels: RelationPattern<A>[],
-): im.List<[Subst, im.Set<SubStmt<A>>]> => {
+): im.List<MatchedSubst<Subst>> => {
   const subTypeMap = subProg.statements.reduce<{ [k: string]: TypeConsApp<A> }>(
     (result, statement) => {
       if (statement.tag === "Decl") {
@@ -1605,15 +1648,13 @@ const makePotentialSubsts = (
     rels,
     subProg,
   );
-  // Add in variables that are not present in the relations.
+  // Add in variable declarations
   const listPSubsts = decls.reduce((currListPSubsts, decl) => {
     if (usedStyVars.includes(decl.id.contents.value)) {
       return currListPSubsts;
     } else {
       const pSubsts = matchDecl(varEnv, subProg, decl);
-      return currListPSubsts.push(
-        pSubsts.map((pSubst) => [pSubst, im.Set<SubStmt<A>>()]),
-      );
+      return currListPSubsts.push(pSubsts);
     }
   }, listRSubsts);
 
@@ -1644,13 +1685,20 @@ const getDecls = (header: Collector<A> | Selector<A>): DeclPattern<A>[] => {
   }
 };
 
+type MatchedSubst<T extends Subst | StySubst> = {
+  // the Subst itself
+  subst: T;
+  // the corresponding Substance stmts of the header under Subst
+  matchedStmts: CompiledSubStmt<A>[];
+};
+
 const getSubsts = (
   varEnv: Env,
   subEnv: SubstanceEnv,
   selEnv: SelEnv,
   subProg: CompiledSubProg<A>,
   header: Collector<A> | Selector<A>,
-): Subst[] => {
+): MatchedSubst<Subst>[] => {
   const decls = getDecls(header);
   const rels = safeContentsList(header.where);
   const rawSubsts = makePotentialSubsts(
@@ -1665,35 +1713,46 @@ const getSubsts = (
 
   // Ensures there are no duplicated substitutions in terms of both
   // matched relations and substitution targets.
-  const filteredSubsts = deduplicate(varEnv, subEnv, subProg, rels, rawSubsts);
+  const filteredSubsts = deduplicate(
+    varEnv,
+    subEnv,
+    subProg,
+    rels,
+    rawSubsts.map((s) => [s.subst, im.Set(s.matchedStmts)]),
+  )
+    .map(([subst, matchedStmts]) => ({
+      subst,
+      matchedStmts: matchedStmts.toArray(),
+    }))
+    .toArray();
   const { repeatable } = header;
 
   // If we want repeatable matchings, this is good
   if (repeatable) {
-    return filteredSubsts.toArray();
+    return filteredSubsts;
   } else {
     // Otherwise need to remove all duplications
-    const correctSubsts = filteredSubsts.filter(uniqueKeysAndVals);
-    return correctSubsts.toArray();
+    return filteredSubsts.filter(({ subst }) => uniqueKeysAndVals(subst));
   }
 };
 
 type GroupbyBucket = {
   groupbySubst: Subst;
   contents: string[];
+  matchedStmts: CompiledSubStmt<A>[];
 };
 
 const collectSubsts = (
-  substs: Subst[],
+  substs: MatchedSubst<Subst>[],
   toCollect: string,
   collectInto: string,
   groupbys: string[],
-): CollectionSubst[] => {
+): MatchedSubst<CollectionSubst>[] => {
   const buckets: Map<string, GroupbyBucket> = new Map();
-
   for (const subst of substs) {
-    const toCollectVal = subst[toCollect];
-    const groupbyVals = groupbys.map((groupby) => subst[groupby]);
+    const contents = subst.subst;
+    const toCollectVal = contents[toCollect];
+    const groupbyVals = groupbys.map((groupby) => contents[groupby]);
 
     const groupbyVals_str = groupbyVals.join(" ");
 
@@ -1703,9 +1762,11 @@ const collectSubsts = (
       buckets.set(groupbyVals_str, {
         groupbySubst: Object.fromEntries(zip2(groupbys, groupbyVals)),
         contents: [toCollectVal],
+        matchedStmts: subst.matchedStmts,
       });
     } else {
       bucket.contents.push(toCollectVal);
+      bucket.matchedStmts.push(...subst.matchedStmts);
     }
   }
 
@@ -1718,7 +1779,11 @@ const collectSubsts = (
       collContent: contents,
     });
   }
-  return collectionSubsts;
+  // TODO: make dependency work with collectors
+  return collectionSubsts.map((s) => ({
+    subst: s,
+    matchedStmts: [],
+  }));
 };
 
 const findSubstsSel = (
@@ -1726,12 +1791,17 @@ const findSubstsSel = (
   subEnv: SubstanceEnv,
   subProg: CompiledSubProg<A>,
   [header, selEnv]: [Header<A>, SelEnv],
-): StySubst[] => {
+): MatchedSubst<StySubst>[] => {
   if (header.tag === "Selector") {
-    return getSubsts(varEnv, subEnv, selEnv, subProg, header).map((subst) => ({
-      tag: "StySubSubst",
-      contents: subst,
-    }));
+    return getSubsts(varEnv, subEnv, selEnv, subProg, header).map(
+      ({ subst, matchedStmts }) => ({
+        matchedStmts,
+        subst: {
+          tag: "StySubSubst",
+          contents: subst,
+        },
+      }),
+    );
   } else if (header.tag === "Collector") {
     const substs = getSubsts(varEnv, subEnv, selEnv, subProg, header);
     const toCollect = header.head.id.contents.value;
@@ -1741,7 +1811,7 @@ const findSubstsSel = (
       : [];
     return collectSubsts(substs, toCollect, collectInto, groupbys);
   } else {
-    return [{ tag: "StySubSubst", contents: {} }];
+    return [{ matchedStmts: [], subst: { tag: "StySubSubst", contents: {} } }];
   }
 };
 
@@ -1850,7 +1920,16 @@ const processExpr = (
     },
     ok(im.Map()),
   );
-  return andThen((props) => ok({ tag: "ShapeSource", shapeType, props }), res);
+  return andThen(
+    (props) =>
+      ok({
+        tag: "ShapeSource",
+        shapeType,
+        props,
+        meta: { causedBy: context.meta.causedBy },
+      }),
+    res,
+  );
 };
 
 const insertExpr = (
@@ -2112,7 +2191,12 @@ const processBlock = (
     return withSelErrors;
   }
 
-  const substs = findSubstsSel(varEnv, subEnv, subEnv.ast, [hb.header, selEnv]);
+  const substs: MatchedSubst<StySubst>[] = findSubstsSel(
+    varEnv,
+    subEnv,
+    subEnv.ast,
+    [hb.header, selEnv],
+  );
   log.debug("Translating block", hb, "with substitutions", substs);
   log.debug("total number of substs", substs.length);
   // OPTIMIZE: maybe we should just compile the block once into something
@@ -2150,11 +2234,25 @@ const processBlock = (
       .push(matchTotalAssignment)
       .concat(hb.block.statements);
 
+    console.log(`Block ${blockIndex} Subst ${substIndex} caused by: `);
+    for (const stmt of subst.matchedStmts) {
+      console.log(`\t${prettyStmt(stmt)}`);
+    }
+
     // Translate each statement in the block
     const { diagnostics, globals, unnamed, substances, locals } =
       augmentedStatements.reduce(
         (assignment, stmt, stmtIndex) =>
-          processStmt({ block, subst }, stmtIndex, stmt, assignment),
+          processStmt(
+            {
+              block,
+              subst: subst.subst,
+              meta: { causedBy: subst.matchedStmts },
+            },
+            stmtIndex,
+            stmt,
+            assignment,
+          ),
         withLocals,
       );
 
@@ -2206,6 +2304,7 @@ export const buildAssignment = (
               context: {
                 block: { tag: "NamespaceId", contents: "" }, // HACK
                 subst: { tag: "StySubSubst", contents: {} },
+                meta: { causedBy: [] },
                 locals: im.Map(),
               },
               expr: {
@@ -2355,7 +2454,12 @@ const gatherExpr = (
   }
 };
 
-const gatherField = (graph: DepGraph, lhs: string, rhs: FieldSource): void => {
+const gatherField = (
+  graph: DepGraph,
+  causedByMap: CausedByMap,
+  lhs: string,
+  rhs: FieldSource,
+): void => {
   switch (rhs.tag) {
     case "ShapeSource": {
       graph.setNode(lhs, rhs.shapeType);
@@ -2364,6 +2468,7 @@ const gatherField = (graph: DepGraph, lhs: string, rhs: FieldSource): void => {
         graph.setEdge({ i: p, j: lhs, e: undefined }, () => undefined);
         gatherExpr(graph, p, expr);
       }
+      causedByMap.set(lhs, rhs.meta.causedBy);
       return;
     }
     case "OtherSource": {
@@ -2373,15 +2478,21 @@ const gatherField = (graph: DepGraph, lhs: string, rhs: FieldSource): void => {
   }
 };
 
-export const gatherDependencies = (assignment: Assignment): DepGraph => {
+// maps a shape (name) to a list of substance statements that "cause" it
+type CausedByMap = Map<string, CompiledSubStmt<A>[]>;
+
+export const gatherDependencies = (
+  assignment: Assignment,
+): [DepGraph, CausedByMap] => {
   const graph = new Graph<
     string,
     ShapeType | WithContext<NotShape> | undefined
   >();
+  const causedByMap: CausedByMap = new Map();
 
   for (const [blockName, fields] of assignment.globals) {
     for (const [fieldName, field] of fields) {
-      gatherField(graph, `${blockName}.${fieldName}`, field);
+      gatherField(graph, causedByMap, `${blockName}.${fieldName}`, field);
     }
   }
 
@@ -2394,17 +2505,22 @@ export const gatherDependencies = (assignment: Assignment): DepGraph => {
         block: { tag: "LocalVarId", contents: [blockIndex, substIndex] },
         members: [],
       };
-      gatherField(graph, prettyPrintResolvedPath(p), field);
+      gatherField(graph, causedByMap, prettyPrintResolvedPath(p), field);
     }
   }
 
   for (const [substanceName, fields] of assignment.substances) {
     for (const [fieldName, field] of fields) {
-      gatherField(graph, `\`${substanceName}\`.${fieldName}`, field);
+      gatherField(
+        graph,
+        causedByMap,
+        `\`${substanceName}\`.${fieldName}`,
+        field,
+      );
     }
   }
 
-  return graph;
+  return [graph, causedByMap];
 };
 
 //#endregion
@@ -3609,6 +3725,7 @@ export const translate = (
   canvas: Canvas,
   stages: OptPipeline,
   graph: DepGraph,
+  causedByMap: CausedByMap,
   warnings: im.List<StyleWarning>,
 ): Translation => {
   let symbols = im.Map<string, ArgVal<ad.Num>>();
@@ -3658,6 +3775,11 @@ export const translate = (
       if (shape.isErr()) {
         trans.diagnostics.errors = trans.diagnostics.errors.push(shape.error);
       } else {
+        const causedBy = causedByMap.get(path);
+        if (causedBy === undefined) {
+          throw new Error("Shape's causedBy is not found");
+        }
+        shape.value.meta.causedBy = causedBy;
         trans.symbols = trans.symbols.set(path, {
           tag: "ShapeVal",
           contents: shape.value,
@@ -3888,6 +4010,7 @@ const onCanvases = (canvas: Canvas, shapes: Shape<ad.Num>[]): Fn[] => {
           context: {
             block: { tag: "NamespaceId", contents: "canvas" }, // doesn't matter
             subst: { tag: "StySubSubst", contents: {} },
+            meta: { causedBy: [] },
             locals: im.Map(),
           },
           expr: {
@@ -4010,7 +4133,7 @@ export const compileStyleHelper = async (
   }
 
   // second pass: construct a dependency graph among those expressions
-  const graph = gatherDependencies(assignment);
+  const [graph, causedByMap] = gatherDependencies(assignment);
 
   const canvas = getCanvasDim("width", graph).andThen((w) =>
     getCanvasDim("height", graph).map((h) => makeCanvas(w, h)),
@@ -4039,6 +4162,7 @@ export const compileStyleHelper = async (
     canvas.value,
     optimizationStages.value,
     graph,
+    causedByMap,
     assignment.diagnostics.warnings,
   );
 
@@ -4088,6 +4212,8 @@ export const compileStyleHelper = async (
     groupGraph,
     nameShapeMap,
   );
+
+  console.log(renderGraph);
 
   const objFns = [...translation.objectives];
 

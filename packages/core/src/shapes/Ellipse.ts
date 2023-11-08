@@ -49,4 +49,5 @@ export const makeEllipse = (
   ...properties,
   shapeType: "Ellipse",
   passthrough: new Map(),
+  meta: { causedBy: [] },
 });
