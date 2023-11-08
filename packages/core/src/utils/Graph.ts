@@ -1,3 +1,5 @@
+import { unwrap } from "./Util.js";
+
 // `i` and `I` stand for "index" or "ID", since we use them for node keys
 
 /** internal: half of an edge, where direction and one node are implicit */
@@ -33,9 +35,7 @@ export default class Graph<I, L = undefined, E = undefined> {
   private g = new Map<I, Vert<I, L, E>>();
 
   private get(i: I): Vert<I, L, E> {
-    const v = this.g.get(i);
-    if (v === undefined) throw Error(`node ID not found: ${i}`);
-    return v;
+    return unwrap(this.g.get(i), () => `node ID not found: ${i}`);
   }
 
   /** set `i`'s label to `l`, adding `i` to the graph if not already present */
