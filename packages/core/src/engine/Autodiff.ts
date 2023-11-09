@@ -1082,7 +1082,8 @@ export const problem = async (desc: ad.Description): Promise<ad.Problem> => {
 
   const indices = new Map<ad.Var, number>();
   for (const x of grads.keys()) {
-    if (typeof x !== "number" && x.tag === "Var") indices.set(x, indices.size);
+    if (typeof x !== "number" && x.tag === "Var" && x !== lambda)
+      indices.set(x, indices.size);
   }
   const n = indices.size;
 
@@ -1095,6 +1096,7 @@ export const problem = async (desc: ad.Description): Promise<ad.Problem> => {
   for (const [x, i] of indices)
     code.push(`dx[${i}]+=${vars.get(grads.get(x)!)}`);
   code.push(`return ${vars.get(y)}`);
+  console.log(code.join("\n"));
   const f = new Function("builtins", "x", "weight", "dx", code.join("\n"));
 
   return {
