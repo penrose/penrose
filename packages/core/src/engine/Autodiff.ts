@@ -2,7 +2,7 @@ import consola from "consola";
 import _ from "lodash";
 import { EigenvalueDecomposition, Matrix } from "ml-matrix";
 import * as ad from "../types/ad.js";
-import { safe, topsort, zip2 } from "../utils/Util.js";
+import { topsort, unwrap, zip2 } from "../utils/Util.js";
 import * as wasm from "../utils/Wasm.js";
 import {
   absVal,
@@ -904,7 +904,7 @@ const getParamIndex = (sig: Signature, name: string): number =>
 const builtindex = new Map([...builtins.keys()].map((name, i) => [name, i]));
 
 const getBuiltindex = (name: string): number =>
-  safe(builtindex.get(name), "unknown builtin");
+  unwrap(builtindex.get(name), () => `unknown builtin: ${name}`);
 
 const typeSection = (t: wasm.Target): void => {
   t.int(Object.keys(funcTypes).length);
@@ -1323,7 +1323,7 @@ interface Locals {
 const numAddendParams = Object.keys(funcTypes.addend.param).length;
 
 const getIndex = (locals: Locals, node: ad.Expr): number => {
-  const local = safe(locals.indices.get(node), "missing local");
+  const local = unwrap(locals.indices.get(node), () => "missing local");
   return (
     numAddendParams +
     (local.typename === "i32" ? 0 : locals.counts.i32) +
@@ -1381,7 +1381,7 @@ const compileGraph = (
   }
 
   for (const [x, grad] of grads) {
-    const i = safe(inputs.get(x), "input not found");
+    const i = unwrap(inputs.get(x), () => "input not found");
 
     t.byte(wasm.OP.local.get);
     t.int(getParamIndex(funcTypes.addend, "gradient"));
@@ -1710,7 +1710,8 @@ export const genGradient = async (
 
   const indices = new Map(inputs.map((x, i) => [x, i]));
   indices.set(lambda, n);
-  const getKey = (x: ad.Var): number => safe(indices.get(x), "missing input");
+  const getKey = (x: ad.Var): number =>
+    unwrap(indices.get(x), () => "missing input");
 
   const objs = objectives.map((x, i) => {
     const secondary = [];

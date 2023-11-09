@@ -169,6 +169,7 @@ import {
   shapeListV,
   strV,
   tupV,
+  unwrap,
   val,
   vectorV,
   zip2,
@@ -573,10 +574,10 @@ const mergeMapping = (
   varEnv: Env,
   [varName, styType]: [string, StyT<A>],
 ): Env => {
-  const res = varProgTypeMap[varName];
-  if (!res) {
-    throw Error("var has no binding form?");
-  }
+  const res = unwrap(
+    varProgTypeMap[varName],
+    () => `var has no binding form: ${varName}`,
+  );
   const [, bindingForm] = res;
   const vars = varEnv.vars.set(
     bindingForm.contents.value,

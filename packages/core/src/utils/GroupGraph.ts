@@ -1,7 +1,7 @@
 import { Shape } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
 import Graph from "./Graph.js";
-import { shapeListV } from "./Util.js";
+import { shapeListV, unwrap } from "./Util.js";
 
 export type GroupGraph = Graph<string, number>; // shape name and index
 
@@ -76,10 +76,10 @@ export const buildRenderGraphNode = (
   groupGraph: GroupGraph,
   nameShapeMap: Map<string, Shape<ad.Num>>,
 ): RenderGraphNode => {
-  const shape = nameShapeMap.get(name);
-  if (!shape) {
-    throw new Error("Cannot find shape name in name-shape map");
-  }
+  const shape = unwrap(
+    nameShapeMap.get(name),
+    () => `Cannot find shape name in name-shape map: ${name}`,
+  );
 
   // If shape is non-group, return it as the node.
 
