@@ -1,4 +1,4 @@
-import * as tf from "@tensorflow/tfjs-node";
+import * as tf from "@tensorflow/tfjs";
 import consola from "consola";
 import _ from "lodash";
 import { EigenvalueDecomposition, Matrix } from "ml-matrix";

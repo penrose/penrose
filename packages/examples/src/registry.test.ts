@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { compile, optimize, showError, toSVG } from "@penrose/core";
-import * as tf from "@tensorflow/tfjs-node";
+import * as tf from "@tensorflow/tfjs";
 import * as fs from "fs/promises";
 import rawFetch, { RequestInit, Response } from "node-fetch";
 import * as path from "path";
