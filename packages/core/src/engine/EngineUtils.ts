@@ -56,7 +56,7 @@ import {
   Value,
   VectorV,
 } from "../types/value.js";
-import { safe } from "../utils/Util.js";
+import { unwrap } from "../utils/Util.js";
 import { compile } from "./Autodiff.js";
 
 // TODO: Is there a way to write these mapping/conversion functions with less boilerplate?
@@ -507,9 +507,11 @@ export const compileCompGraph = async (
   const m = new Map(vars.map((x, i) => [x, i]));
   const evalFn = await compile(vars);
   return (xs: number[]): Shape<number>[] => {
-    const numbers = evalFn((x) => xs[safe(indices.get(x), "input not found")]);
+    const numbers = evalFn(
+      (x) => xs[unwrap(indices.get(x), () => "input not found")],
+    );
     return shapes.map((s: Shape<ad.Num>) =>
-      mapShape((x) => numbers[safe(m.get(x), "missing output")], s),
+      mapShape((x) => numbers[unwrap(m.get(x), () => "missing output")], s),
     );
   };
 };

@@ -79,16 +79,14 @@ export const combinations2 = <T>(list: T[]): [T, T][] =>
   }, []);
 
 /**
- * Safe wrapper for any function that might return `undefined`.
- * @borrows https://stackoverflow.com/questions/54738221/typescript-array-find-possibly-undefind
- * @param argument Possible unsafe function call
- * @param message Error message
+ * Throws if `x === undefined`.
+ * @returns `x`
+ * @param f called if `x === undefined`, to produce error message
  */
-export const safe = <T>(argument: T | undefined, message: string): T => {
-  if (argument === undefined) {
-    throw new TypeError(message);
-  }
-  return argument;
+export const unwrap = <T>(x: T | undefined, f?: () => string): T => {
+  if (x === undefined)
+    throw Error((f ?? (() => "called `unwrap` with `undefined`"))());
+  return x;
 };
 
 // Repeat `x`, `i` times

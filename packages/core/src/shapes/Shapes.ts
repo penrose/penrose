@@ -1,6 +1,7 @@
 import * as ad from "../engine/Autodiff.js";
 import { add, div, maxN, minN, sub } from "../engine/Autodiff.js";
 import * as BBox from "../engine/BBox.js";
+import { unwrap } from "../utils/Util.js";
 import { Circle, CircleProps, sampleCircle } from "./Circle.js";
 import { Ellipse, EllipseProps, sampleEllipse } from "./Ellipse.js";
 import { Equation, EquationProps, sampleEquation } from "./Equation.js";
@@ -132,11 +133,11 @@ export const sampleShape = (
   context: Context,
   canvas: Canvas,
 ): ShapeProps<ad.Num> => {
-  const sampler = shapeSampler.get(shapeType);
-  if (sampler) {
-    return sampler(context, canvas);
-  }
-  throw new Error("shapeType not in sampler");
+  const sampler = unwrap(
+    shapeSampler.get(shapeType),
+    () => `shapeType not in sampler: ${shapeType}`,
+  );
+  return sampler(context, canvas);
 };
 
 // TODO: don't use a type predicate for this
