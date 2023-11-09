@@ -13,7 +13,7 @@ import { PenroseError } from "../types/errors.js";
 import { EquationData, LabelCache, State, TextData } from "../types/state.js";
 import { FloatV } from "../types/value.js";
 import { Result, err, ok } from "./Error.js";
-import { getAdValueAsString, getValueAsShapeList, safe } from "./Util.js";
+import { getAdValueAsString, getValueAsShapeList, unwrap } from "./Util.js";
 
 export const mathjaxInit = (): ((
   input: string,
@@ -351,7 +351,10 @@ const setPendingProperty = (
   after: FloatV<number>,
 ) => {
   if (typeof before.contents !== "number" && before.contents.tag === "Var") {
-    const { index, meta } = safe(inputs.get(before.contents), "missing input");
+    const { index, meta } = unwrap(
+      inputs.get(before.contents),
+      () => "missing input",
+    );
     if (meta.init.tag === "Pending") xs[index] = after.contents;
   }
 };
@@ -367,7 +370,10 @@ const insertPendingHelper = (
       const subShapes = getValueAsShapeList(s.shapes);
       insertPendingHelper(subShapes, xs, labelCache, inputs);
     } else if (s.shapeType === "Equation") {
-      const labelData = safe(labelCache.get(s.name.contents), "missing label");
+      const labelData = unwrap(
+        labelCache.get(s.name.contents),
+        () => `missing label: ${s.name.contents}`,
+      );
       if (labelData.tag !== "EquationData")
         throw Error(
           `for ${s.shapeType} ${s.name.contents} got unexpected ${labelData.tag}`,
@@ -377,7 +383,10 @@ const insertPendingHelper = (
       setPendingProperty(xs, inputs, s.ascent, labelData.ascent);
       setPendingProperty(xs, inputs, s.descent, labelData.descent);
     } else if (s.shapeType === "Text") {
-      const labelData = safe(labelCache.get(s.name.contents), "missing label");
+      const labelData = unwrap(
+        labelCache.get(s.name.contents),
+        () => `missing label: ${s.name.contents}`,
+      );
       if (labelData.tag !== "TextData")
         throw Error(
           `for ${s.shapeType} ${s.name.contents} got unexpected ${labelData.tag}`,
