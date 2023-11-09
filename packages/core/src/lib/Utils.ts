@@ -208,7 +208,7 @@ export const closestPt_PtSeg = (
 
 /**
  * Get numerical values of nodes in the computation graph. This function calls
- * `interp` to construct and evaluate a partial computation graph.
+ * `compile` to construct and evaluate a partial computation graph.
  *
  * @param xs nodes in the computation graph
  * @returns a list of `number`s corresponding to nodes in `xs`
