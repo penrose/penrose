@@ -22,7 +22,7 @@ import {
   ok,
   showError,
 } from "./utils/Error.js";
-import { safe } from "./utils/Util.js";
+import { unwrap } from "./utils/Util.js";
 
 /**
  * Use the current resample seed to sample all shapes in the State.
@@ -53,7 +53,10 @@ export const step = (
 ): Result<State, PenroseError> => {
   const { constraintSets, optStages, currentStageIndex } = state;
   const stage = optStages[currentStageIndex];
-  const masks = safe(constraintSets.get(stage), "missing stage");
+  const masks = unwrap(
+    constraintSets.get(stage),
+    () => `missing stage: ${stage}`,
+  );
   const xs = new Float64Array(state.varyingValues);
   const params = stepUntil(
     (x: Float64Array, weight: number, grad: Float64Array): number =>
@@ -312,7 +315,10 @@ export const finalStage = (state: State): boolean =>
 const evalGrad = (s: State): ad.OptOutputs => {
   const { constraintSets, optStages, currentStageIndex } = s;
   const stage = optStages[currentStageIndex];
-  const masks = safe(constraintSets.get(stage), "missing stage");
+  const masks = unwrap(
+    constraintSets.get(stage),
+    () => `missing stage: ${stage}`,
+  );
   const inputs = new Float64Array(s.varyingValues);
   const grad = new Float64Array(inputs.length);
   return s.gradient(masks, inputs, s.params.weight, grad);

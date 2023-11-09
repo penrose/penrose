@@ -18,7 +18,7 @@ import {
   sub,
 } from "../engine/AutodiffFunctions.js";
 import * as ad from "../types/ad.js";
-import { safe } from "../utils/Util.js";
+import { unwrap } from "../utils/Util.js";
 import {
   ImplicitEllipse,
   ImplicitHalfPlane,
@@ -156,9 +156,10 @@ export const convexPartitions = (p: ad.Num[][]): ad.Num[][][] => {
 
   return convexPolygons.map((poly) =>
     poly.map((point) =>
-      safe(
+      unwrap(
         pointMap.get(point),
-        "polygon decomposition unexpectedly created a new point",
+        () =>
+          `polygon decomposition unexpectedly created a new point { x: ${point.x}, y: ${point.y} }`,
       ),
     ),
   );
