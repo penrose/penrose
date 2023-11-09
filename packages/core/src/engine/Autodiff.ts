@@ -1096,7 +1096,6 @@ export const problem = async (desc: ad.Description): Promise<ad.Problem> => {
   for (const [x, i] of indices)
     code.push(`dx[${i}]+=${vars.get(grads.get(x)!)}`);
   code.push(`return ${vars.get(y)}`);
-  console.log(code.join("\n"));
   const f = new Function("builtins", "x", "weight", "dx", code.join("\n"));
 
   return {
