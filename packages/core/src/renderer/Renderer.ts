@@ -141,7 +141,7 @@ export const toSVG = async (
   const MaxY = maxN(bboxs.map((bbox) => maxY(bbox)));
   const viewBoxRanges = [MinX, MinY, MaxX, MaxY];
 
-  const [mx, my, Mx, My] = (await compile(viewBoxRanges))((x) => x.val);
+  const [mx, my, Mx, My] = compile(viewBoxRanges)((x) => x.val);
 
   // toScreen flips the y-axis and therefore the max will become min
   const [mxt, myt] = toScreen([mx, my], [canvas.width, canvas.height]);

@@ -3969,22 +3969,20 @@ const processPassthrough = (
   return ok(undefined);
 };
 
-export const compileStyleHelper = async (
+export const compileStyleHelper = (
   variation: string,
   stySource: string,
   subEnv: SubstanceEnv,
   varEnv: Env,
-): Promise<
-  Result<
-    {
-      state: State;
-      translation: Translation;
-      assignment: Assignment;
-      styleAST: StyProg<C>;
-      graph: DepGraph;
-    },
-    PenroseError
-  >
+): Result<
+  {
+    state: State;
+    translation: Translation;
+    assignment: Assignment;
+    styleAST: StyProg<C>;
+    graph: DepGraph;
+  },
+  PenroseError
 > => {
   const astOk = parseStyle(stySource);
   let styProg;
@@ -4104,9 +4102,9 @@ export const compileStyleHelper = async (
     optimizationStages.value,
   );
 
-  const computeShapes = await compileCompGraph(inputs, renderGraph);
+  const computeShapes = compileCompGraph(inputs, renderGraph);
 
-  const gradient = await genGradient(
+  const gradient = genGradient(
     inputs,
     objFns.map(({ output }) => output),
     constrFns.map(({ output }) => output),
@@ -4144,20 +4142,18 @@ export const compileStyleHelper = async (
   });
 };
 
-export const compileStyle = async (
+export const compileStyle = (
   variation: string,
   stySource: string,
   excludeWarnings: string[],
   subEnv: SubstanceEnv,
   varEnv: Env,
-): Promise<Result<State, PenroseError>> =>
-  (await compileStyleHelper(variation, stySource, subEnv, varEnv)).map(
-    ({ state }) => ({
-      ...state,
-      warnings: state.warnings.filter(
-        (warning) => !excludeWarnings.includes(warning.tag),
-      ),
-    }),
-  );
+): Result<State, PenroseError> =>
+  compileStyleHelper(variation, stySource, subEnv, varEnv).map(({ state }) => ({
+    ...state,
+    warnings: state.warnings.filter(
+      (warning) => !excludeWarnings.includes(warning.tag),
+    ),
+  }));
 
 //#endregion Main funcitons

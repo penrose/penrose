@@ -490,10 +490,10 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
   }
 }
 
-export const compileCompGraph = async (
+export const compileCompGraph = (
   inputs: ad.Var[],
   shapes: Shape<ad.Num>[],
-): Promise<ShapeFn> => {
+): ShapeFn => {
   const indices = new Map(inputs.map((x, i) => [x, i]));
   const vars: ad.Num[] = [];
   for (const s of shapes) {
@@ -505,7 +505,7 @@ export const compileCompGraph = async (
     }, s);
   }
   const m = new Map(vars.map((x, i) => [x, i]));
-  const evalFn = await compile(vars);
+  const evalFn = compile(vars);
   return (xs: number[]): Shape<number>[] => {
     const numbers = evalFn(
       (x) => xs[unwrap(indices.get(x), () => "input not found")],

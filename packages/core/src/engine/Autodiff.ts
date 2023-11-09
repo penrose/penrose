@@ -3,10 +3,12 @@ import consola from "consola";
 import _ from "lodash";
 import { EigenvalueDecomposition, Matrix } from "ml-matrix";
 import * as ad from "../types/ad.js";
+import { topsort, unwrap } from "../utils/Util.js";
 import {
   absVal,
   acos,
   add,
+  addN,
   atan2,
   cos,
   div,
@@ -562,314 +564,237 @@ export const polyRootsImpl = (v: Float64Array): void => {
   }
 };
 
-interface Node {
-  indegree?: number;
-  successors: ad.Expr[];
-}
-
-interface Topsort {
-  sorted: ad.Expr[];
-  nodes: Map<ad.Expr, Node>;
-}
-
-const topsort = (seed: (set: (x: ad.Expr) => void) => void): Topsort => {
-  const nodes = new Map<ad.Expr, Node>();
-  const sorted: ad.Expr[] = [];
-
-  const stack: ad.Expr[] = [];
-  const set = (x: ad.Expr): Node => {
-    let node = nodes.get(x);
-    if (node === undefined) {
-      stack.push(x);
-      node = { successors: [] };
-      nodes.set(x, node);
+function* predsExpr(x: ad.Expr): Generator<ad.Expr, void, undefined> {
+  if (typeof x === "number") return;
+  switch (x.tag) {
+    case "Var":
+      return;
+    case "Not":
+    case "Unary":
+      yield x.param;
+      return;
+    case "Binary":
+    case "Comp":
+    case "Logic": {
+      yield x.left;
+      yield x.right;
+      return;
     }
-    return node;
-  };
-  seed((x) => {
-    set(x);
-  });
-  const make = (x: ad.Expr): number => {
-    const succ = (y: ad.Expr): void => {
-      set(y).successors.push(x);
-    };
-    if (typeof x === "number") return 0;
-    switch (x.tag) {
-      case "Var":
-        return 0;
-      case "Not":
-      case "Unary": {
-        succ(x.param);
-        return 1;
-      }
-      case "Binary":
-      case "Comp":
-      case "Logic": {
-        succ(x.left);
-        succ(x.right);
-        return 2;
-      }
-      case "Ternary": {
-        succ(x.cond);
-        succ(x.then);
-        succ(x.els);
-        return 3;
-      }
-      case "Nary": {
-        x.params.forEach(succ);
-        return x.params.length;
-      }
-      case "PolyRoots": {
-        x.coeffs.forEach(succ);
-        return x.coeffs.length;
-      }
-      case "Index": {
-        succ(x.vec);
-        return 1;
-      }
+    case "Ternary": {
+      yield x.cond;
+      yield x.then;
+      yield x.els;
+      return;
     }
-  };
-  while (stack.length > 0) {
-    const x = stack.pop()!;
-    const node = nodes.get(x)!;
-    const n = node.indegree ?? make(x);
-    node.indegree = n;
-    if (n === 0) sorted.push(x);
+    case "Nary": {
+      yield* x.params;
+      return;
+    }
+    case "PolyRoots": {
+      yield* x.coeffs;
+      return;
+    }
+    case "Index": {
+      yield x.vec;
+      return;
+    }
   }
+}
 
-  return { nodes, sorted };
+const emitUnary = (
+  name: (x: ad.Expr) => string,
+  { unop, param }: ad.Unary,
+): string => {
+  const x = name(param);
+  switch (unop) {
+    case "squared":
+      return `${x}.square()`;
+    case "inverse":
+      return `${x}.reciprocal()`;
+    case "cbrt":
+      return `${x}.pow(1 / 3)`;
+    case "log2":
+      return `${x}.log().div(Math.log(2))`;
+    case "log10":
+      return `${x}.log().div(Math.log(10))`;
+    case "neg":
+    case "sqrt":
+    case "abs":
+    case "acosh":
+    case "acos":
+    case "asin":
+    case "asinh":
+    case "atan":
+    case "atanh":
+    case "ceil":
+    case "cos":
+    case "cosh":
+    case "exp":
+    case "expm1":
+    case "floor":
+    case "log":
+    case "log1p":
+    case "round":
+    case "sign":
+    case "sin":
+    case "sinh":
+    case "tan":
+    case "tanh":
+      return `${x}.${unop}()`;
+    case "trunc":
+      throw Error("trunc not supported");
+  }
 };
 
+const emitBinary = (
+  name: (x: ad.Expr) => string,
+  { binop, left, right }: ad.Binary,
+): string => {
+  const x = name(left);
+  const y = name(right);
+  switch (binop) {
+    case "+":
+      return `${x}.add(${y})`;
+    case "*":
+      return `${x}.mul(${y})`;
+    case "-":
+      return `${x}.sub(${y})`;
+    case "/":
+      return `${x}.div(${y})`;
+    case "max":
+      return `${x}.maximum(${y})`;
+    case "min":
+      return `${x}.minimum(${y})`;
+    case "atan2":
+      return `${x}.atan2(${y})`;
+    case "pow":
+      return `${x}.pow(${y})`;
+  }
+};
+
+const emitComp = (
+  name: (x: ad.Expr) => string,
+  { binop, left, right }: ad.Comp,
+): string => {
+  const x = name(left);
+  const y = name(right);
+  switch (binop) {
+    case ">":
+      return `${x}.greater(${y})`;
+    case "<":
+      return `${x}.less(${y})`;
+    case "===":
+      return `${x}.equal(${y})`;
+    case ">=":
+      return `${x}.greaterEqual(${y})`;
+    case "<=":
+      return `${x}.lessEqual(${y})`;
+  }
+};
+
+const emitLogic = (
+  name: (x: ad.Expr) => string,
+  { binop, left, right }: ad.Logic,
+): string => {
+  const p = name(left);
+  const q = name(right);
+  switch (binop) {
+    case "&&":
+      return `${p}.logicalAnd(${q})`;
+    case "||":
+      return `${p}.logicalOr(${q})`;
+    case "!==":
+      return `${p}.logicalXor(${q})`;
+  }
+};
+
+const emitNary = (
+  name: (x: ad.Expr) => string,
+  { op, params }: ad.Nary,
+): string => {
+  const xs = params.map(name).join(", ");
+  switch (op) {
+    case "addN":
+      return xs.length === 0 ? "tf.scalar(0)" : `tf.addN([${xs}])`;
+    case "maxN":
+      return `tf.max(tf.stack([${xs}]))`;
+    case "minN":
+      return `tf.min(tf.stack([${xs}]))`;
+  }
+};
+
+const emitExpr = (
+  name: (x: ad.Expr) => string,
+  varCode: (x: ad.Var) => string,
+  x: ad.Expr,
+): string => {
+  if (typeof x === "number") return `tf.scalar(${x})`;
+  switch (x.tag) {
+    case "Var":
+      return varCode(x);
+    case "Not":
+      return `${name(x.param)}.logicalNot()`;
+    case "Unary":
+      return emitUnary(name, x);
+    case "Binary":
+      return emitBinary(name, x);
+    case "Comp":
+      return emitComp(name, x);
+    case "Logic":
+      return emitLogic(name, x);
+    case "Ternary":
+      return `tf.where(${name(x.cond)}, ${name(x.then)}, ${name(x.els)})`;
+    case "Nary":
+      return emitNary(name, x);
+    case "PolyRoots":
+      throw Error("polynomial roots not supported");
+    case "Index":
+      return `${name(x.vec)}[${x.index}]`;
+  }
+};
+
+/**
+ * This function assumes all variable names starting with `_` to be available.
+ */
 const emitGraph = (
-  { sorted, nodes }: Topsort,
-  inputs: Map<ad.Var, number>,
-): { vars: Map<ad.Expr, number>; code: string[] } => {
-  const vars = new Map<ad.Expr, number>();
-  const emitUnary = (y: ad.Unary): string => {
-    const x = vars.get(y.param)!;
-    switch (y.unop) {
-      case "neg":
-        return `x${x}.neg()`;
-      case "squared":
-        return `x${x}.square()`;
-      case "sqrt":
-        return `x${x}.sqrt()`;
-      case "inverse":
-        return `x${x}.reciprocal()`;
-      case "abs":
-        return `x${x}.abs()`;
-      case "acosh":
-        return `x${x}.acosh()`;
-      case "acos":
-        return `x${x}.acos()`;
-      case "asin":
-        return `x${x}.asin()`;
-      case "asinh":
-        return `x${x}.asinh()`;
-      case "atan":
-        return `x${x}.atan()`;
-      case "atanh":
-        return `x${x}.atanh()`;
-      case "cbrt":
-        return `x${x}.pow(1 / 3)`;
-      case "ceil":
-        return `x${x}.ceil()`;
-      case "cos":
-        return `x${x}.cos()`;
-      case "cosh":
-        return `x${x}.cosh()`;
-      case "exp":
-        return `x${x}.exp()`;
-      case "expm1":
-        return `x${x}.expm1()`;
-      case "floor":
-        return `x${x}.floor()`;
-      case "log":
-        return `x${x}.log()`;
-      case "log2":
-        return `x${x}.log().div(Math.log(2))`;
-      case "log10":
-        return `x${x}.log().div(Math.log(10))`;
-      case "log1p":
-        return `x${x}.log1p()`;
-      case "round":
-        throw `x${x}.round()`;
-      case "sign":
-        return `x${x}.sign()`;
-      case "sin":
-        return `x${x}.sin()`;
-      case "sinh":
-        return `x${x}.sinh()`;
-      case "tan":
-        return `x${x}.tan()`;
-      case "tanh":
-        return `x${x}.tanh()`;
-      case "trunc":
-        throw Error("trunc not supported");
-    }
-  };
-  const emitBinary = (z: ad.Binary): string => {
-    const x = vars.get(z.left)!;
-    const y = vars.get(z.right)!;
-    switch (z.binop) {
-      case "+":
-        return `x${x}.add(x${y})`;
-      case "*":
-        return `x${x}.mul(x${y})`;
-      case "-":
-        return `x${x}.sub(x${y})`;
-      case "/":
-        return `x${x}.div(x${y})`;
-      case "max":
-        return `x${x}.maximum(x${y})`;
-      case "min":
-        return `x${x}.minimum(x${y})`;
-      case "atan2":
-        return `x${x}.atan2(x${y})`;
-      case "pow":
-        return `x${x}.pow(x${y})`;
-    }
-  };
-  const emitComp = (z: ad.Comp): string => {
-    const x = vars.get(z.left)!;
-    const y = vars.get(z.right)!;
-    switch (z.binop) {
-      case ">":
-        return `x${x}.greater(x${y})`;
-      case "<":
-        return `x${x}.less(x${y})`;
-      case "===":
-        return `x${x}.equal(x${y})`;
-      case ">=":
-        return `x${x}.greaterEqual(x${y})`;
-      case "<=":
-        return `x${x}.lessEqual(x${y})`;
-    }
-  };
-  const emitLogic = (r: ad.Logic): string => {
-    const p = vars.get(r.left)!;
-    const q = vars.get(r.right)!;
-    switch (r.binop) {
-      case "&&":
-        return `x${p}.logicalAnd(x${q})`;
-      case "||":
-        return `x${p}.logicalOr(x${q})`;
-      case "!==":
-        return `x${p}.logicalXor(x${q})`;
-    }
-  };
-  const emitNary = (y: ad.Nary): string => {
-    const xs = y.params.map((x) => `x${vars.get(x)!}`).join(", ");
-    switch (y.op) {
-      case "addN":
-        return xs.length === 0 ? "tf.scalar(0)" : `tf.addN([${xs}])`;
-      case "maxN":
-        return `tf.max(tf.stack([${xs}]))`;
-      case "minN":
-        return `tf.min(tf.stack([${xs}]))`;
-    }
-  };
-  const emit = (x: ad.Expr): string => {
-    if (typeof x === "number") return `tf.scalar(${x})`;
-    switch (x.tag) {
-      case "Var":
-        return `inputs[${inputs.get(x)!}]`;
-      case "Not":
-        return `x${vars.get(x.param)!}.logicalNot()`;
-      case "Unary":
-        return emitUnary(x);
-      case "Binary":
-        return emitBinary(x);
-      case "Comp":
-        return emitComp(x);
-      case "Logic":
-        return emitLogic(x);
-      case "Ternary":
-        return `tf.where(x${vars.get(x.cond)!}, x${vars.get(
-          x.then,
-        )!}, x${vars.get(x.els)!})`;
-      case "Nary":
-        return emitNary(x);
-      case "PolyRoots":
-        throw Error("polynomial roots not supported");
-      case "Index":
-        return `x${vars.get(x.vec)!}[${x.index}]`;
-    }
-  };
+  varCode: (x: ad.Var) => string,
+  xs: ad.Expr[],
+): { vars: Map<ad.Expr, string>; code: string[] } => {
   const code: string[] = [];
-  for (let i = 0; i < sorted.length; i++) {
-    const x = sorted[i];
-    code.push(`const x${i} = ${emit(x)};`);
-    vars.set(x, i);
-    for (const y of nodes.get(x)!.successors) {
-      const node = nodes.get(y)!;
-      const n = node.indegree!;
-      if (n === 1) sorted.push(y);
-      node.indegree = n - 1;
-    }
+  const vars = new Map<ad.Expr, string>();
+  for (const x of xs) {
+    const lhs = `_${vars.size}`;
+    const rhs = emitExpr((y) => unwrap(vars.get(y)), varCode, x);
+    code.push(`const ${lhs} = ${rhs};`);
+    vars.set(x, lhs);
   }
   return { vars, code };
 };
 
 /** Generate an energy function from the current state (using `Num`s only) */
-export const genGradient = async (
+export const genGradient = (
   inputs: ad.Var[],
   objectives: ad.Num[],
   constraints: ad.Num[],
-): Promise<ad.Gradient> => {
+): ad.Gradient => {
   const n = inputs.length;
   const o = objectives.length;
   const c = constraints.length;
 
-  const inputsMap = new Map<ad.Var, number>(inputs.map((x, i) => [x, i]));
+  const indices = new Map<ad.Var, number>(inputs.map((x, i) => [x, i]));
 
-  const single = (x: ad.Num) => {
-    const graph = topsort((set) => {
-      set(x);
-    });
-    const { code, vars } = emitGraph(graph, inputsMap);
-    const ret = vars.get(x)!;
-    const f = new Function(
-      "tf",
-      "inputs",
-      `${code.join("\n")}\nreturn x${ret};`,
-    );
-    return (xs: tf.Scalar[]): tf.Scalar => f(tf, xs);
+  const single = (f: (x: ad.Num) => ad.Num, y: ad.Num) => {
+    const z = f(y);
+    const sorted = topsort(predsExpr, [y, z]);
+    const varCode = (x: ad.Var) => `x[${indices.get(x)}]`;
+    const { vars, code } = emitGraph(varCode, sorted);
+    code.push(`return { y: ${vars.get(y)}, z: ${vars.get(z)} };`);
+    const g = new Function("tf", "x", code.join("\n"));
+    return (x: tf.Tensor[]): { y: tf.Scalar; z: tf.Scalar } => g(tf, x);
   };
 
-  const objFns = objectives.map(single);
-  const constrFns = constraints.map(single);
-
-  const full = (
-    varying: tf.Scalar[],
-    weight: number,
-    objMask: boolean[],
-    constrMask: boolean[],
-  ): {
-    phi: tf.Scalar;
-    objectives: tf.Scalar[];
-    constraints: tf.Scalar[];
-  } => {
-    const objectives = objFns.map((f) => f(varying));
-    const constraints = constrFns.map((f) => f(varying));
-    return {
-      phi: (o === 0
-        ? tf.scalar(0)
-        : tf.addN(objectives.map((x, i) => (objMask[i] ? x : 0)))
-      ).add(
-        (c === 0
-          ? tf.scalar(0)
-          : tf.addN(
-              constraints.map((x, i) =>
-                constrMask[i] ? x.relu().square() : 0,
-              ),
-            )
-        ).mul(weight),
-      ),
-      objectives,
-      constraints,
-    };
-  };
+  const objFns = objectives.map((x) => single((y) => y, x));
+  const constrFns = constraints.map((x) => single(fns.toPenalty, x));
 
   return (
     { inputMask, objMask, constrMask }: ad.Masks,
@@ -897,19 +822,33 @@ export const genGradient = async (
       );
 
     let phi: number = 0;
-    let objectives: number[] = [];
-    let constraints: number[] = [];
+    let objs: number[] = [];
+    let constrs: number[] = [];
     tf.tidy(() => {
       const wrapped = tf.grads((...varying: tf.Tensor[]) => {
-        const out = full(varying as tf.Scalar[], weight, objMask, constrMask);
-        phi = out.phi.arraySync();
-        objectives = objMask.map((p, i) =>
-          p ? out.objectives[i].arraySync() : 0,
-        );
-        constraints = constrMask.map((p, i) =>
-          p ? out.constraints[i].arraySync() : 0,
-        );
-        return out.phi.add(n === 0 ? 0 : tf.addN(varying).mul(0));
+        let obj = tf.scalar(0);
+        objs = objFns.map((f, i) => {
+          if (objMask[i]) {
+            const { y, z } = f(varying);
+            obj = obj.add(z);
+            return y.arraySync();
+          } else return 0;
+        });
+
+        let constr = tf.scalar(0);
+        constrs = constrFns.map((f, i) => {
+          if (constrMask[i]) {
+            const { y, z } = f(varying);
+            constr = constr.add(z);
+            return y.arraySync();
+          } else return 0;
+        });
+
+        const tfPhi: tf.Scalar = obj.add(constr.mul(weight));
+        phi = tfPhi.arraySync();
+        // every input needs to be reachable from the loss, because otherwise
+        // TensorFlow.js complains for some reason
+        return tfPhi.add(n === 0 ? 0 : tf.addN(varying).mul(0));
       });
       const gradient = wrapped(
         Array.from(inputs).map((x) => tf.scalar(x)),
@@ -917,7 +856,7 @@ export const genGradient = async (
       for (let i = 0; i < n; i++)
         grad[i] = inputMask[i] ? gradient[i].arraySync() : 0;
     });
-    return { phi, objectives, constraints };
+    return { phi, objectives: objs, constraints: constrs };
   };
 };
 
@@ -927,42 +866,23 @@ const isConverged = (params: Params): boolean =>
 export const problem = async (desc: ad.Description): Promise<ad.Problem> => {
   const obj = desc.objective ?? 0;
   const constrs = desc.constraints ?? [];
-  const graph = topsort((set) => {
-    set(obj);
-    constrs.forEach(set);
-  });
-  const inputs: ad.Var[] = [];
-  const inputsMap = new Map<ad.Var, number>();
-  for (const x of graph.sorted) {
-    if (typeof x !== "number" && x.tag === "Var") {
-      inputsMap.set(x, inputs.length);
-      inputs.push(x);
-    }
+
+  const lambda = variable(0);
+  const y = add(obj, mul(lambda, addN(constrs.map(fns.toPenalty))));
+
+  const sorted = topsort(predsExpr, [y]);
+  const indices = new Map<ad.Var, number>();
+  for (const x of sorted) {
+    if (typeof x !== "number" && x.tag === "Var" && x !== lambda)
+      indices.set(x, indices.size);
   }
-  const m = constrs.length;
-  const n = inputs.length;
+  const n = indices.size;
 
-  const { code, vars } = emitGraph(graph, inputsMap);
-  const basic = new Function(
-    "tf",
-    "inputs",
-    `${code.join("\n")}\nreturn { objective: x${vars.get(
-      obj,
-    )!}, constraints: [${constrs
-      .map((x) => `x${vars.get(x)!}`)
-      .join(", ")}] };`,
-  );
-
-  const full = (varying: tf.Scalar[], weight: number): tf.Scalar => {
-    const out = basic(tf, varying);
-    return out.objective.add(
-      m === 0
-        ? 0
-        : tf
-            .addN(out.constraints.map((x: tf.Scalar) => x.relu().square()))
-            .mul(weight),
-    );
-  };
+  const varCode = (x: ad.Var) =>
+    x === lambda ? "weight" : `x[${indices.get(x)}]`;
+  const { vars, code } = emitGraph(varCode, sorted);
+  code.push(`return ${vars.get(y)};`);
+  const f = new Function("tf", "x", "weight", code.join("\n"));
 
   return {
     start: (conf) => {
@@ -971,16 +891,16 @@ export const problem = async (desc: ad.Description): Promise<ad.Problem> => {
       const mask: boolean[] = [];
       const init: number[] = [];
       // populate inputs with initial values from `vals`
-      inputs.forEach((x, i) => {
+      for (const [x, i] of indices) {
         mask[i] = !freeze(x);
-        init[i] = vals(x); // skip the weight input
-      });
+        init[i] = vals(x);
+      }
       const wrap = (xs: number[], params: Params): ad.Run => {
         const unfrozen = new Map<ad.Var, number>();
         // give back the optimized values
-        inputs.forEach((x, i) => {
+        for (const [x, i] of indices) {
           if (!freeze(x)) unfrozen.set(x, xs[i]);
-        });
+        }
         return {
           converged: isConverged(params),
           vals: unfrozen,
@@ -1006,7 +926,7 @@ export const problem = async (desc: ad.Description): Promise<ad.Problem> => {
                   let phi: number = 0;
                   tf.tidy(() => {
                     const wrapped = tf.grads((...varying: tf.Tensor[]) => {
-                      const out = full(varying as tf.Scalar[], weight);
+                      const out = f(tf, varying, tf.scalar(weight));
                       phi = out.arraySync();
                       return out;
                     });
@@ -1035,48 +955,23 @@ export const problem = async (desc: ad.Description): Promise<ad.Problem> => {
   };
 };
 
-const makeFn = (
-  xs: ad.Num[],
-): { inputs: ad.Var[]; f: (nums: number[]) => number[] } => {
-  const graph = topsort((set) => {
-    xs.forEach(set);
-  });
-  const inputs: ad.Var[] = [];
-  const inputsMap = new Map<ad.Var, number>();
-  for (const x of graph.sorted) {
-    if (typeof x !== "number" && x.tag === "Var") {
-      inputsMap.set(x, inputs.length);
-      inputs.push(x);
-    }
-  }
-  const { code, vars } = emitGraph(graph, inputsMap);
-  const f = new Function(
-    "tf",
-    "inputs",
-    `${code.join("\n")}\nreturn [${xs
-      .map((x) => `x${vars.get(x)!}`)
-      .join(", ")}];`,
-  );
-  return {
-    inputs,
-    f: (nums) =>
-      f(
-        tf,
-        nums.map((x) => tf.scalar(x)),
-      ).map((x: tf.Scalar) => x.arraySync()),
-  };
-};
-
-export const interp = (
-  xs: ad.Num[],
+export const compile = (
+  ys: ad.Num[],
 ): ((inputs: (x: ad.Var) => number) => number[]) => {
-  const { inputs, f } = makeFn(xs);
-  return (vals) => f(inputs.map((x) => vals(x)));
-};
+  const sorted = topsort(predsExpr, ys);
 
-export const compile = async (
-  xs: ad.Num[],
-): Promise<(inputs: (x: ad.Var) => number) => number[]> => {
-  const { inputs, f } = makeFn(xs);
-  return (vals) => f(inputs.map((x) => vals(x)));
+  const indices = new Map<ad.Var, number>();
+  for (const x of sorted) {
+    if (typeof x !== "number" && x.tag === "Var") indices.set(x, indices.size);
+  }
+
+  const { vars, code } = emitGraph((x) => `x[${indices.get(x)}]`, sorted);
+  code.push(`return [${ys.map((x) => vars.get(x)).join(", ")}]`);
+  const f = new Function("tf", "x", code.join("\n"));
+
+  return (vals) => {
+    const xs: tf.Scalar[] = [];
+    for (const x of indices.keys()) xs.push(tf.scalar(vals(x)));
+    return f(tf, xs).map((x: tf.Scalar) => x.arraySync());
+  };
 };
