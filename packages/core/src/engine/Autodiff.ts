@@ -701,9 +701,13 @@ const emitNary = (
     case "addN":
       return xs.length === 0 ? "tf.scalar(0)" : `tf.addN([${xs}])`;
     case "maxN":
-      return `tf.max(tf.stack([${xs}]))`;
+      return xs.length === 0
+        ? "tf.scalar(-Infinity)"
+        : `tf.max(tf.stack([${xs}]))`;
     case "minN":
-      return `tf.min(tf.stack([${xs}]))`;
+      return xs.length === 0
+        ? "tf.scalar(Infinity)"
+        : `tf.min(tf.stack([${xs}]))`;
   }
 };
 
@@ -810,7 +814,9 @@ export const genGradient = (
     let objs: number[] = [];
     let constrs: number[] = [];
     tf.tidy(() => {
-      const wrapped = tf.grads((...varying: tf.Tensor[]) => {
+      // TensorFlow.js doesn't like it when there are no varying values, so we
+      // stick in a dummy zero tensor for that case
+      const wrapped = tf.grads((dummy, ...varying: tf.Tensor[]) => {
         let obj = tf.scalar(0);
         objs = objFns.map((f, i) => {
           if (objMask[i]) {
@@ -833,13 +839,14 @@ export const genGradient = (
         phi = tfPhi.arraySync();
         // every input needs to be reachable from the loss, because otherwise
         // TensorFlow.js complains for some reason
-        return tfPhi.add(n === 0 ? 0 : tf.addN(varying).mul(0));
+        return tfPhi.add(dummy).add(n === 0 ? 0 : tf.addN(varying).mul(0));
       });
-      const gradient = wrapped(
-        Array.from(inputs).map((x) => tf.scalar(x)),
-      ) as tf.Scalar[];
+      const gradient = wrapped([
+        tf.scalar(0),
+        ...Array.from(inputs).map((x) => tf.scalar(x)),
+      ]) as tf.Scalar[];
       for (let i = 0; i < n; i++)
-        grad[i] = inputMask[i] ? gradient[i].arraySync() : 0;
+        grad[i] = inputMask[i] ? gradient[i + 1].arraySync() : 0;
     });
     return { phi, objectives: objs, constraints: constrs };
   };
@@ -910,16 +917,21 @@ export const problem = async (desc: ad.Description): Promise<ad.Problem> => {
                     );
                   let phi: number = 0;
                   tf.tidy(() => {
-                    const wrapped = tf.grads((...varying: tf.Tensor[]) => {
-                      const out = f(tf, sqrtImpl, varying, tf.scalar(weight));
-                      phi = out.arraySync();
-                      return out;
-                    });
-                    const gradient = wrapped(
-                      Array.from(v).map((x) => tf.scalar(x)),
-                    ) as tf.Scalar[];
+                    // TensorFlow.js doesn't like it when there are no varying values, so we
+                    // stick in a dummy zero tensor for that case
+                    const wrapped = tf.grads(
+                      (dummy, ...varying: tf.Tensor[]) => {
+                        const out = f(tf, sqrtImpl, varying, tf.scalar(weight));
+                        phi = out.arraySync();
+                        return out.add(dummy);
+                      },
+                    );
+                    const gradient = wrapped([
+                      tf.scalar(0),
+                      ...Array.from(v).map((x) => tf.scalar(x)),
+                    ]) as tf.Scalar[];
                     for (let i = 0; i < n; i++)
-                      grad[i] = mask[i] ? gradient[i].arraySync() : 0;
+                      grad[i] = mask[i] ? gradient[i + 1].arraySync() : 0;
                   });
                   return phi;
                 },
