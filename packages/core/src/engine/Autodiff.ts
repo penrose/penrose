@@ -675,38 +675,12 @@ const emitBinary = (
 const emitComp = (
   name: (x: ad.Expr) => string,
   { binop, left, right }: ad.Comp,
-): string => {
-  const x = name(left);
-  const y = name(right);
-  switch (binop) {
-    case ">":
-      return `${x}.greater(${y})`;
-    case "<":
-      return `${x}.less(${y})`;
-    case "===":
-      return `${x}.equal(${y})`;
-    case ">=":
-      return `${x}.greaterEqual(${y})`;
-    case "<=":
-      return `${x}.lessEqual(${y})`;
-  }
-};
+): string => `${name(left)}.arraySync() ${binop} ${name(right)}.arraySync()`;
 
 const emitLogic = (
   name: (x: ad.Expr) => string,
   { binop, left, right }: ad.Logic,
-): string => {
-  const p = name(left);
-  const q = name(right);
-  switch (binop) {
-    case "&&":
-      return `${p}.logicalAnd(${q})`;
-    case "||":
-      return `${p}.logicalOr(${q})`;
-    case "!==":
-      return `${p}.logicalXor(${q})`;
-  }
-};
+): string => `${name(left)} ${binop} ${name(right)}`;
 
 const emitNary = (
   name: (x: ad.Expr) => string,
@@ -733,7 +707,7 @@ const emitExpr = (
     case "Var":
       return varCode(x);
     case "Not":
-      return `${name(x.param)}.logicalNot()`;
+      return `!${name(x.param)}`;
     case "Unary":
       return emitUnary(name, x);
     case "Binary":
@@ -743,7 +717,7 @@ const emitExpr = (
     case "Logic":
       return emitLogic(name, x);
     case "Ternary":
-      return `tf.where(${name(x.cond)}, ${name(x.then)}, ${name(x.els)})`;
+      return `${name(x.cond)} ? ${name(x.then)} : ${name(x.els)}`;
     case "Nary":
       return emitNary(name, x);
     case "PolyRoots":
