@@ -536,6 +536,15 @@ export const fns = {
   },
 };
 
+const sqrtImpl = tf.customGrad((v, save) => {
+  const x = v as tf.Scalar;
+  (save as tf.GradSaveFunc)([x]);
+  return {
+    value: x.sqrt(),
+    gradFunc: (dy, saved) => dy.div(saved[0].mul(2).maximum(EPS_DENOM)),
+  };
+});
+
 /**
  * Replaces the contents of `v` with the roots of the monic polynomial whose
  * degree is the length of the vector and whose coefficient with a given degree
@@ -609,6 +618,8 @@ const emitUnary = (
   switch (unop) {
     case "squared":
       return `${x}.square()`;
+    case "sqrt":
+      return `sqrt(${x})`;
     case "inverse":
       return `${x}.reciprocal()`;
     case "cbrt":
@@ -618,7 +629,6 @@ const emitUnary = (
     case "log10":
       return `${x}.log().div(Math.log(10))`;
     case "neg":
-    case "sqrt":
     case "abs":
     case "acosh":
     case "acos":
@@ -763,8 +773,9 @@ export const genGradient = (
     const varCode = (x: ad.Var) => `x[${indices.get(x)}]`;
     const { vars, code } = emitGraph(varCode, sorted);
     code.push(`return { y: ${vars.get(y)}, z: ${vars.get(z)} };`);
-    const g = new Function("tf", "x", code.join("\n"));
-    return (x: tf.Tensor[]): { y: tf.Scalar; z: tf.Scalar } => g(tf, x);
+    const g = new Function("tf", "sqrt", "x", code.join("\n"));
+    return (x: tf.Tensor[]): { y: tf.Scalar; z: tf.Scalar } =>
+      g(tf, sqrtImpl, x);
   };
 
   const objFns = objectives.map((x) => single((y) => y, x));
@@ -856,7 +867,7 @@ export const problem = async (desc: ad.Description): Promise<ad.Problem> => {
     x === lambda ? "weight" : `x[${indices.get(x)}]`;
   const { vars, code } = emitGraph(varCode, sorted);
   code.push(`return ${vars.get(y)};`);
-  const f = new Function("tf", "x", "weight", code.join("\n"));
+  const f = new Function("tf", "sqrt", "x", "weight", code.join("\n"));
 
   return {
     start: (conf) => {
@@ -900,7 +911,7 @@ export const problem = async (desc: ad.Description): Promise<ad.Problem> => {
                   let phi: number = 0;
                   tf.tidy(() => {
                     const wrapped = tf.grads((...varying: tf.Tensor[]) => {
-                      const out = f(tf, varying, tf.scalar(weight));
+                      const out = f(tf, sqrtImpl, varying, tf.scalar(weight));
                       phi = out.arraySync();
                       return out;
                     });
@@ -941,11 +952,11 @@ export const compile = (
 
   const { vars, code } = emitGraph((x) => `x[${indices.get(x)}]`, sorted);
   code.push(`return [${ys.map((x) => vars.get(x)).join(", ")}]`);
-  const f = new Function("tf", "x", code.join("\n"));
+  const f = new Function("tf", "sqrt", "x", code.join("\n"));
 
   return (vals) => {
     const xs: tf.Scalar[] = [];
     for (const x of indices.keys()) xs.push(tf.scalar(vals(x)));
-    return f(tf, xs).map((x: tf.Scalar) => x.arraySync());
+    return f(tf, sqrtImpl, xs).map((x: tf.Scalar) => x.arraySync());
   };
 };
