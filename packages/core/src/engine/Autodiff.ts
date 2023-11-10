@@ -541,7 +541,7 @@ const sqrtImpl = tf.customGrad((v, save) => {
   (save as tf.GradSaveFunc)([x]);
   return {
     value: x.sqrt(),
-    gradFunc: (dy, saved) => dy.div(saved[0].mul(2).maximum(EPS_DENOM)),
+    gradFunc: (dy, saved) => dy.div(saved[0].maximum(EPS_DENOM).mul(2)),
   };
 });
 
