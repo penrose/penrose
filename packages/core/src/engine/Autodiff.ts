@@ -536,11 +536,11 @@ export const fns = {
   },
 };
 
-const sqrtImpl = tf.customGrad((v, save) => {
-  const x = v as tf.Scalar;
-  (save as tf.GradSaveFunc)([x]);
+const sqrtImpl = tf.customGrad((x, save) => {
+  const y = (x as tf.Scalar).sqrt();
+  (save as tf.GradSaveFunc)([y]);
   return {
-    value: x.sqrt(),
+    value: y,
     gradFunc: (dy, saved) => dy.div(saved[0].maximum(EPS_DENOM).mul(2)),
   };
 });
