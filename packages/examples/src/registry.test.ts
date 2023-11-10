@@ -8,7 +8,7 @@ import * as fs from "fs/promises";
 import rawFetch, { RequestInit, Response } from "node-fetch";
 import * as path from "path";
 import prettier from "prettier";
-import { describe, test } from "vitest";
+import { afterAll, describe, test } from "vitest";
 import { Trio } from "./index.js";
 import registry from "./registry.js";
 
@@ -283,9 +283,12 @@ describe("registry", () => {
           path.join(out, "data.json"),
           `${JSON.stringify(Object.fromEntries(datas), null, 2)}\n`,
         );
-        await fs.writeFile(path.join(out, "stats.md"), textChart(datas));
       },
       { timeout: MAX_SECONDS * 1000 },
     );
   }
+
+  afterAll(async () => {
+    await fs.writeFile(path.join(out, "stats.md"), textChart(datas));
+  });
 });
