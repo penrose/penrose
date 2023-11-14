@@ -20,5 +20,6 @@
   "files.trimFinalNewlines": false,
   "files.trimTrailingWhitespace": false,
   "rust-analyzer.check.command": "clippy",
-  "search.useParentIgnoreFiles": true
+  "search.useParentIgnoreFiles": true,
+  "svg.preview.background": "white"
 }

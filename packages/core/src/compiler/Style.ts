@@ -174,12 +174,7 @@ import {
 } from "../utils/Util.js";
 import { checkTypeConstructor, isDeclaredSubtype } from "./Domain.js";
 import { callCompFunc, callObjConstrFunc } from "./StyleFunctionCaller.js";
-import {
-  checkExpr,
-  checkPredicate,
-  checkVar,
-  prettyStmt,
-} from "./Substance.js";
+import { checkExpr, checkPredicate, checkVar } from "./Substance.js";
 import { checkShape } from "./shapeChecker/CheckShape.js";
 
 const log = (consola as any)
@@ -2234,11 +2229,6 @@ const processBlock = (
       .push(matchTotalAssignment)
       .concat(hb.block.statements);
 
-    console.log(`Block ${blockIndex} Subst ${substIndex} caused by: `);
-    for (const stmt of subst.matchedStmts) {
-      console.log(`\t${prettyStmt(stmt)}`);
-    }
-
     // Translate each statement in the block
     const { diagnostics, globals, unnamed, substances, locals } =
       augmentedStatements.reduce(
@@ -4212,8 +4202,6 @@ export const compileStyleHelper = async (
     groupGraph,
     nameShapeMap,
   );
-
-  console.log(renderGraph);
 
   const objFns = [...translation.objectives];
 
