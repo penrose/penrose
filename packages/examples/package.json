@@ -6,7 +6,7 @@
   "dependencies": {
     "@penrose/core": "^3.2.0",
     "@penrose/solids": "^3.2.0",
-    "@tensorflow/tfjs-node": "^4.13.0",
+    "@tensorflow/tfjs-node-gpu": "^4.13.0",
     "solid-js": "^1"
   },
   "devDependencies": {
