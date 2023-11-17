@@ -19,6 +19,7 @@ const fetch = rawFetch as unknown as (
 
 interface TrioTime {
   compiling: number;
+  autodiff: number;
   optimizing: number;
   rendering: number;
 }
@@ -98,6 +99,7 @@ const renderTrio = async (
     data: {
       seconds: {
         compiling: nanoToSeconds(optimizing - compiling),
+        autodiff: nanoToSeconds(initialState.autodiffTime),
         optimizing: nanoToSeconds(rendering - optimizing),
         rendering: nanoToSeconds(done - rendering),
       },
