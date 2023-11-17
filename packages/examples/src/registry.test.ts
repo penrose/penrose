@@ -3,7 +3,7 @@
 import { optimize as optimizeSVG } from "svgo";
 
 import { compile, optimize, showError, toSVG } from "@penrose/core";
-import "@tensorflow/tfjs-node";
+import * as tf from "@tensorflow/tfjs";
 import * as fs from "fs/promises";
 import rawFetch, { RequestInit, Response } from "node-fetch";
 import * as path from "path";
@@ -252,6 +252,8 @@ const out = "diagrams";
 
 describe("registry", () => {
   const datas = new Map<string, AllData>();
+
+  tf.setBackend("cpu");
 
   for (const [key, meta] of registry.entries()) {
     test(
