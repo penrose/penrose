@@ -1,13 +1,10 @@
 // @vitest-environment jsdom
 
-import { optimize as optimizeSVG } from "svgo";
-
-import { compile, optimize, showError, toSVG } from "@penrose/core";
+import { compile, showError } from "@penrose/core";
 import * as tf from "@tensorflow/tfjs";
 import * as fs from "fs/promises";
 import rawFetch, { RequestInit, Response } from "node-fetch";
 import * as path from "path";
-import prettier from "prettier";
 import { afterAll, describe, test } from "vitest";
 import { Trio } from "./index.js";
 import registry from "./registry.js";
@@ -20,8 +17,7 @@ const fetch = rawFetch as unknown as (
 
 interface TrioTime {
   compiling: number;
-  optimizing: number;
-  rendering: number;
+  autodiff: number;
 }
 
 interface Data {
@@ -29,7 +25,6 @@ interface Data {
 }
 
 interface Rendered {
-  svg: string;
   data: Data;
 }
 
@@ -60,47 +55,11 @@ const renderTrio = async (
 
   const optimizing = process.hrtime.bigint();
 
-  const optimizedOutput = optimize(initialState);
-  if (optimizedOutput.isErr()) {
-    const err = optimizedOutput.error;
-    throw new Error(`Optimization failed:\n${showError(err)}`);
-  }
-  const optimizedState = optimizedOutput.value;
-
-  const rendering = process.hrtime.bigint();
-
-  // HACK: we should really use each Style's individual `resolver`
-  const { resolver } = style[0];
-  const resolvePath = async (filePath: string) => {
-    // Handle absolute URLs
-    if (/^(http|https):\/\/[^ "]+$/.test(filePath)) {
-      const fileURL = new URL(filePath).href;
-      try {
-        const fileReq = await fetch(fileURL);
-        return fileReq.text();
-      } catch (e) {
-        console.error(`Failed to resolve path: ${e}`);
-        return undefined;
-      }
-    }
-    return await resolver(filePath);
-  };
-
-  const svg = (await toSVG(optimizedState, resolvePath, "registry")).outerHTML;
-  const svgOptimized = optimizeSVG(svg, {
-    plugins: ["inlineStyles", "prefixIds"],
-    path: id,
-  }).data;
-
-  const done = process.hrtime.bigint();
-
   return {
-    svg: svgOptimized,
     data: {
       seconds: {
         compiling: nanoToSeconds(optimizing - compiling),
-        optimizing: nanoToSeconds(rendering - optimizing),
-        rendering: nanoToSeconds(done - rendering),
+        autodiff: nanoToSeconds(initialState.autodiffTime),
       },
     },
   };
@@ -230,8 +189,6 @@ const textChart = (datas: Map<string, AllData>): string => {
       lines.push(
         `${trimName(key).padEnd(longestName)} ${makeContinuousBar([
           seconds.compiling,
-          seconds.optimizing,
-          seconds.rendering,
         ])}`,
       );
     } else {
@@ -260,9 +217,9 @@ describe("registry", () => {
       key,
       async () => {
         const before = process.hrtime.bigint();
-        const { svg, data } = meta.trio
+        const { data } = meta.trio
           ? await renderTrio(key, await meta.get())
-          : { svg: await meta.f(), data: {} };
+          : { data: {} };
         const after = process.hrtime.bigint();
         datas.set(key, {
           totalSeconds: nanoToSeconds(after - before),
@@ -271,10 +228,6 @@ describe("registry", () => {
         const filePath = path.join(out, `${key}.svg`);
         const fileDir = path.dirname(filePath);
         await fs.mkdir(fileDir, { recursive: true });
-        await fs.writeFile(
-          filePath,
-          await prettier.format(svg, { parser: "html" }),
-        );
 
         // write stats after every test, in case it's slow and we still want to
         // see results; technically this makes the whole suite quadratic time,
