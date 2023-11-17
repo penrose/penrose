@@ -4104,11 +4104,13 @@ export const compileStyleHelper = (
 
   const computeShapes = compileCompGraph(inputs, renderGraph);
 
+  const autodiffStart = process.hrtime.bigint();
   const gradient = genGradient(
     inputs,
     objFns.map(({ output }) => output),
     constrFns.map(({ output }) => output),
   );
+  const autodiffEnd = process.hrtime.bigint();
 
   const params = genOptProblem(varyingValues.length);
   const initState: State = {
@@ -4129,6 +4131,7 @@ export const compileStyleHelper = (
     params,
     currentStageIndex: 0,
     optStages: optimizationStages.value,
+    autodiffTime: autodiffEnd - autodiffStart,
   };
 
   log.info("init state from GenOptProblem", initState);
