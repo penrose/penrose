@@ -3,7 +3,7 @@
 import { optimize as optimizeSVG } from "svgo";
 
 import { compile, optimize, showError, toSVG } from "@penrose/core";
-import "@tensorflow/tfjs-node-gpu";
+import "@tensorflow/tfjs-node";
 import * as fs from "fs/promises";
 import rawFetch, { RequestInit, Response } from "node-fetch";
 import * as path from "path";

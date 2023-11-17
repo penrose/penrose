@@ -263,5 +263,283 @@
   "geometric-queries/ray-intersect/test-group": {
     "name": "Ray Casting",
     "gallery": true
+  },
+  "group-theory/quaternion-cayley-graph": {
+    "name": "Quaternions as Cayley graph",
+    "gallery": true
+  },
+  "triangle-mesh-3d/two-triangles": {
+    "name": "Two 3D Triangles",
+    "gallery": true
+  },
+  "graph-domain/textbook/sec1/fig10": {
+    "name": "Precedence Graph",
+    "gallery": false
+  },
+  "geometry-domain/textbook_problems/c03p01": {
+    "name": "Parallel Lines"
+  },
+  "curve-examples/osculating-circle": {
+    "name": "Osculating Circle",
+    "gallery": false
+  },
+  "random-sampling/test": {
+    "name": "Random Sampling",
+    "gallery": true
+  },
+  "shape-distance/points-around-polyline": {},
+  "graph-domain/textbook/sec1/fig7": {
+    "name": "Influence Graph",
+    "gallery": false
+  },
+  "geometry-domain/textbook_problems/c05p01": {
+    "name": "Midsegment Triangles",
+    "gallery": false
+  },
+  "shape-distance/points-around-star": {},
+  "geometry-domain/siggraph-teaser": {
+    "name": "SIGGRAPH teaser - Euclidean Geometry",
+    "gallery": true
+  },
+  "logic-circuit-domain/half-adder": {
+    "name": "Half Adder",
+    "gallery": true
+  },
+  "fake-3d-linear-algebra/projection": {},
+  "walk-on-spheres/walk-on-stars": {
+    "name": "Walk on Stars - Laplace Estimator",
+    "gallery": true
+  },
+  "geometry-domain/textbook_problems/c01p01": {
+    "name": "Collinear Points",
+    "gallery": false
+  },
+  "stochastic-process/epsilon-shell/AbsorbingBoundary": {
+    "name": "Brownian Motion Absorbed at Boundary",
+    "gallery": true
+  },
+  "stochastic-process/stochastic-process": {
+    "name": "Brownian Motion in a Ball",
+    "gallery": true
+  },
+  "graph-domain/textbook/sec2/fig14": {
+    "name": "Hypercube Network for Eight Processors",
+    "gallery": false
+  },
+  "fractals/chaos-game/vicsek-fractal": {
+    "name": "Chaos Game: Vicsek Fractal",
+    "gallery": false
+  },
+  "spectral-graphs/examples/box": {
+    "name": "4x4x4 Box",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec2/fig10b": {
+    "name": "Modeling the Jobs for Which Employees Have Been Trained",
+    "gallery": false
+  },
+  "molecules/glutamine": {},
+  "graph-domain/textbook/sec1/fig9": {
+    "name": "Module Dependency Graph",
+    "gallery": false
+  },
+  "molecules/nitricacid-lewis": {
+    "name": "Lewis Structure of Nitric Acid",
+    "gallery": false
+  },
+  "triangle-mesh-2d/diagrams/cotan-formula": {
+    "name": "Cotan Formula",
+    "gallery": true
+  },
+  "graph-domain/other-examples/hamiltonian-cycle": {
+    "name": "Hamiltonian Cycle",
+    "gallery": true
+  },
+  "minkowski-tests/maze/non-convex": {},
+  "geometric-queries/ray-intersect/test": {
+    "name": "Ray Intersection Tests",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec1/fig1": {
+    "name": "Computer Network",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec1/fig13": {
+    "name": "Graph Model of a Round-Robin Tournament",
+    "gallery": false
+  },
+  "curve-examples/frenet-frame": {
+    "name": "Frenet Frame",
+    "gallery": false
+  },
+  "geometry-domain/textbook_problems/ex": {
+    "name": "Congruent Triangles"
+  },
+  "graph-domain/textbook/sec1/fig12": {
+    "name": "Module of a Protein Interaction Graph",
+    "gallery": false
+  },
+  "geometry-domain/textbook_problems/c11p12": {
+    "name": "Circle Example",
+    "gallery": true
+  },
+  "graph-domain/textbook/sec1/fig3": {
+    "name": "Computer Network with Diagnostic Links",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec1/fig4": {
+    "name": "Communications Network with One-Way Communications Links",
+    "gallery": false
+  },
+  "spectral-graphs/examples/periodic-hexagonal-lattice": {
+    "name": "Periodic Hexagonal Grid",
+    "gallery": false
+  },
+  "timeline/penrose": {
+    "name": "Penrose project timeline",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec2/fig10a": {
+    "name": "Modeling the Jobs for Which Employees Have Been Trained"
+  },
+  "spectral-graphs/examples/torus": {
+    "name": "Periodic 2D Grid",
+    "gallery": false
+  },
+  "spectral-graphs/examples/mobius": {
+    "name": "Mobius Strip",
+    "gallery": true
+  },
+  "graph-domain/textbook/sec1/fig8b": {
+    "name": "Call Graph",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec1/fig2": {
+    "name": "Computer Network with Multiple Links between Data Centers",
+    "gallery": false
+  },
+  "spectral-graphs/examples/hypercube": {
+    "name": "Hypercube",
+    "gallery": true
+  },
+  "graph-domain/textbook/sec2/fig6": {
+    "name": "Cube Graphs",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec2/fig4": {
+    "name": "Cycle Graphs",
+    "gallery": false
+  },
+  "structural-formula/molecules/caffeine": {
+    "name": "A Caffeine Molecule",
+    "gallery": true
+  },
+  "curve-examples/offset": {
+    "name": "Offset Curve",
+    "gallery": false
+  },
+  "spectral-graphs/examples/dodecahedral-graph": {
+    "name": "Dodecahedral Graph",
+    "gallery": true
+  },
+  "graph-domain/textbook/sec1/fig11": {
+    "name": "Niche Overlap Graph",
+    "gallery": false
+  },
+  "atoms-and-bonds/wet-floor": {
+    "name": "Wet Floor",
+    "gallery": false
+  },
+  "curve-examples/cubic-bezier": {},
+  "graph-domain/textbook/sec2/fig5": {
+    "name": "Wheel Graphs",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec2/fig3": {
+    "name": "Complete Graphs",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec1/fig5": {
+    "name": "Computer Network with Multiple One-Way Links",
+    "gallery": true
+  },
+  "graph-domain/textbook/sec1/fig8a": {
+    "name": "Call Graph",
+    "gallery": false
+  },
+  "spectral-graphs/examples/4x4-sudoku-graph": {
+    "name": "4 x 4 Sudoku Graph",
+    "gallery": false
+  },
+  "graph-domain/textbook/sec2/fig9": {
+    "name": "Complete Bipartite Graphs",
+    "gallery": false
+  },
+  "persistent-homology/persistent-homology": {
+    "name": "Persistent Homology",
+    "gallery": true
+  },
+  "graph-domain/textbook/sec1/fig6": {
+    "name": "Acquaintanceship Graph",
+    "gallery": false
+  },
+  "spectral-graphs/examples/star-graph": {
+    "name": "Star graph",
+    "gallery": false
+  },
+  "spectral-graphs/examples/hexagonal-lattice": {
+    "name": "Hexagonal Lattice Graph",
+    "gallery": true
+  },
+  "word-cloud/example": {
+    "name": "Word Cloud",
+    "gallery": true
+  },
+  "graph-domain/textbook/sec2/fig13": {
+    "name": "Mesh Network for 16 Processors",
+    "gallery": false
+  },
+  "tsne/tsne": {
+    "name": "T-SNE Test"
+  },
+  "graph-domain/other-examples/arpanet": {
+    "name": "Curved graph example with dots",
+    "gallery": true
+  },
+  "graph-domain/textbook/sec5/ex32": {
+    "name": "Curved graph example",
+    "gallery": false
+  },
+  "structural-formula/reactions/methane-combustion": {
+    "name": "Methane Combustion Reaction",
+    "gallery": true
+  },
+  "alloy-models/generic": {
+    "name": "Alloy: Generic Style",
+    "gallery": false
+  },
+  "hypergraph/hypergraph": {
+    "name": "Hypergraph",
+    "gallery": true
+  },
+  "alloy-models/workstations": {
+    "name": "Alloy: Workstations",
+    "gallery": false
+  },
+  "fancy-text/fancy-text": {
+    "name": "Fancy Text + Equations",
+    "gallery": true
+  },
+  "graph-domain/other-examples/nyc-subway": {
+    "name": "Curved graph example with boxes",
+    "gallery": false
+  },
+  "alloy-models/message-passing": {
+    "name": "Alloy: Conversation between Four Parties",
+    "gallery": false
+  },
+  "geometric-queries/closest-point/test-group": {
+    "name": "Closest Point Queries",
+    "gallery": true
   }
 }

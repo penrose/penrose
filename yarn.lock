@@ -4038,10 +4038,10 @@
   resolved "https://registry.yarnpkg.com/@tensorflow/tfjs-layers/-/tfjs-layers-4.13.0.tgz#99bba84941945f3534174d5ba4352907d0b1449b"
   integrity sha512-YoBqtVTnE71h48+f89G6ZSYZMN+QsUMccopSxQC6XscncB6Gt1KwuWfpDc2Ld5JeubmUzKLqHdEP0jXIWxssJw==
 
-"@tensorflow/tfjs-node-gpu@^4.13.0":
+"@tensorflow/tfjs-node@^4.13.0":
   version "4.13.0"
-  resolved "https://registry.yarnpkg.com/@tensorflow/tfjs-node-gpu/-/tfjs-node-gpu-4.13.0.tgz#9dc3399648e3c866242f4a2935a4505cb846602e"
-  integrity sha512-TzuvVt/5kJecSEGfmzug/3hoN2u9Kx96rVjNVZXQpSxYHSfKVmvWsx5GSxjoe3QmaIgz6ZPCUCFxJqKEg/ahWg==
+  resolved "https://registry.yarnpkg.com/@tensorflow/tfjs-node/-/tfjs-node-4.13.0.tgz#d9c66247a6a7302187dd3d0a0b4e3ea7af1a76e1"
+  integrity sha512-lCC5wLojaH6QLGiXdicswi0rz4b+sEVuBvDUaqdV4tve1wLHl3RzSS3IxR7fYj8V9GXCCcCtOkqwdEtXVMiIXg==
   dependencies:
     "@mapbox/node-pre-gyp" "1.0.9"
     "@tensorflow/tfjs" "4.13.0"
