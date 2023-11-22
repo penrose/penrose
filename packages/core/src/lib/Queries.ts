@@ -98,15 +98,12 @@ export const polygonLikePoints = (s: Shape<ad.Num>): ad.Pt2[] => {
       [s.end.contents[0], s.end.contents[1]],
     ];
   else if (isRectlike(s)) {
-    // TODO: add support for rotated rectangles
-    const bbox = bboxFromShape(s);
-    const corners = BBox.corners(bbox);
-    return [
-      corners.topRight,
-      corners.topLeft,
-      corners.bottomLeft,
-      corners.bottomRight,
-    ];
+    return rectPts(
+      s.center.contents,
+      s.width.contents,
+      s.height.contents,
+      s.rotation.contents,
+    );
   } else {
     throw new Error(`${t} not supported for polygonLikePoints.`);
   }
@@ -302,9 +299,19 @@ export const shapeDistance = (
     );
   } else if (isRectlike(s1) && isRectlike(s2)) {
     return noWarn(
-      shapeDistanceRects(
-        bboxPts(BBox.bboxFromRectlike(s1)),
-        bboxPts(BBox.bboxFromRectlike(s2)),
+      shapeDistancePolys(
+        rectPts(
+          s1.center.contents,
+          s1.width.contents,
+          s1.height.contents,
+          s1.rotation.contents,
+        ),
+        rectPts(
+          s2.center.contents,
+          s2.width.contents,
+          s2.height.contents,
+          s2.rotation.contents,
+        ),
       ),
     );
   }
