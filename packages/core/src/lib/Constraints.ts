@@ -46,6 +46,7 @@ import {
   bboxFromShape,
   bboxPts,
   polygonLikePoints,
+  rectPts,
   shapeDistance,
 } from "./Queries.js";
 import * as utils from "./Utils.js";
@@ -429,8 +430,18 @@ export const contains = (
   } else if (isRectlike(s1) && isRectlike(s2)) {
     return noWarn(
       containsRects(
-        bboxPts(bboxFromShape(s1)),
-        bboxPts(bboxFromShape(s2)),
+        rectPts(
+          s1.center.contents,
+          s1.width.contents,
+          s1.height.contents,
+          s1.rotation.contents,
+        ),
+        rectPts(
+          s2.center.contents,
+          s2.width.contents,
+          s2.height.contents,
+          s2.rotation.contents,
+        ),
         padding,
       ),
     );
