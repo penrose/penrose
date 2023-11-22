@@ -48,7 +48,7 @@ export const rectPts = (
   center: ad.Num[],
   width: ad.Num,
   height: ad.Num,
-  clockwise: ad.Num = 0,
+  clockwise: ad.Num = 1,
 ): ad.Pt2[] => {
   const ccw = neg(clockwise);
 
