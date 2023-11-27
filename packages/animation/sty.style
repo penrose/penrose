@@ -11,7 +11,7 @@ forall Node n {
         center: n.center
     }
     n.text = Equation {
-        string: TeXify(nameof n)
+        string: nameof n
         center: n.center
     }
     layer n.text above n.icon

@@ -6,7 +6,7 @@
 >
   <penrose>
     <croppedViewBox>
-      95.8910958865799 158.89787654998304 174.05666095323457 171.13520031664768
+      95.8910958865799 158.89787654998304 249.67138479136017 171.13520031664768
     </croppedViewBox>
   </penrose>
   <circle
@@ -127,6 +127,29 @@
   <circle
     fill="#ffffff"
     fill-opacity="1"
+    cx="335.5624806779401"
+    cy="294.7772729410151"
+    stroke="none"
+    r="10"
+  >
+    <title>`n_7`.icon</title>
+  </circle>
+  <text
+    fill="#000000"
+    fill-opacity="1"
+    width="0"
+    height="0"
+    x="335.5624806779401"
+    y="294.7772729410151"
+    alignment-baseline="alphabetic"
+    dominant-baseline="alphabetic"
+    text-anchor="middle"
+  >
+    n_7
+  </text>
+  <circle
+    fill="#ffffff"
+    fill-opacity="1"
     cx="245.14071835446597"
     cy="190.04052377076164"
     stroke="none"
@@ -147,6 +170,35 @@
   >
     n_1
   </text>
+  <g>
+    <marker
+      id="animation-helloworld12345-`Next_n_6_n_7`.icon-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#000000"
+        fill-opacity="1"
+      ></path>
+    </marker>
+    <line
+      x1="269.37132729755723"
+      y1="272.001426626135"
+      x2="318.9296378250624"
+      y2="289.0538462736802"
+      stroke="#000000"
+      stroke-opacity="1"
+      stroke-width="1"
+      marker-end="url(#animation-helloworld12345-`Next_n_6_n_7`.icon-endArrowId)"
+    ></line>
+    <title>`Next_n_6_n_7`.icon</title>
+  </g>
   <g>
     <marker
       id="animation-helloworld12345-`Next_n_1_n_2`.icon-endArrowId"

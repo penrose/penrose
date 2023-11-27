@@ -3485,6 +3485,20 @@ const extractObjConstrBody = (
   }
 };
 
+const setSymbol = (
+  symbols: im.Map<string, ArgVal<ad.Num>>,
+  key: string,
+  value: ArgVal<ad.Num>,
+  override: Map<string, ArgVal<ad.Num>>,
+) => {
+  const overrideValue = override.get(key);
+  if (overrideValue === undefined) {
+    return symbols.set(key, value);
+  } else {
+    return symbols.set(key, overrideValue);
+  }
+};
+
 const translateExpr = (
   mut: MutableContext,
   canvas: Canvas,
@@ -3492,6 +3506,7 @@ const translateExpr = (
   path: string,
   e: WithContext<NotShape>,
   trans: Translation,
+  override: Map<string, ArgVal<ad.Num>>,
 ): Translation => {
   switch (e.expr.tag) {
     case "BinOp":
@@ -3514,7 +3529,7 @@ const translateExpr = (
       }
       return {
         ...trans,
-        symbols: trans.symbols.set(path, res.value),
+        symbols: setSymbol(trans.symbols, path, res.value, override),
       };
     }
     case "ConstrFn": {
@@ -3717,6 +3732,7 @@ export const translate = (
   graph: DepGraph,
   causedByMap: CausedByMap,
   warnings: im.List<StyleWarning>,
+  override: Map<string, ArgVal<ad.Num>>,
 ): Translation => {
   let symbols = im.Map<string, ArgVal<ad.Num>>();
   for (const path of graph.nodes()) {
@@ -3724,7 +3740,8 @@ export const translate = (
     if (typeof shapeType === "string") {
       const props = sampleShape(shapeType, mut, canvas);
       for (const [prop, value] of Object.entries(props)) {
-        symbols = symbols.set(`${path}.${prop}`, val(value));
+        const key = `${path}.${prop}`;
+        symbols = setSymbol(symbols, key, val(value), override);
       }
     }
   }
@@ -3770,13 +3787,18 @@ export const translate = (
           throw new Error("Shape's causedBy is not found");
         }
         shape.value.meta.causedBy = causedBy;
-        trans.symbols = trans.symbols.set(path, {
-          tag: "ShapeVal",
-          contents: shape.value,
-        });
+        trans.symbols = setSymbol(
+          trans.symbols,
+          path,
+          {
+            tag: "ShapeVal",
+            contents: shape.value,
+          },
+          override,
+        );
       }
     } else {
-      trans = translateExpr(mut, canvas, stages, path, e, trans);
+      trans = translateExpr(mut, canvas, stages, path, e, trans, override);
     }
   }
   return trans;
@@ -4086,6 +4108,7 @@ export const compileStyleHelper = async (
   stySource: string,
   subEnv: SubstanceEnv,
   varEnv: Env,
+  override?: Map<string, ArgVal<ad.Num>>,
 ): Promise<
   Result<
     {
@@ -4154,6 +4177,7 @@ export const compileStyleHelper = async (
     graph,
     causedByMap,
     assignment.diagnostics.warnings,
+    override === undefined ? new Map() : override,
   );
 
   log.info("translation (before genOptProblem)", translation);
@@ -4263,14 +4287,15 @@ export const compileStyle = async (
   excludeWarnings: string[],
   subEnv: SubstanceEnv,
   varEnv: Env,
+  override?: Map<string, ArgVal<ad.Num>>,
 ): Promise<Result<State, PenroseError>> =>
-  (await compileStyleHelper(variation, stySource, subEnv, varEnv)).map(
-    ({ state }) => ({
-      ...state,
-      warnings: state.warnings.filter(
-        (warning) => !excludeWarnings.includes(warning.tag),
-      ),
-    }),
-  );
+  (
+    await compileStyleHelper(variation, stySource, subEnv, varEnv, override)
+  ).map(({ state }) => ({
+    ...state,
+    warnings: state.warnings.filter(
+      (warning) => !excludeWarnings.includes(warning.tag),
+    ),
+  }));
 
 //#endregion Main funcitons
