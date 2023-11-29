@@ -57,6 +57,7 @@ We'd love to hear how you'd like to integrate Penrose with your favorite tools! 
 - [Lean](https://leanprover.github.io/): [ProofWidgets](https://github.com/EdAyers/ProofWidgets4) based on Penrose.
 - [Obsidian](https://obsidian.md/): an experimental [`obsidian-penrose-plugin`][].
 - [Alloy](http://alloytools.org/) visualizer using Penrose.
+- [Emacs](https://www.gnu.org/software/emacs/): Org-Babel package [`ob-penrose`][].
 
 Join [our Discord server][discord] and chat with us on [#integration](https://discord.com/channels/1115349463603617954/1130497270664679444) about integrating with external tools!
 
@@ -134,3 +135,4 @@ We maintain a [blog][] and a [mailing list][] on Penrose and diagramming in gene
 [roadmap]: #technical-roadmap
 [`obsidian-penrose-plugin`]: https://github.com/wodeni/obsidian-penrose-plugin
 [team]: /docs/team
+[`ob-penrose`]: https://github.com/weavermarquez/ob-penrose
