@@ -5,9 +5,11 @@ Next(n_2, n_3)
 Next(n_3, n_4)
 Next(n_4, n_5)
 Next(n_5, n_6)
-Next(n_6, n_1)
 
 Node n_7
-Next(n_6, n_7)
+Next(n_7, n_2)
+
+Node n_8
+Next(n_8, n_7)
 
 AutoLabel All

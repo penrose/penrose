@@ -1,29 +1,17 @@
 import "global-jsdom/register"; // must be first
 import _ from "lodash";
 import {
-  Num,
-  PenroseState,
-  compile,
   compileDomain,
   compileSubstance,
   optimize,
-  showError,
-  sub,
   toSVG,
 } from "@penrose/core";
 import { compileStyle } from "@penrose/core/dist/compiler/Style";
 import prettier from "prettier";
-import im from "immutable";
 import * as fs from "fs";
-import { CompiledSubStmt } from "@penrose/core/dist/types/substance";
-import {
-  prettyPredicate,
-  prettyStmt,
-} from "@penrose/core/dist/compiler/Substance";
-import { Shape } from "@penrose/core/dist/shapes/Shapes";
-import * as ad from "@penrose/core/dist/types/ad";
-import { ArgVal, Value } from "@penrose/core/dist/types/value";
-import { val } from "@penrose/core/dist/utils/Util";
+import { prettyStmt } from "@penrose/core/dist/compiler/Substance";
+import { makeLockerInState } from "./locker.js";
+import { lockShapes } from "./utils.js";
 const rawDsl = fs.readFileSync("dom.domain", "utf8");
 const rawSty = fs.readFileSync("sty.style", "utf8");
 const rawSub1 = fs.readFileSync("sub1.substance", "utf8");
@@ -76,6 +64,21 @@ const diagram1 = await prettier.format(canvas1, { parser: "html" });
 
 fs.writeFileSync("diag1.svg", diagram1);
 
+// compile sub2
+const state2 = await compileStyle(
+  variation,
+  rawSty,
+  [],
+  sub2.value[0],
+  dsl.value,
+);
+
+if (state2.isErr()) {
+  throw new Error(`sub2 style compilation error: ${state2.error}`);
+}
+
+const locker = makeLockerInState(optimized1.value, state2.value);
+
 const sub1Stmts = sub1.value[0].ast.statements.map(prettyStmt);
 const sub2Stmts = sub2.value[0].ast.statements.map(prettyStmt);
 
@@ -83,68 +86,19 @@ const intersect = sub1Stmts.filter((s) =>
   sub2Stmts.some((s2) => _.isEqual(s, s2)),
 );
 
-const buildOverrideMap = (
-  shape: Shape<number>,
-): Map<string, ArgVal<number>> => {
-  const m = new Map<string, ArgVal<number>>();
-
-  const name = shape.name.contents;
-  // handle passthrough
-  for (const [propKey, value] of shape.passthrough) {
-    const key = `${name}.${propKey}`;
-    m.set(key, { tag: "Val", contents: value });
-  }
-
-  // handle other properties
-  for (const [propKey, value] of Object.entries(shape)) {
-    if (
-      propKey === "shapeType" ||
-      propKey === "meta" ||
-      propKey === "passthrough"
-    ) {
-      continue;
-    }
-
-    const k = `${name}.${propKey}`;
-    const v = value as Value<number>;
-    m.set(k, { tag: "Val", contents: v });
-  }
-
-  return m;
-};
-
-let override = new Map<string, ArgVal<number>>();
-for (const shape of optimized1.value.computeShapes(
-  optimized1.value.varyingValues,
-)) {
-  if (
-    shape.meta.causedBy.some((stmt) => intersect.includes(prettyStmt(stmt)))
-  ) {
-    const overrideForShape = buildOverrideMap(shape);
-    override = new Map([...override, ...overrideForShape]);
-  }
+lockShapes(optimized1.value.shapes, state2.value.shapes, intersect, locker);
+function printArr(names: any[]) {
+  names.forEach((x) => console.log(x));
 }
+printArr(state2.value.inputs);
+printArr(state2.value.varyingValues);
 
-// render sub2
-
-const state2 = await compileStyle(
-  variation,
-  rawSty,
-  [],
-  sub2.value[0],
-  dsl.value,
-  override,
-);
-
-if (state2.isErr()) {
-  throw new Error(`sub1 style compilation error: ${state2.error}`);
-}
 const optimized2 = optimize(state2.value);
-
 if (optimized2.isErr()) {
-  throw new Error(`sub1 opt error: ${optimized2.error}`);
+  throw new Error(`sub2 opt error: ${optimized2.error}`);
 }
 
+//const optimized2 = state2;
 const canvas2 = (
   await toSVG(optimized2.value, async (path: string) => "", "animation")
 ).outerHTML;
@@ -152,3 +106,5 @@ const canvas2 = (
 const diagram2 = await prettier.format(canvas2, { parser: "html" });
 
 fs.writeFileSync("diag2.svg", diagram2);
+console.log("=====");
+printArr(optimized2.value.varyingValues);
