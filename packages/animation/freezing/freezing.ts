@@ -8,13 +8,13 @@ import {
   Value,
 } from "@penrose/core/dist/types/value";
 import { zip2 } from "@penrose/core";
-import { Locker } from "./locker.js";
+import { Freezer } from "./freezer.js";
 
-export const lockShapes = (
+export const freezeShapes = (
   fromShapes: Shape<ad.Num>[],
   toShapes: Shape<ad.Num>[],
   causedBy: string[],
-  locker: Locker,
+  freezer: Freezer,
 ) => {
   // Only care about values in these shapes
   const intersectShapes = fromShapes.filter((shape) =>
@@ -32,14 +32,14 @@ export const lockShapes = (
   }
 
   for (const [fromShape, toShape] of pairsToLock) {
-    lockShape(fromShape, toShape, locker);
+    freezeShape(fromShape, toShape, freezer);
   }
 };
 
-const lockShape = (
+const freezeShape = (
   fromShape: Shape<ad.Num>,
   toShape: Shape<ad.Num>,
-  locker: Locker,
+  freezer: Freezer,
 ) => {
   const fromName = fromShape.name.contents;
   if (fromShape.shapeType !== toShape.shapeType) {
@@ -57,7 +57,7 @@ const lockShape = (
         `Cannot lock sub2 ${fromName}.${prop} to value of sub1 ${fromName}.${prop} because the former does not exist`,
       );
     }
-    lockValue(fromValue, toValue, locker);
+    freezeValue(fromValue, toValue, freezer);
   }
 
   // handle all other properties
@@ -68,13 +68,17 @@ const lockShape = (
     }
 
     const toValue = (toShape as any)[prop];
-    lockValue(fromValue as Value<ad.Num>, toValue as Value<ad.Num>, locker);
+    freezeValue(fromValue as Value<ad.Num>, toValue as Value<ad.Num>, freezer);
   }
 };
 
-const lockValue = (from: Value<ad.Num>, to: Value<ad.Num>, locker: Locker) => {
+const freezeValue = (
+  from: Value<ad.Num>,
+  to: Value<ad.Num>,
+  freezer: Freezer,
+) => {
   if (from.tag === "FloatV" && to.tag === "FloatV") {
-    lockNum(from.contents, to.contents, locker);
+    freezeNum(from.contents, to.contents, freezer);
   } else if (from.tag === "BoolV" && to.tag === "BoolV") {
     if (from.contents !== to.contents) {
       throw new Error(
@@ -92,7 +96,7 @@ const lockValue = (from: Value<ad.Num>, to: Value<ad.Num>, locker: Locker) => {
     // nothing to lock
     return;
   } else if (from.tag === "PathDataV" && to.tag === "PathDataV") {
-    lockPathDataV(from, to, locker);
+    freezePathDataV(from, to, freezer);
   } else if (
     (from.tag === "PtListV" && to.tag === "PtListV") ||
     (from.tag === "MatrixV" && to.tag === "MatrixV") ||
@@ -104,16 +108,16 @@ const lockValue = (from: Value<ad.Num>, to: Value<ad.Num>, locker: Locker) => {
       );
     }
     zip2(from.contents, to.contents).map(([fromRow, toRow]) =>
-      lockList(fromRow, toRow, locker),
+      freezeList(fromRow, toRow, freezer),
     );
   } else if (from.tag === "ColorV" && to.tag === "ColorV") {
-    lockColor(from.contents, to.contents, locker);
+    freezeColor(from.contents, to.contents, freezer);
   } else if (
     (from.tag === "VectorV" && to.tag === "VectorV") ||
     (from.tag === "ListV" && to.tag === "ListV") ||
     (from.tag === "TupV" && to.tag === "TupV")
   ) {
-    lockList(from.contents, to.contents, locker);
+    freezeList(from.contents, to.contents, freezer);
   } else if (from.tag === "ShapeListV" && to.tag === "ShapeListV") {
     if (from.contents.length !== to.contents.length) {
       throw new Error(
@@ -121,19 +125,19 @@ const lockValue = (from: Value<ad.Num>, to: Value<ad.Num>, locker: Locker) => {
       );
     }
     zip2(from.contents, to.contents).map(([from, to]) =>
-      lockShape(from, to, locker),
+      freezeShape(from, to, freezer),
     );
   } else if (from.tag === "ClipDataV" && to.tag === "ClipDataV") {
-    lockClipData(from.contents, to.contents, locker);
+    freezeClipData(from.contents, to.contents, freezer);
   } else {
     throw new Error(`Cannot lock ${to.tag} to value of ${from.tag}`);
   }
 };
 
-const lockPathDataV = (
+const freezePathDataV = (
   from: PathDataV<ad.Num>,
   to: PathDataV<ad.Num>,
-  locker: Locker,
+  freezer: Freezer,
 ) => {
   if (from.contents.length !== to.contents.length) {
     throw new Error("yyy");
@@ -147,13 +151,17 @@ const lockPathDataV = (
         throw new Error("yyy");
       }
       zip2(sp1.contents, sp2.contents).map(([v1, v2]) =>
-        lockNum(v1, v2, locker),
+        freezeNum(v1, v2, freezer),
       );
     });
   });
 };
 
-const lockColor = (from: Color<ad.Num>, to: Color<ad.Num>, locker: Locker) => {
+const freezeColor = (
+  from: Color<ad.Num>,
+  to: Color<ad.Num>,
+  freezer: Freezer,
+) => {
   if (from.tag === "NONE" && to.tag === "NONE") {
     // nothing to lock
     return;
@@ -161,7 +169,7 @@ const lockColor = (from: Color<ad.Num>, to: Color<ad.Num>, locker: Locker) => {
     (from.tag === "RGBA" && to.tag === "RGBA") ||
     (from.tag === "HSVA" && to.tag === "HSVA")
   ) {
-    lockList(from.contents, to.contents, locker);
+    freezeList(from.contents, to.contents, freezer);
   } else {
     throw new Error(
       `Cannot lock color of ${to.tag} to value of color of ${from.tag}`,
@@ -169,16 +177,16 @@ const lockColor = (from: Color<ad.Num>, to: Color<ad.Num>, locker: Locker) => {
   }
 };
 
-const lockClipData = (
+const freezeClipData = (
   from: ClipData<ad.Num>,
   to: ClipData<ad.Num>,
-  locker: Locker,
+  freezer: Freezer,
 ) => {
   if (from.tag === "NoClip" && to.tag === "NoClip") {
     // nothing to lock
     return;
   } else if (from.tag === "Clip" && to.tag === "Clip") {
-    lockShape(from.contents, to.contents, locker);
+    freezeShape(from.contents, to.contents, freezer);
   } else {
     throw new Error(
       `Cannot lock clip data (${to.tag}) to value of clip data (${from.tag})`,
@@ -186,16 +194,16 @@ const lockClipData = (
   }
 };
 
-const lockList = (from: ad.Num[], to: ad.Num[], locker: Locker) => {
+const freezeList = (from: ad.Num[], to: ad.Num[], freezer: Freezer) => {
   if (from.length !== to.length) {
     throw new Error(
       `Cannot lock list of length ${to.length} to value of list of length ${from.length}`,
     );
   }
-  zip2(from, to).map(([fromNum, toNum]) => lockNum(fromNum, toNum, locker));
+  zip2(from, to).map(([fromNum, toNum]) => freezeNum(fromNum, toNum, freezer));
 };
 
-const lockNum = (from: ad.Num, to: ad.Num, locker: Locker) => {
+const freezeNum = (from: ad.Num, to: ad.Num, freezer: Freezer) => {
   if (typeof from === "number" && typeof to === "number") {
     if (from !== to) {
       throw new Error(
@@ -210,18 +218,18 @@ const lockNum = (from: ad.Num, to: ad.Num, locker: Locker) => {
   ) {
     throw new Error("xxx");
   } else if (typeof from !== "number" && typeof to !== "number") {
-    return lockComputedNum(from, to, locker);
+    return freezeComputedNum(from, to, freezer);
   }
   throw new Error("xxx");
 };
 
-const lockComputedNum = (
+const freezeComputedNum = (
   from: Exclude<ad.Num, number>,
   to: Exclude<ad.Num, number>,
-  locker: Locker,
+  freezer: Freezer,
 ) => {
   if (from.tag === "Var" && to.tag === "Var") {
-    locker(from, to);
+    freezer(from, to);
     return;
   } else if (from.tag === "Unary" && to.tag === "Unary") {
     if (from.unop !== to.unop) {
@@ -229,19 +237,19 @@ const lockComputedNum = (
         `Cannot lock Unary(${from.unop}) to value of Unary(${to.unop})`,
       );
     }
-    lockNum(from.param, to.param, locker);
+    freezeNum(from.param, to.param, freezer);
   } else if (from.tag === "Binary" && to.tag === "Binary") {
     if (from.binop !== to.binop) {
       throw new Error(
         `Cannot lock Binary(${from.binop}) to value of Binary(${to.binop})`,
       );
     }
-    lockNum(from.left, to.left, locker);
-    lockNum(from.right, to.right, locker);
+    freezeNum(from.left, to.left, freezer);
+    freezeNum(from.right, to.right, freezer);
   } else if (from.tag === "Ternary" && to.tag === "Ternary") {
-    lockBool(from.cond, to.cond, locker);
-    lockNum(from.then, to.then, locker);
-    lockNum(from.els, to.els, locker);
+    freezeBool(from.cond, to.cond, freezer);
+    freezeNum(from.then, to.then, freezer);
+    freezeNum(from.els, to.els, freezer);
   } else if (from.tag === "Nary" && to.tag === "Nary") {
     if (from.op !== to.op) {
       throw new Error(
@@ -249,7 +257,7 @@ const lockComputedNum = (
       );
     }
     zip2(from.params, to.params).map(([fromParam, toParam]) =>
-      lockNum(fromParam, toParam, locker),
+      freezeNum(fromParam, toParam, freezer),
     );
   } else if (from.tag === "Index" && to.tag === "Index") {
     if (from.index !== to.index) {
@@ -263,29 +271,29 @@ const lockComputedNum = (
       );
     }
     zip2(from.vec.coeffs, to.vec.coeffs).map(([fromParam, toParam]) =>
-      lockNum(fromParam, toParam, locker),
+      freezeNum(fromParam, toParam, freezer),
     );
   }
 
   throw new Error(`Cannot lock ${to.tag} to value of ${from.tag}`);
 };
 
-const lockBool = (from: ad.Bool, to: ad.Bool, locker: Locker) => {
+const freezeBool = (from: ad.Bool, to: ad.Bool, freezer: Freezer) => {
   if (from.tag === "Comp" && to.tag === "Comp") {
     if (from.binop !== to.binop) {
     }
-    lockNum(from.left, to.left, locker);
-    lockNum(from.right, to.right, locker);
+    freezeNum(from.left, to.left, freezer);
+    freezeNum(from.right, to.right, freezer);
   } else if (from.tag === "Logic" && to.tag === "Logic") {
     if (from.binop !== to.binop) {
       throw new Error(
         `Cannot lock Logic(${from.binop}) to value of Logic(${to.binop})`,
       );
     }
-    lockBool(from.left, to.left, locker);
-    lockBool(from.right, to.right, locker);
+    freezeBool(from.left, to.left, freezer);
+    freezeBool(from.right, to.right, freezer);
   } else if (from.tag === "Not" && to.tag === "Not") {
-    lockBool(from.param, to.param, locker);
+    freezeBool(from.param, to.param, freezer);
   }
 
   throw new Error(`Cannot lock ${to.tag} to value of ${from.tag}`);

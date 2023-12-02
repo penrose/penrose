@@ -2,9 +2,9 @@ import { State } from "@penrose/core/dist/types/state";
 import * as ad from "@penrose/core/dist/types/ad";
 import { constSampler } from "@penrose/core/dist/shapes/Samplers";
 
-export type Locker = (from: ad.Var, to: ad.Var) => void;
+export type Freezer = (from: ad.Var, to: ad.Var) => void;
 
-export const makeLockerInState = (fromState: State, toState: State): Locker => {
+export const makeFreezer = (fromState: State, toState: State): Freezer => {
   const toVarIndexMap = new Map(
     toState.inputs.map((input, i) => [input.handle, i]),
   );
@@ -31,7 +31,6 @@ export const makeLockerInState = (fromState: State, toState: State): Locker => {
     };
     // never optimize
     toState.inputs[toIndex].meta.stages = new Set();
-
     toState.varyingValues[toIndex] = val;
     to.val = val;
 

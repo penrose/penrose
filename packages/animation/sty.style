@@ -35,5 +35,6 @@ where Next(n1, n2) as e {
     ensure signedDistance(n1.icon, e.start) == 0
     ensure signedDistance(n2.icon, e.end) == 0
 
-    ensure vdist(e.start, e.end) == 60
+    ensure vdist(e.start, e.end) < 100
+
 }
