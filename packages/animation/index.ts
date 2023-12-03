@@ -10,7 +10,7 @@ import {
 import prettier from "prettier";
 import * as fs from "fs";
 import { prettyStmt } from "@penrose/core/dist/compiler/Substance";
-import { makeFreezer } from "./freezing/freezer.js";
+import { makeLocker } from "./freezing/locker.js";
 import { freezeShapes } from "./freezing/freezing.js";
 import { compileStyle } from "./utils/labeling.js";
 const rawDsl = fs.readFileSync("dom.domain", "utf8");
@@ -71,7 +71,7 @@ const state2 = await compileStyle(
   dsl.value,
 );
 
-const locker = makeFreezer(optimized1.value, state2);
+const locker = makeLocker(optimized1.value, state2);
 
 const sub1Stmts = sub1.value[0].ast.statements.map(prettyStmt);
 const sub2Stmts = sub2.value[0].ast.statements.map(prettyStmt);
