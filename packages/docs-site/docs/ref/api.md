@@ -33,35 +33,45 @@ container.appendChild(rendered);
 ```javascript [trio.js]
 const domain = `
 type Set
+predicate Not(Prop p1)
+predicate Intersecting(Set s1, Set s2)
 predicate IsSubset(Set s1, Set s2)
 `;
 const style = `
 canvas {
-  width = 800
-  height = 700
-}
-
-forall Set x {
-  x.icon = Circle {
-    strokeWidth : 0
+    width = 800
+    height = 700
   }
-
-  x.text = Equation {
-    string : x.label
-    fontSize : "32px"
+  
+  forall Set x {
+    shape x.icon = Circle { }
+    shape x.text = Equation {
+      string : x.label
+      fontSize : "32px"
+    }
+    ensure contains(x.icon, x.text)
+    encourage norm(x.text.center - x.icon.center) == 0
+    layer x.text above x.icon
   }
-
-  ensure contains(x.icon, x.text)
-  encourage sameCenter(x.text, x.icon)
-  x.textLayering = x.text above x.icon
-}
-
-forall Set x; Set y
-where IsSubset(x, y) {
-  ensure disjoint(y.text, x.icon, 10)
-  ensure contains(y.icon, x.icon, 5)
-  x.icon above y.icon
-}
+  
+  forall Set x; Set y
+  where IsSubset(x, y) {
+    ensure disjoint(y.text, x.icon, 10)
+    ensure contains(y.icon, x.icon, 5)
+    layer x.icon above y.icon
+  }
+  
+  forall Set x; Set y
+  where Not(Intersecting(x, y)) {
+    ensure disjoint(x.icon, y.icon)
+  }
+  
+  forall Set x; Set y
+  where Intersecting(x, y) {
+    ensure overlapping(x.icon, y.icon)
+    ensure disjoint(y.text, x.icon)
+    ensure disjoint(x.text, y.icon)
+  }  
 `;
 const substance = `
 Set A, B, C, D, E, F, G
