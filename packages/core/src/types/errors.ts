@@ -61,6 +61,7 @@ export type SubstanceError =
   | DeconstructNonconstructor
   | UnexpectedExprForNestedPred
   | InvalidSetIndexingError
+  | BadSetIndexRangeError
   | DuplicateIndexError
   | DivideByZeroError
   | InvalidArithmeticValueError
@@ -92,6 +93,12 @@ export interface InvalidSetIndexingError {
   index: string;
   location: AbstractNode;
   suggestions: string[];
+}
+
+export interface BadSetIndexRangeError {
+  tag: "BadSetIndexRangeError";
+  index: number;
+  location: AbstractNode;
 }
 
 export interface DuplicateIndexError {
