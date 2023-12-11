@@ -16,7 +16,6 @@ import { IndexSet, RangeAssign, Range, NumberConstant, BinaryExpr, UnaryExpr, Co
 const lexer = moo.compile({
   tex_literal: /\$.*?\$/, // TeX string enclosed by dollar signs
   double_arrow: "<->",
-  int_literal: /[+-]?[1-9][0-9]*|0(?!\.[0-9])/,
   float_literal: /([+-]?([0-9]*[.])?[0-9]+)/,
   ...basicSymbols,
   identifier: {
@@ -115,19 +114,11 @@ range_assign -> identifier _ "in" _ int_range {%
   })
 %}
 
-int_range -> "[" _ integer _ "," _ integer _ "]" {%
+int_range -> "[" _ number _ "," _ number _ "]" {%
   ([lbracket, , low, , , , high, , rbracket]): Range<C> => ({
     ...nodeData,
     ...rangeBetween(lbracket, rbracket),
     tag: "Range", low, high
-  })
-%}
-
-integer -> %int_literal {% 
-  ([d]): NumberConstant<C> => ({
-    ...nodeData,
-    ...rangeOf(d),
-    tag: "NumberConstant", value: +d.value
   })
 %}
 
@@ -139,9 +130,7 @@ float -> %float_literal {%
     })
   %}
 
-number 
-  -> integer {%id%}
-  |  float {%id%}
+number -> float {%id%}
 
 stmt 
   -> decl            {% id %}

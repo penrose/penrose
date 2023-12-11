@@ -428,6 +428,24 @@ const evalISet = (iset: IndexSet<A>): Result<ISetSubst[], SubstanceError> => {
   for (const { variable, range } of indices) {
     const name = variable.value;
     const { high, low } = range;
+    const highVal = high.value,
+      lowVal = low.value;
+
+    if (!Number.isInteger(lowVal)) {
+      return err({
+        tag: "BadSetIndexRangeError",
+        index: lowVal,
+        location: low,
+      });
+    }
+
+    if (!Number.isInteger(highVal)) {
+      return err({
+        tag: "BadSetIndexRangeError",
+        index: highVal,
+        location: high,
+      });
+    }
 
     // a list of [[name, value]]
     const possVals = im

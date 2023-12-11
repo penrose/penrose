@@ -584,6 +584,13 @@ Label D $\\vec{d}$
     expectErrorOf(res2, "InvalidSetIndexingError");
   });
 
+  test("invalid range", () => {
+    const env1 = envOrError(domainProg);
+    const prog1 = `Set a_i for i in [1.234, 10]`;
+    const res1 = compileSubstance(prog1, env1);
+    expectErrorOf(res1, "BadSetIndexRangeError");
+  });
+
   test("duplicate index", () => {
     const env = envOrError(domainProg);
     const prog = `Set a_i for i in [1, 10], j in [2, 10], i in [1, 10]`;

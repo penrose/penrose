@@ -260,6 +260,12 @@ export const showError = (
         ", ",
       )}`;
     }
+    case "BadSetIndexRangeError": {
+      const { index, location } = error;
+      return `Number ${index} (at ${loc(
+        location,
+      )}) is not a valid upper or lower bound of a range.`;
+    }
     case "DuplicateIndexError": {
       const { index, location } = error;
       return `Index variable \`${index}\` has been declared multiple times at ${loc(
@@ -733,6 +739,7 @@ export const errLocs = (
       return locOrNone(e.deconstructor);
     }
     case "InvalidSetIndexingError":
+    case "BadSetIndexRangeError":
     case "DuplicateIndexError":
     case "DivideByZeroError":
     case "InvalidArithmeticValueError": {
