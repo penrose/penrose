@@ -13,45 +13,47 @@ import {
   struct,
   sub,
 } from "rose";
-import * as ad from "../engine/Autodiff.js";
+import * as ad from "../engine/AutodiffFunctions.js";
 import { rectPts } from "../lib/Queries.js";
 import { toPt } from "../lib/Utils.js";
 import { CircleProps } from "../shapes/Circle.js";
 import { EllipseProps } from "../shapes/Ellipse.js";
 import { PathProps } from "../shapes/Path.js";
 import { RectangleProps } from "../shapes/Rectangle.js";
+import { Num, Pt2, isPt2 } from "../types/ad.js";
 import { Center, Poly, Rect, Rotate, Scale } from "../types/shapes.js";
+import { EPS_DENOM, FromRose, fn as adFn, ops } from "./Autodiff.js";
 import { max, min } from "./Builtins.js";
 
 const Vec2 = Vec(2, Real);
 
 export const BBox = struct({ width: Real, height: Real, center: Vec2 });
-export type BBox = ad.FromRose<typeof BBox>;
+export type BBox = FromRose<typeof BBox>;
 
 export interface Corners {
-  topRight: ad.Pt2;
-  topLeft: ad.Pt2;
-  bottomLeft: ad.Pt2;
-  bottomRight: ad.Pt2;
+  topRight: Pt2;
+  topLeft: Pt2;
+  bottomLeft: Pt2;
+  bottomRight: Pt2;
 }
 
 export interface Intervals {
-  xRange: [ad.Num, ad.Num];
-  yRange: [ad.Num, ad.Num];
+  xRange: [Num, Num];
+  yRange: [Num, Num];
 }
 
 export interface Edges {
-  top: [ad.Pt2, ad.Pt2];
-  bot: [ad.Pt2, ad.Pt2];
-  left: [ad.Pt2, ad.Pt2];
-  right: [ad.Pt2, ad.Pt2];
+  top: [Pt2, Pt2];
+  bot: [Pt2, Pt2];
+  left: [Pt2, Pt2];
+  right: [Pt2, Pt2];
 }
 
 /**
  * Input: A width, height, and center.
  * Output: A new BBox.
  */
-export const bbox = (width: ad.Num, height: ad.Num, center: ad.Pt2): BBox => {
+export const bbox = (width: Num, height: Num, center: Pt2): BBox => {
   return {
     width,
     height,
@@ -64,12 +66,12 @@ export const corners = (b: BBox): Corners => {
   const halfHeight = ad.div(b.height, 2);
   const nhalfWidth = ad.neg(halfWidth);
   const nhalfHeight = ad.neg(halfHeight);
-  const pts = <ad.Pt2[]>[
+  const pts = <Pt2[]>[
     [halfWidth, halfHeight],
     [nhalfWidth, halfHeight],
     [nhalfWidth, nhalfHeight],
     [halfWidth, nhalfHeight],
-  ].map((p) => ad.ops.vadd(b.center, p));
+  ].map((p) => ops.vadd(b.center, p));
 
   return {
     topRight: pts[0],
@@ -83,11 +85,11 @@ export const corners = (b: BBox): Corners => {
  * Input: A BBox and an inflation parameter delta.
  * Output: A BBox inflated on all sides by delta.
  */
-export const inflate = (b: BBox, delta: ad.Num): BBox => {
+export const inflate = (b: BBox, delta: Num): BBox => {
   return bbox(
     ad.add(b.width, ad.add(delta, delta)),
     ad.add(b.height, ad.add(delta, delta)),
-    b.center as ad.Pt2,
+    b.center as Pt2,
   );
 };
 
@@ -95,7 +97,7 @@ export const inflate = (b: BBox, delta: ad.Num): BBox => {
  * Input: A BBox.
  * Output: The min X of the BBox.
  */
-export const minX = (b: BBox): ad.Num => {
+export const minX = (b: BBox): Num => {
   return corners(b).topLeft[0];
 };
 
@@ -103,7 +105,7 @@ export const minX = (b: BBox): ad.Num => {
  * Input: A BBox.
  * Output: The max X of the BBox.
  */
-export const maxX = (b: BBox): ad.Num => {
+export const maxX = (b: BBox): Num => {
   return corners(b).bottomRight[0];
 };
 
@@ -111,7 +113,7 @@ export const maxX = (b: BBox): ad.Num => {
  * Input: A BBox.
  * Output: The min Y of the BBox.
  */
-export const minY = (b: BBox): ad.Num => {
+export const minY = (b: BBox): Num => {
   return corners(b).bottomRight[1];
 };
 
@@ -119,7 +121,7 @@ export const minY = (b: BBox): ad.Num => {
  * Input: A BBox.
  * Output: The max Y of the BBox.
  */
-export const maxY = (b: BBox): ad.Num => {
+export const maxY = (b: BBox): Num => {
   return corners(b).topLeft[1];
 };
 
@@ -127,7 +129,7 @@ export const maxY = (b: BBox): ad.Num => {
  * Input: A BBox.
  * Output: The X interval of the BBox.
  */
-export const xRange = (b: BBox): [ad.Num, ad.Num] => {
+export const xRange = (b: BBox): [Num, Num] => {
   return [minX(b), maxX(b)];
 };
 
@@ -135,7 +137,7 @@ export const xRange = (b: BBox): [ad.Num, ad.Num] => {
  * Input: A BBox.
  * Output: The Y interval of the BBox.
  */
-export const yRange = (b: BBox): [ad.Num, ad.Num] => {
+export const yRange = (b: BBox): [Num, Num] => {
   return [minY(b), maxY(b)];
 };
 
@@ -152,30 +154,30 @@ export const edges = (b: BBox): Edges => {
   };
 };
 
-export const bboxFromPoints = (points: ad.Pt2[]): BBox => {
-  const minCorner = points.reduce((corner: ad.Pt2, point: ad.Pt2) => [
+export const bboxFromPoints = (points: Pt2[]): BBox => {
+  const minCorner = points.reduce((corner: Pt2, point: Pt2) => [
     ad.min(corner[0], point[0]),
     ad.min(corner[1], point[1]),
   ]);
-  const maxCorner = points.reduce((corner: ad.Pt2, point: ad.Pt2) => [
+  const maxCorner = points.reduce((corner: Pt2, point: Pt2) => [
     ad.max(corner[0], point[0]),
     ad.max(corner[1], point[1]),
   ]);
   const w = ad.sub(maxCorner[0], minCorner[0]);
   const h = ad.sub(maxCorner[1], minCorner[1]);
-  const center = ad.ops.vdiv(ad.ops.vadd(minCorner, maxCorner), 2);
-  if (!ad.isPt2(center)) {
+  const center = ops.vdiv(ops.vadd(minCorner, maxCorner), 2);
+  if (!isPt2(center)) {
     throw new Error("ops.vadd and ops.vdiv did not preserve dimension");
   }
   return bbox(w, h, center);
 };
 
 export const bboxFromRotatedRect = (
-  center: ad.Pt2,
-  w: ad.Num,
-  h: ad.Num,
-  clockwise: ad.Num,
-  strokeWidth: ad.Num,
+  center: Pt2,
+  w: Num,
+  h: Num,
+  clockwise: Num,
+  strokeWidth: Num,
 ): BBox => {
   return bboxFromPoints(
     rectPts(center, ad.add(w, strokeWidth), ad.add(h, strokeWidth), clockwise),
@@ -186,9 +188,9 @@ export const bboxFromCircle = ({
   r,
   center,
   strokeWidth,
-}: CircleProps<ad.Num>): BBox => {
+}: CircleProps<Num>): BBox => {
   // https://github.com/penrose/penrose/issues/715
-  if (!ad.isPt2(center.contents)) {
+  if (!isPt2(center.contents)) {
     throw new Error(
       `bboxFromCircle expected center to be Pt2, but got length ${center.contents.length}`,
     );
@@ -203,9 +205,9 @@ export const bboxFromEllipse = ({
   ry,
   center,
   strokeWidth,
-}: EllipseProps<ad.Num>): BBox => {
+}: EllipseProps<Num>): BBox => {
   // https://github.com/penrose/penrose/issues/715
-  if (!ad.isPt2(center.contents)) {
+  if (!isPt2(center.contents)) {
     throw new Error(
       `bboxFromEllipse expected center to be Pt2, but got length ${center.contents.length}`,
     );
@@ -226,9 +228,9 @@ export const bboxFromRect = ({
   center,
   strokeWidth,
   rotation,
-}: RectangleProps<ad.Num>): BBox => {
+}: RectangleProps<Num>): BBox => {
   // https://github.com/penrose/penrose/issues/715
-  if (!ad.isPt2(center.contents)) {
+  if (!isPt2(center.contents)) {
     throw new Error(
       `bboxFromRect expected center to be Pt2, but got length ${center.contents.length}`,
     );
@@ -249,9 +251,9 @@ export const bboxFromRectlike = ({
   width,
   height,
   rotation,
-}: Center<ad.Num> & Rect<ad.Num> & Rotate<ad.Num>): BBox => {
+}: Center<Num> & Rect<Num> & Rotate<Num>): BBox => {
   // https://github.com/penrose/penrose/issues/715
-  if (!ad.isPt2(center.contents)) {
+  if (!isPt2(center.contents)) {
     throw new Error(
       `bboxFromRectlike expected center to be Pt2, but got length ${center.contents.length}`,
     );
@@ -269,11 +271,11 @@ export const bboxFromRectlike = ({
 export const bboxFromPolygon = ({
   points,
   scale,
-}: Poly<ad.Num> & Scale<ad.Num>): BBox => {
+}: Poly<Num> & Scale<Num>): BBox => {
   return bboxFromPoints(
     points.contents.map((point) => {
-      const pt = ad.ops.vmul(scale.contents, point);
-      if (ad.isPt2(pt)) {
+      const pt = ops.vmul(scale.contents, point);
+      if (isPt2(pt)) {
         return pt;
       } else {
         throw new Error(
@@ -302,9 +304,7 @@ const vnormsq = fn([Vec2], Real, ([x, y]) => add(mul(x, x), mul(y, y)));
 
 const vnorm = fn([Vec2], Real, (v) => sqrt(vnormsq(v)));
 
-const vnormalize = fn([Vec2], Vec2, (v) =>
-  vdiv(v, add(vnorm(v), ad.EPS_DENOM)),
-);
+const vnormalize = fn([Vec2], Vec2, (v) => vdiv(v, add(vnorm(v), EPS_DENOM)));
 
 const bboxFromFourPoints = fn([Vec(4, Vec2)], BBox, (points) => {
   let minCorner = [points[0][0], points[0][1]];
@@ -323,7 +323,7 @@ const bboxFromFourPoints = fn([Vec(4, Vec2)], BBox, (points) => {
   return { width, height, center };
 });
 
-export const bboxFromLinelike = ad.fn(
+export const bboxFromLinelike = adFn(
   [Vec2, Vec2, Real],
   BBox,
   (start, end, strokeWidth) => {
@@ -337,7 +337,7 @@ export const bboxFromLinelike = ad.fn(
   },
 );
 
-export const bboxFromPath = ({ d }: PathProps<ad.Num>): BBox => {
+export const bboxFromPath = ({ d }: PathProps<Num>): BBox => {
   const p = d.contents;
   if (p.length < 1) {
     throw new Error("bboxFromPath expected pathData to be nonempty");
@@ -353,21 +353,21 @@ export const bboxFromPath = ({ d }: PathProps<ad.Num>): BBox => {
       `bboxFromPath expected first command subpath to be CoordV, but got ${first.tag}`,
     );
   }
-  if (!ad.isPt2(first.contents)) {
+  if (!isPt2(first.contents)) {
     throw new Error(
       `bboxFromPath expected cursor to be Pt2, but got length ${first.contents.length}`,
     );
   }
-  let cursor: ad.Pt2 = first.contents;
-  let control: ad.Pt2 = cursor; // used by T and S
+  let cursor: Pt2 = first.contents;
+  let control: Pt2 = cursor; // used by T and S
 
-  const points: ad.Pt2[] = [];
+  const points: Pt2[] = [];
   for (const { cmd, contents } of p) {
     const next = cmd === "Z" ? first : contents[contents.length - 1];
     if (next.tag !== "CoordV") {
       throw new Error("bboxFromPath expected next cursor to be CoordV");
     }
-    if (!ad.isPt2(next.contents)) {
+    if (!isPt2(next.contents)) {
       throw new Error("bboxFromPath expected next cursor to be Pt2");
     }
     let nextControl = next.contents;
@@ -378,7 +378,7 @@ export const bboxFromPath = ({ d }: PathProps<ad.Num>): BBox => {
       points.push(cursor, next.contents);
     } else if (cmd === "Q") {
       const cp = contents[0].contents;
-      if (!ad.isPt2(cp)) {
+      if (!isPt2(cp)) {
         throw new Error("bboxFromPath expected Q cp to be Pt2");
       }
       points.push(cursor, cp, next.contents);
@@ -386,28 +386,28 @@ export const bboxFromPath = ({ d }: PathProps<ad.Num>): BBox => {
     } else if (cmd === "C") {
       const cp1 = contents[0].contents;
       const cp2 = contents[1].contents;
-      if (!ad.isPt2(cp1)) {
+      if (!isPt2(cp1)) {
         throw new Error("bboxFromPath expected C cp1 to be Pt2");
       }
-      if (!ad.isPt2(cp2)) {
+      if (!isPt2(cp2)) {
         throw new Error("bboxFromPath expected C cp2 to be Pt2");
       }
       points.push(cursor, cp1, cp2, next.contents);
       nextControl = cp2;
     } else if (cmd === "T") {
-      const cp = ad.ops.vadd(cursor, ad.ops.vsub(cursor, control));
-      if (!ad.isPt2(cp)) {
+      const cp = ops.vadd(cursor, ops.vsub(cursor, control));
+      if (!isPt2(cp)) {
         throw new Error("ops did not preserve dimension");
       }
       points.push(cursor, cp, next.contents);
       nextControl = cp;
     } else if (cmd === "S") {
-      const cp1 = ad.ops.vadd(cursor, ad.ops.vsub(cursor, control));
+      const cp1 = ops.vadd(cursor, ops.vsub(cursor, control));
       const cp2 = contents[0].contents;
-      if (!ad.isPt2(cp1)) {
+      if (!isPt2(cp1)) {
         throw new Error("ops did not preserve dimension");
       }
-      if (!ad.isPt2(cp2)) {
+      if (!isPt2(cp2)) {
         throw new Error("bboxFromPath expected S cp2 to be Pt2");
       }
       points.push(cursor, cp1, cp2, next.contents);
@@ -427,8 +427,8 @@ export const bboxFromPath = ({ d }: PathProps<ad.Num>): BBox => {
 
       // https://www.w3.org/TR/SVG/implnote.html#ArcConversionEndpointToCenter
       // eq. 5.1
-      const [x1Prime, y1Prime] = ad.ops.vrot(
-        ad.ops.vdiv(ad.ops.vsub(cursor, next.contents), 2),
+      const [x1Prime, y1Prime] = ops.vrot(
+        ops.vdiv(ops.vsub(cursor, next.contents), 2),
         ad.neg(phi),
       );
 
@@ -444,7 +444,7 @@ export const bboxFromPath = ({ d }: PathProps<ad.Num>): BBox => {
       const ry = ad.ifCond(replace, ad.mul(ad.sqrt(lambda), ryPos), ryPos);
 
       // eq. 5.2
-      const cPrime = ad.ops.vmul(
+      const cPrime = ops.vmul(
         ad.mul(
           // according to the linked doc it seems like this should be the other
           // way around, but Penrose seems to do it this way instead
@@ -479,9 +479,9 @@ export const bboxFromPath = ({ d }: PathProps<ad.Num>): BBox => {
       );
 
       // eq. 5.3
-      const [cx, cy] = ad.ops.vadd(
-        ad.ops.vrot(cPrime, phi),
-        ad.ops.vdiv(ad.ops.vadd(cursor, next.contents), 2),
+      const [cx, cy] = ops.vadd(
+        ops.vrot(cPrime, phi),
+        ops.vdiv(ops.vadd(cursor, next.contents), 2),
       );
 
       // very crude approach: we know that the ellipse is contained within a
@@ -506,7 +506,7 @@ export const bboxFromPath = ({ d }: PathProps<ad.Num>): BBox => {
   return bboxFromPoints(points);
 };
 
-export const intersectBbox = ad.fn([BBox, BBox], BBox, (bbox1, bbox2) => {
+export const intersectBbox = adFn([BBox, BBox], BBox, (bbox1, bbox2) => {
   const { center: center1, width: w1, height: h1 } = bbox1;
   const [x1, y1] = center1;
   const { center: center2, width: w2, height: h2 } = bbox2;

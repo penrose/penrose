@@ -1,5 +1,5 @@
 import { Result } from "true-myth";
-import * as ad from "../../engine/Autodiff.js";
+import * as ad from "../../types/ad.js";
 import { StyleError } from "../../types/errors.js";
 import {
   Arrow,

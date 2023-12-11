@@ -1,5 +1,5 @@
 import { StrV } from "src/types/value.js";
-import * as ad from "../engine/Autodiff.js";
+import * as ad from "../types/ad.js";
 import {
   Fill,
   Named,

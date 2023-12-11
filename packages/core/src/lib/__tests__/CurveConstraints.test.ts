@@ -1,8 +1,8 @@
 import { describe, expect, it, test } from "vitest";
-import * as ad from "../../engine/Autodiff.js";
 import { Polygon } from "../../shapes/Polygon.js";
 import { Polyline } from "../../shapes/Polyline.js";
 import { Shape } from "../../shapes/Shapes.js";
+import * as ad from "../../types/ad.js";
 import {
   centerOfMass,
   constrDictCurves,

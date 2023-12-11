@@ -1,5 +1,5 @@
 import im from "immutable";
-import * as ad from "../engine/Autodiff.js";
+import * as ad from "./ad.js";
 import {
   A,
   AbstractNode,

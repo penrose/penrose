@@ -1,25 +1,27 @@
 import _ from "lodash";
 import seedrandom from "seedrandom";
 import { describe, expect, test } from "vitest";
-import * as ad from "../engine/Autodiff.js";
+import * as ad from "../types/ad.js";
 import { eqList, randList } from "../utils/Util.js";
 import {
-  add,
   compile,
-  div,
   fns,
   genGradient,
-  ifCond,
   logAD,
+  problem,
+  variable,
+} from "./Autodiff.js";
+import {
+  add,
+  div,
+  ifCond,
   lt,
   max,
   mul,
-  problem,
   sin,
   squared,
   sub,
-  variable,
-} from "./Autodiff.js";
+} from "./AutodiffFunctions.js";
 
 describe("problem tests", () => {
   const f = (x: ad.Num, y: ad.Num) => add(squared(sub(x, y)), squared(x));

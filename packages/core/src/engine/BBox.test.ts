@@ -1,5 +1,4 @@
 import { describe, expect, test } from "vitest";
-import * as ad from "../engine/Autodiff.js";
 import { compDict } from "../lib/Functions.js";
 import { numsOf } from "../lib/Utils.js";
 import { makeCircle } from "../shapes/Circle.js";
@@ -11,6 +10,7 @@ import { makePolygon } from "../shapes/Polygon.js";
 import { makePolyline } from "../shapes/Polyline.js";
 import { makeRectangle } from "../shapes/Rectangle.js";
 import { makeCanvas, simpleContext } from "../shapes/Samplers.js";
+import * as ad from "../types/ad.js";
 import { Poly, Scale } from "../types/shapes.js";
 import { black, floatV, ptListV, vectorV } from "../utils/Util.js";
 import {

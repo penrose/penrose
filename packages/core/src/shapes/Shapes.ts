@@ -1,6 +1,6 @@
-import * as ad from "../engine/Autodiff.js";
-import { add, div, maxN, minN, sub } from "../engine/Autodiff.js";
+import { add, div, maxN, minN, sub } from "../engine/AutodiffFunctions.js";
 import * as BBox from "../engine/BBox.js";
+import * as ad from "../types/ad.js";
 import { unwrap } from "../utils/Util.js";
 import { Circle, CircleProps, sampleCircle } from "./Circle.js";
 import { Ellipse, EllipseProps, sampleEllipse } from "./Ellipse.js";

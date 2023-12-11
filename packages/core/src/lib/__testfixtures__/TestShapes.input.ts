@@ -1,4 +1,3 @@
-import { Pt2 } from "../../engine/Autodiff.js";
 import { makeCircle } from "../../shapes/Circle.js";
 import { makeEllipse } from "../../shapes/Ellipse.js";
 import { makeLine } from "../../shapes/Line.js";
@@ -6,6 +5,7 @@ import { makePolygon } from "../../shapes/Polygon.js";
 import { makePolyline } from "../../shapes/Polyline.js";
 import { makeRectangle } from "../../shapes/Rectangle.js";
 import { makeCanvas, simpleContext } from "../../shapes/Samplers.js";
+import { Pt2 } from "../../types/ad.js";
 import { black, floatV, ptListV, vectorV } from "../../utils/Util.js";
 
 const context = simpleContext("TestShapes.input");

@@ -1,6 +1,5 @@
-import * as ad from "../engine/Autodiff.js";
+import { EPS_DENOM, ops } from "../engine/Autodiff.js";
 import {
-  EPS_DENOM,
   absVal,
   add,
   addN,
@@ -11,12 +10,12 @@ import {
   max,
   mul,
   neg,
-  ops,
   squared,
   sub,
-} from "../engine/Autodiff.js";
+} from "../engine/AutodiffFunctions.js";
 import { Line } from "../shapes/Line.js";
 import { Shape } from "../shapes/Shapes.js";
+import * as ad from "../types/ad.js";
 import { ObjFunc } from "../types/functions.js";
 import {
   booleanT,

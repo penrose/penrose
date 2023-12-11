@@ -3,18 +3,8 @@ import im from "immutable";
 import _ from "lodash";
 import nearley from "nearley";
 import seedrandom from "seedrandom";
-import * as ad from "../engine/Autodiff.js";
-import {
-  add,
-  div,
-  genGradient,
-  mul,
-  neg,
-  ops,
-  pow,
-  sub,
-  variable,
-} from "../engine/Autodiff.js";
+import { genGradient, ops, variable } from "../engine/Autodiff.js";
+import { add, div, mul, neg, pow, sub } from "../engine/AutodiffFunctions.js";
 import { compileCompGraph, dummyIdentifier } from "../engine/EngineUtils.js";
 import { start as genOptProblem } from "../engine/Optimizer.js";
 import { constrDict } from "../lib/Constraints.js";
@@ -36,6 +26,7 @@ import {
   isShapeType,
   sampleShape,
 } from "../shapes/Shapes.js";
+import * as ad from "../types/ad.js";
 import { A, C, Identifier, SourceRange } from "../types/ast.js";
 import { Env } from "../types/domain.js";
 import {

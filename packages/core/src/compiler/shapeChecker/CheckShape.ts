@@ -1,5 +1,4 @@
 import { Result } from "true-myth";
-import * as ad from "../../engine/Autodiff.js";
 import { dummyIdentifier } from "../../engine/EngineUtils.js";
 import { Circle } from "../../shapes/Circle.js";
 import { Ellipse } from "../../shapes/Ellipse.js";
@@ -13,6 +12,7 @@ import { Polyline } from "../../shapes/Polyline.js";
 import { Rectangle } from "../../shapes/Rectangle.js";
 import { Shape, ShapeType } from "../../shapes/Shapes.js";
 import { Text } from "../../shapes/Text.js";
+import * as ad from "../../types/ad.js";
 import { StyleError } from "../../types/errors.js";
 import { Translation } from "../../types/styleSemantics.js";
 import {

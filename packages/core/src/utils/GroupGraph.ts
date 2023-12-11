@@ -1,5 +1,5 @@
-import * as ad from "../engine/Autodiff.js";
 import { Shape } from "../shapes/Shapes.js";
+import * as ad from "../types/ad.js";
 import Graph from "./Graph.js";
 import { shapeListV, unwrap } from "./Util.js";
 

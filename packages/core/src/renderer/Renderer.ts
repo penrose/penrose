@@ -4,7 +4,8 @@
  *
  */
 
-import { compile, maxN, minN } from "../engine/Autodiff.js";
+import { compile } from "../engine/Autodiff.js";
+import { maxN, minN } from "../engine/AutodiffFunctions.js";
 import { maxX, maxY, minX, minY } from "../engine/BBox.js";
 import { bboxFromShape } from "../lib/Queries.js";
 import { isLinelike, isRectlike } from "../lib/Utils.js";

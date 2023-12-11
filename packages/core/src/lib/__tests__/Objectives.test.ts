@@ -1,7 +1,7 @@
 import { describe, expect, it, test } from "vitest";
-import * as ad from "../../engine/Autodiff.js";
 import { Polygon } from "../../shapes/Polygon.js";
 import { Polyline } from "../../shapes/Polyline.js";
+import * as ad from "../../types/ad.js";
 import { objDict, objDictSpecific } from "../Objectives.js";
 import { extractPoints, isClosed, numOf } from "../Utils.js";
 import { _polygons, _polylines } from "../__testfixtures__/TestShapes.input.js";

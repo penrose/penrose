@@ -1,4 +1,4 @@
-import * as ad from "../engine/Autodiff.js";
+import { ops } from "../engine/Autodiff.js";
 import {
   absVal,
   add,
@@ -8,14 +8,14 @@ import {
   lte,
   maxN,
   mul,
-  ops,
   pow,
   sign,
   sin,
   squared,
   sub,
   tan,
-} from "../engine/Autodiff.js";
+} from "../engine/AutodiffFunctions.js";
+import * as ad from "../types/ad.js";
 import { ConstrFunc } from "../types/functions.js";
 import { booleanT, noWarnFn, realNMT } from "../utils/Util.js";
 import { consecutiveTriples, consecutiveTuples } from "./Utils.js";

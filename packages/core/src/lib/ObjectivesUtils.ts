@@ -1,5 +1,6 @@
-import * as ad from "../engine/Autodiff.js";
-import { ops, squared, sub } from "../engine/Autodiff.js";
+import { ops } from "../engine/Autodiff.js";
+import { squared, sub } from "../engine/AutodiffFunctions.js";
+import * as ad from "../types/ad.js";
 
 /**
  * Encourage the point `p` to be in the direction `direction` with respect to point `pRef`.

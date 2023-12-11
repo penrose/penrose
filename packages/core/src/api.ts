@@ -1,18 +1,11 @@
-import * as ad from "./engine/Autodiff.js";
-import {
-  absVal,
-  add,
-  div,
-  neg,
-  ops,
-  sub,
-  variable,
-} from "./engine/Autodiff.js";
+import { ops, variable } from "./engine/Autodiff.js";
+import { absVal, add, div, neg, sub } from "./engine/AutodiffFunctions.js";
 import { constrDict } from "./lib/Constraints.js";
 import { elasticEnergy, equivalued, perimeter } from "./lib/Curves.js";
 import { signedDistanceRect } from "./lib/Functions.js";
 import { rectPts } from "./lib/Queries.js";
 import { consecutiveTuples } from "./lib/Utils.js";
+import * as ad from "./types/ad.js";
 import { TextMeasurement, measureText } from "./utils/CollectLabels.js";
 
 interface Rect {
@@ -64,6 +57,7 @@ export const onCanvasPoint = (
 
 export const lessThan = (x: ad.Num, y: ad.Num): ad.Num => sub(x, y);
 
+export { compile, ops, problem } from "./engine/Autodiff.js";
 export {
   absVal,
   acos,
@@ -77,7 +71,6 @@ export {
   atanh,
   cbrt,
   ceil,
-  compile,
   cos,
   cosh,
   div,
@@ -101,11 +94,9 @@ export {
   mul,
   neg,
   not,
-  ops,
   or,
   polyRoots,
   pow,
-  problem,
   round,
   sign,
   sin,
@@ -117,7 +108,10 @@ export {
   tanh,
   trunc,
   xor,
-} from "./engine/Autodiff.js";
+} from "./engine/AutodiffFunctions.js";
+export { corners } from "./engine/BBox.js";
+export type { BBox } from "./engine/BBox.js";
+export { convexPolygonMinkowskiSDF } from "./lib/Minkowski.js";
 export type {
   Binary,
   Bool,
@@ -138,10 +132,7 @@ export type {
   Unary,
   Var,
   Vec,
-} from "./engine/Autodiff.js";
-export { corners } from "./engine/BBox.js";
-export type { BBox } from "./engine/BBox.js";
-export { convexPolygonMinkowskiSDF } from "./lib/Minkowski.js";
+} from "./types/ad.js";
 export {
   consecutiveTuples,
   elasticEnergy,

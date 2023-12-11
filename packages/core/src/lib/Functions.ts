@@ -1,5 +1,5 @@
 import _ from "lodash";
-import * as ad from "../engine/Autodiff.js";
+import { ops } from "../engine/Autodiff.js";
 import {
   absVal,
   acos,
@@ -36,7 +36,6 @@ import {
   mul,
   neg,
   not,
-  ops,
   or,
   pow,
   round,
@@ -49,7 +48,7 @@ import {
   tan,
   tanh,
   trunc,
-} from "../engine/Autodiff.js";
+} from "../engine/AutodiffFunctions.js";
 import { bboxFromRectlike } from "../engine/BBox.js";
 import { PathBuilder } from "../renderer/PathBuilder.js";
 import { Circle } from "../shapes/Circle.js";
@@ -61,6 +60,7 @@ import { Polygon } from "../shapes/Polygon.js";
 import { Polyline } from "../shapes/Polyline.js";
 import { Context, uniform } from "../shapes/Samplers.js";
 import { Shape } from "../shapes/Shapes.js";
+import * as ad from "../types/ad.js";
 import { CompFunc, MayWarn } from "../types/functions.js";
 import {
   ClipDataV,

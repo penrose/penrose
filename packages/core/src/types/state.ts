@@ -1,7 +1,7 @@
-import * as ad from "../engine/Autodiff.js";
 import { Params } from "../engine/Optimizer.js";
 import { Canvas, InputMeta } from "../shapes/Samplers.js";
 import { Shape } from "../shapes/Shapes.js";
+import * as ad from "./ad.js";
 import { A } from "./ast.js";
 import { StyleWarning } from "./errors.js";
 import { ConstrFn, ObjFn } from "./style.js";

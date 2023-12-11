@@ -1,4 +1,4 @@
-import * as ad from "../engine/Autodiff.js";
+import { ops } from "../engine/Autodiff.js";
 import {
   absVal,
   add,
@@ -12,14 +12,14 @@ import {
   minN,
   mul,
   neg,
-  ops,
   sqrt,
   squared,
   sub,
-} from "../engine/Autodiff.js";
+} from "../engine/AutodiffFunctions.js";
 import * as BBox from "../engine/BBox.js";
 import { Line } from "../shapes/Line.js";
 import { Shape } from "../shapes/Shapes.js";
+import * as ad from "../types/ad.js";
 import { BBoxApproximationWarningItem } from "../types/errors.js";
 import { ConstrFunc, MayWarn } from "../types/functions.js";
 import { ClipData } from "../types/value.js";

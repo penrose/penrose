@@ -1,4 +1,4 @@
-import * as ad from "../engine/Autodiff.js";
+import * as ad from "../types/ad.js";
 import { Center, Named, Rect, Rotate, ShapeCommon } from "../types/shapes.js";
 import { StrV } from "../types/value.js";
 import { boolV, floatV, strV } from "../utils/Util.js";

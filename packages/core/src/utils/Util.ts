@@ -1,9 +1,9 @@
 import _ from "lodash";
 import seedrandom from "seedrandom";
-import * as ad from "../engine/Autodiff.js";
 import { isConcrete } from "../engine/EngineUtils.js";
 import { LineProps } from "../shapes/Line.js";
 import { Shape, ShapeType } from "../shapes/Shapes.js";
+import * as ad from "../types/ad.js";
 import { A, ASTNode, NodeType, SourceLoc, SourceRange } from "../types/ast.js";
 import { Either, Left, Right } from "../types/common.js";
 import { StyleWarning } from "../types/errors.js";

@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 
 import { describe, expect, test } from "vitest";
-import * as ad from "./engine/Autodiff.js";
-import { genGradient, pow, sub } from "./engine/Autodiff.js";
+import { genGradient } from "./engine/Autodiff.js";
+import { pow, sub } from "./engine/AutodiffFunctions.js";
 import { start } from "./engine/Optimizer.js";
 import {
   compile,
@@ -15,6 +15,7 @@ import {
   toSVG,
   variable,
 } from "./index.js";
+import * as ad from "./types/ad.js";
 import { State } from "./types/state.js";
 
 // copied from `packages/examples/src/set-theory-domain/setTheory.domain`
