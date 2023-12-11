@@ -38,7 +38,6 @@ export interface State {
   optStages: string[];
   computeShapes: ShapeFn;
   params: Params;
-  autodiffTime: bigint;
 }
 
 /**
