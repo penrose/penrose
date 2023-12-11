@@ -262,9 +262,9 @@ export const showError = (
     }
     case "BadSetIndexRangeError": {
       const { index, location } = error;
-      return `Number ${index} (at ${loc(
+      return `A indexed-set range must consist of integers, but value ${index} (at ${loc(
         location,
-      )}) is not a valid upper or lower bound of a range.`;
+      )}) is not an integer.`;
     }
     case "DuplicateIndexError": {
       const { index, location } = error;
