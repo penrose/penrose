@@ -10,6 +10,7 @@ import {
   Unary,
   Var,
   Vec,
+  polyRootsImpl,
   variable,
 } from "@penrose/core";
 import seedrandom from "seedrandom";
@@ -265,8 +266,18 @@ const numSignal = (x: Num): Accessor<number> => {
 const vecSignal = (x: Vec): Accessor<number[]> => {
   if (secret in x) return x[secret] as Accessor<number[]>;
   switch (x.tag) {
+    case "PolyRoots": {
+      const ys = x.coeffs.map((y) => numSignal(y as Num));
+      const v = new Float64Array(x.coeffs.length);
+      return vecWith(x, () => {
+        ys.forEach((y, i) => {
+          v[i] = y();
+        });
+        polyRootsImpl(v);
+        return Array.from(v);
+      });
+    }
     case "LitVec":
-    case "PolyRoots":
     case "Index":
     case "Member":
     case "Call":
