@@ -1,5 +1,5 @@
 import { ops, variable } from "./engine/Autodiff.js";
-import { absVal, add, div, neg, sub } from "./engine/AutodiffFunctions.js";
+import { absVal, add, div, neg, pow, sub } from "./engine/AutodiffFunctions.js";
 import { constrDict } from "./lib/Constraints.js";
 import { elasticEnergy, equivalued, perimeter } from "./lib/Curves.js";
 import { signedDistanceRect } from "./lib/Functions.js";
@@ -58,57 +58,7 @@ export const onCanvasPoint = (
 export const lessThan = (x: ad.Num, y: ad.Num): ad.Num => sub(x, y);
 
 export { compile, ops, problem } from "./engine/Autodiff.js";
-export {
-  absVal,
-  acos,
-  acosh,
-  add,
-  addN,
-  and,
-  asinh,
-  atan,
-  atan2,
-  atanh,
-  cbrt,
-  ceil,
-  cos,
-  cosh,
-  div,
-  exp,
-  expm1,
-  floor,
-  gt,
-  gte,
-  ifCond,
-  inverse,
-  ln,
-  log10,
-  log1p,
-  log2,
-  lt,
-  lte,
-  max,
-  maxN,
-  min,
-  minN,
-  mul,
-  neg,
-  not,
-  or,
-  polyRoots,
-  pow,
-  round,
-  sign,
-  sin,
-  sinh,
-  sqrt,
-  squared,
-  sub,
-  tan,
-  tanh,
-  trunc,
-  xor,
-} from "./engine/AutodiffFunctions.js";
+export * from "./engine/AutodiffFunctions.js";
 export { corners } from "./engine/BBox.js";
 export type { BBox } from "./engine/BBox.js";
 export { convexPolygonMinkowskiSDF } from "./lib/Minkowski.js";
@@ -139,7 +89,9 @@ export {
   equivalued,
   measureText,
   perimeter,
+  pow,
   rectPts,
   signedDistanceRect,
+  sub,
   variable,
 };
