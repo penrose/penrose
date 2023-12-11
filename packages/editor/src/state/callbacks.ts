@@ -203,12 +203,12 @@ export const useSaveLocally = () =>
   });
 
 const _saveFile = (text: string, title: string, suffix: string) => {
+  // https://stackoverflow.com/questions/3665115/how-to-create-a-file-in-memory-for-user-to-download-but-not-through-server
   var element = document.createElement("a");
   element.setAttribute(
     "href",
     "data:text/plain;charset=utf-8," + encodeURIComponent(text),
   );
-  // TODO file.name is .domain, .substance, etc. needs to be correct file name
   element.setAttribute("download", `${title}${suffix}`);
 
   element.style.display = "none";
@@ -224,16 +224,18 @@ export const useDownloadTrio = () =>
     const id = toast.loading("downloading trio...");
     const metadata = snapshot.getLoadable(workspaceMetadataSelector)
       .contents as WorkspaceMetadata;
-    const fileTitle = metadata.name;
+    const fileTitle = metadata.name.replaceAll(" ", "_").toLowerCase();
     const workspace = snapshot.getLoadable(currentWorkspaceState)
       .contents as Workspace;
     const domainFile = workspace.files.domain;
     const substanceFile = workspace.files.substance;
     const styleFile = workspace.files.style;
 
-    _saveFile(domainFile.contents, fileTitle, domainFile.name);
-    _saveFile(styleFile.contents, fileTitle, styleFile.name);
-    _saveFile(substanceFile.contents, fileTitle, substanceFile.name);
+    // save trio
+    // TODO zip files
+    [domainFile, substanceFile, styleFile].map((f) =>
+      _saveFile(f.contents, fileTitle, f.name),
+    );
     toast.dismiss(id);
   });
 

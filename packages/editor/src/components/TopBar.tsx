@@ -156,7 +156,7 @@ export default function TopBar() {
         </div>
       )}
       <div>
-        <BlueButton onClick={downloadTrio}>save</BlueButton>
+        <BlueButton onClick={downloadTrio}>download</BlueButton>
         <BlueButton onClick={compileDiagram}>compile ▶</BlueButton>
         <BlueButton onClick={resampleDiagram}>resample</BlueButton>
       </div>
