@@ -202,6 +202,41 @@ export const useSaveLocally = () =>
     _saveLocally(set);
   });
 
+const _saveFile = (text: string, title: string, suffix: string) => {
+  var element = document.createElement("a");
+  element.setAttribute(
+    "href",
+    "data:text/plain;charset=utf-8," + encodeURIComponent(text),
+  );
+  // TODO file.name is .domain, .substance, etc. needs to be correct file name
+  element.setAttribute("download", `${title}${suffix}`);
+
+  element.style.display = "none";
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
+};
+
+export const useDownloadTrio = () =>
+  useRecoilCallback(({ set, snapshot }) => async () => {
+    const id = toast.loading("downloading trio...");
+    const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+      .contents as WorkspaceMetadata;
+    const fileTitle = metadata.name;
+    const workspace = snapshot.getLoadable(currentWorkspaceState)
+      .contents as Workspace;
+    const domainFile = workspace.files.domain;
+    const substanceFile = workspace.files.substance;
+    const styleFile = workspace.files.style;
+
+    _saveFile(domainFile.contents, fileTitle, domainFile.name);
+    _saveFile(styleFile.contents, fileTitle, styleFile.name);
+    _saveFile(substanceFile.contents, fileTitle, substanceFile.name);
+    toast.dismiss(id);
+  });
+
 export const useDuplicate = () =>
   useRecoilCallback(({ set }) => () => {
     set(workspaceMetadataSelector, (state: WorkspaceMetadata) => ({

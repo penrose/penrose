@@ -8,6 +8,7 @@ import {
 } from "../state/atoms.js";
 import {
   useCompileDiagram,
+  useDownloadTrio,
   usePublishGist,
   useResampleDiagram,
   useSaveLocally,
@@ -96,6 +97,7 @@ export default function TopBar() {
   const resampleDiagram = useResampleDiagram();
   const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
   const settings = useRecoilValue(settingsState);
+  const downloadTrio = useDownloadTrio();
   const saveLocally = useSaveLocally();
   const publishGist = usePublishGist();
 
@@ -154,6 +156,7 @@ export default function TopBar() {
         </div>
       )}
       <div>
+        <BlueButton onClick={downloadTrio}>save</BlueButton>
         <BlueButton onClick={compileDiagram}>compile ▶</BlueButton>
         <BlueButton onClick={resampleDiagram}>resample</BlueButton>
       </div>
