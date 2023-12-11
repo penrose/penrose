@@ -1,6 +1,7 @@
 import { State } from "@penrose/core/dist/types/state";
 import * as ad from "@penrose/core/dist/types/ad";
 import { constSampler } from "@penrose/core/dist/shapes/Samplers";
+import { safe } from "@penrose/core/dist/utils/Util";
 
 export type Locker = (from: ad.Var, to: ad.Var) => void;
 
@@ -14,15 +15,14 @@ export const makeLocker = (fromState: State, toState: State): Locker => {
   const handled: Map<ad.Var, number> = new Map();
 
   return (from: ad.Var, to: ad.Var) => {
-    const toIndex = toVarIndexMap.get(to);
-    if (toIndex === undefined) {
-      throw new Error("Cannot find Var in toState.inputs");
-    }
-
-    const fromIndex = fromVarIndexMap.get(from);
-    if (fromIndex === undefined) {
-      throw new Error("Cannot find Var in fromState.inputs");
-    }
+    const toIndex = safe(
+      toVarIndexMap.get(to),
+      "cannot find Var in toState.inputs",
+    );
+    const fromIndex = safe(
+      fromVarIndexMap.get(from),
+      "Cannot find Var in fromState.inputs",
+    );
 
     const val = fromState.varyingValues[fromIndex];
 
