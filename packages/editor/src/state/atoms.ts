@@ -200,7 +200,10 @@ export const currentWorkspaceState = atom<Workspace>({
       },
       style: {
         name: ".style",
-        contents: "",
+        contents: `canvas {
+  width = 400
+  height = 400
+}`,
       },
       domain: {
         name: ".domain",
