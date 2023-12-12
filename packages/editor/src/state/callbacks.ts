@@ -4,6 +4,7 @@ import {
   resample,
   stepNextStage,
   stepTimes,
+  toSVG,
 } from "@penrose/core";
 import { Style } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
@@ -11,22 +12,35 @@ import localforage from "localforage";
 import { range } from "lodash";
 import queryString from "query-string";
 import toast from "react-hot-toast";
-import { useRecoilCallback } from "recoil";
+import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
 import { v4 as uuid } from "uuid";
 import {
+  DownloadPNG,
+  DownloadSVG,
+  pathResolver,
+} from "../utils/downloadutils.js";
+import {
+  Canvas,
   Diagram,
   DiagramGrid,
+  DiagramMetadata,
   EDITOR_VERSION,
   GistMetadata,
   LocalGithubUser,
+  ProgramFile,
+  RogerState,
   Settings,
   TrioWithPreview,
   Workspace,
   WorkspaceLocation,
   WorkspaceMetadata,
+  canvasState,
+  currentRogerState,
   currentWorkspaceState,
   diagramGridState,
+  diagramMetadataSelector,
   diagramState,
+  fileContentsSelector,
   localFilesState,
   settingsState,
   workspaceMetadataSelector,
@@ -237,6 +251,125 @@ export const useDownloadTrio = () =>
       _saveFile(f.contents, fileTitle, f.name),
     );
     toast.dismiss(id);
+  });
+
+export const downloadSvg = () =>
+  useRecoilCallback(({ set, snapshot }) => async () => {
+    const diagram = snapshot.getLoadable(diagramMetadataSelector)
+      .contents as DiagramMetadata;
+    const canvas = snapshot.getLoadable(canvasState).contents as Canvas;
+    if (canvas.ref && canvas.ref.current !== null) {
+      const svg = canvas.ref.current.firstElementChild as SVGSVGElement;
+      if (svg !== null) {
+        const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+          .contents as WorkspaceMetadata;
+        const domain = snapshot.getLoadable(fileContentsSelector("domain"))
+          .contents as ProgramFile;
+        const substance = snapshot.getLoadable(
+          fileContentsSelector("substance"),
+        ).contents as ProgramFile;
+        const style = snapshot.getLoadable(fileContentsSelector("style"))
+          .contents as ProgramFile;
+        DownloadSVG(
+          svg,
+          metadata.name,
+          domain.contents,
+          substance.contents,
+          style.contents,
+          metadata.editorVersion.toString(),
+          diagram.variation,
+        );
+      }
+    }
+  });
+
+// download an svg with raw TeX labels
+export const downloadSvgTex = () =>
+  useRecoilCallback(({ set, snapshot }) => async () => {
+    const diagram = snapshot.getLoadable(diagramMetadataSelector)
+      .contents as DiagramMetadata;
+    const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+      .contents as WorkspaceMetadata;
+    const rogerState = snapshot.getLoadable(currentRogerState)
+      .contents as RogerState;
+    const canvas = useRecoilValue(canvasState);
+    if (canvas.ref && canvas.ref.current !== null) {
+      const { state } = snapshot.getLoadable(diagramState).contents as Diagram;
+      if (state !== null) {
+        const svg = await toSVG(
+          state,
+          (path) => pathResolver(path, rogerState, metadata),
+          "diagramPanel",
+          true,
+        );
+        const domain = snapshot.getLoadable(fileContentsSelector("domain"))
+          .contents as ProgramFile;
+        const substance = snapshot.getLoadable(
+          fileContentsSelector("substance"),
+        ).contents as ProgramFile;
+        const style = snapshot.getLoadable(fileContentsSelector("style"))
+          .contents as ProgramFile;
+        DownloadSVG(
+          svg,
+          metadata.name,
+          domain.contents,
+          substance.contents,
+          style.contents,
+          metadata.editorVersion.toString(),
+          diagram.variation,
+        );
+      }
+    }
+  });
+
+export const downloadPng = () =>
+  useRecoilCallback(({ set, snapshot }) => async () => {
+    const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
+    const canvas = useRecoilValue(canvasState);
+    if (canvas.ref && canvas.ref.current !== null) {
+      const svg = canvas.ref.current.firstElementChild as SVGSVGElement;
+      if (svg !== null) {
+        const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+          .contents as WorkspaceMetadata;
+        const filename = `${metadata.name}.png`;
+        if (diagram.state) {
+          const { canvas: canvasDims } = diagram.state;
+          const { width, height } = canvasDims;
+          DownloadPNG(svg, filename, width, height, 1);
+        }
+      }
+    }
+  });
+
+export const downloadPdf = () =>
+  useRecoilCallback(({ snapshot }) => async () => {
+    const [diagram, _] = useRecoilState(diagramState);
+    const { state } = diagram;
+    const canvas = useRecoilValue(canvasState);
+    if (canvas.ref && canvas.ref.current !== null) {
+      const svg = canvas.ref.current.firstElementChild as SVGSVGElement;
+      if (svg !== null && state) {
+        const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+          .contents as WorkspaceMetadata;
+        const openedWindow = window.open(
+          "",
+          "PRINT",
+          `height=${state.canvas.height},width=${state.canvas.width}`,
+        );
+        if (openedWindow === null) {
+          toast.error("Couldn't open popup to print");
+          return;
+        }
+        openedWindow.document.write(
+          `<!DOCTYPE html><head><title>${metadata.name}</title></head><body>`,
+        );
+        openedWindow.document.write(svg.outerHTML);
+        openedWindow.document.write("</body></html>");
+        openedWindow.document.close();
+        openedWindow.focus();
+        openedWindow.print();
+      }
+    }
   });
 
 export const useDuplicate = () =>

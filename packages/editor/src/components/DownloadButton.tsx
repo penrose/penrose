@@ -1,24 +1,23 @@
-import { useRecoilValue } from "recoil";
-import { settingsState, workspaceMetadataSelector } from "../state/atoms.js";
-import { useDownloadTrio } from "../state/callbacks.js";
-import { DropdownButton, DropdownItem } from "./DropdownButton.js";
+import {
+  downloadPdf,
+  downloadPng,
+  downloadSvg,
+  downloadSvgTex,
+  useDownloadTrio,
+} from "../state/callbacks.js";
+import DropdownButton, { DropdownItem } from "./DropdownButton.js";
 
 export default function DownloadButton() {
   // TODO: put downloads from DiagramPanel in download dropdown
   // TODO: add upload button and put the current upload functionality there, add "upload trio" option
-  const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
-  const settings = useRecoilValue(settingsState);
-  const downloadTrio = useDownloadTrio();
+  // const downloadTrio = useDownloadTrio();
 
   const dropdownItems: DropdownItem[] = [
-    {
-      label: "download SVG",
-      onClick: () => {}, // TODO
-    },
-    {
-      label: "download trio",
-      onClick: downloadTrio,
-    },
+    { label: "as SVG", onClick: downloadSvg() },
+    { label: "as Penrose trio", onClick: useDownloadTrio() },
+    { label: "as SVG TeX", onClick: downloadSvgTex() },
+    { label: "as PNG", onClick: downloadPng() },
+    { label: "as PDF", onClick: downloadPdf() },
   ];
 
   return (

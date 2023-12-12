@@ -14,6 +14,7 @@ import {
   useSaveLocally,
 } from "../state/callbacks.js";
 import BlueButton from "./BlueButton.js";
+import DownloadButton from "./DownloadButton.js";
 
 const TitleBox = styled.div`
   padding: 5px 10px;
@@ -159,6 +160,7 @@ export default function TopBar() {
       )}
       <div>
         <BlueButton onClick={downloadTrio}>download</BlueButton>
+        <DownloadButton />
         <BlueButton onClick={compileDiagram}>compile ▶</BlueButton>
         <BlueButton onClick={resampleDiagram}>resample</BlueButton>
       </div>

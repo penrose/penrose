@@ -1,5 +1,5 @@
 import { Menu, MenuItem } from "@material-ui/core";
-import React, { ReactNode } from "react";
+import React from "react";
 import BlueButton from "./BlueButton";
 
 export interface DropdownItem {
@@ -12,56 +12,37 @@ export interface DropdownButtonProps {
   items: DropdownItem[];
 }
 
-export interface DropdownButtonState {
-  isOpen: boolean;
-}
-
-export class DropdownButton extends React.Component<
-  DropdownButtonProps,
-  DropdownButtonState
-> {
-  anchorEl: HTMLElement | null;
-  setAnchorEl: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
-  isOpen: boolean;
-  constructor(props: DropdownButtonProps) {
-    super(props);
-    [this.anchorEl, this.setAnchorEl] = React.useState<null | HTMLElement>(
-      null,
-    );
-    this.isOpen = Boolean(this.anchorEl);
-  }
-
-  handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    this.setAnchorEl(event.currentTarget);
+export default function DropdownButton(props: DropdownButtonProps) {
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const isOpen = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
   };
 
-  handleClose = () => {
-    this.setAnchorEl(null);
-  };
-
-  createMenuItems = () => {
-    return this.props.items.map((i) => {
+  const createMenuItems = () => {
+    return props.items.map((item, i) => {
       const onClick = () => {
-        i.onClick();
-        this.handleClose();
+        item.onClick();
+        handleClose();
       };
       // TODO casting bad?
-      return (<MenuItem onClick={onClick}>{i.label}</MenuItem>) as ReactNode;
+      return (
+        <MenuItem onClick={onClick} key={`download-dropdown-${i}`}>
+          {item.label}
+        </MenuItem>
+      );
     });
   };
 
-  render() {
-    return (
-      <div>
-        <BlueButton onClick={this.handleClick}>{this.props.label}</BlueButton>
-        <Menu
-          anchorEl={this.anchorEl}
-          open={this.isOpen}
-          onClose={this.handleClose}
-        >
-          {this.createMenuItems()}
-        </Menu>
-      </div>
-    );
-  }
+  return (
+    <div>
+      <BlueButton onClick={handleClick}>{props.label}</BlueButton>
+      <Menu anchorEl={anchorEl} open={isOpen} onClose={handleClose}>
+        {createMenuItems()}
+      </Menu>
+    </div>
+  );
 }
