@@ -93,6 +93,8 @@ function EditableTitle() {
 }
 
 export default function TopBar() {
+  // TODO: put downloads from DiagramPanel in download dropdown
+  // TODO: add upload button and put the current upload functionality there, add "upload trio" option
   const compileDiagram = useCompileDiagram();
   const resampleDiagram = useResampleDiagram();
   const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
