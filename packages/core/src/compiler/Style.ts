@@ -174,9 +174,9 @@ import {
   vectorV,
   zip2,
 } from "../utils/Util.js";
-import { checkTypeConstructor, isDeclaredSubtype } from "./Domain.js";
+import { checkType, isDeclaredSubtype } from "./Domain.js";
 import { callCompFunc, callObjConstrFunc } from "./StyleFunctionCaller.js";
-import { checkExpr, checkPredicate, checkVar } from "./Substance.js";
+import { checkArgs, checkExpr, checkVar } from "./Substance.js";
 import { checkShape } from "./shapeChecker/CheckShape.js";
 
 const log = (consola as any)
@@ -346,7 +346,7 @@ const checkDeclPatternAndMakeEnv = (
 ): SelEnv => {
   const [styType, bVar] = [stmt.type, stmt.id];
 
-  const typeErr = checkTypeConstructor(toSubstanceType(styType), varEnv);
+  const typeErr = checkType(toSubstanceType(styType), varEnv);
   if (isErr(typeErr)) {
     return addErrSel(selEnv, {
       tag: "TaggedSubstanceError",
@@ -521,7 +521,7 @@ const checkRelPattern = (
       ) {
         return [{ tag: "SelectorAliasNamingError", alias: rel.alias }];
       }
-      const res = checkPredicate(toSubPred(rel), varEnv);
+      const res = checkArgs(toSubPred(rel), varEnv);
       if (isErr(res)) {
         const subErr3: SubstanceError = res.error[0];
         return [{ tag: "TaggedSubstanceError", error: subErr3 }];

@@ -1,5 +1,4 @@
 import im from "immutable";
-import _ from "lodash";
 import nearley from "nearley";
 import domainGrammar from "../parser/DomainParser.js";
 import { idOf, lastLocation, prettyParseError } from "../parser/ParserUtil.js";
@@ -13,9 +12,7 @@ import {
   FunctionDecl,
   PredicateDecl,
   Type,
-  TypeConstructor,
   TypeDecl,
-  TypeVar,
 } from "../types/domain.js";
 import {
   DomainError,
@@ -24,10 +21,9 @@ import {
   TypeNotFound,
   TypeVarNotFound,
 } from "../types/errors.js";
-import { ApplyConstructor, TypeConsApp } from "../types/substance.js";
+import { TypeApp } from "../types/substance.js";
 import {
   Result,
-  and,
   andThen,
   cyclicSubtypes,
   duplicateName,
@@ -93,24 +89,15 @@ const builtinTypes: [string, TypeDecl<C>][] = [
       nodeType: "Substance",
       tag: "TypeDecl",
       name: idOf("String", "Domain"),
-      params: [],
       superTypes: [],
     },
   ],
 ];
 const initEnv = (): Env => ({
   types: im.Map(builtinTypes),
-  typeVars: im.Map<string, TypeVar<C>>(),
-  varIDs: [],
-  vars: im.Map<string, TypeConsApp<C>>(),
   constructors: im.Map<string, ConstructorDecl<C>>(),
-  constructorsBindings: im.Map<
-    string,
-    [ApplyConstructor<C>, ConstructorDecl<C>]
-  >(),
   predicates: im.Map<string, PredicateDecl<C>>(),
   functions: im.Map<string, FunctionDecl<C>>(),
-  preludeValues: im.Map<string, TypeConstructor<C>>(),
   subTypes: [],
   typeGraph: new Graph(),
 });
@@ -146,13 +133,12 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
         types: env.types.set(name.value, stmt),
       });
       // register any subtyping relations
-      const subType: TypeConstructor<C> = {
-        tag: "TypeConstructor",
+      const subType: Type<C> = {
+        tag: "Type",
         nodeType: "Substance",
         start: name.start,
         end: name.end,
         name,
-        args: [],
       };
       return safeChain(
         superTypes,
@@ -161,12 +147,9 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       );
     }
     case "ConstructorDecl": {
-      const { name, params, args, output } = stmt;
+      const { name, args, output } = stmt;
       // load params into context
-      const localEnv: Env = {
-        ...env,
-        typeVars: im.Map(_.keyBy(params, "name.value")),
-      };
+      const localEnv: Env = { ...env };
       // check name duplicate
       const existing = env.constructors.get(name.value);
       if (existing !== undefined)
@@ -183,12 +166,8 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       return everyResult(argsOk, outputOk, updatedEnv);
     }
     case "FunctionDecl": {
-      const { name, params, args, output } = stmt;
-      // load params into context
-      const localEnv: Env = {
-        ...env,
-        typeVars: im.Map(_.keyBy(params, "name.value")),
-      };
+      const { name, args, output } = stmt;
+      const localEnv: Env = { ...env };
       // check name duplicate
       const existing = env.functions.get(name.value);
       if (existing !== undefined)
@@ -205,12 +184,8 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       return everyResult(argsOk, outputOk, updatedEnv);
     }
     case "PredicateDecl": {
-      const { name, params, args } = stmt;
-      // load params into context
-      const localEnv: Env = {
-        ...env,
-        typeVars: im.Map(_.keyBy(params, "name.value")),
-      };
+      const { name, args } = stmt;
+      const localEnv: Env = { ...env };
       // check name duplicate
       const existing = env.predicates.get(name.value);
       if (existing) return err(duplicateName(name, stmt, existing));
@@ -226,15 +201,6 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
     case "NotationDecl": {
       // TODO: just passing through the notation rules here. Need to parse them into transformers
       return ok(env);
-    }
-    case "PreludeDecl": {
-      const { name, type } = stmt;
-      const typeOk = checkType(type, env);
-      const updatedEnv: CheckerResult = ok({
-        ...env,
-        preludeValues: env.preludeValues.set(name.value, type),
-      });
-      return everyResult(typeOk, updatedEnv);
     }
     case "SubTypeDecl": {
       const { subType, superType } = stmt;
@@ -266,29 +232,7 @@ export const checkType = (
   type: Type<A>,
   env: Env,
 ): Result<Env, TypeNotFound | TypeVarNotFound> => {
-  switch (type.tag) {
-    case "TypeVar": {
-      return env.typeVars.has(type.name.value)
-        ? ok(env)
-        : err({ tag: "TypeVarNotFound", typeVar: type });
-    }
-    case "Prop":
-      return ok(env); // NOTE: no need to check
-    case "TypeConstructor":
-      return checkTypeConstructor(type, env);
-  }
-};
-
-/**
- * Check if a type constructor exists in the domain context. Used across Domain, Substance, and Style.
- * @param type type constructor to be checked.
- * @param env  the Domain environment
- */
-export const checkTypeConstructor = (
-  type: TypeConstructor<A>,
-  env: Env,
-): Result<Env, TypeNotFound | TypeVarNotFound> => {
-  const { name, args } = type;
+  const { name } = type;
   // check if name of the type exists
   if (!env.types.has(name.value)) {
     const [...suggestions] = env.types.values();
@@ -299,9 +243,11 @@ export const checkTypeConstructor = (
       ),
     );
   }
-  // check if the arguments are well-formed types
-  const argsOk = safeChain(args, checkType, ok(env));
-  return and(ok(env), argsOk);
+  return ok(env);
+};
+
+export const toDomType = <T>(typeApp: TypeApp<T>): Type<T> => {
+  return { ...typeApp, tag: "Type" };
 };
 
 const checkArg = (arg: Arg<C>, env: Env): CheckerResult =>
@@ -344,8 +290,8 @@ const areSameTypes = (type1: Type<C>, type2: Type<C>, env: Env): boolean => {
 };
 
 const addSubtype = (
-  subType: TypeConstructor<C>, // assume already checked
-  superType: TypeConstructor<C>,
+  subType: Type<C>, // assume already checked
+  superType: Type<C>,
   env: Env,
 ): CheckerResult => {
   const superOk = checkType(superType, env);
@@ -363,15 +309,13 @@ const computeTypeGraph = (env: Env): CheckerResult => {
     typeGraph.setNode(t, undefined);
   });
   // NOTE: since we search for super types upstream, subtyping arrow points to supertype
-  subTypes.forEach(
-    ([subType, superType]: [TypeConstructor<C>, TypeConstructor<C>]) => {
-      typeGraph.setEdge({
-        i: subType.name.value,
-        j: superType.name.value,
-        e: undefined,
-      });
-    },
-  );
+  subTypes.forEach(([subType, superType]: [Type<C>, Type<C>]) => {
+    typeGraph.setEdge({
+      i: subType.name.value,
+      j: superType.name.value,
+      e: undefined,
+    });
+  });
   const cycles = typeGraph.findCycles();
   if (cycles.length > 0) return err(cyclicSubtypes(cycles));
   return ok(env);
@@ -385,8 +329,8 @@ const computeTypeGraph = (env: Env): CheckerResult => {
  * @param env
  */
 export const isDeclaredSubtype = (
-  subType: TypeConstructor<A>,
-  superType: TypeConstructor<A>,
+  subType: Type<A>,
+  superType: Type<A>,
   env: Env,
 ): boolean => {
   // HACK: subtyping among parametrized types is not handled and assumed to be false
@@ -399,10 +343,7 @@ export const isDeclaredSubtype = (
   return superTypesOf(subType, env).has(superType.name.value);
 };
 
-export const superTypesOf = (
-  subType: TypeConstructor<A>,
-  env: Env,
-): Set<string> => {
+export const superTypesOf = (subType: Type<A>, env: Env): Set<string> => {
   const g = env.typeGraph;
   const i = subType.name.value;
   if (g.hasNode(i)) {
@@ -414,10 +355,7 @@ export const superTypesOf = (
 };
 
 // TODO: add in top and bottom in the type graph and simplify `subTypesOf` using `inEdges(t, bot)`
-export const subTypesOf = (
-  superType: TypeConstructor<A>,
-  env: Env,
-): string[] => {
+export const subTypesOf = (superType: Type<A>, env: Env): string[] => {
   let toVisit = [superType.name.value];
   const subTypes = [];
   while (toVisit.length > 0) {
@@ -435,41 +373,24 @@ export const isSubtype = (
   superType: Type<A>,
   env: Env,
 ): boolean => {
-  if (
-    subType.tag === "TypeConstructor" &&
-    superType.tag === "TypeConstructor"
-  ) {
-    const argsMatch = (args1: Type<A>[], args2: Type<A>[]): boolean =>
-      _.every(
-        _.zipWith(args1, args2, (sub: Type<A>, sup: Type<A>): boolean =>
-          isSubtype(sub, sup, env),
-        ),
-      );
-    return (
-      (subType.name.value === superType.name.value ||
-        isDeclaredSubtype(subType, superType, env)) &&
-      subType.args.length === superType.args.length &&
-      argsMatch(subType.args, superType.args)
-    );
-  } else if (subType.tag === "TypeVar" && superType.tag === "TypeVar") {
-    return subType.name.value === superType.name.value;
-  } else return false;
+  return (
+    subType.name.value === superType.name.value ||
+    isDeclaredSubtype(subType, superType, env)
+  );
 };
 
 const topName = idOf("type", "Domain");
-export const topType: TypeConsApp<A> = {
-  tag: "TypeConstructor",
+export const topType: TypeApp<A> = {
+  tag: "TypeApp",
   nodeType: "Domain",
   name: topName,
-  args: [],
 };
 
 const bottomName = idOf("void", "Domain");
-export const bottomType: TypeConsApp<A> = {
-  tag: "TypeConstructor",
+export const bottomType: TypeApp<A> = {
+  tag: "TypeApp",
   nodeType: "Domain",
   name: bottomName,
-  args: [],
 };
 
 /**
@@ -477,15 +398,5 @@ export const bottomType: TypeConsApp<A> = {
  * @param t Type to be printed
  */
 export const showType = (t: Type<C>): string => {
-  if (t.tag === "Prop") {
-    return "Prop";
-  } else if (t.tag === "TypeVar") {
-    return `'${t.name.value}`;
-  } else {
-    const { name, args } = t;
-    if (args.length > 0) {
-      const argStrs = args.map(showType);
-      return `${name.value}(${argStrs.join(", ")})`;
-    } else return `${name.value}`;
-  }
+  return t.name.value;
 };

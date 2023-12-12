@@ -11,7 +11,7 @@ import {
   SourceLoc,
   SourceRange,
 } from "../types/ast.js";
-import { Arg, Type, TypeConstructor } from "../types/domain.js";
+import { Arg, Type } from "../types/domain.js";
 import {
   ArgLengthMismatch,
   BadArgumentTypeError,
@@ -53,7 +53,7 @@ import {
 } from "../types/functions.js";
 import { State } from "../types/state.js";
 import { BindingForm, ColorLit } from "../types/style.js";
-import { Deconstructor, SubExpr } from "../types/substance.js";
+import { Deconstructor, SubExpr, TypeApp } from "../types/substance.js";
 import { ArgVal, ArgValWithSourceLoc, ShapeVal, Val } from "../types/value.js";
 import {
   ErrorLoc,
@@ -114,17 +114,7 @@ const showArgValType = (v: ArgVal<ad.Num>): string => {
  * @param t Type to be printed
  */
 export const showType = (t: Type<A>): string => {
-  if (t.tag === "Prop") {
-    return "Prop";
-  } else if (t.tag === "TypeVar") {
-    return `'${t.name.value}`;
-  } else {
-    const { name, args } = t;
-    if (args.length > 0) {
-      const argStrs = args.map(showType);
-      return `${name.value}(${argStrs.join(", ")})`;
-    } else return `${name.value}`;
-  }
+  return t.name.value;
 };
 // COMBAK What's a better way to model warnings?
 export const styWarnings = [
@@ -995,8 +985,8 @@ export const symmetricArgLengthMismatch = (
 });
 
 export const typeMismatch = (
-  sourceType: TypeConstructor<A>,
-  expectedType: TypeConstructor<A>,
+  sourceType: TypeApp<A>,
+  expectedType: Type<A>,
   sourceExpr: AbstractNode,
   expectedExpr: AbstractNode,
 ): TypeMismatch => ({
@@ -1008,7 +998,7 @@ export const typeMismatch = (
 });
 
 export const unexpectedExprForNestedPred = (
-  sourceType: TypeConstructor<A>,
+  sourceType: TypeApp<A>,
   sourceExpr: AbstractNode,
   expectedExpr: AbstractNode,
 ): UnexpectedExprForNestedPred => ({
@@ -1034,8 +1024,8 @@ export const argLengthMismatch = (
 });
 
 export const typeArgLengthMismatch = (
-  sourceType: TypeConstructor<A>,
-  expectedType: TypeConstructor<A>,
+  sourceType: TypeApp<A>,
+  expectedType: Type<A>,
   sourceExpr: AbstractNode,
   expectedExpr: AbstractNode,
 ): TypeArgLengthMismatch => ({
