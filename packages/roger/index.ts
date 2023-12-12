@@ -167,9 +167,6 @@ const orderTrio = (unordered: string[]): string[] => {
   for (const fakeType in unordered) {
     const filename = unordered[fakeType];
     const type = {
-      ".sub": "substance",
-      ".sty": "style",
-      ".dsl": "domain",
       ".substance": "substance",
       ".style": "style",
       ".domain": "domain",
