@@ -77,7 +77,7 @@ const Body = styled.div`
   width: calc(25rem - 1rem);
   position: absolute;
   background-color: #fff;
-  height: calc(100% - 1rem);
+  height: calc(100% - 2.75rem);
   border-radius: 5px;
   padding: 0.5rem;
   font-size: 0.8rem;
@@ -180,7 +180,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
       <Section key={`gridbox-container-${this.props.gridIndex}`}>
         <Header>
           <HeaderText>{header ?? "Diagram"}</HeaderText>
-          <div style={{ display: "flex" }}>
+          <div style={{ display: "flex", justifyContent: "center" }}>
             {this.props.stateful && (
               <ResampleBtn onClick={this.resample}>
                 <Refresh />
@@ -202,7 +202,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
 
         <div
           onClick={this.toggleView}
-          style={{ height: "calc(100% - 2.5rem)", position: "relative" }}
+          style={{ height: "calc(100% - 2.75rem)", position: "relative" }}
         >
           {this.state.showDiagramInfo && (
             <Body>

@@ -157,6 +157,8 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
               this.props.imageResolver ?? fetchResolver,
               this.props.name ?? "",
             ));
+        renderedState.setAttribute("width", "100%");
+        renderedState.setAttribute("height", "100%");
         if (node.firstChild !== null) {
           node.replaceChild(renderedState, node.firstChild);
         } else {
@@ -175,9 +177,14 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
   render = () => {
     const { error } = this.state;
     return (
-      <div style={{ width: "100%", height: "100%" }}>
+      <div
+        style={{
+          height: "100%",
+          width: "100%",
+        }}
+      >
         {!error && (
-          <div style={{ width: "100%", height: "100%" }} ref={this.canvasRef} />
+          <div style={{ height: "100%", width: "100%" }} ref={this.canvasRef} />
         )}
         {error && (
           <div style={{ padding: "1em", height: "100%" }}>
