@@ -3,6 +3,7 @@ import _ from "lodash";
 import { EigenvalueDecomposition, Matrix } from "ml-matrix";
 import * as rose from "rose";
 import * as ad from "../types/ad.js";
+import { topsort } from "../utils/Util.js";
 import {
   absVal,
   acos,
@@ -653,100 +654,58 @@ const penalty = rose.fn([rose.Real], rose.Real, (x) => {
   return rose.mul(y, y);
 });
 
-interface Node {
-  indegree?: number;
-  successors: ad.Expr[];
-}
-
-interface Topsort {
-  sorted: ad.Expr[];
-  nodes: Map<ad.Expr, Node>;
-}
-
-const topsort = (seed: (set: (x: ad.Expr) => void) => void): Topsort => {
-  const nodes = new Map<ad.Expr, Node>();
-  const sorted: ad.Expr[] = [];
-
-  const stack: ad.Expr[] = [];
-  const set = (x: ad.Expr): Node => {
-    let node = nodes.get(x);
-    if (node === undefined) {
-      stack.push(x);
-      node = { successors: [] };
-      nodes.set(x, node);
+function* predsExpr(x: ad.Expr): Generator<ad.Expr, void, undefined> {
+  if (typeof x === "number") return;
+  switch (x.tag) {
+    case "Var":
+      return;
+    case "Not":
+    case "Unary":
+      yield x.param;
+      return;
+    case "Binary":
+    case "Comp":
+    case "Logic": {
+      yield x.left;
+      yield x.right;
+      return;
     }
-    return node;
-  };
-  seed((x) => {
-    set(x);
-  });
-  const make = (x: ad.Expr): number => {
-    const succ = (y: ad.Expr): void => {
-      set(y).successors.push(x);
-    };
-    if (typeof x === "number") return 0;
-    switch (x.tag) {
-      case "Var":
-        return 0;
-      case "Not":
-      case "Unary": {
-        succ(x.param);
-        return 1;
-      }
-      case "Binary":
-      case "Comp":
-      case "Logic": {
-        succ(x.left);
-        succ(x.right);
-        return 2;
-      }
-      case "Ternary": {
-        succ(x.cond);
-        succ(x.then);
-        succ(x.els);
-        return 3;
-      }
-      case "Nary": {
-        x.params.forEach(succ);
-        return x.params.length;
-      }
-      case "LitVec": {
-        x.elems.forEach(succ);
-        return x.elems.length;
-      }
-      case "PolyRoots": {
-        x.coeffs.forEach(succ);
-        return x.coeffs.length;
-      }
-      case "LitRec": {
-        const mems = Object.values(x.mems);
-        mems.forEach(succ);
-        return mems.length;
-      }
-      case "Index": {
-        succ(x.vec);
-        return 1;
-      }
-      case "Member": {
-        succ(x.rec);
-        return 1;
-      }
-      case "Call": {
-        x.args.forEach(succ);
-        return x.args.length;
-      }
+    case "Ternary": {
+      yield x.cond;
+      yield x.then;
+      yield x.els;
+      return;
     }
-  };
-  while (stack.length > 0) {
-    const x = stack.pop()!;
-    const node = nodes.get(x)!;
-    const n = node.indegree ?? make(x);
-    node.indegree = n;
-    if (n === 0) sorted.push(x);
+    case "Nary": {
+      yield* x.params;
+      return;
+    }
+    case "LitVec": {
+      yield* x.elems;
+      return;
+    }
+    case "PolyRoots": {
+      yield* x.coeffs;
+      return;
+    }
+    case "LitRec": {
+      yield* Object.values(x.mems);
+      return;
+    }
+    case "Index": {
+      yield x.vec;
+      return;
+    }
+    case "Member": {
+      yield x.rec;
+      return;
+    }
+    case "Call": {
+      yield* x.args;
+      return;
+    }
   }
-
-  return { nodes, sorted };
-};
+}
 
 // this type is very incomplete but it excludes `undefined` so at least it makes
 // sure we handle all necessary cases in `switch` statements
@@ -757,197 +716,218 @@ type RoseVal =
   | RoseVal[]
   | { [K: string]: RoseVal };
 
-const emitGraph = (
-  { sorted, nodes }: Topsort,
-  vars: Map<ad.Expr, RoseVal>,
-): void => {
-  const emitUnary = (y: ad.Unary): rose.Real => {
-    const x = vars.get(y.param) as rose.Real;
-    switch (y.unop) {
-      case "neg":
-        return rose.neg(x);
-      case "squared":
-        return rose.mul(x, x);
-      case "sqrt":
-        return builtins.sqrt(x);
-      case "inverse":
-        return rose.div(1, x);
-      case "abs":
-        return rose.abs(x);
-      case "acosh":
-        return builtins.acosh(x);
-      case "acos":
-        return builtins.acos(x);
-      case "asin":
-        return builtins.asin(x);
-      case "asinh":
-        return builtins.asinh(x);
-      case "atan":
-        return builtins.atan(x);
-      case "atanh":
-        return builtins.atanh(x);
-      case "cbrt":
-        return builtins.cbrt(x);
-      case "ceil":
-        return rose.ceil(x);
-      case "cos":
-        return builtins.cos(x);
-      case "cosh":
-        return builtins.cosh(x);
-      case "exp":
-        return builtins.exp(x);
-      case "expm1":
-        return builtins.expm1(x);
-      case "floor":
-        return rose.ceil(x);
-      case "log":
-        return builtins.log(x);
-      case "log2":
-        return builtins.log2(x);
-      case "log10":
-        return builtins.log10(x);
-      case "log1p":
-        return builtins.log1p(x);
-      case "round":
-        throw Error("rounding not supported");
-      case "sign":
-        return rose.sign(x);
-      case "sin":
-        return builtins.sin(x);
-      case "sinh":
-        return builtins.sinh(x);
-      case "tan":
-        return builtins.tan(x);
-      case "tanh":
-        return builtins.tanh(x);
-      case "trunc":
-        return rose.trunc(x);
-    }
-  };
-  const emitBinary = (z: ad.Binary): rose.Real => {
-    const x = vars.get(z.left) as rose.Real;
-    const y = vars.get(z.right) as rose.Real;
-    switch (z.binop) {
-      case "+":
-        return rose.add(x, y);
-      case "*":
-        return rose.mul(x, y);
-      case "-":
-        return rose.sub(x, y);
-      case "/":
-        return rose.div(x, y);
-      case "max":
-        return builtins.max(x, y);
-      case "min":
-        return builtins.min(x, y);
-      case "atan2":
-        return builtins.atan2(x, y);
-      case "pow":
-        return builtins.pow(x, y);
-    }
-  };
-  const emitComp = (z: ad.Comp): rose.Bool => {
-    const x = vars.get(z.left) as rose.Real;
-    const y = vars.get(z.right) as rose.Real;
-    switch (z.binop) {
-      case ">":
-        return rose.gt(x, y);
-      case "<":
-        return rose.lt(x, y);
-      case "===":
-        return rose.eq(x, y);
-      case ">=":
-        return rose.geq(x, y);
-      case "<=":
-        return rose.leq(x, y);
-    }
-  };
-  const emitLogic = (r: ad.Logic): rose.Bool => {
-    const p = vars.get(r.left) as rose.Bool;
-    const q = vars.get(r.right) as rose.Bool;
-    switch (r.binop) {
-      case "&&":
-        return rose.and(p, q);
-      case "||":
-        return rose.or(p, q);
-      case "!==":
-        return rose.xor(p, q);
-    }
-  };
-  const emitNary = (y: ad.Nary): rose.Real => {
-    const xs = y.params.map((x) => vars.get(x) as rose.Real);
-    if (xs.length === 0) {
-      switch (y.op) {
-        case "addN":
-          return 0;
-        case "maxN":
-          return -Infinity;
-        case "minN":
-          return Infinity;
-      }
-    } else {
-      return xs.reduce((a, b) => {
-        switch (y.op) {
-          case "addN":
-            return rose.add(a, b);
-          case "maxN":
-            return builtins.max(a, b);
-          case "minN":
-            return builtins.min(a, b);
-        }
-      });
-    }
-  };
-  const emit = (x: ad.Expr): RoseVal => {
-    if (typeof x === "number") return x;
-    switch (x.tag) {
-      case "Var":
-        return vars.get(x)!;
-      case "Not":
-        return rose.not(vars.get(x.param) as rose.Bool);
-      case "Unary":
-        return emitUnary(x);
-      case "Binary":
-        return emitBinary(x);
-      case "Comp":
-        return emitComp(x);
-      case "Logic":
-        return emitLogic(x);
-      case "Ternary":
-        return rose.select(
-          vars.get(x.cond) as rose.Bool,
-          rose.Real,
-          vars.get(x.then) as rose.Real,
-          vars.get(x.els) as rose.Real,
-        );
-      case "Nary":
-        return emitNary(x);
-      case "LitVec":
-        return x.elems.map((elem) => vars.get(elem)!);
-      case "PolyRoots":
-        throw Error("polynomial roots not supported");
-      case "LitRec":
-        return Object.fromEntries(
-          Object.entries(x.mems).map(([k, v]) => [k, vars.get(v)!]),
-        );
-      case "Index":
-        return (vars.get(x.vec) as RoseVal[])[x.index];
-      case "Member":
-        return (vars.get(x.rec) as Record<string, RoseVal>)[x.member];
-      case "Call":
-        return (x.fn as any)(...x.args.map((arg) => vars.get(arg)!));
-    }
-  };
-  for (let i = 0; i < sorted.length; i++) {
-    const x = sorted[i];
-    vars.set(x, emit(x));
-    for (const y of nodes.get(x)!.successors) {
-      const node = nodes.get(y)!;
-      const n = node.indegree!;
-      if (n === 1) sorted.push(y);
-      node.indegree = n - 1;
-    }
+const emitUnary = (
+  get: (x: ad.Expr) => RoseVal,
+  { unop, param }: ad.Unary,
+): rose.Real => {
+  const x = get(param) as rose.Real;
+  switch (unop) {
+    case "neg":
+      return rose.neg(x);
+    case "squared":
+      return rose.mul(x, x);
+    case "sqrt":
+      return builtins.sqrt(x);
+    case "inverse":
+      return rose.div(1, x);
+    case "abs":
+      return rose.abs(x);
+    case "acosh":
+      return builtins.acosh(x);
+    case "acos":
+      return builtins.acos(x);
+    case "asin":
+      return builtins.asin(x);
+    case "asinh":
+      return builtins.asinh(x);
+    case "atan":
+      return builtins.atan(x);
+    case "atanh":
+      return builtins.atanh(x);
+    case "cbrt":
+      return builtins.cbrt(x);
+    case "ceil":
+      return rose.ceil(x);
+    case "cos":
+      return builtins.cos(x);
+    case "cosh":
+      return builtins.cosh(x);
+    case "exp":
+      return builtins.exp(x);
+    case "expm1":
+      return builtins.expm1(x);
+    case "floor":
+      return rose.ceil(x);
+    case "log":
+      return builtins.log(x);
+    case "log2":
+      return builtins.log2(x);
+    case "log10":
+      return builtins.log10(x);
+    case "log1p":
+      return builtins.log1p(x);
+    case "round":
+      throw Error("rounding not supported");
+    case "sign":
+      return rose.sign(x);
+    case "sin":
+      return builtins.sin(x);
+    case "sinh":
+      return builtins.sinh(x);
+    case "tan":
+      return builtins.tan(x);
+    case "tanh":
+      return builtins.tanh(x);
+    case "trunc":
+      return rose.trunc(x);
   }
+};
+
+const emitBinary = (
+  get: (x: ad.Expr) => RoseVal,
+  { binop, left, right }: ad.Binary,
+): rose.Real => {
+  const x = get(left) as rose.Real;
+  const y = get(right) as rose.Real;
+  switch (binop) {
+    case "+":
+      return rose.add(x, y);
+    case "*":
+      return rose.mul(x, y);
+    case "-":
+      return rose.sub(x, y);
+    case "/":
+      return rose.div(x, y);
+    case "max":
+      return builtins.max(x, y);
+    case "min":
+      return builtins.min(x, y);
+    case "atan2":
+      return builtins.atan2(x, y);
+    case "pow":
+      return builtins.pow(x, y);
+  }
+};
+
+const emitComp = (
+  get: (x: ad.Expr) => RoseVal,
+  { binop, left, right }: ad.Comp,
+): rose.Bool => {
+  const x = get(left) as rose.Real;
+  const y = get(right) as rose.Real;
+  switch (binop) {
+    case ">":
+      return rose.gt(x, y);
+    case "<":
+      return rose.lt(x, y);
+    case "===":
+      return rose.eq(x, y);
+    case ">=":
+      return rose.geq(x, y);
+    case "<=":
+      return rose.leq(x, y);
+  }
+};
+
+const emitLogic = (
+  get: (x: ad.Expr) => RoseVal,
+  { binop, left, right }: ad.Logic,
+): rose.Bool => {
+  const p = get(left) as rose.Bool;
+  const q = get(right) as rose.Bool;
+  switch (binop) {
+    case "&&":
+      return rose.and(p, q);
+    case "||":
+      return rose.or(p, q);
+    case "!==":
+      return rose.xor(p, q);
+  }
+};
+
+const emitNary = (
+  get: (x: ad.Expr) => RoseVal,
+  { op, params }: ad.Nary,
+): rose.Real => {
+  const xs = params.map((x) => get(x) as rose.Real);
+  if (xs.length === 0) {
+    switch (op) {
+      case "addN":
+        return 0;
+      case "maxN":
+        return -Infinity;
+      case "minN":
+        return Infinity;
+    }
+  } else {
+    return xs.reduce((a, b) => {
+      switch (op) {
+        case "addN":
+          return rose.add(a, b);
+        case "maxN":
+          return builtins.max(a, b);
+        case "minN":
+          return builtins.min(a, b);
+      }
+    });
+  }
+};
+
+const emitExpr = (
+  get: (x: ad.Expr) => RoseVal,
+  getVar: (x: ad.Var) => rose.Real,
+  x: ad.Expr,
+): RoseVal => {
+  if (typeof x === "number") return x;
+  switch (x.tag) {
+    case "Var":
+      return getVar(x);
+    case "Not":
+      return rose.not(get(x.param) as rose.Bool);
+    case "Unary":
+      return emitUnary(get, x);
+    case "Binary":
+      return emitBinary(get, x);
+    case "Comp":
+      return emitComp(get, x);
+    case "Logic":
+      return emitLogic(get, x);
+    case "Ternary":
+      return rose.select(
+        get(x.cond) as rose.Bool,
+        rose.Real,
+        get(x.then) as rose.Real,
+        get(x.els) as rose.Real,
+      );
+    case "Nary":
+      return emitNary(get, x);
+    case "LitVec":
+      return x.elems.map((elem) => get(elem));
+    case "PolyRoots":
+      throw Error("polynomial roots not supported");
+    case "LitRec":
+      return Object.fromEntries(
+        Object.entries(x.mems).map(([k, v]) => [k, get(v)]),
+      );
+    case "Index":
+      return (get(x.vec) as RoseVal[])[x.index];
+    case "Member":
+      return (get(x.rec) as Record<string, RoseVal>)[x.member];
+    case "Call":
+      return (x.fn as any)(...x.args.map((arg) => get(arg)));
+  }
+};
+
+const emitGraph = (
+  getVar: (x: ad.Var) => rose.Real,
+  xs: ad.Expr[],
+): Map<ad.Expr, RoseVal> => {
+  const vals = new Map<ad.Expr, RoseVal>();
+  for (const x of xs) {
+    const val = emitExpr((x) => vals.get(x)!, getVar, x);
+    vals.set(x, val);
+  }
+  return vals;
 };
 
 /** Generate an energy function from the current state (using `Num`s only) */
@@ -960,18 +940,13 @@ export const genGradient = async (
   const o = objectives.length;
   const c = constraints.length;
 
-  const single = (x: ad.Num) =>
+  const indices = new Map<ad.Var, number>(inputs.map((x, i) => [x, i]));
+
+  const single = (y: ad.Num) =>
     rose.fn([rose.Vec(n, rose.Real)], rose.Real, (varying) => {
-      const graph = topsort((set) => {
-        set(x);
-      });
-      const vars = new Map<ad.Expr, RoseVal>();
-      for (let i = 0; i < n; i++) {
-        const v = inputs[i];
-        if (graph.nodes.has(v)) vars.set(v, varying[i]);
-      }
-      emitGraph(graph, vars);
-      return vars.get(x) as rose.Real;
+      const sorted = topsort(predsExpr, [y]);
+      const vals = emitGraph((x) => varying[indices.get(x)!], sorted);
+      return vals.get(y) as rose.Real;
     });
 
   const objFns = objectives.map(single);
@@ -1073,26 +1048,26 @@ const isConverged = (params: Params): boolean =>
 export const problem = async (desc: ad.Description): Promise<ad.Problem> => {
   const obj = desc.objective ?? 0;
   const constrs = desc.constraints ?? [];
-  const graph = topsort((set) => {
-    set(obj);
-    constrs.forEach(set);
-  });
-  const inputs: ad.Var[] = [];
-  for (const x of graph.sorted) {
-    if (typeof x !== "number" && x.tag === "Var") inputs.push(x);
-  }
   const m = constrs.length;
+
+  const sorted = topsort(predsExpr, [obj, ...constrs]);
+  const inputs: ad.Var[] = [];
+  const indices = new Map<ad.Var, number>();
+  for (const x of sorted) {
+    if (typeof x !== "number" && x.tag === "Var") {
+      inputs.push(x);
+      indices.set(x, indices.size);
+    }
+  }
   const n = inputs.length;
 
   const basic = rose.fn(
     [{ inputs: rose.Vec(n, rose.Real), weight: rose.Real }],
     rose.Real,
     ({ inputs: varying, weight }) => {
-      const vars = new Map<ad.Expr, RoseVal>();
-      for (let i = 0; i < n; i++) vars.set(inputs[i], varying[i]);
-      emitGraph(graph, vars);
-      const pen = sum(m, (i) => penalty(vars.get(constrs[i]) as rose.Real));
-      return rose.add(vars.get(obj) as rose.Real, rose.mul(weight, pen));
+      const vals = emitGraph((x) => varying[indices.get(x)!], sorted);
+      const pen = sum(m, (i) => penalty(vals.get(constrs[i]) as rose.Real));
+      return rose.add(vals.get(obj) as rose.Real, rose.mul(weight, pen));
     },
   );
 
@@ -1168,37 +1143,39 @@ export const problem = async (desc: ad.Description): Promise<ad.Problem> => {
   };
 };
 
-const makeFn = (xs: ad.Num[]): { inputs: ad.Var[]; f: rose.Fn } => {
-  const graph = topsort((set) => {
-    xs.forEach(set);
-  });
+const makeFn = (ys: ad.Num[]): { inputs: ad.Var[]; f: rose.Fn } => {
+  const sorted = topsort(predsExpr, ys);
+
   const inputs: ad.Var[] = [];
-  for (const x of graph.sorted) {
-    if (typeof x !== "number" && x.tag === "Var") inputs.push(x);
+  const indices = new Map<ad.Var, number>();
+  for (const x of sorted) {
+    if (typeof x !== "number" && x.tag === "Var") {
+      inputs.push(x);
+      indices.set(x, indices.size);
+    }
   }
-  const m = xs.length;
+
+  const m = ys.length;
   const n = inputs.length;
   const f = rose.fn([rose.Vec(n, rose.Real)], rose.Vec(m, rose.Real), (v) => {
-    const vars = new Map<ad.Expr, RoseVal>();
-    for (let i = 0; i < n; i++) vars.set(inputs[i], v[i]);
-    emitGraph(graph, vars);
-    return xs.map((x) => vars.get(x) as rose.Real);
+    const vals = emitGraph((x) => v[indices.get(x)!], sorted);
+    return ys.map((y) => vals.get(y) as rose.Real);
   });
   return { inputs, f };
 };
 
 export const interp = (
-  xs: ad.Num[],
+  ys: ad.Num[],
 ): ((inputs: (x: ad.Var) => number) => number[]) => {
-  const { inputs, f } = makeFn(xs);
+  const { inputs, f } = makeFn(ys);
   const g = rose.interp(f as any) as any;
   return (vals) => g(inputs.map((x) => vals(x)));
 };
 
 export const compile = async (
-  xs: ad.Num[],
+  ys: ad.Num[],
 ): Promise<(inputs: (x: ad.Var) => number) => number[]> => {
-  const { inputs, f } = makeFn(xs);
+  const { inputs, f } = makeFn(ys);
   const g = (await rose.compile(f as any)) as any;
   return (vals) => g(inputs.map((x) => vals(x)));
 };
