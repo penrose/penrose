@@ -122,6 +122,8 @@ export const DownloadSVG = (
     plugins: ["inlineStyles", "prefixIds"],
     path: title,
   }).data;
+  console.log(svgStr);
+  console.log(svgStr.length);
   const blob = new Blob([svgStr], {
     type: "image/svg+xml;charset=utf-8",
   });
@@ -154,7 +156,7 @@ const SVGaddCode = (
   variationStr: string,
 ): void => {
   // Create custom <penrose> tag to store metadata, or grab it if it already exists
-  const metadataQuery = document.querySelector("penrose");
+  const metadataQuery = svg.querySelector("penrose");
   let metadata: Element;
 
   if (metadataQuery === null) {
@@ -206,6 +208,7 @@ const SVGaddCode = (
   metadata.appendChild(substance);
   metadata.appendChild(style);
   metadata.appendChild(dsl);
+  console.log(metadata);
 };
 
 /**
