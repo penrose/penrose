@@ -7,6 +7,7 @@ import {
   workspaceMetadataSelector,
 } from "../state/atoms.js";
 import {
+  downloadSvg,
   useCompileDiagram,
   useDownloadTrio,
   usePublishGist,
@@ -14,7 +15,6 @@ import {
   useSaveLocally,
 } from "../state/callbacks.js";
 import BlueButton from "./BlueButton.js";
-import DownloadButton from "./DownloadButton.js";
 import ExportButton from "./ExportButton.js";
 
 const TitleBox = styled.div`
@@ -166,7 +166,7 @@ export default function TopBar() {
         </div>
       )}
       <HeaderButtonContainer>
-        <DownloadButton />
+        <BlueButton onClick={downloadSvg()}>save Penrose SVG</BlueButton>
         <ExportButton />
         <BlueButton onClick={compileDiagram}>compile ▶</BlueButton>
         <BlueButton onClick={resampleDiagram}>resample</BlueButton>
