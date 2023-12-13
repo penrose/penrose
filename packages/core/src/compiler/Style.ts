@@ -66,6 +66,9 @@ import {
   RelField,
   RelPred,
   RelationPattern,
+  SEFunc,
+  SEFuncOrValCons,
+  SEValCons,
   SelArgExpr,
   SelExpr,
   Selector,
@@ -1085,13 +1088,13 @@ const matchDecl = (
  * @returns If the `styArg` and `subArg` match, return a `Subst` that maps variable(s) in styArg into variable(s) in subArg. Return `undefined` otherwise.
  */
 const matchStyArgToSubArg = (
-  styTypeMap: { [k: string]: StyT<A> },
-  subTypeMap: { [k: string]: TypeConsApp<A> },
+  styTypeMap: { [k: string]: SelectorType<A> },
+  subTypeMap: { [k: string]: TypeApp<A> },
   varEnv: DomainEnv,
-  styArg: PredArg<A> | SelExpr<A>,
-  subArg: SubPredArg<A> | SubExpr<A>,
+  styArg: SelArgExpr<A>,
+  subArg: SubArgExpr<A>,
 ): Subst[] => {
-  if (styArg.tag === "SEBind" && subArg.tag === "Identifier") {
+  if (styArg.tag === "SelVar" && subArg.tag === "Identifier") {
     const styBForm = styArg.contents;
     if (styBForm.tag === "StyVar") {
       const styArgName = styBForm.contents.value;
@@ -1115,39 +1118,6 @@ const matchStyArgToSubArg = (
       }
     }
   }
-  if (styArg.tag === "RelPred" && subArg.tag === "ApplyPredicate") {
-    return matchStyApplyToSubApply(
-      styTypeMap,
-      subTypeMap,
-      varEnv,
-      styArg,
-      subArg,
-    );
-  }
-  if (
-    subArg.tag === "ApplyConstructor" &&
-    (styArg.tag === "SEValCons" || styArg.tag === "SEFuncOrValCons")
-  ) {
-    return matchStyApplyToSubApply(
-      styTypeMap,
-      subTypeMap,
-      varEnv,
-      styArg,
-      subArg,
-    );
-  }
-  if (
-    subArg.tag === "ApplyFunction" &&
-    (styArg.tag === "SEValCons" || styArg.tag === "SEFuncOrValCons")
-  ) {
-    return matchStyApplyToSubApply(
-      styTypeMap,
-      subTypeMap,
-      varEnv,
-      styArg,
-      subArg,
-    );
-  }
   return [];
 };
 
@@ -1156,16 +1126,13 @@ const matchStyArgToSubArg = (
  * @returns If all arguments match, return a `Subst[]` that contains mappings which map the Style variable(s) against Substance variable(s). If any arguments fail to match, return [].
  */
 const matchStyArgsToSubArgs = (
-  styTypeMap: { [k: string]: StyT<A> },
-  subTypeMap: { [k: string]: TypeConsApp<A> },
+  styTypeMap: { [k: string]: SelectorType<A> },
+  subTypeMap: { [k: string]: TypeApp<A> },
   varEnv: DomainEnv,
-  styArgs: PredArg<A>[] | SelExpr<A>[],
-  subArgs: SubPredArg<A>[] | SubExpr<A>[],
+  styArgs: SelArgExpr<A>[],
+  subArgs: SubArgExpr<A>[],
 ): Subst[] => {
-  const stySubArgPairs = zip2<
-    PredArg<A> | SelExpr<A>,
-    SubPredArg<A> | SubExpr<A>
-  >(styArgs, subArgs);
+  const stySubArgPairs = zip2<SelArgExpr<A>, SubArgExpr<A>>(styArgs, subArgs);
 
   const substsForEachArg = stySubArgPairs.map(([styArg, subArg]) => {
     const argSubsts = matchStyArgToSubArg(
@@ -1219,11 +1186,11 @@ const matchStyArgsToSubArgs = (
  * This works with Functions, Predicates, and Constructors.
  */
 const matchStyApplyToSubApply = (
-  styTypeMap: { [k: string]: StyT<A> },
-  subTypeMap: { [k: string]: TypeConsApp<A> },
+  styTypeMap: { [k: string]: SelectorType<A> },
+  subTypeMap: { [k: string]: TypeApp<A> },
   varEnv: DomainEnv,
-  styRel: RelPred<A> | SelExpr<A>,
-  subRel: ApplyPredicate<A> | SubExpr<A>,
+  styRel: RelPred<A> | SEFunc<A> | SEValCons<A> | SEFuncOrValCons<A>,
+  subRel: ApplyPredicate<A> | ApplyConstructor<A> | ApplyFunction<A>,
 ): Subst[] => {
   // Predicate Applications
   if (styRel.tag === "RelPred" && subRel.tag === "ApplyPredicate") {
@@ -1306,8 +1273,8 @@ const matchStyApplyToSubApply = (
  * and `A` indeed has `label`, then we return { a: A }. Otherwise, return `undefined`.
  */
 const matchRelField = (
-  styTypeMap: { [k: string]: StyT<A> },
-  subTypeMap: { [k: string]: TypeConsApp<A> },
+  styTypeMap: { [k: string]: SelectorType<A> },
+  subTypeMap: { [k: string]: TypeApp<A> },
   varEnv: DomainEnv,
   subEnv: SubstanceEnv,
   rel: RelField<A>,
@@ -1337,11 +1304,11 @@ const matchRelField = (
 };
 
 const getStyPredOrFuncOrConsArgNames = (
-  arg: PredArg<A> | SelExpr<A>,
+  arg: RelPred<A> | SelExpr<A>,
 ): im.Set<string> => {
   if (arg.tag === "RelPred") {
     return getStyRelArgNames(arg);
-  } else if (arg.tag === "SEBind") {
+  } else if (arg.tag === "SelVar") {
     return im.Set<string>().add(toString(arg.contents));
   } else {
     return arg.args.reduce((argNames, arg) => {
@@ -1370,8 +1337,8 @@ const getStyRelArgNames = (rel: RelationPattern<A>): im.Set<string> => {
  * and `rSubsts` is a list of [subst, subStmt] where `subst` is the variable mapping, and `subStmt` is the corresponding matched Substance statement.
  */
 const matchStyRelToSubRels = (
-  styTypeMap: { [k: string]: StyT<A> },
-  subTypeMap: { [k: string]: TypeConsApp<A> },
+  styTypeMap: { [k: string]: SelectorType<A> },
+  subTypeMap: { [k: string]: TypeApp<A> },
   varEnv: DomainEnv,
   subEnv: SubstanceEnv,
   rel: RelationPattern<A>,
@@ -1476,8 +1443,8 @@ const matchStyRelToSubRels = (
  * substitution itself and the matched Substance statement.
  */
 const makeListRSubstsForStyleRels = (
-  styTypeMap: { [k: string]: StyT<A> },
-  subTypeMap: { [k: string]: TypeConsApp<A> },
+  styTypeMap: { [k: string]: SelectorType<A> },
+  subTypeMap: { [k: string]: TypeApp<A> },
   varEnv: DomainEnv,
   subEnv: SubstanceEnv,
   rels: RelationPattern<A>[],
@@ -1509,8 +1476,8 @@ const makeListRSubstsForStyleRels = (
  * First match the relations. Then, match free Style variables. Finally, merge all substitutions together.
  */
 const makePotentialSubsts = (
-  varEnv: DomainEnv,
-  selEnv: SelEnv,
+  domEnv: DomainEnv,
+  selEnv: SelectorEnv,
   subEnv: SubstanceEnv,
   subProg: CompiledSubProg<A>,
   decls: DeclPattern<A>[],
@@ -1531,7 +1498,7 @@ const makePotentialSubsts = (
   const [usedStyVars, listRSubsts] = makeListRSubstsForStyleRels(
     styTypeMap,
     subTypeMap,
-    varEnv,
+    domEnv,
     subEnv,
     rels,
     subProg,
@@ -1541,7 +1508,7 @@ const makePotentialSubsts = (
     if (usedStyVars.includes(decl.id.contents.value)) {
       return currListPSubsts;
     } else {
-      const pSubsts = matchDecl(varEnv, subProg, decl);
+      const pSubsts = matchDecl(domEnv, subProg, decl);
       return currListPSubsts.push(
         pSubsts.map((pSubst) => [pSubst, im.Set<SubStmt<A>>()]),
       );
@@ -1576,16 +1543,16 @@ const getDecls = (header: Collector<A> | Selector<A>): DeclPattern<A>[] => {
 };
 
 const getSubsts = (
-  varEnv: DomainEnv,
+  domEnv: DomainEnv,
   subEnv: SubstanceEnv,
-  selEnv: SelEnv,
+  selEnv: SelectorEnv,
   subProg: CompiledSubProg<A>,
   header: Collector<A> | Selector<A>,
 ): Subst[] => {
   const decls = getDecls(header);
   const rels = safeContentsList(header.where);
   const rawSubsts = makePotentialSubsts(
-    varEnv,
+    domEnv,
     selEnv,
     subEnv,
     subProg,
@@ -1596,7 +1563,7 @@ const getSubsts = (
 
   // Ensures there are no duplicated substitutions in terms of both
   // matched relations and substitution targets.
-  const filteredSubsts = deduplicate(varEnv, subEnv, subProg, rels, rawSubsts);
+  const filteredSubsts = deduplicate(domEnv, subEnv, subProg, rels, rawSubsts);
   const { repeatable } = header;
 
   // If we want repeatable matchings, this is good

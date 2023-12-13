@@ -115,20 +115,20 @@ export type SelExpr<T> =
 export type SEFunc<T> = ASTNode<T> & {
   tag: "SEFunc";
   name: Identifier<T>;
-  args: SelExpr<T>[];
+  args: SelArgExpr<T>[];
 };
 
 export type SEValCons<T> = ASTNode<T> & {
   tag: "SEValCons";
   name: Identifier<T>;
-  args: SelExpr<T>[];
+  args: SelArgExpr<T>[];
 };
 
 // NOTE: This type is used by the style compiler; since the grammar is ambiguous, the compiler will need to narrow down the type of this node when checking the AST.
 export type SEFuncOrValCons<T> = ASTNode<T> & {
   tag: "SEFuncOrValCons";
   name: Identifier<T>;
-  args: SelExpr<T>[];
+  args: SelArgExpr<T>[];
 };
 
 export type Stmt<T> = PathAssign<T> | Override<T> | Delete<T> | AnonAssign<T>;
