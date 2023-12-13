@@ -12,7 +12,7 @@ import localforage from "localforage";
 import { range } from "lodash";
 import queryString from "query-string";
 import toast from "react-hot-toast";
-import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilCallback } from "recoil";
 import { v4 as uuid } from "uuid";
 import {
   DownloadPNG,
@@ -235,7 +235,6 @@ const _saveFile = (text: string, title: string, suffix: string) => {
 
 export const useDownloadTrio = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
-    const id = toast.loading("downloading trio...");
     const metadata = snapshot.getLoadable(workspaceMetadataSelector)
       .contents as WorkspaceMetadata;
     const fileTitle = metadata.name.replaceAll(" ", "_").toLowerCase();
@@ -246,11 +245,20 @@ export const useDownloadTrio = () =>
     const styleFile = workspace.files.style;
 
     // save trio
-    // TODO zip files
-    [domainFile, substanceFile, styleFile].map((f) =>
-      _saveFile(f.contents, fileTitle, f.name),
-    );
-    toast.dismiss(id);
+    if (
+      domainFile.contents.length > 0 &&
+      substanceFile.contents.length > 0 &&
+      styleFile.contents.length > 0
+    ) {
+      // TODO zip files
+      [domainFile, substanceFile, styleFile].map((f) =>
+        _saveFile(f.contents, fileTitle, f.name),
+      );
+    } else {
+      toast.error(
+        "Could not export: no Penrose diagram detected. Compile a Penrose trio and try again.",
+      );
+    }
   });
 
 export const downloadSvg = () =>
@@ -279,6 +287,10 @@ export const downloadSvg = () =>
           metadata.editorVersion.toString(),
           diagram.variation,
         );
+      } else {
+        toast.error(
+          "Could not export: no Penrose diagram detected. Compile a Penrose trio and try again.",
+        );
       }
     }
   });
@@ -292,7 +304,7 @@ export const downloadSvgTex = () =>
       .contents as WorkspaceMetadata;
     const rogerState = snapshot.getLoadable(currentRogerState)
       .contents as RogerState;
-    const canvas = useRecoilValue(canvasState);
+    const canvas = snapshot.getLoadable(canvasState).contents as Canvas;
     if (canvas.ref && canvas.ref.current !== null) {
       const { state } = snapshot.getLoadable(diagramState).contents as Diagram;
       if (state !== null) {
@@ -318,6 +330,10 @@ export const downloadSvgTex = () =>
           metadata.editorVersion.toString(),
           diagram.variation,
         );
+      } else {
+        toast.error(
+          "Could not export: no Penrose diagram detected. Compile a Penrose trio and try again.",
+        );
       }
     }
   });
@@ -325,7 +341,7 @@ export const downloadSvgTex = () =>
 export const downloadPng = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
     const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
-    const canvas = useRecoilValue(canvasState);
+    const canvas = snapshot.getLoadable(canvasState).contents as Canvas;
     if (canvas.ref && canvas.ref.current !== null) {
       const svg = canvas.ref.current.firstElementChild as SVGSVGElement;
       if (svg !== null) {
@@ -337,15 +353,19 @@ export const downloadPng = () =>
           const { width, height } = canvasDims;
           DownloadPNG(svg, filename, width, height, 1);
         }
+      } else {
+        toast.error(
+          "Could not export: no Penrose diagram detected. Compile a Penrose trio and try again.",
+        );
       }
     }
   });
 
 export const downloadPdf = () =>
   useRecoilCallback(({ snapshot }) => async () => {
-    const [diagram, _] = useRecoilState(diagramState);
+    const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
     const { state } = diagram;
-    const canvas = useRecoilValue(canvasState);
+    const canvas = snapshot.getLoadable(canvasState).contents as Canvas;
     if (canvas.ref && canvas.ref.current !== null) {
       const svg = canvas.ref.current.firstElementChild as SVGSVGElement;
       if (svg !== null && state) {
@@ -368,6 +388,10 @@ export const downloadPdf = () =>
         openedWindow.document.close();
         openedWindow.focus();
         openedWindow.print();
+      } else {
+        toast.error(
+          "Could not export: no Penrose diagram detected. Compile a Penrose trio and try again.",
+        );
       }
     }
   });
