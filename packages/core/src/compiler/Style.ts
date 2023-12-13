@@ -28,7 +28,7 @@ import {
 } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
 import { A, C, Identifier, SourceRange } from "../types/ast.js";
-import { Env as DomainEnv } from "../types/domain.js";
+import { Env as DomainEnv, Type } from "../types/domain.js";
 import {
   BinOpTypeError,
   LayerCycleWarning,
@@ -176,7 +176,7 @@ import {
   vectorV,
   zip2,
 } from "../utils/Util.js";
-import { isDeclaredSubtype } from "./Domain.js";
+import { isSubtype } from "./Domain.js";
 import { callCompFunc, callObjConstrFunc } from "./StyleFunctionCaller.js";
 import {
   checkBind,
@@ -998,26 +998,6 @@ const consistentSubsts = (a: Subst, b: Subst): boolean => {
   });
 };
 
-// Judgment 9. G; theta |- T <| |T
-// Assumes types are nullary, so doesn't return a subst, only a bool indicating whether the types matched
-// Ported from `matchType`
-const typesMatched = (
-  varEnv: DomainEnv,
-  substanceType: TypeConsApp<A>,
-  styleType: StyT<A>,
-): boolean => {
-  if (substanceType.args.length === 0) {
-    // Style type needs to be more generic than Style type
-    return isDeclaredSubtype(substanceType, toSubstanceType(styleType), varEnv);
-  }
-
-  // TODO(errors)
-  throw Error(
-    "internal error: expected two nullary types (parametrized types to be implemented)",
-  );
-};
-
-// Judgment 10. theta |- x <| B
 const matchBvar = (
   subVar: Identifier<A>,
   bf: BindingForm<A>,
@@ -1088,22 +1068,24 @@ const matchDecl = (
  * @returns If the `styArg` and `subArg` match, return a `Subst` that maps variable(s) in styArg into variable(s) in subArg. Return `undefined` otherwise.
  */
 const matchStyArgToSubArg = (
-  styTypeMap: { [k: string]: SelectorType<A> },
-  subTypeMap: { [k: string]: TypeApp<A> },
-  varEnv: DomainEnv,
+  styTypeMap: im.Map<string, Type<A>>,
+  subTypeMap: im.Map<string, Type<A>>,
+  domEnv: DomainEnv,
   styArg: SelArgExpr<A>,
   subArg: SubArgExpr<A>,
 ): Subst[] => {
   if (styArg.tag === "SelVar" && subArg.tag === "Identifier") {
     const styBForm = styArg.contents;
-    if (styBForm.tag === "StyVar") {
-      const styArgName = styBForm.contents.value;
-      const subArgName = subArg.value;
+    const styArgName = styBForm.contents.value;
+    const subArgName = subArg.value;
 
-      // check types
-      const styArgType = styTypeMap[styArgName];
-      const subArgType = subTypeMap[subArgName];
-      if (typesMatched(varEnv, subArgType, styArgType)) {
+    // check types
+    const styArgType = styTypeMap.get(styArgName)!;
+    const subArgType = subTypeMap.get(subArgName)!;
+
+    if (styBForm.tag === "StyVar") {
+      // If this is StyVar and the types match, then construct the substitution.
+      if (isSubtype(subArgType, styArgType, domEnv)) {
         const rSubst: Subst = {};
         rSubst[styArgName] = subArgName;
         return [rSubst];
@@ -1112,7 +1094,16 @@ const matchStyArgToSubArg = (
       }
     } /* (styBForm.tag === "SubVar") */ else {
       if (subArg.value === styBForm.contents.value) {
-        return [{}];
+        // If this is SubVar, we need to make sure that the name is the same and that the types match
+        if (isSubtype(subArgType, styArgType, domEnv)) {
+          // The result is a valid match.
+          // This is an empty substitution because a substitution only maps Style variables
+          // to substance variables.
+          return [{}];
+        } else {
+          // invalid match
+          return [];
+        }
       } else {
         return [];
       }
@@ -1126,8 +1117,8 @@ const matchStyArgToSubArg = (
  * @returns If all arguments match, return a `Subst[]` that contains mappings which map the Style variable(s) against Substance variable(s). If any arguments fail to match, return [].
  */
 const matchStyArgsToSubArgs = (
-  styTypeMap: { [k: string]: SelectorType<A> },
-  subTypeMap: { [k: string]: TypeApp<A> },
+  styTypeMap: im.Map<string, Type<A>>,
+  subTypeMap: im.Map<string, Type<A>>,
   varEnv: DomainEnv,
   styArgs: SelArgExpr<A>[],
   subArgs: SubArgExpr<A>[],
@@ -1186,8 +1177,8 @@ const matchStyArgsToSubArgs = (
  * This works with Functions, Predicates, and Constructors.
  */
 const matchStyApplyToSubApply = (
-  styTypeMap: { [k: string]: SelectorType<A> },
-  subTypeMap: { [k: string]: TypeApp<A> },
+  styTypeMap: im.Map<string, Type<A>>,
+  subTypeMap: im.Map<string, Type<A>>,
   varEnv: DomainEnv,
   styRel: RelPred<A> | SEFunc<A> | SEValCons<A> | SEFuncOrValCons<A>,
   subRel: ApplyPredicate<A> | ApplyConstructor<A> | ApplyFunction<A>,
@@ -1273,18 +1264,18 @@ const matchStyApplyToSubApply = (
  * and `A` indeed has `label`, then we return { a: A }. Otherwise, return `undefined`.
  */
 const matchRelField = (
-  styTypeMap: { [k: string]: SelectorType<A> },
-  subTypeMap: { [k: string]: TypeApp<A> },
-  varEnv: DomainEnv,
+  styTypeMap: im.Map<string, Type<A>>,
+  subTypeMap: im.Map<string, Type<A>>,
+  domEnv: DomainEnv,
   subEnv: SubstanceEnv,
   rel: RelField<A>,
   subDecl: Decl<A>,
 ): Subst | undefined => {
   const styName = toString(rel.name);
-  const styType = styTypeMap[styName];
+  const styType = styTypeMap.get(styName)!;
   const subName = subDecl.name.value;
-  const subType = subTypeMap[subName];
-  if (typesMatched(varEnv, subType, styType)) {
+  const subType = subTypeMap.get(subName)!;
+  if (isSubtype(subType, styType, domEnv)) {
     const fieldDesc = rel.fieldDescriptor;
     const label = subEnv.labels.get(subName);
     if (label) {
@@ -1337,8 +1328,8 @@ const getStyRelArgNames = (rel: RelationPattern<A>): im.Set<string> => {
  * and `rSubsts` is a list of [subst, subStmt] where `subst` is the variable mapping, and `subStmt` is the corresponding matched Substance statement.
  */
 const matchStyRelToSubRels = (
-  styTypeMap: { [k: string]: SelectorType<A> },
-  subTypeMap: { [k: string]: TypeApp<A> },
+  styTypeMap: im.Map<string, Type<A>>,
+  subTypeMap: im.Map<string, Type<A>>,
   varEnv: DomainEnv,
   subEnv: SubstanceEnv,
   rel: RelationPattern<A>,
@@ -1443,8 +1434,8 @@ const matchStyRelToSubRels = (
  * substitution itself and the matched Substance statement.
  */
 const makeListRSubstsForStyleRels = (
-  styTypeMap: { [k: string]: SelectorType<A> },
-  subTypeMap: { [k: string]: TypeApp<A> },
+  styTypeMap: im.Map<string, Type<A>>,
+  subTypeMap: im.Map<string, Type<A>>,
   varEnv: DomainEnv,
   subEnv: SubstanceEnv,
   rels: RelationPattern<A>[],
@@ -1483,18 +1474,9 @@ const makePotentialSubsts = (
   decls: DeclPattern<A>[],
   rels: RelationPattern<A>[],
 ): im.List<[Subst, im.Set<SubStmt<A>>]> => {
-  const subTypeMap = subProg.statements.reduce<{ [k: string]: TypeConsApp<A> }>(
-    (result, statement) => {
-      if (statement.tag === "Decl") {
-        result[statement.name.value] = statement.type;
-        return result;
-      } else {
-        return result;
-      }
-    },
-    {},
-  );
-  const styTypeMap: { [k: string]: StyT<A> } = selEnv.sTypeVarMap;
+  const selTypeMap = selEnv.objs;
+  const subTypeMap = subEnv.objs;
+
   const [usedStyVars, listRSubsts] = makeListRSubstsForStyleRels(
     styTypeMap,
     subTypeMap,
