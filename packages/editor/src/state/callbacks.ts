@@ -242,7 +242,7 @@ export const useDownloadTrio = () =>
     }
   });
 
-export const downloadSvg = () =>
+export const useDownloadSvg = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
     const diagram = snapshot.getLoadable(diagramMetadataSelector)
       .contents as DiagramMetadata;
@@ -277,7 +277,7 @@ export const downloadSvg = () =>
   });
 
 // download an svg with raw TeX labels
-export const downloadSvgTex = () =>
+export const useDownloadSvgTex = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
     const diagram = snapshot.getLoadable(diagramMetadataSelector)
       .contents as DiagramMetadata;
@@ -319,7 +319,7 @@ export const downloadSvgTex = () =>
     }
   });
 
-export const downloadPng = () =>
+export const useDownloadPng = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
     const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
     const canvas = snapshot.getLoadable(canvasState).contents as Canvas;
@@ -342,7 +342,7 @@ export const downloadPng = () =>
     }
   });
 
-export const downloadPdf = () =>
+export const useDownloadPdf = () =>
   useRecoilCallback(({ snapshot }) => async () => {
     const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
     const { state } = diagram;

@@ -1,16 +1,16 @@
 import {
-  downloadPdf,
-  downloadPng,
-  downloadSvgTex,
+  useDownloadPdf,
+  useDownloadPng,
+  useDownloadSvgTex,
   useDownloadTrio,
 } from "../state/callbacks.js";
 import DropdownButton, { DropdownItem } from "./DropdownButton.js";
 
 export default function ExportButton() {
   const dropdownItems: DropdownItem[] = [
-    { label: "as SVG TeX", onClick: downloadSvgTex() },
-    { label: "as PNG", onClick: downloadPng() },
-    { label: "as PDF", onClick: downloadPdf() },
+    { label: "as SVG TeX", onClick: useDownloadSvgTex() },
+    { label: "as PNG", onClick: useDownloadPng() },
+    { label: "as PDF", onClick: useDownloadPdf() },
     { label: "as Penrose trio", onClick: useDownloadTrio() },
   ];
 

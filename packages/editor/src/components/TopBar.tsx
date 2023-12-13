@@ -7,9 +7,8 @@ import {
   workspaceMetadataSelector,
 } from "../state/atoms.js";
 import {
-  downloadSvg,
   useCompileDiagram,
-  useDownloadTrio,
+  useDownloadSvg,
   usePublishGist,
   useResampleDiagram,
   useSaveLocally,
@@ -101,13 +100,10 @@ function EditableTitle() {
 }
 
 export default function TopBar() {
-  // TODO: put downloads from DiagramPanel in download dropdown
-  // TODO: add upload button and put the current upload functionality there, add "upload trio" option
   const compileDiagram = useCompileDiagram();
   const resampleDiagram = useResampleDiagram();
   const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
   const settings = useRecoilValue(settingsState);
-  const downloadTrio = useDownloadTrio();
   const saveLocally = useSaveLocally();
   const publishGist = usePublishGist();
 
@@ -166,7 +162,7 @@ export default function TopBar() {
         </div>
       )}
       <HeaderButtonContainer>
-        <BlueButton onClick={downloadSvg()}>save Penrose SVG</BlueButton>
+        <BlueButton onClick={useDownloadSvg()}>save Penrose SVG</BlueButton>
         <ExportButton />
         <BlueButton onClick={compileDiagram}>compile ▶</BlueButton>
         <BlueButton onClick={resampleDiagram}>resample</BlueButton>
