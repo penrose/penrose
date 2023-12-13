@@ -1,7 +1,9 @@
+import FileSaver from "file-saver";
+import JSZip from "jszip";
 import localforage from "localforage";
 import { optimize } from "svgo";
 import { v4 as uuid } from "uuid";
-import { RogerState, WorkspaceMetadata } from "../state/atoms";
+import { ProgramFile, RogerState, WorkspaceMetadata } from "../state/atoms";
 
 /**
  * Fetch url, but try local storage first using a name.
@@ -255,4 +257,19 @@ export const DownloadPNG = (
     document.body.removeChild(downloadLink);
   };
   img.src = url;
+};
+
+/**
+ * Saves a Penrose Trio as a zip file
+ *
+ * @param fileInfos array of ProgramFile containing domain, substance, style progs
+ * @param zipTitle name to save zip file as
+ */
+export const zipTrio = (fileInfos: ProgramFile[], zipTitle: string) => {
+  // https://stackoverflow.com/questions/8608724/how-to-zip-files-using-javascript
+  const zip = new JSZip();
+  fileInfos.map((file) => zip.file(`${zipTitle}${file.name}`, file.contents));
+  zip.generateAsync({ type: "blob" }).then(function (content) {
+    FileSaver.saveAs(content, `${zipTitle}.zip`);
+  });
 };

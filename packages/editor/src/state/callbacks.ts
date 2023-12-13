@@ -18,7 +18,8 @@ import {
   DownloadPNG,
   DownloadSVG,
   pathResolver,
-} from "../utils/downloadutils.js";
+  zipTrio,
+} from "../utils/downloadUtils.js";
 import {
   Canvas,
   Diagram,
@@ -240,20 +241,17 @@ export const useDownloadTrio = () =>
     const fileTitle = metadata.name.replaceAll(" ", "_").toLowerCase();
     const workspace = snapshot.getLoadable(currentWorkspaceState)
       .contents as Workspace;
-    const domainFile = workspace.files.domain;
-    const substanceFile = workspace.files.substance;
-    const styleFile = workspace.files.style;
+    const dsl = workspace.files.domain;
+    const sub = workspace.files.substance;
+    const sty = workspace.files.style;
 
     // save trio
     if (
-      domainFile.contents.length > 0 &&
-      substanceFile.contents.length > 0 &&
-      styleFile.contents.length > 0
+      dsl.contents.length > 0 &&
+      sub.contents.length > 0 &&
+      sty.contents.length > 0
     ) {
-      // TODO zip files
-      [domainFile, substanceFile, styleFile].map((f) =>
-        _saveFile(f.contents, fileTitle, f.name),
-      );
+      zipTrio([dsl, sub, sty], fileTitle);
     } else {
       toast.error(
         "Could not export: no Penrose diagram detected. Compile a Penrose trio and try again.",
