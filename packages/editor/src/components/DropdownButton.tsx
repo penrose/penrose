@@ -28,7 +28,6 @@ export default function DropdownButton(props: DropdownButtonProps) {
         item.onClick();
         handleClose();
       };
-      // TODO casting bad?
       return (
         <MenuItem onClick={onClick} key={`download-dropdown-${i}`}>
           {item.label}

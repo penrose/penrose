@@ -15,7 +15,7 @@ import {
   diagramState,
   workspaceMetadataSelector,
 } from "../state/atoms.js";
-import { pathResolver } from "../utils/downloadutils.js";
+import { pathResolver } from "../utils/downloadUtils.js";
 
 export default function DiagramPanel() {
   const canvasRef = useRef<HTMLDivElement>(null);
