@@ -41,7 +41,6 @@ import {
   Stmt,
   StmtSet,
   SubArgExpr,
-  SubBindableExpr,
   SubExpr,
   SubProg,
   SubRes,
@@ -102,11 +101,12 @@ export const parseSubstance = (
 export const compileSubstance = (
   prog: string,
   domEnv: DomainEnv,
-  subEnv: SubstanceEnv,
 ): Result<SubRes, PenroseError> => {
   const astOk = parseSubstance(prog);
   if (astOk.isOk()) {
     const ast = astOk.value;
+    // prepare Substance env
+    const subEnv = initEnv();
     // check the substance ast and produce an env or report errors
     const checkerOk = checkSubstance(ast, domEnv, subEnv);
     return checkerOk.match({
@@ -121,7 +121,7 @@ export const compileSubstance = (
   }
 };
 
-const initEnv = (): SubstanceEnv => ({
+export const initEnv = (): SubstanceEnv => ({
   bindings: im.Map<string, SubExpr<C>>(),
   labels: im.Map<string, LabelValue>(),
   objs: im.Map<string, Type<C>>(),
@@ -142,7 +142,7 @@ export const postprocessSubstance = (
   return prog.statements.reduce(
     (subEnv, stmt: CompiledSubStmt<A>) =>
       processLabelStmt(stmt, domEnv, subEnv),
-    subEnv,
+    { ...subEnv, ast: prog },
   );
 };
 
@@ -775,7 +775,7 @@ const substISetNoLabel = (
   });
 };
 
-const checkDecl = (
+export const checkDecl = (
   stmt: Decl<A>,
   domEnv: DomainEnv,
   subEnv: SubstanceEnv,
@@ -903,12 +903,12 @@ const createVars = (
   }
 
   return ok({
-    subEnv: { ...subEnv, vars, varIDs },
+    subEnv: { ...subEnv, objs: vars, objIds: varIDs },
     contents: equivalentDecls,
   });
 };
 
-const checkBind = (
+export const checkBind = (
   stmt: Bind<A>,
   domEnv: DomainEnv,
   subEnv: SubstanceEnv,
@@ -969,7 +969,7 @@ const checkDeclBind = (
   });
 };
 
-const checkPredicate = (
+export const checkPredicate = (
   expr: ApplyPredicate<A>,
   domEnv: DomainEnv,
   subEnv: SubstanceEnv,
@@ -1212,10 +1212,10 @@ const withType = <T>(
 ): ResultWithType<T> => ok({ type, subEnv, contents });
 
 export const checkExpr = (
-  expr: SubBindableExpr<A>,
+  expr: SubExpr<A>,
   domEnv: DomainEnv,
   subEnv: SubstanceEnv,
-): ResultWithType<SubBindableExpr<A>> => {
+): ResultWithType<SubExpr<A>> => {
   switch (expr.tag) {
     case "Func":
       return checkFunc(expr, domEnv, subEnv);

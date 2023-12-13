@@ -97,21 +97,15 @@ export type TypeApp<T> = ASTNode<T> & {
 export type Bind<T> = ASTNode<T> & {
   tag: "Bind";
   variable: Identifier<T>;
-  expr: SubBindableExpr<T>;
+  expr: SubExpr<T>;
 };
 
 export type DeclBind<T> = ASTNode<T> & {
   tag: "DeclBind";
   type: TypeApp<T>;
   variable: Identifier<T>;
-  expr: SubBindableExpr<T>;
+  expr: SubExpr<T>;
 };
-
-export type SubBindableExpr<T> =
-  | ApplyFunction<T>
-  | ApplyConstructor<T>
-  | Func<T>
-  | SubArgExpr<T>;
 
 export type SubExpr<T> =
   | ApplyFunction<T>

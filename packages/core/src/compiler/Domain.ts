@@ -193,10 +193,6 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       });
       return everyResult(argsOk, argsOk, updatedEnv);
     }
-    case "NotationDecl": {
-      // TODO: just passing through the notation rules here. Need to parse them into transformers
-      return ok(env);
-    }
     case "SubTypeDecl": {
       const { subType, superType } = stmt;
       const subOk = checkType(subType, env);

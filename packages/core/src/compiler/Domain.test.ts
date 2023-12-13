@@ -16,8 +16,7 @@ const contextHas = (
   expectedPredicates: string[],
 ) => {
   if (res.isOk()) {
-    const { types, typeVars, constructors, functions, predicates } = res.value;
-    expect(typeVars.size).toBe(0);
+    const { types, constructors, functions, predicates } = res.value;
     expectedTypes.forEach((t) => expect(types.has(t)).toBe(true));
     expectedConstructors.forEach((c) => expect(constructors.has(c)).toBe(true));
     expectedFunctions.forEach((f) => expect(functions.has(f)).toBe(true));
@@ -42,16 +41,13 @@ describe("Common", () => {
   type D
   type E
   B <: A
-  value varA: A
-  value varB: B
-  value varC: C
  `;
     const res = compileDomain(prog);
     if (res.isOk()) {
       const env = res.value;
-      const typeA = env.preludeValues.get("varA")!;
-      const typeB = env.preludeValues.get("varB")!;
-      const typeC = env.preludeValues.get("varC")!;
+      const typeA = env.types.get("A")!;
+      const typeB = env.types.get("B")!;
+      const typeC = env.types.get("C")!;
       expect(isSubtype(typeB, typeA, env)).toBe(true);
       expect(isSubtype(typeC, typeB, env)).toBe(true);
       expect(isSubtype(typeC, typeA, env)).toBe(true);
@@ -68,13 +64,13 @@ describe("Common", () => {
 describe("Statements", () => {
   test("type and constructor decl", () => {
     const prog = `
-type List ('T)
+type List
 type Real
 type Interval
 type OpenInterval
 type ClosedInterval
-constructor Cons ['X] ('X head, List('X) tail) -> List('X)
-constructor Nil['X]() -> List('X)
+constructor Cons(Real head, List tail) -> List
+constructor Nil() -> List
 constructor CreateInterval(Real left, Real right) -> Interval
 constructor CreateOpenInterval(Real left, Real right) -> OpenInterval
 constructor CreateClosedInterval(Real left, Real right) -> ClosedInterval
@@ -102,7 +98,6 @@ constructor CreateClosedInterval(Real left, Real right) -> ClosedInterval
 type Map
 type Set
 type Point
-predicate Not(Prop p1)
 predicate From(Map f, Set domain, Set codomain)
 predicate Empty(Set s)
 predicate Intersecting(Set s1, Set s2)
@@ -117,7 +112,6 @@ predicate PairIn(Point, Point, Map)
     const res = compileDomain(prog);
     const types = ["Map", "Set", "Point"];
     const predicates = [
-      "Not",
       "From",
       "Empty",
       "Intersecting",
@@ -186,28 +180,9 @@ type Set
   });
   test("Type not found", () => {
     const prog = `
-constructor Cons ['X] ('X head, List('X) tail) -> List('X)
+constructor Cons(Real head, List tail) -> List
     `;
     expectErrorOf(prog, "TypeNotFound");
-  });
-  test("type var not found", () => {
-    const prog = `
-  constructor Cons ['X] ('Z head, List('Y) tail) -> List('X)
-    `;
-    expectErrorOf(prog, "TypeVarNotFound");
-  });
-  test("prop in subtyping relation", () => {
-    const prog = `
-  type Set
-  Prop <: Set
-    `;
-    expectErrorOf(prog, "ParseError");
-  });
-  test("type var in subtyping relation", () => {
-    const prog = `
-  'T <: 'V
-    `;
-    expectErrorOf(prog, "ParseError");
   });
   test("subtype cycle", () => {
     const prog = `

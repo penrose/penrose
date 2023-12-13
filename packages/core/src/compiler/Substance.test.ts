@@ -11,10 +11,10 @@ import { compileSubstance, prettySubstance } from "./Substance.js";
 
 const printError = false;
 
-const hasVars = (env: Env, vars: [string, string][]) => {
+const hasVars = (subEnv: SubstanceEnv, vars: [string, string][]) => {
   vars.forEach(([name, type]: [string, string]) => {
-    expect(env.vars.has(name)).toBe(true);
-    expect(showType(env.vars.get(name)!)).toEqual(type);
+    expect(subEnv.objs.has(name)).toBe(true);
+    expect(showType(subEnv.objs.get(name)!)).toEqual(type);
   });
 };
 
@@ -22,43 +22,15 @@ const domainProg = `
 type Set
 type OpenSet
 type Vector
-type List('T)
-type Tuple('T, 'U)
 type Point
 OpenSet <: Set
 constructor Subset(Set A, Set B) -> Set
 constructor Intersection(Set A, Set B) -> Set
-constructor Cons ['X] ('X head, List('X) tail) -> List('X)
-constructor Nil['X]() -> List('X)
-constructor CreateTuple['T, 'U]('T fst, 'U snd) -> Tuple('T, 'U)
+function AddToOpen(Point p, OpenSet s) -> OpenSet
 function AddPoint(Point p, Set s1) -> Set
-predicate Not(Prop p1)
-predicate Both(Prop p1, Prop p2)
 predicate Empty(Set s)
 predicate Intersecting(Set s1, Set s2)
 predicate IsSubset(Set s1, Set s2)
-`;
-
-const domainProgWithPrelude = `
-type Set
-type OpenSet
-type Vector
-type List('T)
-type Tuple('T, 'U)
-type Point
-OpenSet <: Set
-constructor Subset(Set A, Set B) -> Set
-constructor Intersection(Set A, Set B) -> Set
-constructor Cons ['X] ('X head, List('X) tail) -> List('X)
-constructor Nil['X]() -> List('X)
-constructor CreateTuple['T, 'U]('T fst, 'U snd) -> Tuple('T, 'U)
-function AddPoint(Point p, Set s1) -> Set
-predicate Not(Prop p1)
-predicate Both(Prop p1, Prop p2)
-predicate Empty(Set s)
-predicate Intersecting(Set s1, Set s2)
-predicate IsSubset(Set s1, Set s2)
-value X: Set
 `;
 
 export const envOrError = (prog: string): Env => {
@@ -100,24 +72,6 @@ Set D
     const res = compileSubstance(prog, env);
     expect(res.isOk()).toBe(true);
   });
-  test("preludes", () => {
-    const env = envOrError(domainProgWithPrelude);
-    const prog = `
-Set A, B, C
-List(Set) l
-OpenSet D
-A := D
-    `;
-    const res = compileSubstance(prog, env);
-    expect(res.isOk()).toBe(true);
-    if (res.isOk()) {
-      hasVars(res.value[1], [
-        ["A", "Set"],
-        ["X", "Set"], // defined in prelude
-        ["l", "List(Set)"],
-      ]);
-    }
-  });
 });
 
 describe("Postprocess", () => {
@@ -158,17 +112,13 @@ describe("Check statements", () => {
     const env = envOrError(domainProg);
     const prog = `
 Set A, B, C
-List(Set) l
 OpenSet D
 A := D
     `;
     const res = compileSubstance(prog, env);
     expect(res.isOk()).toBe(true);
     if (res.isOk()) {
-      hasVars(res.value[1], [
-        ["A", "Set"],
-        ["l", "List(Set)"],
-      ]);
+      hasVars(res.value[0], [["A", "Set"]]);
     }
   });
   test("decl bind", () => {
@@ -182,12 +132,9 @@ Set E := Subset(B, C)
     const res = compileSubstance(prog, env);
     expect(res.isOk()).toBe(true);
     if (res.isOk()) {
-      expect(res.value[1].constructorsBindings.get("E")![0].name.value).toEqual(
-        "Subset",
-      );
       // TODO: not caching var bindings for now. Add to checker if needed
       // expect(res.value[1].bindings.get("A")![0].name.value).toEqual("Subset");
-      hasVars(res.value[1], [
+      hasVars(res.value[0], [
         ["A", "Set"],
         ["E", "Set"],
         ["D", "OpenSet"],
@@ -203,7 +150,7 @@ B := AddPoint(p, B)
       `;
     const res = compileSubstance(prog, env);
     if (res.isOk()) {
-      hasVars(res.value[1], [
+      hasVars(res.value[0], [
         ["A", "Set"],
         ["B", "Set"],
         ["p", "Point"],
@@ -212,35 +159,6 @@ B := AddPoint(p, B)
       throw Error(`unexpected error ${showError(res.error)}`);
     }
   });
-  test("func: constructor", () => {
-    const env = envOrError(domainProg);
-    const prog = `
-List(Set) l, nil
-nil := Nil()
-Set A
-l := Cons(A, nil)
-      `;
-    const res = compileSubstance(prog, env);
-    if (res.isOk()) {
-      hasVars(res.value[1], [
-        ["A", "Set"],
-        ["l", "List(Set)"],
-        ["nil", "List(Set)"],
-      ]);
-    } else {
-      throw Error(`unexpected error ${showError(res.error)}`);
-    }
-  });
-  test("deconstructor: plain types", () => {
-    const prog = `
-Set A, B, C, D, E
-C := Subset(A, B)
-D := C.A
-E := C.B
-    `;
-    const env = envOrError(domainProg);
-    subEnvOrError(prog, env);
-  });
   test("predicates: non-nesting", () => {
     const prog = `
 Set A, B, C, D, E
@@ -248,19 +166,6 @@ C := Intersection(A, B)
 Empty(C)
 IsSubset(D, E)
 IsSubset(D, A)
-IsSubset(Subset(D, E), A) -- anon. constructor
-    `;
-    const env = envOrError(domainProg);
-    subEnvOrError(prog, env);
-  });
-  test("predicates: nesting", () => {
-    const prog = `
-Set A, B, C, D, E
-C := Intersection(A, B)
-Not(Empty(C))
-Not(IsSubset(D, E))
-Not(IsSubset(Subset(D, E), A)) -- anon. constructor
-Both(IsSubset(A, B), IsSubset(C, D))
     `;
     const env = envOrError(domainProg);
     subEnvOrError(prog, env);
@@ -284,7 +189,7 @@ NoLabel B, C
       const res = compileSubstance(prog, env);
       expect(res.isOk()).toBe(true);
       if (res.isOk()) {
-        hasVars(res.value[1], [
+        hasVars(res.value[0], [
           ["a_2", "Set"],
           ["a_4", "Set"],
           ["a_6", "Set"],
@@ -300,7 +205,7 @@ NoLabel B, C
       const res1 = compileSubstance(prog1, env1);
       expect(res1.isOk()).toBe(true);
       if (res1.isOk()) {
-        expect(res1.value[1].vars.size).toBe(0);
+        expect(res1.value[0].objs.size).toBe(0);
       }
 
       const env2 = envOrError(domainProg);
@@ -308,7 +213,7 @@ NoLabel B, C
       const res2 = compileSubstance(prog2, env2);
       expect(res2.isOk()).toBe(true);
       if (res2.isOk()) {
-        expect(res2.value[1].vars.size).toBe(0);
+        expect(res2.value[0].objs.size).toBe(0);
       }
     });
 
@@ -323,7 +228,7 @@ NoLabel B, C
       expect(res.isOk()).toBe(true);
       if (res.isOk()) {
         hasVars(
-          res.value[1],
+          res.value[0],
           [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => [`a_${n}`, "Set"]),
         );
       }
@@ -411,7 +316,6 @@ AutoLabel All
     const env = envOrError(domainProg);
     const prog = `
 Set A, B, C
-List(Set) l
 Alien a
 NotExistentType b
     `;
@@ -428,7 +332,6 @@ NotExistentType b
     const env = envOrError(domainProg);
     const prog = `
 Set A, B, C
-List(Set) l
 C := NotExistentFunc(A, B)
     `;
     const res = compileSubstance(prog, env);
@@ -485,82 +388,26 @@ v := Subset(A, B) -- error
     const res = compileSubstance(prog, env);
     expectErrorOf(res, "TypeMismatch");
   });
-  // TODO: fix typeconstructor check and pass this test
-  test("func: type argument mismatch", () => {
-    const env = envOrError(domainProg);
-    const prog = `
--- type Tuple('T, 'U)
--- constructor CreateTuple['T, 'U]('T fst, 'U snd) -> Tuple('T, 'U)
-List(Set) nil
-Tuple(Set, Set) t -- Maybe an error?
-t := CreateTuple(nil, nil) -- Definitely an error
-      `;
-    const res = compileSubstance(prog, env);
-    expectErrorOf(res, "TypeMismatch");
-  });
-  test("func: type argument mismatch 2", () => {
-    const env = envOrError(domainProg);
-    const prog = `
-  -- Substance program for type checking
-  List(Set) l, nil
-  nil := Nil()
-  Set A
-  l := Cons(nil, A)
-      `;
-    const res = compileSubstance(prog, env);
-    expectErrorOf(res, "TypeMismatch");
-  });
   test("func: argument of too general type", () => {
     const env = envOrError(domainProg);
     const prog = `
-List(OpenSet) l, nil
-nil := Nil()
-Set A
-l := Cons(A, nil)
+Set s
+Point p
+Set b := AddToOpen(p, s)
         `;
     const res = compileSubstance(prog, env);
     expectErrorOf(res, "TypeMismatch");
-  });
-  test("unbound field access", () => {
-    const env = envOrError(domainProg);
-    const prog = `
-Set A, B
-B := A.field
-        `;
-    const res = compileSubstance(prog, env);
-    expectErrorOf(res, "DeconstructNonconstructor");
-  });
-  test("unbound field access of a function", () => {
-    const env = envOrError(domainProg);
-    const prog = `
-Set A, B,
-Point p, q
-B := AddPoint(p, A)
-q := B.p1 -- although the function has named args, one still cannot deconstruct functions. Only constructors are okay.
-        `;
-    const res = compileSubstance(prog, env);
-    expectErrorOf(res, "DeconstructNonconstructor");
   });
   test("wrong return type of anon constructor in predicate", () => {
     const env = envOrError(domainProg);
     const prog = `
-List(Set) nil
-nil := Nil()
-OpenSet A
-IsSubset(nil, A) -- error because nil is not a Set
+Set A, B, C
+C := Subset(A, B)
+Set D
+D := AddPoint(C, B)
         `;
     const res = compileSubstance(prog, env);
     expectErrorOf(res, "TypeMismatch");
-  });
-  test("unexpected var when nested pred is expected", () => {
-    const env = envOrError(domainProg);
-    const prog = `
-Set A, B
-Not(IsSubset(A, B)) -- ok
-Not(Intersection(A, B))
-    `;
-    const res = compileSubstance(prog, env);
-    expectErrorOf(res, "UnexpectedExprForNestedPred");
   });
   test("variables not found in label statements", () => {
     const env = envOrError(domainProg);
@@ -612,57 +459,18 @@ Label D $\\vec{d}$
     expectErrorOf(res, "InvalidArithmeticValueError");
     // error because -1 ^ 0.5 is NaN
   });
-
-  test("unsupported indexing statement", () => {
-    const env = envOrError(domainProg);
-    const prog = `Set a, b
-    IsSubset(a, b) <-> IsSubset(b, a) for i in [1, 10]`;
-    const res = compileSubstance(prog, env);
-    expectErrorOf(res, "UnsupportedIndexingError");
-  });
 });
 
 describe("Subtypes", () => {
   test("func argument subtypes", () => {
     const env = envOrError(domainProg);
     const prog = `
-List(Set) l, nil
-nil := Nil()
-OpenSet A
-l := Cons(A, nil)
+    Set S
+    OpenSet O
+    Set B
+    B := Subset(S, O)
         `;
     subEnvOrError(prog, env);
-  });
-  test("func argument parametrized subtypes", () => {
-    const env = envOrError(domainProg);
-    const prog = `
-List(Set) l
-List(OpenSet) nil
-nil := Nil()
-OpenSet A
-l := Cons(A, nil)
-        `;
-    subEnvOrError(prog, env);
-  });
-});
-describe("Ambiguous expressions", () => {
-  test("nested predicates and functions parsed as Func", () => {
-    const env = envOrError(domainProg);
-    const prog = `Set A, B
-Point p
-Not(Intersecting(A, B))
-Empty(Subset(A, B))
-Empty(AddPoint(p, A))`;
-    const [subEnv] = subEnvOrError(prog, env);
-    expect((subEnv.ast.statements[3] as ApplyPredicate<A>).args[0].tag).toEqual(
-      "ApplyPredicate",
-    );
-    expect((subEnv.ast.statements[4] as ApplyPredicate<A>).args[0].tag).toEqual(
-      "ApplyConstructor",
-    );
-    expect((subEnv.ast.statements[5] as ApplyPredicate<A>).args[0].tag).toEqual(
-      "ApplyFunction",
-    );
   });
 });
 
@@ -678,20 +486,10 @@ Set D
 Set E
 Vector v
 C := Subset(A, B)
-D := C.A
-E := C.B
-List(Set) l
-List(OpenSet) nil
 OpenSet Z
-nil := Nil()
-l := Cons(Z, nil)
 Empty(C)
 IsSubset(D, E)
 IsSubset(D, A)
-Not(IsSubset(D, A))
-Not(Intersecting(B, C))
-IsSubset(A, B) <-> IsSubset(B, C)
-Subset(A, B) = Subset(B, C)
 AutoLabel All
 Label A $\\vec{A}$
 Label B $B_1$

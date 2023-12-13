@@ -63,7 +63,7 @@ export type Namespace<T> = ASTNode<T> & {
 
 export type DeclPattern<T> = ASTNode<T> & {
   tag: "DeclPattern";
-  type: StyT<T>;
+  type: SelectorType<T>;
   id: BindingForm<T>;
 };
 
@@ -90,57 +90,27 @@ export type RelBind<T> = ASTNode<T> & {
 export type RelPred<T> = ASTNode<T> & {
   tag: "RelPred";
   name: Identifier<T>;
-  args: PredArg<T>[];
+  args: SelArgExpr<T>[];
   alias?: Identifier<T>;
 };
 
-export type PredArg<T> = SEBind<T> | RelPred<T>;
-
-export type StyT<T> = Identifier<T>;
-
-export type STTypeVar<T> = ASTNode<T> & {
-  tag: "STTypeVar";
-  contents: STypeVar<T>;
-};
-
-export type STCtor<T> = ASTNode<T> & {
-  tag: "STCtor";
-  contents: STypeCtor<T>;
-};
-
-export type STypeVar<T> = ASTNode<T> & {
-  tag: "STypeVar";
-  typeVarNameS: string;
-};
-
-export type STypeCtor<T> = ASTNode<T> & {
-  tag: "STypeCtor";
-  nameConsS: string;
-  argConsS: SArg<T>[];
-};
-
-export type SArg<T> = SAVar<T> | SAT<T>;
-
-export type SAVar<T> = ASTNode<T> & {
-  tag: "SAVar";
+export type SelVar<T> = ASTNode<T> & {
+  tag: "SelVar";
   contents: BindingForm<T>;
 };
 
-export type SAT<T> = ASTNode<T> & {
-  tag: "SAT";
-  contents: StyT<T>;
+export type SelArgExpr<T> = SelVar<T>;
+
+export type SelectorType<T> = ASTNode<T> & {
+  tag: "SelectorType";
+  name: Identifier<T>;
 };
 
 export type SelExpr<T> =
-  | SEBind<T>
   | SEFunc<T>
   | SEValCons<T>
-  | SEFuncOrValCons<T>;
-
-export type SEBind<T> = ASTNode<T> & {
-  tag: "SEBind";
-  contents: BindingForm<T>;
-};
+  | SEFuncOrValCons<T>
+  | SelArgExpr<T>;
 
 export type SEFunc<T> = ASTNode<T> & {
   tag: "SEFunc";

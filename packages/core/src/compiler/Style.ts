@@ -28,7 +28,7 @@ import {
 } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
 import { A, C, Identifier, SourceRange } from "../types/ast.js";
-import { Env } from "../types/domain.js";
+import { Env as DomainEnv } from "../types/domain.js";
 import {
   BinOpTypeError,
   LayerCycleWarning,
@@ -38,7 +38,6 @@ import {
   StyleDiagnostics,
   StyleError,
   StyleWarning,
-  SubstanceError,
 } from "../types/errors.js";
 import {
   Fn,
@@ -63,16 +62,16 @@ import {
   List,
   Path,
   PathAssign,
-  PredArg,
   RelBind,
   RelField,
   RelPred,
   RelationPattern,
+  SelArgExpr,
   SelExpr,
   Selector,
+  SelectorType,
   Stmt,
   StyProg,
-  StyT,
   UOp,
   Vector,
 } from "../types/style.js";
@@ -91,7 +90,7 @@ import {
   ProgType,
   ResolvedName,
   ResolvedPath,
-  SelEnv,
+  SelectorEnv,
   ShapeSource,
   StySubst,
   Subst,
@@ -102,13 +101,16 @@ import {
   ApplyConstructor,
   ApplyFunction,
   ApplyPredicate,
+  Bind,
   CompiledSubProg,
   CompiledSubStmt,
   Decl,
+  SubArgExpr,
   SubExpr,
   SubProg,
   SubStmt,
   SubstanceEnv,
+  TypeApp,
 } from "../types/substance.js";
 import {
   ArgVal,
@@ -167,14 +169,19 @@ import {
   shapeListV,
   strV,
   tupV,
-  unwrap,
   val,
   vectorV,
   zip2,
 } from "../utils/Util.js";
-import { checkType, isDeclaredSubtype } from "./Domain.js";
+import { isDeclaredSubtype } from "./Domain.js";
 import { callCompFunc, callObjConstrFunc } from "./StyleFunctionCaller.js";
-import { checkArgs, checkExpr, checkVar } from "./Substance.js";
+import {
+  checkBind,
+  checkDecl,
+  checkPredicate,
+  checkVar,
+  initEnv as initSubEnv,
+} from "./Substance.js";
 import { checkShape } from "./shapeChecker/CheckShape.js";
 
 const log = (consola as any)
@@ -300,16 +307,14 @@ export const ppRel = (r: RelationPattern<A>): string => {
 
 //#region Types and code for selector checking and environment construction
 
-const initSelEnv = (): SelEnv => {
-  // Note that JS objects are by reference, so you have to make a new one each time
-  return {
-    sTypeVarMap: {},
-    varProgTypeMap: {},
-    skipBlock: false,
-    header: undefined,
-    warnings: [],
+const initSelEnv = (): SelectorEnv => {
+  const subEnv: SubstanceEnv = initSubEnv();
+  const selEnv: SelectorEnv = {
+    ...subEnv,
     errors: [],
+    warnings: [],
   };
+  return selEnv;
 };
 
 // Add a mapping from Sub or Sty var to the selector's environment
@@ -317,7 +322,7 @@ const initSelEnv = (): SelEnv => {
 // NOTE: Mutates the map in `m`
 const addMapping = (
   k: BindingForm<A>,
-  v: StyT<A>,
+  v: SelectorType<A>,
   m: SelEnv,
   p: ProgType,
 ): SelEnv => {
@@ -327,83 +332,59 @@ const addMapping = (
 };
 
 // add warning/error to end of existing errors in selector env
-const addErrSel = (selEnv: SelEnv, err: StyleError): SelEnv => {
+const addErrSel = (selEnv: SelectorEnv, err: StyleError[]): SelectorEnv => {
   return {
     ...selEnv,
-    errors: selEnv.errors.concat([err]),
+    errors: selEnv.errors.concat(err),
   };
 };
 
-// TODO: Test this
-// Judgment 3. G; g |- |S_o ok ~> g'
-// `checkDeclPattern`
-const checkDeclPatternAndMakeEnv = (
-  varEnv: Env,
-  selEnv: SelEnv,
-  stmt: DeclPattern<A>,
-): SelEnv => {
-  const [styType, bVar] = [stmt.type, stmt.id];
+const checkDeclPattern = (
+  decl: DeclPattern<A>,
+  domEnv: DomainEnv,
+  selEnv: SelectorEnv,
+): SelectorEnv => {
+  // convert `stmt` to Substance-equivalent
+  const subDecl = toSubDecl(decl);
+  // use Substance checker
+  const res = checkDecl(subDecl, domEnv, selEnv);
 
-  const typeErr = checkType(toSubstanceType(styType), varEnv);
-  if (isErr(typeErr)) {
-    return addErrSel(selEnv, {
-      tag: "TaggedSubstanceError",
-      error: typeErr.error,
-    });
-  }
+  // for some reasons, the previous implementation throws an error for SubVars whose type
+  // does not match the actual type in the Substance program.
 
-  const varName: string = bVar.contents.value;
+  // The correct behavior should not be to throw an error. It just simply should not generate a matching.
 
-  if (Object.keys(selEnv.sTypeVarMap).includes(varName)) {
-    return addErrSel(selEnv, { tag: "SelectorVarMultipleDecl", varName: bVar });
-  }
-
-  switch (bVar.tag) {
-    case "StyVar": {
-      // rule Decl-Sty-Context
-      // NOTE: this does not aggregate *all* possible errors. May just return first error.
-      // y \not\in dom(g)
-      return addMapping(bVar, styType, selEnv, { tag: "StyProgT" });
-    }
-    case "SubVar": {
-      // rule Decl-Sub-Context
-      // x \not\in dom(g)
-
-      const substanceType = varEnv.vars.get(varName);
-
-      // If any Substance variable doesn't exist in env, ignore it,
-      // but flag it so we know to not translate the lines in the block later.
-      if (!substanceType) {
-        return { ...selEnv, skipBlock: true };
-      }
-
-      // check "T <: |T", assuming type constructors are nullary
-      // Specifically, the Style type for a Substance var needs to be more general. Otherwise, if it's more specific, that's a coercion
-      // e.g. this is correct: Substance: "SpecialVector `v`"; Style: "Vector `v`"
-      const declType = toSubstanceType(styType);
-      if (!isDeclaredSubtype(substanceType, declType, varEnv)) {
-        // COMBAK: Order?
-        return addErrSel(selEnv, {
-          tag: "SelectorDeclTypeMismatch",
-          subType: declType,
-          styType: substanceType,
-        });
-      }
-
-      return addMapping(bVar, styType, selEnv, { tag: "SubProgT" });
-    }
+  // add all errors
+  if (res.isErr()) {
+    return addErrSel(
+      selEnv,
+      res.error.map((error) => {
+        if (error.tag === "DuplicateName") {
+          return {
+            tag: "SelectorVarMultipleDecl",
+            varName: decl.id,
+          };
+        } else {
+          return {
+            tag: "TaggedSubstanceError",
+            error,
+          };
+        }
+      }),
+    );
+  } else {
+    return { ...selEnv, ...res.value.subEnv };
   }
 };
 
-// Judgment 6. G; g |- [|S_o] ~> g'
 // `checkDeclPatterns` w/o error-checking, just addMapping for StyVars and SubVars
-const checkDeclPatternsAndMakeEnv = (
-  varEnv: Env,
-  selEnv: SelEnv,
+const checkDeclPatterns = (
   decls: DeclPattern<A>[],
-): SelEnv => {
+  domEnv: DomainEnv,
+  selEnv: SelectorEnv,
+): SelectorEnv => {
   return decls.reduce(
-    (s, p) => checkDeclPatternAndMakeEnv(varEnv, s, p),
+    (selEnv, decl) => checkDeclPattern(decl, domEnv, selEnv),
     selEnv,
   );
 };
@@ -414,13 +395,12 @@ const checkDeclPatternsAndMakeEnv = (
  *
  * Returns a list of domain keywords that the aliases cannot match
  */
-const getDomainKeywords = (varEnv: Env): string[] => {
+const getDomainKeywords = (varEnv: DomainEnv): string[] => {
   const keyWordMaps = [
     varEnv.types,
     varEnv.functions,
     varEnv.predicates,
     varEnv.constructors,
-    varEnv.constructorsBindings,
   ];
 
   const keywords = _.flatMap(keyWordMaps, (m) => {
@@ -440,8 +420,8 @@ const getDomainKeywords = (varEnv: Env): string[] => {
  *
  * Returns a list of selector keywords that the aliases cannot match
  */
-const getSelectorStyVarNames = (selEnv: SelEnv): string[] => {
-  return Object.keys(selEnv.sTypeVarMap);
+const getSelectorStyVarNames = (selEnv: SelectorEnv): string[] => {
+  return [...selEnv.objs.keys()];
 };
 
 /**
@@ -449,8 +429,8 @@ const getSelectorStyVarNames = (selEnv: SelEnv): string[] => {
  */
 const aliasConflictsWithDomainOrSelectorKeyword = (
   alias: Identifier<A>,
-  varEnv: Env,
-  selEnv: SelEnv,
+  varEnv: DomainEnv,
+  selEnv: SelectorEnv,
 ): boolean => {
   const domainKeywords = getDomainKeywords(varEnv);
   const selectorKeywords = getSelectorStyVarNames(selEnv);
@@ -460,85 +440,75 @@ const aliasConflictsWithDomainOrSelectorKeyword = (
   );
 };
 
-// TODO: Test this function
-// Judgment 4. G |- |S_r ok
 const checkRelPattern = (
-  varEnv: Env,
-  selEnv: SelEnv,
   rel: RelationPattern<A>,
-): StyleError[] => {
-  // rule Bind-Context
+  domEnv: DomainEnv,
+  selEnv: SelectorEnv,
+): SelectorEnv => {
   switch (rel.tag) {
     case "RelBind": {
-      // TODO: use checkSubStmt here (and in paper)?
-      // TODO: make sure the ill-typed bind selectors fail here (after Sub statics is fixed)
-      // G |- B : T1
-      const res1 = checkVar(rel.id.contents, varEnv);
+      const subBind = toSubBind(rel);
 
-      // TODO(error)
-      if (isErr(res1)) {
-        const subErr1 = res1.error;
-        // TODO(error): Do we need to wrap this error further, or is returning SubstanceError with no additional Style info ok?
-        // return ["substance typecheck error in B"];
-        return [{ tag: "TaggedSubstanceError", error: subErr1[0] }];
+      const res = checkBind(subBind, domEnv, selEnv);
+
+      if (res.isErr()) {
+        return addErrSel(
+          selEnv,
+          res.error.map((error) => ({
+            tag: "TaggedSubstanceError",
+            error,
+          })),
+        );
+      } else {
+        return { ...selEnv, ...res.value.subEnv };
       }
-
-      const { type: vtype } = res1.value; // ignore env
-
-      // G |- E : T2
-      const res2 = checkExpr(toSubExpr(rel.expr), varEnv);
-
-      // TODO(error)
-      if (isErr(res2)) {
-        const subErr2 = res2.error;
-        return [{ tag: "TaggedSubstanceError", error: subErr2[0] }];
-        // return ["substance typecheck error in E"];
-      }
-
-      const { type: etype } = res2.value; // ignore env
-
-      // T1 = T2
-      const typesEq = isDeclaredSubtype(vtype, etype, varEnv);
-
-      // TODO(error) -- improve message
-      if (!typesEq) {
-        return [
-          { tag: "SelectorRelTypeMismatch", varType: vtype, exprType: etype },
-        ];
-        // return ["types not equal"];
-      }
-
-      return [];
     }
     case "RelPred": {
-      // rule Pred-Context
-      // G |- Q : Prop
+      const { alias } = rel;
+
       if (
-        rel.alias &&
-        aliasConflictsWithDomainOrSelectorKeyword(rel.alias, varEnv, selEnv)
+        alias &&
+        aliasConflictsWithDomainOrSelectorKeyword(alias, domEnv, selEnv)
       ) {
-        return [{ tag: "SelectorAliasNamingError", alias: rel.alias }];
+        return addErrSel(selEnv, [{ tag: "SelectorAliasNamingError", alias }]);
       }
-      const res = checkArgs(toSubPred(rel), varEnv);
-      if (isErr(res)) {
-        const subErr3: SubstanceError = res.error[0];
-        return [{ tag: "TaggedSubstanceError", error: subErr3 }];
-        // return ["substance typecheck error in Pred"];
+
+      const subPred = toSubPred(rel);
+      const res = checkPredicate(subPred, domEnv, selEnv);
+
+      if (res.isErr()) {
+        return addErrSel(
+          selEnv,
+          res.error.map((error) => ({
+            tag: "TaggedSubstanceError",
+            error,
+          })),
+        );
+      } else {
+        return { ...selEnv, ...res.value.subEnv };
       }
-      return [];
     }
     case "RelField": {
-      // check if the Substance name exists
-      const nameOk = checkVar(rel.name.contents, varEnv);
-      if (isErr(nameOk)) {
-        const subErr1: SubstanceError = nameOk.error[0];
-        return [{ tag: "TaggedSubstanceError", error: subErr1 }];
+      // Substance does not have a "Field" relation
+
+      if (rel.field.value !== "label") {
+        return addErrSel(selEnv, [
+          selectorFieldNotSupported(rel.name, rel.field),
+        ]);
       }
-      // check if the field is supported. Currently, we only support matching on `label`
-      if (rel.field.value !== "label")
-        return [selectorFieldNotSupported(rel.name, rel.field)];
-      else {
-        return [];
+
+      const nameOk = checkVar(rel.name.contents, domEnv, selEnv);
+
+      if (isErr(nameOk)) {
+        return addErrSel(
+          selEnv,
+          nameOk.error.map((error) => ({
+            tag: "TaggedSubstanceError",
+            error,
+          })),
+        );
+      } else {
+        return { ...selEnv };
       }
     }
   }
@@ -546,133 +516,71 @@ const checkRelPattern = (
 
 // Judgment 5. G |- [|S_r] ok
 const checkRelPatterns = (
-  varEnv: Env,
-  selEnv: SelEnv,
   rels: RelationPattern<A>[],
-): StyleError[] => {
-  return _.flatMap(rels, (rel: RelationPattern<A>): StyleError[] =>
-    checkRelPattern(varEnv, selEnv, rel),
+  domEnv: DomainEnv,
+  selEnv: SelectorEnv,
+): SelectorEnv => {
+  return rels.reduce(
+    (selEnv, rel) => checkRelPattern(rel, domEnv, selEnv),
+    selEnv,
   );
 };
 
-const toSubstanceType = (styT: StyT<A>): TypeConsApp<A> => {
-  // TODO: Extend for non-nullary types (when they are implemented in Style)
-  return {
-    tag: "TypeConstructor",
-    nodeType: "Substance",
-    name: styT,
-    args: [],
-  };
-};
+const checkSelector = (domEnv: DomainEnv, sel: Selector<A>): SelectorEnv => {
+  const selEnvInit = initSelEnv();
 
-// TODO: Test this
-// NOTE: `Map` is immutable; we return the same `Env` reference with a new `vars` set (rather than mutating the existing `vars` Map)
-const mergeMapping = (
-  varProgTypeMap: { [k: string]: [ProgType, BindingForm<A>] },
-  varEnv: Env,
-  [varName, styType]: [string, StyT<A>],
-): Env => {
-  const res = unwrap(
-    varProgTypeMap[varName],
-    () => `var has no binding form: ${varName}`,
-  );
-  const [, bindingForm] = res;
-  const vars = varEnv.vars.set(
-    bindingForm.contents.value,
-    toSubstanceType(styType),
-  );
-  switch (bindingForm.tag) {
-    case "StyVar":
-      return {
-        ...varEnv,
-        vars,
-        varIDs: [
-          dummyIdentifier(bindingForm.contents.value, "Style"),
-          ...varEnv.varIDs,
-        ],
-      };
-    case "SubVar":
-      return {
-        ...varEnv,
-        vars,
-        varIDs: [
-          dummyIdentifier(bindingForm.contents.value, "Substance"),
-          ...varEnv.varIDs,
-        ],
-      };
-  }
-};
-
-// TODO: don't merge the varmaps! just put g as the varMap (otherwise there will be extraneous bindings for the relational statements)
-// Judgment 1. G || g |-> ...
-const mergeEnv = (varEnv: Env, selEnv: SelEnv): Env => {
-  return Object.entries(selEnv.sTypeVarMap).reduce(
-    (acc, curr) => mergeMapping(selEnv.varProgTypeMap, acc, curr),
-    varEnv,
-  );
-};
-
-const checkSelector = (varEnv: Env, sel: Selector<A>): SelEnv => {
-  // Judgment 7. G |- Sel ok ~> g
-  const selEnv_afterHead = checkDeclPatternsAndMakeEnv(
-    varEnv,
-    initSelEnv(),
+  // Check `forall` clause
+  const selEnv_afterHead = checkDeclPatterns(
     sel.head.contents,
+    domEnv,
+    selEnvInit,
   );
+
   // Check `with` statements
-  // TODO: Did we get rid of `with` statements?
-  const selEnv_decls = checkDeclPatternsAndMakeEnv(
-    varEnv,
-    selEnv_afterHead,
+  const selEnv_decls = checkDeclPatterns(
     safeContentsList(sel.with),
+    domEnv,
+    selEnv_afterHead,
   );
 
-  // Basically creates a new, empty environment.
-  const emptyVarsEnv: Env = { ...varEnv, vars: im.Map(), varIDs: [] };
+  // Check relations
   const relErrs = checkRelPatterns(
-    mergeEnv(emptyVarsEnv, selEnv_decls),
-    selEnv_decls,
     safeContentsList(sel.where),
+    domEnv,
+    selEnv_decls,
   );
 
-  // TODO(error): The errors returned in the top 3 statements
-  return {
-    ...selEnv_decls,
-    errors: selEnv_decls.errors.concat(relErrs), // COMBAK: Reverse the error order?
-  };
+  return relErrs;
 };
 
-const checkCollector = (varEnv: Env, col: Collector<A>): SelEnv => {
-  const selEnv_afterHead = checkDeclPatternAndMakeEnv(
-    varEnv,
-    initSelEnv(),
-    col.head,
-  );
-  const selEnv_afterWith = checkDeclPatternsAndMakeEnv(
-    varEnv,
-    selEnv_afterHead,
+const checkCollector = (domEnv: DomainEnv, col: Collector<A>): SelectorEnv => {
+  const selEnvInit = initSelEnv();
+
+  const selEnv_afterHead = checkDeclPattern(col.head, domEnv, selEnvInit);
+
+  const selEnv_afterWith = checkDeclPatterns(
     safeContentsList(col.with),
-  );
-  const selEnv_afterGroupby = checkDeclPatternsAndMakeEnv(
-    varEnv,
-    selEnv_afterWith,
-    safeContentsList(col.foreach),
-  );
-  const emptyVarsEnv: Env = { ...varEnv, vars: im.Map(), varIDs: [] };
-  const relErrs = checkRelPatterns(
-    mergeEnv(emptyVarsEnv, selEnv_afterGroupby),
-    selEnv_afterGroupby,
-    safeContentsList(col.where),
+    domEnv,
+    selEnv_afterHead,
   );
 
-  return {
-    ...selEnv_afterGroupby,
-    errors: selEnv_afterGroupby.errors.concat(relErrs),
-  };
+  const selEnv_afterGroupby = checkDeclPatterns(
+    safeContentsList(col.foreach),
+    domEnv,
+    selEnv_afterWith,
+  );
+
+  const relErrs = checkRelPatterns(
+    safeContentsList(col.where),
+    domEnv,
+    selEnv_afterGroupby,
+  );
+
+  return relErrs;
 };
 
 // ported from `checkPair`, `checkSel`, and `checkNamespace`
-const checkHeader = (varEnv: Env, header: Header<A>): SelEnv => {
+const checkHeader = (varEnv: DomainEnv, header: Header<A>): SelectorEnv => {
   switch (header.tag) {
     case "Selector": {
       return checkSelector(varEnv, header);
@@ -855,6 +763,25 @@ export const substituteRel = (
 
 //#endregion (subregion? TODO fix)
 
+const toSubType = <T>(type: SelectorType<T>): TypeApp<T> => ({
+  ...type,
+  tag: "TypeApp",
+});
+
+const toSubDecl = <T>(decl: DeclPattern<T>): Decl<T> => ({
+  ...decl,
+  tag: "Decl",
+  type: toSubType(decl.type),
+  name: decl.id.contents,
+});
+
+const toSubBind = <T>(bind: RelBind<T>): Bind<T> => ({
+  ...bind,
+  tag: "Bind",
+  variable: bind.id.contents,
+  expr: toSubExpr(bind.expr),
+});
+
 // Convert Style expression to Substance expression (for ease of comparison in matching)
 const toSubExpr = <T>(e: SelExpr<T>): SubExpr<T> => {
   switch (e.tag) {
@@ -878,15 +805,8 @@ const toSubExpr = <T>(e: SelExpr<T>): SubExpr<T> => {
   }
 };
 
-const toSubPredArg = <T>(a: PredArg<T>): SubPredArg<T> => {
-  switch (a.tag) {
-    case "SEBind": {
-      return a.contents.contents;
-    }
-    case "RelPred": {
-      return toSubPred(a);
-    }
-  }
+const toSubArgExpr = <T>(a: SelArgExpr<T>): SubArgExpr<T> => {
+  return a.contents.contents;
 };
 
 // Convert Style predicate to Substance predicate (for ease of comparison in matching)
@@ -895,11 +815,15 @@ const toSubPred = <T>(p: RelPred<T>): ApplyPredicate<T> => {
     ...p,
     tag: "ApplyPredicate",
     name: p.name,
-    args: p.args.map(toSubPredArg),
+    args: p.args.map(toSubArgExpr),
   };
 };
 
-const argsEq = (a1: SubPredArg<A>, a2: SubPredArg<A>, env: Env): boolean => {
+const argsEq = (
+  a1: SubPredArg<A>,
+  a2: SubPredArg<A>,
+  env: DomainEnv,
+): boolean => {
   if (a1.tag === "ApplyPredicate" && a2.tag === "ApplyPredicate") {
     return subFnsEq(a1, a2, env);
   } else if (a1.tag === a2.tag) {
@@ -908,7 +832,11 @@ const argsEq = (a1: SubPredArg<A>, a2: SubPredArg<A>, env: Env): boolean => {
   } else return false; // they are different types
 };
 
-const subFnsEq = (p1: SubPredArg<A>, p2: SubPredArg<A>, env: Env): boolean => {
+const subFnsEq = (
+  p1: SubPredArg<A>,
+  p2: SubPredArg<A>,
+  env: DomainEnv,
+): boolean => {
   if (!("name" in p1 && "args" in p1 && "name" in p2 && "args" in p2)) {
     throw Error("expected substance type with name and args properties");
   }
@@ -938,7 +866,11 @@ const subFnsEq = (p1: SubPredArg<A>, p2: SubPredArg<A>, env: Env): boolean => {
   }
 };
 
-const subExprsEq = (e1: SubExpr<A>, e2: SubExpr<A>, env: Env): boolean => {
+const subExprsEq = (
+  e1: SubExpr<A>,
+  e2: SubExpr<A>,
+  env: DomainEnv,
+): boolean => {
   // ts doesn't seem to work well with the more generic way of checking this
   if (e1.tag === "Identifier" && e2.tag === "Identifier") {
     return e1.value === e2.value;
@@ -964,7 +896,7 @@ const subExprsEq = (e1: SubExpr<A>, e2: SubExpr<A>, env: Env): boolean => {
  * Filters the set of substitutions to prevent duplications of matched Substance relations and substitution targets.
  */
 const deduplicate = (
-  typeEnv: Env,
+  typeEnv: DomainEnv,
   subEnv: SubstanceEnv,
   subProg: SubProg<A>,
   rels: RelationPattern<A>[],
@@ -1067,7 +999,7 @@ const consistentSubsts = (a: Subst, b: Subst): boolean => {
 // Assumes types are nullary, so doesn't return a subst, only a bool indicating whether the types matched
 // Ported from `matchType`
 const typesMatched = (
-  varEnv: Env,
+  varEnv: DomainEnv,
   substanceType: TypeConsApp<A>,
   styleType: StyT<A>,
 ): boolean => {
@@ -1107,7 +1039,7 @@ const matchBvar = (
 
 // Judgment 12. G; theta |- S <| |S_o
 const matchDeclLine = (
-  varEnv: Env,
+  varEnv: DomainEnv,
   line: CompiledSubStmt<A>,
   decl: DeclPattern<A>,
 ): Subst | undefined => {
@@ -1127,7 +1059,7 @@ const matchDeclLine = (
 
 // Judgment 16. G; [theta] |- [S] <| [|S_o] ~> [theta']
 const matchDecl = (
-  varEnv: Env,
+  varEnv: DomainEnv,
   subProg: CompiledSubProg<A>,
   decl: DeclPattern<A>,
 ): im.List<Subst> => {
@@ -1155,7 +1087,7 @@ const matchDecl = (
 const matchStyArgToSubArg = (
   styTypeMap: { [k: string]: StyT<A> },
   subTypeMap: { [k: string]: TypeConsApp<A> },
-  varEnv: Env,
+  varEnv: DomainEnv,
   styArg: PredArg<A> | SelExpr<A>,
   subArg: SubPredArg<A> | SubExpr<A>,
 ): Subst[] => {
@@ -1226,7 +1158,7 @@ const matchStyArgToSubArg = (
 const matchStyArgsToSubArgs = (
   styTypeMap: { [k: string]: StyT<A> },
   subTypeMap: { [k: string]: TypeConsApp<A> },
-  varEnv: Env,
+  varEnv: DomainEnv,
   styArgs: PredArg<A>[] | SelExpr<A>[],
   subArgs: SubPredArg<A>[] | SubExpr<A>[],
 ): Subst[] => {
@@ -1289,7 +1221,7 @@ const matchStyArgsToSubArgs = (
 const matchStyApplyToSubApply = (
   styTypeMap: { [k: string]: StyT<A> },
   subTypeMap: { [k: string]: TypeConsApp<A> },
-  varEnv: Env,
+  varEnv: DomainEnv,
   styRel: RelPred<A> | SelExpr<A>,
   subRel: ApplyPredicate<A> | SubExpr<A>,
 ): Subst[] => {
@@ -1376,7 +1308,7 @@ const matchStyApplyToSubApply = (
 const matchRelField = (
   styTypeMap: { [k: string]: StyT<A> },
   subTypeMap: { [k: string]: TypeConsApp<A> },
-  varEnv: Env,
+  varEnv: DomainEnv,
   subEnv: SubstanceEnv,
   rel: RelField<A>,
   subDecl: Decl<A>,
@@ -1440,7 +1372,7 @@ const getStyRelArgNames = (rel: RelationPattern<A>): im.Set<string> => {
 const matchStyRelToSubRels = (
   styTypeMap: { [k: string]: StyT<A> },
   subTypeMap: { [k: string]: TypeConsApp<A> },
-  varEnv: Env,
+  varEnv: DomainEnv,
   subEnv: SubstanceEnv,
   rel: RelationPattern<A>,
   subProg: CompiledSubProg<A>,
@@ -1546,7 +1478,7 @@ const matchStyRelToSubRels = (
 const makeListRSubstsForStyleRels = (
   styTypeMap: { [k: string]: StyT<A> },
   subTypeMap: { [k: string]: TypeConsApp<A> },
-  varEnv: Env,
+  varEnv: DomainEnv,
   subEnv: SubstanceEnv,
   rels: RelationPattern<A>[],
   subProg: CompiledSubProg<A>,
@@ -1577,7 +1509,7 @@ const makeListRSubstsForStyleRels = (
  * First match the relations. Then, match free Style variables. Finally, merge all substitutions together.
  */
 const makePotentialSubsts = (
-  varEnv: Env,
+  varEnv: DomainEnv,
   selEnv: SelEnv,
   subEnv: SubstanceEnv,
   subProg: CompiledSubProg<A>,
@@ -1644,7 +1576,7 @@ const getDecls = (header: Collector<A> | Selector<A>): DeclPattern<A>[] => {
 };
 
 const getSubsts = (
-  varEnv: Env,
+  varEnv: DomainEnv,
   subEnv: SubstanceEnv,
   selEnv: SelEnv,
   subProg: CompiledSubProg<A>,
@@ -1721,7 +1653,7 @@ const collectSubsts = (
 };
 
 const findSubstsSel = (
-  varEnv: Env,
+  varEnv: DomainEnv,
   subEnv: SubstanceEnv,
   subProg: CompiledSubProg<A>,
   [header, selEnv]: [Header<A>, SelEnv],
@@ -2096,7 +2028,7 @@ const makeFakeIntPathAssign = (name: string, value: number): PathAssign<C> => {
 };
 
 const processBlock = (
-  varEnv: Env,
+  varEnv: DomainEnv,
   subEnv: SubstanceEnv,
   blockIndex: number,
   hb: HeaderBlock<C>,
@@ -2180,7 +2112,7 @@ const processBlock = (
 };
 
 export const buildAssignment = (
-  varEnv: Env,
+  varEnv: DomainEnv,
   subEnv: SubstanceEnv,
   styProg: StyProg<C>,
 ): Assignment => {
@@ -3971,7 +3903,7 @@ export const compileStyleHelper = async (
   variation: string,
   stySource: string,
   subEnv: SubstanceEnv,
-  varEnv: Env,
+  varEnv: DomainEnv,
 ): Promise<
   Result<
     {
@@ -4147,7 +4079,7 @@ export const compileStyle = async (
   stySource: string,
   excludeWarnings: string[],
   subEnv: SubstanceEnv,
-  varEnv: Env,
+  varEnv: DomainEnv,
 ): Promise<Result<State, PenroseError>> =>
   (await compileStyleHelper(variation, stySource, subEnv, varEnv)).map(
     ({ state }) => ({

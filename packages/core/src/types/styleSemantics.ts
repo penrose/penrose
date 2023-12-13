@@ -2,10 +2,11 @@ import im from "immutable";
 import { ShapeType } from "../shapes/Shapes.js";
 import Graph from "../utils/Graph.js";
 import * as ad from "./ad.js";
-import { A, C, Identifier } from "./ast.js";
-import { StyleDiagnostics, StyleError } from "./errors.js";
+import { C, Identifier } from "./ast.js";
+import { StyleDiagnostics, StyleError, StyleWarning } from "./errors.js";
 import { Fn } from "./state.js";
-import { BindingForm, Expr, GPIDecl, Header, StyT } from "./style.js";
+import { Expr, GPIDecl } from "./style.js";
+import { SubstanceEnv } from "./substance.js";
 import { ArgVal, Field, Name, PropID } from "./value.js";
 
 //#region Style semantics
@@ -29,19 +30,24 @@ export interface StyProgT {
   tag: "StyProgT";
 }
 
+export type SelectorEnv = SubstanceEnv & {
+  warnings: StyleWarning[];
+  errors: StyleError[];
+};
+
 // g ::= B => |T
 // Assumes nullary type constructors (i.e. Style type = Substance type)
-export interface SelEnv {
-  // COMBAK: k is a BindingForm that was stringified; maybe it should be a Map with BindingForm as key?
-  // Variable => Type
-  sTypeVarMap: { [k: string]: StyT<A> }; // B : |T
-  varProgTypeMap: { [k: string]: [ProgType, BindingForm<A>] }; // Store aux info for debugging, COMBAK maybe combine it with sTypeVarMap
-  // Variable => [Substance or Style variable, original data structure with program locs etc]
-  skipBlock: boolean;
-  header: Header<A> | undefined; // Just for debugging
-  warnings: StyleError[];
-  errors: StyleError[];
-}
+//export interface SelEnv {
+//  // COMBAK: k is a BindingForm that was stringified; maybe it should be a Map with BindingForm as key?
+//  // Variable => Type
+//  sTypeVarMap: { [k: string]: SelectorType<A> }; // B : |T
+//  varProgTypeMap: { [k: string]: [ProgType, BindingForm<A>] }; // Store aux info for debugging, COMBAK maybe combine it with sTypeVarMap
+//  // Variable => [Substance or Style variable, original data structure with program locs etc]
+//  skipBlock: boolean;
+//  header: Header<A> | undefined; // Just for debugging
+//  warnings: StyleError[];
+//  errors: StyleError[];
+//}
 // Currently used to track if any Substance variables appear in a selector but not a Substance program (in which case, we skip the block)
 
 //#endregion
