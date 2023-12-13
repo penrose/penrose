@@ -1,6 +1,6 @@
 import im from "immutable";
 import nearley from "nearley";
-import { idOf, lastLocation, prettyParseError } from "../parser/ParserUtil.js";
+import { lastLocation, prettyParseError } from "../parser/ParserUtil.js";
 import substanceGrammar from "../parser/SubstanceParser.js";
 import {
   A,
@@ -10,7 +10,13 @@ import {
   Identifier,
   location,
 } from "../types/ast.js";
-import { Arg, Env as DomainEnv, Type } from "../types/domain.js";
+import {
+  Arg,
+  ConstructorDecl,
+  Env as DomainEnv,
+  FunctionDecl,
+  Type,
+} from "../types/domain.js";
 import { ParseError, PenroseError, SubstanceError } from "../types/errors.js";
 import {
   ApplyConstructor,
@@ -35,6 +41,7 @@ import {
   Stmt,
   StmtSet,
   SubArgExpr,
+  SubBindableExpr,
   SubExpr,
   SubProg,
   SubRes,
@@ -45,6 +52,7 @@ import {
 import {
   Result,
   all,
+  argLengthMismatch,
   duplicateName,
   err,
   every,
@@ -56,7 +64,7 @@ import {
   varNotFound,
 } from "../utils/Error.js";
 import { cartesianProduct, zip2 } from "../utils/Util.js";
-import { checkType, isSubtype, toDomType } from "./Domain.js";
+import { checkType, isSubtype, stringType, toDomType } from "./Domain.js";
 
 export const parseSubstance = (
   prog: string,
@@ -102,7 +110,8 @@ export const compileSubstance = (
     // check the substance ast and produce an env or report errors
     const checkerOk = checkSubstance(ast, domEnv, subEnv);
     return checkerOk.match({
-      Ok: ({ env, contents: ast }) => ok([postprocessSubstance(ast, env), env]),
+      Ok: ({ subEnv, contents: ast }) =>
+        ok([postprocessSubstance(ast, domEnv, subEnv), domEnv]),
       Err: (e) => {
         return err({ ...e[0], errorType: "SubstanceError" });
       },
@@ -115,7 +124,7 @@ export const compileSubstance = (
 const initEnv = (): SubstanceEnv => ({
   bindings: im.Map<string, SubExpr<C>>(),
   labels: im.Map<string, LabelValue>(),
-  objs: im.Map<string, TypeApp<C>>(),
+  objs: im.Map<string, Type<C>>(),
   objIds: [],
   ast: { tag: "SubProg", nodeType: "Substance", statements: [] },
 });
@@ -126,19 +135,20 @@ const EMPTY_LABEL: LabelValue = { value: "", type: "NoLabel" };
 
 export const postprocessSubstance = (
   prog: CompiledSubProg<A>,
-  env: DomainEnv,
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
 ): SubstanceEnv => {
   // post process all statements
-  const subEnv = initEnv(prog, env);
   return prog.statements.reduce(
-    (e, stmt: CompiledSubStmt<A>) => processLabelStmt(stmt, env, e),
+    (subEnv, stmt: CompiledSubStmt<A>) =>
+      processLabelStmt(stmt, domEnv, subEnv),
     subEnv,
   );
 };
 
 const processLabelStmt = (
   stmt: SubStmt<A>,
-  env: DomainEnv,
+  domEnv: DomainEnv,
   subEnv: SubstanceEnv,
 ): SubstanceEnv => {
   switch (stmt.tag) {
@@ -199,17 +209,10 @@ interface WithEnv<T> {
 interface WithEnvAndType<T> {
   subEnv: SubstanceEnv;
   contents: T;
-  type: TypeApp<A>;
+  type: Type<A>;
 }
 type CheckerResult<T> = Result<WithEnv<T>, SubstanceError[]>;
 type ResultWithType<T> = Result<WithEnvAndType<T>, SubstanceError[]>;
-
-const stringName = idOf("String", "Substance");
-const stringType: TypeApp<A> = {
-  tag: "TypeApp",
-  nodeType: "SyntheticSubstance",
-  name: stringName,
-};
 
 /**
  * Top-level function for the Substance semantic checker. Given a Substance AST and an initial context, it outputs either a `SubstanceError` or an `Env` context.
@@ -227,17 +230,24 @@ export const checkSubstance = (
   const contents: CompiledSubStmt<A>[] = [];
   const stmtsOk: CheckerResult<CompiledSubStmt<A>[]> = safeChain(
     statements,
-    (stmt, { env, contents: stmts }) =>
-      checkStmt(stmt, domEnv, subEnv).andThen(
-        ({ env, contents: checkedStmt }) =>
-          ok({ env, contents: [...stmts, ...checkedStmt] }),
+    (stmt, { subEnv: currEnv, contents: stmts }) =>
+      checkStmt(stmt, domEnv, currEnv).andThen(
+        ({ subEnv: checkedEnv, contents: checkedStmts }) =>
+          ok({
+            subEnv: checkedEnv,
+            contents: [...stmts, ...checkedStmts],
+          }),
       ),
-    ok({ env: domEnv, contents }),
+    ok({ subEnv, contents }),
   );
-  return stmtsOk.andThen(({ env, contents }) =>
+
+  return stmtsOk.andThen((r) =>
     ok({
-      env,
-      contents: { ...prog, statements: contents },
+      subEnv: r.subEnv,
+      contents: {
+        ...prog,
+        statements: r.contents,
+      },
     }),
   );
 };
@@ -247,31 +257,39 @@ const checkStmt = (
   domEnv: DomainEnv,
   subEnv: SubstanceEnv,
 ): CheckerResult<CompiledSubStmt<A>[]> => {
-  if (stmt.tag === "StmtSet") return checkStmtISetHelper(stmt, domEnv);
-  else return checkSingleStmt(stmt, domEnv);
+  if (stmt.tag === "StmtSet") return checkStmtISetHelper(stmt, domEnv, subEnv);
+  else return checkSingleStmt(stmt, domEnv, subEnv);
 };
 
 const checkStmtISetHelper = (
   stmtSet: StmtSet<A>,
-  env: DomainEnv,
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
 ): CheckerResult<CompiledSubStmt<A>[]> => {
   const { stmt } = stmtSet;
   switch (stmt.tag) {
     case "Decl": {
       // special, smarter handling for decl
-      return checkDeclISet({ ...stmtSet, stmt }, env);
+      return checkDeclISet({ ...stmtSet, stmt }, domEnv, subEnv);
     }
     case "DeclList": {
       // special, smarter handling for declList
-      return checkDeclListISet({ ...stmtSet, stmt }, env);
+      return checkDeclListISet({ ...stmtSet, stmt }, domEnv, subEnv);
     }
     case "Bind": {
-      return checkStmtISet({ ...stmtSet, stmt }, env, substISetBind, checkBind);
+      return checkStmtISet(
+        { ...stmtSet, stmt },
+        domEnv,
+        subEnv,
+        substISetBind,
+        checkBind,
+      );
     }
     case "DeclBind": {
       return checkStmtISet(
         { ...stmtSet, stmt },
-        env,
+        domEnv,
+        subEnv,
         substISetDeclBind,
         checkDeclBind,
       );
@@ -279,15 +297,17 @@ const checkStmtISetHelper = (
     case "ApplyPredicate": {
       return checkStmtISet(
         { ...stmtSet, stmt },
-        env,
+        domEnv,
+        subEnv,
         substISetPredicate,
-        checkArgs,
+        checkPredicate,
       );
     }
     case "AutoLabel": {
       return checkStmtISet(
         { ...stmtSet, stmt },
-        env,
+        domEnv,
+        subEnv,
         substISetAutoLabel,
         checkAutoLabel,
       );
@@ -295,7 +315,8 @@ const checkStmtISetHelper = (
     case "LabelDecl": {
       return checkStmtISet(
         { ...stmtSet, stmt },
-        env,
+        domEnv,
+        subEnv,
         substISetLabelDecl,
         checkLabelDecl,
       );
@@ -303,7 +324,8 @@ const checkStmtISetHelper = (
     case "NoLabel": {
       return checkStmtISet(
         { ...stmtSet, stmt },
-        env,
+        domEnv,
+        subEnv,
         substISetNoLabel,
         checkNoLabel,
       );
@@ -338,7 +360,7 @@ const checkSingleStmt = (
       return checkDeclBind(stmt, domEnv, subEnv);
     }
     case "ApplyPredicate": {
-      return checkArgs(stmt, domEnv, subEnv);
+      return checkPredicate(stmt, domEnv, subEnv);
     }
     case "AutoLabel": {
       return checkAutoLabel(stmt, domEnv, subEnv);
@@ -608,14 +630,24 @@ const substISetExpr = (
 ): Result<SubExpr<A>, SubstanceError> => {
   const { tag } = expr;
   switch (tag) {
-    case "Identifier":
-      return substISetId(expr, subst);
     case "ApplyFunction":
     case "ApplyConstructor":
     case "Func":
       return substISetFunc(expr, subst);
-    case "StringLit":
-      return ok(expr);
+    default:
+      return substSubArgExpr(expr, subst);
+  }
+};
+
+const substSubArgExpr = (
+  expr: SubArgExpr<A>,
+  subst: ISetSubst,
+): Result<SubArgExpr<A>, SubstanceError> => {
+  const { tag } = expr;
+  if (tag === "Identifier") {
+    return substISetId(expr, subst);
+  } else {
+    return ok(expr);
   }
 };
 
@@ -624,10 +656,10 @@ const substISetFunc = (
   subst: ISetSubst,
 ): Result<ApplyFunction<A> | ApplyConstructor<A> | Func<A>, SubstanceError> => {
   // Don't substitute over function names
-  const substArgs = safeChain<SubExpr<A>, SubExpr<A>[], SubstanceError>(
+  const substArgs = safeChain<SubArgExpr<A>, SubArgExpr<A>[], SubstanceError>(
     func.args,
-    (arg, curr: SubExpr<A>[]) =>
-      substISetExpr(arg, subst).andThen((sArg) => ok([...curr, sArg])),
+    (arg, curr: SubArgExpr<A>[]) =>
+      substSubArgExpr(arg, subst).andThen((sArg) => ok([...curr, sArg])),
     ok([]),
   );
   if (substArgs.isErr()) {
@@ -676,24 +708,20 @@ const substISetPredicate = (
   pred: ApplyPredicate<A>,
   subst: ISetSubst,
 ): Result<ApplyPredicate<A>, SubstanceError> => {
-  const { args } = pred;
-
-  const substArgs = safeChain<SubPredArg<A>, SubPredArg<A>[], SubstanceError>(
-    args,
-    (arg, curr: SubPredArg<A>[]) => {
-      if (arg.tag === "ApplyPredicate") {
-        const substArg = substISetPredicate(arg, subst);
-        return substArg.andThen((sArg) => ok([...curr, sArg]));
-      } else {
-        const substArg = substISetExpr(arg, subst);
-        return substArg.andThen((sArg) => ok([...curr, sArg]));
-      }
-    },
+  const substArgs = safeChain<SubArgExpr<A>, SubArgExpr<A>[], SubstanceError>(
+    pred.args,
+    (arg, curr: SubArgExpr<A>[]) =>
+      substSubArgExpr(arg, subst).andThen((sArg) => ok([...curr, sArg])),
     ok([]),
   );
+  if (substArgs.isErr()) {
+    return err(substArgs.error);
+  }
 
-  if (substArgs.isErr()) return err(substArgs.error);
-  return ok({ ...pred, args: substArgs.value });
+  return ok({
+    ...pred,
+    args: substArgs.value,
+  });
 };
 
 const substISetLabelDecl = (
@@ -860,7 +888,7 @@ const createVars = (
       errs.push(duplicateName(nameId, node, dup));
     }
 
-    vars = vars.set(name, type);
+    vars = vars.set(name, toDomType(type));
     varIDs.push(nameId);
     equivalentDecls.push({
       ...location(node),
@@ -887,7 +915,8 @@ const checkBind = (
 ): CheckerResult<Bind<A>[]> => {
   const { variable, expr } = stmt;
   const varOk = checkVar(variable, domEnv, subEnv);
-  const exprOk = checkExpr(expr, domEnv, subEnv, variable);
+  const exprOk = checkExpr(expr, domEnv, subEnv);
+  // check bind type
   return subtypeOf(exprOk, varOk, domEnv).andThen(
     ({ subEnv, contents: [e, v] }) => {
       const updatedBind: Bind<A> = { ...stmt, variable: v, expr: e };
@@ -940,29 +969,33 @@ const checkDeclBind = (
   });
 };
 
-export const checkFunc = <
-  T extends
-    | ApplyPredicate<C>
-    | ApplyFunction<C>
-    | ApplyConstructor<C>
-    | Func<C>,
->(
-  func: T,
+const checkPredicate = (
+  expr: ApplyPredicate<A>,
   domEnv: DomainEnv,
   subEnv: SubstanceEnv,
-): CheckerResult<T> => {
-  const { name, args } = func;
+): CheckerResult<[ApplyPredicate<A>]> => {
+  const { name, args } = expr;
 
-  // look for declaration of this func
+  const decl = domEnv.predicates.get(name.value);
 
-  if (decl) {
-    return checkArgs(args, decl.args, domEnv, subEnv).andThen((res) =>
+  if (decl !== undefined) {
+    const argsOk = checkArgs(
+      args,
+      decl.args,
+      { givenExpr: expr, expectedExpr: decl, name },
+      domEnv,
+      subEnv,
+    );
+
+    return argsOk.andThen((r) =>
       ok({
         subEnv,
-        contents: {
-          ...func,
-          args: res.contents,
-        },
+        contents: [
+          {
+            ...expr,
+            args: r.contents,
+          },
+        ],
       }),
     );
   } else {
@@ -975,20 +1008,87 @@ export const checkFunc = <
   }
 };
 
-export const checkArgs = (
-  actualArgs: SubArgExpr<C>[],
-  expectedArgs: Arg<C>[],
+const checkFunc = (
+  expr: Func<A> | ApplyFunction<A> | ApplyConstructor<A>,
   domEnv: DomainEnv,
   subEnv: SubstanceEnv,
-): CheckerResult<SubArgExpr<C>[]> => {
+): ResultWithType<ApplyConstructor<A> | ApplyFunction<A>> => {
+  const fname = expr.name.value;
+  let decl: ConstructorDecl<A> | FunctionDecl<A> | undefined;
+  if (domEnv.constructors.has(fname)) {
+    expr = { ...expr, tag: "ApplyConstructor" };
+    decl = domEnv.constructors.get(fname);
+  } else if (domEnv.functions.has(fname)) {
+    expr = { ...expr, tag: "ApplyFunction" };
+    decl = domEnv.functions.get(fname);
+  } else {
+    return err([
+      typeNotFound(expr.name, [
+        ...[...domEnv.constructors.values()].map((c) => c.name),
+        ...[...domEnv.functions.values()].map((c) => c.name),
+      ]),
+    ]);
+  }
+
+  const newExpr: ApplyConstructor<A> | ApplyFunction<A> = expr;
+
+  if (decl !== undefined) {
+    const { output } = decl;
+    const argsOk = checkArgs(
+      newExpr.args,
+      decl.args,
+      {
+        givenExpr: newExpr,
+        expectedExpr: decl,
+        name: newExpr.name,
+      },
+      domEnv,
+      subEnv,
+    );
+
+    const outputOk = argsOk
+      .andThen((r) =>
+        ok({
+          ...newExpr,
+          args: r.contents,
+        }),
+      )
+      .andThen((r) => withType(subEnv, output.type, r));
+
+    return outputOk;
+  } else {
+    return err([typeNotFound(expr.name)]);
+  }
+};
+
+export const checkArgs = (
+  actualArgs: SubArgExpr<A>[],
+  expectedArgs: Arg<A>[],
+  where: {
+    givenExpr: AbstractNode;
+    expectedExpr: AbstractNode;
+    name: Identifier<A>;
+  },
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
+): CheckerResult<SubArgExpr<A>[]> => {
   if (actualArgs.length !== expectedArgs.length) {
+    return err([
+      argLengthMismatch(
+        where.name,
+        actualArgs,
+        expectedArgs,
+        where.givenExpr,
+        where.expectedExpr,
+      ),
+    ]);
   }
   const argPairs = zip2(actualArgs, expectedArgs);
-  const contents: SubArgExpr<C>[] = [];
+  const contents: SubArgExpr<A>[] = [];
 
   const argsOk = safeChain<
-    [SubArgExpr<C>, Arg<C>],
-    SubArgExpr<C>[],
+    [SubArgExpr<A>, Arg<A>],
+    SubArgExpr<A>[],
     SubstanceError[]
   >(
     argPairs,
@@ -1004,44 +1104,51 @@ export const checkArgs = (
 
 const checkLabelDecl = (
   stmt: LabelDecl<A>,
-  env: DomainEnv,
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
 ): CheckerResult<LabelDecl<A>[]> => {
-  return checkVar(stmt.variable, env).andThen(({ env }) =>
-    ok({ env, contents: [stmt] }),
+  return checkVar(stmt.variable, domEnv, subEnv).andThen(({ subEnv }) =>
+    ok({ subEnv, contents: [stmt] }),
   );
 };
 
 const checkAutoLabel = (
   stmt: AutoLabel<A>,
-  env: DomainEnv,
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
 ): CheckerResult<AutoLabel<A>[]> => {
   // NOTE: no checking required
   if (stmt.option.tag === "DefaultLabels") {
-    return ok({ env, contents: [stmt] });
+    return ok({ subEnv, contents: [stmt] });
   } else {
-    const varsOk = every(...stmt.option.variables.map((v) => checkVar(v, env)));
-    return varsOk.andThen(({ env }) => ok({ env, contents: [stmt] }));
+    const varsOk = every(
+      ...stmt.option.variables.map((v) => checkVar(v, domEnv, subEnv)),
+    );
+    return varsOk.andThen(({ subEnv }) => ok({ subEnv, contents: [stmt] }));
   }
 };
 
 const checkNoLabel = (
   stmt: NoLabel<A>,
-  env: DomainEnv,
-): CheckerResult<NoLabel<A>[]> => {
-  const argsOk = every(...stmt.args.map((a) => checkVar(a, env)));
-  return argsOk.andThen(({ env }) => ok({ env, contents: [stmt] }));
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
+): CheckerResult<[NoLabel<A>]> => {
+  const argsOk = every(...stmt.args.map((a) => checkVar(a, domEnv, subEnv)));
+  return argsOk.andThen(({ subEnv }) => ok({ subEnv, contents: [stmt] }));
 };
 
 const checkStmtISet = <T extends StmtSet<A>>(
   stmtSet: T,
-  env: DomainEnv,
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
   substFunc: (
     stmt: T["stmt"],
     isetSubst: ISetSubst,
   ) => Result<T["stmt"], SubstanceError>,
   checkerFunc: (
     stmt: T["stmt"],
-    env: DomainEnv,
+    domEnv: DomainEnv,
+    subEnv: SubstanceEnv,
   ) => CheckerResult<CompiledSubStmt<A>[]>,
 ): CheckerResult<CompiledSubStmt<A>[]> => {
   const { stmt, iset } = stmtSet;
@@ -1060,16 +1167,16 @@ const checkStmtISet = <T extends StmtSet<A>>(
   return safeChain(
     substStmts,
     (substStmt, curr: WithEnv<CompiledSubStmt<A>[]>) => {
-      const { env: currEnv, contents: currStmts } = curr;
-      const checked = checkerFunc(substStmt, currEnv);
+      const { subEnv: currEnv, contents: currStmts } = curr;
+      const checked = checkerFunc(substStmt, domEnv, currEnv);
       if (checked.isErr()) return err(checked.error);
-      const { env: checkedEnv, contents: newStmts } = checked.value;
+      const { subEnv: checkedEnv, contents: newStmts } = checked.value;
       return ok({
-        env: checkedEnv,
+        subEnv: checkedEnv,
         contents: [...currStmts, ...newStmts],
       });
     },
-    ok({ env, contents: [] }),
+    ok({ subEnv, contents: [] }),
   );
 };
 
@@ -1086,10 +1193,10 @@ export const subtypeOf = <T1 extends ASTNode<A>, T2 extends ASTNode<A>>(
         Ok: ({ type: t2, contents: expr2 }) => {
           // TODO: Check ordering of types, maybe annotated the ordering in the signature
           // TODO: call the right type equality function
-          if (isSubtype(toDomType(t1), toDomType(t2), domEnv))
+          if (isSubtype(t1, t2, domEnv))
             return ok({ subEnv, contents: [expr1, expr2] });
           else {
-            return err([typeMismatch(t1, toDomType(t2), expr1, expr2)]);
+            return err([typeMismatch(toSubType(t1), t2, expr1, expr2)]);
           }
         },
         Err: (e2) => err(e2),
@@ -1100,15 +1207,15 @@ export const subtypeOf = <T1 extends ASTNode<A>, T2 extends ASTNode<A>>(
 
 const withType = <T>(
   subEnv: SubstanceEnv,
-  type: TypeApp<A>,
+  type: Type<A>,
   contents: T,
 ): ResultWithType<T> => ok({ type, subEnv, contents });
 
 export const checkExpr = (
-  expr: SubExpr<C>,
+  expr: SubBindableExpr<A>,
   domEnv: DomainEnv,
   subEnv: SubstanceEnv,
-): ResultWithType<SubExpr<C>> => {
+): ResultWithType<SubBindableExpr<A>> => {
   switch (expr.tag) {
     case "Func":
       return checkFunc(expr, domEnv, subEnv);
@@ -1144,13 +1251,13 @@ export const checkSubArgExpr = (
  * @param substEnv substitution environment
  */
 const substituteArg = (
-  givenType: TypeApp<C>,
-  formalType: Type<C>,
-  sourceExpr: SubArgExpr<C>,
-  expectedExpr: Arg<C>,
+  givenType: TypeApp<A>,
+  formalType: Type<A>,
+  sourceExpr: SubArgExpr<A>,
+  expectedExpr: Arg<A>,
   domEnv: DomainEnv,
   subEnv: SubstanceEnv,
-): CheckerResult<SubArgExpr<C>> => {
+): CheckerResult<SubArgExpr<A>> => {
   // TODO: check ordering of types
   if (!isSubtype(toDomType(givenType), formalType, domEnv)) {
     return err([typeMismatch(givenType, formalType, sourceExpr, expectedExpr)]);
@@ -1161,26 +1268,22 @@ const substituteArg = (
   });
 };
 const matchArg = (
-  expr: SubArgExpr<C>,
-  arg: Arg<C>,
+  expr: SubArgExpr<A>,
+  arg: Arg<A>,
   domEnv: DomainEnv,
   subEnv: SubstanceEnv,
-): CheckerResult<SubArgExpr<C>> => {
+): CheckerResult<SubArgExpr<A>> => {
   // check and get the type of the expression
   const exprOk: ResultWithType<SubExpr<A>> = checkExpr(expr, domEnv, subEnv);
   // check against the formal argument
   const argSubstOk = exprOk.andThen(({ type }) =>
-    substituteArg(type, arg.type, expr, arg, domEnv, subEnv),
+    substituteArg(toSubType(type), arg.type, expr, arg, domEnv, subEnv),
   );
   // if everything checks out, return env as a formality
   return argSubstOk;
 };
 
-const applySubstitution = (formalType: Type<C>): TypeApp<A> => {
-  // if there're no arguments, directly return the type
-  // NOTE: if no args, the type is effectively a `TypeConsApp`. TODO: encode this in the type system
-  return { ...formalType, tag: "TypeApp" };
-};
+const toSubType = (type: Type<A>): TypeApp<A> => ({ ...type, tag: "TypeApp" });
 
 export const checkVar = (
   variable: Identifier<A>,

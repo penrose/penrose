@@ -73,7 +73,7 @@ export type SubTypeDecl<T> = ASTNode<T> & {
 
 //#region Domain context
 export interface Env {
-  types: im.Map<string, TypeDecl<C>>;
+  types: im.Map<string, Type<C>>;
   functions: im.Map<string, FunctionDecl<C>>;
   predicates: im.Map<string, PredicateDecl<C>>;
   constructors: im.Map<string, ConstructorDecl<C>>;

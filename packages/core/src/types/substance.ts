@@ -1,12 +1,12 @@
 import im from "immutable";
 import { A, ASTNode, Identifier, StringLit } from "./ast.js";
-import { Env } from "./domain.js";
+import { Env, Type } from "./domain.js";
 
 export type SubRes = [SubstanceEnv, Env];
 export type LabelMap = im.Map<string, LabelValue>;
 export interface SubstanceEnv {
   bindings: im.Map<string, SubExpr<A>>;
-  objs: im.Map<string, TypeApp<A>>;
+  objs: im.Map<string, Type<A>>;
   objIds: Identifier<A>[];
   labels: LabelMap;
   ast: CompiledSubProg<A>;
@@ -110,7 +110,8 @@ export type DeclBind<T> = ASTNode<T> & {
 export type SubBindableExpr<T> =
   | ApplyFunction<T>
   | ApplyConstructor<T>
-  | Func<T>;
+  | Func<T>
+  | SubArgExpr<T>;
 
 export type SubExpr<T> =
   | ApplyFunction<T>

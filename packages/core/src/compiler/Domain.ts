@@ -12,7 +12,6 @@ import {
   FunctionDecl,
   PredicateDecl,
   Type,
-  TypeDecl,
 } from "../types/domain.js";
 import {
   DomainError,
@@ -79,20 +78,17 @@ export const compileDomain = (prog: string): Result<Env, PenroseError> => {
 
 export type CheckerResult = Result<Env, DomainError>;
 
+export const stringType: Type<C> = {
+  start: { line: 1, col: 1 },
+  end: { line: 1, col: 1 },
+  nodeType: "Substance",
+  tag: "Type",
+  name: idOf("String", "Domain"),
+};
+
 /* Built in types for all Domain programs */
-const builtinTypes: [string, TypeDecl<C>][] = [
-  [
-    "String",
-    {
-      start: { line: 1, col: 1 },
-      end: { line: 1, col: 1 },
-      nodeType: "Substance",
-      tag: "TypeDecl",
-      name: idOf("String", "Domain"),
-      superTypes: [],
-    },
-  ],
-];
+const builtinTypes: [string, Type<C>][] = [["String", stringType]];
+
 const initEnv = (): Env => ({
   types: im.Map(builtinTypes),
   constructors: im.Map<string, ConstructorDecl<C>>(),
@@ -121,28 +117,27 @@ export const checkDomain = (prog: DomainProg<C>): CheckerResult => {
 const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
   switch (stmt.tag) {
     case "TypeDecl": {
-      // NOTE: params are not reused, so no need to check
       const { name, superTypes } = stmt;
       // check name duplicate
       const existing = env.types.get(name.value);
       if (existing !== undefined)
         return err(duplicateName(name, stmt, existing));
-      // insert type into env
-      const updatedEnv: CheckerResult = ok({
-        ...env,
-        types: env.types.set(name.value, stmt),
-      });
-      // register any subtyping relations
-      const subType: Type<C> = {
+      // construct new type
+      const newType: Type<C> = {
         tag: "Type",
         nodeType: "Substance",
         start: name.start,
         end: name.end,
         name,
       };
+      // insert type into env
+      const updatedEnv: CheckerResult = ok({
+        ...env,
+        types: env.types.set(name.value, newType),
+      });
       return safeChain(
         superTypes,
-        (superType, env) => addSubtype(subType, superType, env),
+        (superType, env) => addSubtype(newType, superType, env),
         updatedEnv,
       );
     }
@@ -239,7 +234,7 @@ export const checkType = (
     return err(
       typeNotFound(
         name,
-        suggestions.map((t: TypeDecl<C>) => t.name),
+        suggestions.map((t: Type<C>) => t.name),
       ),
     );
   }

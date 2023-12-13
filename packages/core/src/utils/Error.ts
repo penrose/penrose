@@ -17,7 +17,6 @@ import {
   BadArgumentTypeError,
   BadShapeParamTypeError,
   CyclicSubtypes,
-  DeconstructNonconstructor,
   DomainError,
   DuplicateName,
   FatalError,
@@ -53,7 +52,7 @@ import {
 } from "../types/functions.js";
 import { State } from "../types/state.js";
 import { BindingForm, ColorLit } from "../types/style.js";
-import { Deconstructor, SubExpr, TypeApp } from "../types/substance.js";
+import { SubExpr, TypeApp } from "../types/substance.js";
 import { ArgVal, ArgValWithSourceLoc, ShapeVal, Val } from "../types/value.js";
 import {
   ErrorLoc,
@@ -1043,13 +1042,6 @@ export const selectorFieldNotSupported = (
   tag: "SelectorFieldNotSupported",
   name,
   field,
-});
-
-export const deconstructNonconstructor = (
-  deconstructor: Deconstructor<A>,
-): DeconstructNonconstructor => ({
-  tag: "DeconstructNonconstructor",
-  deconstructor,
 });
 
 export const fatalError = (message: string): FatalError => ({

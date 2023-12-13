@@ -106,11 +106,9 @@ import {
   CompiledSubStmt,
   Decl,
   SubExpr,
-  SubPredArg,
   SubProg,
   SubStmt,
   SubstanceEnv,
-  TypeConsApp,
 } from "../types/substance.js";
 import {
   ArgVal,
