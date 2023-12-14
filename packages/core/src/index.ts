@@ -377,8 +377,14 @@ export type {
   Warning as PenroseWarning,
 } from "./types/errors.js";
 export type { CompFunc } from "./types/functions.js";
+export * from "./types/state.js";
 export type { SubProg } from "./types/substance.js";
 export * as Value from "./types/value.js";
+export {
+  collectLabels,
+  insertPending,
+  mathjaxInit,
+} from "./utils/CollectLabels.js";
 export { errLocs, showError } from "./utils/Error.js";
 export type { Result } from "./utils/Error.js";
 export {
@@ -391,3 +397,5 @@ export {
   rgbaToHex,
   zip2,
 } from "./utils/Util.js";
+
+export type { Shape } from "./shapes/Shapes.js";

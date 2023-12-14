@@ -1,13 +1,16 @@
 import {
-  compileTrio,
-  PenroseError,
-  PenroseState,
   insertPending,
-  stateConverged,
-  stepStateSafe,
+  optLabelCacheToLabelCache,
   stateToOptRenderState,
 } from "@penrose/core";
-import { Req, Resp } from "./message";
+import {
+  PenroseError,
+  PenroseState,
+  compile,
+  isOptimized,
+  stepTimes,
+} from "@penrose/core/src/index.js";
+import { Req, Resp } from "./message.js";
 
 // Array of size two. First index is set if main thread wants an update,
 // second bit is set if user wants to send a new trio.
@@ -18,21 +21,20 @@ const respondReqLabelCache = (state: PenroseState) => {
   respond({
     tag: "ReqLabelCache",
     shapes: state.shapes,
-  })
-}
+  });
+};
 
 const respondUpdate = async (state: PenroseState) => {
   respond({
     tag: "Update",
     state: stateToOptRenderState(state),
   });
-}
+};
 
-const respondError = (error: PenroseError) =>
-  respond({
-    tag: "Error",
-    error,
-  });
+const respondError = (error: PenroseError) => {
+  const resp: Resp = { tag: "Error", error };
+  respond(resp);
+};
 
 const respondReadyForNewTrio = () => {
   respond({ tag: "ReadyForNewTrio" });
@@ -47,12 +49,12 @@ const respondFinished = (state: PenroseState) => {
 
 // Wrapper function for postMessage to ensure type safety
 const respond = (response: Resp) => {
-  postMessage(response)
-}
+  postMessage(response);
+};
 
 const optimize = (state: PenroseState) => {
-  while (!stateConverged(state)) {
-    const steppedState = stepStateSafe(state, 25);
+  while (!isOptimized(state)) {
+    const steppedState = stepTimes(state, 25);
     if (steppedState.isErr()) {
       respondError(steppedState.error);
       return;
@@ -76,7 +78,7 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
     sharedMemory = new Int8Array(data.sharedMemory);
   } else if (data.tag === "Compile") {
     const { domain, substance, style, variation } = data;
-    const compileResult = await compileTrio({
+    const compileResult = await compile({
       domain,
       substance,
       style,
@@ -89,7 +91,17 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
       respondReqLabelCache(compileResult.value);
     }
   } else if (data.tag === "RespLabelCache") {
-    optimize(insertPending({ ...initialState, labelCache: data.labelCache }));
+    const svgCache = new Map<string, HTMLElement>();
+    for (const [key, value] of Object.entries(data.labelCache)) {
+      svgCache.set(key, value.rendered);
+    }
+
+    optimize(
+      insertPending({
+        ...initialState,
+        labelCache: optLabelCacheToLabelCache(data.labelCache, svgCache),
+      }),
+    );
   } else {
     // Shouldn't ever happen
     console.error(`Unknown request: `, data);

@@ -11,6 +11,7 @@ import { SetupStyleMonaco } from "./editing/languages/StyleConfig.js";
 import { SetupSubstanceMonaco } from "./editing/languages/SubstanceConfig.js";
 import fetchResolver from "./fetchPathResolver.js";
 import penroseBlue from "./themes/penroseBlue.js";
+import OptimizerWorker from "./worker/OptimizerWorker.js";
 export {
   Demo,
   EditorPane,
@@ -18,6 +19,7 @@ export {
   Grid,
   Listing,
   MultipleChoiceProblem,
+  OptimizerWorker,
   SetupDomainMonaco,
   SetupStyleMonaco,
   SetupSubstanceMonaco,

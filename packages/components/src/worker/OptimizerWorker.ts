@@ -1,13 +1,14 @@
 import {
-  collectLabels,
-  labelCacheToOptLabelCache,
-  optRenderStateToState,
   PenroseError,
   RenderState,
+  collectLabels,
+  labelCacheToOptLabelCache,
+  mathjaxInit,
+  optRenderStateToState,
   showError,
 } from "@penrose/core";
-import { Req, Resp } from "./message";
-import RawWorker from "./worker?worker";
+import { Req, Resp } from "./message.js";
+import RawWorker from "./worker.js?worker";
 
 export type OnUpdate = (state: RenderState) => void;
 export type OnError = (error: PenroseError) => void;
@@ -44,12 +45,13 @@ export default class OptimizerWorker {
         this.running = false;
         this.onUpdate(optRenderStateToState(data.state, this.svgCache));
       } else if (data.tag === "ReqLabelCache") {
-        const labelCache = await collectLabels(data.shapes);
+        const convert = mathjaxInit();
+        const labelCache = await collectLabels(data.shapes, convert);
         if (labelCache.isErr()) {
           throw Error(showError(labelCache.error));
         }
         const { optLabelCache, svgCache } = labelCacheToOptLabelCache(
-          labelCache.value
+          labelCache.value,
         );
         this.svgCache = svgCache;
         this.request({
@@ -79,7 +81,7 @@ export default class OptimizerWorker {
     substance: string,
     variation: string,
     onUpdate: OnUpdate,
-    onError: OnError
+    onError: OnError,
   ) {
     this.onUpdate = onUpdate;
     this.onError = onError;
