@@ -558,7 +558,6 @@ const toSubBind = <T>(bind: RelBind<T>): Bind<T> => ({
   expr: toSubExpr(bind.expr),
 });
 
-// Convert Style expression to Substance expression (for ease of comparison in matching)
 const toSubExpr = <T>(e: SelExpr<T>): SubExpr<T> => {
   switch (e.tag) {
     case "SEFunc":
@@ -593,53 +592,6 @@ const toSubPred = <T>(p: RelPred<T>): ApplyPredicate<T> => {
     args: p.args.map(toSubArgExpr),
   };
 };
-
-// const argsEq = (
-//   a1: SubPredArg<A>,
-//   a2: SubPredArg<A>,
-//   env: DomainEnv,
-// ): boolean => {
-//   if (a1.tag === "ApplyPredicate" && a2.tag === "ApplyPredicate") {
-//     return subFnsEq(a1, a2, env);
-//   } else if (a1.tag === a2.tag) {
-//     // both are SubExpr, which are not explicitly tagged
-//     return subExprsEq(a1 as SubExpr<A>, a2 as SubExpr<A>, env);
-//   } else return false; // they are different types
-// };
-//
-// const subFnsEq = (
-//   p1: SubPredArg<A>,
-//   p2: SubPredArg<A>,
-//   env: DomainEnv,
-// ): boolean => {
-//   if (!("name" in p1 && "args" in p1 && "name" in p2 && "args" in p2)) {
-//     throw Error("expected substance type with name and args properties");
-//   }
-//
-//   if (p1.args.length !== p2.args.length) {
-//     return false;
-//   }
-//
-//   // If names do not match, then the predicates aren't equal.
-//   if (p1.name.value !== p2.name.value) {
-//     return false;
-//   }
-//
-//   // If exact match
-//   if (zip2(p1.args, p2.args).every(([a1, a2]) => argsEq(a1, a2, env))) {
-//     return true;
-//   } else {
-//     // Otherwise consider symmetry
-//     const predicateDecl = env.predicates.get(p1.name.value);
-//     if (predicateDecl && predicateDecl.symmetric) {
-//       return zip2(p1.args, [p2.args[1], p2.args[0]]).every(([a1, a2]) =>
-//         argsEq(a1, a2, env),
-//       );
-//     } else {
-//       return false;
-//     }
-//   }
-// };
 
 /**
  * Filters the set of substitutions to prevent duplications of matched Substance relations and substitution targets.
