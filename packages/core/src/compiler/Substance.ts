@@ -132,6 +132,9 @@ export const initEnv = (): SubstanceEnv => ({
 
 const EMPTY_LABEL: LabelValue = { value: "", type: "NoLabel" };
 
+// Put `prog` into `subEnv.ast`
+// create default labels
+// process labeling directives
 export const postprocessSubstance = (
   prog: CompiledSubProg<A>,
   domEnv: DomainEnv,
