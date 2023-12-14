@@ -90,7 +90,6 @@ import {
   Layer,
   LocalVarSubst,
   NotShape,
-  ProgType,
   ResolvedName,
   ResolvedPath,
   SelectorEnv,
@@ -108,6 +107,7 @@ import {
   CompiledSubProg,
   CompiledSubStmt,
   Decl,
+  Func,
   SubArgExpr,
   SubExpr,
   SubProg,
@@ -245,7 +245,7 @@ const addDiags = <T extends { diagnostics: StyleDiagnostics }>(
 
 const ppExpr = (e: SelExpr<A>): string => {
   switch (e.tag) {
-    case "SEBind": {
+    case "SelVar": {
       return e.contents.contents.value;
     }
     case "SEFunc":
@@ -257,12 +257,8 @@ const ppExpr = (e: SelExpr<A>): string => {
   }
 };
 
-const ppRelArg = (r: PredArg<A>): string => {
-  if (r.tag === "RelPred") {
-    return ppRelPred(r);
-  } else {
-    return ppExpr(r);
-  }
+const ppRelArg = (r: SelArgExpr<A>): string => {
+  return ppExpr(r);
 };
 
 const ppRelBind = (r: RelBind<A>): string => {
@@ -318,20 +314,6 @@ const initSelEnv = (): SelectorEnv => {
     warnings: [],
   };
   return selEnv;
-};
-
-// Add a mapping from Sub or Sty var to the selector's environment
-// g, (x : |T)
-// NOTE: Mutates the map in `m`
-const addMapping = (
-  k: BindingForm<A>,
-  v: SelectorType<A>,
-  m: SelEnv,
-  p: ProgType,
-): SelEnv => {
-  m.sTypeVarMap[toString(k)] = v;
-  m.varProgTypeMap[toString(k)] = [p, k];
-  return m;
 };
 
 // add warning/error to end of existing errors in selector env
@@ -602,20 +584,6 @@ const checkHeader = (varEnv: DomainEnv, header: Header<A>): SelectorEnv => {
 
 //#region Types and code for finding substitutions
 
-// Judgment 20. A substitution for a selector is only correct if it gives exactly one
-//   mapping for each Style variable in the selector. (Has test)
-export const fullSubst = (selEnv: SelEnv, subst: Subst): boolean => {
-  // Check if a variable is a style variable, not a substance one
-  const isStyVar = (e: string): boolean =>
-    selEnv.varProgTypeMap[e][0].tag === "StyProgT";
-
-  // Equal up to permutation (M.keys ensures that there are no dups)
-  const selStyVars = Object.keys(selEnv.sTypeVarMap).filter(isStyVar);
-  const substStyVars = Object.keys(subst);
-  // Equal up to permutation (keys of an object in js ensures that there are no dups)
-  return _.isEqual(selStyVars.sort(), substStyVars.sort());
-};
-
 // Check that there are no duplicate keys or vals in the substitution
 export const uniqueKeysAndVals = (subst: Subst): boolean => {
   // All keys already need to be unique in js, so only checking values
@@ -634,137 +602,12 @@ const getSubPredAliasInstanceName = (
 ): string => {
   let name = pred.name.value;
   for (const arg of pred.args) {
-    if (
-      arg.tag === "ApplyPredicate" ||
-      arg.tag === "ApplyFunction" ||
-      arg.tag === "ApplyConstructor"
-    ) {
-      name = name.concat("_").concat(getSubPredAliasInstanceName(arg));
-    } else if (arg.tag === "Identifier") {
+    if (arg.tag === "Identifier") {
       name = name.concat("_").concat(arg.value);
     }
   }
   return name;
 };
-
-//#region (subregion? TODO fix) Applying a substitution
-// // Apply a substitution to various parts of Style (relational statements, exprs, blocks)
-
-// Recursively walk the tree, looking up and replacing each Style variable encountered with a Substance variable
-// If a Sty var doesn't have a substitution (i.e. substitution map is bad), keep the Sty var and move on
-// COMBAK: return "maybe" if a substitution fails?
-// COMBAK: Add a type for `lv`? It's not used here
-const substituteBform = (
-  lv: LocalVarSubst | undefined,
-  subst: Subst,
-  bform: BindingForm<A>,
-): BindingForm<A> => {
-  // theta(B) = ...
-  switch (bform.tag) {
-    case "SubVar": {
-      // Variable in backticks in block or selector (e.g. `X`), so nothing to substitute
-      return bform;
-    }
-    case "StyVar": {
-      // Look up the substitution for the Style variable and return a Substance variable
-      // Returns result of mapping if it exists (y -> x)
-      const res = subst[bform.contents.value];
-
-      if (res) {
-        return {
-          ...bform, // Copy the start/end loc of the original Style variable, since we don't have Substance parse info (COMBAK)
-          tag: "SubVar",
-          contents: {
-            ...bform.contents, // Copy the start/end loc of the original Style variable, since we don't have Substance parse info
-            type: "value",
-            value: res, // COMBAK: double check please
-          },
-        };
-      } else {
-        // Nothing to substitute
-        return bform;
-      }
-    }
-  }
-};
-
-const substituteExpr = (subst: Subst, expr: SelExpr<A>): SelExpr<A> => {
-  // theta(B) = ...
-  switch (expr.tag) {
-    case "SEBind": {
-      return {
-        ...expr,
-        contents: substituteBform(undefined, subst, expr.contents),
-      };
-    }
-    case "SEFunc":
-    case "SEValCons":
-    case "SEFuncOrValCons": {
-      // COMBAK: Remove SEFuncOrValCons?
-      // theta(f[E]) = f([theta(E)]
-
-      return {
-        ...expr,
-        args: expr.args.map((arg) => substituteExpr(subst, arg)),
-      };
-    }
-  }
-};
-
-const substitutePredArg = (subst: Subst, predArg: PredArg<A>): PredArg<A> => {
-  switch (predArg.tag) {
-    case "RelPred": {
-      return {
-        ...predArg,
-        args: predArg.args.map((arg) => substitutePredArg(subst, arg)),
-      };
-    }
-    case "SEBind": {
-      return {
-        ...predArg,
-        contents: substituteBform(undefined, subst, predArg.contents), // COMBAK: Why is bform here...
-      };
-    }
-  }
-};
-
-// theta(|S_r) = ...
-export const substituteRel = (
-  subst: Subst,
-  rel: RelationPattern<A>,
-): RelationPattern<A> => {
-  switch (rel.tag) {
-    case "RelBind": {
-      // theta(B := E) |-> theta(B) := theta(E)
-      return {
-        ...rel,
-        id: substituteBform(undefined, subst, rel.id),
-        expr: substituteExpr(subst, rel.expr),
-      };
-    }
-    case "RelPred": {
-      // theta(Q([a]) = Q([theta(a)])
-      if (rel.alias)
-        return {
-          ...rel,
-          args: rel.args.map((arg) => substitutePredArg(subst, arg)),
-        };
-      else
-        return {
-          ...rel,
-          args: rel.args.map((arg) => substitutePredArg(subst, arg)),
-        };
-    }
-    case "RelField": {
-      return {
-        ...rel,
-        name: substituteBform(undefined, subst, rel.name),
-      };
-    }
-  }
-};
-
-//#endregion (subregion? TODO fix)
 
 const toSubType = <T>(type: SelectorType<T>): TypeApp<T> => ({
   ...type,
@@ -788,23 +631,22 @@ const toSubBind = <T>(bind: RelBind<T>): Bind<T> => ({
 // Convert Style expression to Substance expression (for ease of comparison in matching)
 const toSubExpr = <T>(e: SelExpr<T>): SubExpr<T> => {
   switch (e.tag) {
-    case "SEBind": {
-      return e.contents.contents;
-    }
     case "SEFunc":
     case "SEValCons":
     case "SEFuncOrValCons": {
       // keep everything as generic Func
       // since the Substance checker would automatically distinguish
       // between ValCons and Func.
-      const res: SubExpr<T> = {
+      const res: Func<T> = {
         ...e,
         tag: "Func",
         name: e.name,
-        args: e.args.map((e) => toSubExpr(e)),
+        args: e.args.map((e) => toSubArgExpr(e)),
       };
       return res;
     }
+    default:
+      return toSubArgExpr(e);
   }
 };
 
@@ -822,78 +664,52 @@ const toSubPred = <T>(p: RelPred<T>): ApplyPredicate<T> => {
   };
 };
 
-const argsEq = (
-  a1: SubPredArg<A>,
-  a2: SubPredArg<A>,
-  env: DomainEnv,
-): boolean => {
-  if (a1.tag === "ApplyPredicate" && a2.tag === "ApplyPredicate") {
-    return subFnsEq(a1, a2, env);
-  } else if (a1.tag === a2.tag) {
-    // both are SubExpr, which are not explicitly tagged
-    return subExprsEq(a1 as SubExpr<A>, a2 as SubExpr<A>, env);
-  } else return false; // they are different types
-};
-
-const subFnsEq = (
-  p1: SubPredArg<A>,
-  p2: SubPredArg<A>,
-  env: DomainEnv,
-): boolean => {
-  if (!("name" in p1 && "args" in p1 && "name" in p2 && "args" in p2)) {
-    throw Error("expected substance type with name and args properties");
-  }
-
-  if (p1.args.length !== p2.args.length) {
-    return false;
-  }
-
-  // If names do not match, then the predicates aren't equal.
-  if (p1.name.value !== p2.name.value) {
-    return false;
-  }
-
-  // If exact match
-  if (zip2(p1.args, p2.args).every(([a1, a2]) => argsEq(a1, a2, env))) {
-    return true;
-  } else {
-    // Otherwise consider symmetry
-    const predicateDecl = env.predicates.get(p1.name.value);
-    if (predicateDecl && predicateDecl.symmetric) {
-      return zip2(p1.args, [p2.args[1], p2.args[0]]).every(([a1, a2]) =>
-        argsEq(a1, a2, env),
-      );
-    } else {
-      return false;
-    }
-  }
-};
-
-const subExprsEq = (
-  e1: SubExpr<A>,
-  e2: SubExpr<A>,
-  env: DomainEnv,
-): boolean => {
-  // ts doesn't seem to work well with the more generic way of checking this
-  if (e1.tag === "Identifier" && e2.tag === "Identifier") {
-    return e1.value === e2.value;
-  } else if (
-    (e1.tag === "ApplyFunction" && e2.tag === "ApplyFunction") ||
-    (e1.tag === "ApplyConstructor" && e2.tag === "ApplyConstructor") ||
-    (e1.tag === "Func" && e2.tag === "Func")
-  ) {
-    return subFnsEq(e1, e2, env);
-  } else if (e1.tag === "Deconstructor" && e2.tag === "Deconstructor") {
-    return (
-      e1.variable.value === e2.variable.value &&
-      e1.field.value === e2.field.value
-    );
-  } else if (e1.tag === "StringLit" && e2.tag === "StringLit") {
-    return e1.contents === e2.contents;
-  }
-
-  return false;
-};
+// const argsEq = (
+//   a1: SubPredArg<A>,
+//   a2: SubPredArg<A>,
+//   env: DomainEnv,
+// ): boolean => {
+//   if (a1.tag === "ApplyPredicate" && a2.tag === "ApplyPredicate") {
+//     return subFnsEq(a1, a2, env);
+//   } else if (a1.tag === a2.tag) {
+//     // both are SubExpr, which are not explicitly tagged
+//     return subExprsEq(a1 as SubExpr<A>, a2 as SubExpr<A>, env);
+//   } else return false; // they are different types
+// };
+//
+// const subFnsEq = (
+//   p1: SubPredArg<A>,
+//   p2: SubPredArg<A>,
+//   env: DomainEnv,
+// ): boolean => {
+//   if (!("name" in p1 && "args" in p1 && "name" in p2 && "args" in p2)) {
+//     throw Error("expected substance type with name and args properties");
+//   }
+//
+//   if (p1.args.length !== p2.args.length) {
+//     return false;
+//   }
+//
+//   // If names do not match, then the predicates aren't equal.
+//   if (p1.name.value !== p2.name.value) {
+//     return false;
+//   }
+//
+//   // If exact match
+//   if (zip2(p1.args, p2.args).every(([a1, a2]) => argsEq(a1, a2, env))) {
+//     return true;
+//   } else {
+//     // Otherwise consider symmetry
+//     const predicateDecl = env.predicates.get(p1.name.value);
+//     if (predicateDecl && predicateDecl.symmetric) {
+//       return zip2(p1.args, [p2.args[1], p2.args[0]]).every(([a1, a2]) =>
+//         argsEq(a1, a2, env),
+//       );
+//     } else {
+//       return false;
+//     }
+//   }
+// };
 
 /**
  * Filters the set of substitutions to prevent duplications of matched Substance relations and substitution targets.
@@ -1020,37 +836,45 @@ const matchBvar = (
   }
 };
 
-// Judgment 12. G; theta |- S <| |S_o
-const matchDeclLine = (
-  varEnv: DomainEnv,
-  line: CompiledSubStmt<A>,
-  decl: DeclPattern<A>,
+const matchSelDeclToSubDecl = (
+  selTypeMap: im.Map<string, Type<A>>,
+  subTypeMap: im.Map<string, Type<A>>,
+  domEnv: DomainEnv,
+  selDecl: DeclPattern<A>,
+  subDecl: Decl<A>,
 ): Subst | undefined => {
-  if (line.tag === "Decl") {
-    const [subT, subVar] = [line.type, line.name];
-    const [styT, bvar] = [decl.type, decl.id];
+  const subVar = subDecl.name;
+  const selVar = selDecl.id;
 
-    // substitution is only valid if types matched first
-    if (typesMatched(varEnv, subT, styT)) {
-      return matchBvar(subVar, bvar);
-    }
+  const subType = subTypeMap.get(subVar.value)!;
+  const selType = selTypeMap.get(selVar.contents.value)!;
+
+  // substitution is only valid if types matched first
+  if (isSubtype(subType, selType, domEnv)) {
+    return matchBvar(subVar, selVar);
   }
-
-  // Sty decls only match Sub decls
-  return undefined;
 };
 
-// Judgment 16. G; [theta] |- [S] <| [|S_o] ~> [theta']
-const matchDecl = (
-  varEnv: DomainEnv,
-  subProg: CompiledSubProg<A>,
+const matchSelDeclToSubDecls = (
+  selTypeMap: im.Map<string, Type<A>>,
+  subTypeMap: im.Map<string, Type<A>>,
+  domEnv: DomainEnv,
   decl: DeclPattern<A>,
+  subProg: CompiledSubProg<A>,
 ): im.List<Subst> => {
   const initDSubsts: im.List<Subst> = im.List();
-  // Judgment 14. G; [theta] |- [S] <| |S_o
   const newDSubsts = subProg.statements.reduce(
     (dSubsts, line: CompiledSubStmt<A>) => {
-      const subst = matchDeclLine(varEnv, line, decl);
+      if (line.tag !== "Decl") {
+        return dSubsts;
+      }
+      const subst = matchSelDeclToSubDecl(
+        selTypeMap,
+        subTypeMap,
+        domEnv,
+        decl,
+        line,
+      );
       if (subst === undefined) {
         return dSubsts;
       } else {
@@ -1236,7 +1060,7 @@ const matchStyApplyToSubApply = (
     (subRel.tag === "ApplyConstructor" &&
       (styRel.tag === "SEValCons" || styRel.tag === "SEFuncOrValCons")) ||
     (subRel.tag === "ApplyFunction" &&
-      (styRel.tag === "SEValCons" || styRel.tag === "SEFuncOrValCons"))
+      (styRel.tag === "SEFunc" || styRel.tag === "SEFuncOrValCons"))
   ) {
     // If names do not match up, this is an invalid matching. No substitution.
     if (subRel.name.value !== styRel.name.value) {
@@ -1251,6 +1075,41 @@ const matchStyApplyToSubApply = (
     );
     return rSubst;
   }
+  return [];
+};
+
+const matchSelExprToSubExpr = (
+  selTypeMap: im.Map<string, Type<A>>,
+  subTypeMap: im.Map<string, Type<A>>,
+  domEnv: DomainEnv,
+  selExpr: SelExpr<A>,
+  subExpr: SubExpr<A>,
+): Subst[] => {
+  if (selExpr.tag === "SelVar" && subExpr.tag === "Identifier") {
+    return matchStyArgToSubArg(
+      selTypeMap,
+      subTypeMap,
+      domEnv,
+      selExpr,
+      subExpr,
+    );
+  }
+
+  if (
+    (subExpr.tag === "ApplyConstructor" &&
+      (selExpr.tag === "SEValCons" || selExpr.tag === "SEFuncOrValCons")) ||
+    (subExpr.tag === "ApplyFunction" &&
+      (selExpr.tag === "SEFunc" || selExpr.tag === "SEFuncOrValCons"))
+  ) {
+    return matchStyApplyToSubApply(
+      selTypeMap,
+      subTypeMap,
+      domEnv,
+      selExpr,
+      subExpr,
+    );
+  }
+
   return [];
 };
 
@@ -1373,8 +1232,17 @@ const matchStyRelToSubRels = (
       }
       const { variable: subBindedVar, expr: subBindedExpr } = statement;
       const subBindedName = subBindedVar.value;
+
+      // need to check type for binded variable
+      const subBindedVarType = subTypeMap.get(subBindedName)!;
+      const styBindedVarType = styTypeMap.get(styBindedName)!;
+      // if binded variable types don't match then this is not a valid substitution
+      if (!isSubtype(subBindedVarType, styBindedVarType, varEnv)) {
+        return rSubsts;
+      }
+
       // substitutions for RHS expression
-      const rSubstsForExpr = matchStyApplyToSubApply(
+      const rSubstsForExpr = matchSelExprToSubExpr(
         styTypeMap,
         subTypeMap,
         varEnv,
@@ -1478,7 +1346,7 @@ const makePotentialSubsts = (
   const subTypeMap = subEnv.objs;
 
   const [usedStyVars, listRSubsts] = makeListRSubstsForStyleRels(
-    styTypeMap,
+    selTypeMap,
     subTypeMap,
     domEnv,
     subEnv,
@@ -1490,7 +1358,13 @@ const makePotentialSubsts = (
     if (usedStyVars.includes(decl.id.contents.value)) {
       return currListPSubsts;
     } else {
-      const pSubsts = matchDecl(domEnv, subProg, decl);
+      const pSubsts = matchSelDeclToSubDecls(
+        selTypeMap,
+        subTypeMap,
+        domEnv,
+        decl,
+        subProg,
+      );
       return currListPSubsts.push(
         pSubsts.map((pSubst) => [pSubst, im.Set<SubStmt<A>>()]),
       );
@@ -1528,9 +1402,9 @@ const getSubsts = (
   domEnv: DomainEnv,
   subEnv: SubstanceEnv,
   selEnv: SelectorEnv,
-  subProg: CompiledSubProg<A>,
   header: Collector<A> | Selector<A>,
 ): Subst[] => {
+  const subProg = subEnv.ast;
   const decls = getDecls(header);
   const rels = safeContentsList(header.where);
   const rawSubsts = makePotentialSubsts(
@@ -1601,19 +1475,19 @@ const collectSubsts = (
   return collectionSubsts;
 };
 
-const findSubstsSel = (
-  varEnv: DomainEnv,
+const findHeaderSubsts = (
+  domEnv: DomainEnv,
   subEnv: SubstanceEnv,
-  subProg: CompiledSubProg<A>,
-  [header, selEnv]: [Header<A>, SelEnv],
+  selEnv: SelectorEnv,
+  header: Header<A>,
 ): StySubst[] => {
   if (header.tag === "Selector") {
-    return getSubsts(varEnv, subEnv, selEnv, subProg, header).map((subst) => ({
+    return getSubsts(domEnv, subEnv, selEnv, header).map((subst) => ({
       tag: "StySubSubst",
       contents: subst,
     }));
   } else if (header.tag === "Collector") {
-    const substs = getSubsts(varEnv, subEnv, selEnv, subProg, header);
+    const substs = getSubsts(domEnv, subEnv, selEnv, header);
     const toCollect = header.head.id.contents.value;
     const collectInto = header.into.contents.value;
     const groupbys = header.foreach
@@ -1992,7 +1866,10 @@ const processBlock = (
     return withSelErrors;
   }
 
-  const substs = findSubstsSel(varEnv, subEnv, subEnv.ast, [hb.header, selEnv]);
+  const substs = findHeaderSubsts(varEnv, subEnv, subEnv.ast, [
+    hb.header,
+    selEnv,
+  ]);
   log.debug("Translating block", hb, "with substitutions", substs);
   log.debug("total number of substs", substs.length);
   // OPTIMIZE: maybe we should just compile the block once into something
