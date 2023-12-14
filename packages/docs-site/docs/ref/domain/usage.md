@@ -74,16 +74,6 @@ predicate P4 (FirstType, SecondType, SecondType)
 
 Notice how some declarations have names associated with the argument types (e.g. `P2` with argument names `a1` and `a2`), and some don't. These names to argument types are allowed and encouraged to enhance readability, but are not required.
 
-### The `Prop` Type
-
-A special type, _Prop_, is built into Penrose, and is available to be used as predicate arguments. The _Prop_ type represents predicates themselves. For example, the predicate _Not_ is declared in the set-theory example:
-
-```domain
-predicate Not (Prop p1)
-```
-
-When we use the _Not_ predicate in the _substance_ or _style_ schemas, then, we can pass in any predicates as _Prop_. For example, we can write `Not(Intersecting(s1, s2))` in the _substance_ or _style_ schemas to conceptually denote that `s1` and `s2` are disjoint.
-
 ### Symmetric Predicates
 
 Some relations between objects are symmetric: for example, in the set-theory domain, the relations "_a_ intersects _b_" and "_b_ intersects _a_" are equivalent. As a recent new feature, Penrose supports symmetric predicates:
