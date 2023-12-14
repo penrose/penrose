@@ -122,7 +122,6 @@ export const compileSubstance = (
 };
 
 export const initEnv = (): SubstanceEnv => ({
-  bindings: im.Map<string, SubExpr<C>>(),
   labels: im.Map<string, LabelValue>(),
   objs: im.Map<string, Type<C>>(),
   objIds: [],

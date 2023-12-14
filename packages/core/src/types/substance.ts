@@ -5,7 +5,6 @@ import { Env, Type } from "./domain.js";
 export type SubRes = [SubstanceEnv, Env];
 export type LabelMap = im.Map<string, LabelValue>;
 export interface SubstanceEnv {
-  bindings: im.Map<string, SubExpr<A>>;
   objs: im.Map<string, Type<A>>;
   objIds: Identifier<A>[];
   labels: LabelMap;
