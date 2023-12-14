@@ -15,6 +15,7 @@ import {
   showError,
   toSVG,
 } from "@penrose/core";
+import { initEnv } from "@penrose/core/dist/compiler/Substance";
 import { saveAs } from "file-saver";
 import JSZip from "jszip";
 import { shuffle } from "lodash";
@@ -153,7 +154,13 @@ export class Content extends React.Component<ContentProps, ContentState> {
             );
           }
         }
-        const synth = new Synthesizer(env, setting, subResult, seed);
+        const synth = new Synthesizer(
+          env,
+          subResult === undefined ? initEnv() : subResult[0],
+          setting,
+          subResult,
+          seed,
+        );
         let progs = synth.generateSubstances(numPrograms);
         const template = synth.getTemplate();
 

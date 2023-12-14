@@ -5,6 +5,7 @@ import {
   prettySubstance,
   showError,
 } from "@penrose/core";
+import { initEnv } from "@penrose/core/dist/compiler/Substance";
 import { shuffle } from "lodash";
 import { Preset } from "../examples.js";
 import {
@@ -37,7 +38,13 @@ const generateProgs = (
         );
       }
     }
-    const synth = new Synthesizer(env, setting, subResult, seed);
+    const synth = new Synthesizer(
+      env,
+      subResult === undefined ? initEnv() : subResult[0],
+      setting,
+      subResult,
+      seed,
+    );
     let progs = synth.generateSubstances(numPrograms);
     const template = synth.getTemplate();
     return [{ prog: template, ops: [] } as SynthesizedSubstance, ...progs];
