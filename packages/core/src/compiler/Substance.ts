@@ -138,6 +138,9 @@ export const postprocessSubstance = (
   domEnv: DomainEnv,
   subEnv: SubstanceEnv,
 ): SubstanceEnv => {
+  subEnv.labels = im.Map(
+    [...subEnv.objs.keys()].map((id) => [id, EMPTY_LABEL]),
+  );
   // post process all statements
   return prog.statements.reduce(
     (subEnv, stmt: CompiledSubStmt<A>) =>
