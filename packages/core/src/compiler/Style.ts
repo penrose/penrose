@@ -865,7 +865,7 @@ const matchStyArgsToSubArgs = (
     );
     return substs;
   } else {
-    return [];
+    return [{}];
   }
 };
 
