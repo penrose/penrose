@@ -167,9 +167,8 @@ Set C`;
       tag: "Decl",
       name: dummyIdentifier("C", "SyntheticSubstance"),
       type: {
-        tag: "TypeConstructor",
+        tag: "TypeApp",
         nodeType: "SyntheticSubstance",
-        args: [],
         name: dummyIdentifier("Set", "SyntheticSubstance"),
       },
     };
@@ -199,9 +198,8 @@ Set ZZZ`;
       tag: "Decl",
       name: dummyIdentifier("ZZZ", "SyntheticSubstance"),
       type: {
-        tag: "TypeConstructor",
+        tag: "TypeApp",
         nodeType: "SyntheticSubstance",
-        args: [],
         name: dummyIdentifier("Set", "SyntheticSubstance"),
       },
     };

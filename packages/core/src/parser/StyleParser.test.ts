@@ -97,15 +97,6 @@ describe("Selector Grammar", () => {
     sameASTs(results);
   });
 
-  test("nested preds", () => {
-    const prog = `
-forall Set A, B, C
-where IsSubset(Union(A,B), C, Intersection(B, C));
-{ }`;
-    const { results } = parser.feed(prog);
-    sameASTs(results);
-  });
-
   test("empty pred", () => {
     const prog = `
 forall Set A, B, C
@@ -119,7 +110,7 @@ where IsSubset(   );
     const prog = `
 forall Set A, B; Map f
 with Set C, D; Map \`g\`
-where C := intersect ( A, B, Not(f) ) ; IsSubset( A, B ); IsSubset( Union(A,B), C); Intersect (   )
+where C := intersect ( A, B ) ; IsSubset( A, B ); IsSubset( B, C); Intersect (   )
 as Const
 { }`;
     const { results } = parser.feed(prog);
@@ -187,7 +178,7 @@ where IsSubset(A, B) as foo; IsSubset(B,C) as bar; Union(C,D) as yeet;
       "\
 forall Set A, B, C; Map f \
 with Set C, D; Map `g` \
-where C := intersect ( A, B, Not(f) ) ; IsSubset( A, B ) as isSubsetAB; IsSubset( Union(A,B), C) as nested_Subset; Intersect (   ){}\
+where C := intersect ( A, B ) ; IsSubset( A, B ) as isSubsetAB; IsSubset( B, C) as nested_Subset; Intersect (   ){}\
 ";
     const { results } = parser.feed(prog);
     sameASTs(results);
@@ -199,9 +190,9 @@ where C := intersect ( A, B, Not(f) ) ; IsSubset( A, B ) as isSubsetAB; IsSubset
       "\
 forall Set A, B, C; Map f \
 with Set C, D; Map `g` \
-where C := intersect ( A, B, Not(f) ) ;\
+where C := intersect ( A, B ) ;\
  IsSubset( A, B ) \
- as isSubsetAB; IsSubset( Union(A,B), C) as nested_Subset; \
+ as isSubsetAB; IsSubset( B, C) as nested_Subset; \
  Intersect (   )  as   ok {}\
 ";
     const { results } = parser.feed(prog);

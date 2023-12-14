@@ -12,13 +12,13 @@ import {
   FunctionDecl,
   PredicateDecl,
   Type,
+  TypeDecl,
 } from "../types/domain.js";
 import {
   DomainError,
   ParseError,
   PenroseError,
   TypeNotFound,
-  TypeVarNotFound,
 } from "../types/errors.js";
 import { TypeApp } from "../types/substance.js";
 import {
@@ -85,12 +85,19 @@ export const stringType: Type<C> = {
   tag: "Type",
   name: idOf("String", "Domain"),
 };
+export const stringTypeDecl: TypeDecl<C> = {
+  ...stringType,
+  tag: "TypeDecl",
+  superTypes: [],
+};
 
 /* Built in types for all Domain programs */
 const builtinTypes: [string, Type<C>][] = [["String", stringType]];
+const builtinTypeDecls: [string, TypeDecl<C>][] = [["String", stringTypeDecl]];
 
 const initEnv = (): Env => ({
   types: im.Map(builtinTypes),
+  typeDecls: im.Map(builtinTypeDecls),
   constructors: im.Map<string, ConstructorDecl<C>>(),
   predicates: im.Map<string, PredicateDecl<C>>(),
   functions: im.Map<string, FunctionDecl<C>>(),
@@ -134,6 +141,7 @@ const checkStmt = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
       const updatedEnv: CheckerResult = ok({
         ...env,
         types: env.types.set(name.value, newType),
+        typeDecls: env.typeDecls.set(name.value, stmt),
       });
       return safeChain(
         superTypes,
@@ -222,7 +230,7 @@ const checkSymPred = (stmt: DomainStmt<C>, env: Env): CheckerResult => {
 export const checkType = (
   type: Type<A>,
   env: Env,
-): Result<Env, TypeNotFound | TypeVarNotFound> => {
+): Result<Env, TypeNotFound> => {
   const { name } = type;
   // check if name of the type exists
   if (!env.types.has(name.value)) {

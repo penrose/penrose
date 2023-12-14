@@ -8,8 +8,7 @@ import moo from "moo";
 import _ from 'lodash'
 import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil.js'
 import { C, ConcreteNode, Identifier, StringLit  } from "../types/ast.js";
-import { StyT, DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, Collector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, SEBind, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, CollectionAccess, UnaryStyVarExpr, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit, LayoutStages, FunctionCall, InlineComparison, ComparisonOp
-} from "../types/style.js";
+import { DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, Collector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, CollectionAccess, UnaryStyVarExpr, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit, LayoutStages, FunctionCall, InlineComparison, ComparisonOp, SelectorType, SelVar } from "../types/style.js";
 
 const styleTypes: string[] =
   [ "scalar"
@@ -73,7 +72,7 @@ const lexer = moo.compile({
 const nodeData = { nodeType: "Style" as const };
 
 // Node constructors
-const decl = (t: StyT<C>, i: BindingForm<C>): DeclPattern<C> => ({
+const decl = (t: SelectorType<C>, i: BindingForm<C>): DeclPattern<C> => ({
   ...nodeData,
   ...rangeFrom([t, i]),
   tag: "DeclPattern",
@@ -81,7 +80,7 @@ const decl = (t: StyT<C>, i: BindingForm<C>): DeclPattern<C> => ({
   id: i 
 });
 
-const declList = (type: StyT<C>, ids: BindingForm<C>[]): DeclPattern<C>[] => {
+const declList = (type: SelectorType<C>, ids: BindingForm<C>[]): DeclPattern<C>[] => {
   return ids.map((i: BindingForm<C>) => decl(type, i));
 }
 
@@ -252,17 +251,26 @@ decl_patterns -> sepEndBy1[decl_list, ";"] {%
   }
 %}
 
-decl_list -> identifier __ sepEndBy1[binding_form, ","] {% 
+decl_list -> sel_type __ sepEndBy1[binding_form, ","] {% 
   ([type, , ids]): DeclPattern<C>[] => {
     return declList(type, ids);
   }
 %}
 
 
-decl -> identifier __ binding_form {%
+decl -> sel_type __ binding_form {%
   ([type, , id]): DeclPattern<C> => {
     return decl(type, id);
   }
+%}
+
+sel_type -> identifier {%
+  ([id]): SelectorType<C> => ({
+    ...nodeData,
+    ...rangeOf(id),
+    tag: "SelectorType",
+    name: id
+  })
 %}
 
 select_where -> "where" __ relation_list _ml {% d => d[2] %}
@@ -291,14 +299,14 @@ rel_bind
   %}
 
 rel_pred 
-  -> identifier _ "(" pred_arg_list ")" __ml alias_as {% // aliasing case
+  -> identifier _ "(" sel_arg_expr_list ")" __ml alias_as {% // aliasing case
     ([name, , , args, , , a]): RelPred<C> => ({
         ...nodeData,
         ...rangeFrom([name, ...args, a]),
         tag: "RelPred", name, args, alias: a
     })
   %} 
-  | identifier _ "(" pred_arg_list ")" {% 
+  | identifier _ "(" sel_arg_expr_list ")" {% 
     ([name, , , args, ,]): RelPred<C> => ({
         ...nodeData,
         ...rangeFrom([name, ...args]),
@@ -322,12 +330,8 @@ field_desc
   -> "math" {% () => "MathLabel" %} 
   |  "text" {% () => "TextLabel" %}
 
-sel_expr_list 
-  -> _ {% d => [] %}
-  |  _ sepEndBy1[sel_expr, ","] _ {% nth(1) %}
-
 sel_expr 
-  -> identifier _ "(" sel_expr_list ")" {% 
+  -> identifier _ "(" sel_arg_expr_list ")" {% 
     ([name, , , args, ]): SEFuncOrValCons<C> => ({
       ...nodeData,
       ...rangeFrom([name, ...args]),
@@ -335,25 +339,17 @@ sel_expr
       name, args
     }) 
   %}
-  |  binding_form {% ([d]): SEBind<C> => ({
-      ...nodeData,
-      ...rangeFrom([d]), 
-      tag: "SEBind", contents: d
-    }) 
-  %}
+  |  sel_arg_expr {% id %}
 
-pred_arg_list 
+sel_arg_expr_list
   -> _ {% d => [] %}
-  |  _ sepEndBy1[pred_arg, ","] _ {% nth(1) %}
+  |  _ sepEndBy1[sel_arg_expr, ","] _ {% nth(1) %}
 
-# NOTE: resolve ambiguity here by allowing only rel_pred or `binding_form`
-# Can't use sel_expr because sel_expr has valcons or func, which looks exactly the same as predicates. 
-pred_arg 
-  -> rel_pred {% id %}
-  |  binding_form {% ([d]): SEBind<C> => ({
+sel_arg_expr
+  -> binding_form {% ([d]): SelVar<C> => ({
       ...nodeData,
-      ...rangeFrom([d]), 
-      tag: "SEBind", contents: d
+      ...rangeFrom([d]),
+      tag: "SelVar", contents: d
     }) 
   %}
 

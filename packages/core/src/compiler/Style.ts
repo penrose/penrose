@@ -1866,10 +1866,7 @@ const processBlock = (
     return withSelErrors;
   }
 
-  const substs = findHeaderSubsts(varEnv, subEnv, subEnv.ast, [
-    hb.header,
-    selEnv,
-  ]);
+  const substs = findHeaderSubsts(varEnv, subEnv, selEnv, hb.header);
   log.debug("Translating block", hb, "with substitutions", substs);
   log.debug("total number of substs", substs.length);
   // OPTIMIZE: maybe we should just compile the block once into something

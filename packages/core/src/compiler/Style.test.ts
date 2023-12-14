@@ -585,26 +585,6 @@ describe("Compiler", () => {
       const { state } = await loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toBeGreaterThan(0);
     });
-    test("nested symmetric predicates", async () => {
-      const dsl = `type Atom
-      type Hydrogen <: Atom
-      type Oxygen <: Atom
-      symmetric predicate Bond(Atom, Atom)
-      predicate Not(Prop)`;
-      const sub = `Hydrogen H
-      Oxygen O
-      Not(Bond(H, O))`;
-      const sty =
-        canvasPreamble +
-        `forall Hydrogen h; Oxygen o
-        where Not(Bond(o, h)) {
-          theText = Text {
-            string: "hello"
-          }
-        }`;
-      const { state } = await loadProgs({ dsl, sub, sty });
-      expect(state.shapes.length).toBeGreaterThan(0);
-    });
   });
 
   describe("number of matchings", () => {
@@ -840,12 +820,13 @@ predicate IsSubset(Set s1, Set s2)
       SelectorFieldNotSupported: [`forall Set x where x has randomfield { }`],
 
       // COMBAK: Style doesn't throw parse error if the program is just "forall Point `A`"... instead it fails inside compileStyle with an undefined selector environment
-      SelectorDeclTypeMismatch: [`forall Point \`A\` { }`],
+      //SelectorDeclTypeMismatch: [`forall Point \`A\` { }`],
+      // ^ This should not be an error.
 
-      SelectorRelTypeMismatch: [
-        `forall Point x; Set y; Set z
-      where x := Union(y, z) { } `,
-      ],
+      // SelectorRelTypeMismatch: [
+      //   `forall Point x; Set y; Set z
+      // where x := Union(y, z) { } `,
+      // ],
 
       TaggedSubstanceError: [
         `forall Set x; Point y

@@ -3,7 +3,7 @@ import { ShapeType } from "../shapes/Shapes.js";
 import Graph from "../utils/Graph.js";
 import * as ad from "./ad.js";
 import { C, Identifier } from "./ast.js";
-import { StyleDiagnostics, StyleError, StyleWarning } from "./errors.js";
+import { StyleDiagnostics, StyleError } from "./errors.js";
 import { Fn } from "./state.js";
 import { Expr, GPIDecl } from "./style.js";
 import { SubstanceEnv } from "./substance.js";
@@ -31,7 +31,7 @@ export interface StyProgT {
 }
 
 export type SelectorEnv = SubstanceEnv & {
-  warnings: StyleWarning[];
+  warnings: StyleError[];
   errors: StyleError[];
 };
 

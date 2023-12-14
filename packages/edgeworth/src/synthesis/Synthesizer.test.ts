@@ -2,6 +2,7 @@
 
 import { compileDomain, compileSubstance } from "@penrose/core";
 import {
+  initEnv,
   prettyStmt,
   prettySubstance,
 } from "@penrose/core/dist/compiler/Substance";
@@ -52,18 +53,18 @@ const initSynth = (
   setting: SynthesizerSetting,
 ): Synthesizer => {
   let subResult;
-  const subRes = compileSubstance(substance, env);
+  const subRes = compileSubstance(substance, domEnv);
   if (subRes.isOk()) {
     subResult = subRes.value;
   }
-  const synth = new Synthesizer(env, setting, subResult, "seed");
+  const synth = new Synthesizer(domEnv, initEnv(), setting, subResult, "seed");
   return synth;
 };
 
 const domain = `type Set
 function Intersection(Set a, Set b) -> Set
 function Subset(Set a, Set b) -> Set`;
-const env: Env = compileDomain(domain).unsafelyUnwrap();
+const domEnv: Env = compileDomain(domain).unsafelyUnwrap();
 
 describe("Synthesizer Operations", () => {
   test("cascading delete", () => {
@@ -82,7 +83,8 @@ Set D`;
       },
     });
     const ctx = initContext(
-      synth.env,
+      synth.domEnv,
+      synth.subEnv,
       defaultSetting.argOption,
       defaultSetting.argReuse,
       "test0",

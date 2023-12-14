@@ -13,8 +13,8 @@ import {
 } from "@penrose/core/dist/types/ast";
 import {
   ConstructorDecl,
+  Env as DomainEnv,
   DomainStmt,
-  Env,
   FunctionDecl,
   PredicateDecl,
   TypeDecl,
@@ -28,11 +28,12 @@ import {
   Decl,
   Func,
   LabelDecl,
+  SubArgExpr,
   SubExpr,
-  SubPredArg,
   CompiledSubProg as SubProg,
   CompiledSubStmt as SubStmt,
-  TypeConsApp,
+  SubstanceEnv,
+  TypeApp,
 } from "@penrose/core/dist/types/substance";
 import consola from "consola";
 import im from "immutable";
@@ -86,7 +87,7 @@ export const argMatches = (
     | ApplyFunction<A>
     | Func<A>
     | Bind<A>,
-  env: Env,
+  env: DomainEnv,
 ): ArgStmtDecl<C>[] => {
   const options = (s: SubExpr<A> | ApplyPredicate<A>) => {
     const [st] = "name" in s ? findDecl(s.name.value, env) : [undefined];
@@ -181,7 +182,7 @@ export const matchDecls = <T>(
  */
 export const findDecl = (
   stmtName: string,
-  env: Env,
+  env: DomainEnv,
 ): [ArgStmtDecl<C> | undefined, im.Map<string, ArgStmtDecl<C>>] => {
   let match: ArgStmtDecl<C> | undefined;
   match = env.predicates.get(stmtName);
@@ -202,7 +203,7 @@ export const findDecl = (
  */
 export const matchSignatures = (
   stmt: ApplyConstructor<A> | ApplyPredicate<A> | ApplyFunction<A> | Func<A>,
-  env: Env,
+  env: DomainEnv,
 ): ArgStmtDecl<C>[] => {
   const [st, opts] = findDecl(stmt.name.value, env);
   if (st) {
@@ -222,11 +223,11 @@ export const getSignature = (decl: ArgStmtDecl<A>): Signature => {
   let outType: string | undefined;
   if (decl.args) {
     decl.args.forEach((a) => {
-      if (a.type.tag === "TypeConstructor") argTypes.push(a.type.name.value);
+      if (a.type.tag === "Type") argTypes.push(a.type.name.value);
     });
   }
   // see if there is an output field:
-  if ("output" in decl && decl.output.type.tag === "TypeConstructor") {
+  if ("output" in decl && decl.output.type.tag === "Type") {
     outType = decl.output.type.name.value;
   }
   return {
@@ -270,7 +271,7 @@ export const signatureArgsEqual = (a: Signature, b: Signature): boolean => {
  */
 export const identicalTypeDecls = (
   ids: Identifier<A>[],
-  env: Env,
+  env: SubstanceEnv,
 ): im.Map<string, Identifier<A>[]> => {
   // pulls just the variable names from the statement's parameters
   const idStrs = ids.map((i) => i.value);
@@ -278,12 +279,12 @@ export const identicalTypeDecls = (
   log.debug(`Matching ${ids.map((i) => i.value)}`);
 
   idStrs.forEach((i) => {
-    const typeStr = env.vars.get(i)?.name.value;
+    const typeStr = env.objs.get(i)?.name.value;
 
     // a match is any var of the same type as the current identifier
     // which is not already being used in the statement
     const matchedObjs = [
-      ...env.vars
+      ...env.objs
         .filter(
           (t, id) =>
             !idStrs.includes(id) && typeStr && t.name.value === typeStr,
@@ -293,7 +294,7 @@ export const identicalTypeDecls = (
 
     log.debug(`For ${typeStr} found ${matchedObjs}`);
     const matches = matchedObjs.flatMap((id) =>
-      env.varIDs.filter((v) => v.value === id),
+      env.objIds.filter((v) => v.value === id),
     );
 
     // add to options if possible
@@ -359,9 +360,6 @@ export const cascadingDelete = <T>(
         case "NoLabel": {
           return s.args.filter((v) => v.value === id.value).length > 0;
         }
-        case "EqualExprs":
-        case "EqualPredicates":
-          return false;
       }
     });
     // remove list of filtered statements
@@ -404,7 +402,7 @@ export const domainToSubType = (
 
 export const applyConstructor = (
   decl: ConstructorDecl<A>,
-  args: SubExpr<A>[],
+  args: SubArgExpr<A>[],
 ): ApplyConstructor<A> => {
   const { name } = decl;
   return {
@@ -417,7 +415,7 @@ export const applyConstructor = (
 
 export const applyFunction = (
   decl: FunctionDecl<A>,
-  args: SubExpr<A>[],
+  args: SubArgExpr<A>[],
 ): ApplyFunction<A> => {
   const { name } = decl;
   return {
@@ -430,7 +428,7 @@ export const applyFunction = (
 
 export const applyPredicate = (
   decl: PredicateDecl<A>,
-  args: SubPredArg<A>[],
+  args: SubArgExpr<A>[],
 ): ApplyPredicate<A> => {
   const { name } = decl;
   return {
@@ -448,7 +446,7 @@ export const subProg = (statements: SubStmt<A>[]): SubProg<A> => ({
 });
 
 // TODO: generate arguments as well
-export const applyTypeDecl = (decl: TypeDecl<A>): TypeConsApp<A> => {
+export const applyTypeDecl = (decl: TypeDecl<A>): TypeApp<A> => {
   const { name } = decl;
   return nullaryTypeCons(name);
 };
@@ -463,11 +461,10 @@ export const applyBind = (
   expr,
 });
 
-export const nullaryTypeCons = (name: Identifier<A>): TypeConsApp<A> => ({
-  tag: "TypeConstructor",
+export const nullaryTypeCons = (name: Identifier<A>): TypeApp<A> => ({
+  tag: "TypeApp",
   nodeType: "SyntheticSubstance",
   name,
-  args: [],
 });
 
 export const autoLabelStmt: AutoLabel<A> = {
@@ -493,14 +490,17 @@ export const labelStmt = (id: string): LabelDecl<A> => ({
   nodeType: "SyntheticSubstance",
 });
 
-export const desugarAutoLabel = (subProg: SubProg<A>, env: Env): SubProg<A> => {
+export const desugarAutoLabel = (
+  subProg: SubProg<A>,
+  env: SubstanceEnv,
+): SubProg<A> => {
   const autoStmts: AutoLabel<A>[] = subProg.statements.filter(
     (s: SubStmt<A>): s is AutoLabel<A> =>
       s.tag === "AutoLabel" && s.option.tag === "LabelIDs",
   );
   const desugar = (s: AutoLabel<A>): LabelDecl<A>[] => {
     if (s.option.tag === "DefaultLabels") {
-      const vars = [...env.vars.keys()];
+      const vars = [...env.objs.keys()];
       return vars.map(labelStmt);
     } else {
       const vars = s.option.variables.map((v) => v.value);
@@ -571,16 +571,12 @@ export const sortStmts = <T>(prog: SubProg<T>): SubProg<T> => {
           return 1;
         case "Bind":
           return 2;
-        case "EqualExprs":
-          return 3;
-        case "EqualPredicates":
-          return 4;
         case "AutoLabel":
-          return 5;
+          return 3;
         case "LabelDecl":
-          return 6;
+          return 4;
         case "NoLabel":
-          return 7;
+          return 5;
       }
     },
     (s: SubStmt<T>) => prettyStmt(s),
@@ -639,8 +635,8 @@ export const cleanNode = (prog: AbstractNode): AbstractNode =>
  * @param env the environment
  * @returns
  */
-export const typeOf = (id: string, env: Env): string | undefined =>
-  env.vars.get(id)?.name.value;
+export const typeOf = (id: string, env: SubstanceEnv): string | undefined =>
+  env.objs.get(id)?.name.value;
 
 // helper function for omitting properties in an object
 const omitDeep = (originalCollection: any, excludeKeys: string[]): any => {

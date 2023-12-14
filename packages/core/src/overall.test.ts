@@ -21,7 +21,7 @@ import { State } from "./types/state.js";
 // copied from `packages/examples/src/set-theory-domain/setTheory.domain`
 const setDomain = `type Set
 
-predicate Not(Prop p1)
+predicate NotIntersecting(Set s1, Set s2)
 predicate Intersecting(Set s1, Set s2)
 predicate IsSubset(Set s1, Set s2)
 `;
@@ -55,7 +55,7 @@ where IsSubset(x, y) {
 }
 
 forall Set x; Set y
-where Not(Intersecting(x, y)) {
+where NotIntersecting(x, y) {
   ensure disjoint(x.icon, y.icon)
 }
 
