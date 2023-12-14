@@ -1,15 +1,13 @@
 import {
-  insertPending,
-  optLabelCacheToLabelCache,
-  stateToOptRenderState,
-} from "@penrose/core";
-import {
   PenroseError,
   PenroseState,
-  compile,
+  compileTrio,
+  insertPending,
   isOptimized,
+  optLabelCacheToLabelCache,
+  stateToOptRenderState,
   stepTimes,
-} from "@penrose/core/src/index.js";
+} from "@penrose/core";
 import { Req, Resp } from "./message.js";
 
 // Array of size two. First index is set if main thread wants an update,
@@ -81,12 +79,13 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
     respond({ tag: "ReadyForNewTrio" });
   } else if (data.tag === "Compile") {
     const { domain, substance, style, variation } = data;
-    const compileResult = await compile({
+    const compileResult = await compileTrio({
       domain,
       substance,
       style,
       variation,
     });
+
     if (compileResult.isErr()) {
       respondError(compileResult.error);
     } else {

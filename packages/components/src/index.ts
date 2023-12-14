@@ -1,3 +1,4 @@
+import OptimizerWorker from "../../editor/src/worker/OptimizerWorker.js";
 import Demo from "./Demo.js";
 import Embed from "./Embed.js";
 import { Grid } from "./Grid.js";
@@ -11,7 +12,6 @@ import { SetupStyleMonaco } from "./editing/languages/StyleConfig.js";
 import { SetupSubstanceMonaco } from "./editing/languages/SubstanceConfig.js";
 import fetchResolver from "./fetchPathResolver.js";
 import penroseBlue from "./themes/penroseBlue.js";
-import OptimizerWorker from "./worker/OptimizerWorker.js";
 export {
   Demo,
   EditorPane,

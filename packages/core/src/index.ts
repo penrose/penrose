@@ -291,6 +291,32 @@ export const compile = async (prog: {
   }
 };
 
+export const compileTrio = async (prog: {
+  substance: string;
+  style: string;
+  domain: string;
+  variation: string;
+  excludeWarnings?: string[];
+}): Promise<Result<State, PenroseError>> => {
+  const domainRes: Result<Env, PenroseError> = compileDomain(prog.domain);
+
+  const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
+    (env) => compileSubstance(prog.substance, env),
+    domainRes,
+  );
+
+  const styRes: Result<State, PenroseError> = subRes.isErr()
+    ? err(subRes.error)
+    : await compileStyle(
+        prog.variation,
+        prog.style,
+        prog.excludeWarnings ?? [],
+        ...subRes.value,
+      );
+
+  return styRes;
+};
+
 /**
  * Returns true if state is optimized
  * @param state current state

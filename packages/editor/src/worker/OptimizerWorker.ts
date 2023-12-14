@@ -1,6 +1,14 @@
-import { PenroseError, RenderState } from "@penrose/core";
+import {
+  PenroseError,
+  RenderState,
+  collectLabels,
+  labelCacheToOptLabelCache,
+  mathjaxInit,
+  optRenderStateToState,
+  showError,
+} from "@penrose/core";
 import consola from "consola";
-import { Req } from "./message.js";
+import { Req, Resp } from "./message.js";
 import RawWorker from "./worker.js?worker";
 
 const log = (consola as any)
@@ -11,7 +19,7 @@ export type OnUpdate = (state: RenderState) => void;
 export type OnError = (error: PenroseError) => void;
 
 export default class OptimizerWorker {
-  private worker: Worker;
+  private worker: Worker = new RawWorker();
   private svgCache: Map<string, HTMLElement> = new Map();
   private workerInitialized: boolean = false;
   private sharedMemory: Int8Array = new Int8Array();
@@ -22,61 +30,56 @@ export default class OptimizerWorker {
   private style: string = "";
   private domain: string = "";
   private variation: string = "";
-
   constructor() {
-    this.worker = new RawWorker();
     log.debug("Worker initializing...", this.worker);
     this.worker.postMessage({ tag: "Init" });
-    // this.worker.onmessage = async ({ data }: MessageEvent<Resp>) => {
-    //   log.debug("Received message: ", data);
-    //   if (data.tag === "Update") {
-    //     this.onUpdate(optRenderStateToState(data.state, this.svgCache));
-    //   } else if (data.tag === "Error") {
-    //     this.onError(data.error);
-    //   } else if (data.tag === "ReadyForNewTrio") {
-    //     this.running = true;
-    //     this.request({
-    //       tag: "Compile",
-    //       domain: this.domain,
-    //       style: this.style,
-    //       substance: this.substance,
-    //       variation: this.variation,
-    //     });
-    //   } else if (data.tag === "Finished") {
-    //     this.running = false;
-    //     this.onUpdate(optRenderStateToState(data.state, this.svgCache));
-    //   } else if (data.tag === "ReqLabelCache") {
-    //     const convert = mathjaxInit();
-    //     const labelCache = await collectLabels(data.shapes, convert);
-    //     if (labelCache.isErr()) {
-    //       throw Error(showError(labelCache.error));
-    //     }
-    //     const { optLabelCache, svgCache } = labelCacheToOptLabelCache(
-    //       labelCache.value,
-    //     );
-    //     this.svgCache = svgCache;
-    //     this.request({
-    //       tag: "RespLabelCache",
-    //       labelCache: optLabelCache,
-    //     });
-    //   } else {
-    //     // Shouldn't Happen
-    //     console.error(`Unknown Response: ${data}`);
-    //   }
-    // };
+    this.worker.onmessage = async ({ data }: MessageEvent<Resp>) => {
+      log.debug("Received message: ", data);
+      if (data.tag === "Update") {
+        this.onUpdate(optRenderStateToState(data.state, this.svgCache));
+      } else if (data.tag === "Error") {
+        this.onError(data.error);
+      } else if (data.tag === "ReadyForNewTrio") {
+        this.running = true;
+        this.request({
+          tag: "Compile",
+          domain: this.domain,
+          style: this.style,
+          substance: this.substance,
+          variation: this.variation,
+        });
+      } else if (data.tag === "Finished") {
+        this.running = false;
+        this.onUpdate(optRenderStateToState(data.state, this.svgCache));
+      } else if (data.tag === "ReqLabelCache") {
+        const convert = mathjaxInit();
+        const labelCache = await collectLabels(data.shapes, convert);
+        if (labelCache.isErr()) {
+          throw Error(showError(labelCache.error));
+        }
+        const { optLabelCache, svgCache } = labelCacheToOptLabelCache(
+          labelCache.value,
+        );
+        this.svgCache = svgCache;
+        this.request({
+          tag: "RespLabelCache",
+          labelCache: optLabelCache,
+        });
+      } else {
+        // Shouldn't Happen
+        console.error(`Unknown Response: ${data}`);
+      }
+    };
   }
-
   private request(req: Req) {
     log.debug("Sending request: ", req);
     this.worker.postMessage(req);
   }
-
   askForUpdate(onUpdate: OnUpdate, onError: OnError) {
     this.onUpdate = onUpdate;
     this.onError = onError;
     Atomics.store(this.sharedMemory, 0, 1);
   }
-
   run(
     domain: string,
     style: string,
@@ -91,7 +94,6 @@ export default class OptimizerWorker {
     this.style = style;
     this.substance = substance;
     this.variation = variation;
-
     // For some reason worker would not receive init message if this is in constructor
     if (!this.workerInitialized) {
       const sab = new SharedArrayBuffer(2);
@@ -103,7 +105,6 @@ export default class OptimizerWorker {
       this.workerInitialized = true;
       log.debug("Worker initialized");
     }
-
     if (this.running) {
       // Let worker know we want them to stop optimizing and get
       // ready to receive a new trio
@@ -120,7 +121,6 @@ export default class OptimizerWorker {
       });
     }
   }
-
   terminate() {
     this.worker.terminate();
   }
