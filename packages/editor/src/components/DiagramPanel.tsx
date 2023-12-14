@@ -175,7 +175,7 @@ const SVGaddCode = (
   variationStr: string,
 ): void => {
   // Create custom <penrose> tag to store metadata, or grab it if it already exists
-  const metadataQuery = document.querySelector("penrose");
+  const metadataQuery = svg.querySelector("penrose");
   let metadata: Element;
 
   if (metadataQuery === null) {
