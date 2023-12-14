@@ -4,8 +4,6 @@ import im from "immutable";
 import Graph from "../utils/Graph.js";
 import { ASTNode, C, Identifier } from "./ast.js";
 
-export type Var<T> = Identifier<T>;
-
 export type DomainProg<T> = ASTNode<T> & {
   tag: "DomainProg";
   statements: DomainStmt<T>[];
@@ -65,12 +63,12 @@ export type SubTypeDecl<T> = ASTNode<T> & {
 //#endregion
 
 //#region Domain context
-export interface Env {
+export interface DomainEnv {
   types: im.Map<string, Type<C>>;
   typeDecls: im.Map<string, TypeDecl<C>>;
-  functions: im.Map<string, FunctionDecl<C>>;
-  predicates: im.Map<string, PredicateDecl<C>>;
-  constructors: im.Map<string, ConstructorDecl<C>>;
+  functionDecls: im.Map<string, FunctionDecl<C>>;
+  predicateDecls: im.Map<string, PredicateDecl<C>>;
+  constructorDecls: im.Map<string, ConstructorDecl<C>>;
   subTypes: [Type<C>, Type<C>][];
   typeGraph: Graph<string>;
 }

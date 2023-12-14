@@ -5,7 +5,8 @@ import {
   compileSubstance,
   prettyStmt,
 } from "@penrose/core/dist/compiler/Substance";
-import { SubRes } from "@penrose/core/dist/types/substance";
+import { DomainEnv } from "@penrose/core/dist/types/domain";
+import { SubstanceEnv } from "@penrose/core/dist/types/substance";
 import { showError } from "@penrose/core/dist/utils/Error";
 import { describe, expect, test } from "vitest";
 import { enumerateStmtMutations } from "./Mutation.js";
@@ -40,14 +41,17 @@ predicate Bijection(Map m)
 predicate PairIn(Point, Point, Map)
 `;
 
-const getSubRes = (domainSrc: string, substanceSrc: string): SubRes => {
+const getSubRes = (
+  domainSrc: string,
+  substanceSrc: string,
+): [SubstanceEnv, DomainEnv] => {
   const envOrError = compileDomain(domainSrc);
   if (envOrError.isOk()) {
-    const env = envOrError.value;
-    const subRes = compileSubstance(substanceSrc, env);
+    const domEnv = envOrError.value;
+    const subRes = compileSubstance(substanceSrc, domEnv);
     if (subRes.isOk()) {
-      const subResult = subRes.value;
-      return subResult;
+      const subEnv = subRes.value;
+      return [subEnv, domEnv];
     } else {
       throw new Error(
         `Error when compiling the Substance program: ${showError(

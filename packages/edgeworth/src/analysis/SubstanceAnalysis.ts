@@ -13,7 +13,7 @@ import {
 } from "@penrose/core/dist/types/ast";
 import {
   ConstructorDecl,
-  Env as DomainEnv,
+  DomainEnv,
   DomainStmt,
   FunctionDecl,
   PredicateDecl,
@@ -93,9 +93,9 @@ export const argMatches = (
     const [st] = "name" in s ? findDecl(s.name.value, env) : [undefined];
     return st
       ? [
-          matchDecls(st, env.constructors, signatureArgsEqual),
-          matchDecls(st, env.predicates, signatureArgsEqual),
-          matchDecls(st, env.functions, signatureArgsEqual),
+          matchDecls(st, env.constructorDecls, signatureArgsEqual),
+          matchDecls(st, env.predicateDecls, signatureArgsEqual),
+          matchDecls(st, env.functionDecls, signatureArgsEqual),
         ].flat()
       : [];
   };
@@ -185,12 +185,12 @@ export const findDecl = (
   env: DomainEnv,
 ): [ArgStmtDecl<C> | undefined, im.Map<string, ArgStmtDecl<C>>] => {
   let match: ArgStmtDecl<C> | undefined;
-  match = env.predicates.get(stmtName);
-  if (match !== undefined) return [match, env.predicates];
-  match = env.functions.get(stmtName);
-  if (match !== undefined) return [match, env.functions];
-  match = env.constructors.get(stmtName);
-  return [match, env.constructors];
+  match = env.predicateDecls.get(stmtName);
+  if (match !== undefined) return [match, env.predicateDecls];
+  match = env.functionDecls.get(stmtName);
+  if (match !== undefined) return [match, env.functionDecls];
+  match = env.constructorDecls.get(stmtName);
+  return [match, env.constructorDecls];
 };
 
 /**

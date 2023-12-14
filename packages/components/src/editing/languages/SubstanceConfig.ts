@@ -33,9 +33,9 @@ export const SubstanceLanguageTokens = (
   const refs = {
     types: [...domainCache.types.keys()],
     functionLikes: [
-      ...domainCache.constructors.keys(),
-      ...domainCache.functions.keys(),
-      ...domainCache.predicates.keys(),
+      ...domainCache.constructorDecls.keys(),
+      ...domainCache.functionDecls.keys(),
+      ...domainCache.predicateDecls.keys(),
     ],
     control: [
       "AutoLabel",

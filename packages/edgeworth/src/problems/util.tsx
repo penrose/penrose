@@ -5,7 +5,7 @@ import {
   prettySubstance,
   showError,
 } from "@penrose/core";
-import { initEnv } from "@penrose/core/dist/compiler/Substance";
+import { initSubstanceEnv } from "@penrose/core/dist/compiler/Substance";
 import { shuffle } from "lodash";
 import { Preset } from "../examples.js";
 import {
@@ -24,12 +24,12 @@ const generateProgs = (
   const envOrError = compileDomain(domain);
   // initialize synthesizer
   if (envOrError.isOk()) {
-    const env = envOrError.value;
-    let subResult;
+    const domEnv = envOrError.value;
+    let subEnv;
     if (substance.length > 0) {
-      const subRes = compileSubstance(substance, env);
+      const subRes = compileSubstance(substance, domEnv);
       if (subRes.isOk()) {
-        subResult = subRes.value;
+        subEnv = subRes.value;
       } else {
         console.log(
           `Error when compiling the template Substance program: ${showError(
@@ -39,10 +39,10 @@ const generateProgs = (
       }
     }
     const synth = new Synthesizer(
-      env,
-      subResult === undefined ? initEnv() : subResult[0],
+      domEnv,
+      subEnv === undefined ? initSubstanceEnv() : subEnv,
       setting,
-      subResult,
+      [subEnv === undefined ? initSubstanceEnv() : subEnv, domEnv],
       seed,
     );
     let progs = synth.generateSubstances(numPrograms);

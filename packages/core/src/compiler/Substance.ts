@@ -13,7 +13,7 @@ import {
 import {
   Arg,
   ConstructorDecl,
-  Env as DomainEnv,
+  DomainEnv,
   FunctionDecl,
   Type,
 } from "../types/domain.js";
@@ -43,7 +43,6 @@ import {
   SubArgExpr,
   SubExpr,
   SubProg,
-  SubRes,
   SubStmt,
   SubstanceEnv,
   TypeApp,
@@ -101,27 +100,25 @@ export const parseSubstance = (
 export const compileSubstance = (
   prog: string,
   domEnv: DomainEnv,
-): Result<SubRes, PenroseError> => {
+): Result<SubstanceEnv, PenroseError> => {
   const astOk = parseSubstance(prog);
   if (astOk.isOk()) {
     const ast = astOk.value;
     // prepare Substance env
-    const subEnv = initEnv();
+    const subEnv = initSubstanceEnv();
     // check the substance ast and produce an env or report errors
     const checkerOk = checkSubstance(ast, domEnv, subEnv);
     return checkerOk.match({
       Ok: ({ subEnv, contents: ast }) =>
-        ok([postprocessSubstance(ast, domEnv, subEnv), domEnv]),
-      Err: (e) => {
-        return err({ ...e[0], errorType: "SubstanceError" });
-      },
+        ok(postprocessSubstance(domEnv, { ...subEnv, ast })),
+      Err: (e) => err({ ...e[0], errorType: "SubstanceError" }),
     });
   } else {
     return err({ ...astOk.error, errorType: "SubstanceError" });
   }
 };
 
-export const initEnv = (): SubstanceEnv => ({
+export const initSubstanceEnv = (): SubstanceEnv => ({
   labels: im.Map<string, LabelValue>(),
   objs: im.Map<string, Type<C>>(),
   objIds: [],
@@ -132,11 +129,9 @@ export const initEnv = (): SubstanceEnv => ({
 
 const EMPTY_LABEL: LabelValue = { value: "", type: "NoLabel" };
 
-// Put `prog` into `subEnv.ast`
 // create default labels
 // process labeling directives
 export const postprocessSubstance = (
-  prog: CompiledSubProg<A>,
   domEnv: DomainEnv,
   subEnv: SubstanceEnv,
 ): SubstanceEnv => {
@@ -144,10 +139,10 @@ export const postprocessSubstance = (
     [...subEnv.objs.keys()].map((id) => [id, EMPTY_LABEL]),
   );
   // post process all statements
-  return prog.statements.reduce(
+  return subEnv.ast.statements.reduce(
     (subEnv, stmt: CompiledSubStmt<A>) =>
       processLabelStmt(stmt, domEnv, subEnv),
-    { ...subEnv, ast: prog },
+    subEnv,
   );
 };
 
@@ -981,7 +976,7 @@ export const checkPredicate = (
 ): CheckerResult<[ApplyPredicate<A>]> => {
   const { name, args } = expr;
 
-  const decl = domEnv.predicates.get(name.value);
+  const decl = domEnv.predicateDecls.get(name.value);
 
   if (decl !== undefined) {
     const argsOk = checkArgs(
@@ -1007,7 +1002,7 @@ export const checkPredicate = (
     return err([
       typeNotFound(
         name,
-        [...domEnv.predicates.values()].map((p) => p.name),
+        [...domEnv.predicateDecls.values()].map((p) => p.name),
       ),
     ]);
   }
@@ -1020,17 +1015,17 @@ const checkFunc = (
 ): ResultWithType<ApplyConstructor<A> | ApplyFunction<A>> => {
   const fname = expr.name.value;
   let decl: ConstructorDecl<A> | FunctionDecl<A> | undefined;
-  if (domEnv.constructors.has(fname)) {
+  if (domEnv.constructorDecls.has(fname)) {
     expr = { ...expr, tag: "ApplyConstructor" };
-    decl = domEnv.constructors.get(fname);
-  } else if (domEnv.functions.has(fname)) {
+    decl = domEnv.constructorDecls.get(fname);
+  } else if (domEnv.functionDecls.has(fname)) {
     expr = { ...expr, tag: "ApplyFunction" };
-    decl = domEnv.functions.get(fname);
+    decl = domEnv.functionDecls.get(fname);
   } else {
     return err([
       typeNotFound(expr.name, [
-        ...[...domEnv.constructors.values()].map((c) => c.name),
-        ...[...domEnv.functions.values()].map((c) => c.name),
+        ...[...domEnv.constructorDecls.values()].map((c) => c.name),
+        ...[...domEnv.functionDecls.values()].map((c) => c.name),
       ]),
     ]);
   }

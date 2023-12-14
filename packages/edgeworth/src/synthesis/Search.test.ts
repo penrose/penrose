@@ -7,9 +7,10 @@ import {
   prettySubstance,
 } from "@penrose/core/dist/compiler/Substance";
 import { A } from "@penrose/core/dist/types/ast";
+import { DomainEnv } from "@penrose/core/dist/types/domain";
 import {
   CompiledSubProg as SubProg,
-  SubRes,
+  SubstanceEnv,
 } from "@penrose/core/dist/types/substance";
 import { showError } from "@penrose/core/dist/utils/Error";
 import _ from "lodash";
@@ -70,14 +71,17 @@ predicate Bijection(Map m)
 predicate PairIn(Point, Point, Map)
 `;
 
-const getSubRes = (domainSrc: string, substanceSrc: string): SubRes => {
+const getSubRes = (
+  domainSrc: string,
+  substanceSrc: string,
+): [SubstanceEnv, DomainEnv] => {
   const envOrError = compileDomain(domainSrc);
   if (envOrError.isOk()) {
-    const env = envOrError.value;
-    const subRes = compileSubstance(substanceSrc, env);
+    const domEnv = envOrError.value;
+    const subRes = compileSubstance(substanceSrc, domEnv);
     if (subRes.isOk()) {
-      const subResult = subRes.value;
-      return subResult;
+      const subEnv = subRes.value;
+      return [subEnv, domEnv];
     } else {
       throw new Error(
         `Error when compiling the Substance program: ${showError(
@@ -108,7 +112,7 @@ describe("AST diff tests", () => {
     IsSubset(D, A)
     E := Union(A, B)
     `;
-    const res1: SubRes = getSubRes(domainSrc, original);
+    const res1 = getSubRes(domainSrc, original);
     const ast1: SubProg<A> = res1[0].ast;
     const ast2: SubProg<A> = getSubRes(domainSrc, edited)[0].ast;
     const d: DiffSet = subProgDiffs(ast1, ast2);
@@ -133,7 +137,7 @@ describe("AST diff tests", () => {
     IsSubset(D, A)
     F := Union(A, B)
     `;
-    const res1: SubRes = getSubRes(domainSrc, prog1);
+    const res1 = getSubRes(domainSrc, prog1);
     const ast1: SubProg<A> = res1[0].ast;
     const ast2: SubProg<A> = getSubRes(domainSrc, prog2)[0].ast;
     const diffs: StmtDiff[] = diffSubStmts(ast1, ast2);

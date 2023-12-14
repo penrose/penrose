@@ -2,9 +2,9 @@ import nearley from "nearley";
 import { beforeEach, describe, expect, test } from "vitest";
 import grammar from "../parser/SubstanceParser.js";
 import { A, Identifier } from "../types/ast.js";
-import { Env } from "../types/domain.js";
+import { DomainEnv } from "../types/domain.js";
 import { PenroseError } from "../types/errors.js";
-import { ApplyPredicate, SubRes, SubstanceEnv } from "../types/substance.js";
+import { ApplyPredicate, SubstanceEnv } from "../types/substance.js";
 import { Result, showError, showType } from "../utils/Error.js";
 import { compileDomain } from "./Domain.js";
 import { compileSubstance, prettySubstance } from "./Substance.js";
@@ -33,14 +33,17 @@ predicate Intersecting(Set s1, Set s2)
 predicate IsSubset(Set s1, Set s2)
 `;
 
-export const envOrError = (prog: string): Env => {
+export const envOrError = (prog: string): DomainEnv => {
   const res = compileDomain(prog);
   if (res.isErr()) throw Error(showError(res.error));
   return res.value;
 };
 
-export const subEnvOrError = (prog: string, env: Env): SubRes => {
-  const res = compileSubstance(prog, env);
+export const subEnvOrError = (
+  prog: string,
+  domEnv: DomainEnv,
+): SubstanceEnv => {
+  const res = compileSubstance(prog, domEnv);
   if (res.isOk()) {
     return res.value;
   } else {
@@ -93,7 +96,7 @@ NoLabel D, E
         ["D", "", "NoLabel"],
         ["E", "", "NoLabel"],
       ];
-      const labelMap = res.value[0].labels;
+      const labelMap = res.value.labels;
       expected.forEach(([id, value, type]) => {
         const label = labelMap.get(id)!;
         expect(label.value).toEqual(value);
@@ -118,7 +121,7 @@ A := D
     const res = compileSubstance(prog, env);
     expect(res.isOk()).toBe(true);
     if (res.isOk()) {
-      hasVars(res.value[0], [["A", "Set"]]);
+      hasVars(res.value, [["A", "Set"]]);
     }
   });
   test("decl bind", () => {
@@ -134,7 +137,7 @@ Set E := Subset(B, C)
     if (res.isOk()) {
       // TODO: not caching var bindings for now. Add to checker if needed
       // expect(res.value[1].bindings.get("A")![0].name.value).toEqual("Subset");
-      hasVars(res.value[0], [
+      hasVars(res.value, [
         ["A", "Set"],
         ["E", "Set"],
         ["D", "OpenSet"],
@@ -150,7 +153,7 @@ B := AddPoint(p, B)
       `;
     const res = compileSubstance(prog, env);
     if (res.isOk()) {
-      hasVars(res.value[0], [
+      hasVars(res.value, [
         ["A", "Set"],
         ["B", "Set"],
         ["p", "Point"],
@@ -189,7 +192,7 @@ NoLabel B, C
       const res = compileSubstance(prog, env);
       expect(res.isOk()).toBe(true);
       if (res.isOk()) {
-        hasVars(res.value[0], [
+        hasVars(res.value, [
           ["a_2", "Set"],
           ["a_4", "Set"],
           ["a_6", "Set"],
@@ -205,7 +208,7 @@ NoLabel B, C
       const res1 = compileSubstance(prog1, env1);
       expect(res1.isOk()).toBe(true);
       if (res1.isOk()) {
-        expect(res1.value[0].objs.size).toBe(0);
+        expect(res1.value.objs.size).toBe(0);
       }
 
       const env2 = envOrError(domainProg);
@@ -213,7 +216,7 @@ NoLabel B, C
       const res2 = compileSubstance(prog2, env2);
       expect(res2.isOk()).toBe(true);
       if (res2.isOk()) {
-        expect(res2.value[0].objs.size).toBe(0);
+        expect(res2.value.objs.size).toBe(0);
       }
     });
 
@@ -228,7 +231,7 @@ NoLabel B, C
       expect(res.isOk()).toBe(true);
       if (res.isOk()) {
         hasVars(
-          res.value[0],
+          res.value,
           [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => [`a_${n}`, "Set"]),
         );
       }
@@ -243,7 +246,7 @@ NoLabel B, C
       const res = compileSubstance(prog, env);
       expect(res.isOk()).toBe(true);
       if (res.isOk()) {
-        const preds = res.value[0].ast.statements.filter(
+        const preds = res.value.ast.statements.filter(
           (s) => s.tag === "ApplyPredicate",
         ) as ApplyPredicate<A>[];
         expect(preds.length).toBe(5);
@@ -267,7 +270,7 @@ NoLabel B, C
 
 describe("Errors", () => {
   const expectErrorOf = (
-    result: Result<[SubstanceEnv, Env], PenroseError>,
+    result: Result<SubstanceEnv, PenroseError>,
     errorType: PenroseError["tag"],
   ) => {
     if (result.isErr()) {
@@ -501,10 +504,10 @@ NoLabel D, E`;
 
 const sameAsSource = (
   source: string,
-  res: Result<[SubstanceEnv, Env], PenroseError>,
+  res: Result<SubstanceEnv, PenroseError>,
 ) => {
   if (res.isOk()) {
-    const ast = res.value[0].ast;
+    const ast = res.value.ast;
     const strFromAST = prettySubstance(ast);
     expect(strFromAST).toEqual(source);
   } else {

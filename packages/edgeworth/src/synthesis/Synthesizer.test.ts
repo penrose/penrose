@@ -2,7 +2,7 @@
 
 import { compileDomain, compileSubstance } from "@penrose/core";
 import {
-  initEnv,
+  initSubstanceEnv,
   prettyStmt,
   prettySubstance,
 } from "@penrose/core/dist/compiler/Substance";
@@ -57,7 +57,13 @@ const initSynth = (
   if (subRes.isOk()) {
     subResult = subRes.value;
   }
-  const synth = new Synthesizer(domEnv, initEnv(), setting, subResult, "seed");
+  const synth = new Synthesizer(
+    domEnv,
+    initSubstanceEnv(),
+    setting,
+    subResult,
+    "seed",
+  );
   return synth;
 };
 

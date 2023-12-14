@@ -28,7 +28,7 @@ import {
 } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
 import { A, C, Identifier, SourceRange } from "../types/ast.js";
-import { Env as DomainEnv, Type } from "../types/domain.js";
+import { DomainEnv, Type } from "../types/domain.js";
 import {
   BinOpTypeError,
   LayerCycleWarning,
@@ -183,7 +183,7 @@ import {
   checkDecl,
   checkPredicate,
   checkVar,
-  initEnv as initSubEnv,
+  initSubstanceEnv as initSubEnv,
 } from "./Substance.js";
 import { checkShape } from "./shapeChecker/CheckShape.js";
 
@@ -315,9 +315,9 @@ const checkDeclPatterns = (
 const getDomainKeywords = (varEnv: DomainEnv): string[] => {
   const keyWordMaps = [
     varEnv.types,
-    varEnv.functions,
-    varEnv.predicates,
-    varEnv.constructors,
+    varEnv.functionDecls,
+    varEnv.predicateDecls,
+    varEnv.constructorDecls,
   ];
 
   const keywords = _.flatMap(keyWordMaps, (m) => {
@@ -907,7 +907,7 @@ const matchStyApplyToSubApply = (
 
     // Consider the symmetric, flipped-argument version
     let rSubstSymmetric = undefined;
-    const predicateDecl = varEnv.predicates.get(subRel.name.value);
+    const predicateDecl = varEnv.predicateDecls.get(subRel.name.value);
     if (predicateDecl && predicateDecl.symmetric) {
       // Flip arguments
       const flippedStyArgs = [styRel.args[1], styRel.args[0]];

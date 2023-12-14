@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import { numsOf } from "../lib/Utils.js";
 import { C } from "../types/ast.js";
 import { Either } from "../types/common.js";
-import { Env } from "../types/domain.js";
+import { DomainEnv } from "../types/domain.js";
 import { PenroseError } from "../types/errors.js";
 import { State } from "../types/state.js";
 import {
@@ -23,7 +23,7 @@ import {
 } from "../types/styleSemantics.js";
 import { SubstanceEnv } from "../types/substance.js";
 import { ColorV, RGBA } from "../types/value.js";
-import { Result, andThen, err, showError } from "../utils/Error.js";
+import { Result, showError } from "../utils/Error.js";
 import Graph from "../utils/Graph.js";
 import { GroupGraph } from "../utils/GroupGraph.js";
 import { ToRight, foldM, toLeft, zip2 } from "../utils/Util.js";
@@ -57,8 +57,8 @@ export const loadProgs = async ({
       )}`,
     );
   };
-  const env: Env = compileDomain(dsl).unwrapOrElse(throwErr);
-  const [subEnv, varEnv]: [SubstanceEnv, Env] = compileSubstance(
+  const env: DomainEnv = compileDomain(dsl).unwrapOrElse(throwErr);
+  const [subEnv, varEnv]: [SubstanceEnv, DomainEnv] = compileSubstance(
     sub,
     env,
   ).unwrapOrElse(throwErr);
@@ -779,23 +779,30 @@ predicate IsSubset(Set s1, Set s2)
     // We test variations on this Style program
     // const styPath = "set-theory-domain/venn.style";
 
-    const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+    const domRes: Result<DomainEnv, PenroseError> = compileDomain(domainProg);
 
-    const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
-      (env) => compileSubstance(subProg, env),
-      domainRes,
+    if (domRes.isErr()) {
+      throw new Error("Domain compilation should not fail");
+    }
+
+    const subRes: Result<SubstanceEnv, PenroseError> = compileSubstance(
+      subProg,
+      domRes.value,
     );
+
+    if (subRes.isErr()) {
+      throw new Error("Substance compilation should not fail");
+    }
 
     const testStyProgForError = async (styProg: string, errorType: string) => {
       let preamble = errorType.startsWith("Canvas") ? "" : canvasPreamble;
-      const styRes: Result<State, PenroseError> = subRes.isErr()
-        ? err(subRes.error)
-        : await S.compileStyle(
-            "Style compiler errors test seed",
-            preamble + styProg,
-            [],
-            ...subRes.value,
-          );
+      const styRes: Result<State, PenroseError> = await S.compileStyle(
+        "Style compiler errors test seed",
+        preamble + styProg,
+        [],
+        subRes.value,
+        domRes.value,
+      );
       expectErrorOf(styRes, errorType);
     };
 

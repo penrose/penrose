@@ -1,8 +1,7 @@
 import im from "immutable";
 import { A, ASTNode, Identifier, StringLit } from "./ast.js";
-import { Env, Type } from "./domain.js";
+import { Type } from "./domain.js";
 
-export type SubRes = [SubstanceEnv, Env];
 export type LabelMap = im.Map<string, LabelValue>;
 export interface SubstanceEnv {
   objs: im.Map<string, Type<A>>;

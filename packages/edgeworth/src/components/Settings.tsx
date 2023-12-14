@@ -195,15 +195,15 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
           },
           constructors: {
             tag: "Constructor",
-            values: [wildcardType, ...result.value.constructors.keys()],
+            values: [wildcardType, ...result.value.constructorDecls.keys()],
           },
           functions: {
             tag: "Function",
-            values: [wildcardType, ...result.value.functions.keys()],
+            values: [wildcardType, ...result.value.functionDecls.keys()],
           },
           predicates: {
             tag: "Predicate",
-            values: [wildcardType, ...result.value.predicates.keys()],
+            values: [wildcardType, ...result.value.predicateDecls.keys()],
           },
         },
       });

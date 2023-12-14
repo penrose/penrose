@@ -8,7 +8,7 @@ import {
   Identifier,
   metaProps,
 } from "@penrose/core/dist/types/ast";
-import { Env as DomainEnv } from "@penrose/core/dist/types/domain";
+import { DomainEnv } from "@penrose/core/dist/types/domain";
 import {
   LabelOption,
   SubExpr,

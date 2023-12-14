@@ -8,7 +8,7 @@ import { A, Identifier } from "@penrose/core/dist/types/ast";
 import {
   Arg,
   ConstructorDecl,
-  Env as DomainEnv,
+  DomainEnv,
   DomainStmt,
   FunctionDecl,
   PredicateDecl,
@@ -23,7 +23,6 @@ import {
   Decl,
   SubArgExpr,
   CompiledSubProg as SubProg,
-  SubRes,
   CompiledSubStmt as SubStmt,
   SubstanceEnv,
   TypeApp,
@@ -188,18 +187,18 @@ export const filterContext = (
       domEnv: {
         ...ctx.domEnv,
         types: filterDecls(ctx.domEnv.types, setting.type, subTypes.type),
-        functions: filterDecls(
-          ctx.domEnv.functions,
+        functionDecls: filterDecls(
+          ctx.domEnv.functionDecls,
           setting.function,
           subTypes.function,
         ),
-        predicates: filterDecls(
-          ctx.domEnv.predicates,
+        predicateDecls: filterDecls(
+          ctx.domEnv.predicateDecls,
           setting.predicate,
           subTypes.predicate,
         ),
-        constructors: filterDecls(
-          ctx.domEnv.constructors,
+        constructorDecls: filterDecls(
+          ctx.domEnv.constructorDecls,
           setting.constructor,
           subTypes.constructor,
         ),
@@ -212,9 +211,15 @@ export const filterContext = (
       domEnv: {
         ...ctx.domEnv,
         types: filterDecls(ctx.domEnv.types, setting.type),
-        functions: filterDecls(ctx.domEnv.functions, setting.function),
-        predicates: filterDecls(ctx.domEnv.predicates, setting.predicate),
-        constructors: filterDecls(ctx.domEnv.constructors, setting.constructor),
+        functionDecls: filterDecls(ctx.domEnv.functionDecls, setting.function),
+        predicateDecls: filterDecls(
+          ctx.domEnv.predicateDecls,
+          setting.predicate,
+        ),
+        constructorDecls: filterDecls(
+          ctx.domEnv.constructorDecls,
+          setting.constructor,
+        ),
       },
     };
   }
@@ -223,9 +228,9 @@ export const filterContext = (
 export const showEnv = (env: DomainEnv): string =>
   [
     `types: ${[...env.types.keys()]}`,
-    `predicates: ${[...env.predicates.keys()]}`,
-    `functions: ${[...env.functions.keys()]}`,
-    `constructors: ${[...env.constructors.keys()]}`,
+    `predicates: ${[...env.predicateDecls.keys()]}`,
+    `functions: ${[...env.functionDecls.keys()]}`,
+    `constructors: ${[...env.constructorDecls.keys()]}`,
   ].join("\n");
 
 const getDecls = (
@@ -237,11 +242,11 @@ const getDecls = (
     case "TypeDecl":
       return env.typeDecls;
     case "ConstructorDecl":
-      return env.constructors;
+      return env.constructorDecls;
     case "FunctionDecl":
-      return env.functions;
+      return env.functionDecls;
     case "PredicateDecl":
-      return env.predicates;
+      return env.predicateDecls;
     case undefined:
       return im.Map<string, DomainStmt<A>>();
   }
@@ -383,7 +388,7 @@ export class Synthesizer {
     domEnv: DomainEnv,
     subEnv: SubstanceEnv,
     setting: SynthesizerSetting,
-    subRes?: SubRes,
+    subRes?: [SubstanceEnv, DomainEnv],
     seed = "synthesizerSeed",
   ) {
     // If there is a template substance program, load in the relevant info
@@ -746,7 +751,7 @@ export class Synthesizer {
         ctx,
         (ctx: SynthesisContext) => {
           const pred = this.choice(
-            ctx.domEnv.predicates.toArray().map(([, b]) => b),
+            ctx.domEnv.predicateDecls.toArray().map(([, b]) => b),
           );
           const { res, stmts, ctx: newCtx } = generatePredicate(pred, ctx);
           return {
@@ -761,7 +766,7 @@ export class Synthesizer {
         ctx,
         (ctx: SynthesisContext) => {
           const func = this.choice(
-            ctx.domEnv.functions.toArray().map(([, b]) => b),
+            ctx.domEnv.functionDecls.toArray().map(([, b]) => b),
           );
           const { res, stmts, ctx: newCtx } = generateFunction(func, ctx);
           return {
@@ -776,7 +781,7 @@ export class Synthesizer {
         ctx,
         (ctx: SynthesisContext) => {
           const cons = this.choice(
-            ctx.domEnv.constructors.toArray().map(([, b]) => b),
+            ctx.domEnv.constructorDecls.toArray().map(([, b]) => b),
           );
           const { res, stmts, ctx: newCtx } = generateConstructor(cons, ctx);
           return {

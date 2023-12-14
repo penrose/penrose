@@ -1,7 +1,7 @@
 import nearley from "nearley";
 import { beforeEach, describe, expect, test } from "vitest";
 import grammar from "../parser/DomainParser.js";
-import { Env } from "../types/domain.js";
+import { DomainEnv } from "../types/domain.js";
 import { PenroseError } from "../types/errors.js";
 import { Result, showError } from "../utils/Error.js";
 import { compileDomain, isSubtype } from "./Domain.js";
@@ -9,14 +9,19 @@ import { compileDomain, isSubtype } from "./Domain.js";
 const printError = false;
 
 const contextHas = (
-  res: Result<Env, PenroseError>,
+  res: Result<DomainEnv, PenroseError>,
   expectedTypes: string[],
   expectedConstructors: string[],
   expectedFunctions: string[],
   expectedPredicates: string[],
 ) => {
   if (res.isOk()) {
-    const { types, constructors, functions, predicates } = res.value;
+    const {
+      types,
+      constructorDecls: constructors,
+      functionDecls: functions,
+      predicateDecls: predicates,
+    } = res.value;
     expectedTypes.forEach((t) => expect(types.has(t)).toBe(true));
     expectedConstructors.forEach((c) => expect(constructors.has(c)).toBe(true));
     expectedFunctions.forEach((f) => expect(functions.has(f)).toBe(true));
@@ -143,13 +148,15 @@ symmetric predicate MyExcellentPredicate2(MySubType, MySubType)
     expect(res.isOk()).toEqual(true);
     if (res.isOk()) {
       let env = res.value;
-      expect(env.predicates.get("MyNormalPredicate")!.symmetric).toEqual(false);
-      expect(env.predicates.get("MyExcellentPredicate1")!.symmetric).toEqual(
-        true,
+      expect(env.predicateDecls.get("MyNormalPredicate")!.symmetric).toEqual(
+        false,
       );
-      expect(env.predicates.get("MyExcellentPredicate2")!.symmetric).toEqual(
-        true,
-      );
+      expect(
+        env.predicateDecls.get("MyExcellentPredicate1")!.symmetric,
+      ).toEqual(true);
+      expect(
+        env.predicateDecls.get("MyExcellentPredicate2")!.symmetric,
+      ).toEqual(true);
     }
   });
 });
