@@ -1,11 +1,4 @@
-import {
-  PenroseState,
-  isOptimized,
-  showError,
-  stepTimes,
-  toInteractiveSVG,
-  toSVG,
-} from "@penrose/core";
+import { RenderShapes, showError } from "@penrose/core";
 import localforage from "localforage";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
@@ -13,7 +6,6 @@ import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
 import { optimize } from "svgo";
 import { v4 as uuid } from "uuid";
 import {
-  Diagram,
   DiagramMetadata,
   ProgramFile,
   RogerState,
@@ -22,6 +14,7 @@ import {
   diagramMetadataSelector,
   diagramState,
   fileContentsSelector,
+  optimizer,
   workspaceMetadataSelector,
 } from "../state/atoms.js";
 import BlueButton from "./BlueButton.js";
@@ -285,7 +278,8 @@ export default function DiagramPanel() {
   const [diagram, setDiagram] = useRecoilState(diagramState);
   const { state, error, warnings, metadata } = diagram;
   const [showEasterEgg, setShowEasterEgg] = useState(false);
-  const { interactive } = useRecoilValue(diagramMetadataSelector);
+  // TODO: bring back interactive mode
+  // const { interactive } = useRecoilValue(diagramMetadataSelector);
   const workspace = useRecoilValue(workspaceMetadataSelector);
   const rogerState = useRecoilValue(currentRogerState);
 
@@ -295,25 +289,28 @@ export default function DiagramPanel() {
     const cur = canvasRef.current;
     if (state !== null && cur !== null) {
       (async () => {
+        const { canvas, shapes, labelCache, variation } = state;
         // render the current frame
-        const rendered = interactive
-          ? await toInteractiveSVG(
-              state,
-              (newState: PenroseState) => {
-                setDiagram({
-                  ...diagram,
-                  state: newState,
-                });
-                step();
-              },
-              (path) => pathResolver(path, rogerState, workspace),
-              "diagramPanel",
-            )
-          : await toSVG(
-              state,
-              (path) => pathResolver(path, rogerState, workspace),
-              "diagramPanel",
-            );
+        const rendered = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "svg",
+        );
+        rendered.setAttribute("version", "1.2");
+        rendered.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        rendered.setAttribute(
+          "viewBox",
+          `0 0 ${canvas.width} ${canvas.height}`,
+        );
+
+        await RenderShapes(shapes, rendered, {
+          labels: labelCache,
+          canvasSize: canvas.size,
+          variation,
+          namespace: "editor",
+          texLabels: false,
+          pathResolver: (path: string) =>
+            pathResolver(path, rogerState, workspace),
+        });
         rendered.setAttribute("width", "100%");
         rendered.setAttribute("height", "100%");
         if (cur.firstElementChild) {
@@ -336,21 +333,21 @@ export default function DiagramPanel() {
 
   const step = () => {
     if (state) {
-      if (!isOptimized(state) && metadata.autostep) {
-        const stepResult = stepTimes(state, metadata.stepSize);
-        if (stepResult.isErr()) {
-          setDiagram({
-            ...diagram,
-            error: stepResult.error,
-          });
-        } else {
+      optimizer.askForUpdate(
+        (state) => {
           setDiagram({
             ...diagram,
             error: null,
-            state: stepResult.value,
+            state,
           });
-        }
-      }
+        },
+        (error) => {
+          setDiagram({
+            ...diagram,
+            error,
+          });
+        },
+      );
     }
   };
 
@@ -384,37 +381,38 @@ export default function DiagramPanel() {
 
   // download an svg with raw TeX labels
   const downloadSvgTex = useRecoilCallback(({ snapshot }) => async () => {
-    if (canvasRef.current !== null) {
-      const { state } = snapshot.getLoadable(diagramState).contents as Diagram;
-      if (state !== null) {
-        const svg = await toSVG(
-          state,
-          (path) => pathResolver(path, rogerState, workspace),
-          "diagramPanel",
-          true,
-        );
-        const metadata = snapshot.getLoadable(workspaceMetadataSelector)
-          .contents as WorkspaceMetadata;
-        const diagram = snapshot.getLoadable(diagramMetadataSelector)
-          .contents as DiagramMetadata;
-        const domain = snapshot.getLoadable(fileContentsSelector("domain"))
-          .contents as ProgramFile;
-        const substance = snapshot.getLoadable(
-          fileContentsSelector("substance"),
-        ).contents as ProgramFile;
-        const style = snapshot.getLoadable(fileContentsSelector("style"))
-          .contents as ProgramFile;
-        DownloadSVG(
-          svg,
-          metadata.name,
-          domain.contents,
-          substance.contents,
-          style.contents,
-          metadata.editorVersion.toString(),
-          diagram.variation,
-        );
-      }
-    }
+    // TODO: revert
+    // if (canvasRef.current !== null) {
+    //   const { state } = snapshot.getLoadable(diagramState).contents as Diagram;
+    //   if (state !== null) {
+    //     const svg = await toSVG(
+    //       state,
+    //       (path) => pathResolver(path, rogerState, workspace),
+    //       "diagramPanel",
+    //       true,
+    //     );
+    //     const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+    //       .contents as WorkspaceMetadata;
+    //     const diagram = snapshot.getLoadable(diagramMetadataSelector)
+    //       .contents as DiagramMetadata;
+    //     const domain = snapshot.getLoadable(fileContentsSelector("domain"))
+    //       .contents as ProgramFile;
+    //     const substance = snapshot.getLoadable(
+    //       fileContentsSelector("substance"),
+    //     ).contents as ProgramFile;
+    //     const style = snapshot.getLoadable(fileContentsSelector("style"))
+    //       .contents as ProgramFile;
+    //     DownloadSVG(
+    //       svg,
+    //       metadata.name,
+    //       domain.contents,
+    //       substance.contents,
+    //       style.contents,
+    //       metadata.editorVersion.toString(),
+    //       diagram.variation,
+    //     );
+    //   }
+    // }
   });
 
   const downloadPng = useRecoilCallback(({ snapshot }) => async () => {

@@ -3,8 +3,8 @@ import {
   compileDomain,
   Env,
   PenroseError,
-  PenroseState,
   PenroseWarning,
+  RenderState,
 } from "@penrose/core";
 import { PathResolver, Trio, TrioMeta } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
@@ -293,7 +293,7 @@ export type DiagramMetadata = {
 };
 
 export type Diagram = {
-  state: PenroseState | null;
+  state: RenderState | null;
   error: PenroseError | null;
   warnings: PenroseWarning[];
   metadata: DiagramMetadata;

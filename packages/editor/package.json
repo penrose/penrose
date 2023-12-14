@@ -61,7 +61,8 @@
     "recoil": "^0.7.3-alpha.2",
     "styled-components": "^5.3.5",
     "svgo": "^3.0.2",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "vite-plugin-cross-origin-isolation": "^0.1.6"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.182",

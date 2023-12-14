@@ -344,7 +344,7 @@ export const RenderShape = async (
   }
 };
 
-const RenderShapes = async (
+export const RenderShapes = async (
   shapes: Shape<number>[],
   svg: SVGSVGElement,
   renderProps: RenderProps,

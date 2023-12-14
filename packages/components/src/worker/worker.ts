@@ -74,8 +74,11 @@ const optimize = (state: PenroseState) => {
 };
 
 onmessage = async ({ data }: MessageEvent<Req>) => {
+  console.log("Received message: ", data);
+
   if (data.tag === "Init") {
     sharedMemory = new Int8Array(data.sharedMemory);
+    respond({ tag: "ReadyForNewTrio" });
   } else if (data.tag === "Compile") {
     const { domain, substance, style, variation } = data;
     const compileResult = await compile({
@@ -107,3 +110,5 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
     console.error(`Unknown request: `, data);
   }
 };
+
+console.log("worker loaded");
