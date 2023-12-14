@@ -457,15 +457,6 @@ describe("Compiler", () => {
     expect(foldM([1, 2, 3, 4], sum, -1)).toEqual(toLeft("error"));
   });
 
-  const xs = ["a", "b", "c"];
-  test("numbered", () => {
-    expect(S.numbered(xs)).toEqual([
-      ["a", 0],
-      ["b", 1],
-      ["c", 2],
-    ]);
-  });
-
   test("Correct Style programs", () => {
     const dsl = "type Object";
     const sub = "Object o";

@@ -202,10 +202,6 @@ const LABEL_FIELD: Field = "label";
 const dummyId = (name: string): Identifier<A> =>
   dummyIdentifier(name, "SyntheticStyle");
 
-export function numbered<A>(xs: A[]): [A, number][] {
-  return zip2(xs, _.range(xs.length));
-}
-
 const safeContentsList = <T>(x: { contents: T[] } | undefined): T[] =>
   x ? x.contents : [];
 
@@ -238,69 +234,6 @@ const addDiags = <T extends { diagnostics: StyleDiagnostics }>(
     warnings: x.diagnostics.warnings.concat(warnings),
   },
 });
-
-//#endregion
-
-//#region Some code for prettyprinting
-
-const ppExpr = (e: SelExpr<A>): string => {
-  switch (e.tag) {
-    case "SelVar": {
-      return e.contents.contents.value;
-    }
-    case "SEFunc":
-    case "SEValCons":
-    case "SEFuncOrValCons": {
-      const args = e.args.map(ppExpr);
-      return `${e.name.value}(${args})`;
-    }
-  }
-};
-
-const ppRelArg = (r: SelArgExpr<A>): string => {
-  return ppExpr(r);
-};
-
-const ppRelBind = (r: RelBind<A>): string => {
-  const expr = ppExpr(r.expr);
-  return `${r.id.contents.value} := ${expr}`;
-};
-
-const ppRelPred = (r: RelPred<A>): string => {
-  const args = r.args.map(ppRelArg).join(", ");
-  const name = r.name.value;
-  return `${name}(${args})`;
-};
-const ppRelField = (r: RelField<A>): string => {
-  const name = r.name.contents.value;
-  const field = r.field.value;
-  const fieldDesc = r.fieldDescriptor;
-  if (!fieldDesc) return `${name} has ${field}`;
-  else {
-    switch (fieldDesc) {
-      case "MathLabel":
-        return `${name} has math ${field}`;
-      case "TextLabel":
-        return `${name} has text ${field}`;
-      case "NoLabel":
-        return `${name} has empty ${field}`;
-    }
-  }
-};
-
-export const ppRel = (r: RelationPattern<A>): string => {
-  switch (r.tag) {
-    case "RelBind": {
-      return ppRelBind(r);
-    }
-    case "RelPred": {
-      return ppRelPred(r);
-    }
-    case "RelField": {
-      return ppRelField(r);
-    }
-  }
-};
 
 //#endregion
 
@@ -362,7 +295,6 @@ const checkDeclPattern = (
   }
 };
 
-// `checkDeclPatterns` w/o error-checking, just addMapping for StyVars and SubVars
 const checkDeclPatterns = (
   decls: DeclPattern<A>[],
   domEnv: DomainEnv,
@@ -499,7 +431,6 @@ const checkRelPattern = (
   }
 };
 
-// Judgment 5. G |- [|S_r] ok
 const checkRelPatterns = (
   rels: RelationPattern<A>[],
   domEnv: DomainEnv,
@@ -564,7 +495,6 @@ const checkCollector = (domEnv: DomainEnv, col: Collector<A>): SelectorEnv => {
   return relErrs;
 };
 
-// ported from `checkPair`, `checkSel`, and `checkNamespace`
 const checkHeader = (varEnv: DomainEnv, header: Header<A>): SelectorEnv => {
   switch (header.tag) {
     case "Selector": {
