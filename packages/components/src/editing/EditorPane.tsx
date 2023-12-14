@@ -1,5 +1,6 @@
 import MonacoEditor, { useMonaco } from "@monaco-editor/react";
-import { Env, errLocs, showError } from "@penrose/core";
+import { errLocs, showError } from "@penrose/core";
+import { DomainEnv } from "@penrose/core/dist/types/domain";
 import {
   DomainError,
   RuntimeError,
@@ -67,7 +68,7 @@ export default function EditorPane({
   vimMode: boolean;
   onChange(value: string): void;
   languageType: "substance" | "style" | "domain";
-  domainCache: Env | null;
+  domainCache: DomainEnv | null;
   readOnly?: boolean;
   /// In vim mode, this is called when the user calls :w
   onWrite?: () => void;

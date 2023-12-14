@@ -17,7 +17,8 @@ import {
   styled,
 } from "@material-ui/core";
 import { Listing } from "@penrose/components";
-import { Env, compileDomain, showError } from "@penrose/core";
+import { compileDomain, showError } from "@penrose/core";
+import { DomainEnv } from "@penrose/core/dist/types/domain";
 import c04p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c04p01.substance";
 import React from "react";
 import Latex from "react-latex-next";
@@ -103,7 +104,7 @@ interface SettingState {
   currentTab: number;
   domainSelect: string;
   presetSelect: string;
-  env?: Env;
+  env?: DomainEnv;
 }
 
 const SettingContainer = styled(Box)({

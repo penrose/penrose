@@ -57,13 +57,10 @@ export const loadProgs = async ({
       )}`,
     );
   };
-  const env: DomainEnv = compileDomain(dsl).unwrapOrElse(throwErr);
-  const [subEnv, varEnv]: [SubstanceEnv, DomainEnv] = compileSubstance(
-    sub,
-    env,
-  ).unwrapOrElse(throwErr);
+  const domEnv = compileDomain(dsl).unwrapOrElse(throwErr);
+  const subEnv = compileSubstance(sub, domEnv).unwrapOrElse(throwErr);
   return (
-    await S.compileStyleHelper("styletests", sty, subEnv, varEnv)
+    await S.compileStyleHelper("styletests", sty, subEnv, domEnv)
   ).unwrapOrElse(throwErr);
 };
 

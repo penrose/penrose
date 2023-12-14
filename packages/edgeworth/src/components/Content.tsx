@@ -158,7 +158,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
           domEnv,
           subEnv === undefined ? initSubstanceEnv() : subEnv,
           setting,
-          [subEnv === undefined ? initSubstanceEnv() : subEnv, domEnv],
+          subEnv === undefined ? undefined : [subEnv, domEnv],
           seed,
         );
         let progs = synth.generateSubstances(numPrograms);

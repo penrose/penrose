@@ -31,7 +31,7 @@ const generateProgs = (
       if (subRes.isOk()) {
         subEnv = subRes.value;
       } else {
-        console.log(
+        console.error(
           `Error when compiling the template Substance program: ${showError(
             subRes.error,
           )}`,
@@ -42,7 +42,7 @@ const generateProgs = (
       domEnv,
       subEnv === undefined ? initSubstanceEnv() : subEnv,
       setting,
-      [subEnv === undefined ? initSubstanceEnv() : subEnv, domEnv],
+      subEnv === undefined ? undefined : [subEnv, domEnv],
       seed,
     );
     let progs = synth.generateSubstances(numPrograms);

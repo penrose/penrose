@@ -371,7 +371,7 @@ export { makeCanvas, simpleContext } from "./shapes/Samplers.js";
 export type { Canvas } from "./shapes/Samplers.js";
 export { sampleShape, shapeTypes } from "./shapes/Shapes.js";
 export type { ShapeType } from "./shapes/Shapes.js";
-export type { DomainEnv as Env } from "./types/domain.js";
+export type { DomainEnv } from "./types/domain.js";
 export type {
   PenroseError,
   Warning as PenroseWarning,

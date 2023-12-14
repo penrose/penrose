@@ -187,6 +187,11 @@ export const filterContext = (
       domEnv: {
         ...ctx.domEnv,
         types: filterDecls(ctx.domEnv.types, setting.type, subTypes.type),
+        typeDecls: filterDecls(
+          ctx.domEnv.typeDecls,
+          setting.type,
+          subTypes.type,
+        ),
         functionDecls: filterDecls(
           ctx.domEnv.functionDecls,
           setting.function,
@@ -211,6 +216,7 @@ export const filterContext = (
       domEnv: {
         ...ctx.domEnv,
         types: filterDecls(ctx.domEnv.types, setting.type),
+        typeDecls: filterDecls(ctx.domEnv.typeDecls, setting.type),
         functionDecls: filterDecls(ctx.domEnv.functionDecls, setting.function),
         predicateDecls: filterDecls(
           ctx.domEnv.predicateDecls,
@@ -393,8 +399,8 @@ export class Synthesizer {
   ) {
     // If there is a template substance program, load in the relevant info
     if (subRes) {
-      const [subEnv, env] = subRes;
-      this.domEnv = env;
+      const [subEnv, domEnv] = subRes;
+      this.domEnv = domEnv;
       this.subEnv = subEnv;
       this.template = _.cloneDeep(subEnv.ast);
       log.debug(`Loaded template:\n${prettySubstance(this.template)}`);

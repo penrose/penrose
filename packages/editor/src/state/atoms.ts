@@ -1,6 +1,6 @@
 import {
   compileDomain,
-  Env,
+  DomainEnv,
   PenroseError,
   PenroseState,
   PenroseWarning,
@@ -264,7 +264,7 @@ export const workspaceMetadataSelector = selector<WorkspaceMetadata>({
   },
 });
 
-export const domainCacheState = selector<Env | null>({
+export const domainCacheState = selector<DomainEnv | null>({
   key: "domainCache",
   get: ({ get }) => {
     const domainProgram = get(fileContentsSelector("domain")).contents;

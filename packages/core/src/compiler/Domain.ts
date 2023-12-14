@@ -166,7 +166,7 @@ const checkStmt = (stmt: DomainStmt<C>, env: DomainEnv): CheckerResult => {
       // insert constructor into env
       const updatedEnv: CheckerResult = ok({
         ...env,
-        constructors: env.constructorDecls.set(name.value, stmt),
+        constructorDecls: env.constructorDecls.set(name.value, stmt),
       });
       return everyResult(argsOk, outputOk, updatedEnv);
     }
@@ -184,7 +184,7 @@ const checkStmt = (stmt: DomainStmt<C>, env: DomainEnv): CheckerResult => {
       // insert function into env
       const updatedEnv: CheckerResult = ok({
         ...env,
-        functions: env.functionDecls.set(name.value, stmt),
+        functionDecls: env.functionDecls.set(name.value, stmt),
       });
       return everyResult(argsOk, outputOk, updatedEnv);
     }
@@ -199,7 +199,7 @@ const checkStmt = (stmt: DomainStmt<C>, env: DomainEnv): CheckerResult => {
       // insert predicate into env
       const updatedEnv: CheckerResult = ok({
         ...env,
-        predicates: env.predicateDecls.set(name.value, stmt),
+        predicateDecls: env.predicateDecls.set(name.value, stmt),
       });
       return everyResult(argsOk, argsOk, updatedEnv);
     }
