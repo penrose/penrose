@@ -2,7 +2,6 @@ import im from "immutable";
 import { describe, expect, test } from "vitest";
 import { numsOf } from "../lib/Utils.js";
 import { C } from "../types/ast.js";
-import { Either } from "../types/common.js";
 import { DomainEnv } from "../types/domain.js";
 import { PenroseError } from "../types/errors.js";
 import { State } from "../types/state.js";
@@ -26,7 +25,7 @@ import { ColorV, RGBA } from "../types/value.js";
 import { Result, showError } from "../utils/Error.js";
 import Graph from "../utils/Graph.js";
 import { GroupGraph } from "../utils/GroupGraph.js";
-import { ToRight, foldM, toLeft, zip2 } from "../utils/Util.js";
+import { zip2 } from "../utils/Util.js";
 import { compileDomain } from "./Domain.js";
 import * as S from "./Style.js";
 import { compileSubstance } from "./Substance.js";
@@ -438,21 +437,6 @@ describe("Compiler", () => {
   //     expect(res).toEqual(expected);
   //   }
   // });
-
-  const sum = (acc: number, n: number, i: number): Either<string, number> =>
-    i > 2 ? toLeft("error") : ToRight(acc + n);
-
-  test("S.foldM none", () => {
-    expect(foldM([], sum, -1)).toEqual(ToRight(-1));
-  });
-
-  test("S.foldM right", () => {
-    expect(foldM([1, 2, 3], sum, -1)).toEqual(ToRight(5));
-  });
-
-  test("S.foldM left", () => {
-    expect(foldM([1, 2, 3, 4], sum, -1)).toEqual(toLeft("error"));
-  });
 
   test("Correct Style programs", () => {
     const dsl = "type Object";
