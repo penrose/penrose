@@ -62,6 +62,7 @@ export type SubstanceError =
   | DivideByZeroError
   | InvalidArithmeticValueError
   | UnsupportedIndexingError
+  | DeclLiteralError
   | FatalError; // TODO: resolve all fatal errors in the Substance module
 
 export type DomainError =
@@ -71,7 +72,8 @@ export type DomainError =
   | DuplicateName
   | CyclicSubtypes
   | SymmetricTypeMismatch
-  | SymmetricArgLengthMismatch;
+  | SymmetricArgLengthMismatch
+  | OutputLiteralError;
 
 export interface SymmetricTypeMismatch {
   tag: "SymmetricTypeMismatch";
@@ -80,6 +82,11 @@ export interface SymmetricTypeMismatch {
 
 export interface SymmetricArgLengthMismatch {
   tag: "SymmetricArgLengthMismatch";
+  sourceExpr: AbstractNode;
+}
+
+export interface OutputLiteralError {
+  tag: "OutputLiteralError";
   sourceExpr: AbstractNode;
 }
 
@@ -116,6 +123,12 @@ export interface InvalidArithmeticValueError {
 export interface UnsupportedIndexingError {
   tag: "UnsupportedIndexingError";
   iset: StmtSet<A>;
+}
+
+export interface DeclLiteralError {
+  tag: "DeclLiteralError";
+  location: AbstractNode;
+  type: TypeApp<A>;
 }
 
 export interface CyclicSubtypes {

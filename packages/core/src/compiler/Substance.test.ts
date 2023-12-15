@@ -266,6 +266,23 @@ NoLabel B, C
       }
     });
   });
+  test("numbers and strings", () => {
+    const domain = `
+    type Set
+    predicate ContainsNum(Set, Number)
+    predicate ContainsStr(Set, String)
+    `;
+    const prog = `
+    Set A, B
+    ContainsNum(A, 100)
+    ContainsStr(B, "BBBB")
+        `;
+    const env = envOrError(domain);
+    const subEnv = subEnvOrError(prog, env);
+    ["A", "B", "{#100}", "{BBBB}"].forEach((name) =>
+      expect(subEnv.objs.get(name)).toBeDefined(),
+    );
+  });
 });
 
 describe("Errors", () => {

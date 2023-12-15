@@ -83,6 +83,7 @@ constructor CreateClosedInterval(Real left, Real right) -> ClosedInterval
     const res = compileDomain(prog);
     const types = [
       "String",
+      "Number",
       "List",
       "Real",
       "Interval",
@@ -159,6 +160,15 @@ symmetric predicate MyExcellentPredicate2(MySubType, MySubType)
       ).toEqual(true);
     }
   });
+  test("builtin types", () => {
+    const prog = `type Set
+    predicate ContainsStr(Set s, String str)
+    predicate ContainsNum(Set s, Number num)`;
+
+    const res = compileDomain(prog);
+    const predicates = ["ContainsStr", "ContainsNum"];
+    contextHas(res, ["String", "Number", "Set"], [], [], predicates);
+  });
 });
 
 describe("Errors", () => {
@@ -183,6 +193,13 @@ type Set
 type Point
 type Set
     `;
+    expectErrorOf(prog, "DuplicateName");
+  });
+  test("Duplicating builtin types", () => {
+    const prog = `type Set
+type Number
+type String`;
+
     expectErrorOf(prog, "DuplicateName");
   });
   test("Type not found", () => {

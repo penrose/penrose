@@ -59,7 +59,29 @@ export type SelectorEnv = SubstanceEnv & {
 // A substitution θ has form [y → x], binding Sty vars to Sub vars (currently not expressions).
 // COMBAK: In prev grammar, the key was `StyVar`, but here it gets stringified
 // TODO: make this an `im.Map`
-export type Subst = { [k: string]: string };
+export type Subst = { [k: string]: SubstanceObject };
+
+export type SubstanceObject = SubstanceVar | SubstanceLiteral;
+
+export type SubstanceVar = {
+  tag: "SubstanceVar";
+  name: string;
+};
+
+export type SubstanceLiteral = {
+  tag: "SubstanceLiteral";
+  contents: SubstanceNumber | SubstanceString;
+};
+
+export type SubstanceNumber = {
+  tag: "SubstanceNumber";
+  contents: number;
+};
+
+export type SubstanceString = {
+  tag: "SubstanceString";
+  contents: string;
+};
 
 export type StySubSubst = {
   tag: "StySubSubst";
@@ -70,7 +92,7 @@ export type CollectionSubst = {
   tag: "CollectionSubst";
   groupby: Subst;
   collName: string;
-  collContent: string[];
+  collContent: SubstanceObject[];
 };
 
 export type StySubst = StySubSubst | CollectionSubst;

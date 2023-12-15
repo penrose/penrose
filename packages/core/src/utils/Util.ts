@@ -1,5 +1,6 @@
 import _ from "lodash";
 import seedrandom from "seedrandom";
+import { toLiteralName } from "../compiler/Substance.js";
 import { isConcrete } from "../engine/EngineUtils.js";
 import { LineProps } from "../shapes/Line.js";
 import { Shape, ShapeType } from "../shapes/Shapes.js";
@@ -14,6 +15,7 @@ import {
   LocalVarSubst,
   ResolvedName,
   ResolvedPath,
+  SubstanceObject,
   WithContext,
 } from "../types/styleSemantics.js";
 import {
@@ -736,6 +738,12 @@ export const rectlikeT = (): UnionT =>
 
 //#region Style
 
+export const getSubNameFromSubObject = (lit: SubstanceObject) => {
+  if (lit.tag === "SubstanceVar") {
+    return lit.name;
+  } else return toLiteralName(lit.contents.contents);
+};
+
 export const resolveRhsName = (
   { block, subst, locals }: Context,
   name: BindingForm<A>,
@@ -748,9 +756,17 @@ export const resolveRhsName = (
         return { tag: "Local", block, name: value };
       } else if (subst.tag === "StySubSubst" && value in subst.contents) {
         // selector match names shadow globals
-        return { tag: "Substance", block, name: subst.contents[value] };
+        return {
+          tag: "Substance",
+          block,
+          name: getSubNameFromSubObject(subst.contents[value]),
+        };
       } else if (subst.tag === "CollectionSubst" && value in subst.groupby) {
-        return { tag: "Substance", block, name: subst.groupby[value] };
+        return {
+          tag: "Substance",
+          block,
+          name: getSubNameFromSubObject(subst.groupby[value]),
+        };
       } else {
         // couldn't find it in context, must be a glboal
         return { tag: "Global", block, name: value };
@@ -762,8 +778,42 @@ export const resolveRhsName = (
   }
 };
 
-const resolveRhsPath = (p: WithContext<Path<A>>): ResolvedPath<A> => {
-  const { name, members } = p.expr; // drop `indices`
+const resolveRhsPath = (
+  p: WithContext<Path<A>>,
+): ResolvedPath<A> | FloatV<ad.Num> | StrV => {
+  const { name, members, indices } = p.expr; // drop `indices`
+
+  const { subst } = p.context;
+
+  // special handling so that if a Style variable maps to a Substance literal,
+  // then accessing it just gives the value.
+  if (members.length === 0 && indices.length === 0) {
+    if (subst.tag === "StySubSubst" && name.contents.value in subst.contents) {
+      const subObj = subst.contents[name.contents.value];
+      if (subObj.tag === "SubstanceLiteral") {
+        if (subObj.contents.tag === "SubstanceNumber") {
+          return floatV(subObj.contents.contents);
+        } else {
+          return strV(subObj.contents.contents);
+        }
+      }
+    }
+
+    if (
+      subst.tag === "CollectionSubst" &&
+      name.contents.value in subst.groupby
+    ) {
+      const subObj = subst.groupby[name.contents.value];
+      if (subObj.tag === "SubstanceLiteral") {
+        if (subObj.contents.tag === "SubstanceNumber") {
+          return floatV(subObj.contents.contents);
+        } else {
+          return strV(subObj.contents.contents);
+        }
+      }
+    }
+  }
+
   return { ...resolveRhsName(p.context, name), members };
 };
 

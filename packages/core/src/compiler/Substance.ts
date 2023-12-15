@@ -8,6 +8,7 @@ import {
   AbstractNode,
   C,
   Identifier,
+  StringLit,
   location,
 } from "../types/ast.js";
 import {
@@ -36,8 +37,10 @@ import {
   LabelMap,
   LabelOption,
   LabelValue,
+  LiteralSubExpr,
   NoLabel,
   NumExpr,
+  NumberConstant,
   Stmt,
   StmtSet,
   SubArgExpr,
@@ -62,7 +65,14 @@ import {
   varNotFound,
 } from "../utils/Error.js";
 import { cartesianProduct, zip2 } from "../utils/Util.js";
-import { checkType, isSubtype, stringType, toDomType } from "./Domain.js";
+import {
+  checkType,
+  isLiteralType,
+  isSubtype,
+  numberType,
+  stringType,
+  toDomType,
+} from "./Domain.js";
 
 export const parseSubstance = (
   prog: string,
@@ -122,6 +132,7 @@ export const initSubstanceEnv = (): SubstanceEnv => ({
   labels: im.Map<string, LabelValue>(),
   objs: im.Map<string, Type<C>>(),
   objIds: [],
+  literals: [],
   ast: { tag: "SubProg", nodeType: "Substance", statements: [] },
 });
 
@@ -129,12 +140,16 @@ export const initSubstanceEnv = (): SubstanceEnv => ({
 
 const EMPTY_LABEL: LabelValue = { value: "", type: "NoLabel" };
 
+// recreate all literals as plain objects
 // create default labels
 // process labeling directives
 export const postprocessSubstance = (
   domEnv: DomainEnv,
   subEnv: SubstanceEnv,
 ): SubstanceEnv => {
+  subEnv = recreateLiterals(domEnv, subEnv);
+  console.log([...subEnv.objs.keys()]);
+
   subEnv.labels = im.Map(
     [...subEnv.objs.keys()].map((id) => [id, EMPTY_LABEL]),
   );
@@ -144,6 +159,60 @@ export const postprocessSubstance = (
       processLabelStmt(stmt, domEnv, subEnv),
     subEnv,
   );
+};
+
+const recreateLiterals = (
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
+): SubstanceEnv => {
+  return subEnv.literals.reduce(
+    (subEnv, literal) => recreateLiteral(literal, domEnv, subEnv),
+    subEnv,
+  );
+};
+
+export const toLiteralName = (literal: string | number) => {
+  if (typeof literal === "string") {
+    return `{${literal}}`;
+  } else {
+    return `{#${literal.toString()}}`;
+  }
+};
+
+const recreateLiteral = (
+  literal: LiteralSubExpr<A>,
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
+): SubstanceEnv => {
+  const lit = literal.contents;
+  const name =
+    lit.tag === "StringLit"
+      ? toLiteralName(lit.contents)
+      : toLiteralName(lit.value);
+  const type = lit.tag === "StringLit" ? stringType : numberType;
+  const id: Identifier<A> = {
+    tag: "Identifier",
+    nodeType: "SyntheticSubstance",
+    type: "value",
+    value: name,
+  };
+  return {
+    ...subEnv,
+    objIds: [...subEnv.objIds, id],
+    objs: subEnv.objs.set(name, type),
+    ast: {
+      ...subEnv.ast,
+      statements: [
+        ...subEnv.ast.statements,
+        {
+          tag: "Decl",
+          type: toSubType(type),
+          nodeType: "SyntheticSubstance",
+          name: id,
+        },
+      ],
+    },
+  };
 };
 
 const processLabelStmt = (
@@ -775,15 +844,33 @@ const substISetNoLabel = (
   });
 };
 
+const checkTypeApp = (
+  t: TypeApp<A>,
+  domEnv: DomainEnv,
+  allowLiteralType: boolean = false,
+): Result<undefined, SubstanceError> => {
+  if (!allowLiteralType && isLiteralType(toDomType(t))) {
+    return err({
+      tag: "DeclLiteralError",
+      location: t,
+      type: t,
+    });
+  } else {
+    return checkType(toDomType(t), domEnv).andThen(() => ok(undefined));
+  }
+};
+
 export const checkDecl = (
   stmt: Decl<A>,
   domEnv: DomainEnv,
   subEnv: SubstanceEnv,
+  allowLiteralType: boolean = false,
 ): CheckerResult<Decl<A>[]> => {
   const decl = stmt;
   const { type, name: nameId } = decl;
   // check type constructor
-  const typeOk = checkType(toDomType(type), domEnv);
+  const typeOk = checkTypeApp(type, domEnv, allowLiteralType);
+  // need to make sure that the types are not built-in types
   if (typeOk.isErr()) return err([typeOk.error]);
 
   return createVars(type, [nameId], subEnv, decl);
@@ -796,7 +883,7 @@ const checkDeclISet = (
 ): CheckerResult<Decl<A>[]> => {
   const { stmt: decl, iset } = stmtSet;
   const { type, name: uncompiledNameId } = decl;
-  const typeOk = checkType(toDomType(type), domEnv);
+  const typeOk = checkTypeApp(type, domEnv);
   if (typeOk.isErr()) return err([typeOk.error]);
 
   const isetSubstsResult = evalISet(iset);
@@ -825,7 +912,7 @@ const checkDeclList = (
   const { type, names: nameIds } = declList;
 
   // check type constructor
-  const typeOk = checkType(toDomType(type), domEnv);
+  const typeOk = checkTypeApp(type, domEnv);
   if (typeOk.isErr()) {
     return err([typeOk.error]);
   }
@@ -840,7 +927,7 @@ const checkDeclListISet = (
 ): CheckerResult<Decl<A>[]> => {
   const { stmt: declList, iset } = stmtSet;
   const { type, names: uncompiledNameIds } = declList;
-  const typeOk = checkType(toDomType(type), domEnv);
+  const typeOk = checkTypeApp(type, domEnv);
   if (typeOk.isErr()) return err([typeOk.error]);
 
   const isetSubstsResult = evalISet(iset);
@@ -912,10 +999,11 @@ export const checkBind = (
   stmt: Bind<A>,
   domEnv: DomainEnv,
   subEnv: SubstanceEnv,
+  allowUndeclaredVarToLiteral: boolean = false,
 ): CheckerResult<Bind<A>[]> => {
   const { variable, expr } = stmt;
   const varOk = checkVar(variable, domEnv, subEnv);
-  const exprOk = checkExpr(expr, domEnv, subEnv);
+  const exprOk = checkExpr(expr, domEnv, subEnv, allowUndeclaredVarToLiteral);
   // check bind type
   return subtypeOf(exprOk, varOk, domEnv).andThen(
     ({ subEnv, contents: [e, v] }) => {
@@ -973,6 +1061,7 @@ export const checkPredicate = (
   expr: ApplyPredicate<A>,
   domEnv: DomainEnv,
   subEnv: SubstanceEnv,
+  allowUndeclaredVarToLiteral: boolean = false,
 ): CheckerResult<[ApplyPredicate<A>]> => {
   const { name, args } = expr;
 
@@ -985,11 +1074,12 @@ export const checkPredicate = (
       { givenExpr: expr, expectedExpr: decl, name },
       domEnv,
       subEnv,
+      allowUndeclaredVarToLiteral,
     );
 
     return argsOk.andThen((r) =>
       ok({
-        subEnv,
+        subEnv: r.subEnv,
         contents: [
           {
             ...expr,
@@ -1012,6 +1102,7 @@ const checkFunc = (
   expr: Func<A> | ApplyFunction<A> | ApplyConstructor<A>,
   domEnv: DomainEnv,
   subEnv: SubstanceEnv,
+  allowUndeclaredVarToLiteral: boolean = false,
 ): ResultWithType<ApplyConstructor<A> | ApplyFunction<A>> => {
   const fname = expr.name.value;
   let decl: ConstructorDecl<A> | FunctionDecl<A> | undefined;
@@ -1044,16 +1135,15 @@ const checkFunc = (
       },
       domEnv,
       subEnv,
+      allowUndeclaredVarToLiteral,
     );
 
-    const outputOk = argsOk
-      .andThen((r) =>
-        ok({
-          ...newExpr,
-          args: r.contents,
-        }),
-      )
-      .andThen((r) => withType(subEnv, output.type, r));
+    const outputOk = argsOk.andThen((r) =>
+      withType(r.subEnv, output.type, {
+        ...newExpr,
+        args: r.contents,
+      }),
+    );
 
     return outputOk;
   } else {
@@ -1071,6 +1161,7 @@ export const checkArgs = (
   },
   domEnv: DomainEnv,
   subEnv: SubstanceEnv,
+  allowUndeclaredVarToLiteral: boolean = false,
 ): CheckerResult<SubArgExpr<A>[]> => {
   if (actualArgs.length !== expectedArgs.length) {
     return err([
@@ -1088,18 +1179,27 @@ export const checkArgs = (
 
   const argsOk = safeChain<
     [SubArgExpr<A>, Arg<A>],
-    SubArgExpr<A>[],
+    WithEnv<SubArgExpr<A>[]>,
     SubstanceError[]
   >(
     argPairs,
     ([actual, expected], args) =>
-      matchArg(actual, expected, domEnv, subEnv).andThen((res) =>
-        ok([...args, res.contents]),
+      matchArg(
+        actual,
+        expected,
+        domEnv,
+        subEnv,
+        allowUndeclaredVarToLiteral,
+      ).andThen((res) =>
+        ok({
+          subEnv: res.subEnv,
+          contents: [...args.contents, res.contents],
+        }),
       ),
-    ok(contents),
+    ok({ subEnv, contents }),
   );
 
-  return argsOk.andThen((args) => ok({ subEnv, contents: args }));
+  return argsOk;
 };
 
 const checkLabelDecl = (
@@ -1215,14 +1315,15 @@ export const checkExpr = (
   expr: SubExpr<A>,
   domEnv: DomainEnv,
   subEnv: SubstanceEnv,
+  allowUndeclaredVarToLiteral: boolean = false,
 ): ResultWithType<SubExpr<A>> => {
   switch (expr.tag) {
     case "Func":
-      return checkFunc(expr, domEnv, subEnv);
+      return checkFunc(expr, domEnv, subEnv, allowUndeclaredVarToLiteral);
     case "ApplyFunction":
-      return checkFunc(expr, domEnv, subEnv); // NOTE: the parser technically doesn't output this type, put in for completeness
+      return checkFunc(expr, domEnv, subEnv, allowUndeclaredVarToLiteral); // NOTE: the parser technically doesn't output this type, put in for completeness
     case "ApplyConstructor":
-      return checkFunc(expr, domEnv, subEnv); // NOTE: the parser technically doesn't output this type, put in for completeness
+      return checkFunc(expr, domEnv, subEnv, allowUndeclaredVarToLiteral); // NOTE: the parser technically doesn't output this type, put in for completeness
     default:
       return checkSubArgExpr(expr, domEnv, subEnv);
   }
@@ -1236,8 +1337,35 @@ export const checkSubArgExpr = (
   switch (expr.tag) {
     case "Identifier":
       return checkVar(expr, domEnv, subEnv);
-    case "StringLit":
-      return ok({ type: stringType, subEnv, contents: expr });
+    case "LiteralSubExpr":
+      return checkLiteralSubExpr(expr, domEnv, subEnv);
+  }
+};
+
+export const checkLiteralSubExpr = (
+  expr: LiteralSubExpr<A>,
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
+): ResultWithType<LiteralSubExpr<A>> => {
+  if (expr.contents.tag === "StringLit") {
+    // add it to the list of literals
+    return ok({
+      type: stringType,
+      subEnv: {
+        ...subEnv,
+        literals: [...subEnv.literals, expr],
+      },
+      contents: expr,
+    });
+  } else {
+    return ok({
+      type: numberType,
+      subEnv: {
+        ...subEnv,
+        literals: [...subEnv.literals, expr],
+      },
+      contents: expr,
+    });
   }
 };
 
@@ -1272,11 +1400,44 @@ const matchArg = (
   arg: Arg<A>,
   domEnv: DomainEnv,
   subEnv: SubstanceEnv,
+  allowUndeclaredVarToLiteral: boolean = false,
 ): CheckerResult<SubArgExpr<A>> => {
   // check and get the type of the expression
-  const exprOk: ResultWithType<SubExpr<A>> = checkExpr(expr, domEnv, subEnv);
+  const exprOk: ResultWithType<SubArgExpr<A>> = checkSubArgExpr(
+    expr,
+    domEnv,
+    subEnv,
+  );
+
+  // Since Style compiler uses Substance checker
+  // and we allow undeclared variables to literals
+  // we add this special check
+
+  // If we allow undeclared variables that refer to literals
+  if (exprOk.isErr() && allowUndeclaredVarToLiteral) {
+    const allErrorTags = exprOk.error.map((e) => e.tag);
+    // If there is only one error and that error is due to an undeclared variable
+    if (allErrorTags.length === 1 && allErrorTags[0] === "VarNotFound") {
+      // if the expression is really a variable
+      if (expr.tag === "Identifier") {
+        // if we are expecting to see a literal type
+        if (isLiteralType(arg.type)) {
+          // then just infer that this variable has the literal type!
+          return ok({
+            subEnv: {
+              ...subEnv,
+              objIds: [...subEnv.objIds, expr],
+              objs: subEnv.objs.set(expr.value, arg.type),
+            },
+            contents: expr,
+          });
+        }
+      }
+    }
+  }
+
   // check against the formal argument
-  const argSubstOk = exprOk.andThen(({ type }) =>
+  const argSubstOk = exprOk.andThen(({ subEnv, type }) =>
     substituteArg(toSubType(type), arg.type, expr, arg, domEnv, subEnv),
   );
   // if everything checks out, return env as a formality
@@ -1446,12 +1607,20 @@ const prettyLabelOpt = (opt: LabelOption<A>): string => {
 export const prettyVar = (v: Identifier<A>): string => {
   return v.value;
 };
+
+const prettyLiteralSubExpr = (e: NumberConstant<A> | StringLit<A>): string => {
+  if (e.tag === "NumberConstant") {
+    return e.value.toString();
+  } else {
+    return e.contents;
+  }
+};
 const prettyExpr = (expr: SubExpr<A>): string => {
   switch (expr.tag) {
     case "Identifier":
       return prettyVar(expr);
-    case "StringLit":
-      return expr.contents;
+    case "LiteralSubExpr":
+      return prettyLiteralSubExpr(expr.contents);
     case "ApplyFunction":
     case "Func":
     case "ApplyConstructor": {

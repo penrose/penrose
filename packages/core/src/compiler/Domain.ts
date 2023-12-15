@@ -93,9 +93,33 @@ export const stringTypeDecl: TypeDecl<C> = {
   superTypes: [],
 };
 
+export const numberType: Type<C> = {
+  start: { line: 1, col: 1 },
+  end: { line: 1, col: 1 },
+  nodeType: "Substance",
+  tag: "Type",
+  name: idOf("Number", "Domain"),
+};
+export const numberTypeDecl: TypeDecl<C> = {
+  ...numberType,
+  tag: "TypeDecl",
+  superTypes: [],
+};
+
 /* Built in types for all Domain programs */
-const builtinTypes: [string, Type<C>][] = [["String", stringType]];
-const builtinTypeDecls: [string, TypeDecl<C>][] = [["String", stringTypeDecl]];
+const builtinTypes: [string, Type<C>][] = [
+  ["String", stringType],
+  ["Number", numberType],
+];
+const builtinTypeDecls: [string, TypeDecl<C>][] = [
+  ["String", stringTypeDecl],
+  ["Number", numberTypeDecl],
+];
+
+export const isLiteralType = (t: Type<A>) => {
+  const name = t.name.value;
+  return name === "String" || name === "Number";
+};
 
 const initEnv = (): DomainEnv => ({
   types: im.Map(builtinTypes),
@@ -162,7 +186,7 @@ const checkStmt = (stmt: DomainStmt<C>, env: DomainEnv): CheckerResult => {
       // check arguments
       const argsOk = safeChain(args, checkArg, ok(localEnv));
       // check output
-      const outputOk = checkArg(output, localEnv);
+      const outputOk = checkOutput(output, localEnv);
       // insert constructor into env
       const updatedEnv: CheckerResult = ok({
         ...env,
@@ -180,7 +204,7 @@ const checkStmt = (stmt: DomainStmt<C>, env: DomainEnv): CheckerResult => {
       // check arguments
       const argsOk = safeChain(args, checkArg, ok(localEnv));
       // check output
-      const outputOk = checkArg(output, localEnv);
+      const outputOk = checkOutput(output, localEnv);
       // insert function into env
       const updatedEnv: CheckerResult = ok({
         ...env,
@@ -206,8 +230,9 @@ const checkStmt = (stmt: DomainStmt<C>, env: DomainEnv): CheckerResult => {
     case "SubTypeDecl": {
       const { subType, superType } = stmt;
       const subOk = checkType(subType, env);
+      const supOk = checkNonLiteralType(superType, env);
       const updatedEnv = addSubtype(subType, superType, env);
-      return everyResult(subOk, updatedEnv);
+      return everyResult(subOk, supOk, updatedEnv);
     }
   }
 };
@@ -253,6 +278,20 @@ export const toDomType = <T>(typeApp: TypeApp<T>): Type<T> => {
 
 const checkArg = (arg: Arg<C>, env: DomainEnv): CheckerResult =>
   checkType(arg.type, env);
+
+const checkNonLiteralType = (type: Type<C>, env: DomainEnv): CheckerResult => {
+  if (isLiteralType(type)) {
+    return err({
+      tag: "OutputLiteralError",
+      sourceExpr: type,
+    });
+  } else {
+    return checkType(type, env);
+  }
+};
+
+const checkOutput = (output: Arg<C>, env: DomainEnv): CheckerResult =>
+  checkNonLiteralType(output.type, env);
 
 /**
  * Check if all arguments to this symmetric predicate have the same type, and there are only two arguments

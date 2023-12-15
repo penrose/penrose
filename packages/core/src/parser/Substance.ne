@@ -9,7 +9,7 @@ import moo from "moo";
 import _ from 'lodash'
 import { optional, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil.js'
 import { C, ConcreteNode, Identifier, StringLit } from "../types/ast.js";
-import { IndexSet, RangeAssign, Range, NumberConstant, BinaryExpr, UnaryExpr, ComparisonExpr, BooleanExpr, BinaryBooleanExpr, UnaryBooleanExpr, BooleanConstant, SubProg, SubStmt, Decl, DeclList, Bind, DeclBind, ApplyPredicate, Func, TypeApp, LabelDecl, NoLabel, AutoLabel, LabelOption } from "../types/substance.js";
+import { IndexSet, RangeAssign, Range, NumberConstant, BinaryExpr, UnaryExpr, ComparisonExpr, BooleanExpr, BinaryBooleanExpr, UnaryBooleanExpr, BooleanConstant, SubProg, SubStmt, Decl, DeclList, Bind, DeclBind, ApplyPredicate, Func, TypeApp, LabelDecl, NoLabel, AutoLabel, LabelOption, LiteralSubExpr } from "../types/substance.js";
 
 
 // NOTE: ordering matters here. Top patterns get matched __first__
@@ -212,7 +212,25 @@ sub_expr
 
 sub_arg_expr
   -> identifier {% id %}
-  |  string_lit {% id %}
+  |  literal_sub_expr {% id %}
+
+literal_sub_expr
+  -> string_lit {% 
+      ([sl]): LiteralSubExpr<C> => ({
+        ...nodeData,
+        ...rangeFrom([sl]),
+        tag: "LiteralSubExpr",
+        contents: sl
+      }) 
+    %}
+   | number {%
+      ([num]): LiteralSubExpr<C> => ({
+        ...nodeData,
+        ...rangeFrom([num]),
+        tag: "LiteralSubExpr",
+        contents: num
+      }) 
+   %}
 
 # NOTE: generic func type for consturction, predicate, or function
 func -> identifier _ "(" _ sepEndBy[sub_arg_expr, ","] _ ")" {%
