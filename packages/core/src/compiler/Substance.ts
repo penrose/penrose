@@ -188,6 +188,12 @@ const recreateLiteral = (
     lit.tag === "StringLit"
       ? toLiteralName(lit.contents)
       : toLiteralName(lit.value);
+
+  // if it already exists, for uniqueness sake, don't recreate it again!
+  if (subEnv.objs.get(name) !== undefined) {
+    return subEnv;
+  }
+
   const type = lit.tag === "StringLit" ? stringType : numberType;
   const id: Identifier<A> = {
     tag: "Identifier",

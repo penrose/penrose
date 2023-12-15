@@ -250,4 +250,30 @@ symmetric predicate MyBadPredicate(MyType, MyType, MyType)
     `;
     expectErrorOf(prog, "SymmetricArgLengthMismatch");
   });
+
+  test("builtin literal types", () => {
+    const prog1 = `
+type Set
+type Number
+type String`;
+    expectErrorOf(prog1, "DuplicateName");
+
+    const prog2 = `
+type Set
+Set <: Number
+    `;
+    expectErrorOf(prog2, "SubOrSuperLiteralTypeError");
+
+    const prog3 = `
+type Set
+String <: Set
+    `;
+    expectErrorOf(prog3, "SubOrSuperLiteralTypeError");
+
+    const prog4 = `
+type Set
+function F(Set s) -> String
+    `;
+    expectErrorOf(prog4, "OutputLiteralTypeError");
+  });
 });

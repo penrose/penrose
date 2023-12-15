@@ -182,7 +182,7 @@ import {
   vectorV,
   zip2,
 } from "../utils/Util.js";
-import { isSubtype, stringType } from "./Domain.js";
+import { isSubtype, numberType, stringType } from "./Domain.js";
 import { callCompFunc, callObjConstrFunc } from "./StyleFunctionCaller.js";
 import {
   checkBind,
@@ -586,7 +586,33 @@ const toSubExpr = <T>(e: SelExpr<T>): SubExpr<T> => {
 };
 
 const toSubArgExpr = <T>(a: SelArgExpr<T>): SubArgExpr<T> => {
-  return a.contents.contents;
+  if (a.tag === "SelVar") {
+    return a.contents.contents;
+  } else {
+    // literal
+    const lit = a.contents;
+    if (lit.tag === "Fix") {
+      return {
+        ...lit,
+        tag: "LiteralSubExpr",
+        contents: {
+          ...lit,
+          tag: "NumberConstant",
+          value: lit.contents,
+        },
+      };
+    } else {
+      return {
+        ...lit,
+        tag: "LiteralSubExpr",
+        contents: {
+          ...lit,
+          tag: "StringLit",
+          value: lit.contents,
+        },
+      };
+    }
+  }
 };
 
 // Convert Style predicate to Substance predicate (for ease of comparison in matching)
@@ -874,8 +900,6 @@ const matchStyArgToSubArg = (
     } else {
       const lit = subArg.contents;
       if (lit.tag === "StringLit") {
-        const litStr = lit.contents;
-
         const subArgType = stringType;
 
         if (styBForm.tag === "StyVar") {
@@ -891,9 +915,7 @@ const matchStyArgToSubArg = (
           return [];
         }
       } else {
-        const litNum = lit.value;
-
-        const subArgType = stringType;
+        const subArgType = numberType;
 
         if (styBForm.tag === "StyVar") {
           if (isSubtype(subArgType, styArgType, domEnv)) {
@@ -909,10 +931,34 @@ const matchStyArgToSubArg = (
         }
       }
     }
-  }
+  } else {
+    const selLit = styArg.contents;
 
-  // later we will support string literals and numbers directly as Selector expressions.
-  return [];
+    if (subArg.tag === "LiteralSubExpr") {
+      const subLit = subArg.contents;
+      if (selLit.tag === "Fix" && subLit.tag === "NumberConstant") {
+        const selV = selLit.contents;
+        const subV = subLit.value;
+        if (selV === subV) {
+          return [{}];
+        } else {
+          return [];
+        }
+      } else if (selLit.tag === "StringLit" && subLit.tag === "StringLit") {
+        const selV = selLit.contents;
+        const subV = subLit.contents;
+        if (selV === subV) {
+          return [{}];
+        } else {
+          return [];
+        }
+      } else {
+        return [];
+      }
+    } else {
+      return [];
+    }
+  }
 };
 
 /**
@@ -1151,10 +1197,16 @@ const getStyPredOrFuncOrConsArgNames = (
     return getStyRelArgNames(arg);
   } else if (arg.tag === "SelVar") {
     return im.Set<string>().add(toString(arg.contents));
-  } else {
+  } else if (
+    arg.tag === "SEFunc" ||
+    arg.tag === "SEFuncOrValCons" ||
+    arg.tag === "SEValCons"
+  ) {
     return arg.args.reduce((argNames, arg) => {
       return argNames.union(getStyPredOrFuncOrConsArgNames(arg));
     }, im.Set<string>());
+  } else {
+    return im.Set<string>();
   }
 };
 
@@ -2110,7 +2162,7 @@ const findPathsWithContext = <T>({
 
 const resolveRhsPath = (
   p: WithContext<Path<C>>,
-): ResolvedPath<C> | FloatV<number> | StrV => {
+): ResolvedPath<C> | FloatV<number> | StrV | VectorV<number> => {
   const { start, end, name, members, indices } = p.expr;
   const { subst } = p.context;
   // special handling so that if a Style variable maps to a Substance literal,
@@ -2139,6 +2191,40 @@ const resolveRhsPath = (
       } else {
         if (subObj.attached !== undefined) {
           return substanceLiteralToValue(subObj.attached);
+        }
+      }
+    }
+
+    if (
+      subst.tag === "CollectionSubst" &&
+      name.contents.value === subst.collName
+    ) {
+      const subObjs = subst.collContent;
+      // If each object is either a literal or has an attached literal
+      if (
+        subObjs.every(
+          (subObj) =>
+            subObj.tag === "SubstanceLiteral" || subObj.attached !== undefined,
+        )
+      ) {
+        const lits = subObjs.map((subObj) => {
+          if (subObj.tag === "SubstanceLiteral") {
+            return substanceLiteralToValue(subObj);
+          } else {
+            // we know subObj.attached exists
+            // because of the previous if condition
+            // see comment above
+            return substanceLiteralToValue(subObj.attached!);
+          }
+        });
+
+        if (lits.every((lit) => lit.tag === "FloatV")) {
+          return {
+            tag: "VectorV",
+            // This is okay because everything in `lits` is FloatV
+            // as in the guard
+            contents: lits.map((lit) => lit.contents as number),
+          };
         }
       }
     }
@@ -2906,7 +2992,11 @@ const evalExpr = (
     }
     case "Path": {
       const resolvedPath = resolveRhsPath({ context, expr });
-      if (resolvedPath.tag === "FloatV" || resolvedPath.tag === "StrV") {
+      if (
+        resolvedPath.tag === "FloatV" ||
+        resolvedPath.tag === "StrV" ||
+        resolvedPath.tag === "VectorV"
+      ) {
         return ok(val(resolvedPath));
       }
       const path = prettyPrintResolvedPath(resolvedPath);
@@ -3102,15 +3192,22 @@ const evalNameOf = (
   if (arg.value in s) {
     const m = s[arg.value];
     if (m.tag === "SubstanceVar") {
-      return ok(val(strV(m.name)));
+      const attached = m.attached;
+      if (attached) {
+        if (attached.contents.tag === "SubstanceNumber") {
+          return ok(val(strV(attached.contents.contents.toString())));
+        } else {
+          return ok(val(strV(attached.contents.contents)));
+        }
+      } else {
+        return ok(val(strV(m.name)));
+      }
     } else {
-      return err(
-        oneErr({
-          tag: "StyleVariableReferToLiteralError",
-          location: loc,
-          name: arg.value,
-        }),
-      );
+      if (m.contents.tag === "SubstanceNumber") {
+        return ok(val(strV(m.contents.contents.toString())));
+      } else {
+        return ok(val(strV(m.contents.contents)));
+      }
     }
   } else {
     return err(oneErr(notStyleVariableError(arg.value, loc)));

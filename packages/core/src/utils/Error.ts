@@ -192,6 +192,18 @@ export const showError = (
         sourceExpr,
       )} must only have two arguments.`;
     }
+    case "OutputLiteralTypeError": {
+      const { type, location } = error;
+      return `The type ${type.name.value} (at ${loc(
+        location,
+      )}) is a built-in literal type that cannot be used as outputs of functions and constructors.`;
+    }
+    case "SubOrSuperLiteralTypeError": {
+      const { type, location } = error;
+      return `The type ${type.name.value} (at ${loc(
+        location,
+      )}) is a built-in literal type that cannot be sub-typed or super-typed.`;
+    }
     case "TypeMismatch": {
       const { sourceExpr, sourceType, expectedExpr, expectedType } = error;
       return `The type of the expression at ${loc(sourceExpr)} '${showType(
@@ -243,6 +255,12 @@ export const showError = (
       return `Indexing on expressions of type ${iset.stmt.tag} (at ${loc(
         iset,
       )}) is not supported`;
+    }
+    case "DeclLiteralError": {
+      const { location, type } = error;
+      return `Objects of built-in literal type ${type.name.value} (at ${loc(
+        location,
+      )}) cannot be declared explicitly; they can only be inferred from literal data in Substance.`;
     }
 
     // ---- BEGIN STYLE ERRORS
@@ -555,6 +573,12 @@ canvas {
       return `The expression at ${locStr} expects \`${name}\` to be a non-collection style variable.`;
     }
 
+    case "StyleVariableReferToLiteralError": {
+      const { name, location } = error;
+      const locStr = locc("Style", location);
+      return `The expression at ${locStr} expects \`${name}\` to refer to an actual Substance variable, not a literal.`;
+    }
+
     case "LayerOnNonShapesError": {
       const { location, expr } = error;
       const locStr = locc("Style", location);
@@ -629,10 +653,6 @@ canvas {
     case "Fatal": {
       return `FATAL: ${error.message}`;
     }
-
-    default: {
-      return error.tag;
-    }
   }
 };
 
@@ -685,6 +705,10 @@ export const errLocs = (
     case "ArgLengthMismatch": {
       return locOrNone(e.sourceExpr);
     }
+    case "OutputLiteralTypeError":
+    case "SubOrSuperLiteralTypeError": {
+      return locOrNone(e.location);
+    }
     case "InvalidSetIndexingError":
     case "BadSetIndexRangeError":
     case "DuplicateIndexError":
@@ -694,6 +718,9 @@ export const errLocs = (
     }
     case "UnsupportedIndexingError": {
       return locOrNone(e.iset);
+    }
+    case "DeclLiteralError": {
+      return locOrNone(e.location);
     }
 
     // ---- BEGIN STYLE ERRORS
@@ -838,6 +865,7 @@ export const errLocs = (
     case "RedeclareNamespaceError":
     case "NotSubstanceCollectionError":
     case "NotStyleVariableError":
+    case "StyleVariableReferToLiteralError":
     case "LayerOnNonShapesError": {
       return [
         toErrorLoc({
@@ -875,10 +903,6 @@ export const errLocs = (
     // ----- END STYLE WARNINGS
 
     case "Fatal": {
-      return [];
-    }
-
-    default: {
       return [];
     }
   }

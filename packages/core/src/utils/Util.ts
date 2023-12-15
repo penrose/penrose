@@ -862,12 +862,14 @@ const prettyPrintResolvedName = ({
 };
 
 export const prettyPrintResolvedPath = (
-  p: ResolvedPath<A> | FloatV<number> | StrV,
+  p: ResolvedPath<A> | FloatV<number> | StrV | VectorV<number>,
 ): string => {
   if (p.tag === "FloatV") {
     return p.contents.toString();
   } else if (p.tag === "StrV") {
     return p.contents;
+  } else if (p.tag === "VectorV") {
+    return `[${p.contents.map((n) => n.toString()).join(",")}]`;
   } else
     return [prettyPrintResolvedName(p), ...p.members.map((m) => m.value)].join(
       ".",

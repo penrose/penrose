@@ -73,7 +73,8 @@ export type DomainError =
   | CyclicSubtypes
   | SymmetricTypeMismatch
   | SymmetricArgLengthMismatch
-  | OutputLiteralError;
+  | OutputLiteralTypeError
+  | SubOrSuperLiteralTypeError;
 
 export interface SymmetricTypeMismatch {
   tag: "SymmetricTypeMismatch";
@@ -85,9 +86,16 @@ export interface SymmetricArgLengthMismatch {
   sourceExpr: AbstractNode;
 }
 
-export interface OutputLiteralError {
-  tag: "OutputLiteralError";
-  sourceExpr: AbstractNode;
+export interface OutputLiteralTypeError {
+  tag: "OutputLiteralTypeError";
+  type: Type<A>;
+  location: AbstractNode;
+}
+
+export interface SubOrSuperLiteralTypeError {
+  tag: "SubOrSuperLiteralTypeError";
+  type: Type<A>;
+  location: AbstractNode;
 }
 
 export interface InvalidSetIndexingError {

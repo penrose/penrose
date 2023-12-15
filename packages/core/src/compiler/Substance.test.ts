@@ -276,12 +276,16 @@ NoLabel B, C
     Set A, B
     ContainsNum(A, 100)
     ContainsStr(B, "BBBB")
+    ContainsNum(B, 100)
         `;
     const env = envOrError(domain);
     const subEnv = subEnvOrError(prog, env);
     ["A", "B", "{#100}", "{BBBB}"].forEach((name) =>
       expect(subEnv.objs.get(name)).toBeDefined(),
     );
+
+    // Even though literal 100 is used twice, we only want to have it recreated once.
+    expect(subEnv.objs.count((_, name) => name === "{#100}")).toEqual(1);
   });
 });
 
@@ -478,6 +482,15 @@ Label D $\\vec{d}$
     const res = compileSubstance(prog, env);
     expectErrorOf(res, "InvalidArithmeticValueError");
     // error because -1 ^ 0.5 is NaN
+  });
+
+  test("wrong use of builtin literal types", () => {
+    const dom = `type Set`;
+    const domEnv = envOrError(dom);
+    const sub = `Number n := 100
+String s`;
+    const res = compileSubstance(sub, domEnv);
+    expectErrorOf(res, "DeclLiteralError");
   });
 });
 

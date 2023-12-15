@@ -94,12 +94,16 @@ export type RelPred<T> = ASTNode<T> & {
   alias?: Identifier<T>;
 };
 
+export type SelArgExpr<T> = SelVar<T> | SelLitExpr<T>;
 export type SelVar<T> = ASTNode<T> & {
   tag: "SelVar";
   contents: BindingForm<T>;
 };
 
-export type SelArgExpr<T> = SelVar<T>;
+export type SelLitExpr<T> = ASTNode<T> & {
+  tag: "SelLitExpr";
+  contents: Fix<T> | StringLit<T>;
+};
 
 export type SelectorType<T> = ASTNode<T> & {
   tag: "SelectorType";

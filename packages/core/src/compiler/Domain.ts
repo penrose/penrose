@@ -229,8 +229,8 @@ const checkStmt = (stmt: DomainStmt<C>, env: DomainEnv): CheckerResult => {
     }
     case "SubTypeDecl": {
       const { subType, superType } = stmt;
-      const subOk = checkType(subType, env);
-      const supOk = checkNonLiteralType(superType, env);
+      const subOk = checkSubSupType(subType, env);
+      const supOk = checkSubSupType(superType, env);
       const updatedEnv = addSubtype(subType, superType, env);
       return everyResult(subOk, supOk, updatedEnv);
     }
@@ -279,19 +279,30 @@ export const toDomType = <T>(typeApp: TypeApp<T>): Type<T> => {
 const checkArg = (arg: Arg<C>, env: DomainEnv): CheckerResult =>
   checkType(arg.type, env);
 
-const checkNonLiteralType = (type: Type<C>, env: DomainEnv): CheckerResult => {
+const checkOutput = (output: Arg<C>, env: DomainEnv): CheckerResult => {
+  const { type } = output;
   if (isLiteralType(type)) {
     return err({
-      tag: "OutputLiteralError",
-      sourceExpr: type,
+      tag: "OutputLiteralTypeError",
+      type,
+      location: type,
     });
   } else {
     return checkType(type, env);
   }
 };
 
-const checkOutput = (output: Arg<C>, env: DomainEnv): CheckerResult =>
-  checkNonLiteralType(output.type, env);
+const checkSubSupType = (type: Type<C>, env: DomainEnv): CheckerResult => {
+  if (isLiteralType(type)) {
+    return err({
+      tag: "SubOrSuperLiteralTypeError",
+      type,
+      location: type,
+    });
+  } else {
+    return checkType(type, env);
+  }
+};
 
 /**
  * Check if all arguments to this symmetric predicate have the same type, and there are only two arguments
