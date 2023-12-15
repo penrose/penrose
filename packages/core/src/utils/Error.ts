@@ -260,6 +260,12 @@ export const showError = (
         ", ",
       )}`;
     }
+    case "BadSetIndexRangeError": {
+      const { index, location } = error;
+      return `A indexed-set range must consist of integers, but value ${index} (at ${loc(
+        location,
+      )}) is not an integer.`;
+    }
     case "DuplicateIndexError": {
       const { index, location } = error;
       return `Index variable \`${index}\` has been declared multiple times at ${loc(
@@ -733,6 +739,7 @@ export const errLocs = (
       return locOrNone(e.deconstructor);
     }
     case "InvalidSetIndexingError":
+    case "BadSetIndexRangeError":
     case "DuplicateIndexError":
     case "DivideByZeroError":
     case "InvalidArithmeticValueError": {
