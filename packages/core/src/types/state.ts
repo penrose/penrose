@@ -90,8 +90,9 @@ const labelDataToOptLabelData = (labelData: LabelData): OptLabelData => {
       descent: labelData.descent,
       ascent: labelData.ascent,
     };
+  } else {
+    return labelData;
   }
-  return labelData;
 };
 
 export const labelCacheToOptLabelCache = (
@@ -126,6 +127,8 @@ export const optLabelCacheToLabelCache = (
         descent: value.descent,
         ascent: value.ascent,
       });
+    } else {
+      labelCache.set(key, value);
     }
   });
 

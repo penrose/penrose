@@ -133,6 +133,7 @@ export default class OptimizerWorker {
       tag: "Resample",
       variation,
     });
+    // call `onUpdate` before swapping it out
     this.onUpdate = onUpdate;
   };
   terminate() {

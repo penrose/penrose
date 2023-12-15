@@ -219,8 +219,8 @@ export const attrWH = (
 ): string[] => {
   const w = properties.width;
   const h = properties.height;
-  elem.setAttribute("width", w.contents.toString());
-  elem.setAttribute("height", h.contents.toString());
+  elem.setAttribute("width", Math.max(w.contents, 0).toString());
+  elem.setAttribute("height", Math.max(h.contents, 0).toString());
 
   return ["width", "height"]; // Return array of input properties programatically mapped
 };

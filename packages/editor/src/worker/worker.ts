@@ -100,17 +100,13 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
       svgCache.set(key, value.rendered);
     }
     labels = data.labelCache;
-    initialState.labelCache = optLabelCacheToLabelCache(
-      data.labelCache,
-      svgCache,
-    );
+    initialState = {
+      ...initialState,
+      labelCache: optLabelCacheToLabelCache(data.labelCache, svgCache),
+    };
+    console.log(optLabelCacheToLabelCache(data.labelCache, svgCache));
 
-    optimize(
-      insertPending({
-        ...initialState,
-        labelCache: optLabelCacheToLabelCache(data.labelCache, svgCache),
-      }),
-    );
+    optimize(insertPending(initialState));
   } else if (data.tag === "Resample") {
     const { variation } = data;
     const resampled = resample({ ...initialState, variation });
