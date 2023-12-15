@@ -122,8 +122,6 @@ export const DownloadSVG = (
     plugins: ["inlineStyles", "prefixIds"],
     path: title,
   }).data;
-  console.log(svgStr);
-  console.log(svgStr.length);
   const blob = new Blob([svgStr], {
     type: "image/svg+xml;charset=utf-8",
   });
@@ -208,7 +206,6 @@ const SVGaddCode = (
   metadata.appendChild(substance);
   metadata.appendChild(style);
   metadata.appendChild(dsl);
-  console.log(metadata);
 };
 
 /**

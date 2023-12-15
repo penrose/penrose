@@ -350,6 +350,12 @@ export const useDownloadPdf = () =>
     if (canvas.ref && canvas.ref.current !== null) {
       const svg = canvas.ref.current.firstElementChild as SVGSVGElement;
       if (svg !== null && state) {
+        // clear all of the <penrose> metadata if it is present
+        // this metadata is added to SVGs for saving/loading but it will break PDF
+        const metadataQuery = svg.querySelector("penrose");
+        if (metadataQuery !== null) {
+          metadataQuery.innerHTML = "";
+        }
         const metadata = snapshot.getLoadable(workspaceMetadataSelector)
           .contents as WorkspaceMetadata;
         const openedWindow = window.open(
