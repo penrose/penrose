@@ -7,19 +7,24 @@ import {
 } from "@penrose/core";
 
 /** request */
-export type Req = Init | Compile | RespLabelCache;
+export type Req = Init | Compile | RenderedLabels | Resample;
+
+export type Resample = {
+  tag: "Resample";
+  variation: string;
+};
 
 export type Init = {
   tag: "Init";
   sharedMemory: SharedArrayBuffer;
 };
 
-export type RespLabelCache = {
+export type RenderedLabels = {
   tag: "RespLabelCache";
   labelCache: OptLabelCache;
 };
 
-export type ReqLabelCache = {
+export type RequestLabels = {
   tag: "ReqLabelCache";
   shapes: Shape<Num>[];
 };
@@ -33,7 +38,7 @@ export type Compile = {
 };
 
 /** response */
-export type Resp = Update | Error | ReadyForNewTrio | Finished | ReqLabelCache;
+export type Resp = Update | Error | Ready | Finished | RequestLabels;
 
 export type Update = {
   tag: "Update";
@@ -50,6 +55,6 @@ export type Error = {
   error: PenroseError;
 };
 
-export type ReadyForNewTrio = {
-  tag: "ReadyForNewTrio";
+export type Ready = {
+  tag: "Ready";
 };

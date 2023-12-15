@@ -39,7 +39,7 @@ export default class OptimizerWorker {
         this.onUpdate(optRenderStateToState(data.state, this.svgCache));
       } else if (data.tag === "Error") {
         this.onError(data.error);
-      } else if (data.tag === "ReadyForNewTrio") {
+      } else if (data.tag === "Ready") {
         this.running = true;
         this.request({
           tag: "Compile",
@@ -121,6 +121,20 @@ export default class OptimizerWorker {
       });
     }
   }
+
+  resample = (variation: string, onUpdate: OnUpdate) => {
+    if (this.running) {
+      // Let worker know we want them to stop optimizing and get
+      // ready to receive a new trio
+      Atomics.store(this.sharedMemory, 1, 1);
+      log.debug("Worker asked to stop");
+    }
+    this.request({
+      tag: "Resample",
+      variation,
+    });
+    this.onUpdate = onUpdate;
+  };
   terminate() {
     this.worker.terminate();
   }

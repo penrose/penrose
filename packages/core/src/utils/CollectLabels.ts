@@ -372,7 +372,10 @@ const insertPendingHelper = (
     } else if (s.shapeType === "Equation") {
       const labelData = unwrap(
         labelCache.get(s.name.contents),
-        () => `missing label: ${s.name.contents}`,
+        () =>
+          `missing label: ${s.name.contents}. Label cache: ${[
+            ...labelCache.keys(),
+          ].join(" ")}`,
       );
       if (labelData.tag !== "EquationData")
         throw Error(

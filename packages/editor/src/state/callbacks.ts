@@ -2,12 +2,14 @@ import { RenderState } from "@penrose/core";
 import { Style } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
 import localforage from "localforage";
+import { range } from "lodash";
 import queryString from "query-string";
 import toast from "react-hot-toast";
 import { useRecoilCallback } from "recoil";
 import { v4 as uuid } from "uuid";
 import {
   Diagram,
+  DiagramGrid,
   EDITOR_VERSION,
   GistMetadata,
   LocalGithubUser,
@@ -17,12 +19,14 @@ import {
   WorkspaceLocation,
   WorkspaceMetadata,
   currentWorkspaceState,
+  diagramGridState,
   diagramState,
   localFilesState,
   optimizer,
   settingsState,
   workspaceMetadataSelector,
 } from "./atoms.js";
+import { generateVariation } from "./variation.js";
 
 const _compileDiagram = async (
   substance: string,
@@ -58,9 +62,16 @@ const _compileDiagram = async (
           state: initialState,
         }),
       );
+      // TODO: update grid state too
+      set(diagramGridState, ({ gridSize }: DiagramGrid) => ({
+        variations: range(gridSize).map((i) =>
+          i === 0 ? variation : generateVariation(),
+        ),
+        gridSize,
+      }));
     },
     (error) => {
-      console.log(error);
+      set(diagramState, (state: Diagram) => ({ ...state, error }));
     },
   );
 
@@ -153,29 +164,29 @@ export const useCompileDiagram = () =>
 
 export const useResampleDiagram = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
-    // TODO: revert
-    // const diagram: Diagram = snapshot.getLoadable(diagramState)
-    //   .contents as Diagram;
-    // if (diagram.state === null) {
-    //   toast.error("Cannot resample uncompiled diagram");
-    //   return;
-    // }
-    // const variation = generateVariation();
-    // const resamplingLoading = toast.loading("Resampling...");
-    // const resampled = resample({ ...diagram.state, variation });
-    // set(diagramState, (state) => ({
-    //   ...state,
-    //   metadata: { ...state.metadata, variation },
-    //   state: resampled,
-    // }));
-    // // update grid state too
-    // set(diagramGridState, ({ gridSize }) => ({
-    //   variations: range(gridSize).map((i) =>
-    //     i === 0 ? variation : generateVariation(),
-    //   ),
-    //   gridSize,
-    // }));
-    // toast.dismiss(resamplingLoading);
+    const diagram: Diagram = snapshot.getLoadable(diagramState)
+      .contents as Diagram;
+    if (diagram.state === null) {
+      toast.error("Cannot resample uncompiled diagram");
+      return;
+    }
+    const variation = generateVariation();
+    const resamplingLoading = toast.loading("Resampling...");
+    optimizer.resample(variation, (resampled) => {
+      set(diagramState, (state) => ({
+        ...state,
+        metadata: { ...state.metadata, variation },
+        state: resampled,
+      }));
+      // update grid state too
+      set(diagramGridState, ({ gridSize }) => ({
+        variations: range(gridSize).map((i) =>
+          i === 0 ? variation : generateVariation(),
+        ),
+        gridSize,
+      }));
+      toast.dismiss(resamplingLoading);
+    });
   });
 
 const _saveLocally = (set: any) => {

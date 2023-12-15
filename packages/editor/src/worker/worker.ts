@@ -1,10 +1,12 @@
 import {
+  OptLabelCache,
   PenroseError,
   PenroseState,
   compileTrio,
   insertPending,
   isOptimized,
   optLabelCacheToLabelCache,
+  resample,
   stateToOptRenderState,
   stepTimes,
 } from "@penrose/core";
@@ -14,6 +16,8 @@ import { Req, Resp } from "./message.js";
 // second bit is set if user wants to send a new trio.
 let sharedMemory: Int8Array;
 let initialState: PenroseState;
+let labels: OptLabelCache;
+let svgCache: Map<string, HTMLElement>;
 
 const respondReqLabelCache = (state: PenroseState) => {
   respond({
@@ -34,8 +38,8 @@ const respondError = (error: PenroseError) => {
   respond(resp);
 };
 
-const respondReadyForNewTrio = () => {
-  respond({ tag: "ReadyForNewTrio" });
+const respondReady = () => {
+  respond({ tag: "Ready" });
 };
 
 const respondFinished = (state: PenroseState) => {
@@ -63,7 +67,7 @@ const optimize = (state: PenroseState) => {
     }
     // Main thread wants to compile something else
     if (Atomics.exchange(sharedMemory, 1, 0)) {
-      respondReadyForNewTrio();
+      respondReady();
       return;
     }
     state = steppedState.value;
@@ -72,11 +76,9 @@ const optimize = (state: PenroseState) => {
 };
 
 onmessage = async ({ data }: MessageEvent<Req>) => {
-  console.log("Received message: ", data);
-
   if (data.tag === "Init") {
     sharedMemory = new Int8Array(data.sharedMemory);
-    respond({ tag: "ReadyForNewTrio" });
+    respond({ tag: "Ready" });
   } else if (data.tag === "Compile") {
     const { domain, substance, style, variation } = data;
     const compileResult = await compileTrio({
@@ -93,10 +95,15 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
       respondReqLabelCache(compileResult.value);
     }
   } else if (data.tag === "RespLabelCache") {
-    const svgCache = new Map<string, HTMLElement>();
+    svgCache = new Map<string, HTMLElement>();
     for (const [key, value] of Object.entries(data.labelCache)) {
       svgCache.set(key, value.rendered);
     }
+    labels = data.labelCache;
+    initialState.labelCache = optLabelCacheToLabelCache(
+      data.labelCache,
+      svgCache,
+    );
 
     optimize(
       insertPending({
@@ -104,10 +111,18 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
         labelCache: optLabelCacheToLabelCache(data.labelCache, svgCache),
       }),
     );
+  } else if (data.tag === "Resample") {
+    const { variation } = data;
+    const resampled = resample({ ...initialState, variation });
+    optimize(
+      insertPending({
+        ...resampled,
+        labelCache: optLabelCacheToLabelCache(labels, svgCache),
+      }),
+    );
+    // respondUpdate(resampled);
   } else {
     // Shouldn't ever happen
     console.error(`Unknown request: `, data);
   }
 };
-
-console.log("worker loaded");

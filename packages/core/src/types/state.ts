@@ -152,17 +152,27 @@ export const optRenderStateToState = (
  */
 
 export type LabelData = EquationData | TextData;
-export interface EquationData {
+export type EquationData = {
   tag: "EquationData";
+} & EquationMeasurement &
+  EquationShape;
+
+export interface EquationShape {
+  rendered: HTMLElement;
+}
+
+export interface EquationMeasurement {
   width: FloatV<number>;
   height: FloatV<number>;
   descent: FloatV<number>;
   ascent: FloatV<number>;
-  rendered: HTMLElement;
 }
 
-export interface TextData {
+export type TextData = {
   tag: "TextData";
+} & TextMeasurement;
+
+export interface TextMeasurement {
   width: FloatV<number>;
   height: FloatV<number>;
   descent: FloatV<number>;
