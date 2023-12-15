@@ -3612,6 +3612,7 @@ export const translate = (
   graph: DepGraph,
   warnings: im.List<StyleWarning>,
 ): Translation => {
+  log.info("Starting translation stage...");
   let symbols = im.Map<string, ArgVal<ad.Num>>();
   for (const path of graph.nodes()) {
     const shapeType = graph.node(path);
@@ -3668,6 +3669,7 @@ export const translate = (
       trans = translateExpr(mut, canvas, stages, path, e, trans);
     }
   }
+  log.info("Translation stage ends");
   return trans;
 };
 
@@ -4043,7 +4045,7 @@ export const compileStyleHelper = async (
     assignment.diagnostics.warnings,
   );
 
-  log.info("translation (before genOptProblem)", translation);
+  // log.info("translation (before genOptProblem)", translation);
 
   if (translation.diagnostics.errors.size > 0) {
     return err(toStyleErrors([...translation.diagnostics.errors]));
@@ -4104,15 +4106,22 @@ export const compileStyleHelper = async (
     optimizationStages.value,
   );
 
+  console.log("building comp graph");
+
   const computeShapes = await compileCompGraph(inputs, renderGraph);
+
+  console.log("end building comp graph");
 
   const gradient = await genGradient(
     inputs,
     objFns.map(({ output }) => output),
     constrFns.map(({ output }) => output),
   );
+  console.log("end building gradient");
 
   const params = genOptProblem(varyingValues.length);
+
+  console.log("end gen opt problem");
   const initState: State = {
     warnings: layeringWarning
       ? [...translation.diagnostics.warnings, ...groupWarnings, layeringWarning]
@@ -4134,6 +4143,7 @@ export const compileStyleHelper = async (
   };
 
   log.info("init state from GenOptProblem", initState);
+  console.log("init state from GenOptProblem", initState);
 
   return ok({
     state: initState,

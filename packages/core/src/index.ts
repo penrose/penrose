@@ -307,16 +307,17 @@ export const compileTrio = async (prog: {
     domainRes,
   );
 
-  const styRes: Result<State, PenroseError> = subRes.isErr()
-    ? err(subRes.error)
-    : await compileStyle(
-        prog.variation,
-        prog.style,
-        prog.excludeWarnings ?? [],
-        ...subRes.value,
-      );
+  if (subRes.isErr()) return err(subRes.error);
+  else {
+    const styRes: Result<State, PenroseError> = await compileStyle(
+      prog.variation,
+      prog.style,
+      prog.excludeWarnings ?? [],
+      ...subRes.value,
+    );
 
-  return styRes;
+    return styRes;
+  }
 };
 
 /**

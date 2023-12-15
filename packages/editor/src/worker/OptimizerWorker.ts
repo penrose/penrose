@@ -32,7 +32,12 @@ export default class OptimizerWorker {
   private variation: string = "";
   constructor() {
     log.debug("Worker initializing...", this.worker);
-    this.worker.postMessage({ tag: "Init" });
+    const sab = new SharedArrayBuffer(2);
+    this.sharedMemory = new Int8Array(sab);
+    this.request({
+      tag: "Init",
+      sharedMemory: sab,
+    });
     this.worker.onmessage = async ({ data }: MessageEvent<Resp>) => {
       log.debug("Received message: ", data);
       if (data.tag === "Update") {
@@ -40,20 +45,16 @@ export default class OptimizerWorker {
       } else if (data.tag === "Error") {
         this.onError(data.error);
       } else if (data.tag === "Ready") {
-        this.running = true;
-        this.request({
-          tag: "Compile",
-          domain: this.domain,
-          style: this.style,
-          substance: this.substance,
-          variation: this.variation,
-        });
+        this.workerInitialized = true;
+        log.debug("Worker initialized");
       } else if (data.tag === "Finished") {
         this.running = false;
         this.onUpdate(optRenderStateToState(data.state, this.svgCache));
       } else if (data.tag === "ReqLabelCache") {
+        console.log("initializing mathjax");
         const convert = mathjaxInit();
         const labelCache = await collectLabels(data.shapes, convert);
+        console.log("collected labels");
         if (labelCache.isErr()) {
           throw Error(showError(labelCache.error));
         }
@@ -94,22 +95,18 @@ export default class OptimizerWorker {
     this.style = style;
     this.substance = substance;
     this.variation = variation;
-    // For some reason worker would not receive init message if this is in constructor
-    if (!this.workerInitialized) {
-      const sab = new SharedArrayBuffer(2);
-      this.sharedMemory = new Int8Array(sab);
-      this.request({
-        tag: "Init",
-        sharedMemory: sab,
-      });
-      this.workerInitialized = true;
-      log.debug("Worker initialized");
-    }
     if (this.running) {
       // Let worker know we want them to stop optimizing and get
       // ready to receive a new trio
       Atomics.store(this.sharedMemory, 1, 1);
       log.debug("Worker asked to stop");
+      // BUG: this will cause the worker to stop optimizing, but it will not re-send the request to the worker to start compiling again
+    } else if (!this.workerInitialized) {
+      console.log("Worker not initialized yet, waiting...");
+
+      setTimeout(() => {
+        this.run(domain, style, substance, variation, onUpdate, onError);
+      }, 100);
     } else {
       this.running = true;
       this.request({

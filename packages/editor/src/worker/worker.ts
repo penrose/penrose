@@ -51,6 +51,7 @@ const respondFinished = (state: PenroseState) => {
 
 // Wrapper function for postMessage to ensure type safety
 const respond = (response: Resp) => {
+  console.log("Sending response: ", response);
   postMessage(response);
 };
 
@@ -76,17 +77,21 @@ const optimize = (state: PenroseState) => {
 };
 
 onmessage = async ({ data }: MessageEvent<Req>) => {
+  console.log("Received message: ", data);
+
   if (data.tag === "Init") {
     sharedMemory = new Int8Array(data.sharedMemory);
     respond({ tag: "Ready" });
   } else if (data.tag === "Compile") {
     const { domain, substance, style, variation } = data;
+    console.log("start compiling");
     const compileResult = await compileTrio({
       domain,
       substance,
       style,
       variation,
     });
+    console.log("end compiling");
 
     if (compileResult.isErr()) {
       respondError(compileResult.error);
@@ -104,7 +109,6 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
       ...initialState,
       labelCache: optLabelCacheToLabelCache(data.labelCache, svgCache),
     };
-    console.log(optLabelCacheToLabelCache(data.labelCache, svgCache));
 
     optimize(insertPending(initialState));
   } else if (data.tag === "Resample") {
