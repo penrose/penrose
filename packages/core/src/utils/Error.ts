@@ -629,6 +629,10 @@ canvas {
     case "Fatal": {
       return `FATAL: ${error.message}`;
     }
+
+    default: {
+      return error.tag;
+    }
   }
 };
 
@@ -871,6 +875,10 @@ export const errLocs = (
     // ----- END STYLE WARNINGS
 
     case "Fatal": {
+      return [];
+    }
+
+    default: {
       return [];
     }
   }

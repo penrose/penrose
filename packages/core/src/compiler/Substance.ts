@@ -148,7 +148,6 @@ export const postprocessSubstance = (
   subEnv: SubstanceEnv,
 ): SubstanceEnv => {
   subEnv = recreateLiterals(domEnv, subEnv);
-  console.log([...subEnv.objs.keys()]);
 
   subEnv.labels = im.Map(
     [...subEnv.objs.keys()].map((id) => [id, EMPTY_LABEL]),
@@ -209,6 +208,7 @@ const recreateLiteral = (
           type: toSubType(type),
           nodeType: "SyntheticSubstance",
           name: id,
+          attached: literal,
         },
       ],
     },

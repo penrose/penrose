@@ -237,6 +237,7 @@ export type StyleError =
   | RedeclareNamespaceError
   | NotSubstanceCollectionError
   | NotStyleVariableError
+  | StyleVariableReferToLiteralError
   | LayerOnNonShapesError
   // Runtime errors
   | RuntimeValueTypeError;
@@ -541,6 +542,12 @@ export interface NotSubstanceCollectionError {
 
 export interface NotStyleVariableError {
   tag: "NotStyleVariableError";
+  name: string;
+  location: SourceRange;
+}
+
+export interface StyleVariableReferToLiteralError {
+  tag: "StyleVariableReferToLiteralError";
   name: string;
   location: SourceRange;
 }

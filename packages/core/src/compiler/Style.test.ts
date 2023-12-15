@@ -357,15 +357,15 @@ describe("Compiler", () => {
   //   expect(S.fullSubst(selEnvs[6], ps1)).toEqual(false);
   // });
 
-  test("substitution: S.uniqueKeysAndVals true", () => {
-    // This subst has unique keys and vals
-    expect(S.uniqueKeysAndVals({ a: "V", c: "z" })).toEqual(true);
-  });
-
-  test("substitution: S.uniqueKeysAndVals false", () => {
-    // This subst doesn't have unique keys and vals
-    expect(S.uniqueKeysAndVals({ a: "V", c: "V" })).toEqual(false);
-  });
+  //test("substitution: S.uniqueKeysAndVals true", () => {
+  //  // This subst has unique keys and vals
+  //  expect(S.uniqueKeysAndVals({ a: "V", c: "z" })).toEqual(true);
+  //});
+  //
+  //test("substitution: S.uniqueKeysAndVals false", () => {
+  //  // This subst doesn't have unique keys and vals
+  //  expect(S.uniqueKeysAndVals({ a: "V", c: "V" })).toEqual(false);
+  //});
 
   // COMBAK: StyleTestData is deprecated. Make the data in the test file later (@hypotext).
   // // For the 6th selector in the LA Style program, substituting in this substitution into the relational expressions yields the correct result (where all vars are unique)

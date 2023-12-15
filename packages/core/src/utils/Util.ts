@@ -15,6 +15,7 @@ import {
   LocalVarSubst,
   ResolvedName,
   ResolvedPath,
+  SubstanceLiteral,
   SubstanceObject,
   WithContext,
 } from "../types/styleSemantics.js";
@@ -778,9 +779,21 @@ export const resolveRhsName = (
   }
 };
 
+export const substanceLiteralToValue = (
+  lit: SubstanceLiteral,
+): FloatV<number> | StrV => {
+  const l = lit.contents;
+
+  if (l.tag === "SubstanceNumber") {
+    return { tag: "FloatV", contents: l.contents };
+  } else {
+    return strV(l.contents);
+  }
+};
+
 const resolveRhsPath = (
   p: WithContext<Path<A>>,
-): ResolvedPath<A> | FloatV<ad.Num> | StrV => {
+): ResolvedPath<A> | FloatV<number> | StrV => {
   const { name, members, indices } = p.expr; // drop `indices`
 
   const { subst } = p.context;
@@ -791,10 +804,10 @@ const resolveRhsPath = (
     if (subst.tag === "StySubSubst" && name.contents.value in subst.contents) {
       const subObj = subst.contents[name.contents.value];
       if (subObj.tag === "SubstanceLiteral") {
-        if (subObj.contents.tag === "SubstanceNumber") {
-          return floatV(subObj.contents.contents);
-        } else {
-          return strV(subObj.contents.contents);
+        return substanceLiteralToValue(subObj);
+      } else {
+        if (subObj.attached !== undefined) {
+          return substanceLiteralToValue(subObj.attached);
         }
       }
     }
@@ -805,10 +818,10 @@ const resolveRhsPath = (
     ) {
       const subObj = subst.groupby[name.contents.value];
       if (subObj.tag === "SubstanceLiteral") {
-        if (subObj.contents.tag === "SubstanceNumber") {
-          return floatV(subObj.contents.contents);
-        } else {
-          return strV(subObj.contents.contents);
+        return substanceLiteralToValue(subObj);
+      } else {
+        if (subObj.attached !== undefined) {
+          return substanceLiteralToValue(subObj.attached);
         }
       }
     }
@@ -848,8 +861,18 @@ const prettyPrintResolvedName = ({
   }
 };
 
-export const prettyPrintResolvedPath = (p: ResolvedPath<A>): string =>
-  [prettyPrintResolvedName(p), ...p.members.map((m) => m.value)].join(".");
+export const prettyPrintResolvedPath = (
+  p: ResolvedPath<A> | FloatV<number> | StrV,
+): string => {
+  if (p.tag === "FloatV") {
+    return p.contents.toString();
+  } else if (p.tag === "StrV") {
+    return p.contents;
+  } else
+    return [prettyPrintResolvedName(p), ...p.members.map((m) => m.value)].join(
+      ".",
+    );
+};
 
 const prettyPrintBindingForm = (bf: BindingForm<A>): string => {
   switch (bf.tag) {
