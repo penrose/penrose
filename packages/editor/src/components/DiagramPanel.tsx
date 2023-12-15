@@ -108,14 +108,6 @@ export default function DiagramPanel() {
             press compile to see diagram
           </span>
         )}
-        {/* {state && (
-          <div style={{ display: "flex" }}>
-            <BlueButton onClick={downloadSvg}>SVG</BlueButton>
-            <BlueButton onClick={downloadSvgTex}>SVG (TeX)</BlueButton>
-            <BlueButton onClick={downloadPng}>PNG</BlueButton>
-            <BlueButton onClick={downloadPdf}>PDF</BlueButton>
-          </div>
-        )} */}
         {error && (
           <div
             style={{
