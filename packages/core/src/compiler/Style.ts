@@ -524,7 +524,20 @@ const checkHeader = (varEnv: DomainEnv, header: Header<A>): SelectorEnv => {
 export const uniqueKeysAndVals = (subst: Subst): boolean => {
   // All keys already need to be unique in js, so only checking values
   const vals = Object.values(subst);
-  const valsSet = new Set(vals);
+  const valsSet = new Set(
+    vals.map((v) => {
+      if (v.tag === "SubstanceVar") {
+        return v.name;
+      } else {
+        const lit = v.contents;
+        if (lit.tag === "SubstanceNumber") {
+          return `#${lit.contents.toString()}`;
+        } else {
+          return `##${lit.contents}`;
+        }
+      }
+    }),
+  );
 
   // All entries were unique if length didn't change (ie the nub didn't change)
   return valsSet.size === vals.length;
@@ -639,14 +652,27 @@ const deduplicate = (
 
   type MatchesObject = {
     rels: im.Set<SubStmt<A> | undefined>;
-    substTargets: im.Set<SubstanceObject>;
+    substTargets: im.Set<string>;
   };
   const initMatches: im.Set<im.Record<MatchesObject>> = im.Set();
-  const [, goodSubsts] = pSubsts.reduce(
+  const [goodMatches, goodSubsts] = pSubsts.reduce(
     ([currMatches, currSubsts], [subst, matchedSubStmts]) => {
       const record: im.Record<MatchesObject> = im.Record({
         rels: matchedSubStmts,
-        substTargets: im.Set<SubstanceObject>(Object.values(subst)),
+        substTargets: im.Set<string>(
+          Object.values(subst).map((v) => {
+            if (v.tag === "SubstanceVar") {
+              return v.name;
+            } else {
+              const lit = v.contents;
+              if (lit.tag === "SubstanceNumber") {
+                return `#${lit.contents.toString()}`;
+              } else {
+                return `##${lit.contents}`;
+              }
+            }
+          }),
+        ),
       })();
       if (currMatches.includes(record)) {
         return [currMatches, currSubsts];
@@ -707,6 +733,25 @@ const merge = (
   return im.List(result);
 };
 
+const sameSubstanceLits = (
+  a: SubstanceLiteral["contents"],
+  b: SubstanceLiteral["contents"],
+): boolean => {
+  return a.contents === b.contents;
+};
+
+const sameSubstanceObjs = (a: SubstanceObject, b: SubstanceObject): boolean => {
+  if (a.tag === "SubstanceVar" && b.tag === "SubstanceVar") {
+    return a.name === b.name;
+  }
+
+  if (a.tag === "SubstanceLiteral" && b.tag === "SubstanceLiteral") {
+    return sameSubstanceLits(a.contents, b.contents);
+  }
+
+  return false;
+};
+
 /**
  * Check whether `a` and `b` are consistent
  * in that they do not include different values mapped from the same key.
@@ -723,9 +768,7 @@ const consistentSubsts = (a: Subst, b: Subst): boolean => {
 
   const overlap = aKeys.intersect(bKeys);
 
-  return overlap.every((key) => {
-    return a[key] === b[key];
-  });
+  return overlap.every((key) => sameSubstanceObjs(a[key], b[key]));
 };
 
 const matchBvar = (
@@ -1409,7 +1452,6 @@ const makePotentialSubsts = (
 
     return m;
   }, im.Map<string, LiteralSubExpr<A>>());
-
   const [usedStyVars, listRSubsts] = makeListRSubstsForStyleRels(
     selTypeMap,
     subTypeMap,
@@ -1441,12 +1483,12 @@ const makePotentialSubsts = (
   if (listPSubsts.some((pSubsts) => pSubsts.size === 0)) {
     return im.List();
   }
-
   const first = listPSubsts.first();
   if (first) {
     const substs = listPSubsts.shift().reduce((currSubsts, pSubsts) => {
       return merge(currSubsts, pSubsts);
     }, first);
+
     return substs;
   } else {
     return im.List();
@@ -1513,15 +1555,36 @@ const collectSubsts = (
 
   for (const subst of substs) {
     const toCollectVal = subst[toCollect];
-    const groupbyVals = groupbys.map((groupby) => subst[groupby]);
+    const groupbyVals: [string, SubstanceLiteral | undefined][] = groupbys.map(
+      (groupby) => {
+        const subObj = subst[groupby];
+        if (subObj.tag !== "SubstanceVar") {
+          throw new Error(
+            "should never happen: can only `foreach` on substance variables",
+          );
+        }
 
-    const groupbyVals_str = groupbyVals.join(" ");
+        // don't want to lose the attached information, if exists.
+        return [subObj.name, subObj.attached];
+      },
+    );
+
+    const groupbyVals_str = groupbyVals.map(([n]) => n).join(" ");
 
     const bucket = buckets.get(groupbyVals_str);
 
     if (bucket === undefined) {
       buckets.set(groupbyVals_str, {
-        groupbySubst: Object.fromEntries(zip2(groupbys, groupbyVals)),
+        groupbySubst: Object.fromEntries(
+          zip2(
+            groupbys,
+            groupbyVals.map(([n, att]) => ({
+              tag: "SubstanceVar",
+              name: n,
+              attached: att,
+            })),
+          ),
+        ),
         contents: [toCollectVal],
       });
     } else {
@@ -3126,8 +3189,13 @@ const evalExpr = (
         // actually gather the list.
         const collection = subst.collContent;
         const result: ArgVal<ad.Num>[] = [];
-        for (const subVar of collection) {
-          const actualPath = `\`${subVar}\`.${field.value}`;
+        for (const subObj of collection) {
+          if (subObj.tag !== "SubstanceVar") {
+            throw new Error(
+              "Should never happen: can only match on substance variables",
+            );
+          }
+          const actualPath = `\`${subObj.name}\`.${field.value}`;
           const value = trans.symbols.get(actualPath);
           if (value !== undefined) {
             result.push(value);
@@ -3232,7 +3300,6 @@ const collectIntoVal = (
   }
 
   const [first, ...rest] = coll;
-
   if (first.tag === "ShapeVal") {
     return evalShapeList(expr, first.contents, rest);
   } else {

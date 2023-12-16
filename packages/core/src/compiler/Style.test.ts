@@ -1,6 +1,7 @@
 import im from "immutable";
 import { describe, expect, test } from "vitest";
-import { numsOf } from "../lib/Utils.js";
+import { numOf, numsOf } from "../lib/Utils.js";
+import * as ad from "../types/ad.js";
 import { C } from "../types/ast.js";
 import { DomainEnv } from "../types/domain.js";
 import { PenroseError } from "../types/errors.js";
@@ -21,7 +22,7 @@ import {
   Translation,
 } from "../types/styleSemantics.js";
 import { SubstanceEnv } from "../types/substance.js";
-import { ColorV, RGBA } from "../types/value.js";
+import { ColorV, FloatV, RGBA, StrV } from "../types/value.js";
 import { Result, showError } from "../utils/Error.js";
 import Graph from "../utils/Graph.js";
 import { GroupGraph } from "../utils/GroupGraph.js";
@@ -357,15 +358,41 @@ describe("Compiler", () => {
   //   expect(S.fullSubst(selEnvs[6], ps1)).toEqual(false);
   // });
 
-  //test("substitution: S.uniqueKeysAndVals true", () => {
-  //  // This subst has unique keys and vals
-  //  expect(S.uniqueKeysAndVals({ a: "V", c: "z" })).toEqual(true);
-  //});
-  //
-  //test("substitution: S.uniqueKeysAndVals false", () => {
-  //  // This subst doesn't have unique keys and vals
-  //  expect(S.uniqueKeysAndVals({ a: "V", c: "V" })).toEqual(false);
-  //});
+  test("substitution: S.uniqueKeysAndVals", () => {
+    expect(
+      S.uniqueKeysAndVals({
+        a: { tag: "SubstanceVar", name: "v" },
+        c: { tag: "SubstanceVar", name: "z" },
+      }),
+    ).toEqual(true);
+    expect(
+      S.uniqueKeysAndVals({
+        a: { tag: "SubstanceVar", name: "V" },
+        c: { tag: "SubstanceVar", name: "V" },
+      }),
+    ).toEqual(false);
+    expect(
+      S.uniqueKeysAndVals({
+        a: {
+          tag: "SubstanceLiteral",
+          contents: { tag: "SubstanceNumber", contents: 1 },
+        },
+        c: { tag: "SubstanceVar", name: "z" },
+      }),
+    ).toEqual(true);
+    expect(
+      S.uniqueKeysAndVals({
+        a: {
+          tag: "SubstanceLiteral",
+          contents: { tag: "SubstanceString", contents: "Hello world" },
+        },
+        c: {
+          tag: "SubstanceLiteral",
+          contents: { tag: "SubstanceString", contents: "Hello world" },
+        },
+      }),
+    ).toEqual(false);
+  });
 
   // COMBAK: StyleTestData is deprecated. Make the data in the test file later (@hypotext).
   // // For the 6th selector in the LA Style program, substituting in this substitution into the relational expressions yields the correct result (where all vars are unique)
@@ -1404,5 +1431,135 @@ delete x.z.p }`,
         }
       }
     }
+  });
+
+  describe("selector literals", () => {
+    test("declared styvars refers to numbers", async () => {
+      const dsl = "predicate Even(Number n)";
+      const sub = `Even(-4)
+        Even(-2)
+        Even(0)
+        Even(2)
+        Even(4)`;
+      const sty =
+        canvasPreamble +
+        `
+        forall Number n
+        where Even(n) {
+          n.sh = Circle {
+            r: n
+          }
+        }
+      `;
+
+      const { translation } = await loadProgs({ dsl, sub, sty });
+      [-4, -2, 0, 2, 4].forEach((num) => {
+        const subName = `{#${num}}`;
+        // ensure each shape exists
+        expect(translation.symbols.get(`\`${subName}\`.sh`)).toBeDefined();
+
+        // ensure each shape has the right radius
+        expect(
+          (
+            translation.symbols.get(`\`${subName}\`.sh.r`)
+              ?.contents as FloatV<ad.Num>
+          ).contents,
+        ).toEqual(num);
+      });
+    });
+    test("undeclared styvars that refers to numbers", async () => {
+      const dsl = `type Set
+        predicate Has(Set s, Number n)`;
+      const sub = `Set s
+        Has(s, -1.234)
+        Has(s, 3)
+        Has(s, 5.678)`;
+      const sty =
+        canvasPreamble +
+        `
+        forall Set s
+        where Has(s, n) {
+          n.sh = Circle {
+            r: n
+          }
+        }
+      `;
+      // This is fine -- the `n` in `n.sh` would be translated to `{#...}`.sh, because resolveLhsPath handles this.
+
+      const { translation } = await loadProgs({ dsl, sub, sty });
+      [-1.234, 3, 5.678].forEach((num) => {
+        const subName = `{#${num}}`;
+        // ensure each shape exists
+        expect(translation.symbols.get(`\`${subName}\`.sh`)).toBeDefined();
+
+        // ensure each shape has the right radius
+        expect(
+          (
+            translation.symbols.get(`\`${subName}\`.sh.r`)
+              ?.contents as FloatV<ad.Num>
+          ).contents,
+        ).toEqual(num);
+      });
+    });
+
+    test("literals in selector", async () => {
+      const dsl = `type Set
+        predicate Has(Set s, String str)`;
+      const sub = `Set s1, s2
+        Has(s1, "Never Gonna Give You Up")
+        Has(s2, "Never Gonna Let You Down")`;
+      const sty =
+        canvasPreamble +
+        `
+        forall Set s
+        where Has(s, "Never Gonna Let You Down") {
+          s.t = Text {
+            string: nameof s
+          }
+        }
+        `;
+      const { translation, state } = await loadProgs({ dsl, sub, sty });
+
+      expect(state.shapes.length).toEqual(1);
+
+      expect(
+        (translation.symbols.get(`\`s2\`.t.string`)!.contents as StrV)
+          .contents === "s2",
+      );
+    });
+
+    test("literals in collectors", async () => {
+      const dsl = `type Set
+        predicate Has(Set s, Number n)`;
+      const sub = `Set s1, s2
+        Has(s1, 1)
+        Has(s1, 5)
+        Has(s1, 100)
+        Has(s2, -1)
+        Has(s2, -5)
+        Has(s2, -100)`;
+      const sty =
+        canvasPreamble +
+        `
+        collect Number n into ns
+        where Has(s, n)
+        foreach Set s {
+          s.mean = average(ns)
+        }
+        `;
+      const { translation } = await loadProgs({ dsl, sub, sty });
+      expect(
+        numOf(
+          (translation.symbols.get("`s1`.mean")!.contents as FloatV<ad.Num>)
+            .contents,
+        ),
+      ).toEqual((1 + 5 + 100) / 3.0);
+      expect(
+        numOf(
+          (translation.symbols.get("`s2`.mean")!.contents as FloatV<ad.Num>)
+            .contents,
+        ),
+      ).toEqual(-(1 + 5 + 100) / 3.0);
+    });
   });
 });

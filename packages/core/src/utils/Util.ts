@@ -1,6 +1,5 @@
 import _ from "lodash";
 import seedrandom from "seedrandom";
-import { toLiteralName } from "../compiler/Substance.js";
 import { isConcrete } from "../engine/EngineUtils.js";
 import { LineProps } from "../shapes/Line.js";
 import { Shape, ShapeType } from "../shapes/Shapes.js";
@@ -738,6 +737,14 @@ export const rectlikeT = (): UnionT =>
 //#endregion
 
 //#region Style
+
+export const toLiteralName = (literal: string | number) => {
+  if (typeof literal === "string") {
+    return `{${literal}}`;
+  } else {
+    return `{#${literal.toString()}}`;
+  }
+};
 
 export const getSubNameFromSubObject = (lit: SubstanceObject) => {
   if (lit.tag === "SubstanceVar") {
