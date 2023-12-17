@@ -56,9 +56,8 @@ export type SelectorEnv = SubstanceEnv & {
 
 // Type declarations
 
-// A substitution θ has form [y → x], binding Sty vars to Sub vars (currently not expressions).
-// COMBAK: In prev grammar, the key was `StyVar`, but here it gets stringified
-// TODO: make this an `im.Map`
+// A substitution maps a Style variable to something in Substance, which can be
+// a Substance variable or a literal in the Substance
 export type Subst = { [k: string]: SubstanceObject };
 
 export type SubstanceObject = SubstanceVar | SubstanceLiteral;

@@ -94,17 +94,35 @@ export type RelPred<T> = ASTNode<T> & {
   alias?: Identifier<T>;
 };
 
+// An expression that can appear as an argument in headers
 export type SelArgExpr<T> = SelVar<T> | SelLitExpr<T>;
+
+// A variable in the header environment
+// Can be a Style variable or a Substance variable
 export type SelVar<T> = ASTNode<T> & {
   tag: "SelVar";
   contents: BindingForm<T>;
 };
 
+// A literal expression in the header
+// Either a fixed value (`Fix`) or string literal (`StringLit`)
 export type SelLitExpr<T> = ASTNode<T> & {
   tag: "SelLitExpr";
-  contents: Fix<T> | StringLit<T>;
+  contents: SelLitNumber<T> | SelLitString<T>;
 };
 
+export type SelLitNumber<T> = ASTNode<T> & {
+  tag: "SelLitNumber";
+  contents: number;
+};
+
+export type SelLitString<T> = ASTNode<T> & {
+  tag: "SelLitString";
+  contents: string;
+};
+
+// A type that can appear in the header
+// Think of it as the equivalent of TypeApp in selector
 export type SelectorType<T> = ASTNode<T> & {
   tag: "SelectorType";
   name: Identifier<T>;

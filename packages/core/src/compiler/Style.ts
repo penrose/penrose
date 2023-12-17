@@ -177,6 +177,7 @@ import {
   shapeListV,
   strV,
   substanceLiteralToValue,
+  toLiteralName,
   tupV,
   val,
   vectorV,
@@ -524,17 +525,16 @@ const checkHeader = (varEnv: DomainEnv, header: Header<A>): SelectorEnv => {
 export const uniqueKeysAndVals = (subst: Subst): boolean => {
   // All keys already need to be unique in js, so only checking values
   const vals = Object.values(subst);
+
+  // Here we have to convert every Substance object to a string, so that
+  // Javascript Set can properly ensure uniqueness.
+  // Here, for literals, we simply use the name of the recreated Substance objects corresponding to the literals.
   const valsSet = new Set(
     vals.map((v) => {
       if (v.tag === "SubstanceVar") {
         return v.name;
       } else {
-        const lit = v.contents;
-        if (lit.tag === "SubstanceNumber") {
-          return `#${lit.contents.toString()}`;
-        } else {
-          return `##${lit.contents}`;
-        }
+        return toLiteralName(v.contents.contents);
       }
     }),
   );
@@ -604,7 +604,7 @@ const toSubArgExpr = <T>(a: SelArgExpr<T>): SubArgExpr<T> => {
   } else {
     // literal
     const lit = a.contents;
-    if (lit.tag === "Fix") {
+    if (lit.tag === "SelLitNumber") {
       return {
         ...lit,
         tag: "LiteralSubExpr",
@@ -664,12 +664,7 @@ const deduplicate = (
             if (v.tag === "SubstanceVar") {
               return v.name;
             } else {
-              const lit = v.contents;
-              if (lit.tag === "SubstanceNumber") {
-                return `#${lit.contents.toString()}`;
-              } else {
-                return `##${lit.contents}`;
-              }
+              return toLiteralName(v.contents.contents);
             }
           }),
         ),
@@ -979,7 +974,7 @@ const matchStyArgToSubArg = (
 
     if (subArg.tag === "LiteralSubExpr") {
       const subLit = subArg.contents;
-      if (selLit.tag === "Fix" && subLit.tag === "NumberConstant") {
+      if (selLit.tag === "SelLitNumber" && subLit.tag === "NumberConstant") {
         const selV = selLit.contents;
         const subV = subLit.value;
         if (selV === subV) {
@@ -987,7 +982,7 @@ const matchStyArgToSubArg = (
         } else {
           return [];
         }
-      } else if (selLit.tag === "StringLit" && subLit.tag === "StringLit") {
+      } else if (selLit.tag === "SelLitString" && subLit.tag === "StringLit") {
         const selV = selLit.contents;
         const subV = subLit.contents;
         if (selV === subV) {
