@@ -304,7 +304,7 @@ NoLabel B, C
       }
 
       const env2 = envOrError(domainProg);
-      const prog2 = `Set a_i for i in [11, 10]`;
+      const prog2 = `Set a_i for i in [20, 10]`;
       const res2 = compileSubstance(prog2, env2);
       expect(res2.isOk()).toBe(true);
       if (res2.isOk()) {
