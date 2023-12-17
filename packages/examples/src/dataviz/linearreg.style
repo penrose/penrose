@@ -26,11 +26,16 @@ global {
 
 forall Point p
 where p := MkPoint(x, y) {
+  p.x = x
+  p.y = y
   p.icon = Circle {
-    r: 3
+    r: 2
     center: (x * 25, y * 25)
     fillColor: #000000ff
   }
+
+  layer p.icon above global.horAxis
+  layer p.icon above global.verAxis
 }
 
 collect Number x into xs
@@ -46,7 +51,7 @@ with Point p {
   override global.yvec = ys
 }
 
-optimize {
+linearreg {
   beta = ?
   alpha = ?
 
@@ -54,7 +59,7 @@ optimize {
 
   yvec = global.yvec
 
-  encourage minimal(vdistsq(yhat, yvec))
+  encourage minimal(1000 * vdistsq(yhat, yvec))
 
   startx = -7
   starty = alpha + beta * startx
@@ -62,11 +67,15 @@ optimize {
   endx = 7
   endy = alpha + beta * endx
 
-  Line {
+  regline = Line {
     start: (25 * startx, 25 * starty)
     end: (25 * endx, 25 * endy)
     ensureOnCanvas: false
     endArrowhead: "straight"
     strokeColor: #ff0000ff
   }
+}
+
+forall Point p {
+  layer p.icon below linearreg.regline
 }

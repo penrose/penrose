@@ -554,5 +554,9 @@
   "dataviz/linearreg": {
     "name": "Linear Regression",
     "gallery": true
+  },
+  "dataviz/residual": {
+    "name": "Linear Regression Residuals",
+    "gallery": false
   }
 }
