@@ -4,6 +4,7 @@ import {
   resample,
   stepNextStage,
   stepTimes,
+  toSVG,
 } from "@penrose/core";
 import { Style } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
@@ -14,19 +15,33 @@ import toast from "react-hot-toast";
 import { useRecoilCallback } from "recoil";
 import { v4 as uuid } from "uuid";
 import {
+  DownloadPNG,
+  DownloadSVG,
+  pathResolver,
+  zipTrio,
+} from "../utils/downloadUtils.js";
+import {
+  Canvas,
   Diagram,
   DiagramGrid,
+  DiagramMetadata,
   EDITOR_VERSION,
   GistMetadata,
   LocalGithubUser,
+  ProgramFile,
+  RogerState,
   Settings,
   TrioWithPreview,
   Workspace,
   WorkspaceLocation,
   WorkspaceMetadata,
+  canvasState,
+  currentRogerState,
   currentWorkspaceState,
   diagramGridState,
+  diagramMetadataSelector,
   diagramState,
+  fileContentsSelector,
   localFilesState,
   settingsState,
   workspaceMetadataSelector,
@@ -200,6 +215,172 @@ const _saveLocally = (set: any) => {
 export const useSaveLocally = () =>
   useRecoilCallback(({ set }) => () => {
     _saveLocally(set);
+  });
+
+export const useDownloadTrio = () =>
+  useRecoilCallback(({ set, snapshot }) => async () => {
+    const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+      .contents as WorkspaceMetadata;
+    const fileTitle = metadata.name.replaceAll(" ", "_").toLowerCase();
+    const workspace = snapshot.getLoadable(currentWorkspaceState)
+      .contents as Workspace;
+    const dsl = workspace.files.domain;
+    const sub = workspace.files.substance;
+    const sty = workspace.files.style;
+
+    // save trio
+    if (
+      dsl.contents.length > 0 &&
+      sub.contents.length > 0 &&
+      sty.contents.length > 0
+    ) {
+      zipTrio([dsl, sub, sty], fileTitle);
+    } else {
+      toast.error(
+        "Could not export: no Penrose diagram detected. Compile a Penrose trio and try again.",
+      );
+    }
+  });
+
+export const useDownloadSvg = () =>
+  useRecoilCallback(({ set, snapshot }) => async () => {
+    const diagram = snapshot.getLoadable(diagramMetadataSelector)
+      .contents as DiagramMetadata;
+    const canvas = snapshot.getLoadable(canvasState).contents as Canvas;
+    if (canvas.ref && canvas.ref.current !== null) {
+      const svg = canvas.ref.current.firstElementChild as SVGSVGElement;
+      if (svg !== null) {
+        const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+          .contents as WorkspaceMetadata;
+        const domain = snapshot.getLoadable(fileContentsSelector("domain"))
+          .contents as ProgramFile;
+        const substance = snapshot.getLoadable(
+          fileContentsSelector("substance"),
+        ).contents as ProgramFile;
+        const style = snapshot.getLoadable(fileContentsSelector("style"))
+          .contents as ProgramFile;
+        DownloadSVG(
+          svg,
+          metadata.name,
+          domain.contents,
+          substance.contents,
+          style.contents,
+          metadata.editorVersion.toString(),
+          diagram.variation,
+        );
+      } else {
+        toast.error(
+          "Could not export: no Penrose diagram detected. Compile a Penrose trio and try again.",
+        );
+      }
+    }
+  });
+
+// download an svg with raw TeX labels
+export const useDownloadSvgTex = () =>
+  useRecoilCallback(({ set, snapshot }) => async () => {
+    const diagram = snapshot.getLoadable(diagramMetadataSelector)
+      .contents as DiagramMetadata;
+    const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+      .contents as WorkspaceMetadata;
+    const rogerState = snapshot.getLoadable(currentRogerState)
+      .contents as RogerState;
+    const canvas = snapshot.getLoadable(canvasState).contents as Canvas;
+    if (canvas.ref && canvas.ref.current !== null) {
+      const { state } = snapshot.getLoadable(diagramState).contents as Diagram;
+      if (state !== null) {
+        const svg = await toSVG(
+          state,
+          (path) => pathResolver(path, rogerState, metadata),
+          "diagramPanel",
+          true,
+        );
+        const domain = snapshot.getLoadable(fileContentsSelector("domain"))
+          .contents as ProgramFile;
+        const substance = snapshot.getLoadable(
+          fileContentsSelector("substance"),
+        ).contents as ProgramFile;
+        const style = snapshot.getLoadable(fileContentsSelector("style"))
+          .contents as ProgramFile;
+        DownloadSVG(
+          svg,
+          metadata.name,
+          domain.contents,
+          substance.contents,
+          style.contents,
+          metadata.editorVersion.toString(),
+          diagram.variation,
+        );
+      } else {
+        toast.error(
+          "Could not export: no Penrose diagram detected. Compile a Penrose trio and try again.",
+        );
+      }
+    }
+  });
+
+export const useDownloadPng = () =>
+  useRecoilCallback(({ set, snapshot }) => async () => {
+    const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
+    const canvas = snapshot.getLoadable(canvasState).contents as Canvas;
+    if (canvas.ref && canvas.ref.current !== null) {
+      const svg = canvas.ref.current.firstElementChild as SVGSVGElement;
+      if (svg !== null) {
+        const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+          .contents as WorkspaceMetadata;
+        const filename = `${metadata.name}.png`;
+        if (diagram.state) {
+          const { canvas: canvasDims } = diagram.state;
+          const { width, height } = canvasDims;
+          DownloadPNG(svg, filename, width, height, 1);
+        }
+      } else {
+        toast.error(
+          "Could not export: no Penrose diagram detected. Compile a Penrose trio and try again.",
+        );
+      }
+    }
+  });
+
+export const useDownloadPdf = () =>
+  useRecoilCallback(({ snapshot }) => async () => {
+    const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
+    const { state } = diagram;
+    const canvas = snapshot.getLoadable(canvasState).contents as Canvas;
+    if (canvas.ref && canvas.ref.current !== null) {
+      const svg = canvas.ref.current.firstElementChild as SVGSVGElement;
+      if (svg !== null && state) {
+        // clear all of the <penrose> metadata if it is present
+        // this metadata is added to SVGs for saving/loading but it will break PDF
+        const metadataQuery = svg.querySelector("penrose");
+        if (metadataQuery !== null) {
+          metadataQuery.innerHTML = "";
+        }
+        const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+          .contents as WorkspaceMetadata;
+        const openedWindow = window.open(
+          "",
+          "PRINT",
+          `height=${state.canvas.height},width=${state.canvas.width}`,
+        );
+        if (openedWindow === null) {
+          toast.error("Couldn't open popup to print");
+          return;
+        }
+        openedWindow.document.write(
+          `<!DOCTYPE html><head><title>${metadata.name}</title></head><body>`,
+        );
+        openedWindow.document.write(svg.outerHTML);
+        openedWindow.document.write("</body></html>");
+        openedWindow.document.close();
+        openedWindow.focus();
+        openedWindow.print();
+      } else {
+        toast.error(
+          "Could not export: no Penrose diagram detected. Compile a Penrose trio and try again.",
+        );
+      }
+    }
   });
 
 export const useDuplicate = () =>
