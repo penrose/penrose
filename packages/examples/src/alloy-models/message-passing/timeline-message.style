@@ -11,7 +11,8 @@ general {
     endX = ?
 }
 
-forall Party p {
+forall Party p
+where p := MkParty(name) {
     p.iconTop = Circle {
         r : 50
         fillColor: #ffffffff
@@ -20,7 +21,7 @@ forall Party p {
     }
 
     p.textTop = Text {
-        string: p.label
+        string: name
         fontSize: "20px"
         center: p.iconTop.center
     }

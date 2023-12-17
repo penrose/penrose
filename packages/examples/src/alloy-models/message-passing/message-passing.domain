@@ -3,5 +3,6 @@ type Message
 
 type Party
 
+constructor MkParty(String name) -> Party
 
 constructor MkMessage(Time t, Party from, Party to, String msg) -> Message
