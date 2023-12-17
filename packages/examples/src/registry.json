@@ -550,5 +550,9 @@
   "fractals/ifs/ifs": {
     "name": "Iterated Functions System",
     "gallery": true
+  },
+  "dataviz/linearreg": {
+    "name": "Linear Regression",
+    "gallery": true
   }
 }

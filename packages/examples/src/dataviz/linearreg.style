@@ -1,0 +1,72 @@
+canvas {
+  width = 400
+  height = 400
+}
+
+global {
+  horAxis = Line {
+    start: (-190, 0)
+    end: (190, 0)
+    endArrowhead: "straight"
+    strokeColor: #aaaaaaff
+  }
+
+  verAxis = Line {
+    start: (0, -190)
+    end: (0, 190)
+    endArrowhead: "straight"
+    strokeColor: #aaaaaaff
+  }
+
+  xvec = 0
+  yvec = 0
+
+  N = 0
+}
+
+forall Point p
+where p := MkPoint(x, y) {
+  p.icon = Circle {
+    r: 3
+    center: (x * 25, y * 25)
+    fillColor: #000000ff
+  }
+}
+
+collect Number x into xs
+where p := MkPoint(x, y)
+with Point p {
+  override global.xvec = xs
+  override global.N = numberof xs
+}
+
+collect Number y into ys
+where p := MkPoint(x, y)
+with Point p {
+  override global.yvec = ys
+}
+
+optimize {
+  beta = ?
+  alpha = ?
+
+  yhat = beta * global.xvec + repeat(global.N, alpha)
+
+  yvec = global.yvec
+
+  encourage minimal(vdistsq(yhat, yvec))
+
+  startx = -7
+  starty = alpha + beta * startx
+
+  endx = 7
+  endy = alpha + beta * endx
+
+  Line {
+    start: (25 * startx, 25 * starty)
+    end: (25 * endx, 25 * endy)
+    ensureOnCanvas: false
+    endArrowhead: "straight"
+    strokeColor: #ff0000ff
+  }
+}
