@@ -43,6 +43,15 @@ type_name object_name_1, object_name_2, ...
 
 This is equivalent to declaring the objects sequentially and separately.
 
+[Literal types](../domain/usage#literal-types) can only be inferred from expressions. As such, we cannot declare objects with these types, so statements like
+
+```substance
+String s
+Number n
+```
+
+are disallowed in _substance_.
+
 ### Predicate Applications
 
 We can _apply_ the predicates (first defined in the _domain_ schema) in our _substance_ program simply by invoking it. The syntax is
@@ -54,7 +63,7 @@ predicate_name (argument_list)
 where
 
 - `predicate_name` is the name of the predicate, as declared in the _domain_ schema; and
-- `argument_list` is a comma-separated list of objects (defined earlier in the _substance_ program) or other predicate applications.
+- `argument_list` is a comma-separated list of objects (defined earlier in the _substance_ program) and literal expressions.
 
 The types of the _substance_ objects in `argument_list` must match the types of the arguments as declared in the _domain_ schema, allowing for subtypes to match their supertypes.
 
@@ -87,6 +96,34 @@ Then,
 | `Bond (O, A)`         | Yes    |
 | `Bond (NA, H)`        | No     | `NA` has type `NotAnAtom` which does not match the required `Atom` |
 
+#### Literal Expressions as Arguments
+
+If a predicate argument expects a [literal type](../domain/usage.md#literal-types), then we need to provide it a literal expression. We illustrate this using an example.
+
+Suppose the _domain_ schema is as follows:
+
+```domain
+type Set
+predicate HasNum(Set set, Number num)
+predicate HasStr(Set set, String str)
+```
+
+Then, this is a valid _substance_ program
+
+```substance
+Set s1, s2
+
+HasNum(s1, 1.234)
+HasNum(s1, 2)
+HasStr(s1, "Hello")
+
+HasNum(s2, 5.678)
+HasNum(s2, -5.678)
+HasStr(s2, "world")
+```
+
+since numerical literals (`1.234`, `2`, `5.678`, and `-5.678`) have type `Number` and string literals (`"Hello"` and `"world"`) have type `String`.
+
 ### Function and Constructor Applications
 
 In Penrose, functions and constructors behave almost equivalently (the only difference being that constructors can additionally be invoked with the `Let` keyword explained below). Both functions and constructors can be invoked in the following two ways. The first way is
@@ -107,7 +144,7 @@ Finally, constructors alone can be invoked using the `Let` keyword if the constr
 Let object_name := function_constructor_name (argument_list)
 ```
 
-The rules for `argument_list` remain the same as in predicate applications. We further require that the output type of the function or constructor must match the type of `object_name`, up to subtyping. That is, if the function outputs type `A` and `object_name` has type `B`, then if `A` is a subtype of `B`, then the assignment is valid.
+The rules for `argument_list` remain the same as in predicate applications, including support for literal expressions as arguments. We further require that the output type of the function or constructor must match the type of `object_name`, up to subtyping. That is, if the function outputs type `A` and `object_name` has type `B`, then if `A` is a subtype of `B`, then the assignment is valid.
 
 ### Labeling Statements
 

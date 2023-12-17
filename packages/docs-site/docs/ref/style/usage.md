@@ -57,7 +57,7 @@ where
 - `list_object_declarations` is a **semicolon**-separated list of object declarations, similar to the object declarations in the Substance program. Each object declaration has syntax `type_name object_name`. The names declared in `list_object_declarations` are referred to as _style variables_.
 - `list_relations` is a **semicolon**-separated list of constraints (about objects in `list_object_declaration`) that must be satisfied in order for this style block to be triggered.
 
-The `forall`, `where`, and `with` clauses form the Selector Block Header. One might observe that both the `forall` clause and the `with` clause take in list of object declarations. The two clauses are treated equivalently in the header. Variables declared in these clauses can be accessed within the Selector Block Body.
+The `forall`, `where`, and `with` clauses form the Selector Block Header. One might observe that both the `forall` clause and the `with` clause take in list of object declarations. There are no semantic differences between objects declared in the `forall` clause and those declared in the `with` clause. Variables declared in these clauses can be accessed within the Selector Block Body.
 
 The first clause of a Selector Block Header must be `forall`; the other clauses `where` and `with` can be written in any order. The header does not allow for empty lists - that is, `list_object_declarations` and `list_relations` in the `where` and `with` clauses must not be empty. If it is desirable to not have any elements in a clause, the entire clause must be omitted.
 
@@ -169,6 +169,33 @@ matching the Style block against the Substance block yields only one valid mappi
 
 If an object name is not surrounded by backticks, then this object is a Style object with a Style variable. As seen before, the Penrose compiler will try to map Style variables to any Substance objects, provided that their types match (subtyping allowed).
 
+#### Objects of literal types
+
+Unlike in the _substance_ program, within a Style selector block, we can declare objects of literal types. Here is an example:
+
+::: code-group
+
+```style
+forall Number n {}
+forall String s {}
+```
+
+```substance
+P(1)
+P(-1)
+Q("Hello")
+Q("World")
+```
+
+```domain
+predicate P(Number)
+predicate Q(String)
+```
+
+:::
+
+Here, the first Style block (`forall Number n {}`) will be invoked twice with `n -> 1` and `n -> -1`, and the second Style block (`forall String s {}`) will be invoked twice with `s -> "Hello"` and `s -> "World`.
+
 ### Allowed Relations
 
 A Style block supports three types of relations, two of which can also be seen in the Substance program.
@@ -181,7 +208,9 @@ Just like in the Substance program, each predicate application has syntax
 predicate_name (argument_list)
 ```
 
-where elements of `argument_list` can refer to objects declared in `list_object_declarations`, or be other predicate applications. The types must still match, allowing subtyping.
+where elements of `argument_list` can refer to variables declared in `list_object_declarations`.
+
+Just as in the Substance program, the types must still match, up to subtyping.
 
 Optionally, one can give an alias to a predicate application:
 
@@ -190,6 +219,51 @@ predicate_name (argument_list) as alias_name
 ```
 
 If such an alias is set, then `alias_name` will be accessible in the style block body, and it will always refer to the version of the predicate application within the Substance program.
+
+##### Literal Values and Types
+
+If an argument of the predicate expects an object of [literal type](../domain/usage.md#literal-types), then for convenience, in the selector, the style variable for that argument does not need to be explicitly declared (though it can). In this concrete example,
+
+::: code-group
+
+```style
+forall Set s
+where Has(s, n) {}
+```
+
+```domain
+type Set
+predicate Has(Set, Number)
+```
+
+:::
+
+the Style variable `n` is automatically inferred to have type `Number` since per Domain, the second parameter of predicate `Has` expects a `Number` type. Hence, explicitly declaring `Number n` is not necessary in the Style header.
+
+Furthermore, literal expressions can also appear directly in Style selectors. A literal expression in style selector will only match the same literal expression in Substance. For example,
+
+::: code-group
+
+```style
+forall Set s
+where Has(s, 1) {}
+```
+
+```substance
+Set s1, s2
+Has(s1, 1)
+Has(s2, 2)
+Has(s3, 1)
+```
+
+```domain
+type Set
+predicate Has(Set, Number)
+```
+
+The style selector block will only match twice, since only `s = s1` and `s = s3` satisfy the relation `Has(s, 1)`.
+
+:::
 
 ##### Symmetry
 
@@ -231,6 +305,8 @@ object_name := function_name (argument_list)
 ```
 
 We do not allow aliasing for function and constructor applications. Arguments in `argument_list` must have types that match the Domain argument types, similar to the substance schema.
+
+Literal expressions and style variables that refer to Substance literals can also appear in `argument_list` just as in predicates.
 
 #### Object Property Relations
 
@@ -626,7 +702,53 @@ The workaround to this bug is to always put spaces around the `+` and `-` operat
 
 See the documentation on [Vectors and Matrices](vectors-matrices.md) for further information about operations on vector and matrix types.
 
-### Style-Variable-Level Expressions
+### Style-Variable Expressions
+
+#### Substance literals
+
+If a style variable `x` refers to some Substance literal, then within the Style block, accessing `x` directly gives the value of the Substance literal.
+
+For example, consider the following set of programs:
+
+:::code-group
+
+```style
+forall Number n
+where P(n) {
+    Circle {
+        r: n
+    }
+}
+forall String s
+where Q(s) {
+    Text {
+        string: s
+    }
+}
+```
+
+```substance
+P(123)
+P(456)
+Q("Hello")
+Q("World")
+```
+
+```domain
+predicate P(Number)
+predicate Q(String)
+```
+
+:::
+
+the above program will render the following shapes:
+
+- a circle of radius 123 (for mapping `n -> 123`) and a circle of radius 2 (for mapping `n -> 456`)
+- a text of string "Hello" (for mapping `s -> "Hello"`) and a text of string "World" (for mapping `s -> "World"`).
+
+If a variable `xs` is a collection of substance literals (for now, only literal numbers), then accessing `xs` gives a vector of the corresponding values, without requiring a Collection Access expression.
+
+#### Expressions that take Style variables as input
 
 Some expressions directly take Style variables (in the header of selector or collector blocks) as arguments.
 
@@ -660,3 +782,5 @@ where IsEmpty(x); IsNonEmpty(x) {
 ```
 
 :::
+
+If a Style variable `x` matches a Substance literal, then `nameof x` just returns the string representation of the literal.

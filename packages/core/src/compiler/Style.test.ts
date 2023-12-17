@@ -1454,7 +1454,7 @@ delete x.z.p }`,
 
       const { translation } = await loadProgs({ dsl, sub, sty });
       [-4, -2, 0, 2, 4].forEach((num) => {
-        const subName = `{#${num}}`;
+        const subName = `{n${num}}`;
         // ensure each shape exists
         expect(translation.symbols.get(`\`${subName}\`.sh`)).toBeDefined();
 
@@ -1484,11 +1484,11 @@ delete x.z.p }`,
           }
         }
       `;
-      // This is fine -- the `n` in `n.sh` would be translated to `{#...}`.sh, because resolveLhsPath handles this.
+      // This is fine -- the `n` in `n.sh` would be translated to `{n...}`.sh, because resolveLhsPath handles this.
 
       const { translation } = await loadProgs({ dsl, sub, sty });
       [-1.234, 3, 5.678].forEach((num) => {
-        const subName = `{#${num}}`;
+        const subName = `{n${num}}`;
         // ensure each shape exists
         expect(translation.symbols.get(`\`${subName}\`.sh`)).toBeDefined();
 

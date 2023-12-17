@@ -172,9 +172,9 @@ const recreateLiterals = (
 
 export const toLiteralName = (literal: string | number) => {
   if (typeof literal === "string") {
-    return `{${literal}}`;
+    return `{s${literal}}`;
   } else {
-    return `{#${literal.toString()}}`;
+    return `{n${literal.toString()}}`;
   }
 };
 
@@ -189,7 +189,7 @@ const recreateLiteral = (
       ? toLiteralName(lit.contents)
       : toLiteralName(lit.value);
 
-  // if it already exists, for uniqueness sake, don't recreate it again!
+  // if it already exists, for uniqueness, don't recreate it again!
   if (subEnv.objs.get(name) !== undefined) {
     return subEnv;
   }
@@ -229,10 +229,22 @@ const processLabelStmt = (
   switch (stmt.tag) {
     case "AutoLabel": {
       if (stmt.option.tag === "DefaultLabels") {
-        const [...ids] = subEnv.objs.keys();
+        const ids = subEnv.objIds;
         const newLabels: LabelMap = im.Map(
-          ids.map((id) => [id, { value: id, type: "MathLabel" }]),
+          ids.map((id) => {
+            const typ = subEnv.objs.get(id.value)!;
+
+            let lab: string;
+            if (isLiteralType(typ)) {
+              lab = id.value.substring(2, id.value.length - 1);
+            } else {
+              lab = id.value;
+            }
+
+            return [id.value, { value: lab, type: "MathLabel" }];
+          }),
         );
+
         return {
           ...subEnv,
           labels: newLabels,
@@ -240,7 +252,20 @@ const processLabelStmt = (
       } else {
         const ids = stmt.option.variables;
         const newLabels: LabelMap = subEnv.labels.merge(
-          ids.map((id) => [id.value, { value: id.value, type: "MathLabel" }]),
+          im.Map(
+            ids.map((id) => {
+              const typ = subEnv.objs.get(id.value)!;
+
+              let lab: string;
+              if (isLiteralType(typ)) {
+                lab = id.value.substring(2, id.value.length - 1);
+              } else {
+                lab = id.value;
+              }
+
+              return [id.value, { value: lab, type: "MathLabel" }];
+            }),
+          ),
         );
         return {
           ...subEnv,

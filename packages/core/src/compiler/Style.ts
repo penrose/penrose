@@ -937,36 +937,19 @@ const matchStyArgToSubArg = (
       }
     } else {
       const lit = subArg.contents;
-      if (lit.tag === "StringLit") {
-        const subArgType = stringType;
 
-        if (styBForm.tag === "StyVar") {
-          if (isSubtype(subArgType, styArgType, domEnv)) {
-            const rSubst: Subst = {};
-            rSubst[styArgName] = toSelSubstanceLiteral(subArg);
-            return [rSubst];
-          } else {
-            return [];
-          }
+      const subArgType = lit.tag === "StringLit" ? stringType : numberType;
+      if (styBForm.tag === "StyVar") {
+        if (isSubtype(subArgType, styArgType, domEnv)) {
+          const rSubst: Subst = {};
+          rSubst[styArgName] = toSelSubstanceLiteral(subArg);
+          return [rSubst];
         } else {
-          // Substance variables cannot match constant strings
           return [];
         }
       } else {
-        const subArgType = numberType;
-
-        if (styBForm.tag === "StyVar") {
-          if (isSubtype(subArgType, styArgType, domEnv)) {
-            const rSubst: Subst = {};
-            rSubst[styArgName] = toSelSubstanceLiteral(subArg);
-            return [rSubst];
-          } else {
-            return [];
-          }
-        } else {
-          // Substance variables cannot match constant numbers
-          return [];
-        }
+        // Substance variables cannot match literals
+        return [];
       }
     }
   } else {

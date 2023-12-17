@@ -7,7 +7,11 @@ import { PenroseError } from "../types/errors.js";
 import { ApplyPredicate, SubstanceEnv } from "../types/substance.js";
 import { Result, showError, showType } from "../utils/Error.js";
 import { compileDomain } from "./Domain.js";
-import { compileSubstance, prettySubstance } from "./Substance.js";
+import {
+  compileSubstance,
+  prettySubstance,
+  toLiteralName,
+} from "./Substance.js";
 
 const printError = false;
 
@@ -78,7 +82,7 @@ Set D
 });
 
 describe("Postprocess", () => {
-  test("labels", () => {
+  test("labels 1", () => {
     const prog = `
 Set A, B, C, D, E
 AutoLabel All
@@ -107,6 +111,32 @@ NoLabel D, E
         "Unexpected error when processing labels: " + showError(res.error),
       );
     }
+  });
+
+  test("labels 2: literals", () => {
+    const dom = `
+      predicate P(Number)
+      predicate Q(String)`;
+    const domEnv = envOrError(dom);
+    const sub = `
+      P(1)
+      P(-2.5)
+      Q("Hello")
+      Q("#123")
+      AutoLabel All`;
+    const { labels } = subEnvOrError(sub, domEnv);
+
+    [1, -2.5].forEach((n) => {
+      const name = toLiteralName(n);
+      expect(labels.get(name)).toBeDefined();
+      expect(labels.get(name)!.value).toEqual(n.toString());
+    });
+
+    ["Hello", "#123"].forEach((s) => {
+      const name = toLiteralName(s);
+      expect(labels.get(name)).toBeDefined();
+      expect(labels.get(name)!.value).toEqual(s);
+    });
   });
 });
 
@@ -280,12 +310,12 @@ NoLabel B, C
         `;
     const env = envOrError(domain);
     const subEnv = subEnvOrError(prog, env);
-    ["A", "B", "{#100}", "{BBBB}"].forEach((name) =>
+    ["A", "B", "{n100}", "{sBBBB}"].forEach((name) =>
       expect(subEnv.objs.get(name)).toBeDefined(),
     );
 
     // Even though literal 100 is used twice, we only want to have it recreated once.
-    expect(subEnv.objs.count((_, name) => name === "{#100}")).toEqual(1);
+    expect(subEnv.objs.count((_, name) => name === "{n100}")).toEqual(1);
   });
 });
 

@@ -740,9 +740,9 @@ export const rectlikeT = (): UnionT =>
 
 export const toLiteralName = (literal: string | number) => {
   if (typeof literal === "string") {
-    return `{${literal}}`;
+    return `{s${literal}}`;
   } else {
-    return `{#${literal.toString()}}`;
+    return `{n${literal.toString()}}`;
   }
 };
 
