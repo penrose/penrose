@@ -77,7 +77,7 @@ forall Time t {
 }
 
 forall Message m
-where m := MkMessage(t, ff, tt)
+where m := MkMessage(t, ff, tt, msg)
 with Time t; Party ff; Party tt {
     m.yCoord = ?
     ensure m.yCoord > t.bottomYCoord + 30
@@ -100,7 +100,7 @@ with Time t; Party ff; Party tt {
         fillColor: #00000055
     }
     m.text = Text {
-        string: m.label
+        string: msg
         fontSize: "15px"
         strokeColor: #ffffffff
         strokeWidth: 4
@@ -117,7 +117,7 @@ forall Message m1; Message m2 {
 }
 
 collect Message m into ms
-where m := MkMessage(t, ff, tt)
+where m := MkMessage(t, ff, tt, msg)
 with Party ff; Party tt
 foreach Time t;  {
     avgY = (t.topYCoord + t.bottomYCoord) / 2

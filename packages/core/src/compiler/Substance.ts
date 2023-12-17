@@ -1219,7 +1219,7 @@ export const checkArgs = (
         actual,
         expected,
         domEnv,
-        subEnv,
+        args.subEnv,
         allowUndeclaredVarToLiteral,
       ).andThen((res) =>
         ok({

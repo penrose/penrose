@@ -4,4 +4,4 @@ type Message
 type Party
 
 
-constructor MkMessage(Time t, Party from, Party to) -> Message
+constructor MkMessage(Time t, Party from, Party to, String msg) -> Message
