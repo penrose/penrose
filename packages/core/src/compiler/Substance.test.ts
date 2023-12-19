@@ -310,6 +310,14 @@ NoLabel B, C
       if (res2.isOk()) {
         expect(res2.value[1].vars.size).toBe(0);
       }
+
+      const env3 = envOrError(domainProg);
+      const prog3 = `Set a_i, b_j for i in [20, 1], j in [1, 20]`;
+      const res3 = compileSubstance(prog3, env3);
+      expect(res3.isOk()).toBe(true);
+      if (res3.isOk()) {
+        expect(res3.value[1].vars.size).toBe(0);
+      }
     });
 
     test("indexed set decllist", () => {
