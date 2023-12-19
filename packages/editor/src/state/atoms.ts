@@ -323,10 +323,11 @@ export const diagramState = atom<Diagram>({
   dangerouslyAllowMutability: true,
 });
 
-export const diagramWorkerState = atom<{ id: string }>({
+export const diagramWorkerState = atom<{ id: string; running: boolean }>({
   key: "diagramWorkerState",
   default: {
     id: "",
+    running: false,
   },
 });
 

@@ -50,7 +50,6 @@ export default class OptimizerWorker {
     this.worker.onmessage = async ({ data }: MessageEvent<Resp>) => {
       log.debug("Received message: ", data);
       if (data.tag === "Update") {
-        this.onComplete();
         this.onUpdate(optRenderStateToState(data.state, this.svgCache));
       } else if (data.tag === "Error") {
         this.onError(data.error);
@@ -67,6 +66,7 @@ export default class OptimizerWorker {
         }
       } else if (data.tag === "Finished") {
         this.running = false;
+        this.onComplete();
         log.info(`Finished optimization for ${data.id}`);
         this.onUpdate(optRenderStateToState(data.state, this.svgCache));
       } else if (data.tag === "ReqLabelCache") {

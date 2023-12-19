@@ -74,13 +74,25 @@ const _compileDiagram = async (
     },
     (error) => {
       set(diagramState, (state: Diagram) => ({ ...state, error }));
+      set(diagramWorkerState, {
+        ...diagramWorkerState,
+        running: false,
+      });
     },
     () => {
       toast.dismiss(compiling);
+      set(diagramWorkerState, {
+        ...diagramWorkerState,
+        running: false,
+      });
     },
   );
 
-  set(diagramWorkerState, id);
+  set(diagramWorkerState, {
+    ...diagramWorkerState,
+    id,
+    running: true,
+  });
 
   // TODO: update grid state too
   // set(diagramGridState, ({ gridSize }: DiagramGrid) => ({
@@ -194,7 +206,9 @@ export const useResampleDiagram = () =>
           gridSize,
         }));
       },
-      () => toast.dismiss(resamplingLoading),
+      () => {
+        toast.dismiss(resamplingLoading);
+      },
     );
   });
 
