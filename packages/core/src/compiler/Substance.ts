@@ -416,6 +416,10 @@ const evalISet = (iset: IndexSet<A>): Result<ISetSubst[], SubstanceError> => {
       });
     }
 
+    if (high.value < low.value) {
+      return ok([]);
+    }
+
     // a list of [[name, value]]
     const possVals = im
       .Range(low.value, high.value + 1)

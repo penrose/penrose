@@ -8,7 +8,7 @@ import {
   diagramMetadataSelector,
   workspaceMetadataSelector,
 } from "../state/atoms.js";
-import { pathResolver } from "./DiagramPanel.js";
+import { pathResolver } from "../utils/downloadUtils.js";
 
 export default function GridPanel() {
   const { source } = useRecoilValue(diagramMetadataSelector);
