@@ -135,18 +135,13 @@ export default class OptimizerWorker {
         onError,
       };
     } else if (!this.workerInitialized) {
-      log.debug("Worker not initialized yet, waiting...");
-      setTimeout(() => {
-        this.run(
-          domain,
-          style,
-          substance,
-          variation,
-          onUpdate,
-          onError,
-          onComplete,
-        );
-      }, 100);
+      log.warn("Worker not initialized yet, waiting...");
+      this.pending = {
+        request,
+        onUpdate,
+        onComplete,
+        onError,
+      };
     } else {
       this.running = true;
       this.onUpdate = onUpdate;
