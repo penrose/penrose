@@ -19,6 +19,12 @@ const log = (consola as any)
 export type onComplete = () => void;
 export type OnUpdate = (state: RenderState) => void;
 export type OnError = (error: PenroseError) => void;
+export type Pending = {
+  onUpdate: OnUpdate;
+  onError: OnError;
+  onComplete: onComplete;
+  request: Req;
+};
 
 /**
  * Wrapper class for the worker thread. Handles sending and receiving messages to and from the worker.
@@ -32,6 +38,7 @@ export default class OptimizerWorker {
   private onUpdate: OnUpdate = () => {};
   private onError: OnError = () => {};
   private onComplete: onComplete = () => {};
+  private pending: Pending | undefined = undefined;
   constructor() {
     log.debug("Worker initializing...", this.worker);
     const sab = new SharedArrayBuffer(2);
@@ -50,6 +57,14 @@ export default class OptimizerWorker {
       } else if (data.tag === "Ready") {
         this.workerInitialized = true;
         log.info("Worker ready for new input");
+        this.onComplete();
+        if (this.pending) {
+          log.warn("Worker has pending request, sending...");
+          this.request(this.pending.request);
+          this.onComplete = this.pending.onComplete;
+          this.onError = this.pending.onError;
+          this.onUpdate = this.pending.onUpdate;
+        }
       } else if (data.tag === "Finished") {
         this.running = false;
         log.info(`Finished optimization for ${data.id}`);
@@ -98,29 +113,27 @@ export default class OptimizerWorker {
     onError: OnError,
     onComplete: onComplete,
   ): string {
-    this.onUpdate = onUpdate;
-    this.onError = onError;
-    this.onComplete = onComplete;
     const id = uuid();
+    const request: Req = {
+      tag: "Compile",
+      domain,
+      style,
+      substance,
+      variation,
+      id,
+    };
+    log.info(`Start compilation for ${id}`);
     if (this.running) {
       // Let worker know we want them to stop optimizing and get
       // ready to receive a new trio
       Atomics.store(this.sharedMemory, 1, 1);
-      log.debug("Worker asked to stop");
-      // HACK: wait for worker to stop before sending new request
-      setTimeout(
-        () =>
-          this.run(
-            domain,
-            style,
-            substance,
-            variation,
-            onUpdate,
-            onError,
-            onComplete,
-          ),
-        100,
-      );
+      log.warn("Worker running and asked to stop");
+      this.pending = {
+        request,
+        onUpdate,
+        onComplete,
+        onError,
+      };
     } else if (!this.workerInitialized) {
       log.debug("Worker not initialized yet, waiting...");
       setTimeout(() => {
@@ -136,15 +149,10 @@ export default class OptimizerWorker {
       }, 100);
     } else {
       this.running = true;
-      log.info(`Start compilation for ${id}`);
-      this.request({
-        tag: "Compile",
-        domain,
-        style,
-        substance,
-        variation,
-        id,
-      });
+      this.onUpdate = onUpdate;
+      this.onError = onError;
+      this.onComplete = onComplete;
+      this.request(request);
     }
     return id;
   }
@@ -155,22 +163,25 @@ export default class OptimizerWorker {
     onUpdate: OnUpdate,
     onComplete: onComplete,
   ) => {
+    const request: Req = {
+      tag: "Resample",
+      variation,
+      id,
+    };
     if (this.running) {
       // Let worker know we want them to stop optimizing and get
       // ready to receive a new trio
       Atomics.store(this.sharedMemory, 1, 1);
       log.warn("Worker asked to stop");
-      // HACK: wait until the worker has stopped
-      setTimeout(() => {
-        this.resample(id, variation, onUpdate, onComplete);
-      }, 100);
+      this.pending = {
+        request,
+        onUpdate,
+        onComplete,
+        onError: () => {},
+      };
     }
     log.info(`Start resampling for ${id}, ${variation}`);
-    this.request({
-      tag: "Resample",
-      variation,
-      id,
-    });
+    this.request(request);
     // call `onCancel` before swapping out the update function
     this.onComplete();
     this.onComplete = onComplete;

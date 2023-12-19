@@ -14,7 +14,7 @@ import consola from "consola";
 import { Req, Resp } from "./message.js";
 
 const log = (consola as any)
-  .create({ level: (consola as any).LogLevel.Info })
+  .create({ level: (consola as any).LogLevel.Debug })
   .withScope("worker:worker");
 
 // Array of size two. First index is set if main thread wants an update,
