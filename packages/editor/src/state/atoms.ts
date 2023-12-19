@@ -7,7 +7,7 @@ import {
 } from "@penrose/core";
 import { PathResolver, Trio, TrioMeta } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
-import { Actions, BorderNode } from "flexlayout-react";
+import { Actions, BorderNode, TabNode } from "flexlayout-react";
 import localforage from "localforage";
 import { debounce, range } from "lodash";
 import toast from "react-hot-toast";
@@ -321,6 +321,13 @@ export const diagramState = atom<Diagram>({
 
   //   necessary due to diagram extension
   dangerouslyAllowMutability: true,
+});
+
+export const diagramWorkerState = atom<{ id: string }>({
+  key: "diagramWorkerState",
+  default: {
+    id: "",
+  },
 });
 
 export type DiagramGrid = {

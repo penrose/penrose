@@ -4106,22 +4106,15 @@ export const compileStyleHelper = async (
     optimizationStages.value,
   );
 
-  console.log("building comp graph");
-
   const computeShapes = await compileCompGraph(inputs, renderGraph);
-
-  console.log("end building comp graph");
-
   const gradient = await genGradient(
     inputs,
     objFns.map(({ output }) => output),
     constrFns.map(({ output }) => output),
   );
-  console.log("end building gradient");
 
   const params = genOptProblem(varyingValues.length);
 
-  console.log("end gen opt problem");
   const initState: State = {
     warnings: layeringWarning
       ? [...translation.diagnostics.warnings, ...groupWarnings, layeringWarning]
@@ -4143,7 +4136,6 @@ export const compileStyleHelper = async (
   };
 
   log.info("init state from GenOptProblem", initState);
-  console.log("init state from GenOptProblem", initState);
 
   return ok({
     state: initState,

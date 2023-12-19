@@ -10,7 +10,12 @@ import {
   stateToOptRenderState,
   stepTimes,
 } from "@penrose/core";
+import consola from "consola";
 import { Req, Resp } from "./message.js";
+
+const log = (consola as any)
+  .create({ level: (consola as any).LogLevel.Info })
+  .withScope("worker:worker");
 
 // Array of size two. First index is set if main thread wants an update,
 // second bit is set if user wants to send a new trio.
@@ -18,11 +23,14 @@ let sharedMemory: Int8Array;
 let initialState: PenroseState;
 let labels: OptLabelCache;
 let svgCache: Map<string, HTMLElement>;
+// the UUID of the current task
+let currentTask: string;
 
 const respondReqLabelCache = (state: PenroseState) => {
   respond({
     tag: "ReqLabelCache",
     shapes: state.shapes,
+    id: currentTask,
   });
 };
 
@@ -30,11 +38,12 @@ const respondUpdate = async (state: PenroseState) => {
   respond({
     tag: "Update",
     state: stateToOptRenderState(state),
+    id: currentTask,
   });
 };
 
 const respondError = (error: PenroseError) => {
-  const resp: Resp = { tag: "Error", error };
+  const resp: Resp = { tag: "Error", error, id: currentTask };
   respond(resp);
 };
 
@@ -46,12 +55,13 @@ const respondFinished = (state: PenroseState) => {
   respond({
     tag: "Finished",
     state: stateToOptRenderState(state),
+    id: currentTask,
   });
 };
 
 // Wrapper function for postMessage to ensure type safety
 const respond = (response: Resp) => {
-  console.log("Sending response: ", response);
+  log.debug("Sending response: ", response);
   postMessage(response);
 };
 
@@ -77,21 +87,22 @@ const optimize = (state: PenroseState) => {
 };
 
 onmessage = async ({ data }: MessageEvent<Req>) => {
-  console.log("Received message: ", data);
-
+  log.debug("Received message: ", data);
   if (data.tag === "Init") {
     sharedMemory = new Int8Array(data.sharedMemory);
     respond({ tag: "Ready" });
   } else if (data.tag === "Compile") {
-    const { domain, substance, style, variation } = data;
-    console.log("start compiling");
+    const { domain, substance, style, variation, id } = data;
+    // save the id for the current task
+    currentTask = id;
+    log.debug("start compiling");
     const compileResult = await compileTrio({
       domain,
       substance,
       style,
       variation,
     });
-    console.log("end compiling");
+    log.debug("end compiling");
 
     if (compileResult.isErr()) {
       respondError(compileResult.error);
@@ -109,7 +120,6 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
       ...initialState,
       labelCache: optLabelCacheToLabelCache(data.labelCache, svgCache),
     };
-
     optimize(insertPending(initialState));
   } else if (data.tag === "Resample") {
     const { variation } = data;

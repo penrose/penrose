@@ -21,6 +21,7 @@ import {
   currentWorkspaceState,
   diagramGridState,
   diagramState,
+  diagramWorkerState,
   localFilesState,
   optimizer,
   settingsState,
@@ -36,7 +37,8 @@ const _compileDiagram = async (
   excludeWarnings: string[],
   set: any,
 ) => {
-  optimizer.run(
+  const compiling = toast.loading("Compiling...");
+  const id = optimizer.run(
     domain,
     style,
     substance,
@@ -73,11 +75,12 @@ const _compileDiagram = async (
     (error) => {
       set(diagramState, (state: Diagram) => ({ ...state, error }));
     },
+    () => {
+      toast.dismiss(compiling);
+    },
   );
 
-  //   (state: PenroseState) =>
-
-  // )
+  set(diagramWorkerState, id);
 
   // TODO: update grid state too
   // set(diagramGridState, ({ gridSize }: DiagramGrid) => ({
@@ -166,27 +169,33 @@ export const useResampleDiagram = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
     const diagram: Diagram = snapshot.getLoadable(diagramState)
       .contents as Diagram;
+    const id: string = snapshot.getLoadable(diagramWorkerState)
+      .contents as string;
     if (diagram.state === null) {
       toast.error("Cannot resample uncompiled diagram");
       return;
     }
     const variation = generateVariation();
     const resamplingLoading = toast.loading("Resampling...");
-    optimizer.resample(variation, (resampled) => {
-      set(diagramState, (state) => ({
-        ...state,
-        metadata: { ...state.metadata, variation },
-        state: resampled,
-      }));
-      // update grid state too
-      set(diagramGridState, ({ gridSize }) => ({
-        variations: range(gridSize).map((i) =>
-          i === 0 ? variation : generateVariation(),
-        ),
-        gridSize,
-      }));
-      toast.dismiss(resamplingLoading);
-    });
+    optimizer.resample(
+      id,
+      variation,
+      (resampled) => {
+        set(diagramState, (state) => ({
+          ...state,
+          metadata: { ...state.metadata, variation },
+          state: resampled,
+        }));
+        // update grid state too
+        set(diagramGridState, ({ gridSize }) => ({
+          variations: range(gridSize).map((i) =>
+            i === 0 ? variation : generateVariation(),
+          ),
+          gridSize,
+        }));
+      },
+      () => toast.dismiss(resamplingLoading),
+    );
   });
 
 const _saveLocally = (set: any) => {

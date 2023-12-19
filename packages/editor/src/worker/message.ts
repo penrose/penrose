@@ -7,7 +7,10 @@ import {
 } from "@penrose/core";
 
 /** request */
-export type Req = Init | Compile | RenderedLabels | Resample;
+
+type ID = { id: string };
+
+export type Req = Init | ((Compile | RenderedLabels | Resample) & ID);
 
 export type Resample = {
   tag: "Resample";
@@ -38,7 +41,7 @@ export type Compile = {
 };
 
 /** response */
-export type Resp = Update | Error | Ready | Finished | RequestLabels;
+export type Resp = Ready | ((Update | Error | Finished | RequestLabels) & ID);
 
 export type Update = {
   tag: "Update";

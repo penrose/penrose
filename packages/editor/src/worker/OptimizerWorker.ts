@@ -8,16 +8,21 @@ import {
   showError,
 } from "@penrose/core";
 import consola from "consola";
+import { v4 as uuid } from "uuid";
 import { Req, Resp } from "./message.js";
 import RawWorker from "./worker.js?worker";
 
 const log = (consola as any)
-  .create({ level: (consola as any).LogLevel.Debug })
-  .withScope("Worker");
+  .create({ level: (consola as any).LogLevel.Info })
+  .withScope("worker:client");
 
+export type onComplete = () => void;
 export type OnUpdate = (state: RenderState) => void;
 export type OnError = (error: PenroseError) => void;
 
+/**
+ * Wrapper class for the worker thread. Handles sending and receiving messages to and from the worker.
+ */
 export default class OptimizerWorker {
   private worker: Worker = new RawWorker();
   private svgCache: Map<string, HTMLElement> = new Map();
@@ -26,10 +31,7 @@ export default class OptimizerWorker {
   private running: boolean = false;
   private onUpdate: OnUpdate = () => {};
   private onError: OnError = () => {};
-  private substance: string = "";
-  private style: string = "";
-  private domain: string = "";
-  private variation: string = "";
+  private onComplete: onComplete = () => {};
   constructor() {
     log.debug("Worker initializing...", this.worker);
     const sab = new SharedArrayBuffer(2);
@@ -41,20 +43,20 @@ export default class OptimizerWorker {
     this.worker.onmessage = async ({ data }: MessageEvent<Resp>) => {
       log.debug("Received message: ", data);
       if (data.tag === "Update") {
+        this.onComplete();
         this.onUpdate(optRenderStateToState(data.state, this.svgCache));
       } else if (data.tag === "Error") {
         this.onError(data.error);
       } else if (data.tag === "Ready") {
         this.workerInitialized = true;
-        log.debug("Worker initialized");
+        log.info("Worker ready for new input");
       } else if (data.tag === "Finished") {
         this.running = false;
+        log.info(`Finished optimization for ${data.id}`);
         this.onUpdate(optRenderStateToState(data.state, this.svgCache));
       } else if (data.tag === "ReqLabelCache") {
-        console.log("initializing mathjax");
         const convert = mathjaxInit();
         const labelCache = await collectLabels(data.shapes, convert);
-        console.log("collected labels");
         if (labelCache.isErr()) {
           throw Error(showError(labelCache.error));
         }
@@ -62,9 +64,14 @@ export default class OptimizerWorker {
           labelCache.value,
         );
         this.svgCache = svgCache;
+        log.info(
+          `Compilation completed for ${data.id}, Sending label cache to worker`,
+        );
+        this.onComplete();
         this.request({
           tag: "RespLabelCache",
           labelCache: optLabelCache,
+          id: data.id,
         });
       } else {
         // Shouldn't Happen
@@ -81,6 +88,7 @@ export default class OptimizerWorker {
     this.onError = onError;
     Atomics.store(this.sharedMemory, 0, 1);
   }
+
   run(
     domain: string,
     style: string,
@@ -88,49 +96,84 @@ export default class OptimizerWorker {
     variation: string,
     onUpdate: OnUpdate,
     onError: OnError,
-  ) {
+    onComplete: onComplete,
+  ): string {
     this.onUpdate = onUpdate;
     this.onError = onError;
-    this.domain = domain;
-    this.style = style;
-    this.substance = substance;
-    this.variation = variation;
+    this.onComplete = onComplete;
+    const id = uuid();
     if (this.running) {
       // Let worker know we want them to stop optimizing and get
       // ready to receive a new trio
       Atomics.store(this.sharedMemory, 1, 1);
       log.debug("Worker asked to stop");
-      // BUG: this will cause the worker to stop optimizing, but it will not re-send the request to the worker to start compiling again
+      // HACK: wait for worker to stop before sending new request
+      setTimeout(
+        () =>
+          this.run(
+            domain,
+            style,
+            substance,
+            variation,
+            onUpdate,
+            onError,
+            onComplete,
+          ),
+        100,
+      );
     } else if (!this.workerInitialized) {
-      console.log("Worker not initialized yet, waiting...");
-
+      log.debug("Worker not initialized yet, waiting...");
       setTimeout(() => {
-        this.run(domain, style, substance, variation, onUpdate, onError);
+        this.run(
+          domain,
+          style,
+          substance,
+          variation,
+          onUpdate,
+          onError,
+          onComplete,
+        );
       }, 100);
     } else {
       this.running = true;
+      log.info(`Start compilation for ${id}`);
       this.request({
         tag: "Compile",
         domain,
         style,
         substance,
         variation,
+        id,
       });
     }
+    return id;
   }
 
-  resample = (variation: string, onUpdate: OnUpdate) => {
+  resample = (
+    id: string,
+    variation: string,
+    onUpdate: OnUpdate,
+    onComplete: onComplete,
+  ) => {
     if (this.running) {
       // Let worker know we want them to stop optimizing and get
       // ready to receive a new trio
       Atomics.store(this.sharedMemory, 1, 1);
-      log.debug("Worker asked to stop");
+      log.warn("Worker asked to stop");
+      // HACK: wait until the worker has stopped
+      setTimeout(() => {
+        this.resample(id, variation, onUpdate, onComplete);
+      }, 100);
     }
+    log.info(`Start resampling for ${id}, ${variation}`);
     this.request({
       tag: "Resample",
       variation,
+      id,
     });
-    // call `onUpdate` before swapping it out
+    // call `onCancel` before swapping out the update function
+    this.onComplete();
+    this.onComplete = onComplete;
     this.onUpdate = onUpdate;
   };
   terminate() {
