@@ -242,11 +242,19 @@ NoLabel B, C
       }
 
       const env2 = envOrError(domainProg);
-      const prog2 = `Set a_i for i in [11, 10]`;
+      const prog2 = `Set a_i for i in [20, 10]`;
       const res2 = compileSubstance(prog2, env2);
       expect(res2.isOk()).toBe(true);
       if (res2.isOk()) {
         expect(res2.value.objs.size).toBe(0);
+      }
+
+      const env3 = envOrError(domainProg);
+      const prog3 = `Set a_i, b_j for i in [20, 1], j in [1, 20]`;
+      const res3 = compileSubstance(prog3, env3);
+      expect(res3.isOk()).toBe(true);
+      if (res3.isOk()) {
+        expect(res3.value[1].vars.size).toBe(0);
       }
     });
 
