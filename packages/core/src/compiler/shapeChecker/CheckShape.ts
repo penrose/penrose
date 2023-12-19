@@ -102,6 +102,7 @@ export const checkCircle = (
     ...center.value,
     r: r.value,
     passthrough: new Map(),
+    meta: { causedBy: [] },
     shapeType: "Circle",
   });
 };
@@ -136,6 +137,7 @@ export const checkEllipse = (
     rx: rx.value,
     ry: ry.value,
     passthrough: new Map(),
+    meta: { causedBy: [] },
     shapeType: "Ellipse",
   });
 };
@@ -178,6 +180,7 @@ export const checkEquation = (
     ascent: ascent.value,
     descent: descent.value,
     passthrough: new Map(),
+    meta: { causedBy: [] },
     shapeType: "Equation",
   });
 };
@@ -200,6 +203,7 @@ export const checkGroup = (
     shapes: shapes.value,
     clipPath: clipPath.value,
     passthrough: new Map(),
+    meta: { causedBy: [] },
     shapeType: "Group",
   });
 };
@@ -239,6 +243,7 @@ export const checkImage = (
     href: href.value,
     preserveAspectRatio: preserveAspectRatio.value,
     passthrough: new Map(),
+    meta: { causedBy: [] },
     shapeType: "Image",
   });
 };
@@ -277,6 +282,7 @@ export const checkLine = (
     end: end.value,
     strokeLinecap: strokeLinecap.value,
     passthrough: new Map(),
+    meta: { causedBy: [] },
     shapeType: "Line",
   });
 };
@@ -311,6 +317,7 @@ export const checkPath = (
     d: d.value,
     passthrough: new Map(),
     strokeLinecap: strokeLinecap.value,
+    meta: { causedBy: [] },
     shapeType: "Path",
   });
 };
@@ -341,6 +348,7 @@ export const checkPolygon = (
     ...scale.value,
     ...poly.value,
     passthrough: new Map(),
+    meta: { causedBy: [] },
     shapeType: "Polygon",
   });
 };
@@ -375,6 +383,7 @@ export const checkPolyline = (
     ...poly.value,
     strokeLinecap: strokeLinecap.value,
     passthrough: new Map(),
+    meta: { causedBy: [] },
     shapeType: "Polyline",
   });
 };
@@ -413,6 +422,7 @@ export const checkRectangle = (
     ...rect.value,
     ...corner.value,
     passthrough: new Map(),
+    meta: { causedBy: [] },
     shapeType: "Rectangle",
   });
 };
@@ -513,6 +523,7 @@ export const checkText = (
     ascent: ascent.value,
     descent: descent.value,
     passthrough: new Map(),
+    meta: { causedBy: [] },
     shapeType: "Text",
   });
 };

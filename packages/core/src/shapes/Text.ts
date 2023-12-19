@@ -110,4 +110,5 @@ export const makeText = (
   ...properties,
   shapeType: "Text",
   passthrough: new Map(),
+  meta: { causedBy: [] },
 });

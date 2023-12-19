@@ -6,6 +6,7 @@ import { A, C, Identifier } from "./ast.js";
 import { StyleDiagnostics, StyleError } from "./errors.js";
 import { Fn } from "./state.js";
 import { BindingForm, Expr, GPIDecl, Header, StyT } from "./style.js";
+import { CompiledSubStmt } from "./substance.js";
 import { ArgVal, Field, Name, PropID } from "./value.js";
 
 //#region Style semantics
@@ -113,6 +114,7 @@ export type NotShape = Exclude<Expr<C>, GPIDecl<C>>;
 export interface ShapeSource {
   tag: "ShapeSource";
   shapeType: ShapeType;
+  meta: SubstMeta;
   props: im.Map<PropID, WithContext<NotShape>>;
 }
 
@@ -141,6 +143,13 @@ export interface BlockAssignment extends Assignment, Locals {}
 export interface BlockInfo {
   block: LocalVarSubst;
   subst: StySubst;
+  meta: SubstMeta;
+}
+
+export type SubstMeta = BlockCausation;
+
+export interface BlockCausation {
+  causedBy: CompiledSubStmt<A>[];
 }
 
 export interface Context extends BlockInfo, Locals {}

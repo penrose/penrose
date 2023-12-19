@@ -49,4 +49,5 @@ export const makePolygon = (
   ...properties,
   shapeType: "Polygon",
   passthrough: new Map(),
+  meta: { causedBy: [] },
 });

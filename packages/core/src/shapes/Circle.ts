@@ -48,4 +48,5 @@ export const makeCircle = (
   ...properties,
   shapeType: "Circle",
   passthrough: new Map(),
+  meta: { causedBy: [] },
 });

@@ -82,4 +82,5 @@ export const makeEquation = (
   ...properties,
   shapeType: "Equation",
   passthrough: new Map(),
+  meta: { causedBy: [] },
 });

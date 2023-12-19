@@ -43,4 +43,5 @@ export const makeImage = (
   ...properties,
   shapeType: "Image",
   passthrough: new Map(),
+  meta: { causedBy: [] },
 });

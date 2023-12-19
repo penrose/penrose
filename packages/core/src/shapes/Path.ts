@@ -49,4 +49,5 @@ export const makePath = (
   ...properties,
   shapeType: "Path",
   passthrough: new Map(),
+  meta: { causedBy: [] },
 });
