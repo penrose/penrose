@@ -224,7 +224,7 @@ NoLabel B, C
       const res3 = compileSubstance(prog3, env3);
       expect(res3.isOk()).toBe(true);
       if (res3.isOk()) {
-        expect(res3.value[1].vars.size).toBe(0);
+        expect(res3.value.objs.size).toBe(0);
       }
     });
 
