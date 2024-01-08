@@ -104,8 +104,6 @@ describe("statements", () => {
     const prog = `
 Set A
 Map f, g, h
-List(Set) l
-List(Map) l1
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);
@@ -119,7 +117,7 @@ List(Map) l1
           }
         })
         .flat(),
-    ).toEqual(["A", "f", "g", "h", "l", "l1"]);
+    ).toEqual(["A", "f", "g", "h"]);
   });
 
   test.each(["Set a", "Set a, b"])("decl list %s", (iset: string) => {
@@ -172,8 +170,6 @@ NoLabel B, C
 Set A, B, C
 Point p1, p2
 C := Intersection(A, B)
-p1 := ValueOf(A.value)
-p2 := ValueOf(B.value)
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);
@@ -182,16 +178,6 @@ p2 := ValueOf(B.value)
     const prog = `
 Set A, B, C
 IsSubset(A, B)
-Not(IsSubset(A, B))
-    `;
-    const { results } = parser.feed(prog);
-    sameASTs(results);
-  });
-  test("equal predicate", () => {
-    const prog = `
-Set A, B, C
-IsSubset(Not(A), B) <-> IsSubset(B, C)
-CreateSubset(A, B) = CreateSubset(B, C)
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);

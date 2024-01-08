@@ -48,7 +48,7 @@ where IsSubset(x, y) {
 }
 
 forall Set x; Set y
-where Not(Intersecting(x, y)) {
+where NotIntersecting(x, y) {
     ensure disjoint(x.shape, y.shape)
 }
 

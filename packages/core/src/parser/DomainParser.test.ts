@@ -25,8 +25,7 @@ describe("Common", () => {
 -- comments
 type Set -- inline comments\r
 -- type Point
-type ParametrizedSet ('T, 'U)\r\n
-predicate From(Map f, Set domain, Set codomain)\n
+predicate From(Map f, Set domain, Set codomain)\r\n
 /* Multi-line comments
 type ParametrizedSet ('T, 'U)
 predicate From(Map f, Set domain, Set codomain)
@@ -41,10 +40,8 @@ predicate From(Map f, Set domain, Set codomain)
 -- comments
 type Set -- inline comments
 -- type Point
-type ParametrizedSet ('T, 'U)
 predicate From(Map f, Set domain, Set codomain)
 /* Multi-line comments
-type ParametrizedSet ('T, 'U)
 predicate From(Map f, Set domain, Set codomain)
 */
 predicate From(Map f, Set domain, Set codomain)
@@ -55,23 +52,10 @@ function CartesianProduct(Set a, Set b) -> Set
 function Difference(Set a, Set b) -> Set
 function Subset(Set a, Set b) -> Set
 function AddPoint(Point p, Set s1) -> Set
--- with type params
-function AddV['V](Vector('V) v1, Vector('V) v2) -> Vector('V)
-function Norm['V](Vector('V) v1) -> Scalar
 -- edge case
 function Empty() -> Scalar
 -- generics
-constructor Cons ['X] ('X head, List('X) tail) -> List('X)
-constructor Nil['X]() -> List('X)
-notation "A ⊂ B" ~ "IsSubset(A, B)"
-notation "p ∈ A" ~ "PointIn(A, p)"
-notation "p ∉ A" ~ "PointNotIn(A, p)"
-notation "A ∩ B = ∅" ~ "Not(Intersecting(A, B))"
-notation "f: A -> B" ~ "Map f; From(f, A, B)"
 RightClopenInterval <: Interval
--- edge cases
-List(Vector) <: List(Matrix)
-List('T) <: List('U)
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);
@@ -84,9 +68,6 @@ describe("Statement types", () => {
 -- comments
 type Set
 type Point
--- type ParametrizedSet1 () -- this is not okay
-type ParametrizedSet2 ('T)
-type ParametrizedSet3 ( 'T,    'V)
 -- inline subtype
 type Nonempty <: Set
 type SmallerSet <: Point, Set
@@ -152,9 +133,6 @@ function CartesianProduct(Set a, Set b) -> Set
 function Difference(Set a, Set b) -> Set
 function Subset(Set a, Set b) -> Set
 function AddPoint(Point p, Set s1) -> Set
--- with type params
-function AddV['V](Vector('V) v1, Vector('V) v2) -> Vector('V)
-function Norm['V](Vector('V) v1) -> Scalar
 -- edge case
 function Empty() -> Scalar
     `;
@@ -171,36 +149,11 @@ function Empty() -> Scalar
   constructor CreateRightClopenInterval(Real left, Real right) -> RightClopenInterval
   constructor CreateFunction(Set s1, Set s2) -> Function
   constructor Pt(Real x, Real y) -> Point
-  -- generics
-  constructor Cons ['X] ('X head, List('X) tail) -> List('X)
-  constructor Nil['X]() -> List('X)
       `;
     const { results } = parser.feed(prog);
     sameASTs(results);
   });
-  test("prelude decls", () => {
-    const prog = `
-  -- real program
-  value R : Reals
-  value R2 : Set
-  -- generics
-  value R2 : Set('T, 'U, Vector)
-      `;
-    const { results } = parser.feed(prog);
-    sameASTs(results);
-  });
-  test("notation decls", () => {
-    const prog = `
-notation "A ⊂ B" ~ "IsSubset(A, B)"
-notation "p ∈ A" ~ "PointIn(A, p)"
-notation "p ∉ A" ~ "PointNotIn(A, p)"
-notation "A ∩ B = ∅" ~ "Not(Intersecting(A, B))"
-notation "f: A -> B" ~ "Map f; From(f, A, B)"
-      `;
-    const { results } = parser.feed(prog);
-    sameASTs(results);
-  });
-  test("notation decls", () => {
+  test("Subtype decls", () => {
     const prog = `
 Reals <: Set
 Interval <: Set
@@ -209,9 +162,6 @@ OpenInterval <: Interval
 ClosedInterval <: Interval
 LeftClopenInterval <: Interval
 RightClopenInterval <: Interval
--- edge cases
-List(Vector) <: List(Matrix)
-List('T) <: List('U)
       `;
     const { results } = parser.feed(prog);
     sameASTs(results);

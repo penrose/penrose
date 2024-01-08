@@ -1,5 +1,5 @@
 import { Monaco } from "@monaco-editor/react";
-import { Env } from "@penrose/core";
+import { DomainEnv } from "@penrose/core";
 import { editor, IRange, languages, Position } from "monaco-editor";
 import { CommentCommon, CommonTokens } from "./common.js";
 
@@ -28,14 +28,14 @@ export const SubstanceConfig: languages.LanguageConfiguration = {
 };
 
 export const SubstanceLanguageTokens = (
-  domainCache: Env,
+  domainCache: DomainEnv,
 ): languages.IMonarchLanguage => {
   const refs = {
     types: [...domainCache.types.keys()],
     functionLikes: [
-      ...domainCache.constructors.keys(),
-      ...domainCache.functions.keys(),
-      ...domainCache.predicates.keys(),
+      ...domainCache.constructorDecls.keys(),
+      ...domainCache.functionDecls.keys(),
+      ...domainCache.predicateDecls.keys(),
     ],
     control: [
       "AutoLabel",
@@ -88,7 +88,7 @@ export const SubstanceCompletions = (
     detail: "type",
     range,
   }));
-  const predicates = [...domainCache.predicates.keys()].map((type) => ({
+  const predicates = [...domainCache.predicateDecls.keys()].map((type) => ({
     label: type,
     insertText: type + "($0)",
     insertTextRules: languages.CompletionItemInsertTextRule.InsertAsSnippet,
@@ -96,7 +96,7 @@ export const SubstanceCompletions = (
     detail: "predicate",
     range,
   }));
-  const constructors = [...domainCache.constructors.keys()].map((type) => ({
+  const constructors = [...domainCache.constructorDecls.keys()].map((type) => ({
     label: type,
     insertText: type + "($0)",
     insertTextRules: languages.CompletionItemInsertTextRule.InsertAsSnippet,
@@ -112,7 +112,7 @@ export const SubstanceCompletions = (
     range,
   }));
 
-  const fns = [...domainCache.functions.entries()].map(([name, fn]) => ({
+  const fns = [...domainCache.functionDecls.entries()].map(([name, fn]) => ({
     label: name,
     insertText: `${name}($0)`,
     insertTextRules: languages.CompletionItemInsertTextRule.InsertAsSnippet,
@@ -132,7 +132,7 @@ export const SubstanceCompletions = (
 };
 
 export const SetupSubstanceMonaco =
-  (domainCache: Env | null) => (monaco: Monaco) => {
+  (domainCache: DomainEnv | null) => (monaco: Monaco) => {
     monaco.languages.register({ id: "substance" });
     monaco.languages.setLanguageConfiguration("substance", SubstanceConfig);
     if (domainCache) {

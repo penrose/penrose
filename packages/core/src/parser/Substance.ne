@@ -9,14 +9,13 @@ import moo from "moo";
 import _ from 'lodash'
 import { optional, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil.js'
 import { C, ConcreteNode, Identifier, StringLit } from "../types/ast.js";
-import { IndexSet, RangeAssign, Range, NumberConstant, BinaryExpr, UnaryExpr, ComparisonExpr, BooleanExpr, BinaryBooleanExpr, UnaryBooleanExpr, BooleanConstant, SubProg, SubStmt, Decl, DeclList, Bind, DeclBind, ApplyPredicate, Deconstructor, Func, EqualExprs, EqualPredicates, LabelDecl, NoLabel, AutoLabel, LabelOption, TypeConsApp } from "../types/substance.js";
+import { IndexSet, RangeAssign, Range, NumberConstant, BinaryExpr, UnaryExpr, ComparisonExpr, BooleanExpr, BinaryBooleanExpr, UnaryBooleanExpr, BooleanConstant, SubProg, SubStmt, Decl, DeclList, Bind, DeclBind, ApplyPredicate, Func, TypeApp, LabelDecl, NoLabel, AutoLabel, LabelOption } from "../types/substance.js";
 
 
 // NOTE: ordering matters here. Top patterns get matched __first__
 const lexer = moo.compile({
   tex_literal: /\$.*?\$/, // TeX string enclosed by dollar signs
   double_arrow: "<->",
-  int_literal: /[+-]?[1-9][0-9]*|0(?!\.[0-9])/,
   float_literal: /([+-]?([0-9]*[.])?[0-9]+)/,
   ...basicSymbols,
   identifier: {
@@ -115,19 +114,11 @@ range_assign -> identifier _ "in" _ int_range {%
   })
 %}
 
-int_range -> "[" _ integer _ "," _ integer _ "]" {%
+int_range -> "[" _ number _ "," _ number _ "]" {%
   ([lbracket, , low, , , , high, , rbracket]): Range<C> => ({
     ...nodeData,
     ...rangeBetween(lbracket, rbracket),
     tag: "Range", low, high
-  })
-%}
-
-integer -> %int_literal {% 
-  ([d]): NumberConstant<C> => ({
-    ...nodeData,
-    ...rangeOf(d),
-    tag: "NumberConstant", value: +d.value
   })
 %}
 
@@ -139,9 +130,7 @@ float -> %float_literal {%
     })
   %}
 
-number 
-  -> integer {%id%}
-  |  float {%id%}
+number -> float {%id%}
 
 stmt 
   -> decl            {% id %}
@@ -150,10 +139,8 @@ stmt
   |  decl_bind       {% id %} 
   |  apply_predicate {% id %}
   |  label_stmt      {% id %}
-  |  equal_exprs     {% id %}
-  |  equal_predicates {% id %}
 
-decl -> type_constructor __ sepEndBy1[identifier, ","] {%
+decl -> type_app __ sepEndBy1[identifier, ","] {%
   ([type, , ids]): Decl<C> | DeclList<C> => {
     if (ids.length === 1) {
       // single identifier means one decl
@@ -182,7 +169,7 @@ bind -> identifier _ ":=" _ sub_expr {%
   })
 %}
 
-decl_bind -> type_constructor __ identifier _ ":=" _ sub_expr {%
+decl_bind -> type_app __ identifier _ ":=" _ sub_expr {%
   ([type, , variable, , , , expr]): DeclBind<C> => {
     return {
       ...nodeData,
@@ -195,10 +182,10 @@ decl_bind -> type_constructor __ identifier _ ":=" _ sub_expr {%
 
 let_bind -> "Let" __ identifier _ ":=" _ sub_expr {%
   ([prefix, , variable, , , , expr]): DeclBind<C> => {
-    const type: TypeConsApp<C> = {
+    const type: TypeApp<C> = {
       ...nodeData,
       ...rangeBetween(variable, expr),
-      tag: "TypeConstructor", args: [], name: expr.name
+      tag: "TypeApp", name: expr.name
     };
     return {
       ...nodeData,
@@ -209,7 +196,7 @@ let_bind -> "Let" __ identifier _ ":=" _ sub_expr {%
   }
 %}
 
-apply_predicate -> identifier _ "(" _ sepEndBy1[pred_arg, ","] _ ")" {%
+apply_predicate -> identifier _ "(" _ sepEndBy1[sub_arg_expr, ","] _ ")" {%
   ([name, , , , args]): ApplyPredicate<C> => ({
     ...nodeData,
     ...rangeFrom([name, ...args]),
@@ -220,41 +207,19 @@ apply_predicate -> identifier _ "(" _ sepEndBy1[pred_arg, ","] _ ")" {%
 pred_arg -> sub_expr {% id %} # allow any expressions as arguments
 
 sub_expr 
+  -> func {% id %}
+  |  sub_arg_expr {% id %}
+
+sub_arg_expr
   -> identifier {% id %}
-  |  deconstructor {% id %}
-  |  func {% id %}
   |  string_lit {% id %}
 
-deconstructor -> identifier _ "." _ identifier {%
-  ([variable, , , , field]): Deconstructor<C> => ({
-    ...nodeData,
-    ...rangeBetween(variable, field),
-    tag: "Deconstructor", variable, field
-  })
-%}
-
 # NOTE: generic func type for consturction, predicate, or function
-func -> identifier _ "(" _ sepEndBy[sub_expr, ","] _ ")" {%
+func -> identifier _ "(" _ sepEndBy[sub_arg_expr, ","] _ ")" {%
   ([name, , , , args]): Func<C> => ({
     ...nodeData,
     ...rangeFrom([name, ...args]),
     tag: "Func", name, args
-  })
-%}
-
-equal_exprs -> sub_expr _ "=" _ sub_expr {%
-  ([left, , , , right]): EqualExprs<C> => ({
-    ...nodeData,
-    ...rangeBetween(left, right),
-    tag: "EqualExprs", left, right
-  })
-%}
-
-equal_predicates -> apply_predicate _ "<->" _ apply_predicate {%
-  ([left, , , , right]): EqualPredicates<C> => ({
-    ...nodeData,
-    ...rangeBetween(left, right),
-    tag: "EqualPredicates", left, right
   })
 %}
 
@@ -307,21 +272,16 @@ label_option
 
 # Grammar from Domain
 
-type_constructor -> identifier type_arg_list:? {% 
-  ([name, a]): TypeConsApp<C> => {
-    const args = optional(a, []);
+type_app -> identifier {% 
+  ([name]): TypeApp<C> => {
     return {
       ...nodeData,
-      ...rangeFrom([name, ...args]),
-      tag: "TypeConstructor", name, args 
+      ...rangeFrom([name]),
+      tag: "TypeApp", name 
     };
   }
 %}
 
-# NOTE: only type constructors are alloed in Substance
-type_arg_list -> _ "(" _ sepEndBy1[type_constructor, ","] _ ")" {% 
-  ([, , , d]): TypeConsApp<C>[] => _.flatten(d) 
-%}
 
 # Exprs
 
