@@ -147,6 +147,34 @@ export const isKeyOf = <T extends Record<string, unknown>>(
   obj: T,
 ): key is keyof T => key in obj;
 
+/**
+ * Return a fresh topologically sorted array of nodes reachable from `sinks`.
+ * @param preds returns the predecessors of a node
+ */
+export const topsort = <T>(
+  preds: (x: T) => Iterable<T>,
+  sinks: Iterable<T>,
+): T[] => {
+  const sorted: T[] = [];
+  const marked = new Set<T>();
+  const stack: T[] = [...sinks];
+  const ready: boolean[] = stack.map(() => false);
+  while (stack.length > 0) {
+    const x = stack.pop() as T;
+    if (ready.pop()) sorted.push(x);
+    else if (!marked.has(x)) {
+      marked.add(x);
+      stack.push(x);
+      ready.push(true);
+      for (const y of preds(x)) {
+        stack.push(y);
+        ready.push(false);
+      }
+    }
+  }
+  return sorted;
+};
+
 //#endregion
 
 //#region random
