@@ -286,11 +286,6 @@ export const showError = (
       )}) because matching on fields is not fully supported. Currently, only "label" can be matched in selectors.`;
     }
 
-    // case "SelectorRelTypeMismatch": {
-    //   // COMBAK: Add code for prettyprinting types
-    //   return "Mismatched types or wrong subtypes between variable and expression in relational statement in selector";
-    // }
-
     case "TaggedSubstanceError": {
       switch (error.error.tag) {
         // special handling for VarNotFound
@@ -737,10 +732,6 @@ export const errLocs = (
     case "SelectorFieldNotSupported": {
       return locOrNone(e.field);
     }
-    // case "SelectorRelTypeMismatch": {
-    //   // COMBAK: Add code for prettyprinting types
-    //   return locOrNone(e.exprType);
-    // }
 
     case "TaggedSubstanceError": {
       switch (e.error.tag) {

@@ -35,21 +35,6 @@ export type SelectorEnv = SubstanceEnv & {
   errors: StyleError[];
 };
 
-// g ::= B => |T
-// Assumes nullary type constructors (i.e. Style type = Substance type)
-//export interface SelEnv {
-//  // COMBAK: k is a BindingForm that was stringified; maybe it should be a Map with BindingForm as key?
-//  // Variable => Type
-//  sTypeVarMap: { [k: string]: SelectorType<A> }; // B : |T
-//  varProgTypeMap: { [k: string]: [ProgType, BindingForm<A>] }; // Store aux info for debugging, COMBAK maybe combine it with sTypeVarMap
-//  // Variable => [Substance or Style variable, original data structure with program locs etc]
-//  skipBlock: boolean;
-//  header: Header<A> | undefined; // Just for debugging
-//  warnings: StyleError[];
-//  errors: StyleError[];
-//}
-// Currently used to track if any Substance variables appear in a selector but not a Substance program (in which case, we skip the block)
-
 //#endregion
 
 //#region Selector dynamic semantics (matching)
