@@ -42,10 +42,16 @@ type RoseArgs<T> = {
   [K in keyof T]: FromRose<T[K]>;
 };
 
+// generate Penrose autodiff nodes representing glue code to create Rose values,
+// e.g. to call a Rose function
 const toRose = <T>(t: T): ((x: FromRose<T>) => ad.Expr) => {
   if (t === rose.Bool || t === rose.Real) return (x: any) => x;
   const syms = Object.getOwnPropertySymbols(t);
-  const sym = syms.find((sym) => sym.description === "elem"); // scary! beware!
+  // this "elem" symbol is internal to Rose so we can't just import it; we can
+  // extract it in this manner by finding a symbol with the right `description`,
+  // but that is specifically bypassing encapsulation, and therefore might break
+  // unexpectedly
+  const sym = syms.find((sym) => sym.description === "elem");
   if (sym === undefined) {
     const mems = Object.entries(t as any).map(
       ([k, v]): [string, (x: any) => ad.Expr] => [k, toRose(v)],
@@ -60,10 +66,13 @@ const toRose = <T>(t: T): ((x: FromRose<T>) => ad.Expr) => {
   }
 };
 
+// generate Rose values from Penrose autodiff nodes that represented glue code,
+// e.g. to call a Rose function
 const fromRose = <T>(t: T): ((x: ad.Expr) => FromRose<T>) => {
   if (t === rose.Bool || t === rose.Real) return (x: any) => x;
   const syms = Object.getOwnPropertySymbols(t);
-  const sym = syms.find((sym) => sym.description === "elem"); // scary! beware!
+  // see above comment explaining why this is sus
+  const sym = syms.find((sym) => sym.description === "elem");
   if (sym === undefined) {
     const mems = Object.entries(t as any).map(
       ([k, v]): [string, (x: ad.Expr) => any] => [k, fromRose(v)],
