@@ -33,11 +33,11 @@ export interface State {
   labelCache: LabelCache;
   shapes: Shape<ad.Num>[];
   canvas: Canvas;
-  gradient: ad.Gradient;
   currentStageIndex: number;
   optStages: string[];
-  computeShapes: ShapeFn;
   params: Params;
+  gradient: ad.Gradient;
+  computeShapes: ShapeFn;
 }
 
 export interface OptEquationData {

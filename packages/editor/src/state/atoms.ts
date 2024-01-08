@@ -1,6 +1,6 @@
 import {
   compileDomain,
-  Env,
+  DomainEnv,
   PenroseError,
   PenroseWarning,
   RenderState,
@@ -10,6 +10,7 @@ import registry from "@penrose/examples/dist/registry.js";
 import { Actions, BorderNode, TabNode } from "flexlayout-react";
 import localforage from "localforage";
 import { debounce, range } from "lodash";
+import { RefObject } from "react";
 import toast from "react-hot-toast";
 import {
   atom,
@@ -267,7 +268,7 @@ export const workspaceMetadataSelector = selector<WorkspaceMetadata>({
   },
 });
 
-export const domainCacheState = selector<Env | null>({
+export const domainCacheState = selector<DomainEnv | null>({
   key: "domainCache",
   get: ({ get }) => {
     const domainProgram = get(fileContentsSelector("domain")).contents;
@@ -298,6 +299,17 @@ export type Diagram = {
   warnings: PenroseWarning[];
   metadata: DiagramMetadata;
 };
+
+export type Canvas = {
+  ref: RefObject<HTMLDivElement> | null;
+};
+
+export const canvasState = atom<Canvas>({
+  key: "canvasState",
+  default: {
+    ref: null,
+  },
+});
 
 export const diagramState = atom<Diagram>({
   key: "diagramState",

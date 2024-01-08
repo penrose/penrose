@@ -366,7 +366,7 @@ export const checkSwapInStmtArgs = (
     // TODO: rewrite to use a more general id-finding function. `identicalTypeDecls` is way too specific
     const swapOpts = identicalTypeDecls(
       stmt.args.filter((id): id is Identifier<A> => id.tag === "Identifier"),
-      cxt.env,
+      cxt.subEnv,
     );
     log.debug(`Found options to swap in: ${swapOpts.toArray()}`);
     const swapChoice = pickSwap(swapOpts);
@@ -411,7 +411,7 @@ export const checkSwapInExprArgs = (
       if (expr.args.length < 1) return undefined;
       const swapOpts = identicalTypeDecls(
         expr.args.filter((id): id is Identifier<A> => id.tag === "Identifier"),
-        cxt.env,
+        cxt.subEnv,
       );
       const swapChoice = pickSwap(swapOpts);
       if (!swapChoice) return undefined;
@@ -666,7 +666,7 @@ export const enumReplaceStmtName = (
   cxt: SynthesisContext,
 ): ReplaceStmtName[] => {
   if (stmt.tag === "ApplyPredicate") {
-    const matchingNames: string[] = matchSignatures(stmt, cxt.env).map(
+    const matchingNames: string[] = matchSignatures(stmt, cxt.domEnv).map(
       (decl) => decl.name.value,
     );
     const options = _.without(matchingNames, stmt.name.value);
@@ -699,7 +699,7 @@ export const enumReplaceExprName = (
       expr.tag === "ApplyFunction" ||
       expr.tag === "Func"
     ) {
-      const matchingNames: string[] = matchSignatures(expr, cxt.env).map(
+      const matchingNames: string[] = matchSignatures(expr, cxt.domEnv).map(
         (decl) => decl.name.value,
       );
       const options = _.without(matchingNames, expr.name.value);
@@ -731,7 +731,7 @@ export const enumChangeStmtType = (
   cxt: SynthesisContext,
 ): ChangeStmtType[] => {
   if (stmt.tag === "ApplyPredicate") {
-    const options = argMatches(stmt, cxt.env);
+    const options = argMatches(stmt, cxt.domEnv);
     return options.map((decl: ArgStmtDecl<A>) => {
       const { res, stmts, ctx: newCtx } = generateArgStmt(decl, cxt, stmt.args);
       const deleteOp: Delete = deleteMutation(stmt, newCtx);
@@ -761,7 +761,7 @@ export const enumChangeExprType = (
       expr.tag === "ApplyFunction" ||
       expr.tag === "Func"
     ) {
-      const options = argMatches(stmt, cxt.env);
+      const options = argMatches(stmt, cxt.domEnv);
       return options.map((decl: ArgStmtDecl<A>) => {
         const {
           res,

@@ -28,7 +28,7 @@ It's specified by the following trio of Domain, Substance, and Style programs
   ```
   type Set
   
-  predicate Not(Prop p1)
+  predicate NotIntersecting(Set s1, Set s2)
   predicate Intersecting(Set s1, Set s2)
   predicate IsSubset(Set s1, Set s2)
   ```
@@ -45,9 +45,9 @@ It's specified by the following trio of Domain, Substance, and Style programs
   IsSubset(F, C)
   IsSubset(G, C)
   
-  Not(Intersecting(E, D))
-  Not(Intersecting(F, G))
-  Not(Intersecting(B, C))
+  NotIntersecting(E, D)
+  NotIntersecting(F, G)
+  NotIntersecting(B, C)
   
   AutoLabel All
   ```
@@ -79,7 +79,7 @@ It's specified by the following trio of Domain, Substance, and Style programs
   }
   
   forall Set x; Set y
-  where Not(Intersecting(x, y)) {
+  where NotIntersecting(x, y) {
     ensure disjoint(x.icon, y.icon)
   }
   

@@ -2,8 +2,7 @@ import im from "immutable";
 import { describe, expect, test } from "vitest";
 import { numsOf } from "../lib/Utils.js";
 import { C } from "../types/ast.js";
-import { Either } from "../types/common.js";
-import { Env } from "../types/domain.js";
+import { DomainEnv } from "../types/domain.js";
 import { PenroseError } from "../types/errors.js";
 import { State } from "../types/state.js";
 import {
@@ -23,10 +22,10 @@ import {
 } from "../types/styleSemantics.js";
 import { SubstanceEnv } from "../types/substance.js";
 import { ColorV, RGBA } from "../types/value.js";
-import { Result, andThen, err, showError } from "../utils/Error.js";
+import { Result, showError } from "../utils/Error.js";
 import Graph from "../utils/Graph.js";
 import { GroupGraph } from "../utils/GroupGraph.js";
-import { ToRight, foldM, toLeft, zip2 } from "../utils/Util.js";
+import { zip2 } from "../utils/Util.js";
 import { compileDomain } from "./Domain.js";
 import * as S from "./Style.js";
 import { compileSubstance } from "./Substance.js";
@@ -57,13 +56,10 @@ export const loadProgs = async ({
       )}`,
     );
   };
-  const env: Env = compileDomain(dsl).unwrapOrElse(throwErr);
-  const [subEnv, varEnv]: [SubstanceEnv, Env] = compileSubstance(
-    sub,
-    env,
-  ).unwrapOrElse(throwErr);
+  const domEnv = compileDomain(dsl).unwrapOrElse(throwErr);
+  const subEnv = compileSubstance(sub, domEnv).unwrapOrElse(throwErr);
   return (
-    await S.compileStyleHelper("styletests", sty, subEnv, varEnv)
+    await S.compileStyleHelper("styletests", sty, subEnv, domEnv)
   ).unwrapOrElse(throwErr);
 };
 
@@ -442,30 +438,6 @@ describe("Compiler", () => {
   //   }
   // });
 
-  const sum = (acc: number, n: number, i: number): Either<string, number> =>
-    i > 2 ? toLeft("error") : ToRight(acc + n);
-
-  test("S.foldM none", () => {
-    expect(foldM([], sum, -1)).toEqual(ToRight(-1));
-  });
-
-  test("S.foldM right", () => {
-    expect(foldM([1, 2, 3], sum, -1)).toEqual(ToRight(5));
-  });
-
-  test("S.foldM left", () => {
-    expect(foldM([1, 2, 3, 4], sum, -1)).toEqual(toLeft("error"));
-  });
-
-  const xs = ["a", "b", "c"];
-  test("numbered", () => {
-    expect(S.numbered(xs)).toEqual([
-      ["a", 0],
-      ["b", 1],
-      ["c", 2],
-    ]);
-  });
-
   test("Correct Style programs", () => {
     const dsl = "type Object";
     const sub = "Object o";
@@ -582,26 +554,6 @@ describe("Compiler", () => {
           string: "Equality!"
         }
       }`;
-      const { state } = await loadProgs({ dsl, sub, sty });
-      expect(state.shapes.length).toBeGreaterThan(0);
-    });
-    test("nested symmetric predicates", async () => {
-      const dsl = `type Atom
-      type Hydrogen <: Atom
-      type Oxygen <: Atom
-      symmetric predicate Bond(Atom, Atom)
-      predicate Not(Prop)`;
-      const sub = `Hydrogen H
-      Oxygen O
-      Not(Bond(H, O))`;
-      const sty =
-        canvasPreamble +
-        `forall Hydrogen h; Oxygen o
-        where Not(Bond(o, h)) {
-          theText = Text {
-            string: "hello"
-          }
-        }`;
       const { state } = await loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toBeGreaterThan(0);
     });
@@ -808,23 +760,30 @@ predicate IsSubset(Set s1, Set s2)
     // We test variations on this Style program
     // const styPath = "set-theory-domain/venn.style";
 
-    const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+    const domRes: Result<DomainEnv, PenroseError> = compileDomain(domainProg);
 
-    const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
-      (env) => compileSubstance(subProg, env),
-      domainRes,
+    if (domRes.isErr()) {
+      throw new Error("Domain compilation should not fail");
+    }
+
+    const subRes: Result<SubstanceEnv, PenroseError> = compileSubstance(
+      subProg,
+      domRes.value,
     );
+
+    if (subRes.isErr()) {
+      throw new Error("Substance compilation should not fail");
+    }
 
     const testStyProgForError = async (styProg: string, errorType: string) => {
       let preamble = errorType.startsWith("Canvas") ? "" : canvasPreamble;
-      const styRes: Result<State, PenroseError> = subRes.isErr()
-        ? err(subRes.error)
-        : await S.compileStyle(
-            "Style compiler errors test seed",
-            preamble + styProg,
-            [],
-            ...subRes.value,
-          );
+      const styRes: Result<State, PenroseError> = await S.compileStyle(
+        "Style compiler errors test seed",
+        preamble + styProg,
+        [],
+        subRes.value,
+        domRes.value,
+      );
       expectErrorOf(styRes, errorType);
     };
 
@@ -840,12 +799,13 @@ predicate IsSubset(Set s1, Set s2)
       SelectorFieldNotSupported: [`forall Set x where x has randomfield { }`],
 
       // COMBAK: Style doesn't throw parse error if the program is just "forall Point `A`"... instead it fails inside compileStyle with an undefined selector environment
-      SelectorDeclTypeMismatch: [`forall Point \`A\` { }`],
+      //SelectorDeclTypeMismatch: [`forall Point \`A\` { }`],
+      // ^ This should not be an error.
 
-      SelectorRelTypeMismatch: [
-        `forall Point x; Set y; Set z
-      where x := Union(y, z) { } `,
-      ],
+      // SelectorRelTypeMismatch: [
+      //   `forall Point x; Set y; Set z
+      // where x := Union(y, z) { } `,
+      // ],
 
       TaggedSubstanceError: [
         `forall Set x; Point y

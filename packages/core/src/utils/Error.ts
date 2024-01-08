@@ -11,13 +11,12 @@ import {
   SourceLoc,
   SourceRange,
 } from "../types/ast.js";
-import { Arg, Type, TypeConstructor } from "../types/domain.js";
+import { Arg, Type } from "../types/domain.js";
 import {
   ArgLengthMismatch,
   BadArgumentTypeError,
   BadShapeParamTypeError,
   CyclicSubtypes,
-  DeconstructNonconstructor,
   DomainError,
   DuplicateName,
   FatalError,
@@ -39,10 +38,8 @@ import {
   SymmetricArgLengthMismatch,
   SymmetricTypeMismatch,
   TooManyArgumentsError,
-  TypeArgLengthMismatch,
   TypeMismatch,
   TypeNotFound,
-  UnexpectedExprForNestedPred,
   VarNotFound,
 } from "../types/errors.js";
 import {
@@ -53,7 +50,7 @@ import {
 } from "../types/functions.js";
 import { State } from "../types/state.js";
 import { BindingForm, ColorLit } from "../types/style.js";
-import { Deconstructor, SubExpr } from "../types/substance.js";
+import { SubExpr, TypeApp } from "../types/substance.js";
 import { ArgVal, ArgValWithSourceLoc, ShapeVal, Val } from "../types/value.js";
 import {
   ErrorLoc,
@@ -113,18 +110,8 @@ const showArgValType = (v: ArgVal<ad.Num>): string => {
  * Type pretty printing function.
  * @param t Type to be printed
  */
-export const showType = (t: Type<A>): string => {
-  if (t.tag === "Prop") {
-    return "Prop";
-  } else if (t.tag === "TypeVar") {
-    return `'${t.name.value}`;
-  } else {
-    const { name, args } = t;
-    if (args.length > 0) {
-      const argStrs = args.map(showType);
-      return `${name.value}(${argStrs.join(", ")})`;
-    } else return `${name.value}`;
-  }
+export const showType = (t: Type<A> | TypeApp<A>): string => {
+  return t.name.value;
 };
 // COMBAK What's a better way to model warnings?
 export const styWarnings = [
@@ -182,11 +169,6 @@ export const showError = (
         return msg + ` Possible types are: ${suggestions}`;
       } else return msg;
     }
-    case "TypeVarNotFound": {
-      return `Type variable ${error.typeVar.name.value} (at ${loc(
-        error.typeVar,
-      )}) does not exist.`;
-    }
     case "DuplicateName": {
       const { firstDefined, name, location } = error;
       return `Name ${name.value} (at ${loc(
@@ -218,16 +200,6 @@ export const showError = (
         expectedType,
       )}' derived from the expression at ${loc(expectedExpr)}.`;
     }
-    case "TypeArgLengthMismatch": {
-      const { sourceExpr, sourceType, expectedExpr, expectedType } = error;
-      return `${expectedType.args.length} arguments expected for type ${
-        expectedType.name.value
-      } (defined at ${loc(expectedExpr)}), but ${
-        sourceType.args.length
-      } arguments were given for ${sourceType.name.value} at ${loc(
-        sourceExpr,
-      )} `;
-    }
     case "ArgLengthMismatch": {
       const { name, argsGiven, argsExpected, sourceExpr, expectedExpr } = error;
       return `${name.value} expects ${
@@ -235,22 +207,6 @@ export const showError = (
       } arguments (originally defined at ${loc(expectedExpr)}), but was given ${
         argsGiven.length
       } arguments instead at ${loc(sourceExpr)}.`;
-    }
-    case "DeconstructNonconstructor": {
-      const { variable, field } = error.deconstructor;
-      return `Because ${variable.value} is not bound to a constructor, ${
-        variable.value
-      }.${field.value} (at ${loc(
-        error.deconstructor,
-      )}) does not correspond to a field value.`;
-    }
-    case "UnexpectedExprForNestedPred": {
-      const { sourceExpr, sourceType, expectedExpr } = error;
-      return `A nested predicate is expected (defined at ${loc(
-        expectedExpr,
-      )}), but an expression of '${showType(
-        sourceType,
-      )}' type was given at ${loc(sourceExpr)}.`;
     }
     case "InvalidSetIndexingError": {
       const { index, location, suggestions } = error;
@@ -312,15 +268,10 @@ export const showError = (
       )}) because matching on fields is not fully supported. Currently, only "label" can be matched in selectors.`;
     }
 
-    case "SelectorDeclTypeMismatch": {
-      // COMBAK: Add code for prettyprinting types
-      return "Mismatched types or wrong subtypes between Substance and Style variables in selector";
-    }
-
-    case "SelectorRelTypeMismatch": {
-      // COMBAK: Add code for prettyprinting types
-      return "Mismatched types or wrong subtypes between variable and expression in relational statement in selector";
-    }
+    // case "SelectorRelTypeMismatch": {
+    //   // COMBAK: Add code for prettyprinting types
+    //   return "Mismatched types or wrong subtypes between variable and expression in relational statement in selector";
+    // }
 
     case "TaggedSubstanceError": {
       switch (error.error.tag) {
@@ -718,9 +669,6 @@ export const errLocs = (
     case "TypeNotFound": {
       return locOrNone(e.typeName);
     }
-    case "TypeVarNotFound": {
-      return locOrNone(e.typeVar);
-    }
     case "DuplicateName": {
       return locOrNone(e.location);
     }
@@ -730,13 +678,8 @@ export const errLocs = (
     case "SymmetricTypeMismatch":
     case "SymmetricArgLengthMismatch":
     case "TypeMismatch":
-    case "TypeArgLengthMismatch":
-    case "ArgLengthMismatch":
-    case "UnexpectedExprForNestedPred": {
+    case "ArgLengthMismatch": {
       return locOrNone(e.sourceExpr);
-    }
-    case "DeconstructNonconstructor": {
-      return locOrNone(e.deconstructor);
     }
     case "InvalidSetIndexingError":
     case "BadSetIndexRangeError":
@@ -763,16 +706,10 @@ export const errLocs = (
     case "SelectorFieldNotSupported": {
       return locOrNone(e.field);
     }
-
-    case "SelectorDeclTypeMismatch": {
-      // COMBAK: Add code for prettyprinting types
-      return locOrNone(e.styType);
-    }
-
-    case "SelectorRelTypeMismatch": {
-      // COMBAK: Add code for prettyprinting types
-      return locOrNone(e.exprType);
-    }
+    // case "SelectorRelTypeMismatch": {
+    //   // COMBAK: Add code for prettyprinting types
+    //   return locOrNone(e.exprType);
+    // }
 
     case "TaggedSubstanceError": {
       switch (e.error.tag) {
@@ -995,8 +932,8 @@ export const symmetricArgLengthMismatch = (
 });
 
 export const typeMismatch = (
-  sourceType: TypeConstructor<A>,
-  expectedType: TypeConstructor<A>,
+  sourceType: TypeApp<A>,
+  expectedType: Type<A>,
   sourceExpr: AbstractNode,
   expectedExpr: AbstractNode,
 ): TypeMismatch => ({
@@ -1005,17 +942,6 @@ export const typeMismatch = (
   sourceType,
   expectedExpr,
   expectedType,
-});
-
-export const unexpectedExprForNestedPred = (
-  sourceType: TypeConstructor<A>,
-  sourceExpr: AbstractNode,
-  expectedExpr: AbstractNode,
-): UnexpectedExprForNestedPred => ({
-  tag: "UnexpectedExprForNestedPred",
-  sourceType,
-  sourceExpr,
-  expectedExpr,
 });
 
 export const argLengthMismatch = (
@@ -1033,19 +959,6 @@ export const argLengthMismatch = (
   expectedExpr,
 });
 
-export const typeArgLengthMismatch = (
-  sourceType: TypeConstructor<A>,
-  expectedType: TypeConstructor<A>,
-  sourceExpr: AbstractNode,
-  expectedExpr: AbstractNode,
-): TypeArgLengthMismatch => ({
-  tag: "TypeArgLengthMismatch",
-  sourceExpr,
-  sourceType,
-  expectedExpr,
-  expectedType,
-});
-
 export const selectorFieldNotSupported = (
   name: BindingForm<A>,
   field: Identifier<A>,
@@ -1053,13 +966,6 @@ export const selectorFieldNotSupported = (
   tag: "SelectorFieldNotSupported",
   name,
   field,
-});
-
-export const deconstructNonconstructor = (
-  deconstructor: Deconstructor<A>,
-): DeconstructNonconstructor => ({
-  tag: "DeconstructNonconstructor",
-  deconstructor,
 });
 
 export const fatalError = (message: string): FatalError => ({

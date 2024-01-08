@@ -9,11 +9,13 @@ import {
 } from "../state/atoms.js";
 import {
   useCompileDiagram,
+  useDownloadSvg,
   usePublishGist,
   useResampleDiagram,
   useSaveLocally,
 } from "../state/callbacks.js";
 import BlueButton from "./BlueButton.js";
+import ExportButton from "./ExportButton.js";
 
 const TitleBox = styled.div`
   padding: 5px 10px;
@@ -47,6 +49,12 @@ const InputBox = styled.input`
   box-sizing: border-box;
   border: 1px solid rgba(0, 0, 0, 0);
   font-size: 15px;
+`;
+
+const HeaderButtonContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 `;
 
 function EditableTitle() {
@@ -155,14 +163,18 @@ export default function TopBar() {
             )}
         </div>
       )}
-      <div>
+      <HeaderButtonContainer>
+        <BlueButton disabled={running} onClick={useDownloadSvg()}>
+          save Penrose SVG
+        </BlueButton>
+        <ExportButton />
         <BlueButton disabled={running} onClick={compileDiagram}>
           compile ▶
         </BlueButton>
         <BlueButton disabled={running} onClick={resampleDiagram}>
           resample
         </BlueButton>
-      </div>
+      </HeaderButtonContainer>
     </nav>
   );
 }

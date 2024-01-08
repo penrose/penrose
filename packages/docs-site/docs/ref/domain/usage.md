@@ -5,12 +5,12 @@ A _domain_ schema describes the types of objects, as well as relations between t
 ```domain
 type Set
 
-predicate Not (Prop p1)
+predicate NotIntersecting(Set s1, Set s2)
 predicate Intersecting (Set s1, Set s2)
 predicate IsSubset (Set s1, Set s2)
 ```
 
-This schema tells Penrose that the diagrams works with and illustrates _Set_ objects, relations such as _Intersecting_ and _IsSubset_, and logical relation _Not_ applied upon other statements.
+This schema tells Penrose that the diagrams works with and illustrates _Set_ objects and relations such as _NotIntersecting_, _Intersecting_ and _IsSubset_.
 
 Notably, the _domain_ schema are not _instructions_ of how to draw the _Set_ objects and relations between them. Such instructions of the specific diagram elements are provided by the _style_ schema, not the _domain_ schema. This allows multiple visual representations to be applied to objects from the same domain.
 
@@ -73,16 +73,6 @@ predicate P4 (FirstType, SecondType, SecondType)
 ```
 
 Notice how some declarations have names associated with the argument types (e.g. `P2` with argument names `a1` and `a2`), and some don't. These names to argument types are allowed and encouraged to enhance readability, but are not required.
-
-### The `Prop` Type
-
-A special type, _Prop_, is built into Penrose, and is available to be used as predicate arguments. The _Prop_ type represents predicates themselves. For example, the predicate _Not_ is declared in the set-theory example:
-
-```domain
-predicate Not (Prop p1)
-```
-
-When we use the _Not_ predicate in the _substance_ or _style_ schemas, then, we can pass in any predicates as _Prop_. For example, we can write `Not(Intersecting(s1, s2))` in the _substance_ or _style_ schemas to conceptually denote that `s1` and `s2` are disjoint.
 
 ### Symmetric Predicates
 

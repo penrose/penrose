@@ -8,7 +8,7 @@ import moo from "moo";
 import _ from 'lodash'
 import { optional, tokensIn, basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil.js'
 import { C, ConcreteNode, StringLit } from "../types/ast.js";
-import { DomainProg, TypeDecl, PredicateDecl, FunctionDecl, ConstructorDecl, PreludeDecl, NotationDecl, SubTypeDecl, TypeConstructor, Type, Arg, Prop } from "../types/domain.js";
+import { DomainProg, TypeDecl, FunctionDecl, ConstructorDecl, SubTypeDecl, PredicateDecl, Type, Arg } from "../types/domain.js";
 
 // NOTE: ordering matters here. Top patterns get matched __first__
 const lexer = moo.compile({
@@ -23,9 +23,7 @@ const lexer = moo.compile({
       constructor: "constructor",
       function: "function",
       predicate: "predicate",
-      notation: "notation",
       symmetric: "symmetric",
-      prop: "Prop"
     })
   }
 });
@@ -66,26 +64,23 @@ statement
   |  predicate   {% id %}
   |  function    {% id %}
   |  constructor_decl {% id %}
-  |  prelude     {% id %}
-  |  notation    {% id %}
   |  subtype     {% id %}
 
 # not to be confused with `type`, defined below
-type_decl -> "type" __ identifier (_ "(" _ type_params _ ")"):? (_ "<:" _ sepEndBy1[type_constructor, ","]):? {%
-  ([typ, , name, ps, sub]): TypeDecl<C> => {
-    const params = ps ? ps[3] : [];
+type_decl -> "type" __ identifier (_ "<:" _ sepEndBy1[type, ","]):? {%
+  ([typ, , name, sub]): TypeDecl<C> => {
     const superTypes = sub ? sub[3] : [];
     return { 
       ...nodeData,
       ...rangeBetween(typ, name),
-      tag: "TypeDecl", name, params, superTypes
+      tag: "TypeDecl", name, superTypes
     };
   }
 %}
 
 # This now works with symmetric predicate declarations.
-predicate -> ("symmetric" __):? "predicate" __ identifier type_params_list args_list {%
-  ([sym, kw, , name, params, args]): PredicateDecl<C> => {
+predicate -> ("symmetric" __):? "predicate" __ identifier args_list {%
+  ([sym, kw, , name, args]): PredicateDecl<C> => {
     var isSymmetric = sym !== null;
     return {
       ...nodeData,
@@ -95,10 +90,9 @@ predicate -> ("symmetric" __):? "predicate" __ identifier type_params_list args_
         // the rest is white space
         ...(isSymmetric ? [rangeOf(sym[0])] : []),
         rangeOf(kw), 
-        ...args, 
-        ...params
+        ...args
       ]),
-      tag: "PredicateDecl", name, params, args,
+      tag: "PredicateDecl", name, args,
       // If "symmetric" isn't present, "sym" would be null and this would be false
       // Otherwise, this would be true.
       symmetric: isSymmetric
@@ -107,15 +101,14 @@ predicate -> ("symmetric" __):? "predicate" __ identifier type_params_list args_
 %}
 
 function 
-  -> "function" __ identifier type_params_list args_list _ "->" _ arg
+  -> "function" __ identifier args_list _ "->" _ arg
   {%
-    ([kw, , name, ps, as, , , , output]): FunctionDecl<C> => {
-      const params = optional(ps, []);
+    ([kw, , name, as, , , , output]): FunctionDecl<C> => {
       const args   = optional(as, []);
       return {
         ...nodeData,
         ...rangeBetween(rangeOf(kw), output),
-        tag: "FunctionDecl", name, output, params, args
+        tag: "FunctionDecl", name, output, args
       };
     }
   %}
@@ -128,30 +121,28 @@ constructor_decl
 
 # Constructor decl supplying output type
 long_constructor_decl 
-  -> "constructor" __  identifier type_params_list named_args_list _ "->" _ arg
+  -> "constructor" __  identifier named_args_list _ "->" _ arg
   {%
-    ([kw, , name, ps, as, , , , output]): ConstructorDecl<C> => {
-      const params = optional(ps, []);
+    ([kw, , name, as, , , , output]): ConstructorDecl<C> => {
       const args   = optional(as, []);
       return {
         ...nodeData,
         ...rangeBetween(rangeOf(kw), output),
-        tag: "ConstructorDecl", name, output, params, args
+        tag: "ConstructorDecl", name, output, args
       }
     }
   %}
 
 # Constructor decl such that constructor's name is read as output type
 short_constructor_decl 
-  -> "constructor" __  identifier type_params_list named_args_list
+  -> "constructor" __  identifier named_args_list
   {%
-    ([kw, , name, ps, as]): ConstructorDecl<C> => {
-      const params = optional(ps, []);
+    ([kw, , name, as]): ConstructorDecl<C> => {
       const args   = optional(as, []);
-      const type: TypeConstructor<C> = {
+      const type: Type<C> = {
         ...nodeData,
         ...rangeBetween(rangeOf(kw), name),
-        tag: "TypeConstructor", args: [], name: name
+        tag: "Type", name: name
       };
       const output: Arg<C> = {
         ...nodeData, 
@@ -161,29 +152,12 @@ short_constructor_decl
       return {
         ...nodeData,
         ...rangeFrom([rangeOf(kw), ...args]),
-        tag: "ConstructorDecl", name, output, params, args
+        tag: "ConstructorDecl", name, output, args
       }
     }
   %}
 
-
-prelude -> "value" __ var _ ":" _ type_constructor {%
-  ([kw, , name, , , , type]): PreludeDecl<C> => ({
-    ...nodeData,
-    ...rangeBetween(rangeOf(kw), type),
-    tag: "PreludeDecl", name, type
-  })
-%}
-
-notation -> "notation" _  string_lit  _ "~" _ string_lit {%
-  ([kw, , from, , , , to]): NotationDecl<C> => ({
-    ...nodeData,
-    ...rangeBetween(rangeOf(kw), to),
-    tag: "NotationDecl", from, to
-  })
-%} 
-
-subtype -> type_constructor _ "<:" _ type_constructor {%
+subtype -> type _ "<:" _ type {%
   ([subType, , , , superType]): SubTypeDecl<C> => ({
     ...nodeData,
     ...rangeBetween(subType, superType),
@@ -191,55 +165,22 @@ subtype -> type_constructor _ "<:" _ type_constructor {%
   })
 %}
 
-# predicate 
-#   -> nested_predicate {% id %}
-#   |  simple_predicate {% id %}
-# nested_predicate ->  "predicate" __ identifier _ ":" _ prop_list:? {%
-#   ([kw, , name, , , , args]): NestedPredicateDecl => ({
-#     // HACK: keywords don't seem to have ranges. Have to manually convert here
-#     ...rangeFrom(tokensIn([rangeOf(kw), args])),
-#     tag: "NestedPredicateDecl",
-#     name, args
-#   })
-# %}
-
 # Basic types
   
 var -> identifier {% id %}
 
-# TODO: without `'`, type_var will look the same as 0-arg type_constructor
-type_var -> "'" identifier {% 
-  ([a, name]) => ({ 
-    ...nodeData,
-    ...rangeBetween(a, name), 
-    tag: "TypeVar", name 
-  }) 
-%}
-
-type
-  -> type_var         {% id %}
-  |  type_constructor {% id %}
-  |  prop             {% id %}
-
-type_constructor -> identifier type_arg_list:? {% 
-  ([name, a]): TypeConstructor<C> => {
-    const args = optional(a, []);
+type -> identifier {% 
+  ([name]): Type<C> => {
     return {
       ...nodeData,
-      ...rangeFrom([name, ...args]),
-      tag: "TypeConstructor", name, args 
+      ...rangeFrom([name]),
+      tag: "Type", name 
     };
   }
  %}
 
 # Various kinds of parameters and arguments
 
-type_arg_list -> _ "(" _ sepEndBy1[type, ","] _ ")" {% ([, , , d]): Type<C>[] => _.flatten(d) %}
-
-type_params_list 
-  -> null {% d => [] %}
-  |  _ "[" _ type_params _ "]" {% nth(3) %}
-type_params -> sepEndBy1[type_var, ","] {% ([d]) => d %}
 
 args_list 
   -> _ "(" _ sepEndBy[arg, ","] _ ")" {% ([, , , d]): Arg<C>[] => _.flatten(d) %}
@@ -262,14 +203,6 @@ named_arg -> type __ var {%
      ...rangeBetween(type, variable), 
      tag: "Arg", variable, type 
   })
-%}
-
-prop -> "Prop" {% 
-  ([kw]): Prop<C> => ({
-     ...nodeData,
-     ...rangeOf(kw), 
-     tag: "Prop" 
-  })  
 %}
 
 # Common 

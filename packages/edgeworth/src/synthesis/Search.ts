@@ -8,12 +8,14 @@ import {
   Identifier,
   metaProps,
 } from "@penrose/core/dist/types/ast";
-import { Env, Type } from "@penrose/core/dist/types/domain";
+import { DomainEnv } from "@penrose/core/dist/types/domain";
 import {
   LabelOption,
   SubExpr,
   CompiledSubProg as SubProg,
   CompiledSubStmt as SubStmt,
+  SubstanceEnv,
+  TypeApp,
 } from "@penrose/core/dist/types/substance";
 import _ from "lodash";
 import rdiff from "recursive-diff";
@@ -124,16 +126,15 @@ export type SubNode<T> =
   | SubExpr<T>
   | SubProg<T>
   | SubStmt<T>
-  | Type<T>;
+  | TypeApp<T>;
 
 const children = <T>(node: SubNode<T>): SubNode<T>[] => {
   switch (node.tag) {
     case "ApplyConstructor":
     case "ApplyFunction":
     case "ApplyPredicate":
-    case "Func":
-    case "TypeConstructor": {
-      return [node.name, ...(node.args as SubNode<T>[])];
+    case "Func": {
+      return [node.name, ...node.args];
     }
     case "AutoLabel": {
       return [node.option];
@@ -144,18 +145,11 @@ const children = <T>(node: SubNode<T>): SubNode<T>[] => {
     case "Decl": {
       return [node.type, node.name];
     }
-    case "Deconstructor": {
-      return [node.variable, node.field];
-    }
+    case "TypeApp":
     case "DefaultLabels":
     case "Identifier":
-    case "Prop":
     case "StringLit": {
       return [];
-    }
-    case "EqualExprs":
-    case "EqualPredicates": {
-      return [node.left as SubNode<T>, node.right as SubNode<T>];
     }
     case "LabelDecl": {
       return [node.variable, node.label];
@@ -168,9 +162,6 @@ const children = <T>(node: SubNode<T>): SubNode<T>[] => {
     }
     case "SubProg": {
       return [...node.statements];
-    }
-    case "TypeVar": {
-      return [node.name];
     }
   }
 };
@@ -440,12 +431,13 @@ export const cartesianProduct = <T>(...sets: T[][]): T[][] =>
  *
  * @param src The source Substance program
  * @param dest The changed Substance program
- * @param srcEnv The environment for the source Substance program
+ * @param srcDomEnv The environment for the source Substance program
  */
 export const findMutationPaths = (
   src: SubProg<A>,
   dest: SubProg<A>,
-  srcEnv: Env,
+  srcDomEnv: DomainEnv,
+  srcSubEnv: SubstanceEnv,
 ): MutationGroup[] => {
   const diffs: DiffSet = subProgDiffs(src, dest);
   // pack add and delete mutations
@@ -457,7 +449,8 @@ export const findMutationPaths = (
   const matchingUpdates: MutationGroup[] = diffs.update.map((d) => {
     // COMBAK: check random seed
     const cxt = initContext(
-      srcEnv,
+      srcDomEnv,
+      srcSubEnv,
       "existing",
       "distinct",
       "findMutationPaths",
@@ -492,7 +485,8 @@ export const findMutationPaths = (
 export const enumerateAllPaths = (
   src: SubProg<A>,
   dest: SubProg<A>,
-  srcEnv: Env,
+  srcDomEnv: DomainEnv,
+  srcSubEnv: SubstanceEnv,
 ): MutationGroup[] => {
   const diffs: DiffSet = subProgDiffs(src, dest);
   // pack add and delete mutations
@@ -502,7 +496,13 @@ export const enumerateAllPaths = (
   );
   // find all possible updates for each statement in the update set
   // COMBAK: check random seed
-  const cxt = initContext(srcEnv, "existing", "distinct", "enumerateAllPaths");
+  const cxt = initContext(
+    srcDomEnv,
+    srcSubEnv,
+    "existing",
+    "distinct",
+    "enumerateAllPaths",
+  );
   const possibleUpdates: MutationGroup[] = diffs.update.map((d) =>
     enumerateStmtMutations(d.source, src, cxt),
   );

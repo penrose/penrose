@@ -7,7 +7,7 @@ Set A, B, C
 
 IsSubset (A, C)
 IsSubset (B, C)
-Not (Intersecting (A, B))
+NotIntersecting (A, B)
 
 AutoLabel All
 ```
@@ -56,7 +56,7 @@ where
 - `predicate_name` is the name of the predicate, as declared in the _domain_ schema; and
 - `argument_list` is a comma-separated list of objects (defined earlier in the _substance_ program) or other predicate applications.
 
-The types of the _substance_ objects in `argument_list` must match the types of the arguments as declared in the _domain_ schema, allowing for subtypes to match their supertypes. Furthermore, if the _domain_ argument type is `Prop`, then the _substance_ argument should be a predicate application.
+The types of the _substance_ objects in `argument_list` must match the types of the arguments as declared in the _domain_ schema, allowing for subtypes to match their supertypes.
 
 We illustrate these rules with some examples. Suppose we have _domain_ schema
 
@@ -67,7 +67,6 @@ type Oxygen <: Atom
 type NotAnAtom
 
 predicate Bond (Atom, Atom)
-predicate Not (Prop)
 ```
 
 and _substance_ object declarations
@@ -81,14 +80,12 @@ NotAnAtom NA
 
 Then,
 
-| Predicate Application | Valid? | Notes                                                                      |
-| :-------------------- | :----- | -------------------------------------------------------------------------- |
+| Predicate Application | Valid? | Notes                                                              |
+| :-------------------- | :----- | ------------------------------------------------------------------ |
 | `Bond (H, O)`         | Yes    |
 | `Bond (H, H)`         | Yes    |
 | `Bond (O, A)`         | Yes    |
-| `Bond (NA, H)`        | No     | `NA` has type `NotAnAtom` which does not match the required `Atom`         |
-| `Not (H)`             | No     | `H` has type `Hydrogen` which does not match the required `Prop`           |
-| `Not (Bond (H, O))`   | Yes    | `Bond (H, O)` is a predicate application which matches the required `Prop` |
+| `Bond (NA, H)`        | No     | `NA` has type `NotAnAtom` which does not match the required `Atom` |
 
 ### Function and Constructor Applications
 

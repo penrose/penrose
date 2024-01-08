@@ -150,7 +150,7 @@ export const layoutModel = Model.fromJson({
           component: "diagramOptions",
         },
         { type: "tab", name: "state", component: "stateInspector" },
-        { type: "tab", name: "opt", component: "optInspector" },
+        // { type: "tab", name: "opt", component: "optInspector" },
       ],
     },
   ],
