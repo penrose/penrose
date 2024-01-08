@@ -122,6 +122,7 @@
     "svgo": "^3.0.2",
     "tslib": "^2.1.0",
     "typedoc": "^0.24.7",
-    "typedoc-plugin-markdown": "^3.11.13"
+    "typedoc-plugin-markdown": "^3.11.13",
+    "vite-plugin-top-level-await": "^1.4.1"
   }
 }
