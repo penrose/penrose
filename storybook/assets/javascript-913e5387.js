@@ -1,0 +1,7 @@
+import{conf as t,language as e}from"./typescript-f07e52da.js";import"./Listing.stories-3fee3142.js";import"./jsx-runtime-d5223884.js";import"./iframe-329980d3.js";import"./index-cb867cb2.js";import"./svg-a140295c.js";import"./PenrosePrograms-276a5d87.js";import"./vector-wedge.substance-448d1f07.js";/*!-----------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Version: 0.31.1(337587859b1c171314b40503171188b6cea6a32a)
+ * Released under the MIT license
+ * https://github.com/microsoft/monaco-editor/blob/main/LICENSE.txt
+ *-----------------------------------------------------------------------------*/var p=t,d={defaultToken:"invalid",tokenPostfix:".js",keywords:["break","case","catch","class","continue","const","constructor","debugger","default","delete","do","else","export","extends","false","finally","for","from","function","get","if","import","in","instanceof","let","new","null","return","set","super","switch","symbol","this","throw","true","try","typeof","undefined","var","void","while","with","yield","async","await","of"],typeKeywords:[],operators:e.operators,symbols:e.symbols,escapes:e.escapes,digits:e.digits,octaldigits:e.octaldigits,binarydigits:e.binarydigits,hexdigits:e.hexdigits,regexpctl:e.regexpctl,regexpesc:e.regexpesc,tokenizer:e.tokenizer};export{p as conf,d as language};
+//# sourceMappingURL=javascript-913e5387.js.map
