@@ -108,9 +108,12 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
       respondError(compileResult.error);
     } else {
       initialState = compileResult.value;
+      console.log("initialState", initialState);
+
       respondReqLabelCache(compileResult.value);
     }
   } else if (data.tag === "RespLabelCache") {
+    log.debug("got label cache response");
     svgCache = new Map<string, HTMLElement>();
     for (const [key, value] of Object.entries(data.labelCache)) {
       svgCache.set(key, value.rendered);

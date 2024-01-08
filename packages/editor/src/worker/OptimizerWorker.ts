@@ -13,7 +13,7 @@ import { Req, Resp } from "./message.js";
 import RawWorker from "./worker.js?worker";
 
 const log = (consola as any)
-  .create({ level: (consola as any).LogLevel.Info })
+  .create({ level: (consola as any).LogLevel.Debug })
   .withScope("worker:client");
 
 export type onComplete = () => void;
@@ -47,6 +47,14 @@ export default class OptimizerWorker {
       tag: "Init",
       sharedMemory: sab,
     });
+    this.worker.onerror = (e) => {
+      log.error("Worker error: ", e);
+    };
+
+    this.worker.onmessageerror = (e) => {
+      log.error("Worker message error: ", e);
+    };
+
     this.worker.onmessage = async ({ data }: MessageEvent<Resp>) => {
       log.debug("Received message: ", data);
       if (data.tag === "Update") {
@@ -104,6 +112,29 @@ export default class OptimizerWorker {
     Atomics.store(this.sharedMemory, 0, 1);
   }
 
+  private _queue(
+    req: Req,
+    onUpdate: OnUpdate,
+    onError: OnError,
+    onComplete: onComplete,
+  ) {
+    this.pending = {
+      request: req,
+      onUpdate: (s) => {
+        onUpdate(s);
+        this.pending = undefined;
+      },
+      onError: (e) => {
+        onError(e);
+        this.pending = undefined;
+      },
+      onComplete: () => {
+        onComplete();
+        this.pending = undefined;
+      },
+    };
+  }
+
   run(
     domain: string,
     style: string,
@@ -136,12 +167,7 @@ export default class OptimizerWorker {
       };
     } else if (!this.workerInitialized) {
       log.warn("Worker not initialized yet, waiting...");
-      this.pending = {
-        request,
-        onUpdate,
-        onComplete,
-        onError,
-      };
+      this._queue(request, onUpdate, onError, onComplete);
     } else {
       this.running = true;
       this.onUpdate = onUpdate;
@@ -168,12 +194,7 @@ export default class OptimizerWorker {
       // ready to receive a new trio
       Atomics.store(this.sharedMemory, 1, 1);
       log.warn("Worker asked to stop");
-      this.pending = {
-        request,
-        onUpdate,
-        onComplete,
-        onError: () => {},
-      };
+      this._queue(request, onUpdate, onComplete, () => {});
     }
     log.info(`Start resampling for ${id}, ${variation}`);
     this.request(request);
