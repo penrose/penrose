@@ -13,7 +13,7 @@ import { Req, Resp } from "./message.js";
 import RawWorker from "./worker.js?worker";
 
 const log = (consola as any)
-  .create({ level: (consola as any).LogLevel.Debug })
+  .create({ level: (consola as any).LogLevel.Info })
   .withScope("worker:client");
 
 export type onComplete = () => void;

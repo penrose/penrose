@@ -10,12 +10,7 @@ import {
   stateToOptRenderState,
   stepTimes,
 } from "@penrose/core";
-import consola from "consola";
 import { Req, Resp } from "./message.js";
-
-const log = (consola as any)
-  .create({ level: (consola as any).LogLevel.Debug })
-  .withScope("worker:worker");
 
 // Array of size two. First index is set if main thread wants an update,
 // second bit is set if user wants to send a new trio.
@@ -61,7 +56,7 @@ const respondFinished = (state: PenroseState) => {
 
 // Wrapper function for postMessage to ensure type safety
 const respond = (response: Resp) => {
-  log.debug("Sending response: ", response);
+  // log.debug("Sending response: ", response);
   postMessage(response);
 };
 
@@ -87,7 +82,7 @@ const optimize = (state: PenroseState) => {
 };
 
 onmessage = async ({ data }: MessageEvent<Req>) => {
-  log.debug("Received message: ", data);
+  // log.debug("Received message: ", data);
   if (data.tag === "Init") {
     sharedMemory = new Int8Array(data.sharedMemory);
     respond({ tag: "Ready" });
@@ -95,25 +90,25 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
     const { domain, substance, style, variation, id } = data;
     // save the id for the current task
     currentTask = id;
-    log.debug("start compiling");
+    // log.debug("start compiling");
     const compileResult = await compileTrio({
       domain,
       substance,
       style,
       variation,
     });
-    log.debug("end compiling");
+    // log.debug("end compiling");
 
     if (compileResult.isErr()) {
       respondError(compileResult.error);
     } else {
       initialState = compileResult.value;
-      console.log("initialState", initialState);
+      // console.log("initialState", initialState);
 
       respondReqLabelCache(compileResult.value);
     }
   } else if (data.tag === "RespLabelCache") {
-    log.debug("got label cache response");
+    // log.debug("got label cache response");
     svgCache = new Map<string, HTMLElement>();
     for (const [key, value] of Object.entries(data.labelCache)) {
       svgCache.set(key, value.rendered);
