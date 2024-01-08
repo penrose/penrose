@@ -17,7 +17,7 @@
 <h1>Function compileSubstance</h1></div>
 <section class="tsd-panel">
 <ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="compileSubstance"><span class="tsd-kind-call-signature">compile<wbr/>Substance</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">prog</span>, <span class="tsd-kind-parameter">env</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Result</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">SubRes</span><span class="tsd-signature-symbol">, </span><a href="../types/PenroseError.html" class="tsd-signature-type tsd-kind-type-alias">PenroseError</a><span class="tsd-signature-symbol">&gt;</span><a href="#compileSubstance" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" id="icon-anchor-a"></path><path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" id="icon-anchor-b"></path><path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" id="icon-anchor-c"></path></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="compileSubstance"><span class="tsd-kind-call-signature">compile<wbr/>Substance</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">prog</span>, <span class="tsd-kind-parameter">domEnv</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Result</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">SubstanceEnv</span><span class="tsd-signature-symbol">, </span><a href="../types/PenroseError.html" class="tsd-signature-type tsd-kind-type-alias">PenroseError</a><span class="tsd-signature-symbol">&gt;</span><a href="#compileSubstance" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" id="icon-anchor-a"></path><path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" id="icon-anchor-b"></path><path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" id="icon-anchor-c"></path></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Top-level function for the Substance parser and checker. Given a Substance program string and Domain environment, it outputs either a <code>PenroseError</code> or <code>Env</code> and <code>SubstanceEnv</code> contexts.</p>
 </div>
@@ -29,12 +29,10 @@
 <div class="tsd-comment tsd-typography"><p>Substance program string</p>
 </div></li>
 <li>
-<h5><span class="tsd-kind-parameter">env</span>: <a href="../interfaces/Env.html" class="tsd-signature-type tsd-kind-interface">Env</a></h5>
-<div class="tsd-comment tsd-typography"><p>Domain environment</p>
-</div></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">SubRes</span><span class="tsd-signature-symbol">, </span><a href="../types/PenroseError.html" class="tsd-signature-type tsd-kind-type-alias">PenroseError</a><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
+<h5><span class="tsd-kind-parameter">domEnv</span>: <a href="../interfaces/DomainEnv.html" class="tsd-signature-type tsd-kind-interface">DomainEnv</a></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Result</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">SubstanceEnv</span><span class="tsd-signature-symbol">, </span><a href="../types/PenroseError.html" class="tsd-signature-type tsd-kind-type-alias">PenroseError</a><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/penrose/penrose/blob/f4c5675/packages/core/src/compiler/Substance.ts#L114">compiler/Substance.ts:114</a></li></ul></aside></li></ul></section></div>
+<li>Defined in <a href="https://github.com/penrose/penrose/blob/7ad14e7/packages/core/src/compiler/Substance.ts#L100">compiler/Substance.ts:100</a></li></ul></aside></li></ul></section></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">
@@ -98,7 +96,7 @@
 <li><a href="../interfaces/CompFunc.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Comp<wbr/>Func</span></a></li>
 <li><a href="../interfaces/Config.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Config</span></a></li>
 <li><a href="../interfaces/Description.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Description</span></a></li>
-<li><a href="../interfaces/Env.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Env</span></a></li>
+<li><a href="../interfaces/DomainEnv.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Domain<wbr/>Env</span></a></li>
 <li><a href="../interfaces/Index.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Index</span></a></li>
 <li><a href="../interfaces/Logic.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Logic</span></a></li>
 <li><a href="../interfaces/Nary.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Nary</span></a></li>
