@@ -6,7 +6,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "nx run-many --targets=build,bundle --verbose && nx run core:bundle",
+    "build": "nx run-many --targets=build,bundle --verbose",
     "typecheck": "nx run-many --target=typecheck --verbose",
     "build:roger": "nx run roger:build",
     "build:docs-site": "nx run docs-site:build",
