@@ -160,6 +160,10 @@ export const postprocessSubstance = (
   );
 };
 
+// For each literal value in substance, create a version of it as if it is a Substance object.
+// For example, for the substance number -123.45, this function will artificially add the statement
+//   Number {n-123.45}
+// into the AST. That way, numbers like these can be matched by Style as standalone Substance objects.
 const recreateLiterals = (
   domEnv: DomainEnv,
   subEnv: SubstanceEnv,
