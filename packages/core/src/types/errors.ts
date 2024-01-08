@@ -9,7 +9,7 @@ import {
   SourceLoc,
   SourceRange,
 } from "./ast.js";
-import { Arg, TypeConstructor, TypeVar } from "./domain.js";
+import { Arg, Type } from "./domain.js";
 import { CompFunc, ConstrFunc, FuncParam, ObjFunc } from "./functions.js";
 import { State } from "./state.js";
 import {
@@ -23,7 +23,7 @@ import {
   UOp,
 } from "./style.js";
 import { ResolvedPath } from "./styleSemantics.js";
-import { Deconstructor, StmtSet, SubExpr, TypeConsApp } from "./substance.js";
+import { StmtSet, SubExpr, TypeApp } from "./substance.js";
 import { ArgValWithSourceLoc, ShapeVal, Val, Value } from "./value.js";
 
 //#region ErrorTypes
@@ -53,13 +53,9 @@ export type SubstanceError =
   | ParseError
   | DuplicateName
   | TypeNotFound
-  | TypeVarNotFound
   | TypeMismatch
   | ArgLengthMismatch
-  | TypeArgLengthMismatch
   | VarNotFound
-  | DeconstructNonconstructor
-  | UnexpectedExprForNestedPred
   | InvalidSetIndexingError
   | BadSetIndexRangeError
   | DuplicateIndexError
@@ -71,7 +67,6 @@ export type SubstanceError =
 export type DomainError =
   | ParseError
   | TypeDeclared
-  | TypeVarNotFound
   | TypeNotFound
   | DuplicateName
   | CyclicSubtypes
@@ -123,13 +118,6 @@ export interface UnsupportedIndexingError {
   iset: StmtSet<A>;
 }
 
-export interface UnexpectedExprForNestedPred {
-  tag: "UnexpectedExprForNestedPred";
-  sourceType: TypeConstructor<A>;
-  sourceExpr: AbstractNode;
-  expectedExpr: AbstractNode;
-}
-
 export interface CyclicSubtypes {
   tag: "CyclicSubtypes";
   cycles: string[][];
@@ -145,10 +133,6 @@ export interface DuplicateName {
   location: AbstractNode;
   firstDefined: AbstractNode;
 }
-export interface TypeVarNotFound {
-  tag: "TypeVarNotFound";
-  typeVar: TypeVar<A>;
-}
 export interface TypeNotFound {
   tag: "TypeNotFound";
   typeName: Identifier<A>;
@@ -162,8 +146,8 @@ export interface VarNotFound {
 
 export interface TypeMismatch {
   tag: "TypeMismatch";
-  sourceType: TypeConstructor<A>;
-  expectedType: TypeConstructor<A>;
+  sourceType: TypeApp<A>;
+  expectedType: Type<A>;
   sourceExpr: AbstractNode;
   expectedExpr: AbstractNode;
 }
@@ -175,20 +159,6 @@ export interface ArgLengthMismatch {
   sourceExpr: AbstractNode;
   expectedExpr: AbstractNode;
 }
-
-export interface TypeArgLengthMismatch {
-  tag: "TypeArgLengthMismatch";
-  sourceType: TypeConstructor<A>;
-  expectedType: TypeConstructor<A>;
-  sourceExpr: AbstractNode;
-  expectedExpr: AbstractNode;
-}
-
-export interface DeconstructNonconstructor {
-  tag: "DeconstructNonconstructor";
-  deconstructor: Deconstructor<A>;
-}
-
 export interface MultipleLayoutError {
   tag: "MultipleLayoutError";
   decls: LayoutStages<C>[];
@@ -215,8 +185,6 @@ export type StyleError =
   | InvalidColorLiteral
   // Selector errors (from Substance)
   | SelectorVarMultipleDecl
-  | SelectorDeclTypeMismatch
-  | SelectorRelTypeMismatch
   | SelectorFieldNotSupported
   | TaggedSubstanceError
   | SelectorAliasNamingError
@@ -342,17 +310,11 @@ export interface SelectorVarMultipleDecl {
   varName: BindingForm<A>;
 }
 
-export interface SelectorDeclTypeMismatch {
-  tag: "SelectorDeclTypeMismatch";
-  subType: TypeConsApp<A>;
-  styType: TypeConsApp<A>;
-}
-
-export interface SelectorRelTypeMismatch {
-  tag: "SelectorRelTypeMismatch";
-  varType: TypeConsApp<A>;
-  exprType: TypeConsApp<A>;
-}
+// export interface SelectorRelTypeMismatch {
+//   tag: "SelectorRelTypeMismatch";
+//   varType: TypeConsApp<A>;
+//   exprType: TypeConsApp<A>;
+// }
 
 export interface SelectorFieldNotSupported {
   tag: "SelectorFieldNotSupported";

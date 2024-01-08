@@ -5,7 +5,6 @@ import { LineProps } from "../shapes/Line.js";
 import { Shape, ShapeType } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
 import { A, ASTNode, NodeType, SourceLoc, SourceRange } from "../types/ast.js";
-import { Either, Left, Right } from "../types/common.js";
 import { StyleWarning } from "../types/errors.js";
 import { MayWarn } from "../types/functions.js";
 import { Fn } from "../types/state.js";
@@ -937,51 +936,6 @@ export const getEnd = ({ end }: LineProps<ad.Num>): ad.Num[] => end.contents;
 
 //#endregion
 
-//#region either monad
-
-export function isLeft<A, B>(val: Either<A, B>): val is Left<A> {
-  return val.tag === "Left";
-}
-
-export function isRight<A, B>(val: Either<A, B>): val is Right<B> {
-  return val.tag === "Right";
-}
-
-export function toLeft<A>(val: A): Left<A> {
-  return { contents: val, tag: "Left" };
-}
-
-export function toRight<B>(val: B): Right<B> {
-  return { contents: val, tag: "Right" };
-}
-
-export function ToLeft<A, B>(val: A): Either<A, B> {
-  return { contents: val, tag: "Left" };
-}
-
-export function ToRight<A, B>(val: B): Either<A, B> {
-  return { contents: val, tag: "Right" };
-}
-
-export function foldM<A, B, C>(
-  xs: A[],
-  f: (acc: B, curr: A, i: number) => Either<C, B>,
-  init: B,
-): Either<C, B> {
-  let res = init;
-  let resW: Either<C, B> = toRight(init); // wrapped
-
-  for (let i = 0; i < xs.length; i++) {
-    resW = f(res, xs[i], i);
-    if (resW.tag === "Left") {
-      return resW;
-    } // Stop fold early on first error and return it
-    res = resW.contents;
-  }
-
-  return resW;
-}
-
 /**
  * Gets the string value of a property.  If the property cannot be converted
  * to a string, throw an exception.
@@ -1017,8 +971,6 @@ export const getValueAsShapeList = <T>(val: Value<T>): Shape<T>[] => {
   if (val.tag === "ShapeListV") return val.contents;
   throw new Error("Not a list of shapes");
 };
-
-//#endregion
 
 //#region errors and warnings
 

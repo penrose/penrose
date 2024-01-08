@@ -5,7 +5,7 @@ import { compileSubstance } from "./compiler/Substance.js";
 import { start, stepUntil } from "./engine/Optimizer.js";
 import { PathResolver, toInteractiveSVG, toSVG } from "./renderer/Renderer.js";
 import * as ad from "./types/ad.js";
-import { Env } from "./types/domain.js";
+import { DomainEnv } from "./types/domain.js";
 import { PenroseError } from "./types/errors.js";
 import { Fn, LabelCache, State } from "./types/state.js";
 import { SubstanceEnv } from "./types/substance.js";
@@ -14,14 +14,7 @@ import {
   insertPending,
   mathjaxInit,
 } from "./utils/CollectLabels.js";
-import {
-  Result,
-  andThen,
-  err,
-  nanError,
-  ok,
-  showError,
-} from "./utils/Error.js";
+import { Result, err, nanError, ok, showError } from "./utils/Error.js";
 import { unwrap } from "./utils/Util.js";
 
 /**
@@ -257,21 +250,28 @@ export const compile = async (prog: {
   variation: string;
   excludeWarnings?: string[];
 }): Promise<Result<State, PenroseError>> => {
-  const domainRes: Result<Env, PenroseError> = compileDomain(prog.domain);
+  const domRes: Result<DomainEnv, PenroseError> = compileDomain(prog.domain);
 
-  const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
-    (env) => compileSubstance(prog.substance, env),
-    domainRes,
+  if (domRes.isErr()) {
+    return err(domRes.error);
+  }
+
+  const subRes: Result<SubstanceEnv, PenroseError> = compileSubstance(
+    prog.substance,
+    domRes.value,
   );
 
-  const styRes: Result<State, PenroseError> = subRes.isErr()
-    ? err(subRes.error)
-    : await compileStyle(
-        prog.variation,
-        prog.style,
-        prog.excludeWarnings ?? [],
-        ...subRes.value,
-      );
+  if (subRes.isErr()) {
+    return err(subRes.error);
+  }
+
+  const styRes: Result<State, PenroseError> = await compileStyle(
+    prog.variation,
+    prog.style,
+    prog.excludeWarnings ?? [],
+    subRes.value,
+    domRes.value,
+  );
 
   if (styRes.isErr()) {
     return styRes;
@@ -371,7 +371,7 @@ export { makeCanvas, simpleContext } from "./shapes/Samplers.js";
 export type { Canvas } from "./shapes/Samplers.js";
 export { sampleShape, shapeTypes } from "./shapes/Shapes.js";
 export type { ShapeType } from "./shapes/Shapes.js";
-export type { Env } from "./types/domain.js";
+export type { DomainEnv } from "./types/domain.js";
 export type {
   PenroseError,
   Warning as PenroseWarning,
