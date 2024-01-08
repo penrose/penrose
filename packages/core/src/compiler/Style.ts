@@ -117,6 +117,7 @@ import {
 } from "../types/substance.js";
 import {
   ArgVal,
+  ConcatStr,
   Field,
   FloatV,
   LListV,
@@ -125,6 +126,7 @@ import {
   PropID,
   PtListV,
   ShapeListV,
+  Str,
   TupV,
   Value,
   VectorV,
@@ -159,6 +161,8 @@ import {
   boolV,
   cartesianProduct,
   colorV,
+  concatStr,
+  constStrV,
   floatV,
   getAdValueAsString,
   hexToRgba,
@@ -2302,15 +2306,15 @@ const evalBinOpMatrixMatrix = (
   }
 };
 
-const evalBinOpStrings = (
+const evalBinOpStrings = <T>(
   error: BinOpTypeError,
   op: BinaryOp,
-  left: string,
-  right: string,
-): Result<string, StyleError> => {
+  left: Str<T>,
+  right: Str<T>,
+): Result<ConcatStr<T>, StyleError> => {
   switch (op) {
     case "BPlus": {
-      return ok(left + right);
+      return ok(concatStr(left, right));
     }
     case "BMinus":
     case "Multiply":
@@ -2742,7 +2746,7 @@ const evalExpr = (
       if (resolved.tag === "ShapeVal") {
         // Can evaluate a path to a GPI - just return the GPI
         // Need to incorporate the "name" information:
-        resolved.contents.name = strV(path);
+        resolved.contents.name = constStrV(path);
         return ok(resolved);
       }
       if (expr.indices.length === 0) {
@@ -2780,7 +2784,7 @@ const evalExpr = (
       return ok(val(elem.value));
     }
     case "StringLit": {
-      return ok(val(strV(expr.contents)));
+      return ok(val(constStrV(expr.contents)));
     }
     case "Tuple": {
       return evalVals(
@@ -2914,9 +2918,9 @@ const evalNameOf = (
   loc: SourceRange,
 ): Result<ArgVal<ad.Num>, StyleDiagnostics> => {
   if (subst.tag === "StySubSubst" && arg.value in subst.contents) {
-    return ok(val(strV(subst.contents[arg.value])));
+    return ok(val(constStrV(subst.contents[arg.value])));
   } else if (subst.tag === "CollectionSubst" && arg.value in subst.groupby) {
-    return ok(val(strV(subst.groupby[arg.value])));
+    return ok(val(constStrV(subst.groupby[arg.value])));
   } else {
     return err(oneErr(notStyleVariableError(arg.value, loc)));
   }
@@ -3496,7 +3500,7 @@ const getShapesList = (
     if (!shape || shape.tag !== "ShapeVal") {
       throw internalMissingPathError(path);
     }
-    shape.contents.name = strV(path);
+    shape.contents.name = constStrV(path);
     return shape.contents;
   });
 };

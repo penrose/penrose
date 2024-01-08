@@ -32,6 +32,9 @@ import {
   ClipDataV,
   Color,
   ColorV,
+  ConcatStr,
+  ConstStr,
+  ConstStrV,
   FloatV,
   LListV,
   ListV,
@@ -41,6 +44,7 @@ import {
   PathDataV,
   PtListV,
   ShapeListV,
+  Str,
   StrV,
   TupV,
   Val,
@@ -588,9 +592,25 @@ export const boolV = (contents: boolean): BoolV => ({
   contents,
 });
 
-export const strV = (contents: string): StrV => ({
+export const strV = <T>(contents: Str<T>): StrV<T> => ({
   tag: "StrV",
   contents,
+});
+
+export const constStr = (contents: string): ConstStr => ({
+  tag: "ConstStr",
+  contents,
+});
+
+export const concatStr = <T>(left: Str<T>, right: Str<T>): ConcatStr<T> => ({
+  tag: "ConcatStr",
+  left,
+  right,
+});
+
+export const constStrV = <T>(contents: string): ConstStrV<T> => ({
+  tag: "StrV",
+  contents: constStr(contents),
 });
 
 export const pathDataV = (contents: PathCmd<ad.Num>[]): PathDataV<ad.Num> => ({
@@ -953,7 +973,11 @@ export const getAdValueAsString = (
       if (typeof prop.contents === "number") return prop.contents.toString();
       break;
     case "StrV":
-      return prop.contents;
+      const str = prop.contents;
+      if (str.tag === "ConstStr") {
+        return str.contents;
+      }
+      break;
   }
   if (dft !== undefined) return dft;
   throw new Error(
