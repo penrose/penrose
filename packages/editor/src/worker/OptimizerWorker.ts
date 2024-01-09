@@ -25,13 +25,14 @@ export type Pending = {
   request: Req;
 };
 
+const worker = new Worker(new URL("./worker.ts", import.meta.url), {
+  type: "module",
+});
+
 /**
  * Wrapper class for the worker thread. Handles sending and receiving messages to and from the worker.
  */
 export default class OptimizerWorker {
-  private worker = new Worker(new URL("./worker.ts", import.meta.url), {
-    type: "module",
-  });
   private svgCache: Map<string, HTMLElement> = new Map();
   private workerInitialized: boolean = false;
   private sharedMemory: Int8Array = new Int8Array();
@@ -40,30 +41,63 @@ export default class OptimizerWorker {
   private onError: OnError = () => {};
   private onComplete: onComplete = () => {};
   private pending: Pending | undefined = undefined;
-  constructor() {
-    log.debug("Worker initializing...", this.worker);
-    const sab = new SharedArrayBuffer(2);
-    this.sharedMemory = new Int8Array(sab);
-    this.request({
-      tag: "Init",
-      sharedMemory: sab,
+
+  /* Initializa the worker by declaring a shared array buffer and passing it to the worker. Then wait for confirmation from the worker before setting up anything. */
+  async init() {
+    return new Promise<void>((resolve, reject) => {
+      log.debug("Worker initializing...", worker);
+      const sab = new SharedArrayBuffer(2);
+      this.sharedMemory = new Int8Array(sab);
+      this.request({
+        tag: "Init",
+        sharedMemory: sab,
+      });
+
+      worker.onmessage = async ({ data }: MessageEvent<Resp>) => {
+        if (data.tag === "Ready") {
+          this.workerInitialized = true;
+          log.info("Worker Initialized");
+          this.setup();
+          // if there is a pending request, send it after setup
+          if (this.pending) {
+            log.warn("Worker has pending request, sending...");
+            this.request(this.pending.request);
+            this.onComplete = this.pending.onComplete;
+            this.onError = this.pending.onError;
+            this.onUpdate = this.pending.onUpdate;
+          }
+          resolve();
+        } else {
+          // Shouldn't happen, but ignore other messages
+          console.error(`Unknown Response: ${data}`);
+        }
+      };
+      // Optionally, you can add a timeout to reject the promise if the worker takes too long
+      setTimeout(() => {
+        reject(new Error("Worker initialization timed out"));
+        log.info("Worker initialization timed out");
+      }, 30000); // 3 seconds timeout, for example
     });
-    this.worker.onerror = (e) => {
+  }
+
+  setup() {
+    log.info("Registering worker listeners");
+
+    worker.onerror = (e) => {
       log.error("Worker error: ", e.message);
     };
 
-    this.worker.onmessageerror = (e) => {
+    worker.onmessageerror = (e) => {
       log.error("Worker message error: ", e);
     };
 
-    this.worker.onmessage = async ({ data }: MessageEvent<Resp>) => {
+    worker.onmessage = async ({ data }: MessageEvent<Resp>) => {
       log.debug("Received message: ", data);
       if (data.tag === "Update") {
         this.onUpdate(optRenderStateToState(data.state, this.svgCache));
       } else if (data.tag === "Error") {
         this.onError(data.error);
       } else if (data.tag === "Ready") {
-        this.workerInitialized = true;
         log.info("Worker ready for new input");
         this.onComplete();
         if (this.pending) {
@@ -103,9 +137,10 @@ export default class OptimizerWorker {
       }
     };
   }
+
   private request(req: Req) {
     log.debug("Sending request: ", req);
-    this.worker.postMessage(req);
+    worker.postMessage(req);
   }
   askForUpdate(onUpdate: OnUpdate, onError: OnError) {
     this.onUpdate = onUpdate;
@@ -168,6 +203,12 @@ export default class OptimizerWorker {
       };
     } else if (!this.workerInitialized) {
       log.warn("Worker not initialized yet, waiting...");
+      setTimeout(() => {
+        this.request({
+          tag: "Init",
+          sharedMemory: this.sharedMemory.buffer as SharedArrayBuffer,
+        });
+      }, 1000);
       this._queue(request, onUpdate, onError, onComplete);
     } else {
       this.running = true;
@@ -205,6 +246,6 @@ export default class OptimizerWorker {
     this.onUpdate = onUpdate;
   };
   terminate() {
-    this.worker.terminate();
+    worker.terminate();
   }
 }

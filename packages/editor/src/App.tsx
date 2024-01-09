@@ -36,6 +36,7 @@ import {
   diagramState,
   fileContentsSelector,
   localFilesState,
+  optimizer,
   settingsState,
 } from "./state/atoms.js";
 import { useCheckURL, useCompileDiagram } from "./state/callbacks.js";
@@ -321,6 +322,10 @@ function App() {
       connectRoger();
     }
   }, []);
+  useEffect(() => {
+    optimizer.init();
+  }, []);
+
   useEffect(() => {
     layoutModel.doAction(
       Actions.updateModelAttributes({

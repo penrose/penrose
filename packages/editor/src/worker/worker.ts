@@ -21,68 +21,8 @@ let svgCache: Map<string, HTMLElement>;
 // the UUID of the current task
 let currentTask: string;
 
-const respondReqLabelCache = (state: PenroseState) => {
-  respond({
-    tag: "ReqLabelCache",
-    shapes: state.shapes,
-    id: currentTask,
-  });
-};
-
-const respondUpdate = async (state: PenroseState) => {
-  respond({
-    tag: "Update",
-    state: stateToOptRenderState(state),
-    id: currentTask,
-  });
-};
-
-const respondError = (error: PenroseError) => {
-  const resp: Resp = { tag: "Error", error, id: currentTask };
-  respond(resp);
-};
-
-const respondReady = () => {
-  respond({ tag: "Ready" });
-};
-
-const respondFinished = (state: PenroseState) => {
-  respond({
-    tag: "Finished",
-    state: stateToOptRenderState(state),
-    id: currentTask,
-  });
-};
-
-// Wrapper function for postMessage to ensure type safety
-const respond = (response: Resp) => {
-  // log.debug("Sending response: ", response);
-  postMessage(response);
-};
-
-const optimize = (state: PenroseState) => {
-  while (!isOptimized(state)) {
-    const steppedState = stepTimes(state, 25);
-    if (steppedState.isErr()) {
-      respondError(steppedState.error);
-      return;
-    }
-    // Main thread wants an update
-    if (Atomics.exchange(sharedMemory, 0, 0)) {
-      respondUpdate(state);
-    }
-    // Main thread wants to compile something else
-    if (Atomics.exchange(sharedMemory, 1, 0)) {
-      respondReady();
-      return;
-    }
-    state = steppedState.value;
-  }
-  respondFinished(state);
-};
-
 onmessage = async ({ data }: MessageEvent<Req>) => {
-  // log.debug("Received message: ", data);
+  console.log("Received message: ", data);
   if (data.tag === "Init") {
     sharedMemory = new Int8Array(data.sharedMemory);
     respond({ tag: "Ready" });
@@ -133,4 +73,66 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
     // Shouldn't ever happen
     console.error(`Unknown request: `, data);
   }
+};
+
+console.log("Worker initialized");
+
+const respondReqLabelCache = (state: PenroseState) => {
+  respond({
+    tag: "ReqLabelCache",
+    shapes: state.shapes,
+    id: currentTask,
+  });
+};
+
+const respondUpdate = async (state: PenroseState) => {
+  respond({
+    tag: "Update",
+    state: stateToOptRenderState(state),
+    id: currentTask,
+  });
+};
+
+const respondError = (error: PenroseError) => {
+  const resp: Resp = { tag: "Error", error, id: currentTask };
+  respond(resp);
+};
+
+const respondReady = () => {
+  respond({ tag: "Ready" });
+};
+
+const respondFinished = (state: PenroseState) => {
+  respond({
+    tag: "Finished",
+    state: stateToOptRenderState(state),
+    id: currentTask,
+  });
+};
+
+// Wrapper function for postMessage to ensure type safety
+const respond = (response: Resp) => {
+  console.log("Sending response: ", response);
+  postMessage(response);
+};
+
+const optimize = (state: PenroseState) => {
+  while (!isOptimized(state)) {
+    const steppedState = stepTimes(state, 25);
+    if (steppedState.isErr()) {
+      respondError(steppedState.error);
+      return;
+    }
+    // Main thread wants an update
+    if (Atomics.exchange(sharedMemory, 0, 0)) {
+      respondUpdate(state);
+    }
+    // Main thread wants to compile something else
+    if (Atomics.exchange(sharedMemory, 1, 0)) {
+      respondReady();
+      return;
+    }
+    state = steppedState.value;
+  }
+  respondFinished(state);
 };
