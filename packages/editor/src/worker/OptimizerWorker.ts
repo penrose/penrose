@@ -10,7 +10,6 @@ import {
 import consola from "consola";
 import { v4 as uuid } from "uuid";
 import { Req, Resp } from "./message.js";
-import RawWorker from "./worker.js?worker";
 
 const log = (consola as any)
   .create({ level: (consola as any).LogLevel.Info })
@@ -30,7 +29,7 @@ export type Pending = {
  * Wrapper class for the worker thread. Handles sending and receiving messages to and from the worker.
  */
 export default class OptimizerWorker {
-  private worker: Worker = new RawWorker();
+  private worker = new Worker(new URL("./worker.js", import.meta.url));
   private svgCache: Map<string, HTMLElement> = new Map();
   private workerInitialized: boolean = false;
   private sharedMemory: Int8Array = new Int8Array();
@@ -48,7 +47,7 @@ export default class OptimizerWorker {
       sharedMemory: sab,
     });
     this.worker.onerror = (e) => {
-      log.error("Worker error: ", e);
+      log.error("Worker error: ", e.message);
     };
 
     this.worker.onmessageerror = (e) => {

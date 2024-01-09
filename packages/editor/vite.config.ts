@@ -9,6 +9,7 @@ export default defineConfig({
   plugins: [react({ jsxRuntime: "classic" }), topLevelAwait()],
   worker: {
     format: "es",
+    plugins: [topLevelAwait()],
   },
   build: { target: "esnext" },
   optimizeDeps: {

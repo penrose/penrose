@@ -80,6 +80,7 @@ const _compileDiagram = async (
       }));
     },
     (error) => {
+      toast.dismiss(compiling);
       set(diagramState, (state: Diagram) => ({ ...state, error }));
       set(diagramWorkerState, {
         ...diagramWorkerState,
