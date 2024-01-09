@@ -29,7 +29,9 @@ export type Pending = {
  * Wrapper class for the worker thread. Handles sending and receiving messages to and from the worker.
  */
 export default class OptimizerWorker {
-  private worker = new Worker(new URL("./worker.js", import.meta.url));
+  private worker = new Worker(new URL("./worker.ts", import.meta.url), {
+    type: "module",
+  });
   private svgCache: Map<string, HTMLElement> = new Map();
   private workerInitialized: boolean = false;
   private sharedMemory: Int8Array = new Int8Array();
