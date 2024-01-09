@@ -6,20 +6,7 @@ import topLevelAwait from "vite-plugin-top-level-await";
 // https://vitejs.dev/config/
 export default defineConfig({
   base: "/try/",
-  plugins: [
-    react({ jsxRuntime: "classic" }),
-    topLevelAwait(),
-    {
-      name: "configure-response-headers",
-      configureServer: (server) => {
-        server.middlewares.use((_req, res, next) => {
-          res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
-          res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
-          next();
-        });
-      },
-    },
-  ],
+  plugins: [react({ jsxRuntime: "classic" }), topLevelAwait()],
   worker: {
     format: "es",
   },
@@ -29,6 +16,16 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    headers: {
+      "Cross-Origin-Embedder-Policy": "require-corp",
+      "Cross-Origin-Opener-Policy": "same-origin",
+    },
+  },
+  preview: {
+    headers: {
+      "Cross-Origin-Embedder-Policy": "require-corp",
+      "Cross-Origin-Opener-Policy": "same-origin",
+    },
   },
   resolve: {
     preserveSymlinks: true,
