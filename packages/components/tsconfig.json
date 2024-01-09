@@ -8,6 +8,6 @@
     "outDir": "dist",
     "moduleResolution": "node" // Monaco and styled-components break with ESM module resolution
   },
-  "include": ["src", "../editor/src/worker"],
+  "include": ["src"],
   "exclude": ["node_modules"]
 }

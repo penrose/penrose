@@ -1,4 +1,3 @@
-import OptimizerWorker from "../../editor/src/worker/OptimizerWorker.js";
 import Demo from "./Demo.js";
 import Embed from "./Embed.js";
 import { Grid } from "./Grid.js";
@@ -19,7 +18,6 @@ export {
   Grid,
   Listing,
   MultipleChoiceProblem,
-  OptimizerWorker,
   SetupDomainMonaco,
   SetupStyleMonaco,
   SetupSubstanceMonaco,
