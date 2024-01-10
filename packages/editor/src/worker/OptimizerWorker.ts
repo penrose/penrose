@@ -75,7 +75,6 @@ export default class OptimizerWorker {
       // Optionally, you can add a timeout to reject the promise if the worker takes too long
       setTimeout(() => {
         reject(new Error("Worker initialization timed out"));
-        log.info("Worker initialization timed out");
       }, 30000); // 3 seconds timeout, for example
     });
   }

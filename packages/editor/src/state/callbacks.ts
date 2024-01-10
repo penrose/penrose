@@ -1,4 +1,4 @@
-import { RenderState } from "@penrose/core";
+import { RenderShapes, RenderState } from "@penrose/core";
 import { Style } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
 import localforage from "localforage";
@@ -7,7 +7,12 @@ import queryString from "query-string";
 import toast from "react-hot-toast";
 import { useRecoilCallback } from "recoil";
 import { v4 as uuid } from "uuid";
-import { DownloadPNG, DownloadSVG, zipTrio } from "../utils/downloadUtils.js";
+import {
+  DownloadPNG,
+  DownloadSVG,
+  pathResolver,
+  zipTrio,
+} from "../utils/downloadUtils.js";
 import {
   Canvas,
   Diagram,
@@ -17,12 +22,14 @@ import {
   GistMetadata,
   LocalGithubUser,
   ProgramFile,
+  RogerState,
   Settings,
   TrioWithPreview,
   Workspace,
   WorkspaceLocation,
   WorkspaceMetadata,
   canvasState,
+  currentRogerState,
   currentWorkspaceState,
   diagramGridState,
   diagramMetadataSelector,
@@ -296,46 +303,62 @@ export const useDownloadSvg = () =>
 // download an svg with raw TeX labels
 export const useDownloadSvgTex = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
-    console.log("TODO: revert download svg tex");
+    const diagram = snapshot.getLoadable(diagramMetadataSelector)
+      .contents as DiagramMetadata;
+    const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+      .contents as WorkspaceMetadata;
+    const rogerState = snapshot.getLoadable(currentRogerState)
+      .contents as RogerState;
+    const canvas = snapshot.getLoadable(canvasState).contents as Canvas;
+    if (canvas.ref && canvas.ref.current !== null) {
+      const { state } = snapshot.getLoadable(diagramState).contents as Diagram;
+      if (state !== null) {
+        const { canvas, shapes, labelCache, variation } = state;
+        // render the current frame
+        const rendered = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "svg",
+        );
+        rendered.setAttribute("version", "1.2");
+        rendered.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        rendered.setAttribute(
+          "viewBox",
+          `0 0 ${canvas.width} ${canvas.height}`,
+        );
+        await RenderShapes(shapes, rendered, {
+          labels: labelCache,
+          canvasSize: canvas.size,
+          variation,
+          namespace: "editor",
+          texLabels: false,
+          pathResolver: (path: string) =>
+            pathResolver(path, rogerState, metadata),
+        });
+        rendered.setAttribute("width", canvas.width.toString());
+        rendered.setAttribute("height", canvas.height.toString());
 
-    // const diagram = snapshot.getLoadable(diagramMetadataSelector)
-    //   .contents as DiagramMetadata;
-    // const metadata = snapshot.getLoadable(workspaceMetadataSelector)
-    //   .contents as WorkspaceMetadata;
-    // const rogerState = snapshot.getLoadable(currentRogerState)
-    //   .contents as RogerState;
-    // const canvas = snapshot.getLoadable(canvasState).contents as Canvas;
-    // if (canvas.ref && canvas.ref.current !== null) {
-    //   const { state } = snapshot.getLoadable(diagramState).contents as Diagram;
-    //   if (state !== null) {
-    //     const svg = await toSVG(
-    //       state,
-    //       (path) => pathResolver(path, rogerState, metadata),
-    //       "diagramPanel",
-    //       true,
-    //     );
-    //     const domain = snapshot.getLoadable(fileContentsSelector("domain"))
-    //       .contents as ProgramFile;
-    //     const substance = snapshot.getLoadable(
-    //       fileContentsSelector("substance"),
-    //     ).contents as ProgramFile;
-    //     const style = snapshot.getLoadable(fileContentsSelector("style"))
-    //       .contents as ProgramFile;
-    //     DownloadSVG(
-    //       svg,
-    //       metadata.name,
-    //       domain.contents,
-    //       substance.contents,
-    //       style.contents,
-    //       metadata.editorVersion.toString(),
-    //       diagram.variation,
-    //     );
-    //   } else {
-    //     toast.error(
-    //       "Could not export: no Penrose diagram detected. Compile a Penrose trio and try again.",
-    //     );
-    //   }
-    // }
+        const domain = snapshot.getLoadable(fileContentsSelector("domain"))
+          .contents as ProgramFile;
+        const substance = snapshot.getLoadable(
+          fileContentsSelector("substance"),
+        ).contents as ProgramFile;
+        const style = snapshot.getLoadable(fileContentsSelector("style"))
+          .contents as ProgramFile;
+        DownloadSVG(
+          rendered,
+          metadata.name,
+          domain.contents,
+          substance.contents,
+          style.contents,
+          metadata.editorVersion.toString(),
+          diagram.variation,
+        );
+      } else {
+        toast.error(
+          "Could not export: no Penrose diagram detected. Compile a Penrose trio and try again.",
+        );
+      }
+    }
   });
 
 export const useDownloadPng = () =>

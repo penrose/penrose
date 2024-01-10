@@ -113,18 +113,17 @@ export const toInteractiveSVG = async (
  * @param pathResolver Resolves paths to static strings
  */
 export const toSVG = async (
-  state: State,
+  {
+    varyingValues,
+    canvas,
+    computeShapes,
+    labelCache: labels,
+    variation,
+  }: State,
   pathResolver: PathResolver,
   namespace: string,
   texLabels = false,
 ): Promise<SVGSVGElement> => {
-  const {
-    varyingValues,
-    computeShapes,
-    labelCache: labels,
-    canvas,
-    variation,
-  } = state;
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("version", "1.2");
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");

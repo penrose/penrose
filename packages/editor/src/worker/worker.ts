@@ -22,7 +22,7 @@ let svgCache: Map<string, HTMLElement>;
 let currentTask: string;
 
 onmessage = async ({ data }: MessageEvent<Req>) => {
-  console.log("Received message: ", data);
+  console.debug("Received message: ", data);
   if (data.tag === "Init") {
     sharedMemory = new Int8Array(data.sharedMemory);
     respond({ tag: "Ready" });
