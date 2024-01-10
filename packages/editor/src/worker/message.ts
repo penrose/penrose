@@ -10,7 +10,7 @@ import {
 
 type ID = { id: string };
 
-export type Req = Init | ((Compile | RenderedLabels | Resample) & ID);
+export type Req = Init | ((Compile | RespLabels | Resample) & ID);
 
 export type Resample = {
   tag: "Resample";
@@ -22,13 +22,13 @@ export type Init = {
   sharedMemory: SharedArrayBuffer;
 };
 
-export type RenderedLabels = {
-  tag: "RespLabelCache";
+export type RespLabels = {
+  tag: "RespLabels";
   labelCache: OptLabelCache;
 };
 
-export type RequestLabels = {
-  tag: "ReqLabelCache";
+export type ReqLabels = {
+  tag: "ReqLabels";
   shapes: Shape<Num>[];
 };
 
@@ -41,7 +41,7 @@ export type Compile = {
 };
 
 /** response */
-export type Resp = Ready | ((Update | Error | Finished | RequestLabels) & ID);
+export type Resp = Ready | ((Update | Error | Finished | ReqLabels) & ID);
 
 export type Update = {
   tag: "Update";

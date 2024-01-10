@@ -112,7 +112,7 @@ export default class OptimizerWorker {
         this.onComplete();
         log.info(`Finished optimization for ${data.id}`);
         this.onUpdate(optRenderStateToState(data.state, this.svgCache));
-      } else if (data.tag === "ReqLabelCache") {
+      } else if (data.tag === "ReqLabels") {
         const convert = mathjaxInit();
         const labelCache = await collectLabels(data.shapes, convert);
         if (labelCache.isErr()) {
@@ -127,7 +127,7 @@ export default class OptimizerWorker {
         );
         this.onComplete();
         this.request({
-          tag: "RespLabelCache",
+          tag: "RespLabels",
           labelCache: optLabelCache,
           id: data.id,
         });

@@ -13,9 +13,9 @@ import {
 import { Req, Resp } from "./message.js";
 
 // Array of size two. First index is set if main thread wants an update,
-// second bit is set if user wants to send a new trio.
+// second is set if user wants to send a new trio.
 let sharedMemory: Int8Array;
-let initialState: PenroseState;
+let currentState: PenroseState;
 let labels: OptLabelCache;
 let svgCache: Map<string, HTMLElement>;
 // the UUID of the current task
@@ -30,56 +30,47 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
     const { domain, substance, style, variation, id } = data;
     // save the id for the current task
     currentTask = id;
-    // log.debug("start compiling");
     const compileResult = await compileTrio({
       domain,
       substance,
       style,
       variation,
     });
-    // log.debug("end compiling");
-
     if (compileResult.isErr()) {
       respondError(compileResult.error);
     } else {
-      initialState = compileResult.value;
-      // console.log("initialState", initialState);
-
-      respondReqLabelCache(compileResult.value);
+      currentState = compileResult.value;
+      respondReqLabels(compileResult.value);
     }
-  } else if (data.tag === "RespLabelCache") {
-    // log.debug("got label cache response");
+  } else if (data.tag === "RespLabels") {
     svgCache = new Map<string, HTMLElement>();
     for (const [key, value] of Object.entries(data.labelCache)) {
       svgCache.set(key, value.rendered);
     }
     labels = data.labelCache;
-    initialState = {
-      ...initialState,
+    currentState = {
+      ...currentState,
       labelCache: optLabelCacheToLabelCache(data.labelCache, svgCache),
     };
-    optimize(insertPending(initialState));
+    optimize(insertPending(currentState));
   } else if (data.tag === "Resample") {
     const { variation } = data;
-    const resampled = resample({ ...initialState, variation });
+    const resampled = resample({ ...currentState, variation });
     optimize(
       insertPending({
         ...resampled,
         labelCache: optLabelCacheToLabelCache(labels, svgCache),
       }),
     );
-    // respondUpdate(resampled);
   } else {
     // Shouldn't ever happen
     console.error(`Unknown request: `, data);
   }
 };
 
-console.log("Worker initialized");
-
-const respondReqLabelCache = (state: PenroseState) => {
+const respondReqLabels = (state: PenroseState) => {
   respond({
-    tag: "ReqLabelCache",
+    tag: "ReqLabels",
     shapes: state.shapes,
     id: currentTask,
   });
@@ -118,7 +109,7 @@ const respond = (response: Resp) => {
 
 const optimize = (state: PenroseState) => {
   while (!isOptimized(state)) {
-    const steppedState = stepTimes(state, 25);
+    const steppedState = stepTimes(state, 1);
     if (steppedState.isErr()) {
       respondError(steppedState.error);
       return;
