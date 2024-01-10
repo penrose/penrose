@@ -15,6 +15,7 @@ import {
   showError,
   toSVG,
 } from "@penrose/core";
+import { initSubstanceEnv } from "@penrose/core/dist/compiler/Substance";
 import { saveAs } from "file-saver";
 import JSZip from "jszip";
 import { shuffle } from "lodash";
@@ -139,12 +140,12 @@ export class Content extends React.Component<ContentProps, ContentState> {
 
       // initialize synthesizer
       if (envOrError.isOk()) {
-        const env = envOrError.value;
-        let subResult;
+        const domEnv = envOrError.value;
+        let subEnv;
         if (sub.length > 0) {
-          const subRes = compileSubstance(sub, env);
+          const subRes = compileSubstance(sub, domEnv);
           if (subRes.isOk()) {
-            subResult = subRes.value;
+            subEnv = subRes.value;
           } else {
             console.log(
               `Error when compiling the template Substance program: ${showError(
@@ -153,7 +154,13 @@ export class Content extends React.Component<ContentProps, ContentState> {
             );
           }
         }
-        const synth = new Synthesizer(env, setting, subResult, seed);
+        const synth = new Synthesizer(
+          domEnv,
+          subEnv === undefined ? initSubstanceEnv() : subEnv,
+          setting,
+          subEnv === undefined ? undefined : [subEnv, domEnv],
+          seed,
+        );
         let progs = synth.generateSubstances(numPrograms);
         const template = synth.getTemplate();
 

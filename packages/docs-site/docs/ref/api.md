@@ -33,7 +33,7 @@ container.appendChild(rendered);
 ```javascript [trio.js]
 const domain = `
 type Set
-predicate Not(Prop p1)
+predicate NotIntersecting(Set s1, Set s2)
 predicate Intersecting(Set s1, Set s2)
 predicate IsSubset(Set s1, Set s2)
 `;
@@ -62,7 +62,7 @@ canvas {
   }
   
   forall Set x; Set y
-  where Not(Intersecting(x, y)) {
+  where NotIntersecting(x, y) {
     ensure disjoint(x.icon, y.icon)
   }
   
@@ -83,9 +83,9 @@ IsSubset(E, B)
 IsSubset(F, C)
 IsSubset(G, C)
 
-Not(Intersecting(E, D))
-Not(Intersecting(F, G))
-Not(Intersecting(B, C))
+NotIntersecting(E, D)
+NotIntersecting(F, G)
+NotIntersecting(B, C)
 
 AutoLabel All
 `;

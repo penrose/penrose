@@ -32,11 +32,6 @@ predicate PairIn(Point, Point, Map)
 
 -- predicate Not(Predicate p)
 
--- These are new, and should go back in the Set domain
-notation "A ⊂ B" ~ "IsSubset(A, B)"
-notation "p ∈ A" ~ "PointIn(A, p)"
-notation "p ∉ A" ~ "PointNotIn(A, p)"
-
 ------------------------------
 -- | Mesh domain program
 
