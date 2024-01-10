@@ -392,13 +392,13 @@ export const useDuplicate = () =>
     }));
   });
 
-const _confirmDirtyWorkspace = (workspace: Workspace): boolean => {
+// returns true if there are no unsaved changes
+export const isCleanWorkspace = (workspace: Workspace): boolean => {
   if (
     workspace.metadata.location.kind === "local" &&
     !workspace.metadata.location.saved &&
     !(
       workspace.files.domain.contents === "" &&
-      workspace.files.style.contents === "" &&
       workspace.files.substance.contents === ""
     )
   ) {
@@ -411,7 +411,7 @@ export const useLoadLocalWorkspace = () =>
   useRecoilCallback(({ set, snapshot }) => async (id: string) => {
     const currentWorkspace = snapshot.getLoadable(currentWorkspaceState)
       .contents as Workspace;
-    if (!_confirmDirtyWorkspace(currentWorkspace)) {
+    if (!isCleanWorkspace(currentWorkspace)) {
       return;
     }
     const loadedWorkspace = (await localforage.getItem(id)) as Workspace;
@@ -439,7 +439,7 @@ export const useLoadExampleWorkspace = () =>
         const currentWorkspace = snapshot.getLoadable(
           currentWorkspaceState,
         ).contents;
-        if (!_confirmDirtyWorkspace(currentWorkspace)) {
+        if (!isCleanWorkspace(currentWorkspace)) {
           return;
         }
         const id = toast.loading("Loading example...");
@@ -680,7 +680,7 @@ const REDIRECT_URL =
 export const useSignIn = () =>
   useRecoilCallback(({ set, snapshot }) => () => {
     const workspace = snapshot.getLoadable(currentWorkspaceState).contents;
-    if (!_confirmDirtyWorkspace(workspace)) {
+    if (!isCleanWorkspace(workspace)) {
       return;
     }
     window.location.replace(REDIRECT_URL);
