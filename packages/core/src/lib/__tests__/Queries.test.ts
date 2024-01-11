@@ -11,7 +11,7 @@ import { makeCanvas, simpleContext } from "../../shapes/Samplers.js";
 import { Shape } from "../../shapes/Shapes.js";
 import * as ad from "../../types/ad.js";
 import { Pt2 } from "../../types/ad.js";
-import { black, floatV, ptListV, vectorV } from "../../utils/Util.js";
+import { black, constStr, floatV, ptListV, vectorV } from "../../utils/Util.js";
 import { compDict } from "../Functions.js";
 import {
   bboxFromShape,
@@ -56,7 +56,7 @@ const shapes: Shape<ad.Num>[] = [
   }),
   // shapes[3]
   makePath(context, canvas, {
-    d: compDict.pathFromPoints.body(context, "open", [
+    d: compDict.pathFromPoints.body(context, constStr("open"), [
       [-11, 0],
       [33, 0],
       [33, 44],

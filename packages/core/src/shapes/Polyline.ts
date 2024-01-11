@@ -8,7 +8,14 @@ import {
   ShapeCommon,
   Stroke,
 } from "../types/shapes.js";
-import { black, boolV, floatV, noPaint, ptListV, strV } from "../utils/Util.js";
+import {
+  black,
+  boolV,
+  constStrV,
+  floatV,
+  noPaint,
+  ptListV,
+} from "../utils/Util.js";
 import { Canvas, Context } from "./Samplers.js";
 
 export interface PolylineProps<T>
@@ -19,19 +26,19 @@ export interface PolylineProps<T>
     Poly<T> {
   // `stroke-linecap` only takes effect on <altGlyph>, <path>, <polyline>, <line>, <text>, <textPath>, <tref>, and <tspan>.
   // https://www.w3docs.com/learn-css/stroke-linecap.html
-  strokeLinecap: StrV;
+  strokeLinecap: StrV<T>;
 }
 
 export const samplePolyline = (
   _context: Context,
   _canvas: Canvas,
 ): PolylineProps<ad.Num> => ({
-  name: strV("defaultPolyline"),
+  name: constStrV("defaultPolyline"),
   strokeWidth: floatV(1),
-  strokeStyle: strV("solid"),
+  strokeStyle: constStrV("solid"),
   strokeColor: black(),
-  strokeDasharray: strV(""),
-  strokeLinecap: strV("butt"),
+  strokeDasharray: constStrV(""),
+  strokeLinecap: constStrV("butt"),
   fillColor: noPaint(),
   scale: floatV(1),
   points: ptListV([

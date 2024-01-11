@@ -81,10 +81,6 @@ export const checkValueAgainstValueType = (
     if (tag === "ColorV") return contents;
   } else if (expected === "String") {
     if (tag === "StrV") return contents;
-  } else if (expected === "LiteralString") {
-    if (tag === "StrV" && contents.tag === "ConstStr") {
-      return contents;
-    }
   } else if (expected === "ColorType") {
     if (
       tag === "StrV" &&

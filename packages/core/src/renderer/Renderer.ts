@@ -12,6 +12,8 @@ import { isLinelike, isRectlike } from "../lib/Utils.js";
 import { Group } from "../shapes/Group.js";
 import { Shape } from "../shapes/Shapes.js";
 import { LabelCache, State } from "../types/state.js";
+import { mathjaxInit } from "../utils/CollectLabels.js";
+import { Result } from "../utils/Error.js";
 import { toScreen } from "../utils/Util.js";
 import { attrAutoFillSvg, attrTitle } from "./AttrHelper.js";
 import RenderCircle from "./Circle.js";
@@ -25,7 +27,6 @@ import RenderPolyline from "./Polyline.js";
 import RenderRectangle from "./Rectangle.js";
 import RenderText from "./Text.js";
 import { dragUpdate } from "./dragUtils.js";
-
 /**
  * Resolves path references into static strings. Implemented by client
  * since filesystem contexts vary (eg browser vs headless).
@@ -40,6 +41,7 @@ export interface RenderProps {
   texLabels: boolean;
   canvasSize: [number, number];
   pathResolver: PathResolver;
+  texRenderer: (texStr: string) => Result<HTMLElement, string>;
 }
 export type InteractiveProps = {
   updateState: (newState: State) => void;
@@ -98,6 +100,7 @@ export const toInteractiveSVG = async (
       namespace,
       texLabels: false,
       pathResolver,
+      texRenderer: mathjaxInit(),
     },
     {
       updateState,
@@ -182,6 +185,7 @@ export const toSVG = async (
       namespace,
       texLabels,
       pathResolver,
+      texRenderer: mathjaxInit(),
     },
     undefined,
   );
@@ -202,7 +206,7 @@ const RenderGroup = async (
 
   if (clip.tag === "Clip") {
     const clipShape = clip.contents;
-    clipShapeName = clipShape.name.contents;
+    clipShapeName = clipShape.name.contents.contents;
     const clipShapeSvg = await RenderShape(
       clipShape,
       shapeProps,
@@ -225,7 +229,7 @@ const RenderGroup = async (
   for (const shape of subShapes) {
     const name = shape.name.contents;
     if (clip.tag === "Clip") {
-      if (name !== clipShapeName) {
+      if (name.contents !== clipShapeName) {
         const childSvg = await RenderShape(shape, shapeProps, interactiveProp);
 
         // wraps the shape in a <g> tag so that clipping is applied after all the transformations etc.
@@ -333,7 +337,7 @@ export const RenderShape = async (
           g.setAttribute("opacity", "1");
           document.removeEventListener("mouseup", onMouseUp);
           document.removeEventListener("mousemove", onMouseMove);
-          interactiveProp.onDrag(shape.name.contents, dx, dy);
+          interactiveProp.onDrag(shape.name.contents.contents, dx, dy);
         };
         document.addEventListener("mouseup", onMouseUp);
         document.addEventListener("mousemove", onMouseMove);

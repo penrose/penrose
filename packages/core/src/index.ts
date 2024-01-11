@@ -23,11 +23,19 @@ import { unwrap } from "./utils/Util.js";
  */
 export const resample = (state: State): State => {
   const rng = seedrandom(state.variation);
+  // new set of varying values
+  const varyingValues = state.inputs.map(({ meta }) =>
+    meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending,
+  );
+  // update init values of the ad.Vars
+  for (let i = 0; i < state.inputs.length; i++) {
+    state.inputs[i].handle.val = varyingValues[i];
+  }
+  console.log("X");
+
   return insertPending({
     ...state,
-    varyingValues: state.inputs.map(({ meta }) =>
-      meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending,
-    ),
+    varyingValues,
     currentStageIndex: 0,
     params: start(state.varyingValues.length),
   });

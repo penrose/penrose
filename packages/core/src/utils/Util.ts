@@ -1,5 +1,6 @@
 import _ from "lodash";
 import seedrandom from "seedrandom";
+import { genCodeSync, secondaryGraph } from "../engine/Autodiff.js";
 import { isConcrete } from "../engine/EngineUtils.js";
 import { LineProps } from "../shapes/Line.js";
 import { Shape, ShapeType } from "../shapes/Shapes.js";
@@ -957,34 +958,21 @@ export const getEnd = ({ end }: LineProps<ad.Num>): ad.Num[] => end.contents;
 //#endregion
 
 /**
- * Gets the string value of a property.  If the property cannot be converted
- * to a string, throw an exception.
+ * Get numerical values of nodes in the computation graph. This function calls `secondaryGraph` to construct a partial computation graph and runs `genCode` to generate code to evaluate the values.
  *
- * @param prop Get the string value of this property
- * @param dft Optional default value (if you don't want an exception)
- * @returns string value of the property
+ * @param xs nodes in the computation graph
+ * @returns a list of `number`s corresponding to nodes in `xs`
  */
-export const getAdValueAsString = (
-  prop: Value<ad.Num>,
-  dft?: string,
-): string => {
-  switch (prop.tag) {
-    case "FloatV":
-      if (typeof prop.contents === "number") return prop.contents.toString();
-      break;
-    case "StrV":
-      const str = prop.contents;
-      if (str.tag === "ConstStr") {
-        return str.contents;
-      }
-      break;
-  }
-  if (dft !== undefined) return dft;
-  throw new Error(
-    `getAdValueAsString: unexpected tag ${prop.tag} w/value ${JSON.stringify(
-      prop.contents,
-    )}`,
-  );
+export const numsOf = (xs: ad.Num[]): number[] =>
+  genCodeSync(secondaryGraph(xs))((x) => x.val).secondary;
+
+export const numOf = (x: ad.Num): number => {
+  return numsOf([x])[0];
+};
+
+export const toFixedNumber = (num: number, digits: number) => {
+  const pow = Math.pow(10, digits);
+  return Math.round(num * pow) / pow;
 };
 
 /**
@@ -994,6 +982,24 @@ export const getAdValueAsString = (
 export const getValueAsShapeList = <T>(val: Value<T>): Shape<T>[] => {
   if (val.tag === "ShapeListV") return val.contents;
   throw new Error("Not a list of shapes");
+};
+
+export const evalStr = (str: Str<ad.Num>): string => {
+  if (str.tag === "ConstStr") {
+    return str.contents;
+  } else if (str.tag === "FromNum") {
+    // if it is a fixed number, just use that number
+    // otherwise use the initial number.
+    const num = typeof str.num === "number" ? str.num : numOf(str.num);
+
+    if (str.preserveDigits !== undefined) {
+      return toFixedNumber(num, str.preserveDigits).toString();
+    } else {
+      return num.toString();
+    }
+  } else {
+    return evalStr(str.left) + evalStr(str.right);
+  }
 };
 
 //#region errors and warnings

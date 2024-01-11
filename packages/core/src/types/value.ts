@@ -69,11 +69,13 @@ export interface ConstStr {
   tag: "ConstStr";
   contents: string;
 }
+
 export interface FromNum<T> {
   tag: "FromNum";
-  value: T;
+  num: T;
   preserveDigits?: number;
 }
+
 export interface ConcatStr<T> {
   tag: "ConcatStr";
   left: Str<T>;
@@ -81,6 +83,8 @@ export interface ConcatStr<T> {
 }
 
 export type ConstStrV<T> = StrV<T> & { contents: ConstStr };
+
+export type PathTypeStr = ConstStr & { contents: "open" | "closed" };
 
 /** A path, similar to an [SVG path](https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths) **/
 export interface PathDataV<T> {

@@ -66,12 +66,14 @@ import {
   ClipDataV,
   Color,
   ColorV,
+  ConstStr,
   FloatV,
   LListV,
   ListV,
   MatrixV,
   PathDataV,
   PtListV,
+  Str,
   StrV,
   TupV,
   VectorV,
@@ -82,6 +84,8 @@ import {
   clipShape,
   colorT,
   colorTypeT,
+  concatStr,
+  constStr,
   floatV,
   getStart,
   linePts,
@@ -1894,14 +1898,14 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      pathType: string,
+      pathType: ConstStr,
       pts: ad.Pt2[],
     ): MayWarn<PathDataV<ad.Num>> => {
       const path = new PathBuilder();
       const [start, ...tailpts] = pts;
       path.moveTo(start);
       tailpts.forEach((pt: ad.Pt2) => path.lineTo(pt));
-      if (pathType === "closed") path.closePath();
+      if (pathType.contents === "closed") path.closePath();
       return noWarn(path.getPath());
     },
     returns: valueT("PathCmd"),
@@ -1920,7 +1924,7 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      pathType: string,
+      pathType: ConstStr,
       pts: ad.Pt2[],
     ): MayWarn<PathDataV<ad.Num>> => {
       const path = new PathBuilder();
@@ -1928,7 +1932,7 @@ export const compDict = {
       path.moveTo(start);
       path.quadraticCurveTo(cp, second);
       tailpts.forEach((pt: ad.Pt2) => path.quadraticCurveJoin(pt));
-      if (pathType === "closed") path.closePath();
+      if (pathType.contents === "closed") path.closePath();
       return noWarn(path.getPath());
     },
     returns: valueT("PathCmd"),
@@ -1953,7 +1957,7 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      pathType: string,
+      pathType: ConstStr,
       p0: ad.Pt2,
       p1: ad.Pt2,
       p2: ad.Pt2,
@@ -1972,7 +1976,7 @@ export const compDict = {
         throw new Error("vector ops did not preserve dimension");
       }
       path.quadraticCurveTo(q1, p2);
-      if (pathType === "closed") path.closePath();
+      if (pathType.contents === "closed") path.closePath();
       return noWarn(path.getPath());
     },
     returns: valueT("PathCmd"),
@@ -1992,7 +1996,7 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      pathType: string,
+      pathType: ConstStr,
       pts: ad.Pt2[],
     ): MayWarn<PathDataV<ad.Num>> => {
       const path = new PathBuilder();
@@ -2000,7 +2004,7 @@ export const compDict = {
       path.moveTo(start);
       path.bezierCurveTo(cp1, cp2, second);
       _.chunk(tailpts, 2).forEach(([cp, pt]) => path.cubicCurveJoin(cp, pt));
-      if (pathType === "closed") path.closePath();
+      if (pathType.contents === "closed") path.closePath();
       return noWarn(path.getPath());
     },
     returns: valueT("PathCmd"),
@@ -2045,7 +2049,7 @@ export const compDict = {
         name: "chirality",
         type: stringT(),
         description: 'either "cw" for clockwise, or "ccw" for counterclockwise',
-        default: "ccw",
+        default: constStr("ccw"),
       },
     ],
     body: (
@@ -2055,14 +2059,14 @@ export const compDict = {
       holeSize: ad.Num,
       angle: ad.Num,
       nSides: number,
-      chirality: string,
+      chirality: ConstStr,
     ): MayWarn<PathDataV<ad.Num>> => {
       const n = Math.floor(Math.max(nSides, 3));
       const R = radius; // shorthand for outer radius
       const r = mul(holeSize, R); // inner radius
       const alpha = mul(Math.PI, div(sub(n, 2), n)); // interior angle of regular n-gon
       const w = div(sub(R, r), mul(4, cos(div(alpha, 2)))); // half-width
-      const s = chirality === "cw" ? 1 : -1;
+      const s = chirality.contents === "cw" ? 1 : -1;
 
       // inner and outer polygons
       const a = [];
@@ -2191,11 +2195,11 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      pathType: string,
+      pathType: ConstStr,
       points: ad.Num[][],
       tension: ad.Num,
     ): MayWarn<PathDataV<ad.Num>> => {
-      return noWarn(catmullRom(_context, pathType, points, tension));
+      return noWarn(catmullRom(_context, pathType.contents, points, tension));
     },
     returns: valueT("PathCmd"),
   },
@@ -2274,12 +2278,12 @@ export const compDict = {
     body: (
       _context: Context,
       [start, end]: [ad.Pt2, ad.Pt2],
-      t: string,
+      t: ConstStr,
       size: ad.Num,
     ): MayWarn<PtListV<ad.Num>> => {
       const dir = ops.vnormalize(ops.vsub(end, start));
       const normalDir = ops.rot90(toPt(dir));
-      const base = t === "start" ? start : end;
+      const base = t.contents === "start" ? start : end;
       const [markStart, markEnd] = [
         ops.vmove(base, size, normalDir),
         ops.vmove(base, neg(size), normalDir),
@@ -2345,7 +2349,7 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      pathType: string,
+      pathType: ConstStr,
       start: ad.Pt2,
       end: ad.Pt2,
       radius: ad.Pt2,
@@ -2355,7 +2359,7 @@ export const compDict = {
     ): MayWarn<PathDataV<ad.Num>> => {
       const path = new PathBuilder();
       path.moveTo(start).arcTo(radius, end, [rotation, largeArc, arcSweep]);
-      if (pathType === "closed") path.closePath();
+      if (pathType.contents === "closed") path.closePath();
       return noWarn(path.getPath());
     },
     returns: valueT("PathCmd"),
@@ -2393,7 +2397,7 @@ export const compDict = {
     ],
     body: (
       _context: Context,
-      pathType: string,
+      pathType: ConstStr,
       center: ad.Pt2,
       r: ad.Num,
       theta0: ad.Num,
@@ -2408,7 +2412,7 @@ export const compDict = {
       const largeArc = ifCond(gt(absVal(sub(theta1, theta0)), Math.PI), 1, 0);
       const arcSweep = ifCond(gt(theta0, theta1), 1, 0);
       path.moveTo(x0).arcTo([r, r], x1, [0, largeArc, arcSweep]);
-      if (pathType === "closed") {
+      if (pathType.contents === "closed") {
         path.lineTo(center);
         path.closePath();
       }
@@ -5838,25 +5842,96 @@ export const compDict = {
     description:
       'Returns the TeX-fied version of a string where subscripts are handled in a way suitable for equation rendering. For example, "hello_world" becomes "{hello}_{world}".',
     params: [{ name: "str", type: stringT() }],
-    body: (_context: Context, str: string): MayWarn<StrV> => {
-      const splitted = str.split("_");
+    body: (_context: Context, str: Str<ad.Num>): MayWarn<StrV<ad.Num>> => {
+      const splitted = splitStr(str, "_");
       return noWarn(strV(TeXifyHelper(splitted)));
+    },
+    returns: stringT(),
+  },
+  toString: {
+    name: "toString",
+    description:
+      "Converts a number to string; can optionally specify how many digits to round off",
+    params: [
+      { name: "num", type: realT() },
+      { name: "roundDigits", type: natT(), default: -1 },
+    ],
+    body: (
+      _context: Context,
+      num: ad.Num,
+      roundDigits: ad.Num | undefined,
+    ): MayWarn<StrV<ad.Num>> => {
+      if (roundDigits !== undefined && typeof roundDigits !== "number") {
+        throw new Error("expects roundDigits to be a fixed number");
+      }
+
+      const rd =
+        roundDigits !== undefined &&
+        typeof roundDigits === "number" &&
+        roundDigits !== -1
+          ? roundDigits
+          : undefined;
+
+      return noWarn(
+        strV({
+          tag: "FromNum",
+          num,
+          preserveDigits: rd,
+        }),
+      );
     },
     returns: stringT(),
   },
 };
 
-const TeXifyHelper = (segments: string[]): string => {
+const splitStr = (str: Str<ad.Num>, del: string): Str<ad.Num>[] => {
+  if (str.tag === "FromNum") {
+    return [str];
+  } else if (str.tag === "ConstStr") {
+    return str.contents.split(del).map((subs) => ({
+      tag: "ConstStr",
+      contents: subs,
+    }));
+  } else {
+    // tricky part
+    const l = splitStr(str.left, del);
+    const r = splitStr(str.right, del);
+    if (l.length === 0) {
+      return r;
+    }
+    if (r.length === 0) {
+      return l;
+    }
+
+    const left = l.slice(0, -1);
+    const right = r.slice(1);
+    const mid = concatStr(l[l.length - 1], r[0]);
+    return [...left, mid, ...right];
+  }
+};
+
+const TeXifyHelper = (segments: Str<ad.Num>[]): Str<ad.Num> => {
   // This function performs cascading.
   if (segments.length === 0) {
-    return "";
+    return constStr("");
   }
 
   const [first, ...rest] = segments;
   if (rest.length === 0) {
-    return `{${first}}`;
+    return concatStr(constStr("{"), concatStr(first, constStr("}")));
+    // essentially `{${first}}`
   } else {
-    return `{${first}}_{${TeXifyHelper(rest)}}`;
+    return concatStr(
+      constStr("{"),
+      concatStr(
+        first,
+        concatStr(
+          constStr("}_{"),
+          concatStr(TeXifyHelper(rest), constStr("}")),
+        ),
+      ),
+    );
+    // essentially `{${first}}_{${TeXifyHelper(rest)}}`;
   }
 };
 

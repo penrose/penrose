@@ -1,5 +1,5 @@
 import { Text } from "../shapes/Text.js";
-import { toScreen } from "../utils/Util.js";
+import { evalStr, toScreen } from "../utils/Util.js";
 import {
   attrAutoFillSvg,
   attrFill,
@@ -32,7 +32,7 @@ const RenderText = (
 
   // Get width/height of the text if available
   const name = shape.name;
-  const retrievedLabel = labels.get(name.contents);
+  const retrievedLabel = labels.get(evalStr(name.contents));
   // Directly render the text with [x, y] in screen coordinates without transforming them using `width` and `height`
   const center = shape.center;
   const [x, y] = toScreen([center.contents[0], center.contents[1]], canvasSize);
@@ -50,13 +50,19 @@ const RenderText = (
     elem.setAttribute("y", y.toString());
   }
 
-  elem.setAttribute("font-size-adjust", shape.fontSizeAdjust.contents);
-  elem.setAttribute("alignment-baseline", shape.alignmentBaseline.contents);
-  elem.setAttribute("dominant-baseline", shape.dominantBaseline.contents);
+  elem.setAttribute("font-size-adjust", evalStr(shape.fontSizeAdjust.contents));
+  elem.setAttribute(
+    "alignment-baseline",
+    evalStr(shape.alignmentBaseline.contents),
+  );
+  elem.setAttribute(
+    "dominant-baseline",
+    evalStr(shape.dominantBaseline.contents),
+  );
   elem.setAttribute("ascent", shape.ascent.contents.toString());
   elem.setAttribute("descent", shape.descent.contents.toString());
   elem.setAttribute("text-anchor", shape.textAnchor.contents.toString());
-  elem.setAttribute("visibility", shape.visibility.contents);
+  elem.setAttribute("visibility", evalStr(shape.visibility.contents));
   attrToNotAutoMap.push(
     "fontSizeAdjust",
     "alignmentBaseline",

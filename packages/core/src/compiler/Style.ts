@@ -163,8 +163,8 @@ import {
   colorV,
   concatStr,
   constStrV,
+  evalStr,
   floatV,
-  getAdValueAsString,
   hexToRgba,
   isKeyOf,
   listV,
@@ -3541,7 +3541,7 @@ const onCanvases = (canvas: Canvas, shapes: Shape<ad.Num>[]): Fn[] => {
                 // HACK: the right way to do this would be to parse `name` into
                 // the correct `Path`, but we don't really care as long as it
                 // pretty-prints into something that looks right
-                fakePath(name, []),
+                fakePath(name.contents, []),
                 fakePath("canvas", ["width"]),
                 fakePath("canvas", ["height"]),
               ],
@@ -3713,7 +3713,7 @@ export const compileStyleHelper = async (
   const nameShapeMap = new Map<string, Shape<ad.Num>>();
 
   for (const shape of shapes) {
-    const shapeName = getAdValueAsString(shape.name);
+    const shapeName = evalStr(shape.name.contents);
     nameShapeMap.set(shapeName, shape);
   }
 

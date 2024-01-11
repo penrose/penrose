@@ -17,7 +17,6 @@ export const valueTypeDesc = {
   RealNM: { description: "List of Real Vectors", symbol: "(ℝⁿ)ᵐ" },
   Color: { description: "Color", symbol: "Color" },
   String: { description: "String", symbol: "String" },
-  LiteralString: { description: "Literal String", symbol: "LiteralString" },
   ColorType: { description: "Color Type", symbol: `"rgb" | "hsv"` },
   PathType: { description: "Path Type", symbol: `"open" | "closed"` },
   ShapeList: { description: "List of shapes", symbol: "Shape[]" },

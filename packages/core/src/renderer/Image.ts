@@ -1,4 +1,5 @@
 import { Image } from "../shapes/Image.js";
+import { evalStr } from "../utils/Util.js";
 import {
   attrAutoFillSvg,
   attrRotation,
@@ -20,7 +21,7 @@ const RenderImage = async (
 
   // Map/Fill the shape attributes while keeping track of input properties mapped
   const path = shape.href.contents;
-  let rawSVG = await pathResolver(path);
+  let rawSVG = await pathResolver(evalStr(path));
   if (rawSVG === undefined) {
     console.error(`Could not resolve image path ${path}`);
     rawSVG = notFound.image;
@@ -36,7 +37,10 @@ const RenderImage = async (
   attrToNotAutoMap.push(...attrRotation(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrTransformCoords(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrTitle(shape, elem));
-  svg.setAttribute("preserveAspectRatio", shape.preserveAspectRatio.contents);
+  svg.setAttribute(
+    "preserveAspectRatio",
+    evalStr(shape.preserveAspectRatio.contents),
+  );
   attrToNotAutoMap.push("preserveAspectRatio");
   // Directly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);

@@ -13,7 +13,7 @@ import { PenroseError } from "../types/errors.js";
 import { EquationData, LabelCache, State, TextData } from "../types/state.js";
 import { FloatV } from "../types/value.js";
 import { Result, err, ok } from "./Error.js";
-import { getAdValueAsString, getValueAsShapeList, unwrap } from "./Util.js";
+import { evalStr, getValueAsShapeList, unwrap } from "./Util.js";
 
 export const mathjaxInit = (): ((
   input: string,
@@ -99,14 +99,14 @@ const tex2svg = async (
   convert: (input: string) => Result<HTMLElement, string>,
 ): Promise<Result<Output, string>> =>
   new Promise((resolve) => {
-    const contents = getAdValueAsString(properties.string, "");
-    const fontSize = getAdValueAsString(properties.fontSize, "");
+    const contents = evalStr(properties.string.contents);
+    const fontSize = evalStr(properties.fontSize.contents);
 
-    // Raise error if string or fontSize are empty or optimized
+    // Raise error if string or fontSize are empty
     if (fontSize === "" || contents === "") {
       resolve(
         err(
-          `Label 'string' and 'fontSize' must be non-empty and non-optimized for ${properties.name.contents}`,
+          `Label 'string' and 'fontSize' must be non-empty for ${properties.name.contents}`,
         ),
       );
     }
@@ -209,14 +209,14 @@ const equationData = (
  *
  * @returns a CSS rule string of its font settings
  */
-export const toFontRule = <T>(properties: Text<T>): string => {
-  const fontFamily = getAdValueAsString(properties.fontFamily);
-  const fontSize = getAdValueAsString(properties.fontSize);
-  const fontStretch = getAdValueAsString(properties.fontStretch);
-  const fontStyle = getAdValueAsString(properties.fontStyle);
-  const fontVariant = getAdValueAsString(properties.fontVariant);
-  const fontWeight = getAdValueAsString(properties.fontWeight);
-  const lineHeight = getAdValueAsString(properties.lineHeight);
+export const toFontRule = (properties: Text<ad.Num>): string => {
+  const fontFamily = evalStr(properties.fontFamily.contents);
+  const fontSize = evalStr(properties.fontSize.contents);
+  const fontStretch = evalStr(properties.fontStretch.contents);
+  const fontStyle = evalStr(properties.fontStyle.contents);
+  const fontVariant = evalStr(properties.fontVariant.contents);
+  const fontWeight = evalStr(properties.fontWeight.contents);
+  const lineHeight = evalStr(properties.lineHeight.contents);
   /**
    * assemble according to the rules in https://developer.mozilla.org/en-US/docs/Web/CSS/font
    * it must include values for: <font-size> <font-family>
@@ -241,7 +241,7 @@ export const collectLabels = async (
   const labels: LabelCache = new Map();
   for (const s of allShapes) {
     if (s.shapeType === "Equation") {
-      const shapeName = getAdValueAsString(s.name);
+      const shapeName = evalStr(s.name.contents);
       const svg = await tex2svg(s, convert);
 
       if (svg.isErr()) {
@@ -265,11 +265,11 @@ export const collectLabels = async (
       );
       labels.set(shapeName, label);
     } else if (s.shapeType === "Text") {
-      const shapeName: string = getAdValueAsString(s.name);
+      const shapeName: string = evalStr(s.name.contents);
       let label: TextData;
       // Use canvas to measure text data
       const measure: TextMeasurement = measureText(
-        getAdValueAsString(s.string),
+        evalStr(s.string.contents),
         toFontRule(s),
       );
 
@@ -371,7 +371,7 @@ const insertPendingHelper = (
       insertPendingHelper(subShapes, xs, labelCache, inputs);
     } else if (s.shapeType === "Equation") {
       const labelData = unwrap(
-        labelCache.get(s.name.contents),
+        labelCache.get(s.name.contents.contents),
         () => `missing label: ${s.name.contents}`,
       );
       if (labelData.tag !== "EquationData")
@@ -384,7 +384,7 @@ const insertPendingHelper = (
       setPendingProperty(xs, inputs, s.descent, labelData.descent);
     } else if (s.shapeType === "Text") {
       const labelData = unwrap(
-        labelCache.get(s.name.contents),
+        labelCache.get(s.name.contents.contents),
         () => `missing label: ${s.name.contents}`,
       );
       if (labelData.tag !== "TextData")

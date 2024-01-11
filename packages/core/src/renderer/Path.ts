@@ -2,6 +2,7 @@ import _ from "lodash";
 import { Path } from "../shapes/Path.js";
 import { PathCmd, SubPath } from "../types/value.js";
 import {
+  evalStr,
   getArrowhead,
   toScreen,
   toSvgOpacityProperty,
@@ -15,7 +16,6 @@ import {
 } from "./AttrHelper.js";
 import { arrowHead } from "./Line.js";
 import { RenderProps } from "./Renderer.js";
-
 const toPathString = (
   pathData: PathCmd<number>[],
   canvasSize: [number, number],
@@ -81,8 +81,8 @@ export const RenderPath = (
   // Keep track of which input properties we programatically mapped
   const attrToNotAutoMap: string[] = [];
 
-  const startArrowhead = getArrowhead(shape.startArrowhead.contents);
-  const endArrowhead = getArrowhead(shape.endArrowhead.contents);
+  const startArrowhead = getArrowhead(evalStr(shape.startArrowhead.contents));
+  const endArrowhead = getArrowhead(evalStr(shape.endArrowhead.contents));
 
   if (startArrowhead) {
     const startArrowId = shape.name.contents + "-startArrowId";

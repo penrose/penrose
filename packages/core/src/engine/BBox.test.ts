@@ -12,7 +12,7 @@ import { makeRectangle } from "../shapes/Rectangle.js";
 import { makeCanvas, simpleContext } from "../shapes/Samplers.js";
 import * as ad from "../types/ad.js";
 import { Poly, Scale } from "../types/shapes.js";
-import { black, floatV, ptListV, vectorV } from "../utils/Util.js";
+import { black, constStr, floatV, ptListV, vectorV } from "../utils/Util.js";
 import {
   BBox,
   bboxFromCircle,
@@ -163,7 +163,7 @@ describe("bbox", () => {
   test("Path (lines)", () => {
     const context = simpleContext("bbox Path (lines)");
     const shape = makePath(context, canvas, {
-      d: compDict.pathFromPoints.body(context, "open", [
+      d: compDict.pathFromPoints.body(context, constStr("open"), [
         [-100, -100],
         [100, -50],
         [-50, 100],
@@ -191,7 +191,7 @@ describe("bbox", () => {
   test("Path (cubic)", () => {
     const context = simpleContext("bbox Path (cubic)");
     const shape = makePath(context, canvas, {
-      d: compDict.cubicCurveFromPoints.body(context, "open", [
+      d: compDict.cubicCurveFromPoints.body(context, constStr("open"), [
         [0, 0],
         [50, 50],
         [200, 0],
@@ -208,7 +208,7 @@ describe("bbox", () => {
   test("Path (quadratic join)", () => {
     const context = simpleContext("bbox Path (quadratic join)");
     const shape = makePath(context, canvas, {
-      d: compDict.quadraticCurveFromPoints.body(context, "open", [
+      d: compDict.quadraticCurveFromPoints.body(context, constStr("open"), [
         [0, 0],
         [50, 50],
         [75, -25],
@@ -225,7 +225,7 @@ describe("bbox", () => {
   test("Path (cubic join)", () => {
     const context = simpleContext("bbox Path (cubic join)");
     const shape = makePath(context, canvas, {
-      d: compDict.cubicCurveFromPoints.body(context, "open", [
+      d: compDict.cubicCurveFromPoints.body(context, constStr("open"), [
         [0, 0],
         [50, 50],
         [200, 0],
@@ -246,7 +246,7 @@ describe("bbox", () => {
     const shape = makePath(context, canvas, {
       d: compDict.arc.body(
         context,
-        "open",
+        constStr("open"),
         [-50, 50],
         [100, -25],
         [200, 100],
@@ -267,7 +267,7 @@ describe("bbox", () => {
     const shape = makePath(context, canvas, {
       d: compDict.arc.body(
         context,
-        "open",
+        constStr("open"),
         [-50, 50],
         [100, -25],
         [200, 100],
@@ -288,7 +288,7 @@ describe("bbox", () => {
     const shape = makePath(context, canvas, {
       d: compDict.arc.body(
         context,
-        "open",
+        constStr("open"),
         [-75, -50],
         [200, 25],
         [25, 50],

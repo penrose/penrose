@@ -1,5 +1,5 @@
 import { Equation } from "../shapes/Equation.js";
-import { getAdValueAsString, toScreen } from "../utils/Util.js";
+import { evalStr, toScreen } from "../utils/Util.js";
 import {
   attrAutoFillSvg,
   attrFill,
@@ -32,7 +32,7 @@ const RenderEquation = (
   shape: Equation<number>,
   renderOptions: RenderProps,
 ): SVGGElement => {
-  const { canvasSize, labels, texLabels } = renderOptions;
+  const { canvasSize, labels, texLabels, texRenderer } = renderOptions;
   const { center } = shape;
   const [x, y] = toScreen([center.contents[0], center.contents[1]], canvasSize);
 
@@ -42,7 +42,7 @@ const RenderEquation = (
     const baselineY = y + shape.height.contents / 2 - shape.descent.contents;
 
     let txt = placeholderString(
-      `$${getAdValueAsString(shape.string)}$`,
+      `$${evalStr(shape.string.contents)}$`,
       [x, baselineY],
       shape,
     );
@@ -50,11 +50,13 @@ const RenderEquation = (
     // If the Equation has a texContourColor passthrough value, give the
     // string a contour with the specified color
     for (const [propKey, propVal] of shape.passthrough) {
-      if (propKey === "texContourColor" && propVal.contents !== "") {
+      if (
+        propKey === "texContourColor" &&
+        propVal.tag === "StrV" &&
+        evalStr(propVal.contents) !== ""
+      ) {
         txt = placeholderString(
-          `\\contour{${propVal.contents}}{$${getAdValueAsString(
-            shape.string,
-          )}$}`,
+          `\\contour{${propVal.contents}}{$${evalStr(shape.string.contents)}$}`,
           [x, baselineY],
           shape,
         );
@@ -73,14 +75,9 @@ const RenderEquation = (
   attrToNotAutoMap.push(...attrTransformCoords(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrTitle(shape, elem));
 
-  const retrievedLabel = labels.get(getAdValueAsString(shape.name));
-
-  // If pre-rendered label was found, render the label in a group
-  if (retrievedLabel && retrievedLabel.tag === "EquationData") {
-    // Clone the retrieved node first to avoid mutating existing labels
-    const renderedLabel = retrievedLabel.rendered.cloneNode(
-      true,
-    ) as HTMLElement;
+  const rendered = texRenderer(evalStr(shape.string.contents));
+  if (rendered.isOk()) {
+    const renderedLabel = rendered.value;
     const g = renderedLabel.getElementsByTagName("g")[0];
 
     attrToNotAutoMap.push(...attrFill(shape, g));
@@ -89,8 +86,8 @@ const RenderEquation = (
 
     g.setAttribute("stroke", "none");
     g.setAttribute("stroke-width", "0");
-    const fontSize = shape.fontSize;
-    renderedLabel.setAttribute("style", `font-size: ${fontSize.contents}`);
+    const fontSize = evalStr(shape.fontSize.contents);
+    renderedLabel.setAttribute("style", `font-size: ${fontSize}`);
 
     // Append the element & indicate the rendered label was found
     elem.appendChild(renderedLabel);
@@ -101,7 +98,37 @@ const RenderEquation = (
     return elem;
   } else {
     // Fallback case: generate plain-text (non-rendered) label from string
-    return placeholderString(getAdValueAsString(shape.string), [x, y], shape);
+    return placeholderString(evalStr(shape.string.contents), [x, y], shape);
   }
+
+  //const retrievedLabel = labels.get(evalStr(shape.name.contents));
+  //// If pre-rendered label was found, render the label in a group
+  //if (retrievedLabel && retrievedLabel.tag === "EquationData") {
+  //  // Clone the retrieved node first to avoid mutating existing labels
+  //  const renderedLabel = retrievedLabel.rendered.cloneNode(
+  //    true,
+  //  ) as HTMLElement;
+  //  const g = renderedLabel.getElementsByTagName("g")[0];
+  //
+  //  attrToNotAutoMap.push(...attrFill(shape, g));
+  //  // Map Width/Height
+  //  attrToNotAutoMap.push(...attrWH(shape, renderedLabel));
+  //
+  //  g.setAttribute("stroke", "none");
+  //  g.setAttribute("stroke-width", "0");
+  //  const fontSize = shape.fontSize;
+  //  renderedLabel.setAttribute("style", `font-size: ${fontSize.contents}`);
+  //
+  //  // Append the element & indicate the rendered label was found
+  //  elem.appendChild(renderedLabel);
+  //
+  //  // Directly Map across any "unknown" SVG properties
+  //  attrAutoFillSvg(shape, elem, attrToNotAutoMap);
+  //
+  //  return elem;
+  //} else {
+  //  // Fallback case: generate plain-text (non-rendered) label from string
+  //  return placeholderString(evalStr(shape.string.contents), [x, y], shape);
+  //}
 };
 export default RenderEquation;

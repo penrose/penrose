@@ -9,7 +9,7 @@ import {
   ShapeCommon,
   Stroke,
 } from "../types/shapes.js";
-import { boolV, floatV, noPaint, strV } from "../utils/Util.js";
+import { boolV, constStrV, floatV, noPaint } from "../utils/Util.js";
 import {
   Canvas,
   Context,
@@ -32,11 +32,11 @@ export const sampleRectangle = (
   context: Context,
   canvas: Canvas,
 ): RectangleProps<ad.Num> => ({
-  name: strV("defaultRectangle"),
+  name: constStrV("defaultRectangle"),
   strokeWidth: floatV(0),
-  strokeStyle: strV("solid"),
+  strokeStyle: constStrV("solid"),
   strokeColor: noPaint(),
-  strokeDasharray: strV(""),
+  strokeDasharray: constStrV(""),
   fillColor: sampleColor(context),
   center: sampleVector(context, canvas),
   width: sampleWidth(context, canvas),

@@ -1,7 +1,7 @@
 import * as ad from "../types/ad.js";
 import { Center, Named, Rect, Rotate, ShapeCommon } from "../types/shapes.js";
 import { StrV } from "../types/value.js";
-import { boolV, floatV, strV } from "../utils/Util.js";
+import { boolV, constStrV, floatV } from "../utils/Util.js";
 import {
   Canvas,
   Context,
@@ -11,8 +11,8 @@ import {
 } from "./Samplers.js";
 
 export interface ImageProps<T> extends Named<T>, Center<T>, Rect<T>, Rotate<T> {
-  href: StrV;
-  preserveAspectRatio: StrV;
+  href: StrV<T>;
+  preserveAspectRatio: StrV<T>;
   // note, SVG also has these two attributes:
   // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/crossorigin
   // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/preserveAspectRatio
@@ -22,14 +22,14 @@ export const sampleImage = (
   context: Context,
   canvas: Canvas,
 ): ImageProps<ad.Num> => ({
-  name: strV("defaultImage"),
+  name: constStrV("defaultImage"),
   center: sampleVector(context, canvas),
   width: sampleWidth(context, canvas),
   height: sampleHeight(context, canvas),
   rotation: floatV(0),
-  href: strV("defaultImage"),
+  href: constStrV("defaultImage"),
   ensureOnCanvas: boolV(true),
-  preserveAspectRatio: strV(""),
+  preserveAspectRatio: constStrV(""),
 });
 
 export type Image<T> = ShapeCommon<T> & { shapeType: "Image" } & ImageProps<T>;
