@@ -92,6 +92,7 @@ import {
   natT,
   noClip,
   noWarn,
+  numOf,
   pathCmdT,
   pathTypeT,
   posIntT,
@@ -148,7 +149,7 @@ import {
   shapeDistanceRectlikePolyline,
   shapeDistanceRects,
 } from "./Queries.js";
-import { Rectlike, clamp, isRectlike, numOf, toPt } from "./Utils.js";
+import { Rectlike, clamp, isRectlike, toPt } from "./Utils.js";
 
 /**
  * Static dictionary of computation functions
