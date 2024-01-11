@@ -11,7 +11,7 @@ import { Fn, LabelCache, State } from "./types/state.js";
 import { SubstanceEnv } from "./types/substance.js";
 import {
   collectLabels,
-  insertPending,
+  insertLabelMeasurements,
   mathjaxInit,
 } from "./utils/CollectLabels.js";
 import {
@@ -30,7 +30,7 @@ import { unwrap } from "./utils/Util.js";
  */
 export const resample = (state: State): State => {
   const rng = seedrandom(state.variation);
-  return insertPending({
+  return insertLabelMeasurements({
     ...state,
     // resample all sampled inputs
     varyingValues: state.inputs.map(({ meta }) =>
@@ -296,7 +296,9 @@ export const compile = async (prog: {
     if (labelCache.isErr()) {
       return err(labelCache.error);
     }
-    return ok(insertPending({ ...state, labelCache: labelCache.value }));
+    return ok(
+      insertLabelMeasurements({ ...state, labelCache: labelCache.value }),
+    );
   }
 };
 
@@ -423,7 +425,7 @@ export type { SubProg } from "./types/substance.js";
 export * as Value from "./types/value.js";
 export {
   collectLabels,
-  insertPending,
+  insertLabelMeasurements as insertPending,
   mathjaxInit,
 } from "./utils/CollectLabels.js";
 export { errLocs, showError } from "./utils/Error.js";

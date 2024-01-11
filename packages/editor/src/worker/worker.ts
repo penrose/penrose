@@ -1,27 +1,33 @@
 import {
-  OptLabelCache,
+  LabelCache,
+  LabelMeasurements,
   PenroseError,
   PenroseState,
+  State,
   compileTrio,
   insertPending,
   isOptimized,
-  optLabelCacheToLabelCache,
   resample,
-  stateToOptRenderState,
   stepTimes,
 } from "@penrose/core";
-import { Req, Resp } from "./message.js";
+import { Req, Resp, stateToLayoutState } from "./message.js";
+
+// one "frame" of optimization is a list of varying numbers
+type Frame = number[];
+
+type PartialState = Pick<State, "varyingValues" | "inputs" | "shapes"> & {
+  labelCache: LabelMeasurements;
+};
 
 // Array of size two. First index is set if main thread wants an update,
 // second is set if user wants to send a new trio.
 let sharedMemory: Int8Array;
 let currentState: PenroseState;
-let currentStage: string;
-let labels: OptLabelCache;
-let svgCache: Map<string, HTMLElement>;
+let labels: LabelCache;
+// let svgCache: Map<string, HTMLElement>;
 // the UUID of the current task
 let currentTask: string;
-let history: number[][] = [];
+let history: Frame[] = [];
 
 onmessage = async ({ data }: MessageEvent<Req>) => {
   console.debug("Received message: ", data);
@@ -50,42 +56,33 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
       break;
     }
     case "RespLabels": {
-      svgCache = new Map<string, HTMLElement>();
-      for (const [key, value] of Object.entries(data.labelCache)) {
-        svgCache.set(key, value.rendered);
-      }
-      labels = data.labelCache;
+      const stateWithoutLabels: PartialState = currentState;
       currentState = {
-        ...currentState,
-        labelCache: optLabelCacheToLabelCache(data.labelCache, svgCache),
-      };
+        ...stateWithoutLabels,
+        labelCache: data.labelCache,
+      } as PenroseState;
       optimize(insertPending(currentState));
       break;
     }
     case "Resample": {
       const { variation } = data;
       const resampled = resample({ ...currentState, variation });
-      optimize(
-        insertPending({
-          ...resampled,
-          labelCache: optLabelCacheToLabelCache(labels, svgCache),
-        }),
-      );
+      optimize(insertPending(resampled));
       break;
     }
     case "ComputeShapes": {
       const index = Math.floor((data.index / 100) * history.length);
-      console.log("Computing shapes", data.index, index, history[index]);
       const newShapes = {
         ...currentState,
         varyingValues: history[index],
       };
       respondUpdate(newShapes, index);
+      break;
     }
-    // default: {
-    //   // Shouldn't ever happen
-    //   console.error(`Unknown request: `, data);
-    // }
+    default: {
+      // Shouldn't ever happen
+      console.error(`Unknown request: `, data);
+    }
   }
 };
 
@@ -100,7 +97,7 @@ const respondReqLabels = (state: PenroseState) => {
 const respondUpdate = async (state: PenroseState, i: number) => {
   respond({
     tag: "Update",
-    state: stateToOptRenderState(state),
+    state: stateToLayoutState(state),
     stepsSoFar: i,
     id: currentTask,
   });
@@ -118,7 +115,7 @@ const respondReady = () => {
 const respondFinished = (state: PenroseState) => {
   respond({
     tag: "Finished",
-    state: stateToOptRenderState(state),
+    state: stateToLayoutState(state),
     id: currentTask,
   });
 };
@@ -129,6 +126,7 @@ const respond = (response: Resp) => {
   postMessage(response);
 };
 
+// the main optimization loop
 const optimize = (state: PenroseState) => {
   let i = 0;
   history = [];
@@ -151,7 +149,5 @@ const optimize = (state: PenroseState) => {
     history.push(state.varyingValues);
     i++;
   }
-  console.log("total steps", i);
-
   respondFinished(state);
 };

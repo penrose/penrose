@@ -1,15 +1,18 @@
 import {
   PenroseError,
-  RenderState,
   collectLabels,
-  labelCacheToOptLabelCache,
   mathjaxInit,
-  optRenderStateToState,
   showError,
 } from "@penrose/core";
 import consola from "consola";
 import { v4 as uuid } from "uuid";
-import { Req, Resp } from "./message.js";
+import {
+  RenderState,
+  Req,
+  Resp,
+  layoutStateToRenderState,
+  separateRenderedLabels,
+} from "./message.js";
 
 const log = (consola as any)
   .create({ level: (consola as any).LogLevel.Info })
@@ -53,7 +56,7 @@ export default class OptimizerWorker {
         "message",
         async ({ data }: MessageEvent<Resp>) => {
           if (data.tag === "Update") {
-            resolve(optRenderStateToState(data.state, this.svgCache));
+            resolve(layoutStateToRenderState(data.state, this.svgCache));
           } else {
             // Shouldn't happen, but ignore other messages
             console.error(`Unknown Response: ${data}`);
@@ -115,7 +118,7 @@ export default class OptimizerWorker {
     worker.onmessage = async ({ data }: MessageEvent<Resp>) => {
       log.debug("Received message: ", data);
       if (data.tag === "Update") {
-        this.onUpdate(optRenderStateToState(data.state, this.svgCache));
+        this.onUpdate(layoutStateToRenderState(data.state, this.svgCache));
       } else if (data.tag === "Error") {
         this.onError(data.error);
       } else if (data.tag === "Ready") {
@@ -132,14 +135,14 @@ export default class OptimizerWorker {
         this.running = false;
         this.onComplete();
         log.info(`Finished optimization for ${data.id}`);
-        this.onUpdate(optRenderStateToState(data.state, this.svgCache));
+        this.onUpdate(layoutStateToRenderState(data.state, this.svgCache));
       } else if (data.tag === "ReqLabels") {
         const convert = mathjaxInit();
         const labelCache = await collectLabels(data.shapes, convert);
         if (labelCache.isErr()) {
           throw Error(showError(labelCache.error));
         }
-        const { optLabelCache, svgCache } = labelCacheToOptLabelCache(
+        const { optLabelCache, svgCache } = separateRenderedLabels(
           labelCache.value,
         );
         this.svgCache = svgCache;

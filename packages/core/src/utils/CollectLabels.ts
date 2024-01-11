@@ -10,7 +10,14 @@ import { Shape } from "../shapes/Shapes.js";
 import { Text } from "../shapes/Text.js";
 import * as ad from "../types/ad.js";
 import { PenroseError } from "../types/errors.js";
-import { EquationData, LabelCache, State, TextData } from "../types/state.js";
+import {
+  EquationData,
+  EquationShape,
+  LabelCache,
+  LabelMeasurements,
+  State,
+  TextData,
+} from "../types/state.js";
 import { FloatV } from "../types/value.js";
 import { Result, err, ok } from "./Error.js";
 import { getAdValueAsString, getValueAsShapeList, unwrap } from "./Util.js";
@@ -192,7 +199,7 @@ const equationData = (
   ascent: number,
   descent: number,
   rendered: HTMLElement,
-): EquationData => ({
+): EquationData & EquationShape => ({
   tag: "EquationData",
   width: floatV(width),
   height: floatV(height),
@@ -256,7 +263,7 @@ export const collectLabels = async (
 
       // Instead of directly overwriting the properties, cache them temporarily
       // NOTE: in the case of empty strings, `tex2svg` returns infinity sometimes. Convert to 0 to avoid NaNs in such cases.
-      const label: EquationData = equationData(
+      const label = equationData(
         width === Infinity ? 0 : width,
         height === Infinity ? 0 : height,
         ascent,
@@ -362,7 +369,7 @@ const setPendingProperty = (
 const insertPendingHelper = (
   shapes: Shape<ad.Num>[],
   xs: number[],
-  labelCache: LabelCache,
+  labelCache: LabelMeasurements,
   inputs: InputMap,
 ): void => {
   for (const s of shapes) {
@@ -402,7 +409,13 @@ const insertPendingHelper = (
   }
 };
 
-export const insertPending = (state: State): State => {
+type PartialState = Pick<State, "varyingValues" | "inputs" | "shapes"> & {
+  labelCache: LabelMeasurements;
+};
+
+export const insertLabelMeasurements = <T extends PartialState>(
+  state: T,
+): T => {
   const varyingValues = [...state.varyingValues];
   const inputs = new Map(
     state.inputs.map(({ handle, meta }, index) => [handle, { index, meta }]),

@@ -3,7 +3,6 @@ import {
   DomainEnv,
   PenroseError,
   PenroseWarning,
-  RenderState,
 } from "@penrose/core";
 import { PathResolver, Trio, TrioMeta } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
@@ -21,6 +20,7 @@ import {
 } from "recoil";
 import { v4 as uuid } from "uuid";
 import { layoutModel } from "../App.js";
+import { RenderState } from "../worker/message.js";
 import OptimizerWorker from "../worker/OptimizerWorker.js";
 import { generateVariation } from "./variation.js";
 

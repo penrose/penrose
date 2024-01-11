@@ -14,7 +14,6 @@ export const LayoutTimelineSlider: React.FC<{}> = (props) => {
     // request shapes from worker
     async function requestShapes() {
       const state = await optimizer.computeShapes(index);
-      // const state = diagram.state;
       setDiagram((diagram) => ({
         ...diagram,
         state: state,

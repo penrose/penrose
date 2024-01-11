@@ -1,4 +1,4 @@
-import { RenderShapes, RenderState } from "@penrose/core";
+import { RenderShapes } from "@penrose/core";
 import { Style } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
 import localforage from "localforage";
@@ -13,6 +13,7 @@ import {
   pathResolver,
   zipTrio,
 } from "../utils/downloadUtils.js";
+import { RenderState } from "../worker/message.js";
 import {
   Canvas,
   Diagram,
