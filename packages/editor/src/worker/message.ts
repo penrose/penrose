@@ -25,6 +25,8 @@ export type Resample = {
 
 export type ComputeShapes = {
   tag: "ComputeShapes";
+  min: number;
+  max: number;
   index: number;
 };
 
@@ -57,12 +59,13 @@ export type Resp = Ready | ((Update | Error | Finished | ReqLabels) & ID);
 export type Update = {
   tag: "Update";
   state: LayoutState;
-  stepsSoFar: number;
+  stats: LayoutStats;
 };
 
 export type Finished = {
   tag: "Finished";
   state: LayoutState;
+  stats: LayoutStats;
 };
 
 export type Error = {
@@ -174,3 +177,8 @@ export const layoutStateToRenderState = (
   ...state,
   labelCache: addRenderedLabels(state.labelCache, svgCache),
 });
+
+export type LayoutStats = {
+  name: string;
+  steps: number;
+}[];

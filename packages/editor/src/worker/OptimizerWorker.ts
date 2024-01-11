@@ -7,6 +7,7 @@ import {
 import consola from "consola";
 import { v4 as uuid } from "uuid";
 import {
+  LayoutStats,
   RenderState,
   Req,
   Resp,
@@ -19,7 +20,7 @@ const log = (consola as any)
   .withScope("worker:client");
 
 export type onComplete = () => void;
-export type OnUpdate = (state: RenderState) => void;
+export type OnUpdate = (state: RenderState, stats: LayoutStats) => void;
 export type OnError = (error: PenroseError) => void;
 export type Pending = {
   onUpdate: OnUpdate;
@@ -44,26 +45,37 @@ export default class OptimizerWorker {
   private onError: OnError = () => {};
   private onComplete: onComplete = () => {};
   private pending: Pending | undefined = undefined;
+  private stats: LayoutStats = [];
 
-  async computeShapes(index: number): Promise<RenderState> {
+  getStats() {
+    return this.stats;
+  }
+
+  async computeShapes(
+    index: number,
+    min: number,
+    max: number,
+  ): Promise<RenderState> {
     return new Promise((resolve, reject) => {
       log.debug("Worker computing shapes...");
       this.request({
         tag: "ComputeShapes",
         index,
+        min,
+        max,
       });
-      worker.addEventListener(
-        "message",
-        async ({ data }: MessageEvent<Resp>) => {
-          if (data.tag === "Update") {
-            resolve(layoutStateToRenderState(data.state, this.svgCache));
-          } else {
-            // Shouldn't happen, but ignore other messages
-            console.error(`Unknown Response: ${data}`);
-            worker.removeEventListener("message", () => {});
-          }
-        },
-      );
+      const messageHandler = async ({ data }: MessageEvent<Resp>) => {
+        if (data.tag === "Update") {
+          worker.removeEventListener("message", messageHandler);
+          resolve(layoutStateToRenderState(data.state, this.svgCache));
+        } else {
+          worker.removeEventListener("message", messageHandler);
+          // Shouldn't happen, but ignore other messages
+          console.error(`Unknown Response: ${data.tag}`);
+        }
+      };
+
+      worker.addEventListener("message", messageHandler);
     });
   }
 
@@ -118,7 +130,11 @@ export default class OptimizerWorker {
     worker.onmessage = async ({ data }: MessageEvent<Resp>) => {
       log.debug("Received message: ", data);
       if (data.tag === "Update") {
-        this.onUpdate(layoutStateToRenderState(data.state, this.svgCache));
+        this.stats = data.stats;
+        this.onUpdate(
+          layoutStateToRenderState(data.state, this.svgCache),
+          data.stats,
+        );
       } else if (data.tag === "Error") {
         this.onError(data.error);
       } else if (data.tag === "Ready") {
@@ -133,9 +149,13 @@ export default class OptimizerWorker {
         }
       } else if (data.tag === "Finished") {
         this.running = false;
+        this.stats = data.stats;
+        this.onUpdate(
+          layoutStateToRenderState(data.state, this.svgCache),
+          data.stats,
+        );
         this.onComplete();
         log.info(`Finished optimization for ${data.id}`);
-        this.onUpdate(layoutStateToRenderState(data.state, this.svgCache));
       } else if (data.tag === "ReqLabels") {
         const convert = mathjaxInit();
         const labelCache = await collectLabels(data.shapes, convert);
@@ -180,8 +200,8 @@ export default class OptimizerWorker {
   ) {
     this.pending = {
       request: req,
-      onUpdate: (s) => {
-        onUpdate(s);
+      onUpdate: (s, stats) => {
+        onUpdate(s, stats);
         this.pending = undefined;
       },
       onError: (e) => {
@@ -212,6 +232,8 @@ export default class OptimizerWorker {
     onError: OnError;
     onComplete: onComplete;
   }): string {
+    // clear out stats
+    this.stats = [];
     const id = uuid();
     const request: Req = {
       tag: "Compile",

@@ -1,16 +1,17 @@
 import {
-  LabelCache,
   LabelMeasurements,
   PenroseError,
   PenroseState,
   State,
   compileTrio,
+  finalStage,
   insertPending,
   isOptimized,
+  nextStage,
   resample,
-  stepTimes,
+  step,
 } from "@penrose/core";
-import { Req, Resp, stateToLayoutState } from "./message.js";
+import { LayoutStats, Req, Resp, stateToLayoutState } from "./message.js";
 
 // one "frame" of optimization is a list of varying numbers
 type Frame = number[];
@@ -23,11 +24,10 @@ type PartialState = Pick<State, "varyingValues" | "inputs" | "shapes"> & {
 // second is set if user wants to send a new trio.
 let sharedMemory: Int8Array;
 let currentState: PenroseState;
-let labels: LabelCache;
-// let svgCache: Map<string, HTMLElement>;
 // the UUID of the current task
 let currentTask: string;
 let history: Frame[] = [];
+let stats: LayoutStats = [];
 
 onmessage = async ({ data }: MessageEvent<Req>) => {
   console.debug("Received message: ", data);
@@ -71,12 +71,21 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
       break;
     }
     case "ComputeShapes": {
-      const index = Math.floor((data.index / 100) * history.length);
+      const range = data.max - data.min;
+      // normalize the index to the length of the history array
+      const index = Math.floor(
+        ((data.index - data.min) / range) * (history.length - 1),
+      );
       const newShapes = {
         ...currentState,
         varyingValues: history[index],
       };
-      respondUpdate(newShapes, index);
+      respond({
+        tag: "Update",
+        state: stateToLayoutState(newShapes),
+        id: currentTask,
+        stats: stats,
+      });
       break;
     }
     default: {
@@ -94,12 +103,12 @@ const respondReqLabels = (state: PenroseState) => {
   });
 };
 
-const respondUpdate = async (state: PenroseState, i: number) => {
+const respondUpdate = async (state: PenroseState) => {
   respond({
     tag: "Update",
     state: stateToLayoutState(state),
-    stepsSoFar: i,
     id: currentTask,
+    stats,
   });
 };
 
@@ -116,38 +125,65 @@ const respondFinished = (state: PenroseState) => {
   respond({
     tag: "Finished",
     state: stateToLayoutState(state),
+    stats,
     id: currentTask,
   });
 };
 
 // Wrapper function for postMessage to ensure type safety
 const respond = (response: Resp) => {
-  console.log("Sending response: ", response);
   postMessage(response);
 };
 
 // the main optimization loop
 const optimize = (state: PenroseState) => {
-  let i = 0;
+  // reset history and stats per optimization run
+  // TODO: actually return them?
   history = [];
+  stats = [];
+  const numSteps = 1;
+  let i = 0;
   while (!isOptimized(state)) {
-    const steppedState = stepTimes(state, 1);
+    let j = 0;
+    const steppedState = step(state, { until: (): boolean => j++ >= numSteps });
     if (steppedState.isErr()) {
       respondError(steppedState.error);
       return;
+    } else {
+      const stepped = steppedState.value;
+      const currentStage = state.optStages[state.currentStageIndex];
+      if (isOptimized(stepped) && !finalStage(stepped)) {
+        const nextInitState = nextStage(stepped);
+        state = nextInitState;
+        // add the total steps taken by the previous stage
+        stats.push({
+          name: currentStage,
+          steps: i,
+        });
+        i = 0;
+      } else {
+        state = stepped;
+      }
     }
     // Main thread wants an update
     if (Atomics.exchange(sharedMemory, 0, 0)) {
-      respondUpdate(state, i);
+      respondUpdate(state);
     }
     // Main thread wants to compile something else
     if (Atomics.exchange(sharedMemory, 1, 0)) {
       respondReady();
       return;
     }
-    state = steppedState.value;
     history.push(state.varyingValues);
     i++;
   }
+  // for one stage diagrams, we need to add the stats for the last stage
+  stats.push({
+    name:
+      state.optStages.length === 1
+        ? "default"
+        : state.optStages[state.currentStageIndex],
+    steps: i,
+  });
   respondFinished(state);
 };

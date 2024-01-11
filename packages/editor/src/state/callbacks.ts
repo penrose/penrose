@@ -13,7 +13,7 @@ import {
   pathResolver,
   zipTrio,
 } from "../utils/downloadUtils.js";
-import { RenderState } from "../worker/message.js";
+import { LayoutStats, RenderState } from "../worker/message.js";
 import {
   Canvas,
   Diagram,
@@ -49,12 +49,11 @@ const _compileDiagram = async (
   style: string,
   domain: string,
   variation: string,
-  optimize: boolean,
   excludeWarnings: string[],
   set: any,
 ) => {
   const compiling = toast.loading("Compiling...");
-  const onUpdate = (updatedState: RenderState) => {
+  const onUpdate = (updatedState: RenderState, stats: LayoutStats) => {
     set(diagramState, (state: Diagram): Diagram => {
       return {
         ...state,
@@ -131,14 +130,11 @@ export const useCompileDiagram = () =>
     const styleFile = workspace.files.style.contents;
     const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
 
-    console.log(diagram.metadata);
-
     await _compileDiagram(
       substanceFile,
       styleFile,
       domainFile,
       diagram.metadata.variation,
-      diagram.metadata.autostep,
       diagram.metadata.excludeWarnings,
       set,
     );
@@ -421,7 +417,6 @@ export const useLoadLocalWorkspace = () =>
       loadedWorkspace.files.style.contents,
       loadedWorkspace.files.domain.contents,
       uuid(),
-      false,
       [],
       set,
     );
@@ -479,7 +474,6 @@ export const useLoadExampleWorkspace = () =>
           styleJoined,
           domain,
           variation,
-          true,
           excludeWarnings,
           set,
         );
@@ -602,7 +596,6 @@ export const useCheckURL = () =>
         styleJoined,
         domain,
         variation,
-        true,
         excludeWarnings,
         set,
       );

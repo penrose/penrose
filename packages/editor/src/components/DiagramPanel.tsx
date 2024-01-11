@@ -26,8 +26,6 @@ export default function DiagramPanel() {
   const requestRef = useRef<number>();
 
   useEffect(() => {
-    console.log("diagram state changed");
-
     const cur = canvasRef.current;
     setCanvasState({ ref: canvasRef }); // required for downloading/exporting diagrams
     if (state !== null && cur !== null) {
@@ -67,6 +65,7 @@ export default function DiagramPanel() {
     }
   }, [diagram.state]);
 
+  // TODO: since the diagram state is updated by the `onUpdate` callback provided to the worker, this effect will get triggered every time the diagram state updates, which in turn triggers another `onUpdate` again. Perhaps this is okay?
   useEffect(() => {
     // request the next frame if the diagram state updates
     requestRef.current = requestAnimationFrame(step);
