@@ -140,7 +140,12 @@ const optimize = (state: PenroseState) => {
   // reset history and stats per optimization run
   // TODO: actually return them?
   history = [];
-  stats = [];
+  stats = [
+    {
+      name: state.optStages.length === 1 ? "default" : state.optStages[0],
+      steps: 0,
+    },
+  ];
   const numSteps = 1;
   let i = 0;
   while (!isOptimized(state)) {
@@ -158,11 +163,13 @@ const optimize = (state: PenroseState) => {
         // add the total steps taken by the previous stage
         stats.push({
           name: currentStage,
-          steps: i,
+          steps: 0,
         });
         i = 0;
       } else {
         state = stepped;
+        // update the step count for the current stage
+        stats[stats.length - 1].steps = i;
       }
     }
     // Main thread wants an update
@@ -177,13 +184,5 @@ const optimize = (state: PenroseState) => {
     history.push(state.varyingValues);
     i++;
   }
-  // for one stage diagrams, we need to add the stats for the last stage
-  stats.push({
-    name:
-      state.optStages.length === 1
-        ? "default"
-        : state.optStages[state.currentStageIndex],
-    steps: i,
-  });
   respondFinished(state);
 };
