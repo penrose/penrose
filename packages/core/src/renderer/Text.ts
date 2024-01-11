@@ -61,7 +61,7 @@ const RenderText = (
   );
   elem.setAttribute("ascent", shape.ascent.contents.toString());
   elem.setAttribute("descent", shape.descent.contents.toString());
-  elem.setAttribute("text-anchor", shape.textAnchor.contents.toString());
+  elem.setAttribute("text-anchor", evalStr(shape.textAnchor.contents));
   elem.setAttribute("visibility", evalStr(shape.visibility.contents));
   attrToNotAutoMap.push(
     "fontSizeAdjust",

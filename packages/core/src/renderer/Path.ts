@@ -72,9 +72,9 @@ export const RenderPath = (
   { canvasSize }: RenderProps,
 ): SVGGElement => {
   // TODO: distinguish between fill opacity and stroke opacity
-  const startArrowId = shape.name.contents + "-startArrowId";
-  const endArrowId = shape.name.contents + "-endArrowId";
-  const shadowId = shape.name.contents + "-shadow";
+  const startArrowId = evalStr(shape.name.contents) + "-startArrowId";
+  const endArrowId = evalStr(shape.name.contents) + "-endArrowId";
+  const shadowId = evalStr(shape.name.contents) + "-shadow";
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
   const strokeColor = toSvgPaintProperty(shape.strokeColor.contents);
   const strokeOpacity = toSvgOpacityProperty(shape.strokeColor.contents);
