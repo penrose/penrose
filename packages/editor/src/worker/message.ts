@@ -10,11 +10,19 @@ import {
 
 type ID = { id: string };
 
-export type Req = Init | ((Compile | RespLabels | Resample) & ID);
+export type Req =
+  | Init
+  | ComputeShapes
+  | ((Compile | RespLabels | Resample) & ID);
 
 export type Resample = {
   tag: "Resample";
   variation: string;
+};
+
+export type ComputeShapes = {
+  tag: "ComputeShapes";
+  index: number;
 };
 
 export type Init = {
@@ -46,6 +54,7 @@ export type Resp = Ready | ((Update | Error | Finished | ReqLabels) & ID);
 export type Update = {
   tag: "Update";
   state: OptRenderState;
+  stepsSoFar: number;
 };
 
 export type Finished = {

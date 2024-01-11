@@ -5,10 +5,12 @@ import {
   canvasState,
   currentRogerState,
   diagramState,
+  layoutTimelineState,
   optimizer,
   workspaceMetadataSelector,
 } from "../state/atoms.js";
 import { pathResolver } from "../utils/downloadUtils.js";
+import { LayoutTimelineSlider } from "./HistorySlider.js";
 
 export default function DiagramPanel() {
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -24,6 +26,8 @@ export default function DiagramPanel() {
   const requestRef = useRef<number>();
 
   useEffect(() => {
+    console.log("diagram state changed");
+
     const cur = canvasRef.current;
     setCanvasState({ ref: canvasRef }); // required for downloading/exporting diagrams
     if (state !== null && cur !== null) {
@@ -90,6 +94,8 @@ export default function DiagramPanel() {
     }
   };
 
+  const layoutTimeline = useRecoilValue(layoutTimelineState);
+
   return (
     <div style={{ display: "flex", flexDirection: "row", height: "100%" }}>
       <div
@@ -100,6 +106,7 @@ export default function DiagramPanel() {
           width: "100%",
         }}
       >
+        <LayoutTimelineSlider />
         {state === null && (
           <span onClick={() => setShowEasterEgg((s) => !s)}>
             press compile to see diagram

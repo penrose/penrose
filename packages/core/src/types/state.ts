@@ -56,6 +56,7 @@ export type OptLabelCache = Map<string, OptLabelData>;
 
 // State optimizer responds with for main thread to render
 export interface OptRenderState {
+  varyingValues: number[];
   variation: string;
   labelCache: OptLabelCache;
   canvas: Canvas;
@@ -70,6 +71,7 @@ export interface RenderState {
   labelCache: LabelCache;
   canvas: Canvas;
   shapes: Shape<number>[];
+  varyingValues: number[];
 }
 
 export const stateToOptRenderState = (state: State): OptRenderState => {
@@ -78,6 +80,7 @@ export const stateToOptRenderState = (state: State): OptRenderState => {
     labelCache: labelCacheToOptLabelCache(state.labelCache).optLabelCache,
     canvas: state.canvas,
     shapes: state.computeShapes(state.varyingValues),
+    varyingValues: state.varyingValues,
   };
 };
 

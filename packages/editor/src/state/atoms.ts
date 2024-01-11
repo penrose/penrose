@@ -335,6 +335,13 @@ export const diagramState = atom<Diagram>({
   dangerouslyAllowMutability: true,
 });
 
+export type LayoutTimeline = number[][];
+
+export const layoutTimelineState = atom<LayoutTimeline>({
+  key: "layoutTimelineState",
+  default: [],
+});
+
 export const diagramWorkerState = atom<{ id: string; running: boolean }>({
   key: "diagramWorkerState",
   default: {

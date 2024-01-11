@@ -42,6 +42,28 @@ export default class OptimizerWorker {
   private onComplete: onComplete = () => {};
   private pending: Pending | undefined = undefined;
 
+  async computeShapes(index: number): Promise<RenderState> {
+    return new Promise((resolve, reject) => {
+      log.debug("Worker computing shapes...");
+      this.request({
+        tag: "ComputeShapes",
+        index,
+      });
+      worker.addEventListener(
+        "message",
+        async ({ data }: MessageEvent<Resp>) => {
+          if (data.tag === "Update") {
+            resolve(optRenderStateToState(data.state, this.svgCache));
+          } else {
+            // Shouldn't happen, but ignore other messages
+            console.error(`Unknown Response: ${data}`);
+            worker.removeEventListener("message", () => {});
+          }
+        },
+      );
+    });
+  }
+
   /* Initializa the worker by declaring a shared array buffer and passing it to the worker. Then wait for confirmation from the worker before setting up anything. */
   async init() {
     return new Promise<void>((resolve, reject) => {
@@ -53,6 +75,10 @@ export default class OptimizerWorker {
         sharedMemory: sab,
       });
 
+      // add a timeout to reject the promise if the worker takes too long
+      const timeout = setTimeout(() => {
+        reject(new Error("Worker initialization timed out"));
+      }, 10000);
       worker.onmessage = async ({ data }: MessageEvent<Resp>) => {
         if (data.tag === "Ready") {
           this.workerInitialized = true;
@@ -66,22 +92,18 @@ export default class OptimizerWorker {
             this.onError = this.pending.onError;
             this.onUpdate = this.pending.onUpdate;
           }
+          clearTimeout(timeout);
           resolve();
         } else {
           // Shouldn't happen, but ignore other messages
           console.error(`Unknown Response: ${data}`);
         }
       };
-      // Optionally, you can add a timeout to reject the promise if the worker takes too long
-      setTimeout(() => {
-        reject(new Error("Worker initialization timed out"));
-      }, 30000); // 3 seconds timeout, for example
     });
   }
 
   setup() {
     log.info("Registering worker listeners");
-
     worker.onerror = (e) => {
       log.error("Worker error: ", e.message);
     };
@@ -170,15 +192,23 @@ export default class OptimizerWorker {
     };
   }
 
-  run(
-    domain: string,
-    style: string,
-    substance: string,
-    variation: string,
-    onUpdate: OnUpdate,
-    onError: OnError,
-    onComplete: onComplete,
-  ): string {
+  run({
+    domain,
+    style,
+    substance,
+    variation,
+    onUpdate,
+    onComplete,
+    onError,
+  }: {
+    domain: string;
+    style: string;
+    substance: string;
+    variation: string;
+    onUpdate: OnUpdate;
+    onError: OnError;
+    onComplete: onComplete;
+  }): string {
     const id = uuid();
     const request: Req = {
       tag: "Compile",
@@ -239,7 +269,7 @@ export default class OptimizerWorker {
     }
     log.info(`Start resampling for ${id}, ${variation}`);
     this.request(request);
-    // call `onCancel` before swapping out the update function
+    // call `onComplete` before swapping out the update function
     this.onComplete();
     this.onComplete = onComplete;
     this.onUpdate = onUpdate;

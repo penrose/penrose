@@ -48,45 +48,48 @@ const _compileDiagram = async (
   style: string,
   domain: string,
   variation: string,
+  optimize: boolean,
   excludeWarnings: string[],
   set: any,
 ) => {
   const compiling = toast.loading("Compiling...");
-  const id = optimizer.run(
+  const onUpdate = (updatedState: RenderState) => {
+    set(diagramState, (state: Diagram): Diagram => {
+      return {
+        ...state,
+        error: null,
+        // TODO: warnings
+        // warnings: initialState.warnings,
+        metadata: {
+          ...state.metadata,
+          variation,
+          excludeWarnings,
+          source: {
+            domain,
+            substance,
+            style,
+          },
+        },
+        state: updatedState,
+      };
+    });
+
+    // TODO: update grid state too
+    set(diagramGridState, ({ gridSize }: DiagramGrid) => ({
+      variations: range(gridSize).map((i) =>
+        i === 0 ? variation : generateVariation(),
+      ),
+      gridSize,
+    }));
+  };
+
+  const id = optimizer.run({
     domain,
     style,
     substance,
     variation,
-    (initialState: RenderState) => {
-      set(
-        diagramState,
-        (state: Diagram): Diagram => ({
-          ...state,
-          error: null,
-          // TODO: warnings
-          // warnings: initialState.warnings,
-          metadata: {
-            ...state.metadata,
-            variation,
-            excludeWarnings,
-            source: {
-              domain,
-              substance,
-              style,
-            },
-          },
-          state: initialState,
-        }),
-      );
-      // TODO: update grid state too
-      set(diagramGridState, ({ gridSize }: DiagramGrid) => ({
-        variations: range(gridSize).map((i) =>
-          i === 0 ? variation : generateVariation(),
-        ),
-        gridSize,
-      }));
-    },
-    (error) => {
+    onUpdate,
+    onError: (error) => {
       toast.dismiss(compiling);
       set(diagramState, (state: Diagram) => ({ ...state, error }));
       set(diagramWorkerState, {
@@ -94,14 +97,14 @@ const _compileDiagram = async (
         running: false,
       });
     },
-    () => {
+    onComplete: () => {
       toast.dismiss(compiling);
       set(diagramWorkerState, {
         ...diagramWorkerState,
         running: false,
       });
     },
-  );
+  });
 
   set(diagramWorkerState, {
     ...diagramWorkerState,
@@ -118,61 +121,6 @@ const _compileDiagram = async (
   // }));
 };
 
-export const useStepDiagram = () =>
-  useRecoilCallback(
-    ({ set }) =>
-      // TODO: revert
-      () => {},
-    // set(diagramState, (diagram: Diagram) => {
-    //   if (diagram.state === null) {
-    //     toast.error(`No diagram`);
-    //     return diagram;
-    //   }
-    //   const stateOrError = stepTimes(
-    //     diagram.state,
-    //     diagram.metadata.stepSize,
-    //   );
-    //   if (stateOrError.isOk()) {
-    //     return {
-    //       ...diagram,
-    //       state: stateOrError.value,
-    //     };
-    //   } else {
-    //     return {
-    //       ...diagram,
-    //       error: stateOrError.error,
-    //     };
-    //   }
-    // }),
-  );
-
-export const useStepStage = () =>
-  useRecoilCallback(
-    ({ set }) =>
-      () => {
-        //  TODO: revert
-      },
-    // () =>
-    //   set(diagramState, (diagram: Diagram) => {
-    //     if (diagram.state === null) {
-    //       toast.error(`No diagram`);
-    //       return diagram;
-    //     }
-    //     const stateOrError = stepNextStage(diagram.state);
-    //     if (stateOrError.isOk()) {
-    //       return {
-    //         ...diagram,
-    //         state: stateOrError.value,
-    //       };
-    //     } else {
-    //       return {
-    //         ...diagram,
-    //         error: stateOrError.error,
-    //       };
-    //     }
-    //   }),
-  );
-
 export const useCompileDiagram = () =>
   useRecoilCallback(({ snapshot, set }) => async () => {
     const workspace = snapshot.getLoadable(currentWorkspaceState)
@@ -182,11 +130,14 @@ export const useCompileDiagram = () =>
     const styleFile = workspace.files.style.contents;
     const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
 
+    console.log(diagram.metadata);
+
     await _compileDiagram(
       substanceFile,
       styleFile,
       domainFile,
       diagram.metadata.variation,
+      diagram.metadata.autostep,
       diagram.metadata.excludeWarnings,
       set,
     );
@@ -469,6 +420,7 @@ export const useLoadLocalWorkspace = () =>
       loadedWorkspace.files.style.contents,
       loadedWorkspace.files.domain.contents,
       uuid(),
+      false,
       [],
       set,
     );
@@ -526,6 +478,7 @@ export const useLoadExampleWorkspace = () =>
           styleJoined,
           domain,
           variation,
+          true,
           excludeWarnings,
           set,
         );
@@ -648,6 +601,7 @@ export const useCheckURL = () =>
         styleJoined,
         domain,
         variation,
+        true,
         excludeWarnings,
         set,
       );
