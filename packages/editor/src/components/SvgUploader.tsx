@@ -5,6 +5,7 @@ import {
   currentWorkspaceState,
   diagramMetadataSelector,
   fileContentsSelector,
+  workspaceMetadataSelector,
 } from "../state/atoms.js";
 import { isCleanWorkspace, useCompileDiagram } from "../state/callbacks.js";
 
@@ -12,6 +13,9 @@ export default function SvgUploader() {
   const setDomain = useRecoilState(fileContentsSelector("domain"))[1];
   const setSubstance = useRecoilState(fileContentsSelector("substance"))[1];
   const setStyle = useRecoilState(fileContentsSelector("style"))[1];
+  const [workspaceMetadata, setWorkspaceMetadata] = useRecoilState(
+    workspaceMetadataSelector,
+  );
   const [diagramMetadata, setDiagramMetadata] = useRecoilState(
     diagramMetadataSelector,
   );
@@ -88,6 +92,11 @@ export default function SvgUploader() {
       });
 
       await compileDiagram();
+
+      setWorkspaceMetadata({
+        ...workspaceMetadata,
+        name: "new title!",
+      });
       toast.success("Sucessfully uploaded SVG to editor");
     };
   };

@@ -56,6 +56,8 @@ const HeaderButtonContainer = styled.div`
   align-items: center;
 `;
 
+// TODO workspacemetadataselector.name needs to be updated so that we can update the title
+// this should be a react component....
 function EditableTitle() {
   const [editing, setEditing] = useState(false);
   const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
