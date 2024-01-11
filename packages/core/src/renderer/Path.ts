@@ -85,7 +85,6 @@ export const RenderPath = (
   const endArrowhead = getArrowhead(evalStr(shape.endArrowhead.contents));
 
   if (startArrowhead) {
-    const startArrowId = shape.name.contents + "-startArrowId";
     const startArrowheadSize = shape.startArrowheadSize.contents;
     const flip = shape.flipStartArrowhead.contents;
     elem.appendChild(
@@ -100,7 +99,6 @@ export const RenderPath = (
     );
   }
   if (endArrowhead) {
-    const endArrowId = shape.name.contents + "-endArrowId";
     const endArrowheadSize = shape.endArrowheadSize.contents;
     elem.appendChild(
       arrowHead(

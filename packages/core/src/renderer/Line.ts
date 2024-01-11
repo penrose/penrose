@@ -156,7 +156,7 @@ const RenderLine = (
   line.setAttribute("y2", ey.toString());
 
   // an unique id for this instance is determined by the variation and namespace
-  const unique = `${namespace}-${variation}-${shape.name.contents}`;
+  const unique = `${namespace}-${variation}-${evalStr(shape.name.contents)}`;
   const startArrowId = unique + "-startArrowId";
   const endArrowId = unique + "-endArrowId";
   if (startArrowhead) {
