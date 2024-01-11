@@ -7,6 +7,7 @@ import { Line } from "../shapes/Line.js";
 import { Shape } from "../shapes/Shapes.js";
 import { Text } from "../shapes/Text.js";
 import {
+  CanPassthrough,
   Center,
   Corner,
   Fill,
@@ -27,6 +28,14 @@ import {
   toSvgPaintProperty,
 } from "../utils/Util.js";
 import { attrMapSvg } from "./AttrMapSvg.js";
+
+const passthroughToString = (v: CanPassthrough<number>): string => {
+  if (v.tag === "StrV") {
+    return evalStr(v.contents);
+  } else {
+    return v.contents.toString();
+  }
+};
 
 /**
  * Auto-map to SVG any input properties for which we lack specific logic.
@@ -74,7 +83,7 @@ export const attrAutoFillSvg = (
     if (isKeyOf(propKey, attrMapSvg)) {
       const mappedPropKey: string = attrMapSvg[propKey];
       if (!elem.hasAttribute(mappedPropKey)) {
-        elem.setAttribute(mappedPropKey, propVal.contents.toString());
+        elem.setAttribute(mappedPropKey, passthroughToString(propVal));
       }
     } else if (
       propKey === "style" &&
@@ -83,13 +92,13 @@ export const attrAutoFillSvg = (
     ) {
       const style = elem.getAttribute(propKey);
       if (style === null) {
-        elem.setAttribute(propKey, propVal.contents.toString());
+        elem.setAttribute(propKey, passthroughToString(propVal));
       } else {
-        elem.setAttribute(propKey, `${style}${propVal.contents.toString()}`);
+        elem.setAttribute(propKey, `${style}${passthroughToString(propVal)}`);
       }
     } else {
       if (!elem.hasAttribute(propKey)) {
-        elem.setAttribute(propKey, propVal.contents.toString());
+        elem.setAttribute(propKey, passthroughToString(propVal));
       }
     }
   }
