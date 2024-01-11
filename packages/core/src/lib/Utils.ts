@@ -1,10 +1,5 @@
 import _ from "lodash";
-import {
-  EPS_DENOM,
-  genCodeSync,
-  ops,
-  secondaryGraph,
-} from "../engine/Autodiff.js";
+import { EPS_DENOM, ops } from "../engine/Autodiff.js";
 import {
   absVal,
   add,
@@ -209,19 +204,6 @@ export const closestPt_PtSeg = (
 
   // v +: (t' *: dir) -- walk along vector of line seg
   return ops.vadd(start, ops.vmul(t1, dir));
-};
-
-/**
- * Get numerical values of nodes in the computation graph. This function calls `secondaryGraph` to construct a partial computation graph and runs `genCode` to generate code to evaluate the values.
- *
- * @param xs nodes in the computation graph
- * @returns a list of `number`s corresponding to nodes in `xs`
- */
-export const numsOf = (xs: ad.Num[]): number[] =>
-  genCodeSync(secondaryGraph(xs))((x) => x.val).secondary;
-
-export const numOf = (x: ad.Num): number => {
-  return numsOf([x])[0];
 };
 
 /**
