@@ -156,10 +156,10 @@ const optimize = (state: PenroseState) => {
       return;
     } else {
       const stepped = steppedState.value;
-      const currentStage = state.optStages[state.currentStageIndex];
       if (isOptimized(stepped) && !finalStage(stepped)) {
         const nextInitState = nextStage(stepped);
         state = nextInitState;
+        const currentStage = state.optStages[state.currentStageIndex];
         // add the total steps taken by the previous stage
         stats.push({
           name: currentStage,
