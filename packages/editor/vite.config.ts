@@ -8,7 +8,8 @@ export default defineConfig({
   plugins: [react({ jsxRuntime: "classic" })],
   build: { target: "esnext" },
   optimizeDeps: {
-    exclude: ["@penrose/examples"],
+    esbuildOptions: { target: "esnext" },
+    exclude: ["@penrose/examples", "rose"],
   },
   server: {
     port: 3000,
