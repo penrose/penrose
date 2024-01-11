@@ -1,6 +1,5 @@
 import im from "immutable";
 import { describe, expect, test } from "vitest";
-import { numsOf } from "../lib/Utils.js";
 import { C } from "../types/ast.js";
 import { DomainEnv } from "../types/domain.js";
 import { PenroseError } from "../types/errors.js";
@@ -25,7 +24,7 @@ import { ColorV, RGBA } from "../types/value.js";
 import { Result, showError } from "../utils/Error.js";
 import Graph from "../utils/Graph.js";
 import { GroupGraph } from "../utils/GroupGraph.js";
-import { zip2 } from "../utils/Util.js";
+import { numsOf, zip2 } from "../utils/Util.js";
 import { compileDomain } from "./Domain.js";
 import * as S from "./Style.js";
 import { compileSubstance } from "./Substance.js";

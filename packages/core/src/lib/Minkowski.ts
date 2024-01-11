@@ -18,7 +18,7 @@ import {
   sub,
 } from "../engine/AutodiffFunctions.js";
 import * as ad from "../types/ad.js";
-import { unwrap } from "../utils/Util.js";
+import { numsOf, unwrap } from "../utils/Util.js";
 import {
   ImplicitEllipse,
   ImplicitHalfPlane,
@@ -30,7 +30,6 @@ import {
   implicitIntersectionOfEllipsesFunc,
 } from "./ImplicitShapes.js";
 import { outwardUnitNormal } from "./Queries.js";
-import { numsOf } from "./Utils.js";
 
 /**
  * Compute coordinates of Minkowski sum of AABBs representing the first rectangle `box1` and the negative of the second rectangle `box2`.

@@ -1,6 +1,6 @@
 import _ from "lodash";
 import seedrandom from "seedrandom";
-import { genCodeSync, secondaryGraph } from "../engine/Autodiff.js";
+import { interp } from "../engine/Autodiff.js";
 import { isConcrete } from "../engine/EngineUtils.js";
 import { LineProps } from "../shapes/Line.js";
 import { Shape, ShapeType } from "../shapes/Shapes.js";
@@ -151,6 +151,34 @@ export const isKeyOf = <T extends Record<string, unknown>>(
   key: string | number | symbol,
   obj: T,
 ): key is keyof T => key in obj;
+
+/**
+ * Return a fresh topologically sorted array of nodes reachable from `sinks`.
+ * @param preds returns the predecessors of a node
+ */
+export const topsort = <T>(
+  preds: (x: T) => Iterable<T>,
+  sinks: Iterable<T>,
+): T[] => {
+  const sorted: T[] = [];
+  const marked = new Set<T>();
+  const stack: T[] = [...sinks];
+  const ready: boolean[] = stack.map(() => false);
+  while (stack.length > 0) {
+    const x = stack.pop() as T;
+    if (ready.pop()) sorted.push(x);
+    else if (!marked.has(x)) {
+      marked.add(x);
+      stack.push(x);
+      ready.push(true);
+      for (const y of preds(x)) {
+        stack.push(y);
+        ready.push(false);
+      }
+    }
+  }
+  return sorted;
+};
 
 //#endregion
 
@@ -957,15 +985,16 @@ export const getEnd = ({ end }: LineProps<ad.Num>): ad.Num[] => end.contents;
 
 //#endregion
 
+//#region numbers and strings
+
 /**
- * Get numerical values of nodes in the computation graph. This function calls `secondaryGraph` to construct a partial computation graph and runs `genCode` to generate code to evaluate the values.
+ * Get numerical values of nodes in the computation graph. This function calls
+ * `interp` to construct and evaluate a partial computation graph.
  *
  * @param xs nodes in the computation graph
  * @returns a list of `number`s corresponding to nodes in `xs`
  */
-export const numsOf = (xs: ad.Num[]): number[] =>
-  genCodeSync(secondaryGraph(xs))((x) => x.val).secondary;
-
+export const numsOf = (xs: ad.Num[]): number[] => interp(xs)((x) => x.val);
 export const numOf = (x: ad.Num): number => {
   return numsOf([x])[0];
 };
@@ -1001,6 +1030,8 @@ export const evalStr = (str: Str<ad.Num>): string => {
     return evalStr(str.left) + evalStr(str.right);
   }
 };
+
+//#endregion
 
 //#region errors and warnings
 

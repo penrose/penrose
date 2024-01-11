@@ -11,7 +11,15 @@ import { makeCanvas, simpleContext } from "../../shapes/Samplers.js";
 import { Shape } from "../../shapes/Shapes.js";
 import * as ad from "../../types/ad.js";
 import { Pt2 } from "../../types/ad.js";
-import { black, constStr, floatV, ptListV, vectorV } from "../../utils/Util.js";
+import {
+  black,
+  constStr,
+  floatV,
+  numOf,
+  numsOf,
+  ptListV,
+  vectorV,
+} from "../../utils/Util.js";
 import { compDict } from "../Functions.js";
 import {
   bboxFromShape,
@@ -23,7 +31,6 @@ import {
   shapeDistancePolys,
   shapeDistanceRects,
 } from "../Queries.js";
-import { numOf, numsOf } from "../Utils.js";
 import { _rectangles } from "../__testfixtures__/TestShapes.input.js";
 
 const context = simpleContext("Queries");
