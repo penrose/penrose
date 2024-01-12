@@ -11,10 +11,17 @@ import { Fn, LabelCache, State } from "./types/state.js";
 import { SubstanceEnv } from "./types/substance.js";
 import {
   collectLabels,
-  insertPending,
+  insertLabelMeasurements,
   mathjaxInit,
 } from "./utils/CollectLabels.js";
-import { Result, err, nanError, ok, showError } from "./utils/Error.js";
+import {
+  Result,
+  andThen,
+  err,
+  nanError,
+  ok,
+  showError,
+} from "./utils/Error.js";
 import { unwrap } from "./utils/Util.js";
 
 /**
@@ -32,7 +39,7 @@ export const resample = (state: State): State => {
     state.inputs[i].handle.val = varyingValues[i];
   }
 
-  return insertPending({
+  return insertLabelMeasurements({
     ...state,
     varyingValues,
     currentStageIndex: 0,
@@ -294,7 +301,41 @@ export const compile = async (prog: {
     if (labelCache.isErr()) {
       return err(labelCache.error);
     }
-    return ok(insertPending({ ...state, labelCache: labelCache.value }));
+    return ok(
+      insertLabelMeasurements({ ...state, labelCache: labelCache.value }),
+    );
+  }
+};
+
+export const compileTrio = async (prog: {
+  substance: string;
+  style: string;
+  domain: string;
+  variation: string;
+  excludeWarnings?: string[];
+}): Promise<Result<State, PenroseError>> => {
+  const domainRes: Result<DomainEnv, PenroseError> = compileDomain(prog.domain);
+  if (domainRes.isOk()) {
+    const subRes: Result<SubstanceEnv, PenroseError> = andThen(
+      (env) => compileSubstance(prog.substance, env),
+      domainRes,
+    );
+
+    if (subRes.isOk()) {
+      const styRes: Result<State, PenroseError> = await compileStyle(
+        prog.variation,
+        prog.style,
+        prog.excludeWarnings ?? [],
+        subRes.value,
+        domainRes.value,
+      );
+
+      return styRes;
+    } else {
+      return err(subRes.error);
+    }
+  } else {
+    return err(domainRes.error);
   }
 };
 
@@ -372,7 +413,7 @@ export {
 export { constrDict } from "./lib/Constraints.js";
 export { compDict } from "./lib/Functions.js";
 export { objDict } from "./lib/Objectives.js";
-export { toInteractiveSVG, toSVG } from "./renderer/Renderer.js";
+export { RenderShapes, toInteractiveSVG, toSVG } from "./renderer/Renderer.js";
 export type { PathResolver, TeXOption } from "./renderer/Renderer.js";
 export { makeCanvas, simpleContext } from "./shapes/Samplers.js";
 export type { Canvas } from "./shapes/Samplers.js";
@@ -384,9 +425,14 @@ export type {
   Warning as PenroseWarning,
 } from "./types/errors.js";
 export type { CompFunc } from "./types/functions.js";
+export * from "./types/state.js";
 export type { SubProg } from "./types/substance.js";
 export * as Value from "./types/value.js";
-export { mathjaxInit } from "./utils/CollectLabels.js";
+export {
+  collectLabels,
+  insertLabelMeasurements as insertPending,
+  mathjaxInit,
+} from "./utils/CollectLabels.js";
 export { errLocs, showError } from "./utils/Error.js";
 export type { Result } from "./utils/Error.js";
 export {
@@ -399,3 +445,5 @@ export {
   rgbaToHex,
   zip2,
 } from "./utils/Util.js";
+
+export type { Shape } from "./shapes/Shapes.js";

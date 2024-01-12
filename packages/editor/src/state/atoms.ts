@@ -1,7 +1,6 @@
 import {
   DomainEnv,
   PenroseError,
-  PenroseState,
   PenroseWarning,
   compileDomain,
   mathjaxInit,
@@ -22,7 +21,11 @@ import {
 } from "recoil";
 import { v4 as uuid } from "uuid";
 import { layoutModel } from "../App.js";
+import { RenderState } from "../worker/message.js";
+import OptimizerWorker from "../worker/OptimizerWorker.js";
 import { generateVariation } from "./variation.js";
+
+export const optimizer = new OptimizerWorker();
 
 export const EDITOR_VERSION = 0.1;
 
@@ -292,7 +295,7 @@ export type DiagramMetadata = {
 };
 
 export type Diagram = {
-  state: PenroseState | null;
+  state: RenderState | null;
   error: PenroseError | null;
   warnings: PenroseWarning[];
   metadata: DiagramMetadata;
@@ -331,6 +334,24 @@ export const diagramState = atom<Diagram>({
 
   //   necessary due to diagram extension
   dangerouslyAllowMutability: true,
+});
+
+export type LayoutTimeline = number[][];
+
+export const layoutTimelineState = atom<LayoutTimeline>({
+  key: "layoutTimelineState",
+  default: [],
+});
+
+export const diagramWorkerState = atom<{
+  id: string;
+  running: boolean;
+}>({
+  key: "diagramWorkerState",
+  default: {
+    id: "",
+    running: false,
+  },
 });
 
 export type DiagramGrid = {

@@ -1,4 +1,3 @@
-import { StrV } from "src/types/value.js";
 import * as ad from "../types/ad.js";
 import {
   Fill,
@@ -8,6 +7,7 @@ import {
   ShapeCommon,
   Stroke,
 } from "../types/shapes.js";
+import { StrV } from "../types/value.js";
 import {
   black,
   boolV,

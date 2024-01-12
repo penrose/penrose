@@ -1,22 +1,18 @@
-import {
-  PenroseState,
-  isOptimized,
-  showError,
-  stepTimes,
-  toInteractiveSVG,
-  toSVG,
-} from "@penrose/core";
+import { showError } from "@penrose/core";
 import { useEffect, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
   canvasState,
   currentRogerState,
-  diagramMetadataSelector,
   diagramState,
+  layoutTimelineState,
+  optimizer,
   texRenderer,
   workspaceMetadataSelector,
 } from "../state/atoms.js";
 import { pathResolver } from "../utils/downloadUtils.js";
+import { stateToSVG } from "../utils/renderUtils.js";
+import { LayoutTimelineSlider } from "./LayoutTimelineSlider.js";
 
 export default function DiagramPanel() {
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -24,7 +20,8 @@ export default function DiagramPanel() {
   const [_, setCanvasState] = useRecoilState(canvasState);
   const { state, error, warnings, metadata } = diagram;
   const [showEasterEgg, setShowEasterEgg] = useState(false);
-  const { interactive } = useRecoilValue(diagramMetadataSelector);
+  // TODO: bring back interactive mode
+  // const { interactive } = useRecoilValue(diagramMetadataSelector);
   const workspace = useRecoilValue(workspaceMetadataSelector);
   const rogerState = useRecoilValue(currentRogerState);
 
@@ -35,33 +32,19 @@ export default function DiagramPanel() {
     setCanvasState({ ref: canvasRef }); // required for downloading/exporting diagrams
     if (state !== null && cur !== null) {
       (async () => {
-        // render the current frame
-        const rendered = interactive
-          ? await toInteractiveSVG(
-              state,
-              (newState: PenroseState) => {
-                setDiagram({
-                  ...diagram,
-                  state: newState,
-                });
-                step();
-              },
-              (path) => pathResolver(path, rogerState, workspace),
-              "diagramPanel",
-              {
-                tag: "RenderTeX",
-                renderer: texRenderer,
-              },
-            )
-          : await toSVG(
-              state,
-              (path) => pathResolver(path, rogerState, workspace),
-              "diagramPanel",
-              {
-                tag: "RenderTeX",
-                renderer: texRenderer,
-              },
-            );
+        const rendered = await stateToSVG(
+          state,
+          {
+            pathResolver: (path: string) =>
+              pathResolver(path, rogerState, workspace),
+            width: "100%",
+            height: "100%",
+          },
+          {
+            tag: "RenderTeX",
+            renderer: texRenderer,
+          },
+        );
         rendered.setAttribute("width", "100%");
         rendered.setAttribute("height", "100%");
         if (cur.firstElementChild) {
@@ -75,6 +58,7 @@ export default function DiagramPanel() {
     }
   }, [diagram.state]);
 
+  // TODO: since the diagram state is updated by the `onUpdate` callback provided to the worker, this effect will get triggered every time the diagram state updates, which in turn triggers another `onUpdate` again. Perhaps this is okay?
   useEffect(() => {
     // request the next frame if the diagram state updates
     requestRef.current = requestAnimationFrame(step);
@@ -84,23 +68,25 @@ export default function DiagramPanel() {
 
   const step = () => {
     if (state) {
-      if (!isOptimized(state) && metadata.autostep) {
-        const stepResult = stepTimes(state, metadata.stepSize);
-        if (stepResult.isErr()) {
-          setDiagram({
-            ...diagram,
-            error: stepResult.error,
-          });
-        } else {
+      optimizer.askForUpdate(
+        (state) => {
           setDiagram({
             ...diagram,
             error: null,
-            state: stepResult.value,
+            state,
           });
-        }
-      }
+        },
+        (error) => {
+          setDiagram({
+            ...diagram,
+            error,
+          });
+        },
+      );
     }
   };
+
+  const layoutTimeline = useRecoilValue(layoutTimelineState);
 
   return (
     <div style={{ display: "flex", flexDirection: "row", height: "100%" }}>
@@ -183,6 +169,7 @@ export default function DiagramPanel() {
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           ></iframe>
         )}
+        <LayoutTimelineSlider />
       </div>
     </div>
   );
