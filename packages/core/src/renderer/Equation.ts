@@ -88,6 +88,7 @@ const RenderEquation = (
     g.setAttribute("stroke", "none");
     g.setAttribute("stroke-width", "0");
     const fontSize = evalStr(shape.fontSize.contents);
+    console.log(fontSize);
     renderedLabel.setAttribute("style", `font-size: ${fontSize}`);
 
     // Append the element & indicate the rendered label was found

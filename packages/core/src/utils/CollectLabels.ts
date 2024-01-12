@@ -18,6 +18,7 @@ import { evalStr, getValueAsShapeList, unwrap } from "./Util.js";
 export const mathjaxInit = (): ((
   input: string,
 ) => Result<HTMLElement, string>) => {
+  console.log("mathjaxInit called");
   // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
   // const adaptor = chooseAdaptor();
   const adaptor = browserAdaptor();
@@ -191,6 +192,7 @@ const equationData = (
   height: number,
   ascent: number,
   descent: number,
+  shape: Equation<ad.Num>,
   rendered: HTMLElement,
 ): EquationData => ({
   tag: "EquationData",
@@ -261,6 +263,7 @@ export const collectLabels = async (
         height === Infinity ? 0 : height,
         ascent,
         descent,
+        s,
         body,
       );
       labels.set(shapeName, label);
