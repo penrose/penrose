@@ -1,4 +1,3 @@
-import { RenderShapes } from "@penrose/core";
 import { Style } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
 import localforage from "localforage";
@@ -13,6 +12,7 @@ import {
   pathResolver,
   zipTrio,
 } from "../utils/downloadUtils.js";
+import { stateToSVG } from "../utils/renderUtils.js";
 import { LayoutStats, RenderState } from "../worker/message.js";
 import {
   Canvas,
@@ -261,30 +261,12 @@ export const useDownloadSvgTex = () =>
     if (canvas.ref && canvas.ref.current !== null) {
       const { state } = snapshot.getLoadable(diagramState).contents as Diagram;
       if (state !== null) {
-        const { canvas, shapes, labelCache, variation } = state;
-        // render the current frame
-        const rendered = document.createElementNS(
-          "http://www.w3.org/2000/svg",
-          "svg",
-        );
-        rendered.setAttribute("version", "1.2");
-        rendered.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-        rendered.setAttribute(
-          "viewBox",
-          `0 0 ${canvas.width} ${canvas.height}`,
-        );
-        await RenderShapes(shapes, rendered, {
-          labels: labelCache,
-          canvasSize: canvas.size,
-          variation,
-          namespace: "editor",
-          texLabels: false,
+        const rendered = await stateToSVG(state, {
           pathResolver: (path: string) =>
             pathResolver(path, rogerState, metadata),
+          width: state.canvas.width.toString(),
+          height: state.canvas.height.toString(),
         });
-        rendered.setAttribute("width", canvas.width.toString());
-        rendered.setAttribute("height", canvas.height.toString());
-
         const domain = snapshot.getLoadable(fileContentsSelector("domain"))
           .contents as ProgramFile;
         const substance = snapshot.getLoadable(

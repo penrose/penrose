@@ -1,4 +1,4 @@
-import { RenderShapes, showError } from "@penrose/core";
+import { showError } from "@penrose/core";
 import { useEffect, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
@@ -10,6 +10,7 @@ import {
   workspaceMetadataSelector,
 } from "../state/atoms.js";
 import { pathResolver } from "../utils/downloadUtils.js";
+import { stateToSVG } from "../utils/renderUtils.js";
 import { LayoutTimelineSlider } from "./LayoutTimelineSlider.js";
 
 export default function DiagramPanel() {
@@ -30,27 +31,11 @@ export default function DiagramPanel() {
     setCanvasState({ ref: canvasRef }); // required for downloading/exporting diagrams
     if (state !== null && cur !== null) {
       (async () => {
-        const { canvas, shapes, labelCache, variation } = state;
-        // render the current frame
-        const rendered = document.createElementNS(
-          "http://www.w3.org/2000/svg",
-          "svg",
-        );
-        rendered.setAttribute("version", "1.2");
-        rendered.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-        rendered.setAttribute(
-          "viewBox",
-          `0 0 ${canvas.width} ${canvas.height}`,
-        );
-
-        await RenderShapes(shapes, rendered, {
-          labels: labelCache,
-          canvasSize: canvas.size,
-          variation,
-          namespace: "editor",
-          texLabels: false,
+        const rendered = await stateToSVG(state, {
           pathResolver: (path: string) =>
             pathResolver(path, rogerState, workspace),
+          width: "100%",
+          height: "100%",
         });
         rendered.setAttribute("width", "100%");
         rendered.setAttribute("height", "100%");

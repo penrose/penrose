@@ -3680,7 +3680,7 @@ export const compileStyleHelper = async (
     assignment.diagnostics.warnings,
   );
 
-  // log.info("translation (before genOptProblem)", translation);
+  log.info("translation (before genOptProblem)", translation);
 
   if (translation.diagnostics.errors.size > 0) {
     return err(toStyleErrors([...translation.diagnostics.errors]));
