@@ -38,7 +38,11 @@ import {
   localFilesState,
   settingsState,
 } from "./state/atoms.js";
-import { useCheckURL, useCompileDiagram } from "./state/callbacks.js";
+import {
+  isCleanWorkspace,
+  useCheckURL,
+  useCompileDiagram,
+} from "./state/callbacks.js";
 
 const mainRowLayout: IJsonRowNode = {
   type: "row",
@@ -344,6 +348,21 @@ function App() {
       checkURL();
     }
   }, [settings.state]);
+
+  // warn user if they try to navigate to a new URL while in draft state
+  const currentWorkspace = useRecoilValueLoadable(currentWorkspaceState);
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (isCleanWorkspace(currentWorkspace.contents) !== true) {
+        event.preventDefault();
+        event.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [currentWorkspace.contents]);
 
   if (localFiles.state !== "hasValue") {
     return <div>Loading local files...</div>;
