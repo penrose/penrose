@@ -1,19 +1,14 @@
 import { describe, expect, test } from "vitest";
-import { addN, mul, polyRoots, sub } from "../../engine/AutodiffFunctions.js";
 import { makeCircle } from "../../shapes/Circle.js";
 import { makeEllipse } from "../../shapes/Ellipse.js";
 import { makeCanvas, simpleContext } from "../../shapes/Samplers.js";
-import * as ad from "../../types/ad.js";
-import { black, floatV, vectorV, zip2 } from "../../utils/Util.js";
+import { black, floatV, vectorV } from "../../utils/Util.js";
 import {
   circleToImplicitEllipse,
-  ellipsePolynomial,
   ellipseToImplicit,
   halfPlaneToImplicit,
-  implicitEllipseFunc,
 } from "../ImplicitShapes.js";
-import { pointCandidatesEllipse } from "../Minkowski.js";
-import { numOf, numsOf } from "../Utils.js";
+import { numsOf } from "../Utils.js";
 
 describe("toImplicit", () => {
   test("halfPlaneToImplicit", async () => {
@@ -150,48 +145,5 @@ describe("toImplicit", () => {
     expect(c).toEqual(9);
     expect(x).toEqual(3);
     expect(y).toEqual(4);
-  });
-});
-
-describe("ellipsePolynomial", () => {
-  const ellipse1 = { a: 0.5, b: 2, c: 100, x: -11, y: 22 };
-  const ellipse2 = { a: 4, b: 0.25, c: 200, x: 33, y: -44 };
-
-  test("ellipsePolynomial produces points on the constraint manifold", async () => {
-    const poly = ellipsePolynomial(ellipse1, ellipse2);
-    const roots = polyRoots(poly);
-    const lambdas = zip2(roots, numsOf(roots))
-      .filter(([_, rn]) => !Number.isNaN(rn))
-      .map(([r, _]) => r);
-    const points = lambdas.map((lambda: ad.Num) =>
-      pointCandidatesEllipse(ellipse1, ellipse2, lambda),
-    );
-    points.forEach(function ([x, y]) {
-      const result = sub(
-        implicitEllipseFunc(ellipse1, x, y),
-        implicitEllipseFunc(ellipse2, x, y),
-      );
-      expect(numOf(result)).toBeCloseTo(0, 4);
-    });
-  });
-
-  test("roots of ellipsePolynomial", async () => {
-    const poly = ellipsePolynomial(ellipse1, ellipse2);
-    const roots = polyRoots(poly);
-    const lambdas = zip2(roots, numsOf(roots))
-      .filter(([_, rn]) => !Number.isNaN(rn))
-      .map(([r, _]) => r);
-    lambdas.forEach(function (lambda) {
-      let power: ad.Num = 1;
-      const powers: ad.Num[] = [power];
-      for (let i = 1; i <= poly.length; i++) {
-        power = mul(power, lambda);
-        powers.push(power);
-      }
-      const result = addN(
-        zip2([...poly, 1], powers).map(([c, p]) => mul(c, p)),
-      );
-      expect(numOf(result)).toBeCloseTo(0, 4);
-    });
   });
 });

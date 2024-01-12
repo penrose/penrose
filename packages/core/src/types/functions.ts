@@ -1,5 +1,5 @@
 import { Context } from "../shapes/Samplers.js";
-import * as ad from "../types/ad.js";
+import * as ad from "./ad.js";
 import { FunctionInternalWarning } from "./errors.js";
 import { ValueShapeT } from "./types.js";
 import { Value } from "./value.js";

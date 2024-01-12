@@ -1,6 +1,6 @@
 import seedrandom from "seedrandom";
 import { describe, expect, test } from "vitest";
-import { genCodeSync, primaryGraph, variable } from "../../engine/Autodiff.js";
+import { variable } from "../../engine/Autodiff.js";
 import { Circle, makeCircle } from "../../shapes/Circle.js";
 import { Ellipse, makeEllipse } from "../../shapes/Ellipse.js";
 import { Line, makeLine } from "../../shapes/Line.js";
@@ -12,7 +12,7 @@ import * as ad from "../../types/ad.js";
 import { FloatV } from "../../types/value.js";
 import { black, floatV, ptListV, vectorV } from "../../utils/Util.js";
 import { compDict, signedDistanceEllipse } from "../Functions.js";
-import { Rectlike, toPt } from "../Utils.js";
+import { Rectlike, numOf, toPt } from "../Utils.js";
 
 const canvas = makeCanvas(800, 700);
 
@@ -51,24 +51,7 @@ const compareDistance = (
   expected: number,
 ) => {
   const result = getResult(context, shape, p);
-  const g = primaryGraph(result.contents);
-  //const g = secondaryGraph([result.contents]);
-  const f = genCodeSync(g);
-  /* const [dist] = 
-  const {
-    secondary: [dist],
-    stmts,
-  } = f([]); // no inputs, so, empty array
-  const code = stmts.join("\n");
-  console.log(code); */
-  const { primary: dist, gradient } = f((x) => x.val);
-  //TODO: debug gradient for ellipse
-  // the commented code in the next three lines is useful for debugging
-  // gradients
-  //const newfun = (xs: number[]) => f(xs).primary;
-  //const foo = _gradFiniteDiff(newfun)([p[0].val, p[1].val]);
-  //console.log("symbolic gradient", gradient, "computed gradient:", foo);
-  expect(dist).toBeCloseTo(expected);
+  expect(numOf(result.contents)).toBeCloseTo(expected);
 };
 
 const getResult = (
