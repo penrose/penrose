@@ -13,6 +13,7 @@ export default defineConfig({
   },
   build: { target: "esnext" },
   optimizeDeps: {
+    esbuildOptions: { target: "esnext" },
     exclude: ["@penrose/examples", "rose"],
   },
   server: {
