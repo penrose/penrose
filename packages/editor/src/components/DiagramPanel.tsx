@@ -10,7 +10,7 @@ import {
   workspaceMetadataSelector,
 } from "../state/atoms.js";
 import { pathResolver } from "../utils/downloadUtils.js";
-import { LayoutTimelineSlider } from "./HistorySlider.js";
+import { LayoutTimelineSlider } from "./LayoutTimelineSlider.js";
 
 export default function DiagramPanel() {
   const canvasRef = useRef<HTMLDivElement>(null);

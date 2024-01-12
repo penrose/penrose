@@ -77,7 +77,8 @@ export type Ready = {
   tag: "Ready";
 };
 
-// state passed from the worker to the main thread
+// state passed from the worker to the main thread.
+// NOTE: there is no DOM element or functions in this state because they cannot be transferred between threads.
 export interface LayoutState {
   varyingValues: number[];
   variation: string;

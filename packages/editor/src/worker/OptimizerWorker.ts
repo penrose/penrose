@@ -16,7 +16,7 @@ import {
 } from "./message.js";
 
 const log = (consola as any)
-  .create({ level: (consola as any).LogLevel.Info })
+  .create({ level: (consola as any).LogLevel.Warn })
   .withScope("worker:client");
 
 export type onComplete = () => void;
@@ -79,10 +79,11 @@ export default class OptimizerWorker {
     });
   }
 
-  /* Initializa the worker by declaring a shared array buffer and passing it to the worker. Then wait for confirmation from the worker before setting up anything. */
+  /* Initialize the worker by declaring a shared array buffer and passing it to the worker. Then wait for confirmation from the worker before setting up anything. */
   async init() {
     return new Promise<void>((resolve, reject) => {
       log.debug("Worker initializing...", worker);
+      // `sharedMemory` has two bytes, the first is a flag to tell the worker to give an update, and the second is a flag to tell the worker to stop the current task.
       const sab = new SharedArrayBuffer(2);
       this.sharedMemory = new Int8Array(sab);
       this.request({
@@ -100,13 +101,7 @@ export default class OptimizerWorker {
           log.info("Worker Initialized");
           this.setup();
           // if there is a pending request, send it after setup
-          if (this.pending) {
-            log.warn("Worker has pending request, sending...");
-            this.request(this.pending.request);
-            this.onComplete = this.pending.onComplete;
-            this.onError = this.pending.onError;
-            this.onUpdate = this.pending.onUpdate;
-          }
+          this.resolvePending();
           clearTimeout(timeout);
           resolve();
         } else {
@@ -115,6 +110,17 @@ export default class OptimizerWorker {
         }
       };
     });
+  }
+
+  // check if there is a pending request and send it to the worker
+  resolvePending() {
+    if (this.pending) {
+      log.info("Worker has pending request, sending...");
+      this.request(this.pending.request);
+      this.onComplete = this.pending.onComplete;
+      this.onError = this.pending.onError;
+      this.onUpdate = this.pending.onUpdate;
+    }
   }
 
   setup() {
@@ -141,13 +147,7 @@ export default class OptimizerWorker {
       } else if (data.tag === "Ready") {
         log.info("Worker ready for new input");
         this.onComplete();
-        if (this.pending) {
-          log.warn("Worker has pending request, sending...");
-          this.request(this.pending.request);
-          this.onComplete = this.pending.onComplete;
-          this.onError = this.pending.onError;
-          this.onUpdate = this.pending.onUpdate;
-        }
+        this.resolvePending();
       } else if (data.tag === "Finished") {
         this.running = false;
         this.stats = data.stats;
@@ -249,7 +249,7 @@ export default class OptimizerWorker {
       // Let worker know we want them to stop optimizing and get
       // ready to receive a new trio
       Atomics.store(this.sharedMemory, 1, 1);
-      log.warn("Worker running and asked to stop");
+      log.info("Worker running and asked to stop");
       this.pending = {
         request,
         onUpdate,
@@ -257,7 +257,7 @@ export default class OptimizerWorker {
         onError,
       };
     } else if (!this.workerInitialized) {
-      log.warn("Worker not initialized yet, waiting...");
+      log.info("Worker not initialized yet, waiting...");
       setTimeout(() => {
         this.request({
           tag: "Init",
@@ -290,7 +290,7 @@ export default class OptimizerWorker {
       // Let worker know we want them to stop optimizing and get
       // ready to receive a new trio
       Atomics.store(this.sharedMemory, 1, 1);
-      log.warn("Worker asked to stop");
+      log.info("Worker asked to stop");
       this._queue(request, onUpdate, onComplete, () => {});
     }
     log.info(`Start resampling for ${id}, ${variation}`);
