@@ -8,6 +8,7 @@ interface Segment {
 }
 
 interface StageLabelProps {
+  enabled?: boolean;
   width: number;
   color: string;
 }
@@ -26,8 +27,13 @@ const StageLabel = styled.span<StageLabelProps>`
   display: inline-block;
   width: ${(props) => props.width}%;
   text-align: center;
+  font-size: 0.8em;
+  font-family: "Roboto Mono", monospace;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
   color: white;
-  background-color: ${(props) => props.color};
+  background-color: ${(props) => (props.enabled ? props.color : "#aaa")};
+  border-radius: 5px;
 `;
 
 interface SegmentedSliderProps {
@@ -41,7 +47,20 @@ const SegmentedSlider: React.FC<SegmentedSliderProps> = ({
   disabled,
   onChange,
 }) => {
-  const totalSteps = stages.reduce((acc, stage) => acc + stage.steps, 0);
+  if (stages.length === 0) return null;
+  // compute the step ranges for each stage
+  const stageRanges = stages.reduce(
+    (acc, stage, i) => [
+      ...acc,
+      {
+        start: i === 0 ? 0 : acc[i - 1].end,
+        end: i === 0 ? stage.steps : acc[i - 1].end + stage.steps,
+      },
+    ],
+    [] as { start: number; end: number }[],
+  );
+
+  const totalSteps = stageRanges[stageRanges.length - 1].end;
   const [value, setValue] = useState<number>(totalSteps - 1);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = parseInt(e.target.value, 10);
@@ -63,6 +82,7 @@ const SegmentedSlider: React.FC<SegmentedSliderProps> = ({
         {stages.map((stage, index) => (
           <StageLabel
             key={index}
+            enabled={stageRanges[index].start <= value}
             width={(stage.steps / totalSteps) * 100}
             color={stage.color}
           >
