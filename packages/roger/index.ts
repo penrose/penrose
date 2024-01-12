@@ -5,10 +5,20 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
 import {
+  Canvas,
+  LabelCache,
+  PenroseError,
   PenroseState,
+  RenderShapes,
+  Result,
+  Shape,
+  State,
   compile,
-  optimize,
+  finalStage,
+  isOptimized,
+  nextStage,
   showError,
+  step,
   toSVG,
 } from "@penrose/core";
 import chalk from "chalk";
@@ -17,12 +27,20 @@ import * as fs from "fs";
 import { basename, extname, join, resolve } from "path";
 import prettier from "prettier";
 // import packageJSON from "./package.json"; // TODO: no supported by node
+import { ok } from "@penrose/core/dist/utils/Error";
 import { InstanceData } from "./types.js";
 import watch from "./watch.js";
 
 // npx defaults to the nearest project root directory, thus preventing `roger` to be run inside of `packages/examples`. However, unlike `process.cwd()`, `INIT_CWD` does point to the origin directory. Therefore, we attempt to cd into the actual working directory when starting the script.
 if (process.env.INIT_CWD) {
   process.chdir(process.env.INIT_CWD);
+}
+
+export interface RenderState {
+  variation: string;
+  labelCache: LabelCache;
+  canvas: Canvas;
+  shapes: Shape<number>[];
 }
 
 interface Trio {
@@ -32,6 +50,43 @@ interface Trio {
   variation: string;
   excludeWarnings?: string[];
 }
+
+const optimize = async (
+  state: State,
+  onStep?: (s: RenderState, i: number) => void,
+): Promise<Result<State, PenroseError>> => {
+  let currentState = state;
+  let i = 0;
+  const numSteps = 1;
+  while (!isOptimized(currentState) || !finalStage(currentState)) {
+    if (isOptimized(currentState)) {
+      currentState = nextStage(currentState);
+    }
+    if (onStep) {
+      const { varyingValues, variation, computeShapes, canvas, labelCache } =
+        currentState;
+      const shapes = computeShapes(varyingValues);
+      await onStep(
+        {
+          shapes,
+          canvas,
+          variation,
+          labelCache,
+        },
+        i,
+      );
+    }
+    let j = 0;
+    const res = step(currentState, { until: () => j++ >= numSteps });
+    if (res.isOk()) {
+      currentState = res.value;
+    } else {
+      return res;
+    }
+    i++;
+  }
+  return ok(currentState);
+};
 
 // In an async context, communicate with the backend to compile and optimize the diagram
 const render = async (
@@ -49,6 +104,7 @@ const render = async (
     id: string;
   },
   excludeWarnings: string[],
+  onStep?: (s: RenderState, i: number) => void,
 ): Promise<{
   diagram: string;
   metadata: InstanceData;
@@ -77,7 +133,7 @@ const render = async (
 
   const convergeStart = process.hrtime();
   let optimizedState;
-  const optimizedOutput = optimize(initialState);
+  const optimizedOutput = await optimize(initialState, onStep);
   if (optimizedOutput.isOk()) {
     optimizedState = optimizedOutput.value;
   } else {
@@ -226,6 +282,21 @@ yargs(hideBin(process.argv))
           alias: "v",
           desc: "Variation for the Penrose diagram",
           type: "string",
+        })
+        .option("dump-svgs", {
+          desc: "During optimization, dump the intermediate SVGs to the given folder.",
+          type: "boolean",
+          default: false,
+        })
+        .options("dump-prefix", {
+          desc: "Prefix for the dumped SVGs.",
+          type: "string",
+          default: "output/step-",
+        })
+        .options("dump-interval", {
+          desc: "Dump the intermediate SVGs every n steps.",
+          type: "number",
+          default: 1,
         }),
     async (options) => {
       let sub: string, sty: string[], dom: string;
@@ -272,6 +343,47 @@ yargs(hideBin(process.argv))
           id: options.trio.join(", "),
         },
         excludeWarnings,
+        async (s: RenderState, step: number) => {
+          if (
+            options.dumpSvgs &&
+            options.dumpInterval > 0 &&
+            step % options.dumpInterval === 0
+          ) {
+            const { canvas, shapes, labelCache, variation } = s;
+            const dumpPath = options["dump-prefix"] + step + ".svg";
+            const svg = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "svg",
+            );
+            svg.setAttribute("version", "1.2");
+            svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+            svg.setAttribute("viewBox", `0 0 ${canvas.width} ${canvas.height}`);
+            await RenderShapes(
+              shapes,
+              svg,
+              {
+                pathResolver: resolvePath(prefix, sty),
+                namespace: "roger",
+                texLabels,
+                variation,
+                labels: labelCache,
+                canvasSize: canvas.size,
+              },
+              undefined,
+            );
+            // create folders if they don't exist
+            const dir = dumpPath.split("/").slice(0, -1).join("/");
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+            fs.writeFileSync(dumpPath, svg.outerHTML);
+            console.log(
+              chalk.green(
+                `Dumped intermediate SVG for step ${step} to ${resolve(
+                  dumpPath,
+                )}`,
+              ),
+            );
+          }
+        },
       );
       if (options.out) {
         fs.writeFileSync(options.out, diagram);
