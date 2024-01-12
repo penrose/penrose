@@ -615,7 +615,7 @@ export const useCheckURL = () =>
   });
 
 export const usePublishGist = () =>
-  useRecoilCallback(({ snapshot }) => async () => {
+  useRecoilCallback(({ snapshot, set }) => async () => {
     const workspace = snapshot.getLoadable(currentWorkspaceState)
       .contents as Workspace;
     const settings = snapshot.getLoadable(settingsState).contents as Settings;
@@ -623,6 +623,13 @@ export const usePublishGist = () =>
       console.error(`Not authorized with GitHub`);
       toast.error(`Not authorized with GitHub`);
       return;
+    }
+    // save draft to a new workspace before redirecting to gist url
+    if (
+      workspace.metadata.location.kind === "local" &&
+      !workspace.metadata.location.saved
+    ) {
+      await _saveLocally(set);
     }
     const gistMetadata: GistMetadata = {
       name: workspace.metadata.name,
