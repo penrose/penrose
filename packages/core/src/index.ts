@@ -31,7 +31,6 @@ export const resample = (state: State): State => {
   for (let i = 0; i < state.inputs.length; i++) {
     state.inputs[i].handle.val = varyingValues[i];
   }
-  console.log("X");
 
   return insertPending({
     ...state,
