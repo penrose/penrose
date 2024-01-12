@@ -2,11 +2,7 @@ import { allWarnings } from "@penrose/core";
 import Select from "react-select";
 import { useRecoilState } from "recoil";
 import { diagramGridState, diagramMetadataSelector } from "../state/atoms.js";
-import {
-  useCompileDiagram,
-  useStepDiagram,
-  useStepStage,
-} from "../state/callbacks.js";
+import { useCompileDiagram } from "../state/callbacks.js";
 import BlueButton from "./BlueButton.js";
 
 export default function DiagramOptions() {
@@ -15,8 +11,8 @@ export default function DiagramOptions() {
   );
   const [{ gridSize }, setSettingsState] = useRecoilState(diagramGridState);
   const compileDiagram = useCompileDiagram();
-  const stepDiagram = useStepDiagram();
-  const stepStage = useStepStage();
+  // const stepDiagram = useStepDiagram();
+  // const stepStage = useStepStage();
 
   return (
     <div>
@@ -45,7 +41,7 @@ export default function DiagramOptions() {
         >
           autostep ({diagramMetadata.autostep ? "on" : "off"})
         </BlueButton>
-        <div>
+        {/* <div>
           <BlueButton onClick={stepDiagram}>step</BlueButton>
           <label>
             step size:{" "}
@@ -60,14 +56,14 @@ export default function DiagramOptions() {
               }
             />
           </label>
-        </div>
+        </div> */}
       </div>
-      <div>
+      {/* <div>
         <BlueButton onClick={stepStage} disabled={diagramMetadata.autostep}>
           next stage
         </BlueButton>
-      </div>
-      <div>
+      </div> */}
+      {/* <div>
         <label>
           interactive mode{" "}
           <input
@@ -81,7 +77,7 @@ export default function DiagramOptions() {
             }
           />
         </label>
-      </div>
+      </div> */}
       <div>
         <label>
           exclude warnings:{" "}

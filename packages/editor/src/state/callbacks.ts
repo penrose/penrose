@@ -1,11 +1,3 @@
-import {
-  compile,
-  compileDomain,
-  resample,
-  stepNextStage,
-  stepTimes,
-  toSVG,
-} from "@penrose/core";
 import { Style } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
 import localforage from "localforage";
@@ -20,6 +12,8 @@ import {
   pathResolver,
   zipTrio,
 } from "../utils/downloadUtils.js";
+import { stateToSVG } from "../utils/renderUtils.js";
+import { LayoutStats, RenderState } from "../worker/message.js";
 import {
   Canvas,
   Diagram,
@@ -41,8 +35,10 @@ import {
   diagramGridState,
   diagramMetadataSelector,
   diagramState,
+  diagramWorkerState,
   fileContentsSelector,
   localFilesState,
+  optimizer,
   settingsState,
   workspaceMetadataSelector,
 } from "./atoms.js";
@@ -56,108 +52,74 @@ const _compileDiagram = async (
   excludeWarnings: string[],
   set: any,
 ) => {
-  const compiledDomain = compileDomain(domain);
-  if (compiledDomain.isErr()) {
-    set(diagramState, (state: Diagram) => ({
-      ...state,
-      error: compiledDomain.error,
-    }));
-    return;
-  }
-  const compileResult = await compile({
-    domain,
-    substance,
-    style,
-    variation,
-    excludeWarnings,
-  });
-  if (compileResult.isErr()) {
-    set(diagramState, (state: Diagram) => ({
-      ...state,
-      error: compileResult.error,
-    }));
-    return;
-  }
-  const initialState = compileResult.value;
-
-  set(
-    diagramState,
-    (state: Diagram): Diagram => ({
-      ...state,
-      error: null,
-      warnings: initialState.warnings,
-      metadata: {
-        ...state.metadata,
-        variation,
-        excludeWarnings,
-        source: {
-          domain,
-          substance,
-          style,
+  const compiling = toast.loading("Compiling...");
+  const onUpdate = (updatedState: RenderState, stats: LayoutStats) => {
+    set(diagramState, (state: Diagram): Diagram => {
+      return {
+        ...state,
+        error: null,
+        // TODO: warnings
+        // warnings: initialState.warnings,
+        metadata: {
+          ...state.metadata,
+          variation,
+          excludeWarnings,
+          source: {
+            domain,
+            substance,
+            style,
+          },
         },
-      },
-      state: initialState,
-    }),
-  );
-  // update grid state too
-  set(diagramGridState, ({ gridSize }: DiagramGrid) => ({
-    variations: range(gridSize).map((i) =>
-      i === 0 ? variation : generateVariation(),
-    ),
-    gridSize,
-  }));
+        state: updatedState,
+      };
+    });
+
+    // TODO: update grid state too
+    set(diagramGridState, ({ gridSize }: DiagramGrid) => ({
+      variations: range(gridSize).map((i) =>
+        i === 0 ? variation : generateVariation(),
+      ),
+      gridSize,
+    }));
+  };
+
+  const id = optimizer.run({
+    domain,
+    style,
+    substance,
+    variation,
+    onUpdate,
+    onError: (error) => {
+      toast.dismiss(compiling);
+      set(diagramState, (state: Diagram) => ({ ...state, error }));
+      set(diagramWorkerState, {
+        ...diagramWorkerState,
+        running: false,
+      });
+    },
+    onComplete: () => {
+      toast.dismiss(compiling);
+      set(diagramWorkerState, {
+        ...diagramWorkerState,
+        running: false,
+      });
+    },
+  });
+
+  set(diagramWorkerState, {
+    ...diagramWorkerState,
+    id,
+    running: true,
+  });
+
+  // TODO: update grid state too
+  // set(diagramGridState, ({ gridSize }: DiagramGrid) => ({
+  //   variations: range(gridSize).map((i) =>
+  //     i === 0 ? variation : generateVariation(),
+  //   ),
+  //   gridSize,
+  // }));
 };
-
-export const useStepDiagram = () =>
-  useRecoilCallback(
-    ({ set }) =>
-      () =>
-        set(diagramState, (diagram: Diagram) => {
-          if (diagram.state === null) {
-            toast.error(`No diagram`);
-            return diagram;
-          }
-          const stateOrError = stepTimes(
-            diagram.state,
-            diagram.metadata.stepSize,
-          );
-          if (stateOrError.isOk()) {
-            return {
-              ...diagram,
-              state: stateOrError.value,
-            };
-          } else {
-            return {
-              ...diagram,
-              error: stateOrError.error,
-            };
-          }
-        }),
-  );
-
-export const useStepStage = () =>
-  useRecoilCallback(
-    ({ set }) =>
-      () =>
-        set(diagramState, (diagram: Diagram) => {
-          if (diagram.state === null) {
-            toast.error(`No diagram`);
-            return diagram;
-          }
-          const stateOrError = stepNextStage(diagram.state);
-          if (stateOrError.isOk()) {
-            return {
-              ...diagram,
-              state: stateOrError.value,
-            };
-          } else {
-            return {
-              ...diagram,
-              error: stateOrError.error,
-            };
-          }
-        }),
-  );
 
 export const useCompileDiagram = () =>
   useRecoilCallback(({ snapshot, set }) => async () => {
@@ -167,6 +129,7 @@ export const useCompileDiagram = () =>
     const substanceFile = workspace.files.substance.contents;
     const styleFile = workspace.files.style.contents;
     const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
+
     await _compileDiagram(
       substanceFile,
       styleFile,
@@ -181,26 +144,35 @@ export const useResampleDiagram = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
     const diagram: Diagram = snapshot.getLoadable(diagramState)
       .contents as Diagram;
+    const id: string = snapshot.getLoadable(diagramWorkerState)
+      .contents as string;
     if (diagram.state === null) {
       toast.error("Cannot resample uncompiled diagram");
       return;
     }
     const variation = generateVariation();
     const resamplingLoading = toast.loading("Resampling...");
-    const resampled = resample({ ...diagram.state, variation });
-    set(diagramState, (state) => ({
-      ...state,
-      metadata: { ...state.metadata, variation },
-      state: resampled,
-    }));
-    // update grid state too
-    set(diagramGridState, ({ gridSize }) => ({
-      variations: range(gridSize).map((i) =>
-        i === 0 ? variation : generateVariation(),
-      ),
-      gridSize,
-    }));
-    toast.dismiss(resamplingLoading);
+    optimizer.resample(
+      id,
+      variation,
+      (resampled) => {
+        set(diagramState, (state) => ({
+          ...state,
+          metadata: { ...state.metadata, variation },
+          state: resampled,
+        }));
+        // update grid state too
+        set(diagramGridState, ({ gridSize }) => ({
+          variations: range(gridSize).map((i) =>
+            i === 0 ? variation : generateVariation(),
+          ),
+          gridSize,
+        }));
+      },
+      () => {
+        toast.dismiss(resamplingLoading);
+      },
+    );
   });
 
 const _saveLocally = (set: any) => {
@@ -289,12 +261,12 @@ export const useDownloadSvgTex = () =>
     if (canvas.ref && canvas.ref.current !== null) {
       const { state } = snapshot.getLoadable(diagramState).contents as Diagram;
       if (state !== null) {
-        const svg = await toSVG(
-          state,
-          (path) => pathResolver(path, rogerState, metadata),
-          "diagramPanel",
-          true,
-        );
+        const rendered = await stateToSVG(state, {
+          pathResolver: (path: string) =>
+            pathResolver(path, rogerState, metadata),
+          width: state.canvas.width.toString(),
+          height: state.canvas.height.toString(),
+        });
         const domain = snapshot.getLoadable(fileContentsSelector("domain"))
           .contents as ProgramFile;
         const substance = snapshot.getLoadable(
@@ -303,7 +275,7 @@ export const useDownloadSvgTex = () =>
         const style = snapshot.getLoadable(fileContentsSelector("style"))
           .contents as ProgramFile;
         DownloadSVG(
-          svg,
+          rendered,
           metadata.name,
           domain.contents,
           substance.contents,

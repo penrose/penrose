@@ -3,6 +3,7 @@ import { useRecoilCallback, useRecoilValue } from "recoil";
 import styled from "styled-components";
 import {
   WorkspaceMetadata,
+  diagramWorkerState,
   settingsState,
   workspaceMetadataSelector,
 } from "../state/atoms.js";
@@ -106,6 +107,7 @@ export default function TopBar() {
   const settings = useRecoilValue(settingsState);
   const saveLocally = useSaveLocally();
   const publishGist = usePublishGist();
+  const { running } = useRecoilValue(diagramWorkerState);
 
   return (
     <nav
@@ -162,10 +164,16 @@ export default function TopBar() {
         </div>
       )}
       <HeaderButtonContainer>
-        <BlueButton onClick={useDownloadSvg()}>save Penrose SVG</BlueButton>
+        <BlueButton disabled={running} onClick={useDownloadSvg()}>
+          save Penrose SVG
+        </BlueButton>
         <ExportButton />
-        <BlueButton onClick={compileDiagram}>compile ▶</BlueButton>
-        <BlueButton onClick={resampleDiagram}>resample</BlueButton>
+        <BlueButton disabled={running} onClick={compileDiagram}>
+          compile ▶
+        </BlueButton>
+        <BlueButton disabled={running} onClick={resampleDiagram}>
+          resample
+        </BlueButton>
       </HeaderButtonContainer>
     </nav>
   );

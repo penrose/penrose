@@ -36,6 +36,7 @@ import {
   diagramState,
   fileContentsSelector,
   localFilesState,
+  optimizer,
   settingsState,
 } from "./state/atoms.js";
 import {
@@ -154,7 +155,7 @@ export const layoutModel = Model.fromJson({
           component: "diagramOptions",
         },
         { type: "tab", name: "state", component: "stateInspector" },
-        { type: "tab", name: "opt", component: "optInspector" },
+        // { type: "tab", name: "opt", component: "optInspector" },
       ],
     },
   ],
@@ -325,6 +326,10 @@ function App() {
       connectRoger();
     }
   }, []);
+  useEffect(() => {
+    optimizer.init();
+  }, []);
+
   useEffect(() => {
     layoutModel.doAction(
       Actions.updateModelAttributes({
