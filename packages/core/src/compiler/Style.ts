@@ -3584,6 +3584,7 @@ export const translate = (
   graph: DepGraph,
   warnings: im.List<StyleWarning>,
 ): Translation => {
+  log.info("Starting translation stage...");
   let symbols = im.Map<string, ArgVal<ad.Num>>();
   for (const path of graph.nodes()) {
     const shapeType = graph.node(path);
@@ -3640,6 +3641,7 @@ export const translate = (
       trans = translateExpr(mut, canvas, stages, path, e, trans);
     }
   }
+  log.info("Translation stage ends");
   return trans;
 };
 
@@ -4077,7 +4079,6 @@ export const compileStyleHelper = async (
   );
 
   const computeShapes = await compileCompGraph(inputs, renderGraph);
-
   const gradient = await genGradient(
     inputs,
     objFns.map(({ output }) => output),
@@ -4085,6 +4086,7 @@ export const compileStyleHelper = async (
   );
 
   const params = genOptProblem(varyingValues.length);
+
   const initState: State = {
     warnings: layeringWarning
       ? [...translation.diagnostics.warnings, ...groupWarnings, layeringWarning]
