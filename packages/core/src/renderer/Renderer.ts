@@ -38,16 +38,28 @@ export interface RenderProps {
   namespace: string;
   variation: string;
   labels: LabelCache;
-  texLabels: boolean;
   canvasSize: [number, number];
   pathResolver: PathResolver;
-  texRenderer: (texStr: string) => Result<HTMLElement, string>;
+  texOption: TeXOption;
 }
 export type InteractiveProps = {
   updateState: (newState: State) => void;
   onDrag: (id: string, dx: number, dy: number) => void;
   parentSVG: SVGSVGElement;
 };
+
+export type TeXOption = RenderTeX | DoNotRenderTeX;
+
+export interface RenderTeX {
+  tag: "RenderTeX";
+  renderer: TeXRenderer;
+}
+
+export interface DoNotRenderTeX {
+  tag: "DoNotRenderTeX";
+}
+
+export type TeXRenderer = (texStr: string) => Result<HTMLElement, string>;
 /**
  * Converts screen to relative SVG coords
  * Thanks to
@@ -78,6 +90,7 @@ export const toInteractiveSVG = async (
   updateState: (newState: State) => void,
   pathResolver: PathResolver,
   namespace: string,
+  texOption?: TeXOption,
 ): Promise<SVGSVGElement> => {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
@@ -90,6 +103,13 @@ export const toInteractiveSVG = async (
     updateState(dragUpdate(state, id, dx, dy));
   };
   const shapes = state.computeShapes(state.varyingValues);
+
+  if (texOption === undefined) {
+    texOption = {
+      tag: "RenderTeX",
+      renderer: mathjaxInit(),
+    };
+  }
   await RenderShapes(
     shapes,
     svg,
@@ -98,9 +118,8 @@ export const toInteractiveSVG = async (
       canvasSize: state.canvas.size,
       variation: state.variation,
       namespace,
-      texLabels: false,
       pathResolver,
-      texRenderer: mathjaxInit(),
+      texOption,
     },
     {
       updateState,
@@ -119,7 +138,7 @@ export const toSVG = async (
   state: State,
   pathResolver: PathResolver,
   namespace: string,
-  texLabels = false,
+  texOption?: TeXOption,
 ): Promise<SVGSVGElement> => {
   const {
     varyingValues,
@@ -173,6 +192,13 @@ export const toSVG = async (
   metadata.appendChild(croppedViewBox);
   svg.appendChild(metadata);
 
+  if (texOption === undefined) {
+    texOption = {
+      tag: "RenderTeX",
+      renderer: mathjaxInit(),
+    };
+  }
+
   await RenderShapes(
     shapes,
     svg,
@@ -181,9 +207,8 @@ export const toSVG = async (
       canvasSize: canvas.size,
       variation,
       namespace,
-      texLabels,
       pathResolver,
-      texRenderer: mathjaxInit(),
+      texOption,
     },
     undefined,
   );

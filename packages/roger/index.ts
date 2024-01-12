@@ -7,6 +7,7 @@ import { hideBin } from "yargs/helpers";
 import {
   PenroseState,
   compile,
+  mathjaxInit,
   optimize,
   showError,
   toSVG,
@@ -88,8 +89,21 @@ const render = async (
   const convergeEnd = process.hrtime(convergeStart);
   const reactRenderStart = process.hrtime();
 
-  const canvas = (await toSVG(optimizedState, resolvePath, "roger", texLabels))
-    .outerHTML;
+  const canvas = (
+    await toSVG(
+      optimizedState,
+      resolvePath,
+      "roger",
+      texLabels
+        ? {
+            tag: "DoNotRenderTeX",
+          }
+        : {
+            tag: "RenderTeX",
+            renderer: mathjaxInit(),
+          },
+    )
+  ).outerHTML;
 
   const reactRenderEnd = process.hrtime(reactRenderStart);
   const overallEnd = process.hrtime(overallStart);

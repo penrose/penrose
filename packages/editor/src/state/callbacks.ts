@@ -293,7 +293,7 @@ export const useDownloadSvgTex = () =>
           state,
           (path) => pathResolver(path, rogerState, metadata),
           "diagramPanel",
-          true,
+          { tag: "DoNotRenderTeX" },
         );
         const domain = snapshot.getLoadable(fileContentsSelector("domain"))
           .contents as ProgramFile;

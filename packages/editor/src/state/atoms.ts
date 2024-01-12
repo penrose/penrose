@@ -1,9 +1,10 @@
 import {
-  compileDomain,
   DomainEnv,
   PenroseError,
   PenroseState,
   PenroseWarning,
+  compileDomain,
+  mathjaxInit,
 } from "@penrose/core";
 import { PathResolver, Trio, TrioMeta } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
@@ -13,9 +14,9 @@ import { debounce, range } from "lodash";
 import { RefObject } from "react";
 import toast from "react-hot-toast";
 import {
-  atom,
   AtomEffect,
   DefaultValue,
+  atom,
   selector,
   selectorFamily,
 } from "recoil";
@@ -496,3 +497,5 @@ export const settingsState = atom<Settings>({
   },
   effects: [settingsEffect, debugModeEffect],
 });
+
+export const texRenderer = mathjaxInit();

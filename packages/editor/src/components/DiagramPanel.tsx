@@ -13,6 +13,7 @@ import {
   currentRogerState,
   diagramMetadataSelector,
   diagramState,
+  texRenderer,
   workspaceMetadataSelector,
 } from "../state/atoms.js";
 import { pathResolver } from "../utils/downloadUtils.js";
@@ -47,11 +48,19 @@ export default function DiagramPanel() {
               },
               (path) => pathResolver(path, rogerState, workspace),
               "diagramPanel",
+              {
+                tag: "RenderTeX",
+                renderer: texRenderer,
+              },
             )
           : await toSVG(
               state,
               (path) => pathResolver(path, rogerState, workspace),
               "diagramPanel",
+              {
+                tag: "RenderTeX",
+                renderer: texRenderer,
+              },
             );
         rendered.setAttribute("width", "100%");
         rendered.setAttribute("height", "100%");

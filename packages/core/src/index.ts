@@ -373,7 +373,7 @@ export { constrDict } from "./lib/Constraints.js";
 export { compDict } from "./lib/Functions.js";
 export { objDict } from "./lib/Objectives.js";
 export { toInteractiveSVG, toSVG } from "./renderer/Renderer.js";
-export type { PathResolver } from "./renderer/Renderer.js";
+export type { PathResolver, TeXOption } from "./renderer/Renderer.js";
 export { makeCanvas, simpleContext } from "./shapes/Samplers.js";
 export type { Canvas } from "./shapes/Samplers.js";
 export { sampleShape, shapeTypes } from "./shapes/Shapes.js";
@@ -386,6 +386,7 @@ export type {
 export type { CompFunc } from "./types/functions.js";
 export type { SubProg } from "./types/substance.js";
 export * as Value from "./types/value.js";
+export { mathjaxInit } from "./utils/CollectLabels.js";
 export { errLocs, showError } from "./utils/Error.js";
 export type { Result } from "./utils/Error.js";
 export {
