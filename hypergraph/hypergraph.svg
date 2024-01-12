@@ -14,7 +14,7 @@
     x="295.15780532399725"
     y="289.23687397917143"
     width="20"
-    height="-33.193355113812714"
+    height="0"
     fill="#ffffff"
     fill-opacity="0"
     stroke="none"
@@ -40,7 +40,7 @@
     x="295.1578053239972"
     y="447.62189687774645"
     width="20"
-    height="-24.38508642697586"
+    height="0"
     fill="#ffffff"
     fill-opacity="0"
     stroke="none"
@@ -128,7 +128,7 @@
     x="295.1578053239943"
     y="365.2368317219259"
     width="20"
-    height="-17.9999853956824"
+    height="0"
     fill="#ffffff"
     fill-opacity="0"
     stroke="none"
@@ -154,7 +154,7 @@
     x="395.1578115103087"
     y="381.00169646941976"
     width="20"
-    height="-18.00007013664543"
+    height="0"
     fill="#ffffff"
     fill-opacity="0"
     stroke="none"
@@ -187,7 +187,7 @@
     x="495.1578205158639"
     y="319.2130508888732"
     width="20"
-    height="-32.98840791761205"
+    height="0"
     fill="#ffffff"
     fill-opacity="0"
     stroke="none"
@@ -848,7 +848,7 @@
     cy="272.6401964222651"
     stroke="none"
     rx="10"
-    ry="-16.596677556906357"
+    ry="0"
   >
     <title>`E11`.ellipse</title>
   </ellipse>
@@ -870,7 +870,7 @@
     cy="302.71884693006723"
     stroke="none"
     rx="10"
-    ry="-16.494203958806025"
+    ry="0"
   >
     <title>`E33`.ellipse</title>
   </ellipse>
@@ -1067,7 +1067,7 @@
     cy="435.42935366425854"
     stroke="none"
     rx="10"
-    ry="-12.19254321348793"
+    ry="0"
   >
     <title>`E12`.ellipse</title>
   </ellipse>
@@ -1078,7 +1078,7 @@
     cy="372.00166140109707"
     stroke="none"
     rx="10"
-    ry="-9.000035068322715"
+    ry="0"
   >
     <title>`E23`.ellipse</title>
   </ellipse>
@@ -1483,7 +1483,7 @@
     cy="356.2368390240847"
     stroke="none"
     rx="10"
-    ry="-8.9999926978412"
+    ry="0"
   >
     <title>`E14`.ellipse</title>
   </ellipse>
