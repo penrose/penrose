@@ -136,6 +136,7 @@ export default class OptimizerWorker {
           data.stats,
         );
       } else if (data.tag === "Error") {
+        this.running = false;
         this.onError(data.error);
       } else if (data.tag === "Ready") {
         log.info("Worker ready for new input");

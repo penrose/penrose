@@ -105,7 +105,6 @@ export default function DiagramPanel() {
           width: "100%",
         }}
       >
-        <LayoutTimelineSlider />
         {state === null && (
           <span onClick={() => setShowEasterEgg((s) => !s)}>
             press compile to see diagram
@@ -177,6 +176,7 @@ export default function DiagramPanel() {
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           ></iframe>
         )}
+        <LayoutTimelineSlider />
       </div>
     </div>
   );
