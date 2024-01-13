@@ -25,8 +25,6 @@ export type Resample = {
 
 export type ComputeShapes = {
   tag: "ComputeShapes";
-  min: number;
-  max: number;
   index: number;
 };
 
