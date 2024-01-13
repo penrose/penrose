@@ -5,13 +5,9 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
 import {
-  Canvas,
-  LabelCache,
   PenroseError,
   PenroseState,
-  RenderShapes,
   Result,
-  Shape,
   State,
   compile,
   finalStage,
@@ -36,13 +32,6 @@ if (process.env.INIT_CWD) {
   process.chdir(process.env.INIT_CWD);
 }
 
-export interface RenderState {
-  variation: string;
-  labelCache: LabelCache;
-  canvas: Canvas;
-  shapes: Shape<number>[];
-}
-
 interface Trio {
   substance: string;
   style: string[];
@@ -53,7 +42,7 @@ interface Trio {
 
 const optimize = async (
   state: State,
-  onStep?: (s: RenderState, i: number) => void,
+  onStep?: (s: State, i: number) => void,
 ): Promise<Result<State, PenroseError>> => {
   let currentState = state;
   let i = 0;
@@ -63,18 +52,7 @@ const optimize = async (
       currentState = nextStage(currentState);
     }
     if (onStep) {
-      const { varyingValues, variation, computeShapes, canvas, labelCache } =
-        currentState;
-      const shapes = computeShapes(varyingValues);
-      await onStep(
-        {
-          shapes,
-          canvas,
-          variation,
-          labelCache,
-        },
-        i,
-      );
+      await onStep(currentState, i);
     }
     let j = 0;
     const res = step(currentState, { until: () => j++ >= numSteps });
@@ -104,7 +82,7 @@ const render = async (
     id: string;
   },
   excludeWarnings: string[],
-  onStep?: (s: RenderState, i: number) => void,
+  onStep?: (s: State, i: number) => void,
 ): Promise<{
   diagram: string;
   metadata: InstanceData;
@@ -343,34 +321,16 @@ yargs(hideBin(process.argv))
           id: options.trio.join(", "),
         },
         excludeWarnings,
-        async (s: RenderState, step: number) => {
+        async (s: State, step: number) => {
           if (
             options.dumpSvgs &&
             options.dumpInterval > 0 &&
             step % options.dumpInterval === 0
           ) {
-            const { canvas, shapes, labelCache, variation } = s;
             const dumpPath = options["dump-prefix"] + step + ".svg";
-            const svg = document.createElementNS(
-              "http://www.w3.org/2000/svg",
-              "svg",
-            );
-            svg.setAttribute("version", "1.2");
-            svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-            svg.setAttribute("viewBox", `0 0 ${canvas.width} ${canvas.height}`);
-            await RenderShapes(
-              shapes,
-              svg,
-              {
-                pathResolver: resolvePath(prefix, sty),
-                namespace: "roger",
-                texLabels,
-                variation,
-                labels: labelCache,
-                canvasSize: canvas.size,
-              },
-              undefined,
-            );
+            const svg = await toSVG(s, resolvePath(prefix, sty), "roger");
+            svg.setAttribute("width", s.canvas.width.toString());
+            svg.setAttribute("height", s.canvas.height.toString());
             // create folders if they don't exist
             const dir = dumpPath.split("/").slice(0, -1).join("/");
             if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
