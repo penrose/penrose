@@ -24,6 +24,7 @@ import { basename, extname, join, resolve } from "path";
 import prettier from "prettier";
 // import packageJSON from "./package.json"; // TODO: no supported by node
 import { ok } from "@penrose/core/dist/utils/Error";
+import animate from "./animate.js";
 import { InstanceData } from "./types.js";
 import watch from "./watch.js";
 
@@ -439,6 +440,20 @@ yargs(hideBin(process.argv))
         alias: "p",
       }),
     (options) => watch(+options.port),
+  )
+  .command(
+    "animate [svgFiles..]",
+    "Animate a list of SVG files",
+    (yargs) =>
+      yargs.option("out", {
+        desc: "Name of the output SVG file.",
+        alias: "o",
+        default: "output.svg",
+        type: "string",
+      }),
+    (options) => {
+      animate(options.svgFiles as string[], options.out as string);
+    },
   )
 
   .demandCommand()
