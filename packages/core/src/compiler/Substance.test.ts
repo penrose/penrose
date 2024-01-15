@@ -4,7 +4,11 @@ import grammar from "../parser/SubstanceParser.js";
 import { A, Identifier } from "../types/ast.js";
 import { DomainEnv } from "../types/domain.js";
 import { PenroseError } from "../types/errors.js";
-import { ApplyPredicate, SubstanceEnv } from "../types/substance.js";
+import {
+  ApplyPredicate,
+  NumberConstant,
+  SubstanceEnv,
+} from "../types/substance.js";
 import { Result, showError, showType } from "../utils/Error.js";
 import { compileDomain } from "./Domain.js";
 import {
@@ -301,6 +305,29 @@ NoLabel B, C
         ).toEqual(
           ["s_0 s_1", "s_1 s_2", "s_2 s_3", "s_3 s_4", "s_4 s_5"].sort(),
         );
+      }
+    });
+
+    test("indexed set literal numbers", () => {
+      const domainProg = "type T \n predicate P(T, Number)";
+      const env = envOrError(domainProg);
+      const prog = `
+        T t_i for i in [0, 9]
+        P(t_i, j) for i in [0, 9], j in [1, 10] where i + 1 == j
+      `;
+      const res = compileSubstance(prog, env);
+      expect(res.isOk()).toBe(true);
+
+      if (res.isOk()) {
+        // make sure ten literals are created
+        const literals = res.value.literals;
+        expect(literals.length).toEqual(10);
+        expect(literals.every((l) => l.contents.tag === "NumberConstant")).toBe(
+          true,
+        );
+        expect(
+          literals.map((l) => (l.contents as NumberConstant<A>).value),
+        ).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
       }
     });
   });

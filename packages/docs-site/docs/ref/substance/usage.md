@@ -206,6 +206,15 @@ Orthogonal(v_i, v_j) for i in [0, 1], j in [1, 2]
   -- Orthogonal(v_1, v_1); Orthogonal(v_1, v_2)
 ```
 
+When an identifier name coincides with the template variable name, _substance_ treats it as a numerical literal expression, like
+
+```substance
+NumberSet s
+
+Contains(s, i) for i in [1, 10]
+  -- ok: expands into Contains(s, 1), Contains(s, 2), ..., Contains(s, 10)
+```
+
 ### Conditional Filtering
 
 Sometimes, we don't want to iterate through all possible combinations, since some combinations are undesirable. _Substance_ allows users to filter the combinations using a Boolean expression in the `where` clause. _Substance_ would discard all combinations that make the Boolean expression false.

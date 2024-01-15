@@ -724,13 +724,14 @@ const substISetVarStr = (
 const substISetId = (
   id: Identifier<A>,
   subst: ISetSubst,
-): Result<Identifier<A>, SubstanceError> =>
-  substISetVarStr(id.value, id, subst).andThen((substitutedID: string) =>
+): Result<Identifier<A>, SubstanceError> => {
+  return substISetVarStr(id.value, id, subst).andThen((substitutedID: string) =>
     ok({
       ...id,
       value: substitutedID,
     }),
   );
+};
 
 const substISetExpr = (
   expr: SubExpr<A>,
@@ -753,7 +754,22 @@ const substSubArgExpr = (
 ): Result<SubArgExpr<A>, SubstanceError> => {
   const { tag } = expr;
   if (tag === "Identifier") {
-    return substISetId(expr, subst);
+    // first, if the identifier coincides with the iset index variable, then just use the value of that variable.
+    const n = substISetVarNumber(expr.value, expr, subst);
+    if (n.isOk()) {
+      return ok({
+        ...expr,
+        tag: "LiteralSubExpr",
+        contents: {
+          ...expr,
+          tag: "NumberConstant",
+          value: n.value,
+        },
+      });
+    } else {
+      // otherwise try to substitute the last part (after underscore) of the identifier
+      return substISetId(expr, subst);
+    }
   } else {
     return ok(expr);
   }
