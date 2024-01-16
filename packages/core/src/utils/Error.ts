@@ -38,6 +38,7 @@ import {
   SymmetricArgLengthMismatch,
   SymmetricTypeMismatch,
   TooManyArgumentsError,
+  TypeDeclared,
   TypeMismatch,
   TypeNotFound,
   VarNotFound,
@@ -144,7 +145,16 @@ export const showError = (
         error.color,
       )}) is not a valid color literal. Color literals must be one of the following formats: #RGB, #RGBA, #RRGGBB, #RRGGBBAA.`;
     case "TypeDeclared": {
-      return `Type ${error.typeName.value} already exists.`;
+      const { typeName, firstDefined } = error;
+      if (firstDefined.nodeType === "BuiltinDomain") {
+        return `Type ${typeName.value} (at ${loc(
+          typeName,
+        )}) already exists as a built-in type. Choose a different name for your type to avoid name conflicts.`;
+      } else {
+        return `Type ${typeName.value} (at ${loc(
+          typeName,
+        )}) already exists, first declared at ${loc(firstDefined)}.`;
+      }
     }
     // TODO: abstract out this pattern if it becomes more common
     case "VarNotFound": {
@@ -911,6 +921,15 @@ export const cyclicSubtypes = (cycles: string[][]): CyclicSubtypes => ({
 });
 
 // action constructors for error
+export const typeDeclared = (
+  typeName: Identifier<A>,
+  firstDefined: AbstractNode,
+): TypeDeclared => ({
+  tag: "TypeDeclared",
+  typeName,
+  firstDefined,
+});
+
 export const duplicateName = (
   name: Identifier<A>,
   location: AbstractNode,

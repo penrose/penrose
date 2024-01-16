@@ -24,7 +24,8 @@ export type NodeType =
   | "Style"
   | "Domain"
   | "SyntheticSubstance"
-  | "SyntheticStyle";
+  | "SyntheticStyle"
+  | "BuiltinDomain";
 
 export type SyntheticNode = AbstractNode & {
   nodeType: "SyntheticSubstance" | "SyntheticStyle";

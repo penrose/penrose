@@ -33,6 +33,7 @@ import {
   safeChain,
   symmetricArgLengthMismatch,
   symmetricTypeMismatch,
+  typeDeclared,
   typeNotFound,
 } from "../utils/Error.js";
 import Graph from "../utils/Graph.js";
@@ -83,8 +84,8 @@ export type CheckerResult = Result<DomainEnv, DomainError>;
 export const stringType: Type<C> = {
   start: { line: 1, col: 1 },
   end: { line: 1, col: 1 },
-  nodeType: "Substance",
   tag: "Type",
+  nodeType: "BuiltinDomain",
   name: idOf("String", "Domain"),
 };
 export const stringTypeDecl: TypeDecl<C> = {
@@ -96,7 +97,7 @@ export const stringTypeDecl: TypeDecl<C> = {
 export const numberType: Type<C> = {
   start: { line: 1, col: 1 },
   end: { line: 1, col: 1 },
-  nodeType: "Substance",
+  nodeType: "BuiltinDomain",
   tag: "Type",
   name: idOf("Number", "Domain"),
 };
@@ -153,8 +154,7 @@ const checkStmt = (stmt: DomainStmt<C>, env: DomainEnv): CheckerResult => {
       const { name, superTypes } = stmt;
       // check name duplicate
       const existing = env.types.get(name.value);
-      if (existing !== undefined)
-        return err(duplicateName(name, stmt, existing));
+      if (existing !== undefined) return err(typeDeclared(name, existing));
       // construct new type
       const newType: Type<C> = {
         tag: "Type",
