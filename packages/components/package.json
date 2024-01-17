@@ -17,7 +17,7 @@
     "build-decls": ":",
     "typecheck": ":",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "cross-env NODE_OPTIONS='--max-old-space-size=8192' build-storybook"
+    "build-storybook": "cross-env NODE_OPTIONS='--max-old-space-size=8192 --openssl-legacy-provider' build-storybook"
   },
   "nx": {
     "targets": {
