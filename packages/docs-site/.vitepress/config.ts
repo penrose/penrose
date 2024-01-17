@@ -1,3 +1,4 @@
+import { compDict, objDict } from "@penrose/core";
 import markdownItKatex from "markdown-it-katex";
 import { defineConfig } from "vitepress";
 import domainGrammar from "../../vscode/syntaxes/domain.tmGrammar.json";
@@ -5,22 +6,22 @@ import styleGrammar from "../../vscode/syntaxes/style.tmGrammar.json";
 import substanceGrammar from "../../vscode/syntaxes/substance.tmGrammar.json";
 
 const styleLang = {
-  id: "style",
+  name: "style",
   scopeName: "source.penrose-style",
-  grammar: styleGrammar,
-  path: "style.tmGrammar.json",
+  repository: styleGrammar.repository as any,
+  patterns: styleGrammar.patterns,
 };
 const domainLang = {
-  id: "domain",
+  name: "domain",
   scopeName: "source.penrose-domain",
-  grammar: domainGrammar,
-  path: "domain.tmGrammar.json",
+  repository: domainGrammar.repository as any,
+  patterns: domainGrammar.patterns,
 };
 const substanceLang = {
-  id: "substance",
+  name: "substance",
   scopeName: "source.penrose-substance",
-  grammar: substanceGrammar,
-  path: "substance.tmGrammar.json",
+  repository: substanceGrammar.repository as any,
+  patterns: substanceGrammar.patterns,
 };
 
 // https://github.com/vuejs/vitepress/issues/529#issuecomment-1151186631
@@ -136,8 +137,7 @@ export default defineConfig({
     config: (md) => {
       md.use(markdownItKatex);
     },
-    // TODO: figure out the current types of language configs
-    languages: [substanceLang as any, domainLang as any, styleLang as any],
+    languages: [styleLang, domainLang, substanceLang],
   },
   vue: {
     template: {
@@ -150,6 +150,34 @@ export default defineConfig({
   themeConfig: {
     search: {
       provider: "local",
+      options: {
+        _render(src, env, md) {
+          const html = md.render(src, env);
+          if (env.frontmatter?.anchors === "functions") {
+            const compFuncs = Object.entries(compDict).map(([k, v]: any) => {
+              return `### computation-${v.name}\n\n${v.description}\n\n**Returns:** ${v.returns}\n\n**Parameters:**\n\n${v.params}`;
+            });
+            const objectives = Object.entries(objDict).map(([k, v]: any) => {
+              return `### objective-${k}\n\n${v.description}\n\n**Parameters:**\n\n${v.params}`;
+            });
+            const constraints = Object.entries(objDict).map(([k, v]: any) => {
+              return `### constraint-${k}\n\n${
+                v.description as any
+              }\n\n**Parameters:**\n\n${v.params}`;
+            });
+            const anchors = [
+              "## Constraints\n\n",
+              ...constraints,
+              "## Objectives\n\n",
+              ...objectives,
+              "## Computation\nn",
+              ...compFuncs,
+            ].join("\n\n");
+            return md.render(anchors) + html;
+          }
+          return html;
+        },
+      },
     },
     logo: "img/favicon.ico",
     outline: "deep",
@@ -176,7 +204,7 @@ export default defineConfig({
       { text: "Docs", link: "/docs/ref", activeMatch: "/docs/ref" },
       { text: "Blog", link: "/blog", activeMatch: "/blog" },
       { text: "Team", link: "/docs/team" },
-      { text: "Editor", link: "pathname:///try/index.html" },
+      { text: "Editor", link: "/try", target: "_self" },
       { text: "Join", link: "https://discord.gg/a7VXJU4dfR" },
       //   {
       //     text: "News",

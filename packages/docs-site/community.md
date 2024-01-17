@@ -1,7 +1,3 @@
----
-layout: docs
----
-
 <script setup>
   import PR from "./src/components/GitHubPR.vue"
   import Issue from "./src/components/GitHubIssue.vue"
