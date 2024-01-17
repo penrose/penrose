@@ -147,6 +147,7 @@ export interface CyclicSubtypes {
 export interface TypeDeclared {
   tag: "TypeDeclared";
   typeName: Identifier<A>;
+  firstDefined: AbstractNode;
 }
 export interface DuplicateName {
   tag: "DuplicateName";

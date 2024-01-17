@@ -187,20 +187,13 @@ type Set somethingthatshouldn'tparse
     `;
     expectErrorOf(prog, "ParseError");
   });
-  test("Duplicate names", () => {
+  test("Type Declared errors", () => {
     const prog = `
 type Set
 type Point
 type Set
     `;
-    expectErrorOf(prog, "DuplicateName");
-  });
-  test("Duplicating builtin types", () => {
-    const prog = `type Set
-type Number
-type String`;
-
-    expectErrorOf(prog, "DuplicateName");
+    expectErrorOf(prog, "TypeDeclared");
   });
   test("Type not found", () => {
     const prog = `
@@ -256,7 +249,7 @@ symmetric predicate MyBadPredicate(MyType, MyType, MyType)
 type Set
 type Number
 type String`;
-    expectErrorOf(prog1, "DuplicateName");
+    expectErrorOf(prog1, "TypeDeclared");
 
     const prog2 = `
 type Set
