@@ -870,7 +870,7 @@ const toSelSubstanceLiteral = (e: LiteralSubExpr<A>): SubstanceLiteral => {
       tag: "SubstanceLiteral",
       contents: {
         tag: "SubstanceNumber",
-        contents: lit.value,
+        contents: lit.contents,
       },
     };
   }
@@ -957,15 +957,10 @@ const matchStyArgToSubArg = (
 
     if (subArg.tag === "LiteralSubExpr") {
       const subLit = subArg.contents;
-      if (selLit.tag === "SelLitNumber" && subLit.tag === "NumberConstant") {
-        const selV = selLit.contents;
-        const subV = subLit.value;
-        if (selV === subV) {
-          return [{}];
-        } else {
-          return [];
-        }
-      } else if (selLit.tag === "SelLitString" && subLit.tag === "StringLit") {
+      if (
+        (selLit.tag === "SelLitNumber" && subLit.tag === "NumberConstant") ||
+        (selLit.tag === "SelLitString" && subLit.tag === "StringLit")
+      ) {
         const selV = selLit.contents;
         const subV = subLit.contents;
         if (selV === subV) {
@@ -2206,8 +2201,6 @@ const resolveRhsPath = (
 ): ResolvedPath<C> | FloatV<number> | StrV | VectorV<number> => {
   const { start, end, name, members, indices } = p.expr;
   const { subst } = p.context;
-  // special handling so that if a Style variable maps to a Substance literal,
-  // then accessing it just gives the value.
   // special handling so that if a Style variable maps to a Substance literal,
   // then accessing it just gives the value.
   if (members.length === 0 && indices.length === 0) {

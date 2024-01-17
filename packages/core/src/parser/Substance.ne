@@ -126,7 +126,7 @@ float -> %float_literal {%
     ([d]): NumberConstant<C> => ({
       ...nodeData,
       ...rangeOf(d),
-      tag: "NumberConstant", value: +d.value
+      tag: "NumberConstant", contents: +d.value
     })
   %}
 

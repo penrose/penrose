@@ -188,10 +188,7 @@ const recreateLiteral = (
   subEnv: SubstanceEnv,
 ): SubstanceEnv => {
   const lit = literal.contents;
-  const name =
-    lit.tag === "StringLit"
-      ? toLiteralName(lit.contents)
-      : toLiteralName(lit.value);
+  const name = toLiteralName(lit.contents);
 
   // if it already exists, for uniqueness, don't recreate it again!
   if (subEnv.objs.get(name) !== undefined) {
@@ -501,8 +498,8 @@ const evalISet = (iset: IndexSet<A>): Result<ISetSubst[], SubstanceError> => {
   for (const { variable, range } of indices) {
     const name = variable.value;
     const { high, low } = range;
-    const highVal = high.value,
-      lowVal = low.value;
+    const highVal = high.contents,
+      lowVal = low.contents;
 
     if (!Number.isInteger(lowVal)) {
       return err({
@@ -520,13 +517,13 @@ const evalISet = (iset: IndexSet<A>): Result<ISetSubst[], SubstanceError> => {
       });
     }
 
-    if (high.value < low.value) {
+    if (high.contents < low.contents) {
       return ok([]);
     }
 
     // a list of [[name, value]]
     const possVals = im
-      .Range(low.value, high.value + 1)
+      .Range(low.contents, high.contents + 1)
       .toArray()
       .map((n): [VarValPair] => [[name, n]]);
     // for example, if we write `i in [1, 3]`,
@@ -647,7 +644,7 @@ const evalNumHelper = (
   subst: ISetSubst,
 ): Result<number, SubstanceError> => {
   if (n.tag === "NumberConstant") {
-    return ok(n.value);
+    return ok(n.contents);
   } else if (n.tag === "Identifier") {
     return substISetVarNumber(n.value, n, subst);
   } else if (n.tag === "UnaryExpr") {
@@ -763,7 +760,7 @@ const substSubArgExpr = (
         contents: {
           ...expr,
           tag: "NumberConstant",
-          value: n.value,
+          contents: n.value,
         },
       });
     } else {
@@ -1538,8 +1535,8 @@ const prettyIndexSet = (iset: IndexSet<A>): string => {
   const rangeStrings: string[] = [];
   for (const range of iset.indices) {
     const varName = range.variable.value;
-    const low = range.range.low.value;
-    const high = range.range.high.value;
+    const low = range.range.low.contents;
+    const high = range.range.high.contents;
     rangeStrings.push(`${varName} in [${low}, ${high}]`);
   }
   const rangeString = rangeStrings.join(", ");
@@ -1569,7 +1566,7 @@ const prettyCond = (cond: BooleanExpr<A>): string => {
 
 const prettyNum = (n: NumExpr<A>): string => {
   if (n.tag === "NumberConstant") {
-    return `${n.value}`;
+    return `${n.contents}`;
   } else if (n.tag === "Identifier") {
     return n.value;
   } else if (n.tag === "UnaryExpr") {
@@ -1665,7 +1662,7 @@ export const prettyVar = (v: Identifier<A>): string => {
 
 const prettyLiteralSubExpr = (e: NumberConstant<A> | StringLit<A>): string => {
   if (e.tag === "NumberConstant") {
-    return e.value.toString();
+    return e.contents.toString();
   } else {
     return e.contents;
   }

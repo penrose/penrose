@@ -326,7 +326,7 @@ NoLabel B, C
           true,
         );
         expect(
-          literals.map((l) => (l.contents as NumberConstant<A>).value),
+          literals.map((l) => (l.contents as NumberConstant<A>).contents),
         ).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
       }
     });

@@ -196,7 +196,7 @@ export type UnaryExpr<T> = ASTNode<T> & {
 
 export type NumberConstant<T> = ASTNode<T> & {
   tag: "NumberConstant";
-  value: number;
+  contents: number;
 };
 
 //#endregion
