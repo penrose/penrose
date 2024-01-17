@@ -167,18 +167,7 @@ const processLabelStmt = (
       if (stmt.option.tag === "DefaultLabels") {
         const ids = subEnv.objIds;
         const newLabels: LabelMap = im.Map(
-          ids.map((id) => {
-            const typ = subEnv.objs.get(id.value)!;
-
-            let lab: string;
-            if (isLiteralType(typ)) {
-              lab = id.value.substring(2, id.value.length - 1);
-            } else {
-              lab = id.value;
-            }
-
-            return [id.value, { value: lab, type: "MathLabel" }];
-          }),
+          ids.map((id) => [id.value, { value: id.value, type: "MathLabel" }]),
         );
 
         return {

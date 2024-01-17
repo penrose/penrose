@@ -24,7 +24,7 @@ jobs:
       - name: Generate diagrams and metadata for the first commit
         run: yarn registry
       - name: Upload generated diagrams and metadata
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4.1.0
         with:
           name: diagrams-1
           path: packages/examples/diagrams/
@@ -41,7 +41,7 @@ jobs:
       - name: Generate diagrams and metadata for the second commit
         run: yarn registry
       - name: Upload generated diagrams and metadata
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4.1.0
         with:
           name: diagrams-2
           path: packages/examples/diagrams/

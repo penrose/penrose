@@ -71,11 +71,7 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
       break;
     }
     case "ComputeShapes": {
-      const range = data.max - data.min;
-      // normalize the index to the length of the history array
-      const index = Math.floor(
-        ((data.index - data.min) / range) * (history.length - 1),
-      );
+      const index = data.index;
       const newShapes = {
         ...currentState,
         varyingValues: history[index],
@@ -150,6 +146,7 @@ const optimize = (state: PenroseState) => {
   let i = 0;
   while (!isOptimized(state)) {
     let j = 0;
+    history.push(state.varyingValues);
     const steppedState = step(state, { until: (): boolean => j++ >= numSteps });
     if (steppedState.isErr()) {
       respondError(steppedState.error);
@@ -181,7 +178,6 @@ const optimize = (state: PenroseState) => {
       respondReady();
       return;
     }
-    history.push(state.varyingValues);
     i++;
   }
   respondFinished(state);

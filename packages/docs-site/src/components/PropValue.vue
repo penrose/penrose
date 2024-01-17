@@ -9,7 +9,7 @@ const showValue = (contents: any): { text: string; color?: string } => {
   if (typeof contents === "object") {
     switch (contents.tag) {
       case "NONE":
-        return { text: "NONE" };
+        return { text: "none()" };
       case "RGBA": {
         const c = contents.contents;
         return {
@@ -43,5 +43,7 @@ const { text, color } = showValue(contents);
     </div>
     <span style="margin-left: 1em">{{ text }}</span>
   </div>
-  <template v-else>{{ text }}</template>
+  <template v-else
+    ><code>{{ text }}</code></template
+  >
 </template>
