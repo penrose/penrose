@@ -148,6 +148,9 @@ export default defineConfig({
   },
 
   themeConfig: {
+    search: {
+      provider: "local",
+    },
     logo: "img/favicon.ico",
     outline: "deep",
     editLink: {
@@ -161,19 +164,19 @@ export default defineConfig({
         activeMatch: "/examples",
       },
       {
-        text: "Get Involved",
+        text: "Contribute",
         link: "/community",
         activeMatch: "/community",
       },
       {
-        text: "Learn Penrose",
+        text: "Learn",
         link: "/docs/tutorial/welcome",
         activeMatch: "/docs/tutorial",
       },
-      { text: "Documentation", link: "/docs/ref", activeMatch: "/docs/ref" },
+      { text: "Docs", link: "/docs/ref", activeMatch: "/docs/ref" },
       { text: "Blog", link: "/blog", activeMatch: "/blog" },
       { text: "Team", link: "/docs/team" },
-      { text: "Online Editor", link: "pathname:///try/index.html" },
+      { text: "Editor", link: "pathname:///try/index.html" },
       //   {
       //     text: "News",
       //     items: [
@@ -219,29 +222,63 @@ export default defineConfig({
             { text: "Using Penrose", link: "/docs/ref/using" },
             {
               text: "Domain",
+              link: "/docs/ref/domain/overview",
               items: [
-                { text: "Usage", link: "/docs/ref/domain/usage" },
-                { text: "Examples", link: "/docs/ref/domain/examples" },
+                { text: "Types", link: "/docs/ref/domain/types" },
+                { text: "Predicates", link: "/docs/ref/domain/predicates" },
+                {
+                  text: "Functions and Constructors",
+                  link: "/docs/ref/domain/functions",
+                },
               ],
             },
             {
               text: "Substance",
+              link: "/docs/ref/substance/overview",
               items: [
-                { text: "Usage", link: "/docs/ref/substance/usage" },
-                { text: "Examples", link: "/docs/ref/substance/examples" },
+                {
+                  text: "Statements",
+                  link: "/docs/ref/substance/statements",
+                },
+                {
+                  text: "Indexed Statements",
+                  link: "/docs/ref/substance/indexed-statements",
+                },
               ],
             },
             {
               text: "Style",
+              link: "/docs/ref/style/overview",
               items: [
                 {
-                  text: "Usage",
-                  link: "/docs/ref/style/usage",
+                  text: "Namespaces",
+                  link: "/docs/ref/style/namespaces",
+                },
+                {
+                  text: "Selectors",
+                  link: "/docs/ref/style/selectors",
+                },
+                {
+                  text: "Selector Blocks",
+                  link: "/docs/ref/style/selector-blocks",
+                },
+                {
+                  text: "Collectors",
+                  link: "/docs/ref/style/collectors",
+                },
+                {
+                  text: "Expressions",
+                  link: "/docs/ref/style/expressions",
                 },
                 {
                   text: "Value Types",
                   link: "/docs/ref/style/value-types",
                 },
+                {
+                  text: "Vectors and Matrices",
+                  link: "/docs/ref/style/vectors-matrices",
+                },
+                { text: "Function Library", link: "/docs/ref/style/functions" },
                 {
                   text: "Shapes",
                   link: "/docs/ref/style/shapes-overview",
@@ -274,15 +311,9 @@ export default defineConfig({
                   link: "/docs/ref/style/random-sampling",
                 },
                 {
-                  text: "Vectors and Matrices",
-                  link: "/docs/ref/style/vectors-matrices",
-                },
-                { text: "Function Library", link: "/docs/ref/style/functions" },
-                {
                   text: "Passthrough SVG",
                   link: "/docs/ref/style/passthrough",
                 },
-                { text: "Examples", link: "/docs/ref/style/examples" },
               ],
             },
           ],
