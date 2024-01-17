@@ -1,4 +1,4 @@
-import { compDict, objDict } from "@penrose/core";
+import { compDict, constrDict, objDict } from "@penrose/core";
 import markdownItKatex from "markdown-it-katex";
 import { defineConfig } from "vitepress";
 import domainGrammar from "../../vscode/syntaxes/domain.tmGrammar.json";
@@ -160,11 +160,13 @@ export default defineConfig({
             const objectives = Object.entries(objDict).map(([k, v]: any) => {
               return `### objective-${k}\n\n${v.description}\n\n**Parameters:**\n\n${v.params}`;
             });
-            const constraints = Object.entries(objDict).map(([k, v]: any) => {
-              return `### constraint-${k}\n\n${
-                v.description as any
-              }\n\n**Parameters:**\n\n${v.params}`;
-            });
+            const constraints = Object.entries(constrDict).map(
+              ([k, v]: any) => {
+                return `### constraint-${k}\n\n${
+                  v.description as any
+                }\n\n**Parameters:**\n\n${v.params}`;
+              },
+            );
             const anchors = [
               "## Constraints\n\n",
               ...constraints,
