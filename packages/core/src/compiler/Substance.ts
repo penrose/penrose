@@ -64,7 +64,7 @@ import {
   typeNotFound,
   varNotFound,
 } from "../utils/Error.js";
-import { cartesianProduct, zip2 } from "../utils/Util.js";
+import { cartesianProduct, toLiteralUniqueName, zip2 } from "../utils/Util.js";
 import {
   checkType,
   isLiteralType,
@@ -147,79 +147,14 @@ export const postprocessSubstance = (
   domEnv: DomainEnv,
   subEnv: SubstanceEnv,
 ): SubstanceEnv => {
-  subEnv = recreateLiterals(domEnv, subEnv);
-
   subEnv.labels = im.Map(
     [...subEnv.objs.keys()].map((id) => [id, EMPTY_LABEL]),
   );
-  // post process all statements
   return subEnv.ast.statements.reduce(
     (subEnv, stmt: CompiledSubStmt<A>) =>
       processLabelStmt(stmt, domEnv, subEnv),
     subEnv,
   );
-};
-
-// For each literal value in substance, create a version of it as if it is a Substance object.
-// For example, for the substance number -123.45, this function will artificially add the statement
-//   Number {n-123.45}
-// into the AST. That way, numbers like these can be matched by Style as standalone Substance objects.
-const recreateLiterals = (
-  domEnv: DomainEnv,
-  subEnv: SubstanceEnv,
-): SubstanceEnv => {
-  return subEnv.literals.reduce(
-    (subEnv, literal) => recreateLiteral(literal, domEnv, subEnv),
-    subEnv,
-  );
-};
-
-export const toLiteralName = (literal: string | number) => {
-  if (typeof literal === "string") {
-    return `{s${literal}}`;
-  } else {
-    return `{n${literal.toString()}}`;
-  }
-};
-
-const recreateLiteral = (
-  literal: LiteralSubExpr<A>,
-  domEnv: DomainEnv,
-  subEnv: SubstanceEnv,
-): SubstanceEnv => {
-  const lit = literal.contents;
-  const name = toLiteralName(lit.contents);
-
-  // if it already exists, for uniqueness, don't recreate it again!
-  if (subEnv.objs.get(name) !== undefined) {
-    return subEnv;
-  }
-
-  const type = lit.tag === "StringLit" ? stringType : numberType;
-  const id: Identifier<A> = {
-    tag: "Identifier",
-    nodeType: "SyntheticSubstance",
-    type: "value",
-    value: name,
-  };
-  return {
-    ...subEnv,
-    objIds: [...subEnv.objIds, id],
-    objs: subEnv.objs.set(name, type),
-    ast: {
-      ...subEnv.ast,
-      statements: [
-        ...subEnv.ast.statements,
-        {
-          tag: "Decl",
-          type: toSubType(type),
-          nodeType: "SyntheticSubstance",
-          name: id,
-          attached: literal,
-        },
-      ],
-    },
-  };
 };
 
 const processLabelStmt = (
@@ -254,18 +189,7 @@ const processLabelStmt = (
         const ids = stmt.option.variables;
         const newLabels: LabelMap = subEnv.labels.merge(
           im.Map(
-            ids.map((id) => {
-              const typ = subEnv.objs.get(id.value)!;
-
-              let lab: string;
-              if (isLiteralType(typ)) {
-                lab = id.value.substring(2, id.value.length - 1);
-              } else {
-                lab = id.value;
-              }
-
-              return [id.value, { value: lab, type: "MathLabel" }];
-            }),
+            ids.map((id) => [id.value, { value: id.value, type: "MathLabel" }]),
           ),
         );
         return {
@@ -1394,6 +1318,22 @@ export const checkSubArgExpr = (
   }
 };
 
+const addLiteral = (
+  lits: LiteralSubExpr<A>[],
+  lit: LiteralSubExpr<A>,
+): LiteralSubExpr<A>[] => {
+  // not the most efficient code
+  // O(n) to add something into the list ... not great
+  const unames = lits.map((l) => toLiteralUniqueName(l.contents.contents));
+  const uname = toLiteralUniqueName(lit.contents.contents);
+
+  if (unames.includes(uname)) {
+    return [...lits];
+  } else {
+    return [...lits, lit];
+  }
+};
+
 export const checkLiteralSubExpr = (
   expr: LiteralSubExpr<A>,
   domEnv: DomainEnv,
@@ -1405,7 +1345,7 @@ export const checkLiteralSubExpr = (
       type: stringType,
       subEnv: {
         ...subEnv,
-        literals: [...subEnv.literals, expr],
+        literals: addLiteral(subEnv.literals, expr),
       },
       contents: expr,
     });
@@ -1414,7 +1354,7 @@ export const checkLiteralSubExpr = (
       type: numberType,
       subEnv: {
         ...subEnv,
-        literals: [...subEnv.literals, expr],
+        literals: addLiteral(subEnv.literals, expr),
       },
       contents: expr,
     });

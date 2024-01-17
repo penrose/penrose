@@ -766,7 +766,7 @@ export const rectlikeT = (): UnionT =>
 
 //#region Style
 
-export const toLiteralName = (literal: string | number) => {
+export const toLiteralUniqueName = (literal: string | number) => {
   if (typeof literal === "string") {
     return `{s${literal}}`;
   } else {
@@ -774,10 +774,10 @@ export const toLiteralName = (literal: string | number) => {
   }
 };
 
-export const getSubNameFromSubObject = (lit: SubstanceObject) => {
+export const subObjectToUniqueName = (lit: SubstanceObject) => {
   if (lit.tag === "SubstanceVar") {
     return lit.name;
-  } else return toLiteralName(lit.contents.contents);
+  } else return toLiteralUniqueName(lit.contents.contents);
 };
 
 export const resolveRhsName = (
@@ -795,13 +795,13 @@ export const resolveRhsName = (
         return {
           tag: "Substance",
           block,
-          name: getSubNameFromSubObject(subst.contents[value]),
+          name: subObjectToUniqueName(subst.contents[value]),
         };
       } else if (subst.tag === "CollectionSubst" && value in subst.groupby) {
         return {
           tag: "Substance",
           block,
-          name: getSubNameFromSubObject(subst.groupby[value]),
+          name: subObjectToUniqueName(subst.groupby[value]),
         };
       } else {
         // couldn't find it in context, must be a glboal
@@ -840,10 +840,6 @@ const resolveRhsPath = (
       const subObj = subst.contents[name.contents.value];
       if (subObj.tag === "SubstanceLiteral") {
         return substanceLiteralToValue(subObj);
-      } else {
-        if (subObj.attached !== undefined) {
-          return substanceLiteralToValue(subObj.attached);
-        }
       }
     }
 
@@ -854,10 +850,6 @@ const resolveRhsPath = (
       const subObj = subst.groupby[name.contents.value];
       if (subObj.tag === "SubstanceLiteral") {
         return substanceLiteralToValue(subObj);
-      } else {
-        if (subObj.attached !== undefined) {
-          return substanceLiteralToValue(subObj.attached);
-        }
       }
     }
   }

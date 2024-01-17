@@ -50,7 +50,6 @@ export type SubstanceObject = SubstanceVar | SubstanceLiteral;
 export type SubstanceVar = {
   tag: "SubstanceVar";
   name: string;
-  attached?: SubstanceLiteral;
 };
 
 export type SubstanceLiteral = {

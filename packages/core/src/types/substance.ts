@@ -80,7 +80,6 @@ export type Decl<T> = ASTNode<T> & {
   tag: "Decl";
   type: TypeApp<T>;
   name: Identifier<T>;
-  attached?: LiteralSubExpr<T>;
 };
 
 export type DeclList<T> = ASTNode<T> & {
