@@ -8,9 +8,9 @@ function function_name (argument_list) -> output_type
 
 where
 
-- `function_name` declares the name of the function, which can be referred to by the _substance_ and _style_ schemas;
+- `function_name` declares the name of the function, which can be referred to by the [Substance] and [Style] schemas;
 - `argument_list` is a list of the types of inputs that this function accepts, similar to the argument list in predicate declarations; and
-- `output_type` represents the type of the output of the function. When we _assign_ the result of the function to an object in the _substance_ and _style_ schema, the output of the function must match the type of the assigned object (either the types are exactly the same, or the output type is a subtype of the assigned object type).
+- `output_type` represents the type of the output of the function. When we _assign_ the result of the function to an object in the [Substance] and [Style] schema, the output of the function must match the type of the assigned object (either the types are exactly the same, or the output type is a subtype of the assigned object type).
 
 For example, in the linear-algebra domain, we can define
 
@@ -30,3 +30,6 @@ Optionally, where the constructor name is the same as the output type, construct
 ```domain
 constructor constructor_name (argument_list)
 ```
+
+[Style]: ../style/overview.md
+[Substance]: ../substance/overview.md

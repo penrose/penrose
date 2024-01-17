@@ -1,13 +1,13 @@
 # Indexed Substance Statements
 
-The _substance_ language allows users to define indexed expressions that expand into multiple statements. An indexed statement is a single substance statement (as described above) with templated identifiers and an indexing clause. A common example is declaring an indexed set of variables:
+The Substance language allows users to define indexed expressions that expand into multiple statements. An indexed statement is a single substance statement (as described above) with templated identifiers and an indexing clause. A common example is declaring an indexed set of variables:
 
 ```substance
 Vector v_i for i in [0, 2]
 -- is equivalent to Vector v_0, v_1, v_2
 ```
 
-Templated identifiers (like `v_i` in the example) are regular _substance_ identifiers consisting alphanumeric characters and underscores, except that the last underscore and the substring following it denote an indexed variable. In the example, `_i` in `v_i` denotes an index variable `i` taking on the values in the range of `[0, 2]`, i.e. `0, 1, 2`. This line of code then gets expanded into three statements `Vector v_0`, `Vector v_1`, and `Vector v_2`.
+Templated identifiers (like `v_i` in the example) are regular Substance identifiers consisting alphanumeric characters and underscores, except that the last underscore and the substring following it denote an indexed variable. In the example, `_i` in `v_i` denotes an index variable `i` taking on the values in the range of `[0, 2]`, i.e. `0, 1, 2`. This line of code then gets expanded into three statements `Vector v_0`, `Vector v_1`, and `Vector v_2`.
 
 :::info
 The phrase `i in [x, y]` for some `x` and `y` requires that `i` is an integer, `i` $\geq$ `x`, and `i` $\leq$ `y`. As such, expressions like `Vector v_i for i in [3, 0]` has no effect, since there is no integer `i` that is at least `3` and at most `0`.
@@ -36,7 +36,7 @@ Orthogonal(v_i, v_j) for i in [0, 5]
   -- error: the range of `j` is not defined by `i in [0, 5]`
 ```
 
-When multiple template variables and ranges are present, _substance_ takes all combinations (cartisian product) of the indices in the ranges, like
+When multiple template variables and ranges are present, Substance takes all combinations (cartisian product) of the indices in the ranges, like
 
 ```substance
 Orthogonal(v_i, v_j) for i in [0, 1], j in [1, 2]
@@ -46,7 +46,7 @@ Orthogonal(v_i, v_j) for i in [0, 1], j in [1, 2]
 
 ## Conditional Filtering
 
-Sometimes, we don't want to iterate through all possible combinations, since some combinations are undesirable. _Substance_ allows users to filter the combinations using a Boolean expression in the `where` clause. _Substance_ would discard all combinations that make the Boolean expression false.
+Sometimes, we don't want to iterate through all possible combinations, since some combinations are undesirable. Substance allows users to filter the combinations using a Boolean expression in the `where` clause. Substance would discard all combinations that make the Boolean expression false.
 
 ```substance
 Vector v_i for i in [0, 10] where i % 2 == 0
@@ -104,7 +104,7 @@ The default order of operations is the same as other programming languages, and 
 
 ## Duplications
 
-An indexed statement generates a list of _substance_ statements. The existing semantics on duplicates apply to them as well.
+An indexed statement generates a list of Substance statements. The existing semantics on duplicates apply to them as well.
 
 ```substance
 Vector v_0

@@ -177,6 +177,7 @@ export default defineConfig({
       { text: "Blog", link: "/blog", activeMatch: "/blog" },
       { text: "Team", link: "/docs/team" },
       { text: "Editor", link: "pathname:///try/index.html" },
+      { text: "Join", link: "https://discord.gg/a7VXJU4dfR" },
       //   {
       //     text: "News",
       //     items: [
