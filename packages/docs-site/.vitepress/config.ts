@@ -204,7 +204,7 @@ export default defineConfig({
       { text: "Docs", link: "/docs/ref", activeMatch: "/docs/ref" },
       { text: "Blog", link: "/blog", activeMatch: "/blog" },
       { text: "Team", link: "/docs/team" },
-      { text: "Editor", link: "/try", target: "_self" },
+      { text: "Editor", link: "/try/index.html", target: "_blank" },
       { text: "Join", link: "https://discord.gg/a7VXJU4dfR" },
       //   {
       //     text: "News",

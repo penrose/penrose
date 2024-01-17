@@ -10,7 +10,8 @@ hero:
       link: /examples
     - theme: sponsor
       text: Try
-      link: pathname:///try/index.html
+      link: https://penrose.cs.cmu.edu/try
+      target: _blank
     - theme: alt
       text: Tutorial
       link: /docs/tutorial/welcome
