@@ -8,7 +8,8 @@ import moo from "moo";
 import _ from 'lodash'
 import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil.js'
 import { C, ConcreteNode, Identifier, StringLit  } from "../types/ast.js";
-import { DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, Collector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, CollectionAccess, UnaryStyVarExpr, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit, LayoutStages, FunctionCall, InlineComparison, ComparisonOp, SelectorType, SelVar, SelLitExpr, SelLitNumber, SelLitString } from "../types/style.js";
+import { DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, Collector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, CollectionAccess, UnaryStyVarExpr, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit, LayoutStages, FunctionCall, InlineComparison, ComparisonOp, SelectorType, SelVar, SelLitExpr } from "../types/style.js";
+import { NumberConstant } from "../types/substance.js"
 
 const styleTypes: string[] =
   [ "scalar"
@@ -364,10 +365,10 @@ binding_form
 
 sel_lit_expr
   -> %float_literal {% 
-      ([d]): SelLitNumber<C> => ({ ...nodeData, ...rangeOf(d), tag: 'SelLitNumber', contents: parseFloat(d) }) 
+      ([d]): NumberConstant<C> => ({ ...nodeData, ...rangeOf(d), tag: 'NumberConstant', contents: parseFloat(d) }) 
     %}
   |  %string_literal {% 
-      ([d]): SelLitString<C> => ({ ...nodeData, ...rangeOf(d), tag: 'SelLitString', contents: d.value })
+      ([d]): StringLit<C> => ({ ...nodeData, ...rangeOf(d), tag: 'StringLit', contents: d.value })
     %}
 
 # HACK: tokens like "`" don't really have start and end points, just line and col. How do you merge a heterogenrous list of tokens and nodes?

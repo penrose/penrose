@@ -597,29 +597,11 @@ const toSubArgExpr = <T>(a: SelArgExpr<T>): SubArgExpr<T> => {
   if (a.tag === "SelVar") {
     return a.contents.contents;
   } else {
-    // literal
-    const lit = a.contents;
-    if (lit.tag === "SelLitNumber") {
-      return {
-        ...lit,
-        tag: "LiteralSubExpr",
-        contents: {
-          ...lit,
-          tag: "NumberConstant",
-          value: lit.contents,
-        },
-      };
-    } else {
-      return {
-        ...lit,
-        tag: "LiteralSubExpr",
-        contents: {
-          ...lit,
-          tag: "StringLit",
-          value: lit.contents,
-        },
-      };
-    }
+    return {
+      ...a,
+      tag: "LiteralSubExpr",
+      contents: a.contents,
+    };
   }
 };
 
@@ -942,19 +924,11 @@ const matchStyArgToSubArg = (
 
     if (subArg.tag === "LiteralSubExpr") {
       // CASE 3: Matching a Selector literal against a Substance literal
+
+      // requires that the type and values are equal
       const subLit = subArg.contents;
-      if (
-        (selLit.tag === "SelLitNumber" && subLit.tag === "NumberConstant") ||
-        (selLit.tag === "SelLitString" && subLit.tag === "StringLit")
-      ) {
-        const selV = selLit.contents;
-        const subV = subLit.contents;
-        // requires that the literals' values are equal
-        if (selV === subV) {
-          return [{}];
-        } else {
-          return [];
-        }
+      if (selLit.tag === subLit.tag && selLit.contents === subLit.contents) {
+        return [{}];
       } else {
         return [];
       }
@@ -1185,9 +1159,7 @@ const matchRelField = (
   }
 };
 
-const getStyPredOrFuncOrConsArgNames = (
-  arg: RelPred<A> | SelExpr<A>,
-): im.Set<string> => {
+const getArgNames = (arg: RelPred<A> | SelExpr<A>): im.Set<string> => {
   if (arg.tag === "RelPred") {
     return getStyRelArgNames(arg);
   } else if (arg.tag === "SelVar") {
@@ -1198,7 +1170,7 @@ const getStyPredOrFuncOrConsArgNames = (
     arg.tag === "SEValCons"
   ) {
     return arg.args.reduce((argNames, arg) => {
-      return argNames.union(getStyPredOrFuncOrConsArgNames(arg));
+      return argNames.union(getArgNames(arg));
     }, im.Set<string>());
   } else {
     return im.Set<string>();
@@ -1209,11 +1181,11 @@ const getStyRelArgNames = (rel: RelationPattern<A>): im.Set<string> => {
   const initArgNames: im.Set<string> = im.Set();
   if (rel.tag === "RelPred") {
     return rel.args.reduce((argNames, arg) => {
-      return argNames.union(getStyPredOrFuncOrConsArgNames(arg));
+      return argNames.union(getArgNames(arg));
     }, initArgNames);
   } else if (rel.tag === "RelBind") {
     const bindedName = toString(rel.id);
-    return getStyPredOrFuncOrConsArgNames(rel.expr).add(bindedName);
+    return getArgNames(rel.expr).add(bindedName);
   } else {
     return initArgNames.add(toString(rel.name));
   }
@@ -1487,13 +1459,19 @@ const collectSubsts = (
 
   for (const subst of substs) {
     const toCollectVal = subst[toCollect];
+
+    // these are the values of each of the variables in `groupby` within the current subst
+    // this is essentially the key of the corresponding GroupBy bucket
     const groupbyVals = groupbys.map((groupby) => subst[groupby]);
 
-    // unique identification of each realization of the variable in the foreach (groupby) clause
+    // unique string identification of each realization of the variable in the foreach (groupby) clause
+    // this is the actual key
     const groupbyVals_str = groupbyVals.map(subObjectToUniqueName).join(" ");
 
+    // get the bucket
     const bucket = buckets.get(groupbyVals_str);
 
+    // add the value to collected (`toCollectVal`) into the correct bucket
     if (bucket === undefined) {
       buckets.set(groupbyVals_str, {
         groupbySubst: Object.fromEntries(zip2(groupbys, groupbyVals)),

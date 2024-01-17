@@ -1,5 +1,5 @@
 import { ASTNode, Identifier, StringLit } from "./ast.js";
-import { LabelType } from "./substance.js";
+import { LabelType, NumberConstant } from "./substance.js";
 
 export type Staged<T> = {
   stages: Identifier<T>[];
@@ -108,17 +108,7 @@ export type SelVar<T> = ASTNode<T> & {
 // Either a fixed value (`Fix`) or string literal (`StringLit`)
 export type SelLitExpr<T> = ASTNode<T> & {
   tag: "SelLitExpr";
-  contents: SelLitNumber<T> | SelLitString<T>;
-};
-
-export type SelLitNumber<T> = ASTNode<T> & {
-  tag: "SelLitNumber";
-  contents: number;
-};
-
-export type SelLitString<T> = ASTNode<T> & {
-  tag: "SelLitString";
-  contents: string;
+  contents: StringLit<T> | NumberConstant<T>;
 };
 
 // A type that can appear in the header
