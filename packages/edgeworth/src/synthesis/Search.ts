@@ -6,11 +6,13 @@ import {
   A,
   AbstractNode,
   Identifier,
+  StringLit,
   metaProps,
 } from "@penrose/core/dist/types/ast";
 import { DomainEnv } from "@penrose/core/dist/types/domain";
 import {
   LabelOption,
+  NumberConstant,
   SubExpr,
   CompiledSubProg as SubProg,
   CompiledSubStmt as SubStmt,
@@ -126,7 +128,9 @@ export type SubNode<T> =
   | SubExpr<T>
   | SubProg<T>
   | SubStmt<T>
-  | TypeApp<T>;
+  | TypeApp<T>
+  | StringLit<T>
+  | NumberConstant<T>;
 
 const children = <T>(node: SubNode<T>): SubNode<T>[] => {
   switch (node.tag) {
@@ -148,7 +152,9 @@ const children = <T>(node: SubNode<T>): SubNode<T>[] => {
     case "TypeApp":
     case "DefaultLabels":
     case "Identifier":
-    case "StringLit": {
+    case "StringLit":
+    case "NumberConstant":
+    case "LiteralSubExpr": {
       return [];
     }
     case "LabelDecl": {

@@ -245,6 +245,10 @@ export default defineConfig({
                   text: "Indexed Statements",
                   link: "/docs/ref/substance/indexed-statements",
                 },
+                {
+                  text: "Literal Expressions",
+                  link: "/docs/ref/substance/literal-expressions",
+                },
               ],
             },
             {
@@ -266,6 +270,10 @@ export default defineConfig({
                 {
                   text: "Collectors",
                   link: "/docs/ref/style/collectors",
+                },
+                {
+                  text: "Literals",
+                  link: "/docs/ref/style/literals",
                 },
                 {
                   text: "Expressions",

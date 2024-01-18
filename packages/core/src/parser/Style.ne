@@ -8,7 +8,8 @@ import moo from "moo";
 import _ from 'lodash'
 import { basicSymbols, rangeOf, rangeBetween, rangeFrom, nth, convertTokenId } from './ParserUtil.js'
 import { C, ConcreteNode, Identifier, StringLit  } from "../types/ast.js";
-import { DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, Collector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, CollectionAccess, UnaryStyVarExpr, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit, LayoutStages, FunctionCall, InlineComparison, ComparisonOp, SelectorType, SelVar } from "../types/style.js";
+import { DeclPattern, DeclPatterns, RelationPatterns, Namespace, Selector, Collector, StyProg, HeaderBlock, RelBind, RelField, RelPred, SEFuncOrValCons, Block, AnonAssign, Delete, Override, PathAssign, StyType, BindingForm, Path, Layering, BinaryOp, Expr, BinOp, CollectionAccess, UnaryStyVarExpr, SubVar, StyVar, UOp, List, Tuple, Vector, BoolLit, Vary, Fix, CompApp, ObjFn, ConstrFn, GPIDecl, PropertyDecl, ColorLit, LayoutStages, FunctionCall, InlineComparison, ComparisonOp, SelectorType, SelVar, SelLitExpr } from "../types/style.js";
+import { NumberConstant } from "../types/substance.js"
 
 const styleTypes: string[] =
   [ "scalar"
@@ -352,10 +353,23 @@ sel_arg_expr
       tag: "SelVar", contents: d
     }) 
   %}
+  |  sel_lit_expr {% ([d]): SelLitExpr<C> => ({
+      ...nodeData,
+      ...rangeFrom([d]),
+      tag: "SelLitExpr", contents: d
+  }) %}
 
 binding_form 
   -> subVar {% id %} 
   |  styVar {% id %}
+
+sel_lit_expr
+  -> %float_literal {% 
+      ([d]): NumberConstant<C> => ({ ...nodeData, ...rangeOf(d), tag: 'NumberConstant', contents: parseFloat(d) }) 
+    %}
+  |  %string_literal {% 
+      ([d]): StringLit<C> => ({ ...nodeData, ...rangeOf(d), tag: 'StringLit', contents: d.value })
+    %}
 
 # HACK: tokens like "`" don't really have start and end points, just line and col. How do you merge a heterogenrous list of tokens and nodes?
 subVar -> "`" identifier "`" {%

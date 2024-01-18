@@ -33,6 +33,7 @@ import {
   safeChain,
   symmetricArgLengthMismatch,
   symmetricTypeMismatch,
+  typeDeclared,
   typeNotFound,
 } from "../utils/Error.js";
 import Graph from "../utils/Graph.js";
@@ -83,8 +84,8 @@ export type CheckerResult = Result<DomainEnv, DomainError>;
 export const stringType: Type<C> = {
   start: { line: 1, col: 1 },
   end: { line: 1, col: 1 },
-  nodeType: "Substance",
   tag: "Type",
+  nodeType: "BuiltinDomain",
   name: idOf("String", "Domain"),
 };
 export const stringTypeDecl: TypeDecl<C> = {
@@ -93,9 +94,33 @@ export const stringTypeDecl: TypeDecl<C> = {
   superTypes: [],
 };
 
+export const numberType: Type<C> = {
+  start: { line: 1, col: 1 },
+  end: { line: 1, col: 1 },
+  nodeType: "BuiltinDomain",
+  tag: "Type",
+  name: idOf("Number", "Domain"),
+};
+export const numberTypeDecl: TypeDecl<C> = {
+  ...numberType,
+  tag: "TypeDecl",
+  superTypes: [],
+};
+
 /* Built in types for all Domain programs */
-const builtinTypes: [string, Type<C>][] = [["String", stringType]];
-const builtinTypeDecls: [string, TypeDecl<C>][] = [["String", stringTypeDecl]];
+const builtinTypes: [string, Type<C>][] = [
+  ["String", stringType],
+  ["Number", numberType],
+];
+const builtinTypeDecls: [string, TypeDecl<C>][] = [
+  ["String", stringTypeDecl],
+  ["Number", numberTypeDecl],
+];
+
+export const isLiteralType = (t: Type<A>) => {
+  const name = t.name.value;
+  return name === "String" || name === "Number";
+};
 
 const initEnv = (): DomainEnv => ({
   types: im.Map(builtinTypes),
@@ -129,8 +154,7 @@ const checkStmt = (stmt: DomainStmt<C>, env: DomainEnv): CheckerResult => {
       const { name, superTypes } = stmt;
       // check name duplicate
       const existing = env.types.get(name.value);
-      if (existing !== undefined)
-        return err(duplicateName(name, stmt, existing));
+      if (existing !== undefined) return err(typeDeclared(name, existing));
       // construct new type
       const newType: Type<C> = {
         tag: "Type",
@@ -162,7 +186,7 @@ const checkStmt = (stmt: DomainStmt<C>, env: DomainEnv): CheckerResult => {
       // check arguments
       const argsOk = safeChain(args, checkArg, ok(localEnv));
       // check output
-      const outputOk = checkArg(output, localEnv);
+      const outputOk = checkOutput(output, localEnv);
       // insert constructor into env
       const updatedEnv: CheckerResult = ok({
         ...env,
@@ -180,7 +204,7 @@ const checkStmt = (stmt: DomainStmt<C>, env: DomainEnv): CheckerResult => {
       // check arguments
       const argsOk = safeChain(args, checkArg, ok(localEnv));
       // check output
-      const outputOk = checkArg(output, localEnv);
+      const outputOk = checkOutput(output, localEnv);
       // insert function into env
       const updatedEnv: CheckerResult = ok({
         ...env,
@@ -205,9 +229,10 @@ const checkStmt = (stmt: DomainStmt<C>, env: DomainEnv): CheckerResult => {
     }
     case "SubTypeDecl": {
       const { subType, superType } = stmt;
-      const subOk = checkType(subType, env);
+      const subOk = checkSubSupType(subType, env);
+      const supOk = checkSubSupType(superType, env);
       const updatedEnv = addSubtype(subType, superType, env);
-      return everyResult(subOk, updatedEnv);
+      return everyResult(subOk, supOk, updatedEnv);
     }
   }
 };
@@ -253,6 +278,31 @@ export const toDomType = <T>(typeApp: TypeApp<T>): Type<T> => {
 
 const checkArg = (arg: Arg<C>, env: DomainEnv): CheckerResult =>
   checkType(arg.type, env);
+
+const checkOutput = (output: Arg<C>, env: DomainEnv): CheckerResult => {
+  const { type } = output;
+  if (isLiteralType(type)) {
+    return err({
+      tag: "OutputLiteralTypeError",
+      type,
+      location: type,
+    });
+  } else {
+    return checkType(type, env);
+  }
+};
+
+const checkSubSupType = (type: Type<C>, env: DomainEnv): CheckerResult => {
+  if (isLiteralType(type)) {
+    return err({
+      tag: "SubOrSuperLiteralTypeError",
+      type,
+      location: type,
+    });
+  } else {
+    return checkType(type, env);
+  }
+};
 
 /**
  * Check if all arguments to this symmetric predicate have the same type, and there are only two arguments

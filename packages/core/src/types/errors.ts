@@ -62,6 +62,7 @@ export type SubstanceError =
   | DivideByZeroError
   | InvalidArithmeticValueError
   | UnsupportedIndexingError
+  | DeclLiteralError
   | FatalError; // TODO: resolve all fatal errors in the Substance module
 
 export type DomainError =
@@ -71,7 +72,9 @@ export type DomainError =
   | DuplicateName
   | CyclicSubtypes
   | SymmetricTypeMismatch
-  | SymmetricArgLengthMismatch;
+  | SymmetricArgLengthMismatch
+  | OutputLiteralTypeError
+  | SubOrSuperLiteralTypeError;
 
 export interface SymmetricTypeMismatch {
   tag: "SymmetricTypeMismatch";
@@ -81,6 +84,18 @@ export interface SymmetricTypeMismatch {
 export interface SymmetricArgLengthMismatch {
   tag: "SymmetricArgLengthMismatch";
   sourceExpr: AbstractNode;
+}
+
+export interface OutputLiteralTypeError {
+  tag: "OutputLiteralTypeError";
+  type: Type<A>;
+  location: AbstractNode;
+}
+
+export interface SubOrSuperLiteralTypeError {
+  tag: "SubOrSuperLiteralTypeError";
+  type: Type<A>;
+  location: AbstractNode;
 }
 
 export interface InvalidSetIndexingError {
@@ -118,6 +133,12 @@ export interface UnsupportedIndexingError {
   iset: StmtSet<A>;
 }
 
+export interface DeclLiteralError {
+  tag: "DeclLiteralError";
+  location: AbstractNode;
+  type: TypeApp<A>;
+}
+
 export interface CyclicSubtypes {
   tag: "CyclicSubtypes";
   cycles: string[][];
@@ -126,6 +147,7 @@ export interface CyclicSubtypes {
 export interface TypeDeclared {
   tag: "TypeDeclared";
   typeName: Identifier<A>;
+  firstDefined: AbstractNode;
 }
 export interface DuplicateName {
   tag: "DuplicateName";
@@ -224,6 +246,7 @@ export type StyleError =
   | RedeclareNamespaceError
   | NotSubstanceCollectionError
   | NotStyleVariableError
+  | StyleVariableReferToLiteralError
   | LayerOnNonShapesError
   // Runtime errors
   | RuntimeValueTypeError;
@@ -528,6 +551,12 @@ export interface NotSubstanceCollectionError {
 
 export interface NotStyleVariableError {
   tag: "NotStyleVariableError";
+  name: string;
+  location: SourceRange;
+}
+
+export interface StyleVariableReferToLiteralError {
+  tag: "StyleVariableReferToLiteralError";
   name: string;
   location: SourceRange;
 }

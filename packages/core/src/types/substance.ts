@@ -6,6 +6,7 @@ export type LabelMap = im.Map<string, LabelValue>;
 export interface SubstanceEnv {
   objs: im.Map<string, Type<A>>;
   objIds: Identifier<A>[];
+  literals: LiteralSubExpr<A>[];
   labels: LabelMap;
   ast: CompiledSubProg<A>;
 }
@@ -111,7 +112,12 @@ export type SubExpr<T> =
   | Func<T> // NOTE: there's no syntactic difference between function and consturctor, so the parser will parse both into this type first
   | SubArgExpr<T>;
 
-export type SubArgExpr<T> = Identifier<T> | StringLit<T>;
+export type SubArgExpr<T> = Identifier<T> | LiteralSubExpr<T>;
+
+export type LiteralSubExpr<T> = ASTNode<T> & {
+  tag: "LiteralSubExpr";
+  contents: StringLit<T> | NumberConstant<T>;
+};
 
 export type Func<T> = ASTNode<T> & {
   tag: "Func";
@@ -189,7 +195,7 @@ export type UnaryExpr<T> = ASTNode<T> & {
 
 export type NumberConstant<T> = ASTNode<T> & {
   tag: "NumberConstant";
-  value: number;
+  contents: number;
 };
 
 //#endregion

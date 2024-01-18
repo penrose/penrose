@@ -1,5 +1,5 @@
 import { ASTNode, Identifier, StringLit } from "./ast.js";
-import { LabelType } from "./substance.js";
+import { LabelType, NumberConstant } from "./substance.js";
 
 export type Staged<T> = {
   stages: Identifier<T>[];
@@ -94,13 +94,25 @@ export type RelPred<T> = ASTNode<T> & {
   alias?: Identifier<T>;
 };
 
+// An expression that can appear as an argument in headers
+export type SelArgExpr<T> = SelVar<T> | SelLitExpr<T>;
+
+// A variable in the header environment
+// Can be a Style variable or a Substance variable
 export type SelVar<T> = ASTNode<T> & {
   tag: "SelVar";
   contents: BindingForm<T>;
 };
 
-export type SelArgExpr<T> = SelVar<T>;
+// A literal expression in the header
+// Either a fixed value (`Fix`) or string literal (`StringLit`)
+export type SelLitExpr<T> = ASTNode<T> & {
+  tag: "SelLitExpr";
+  contents: StringLit<T> | NumberConstant<T>;
+};
 
+// A type that can appear in the header
+// Think of it as the equivalent of TypeApp in selector
 export type SelectorType<T> = ASTNode<T> & {
   tag: "SelectorType";
   name: Identifier<T>;

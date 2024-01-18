@@ -5844,6 +5844,28 @@ export const compDict = {
     },
     returns: stringT(),
   },
+
+  repeat: {
+    name: "repeat",
+    description: `Returns a vector of n elements of K`,
+    params: [
+      { name: "n", type: natT() },
+      { name: "k", type: realT() },
+    ],
+    body: (
+      _context: Context,
+      n: ad.Num,
+      k: ad.Num,
+    ): MayWarn<VectorV<ad.Num>> => {
+      if (typeof n !== "number" || !Number.isInteger(n)) {
+        throw new Error("`n` must be a fixed integer");
+      }
+
+      const arr: ad.Num[] = new Array(n).fill(k);
+      return noWarn(vectorV(arr));
+    },
+    returns: realNT(),
+  },
 };
 
 const TeXifyHelper = (segments: string[]): string => {
