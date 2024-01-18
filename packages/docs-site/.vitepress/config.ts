@@ -1,4 +1,4 @@
-import { compDict, constrDict, objDict } from "@penrose/core";
+import { compDict, constrDict, describeType, objDict } from "@penrose/core";
 import markdownItKatex from "markdown-it-katex";
 import { defineConfig } from "vitepress";
 import domainGrammar from "../../vscode/syntaxes/domain.tmGrammar.json";
@@ -22,6 +22,45 @@ const substanceLang = {
   scopeName: "source.penrose-substance",
   repository: substanceGrammar.repository as any,
   patterns: substanceGrammar.patterns,
+};
+
+// generate a markdown string from computation, objective, and constraint dictionaries.
+// specifically, the anchors in this markdown string is used to generate previews and the search result links
+const indexableFunctionDocs = () => {
+  const showParams = (ps) =>
+    ps.map((p) => `${p.name}: ${p.description}`).join("\n\n");
+  const showReturn = (r) => {
+    const t = describeType(r);
+    return `${t.symbol}: ${t.description}`;
+  };
+  const compFuncs = Object.entries(compDict).map(([k, v]: any) => {
+    return `### ${v.name} {#computation-${v.name}}\n\n${
+      v.description
+    }\n\n**Returns:** ${showReturn(
+      v.returns,
+    )}\n\n**Parameters:**\n\n${showParams(v.params)}`;
+  });
+  const objectives = Object.entries(objDict).map(([k, v]: any) => {
+    return `### ${v.name} {#objective-${v.name}}\n\n${
+      v.description
+    }\n\n**Parameters:**\n\n${showParams(v.params)}`;
+  });
+  const constraints = Object.entries(constrDict).map(([k, v]: any) => {
+    return `### ${v.name} {#constraint-${v.name.toLowerCase()}}\n\n${
+      v.description
+    }\n\n**Parameters:**\n\n${showParams(v.params)}`;
+  });
+  const markdown = [
+    "## Constraints\n\n",
+    ...constraints,
+    "## Objectives\n\n",
+    ...objectives,
+    "## Computation\nn",
+    ...compFuncs,
+  ].join("\n\n");
+  console.log(markdown);
+
+  return markdown;
 };
 
 // https://github.com/vuejs/vitepress/issues/529#issuecomment-1151186631
@@ -152,30 +191,11 @@ export default defineConfig({
       provider: "local",
       options: {
         _render(src, env, md) {
+          // hijack the render function before the search engine indexes the page
           const html = md.render(src, env);
+          // this is a hack to add anchors to the markdown file for function documentation
           if (env.frontmatter?.anchors === "functions") {
-            const compFuncs = Object.entries(compDict).map(([k, v]: any) => {
-              return `### computation-${v.name}\n\n${v.description}\n\n**Returns:** ${v.returns}\n\n**Parameters:**\n\n${v.params}`;
-            });
-            const objectives = Object.entries(objDict).map(([k, v]: any) => {
-              return `### objective-${k}\n\n${v.description}\n\n**Parameters:**\n\n${v.params}`;
-            });
-            const constraints = Object.entries(constrDict).map(
-              ([k, v]: any) => {
-                return `### constraint-${k}\n\n${
-                  v.description as any
-                }\n\n**Parameters:**\n\n${v.params}`;
-              },
-            );
-            const anchors = [
-              "## Constraints\n\n",
-              ...constraints,
-              "## Objectives\n\n",
-              ...objectives,
-              "## Computation\nn",
-              ...compFuncs,
-            ].join("\n\n");
-            return md.render(anchors) + html;
+            return md.render(indexableFunctionDocs()) + html;
           }
           return html;
         },
