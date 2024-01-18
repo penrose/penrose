@@ -1,6 +1,12 @@
 type Point
 type Seed <: Point
 
+type Curve
+predicate OnCurve(Point p, Curve c)
+
 type Transformation
 
 constructor NextPoint(Point s, Transformation f) -> Point
+
+predicate DisplayTransformation(Transformation f)
+predicate DisplayPoint(Point p)

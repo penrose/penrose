@@ -1,0 +1,87 @@
+canvas {
+    width=1000
+    height=1000
+}
+
+global {
+    main = Circle {
+        center: (0, 0)
+        r: canvas.width / 5
+        fillColor: #00000000 
+        strokeWidth: 4
+        strokeColor: #ffffffff
+        style: "filter: blur(1px)"
+    }
+    line = Line {
+        start: (-canvas.width / 2, 0)
+        end: (canvas.width / 2, 0)
+        style: "visibility: hidden"
+    }
+    hue = ?
+}
+
+forall Sphere s {
+    s.center = (?, ?)
+    s.r = ?
+    s.icon = Circle {
+        center: s.center
+        r: s.r
+        fillColor: hsva(global.hue + 2 * s.r, 100, 50, 0.05)
+        ensureOnCanvas: false
+    }
+    s.icon2 = Circle {
+        center: s.icon.center
+        r: 0
+        style: "visibility: hidden"
+    }
+    ensure touching(s.icon, global.line)
+    ensure touching(s.icon2, global.main)
+    global.main above s.icon
+}
+
+forall Sphere s 
+where Display(s) {
+    s.display = Circle {
+        center: s.center
+        r: s.r
+        fillColor: hsva(global.hue + s.r, 100, 10, 0.5)
+        ensureOnCanvas: false
+    }
+    s.displayCenter = Circle {
+        center: s.center
+        r: 6
+        fillColor: #ffffffff
+        ensureOnCanvas: false
+    }
+    s.displayCenter2 = Circle {
+        center: (s.center[0], 0)
+        r: 6
+        fillColor: #ffffffff
+        ensureOnCanvas: false
+    }
+    s.displayLine = Line {
+        start: s.center
+        end: (s.center[0], 0)
+        strokeColor: #ffffffff
+        strokeWidth: 4
+        ensureOnCanvas: false
+        style: "filter: blur(1px)"
+    }
+    s.displayCenter above s.display
+    s.displayCenter2 above s.display
+    s.displayLine below s.display
+    global.main below s.display
+    encourage s.r > 80
+}
+
+forall Sphere s; Sphere ds 
+where Display(ds) {
+    ds.displayCenter above s.icon
+    ds.displayCenter2 above s.icon
+    ds.displayLine above s.icon
+}
+
+forall Sphere s1; Sphere s2 
+where Display(s1); Display(s2) {
+    ensure disjoint(s1.icon, s2.icon)
+}

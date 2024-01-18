@@ -1,3 +1,10 @@
-Transformation f_i for i in [1, 2]
+Transformation f_1, f_2
+DisplayTransformation(f_k) for k in [1, 2]
+
 Seed p_0
 Point p_i := NextPoint(p_j, f_k) for i in [1, 500], j in [0, 500], k in [1, 2] where i == 2 * j + k
+DisplayPoint(p_i) for i in [0, 500]
+
+-- Uncomment for curved trajectories
+-- Curve c
+-- OnCurve(p_i, c) for i in [0, 500]

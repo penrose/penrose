@@ -6,22 +6,22 @@ canvas {
 layout = [convex, blob]
 
 settings {
-  scale = 40
-  tension = 0.19
-  dotRadius = 5
-  dotColor = #000 
-  tangentColor = #112b9eff
-  normalColor = #a01111ff
-  arrowThickness = 3
-  arrowSize = .5
+  scalar scale = 40
+  scalar tension = 0.19
+  scalar dotRadius = 5
+  color dotColor = #000 
+  color tangentColor = #112b9eff
+  color normalColor = #a01111ff
+  scalar arrowThickness = 3
+  scalar arrowSize = .5
 }
 
 global {
-   color black = #000
+  color black = #000
 }
 
 forall Point p {
-   p.x = (?,?)
+  vec2 p.x = (?,?)
 
   shape p.dot = Circle {
     center: p.x
@@ -33,8 +33,8 @@ forall Point p {
 collect Point p into ps
 where In(c,p)
 foreach Curve c {
-   xs = listof x from ps
-   c.points = xs
+  xs = listof x from ps
+  c.points = xs
 }
 
 forall Curve c {
@@ -58,28 +58,27 @@ forall Curve c {
 forall Point p; Curve c
 where In(c,p) {
 
-   vec2 x = p.x
-   vec2 t = oneBasedElement( c.ts, match_id )
-   vec2 n = oneBasedElement( c.ns, match_id )
+  vec2 x = p.x
+  vec2 t = oneBasedElement( c.ts, match_id )
+  vec2 n = oneBasedElement( c.ns, match_id )
 
-   p.lineT = Line {
-         start: x
-         end: x + settings.scale * t
-         strokeColor: settings.tangentColor
-         strokeWidth: settings.arrowThickness
-     endArrowhead: "straight"
-     endArrowheadSize: settings.arrowSize
-   }
-   p.lineN = Line {
-     start: x
-     end: x + settings.scale * n
-     strokeColor: settings.normalColor
-     strokeWidth: settings.arrowThickness
-     endArrowhead: "straight"
-     endArrowheadSize: settings.arrowSize
-   }
+  p.lineT = Line {
+    start: x
+    end: x + settings.scale * t
+    strokeColor: settings.tangentColor
+    strokeWidth: settings.arrowThickness
+    endArrowhead: "straight"
+    endArrowheadSize: settings.arrowSize
+  }
+  p.lineN = Line {
+    start: x
+    end: x + settings.scale * n
+    strokeColor: settings.normalColor
+    strokeWidth: settings.arrowThickness
+    endArrowhead: "straight"
+    endArrowheadSize: settings.arrowSize
+  }
 
-   layer p.dot above p.lineT
-   layer p.dot above p.lineN
+  layer p.dot above p.lineT
+  layer p.dot above p.lineN
 }
-
