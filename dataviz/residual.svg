@@ -1,0 +1,159 @@
+<svg
+  version="1.2"
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 400 400"
+  penrose="0"
+>
+  <penrose><croppedViewBox>10 10 380 380</croppedViewBox></penrose>
+  <g>
+    <line
+      x1="250"
+      y1="50"
+      x2="250"
+      y2="141.6666694524292"
+      stroke="#55ee55"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke-dasharray="7,5"
+    />
+    <title>7:0:ressegment</title>
+  </g>
+  <g>
+    <marker
+      id="residual__registry-PorcellanaFlamingo3169-global.horAxis-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#aaaaaa"
+        fill-opacity="1"
+      />
+    </marker>
+    <line
+      x1="10"
+      y1="200"
+      x2="382.40999999999997"
+      y2="200"
+      stroke="#aaaaaa"
+      stroke-opacity="1"
+      stroke-width="1"
+      marker-end="url(#residual__registry-PorcellanaFlamingo3169-global.horAxis-endArrowId)"
+    />
+    <title>global.horAxis</title>
+  </g>
+  <g>
+    <marker
+      id="residual__registry-PorcellanaFlamingo3169-global.verAxis-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#aaaaaa"
+        fill-opacity="1"
+      />
+    </marker>
+    <line
+      x1="200"
+      y1="390"
+      x2="200"
+      y2="17.590000000000003"
+      stroke="#aaaaaa"
+      stroke-opacity="1"
+      stroke-width="1"
+      marker-end="url(#residual__registry-PorcellanaFlamingo3169-global.verAxis-endArrowId)"
+    />
+    <title>global.verAxis</title>
+  </g>
+  <circle fill="#000000" fill-opacity="1" cx="250" cy="50" stroke="none" r="2">
+    <title>`p_1`.icon</title>
+  </circle>
+  <g>
+    <line
+      x1="175"
+      y1="50"
+      x2="175"
+      y2="123.8095251149733"
+      stroke="#55ee55"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke-dasharray="7,5"
+    />
+    <title>7:3:ressegment</title>
+  </g>
+  <circle fill="#000000" fill-opacity="1" cx="175" cy="50" stroke="none" r="2">
+    <title>`p_4`.icon</title>
+  </circle>
+  <g>
+    <line
+      x1="300"
+      y1="250"
+      x2="300"
+      y2="153.57143234406647"
+      stroke="#55ee55"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke-dasharray="7,5"
+    />
+    <title>7:1:ressegment</title>
+  </g>
+  <circle fill="#000000" fill-opacity="1" cx="300" cy="250" stroke="none" r="2">
+    <title>`p_2`.icon</title>
+  </circle>
+  <g>
+    <line
+      x1="100"
+      y1="175"
+      x2="100"
+      y2="105.95238077751739"
+      stroke="#55ee55"
+      stroke-opacity="1"
+      stroke-width="1"
+      stroke-dasharray="7,5"
+    />
+    <title>7:2:ressegment</title>
+  </g>
+  <circle fill="#000000" fill-opacity="1" cx="100" cy="175" stroke="none" r="2">
+    <title>`p_3`.icon</title>
+  </circle>
+  <g>
+    <marker
+      id="residual__registry-PorcellanaFlamingo3169-linearreg.regline-endArrowId"
+      markerUnits="strokeWidth"
+      markerWidth="9.95"
+      markerHeight="8.12"
+      viewBox="0 0 9.95 8.12"
+      refX="2.36"
+      refY="4.06"
+      orient="auto-start-reverse"
+    >
+      <path
+        d="M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z"
+        fill="#ff0000"
+        fill-opacity="1"
+      />
+    </marker>
+    <line
+      x1="25"
+      y1="88.09523644006147"
+      x2="367.61640086337513"
+      y2="169.67057674135404"
+      stroke="#ff0000"
+      stroke-opacity="1"
+      stroke-width="1"
+      marker-end="url(#residual__registry-PorcellanaFlamingo3169-linearreg.regline-endArrowId)"
+    />
+    <title>linearreg.regline</title>
+  </g>
+</svg>
