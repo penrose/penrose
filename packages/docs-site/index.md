@@ -11,7 +11,6 @@ hero:
     - theme: sponsor
       text: Try
       link: https://penrose.cs.cmu.edu/try
-      target: _blank
     - theme: alt
       text: Tutorial
       link: /docs/tutorial/welcome
