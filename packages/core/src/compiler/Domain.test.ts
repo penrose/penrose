@@ -83,6 +83,7 @@ constructor CreateClosedInterval(Real left, Real right) -> ClosedInterval
     const res = compileDomain(prog);
     const types = [
       "String",
+      "Number",
       "List",
       "Real",
       "Interval",
@@ -159,6 +160,15 @@ symmetric predicate MyExcellentPredicate2(MySubType, MySubType)
       ).toEqual(true);
     }
   });
+  test("builtin types", () => {
+    const prog = `type Set
+    predicate ContainsStr(Set s, String str)
+    predicate ContainsNum(Set s, Number num)`;
+
+    const res = compileDomain(prog);
+    const predicates = ["ContainsStr", "ContainsNum"];
+    contextHas(res, ["String", "Number", "Set"], [], [], predicates);
+  });
 });
 
 describe("Errors", () => {
@@ -177,13 +187,13 @@ type Set somethingthatshouldn'tparse
     `;
     expectErrorOf(prog, "ParseError");
   });
-  test("Duplicate names", () => {
+  test("Type Declared errors", () => {
     const prog = `
 type Set
 type Point
 type Set
     `;
-    expectErrorOf(prog, "DuplicateName");
+    expectErrorOf(prog, "TypeDeclared");
   });
   test("Type not found", () => {
     const prog = `
@@ -232,5 +242,31 @@ type MyType
 symmetric predicate MyBadPredicate(MyType, MyType, MyType)
     `;
     expectErrorOf(prog, "SymmetricArgLengthMismatch");
+  });
+
+  test("builtin literal types", () => {
+    const prog1 = `
+type Set
+type Number
+type String`;
+    expectErrorOf(prog1, "TypeDeclared");
+
+    const prog2 = `
+type Set
+Set <: Number
+    `;
+    expectErrorOf(prog2, "SubOrSuperLiteralTypeError");
+
+    const prog3 = `
+type Set
+String <: Set
+    `;
+    expectErrorOf(prog3, "SubOrSuperLiteralTypeError");
+
+    const prog4 = `
+type Set
+function F(Set s) -> String
+    `;
+    expectErrorOf(prog4, "OutputLiteralTypeError");
   });
 });

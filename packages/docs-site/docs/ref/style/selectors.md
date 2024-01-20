@@ -15,7 +15,7 @@ where
 - `list_object_declarations` is a **semicolon**-separated list of object declarations, similar to the object declarations in the [Substance] program. Each object declaration has syntax `type_name object_name`. The names declared in `list_object_declarations` are referred to as _style variables_.
 - `list_relations` is a **semicolon**-separated list of constraints (about objects in `list_object_declaration`) that must be satisfied in order for this style block to be triggered.
 
-The `forall`, `where`, and `with` clauses form the Selector Header. One might observe that both the `forall` clause and the `with` clause take in list of object declarations. The two clauses are treated equivalently in the header. Variables declared in these clauses can be accessed within the Selector Body.
+The `forall`, `where`, and `with` clauses form the Selector Block Header. One might observe that both the `forall` clause and the `with` clause take in list of object declarations. There are no semantic differences between objects declared in the `forall` clause and those declared in the `with` clause. Variables declared in these clauses can be accessed within the Selector Block Body.
 
 The first clause of a Selector Header must be `forall`; the other clauses `where` and `with` can be written in any order. The header does not allow for empty lists - that is, `list_object_declarations` and `list_relations` in the `where` and `with` clauses must not be empty. If it is desirable to not have any elements in a clause, the entire clause must be omitted.
 

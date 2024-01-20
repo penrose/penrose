@@ -38,6 +38,7 @@ import {
   SymmetricArgLengthMismatch,
   SymmetricTypeMismatch,
   TooManyArgumentsError,
+  TypeDeclared,
   TypeMismatch,
   TypeNotFound,
   VarNotFound,
@@ -144,7 +145,16 @@ export const showError = (
         error.color,
       )}) is not a valid color literal. Color literals must be one of the following formats: #RGB, #RGBA, #RRGGBB, #RRGGBBAA.`;
     case "TypeDeclared": {
-      return `Type ${error.typeName.value} already exists.`;
+      const { typeName, firstDefined } = error;
+      if (firstDefined.nodeType === "BuiltinDomain") {
+        return `Type ${typeName.value} (at ${loc(
+          typeName,
+        )}) already exists as a built-in type. Choose a different name for your type to avoid name conflicts.`;
+      } else {
+        return `Type ${typeName.value} (at ${loc(
+          typeName,
+        )}) already exists, first declared at ${loc(firstDefined)}.`;
+      }
     }
     // TODO: abstract out this pattern if it becomes more common
     case "VarNotFound": {
@@ -191,6 +201,18 @@ export const showError = (
       return `The symmetric predicate at ${loc(
         sourceExpr,
       )} must only have two arguments.`;
+    }
+    case "OutputLiteralTypeError": {
+      const { type, location } = error;
+      return `The type ${type.name.value} (at ${loc(
+        location,
+      )}) is a built-in literal type that cannot be used as outputs of functions and constructors.`;
+    }
+    case "SubOrSuperLiteralTypeError": {
+      const { type, location } = error;
+      return `The type ${type.name.value} (at ${loc(
+        location,
+      )}) is a built-in literal type that cannot be sub-typed or super-typed.`;
     }
     case "TypeMismatch": {
       const { sourceExpr, sourceType, expectedExpr, expectedType } = error;
@@ -244,6 +266,12 @@ export const showError = (
         iset,
       )}) is not supported`;
     }
+    case "DeclLiteralError": {
+      const { location, type } = error;
+      return `Objects of built-in literal type ${type.name.value} (at ${loc(
+        location,
+      )}) cannot be declared explicitly; they can only be inferred from literal data in Substance.`;
+    }
 
     // ---- BEGIN STYLE ERRORS
     // COMBAK suggest improvements after reporting errors
@@ -267,11 +295,6 @@ export const showError = (
         error.field,
       )}) because matching on fields is not fully supported. Currently, only "label" can be matched in selectors.`;
     }
-
-    // case "SelectorRelTypeMismatch": {
-    //   // COMBAK: Add code for prettyprinting types
-    //   return "Mismatched types or wrong subtypes between variable and expression in relational statement in selector";
-    // }
 
     case "TaggedSubstanceError": {
       switch (error.error.tag) {
@@ -555,6 +578,12 @@ canvas {
       return `The expression at ${locStr} expects \`${name}\` to be a non-collection style variable.`;
     }
 
+    case "StyleVariableReferToLiteralError": {
+      const { name, location } = error;
+      const locStr = locc("Style", location);
+      return `The expression at ${locStr} expects \`${name}\` to refer to an actual Substance variable, not a literal.`;
+    }
+
     case "LayerOnNonShapesError": {
       const { location, expr } = error;
       const locStr = locc("Style", location);
@@ -681,6 +710,10 @@ export const errLocs = (
     case "ArgLengthMismatch": {
       return locOrNone(e.sourceExpr);
     }
+    case "OutputLiteralTypeError":
+    case "SubOrSuperLiteralTypeError": {
+      return locOrNone(e.location);
+    }
     case "InvalidSetIndexingError":
     case "BadSetIndexRangeError":
     case "DuplicateIndexError":
@@ -690,6 +723,9 @@ export const errLocs = (
     }
     case "UnsupportedIndexingError": {
       return locOrNone(e.iset);
+    }
+    case "DeclLiteralError": {
+      return locOrNone(e.location);
     }
 
     // ---- BEGIN STYLE ERRORS
@@ -706,10 +742,6 @@ export const errLocs = (
     case "SelectorFieldNotSupported": {
       return locOrNone(e.field);
     }
-    // case "SelectorRelTypeMismatch": {
-    //   // COMBAK: Add code for prettyprinting types
-    //   return locOrNone(e.exprType);
-    // }
 
     case "TaggedSubstanceError": {
       switch (e.error.tag) {
@@ -834,6 +866,7 @@ export const errLocs = (
     case "RedeclareNamespaceError":
     case "NotSubstanceCollectionError":
     case "NotStyleVariableError":
+    case "StyleVariableReferToLiteralError":
     case "LayerOnNonShapesError": {
       return [
         toErrorLoc({
@@ -888,6 +921,15 @@ export const cyclicSubtypes = (cycles: string[][]): CyclicSubtypes => ({
 });
 
 // action constructors for error
+export const typeDeclared = (
+  typeName: Identifier<A>,
+  firstDefined: AbstractNode,
+): TypeDeclared => ({
+  tag: "TypeDeclared",
+  typeName,
+  firstDefined,
+});
+
 export const duplicateName = (
   name: Identifier<A>,
   location: AbstractNode,

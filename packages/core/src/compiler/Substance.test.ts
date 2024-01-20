@@ -4,8 +4,13 @@ import grammar from "../parser/SubstanceParser.js";
 import { A, Identifier } from "../types/ast.js";
 import { DomainEnv } from "../types/domain.js";
 import { PenroseError } from "../types/errors.js";
-import { ApplyPredicate, SubstanceEnv } from "../types/substance.js";
+import {
+  ApplyPredicate,
+  NumberConstant,
+  SubstanceEnv,
+} from "../types/substance.js";
 import { Result, showError, showType } from "../utils/Error.js";
+import { toLiteralUniqueName } from "../utils/Util.js";
 import { compileDomain } from "./Domain.js";
 import { compileSubstance, prettySubstance } from "./Substance.js";
 
@@ -78,7 +83,7 @@ Set D
 });
 
 describe("Postprocess", () => {
-  test("labels", () => {
+  test("labels 1", () => {
     const prog = `
 Set A, B, C, D, E
 AutoLabel All
@@ -273,6 +278,57 @@ NoLabel B, C
         );
       }
     });
+
+    test("indexed set literal numbers", () => {
+      const domainProg = "type T \n predicate P(T, Number)";
+      const env = envOrError(domainProg);
+      const prog = `
+        T t_i for i in [0, 9]
+        P(t_i, j) for i in [0, 9], j in [1, 10] where i + 1 == j
+      `;
+      const res = compileSubstance(prog, env);
+      expect(res.isOk()).toBe(true);
+
+      if (res.isOk()) {
+        // make sure ten literals are created
+        const literals = res.value.literals;
+        expect(literals.length).toEqual(10);
+        expect(literals.every((l) => l.contents.tag === "NumberConstant")).toBe(
+          true,
+        );
+        expect(
+          literals.map((l) => (l.contents as NumberConstant<A>).contents),
+        ).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+      }
+    });
+  });
+  test("numbers and strings", () => {
+    const domain = `
+    type Set
+    predicate ContainsNum(Set, Number)
+    predicate ContainsStr(Set, String)
+    `;
+    const prog = `
+    Set A, B
+    ContainsNum(A, 100)
+    ContainsStr(B, "BBBB")
+    ContainsNum(B, 100)
+        `;
+    const env = envOrError(domain);
+    const subEnv = subEnvOrError(prog, env);
+
+    // check that each literal collected and only ever collected once.
+    ["{n100}", "{sBBBB}"].forEach((name) =>
+      expect(
+        subEnv.literals
+          // map to 0 or 1
+          .map((l) =>
+            toLiteralUniqueName(l.contents.contents) === name ? 1 : 0,
+          )
+          // sum them together
+          .reduce((s, v) => s + v, 0 as number),
+      ).toEqual(1),
+    );
   });
 });
 
@@ -469,6 +525,15 @@ Label D $\\vec{d}$
     const res = compileSubstance(prog, env);
     expectErrorOf(res, "InvalidArithmeticValueError");
     // error because -1 ^ 0.5 is NaN
+  });
+
+  test("wrong use of builtin literal types", () => {
+    const dom = `type Set`;
+    const domEnv = envOrError(dom);
+    const sub = `Number n := 100
+String s`;
+    const res = compileSubstance(sub, domEnv);
+    expectErrorOf(res, "DeclLiteralError");
   });
 });
 

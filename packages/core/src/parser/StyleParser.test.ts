@@ -265,6 +265,15 @@ where IsSubset(A, B); A has math label; B has text label {
     expect(whereClauses[2].field.value).toEqual("label");
     expect(whereClauses[2].fieldDescriptor).toEqual("TextLabel");
   });
+
+  test("literals in selectors", () => {
+    const prog = `
+    forall Set A, B
+    where Contains(A, 1); NotContains(B, "hello world") {
+    }`;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
 });
 
 describe("Block Grammar", () => {

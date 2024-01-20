@@ -14,6 +14,8 @@ import {
   LocalVarSubst,
   ResolvedName,
   ResolvedPath,
+  SubstanceLiteral,
+  SubstanceObject,
   WithContext,
 } from "../types/styleSemantics.js";
 import {
@@ -764,6 +766,20 @@ export const rectlikeT = (): UnionT =>
 
 //#region Style
 
+export const toLiteralUniqueName = (literal: string | number) => {
+  if (typeof literal === "string") {
+    return `{s${literal}}`;
+  } else {
+    return `{n${literal.toString()}}`;
+  }
+};
+
+export const subObjectToUniqueName = (lit: SubstanceObject) => {
+  if (lit.tag === "SubstanceVar") {
+    return lit.name;
+  } else return toLiteralUniqueName(lit.contents.contents);
+};
+
 export const resolveRhsName = (
   { block, subst, locals }: Context,
   name: BindingForm<A>,
@@ -776,9 +792,17 @@ export const resolveRhsName = (
         return { tag: "Local", block, name: value };
       } else if (subst.tag === "StySubSubst" && value in subst.contents) {
         // selector match names shadow globals
-        return { tag: "Substance", block, name: subst.contents[value] };
+        return {
+          tag: "Substance",
+          block,
+          name: subObjectToUniqueName(subst.contents[value]),
+        };
       } else if (subst.tag === "CollectionSubst" && value in subst.groupby) {
-        return { tag: "Substance", block, name: subst.groupby[value] };
+        return {
+          tag: "Substance",
+          block,
+          name: subObjectToUniqueName(subst.groupby[value]),
+        };
       } else {
         // couldn't find it in context, must be a glboal
         return { tag: "Global", block, name: value };
@@ -790,8 +814,46 @@ export const resolveRhsName = (
   }
 };
 
-const resolveRhsPath = (p: WithContext<Path<A>>): ResolvedPath<A> => {
-  const { name, members } = p.expr; // drop `indices`
+export const substanceLiteralToValue = (
+  lit: SubstanceLiteral,
+): FloatV<number> | StrV => {
+  const l = lit.contents;
+
+  if (l.tag === "SubstanceNumber") {
+    return { tag: "FloatV", contents: l.contents };
+  } else {
+    return strV(l.contents);
+  }
+};
+
+const resolveRhsPath = (
+  p: WithContext<Path<A>>,
+): ResolvedPath<A> | FloatV<number> | StrV => {
+  const { name, members, indices } = p.expr; // drop `indices`
+
+  const { subst } = p.context;
+
+  // special handling so that if a Style variable maps to a Substance literal,
+  // then accessing it just gives the value.
+  if (members.length === 0 && indices.length === 0) {
+    if (subst.tag === "StySubSubst" && name.contents.value in subst.contents) {
+      const subObj = subst.contents[name.contents.value];
+      if (subObj.tag === "SubstanceLiteral") {
+        return substanceLiteralToValue(subObj);
+      }
+    }
+
+    if (
+      subst.tag === "CollectionSubst" &&
+      name.contents.value in subst.groupby
+    ) {
+      const subObj = subst.groupby[name.contents.value];
+      if (subObj.tag === "SubstanceLiteral") {
+        return substanceLiteralToValue(subObj);
+      }
+    }
+  }
+
   return { ...resolveRhsName(p.context, name), members };
 };
 
@@ -826,8 +888,20 @@ const prettyPrintResolvedName = ({
   }
 };
 
-export const prettyPrintResolvedPath = (p: ResolvedPath<A>): string =>
-  [prettyPrintResolvedName(p), ...p.members.map((m) => m.value)].join(".");
+export const prettyPrintResolvedPath = (
+  p: ResolvedPath<A> | FloatV<number> | StrV | VectorV<number>,
+): string => {
+  if (p.tag === "FloatV") {
+    return p.contents.toString();
+  } else if (p.tag === "StrV") {
+    return p.contents;
+  } else if (p.tag === "VectorV") {
+    return `[${p.contents.map((n) => n.toString()).join(",")}]`;
+  } else
+    return [prettyPrintResolvedName(p), ...p.members.map((m) => m.value)].join(
+      ".",
+    );
+};
 
 const prettyPrintBindingForm = (bf: BindingForm<A>): string => {
   switch (bf.tag) {

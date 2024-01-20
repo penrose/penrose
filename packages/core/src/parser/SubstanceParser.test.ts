@@ -182,4 +182,13 @@ IsSubset(A, B)
     const { results } = parser.feed(prog);
     sameASTs(results);
   });
+  test("numbers and strings", () => {
+    const prog = `
+    Set A
+    Contains(A, 1)
+    Contains(B, "never gonna give you up")
+        `;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
 });
