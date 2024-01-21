@@ -125,6 +125,9 @@ export const localFilesState = atom<LocalWorkspaces>({
 
 /**
  * On any state change to the workspace, if it's being saved, autosave it (debounced)
+ * TODO: changes that happen within the 500ms window will not be collected, this is an
+ *       issue with things that are not directly related to editing trios i.e. duplicating
+ *       workspaces, saving a new workspace, etc., see issue #1695
  */
 const saveWorkspaceEffect: AtomEffect<Workspace> = ({ onSet, setSelf }) => {
   onSet(
