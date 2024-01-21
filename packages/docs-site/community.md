@@ -1,7 +1,3 @@
----
-layout: docs
----
-
 <script setup>
   import PR from "./src/components/GitHubPR.vue"
   import Issue from "./src/components/GitHubIssue.vue"
@@ -72,19 +68,20 @@ We maintain a [blog][] and a [mailing list][] on Penrose and diagramming in gene
 </div>
 </div>
 
-## Technical Roadmap
+<!-- ## Technical Roadmap
 
 ### 🚀 Active
 
-- Automatic differentiation based on [Rose][rose] 🌹 <PR pr="1636" />
-- Layout optimization on WebWorkers <PR pr="1528" />
 
 ### 🎯 Planned
 
 - Next iteration on [SolidJS API for Penrose](/docs/ref/solid.md) and docs
 - Implement high-quality hidden strokes <Issue issue="517" />
 - Support arbitrary Penrose trios in [`obsidian-penrose-plugin`]
-- A single file format (`.penrose`) for Penrose diagrams
+- A single file format (`.penrose`) for Penrose diagrams -->
+
+<!-- - Automatic differentiation based on [Rose][rose] 🌹 <PR pr="1636" />
+- Layout optimization on WebWorkers <PR pr="1528" /> -->
 
 <!-- ### 💭 Potential
 - -->
