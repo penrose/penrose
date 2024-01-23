@@ -651,9 +651,15 @@ export const disjointIntervals = (
   s1: Line<ad.Num>,
   s2: Line<ad.Num>,
 ): ad.Num => {
-  return overlap1D(
-    [s1.start.contents[0], s1.end.contents[0]],
-    [s2.start.contents[0], s2.end.contents[0]],
+  return min(
+    overlap1D(
+      [s1.start.contents[0], s1.end.contents[0]],
+      [s2.start.contents[0], s2.end.contents[0]],
+    ),
+    overlap1D(
+      [s1.start.contents[1], s1.end.contents[1]],
+      [s2.start.contents[1], s2.end.contents[1]],
+    ),
   );
 };
 
