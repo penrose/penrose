@@ -34,7 +34,7 @@ const {
     minLineLength = 200.0
 }
 
-layout = [shape, label]
+layout = [shape, parallel, label]
 
 --Plane
 forall Plane p {
@@ -76,6 +76,10 @@ forall Point p {
     strokeColor : Colors.black
   }
 
+}
+
+forall Point p 
+where p has label {
   p.text = Equation {
     string : p.label
     fillColor : Colors.black
@@ -227,7 +231,8 @@ forall Linelike l1, l2
 where Parallel(l1, l2) {
   -- the dot product of the unit vectors of parallel lines is 1
   -- HACK: scaling to 10000s for convergence
-  ensure 10000 == dot(normalize(l1.vec), normalize(l2.vec)) * 10000
+  -- ensure dot(normalize(l1.vec), normalize(l2.vec)) == 1 in parallel
+  ensure 10000*dot(normalize(l1.vec), normalize(l2.vec)) == 10000 in parallel
 }
 --Segment
 forall Segment e
@@ -254,6 +259,19 @@ with Point p; Point q {
   -- labeling
   ensure disjoint(p.text, e.icon) in label
   ensure disjoint(q.text, e.icon) in label
+}
+
+forall Segment e
+with Point p, q
+where e := Segment(p, q); e has label {
+	e.text = Equation {
+		string : e.label
+		fillColor : Colors.black
+		fontSize : const.fontSize
+		center: (? in label, ? in label)
+	}
+	ensure disjoint(e.text, e.icon) in label
+	encourage norm(e.text.center - midpoint(p.vec, q.vec)) == 0 in label
 }
 
 forall Segment e; Plane p {
@@ -916,7 +934,12 @@ with Circle c {
   ensure norm(p.vec - c.vec) == 0
 }
 
-forall Shape s1, s2
-where s1 has label; s2 has label {
-  encourage notTooClose(s1.text, s2.text)
+-- forall Shape s1, s2
+-- where s1 has label; s2 has label {
+--   encourage notTooClose(s1.text, s2.text) in label
+-- }
+
+-- generally, all points should be away from each other
+forall Point p1, p2 {
+	encourage notTooClose(p1.icon, p2.icon)
 }
