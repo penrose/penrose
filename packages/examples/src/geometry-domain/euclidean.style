@@ -351,6 +351,7 @@ with Point p; Point q; Point r {
   theta.p = p.vec
   theta.q = q.vec
   theta.r = r.vec
+  theta.interiorDir = normalize((p.vec - q.vec) + (r.vec - q.vec))
   theta.color = #000
   theta.side1 = Line {
     start : p.icon.center
@@ -375,17 +376,34 @@ with Point p; Point q; Point r {
   theta.side2 below q.icon, r.icon
 }
 
+
+-- push the vertex label out of the angle
+forall Angle a
+where a := InteriorAngle(p, q, r); q has label
+with Point p; Point q; Point r {
+	-- labeling
+  padding = const.textPadding + const.pointRadius
+	-- ideal position is right outside of the angle
+	ideal = q.vec - a.interiorDir*padding
+	encourage norm(q.text.center - ideal) == 0
+}
+
 forall Angle theta
 where theta := InteriorAngle(p, q, r); theta has label
 with Point p; Point q; Point r {
   padding = const.textPadding + const.pointRadius + theta.text.width
-  labelDir = normalize((p.vec - q.vec) + (r.vec - q.vec))
   theta.text = Equation {
     string : theta.label
     fillColor : Colors.black
     fontSize : const.fontSize
-    center: q.vec + labelDir*padding
+    center: q.vec + theta.interiorDir*padding
   }
+}
+
+forall Angle theta
+where theta := InteriorAngle(p, q, r); q has label
+with Point p; Point q; Point r {
+	theta.vertexLabel = q.text
 }
 
 forall Angle a, b
@@ -413,7 +431,7 @@ where EqualAngleMarker(a, b) as e {
     strokeWidth : 2.0
     strokeColor : Colors.black
     fillColor: Colors.none
- }
+	}
 }
 
 forall Angle a, b, c

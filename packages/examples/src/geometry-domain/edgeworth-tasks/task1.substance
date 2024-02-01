@@ -1,0 +1,11 @@
+Point J, K, N, L
+Let JK := Segment(J, K)
+Let KN := Segment(K, N)
+Let NL := Segment(N, L)
+Angle JKN := InteriorAngle(J, K, N)
+Angle KNL := InteriorAngle(K, N, L)
+EqualAngleMarker(JKN, KNL)
+EqualAngle(JKN, KNL)
+
+
+AutoLabel J, K, N, L
