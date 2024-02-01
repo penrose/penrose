@@ -1,9 +1,4 @@
-import {
-  PenroseError,
-  collectLabels,
-  mathjaxInit,
-  showError,
-} from "@penrose/core";
+import { PenroseError, collectLabels, mathjaxInit } from "@penrose/core";
 import consola from "consola";
 import { v4 as uuid } from "uuid";
 import {
@@ -16,7 +11,7 @@ import {
 } from "./message.js";
 
 const log = (consola as any)
-  .create({ level: (consola as any).LogLevel.Warn })
+  .create({ level: (consola as any).LogLevel.Debug })
   .withScope("worker:client");
 
 export type onComplete = () => void;
@@ -44,7 +39,7 @@ export default class OptimizerWorker {
   private onUpdate: OnUpdate = () => {};
   private onError: OnError = () => {};
   private onComplete: onComplete = () => {};
-  private pending: Pending | undefined = undefined;
+  private pending: Pending[] = [];
   private stats: LayoutStats = [];
 
   getStats() {
@@ -108,12 +103,23 @@ export default class OptimizerWorker {
 
   // check if there is a pending request and send it to the worker
   resolvePending() {
-    if (this.pending) {
+    if (this.pending.length > 0) {
       log.info("Worker has pending request, sending...");
-      this.request(this.pending.request);
-      this.onComplete = this.pending.onComplete;
-      this.onError = this.pending.onError;
-      this.onUpdate = this.pending.onUpdate;
+      // get the most recent request and call `onComplete` on everyone
+      const lastest = this.pending[this.pending.length - 1];
+      this.request(lastest.request);
+      this.onComplete = () => {
+        for (const pendingTask of this.pending) {
+          pendingTask.onComplete();
+        }
+      };
+      this.onError = (e) => {
+        for (let i = 0; i < this.pending.length - 1; i++) {
+          this.pending[i].onError(e);
+        }
+        lastest.onError(e);
+      };
+      this.onUpdate = lastest.onUpdate;
     }
   }
 
@@ -155,7 +161,7 @@ export default class OptimizerWorker {
         const convert = mathjaxInit();
         const labelCache = await collectLabels(data.shapes, convert);
         if (labelCache.isErr()) {
-          throw Error(showError(labelCache.error));
+          this.onError(labelCache.error);
         }
         const { optLabelCache, svgCache } = separateRenderedLabels(
           labelCache.value,
@@ -193,21 +199,21 @@ export default class OptimizerWorker {
     onError: OnError,
     onComplete: onComplete,
   ) {
-    this.pending = {
+    this.pending.push({
       request: req,
       onUpdate: (s, stats) => {
         onUpdate(s, stats);
-        this.pending = undefined;
+        this.pending = [];
       },
       onError: (e) => {
         onError(e);
-        this.pending = undefined;
+        this.pending = [];
       },
       onComplete: () => {
         onComplete();
-        this.pending = undefined;
+        this.pending = [];
       },
-    };
+    });
   }
 
   run({
@@ -244,12 +250,12 @@ export default class OptimizerWorker {
       // ready to receive a new trio
       Atomics.store(this.sharedMemory, 1, 1);
       log.info("Worker running and asked to stop");
-      this.pending = {
+      this.pending.push({
         request,
         onUpdate,
         onComplete,
         onError,
-      };
+      });
     } else if (!this.workerInitialized) {
       log.info("Worker not initialized yet, waiting...");
       setTimeout(() => {
