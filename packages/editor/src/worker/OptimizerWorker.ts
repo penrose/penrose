@@ -144,6 +144,7 @@ export default class OptimizerWorker {
       } else if (data.tag === "Error") {
         this.running = false;
         this.onError(data.error);
+        return;
       } else if (data.tag === "Ready") {
         log.info("Worker ready for new input");
         this.onComplete();
@@ -162,6 +163,7 @@ export default class OptimizerWorker {
         const labelCache = await collectLabels(data.shapes, convert);
         if (labelCache.isErr()) {
           this.onError(labelCache.error);
+          return;
         }
         const { optLabelCache, svgCache } = separateRenderedLabels(
           labelCache.value,
