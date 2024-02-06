@@ -1,9 +1,9 @@
 Hydrogen h1, h2, h3, h4
 Carbon c
-Bond b1 := MakeSingleBond(h1, c)
-Bond b2 := MakeSingleBond(h2, c)
-Bond b3 := MakeSingleBond(h3, c)
-Bond b4 := MakeSingleBond(h4, c)
+Bond b1 := SingleBond(h1, c)
+Bond b2 := SingleBond(h2, c)
+Bond b3 := SingleBond(h3, c)
+Bond b4 := SingleBond(h4, c)
 ZeroDots(h1)
 ZeroDots(h2)
 ZeroDots(h3)

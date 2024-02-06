@@ -40,19 +40,19 @@ forall Nitrogen x {
 -- Bonds
 
 forall Bond b
-where b := MakeSingleBond(x, y)
+where b := SingleBond(x, y)
 with Atom x; Atom y {
     encourage equal(vdist(x.icon.center, y.icon.center), 60.0)
 }
 
 forall Bond b
-where b := MakeDoubleBond(x, y)
+where b := DoubleBond(x, y)
 with Atom x; Atom y {
     encourage equal(vdist(x.icon.center, y.icon.center), 60.0)
 }
 
 forall Bond b
-where b := MakeTripleBond(x, y)
+where b := TripleBond(x, y)
 with Atom x; Atom y {
     encourage equal(vdist(x.icon.center, y.icon.center), 60.0)
 }
