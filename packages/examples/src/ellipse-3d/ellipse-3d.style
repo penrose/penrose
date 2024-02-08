@@ -1,20 +1,23 @@
 canvas {
-   width: 240
-   height: 200
+   scalar width = 240
+   scalar height = 200
 }
 
 forall Ellipse e {
-   vec3 c = ( random(-1,1), random(-1,1), random(-1,1) ) -- center
+   -- vec3 c = ( random(-1,1), random(-1,1), random(-1,1) ) -- center
+   vec3 c = ( 40, 0, 100 )
    vec3 u = ( -0.235386, -0.620792, -0.747804 ) -- first axis
    vec3 v = ( -0.726951, -0.398236, 0.559419 ) -- second axis
-   scalar a0 = random( .1, .4 ) -- first radius
-   scalar b0 = random( .1, .4 ) -- second radius
+   -- scalar a0 = random( .1, .4 ) -- first radius
+   -- scalar b0 = random( .1, .4 ) -- second radius
+   a0 = 20
+   b0 = 10
 
    -- construct quadratic form for projected ellipse
-   mat3x3 Q = ( (1/(a0*a0),0,0), (0,1/(b0*b0),0), (0,0,-1) )
+   mat3x3 P = ( (1/(a0*a0),0,0), (0,1/(b0*b0),0), (0,0,-1) )
    mat3x3 AT = ( u, v, c )
-   mat3x3 Ai = inverse(A')
-   mat3x3 P = AT*Q*Ai
+   mat3x3 ATi = inverse(AT)
+   mat3x3 Q = ATi*P*ATi'
 
    -- extract 2D ellipse center (x,y), axes (a,b), and angle θ
    scalar QA = Q[0][0]
@@ -27,13 +30,24 @@ forall Ellipse e {
    scalar b = -((sqrt(2)*sqrt((QA + sqrt(sqr(QB) + sqr(QA - QC)) + QC)* (QC*sqr(QD) - QB*QD*QE + QA*sqr(QE) + (sqr(QB) - 4*QA*QC)*QF)))/(sqr(QB) - 4*QA*QC))
    scalar x = (2*QC*QD - QB*QE)/(sqr(QB) - 4*QA*QC)
    scalar y = (-(QB*QD) + 2*QA*QE)/(sqr(QB) - 4*QA*QC)
-   scalar θ = -atan(QB/(-QA - Sqrt(Power(QB,2) + Power(QA - QC,2)) + QC)) -- XXX there are some additional conditions not implemented here...
+   scalar θ = atan(QB/(-QA - sqrt(sqr(QB) + sqr(QA - QC)) + QC)) -- XXX there are some additional conditions not implemented here...
 
-   shape icon = Ellipse {
-      center: (x,y)
-      rx: a
-      ry: b
-      rotation: θ
+   -- XXX Penrose doesn't yet support rotated ellipses
+   -- shape icon = Ellipse {
+   --    center: (x,y)
+   --    rx: a*100
+   --    ry: b*100
+   --    rotation: θ
+   --    ensureOnCanvas: false
+   -- }
+
+   -- Draw as rotated rectangle instead
+   shape icon = Rectangle {
+      center: 100*(x,y)
+      width: a*200
+      height: b*200
+      rotation: toDegrees(θ)
+      ensureOnCanvas: false
    }
 }
 
