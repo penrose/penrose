@@ -6,16 +6,18 @@ canvas {
 forall Ellipse e {
    -- vec3 c = ( random(-1,1), random(-1,1), random(-1,1) ) -- center
    vec3 c = ( 40, 0, 100 )
-   vec3 u = ( -0.235386, -0.620792, -0.747804 ) -- first axis
-   vec3 v = ( -0.726951, -0.398236, 0.559419 ) -- second axis
-   -- scalar a0 = random( .1, .4 ) -- first radius
-   -- scalar b0 = random( .1, .4 ) -- second radius
-   a0 = 20
-   b0 = 10
+   vec3 u1 = ( -0.235386, -0.620792, -0.747804 ) -- first axis
+   vec3 u2 = ( -0.726951, -0.398236, 0.559419 ) -- second axis
+   -- scalar r1 = random( .1, .4 ) -- first radius
+   -- scalar r2 = random( .1, .4 ) -- second radius
+   r1 = 20
+   r2 = 10
 
-   -- construct quadratic form for projected ellipse
-   mat3x3 P = ( (1/(a0*a0),0,0), (0,1/(b0*b0),0), (0,0,-1) )
-   mat3x3 AT = ( u, v, c )
+   -- quadratic form for reference ellipse
+   mat3x3 P = ( (1/(r1*r1),0,0), (0,1/(r2*r2),0), (0,0,-1) )
+
+   -- quadratic form for projected ellipse
+   mat3x3 AT = ( u1, u2, c )
    mat3x3 ATi = inverse(AT)
    mat3x3 Q = ATi*P*ATi'
 
@@ -26,11 +28,15 @@ forall Ellipse e {
    scalar QD = 2*Q[2][0]
    scalar QE = 2*Q[2][1]
    scalar QF = Q[2][2]
-   scalar a = -((sqrt(2)*sqrt((QA - sqrt(sqr(QB) + sqr(QA - QC)) + QC)* (QC*sqr(QD) - QB*QD*QE + QA*sqr(QE) + (sqr(QB) - 4*QA*QC)*QF)))/(sqr(QB) - 4*QA*QC))
-   scalar b = -((sqrt(2)*sqrt((QA + sqrt(sqr(QB) + sqr(QA - QC)) + QC)* (QC*sqr(QD) - QB*QD*QE + QA*sqr(QE) + (sqr(QB) - 4*QA*QC)*QF)))/(sqr(QB) - 4*QA*QC))
-   scalar x = (2*QC*QD - QB*QE)/(sqr(QB) - 4*QA*QC)
-   scalar y = (-(QB*QD) + 2*QA*QE)/(sqr(QB) - 4*QA*QC)
-   scalar θ = atan(QB/(-QA - sqrt(sqr(QB) + sqr(QA - QC)) + QC)) -- XXX there are some additional conditions not implemented here...
+   scalar c1 = sqrt(sqr(QB) + sqr(QA - QC))
+   scalar c2 = QC*sqr(QD) - QB*QD*QE + QA*sqr(QE) + (sqr(QB) - 4*QA*QC)*QF
+   scalar c3 = -sqrt(2)/(sqr(QB) - 4*QA*QC)
+   scalar c4 = (sqr(QB) - 4*QA*QC)
+   scalar a = c3*sqrt(c2*(QA + QC - c1))
+   scalar b = c3*sqrt(c2*(QA + QC + c1))
+   scalar x = (2*QC*QD - QB*QE)/c4
+   scalar y = (2*QA*QE - QB*QD)/c4
+   scalar θ = atan(QB/(QC - QA - c1)) -- XXX there are some additional conditions not implemented here...
 
    -- XXX Penrose doesn't yet support rotated ellipses
    -- shape icon = Ellipse {
@@ -41,6 +47,13 @@ forall Ellipse e {
    --    ensureOnCanvas: false
    -- }
 
+   list rvals = projectEllipse( c, u1, u2, r1, r2 )
+   scalar X = rvals[0]
+   scalar Y = rvals[1]
+   scalar A = rvals[2]
+   scalar B = rvals[3]
+   scalar T = rvals[4]
+
    -- Draw as rotated rectangle instead
    shape icon = Rectangle {
       center: 100*(x,y)
@@ -48,6 +61,10 @@ forall Ellipse e {
       height: b*200
       rotation: toDegrees(θ)
       ensureOnCanvas: false
+      -- pass through attributes that can be used to define an SVG transform
+      rotationAngle: toDegrees(θ)
+      rotationX: 100*x + canvas.width/2
+      rotationY: canvas.height - (100*y + canvas.height/2)
    }
 }
 
