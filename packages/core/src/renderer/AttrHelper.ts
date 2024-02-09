@@ -183,7 +183,7 @@ export const attrXY = (
 };
 
 /**
- * Maps center, width, height, rotation --> transform
+ * Maps center, rotation --> transform
  *
  * Rotates a GPI by n degrees about a center
  * Note: elem must be `transform`able
@@ -191,12 +191,10 @@ export const attrXY = (
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform
  */
 export const attrRotation = (
-  properties: Rotate<number> & Center<number> & Rect<number>,
+  properties: Rotate<number> & Center<number>,
   canvasSize: [number, number],
   elem: SVGElement,
 ): string[] => {
-  const w = properties.width;
-  const h = properties.height;
   const center = properties.center;
   const rotation = properties.rotation.contents;
   const [x, y] = toScreen([center.contents[0], center.contents[1]], canvasSize);
@@ -207,7 +205,7 @@ export const attrRotation = (
       : transform + `rotate(${rotation}, ${x}, ${y})`;
   elem.setAttribute("transform", transform);
 
-  return ["rotation", "center", "width", "height"]; // Return array of input properties programatically mapped
+  return ["rotation", "center"]; // Return array of input properties programatically mapped
 };
 
 /**

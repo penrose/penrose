@@ -254,6 +254,7 @@ const mapEllipse = <T, S>(f: (arg: T) => S, v: Ellipse<T>): Ellipse<S> => {
     ...mapNamed(f, v),
     ...mapStroke(f, v),
     ...mapFill(f, v),
+    ...mapRotate(f, v),
     ...mapCenter(f, v),
     rx: mapFloat(f, v.rx),
     ry: mapFloat(f, v.ry),

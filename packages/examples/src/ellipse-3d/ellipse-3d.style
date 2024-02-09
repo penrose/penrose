@@ -39,7 +39,7 @@ global {
       ry: σ*E1[3]
       ensureOnCanvas: false
       -- pass through attributes that can be used to define an SVG transform
-      rotationAngle: toDegrees(E1[4])
+      rotation: toDegrees(E1[4])
       rotationX: σ*E1[0] + canvas.width/2
       rotationY: canvas.height - (σ*E1[1] + canvas.height/2)
    }
@@ -49,7 +49,7 @@ global {
       ry: σ*E2[3]
       ensureOnCanvas: false
       -- pass through attributes that can be used to define an SVG transform
-      rotationAngle: toDegrees(E2[4])
+      rotation: toDegrees(E2[4])
       rotationX: σ*E2[0] + canvas.width/2
       rotationY: canvas.height - (σ*E2[1] + canvas.height/2)
    }
@@ -59,7 +59,7 @@ global {
       ry: σ*E3[3]
       ensureOnCanvas: false
       -- pass through attributes that can be used to define an SVG transform
-      rotationAngle: toDegrees(E3[4])
+      rotation: toDegrees(E3[4])
       rotationX: σ*E3[0] + canvas.width/2
       rotationY: canvas.height - (σ*E3[1] + canvas.height/2)
    }
@@ -69,7 +69,7 @@ global {
       ry: σ*E4[3]
       ensureOnCanvas: false
       -- pass through attributes that can be used to define an SVG transform
-      rotationAngle: toDegrees(E4[4])
+      rotation: toDegrees(E4[4])
       rotationX: σ*E4[0] + canvas.width/2
       rotationY: canvas.height - (σ*E4[1] + canvas.height/2)
    }
@@ -79,7 +79,7 @@ global {
       ry: σ*E5[3]
       ensureOnCanvas: false
       -- pass through attributes that can be used to define an SVG transform
-      rotationAngle: toDegrees(E5[4])
+      rotation: toDegrees(E5[4])
       rotationX: σ*E5[0] + canvas.width/2
       rotationY: canvas.height - (σ*E5[1] + canvas.height/2)
    }
@@ -89,7 +89,7 @@ global {
       ry: σ*E6[3]
       ensureOnCanvas: false
       -- pass through attributes that can be used to define an SVG transform
-      rotationAngle: toDegrees(E6[4])
+      rotation: toDegrees(E6[4])
       rotationX: σ*E6[0] + canvas.width/2
       rotationY: canvas.height - (σ*E6[1] + canvas.height/2)
    }
@@ -99,7 +99,7 @@ global {
       ry: σ*E7[3]
       ensureOnCanvas: false
       -- pass through attributes that can be used to define an SVG transform
-      rotationAngle: toDegrees(E7[4])
+      rotation: toDegrees(E7[4])
       rotationX: σ*E7[0] + canvas.width/2
       rotationY: canvas.height - (σ*E7[1] + canvas.height/2)
    }
@@ -109,7 +109,7 @@ global {
       ry: σ*E8[3]
       ensureOnCanvas: false
       -- pass through attributes that can be used to define an SVG transform
-      rotationAngle: toDegrees(E8[4])
+      rotation: toDegrees(E8[4])
       rotationX: σ*E8[0] + canvas.width/2
       rotationY: canvas.height - (σ*E8[1] + canvas.height/2)
    }
@@ -119,7 +119,7 @@ global {
       ry: σ*E9[3]
       ensureOnCanvas: false
       -- pass through attributes that can be used to define an SVG transform
-      rotationAngle: toDegrees(E9[4])
+      rotation: toDegrees(E9[4])
       rotationX: σ*E9[0] + canvas.width/2
       rotationY: canvas.height - (σ*E9[1] + canvas.height/2)
    }
@@ -129,7 +129,7 @@ global {
       ry: σ*E10[3]
       ensureOnCanvas: false
       -- pass through attributes that can be used to define an SVG transform
-      rotationAngle: toDegrees(E10[4])
+      rotation: toDegrees(E10[4])
       rotationX: σ*E10[0] + canvas.width/2
       rotationY: canvas.height - (σ*E10[1] + canvas.height/2)
    }
@@ -139,7 +139,7 @@ global {
       ry: σ*E11[3]
       ensureOnCanvas: false
       -- pass through attributes that can be used to define an SVG transform
-      rotationAngle: toDegrees(E11[4])
+      rotation: toDegrees(E11[4])
       rotationX: σ*E11[0] + canvas.width/2
       rotationY: canvas.height - (σ*E11[1] + canvas.height/2)
    }
@@ -149,7 +149,7 @@ global {
       ry: σ*E12[3]
       ensureOnCanvas: false
       -- pass through attributes that can be used to define an SVG transform
-      rotationAngle: toDegrees(E12[4])
+      rotation: toDegrees(E12[4])
       rotationX: σ*E12[0] + canvas.width/2
       rotationY: canvas.height - (σ*E12[1] + canvas.height/2)
    }
@@ -159,7 +159,7 @@ global {
       ry: σ*E13[3]
       ensureOnCanvas: false
       -- pass through attributes that can be used to define an SVG transform
-      rotationAngle: toDegrees(E13[4])
+      rotation: toDegrees(E13[4])
       rotationX: σ*E13[0] + canvas.width/2
       rotationY: canvas.height - (σ*E13[1] + canvas.height/2)
    }
@@ -169,7 +169,7 @@ global {
       ry: σ*E14[3]
       ensureOnCanvas: false
       -- pass through attributes that can be used to define an SVG transform
-      rotationAngle: toDegrees(E14[4])
+      rotation: toDegrees(E14[4])
       rotationX: σ*E14[0] + canvas.width/2
       rotationY: canvas.height - (σ*E14[1] + canvas.height/2)
    }
@@ -179,7 +179,7 @@ global {
       ry: σ*E15[3]
       ensureOnCanvas: false
       -- pass through attributes that can be used to define an SVG transform
-      rotationAngle: toDegrees(E15[4])
+      rotation: toDegrees(E15[4])
       rotationX: σ*E15[0] + canvas.width/2
       rotationY: canvas.height - (σ*E15[1] + canvas.height/2)
    }
@@ -189,7 +189,7 @@ global {
       ry: σ*E16[3]
       ensureOnCanvas: false
       -- pass through attributes that can be used to define an SVG transform
-      rotationAngle: toDegrees(E16[4])
+      rotation: toDegrees(E16[4])
       rotationX: σ*E16[0] + canvas.width/2
       rotationY: canvas.height - (σ*E16[1] + canvas.height/2)
    }
@@ -199,7 +199,7 @@ global {
       ry: σ*E17[3]
       ensureOnCanvas: false
       -- pass through attributes that can be used to define an SVG transform
-      rotationAngle: toDegrees(E17[4])
+      rotation: toDegrees(E17[4])
       rotationX: σ*E17[0] + canvas.width/2
       rotationY: canvas.height - (σ*E17[1] + canvas.height/2)
    }
@@ -209,7 +209,7 @@ global {
       ry: σ*E18[3]
       ensureOnCanvas: false
       -- pass through attributes that can be used to define an SVG transform
-      rotationAngle: toDegrees(E18[4])
+      rotation: toDegrees(E18[4])
       rotationX: σ*E18[0] + canvas.width/2
       rotationY: canvas.height - (σ*E18[1] + canvas.height/2)
    }
@@ -219,7 +219,7 @@ global {
       ry: σ*E19[3]
       ensureOnCanvas: false
       -- pass through attributes that can be used to define an SVG transform
-      rotationAngle: toDegrees(E19[4])
+      rotation: toDegrees(E19[4])
       rotationX: σ*E19[0] + canvas.width/2
       rotationY: canvas.height - (σ*E19[1] + canvas.height/2)
    }
@@ -229,7 +229,7 @@ global {
       ry: σ*E20[3]
       ensureOnCanvas: false
       -- pass through attributes that can be used to define an SVG transform
-      rotationAngle: toDegrees(E20[4])
+      rotation: toDegrees(E20[4])
       rotationX: σ*E20[0] + canvas.width/2
       rotationY: canvas.height - (σ*E20[1] + canvas.height/2)
    }
@@ -239,7 +239,7 @@ global {
       ry: σ*E21[3]
       ensureOnCanvas: false
       -- pass through attributes that can be used to define an SVG transform
-      rotationAngle: toDegrees(E21[4])
+      rotation: toDegrees(E21[4])
       rotationX: σ*E21[0] + canvas.width/2
       rotationY: canvas.height - (σ*E21[1] + canvas.height/2)
    }
@@ -249,7 +249,7 @@ global {
       ry: σ*E22[3]
       ensureOnCanvas: false
       -- pass through attributes that can be used to define an SVG transform
-      rotationAngle: toDegrees(E22[4])
+      rotation: toDegrees(E22[4])
       rotationX: σ*E22[0] + canvas.width/2
       rotationY: canvas.height - (σ*E22[1] + canvas.height/2)
    }
@@ -259,13 +259,13 @@ global {
       ry: σ*E23[3]
       ensureOnCanvas: false
       -- pass through attributes that can be used to define an SVG transform
-      rotationAngle: toDegrees(E23[4])
+      rotation: toDegrees(E23[4])
       rotationX: σ*E23[0] + canvas.width/2
       rotationY: canvas.height - (σ*E23[1] + canvas.height/2)
    }
 }
 
 -- -- pass through attributes that can be used to define an SVG transform
--- rotationAngle: toDegrees(E1[4])
+-- rotation: toDegrees(E1[4])
 -- rotationX: σ*E1[0] + canvas.width/2
 -- rotationY: canvas.height - (σ*E1[1] + canvas.height/2)
