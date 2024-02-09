@@ -4,39 +4,11 @@ canvas {
 }
 
 forall Ellipse e {
-   -- vec3 c = ( random(-1,1), random(-1,1), random(-1,1) ) -- center
    vec3 c = ( 40, 0, 100 )
    vec3 u1 = ( -0.235386, -0.620792, -0.747804 ) -- first axis
    vec3 u2 = ( -0.726951, -0.398236, 0.559419 ) -- second axis
-   -- scalar r1 = random( .1, .4 ) -- first radius
-   -- scalar r2 = random( .1, .4 ) -- second radius
    r1 = 20
    r2 = 10
-
-   -- quadratic form for reference ellipse
-   mat3x3 P = ( (1/(r1*r1),0,0), (0,1/(r2*r2),0), (0,0,-1) )
-
-   -- quadratic form for projected ellipse
-   mat3x3 AT = ( u1, u2, c )
-   mat3x3 ATi = inverse(AT)
-   mat3x3 Q = ATi*P*ATi'
-
-   -- extract 2D ellipse center (x,y), axes (a,b), and angle θ
-   scalar QA = Q[0][0]
-   scalar QB = 2*Q[1][0]
-   scalar QC = Q[1][1]
-   scalar QD = 2*Q[2][0]
-   scalar QE = 2*Q[2][1]
-   scalar QF = Q[2][2]
-   scalar c1 = sqrt(sqr(QB) + sqr(QA - QC))
-   scalar c2 = QC*sqr(QD) - QB*QD*QE + QA*sqr(QE) + (sqr(QB) - 4*QA*QC)*QF
-   scalar c3 = -sqrt(2)/(sqr(QB) - 4*QA*QC)
-   scalar c4 = (sqr(QB) - 4*QA*QC)
-   scalar a = c3*sqrt(c2*(QA + QC - c1))
-   scalar b = c3*sqrt(c2*(QA + QC + c1))
-   scalar x = (2*QC*QD - QB*QE)/c4
-   scalar y = (2*QA*QE - QB*QD)/c4
-   scalar θ = atan(QB/(QC - QA - c1)) -- XXX there are some additional conditions not implemented here...
 
    -- XXX Penrose doesn't yet support rotated ellipses
    -- shape icon = Ellipse {
@@ -48,11 +20,11 @@ forall Ellipse e {
    -- }
 
    list rvals = projectEllipse( c, u1, u2, r1, r2 )
-   scalar X = rvals[0]
-   scalar Y = rvals[1]
-   scalar A = rvals[2]
-   scalar B = rvals[3]
-   scalar T = rvals[4]
+   scalar x = rvals[0]
+   scalar y = rvals[1]
+   scalar a = rvals[2]
+   scalar b = rvals[3]
+   scalar θ = rvals[4]
 
    -- Draw as rotated rectangle instead
    shape icon = Rectangle {

@@ -1695,10 +1695,9 @@ export const compDict = {
       // proj: ad.Num[][],
       // view: ad.Num[],
     ): MayWarn<VectorV<ad.Num>> => {
-      const rval = projectEllipse(c, u1, u2, r1, r2);
       return noWarn({
         tag: "VectorV",
-        contents: rval
+        contents: projectEllipse(c, u1, u2, r1, r2)
       });
     },
     returns: valueT("RealN"),
@@ -7980,13 +7979,13 @@ const projectEllipse = (
    const QE = mul(2,Q[2][1]);
    const QF = Q[2][2];
    const c1 = sqrt(add(squared(QB),squared(sub(QA,QC))));
-   const c2 = add(add(sub(mul(QC,squared(QD)), mul(mul(QB,QD,QE))), mul(QA,squared(QE))), mul((sub(squared(QB),mul(mul(4,QA),QC))),QF));
+   const c2 = add(add( sub( mul(QC,squared(QD)), mul(mul(QB,QD),QE) ), mul(QA,squared(QE)) ), mul(QF,sub(squared(QB),mul(mul(4,QA),QC))) );
    const c3 = div(neg(sqrt(2)),sub(squared(QB),mul(mul(4,QA),QC)));
    const c4 = sub(squared(QB), mul(mul(4,QA),QC));
    const a = mul(c3,sqrt(mul(c2,sub(add(QA,QC),c1))));
    const b = mul(c3,sqrt(mul(c2,add(add(QA,QC),c1))));
-   const x = div(sub(mul(mul(2,QC,QD)), mul(QB,QE)),c4);
-   const y = div(sub(mul(mul(2,QA,QE)), mul(QB,QD)),c4);
+   const x = div(sub(mul(mul(2,QC),QD), mul(QB,QE)), c4);
+   const y = div(sub(mul(mul(2,QA),QE), mul(QB,QD)), c4);
    const theta = atan(div(QB,sub(sub(QC,QA),c1))); // XXX there are some additional conditions not implemented here, for the case where QB is (close to) zero.
 
    return [ x, y, a, b, theta ];
