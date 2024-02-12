@@ -63,7 +63,30 @@ const substanceTokens = (substance: string): number => {
 };
 
 const svgTokens = (svg: string): number => {
-  return 0;
+  let lexer = moo.compile({
+    whitespace: { match: /\s+/, lineBreaks: true },
+    comment: /<!--[\s\S]*?-->/,
+    tagOpen: /<[a-zA-Z]+[a-zA-Z0-9:-]*\s*/,
+    tagClose: /<\/(?:[a-zA-Z]+[a-zA-Z0-9:-]*)>/,
+    selfClosingTag: /<(?:[a-zA-Z]+[a-zA-Z0-9:-]*)\s*\/>/,
+    attributeName: /[a-zA-Z_:][a-zA-Z0-9_:\.-]*/,
+    attributeValue: [
+      { match: /"(?:[^"]*)"/, value: (s) => s.slice(1, -1) }, // Double-quoted value
+      { match: /'(?:[^']*)'/, value: (s) => s.slice(1, -1) }, // Single-quoted value
+    ],
+    equals: /=/,
+    text: { match: /[^<]+/, lineBreaks: true },
+  });
+  lexer.reset(svg);
+  let tokenCounts = 0;
+  for (const token of lexer) {
+    if (token.type !== "whitespace") {
+      // Ignore whitespace for token count
+      tokenCounts++;
+    }
+  }
+
+  return tokenCounts;
 };
 
 const genMeta = async (): Promise<PresetMeta> => {
