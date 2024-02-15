@@ -1,0 +1,129 @@
+canvas {
+  width = 400
+  height = 400
+}
+
+stage {
+  grass = Rectangle {
+    center: (0, 0)
+    height: 400
+    width: 400
+    fillColor: #7cfc00
+  }
+  river = Rectangle {
+    center: (0, 0)
+    height: 400
+    width: 50
+    fillColor: #44b0cd
+  }
+  bridge = Rectangle {
+    center: (0, 0)
+    height: 50
+    width: 50
+    fillColor: #b4674d
+  }
+
+  near_center = (-100, 0)
+  far_center = (100, 0)
+}
+
+forall _sig_this_SLASH_Object o {
+  -- every object has a backplate
+  o.backplate = Circle {
+    r: 50
+    fillColor: #ffffffff
+  }
+}
+
+forall _sig_this_SLASH_Object o
+where r := _rel_this_SLASH_State_near(s, o); View(s)
+with _sig_this_SLASH_State s; Rel r {
+  -- every object on the "near" side has to be on the left side.
+  encourage vdistsq(o.backplate.center, stage.near_center) == 0
+  ensure disjoint(o.backplate, stage.river, 20)
+  ensure disjoint(o.backplate, stage.bridge, 10)
+}
+
+forall _sig_this_SLASH_Object o
+where r := _rel_this_SLASH_State_far(s, o); View(s)
+with _sig_this_SLASH_State s; Rel r {
+  -- every object on the "far" side has to be on the right side.
+  encourage vdistsq(o.backplate.center, stage.far_center) == 0
+  ensure disjoint(o.backplate, stage.river, 20)
+  ensure disjoint(o.backplate, stage.bridge, 10)
+}
+
+forall _sig_this_SLASH_Object o1, o2 {
+  -- make sure no objects overlap.
+  encourage 1000 * shapeDistance(o1.backplate, o2.backplate) > 10000
+}
+
+forall _sig_this_SLASH_Fox o {
+  -- a fox is rendered as a fox
+  override o.backplate.r = 75
+  o.icon = Image {
+    href: "character-svgs/fox.svg"
+    center: o.backplate.center
+    height: 200
+    width: 200
+    ensureOnCanvas: false
+  }
+  o.stomach_center = o.backplate.center + (-2, -25)
+  layer o.icon above o.backplate
+}
+
+forall _sig_this_SLASH_Chicken o {
+  -- a chicken is rendered as a chicken
+  override o.backplate.r = 30
+  o.icon = Image {
+    href: "character-svgs/chicken.svg"
+    center: o.backplate.center
+    height:55
+    width: 55
+    ensureOnCanvas: false
+  }
+  o.stomach_center = o.backplate.center + (0, -1.7)
+  layer o.icon above o.backplate
+}
+
+forall _sig_this_SLASH_Farmer o {
+  -- a farmer is rendered as a farmer
+  override o.backplate.r = 50
+  o.icon = Image {
+    href: "character-svgs/farmer.svg"
+    center: o.backplate.center
+    height: 100
+    width: 100
+    ensureOnCanvas: false
+  }
+  layer o.icon above o.backplate
+}
+
+forall _sig_this_SLASH_Grain o {
+  -- a grain is rendered as a grain
+  override o.backplate.r = 11
+  o.icon = Image {
+    href: "character-svgs/grain.svg"
+    center: o.backplate.center
+    height: 30
+    width: 30
+    ensureOnCanvas: false
+  }
+  layer o.icon above o.backplate
+}
+
+forall _sig_this_SLASH_Object o1, o2; _sig_this_SLASH_Farmer farmer
+where r0 := _rel_this_SLASH_Object_eats (o1, o2); r1 := _rel_this_SLASH_State_near (s, o1); r2 := _rel_this_SLASH_State_near (s, o2); r3 := _rel_this_SLASH_State_far (s, farmer); View(s)
+with Rel r0, r1, r2, r3; _sig_this_SLASH_State s {
+  -- if two objects o1 and o2 are on the same side, the farmer is not on that side, and o1 eats o2, then o2 should be in o1's stomach.
+  override o2.backplate.center = o1.stomach_center
+  layer o2.backplate above o1.icon
+}
+
+forall _sig_this_SLASH_Object o1, o2; _sig_this_SLASH_Farmer farmer
+where r0 := _rel_this_SLASH_Object_eats (o1, o2); r1 := _rel_this_SLASH_State_far (s, o1); r2 := _rel_this_SLASH_State_far (s, o2); r3 := _rel_this_SLASH_State_near (s, farmer); View(s)
+with Rel r0, r1, r2, r3; _sig_this_SLASH_State s {
+  -- if two objects o1 and o2 are on the same side, the farmer is not on that side, and o1 eats o2, then o2 should be in o1's stomach.
+  override o2.backplate.center = o1.stomach_center
+  layer o2.backplate above o1.icon
+}

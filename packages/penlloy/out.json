@@ -1,0 +1,128 @@
+{
+  "sigTypes": [
+    {
+      "tag": "DomainSigType",
+      "contents": { "tag": "SingleSigName", "contents": "univ" }
+    },
+    {
+      "tag": "DomainSigType",
+      "contents": { "tag": "SingleSigName", "contents": "Int" }
+    },
+    {
+      "tag": "DomainSigType",
+      "contents": { "tag": "SingleSigName", "contents": "seq/Int" }
+    },
+    {
+      "tag": "DomainSigType",
+      "contents": { "tag": "SingleSigName", "contents": "String" }
+    },
+    {
+      "tag": "DomainSigType",
+      "contents": { "tag": "SingleSigName", "contents": "none" }
+    },
+    {
+      "tag": "DomainSigType",
+      "contents": { "tag": "SingleSigName", "contents": "this/A" }
+    },
+    {
+      "tag": "DomainSigType",
+      "contents": { "tag": "SingleSigName", "contents": "this/B" }
+    },
+    {
+      "tag": "DomainSigType",
+      "contents": { "tag": "SingleSigName", "contents": "this/C" }
+    },
+    {
+      "tag": "DomainSigType",
+      "contents": { "tag": "SingleSigName", "contents": "this/X" }
+    },
+    {
+      "tag": "DomainSigType",
+      "contents": { "tag": "SingleSigName", "contents": "this/X" }
+    }
+  ],
+  "conjTypes": [
+    {
+      "tag": "DomainConjunctionType",
+      "contents": {
+        "tag": "ConjunctionSigName",
+        "contents": ["this/A", "this/B", "this/C"]
+      }
+    }
+  ],
+  "subTypes": [
+    {
+      "tag": "DomainSubType",
+      "sub": { "tag": "SingleSigName", "contents": "Int" },
+      "sup": { "tag": "SingleSigName", "contents": "univ" }
+    },
+    {
+      "tag": "DomainSubType",
+      "sub": { "tag": "SingleSigName", "contents": "seq/Int" },
+      "sup": { "tag": "SingleSigName", "contents": "Int" }
+    },
+    {
+      "tag": "DomainSubType",
+      "sub": { "tag": "SingleSigName", "contents": "String" },
+      "sup": { "tag": "SingleSigName", "contents": "univ" }
+    },
+    {
+      "tag": "DomainSubType",
+      "sub": { "tag": "SingleSigName", "contents": "this/A" },
+      "sup": { "tag": "SingleSigName", "contents": "univ" }
+    },
+    {
+      "tag": "DomainSubType",
+      "sub": { "tag": "SingleSigName", "contents": "this/B" },
+      "sup": { "tag": "SingleSigName", "contents": "univ" }
+    },
+    {
+      "tag": "DomainSubType",
+      "sub": { "tag": "SingleSigName", "contents": "this/C" },
+      "sup": { "tag": "SingleSigName", "contents": "univ" }
+    },
+    {
+      "tag": "DomainSubType",
+      "sub": { "tag": "SingleSigName", "contents": "this/X" },
+      "sup": { "tag": "SingleSigName", "contents": "univ" }
+    },
+    {
+      "tag": "DomainSubType",
+      "sub": { "tag": "SingleSigName", "contents": "this/A" },
+      "sup": {
+        "tag": "ConjunctionSigName",
+        "contents": ["this/A", "this/B", "this/C"]
+      }
+    },
+    {
+      "tag": "DomainSubType",
+      "sub": { "tag": "SingleSigName", "contents": "this/B" },
+      "sup": {
+        "tag": "ConjunctionSigName",
+        "contents": ["this/A", "this/B", "this/C"]
+      }
+    },
+    {
+      "tag": "DomainSubType",
+      "sub": { "tag": "SingleSigName", "contents": "this/C" },
+      "sup": {
+        "tag": "ConjunctionSigName",
+        "contents": ["this/A", "this/B", "this/C"]
+      }
+    }
+  ],
+  "rels": [
+    {
+      "tag": "DomainRel",
+      "belongsTo": { "tag": "SingleSigName", "contents": "this/X" },
+      "name": "rel",
+      "argTypes": [
+        { "tag": "SingleSigName", "contents": "this/X" },
+        {
+          "tag": "ConjunctionSigName",
+          "contents": ["this/A", "this/B", "this/C"]
+        }
+      ]
+    }
+  ]
+}

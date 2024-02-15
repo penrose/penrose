@@ -1,0 +1,63 @@
+_sig_this_SLASH_Farmer Farmer0
+_sig_this_SLASH_Fox Fox0
+_sig_this_SLASH_Chicken Chicken0
+_sig_this_SLASH_Grain Grain0
+
+Rel r0 := _rel_this_SLASH_Object_eats (Fox0, Chicken0)
+Rel r1 := _rel_this_SLASH_Object_eats (Chicken0, Grain0)
+
+_sig_this_SLASH_State State0, State1, State2, State3, State4, State5, State6, State7
+
+Rel r000 := _rel_this_SLASH_State_near (State0, Farmer0)
+Rel r001 := _rel_this_SLASH_State_near (State0, Fox0)
+Rel r002 := _rel_this_SLASH_State_near (State0, Chicken0)
+Rel r003 := _rel_this_SLASH_State_near (State0, Grain0)
+Rel r004 := _rel_this_SLASH_State_near (State1, Fox0)
+Rel r005 := _rel_this_SLASH_State_near (State1, Grain0)
+Rel r006 := _rel_this_SLASH_State_near (State2, Farmer0)
+Rel r007 := _rel_this_SLASH_State_near (State2, Fox0)
+Rel r008 := _rel_this_SLASH_State_near (State2, Grain0)
+Rel r009 := _rel_this_SLASH_State_near (State3, Fox0)
+Rel r010 := _rel_this_SLASH_State_near (State4, Farmer0)
+Rel r011 := _rel_this_SLASH_State_near (State4, Fox0)
+Rel r012 := _rel_this_SLASH_State_near (State4, Chicken0)
+Rel r013 := _rel_this_SLASH_State_near (State5, Chicken0)
+Rel r014 := _rel_this_SLASH_State_near (State6, Farmer0)
+Rel r015 := _rel_this_SLASH_State_near (State6, Chicken0)
+
+Rel r100 := _rel_this_SLASH_State_far  (State1, Farmer0)
+Rel r101 := _rel_this_SLASH_State_far  (State1, Chicken0)
+
+Rel r102 := _rel_this_SLASH_State_far  (State2, Chicken0)
+
+Rel r103 := _rel_this_SLASH_State_far  (State3, Farmer0)
+Rel r104 := _rel_this_SLASH_State_far  (State3, Chicken0)
+Rel r105 := _rel_this_SLASH_State_far  (State3, Grain0)
+
+Rel r106 := _rel_this_SLASH_State_far  (State4, Grain0)
+
+Rel r107 := _rel_this_SLASH_State_far  (State5, Farmer0)
+Rel r108 := _rel_this_SLASH_State_far  (State5, Fox0)
+Rel r109 := _rel_this_SLASH_State_far  (State5, Grain0)
+
+Rel r110 := _rel_this_SLASH_State_far  (State6, Fox0)
+Rel r111 := _rel_this_SLASH_State_far  (State6, Grain0)
+
+Rel r112 := _rel_this_SLASH_State_near  (State7, Farmer0)
+Rel r113 := _rel_this_SLASH_State_far  (State7, Fox0)
+Rel r114 := _rel_this_SLASH_State_far  (State7, Chicken0)
+Rel r115 := _rel_this_SLASH_State_far  (State7, Grain0)
+
+_sig_ord_SLASH_Ord ord_SLASH_Ord0
+
+Rel r201 := _rel_ord_SLASH_Ord_First (ord_SLASH_Ord0, State0)
+
+Rel r301 := _rel_ord_SLASH_Ord_Next  (ord_SLASH_Ord0, State0, State1)
+Rel r302 := _rel_ord_SLASH_Ord_Next  (ord_SLASH_Ord0, State1, State2)
+Rel r303 := _rel_ord_SLASH_Ord_Next  (ord_SLASH_Ord0, State2, State3)
+Rel r304 := _rel_ord_SLASH_Ord_Next  (ord_SLASH_Ord0, State3, State4)
+Rel r305 := _rel_ord_SLASH_Ord_Next  (ord_SLASH_Ord0, State4, State5)
+Rel r306 := _rel_ord_SLASH_Ord_Next  (ord_SLASH_Ord0, State5, State6)
+Rel r307 := _rel_ord_SLASH_Ord_Next  (ord_SLASH_Ord0, State6, State7)
+
+View(State7)

@@ -1,0 +1,85 @@
+{
+  "sigs": [
+    { "name": "univ" },
+    {
+      "parent": "univ",
+      "name": "Int"
+    },
+    {
+      "parent": "Int",
+      "name": "seq/Int"
+    },
+    {
+      "parent": "univ",
+      "name": "String"
+    },
+    { "name": "none" },
+    {
+      "parent": "univ",
+      "name": "this/Philosopher"
+    },
+    {
+      "parent": "univ",
+      "name": "this/Fork"
+    },
+    {
+      "parent": "univ",
+      "name": "this/State"
+    },
+    {
+      "parent": "univ",
+      "name": "so/Ord"
+    },
+    {
+      "parent": "univ",
+      "name": "po/Ord"
+    }
+  ],
+  "rels": [
+    {
+      "sig": "this/Philosopher",
+      "name": "leftFork",
+      "type": "{this/Philosopher->this/Fork}"
+    },
+    {
+      "sig": "this/Philosopher",
+      "name": "rightFork",
+      "type": "{this/Philosopher->this/Fork}"
+    },
+    {
+      "sig": "this/Philosopher",
+      "name": "leftPhil",
+      "type": "{this/Philosopher->this/Philosopher}"
+    },
+    {
+      "sig": "this/Philosopher",
+      "name": "rightPhil",
+      "type": "{this/Philosopher->this/Philosopher}"
+    },
+    {
+      "sig": "this/State",
+      "name": "using",
+      "type": "{this/State->this/Fork->this/Philosopher}"
+    },
+    {
+      "sig": "so/Ord",
+      "name": "First",
+      "type": "{so/Ord->this/State}"
+    },
+    {
+      "sig": "so/Ord",
+      "name": "Next",
+      "type": "{so/Ord->this/State->this/State}"
+    },
+    {
+      "sig": "po/Ord",
+      "name": "First",
+      "type": "{po/Ord->this/Philosopher}"
+    },
+    {
+      "sig": "po/Ord",
+      "name": "Next",
+      "type": "{po/Ord->this/Philosopher->this/Philosopher}"
+    }
+  ]
+}
