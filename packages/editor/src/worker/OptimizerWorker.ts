@@ -51,18 +51,12 @@ export default class OptimizerWorker {
     return this.stats;
   }
 
-  async computeShapes(
-    index: number,
-    min: number,
-    max: number,
-  ): Promise<RenderState> {
+  async computeShapes(index: number): Promise<RenderState> {
     return new Promise((resolve, reject) => {
       log.debug("Worker computing shapes...");
       this.request({
         tag: "ComputeShapes",
         index,
-        min,
-        max,
       });
       const messageHandler = async ({ data }: MessageEvent<Resp>) => {
         if (data.tag === "Update") {

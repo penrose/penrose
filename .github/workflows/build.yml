@@ -93,10 +93,12 @@ jobs:
       - name: Generate diagrams and metadata
         run: yarn registry
       - name: Upload generated diagrams and metadata
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: diagrams
-          path: packages/examples/diagrams/
+          path: |
+            packages/examples/diagrams
+            !packages/examples/diagrams/.git
       - name: Record performance summary
         working-directory: packages/examples/diagrams/
         run: |

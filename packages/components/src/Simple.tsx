@@ -166,6 +166,8 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
               this.props.name ?? "",
               this.texOption,
             ));
+        renderedState.setAttribute("width", "100%");
+        renderedState.setAttribute("height", "100%");
         if (node.firstChild !== null) {
           node.replaceChild(renderedState, node.firstChild);
         } else {
@@ -184,7 +186,7 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
   render = () => {
     const { error } = this.state;
     return (
-      <div style={{ width: "100%", height: "100%" }}>
+      <>
         {!error && (
           <div style={{ width: "100%", height: "100%" }} ref={this.canvasRef} />
         )}
@@ -203,7 +205,7 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
             </div>
           </div>
         )}
-      </div>
+      </>
     );
   };
 }

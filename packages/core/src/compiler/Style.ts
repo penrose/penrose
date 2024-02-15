@@ -96,6 +96,8 @@ import {
   ShapeSource,
   StySubst,
   Subst,
+  SubstanceLiteral,
+  SubstanceObject,
   Translation,
   WithContext,
 } from "../types/styleSemantics.js";
@@ -108,6 +110,7 @@ import {
   CompiledSubStmt,
   Decl,
   Func,
+  LiteralSubExpr,
   SubArgExpr,
   SubExpr,
   SubProg,
@@ -118,6 +121,7 @@ import {
 import {
   ArgVal,
   ConcatStr,
+  ConstStrV,
   Field,
   FloatV,
   LListV,
@@ -175,12 +179,14 @@ import {
   resolveRhsName,
   shapeListV,
   strV,
+  subObjectToUniqueName,
+  substanceLiteralToValue,
   tupV,
   val,
   vectorV,
   zip2,
 } from "../utils/Util.js";
-import { isSubtype } from "./Domain.js";
+import { isLiteralType, isSubtype, numberType, stringType } from "./Domain.js";
 import { callCompFunc, callObjConstrFunc } from "./StyleFunctionCaller.js";
 import {
   checkBind,
@@ -269,7 +275,7 @@ const checkDeclPattern = (
   // convert `stmt` to Substance-equivalent
   const subDecl = toSubDecl(decl);
   // use Substance checker
-  const res = checkDecl(subDecl, domEnv, selEnv);
+  const res = checkDecl(subDecl, domEnv, selEnv, true);
 
   // for some reasons, the previous implementation throws an error for SubVars whose type
   // does not match the actual type in the Substance program.
@@ -370,7 +376,7 @@ const checkRelPattern = (
     case "RelBind": {
       const subBind = toSubBind(rel);
 
-      const res = checkBind(subBind, domEnv, selEnv);
+      const res = checkBind(subBind, domEnv, selEnv, true);
 
       if (res.isErr()) {
         return addErrSel(
@@ -395,7 +401,7 @@ const checkRelPattern = (
       }
 
       const subPred = toSubPred(rel);
-      const res = checkPredicate(subPred, domEnv, selEnv);
+      const res = checkPredicate(subPred, domEnv, selEnv, true);
 
       if (res.isErr()) {
         return addErrSel(
@@ -522,7 +528,10 @@ const checkHeader = (varEnv: DomainEnv, header: Header<A>): SelectorEnv => {
 export const uniqueKeysAndVals = (subst: Subst): boolean => {
   // All keys already need to be unique in js, so only checking values
   const vals = Object.values(subst);
-  const valsSet = new Set(vals);
+
+  // Here we have to convert every Substance object to a string, so that
+  // Javascript Set can properly ensure uniqueness
+  const valsSet = new Set(vals.map(subObjectToUniqueName));
 
   // All entries were unique if length didn't change (ie the nub didn't change)
   return valsSet.size === vals.length;
@@ -546,6 +555,11 @@ const getSubPredAliasInstanceName = (
 const toSubType = <T>(type: SelectorType<T>): TypeApp<T> => ({
   ...type,
   tag: "TypeApp",
+});
+
+const toDomType = <T>(type: SelectorType<T>): Type<T> => ({
+  ...type,
+  tag: "Type",
 });
 
 const toSubDecl = <T>(decl: DeclPattern<T>): Decl<T> => ({
@@ -584,7 +598,15 @@ const toSubExpr = <T>(e: SelExpr<T>): SubExpr<T> => {
 };
 
 const toSubArgExpr = <T>(a: SelArgExpr<T>): SubArgExpr<T> => {
-  return a.contents.contents;
+  if (a.tag === "SelVar") {
+    return a.contents.contents;
+  } else {
+    return {
+      ...a,
+      tag: "LiteralSubExpr",
+      contents: a.contents,
+    };
+  }
 };
 
 // Convert Style predicate to Substance predicate (for ease of comparison in matching)
@@ -614,11 +636,13 @@ const deduplicate = (
     substTargets: im.Set<string>;
   };
   const initMatches: im.Set<im.Record<MatchesObject>> = im.Set();
-  const [, goodSubsts] = pSubsts.reduce(
+  const [goodMatches, goodSubsts] = pSubsts.reduce(
     ([currMatches, currSubsts], [subst, matchedSubStmts]) => {
       const record: im.Record<MatchesObject> = im.Record({
         rels: matchedSubStmts,
-        substTargets: im.Set<string>(Object.values(subst)),
+        substTargets: im.Set<string>(
+          Object.values(subst).map(subObjectToUniqueName),
+        ),
       })();
       if (currMatches.includes(record)) {
         return [currMatches, currSubsts];
@@ -679,6 +703,25 @@ const merge = (
   return im.List(result);
 };
 
+const sameSubstanceLits = (
+  a: SubstanceLiteral["contents"],
+  b: SubstanceLiteral["contents"],
+): boolean => {
+  return a.contents === b.contents;
+};
+
+const sameSubstanceObjs = (a: SubstanceObject, b: SubstanceObject): boolean => {
+  if (a.tag === "SubstanceVar" && b.tag === "SubstanceVar") {
+    return a.name === b.name;
+  }
+
+  if (a.tag === "SubstanceLiteral" && b.tag === "SubstanceLiteral") {
+    return sameSubstanceLits(a.contents, b.contents);
+  }
+
+  return false;
+};
+
 /**
  * Check whether `a` and `b` are consistent
  * in that they do not include different values mapped from the same key.
@@ -695,9 +738,7 @@ const consistentSubsts = (a: Subst, b: Subst): boolean => {
 
   const overlap = aKeys.intersect(bKeys);
 
-  return overlap.every((key) => {
-    return a[key] === b[key];
-  });
+  return overlap.every((key) => sameSubstanceObjs(a[key], b[key]));
 };
 
 const matchBvar = (
@@ -707,7 +748,10 @@ const matchBvar = (
   switch (bf.tag) {
     case "StyVar": {
       const newSubst: Subst = {};
-      newSubst[toString(bf)] = subVar.value; // StyVar matched SubVar
+      newSubst[toString(bf)] = {
+        tag: "SubstanceVar",
+        name: subVar.value,
+      };
       return newSubst;
     }
     case "SubVar": {
@@ -745,9 +789,28 @@ const matchSelDeclToSubDecls = (
   selTypeMap: im.Map<string, Type<A>>,
   subTypeMap: im.Map<string, Type<A>>,
   domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
   decl: DeclPattern<A>,
   subProg: CompiledSubProg<A>,
 ): im.List<Subst> => {
+  if (isLiteralType(toDomType(decl.type)) && decl.id.tag === "StyVar") {
+    // special handling for literal types
+
+    // only look at Substance literals with the right type
+    const expectedTag =
+      decl.type.name.value === "String" ? "StringLit" : "NumberConstant";
+    const lits = subEnv.literals.filter((l) => l.contents.tag === expectedTag);
+
+    // match all of the Substance literals
+    return im.List(
+      lits.map((l) => {
+        const subst: Subst = {};
+        subst[toString(decl.id)] = toSelSubstanceLiteral(l);
+        return subst;
+      }),
+    );
+  }
+
   const initDSubsts: im.List<Subst> = im.List();
   const newDSubsts = subProg.statements.reduce(
     (dSubsts, line: CompiledSubStmt<A>) => {
@@ -772,6 +835,27 @@ const matchSelDeclToSubDecls = (
   return newDSubsts;
 };
 
+const toSelSubstanceLiteral = (e: LiteralSubExpr<A>): SubstanceLiteral => {
+  const lit = e.contents;
+  if (lit.tag === "StringLit") {
+    return {
+      tag: "SubstanceLiteral",
+      contents: {
+        tag: "SubstanceString",
+        contents: lit.contents,
+      },
+    };
+  } else {
+    return {
+      tag: "SubstanceLiteral",
+      contents: {
+        tag: "SubstanceNumber",
+        contents: lit.contents,
+      },
+    };
+  }
+};
+
 /**
  * Match a Style argument against a Substance argument in a predicate, function, or constructor application.
  * If this argument is itself a predicate, function, or constructor application, we recursively match those.
@@ -784,42 +868,79 @@ const matchStyArgToSubArg = (
   styArg: SelArgExpr<A>,
   subArg: SubArgExpr<A>,
 ): Subst[] => {
-  if (styArg.tag === "SelVar" && subArg.tag === "Identifier") {
+  if (styArg.tag === "SelVar") {
     const styBForm = styArg.contents;
     const styArgName = styBForm.contents.value;
-    const subArgName = subArg.value;
-
-    // check types
     const styArgType = styTypeMap.get(styArgName)!;
-    const subArgType = subTypeMap.get(subArgName)!;
+    if (subArg.tag === "Identifier") {
+      // CASE 1: Matching a Selector variable against a Substance variable
 
-    if (styBForm.tag === "StyVar") {
-      // If this is StyVar and the types match, then construct the substitution.
-      if (isSubtype(subArgType, styArgType, domEnv)) {
-        const rSubst: Subst = {};
-        rSubst[styArgName] = subArgName;
-        return [rSubst];
-      } else {
-        return [];
-      }
-    } /* (styBForm.tag === "SubVar") */ else {
-      if (subArg.value === styBForm.contents.value) {
-        // If this is SubVar, we need to make sure that the name is the same and that the types match
+      const subArgName = subArg.value;
+
+      // check types
+      const subArgType = subTypeMap.get(subArgName)!;
+
+      if (styBForm.tag === "StyVar") {
+        // If this is StyVar and the types match, then construct the substitution.
         if (isSubtype(subArgType, styArgType, domEnv)) {
-          // The result is a valid match.
-          // This is an empty substitution because a substitution only maps Style variables
-          // to substance variables.
-          return [{}];
+          const rSubst: Subst = {};
+          rSubst[styArgName] = { tag: "SubstanceVar", name: subArgName };
+          return [rSubst];
         } else {
-          // invalid match
+          return [];
+        }
+      } /* (styBForm.tag === "SubVar") */ else {
+        // If this is SubVar, we need to make sure that the name is the same and that the types match
+        if (subArg.value === styBForm.contents.value) {
+          if (isSubtype(subArgType, styArgType, domEnv)) {
+            // The result is a valid match.
+            // This is an empty substitution because a substitution only maps Style variables
+            // to substance variables.
+            return [{}];
+          } else {
+            // invalid match
+            return [];
+          }
+        } else {
+          return [];
+        }
+      }
+    } else {
+      // CASE 2: Matching a Selector variable against a Substance literal
+      const lit = subArg.contents;
+
+      const subArgType = lit.tag === "StringLit" ? stringType : numberType;
+      if (styBForm.tag === "StyVar") {
+        if (isSubtype(subArgType, styArgType, domEnv)) {
+          const rSubst: Subst = {};
+          rSubst[styArgName] = toSelSubstanceLiteral(subArg);
+          return [rSubst];
+        } else {
           return [];
         }
       } else {
+        // Substance variables cannot match literals
         return [];
       }
     }
+  } else {
+    const selLit = styArg.contents;
+
+    if (subArg.tag === "LiteralSubExpr") {
+      // CASE 3: Matching a Selector literal against a Substance literal
+
+      // requires that the type and values are equal
+      const subLit = subArg.contents;
+      if (selLit.tag === subLit.tag && selLit.contents === subLit.contents) {
+        return [{}];
+      } else {
+        return [];
+      }
+    } else {
+      // CASE 4: Matching a Selector literal against a Substance variable
+      return [];
+    }
   }
-  return [];
 };
 
 /**
@@ -935,7 +1056,10 @@ const matchStyApplyToSubApply = (
       const aliasName = styRel.alias.value;
       return rSubsts.map((rSubst) => {
         const rSubstWithAlias = { ...rSubst };
-        rSubstWithAlias[aliasName] = getSubPredAliasInstanceName(subRel);
+        rSubstWithAlias[aliasName] = {
+          tag: "SubstanceVar",
+          name: getSubPredAliasInstanceName(subRel),
+        };
         return rSubstWithAlias;
       });
     }
@@ -1025,7 +1149,7 @@ const matchRelField = (
     const label = subEnv.labels.get(subName);
     if (label) {
       const rSubst: Subst = {};
-      rSubst[styName] = subName;
+      rSubst[styName] = { tag: "SubstanceVar", name: subName };
       if (fieldDesc) {
         return label.type === fieldDesc ? rSubst : undefined;
       } else {
@@ -1039,17 +1163,21 @@ const matchRelField = (
   }
 };
 
-const getStyPredOrFuncOrConsArgNames = (
-  arg: RelPred<A> | SelExpr<A>,
-): im.Set<string> => {
+const getArgNames = (arg: RelPred<A> | SelExpr<A>): im.Set<string> => {
   if (arg.tag === "RelPred") {
     return getStyRelArgNames(arg);
   } else if (arg.tag === "SelVar") {
     return im.Set<string>().add(toString(arg.contents));
-  } else {
+  } else if (
+    arg.tag === "SEFunc" ||
+    arg.tag === "SEFuncOrValCons" ||
+    arg.tag === "SEValCons"
+  ) {
     return arg.args.reduce((argNames, arg) => {
-      return argNames.union(getStyPredOrFuncOrConsArgNames(arg));
+      return argNames.union(getArgNames(arg));
     }, im.Set<string>());
+  } else {
+    return im.Set<string>();
   }
 };
 
@@ -1057,11 +1185,11 @@ const getStyRelArgNames = (rel: RelationPattern<A>): im.Set<string> => {
   const initArgNames: im.Set<string> = im.Set();
   if (rel.tag === "RelPred") {
     return rel.args.reduce((argNames, arg) => {
-      return argNames.union(getStyPredOrFuncOrConsArgNames(arg));
+      return argNames.union(getArgNames(arg));
     }, initArgNames);
   } else if (rel.tag === "RelBind") {
     const bindedName = toString(rel.id);
-    return getStyPredOrFuncOrConsArgNames(rel.expr).add(bindedName);
+    return getArgNames(rel.expr).add(bindedName);
   } else {
     return initArgNames.add(toString(rel.name));
   }
@@ -1138,7 +1266,10 @@ const matchStyRelToSubRels = (
 
       return rSubstsForExpr.reduce((rSubsts, rSubstForExpr) => {
         const rSubstForBind = { ...rSubstForExpr };
-        rSubstForBind[styBindedName] = subBindedName;
+        rSubstForBind[styBindedName] = {
+          tag: "SubstanceVar",
+          name: subBindedName,
+        };
         return rSubsts.push([
           rSubstForBind,
           im.Set<CompiledSubStmt<A>>().add(statement),
@@ -1230,7 +1361,6 @@ const makePotentialSubsts = (
 ): im.List<[Subst, im.Set<SubStmt<A>>]> => {
   const selTypeMap = selEnv.objs;
   const subTypeMap = subEnv.objs;
-
   const [usedStyVars, listRSubsts] = makeListRSubstsForStyleRels(
     selTypeMap,
     subTypeMap,
@@ -1248,6 +1378,7 @@ const makePotentialSubsts = (
         selTypeMap,
         subTypeMap,
         domEnv,
+        subEnv,
         decl,
         subProg,
       );
@@ -1260,12 +1391,12 @@ const makePotentialSubsts = (
   if (listPSubsts.some((pSubsts) => pSubsts.size === 0)) {
     return im.List();
   }
-
   const first = listPSubsts.first();
   if (first) {
     const substs = listPSubsts.shift().reduce((currSubsts, pSubsts) => {
       return merge(currSubsts, pSubsts);
     }, first);
+
     return substs;
   } else {
     return im.List();
@@ -1302,7 +1433,6 @@ const getSubsts = (
     rels,
   );
   log.debug("total number of raw substs: ", rawSubsts.size);
-
   // Ensures there are no duplicated substitutions in terms of both
   // matched relations and substitution targets.
   const filteredSubsts = deduplicate(domEnv, subEnv, subProg, rels, rawSubsts);
@@ -1320,7 +1450,7 @@ const getSubsts = (
 
 type GroupbyBucket = {
   groupbySubst: Subst;
-  contents: string[];
+  contents: SubstanceObject[];
 };
 
 const collectSubsts = (
@@ -1333,12 +1463,19 @@ const collectSubsts = (
 
   for (const subst of substs) {
     const toCollectVal = subst[toCollect];
+
+    // these are the values of each of the variables in `groupby` within the current subst
+    // this is essentially the key of the corresponding GroupBy bucket
     const groupbyVals = groupbys.map((groupby) => subst[groupby]);
 
-    const groupbyVals_str = groupbyVals.join(" ");
+    // unique string identification of each realization of the variable in the foreach (groupby) clause
+    // this is the actual key
+    const groupbyVals_str = groupbyVals.map(subObjectToUniqueName).join(" ");
 
+    // get the bucket
     const bucket = buckets.get(groupbyVals_str);
 
+    // add the value to collected (`toCollectVal`) into the correct bucket
     if (bucket === undefined) {
       buckets.set(groupbyVals_str, {
         groupbySubst: Object.fromEntries(zip2(groupbys, groupbyVals)),
@@ -1593,9 +1730,17 @@ const resolveLhsName = (
         return { tag: "Local", block, name: value };
       } else if (subst.tag === "StySubSubst" && value in subst.contents) {
         // selector match names shadow globals
-        return { tag: "Substance", block, name: subst.contents[value] };
+        return {
+          tag: "Substance",
+          block,
+          name: subObjectToUniqueName(subst.contents[value]),
+        };
       } else if (subst.tag === "CollectionSubst" && value in subst.groupby) {
-        return { tag: "Substance", block, name: subst.groupby[value] };
+        return {
+          tag: "Substance",
+          block,
+          name: subObjectToUniqueName(subst.groupby[value]),
+        };
       } else if (assignment.globals.has(value)) {
         return { tag: "Global", block, name: value };
       } else {
@@ -1931,7 +2076,7 @@ const findPathsExpr = <T>(expr: Expr<T>, context: Context): Path<T>[] => {
         context.subst.collName === name
       ) {
         const paths = context.subst.collContent.map(
-          (subVar: string): Path<T> => ({
+          (subObj: SubstanceObject): Path<T> => ({
             ...expr,
             tag: "Path",
             name: {
@@ -1941,7 +2086,7 @@ const findPathsExpr = <T>(expr: Expr<T>, context: Context): Path<T>[] => {
                 ...expr.name,
                 tag: "Identifier",
                 type: "value",
-                value: subVar,
+                value: subObjectToUniqueName(subObj),
               },
             },
             members: [
@@ -1972,8 +2117,59 @@ const findPathsWithContext = <T>({
 }: WithContext<Expr<T>>): WithContext<Path<T>>[] =>
   findPathsExpr(expr, context).map((p) => ({ context, expr: p }));
 
-const resolveRhsPath = (p: WithContext<Path<C>>): ResolvedPath<C> => {
-  const { start, end, name, members } = p.expr; // drop `indices`
+const resolveRhsPath = (
+  p: WithContext<Path<C>>,
+): ResolvedPath<C> | FloatV<number> | ConstStrV<number> | VectorV<number> => {
+  const { start, end, name, members, indices } = p.expr;
+  const { subst } = p.context;
+  // special handling so that if a Style variable maps to a Substance literal,
+  // then accessing it just gives the value.
+  if (members.length === 0 && indices.length === 0) {
+    if (subst.tag === "StySubSubst" && name.contents.value in subst.contents) {
+      const subObj = subst.contents[name.contents.value];
+      if (subObj.tag === "SubstanceLiteral") {
+        return substanceLiteralToValue(subObj);
+      }
+    }
+
+    if (
+      subst.tag === "CollectionSubst" &&
+      name.contents.value in subst.groupby
+    ) {
+      const subObj = subst.groupby[name.contents.value];
+      if (subObj.tag === "SubstanceLiteral") {
+        return substanceLiteralToValue(subObj);
+      }
+    }
+
+    if (
+      subst.tag === "CollectionSubst" &&
+      name.contents.value === subst.collName
+    ) {
+      const subObjs = subst.collContent;
+      // If each object is literal
+      if (subObjs.every((subObj) => subObj.tag === "SubstanceLiteral")) {
+        const lits = subObjs.map((subObj) => {
+          if (subObj.tag === "SubstanceLiteral") {
+            return substanceLiteralToValue(subObj);
+          } else {
+            throw new Error(
+              "Should never happen: every object is SubstanceLiteral",
+            );
+          }
+        });
+
+        if (lits.every((lit) => lit.tag === "FloatV")) {
+          return {
+            tag: "VectorV",
+            // This is okay because everything in `lits` is FloatV
+            // as in the guard
+            contents: lits.map((lit) => lit.contents as number),
+          };
+        }
+      }
+    }
+  }
   return { start, end, ...resolveRhsName(p.context, name), members };
 };
 
@@ -2737,6 +2933,13 @@ const evalExpr = (
     }
     case "Path": {
       const resolvedPath = resolveRhsPath({ context, expr });
+      if (
+        resolvedPath.tag === "FloatV" ||
+        resolvedPath.tag === "StrV" ||
+        resolvedPath.tag === "VectorV"
+      ) {
+        return ok(val(resolvedPath));
+      }
       const path = prettyPrintResolvedPath(resolvedPath);
       const resolved = trans.symbols.get(path);
       if (resolved === undefined) {
@@ -2864,8 +3067,9 @@ const evalExpr = (
         // actually gather the list.
         const collection = subst.collContent;
         const result: ArgVal<ad.Num>[] = [];
-        for (const subVar of collection) {
-          const actualPath = `\`${subVar}\`.${field.value}`;
+        for (const subObj of collection) {
+          const uniqueName = subObjectToUniqueName(subObj);
+          const actualPath = `\`${uniqueName}\`.${field.value}`;
           const value = trans.symbols.get(actualPath);
           if (value !== undefined) {
             result.push(value);
@@ -2912,15 +3116,32 @@ const evalNumberOf = (
   }
 };
 
+const extractMainSubst = (subst: StySubst) => {
+  if (subst.tag === "StySubSubst") {
+    return subst.contents;
+  } else {
+    return subst.groupby;
+  }
+};
+
 const evalNameOf = (
   subst: StySubst,
   arg: Identifier<C>,
   loc: SourceRange,
 ): Result<ArgVal<ad.Num>, StyleDiagnostics> => {
-  if (subst.tag === "StySubSubst" && arg.value in subst.contents) {
-    return ok(val(constStrV(subst.contents[arg.value])));
-  } else if (subst.tag === "CollectionSubst" && arg.value in subst.groupby) {
-    return ok(val(constStrV(subst.groupby[arg.value])));
+  const s = extractMainSubst(subst);
+
+  if (arg.value in s) {
+    const m = s[arg.value];
+    if (m.tag === "SubstanceVar") {
+      return ok(val(constStrV(m.name)));
+    } else {
+      if (m.contents.tag === "SubstanceNumber") {
+        return ok(val(constStrV(m.contents.contents.toString())));
+      } else {
+        return ok(val(constStrV(m.contents.contents)));
+      }
+    }
   } else {
     return err(oneErr(notStyleVariableError(arg.value, loc)));
   }
@@ -2944,7 +3165,6 @@ const collectIntoVal = (
   }
 
   const [first, ...rest] = coll;
-
   if (first.tag === "ShapeVal") {
     return evalShapeList(expr, first.contents, rest);
   } else {

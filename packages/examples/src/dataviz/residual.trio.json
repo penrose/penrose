@@ -1,0 +1,6 @@
+{
+  "substance": "./smalldata.substance",
+  "style": ["./linearreg.style", "./residual.style"],
+  "domain": "./datapoint.domain",
+  "variation": "PorcellanaFlamingo3169"
+}

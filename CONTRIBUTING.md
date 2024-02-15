@@ -37,7 +37,7 @@ Be sure you have these tools installed:
 
 - [Python][] 3.10 and below.
 
-- [Node.js][] v16-v18 (if using Linux or Mac, we recommend installing via [nvm][])
+- [Node.js][] v18+ (if using Linux or Mac, we recommend installing via [nvm][])
 
   - [Yarn][] v1.x
 

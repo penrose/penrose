@@ -2,10 +2,10 @@ name: Packages
 runs:
   using: composite
   steps:
-    - name: Setup Node v16
+    - name: Setup Node v18
       uses: actions/setup-node@v3
       with:
-        node-version: "16"
+        node-version: "18"
         registry-url: "https://registry.npmjs.org"
     - name: Restore cache
       id: cache

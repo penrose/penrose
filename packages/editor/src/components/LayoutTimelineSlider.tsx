@@ -9,27 +9,31 @@ import SegmentedSlider from "./SegmentedSlider";
 export const LayoutTimelineSlider: React.FC<{}> = (props) => {
   const [diagram, setDiagram] = useRecoilState(diagramState);
   const min = 0;
-  const [max, setMax] = useState(100);
+  const [max, setMax] = useState(0);
   const stats = optimizer.getStats();
-  const [index, setIndex] = useState(100);
+  const [index, setIndex] = useState(0);
   const { running } = useRecoilValue(diagramWorkerState);
 
   useEffect(() => {
     setMax(stats.reduce((acc, stat) => acc + stat.steps, 0));
   }, [diagram]);
 
+  // useEffect(() => {
+  //   setIndex(max);
+  // }, [max]);
+
   const onChange = (i: number) => {
-    // update current index
-    setIndex(i);
     // request shapes from worker
     async function requestShapes() {
-      const state = await optimizer.computeShapes(index, min, max);
+      const state = await optimizer.computeShapes(i);
       setDiagram((diagram) => ({
         ...diagram,
         state: state,
       }));
     }
     requestShapes();
+    // update current index
+    setIndex(i);
   };
   return (
     <div

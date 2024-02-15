@@ -206,7 +206,7 @@ where In(u,U) {
 -- Exercise 1 Changes:
 forall Vector u; Vector v; Vector w; VectorSpace U
 where u := subV(v,w); In(u, U); In(v, U); In(w, U){
-  override u.shape.end = v.shape.end - w.shape.end - U.origin
+  override u.shape.end = v.shape.end - w.shape.end + U.origin
   override u.shape.strokeColor = const.green
   override u.text.string = "difference"
 }
