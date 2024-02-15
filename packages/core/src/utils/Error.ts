@@ -862,6 +862,7 @@ export const errLocs = (
       ];
     }
 
+    case "FunctionInternalError":
     case "RedeclareNamespaceError":
     case "NotSubstanceCollectionError":
     case "NotStyleVariableError":
