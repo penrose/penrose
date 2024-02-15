@@ -46,7 +46,17 @@ export const callCompFunc = (
     });
   } catch (e) {
     if (e instanceof Error) {
-      return err(functionInternalError(func, range, e.message));
+      return err(
+        functionInternalError(
+          {
+            name: func.name,
+            description: func.description,
+            params: func.params,
+          },
+          range,
+          e.message,
+        ),
+      );
     } else {
       throw new Error("Function call resulted in exception not of Error type");
     }

@@ -532,7 +532,11 @@ export interface TooManyArgumentsError {
 
 export interface FunctionInternalError {
   tag: "FunctionInternalError";
-  func: CompFunc | ObjFunc | ConstrFunc;
+  // NOTE: to be compatible with webworkers, the function body cannot be cloned and can be therefore excluded.
+  func:
+    | Omit<CompFunc, "body">
+    | Omit<ObjFunc, "body">
+    | Omit<ConstrFunc, "body">;
   location: SourceRange;
   message: string;
 }

@@ -99,6 +99,7 @@ export const sampleWidth = (
 ): FloatV<ad.Num> =>
   floatV(
     makeInput({
+      // BUG: when canvas width is too small this will error out
       init: { tag: "Sampled", sampler: uniform(3, canvas.width / 6) },
       stages: "All",
     }),
@@ -110,6 +111,7 @@ export const sampleHeight = (
 ): FloatV<ad.Num> =>
   floatV(
     makeInput({
+      // BUG: when canvas width is too small this will error out
       init: { tag: "Sampled", sampler: uniform(3, canvas.height / 6) },
       stages: "All",
     }),
