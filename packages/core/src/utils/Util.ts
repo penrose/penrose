@@ -207,7 +207,7 @@ export const randFloat = (
   // TODO: better error reporting
   console.assert(
     max > min,
-    "min should be smaller than max for random number generation!",
+    `min should be smaller than max for random number generation! min ${min}, max ${max}`,
   );
   return rng() * (max - min) + min;
 };
