@@ -1,11 +1,11 @@
 Nitrogen n1, n2
 Hydrogen h1, h2, h3, h4
 -- bonds
-Bond b1 := MakeSingleBond(n1, n2)
-Bond b2 := MakeSingleBond(n1, h1)
-Bond b3 := MakeSingleBond(n1, h2)
-Bond b4 := MakeSingleBond(n2, h3)
-Bond b5 := MakeSingleBond(n2, h4)
+Bond b1 := SingleBond(n1, n2)
+Bond b2 := SingleBond(n1, h1)
+Bond b3 := SingleBond(n1, h2)
+Bond b4 := SingleBond(n2, h3)
+Bond b5 := SingleBond(n2, h4)
 -- electrons
 ZeroDots(h1)
 ZeroDots(h2)
