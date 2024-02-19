@@ -58,6 +58,10 @@
     "name": "Lewis Structure of Nitric Acid",
     "gallery": false
   },
+  "array-models/insertionSort": {
+    "name": "Insertion Sort",
+    "gallery": true
+  },
   "exterior-algebra/vector-wedge": {
     "name": "Wedge Product",
     "gallery": true
