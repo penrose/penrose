@@ -6,26 +6,109 @@ import {
   SigName,
   SingleSigName,
 } from "../types/DomainObject.js";
-import { ModelRel, ModelSig } from "../types/ModelShape.js";
+import { ModelRel, RawAlloyModel, ModelSig } from "../types/RawAlloyModel.js";
 
-export type ProcessDomainResult = {
+export type CompiledModel = {
   sigTypes: DomainSigType[];
   conjTypes: DomainConjunctionType[];
   subTypes: DomainSubType[];
   rels: DomainRel[];
 };
 
-export const processSigName = (raw: string): SingleSigName => {
+export const compileModel = (shape: RawAlloyModel): CompiledModel => {
+  const initRes: CompiledModel = {
+    sigTypes: [],
+    conjTypes: [],
+    subTypes: [],
+    rels: [],
+  };
+
+  const addResult = (prev: CompiledModel, curr: CompiledModel) => {
+    return {
+      sigTypes: [...prev.sigTypes, ...curr.sigTypes],
+      conjTypes: [...prev.conjTypes, ...curr.conjTypes],
+      subTypes: [...prev.subTypes, ...curr.subTypes],
+      rels: [...prev.rels, ...curr.rels],
+    };
+  };
+
+  const afterSigs = shape.sigs.reduce(
+    (acc, sig) => addResult(acc, processSig(sig)),
+    initRes,
+  );
+
+  const afterRels = shape.rels.reduce(
+    (acc, rel) => addResult(acc, processRel(rel)),
+    afterSigs,
+  );
+
+  return afterRels;
+};
+
+const toDomainName = (name: SigName) => {
+  if (name.tag === "SingleSigName") {
+    return `_sig_${name.contents.replaceAll("/", "_SLASH_")}`;
+  } else {
+    return `_conj_${name.contents
+      .map((n) => n.replaceAll("/", "_SLASH_"))
+      .join("_OR_")}`;
+  }
+};
+
+export const translateToDomain = ({
+  sigTypes,
+  conjTypes,
+  subTypes,
+  rels,
+}: CompiledModel): string => {
+  const prog: string[] = ["type Rel"];
+
+  for (const sigType of sigTypes) {
+    const line = `type ${toDomainName(sigType.contents)}`;
+    if (!prog.includes(line)) {
+      prog.push(line);
+    }
+  }
+
+  for (const conjType of conjTypes) {
+    const line = `type ${toDomainName(conjType.contents)}`;
+    if (!prog.includes(line)) {
+      prog.push(line);
+    }
+  }
+
+  for (const subType of subTypes) {
+    const line = `${toDomainName(subType.sub)} <: ${toDomainName(subType.sup)}`;
+    if (!prog.includes(line)) {
+      prog.push(line);
+    }
+  }
+
+  for (const rel of rels) {
+    const { belongsTo, name, argTypes } = rel;
+    const line = `function _rel_${belongsTo.contents.replaceAll(
+      "/",
+      "_SLASH_",
+    )}_${name} (${argTypes.map(toDomainName).join(", ")}) -> Rel`;
+    if (!prog.includes(line)) {
+      prog.push(line);
+    }
+  }
+
+  return prog.join("\n");
+};
+
+const processSigName = (raw: string): SingleSigName => {
   return {
     tag: "SingleSigName",
     contents: raw,
   };
 };
 
-export const processSig = (sig: ModelSig): ProcessDomainResult => {
+const processSig = (sig: ModelSig): CompiledModel => {
   const { name, parent, supersets } = sig;
 
-  const result: ProcessDomainResult = {
+  const result: CompiledModel = {
     sigTypes: [],
     conjTypes: [],
     subTypes: [],
@@ -62,11 +145,11 @@ export const processSig = (sig: ModelSig): ProcessDomainResult => {
   return result;
 };
 
-export const processRel = (rel: ModelRel): ProcessDomainResult => {
+const processRel = (rel: ModelRel): CompiledModel => {
   const { name, type, sig } = rel;
   const sigName = processSigName(sig);
 
-  const result: ProcessDomainResult = {
+  const result: CompiledModel = {
     sigTypes: [],
     conjTypes: [],
     subTypes: [],

@@ -4,25 +4,25 @@ type _sig_Int
 type _sig_seq_SLASH_Int
 type _sig_String
 type _sig_none
-type _sig_this_SLASH_Philosopher
-type _sig_this_SLASH_Fork
+type _sig_this_SLASH_Object
+type _sig_this_SLASH_Farmer
+type _sig_this_SLASH_Fox
+type _sig_this_SLASH_Chicken
+type _sig_this_SLASH_Grain
 type _sig_this_SLASH_State
-type _sig_so_SLASH_Ord
-type _sig_po_SLASH_Ord
+type _sig_ord_SLASH_Ord
 _sig_Int <: _sig_univ
 _sig_seq_SLASH_Int <: _sig_Int
 _sig_String <: _sig_univ
-_sig_this_SLASH_Philosopher <: _sig_univ
-_sig_this_SLASH_Fork <: _sig_univ
+_sig_this_SLASH_Object <: _sig_univ
+_sig_this_SLASH_Farmer <: _sig_this_SLASH_Object
+_sig_this_SLASH_Fox <: _sig_this_SLASH_Object
+_sig_this_SLASH_Chicken <: _sig_this_SLASH_Object
+_sig_this_SLASH_Grain <: _sig_this_SLASH_Object
 _sig_this_SLASH_State <: _sig_univ
-_sig_so_SLASH_Ord <: _sig_univ
-_sig_po_SLASH_Ord <: _sig_univ
-function _rel_this_SLASH_Philosopher_leftFork (_sig_this_SLASH_Philosopher, _sig_this_SLASH_Fork) -> Rel
-function _rel_this_SLASH_Philosopher_rightFork (_sig_this_SLASH_Philosopher, _sig_this_SLASH_Fork) -> Rel
-function _rel_this_SLASH_Philosopher_leftPhil (_sig_this_SLASH_Philosopher, _sig_this_SLASH_Philosopher) -> Rel
-function _rel_this_SLASH_Philosopher_rightPhil (_sig_this_SLASH_Philosopher, _sig_this_SLASH_Philosopher) -> Rel
-function _rel_this_SLASH_State_using (_sig_this_SLASH_State, _sig_this_SLASH_Fork, _sig_this_SLASH_Philosopher) -> Rel
-function _rel_so_SLASH_Ord_First (_sig_so_SLASH_Ord, _sig_this_SLASH_State) -> Rel
-function _rel_so_SLASH_Ord_Next (_sig_so_SLASH_Ord, _sig_this_SLASH_State, _sig_this_SLASH_State) -> Rel
-function _rel_po_SLASH_Ord_First (_sig_po_SLASH_Ord, _sig_this_SLASH_Philosopher) -> Rel
-function _rel_po_SLASH_Ord_Next (_sig_po_SLASH_Ord, _sig_this_SLASH_Philosopher, _sig_this_SLASH_Philosopher) -> Rel
+_sig_ord_SLASH_Ord <: _sig_univ
+function _rel_this_SLASH_Object_eats (_sig_this_SLASH_Object, _sig_this_SLASH_Object) -> Rel
+function _rel_this_SLASH_State_near (_sig_this_SLASH_State, _sig_this_SLASH_Object) -> Rel
+function _rel_this_SLASH_State_far (_sig_this_SLASH_State, _sig_this_SLASH_Object) -> Rel
+function _rel_ord_SLASH_Ord_First (_sig_ord_SLASH_Ord, _sig_this_SLASH_State) -> Rel
+function _rel_ord_SLASH_Ord_Next (_sig_ord_SLASH_Ord, _sig_this_SLASH_State, _sig_this_SLASH_State) -> Rel

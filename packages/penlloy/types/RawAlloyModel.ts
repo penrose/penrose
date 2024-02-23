@@ -10,7 +10,7 @@ export interface ModelRel {
   sig: string;
 }
 
-export interface ModelShape {
+export interface RawAlloyModel {
   sigs: ModelSig[];
   rels: ModelRel[];
 }

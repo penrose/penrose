@@ -16,11 +16,23 @@
     { "name": "none" },
     {
       "parent": "univ",
-      "name": "this/Philosopher"
+      "name": "this/Object"
     },
     {
-      "parent": "univ",
-      "name": "this/Fork"
+      "parent": "this/Object",
+      "name": "this/Farmer"
+    },
+    {
+      "parent": "this/Object",
+      "name": "this/Fox"
+    },
+    {
+      "parent": "this/Object",
+      "name": "this/Chicken"
+    },
+    {
+      "parent": "this/Object",
+      "name": "this/Grain"
     },
     {
       "parent": "univ",
@@ -28,58 +40,34 @@
     },
     {
       "parent": "univ",
-      "name": "so/Ord"
-    },
-    {
-      "parent": "univ",
-      "name": "po/Ord"
+      "name": "ord/Ord"
     }
   ],
   "rels": [
     {
-      "sig": "this/Philosopher",
-      "name": "leftFork",
-      "type": "{this/Philosopher->this/Fork}"
-    },
-    {
-      "sig": "this/Philosopher",
-      "name": "rightFork",
-      "type": "{this/Philosopher->this/Fork}"
-    },
-    {
-      "sig": "this/Philosopher",
-      "name": "leftPhil",
-      "type": "{this/Philosopher->this/Philosopher}"
-    },
-    {
-      "sig": "this/Philosopher",
-      "name": "rightPhil",
-      "type": "{this/Philosopher->this/Philosopher}"
+      "sig": "this/Object",
+      "name": "eats",
+      "type": "{this/Object->this/Object}"
     },
     {
       "sig": "this/State",
-      "name": "using",
-      "type": "{this/State->this/Fork->this/Philosopher}"
+      "name": "near",
+      "type": "{this/State->this/Object}"
     },
     {
-      "sig": "so/Ord",
+      "sig": "this/State",
+      "name": "far",
+      "type": "{this/State->this/Object}"
+    },
+    {
+      "sig": "ord/Ord",
       "name": "First",
-      "type": "{so/Ord->this/State}"
+      "type": "{ord/Ord->this/State}"
     },
     {
-      "sig": "so/Ord",
+      "sig": "ord/Ord",
       "name": "Next",
-      "type": "{so/Ord->this/State->this/State}"
-    },
-    {
-      "sig": "po/Ord",
-      "name": "First",
-      "type": "{po/Ord->this/Philosopher}"
-    },
-    {
-      "sig": "po/Ord",
-      "name": "Next",
-      "type": "{po/Ord->this/Philosopher->this/Philosopher}"
+      "type": "{ord/Ord->this/State->this/State}"
     }
   ]
 }
