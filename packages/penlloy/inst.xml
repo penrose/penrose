@@ -1,0 +1,121 @@
+<alloy builddate="2019-08-14T18:53:58.297Z">
+
+<instance bitwidth="4" maxseq="4" command="Run solvePuzzle for 8 State expect 1" filename="C:\Users\liang\AppData\Local\Temp\alloy4tmp40-liang\models\examples\tutorial\farmer.als">
+
+<sig label="seq/Int" ID="0" parentID="1" builtin="yes">
+</sig>
+
+<sig label="Int" ID="1" parentID="2" builtin="yes">
+</sig>
+
+<sig label="String" ID="3" parentID="2" builtin="yes">
+</sig>
+
+<sig label="this/Farmer" ID="4" parentID="5" one="yes">
+   <atom label="Farmer$0"/>
+</sig>
+
+<sig label="this/Fox" ID="6" parentID="5" one="yes">
+   <atom label="Fox$0"/>
+</sig>
+
+<sig label="this/Chicken" ID="7" parentID="5" one="yes">
+   <atom label="Chicken$0"/>
+</sig>
+
+<sig label="this/Grain" ID="8" parentID="5" one="yes">
+   <atom label="Grain$0"/>
+</sig>
+
+<sig label="this/Object" ID="5" parentID="2" abstract="yes">
+</sig>
+
+<field label="eats" ID="9" parentID="5">
+   <tuple> <atom label="Fox$0"/> <atom label="Chicken$0"/> </tuple>
+   <tuple> <atom label="Chicken$0"/> <atom label="Grain$0"/> </tuple>
+   <types> <type ID="5"/> <type ID="5"/> </types>
+</field>
+
+<sig label="this/State" ID="10" parentID="2">
+   <atom label="State$0"/>
+   <atom label="State$1"/>
+   <atom label="State$2"/>
+   <atom label="State$3"/>
+   <atom label="State$4"/>
+   <atom label="State$5"/>
+   <atom label="State$6"/>
+   <atom label="State$7"/>
+</sig>
+
+<field label="near" ID="11" parentID="10">
+   <tuple> <atom label="State$0"/> <atom label="Farmer$0"/> </tuple>
+   <tuple> <atom label="State$0"/> <atom label="Fox$0"/> </tuple>
+   <tuple> <atom label="State$0"/> <atom label="Chicken$0"/> </tuple>
+   <tuple> <atom label="State$0"/> <atom label="Grain$0"/> </tuple>
+   <tuple> <atom label="State$1"/> <atom label="Fox$0"/> </tuple>
+   <tuple> <atom label="State$1"/> <atom label="Grain$0"/> </tuple>
+   <tuple> <atom label="State$2"/> <atom label="Farmer$0"/> </tuple>
+   <tuple> <atom label="State$2"/> <atom label="Fox$0"/> </tuple>
+   <tuple> <atom label="State$2"/> <atom label="Grain$0"/> </tuple>
+   <tuple> <atom label="State$3"/> <atom label="Fox$0"/> </tuple>
+   <tuple> <atom label="State$4"/> <atom label="Farmer$0"/> </tuple>
+   <tuple> <atom label="State$4"/> <atom label="Fox$0"/> </tuple>
+   <tuple> <atom label="State$4"/> <atom label="Chicken$0"/> </tuple>
+   <tuple> <atom label="State$5"/> <atom label="Chicken$0"/> </tuple>
+   <tuple> <atom label="State$6"/> <atom label="Farmer$0"/> </tuple>
+   <tuple> <atom label="State$6"/> <atom label="Chicken$0"/> </tuple>
+   <types> <type ID="10"/> <type ID="5"/> </types>
+</field>
+
+<field label="far" ID="12" parentID="10">
+   <tuple> <atom label="State$1"/> <atom label="Farmer$0"/> </tuple>
+   <tuple> <atom label="State$1"/> <atom label="Chicken$0"/> </tuple>
+   <tuple> <atom label="State$2"/> <atom label="Chicken$0"/> </tuple>
+   <tuple> <atom label="State$3"/> <atom label="Farmer$0"/> </tuple>
+   <tuple> <atom label="State$3"/> <atom label="Chicken$0"/> </tuple>
+   <tuple> <atom label="State$3"/> <atom label="Grain$0"/> </tuple>
+   <tuple> <atom label="State$4"/> <atom label="Grain$0"/> </tuple>
+   <tuple> <atom label="State$5"/> <atom label="Farmer$0"/> </tuple>
+   <tuple> <atom label="State$5"/> <atom label="Fox$0"/> </tuple>
+   <tuple> <atom label="State$5"/> <atom label="Grain$0"/> </tuple>
+   <tuple> <atom label="State$6"/> <atom label="Fox$0"/> </tuple>
+   <tuple> <atom label="State$6"/> <atom label="Grain$0"/> </tuple>
+   <tuple> <atom label="State$7"/> <atom label="Farmer$0"/> </tuple>
+   <tuple> <atom label="State$7"/> <atom label="Fox$0"/> </tuple>
+   <tuple> <atom label="State$7"/> <atom label="Chicken$0"/> </tuple>
+   <tuple> <atom label="State$7"/> <atom label="Grain$0"/> </tuple>
+   <types> <type ID="10"/> <type ID="5"/> </types>
+</field>
+
+<sig label="ord/Ord" ID="13" parentID="2" one="yes" private="yes">
+   <atom label="ord/Ord$0"/>
+</sig>
+
+<field label="First" ID="14" parentID="13" private="yes">
+   <tuple> <atom label="ord/Ord$0"/> <atom label="State$0"/> </tuple>
+   <types> <type ID="13"/> <type ID="10"/> </types>
+</field>
+
+<field label="Next" ID="15" parentID="13" private="yes">
+   <tuple> <atom label="ord/Ord$0"/> <atom label="State$0"/> <atom label="State$1"/> </tuple>
+   <tuple> <atom label="ord/Ord$0"/> <atom label="State$1"/> <atom label="State$2"/> </tuple>
+   <tuple> <atom label="ord/Ord$0"/> <atom label="State$2"/> <atom label="State$3"/> </tuple>
+   <tuple> <atom label="ord/Ord$0"/> <atom label="State$3"/> <atom label="State$4"/> </tuple>
+   <tuple> <atom label="ord/Ord$0"/> <atom label="State$4"/> <atom label="State$5"/> </tuple>
+   <tuple> <atom label="ord/Ord$0"/> <atom label="State$5"/> <atom label="State$6"/> </tuple>
+   <tuple> <atom label="ord/Ord$0"/> <atom label="State$6"/> <atom label="State$7"/> </tuple>
+   <types> <type ID="13"/> <type ID="10"/> <type ID="10"/> </types>
+</field>
+
+<sig label="univ" ID="2" builtin="yes">
+</sig>
+
+</instance>
+
+<source filename="C:\Users\liang\AppData\Local\Temp\alloy4tmp40-liang\models\examples\tutorial\farmer.als" content="module examples/tutorial/farmer&#x000a;&#x000a;/*&#x000a; * The classic river crossing puzzle. A farmer is carrying a fox, a&#x000a; * chicken, and a sack of grain. He must cross a river using a boat&#x000a; * that can only hold the farmer and at most one other thing. If the&#x000a; * farmer leaves the fox alone with the chicken, the fox will eat the&#x000a; * chicken; and if he leaves the chicken alone with the grain, the&#x000a; * chicken will eat the grain. How can the farmer bring everything&#x000a; * to the far side of the river intact?&#x000a; *&#x000a; * authors: Greg Dennis, Rob Seater&#x000a; *&#x000a; * Acknowledgements to Derek Rayside and his students for finding and&#x000a; * fixing a bug in the &quot;crossRiver&quot; predicate.&#x000a; */&#x000a;&#x000a;open util/ordering[State] as ord&#x000a;&#x000a;/**&#x000a; * The farmer and all his possessions will be represented as Objects.&#x000a; * Some objects eat other objects when the Farmer&apos;s not around.&#x000a; */&#x000a;abstract sig Object { eats: set Object }&#x000a;one sig Farmer, Fox, Chicken, Grain extends Object {}&#x000a;&#x000a;/**&#x000a; * Define what eats what when the Farmer&apos; not around.&#x000a; * Fox eats the chicken and the chicken eats the grain.&#x000a; */&#x000a;fact eating { eats = Fox-&gt;Chicken + Chicken-&gt;Grain }&#x000a;&#x000a;/**&#x000a; * The near and far relations contain the objects held on each&#x000a; * side of the river in a given , respectively.&#x000a; */&#x000a;sig State {&#x000a;   near: set Object,&#x000a;   far: set Object&#x000a;}&#x000a;&#x000a;/**&#x000a; * In the initial state, all objects are on the near side.&#x000a; */&#x000a;fact initialState {&#x000a;   let s0 = ord/first |&#x000a;     s0.near = Object &amp;&amp; no s0.far&#x000a;}&#x000a;&#x000a;/**&#x000a; * Constrains at most one item to move from &apos;from&apos; to &apos;to&apos;.&#x000a; * Also constrains which objects get eaten.&#x000a; */&#x000a;pred crossRiver [from, from&quot;, to, to&quot;: set Object] {&#x000a;   // either the Farmer takes no items&#x000a;   (from&quot; = from - Farmer - from&quot;.eats and&#x000a;    to&quot; = to + Farmer) or&#x000a;    // or the Farmer takes one item&#x000a;    (one x : from - Farmer | {&#x000a;       from&quot; = from - Farmer - x - from&quot;.eats&#x000a;       to&quot; = to + Farmer + x })&#x000a;}&#x000a;&#x000a;/**&#x000a; * crossRiver transitions between states&#x000a; */&#x000a;fact stateTransition {&#x000a;  all s: State, s&quot;: ord/next[s] {&#x000a;    Farmer in s.near =&gt;&#x000a;      crossRiver[s.near, s&quot;.near, s.far, s&quot;.far] else&#x000a;      crossRiver[s.far, s&quot;.far, s.near, s&quot;.near]&#x000a;  }&#x000a;}&#x000a;&#x000a;/**&#x000a; * the farmer moves everything to the far side of the river.&#x000a; */&#x000a;pred solvePuzzle {&#x000a;     ord/last.far = Object&#x000a;}&#x000a;&#x000a;run solvePuzzle for 8 State expect 1&#x000a;&#x000a;/**&#x000a; * no Object can be in two places at once&#x000a; * this is implied by both definitions of crossRiver &#x000a; */&#x000a;assert NoQuantumObjects {&#x000a;   no s : State | some x : Object | x in s.near and x in s.far&#x000a;}&#x000a;&#x000a;check NoQuantumObjects for 8 State expect 0"/>
+
+<source filename="C:\Users\liang\AppData\Local\Temp\alloy4tmp40-liang\models\util\integer.als" content="module util/integer&#x000a;&#x000a;/*&#x000a; * A collection of utility functions for using Integers in Alloy.&#x000a; * Note that integer overflows are silently truncated to the current bitwidth&#x000a; * using the 2&apos;s complement arithmetic, unless the &quot;forbid overfows&quot; option is&#x000a; * turned on, in which case only models that don&apos;t have any overflows are &#x000a; * analyzed. &#x000a; */&#x000a;&#x000a;fun add  [n1, n2: Int] : Int { this/plus[n1, n2] }&#x000a;fun plus [n1, n2: Int] : Int { n1 fun/add n2 }&#x000a;&#x000a;fun sub   [n1, n2: Int] : Int { this/minus[n1, n2] }&#x000a;fun minus [n1, n2: Int] : Int { n1 fun/sub n2 }&#x000a;&#x000a;fun mul [n1, n2: Int] : Int { n1 fun/mul n2 }&#x000a;&#x000a;/**&#x000a; * Performs the division with &quot;round to zero&quot; semantics, except the following 3 cases&#x000a; * 1) if a is 0, then it returns 0&#x000a; * 2) else if b is 0, then it returns 1 if a is negative and -1 if a is positive&#x000a; * 3) else if a is the smallest negative integer, and b is -1, then it returns a&#x000a; */&#x000a;fun div [n1, n2: Int] : Int { n1 fun/div n2 }&#x000a;&#x000a;/** answer is defined to be the unique integer that satisfies &quot;a = ((a/b)*b) + remainder&quot; */&#x000a;fun rem [n1, n2: Int] : Int { n1 fun/rem n2 }&#x000a;&#x000a;/** negate */&#x000a;fun negate [n: Int] : Int { 0 fun/sub n }&#x000a;&#x000a;/** equal to */&#x000a;pred eq [n1, n2: Int] { int[n1] = int[n2] }&#x000a;&#x000a;/** greater than */&#x000a;pred gt [n1, n2: Int] { n1 &gt; n2 }&#x000a;&#x000a;/** less then */&#x000a;pred lt [n1, n2: Int] { n1 &lt; n2 }&#x000a;&#x000a;/** greater than or equal */&#x000a;pred gte [n1, n2: Int] { n1 &gt;= n2 }&#x000a;&#x000a;/** less than or equal */&#x000a;pred lte [n1, n2: Int] { n1 &lt;= n2 }&#x000a;&#x000a;/** integer is zero */&#x000a;pred zero [n: Int] { n = 0 }&#x000a;&#x000a;/** positive */&#x000a;pred pos  [n: Int] { n &gt; 0 }&#x000a;&#x000a;/** negative */&#x000a;pred neg  [n: Int] { n &lt; 0 }&#x000a;&#x000a;/** non-positive */&#x000a;pred nonpos [n: Int] { n &lt;= 0 }&#x000a;&#x000a;/** non-negative */&#x000a;pred nonneg [n: Int] { n &gt;= 0 }&#x000a;&#x000a;/** signum (aka sign or sgn) */&#x000a;fun signum [n: Int] : Int { n&lt;0 =&gt; (0 fun/sub 1) else (n&gt;0 =&gt; 1 else 0) }&#x000a;&#x000a;/**&#x000a; * returns the ith element (zero-based) from the set s&#x000a; * in the ordering of &apos;next&apos;, which is a linear ordering&#x000a; * relation like that provided by util/ordering&#x000a; */&#x000a;fun int2elem[i: Int, next: univ-&gt;univ, s: set univ] : lone s {&#x000a;  {e: s | #^next.e = int i }&#x000a;}&#x000a;&#x000a;/**&#x000a; * returns the index of the element (zero-based) in the&#x000a; * ordering of next, which is a linear ordering relation&#x000a; * like that provided by util/ordering&#x000a; */&#x000a;fun elem2int[e: univ, next: univ-&gt;univ] : lone Int {&#x000a;  Int[#^next.e]&#x000a;}&#x000a;&#x000a;/** returns the largest integer in the current bitwidth */&#x000a;fun max:one Int { fun/max }&#x000a;&#x000a;/** returns the smallest integer in the current bitwidth */&#x000a;fun min:one Int { fun/min }&#x000a;&#x000a;/** maps each integer (except max) to the integer after it */&#x000a;fun next:Int-&gt;Int { fun/next }&#x000a;&#x000a;/** maps each integer (except min) to the integer before it */&#x000a;fun prev:Int-&gt;Int { ~next }&#x000a;&#x000a;/** given a set of integers, return the largest element */&#x000a;fun max [es: set Int]: lone Int { es - es.^prev }&#x000a;&#x000a;/** given a set of integers, return the smallest element */&#x000a;fun min [es: set Int]: lone Int { es - es.^next }&#x000a;&#x000a;/** given an integer, return all integers prior to it */&#x000a;fun prevs [e: Int]: set Int { e.^prev }&#x000a;&#x000a;/** given an integer, return all integers following it */&#x000a;fun nexts [e: Int]: set Int { e.^next }&#x000a;&#x000a;/** returns the larger of the two integers */&#x000a;fun larger [e1, e2: Int]: Int { let a=int[e1], b=int[e2] | (a&lt;b =&gt; b else a) }&#x000a;&#x000a;/** returns the smaller of the two integers */&#x000a;fun smaller [e1, e2: Int]: Int { let a=int[e1], b=int[e2] | (a&lt;b =&gt; a else b) }&#x000a;"/>
+
+<source filename="C:\Users\liang\AppData\Local\Temp\alloy4tmp40-liang\models\util\ordering.als" content="module util/ordering[exactly elem]&#x000a;&#x000a;/*&#x000a; * Creates a single linear ordering over the atoms in elem. It also constrains all&#x000a; * the atoms to exist that are permitted by the scope on elem. That is, if the scope&#x000a; * on a signature S is 5, opening util/ordering[S] will force S to have 5 elements&#x000a; * and create a linear ordering over those five elements. The predicates and&#x000a; * functions below provide access to properties of the linear ordering, such as&#x000a; * which element is first in the ordering, or whether a given element precedes&#x000a; * another. You cannotcreate multiple linear orderings over the same signature with&#x000a; * this model. If you that functionality, try using the util/sequence module instead.&#x000a; *&#x000a; * Technical comment:&#x000a; * An important constraint: elem must contain all atoms permitted by the scope.&#x000a; * This is to let the analyzer optimize the analysis by setting all fields of each&#x000a; * instantiation of Ord to predefined values: e.g. by setting &apos;last&apos; to the highest&#x000a; * atom of elem and by setting &apos;next&apos; to {&lt;T0,T1&gt;,&lt;T1,T2&gt;,...&lt;Tn-1,Tn&gt;}, where n is&#x000a; * the scope of elem. Without this constraint, it might not be true that Ord.last is&#x000a; * a subset of elem, and that the domain and range of Ord.next lie inside elem.&#x000a; *&#x000a; * author: Ilya Shlyakhter&#x000a; * revisions: Daniel jackson&#x000a; */&#x000a;&#x000a;private one sig Ord {&#x000a;   First: set elem,&#x000a;   Next: elem -&gt; elem&#x000a;} {&#x000a;   pred/totalOrder[elem,First,Next]&#x000a;}&#x000a;&#x000a;/** first */&#x000a;fun first: one elem { Ord.First }&#x000a;&#x000a;/** last */&#x000a;fun last: one elem { elem - (next.elem) }&#x000a;&#x000a;/** return a mapping from each element to its predecessor */&#x000a;fun prev : elem-&gt;elem { ~(Ord.Next) }&#x000a;&#x000a;/** return a mapping from each element to its successor */&#x000a;fun next : elem-&gt;elem { Ord.Next }&#x000a;&#x000a;/** return elements prior to e in the ordering */&#x000a;fun prevs [e: elem]: set elem { e.^(~(Ord.Next)) }&#x000a;&#x000a;/** return elements following e in the ordering */&#x000a;fun nexts [e: elem]: set elem { e.^(Ord.Next) }&#x000a;&#x000a;/** e1 is less than e2 in the ordering */&#x000a;pred lt [e1, e2: elem] { e1 in prevs[e2] }&#x000a;&#x000a;/** e1 is greater than e2 in the ordering */&#x000a;pred gt [e1, e2: elem] { e1 in nexts[e2] }&#x000a;&#x000a;/** e1 is less than or equal to e2 in the ordering */&#x000a;pred lte [e1, e2: elem] { e1=e2 || lt [e1,e2] }&#x000a;&#x000a;/** e1 is greater than or equal to e2 in the ordering */&#x000a;pred gte [e1, e2: elem] { e1=e2 || gt [e1,e2] }&#x000a;&#x000a;/** returns the larger of the two elements in the ordering */&#x000a;fun larger [e1, e2: elem]: elem { lt[e1,e2] =&gt; e2 else e1 }&#x000a;&#x000a;/** returns the smaller of the two elements in the ordering */&#x000a;fun smaller [e1, e2: elem]: elem { lt[e1,e2] =&gt; e1 else e2 }&#x000a;&#x000a;/**&#x000a; * returns the largest element in es&#x000a; * or the empty set if es is empty&#x000a; */&#x000a;fun max [es: set elem]: lone elem { es - es.^(~(Ord.Next)) }&#x000a;&#x000a;/**&#x000a; * returns the smallest element in es&#x000a; * or the empty set if es is empty&#x000a; */&#x000a;fun min [es: set elem]: lone elem { es - es.^(Ord.Next) }&#x000a;&#x000a;assert correct {&#x000a;  let mynext = Ord.Next |&#x000a;  let myprev = ~mynext | {&#x000a;     ( all b:elem | (lone b.next) &amp;&amp; (lone b.prev) &amp;&amp; (b !in b.^mynext) )&#x000a;     ( (no first.prev) &amp;&amp; (no last.next) )&#x000a;     ( all b:elem | (b!=first &amp;&amp; b!=last) =&gt; (one b.prev &amp;&amp; one b.next) )&#x000a;     ( !one elem =&gt; (one first &amp;&amp; one last &amp;&amp; first!=last &amp;&amp; one first.next &amp;&amp; one last.prev) )&#x000a;     ( one elem =&gt; (first=elem &amp;&amp; last=elem &amp;&amp; no myprev &amp;&amp; no mynext) )&#x000a;     ( myprev=~mynext )&#x000a;     ( elem = first.*mynext )&#x000a;     (all disj a,b:elem | a in b.^mynext or a in b.^myprev)&#x000a;     (no disj a,b:elem | a in b.^mynext and a in b.^myprev)&#x000a;     (all disj a,b,c:elem | (b in a.^mynext and c in b.^mynext) =&gt;(c in a.^mynext))&#x000a;     (all disj a,b,c:elem | (b in a.^myprev and c in b.^myprev) =&gt;(c in a.^myprev))&#x000a;  }&#x000a;}&#x000a;run {} for exactly 0 elem expect 0&#x000a;run {} for exactly 1 elem expect 1&#x000a;run {} for exactly 2 elem expect 1&#x000a;run {} for exactly 3 elem expect 1&#x000a;run {} for exactly 4 elem expect 1&#x000a;check correct for exactly 0 elem&#x000a;check correct for exactly 1 elem&#x000a;check correct for exactly 2 elem&#x000a;check correct for exactly 3 elem&#x000a;check correct for exactly 4 elem&#x000a;check correct for exactly 5 elem&#x000a;"/>
+
+</alloy>

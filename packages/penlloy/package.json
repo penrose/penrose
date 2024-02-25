@@ -6,7 +6,8 @@
   "main": "dist/index.js",
   "dependencies": {
     "@penrose/core": "^3.2.0",
-    "prettier": "3.0.0"
+    "prettier": "3.0.0",
+    "xml-js": "^1.6.11"
   },
   "scripts": {
     "build": "tsc",

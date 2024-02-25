@@ -1,0 +1,156 @@
+[
+  {
+    "_attributes": {
+      "label": "seq/Int",
+      "ID": "0",
+      "parentID": "1",
+      "builtin": "yes"
+    }
+  },
+  {
+    "_attributes": {
+      "label": "Int",
+      "ID": "1",
+      "parentID": "2",
+      "builtin": "yes"
+    }
+  },
+  {
+    "_attributes": {
+      "label": "String",
+      "ID": "3",
+      "parentID": "2",
+      "builtin": "yes"
+    }
+  },
+  {
+    "_attributes": {
+      "label": "this/Farmer",
+      "ID": "4",
+      "parentID": "5",
+      "one": "yes"
+    },
+    "atom": {
+      "_attributes": {
+        "label": "Farmer$0"
+      }
+    }
+  },
+  {
+    "_attributes": {
+      "label": "this/Fox",
+      "ID": "6",
+      "parentID": "5",
+      "one": "yes"
+    },
+    "atom": {
+      "_attributes": {
+        "label": "Fox$0"
+      }
+    }
+  },
+  {
+    "_attributes": {
+      "label": "this/Chicken",
+      "ID": "7",
+      "parentID": "5",
+      "one": "yes"
+    },
+    "atom": {
+      "_attributes": {
+        "label": "Chicken$0"
+      }
+    }
+  },
+  {
+    "_attributes": {
+      "label": "this/Grain",
+      "ID": "8",
+      "parentID": "5",
+      "one": "yes"
+    },
+    "atom": {
+      "_attributes": {
+        "label": "Grain$0"
+      }
+    }
+  },
+  {
+    "_attributes": {
+      "label": "this/Object",
+      "ID": "5",
+      "parentID": "2",
+      "abstract": "yes"
+    }
+  },
+  {
+    "_attributes": {
+      "label": "this/State",
+      "ID": "10",
+      "parentID": "2"
+    },
+    "atom": [
+      {
+        "_attributes": {
+          "label": "State$0"
+        }
+      },
+      {
+        "_attributes": {
+          "label": "State$1"
+        }
+      },
+      {
+        "_attributes": {
+          "label": "State$2"
+        }
+      },
+      {
+        "_attributes": {
+          "label": "State$3"
+        }
+      },
+      {
+        "_attributes": {
+          "label": "State$4"
+        }
+      },
+      {
+        "_attributes": {
+          "label": "State$5"
+        }
+      },
+      {
+        "_attributes": {
+          "label": "State$6"
+        }
+      },
+      {
+        "_attributes": {
+          "label": "State$7"
+        }
+      }
+    ]
+  },
+  {
+    "_attributes": {
+      "label": "ord/Ord",
+      "ID": "13",
+      "parentID": "2",
+      "one": "yes",
+      "private": "yes"
+    },
+    "atom": {
+      "_attributes": {
+        "label": "ord/Ord$0"
+      }
+    }
+  },
+  {
+    "_attributes": {
+      "label": "univ",
+      "ID": "2",
+      "builtin": "yes"
+    }
+  }
+]
