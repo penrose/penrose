@@ -7,6 +7,7 @@ import {
   SingleSigName,
 } from "../types/DomainObject.js";
 import { ModelRel, RawAlloyModel, ModelSig } from "../types/RawAlloyModel.js";
+import { toPenroseRelationName, toPenroseTypeName } from "../utils/names.js";
 
 export type CompiledModel = {
   sigTypes: DomainSigType[];
@@ -47,7 +48,7 @@ export const compileModel = (shape: RawAlloyModel): CompiledModel => {
 
 const toDomainName = (name: SigName) => {
   if (name.tag === "SingleSigName") {
-    return `_sig_${name.contents.replaceAll("/", "_SLASH_")}`;
+    return toPenroseTypeName(name.contents);
   } else {
     return `_conj_${name.contents
       .map((n) => n.replaceAll("/", "_SLASH_"))
@@ -86,10 +87,10 @@ export const translateToDomain = ({
 
   for (const rel of rels) {
     const { belongsTo, name, argTypes } = rel;
-    const line = `function _rel_${belongsTo.contents.replaceAll(
-      "/",
-      "_SLASH_",
-    )}_${name} (${argTypes.map(toDomainName).join(", ")}) -> Rel`;
+    const line = `function ${toPenroseRelationName(
+      belongsTo.contents,
+      name,
+    )} (${argTypes.map(toDomainName).join(", ")}) -> Rel`;
     if (!prog.includes(line)) {
       prog.push(line);
     }
