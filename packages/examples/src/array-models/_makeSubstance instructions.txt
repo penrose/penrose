@@ -1,0 +1,26 @@
+Usage: python makeSubstance [-i inputFilename] [-o outputFilename]
+-i specifies the input file; if left blank "input.txt" is used.
+-o specifies the output Substance file; if left blank "array.substance" is used.
+
+
+Write values separated by commas to create an array of those values.
+Multiple arrays can be created by writing lists on multiple lines.
+
+eg,
+
+1,2,3,4,5
+55,76,99,32
+
+will create two arrays.
+
+If the first entry in a line is enclosed in quotes (" or ') or $ signs, it will
+be used as the array label; otherwise, labels will be automatically generated.
+
+If an entry has a * character in it, that element will appear highlighted in red
+in the final diagram using the highlight() predicate.
+
+Entries with a ^ character will have a dotted rectangle drawn around them such
+that all are encompassed by it using the Group() type and inGroup() predicate.
+Entries different rows will use different groups,but note that the substance
+format allows any combination of elements to share a group;
+the script does it this way for simplicity only.

@@ -1,0 +1,172 @@
+canvas {
+    width = 540
+    height = 400
+}
+
+colors {
+   lightGray = rgba(.8, .85, .9, 0.5)
+   white = rgba(.95, .95, .95, 0.5)
+   mediumGray = rgba(.6, .6, .6, 1.0)
+   darkGray = rgba(.4, .4, .4, 1.0)
+   black = rgba(.15, .1, .08, 1.0)
+   red = rgba(0.95, 0.25, 0.12, 1.0)   
+   green = rgba(0.2, 0.55, 0.24, 1.0)
+   none = rgba(0.0, 0.0, 0.0, 0.0)
+}
+
+global {
+   scalar boxSize = 20
+   --lower values too cramped
+
+   scalar boxPadding = 2.0
+}
+
+collect Element e into es
+where inArray(e, a, z)
+foreach Array a {
+  scalar a.numElements = numberof es
+}
+
+forall Array a {
+  scalar a.count = match_id
+  scalar a.max = match_total
+  scalar a.t = a.count / a.max
+  a.labelX = ?
+  a.arrayLabel = Equation {
+    string: a.label
+
+    center: (a.labelX, (-a.count) * global.boxSize*1.5 + a.max*global.boxSize + 10)
+    fontSize: "8px"
+    fillColor: colors.darkGray
+  }
+
+}
+
+
+-- draw each array and each element in the array
+-- note each element is drawn in reverse order
+forall Element g; Array a
+where inArray(g, a, z) {
+      -- scalar g.t = z / a.numElements
+
+      -- compute horizontal/vertical coordinates
+      scalar g.u = z * global.boxSize
+      scalar g.v = (-a.count) * global.boxSize*1.5 + a.max*global.boxSize + 10
+
+      -- compute box dimensions
+      scalar g.width = global.boxSize
+      scalar g.height = global.boxSize--min((global.tableHeight / a.max), g.width)
+
+      -- define a box colour associated with this element
+      -- cold colours
+      -- scale with array only
+      scalar T = .1 + .8*(1.- a.t)
+      scalar s = max(0,min(1,T)) -- clamp to [0,1]
+
+      scalar g.R = max(0.05,min(1,3*T - 2))
+      scalar g.G = 3.*s*s - 2.*s*s*s
+      scalar g.B = 1-sqr(1-max(0,min(1,3*T)))
+      
+      color g.boxColor = rgba(g.R, g.G, g.B, .75)
+      color g.labelColor = colors.black
+      color g.backingColor = colors.lightGray
+
+      shape g.elementShape = Rectangle {
+        center: (g.u, g.v)
+        --make them squares for now
+        width: g.width - global.boxPadding
+        height: g.width - global.boxPadding
+        cornerRadius: 2.0
+        fillColor: g.boxColor
+      }
+
+      shape g.elementContent = Equation {
+       string: g.label
+        center: (g.u, g.v)
+        fontSize: "8px"
+        fillColor: g.labelColor
+      }
+      shape g.elementBacking =  Circle {
+        center: (g.u, g.v)
+        r: min(global.boxSize * 0.32, 7)
+        fillColor: g.backingColor
+      }
+      g.elementContent above g.elementBacking
+      g.elementContent above g.elementShape
+      g.elementBacking above g.elementShape
+}
+ 
+
+forall Element g; Array r
+where highlight(g); inArray(g, r, o) {
+  override g.labelColor = colors.red
+  override g.backingColor = colors.white
+}
+
+collect Element e into es
+where inArray(e, a, o)
+foreach Array a {
+  vectorV allCenter = [average(listof u from es), average(listof v from es)]
+  a.rect = Rectangle {
+    center: allCenter
+    height: average(listof width from es) + 1
+    width: sum(listof width from es) + 1
+    fillColor: colors.none
+    strokeColor: a.arrayLabel.fillColor
+    strokeWidth: 1
+    cornerRadius: 2.5
+  }
+
+  ensure lessThan(a.labelX + a.arrayLabel.width/2, minList(listof u from es) - global.boxSize)
+  ensure touching(a.rect, a.arrayLabel, global.boxPadding * 1.5)
+  
+}
+
+collect Element e into es
+where inGroup(e, p)
+foreach Group p {
+  vectorV groupCenter = [average(listof u from es), average(listof v from es)]
+  p.rect = Rectangle {
+    center: groupCenter
+    height: maxList(listof v from es) - minList(listof v from es) + global.boxSize*1.15
+    width: maxList(listof u from es) - minList(listof u from es) + global.boxSize*1.15
+    fillColor: colors.none
+    strokeColor: colors.green
+    strokeStyle: "dashed"
+    strokeWidth: 2.8
+    cornerRadius: 1
+  }
+}
+
+forall Element e1; Element e2; Pointer p; where p := Arc(e1, e2) {
+  vectorV e1Pos = [e1.u,e1.v + (global.boxPadding * 3)]
+  vectorV e2Pos = [e2.u,e2.v + (global.boxPadding * 2.5)]
+  vectorV midPos = [average2(e1.u,e2.u),average2(e1.v,e2.v) + global.boxSize]
+  p.pointedLine = Path {
+    name: ""
+    endArrowhead: "concave"
+    d: interpolateQuadraticFromPoints("open",e1Pos,midPos,e2Pos)
+  }
+  layer p.pointedLine below e1.elementContent
+  layer p.pointedLine above e1.elementBacking
+
+  layer p.pointedLine below e2.elementContent
+  layer p.pointedLine above e2.elementBacking
+}
+
+forall Element e1; Element e2; Pointer p; where p:= ArcDouble(e1,e2) {
+  vectorV e1Pos = [e1.u,e1.v + (global.boxPadding * 3)]
+  vectorV e2Pos = [e2.u,e2.v + (global.boxPadding * 3)]
+  vectorV midPos = [average2(e1.u,e2.u),average2(e1.v,e2.v) + global.boxSize]
+  p.pointedLine = Path {
+    name: ""
+    endArrowhead: "concave"
+    startArrowhead: "concave"
+    d: interpolateQuadraticFromPoints("open",e1Pos,midPos,e2Pos)
+  }
+  layer p.pointedLine below e1.elementContent
+  layer p.pointedLine above e1.elementBacking
+
+  layer p.pointedLine below e2.elementContent
+  layer p.pointedLine above e2.elementBacking
+}
