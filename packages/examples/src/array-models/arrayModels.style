@@ -31,9 +31,11 @@ forall Array a {
   scalar a.count = match_id
   scalar a.max = match_total
   scalar a.t = a.count / a.max
+  a.labelX = ?
   a.arrayLabel = Equation {
     string: a.label
-    center: (-global.boxSize*1.8, (-a.count) * global.boxSize*1.5 + a.max*global.boxSize + 10)
+
+    center: (a.labelX, (-a.count) * global.boxSize*1.5 + a.max*global.boxSize + 10)
     fontSize: "8px"
     fillColor: colors.darkGray
   }
@@ -114,6 +116,9 @@ foreach Array a {
     strokeWidth: 1
     cornerRadius: 2.5
   }
+
+  ensure lessThan(a.labelX + a.arrayLabel.width/2, minList(listof u from es) - global.boxSize)
+  ensure touching(a.rect, a.arrayLabel, global.boxPadding * 1.5)
   
 }
 
