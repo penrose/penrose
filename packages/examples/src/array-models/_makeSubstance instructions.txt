@@ -1,4 +1,4 @@
-Usage: python makeSubstance [-i] [-o]
+Usage: python makeSubstance [-i inputFilename] [-o outputFilename]
 -i specifies the input file; if left blank "input.txt" is used.
 -o specifies the output Substance file; if left blank "array.substance" is used.
 
