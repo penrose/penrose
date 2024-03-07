@@ -1,0 +1,19 @@
+-- Lewis structure of Sulfuric Acid
+Hydrogen h3, h4
+Sulfur s1
+Oxygen o1, o2, o3, o4
+
+Bond b2 := MakeSingleBond(h3, o1)
+Bond b3 := MakeSingleBond(h4, o2)
+Bond b4 := MakeSingleBond(o1, s1)
+Bond b5 := MakeSingleBond(o2, s1)
+Bond b6 := MakeDoubleBond(o3, s1)
+Bond b7 := MakeDoubleBond(o4, s1)
+
+ZeroDots(h3)
+ZeroDots(h4)
+ZeroDots(s1)
+FourDots(o1)
+FourDots(o2)
+FourDots(o3)
+FourDots(o4)

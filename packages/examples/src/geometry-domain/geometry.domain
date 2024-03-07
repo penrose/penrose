@@ -39,6 +39,7 @@ function PerpendicularBisectorLabelPts(Segment, Point, Point) -> Segment -- same
 
 -- Polygons/Shapes
 function MidSegment(Triangle, Point, Point) -> Segment
+function Median(Triangle, Point) -> Segment
 function Radius(Circle c, Point p) -> Segment
 function Chord(Circle c, Point p, Point q) -> Segment
 function Diameter(Circle c, Point p, Point q) -> Segment

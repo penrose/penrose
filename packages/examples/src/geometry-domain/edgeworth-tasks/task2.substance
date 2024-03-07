@@ -1,8 +1,0 @@
-Point A, B, C, D, E
-
-Let AB := Line(A, B)
-Let CD := Line(C, D)
-Let BE := Line(B, E)
-Let AC := Ray(A, C)
-
-AutoLabel A, B, C, D, E

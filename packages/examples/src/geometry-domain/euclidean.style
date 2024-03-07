@@ -23,6 +23,7 @@ const {
     repelWeight = 0.7 -- TODO: Reverted from 0.0
     repelWeight2 = 0.5
     fontSize = "20px"
+    fontOutlineSize = "27px"
     containPadding = 50.0
     rayLength = 100.0
     pointRadius = 4.0
@@ -87,6 +88,7 @@ where p has label {
     center: (? in label, ? in label)
     ensureOnCanvas: false
   }
+
   ensure onCanvas(p.text, canvas.width, canvas.height) in label
   ensure signedDistance(p.text, p.vec) == const.textPadding + const.pointRadius in label
 }
@@ -607,7 +609,8 @@ with Triangle T {
 forall Point p
 where Centroid(p, T)
 with Triangle T {
-  clr = setOpacity(Colors.darkpurple, 0.6)
+  -- clr = setOpacity(Colors.darkpurple, 0.6)
+	clr = #000
   override p.vec = vmul(1/3, T.PQ.start + T.QR.start + T.RP.start)
   override p.icon = Circle {
     center : p.vec
@@ -616,27 +619,63 @@ with Triangle T {
     strokeColor : clr
     fillColor : clr
   }
-  override T.icon = Line {
-    start : T.PQ.start
-    end : midpoint(T.QR.start, T.QR.end)
-    strokeColor : clr
+  -- override T.icon = Line {
+  --   start : T.PQ.start
+  --   end : midpoint(T.QR.start, T.QR.end)
+  --   strokeColor : clr
+  --   strokeWidth : const.strokeWidth
+  --   style : "solid"
+  -- }
+  -- override T.line2 = Line {
+  --   start : T.QR.start
+  --   end : midpoint(T.RP.start, T.RP.end)
+  --   strokeColor : clr
+  --   strokeWidth : const.strokeWidth
+  --   style : "solid"
+  -- }
+  -- override T.icon3 = Line {
+  --   start : T.RP.start
+  --   end : midpoint(T.PQ.start, T.PQ.end)
+  --   strokeColor : clr
+  --   strokeWidth : const.strokeWidth
+  --   style : "solid"
+  -- }
+}
+
+forall Segment s
+where s := Median(pqr, p); pqr := Triangle(p, q, r)
+with Triangle pqr; Point p, q, r {
+  s.icon = Line {
+    start : p.vec
+    end : midpoint(q.vec, r.vec)
+    strokeColor : #000
     strokeWidth : const.strokeWidth
     style : "solid"
-  }
-  override T.line2 = Line {
-    start : T.QR.start
-    end : midpoint(T.RP.start, T.RP.end)
-    strokeColor : clr
+  }	
+}
+
+forall Segment s
+where s := Median(pqr, q); pqr := Triangle(p, q, r)
+with Triangle pqr; Point p, q, r {
+  s.icon = Line {
+    start : q.vec
+    end : midpoint(p.vec, r.vec)
+    strokeColor : #000
     strokeWidth : const.strokeWidth
     style : "solid"
-  }
-  override T.icon3 = Line {
-    start : T.RP.start
-    end : midpoint(T.PQ.start, T.PQ.end)
-    strokeColor : clr
+  }	
+}
+
+forall Segment s
+where s := Median(pqr, r); pqr := Triangle(p, q, r)
+with Triangle pqr; Point p, q, r {
+  s.icon = Line {
+    start : r.vec
+    end : midpoint(q.vec, p.vec)
+    strokeColor : #000
     strokeWidth : const.strokeWidth
     style : "solid"
-  }
+  }	
 }
 
 forall Point p
@@ -934,12 +973,12 @@ with Circle c {
   ensure norm(p.vec - c.vec) == 0
 }
 
--- forall Shape s1, s2
--- where s1 has label; s2 has label {
---   encourage notTooClose(s1.text, s2.text) in label
--- }
+forall Shape s1, s2
+where s1 has math label; s2 has math label {
+  encourage notTooClose(s1.text, s2.text) in label
+}
 
 -- generally, all points should be away from each other
-forall Point p1, p2 {
-	encourage notTooClose(p1.icon, p2.icon)
-}
+-- forall Point p1, p2 {
+-- 	encourage notTooClose(p1.icon, p2.icon)
+-- }

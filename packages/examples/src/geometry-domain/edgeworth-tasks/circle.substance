@@ -1,0 +1,34 @@
+Point A, B, C, D, Q
+Circle c
+CircleCenter(c, Q)
+Let AQ := Segment(A, Q)
+Let DQ := Segment(D, Q)
+Let CQ := Segment(C, Q)
+Let BQ := Segment(B, Q)
+EqualLengthMarker(BQ, CQ)
+EqualLengthMarker(CQ, DQ)
+EqualLengthMarker(AQ, BQ)
+EqualLengthMarker(DQ, BQ)
+EqualLength(BQ, CQ)
+EqualLength(CQ, DQ)
+EqualLength(AQ, BQ)
+EqualLength(AQ, CQ)
+EqualLength(AQ, DQ)
+EqualLength(DQ, BQ)
+
+
+Segment AB := Chord(c, A, B)
+Segment DC := Chord(c, D, C)
+Segment CB := Chord(c, B, C)
+Segment DA := Chord(c, D, A)
+Segment DB := Diameter(c, D, B)
+Segment AC := Diameter(c, A, C)
+
+Let AB2 := Segment(A, B)
+Let BC2 := Segment(B, C)
+EqualLengthMarker(AB2, BC2)
+EqualLength(AB2, BC2)
+Let ABCD := Quadrilateral(A, B, C, D)
+--ParallelMarker1(AB, DC)
+--Parallel(AB, DC)
+AutoLabel A, B, C, D, Q

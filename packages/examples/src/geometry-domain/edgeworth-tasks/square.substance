@@ -1,0 +1,20 @@
+Point A, B, C, D
+Let BC := Segment(B, C)
+
+Angle CAB := InteriorAngle(C, A, B)
+Angle CDB := InteriorAngle(C, D, B)
+
+
+RightMarked(CAB)
+RightMarked(CDB)
+
+Let AB := Segment(A, B)
+Let AC := Segment(A, C)
+Let CD := Segment(C, D)
+Let DB := Segment(D, B)
+
+EqualLengthMarker(AC, DB)
+EqualLength(AC, DB)
+EqualLengthMarker(AB, AC)
+EqualLength(AB, AC)
+AutoLabel A, B, C, D
