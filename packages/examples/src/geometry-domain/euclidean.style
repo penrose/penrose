@@ -84,11 +84,11 @@ where p has label {
   p.text = Equation {
     string : p.label
     fillColor : Colors.black
+		texContourColor: "white"
     fontSize : const.fontSize
     center: (? in label, ? in label)
     ensureOnCanvas: false
   }
-
   ensure onCanvas(p.text, canvas.width, canvas.height) in label
   ensure signedDistance(p.text, p.vec) == const.textPadding + const.pointRadius in label
 }
@@ -609,7 +609,6 @@ with Triangle T {
 forall Point p
 where Centroid(p, T)
 with Triangle T {
-  -- clr = setOpacity(Colors.darkpurple, 0.6)
 	clr = #000
   override p.vec = vmul(1/3, T.PQ.start + T.QR.start + T.RP.start)
   override p.icon = Circle {
@@ -619,27 +618,6 @@ with Triangle T {
     strokeColor : clr
     fillColor : clr
   }
-  -- override T.icon = Line {
-  --   start : T.PQ.start
-  --   end : midpoint(T.QR.start, T.QR.end)
-  --   strokeColor : clr
-  --   strokeWidth : const.strokeWidth
-  --   style : "solid"
-  -- }
-  -- override T.line2 = Line {
-  --   start : T.QR.start
-  --   end : midpoint(T.RP.start, T.RP.end)
-  --   strokeColor : clr
-  --   strokeWidth : const.strokeWidth
-  --   style : "solid"
-  -- }
-  -- override T.icon3 = Line {
-  --   start : T.RP.start
-  --   end : midpoint(T.PQ.start, T.PQ.end)
-  --   strokeColor : clr
-  --   strokeWidth : const.strokeWidth
-  --   style : "solid"
-  -- }
 }
 
 forall Segment s

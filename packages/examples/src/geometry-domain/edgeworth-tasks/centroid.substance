@@ -1,18 +1,8 @@
 Point A, B, C, Q
--- Let BC := Segment(B, C)
--- Let AB := Segment(A, B)
--- Let AC := Segment(A, C)
 Let ABC := Triangle(A, B, C)
-
-Angle CAB := InteriorAngle(C, A, B)
-
 Centroid(Q, ABC)
-
 Segment m1 := Median(ABC, A)
 Segment m2 := Median(ABC, B)
 Segment m3 := Median(ABC, C)
-
---EqualLengthMarker(AC, AB)
---EqualLength(AC, AB)
 
 AutoLabel A, B, C, Q

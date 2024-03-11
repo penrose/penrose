@@ -3,7 +3,6 @@ Point J, K, L, N
 Let JK := Segment(J, K)
 Let NL := Segment(N, L)
 Let KN := Segment(K, N)
-ParallelMarker1(JK, NL)
 Parallel(JK, NL)
 Angle JKM := InteriorAngle(J, K, N)
 Angle KNL := InteriorAngle(K, N, L)
