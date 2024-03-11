@@ -9,8 +9,6 @@ import {
   MenuItem,
   Select,
   Slider,
-  Tab,
-  Tabs,
   TextField,
   Toolbar,
   Typography,
@@ -208,6 +206,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
         },
       });
     } else {
+      // display error message
       console.error(showError(result.error));
     }
   };
@@ -254,19 +253,19 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
 
     return (
       <>
-        <Tabs
+        {/* <Tabs
           textColor="primary"
           indicatorColor="primary"
           value={this.state.currentTab}
           onChange={handleTabSwitch}
-        >
-          <Tab label="Generate new problem" />
-          <Tab label="Select from presets" />
-        </Tabs>
+        > */}
+        {/* <Tab label="Select from presets" /> */}
+        {/* <Tab label="Generate new problem" /> */}
+        {/* </Tabs> */}
 
         <br />
 
-        <TabPanel index={0} currentTab={this.state.currentTab}>
+        <TabPanel index={1} currentTab={this.state.currentTab}>
           <TextField
             fullWidth
             multiline
@@ -289,32 +288,26 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
           </ButtonContainer>
         </TabPanel>
 
-        <TabPanel index={1} currentTab={this.state.currentTab}>
-          <InputLabel id="preset-select-label">Preset</InputLabel>
+        <TabPanel index={0} currentTab={this.state.currentTab}>
+          <InputLabel id="preset-select-label">Select a Preset</InputLabel>
           <Select
             key="preset"
             labelId="preset-select-label"
             id="preset-select"
             label="preset"
-            // defaultValue={"c04p01"}
             value={this.state.presetSelect}
             onChange={(e) => {
               const key = e.target.value as string;
               this.handlePreset(key);
-
-              const domainSelectStr = Object.entries(domains).find(
-                ([_, { domain }]) => domain === presets[key].domain,
-              )![0];
-
               this.setState({
                 presetSelect: key,
-                domainSelect: domainSelectStr,
+                domainSelect: presets[key].domainName,
               });
             }}
           >
             {this.presets()}
           </Select>
-          <SettingLabel>Prompt:</SettingLabel>
+          <SettingLabel>Problem Prompt:</SettingLabel>
           <div>
             <Latex>{this.state.prompt}</Latex>
           </div>
@@ -325,12 +318,6 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
 
   getSampleSubstancePreset = () => {
     return Object.entries(presets).find(
-      ([_, { domain }]) => domain === this.state.domain,
-    )![1];
-  };
-
-  getDomainPreset = () => {
-    return Object.entries(domains).find(
       ([_, { domain }]) => domain === this.state.domain,
     )![1];
   };
@@ -533,17 +520,19 @@ To write comments, begin with \`--\`. Return only the Substance program; explain
   };
 
   presets = () =>
-    Object.entries(presets).map(([name, { displayName }]: [string, Preset]) => (
-      <MenuItem key={name} value={name}>
-        {displayName}
-      </MenuItem>
-    ));
+    Object.entries(presets)
+      .filter(([, { domainName }]) => domainName === this.state.domainSelect)
+      .map(([name, { displayName }]: [string, Preset]) => (
+        <MenuItem key={name} value={name}>
+          {displayName}
+        </MenuItem>
+      ));
 
   // NOTE: some graph domains are not yet included
   domains = () =>
-    Object.entries(domains).map(([name, { displayName }]: [string, Preset]) => (
+    Object.entries(domains).map(([name]: [string, Preset[]]) => (
       <MenuItem key={name} value={name}>
-        {displayName}
+        {name}
       </MenuItem>
     ));
 
@@ -554,14 +543,15 @@ To write comments, begin with \`--\`. Return only the Substance program; explain
   };
 
   handleDomain = (key: string) => {
-    this.setState({ ...this.state, ...domains[key] });
-    this.updateDomainEnv(domains[key].domain);
+    // NOTE: all programs in `domains` have the same domain program, therefore picking the first program to access the domain program
+    this.updateDomainEnv(domains[key][0].domain);
+    this.setState({ ...this.state, domainSelect: key });
   };
 
   componentDidMount = () => {
     // this.handlePreset("c04p01");
     // this.handlePreset("lewis_0");
-    this.handleDomain("moleculesDomain");
+    this.handleDomain("Molecules");
   };
 
   render() {

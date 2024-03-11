@@ -55,6 +55,7 @@ const ContentSection = styled(Box)({
   overflow: "hidden",
   margin: "0",
   padding: "0",
+  gap: "2rem",
 });
 
 const HeaderContent = styled(Toolbar)({
