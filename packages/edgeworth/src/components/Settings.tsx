@@ -548,12 +548,6 @@ To write comments, begin with \`--\`. Return only the Substance program; explain
     this.setState({ ...this.state, domainSelect: key });
   };
 
-  componentDidMount = () => {
-    // this.handlePreset("c04p01");
-    // this.handlePreset("lewis_0");
-    this.handleDomain("Molecules");
-  };
-
   render() {
     return (
       <SettingsDrawer variant="permanent">
