@@ -586,8 +586,9 @@ To write comments, begin with \`--\`. Return only the Substance program; explain
             <AccordionHeaderStyled>{`Input Scenario`}</AccordionHeaderStyled>
             <AccordionBodyStyled style={{ padding: 0 }}>
               <Listing
+                language="substance"
                 domain={this.state.domain}
-                substance={this.state.substance}
+                src={this.state.substance}
                 onChange={(sub: string) =>
                   this.setState({
                     substance: sub,
@@ -684,34 +685,26 @@ To write comments, begin with \`--\`. Return only the Substance program; explain
                 <Accordion key="domain" elevation={0}>
                   <AccordionHeaderStyled>{`Domain Program`}</AccordionHeaderStyled>
                   <AccordionBodyStyled style={{ padding: 0 }}>
-                    <TextField
-                      minRows={20}
-                      name="dsl"
-                      multiline
-                      variant="outlined"
-                      fullWidth
-                      inputProps={{ style: { fontSize: ".8rem" } }}
-                      style={{ padding: 0 }}
-                      onChange={this.onTextAreaChange}
-                      value={this.state.domain}
+                    <Listing
+                      language="domain"
+                      src={this.state.domain}
+                      width={"100%"}
+                      height={"400px"}
+                      monacoOptions={{ theme: "vs", lineNumbers: "on" }}
+                      readOnly={true}
                     />
                   </AccordionBodyStyled>
                 </Accordion>
                 <Accordion key="style" elevation={0}>
                   <AccordionHeaderStyled>Style Program</AccordionHeaderStyled>
                   <AccordionBodyStyled style={{ padding: 0 }}>
-                    <TextField
-                      minRows={20}
-                      name="sty"
-                      multiline
-                      fullWidth
-                      variant="outlined"
-                      style={{ padding: 0 }}
-                      inputProps={{
-                        style: { fontSize: ".8rem", overflow: "scroll" },
-                      }}
-                      onChange={this.onTextAreaChange}
-                      value={this.state.style}
+                    <Listing
+                      language="style"
+                      src={this.state.style}
+                      width={"100%"}
+                      height={"400px"}
+                      monacoOptions={{ theme: "vs", lineNumbers: "on" }}
+                      readOnly={true}
                     />
                   </AccordionBodyStyled>
                 </Accordion>

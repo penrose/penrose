@@ -1,7 +1,9 @@
 import MonacoEditor, { useMonaco } from "@monaco-editor/react";
-import { compileDomain } from "@penrose/core";
+import { DomainEnv, compileDomain } from "@penrose/core";
 import { editor } from "monaco-editor";
 import { useEffect } from "react";
+import { SetupDomainMonaco } from "./editing/languages/DomainConfig.js";
+import { SetupStyleMonaco } from "./editing/languages/StyleConfig.js";
 import { SetupSubstanceMonaco } from "./editing/languages/SubstanceConfig.js";
 
 export const defaultMonacoOptions: editor.IStandaloneEditorConstructionOptions =
@@ -20,27 +22,44 @@ export const defaultMonacoOptions: editor.IStandaloneEditorConstructionOptions =
 
 const Listing = ({
   domain,
-  substance,
+  src,
   width,
   height,
+  language,
   onChange,
   monacoOptions,
   readOnly,
 }: {
-  domain: string;
-  substance: string;
+  src: string;
+  domain?: string;
+  language: "substance" | "domain" | "style";
   width: string;
   height: string;
   onChange?(value: string): void;
   monacoOptions?: editor.IStandaloneEditorConstructionOptions;
   readOnly?: boolean;
 }) => {
-  const env = compileDomain(domain).unsafelyUnwrap();
+  let env: DomainEnv | undefined;
+  if (domain) {
+    env = compileDomain(domain).unsafelyUnwrap();
+  }
   const monaco = useMonaco();
   useEffect(() => {
     if (monaco) {
-      if (env) {
+      if (language === "substance" && env) {
         const dispose = SetupSubstanceMonaco(env)(monaco);
+        return () => {
+          // prevents duplicates
+          dispose();
+        };
+      } else if (language === "domain") {
+        const dispose = SetupDomainMonaco(monaco);
+        return () => {
+          // prevents duplicates
+          dispose();
+        };
+      } else if (language === "style") {
+        const dispose = SetupStyleMonaco(monaco);
         return () => {
           // prevents duplicates
           dispose();
@@ -50,11 +69,11 @@ const Listing = ({
   }, [monaco, env]);
   return (
     <MonacoEditor
-      value={substance}
+      value={src}
       width={width}
       height={height}
       onChange={onChange ? (v) => onChange(v ?? "") : undefined}
-      defaultLanguage="substance"
+      language={language}
       options={
         monacoOptions
           ? {
