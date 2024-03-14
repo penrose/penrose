@@ -39,7 +39,7 @@ Our [team][] consists of interdisciplinary researchers in programming languages,
 
 We welcome contributions to our [repository][]. Take a look at the [contributor guide](https://github.com/penrose/penrose/blob/main/CONTRIBUTING.md) to get started!
 
-- Find out what's on the [roadmap][] for our next release. **We are looking for contributors to claim issues in the [planned](#🎯-planned) list**.
+- Find out what's on the [roadmap][] for our next release. **We are looking for contributors to claim issues in the "Planned" category**.
 - **Help us improve our docs!** We are planning to improve our [tutorial][] and start documenting our [gallery][example gallery] diagrams.
 
 </div>
