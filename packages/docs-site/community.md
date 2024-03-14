@@ -129,7 +129,7 @@ We maintain a [blog][] and a [mailing list][] on Penrose and diagramming in gene
 [using penrose]: /docs/ref/using
 [contributing PR]: https://github.com/penrose/penrose/blob/main/CONTRIBUTING.md#contributing
 [rose]: https://rosejs.dev/
-[roadmap]: #technical-roadmap
+[roadmap]: https://github.com/orgs/penrose/projects/10
 [`obsidian-penrose-plugin`]: https://github.com/wodeni/obsidian-penrose-plugin
 [team]: /docs/team
 [`ob-penrose`]: https://github.com/weavermarquez/ob-penrose
