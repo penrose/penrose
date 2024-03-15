@@ -150,7 +150,7 @@ Notice that I didn't place labels until the very end. This is a common strategy.
 
 ## Staging makes layout a lot easier in Penrose
 
-Separating shape layout and label layout helped me reduce my [cognitive load] (https://en.wikipedia.org/wiki/Cognitive_load). We decided to **divide the layout optimization problem into multiple stages** to help the optimizer. Here's the same example as above, but laid out in two stages:
+Separating shape layout and label layout helped me reduce my [cognitive load](https://en.wikipedia.org/wiki/Cognitive_load). We decided to **divide the layout optimization problem into multiple stages** to help the optimizer. Here's the same example as above, but laid out in two stages:
 
 - `shape`: lay out the vertices for $\triangle JKL$, the incenter $P$, and point $m$.
 - `label`: put all labels near the points they label.
