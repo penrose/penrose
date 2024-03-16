@@ -185,6 +185,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
   updateDomainEnv = (newDomain: string) => {
     const result = compileDomain(newDomain);
     if (result.isOk()) {
+      console.log("compiling domain");
       this.setState({
         domainEnv: {
           types: {
@@ -408,6 +409,9 @@ To write comments, begin with \`--\`. Return only the Substance program; explain
         this.state.presetSelect,
         this.state.domainSelect,
       );
+    else {
+      console.log("no settings in the state");
+    }
   };
 
   onMutationCountChange = (event: any, newValue: number | number[]) => {
@@ -544,8 +548,16 @@ To write comments, begin with \`--\`. Return only the Substance program; explain
 
   handleDomain = (key: string) => {
     // NOTE: all programs in `domains` have the same domain program, therefore picking the first program to access the domain program
-    this.updateDomainEnv(domains[key][0].domain);
-    this.setState({ ...this.state, domainSelect: key });
+    const preset = domains[key][0];
+
+    this.updateDomainEnv(preset.domain);
+    this.setState({
+      ...this.state,
+      domainSelect: key,
+      style: preset.style,
+      setting: preset.setting,
+      domain: preset.domain,
+    });
   };
 
   render() {
