@@ -555,6 +555,7 @@ To write comments, begin with \`--\`. Return only the Substance program; explain
       ...this.state,
       domainSelect: key,
       style: preset.style,
+      substance: this.state.substance, // changing domains doesn't change the substance by default
       setting: preset.setting,
       domain: preset.domain,
     });

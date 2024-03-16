@@ -1,14 +1,8 @@
 Point A, B, C
 Let BC := Segment(B, C)
 Angle CAB := InteriorAngle(C, A, B)
-
-
-
 Let AB := Segment(A, B)
 Let AC := Segment(A, C)
-
-
-
 EqualLengthMarker(AC, AB)
 EqualLength(AC, AB)
 
