@@ -30,7 +30,7 @@ or
 
 ```style
 forall Set x; Set y
-where IsSubset (x, y) {
+where Subset (x, y) {
 }
 ```
 
@@ -49,29 +49,29 @@ Penrose functions by matching a Selector Header against a [Substance] program. I
 
 ```style
 forall Set x; Set y
-where IsSubset (x, y)
+where Subset (x, y)
 ```
 
-the Penrose compiler searches through the [Substance] program to find sets of objects consistent with `Set x; Set y` such that `IsSubset(x, y)` is satisfied. This is done through generating mappings from _style variables_ to _substance variables_, which are the objects in the [Substance] program.
+the Penrose compiler searches through the [Substance] program to find sets of objects consistent with `Set x; Set y` such that `Subset(x, y)` is satisfied. This is done through generating mappings from _style variables_ to _substance variables_, which are the objects in the [Substance] program.
 
 For instance, consider a simple set-theory [Substance] program that works with the previous style block:
 
 ```substance
 Set A, B, C
-IsSubset (A, B)
-IsSubset (B, C)
+Subset (A, B)
+Subset (B, C)
 ```
 
 By matching the style block against the [Substance] program, we essentially consider six possible mappings (note that repeated elements are, by default, disallowed; see next section), some of which are valid and some are invalid:
 
-| Mapping          | `IsSubset(x, y)` becomes | Satisfied by [Substance] |
-| :--------------- | :----------------------- | ------------------------ |
-| `x -> A; y -> B` | `IsSubset(A, B)`         | Yes                      |
-| `x -> A; y -> C` | `IsSubset(A, C)`         | No                       |
-| `x -> B; y -> A` | `IsSubset(B, A)`         | No                       |
-| `x -> B; y -> C` | `IsSubset(B, C)`         | Yes                      |
-| `x -> C; y -> A` | `IsSubset(C, A)`         | No                       |
-| `x -> C; y -> B` | `IsSubset(C, B)`         | No                       |
+| Mapping          | `Subset(x, y)` becomes | Satisfied by [Substance] |
+| :--------------- | :--------------------- | ------------------------ |
+| `x -> A; y -> B` | `Subset(A, B)`         | Yes                      |
+| `x -> A; y -> C` | `Subset(A, C)`         | No                       |
+| `x -> B; y -> A` | `Subset(B, A)`         | No                       |
+| `x -> B; y -> C` | `Subset(B, C)`         | Yes                      |
+| `x -> C; y -> A` | `Subset(C, A)`         | No                       |
+| `x -> C; y -> B` | `Subset(C, B)`         | No                       |
 
 Here, Penrose filters out mappings which do not satisfy the constraints listed in the Style block, and keeps a list of _good_ mappings (in this example, two mappings are kept). For each _good_ mapping, the body of the Style block (`list_body_expressions`) is executed, where each instance of the Style variables (`x` and `y`) is substituted with the corresponding [Substance] variables (once with `A` and `B`, once with `B` and `C`).
 

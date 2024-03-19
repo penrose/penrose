@@ -1,5 +1,5 @@
 type Set
 
-predicate NotIntersecting(Set s1, Set s2)
+predicate Disjoint(Set s1, Set s2)
 predicate Intersecting(Set s1, Set s2)
-predicate IsSubset(Set s1, Set s2)
+predicate Subset(Set s1, Set s2)

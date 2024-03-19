@@ -39,7 +39,7 @@ forall Set x {
 }
 
 forall Set x; Set y
-where IsSubset(x, y) {
+where Subset(x, y) {
     ensure disjoint(y.text, x.shape, 5.0)
     ensure contains(y.shape, x.shape, 5.0)
     x.shape above y.shape
@@ -48,7 +48,7 @@ where IsSubset(x, y) {
 }
 
 forall Set x; Set y
-where NotIntersecting(x, y) {
+where Disjoint(x, y) {
     ensure disjoint(x.shape, y.shape)
 }
 

@@ -713,15 +713,15 @@ Bond(O, H2)`;
       expect(state.shapes.length).toEqual(2);
     });
     test("correct style programs with predicate aliasing", async () => {
-      const dsl = "type Set \n predicate IsSubset(Set, Set)";
-      const sub = "Set A\nSet B\nSet C\nIsSubset(B, A)\nIsSubset(C, B)";
+      const dsl = "type Set \n predicate Subset(Set, Set)";
+      const sub = "Set A\nSet B\nSet C\nSubset(B, A)\nSubset(C, B)";
 
       const sty =
         canvasPreamble +
-        `forall Set a; Set b where IsSubset(a,b) as foo {
+        `forall Set a; Set b where Subset(a,b) as foo {
           foo.icon = Rectangle{}
         }
-        forall Set u; Set v where IsSubset(u,v) as bar {
+        forall Set u; Set v where Subset(u,v) as bar {
           bar.icon2 = Ellipse{}
         }
         `;
@@ -773,7 +773,7 @@ Bond(O, H2)`;
 
   describe("Expected Style errors", () => {
     const subProg = `Set A, B
-IsSubset(B, A)
+Subset(B, A)
 AutoLabel All `;
 
     const domainProg = `type Set
@@ -781,7 +781,7 @@ type Point
 
 function Union(Set a, Set b) -> Set
 
-predicate IsSubset(Set s1, Set s2)
+predicate Subset(Set s1, Set s2)
 `;
 
     // We test variations on this Style program
@@ -836,10 +836,10 @@ predicate IsSubset(Set s1, Set s2)
 
       TaggedSubstanceError: [
         `forall Set x; Point y
-where IsSubset(y, x) { }`,
+where Subset(y, x) { }`,
         `forall Setfhjh x { }`,
         `forall Point x, y where Midpointdfsdfds(x, y) { }`,
-        `forall Set a where IsSubset(a, B) {}`,
+        `forall Set a where Subset(a, B) {}`,
       ],
 
       // ---------- Block static errors
@@ -911,7 +911,7 @@ delete x.z.p }`,
           x.icon = Circle { }
         }
 
-        forall Set x; Set y where IsSubset(x, y) {
+        forall Set x; Set y where Subset(x, y) {
           override y.r = x.r + y.r
         }`,
       ],
@@ -979,11 +979,11 @@ delete x.z.p }`,
       ],
       SelectorAliasNamingError: [
         `forall Set a; Set b
-        where IsSubset(a, b) as a {}`,
+        where Subset(a, b) as a {}`,
         `forall Set a; Set b
-        where IsSubset(a, b) as Set {}`,
+        where Subset(a, b) as Set {}`,
         `forall Set a; Set b
-        where IsSubset(a, b) as IsSubset {}`,
+        where Subset(a, b) as Subset {}`,
       ],
       BadShapeParamTypeError: [
         `forall Set a {

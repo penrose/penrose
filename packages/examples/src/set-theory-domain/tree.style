@@ -53,7 +53,7 @@ forall Set x; Set y {
 
 
 forall Set x; Set y
-where IsSubset(x, y) {
+where Subset(x, y) {
 
    vec2 p = x.center
    vec2 q = y.center
@@ -80,7 +80,7 @@ where IsSubset(x, y) {
 -- TODO: This one currently causes convergence to become very slow but works eventually
 
 Set x1; Set x2
-where IsSubset(x1, S); IsSubset(x2, S)
+where Subset(x1, S); Subset(x2, S)
 with Set S {
    -- If two sets are direct subsets of the same set, give them the same y-position
    heightFn = ensure sameHeight(x1.bounds, x2.bounds)

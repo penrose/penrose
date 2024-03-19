@@ -45,9 +45,9 @@ Label f  $f$
 Set A
 Set B1, B2, B3, B4
 Point p1, p2, p3, p4
-IsSubset(B1, A)
-IsSubset(B2, A)
-IsSubset(B3, A)
+Subset(B1, A)
+Subset(B2, A)
+Subset(B3, A)
 
 PointIn(B2, p1)
 PointIn(B3, p1)
