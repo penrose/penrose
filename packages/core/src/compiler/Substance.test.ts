@@ -35,7 +35,7 @@ function AddToOpen(Point p, OpenSet s) -> OpenSet
 function AddPoint(Point p, Set s1) -> Set
 predicate Empty(Set s)
 predicate Intersecting(Set s1, Set s2)
-predicate IsSubset(Set s1, Set s2)
+predicate Subset(Set s1, Set s2)
 `;
 
 export const envOrError = (prog: string): DomainEnv => {
@@ -172,8 +172,8 @@ B := AddPoint(p, B)
 Set A, B, C, D, E
 C := Intersection(A, B)
 Empty(C)
-IsSubset(D, E)
-IsSubset(D, A)
+Subset(D, E)
+Subset(D, A)
     `;
     const env = envOrError(domainProg);
     subEnvOrError(prog, env);
@@ -254,7 +254,7 @@ NoLabel B, C
       const env = envOrError(domainProg);
       const prog = `
         Set s_i for i in [0, 5]
-        IsSubset(s_i, s_j) for i in [0, 4], j in [1, 5] where j == i + 1
+        Subset(s_i, s_j) for i in [0, 4], j in [1, 5] where j == i + 1
       `;
       const res = compileSubstance(prog, env);
       expect(res.isOk()).toBe(true);
@@ -263,7 +263,7 @@ NoLabel B, C
           (s) => s.tag === "ApplyPredicate",
         ) as ApplyPredicate<A>[];
         expect(preds.length).toBe(5);
-        expect(preds.every((p) => p.name.value === "IsSubset")).toBe(true);
+        expect(preds.every((p) => p.name.value === "Subset")).toBe(true);
         expect(
           preds
             .map((p) =>
@@ -564,8 +564,8 @@ Vector v
 C := Subset(A, B)
 OpenSet Z
 Empty(C)
-IsSubset(D, E)
-IsSubset(D, A)
+Subset(D, E)
+Subset(D, A)
 AutoLabel All
 Label A $\\vec{A}$
 Label B $B_1$

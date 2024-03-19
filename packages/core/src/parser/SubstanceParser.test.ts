@@ -24,12 +24,12 @@ describe("Common", () => {
 Set A, B, C, D, E, F, G -- inline comments\r\n
 
 /*
-IsSubset(B, A)\r
-IsSubset(C, A)\r\n
-IsSubset(D, B)
-IsSubset(E, B)
-IsSubset(F, C)
-IsSubset(G, C)
+Subset(B, A)\r
+Subset(C, A)\r\n
+Subset(D, B)
+Subset(E, B)
+Subset(F, C)
+Subset(G, C)
 */
 
 -- Not(Intersecting(E, D))
@@ -177,7 +177,7 @@ C := Intersection(A, B)
   test("predicates", () => {
     const prog = `
 Set A, B, C
-IsSubset(A, B)
+Subset(A, B)
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);

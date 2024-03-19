@@ -152,7 +152,7 @@ export const getStmt = <T>(prog: SubProg<T>, index: number): SubStmt<T> =>
  * Find all signatures that match a reference statement. NOTE: returns an empty list if
  * no matches are found; does not include the reference statement in list of matches.
  *
- * @param stmtName string value of a statement, i.e. "isSubset"
+ * @param stmtName string value of a statement, e.g. "Subset"
  * @param opts all possible declaration options
  * @param matchFunc function that determines condition for a match
  * @returns Array of any statements that have the same signature as input statement
@@ -176,7 +176,7 @@ export const matchDecls = <T>(
  * NOTE: match will be undefined if the statement could not
  * be found in list of predicates, functions, or constructors
  *
- * @param stmtName string value of a statement, i.e. "isSubset"
+ * @param stmtName string value of a statement, e.g. "Subset"
  * @param env Env for current program
  * @returns Array of length 2, with entries corresponding to: [matching decl, list where decl was found]
  */

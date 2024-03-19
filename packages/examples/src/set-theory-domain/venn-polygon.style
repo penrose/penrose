@@ -19,7 +19,7 @@ forall Set x {
 }
 
 forall Set x; Set y
-where IsSubset(x, y) {
+where Subset(x, y) {
 
     ensure disjoint(y.text, x.icon)
     ensure contains(y.icon, x.icon, 5.0)
@@ -32,7 +32,7 @@ where IsSubset(x, y) {
 ---
 
 forall Set x; Set y
-where NotIntersecting(x, y) {
+where Disjoint(x, y) {
     ensure disjoint(x.icon, y.icon)
 }
 

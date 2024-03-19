@@ -36,7 +36,7 @@ These visual relationships can be represented in many different ways. Therefore,
 
 It's a good rule of thumb to **NOT** touch concrete numbers until we get into the `.style` file.
 
-Every vector exists in a vector space, and we typically draw them from the origin of that space. In the given `.domain` file, you will find a defined predicate called `In` that takes in a `Vector` and a `VectorSpace`. The way we work with `In` is very similar to the `isSubset` predicate we have worked with in tutorial 2.
+Every vector exists in a vector space, and we typically draw them from the origin of that space. In the given `.domain` file, you will find a defined predicate called `In` that takes in a `Vector` and a `VectorSpace`. The way we work with `In` is very similar to the `Subset` predicate we have worked with in tutorial 2.
 
 We start by writing the selector, which catches any vectors that are in a vector space.
 

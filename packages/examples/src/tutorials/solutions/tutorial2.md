@@ -47,7 +47,7 @@ Define a predicate that takes in two sets and outputs 2 circles that are disjoin
 
 ```
 type Set
-predicate NotIntersecting(Set s1, Set s2)
+predicate Disjoint(Set s1, Set s2)
 ```
 
 `.substance`
@@ -55,7 +55,7 @@ predicate NotIntersecting(Set s1, Set s2)
 ```
 Set A
 Set B
-NotIntersecting(A, B)
+Disjoint(A, B)
 ```
 
 `.style`
@@ -75,7 +75,7 @@ forall Set x {
 }
 
 forall Set x; Set y
-where NotIntersecting(x, y) {
+where Disjoint(x, y) {
     ensure disjoint(x.icon, y.icon, 15)
 }
 ```

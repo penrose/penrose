@@ -28,9 +28,9 @@ It's specified by the following trio of Domain, Substance, and Style programs
   ```
   type Set
   
-  predicate NotIntersecting(Set s1, Set s2)
+  predicate Disjoint(Set s1, Set s2)
   predicate Intersecting(Set s1, Set s2)
-  predicate IsSubset(Set s1, Set s2)
+  predicate Subset(Set s1, Set s2)
   ```
 
 - `tree.substance`:
@@ -38,16 +38,16 @@ It's specified by the following trio of Domain, Substance, and Style programs
   ```
   Set A, B, C, D, E, F, G
   
-  IsSubset(B, A)
-  IsSubset(C, A)
-  IsSubset(D, B)
-  IsSubset(E, B)
-  IsSubset(F, C)
-  IsSubset(G, C)
+  Subset(B, A)
+  Subset(C, A)
+  Subset(D, B)
+  Subset(E, B)
+  Subset(F, C)
+  Subset(G, C)
   
-  NotIntersecting(E, D)
-  NotIntersecting(F, G)
-  NotIntersecting(B, C)
+  Disjoint(E, D)
+  Disjoint(F, G)
+  Disjoint(B, C)
   
   AutoLabel All
   ```
@@ -72,14 +72,14 @@ It's specified by the following trio of Domain, Substance, and Style programs
   }
   
   forall Set x; Set y
-  where IsSubset(x, y) {
+  where Subset(x, y) {
     ensure disjoint(y.text, x.icon, 10)
     ensure contains(y.icon, x.icon, 5)
     layer x.icon above y.icon
   }
   
   forall Set x; Set y
-  where NotIntersecting(x, y) {
+  where Disjoint(x, y) {
     ensure disjoint(x.icon, y.icon)
   }
   
