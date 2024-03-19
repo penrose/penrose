@@ -237,7 +237,7 @@ Unexpected as token: "as". Instead, I was expecting to see one of the following:
         .toEqual(`Error: Syntax error at line 1 col 42:
 
   forall Set x; Set y where Subset(x,y) as \`
-                                             ^
+                                           ^
 Unexpected tick token: "\`". Instead, I was expecting to see one of the following:
 
     ws token
