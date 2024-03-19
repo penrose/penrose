@@ -234,7 +234,7 @@ Unexpected as token: "as". Instead, I was expecting to see one of the following:
     const parsed = parseStyle(prog);
     if (parsed.isErr()) {
       expect(parsed.error.message)
-        .toEqual(`Error: Syntax error at line 1 col 44:
+        .toEqual(`Error: Syntax error at line 1 col 42:
 
   forall Set x; Set y where Subset(x,y) as \`
                                              ^
