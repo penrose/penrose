@@ -1013,7 +1013,8 @@ export const genGradient = async (
     },
   );
 
-  const f = await rose.compile(full);
+  const memory = new WebAssembly.Memory({ initial: 0 });
+  const f = await rose.compile(full, { memory });
 
   return (
     { inputMask, objMask, constrMask }: ad.Masks,
@@ -1185,6 +1186,7 @@ export const compile = async (
   ys: ad.Num[],
 ): Promise<(inputs: (x: ad.Var) => number) => number[]> => {
   const { inputs, f } = makeFn(ys);
-  const g = (await rose.compile(f as any)) as any;
+  const memory = new WebAssembly.Memory({ initial: 0 });
+  const g = (await rose.compile(f as any, { memory })) as any;
   return (vals) => g(inputs.map((x) => vals(x)));
 };
