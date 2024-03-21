@@ -12,6 +12,8 @@ import { isLinelike, isRectlike } from "../lib/Utils.js";
 import { Group } from "../shapes/Group.js";
 import { Shape } from "../shapes/Shapes.js";
 import { LabelCache, State } from "../types/state.js";
+import { mathjaxInit } from "../utils/CollectLabels.js";
+import { Result } from "../utils/Error.js";
 import { toScreen } from "../utils/Util.js";
 import { attrAutoFillSvg, attrTitle } from "./AttrHelper.js";
 import RenderCircle from "./Circle.js";
@@ -25,7 +27,6 @@ import RenderPolyline from "./Polyline.js";
 import RenderRectangle from "./Rectangle.js";
 import RenderText from "./Text.js";
 import { dragUpdate } from "./dragUtils.js";
-
 /**
  * Resolves path references into static strings. Implemented by client
  * since filesystem contexts vary (eg browser vs headless).
@@ -37,15 +38,28 @@ export interface RenderProps {
   namespace: string;
   variation: string;
   labels: LabelCache;
-  texLabels: boolean;
   canvasSize: [number, number];
   pathResolver: PathResolver;
+  texOption: TeXOption;
 }
 export type InteractiveProps = {
   updateState: (newState: State) => void;
   onDrag: (id: string, dx: number, dy: number) => void;
   parentSVG: SVGSVGElement;
 };
+
+export type TeXOption = RenderTeX | DoNotRenderTeX;
+
+export interface RenderTeX {
+  tag: "RenderTeX";
+  renderer: TeXRenderer;
+}
+
+export interface DoNotRenderTeX {
+  tag: "DoNotRenderTeX";
+}
+
+export type TeXRenderer = (texStr: string) => Result<HTMLElement, string>;
 /**
  * Converts screen to relative SVG coords
  * Thanks to
@@ -76,6 +90,7 @@ export const toInteractiveSVG = async (
   updateState: (newState: State) => void,
   pathResolver: PathResolver,
   namespace: string,
+  texOption?: TeXOption,
 ): Promise<SVGSVGElement> => {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
@@ -88,6 +103,13 @@ export const toInteractiveSVG = async (
     updateState(dragUpdate(state, id, dx, dy));
   };
   const shapes = state.computeShapes(state.varyingValues);
+
+  if (texOption === undefined) {
+    texOption = {
+      tag: "RenderTeX",
+      renderer: mathjaxInit(),
+    };
+  }
   await RenderShapes(
     shapes,
     svg,
@@ -96,8 +118,8 @@ export const toInteractiveSVG = async (
       canvasSize: state.canvas.size,
       variation: state.variation,
       namespace,
-      texLabels: false,
       pathResolver,
+      texOption,
     },
     {
       updateState,
@@ -113,17 +135,18 @@ export const toInteractiveSVG = async (
  * @param pathResolver Resolves paths to static strings
  */
 export const toSVG = async (
-  {
-    varyingValues,
-    canvas,
-    computeShapes,
-    labelCache: labels,
-    variation,
-  }: State,
+  state: State,
   pathResolver: PathResolver,
   namespace: string,
-  texLabels = false,
+  texOption?: TeXOption,
 ): Promise<SVGSVGElement> => {
+  const {
+    varyingValues,
+    computeShapes,
+    labelCache: labels,
+    canvas,
+    variation,
+  } = state;
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("version", "1.2");
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
@@ -169,6 +192,13 @@ export const toSVG = async (
   metadata.appendChild(croppedViewBox);
   svg.appendChild(metadata);
 
+  if (texOption === undefined) {
+    texOption = {
+      tag: "RenderTeX",
+      renderer: mathjaxInit(),
+    };
+  }
+
   await RenderShapes(
     shapes,
     svg,
@@ -177,8 +207,8 @@ export const toSVG = async (
       canvasSize: canvas.size,
       variation,
       namespace,
-      texLabels,
       pathResolver,
+      texOption,
     },
     undefined,
   );
@@ -199,7 +229,7 @@ const RenderGroup = async (
 
   if (clip.tag === "Clip") {
     const clipShape = clip.contents;
-    clipShapeName = clipShape.name.contents;
+    clipShapeName = clipShape.name.contents.contents;
     const clipShapeSvg = await RenderShape(
       clipShape,
       shapeProps,
@@ -222,7 +252,7 @@ const RenderGroup = async (
   for (const shape of subShapes) {
     const name = shape.name.contents;
     if (clip.tag === "Clip") {
-      if (name !== clipShapeName) {
+      if (name.contents !== clipShapeName) {
         const childSvg = await RenderShape(shape, shapeProps, interactiveProp);
 
         // wraps the shape in a <g> tag so that clipping is applied after all the transformations etc.
@@ -330,7 +360,7 @@ export const RenderShape = async (
           g.setAttribute("opacity", "1");
           document.removeEventListener("mouseup", onMouseUp);
           document.removeEventListener("mousemove", onMouseMove);
-          interactiveProp.onDrag(shape.name.contents, dx, dy);
+          interactiveProp.onDrag(shape.name.contents.contents, dx, dy);
         };
         document.addEventListener("mouseup", onMouseUp);
         document.addEventListener("mousemove", onMouseMove);

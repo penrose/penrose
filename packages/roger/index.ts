@@ -12,6 +12,7 @@ import {
   compile,
   finalStage,
   isOptimized,
+  mathjaxInit,
   nextStage,
   showError,
   step,
@@ -122,8 +123,21 @@ const render = async (
   const convergeEnd = process.hrtime(convergeStart);
   const reactRenderStart = process.hrtime();
 
-  const canvas = (await toSVG(optimizedState, resolvePath, "roger", texLabels))
-    .outerHTML;
+  const canvas = (
+    await toSVG(
+      optimizedState,
+      resolvePath,
+      "roger",
+      texLabels
+        ? {
+            tag: "DoNotRenderTeX",
+          }
+        : {
+            tag: "RenderTeX",
+            renderer: mathjaxInit(),
+          },
+    )
+  ).outerHTML;
 
   const reactRenderEnd = process.hrtime(reactRenderStart);
   const overallEnd = process.hrtime(overallStart);

@@ -2,8 +2,10 @@ import {
   PathResolver,
   PenroseError,
   PenroseState,
+  TeXOption,
   compile,
   isOptimized,
+  mathjaxInit,
   optimize,
   resample,
   showError,
@@ -36,11 +38,16 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
   readonly canvasRef = React.createRef<HTMLDivElement>();
   penroseState: PenroseState | undefined = undefined;
   timerID: number | undefined = undefined; // for animation
+  texOption: TeXOption;
 
   constructor(props: SimpleProps) {
     super(props);
     this.state = {
       error: undefined,
+    };
+    this.texOption = {
+      tag: "RenderTeX",
+      renderer: mathjaxInit(),
     };
   }
 
@@ -144,6 +151,7 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
               this.penroseState,
               this.props.imageResolver ?? fetchResolver,
               this.props.name ?? "",
+              this.texOption,
             )
           : toInteractiveSVG(
               this.penroseState,
@@ -156,6 +164,7 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
               },
               this.props.imageResolver ?? fetchResolver,
               this.props.name ?? "",
+              this.texOption,
             ));
         renderedState.setAttribute("width", "100%");
         renderedState.setAttribute("height", "100%");

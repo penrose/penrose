@@ -1,16 +1,24 @@
-import { BoolV, ColorV, FloatV, PtListV, StrV, VectorV } from "./value.js";
+import {
+  BoolV,
+  ColorV,
+  ConstStrV,
+  FloatV,
+  PtListV,
+  StrV,
+  VectorV,
+} from "./value.js";
 
 //#region shape hierarchy interfaces
 export interface Named<T> {
-  name: StrV;
+  name: ConstStrV<T>;
   ensureOnCanvas: BoolV;
 }
 
 export interface Stroke<T> {
   strokeWidth: FloatV<T>;
-  strokeStyle: StrV;
+  strokeStyle: StrV<T>;
   strokeColor: ColorV<T>;
-  strokeDasharray: StrV;
+  strokeDasharray: StrV<T>;
 }
 
 export interface Fill<T> {
@@ -29,8 +37,8 @@ export interface Rect<T> {
 export interface Arrow<T> {
   startArrowheadSize: FloatV<T>;
   endArrowheadSize: FloatV<T>;
-  startArrowhead: StrV;
-  endArrowhead: StrV;
+  startArrowhead: StrV<T>;
+  endArrowhead: StrV<T>;
   flipStartArrowhead: BoolV;
 }
 
@@ -56,8 +64,8 @@ export interface Poly<T> {
 }
 
 export interface String<T> {
-  string: StrV;
-  fontSize: StrV;
+  string: StrV<T>;
+  fontSize: StrV<T>;
 }
 
 export interface ShapeCommon<T> {
@@ -65,6 +73,6 @@ export interface ShapeCommon<T> {
   passthrough: Map<string, CanPassthrough<T>>;
 }
 
-export type CanPassthrough<T> = StrV | FloatV<T>;
+export type CanPassthrough<T> = StrV<T> | FloatV<T>;
 
 //#endregion

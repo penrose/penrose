@@ -9,7 +9,7 @@ import {
   String,
 } from "../types/shapes.js";
 import { FloatV } from "../types/value.js";
-import { black, boolV, floatV, strV, vectorV } from "../utils/Util.js";
+import { black, boolV, constStrV, floatV, vectorV } from "../utils/Util.js";
 import { Canvas, Context, uniform } from "./Samplers.js";
 
 export interface EquationProps<T>
@@ -27,7 +27,7 @@ export const sampleEquation = (
   context: Context,
   canvas: Canvas,
 ): EquationProps<ad.Num> => ({
-  name: strV("defaultEquation"),
+  name: constStrV("defaultEquation"),
   fillColor: black(),
   center: vectorV([
     context.makeInput({
@@ -64,8 +64,8 @@ export const sampleEquation = (
     }),
   ),
   rotation: floatV(0),
-  string: strV("defaultLabelText"),
-  fontSize: strV("16px"),
+  string: constStrV("defaultLabelText"),
+  fontSize: constStrV("16px"),
   ensureOnCanvas: boolV(true),
 });
 

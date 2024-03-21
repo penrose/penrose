@@ -2,13 +2,12 @@ import { describe, expect, test } from "vitest";
 import { makeCircle } from "../../shapes/Circle.js";
 import { makeEllipse } from "../../shapes/Ellipse.js";
 import { makeCanvas, simpleContext } from "../../shapes/Samplers.js";
-import { black, floatV, vectorV } from "../../utils/Util.js";
+import { black, floatV, numsOf, vectorV } from "../../utils/Util.js";
 import {
   circleToImplicitEllipse,
   ellipseToImplicit,
   halfPlaneToImplicit,
 } from "../ImplicitShapes.js";
-import { numsOf } from "../Utils.js";
 
 describe("toImplicit", () => {
   test("halfPlaneToImplicit", async () => {

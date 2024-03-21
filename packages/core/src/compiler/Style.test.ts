@@ -1,6 +1,5 @@
 import im from "immutable";
 import { describe, expect, test } from "vitest";
-import { numOf, numsOf } from "../lib/Utils.js";
 import * as ad from "../types/ad.js";
 import { C } from "../types/ast.js";
 import { DomainEnv } from "../types/domain.js";
@@ -22,11 +21,11 @@ import {
   Translation,
 } from "../types/styleSemantics.js";
 import { SubstanceEnv } from "../types/substance.js";
-import { ColorV, FloatV, RGBA, StrV } from "../types/value.js";
+import { ColorV, ConstStr, FloatV, RGBA, StrV } from "../types/value.js";
 import { Result, showError } from "../utils/Error.js";
 import Graph from "../utils/Graph.js";
 import { GroupGraph } from "../utils/GroupGraph.js";
-import { zip2 } from "../utils/Util.js";
+import { numOf, numsOf, zip2 } from "../utils/Util.js";
 import { compileDomain } from "./Domain.js";
 import * as S from "./Style.js";
 import { compileSubstance } from "./Substance.js";
@@ -1523,8 +1522,10 @@ delete x.z.p }`,
       expect(state.shapes.length).toEqual(1);
 
       expect(
-        (translation.symbols.get(`\`s2\`.t.string`)!.contents as StrV)
-          .contents === "s2",
+        (
+          (translation.symbols.get(`\`s2\`.t.string`)!.contents as StrV<ad.Num>)
+            .contents as ConstStr
+        ).contents === "s2",
       );
     });
 

@@ -51,6 +51,8 @@ import {
   PathDataV,
   PtListV,
   ShapeListV,
+  Str,
+  StrV,
   SubPath,
   TupV,
   Value,
@@ -181,6 +183,28 @@ function mapColor<T, S>(f: (arg: T) => S, v: ColorV<T>): ColorV<S> {
   };
 }
 
+function mapStrInner<T, S>(f: (arg: T) => S, v: Str<T>): Str<S> {
+  switch (v.tag) {
+    case "FromNum":
+      return { tag: v.tag, num: f(v.num), preserveDigits: v.preserveDigits };
+    case "ConstStr":
+      return { tag: v.tag, contents: v.contents };
+    case "ConcatStr":
+      return {
+        tag: v.tag,
+        left: mapStrInner(f, v.left),
+        right: mapStrInner(f, v.right),
+      };
+  }
+}
+
+function mapStr<T, S>(f: (arg: T) => S, v: StrV<T>): StrV<S> {
+  return {
+    tag: "StrV",
+    contents: mapStrInner(f, v.contents),
+  };
+}
+
 function mapShape<T, S>(f: (arg: T) => S, v: Shape<T>): Shape<S> {
   switch (v.shapeType) {
     case "Circle":
@@ -293,7 +317,8 @@ const mapImage = <T, S>(f: (arg: T) => S, v: Image<T>): Image<S> => {
     ...mapCenter(f, v),
     ...mapRect(f, v),
     ...mapRotate(f, v),
-    href: v.href,
+    href: mapStr(f, v.href),
+    preserveAspectRatio: mapStr(f, v.preserveAspectRatio),
     passthrough: mapPassthrough(f, v.passthrough),
   };
 };
@@ -307,7 +332,7 @@ const mapLine = <T, S>(f: (arg: T) => S, v: Line<T>): Line<S> => {
     ...mapArrow(f, v),
     start: mapVector(f, v.start),
     end: mapVector(f, v.end),
-    strokeLinecap: v.strokeLinecap,
+    strokeLinecap: mapStr(f, v.strokeLinecap),
     passthrough: mapPassthrough(f, v.passthrough),
   };
 };
@@ -320,6 +345,7 @@ const mapPath = <T, S>(f: (arg: T) => S, v: PathShape<T>): PathShape<S> => {
     ...mapFill(f, v),
     ...mapArrow(f, v),
     d: mapPathData(f, v.d),
+    strokeLinecap: mapStr(f, v.strokeLinecap),
     passthrough: mapPassthrough(f, v.passthrough),
   };
 };
@@ -344,6 +370,7 @@ const mapPolyline = <T, S>(f: (arg: T) => S, v: Polyline<T>): Polyline<S> => {
     ...mapFill(f, v),
     ...mapScale(f, v),
     ...mapPoly(f, v),
+    strokeLinecap: mapStr(f, v.strokeLinecap),
     passthrough: mapPassthrough(f, v.passthrough),
   };
 };
@@ -377,6 +404,17 @@ const mapText = <T, S>(f: (arg: T) => S, v: Text<T>): Text<S> => {
     ...mapString(f, v),
     ascent: mapFloat(f, v.ascent),
     descent: mapFloat(f, v.descent),
+    visibility: mapStr(f, v.visibility),
+    fontFamily: mapStr(f, v.fontFamily),
+    fontSizeAdjust: mapStr(f, v.fontSizeAdjust),
+    fontStretch: mapStr(f, v.fontStretch),
+    fontStyle: mapStr(f, v.fontStyle),
+    fontVariant: mapStr(f, v.fontVariant),
+    fontWeight: mapStr(f, v.fontWeight),
+    textAnchor: mapStr(f, v.textAnchor),
+    lineHeight: mapStr(f, v.lineHeight),
+    alignmentBaseline: mapStr(f, v.alignmentBaseline),
+    dominantBaseline: mapStr(f, v.dominantBaseline),
     passthrough: mapPassthrough(f, v.passthrough),
   };
 };
@@ -388,7 +426,7 @@ const mapPassthrough = <T, S>(
   const vMapped = new Map<string, CanPassthrough<S>>();
   for (const [key, value] of v.entries()) {
     if (value.tag === "StrV") {
-      vMapped.set(key, value);
+      vMapped.set(key, mapStr(f, value));
     } else {
       vMapped.set(key, mapFloat(f, value));
     }
@@ -403,8 +441,8 @@ const mapNamed = <T, S>(f: (arg: T) => S, v: Named<T>): Named<S> => {
 
 const mapStroke = <T, S>(f: (arg: T) => S, v: Stroke<T>): Stroke<S> => {
   return {
-    strokeStyle: v.strokeStyle,
-    strokeDasharray: v.strokeDasharray,
+    strokeStyle: mapStr(f, v.strokeStyle),
+    strokeDasharray: mapStr(f, v.strokeDasharray),
     strokeWidth: mapFloat(f, v.strokeWidth),
     strokeColor: mapColor(f, v.strokeColor),
   };
@@ -424,8 +462,8 @@ const mapRect = <T, S>(f: (arg: T) => S, v: Rect<T>): Rect<S> => {
 
 const mapArrow = <T, S>(f: (arg: T) => S, v: Arrow<T>): Arrow<S> => {
   return {
-    startArrowhead: v.startArrowhead,
-    endArrowhead: v.endArrowhead,
+    startArrowhead: mapStr(f, v.startArrowhead),
+    endArrowhead: mapStr(f, v.endArrowhead),
     flipStartArrowhead: v.flipStartArrowhead,
     startArrowheadSize: mapFloat(f, v.startArrowheadSize),
     endArrowheadSize: mapFloat(f, v.endArrowheadSize),
@@ -452,7 +490,7 @@ const mapString = <T, S>(
   f: (arg: T) => S,
   v: StringProps<T>,
 ): StringProps<S> => {
-  return { string: v.string, fontSize: v.fontSize };
+  return { string: mapStr(f, v.string), fontSize: mapStr(f, v.fontSize) };
 };
 
 // Utils for converting types of values
@@ -483,9 +521,10 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
       return mapShapeList(f, v);
     case "ClipDataV":
       return mapClipData(f, v);
+    case "StrV":
+      return mapStr(f, v);
     // non-numeric Value types
     case "BoolV":
-    case "StrV":
       return v;
   }
 }

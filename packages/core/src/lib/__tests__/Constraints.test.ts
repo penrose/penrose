@@ -1,8 +1,8 @@
 import { describe, expect, it, test } from "vitest";
 import { Shape } from "../../shapes/Shapes.js";
 import * as ad from "../../types/ad.js";
+import { numOf } from "../../utils/Util.js";
 import { constrDict } from "../Constraints.js";
-import { numOf } from "../Utils.js";
 import {
   _circles,
   _ellipses,

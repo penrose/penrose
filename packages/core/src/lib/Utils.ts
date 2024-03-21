@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { EPS_DENOM, interp, ops } from "../engine/Autodiff.js";
+import { EPS_DENOM, ops } from "../engine/Autodiff.js";
 import {
   absVal,
   add,
@@ -204,19 +204,6 @@ export const closestPt_PtSeg = (
 
   // v +: (t' *: dir) -- walk along vector of line seg
   return ops.vadd(start, ops.vmul(t1, dir));
-};
-
-/**
- * Get numerical values of nodes in the computation graph. This function calls
- * `interp` to construct and evaluate a partial computation graph.
- *
- * @param xs nodes in the computation graph
- * @returns a list of `number`s corresponding to nodes in `xs`
- */
-export const numsOf = (xs: ad.Num[]): number[] => interp(xs)((x) => x.val);
-
-export const numOf = (x: ad.Num): number => {
-  return numsOf([x])[0];
 };
 
 /**

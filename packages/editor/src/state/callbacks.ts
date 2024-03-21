@@ -261,12 +261,16 @@ export const useDownloadSvgTex = () =>
     if (canvas.ref && canvas.ref.current !== null) {
       const { state } = snapshot.getLoadable(diagramState).contents as Diagram;
       if (state !== null) {
-        const rendered = await stateToSVG(state, {
-          pathResolver: (path: string) =>
-            pathResolver(path, rogerState, metadata),
-          width: state.canvas.width.toString(),
-          height: state.canvas.height.toString(),
-        });
+        const rendered = await stateToSVG(
+          state,
+          {
+            pathResolver: (path: string) =>
+              pathResolver(path, rogerState, metadata),
+            width: state.canvas.width.toString(),
+            height: state.canvas.height.toString(),
+          },
+          { tag: "DoNotRenderTeX" },
+        );
         const domain = snapshot.getLoadable(fileContentsSelector("domain"))
           .contents as ProgramFile;
         const substance = snapshot.getLoadable(

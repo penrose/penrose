@@ -2,6 +2,7 @@ import _ from "lodash";
 import { Path } from "../shapes/Path.js";
 import { PathCmd, SubPath } from "../types/value.js";
 import {
+  evalStr,
   getArrowhead,
   toScreen,
   toSvgOpacityProperty,
@@ -15,7 +16,6 @@ import {
 } from "./AttrHelper.js";
 import { arrowHead } from "./Line.js";
 import { RenderProps } from "./Renderer.js";
-
 const toPathString = (
   pathData: PathCmd<number>[],
   canvasSize: [number, number],
@@ -72,20 +72,19 @@ export const RenderPath = (
   { canvasSize }: RenderProps,
 ): SVGGElement => {
   // TODO: distinguish between fill opacity and stroke opacity
-  const startArrowId = shape.name.contents + "-startArrowId";
-  const endArrowId = shape.name.contents + "-endArrowId";
-  const shadowId = shape.name.contents + "-shadow";
+  const startArrowId = evalStr(shape.name.contents) + "-startArrowId";
+  const endArrowId = evalStr(shape.name.contents) + "-endArrowId";
+  const shadowId = evalStr(shape.name.contents) + "-shadow";
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
   const strokeColor = toSvgPaintProperty(shape.strokeColor.contents);
   const strokeOpacity = toSvgOpacityProperty(shape.strokeColor.contents);
   // Keep track of which input properties we programatically mapped
   const attrToNotAutoMap: string[] = [];
 
-  const startArrowhead = getArrowhead(shape.startArrowhead.contents);
-  const endArrowhead = getArrowhead(shape.endArrowhead.contents);
+  const startArrowhead = getArrowhead(evalStr(shape.startArrowhead.contents));
+  const endArrowhead = getArrowhead(evalStr(shape.endArrowhead.contents));
 
   if (startArrowhead) {
-    const startArrowId = shape.name.contents + "-startArrowId";
     const startArrowheadSize = shape.startArrowheadSize.contents;
     const flip = shape.flipStartArrowhead.contents;
     elem.appendChild(
@@ -100,7 +99,6 @@ export const RenderPath = (
     );
   }
   if (endArrowhead) {
-    const endArrowId = shape.name.contents + "-endArrowId";
     const endArrowheadSize = shape.endArrowheadSize.contents;
     elem.appendChild(
       arrowHead(

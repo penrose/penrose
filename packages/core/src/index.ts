@@ -30,13 +30,18 @@ import { unwrap } from "./utils/Util.js";
  */
 export const resample = (state: State): State => {
   const rng = seedrandom(state.variation);
+  // new set of varying values
+  const varyingValues = state.inputs.map(({ meta }) =>
+    meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending,
+  );
+  // update init values of the ad.Vars
+  for (let i = 0; i < state.inputs.length; i++) {
+    state.inputs[i].handle.val = varyingValues[i];
+  }
+
   return insertLabelMeasurements({
     ...state,
-    // resample all sampled inputs
-    varyingValues: state.inputs.map(({ meta }) =>
-      meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending,
-    ),
-    // restart from the first stage
+    varyingValues,
     currentStageIndex: 0,
     params: start(state.varyingValues.length),
   });
@@ -409,7 +414,7 @@ export { constrDict } from "./lib/Constraints.js";
 export { compDict } from "./lib/Functions.js";
 export { objDict } from "./lib/Objectives.js";
 export { RenderShapes, toInteractiveSVG, toSVG } from "./renderer/Renderer.js";
-export type { PathResolver } from "./renderer/Renderer.js";
+export type { PathResolver, TeXOption } from "./renderer/Renderer.js";
 export { makeCanvas, simpleContext } from "./shapes/Samplers.js";
 export type { Canvas } from "./shapes/Samplers.js";
 export { sampleShape, shapeTypes } from "./shapes/Shapes.js";

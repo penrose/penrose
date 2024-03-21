@@ -2,8 +2,9 @@ import { describe, expect, it, test } from "vitest";
 import { Polygon } from "../../shapes/Polygon.js";
 import { Polyline } from "../../shapes/Polyline.js";
 import * as ad from "../../types/ad.js";
+import { numOf } from "../../utils/Util.js";
 import { objDict, objDictSpecific } from "../Objectives.js";
-import { extractPoints, isClosed, numOf } from "../Utils.js";
+import { extractPoints, isClosed } from "../Utils.js";
 import { _polygons, _polylines } from "../__testfixtures__/TestShapes.input.js";
 
 const digitPrecision = 4;

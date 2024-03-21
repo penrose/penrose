@@ -7,6 +7,7 @@ import {
   diagramState,
   layoutTimelineState,
   optimizer,
+  texRenderer,
   workspaceMetadataSelector,
 } from "../state/atoms.js";
 import { pathResolver } from "../utils/downloadUtils.js";
@@ -31,12 +32,19 @@ export default function DiagramPanel() {
     setCanvasState({ ref: canvasRef }); // required for downloading/exporting diagrams
     if (state !== null && cur !== null) {
       (async () => {
-        const rendered = await stateToSVG(state, {
-          pathResolver: (path: string) =>
-            pathResolver(path, rogerState, workspace),
-          width: "100%",
-          height: "100%",
-        });
+        const rendered = await stateToSVG(
+          state,
+          {
+            pathResolver: (path: string) =>
+              pathResolver(path, rogerState, workspace),
+            width: "100%",
+            height: "100%",
+          },
+          {
+            tag: "RenderTeX",
+            renderer: texRenderer,
+          },
+        );
         rendered.setAttribute("width", "100%");
         rendered.setAttribute("height", "100%");
         if (cur.firstElementChild) {

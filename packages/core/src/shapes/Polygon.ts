@@ -7,7 +7,7 @@ import {
   ShapeCommon,
   Stroke,
 } from "../types/shapes.js";
-import { boolV, floatV, noPaint, ptListV, strV } from "../utils/Util.js";
+import { boolV, constStrV, floatV, noPaint, ptListV } from "../utils/Util.js";
 import { Canvas, Context, sampleColor } from "./Samplers.js";
 
 export interface PolygonProps<T>
@@ -21,11 +21,11 @@ export const samplePolygon = (
   context: Context,
   _canvas: Canvas,
 ): PolygonProps<ad.Num> => ({
-  name: strV("defaultPolygon"),
+  name: constStrV("defaultPolygon"),
   strokeWidth: floatV(0),
-  strokeStyle: strV("solid"),
+  strokeStyle: constStrV("solid"),
   strokeColor: noPaint(),
-  strokeDasharray: strV(""),
+  strokeDasharray: constStrV(""),
   fillColor: sampleColor(context),
   scale: floatV(1),
   points: ptListV([

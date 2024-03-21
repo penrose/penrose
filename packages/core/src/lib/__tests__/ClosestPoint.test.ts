@@ -7,9 +7,9 @@ import { Polyline, makePolyline } from "../../shapes/Polyline.js";
 import { makeRectangle } from "../../shapes/Rectangle.js";
 import { Context, makeCanvas, simpleContext } from "../../shapes/Samplers.js";
 import * as ad from "../../types/ad.js";
-import { black, floatV, ptListV, vectorV } from "../../utils/Util.js";
+import { black, floatV, numOf, ptListV, vectorV } from "../../utils/Util.js";
 import { compDict } from "../Functions.js";
-import { Rectlike, numOf } from "../Utils.js";
+import { Rectlike } from "../Utils.js";
 
 const canvas = makeCanvas(800, 700);
 

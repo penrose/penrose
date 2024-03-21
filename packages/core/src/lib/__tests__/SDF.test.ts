@@ -10,9 +10,9 @@ import { makeRectangle } from "../../shapes/Rectangle.js";
 import { Context, InputFactory, makeCanvas } from "../../shapes/Samplers.js";
 import * as ad from "../../types/ad.js";
 import { FloatV } from "../../types/value.js";
-import { black, floatV, ptListV, vectorV } from "../../utils/Util.js";
+import { black, floatV, numOf, ptListV, vectorV } from "../../utils/Util.js";
 import { compDict, signedDistanceEllipse } from "../Functions.js";
-import { Rectlike, numOf, toPt } from "../Utils.js";
+import { Rectlike, toPt } from "../Utils.js";
 
 const canvas = makeCanvas(800, 700);
 

@@ -10,7 +10,14 @@ import {
   Stroke,
 } from "../types/shapes.js";
 import { FloatV, StrV } from "../types/value.js";
-import { black, boolV, floatV, noPaint, strV, vectorV } from "../utils/Util.js";
+import {
+  black,
+  boolV,
+  constStrV,
+  floatV,
+  noPaint,
+  vectorV,
+} from "../utils/Util.js";
 import { Canvas, Context, uniform } from "./Samplers.js";
 
 export interface TextProps<T>
@@ -22,17 +29,17 @@ export interface TextProps<T>
     Rotate<T>,
     String<T> {
   // TODO; pare down this set of attributes
-  visibility: StrV;
-  fontFamily: StrV;
-  fontSizeAdjust: StrV;
-  fontStretch: StrV;
-  fontStyle: StrV;
-  fontVariant: StrV;
-  fontWeight: StrV;
-  textAnchor: StrV;
-  lineHeight: StrV;
-  alignmentBaseline: StrV;
-  dominantBaseline: StrV;
+  visibility: StrV<T>;
+  fontFamily: StrV<T>;
+  fontSizeAdjust: StrV<T>;
+  fontStretch: StrV<T>;
+  fontStyle: StrV<T>;
+  fontVariant: StrV<T>;
+  fontWeight: StrV<T>;
+  textAnchor: StrV<T>;
+  lineHeight: StrV<T>;
+  alignmentBaseline: StrV<T>;
+  dominantBaseline: StrV<T>;
   ascent: FloatV<T>;
   descent: FloatV<T>;
 }
@@ -41,11 +48,11 @@ export const sampleText = (
   context: Context,
   canvas: Canvas,
 ): TextProps<ad.Num> => ({
-  name: strV("defaultText"),
+  name: constStrV("defaultText"),
   strokeWidth: floatV(0),
-  strokeStyle: strV("solid"),
+  strokeStyle: constStrV("solid"),
   strokeColor: noPaint(),
-  strokeDasharray: strV(""),
+  strokeDasharray: constStrV(""),
   fillColor: black(),
   center: vectorV([
     context.makeInput({
@@ -82,20 +89,20 @@ export const sampleText = (
     }),
   ),
   rotation: floatV(0),
-  string: strV("defaultText"),
-  visibility: strV(""),
-  fontFamily: strV("sans-serif"),
-  fontSize: strV("12px"),
-  fontSizeAdjust: strV(""),
-  fontStretch: strV(""),
-  fontStyle: strV(""),
-  fontVariant: strV(""),
-  fontWeight: strV(""),
-  lineHeight: strV(""),
-  textAnchor: strV("middle"),
+  string: constStrV("defaultText"),
+  visibility: constStrV(""),
+  fontFamily: constStrV("sans-serif"),
+  fontSize: constStrV("12px"),
+  fontSizeAdjust: constStrV(""),
+  fontStretch: constStrV(""),
+  fontStyle: constStrV(""),
+  fontVariant: constStrV(""),
+  fontWeight: constStrV(""),
+  lineHeight: constStrV(""),
+  textAnchor: constStrV("middle"),
   // NOTE: both `alignmentBaseline` and `dominantBaseline` are necessary for browser support. For instance, Firefox only respects the latter.
-  alignmentBaseline: strV("alphabetic"),
-  dominantBaseline: strV("alphabetic"),
+  alignmentBaseline: constStrV("alphabetic"),
+  dominantBaseline: constStrV("alphabetic"),
   ensureOnCanvas: boolV(true),
 });
 
