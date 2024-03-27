@@ -1,4 +1,14 @@
-<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
+<svg
+  version="1.2"
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 800 700"
+  penrose="0"
+>
+  <penrose>
+    <croppedViewBox>
+      220.20368736480242 21.72225290347535 579.79004555511 579.79004555511
+    </croppedViewBox>
+  </penrose>
   <circle
     fill="#9be1b0"
     fill-opacity="0.5"

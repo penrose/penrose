@@ -939,6 +939,9 @@ const emitGraph = (
   return vals;
 };
 
+/** TODO: make this not a global */
+const memory = new WebAssembly.Memory({ initial: 0 });
+
 /** Generate an energy function from the current state (using `Num`s only) */
 export const genGradient = async (
   inputs: ad.Var[],
@@ -1013,7 +1016,6 @@ export const genGradient = async (
     },
   );
 
-  const memory = new WebAssembly.Memory({ initial: 0 });
   const f = await rose.compile(full, { memory });
 
   return (
@@ -1090,7 +1092,7 @@ export const problem = async (desc: ad.Description): Promise<ad.Problem> => {
     },
   );
 
-  const f = await rose.compile(full);
+  const f = await rose.compile(full, { memory });
 
   return {
     start: (conf) => {
@@ -1186,7 +1188,6 @@ export const compile = async (
   ys: ad.Num[],
 ): Promise<(inputs: (x: ad.Var) => number) => number[]> => {
   const { inputs, f } = makeFn(ys);
-  const memory = new WebAssembly.Memory({ initial: 0 });
   const g = (await rose.compile(f as any, { memory })) as any;
   return (vals) => g(inputs.map((x) => vals(x)));
 };

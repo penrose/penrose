@@ -85,9 +85,7 @@ const renderTrio = async (
     return await resolver(filePath);
   };
 
-  const svg = (
-    await toSVG(optimizedState, resolvePath, "registry", false, true)
-  ).outerHTML;
+  const svg = (await toSVG(optimizedState, resolvePath, "registry")).outerHTML;
   const svgOptimized = optimizeSVG(svg, {
     plugins: ["inlineStyles", "prefixIds"],
     path: id,

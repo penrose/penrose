@@ -123,7 +123,6 @@ export const toSVG = async (
   pathResolver: PathResolver,
   namespace: string,
   texLabels = false,
-  crop = false,
 ): Promise<SVGSVGElement> => {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("version", "1.2");
@@ -132,45 +131,43 @@ export const toSVG = async (
 
   const shapes = computeShapes(varyingValues);
 
-  if (crop) {
-    // Find x and y ranges of shapes by using their bounding boxes
-    const bboxs = shapes.map((shape) => bboxFromShape(shape));
+  // Find x and y ranges of shapes by using their bounding boxes
+  const bboxs = shapes.map((shape) => bboxFromShape(shape));
 
-    const MinX = minN(bboxs.map((bbox) => minX(bbox)));
-    const MinY = minN(bboxs.map((bbox) => minY(bbox)));
-    const MaxX = maxN(bboxs.map((bbox) => maxX(bbox)));
-    const MaxY = maxN(bboxs.map((bbox) => maxY(bbox)));
-    const viewBoxRanges = [MinX, MinY, MaxX, MaxY];
+  const MinX = minN(bboxs.map((bbox) => minX(bbox)));
+  const MinY = minN(bboxs.map((bbox) => minY(bbox)));
+  const MaxX = maxN(bboxs.map((bbox) => maxX(bbox)));
+  const MaxY = maxN(bboxs.map((bbox) => maxY(bbox)));
+  const viewBoxRanges = [MinX, MinY, MaxX, MaxY];
 
-    const [mx, my, Mx, My] = (await compile(viewBoxRanges))((x) => x.val);
+  const [mx, my, Mx, My] = (await compile(viewBoxRanges))((x) => x.val);
 
-    // toScreen flips the y-axis and therefore the max will become min
-    const [mxt, myt] = toScreen([mx, my], [canvas.width, canvas.height]);
-    const [Mxt, Myt] = toScreen([Mx, My], [canvas.width, canvas.height]);
+  // toScreen flips the y-axis and therefore the max will become min
+  const [mxt, myt] = toScreen([mx, my], [canvas.width, canvas.height]);
+  const [Mxt, Myt] = toScreen([Mx, My], [canvas.width, canvas.height]);
 
-    // New top left point and canvas size for cropped view box
-    const topLeft = [mxt, Myt];
-    const croppedCanvasSize = [Mxt - mxt, myt - Myt];
+  // New top left point and canvas size for cropped view box
+  const topLeft = [mxt, Myt];
+  const croppedCanvasSize = [Mxt - mxt, myt - Myt];
 
-    // Add cropped view box metadata to svg
-    svg.setAttribute("penrose", "0");
-    const metadata = document.createElementNS(
-      "https://penrose.cs.cmu.edu/metadata",
-      "penrose",
-    );
+  // Add cropped view box metadata to svg
+  svg.setAttribute("penrose", "0");
+  const metadata = document.createElementNS(
+    "https://penrose.cs.cmu.edu/metadata",
+    "penrose",
+  );
 
-    const croppedViewBox = document.createElementNS(
-      "https://penrose.cs.cmu.edu/croppedViewBox",
-      "croppedViewBox",
-    );
+  const croppedViewBox = document.createElementNS(
+    "https://penrose.cs.cmu.edu/croppedViewBox",
+    "croppedViewBox",
+  );
 
-    croppedViewBox.insertAdjacentText(
-      "afterbegin",
-      `${topLeft[0]} ${topLeft[1]} ${croppedCanvasSize[0]} ${croppedCanvasSize[1]}`,
-    );
-    metadata.appendChild(croppedViewBox);
-    svg.appendChild(metadata);
-  }
+  croppedViewBox.insertAdjacentText(
+    "afterbegin",
+    `${topLeft[0]} ${topLeft[1]} ${croppedCanvasSize[0]} ${croppedCanvasSize[1]}`,
+  );
+  metadata.appendChild(croppedViewBox);
+  svg.appendChild(metadata);
 
   await RenderShapes(
     shapes,
