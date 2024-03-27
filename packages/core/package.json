@@ -102,7 +102,7 @@
     "pandemonium": "^2.0.0",
     "poly-partition": "^1.0.2",
     "recursive-diff": "^1.0.8",
-    "rose": "^0.4.8",
+    "rose": "^0.4.9",
     "seedrandom": "^3.0.5",
     "true-myth": "^4.1.0"
   },
