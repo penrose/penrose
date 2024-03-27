@@ -3231,10 +3231,10 @@
   resolved "https://registry.yarnpkg.com/@rollup/rollup-win32-x64-msvc/-/rollup-win32-x64-msvc-4.9.5.tgz#10491ccf4f63c814d4149e0316541476ea603602"
   integrity sha512-1q+mykKE3Vot1kaFJIDoUFv5TuW+QQVaf2FmTT9krg86pQrGStOSJJ0Zil7CFagyxDuouTepzt5Y5TVzyajOdQ==
 
-"@rose-lang/wasm@0.4.5":
-  version "0.4.5"
-  resolved "https://registry.yarnpkg.com/@rose-lang/wasm/-/wasm-0.4.5.tgz#a8d4cd7fecce5201163ec0cad10d729601cdfde9"
-  integrity sha512-THwFfPDH3eCWwlsVXW7n9le9JAT8ho13oWcin0pVC1I832VLPqRletNtINQ5Y5q1WgluuMu/J3MenMELgU/sVQ==
+"@rose-lang/wasm@0.4.9":
+  version "0.4.9"
+  resolved "https://registry.yarnpkg.com/@rose-lang/wasm/-/wasm-0.4.9.tgz#c95f25bd4fac9a8e4e80c43469751eb12c58dd0b"
+  integrity sha512-2Qnoy7Ti7NqMh9OVwzIJTa1VHqEsR0CtOeDjXkFRONmKyaSqinHhWY8ornyGL6EPlMATK3ezDvNArzY1FJu3Kg==
 
 "@spyke/conventional-changelog-preset@^1.0.5":
   version "1.0.5"
@@ -15271,12 +15271,12 @@ rollup@^4.2.0:
     "@rollup/rollup-win32-x64-msvc" "4.9.5"
     fsevents "~2.3.2"
 
-rose@^0.4.5:
-  version "0.4.5"
-  resolved "https://registry.yarnpkg.com/rose/-/rose-0.4.5.tgz#db7ad92949b444e504b089bbc24427bb5abc2317"
-  integrity sha512-Ue7XXGhHSguvFKHvYRu6J702ajciwQal4z0BsaPIuvSAtjWUREGgeh2vfzuVwv683MSMlGPuPmI0xIN43vdn9w==
+rose@^0.4.9:
+  version "0.4.9"
+  resolved "https://registry.yarnpkg.com/rose/-/rose-0.4.9.tgz#6b63f1e1b812e856c3bbf8015f5a0075e7d30cba"
+  integrity sha512-xh/etzACIcYhzmfGP2WsKrJXm3o66ferzCWd2EeucD9HQsb4UZyeQ8HlMT3YB97aLBTBXkK8u9R3T2nwxZhrtQ==
   dependencies:
-    "@rose-lang/wasm" "0.4.5"
+    "@rose-lang/wasm" "0.4.9"
 
 rrweb-cssom@^0.6.0:
   version "0.6.0"
