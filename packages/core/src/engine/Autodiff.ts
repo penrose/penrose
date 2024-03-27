@@ -939,7 +939,11 @@ const emitGraph = (
   return vals;
 };
 
-/** TODO: make this not a global */
+/** NOTE: this is a global memory instance for each thread. Another option is to expose this in the `core` API,
+ * but it wouldn't make sense for each diagram to have their own memory instance.
+ * If that's the case, it's a tricky to expose this all the way at the core API level and ask the user to pass
+ * a `Memory` instance around.
+ **/
 const memory = new WebAssembly.Memory({ initial: 0 });
 
 /** Generate an energy function from the current state (using `Num`s only) */
