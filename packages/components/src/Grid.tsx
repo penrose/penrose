@@ -19,12 +19,10 @@ export interface GridProps {
     data: string;
   }[];
   header: (i: number) => string;
-  onSelected?: (n: number) => void;
   onComplete?: () => void;
   onStateUpdate: (n: number, s: PenroseState) => void;
   imageResolver?: PathResolver;
   gridBoxProps?: Partial<GridboxProps>;
-  selected?: number[];
 }
 
 const GridContainer = styled.main`
@@ -73,7 +71,6 @@ export class Grid extends React.Component<GridProps, GridState> {
           substance={substance}
           variation={variation}
           excludeWarnings={[]}
-          onSelected={this.props.onSelected}
           onStateUpdate={(n, state) => {
             // record opt status
             this.setState((prev) => {
@@ -88,7 +85,6 @@ export class Grid extends React.Component<GridProps, GridState> {
             this.props.onStateUpdate(n, state);
           }}
           imageResolver={this.props.imageResolver}
-          selected={this.props.selected && this.props.selected.includes(i)}
         />
       ),
     );

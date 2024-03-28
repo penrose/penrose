@@ -6,7 +6,7 @@ import {
   Toolbar,
   Typography,
 } from "@material-ui/core";
-import { Grid, MultipleChoiceProblem } from "@penrose/components";
+import { MultipleChoiceProblem } from "@penrose/components";
 import {
   compileDomain,
   compileSubstance,
@@ -27,6 +27,7 @@ import {
   Synthesizer,
   SynthesizerSetting,
 } from "../synthesis/Synthesizer.js";
+import { Grid } from "./Grid.js";
 import { Settings } from "./Settings.js";
 
 const edgeworthPurple = {

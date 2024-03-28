@@ -1,3 +1,5 @@
+const topLevelAwait = require("vite-plugin-top-level-await");
+
 module.exports = {
   stories: ["../src/**/*.stories.mdx", "../src/**/*.stories.@(js|jsx|ts|tsx)"],
   addons: [
@@ -17,6 +19,7 @@ module.exports = {
       config.base = "./";
     }
     config.build = { ...(config.build ?? {}), target: "esnext" };
+    config.plugins = [...(config.plugins ?? []), topLevelAwait()];
     return config;
   },
 };

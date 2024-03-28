@@ -1,7 +1,11 @@
-import { PenroseState } from "@penrose/core";
+import { Checkbox } from "@material-ui/core";
+import { Simple } from "@penrose/components";
+import { SimpleProps } from "@penrose/components/dist/Simple";
+import { PathResolver, PenroseState, isOptimized } from "@penrose/core";
+
+import * as _ from "lodash";
 import React, { SVGProps } from "react";
 import styled from "styled-components";
-import { Simple, SimpleProps } from "./Simple.js";
 
 export type GridboxProps = SimpleProps & {
   header: string;
@@ -12,8 +16,11 @@ export type GridboxProps = SimpleProps & {
     name: string;
     data: string;
   }[];
+  onSelected?: (n: number) => void;
   onStateUpdate?: (n: number, s: PenroseState) => void;
 };
+
+const Check = styled(Checkbox)``;
 
 const Svg = styled.svg.attrs({
   version: "1.1",
@@ -131,9 +138,6 @@ interface GridboxState {
   showDiagramInfo: boolean;
   isSelected: boolean;
   variation: string;
-  substance: string;
-  style: string;
-  domain: string;
   currentState?: PenroseState;
 }
 
@@ -141,9 +145,6 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
   constructor(props: GridboxProps) {
     super(props);
     this.state = {
-      substance: props.substance,
-      style: props.style,
-      domain: props.domain,
       showDiagramInfo: false,
       isSelected: this.props.selected ?? false,
       currentState: undefined,
@@ -154,12 +155,19 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
     this.setState({ showDiagramInfo: !this.state.showDiagramInfo });
   };
 
+  checkboxClick = () => {
+    this.setState({ isSelected: !this.state.isSelected });
+    if (this.props.onSelected) {
+      this.props.onSelected(this.props.gridIndex);
+    }
+  };
+
   resample = () => {
     this.setState({ variation: Math.random().toString() });
   };
 
   render() {
-    const { header, stateful, onStateUpdate } = this.props;
+    const { header, stateful, onSelected, onStateUpdate } = this.props;
     const variation = stateful ? this.state.variation : this.props.variation;
 
     return (
@@ -171,6 +179,19 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
               <ResampleBtn onClick={this.resample}>
                 <Refresh />
               </ResampleBtn>
+            )}
+            {onSelected && (
+              <Check
+                checked={this.state.isSelected}
+                value={""}
+                name={""}
+                // label={""}
+                id={`checkbox-${this.props.gridIndex}`}
+                disabled={false}
+                color="primary"
+                onChange={this.checkboxClick}
+                size="medium"
+              />
             )}
           </div>
         </Header>
@@ -212,6 +233,112 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
           />
         </div>
       </Section>
+    );
+  }
+}
+
+type DiagramSource = {
+  style: string;
+  domain: string;
+  substance: string;
+  variation: string;
+};
+
+export interface GridProps {
+  diagrams: DiagramSource[];
+  metadata: (i: number) => {
+    name: string;
+    data: string;
+  }[];
+  header: (i: number) => string;
+  onSelected?: (n: number) => void;
+  onComplete?: () => void;
+  onStateUpdate: (n: number, s: PenroseState) => void;
+  imageResolver?: PathResolver;
+  gridBoxProps?: Partial<GridboxProps>;
+  selected?: number[];
+}
+
+const GridContainer = styled.main`
+  flex-grow: 1;
+  margin-left: "4rem";
+`;
+
+const GridContent = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+`;
+
+const PlaceholderText = styled.h3`
+  font-family: "Roboto Mono";
+  color: ${(props) => props.theme.primary};
+`;
+
+interface GridState {
+  optimized: boolean[];
+}
+
+export class Grid extends React.Component<GridProps, GridState> {
+  constructor(props: GridProps) {
+    super(props);
+    this.state = {
+      optimized: Array(props.diagrams.length),
+    };
+  }
+
+  innerContent() {
+    return this.props.diagrams.map(
+      ({ substance, domain, style, variation }, i) => (
+        <Gridbox
+          {...this.props.gridBoxProps}
+          key={`grid-${i}`}
+          name={`grid-${i}`}
+          header={this.props.header(i)}
+          metadata={this.props.metadata(i)}
+          domain={domain}
+          style={style}
+          gridIndex={i}
+          substance={substance}
+          variation={variation}
+          excludeWarnings={[]}
+          onSelected={this.props.onSelected}
+          onStateUpdate={(n, state) => {
+            // record opt status
+            this.setState((prev) => {
+              const optStatuses = [...prev.optimized];
+              optStatuses[n] = isOptimized(state);
+              // report opt completion when all are done
+              if (this.props.onComplete && _.every(optStatuses))
+                this.props.onComplete();
+              return { ...prev, optStatuses };
+            });
+            // callback
+            this.props.onStateUpdate(n, state);
+          }}
+          imageResolver={this.props.imageResolver}
+          selected={this.props.selected && this.props.selected.includes(i)}
+        />
+      ),
+    );
+  }
+
+  render() {
+    const content =
+      this.props.diagrams.length === 0 ? (
+        <div>
+          <PlaceholderText>
+            {"(Generated diagrams will appear here)"}
+          </PlaceholderText>
+        </div>
+      ) : (
+        this.innerContent()
+      );
+    return (
+      <GridContainer>
+        <GridContent>{content}</GridContent>
+      </GridContainer>
     );
   }
 }
