@@ -30,7 +30,7 @@ function AddPoint(Point p, Set s1) -> Set
 predicate From(Map f, Set domain, Set codomain)
 predicate Empty(Set s)
 predicate Intersecting(Set s1, Set s2)
-predicate IsSubset(Set s1, Set s2)
+predicate Subset(Set s1, Set s2)
 predicate Equal(Set s1, Set s2)
 predicate Equal3(Set s1, Set s2, Set s3)
 predicate PointIn(Set s, Point p)
@@ -73,7 +73,7 @@ describe("Mutation enumeration", () => {
     const subSrc = `
     Set A, B, C
     Equal3(A, B, C)
-    IsSubset(B, C)
+    Subset(B, C)
     `;
     const [subEnv, env] = getSubRes(domainSrc, subSrc);
     const pred1 = subEnv.ast.statements[3];
@@ -85,9 +85,9 @@ describe("Mutation enumeration", () => {
       mutations1.map((m) => m.tag).every((t) => t === "SwapStmtArgs"),
     ).toEqual(true);
     expect(mutations1).toHaveLength(3);
-    // IsSubset will have one swap, two replace names, and a bumch of changetypes
+    // Subset will have one swap, two replace names, and a bumch of changetypes
     // const pred2 = subEnv.ast.statements[4];
-    // expect(prettyStmt(pred2)).toEqual("IsSubset(B, C)");
+    // expect(prettyStmt(pred2)).toEqual("Subset(B, C)");
     // const mutations2 = enumerateMutations(pred2, subEnv.ast, cxt);
   });
 });

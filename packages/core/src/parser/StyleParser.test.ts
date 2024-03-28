@@ -100,7 +100,7 @@ describe("Selector Grammar", () => {
   test("empty pred", () => {
     const prog = `
 forall Set A, B, C
-where IsSubset(   );
+where Subset(   );
 { }`;
     const { results } = parser.feed(prog);
     sameASTs(results);
@@ -110,7 +110,7 @@ where IsSubset(   );
     const prog = `
 forall Set A, B; Map f
 with Set C, D; Map \`g\`
-where C := intersect ( A, B ) ; IsSubset( A, B ); IsSubset( B, C); Intersect (   )
+where C := intersect ( A, B ) ; Subset( A, B ); Subset( B, C); Intersect (   )
 as Const
 { }`;
     const { results } = parser.feed(prog);
@@ -153,7 +153,7 @@ as Const
   test("multiple as clauses for predicates", () => {
     const prog = `
 forall Set A, B, C, D
-where IsSubset(A, B) as foo; IsSubset(B,C) as bar; Union(C,D) as yeet;
+where Subset(A, B) as foo; Subset(B,C) as bar; Union(C,D) as yeet;
 {
   foo.arrow = Arrow{}
   yeet.circle = Circle{}
@@ -178,7 +178,7 @@ where IsSubset(A, B) as foo; IsSubset(B,C) as bar; Union(C,D) as yeet;
       "\
 forall Set A, B, C; Map f \
 with Set C, D; Map `g` \
-where C := intersect ( A, B ) ; IsSubset( A, B ) as isSubsetAB; IsSubset( B, C) as nested_Subset; Intersect (   ){}\
+where C := intersect ( A, B ) ; Subset( A, B ) as SubsetAB; Subset( B, C) as nested_Subset; Intersect (   ){}\
 ";
     const { results } = parser.feed(prog);
     sameASTs(results);
@@ -191,8 +191,8 @@ where C := intersect ( A, B ) ; IsSubset( A, B ) as isSubsetAB; IsSubset( B, C) 
 forall Set A, B, C; Map f \
 with Set C, D; Map `g` \
 where C := intersect ( A, B ) ;\
- IsSubset( A, B ) \
- as isSubsetAB; IsSubset( B, C) as nested_Subset; \
+ Subset( A, B ) \
+ as SubsetAB; Subset( B, C) as nested_Subset; \
  Intersect (   )  as   ok {}\
 ";
     const { results } = parser.feed(prog);
@@ -230,14 +230,14 @@ Unexpected as token: "as". Instead, I was expecting to see one of the following:
     }
   });
   test("cannot set subVars as aliases", () => {
-    const prog = "forall Set x; Set y where IsSubset(x,y) as `A` {}";
+    const prog = "forall Set x; Set y where Subset(x,y) as `A` {}";
     const parsed = parseStyle(prog);
     if (parsed.isErr()) {
       expect(parsed.error.message)
-        .toEqual(`Error: Syntax error at line 1 col 44:
+        .toEqual(`Error: Syntax error at line 1 col 42:
 
-  forall Set x; Set y where IsSubset(x,y) as \`
-                                             ^
+  forall Set x; Set y where Subset(x,y) as \`
+                                           ^
 Unexpected tick token: "\`". Instead, I was expecting to see one of the following:
 
     ws token
@@ -251,7 +251,7 @@ Unexpected tick token: "\`". Instead, I was expecting to see one of the followin
   test("label field check", () => {
     const prog = `
 forall Set A, B
-where IsSubset(A, B); A has math label; B has text label {
+where Subset(A, B); A has math label; B has text label {
 
 }
     `;

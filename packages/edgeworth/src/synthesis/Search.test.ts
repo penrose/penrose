@@ -61,7 +61,7 @@ function AddPoint(Point p, Set s1) -> Set
 predicate From(Map f, Set domain, Set codomain)
 predicate Empty(Set s)
 predicate Intersecting(Set s1, Set s2)
-predicate IsSubset(Set s1, Set s2)
+predicate Subset(Set s1, Set s2)
 predicate Equal(Set s1, Set s2)
 predicate PointIn(Set s, Point p)
 predicate In(Point p, Set s)
@@ -102,14 +102,14 @@ describe("AST diff tests", () => {
     const original = `
     Set A, B, C, D, E
     D := Union(A, B)
-    IsSubset(B, A)
-    IsSubset(C, A)
+    Subset(B, A)
+    Subset(C, A)
     Equal(E, E)
     `;
     const edited = `
     Set A, B, C, D, E
-    IsSubset(B, A)
-    IsSubset(D, A)
+    Subset(B, A)
+    Subset(D, A)
     E := Union(A, B)
     `;
     const res1 = getSubRes(domainSrc, original);
@@ -119,22 +119,22 @@ describe("AST diff tests", () => {
     expect([...d.add, ...d.delete, ...d.update].map(showSubDiff)).toEqual([
       "Delete: Equal(E, E)",
       "Update: D := Union(A, B) -> E := Union(A, B)\n\tChanged D := Union(A, B) : D (variable,value) -> E",
-      "Update: IsSubset(C, A) -> IsSubset(D, A)\n\tChanged IsSubset(C, A) : C (args,0,value) -> D",
+      "Update: Subset(C, A) -> Subset(D, A)\n\tChanged Subset(C, A) : C (args,0,value) -> D",
     ]);
   });
 
   test("applying AST diff with id swap", () => {
     const prog1 = `
     Set A, B, C, D, E, F, Z
-    IsSubset(B, A)
-    IsSubset(C, A)
+    Subset(B, A)
+    Subset(C, A)
     -- D := Union(A, B)
     Z := Union(A, B) -- This will mess up the ordering
     `;
     const prog2 = `
     Set A, B, C, D, E, F, Z
-    IsSubset(B, A)
-    IsSubset(D, A)
+    Subset(B, A)
+    Subset(D, A)
     F := Union(A, B)
     `;
     const res1 = getSubRes(domainSrc, prog1);
@@ -143,7 +143,7 @@ describe("AST diff tests", () => {
     const diffs: StmtDiff[] = diffSubStmts(ast1, ast2);
     expect(diffs).toHaveLength(2);
     expect(diffs.map(showStmtDiff)).toEqual([
-      "Changed IsSubset(C, A) (Identifier): C (args,0,value) -> D",
+      "Changed Subset(C, A) (Identifier): C (args,0,value) -> D",
       "Changed Z := Union(A, B) (Identifier): Z (variable,value) -> F",
     ]);
     const env = res1[0];
@@ -169,13 +169,13 @@ describe("AST diff tests", () => {
   test("applying AST diff regardless of stmt ordering", () => {
     const prog1 = `
     Set A, B, C
-    IsSubset(A,B)
-    IsSubset(C, A)
+    Subset(A,B)
+    Subset(C, A)
     `;
     const prog2 = `
     Set A, B, C
-    IsSubset(C,A)
-    IsSubset(B, A)
+    Subset(C,A)
+    Subset(B, A)
     `;
     const ast1: SubProg<A> = getSubRes(domainSrc, prog1)[0].ast;
     const ast2: SubProg<A> = getSubRes(domainSrc, prog2)[0].ast;
@@ -196,13 +196,13 @@ describe("AST diff tests", () => {
   test("applying exact AST diff", () => {
     const prog1 = `
     Set A, B, C
-    IsSubset(C, A)
-    IsSubset(A,B)
+    Subset(C, A)
+    Subset(A,B)
     `;
     const prog2 = `
     Set A, B, C
-    IsSubset(C,A)
-    IsSubset(B, A)
+    Subset(C,A)
+    Subset(B, A)
     `;
     const ast1: SubProg<A> = getSubRes(domainSrc, prog1)[0].ast;
     const ast2: SubProg<A> = getSubRes(domainSrc, prog2)[0].ast;
@@ -223,32 +223,32 @@ describe("Mutation recognition tests", () => {
   test("recognizing swap mutation - auto", () => {
     const prog1 = `
     Set A, B, C
-    IsSubset(A,B)
-    IsSubset(C, A)
+    Subset(A,B)
+    Subset(C, A)
     `;
     const prog2 = `
     Set A, B, C
-    IsSubset(C,A)
-    IsSubset(B, A)
+    Subset(C,A)
+    Subset(B, A)
     `;
     const [subEnv, env] = getSubRes(domainSrc, prog1);
     const ast1: SubProg<A> = subEnv.ast;
     const ast2: SubProg<A> = getSubRes(domainSrc, prog2)[0].ast;
     const mutationGroups = findMutationPaths(ast1, ast2, env, subEnv);
     expect(mutationGroups.map(showMutations)).toContain(
-      "Swap arguments 0 and 1 of IsSubset(A, B)",
+      "Swap arguments 0 and 1 of Subset(A, B)",
     );
   });
   test("recognizing swap mutation - stepwise", () => {
     const prog1 = `
     Set A, B, C
-    IsSubset(A,B)
-    IsSubset(C, A)
+    Subset(A,B)
+    Subset(C, A)
     `;
     const prog2 = `
     Set A, B, C
-    IsSubset(C,A)
-    IsSubset(B, A)
+    Subset(C,A)
+    Subset(B, A)
     `;
     const [subEnv, env] = getSubRes(domainSrc, prog1);
     const ast1: SubProg<A> = subEnv.ast;
@@ -258,8 +258,8 @@ describe("Mutation recognition tests", () => {
     expect(diffs.add).toHaveLength(0);
     expect(diffs.delete).toHaveLength(0);
     expect(diffs.update).toHaveLength(1);
-    expect(prettyStmt(diffs.update[0].source)).toEqual("IsSubset(A, B)");
-    expect(prettyStmt(diffs.update[0].result)).toEqual("IsSubset(B, A)");
+    expect(prettyStmt(diffs.update[0].source)).toEqual("Subset(A, B)");
+    expect(prettyStmt(diffs.update[0].result)).toEqual("Subset(B, A)");
     // get all the updated statements from ast1. There should be only one statement changed
     const fromSet = diffs.update.map((d) => d.source);
     expect(fromSet).toHaveLength(1);
@@ -281,12 +281,12 @@ describe("Mutation recognition tests", () => {
   test("recognizing swap mutation with noise - auto", () => {
     const prog1 = `
     Set A, B, C
-    IsSubset(A,B)
-    IsSubset(C, A)
+    Subset(A,B)
+    Subset(C, A)
     `;
     const prog2 = `
     Set A, B, C, D, E
-    IsSubset(B, A)
+    Subset(B, A)
     Equal(D, E)
     `;
     const [subEnv, env] = getSubRes(domainSrc, prog1);
@@ -313,7 +313,7 @@ describe("Mutation recognition tests", () => {
   test("recognizing multiple mutations on multiple stmts", () => {
     const prog1 = `
     Set A, B, C
-    IsSubset(A,B)
+    Subset(A,B)
     C := Intersection(A, B)
     `;
     const prog2 = `
@@ -343,7 +343,7 @@ describe("Mutation recognition tests", () => {
   test("recognizing multiple mutations on one stmt", () => {
     const prog1 = `
     Set A, B, C
-    IsSubset(A,B)
+    Subset(A,B)
     `;
     const prog2 = `
     Set A, B, C

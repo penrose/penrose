@@ -1080,7 +1080,10 @@ export const tooManyArgumentsError = (
 });
 
 export const functionInternalError = (
-  func: CompFunc | ObjFunc | ConstrFunc,
+  func:
+    | Omit<CompFunc, "body">
+    | Omit<ObjFunc, "body">
+    | Omit<ConstrFunc, "body">,
   location: SourceRange,
   message: string,
 ): FunctionInternalError => ({

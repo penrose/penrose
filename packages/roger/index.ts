@@ -266,6 +266,10 @@ yargs(hideBin(process.argv))
           type: "boolean",
           default: false,
         })
+        .option("dump-metadata", {
+          desc: "Output collected metadata to a JSON file. Needs --out to be specified.",
+          type: "string",
+        })
         .options("dump-prefix", {
           desc: "Prefix for the dumped SVGs.",
           type: "string",
@@ -306,7 +310,7 @@ yargs(hideBin(process.argv))
 
       const { substance, style, domain } = readTrio(sub, sty, dom, prefix);
       // draw diagram and get metadata
-      const { diagram, state } = await render(
+      const { diagram, state, metadata } = await render(
         variation ?? "",
         substance,
         style,
@@ -350,6 +354,17 @@ yargs(hideBin(process.argv))
         console.log(
           chalk.green(`The diagram has been saved as ${resolve(options.out)}`),
         );
+        if (options.dumpMetadata) {
+          fs.writeFileSync(
+            options.dumpMetadata,
+            JSON.stringify(metadata, null, 2),
+          );
+          console.log(
+            chalk.green(
+              `The metadata has been saved as ${resolve(options.dumpMetadata)}`,
+            ),
+          );
+        }
       } else {
         console.log(diagram);
         for (const warning of state.warnings) {

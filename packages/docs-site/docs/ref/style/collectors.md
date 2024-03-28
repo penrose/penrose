@@ -59,7 +59,7 @@ Collectors run the same underlying matching algorithm as described [here](./sele
 
 ```style
 collect repeatable Set s into ss
-where IsSubset(s, a)
+where Subset(s, a)
 with Set a
 ```
 

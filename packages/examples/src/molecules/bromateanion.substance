@@ -3,11 +3,11 @@ Oxygen o1, o2, o3
 -- bromine 
 TwoDots(br)
 -- single bond
-Bond b1 := MakeSingleBond(o1, br)
+Bond b1 := SingleBond(o1, br)
 SixDots(o1)
 -- double bond 1
-Bond b2 := MakeSingleBond(o2, br)
+Bond b2 := SingleBond(o2, br)
 SixDots(o2)
 -- double bond 2
-Bond b3 := MakeSingleBond(o3, br)
+Bond b3 := SingleBond(o3, br)
 SixDots(o3)

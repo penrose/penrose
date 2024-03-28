@@ -939,6 +939,13 @@ const emitGraph = (
   return vals;
 };
 
+/** NOTE: this is a global memory instance for each thread. Another option is to expose this in the `core` API,
+ * but it wouldn't make sense for each diagram to have their own memory instance.
+ * If that's the case, it's a tricky to expose this all the way at the core API level and ask the user to pass
+ * a `Memory` instance around.
+ **/
+const memory = new WebAssembly.Memory({ initial: 0 });
+
 /** Generate an energy function from the current state (using `Num`s only) */
 export const genGradient = async (
   inputs: ad.Var[],
@@ -1013,7 +1020,7 @@ export const genGradient = async (
     },
   );
 
-  const f = await rose.compile(full);
+  const f = await rose.compile(full, { memory });
 
   return (
     { inputMask, objMask, constrMask }: ad.Masks,
@@ -1089,7 +1096,7 @@ export const problem = async (desc: ad.Description): Promise<ad.Problem> => {
     },
   );
 
-  const f = await rose.compile(full);
+  const f = await rose.compile(full, { memory });
 
   return {
     start: (conf) => {
@@ -1185,6 +1192,6 @@ export const compile = async (
   ys: ad.Num[],
 ): Promise<(inputs: (x: ad.Var) => number) => number[]> => {
   const { inputs, f } = makeFn(ys);
-  const g = (await rose.compile(f as any)) as any;
+  const g = (await rose.compile(f as any, { memory })) as any;
   return (vals) => g(inputs.map((x) => vals(x)));
 };
