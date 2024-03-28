@@ -32,14 +32,21 @@ import { Settings } from "./Settings.js";
 
 const edgeworthPurple = {
   primary: "#3f51b5",
+  correct: "#8CE363",
+  incorrect: "#FA7070",
 };
 
 export type ContentProps = any;
 
+export type SelectedDiagram = {
+  index: number;
+  correct: boolean;
+};
+
 export interface ContentState {
   progs: SynthesizedSubstance[];
   states: PenroseState[];
-  staged: number[];
+  staged: SelectedDiagram[];
   domain: string;
   style: string;
   showProblem: boolean;
@@ -106,14 +113,21 @@ export class Content extends React.Component<ContentProps, ContentState> {
     };
   }
   // callback function to indicate that a svg will be exported
-  addStaged = (idx: number) => {
+  addStaged = (index: number, correct: boolean) => {
     let newStaged = [...this.state.staged];
-    if (this.state.staged.includes(idx)) {
-      // delete object from array if it was already staged (i.e. checkbox was unchecked)
-      newStaged = newStaged.filter((i) => i !== idx);
-    } else {
-      newStaged.push(idx);
+    if (this.state.staged.map(({ index }) => index).includes(index)) {
+      // remove old diagram selection if it was already staged
+      newStaged = newStaged.filter(
+        ({ index: stagedIndex }) => stagedIndex !== index,
+      );
     }
+    // push the new or updated diagram to the array
+    newStaged.push({ index, correct });
+    this.setState({ staged: newStaged });
+  };
+
+  removeStaged = (index: number) => {
+    let newStaged = this.state.staged.filter((s) => s.index !== index);
     this.setState({ staged: newStaged });
   };
 
@@ -230,8 +244,9 @@ export class Content extends React.Component<ContentProps, ContentState> {
           animate: true,
           stepSize: 20,
         }}
-        selected={this.state.staged}
+        selected={this.state.staged.map(({ index }) => index)}
         onSelected={this.addStaged}
+        onDeselected={this.removeStaged}
         onStateUpdate={this.onStateUpdate}
         onComplete={() => this.setState({ layoutDone: true })}
       />
@@ -308,6 +323,12 @@ export class Content extends React.Component<ContentProps, ContentState> {
       ({ correct, incorrect }: { correct: number[]; incorrect: number[] }) =>
         this.problem({ correct, incorrect }),
     );
+    const stagedCount = this.state.staged.length;
+    const correctCount = this.state.staged.filter(
+      ({ correct }) => correct,
+    ).length;
+    console.log(this.state.staged);
+
     return (
       <div>
         <AppBar position="fixed">
@@ -316,11 +337,17 @@ export class Content extends React.Component<ContentProps, ContentState> {
               EDGEWORTH
             </Title>
             <ButtonBox>
-              <StagedText>{`${this.state.staged.length} diagrams selected`}</StagedText>
+              <StagedText>{`${stagedCount} diagrams selected. ${correctCount} correct and ${
+                stagedCount - correctCount
+              } incorrect.`}</StagedText>
               <OutlineButton
                 variant="outlined"
                 color="inherit"
-                onClick={() => this.exportDiagrams(this.state.staged)}
+                onClick={() =>
+                  this.exportDiagrams(
+                    this.state.staged.map(({ index }) => index),
+                  )
+                }
               >
                 Export
               </OutlineButton>
@@ -358,7 +385,14 @@ export class Content extends React.Component<ContentProps, ContentState> {
               defaultDomain={this.state.domain}
               defaultStyle={this.state.style}
             />
-            <Problem correct={this.state.staged} incorrect={[]}></Problem>
+            <Problem
+              correct={this.state.staged
+                .filter(({ correct }) => correct)
+                .map(({ index }) => index)}
+              incorrect={this.state.staged
+                .filter(({ correct }) => !correct)
+                .map(({ index }) => index)}
+            ></Problem>
             {this.grid(this.state.progs)}
           </>
         </ContentSection>

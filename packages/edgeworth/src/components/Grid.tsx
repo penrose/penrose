@@ -1,4 +1,4 @@
-import { Checkbox } from "@material-ui/core";
+import { Checkbox, Switch } from "@material-ui/core";
 import { Simple } from "@penrose/components";
 import { SimpleProps } from "@penrose/components/dist/Simple";
 import { PathResolver, PenroseState, isOptimized } from "@penrose/core";
@@ -16,11 +16,25 @@ export type GridboxProps = SimpleProps & {
     name: string;
     data: string;
   }[];
-  onSelected?: (n: number) => void;
+  onSelected: (n: number, correct: boolean) => void;
+  onDeselected: (n: number) => void;
   onStateUpdate?: (n: number, s: PenroseState) => void;
 };
 
 const Check = styled(Checkbox)``;
+
+const CustomSwitch = styled(Switch)(({ theme }) => {
+  return {
+    marginTop: "1px",
+    marginLeft: "-1px",
+    "& .MuiSwitch-switchBase + .MuiSwitch-track": {
+      backgroundColor: theme.incorrect,
+    },
+    "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+      backgroundColor: theme.correct,
+    },
+  };
+});
 
 const Svg = styled.svg.attrs({
   version: "1.1",
@@ -137,6 +151,7 @@ const ResampleBtn = styled.button`
 interface GridboxState {
   showDiagramInfo: boolean;
   isSelected: boolean;
+  isCorrect: boolean;
   variation: string;
   currentState?: PenroseState;
 }
@@ -147,6 +162,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
     this.state = {
       showDiagramInfo: false,
       isSelected: this.props.selected ?? false,
+      isCorrect: false,
       currentState: undefined,
       variation: props.variation,
     };
@@ -156,10 +172,19 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
   };
 
   checkboxClick = () => {
-    this.setState({ isSelected: !this.state.isSelected });
-    if (this.props.onSelected) {
-      this.props.onSelected(this.props.gridIndex);
-    }
+    this.setState((prev) => {
+      const selected = !prev.isSelected;
+      if (selected) {
+        this.props.onSelected(this.props.gridIndex, this.state.isCorrect);
+      } else {
+        this.props.onDeselected(this.props.gridIndex);
+      }
+      return { isSelected: selected };
+    });
+  };
+
+  toggleCorrect = () => {
+    this.setState({ isCorrect: !this.state.isCorrect });
   };
 
   resample = () => {
@@ -167,7 +192,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
   };
 
   render() {
-    const { header, stateful, onSelected, onStateUpdate } = this.props;
+    const { header, stateful, onStateUpdate } = this.props;
     const variation = stateful ? this.state.variation : this.props.variation;
 
     return (
@@ -180,17 +205,21 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
                 <Refresh />
               </ResampleBtn>
             )}
-            {onSelected && (
-              <Check
-                checked={this.state.isSelected}
-                value={""}
-                name={""}
-                // label={""}
-                id={`checkbox-${this.props.gridIndex}`}
-                disabled={false}
-                color="primary"
-                onChange={this.checkboxClick}
-                size="medium"
+            <Check
+              checked={this.state.isSelected}
+              value={""}
+              name={""}
+              id={`checkbox-${this.props.gridIndex}`}
+              disabled={false}
+              color="primary"
+              onChange={this.checkboxClick}
+              size="medium"
+            />
+            {this.state.isSelected && (
+              <CustomSwitch
+                size="small"
+                color="default"
+                onChange={this.toggleCorrect}
               />
             )}
           </div>
@@ -251,7 +280,8 @@ export interface GridProps {
     data: string;
   }[];
   header: (i: number) => string;
-  onSelected?: (n: number) => void;
+  onSelected: (n: number, correct: boolean) => void;
+  onDeselected: (n: number) => void;
   onComplete?: () => void;
   onStateUpdate: (n: number, s: PenroseState) => void;
   imageResolver?: PathResolver;
@@ -304,6 +334,7 @@ export class Grid extends React.Component<GridProps, GridState> {
           variation={variation}
           excludeWarnings={[]}
           onSelected={this.props.onSelected}
+          onDeselected={this.props.onDeselected}
           onStateUpdate={(n, state) => {
             // record opt status
             this.setState((prev) => {

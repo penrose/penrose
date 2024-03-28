@@ -1,4 +1,4 @@
-import { PathResolver, PenroseState } from "@penrose/core";
+import { PathResolver } from "@penrose/core";
 
 import styled from "styled-components";
 import { Simple } from "./Simple";
@@ -59,20 +59,12 @@ type DiagramSource = {
   variation: string;
 };
 
-export interface GridProps {
+export default function Grid(props: {
   diagrams: DiagramSource[];
-  metadata: (i: number) => {
-    name: string;
-    data: string;
-  }[];
   header: (i: number) => string;
-  onComplete?: () => void;
-  onStateUpdate: (n: number, s: PenroseState) => void;
   imageResolver?: PathResolver;
-}
-
-export default function Grid(props: GridProps) {
-  const { header, diagrams } = props;
+}) {
+  const { header, diagrams, imageResolver } = props;
   const innerContent = () => {
     return diagrams.map(({ substance, domain, style, variation }, i) => (
       <Section key={`gridbox-container-${i}`}>
@@ -89,7 +81,7 @@ export default function Grid(props: GridProps) {
             key={`gridbox-${i}`}
             name={`gridbox-${i}`}
             interactive={false}
-            imageResolver={props.imageResolver}
+            imageResolver={imageResolver}
           />
         </div>
       </Section>

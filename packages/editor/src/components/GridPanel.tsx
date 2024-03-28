@@ -24,7 +24,6 @@ export default function GridPanel() {
         }}
       >
         <Grid
-          onStateUpdate={() => {}}
           imageResolver={(path: string) =>
             pathResolver(path, rogerState, workspaceMetadata)
           }
