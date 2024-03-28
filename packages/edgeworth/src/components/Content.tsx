@@ -55,6 +55,7 @@ const ContentSection = styled(Box)({
   overflow: "hidden",
   margin: "0",
   padding: "0",
+  gap: "2rem",
 });
 
 const HeaderContent = styled(Toolbar)({
@@ -170,7 +171,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
             staged: [],
             domain: dsl,
             style: sty,
-            layoutDone: false,
+            layoutDone: true, // NOTE: allow intermediate layouts to be selected
           });
         }
       }
@@ -232,7 +233,10 @@ export class Content extends React.Component<ContentProps, ContentState> {
         selected={this.state.staged}
         onSelected={this.addStaged}
         onStateUpdate={this.onStateUpdate}
-        onComplete={() => this.setState({ layoutDone: true })}
+        onComplete={() => {
+          console.log("layout completed");
+          this.setState({ layoutDone: true });
+        }}
       />
     </sc.ThemeProvider>
   );

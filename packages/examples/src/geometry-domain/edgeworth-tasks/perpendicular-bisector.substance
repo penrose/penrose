@@ -1,0 +1,9 @@
+Point A, B, C
+Let AC := Segment(A, C)
+Let AB := Segment(A, B)
+Let BC := Segment(B, C)
+Let ABC := Triangle(A, B, C)
+
+Segment bis := PerpendicularBisector(BC, A)
+
+AutoLabel A, B, C

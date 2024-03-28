@@ -1,0 +1,12 @@
+-- name in registry: parallel-lines
+Point J, K, L, N
+Let JK := Segment(J, K)
+Let NL := Segment(N, L)
+Let KN := Segment(K, N)
+Parallel(JK, NL)
+Angle JKM := InteriorAngle(J, K, N)
+Angle KNL := InteriorAngle(K, N, L)
+EqualAngle(JKM, KNL)
+EqualAngleMarker(JKM, KNL)
+-- Acute(JKM) 
+AutoLabel J, K, L, N

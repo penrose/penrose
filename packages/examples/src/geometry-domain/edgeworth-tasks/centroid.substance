@@ -1,0 +1,8 @@
+Point A, B, C, Q
+Let ABC := Triangle(A, B, C)
+Centroid(Q, ABC)
+Segment m1 := Median(ABC, A)
+Segment m2 := Median(ABC, B)
+Segment m3 := Median(ABC, C)
+
+AutoLabel A, B, C, Q

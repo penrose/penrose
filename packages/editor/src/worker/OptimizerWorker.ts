@@ -11,7 +11,7 @@ import {
 } from "./message.js";
 
 const log = (consola as any)
-  .create({ level: (consola as any).LogLevel.Warn })
+  .create({ level: (consola as any).LogLevel.Debug })
   .withScope("worker:client");
 
 export type onComplete = () => void;
