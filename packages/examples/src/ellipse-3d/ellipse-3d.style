@@ -1,0 +1,271 @@
+canvas {
+   scalar width = 240
+   scalar height = 200
+}
+
+-- Penrose doesn't yet support rotated ellipses, so
+-- we'll draw rotated rectangles instead
+global {
+
+   scalar σ = 100 -- global 2D scale
+
+   list E1 = projectEllipse( (0.7136834135287009,-0.46361267402041906,3.5250897768397875), (0.1713275289664906,0.8423922411974557,0.5109033076704084), (-0.6791928025768953,-0.27466088264979444,0.6806309840653586), 0.3, 0.3 )
+   list E2 = projectEllipse( (0.5050580884807414,0.6430762301540388,3.5756468444029283), (-0.3318506292246809,-0.4710028106799705,0.8173319473841402), (-0.7967380291810873,0.6038288785263896,0.02447852761502914), 0.3, 0.3 )
+   list E3 = projectEllipse( (-0.27891612173924596,0.6322341311946448,3.7228317925952696), (0.7846785544964444,-0.28388168144581943,0.5510814432122214), (0.5536112021512107,0.7208961050609491,-0.4169213865474451), 0.3, 0.3 )
+   list E4 = projectEllipse( (-0.7420245850111371,-0.1697450312633381,2.351473871304742), (0.04413870832266691,-0.9776830547179282,0.20539624861478648), (0.6689179992096613,-0.1237839605071229,-0.7329571893736457), 0.3, 0.3 )
+   list E5 = projectEllipse( (-0.5472263209780838,-0.22439237477562257,3.8063444771134405), (-0.5870897210368649,-0.5837355988308349,-0.5608729001391158), (0.5965475782212576,-0.7803209678075829,0.18769702746231687), 0.3, 0.3 )
+   list E6 = projectEllipse( (-0.08189749557940557,0.10888060085728833,3.9906754337192263), (-0.5512434016591867,0.8231787389541048,-0.13604218412366995), (0.8303153089911264,0.5572448101964573,0.0073965643432866695), 0.3, 0.3 )
+   list E7 = projectEllipse( (0.6880927607426962,0.6707683066510213,2.7232361450513887), (0.2265950619929208,0.16370995719593917,0.9601321407990299), (-0.6893352090920055,0.7233732983096801,0.039345149620452144), 0.3, 0.3 )
+   list E8 = projectEllipse( (0.10662275915847545,0.9696084162995802,2.7797930376430986), (-0.9512537698351878,0.03501470768215798,-0.30641513608220594), (0.2893922124103849,-0.24214353034296235,-0.9260770260131009), 0.3, 0.3 )
+   list E9 = projectEllipse( (-0.9596814716783583,0.2181620085499908,2.8227521200614962), (-0.2663422243605098,-0.5041929529594771,0.8214933266367406), (0.08985150215748391,0.8355805192867032,0.5419703897341693), 0.3, 0.3 )
+   list E10 = projectEllipse( (-0.4880769568942023,0.8575676975717054,3.162353097384864), (0.15876529992953028,-0.09567729764589573,0.9826695447878013), (-0.8582391646197355,-0.5053943992534371,0.08945410843597885), 0.3, 0.3 )
+   list E11 = projectEllipse( (0.7611750815781124,0.06785061608594022,2.3550125667260544), (-0.2943495351477144,0.9223255042521746,-0.250347788814474), (0.5779021079238922,0.38041024973406135,0.7220229882451052), 0.3, 0.3 )
+   list E12 = projectEllipse( (-0.4656595430394135,0.3606570045320883,2.1918615743214125), (0.18813793101591808,0.9326579220180976,0.30782027127844225), (0.864734241769906,-0.008702044519842963,-0.5021543244181018), 0.3, 0.3 )
+   list E13 = projectEllipse( (-0.1591855035790702,-0.9827708755932519,3.093922210024844), (-0.4702502515080874,-0.008169641772778326,-0.8824953019194409), (0.8680579913847101,-0.18464740192858894,-0.46084776288289), 0.3, 0.3 )
+   list E14 = projectEllipse( (0.9981088701186622,0.04682076855148003,2.960169119734858), (-0.040058241332990935,0.9868995853688859,0.1562835426397441), (-0.046626394796887,0.1543924351481303,-0.9869087877191465), 0.3, 0.3 )
+   list E15 = projectEllipse( (0.1363357257821856,-0.5901975138465378,3.795662908853247), (-0.8332362285542055,-0.5027431217593669,-0.23014504328446897), (-0.5358450870356176,0.6315981698619868,0.5603157989266233), 0.3, 0.3 )
+   list E16 = projectEllipse( (0.3078568380425251,-0.691979048694345,2.3470151889679762), (-0.9409079213361441,-0.1196268967380259,-0.31683069476255915), (0.14112565619813697,0.7119370770966336,-0.6879165264897678), 0.3, 0.3 )
+   list E17 = projectEllipse( (-0.2264933430672137,-0.4762239993888979,2.1503462658516233), (-0.05736856420748869,0.8773310945226807,-0.4764441188895155), (0.9723217643285627,-0.05916800647037617,-0.22602993966134857), 0.3, 0.3 )
+   list E18 = projectEllipse( (-0.8562796231483966,-0.5124568050931867,2.9353994590229795), (0.2895348364326066,-0.3726518026110136,-0.8816463080525581), (0.42773214220208366,-0.773639875474659,0.4674682423467612), 0.3, 0.3 )
+   list E19 = projectEllipse( (0.21420326970330336,0.2081426257648164,2.045644926356997), (-0.07924319279452109,0.9775153667364488,0.1954078406559887), (-0.973569450858101,-0.033769144700946205,-0.22588087396241016), 0.3, 0.3 )
+   list E20 = projectEllipse( (-0.840361179882762,0.26786508726142244,3.4712126721263794), (0.23604855098176894,-0.6017252903832422,0.763025397016777), (0.4879284465220901,0.7524459913772105,0.4424374092850948), 0.3, 0.3 )
+   list E21 = projectEllipse( (0.8269108860848572,-0.4760748473824704,2.7007156433020363), (-0.4772217441406898,-0.3125871558779937,-0.821309123837928), (0.2974521699259807,0.8219744580398254,-0.48567499105519246), 0.3, 0.3 )
+   list E22 = projectEllipse( (0.5187094543058801,-0.8494045178877032,3.0972237985559845), (-0.15109598759693565,-0.20300579374364072,-0.9674495595319794), (-0.8414930210915613,-0.48713510723255515,0.23364263899323762), 0.3, 0.3 )
+   list E23 = projectEllipse( (0.6379417233883353,0.07637325861239194,3.766288120049662), (-0.285229403985455,-0.9008644896781314,0.3272420485497881), (0.7153142978176961,-0.42732926017988015,-0.5529151460501808), 0.3, 0.3 )
+
+   shape S1 = Ellipse {
+      center: σ*(E1[0],E1[1])
+      rx: σ*E1[2]
+      ry: σ*E1[3]
+      ensureOnCanvas: false
+      -- pass through attributes that can be used to define an SVG transform
+      rotation: toDegrees(E1[4])
+      rotationX: σ*E1[0] + canvas.width/2
+      rotationY: canvas.height - (σ*E1[1] + canvas.height/2)
+   }
+   shape S2 = Ellipse {
+      center: σ*(E2[0],E2[1])
+      rx: σ*E2[2]
+      ry: σ*E2[3]
+      ensureOnCanvas: false
+      -- pass through attributes that can be used to define an SVG transform
+      rotation: toDegrees(E2[4])
+      rotationX: σ*E2[0] + canvas.width/2
+      rotationY: canvas.height - (σ*E2[1] + canvas.height/2)
+   }
+   shape S3 = Ellipse {
+      center: σ*(E3[0],E3[1])
+      rx: σ*E3[2]
+      ry: σ*E3[3]
+      ensureOnCanvas: false
+      -- pass through attributes that can be used to define an SVG transform
+      rotation: toDegrees(E3[4])
+      rotationX: σ*E3[0] + canvas.width/2
+      rotationY: canvas.height - (σ*E3[1] + canvas.height/2)
+   }
+   shape S4 = Ellipse {
+      center: σ*(E4[0],E4[1])
+      rx: σ*E4[2]
+      ry: σ*E4[3]
+      ensureOnCanvas: false
+      -- pass through attributes that can be used to define an SVG transform
+      rotation: toDegrees(E4[4])
+      rotationX: σ*E4[0] + canvas.width/2
+      rotationY: canvas.height - (σ*E4[1] + canvas.height/2)
+   }
+   shape S5 = Ellipse {
+      center: σ*(E5[0],E5[1])
+      rx: σ*E5[2]
+      ry: σ*E5[3]
+      ensureOnCanvas: false
+      -- pass through attributes that can be used to define an SVG transform
+      rotation: toDegrees(E5[4])
+      rotationX: σ*E5[0] + canvas.width/2
+      rotationY: canvas.height - (σ*E5[1] + canvas.height/2)
+   }
+   shape S6 = Ellipse {
+      center: σ*(E6[0],E6[1])
+      rx: σ*E6[2]
+      ry: σ*E6[3]
+      ensureOnCanvas: false
+      -- pass through attributes that can be used to define an SVG transform
+      rotation: toDegrees(E6[4])
+      rotationX: σ*E6[0] + canvas.width/2
+      rotationY: canvas.height - (σ*E6[1] + canvas.height/2)
+   }
+   shape S7 = Ellipse {
+      center: σ*(E7[0],E7[1])
+      rx: σ*E7[2]
+      ry: σ*E7[3]
+      ensureOnCanvas: false
+      -- pass through attributes that can be used to define an SVG transform
+      rotation: toDegrees(E7[4])
+      rotationX: σ*E7[0] + canvas.width/2
+      rotationY: canvas.height - (σ*E7[1] + canvas.height/2)
+   }
+   shape S8 = Ellipse {
+      center: σ*(E8[0],E8[1])
+      rx: σ*E8[2]
+      ry: σ*E8[3]
+      ensureOnCanvas: false
+      -- pass through attributes that can be used to define an SVG transform
+      rotation: toDegrees(E8[4])
+      rotationX: σ*E8[0] + canvas.width/2
+      rotationY: canvas.height - (σ*E8[1] + canvas.height/2)
+   }
+   shape S9 = Ellipse {
+      center: σ*(E9[0],E9[1])
+      rx: σ*E9[2]
+      ry: σ*E9[3]
+      ensureOnCanvas: false
+      -- pass through attributes that can be used to define an SVG transform
+      rotation: toDegrees(E9[4])
+      rotationX: σ*E9[0] + canvas.width/2
+      rotationY: canvas.height - (σ*E9[1] + canvas.height/2)
+   }
+   shape S10 = Ellipse {
+      center: σ*(E10[0],E10[1])
+      rx: σ*E10[2]
+      ry: σ*E10[3]
+      ensureOnCanvas: false
+      -- pass through attributes that can be used to define an SVG transform
+      rotation: toDegrees(E10[4])
+      rotationX: σ*E10[0] + canvas.width/2
+      rotationY: canvas.height - (σ*E10[1] + canvas.height/2)
+   }
+   shape S11 = Ellipse {
+      center: σ*(E11[0],E11[1])
+      rx: σ*E11[2]
+      ry: σ*E11[3]
+      ensureOnCanvas: false
+      -- pass through attributes that can be used to define an SVG transform
+      rotation: toDegrees(E11[4])
+      rotationX: σ*E11[0] + canvas.width/2
+      rotationY: canvas.height - (σ*E11[1] + canvas.height/2)
+   }
+   shape S12 = Ellipse {
+      center: σ*(E12[0],E12[1])
+      rx: σ*E12[2]
+      ry: σ*E12[3]
+      ensureOnCanvas: false
+      -- pass through attributes that can be used to define an SVG transform
+      rotation: toDegrees(E12[4])
+      rotationX: σ*E12[0] + canvas.width/2
+      rotationY: canvas.height - (σ*E12[1] + canvas.height/2)
+   }
+   shape S13 = Ellipse {
+      center: σ*(E13[0],E13[1])
+      rx: σ*E13[2]
+      ry: σ*E13[3]
+      ensureOnCanvas: false
+      -- pass through attributes that can be used to define an SVG transform
+      rotation: toDegrees(E13[4])
+      rotationX: σ*E13[0] + canvas.width/2
+      rotationY: canvas.height - (σ*E13[1] + canvas.height/2)
+   }
+   shape S14 = Ellipse {
+      center: σ*(E14[0],E14[1])
+      rx: σ*E14[2]
+      ry: σ*E14[3]
+      ensureOnCanvas: false
+      -- pass through attributes that can be used to define an SVG transform
+      rotation: toDegrees(E14[4])
+      rotationX: σ*E14[0] + canvas.width/2
+      rotationY: canvas.height - (σ*E14[1] + canvas.height/2)
+   }
+   shape S15 = Ellipse {
+      center: σ*(E15[0],E15[1])
+      rx: σ*E15[2]
+      ry: σ*E15[3]
+      ensureOnCanvas: false
+      -- pass through attributes that can be used to define an SVG transform
+      rotation: toDegrees(E15[4])
+      rotationX: σ*E15[0] + canvas.width/2
+      rotationY: canvas.height - (σ*E15[1] + canvas.height/2)
+   }
+   shape S16 = Ellipse {
+      center: σ*(E16[0],E16[1])
+      rx: σ*E16[2]
+      ry: σ*E16[3]
+      ensureOnCanvas: false
+      -- pass through attributes that can be used to define an SVG transform
+      rotation: toDegrees(E16[4])
+      rotationX: σ*E16[0] + canvas.width/2
+      rotationY: canvas.height - (σ*E16[1] + canvas.height/2)
+   }
+   shape S17 = Ellipse {
+      center: σ*(E17[0],E17[1])
+      rx: σ*E17[2]
+      ry: σ*E17[3]
+      ensureOnCanvas: false
+      -- pass through attributes that can be used to define an SVG transform
+      rotation: toDegrees(E17[4])
+      rotationX: σ*E17[0] + canvas.width/2
+      rotationY: canvas.height - (σ*E17[1] + canvas.height/2)
+   }
+   shape S18 = Ellipse {
+      center: σ*(E18[0],E18[1])
+      rx: σ*E18[2]
+      ry: σ*E18[3]
+      ensureOnCanvas: false
+      -- pass through attributes that can be used to define an SVG transform
+      rotation: toDegrees(E18[4])
+      rotationX: σ*E18[0] + canvas.width/2
+      rotationY: canvas.height - (σ*E18[1] + canvas.height/2)
+   }
+   shape S19 = Ellipse {
+      center: σ*(E19[0],E19[1])
+      rx: σ*E19[2]
+      ry: σ*E19[3]
+      ensureOnCanvas: false
+      -- pass through attributes that can be used to define an SVG transform
+      rotation: toDegrees(E19[4])
+      rotationX: σ*E19[0] + canvas.width/2
+      rotationY: canvas.height - (σ*E19[1] + canvas.height/2)
+   }
+   shape S20 = Ellipse {
+      center: σ*(E20[0],E20[1])
+      rx: σ*E20[2]
+      ry: σ*E20[3]
+      ensureOnCanvas: false
+      -- pass through attributes that can be used to define an SVG transform
+      rotation: toDegrees(E20[4])
+      rotationX: σ*E20[0] + canvas.width/2
+      rotationY: canvas.height - (σ*E20[1] + canvas.height/2)
+   }
+   shape S21 = Ellipse {
+      center: σ*(E21[0],E21[1])
+      rx: σ*E21[2]
+      ry: σ*E21[3]
+      ensureOnCanvas: false
+      -- pass through attributes that can be used to define an SVG transform
+      rotation: toDegrees(E21[4])
+      rotationX: σ*E21[0] + canvas.width/2
+      rotationY: canvas.height - (σ*E21[1] + canvas.height/2)
+   }
+   shape S22 = Ellipse {
+      center: σ*(E22[0],E22[1])
+      rx: σ*E22[2]
+      ry: σ*E22[3]
+      ensureOnCanvas: false
+      -- pass through attributes that can be used to define an SVG transform
+      rotation: toDegrees(E22[4])
+      rotationX: σ*E22[0] + canvas.width/2
+      rotationY: canvas.height - (σ*E22[1] + canvas.height/2)
+   }
+   shape S23 = Ellipse {
+      center: σ*(E23[0],E23[1])
+      rx: σ*E23[2]
+      ry: σ*E23[3]
+      ensureOnCanvas: false
+      -- pass through attributes that can be used to define an SVG transform
+      rotation: toDegrees(E23[4])
+      rotationX: σ*E23[0] + canvas.width/2
+      rotationY: canvas.height - (σ*E23[1] + canvas.height/2)
+   }
+}
+
+-- -- pass through attributes that can be used to define an SVG transform
+-- rotation: toDegrees(E1[4])
+-- rotationX: σ*E1[0] + canvas.width/2
+-- rotationY: canvas.height - (σ*E1[1] + canvas.height/2)
