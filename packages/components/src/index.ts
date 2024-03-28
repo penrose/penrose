@@ -1,6 +1,6 @@
 import Demo from "./Demo.js";
 import Embed from "./Embed.js";
-import { Grid } from "./Grid.js";
+import Grid from "./Grid.js";
 import Listing from "./Listing.js";
 import MultipleChoiceProblem from "./MultipleChoiceProblem.js";
 import { Simple } from "./Simple.js";
