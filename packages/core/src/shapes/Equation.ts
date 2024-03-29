@@ -1,4 +1,3 @@
-import { FloatV } from "src/types/value.js";
 import * as ad from "../types/ad.js";
 import {
   Center,
@@ -9,6 +8,7 @@ import {
   ShapeCommon,
   String,
 } from "../types/shapes.js";
+import { FloatV } from "../types/value.js";
 import { black, boolV, floatV, strV, vectorV } from "../utils/Util.js";
 import { Canvas, Context, uniform } from "./Samplers.js";
 
@@ -25,10 +25,9 @@ export interface EquationProps<T>
 
 export const sampleEquation = (
   context: Context,
-  canvas: Canvas
+  canvas: Canvas,
 ): EquationProps<ad.Num> => ({
   name: strV("defaultEquation"),
-  style: strV(""),
   fillColor: black(),
   center: vectorV([
     context.makeInput({
@@ -44,25 +43,25 @@ export const sampleEquation = (
     context.makeInput({
       init: { tag: "Pending", pending: 0 },
       stages: new Set(),
-    })
+    }),
   ),
   height: floatV(
     context.makeInput({
       init: { tag: "Pending", pending: 0 },
       stages: new Set(),
-    })
+    }),
   ),
   descent: floatV(
     context.makeInput({
       init: { tag: "Pending", pending: 0 },
       stages: new Set(),
-    })
+    }),
   ),
   ascent: floatV(
     context.makeInput({
       init: { tag: "Pending", pending: 0 },
       stages: new Set(),
-    })
+    }),
   ),
   rotation: floatV(0),
   string: strV("defaultLabelText"),
@@ -77,7 +76,7 @@ export type Equation<T> = ShapeCommon<T> & {
 export const makeEquation = (
   context: Context,
   canvas: Canvas,
-  properties: Partial<EquationProps<ad.Num>>
+  properties: Partial<EquationProps<ad.Num>>,
 ): Equation<ad.Num> => ({
   ...sampleEquation(context, canvas),
   ...properties,

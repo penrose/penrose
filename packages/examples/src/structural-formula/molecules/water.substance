@@ -6,3 +6,6 @@ SingleBond( O1, H1 )
 SingleBond( O1, H2 )
 
 AutoLabel All
+
+Title title
+Label title "water"

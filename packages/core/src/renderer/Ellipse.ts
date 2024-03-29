@@ -10,11 +10,11 @@ import { RenderProps } from "./Renderer.js";
 
 const RenderEllipse = (
   shape: Ellipse<number>,
-  { canvasSize }: RenderProps
+  { canvasSize }: RenderProps,
 ): SVGEllipseElement => {
   const elem = document.createElementNS(
     "http://www.w3.org/2000/svg",
-    "ellipse"
+    "ellipse",
   );
 
   // Keep track of which input properties we programatically mapped
@@ -26,10 +26,10 @@ const RenderEllipse = (
   attrToNotAutoMap.push(...attrStroke(shape, elem));
   attrToNotAutoMap.push(...attrTitle(shape, elem));
 
-  elem.setAttribute("rx", shape.rx.contents.toString());
+  elem.setAttribute("rx", Math.max(shape.rx.contents, 0).toString());
   attrToNotAutoMap.push("rx");
 
-  elem.setAttribute("ry", shape.ry.contents.toString());
+  elem.setAttribute("ry", Math.max(shape.ry.contents, 0).toString());
   attrToNotAutoMap.push("ry");
 
   // Directly Map across any "unknown" SVG properties

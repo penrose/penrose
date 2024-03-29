@@ -64,7 +64,7 @@ export class PathBuilder {
    */
   quadraticCurveTo = (
     [cpx, cpy]: [ad.Num, ad.Num],
-    [x, y]: [ad.Num, ad.Num]
+    [x, y]: [ad.Num, ad.Num],
   ) => {
     this.path.contents.push({
       cmd: "Q",
@@ -79,7 +79,7 @@ export class PathBuilder {
   bezierCurveTo = (
     [cpx1, cpy1]: [ad.Num, ad.Num],
     [cpx2, cpy2]: [ad.Num, ad.Num],
-    [x, y]: [ad.Num, ad.Num]
+    [x, y]: [ad.Num, ad.Num],
   ) => {
     this.path.contents.push({
       cmd: "C",
@@ -121,7 +121,7 @@ export class PathBuilder {
   arcTo = (
     [rx, ry]: [ad.Num, ad.Num],
     [x, y]: [ad.Num, ad.Num],
-    [rotation, majorArc, sweep]: ad.Num[]
+    [rotation, majorArc, sweep]: ad.Num[],
   ) => {
     this.path.contents.push({
       cmd: "A",

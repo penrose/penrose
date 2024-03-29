@@ -1,0 +1,21 @@
+
+global {
+    shape background = Rectangle {
+        center: (0, 0)
+        width: canvas.width
+        height: canvas.height
+        fillColor: color.blue
+    } 
+}
+
+forall Vertex v {
+  override v.text.fillColor = color.white
+  override v.text.fontFamily = "Palatino"
+  override v.text.strokeColor = color.lightblue
+  override v.dot2.fillColor = color.lightblue
+  override v.dot.strokeColor = color.white
+}
+
+forall Vertex u; Vertex v where Edge(u, v) as e {
+  override e.poly.strokeColor = color.white
+}

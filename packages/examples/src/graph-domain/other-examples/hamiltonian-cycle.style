@@ -1,0 +1,9 @@
+forall Vertex v where HighlightVertex(v) {
+    override v.dot.fillColor = color.redOrange
+    override v.text.fillColor = color.redOrange
+}
+
+forall Vertex a, b where Arc(a,b) as e; HighlightArc(a,b) {
+    override e.arrow.strokeColor = color.redOrange 
+    override e.pointer.fillColor = color.redOrange
+}

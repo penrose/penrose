@@ -2,5 +2,6 @@
   "substance": "./twoVectorsPerp-unsugared.substance",
   "style": ["./linearalgebra-paper-dashes.style"],
   "domain": "./linear-algebra.domain",
-  "variation": ""
+  "variation": "",
+  "excludeWarnings": ["BBoxApproximationWarning"]
 }

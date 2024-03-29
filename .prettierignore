@@ -19,12 +19,8 @@
 /packages/docs-site/src/shapedefs.json
 /packages/examples/src/registry.ts
 /packages/examples/src/resolver.ts
-/packages/optimizer/bindings/
-/packages/optimizer/build/
 /README.md
-/target/
 coverage/
-dist/
 public/app.css
 public/app.js
 tsconfig.tsbuildinfo

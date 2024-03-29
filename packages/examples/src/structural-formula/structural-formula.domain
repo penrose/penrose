@@ -53,3 +53,6 @@ predicate IsStoichiometric(Reaction r)
 predicate    IsEquilibrium(Reaction r)
 predicate  IsBidirectional(Reaction r)
 
+-- used just to supply a label for the overall diagram
+type Title
+

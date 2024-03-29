@@ -14,10 +14,9 @@ export interface LineProps<T> extends Named<T>, Stroke<T>, Arrow<T>, Fill<T> {
 
 export const sampleLine = (
   context: Context,
-  canvas: Canvas
+  canvas: Canvas,
 ): LineProps<ad.Num> => ({
   name: strV("defaultLine"),
-  style: strV(""),
   strokeWidth: floatV(1),
   strokeStyle: strV("solid"),
   strokeColor: black(),
@@ -39,7 +38,7 @@ export type Line<T> = ShapeCommon<T> & { shapeType: "Line" } & LineProps<T>;
 export const makeLine = (
   context: Context,
   canvas: Canvas,
-  properties: Partial<LineProps<ad.Num>>
+  properties: Partial<LineProps<ad.Num>>,
 ): Line<ad.Num> => ({
   ...sampleLine(context, canvas),
   ...properties,

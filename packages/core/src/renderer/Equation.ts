@@ -13,7 +13,7 @@ import { RenderProps } from "./Renderer.js";
 const placeholderString = (
   label: string,
   [x, y]: [number, number],
-  shape: Equation<number>
+  shape: Equation<number>,
 ): SVGGElement => {
   const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
   // fake font
@@ -30,7 +30,7 @@ const placeholderString = (
 
 const RenderEquation = (
   shape: Equation<number>,
-  renderOptions: RenderProps
+  renderOptions: RenderProps,
 ): SVGGElement => {
   const { canvasSize, labels, texLabels } = renderOptions;
   const { center } = shape;
@@ -40,11 +40,27 @@ const RenderEquation = (
     // If equations are rendered as plain TeX strings, forward relevant props to a <text> element and surround the TeX string with $$
     // Since the `svg` TeX package render text with the center on the baseline, we shift the labels down by height/2 + descent
     const baselineY = y + shape.height.contents / 2 - shape.descent.contents;
-    const txt = placeholderString(
+
+    let txt = placeholderString(
       `$${getAdValueAsString(shape.string)}$`,
       [x, baselineY],
-      shape
+      shape,
     );
+
+    // If the Equation has a texContourColor passthrough value, give the
+    // string a contour with the specified color
+    for (const [propKey, propVal] of shape.passthrough) {
+      if (propKey === "texContourColor" && propVal.contents !== "") {
+        txt = placeholderString(
+          `\\contour{${propVal.contents}}{$${getAdValueAsString(
+            shape.string,
+          )}$}`,
+          [x, baselineY],
+          shape,
+        );
+      }
+    }
+
     return txt;
   }
 
@@ -63,7 +79,7 @@ const RenderEquation = (
   if (retrievedLabel && retrievedLabel.tag === "EquationData") {
     // Clone the retrieved node first to avoid mutating existing labels
     const renderedLabel = retrievedLabel.rendered.cloneNode(
-      true
+      true,
     ) as HTMLElement;
     const g = renderedLabel.getElementsByTagName("g")[0];
 

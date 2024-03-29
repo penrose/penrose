@@ -89,7 +89,7 @@ describe("Selector Grammar", () => {
 
   forall Set A, B { }
 
-  forall Set A, \`B\`; Map f
+  forall repeatable Set A, \`B\`; Map f
   {
 
   }`;
@@ -97,19 +97,10 @@ describe("Selector Grammar", () => {
     sameASTs(results);
   });
 
-  test("nested preds", () => {
-    const prog = `
-forall Set A, B, C
-where IsSubset(Union(A,B), C, Intersection(B, C));
-{ }`;
-    const { results } = parser.feed(prog);
-    sameASTs(results);
-  });
-
   test("empty pred", () => {
     const prog = `
 forall Set A, B, C
-where IsSubset(   );
+where Subset(   );
 { }`;
     const { results } = parser.feed(prog);
     sameASTs(results);
@@ -119,7 +110,7 @@ where IsSubset(   );
     const prog = `
 forall Set A, B; Map f
 with Set C, D; Map \`g\`
-where C := intersect ( A, B, Not(f) ) ; IsSubset( A, B ); IsSubset( Union(A,B), C); Intersect (   )
+where C := intersect ( A, B ) ; Subset( A, B ); Subset( B, C); Intersect (   )
 as Const
 { }`;
     const { results } = parser.feed(prog);
@@ -162,7 +153,7 @@ as Const
   test("multiple as clauses for predicates", () => {
     const prog = `
 forall Set A, B, C, D
-where IsSubset(A, B) as foo; IsSubset(B,C) as bar; Union(C,D) as yeet;
+where Subset(A, B) as foo; Subset(B,C) as bar; Union(C,D) as yeet;
 {
   foo.arrow = Arrow{}
   yeet.circle = Circle{}
@@ -178,7 +169,7 @@ where IsSubset(A, B) as foo; IsSubset(B,C) as bar; Union(C,D) as yeet;
   where Bond(a1, a2) as b {}";
     const { results } = parser.feed(prog);
     expect(results[0].items[0].header.where.contents[0].alias.value).toEqual(
-      "b"
+      "b",
     );
   });
   test("alias expression location test", () => {
@@ -187,7 +178,7 @@ where IsSubset(A, B) as foo; IsSubset(B,C) as bar; Union(C,D) as yeet;
       "\
 forall Set A, B, C; Map f \
 with Set C, D; Map `g` \
-where C := intersect ( A, B, Not(f) ) ; IsSubset( A, B ) as isSubsetAB; IsSubset( Union(A,B), C) as nested_Subset; Intersect (   ){}\
+where C := intersect ( A, B ) ; Subset( A, B ) as SubsetAB; Subset( B, C) as nested_Subset; Intersect (   ){}\
 ";
     const { results } = parser.feed(prog);
     sameASTs(results);
@@ -199,9 +190,9 @@ where C := intersect ( A, B, Not(f) ) ; IsSubset( A, B ) as isSubsetAB; IsSubset
       "\
 forall Set A, B, C; Map f \
 with Set C, D; Map `g` \
-where C := intersect ( A, B, Not(f) ) ;\
- IsSubset( A, B ) \
- as isSubsetAB; IsSubset( Union(A,B), C) as nested_Subset; \
+where C := intersect ( A, B ) ;\
+ Subset( A, B ) \
+ as SubsetAB; Subset( B, C) as nested_Subset; \
  Intersect (   )  as   ok {}\
 ";
     const { results } = parser.feed(prog);
@@ -239,14 +230,14 @@ Unexpected as token: "as". Instead, I was expecting to see one of the following:
     }
   });
   test("cannot set subVars as aliases", () => {
-    const prog = "forall Set x; Set y where IsSubset(x,y) as `A` {}";
+    const prog = "forall Set x; Set y where Subset(x,y) as `A` {}";
     const parsed = parseStyle(prog);
     if (parsed.isErr()) {
       expect(parsed.error.message)
-        .toEqual(`Error: Syntax error at line 1 col 44:
+        .toEqual(`Error: Syntax error at line 1 col 42:
 
-  forall Set x; Set y where IsSubset(x,y) as \`
-                                             ^
+  forall Set x; Set y where Subset(x,y) as \`
+                                           ^
 Unexpected tick token: "\`". Instead, I was expecting to see one of the following:
 
     ws token
@@ -260,7 +251,7 @@ Unexpected tick token: "\`". Instead, I was expecting to see one of the followin
   test("label field check", () => {
     const prog = `
 forall Set A, B
-where IsSubset(A, B); A has math label; B has text label {
+where Subset(A, B); A has math label; B has text label {
 
 }
     `;
@@ -273,6 +264,15 @@ where IsSubset(A, B); A has math label; B has text label {
     expect(whereClauses[2].name.contents.value).toEqual("B");
     expect(whereClauses[2].field.value).toEqual("label");
     expect(whereClauses[2].fieldDescriptor).toEqual("TextLabel");
+  });
+
+  test("literals in selectors", () => {
+    const prog = `
+    forall Set A, B
+    where Contains(A, 1); NotContains(B, "hello world") {
+    }`;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
   });
 });
 
@@ -391,7 +391,7 @@ const {
       stringAssign.value.tag === "StringLit"
     ) {
       expect(stringAssign.value.contents).toEqual(
-        "abs1232189y790yh97dasyhfda7fhnasopufn9"
+        "abs1232189y790yh97dasyhfda7fhnasopufn9",
       );
     } else throw Error("First stmt is not an assignment to string");
   });
@@ -402,6 +402,9 @@ const {
   -- varying
   v1 = ?
   v2 = ensure near(?, 4.2, .5)
+  v3 = ?[1.2345]
+  v4 = ? [ 1.2345 ]
+  v5 = ?[ 12345]
   -- int
   f1 = 42
   f2 = 424242424242
@@ -480,6 +483,18 @@ const {
     r : 3.0
   }
 }`;
+    const { results } = parser.feed(prog);
+    sameASTs(results);
+  });
+
+  test("styvar expr", () => {
+    const prog = `
+      forall A a {
+        x = numberof a
+        y = listof a from a
+        z = nameof a
+      }
+    `;
     const { results } = parser.feed(prog);
     sameASTs(results);
   });

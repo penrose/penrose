@@ -1,0 +1,24 @@
+Univ Univ0, Univ1, Univ2
+C C0
+
+Subset s0 := A(Univ1)
+Subset s1 := A(Univ2)
+Subset s2 := B(Univ2)
+
+Edge e0 := R(Univ1, Univ1)
+Edge e1 := R(Univ0, Univ1)
+Edge e2 := R(Univ2, Univ0)
+Edge e3 := R(Univ2, Univ1)
+Edge e4 := R(Univ1, Univ2)
+
+Edge e40 := R(Univ1, Univ2)
+
+Edge e41 := R(Univ1, Univ2)
+
+Edge e5 := R(Univ2, Univ2)
+Edge e6 := R(Univ2, C0)
+Edge e7 := Aux(C0, Univ0, Univ2)
+Edge e8 := R(Univ1, Univ1)
+Edge e9 := Aux(C0, C0, C0)
+
+AutoLabel All

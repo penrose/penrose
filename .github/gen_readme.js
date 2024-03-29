@@ -30,5 +30,5 @@ fs.writeFileSync(
     domain: slurp(path.join(dir, domain)),
     substance: slurp(path.join(dir, substance)),
     style: slurp(path.join(dir, style[0])),
-  })
+  }),
 );

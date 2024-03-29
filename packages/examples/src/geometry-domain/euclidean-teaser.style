@@ -3,7 +3,7 @@
 
 canvas {
   width = 800
-  height = 700
+  height = 800
 }
 
 Colors {
@@ -24,10 +24,10 @@ const {
     arrowheadSize = 0.65
     strokeWidth = 1.75
     textPadding = 7.0
-    textPadding2 = 25.0
+    textPadding2 = 40.0
     repelWeight = 0.7 -- TODO: Reverted from 0.0
     repelWeight2 = 0.5
-    fontSize = "25px"
+    fontSize = "35px"
     containPadding = 50.0
     rayLength = 100.0
     pointRadius = 4.0
@@ -44,8 +44,8 @@ const {
 
 --Plane
 forall Plane p {
-  width = canvas.width * .8
-  height = canvas.height * .8
+  width = canvas.width - 1 
+  height = canvas.height - 1
   p.text = Equation {
     center : ((width / 2.0) - const.textPadding2, (height / 2.0) - const.textPadding2)
     string : p.label

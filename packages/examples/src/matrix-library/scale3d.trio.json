@@ -1,0 +1,6 @@
+{
+  "substance": "./scale3d.substance",
+  "style": ["./matrix-functions-3d.style"],
+  "domain": "./matrix-functions-3d.domain",
+  "variation": "Deterministic"
+}

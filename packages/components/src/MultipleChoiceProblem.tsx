@@ -125,6 +125,7 @@ const ProblemChoice = ({
         substance={substance}
         variation={variation}
         interactive={false}
+        excludeWarnings={[]}
       />
     </OptionContainer>
   );
@@ -155,7 +156,7 @@ export default function (props: MultiChoiceProblemProps) {
           })
         }
       />
-    )
+    ),
   );
   return (
     <Content onClick={(e) => e.stopPropagation()}>

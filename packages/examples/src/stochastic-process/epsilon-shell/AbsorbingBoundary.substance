@@ -1,0 +1,11 @@
+Point x0, x1
+RandomWalk A
+
+startsAt( A, x1 )
+endsAt( A, x0 )
+
+Boundary D := AbsorbingBoundary( x0, x1 )
+
+Label D $\partial \Omega$
+Label x0 $x_k$
+Label x1 $\overline{x}_k$

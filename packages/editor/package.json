@@ -1,7 +1,7 @@
 {
   "name": "@penrose/editor",
   "private": true,
-  "version": "3.0.0-alpha.0",
+  "version": "3.2.0",
   "scripts": {
     "start": "cross-env NODE_OPTIONS='--max-old-space-size=8192' vite",
     "dev": "cross-env NODE_OPTIONS='--max-old-space-size=8192' vite",
@@ -41,9 +41,9 @@
     }
   },
   "dependencies": {
-    "@penrose/components": "^3.0.0-alpha.0",
-    "@penrose/core": "^3.0.0-alpha.0",
-    "@penrose/examples": "^3.0.0-alpha.0",
+    "@penrose/components": "^3.2.0",
+    "@penrose/core": "^3.2.0",
+    "@penrose/examples": "^3.2.0",
     "animals": "^0.0.3",
     "color-name-list": "^8.38.0",
     "flexlayout-react": "^0.7.3",
@@ -73,6 +73,6 @@
     "@vitejs/plugin-react-swc": "^3.0.1",
     "shx": "^0.3.3",
     "vite": "^4.0.4",
-    "vite-plugin-top-level-await": "^1.2.3"
+    "vite-plugin-top-level-await": "^1.4.1"
   }
 }

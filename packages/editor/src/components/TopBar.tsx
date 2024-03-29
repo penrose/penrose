@@ -3,16 +3,19 @@ import { useRecoilCallback, useRecoilValue } from "recoil";
 import styled from "styled-components";
 import {
   WorkspaceMetadata,
+  diagramWorkerState,
   settingsState,
   workspaceMetadataSelector,
 } from "../state/atoms.js";
 import {
   useCompileDiagram,
+  useDownloadSvg,
   usePublishGist,
   useResampleDiagram,
   useSaveLocally,
 } from "../state/callbacks.js";
 import BlueButton from "./BlueButton.js";
+import ExportButton from "./ExportButton.js";
 
 const TitleBox = styled.div`
   padding: 5px 10px;
@@ -48,6 +51,12 @@ const InputBox = styled.input`
   font-size: 15px;
 `;
 
+const HeaderButtonContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
+
 function EditableTitle() {
   const [editing, setEditing] = useState(false);
   const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
@@ -64,7 +73,7 @@ function EditableTitle() {
         if (metadata.location.kind !== "local" || !metadata.location.saved) {
           saveLocally();
         }
-      }
+      },
   );
   const onKey = useCallback((e: React.KeyboardEvent) => {
     if (e.key === "Enter" || e.key === "Escape") {
@@ -98,6 +107,7 @@ export default function TopBar() {
   const settings = useRecoilValue(settingsState);
   const saveLocally = useSaveLocally();
   const publishGist = usePublishGist();
+  const { running } = useRecoilValue(diagramWorkerState);
 
   return (
     <nav
@@ -153,10 +163,18 @@ export default function TopBar() {
             )}
         </div>
       )}
-      <div>
-        <BlueButton onClick={compileDiagram}>compile ▶</BlueButton>
-        <BlueButton onClick={resampleDiagram}>resample</BlueButton>
-      </div>
+      <HeaderButtonContainer>
+        <BlueButton disabled={running} onClick={useDownloadSvg()}>
+          save Penrose SVG
+        </BlueButton>
+        <ExportButton />
+        <BlueButton disabled={running} onClick={compileDiagram}>
+          compile ▶
+        </BlueButton>
+        <BlueButton disabled={running} onClick={resampleDiagram}>
+          resample
+        </BlueButton>
+      </HeaderButtonContainer>
     </nav>
   );
 }

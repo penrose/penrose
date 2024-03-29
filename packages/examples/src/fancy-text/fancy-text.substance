@@ -2,6 +2,10 @@ Text t
 Label t "Hello, Penrose!"
 Point p1, p2, p3, p4, p5
 Point p6, p7, p8, p9, p10
+Point p11, p12, p13, p14
+Point p15, p16, p17, p18
+Point p19, p20, p21, p22
+Point p23, p24
 Label p1 $\alpha$
 Label p2 $\beta$
 Label p3 $\gamma$
@@ -12,4 +16,18 @@ Label p7 $\eta$
 Label p8 $\theta$
 Label p9 $\iota$
 Label p10 $\kappa$
+Label p11 $\lambda$
+Label p12 $\mu$
+Label p13 $\nu$
+Label p14 $\xi$
+Label p15 $\omicron$
+Label p16 $\pi$
+Label p17 $\rho$
+Label p18 $\sigma$
+Label p19 $\tau$
+Label p20 $\upsilon$
+Label p21 $\phi$
+Label p22 $\chi$
+Label p23 $\psi$
+Label p24 $\omega$
 

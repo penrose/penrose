@@ -1,0 +1,10 @@
+Point X0
+StochasticProcess Xt
+startsAt( Xt, X0 )
+Point XT := endPoint( Xt )
+-- Let s := Step( X0, XT )
+
+Label Xt $X_t$
+Label X0 $x_k$
+Label XT $x_{k+1}$
+

@@ -1,0 +1,5 @@
+type Geometry
+type Reflection <: Geometry
+type Shadow <: Geometry
+constructor Reflection(Geometry G)
+constructor Shadow(Geometry G)

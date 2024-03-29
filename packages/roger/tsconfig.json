@@ -1,13 +1,8 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "noEmit": true,
-    "noImplicitThis": true,
+    "outDir": "dist",
     "resolveJsonModule": true,
-    "strictNullChecks": true,
-    "strict": false // COMBAK: strict disabled for now due to errors
-  },
-  "ts-node": {
-    "swc": true
+    "sourceMap": true
   }
 }

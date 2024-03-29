@@ -50,6 +50,8 @@ const styleCustoms = {
     "where",
     "with",
     "listof",
+    "numberof",
+    "nameof",
     "from",
     "delete",
     "as",
@@ -66,6 +68,7 @@ const styleCustoms = {
     "text",
     "in",
     "except",
+    "repeatable",
   ],
   types: [
     "scalar",
@@ -124,6 +127,11 @@ export const StyleLanguageTokens: languages.IMonarchLanguage = {
   },
 };
 
+const defaultCanvas = `canvas {
+  width = \${1:400}
+  height = \${2:400}
+}`;
+
 export const StyleCompletions = (range: IRange): languages.CompletionItem[] => [
   ...styleCustoms.keywords.map((keyword: string) => ({
     label: keyword,
@@ -172,6 +180,14 @@ export const StyleCompletions = (range: IRange): languages.CompletionItem[] => [
     detail: "type",
     range,
   })),
+  {
+    insertTextRules: languages.CompletionItemInsertTextRule.InsertAsSnippet,
+    label: "canvas",
+    insertText: defaultCanvas,
+    kind: languages.CompletionItemKind.Snippet,
+    detail: "canvas settings",
+    range,
+  },
 ];
 
 export const SetupStyleMonaco = (monaco: Monaco) => {
@@ -196,12 +212,12 @@ export const SetupStyleMonaco = (monaco: Monaco) => {
         true,
         false,
         null,
-        true
+        true,
       );
       return colorMatches.reduce(
         (
           colors: languages.IColorInformation[],
-          { matches, range }: editor.FindMatch
+          { matches, range }: editor.FindMatch,
         ) => {
           if (matches !== null) {
             const hexColor = hexToRgba(matches[1]);
@@ -224,7 +240,7 @@ export const SetupStyleMonaco = (monaco: Monaco) => {
             return colors;
           }
         },
-        []
+        [],
       );
     },
   });
@@ -241,7 +257,7 @@ export const SetupStyleMonaco = (monaco: Monaco) => {
         };
         return { suggestions: StyleCompletions(range) } as any;
       },
-    }
+    },
   );
   return () => {
     disposeColor.dispose();

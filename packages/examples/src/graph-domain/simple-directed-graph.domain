@@ -1,2 +1,4 @@
 type Vertex
-predicate Arc(Vertex, Vertex)
+predicate Arc(Vertex a, Vertex b)
+predicate HighlightVertex(Vertex a)
+predicate HighlightArc(Vertex a, Vertex b)

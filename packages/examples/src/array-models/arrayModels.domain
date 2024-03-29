@@ -1,0 +1,14 @@
+type Element -- an element of an array
+type Array -- a collection of elements one after the other
+
+type Group -- any set of associated elements within one array or multiple
+
+type Pointer -- arrow leading from one element to another
+--type DoublePointer -- double-headed arrow between two elements
+
+constructor Arc(Element q, Element r) -> Pointer
+constructor ArcDouble(Element e, Element f) -> Pointer
+
+predicate inArray(Element e, Array a, Number z)
+predicate inGroup(Element e, Group p)
+predicate highlight(Element e)

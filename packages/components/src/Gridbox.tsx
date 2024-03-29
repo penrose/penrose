@@ -81,7 +81,10 @@ const Body = styled.div`
   border-radius: 5px;
   padding: 0.5rem;
   font-size: 0.8rem;
-  font-family: Roboto Mono, Courier New, sans-serif;
+  font-family:
+    Roboto Mono,
+    Courier New,
+    sans-serif;
   whitespace: pre-wrap;
   overflow: scroll;
 `;
@@ -199,7 +202,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
 
         <div
           onClick={this.toggleView}
-          style={{ height: "calc(100% - 2.5rem)", position: "relative" }}
+          style={{ height: "calc(100% - 2.75rem)", position: "relative" }}
         >
           {this.state.showDiagramInfo && (
             <Body>

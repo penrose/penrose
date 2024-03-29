@@ -17,8 +17,6 @@ Link e11m1 := Arc(SF, Denver)
 Link e11m2 := Arc(SF, Denver)
 Link e12 := Arc(SF, LA)
 Link e13 := Arc(Washington, Chicago)
-Link e14m1 := Arc(Washington, NYC)
-Link e14m2 := Arc(Washington, NYC)
 
 AutoLabel Chicago, Denver, Detroit, Washington
 Label LA "Los Angeles"

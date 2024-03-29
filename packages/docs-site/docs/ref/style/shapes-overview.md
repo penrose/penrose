@@ -6,17 +6,17 @@ Style currently supports a variety of shapes, listed as sub-entries under this p
 
 In Style, a shape instance is declared inside a rule using a statement of the form
 
-```
+```style
 x.myShape = Shape {
    attribute1: value1
    attribute2: value2
-   ...
+   -- ...
 }
 ```
 
 For instance, to associate all Substance objects `x` of type `Point` with a red circle of radius 5, you would write
 
-```
+```style
 forall Point x {
    x.myCircle = Circle {
       radius: 5
@@ -35,7 +35,7 @@ All shapes have a property `ensureOnCanvas`, which by default is set to `true`. 
 
 Penrose enforces strict types on shape parameters. For example, we require the `r` field of a `Circle` shape to be a numerical value (type `FloatV`). If one writes,
 
-```
+```style
 myShape = Circle {
    r : true
 }
@@ -43,7 +43,7 @@ myShape = Circle {
 
 or (by assignment or overriding)
 
-```
+```style
 myShape = Circle {}
 override myShape.r = true
 ```
@@ -51,7 +51,7 @@ override myShape.r = true
 Penrose will report an error as follows.
 
 ```
-Shape property myShape.r expects type FloatV and does not accept type BoolV.
+Shape property myShape.r expects type FloatV and does not accept type BoolV. // [!code error]
 ```
 
 The expected types of each field of each shape can be found within each shape's specification.

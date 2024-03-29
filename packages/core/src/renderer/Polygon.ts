@@ -11,11 +11,11 @@ import { RenderProps } from "./Renderer.js";
 
 const RenderPolygon = (
   shape: Polygon<number>,
-  { canvasSize }: RenderProps
+  { canvasSize }: RenderProps,
 ): SVGPolygonElement => {
   const elem = document.createElementNS(
     "http://www.w3.org/2000/svg",
-    "polygon"
+    "polygon",
   );
 
   // Keep track of which input properties we programatically mapped

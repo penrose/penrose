@@ -11,7 +11,6 @@ const _FileButton = styled.button<{ isFocused: boolean }>`
   border: 0;
   text-align: left;
   font-size: 15px;
-  margin: 3px;
   padding: 10px;
   transition: 0.2s;
   cursor: pointer;

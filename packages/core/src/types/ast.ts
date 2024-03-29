@@ -1,3 +1,5 @@
+import { isConcrete } from "../engine/EngineUtils.js";
+
 //#region AST nodes
 export interface SourceLoc {
   line: number;
@@ -22,7 +24,8 @@ export type NodeType =
   | "Style"
   | "Domain"
   | "SyntheticSubstance"
-  | "SyntheticStyle";
+  | "SyntheticStyle"
+  | "BuiltinDomain";
 
 export type SyntheticNode = AbstractNode & {
   nodeType: "SyntheticSubstance" | "SyntheticStyle";
@@ -49,3 +52,22 @@ export type StringLit<T> = ASTNode<T> & {
   contents: string;
 };
 //#endregion
+
+export const location = (
+  node: ASTNode<A>,
+): {
+  start?: SourceLoc;
+  end?: SourceLoc;
+  nodeType: NodeType;
+} => {
+  if (isConcrete(node)) {
+    return {
+      start: node.start,
+      end: node.end,
+      nodeType: node.nodeType,
+    };
+  } else
+    return {
+      nodeType: node.nodeType,
+    };
+};

@@ -2,5 +2,6 @@
   "substance": "./test.substance",
   "style": ["./geometric-queries.style"],
   "domain": "./geometric-queries.domain",
-  "variation": "MettwurstCattle35745"
+  "variation": "MettwurstCattle35745",
+  "excludeWarnings": ["BBoxApproximationWarning"]
 }

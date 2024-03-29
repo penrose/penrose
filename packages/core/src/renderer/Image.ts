@@ -12,7 +12,7 @@ import { makeIdsUnique } from "./util.js";
 
 const RenderImage = async (
   shape: Image<number>,
-  { canvasSize, pathResolver }: RenderProps
+  { canvasSize, pathResolver }: RenderProps,
 ): Promise<SVGGElement> => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
   // Keep track of which input properties we programatically mapped
@@ -36,6 +36,8 @@ const RenderImage = async (
   attrToNotAutoMap.push(...attrRotation(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrTransformCoords(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrTitle(shape, elem));
+  svg.setAttribute("preserveAspectRatio", shape.preserveAspectRatio.contents);
+  attrToNotAutoMap.push("preserveAspectRatio");
   // Directly Map across any "unknown" SVG properties
   attrAutoFillSvg(shape, elem, attrToNotAutoMap);
 

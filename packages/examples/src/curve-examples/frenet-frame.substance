@@ -1,0 +1,4 @@
+Curve c
+Point p_i for i in [1, 16]
+
+In(c, p_i) for i in [1, 16]

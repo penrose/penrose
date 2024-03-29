@@ -1,21 +1,22 @@
-import { start as genOptProblem } from "@penrose/optimizer";
 import consola from "consola";
 import im from "immutable";
 import _ from "lodash";
 import nearley from "nearley";
 import seedrandom from "seedrandom";
-import { constrDict } from "../contrib/Constraints.js";
-import { compDict } from "../contrib/Functions.js";
-import { objDict } from "../contrib/Objectives.js";
 import { genGradient, ops, variable } from "../engine/Autodiff.js";
 import { add, div, mul, neg, pow, sub } from "../engine/AutodiffFunctions.js";
 import { compileCompGraph, dummyIdentifier } from "../engine/EngineUtils.js";
+import { start as genOptProblem } from "../engine/Optimizer.js";
+import { constrDict } from "../lib/Constraints.js";
+import { compDict } from "../lib/Functions.js";
+import { objDict } from "../lib/Objectives.js";
 import { lastLocation, prettyParseError } from "../parser/ParserUtil.js";
 import styleGrammar from "../parser/StyleParser.js";
 import {
   Canvas,
   InputMeta,
   Context as MutableContext,
+  constSampler,
   makeCanvas,
   uniform,
 } from "../shapes/Samplers.js";
@@ -27,7 +28,7 @@ import {
 } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
 import { A, C, Identifier, SourceRange } from "../types/ast.js";
-import { Env } from "../types/domain.js";
+import { DomainEnv, Type } from "../types/domain.js";
 import {
   BinOpTypeError,
   LayerCycleWarning,
@@ -37,7 +38,6 @@ import {
   StyleDiagnostics,
   StyleError,
   StyleWarning,
-  SubstanceError,
 } from "../types/errors.js";
 import {
   Fn,
@@ -62,16 +62,19 @@ import {
   List,
   Path,
   PathAssign,
-  PredArg,
   RelBind,
   RelField,
   RelPred,
   RelationPattern,
+  SEFunc,
+  SEFuncOrValCons,
+  SEValCons,
+  SelArgExpr,
   SelExpr,
   Selector,
+  SelectorType,
   Stmt,
   StyProg,
-  StyT,
   UOp,
   Vector,
 } from "../types/style.js";
@@ -87,13 +90,14 @@ import {
   Layer,
   LocalVarSubst,
   NotShape,
-  ProgType,
   ResolvedName,
   ResolvedPath,
-  SelEnv,
+  SelectorEnv,
   ShapeSource,
   StySubst,
   Subst,
+  SubstanceLiteral,
+  SubstanceObject,
   Translation,
   WithContext,
 } from "../types/styleSemantics.js";
@@ -101,13 +105,18 @@ import {
   ApplyConstructor,
   ApplyFunction,
   ApplyPredicate,
+  Bind,
+  CompiledSubProg,
+  CompiledSubStmt,
   Decl,
+  Func,
+  LiteralSubExpr,
+  SubArgExpr,
   SubExpr,
-  SubPredArg,
   SubProg,
   SubStmt,
   SubstanceEnv,
-  TypeConsApp,
+  TypeApp,
 } from "../types/substance.js";
 import {
   ArgVal,
@@ -119,6 +128,7 @@ import {
   PropID,
   PtListV,
   ShapeListV,
+  StrV,
   TupV,
   Value,
   VectorV,
@@ -131,13 +141,14 @@ import {
   err,
   invalidColorLiteral,
   isErr,
+  notStyleVariableError,
+  notSubstanceCollectionError,
   ok,
   parseError,
   redeclareNamespaceError,
   safeChain,
   selectorFieldNotSupported,
   toStyleErrors,
-  unexpectedCollectionAccessError,
 } from "../utils/Error.js";
 import Graph from "../utils/Graph.js";
 import {
@@ -164,14 +175,22 @@ import {
   resolveRhsName,
   shapeListV,
   strV,
+  subObjectToUniqueName,
+  substanceLiteralToValue,
   tupV,
   val,
   vectorV,
   zip2,
 } from "../utils/Util.js";
-import { checkTypeConstructor, isDeclaredSubtype } from "./Domain.js";
+import { isLiteralType, isSubtype, numberType, stringType } from "./Domain.js";
 import { callCompFunc, callObjConstrFunc } from "./StyleFunctionCaller.js";
-import { checkExpr, checkPredicate, checkVar } from "./Substance.js";
+import {
+  checkBind,
+  checkDecl,
+  checkPredicate,
+  checkVar,
+  initSubstanceEnv as initSubEnv,
+} from "./Substance.js";
 import { checkShape } from "./shapeChecker/CheckShape.js";
 
 const log = (consola as any)
@@ -188,10 +207,6 @@ const LABEL_FIELD: Field = "label";
 
 const dummyId = (name: string): Identifier<A> =>
   dummyIdentifier(name, "SyntheticStyle");
-
-export function numbered<A>(xs: A[]): [A, number][] {
-  return zip2(xs, _.range(xs.length));
-}
 
 const safeContentsList = <T>(x: { contents: T[] } | undefined): T[] =>
   x ? x.contents : [];
@@ -216,7 +231,7 @@ const flatErrs = (es: StyleDiagnostics[]): StyleDiagnostics => {
 
 const addDiags = <T extends { diagnostics: StyleDiagnostics }>(
   { errors, warnings }: StyleDiagnostics,
-  x: T
+  x: T,
 ): T => ({
   ...x,
   diagnostics: {
@@ -228,180 +243,72 @@ const addDiags = <T extends { diagnostics: StyleDiagnostics }>(
 
 //#endregion
 
-//#region Some code for prettyprinting
-
-const ppExpr = (e: SelExpr<A>): string => {
-  switch (e.tag) {
-    case "SEBind": {
-      return e.contents.contents.value;
-    }
-    case "SEFunc":
-    case "SEValCons":
-    case "SEFuncOrValCons": {
-      const args = e.args.map(ppExpr);
-      return `${e.name.value}(${args})`;
-    }
-  }
-};
-
-const ppRelArg = (r: PredArg<A>): string => {
-  if (r.tag === "RelPred") {
-    return ppRelPred(r);
-  } else {
-    return ppExpr(r);
-  }
-};
-
-const ppRelBind = (r: RelBind<A>): string => {
-  const expr = ppExpr(r.expr);
-  return `${r.id.contents.value} := ${expr}`;
-};
-
-const ppRelPred = (r: RelPred<A>): string => {
-  const args = r.args.map(ppRelArg).join(", ");
-  const name = r.name.value;
-  return `${name}(${args})`;
-};
-const ppRelField = (r: RelField<A>): string => {
-  const name = r.name.contents.value;
-  const field = r.field.value;
-  const fieldDesc = r.fieldDescriptor;
-  if (!fieldDesc) return `${name} has ${field}`;
-  else {
-    switch (fieldDesc) {
-      case "MathLabel":
-        return `${name} has math ${field}`;
-      case "TextLabel":
-        return `${name} has text ${field}`;
-      case "NoLabel":
-        return `${name} has empty ${field}`;
-    }
-  }
-};
-
-export const ppRel = (r: RelationPattern<A>): string => {
-  switch (r.tag) {
-    case "RelBind": {
-      return ppRelBind(r);
-    }
-    case "RelPred": {
-      return ppRelPred(r);
-    }
-    case "RelField": {
-      return ppRelField(r);
-    }
-  }
-};
-
-//#endregion
-
 //#region Types and code for selector checking and environment construction
 
-const initSelEnv = (): SelEnv => {
-  // Note that JS objects are by reference, so you have to make a new one each time
-  return {
-    sTypeVarMap: {},
-    varProgTypeMap: {},
-    skipBlock: false,
-    header: undefined,
-    warnings: [],
+const initSelEnv = (): SelectorEnv => {
+  const subEnv: SubstanceEnv = initSubEnv();
+  const selEnv: SelectorEnv = {
+    ...subEnv,
     errors: [],
+    warnings: [],
   };
-};
-
-// Add a mapping from Sub or Sty var to the selector's environment
-// g, (x : |T)
-// NOTE: Mutates the map in `m`
-const addMapping = (
-  k: BindingForm<A>,
-  v: StyT<A>,
-  m: SelEnv,
-  p: ProgType
-): SelEnv => {
-  m.sTypeVarMap[toString(k)] = v;
-  m.varProgTypeMap[toString(k)] = [p, k];
-  return m;
+  return selEnv;
 };
 
 // add warning/error to end of existing errors in selector env
-const addErrSel = (selEnv: SelEnv, err: StyleError): SelEnv => {
+const addErrSel = (selEnv: SelectorEnv, err: StyleError[]): SelectorEnv => {
   return {
     ...selEnv,
-    errors: selEnv.errors.concat([err]),
+    errors: selEnv.errors.concat(err),
   };
 };
 
-// TODO: Test this
-// Judgment 3. G; g |- |S_o ok ~> g'
-// `checkDeclPattern`
-const checkDeclPatternAndMakeEnv = (
-  varEnv: Env,
-  selEnv: SelEnv,
-  stmt: DeclPattern<A>
-): SelEnv => {
-  const [styType, bVar] = [stmt.type, stmt.id];
+const checkDeclPattern = (
+  decl: DeclPattern<A>,
+  domEnv: DomainEnv,
+  selEnv: SelectorEnv,
+): SelectorEnv => {
+  // convert `stmt` to Substance-equivalent
+  const subDecl = toSubDecl(decl);
+  // use Substance checker
+  const res = checkDecl(subDecl, domEnv, selEnv, true);
 
-  const typeErr = checkTypeConstructor(toSubstanceType(styType), varEnv);
-  if (isErr(typeErr)) {
-    return addErrSel(selEnv, {
-      tag: "TaggedSubstanceError",
-      error: typeErr.error,
-    });
-  }
+  // for some reasons, the previous implementation throws an error for SubVars whose type
+  // does not match the actual type in the Substance program.
 
-  const varName: string = bVar.contents.value;
+  // The correct behavior should not be to throw an error. It just simply should not generate a matching.
 
-  if (Object.keys(selEnv.sTypeVarMap).includes(varName)) {
-    return addErrSel(selEnv, { tag: "SelectorVarMultipleDecl", varName: bVar });
-  }
-
-  switch (bVar.tag) {
-    case "StyVar": {
-      // rule Decl-Sty-Context
-      // NOTE: this does not aggregate *all* possible errors. May just return first error.
-      // y \not\in dom(g)
-      return addMapping(bVar, styType, selEnv, { tag: "StyProgT" });
-    }
-    case "SubVar": {
-      // rule Decl-Sub-Context
-      // x \not\in dom(g)
-
-      const substanceType = varEnv.vars.get(varName);
-
-      // If any Substance variable doesn't exist in env, ignore it,
-      // but flag it so we know to not translate the lines in the block later.
-      if (!substanceType) {
-        return { ...selEnv, skipBlock: true };
-      }
-
-      // check "T <: |T", assuming type constructors are nullary
-      // Specifically, the Style type for a Substance var needs to be more general. Otherwise, if it's more specific, that's a coercion
-      // e.g. this is correct: Substance: "SpecialVector `v`"; Style: "Vector `v`"
-      const declType = toSubstanceType(styType);
-      if (!isDeclaredSubtype(substanceType, declType, varEnv)) {
-        // COMBAK: Order?
-        return addErrSel(selEnv, {
-          tag: "SelectorDeclTypeMismatch",
-          subType: declType,
-          styType: substanceType,
-        });
-      }
-
-      return addMapping(bVar, styType, selEnv, { tag: "SubProgT" });
-    }
+  // add all errors
+  if (res.isErr()) {
+    return addErrSel(
+      selEnv,
+      res.error.map((error) => {
+        if (error.tag === "DuplicateName") {
+          return {
+            tag: "SelectorVarMultipleDecl",
+            varName: decl.id,
+          };
+        } else {
+          return {
+            tag: "TaggedSubstanceError",
+            error,
+          };
+        }
+      }),
+    );
+  } else {
+    return { ...selEnv, ...res.value.subEnv };
   }
 };
 
-// Judgment 6. G; g |- [|S_o] ~> g'
-// `checkDeclPatterns` w/o error-checking, just addMapping for StyVars and SubVars
-const checkDeclPatternsAndMakeEnv = (
-  varEnv: Env,
-  selEnv: SelEnv,
-  decls: DeclPattern<A>[]
-): SelEnv => {
+const checkDeclPatterns = (
+  decls: DeclPattern<A>[],
+  domEnv: DomainEnv,
+  selEnv: SelectorEnv,
+): SelectorEnv => {
   return decls.reduce(
-    (s, p) => checkDeclPatternAndMakeEnv(varEnv, s, p),
-    selEnv
+    (selEnv, decl) => checkDeclPattern(decl, domEnv, selEnv),
+    selEnv,
   );
 };
 
@@ -411,13 +318,12 @@ const checkDeclPatternsAndMakeEnv = (
  *
  * Returns a list of domain keywords that the aliases cannot match
  */
-const getDomainKeywords = (varEnv: Env): string[] => {
+const getDomainKeywords = (varEnv: DomainEnv): string[] => {
   const keyWordMaps = [
     varEnv.types,
-    varEnv.functions,
-    varEnv.predicates,
-    varEnv.constructors,
-    varEnv.constructorsBindings,
+    varEnv.functionDecls,
+    varEnv.predicateDecls,
+    varEnv.constructorDecls,
   ];
 
   const keywords = _.flatMap(keyWordMaps, (m) => {
@@ -437,8 +343,8 @@ const getDomainKeywords = (varEnv: Env): string[] => {
  *
  * Returns a list of selector keywords that the aliases cannot match
  */
-const getSelectorStyVarNames = (selEnv: SelEnv): string[] => {
-  return Object.keys(selEnv.sTypeVarMap);
+const getSelectorStyVarNames = (selEnv: SelectorEnv): string[] => {
+  return [...selEnv.objs.keys()];
 };
 
 /**
@@ -446,8 +352,8 @@ const getSelectorStyVarNames = (selEnv: SelEnv): string[] => {
  */
 const aliasConflictsWithDomainOrSelectorKeyword = (
   alias: Identifier<A>,
-  varEnv: Env,
-  selEnv: SelEnv
+  varEnv: DomainEnv,
+  selEnv: SelectorEnv,
 ): boolean => {
   const domainKeywords = getDomainKeywords(varEnv);
   const selectorKeywords = getSelectorStyVarNames(selEnv);
@@ -457,219 +363,145 @@ const aliasConflictsWithDomainOrSelectorKeyword = (
   );
 };
 
-// TODO: Test this function
-// Judgment 4. G |- |S_r ok
 const checkRelPattern = (
-  varEnv: Env,
-  selEnv: SelEnv,
-  rel: RelationPattern<A>
-): StyleError[] => {
-  // rule Bind-Context
+  rel: RelationPattern<A>,
+  domEnv: DomainEnv,
+  selEnv: SelectorEnv,
+): SelectorEnv => {
   switch (rel.tag) {
     case "RelBind": {
-      // TODO: use checkSubStmt here (and in paper)?
-      // TODO: make sure the ill-typed bind selectors fail here (after Sub statics is fixed)
-      // G |- B : T1
-      const res1 = checkVar(rel.id.contents, varEnv);
+      const subBind = toSubBind(rel);
 
-      // TODO(error)
-      if (isErr(res1)) {
-        const subErr1: SubstanceError = res1.error;
-        // TODO(error): Do we need to wrap this error further, or is returning SubstanceError with no additional Style info ok?
-        // return ["substance typecheck error in B"];
-        return [{ tag: "TaggedSubstanceError", error: subErr1 }];
+      const res = checkBind(subBind, domEnv, selEnv, true);
+
+      if (res.isErr()) {
+        return addErrSel(
+          selEnv,
+          res.error.map((error) => ({
+            tag: "TaggedSubstanceError",
+            error,
+          })),
+        );
+      } else {
+        return { ...selEnv, ...res.value.subEnv };
       }
-
-      const { type: vtype } = res1.value; // ignore env
-
-      // G |- E : T2
-      const res2 = checkExpr(toSubExpr(varEnv, rel.expr), varEnv);
-
-      // TODO(error)
-      if (isErr(res2)) {
-        const subErr2: SubstanceError = res2.error;
-        return [{ tag: "TaggedSubstanceError", error: subErr2 }];
-        // return ["substance typecheck error in E"];
-      }
-
-      const { type: etype } = res2.value; // ignore env
-
-      // T1 = T2
-      const typesEq = isDeclaredSubtype(vtype, etype, varEnv);
-
-      // TODO(error) -- improve message
-      if (!typesEq) {
-        return [
-          { tag: "SelectorRelTypeMismatch", varType: vtype, exprType: etype },
-        ];
-        // return ["types not equal"];
-      }
-
-      return [];
     }
     case "RelPred": {
-      // rule Pred-Context
-      // G |- Q : Prop
+      const { alias } = rel;
+
       if (
-        rel.alias &&
-        aliasConflictsWithDomainOrSelectorKeyword(rel.alias, varEnv, selEnv)
+        alias &&
+        aliasConflictsWithDomainOrSelectorKeyword(alias, domEnv, selEnv)
       ) {
-        return [{ tag: "SelectorAliasNamingError", alias: rel.alias }];
+        return addErrSel(selEnv, [{ tag: "SelectorAliasNamingError", alias }]);
       }
-      const res = checkPredicate(toSubPred(rel), varEnv);
-      if (isErr(res)) {
-        const subErr3: SubstanceError = res.error;
-        return [{ tag: "TaggedSubstanceError", error: subErr3 }];
-        // return ["substance typecheck error in Pred"];
+
+      const subPred = toSubPred(rel);
+      const res = checkPredicate(subPred, domEnv, selEnv, true);
+
+      if (res.isErr()) {
+        return addErrSel(
+          selEnv,
+          res.error.map((error) => ({
+            tag: "TaggedSubstanceError",
+            error,
+          })),
+        );
+      } else {
+        return { ...selEnv, ...res.value.subEnv };
       }
-      return [];
     }
     case "RelField": {
-      // check if the Substance name exists
-      const nameOk = checkVar(rel.name.contents, varEnv);
-      if (isErr(nameOk)) {
-        const subErr1: SubstanceError = nameOk.error;
-        return [{ tag: "TaggedSubstanceError", error: subErr1 }];
+      // Substance does not have a "Field" relation
+
+      if (rel.field.value !== "label") {
+        return addErrSel(selEnv, [
+          selectorFieldNotSupported(rel.name, rel.field),
+        ]);
       }
-      // check if the field is supported. Currently, we only support matching on `label`
-      if (rel.field.value !== "label")
-        return [selectorFieldNotSupported(rel.name, rel.field)];
-      else {
-        return [];
+
+      const nameOk = checkVar(rel.name.contents, domEnv, selEnv);
+
+      if (isErr(nameOk)) {
+        return addErrSel(
+          selEnv,
+          nameOk.error.map((error) => ({
+            tag: "TaggedSubstanceError",
+            error,
+          })),
+        );
+      } else {
+        return { ...selEnv };
       }
     }
   }
 };
 
-// Judgment 5. G |- [|S_r] ok
 const checkRelPatterns = (
-  varEnv: Env,
-  selEnv: SelEnv,
-  rels: RelationPattern<A>[]
-): StyleError[] => {
-  return _.flatMap(rels, (rel: RelationPattern<A>): StyleError[] =>
-    checkRelPattern(varEnv, selEnv, rel)
+  rels: RelationPattern<A>[],
+  domEnv: DomainEnv,
+  selEnv: SelectorEnv,
+): SelectorEnv => {
+  return rels.reduce(
+    (selEnv, rel) => checkRelPattern(rel, domEnv, selEnv),
+    selEnv,
   );
 };
 
-const toSubstanceType = (styT: StyT<A>): TypeConsApp<A> => {
-  // TODO: Extend for non-nullary types (when they are implemented in Style)
-  return {
-    tag: "TypeConstructor",
-    nodeType: "Substance",
-    name: styT,
-    args: [],
-  };
-};
+const checkSelector = (domEnv: DomainEnv, sel: Selector<A>): SelectorEnv => {
+  const selEnvInit = initSelEnv();
 
-// TODO: Test this
-// NOTE: `Map` is immutable; we return the same `Env` reference with a new `vars` set (rather than mutating the existing `vars` Map)
-const mergeMapping = (
-  varProgTypeMap: { [k: string]: [ProgType, BindingForm<A>] },
-  varEnv: Env,
-  [varName, styType]: [string, StyT<A>]
-): Env => {
-  const res = varProgTypeMap[varName];
-  if (!res) {
-    throw Error("var has no binding form?");
-  }
-  const [, bindingForm] = res;
-  const vars = varEnv.vars.set(
-    bindingForm.contents.value,
-    toSubstanceType(styType)
+  // Check `forall` clause
+  const selEnv_afterHead = checkDeclPatterns(
+    sel.head.contents,
+    domEnv,
+    selEnvInit,
   );
-  switch (bindingForm.tag) {
-    case "StyVar":
-      return {
-        ...varEnv,
-        vars,
-        varIDs: [
-          dummyIdentifier(bindingForm.contents.value, "Style"),
-          ...varEnv.varIDs,
-        ],
-      };
-    case "SubVar":
-      return {
-        ...varEnv,
-        vars,
-        varIDs: [
-          dummyIdentifier(bindingForm.contents.value, "Substance"),
-          ...varEnv.varIDs,
-        ],
-      };
-  }
-};
 
-// TODO: don't merge the varmaps! just put g as the varMap (otherwise there will be extraneous bindings for the relational statements)
-// Judgment 1. G || g |-> ...
-const mergeEnv = (varEnv: Env, selEnv: SelEnv): Env => {
-  return Object.entries(selEnv.sTypeVarMap).reduce(
-    (acc, curr) => mergeMapping(selEnv.varProgTypeMap, acc, curr),
-    varEnv
-  );
-};
-
-const checkSelector = (varEnv: Env, sel: Selector<A>): SelEnv => {
-  // Judgment 7. G |- Sel ok ~> g
-  const selEnv_afterHead = checkDeclPatternsAndMakeEnv(
-    varEnv,
-    initSelEnv(),
-    sel.head.contents
-  );
   // Check `with` statements
-  // TODO: Did we get rid of `with` statements?
-  const selEnv_decls = checkDeclPatternsAndMakeEnv(
-    varEnv,
+  const selEnv_decls = checkDeclPatterns(
+    safeContentsList(sel.with),
+    domEnv,
     selEnv_afterHead,
-    safeContentsList(sel.with)
   );
 
-  // Basically creates a new, empty environment.
-  const emptyVarsEnv: Env = { ...varEnv, vars: im.Map(), varIDs: [] };
+  // Check relations
   const relErrs = checkRelPatterns(
-    mergeEnv(emptyVarsEnv, selEnv_decls),
+    safeContentsList(sel.where),
+    domEnv,
     selEnv_decls,
-    safeContentsList(sel.where)
   );
 
-  // TODO(error): The errors returned in the top 3 statements
-  return {
-    ...selEnv_decls,
-    errors: selEnv_decls.errors.concat(relErrs), // COMBAK: Reverse the error order?
-  };
+  return relErrs;
 };
 
-const checkCollector = (varEnv: Env, col: Collector<A>): SelEnv => {
-  const selEnv_afterHead = checkDeclPatternAndMakeEnv(
-    varEnv,
-    initSelEnv(),
-    col.head
-  );
-  const selEnv_afterWith = checkDeclPatternsAndMakeEnv(
-    varEnv,
+const checkCollector = (domEnv: DomainEnv, col: Collector<A>): SelectorEnv => {
+  const selEnvInit = initSelEnv();
+
+  const selEnv_afterHead = checkDeclPattern(col.head, domEnv, selEnvInit);
+
+  const selEnv_afterWith = checkDeclPatterns(
+    safeContentsList(col.with),
+    domEnv,
     selEnv_afterHead,
-    safeContentsList(col.with)
-  );
-  const selEnv_afterGroupby = checkDeclPatternsAndMakeEnv(
-    varEnv,
-    selEnv_afterWith,
-    safeContentsList(col.foreach)
-  );
-  const emptyVarsEnv: Env = { ...varEnv, vars: im.Map(), varIDs: [] };
-  const relErrs = checkRelPatterns(
-    mergeEnv(emptyVarsEnv, selEnv_afterGroupby),
-    selEnv_afterGroupby,
-    safeContentsList(col.where)
   );
 
-  return {
-    ...selEnv_afterGroupby,
-    errors: selEnv_afterGroupby.errors.concat(relErrs),
-  };
+  const selEnv_afterGroupby = checkDeclPatterns(
+    safeContentsList(col.foreach),
+    domEnv,
+    selEnv_afterWith,
+  );
+
+  const relErrs = checkRelPatterns(
+    safeContentsList(col.where),
+    domEnv,
+    selEnv_afterGroupby,
+  );
+
+  return relErrs;
 };
 
-// ported from `checkPair`, `checkSel`, and `checkNamespace`
-const checkHeader = (varEnv: Env, header: Header<A>): SelEnv => {
+const checkHeader = (varEnv: DomainEnv, header: Header<A>): SelectorEnv => {
   switch (header.tag) {
     case "Selector": {
       return checkSelector(varEnv, header);
@@ -688,25 +520,14 @@ const checkHeader = (varEnv: Env, header: Header<A>): SelEnv => {
 
 //#region Types and code for finding substitutions
 
-// Judgment 20. A substitution for a selector is only correct if it gives exactly one
-//   mapping for each Style variable in the selector. (Has test)
-export const fullSubst = (selEnv: SelEnv, subst: Subst): boolean => {
-  // Check if a variable is a style variable, not a substance one
-  const isStyVar = (e: string): boolean =>
-    selEnv.varProgTypeMap[e][0].tag === "StyProgT";
-
-  // Equal up to permutation (M.keys ensures that there are no dups)
-  const selStyVars = Object.keys(selEnv.sTypeVarMap).filter(isStyVar);
-  const substStyVars = Object.keys(subst);
-  // Equal up to permutation (keys of an object in js ensures that there are no dups)
-  return _.isEqual(selStyVars.sort(), substStyVars.sort());
-};
-
 // Check that there are no duplicate keys or vals in the substitution
 export const uniqueKeysAndVals = (subst: Subst): boolean => {
   // All keys already need to be unique in js, so only checking values
   const vals = Object.values(subst);
-  const valsSet = new Set(vals);
+
+  // Here we have to convert every Substance object to a string, so that
+  // Javascript Set can properly ensure uniqueness
+  const valsSet = new Set(vals.map(subObjectToUniqueName));
 
   // All entries were unique if length didn't change (ie the nub didn't change)
   return valsSet.size === vals.length;
@@ -716,196 +537,71 @@ export const uniqueKeysAndVals = (subst: Subst): boolean => {
  * Returns the substitution for a predicate alias
  */
 const getSubPredAliasInstanceName = (
-  pred: ApplyPredicate<A> | ApplyFunction<A> | ApplyConstructor<A>
+  pred: ApplyPredicate<A> | ApplyFunction<A> | ApplyConstructor<A>,
 ): string => {
   let name = pred.name.value;
   for (const arg of pred.args) {
-    if (
-      arg.tag === "ApplyPredicate" ||
-      arg.tag === "ApplyFunction" ||
-      arg.tag === "ApplyConstructor"
-    ) {
-      name = name.concat("_").concat(getSubPredAliasInstanceName(arg));
-    } else if (arg.tag === "Identifier") {
+    if (arg.tag === "Identifier") {
       name = name.concat("_").concat(arg.value);
     }
   }
   return name;
 };
 
-//#region (subregion? TODO fix) Applying a substitution
-// // Apply a substitution to various parts of Style (relational statements, exprs, blocks)
+const toSubType = <T>(type: SelectorType<T>): TypeApp<T> => ({
+  ...type,
+  tag: "TypeApp",
+});
 
-// Recursively walk the tree, looking up and replacing each Style variable encountered with a Substance variable
-// If a Sty var doesn't have a substitution (i.e. substitution map is bad), keep the Sty var and move on
-// COMBAK: return "maybe" if a substitution fails?
-// COMBAK: Add a type for `lv`? It's not used here
-const substituteBform = (
-  lv: LocalVarSubst | undefined,
-  subst: Subst,
-  bform: BindingForm<A>
-): BindingForm<A> => {
-  // theta(B) = ...
-  switch (bform.tag) {
-    case "SubVar": {
-      // Variable in backticks in block or selector (e.g. `X`), so nothing to substitute
-      return bform;
-    }
-    case "StyVar": {
-      // Look up the substitution for the Style variable and return a Substance variable
-      // Returns result of mapping if it exists (y -> x)
-      const res = subst[bform.contents.value];
+const toDomType = <T>(type: SelectorType<T>): Type<T> => ({
+  ...type,
+  tag: "Type",
+});
 
-      if (res) {
-        return {
-          ...bform, // Copy the start/end loc of the original Style variable, since we don't have Substance parse info (COMBAK)
-          tag: "SubVar",
-          contents: {
-            ...bform.contents, // Copy the start/end loc of the original Style variable, since we don't have Substance parse info
-            type: "value",
-            value: res, // COMBAK: double check please
-          },
-        };
-      } else {
-        // Nothing to substitute
-        return bform;
-      }
-    }
-  }
-};
+const toSubDecl = <T>(decl: DeclPattern<T>): Decl<T> => ({
+  ...decl,
+  tag: "Decl",
+  type: toSubType(decl.type),
+  name: decl.id.contents,
+});
 
-const substituteExpr = (subst: Subst, expr: SelExpr<A>): SelExpr<A> => {
-  // theta(B) = ...
-  switch (expr.tag) {
-    case "SEBind": {
-      return {
-        ...expr,
-        contents: substituteBform(undefined, subst, expr.contents),
-      };
-    }
+const toSubBind = <T>(bind: RelBind<T>): Bind<T> => ({
+  ...bind,
+  tag: "Bind",
+  variable: bind.id.contents,
+  expr: toSubExpr(bind.expr),
+});
+
+const toSubExpr = <T>(e: SelExpr<T>): SubExpr<T> => {
+  switch (e.tag) {
     case "SEFunc":
     case "SEValCons":
     case "SEFuncOrValCons": {
-      // COMBAK: Remove SEFuncOrValCons?
-      // theta(f[E]) = f([theta(E)]
-
-      return {
-        ...expr,
-        args: expr.args.map((arg) => substituteExpr(subst, arg)),
-      };
-    }
-  }
-};
-
-const substitutePredArg = (subst: Subst, predArg: PredArg<A>): PredArg<A> => {
-  switch (predArg.tag) {
-    case "RelPred": {
-      return {
-        ...predArg,
-        args: predArg.args.map((arg) => substitutePredArg(subst, arg)),
-      };
-    }
-    case "SEBind": {
-      return {
-        ...predArg,
-        contents: substituteBform(undefined, subst, predArg.contents), // COMBAK: Why is bform here...
-      };
-    }
-  }
-};
-
-// theta(|S_r) = ...
-export const substituteRel = (
-  subst: Subst,
-  rel: RelationPattern<A>
-): RelationPattern<A> => {
-  switch (rel.tag) {
-    case "RelBind": {
-      // theta(B := E) |-> theta(B) := theta(E)
-      return {
-        ...rel,
-        id: substituteBform(undefined, subst, rel.id),
-        expr: substituteExpr(subst, rel.expr),
-      };
-    }
-    case "RelPred": {
-      // theta(Q([a]) = Q([theta(a)])
-      if (rel.alias)
-        return {
-          ...rel,
-          args: rel.args.map((arg) => substitutePredArg(subst, arg)),
-        };
-      else
-        return {
-          ...rel,
-          args: rel.args.map((arg) => substitutePredArg(subst, arg)),
-        };
-    }
-    case "RelField": {
-      return {
-        ...rel,
-        name: substituteBform(undefined, subst, rel.name),
-      };
-    }
-  }
-};
-
-//#endregion (subregion? TODO fix)
-
-// Convert Style expression to Substance expression (for ease of comparison in matching)
-// Note: the env is needed to disambiguate SEFuncOrValCons
-const toSubExpr = <T>(env: Env, e: SelExpr<T>): SubExpr<T> => {
-  switch (e.tag) {
-    case "SEBind": {
-      return e.contents.contents;
-    }
-    case "SEFunc": {
-      return {
-        ...e, // Puts the remnants of e's ASTNode info here -- is that ok?
-        tag: "ApplyFunction",
-        name: e.name,
-        args: e.args.map((e) => toSubExpr(env, e)),
-      };
-    }
-    case "SEValCons": {
-      return {
+      // keep everything as generic Func
+      // since the Substance checker would automatically distinguish
+      // between ValCons and Func.
+      const res: Func<T> = {
         ...e,
-        tag: "ApplyConstructor",
+        tag: "Func",
         name: e.name,
-        args: e.args.map((e) => toSubExpr(env, e)),
-      };
-    }
-    case "SEFuncOrValCons": {
-      let tag: "ApplyFunction" | "ApplyConstructor";
-      if (env.constructors.has(e.name.value)) {
-        tag = "ApplyConstructor";
-      } else if (env.functions.has(e.name.value)) {
-        tag = "ApplyFunction";
-      } else {
-        // TODO: return TypeNotFound instead
-        throw new Error(
-          `Style internal error: expected '${e.name.value}' to be either a constructor or function, but was not found`
-        );
-      }
-      const res: SubExpr<T> = {
-        ...e,
-        tag,
-        name: e.name,
-        args: e.args.map((e) => toSubExpr(env, e)),
+        args: e.args.map((e) => toSubArgExpr(e)),
       };
       return res;
     }
+    default:
+      return toSubArgExpr(e);
   }
 };
 
-const toSubPredArg = <T>(a: PredArg<T>): SubPredArg<T> => {
-  switch (a.tag) {
-    case "SEBind": {
-      return a.contents.contents;
-    }
-    case "RelPred": {
-      return toSubPred(a);
-    }
+const toSubArgExpr = <T>(a: SelArgExpr<T>): SubArgExpr<T> => {
+  if (a.tag === "SelVar") {
+    return a.contents.contents;
+  } else {
+    return {
+      ...a,
+      tag: "LiteralSubExpr",
+      contents: a.contents,
+    };
   }
 };
 
@@ -915,80 +611,19 @@ const toSubPred = <T>(p: RelPred<T>): ApplyPredicate<T> => {
     ...p,
     tag: "ApplyPredicate",
     name: p.name,
-    args: p.args.map(toSubPredArg),
+    args: p.args.map(toSubArgExpr),
   };
-};
-
-const argsEq = (a1: SubPredArg<A>, a2: SubPredArg<A>, env: Env): boolean => {
-  if (a1.tag === "ApplyPredicate" && a2.tag === "ApplyPredicate") {
-    return subFnsEq(a1, a2, env);
-  } else if (a1.tag === a2.tag) {
-    // both are SubExpr, which are not explicitly tagged
-    return subExprsEq(a1 as SubExpr<A>, a2 as SubExpr<A>, env);
-  } else return false; // they are different types
-};
-
-const subFnsEq = (p1: SubPredArg<A>, p2: SubPredArg<A>, env: Env): boolean => {
-  if (!("name" in p1 && "args" in p1 && "name" in p2 && "args" in p2)) {
-    throw Error("expected substance type with name and args properties");
-  }
-
-  if (p1.args.length !== p2.args.length) {
-    return false;
-  }
-
-  // If names do not match, then the predicates aren't equal.
-  if (p1.name.value !== p2.name.value) {
-    return false;
-  }
-
-  // If exact match
-  if (zip2(p1.args, p2.args).every(([a1, a2]) => argsEq(a1, a2, env))) {
-    return true;
-  } else {
-    // Otherwise consider symmetry
-    const predicateDecl = env.predicates.get(p1.name.value);
-    if (predicateDecl && predicateDecl.symmetric) {
-      return zip2(p1.args, [p2.args[1], p2.args[0]]).every(([a1, a2]) =>
-        argsEq(a1, a2, env)
-      );
-    } else {
-      return false;
-    }
-  }
-};
-
-const subExprsEq = (e1: SubExpr<A>, e2: SubExpr<A>, env: Env): boolean => {
-  // ts doesn't seem to work well with the more generic way of checking this
-  if (e1.tag === "Identifier" && e2.tag === "Identifier") {
-    return e1.value === e2.value;
-  } else if (
-    (e1.tag === "ApplyFunction" && e2.tag === "ApplyFunction") ||
-    (e1.tag === "ApplyConstructor" && e2.tag === "ApplyConstructor") ||
-    (e1.tag === "Func" && e2.tag === "Func")
-  ) {
-    return subFnsEq(e1, e2, env);
-  } else if (e1.tag === "Deconstructor" && e2.tag === "Deconstructor") {
-    return (
-      e1.variable.value === e2.variable.value &&
-      e1.field.value === e2.field.value
-    );
-  } else if (e1.tag === "StringLit" && e2.tag === "StringLit") {
-    return e1.contents === e2.contents;
-  }
-
-  return false;
 };
 
 /**
  * Filters the set of substitutions to prevent duplications of matched Substance relations and substitution targets.
  */
 const deduplicate = (
-  typeEnv: Env,
+  typeEnv: DomainEnv,
   subEnv: SubstanceEnv,
   subProg: SubProg<A>,
   rels: RelationPattern<A>[],
-  pSubsts: im.List<[Subst, im.Set<SubStmt<A> | undefined>]>
+  pSubsts: im.List<[Subst, im.Set<SubStmt<A> | undefined>]>,
 ): im.List<Subst> => {
   const initSubsts: im.List<Subst> = im.List();
 
@@ -997,11 +632,13 @@ const deduplicate = (
     substTargets: im.Set<string>;
   };
   const initMatches: im.Set<im.Record<MatchesObject>> = im.Set();
-  const [, goodSubsts] = pSubsts.reduce(
+  const [goodMatches, goodSubsts] = pSubsts.reduce(
     ([currMatches, currSubsts], [subst, matchedSubStmts]) => {
       const record: im.Record<MatchesObject> = im.Record({
         rels: matchedSubStmts,
-        substTargets: im.Set<string>(Object.values(subst)),
+        substTargets: im.Set<string>(
+          Object.values(subst).map(subObjectToUniqueName),
+        ),
       })();
       if (currMatches.includes(record)) {
         return [currMatches, currSubsts];
@@ -1009,7 +646,7 @@ const deduplicate = (
         return [currMatches.add(record), currSubsts.push(subst)];
       }
     },
-    [initMatches, initSubsts]
+    [initMatches, initSubsts],
   );
   return goodSubsts;
 };
@@ -1039,7 +676,7 @@ const combine = (s1: Subst, s2: Subst): Subst => {
  */
 const merge = (
   s1: im.List<[Subst, im.Set<SubStmt<A>>]>,
-  s2: im.List<[Subst, im.Set<SubStmt<A>>]>
+  s2: im.List<[Subst, im.Set<SubStmt<A>>]>,
 ): im.List<[Subst, im.Set<SubStmt<A>>]> => {
   if (s1.size === 0 || s2.size === 0) {
     return im.List();
@@ -1057,9 +694,28 @@ const merge = (
     ([aSubst, aStmts], [bSubst, bStmts]) => [
       combine(aSubst, bSubst),
       aStmts.union(bStmts),
-    ]
+    ],
   );
   return im.List(result);
+};
+
+const sameSubstanceLits = (
+  a: SubstanceLiteral["contents"],
+  b: SubstanceLiteral["contents"],
+): boolean => {
+  return a.contents === b.contents;
+};
+
+const sameSubstanceObjs = (a: SubstanceObject, b: SubstanceObject): boolean => {
+  if (a.tag === "SubstanceVar" && b.tag === "SubstanceVar") {
+    return a.name === b.name;
+  }
+
+  if (a.tag === "SubstanceLiteral" && b.tag === "SubstanceLiteral") {
+    return sameSubstanceLits(a.contents, b.contents);
+  }
+
+  return false;
 };
 
 /**
@@ -1078,39 +734,20 @@ const consistentSubsts = (a: Subst, b: Subst): boolean => {
 
   const overlap = aKeys.intersect(bKeys);
 
-  return overlap.every((key) => {
-    return a[key] === b[key];
-  });
+  return overlap.every((key) => sameSubstanceObjs(a[key], b[key]));
 };
 
-// Judgment 9. G; theta |- T <| |T
-// Assumes types are nullary, so doesn't return a subst, only a bool indicating whether the types matched
-// Ported from `matchType`
-const typesMatched = (
-  varEnv: Env,
-  substanceType: TypeConsApp<A>,
-  styleType: StyT<A>
-): boolean => {
-  if (substanceType.args.length === 0) {
-    // Style type needs to be more generic than Style type
-    return isDeclaredSubtype(substanceType, toSubstanceType(styleType), varEnv);
-  }
-
-  // TODO(errors)
-  throw Error(
-    "internal error: expected two nullary types (parametrized types to be implemented)"
-  );
-};
-
-// Judgment 10. theta |- x <| B
 const matchBvar = (
   subVar: Identifier<A>,
-  bf: BindingForm<A>
+  bf: BindingForm<A>,
 ): Subst | undefined => {
   switch (bf.tag) {
     case "StyVar": {
       const newSubst: Subst = {};
-      newSubst[toString(bf)] = subVar.value; // StyVar matched SubVar
+      newSubst[toString(bf)] = {
+        tag: "SubstanceVar",
+        name: subVar.value,
+      };
       return newSubst;
     }
     case "SubVar": {
@@ -1125,43 +762,94 @@ const matchBvar = (
   }
 };
 
-// Judgment 12. G; theta |- S <| |S_o
-const matchDeclLine = (
-  varEnv: Env,
-  line: SubStmt<A>,
-  decl: DeclPattern<A>
+const matchSelDeclToSubDecl = (
+  selTypeMap: im.Map<string, Type<A>>,
+  subTypeMap: im.Map<string, Type<A>>,
+  domEnv: DomainEnv,
+  selDecl: DeclPattern<A>,
+  subDecl: Decl<A>,
 ): Subst | undefined => {
-  if (line.tag === "Decl") {
-    const [subT, subVar] = [line.type, line.name];
-    const [styT, bvar] = [decl.type, decl.id];
+  const subVar = subDecl.name;
+  const selVar = selDecl.id;
 
-    // substitution is only valid if types matched first
-    if (typesMatched(varEnv, subT, styT)) {
-      return matchBvar(subVar, bvar);
-    }
+  const subType = subTypeMap.get(subVar.value)!;
+  const selType = selTypeMap.get(selVar.contents.value)!;
+
+  // substitution is only valid if types matched first
+  if (isSubtype(subType, selType, domEnv)) {
+    return matchBvar(subVar, selVar);
   }
-
-  // Sty decls only match Sub decls
-  return undefined;
 };
 
-// Judgment 16. G; [theta] |- [S] <| [|S_o] ~> [theta']
-const matchDecl = (
-  varEnv: Env,
-  subProg: SubProg<A>,
-  decl: DeclPattern<A>
+const matchSelDeclToSubDecls = (
+  selTypeMap: im.Map<string, Type<A>>,
+  subTypeMap: im.Map<string, Type<A>>,
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
+  decl: DeclPattern<A>,
+  subProg: CompiledSubProg<A>,
 ): im.List<Subst> => {
+  if (isLiteralType(toDomType(decl.type)) && decl.id.tag === "StyVar") {
+    // special handling for literal types
+
+    // only look at Substance literals with the right type
+    const expectedTag =
+      decl.type.name.value === "String" ? "StringLit" : "NumberConstant";
+    const lits = subEnv.literals.filter((l) => l.contents.tag === expectedTag);
+
+    // match all of the Substance literals
+    return im.List(
+      lits.map((l) => {
+        const subst: Subst = {};
+        subst[toString(decl.id)] = toSelSubstanceLiteral(l);
+        return subst;
+      }),
+    );
+  }
+
   const initDSubsts: im.List<Subst> = im.List();
-  // Judgment 14. G; [theta] |- [S] <| |S_o
-  const newDSubsts = subProg.statements.reduce((dSubsts, line) => {
-    const subst = matchDeclLine(varEnv, line, decl);
-    if (subst === undefined) {
-      return dSubsts;
-    } else {
-      return dSubsts.push(subst);
-    }
-  }, initDSubsts);
+  const newDSubsts = subProg.statements.reduce(
+    (dSubsts, line: CompiledSubStmt<A>) => {
+      if (line.tag !== "Decl") {
+        return dSubsts;
+      }
+      const subst = matchSelDeclToSubDecl(
+        selTypeMap,
+        subTypeMap,
+        domEnv,
+        decl,
+        line,
+      );
+      if (subst === undefined) {
+        return dSubsts;
+      } else {
+        return dSubsts.push(subst);
+      }
+    },
+    initDSubsts,
+  );
   return newDSubsts;
+};
+
+const toSelSubstanceLiteral = (e: LiteralSubExpr<A>): SubstanceLiteral => {
+  const lit = e.contents;
+  if (lit.tag === "StringLit") {
+    return {
+      tag: "SubstanceLiteral",
+      contents: {
+        tag: "SubstanceString",
+        contents: lit.contents,
+      },
+    };
+  } else {
+    return {
+      tag: "SubstanceLiteral",
+      contents: {
+        tag: "SubstanceNumber",
+        contents: lit.contents,
+      },
+    };
+  }
 };
 
 /**
@@ -1170,70 +858,85 @@ const matchDecl = (
  * @returns If the `styArg` and `subArg` match, return a `Subst` that maps variable(s) in styArg into variable(s) in subArg. Return `undefined` otherwise.
  */
 const matchStyArgToSubArg = (
-  styTypeMap: { [k: string]: StyT<A> },
-  subTypeMap: { [k: string]: TypeConsApp<A> },
-  varEnv: Env,
-  styArg: PredArg<A> | SelExpr<A>,
-  subArg: SubPredArg<A> | SubExpr<A>
+  styTypeMap: im.Map<string, Type<A>>,
+  subTypeMap: im.Map<string, Type<A>>,
+  domEnv: DomainEnv,
+  styArg: SelArgExpr<A>,
+  subArg: SubArgExpr<A>,
 ): Subst[] => {
-  if (styArg.tag === "SEBind" && subArg.tag === "Identifier") {
+  if (styArg.tag === "SelVar") {
     const styBForm = styArg.contents;
-    if (styBForm.tag === "StyVar") {
-      const styArgName = styBForm.contents.value;
+    const styArgName = styBForm.contents.value;
+    const styArgType = styTypeMap.get(styArgName)!;
+    if (subArg.tag === "Identifier") {
+      // CASE 1: Matching a Selector variable against a Substance variable
+
       const subArgName = subArg.value;
 
       // check types
-      const styArgType = styTypeMap[styArgName];
-      const subArgType = subTypeMap[subArgName];
-      if (typesMatched(varEnv, subArgType, styArgType)) {
-        const rSubst: Subst = {};
-        rSubst[styArgName] = subArgName;
-        return [rSubst];
+      const subArgType = subTypeMap.get(subArgName)!;
+
+      if (styBForm.tag === "StyVar") {
+        // If this is StyVar and the types match, then construct the substitution.
+        if (isSubtype(subArgType, styArgType, domEnv)) {
+          const rSubst: Subst = {};
+          rSubst[styArgName] = { tag: "SubstanceVar", name: subArgName };
+          return [rSubst];
+        } else {
+          return [];
+        }
+      } /* (styBForm.tag === "SubVar") */ else {
+        // If this is SubVar, we need to make sure that the name is the same and that the types match
+        if (subArg.value === styBForm.contents.value) {
+          if (isSubtype(subArgType, styArgType, domEnv)) {
+            // The result is a valid match.
+            // This is an empty substitution because a substitution only maps Style variables
+            // to substance variables.
+            return [{}];
+          } else {
+            // invalid match
+            return [];
+          }
+        } else {
+          return [];
+        }
+      }
+    } else {
+      // CASE 2: Matching a Selector variable against a Substance literal
+      const lit = subArg.contents;
+
+      const subArgType = lit.tag === "StringLit" ? stringType : numberType;
+      if (styBForm.tag === "StyVar") {
+        if (isSubtype(subArgType, styArgType, domEnv)) {
+          const rSubst: Subst = {};
+          rSubst[styArgName] = toSelSubstanceLiteral(subArg);
+          return [rSubst];
+        } else {
+          return [];
+        }
       } else {
+        // Substance variables cannot match literals
         return [];
       }
-    } /* (styBForm.tag === "SubVar") */ else {
-      if (subArg.value === styBForm.contents.value) {
+    }
+  } else {
+    const selLit = styArg.contents;
+
+    if (subArg.tag === "LiteralSubExpr") {
+      // CASE 3: Matching a Selector literal against a Substance literal
+
+      // requires that the type and values are equal
+      const subLit = subArg.contents;
+      if (selLit.tag === subLit.tag && selLit.contents === subLit.contents) {
         return [{}];
       } else {
         return [];
       }
+    } else {
+      // CASE 4: Matching a Selector literal against a Substance variable
+      return [];
     }
   }
-  if (styArg.tag === "RelPred" && subArg.tag === "ApplyPredicate") {
-    return matchStyApplyToSubApply(
-      styTypeMap,
-      subTypeMap,
-      varEnv,
-      styArg,
-      subArg
-    );
-  }
-  if (
-    subArg.tag === "ApplyConstructor" &&
-    (styArg.tag === "SEValCons" || styArg.tag === "SEFuncOrValCons")
-  ) {
-    return matchStyApplyToSubApply(
-      styTypeMap,
-      subTypeMap,
-      varEnv,
-      styArg,
-      subArg
-    );
-  }
-  if (
-    subArg.tag === "ApplyFunction" &&
-    (styArg.tag === "SEValCons" || styArg.tag === "SEFuncOrValCons")
-  ) {
-    return matchStyApplyToSubApply(
-      styTypeMap,
-      subTypeMap,
-      varEnv,
-      styArg,
-      subArg
-    );
-  }
-  return [];
 };
 
 /**
@@ -1241,16 +944,13 @@ const matchStyArgToSubArg = (
  * @returns If all arguments match, return a `Subst[]` that contains mappings which map the Style variable(s) against Substance variable(s). If any arguments fail to match, return [].
  */
 const matchStyArgsToSubArgs = (
-  styTypeMap: { [k: string]: StyT<A> },
-  subTypeMap: { [k: string]: TypeConsApp<A> },
-  varEnv: Env,
-  styArgs: PredArg<A>[] | SelExpr<A>[],
-  subArgs: SubPredArg<A>[] | SubExpr<A>[]
+  styTypeMap: im.Map<string, Type<A>>,
+  subTypeMap: im.Map<string, Type<A>>,
+  varEnv: DomainEnv,
+  styArgs: SelArgExpr<A>[],
+  subArgs: SubArgExpr<A>[],
 ): Subst[] => {
-  const stySubArgPairs = zip2<
-    PredArg<A> | SelExpr<A>,
-    SubPredArg<A> | SubExpr<A>
-  >(styArgs, subArgs);
+  const stySubArgPairs = zip2<SelArgExpr<A>, SubArgExpr<A>>(styArgs, subArgs);
 
   const substsForEachArg = stySubArgPairs.map(([styArg, subArg]) => {
     const argSubsts = matchStyArgToSubArg(
@@ -1258,7 +958,7 @@ const matchStyArgsToSubArgs = (
       subTypeMap,
       varEnv,
       styArg,
-      subArg
+      subArg,
     );
     return argSubsts;
   });
@@ -1279,14 +979,14 @@ const matchStyArgsToSubArgs = (
           currSubsts,
           substsForArg,
           (aSubst, bSubst) => consistentSubsts(aSubst, bSubst),
-          (aSubst, bSubst) => combine(aSubst, bSubst)
+          (aSubst, bSubst) => combine(aSubst, bSubst),
         );
       },
-      first
+      first,
     );
     return substs;
   } else {
-    return [];
+    return [{}];
   }
 };
 
@@ -1304,11 +1004,11 @@ const matchStyArgsToSubArgs = (
  * This works with Functions, Predicates, and Constructors.
  */
 const matchStyApplyToSubApply = (
-  styTypeMap: { [k: string]: StyT<A> },
-  subTypeMap: { [k: string]: TypeConsApp<A> },
-  varEnv: Env,
-  styRel: RelPred<A> | SelExpr<A>,
-  subRel: ApplyPredicate<A> | SubExpr<A>
+  styTypeMap: im.Map<string, Type<A>>,
+  subTypeMap: im.Map<string, Type<A>>,
+  varEnv: DomainEnv,
+  styRel: RelPred<A> | SEFunc<A> | SEValCons<A> | SEFuncOrValCons<A>,
+  subRel: ApplyPredicate<A> | ApplyConstructor<A> | ApplyFunction<A>,
 ): Subst[] => {
   // Predicate Applications
   if (styRel.tag === "RelPred" && subRel.tag === "ApplyPredicate") {
@@ -1323,12 +1023,12 @@ const matchStyApplyToSubApply = (
       subTypeMap,
       varEnv,
       styRel.args,
-      subRel.args
+      subRel.args,
     );
 
     // Consider the symmetric, flipped-argument version
     let rSubstSymmetric = undefined;
-    const predicateDecl = varEnv.predicates.get(subRel.name.value);
+    const predicateDecl = varEnv.predicateDecls.get(subRel.name.value);
     if (predicateDecl && predicateDecl.symmetric) {
       // Flip arguments
       const flippedStyArgs = [styRel.args[1], styRel.args[0]];
@@ -1337,7 +1037,7 @@ const matchStyApplyToSubApply = (
         subTypeMap,
         varEnv,
         flippedStyArgs,
-        subRel.args
+        subRel.args,
       );
     }
 
@@ -1352,7 +1052,10 @@ const matchStyApplyToSubApply = (
       const aliasName = styRel.alias.value;
       return rSubsts.map((rSubst) => {
         const rSubstWithAlias = { ...rSubst };
-        rSubstWithAlias[aliasName] = getSubPredAliasInstanceName(subRel);
+        rSubstWithAlias[aliasName] = {
+          tag: "SubstanceVar",
+          name: getSubPredAliasInstanceName(subRel),
+        };
         return rSubstWithAlias;
       });
     }
@@ -1363,7 +1066,7 @@ const matchStyApplyToSubApply = (
     (subRel.tag === "ApplyConstructor" &&
       (styRel.tag === "SEValCons" || styRel.tag === "SEFuncOrValCons")) ||
     (subRel.tag === "ApplyFunction" &&
-      (styRel.tag === "SEValCons" || styRel.tag === "SEFuncOrValCons"))
+      (styRel.tag === "SEFunc" || styRel.tag === "SEFuncOrValCons"))
   ) {
     // If names do not match up, this is an invalid matching. No substitution.
     if (subRel.name.value !== styRel.name.value) {
@@ -1374,10 +1077,45 @@ const matchStyApplyToSubApply = (
       subTypeMap,
       varEnv,
       styRel.args,
-      subRel.args
+      subRel.args,
     );
     return rSubst;
   }
+  return [];
+};
+
+const matchSelExprToSubExpr = (
+  selTypeMap: im.Map<string, Type<A>>,
+  subTypeMap: im.Map<string, Type<A>>,
+  domEnv: DomainEnv,
+  selExpr: SelExpr<A>,
+  subExpr: SubExpr<A>,
+): Subst[] => {
+  if (selExpr.tag === "SelVar" && subExpr.tag === "Identifier") {
+    return matchStyArgToSubArg(
+      selTypeMap,
+      subTypeMap,
+      domEnv,
+      selExpr,
+      subExpr,
+    );
+  }
+
+  if (
+    (subExpr.tag === "ApplyConstructor" &&
+      (selExpr.tag === "SEValCons" || selExpr.tag === "SEFuncOrValCons")) ||
+    (subExpr.tag === "ApplyFunction" &&
+      (selExpr.tag === "SEFunc" || selExpr.tag === "SEFuncOrValCons"))
+  ) {
+    return matchStyApplyToSubApply(
+      selTypeMap,
+      subTypeMap,
+      domEnv,
+      selExpr,
+      subExpr,
+    );
+  }
+
   return [];
 };
 
@@ -1391,23 +1129,23 @@ const matchStyApplyToSubApply = (
  * and `A` indeed has `label`, then we return { a: A }. Otherwise, return `undefined`.
  */
 const matchRelField = (
-  styTypeMap: { [k: string]: StyT<A> },
-  subTypeMap: { [k: string]: TypeConsApp<A> },
-  varEnv: Env,
+  styTypeMap: im.Map<string, Type<A>>,
+  subTypeMap: im.Map<string, Type<A>>,
+  domEnv: DomainEnv,
   subEnv: SubstanceEnv,
   rel: RelField<A>,
-  subDecl: Decl<A>
+  subDecl: Decl<A>,
 ): Subst | undefined => {
   const styName = toString(rel.name);
-  const styType = styTypeMap[styName];
+  const styType = styTypeMap.get(styName)!;
   const subName = subDecl.name.value;
-  const subType = subTypeMap[subName];
-  if (typesMatched(varEnv, subType, styType)) {
+  const subType = subTypeMap.get(subName)!;
+  if (isSubtype(subType, styType, domEnv)) {
     const fieldDesc = rel.fieldDescriptor;
     const label = subEnv.labels.get(subName);
     if (label) {
       const rSubst: Subst = {};
-      rSubst[styName] = subName;
+      rSubst[styName] = { tag: "SubstanceVar", name: subName };
       if (fieldDesc) {
         return label.type === fieldDesc ? rSubst : undefined;
       } else {
@@ -1421,17 +1159,21 @@ const matchRelField = (
   }
 };
 
-const getStyPredOrFuncOrConsArgNames = (
-  arg: PredArg<A> | SelExpr<A>
-): im.Set<string> => {
+const getArgNames = (arg: RelPred<A> | SelExpr<A>): im.Set<string> => {
   if (arg.tag === "RelPred") {
     return getStyRelArgNames(arg);
-  } else if (arg.tag === "SEBind") {
+  } else if (arg.tag === "SelVar") {
     return im.Set<string>().add(toString(arg.contents));
-  } else {
+  } else if (
+    arg.tag === "SEFunc" ||
+    arg.tag === "SEFuncOrValCons" ||
+    arg.tag === "SEValCons"
+  ) {
     return arg.args.reduce((argNames, arg) => {
-      return argNames.union(getStyPredOrFuncOrConsArgNames(arg));
+      return argNames.union(getArgNames(arg));
     }, im.Set<string>());
+  } else {
+    return im.Set<string>();
   }
 };
 
@@ -1439,11 +1181,11 @@ const getStyRelArgNames = (rel: RelationPattern<A>): im.Set<string> => {
   const initArgNames: im.Set<string> = im.Set();
   if (rel.tag === "RelPred") {
     return rel.args.reduce((argNames, arg) => {
-      return argNames.union(getStyPredOrFuncOrConsArgNames(arg));
+      return argNames.union(getArgNames(arg));
     }, initArgNames);
   } else if (rel.tag === "RelBind") {
     const bindedName = toString(rel.id);
-    return getStyPredOrFuncOrConsArgNames(rel.expr).add(bindedName);
+    return getArgNames(rel.expr).add(bindedName);
   } else {
     return initArgNames.add(toString(rel.name));
   }
@@ -1455,19 +1197,19 @@ const getStyRelArgNames = (rel: RelationPattern<A>): im.Set<string> => {
  * and `rSubsts` is a list of [subst, subStmt] where `subst` is the variable mapping, and `subStmt` is the corresponding matched Substance statement.
  */
 const matchStyRelToSubRels = (
-  styTypeMap: { [k: string]: StyT<A> },
-  subTypeMap: { [k: string]: TypeConsApp<A> },
-  varEnv: Env,
+  styTypeMap: im.Map<string, Type<A>>,
+  subTypeMap: im.Map<string, Type<A>>,
+  varEnv: DomainEnv,
   subEnv: SubstanceEnv,
   rel: RelationPattern<A>,
-  subProg: SubProg<A>
-): [im.Set<string>, im.List<[Subst, im.Set<SubStmt<A>>]>] => {
+  subProg: CompiledSubProg<A>,
+): [im.Set<string>, im.List<[Subst, im.Set<CompiledSubStmt<A>>]>] => {
   const initUsedStyVars = im.Set<string>();
-  const initRSubsts = im.List<[Subst, im.Set<SubStmt<A>>]>();
+  const initRSubsts = im.List<[Subst, im.Set<CompiledSubStmt<A>>]>();
   if (rel.tag === "RelPred") {
     const styPred = rel;
     const newRSubsts = subProg.statements.reduce(
-      (rSubsts, statement: SubStmt<A>) => {
+      (rSubsts, statement: CompiledSubStmt<A>) => {
         if (statement.tag !== "ApplyPredicate") {
           return rSubsts;
         }
@@ -1476,17 +1218,17 @@ const matchStyRelToSubRels = (
           subTypeMap,
           varEnv,
           styPred,
-          statement
+          statement,
         );
 
         return rSubstsForPred.reduce((rSubsts, rSubstForPred) => {
           return rSubsts.push([
             rSubstForPred,
-            im.Set<SubStmt<A>>().add(statement),
+            im.Set<CompiledSubStmt<A>>().add(statement),
           ]);
         }, rSubsts);
       },
-      initRSubsts
+      initRSubsts,
     );
     return [getStyRelArgNames(rel), newRSubsts];
   } else if (rel.tag === "RelBind") {
@@ -1500,21 +1242,33 @@ const matchStyRelToSubRels = (
       }
       const { variable: subBindedVar, expr: subBindedExpr } = statement;
       const subBindedName = subBindedVar.value;
+
+      // need to check type for binded variable
+      const subBindedVarType = subTypeMap.get(subBindedName)!;
+      const styBindedVarType = styTypeMap.get(styBindedName)!;
+      // if binded variable types don't match then this is not a valid substitution
+      if (!isSubtype(subBindedVarType, styBindedVarType, varEnv)) {
+        return rSubsts;
+      }
+
       // substitutions for RHS expression
-      const rSubstsForExpr = matchStyApplyToSubApply(
+      const rSubstsForExpr = matchSelExprToSubExpr(
         styTypeMap,
         subTypeMap,
         varEnv,
         styBindedExpr,
-        subBindedExpr
+        subBindedExpr,
       );
 
       return rSubstsForExpr.reduce((rSubsts, rSubstForExpr) => {
         const rSubstForBind = { ...rSubstForExpr };
-        rSubstForBind[styBindedName] = subBindedName;
+        rSubstForBind[styBindedName] = {
+          tag: "SubstanceVar",
+          name: subBindedName,
+        };
         return rSubsts.push([
           rSubstForBind,
-          im.Set<SubStmt<A>>().add(statement),
+          im.Set<CompiledSubStmt<A>>().add(statement),
         ]);
       }, rSubsts);
     }, initRSubsts);
@@ -1529,12 +1283,12 @@ const matchStyRelToSubRels = (
           varEnv,
           subEnv,
           rel,
-          statement
+          statement,
         );
         if (rSubst === undefined) {
           return rSubsts;
         } else {
-          return rSubsts.push([rSubst, im.Set<SubStmt<A>>()]);
+          return rSubsts.push([rSubst, im.Set<CompiledSubStmt<A>>()]);
         }
       } else {
         return rSubsts;
@@ -1561,12 +1315,12 @@ const matchStyRelToSubRels = (
  * substitution itself and the matched Substance statement.
  */
 const makeListRSubstsForStyleRels = (
-  styTypeMap: { [k: string]: StyT<A> },
-  subTypeMap: { [k: string]: TypeConsApp<A> },
-  varEnv: Env,
+  styTypeMap: im.Map<string, Type<A>>,
+  subTypeMap: im.Map<string, Type<A>>,
+  varEnv: DomainEnv,
   subEnv: SubstanceEnv,
   rels: RelationPattern<A>[],
-  subProg: SubProg<A>
+  subProg: CompiledSubProg<A>,
 ): [im.Set<string>, im.List<im.List<[Subst, im.Set<SubStmt<A>>]>>] => {
   const initUsedStyVars: im.Set<string> = im.Set();
   const initListRSubsts: im.List<im.List<[Subst, im.Set<SubStmt<A>>]>> =
@@ -1580,11 +1334,11 @@ const makeListRSubstsForStyleRels = (
         varEnv,
         subEnv,
         rel,
-        subProg
+        subProg,
       );
       return [usedStyVars.union(relUsedStyVars), listRSubsts.push(relRSubsts)];
     },
-    [initUsedStyVars, initListRSubsts]
+    [initUsedStyVars, initListRSubsts],
   );
 
   return [newUsedStyVars, newListRSubsts];
@@ -1594,41 +1348,38 @@ const makeListRSubstsForStyleRels = (
  * First match the relations. Then, match free Style variables. Finally, merge all substitutions together.
  */
 const makePotentialSubsts = (
-  varEnv: Env,
-  selEnv: SelEnv,
+  domEnv: DomainEnv,
+  selEnv: SelectorEnv,
   subEnv: SubstanceEnv,
-  subProg: SubProg<A>,
+  subProg: CompiledSubProg<A>,
   decls: DeclPattern<A>[],
-  rels: RelationPattern<A>[]
+  rels: RelationPattern<A>[],
 ): im.List<[Subst, im.Set<SubStmt<A>>]> => {
-  const subTypeMap = subProg.statements.reduce<{ [k: string]: TypeConsApp<A> }>(
-    (result, statement) => {
-      if (statement.tag === "Decl") {
-        result[statement.name.value] = statement.type;
-        return result;
-      } else {
-        return result;
-      }
-    },
-    {}
-  );
-  const styTypeMap: { [k: string]: StyT<A> } = selEnv.sTypeVarMap;
+  const selTypeMap = selEnv.objs;
+  const subTypeMap = subEnv.objs;
   const [usedStyVars, listRSubsts] = makeListRSubstsForStyleRels(
-    styTypeMap,
+    selTypeMap,
     subTypeMap,
-    varEnv,
+    domEnv,
     subEnv,
     rels,
-    subProg
+    subProg,
   );
   // Add in variables that are not present in the relations.
   const listPSubsts = decls.reduce((currListPSubsts, decl) => {
     if (usedStyVars.includes(decl.id.contents.value)) {
       return currListPSubsts;
     } else {
-      const pSubsts = matchDecl(varEnv, subProg, decl);
+      const pSubsts = matchSelDeclToSubDecls(
+        selTypeMap,
+        subTypeMap,
+        domEnv,
+        subEnv,
+        decl,
+        subProg,
+      );
       return currListPSubsts.push(
-        pSubsts.map((pSubst) => [pSubst, im.Set<SubStmt<A>>()])
+        pSubsts.map((pSubst) => [pSubst, im.Set<SubStmt<A>>()]),
       );
     }
   }, listRSubsts);
@@ -1636,12 +1387,12 @@ const makePotentialSubsts = (
   if (listPSubsts.some((pSubsts) => pSubsts.size === 0)) {
     return im.List();
   }
-
   const first = listPSubsts.first();
   if (first) {
     const substs = listPSubsts.shift().reduce((currSubsts, pSubsts) => {
       return merge(currSubsts, pSubsts);
     }, first);
+
     return substs;
   } else {
     return im.List();
@@ -1661,53 +1412,66 @@ const getDecls = (header: Collector<A> | Selector<A>): DeclPattern<A>[] => {
 };
 
 const getSubsts = (
-  varEnv: Env,
+  domEnv: DomainEnv,
   subEnv: SubstanceEnv,
-  selEnv: SelEnv,
-  subProg: SubProg<A>,
-  header: Collector<A> | Selector<A>
+  selEnv: SelectorEnv,
+  header: Collector<A> | Selector<A>,
 ): Subst[] => {
+  const subProg = subEnv.ast;
   const decls = getDecls(header);
   const rels = safeContentsList(header.where);
   const rawSubsts = makePotentialSubsts(
-    varEnv,
+    domEnv,
     selEnv,
     subEnv,
     subProg,
     decls,
-    rels
+    rels,
   );
   log.debug("total number of raw substs: ", rawSubsts.size);
-
   // Ensures there are no duplicated substitutions in terms of both
   // matched relations and substitution targets.
-  const filteredSubsts = deduplicate(varEnv, subEnv, subProg, rels, rawSubsts);
-  const correctSubsts = filteredSubsts.filter(uniqueKeysAndVals);
+  const filteredSubsts = deduplicate(domEnv, subEnv, subProg, rels, rawSubsts);
+  const { repeatable } = header;
 
-  return correctSubsts.toArray();
+  // If we want repeatable matchings, this is good
+  if (repeatable) {
+    return filteredSubsts.toArray();
+  } else {
+    // Otherwise need to remove all duplications
+    const correctSubsts = filteredSubsts.filter(uniqueKeysAndVals);
+    return correctSubsts.toArray();
+  }
 };
 
 type GroupbyBucket = {
   groupbySubst: Subst;
-  contents: string[];
+  contents: SubstanceObject[];
 };
 
 const collectSubsts = (
   substs: Subst[],
   toCollect: string,
   collectInto: string,
-  groupbys: string[]
+  groupbys: string[],
 ): CollectionSubst[] => {
   const buckets: Map<string, GroupbyBucket> = new Map();
 
   for (const subst of substs) {
     const toCollectVal = subst[toCollect];
+
+    // these are the values of each of the variables in `groupby` within the current subst
+    // this is essentially the key of the corresponding GroupBy bucket
     const groupbyVals = groupbys.map((groupby) => subst[groupby]);
 
-    const groupbyVals_str = groupbyVals.join(" ");
+    // unique string identification of each realization of the variable in the foreach (groupby) clause
+    // this is the actual key
+    const groupbyVals_str = groupbyVals.map(subObjectToUniqueName).join(" ");
 
+    // get the bucket
     const bucket = buckets.get(groupbyVals_str);
 
+    // add the value to collected (`toCollectVal`) into the correct bucket
     if (bucket === undefined) {
       buckets.set(groupbyVals_str, {
         groupbySubst: Object.fromEntries(zip2(groupbys, groupbyVals)),
@@ -1730,19 +1494,19 @@ const collectSubsts = (
   return collectionSubsts;
 };
 
-const findSubstsSel = (
-  varEnv: Env,
+const findHeaderSubsts = (
+  domEnv: DomainEnv,
   subEnv: SubstanceEnv,
-  subProg: SubProg<A>,
-  [header, selEnv]: [Header<A>, SelEnv]
+  selEnv: SelectorEnv,
+  header: Header<A>,
 ): StySubst[] => {
   if (header.tag === "Selector") {
-    return getSubsts(varEnv, subEnv, selEnv, subProg, header).map((subst) => ({
+    return getSubsts(domEnv, subEnv, selEnv, header).map((subst) => ({
       tag: "StySubSubst",
       contents: subst,
     }));
   } else if (header.tag === "Collector") {
-    const substs = getSubsts(varEnv, subEnv, selEnv, subProg, header);
+    const substs = getSubsts(domEnv, subEnv, selEnv, header);
     const toCollect = header.head.id.contents.value;
     const collectInto = header.into.contents.value;
     const groupbys = header.foreach
@@ -1769,7 +1533,7 @@ const updateExpr = (
   errTagGlobal: "AssignGlobalError" | "DeleteGlobalError",
   errTagSubstance: "AssignSubstanceError" | "DeleteSubstanceError",
   // this function performs the actual dictionary updates. `updateExpr` only needs to extract the path to pass to `f`.
-  f: (field: Field, prop: PropID | undefined, fielded: FieldDict) => FieldedRes
+  f: (field: Field, prop: PropID | undefined, fielded: FieldDict) => FieldedRes,
 ): BlockAssignment => {
   switch (path.tag) {
     case "Global": {
@@ -1778,7 +1542,7 @@ const updateExpr = (
       } else if (path.members.length > 2) {
         return addDiags(
           oneErr({ tag: "PropertyMemberError", path }),
-          assignment
+          assignment,
         );
       }
       const field = path.members[0].value;
@@ -1799,7 +1563,7 @@ const updateExpr = (
       if (path.members.length > 1) {
         return addDiags(
           oneErr({ tag: "PropertyMemberError", path }),
-          assignment
+          assignment,
         );
       }
       // remember, we don't use `--noUncheckedIndexedAccess`
@@ -1818,7 +1582,7 @@ const updateExpr = (
       } else if (path.members.length > 2) {
         return addDiags(
           oneErr({ tag: "PropertyMemberError", path }),
-          assignment
+          assignment,
         );
       }
       const field = path.members[0].value;
@@ -1840,7 +1604,7 @@ const updateExpr = (
 
 const processExpr = (
   context: Context,
-  expr: Expr<C>
+  expr: Expr<C>,
 ): Result<FieldSource, StyleError> => {
   if (expr.tag !== "GPIDecl") {
     return ok({ tag: "OtherSource", expr: { context, expr } });
@@ -1857,7 +1621,7 @@ const processExpr = (
       }
       return ok(m.set(name.value, { context, expr: value }));
     },
-    ok(im.Map())
+    ok(im.Map()),
   );
   return andThen((props) => ok({ tag: "ShapeSource", shapeType, props }), res);
 };
@@ -1866,7 +1630,7 @@ const insertExpr = (
   block: BlockInfo,
   path: ResolvedPath<C>,
   expr: Expr<C>,
-  assignment: BlockAssignment
+  assignment: BlockAssignment,
 ): BlockAssignment =>
   updateExpr(
     path,
@@ -1878,7 +1642,7 @@ const insertExpr = (
       if (prop === undefined) {
         const source = processExpr(
           { ...block, locals: assignment.locals },
-          expr
+          expr,
         );
         if (source.isErr()) {
           return err(source.error);
@@ -1912,12 +1676,12 @@ const insertExpr = (
           warns,
         });
       }
-    }
+    },
   );
 
 const deleteExpr = (
   path: ResolvedPath<C>,
-  assignment: BlockAssignment
+  assignment: BlockAssignment,
 ): BlockAssignment =>
   updateExpr(
     path,
@@ -1946,13 +1710,13 @@ const deleteExpr = (
           warns: [],
         });
       }
-    }
+    },
   );
 
 const resolveLhsName = (
   { block, subst }: BlockInfo,
   assignment: BlockAssignment,
-  name: BindingForm<C>
+  name: BindingForm<C>,
 ): ResolvedName => {
   const { value } = name.contents;
   switch (name.tag) {
@@ -1962,9 +1726,17 @@ const resolveLhsName = (
         return { tag: "Local", block, name: value };
       } else if (subst.tag === "StySubSubst" && value in subst.contents) {
         // selector match names shadow globals
-        return { tag: "Substance", block, name: subst.contents[value] };
+        return {
+          tag: "Substance",
+          block,
+          name: subObjectToUniqueName(subst.contents[value]),
+        };
       } else if (subst.tag === "CollectionSubst" && value in subst.groupby) {
-        return { tag: "Substance", block, name: subst.groupby[value] };
+        return {
+          tag: "Substance",
+          block,
+          name: subObjectToUniqueName(subst.groupby[value]),
+        };
       } else if (assignment.globals.has(value)) {
         return { tag: "Global", block, name: value };
       } else {
@@ -1981,7 +1753,7 @@ const resolveLhsName = (
 const resolveLhsPath = (
   block: BlockInfo,
   assignment: BlockAssignment,
-  path: Path<C>
+  path: Path<C>,
 ): Result<ResolvedPath<C>, StyleError> => {
   const { start, end, name, members, indices } = path;
   return indices.length > 0
@@ -1998,7 +1770,7 @@ const processStmt = (
   block: BlockInfo,
   index: number,
   stmt: Stmt<C>,
-  assignment: BlockAssignment
+  assignment: BlockAssignment,
 ): BlockAssignment => {
   switch (stmt.tag) {
     case "PathAssign": {
@@ -2019,7 +1791,7 @@ const processStmt = (
         block,
         path.value,
         stmt.value,
-        deleteExpr(path.value, assignment)
+        deleteExpr(path.value, assignment),
       );
     }
     case "Delete": {
@@ -2044,7 +1816,7 @@ const processStmt = (
           members: [],
         },
         stmt.contents,
-        assignment
+        assignment,
       );
     }
   }
@@ -2053,7 +1825,7 @@ const processStmt = (
 const blockId = (
   blockIndex: number,
   substIndex: number,
-  header: Header<A>
+  header: Header<A>,
 ): LocalVarSubst => {
   switch (header.tag) {
     case "Selector":
@@ -2106,11 +1878,11 @@ const makeFakeIntPathAssign = (name: string, value: number): PathAssign<C> => {
 };
 
 const processBlock = (
-  varEnv: Env,
+  varEnv: DomainEnv,
   subEnv: SubstanceEnv,
   blockIndex: number,
   hb: HeaderBlock<C>,
-  assignment: Assignment
+  assignment: Assignment,
 ): Assignment => {
   // Run static checks first
   const selEnv = checkHeader(varEnv, hb.header);
@@ -2121,7 +1893,7 @@ const processBlock = (
     return withSelErrors;
   }
 
-  const substs = findSubstsSel(varEnv, subEnv, subEnv.ast, [hb.header, selEnv]);
+  const substs = findHeaderSubsts(varEnv, subEnv, selEnv, hb.header);
   log.debug("Translating block", hb, "with substitutions", substs);
   log.debug("total number of substs", substs.length);
   // OPTIMIZE: maybe we should just compile the block once into something
@@ -2137,7 +1909,7 @@ const processBlock = (
           redeclareNamespaceError(block.contents, {
             start: hb.header.start,
             end: hb.header.end,
-          })
+          }),
         );
       } else {
         // prepopulate with an empty namespace if it doesn't exist
@@ -2150,7 +1922,7 @@ const processBlock = (
 
     const matchTotalAssignment = makeFakeIntPathAssign(
       "match_total",
-      substs.length
+      substs.length,
     );
 
     const augmentedStatements = im
@@ -2164,7 +1936,7 @@ const processBlock = (
       augmentedStatements.reduce(
         (assignment, stmt, stmtIndex) =>
           processStmt({ block, subst }, stmtIndex, stmt, assignment),
-        withLocals
+        withLocals,
       );
 
     switch (block.tag) {
@@ -2190,9 +1962,9 @@ const processBlock = (
 };
 
 export const buildAssignment = (
-  varEnv: Env,
+  varEnv: DomainEnv,
   subEnv: SubstanceEnv,
-  styProg: StyProg<C>
+  styProg: StyProg<C>,
 ): Assignment => {
   // insert Substance label string; use dummy AST node location pattern from
   // `engine/ParserUtil`
@@ -2226,7 +1998,7 @@ export const buildAssignment = (
             },
           },
         ],
-      ])
+      ]),
     ),
   };
   return styProg.items.reduce(
@@ -2234,7 +2006,7 @@ export const buildAssignment = (
       item.tag === "HeaderBlock"
         ? processBlock(varEnv, subEnv, index, item, assignment)
         : assignment,
-    assignment
+    assignment,
   );
 };
 
@@ -2268,7 +2040,7 @@ const findPathsExpr = <T>(expr: Expr<T>, context: Context): Path<T>[] => {
     }
     case "GPIDecl": {
       return expr.properties.flatMap((prop) =>
-        findPathsExpr(prop.value, context)
+        findPathsExpr(prop.value, context),
       );
     }
     case "Layering": {
@@ -2300,7 +2072,7 @@ const findPathsExpr = <T>(expr: Expr<T>, context: Context): Path<T>[] => {
         context.subst.collName === name
       ) {
         const paths = context.subst.collContent.map(
-          (subVar: string): Path<T> => ({
+          (subObj: SubstanceObject): Path<T> => ({
             ...expr,
             tag: "Path",
             name: {
@@ -2310,7 +2082,7 @@ const findPathsExpr = <T>(expr: Expr<T>, context: Context): Path<T>[] => {
                 ...expr.name,
                 tag: "Identifier",
                 type: "value",
-                value: subVar,
+                value: subObjectToUniqueName(subObj),
               },
             },
             members: [
@@ -2322,12 +2094,15 @@ const findPathsExpr = <T>(expr: Expr<T>, context: Context): Path<T>[] => {
               },
             ],
             indices: [],
-          })
+          }),
         );
         return paths.flatMap((p) => findPathsExpr(p, context));
       } else {
         return [];
       }
+    }
+    case "UnaryStyVarExpr": {
+      return [];
     }
   }
 };
@@ -2338,15 +2113,66 @@ const findPathsWithContext = <T>({
 }: WithContext<Expr<T>>): WithContext<Path<T>>[] =>
   findPathsExpr(expr, context).map((p) => ({ context, expr: p }));
 
-const resolveRhsPath = (p: WithContext<Path<C>>): ResolvedPath<C> => {
-  const { start, end, name, members } = p.expr; // drop `indices`
+const resolveRhsPath = (
+  p: WithContext<Path<C>>,
+): ResolvedPath<C> | FloatV<number> | StrV | VectorV<number> => {
+  const { start, end, name, members, indices } = p.expr;
+  const { subst } = p.context;
+  // special handling so that if a Style variable maps to a Substance literal,
+  // then accessing it just gives the value.
+  if (members.length === 0 && indices.length === 0) {
+    if (subst.tag === "StySubSubst" && name.contents.value in subst.contents) {
+      const subObj = subst.contents[name.contents.value];
+      if (subObj.tag === "SubstanceLiteral") {
+        return substanceLiteralToValue(subObj);
+      }
+    }
+
+    if (
+      subst.tag === "CollectionSubst" &&
+      name.contents.value in subst.groupby
+    ) {
+      const subObj = subst.groupby[name.contents.value];
+      if (subObj.tag === "SubstanceLiteral") {
+        return substanceLiteralToValue(subObj);
+      }
+    }
+
+    if (
+      subst.tag === "CollectionSubst" &&
+      name.contents.value === subst.collName
+    ) {
+      const subObjs = subst.collContent;
+      // If each object is literal
+      if (subObjs.every((subObj) => subObj.tag === "SubstanceLiteral")) {
+        const lits = subObjs.map((subObj) => {
+          if (subObj.tag === "SubstanceLiteral") {
+            return substanceLiteralToValue(subObj);
+          } else {
+            throw new Error(
+              "Should never happen: every object is SubstanceLiteral",
+            );
+          }
+        });
+
+        if (lits.every((lit) => lit.tag === "FloatV")) {
+          return {
+            tag: "VectorV",
+            // This is okay because everything in `lits` is FloatV
+            // as in the guard
+            contents: lits.map((lit) => lit.contents as number),
+          };
+        }
+      }
+    }
+  }
   return { start, end, ...resolveRhsName(p.context, name), members };
 };
 
 const gatherExpr = (
   graph: DepGraph,
   w: string,
-  expr: WithContext<NotShape>
+  expr: WithContext<NotShape>,
 ): void => {
   graph.setNode(w, expr);
   for (const p of findPathsWithContext(expr)) {
@@ -2356,7 +2182,7 @@ const gatherExpr = (
         j: w,
         e: undefined,
       },
-      () => undefined
+      () => undefined,
     );
   }
 };
@@ -2426,12 +2252,12 @@ const evalExprs = (
   stages: OptPipeline,
   context: Context,
   args: Expr<C>[],
-  trans: Translation
+  trans: Translation,
 ): Result<ArgVal<ad.Num>[], StyleDiagnostics> =>
   all(
     args.map((expr) => {
       return evalExpr(mut, canvas, stages, { context, expr }, trans);
-    })
+    }),
   ).mapErr(flatErrs);
 
 const evalVals = (
@@ -2440,7 +2266,7 @@ const evalVals = (
   stages: OptPipeline,
   context: Context,
   args: Expr<C>[],
-  trans: Translation
+  trans: Translation,
 ): Result<Value<ad.Num>[], StyleDiagnostics> =>
   evalExprs(mut, canvas, stages, context, args, trans).andThen((argVals) =>
     all(
@@ -2453,15 +2279,15 @@ const evalVals = (
             return ok(argVal.contents);
           }
         }
-      })
-    ).mapErr(flatErrs)
+      }),
+    ).mapErr(flatErrs),
   );
 
 const evalBinOpScalars = (
   error: BinOpTypeError,
   op: BinaryOp,
   left: ad.Num,
-  right: ad.Num
+  right: ad.Num,
 ): Result<ad.Num, StyleError> => {
   switch (op) {
     case "BPlus": {
@@ -2490,7 +2316,7 @@ const evalBinOpVectors = (
   error: BinOpTypeError,
   op: BinaryOp,
   left: ad.Num[],
-  right: ad.Num[]
+  right: ad.Num[],
 ): Result<ad.Num[], StyleError> => {
   switch (op) {
     case "BPlus": {
@@ -2517,7 +2343,7 @@ const evalBinOpScalarVector = (
   error: BinOpTypeError,
   op: BinaryOp,
   left: ad.Num,
-  right: ad.Num[]
+  right: ad.Num[],
 ): Result<ad.Num[], StyleError> => {
   switch (op) {
     case "Multiply": {
@@ -2538,7 +2364,7 @@ const evalBinOpVectorScalar = (
   error: BinOpTypeError,
   op: BinaryOp,
   left: ad.Num[],
-  right: ad.Num
+  right: ad.Num,
 ): Result<ad.Num[], StyleError> => {
   switch (op) {
     case "Multiply": {
@@ -2561,7 +2387,7 @@ const evalBinOpScalarMatrix = (
   error: BinOpTypeError,
   op: BinaryOp,
   left: ad.Num,
-  right: ad.Num[][]
+  right: ad.Num[][],
 ): Result<ad.Num[][], StyleError> => {
   switch (op) {
     case "Multiply": {
@@ -2582,7 +2408,7 @@ const evalBinOpMatrixScalar = (
   error: BinOpTypeError,
   op: BinaryOp,
   left: ad.Num[][],
-  right: ad.Num
+  right: ad.Num,
 ): Result<ad.Num[][], StyleError> => {
   switch (op) {
     case "Multiply": {
@@ -2605,7 +2431,7 @@ const evalBinOpMatrixVector = (
   error: BinOpTypeError,
   op: BinaryOp,
   left: ad.Num[][],
-  right: ad.Num[]
+  right: ad.Num[],
 ): Result<ad.Num[], StyleError> => {
   switch (op) {
     case "Multiply": {
@@ -2626,7 +2452,7 @@ const evalBinOpVectorMatrix = (
   error: BinOpTypeError,
   op: BinaryOp,
   left: ad.Num[],
-  right: ad.Num[][]
+  right: ad.Num[][],
 ): Result<ad.Num[], StyleError> => {
   switch (op) {
     case "Multiply": {
@@ -2647,7 +2473,7 @@ const evalBinOpMatrixMatrix = (
   error: BinOpTypeError,
   op: BinaryOp,
   left: ad.Num[][],
-  right: ad.Num[][]
+  right: ad.Num[][],
 ): Result<ad.Num[][], StyleError> => {
   switch (op) {
     case "BPlus": {
@@ -2676,7 +2502,7 @@ const evalBinOpStrings = (
   error: BinOpTypeError,
   op: BinaryOp,
   left: string,
-  right: string
+  right: string,
 ): Result<string, StyleError> => {
   switch (op) {
     case "BPlus": {
@@ -2696,7 +2522,7 @@ const evalBinOpStrings = (
 const evalBinOp = (
   expr: BinOp<C>,
   left: Value<ad.Num>,
-  right: Value<ad.Num>
+  right: Value<ad.Num>,
 ): Result<Value<ad.Num>, StyleError> => {
   const error: BinOpTypeError = {
     tag: "BinOpTypeError",
@@ -2706,64 +2532,64 @@ const evalBinOp = (
   };
   if (left.tag === "FloatV" && right.tag === "FloatV") {
     return evalBinOpScalars(error, expr.op, left.contents, right.contents).map(
-      floatV
+      floatV,
     );
   } else if (left.tag === "VectorV" && right.tag === "VectorV") {
     return evalBinOpVectors(error, expr.op, left.contents, right.contents).map(
-      vectorV
+      vectorV,
     );
   } else if (left.tag === "FloatV" && right.tag === "VectorV") {
     return evalBinOpScalarVector(
       error,
       expr.op,
       left.contents,
-      right.contents
+      right.contents,
     ).map(vectorV);
   } else if (left.tag === "VectorV" && right.tag === "FloatV") {
     return evalBinOpVectorScalar(
       error,
       expr.op,
       left.contents,
-      right.contents
+      right.contents,
     ).map(vectorV);
   } else if (left.tag === "FloatV" && right.tag === "MatrixV") {
     return evalBinOpScalarMatrix(
       error,
       expr.op,
       left.contents,
-      right.contents
+      right.contents,
     ).map(matrixV);
   } else if (left.tag === "MatrixV" && right.tag === "FloatV") {
     return evalBinOpMatrixScalar(
       error,
       expr.op,
       left.contents,
-      right.contents
+      right.contents,
     ).map(matrixV);
   } else if (left.tag === "MatrixV" && right.tag === "VectorV") {
     return evalBinOpMatrixVector(
       error,
       expr.op,
       left.contents,
-      right.contents
+      right.contents,
     ).map(vectorV);
   } else if (left.tag === "VectorV" && right.tag === "MatrixV") {
     return evalBinOpVectorMatrix(
       error,
       expr.op,
       left.contents,
-      right.contents
+      right.contents,
     ).map(vectorV);
   } else if (left.tag === "MatrixV" && right.tag === "MatrixV") {
     return evalBinOpMatrixMatrix(
       error,
       expr.op,
       left.contents,
-      right.contents
+      right.contents,
     ).map(matrixV);
   } else if (left.tag === "StrV" && right.tag === "StrV") {
     return evalBinOpStrings(error, expr.op, left.contents, right.contents).map(
-      strV
+      strV,
     );
   } else {
     return err(error);
@@ -2773,7 +2599,7 @@ const evalBinOp = (
 const eval1D = (
   coll: List<C> | Vector<C> | CollectionAccess<C>,
   first: FloatV<ad.Num>,
-  rest: ArgVal<ad.Num>[]
+  rest: ArgVal<ad.Num>[],
 ): Result<ListV<ad.Num> | VectorV<ad.Num>, StyleDiagnostics> => {
   const elems = [first.contents];
   for (const v of rest) {
@@ -2799,7 +2625,7 @@ const eval1D = (
 const eval2D = (
   coll: List<C> | Vector<C> | CollectionAccess<C>,
   first: VectorV<ad.Num> | ListV<ad.Num> | TupV<ad.Num>,
-  rest: ArgVal<ad.Num>[]
+  rest: ArgVal<ad.Num>[],
 ): Result<
   LListV<ad.Num> | MatrixV<ad.Num> | PtListV<ad.Num>,
   StyleDiagnostics
@@ -2835,7 +2661,7 @@ const eval2D = (
 const evalShapeList = (
   coll: List<C> | Vector<C> | CollectionAccess<C>,
   first: Shape<ad.Num>,
-  rest: ArgVal<ad.Num>[]
+  rest: ArgVal<ad.Num>[],
 ): Result<ShapeListV<ad.Num>, StyleDiagnostics> => {
   const elems = [first];
   for (const v of rest) {
@@ -2854,7 +2680,7 @@ const evalListOrVector = (
   stages: OptPipeline,
   context: Context,
   coll: List<C> | Vector<C>,
-  trans: Translation
+  trans: Translation,
 ): Result<Value<ad.Num>, StyleDiagnostics> => {
   return evalExprs(mut, canvas, stages, context, coll.contents, trans).andThen(
     (argVals) => {
@@ -2894,7 +2720,7 @@ const evalListOrVector = (
           }
         }
       }
-    }
+    },
   );
 };
 
@@ -2904,8 +2730,8 @@ const isValidIndex = (a: unknown[], i: number): boolean =>
 const evalAccess = (
   expr: Path<C>,
   coll: Value<ad.Num>,
-  indices: number[]
-): Result<FloatV<ad.Num>, StyleError> => {
+  indices: number[],
+): Result<Value<ad.Num>, StyleError> => {
   switch (coll.tag) {
     case "ListV":
     case "TupV":
@@ -2922,18 +2748,27 @@ const evalAccess = (
     case "LListV":
     case "MatrixV":
     case "PtListV": {
-      if (indices.length !== 2) {
+      if (indices.length === 1) {
+        // get i-th row
+        const [i] = indices;
+        if (!isValidIndex(coll.contents, i)) {
+          return err({ tag: "OutOfBoundsError", expr, indices });
+        }
+        return ok(vectorV(coll.contents[i]));
+      } else if (indices.length === 2) {
+        // get i-th row, j-th column
+        const [i, j] = indices;
+        if (!isValidIndex(coll.contents, i)) {
+          return err({ tag: "OutOfBoundsError", expr, indices });
+        }
+        const row = coll.contents[i];
+        if (!isValidIndex(row, j)) {
+          return err({ tag: "OutOfBoundsError", expr, indices });
+        }
+        return ok(floatV(row[j]));
+      } else {
         return err({ tag: "BadIndexError", expr });
       }
-      const [i, j] = indices;
-      if (!isValidIndex(coll.contents, i)) {
-        return err({ tag: "OutOfBoundsError", expr, indices });
-      }
-      const row = coll.contents[i];
-      if (!isValidIndex(row, j)) {
-        return err({ tag: "OutOfBoundsError", expr, indices });
-      }
-      return ok(floatV(row[j]));
     }
     case "ShapeListV": {
       return err({ tag: "IndexIntoShapeListError", expr });
@@ -2952,7 +2787,7 @@ const evalAccess = (
 
 const evalUMinus = (
   expr: UOp<C>,
-  arg: Value<ad.Num>
+  arg: Value<ad.Num>,
 ): Result<Value<ad.Num>, StyleError> => {
   switch (arg.tag) {
     case "FloatV": {
@@ -2979,7 +2814,7 @@ const evalUMinus = (
 
 const evalUTranspose = (
   expr: UOp<C>,
-  arg: Value<ad.Num>
+  arg: Value<ad.Num>,
 ): Result<Value<ad.Num>, StyleError> => {
   switch (arg.tag) {
     case "MatrixV": {
@@ -3007,7 +2842,7 @@ const evalExpr = (
   canvas: Canvas,
   layoutStages: OptPipeline,
   { context, expr }: WithContext<Expr<C>>,
-  trans: Translation
+  trans: Translation,
 ): Result<ArgVal<ad.Num>, StyleDiagnostics> => {
   switch (expr.tag) {
     case "BinOp": {
@@ -3017,7 +2852,7 @@ const evalExpr = (
         layoutStages,
         context,
         [expr.left, expr.right],
-        trans
+        trans,
       ).andThen(([left, right]) => {
         const res = evalBinOp(expr, left, right);
         if (res.isErr()) {
@@ -3045,7 +2880,7 @@ const evalExpr = (
         layoutStages,
         context,
         expr.args,
-        trans
+        trans,
       );
       if (args.isErr()) {
         return err(args.error);
@@ -3060,13 +2895,17 @@ const evalExpr = (
       const { name, start, end } = expr;
       if (!isKeyOf(name.value, compDict)) {
         return err(
-          oneErr({ tag: "InvalidFunctionNameError", givenName: name })
+          oneErr({ tag: "InvalidFunctionNameError", givenName: name }),
         );
       }
       const f = compDict[name.value];
       const x = callCompFunc(f, { start, end }, mut, argsWithSourceLoc);
       if (x.isErr()) return err(oneErr(x.error));
-      return ok(val(x.value));
+      const { value, warnings } = x.value;
+
+      trans.diagnostics.warnings = trans.diagnostics.warnings.push(...warnings);
+
+      return ok(val(value));
     }
     case "ConstrFn":
     case "Layering":
@@ -3085,11 +2924,18 @@ const evalExpr = (
         layoutStages,
         context,
         expr,
-        trans
+        trans,
       ).map(val);
     }
     case "Path": {
       const resolvedPath = resolveRhsPath({ context, expr });
+      if (
+        resolvedPath.tag === "FloatV" ||
+        resolvedPath.tag === "StrV" ||
+        resolvedPath.tag === "VectorV"
+      ) {
+        return ok(val(resolvedPath));
+      }
       const path = prettyPrintResolvedPath(resolvedPath);
       const resolved = trans.symbols.get(path);
       if (resolved === undefined) {
@@ -3112,7 +2958,7 @@ const evalExpr = (
             canvas,
             layoutStages,
             { context, expr: e },
-            trans
+            trans,
           ).andThen<number>((i) => {
             if (i.tag === "ShapeVal") {
               return err(oneErr({ tag: "NotValueError", expr: e }));
@@ -3124,8 +2970,8 @@ const evalExpr = (
             } else {
               return err(oneErr({ tag: "BadIndexError", expr: e }));
             }
-          })
-        )
+          }),
+        ),
       );
       if (res.isErr()) {
         return err(flatErrs(res.error));
@@ -3146,7 +2992,7 @@ const evalExpr = (
         layoutStages,
         context,
         expr.contents,
-        trans
+        trans,
       ).andThen(([left, right]) => {
         if (left.tag !== "FloatV") {
           return err(oneErr({ tag: "BadElementError", coll: expr, index: 0 }));
@@ -3163,7 +3009,7 @@ const evalExpr = (
         canvas,
         layoutStages,
         { context, expr: expr.arg },
-        trans
+        trans,
       ).andThen((argVal) => {
         if (argVal.tag === "ShapeVal") {
           return err(oneErr({ tag: "NotValueError", expr }));
@@ -3187,21 +3033,27 @@ const evalExpr = (
       });
     }
     case "Vary": {
-      const { exclude } = expr;
+      const { exclude, init } = expr;
       const stages: OptStages = stageExpr(
         layoutStages,
         exclude,
-        expr.stages.map((s) => s.value)
+        expr.stages.map((s) => s.value),
       );
       return ok(
         val(
           floatV(
             mut.makeInput({
-              init: { tag: "Sampled", sampler: uniform(...canvas.xRange) },
+              init: {
+                tag: "Sampled",
+                sampler:
+                  init === undefined
+                    ? uniform(...canvas.xRange)
+                    : constSampler(init),
+              },
               stages,
-            })
-          )
-        )
+            }),
+          ),
+        ),
       );
     }
     case "CollectionAccess": {
@@ -3211,8 +3063,9 @@ const evalExpr = (
         // actually gather the list.
         const collection = subst.collContent;
         const result: ArgVal<ad.Num>[] = [];
-        for (const subVar of collection) {
-          const actualPath = `\`${subVar}\`.${field.value}`;
+        for (const subObj of collection) {
+          const uniqueName = subObjectToUniqueName(subObj);
+          const actualPath = `\`${uniqueName}\`.${field.value}`;
           const value = trans.symbols.get(actualPath);
           if (value !== undefined) {
             result.push(value);
@@ -3227,14 +3080,66 @@ const evalExpr = (
       } else {
         return err(
           oneErr(
-            unexpectedCollectionAccessError(name.value, {
+            notSubstanceCollectionError(name.value, {
               start: expr.start,
               end: expr.end,
-            })
-          )
+            }),
+          ),
         );
       }
     }
+    case "UnaryStyVarExpr": {
+      const { subst } = context;
+      const { op, arg } = expr;
+      if (expr.op === "numberof") {
+        return evalNumberOf(subst, arg, { start: expr.start, end: expr.end });
+      } else {
+        return evalNameOf(subst, arg, { start: expr.start, end: expr.end });
+      }
+    }
+  }
+};
+
+const evalNumberOf = (
+  subst: StySubst,
+  arg: Identifier<C>,
+  loc: SourceRange,
+): Result<ArgVal<ad.Num>, StyleDiagnostics> => {
+  if (subst.tag === "CollectionSubst" && arg.value === subst.collName) {
+    return ok(val(floatV(subst.collContent.length)));
+  } else {
+    return err(oneErr(notSubstanceCollectionError(arg.value, loc)));
+  }
+};
+
+const extractMainSubst = (subst: StySubst) => {
+  if (subst.tag === "StySubSubst") {
+    return subst.contents;
+  } else {
+    return subst.groupby;
+  }
+};
+
+const evalNameOf = (
+  subst: StySubst,
+  arg: Identifier<C>,
+  loc: SourceRange,
+): Result<ArgVal<ad.Num>, StyleDiagnostics> => {
+  const s = extractMainSubst(subst);
+
+  if (arg.value in s) {
+    const m = s[arg.value];
+    if (m.tag === "SubstanceVar") {
+      return ok(val(strV(m.name)));
+    } else {
+      if (m.contents.tag === "SubstanceNumber") {
+        return ok(val(strV(m.contents.contents.toString())));
+      } else {
+        return ok(val(strV(m.contents.contents)));
+      }
+    }
+  } else {
+    return err(oneErr(notStyleVariableError(arg.value, loc)));
   }
 };
 
@@ -3249,14 +3154,13 @@ type CollectionType<T> =
 
 const collectIntoVal = (
   coll: ArgVal<ad.Num>[],
-  expr: CollectionAccess<C>
+  expr: CollectionAccess<C>,
 ): Result<CollectionType<ad.Num>, StyleDiagnostics> => {
   if (coll.length === 0) {
     return ok(vectorV([]));
   }
 
   const [first, ...rest] = coll;
-
   if (first.tag === "ShapeVal") {
     return evalShapeList(expr, first.contents, rest);
   } else {
@@ -3274,7 +3178,7 @@ const collectIntoVal = (
           tag: "BadElementError",
           coll: expr,
           index: 0,
-        })
+        }),
       );
     }
   }
@@ -3283,7 +3187,7 @@ const collectIntoVal = (
 const stageExpr = (
   overallStages: string[],
   excludeFlag: boolean,
-  stageList: string[]
+  stageList: string[],
 ): OptStages => {
   if (excludeFlag) {
     const stages = new Set(overallStages);
@@ -3297,7 +3201,7 @@ const stageExpr = (
 };
 
 const extractObjConstrBody = (
-  body: InlineComparison<C> | FunctionCall<C>
+  body: InlineComparison<C> | FunctionCall<C>,
 ): { name: Identifier<C>; argExprs: Expr<C>[] } => {
   if (body.tag === "InlineComparison") {
     const mapInlineOpToFunctionName = (op: "<" | "==" | ">"): string => {
@@ -3337,7 +3241,7 @@ const translateExpr = (
   layoutStages: OptPipeline,
   path: string,
   e: WithContext<NotShape>,
-  trans: Translation
+  trans: Translation,
 ): Translation => {
   switch (e.expr.tag) {
     case "BinOp":
@@ -3352,7 +3256,8 @@ const translateExpr = (
     case "UOp":
     case "Vary":
     case "Vector":
-    case "CollectionAccess": {
+    case "CollectionAccess":
+    case "UnaryStyVarExpr": {
       const res = evalExpr(mut, canvas, layoutStages, e, trans);
       if (res.isErr()) {
         return addDiags(res.error, trans);
@@ -3370,7 +3275,7 @@ const translateExpr = (
         layoutStages,
         e.context,
         argExprs,
-        trans
+        trans,
       );
       if (args.isErr()) {
         return addDiags(args.error, trans);
@@ -3385,29 +3290,35 @@ const translateExpr = (
       if (!isKeyOf(fname, constrDict)) {
         return addDiags(
           oneErr({ tag: "InvalidConstraintNameError", givenName: name }),
-          trans
+          trans,
         );
       }
       const output = callObjConstrFunc(
         constrDict[fname],
         { start: e.expr.start, end: e.expr.end },
-        argsWithSourceLoc
+        argsWithSourceLoc,
       );
       if (output.isErr()) {
         return addDiags(oneErr(output.error), trans);
       }
 
+      const { value, warnings } = output.value;
+
       const optStages: OptStages = stageExpr(
         layoutStages,
         exclude,
-        stages.map((s) => s.value)
+        stages.map((s) => s.value),
       );
       return {
         ...trans,
+        diagnostics: {
+          ...trans.diagnostics,
+          warnings: trans.diagnostics.warnings.push(...warnings),
+        },
         constraints: trans.constraints.push({
           ast: { context: e.context, expr: e.expr },
           optStages,
-          output: output.value,
+          output: value,
         }),
       };
     }
@@ -3419,7 +3330,7 @@ const translateExpr = (
         layoutStages,
         e.context,
         argExprs,
-        trans
+        trans,
       );
       if (args.isErr()) {
         return addDiags(args.error, trans);
@@ -3434,46 +3345,103 @@ const translateExpr = (
       if (!isKeyOf(fname, objDict)) {
         return addDiags(
           oneErr({ tag: "InvalidObjectiveNameError", givenName: name }),
-          trans
+          trans,
         );
       }
 
       const optStages: OptStages = stageExpr(
         layoutStages,
         exclude,
-        stages.map((s) => s.value)
+        stages.map((s) => s.value),
       );
       const output = callObjConstrFunc(
         objDict[fname],
         { start: e.expr.start, end: e.expr.end },
-        argsWithSourceLoc
+        argsWithSourceLoc,
       );
       if (output.isErr()) {
         return addDiags(oneErr(output.error), trans);
       }
+      const { value, warnings } = output.value;
       return {
         ...trans,
+        diagnostics: {
+          ...trans.diagnostics,
+          warnings: trans.diagnostics.warnings.push(...warnings),
+        },
         objectives: trans.objectives.push({
           ast: { context: e.context, expr: e.expr },
           optStages,
-          output: output.value,
+          output: value,
         }),
       };
     }
     case "Layering": {
       const { expr, context } = e;
-      const left = prettyPrintResolvedPath(
-        resolveRhsPath({ context: context, expr: expr.left })
+
+      const leftPp = prettyPrintResolvedPath(
+        resolveRhsPath({ context: context, expr: expr.left }),
       );
-      const rightList = expr.right.map((r: Path<C>) =>
-        prettyPrintResolvedPath(resolveRhsPath({ context: context, expr: r }))
+      const leftResolved = evalExpr(
+        mut,
+        canvas,
+        layoutStages,
+        { context, expr: expr.left },
+        trans,
       );
-      const layeringRelations = rightList.map((r: string) => {
+      const rightListPp = expr.right.map((r: Path<C>) =>
+        prettyPrintResolvedPath(resolveRhsPath({ context: context, expr: r })),
+      );
+      const rightListResolved = evalExprs(
+        mut,
+        canvas,
+        layoutStages,
+        context,
+        expr.right,
+        trans,
+      );
+      if (leftResolved.isErr()) {
+        return addDiags(leftResolved.error, trans);
+      }
+      if (leftResolved.value.tag !== "ShapeVal") {
+        return addDiags(
+          oneErr({
+            tag: "LayerOnNonShapesError",
+            location: {
+              start: expr.left.start,
+              end: expr.left.end,
+            },
+            expr: leftPp,
+          }),
+          trans,
+        );
+      }
+
+      if (rightListResolved.isErr()) {
+        return addDiags(rightListResolved.error, trans);
+      }
+      for (let i = 0; i < expr.right.length; i++) {
+        if (rightListResolved.value[i].tag !== "ShapeVal") {
+          return addDiags(
+            oneErr({
+              tag: "LayerOnNonShapesError",
+              location: {
+                start: expr.right[i].start,
+                end: expr.right[i].end,
+              },
+              expr: rightListPp[i],
+            }),
+            trans,
+          );
+        }
+      }
+
+      const layeringRelations = rightListPp.map((r: string) => {
         switch (expr.layeringOp) {
           case "below":
-            return { below: left, above: r };
+            return { below: leftPp, above: r };
           case "above":
-            return { below: r, above: left };
+            return { below: r, above: leftPp };
         }
       });
       return {
@@ -3487,7 +3455,7 @@ const translateExpr = (
 const evalGPI = (
   path: string,
   shapeType: ShapeType,
-  trans: Translation
+  trans: Translation,
 ): Result<Shape<ad.Num>, StyleError> => {
   return checkShape(shapeType, path, trans);
 };
@@ -3497,8 +3465,9 @@ export const translate = (
   canvas: Canvas,
   stages: OptPipeline,
   graph: DepGraph,
-  warnings: im.List<StyleWarning>
+  warnings: im.List<StyleWarning>,
 ): Translation => {
+  log.info("Starting translation stage...");
   let symbols = im.Map<string, ArgVal<ad.Num>>();
   for (const path of graph.nodes()) {
     const shapeType = graph.node(path);
@@ -3528,7 +3497,7 @@ export const translate = (
             ? undefined
             : { start: e.expr.start, end: e.expr.end },
       };
-    })
+    }),
   );
   if (cycles.length > 0) {
     return {
@@ -3555,6 +3524,7 @@ export const translate = (
       trans = translateExpr(mut, canvas, stages, path, e, trans);
     }
   }
+  log.info("Translation stage ends");
   return trans;
 };
 
@@ -3593,7 +3563,7 @@ export type LayerGraph = Graph<string>;
 export const processLayering = (
   { below, above }: Layer,
   groupGraph: GroupGraph,
-  layerGraph: LayerGraph
+  layerGraph: LayerGraph,
 ): void => {
   // Path from the root to the node, excluding the root
   // [..., below]
@@ -3620,7 +3590,7 @@ export const processLayering = (
 export const computeLayerOrdering = (
   allGPINames: string[],
   partialOrderings: Layer[],
-  groupGraph: GroupGraph
+  groupGraph: GroupGraph,
 ): {
   shapeOrdering: string[];
   warning?: LayerCycleWarning;
@@ -3653,7 +3623,7 @@ export const computeLayerOrdering = (
 
 const pseudoTopsort = (graph: Graph<string>): string[] => {
   const indegree = new Map<string, number>(
-    graph.nodes().map((i) => [i, graph.inEdges(i).length])
+    graph.nodes().map((i) => [i, graph.inEdges(i).length]),
   );
   // Nodes with lower in-degrees have highest priority.
   // Swap if a has higher in-degree than b.
@@ -3663,7 +3633,7 @@ const pseudoTopsort = (graph: Graph<string>): string[] => {
 
   while (toVisit.size() > 0) {
     // remove element with fewest incoming edges and append to result
-    const node: string = toVisit.extractRoot() as string;
+    const node: string = toVisit.extractRoot()!;
     res.push(node);
     // remove all edges with `node`
     for (const { j } of graph.outEdges(node)) {
@@ -3680,7 +3650,7 @@ const pseudoTopsort = (graph: Graph<string>): string[] => {
 // Check that canvas dimensions exist and have the proper type.
 export const getCanvasDim = (
   attr: "width" | "height",
-  graph: DepGraph
+  graph: DepGraph,
 ): Result<number, StyleError> => {
   const i = `canvas.${attr}`;
   if (!graph.hasNode(i))
@@ -3708,18 +3678,20 @@ export const parseStyle = (p: string): Result<StyProg<C>, ParseError> => {
       const ast: StyProg<C> = results[0] as StyProg<C>;
       return ok(ast);
     } else {
-      return err(parseError(`Unexpected end of input`, lastLocation(parser)));
+      return err(
+        parseError(`Unexpected end of input`, lastLocation(parser), "Style"),
+      );
     }
   } catch (e) {
-    return err(parseError(prettyParseError(e), lastLocation(parser)));
+    return err(parseError(prettyParseError(e), lastLocation(parser), "Style"));
   }
 };
 
 export const getLayoutStages = (
-  prog: StyProg<C>
+  prog: StyProg<C>,
 ): Result<OptPipeline, MultipleLayoutError> => {
   const layoutStmts: LayoutStages<C>[] = prog.items.filter(
-    (i): i is LayoutStages<C> => i.tag === "LayoutStages"
+    (i): i is LayoutStages<C> => i.tag === "LayoutStages",
   );
   if (layoutStmts.length === 0) {
     // if no stages specified, default to "" because that way nobody can refer
@@ -3739,7 +3711,7 @@ export const getLayoutStages = (
 
 const getShapesList = (
   { symbols }: Translation,
-  shapeOrdering: string[]
+  shapeOrdering: string[],
 ): Shape<ad.Num>[] => {
   return shapeOrdering.map((path) => {
     const shape = symbols.get(path);
@@ -3767,8 +3739,8 @@ const onCanvases = (canvas: Canvas, shapes: Shape<ad.Num>[]): Fn[] => {
       const output = constrDict.onCanvas.body(
         shape,
         canvas.width,
-        canvas.height
-      );
+        canvas.height,
+      ).value;
       fns.push({
         ast: {
           context: {
@@ -3809,7 +3781,7 @@ export const stageConstraints = (
   inputs: InputMeta[],
   constrFns: Fn[],
   objFns: Fn[],
-  stages: OptPipeline
+  stages: OptPipeline,
 ): StagedConstraints =>
   new Map(
     stages.map((stage) => [
@@ -3817,18 +3789,18 @@ export const stageConstraints = (
       {
         inputMask: inputs.map((i) => i.stages === "All" || i.stages.has(stage)),
         constrMask: constrFns.map(
-          ({ optStages }) => optStages === "All" || optStages.has(stage)
+          ({ optStages }) => optStages === "All" || optStages.has(stage),
         ),
         objMask: objFns.map(
-          ({ optStages }) => optStages === "All" || optStages.has(stage)
+          ({ optStages }) => optStages === "All" || optStages.has(stage),
         ),
       },
-    ])
+    ]),
   );
 
 const processPassthrough = (
   { symbols }: Translation,
-  nameShapeMap: Map<string, Shape<ad.Num>>
+  nameShapeMap: Map<string, Shape<ad.Num>>,
 ): Result<void, StyleError> => {
   for (const [key, value] of symbols) {
     const i = key.lastIndexOf(".");
@@ -3843,7 +3815,7 @@ const processPassthrough = (
           shape.passthrough.set(propName, value.contents);
         } else {
           return err(
-            badShapeParamTypeError(key, value, "StrV or FloatV", true)
+            badShapeParamTypeError(key, value, "StrV or FloatV", true),
           );
         }
       } else {
@@ -3858,7 +3830,7 @@ export const compileStyleHelper = async (
   variation: string,
   stySource: string,
   subEnv: SubstanceEnv,
-  varEnv: Env
+  varEnv: DomainEnv,
 ): Promise<
   Result<
     {
@@ -3899,7 +3871,7 @@ export const compileStyleHelper = async (
   const graph = gatherDependencies(assignment);
 
   const canvas = getCanvasDim("width", graph).andThen((w) =>
-    getCanvasDim("height", graph).map((h) => makeCanvas(w, h))
+    getCanvasDim("height", graph).map((h) => makeCanvas(w, h)),
   );
   if (canvas.isErr()) {
     return err(toStyleErrors([canvas.error]));
@@ -3925,7 +3897,7 @@ export const compileStyleHelper = async (
     canvas.value,
     optimizationStages.value,
     graph,
-    assignment.diagnostics.warnings
+    assignment.diagnostics.warnings,
   );
 
   log.info("translation (before genOptProblem)", translation);
@@ -3937,7 +3909,7 @@ export const compileStyleHelper = async (
   const groupGraph: GroupGraph = makeGroupGraph(
     getShapesList(translation, [
       ...graph.nodes().filter((p) => typeof graph.node(p) === "string"),
-    ])
+    ]),
   );
 
   const groupWarnings = checkGroupGraph(groupGraph);
@@ -3946,7 +3918,7 @@ export const compileStyleHelper = async (
     computeLayerOrdering(
       [...graph.nodes().filter((p) => typeof graph.node(p) === "string")],
       [...translation.layering],
-      groupGraph
+      groupGraph,
     );
 
   // Fix the ordering between nodes of the group graph
@@ -3972,7 +3944,7 @@ export const compileStyleHelper = async (
   const renderGraph = buildRenderGraph(
     findOrderedRoots(groupGraph),
     groupGraph,
-    nameShapeMap
+    nameShapeMap,
   );
 
   const objFns = [...translation.objectives];
@@ -3986,18 +3958,18 @@ export const compileStyleHelper = async (
     metas,
     constrFns,
     objFns,
-    optimizationStages.value
+    optimizationStages.value,
   );
 
   const computeShapes = await compileCompGraph(inputs, renderGraph);
-
   const gradient = await genGradient(
     inputs,
     objFns.map(({ output }) => output),
-    constrFns.map(({ output }) => output)
+    constrFns.map(({ output }) => output),
   );
 
   const params = genOptProblem(varyingValues.length);
+
   const initState: State = {
     warnings: layeringWarning
       ? [...translation.diagnostics.warnings, ...groupWarnings, layeringWarning]
@@ -4032,11 +4004,17 @@ export const compileStyleHelper = async (
 export const compileStyle = async (
   variation: string,
   stySource: string,
+  excludeWarnings: string[],
   subEnv: SubstanceEnv,
-  varEnv: Env
+  varEnv: DomainEnv,
 ): Promise<Result<State, PenroseError>> =>
   (await compileStyleHelper(variation, stySource, subEnv, varEnv)).map(
-    ({ state }) => state
+    ({ state }) => ({
+      ...state,
+      warnings: state.warnings.filter(
+        (warning) => !excludeWarnings.includes(warning.tag),
+      ),
+    }),
   );
 
 //#endregion Main funcitons

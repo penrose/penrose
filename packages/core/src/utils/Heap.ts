@@ -37,7 +37,10 @@ export default class Heap<T> {
   /**
    * @param {function} compare
    */
-  constructor(private compare: ICompare<T>, private nodes: T[] = []) {
+  constructor(
+    private compare: ICompare<T>,
+    private nodes: T[] = [],
+  ) {
     nodes.forEach((node: T, i: number) => this.node_to_index.set(node, i));
   }
 
@@ -136,7 +139,7 @@ export default class Heap<T> {
   private compareChildrenBefore(
     index: number,
     leftChildIndex: number,
-    rightChildIndex: number
+    rightChildIndex: number,
   ) {
     const compare = this.compareAt(rightChildIndex, leftChildIndex);
 
@@ -191,7 +194,7 @@ export default class Heap<T> {
       childIndex = this.compareChildrenBefore(
         index,
         leftChildIndex,
-        rightChildIndex
+        rightChildIndex,
       );
 
       if (this.shouldSwap(parentIndex, childIndex)) {
@@ -290,7 +293,7 @@ export default class Heap<T> {
    */
   isValid(): boolean {
     const isValidRecursive: (parentIndex: number) => boolean = (
-      parentIndex: number
+      parentIndex: number,
     ) => {
       let isValidLeft = true;
       let isValidRight = true;

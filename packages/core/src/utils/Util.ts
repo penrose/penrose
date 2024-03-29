@@ -1,10 +1,12 @@
 import _ from "lodash";
 import seedrandom from "seedrandom";
+import { isConcrete } from "../engine/EngineUtils.js";
 import { LineProps } from "../shapes/Line.js";
 import { Shape, ShapeType } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
-import { A } from "../types/ast.js";
-import { Either, Left, Right } from "../types/common.js";
+import { A, ASTNode, NodeType, SourceLoc, SourceRange } from "../types/ast.js";
+import { StyleWarning } from "../types/errors.js";
+import { MayWarn } from "../types/functions.js";
 import { Fn } from "../types/state.js";
 import { BindingForm, Expr, Path } from "../types/style.js";
 import {
@@ -12,6 +14,8 @@ import {
   LocalVarSubst,
   ResolvedName,
   ResolvedPath,
+  SubstanceLiteral,
+  SubstanceObject,
   WithContext,
 } from "../types/styleSemantics.js";
 import {
@@ -52,7 +56,7 @@ export const cartesianProduct = <Tin, Tout>(
   t1: Tin[],
   t2: Tin[],
   consistent: (t1: Tin, t2: Tin) => boolean,
-  merge: (t1: Tin, t2: Tin) => Tout
+  merge: (t1: Tin, t2: Tin) => Tout,
 ): Tout[] => {
   const product: Tout[] = [];
   for (const i in t1) {
@@ -76,19 +80,14 @@ export const combinations2 = <T>(list: T[]): [T, T][] =>
   }, []);
 
 /**
- * Safe wrapper for any function that might return `undefined`.
- * @borrows https://stackoverflow.com/questions/54738221/typescript-array-find-possibly-undefind
- * @param argument Possible unsafe function call
- * @param message Error message
+ * Throws if `x === undefined`.
+ * @returns `x`
+ * @param f called if `x === undefined`, to produce error message
  */
-export const safe = <T extends unknown>(
-  argument: T | undefined,
-  message: string
-): T => {
-  if (argument === undefined) {
-    throw new TypeError(message);
-  }
-  return argument;
+export const unwrap = <T>(x: T | undefined, f?: () => string): T => {
+  if (x === undefined)
+    throw Error((f ?? (() => "called `unwrap` with `undefined`"))());
+  return x;
 };
 
 // Repeat `x`, `i` times
@@ -112,7 +111,7 @@ export const zip2 = <T1, T2>(a1: T1[], a2: T2[]): [T1, T2][] => {
   const l = a1.length;
   if (l !== a2.length) {
     throw Error(
-      `can't zip2 vectors of different length: ${a1.length} vs ${a2.length}`
+      `can't zip2 vectors of different length: ${a1.length} vs ${a2.length}`,
     );
   }
   const a: [T1, T2][] = [];
@@ -128,12 +127,12 @@ export const zip2 = <T1, T2>(a1: T1[], a2: T2[]): [T1, T2][] => {
 export const zip3 = <T1, T2, T3>(
   a1: T1[],
   a2: T2[],
-  a3: T3[]
+  a3: T3[],
 ): [T1, T2, T3][] => {
   const l = a1.length;
   if (l !== a2.length || l !== a3.length) {
     throw Error(
-      `can't zip3 vectors of different length: ${a1.length} vs ${a2.length} vs ${a3.length}`
+      `can't zip3 vectors of different length: ${a1.length} vs ${a2.length} vs ${a3.length}`,
     );
   }
   const a: [T1, T2, T3][] = [];
@@ -147,8 +146,36 @@ export const zip3 = <T1, T2, T3>(
 /** returns whether `key` is in `obj`, in a way that informs TypeScript */
 export const isKeyOf = <T extends Record<string, unknown>>(
   key: string | number | symbol,
-  obj: T
+  obj: T,
 ): key is keyof T => key in obj;
+
+/**
+ * Return a fresh topologically sorted array of nodes reachable from `sinks`.
+ * @param preds returns the predecessors of a node
+ */
+export const topsort = <T>(
+  preds: (x: T) => Iterable<T>,
+  sinks: Iterable<T>,
+): T[] => {
+  const sorted: T[] = [];
+  const marked = new Set<T>();
+  const stack: T[] = [...sinks];
+  const ready: boolean[] = stack.map(() => false);
+  while (stack.length > 0) {
+    const x = stack.pop() as T;
+    if (ready.pop()) sorted.push(x);
+    else if (!marked.has(x)) {
+      marked.add(x);
+      stack.push(x);
+      ready.push(true);
+      for (const y of preds(x)) {
+        stack.push(y);
+        ready.push(false);
+      }
+    }
+  }
+  return sorted;
+};
 
 //#endregion
 
@@ -164,7 +191,7 @@ const RAND_RANGE = 100;
 export const randFloats = (
   rng: seedrandom.prng,
   count: number,
-  [min, max]: [number, number]
+  [min, max]: [number, number],
 ): number[] => _.times(count, () => randFloat(rng, min, max));
 
 /**
@@ -175,12 +202,12 @@ export const randFloats = (
 export const randFloat = (
   rng: seedrandom.prng,
   min: number,
-  max: number
+  max: number,
 ): number => {
   // TODO: better error reporting
   console.assert(
     max > min,
-    "min should be smaller than max for random number generation!"
+    `min should be smaller than max for random number generation! min ${min}, max ${max}`,
   );
   return rng() * (max - min) + min;
 };
@@ -225,6 +252,15 @@ export const arrowheads: ArrowheadMap = {
     refY: 4.06,
     path: "M9.95 4.06 0 8.12 2.36 4.06 0 0 9.95 4.06z",
     fillKind: "fill",
+  },
+  perp: {
+    width: 1,
+    height: 10.15,
+    viewbox: "0 0 1 10.2",
+    refX: 0.5,
+    refY: 5.08,
+    path: "M0.5 10.2 0.5 0",
+    fillKind: "stroke",
   },
   line: {
     width: 7.5,
@@ -297,7 +333,7 @@ export const getArrowhead = (style: string): ArrowheadSpec | undefined => {
 
 export const toScreen = (
   [x, y]: [number, number],
-  canvasSize: [number, number]
+  canvasSize: [number, number],
 ): [number, number] => {
   const [width, height] = canvasSize;
   return [width / 2 + x, height / 2 - y];
@@ -308,7 +344,7 @@ export const toScreen = (
 //#region color
 
 export const hexToRgba = (
-  hex: string
+  hex: string,
 ): [number, number, number, number] | undefined => {
   const parseIntHex = (value: string) => {
     return parseInt(value, 16);
@@ -381,7 +417,7 @@ const hsv2rgb = (
   r1: number,
   g1: number,
   b1: number,
-  m: number
+  m: number,
 ): [number, number, number] => {
   return [r1 + m, g1 + m, b1 + m];
 };
@@ -390,7 +426,7 @@ const hsv2rgb = (
 // Returns rgb in range [0, 1]
 // From https://github.com/d3/d3-hsv/blob/master/src/hsv.js
 export const hsvToRGB = (
-  hsv: [number, number, number]
+  hsv: [number, number, number],
 ): [number, number, number] => {
   const [h0, s0, v0] = hsv;
   const h = isNaN(h0) ? 0 : (h0 % 360) + Number(h0 < 0) * 360;
@@ -423,7 +459,7 @@ export const toSvgPaintProperty = (color: Color<number>): string => {
       ]);
     case "HSVA":
       return rgbToHex(
-        hsvToRGB([color.contents[0], color.contents[1], color.contents[2]])
+        hsvToRGB([color.contents[0], color.contents[1], color.contents[2]]),
       );
     case "NONE":
       return "none";
@@ -533,7 +569,7 @@ export const addv = (xs: number[], ys: number[]): number[] => {
   if (xs.length !== ys.length) {
     console.error("xs", xs, "ys", ys);
     throw Error(
-      `can't add vectors of different length: ${xs.length} vs ${ys.length}`
+      `can't add vectors of different length: ${xs.length} vs ${ys.length}`,
     );
   }
 
@@ -544,7 +580,7 @@ export const subv = (xs: number[], ys: number[]): number[] => {
   if (xs.length !== ys.length) {
     console.error("xs", xs, "ys", ys);
     throw Error(
-      `can't sub vectors of different length: ${xs.length} vs ${ys.length}`
+      `can't sub vectors of different length: ${xs.length} vs ${ys.length}`,
     );
   }
 
@@ -557,7 +593,7 @@ export const dot = (xs: number[], ys: number[]): number => {
   if (xs.length !== ys.length) {
     console.error("xs", xs, "ys", ys);
     throw Error(
-      `can't dot vectors of different length: ${xs.length} vs ${ys.length}`
+      `can't dot vectors of different length: ${xs.length} vs ${ys.length}`,
     );
   }
 
@@ -706,6 +742,7 @@ export const stringT = (): ValueT => valueT("String");
 export const posIntT = (): ValueT => valueT("PosInt");
 export const booleanT = (): ValueT => valueT("Boolean");
 export const realNMT = (): ValueT => valueT("RealNM");
+export const shapeListT = (): ValueT => valueT("ShapeList");
 
 export const shapeT = (type: ShapeType | "AnyShape"): ShapeT => ({
   tag: "ShapeT",
@@ -722,16 +759,30 @@ export const rectlikeT = (): UnionT =>
     shapeT("Equation"),
     shapeT("Image"),
     shapeT("Rectangle"),
-    shapeT("Text")
+    shapeT("Text"),
   );
 
 //#endregion
 
 //#region Style
 
+export const toLiteralUniqueName = (literal: string | number) => {
+  if (typeof literal === "string") {
+    return `{s${literal}}`;
+  } else {
+    return `{n${literal.toString()}}`;
+  }
+};
+
+export const subObjectToUniqueName = (lit: SubstanceObject) => {
+  if (lit.tag === "SubstanceVar") {
+    return lit.name;
+  } else return toLiteralUniqueName(lit.contents.contents);
+};
+
 export const resolveRhsName = (
   { block, subst, locals }: Context,
-  name: BindingForm<A>
+  name: BindingForm<A>,
 ): ResolvedName => {
   const { value } = name.contents;
   switch (name.tag) {
@@ -741,9 +792,17 @@ export const resolveRhsName = (
         return { tag: "Local", block, name: value };
       } else if (subst.tag === "StySubSubst" && value in subst.contents) {
         // selector match names shadow globals
-        return { tag: "Substance", block, name: subst.contents[value] };
+        return {
+          tag: "Substance",
+          block,
+          name: subObjectToUniqueName(subst.contents[value]),
+        };
       } else if (subst.tag === "CollectionSubst" && value in subst.groupby) {
-        return { tag: "Substance", block, name: subst.groupby[value] };
+        return {
+          tag: "Substance",
+          block,
+          name: subObjectToUniqueName(subst.groupby[value]),
+        };
       } else {
         // couldn't find it in context, must be a glboal
         return { tag: "Global", block, name: value };
@@ -755,8 +814,46 @@ export const resolveRhsName = (
   }
 };
 
-const resolveRhsPath = (p: WithContext<Path<A>>): ResolvedPath<A> => {
-  const { name, members } = p.expr; // drop `indices`
+export const substanceLiteralToValue = (
+  lit: SubstanceLiteral,
+): FloatV<number> | StrV => {
+  const l = lit.contents;
+
+  if (l.tag === "SubstanceNumber") {
+    return { tag: "FloatV", contents: l.contents };
+  } else {
+    return strV(l.contents);
+  }
+};
+
+const resolveRhsPath = (
+  p: WithContext<Path<A>>,
+): ResolvedPath<A> | FloatV<number> | StrV => {
+  const { name, members, indices } = p.expr; // drop `indices`
+
+  const { subst } = p.context;
+
+  // special handling so that if a Style variable maps to a Substance literal,
+  // then accessing it just gives the value.
+  if (members.length === 0 && indices.length === 0) {
+    if (subst.tag === "StySubSubst" && name.contents.value in subst.contents) {
+      const subObj = subst.contents[name.contents.value];
+      if (subObj.tag === "SubstanceLiteral") {
+        return substanceLiteralToValue(subObj);
+      }
+    }
+
+    if (
+      subst.tag === "CollectionSubst" &&
+      name.contents.value in subst.groupby
+    ) {
+      const subObj = subst.groupby[name.contents.value];
+      if (subObj.tag === "SubstanceLiteral") {
+        return substanceLiteralToValue(subObj);
+      }
+    }
+  }
+
   return { ...resolveRhsName(p.context, name), members };
 };
 
@@ -791,8 +888,20 @@ const prettyPrintResolvedName = ({
   }
 };
 
-export const prettyPrintResolvedPath = (p: ResolvedPath<A>): string =>
-  [prettyPrintResolvedName(p), ...p.members.map((m) => m.value)].join(".");
+export const prettyPrintResolvedPath = (
+  p: ResolvedPath<A> | FloatV<number> | StrV | VectorV<number>,
+): string => {
+  if (p.tag === "FloatV") {
+    return p.contents.toString();
+  } else if (p.tag === "StrV") {
+    return p.contents;
+  } else if (p.tag === "VectorV") {
+    return `[${p.contents.map((n) => n.toString()).join(",")}]`;
+  } else
+    return [prettyPrintResolvedName(p), ...p.members.map((m) => m.value)].join(
+      ".",
+    );
+};
 
 const prettyPrintBindingForm = (bf: BindingForm<A>): string => {
   switch (bf.tag) {
@@ -811,14 +920,14 @@ export const prettyPrintPath = (p: Path<A>): string => {
     ...p.members.map((m) => m.value),
   ].join(".");
   const indices: string[] = p.indices.map(
-    (i) => `[${prettyPrintExpr(i, prettyPrintPath)}]`
+    (i) => `[${prettyPrintExpr(i, prettyPrintPath)}]`,
   );
   return [base, ...indices].join("");
 };
 
 export const prettyPrintExpr = (
   arg: Expr<A>,
-  ppPath: (p: Path<A>) => string
+  ppPath: (p: Path<A>) => string,
 ): string => {
   // TODO: only handles paths and floats for now; generalize to other exprs
   if (arg.tag === "Path") {
@@ -885,9 +994,9 @@ export const prettyPrintFn = (fn: Fn): string => {
       .map((arg) =>
         prettyPrintExpr(arg, (p) =>
           prettyPrintResolvedPath(
-            resolveRhsPath({ context: fn.ast.context, expr: p })
-          )
-        )
+            resolveRhsPath({ context: fn.ast.context, expr: p }),
+          ),
+        ),
       )
       .join(", ");
     return [name, "(", args, ")"].join("");
@@ -895,13 +1004,13 @@ export const prettyPrintFn = (fn: Fn): string => {
     const { op, arg1, arg2 } = body;
     const ppArg1 = prettyPrintExpr(arg1, (p) =>
       prettyPrintResolvedPath(
-        resolveRhsPath({ context: fn.ast.context, expr: p })
-      )
+        resolveRhsPath({ context: fn.ast.context, expr: p }),
+      ),
     );
     const ppArg2 = prettyPrintExpr(arg2, (p) =>
       prettyPrintResolvedPath(
-        resolveRhsPath({ context: fn.ast.context, expr: p })
-      )
+        resolveRhsPath({ context: fn.ast.context, expr: p }),
+      ),
     );
     return ppArg1 + " " + op.op + " " + ppArg2;
   }
@@ -929,51 +1038,6 @@ export const getEnd = ({ end }: LineProps<ad.Num>): ad.Num[] => end.contents;
 
 //#endregion
 
-//#region either monad
-
-export function isLeft<A, B>(val: Either<A, B>): val is Left<A> {
-  return val.tag === "Left";
-}
-
-export function isRight<A, B>(val: Either<A, B>): val is Right<B> {
-  return val.tag === "Right";
-}
-
-export function toLeft<A>(val: A): Left<A> {
-  return { contents: val, tag: "Left" };
-}
-
-export function toRight<B>(val: B): Right<B> {
-  return { contents: val, tag: "Right" };
-}
-
-export function ToLeft<A, B>(val: A): Either<A, B> {
-  return { contents: val, tag: "Left" };
-}
-
-export function ToRight<A, B>(val: B): Either<A, B> {
-  return { contents: val, tag: "Right" };
-}
-
-export function foldM<A, B, C>(
-  xs: A[],
-  f: (acc: B, curr: A, i: number) => Either<C, B>,
-  init: B
-): Either<C, B> {
-  let res = init;
-  let resW: Either<C, B> = toRight(init); // wrapped
-
-  for (let i = 0; i < xs.length; i++) {
-    resW = f(res, xs[i], i);
-    if (resW.tag === "Left") {
-      return resW;
-    } // Stop fold early on first error and return it
-    res = resW.contents;
-  }
-
-  return resW;
-}
-
 /**
  * Gets the string value of a property.  If the property cannot be converted
  * to a string, throw an exception.
@@ -984,7 +1048,7 @@ export function foldM<A, B, C>(
  */
 export const getAdValueAsString = (
   prop: Value<ad.Num>,
-  dft?: string
+  dft?: string,
 ): string => {
   switch (prop.tag) {
     case "FloatV":
@@ -996,8 +1060,8 @@ export const getAdValueAsString = (
   if (dft !== undefined) return dft;
   throw new Error(
     `getAdValueAsString: unexpected tag ${prop.tag} w/value ${JSON.stringify(
-      prop.contents
-    )}`
+      prop.contents,
+    )}`,
   );
 };
 
@@ -1008,6 +1072,73 @@ export const getAdValueAsString = (
 export const getValueAsShapeList = <T>(val: Value<T>): Shape<T>[] => {
   if (val.tag === "ShapeListV") return val.contents;
   throw new Error("Not a list of shapes");
+};
+
+//#region errors and warnings
+
+export type ErrorLoc = {
+  type: NodeType;
+  range: SourceRange;
+};
+
+export const toErrorLoc = (node: {
+  nodeType: NodeType;
+  start: SourceLoc;
+  end: SourceLoc;
+}): ErrorLoc => {
+  return {
+    type: node.nodeType,
+    range: {
+      start: node.start,
+      end: node.end,
+    },
+  };
+};
+
+export const locOrNone = (node: ASTNode<A>): ErrorLoc[] => {
+  if (isConcrete(node)) {
+    return [toErrorLoc(node)];
+  } else return [];
+};
+
+export const allWarnings = [
+  "BBoxApproximationWarning",
+  "GroupCycleWarning",
+  "ImplicitOverrideWarning",
+  "LayerCycleWarning",
+  "NoopDeleteWarning",
+  "ShapeBelongsToMultipleGroups",
+] as const;
+
+// These are type-level assertions that allWarnings
+// covers each variant in StyleWarning
+type AssertedWarningTags = (typeof allWarnings)[number];
+type ActualWarningTags = StyleWarning["tag"];
+
+type IsSubset<T, U> = T extends U ? true : false;
+type AreUnionsEqual<T, U> = IsSubset<T, U> extends true
+  ? IsSubset<U, T>
+  : false;
+
+// If this fails to compile, then allWarnings and the actual tags of
+// StyleWarning variants are different.
+const _warningTagsCheck: AreUnionsEqual<
+  AssertedWarningTags,
+  ActualWarningTags
+> = true;
+
+//#endregion
+
+//#region functions
+export const noWarn = <T>(value: T): MayWarn<T> => ({
+  value,
+  warnings: [],
+});
+
+export const noWarnFn = <T extends any[], S>(
+  f: (...args: T) => S,
+): ((...args: T) => MayWarn<S>) => {
+  return (...args: T) => noWarn(f(...args));
 };
 
 //#endregion

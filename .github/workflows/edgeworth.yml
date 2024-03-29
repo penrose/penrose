@@ -1,9 +1,11 @@
 name: Edgeworth
 on:
-  push:
-    branches:
-      - main
-      - "edgeworth/**"
+  workflow_dispatch:
+    inputs:
+      path:
+        description: "Path to deploy"
+        required: true
+        type: string
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -19,7 +21,7 @@ jobs:
         with:
           branch: gh-pages
           folder: packages/edgeworth/dist
-          target-folder: edgeworth/${{ github.sha }}/
+          target-folder: edgeworth/${{ inputs.path }}/
       - name: Add .nojekyll
         run: |
           mkdir extra/

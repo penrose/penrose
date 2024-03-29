@@ -1,8 +1,9 @@
 import im from "immutable";
 import { describe, expect, test } from "vitest";
+import { numOf, numsOf } from "../lib/Utils.js";
+import * as ad from "../types/ad.js";
 import { C } from "../types/ast.js";
-import { Either } from "../types/common.js";
-import { Env } from "../types/domain.js";
+import { DomainEnv } from "../types/domain.js";
 import { PenroseError } from "../types/errors.js";
 import { State } from "../types/state.js";
 import {
@@ -21,11 +22,11 @@ import {
   Translation,
 } from "../types/styleSemantics.js";
 import { SubstanceEnv } from "../types/substance.js";
-import { ColorV, RGBA } from "../types/value.js";
-import { Result, andThen, err, showError } from "../utils/Error.js";
+import { ColorV, FloatV, RGBA, StrV } from "../types/value.js";
+import { Result, showError } from "../utils/Error.js";
 import Graph from "../utils/Graph.js";
 import { GroupGraph } from "../utils/GroupGraph.js";
-import { ToRight, foldM, toLeft, zip2 } from "../utils/Util.js";
+import { zip2 } from "../utils/Util.js";
 import { compileDomain } from "./Domain.js";
 import * as S from "./Style.js";
 import { compileSubstance } from "./Substance.js";
@@ -52,17 +53,14 @@ export const loadProgs = async ({
   const throwErr = (e: any): any => {
     throw Error(
       `Expected Style program to work without errors. Got error: ${showError(
-        e
-      )}`
+        e,
+      )}`,
     );
   };
-  const env: Env = compileDomain(dsl).unwrapOrElse(throwErr);
-  const [subEnv, varEnv]: [SubstanceEnv, Env] = compileSubstance(
-    sub,
-    env
-  ).unwrapOrElse(throwErr);
+  const domEnv = compileDomain(dsl).unwrapOrElse(throwErr);
+  const subEnv = compileSubstance(sub, domEnv).unwrapOrElse(throwErr);
   return (
-    await S.compileStyleHelper("styletests", sty, subEnv, varEnv)
+    await S.compileStyleHelper("styletests", sty, subEnv, domEnv)
   ).unwrapOrElse(throwErr);
 };
 
@@ -86,7 +84,7 @@ describe("Layering computation", () => {
     const { shapeOrdering, warning } = S.computeLayerOrdering(
       ["A", "B", "C"],
       partials,
-      simpleGroupGraph
+      simpleGroupGraph,
     );
     expect(shapeOrdering).toEqual(["A", "B", "C"]);
     expect(warning).toBeUndefined();
@@ -100,7 +98,7 @@ describe("Layering computation", () => {
     const { shapeOrdering, warning } = S.computeLayerOrdering(
       ["A", "B", "C"],
       partials,
-      simpleGroupGraph
+      simpleGroupGraph,
     );
     expect(shapeOrdering).toEqual(["A", "B", "C"]);
     expect(warning).toBeDefined();
@@ -118,7 +116,7 @@ describe("Layering computation", () => {
     const { shapeOrdering, warning } = S.computeLayerOrdering(
       ["A", "B", "C", "D", "E", "F"],
       partials,
-      simpleGroupGraph
+      simpleGroupGraph,
     );
     expect(shapeOrdering).toEqual(["A", "C", "F", "B", "D", "E"]);
     expect(warning).toBeDefined();
@@ -136,7 +134,7 @@ describe("Layering computation", () => {
     const { shapeOrdering, warning } = S.computeLayerOrdering(
       ["A", "B", "C", "D", "E", "F"],
       partials,
-      simpleGroupGraph
+      simpleGroupGraph,
     );
     expect(shapeOrdering).toEqual(["A", "B", "D", "E", "C", "F"]);
     expect(warning).toBeDefined();
@@ -157,7 +155,7 @@ describe("Layering computation", () => {
     const { shapeOrdering, warning } = S.computeLayerOrdering(
       ["G1", "B", "D", "A", "G2", "C"],
       partials,
-      groupGraph
+      groupGraph,
     );
     // Order is A, D, B, C
     // But, position of G1 and G2 are undetermined
@@ -185,7 +183,7 @@ describe("Layering computation", () => {
     const { shapeOrdering, warning } = S.computeLayerOrdering(
       ["g", "s3", "s1", "s2"],
       partials,
-      groupGraph
+      groupGraph,
     );
     expect(warning).toBeDefined();
     expect(warning!.cycles.length).toEqual(1);
@@ -195,7 +193,7 @@ describe("Layering computation", () => {
 const colorValMatches = (
   colorPath: string,
   expected: [number, number, number, number],
-  translation: Translation
+  translation: Translation,
 ) => {
   const val = translation.symbols.get(colorPath);
   const rgba = ((val?.contents as ColorV<number>).contents as RGBA<number>)
@@ -360,14 +358,40 @@ describe("Compiler", () => {
   //   expect(S.fullSubst(selEnvs[6], ps1)).toEqual(false);
   // });
 
-  test("substitution: S.uniqueKeysAndVals true", () => {
-    // This subst has unique keys and vals
-    expect(S.uniqueKeysAndVals({ a: "V", c: "z" })).toEqual(true);
-  });
-
-  test("substitution: S.uniqueKeysAndVals false", () => {
-    // This subst doesn't have unique keys and vals
-    expect(S.uniqueKeysAndVals({ a: "V", c: "V" })).toEqual(false);
+  test("substitution: S.uniqueKeysAndVals", () => {
+    expect(
+      S.uniqueKeysAndVals({
+        a: { tag: "SubstanceVar", name: "v" },
+        c: { tag: "SubstanceVar", name: "z" },
+      }),
+    ).toEqual(true);
+    expect(
+      S.uniqueKeysAndVals({
+        a: { tag: "SubstanceVar", name: "V" },
+        c: { tag: "SubstanceVar", name: "V" },
+      }),
+    ).toEqual(false);
+    expect(
+      S.uniqueKeysAndVals({
+        a: {
+          tag: "SubstanceLiteral",
+          contents: { tag: "SubstanceNumber", contents: 1 },
+        },
+        c: { tag: "SubstanceVar", name: "z" },
+      }),
+    ).toEqual(true);
+    expect(
+      S.uniqueKeysAndVals({
+        a: {
+          tag: "SubstanceLiteral",
+          contents: { tag: "SubstanceString", contents: "Hello world" },
+        },
+        c: {
+          tag: "SubstanceLiteral",
+          contents: { tag: "SubstanceString", contents: "Hello world" },
+        },
+      }),
+    ).toEqual(false);
   });
 
   // COMBAK: StyleTestData is deprecated. Make the data in the test file later (@hypotext).
@@ -441,30 +465,6 @@ describe("Compiler", () => {
   //   }
   // });
 
-  const sum = (acc: number, n: number, i: number): Either<string, number> =>
-    i > 2 ? toLeft("error") : ToRight(acc + n);
-
-  test("S.foldM none", () => {
-    expect(foldM([], sum, -1)).toEqual(ToRight(-1));
-  });
-
-  test("S.foldM right", () => {
-    expect(foldM([1, 2, 3], sum, -1)).toEqual(ToRight(5));
-  });
-
-  test("S.foldM left", () => {
-    expect(foldM([1, 2, 3, 4], sum, -1)).toEqual(toLeft("error"));
-  });
-
-  const xs = ["a", "b", "c"];
-  test("numbered", () => {
-    expect(S.numbered(xs)).toEqual([
-      ["a", 0],
-      ["b", 1],
-      ["c", 2],
-    ]);
-  });
-
   test("Correct Style programs", () => {
     const dsl = "type Object";
     const sub = "Object o";
@@ -481,7 +481,7 @@ describe("Compiler", () => {
 `,
       `forall Object o {
     shape o.shape = Line {
-        start: (0., ?)
+        start: (0., ?[123.456])
     }
 }`,
       `forall Object o {
@@ -503,7 +503,7 @@ describe("Compiler", () => {
        o.shape = Circle {}
 }`,
       `forall Object o {
-        o.a = ?
+        o.a = ? [ 98765.4]
         o.b = ?
         ensure o.a > o.b
         ensure o.a < o.b
@@ -522,7 +522,7 @@ describe("Compiler", () => {
     ];
     stys.forEach((sty: string) => {
       expect(
-        async () => await loadProgs({ dsl, sub, sty: canvasPreamble + sty })
+        async () => await loadProgs({ dsl, sub, sty: canvasPreamble + sty }),
       ).not.toThrowError();
     });
   });
@@ -581,26 +581,6 @@ describe("Compiler", () => {
           string: "Equality!"
         }
       }`;
-      const { state } = await loadProgs({ dsl, sub, sty });
-      expect(state.shapes.length).toBeGreaterThan(0);
-    });
-    test("nested symmetric predicates", async () => {
-      const dsl = `type Atom
-      type Hydrogen <: Atom
-      type Oxygen <: Atom
-      symmetric predicate Bond(Atom, Atom)
-      predicate Not(Prop)`;
-      const sub = `Hydrogen H
-      Oxygen O
-      Not(Bond(H, O))`;
-      const sty =
-        canvasPreamble +
-        `forall Hydrogen h; Oxygen o
-        where Not(Bond(o, h)) {
-          theText = Text {
-            string: "hello"
-          }
-        }`;
       const { state } = await loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toBeGreaterThan(0);
     });
@@ -684,6 +664,29 @@ predicate Bond(Atom, Atom)`;
       const { state } = await loadProgs({ dsl, sub, sty });
       expect(state.shapes.length).toEqual(1);
     });
+
+    test("repeatable", async () => {
+      const dsl = "type T\npredicate P(T, T, T)";
+      const sub =
+        "T t1, t2, t3\nP(t1, t2, t3)\nP(t1, t1, t3)\nP(t2,t2,t3)\nP(t1,t3,t1)";
+      const sty1 =
+        canvasPreamble +
+        `forall repeatable T t1; T t2 {
+          Circle {}
+        }`;
+
+      const res1 = await loadProgs({ dsl, sub, sty: sty1 });
+      expect(res1.state.shapes.length).toEqual(6);
+
+      const sty2 =
+        canvasPreamble +
+        `forall repeatable T t1; T t2; T t3
+        where P(t1, t2, t3) {
+          Circle {}
+        }`;
+      const res2 = await loadProgs({ dsl, sub, sty: sty2 });
+      expect(res2.state.shapes.length).toEqual(4);
+    });
   });
 
   describe("predicate alias", () => {
@@ -710,15 +713,15 @@ Bond(O, H2)`;
       expect(state.shapes.length).toEqual(2);
     });
     test("correct style programs with predicate aliasing", async () => {
-      const dsl = "type Set \n predicate IsSubset(Set, Set)";
-      const sub = "Set A\nSet B\nSet C\nIsSubset(B, A)\nIsSubset(C, B)";
+      const dsl = "type Set \n predicate Subset(Set, Set)";
+      const sub = "Set A\nSet B\nSet C\nSubset(B, A)\nSubset(C, B)";
 
       const sty =
         canvasPreamble +
-        `forall Set a; Set b where IsSubset(a,b) as foo {
+        `forall Set a; Set b where Subset(a,b) as foo {
           foo.icon = Rectangle{}
         }
-        forall Set u; Set v where IsSubset(u,v) as bar {
+        forall Set u; Set v where Subset(u,v) as bar {
           bar.icon2 = Ellipse{}
         }
         `;
@@ -732,19 +735,19 @@ Bond(O, H2)`;
 
   const expectErrorOf = (
     result: Result<State, PenroseError>,
-    errorType: string
+    errorType: string,
   ) => {
     if (result.isErr()) {
       const res: PenroseError = result.error;
       if (res.errorType !== "StyleError") {
         throw Error(
-          `Error ${errorType} was supposed to occur. Got a non-Style error '${res.errorType}'.`
+          `Error ${errorType} was supposed to occur. Got a non-Style error '${res.errorType}'.`,
         );
       }
 
       if (res.tag !== "StyleErrorList") {
         throw Error(
-          `Error ${errorType} was supposed to occur. Did not receive a Style list. Got ${res.tag}.`
+          `Error ${errorType} was supposed to occur. Did not receive a Style list. Got ${res.tag}.`,
         );
       }
 
@@ -770,7 +773,7 @@ Bond(O, H2)`;
 
   describe("Expected Style errors", () => {
     const subProg = `Set A, B
-IsSubset(B, A)
+Subset(B, A)
 AutoLabel All `;
 
     const domainProg = `type Set
@@ -778,28 +781,36 @@ type Point
 
 function Union(Set a, Set b) -> Set
 
-predicate IsSubset(Set s1, Set s2)
+predicate Subset(Set s1, Set s2)
 `;
 
     // We test variations on this Style program
     // const styPath = "set-theory-domain/venn.style";
 
-    const domainRes: Result<Env, PenroseError> = compileDomain(domainProg);
+    const domRes: Result<DomainEnv, PenroseError> = compileDomain(domainProg);
 
-    const subRes: Result<[SubstanceEnv, Env], PenroseError> = andThen(
-      (env) => compileSubstance(subProg, env),
-      domainRes
+    if (domRes.isErr()) {
+      throw new Error("Domain compilation should not fail");
+    }
+
+    const subRes: Result<SubstanceEnv, PenroseError> = compileSubstance(
+      subProg,
+      domRes.value,
     );
+
+    if (subRes.isErr()) {
+      throw new Error("Substance compilation should not fail");
+    }
 
     const testStyProgForError = async (styProg: string, errorType: string) => {
       let preamble = errorType.startsWith("Canvas") ? "" : canvasPreamble;
-      const styRes: Result<State, PenroseError> = subRes.isErr()
-        ? err(subRes.error)
-        : await S.compileStyle(
-            "Style compiler errors test seed",
-            preamble + styProg,
-            ...subRes.value
-          );
+      const styRes: Result<State, PenroseError> = await S.compileStyle(
+        "Style compiler errors test seed",
+        preamble + styProg,
+        [],
+        subRes.value,
+        domRes.value,
+      );
       expectErrorOf(styRes, errorType);
     };
 
@@ -815,19 +826,20 @@ predicate IsSubset(Set s1, Set s2)
       SelectorFieldNotSupported: [`forall Set x where x has randomfield { }`],
 
       // COMBAK: Style doesn't throw parse error if the program is just "forall Point `A`"... instead it fails inside compileStyle with an undefined selector environment
-      SelectorDeclTypeMismatch: [`forall Point \`A\` { }`],
+      //SelectorDeclTypeMismatch: [`forall Point \`A\` { }`],
+      // ^ This should not be an error.
 
-      SelectorRelTypeMismatch: [
-        `forall Point x; Set y; Set z
-      where x := Union(y, z) { } `,
-      ],
+      // SelectorRelTypeMismatch: [
+      //   `forall Point x; Set y; Set z
+      // where x := Union(y, z) { } `,
+      // ],
 
       TaggedSubstanceError: [
         `forall Set x; Point y
-where IsSubset(y, x) { }`,
+where Subset(y, x) { }`,
         `forall Setfhjh x { }`,
         `forall Point x, y where Midpointdfsdfds(x, y) { }`,
-        `forall Set a where IsSubset(a, B) {}`,
+        `forall Set a where Subset(a, B) {}`,
       ],
 
       // ---------- Block static errors
@@ -899,7 +911,7 @@ delete x.z.p }`,
           x.icon = Circle { }
         }
 
-        forall Set x; Set y where IsSubset(x, y) {
+        forall Set x; Set y where Subset(x, y) {
           override y.r = x.r + y.r
         }`,
       ],
@@ -926,6 +938,9 @@ delete x.z.p }`,
            x.z = 1.0
            x.y = x.z.p
 }`,
+        `forall Set x {
+          layer AAA above BBB
+        }`,
       ],
       CanvasNonexistentDimsError: [
         `foo {
@@ -939,7 +954,7 @@ delete x.z.p }`,
   height = 100
 }`,
         `canvas {
-  width = ?
+  width = ?[300]
   height = 100
 }`,
         `canvas {
@@ -964,11 +979,11 @@ delete x.z.p }`,
       ],
       SelectorAliasNamingError: [
         `forall Set a; Set b
-        where IsSubset(a, b) as a {}`,
+        where Subset(a, b) as a {}`,
         `forall Set a; Set b
-        where IsSubset(a, b) as Set {}`,
+        where Subset(a, b) as Set {}`,
         `forall Set a; Set b
-        where IsSubset(a, b) as IsSubset {}`,
+        where Subset(a, b) as Subset {}`,
       ],
       BadShapeParamTypeError: [
         `forall Set a {
@@ -1053,7 +1068,7 @@ delete x.z.p }`,
         }
         `,
       ],
-      UnexpectedCollectionAccessError: [
+      NotSubstanceCollectionError: [
         `forall Set a {
           a.c = 10
           x = listof c from a
@@ -1063,6 +1078,13 @@ delete x.z.p }`,
         }`,
         `collect Set a into aa foreach Set b {
           x = listof c from x
+        }`,
+      ],
+      LayerOnNonShapesError: [
+        `block {
+          x = 100
+          y = 200
+          layer x above y
         }`,
       ],
       BadElementError: [
@@ -1199,7 +1221,7 @@ delete x.z.p }`,
           } else {
             return false;
           }
-        })
+        }),
       ).toEqual(true);
     });
 
@@ -1226,8 +1248,8 @@ delete x.z.p }`,
             } else {
               throw Error("Should be a FloatV");
             }
-          })
-        )
+          }),
+        ),
       ).toEqual(im.Set([1, 2, 3]));
     });
   });
@@ -1320,7 +1342,7 @@ delete x.z.p }`,
         }
         collect T t into ts {
           Circle {
-            r: count(listof value from ts)
+            r: numberof ts
           }
         }
       `;
@@ -1380,8 +1402,164 @@ delete x.z.p }`,
       // And this would fail:
       const { graph } = await loadProgs({ dsl, sub, sty });
       expect(graph.parents("`t`.val").sort()).toEqual(
-        ["`t`.vals", "1:0:match_id"].sort()
+        ["`t`.vals", "1:0:match_id"].sort(),
       );
+    });
+  });
+
+  test("Indexing", async () => {
+    const dsl = "type T";
+    const sub = "T t";
+    const sty =
+      canvasPreamble +
+      `
+      forall T t {
+        mat = [(1, 2, 3), (4, 5, 6), (7, 8, 9)]
+        t.row = mat[2]
+      }
+    `;
+
+    const { translation } = await loadProgs({ dsl, sub, sty });
+    const rowVal = translation.symbols.get("`t`.row");
+    expect(rowVal !== undefined).toBe(true);
+    if (rowVal !== undefined) {
+      expect(rowVal.tag).toEqual("Val");
+      if (rowVal.tag === "Val") {
+        expect(rowVal.contents.tag).toEqual("VectorV");
+        if (rowVal.contents.tag === "VectorV") {
+          expect(numsOf(rowVal.contents.contents)).toEqual([7, 8, 9]);
+        }
+      }
+    }
+  });
+
+  describe("selector literals", () => {
+    test("declared styvars refers to numbers", async () => {
+      const dsl = "predicate Even(Number n)";
+      const sub = `Even(-4)
+        Even(-2)
+        Even(0)
+        Even(2)
+        Even(4)`;
+      const sty =
+        canvasPreamble +
+        `
+        forall Number n
+        where Even(n) {
+          n.sh = Circle {
+            r: n
+          }
+        }
+      `;
+
+      const { translation } = await loadProgs({ dsl, sub, sty });
+      [-4, -2, 0, 2, 4].forEach((num) => {
+        const subName = `{n${num}}`;
+        // ensure each shape exists
+        expect(translation.symbols.get(`\`${subName}\`.sh`)).toBeDefined();
+
+        // ensure each shape has the right radius
+        expect(
+          (
+            translation.symbols.get(`\`${subName}\`.sh.r`)
+              ?.contents as FloatV<ad.Num>
+          ).contents,
+        ).toEqual(num);
+      });
+    });
+    test("undeclared styvars that refers to numbers", async () => {
+      const dsl = `type Set
+        predicate Has(Set s, Number n)`;
+      const sub = `Set s
+        Has(s, -1.234)
+        Has(s, 3)
+        Has(s, 5.678)`;
+      const sty =
+        canvasPreamble +
+        `
+        forall Set s
+        where Has(s, n) {
+          n.sh = Circle {
+            r: n
+          }
+        }
+      `;
+      // This is fine -- the `n` in `n.sh` would be translated to `{n...}`.sh, because resolveLhsPath handles this.
+
+      const { translation } = await loadProgs({ dsl, sub, sty });
+      [-1.234, 3, 5.678].forEach((num) => {
+        const subName = `{n${num}}`;
+        // ensure each shape exists
+        expect(translation.symbols.get(`\`${subName}\`.sh`)).toBeDefined();
+
+        // ensure each shape has the right radius
+        expect(
+          (
+            translation.symbols.get(`\`${subName}\`.sh.r`)
+              ?.contents as FloatV<ad.Num>
+          ).contents,
+        ).toEqual(num);
+      });
+    });
+
+    test("literals in selector", async () => {
+      const dsl = `type Set
+        predicate Has(Set s, String str)`;
+      const sub = `Set s1, s2
+        Has(s1, "Never Gonna Give You Up")
+        Has(s2, "Never Gonna Let You Down")`;
+      const sty =
+        canvasPreamble +
+        `
+        forall Set s
+        where Has(s, "Never Gonna Let You Down") {
+          s.t = Text {
+            string: nameof s
+          }
+        }
+        `;
+      const { translation, state } = await loadProgs({ dsl, sub, sty });
+
+      expect(state.shapes.length).toEqual(1);
+
+      expect(
+        (translation.symbols.get(`\`s2\`.t.string`)!.contents as StrV)
+          .contents === "s2",
+      );
+    });
+
+    test("literals in collectors", async () => {
+      const dsl = `type Set
+        predicate Has(Set s, Number n)`;
+      const sub = `Set s1, s2
+        Has(s1, 1)
+        Has(s1, 5)
+        Has(s1, 100)
+        Has(s2, -1)
+        Has(s2, -5)
+        Has(s2, -100)`;
+      const sty =
+        canvasPreamble +
+        `
+        collect Number n into ns
+        where Has(s, n)
+        foreach Set s {
+          s.mean = average(ns)
+        }
+        `;
+      const { translation } = await loadProgs({ dsl, sub, sty });
+      expect(
+        numOf(
+          (translation.symbols.get("`s1`.mean")!.contents as FloatV<ad.Num>)
+            .contents,
+        ),
+      ).toEqual((1 + 5 + 100) / 3.0);
+      expect(
+        numOf(
+          (translation.symbols.get("`s2`.mean")!.contents as FloatV<ad.Num>)
+            .contents,
+        ),
+      ).toEqual(-(1 + 5 + 100) / 3.0);
     });
   });
 });

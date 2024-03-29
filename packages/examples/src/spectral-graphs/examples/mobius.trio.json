@@ -1,0 +1,6 @@
+{
+  "substance": "./mobius.substance",
+  "style": ["../3d.style"],
+  "domain": "../graph.domain",
+  "variation": "AutonomousJay128"
+}

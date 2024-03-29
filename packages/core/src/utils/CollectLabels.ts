@@ -10,13 +10,20 @@ import { Shape } from "../shapes/Shapes.js";
 import { Text } from "../shapes/Text.js";
 import * as ad from "../types/ad.js";
 import { PenroseError } from "../types/errors.js";
-import { EquationData, LabelCache, State, TextData } from "../types/state.js";
+import {
+  EquationData,
+  EquationShape,
+  LabelCache,
+  LabelMeasurements,
+  State,
+  TextData,
+} from "../types/state.js";
 import { FloatV } from "../types/value.js";
 import { Result, err, ok } from "./Error.js";
-import { getAdValueAsString, getValueAsShapeList, safe } from "./Util.js";
+import { getAdValueAsString, getValueAsShapeList, unwrap } from "./Util.js";
 
 export const mathjaxInit = (): ((
-  input: string
+  input: string,
 ) => Result<HTMLElement, string>) => {
   // https://github.com/mathjax/MathJax-demos-node/blob/master/direct/tex2svg
   // const adaptor = chooseAdaptor();
@@ -65,7 +72,7 @@ type Output = {
 };
 
 const parseFontSize = (
-  fontSize: string
+  fontSize: string,
 ): { number: number; unit: string } | undefined => {
   const regex = /^(\d+(?:\.\d+)?)\s*(px|in|cm|mm)$/;
   const match = fontSize.match(regex);
@@ -96,7 +103,7 @@ const toPxFontSize = (number: number, unit: string): number => {
  */
 const tex2svg = async (
   properties: Equation<ad.Num>,
-  convert: (input: string) => Result<HTMLElement, string>
+  convert: (input: string) => Result<HTMLElement, string>,
 ): Promise<Result<Output, string>> =>
   new Promise((resolve) => {
     const contents = getAdValueAsString(properties.string, "");
@@ -106,8 +113,8 @@ const tex2svg = async (
     if (fontSize === "" || contents === "") {
       resolve(
         err(
-          `Label 'string' and 'fontSize' must be non-empty and non-optimized for ${properties.name.contents}`
-        )
+          `Label 'string' and 'fontSize' must be non-empty and non-optimized for ${properties.name.contents}`,
+        ),
       );
     }
 
@@ -156,13 +163,13 @@ const tex2svg = async (
           height: scaledHeight,
           descent: scaledDescent,
           ascent: scaledAscent,
-        })
+        }),
       );
     } else {
       resolve(
         err(
-          'Invalid font size format. Only "px", "in", "cm", and "mm" units are supported.'
-        )
+          'Invalid font size format. Only "px", "in", "cm", and "mm" units are supported.',
+        ),
       );
       return;
     }
@@ -177,7 +184,7 @@ const textData = (
   width: number,
   height: number,
   descent: number,
-  ascent: number
+  ascent: number,
 ): TextData => ({
   tag: "TextData",
   width: floatV(width),
@@ -191,8 +198,8 @@ const equationData = (
   height: number,
   ascent: number,
   descent: number,
-  rendered: HTMLElement
-): EquationData => ({
+  rendered: HTMLElement,
+): EquationData & EquationShape => ({
   tag: "EquationData",
   width: floatV(width),
   height: floatV(height),
@@ -236,7 +243,7 @@ export const toFontRule = <T>(properties: Text<T>): string => {
 // https://stackoverflow.com/a/44564236
 export const collectLabels = async (
   allShapes: Shape<ad.Num>[],
-  convert: (input: string) => Result<HTMLElement, string>
+  convert: (input: string) => Result<HTMLElement, string>,
 ): Promise<Result<LabelCache, PenroseError>> => {
   const labels: LabelCache = new Map();
   for (const s of allShapes) {
@@ -256,12 +263,12 @@ export const collectLabels = async (
 
       // Instead of directly overwriting the properties, cache them temporarily
       // NOTE: in the case of empty strings, `tex2svg` returns infinity sometimes. Convert to 0 to avoid NaNs in such cases.
-      const label: EquationData = equationData(
+      const label = equationData(
         width === Infinity ? 0 : width,
         height === Infinity ? 0 : height,
         ascent,
         descent,
-        body
+        body,
       );
       labels.set(shapeName, label);
     } else if (s.shapeType === "Text") {
@@ -270,7 +277,7 @@ export const collectLabels = async (
       // Use canvas to measure text data
       const measure: TextMeasurement = measureText(
         getAdValueAsString(s.string),
-        toFontRule(s)
+        toFontRule(s),
       );
 
       // If the width and height are defined, the renderer will render the text. `actualDescent` is currently not used in rendering.
@@ -279,7 +286,7 @@ export const collectLabels = async (
           measure.width,
           measure.height,
           measure.actualDescent,
-          measure.actualAscent
+          measure.actualAscent,
         );
       } else {
         label = textData(0, 0, 0, 0);
@@ -348,10 +355,13 @@ const setPendingProperty = (
   xs: number[],
   inputs: InputMap,
   before: FloatV<ad.Num>,
-  after: FloatV<number>
+  after: FloatV<number>,
 ) => {
   if (typeof before.contents !== "number" && before.contents.tag === "Var") {
-    const { index, meta } = safe(inputs.get(before.contents), "missing input");
+    const { index, meta } = unwrap(
+      inputs.get(before.contents),
+      () => "missing input",
+    );
     if (meta.init.tag === "Pending") xs[index] = after.contents;
   }
 };
@@ -359,28 +369,37 @@ const setPendingProperty = (
 const insertPendingHelper = (
   shapes: Shape<ad.Num>[],
   xs: number[],
-  labelCache: LabelCache,
-  inputs: InputMap
+  labelCache: LabelMeasurements,
+  inputs: InputMap,
 ): void => {
   for (const s of shapes) {
     if (s.shapeType === "Group") {
       const subShapes = getValueAsShapeList(s.shapes);
       insertPendingHelper(subShapes, xs, labelCache, inputs);
     } else if (s.shapeType === "Equation") {
-      const labelData = safe(labelCache.get(s.name.contents), "missing label");
+      const labelData = unwrap(
+        labelCache.get(s.name.contents),
+        () =>
+          `missing label: ${s.name.contents}. Label cache: ${[
+            ...labelCache.keys(),
+          ].join(" ")}`,
+      );
       if (labelData.tag !== "EquationData")
         throw Error(
-          `for ${s.shapeType} ${s.name.contents} got unexpected ${labelData.tag}`
+          `for ${s.shapeType} ${s.name.contents} got unexpected ${labelData.tag}`,
         );
       setPendingProperty(xs, inputs, s.width, labelData.width);
       setPendingProperty(xs, inputs, s.height, labelData.height);
       setPendingProperty(xs, inputs, s.ascent, labelData.ascent);
       setPendingProperty(xs, inputs, s.descent, labelData.descent);
     } else if (s.shapeType === "Text") {
-      const labelData = safe(labelCache.get(s.name.contents), "missing label");
+      const labelData = unwrap(
+        labelCache.get(s.name.contents),
+        () => `missing label: ${s.name.contents}`,
+      );
       if (labelData.tag !== "TextData")
         throw Error(
-          `for ${s.shapeType} ${s.name.contents} got unexpected ${labelData.tag}`
+          `for ${s.shapeType} ${s.name.contents} got unexpected ${labelData.tag}`,
         );
       setPendingProperty(xs, inputs, s.width, labelData.width);
       setPendingProperty(xs, inputs, s.height, labelData.height);
@@ -390,10 +409,16 @@ const insertPendingHelper = (
   }
 };
 
-export const insertPending = (state: State): State => {
+type PartialState = Pick<State, "varyingValues" | "inputs" | "shapes"> & {
+  labelCache: LabelMeasurements;
+};
+
+export const insertLabelMeasurements = <T extends PartialState>(
+  state: T,
+): T => {
   const varyingValues = [...state.varyingValues];
   const inputs = new Map(
-    state.inputs.map(({ handle, meta }, index) => [handle, { index, meta }])
+    state.inputs.map(({ handle, meta }, index) => [handle, { index, meta }]),
   );
   insertPendingHelper(state.shapes, varyingValues, state.labelCache, inputs);
   return { ...state, varyingValues };

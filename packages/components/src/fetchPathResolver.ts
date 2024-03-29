@@ -1,5 +1,5 @@
 export default async function fetchResolver(
-  path: string
+  path: string,
 ): Promise<string | undefined> {
   const response = await fetch(path);
   if (!response.ok) {

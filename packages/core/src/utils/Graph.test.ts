@@ -83,7 +83,7 @@ describe("Graph", () => {
 
   test("descendants with cycle", () => {
     expect(numberCycleGraph().descendants(8)).toEqual(
-      new Set([1, 2, 3, 7, 8, 9])
+      new Set([1, 2, 3, 7, 8, 9]),
     );
   });
 

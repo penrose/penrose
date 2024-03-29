@@ -1,0 +1,6 @@
+{
+  "substance": "./code/tutorial3/vector.substance",
+  "style": ["./code/tutorial3/vector.style"],
+  "domain": "./code/tutorial3/linearAlgebra.domain",
+  "variation": ""
+}

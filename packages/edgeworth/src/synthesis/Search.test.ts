@@ -7,7 +7,11 @@ import {
   prettySubstance,
 } from "@penrose/core/dist/compiler/Substance";
 import { A } from "@penrose/core/dist/types/ast";
-import { SubProg, SubRes } from "@penrose/core/dist/types/substance";
+import { DomainEnv } from "@penrose/core/dist/types/domain";
+import {
+  CompiledSubProg as SubProg,
+  SubstanceEnv,
+} from "@penrose/core/dist/types/substance";
 import { showError } from "@penrose/core/dist/utils/Error";
 import _ from "lodash";
 import pc from "pandemonium/choice";
@@ -54,11 +58,10 @@ function Difference(Set a, Set b) -> Set
 function Subset(Set a, Set b) -> Set
 function AddPoint(Point p, Set s1) -> Set
 
-predicate Not(Prop p1)
 predicate From(Map f, Set domain, Set codomain)
 predicate Empty(Set s)
 predicate Intersecting(Set s1, Set s2)
-predicate IsSubset(Set s1, Set s2)
+predicate Subset(Set s1, Set s2)
 predicate Equal(Set s1, Set s2)
 predicate PointIn(Set s, Point p)
 predicate In(Point p, Set s)
@@ -68,22 +71,29 @@ predicate Bijection(Map m)
 predicate PairIn(Point, Point, Map)
 `;
 
-const getSubRes = (domainSrc: string, substanceSrc: string): SubRes => {
+const getSubRes = (
+  domainSrc: string,
+  substanceSrc: string,
+): [SubstanceEnv, DomainEnv] => {
   const envOrError = compileDomain(domainSrc);
   if (envOrError.isOk()) {
-    const env = envOrError.value;
-    const subRes = compileSubstance(substanceSrc, env);
+    const domEnv = envOrError.value;
+    const subRes = compileSubstance(substanceSrc, domEnv);
     if (subRes.isOk()) {
-      const subResult = subRes.value;
-      return subResult;
+      const subEnv = subRes.value;
+      return [subEnv, domEnv];
     } else {
       throw new Error(
-        `Error when compiling the Substance program: ${showError(subRes.error)}`
+        `Error when compiling the Substance program: ${showError(
+          subRes.error,
+        )}`,
       );
     }
   } else {
     throw new Error(
-      `Error when compiling the Domain program:\n${showError(envOrError.error)}`
+      `Error when compiling the Domain program:\n${showError(
+        envOrError.error,
+      )}`,
     );
   }
 };
@@ -92,59 +102,59 @@ describe("AST diff tests", () => {
     const original = `
     Set A, B, C, D, E
     D := Union(A, B)
-    IsSubset(B, A)
-    IsSubset(C, A)
+    Subset(B, A)
+    Subset(C, A)
     Equal(E, E)
     `;
     const edited = `
     Set A, B, C, D, E
-    IsSubset(B, A)
-    IsSubset(D, A)
+    Subset(B, A)
+    Subset(D, A)
     E := Union(A, B)
     `;
-    const res1: SubRes = getSubRes(domainSrc, original);
+    const res1 = getSubRes(domainSrc, original);
     const ast1: SubProg<A> = res1[0].ast;
     const ast2: SubProg<A> = getSubRes(domainSrc, edited)[0].ast;
     const d: DiffSet = subProgDiffs(ast1, ast2);
     expect([...d.add, ...d.delete, ...d.update].map(showSubDiff)).toEqual([
       "Delete: Equal(E, E)",
       "Update: D := Union(A, B) -> E := Union(A, B)\n\tChanged D := Union(A, B) : D (variable,value) -> E",
-      "Update: IsSubset(C, A) -> IsSubset(D, A)\n\tChanged IsSubset(C, A) : C (args,0,value) -> D",
+      "Update: Subset(C, A) -> Subset(D, A)\n\tChanged Subset(C, A) : C (args,0,value) -> D",
     ]);
   });
 
   test("applying AST diff with id swap", () => {
     const prog1 = `
     Set A, B, C, D, E, F, Z
-    IsSubset(B, A)
-    IsSubset(C, A)
+    Subset(B, A)
+    Subset(C, A)
     -- D := Union(A, B)
     Z := Union(A, B) -- This will mess up the ordering
     `;
     const prog2 = `
     Set A, B, C, D, E, F, Z
-    IsSubset(B, A)
-    IsSubset(D, A)
+    Subset(B, A)
+    Subset(D, A)
     F := Union(A, B)
     `;
-    const res1: SubRes = getSubRes(domainSrc, prog1);
+    const res1 = getSubRes(domainSrc, prog1);
     const ast1: SubProg<A> = res1[0].ast;
     const ast2: SubProg<A> = getSubRes(domainSrc, prog2)[0].ast;
     const diffs: StmtDiff[] = diffSubStmts(ast1, ast2);
     expect(diffs).toHaveLength(2);
     expect(diffs.map(showStmtDiff)).toEqual([
-      "Changed IsSubset(C, A) (Identifier): C (args,0,value) -> D",
+      "Changed Subset(C, A) (Identifier): C (args,0,value) -> D",
       "Changed Z := Union(A, B) (Identifier): Z (variable,value) -> F",
     ]);
-    const env = res1[1];
-    const ids = env.varIDs;
+    const env = res1[0];
+    const ids = env.objIds;
     const swappedDiffs: StmtDiff[] = diffs.map((d: StmtDiff) => {
       if (d.diffType === "Identifier") {
         const matchingIDs = ids.filter(
-          (id) => typeOf(id.value, env) === typeOf(d.diff.val, env)
+          (id) => typeOf(id.value, env) === typeOf(d.diff.val, env),
         );
         const choices = matchingIDs.filter(
-          (id) => ![d.diff.val, d.originalValue].includes(id.value)
+          (id) => ![d.diff.val, d.originalValue].includes(id.value),
         );
         return swapDiffID(d, choice(choices));
       } else return d;
@@ -159,13 +169,13 @@ describe("AST diff tests", () => {
   test("applying AST diff regardless of stmt ordering", () => {
     const prog1 = `
     Set A, B, C
-    IsSubset(A,B)
-    IsSubset(C, A)
+    Subset(A,B)
+    Subset(C, A)
     `;
     const prog2 = `
     Set A, B, C
-    IsSubset(C,A)
-    IsSubset(B, A)
+    Subset(C,A)
+    Subset(B, A)
     `;
     const ast1: SubProg<A> = getSubRes(domainSrc, prog1)[0].ast;
     const ast2: SubProg<A> = getSubRes(domainSrc, prog2)[0].ast;
@@ -178,7 +188,7 @@ describe("AST diff tests", () => {
     const ast2From1 = applyStmtDiffs(ast1, diffs);
     // the result should be semantically equivalent to the second program
     expect(prettySubstance(sortStmts(ast2From1))).toEqual(
-      prettySubstance(sortStmts(ast2))
+      prettySubstance(sortStmts(ast2)),
     );
     // ...but different in the source because the diff is applied to the 2nd statement
     expect(prettySubstance(ast2From1)).not.toEqual(prettySubstance(ast2));
@@ -186,13 +196,13 @@ describe("AST diff tests", () => {
   test("applying exact AST diff", () => {
     const prog1 = `
     Set A, B, C
-    IsSubset(C, A)
-    IsSubset(A,B)
+    Subset(C, A)
+    Subset(A,B)
     `;
     const prog2 = `
     Set A, B, C
-    IsSubset(C,A)
-    IsSubset(B, A)
+    Subset(C,A)
+    Subset(B, A)
     `;
     const ast1: SubProg<A> = getSubRes(domainSrc, prog1)[0].ast;
     const ast2: SubProg<A> = getSubRes(domainSrc, prog2)[0].ast;
@@ -213,32 +223,32 @@ describe("Mutation recognition tests", () => {
   test("recognizing swap mutation - auto", () => {
     const prog1 = `
     Set A, B, C
-    IsSubset(A,B)
-    IsSubset(C, A)
+    Subset(A,B)
+    Subset(C, A)
     `;
     const prog2 = `
     Set A, B, C
-    IsSubset(C,A)
-    IsSubset(B, A)
+    Subset(C,A)
+    Subset(B, A)
     `;
     const [subEnv, env] = getSubRes(domainSrc, prog1);
     const ast1: SubProg<A> = subEnv.ast;
     const ast2: SubProg<A> = getSubRes(domainSrc, prog2)[0].ast;
-    const mutationGroups = findMutationPaths(ast1, ast2, env);
+    const mutationGroups = findMutationPaths(ast1, ast2, env, subEnv);
     expect(mutationGroups.map(showMutations)).toContain(
-      "Swap arguments 0 and 1 of IsSubset(A, B)"
+      "Swap arguments 0 and 1 of Subset(A, B)",
     );
   });
   test("recognizing swap mutation - stepwise", () => {
     const prog1 = `
     Set A, B, C
-    IsSubset(A,B)
-    IsSubset(C, A)
+    Subset(A,B)
+    Subset(C, A)
     `;
     const prog2 = `
     Set A, B, C
-    IsSubset(C,A)
-    IsSubset(B, A)
+    Subset(C,A)
+    Subset(B, A)
     `;
     const [subEnv, env] = getSubRes(domainSrc, prog1);
     const ast1: SubProg<A> = subEnv.ast;
@@ -248,14 +258,14 @@ describe("Mutation recognition tests", () => {
     expect(diffs.add).toHaveLength(0);
     expect(diffs.delete).toHaveLength(0);
     expect(diffs.update).toHaveLength(1);
-    expect(prettyStmt(diffs.update[0].source)).toEqual("IsSubset(A, B)");
-    expect(prettyStmt(diffs.update[0].result)).toEqual("IsSubset(B, A)");
+    expect(prettyStmt(diffs.update[0].source)).toEqual("Subset(A, B)");
+    expect(prettyStmt(diffs.update[0].result)).toEqual("Subset(B, A)");
     // get all the updated statements from ast1. There should be only one statement changed
     const fromSet = diffs.update.map((d) => d.source);
     expect(fromSet).toHaveLength(1);
     // enumerate all mutations for the statement
     const swappedPred = fromSet[0];
-    const ctx = initContext(env, "existing", "distinct", "test0");
+    const ctx = initContext(env, subEnv, "existing", "distinct", "test0");
     const mutations = enumerateStmtMutations(swappedPred, ast1, ctx);
     // apply each mutation and see how many of them match with the result
     const matchedMutations = mutations.filter((m) => {
@@ -271,39 +281,39 @@ describe("Mutation recognition tests", () => {
   test("recognizing swap mutation with noise - auto", () => {
     const prog1 = `
     Set A, B, C
-    IsSubset(A,B)
-    IsSubset(C, A)
+    Subset(A,B)
+    Subset(C, A)
     `;
     const prog2 = `
     Set A, B, C, D, E
-    IsSubset(B, A)
+    Subset(B, A)
     Equal(D, E)
     `;
     const [subEnv, env] = getSubRes(domainSrc, prog1);
     const ast1: SubProg<A> = subEnv.ast;
     const ast2: SubProg<A> = getSubRes(domainSrc, prog2)[0].ast;
-    const mutationGroups = findMutationPaths(ast1, ast2, env);
+    const mutationGroups = findMutationPaths(ast1, ast2, env, subEnv);
     // since there's only one possible update, there should be only one path
     expect(mutationGroups).toHaveLength(1);
     // the path should have two adds, one delete, and an update
     expect(mutationGroups[0].filter((m) => m.tag === "Add")).toHaveLength(3);
     expect(mutationGroups[0].filter((m) => m.tag === "Delete")).toHaveLength(1);
     expect(
-      mutationGroups[0].filter((m) => m.tag === "SwapStmtArgs")
+      mutationGroups[0].filter((m) => m.tag === "SwapStmtArgs"),
     ).toHaveLength(1);
     const { res: ast2from1 } = executeMutations(
       mutationGroups[0],
       ast1,
-      initContext(env, "existing", "distinct", "test1")
+      initContext(env, subEnv, "existing", "distinct", "test1"),
     );
     expect(prettySubstance(sortStmts(ast2from1))).toEqual(
-      prettySubstance(sortStmts(ast2))
+      prettySubstance(sortStmts(ast2)),
     );
   });
   test("recognizing multiple mutations on multiple stmts", () => {
     const prog1 = `
     Set A, B, C
-    IsSubset(A,B)
+    Subset(A,B)
     C := Intersection(A, B)
     `;
     const prog2 = `
@@ -314,16 +324,16 @@ describe("Mutation recognition tests", () => {
     const [subEnv, env] = getSubRes(domainSrc, prog1);
     const ast1: SubProg<A> = subEnv.ast;
     const ast2: SubProg<A> = getSubRes(domainSrc, prog2)[0].ast;
-    const ctx = initContext(env, "existing", "distinct", "test2");
+    const ctx = initContext(env, subEnv, "existing", "distinct", "test2");
     const paths = enumerateMutationPaths(ast1, ast2, ctx, 5);
     const shortestPath = _.minBy(paths, (p) => p.mutations.length);
     expect(shortestPath?.mutations).toHaveLength(3);
     expect(shortestPath?.mutations.map((m) => m.tag)).toContain("SwapStmtArgs");
     expect(shortestPath?.mutations.map((m) => m.tag)).toContain(
-      "ChangeExprType"
+      "ChangeExprType",
     );
     expect(shortestPath?.mutations.map((m) => m.tag)).toContain(
-      "ReplaceStmtName"
+      "ReplaceStmtName",
     );
 
     // console.log(
@@ -333,7 +343,7 @@ describe("Mutation recognition tests", () => {
   test("recognizing multiple mutations on one stmt", () => {
     const prog1 = `
     Set A, B, C
-    IsSubset(A,B)
+    Subset(A,B)
     `;
     const prog2 = `
     Set A, B, C
@@ -342,18 +352,18 @@ describe("Mutation recognition tests", () => {
     const [subEnv, env] = getSubRes(domainSrc, prog1);
     const ast1: SubProg<A> = subEnv.ast;
     const ast2: SubProg<A> = getSubRes(domainSrc, prog2)[0].ast;
-    const ctx = initContext(env, "existing", "distinct", "test3");
+    const ctx = initContext(env, subEnv, "existing", "distinct", "test3");
     const paths = enumerateMutationPaths(ast1, ast2, ctx, 10);
     const twoStepPaths = paths.filter((p) => p.mutations.length === 2);
     // since we use observational equivalence, there should be only one path
     expect(twoStepPaths).toHaveLength(1);
     // the output should be the same as the
     expect(prettySubstance(twoStepPaths[0].prog)).toEqual(
-      prettySubstance(ast2)
+      prettySubstance(ast2),
     );
     // there should be at least a swap operation
     expect(twoStepPaths[0].mutations.map((m) => m.tag)).toContain(
-      "SwapStmtArgs"
+      "SwapStmtArgs",
     );
     // console.log(
     //   paths.map((p) => [prettySubstance(p.prog), showMutations(p.mutations)])

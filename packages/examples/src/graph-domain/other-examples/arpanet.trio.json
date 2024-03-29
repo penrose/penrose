@@ -1,6 +1,6 @@
 {
   "substance": "./arpanet.substance",
-  "style": ["../simple-curved-graph-dots.style"],
+  "style": ["../simple-curved-graph-dots.style", "../arpanet-color.style"],
   "domain": "../simple-graph.domain",
   "variation": "CascaraKudu41689"
 }

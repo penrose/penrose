@@ -10,9 +10,9 @@ import {
   Unary,
   Var,
   Vec,
+  polyRootsImpl,
   variable,
 } from "@penrose/core";
-import { polyRoots } from "@penrose/optimizer";
 import seedrandom from "seedrandom";
 import { Accessor, createEffect, createMemo, on } from "solid-js";
 import { SetStoreFunction, createStore } from "solid-js/store";
@@ -38,7 +38,7 @@ const evalComp = (op: Comp["binop"]): ((x: number, y: number) => boolean) => {
 };
 
 const evalLogic = (
-  op: Logic["binop"]
+  op: Logic["binop"],
 ): ((x: boolean, y: boolean) => boolean) => {
   switch (op) {
     case "&&": {
@@ -96,7 +96,7 @@ const evalUnary = (op: Unary["unop"]): ((x: number) => number) => {
 };
 
 const evalBinary = (
-  op: Binary["binop"]
+  op: Binary["binop"],
 ): ((x: number, y: number) => number) => {
   switch (op) {
     case "+": {
@@ -179,7 +179,7 @@ const boolWith = (x: Bool, signal: Accessor<boolean>): Accessor<boolean> => {
 
 const numWith = (
   x: Exclude<Num, number>,
-  signal: Accessor<number>
+  signal: Accessor<number>,
 ): Accessor<number> => {
   const mem = createMemo(signal);
   (x as any)[secret] = mem;
@@ -216,6 +216,10 @@ const boolSignal = (x: Bool): Accessor<boolean> => {
       const y = boolSignal(param);
       return boolWith(x, () => !y());
     }
+    case "Index":
+    case "Member":
+    case "Call":
+      throw Error("unsupported");
   }
 };
 
@@ -253,6 +257,9 @@ const numSignal = (x: Num): Accessor<number> => {
       const v = vecSignal(vec);
       return numWith(x, () => v()[index]);
     }
+    case "Member":
+    case "Call":
+      throw Error("unsupported");
   }
 };
 
@@ -260,16 +267,21 @@ const vecSignal = (x: Vec): Accessor<number[]> => {
   if (secret in x) return x[secret] as Accessor<number[]>;
   switch (x.tag) {
     case "PolyRoots": {
-      const ys = x.coeffs.map(numSignal);
-      const v = new Float64Array(x.degree);
+      const ys = x.coeffs.map((y) => numSignal(y as Num));
+      const v = new Float64Array(x.coeffs.length);
       return vecWith(x, () => {
         ys.forEach((y, i) => {
           v[i] = y();
         });
-        polyRoots(v);
+        polyRootsImpl(v);
         return Array.from(v);
       });
     }
+    case "LitVec":
+    case "Index":
+    case "Member":
+    case "Call":
+      throw Error("unsupported");
   }
 };
 
@@ -284,11 +296,23 @@ export const signalBool = (x: Bool): SignalBool => {
   return x as SignalBool;
 };
 
+/**
+ * A probability distribution; `x` is between zero (inclusive) and one
+ * (exclusive).
+ */
 export type Sampler = (x: number) => number;
 
+/**
+ * Call `f` once, passing in a function that can be called to construct reactive
+ * input `Var`s for a computation graph. The randomly generated values passed to
+ * each `sampler` are deterministic based on `seed`, and the returned `Var`s are
+ * reactive when `seed` changes: while `f` is being executed, the order of calls
+ * to `makeVar` is recorded, and when `seed` changes, the values of those `Var`s
+ * are regenerated in the same order with the same set of `sampler` functions.
+ */
 export const sample = <T>(
   seed: Accessor<string>,
-  f: (makeVar: (sampler: Sampler) => Var) => T
+  f: (makeVar: (sampler: Sampler) => Var) => T,
 ): T => {
   const vars: { sampler: Sampler; setter: SetStoreFunction<Var> }[] = [];
   const rng = seedrandom(seed());
@@ -307,8 +331,8 @@ export const sample = <T>(
         const rng = seedrandom(s);
         vars.forEach(({ sampler, setter }) => setter({ val: sampler(rng()) }));
       },
-      { defer: true }
-    )
+      { defer: true },
+    ),
   );
   return res;
 };

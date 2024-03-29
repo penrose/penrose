@@ -13,8 +13,8 @@ import {
 } from "@penrose/core/dist/types/ast";
 import {
   ConstructorDecl,
+  DomainEnv,
   DomainStmt,
-  Env,
   FunctionDecl,
   PredicateDecl,
   TypeDecl,
@@ -28,11 +28,12 @@ import {
   Decl,
   Func,
   LabelDecl,
+  SubArgExpr,
   SubExpr,
-  SubPredArg,
-  SubProg,
-  SubStmt,
-  TypeConsApp,
+  CompiledSubProg as SubProg,
+  CompiledSubStmt as SubStmt,
+  SubstanceEnv,
+  TypeApp,
 } from "@penrose/core/dist/types/substance";
 import consola from "consola";
 import im from "immutable";
@@ -86,15 +87,15 @@ export const argMatches = (
     | ApplyFunction<A>
     | Func<A>
     | Bind<A>,
-  env: Env
+  env: DomainEnv,
 ): ArgStmtDecl<C>[] => {
   const options = (s: SubExpr<A> | ApplyPredicate<A>) => {
     const [st] = "name" in s ? findDecl(s.name.value, env) : [undefined];
     return st
       ? [
-          matchDecls(st, env.constructors, signatureArgsEqual),
-          matchDecls(st, env.predicates, signatureArgsEqual),
-          matchDecls(st, env.functions, signatureArgsEqual),
+          matchDecls(st, env.constructorDecls, signatureArgsEqual),
+          matchDecls(st, env.predicateDecls, signatureArgsEqual),
+          matchDecls(st, env.functionDecls, signatureArgsEqual),
         ].flat()
       : [];
   };
@@ -111,7 +112,7 @@ export const argMatches = (
  */
 export const removeStmt = <T>(
   prog: SubProg<T>,
-  stmt: SubStmt<T>
+  stmt: SubStmt<T>,
 ): SubProg<T> => ({
   ...prog,
   statements: _.filter(prog.statements, (s) => !nodesEqual(stmt, s)),
@@ -129,10 +130,12 @@ export const removeStmt = <T>(
 export const replaceStmt = <T>(
   prog: SubProg<T>,
   originalStmt: SubStmt<T>,
-  newStmt: SubStmt<T>
+  newStmt: SubStmt<T>,
 ): SubProg<T> => ({
   ...prog,
-  statements: prog.statements.map((s) => (s === originalStmt ? newStmt : s)),
+  statements: prog.statements.map((s: SubStmt<T>) =>
+    s === originalStmt ? newStmt : s,
+  ),
 });
 
 /**
@@ -149,7 +152,7 @@ export const getStmt = <T>(prog: SubProg<T>, index: number): SubStmt<T> =>
  * Find all signatures that match a reference statement. NOTE: returns an empty list if
  * no matches are found; does not include the reference statement in list of matches.
  *
- * @param stmtName string value of a statement, i.e. "isSubset"
+ * @param stmtName string value of a statement, e.g. "Subset"
  * @param opts all possible declaration options
  * @param matchFunc function that determines condition for a match
  * @returns Array of any statements that have the same signature as input statement
@@ -157,7 +160,7 @@ export const getStmt = <T>(prog: SubProg<T>, index: number): SubStmt<T> =>
 export const matchDecls = <T>(
   stmt: ArgStmtDecl<T>,
   opts: im.Map<string, ArgStmtDecl<T>>,
-  matchFunc: (a: Signature, b: Signature) => boolean
+  matchFunc: (a: Signature, b: Signature) => boolean,
 ): ArgStmtDecl<T>[] => {
   //generate signature for the original statement
   const origSignature = getSignature(stmt);
@@ -173,21 +176,21 @@ export const matchDecls = <T>(
  * NOTE: match will be undefined if the statement could not
  * be found in list of predicates, functions, or constructors
  *
- * @param stmtName string value of a statement, i.e. "isSubset"
+ * @param stmtName string value of a statement, e.g. "Subset"
  * @param env Env for current program
  * @returns Array of length 2, with entries corresponding to: [matching decl, list where decl was found]
  */
 export const findDecl = (
   stmtName: string,
-  env: Env
+  env: DomainEnv,
 ): [ArgStmtDecl<C> | undefined, im.Map<string, ArgStmtDecl<C>>] => {
   let match: ArgStmtDecl<C> | undefined;
-  match = env.predicates.get(stmtName);
-  if (match !== undefined) return [match, env.predicates];
-  match = env.functions.get(stmtName);
-  if (match !== undefined) return [match, env.functions];
-  match = env.constructors.get(stmtName);
-  return [match, env.constructors];
+  match = env.predicateDecls.get(stmtName);
+  if (match !== undefined) return [match, env.predicateDecls];
+  match = env.functionDecls.get(stmtName);
+  if (match !== undefined) return [match, env.functionDecls];
+  match = env.constructorDecls.get(stmtName);
+  return [match, env.constructorDecls];
 };
 
 /**
@@ -200,7 +203,7 @@ export const findDecl = (
  */
 export const matchSignatures = (
   stmt: ApplyConstructor<A> | ApplyPredicate<A> | ApplyFunction<A> | Func<A>,
-  env: Env
+  env: DomainEnv,
 ): ArgStmtDecl<C>[] => {
   const [st, opts] = findDecl(stmt.name.value, env);
   if (st) {
@@ -220,11 +223,11 @@ export const getSignature = (decl: ArgStmtDecl<A>): Signature => {
   let outType: string | undefined;
   if (decl.args) {
     decl.args.forEach((a) => {
-      if (a.type.tag === "TypeConstructor") argTypes.push(a.type.name.value);
+      if (a.type.tag === "Type") argTypes.push(a.type.name.value);
     });
   }
   // see if there is an output field:
-  if ("output" in decl && decl.output.type.tag === "TypeConstructor") {
+  if ("output" in decl && decl.output.type.tag === "Type") {
     outType = decl.output.type.name.value;
   }
   return {
@@ -268,7 +271,7 @@ export const signatureArgsEqual = (a: Signature, b: Signature): boolean => {
  */
 export const identicalTypeDecls = (
   ids: Identifier<A>[],
-  env: Env
+  env: SubstanceEnv,
 ): im.Map<string, Identifier<A>[]> => {
   // pulls just the variable names from the statement's parameters
   const idStrs = ids.map((i) => i.value);
@@ -276,21 +279,22 @@ export const identicalTypeDecls = (
   log.debug(`Matching ${ids.map((i) => i.value)}`);
 
   idStrs.forEach((i) => {
-    const typeStr = env.vars.get(i)?.name.value;
+    const typeStr = env.objs.get(i)?.name.value;
 
     // a match is any var of the same type as the current identifier
     // which is not already being used in the statement
     const matchedObjs = [
-      ...env.vars
+      ...env.objs
         .filter(
-          (t, id) => !idStrs.includes(id) && typeStr && t.name.value === typeStr
+          (t, id) =>
+            !idStrs.includes(id) && typeStr && t.name.value === typeStr,
         )
         .keys(),
     ];
 
     log.debug(`For ${typeStr} found ${matchedObjs}`);
     const matches = matchedObjs.flatMap((id) =>
-      env.varIDs.filter((v) => v.value === id)
+      env.objIds.filter((v) => v.value === id),
     );
 
     // add to options if possible
@@ -313,11 +317,11 @@ export const identicalTypeDecls = (
  */
 export const cascadingDelete = <T>(
   dec: Bind<T> | Decl<T>,
-  prog: SubProg<T>
+  prog: SubProg<T>,
 ): SubStmt<T>[] => {
   const findArg = (
     s: ApplyPredicate<T>,
-    ref: Identifier<T> | undefined
+    ref: Identifier<T> | undefined,
   ): boolean =>
     ref !== undefined &&
     s.args.filter((a) => {
@@ -328,7 +332,7 @@ export const cascadingDelete = <T>(
   while (ids.length > 0) {
     const id = ids.pop()!;
     // look for statements that take id as arg
-    const toDelete = prog.statements.filter((s): boolean => {
+    const toDelete = prog.statements.filter((s: SubStmt<T>): boolean => {
       switch (s.tag) {
         case "Bind": {
           const expr = s.expr as unknown as ApplyPredicate<T>;
@@ -356,9 +360,6 @@ export const cascadingDelete = <T>(
         case "NoLabel": {
           return s.args.filter((v) => v.value === id.value).length > 0;
         }
-        case "EqualExprs":
-        case "EqualPredicates":
-          return false;
       }
     });
     // remove list of filtered statements
@@ -370,7 +371,7 @@ export const cascadingDelete = <T>(
 };
 
 export const printStmts = (
-  stmts: PredicateDecl<A>[] | ConstructorDecl<A>[] | FunctionDecl<A>[]
+  stmts: PredicateDecl<A>[] | ConstructorDecl<A>[] | FunctionDecl<A>[],
 ): void => {
   let outStr = "";
   stmts.forEach((stmt) => {
@@ -380,7 +381,7 @@ export const printStmts = (
 };
 
 export const domainToSubType = (
-  domainType: DomainStmt<A>["tag"]
+  domainType: DomainStmt<A>["tag"],
 ):
   | Decl<A>["tag"]
   | ApplyPredicate<A>["tag"]
@@ -401,7 +402,7 @@ export const domainToSubType = (
 
 export const applyConstructor = (
   decl: ConstructorDecl<A>,
-  args: SubExpr<A>[]
+  args: SubArgExpr<A>[],
 ): ApplyConstructor<A> => {
   const { name } = decl;
   return {
@@ -414,7 +415,7 @@ export const applyConstructor = (
 
 export const applyFunction = (
   decl: FunctionDecl<A>,
-  args: SubExpr<A>[]
+  args: SubArgExpr<A>[],
 ): ApplyFunction<A> => {
   const { name } = decl;
   return {
@@ -427,7 +428,7 @@ export const applyFunction = (
 
 export const applyPredicate = (
   decl: PredicateDecl<A>,
-  args: SubPredArg<A>[]
+  args: SubArgExpr<A>[],
 ): ApplyPredicate<A> => {
   const { name } = decl;
   return {
@@ -445,14 +446,14 @@ export const subProg = (statements: SubStmt<A>[]): SubProg<A> => ({
 });
 
 // TODO: generate arguments as well
-export const applyTypeDecl = (decl: TypeDecl<A>): TypeConsApp<A> => {
+export const applyTypeDecl = (decl: TypeDecl<A>): TypeApp<A> => {
   const { name } = decl;
   return nullaryTypeCons(name);
 };
 
 export const applyBind = (
   variable: Identifier<A>,
-  expr: SubExpr<A>
+  expr: SubExpr<A>,
 ): Bind<A> => ({
   tag: "Bind",
   nodeType: "SyntheticSubstance",
@@ -460,11 +461,10 @@ export const applyBind = (
   expr,
 });
 
-export const nullaryTypeCons = (name: Identifier<A>): TypeConsApp<A> => ({
-  tag: "TypeConstructor",
+export const nullaryTypeCons = (name: Identifier<A>): TypeApp<A> => ({
+  tag: "TypeApp",
   nodeType: "SyntheticSubstance",
   name,
-  args: [],
 });
 
 export const autoLabelStmt: AutoLabel<A> = {
@@ -490,14 +490,17 @@ export const labelStmt = (id: string): LabelDecl<A> => ({
   nodeType: "SyntheticSubstance",
 });
 
-export const desugarAutoLabel = (subProg: SubProg<A>, env: Env): SubProg<A> => {
+export const desugarAutoLabel = (
+  subProg: SubProg<A>,
+  env: SubstanceEnv,
+): SubProg<A> => {
   const autoStmts: AutoLabel<A>[] = subProg.statements.filter(
     (s: SubStmt<A>): s is AutoLabel<A> =>
-      s.tag === "AutoLabel" && s.option.tag === "LabelIDs"
+      s.tag === "AutoLabel" && s.option.tag === "LabelIDs",
   );
   const desugar = (s: AutoLabel<A>): LabelDecl<A>[] => {
     if (s.option.tag === "DefaultLabels") {
-      const vars = [...env.vars.keys()];
+      const vars = [...env.objs.keys()];
       return vars.map(labelStmt);
     } else {
       const vars = s.option.variables.map((v) => v.value);
@@ -507,7 +510,7 @@ export const desugarAutoLabel = (subProg: SubProg<A>, env: Env): SubProg<A> => {
   const labelStmts = autoStmts.flatMap((s) => desugar(s));
   return labelStmts.reduce(
     (p, s) => appendStmt(p, s),
-    autoStmts.reduce((p, s) => removeStmt(p, s), subProg)
+    autoStmts.reduce((p, s) => removeStmt(p, s), subProg),
   );
 };
 
@@ -534,7 +537,7 @@ export const progsEqual = <T>(left: SubProg<T>, right: SubProg<T>): boolean =>
   _.isEqualWith(
     left.statements,
     right.statements,
-    (node1: SubStmt<T>, node2: SubStmt<T>) => nodesEqual(node1, node2)
+    (node1: SubStmt<T>, node2: SubStmt<T>) => nodesEqual(node1, node2),
   );
 
 /**
@@ -545,10 +548,10 @@ export const progsEqual = <T>(left: SubProg<T>, right: SubProg<T>): boolean =>
  */
 export const intersection = <T>(
   left: SubProg<T>,
-  right: SubProg<T>
+  right: SubProg<T>,
 ): SubStmt<T>[] =>
   _.intersectionWith(left.statements, right.statements, (s1, s2) =>
-    nodesEqual(s1, s2)
+    nodesEqual(s1, s2),
   );
 
 /**
@@ -568,16 +571,12 @@ export const sortStmts = <T>(prog: SubProg<T>): SubProg<T> => {
           return 1;
         case "Bind":
           return 2;
-        case "EqualExprs":
-          return 3;
-        case "EqualPredicates":
-          return 4;
         case "AutoLabel":
-          return 5;
+          return 3;
         case "LabelDecl":
-          return 6;
+          return 4;
         case "NoLabel":
-          return 7;
+          return 5;
       }
     },
     (s: SubStmt<T>) => prettyStmt(s),
@@ -599,7 +598,7 @@ export const dedupStmts = (prog: SubProg<A>): SubProg<A> => ({
   ...prog,
   statements: _.uniqWith(
     prog.statements,
-    (s1: SubStmt<A>, s2: SubStmt<A>) => prettyStmt(s1) === prettyStmt(s2)
+    (s1: SubStmt<A>, s2: SubStmt<A>) => prettyStmt(s1) === prettyStmt(s2),
   ),
 });
 
@@ -609,12 +608,12 @@ export const dedupStmts = (prog: SubProg<A>): SubProg<A> => ({
  * @returns a list of SynthesizedSubstance programs without duplicates
  */
 export const dedupSynthesizedSubstances = (
-  progs: SynthesizedSubstance[]
+  progs: SynthesizedSubstance[],
 ): SynthesizedSubstance[] => {
   // Find duplicated programs by comparing pretty-printed statements
   const stmtsComparator = (
     p1: SynthesizedSubstance,
-    p2: SynthesizedSubstance
+    p2: SynthesizedSubstance,
   ) => {
     return prettySubstance(p1.prog) === prettySubstance(p2.prog);
   };
@@ -636,8 +635,8 @@ export const cleanNode = (prog: AbstractNode): AbstractNode =>
  * @param env the environment
  * @returns
  */
-export const typeOf = (id: string, env: Env): string | undefined =>
-  env.vars.get(id)?.name.value;
+export const typeOf = (id: string, env: SubstanceEnv): string | undefined =>
+  env.objs.get(id)?.name.value;
 
 // helper function for omitting properties in an object
 const omitDeep = (originalCollection: any, excludeKeys: string[]): any => {
@@ -679,7 +678,7 @@ export const findTypes = <T>(prog: SubProg<T>): SubStmtKindMap => {
 
 export const mergeKindMaps = (
   m1: SubStmtKindMap,
-  m2: SubStmtKindMap
+  m2: SubStmtKindMap,
 ): SubStmtKindMap => ({
   type: [...m1.type, ...m2.type],
   predicate: [...m1.predicate, ...m2.predicate],

@@ -1,4 +1,4 @@
-import { Params } from "@penrose/optimizer";
+import { Params } from "../engine/Optimizer.js";
 import { Canvas, InputMeta } from "../shapes/Samplers.js";
 import { Shape } from "../shapes/Shapes.js";
 import * as ad from "./ad.js";
@@ -33,11 +33,11 @@ export interface State {
   labelCache: LabelCache;
   shapes: Shape<ad.Num>[];
   canvas: Canvas;
-  gradient: ad.Gradient;
   currentStageIndex: number;
   optStages: string[];
-  computeShapes: ShapeFn;
   params: Params;
+  gradient: ad.Gradient;
+  computeShapes: ShapeFn;
 }
 
 /**
@@ -45,24 +45,37 @@ export interface State {
  */
 
 export type LabelData = EquationData | TextData;
-export interface EquationData {
+export type EquationData = {
   tag: "EquationData";
-  width: FloatV<number>;
-  height: FloatV<number>;
-  descent: FloatV<number>;
-  ascent: FloatV<number>;
+} & EquationMeasurement;
+
+export interface EquationShape {
   rendered: HTMLElement;
 }
 
-export interface TextData {
-  tag: "TextData";
+export interface EquationMeasurement {
   width: FloatV<number>;
   height: FloatV<number>;
   descent: FloatV<number>;
   ascent: FloatV<number>;
 }
 
-export type LabelCache = Map<string, LabelData>;
+export type TextData = {
+  tag: "TextData";
+} & TextMeasurement;
+
+export interface TextMeasurement {
+  width: FloatV<number>;
+  height: FloatV<number>;
+  descent: FloatV<number>;
+  ascent: FloatV<number>;
+}
+
+// Cache of label measurements and MathJax-rendered math labels for `Equation`s
+export type LabelCache = Map<string, (EquationData & EquationShape) | TextData>;
+
+// A Label Cache but without the rendered HTMLElement
+export type LabelMeasurements = Map<string, LabelData>;
 
 export type OptStages = "All" | Set<string>;
 

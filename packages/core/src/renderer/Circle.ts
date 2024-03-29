@@ -10,7 +10,7 @@ import { RenderProps } from "./Renderer.js";
 
 const RenderCircle = (
   shape: Circle<number>,
-  { canvasSize }: RenderProps
+  { canvasSize }: RenderProps,
 ): SVGCircleElement => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "circle");
 
@@ -23,7 +23,7 @@ const RenderCircle = (
   attrToNotAutoMap.push(...attrStroke(shape, elem));
   attrToNotAutoMap.push(...attrTitle(shape, elem));
 
-  elem.setAttribute("r", shape.r.contents.toString());
+  elem.setAttribute("r", Math.max(0, shape.r.contents).toString());
   attrToNotAutoMap.push("r");
 
   // Directly Map across any "unknown" SVG properties

@@ -23,7 +23,7 @@ const { err, ok } = Result;
 
 export const checkFloatV = (
   path: string,
-  value: Value<ad.Num>
+  value: Value<ad.Num>,
 ): Result<FloatV<ad.Num>, BadShapeParamTypeError> => {
   if (value.tag === "FloatV") {
     return ok(value);
@@ -33,7 +33,7 @@ export const checkFloatV = (
 
 export const checkBoolV = (
   path: string,
-  value: Value<ad.Num>
+  value: Value<ad.Num>,
 ): Result<BoolV, BadShapeParamTypeError> => {
   if (value.tag === "BoolV") {
     return ok(value);
@@ -43,7 +43,7 @@ export const checkBoolV = (
 
 export const checkStrV = (
   path: string,
-  value: Value<ad.Num>
+  value: Value<ad.Num>,
 ): Result<StrV, BadShapeParamTypeError> => {
   if (value.tag === "StrV") {
     return ok(value);
@@ -53,7 +53,7 @@ export const checkStrV = (
 
 export const checkPathDataV = (
   path: string,
-  value: Value<ad.Num>
+  value: Value<ad.Num>,
 ): Result<PathDataV<ad.Num>, BadShapeParamTypeError> => {
   if (value.tag === "PathDataV") {
     return ok(value);
@@ -63,7 +63,7 @@ export const checkPathDataV = (
 
 export const checkPtListV = (
   path: string,
-  value: Value<ad.Num>
+  value: Value<ad.Num>,
 ): Result<PtListV<ad.Num>, BadShapeParamTypeError> => {
   if (
     value.tag === "PtListV" ||
@@ -77,14 +77,14 @@ export const checkPtListV = (
       path,
       val(value),
       "PtListV (also supports LListV and MatrixV)",
-      false
-    )
+      false,
+    ),
   );
 };
 
 export const checkColorV = (
   path: string,
-  value: Value<ad.Num>
+  value: Value<ad.Num>,
 ): Result<ColorV<ad.Num>, BadShapeParamTypeError> => {
   if (value.tag === "ColorV") {
     return ok(value);
@@ -94,7 +94,7 @@ export const checkColorV = (
 
 export const checkListV = (
   path: string,
-  value: Value<ad.Num>
+  value: Value<ad.Num>,
 ): Result<ListV<ad.Num>, BadShapeParamTypeError> => {
   if (
     value.tag === "ListV" ||
@@ -108,14 +108,14 @@ export const checkListV = (
       path,
       val(value),
       "ListV (also supports VectorV and TupV)",
-      false
-    )
+      false,
+    ),
   );
 };
 
 export const checkVectorV = (
   path: string,
-  value: Value<ad.Num>
+  value: Value<ad.Num>,
 ): Result<VectorV<ad.Num>, BadShapeParamTypeError> => {
   if (
     value.tag === "VectorV" ||
@@ -129,14 +129,14 @@ export const checkVectorV = (
       path,
       val(value),
       "VectorV (also supports ListV and TupV)",
-      false
-    )
+      false,
+    ),
   );
 };
 
 export const checkMatrixV = (
   path: string,
-  value: Value<ad.Num>
+  value: Value<ad.Num>,
 ): Result<MatrixV<ad.Num>, BadShapeParamTypeError> => {
   if (
     value.tag === "MatrixV" ||
@@ -150,14 +150,14 @@ export const checkMatrixV = (
       path,
       val(value),
       "MatrixV (also supports LListV and PtListV)",
-      false
-    )
+      false,
+    ),
   );
 };
 
 export const checkTupV = (
   path: string,
-  value: Value<ad.Num>
+  value: Value<ad.Num>,
 ): Result<TupV<ad.Num>, BadShapeParamTypeError> => {
   if (value.tag === "TupV") {
     return ok(value);
@@ -167,7 +167,7 @@ export const checkTupV = (
 
 export const checkLListV = (
   path: string,
-  value: Value<ad.Num>
+  value: Value<ad.Num>,
 ): Result<LListV<ad.Num>, BadShapeParamTypeError> => {
   if (
     value.tag === "LListV" ||
@@ -181,14 +181,14 @@ export const checkLListV = (
       path,
       val(value),
       "LListV (also supports MatrixV and PtListV)",
-      false
-    )
+      false,
+    ),
   );
 };
 
 export const checkShapeListV = (
   path: string,
-  value: Value<ad.Num>
+  value: Value<ad.Num>,
 ): Result<ShapeListV<ad.Num>, BadShapeParamTypeError> => {
   if (value.tag === "ShapeListV") {
     return ok(value);
@@ -198,7 +198,7 @@ export const checkShapeListV = (
 
 export const checkClipDataV = (
   path: string,
-  value: Value<ad.Num>
+  value: Value<ad.Num>,
 ): Result<ClipDataV<ad.Num>, BadShapeParamTypeError> => {
   if (value.tag === "ClipDataV") {
     return ok(value);

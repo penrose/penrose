@@ -5,33 +5,35 @@
 
 Domain U
 
-Step x0, x1, x2, x3
-Step y00, y01, y02
-Step y10, y11, y12
+-- main walk
+Point x0
+Ball B0 := ballAround( x0 )
+Point x1 := sampleBoundary( B0 )
+Ball B1 := ballAround( x1 )
+Point x2 := sampleBoundary( B1 )
+Ball B2 := ballAround( x2 )
+Point x3 := sampleBoundary( B2 )
+Ball B3 := ballAround( x3 )
 
-x1 := sampleBoundary( x0 )
-x2 := sampleBoundary( x1 )
-x3 := sampleBoundary( x2 )
+-- nested walk from step 0 of main walk
+NestedPoint y00 := startWalkFrom( B0 )
+Ball B00 := nestedBallAround( y00 )
+NestedPoint y01 := sampleBoundaryNested( B00 )
+Ball B01 := nestedBallAround( y01 )
+NestedPoint y02 := sampleBoundaryNested( B01 )
+Ball B02 := nestedBallAround( y02 )
 
-y00 := sampleInterior( x0 )
-y01 := sampleBoundary( y00 )
-y02 := sampleBoundary( y01 )
-nested( y00 )
-nested( y01 )
-nested( y02 )
+-- nested walk from step 1 of main walk
+NestedPoint y10 := startWalkFrom( B1 )
+Ball B10 := nestedBallAround( y10 )
+NestedPoint y11 := sampleBoundaryNested( B10 )
+Ball B11 := nestedBallAround( y11 )
+NestedPoint y12 := sampleBoundaryNested( B11 )
+Ball B12 := nestedBallAround( y12 )
 
-y10 := sampleInterior( x1 )
-y11 := sampleBoundary( y10 )
-y12 := sampleBoundary( y11 )
-nested( y10 )
-nested( y11 )
-nested( y12 )
-
-Label U "Ω"
-Label x0 "x₀"
-Label x1 "x₁"
-Label x2 "…"
-Label x3 "xₖ"
-Label y00 "y₀"
-Label y10 "y₁"
+Label U $\Omega$
+Label x0 $x_0$
+Label x1 $x_1$
+Label x2 $\ldots$
+Label x3 $x_k$
 

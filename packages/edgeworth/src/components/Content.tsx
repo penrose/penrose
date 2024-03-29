@@ -12,11 +12,10 @@ import {
   compileSubstance,
   PenroseState,
   prettySubstance,
-  RenderStatic,
   showError,
-  SubProg,
+  toSVG,
 } from "@penrose/core";
-import { A } from "@penrose/core/dist/types/ast";
+import { initSubstanceEnv } from "@penrose/core/dist/compiler/Substance";
 import { saveAs } from "file-saver";
 import JSZip from "jszip";
 import { shuffle } from "lodash";
@@ -135,29 +134,35 @@ export class Content extends React.Component<ContentProps, ContentState> {
       numPrograms: number,
       dsl: string,
       sub: string,
-      sty: string
+      sty: string,
     ) => {
       const envOrError = compileDomain(dsl);
 
       // initialize synthesizer
       if (envOrError.isOk()) {
-        const env = envOrError.value;
-        let subResult;
+        const domEnv = envOrError.value;
+        let subEnv;
         if (sub.length > 0) {
-          const subRes = compileSubstance(sub, env);
+          const subRes = compileSubstance(sub, domEnv);
           if (subRes.isOk()) {
-            subResult = subRes.value;
+            subEnv = subRes.value;
           } else {
             console.log(
               `Error when compiling the template Substance program: ${showError(
-                subRes.error
-              )}`
+                subRes.error,
+              )}`,
             );
           }
         }
-        const synth = new Synthesizer(env, setting, subResult, seed);
+        const synth = new Synthesizer(
+          domEnv,
+          subEnv === undefined ? initSubstanceEnv() : subEnv,
+          setting,
+          subEnv === undefined ? undefined : [subEnv, domEnv],
+          seed,
+        );
         let progs = synth.generateSubstances(numPrograms);
-        const template: SubProg<A> | undefined = synth.getTemplate();
+        const template = synth.getTemplate();
 
         if (template) {
           this.setState({
@@ -178,7 +183,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
     for (const idx of indices) {
       const state = this.state.states[idx];
       const { prog, ops } = this.state.progs[idx];
-      const svg = await RenderStatic(
+      const svg = await toSVG(
         state,
         async (path: string) => {
           const response = await fetch(path);
@@ -188,7 +193,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
           }
           return await response.text();
         },
-        "diagram" // standalone SVG exports don't require distinct namespaces
+        "diagram", // standalone SVG exports don't require distinct namespaces
       );
       zip.file(`diagram_${idx}.svg`, svg.outerHTML.toString());
       zip.file(`substance_${idx}.substance`, prettySubstance(prog));
@@ -244,7 +249,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
           answer: boolean;
         }[],
         p: SynthesizedSubstance,
-        i: number
+        i: number,
       ) => {
         const substance = prettySubstance(p.prog);
         if (answer.correct.includes(i)) {
@@ -265,7 +270,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
           ];
         } else return problems;
       },
-      []
+      [],
     );
     return (
       <div
@@ -300,7 +305,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
   render() {
     const Problem = memo(
       ({ correct, incorrect }: { correct: number[]; incorrect: number[] }) =>
-        this.problem({ correct, incorrect })
+        this.problem({ correct, incorrect }),
     );
     return (
       <div>

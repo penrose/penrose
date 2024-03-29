@@ -1,5 +1,5 @@
 import { ASTNode, Identifier, StringLit } from "./ast.js";
-import { LabelType } from "./substance.js";
+import { LabelType, NumberConstant } from "./substance.js";
 
 export type Staged<T> = {
   stages: Identifier<T>[];
@@ -34,6 +34,7 @@ export type Header<T> = Selector<T> | Namespace<T> | Collector<T>;
 
 export type Selector<T> = ASTNode<T> & {
   tag: "Selector";
+  repeatable: boolean;
   head: DeclPatterns<T>;
   with?: DeclPatterns<T>;
   where?: RelationPatterns<T>;
@@ -41,6 +42,7 @@ export type Selector<T> = ASTNode<T> & {
 
 export type Collector<T> = ASTNode<T> & {
   tag: "Collector";
+  repeatable: boolean;
   head: DeclPattern<T>;
   into: BindingForm<T>;
   where?: RelationPatterns<T>;
@@ -61,7 +63,7 @@ export type Namespace<T> = ASTNode<T> & {
 
 export type DeclPattern<T> = ASTNode<T> & {
   tag: "DeclPattern";
-  type: StyT<T>;
+  type: SelectorType<T>;
   id: BindingForm<T>;
 };
 
@@ -88,75 +90,57 @@ export type RelBind<T> = ASTNode<T> & {
 export type RelPred<T> = ASTNode<T> & {
   tag: "RelPred";
   name: Identifier<T>;
-  args: PredArg<T>[];
+  args: SelArgExpr<T>[];
   alias?: Identifier<T>;
 };
 
-export type PredArg<T> = SEBind<T> | RelPred<T>;
+// An expression that can appear as an argument in headers
+export type SelArgExpr<T> = SelVar<T> | SelLitExpr<T>;
 
-export type StyT<T> = Identifier<T>;
-
-export type STTypeVar<T> = ASTNode<T> & {
-  tag: "STTypeVar";
-  contents: STypeVar<T>;
-};
-
-export type STCtor<T> = ASTNode<T> & {
-  tag: "STCtor";
-  contents: STypeCtor<T>;
-};
-
-export type STypeVar<T> = ASTNode<T> & {
-  tag: "STypeVar";
-  typeVarNameS: string;
-};
-
-export type STypeCtor<T> = ASTNode<T> & {
-  tag: "STypeCtor";
-  nameConsS: string;
-  argConsS: SArg<T>[];
-};
-
-export type SArg<T> = SAVar<T> | SAT<T>;
-
-export type SAVar<T> = ASTNode<T> & {
-  tag: "SAVar";
+// A variable in the header environment
+// Can be a Style variable or a Substance variable
+export type SelVar<T> = ASTNode<T> & {
+  tag: "SelVar";
   contents: BindingForm<T>;
 };
 
-export type SAT<T> = ASTNode<T> & {
-  tag: "SAT";
-  contents: StyT<T>;
+// A literal expression in the header
+// Either a fixed value (`Fix`) or string literal (`StringLit`)
+export type SelLitExpr<T> = ASTNode<T> & {
+  tag: "SelLitExpr";
+  contents: StringLit<T> | NumberConstant<T>;
+};
+
+// A type that can appear in the header
+// Think of it as the equivalent of TypeApp in selector
+export type SelectorType<T> = ASTNode<T> & {
+  tag: "SelectorType";
+  name: Identifier<T>;
 };
 
 export type SelExpr<T> =
-  | SEBind<T>
   | SEFunc<T>
   | SEValCons<T>
-  | SEFuncOrValCons<T>;
-
-export type SEBind<T> = ASTNode<T> & {
-  tag: "SEBind";
-  contents: BindingForm<T>;
-};
+  | SEFuncOrValCons<T>
+  | SelArgExpr<T>;
 
 export type SEFunc<T> = ASTNode<T> & {
   tag: "SEFunc";
   name: Identifier<T>;
-  args: SelExpr<T>[];
+  args: SelArgExpr<T>[];
 };
 
 export type SEValCons<T> = ASTNode<T> & {
   tag: "SEValCons";
   name: Identifier<T>;
-  args: SelExpr<T>[];
+  args: SelArgExpr<T>[];
 };
 
 // NOTE: This type is used by the style compiler; since the grammar is ambiguous, the compiler will need to narrow down the type of this node when checking the AST.
 export type SEFuncOrValCons<T> = ASTNode<T> & {
   tag: "SEFuncOrValCons";
   name: Identifier<T>;
-  args: SelExpr<T>[];
+  args: SelArgExpr<T>[];
 };
 
 export type Stmt<T> = PathAssign<T> | Override<T> | Delete<T> | AnonAssign<T>;
@@ -218,7 +202,7 @@ export type Expr<T> =
   | ObjFn<T>
   | ConstrFn<T>
   | BinOp<T>
-  | CollectionAccess<T>
+  | StyVarExpr<T>
   | UOp<T>
   | List<T>
   | Tuple<T>
@@ -282,10 +266,18 @@ export type AvoidFn<T> = ASTNode<T> & {
   contents: [string, Expr<T>[]];
 };
 
+export type StyVarExpr<T> = CollectionAccess<T> | UnaryStyVarExpr<T>;
+
 export type CollectionAccess<T> = ASTNode<T> & {
   tag: "CollectionAccess";
   name: Identifier<T>;
   field: Identifier<T>;
+};
+
+export type UnaryStyVarExpr<T> = ASTNode<T> & {
+  tag: "UnaryStyVarExpr";
+  op: "numberof" | "nameof";
+  arg: Identifier<T>;
 };
 
 export type BinaryOp =
@@ -356,6 +348,7 @@ export type Fix<T> = ASTNode<T> & {
 export type Vary<T> = ASTNode<T> &
   Staged<T> & {
     tag: "Vary";
+    init?: number;
   };
 
 export type PropertyDecl<T> = ASTNode<T> & {

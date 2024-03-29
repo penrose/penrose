@@ -22,10 +22,9 @@ export interface EllipseProps<T>
 
 export const sampleEllipse = (
   context: Context,
-  canvas: Canvas
+  canvas: Canvas,
 ): EllipseProps<ad.Num> => ({
   name: strV("defaultEllipse"),
-  style: strV(""),
   strokeWidth: floatV(0),
   strokeStyle: strV("solid"),
   strokeColor: noPaint(),
@@ -44,7 +43,7 @@ export type Ellipse<T> = ShapeCommon<T> & {
 export const makeEllipse = (
   context: Context,
   canvas: Canvas,
-  properties: Partial<EllipseProps<ad.Num>>
+  properties: Partial<EllipseProps<ad.Num>>,
 ): Ellipse<ad.Num> => ({
   ...sampleEllipse(context, canvas),
   ...properties,

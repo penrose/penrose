@@ -1,0 +1,6 @@
+{
+  "substance": "./WalkOnStars.substance",
+  "style": ["./walk-on-spheres.style"],
+  "domain": "./walk-on-spheres.domain",
+  "variation": "FlaxseedSnake5823"
+}

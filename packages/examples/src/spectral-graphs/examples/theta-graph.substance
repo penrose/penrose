@@ -1,0 +1,10 @@
+Node n_i for i in [0, 24]
+
+Edge e_i := MakeEdge(n_i, n_j) for i in [0, 19], j in [0, 19] where (i + 1) % 20 == j
+
+Edge e_20 := MakeEdge(n_0, n_20)
+Edge e_21 := MakeEdge(n_20, n_21)
+Edge e_22 := MakeEdge(n_21, n_22)
+Edge e_23 := MakeEdge(n_22, n_23)
+Edge e_24 := MakeEdge(n_23, n_24)
+Edge e_25 := MakeEdge(n_24, n_10)

@@ -1,0 +1,6 @@
+{
+  "substance": "./cubic-bezier.substance",
+  "style": ["./evolute-of-cardioid.style"],
+  "domain": "./curves.domain",
+  "variation": "RetroKouprey113"
+}

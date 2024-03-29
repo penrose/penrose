@@ -1,0 +1,4 @@
+type Node
+type Edge
+
+constructor MakeEdge(Node a, Node b) -> Edge

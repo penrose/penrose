@@ -61,7 +61,9 @@ export const simpleContext = (variation: string): Context => {
   return {
     makeInput: (meta) =>
       variable(
-        meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending
+        meta.init.tag === "Sampled"
+          ? meta.init.sampler(rng)
+          : meta.init.pending,
       ),
   };
 };
@@ -71,9 +73,14 @@ export const uniform =
   (rng: seedrandom.prng) =>
     randFloat(rng, min, max);
 
+export const constSampler =
+  (n: number): Sampler =>
+  (rng: seedrandom.prng) =>
+    n;
+
 export const sampleVector = (
   { makeInput }: Context,
-  canvas: Canvas
+  canvas: Canvas,
 ): VectorV<ad.Num> =>
   vectorV([
     makeInput({
@@ -88,24 +95,26 @@ export const sampleVector = (
 
 export const sampleWidth = (
   { makeInput }: Context,
-  canvas: Canvas
+  canvas: Canvas,
 ): FloatV<ad.Num> =>
   floatV(
     makeInput({
+      // BUG: when canvas width is too small this will error out
       init: { tag: "Sampled", sampler: uniform(3, canvas.width / 6) },
       stages: "All",
-    })
+    }),
   );
 
 export const sampleHeight = (
   { makeInput }: Context,
-  canvas: Canvas
+  canvas: Canvas,
 ): FloatV<ad.Num> =>
   floatV(
     makeInput({
+      // BUG: when canvas width is too small this will error out
       init: { tag: "Sampled", sampler: uniform(3, canvas.height / 6) },
       stages: "All",
-    })
+    }),
   );
 
 export const sampleStroke = ({ makeInput }: Context): FloatV<ad.Num> =>
@@ -113,7 +122,7 @@ export const sampleStroke = ({ makeInput }: Context): FloatV<ad.Num> =>
     makeInput({
       init: { tag: "Sampled", sampler: uniform(0.5, 3) },
       stages: "All",
-    })
+    }),
   );
 
 export const sampleColor = ({ makeInput }: Context): ColorV<ad.Num> => {

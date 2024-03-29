@@ -1,0 +1,6 @@
+{
+  "substance": "./space-curves.substance",
+  "style": ["./space-curves.style"],
+  "domain": "./space-curves.domain",
+  "variation": ""
+}

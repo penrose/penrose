@@ -2,5 +2,6 @@
   "substance": "./test-group.substance",
   "style": ["./closest-point.style"],
   "domain": "./closest-point.domain",
-  "variation": "AoWoodpecker967"
+  "variation": "AoWoodpecker967",
+  "excludeWarnings": ["BBoxApproximationWarning"]
 }

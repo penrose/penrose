@@ -5,4 +5,9 @@
 
 -- Start your code below
 
+canvas {
+  width = 0 -- replace this with some width
+  height = 0 -- replace this with some height
+}
+
 -- End your code above

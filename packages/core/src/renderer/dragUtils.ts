@@ -1,4 +1,4 @@
-import { start } from "@penrose/optimizer";
+import { start } from "../engine/Optimizer.js";
 import { State } from "../types/state.js";
 
 /**
@@ -8,7 +8,7 @@ export const dragUpdate = (
   state: State,
   id: string,
   dx: number,
-  dy: number
+  dy: number,
 ): State => {
   const xs = [...state.varyingValues];
   // TODO: fix dragging

@@ -1,0 +1,20 @@
+Time t_1, t_2, t_3, t_4, t_5, t_6
+
+Party Alice, Bob, Eve, Charlie
+
+Alice := MkParty("Alice")
+Bob := MkParty("Bob")
+Charlie := MkParty("Charlie")
+Eve := MkParty("Eve")
+
+Message m1 := MkMessage(t_1, Alice, Bob, "Never Gonna Give You Up")
+Message m2 := MkMessage(t_2, Bob, Alice, "Never Gonna Let You Down")
+Message m3 := MkMessage(t_3, Alice, Bob, "Never gonna run around")
+Message m4 := MkMessage(t_5, Alice, Bob, "Never gonna make you cry")
+Message m5 := MkMessage(t_5, Bob, Alice, "and desert you")
+Message m6 := MkMessage(t_4, Bob, Eve, "Never gonna say goodbye")
+Message m7 := MkMessage(t_3, Eve, Alice, "Never gonna tell a lie and hurt you")
+Message m8 := MkMessage(t_1, Charlie, Alice, "Hello!")
+
+
+AutoLabel All

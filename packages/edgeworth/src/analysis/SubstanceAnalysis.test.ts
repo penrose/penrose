@@ -1,3 +1,4 @@
+import { showError } from "@penrose/core";
 import { compileDomain } from "@penrose/core/dist/compiler/Domain";
 import {
   compileSubstance,
@@ -6,8 +7,11 @@ import {
 } from "@penrose/core/dist/compiler/Substance";
 import { dummyIdentifier } from "@penrose/core/dist/engine/EngineUtils";
 import { A } from "@penrose/core/dist/types/ast";
-import { Env } from "@penrose/core/dist/types/domain";
-import { SubProg, SubStmt } from "@penrose/core/dist/types/substance";
+import { DomainEnv } from "@penrose/core/dist/types/domain.js";
+import {
+  CompiledSubProg as SubProg,
+  CompiledSubStmt as SubStmt,
+} from "@penrose/core/dist/types/substance";
 import _ from "lodash";
 import { describe, expect, test } from "vitest";
 import { SubNode, similarMappings, similarNodes } from "../synthesis/Search.js";
@@ -27,10 +31,15 @@ predicate IsSubset(Set, Set)
 predicate Equal(Set, Set)
 function Subset(Set a, Set b) -> Set
 `;
-const env: Env = compileDomain(domain).unsafelyUnwrap();
+const domEnv: DomainEnv = compileDomain(domain).unsafelyUnwrap();
 
-const compile = (src: string): SubProg<A> =>
-  compileSubstance(src, env).unsafelyUnwrap()[0].ast;
+const compile = (src: string): SubProg<A> => {
+  const compiled = compileSubstance(src, domEnv);
+  if (compiled.isErr()) {
+    throw new Error(src + "    " + showError(compiled.error));
+  }
+  return compiled.value.ast;
+};
 
 describe("Substance AST queries", () => {
   test("Similar AST nodes", () => {
@@ -79,10 +88,10 @@ describe("Substance AST queries", () => {
     const leftAST = compile(left);
     const rightAST = compile(right);
     const commonStmts = intersection(leftAST, rightAST);
-    const leftFiltered = leftAST.statements.filter((a) => {
+    const leftFiltered = leftAST.statements.filter((a: SubStmt<A>) => {
       return _.intersectionWith(commonStmts, [a], nodesEqual).length === 0;
     });
-    const rightFiltered = rightAST.statements.filter((a) => {
+    const rightFiltered = rightAST.statements.filter((a: SubStmt<A>) => {
       return _.intersectionWith(commonStmts, [a], nodesEqual).length === 0;
     });
     expect(commonStmts.map(prettyStmt)).toEqual([
@@ -96,7 +105,7 @@ describe("Substance AST queries", () => {
     const similarMap = similarMappings(leftFiltered, rightFiltered);
     expect(similarMap[0].similarStmts).toHaveLength(1);
     expect(prettyStmt(similarMap[0].similarStmts[0])).toEqual(
-      "C := Subset(A, B)"
+      "C := Subset(A, B)",
     );
   });
   // TODO: this test is out of date because the equality checks don't clean nodes anymore
@@ -142,7 +151,7 @@ IsSubset(A, B)
 IsSubset(B, A)
 C := Subset(A, B)\
 `;
-    const originalAST = compileSubstance(original, env).unsafelyUnwrap()[0].ast;
+    const originalAST = compileSubstance(original, domEnv).unsafelyUnwrap().ast;
     const sortedAST = sortStmts(originalAST);
     expect(prettySubstance(sortedAST)).toEqual(expected);
   });
@@ -152,15 +161,14 @@ Set B`;
     const expected = `Set A
 Set B
 Set C`;
-    const originalAST = compileSubstance(original, env).unsafelyUnwrap()[0].ast;
+    const originalAST = compileSubstance(original, domEnv).unsafelyUnwrap().ast;
     const newStmt: SubStmt<A> = {
       nodeType: "SyntheticSubstance",
       tag: "Decl",
       name: dummyIdentifier("C", "SyntheticSubstance"),
       type: {
-        tag: "TypeConstructor",
+        tag: "TypeApp",
         nodeType: "SyntheticSubstance",
-        args: [],
         name: dummyIdentifier("Set", "SyntheticSubstance"),
       },
     };
@@ -172,7 +180,7 @@ Set C`;
     const original = `Set A
 Set B`;
     const expected = `Set B`;
-    const originalAST = compileSubstance(original, env).unsafelyUnwrap()[0].ast;
+    const originalAST = compileSubstance(original, domEnv).unsafelyUnwrap().ast;
     const toDelete = originalAST.statements[0];
     const newAST = removeStmt(originalAST, toDelete);
     expect(expected).toEqual(prettySubstance(newAST));
@@ -183,16 +191,15 @@ Set B`;
 Set B`;
     const expected = `Set A
 Set ZZZ`;
-    const originalAST = compileSubstance(original, env).unsafelyUnwrap()[0].ast;
+    const originalAST = compileSubstance(original, domEnv).unsafelyUnwrap().ast;
     const toReplace = originalAST.statements[1];
     const newStmt: SubStmt<A> = {
       nodeType: "SyntheticSubstance",
       tag: "Decl",
       name: dummyIdentifier("ZZZ", "SyntheticSubstance"),
       type: {
-        tag: "TypeConstructor",
+        tag: "TypeApp",
         nodeType: "SyntheticSubstance",
-        args: [],
         name: dummyIdentifier("Set", "SyntheticSubstance"),
       },
     };

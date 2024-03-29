@@ -1,0 +1,34 @@
+type Set
+type Point <: Set
+type Segment <: Set
+type Ray <: Set
+type Vector <: Set
+type Triangle <: Set
+type Circle <: Set
+type Disk <: Set
+type Chord <: Set
+type Length <: Set
+type Polyline <: Set
+type Angle <: Set
+
+constructor Segment( Point p, Point q )
+constructor LineSegment( Point p, Point q ) -> Segment
+constructor ClosestPoint( Set s, Point p ) -> Point
+constructor ClosestSegment( Set s, Point p ) -> Segment
+constructor RayFrom( Point p, Vector v ) -> Ray
+constructor RayIntersection( Ray r, Set s ) -> Point
+constructor RaySegmentIntersection( Ray r, Segment s ) -> Point
+constructor Triangle( Point p1, Point p2, Point p3 )
+constructor LengthBetween( Point x, Point y ) -> Length
+constructor LengthOf( Segment s ) -> Length
+constructor Normal( Set s ) -> Vector
+constructor InteriorAngle( Point a, Point b, Point c ) -> Angle
+
+predicate RootedAt( Point p, Vector v )
+predicate InTri( Point p, Triangle t )
+predicate OnCircle( Point p, Circle c )
+predicate InDisk( Point p, Disk d )
+predicate OfDisk( Chord c, Disk d )
+predicate IsDashed( Set s )
+predicate IsOriented( Set s )
+

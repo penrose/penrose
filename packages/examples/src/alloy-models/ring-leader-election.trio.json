@@ -1,0 +1,6 @@
+{
+  "substance": "./ring-leader-election/elected.substance",
+  "style": ["./ring-leader-election/ring-circle.style"],
+  "domain": "./ring-leader-election/ring-leader-election.domain",
+  "variation": "ValentinoDonkey58541"
+}

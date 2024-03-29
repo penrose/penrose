@@ -2,10 +2,11 @@ import im from "immutable";
 import { ShapeType } from "../shapes/Shapes.js";
 import Graph from "../utils/Graph.js";
 import * as ad from "./ad.js";
-import { A, C, Identifier } from "./ast.js";
+import { C, Identifier } from "./ast.js";
 import { StyleDiagnostics, StyleError } from "./errors.js";
 import { Fn } from "./state.js";
-import { BindingForm, Expr, GPIDecl, Header, StyT } from "./style.js";
+import { Expr, GPIDecl } from "./style.js";
+import { SubstanceEnv } from "./substance.js";
 import { ArgVal, Field, Name, PropID } from "./value.js";
 
 //#region Style semantics
@@ -29,20 +30,10 @@ export interface StyProgT {
   tag: "StyProgT";
 }
 
-// g ::= B => |T
-// Assumes nullary type constructors (i.e. Style type = Substance type)
-export interface SelEnv {
-  // COMBAK: k is a BindingForm that was stringified; maybe it should be a Map with BindingForm as key?
-  // Variable => Type
-  sTypeVarMap: { [k: string]: StyT<A> }; // B : |T
-  varProgTypeMap: { [k: string]: [ProgType, BindingForm<A>] }; // Store aux info for debugging, COMBAK maybe combine it with sTypeVarMap
-  // Variable => [Substance or Style variable, original data structure with program locs etc]
-  skipBlock: boolean;
-  header: Header<A> | undefined; // Just for debugging
+export type SelectorEnv = SubstanceEnv & {
   warnings: StyleError[];
   errors: StyleError[];
-}
-// Currently used to track if any Substance variables appear in a selector but not a Substance program (in which case, we skip the block)
+};
 
 //#endregion
 
@@ -50,10 +41,31 @@ export interface SelEnv {
 
 // Type declarations
 
-// A substitution θ has form [y → x], binding Sty vars to Sub vars (currently not expressions).
-// COMBAK: In prev grammar, the key was `StyVar`, but here it gets stringified
-// TODO: make this an `im.Map`
-export type Subst = { [k: string]: string };
+// A substitution maps a Style variable to something in Substance, which can be
+// a Substance variable or a literal in the Substance
+export type Subst = { [k: string]: SubstanceObject };
+
+export type SubstanceObject = SubstanceVar | SubstanceLiteral;
+
+export type SubstanceVar = {
+  tag: "SubstanceVar";
+  name: string;
+};
+
+export type SubstanceLiteral = {
+  tag: "SubstanceLiteral";
+  contents: SubstanceNumber | SubstanceString;
+};
+
+export type SubstanceNumber = {
+  tag: "SubstanceNumber";
+  contents: number;
+};
+
+export type SubstanceString = {
+  tag: "SubstanceString";
+  contents: string;
+};
 
 export type StySubSubst = {
   tag: "StySubSubst";
@@ -64,7 +76,7 @@ export type CollectionSubst = {
   tag: "CollectionSubst";
   groupby: Subst;
   collName: string;
-  collContent: string[];
+  collContent: SubstanceObject[];
 };
 
 export type StySubst = StySubSubst | CollectionSubst;

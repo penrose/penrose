@@ -6,7 +6,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "nx run-many --target=build --verbose",
+    "build": "nx run-many --targets=build,bundle --verbose",
     "typecheck": "nx run-many --target=typecheck --verbose",
     "build:roger": "nx run roger:build",
     "build:docs-site": "nx run docs-site:build",
@@ -21,27 +21,27 @@
     "lint:fix": "nx run core:lint --fix",
     "lerna": "lerna",
     "new-version": "lerna version --conventional-commits --no-git-tag-version --no-push",
-    "format": "prettier . --write && nx run-many --target=format --verbose",
-    "format:check": "prettier . --check && nx run-many --target=format:check --verbose",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
     "toc": "markdown-toc --bullets='-' -i CONTRIBUTING.md",
     "diff": "lerna diff"
   },
   "devDependencies": {
     "@spyke/conventional-changelog-preset": "^1.0.5",
+    "@vitest/coverage-c8": "^0.31.1",
+    "@vitest/ui": "^0.31.1",
     "cross-env": "^7.0.3",
     "handlebars": "^4.7.7",
     "js-yaml": "^4.1.0",
     "lerna": "^3.22.1",
     "markdown-toc": "^1.2.0",
-    "nx": "^15.0.13",
-    "prettier": "2.8.8",
-    "prettier-plugin-organize-imports": "^3.2.1",
+    "nx": "^15.4.2",
+    "prettier": "3.0.0",
+    "prettier-plugin-organize-imports": "^3.2.3",
     "pretty-quick": "^3.1.0",
     "rimraf": "^3.0.2",
-    "typescript": "^5.0.4",
-    "vitest": "^0.31.1",
-    "@vitest/coverage-c8": "^0.31.1",
-    "@vitest/ui": "^0.31.1"
+    "typescript": "^5.1.6",
+    "vitest": "^0.31.1"
   },
   "workspaces": {
     "packages": [
@@ -52,5 +52,9 @@
       "**/babel-loader",
       "**/webpack"
     ]
+  },
+  "dependencies": {
+    "file-saver": "^2.0.5",
+    "jszip": "^3.10.1"
   }
 }

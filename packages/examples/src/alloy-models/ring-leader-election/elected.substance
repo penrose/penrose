@@ -1,0 +1,20 @@
+Node n0
+Node n1
+Node n2
+Node n3
+Node n4
+
+Edge e00 := MakeEdge(n0, n1)
+Edge e01 := MakeEdge(n1, n2)
+Edge e02 := MakeEdge(n2, n3)
+Edge e03 := MakeEdge(n3, n4)
+Edge e04 := MakeEdge(n4, n0)
+
+Leader(n1)
+
+InboxNode i01 := MakeInboxNode(n0, n4)
+InboxNode i02 := MakeInboxNode(n0, n3)
+InboxNode i03 := MakeInboxNode(n1, n1)
+InboxNode i04 := MakeInboxNode(n3, n2)
+
+AutoLabel All

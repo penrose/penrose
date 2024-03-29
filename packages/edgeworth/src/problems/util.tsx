@@ -5,6 +5,7 @@ import {
   prettySubstance,
   showError,
 } from "@penrose/core";
+import { initSubstanceEnv } from "@penrose/core/dist/compiler/Substance";
 import { shuffle } from "lodash";
 import { Preset } from "../examples.js";
 import {
@@ -18,26 +19,32 @@ const generateProgs = (
   seed: string,
   numPrograms: number,
   domain: string,
-  substance: string
+  substance: string,
 ) => {
   const envOrError = compileDomain(domain);
   // initialize synthesizer
   if (envOrError.isOk()) {
-    const env = envOrError.value;
-    let subResult;
+    const domEnv = envOrError.value;
+    let subEnv;
     if (substance.length > 0) {
-      const subRes = compileSubstance(substance, env);
+      const subRes = compileSubstance(substance, domEnv);
       if (subRes.isOk()) {
-        subResult = subRes.value;
+        subEnv = subRes.value;
       } else {
-        console.log(
+        console.error(
           `Error when compiling the template Substance program: ${showError(
-            subRes.error
-          )}`
+            subRes.error,
+          )}`,
         );
       }
     }
-    const synth = new Synthesizer(env, setting, subResult, seed);
+    const synth = new Synthesizer(
+      domEnv,
+      subEnv === undefined ? initSubstanceEnv() : subEnv,
+      setting,
+      subEnv === undefined ? undefined : [subEnv, domEnv],
+      seed,
+    );
     let progs = synth.generateSubstances(numPrograms);
     const template = synth.getTemplate();
     return [{ prog: template, ops: [] } as SynthesizedSubstance, ...progs];
@@ -51,7 +58,7 @@ export const multipleChoiceProblem = (
   answer: {
     correct: number[];
     incorrect: number[];
-  }
+  },
 ) => {
   const { prompt, substance, style, domain, setting } = preset;
   const progs = generateProgs(setting, seed, numPrograms, domain, substance)!;
@@ -66,7 +73,7 @@ export const multipleChoiceProblem = (
         answer: boolean;
       }[],
       p: SynthesizedSubstance,
-      i: number
+      i: number,
     ) => {
       const substance = prettySubstance(p.prog);
       if (answer.correct.includes(i)) {
@@ -87,7 +94,7 @@ export const multipleChoiceProblem = (
         ];
       } else return problems;
     },
-    []
+    [],
   );
 
   return (

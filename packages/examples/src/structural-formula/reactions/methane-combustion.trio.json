@@ -1,0 +1,6 @@
+{
+  "substance": "./methane-combustion.substance",
+  "style": ["../pseudo-3d-reaction.style"],
+  "domain": "../structural-formula.domain",
+  "variation": ""
+}

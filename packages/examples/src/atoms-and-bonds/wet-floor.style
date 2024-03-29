@@ -1,0 +1,19 @@
+color {
+  pink = #F4ABAA
+  blue = #2A3166
+}
+
+
+forall Atom a  {
+    override a.symbol.fillColor = color.blue
+    override a.background.fillColor = color.pink
+}
+
+forall Atom a, b where SBond(a, b) as e {
+    override e.symbol.strokeColor = color.blue
+    override e.symbol.strokeWidth = 3
+}
+
+forall Atom a, b where WBond(a, b) as e {
+    override e.symbol.strokeColor = color.blue
+}

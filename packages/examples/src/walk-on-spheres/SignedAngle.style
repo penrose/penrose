@@ -1,0 +1,29 @@
+SignedAngle {
+   override canvas.width = 200
+}
+
+-- put the points on the boundary of the letter "A"
+forall Point `a1`, `a2`, `a3`, `a4`, `a5`, `a6`, `a7`, `a8`, `b1`, `b2`, `b3` {
+
+   scalar s = canvas.height - 10 -- scale
+
+   -- outer boundary
+   override `a1`.x = s * (-.169, -.287)
+   override `a2`.x = s * ( .173, -.287)
+   override `a3`.x = s * ( .249, -.500)
+   override `a4`.x = s * ( .500, -.500)
+   override `a5`.x = s * ( .119,  .500)
+   override `a6`.x = s * (-.123,  .500)
+   override `a7`.x = s * (-.500, -.500)
+   override `a8`.x = s * (-.242, -.500)
+
+   -- hole
+   override `b1`.x = s * ( 0.00,  .202)
+   override `b2`.x = s * ( .105, -.094)
+   override `b3`.x = s * (-.102, -.094)
+}
+
+forall Angle a {
+   override a.radius = 20 + 60*(match_id - 1)/(match_total - 1)
+}
+

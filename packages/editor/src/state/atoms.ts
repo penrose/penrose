@@ -1,15 +1,15 @@
 import {
   compileDomain,
-  Env,
+  DomainEnv,
   PenroseError,
-  PenroseState,
   PenroseWarning,
 } from "@penrose/core";
-import { PathResolver, Trio, TrioMeta } from "@penrose/examples/dist";
+import { PathResolver, Trio, TrioMeta } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
 import { Actions, BorderNode, TabNode } from "flexlayout-react";
 import localforage from "localforage";
 import { debounce, range } from "lodash";
+import { RefObject } from "react";
 import toast from "react-hot-toast";
 import {
   atom,
@@ -20,7 +20,11 @@ import {
 } from "recoil";
 import { v4 as uuid } from "uuid";
 import { layoutModel } from "../App.js";
+import { RenderState } from "../worker/message.js";
+import OptimizerWorker from "../worker/OptimizerWorker.js";
 import { generateVariation } from "./variation.js";
+
+export const optimizer = new OptimizerWorker();
 
 export const EDITOR_VERSION = 0.1;
 
@@ -93,6 +97,7 @@ export type RogerState =
       substance: string[];
       style: string[];
       domain: string[];
+      trio: string[];
     };
 
 const localFilesEffect: AtomEffect<LocalWorkspaces> = ({ setSelf, onSet }) => {
@@ -101,8 +106,8 @@ const localFilesEffect: AtomEffect<LocalWorkspaces> = ({ setSelf, onSet }) => {
       .getItem("local_files")
       .then(
         (savedValue) =>
-          (savedValue != null ? savedValue : {}) as LocalWorkspaces
-      )
+          (savedValue != null ? savedValue : {}) as LocalWorkspaces,
+      ),
   );
 
   onSet((newValue, _, isReset) => {
@@ -120,6 +125,9 @@ export const localFilesState = atom<LocalWorkspaces>({
 
 /**
  * On any state change to the workspace, if it's being saved, autosave it (debounced)
+ * TODO: changes that happen within the 500ms window will not be collected, this is an
+ *       issue with things that are not directly related to editing trios i.e. duplicating
+ *       workspaces, saving a new workspace, etc., see issue #1695
  */
 const saveWorkspaceEffect: AtomEffect<Workspace> = ({ onSet, setSelf }) => {
   onSet(
@@ -156,7 +164,7 @@ const saveWorkspaceEffect: AtomEffect<Workspace> = ({ onSet, setSelf }) => {
       ) {
         await localforage.setItem(newValue.metadata.id, newValue);
       }
-    }, 500)
+    }, 500),
   );
 };
 
@@ -173,7 +181,7 @@ const syncFilenamesEffect: AtomEffect<Workspace> = ({ onSet }) => {
         if (node.getType() === "tab" && (node as TabNode).getConfig()) {
           const kind = (node as TabNode).getConfig().kind as ProgramType;
           layoutModel.doAction(
-            Actions.renameTab(node.getId(), newValue.files[kind].name)
+            Actions.renameTab(node.getId(), newValue.files[kind].name),
           );
         }
       });
@@ -199,7 +207,10 @@ export const currentWorkspaceState = atom<Workspace>({
       },
       style: {
         name: ".style",
-        contents: "",
+        contents: `canvas {
+  width = 400
+  height = 400
+}`,
       },
       domain: {
         name: ".domain",
@@ -260,7 +271,7 @@ export const workspaceMetadataSelector = selector<WorkspaceMetadata>({
   },
 });
 
-export const domainCacheState = selector<Env | null>({
+export const domainCacheState = selector<DomainEnv | null>({
   key: "domainCache",
   get: ({ get }) => {
     const domainProgram = get(fileContentsSelector("domain")).contents;
@@ -277,6 +288,7 @@ export type DiagramMetadata = {
   stepSize: number;
   autostep: boolean;
   interactive: boolean;
+  excludeWarnings: string[];
   source: {
     domain: string;
     substance: string;
@@ -285,11 +297,22 @@ export type DiagramMetadata = {
 };
 
 export type Diagram = {
-  state: PenroseState | null;
+  state: RenderState | null;
   error: PenroseError | null;
   warnings: PenroseWarning[];
   metadata: DiagramMetadata;
 };
+
+export type Canvas = {
+  ref: RefObject<HTMLDivElement> | null;
+};
+
+export const canvasState = atom<Canvas>({
+  key: "canvasState",
+  default: {
+    ref: null,
+  },
+});
 
 export const diagramState = atom<Diagram>({
   key: "diagramState",
@@ -302,6 +325,7 @@ export const diagramState = atom<Diagram>({
       stepSize: 10000,
       autostep: true,
       interactive: false,
+      excludeWarnings: [],
       source: {
         substance: "",
         style: "",
@@ -312,6 +336,24 @@ export const diagramState = atom<Diagram>({
 
   //   necessary due to diagram extension
   dangerouslyAllowMutability: true,
+});
+
+export type LayoutTimeline = number[][];
+
+export const layoutTimelineState = atom<LayoutTimeline>({
+  key: "layoutTimelineState",
+  default: [],
+});
+
+export const diagramWorkerState = atom<{
+  id: string;
+  running: boolean;
+}>({
+  key: "diagramWorkerState",
+  default: {
+    id: "",
+    running: false,
+  },
 });
 
 export type DiagramGrid = {
@@ -328,7 +370,7 @@ const gridSizeEffect: AtomEffect<DiagramGrid> = ({ onSet, setSelf }) => {
         variations: [
           ...old.variations,
           ...range(newValue.gridSize - old.gridSize).map(() =>
-            generateVariation()
+            generateVariation(),
           ),
         ],
       });
@@ -360,7 +402,7 @@ export const diagramMetadataSelector = selector<DiagramMetadata>({
     }));
     set(diagramGridState, ({ gridSize }) => ({
       variations: range(gridSize).map((i) =>
-        i === 0 ? (newValue as DiagramMetadata).variation : generateVariation()
+        i === 0 ? (newValue as DiagramMetadata).variation : generateVariation(),
       ),
       gridSize,
     }));
@@ -382,22 +424,27 @@ export const exampleTriosState = atom<TrioWithPreview[]>({
       try {
         const trios: [string, TrioMeta][] = [];
         for (const [id, meta] of registry.entries()) {
-          if (meta.trio && meta.gallery) trios.push([id, meta]);
+          if (meta.trio && meta.gallery) {
+            trios.push([id, meta]);
+          }
         }
         return Promise.all(
           trios.map(async ([id, { get, name }]) => {
             const svg = await fetch(
               encodeURI(
-                `https://raw.githubusercontent.com/penrose/penrose/ci/refs/heads/main/${id}.svg`
-              )
+                `https://raw.githubusercontent.com/penrose/penrose/ci/refs/heads/main/${id}.svg`,
+              ),
             );
             const trio: TrioWithPreview = { id, get, name };
             if (!svg.ok) {
               console.error(`could not fetch preview for ${id}`);
-              return trio;
+              return {
+                ...trio,
+                preview: `<svg><rect fill="#cbcbcb" width="50" height="50"/></svg>`,
+              };
             }
             return { ...trio, preview: await svg.text() };
-          })
+          }),
         );
       } catch (err) {
         toast.error(`Could not retrieve examples: ${err}`);
@@ -436,8 +483,8 @@ const settingsEffect: AtomEffect<Settings> = ({ setSelf, onSet }) => {
       .getItem("settings")
       .then(
         (savedValue) =>
-          (savedValue != null ? savedValue : new DefaultValue()) as Settings
-      )
+          (savedValue != null ? savedValue : new DefaultValue()) as Settings,
+      ),
   );
 
   onSet((newValue, _, isReset) => {
@@ -456,7 +503,7 @@ const debugModeEffect: AtomEffect<Settings> = ({ onSet }) => {
         layoutModel.doAction(
           Actions.updateNodeAttributes(node.getId(), {
             show: newValue.debugMode,
-          })
+          }),
         );
       }
     });

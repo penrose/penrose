@@ -1,0 +1,108 @@
+canvas {
+  width = 800
+  height = 800
+}
+
+global {
+  scalar alphaStep = 0.002
+  scalar alphaMin = 0.1
+  scalar coef = random(0.2, 0.5)
+  background = Rectangle {
+    fillColor: #000000ff
+    center: (0, 0)
+    width: canvas.width
+    height: canvas.height
+  }
+}
+
+forall Pivot c {
+  vec2 c.pos = (?, ?)
+  scalar c.hue = ?
+  shape c.icon = Circle {
+    center: c.pos
+    r: 3
+    fillColor: hsva(c.hue, 50, 80, 1)
+    strokeColor: #000
+    strokeWidth: 2
+  }
+  shape c.iconb = Circle {
+    center: c.pos
+    r: 8
+    fillColor: #ffffffff
+    style: "filter: blur(3px)"
+  }
+  c.iconb below c.icon
+}
+
+collect Corner c into corners {
+  positions = listof pos from corners
+  ensure isEquilateral(positions, true)
+  ensure isEquiangular(positions, true)
+}
+
+collect Corner c into corners 
+foreach Center ce {
+  positions = listof pos from corners
+  ensure vdist(ce.pos, centerOfMass(positions)) == 0
+}
+
+collect Pivot c into pivots
+where p := NextPoint(s)
+foreach Point p; Point s {  
+  positions = listof pos from pivots
+  hues = listof hue from pivots
+  scalar cornerIndex = randomIndex(0, count(hues))
+  
+  vec2 pivot = positions[cornerIndex]
+  vec2 p.pos = global.coef * s.pos + (1 - global.coef) * pivot
+
+  scalar p.alpha = max(global.alphaMin, s.alpha - global.alphaStep)
+  
+  scalar hue = hues[cornerIndex]
+  scalar p.hue = 0.3 * s.hue + 0.7 * hue
+
+  shape p.line = Line {
+    start: s.pos
+    end: p.pos
+    strokeColor: hsva( p.hue, 50, 80, p.alpha )
+    strokeWidth: 2
+    style: "filter: blur(1px)"
+    ensureOnCanvas: false
+  }
+  p.line above global.background
+}
+
+forall Point p; Point s; Pivot c
+where p := NextPoint(s) {
+  p.line below c.iconb
+}  
+
+forall Seed s {
+  vec2 s.pos = (?, ?)
+  scalar s.hue = ?
+  scalar s.alpha = 0.5
+}
+
+forall Point p {
+  shape p.blur = Circle {
+    center: p.pos
+    r: 4
+    fillColor: hsva( p.hue, 50, 80, 1 )
+    style: "filter: blur(2px)"
+    ensureOnCanvas: false
+  }
+  shape p.icon = Circle {
+    center: p.pos
+    r: 2
+    fillColor: #000
+    ensureOnCanvas: false
+  }
+  p.icon above p.blur
+  p.icon above global.background
+  p.blur above global.background
+}
+
+forall Point p; Pivot c {
+  p.blur below c.iconb
+  p.icon below c.iconb
+}

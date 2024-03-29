@@ -16,7 +16,7 @@ export default {
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 const Template: ComponentStory<typeof Demo> = (args) => (
-  <div style={{ width: "100%", height: "100%" }}>
+  <div style={{ width: "400px", height: "400px" }}>
     <Demo {...args} />
   </div>
 );
@@ -37,5 +37,4 @@ VectorExamples.args = {
       variation: vectorWedge.variation,
     },
   ],
-  width: "400px",
 };

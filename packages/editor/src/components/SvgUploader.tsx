@@ -1,22 +1,25 @@
 import { FileUploader } from "react-drag-drop-files";
 import toast from "react-hot-toast";
 import { useRecoilState } from "recoil";
+import { v4 as uuid } from "uuid";
 import {
+  WorkspaceLocation,
+  currentWorkspaceState,
   diagramMetadataSelector,
-  fileContentsSelector,
 } from "../state/atoms.js";
-import { useCompileDiagram } from "../state/callbacks.js";
+import { isCleanWorkspace, useCompileDiagram } from "../state/callbacks.js";
 
 export default function SvgUploader() {
-  const setDomain = useRecoilState(fileContentsSelector("domain"))[1];
-  const setSubstance = useRecoilState(fileContentsSelector("substance"))[1];
-  const setStyle = useRecoilState(fileContentsSelector("style"))[1];
-  const [diagramMetadata, setDiagramMetadata] = useRecoilState(
-    diagramMetadataSelector
-  );
+  const [, setDiagramMetadata] = useRecoilState(diagramMetadataSelector);
   const compileDiagram = useCompileDiagram();
+  const [currentWorkspace, setWorkspace] = useRecoilState(
+    currentWorkspaceState,
+  );
 
   const handleChange = (svg: File) => {
+    if (!isCleanWorkspace(currentWorkspace)) {
+      return;
+    }
     const reader = new FileReader();
     reader.readAsText(svg);
     reader.onabort = () => console.log("file reading was aborted");
@@ -34,55 +37,51 @@ export default function SvgUploader() {
       const dslElem = xmlDoc.getElementsByTagName("dsl");
       const variationElem = xmlDoc.getElementsByTagName("variation");
 
-      if (variationElem.length === 0) {
+      if (
+        variationElem.length === 0 ||
+        styElem.length === 0 ||
+        subElem.length === 0 ||
+        dslElem.length === 0
+      ) {
         toast.error(
-          "Could not load SVG. Make sure the SVG was exported from Penrose."
+          "Could not load SVG. Make sure the SVG was exported from Penrose.",
         );
         return;
       }
+
+      // put imported workspace into draft state
+      // prevents overwriting existing workspaces
+      setWorkspace({
+        ...currentWorkspace,
+        metadata: {
+          ...currentWorkspace.metadata,
+          location: { kind: "local", saved: false } as WorkspaceLocation,
+          id: uuid(),
+          name: svg.name.replace(".svg", ""),
+        },
+        files: {
+          substance: {
+            ...currentWorkspace.files.substance,
+            contents: (subElem[0].textContent ?? "").trim(),
+          },
+          style: {
+            ...currentWorkspace.files.style,
+            contents: (styElem[0].textContent ?? "").trim(),
+          },
+          domain: {
+            ...currentWorkspace.files.domain,
+            contents: (dslElem[0].textContent ?? "").trim(),
+          },
+        },
+      });
 
       setDiagramMetadata((metadata) => ({
         ...metadata,
         variation: (variationElem[0].textContent ?? "").trim(),
       }));
 
-      if (styElem.length === 0) {
-        toast.error(
-          "Could not load SVG. Make sure the SVG was exported from Penrose."
-        );
-        return;
-      }
-
-      setStyle({
-        name: "SVG import",
-        contents: (styElem[0].textContent ?? "").trim(),
-      });
-
-      if (subElem.length === 0) {
-        toast.error(
-          "Could not load SVG. Make sure the SVG was exported from Penrose."
-        );
-        return;
-      }
-
-      setSubstance({
-        name: "SVG import",
-        contents: (subElem[0].textContent ?? "").trim(),
-      });
-
-      if (dslElem.length === 0) {
-        toast.error(
-          "Could not load SVG. Make sure the SVG was exported from Penrose."
-        );
-        return;
-      }
-
-      setDomain({
-        name: "SVG import",
-        contents: (dslElem[0].textContent ?? "").trim(),
-      });
-
       await compileDiagram();
+
       toast.success("Sucessfully uploaded SVG to editor");
     };
   };

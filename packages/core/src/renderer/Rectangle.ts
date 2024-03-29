@@ -13,7 +13,7 @@ import { RenderProps } from "./Renderer.js";
 
 const RenderRectangle = (
   shape: Rectangle<number>,
-  { canvasSize }: RenderProps
+  { canvasSize }: RenderProps,
 ): SVGRectElement => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "rect");
 

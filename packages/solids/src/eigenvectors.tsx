@@ -92,6 +92,56 @@ const Point = ({
   );
 };
 
+
+/**
+ * Converts screen to relative SVG coords
+ * Thanks to
+ * https://www.petercollingridge.co.uk/tutorials/svg/interactive/dragging/
+ * @param e
+ * @param svg
+ */
+const getPosition = (
+  { clientX, clientY }: { clientX: number; clientY: number },
+  svg: SVGSVGElement,
+) => {
+  const CTM = svg.getScreenCTM();
+  if (CTM !== null) {
+    return { x: (clientX - CTM.e) / CTM.a, y: (clientY - CTM.f) / CTM.d };
+  }
+  return { x: 0, y: 0 };
+};
+
+const onMouseDown = (e: MouseEvent, parent: SVGSVGElement, val: Var[]) => {
+  const target = e.target as SVGSVGElement;
+  target.setAttribute("fill-opacity", "0.15");
+  const { clientX, clientY } = e;
+  let { x: tempX, y: tempY } = getPosition({ clientX, clientY }, parent);
+  let dx = 0,
+    dy = 0;
+  const onMouseMove = (e: MouseEvent) => {
+    const { x, y } = getPosition(e, parent);
+    dx = x - tempX;
+    dy = tempY - y;
+    tempX = x;
+    tempY = y;
+    // set the actual values
+    const [mx, my] = toModel([dx, dy]);
+    const futureX = val[0].val + mx;
+    const futureY = val[1].val + my;
+    if (futureX >= 0 && futureX <= 5) val[0].val = futureX;
+    if (futureY >= 0 && futureY <= 5) val[1].val = futureY;
+  };
+  const onMouseUp = (e: MouseEvent) => {
+    document.removeEventListener("mouseup", onMouseUp);
+    document.removeEventListener("mousemove", onMouseMove);
+    // remove transform
+    target.setAttribute(`transform`, "");
+    target.setAttribute("fill-opacity", "0.1");
+  };
+  document.addEventListener("mouseup", onMouseUp);
+  document.addEventListener("mousemove", onMouseMove);
+};
+
 const Vector = ({
   id,
   fill,
@@ -379,7 +429,7 @@ ${num(a1[1]).toFixed(2)} & ${num(a2[1]).toFixed(2)}
           v[1]
         ).toFixed(2)}]`}</$>
         <$>{`\\textcolor{${vColor}}{Av}= [${num(avd[0]).toFixed(2)}, ${num(
-          avd[1]
+          avd[1],
         ).toFixed(2)}]`}</$>
       </div>
     </div>

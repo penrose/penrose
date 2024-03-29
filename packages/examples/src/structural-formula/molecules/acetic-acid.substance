@@ -12,3 +12,6 @@ SingleBond(C2, O2)
 SingleBond(O2, H4)
 
 AutoLabel All
+
+Title title
+Label title "acetic acid"

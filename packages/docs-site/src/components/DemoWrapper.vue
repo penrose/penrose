@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from "vue";
-import siggraphTeaser from "@penrose/examples/dist/geometry-domain/siggraph-teaser.trio";
-import treeVenn from "@penrose/examples/dist/set-theory-domain/tree-venn.trio";
+import siggraphTeaser from "@penrose/examples/dist/geometry-domain/siggraph-teaser.trio.js";
+import treeVenn from "@penrose/examples/dist/set-theory-domain/tree-venn-3d.trio.js";
+import hexagonal from "@penrose/examples/dist/spectral-graphs/examples/hexagonal-lattice.trio.js";
+import caffieine from "@penrose/examples/dist/structural-formula/molecules/caffeine.trio.js";
 
 const demo = [
   {
@@ -11,10 +13,26 @@ const demo = [
     variation: siggraphTeaser.variation,
   },
   {
+    sub: hexagonal.substance,
+    sty: hexagonal.style.map(({ contents }) => contents).join("\n"),
+    dsl: hexagonal.domain,
+    variation: hexagonal.variation,
+    stepSize: 10,
+  },
+  {
     sub: treeVenn.substance,
     sty: treeVenn.style.map(({ contents }) => contents).join("\n"),
     dsl: treeVenn.domain,
     variation: "PlumvilleCapybara104",
+    imageResolver: treeVenn.style[0].resolver,
+  },
+  {
+    sub: caffieine.substance,
+    sty: caffieine.style.map(({ contents }) => contents).join("\n"),
+    dsl: caffieine.domain,
+    variation: caffieine.variation,
+    stepSize: 5,
+    imageResolver: caffieine.style[0].resolver,
   },
 ];
 
@@ -25,17 +43,40 @@ const Demo = defineAsyncComponent(async () => {
 });
 </script>
 
+<style scoped>
+.demo-container {
+  width: 200px;
+  height: 200px;
+}
+
+@media (min-width: 640px) {
+  .demo-container {
+    width: 250px;
+    height: 250px;
+  }
+}
+
+@media (min-width: 960px) {
+  .demo-container {
+    width: 400px;
+    height: 400px;
+  }
+}
+</style>
+
 <template>
   <div
     style="
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       overflow: hidden;
+      width: 100%;
+      height: 100%;
     "
   >
-    <!-- TODO: bad hardcoded width -->
-    <Demo :examples="demo" width="280px" />
+    <div class="demo-container">
+      <Demo :examples="demo" />
+    </div>
   </div>
 </template>

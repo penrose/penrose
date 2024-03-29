@@ -1,7 +1,7 @@
 import { Shape } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
 import Graph from "./Graph.js";
-import { shapeListV } from "./Util.js";
+import { shapeListV, unwrap } from "./Util.js";
 
 export type GroupGraph = Graph<string, number>; // shape name and index
 
@@ -42,7 +42,7 @@ export const makeGroupGraph = (shapes: Shape<ad.Num>[]): GroupGraph => {
 
 export const getParent = (
   graph: GroupGraph,
-  node: string
+  node: string,
 ): string | undefined => {
   const parents = graph.parents(node);
   if (parents.length === 0) {
@@ -74,12 +74,12 @@ export type RenderGraphNode = Shape<ad.Num>;
 export const buildRenderGraphNode = (
   name: string,
   groupGraph: GroupGraph,
-  nameShapeMap: Map<string, Shape<ad.Num>>
+  nameShapeMap: Map<string, Shape<ad.Num>>,
 ): RenderGraphNode => {
-  const shape = nameShapeMap.get(name);
-  if (!shape) {
-    throw new Error("Cannot find shape name in name-shape map");
-  }
+  const shape = unwrap(
+    nameShapeMap.get(name),
+    () => `Cannot find shape name in name-shape map: ${name}`,
+  );
 
   // If shape is non-group, return it as the node.
 
@@ -93,7 +93,7 @@ export const buildRenderGraphNode = (
   const childrenNames = subShapes.map((subShape) => subShape.name.contents);
 
   shape.shapes = shapeListV(
-    buildRenderGraph(childrenNames, groupGraph, nameShapeMap)
+    buildRenderGraph(childrenNames, groupGraph, nameShapeMap),
   );
 
   return shape;
@@ -102,12 +102,12 @@ export const buildRenderGraphNode = (
 export const buildRenderGraph = (
   roots: string[],
   groupGraph: GroupGraph,
-  nameShapeMap: Map<string, Shape<ad.Num>>
+  nameShapeMap: Map<string, Shape<ad.Num>>,
 ): RenderGraph => {
   const orderedRoots = roots.sort(
-    (a, b) => groupGraph.node(a) - groupGraph.node(b)
+    (a, b) => groupGraph.node(a) - groupGraph.node(b),
   );
   return orderedRoots.map((root) =>
-    buildRenderGraphNode(root, groupGraph, nameShapeMap)
+    buildRenderGraphNode(root, groupGraph, nameShapeMap),
   );
 };

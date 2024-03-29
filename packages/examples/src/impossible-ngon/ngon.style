@@ -1,0 +1,131 @@
+canvas {
+   width = 1920
+   height = 1080
+
+   shape background = Image {
+      href: "radial-gradient.svg"
+      center: (0,0)
+      width: canvas.width
+      height: canvas.width
+      preserveAspectRatio: "none"
+   }
+}
+
+logo {
+   -- Parameters for the Penrose logo.  Although we define the
+   -- parameters explicitly, they are all optional (and have
+   -- reasonable defaults).
+   vec2 center = (0,60) -- location on canvas
+   scalar R = 350 -- outer radius
+   scalar s = .35 -- inner radius, as fraction of outer radius
+   scalar theta = 0 -- angle of rotation
+   scalar nSides = 5 -- number of sides
+   string chirality = "ccw" -- clockwise or counter-clockwise
+
+   -- The Penrose function returns a compound path comprised
+   -- of several polygons, which can be used as the `d` (path data)
+   -- field of a single `Path` shape.
+   shape pentagon = Path {
+      d: Penrose( center, R, s, theta, nSides, chirality )
+      fillColor: #3fb4f7bb
+      strokeColor: #555
+      strokeWidth: 6
+   }
+
+   -- Draw some text below the pentagon shape
+   shape labelText = Text {
+      center: center + (0,-(R + 25))
+      string: "Penrose"
+      fontSize: "172px"
+      fontFamily: "HelveticaNeue-CondensedBold,Helvetica,Arial,Geneva,Tahoma,sans-serif"
+      fontWeight: "600"
+      fontStretch: "condensed"
+      fillColor: #fff
+      strokeColor: #555
+      strokeWidth: 12
+      paintOrder: "stroke"
+   }
+
+   -- Put both the shape and the text in a single group,
+   -- so that their shadow is cast on the background but
+   -- not on each-other.
+   shape icon = Group {
+      shapes: [ pentagon, labelText ]
+      style: "filter: drop-shadow(0px 50px 20px #0008);"
+   }
+}
+
+-- Draw each `NGon` as an impossible n-gon whose number of
+-- sides and location in a grid is determined by the match ID.
+-- XXX Unfortunately, we can't currently do arithmetic on `match_id`,
+-- XXX since it's a constant rather than an autodiff variable.
+-- XXX So, instead of shifting the number of sides to start at 3,
+-- XXX we'll just have a couple extra copies of the impossible triangle.
+forall NGon P {
+
+   -- Determine location in a grid with three rows and four columns
+   scalar n = match_id - 1
+   scalar i = mod(n,4) - 1.5 -- column
+   scalar j = floor(n/4) - 1 -- row
+
+   -- Draw the impossible n-gon using the parameterized Penrose function.
+   -- Make these thinner than the main logo, so that n-gons with many sides
+   -- still look reasonable.
+   vec2 P.center = (400*i,350*j)
+   shape P.icon = Path {
+      d: Penrose( P.center, 150, .5, 0, match_id )
+      fillColor: none()
+      strokeColor: #888
+      strokeWidth: 5
+      strokeLinejoin: "round"
+      ensureOnCanvas: false
+   }
+
+   -- Draw a glow around each n-gon, which will be clipped to just
+   -- the region of the main logo.
+   shape P.glow = Path {
+      d: Penrose( P.center, 150, .5, 0, match_id )
+      fillColor: none()
+      strokeColor: #fffb
+      strokeWidth: 5
+      ensureOnCanvas: false
+      style: "filter:blur(10px);"
+   }
+
+   layer P.icon below logo.icon
+   layer P.icon below logo.labelText
+   layer P.glow above logo.icon
+}
+
+-- Use the logo to mask the glow
+collect NGon P into Ps {
+
+   list glows = listof glow from Ps
+
+   -- XXX For some reason, can't use this path as a mask, even
+   -- XXX though other shape types work fine.
+   -- shape mask = Path {
+   --    d: logo.pentagon.d
+   -- }
+
+   -- Instead, we'll define a pentagon that matches the logo
+   vec2 c = logo.center
+   scalar R = logo.R
+   scalar θ = -logo.theta
+   scalar dθ = 2*MathPI()/5
+   vec2 p0 = c + R*( sin(0*dθ+θ), cos(0*dθ+θ) )
+   vec2 p1 = c + R*( sin(1*dθ+θ), cos(1*dθ+θ) )
+   vec2 p2 = c + R*( sin(2*dθ+θ), cos(2*dθ+θ) )
+   vec2 p3 = c + R*( sin(3*dθ+θ), cos(3*dθ+θ) )
+   vec2 p4 = c + R*( sin(4*dθ+θ), cos(4*dθ+θ) )
+   shape mask = Polygon {
+      points: [ p0, p1, p2, p3, p4 ]
+   }
+
+   -- Apply the clipping mask
+   shape clipGroup = Group {
+      shapes: glows
+      clipPath: clip(mask)
+   }
+}
+

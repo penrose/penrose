@@ -52,7 +52,7 @@ forall VectorSpace U {
         strokeColor : U.axisColor
         startArrowhead: "straight"
         endArrowhead: "straight"
-        arrowheadSize : const.arrowheadSize * 2.
+        endArrowheadSize : const.arrowheadSize * 2.
     }
 
     U.yAxis = Line {
@@ -63,7 +63,7 @@ forall VectorSpace U {
         strokeColor : U.axisColor
         startArrowhead: "straight"
         endArrowhead: "straight"
-        arrowheadSize : const.arrowheadSize * 2.
+        endArrowheadSize : const.arrowheadSize * 2.
     }
 
     U.text = Equation {
@@ -85,7 +85,7 @@ where In(u,U) {
     strokeWidth : 3.0
     strokeColor : const.lightBlue
     endArrowhead: "straight"
-    arrowheadSize : const.arrowheadSize
+    endArrowheadSize : const.arrowheadSize
   }
 
   u.text = Equation {
@@ -95,8 +95,7 @@ where In(u,U) {
 
   ensure contains(U.background, u.shape)
   ensure contains(U.background, u.text)
-  ensure atDist(u.shape, u.text, 15.0)
-  ensure minSize(u.shape)
+  ensure vdist(u.shape.end, u.text.center) == 15.0
 
   layer u.text above U.xAxis
   layer u.text above U.yAxis
@@ -146,7 +145,7 @@ where In(u,U) {
     strokeWidth : 3.0
     strokeColor : const.lightBlue
     endArrowhead: "straight"
-    arrowheadSize : const.arrowheadSize
+    endArrowheadSize : const.arrowheadSize
   }
 
   u.text = Equation {
@@ -156,8 +155,7 @@ where In(u,U) {
 
   ensure contains(U.background, u.shape)
   ensure contains(U.background, u.text)
-  ensure atDist(u.shape, u.text, 15.0)
-  ensure minSize(u.shape)
+  ensure vdist(u.shape.end, u.text.center) == 15.0
 
   layer u.text above U.xAxis
   layer u.text above U.yAxis
@@ -208,7 +206,7 @@ where In(u,U) {
 -- Exercise 1 Changes:
 forall Vector u; Vector v; Vector w; VectorSpace U
 where u := subV(v,w); In(u, U); In(v, U); In(w, U){
-  override u.shape.end = v.shape.end - w.shape.end - U.origin
+  override u.shape.end = v.shape.end - w.shape.end + U.origin
   override u.shape.strokeColor = const.green
   override u.text.string = "difference"
 }
@@ -311,7 +309,7 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
     endArrowhead: "straight"
     strokeWidth : const.arrowThickness
     strokeStyle : "dashed"
-    arrowheadSize : const.arrowheadSize
+    endArrowheadSize : const.arrowheadSize
   }
 
   u.dashed_w = Line {
@@ -320,7 +318,7 @@ where u := addV(v,w); In(u, U); In(v, U); In(w, U) {
     endArrowhead: "straight"
     strokeWidth : const.arrowThickness
     strokeStyle : "dashed"
-    arrowheadSize : const.arrowheadSize
+    endArrowheadSize : const.arrowheadSize
   }
 
   u.dashed_w below u.shape

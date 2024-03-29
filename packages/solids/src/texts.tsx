@@ -5,7 +5,8 @@ import {
   onCanvasPoint,
   onCanvasRect,
   problem,
-  sdfRect,
+  rectPts,
+  signedDistanceRect,
   textBBox,
   variable,
 } from "@penrose/core";
@@ -15,7 +16,7 @@ import { JSX } from "solid-js/jsx-runtime";
 export default async function Text(
   rng: seedrandom.prng,
   canvas: [number, number],
-  names: string[]
+  names: string[],
 ): Promise<JSX.Element> {
   const [w, h] = canvas;
   const n = names.length;
@@ -40,7 +41,7 @@ export default async function Text(
       rect: textBBox(
         measureText(name, `font: 1.2em "Fira Sans", sans-serif;`),
         x,
-        y
+        y,
       ),
     };
   });
@@ -49,7 +50,13 @@ export default async function Text(
       const [x, y] = points[i];
       return [
         onCanvasRect(canvas, rect),
-        eq(sdfRect(rect.center, rect.width, rect.height, [x.val, y.val]), 10),
+        eq(
+          signedDistanceRect(rectPts(rect.center, rect.width, rect.height), [
+            x.val,
+            y.val,
+          ]),
+          10,
+        ),
       ];
     }),
   }).then((p) => {

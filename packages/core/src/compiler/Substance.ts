@@ -1,69 +1,84 @@
 import im from "immutable";
-import _ from "lodash";
 import nearley from "nearley";
-import { dummyIdentifier } from "../engine/EngineUtils.js";
-import { idOf, lastLocation, prettyParseError } from "../parser/ParserUtil.js";
+import { lastLocation, prettyParseError } from "../parser/ParserUtil.js";
 import substanceGrammar from "../parser/SubstanceParser.js";
-import { A, ASTNode, C, Identifier } from "../types/ast.js";
+import {
+  A,
+  ASTNode,
+  AbstractNode,
+  C,
+  Identifier,
+  StringLit,
+  location,
+} from "../types/ast.js";
 import {
   Arg,
   ConstructorDecl,
-  Env,
+  DomainEnv,
   FunctionDecl,
   Type,
-  TypeConstructor,
 } from "../types/domain.js";
 import { ParseError, PenroseError, SubstanceError } from "../types/errors.js";
 import {
   ApplyConstructor,
   ApplyFunction,
   ApplyPredicate,
+  AutoLabel,
   Bind,
+  BooleanExpr,
+  CompiledSubProg,
+  CompiledSubStmt,
   Decl,
-  Deconstructor,
+  DeclBind,
+  DeclList,
   Func,
+  IndexSet,
+  LabelDecl,
   LabelMap,
   LabelOption,
   LabelValue,
+  LiteralSubExpr,
+  NoLabel,
+  NumExpr,
+  NumberConstant,
+  Stmt,
+  StmtSet,
+  SubArgExpr,
   SubExpr,
-  SubPredArg,
   SubProg,
-  SubRes,
   SubStmt,
   SubstanceEnv,
-  TypeConsApp,
+  TypeApp,
 } from "../types/substance.js";
 import {
   Result,
-  and,
-  andThen,
+  all,
   argLengthMismatch,
-  deconstructNonconstructor,
   duplicateName,
   err,
   every,
   ok,
   parseError,
   safeChain,
-  typeArgLengthMismatch,
   typeMismatch,
   typeNotFound,
-  unexpectedExprForNestedPred,
   varNotFound,
 } from "../utils/Error.js";
-import { zip2 } from "../utils/Util.js";
+import { cartesianProduct, toLiteralUniqueName, zip2 } from "../utils/Util.js";
 import {
-  bottomType,
-  checkTypeConstructor,
+  checkType,
+  isLiteralType,
   isSubtype,
-  topType,
+  numberType,
+  stringType,
+  toDomType,
 } from "./Domain.js";
 
 export const parseSubstance = (
-  prog: string
+  prog: string,
 ): Result<SubProg<C>, ParseError> => {
   const parser = new nearley.Parser(
-    nearley.Grammar.fromCompiled(substanceGrammar)
+    nearley.Grammar.fromCompiled(substanceGrammar),
   );
   try {
     const { results } = parser.feed(prog).feed("\n"); // NOTE: extra newline to avoid trailing comments
@@ -71,10 +86,18 @@ export const parseSubstance = (
       const ast: SubProg<C> = results[0];
       return ok(ast);
     } else {
-      return err(parseError(`Unexpected end of input`, lastLocation(parser)));
+      return err(
+        parseError(
+          `Unexpected end of input`,
+          lastLocation(parser),
+          "Substance",
+        ),
+      );
     }
   } catch (e) {
-    return err(parseError(prettyParseError(e), lastLocation(parser)));
+    return err(
+      parseError(prettyParseError(e), lastLocation(parser), "Substance"),
+    );
   }
 };
 
@@ -86,80 +109,67 @@ export const parseSubstance = (
  */
 export const compileSubstance = (
   prog: string,
-  env: Env
-): Result<SubRes, PenroseError> => {
+  domEnv: DomainEnv,
+): Result<SubstanceEnv, PenroseError> => {
   const astOk = parseSubstance(prog);
   if (astOk.isOk()) {
     const ast = astOk.value;
-    // convert and append prelude values to the substance AST
-    const preludeDecls = [...env.preludeValues.toArray()];
-    const preludeValues: Decl<A>[] = preludeDecls.map(
-      ([id, decl]: [string, TypeConstructor<C>]) => toSubDecl(id, decl)
-    );
-    const astWithPrelude: SubProg<A> = {
-      ...ast,
-      statements: [...ast.statements, ...preludeValues],
-    };
+    // prepare Substance env
+    const subEnv = initSubstanceEnv();
     // check the substance ast and produce an env or report errors
-    const checkerOk = checkSubstance(astWithPrelude, env);
+    const checkerOk = checkSubstance(ast, domEnv, subEnv);
     return checkerOk.match({
-      Ok: ({ env, contents: ast }) => ok([postprocessSubstance(ast, env), env]),
-      Err: (e) => err({ ...e, errorType: "SubstanceError" }),
+      Ok: ({ subEnv, contents: ast }) =>
+        ok(postprocessSubstance(domEnv, { ...subEnv, ast })),
+      Err: (e) => err({ ...e[0], errorType: "SubstanceError" }),
     });
   } else {
     return err({ ...astOk.error, errorType: "SubstanceError" });
   }
 };
 
-const initEnv = (ast: SubProg<A>, env: Env): SubstanceEnv => ({
-  exprEqualities: [],
-  predEqualities: [],
-  bindings: im.Map<string, SubExpr<C>>(),
-  labels: im.Map<string, LabelValue>(
-    [...env.vars.keys()].map((id: string) => [id, EMPTY_LABEL])
-  ),
-  predicates: [],
-  ast,
+export const initSubstanceEnv = (): SubstanceEnv => ({
+  labels: im.Map<string, LabelValue>(),
+  objs: im.Map<string, Type<C>>(),
+  objIds: [],
+  literals: [],
+  ast: { tag: "SubProg", nodeType: "Substance", statements: [] },
 });
 
 //#region Postprocessing
 
 const EMPTY_LABEL: LabelValue = { value: "", type: "NoLabel" };
 
+// recreate all literals as plain objects
+// create default labels
+// process labeling directives
 export const postprocessSubstance = (
-  prog: SubProg<A>,
-  env: Env
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
 ): SubstanceEnv => {
-  // post process all statements
-  const subEnv = initEnv(prog, env);
-  return prog.statements.reduce(
-    (e, stmt) => processLabelStmt(stmt, env, e),
-    subEnv
+  subEnv.labels = im.Map(
+    [...subEnv.objs.keys()].map((id) => [id, EMPTY_LABEL]),
+  );
+  return subEnv.ast.statements.reduce(
+    (subEnv, stmt: CompiledSubStmt<A>) =>
+      processLabelStmt(stmt, domEnv, subEnv),
+    subEnv,
   );
 };
 
-const toSubDecl = (idString: string, decl: TypeConstructor<C>): Decl<A> => ({
-  nodeType: "SyntheticSubstance",
-  tag: "Decl",
-  type: {
-    ...decl,
-    args: [],
-  },
-  name: dummyIdentifier(idString, "SyntheticSubstance"),
-});
-
 const processLabelStmt = (
   stmt: SubStmt<A>,
-  env: Env,
-  subEnv: SubstanceEnv
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
 ): SubstanceEnv => {
   switch (stmt.tag) {
     case "AutoLabel": {
       if (stmt.option.tag === "DefaultLabels") {
-        const [...ids] = env.vars.keys();
+        const ids = subEnv.objIds;
         const newLabels: LabelMap = im.Map(
-          ids.map((id) => [id, { value: id, type: "MathLabel" }])
+          ids.map((id) => [id.value, { value: id.value, type: "MathLabel" }]),
         );
+
         return {
           ...subEnv,
           labels: newLabels,
@@ -167,7 +177,9 @@ const processLabelStmt = (
       } else {
         const ids = stmt.option.variables;
         const newLabels: LabelMap = subEnv.labels.merge(
-          ids.map((id) => [id.value, { value: id.value, type: "MathLabel" }])
+          im.Map(
+            ids.map((id) => [id.value, { value: id.value, type: "MathLabel" }]),
+          ),
         );
         return {
           ...subEnv,
@@ -188,7 +200,7 @@ const processLabelStmt = (
     case "NoLabel": {
       const ids = stmt.args;
       const newLabels: LabelMap = subEnv.labels.merge(
-        ids.map((id) => [id.value, EMPTY_LABEL])
+        ids.map((id) => [id.value, EMPTY_LABEL]),
       );
       return {
         ...subEnv,
@@ -205,517 +217,1228 @@ const processLabelStmt = (
 //#region Semantic checker
 
 interface WithEnv<T> {
-  env: Env;
+  subEnv: SubstanceEnv;
   contents: T;
 }
 interface WithEnvAndType<T> {
-  env: Env;
+  subEnv: SubstanceEnv;
   contents: T;
-  type: TypeConsApp<A>;
+  type: Type<A>;
 }
-type CheckerResult<T> = Result<WithEnv<T>, SubstanceError>;
-type ResultWithType<T> = Result<WithEnvAndType<T>, SubstanceError>;
-
-const stringName = idOf("String", "Substance");
-const stringType: TypeConsApp<A> = {
-  tag: "TypeConstructor",
-  nodeType: "SyntheticSubstance",
-  name: stringName,
-  args: [],
-};
+type CheckerResult<T> = Result<WithEnv<T>, SubstanceError[]>;
+type ResultWithType<T> = Result<WithEnvAndType<T>, SubstanceError[]>;
 
 /**
  * Top-level function for the Substance semantic checker. Given a Substance AST and an initial context, it outputs either a `SubstanceError` or an `Env` context.
  *
  * @param prog compiled AST of a Domain program
- * @param env  environment from the Domain checker
+ * @param domEnv  environment from the Domain checker
  */
 export const checkSubstance = (
   prog: SubProg<A>,
-  env: Env
-): CheckerResult<SubProg<A>> => {
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
+): CheckerResult<CompiledSubProg<A>> => {
   const { statements } = prog;
   // check all statements
-  const contents: SubStmt<A>[] = [];
-  const stmtsOk: CheckerResult<SubStmt<A>[]> = safeChain(
+  const contents: CompiledSubStmt<A>[] = [];
+  const stmtsOk: CheckerResult<CompiledSubStmt<A>[]> = safeChain(
     statements,
-    (stmt, { env, contents: stmts }) =>
-      andThen(
-        ({ env, contents: checkedStmt }) =>
-          ok({ env, contents: [...stmts, checkedStmt] }),
-        checkStmt(stmt, env)
+    (stmt, { subEnv: currEnv, contents: stmts }) =>
+      checkStmt(stmt, domEnv, currEnv).andThen(
+        ({ subEnv: checkedEnv, contents: checkedStmts }) =>
+          ok({
+            subEnv: checkedEnv,
+            contents: [...stmts, ...checkedStmts],
+          }),
       ),
-    ok({ env, contents })
+    ok({ subEnv, contents }),
   );
-  return andThen(
-    ({ env, contents }) =>
-      ok({
-        env,
-        contents: { ...prog, statements: contents },
-      }),
-    stmtsOk
+
+  return stmtsOk.andThen((r) =>
+    ok({
+      subEnv: r.subEnv,
+      contents: {
+        ...prog,
+        statements: r.contents,
+      },
+    }),
   );
 };
 
-const checkStmt = (stmt: SubStmt<A>, env: Env): CheckerResult<SubStmt<A>> => {
+const checkStmt = (
+  stmt: Stmt<A>,
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
+): CheckerResult<CompiledSubStmt<A>[]> => {
+  if (stmt.tag === "StmtSet") return checkStmtISetHelper(stmt, domEnv, subEnv);
+  else return checkSingleStmt(stmt, domEnv, subEnv);
+};
+
+const checkStmtISetHelper = (
+  stmtSet: StmtSet<A>,
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
+): CheckerResult<CompiledSubStmt<A>[]> => {
+  const { stmt } = stmtSet;
   switch (stmt.tag) {
     case "Decl": {
-      const { type, name } = stmt;
-      // check type constructor
-      const typeOk = checkTypeConstructor(type, env);
-      // check name collisions
-      const existingName = env.vars.get(name.value);
-      if (existingName) {
-        return err(
-          duplicateName(
-            name,
-            stmt,
-            env.varIDs.filter((v) => v.value === name.value)[0]
-          )
-        );
-      } else {
-        const updatedEnv: Env = {
-          ...env,
-          vars: env.vars.set(name.value, type),
-          varIDs: [name, ...env.varIDs],
-        };
-        const res: WithEnv<SubStmt<A>> = {
-          env: updatedEnv,
-          contents: stmt,
-        };
-        return and(ok(res), typeOk);
-      }
+      // special, smarter handling for decl
+      return checkDeclISet({ ...stmtSet, stmt }, domEnv, subEnv);
+    }
+    case "DeclList": {
+      // special, smarter handling for declList
+      return checkDeclListISet({ ...stmtSet, stmt }, domEnv, subEnv);
     }
     case "Bind": {
-      const { variable, expr } = stmt;
-      const varOk = checkVar(variable, env);
-      const exprOk = checkExpr(expr, env, variable);
-      return andThen(({ env, contents: [e, v] }) => {
-        const updatedBind: Bind<A> = { ...stmt, variable: v, expr: e };
-        return ok({
-          env,
-          contents: updatedBind,
-        });
-      }, subtypeOf(exprOk, varOk));
-    }
-    case "ApplyPredicate": {
-      return checkPredicate(stmt, env);
-    }
-    case "EqualExprs": {
-      const { left, right } = stmt;
-      const leftOk = checkExpr(left, env);
-      const rightOk = checkExpr(right, env);
-      return andThen(
-        ({ env }) => ok({ env, contents: stmt }),
-        every(leftOk, rightOk)
+      return checkStmtISet(
+        { ...stmtSet, stmt },
+        domEnv,
+        subEnv,
+        substISetBind,
+        checkBind,
       );
     }
-    case "EqualPredicates": {
-      const { left, right } = stmt;
-      const leftOk = checkPredicate(left, env);
-      const rightOk = checkPredicate(right, env);
-      return andThen(
-        ({ env }) => ok({ env, contents: stmt }),
-        every(leftOk, rightOk)
+    case "DeclBind": {
+      return checkStmtISet(
+        { ...stmtSet, stmt },
+        domEnv,
+        subEnv,
+        substISetDeclBind,
+        checkDeclBind,
+      );
+    }
+    case "ApplyPredicate": {
+      return checkStmtISet(
+        { ...stmtSet, stmt },
+        domEnv,
+        subEnv,
+        substISetPredicate,
+        checkPredicate,
       );
     }
     case "AutoLabel": {
-      // NOTE: no checking required
-      if (stmt.option.tag === "DefaultLabels") {
-        return ok({ env, contents: stmt });
-      } else {
-        const varsOk = every(
-          ...stmt.option.variables.map((v) => checkVar(v, env))
-        );
-        return andThen(({ env }) => ok({ env, contents: stmt }), varsOk);
-      }
-    }
-    case "LabelDecl":
-      return andThen(
-        ({ env }) => ok({ env, contents: stmt }),
-        checkVar(stmt.variable, env)
+      return checkStmtISet(
+        { ...stmtSet, stmt },
+        domEnv,
+        subEnv,
+        substISetAutoLabel,
+        checkAutoLabel,
       );
+    }
+    case "LabelDecl": {
+      return checkStmtISet(
+        { ...stmtSet, stmt },
+        domEnv,
+        subEnv,
+        substISetLabelDecl,
+        checkLabelDecl,
+      );
+    }
     case "NoLabel": {
-      const argsOk = every(...stmt.args.map((a) => checkVar(a, env)));
-      return andThen(({ env }) => ok({ env, contents: stmt }), argsOk);
+      return checkStmtISet(
+        { ...stmtSet, stmt },
+        domEnv,
+        subEnv,
+        substISetNoLabel,
+        checkNoLabel,
+      );
+    }
+    default: {
+      return err([
+        {
+          tag: "UnsupportedIndexingError",
+          iset: stmtSet,
+        },
+      ]);
     }
   }
+};
+
+const checkSingleStmt = (
+  stmt: SubStmt<A>,
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
+): CheckerResult<CompiledSubStmt<A>[]> => {
+  switch (stmt.tag) {
+    case "Decl": {
+      return checkDecl(stmt, domEnv, subEnv);
+    }
+    case "DeclList": {
+      return checkDeclList(stmt, domEnv, subEnv);
+    }
+    case "Bind": {
+      return checkBind(stmt, domEnv, subEnv);
+    }
+    case "DeclBind": {
+      return checkDeclBind(stmt, domEnv, subEnv);
+    }
+    case "ApplyPredicate": {
+      return checkPredicate(stmt, domEnv, subEnv);
+    }
+    case "AutoLabel": {
+      return checkAutoLabel(stmt, domEnv, subEnv);
+    }
+    case "LabelDecl": {
+      return checkLabelDecl(stmt, domEnv, subEnv);
+    }
+    case "NoLabel": {
+      return checkNoLabel(stmt, domEnv, subEnv);
+    }
+  }
+};
+
+type ISetSubst = Map<string, number>;
+
+const evalISet = (iset: IndexSet<A>): Result<ISetSubst[], SubstanceError> => {
+  const { indices, condition } = iset;
+
+  // Check for duplication in variable declarations
+  const variables = new Set<string>();
+  for (const varName of indices.map((i) => i.variable.value)) {
+    if (variables.has(varName)) {
+      return err({
+        tag: "DuplicateIndexError",
+        index: varName,
+        location: iset,
+      });
+    }
+    variables.add(varName);
+  }
+
+  type VarValPair = [string, number];
+  const possValsPerVar: [VarValPair][][] = [];
+  for (const { variable, range } of indices) {
+    const name = variable.value;
+    const { high, low } = range;
+    const highVal = high.contents,
+      lowVal = low.contents;
+
+    if (!Number.isInteger(lowVal)) {
+      return err({
+        tag: "BadSetIndexRangeError",
+        index: lowVal,
+        location: low,
+      });
+    }
+
+    if (!Number.isInteger(highVal)) {
+      return err({
+        tag: "BadSetIndexRangeError",
+        index: highVal,
+        location: high,
+      });
+    }
+
+    if (high.contents < low.contents) {
+      return ok([]);
+    }
+
+    // a list of [[name, value]]
+    const possVals = im
+      .Range(low.contents, high.contents + 1)
+      .toArray()
+      .map((n): [VarValPair] => [[name, n]]);
+    // for example, if we write `i in [1, 3]`,
+    // then possVals would contain `[["i", 1]], [["i", 2]], [["i", 3]]`
+    // This structure makes it easier to combine these using Cartesian products.
+    possValsPerVar.push(possVals);
+  }
+
+  const [first, ...rest] = possValsPerVar;
+  if (first !== undefined) {
+    const cprod = rest.reduce(
+      (p: VarValPair[][], c: VarValPair[][]) =>
+        cartesianProduct(
+          p,
+          c,
+          () => true,
+          (p1, p2) => [...p1, ...p2],
+        ),
+      first,
+    );
+
+    // Each element of "cprod" represents a substitution.
+
+    const substitutions = cprod.map((cprod) => new Map(cprod));
+
+    const condVals = all(substitutions.map((s) => evalCond(condition, s)));
+    if (condVals.isErr()) {
+      // Outputting the first error because if there were to be multiple errors,
+      // the errors will all be the same, caused by different substitutions.
+      return err(condVals.error[0]);
+    } else return ok(substitutions.filter((s, i) => condVals.value[i]));
+  } else {
+    return ok([]);
+  }
+};
+
+const evalCond = (
+  b: BooleanExpr<A> | undefined,
+  subst: ISetSubst,
+): Result<boolean, SubstanceError> => {
+  if (b === undefined) {
+    return ok(true);
+  }
+  if (b.tag === "BooleanConstant") {
+    const { value } = b;
+    return ok(value);
+  } else if (b.tag === "BinaryBooleanExpr") {
+    const { operator, left, right } = b;
+    if (operator === "&&") {
+      const lValRes = evalCond(left, subst);
+      if (lValRes.isErr()) return err(lValRes.error);
+      // short-circuiting - if left side is false, then return false.
+      if (!lValRes.value) return ok(false);
+      else return evalCond(right, subst);
+    } else {
+      const lValRes = evalCond(left, subst);
+      if (lValRes.isErr()) return err(lValRes.error);
+      // short-cirsuiting - if left side is true, then return true
+      if (lValRes.value) return ok(true);
+      else return evalCond(right, subst);
+    }
+  } else if (b.tag === "UnaryBooleanExpr") {
+    const { arg } = b;
+    const argValRes = evalCond(arg, subst);
+    return argValRes.andThen((b) => ok(!b));
+  } else {
+    const { operator, left, right } = b;
+    const lValRes = evalNum(left, subst);
+    if (lValRes.isErr()) return err(lValRes.error);
+    const rValRes = evalNum(right, subst);
+    if (rValRes.isErr()) return err(rValRes.error);
+
+    const lVal = lValRes.value,
+      rVal = rValRes.value;
+
+    // We use closeEqual due to floating-point precision issues
+    // since numbers are internally represented as floating-point numbers
+    if (operator === "<")
+      return ok(closeEqual(lVal, rVal) ? false : lVal < rVal);
+    else if (operator === ">")
+      return ok(closeEqual(lVal, rVal) ? false : lVal > rVal);
+    else if (operator === "<=")
+      return ok(closeEqual(lVal, rVal) ? true : lVal <= rVal);
+    else if (operator === ">=")
+      return ok(closeEqual(lVal, rVal) ? true : lVal >= rVal);
+    else if (operator === "==") return ok(closeEqual(lVal, rVal));
+    else return ok(!closeEqual(lVal, rVal));
+  }
+};
+
+const closeEqual = (x: number, y: number): boolean => {
+  const EPS = 0.00001;
+  return Math.abs(x - y) < EPS;
+};
+
+const evalNum = (
+  n: NumExpr<A>,
+  subst: ISetSubst,
+): Result<number, SubstanceError> => {
+  const result = evalNumHelper(n, subst);
+  if (result.isErr()) return err(result.error);
+
+  const value = result.value;
+
+  if (isNaN(value)) {
+    // NaN is invalid
+    return err({
+      tag: "InvalidArithmeticValueError",
+      location: n,
+      value,
+    });
+  }
+  return ok(value);
+};
+
+const evalNumHelper = (
+  n: NumExpr<A>,
+  subst: ISetSubst,
+): Result<number, SubstanceError> => {
+  if (n.tag === "NumberConstant") {
+    return ok(n.contents);
+  } else if (n.tag === "Identifier") {
+    return substISetVarNumber(n.value, n, subst);
+  } else if (n.tag === "UnaryExpr") {
+    const { arg } = n;
+    const argValRes = evalNum(arg, subst);
+    return argValRes.andThen((n) => ok(-n));
+  } else {
+    const { operator, left, right } = n;
+    const lValRes = evalNum(left, subst);
+    if (lValRes.isErr()) return err(lValRes.error);
+    const rValRes = evalNum(right, subst);
+    if (rValRes.isErr()) return err(rValRes.error);
+
+    const lVal = lValRes.value,
+      rVal = rValRes.value;
+
+    if (operator === "+") return ok(lVal + rVal);
+    else if (operator === "-") return ok(lVal - rVal);
+    else if (operator === "*") return ok(lVal * rVal);
+    else if (operator === "^") return ok(lVal ** rVal);
+    else {
+      // div or mod
+      if (rVal === 0) {
+        return err({
+          tag: "DivideByZeroError",
+          location: n,
+        });
+      }
+      if (operator === "/") return ok(lVal / rVal);
+      else return ok(lVal % rVal);
+    }
+  }
+};
+
+const substISetVarNumber = (
+  v: string,
+  location: AbstractNode,
+  subst: ISetSubst,
+): Result<number, SubstanceError> => {
+  // If already a number, use that number.
+  if (!isNaN(Number(v))) {
+    return ok(Number(v));
+  }
+
+  const isetVarValue = subst.get(v);
+  if (isetVarValue === undefined) {
+    return err({
+      tag: "InvalidSetIndexingError",
+      index: v,
+      location,
+      suggestions: [...subst.keys()],
+    });
+  }
+  return ok(isetVarValue);
+};
+
+const substISetVarStr = (
+  v: string,
+  location: AbstractNode,
+  subst: ISetSubst,
+): Result<string, SubstanceError> => {
+  const underscorePos = v.lastIndexOf("_");
+  if (underscorePos === -1) {
+    return ok(v);
+  }
+
+  const prefix = v.slice(0, underscorePos);
+  const isetVarName = v.slice(underscorePos + 1);
+
+  const isetVarValue = substISetVarNumber(isetVarName, location, subst);
+  return isetVarValue.andThen((idx) => ok(`${prefix}_${idx}`));
+};
+
+const substISetId = (
+  id: Identifier<A>,
+  subst: ISetSubst,
+): Result<Identifier<A>, SubstanceError> => {
+  return substISetVarStr(id.value, id, subst).andThen((substitutedID: string) =>
+    ok({
+      ...id,
+      value: substitutedID,
+    }),
+  );
+};
+
+const substISetExpr = (
+  expr: SubExpr<A>,
+  subst: ISetSubst,
+): Result<SubExpr<A>, SubstanceError> => {
+  const { tag } = expr;
+  switch (tag) {
+    case "ApplyFunction":
+    case "ApplyConstructor":
+    case "Func":
+      return substISetFunc(expr, subst);
+    default:
+      return substSubArgExpr(expr, subst);
+  }
+};
+
+const substSubArgExpr = (
+  expr: SubArgExpr<A>,
+  subst: ISetSubst,
+): Result<SubArgExpr<A>, SubstanceError> => {
+  const { tag } = expr;
+  if (tag === "Identifier") {
+    // first, if the identifier coincides with the iset index variable, then just use the value of that variable.
+    const n = substISetVarNumber(expr.value, expr, subst);
+    if (n.isOk()) {
+      return ok({
+        ...expr,
+        tag: "LiteralSubExpr",
+        contents: {
+          ...expr,
+          tag: "NumberConstant",
+          contents: n.value,
+        },
+      });
+    } else {
+      // otherwise try to substitute the last part (after underscore) of the identifier
+      return substISetId(expr, subst);
+    }
+  } else {
+    return ok(expr);
+  }
+};
+
+const substISetFunc = (
+  func: ApplyFunction<A> | ApplyConstructor<A> | Func<A>,
+  subst: ISetSubst,
+): Result<ApplyFunction<A> | ApplyConstructor<A> | Func<A>, SubstanceError> => {
+  // Don't substitute over function names
+  const substArgs = safeChain<SubArgExpr<A>, SubArgExpr<A>[], SubstanceError>(
+    func.args,
+    (arg, curr: SubArgExpr<A>[]) =>
+      substSubArgExpr(arg, subst).andThen((sArg) => ok([...curr, sArg])),
+    ok([]),
+  );
+  if (substArgs.isErr()) {
+    return err(substArgs.error);
+  }
+
+  return ok({
+    ...func,
+    args: substArgs.value,
+  });
+};
+
+const substISetBind = (
+  bind: Bind<A>,
+  subst: ISetSubst,
+): Result<Bind<A>, SubstanceError> => {
+  const { variable, expr } = bind;
+  const substVariable = substISetId(variable, subst);
+  if (substVariable.isErr()) return err(substVariable.error);
+  const substExpr = substISetExpr(expr, subst);
+  if (substExpr.isErr()) return err(substExpr.error);
+  return ok({
+    ...bind,
+    variable: substVariable.value,
+    expr: substExpr.value,
+  });
+};
+
+const substISetDeclBind = (
+  declBind: DeclBind<A>,
+  subst: ISetSubst,
+): Result<DeclBind<A>, SubstanceError> => {
+  const { variable, expr } = declBind;
+  const substVariable = substISetId(variable, subst);
+  if (substVariable.isErr()) return err(substVariable.error);
+  const substExpr = substISetExpr(expr, subst);
+  if (substExpr.isErr()) return err(substExpr.error);
+  return ok({
+    ...declBind,
+    variable: substVariable.value,
+    expr: substExpr.value,
+  });
+};
+
+const substISetPredicate = (
+  pred: ApplyPredicate<A>,
+  subst: ISetSubst,
+): Result<ApplyPredicate<A>, SubstanceError> => {
+  const substArgs = safeChain<SubArgExpr<A>, SubArgExpr<A>[], SubstanceError>(
+    pred.args,
+    (arg, curr: SubArgExpr<A>[]) =>
+      substSubArgExpr(arg, subst).andThen((sArg) => ok([...curr, sArg])),
+    ok([]),
+  );
+  if (substArgs.isErr()) {
+    return err(substArgs.error);
+  }
+
+  return ok({
+    ...pred,
+    args: substArgs.value,
+  });
+};
+
+const substISetLabelDecl = (
+  labelDecl: LabelDecl<A>,
+  subst: ISetSubst,
+): Result<LabelDecl<A>, SubstanceError> =>
+  substISetId(labelDecl.variable, subst).andThen((id) =>
+    ok({ ...labelDecl, variable: id }),
+  );
+
+const substISetAutoLabel = (
+  autoLabel: AutoLabel<A>,
+  subst: ISetSubst,
+): Result<AutoLabel<A>, SubstanceError> => {
+  if (autoLabel.option.tag === "DefaultLabels") {
+    return ok(autoLabel);
+  } else {
+    const { variables } = autoLabel.option;
+    const substVariablesResult = all(
+      variables.map((variable) => substISetId(variable, subst)),
+    );
+    if (substVariablesResult.isErr()) {
+      return err(substVariablesResult.error[0]);
+    }
+
+    return ok({
+      ...autoLabel,
+      option: {
+        ...autoLabel.option,
+        variables: substVariablesResult.value,
+      },
+    });
+  }
+};
+
+const substISetNoLabel = (
+  noLabel: NoLabel<A>,
+  subst: ISetSubst,
+): Result<NoLabel<A>, SubstanceError> => {
+  const { args: variables } = noLabel;
+  const substVariablesResult = all(
+    variables.map((variable) => substISetId(variable, subst)),
+  );
+  if (substVariablesResult.isErr()) {
+    return err(substVariablesResult.error[0]);
+  }
+
+  return ok({
+    ...noLabel,
+    args: substVariablesResult.value,
+  });
+};
+
+const checkTypeApp = (
+  t: TypeApp<A>,
+  domEnv: DomainEnv,
+  allowLiteralType: boolean = false,
+): Result<undefined, SubstanceError> => {
+  if (!allowLiteralType && isLiteralType(toDomType(t))) {
+    return err({
+      tag: "DeclLiteralError",
+      location: t,
+      type: t,
+    });
+  } else {
+    return checkType(toDomType(t), domEnv).andThen(() => ok(undefined));
+  }
+};
+
+export const checkDecl = (
+  stmt: Decl<A>,
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
+  allowLiteralType: boolean = false,
+): CheckerResult<Decl<A>[]> => {
+  const decl = stmt;
+  const { type, name: nameId } = decl;
+  // check type constructor
+  const typeOk = checkTypeApp(type, domEnv, allowLiteralType);
+  // need to make sure that the types are not built-in types
+  if (typeOk.isErr()) return err([typeOk.error]);
+
+  return createVars(type, [nameId], subEnv, decl);
+};
+
+const checkDeclISet = (
+  stmtSet: StmtSet<A> & { stmt: Decl<A> },
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
+): CheckerResult<Decl<A>[]> => {
+  const { stmt: decl, iset } = stmtSet;
+  const { type, name: uncompiledNameId } = decl;
+  const typeOk = checkTypeApp(type, domEnv);
+  if (typeOk.isErr()) return err([typeOk.error]);
+
+  const isetSubstsResult = evalISet(iset);
+  if (isetSubstsResult.isErr()) return err([isetSubstsResult.error]);
+
+  const isetSubsts = isetSubstsResult.value;
+  const substIdsResult = all(
+    isetSubsts.map((subst) => substISetId(uncompiledNameId, subst)),
+  );
+
+  if (substIdsResult.isErr()) {
+    return err(substIdsResult.error);
+  }
+
+  const substIds = substIdsResult.value;
+
+  return createVars(type, substIds, subEnv, decl);
+};
+
+const checkDeclList = (
+  stmt: DeclList<A>,
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
+): CheckerResult<Decl<A>[]> => {
+  const declList = stmt;
+  const { type, names: nameIds } = declList;
+
+  // check type constructor
+  const typeOk = checkTypeApp(type, domEnv);
+  if (typeOk.isErr()) {
+    return err([typeOk.error]);
+  }
+
+  return createVars(type, nameIds, subEnv, declList);
+};
+
+const checkDeclListISet = (
+  stmtSet: StmtSet<A> & { stmt: DeclList<A> },
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
+): CheckerResult<Decl<A>[]> => {
+  const { stmt: declList, iset } = stmtSet;
+  const { type, names: uncompiledNameIds } = declList;
+  const typeOk = checkTypeApp(type, domEnv);
+  if (typeOk.isErr()) return err([typeOk.error]);
+
+  const isetSubstsResult = evalISet(iset);
+  if (isetSubstsResult.isErr()) return err([isetSubstsResult.error]);
+
+  const isetSubsts = isetSubstsResult.value;
+  const substIdsResult = all(
+    isetSubsts
+      .map((subst) =>
+        uncompiledNameIds.map((uncompiledNameId) =>
+          substISetId(uncompiledNameId, subst),
+        ),
+      )
+      .flat(),
+  );
+
+  if (substIdsResult.isErr()) {
+    return err(substIdsResult.error);
+  }
+
+  const substIds = substIdsResult.value;
+
+  return createVars(type, substIds, subEnv, declList);
+};
+
+const createVars = (
+  type: TypeApp<A>,
+  nameIds: Identifier<A>[],
+  subEnv: SubstanceEnv,
+  node:
+    | Decl<A>
+    | DeclList<A>
+    | (StmtSet<A> & { stmt: Decl<A> })
+    | (StmtSet<A> & { stmt: DeclList<A> }),
+): CheckerResult<Decl<A>[]> => {
+  let vars = subEnv.objs;
+  const varIDs = [...subEnv.objIds];
+  const equivalentDecls: Decl<A>[] = [];
+  const errs: SubstanceError[] = [];
+
+  for (const nameId of nameIds) {
+    const { value: name } = nameId;
+    const dup = varIDs.find((id) => id.value === name);
+    if (dup !== undefined) {
+      errs.push(duplicateName(nameId, node, dup));
+    }
+
+    vars = vars.set(name, toDomType(type));
+    varIDs.push(nameId);
+    equivalentDecls.push({
+      ...location(node),
+      tag: "Decl",
+      type,
+      name: nameId,
+    });
+  }
+
+  if (errs.length > 0) {
+    return err(errs);
+  }
+
+  return ok({
+    subEnv: { ...subEnv, objs: vars, objIds: varIDs },
+    contents: equivalentDecls,
+  });
+};
+
+export const checkBind = (
+  stmt: Bind<A>,
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
+  allowUndeclaredVarToLiteral: boolean = false,
+): CheckerResult<Bind<A>[]> => {
+  const { variable, expr } = stmt;
+  const varOk = checkVar(variable, domEnv, subEnv);
+  const exprOk = checkExpr(expr, domEnv, subEnv, allowUndeclaredVarToLiteral);
+  // check bind type
+  return subtypeOf(exprOk, varOk, domEnv).andThen(
+    ({ subEnv, contents: [e, v] }) => {
+      const updatedBind: Bind<A> = { ...stmt, variable: v, expr: e };
+      return ok({
+        subEnv,
+        contents: [updatedBind],
+      });
+    },
+  );
+};
+
+const checkDeclBind = (
+  stmt: DeclBind<A>,
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
+): CheckerResult<(Decl<A> | Bind<A>)[]> => {
+  const declBind = stmt;
+  const { type, variable, expr } = declBind;
+
+  const decl: Decl<A> = {
+    ...declBind,
+    tag: "Decl",
+    name: variable,
+  };
+
+  if ("expr" in decl) {
+    delete decl.expr;
+  }
+
+  const declResult = checkDecl(decl, domEnv, subEnv);
+  if (declResult.isErr()) return err(declResult.error);
+  const { subEnv: checkedDeclEnv, contents: checkedDecls } = declResult.value;
+
+  const bind: Bind<A> = {
+    ...declBind,
+    tag: "Bind",
+  };
+
+  if ("type" in bind) {
+    delete bind.type;
+  }
+
+  const bindResult = checkBind(bind, domEnv, checkedDeclEnv);
+  if (bindResult.isErr()) return err(bindResult.error);
+  const { subEnv: checkedBindEnv, contents: checkedBinds } = bindResult.value;
+
+  return ok({
+    subEnv: checkedBindEnv,
+    contents: [...checkedDecls, ...checkedBinds],
+  });
 };
 
 export const checkPredicate = (
-  stmt: ApplyPredicate<A>,
-  env: Env
-): CheckerResult<ApplyPredicate<A>> => {
-  const { name, args } = stmt;
-  const predDecl = env.predicates.get(name.value);
-  // check if predicate exists and retrieve its decl
-  if (predDecl) {
-    // initialize substitution environment
-    const substEnv: SubstitutionEnv = im.Map<string, TypeConsApp<C>>();
-    const argPairs = zip2(args, predDecl.args);
-    const contents: SubPredArg<A>[] = [];
-    const argsOk: SubstitutionResult<SubPredArg<A>[]> = safeChain(
-      argPairs,
-      ([expr, arg], { substEnv: cxt, env: e, contents: args }) =>
-        andThen(
-          (res) => ok({ ...res, contents: [...args, res.contents] }),
-          checkPredArg(expr, arg, cxt, e)
-        ),
-      ok({ substEnv, env, contents })
+  expr: ApplyPredicate<A>,
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
+  allowUndeclaredVarToLiteral: boolean = false,
+): CheckerResult<[ApplyPredicate<A>]> => {
+  const { name, args } = expr;
+
+  const decl = domEnv.predicateDecls.get(name.value);
+
+  if (decl !== undefined) {
+    const argsOk = checkArgs(
+      args,
+      decl.args,
+      { givenExpr: expr, expectedExpr: decl, name },
+      domEnv,
+      subEnv,
+      allowUndeclaredVarToLiteral,
     );
-    // NOTE: throw away the substitution because this layer above doesn't need to typecheck
-    return andThen(
-      ({ env, contents: args }) => ok({ env, contents: { ...stmt, args } }),
-      argsOk
+
+    return argsOk.andThen((r) =>
+      ok({
+        subEnv: r.subEnv,
+        contents: [
+          {
+            ...expr,
+            args: r.contents,
+          },
+        ],
+      }),
     );
   } else {
-    return err(
+    return err([
       typeNotFound(
         name,
-        [...env.predicates.values()].map((p) => p.name)
-      )
-    );
+        [...domEnv.predicateDecls.values()].map((p) => p.name),
+      ),
+    ]);
   }
 };
 
-const checkPredArg = (
-  arg: SubPredArg<A>,
-  argDecl: Arg<C>,
-  subst: SubstitutionEnv,
-  env: Env
-): SubstitutionResult<SubPredArg<A>> => {
-  // HACK: predicate-typed args are parsed into `Func` type first, explicitly check and change it to predicate if the func is actually a predicate in the context
-  if (arg.tag === "Func") {
-    const name = arg.name.value;
-    if (env.predicates.get(name)) {
-      arg = { ...arg, tag: "ApplyPredicate" };
-    } else if (env.constructors.has(name)) {
-      arg = { ...arg, tag: "ApplyConstructor" };
-    } else if (env.functions.has(name)) {
-      arg = { ...arg, tag: "ApplyFunction" };
-    }
-  }
-  if (arg.tag === "ApplyPredicate") {
-    // if the argument is a nested predicate, call checkPredicate again
-    const predOk = checkPredicate(arg, env);
-    // NOTE: throw out the env from the check because it's not updating anything
-    return andThen(
-      ({ env, contents: predArg }) =>
-        ok({ substEnv: subst, env, contents: predArg }),
-      predOk
-    );
+const checkFunc = (
+  expr: Func<A> | ApplyFunction<A> | ApplyConstructor<A>,
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
+  allowUndeclaredVarToLiteral: boolean = false,
+): ResultWithType<ApplyConstructor<A> | ApplyFunction<A>> => {
+  const fname = expr.name.value;
+  let decl: ConstructorDecl<A> | FunctionDecl<A> | undefined;
+  if (domEnv.constructorDecls.has(fname)) {
+    expr = { ...expr, tag: "ApplyConstructor" };
+    decl = domEnv.constructorDecls.get(fname);
+  } else if (domEnv.functionDecls.has(fname)) {
+    expr = { ...expr, tag: "ApplyFunction" };
+    decl = domEnv.functionDecls.get(fname);
   } else {
-    const argExpr: SubExpr<A> = arg; // HACK: make sure the lambda function below will typecheck
-    // if the argument is an expr, check and get the type of the expression
-    const exprOk: ResultWithType<SubExpr<A>> = checkExpr(arg, env);
-    // check against the formal argument
-    const argSubstOk = andThen(
-      ({ type, env }) =>
-        substituteArg(type, argDecl.type, argExpr, argDecl, subst, env),
-      exprOk
-    );
-    // if everything checks out, return env as a formality
-    return argSubstOk;
+    return err([
+      typeNotFound(expr.name, [
+        ...[...domEnv.constructorDecls.values()].map((c) => c.name),
+        ...[...domEnv.functionDecls.values()].map((c) => c.name),
+      ]),
+    ]);
   }
+
+  const newExpr: ApplyConstructor<A> | ApplyFunction<A> = expr;
+
+  if (decl !== undefined) {
+    const { output } = decl;
+    const argsOk = checkArgs(
+      newExpr.args,
+      decl.args,
+      {
+        givenExpr: newExpr,
+        expectedExpr: decl,
+        name: newExpr.name,
+      },
+      domEnv,
+      subEnv,
+      allowUndeclaredVarToLiteral,
+    );
+
+    const outputOk = argsOk.andThen((r) =>
+      withType(r.subEnv, output.type, {
+        ...newExpr,
+        args: r.contents,
+      }),
+    );
+
+    return outputOk;
+  } else {
+    return err([typeNotFound(expr.name)]);
+  }
+};
+
+export const checkArgs = (
+  actualArgs: SubArgExpr<A>[],
+  expectedArgs: Arg<A>[],
+  where: {
+    givenExpr: AbstractNode;
+    expectedExpr: AbstractNode;
+    name: Identifier<A>;
+  },
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
+  allowUndeclaredVarToLiteral: boolean = false,
+): CheckerResult<SubArgExpr<A>[]> => {
+  if (actualArgs.length !== expectedArgs.length) {
+    return err([
+      argLengthMismatch(
+        where.name,
+        actualArgs,
+        expectedArgs,
+        where.givenExpr,
+        where.expectedExpr,
+      ),
+    ]);
+  }
+  const argPairs = zip2(actualArgs, expectedArgs);
+  const contents: SubArgExpr<A>[] = [];
+
+  const argsOk = safeChain<
+    [SubArgExpr<A>, Arg<A>],
+    WithEnv<SubArgExpr<A>[]>,
+    SubstanceError[]
+  >(
+    argPairs,
+    ([actual, expected], args) =>
+      matchArg(
+        actual,
+        expected,
+        domEnv,
+        args.subEnv,
+        allowUndeclaredVarToLiteral,
+      ).andThen((res) =>
+        ok({
+          subEnv: res.subEnv,
+          contents: [...args.contents, res.contents],
+        }),
+      ),
+    ok({ subEnv, contents }),
+  );
+
+  return argsOk;
+};
+
+const checkLabelDecl = (
+  stmt: LabelDecl<A>,
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
+): CheckerResult<LabelDecl<A>[]> => {
+  return checkVar(stmt.variable, domEnv, subEnv).andThen(({ subEnv }) =>
+    ok({ subEnv, contents: [stmt] }),
+  );
+};
+
+const checkAutoLabel = (
+  stmt: AutoLabel<A>,
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
+): CheckerResult<AutoLabel<A>[]> => {
+  // NOTE: no checking required
+  if (stmt.option.tag === "DefaultLabels") {
+    return ok({ subEnv, contents: [stmt] });
+  } else {
+    const varsOk = every(
+      ...stmt.option.variables.map((v) => checkVar(v, domEnv, subEnv)),
+    );
+    return varsOk.andThen(({ subEnv }) => ok({ subEnv, contents: [stmt] }));
+  }
+};
+
+const checkNoLabel = (
+  stmt: NoLabel<A>,
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
+): CheckerResult<[NoLabel<A>]> => {
+  const argsOk = every(...stmt.args.map((a) => checkVar(a, domEnv, subEnv)));
+  return argsOk.andThen(({ subEnv }) => ok({ subEnv, contents: [stmt] }));
+};
+
+const checkStmtISet = <T extends StmtSet<A>>(
+  stmtSet: T,
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
+  substFunc: (
+    stmt: T["stmt"],
+    isetSubst: ISetSubst,
+  ) => Result<T["stmt"], SubstanceError>,
+  checkerFunc: (
+    stmt: T["stmt"],
+    domEnv: DomainEnv,
+    subEnv: SubstanceEnv,
+  ) => CheckerResult<CompiledSubStmt<A>[]>,
+): CheckerResult<CompiledSubStmt<A>[]> => {
+  const { stmt, iset } = stmtSet;
+  const isetSubstsResult = evalISet(iset);
+  if (isetSubstsResult.isErr()) return err([isetSubstsResult.error]);
+
+  const isetSubsts = isetSubstsResult.value;
+  const substStmtsResult = all(
+    isetSubsts.map((subst) => substFunc(stmt, subst)),
+  );
+  if (substStmtsResult.isErr()) {
+    return err(substStmtsResult.error);
+  }
+  const substStmts = substStmtsResult.value;
+
+  return safeChain(
+    substStmts,
+    (substStmt, curr: WithEnv<CompiledSubStmt<A>[]>) => {
+      const { subEnv: currEnv, contents: currStmts } = curr;
+      const checked = checkerFunc(substStmt, domEnv, currEnv);
+      if (checked.isErr()) return err(checked.error);
+      const { subEnv: checkedEnv, contents: newStmts } = checked.value;
+      return ok({
+        subEnv: checkedEnv,
+        contents: [...currStmts, ...newStmts],
+      });
+    },
+    ok({ subEnv, contents: [] }),
+  );
 };
 
 // TODO: in general, true-myth seem to have trouble transforming data within the monad when the transformation itself can go wrong. If the transformation function cannot return errors, it's completely fine to use `ap`. This particular scenario is technically handled by `andThen`, but it seems to have problems with curried functions.
 export const subtypeOf = <T1 extends ASTNode<A>, T2 extends ASTNode<A>>(
   type1: ResultWithType<T1>,
-  type2: ResultWithType<T2>
+  type2: ResultWithType<T2>,
+  domEnv: DomainEnv,
 ): CheckerResult<[T1, T2]> => {
   // TODO: find a more elegant way of writing this
   return type1.match({
-    Ok: ({ type: t1, env: updatedenv, contents: expr1 }) =>
+    Ok: ({ type: t1, subEnv: subEnv, contents: expr1 }) =>
       type2.match({
         Ok: ({ type: t2, contents: expr2 }) => {
           // TODO: Check ordering of types, maybe annotated the ordering in the signature
           // TODO: call the right type equality function
-          if (isSubtype(t1, t2, updatedenv))
-            return ok({ env: updatedenv, contents: [expr1, expr2] });
+          if (isSubtype(t1, t2, domEnv))
+            return ok({ subEnv, contents: [expr1, expr2] });
           else {
-            return err(typeMismatch(t1, t2, expr1, expr2));
+            return err([typeMismatch(toSubType(t1), t2, expr1, expr2)]);
           }
         },
-        Err: (e) => err(e),
+        Err: (e2) => err(e2),
       }),
-    Err: (e) => err(e),
+    Err: (e1) => err(e1),
   });
 };
 
 const withType = <T>(
-  env: Env,
-  type: TypeConsApp<A>,
-  contents: T
-): ResultWithType<T> => ok({ type, env, contents });
-// const getType = (res: ResultWithType): Result<TypeConsApp, SubstanceError> =>
-//   andThen(([type, _]: [TypeConsApp, Env]) => ok(type), res);
+  subEnv: SubstanceEnv,
+  type: Type<A>,
+  contents: T,
+): ResultWithType<T> => ok({ type, subEnv, contents });
 
 export const checkExpr = (
   expr: SubExpr<A>,
-  env: Env,
-  variable?: Identifier<A>
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
+  allowUndeclaredVarToLiteral: boolean = false,
 ): ResultWithType<SubExpr<A>> => {
   switch (expr.tag) {
     case "Func":
-      return checkFunc(expr, env, variable);
-    case "Identifier":
-      return checkVar(expr, env);
-    case "StringLit":
-      return ok({ type: stringType, env, contents: expr });
+      return checkFunc(expr, domEnv, subEnv, allowUndeclaredVarToLiteral);
     case "ApplyFunction":
-      return checkFunc(expr, env, variable); // NOTE: the parser technically doesn't output this type, put in for completeness
+      return checkFunc(expr, domEnv, subEnv, allowUndeclaredVarToLiteral); // NOTE: the parser technically doesn't output this type, put in for completeness
     case "ApplyConstructor":
-      return checkFunc(expr, env, variable); // NOTE: the parser technically doesn't output this type, put in for completeness
-    case "Deconstructor":
-      return checkDeconstructor(expr, env);
+      return checkFunc(expr, domEnv, subEnv, allowUndeclaredVarToLiteral); // NOTE: the parser technically doesn't output this type, put in for completeness
+    default:
+      return checkSubArgExpr(expr, domEnv, subEnv);
   }
 };
 
-type SubstitutionEnv = im.Map<string, TypeConsApp<A>>; // mapping from type var to concrete types
-type SubstitutionResult<T> = Result<
-  WithEnv<T> & { substEnv: SubstitutionEnv },
-  SubstanceError
->; // included env as a potential error accumulator TODO: check if the env passing chain is intact
+export const checkSubArgExpr = (
+  expr: SubArgExpr<A>,
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
+): ResultWithType<SubArgExpr<A>> => {
+  switch (expr.tag) {
+    case "Identifier":
+      return checkVar(expr, domEnv, subEnv);
+    case "LiteralSubExpr":
+      return checkLiteralSubExpr(expr, domEnv, subEnv);
+  }
+};
+
+const addLiteral = (
+  lits: LiteralSubExpr<A>[],
+  lit: LiteralSubExpr<A>,
+): LiteralSubExpr<A>[] => {
+  // not the most efficient code
+  // O(n) to add something into the list ... not great
+  const unames = lits.map((l) => toLiteralUniqueName(l.contents.contents));
+  const uname = toLiteralUniqueName(lit.contents.contents);
+
+  if (unames.includes(uname)) {
+    return [...lits];
+  } else {
+    return [...lits, lit];
+  }
+};
+
+export const checkLiteralSubExpr = (
+  expr: LiteralSubExpr<A>,
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
+): ResultWithType<LiteralSubExpr<A>> => {
+  if (expr.contents.tag === "StringLit") {
+    // add it to the list of literals
+    return ok({
+      type: stringType,
+      subEnv: {
+        ...subEnv,
+        literals: addLiteral(subEnv.literals, expr),
+      },
+      contents: expr,
+    });
+  } else {
+    return ok({
+      type: numberType,
+      subEnv: {
+        ...subEnv,
+        literals: addLiteral(subEnv.literals, expr),
+      },
+      contents: expr,
+    });
+  }
+};
 
 /**
  * Given a concrete type in Substance and the formal type in Domain (which may include type variables), check if the concrete type is well-formed and possibly add to the substitution map.
  *
- * @param type concrete type from Substance
+ * @param givenType concrete type from Substance
  * @param formalType Domain type from Domain
  * @param sourceExpr the expression with the Substance type (for error reporting)
  * @param expectedExpr the expression where the Domain type is declared (for error reporting)
  * @param substEnv substitution environment
  */
 const substituteArg = (
-  type: TypeConsApp<A>,
-  formalType: Type<C>,
-  sourceExpr: SubExpr<A>,
-  expectedExpr: Arg<C>,
-  substEnv: SubstitutionEnv,
-  env: Env
-): SubstitutionResult<SubExpr<A>> => {
-  if (formalType.tag === "TypeConstructor") {
-    const expectedArgs = formalType.args;
-    // TODO: check ordering of types
-    if (expectedArgs.length !== type.args.length) {
-      if (type.name.value === formalType.name.value) {
-        return err(
-          typeArgLengthMismatch(type, formalType, sourceExpr, expectedExpr)
-        );
-      } else
-        return err(typeMismatch(type, formalType, sourceExpr, expectedExpr));
-    } else {
-      // if there are no arguments, check for type equality and return mismatch error if types do not match
-      if (type.args.length === 0 && !isSubtype(type, formalType, env)) {
-        return err(typeMismatch(type, formalType, sourceExpr, expectedExpr));
-      }
-      // if there are more arguments, substitute them one by one
-      // NOTE: we already know the lengths are the same, so `zipStrict` shouldn't throw
-      const typePairs = zip2(type.args, expectedArgs);
-      return safeChain(
-        typePairs,
-        ([type, expected], { substEnv, env }) =>
-          substituteArg(
-            type,
-            expected,
-            sourceExpr,
-            expectedExpr,
-            substEnv,
-            env
-          ),
-        ok({ substEnv, env, contents: sourceExpr })
-      );
-    }
-  } else if (formalType.tag === "TypeVar") {
-    const expectedType: TypeConsApp<A> | undefined = substEnv.get(
-      formalType.name.value
-    );
-    // type var already substituted
-    if (expectedType) {
-      // substitutions OK, moving on
-      if (isSubtype(expectedType, type, env))
-        return ok({ substEnv, env, contents: sourceExpr });
-      // type doesn't match with the previous substitution
-      else {
-        return err(typeMismatch(type, expectedType, sourceExpr, expectedExpr));
-      }
-    } else {
-      // if type var is not substituted yet, add new substitution to the env
-      return ok({
-        substEnv: substEnv.set(formalType.name.value, type),
-        env,
-        contents: sourceExpr,
-      });
-    }
-  } else {
-    return err(unexpectedExprForNestedPred(type, sourceExpr, expectedExpr));
+  givenType: TypeApp<A>,
+  formalType: Type<A>,
+  sourceExpr: SubArgExpr<A>,
+  expectedExpr: Arg<A>,
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
+): CheckerResult<SubArgExpr<A>> => {
+  // TODO: check ordering of types
+  if (!isSubtype(toDomType(givenType), formalType, domEnv)) {
+    return err([typeMismatch(givenType, formalType, sourceExpr, expectedExpr)]);
   }
+  return ok({
+    subEnv,
+    contents: sourceExpr,
+  });
 };
 const matchArg = (
-  expr: SubExpr<A>,
-  arg: Arg<C>,
-  subst: SubstitutionEnv,
-  env: Env
-): SubstitutionResult<SubExpr<A>> => {
+  expr: SubArgExpr<A>,
+  arg: Arg<A>,
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
+  allowUndeclaredVarToLiteral: boolean = false,
+): CheckerResult<SubArgExpr<A>> => {
   // check and get the type of the expression
-  const exprOk: ResultWithType<SubExpr<A>> = checkExpr(expr, env);
+  const exprOk: ResultWithType<SubArgExpr<A>> = checkSubArgExpr(
+    expr,
+    domEnv,
+    subEnv,
+  );
+
+  // Since Style compiler uses Substance checker
+  // and we allow undeclared variables to literals
+  // we add this special check
+
+  // If we allow undeclared variables that refer to literals
+  if (exprOk.isErr() && allowUndeclaredVarToLiteral) {
+    const allErrorTags = exprOk.error.map((e) => e.tag);
+    // If there is only one error and that error is due to an undeclared variable
+    if (allErrorTags.length === 1 && allErrorTags[0] === "VarNotFound") {
+      // if the expression is really a variable
+      if (expr.tag === "Identifier") {
+        // if we are expecting to see a literal type
+        if (isLiteralType(arg.type)) {
+          // then just infer that this variable has the literal type!
+          return ok({
+            subEnv: {
+              ...subEnv,
+              objIds: [...subEnv.objIds, expr],
+              objs: subEnv.objs.set(expr.value, arg.type),
+            },
+            contents: expr,
+          });
+        }
+      }
+    }
+  }
+
   // check against the formal argument
-  const argSubstOk = andThen(
-    ({ type }) => substituteArg(type, arg.type, expr, arg, subst, env),
-    exprOk
+  const argSubstOk = exprOk.andThen(({ subEnv, type }) =>
+    substituteArg(toSubType(type), arg.type, expr, arg, domEnv, subEnv),
   );
   // if everything checks out, return env as a formality
   return argSubstOk;
 };
 
-const applySubstitution = (
-  formalType: Type<C>,
-  substContext: SubstitutionEnv
-): TypeConsApp<A> => {
-  if (formalType.tag === "TypeConstructor") {
-    // if there're no arguments, directly return the type
-    // NOTE: if no args, the type is effectively a `TypeConsApp`. TODO: encode this in the type system
-    if (formalType.args.length === 0) {
-      return formalType as TypeConsApp<C>;
-    } else {
-      const substitutedArgs: TypeConsApp<A>[] = formalType.args.map((t) =>
-        applySubstitution(t, substContext)
-      );
-      return {
-        ...formalType,
-        args: substitutedArgs,
-      };
-    }
-  } else if (formalType.tag === "TypeVar") {
-    const res = substContext.get(formalType.name.value);
-    // TODO: COMBAK(Parametrized types) check if it's okay to return an unbounded type. This case happens when a type variable did not occur in any of the args, therefore lacking a substitution.
-    return res ? res : bottomType;
-  } else {
-    // TODO: this case shouldn't occure, as the right hand side of binds cannot be a predicate, which is already ensured by the parser
-    return topType;
-  }
-};
-
-// TODO: refactor this function to check functions and constructors separately
-const checkFunc = (
-  func: Func<A> | ApplyConstructor<A> | ApplyFunction<A>,
-  env: Env,
-  variable?: Identifier<A>
-): ResultWithType<ApplyConstructor<A> | ApplyFunction<A>> => {
-  const name = func.name.value;
-  // check if func is either constructor or function
-  let funcDecl: ConstructorDecl<C> | FunctionDecl<C> | undefined;
-  if (env.constructors.has(name)) {
-    func = { ...func, tag: "ApplyConstructor" };
-    funcDecl = env.constructors.get(name);
-  } else if (env.functions.has(name)) {
-    func = { ...func, tag: "ApplyFunction" };
-    funcDecl = env.functions.get(name);
-  } else {
-    return err(
-      typeNotFound(func.name, [
-        ...[...env.constructors.values()].map((c) => c.name),
-        ...[...env.functions.values()].map((c) => c.name),
-      ])
-    );
-  }
-  // reassign `func` so the type is more precise
-  const consOrFunc: ApplyConstructor<A> | ApplyFunction<A> = func;
-  // if the function/constructor is found, run a generic check on the arguments and output
-  if (funcDecl) {
-    const { output } = funcDecl;
-    // initialize substitution environment
-    const substContext: SubstitutionEnv = im.Map<string, TypeConsApp<C>>();
-    if (funcDecl.args.length !== func.args.length) {
-      return err(
-        argLengthMismatch(func.name, func.args, funcDecl.args, func, funcDecl)
-      );
-    } else {
-      const argPairs = zip2(func.args, funcDecl.args);
-      const argsOk: SubstitutionResult<SubExpr<A>> = safeChain(
-        argPairs,
-        ([expr, arg], { substEnv: cxt, env: e }) => matchArg(expr, arg, cxt, e),
-        ok({ substEnv: substContext, env, contents: func.args[0] })
-      );
-      const outputOk: ResultWithType<ApplyConstructor<A> | ApplyFunction<A>> =
-        andThen(
-          ({ substEnv, env }) =>
-            withType(env, applySubstitution(output.type, substEnv), consOrFunc),
-          argsOk
-        );
-      // if the func is a constructor and bounded by a variable, cache the binding to env
-      if (
-        variable &&
-        func.tag === "ApplyConstructor" &&
-        funcDecl.tag === "ConstructorDecl"
-      ) {
-        const updatedEnv: Env = {
-          ...env,
-          constructorsBindings: env.constructorsBindings.set(variable.value, [
-            func,
-            funcDecl,
-          ]),
-        };
-        return andThen(
-          ({ type }) => withType(updatedEnv, type, consOrFunc),
-          outputOk
-        );
-      } else return outputOk;
-    }
-  } else return err(typeNotFound(func.name)); // TODO: suggest possible types
-};
-
-const checkDeconstructor = (
-  decons: Deconstructor<A>,
-  env: Env
-): ResultWithType<Deconstructor<A>> => {
-  const { variable } = decons;
-  const varOk = checkVar(variable, env);
-  const fieldOk = checkField(decons, env);
-  return and(fieldOk, varOk);
-};
-
-const checkField = (
-  decons: Deconstructor<A>,
-  env: Env
-): ResultWithType<Deconstructor<A>> => {
-  const { field } = decons;
-  // get the original constructor in Substance
-  const res = env.constructorsBindings.get(decons.variable.value);
-  if (res) {
-    // get the constructor decl in Domain
-    const [cons, consDecl] = res;
-    // find the field index by name
-    const fieldIndex = _.findIndex(
-      consDecl.args,
-      (a) => a.variable.value === field.value
-    );
-    // TODO: the field type call is a bit redundant. Is there a better way to get the type of the field?
-    const fieldType = checkExpr(cons.args[fieldIndex], env);
-    return andThen(
-      ({ type, env }) =>
-        ok({
-          type: type,
-          env,
-          contents: decons,
-        }),
-      fieldType
-    );
-  } else return err(deconstructNonconstructor(decons));
-};
+const toSubType = (type: Type<A>): TypeApp<A> => ({ ...type, tag: "TypeApp" });
 
 export const checkVar = (
   variable: Identifier<A>,
-  env: Env
+  domEnv: DomainEnv,
+  subEnv: SubstanceEnv,
 ): ResultWithType<Identifier<A>> => {
-  const type = env.vars.find((_, key) => key === variable.value);
+  const type = subEnv.objs.find((_, key) => key === variable.value);
   if (type) {
-    return ok({ type, env, contents: variable });
+    return ok({ type, subEnv, contents: variable });
   } else {
-    const possibleVars = env.varIDs;
+    const possibleVars = subEnv.objIds;
     // TODO: find vars of the same type for error reporting (need to check expr first)
-    return err(varNotFound(variable, possibleVars));
+    return err([varNotFound(variable, possibleVars)]);
   }
 };
 //#endregion
@@ -725,15 +1448,87 @@ export const checkVar = (
 export const prettySubstance = (prog: SubProg<A>): string =>
   prog.statements.map((stmt) => prettyStmt(stmt)).join("\n");
 
-export const prettyStmt = (stmt: SubStmt<A>): string => {
+export const prettyCompiledSubstance = (prog: CompiledSubProg<A>): string =>
+  prettySubstance(prog);
+
+export const prettyStmt = (stmt: Stmt<A>): string => {
+  if (stmt.tag !== "StmtSet") {
+    return prettySingleStmt(stmt);
+  } else {
+    // TOOD: use more informative pretty-printing
+    return `${prettySingleStmt(stmt.stmt)} ${prettyIndexSet(stmt.iset)}`;
+  }
+};
+
+const prettyIndexSet = (iset: IndexSet<A>): string => {
+  const rangeStrings: string[] = [];
+  for (const range of iset.indices) {
+    const varName = range.variable.value;
+    const low = range.range.low.contents;
+    const high = range.range.high.contents;
+    rangeStrings.push(`${varName} in [${low}, ${high}]`);
+  }
+  const rangeString = rangeStrings.join(", ");
+
+  if (iset.condition === undefined) {
+    return `for ${rangeString}`;
+  } else {
+    return `for ${rangeString} where ${prettyCond(iset.condition)}`;
+  }
+};
+
+const prettyCond = (cond: BooleanExpr<A>): string => {
+  if (cond.tag === "BooleanConstant") {
+    return cond.value.toString();
+  } else if (cond.tag === "BinaryBooleanExpr") {
+    return `(${prettyCond(cond.left)} ${cond.operator} ${prettyCond(
+      cond.right,
+    )})`;
+  } else if (cond.tag === "UnaryBooleanExpr") {
+    return `(${cond.operator}${prettyCond(cond.arg)})`;
+  } else {
+    return `(${prettyNum(cond.left)} ${cond.operator} ${prettyNum(
+      cond.right,
+    )})`;
+  }
+};
+
+const prettyNum = (n: NumExpr<A>): string => {
+  if (n.tag === "NumberConstant") {
+    return `${n.contents}`;
+  } else if (n.tag === "Identifier") {
+    return n.value;
+  } else if (n.tag === "UnaryExpr") {
+    return `(${n.operator}${prettyNum(n.arg)})`;
+  } else {
+    return `(${prettyNum(n.left)} ${n.operator} ${prettyNum(n.right)})`;
+  }
+};
+
+const prettyCompiledStmt = (stmt: CompiledSubStmt<A>): string => {
+  return prettySingleStmt(stmt);
+};
+
+const prettySingleStmt = (stmt: SubStmt<A>): string => {
   switch (stmt.tag) {
     case "Decl": {
       const { type, name } = stmt;
       return `${prettyType(type)} ${prettyVar(name)}`;
     }
+    case "DeclList": {
+      const { type, names } = stmt;
+      const pNames = names.map(prettyVar).join(", ");
+      return `${prettyType(type)} ${pNames}`;
+    }
     case "Bind": {
       const { variable, expr } = stmt;
       return `${prettyVar(variable)} := ${prettyExpr(expr)}`;
+    }
+    case "DeclBind": {
+      const { type, variable, expr } = stmt;
+      return `${prettyType(type)} ${prettyVar(variable)} := ${prettyExpr(
+        expr,
+      )}`;
     }
     case "AutoLabel":
       return `AutoLabel ${prettyLabelOpt(stmt.option)}`;
@@ -743,20 +1538,14 @@ export const prettyStmt = (stmt: SubStmt<A>): string => {
       return `Label ${prettyVar(stmt.variable)} $${stmt.label.contents}$`;
     case "ApplyPredicate":
       return prettyPredicate(stmt);
-    case "EqualExprs":
-      return `${prettyExpr(stmt.left)} = ${prettyExpr(stmt.right)}`;
-    case "EqualPredicates":
-      return `${prettyPredicate(stmt.left)} <-> ${prettyPredicate(stmt.right)}`;
-    default:
-      throw new Error(`unsupported substance statement type`);
   }
 };
 
 export const prettySubNode = (
-  node: SubExpr<A> | SubStmt<A> | TypeConsApp<A>
+  node: SubExpr<A> | SubStmt<A> | TypeApp<A>,
 ): string => {
   switch (node.tag) {
-    case "TypeConstructor":
+    case "TypeApp":
       return prettyType(node);
     case "Bind":
     case "Decl":
@@ -764,8 +1553,8 @@ export const prettySubNode = (
     case "NoLabel":
     case "LabelDecl":
     case "ApplyPredicate":
-    case "EqualExprs":
-    case "EqualPredicates":
+    case "DeclList":
+    case "DeclBind":
       return prettyStmt(node);
     default:
       return prettyExpr(node);
@@ -778,19 +1567,13 @@ export const prettyPredicate = (pred: ApplyPredicate<A>): string => {
   return `${prettyVar(name)}(${argStr})`;
 };
 
-const prettyPredArg = (arg: SubPredArg<A>): string => {
-  if (arg.tag === "ApplyPredicate") return prettyPredicate(arg);
-  else return prettyExpr(arg);
+const prettyPredArg = (arg: SubArgExpr<A>): string => {
+  return prettyExpr(arg);
 };
 
-const prettyType = (type: TypeConsApp<A>): string => {
-  const { name, args } = type;
-  if (args.length > 0) {
-    const argStr = args.map((a) => prettyType(a)).join(", ");
-    return `${prettyVar(name)}(${argStr})`;
-  } else {
-    return `${prettyVar(name)}`;
-  }
+const prettyType = (type: TypeApp<A>): string => {
+  const { name } = type;
+  return `${prettyVar(name)}`;
 };
 
 const prettyLabelOpt = (opt: LabelOption<A>): string => {
@@ -802,17 +1585,23 @@ const prettyLabelOpt = (opt: LabelOption<A>): string => {
   }
 };
 
-const prettyVar = (v: Identifier<A>): string => v.value;
+export const prettyVar = (v: Identifier<A>): string => {
+  return v.value;
+};
+
+const prettyLiteralSubExpr = (e: NumberConstant<A> | StringLit<A>): string => {
+  if (e.tag === "NumberConstant") {
+    return e.contents.toString();
+  } else {
+    return e.contents;
+  }
+};
 const prettyExpr = (expr: SubExpr<A>): string => {
   switch (expr.tag) {
     case "Identifier":
       return prettyVar(expr);
-    case "StringLit":
-      return expr.contents;
-    case "Deconstructor": {
-      const { variable, field } = expr;
-      return `${prettyVar(variable)}.${prettyVar(field)}`;
-    }
+    case "LiteralSubExpr":
+      return prettyLiteralSubExpr(expr.contents);
     case "ApplyFunction":
     case "Func":
     case "ApplyConstructor": {

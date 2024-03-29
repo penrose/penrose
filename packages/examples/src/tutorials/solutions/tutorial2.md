@@ -29,8 +29,8 @@ forall Set x {
     x.icon = Circle {
         strokeWidth : 0.0
     }
-    ensure minSize(x.icon, 50)
-    ensure maxSize(x.icon, 300)
+    ensure x.icon.r > 25
+    ensure x.icon.r < 150
 }
 
 forall Set x; Set y
@@ -47,7 +47,7 @@ Define a predicate that takes in two sets and outputs 2 circles that are disjoin
 
 ```
 type Set
-predicate NotIntersecting(Set s1, Set s2)
+predicate Disjoint(Set s1, Set s2)
 ```
 
 `.substance`
@@ -55,7 +55,7 @@ predicate NotIntersecting(Set s1, Set s2)
 ```
 Set A
 Set B
-NotIntersecting(A, B)
+Disjoint(A, B)
 ```
 
 `.style`
@@ -70,12 +70,12 @@ forall Set x {
     x.icon = Circle {
         strokeWidth : 0.0
     }
-    ensure minSize(x.icon, 50)
-    ensure maxSize(x.icon, 400)
+    ensure x.icon.r > 25
+    ensure x.icon.r < 200
 }
 
 forall Set x; Set y
-where NotIntersecting(x, y) {
+where Disjoint(x, y) {
     ensure disjoint(x.icon, y.icon, 15)
 }
 ```

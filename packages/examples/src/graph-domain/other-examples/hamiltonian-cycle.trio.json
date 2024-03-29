@@ -1,0 +1,6 @@
+{
+  "substance": "./hamiltonian-cycle.substance",
+  "style": ["../simple-directed-graph.style"],
+  "domain": "../simple-directed-graph.domain",
+  "variation": "PredictableWasp290"
+}

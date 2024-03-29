@@ -1,0 +1,13 @@
+Point x0, x1, x2
+RandomWalk A, B
+
+startsAt( A, x1 )
+startsAt( B, x1 )
+endsAt( A, x0 )
+endsAt( B, x2 )
+
+Boundary D := ReflectingBoundary( x0, x1, x2 )
+Label x0 $x_k$
+Label x2 $x_{k+1}$
+
+Label D $\partial \Omega$

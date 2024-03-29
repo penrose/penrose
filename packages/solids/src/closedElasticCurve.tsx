@@ -33,14 +33,14 @@ export default () => {
         Array.from({ length: numPoints() }, () => [
           variable(rng() * w),
           variable(rng() * h),
-        ])
+        ]),
       );
       r = problem({
         objective: pow(sub(elasticEnergy(pts() as any, true), 0), 2),
         constraints: [
           eq(perimeter(pts() as any, true), length()),
           equivalued(
-            pts().map((_, i) => dist(pts()[i], pts()[(i + 1) % numPoints()]))
+            pts().map((_, i) => dist(pts()[i], pts()[(i + 1) % numPoints()])),
           ),
         ],
       }).then((p) => p.start({}));
@@ -48,7 +48,7 @@ export default () => {
         setReady(true);
         setStep(0);
       });
-    })
+    }),
   );
 
   createEffect(async () => {

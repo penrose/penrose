@@ -1,0 +1,5 @@
+type Component
+type Bus <: Component
+type Signal
+
+constructor mkSignal(Component from, Component to) -> Signal

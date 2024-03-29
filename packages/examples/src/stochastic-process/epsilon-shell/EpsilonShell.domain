@@ -1,0 +1,8 @@
+type Point
+type RandomWalk
+type Boundary
+
+predicate startsAt( RandomWalk X, Point p )
+predicate endsAt( RandomWalk X, Point p )
+constructor ReflectingBoundary( Point a, Point b, Point c ) -> Boundary
+constructor AbsorbingBoundary( Point a, Point b ) -> Boundary

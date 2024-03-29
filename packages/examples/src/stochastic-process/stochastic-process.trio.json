@@ -1,0 +1,7 @@
+{
+  "substance": "./test.substance",
+  "style": ["./stochastic-process.style"],
+  "domain": "./stochastic-process.domain",
+  "variation": "ChambrayGoose54176",
+  "excludeWarnings": ["BBoxApproximationWarning"]
+}

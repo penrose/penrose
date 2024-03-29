@@ -119,16 +119,17 @@ type Copernicium <: Atom
 
 type Bond
 
-constructor MakeSingleBond(Atom a, Atom b) -> Bond
-constructor MakeDoubleBond(Atom a, Atom b) -> Bond
-constructor MakeTripleBond(Atom a, Atom b) -> Bond
+constructor SingleBond(Atom a, Atom b) -> Bond
+constructor DoubleBond(Atom a, Atom b) -> Bond
+constructor TripleBond(Atom a, Atom b) -> Bond
 
 -- Electrons 
 
-predicate ZeroValenceElectrons(Atom)
-predicate TwoValenceElectrons(Atom)
-predicate FourValenceElectrons(Atom)
-predicate SixValenceElectrons(Atom)
+-- these correspond to dots in a Lewis structure
+predicate ZeroDots(Atom)
+predicate TwoDots(Atom)
+predicate FourDots(Atom)
+predicate SixDots(Atom)
 
 -- layout
 -- predicate Collinear(Atom, Atom, Atom)

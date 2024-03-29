@@ -8,6 +8,8 @@ layout = [dots, text, adjust]
 color {
   black = #000000
   white = #ffffff
+  blue = #0F2557
+  lightblue = #28559A
 }
 
 num {

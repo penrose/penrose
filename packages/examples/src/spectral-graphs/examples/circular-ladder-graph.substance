@@ -1,0 +1,8 @@
+Node a_i for i in [0, 14]
+Node b_i for i in [0, 14]
+
+Edge ea_i := MakeEdge(a_i, a_j) for i in [0, 14], j in [0, 14] where (i + 1) % 15 == j
+
+Edge eb_i := MakeEdge(b_i, b_j) for i in [0, 14], j in [0, 14] where (i + 1) % 15 == j
+
+Edge ec_i := MakeEdge(a_i, b_i) for i in [0, 14]

@@ -1,0 +1,32 @@
+-- The seven vertices are a, b, c, d, e, f, g
+Vertex a, b, c, d, e, f, g
+
+-- The Hamiltonian cycle is a -> b -> c -> d -> e -> f -> g -> a
+Arc(a, b)
+Arc(b, c)
+Arc(c, d)
+Arc(d, e)
+Arc(e, f)
+Arc(f, g)
+Arc(g, a)
+
+-- Highlight the start/end vertex and arcs in the cycle
+HighlightVertex(a)
+
+HighlightArc(a, b)
+HighlightArc(b, c)
+HighlightArc(c, d)
+HighlightArc(d, e)
+HighlightArc(e, f)
+HighlightArc(f, g)
+HighlightArc(g, a)
+
+-- Additional edges that are not in the Hamiltonian cycle
+Arc(a, c)
+Arc(a, d)
+Arc(b, e)
+Arc(b, f)
+Arc(c, g)
+Arc(d, f)
+
+AutoLabel All

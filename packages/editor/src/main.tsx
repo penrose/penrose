@@ -29,5 +29,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       </ErrorBoundary>
       <Toaster />
     </RecoilRoot>
-  </React.StrictMode>
+  </React.StrictMode>,
 );
