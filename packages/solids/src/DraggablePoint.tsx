@@ -9,7 +9,7 @@ import { num, signalNum } from "./util.js";
  */
 const getPosition = (
   { clientX, clientY }: { clientX: number; clientY: number },
-  svg?: SVGSVGElement
+  svg?: SVGSVGElement,
 ) => {
   const CTM = svg?.getScreenCTM();
   if (CTM && CTM !== null) {
@@ -26,7 +26,7 @@ const onMouseDown = (
     toScreen: (xy: number[]) => number[];
     toModel: (xy: number[]) => number[];
   },
-  constrain: (xy: number[]) => number[]
+  constrain: (xy: number[]) => number[],
 ) => {
   const target = e.target as SVGSVGElement;
   // avoid highlighting text etc.

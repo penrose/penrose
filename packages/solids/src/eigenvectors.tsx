@@ -92,7 +92,6 @@ const Point = ({
   );
 };
 
-
 /**
  * Converts screen to relative SVG coords
  * Thanks to
@@ -426,7 +425,7 @@ ${num(a1[1]).toFixed(2)} & ${num(a2[1]).toFixed(2)}
 `}
         </$>
         <$>{`\\textcolor{${vColor}}{v}= [${num(v[0]).toFixed(2)}, ${num(
-          v[1]
+          v[1],
         ).toFixed(2)}]`}</$>
         <$>{`\\textcolor{${vColor}}{Av}= [${num(avd[0]).toFixed(2)}, ${num(
           avd[1],
