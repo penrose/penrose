@@ -81,8 +81,8 @@ export default ({
   y: Var;
   svg?: SVGSVGElement; // containing SVG element for computing the correct transformation
   transform: {
-    toScreen: (xy: number[]) => number[];
-    toModel: (xy: number[]) => number[];
+    toScreen: (xy: number[]) => number[]; // transform function that maps (x, y) from the model to screen space
+    toModel: (xy: number[]) => number[]; // transform function that maps (x, y) from the screen to model space
   };
   constrain: (xy: number[]) => number[];
 }) => {
