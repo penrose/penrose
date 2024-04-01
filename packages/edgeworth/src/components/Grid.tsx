@@ -314,7 +314,7 @@ export class Grid extends React.Component<GridProps, GridState> {
   constructor(props: GridProps) {
     super(props);
     this.state = {
-      optimized: Array(props.diagrams.length),
+      optimized: new Array(props.diagrams.length).fill(false),
     };
   }
 
@@ -340,10 +340,12 @@ export class Grid extends React.Component<GridProps, GridState> {
             this.setState((prev) => {
               const optStatuses = [...prev.optimized];
               optStatuses[n] = isOptimized(state);
+              console.log(prev);
+
               // report opt completion when all are done
               if (this.props.onComplete && _.every(optStatuses))
                 this.props.onComplete();
-              return { ...prev, optStatuses };
+              return { ...prev, optimized: optStatuses };
             });
             // callback
             this.props.onStateUpdate(n, state);

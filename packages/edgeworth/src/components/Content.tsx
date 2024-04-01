@@ -327,8 +327,6 @@ export class Content extends React.Component<ContentProps, ContentState> {
     const correctCount = this.state.staged.filter(
       ({ correct }) => correct,
     ).length;
-    console.log(this.state.staged);
-
     return (
       <div>
         <AppBar position="fixed">
