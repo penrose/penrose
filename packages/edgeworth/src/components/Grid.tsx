@@ -10,13 +10,13 @@ import styled from "styled-components";
 export type GridboxProps = SimpleProps & {
   header: string;
   gridIndex: number;
-  selected?: boolean;
+  isSelected: boolean;
+  isCorrect: boolean;
   metadata: {
     name: string;
     data: string;
   }[];
-  onSelected: (n: number) => void;
-  onDeselected: (n: number) => void;
+  onSelect: (n: number, selected: boolean) => void;
   onToggleCorrect: (n: number, correct: boolean) => void;
   onStateUpdate?: (n: number, s: PenroseState) => void;
 };
@@ -169,10 +169,7 @@ const Progress = styled.div`
 interface GridboxState {
   showDiagramInfo: boolean;
   isOptimized: boolean;
-  isSelected: boolean;
-  isCorrect: boolean;
   variation: string;
-  currentState?: PenroseState;
 }
 
 export class Gridbox extends React.Component<GridboxProps, GridboxState> {
@@ -181,29 +178,8 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
     this.state = {
       showDiagramInfo: false,
       isOptimized: false,
-      isSelected: this.props.selected ?? false,
-      isCorrect: false,
-      currentState: undefined,
       variation: props.variation,
     };
-  }
-
-  // reset state if props change
-  componentDidUpdate(
-    prevProps: Readonly<GridboxProps>,
-    prevState: Readonly<GridboxState>,
-    snapshot?: any,
-  ): void {
-    if (
-      prevProps.substance !== this.props.substance ||
-      this.props.variation !== prevProps.variation
-    ) {
-      this.setState({
-        isSelected: false,
-        isCorrect: false,
-        isOptimized: false,
-      });
-    }
   }
 
   toggleView = () => {
@@ -211,24 +187,11 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
   };
 
   checkboxClick = () => {
-    this.setState((prev) => {
-      const selected = !prev.isSelected;
-      if (selected) {
-        this.props.onSelected(this.props.gridIndex);
-      } else {
-        this.props.onDeselected(this.props.gridIndex);
-      }
-      return { isSelected: selected };
-    });
+    this.props.onSelect(this.props.gridIndex, !this.props.isSelected);
   };
 
   toggleCorrect = () => {
-    this.setState((prev) => {
-      this.props.onToggleCorrect(this.props.gridIndex, !prev.isCorrect);
-      return {
-        isCorrect: !prev.isCorrect,
-      };
-    });
+    this.props.onToggleCorrect(this.props.gridIndex, !this.props.isCorrect);
   };
 
   resample = () => {
@@ -248,7 +211,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
               <Refresh />
             </ResampleBtn>
             <Check
-              checked={this.state.isSelected}
+              checked={this.props.isSelected}
               value={""}
               name={""}
               id={`checkbox-${this.props.gridIndex}`}
@@ -257,10 +220,11 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
               onChange={this.checkboxClick}
               size="medium"
             />
-            {this.state.isSelected && (
+            {this.props.isSelected && (
               <CustomSwitch
                 size="small"
                 color="default"
+                checked={this.props.isCorrect}
                 onChange={this.toggleCorrect}
               />
             )}
@@ -300,7 +264,6 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
             interactive={false}
             onFrame={(state: PenroseState) => {
               this.setState({
-                currentState: state,
                 isOptimized: isOptimized(state),
               });
               if (onStateUpdate !== undefined) {
@@ -328,14 +291,14 @@ export interface GridProps {
     data: string;
   }[];
   header: (i: number) => string;
-  onSelected: (n: number) => void;
-  onDeselected: (n: number) => void;
+  onSelect: (n: number, selected: boolean) => void;
   onToggleCorrect: (n: number, correct: boolean) => void;
   onComplete?: () => void;
   onStateUpdate: (n: number, s: PenroseState) => void;
   imageResolver?: PathResolver;
   gridBoxProps?: Partial<GridboxProps>;
-  selected?: number[];
+  selected: number[];
+  correct: number[];
 }
 
 const GridContainer = styled.main`
@@ -367,44 +330,6 @@ export class Grid extends React.Component<GridProps, GridState> {
     };
   }
 
-  innerContent() {
-    return this.props.diagrams.map(
-      ({ substance, domain, style, variation }, i) => (
-        <Gridbox
-          {...this.props.gridBoxProps}
-          key={`grid-${i}`}
-          name={`grid-${i}`}
-          header={this.props.header(i)}
-          metadata={this.props.metadata(i)}
-          domain={domain}
-          style={style}
-          gridIndex={i}
-          substance={substance}
-          variation={variation}
-          excludeWarnings={[]}
-          onSelected={this.props.onSelected}
-          onDeselected={this.props.onDeselected}
-          onToggleCorrect={this.props.onToggleCorrect}
-          onStateUpdate={(n, state) => {
-            // record opt status
-            this.setState((prev) => {
-              const optStatuses = [...prev.optimized];
-              optStatuses[n] = isOptimized(state);
-              // report opt completion when all are done
-              if (this.props.onComplete && _.every(optStatuses))
-                this.props.onComplete();
-              return { ...prev, optimized: optStatuses };
-            });
-            // callback
-            this.props.onStateUpdate(n, state);
-          }}
-          imageResolver={this.props.imageResolver}
-          selected={this.props.selected && this.props.selected.includes(i)}
-        />
-      ),
-    );
-  }
-
   render() {
     const content =
       this.props.diagrams.length === 0 ? (
@@ -414,7 +339,41 @@ export class Grid extends React.Component<GridProps, GridState> {
           </PlaceholderText>
         </div>
       ) : (
-        this.innerContent()
+        this.props.diagrams.map(
+          ({ substance, domain, style, variation }, i) => (
+            <Gridbox
+              {...this.props.gridBoxProps}
+              key={`grid-${i}`}
+              name={`grid-${i}`}
+              header={this.props.header(i)}
+              metadata={this.props.metadata(i)}
+              domain={domain}
+              style={style}
+              gridIndex={i}
+              substance={substance}
+              variation={variation}
+              excludeWarnings={[]}
+              onSelect={this.props.onSelect}
+              onToggleCorrect={this.props.onToggleCorrect}
+              onStateUpdate={(n, state) => {
+                // record opt status
+                this.setState((prev) => {
+                  const optStatuses = [...prev.optimized];
+                  optStatuses[n] = isOptimized(state);
+                  // report opt completion when all are done
+                  if (this.props.onComplete && _.every(optStatuses))
+                    this.props.onComplete();
+                  return { ...prev, optimized: optStatuses };
+                });
+                // callback
+                this.props.onStateUpdate(n, state);
+              }}
+              imageResolver={this.props.imageResolver}
+              isSelected={this.props.selected.includes(i)}
+              isCorrect={this.props.correct.includes(i)}
+            />
+          ),
+        )
       );
     return (
       <GridContainer>
