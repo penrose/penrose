@@ -15,8 +15,9 @@ export type GridboxProps = SimpleProps & {
     name: string;
     data: string;
   }[];
-  onSelected: (n: number, correct: boolean) => void;
+  onSelected: (n: number) => void;
   onDeselected: (n: number) => void;
+  onToggleCorrect: (n: number, correct: boolean) => void;
   onStateUpdate?: (n: number, s: PenroseState) => void;
 };
 
@@ -194,7 +195,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
     this.setState((prev) => {
       const selected = !prev.isSelected;
       if (selected) {
-        this.props.onSelected(this.props.gridIndex, this.state.isCorrect);
+        this.props.onSelected(this.props.gridIndex);
       } else {
         this.props.onDeselected(this.props.gridIndex);
       }
@@ -203,7 +204,12 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
   };
 
   toggleCorrect = () => {
-    this.setState({ isCorrect: !this.state.isCorrect });
+    this.setState((prev) => {
+      this.props.onToggleCorrect(this.props.gridIndex, !prev.isCorrect);
+      return {
+        isCorrect: !prev.isCorrect,
+      };
+    });
   };
 
   resample = () => {
@@ -303,8 +309,9 @@ export interface GridProps {
     data: string;
   }[];
   header: (i: number) => string;
-  onSelected: (n: number, correct: boolean) => void;
+  onSelected: (n: number) => void;
   onDeselected: (n: number) => void;
+  onToggleCorrect: (n: number, correct: boolean) => void;
   onComplete?: () => void;
   onStateUpdate: (n: number, s: PenroseState) => void;
   imageResolver?: PathResolver;
@@ -358,6 +365,7 @@ export class Grid extends React.Component<GridProps, GridState> {
           excludeWarnings={[]}
           onSelected={this.props.onSelected}
           onDeselected={this.props.onDeselected}
+          onToggleCorrect={this.props.onToggleCorrect}
           onStateUpdate={(n, state) => {
             // record opt status
             this.setState((prev) => {

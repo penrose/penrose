@@ -113,7 +113,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
     };
   }
   // callback function to indicate that a svg will be exported
-  addStaged = (index: number, correct: boolean) => {
+  addStaged = (index: number) => {
     let newStaged = [...this.state.staged];
     if (this.state.staged.map(({ index }) => index).includes(index)) {
       // remove old diagram selection if it was already staged
@@ -122,12 +122,26 @@ export class Content extends React.Component<ContentProps, ContentState> {
       );
     }
     // push the new or updated diagram to the array
-    newStaged.push({ index, correct });
+    newStaged.push({ index, correct: false }); // NOTE: default of `correct` is false
     this.setState({ staged: newStaged });
   };
 
   removeStaged = (index: number) => {
     let newStaged = this.state.staged.filter((s) => s.index !== index);
+    this.setState({ staged: newStaged });
+  };
+
+  toggleCorrect = (index: number, correct: boolean) => {
+    let newStaged = [...this.state.staged];
+    newStaged = newStaged.map((s) => {
+      if (s.index === index) {
+        return {
+          ...s,
+          correct,
+        };
+      }
+      return s;
+    });
     this.setState({ staged: newStaged });
   };
 
@@ -244,6 +258,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
           stepSize: 20,
         }}
         selected={this.state.staged.map(({ index }) => index)}
+        onToggleCorrect={this.toggleCorrect}
         onSelected={this.addStaged}
         onDeselected={this.removeStaged}
         onStateUpdate={this.onStateUpdate}
