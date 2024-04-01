@@ -187,6 +187,25 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
       variation: props.variation,
     };
   }
+
+  // reset state if props change
+  componentDidUpdate(
+    prevProps: Readonly<GridboxProps>,
+    prevState: Readonly<GridboxState>,
+    snapshot?: any,
+  ): void {
+    if (
+      prevProps.substance !== this.props.substance ||
+      this.props.variation !== prevProps.variation
+    ) {
+      this.setState({
+        isSelected: false,
+        isCorrect: false,
+        isOptimized: false,
+      });
+    }
+  }
+
   toggleView = () => {
     this.setState({ showDiagramInfo: !this.state.showDiagramInfo });
   };
@@ -371,8 +390,6 @@ export class Grid extends React.Component<GridProps, GridState> {
             this.setState((prev) => {
               const optStatuses = [...prev.optimized];
               optStatuses[n] = isOptimized(state);
-              console.log(prev);
-
               // report opt completion when all are done
               if (this.props.onComplete && _.every(optStatuses))
                 this.props.onComplete();
