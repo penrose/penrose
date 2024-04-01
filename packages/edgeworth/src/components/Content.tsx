@@ -240,7 +240,6 @@ export class Content extends React.Component<ContentProps, ContentState> {
           },
         ]}
         gridBoxProps={{
-          stateful: true,
           animate: true,
           stepSize: 20,
         }}

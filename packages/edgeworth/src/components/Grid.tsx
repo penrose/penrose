@@ -1,4 +1,4 @@
-import { Checkbox, Switch } from "@material-ui/core";
+import { Checkbox, CircularProgress, Switch } from "@material-ui/core";
 import { Simple } from "@penrose/components";
 import { SimpleProps } from "@penrose/components/dist/Simple";
 import { PathResolver, PenroseState, isOptimized } from "@penrose/core";
@@ -10,7 +10,6 @@ import styled from "styled-components";
 export type GridboxProps = SimpleProps & {
   header: string;
   gridIndex: number;
-  stateful?: boolean;
   selected?: boolean;
   metadata: {
     name: string;
@@ -148,8 +147,27 @@ const ResampleBtn = styled.button`
   }
 `;
 
+const Progress = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.3);
+  width: calc(25rem - 1rem);
+  position: absolute;
+  height: calc(100% - 1rem);
+  border-radius: 5px;
+  padding: 0.5rem;
+  font-size: 0.8rem;
+  font-color: white;
+  font-family:
+    Roboto Mono,
+    Courier New,
+    sans-serif;
+`;
+
 interface GridboxState {
   showDiagramInfo: boolean;
+  isOptimized: boolean;
   isSelected: boolean;
   isCorrect: boolean;
   variation: string;
@@ -161,6 +179,7 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
     super(props);
     this.state = {
       showDiagramInfo: false,
+      isOptimized: false,
       isSelected: this.props.selected ?? false,
       isCorrect: false,
       currentState: undefined,
@@ -192,19 +211,17 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
   };
 
   render() {
-    const { header, stateful, onStateUpdate } = this.props;
-    const variation = stateful ? this.state.variation : this.props.variation;
+    const { header, onStateUpdate } = this.props;
+    const variation = this.state.variation;
 
     return (
       <Section key={`gridbox-container-${this.props.gridIndex}`}>
         <Header>
           <HeaderText>{header ?? "Diagram"}</HeaderText>
           <div style={{ display: "flex" }}>
-            {this.props.stateful && (
-              <ResampleBtn onClick={this.resample}>
-                <Refresh />
-              </ResampleBtn>
-            )}
+            <ResampleBtn onClick={this.resample}>
+              <Refresh />
+            </ResampleBtn>
             <Check
               checked={this.state.isSelected}
               value={""}
@@ -229,7 +246,12 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
           onClick={this.toggleView}
           style={{ height: "calc(100% - 2.75rem)", position: "relative" }}
         >
-          {this.state.showDiagramInfo && (
+          {!this.state.isOptimized && (
+            <Progress>
+              <CircularProgress />
+            </Progress>
+          )}
+          {this.state.isOptimized && this.state.showDiagramInfo && (
             <Body>
               {this.props.metadata.map(({ name, data }) => (
                 <div key={`gridbox-data-${name}`}>
@@ -252,11 +274,12 @@ export class Gridbox extends React.Component<GridboxProps, GridboxState> {
             name={`gridbox-${this.props.gridIndex}`}
             interactive={false}
             onFrame={(state: PenroseState) => {
-              if (stateful) {
-                this.setState({ currentState: state });
-                if (onStateUpdate !== undefined) {
-                  onStateUpdate(this.props.gridIndex, state);
-                }
+              this.setState({
+                currentState: state,
+                isOptimized: isOptimized(state),
+              });
+              if (onStateUpdate !== undefined) {
+                onStateUpdate(this.props.gridIndex, state);
               }
             }}
           />
