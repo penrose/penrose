@@ -1,31 +1,7 @@
-import { PathResolver, PenroseState, isOptimized } from "@penrose/core";
+import { PathResolver } from "@penrose/core";
 
-import * as _ from "lodash";
-import React from "react";
 import styled from "styled-components";
-import { Gridbox, GridboxProps } from "./Gridbox.js";
-
-type DiagramSource = {
-  style: string;
-  domain: string;
-  substance: string;
-  variation: string;
-};
-
-export interface GridProps {
-  diagrams: DiagramSource[];
-  metadata: (i: number) => {
-    name: string;
-    data: string;
-  }[];
-  header: (i: number) => string;
-  onSelected?: (n: number) => void;
-  onComplete?: () => void;
-  onStateUpdate: (n: number, s: PenroseState) => void;
-  imageResolver?: PathResolver;
-  gridBoxProps?: Partial<GridboxProps>;
-  selected?: number[];
-}
+import { Simple } from "./Simple";
 
 const GridContainer = styled.main`
   flex-grow: 1;
@@ -46,69 +22,84 @@ const PlaceholderText = styled.h3`
   color: ${(props) => props.theme.primary};
 `;
 
-interface GridState {
-  optimized: boolean[];
-}
+const Section = styled.div`
+  margin: 0.5rem;
+  width: 25rem;
+  height: 25rem;
+  border-color: ${(props) => props.theme.primary};
+  border-width: 2px;
+  border-style: solid;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+`;
 
-export class Grid extends React.Component<GridProps, GridState> {
-  constructor(props: GridProps) {
-    super(props);
-    this.state = {
-      optimized: Array(props.diagrams.length),
-    };
-  }
+const Header = styled.div`
+  width: calc(100% - 0.75rem);
+  height: 1.75rem;
+  font-size: 1.25rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 0.5rem 0 0.5rem 0.75rem;
+  vertical-align: text-bottom;
+  color: ${(props) => props.theme.primary};
+`;
 
-  innerContent() {
-    return this.props.diagrams.map(
-      ({ substance, domain, style, variation }, i) => (
-        <Gridbox
-          {...this.props.gridBoxProps}
-          key={`grid-${i}`}
-          name={`grid-${i}`}
-          header={this.props.header(i)}
-          metadata={this.props.metadata(i)}
-          domain={domain}
-          style={style}
-          gridIndex={i}
-          substance={substance}
-          variation={variation}
-          excludeWarnings={[]}
-          onSelected={this.props.onSelected}
-          onStateUpdate={(n, state) => {
-            // record opt status
-            this.setState((prev) => {
-              const optStatuses = [...prev.optimized];
-              optStatuses[n] = isOptimized(state);
-              // report opt completion when all are done
-              if (this.props.onComplete && _.every(optStatuses))
-                this.props.onComplete();
-              return { ...prev, optStatuses };
-            });
-            // callback
-            this.props.onStateUpdate(n, state);
-          }}
-          imageResolver={this.props.imageResolver}
-          selected={this.props.selected && this.props.selected.includes(i)}
-        />
-      ),
+const HeaderText = styled.div`
+  color: ${(props) => props.theme.primary};
+  vertical-align: text-bottom;
+  font-family: monospace;
+`;
+
+type DiagramSource = {
+  style: string;
+  domain: string;
+  substance: string;
+  variation: string;
+};
+
+export default function Grid(props: {
+  diagrams: DiagramSource[];
+  header: (i: number) => string;
+  imageResolver?: PathResolver;
+}) {
+  const { header, diagrams, imageResolver } = props;
+  const innerContent = () => {
+    return diagrams.map(({ substance, domain, style, variation }, i) => (
+      <Section key={`gridbox-container-${i}`}>
+        <Header>
+          <HeaderText>{header(i)}</HeaderText>
+        </Header>
+
+        <div style={{ height: "calc(100% - 2.75rem)", position: "relative" }}>
+          <Simple
+            substance={substance}
+            variation={variation}
+            domain={domain}
+            style={style}
+            key={`gridbox-${i}`}
+            name={`gridbox-${i}`}
+            interactive={false}
+            imageResolver={imageResolver}
+          />
+        </div>
+      </Section>
+    ));
+  };
+  const content =
+    props.diagrams.length === 0 ? (
+      <Placeholder>
+        <PlaceholderText>
+          {"(Generated diagrams will appear here)"}
+        </PlaceholderText>
+      </Placeholder>
+    ) : (
+      innerContent()
     );
-  }
-
-  render() {
-    const content =
-      this.props.diagrams.length === 0 ? (
-        <Placeholder>
-          <PlaceholderText>
-            {"(Generated diagrams will appear here)"}
-          </PlaceholderText>
-        </Placeholder>
-      ) : (
-        this.innerContent()
-      );
-    return (
-      <GridContainer>
-        <GridContent>{content}</GridContent>
-      </GridContainer>
-    );
-  }
+  return (
+    <GridContainer>
+      <GridContent>{content}</GridContent>
+    </GridContainer>
+  );
 }
