@@ -14,6 +14,6 @@ export default defineConfig({
   },
   optimizeDeps: {
     esbuildOptions: { target: "esnext" },
-    exclude: ["@penrose/examples", "rose"],
+    exclude: ["@penrose/examples", "rose", "@penrose/components"],
   },
 });
