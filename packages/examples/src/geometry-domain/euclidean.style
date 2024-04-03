@@ -257,10 +257,13 @@ with Point p; Point q {
 
   -- edge case
   ensure norm(e.vec) > const.minSegmentLength
+}
 
-  -- labeling
-  ensure disjoint(p.text, e.icon) in label
-  ensure disjoint(q.text, e.icon) in label
+forall Segment e
+where e := Segment(p, q); p has label; q has label
+with Point p; Point q {
+	ensure disjoint(e.icon, p.text) in label
+	ensure disjoint(e.icon, q.text) in label
 }
 
 forall Segment e
@@ -744,20 +747,6 @@ with Point p; Point q; Point r; Point s {
 }
 
 --FUNCTIONS
-forall Segment s
-with Triangle T; Point p, q, r, a, b
-where s := MidSegment(T, a, b); T := Triangle(p, q, r) {
-  override a.vec = midpoint(q.vec, r.vec)
-  override b.vec = midpoint(r.vec, p.vec)
-  override s.icon = Line {
-    start : a.vec
-    end : b.vec
-    strokeColor : s.color
-    strokeWidth : const.strokeWidth
-    style : "solid"
-  }
-}
-
 forall Point p
 where p := Midpoint(l)
 with Linelike l {

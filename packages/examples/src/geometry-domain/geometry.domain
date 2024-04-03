@@ -89,11 +89,6 @@ function PerpendicularBisectorLabelPts(Segment, Point, Point) -> Segment -- This
 -- AutoLabel A, B, C, D, d
 
 -- Polygons/Shapes
-function MidSegment(Triangle, Point, Point) -> Segment -- This function creates a midsegment from a triangle and two points on the triangle. Example usage: 
--- Point A, B, C, D, E
--- Triangle triangleABC := Triangle(A, B, C)
--- Segment midsegmentDE := MidSegment(triangleABC, D, E)
--- AutoLabel A, B, C, D, E
 function Radius(Circle c, Point p) -> Segment -- This function creates a radius from a circle and a point on the circle. Example usage: 
 -- Point A, B
 -- Circle circleAB
