@@ -5,4 +5,8 @@ import topLevelAwait from "vite-plugin-top-level-await";
 export default defineConfig({
   build: { target: "esnext" },
   plugins: [topLevelAwait()],
+  optimizeDeps: {
+    esbuildOptions: { target: "esnext" },
+    exclude: ["@penrose/examples", "rose"],
+  },
 });

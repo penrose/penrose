@@ -10,9 +10,9 @@ import {
   Unary,
   Var,
   Vec,
+  polyRootsImpl,
   variable,
 } from "@penrose/core";
-import { polyRoots } from "@penrose/optimizer";
 import seedrandom from "seedrandom";
 import { Accessor, createEffect, createMemo, on } from "solid-js";
 import { SetStoreFunction, createStore } from "solid-js/store";
@@ -216,6 +216,10 @@ const boolSignal = (x: Bool): Accessor<boolean> => {
       const y = boolSignal(param);
       return boolWith(x, () => !y());
     }
+    case "Index":
+    case "Member":
+    case "Call":
+      throw Error("unsupported");
   }
 };
 
@@ -253,6 +257,9 @@ const numSignal = (x: Num): Accessor<number> => {
       const v = vecSignal(vec);
       return numWith(x, () => v()[index]);
     }
+    case "Member":
+    case "Call":
+      throw Error("unsupported");
   }
 };
 
@@ -260,16 +267,21 @@ const vecSignal = (x: Vec): Accessor<number[]> => {
   if (secret in x) return x[secret] as Accessor<number[]>;
   switch (x.tag) {
     case "PolyRoots": {
-      const ys = x.coeffs.map(numSignal);
-      const v = new Float64Array(x.degree);
+      const ys = x.coeffs.map((y) => numSignal(y as Num));
+      const v = new Float64Array(x.coeffs.length);
       return vecWith(x, () => {
         ys.forEach((y, i) => {
           v[i] = y();
         });
-        polyRoots(v);
+        polyRootsImpl(v);
         return Array.from(v);
       });
     }
+    case "LitVec":
+    case "Index":
+    case "Member":
+    case "Call":
+      throw Error("unsupported");
   }
 };
 
@@ -284,8 +296,20 @@ export const signalBool = (x: Bool): SignalBool => {
   return x as SignalBool;
 };
 
+/**
+ * A probability distribution; `x` is between zero (inclusive) and one
+ * (exclusive).
+ */
 export type Sampler = (x: number) => number;
 
+/**
+ * Call `f` once, passing in a function that can be called to construct reactive
+ * input `Var`s for a computation graph. The randomly generated values passed to
+ * each `sampler` are deterministic based on `seed`, and the returned `Var`s are
+ * reactive when `seed` changes: while `f` is being executed, the order of calls
+ * to `makeVar` is recorded, and when `seed` changes, the values of those `Var`s
+ * are regenerated in the same order with the same set of `sampler` functions.
+ */
 export const sample = <T>(
   seed: Accessor<string>,
   f: (makeVar: (sampler: Sampler) => Var) => T,

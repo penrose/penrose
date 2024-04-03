@@ -58,6 +58,10 @@
     "name": "Lewis Structure of Nitric Acid",
     "gallery": false
   },
+  "array-models/insertionSort": {
+    "name": "Insertion Sort",
+    "gallery": true
+  },
   "exterior-algebra/vector-wedge": {
     "name": "Wedge Product",
     "gallery": true
@@ -554,5 +558,13 @@
   "envelopes/nephroid": {
     "name": "Nephroid as Envelope of Circles",
     "gallery": true
+  },
+  "dataviz/linearreg": {
+    "name": "Linear Regression",
+    "gallery": true
+  },
+  "dataviz/residual": {
+    "name": "Linear Regression Residuals",
+    "gallery": false
   }
 }

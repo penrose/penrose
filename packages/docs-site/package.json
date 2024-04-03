@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "vitepress build",
+    "build": "cross-env NODE_OPTIONS='--max-old-space-size=8192' vitepress build",
     "build-decls": ":",
     "copy-editor": "shx mkdir -p ./public/try/ && shx cp -r ../editor/dist/* ./public/try",
     "build-shapedefs": "shx rm -f ./src/shapedefs.json && node ./scripts/shapedefs.js ./src/shapedefs.json",
@@ -59,9 +59,9 @@
     "chalk": "^3.0.0",
     "markdown-it": "^13.0.1",
     "markdown-it-katex": "^2.0.3",
+    "shikiji": "^0.10.0-beta.6",
     "shx": "^0.3.3",
     "tailwindcss": "^3.1.8",
-    "vite-plugin-top-level-await": "^1.2.3",
-    "vitepress": "^1.0.0-beta.1"
+    "vitepress": "^1.0.0-rc.39"
   }
 }

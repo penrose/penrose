@@ -5,10 +5,16 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
 import {
+  PenroseError,
   PenroseState,
+  Result,
+  State,
   compile,
-  optimize,
+  finalStage,
+  isOptimized,
+  nextStage,
   showError,
+  step,
   toSVG,
 } from "@penrose/core";
 import chalk from "chalk";
@@ -17,6 +23,7 @@ import * as fs from "fs";
 import { basename, extname, join, resolve } from "path";
 import prettier from "prettier";
 // import packageJSON from "./package.json"; // TODO: no supported by node
+import { ok } from "@penrose/core/dist/utils/Error";
 import { InstanceData } from "./types.js";
 import watch from "./watch.js";
 
@@ -32,6 +39,32 @@ interface Trio {
   variation: string;
   excludeWarnings?: string[];
 }
+
+const optimize = async (
+  state: State,
+  onStep?: (s: State, i: number) => void,
+): Promise<Result<State, PenroseError>> => {
+  let currentState = state;
+  let i = 0;
+  const numSteps = 1;
+  while (!isOptimized(currentState) || !finalStage(currentState)) {
+    if (isOptimized(currentState)) {
+      currentState = nextStage(currentState);
+    }
+    if (onStep) {
+      await onStep(currentState, i);
+    }
+    let j = 0;
+    const res = step(currentState, { until: () => j++ >= numSteps });
+    if (res.isOk()) {
+      currentState = res.value;
+    } else {
+      return res;
+    }
+    i++;
+  }
+  return ok(currentState);
+};
 
 // In an async context, communicate with the backend to compile and optimize the diagram
 const render = async (
@@ -49,6 +82,7 @@ const render = async (
     id: string;
   },
   excludeWarnings: string[],
+  onStep?: (s: State, i: number) => void,
 ): Promise<{
   diagram: string;
   metadata: InstanceData;
@@ -77,7 +111,7 @@ const render = async (
 
   const convergeStart = process.hrtime();
   let optimizedState;
-  const optimizedOutput = optimize(initialState);
+  const optimizedOutput = await optimize(initialState, onStep);
   if (optimizedOutput.isOk()) {
     optimizedState = optimizedOutput.value;
   } else {
@@ -167,9 +201,6 @@ const orderTrio = (unordered: string[]): string[] => {
   for (const fakeType in unordered) {
     const filename = unordered[fakeType];
     const type = {
-      ".sub": "substance",
-      ".sty": "style",
-      ".dsl": "domain",
       ".substance": "substance",
       ".style": "style",
       ".domain": "domain",
@@ -229,6 +260,25 @@ yargs(hideBin(process.argv))
           alias: "v",
           desc: "Variation for the Penrose diagram",
           type: "string",
+        })
+        .option("dump-svgs", {
+          desc: "During optimization, dump the intermediate SVGs to the given folder.",
+          type: "boolean",
+          default: false,
+        })
+        .option("dump-metadata", {
+          desc: "Output collected metadata to a JSON file. Needs --out to be specified.",
+          type: "string",
+        })
+        .options("dump-prefix", {
+          desc: "Prefix for the dumped SVGs.",
+          type: "string",
+          default: "output/step-",
+        })
+        .options("dump-interval", {
+          desc: "Dump the intermediate SVGs every n steps.",
+          type: "number",
+          default: 1,
         }),
     async (options) => {
       let sub: string, sty: string[], dom: string;
@@ -260,7 +310,7 @@ yargs(hideBin(process.argv))
 
       const { substance, style, domain } = readTrio(sub, sty, dom, prefix);
       // draw diagram and get metadata
-      const { diagram, state } = await render(
+      const { diagram, state, metadata } = await render(
         variation ?? "",
         substance,
         style,
@@ -275,12 +325,46 @@ yargs(hideBin(process.argv))
           id: options.trio.join(", "),
         },
         excludeWarnings,
+        async (s: State, step: number) => {
+          if (
+            options.dumpSvgs &&
+            options.dumpInterval > 0 &&
+            step % options.dumpInterval === 0
+          ) {
+            const dumpPath = options["dump-prefix"] + step + ".svg";
+            const svg = await toSVG(s, resolvePath(prefix, sty), "roger");
+            svg.setAttribute("width", s.canvas.width.toString());
+            svg.setAttribute("height", s.canvas.height.toString());
+            // create folders if they don't exist
+            const dir = dumpPath.split("/").slice(0, -1).join("/");
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+            fs.writeFileSync(dumpPath, svg.outerHTML);
+            console.log(
+              chalk.green(
+                `Dumped intermediate SVG for step ${step} to ${resolve(
+                  dumpPath,
+                )}`,
+              ),
+            );
+          }
+        },
       );
       if (options.out) {
         fs.writeFileSync(options.out, diagram);
         console.log(
           chalk.green(`The diagram has been saved as ${resolve(options.out)}`),
         );
+        if (options.dumpMetadata) {
+          fs.writeFileSync(
+            options.dumpMetadata,
+            JSON.stringify(metadata, null, 2),
+          );
+          console.log(
+            chalk.green(
+              `The metadata has been saved as ${resolve(options.dumpMetadata)}`,
+            ),
+          );
+        }
       } else {
         console.log(diagram);
         for (const warning of state.warnings) {

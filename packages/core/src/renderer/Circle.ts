@@ -23,7 +23,7 @@ const RenderCircle = (
   attrToNotAutoMap.push(...attrStroke(shape, elem));
   attrToNotAutoMap.push(...attrTitle(shape, elem));
 
-  elem.setAttribute("r", shape.r.contents.toString());
+  elem.setAttribute("r", Math.max(0, shape.r.contents).toString());
   attrToNotAutoMap.push("r");
 
   // Directly Map across any "unknown" SVG properties

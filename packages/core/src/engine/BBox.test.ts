@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { compDict } from "../contrib/Functions.js";
-import { numsOf } from "../contrib/Utils.js";
+import { compDict } from "../lib/Functions.js";
+import { numsOf } from "../lib/Utils.js";
 import { makeCircle } from "../shapes/Circle.js";
 import { makeEllipse } from "../shapes/Ellipse.js";
 import { makeImage } from "../shapes/Image.js";
@@ -153,11 +153,18 @@ describe("bbox", () => {
       end: vectorV([100, -150]),
       strokeWidth: floatV(50),
     });
-    expectBbox(bboxFromLinelike(shape), {
-      width: 432.925,
-      height: 387.629,
-      center: [-100, 25],
-    });
+    expectBbox(
+      bboxFromLinelike.rose(
+        shape.start.contents,
+        shape.end.contents,
+        shape.strokeWidth.contents,
+      ),
+      {
+        width: 432.925,
+        height: 387.629,
+        center: [-100, 25],
+      },
+    );
   });
 
   test("Path (lines)", () => {

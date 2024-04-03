@@ -24,12 +24,12 @@ describe("Common", () => {
 Set A, B, C, D, E, F, G -- inline comments\r\n
 
 /*
-IsSubset(B, A)\r
-IsSubset(C, A)\r\n
-IsSubset(D, B)
-IsSubset(E, B)
-IsSubset(F, C)
-IsSubset(G, C)
+Subset(B, A)\r
+Subset(C, A)\r\n
+Subset(D, B)
+Subset(E, B)
+Subset(F, C)
+Subset(G, C)
 */
 
 -- Not(Intersecting(E, D))
@@ -104,8 +104,6 @@ describe("statements", () => {
     const prog = `
 Set A
 Map f, g, h
-List(Set) l
-List(Map) l1
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);
@@ -119,7 +117,7 @@ List(Map) l1
           }
         })
         .flat(),
-    ).toEqual(["A", "f", "g", "h", "l", "l1"]);
+    ).toEqual(["A", "f", "g", "h"]);
   });
 
   test.each(["Set a", "Set a, b"])("decl list %s", (iset: string) => {
@@ -172,8 +170,6 @@ NoLabel B, C
 Set A, B, C
 Point p1, p2
 C := Intersection(A, B)
-p1 := ValueOf(A.value)
-p2 := ValueOf(B.value)
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);
@@ -181,18 +177,17 @@ p2 := ValueOf(B.value)
   test("predicates", () => {
     const prog = `
 Set A, B, C
-IsSubset(A, B)
-Not(IsSubset(A, B))
+Subset(A, B)
     `;
     const { results } = parser.feed(prog);
     sameASTs(results);
   });
-  test("equal predicate", () => {
+  test("numbers and strings", () => {
     const prog = `
-Set A, B, C
-IsSubset(Not(A), B) <-> IsSubset(B, C)
-CreateSubset(A, B) = CreateSubset(B, C)
-    `;
+    Set A
+    Contains(A, 1)
+    Contains(B, "never gonna give you up")
+        `;
     const { results } = parser.feed(prog);
     sameASTs(results);
   });

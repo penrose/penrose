@@ -6,7 +6,7 @@ import {
   Toolbar,
   Typography,
 } from "@material-ui/core";
-import { Grid, MultipleChoiceProblem } from "@penrose/components";
+import { MultipleChoiceProblem } from "@penrose/components";
 import {
   compileDomain,
   compileSubstance,
@@ -15,6 +15,7 @@ import {
   showError,
   toSVG,
 } from "@penrose/core";
+import { initSubstanceEnv } from "@penrose/core/dist/compiler/Substance";
 import { saveAs } from "file-saver";
 import JSZip from "jszip";
 import { shuffle } from "lodash";
@@ -26,18 +27,26 @@ import {
   Synthesizer,
   SynthesizerSetting,
 } from "../synthesis/Synthesizer.js";
+import { Grid } from "./Grid.js";
 import { Settings } from "./Settings.js";
 
 const edgeworthPurple = {
   primary: "#3f51b5",
+  correct: "#8CE363",
+  incorrect: "#FA7070",
 };
 
 export type ContentProps = any;
 
+export type SelectedDiagram = {
+  index: number;
+  correct: boolean;
+};
+
 export interface ContentState {
   progs: SynthesizedSubstance[];
   states: PenroseState[];
-  staged: number[];
+  staged: SelectedDiagram[];
   domain: string;
   style: string;
   showProblem: boolean;
@@ -104,14 +113,35 @@ export class Content extends React.Component<ContentProps, ContentState> {
     };
   }
   // callback function to indicate that a svg will be exported
-  addStaged = (idx: number) => {
-    let newStaged = [...this.state.staged];
-    if (this.state.staged.includes(idx)) {
-      // delete object from array if it was already staged (i.e. checkbox was unchecked)
-      newStaged = newStaged.filter((i) => i !== idx);
+  changeStaged = (index: number, selected: boolean) => {
+    if (selected) {
+      let newStaged = [...this.state.staged];
+      if (this.state.staged.map(({ index }) => index).includes(index)) {
+        // remove old diagram selection if it was already staged
+        newStaged = newStaged.filter(
+          ({ index: stagedIndex }) => stagedIndex !== index,
+        );
+      }
+      // push the new or updated diagram to the array
+      newStaged.push({ index, correct: false }); // NOTE: default of `correct` is false
+      this.setState({ staged: newStaged });
     } else {
-      newStaged.push(idx);
+      let newStaged = this.state.staged.filter((s) => s.index !== index);
+      this.setState({ staged: newStaged });
     }
+  };
+
+  toggleCorrect = (index: number, correct: boolean) => {
+    let newStaged = [...this.state.staged];
+    newStaged = newStaged.map((s) => {
+      if (s.index === index) {
+        return {
+          ...s,
+          correct,
+        };
+      }
+      return s;
+    });
     this.setState({ staged: newStaged });
   };
 
@@ -139,12 +169,12 @@ export class Content extends React.Component<ContentProps, ContentState> {
 
       // initialize synthesizer
       if (envOrError.isOk()) {
-        const env = envOrError.value;
-        let subResult;
+        const domEnv = envOrError.value;
+        let subEnv;
         if (sub.length > 0) {
-          const subRes = compileSubstance(sub, env);
+          const subRes = compileSubstance(sub, domEnv);
           if (subRes.isOk()) {
-            subResult = subRes.value;
+            subEnv = subRes.value;
           } else {
             console.log(
               `Error when compiling the template Substance program: ${showError(
@@ -153,10 +183,17 @@ export class Content extends React.Component<ContentProps, ContentState> {
             );
           }
         }
-        const synth = new Synthesizer(env, setting, subResult, seed);
+        const synth = new Synthesizer(
+          domEnv,
+          subEnv === undefined ? initSubstanceEnv() : subEnv,
+          setting,
+          subEnv === undefined ? undefined : [subEnv, domEnv],
+          seed,
+        );
         let progs = synth.generateSubstances(numPrograms);
         const template = synth.getTemplate();
 
+        // if the mutator actually runs, update the internal state
         if (template) {
           this.setState({
             progs: [{ prog: template, ops: [] }, ...progs],
@@ -196,39 +233,6 @@ export class Content extends React.Component<ContentProps, ContentState> {
       saveAs(content, "diagrams.zip");
     });
   };
-
-  grid = (progs: SynthesizedSubstance[]) => (
-    <sc.ThemeProvider theme={edgeworthPurple}>
-      <Grid
-        diagrams={progs.map(({ prog }, i) => ({
-          substance: prettySubstance(prog),
-          style: this.state.style,
-          domain: this.state.domain,
-          variation: `${i}`,
-        }))}
-        header={(i) => (i === 0 ? "Original diagram" : `Mutated diagram #${i}`)}
-        metadata={(i) => [
-          {
-            name: "Substance program",
-            data: prettySubstance(progs[i].prog),
-          },
-          {
-            name: "Mutations",
-            data: showMutations(progs[i].ops),
-          },
-        ]}
-        gridBoxProps={{
-          stateful: true,
-          animate: true,
-          stepSize: 20,
-        }}
-        selected={this.state.staged}
-        onSelected={this.addStaged}
-        onStateUpdate={this.onStateUpdate}
-        onComplete={() => this.setState({ layoutDone: true })}
-      />
-    </sc.ThemeProvider>
-  );
 
   problem = (answer: { correct: number[]; incorrect: number[] }) => {
     const { progs, domain, style, prompt } = this.state;
@@ -300,6 +304,11 @@ export class Content extends React.Component<ContentProps, ContentState> {
       ({ correct, incorrect }: { correct: number[]; incorrect: number[] }) =>
         this.problem({ correct, incorrect }),
     );
+    const { progs } = this.state;
+    const stagedCount = this.state.staged.length;
+    const correctCount = this.state.staged.filter(
+      ({ correct }) => correct,
+    ).length;
     return (
       <div>
         <AppBar position="fixed">
@@ -308,11 +317,17 @@ export class Content extends React.Component<ContentProps, ContentState> {
               EDGEWORTH
             </Title>
             <ButtonBox>
-              <StagedText>{`${this.state.staged.length} diagrams selected`}</StagedText>
+              <StagedText>{`${stagedCount} diagrams selected. ${correctCount} correct and ${
+                stagedCount - correctCount
+              } incorrect.`}</StagedText>
               <OutlineButton
                 variant="outlined"
                 color="inherit"
-                onClick={() => this.exportDiagrams(this.state.staged)}
+                onClick={() =>
+                  this.exportDiagrams(
+                    this.state.staged.map(({ index }) => index),
+                  )
+                }
               >
                 Export
               </OutlineButton>
@@ -343,16 +358,55 @@ export class Content extends React.Component<ContentProps, ContentState> {
         {/* NOTE: the Toolbar is used exclusively to space the content underneath the header of the page */}
         <Toolbar />
         <ContentSection>
-          <>
-            <Settings
-              generateCallback={this.generateProgs()}
-              onPrompt={(prompt) => this.setState({ prompt })}
-              defaultDomain={this.state.domain}
-              defaultStyle={this.state.style}
+          <Settings
+            generateCallback={this.generateProgs()}
+            onPrompt={(prompt) => this.setState({ prompt })}
+            defaultDomain={this.state.domain}
+            defaultStyle={this.state.style}
+          />
+          <Problem
+            correct={this.state.staged
+              .filter(({ correct }) => correct)
+              .map(({ index }) => index)}
+            incorrect={this.state.staged
+              .filter(({ correct }) => !correct)
+              .map(({ index }) => index)}
+          ></Problem>
+          <sc.ThemeProvider theme={edgeworthPurple}>
+            <Grid
+              diagrams={progs.map(({ prog }, i) => ({
+                substance: prettySubstance(prog),
+                style: this.state.style,
+                domain: this.state.domain,
+                variation: `${i}`,
+              }))}
+              header={(i) =>
+                i === 0 ? "Original diagram" : `Mutated diagram #${i}`
+              }
+              metadata={(i) => [
+                {
+                  name: "Substance program",
+                  data: prettySubstance(progs[i].prog),
+                },
+                {
+                  name: "Mutations",
+                  data: showMutations(progs[i].ops),
+                },
+              ]}
+              gridBoxProps={{
+                animate: true,
+                stepSize: 20,
+              }}
+              selected={this.state.staged.map(({ index }) => index)}
+              correct={this.state.staged
+                .filter(({ correct }) => correct)
+                .map(({ index }) => index)}
+              onToggleCorrect={this.toggleCorrect}
+              onSelect={this.changeStaged}
+              onStateUpdate={this.onStateUpdate}
+              onComplete={() => this.setState({ layoutDone: true })}
             />
-            <Problem correct={this.state.staged} incorrect={[]}></Problem>
-            {this.grid(this.state.progs)}
-          </>
+          </sc.ThemeProvider>
         </ContentSection>
       </div>
     );

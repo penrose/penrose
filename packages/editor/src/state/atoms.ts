@@ -1,8 +1,7 @@
 import {
   compileDomain,
-  Env,
+  DomainEnv,
   PenroseError,
-  PenroseState,
   PenroseWarning,
 } from "@penrose/core";
 import { PathResolver, Trio, TrioMeta } from "@penrose/examples/dist/index.js";
@@ -10,6 +9,7 @@ import registry from "@penrose/examples/dist/registry.js";
 import { Actions, BorderNode, TabNode } from "flexlayout-react";
 import localforage from "localforage";
 import { debounce, range } from "lodash";
+import { RefObject } from "react";
 import toast from "react-hot-toast";
 import {
   atom,
@@ -20,7 +20,11 @@ import {
 } from "recoil";
 import { v4 as uuid } from "uuid";
 import { layoutModel } from "../App.js";
+import { RenderState } from "../worker/message.js";
+import OptimizerWorker from "../worker/OptimizerWorker.js";
 import { generateVariation } from "./variation.js";
+
+export const optimizer = new OptimizerWorker();
 
 export const EDITOR_VERSION = 0.1;
 
@@ -121,6 +125,9 @@ export const localFilesState = atom<LocalWorkspaces>({
 
 /**
  * On any state change to the workspace, if it's being saved, autosave it (debounced)
+ * TODO: changes that happen within the 500ms window will not be collected, this is an
+ *       issue with things that are not directly related to editing trios i.e. duplicating
+ *       workspaces, saving a new workspace, etc., see issue #1695
  */
 const saveWorkspaceEffect: AtomEffect<Workspace> = ({ onSet, setSelf }) => {
   onSet(
@@ -200,7 +207,10 @@ export const currentWorkspaceState = atom<Workspace>({
       },
       style: {
         name: ".style",
-        contents: "",
+        contents: `canvas {
+  width = 400
+  height = 400
+}`,
       },
       domain: {
         name: ".domain",
@@ -261,7 +271,7 @@ export const workspaceMetadataSelector = selector<WorkspaceMetadata>({
   },
 });
 
-export const domainCacheState = selector<Env | null>({
+export const domainCacheState = selector<DomainEnv | null>({
   key: "domainCache",
   get: ({ get }) => {
     const domainProgram = get(fileContentsSelector("domain")).contents;
@@ -287,11 +297,22 @@ export type DiagramMetadata = {
 };
 
 export type Diagram = {
-  state: PenroseState | null;
+  state: RenderState | null;
   error: PenroseError | null;
   warnings: PenroseWarning[];
   metadata: DiagramMetadata;
 };
+
+export type Canvas = {
+  ref: RefObject<HTMLDivElement> | null;
+};
+
+export const canvasState = atom<Canvas>({
+  key: "canvasState",
+  default: {
+    ref: null,
+  },
+});
 
 export const diagramState = atom<Diagram>({
   key: "diagramState",
@@ -315,6 +336,24 @@ export const diagramState = atom<Diagram>({
 
   //   necessary due to diagram extension
   dangerouslyAllowMutability: true,
+});
+
+export type LayoutTimeline = number[][];
+
+export const layoutTimelineState = atom<LayoutTimeline>({
+  key: "layoutTimelineState",
+  default: [],
+});
+
+export const diagramWorkerState = atom<{
+  id: string;
+  running: boolean;
+}>({
+  key: "diagramWorkerState",
+  default: {
+    id: "",
+    running: false,
+  },
 });
 
 export type DiagramGrid = {

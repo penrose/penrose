@@ -17,8 +17,8 @@ import {
   styled,
 } from "@material-ui/core";
 import { Listing } from "@penrose/components";
-import { Env, compileDomain, showError } from "@penrose/core";
-import c04p01 from "@penrose/examples/dist/geometry-domain/textbook_problems/c04p01.substance";
+import { compileDomain, showError } from "@penrose/core";
+import { DomainEnv } from "@penrose/core/dist/types/domain";
 import React from "react";
 import Latex from "react-latex-next";
 import { Preset, domains, presets } from "../examples.js";
@@ -103,7 +103,7 @@ interface SettingState {
   currentTab: number;
   domainSelect: string;
   presetSelect: string;
-  env?: Env;
+  env?: DomainEnv;
 }
 
 const SettingContainer = styled(Box)({
@@ -166,9 +166,9 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
   constructor(props: SettingsProps) {
     super(props);
     this.state = {
-      substance: c04p01,
+      substance: "",
       setting: undefined,
-      numPrograms: 10,
+      numPrograms: 0,
       seed: "test0", // default seed
       domainEnv: defaultEnv,
       domain: this.props.defaultDomain,
@@ -177,8 +177,8 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
       llmInput: "",
       llmRunning: false,
       currentTab: 0,
-      domainSelect: "moleculesDomain",
-      presetSelect: "lewis_0",
+      domainSelect: "",
+      presetSelect: "",
     };
   }
 
@@ -195,15 +195,15 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
           },
           constructors: {
             tag: "Constructor",
-            values: [wildcardType, ...result.value.constructors.keys()],
+            values: [wildcardType, ...result.value.constructorDecls.keys()],
           },
           functions: {
             tag: "Function",
-            values: [wildcardType, ...result.value.functions.keys()],
+            values: [wildcardType, ...result.value.functionDecls.keys()],
           },
           predicates: {
             tag: "Predicate",
-            values: [wildcardType, ...result.value.predicates.keys()],
+            values: [wildcardType, ...result.value.predicateDecls.keys()],
           },
         },
       });
@@ -560,7 +560,8 @@ To write comments, begin with \`--\`. Return only the Substance program; explain
 
   componentDidMount = () => {
     // this.handlePreset("c04p01");
-    this.handlePreset("lewis_0");
+    // this.handlePreset("lewis_0");
+    this.handleDomain("moleculesDomain");
   };
 
   render() {
@@ -591,7 +592,7 @@ To write comments, begin with \`--\`. Return only the Substance program; explain
           </SettingDiv>
           <SettingDiv>{this.displayNaturalLangOrPresetTabs()}</SettingDiv>
           <br />
-          <Accordion key="substance" elevation={0}>
+          <Accordion key="substance" elevation={0} defaultExpanded>
             <AccordionHeaderStyled>{`Input Scenario`}</AccordionHeaderStyled>
             <AccordionBodyStyled style={{ padding: 0 }}>
               <Listing
@@ -604,7 +605,7 @@ To write comments, begin with \`--\`. Return only the Substance program; explain
                 }
                 width={"100%"}
                 height={"400px"}
-                monacoOptions={{ theme: "vs" }}
+                monacoOptions={{ theme: "vs", lineNumbers: "on" }}
                 readOnly={false}
               />
             </AccordionBodyStyled>
@@ -626,7 +627,7 @@ To write comments, begin with \`--\`. Return only the Substance program; explain
               valueLabelDisplay="auto"
               step={1}
               marks={[
-                { value: 1, label: "1" },
+                { value: 0, label: "0" },
                 { value: 10, label: "10" },
                 { value: 20, label: "20" },
                 { value: 30, label: "30" },
@@ -634,7 +635,7 @@ To write comments, begin with \`--\`. Return only the Substance program; explain
                 { value: 50, label: "50" },
               ]}
               value={this.state.numPrograms}
-              min={1}
+              min={0}
               max={50}
               onChange={this.onProgCountChange}
             />
@@ -694,7 +695,7 @@ To write comments, begin with \`--\`. Return only the Substance program; explain
                   <AccordionHeaderStyled>{`Domain Program`}</AccordionHeaderStyled>
                   <AccordionBodyStyled style={{ padding: 0 }}>
                     <TextField
-                      rows={20}
+                      minRows={20}
                       name="dsl"
                       multiline
                       variant="outlined"
@@ -710,7 +711,7 @@ To write comments, begin with \`--\`. Return only the Substance program; explain
                   <AccordionHeaderStyled>Style Program</AccordionHeaderStyled>
                   <AccordionBodyStyled style={{ padding: 0 }}>
                     <TextField
-                      rows={20}
+                      minRows={20}
                       name="sty"
                       multiline
                       fullWidth

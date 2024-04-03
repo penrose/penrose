@@ -272,16 +272,20 @@ describe("registry", () => {
           filePath,
           await prettier.format(svg, { parser: "html" }),
         );
+
+        // write stats after every test, in case it's slow and we still want to
+        // see results; technically this makes the whole suite quadratic time,
+        // but writing the stats is so fast that in practice it doesn't matter
+        await fs.writeFile(
+          path.join(out, "data.json"),
+          `${JSON.stringify(Object.fromEntries(datas), null, 2)}\n`,
+        );
       },
       { timeout: MAX_SECONDS * 1000 },
     );
   }
 
   afterAll(async () => {
-    await fs.writeFile(
-      path.join(out, "data.json"),
-      `${JSON.stringify(Object.fromEntries(datas), null, 2)}\n`,
-    );
     await fs.writeFile(path.join(out, "stats.md"), textChart(datas));
   });
 });

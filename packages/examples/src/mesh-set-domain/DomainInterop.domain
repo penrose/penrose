@@ -20,8 +20,8 @@ predicate From(Map f, Set domain, Set codomain)
 predicate Empty(Set s)
 predicate Nonempty(Set s)
 predicate Intersect(Set s1, Set s2)
-predicate NotIntersecting(Set s1, Set s2)
-predicate IsSubset(Set s1, Set s2)
+predicate Disjoint(Set s1, Set s2)
+predicate Subset(Set s1, Set s2)
 predicate NotSubset(Set s1, Set s2)
 predicate PointIn(Set s, Point p)
 predicate PointNotIn(Set s, Point p)
@@ -31,11 +31,6 @@ predicate Bijection(Map m)
 predicate PairIn(Point, Point, Map)
 
 -- predicate Not(Predicate p)
-
--- These are new, and should go back in the Set domain
-notation "A ⊂ B" ~ "IsSubset(A, B)"
-notation "p ∈ A" ~ "PointIn(A, p)"
-notation "p ∉ A" ~ "PointNotIn(A, p)"
 
 ------------------------------
 -- | Mesh domain program

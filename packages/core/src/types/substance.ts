@@ -1,16 +1,12 @@
 import im from "immutable";
 import { A, ASTNode, Identifier, StringLit } from "./ast.js";
-import { Env, TypeConstructor } from "./domain.js";
+import { Type } from "./domain.js";
 
-export type SubRes = [SubstanceEnv, Env];
 export type LabelMap = im.Map<string, LabelValue>;
 export interface SubstanceEnv {
-  exprEqualities: [SubExpr<A>, SubExpr<A>][];
-  // predEqualities is not used; the original proposal was to allow equivalent
-  // predicates; it was left in here in case we decide to revive it in the
-  // future
-  predEqualities: [ApplyPredicate<A>, ApplyPredicate<A>][];
-  bindings: im.Map<string, SubExpr<A>>;
+  objs: im.Map<string, Type<A>>;
+  objIds: Identifier<A>[];
+  literals: LiteralSubExpr<A>[];
   labels: LabelMap;
   ast: CompiledSubProg<A>;
 }
@@ -29,8 +25,6 @@ export type SubStmt<T> =
   | DeclList<T>
   | Bind<T>
   | DeclBind<T>
-  | EqualExprs<T>
-  | EqualPredicates<T>
   | ApplyPredicate<T>
   | LabelDecl<T>
   | AutoLabel<T>
@@ -84,24 +78,20 @@ export type NoLabel<T> = ASTNode<T> & {
 
 export type Decl<T> = ASTNode<T> & {
   tag: "Decl";
-  type: TypeConsApp<T>;
+  type: TypeApp<T>;
   name: Identifier<T>;
 };
 
 export type DeclList<T> = ASTNode<T> & {
   tag: "DeclList";
-  type: TypeConsApp<T>;
+  type: TypeApp<T>;
   names: Identifier<T>[];
 };
 
-type TypeConsAppArgs<T> = {
-  args: TypeConsApp<T>[];
+export type TypeApp<T> = ASTNode<T> & {
+  tag: "TypeApp";
+  name: Identifier<T>;
 };
-export type TypeConsApp<T> = Omit<
-  TypeConstructor<T>,
-  keyof TypeConsAppArgs<T>
-> &
-  TypeConsAppArgs<T>;
 
 export type Bind<T> = ASTNode<T> & {
   tag: "Bind";
@@ -111,58 +101,45 @@ export type Bind<T> = ASTNode<T> & {
 
 export type DeclBind<T> = ASTNode<T> & {
   tag: "DeclBind";
-  type: TypeConsApp<T>;
+  type: TypeApp<T>;
   variable: Identifier<T>;
   expr: SubExpr<T>;
 };
 
 export type SubExpr<T> =
-  | Identifier<T>
   | ApplyFunction<T>
   | ApplyConstructor<T>
   | Func<T> // NOTE: there's no syntactic difference between function and consturctor, so the parser will parse both into this type first
-  | Deconstructor<T>
-  | StringLit<T>;
+  | SubArgExpr<T>;
+
+export type SubArgExpr<T> = Identifier<T> | LiteralSubExpr<T>;
+
+export type LiteralSubExpr<T> = ASTNode<T> & {
+  tag: "LiteralSubExpr";
+  contents: StringLit<T> | NumberConstant<T>;
+};
 
 export type Func<T> = ASTNode<T> & {
   tag: "Func";
   name: Identifier<T>;
-  args: SubExpr<T>[];
+  args: SubArgExpr<T>[];
 };
 export type ApplyFunction<T> = ASTNode<T> & {
   tag: "ApplyFunction";
   name: Identifier<T>;
-  args: SubExpr<T>[];
+  args: SubArgExpr<T>[];
 };
 export type ApplyConstructor<T> = ASTNode<T> & {
   tag: "ApplyConstructor";
   name: Identifier<T>;
-  args: SubExpr<T>[];
-};
-export type Deconstructor<T> = ASTNode<T> & {
-  tag: "Deconstructor";
-  variable: Identifier<T>;
-  field: Identifier<T>;
+  args: SubArgExpr<T>[];
 };
 
-export type EqualExprs<T> = ASTNode<T> & {
-  tag: "EqualExprs";
-  left: SubExpr<T>;
-  right: SubExpr<T>;
-};
-
-export type EqualPredicates<T> = ASTNode<T> & {
-  tag: "EqualPredicates";
-  left: ApplyPredicate<T>;
-  right: ApplyPredicate<T>;
-};
 export type ApplyPredicate<T> = ASTNode<T> & {
   tag: "ApplyPredicate";
   name: Identifier<T>;
-  args: SubPredArg<T>[];
+  args: SubArgExpr<T>[];
 };
-
-export type SubPredArg<T> = SubExpr<T> | ApplyPredicate<T>; // NOTE: the parser only parse nested preds into `Func`, but the checker will look up and fix the type dynamically
 
 //#region basic expression parser
 
@@ -218,7 +195,7 @@ export type UnaryExpr<T> = ASTNode<T> & {
 
 export type NumberConstant<T> = ASTNode<T> & {
   tag: "NumberConstant";
-  value: number;
+  contents: number;
 };
 
 //#endregion

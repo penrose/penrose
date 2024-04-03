@@ -5,7 +5,6 @@ import { LineProps } from "../shapes/Line.js";
 import { Shape, ShapeType } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
 import { A, ASTNode, NodeType, SourceLoc, SourceRange } from "../types/ast.js";
-import { Either, Left, Right } from "../types/common.js";
 import { StyleWarning } from "../types/errors.js";
 import { MayWarn } from "../types/functions.js";
 import { Fn } from "../types/state.js";
@@ -15,6 +14,8 @@ import {
   LocalVarSubst,
   ResolvedName,
   ResolvedPath,
+  SubstanceLiteral,
+  SubstanceObject,
   WithContext,
 } from "../types/styleSemantics.js";
 import {
@@ -79,16 +80,14 @@ export const combinations2 = <T>(list: T[]): [T, T][] =>
   }, []);
 
 /**
- * Safe wrapper for any function that might return `undefined`.
- * @borrows https://stackoverflow.com/questions/54738221/typescript-array-find-possibly-undefind
- * @param argument Possible unsafe function call
- * @param message Error message
+ * Throws if `x === undefined`.
+ * @returns `x`
+ * @param f called if `x === undefined`, to produce error message
  */
-export const safe = <T>(argument: T | undefined, message: string): T => {
-  if (argument === undefined) {
-    throw new TypeError(message);
-  }
-  return argument;
+export const unwrap = <T>(x: T | undefined, f?: () => string): T => {
+  if (x === undefined)
+    throw Error((f ?? (() => "called `unwrap` with `undefined`"))());
+  return x;
 };
 
 // Repeat `x`, `i` times
@@ -150,6 +149,34 @@ export const isKeyOf = <T extends Record<string, unknown>>(
   obj: T,
 ): key is keyof T => key in obj;
 
+/**
+ * Return a fresh topologically sorted array of nodes reachable from `sinks`.
+ * @param preds returns the predecessors of a node
+ */
+export const topsort = <T>(
+  preds: (x: T) => Iterable<T>,
+  sinks: Iterable<T>,
+): T[] => {
+  const sorted: T[] = [];
+  const marked = new Set<T>();
+  const stack: T[] = [...sinks];
+  const ready: boolean[] = stack.map(() => false);
+  while (stack.length > 0) {
+    const x = stack.pop() as T;
+    if (ready.pop()) sorted.push(x);
+    else if (!marked.has(x)) {
+      marked.add(x);
+      stack.push(x);
+      ready.push(true);
+      for (const y of preds(x)) {
+        stack.push(y);
+        ready.push(false);
+      }
+    }
+  }
+  return sorted;
+};
+
 //#endregion
 
 //#region random
@@ -180,7 +207,7 @@ export const randFloat = (
   // TODO: better error reporting
   console.assert(
     max > min,
-    "min should be smaller than max for random number generation!",
+    `min should be smaller than max for random number generation! min ${min}, max ${max}`,
   );
   return rng() * (max - min) + min;
 };
@@ -739,6 +766,20 @@ export const rectlikeT = (): UnionT =>
 
 //#region Style
 
+export const toLiteralUniqueName = (literal: string | number) => {
+  if (typeof literal === "string") {
+    return `{s${literal}}`;
+  } else {
+    return `{n${literal.toString()}}`;
+  }
+};
+
+export const subObjectToUniqueName = (lit: SubstanceObject) => {
+  if (lit.tag === "SubstanceVar") {
+    return lit.name;
+  } else return toLiteralUniqueName(lit.contents.contents);
+};
+
 export const resolveRhsName = (
   { block, subst, locals }: Context,
   name: BindingForm<A>,
@@ -751,9 +792,17 @@ export const resolveRhsName = (
         return { tag: "Local", block, name: value };
       } else if (subst.tag === "StySubSubst" && value in subst.contents) {
         // selector match names shadow globals
-        return { tag: "Substance", block, name: subst.contents[value] };
+        return {
+          tag: "Substance",
+          block,
+          name: subObjectToUniqueName(subst.contents[value]),
+        };
       } else if (subst.tag === "CollectionSubst" && value in subst.groupby) {
-        return { tag: "Substance", block, name: subst.groupby[value] };
+        return {
+          tag: "Substance",
+          block,
+          name: subObjectToUniqueName(subst.groupby[value]),
+        };
       } else {
         // couldn't find it in context, must be a glboal
         return { tag: "Global", block, name: value };
@@ -765,8 +814,46 @@ export const resolveRhsName = (
   }
 };
 
-const resolveRhsPath = (p: WithContext<Path<A>>): ResolvedPath<A> => {
-  const { name, members } = p.expr; // drop `indices`
+export const substanceLiteralToValue = (
+  lit: SubstanceLiteral,
+): FloatV<number> | StrV => {
+  const l = lit.contents;
+
+  if (l.tag === "SubstanceNumber") {
+    return { tag: "FloatV", contents: l.contents };
+  } else {
+    return strV(l.contents);
+  }
+};
+
+const resolveRhsPath = (
+  p: WithContext<Path<A>>,
+): ResolvedPath<A> | FloatV<number> | StrV => {
+  const { name, members, indices } = p.expr; // drop `indices`
+
+  const { subst } = p.context;
+
+  // special handling so that if a Style variable maps to a Substance literal,
+  // then accessing it just gives the value.
+  if (members.length === 0 && indices.length === 0) {
+    if (subst.tag === "StySubSubst" && name.contents.value in subst.contents) {
+      const subObj = subst.contents[name.contents.value];
+      if (subObj.tag === "SubstanceLiteral") {
+        return substanceLiteralToValue(subObj);
+      }
+    }
+
+    if (
+      subst.tag === "CollectionSubst" &&
+      name.contents.value in subst.groupby
+    ) {
+      const subObj = subst.groupby[name.contents.value];
+      if (subObj.tag === "SubstanceLiteral") {
+        return substanceLiteralToValue(subObj);
+      }
+    }
+  }
+
   return { ...resolveRhsName(p.context, name), members };
 };
 
@@ -801,8 +888,20 @@ const prettyPrintResolvedName = ({
   }
 };
 
-export const prettyPrintResolvedPath = (p: ResolvedPath<A>): string =>
-  [prettyPrintResolvedName(p), ...p.members.map((m) => m.value)].join(".");
+export const prettyPrintResolvedPath = (
+  p: ResolvedPath<A> | FloatV<number> | StrV | VectorV<number>,
+): string => {
+  if (p.tag === "FloatV") {
+    return p.contents.toString();
+  } else if (p.tag === "StrV") {
+    return p.contents;
+  } else if (p.tag === "VectorV") {
+    return `[${p.contents.map((n) => n.toString()).join(",")}]`;
+  } else
+    return [prettyPrintResolvedName(p), ...p.members.map((m) => m.value)].join(
+      ".",
+    );
+};
 
 const prettyPrintBindingForm = (bf: BindingForm<A>): string => {
   switch (bf.tag) {
@@ -939,51 +1038,6 @@ export const getEnd = ({ end }: LineProps<ad.Num>): ad.Num[] => end.contents;
 
 //#endregion
 
-//#region either monad
-
-export function isLeft<A, B>(val: Either<A, B>): val is Left<A> {
-  return val.tag === "Left";
-}
-
-export function isRight<A, B>(val: Either<A, B>): val is Right<B> {
-  return val.tag === "Right";
-}
-
-export function toLeft<A>(val: A): Left<A> {
-  return { contents: val, tag: "Left" };
-}
-
-export function toRight<B>(val: B): Right<B> {
-  return { contents: val, tag: "Right" };
-}
-
-export function ToLeft<A, B>(val: A): Either<A, B> {
-  return { contents: val, tag: "Left" };
-}
-
-export function ToRight<A, B>(val: B): Either<A, B> {
-  return { contents: val, tag: "Right" };
-}
-
-export function foldM<A, B, C>(
-  xs: A[],
-  f: (acc: B, curr: A, i: number) => Either<C, B>,
-  init: B,
-): Either<C, B> {
-  let res = init;
-  let resW: Either<C, B> = toRight(init); // wrapped
-
-  for (let i = 0; i < xs.length; i++) {
-    resW = f(res, xs[i], i);
-    if (resW.tag === "Left") {
-      return resW;
-    } // Stop fold early on first error and return it
-    res = resW.contents;
-  }
-
-  return resW;
-}
-
 /**
  * Gets the string value of a property.  If the property cannot be converted
  * to a string, throw an exception.
@@ -1019,8 +1073,6 @@ export const getValueAsShapeList = <T>(val: Value<T>): Shape<T>[] => {
   if (val.tag === "ShapeListV") return val.contents;
   throw new Error("Not a list of shapes");
 };
-
-//#endregion
 
 //#region errors and warnings
 

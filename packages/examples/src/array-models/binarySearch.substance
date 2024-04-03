@@ -1,0 +1,80 @@
+
+Element g1,g2,g3,g4,g5,g6,g7,g8
+
+Element g9,g10,g11,g12
+
+Element g13,g14,g15,g16
+
+Element g17,g18
+
+Element g19
+
+Element g20
+
+Array a1
+Array a2
+Array a3
+Array a4
+
+Group p1
+Group p2
+Group p3
+
+
+inArray(g1,a1,0)
+inArray(g2,a1,1)
+inArray(g3,a1,2)
+inArray(g4,a1,3)
+inArray(g5,a1,4)
+inArray(g6,a1,5)
+inArray(g7,a1,6)
+inArray(g8,a1,7)
+
+inArray(g9,a2,0)
+inArray(g10,a2,1)
+inArray(g11,a2,2)
+inArray(g12,a2,3)
+
+inArray(g13,a3,0)
+inArray(g14,a3,1)
+
+inArray(g15,a4,0)
+
+inGroup(g5,p1)
+inGroup(g6,p1)
+inGroup(g7,p1)
+inGroup(g8,p1)
+
+inGroup(g9,p2)
+inGroup(g10,p2)
+
+inGroup(g14,p3)
+
+highlight(g6)
+highlight(g10)
+highlight(g14)
+highlight(g15)
+
+Label a1 $ExArray$
+Label a2 $Search1$
+Label a3 $Search2$
+Label a4 $Search3$
+
+Label g1 $1$
+Label g2 $5$
+Label g3 $13$
+Label g4 $23$
+Label g5 $66$
+Label g6 $74$
+Label g7 $82$
+Label g8 $90$
+
+Label g9 $66$
+Label g10 $74$
+Label g11 $82$
+Label g12 $90$
+
+Label g13 $66$
+Label g14 $74$
+
+Label g15 $74$

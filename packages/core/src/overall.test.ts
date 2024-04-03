@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 
-import { start } from "@penrose/optimizer";
 import { describe, expect, test } from "vitest";
 import { genGradient } from "./engine/Autodiff.js";
 import { pow, sub } from "./engine/AutodiffFunctions.js";
+import { start } from "./engine/Optimizer.js";
 import {
   compile,
   evalEnergy,
@@ -21,9 +21,9 @@ import { State } from "./types/state.js";
 // copied from `packages/examples/src/set-theory-domain/setTheory.domain`
 const setDomain = `type Set
 
-predicate Not(Prop p1)
+predicate Disjoint(Set s1, Set s2)
 predicate Intersecting(Set s1, Set s2)
-predicate IsSubset(Set s1, Set s2)
+predicate Subset(Set s1, Set s2)
 `;
 
 // copied from `packages/examples/src/set-theory-domain/venn.style`
@@ -48,14 +48,14 @@ forall Set x {
 }
 
 forall Set x; Set y
-where IsSubset(x, y) {
+where Subset(x, y) {
   ensure disjoint(y.text, x.icon, 10)
   ensure contains(y.icon, x.icon, 5)
   x.icon above y.icon
 }
 
 forall Set x; Set y
-where Not(Intersecting(x, y)) {
+where Disjoint(x, y) {
   ensure disjoint(x.icon, y.icon)
 }
 
@@ -81,7 +81,7 @@ describe("Determinism", () => {
   const render = async (state: State): Promise<string> =>
     (await toSVG(state, async () => undefined, "")).outerHTML;
 
-  const substance = "Set A, B\nIsSubset(B, A)\nAutoLabel All";
+  const substance = "Set A, B\nSubset(B, A)\nAutoLabel All";
   const style = vennStyle;
   const domain = setDomain;
   const variation = "determinism";
@@ -183,7 +183,7 @@ describe("Determinism", () => {
 
 describe("Energy API", () => {
   test("eval overall energy - init vs. optimized", async () => {
-    const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
+    const twoSubsets = `Set A, B\nSubset(B, A)\nAutoLabel All`;
     const res = await compile({
       substance: twoSubsets,
       style: vennStyle,
@@ -207,7 +207,7 @@ describe("Energy API", () => {
   });
 
   test("filtered constraints", async () => {
-    const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
+    const twoSubsets = `Set A, B\nSubset(B, A)\nAutoLabel All`;
     const res = await compile({
       substance: twoSubsets,
       style: vennStyle,
@@ -251,7 +251,7 @@ describe("Run individual functions", () => {
   const EPS = 1e-3; // Minimized objectives should be close to 0
 
   test("Check each individual function is minimized/satisfied", async () => {
-    const twoSubsets = `Set A, B\nIsSubset(B, A)\nAutoLabel All`;
+    const twoSubsets = `Set A, B\nSubset(B, A)\nAutoLabel All`;
     const res = await compile({
       substance: twoSubsets,
       style: vennStyle,

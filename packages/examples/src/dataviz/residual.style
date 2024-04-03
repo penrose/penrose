@@ -1,0 +1,12 @@
+forall Point p {
+  yhat = linearreg.alpha + linearreg.beta * p.x
+
+  ressegment = Line {
+    start: (25 * p.x, 25 * p.y)
+    end: (25 * p.x, 25 * yhat)
+    strokeStyle: "dashed"
+    strokeColor: #55ee55ff
+  }
+
+  layer ressegment below p.icon
+}

@@ -1,0 +1,4 @@
+Point p_1 := MkPoint(2, 6)
+Point p_2 := MkPoint(4, -2)
+Point p_3 := MkPoint(-4, 1)
+Point p_4 := MkPoint(-1, 6)

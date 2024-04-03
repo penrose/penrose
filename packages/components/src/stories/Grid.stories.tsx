@@ -1,7 +1,7 @@
 import { ComponentMeta, ComponentStory } from "@storybook/react";
 import { range } from "lodash";
 import { ThemeProvider } from "styled-components";
-import { Grid } from "../Grid.js";
+import Grid from "../Grid.js";
 import penroseBlue from "../themes/penroseBlue.js";
 import { continuousMap } from "./PenrosePrograms.js";
 
@@ -16,13 +16,7 @@ export default {
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 const Template: ComponentStory<typeof Grid> = (args) => (
   <ThemeProvider theme={penroseBlue}>
-    <Grid
-      {...args}
-      header={(i) => `Diagram ${i}`}
-      metadata={(i) => [
-        { name: "Variation", data: args.diagrams[i].variation },
-      ]}
-    />
+    <Grid {...args} header={(i: number) => `Diagram ${i}`} />
   </ThemeProvider>
 );
 

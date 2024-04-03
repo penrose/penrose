@@ -1,0 +1,6 @@
+{
+  "substance": "./insertionSort.substance",
+  "style": ["./arrayModels.style"],
+  "domain": "./arrayModels.domain",
+  "variation": "VoyageSardine97182"
+}

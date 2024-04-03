@@ -2,11 +2,12 @@
 
 import { compileDomain, compileSubstance } from "@penrose/core";
 import {
+  initSubstanceEnv,
   prettyStmt,
   prettySubstance,
 } from "@penrose/core/dist/compiler/Substance";
 import { A } from "@penrose/core/dist/types/ast";
-import { Env } from "@penrose/core/dist/types/domain";
+import { DomainEnv } from "@penrose/core/dist/types/domain";
 import { CompiledSubStmt, Decl } from "@penrose/core/dist/types/substance";
 import { describe, expect, test } from "vitest";
 import { cascadingDelete } from "../analysis/SubstanceAnalysis.js";
@@ -51,19 +52,25 @@ const initSynth = (
   substance: string,
   setting: SynthesizerSetting,
 ): Synthesizer => {
-  let subResult;
-  const subRes = compileSubstance(substance, env);
+  let subEnv;
+  const subRes = compileSubstance(substance, domEnv);
   if (subRes.isOk()) {
-    subResult = subRes.value;
+    subEnv = subRes.value;
   }
-  const synth = new Synthesizer(env, setting, subResult, "seed");
+  const synth = new Synthesizer(
+    domEnv,
+    initSubstanceEnv(),
+    setting,
+    subEnv === undefined ? undefined : [subEnv, domEnv],
+    "seed",
+  );
   return synth;
 };
 
 const domain = `type Set
 function Intersection(Set a, Set b) -> Set
 function Subset(Set a, Set b) -> Set`;
-const env: Env = compileDomain(domain).unsafelyUnwrap();
+const domEnv: DomainEnv = compileDomain(domain).unsafelyUnwrap();
 
 describe("Synthesizer Operations", () => {
   test("cascading delete", () => {
@@ -82,7 +89,8 @@ Set D`;
       },
     });
     const ctx = initContext(
-      synth.env,
+      synth.domEnv,
+      synth.subEnv,
       defaultSetting.argOption,
       defaultSetting.argReuse,
       "test0",

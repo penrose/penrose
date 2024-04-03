@@ -27,16 +27,6 @@ Use [JavaScript modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript
 yarn create vite
 cd vite-project
 yarn add @penrose/core
-yarn add -D vite-plugin-top-level-await # `@penrose/optimizer` uses top-level await and this vite plugin adds support for that
-```
-
-In `vite.config.js`:
-
-```js
-import { defineConfig } from "vite";
-import topLevelAwait from "vite-plugin-top-level-await";
-
-export default defineConfig({ plugins: [topLevelAwait()] });
 ```
 
 In `index.html`:
@@ -59,7 +49,7 @@ Penrose.diagram(
   {
     substance: `
   Set A, B
-  IsSubset(A, B)
+  Subset(A, B)
   `,
     style: `
   canvas {
@@ -71,13 +61,13 @@ Penrose.diagram(
       ensure lessThan(20, s.shape.r)
   }
   forall Set s1, s2
-  where IsSubset(s1, s2) {
+  where Subset(s1, s2) {
       ensure contains(s2.shape, s1.shape)
       s2.shape above s1.shape
   }
   `,
     domain: `type Set
-  predicate IsSubset(Set, Set)`,
+  predicate Subset(Set, Set)`,
     variation: "",
   },
   document.getElementById("penrose-diagram"),

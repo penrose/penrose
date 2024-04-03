@@ -4,11 +4,11 @@
  *
  */
 
-import { bboxFromShape } from "../contrib/Queries.js";
-import { isLinelike, isRectlike } from "../contrib/Utils.js";
-import { genCode, secondaryGraph } from "../engine/Autodiff.js";
+import { compile } from "../engine/Autodiff.js";
 import { maxN, minN } from "../engine/AutodiffFunctions.js";
 import { maxX, maxY, minX, minY } from "../engine/BBox.js";
+import { bboxFromShape } from "../lib/Queries.js";
+import { isLinelike, isRectlike } from "../lib/Utils.js";
 import { Group } from "../shapes/Group.js";
 import { Shape } from "../shapes/Shapes.js";
 import { LabelCache, State } from "../types/state.js";
@@ -113,18 +113,17 @@ export const toInteractiveSVG = async (
  * @param pathResolver Resolves paths to static strings
  */
 export const toSVG = async (
-  state: State,
+  {
+    varyingValues,
+    canvas,
+    computeShapes,
+    labelCache: labels,
+    variation,
+  }: State,
   pathResolver: PathResolver,
   namespace: string,
   texLabels = false,
 ): Promise<SVGSVGElement> => {
-  const {
-    varyingValues,
-    computeShapes,
-    labelCache: labels,
-    canvas,
-    variation,
-  } = state;
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("version", "1.2");
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
@@ -141,9 +140,7 @@ export const toSVG = async (
   const MaxY = maxN(bboxs.map((bbox) => maxY(bbox)));
   const viewBoxRanges = [MinX, MinY, MaxX, MaxY];
 
-  const [mx, my, Mx, My] = (await genCode(secondaryGraph(viewBoxRanges)))(
-    (x) => x.val,
-  ).secondary;
+  const [mx, my, Mx, My] = (await compile(viewBoxRanges))((x) => x.val);
 
   // toScreen flips the y-axis and therefore the max will become min
   const [mxt, myt] = toScreen([mx, my], [canvas.width, canvas.height]);
@@ -344,7 +341,7 @@ export const RenderShape = async (
   }
 };
 
-const RenderShapes = async (
+export const RenderShapes = async (
   shapes: Shape<number>[],
   svg: SVGSVGElement,
   renderProps: RenderProps,

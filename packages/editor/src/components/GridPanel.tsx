@@ -8,7 +8,7 @@ import {
   diagramMetadataSelector,
   workspaceMetadataSelector,
 } from "../state/atoms.js";
-import { pathResolver } from "./DiagramPanel.js";
+import { pathResolver } from "../utils/downloadUtils.js";
 
 export default function GridPanel() {
   const { source } = useRecoilValue(diagramMetadataSelector);
@@ -24,26 +24,16 @@ export default function GridPanel() {
         }}
       >
         <Grid
-          onStateUpdate={() => {}}
-          imageResolver={(path) =>
+          imageResolver={(path: string) =>
             pathResolver(path, rogerState, workspaceMetadata)
           }
-          header={(i) => variations[i]}
-          metadata={(i: number) => [
-            {
-              name: "Variation",
-              data: variations[i],
-            },
-          ]}
+          header={(i: number) => variations[i]}
           diagrams={range(gridSize).map((i) => ({
             substance,
             style,
             domain,
             variation: variations[i],
           }))}
-          gridBoxProps={{
-            stateful: false,
-          }}
         />
       </ThemeProvider>
     </div>

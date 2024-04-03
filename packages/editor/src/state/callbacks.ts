@@ -1,10 +1,3 @@
-import {
-  compile,
-  compileDomain,
-  resample,
-  stepNextStage,
-  stepTimes,
-} from "@penrose/core";
 import { Style } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
 import localforage from "localforage";
@@ -14,20 +7,38 @@ import toast from "react-hot-toast";
 import { useRecoilCallback } from "recoil";
 import { v4 as uuid } from "uuid";
 import {
+  DownloadPNG,
+  DownloadSVG,
+  pathResolver,
+  zipTrio,
+} from "../utils/downloadUtils.js";
+import { stateToSVG } from "../utils/renderUtils.js";
+import { LayoutStats, RenderState } from "../worker/message.js";
+import {
+  Canvas,
   Diagram,
   DiagramGrid,
+  DiagramMetadata,
   EDITOR_VERSION,
   GistMetadata,
   LocalGithubUser,
+  ProgramFile,
+  RogerState,
   Settings,
   TrioWithPreview,
   Workspace,
   WorkspaceLocation,
   WorkspaceMetadata,
+  canvasState,
+  currentRogerState,
   currentWorkspaceState,
   diagramGridState,
+  diagramMetadataSelector,
   diagramState,
+  diagramWorkerState,
+  fileContentsSelector,
   localFilesState,
+  optimizer,
   settingsState,
   workspaceMetadataSelector,
 } from "./atoms.js";
@@ -41,108 +52,74 @@ const _compileDiagram = async (
   excludeWarnings: string[],
   set: any,
 ) => {
-  const compiledDomain = compileDomain(domain);
-  if (compiledDomain.isErr()) {
-    set(diagramState, (state: Diagram) => ({
-      ...state,
-      error: compiledDomain.error,
-    }));
-    return;
-  }
-  const compileResult = await compile({
-    domain,
-    substance,
-    style,
-    variation,
-    excludeWarnings,
-  });
-  if (compileResult.isErr()) {
-    set(diagramState, (state: Diagram) => ({
-      ...state,
-      error: compileResult.error,
-    }));
-    return;
-  }
-  const initialState = compileResult.value;
-
-  set(
-    diagramState,
-    (state: Diagram): Diagram => ({
-      ...state,
-      error: null,
-      warnings: initialState.warnings,
-      metadata: {
-        ...state.metadata,
-        variation,
-        excludeWarnings,
-        source: {
-          domain,
-          substance,
-          style,
+  const compiling = toast.loading("Compiling...");
+  const onUpdate = (updatedState: RenderState, stats: LayoutStats) => {
+    set(diagramState, (state: Diagram): Diagram => {
+      return {
+        ...state,
+        error: null,
+        // TODO: warnings
+        // warnings: initialState.warnings,
+        metadata: {
+          ...state.metadata,
+          variation,
+          excludeWarnings,
+          source: {
+            domain,
+            substance,
+            style,
+          },
         },
-      },
-      state: initialState,
-    }),
-  );
-  // update grid state too
-  set(diagramGridState, ({ gridSize }: DiagramGrid) => ({
-    variations: range(gridSize).map((i) =>
-      i === 0 ? variation : generateVariation(),
-    ),
-    gridSize,
-  }));
+        state: updatedState,
+      };
+    });
+
+    // TODO: update grid state too
+    set(diagramGridState, ({ gridSize }: DiagramGrid) => ({
+      variations: range(gridSize).map((i) =>
+        i === 0 ? variation : generateVariation(),
+      ),
+      gridSize,
+    }));
+  };
+
+  const id = optimizer.run({
+    domain,
+    style,
+    substance,
+    variation,
+    onUpdate,
+    onError: (error) => {
+      toast.dismiss(compiling);
+      set(diagramState, (state: Diagram) => ({ ...state, error }));
+      set(diagramWorkerState, {
+        ...diagramWorkerState,
+        running: false,
+      });
+    },
+    onComplete: () => {
+      toast.dismiss(compiling);
+      set(diagramWorkerState, {
+        ...diagramWorkerState,
+        running: false,
+      });
+    },
+  });
+
+  set(diagramWorkerState, {
+    ...diagramWorkerState,
+    id,
+    running: true,
+  });
+
+  // TODO: update grid state too
+  // set(diagramGridState, ({ gridSize }: DiagramGrid) => ({
+  //   variations: range(gridSize).map((i) =>
+  //     i === 0 ? variation : generateVariation(),
+  //   ),
+  //   gridSize,
+  // }));
 };
-
-export const useStepDiagram = () =>
-  useRecoilCallback(
-    ({ set }) =>
-      () =>
-        set(diagramState, (diagram: Diagram) => {
-          if (diagram.state === null) {
-            toast.error(`No diagram`);
-            return diagram;
-          }
-          const stateOrError = stepTimes(
-            diagram.state,
-            diagram.metadata.stepSize,
-          );
-          if (stateOrError.isOk()) {
-            return {
-              ...diagram,
-              state: stateOrError.value,
-            };
-          } else {
-            return {
-              ...diagram,
-              error: stateOrError.error,
-            };
-          }
-        }),
-  );
-
-export const useStepStage = () =>
-  useRecoilCallback(
-    ({ set }) =>
-      () =>
-        set(diagramState, (diagram: Diagram) => {
-          if (diagram.state === null) {
-            toast.error(`No diagram`);
-            return diagram;
-          }
-          const stateOrError = stepNextStage(diagram.state);
-          if (stateOrError.isOk()) {
-            return {
-              ...diagram,
-              state: stateOrError.value,
-            };
-          } else {
-            return {
-              ...diagram,
-              error: stateOrError.error,
-            };
-          }
-        }),
-  );
 
 export const useCompileDiagram = () =>
   useRecoilCallback(({ snapshot, set }) => async () => {
@@ -152,6 +129,7 @@ export const useCompileDiagram = () =>
     const substanceFile = workspace.files.substance.contents;
     const styleFile = workspace.files.style.contents;
     const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
+
     await _compileDiagram(
       substanceFile,
       styleFile,
@@ -166,26 +144,35 @@ export const useResampleDiagram = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
     const diagram: Diagram = snapshot.getLoadable(diagramState)
       .contents as Diagram;
+    const id: string = snapshot.getLoadable(diagramWorkerState)
+      .contents as string;
     if (diagram.state === null) {
       toast.error("Cannot resample uncompiled diagram");
       return;
     }
     const variation = generateVariation();
     const resamplingLoading = toast.loading("Resampling...");
-    const resampled = resample({ ...diagram.state, variation });
-    set(diagramState, (state) => ({
-      ...state,
-      metadata: { ...state.metadata, variation },
-      state: resampled,
-    }));
-    // update grid state too
-    set(diagramGridState, ({ gridSize }) => ({
-      variations: range(gridSize).map((i) =>
-        i === 0 ? variation : generateVariation(),
-      ),
-      gridSize,
-    }));
-    toast.dismiss(resamplingLoading);
+    optimizer.resample(
+      id,
+      variation,
+      (resampled) => {
+        set(diagramState, (state) => ({
+          ...state,
+          metadata: { ...state.metadata, variation },
+          state: resampled,
+        }));
+        // update grid state too
+        set(diagramGridState, ({ gridSize }) => ({
+          variations: range(gridSize).map((i) =>
+            i === 0 ? variation : generateVariation(),
+          ),
+          gridSize,
+        }));
+      },
+      () => {
+        toast.dismiss(resamplingLoading);
+      },
+    );
   });
 
 const _saveLocally = (set: any) => {
@@ -202,6 +189,172 @@ export const useSaveLocally = () =>
     _saveLocally(set);
   });
 
+export const useDownloadTrio = () =>
+  useRecoilCallback(({ set, snapshot }) => async () => {
+    const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+      .contents as WorkspaceMetadata;
+    const fileTitle = metadata.name.replaceAll(" ", "_").toLowerCase();
+    const workspace = snapshot.getLoadable(currentWorkspaceState)
+      .contents as Workspace;
+    const dsl = workspace.files.domain;
+    const sub = workspace.files.substance;
+    const sty = workspace.files.style;
+
+    // save trio
+    if (
+      dsl.contents.length > 0 &&
+      sub.contents.length > 0 &&
+      sty.contents.length > 0
+    ) {
+      zipTrio([dsl, sub, sty], fileTitle);
+    } else {
+      toast.error(
+        "Could not export: no Penrose diagram detected. Compile a Penrose trio and try again.",
+      );
+    }
+  });
+
+export const useDownloadSvg = () =>
+  useRecoilCallback(({ set, snapshot }) => async () => {
+    const diagram = snapshot.getLoadable(diagramMetadataSelector)
+      .contents as DiagramMetadata;
+    const canvas = snapshot.getLoadable(canvasState).contents as Canvas;
+    if (canvas.ref && canvas.ref.current !== null) {
+      const svg = canvas.ref.current.firstElementChild as SVGSVGElement;
+      if (svg !== null) {
+        const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+          .contents as WorkspaceMetadata;
+        const domain = snapshot.getLoadable(fileContentsSelector("domain"))
+          .contents as ProgramFile;
+        const substance = snapshot.getLoadable(
+          fileContentsSelector("substance"),
+        ).contents as ProgramFile;
+        const style = snapshot.getLoadable(fileContentsSelector("style"))
+          .contents as ProgramFile;
+        DownloadSVG(
+          svg,
+          metadata.name,
+          domain.contents,
+          substance.contents,
+          style.contents,
+          metadata.editorVersion.toString(),
+          diagram.variation,
+        );
+      } else {
+        toast.error(
+          "Could not export: no Penrose diagram detected. Compile a Penrose trio and try again.",
+        );
+      }
+    }
+  });
+
+// download an svg with raw TeX labels
+export const useDownloadSvgTex = () =>
+  useRecoilCallback(({ set, snapshot }) => async () => {
+    const diagram = snapshot.getLoadable(diagramMetadataSelector)
+      .contents as DiagramMetadata;
+    const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+      .contents as WorkspaceMetadata;
+    const rogerState = snapshot.getLoadable(currentRogerState)
+      .contents as RogerState;
+    const canvas = snapshot.getLoadable(canvasState).contents as Canvas;
+    if (canvas.ref && canvas.ref.current !== null) {
+      const { state } = snapshot.getLoadable(diagramState).contents as Diagram;
+      if (state !== null) {
+        const rendered = await stateToSVG(state, {
+          pathResolver: (path: string) =>
+            pathResolver(path, rogerState, metadata),
+          width: state.canvas.width.toString(),
+          height: state.canvas.height.toString(),
+        });
+        const domain = snapshot.getLoadable(fileContentsSelector("domain"))
+          .contents as ProgramFile;
+        const substance = snapshot.getLoadable(
+          fileContentsSelector("substance"),
+        ).contents as ProgramFile;
+        const style = snapshot.getLoadable(fileContentsSelector("style"))
+          .contents as ProgramFile;
+        DownloadSVG(
+          rendered,
+          metadata.name,
+          domain.contents,
+          substance.contents,
+          style.contents,
+          metadata.editorVersion.toString(),
+          diagram.variation,
+        );
+      } else {
+        toast.error(
+          "Could not export: no Penrose diagram detected. Compile a Penrose trio and try again.",
+        );
+      }
+    }
+  });
+
+export const useDownloadPng = () =>
+  useRecoilCallback(({ set, snapshot }) => async () => {
+    const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
+    const canvas = snapshot.getLoadable(canvasState).contents as Canvas;
+    if (canvas.ref && canvas.ref.current !== null) {
+      const svg = canvas.ref.current.firstElementChild as SVGSVGElement;
+      if (svg !== null) {
+        const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+          .contents as WorkspaceMetadata;
+        const filename = `${metadata.name}.png`;
+        if (diagram.state) {
+          const { canvas: canvasDims } = diagram.state;
+          const { width, height } = canvasDims;
+          DownloadPNG(svg, filename, width, height, 1);
+        }
+      } else {
+        toast.error(
+          "Could not export: no Penrose diagram detected. Compile a Penrose trio and try again.",
+        );
+      }
+    }
+  });
+
+export const useDownloadPdf = () =>
+  useRecoilCallback(({ snapshot }) => async () => {
+    const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
+    const { state } = diagram;
+    const canvas = snapshot.getLoadable(canvasState).contents as Canvas;
+    if (canvas.ref && canvas.ref.current !== null) {
+      const svg = canvas.ref.current.firstElementChild as SVGSVGElement;
+      if (svg !== null && state) {
+        // clear all of the <penrose> metadata if it is present
+        // this metadata is added to SVGs for saving/loading but it will break PDF
+        const metadataQuery = svg.querySelector("penrose");
+        if (metadataQuery !== null) {
+          metadataQuery.innerHTML = "";
+        }
+        const metadata = snapshot.getLoadable(workspaceMetadataSelector)
+          .contents as WorkspaceMetadata;
+        const openedWindow = window.open(
+          "",
+          "PRINT",
+          `height=${state.canvas.height},width=${state.canvas.width}`,
+        );
+        if (openedWindow === null) {
+          toast.error("Couldn't open popup to print");
+          return;
+        }
+        openedWindow.document.write(
+          `<!DOCTYPE html><head><title>${metadata.name}</title></head><body>`,
+        );
+        openedWindow.document.write(svg.outerHTML);
+        openedWindow.document.write("</body></html>");
+        openedWindow.document.close();
+        openedWindow.focus();
+        openedWindow.print();
+      } else {
+        toast.error(
+          "Could not export: no Penrose diagram detected. Compile a Penrose trio and try again.",
+        );
+      }
+    }
+  });
+
 export const useDuplicate = () =>
   useRecoilCallback(({ set }) => () => {
     set(workspaceMetadataSelector, (state: WorkspaceMetadata) => ({
@@ -211,13 +364,13 @@ export const useDuplicate = () =>
     }));
   });
 
-const _confirmDirtyWorkspace = (workspace: Workspace): boolean => {
+// returns true if there are no unsaved changes
+export const isCleanWorkspace = (workspace: Workspace): boolean => {
   if (
     workspace.metadata.location.kind === "local" &&
     !workspace.metadata.location.saved &&
     !(
       workspace.files.domain.contents === "" &&
-      workspace.files.style.contents === "" &&
       workspace.files.substance.contents === ""
     )
   ) {
@@ -230,7 +383,7 @@ export const useLoadLocalWorkspace = () =>
   useRecoilCallback(({ set, snapshot }) => async (id: string) => {
     const currentWorkspace = snapshot.getLoadable(currentWorkspaceState)
       .contents as Workspace;
-    if (!_confirmDirtyWorkspace(currentWorkspace)) {
+    if (!isCleanWorkspace(currentWorkspace)) {
       return;
     }
     const loadedWorkspace = (await localforage.getItem(id)) as Workspace;
@@ -258,7 +411,7 @@ export const useLoadExampleWorkspace = () =>
         const currentWorkspace = snapshot.getLoadable(
           currentWorkspaceState,
         ).contents;
-        if (!_confirmDirtyWorkspace(currentWorkspace)) {
+        if (!isCleanWorkspace(currentWorkspace)) {
           return;
         }
         const id = toast.loading("Loading example...");
@@ -434,7 +587,7 @@ export const useCheckURL = () =>
   });
 
 export const usePublishGist = () =>
-  useRecoilCallback(({ snapshot }) => async () => {
+  useRecoilCallback(({ snapshot, set }) => async () => {
     const workspace = snapshot.getLoadable(currentWorkspaceState)
       .contents as Workspace;
     const settings = snapshot.getLoadable(settingsState).contents as Settings;
@@ -442,6 +595,13 @@ export const usePublishGist = () =>
       console.error(`Not authorized with GitHub`);
       toast.error(`Not authorized with GitHub`);
       return;
+    }
+    // save draft to a new workspace before redirecting to gist url
+    if (
+      workspace.metadata.location.kind === "local" &&
+      !workspace.metadata.location.saved
+    ) {
+      await _saveLocally(set);
     }
     const gistMetadata: GistMetadata = {
       name: workspace.metadata.name,
@@ -499,7 +659,7 @@ const REDIRECT_URL =
 export const useSignIn = () =>
   useRecoilCallback(({ set, snapshot }) => () => {
     const workspace = snapshot.getLoadable(currentWorkspaceState).contents;
-    if (!_confirmDirtyWorkspace(workspace)) {
+    if (!isCleanWorkspace(workspace)) {
       return;
     }
     window.location.replace(REDIRECT_URL);

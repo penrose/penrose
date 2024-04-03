@@ -34,7 +34,7 @@ forall Set x {
 
 -- Selector ordering matters!
 forall Set x; Set y
-where IsSubset(x, y) {
+where Subset(x, y) {
   ensure contains(y.icon, x.icon, 10.0)
   -- y.sizeFn    = ensure smallerThan(x.icon, y.icon)
   y.outsideFn = ensure disjoint(y.text, x.icon, 1.0)
@@ -42,7 +42,7 @@ where IsSubset(x, y) {
 }
 
 forall Map f
-where From(f, X, Y); IsSubset(X, R1); IsSubset(Y, R2)
+where From(f, X, Y); Subset(X, R1); Subset(Y, R2)
 with Set X; Set Y; Set R1; Set R2 {
   f.padding = 20.0
 
