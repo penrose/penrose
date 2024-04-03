@@ -67,27 +67,6 @@ constructor CircleR(Point center, Point radius) -> Circle -- This constructor cr
 -- AutoLabel A, B
 
 -- ~~~~~~~~~~~~~~~~ FUNCTIONS ~~~~~~~~~~~~~~~~
--- Lines and Points
-function Bisector(Angle) -> Ray -- This function creates a ray as the angle bisector of an angle. Example usage: 
--- Point A, B, C
--- Angle angleABC
--- angleABC := InteriorAngle(A, B, C)
--- Ray bisectorABC := Bisector(angleABC)
--- AutoLabel A, B, C, bisectorABC
-function PerpendicularBisector(Segment, Point) -> Segment -- This function creates a perpendicular bisector from a line segment. Example usage: 
--- Point A, B, C
--- Segment AB
--- AB := Segment(A, B)
--- Segment perpendicularBisectorAB := PerpendicularBisector(AB, C)
--- AutoLabel A, B, C
-function PerpendicularBisectorLabelPts(Segment, Point, Point) -> Segment -- This function creates a perpendicular bisector from a segment to bisect, a base point, and a direction point. Example usage: 
--- Point A, B, C, D, d
--- Segment AB, CD
--- AB := Segment(A, B)
--- CD := Segment(C, D)
--- PerpendicularBisectorLabelPts(AB, C, d)
--- AutoLabel A, B, C, D, d
-
 -- Polygons/Shapes
 function Radius(Circle c, Point p) -> Segment -- This function creates a radius from a circle and a point on the circle. Example usage: 
 -- Point A, B
@@ -252,3 +231,25 @@ predicate Circumcenter(Point, Triangle) -- This predicate makes a point be the c
 -- triangleABC := Triangle(A, B, C)
 -- Circumcenter(D, triangleABC)
 -- AutoLabel A, B, C, D
+
+
+-- ~~~~~~~~~~~~~~~~ Advanced ~~~~~~~~~~~~~~~~
+function Bisector(Angle) -> Ray -- This function creates a ray as the angle bisector of an angle. Example usage: 
+-- Point A, B, C
+-- Angle angleABC
+-- angleABC := InteriorAngle(A, B, C)
+-- Ray bisectorABC := Bisector(angleABC)
+-- AutoLabel A, B, C, bisectorABC
+function PerpendicularBisector(Segment, Point) -> Segment -- This function creates a perpendicular bisector from a line segment. Example usage: 
+-- Point A, B, C
+-- Segment AB
+-- AB := Segment(A, B)
+-- Segment perpendicularBisectorAB := PerpendicularBisector(AB, C)
+-- AutoLabel A, B, C
+function PerpendicularBisectorLabelPts(Segment, Point, Point) -> Segment -- This function creates a perpendicular bisector from a segment to bisect, a base point, and a direction point. Example usage: 
+-- Point A, B, C, D, d
+-- Segment AB, CD
+-- AB := Segment(A, B)
+-- CD := Segment(C, D)
+-- PerpendicularBisectorLabelPts(AB, C, d)
+-- AutoLabel A, B, C, D, d

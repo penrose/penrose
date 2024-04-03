@@ -721,20 +721,6 @@ with Point p; Point q; Point r; Point s {
 }
 
 --FUNCTIONS
-forall Segment s
-with Triangle T; Point p, q, r, a, b
-where s := MidSegment(T, a, b); T := Triangle(p, q, r) {
-  override a.vec = midpoint(q.vec, r.vec)
-  override b.vec = midpoint(r.vec, p.vec)
-  override s.icon = Line {
-    start : a.vec
-    end : b.vec
-    strokeColor : s.color
-    strokeWidth : const.strokeWidth
-    style : "solid"
-  }
-}
-
 forall Point p
 where p := Midpoint(l)
 with Linelike l {
