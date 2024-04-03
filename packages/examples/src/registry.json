@@ -555,6 +555,10 @@
     "name": "Iterated Functions System",
     "gallery": true
   },
+  "envelopes/nephroid": {
+    "name": "Nephroid as Envelope of Circles",
+    "gallery": true
+  },
   "dataviz/linearreg": {
     "name": "Linear Regression",
     "gallery": true
