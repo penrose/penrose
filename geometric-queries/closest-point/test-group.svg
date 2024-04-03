@@ -807,42 +807,12 @@
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="17.316119763806"
-    cy="580.3743317094942"
-    stroke="none"
-    r="5"
-  >
-    <title>`x19`.icon</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="618.7377259007769"
-    cy="303.2186172491399"
-    stroke="none"
-    r="5"
-  >
-    <title>`x8`.icon</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="754.0947907538861"
-    cy="694.3098556768191"
-    stroke="none"
-    r="5"
-  >
-    <title>`x9`.icon</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
     cx="257.6069312458569"
     cy="585.5614923754802"
     stroke="none"
     r="5"
   >
-    <title>`x30`.icon</title>
+    <title>`x_30`.icon</title>
   </circle>
   <circle
     fill="#000000"
@@ -852,7 +822,7 @@
     stroke="none"
     r="5"
   >
-    <title>`x20`.icon</title>
+    <title>`x_20`.icon</title>
   </circle>
   <circle
     fill="#000000"
@@ -862,7 +832,7 @@
     stroke="none"
     r="5"
   >
-    <title>`x10`.icon</title>
+    <title>`x_10`.icon</title>
   </circle>
   <circle
     fill="#000000"
@@ -872,7 +842,7 @@
     stroke="none"
     r="5"
   >
-    <title>`x21`.icon</title>
+    <title>`x_21`.icon</title>
   </circle>
   <circle
     fill="#000000"
@@ -882,7 +852,7 @@
     stroke="none"
     r="5"
   >
-    <title>`x11`.icon</title>
+    <title>`x_11`.icon</title>
   </circle>
   <circle
     fill="#000000"
@@ -892,17 +862,7 @@
     stroke="none"
     r="5"
   >
-    <title>`x22`.icon</title>
-  </circle>
-  <circle
-    fill="#000000"
-    fill-opacity="1"
-    cx="105.29357506921633"
-    cy="136.6998239411962"
-    stroke="none"
-    r="5"
-  >
-    <title>`x0`.icon</title>
+    <title>`x_22`.icon</title>
   </circle>
   <circle
     fill="#000000"
@@ -912,7 +872,7 @@
     stroke="none"
     r="5"
   >
-    <title>`x12`.icon</title>
+    <title>`x_12`.icon</title>
   </circle>
   <circle
     fill="#000000"
@@ -922,17 +882,17 @@
     stroke="none"
     r="5"
   >
-    <title>`x23`.icon</title>
+    <title>`x_23`.icon</title>
   </circle>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="7.8950052219943245"
-    cy="516.0083012589873"
+    cx="105.29357506921633"
+    cy="136.6998239411962"
     stroke="none"
     r="5"
   >
-    <title>`x1`.icon</title>
+    <title>`x_0`.icon</title>
   </circle>
   <circle
     fill="#000000"
@@ -942,7 +902,7 @@
     stroke="none"
     r="5"
   >
-    <title>`x13`.icon</title>
+    <title>`x_13`.icon</title>
   </circle>
   <circle
     fill="#000000"
@@ -952,17 +912,17 @@
     stroke="none"
     r="5"
   >
-    <title>`x24`.icon</title>
+    <title>`x_24`.icon</title>
   </circle>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="126.62771283818165"
-    cy="374.5473309468183"
+    cx="7.8950052219943245"
+    cy="516.0083012589873"
     stroke="none"
     r="5"
   >
-    <title>`x2`.icon</title>
+    <title>`x_1`.icon</title>
   </circle>
   <circle
     fill="#000000"
@@ -972,7 +932,7 @@
     stroke="none"
     r="5"
   >
-    <title>`x14`.icon</title>
+    <title>`x_14`.icon</title>
   </circle>
   <circle
     fill="#000000"
@@ -982,17 +942,17 @@
     stroke="none"
     r="5"
   >
-    <title>`x25`.icon</title>
+    <title>`x_25`.icon</title>
   </circle>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="170.57077904958652"
-    cy="348.7672386499137"
+    cx="126.62771283818165"
+    cy="374.5473309468183"
     stroke="none"
     r="5"
   >
-    <title>`x3`.icon</title>
+    <title>`x_2`.icon</title>
   </circle>
   <circle
     fill="#000000"
@@ -1002,7 +962,7 @@
     stroke="none"
     r="5"
   >
-    <title>`x15`.icon</title>
+    <title>`x_15`.icon</title>
   </circle>
   <circle
     fill="#000000"
@@ -1012,17 +972,17 @@
     stroke="none"
     r="5"
   >
-    <title>`x26`.icon</title>
+    <title>`x_26`.icon</title>
   </circle>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="654.4588402033019"
-    cy="5.558196238345602"
+    cx="170.57077904958652"
+    cy="348.7672386499137"
     stroke="none"
     r="5"
   >
-    <title>`x4`.icon</title>
+    <title>`x_3`.icon</title>
   </circle>
   <circle
     fill="#000000"
@@ -1032,7 +992,7 @@
     stroke="none"
     r="5"
   >
-    <title>`x16`.icon</title>
+    <title>`x_16`.icon</title>
   </circle>
   <circle
     fill="#000000"
@@ -1042,17 +1002,17 @@
     stroke="none"
     r="5"
   >
-    <title>`x27`.icon</title>
+    <title>`x_27`.icon</title>
   </circle>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="198.86577504080765"
-    cy="694.4723419459788"
+    cx="654.4588402033019"
+    cy="5.558196238345602"
     stroke="none"
     r="5"
   >
-    <title>`x5`.icon</title>
+    <title>`x_4`.icon</title>
   </circle>
   <circle
     fill="#000000"
@@ -1062,7 +1022,7 @@
     stroke="none"
     r="5"
   >
-    <title>`x17`.icon</title>
+    <title>`x_17`.icon</title>
   </circle>
   <circle
     fill="#000000"
@@ -1072,17 +1032,17 @@
     stroke="none"
     r="5"
   >
-    <title>`x28`.icon</title>
+    <title>`x_28`.icon</title>
   </circle>
   <circle
     fill="#000000"
     fill-opacity="1"
-    cx="390.20302696202936"
-    cy="244.1431975378846"
+    cx="198.86577504080765"
+    cy="694.4723419459788"
     stroke="none"
     r="5"
   >
-    <title>`x6`.icon</title>
+    <title>`x_5`.icon</title>
   </circle>
   <circle
     fill="#000000"
@@ -1092,7 +1052,7 @@
     stroke="none"
     r="5"
   >
-    <title>`x18`.icon</title>
+    <title>`x_18`.icon</title>
   </circle>
   <circle
     fill="#000000"
@@ -1102,7 +1062,27 @@
     stroke="none"
     r="5"
   >
-    <title>`x29`.icon</title>
+    <title>`x_29`.icon</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="390.20302696202936"
+    cy="244.1431975378846"
+    stroke="none"
+    r="5"
+  >
+    <title>`x_6`.icon</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="17.316119763806"
+    cy="580.3743317094942"
+    stroke="none"
+    r="5"
+  >
+    <title>`x_19`.icon</title>
   </circle>
   <circle
     fill="#000000"
@@ -1112,6 +1092,26 @@
     stroke="none"
     r="5"
   >
-    <title>`x7`.icon</title>
+    <title>`x_7`.icon</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="618.7377259007769"
+    cy="303.2186172491399"
+    stroke="none"
+    r="5"
+  >
+    <title>`x_8`.icon</title>
+  </circle>
+  <circle
+    fill="#000000"
+    fill-opacity="1"
+    cx="754.0947907538861"
+    cy="694.3098556768191"
+    stroke="none"
+    r="5"
+  >
+    <title>`x_9`.icon</title>
   </circle>
 </svg>
