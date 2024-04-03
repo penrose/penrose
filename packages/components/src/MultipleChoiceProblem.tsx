@@ -143,7 +143,6 @@ export default function (props: MultiChoiceProblemProps) {
         substance={substance}
         variation={variation}
         index={i}
-        key={`problem-choice-${i}`}
         answer={answer}
         showAnswer={showAns}
         onSelect={(i) => {

@@ -1,8 +1,6 @@
 -- name in registry: midsegment-triangles
 Point D, E, F, G, H, J, K
 Let DEF := Triangle(D, E, F)
--- Let GJF := Triangle(G, J, F)
-
 Let DF := Segment(D, F)
 On(G, DF)
 Let EF := Segment(E, F)
