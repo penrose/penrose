@@ -12,4 +12,9 @@ EqualLengthMarker(AC, DB)
 EqualLength(AC, DB)
 ParallelMarker(AB, CD)
 Parallel(AB, CD)
+Point M
+On(M, BC)
+Let c := Circle(M, B)
+OnCircle(c, C)
+
 AutoLabel A, B, C, D
