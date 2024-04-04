@@ -35,7 +35,7 @@ const {
     minLineLength = 200.0
 }
 
-layout = [shape, parallel, label]
+layout = [parallel, shape, label]
 
 --Plane
 forall Plane p {
@@ -214,7 +214,7 @@ with Point p; Point q {
 }
 
 forall Linelike l1, l2 -- should this work with rays and lines?
-where ParallelMarker1(l1, l2) {
+where ParallelMarker(l1, l2) {
   l1.tick1 = Path {
     d : pathFromPoints("open", chevron(l1.icon, 20.))
     strokeWidth : 2.0
@@ -230,12 +230,15 @@ where ParallelMarker1(l1, l2) {
 }
 
 forall Linelike l1, l2
-where Parallel(l1, l2) {
+where Parallel(l1, l2) as p {
   -- the dot product of the unit vectors of parallel lines is 1
   -- HACK: scaling to 10000s for convergence
   -- ensure dot(normalize(l1.vec), normalize(l2.vec)) == 1 in parallel
-  ensure 10000*dot(normalize(l1.vec), normalize(l2.vec)) == 10000 in parallel
+  p.energy = ensure 10000*dot(normalize(l1.vec), normalize(l2.vec)) == 10000 in parallel
+	-- ensure shapeDistance(l1.icon, l1.icon) > 0 in parallel
 }
+
+
 --Segment
 forall Segment e
 where e := Segment(p, q)
@@ -476,7 +479,7 @@ where EqualAngle(a, b) {
 }
 
 forall Angle a
-where RightUnmarked(a) {
+where Right(a) {
   -- ensure perpendicular(a.p, a.q, a.r)
   vec2 u = a.p - a.q
   vec2 v = a.r - a.q
@@ -796,7 +799,7 @@ forall Circle c {
 }
 
 forall Circle c
-where c := CircleR(p, q)
+where c := Circle(p, q)
 with Point p, q {
   override c.radius = vdist(p.vec, q.vec)
   override c.vec = p.icon.center

@@ -3,7 +3,11 @@ Let AC := Segment(A, C)
 Let AB := Segment(A, B)
 Let BC := Segment(B, C)
 Let ABC := Triangle(A, B, C)
-
-Segment bis := PerpendicularBisector(BC, A)
-
+Point M
+Midpoint(BC, M)
+Angle aAMC := InteriorAngle(A, M, C)
+RightMarked(aAMC)
+Let BM := Segment(B, M)
+Let CM := Segment(C, M)
+EqualLengthMarker(BM, CM)
 AutoLabel A, B, C

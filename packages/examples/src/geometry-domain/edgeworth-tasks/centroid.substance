@@ -1,6 +1,5 @@
 Point A, B, C, Q
 Let ABC := Triangle(A, B, C)
-Centroid(Q, ABC)
 Let AB := Segment(A, B)
 Let BC := Segment(B, C)
 Let CA := Segment(C, A)
@@ -20,5 +19,7 @@ EqualLengthMarker(FC, FA)
 Let DC := Segment(D, C)
 Let EA := Segment(E, A)
 Let FB := Segment(F, B)
+On(Q, DC)
+On(Q, EA)
 
 AutoLabel A, B, C, Q

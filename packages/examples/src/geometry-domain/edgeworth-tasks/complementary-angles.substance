@@ -10,4 +10,6 @@ Let CD := Segment(C, D)
 Let DB := Segment(D, B)
 EqualLengthMarker(AC, DB)
 EqualLength(AC, DB)
+ParallelMarker(AB, CD)
+Parallel(AB, CD)
 AutoLabel A, B, C, D

@@ -3,7 +3,7 @@ Point J, K, L, M, N
 Let JK := Line(J, K)
 Let NL := Line(N, L)
 Let KM := Line(K, M)
-ParallelMarker1(JK, NL)
+ParallelMarker(JK, NL)
 Parallel(JK, NL)
 Collinear(L, M, N)
 Angle JKM := InteriorAngle(J, K, M)

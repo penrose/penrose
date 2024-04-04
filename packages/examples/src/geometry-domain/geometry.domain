@@ -61,9 +61,9 @@ constructor Quadrilateral(Point p, Point q, Point r, Point s) -- This function c
 -- Point A, B, C, D
 -- Quadrilateral quadrilateralABCD := Quadrilateral(A, B, C, D)
 -- AutoLabel A, B, C, D
-constructor CircleR(Point center, Point radius) -> Circle -- This constructor creates a circle from a center point and a radius point. Example usage: 
+constructor Circle(Point center, Point radius) -> Circle -- This constructor creates a circle from a center point and a radius point. Example usage: 
 -- Point A, B
--- Circle circleAB := CircleR(A, B)
+-- Circle circleAB := Circle(A, B)
 -- AutoLabel A, B
 
 -- ~~~~~~~~~~~~~~~~ FUNCTIONS ~~~~~~~~~~~~~~~~
@@ -71,13 +71,13 @@ constructor CircleR(Point center, Point radius) -> Circle -- This constructor cr
 function Radius(Circle c, Point p) -> Segment -- This function creates a radius from a circle and a point on the circle. Example usage: 
 -- Point A, B
 -- Circle circleAB
--- circleAB := CircleR(A, B)
+-- circleAB := Circle(A, B)
 -- Segment radiusAB := Radius(circleAB, B)
 -- AutoLabel A, B
 function Chord(Circle c, Point p, Point q) -> Segment -- This function creates a chord from a circle and two points on the circle. Example usage: 
 -- Point A, B, C
 -- Circle circleAB
--- circleAB := CircleR(A, B)
+-- circleAB := Circle(A, B)
 -- Segment chordAC := Chord(circleAB, A, C)
 -- AutoLabel A, B, C
 function Diameter(Circle c, Point p, Point q) -> Segment -- This function creates a diameter from a circle and two points. Example usage: 
@@ -95,12 +95,6 @@ predicate On(Point, Linelike) -- This predicate makes a point be on a line. Exam
 -- lineAB := Line(A, B)
 -- On(A, lineAB)
 -- AutoLabel A, B
-predicate In(Point, Plane) -- This predicate makes a point be in a plane. Example usage: 
--- Point A, B
--- Plane planeAB
--- planeAB := Plane(A, B)
--- In(A, planeAB)
--- AutoLabel A, B
 predicate Midpoint(Linelike, Point) -- This predicate makes a point be the midpoint of a line. Example usage: 
 -- Point A, B, C
 -- Segment segmentAB
@@ -113,13 +107,13 @@ predicate Collinear(Point, Point, Point) -- This predicate makes three points co
 -- AB := Segment(A, B)
 -- BC := Segment(B, C)
 -- Collinear(A, B, C)
-predicate ParallelMarker1(Linelike, Linelike) -- This predicate marks two lines parallel. Only use if Parallel precedes it. Example usage: 
+predicate ParallelMarker(Linelike, Linelike) -- This predicate marks two lines parallel. Only use if Parallel precedes it. Example usage: 
 -- Point A, B, C, D
 -- Line lineAB, lineCD
 -- lineAB := Line(A, B)
 -- lineCD := Line(C, D)
 -- Parallel(lineAB, lineCD)
--- ParallelMarker1(lineAB, lineCD)
+-- ParallelMarker(lineAB, lineCD)
 -- AutoLabel A, B, C, D
 predicate EqualLengthMarker(Linelike, Linelike) -- This predicate only marks two segments with a tick indicating that they have equal length. Only use if EqualLength precedes it. Example usage: 
 -- Point A, B, C, D
@@ -163,11 +157,11 @@ predicate RightMarked(Angle) -- This predicate makes an angle right and marks it
 -- angleABC := InteriorAngle(A, B, C)
 -- RightMarked(angleABC)
 -- AutoLabel A, B, C
-predicate RightUnmarked(Angle) -- This predicate makes an angle right and does not mark it with a square. Example usage: 
+predicate Right(Angle) -- This predicate makes an angle right and does not mark it with a square. Example usage: 
 -- Point A, B, C
 -- Angle angleABC
 -- angleABC := InteriorAngle(A, B, C)
--- RightUnmarked(angleABC)
+-- Right(angleABC)
 -- AutoLabel A, B, C
 predicate AngleBisector(Angle, Linelike) -- This predicate makes a ray be the angle bisector of an angle. Example usage: 
 -- Point A, B, C
@@ -203,10 +197,13 @@ predicate Parallelogram(Quadrilateral) -- This predicate makes a quadrilateral a
 predicate OnCircle(Circle, Point) -- This predicate makes a point be on a circle. Example usage: 
 -- Point A, B, C
 -- Circle circleAB
--- circleAB := CircleR(A, B)
+-- circleAB := Circle(A, B)
 -- OnCircle(circleAB, C)
 -- AutoLabel A, B, C
 predicate CircleCenter(Circle, Point) -- Do not use.
+
+
+-- ~~~~~~~~~~~~~~~~ Advanced ~~~~~~~~~~~~~~~~
 predicate Incenter(Point, Triangle) -- This predicate makes a point be the incenter of a triangle. Example usage: 
 -- Point A, B, C, D
 -- Triangle triangleABC
@@ -232,8 +229,6 @@ predicate Circumcenter(Point, Triangle) -- This predicate makes a point be the c
 -- Circumcenter(D, triangleABC)
 -- AutoLabel A, B, C, D
 
-
--- ~~~~~~~~~~~~~~~~ Advanced ~~~~~~~~~~~~~~~~
 function Bisector(Angle) -> Ray -- This function creates a ray as the angle bisector of an angle. Example usage: 
 -- Point A, B, C
 -- Angle angleABC
@@ -253,3 +248,9 @@ function PerpendicularBisectorLabelPts(Segment, Point, Point) -> Segment -- This
 -- CD := Segment(C, D)
 -- PerpendicularBisectorLabelPts(AB, C, d)
 -- AutoLabel A, B, C, D, d
+predicate In(Point, Plane) -- This predicate makes a point be in a plane. Example usage: 
+-- Point A, B
+-- Plane planeAB
+-- planeAB := Plane(A, B)
+-- In(A, planeAB)
+-- AutoLabel A, B
