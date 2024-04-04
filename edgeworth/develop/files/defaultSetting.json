@@ -11,7 +11,7 @@
     "type": [],
     "function": [],
     "constructor": [],
-    "predicate": ["RightUnmarked", "RightMarked", "EqualLengthMarker"]
+    "predicate": ["Right", "RightMarked", "EqualLengthMarker"]
   },
   "delete": {
     "type": [],
