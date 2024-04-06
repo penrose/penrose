@@ -1,5 +1,4 @@
 Point A, B, C, Q
-Let ABC := Triangle(A, B, C)
 Let AB := Segment(A, B)
 Let BC := Segment(B, C)
 Let CA := Segment(C, A)

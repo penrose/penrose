@@ -2,7 +2,7 @@ Point A, B, C
 Let AC := Segment(A, C)
 Let AB := Segment(A, B)
 Let BC := Segment(B, C)
-Let ABC := Triangle(A, B, C)
+Let BA := Segment(C, A)
 Point M
 Midpoint(BC, M)
 Angle aAMC := InteriorAngle(A, M, C)
