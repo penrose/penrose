@@ -1,6 +1,7 @@
 import { Line } from "../shapes/Line.js";
 import {
   ArrowheadSpec,
+  evalStr,
   getArrowhead,
   round2,
   toScreen,
@@ -136,8 +137,8 @@ const RenderLine = (
   shape: Line<number>,
   { canvasSize, namespace, variation }: RenderProps,
 ): SVGGElement => {
-  const startArrowhead = getArrowhead(shape.startArrowhead.contents);
-  const endArrowhead = getArrowhead(shape.endArrowhead.contents);
+  const startArrowhead = getArrowhead(evalStr(shape.startArrowhead.contents));
+  const endArrowhead = getArrowhead(evalStr(shape.endArrowhead.contents));
   const [[[arrowSX, arrowSY], [arrowEX, arrowEY]], attrToNotAutoMap] =
     makeRoomForArrows(shape, startArrowhead, endArrowhead);
 
@@ -155,7 +156,7 @@ const RenderLine = (
   line.setAttribute("y2", ey.toString());
 
   // an unique id for this instance is determined by the variation and namespace
-  const unique = `${namespace}-${variation}-${shape.name.contents}`;
+  const unique = `${namespace}-${variation}-${evalStr(shape.name.contents)}`;
   const startArrowId = unique + "-startArrowId";
   const endArrowId = unique + "-endArrowId";
   if (startArrowhead) {

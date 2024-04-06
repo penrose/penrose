@@ -1,7 +1,13 @@
 import * as ad from "../types/ad.js";
 import { Named, ShapeCommon } from "../types/shapes.js";
 import { ClipDataV, ShapeListV } from "../types/value.js";
-import { boolV, clipDataV, noClip, shapeListV, strV } from "../utils/Util.js";
+import {
+  boolV,
+  clipDataV,
+  constStrV,
+  noClip,
+  shapeListV,
+} from "../utils/Util.js";
 import { Canvas, Context } from "./Samplers.js";
 
 export interface GroupProps<T> extends Named<T> {
@@ -14,7 +20,7 @@ export const sampleGroup = (
   canvas: Canvas,
 ): GroupProps<ad.Num> => {
   return {
-    name: strV("defaultGroup"),
+    name: constStrV("defaultGroup"),
     ensureOnCanvas: boolV(true),
     shapes: shapeListV([]),
     clipPath: clipDataV(noClip()),

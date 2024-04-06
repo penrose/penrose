@@ -44,7 +44,7 @@ export const checkBoolV = (
 export const checkStrV = (
   path: string,
   value: Value<ad.Num>,
-): Result<StrV, BadShapeParamTypeError> => {
+): Result<StrV<ad.Num>, BadShapeParamTypeError> => {
   if (value.tag === "StrV") {
     return ok(value);
   }

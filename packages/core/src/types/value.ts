@@ -33,7 +33,7 @@ export type PropID = string;
 export type Value<T> =
   | FloatV<T>
   | BoolV
-  | StrV
+  | StrV<T>
   | PathDataV<T>
   | PtListV<T>
   | ColorV<T>
@@ -58,10 +58,33 @@ export interface BoolV {
 }
 
 /** A string literal **/
-export interface StrV {
+export interface StrV<T> {
   tag: "StrV";
+  contents: Str<T>;
+}
+
+export type Str<T> = ConstStr | FromNum<T> | ConcatStr<T>;
+
+export interface ConstStr {
+  tag: "ConstStr";
   contents: string;
 }
+
+export interface FromNum<T> {
+  tag: "FromNum";
+  num: T;
+  preserveDigits?: number;
+}
+
+export interface ConcatStr<T> {
+  tag: "ConcatStr";
+  left: Str<T>;
+  right: Str<T>;
+}
+
+export type ConstStrV<T> = StrV<T> & { contents: ConstStr };
+
+export type PathTypeStr = ConstStr & { contents: "open" | "closed" };
 
 /** A path, similar to an [SVG path](https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths) **/
 export interface PathDataV<T> {

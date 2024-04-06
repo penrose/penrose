@@ -11,7 +11,7 @@ export const makeGroupGraph = (shapes: Shape<ad.Num>[]): GroupGraph => {
   // populate the nodes
   for (let i = 0; i < shapes.length; i++) {
     const shape = shapes[i];
-    const shapeName = shape.name.contents;
+    const shapeName = shape.name.contents.contents;
 
     graph.setNode(shapeName, i);
     nameShapeMap.set(shapeName, shape);
@@ -27,12 +27,12 @@ export const makeGroupGraph = (shapes: Shape<ad.Num>[]): GroupGraph => {
       if (clip.tag === "Clip") {
         // if the group is clipped, the clipping shape is implicitly a member of the group
         const clipName = clip.contents.name.contents;
-        graph.setEdge({ i: name, j: clipName, e: undefined });
+        graph.setEdge({ i: name, j: clipName.contents, e: undefined });
       }
 
       for (const subName of subNames) {
         if (clip.tag !== "Clip" || subName !== clip.contents.name.contents) {
-          graph.setEdge({ i: name, j: subName, e: undefined });
+          graph.setEdge({ i: name, j: subName.contents, e: undefined });
         }
       }
     }
@@ -90,7 +90,9 @@ export const buildRenderGraphNode = (
   // If shape is group, recursively handle all the sub-shapes.
 
   const subShapes = shape.shapes.contents;
-  const childrenNames = subShapes.map((subShape) => subShape.name.contents);
+  const childrenNames = subShapes.map(
+    (subShape) => subShape.name.contents.contents,
+  );
 
   shape.shapes = shapeListV(
     buildRenderGraph(childrenNames, groupGraph, nameShapeMap),

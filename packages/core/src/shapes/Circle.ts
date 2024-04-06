@@ -1,7 +1,7 @@
 import * as ad from "../types/ad.js";
 import { Center, Fill, Named, ShapeCommon, Stroke } from "../types/shapes.js";
 import { FloatV } from "../types/value.js";
-import { boolV, floatV, noPaint, strV } from "../utils/Util.js";
+import { boolV, constStrV, floatV, noPaint } from "../utils/Util.js";
 import {
   Canvas,
   Context,
@@ -23,11 +23,11 @@ export const sampleCircle = (
   canvas: Canvas,
 ): CircleProps<ad.Num> => {
   return {
-    name: strV("defaultCircle"),
+    name: constStrV("defaultCircle"),
     strokeWidth: floatV(0),
-    strokeStyle: strV("solid"),
+    strokeStyle: constStrV("solid"),
     strokeColor: noPaint(),
-    strokeDasharray: strV(""),
+    strokeDasharray: constStrV(""),
     fillColor: sampleColor(context),
     center: sampleVector(context, canvas),
     r: sampleWidth(context, canvas),

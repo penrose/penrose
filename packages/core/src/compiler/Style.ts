@@ -120,6 +120,8 @@ import {
 } from "../types/substance.js";
 import {
   ArgVal,
+  ConcatStr,
+  ConstStrV,
   Field,
   FloatV,
   LListV,
@@ -128,7 +130,7 @@ import {
   PropID,
   PtListV,
   ShapeListV,
-  StrV,
+  Str,
   TupV,
   Value,
   VectorV,
@@ -163,8 +165,10 @@ import {
   boolV,
   cartesianProduct,
   colorV,
+  concatStr,
+  constStrV,
+  evalStr,
   floatV,
-  getAdValueAsString,
   hexToRgba,
   isKeyOf,
   listV,
@@ -2115,7 +2119,7 @@ const findPathsWithContext = <T>({
 
 const resolveRhsPath = (
   p: WithContext<Path<C>>,
-): ResolvedPath<C> | FloatV<number> | StrV | VectorV<number> => {
+): ResolvedPath<C> | FloatV<number> | ConstStrV<number> | VectorV<number> => {
   const { start, end, name, members, indices } = p.expr;
   const { subst } = p.context;
   // special handling so that if a Style variable maps to a Substance literal,
@@ -2498,15 +2502,15 @@ const evalBinOpMatrixMatrix = (
   }
 };
 
-const evalBinOpStrings = (
+const evalBinOpStrings = <T>(
   error: BinOpTypeError,
   op: BinaryOp,
-  left: string,
-  right: string,
-): Result<string, StyleError> => {
+  left: Str<T>,
+  right: Str<T>,
+): Result<ConcatStr<T>, StyleError> => {
   switch (op) {
     case "BPlus": {
-      return ok(left + right);
+      return ok(concatStr(left, right));
     }
     case "BMinus":
     case "Multiply":
@@ -2945,7 +2949,7 @@ const evalExpr = (
       if (resolved.tag === "ShapeVal") {
         // Can evaluate a path to a GPI - just return the GPI
         // Need to incorporate the "name" information:
-        resolved.contents.name = strV(path);
+        resolved.contents.name = constStrV(path);
         return ok(resolved);
       }
       if (expr.indices.length === 0) {
@@ -2983,7 +2987,7 @@ const evalExpr = (
       return ok(val(elem.value));
     }
     case "StringLit": {
-      return ok(val(strV(expr.contents)));
+      return ok(val(constStrV(expr.contents)));
     }
     case "Tuple": {
       return evalVals(
@@ -3130,12 +3134,12 @@ const evalNameOf = (
   if (arg.value in s) {
     const m = s[arg.value];
     if (m.tag === "SubstanceVar") {
-      return ok(val(strV(m.name)));
+      return ok(val(constStrV(m.name)));
     } else {
       if (m.contents.tag === "SubstanceNumber") {
-        return ok(val(strV(m.contents.contents.toString())));
+        return ok(val(constStrV(m.contents.contents.toString())));
       } else {
-        return ok(val(strV(m.contents.contents)));
+        return ok(val(constStrV(m.contents.contents)));
       }
     }
   } else {
@@ -3718,7 +3722,7 @@ const getShapesList = (
     if (!shape || shape.tag !== "ShapeVal") {
       throw internalMissingPathError(path);
     }
-    shape.contents.name = strV(path);
+    shape.contents.name = constStrV(path);
     return shape.contents;
   });
 };
@@ -3759,7 +3763,7 @@ const onCanvases = (canvas: Canvas, shapes: Shape<ad.Num>[]): Fn[] => {
                 // HACK: the right way to do this would be to parse `name` into
                 // the correct `Path`, but we don't really care as long as it
                 // pretty-prints into something that looks right
-                fakePath(name, []),
+                fakePath(name.contents, []),
                 fakePath("canvas", ["width"]),
                 fakePath("canvas", ["height"]),
               ],
@@ -3931,7 +3935,7 @@ export const compileStyleHelper = async (
   const nameShapeMap = new Map<string, Shape<ad.Num>>();
 
   for (const shape of shapes) {
-    const shapeName = getAdValueAsString(shape.name);
+    const shapeName = evalStr(shape.name.contents);
     nameShapeMap.set(shapeName, shape);
   }
 

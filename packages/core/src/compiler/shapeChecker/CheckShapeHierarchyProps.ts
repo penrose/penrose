@@ -52,11 +52,15 @@ export const checkNamed = (
   const name = checkProp(path, "name", trans, checkStrV);
   if (name.isErr()) return err(name.error);
 
+  if (name.value.contents.tag !== "ConstStr") {
+    throw new Error("Expected `name` property to be constant string");
+  }
+
   const ensureOnCanvas = checkProp(path, "ensureOnCanvas", trans, checkBoolV);
   if (ensureOnCanvas.isErr()) return err(ensureOnCanvas.error);
 
   return ok({
-    name: name.value,
+    name: { tag: "StrV", contents: name.value.contents },
     ensureOnCanvas: ensureOnCanvas.value,
   });
 };

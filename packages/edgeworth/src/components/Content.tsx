@@ -10,9 +10,11 @@ import { MultipleChoiceProblem } from "@penrose/components";
 import {
   compileDomain,
   compileSubstance,
+  mathjaxInit,
   PenroseState,
   prettySubstance,
   showError,
+  TeXOption,
   toSVG,
 } from "@penrose/core";
 import { initSubstanceEnv } from "@penrose/core/dist/compiler/Substance";
@@ -99,6 +101,7 @@ const StagedText = styled(Typography)(({ theme }) => ({
 }));
 
 export class Content extends React.Component<ContentProps, ContentState> {
+  texOption: TeXOption;
   constructor(props: ContentProps) {
     super(props);
     this.state = {
@@ -110,6 +113,10 @@ export class Content extends React.Component<ContentProps, ContentState> {
       prompt: "",
       layoutDone: false,
       showProblem: false,
+    };
+    this.texOption = {
+      tag: "RenderTeX",
+      renderer: mathjaxInit(),
     };
   }
   // callback function to indicate that a svg will be exported
@@ -224,6 +231,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
           return await response.text();
         },
         "diagram", // standalone SVG exports don't require distinct namespaces
+        this.texOption,
       );
       zip.file(`diagram_${idx}.svg`, svg.outerHTML.toString());
       zip.file(`substance_${idx}.substance`, prettySubstance(prog));

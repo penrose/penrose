@@ -1,5 +1,6 @@
 import _ from "lodash";
 import seedrandom from "seedrandom";
+import { interp } from "../engine/Autodiff.js";
 import { isConcrete } from "../engine/EngineUtils.js";
 import { LineProps } from "../shapes/Line.js";
 import { Shape, ShapeType } from "../shapes/Shapes.js";
@@ -34,6 +35,9 @@ import {
   ClipDataV,
   Color,
   ColorV,
+  ConcatStr,
+  ConstStr,
+  ConstStrV,
   FloatV,
   LListV,
   ListV,
@@ -43,6 +47,7 @@ import {
   PathDataV,
   PtListV,
   ShapeListV,
+  Str,
   StrV,
   TupV,
   Val,
@@ -618,9 +623,25 @@ export const boolV = (contents: boolean): BoolV => ({
   contents,
 });
 
-export const strV = (contents: string): StrV => ({
+export const strV = <T>(contents: Str<T>): StrV<T> => ({
   tag: "StrV",
   contents,
+});
+
+export const constStr = (contents: string): ConstStr => ({
+  tag: "ConstStr",
+  contents,
+});
+
+export const concatStr = <T>(left: Str<T>, right: Str<T>): ConcatStr<T> => ({
+  tag: "ConcatStr",
+  left,
+  right,
+});
+
+export const constStrV = <T>(contents: string): ConstStrV<T> => ({
+  tag: "StrV",
+  contents: constStr(contents),
 });
 
 export const pathDataV = (contents: PathCmd<ad.Num>[]): PathDataV<ad.Num> => ({
@@ -816,19 +837,19 @@ export const resolveRhsName = (
 
 export const substanceLiteralToValue = (
   lit: SubstanceLiteral,
-): FloatV<number> | StrV => {
+): FloatV<number> | ConstStrV<number> => {
   const l = lit.contents;
 
   if (l.tag === "SubstanceNumber") {
     return { tag: "FloatV", contents: l.contents };
   } else {
-    return strV(l.contents);
+    return constStrV(l.contents);
   }
 };
 
 const resolveRhsPath = (
   p: WithContext<Path<A>>,
-): ResolvedPath<A> | FloatV<number> | StrV => {
+): ResolvedPath<A> | FloatV<number> | ConstStrV<number> => {
   const { name, members, indices } = p.expr; // drop `indices`
 
   const { subst } = p.context;
@@ -889,12 +910,12 @@ const prettyPrintResolvedName = ({
 };
 
 export const prettyPrintResolvedPath = (
-  p: ResolvedPath<A> | FloatV<number> | StrV | VectorV<number>,
+  p: ResolvedPath<A> | FloatV<number> | ConstStrV<number> | VectorV<number>,
 ): string => {
   if (p.tag === "FloatV") {
     return p.contents.toString();
   } else if (p.tag === "StrV") {
-    return p.contents;
+    return p.contents.contents;
   } else if (p.tag === "VectorV") {
     return `[${p.contents.map((n) => n.toString()).join(",")}]`;
   } else
@@ -1038,31 +1059,23 @@ export const getEnd = ({ end }: LineProps<ad.Num>): ad.Num[] => end.contents;
 
 //#endregion
 
+//#region numbers and strings
+
 /**
- * Gets the string value of a property.  If the property cannot be converted
- * to a string, throw an exception.
+ * Get numerical values of nodes in the computation graph. This function calls
+ * `interp` to construct and evaluate a partial computation graph.
  *
- * @param prop Get the string value of this property
- * @param dft Optional default value (if you don't want an exception)
- * @returns string value of the property
+ * @param xs nodes in the computation graph
+ * @returns a list of `number`s corresponding to nodes in `xs`
  */
-export const getAdValueAsString = (
-  prop: Value<ad.Num>,
-  dft?: string,
-): string => {
-  switch (prop.tag) {
-    case "FloatV":
-      if (typeof prop.contents === "number") return prop.contents.toString();
-      break;
-    case "StrV":
-      return prop.contents;
-  }
-  if (dft !== undefined) return dft;
-  throw new Error(
-    `getAdValueAsString: unexpected tag ${prop.tag} w/value ${JSON.stringify(
-      prop.contents,
-    )}`,
-  );
+export const numsOf = (xs: ad.Num[]): number[] => interp(xs)((x) => x.val);
+export const numOf = (x: ad.Num): number => {
+  return numsOf([x])[0];
+};
+
+export const toFixedNumber = (num: number, digits: number) => {
+  const pow = Math.pow(10, digits);
+  return Math.round(num * pow) / pow;
 };
 
 /**
@@ -1073,6 +1086,26 @@ export const getValueAsShapeList = <T>(val: Value<T>): Shape<T>[] => {
   if (val.tag === "ShapeListV") return val.contents;
   throw new Error("Not a list of shapes");
 };
+
+export const evalStr = (str: Str<ad.Num>): string => {
+  if (str.tag === "ConstStr") {
+    return str.contents;
+  } else if (str.tag === "FromNum") {
+    // if it is a fixed number, just use that number
+    // otherwise use the initial number.
+    const num = typeof str.num === "number" ? str.num : numOf(str.num);
+
+    if (str.preserveDigits !== undefined) {
+      return toFixedNumber(num, str.preserveDigits).toString();
+    } else {
+      return num.toString();
+    }
+  } else {
+    return evalStr(str.left) + evalStr(str.right);
+  }
+};
+
+//#endregion
 
 //#region errors and warnings
 

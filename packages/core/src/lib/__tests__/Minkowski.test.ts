@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import * as BBox from "../../engine/BBox.js";
 import * as ad from "../../types/ad.js";
+import { numsOf } from "../../utils/Util.js";
 import {
   containsConvexPolygonPoints,
   convexPartitions,
@@ -8,7 +9,6 @@ import {
   rectangleDifference,
 } from "../Minkowski.js";
 import { bboxPts } from "../Queries.js";
-import { numsOf } from "../Utils.js";
 
 describe("containsConvexPolygonPoints", () => {
   test("test", () => {

@@ -82,10 +82,18 @@ export const checkValueAgainstValueType = (
   } else if (expected === "String") {
     if (tag === "StrV") return contents;
   } else if (expected === "ColorType") {
-    if (tag === "StrV" && (contents === "hsv" || contents === "rgb"))
+    if (
+      tag === "StrV" &&
+      contents.tag === "ConstStr" &&
+      (contents.contents === "hsv" || contents.contents === "rgb")
+    )
       return contents;
   } else if (expected === "PathType") {
-    if (tag === "StrV" && (contents === "open" || contents === "closed"))
+    if (
+      tag === "StrV" &&
+      contents.tag === "ConstStr" &&
+      (contents.contents === "open" || contents.contents === "closed")
+    )
       return contents;
   } else if (expected === "ShapeList") {
     if (tag === "ShapeListV") return contents;

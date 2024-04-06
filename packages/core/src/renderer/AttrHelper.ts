@@ -7,6 +7,7 @@ import { Line } from "../shapes/Line.js";
 import { Shape } from "../shapes/Shapes.js";
 import { Text } from "../shapes/Text.js";
 import {
+  CanPassthrough,
   Center,
   Corner,
   Fill,
@@ -20,12 +21,21 @@ import {
 } from "../types/shapes.js";
 import { toFontRule } from "../utils/CollectLabels.js";
 import {
+  evalStr,
   isKeyOf,
   toScreen,
   toSvgOpacityProperty,
   toSvgPaintProperty,
 } from "../utils/Util.js";
 import { attrMapSvg } from "./AttrMapSvg.js";
+
+const passthroughToString = (v: CanPassthrough<number>): string => {
+  if (v.tag === "StrV") {
+    return evalStr(v.contents);
+  } else {
+    return v.contents.toString();
+  }
+};
 
 /**
  * Auto-map to SVG any input properties for which we lack specific logic.
@@ -65,7 +75,7 @@ export const attrAutoFillSvg = (
 
   for (const [propKey, propVal] of shape.passthrough) {
     if (
-      (propVal.tag === "StrV" && propVal.contents === "") ||
+      (propVal.tag === "StrV" && evalStr(propVal.contents) === "") ||
       attrToNotAutoMap.has(propKey)
     )
       continue;
@@ -73,18 +83,22 @@ export const attrAutoFillSvg = (
     if (isKeyOf(propKey, attrMapSvg)) {
       const mappedPropKey: string = attrMapSvg[propKey];
       if (!elem.hasAttribute(mappedPropKey)) {
-        elem.setAttribute(mappedPropKey, propVal.contents.toString());
+        elem.setAttribute(mappedPropKey, passthroughToString(propVal));
       }
-    } else if (propKey === "style" && propVal.contents !== "") {
+    } else if (
+      propKey === "style" &&
+      propVal.tag === "StrV" &&
+      evalStr(propVal.contents) !== ""
+    ) {
       const style = elem.getAttribute(propKey);
       if (style === null) {
-        elem.setAttribute(propKey, propVal.contents.toString());
+        elem.setAttribute(propKey, passthroughToString(propVal));
       } else {
-        elem.setAttribute(propKey, `${style}${propVal.contents.toString()}`);
+        elem.setAttribute(propKey, `${style}${passthroughToString(propVal)}`);
       }
     } else {
       if (!elem.hasAttribute(propKey)) {
-        elem.setAttribute(propKey, propVal.contents.toString());
+        elem.setAttribute(propKey, passthroughToString(propVal));
       }
     }
   }
@@ -246,7 +260,7 @@ export const attrString = (
   elem: SVGElement,
 ): string[] => {
   const str = properties.string;
-  const text = document.createTextNode(str.contents.toString());
+  const text = document.createTextNode(evalStr(str.contents));
   elem.appendChild(text);
 
   return ["string"]; // Return array of input properties programatically mapped
@@ -280,16 +294,16 @@ export const attrStroke = (
 
     if (
       "strokeDasharray" in properties &&
-      properties.strokeDasharray.contents !== ""
+      evalStr(properties.strokeDasharray.contents) !== ""
     ) {
       elem.setAttribute(
         "stroke-dasharray",
-        properties.strokeDasharray.contents,
+        evalStr(properties.strokeDasharray.contents),
       );
       attrMapped.push("strokeDasharray");
     } else if (
       "strokeStyle" in properties &&
-      properties.strokeStyle.contents === "dashed"
+      evalStr(properties.strokeStyle.contents) === "dashed"
     ) {
       elem.setAttribute("stroke-dasharray", DASH_ARRAY.toString());
       attrMapped.push("strokeDasharray", "strokeStyle");
@@ -298,9 +312,12 @@ export const attrStroke = (
     // NOTE: some stroked properties might not contain `strokeLinecap`
     if (
       "strokeLinecap" in properties &&
-      properties.strokeLinecap.contents !== ""
+      evalStr(properties.strokeLinecap.contents) !== ""
     ) {
-      elem.setAttribute("stroke-linecap", properties.strokeLinecap.contents);
+      elem.setAttribute(
+        "stroke-linecap",
+        evalStr(properties.strokeLinecap.contents),
+      );
       attrMapped.push("strokeLinecap");
     }
   }
@@ -317,7 +334,7 @@ export const attrTitle = (
 ): string[] => {
   const name = properties.name;
   const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
-  title.textContent = name.contents;
+  title.textContent = evalStr(name.contents);
   elem.appendChild(title);
 
   return ["name"]; // Return array of input properties programatically mapped
