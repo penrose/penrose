@@ -562,5 +562,9 @@
   "dataviz/residual": {
     "name": "Linear Regression Residuals",
     "gallery": false
+  },
+  "geometry-domain/complementary-angles": {
+    "name": "Complementary angles",
+    "gallery": false
   }
 }
