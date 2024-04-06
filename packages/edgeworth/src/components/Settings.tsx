@@ -17,6 +17,8 @@ import {
 import { Listing } from "@penrose/components";
 import { compileDomain, showError } from "@penrose/core";
 import { DomainEnv } from "@penrose/core/dist/types/domain";
+import euclideanStyleMin from "@penrose/examples/dist/geometry-domain/euclidean.min.style.js";
+import geometryDomainMin from "@penrose/examples/dist/geometry-domain/geometry.min.domain";
 import React from "react";
 import Latex from "react-latex-next";
 import { Preset, domains, presets } from "../examples.js";
@@ -549,15 +551,16 @@ To write comments, begin with \`--\`. Return only the Substance program; explain
   handleDomain = (key: string) => {
     // NOTE: all programs in `domains` have the same domain program, therefore picking the first program to access the domain program
     const preset = domains[key][0];
-
-    this.updateDomainEnv(preset.domain);
+    const domain = key === "Geometry" ? geometryDomainMin : preset.domain;
+    const style = key === "Geometry" ? euclideanStyleMin : preset.style;
+    this.updateDomainEnv(domain);
     this.setState({
       ...this.state,
       domainSelect: key,
-      style: preset.style,
+      style: style,
       substance: this.state.substance, // changing domains doesn't change the substance by default
       setting: preset.setting,
-      domain: preset.domain,
+      domain: domain,
     });
   };
 

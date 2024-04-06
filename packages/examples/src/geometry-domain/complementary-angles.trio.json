@@ -2,6 +2,6 @@
   "substance": "./edgeworth-tasks/complementary-angles.substance",
   "style": ["./euclidean.min.style"],
   "domain": "./geometry.min.domain",
-  "variation": "StromboliCat61816",
+  "variation": "JubeDeer8822",
   "excludeWarnings": ["BBoxApproximationWarning"]
 }
