@@ -8,3 +8,4 @@ Point y
 SetHasPoint(A, a)
 SetHasPoint(B, x)
 SetHasPoint(B, y)
+

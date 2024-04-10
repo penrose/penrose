@@ -33,24 +33,28 @@ Global {
 }
 
 forall Point x {
+	x.name = ""
+	x.center = (?, ?)
 	x.icon = Circle {
 		name            : x.name
 		strokeWidth     : Global.lineThickness
 		strokeStyle     : "solid"
 		strokeColor     : Colors.black -- x color
-		fillColor       : Colors.black -- x.color
+		-- fillColor       : Colors.black -- x.color
 		center          : x.center
 		r               : Global.pointR
 	}
 }
 
 forall Set x {
+	x.name = ""
+	x.center = (?, ?)
 	x.icon = Ellipse {
 		name            : x.name
 		strokeWidth     : Global.lineThickness
 		strokeStyle     : "solid"
 		strokeColor     : Colors.black
-		fillColor       : sampled -- x.color
+		-- fillColor       : sampled -- x.color
 		center          : x.center
 		rx              : Global.pointW
 		ry              : x.size * Global.pointH
