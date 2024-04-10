@@ -1,0 +1,33 @@
+type Set
+type Relation
+type Point
+type Arrow
+
+constructor Singleton(Point p) -> Set
+constructor Pair(Point p1, Point p2) -> Arrow
+constructor Rel(Point p1, Point p2) -> Relation
+
+-- function Intersection(Set a, Set b) -> Set
+-- function Union(Set a, Set b) -> Set
+-- function Subtraction(Set a, Set b) -> Set
+-- function CartesianProduct(Set a, Set b) -> Set
+-- function Difference(Set a, Set b) -> Set
+-- function Subset(Set a, Set b) -> Set
+function AddPoint(Point p, Set s) -> Set
+function AddArrow(Arrow a, Relation r) -> Relation
+
+predicate Relates(Arrow a, Point p1, Point p2)
+predicate From(Relation r, Set domain, Set codomain)
+-- predicate Empty(Set s)
+-- predicate Intersecting(Set s1, Set s2)
+-- predicate Subset(Set s1, Set s2)
+-- predicate Equal(Set s1, Set s2)
+predicate SetHasPoint(Set s, Point p)
+predicate PointInSet(Point p, Set s)
+predicate RelationHasArrow(Relation r, Arrow a)
+predicate ArrowInRelation(Arrow a, Relation r)
+-- predicate Injection(Map m)
+-- predicate Surjection(Map m)
+-- predicate Bijection(Map m)
+predicate PairIn(Point p1, Point p2, Relation r)
+-- predicate ArrowBetweenDiffSets()

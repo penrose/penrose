@@ -1,0 +1,10 @@
+Set A
+Set B
+
+Point a
+Point x
+Point y
+
+SetHasPoint(A, a)
+SetHasPoint(B, x)
+SetHasPoint(B, y)

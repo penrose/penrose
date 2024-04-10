@@ -1,0 +1,65 @@
+canvas {
+  width  = 800
+  height = 700
+}
+
+Colors {
+   color black     = rgba(0, 0, 0, 1)
+   color white     = rgba(1, 1, 1, 1)
+   color clearGray = rgba(0, 0, 0, .2)
+}
+
+Global {
+   -- draw a box around the canvas (this box will 
+   -- also be used to constrain shapes to the canvas)
+   shape box = Rectangle {
+      center      : (0,0)
+      width       : canvas.width
+      height      : canvas.height
+      fillColor   : none()
+      strokeColor : Colors.clearGray
+      strokeWidth : 1
+   }
+
+   -- some additional parameters to get consistent styling throughout
+   scalar lineThickness = 1.5
+   scalar fontSize      = "9px"
+   string fontFamily    = "Linux Libertine"
+
+   -- diagram spread
+   scalar pointR = 3
+   scalar pointW = 20
+   scalar pointH = 20
+}
+
+forall Point x {
+	x.icon = Circle {
+		name            : x.name
+		strokeWidth     : Global.lineThickness
+		strokeStyle     : "solid"
+		strokeColor     : Colors.black -- x color
+		fillColor       : Colors.black -- x.color
+		center          : x.center
+		r               : Global.pointR
+	}
+}
+
+forall Set x {
+	x.icon = Ellipse {
+		name            : x.name
+		strokeWidth     : Global.lineThickness
+		strokeStyle     : "solid"
+		strokeColor     : Colors.black
+		fillColor       : sampled -- x.color
+		center          : x.center
+		rx              : Global.pointW
+		ry              : x.size * Global.pointH
+	}
+	x.size = 10
+}
+
+forall Set S; Point p
+where SetHasPoint(S, p) {
+    ensure contains(p.icon, S.icon, 5.0)
+    p.icon above S.icon
+}
