@@ -1,6 +1,6 @@
 %YAML 1.2
 ---
-name: Penrose
+name: Penrose Substance
 file_extensions:
   - substance
 scope: source.substance
@@ -16,8 +16,8 @@ contexts:
     - match: \b(TODO|FIXME|XXX|NOTE)\b
       scope: comment.keyword.sub
 
-    - match: \$
-      scope: string.interpolated.sub
+    - match: '\$'
+      scope: string.quoted.other.sub
       push: string_interpolated
 
     - match: '"'
@@ -32,8 +32,6 @@ contexts:
       pop: true
 
   string_interpolated:
-    - meta_scope: string_interpolated.sub
-    - match: \\.
-      scope: constant.character.escape.sub
-    - match: \$
+    - meta_scope: string.quoted.other.sub
+    - match: '\$'
       pop: true

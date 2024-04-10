@@ -1,6 +1,6 @@
 %YAML 1.2
 ---
-name: Penrose
+name: Penrose Domain
 file_extensions:
   - domain
 scope: source.domain

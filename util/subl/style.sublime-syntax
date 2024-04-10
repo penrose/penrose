@@ -1,6 +1,6 @@
 %YAML 1.2
 ---
-name: Penrose
+name: Penrose Style
 file_extensions:
   - style
 scope: source.style
@@ -23,45 +23,52 @@ contexts:
     - match: \b(true|false)\b
       scope: constant.language.sty
 
-    - match: \<\d+\>
-      scope: constant.numeric.sty
+    - match: \b\d+\b
+      scope: constant.numeric.integer.decimal
 
-    - match: \<[-+]\d+\>
-      scope: constant.numeric.sty
+    - match: \b[-+]\d+\b
+      scope: constant.numeric.integer.decimal
 
-    - match: \<\d+\.\d*\>
-      scope: constant.numeric.sty
+    - match: \b\d+\.\d*\b
+      scope: constant.numeric.float.decimal
 
-    - match: \<[-+]\d+\.\d*\>
-      scope: constant.numeric.sty
+    - match: \b[-+]\d+\.\d*\b
+      scope: constant.numeric.float.decimal
 
-    - match: \<[-+]\=\d[[:digit:]]*[eE][\-+]\=\d+\>
-      scope: constant.numeric.sty
+    - match: \b[-+]\=\d*[eE][\-+]\=\d+\b
+      scope: constant.numeric.float.decimal
 
-    - match: \<\d[[:digit:]]*[eE][\-+]\=\d+\>
-      scope: constant.numeric.sty
+    - match: \b\d*[eE][\-+]\=\d+\b
+      scope: constant.numeric.float.decimal
 
-    - match: \<[-+]\=\d[[:digit:]]*\.\d*[eE][\-+]\=\d+\>
-      scope: constant.numeric.sty
+    - match: \b[-+]\=\d*\.\d*[eE][\-+]\=\d+\b
+      scope: constant.numeric.float.decimal
 
-    - match: \<\d[[:digit:]]*\.\d*[eE][\-+]\=\d+\>
-      scope: constant.numeric.sty
+    - match: \b\d*\.\d*[eE][\-+]\=\d+\b
+      scope: constant.numeric.float.decimal
 
-    - match: \?
-      scope: constant.numeric.sty
+    - match: \b0x[0-9A-Fa-f]+\b
+      scope: constant.numeric.integer.hexadecimal
+
+    - match: (=)(?=(\s*)(\w+)(\s*){)
+      scope: meta.class
+      push: equals_type_scope
 
     - match: '"'
       scope: string.quoted.double.sty
       push: string
 
-    - match: \(^\s*\)string\ze\(\s*[a-zA-Z]\)
-      scope: storage.type.string.sty
+    - match: (^\s*)(string)(\s*[a-zA-Z])
+      captures:
+        2: storage.type.string.sty
 
-    - match: \(^\s*\)color\ze\(\s*[a-zA-Z]\)
-      scope: storage.type.color.sty
+    - match: (^\s*)(color)(\s*[a-zA-Z])
+      captures:
+        2: storage.type.color.sty
 
-    - match: \(^\s*\)shape\ze\(\s*[a-zA-Z]\)
-      scope: storage.type.shape.sty
+    - match: (^\s*)(shape)(\s*[a-zA-Z])
+      captures:
+        2: storage.type.shape.sty
 
 
   string:
@@ -71,3 +78,7 @@ contexts:
     - match: '"'
       pop: true
 
+  equals_type_scope:
+    - match: (\s*)(\w+)(?=\s*{)
+      scope: keyword.operator.sty
+      pop: true
