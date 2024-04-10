@@ -1,0 +1,8 @@
+%YAML 1.2
+---
+name: Penrose
+scope: source.penrose
+
+include: 'Packages/Penrose/domain.sublime-syntax'
+include: 'Packages/Penrose/style.sublime-syntax'
+include: 'Packages/Penrose/substance.sublime-syntax'

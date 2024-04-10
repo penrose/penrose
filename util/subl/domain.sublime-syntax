@@ -1,0 +1,28 @@
+%YAML 1.2
+---
+name: Penrose
+file_extensions:
+  - domain
+scope: source.domain
+
+contexts:
+  main:
+    - match: \b(type|predicate|constructor|function|notation)\b
+      scope: keyword.control.dsl
+
+    - match: --.*$
+      scope: comment.line.dsl
+
+    - match: \b(TODO|FIXME|XXX|NOTE)\b
+      scope: comment.keyword.dsl
+
+    - match: '"'
+      scope: string.quoted.double.dsl
+      push: string
+
+  string:
+    - meta_scope: string.quoted.double.dsl
+    - match: \\.
+      scope: constant.character.escape.dsl
+    - match: '"'
+      pop: true

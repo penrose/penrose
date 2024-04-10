@@ -1,0 +1,39 @@
+%YAML 1.2
+---
+name: Penrose
+file_extensions:
+  - substance
+scope: source.substance
+
+contexts:
+  main:
+    - match: \b(Label|AutoLabel|NoLabel|All|None|Let|for)\b
+      scope: keyword.control.sub
+
+    - match: --.*$
+      scope: comment.line.sub
+
+    - match: \b(TODO|FIXME|XXX|NOTE)\b
+      scope: comment.keyword.sub
+
+    - match: \$
+      scope: string.interpolated.sub
+      push: string_interpolated
+
+    - match: '"'
+      scope: string.quoted.double.sub
+      push: string
+
+  string:
+    - meta_scope: string.quoted.double.sub
+    - match: \\.
+      scope: constant.character.escape.sub
+    - match: '"'
+      pop: true
+
+  string_interpolated:
+    - meta_scope: string_interpolated.sub
+    - match: \\.
+      scope: constant.character.escape.sub
+    - match: \$
+      pop: true
