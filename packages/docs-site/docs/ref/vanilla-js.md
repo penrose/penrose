@@ -16,7 +16,7 @@ To run this example, copy the code above into an HTML file (e.g. `index.html`) a
 npx http-server .
 ```
 
-You can also check out this example live [here](pathname:///vanilla-js-demo.html).
+You can also check out this example live <a href="/vanilla-js-demo.html" target="blank">here</a>.
 
 ## Experimental bundled ESM
 
@@ -41,8 +41,6 @@ if (compile && optimize) {
 ```
 
 :::
-
-<!--@include: pathname:///vanilla-js-demo.html-->
 
 [ECMAScript module]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules
 [JSPM]: https://jspm.org/
