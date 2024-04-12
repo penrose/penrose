@@ -1,0 +1,70 @@
+{
+  "global": {
+    "tabEnableFloat": true,
+    "tabSetMinWidth": 100,
+    "tabSetMinHeight": 100,
+    "borderMinSize": 100
+  },
+  "layout": {
+    "type": "row",
+    "children": [
+      {
+        "type": "row",
+        "weight": 50,
+        "children": [
+          {
+            "type": "tabset",
+            "weight": 50,
+            "children": [
+              {
+                "type": "tab",
+                "name": "Style",
+                "component": "styleEditor"
+              }
+            ]
+          },
+          {
+            "type": "row",
+            "weight": 50,
+            "children": [
+              {
+                "type": "tabset",
+                "weight": 50,
+                "children": [
+                  {
+                    "type": "tab",
+                    "name": "Domain",
+                    "component": "domainEditor"
+                  }
+                ]
+              },
+              {
+                "type": "tabset",
+                "weight": 50,
+                "children": [
+                  {
+                    "type": "tab",
+                    "name": "Substance",
+                    "component": "substanceEditor"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "tabset",
+        "weight": 50,
+        "children": [
+          {
+            "type": "tab",
+            "name": "Visualization",
+            "component": "vizPanel"
+          }
+        ],
+        "active": true
+      }
+    ]
+  }
+}

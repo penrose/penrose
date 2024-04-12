@@ -1,0 +1,39 @@
+{
+  "name": "penlloy-ide",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "cross-env NODE_OPTIONS='--max-old-space-size=8192' vite",
+    "dev": "cross-env NODE_OPTIONS='--max-old-space-size=8192' vite",
+    "watch": "cross-env NODE_OPTIONS='--max-old-space-size=8192' vite",
+    "typecheck": "tsc",
+    "build-decls": ":",
+    "build": "NODE_OPTIONS='--max-old-space-size=8192' vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@penrose/components": "^3.2.0",
+    "@penrose/core": "^3.2.0",
+    "flexlayout-react": "^0.7.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-hot-toast": "^2.2.0",
+    "recoil": "^0.7.3-alpha.2"
+  },
+  "devDependencies": {
+    "@types/animals": "^0.0.3",
+    "@types/lodash": "^4.14.182",
+    "@types/node": "^20.12.7",
+    "@types/react": "^18.0.26",
+    "@types/react-dom": "^18.0.9",
+    "@types/react-inspector": "^4.0.0",
+    "@types/styled-components": "^5.1.25",
+    "@types/uuid": "^9.0.0",
+    "@vitejs/plugin-react-swc": "^3.0.1",
+    "cross-env": "^7.0.3",
+    "shx": "^0.3.3",
+    "vite": "^4.0.4",
+    "vite-plugin-top-level-await": "^1.4.1"
+  }
+}
