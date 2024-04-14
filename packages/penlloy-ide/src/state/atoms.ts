@@ -55,42 +55,9 @@ export const currentProgramSelector = selectorFamily<
     },
 });
 
-export const currentDirtySubstanceProgramState = atom<SubstanceProgram>({
-  key: "currentDirtySubstanceProgramState",
-  default: "",
-});
-
-export const currentDirtyDomainProgramState = atom<DomainProgram>({
-  key: "currentDirtyDomainProgramState",
-  default: "",
-});
-
 export const currentDirtyStyleProgramState = atom<StyleProgram>({
   key: "currentDirtyStyleProgramState",
   default: "",
-});
-
-const currentDirtyProgramStates = {
-  style: currentDirtyStyleProgramState,
-  substance: currentDirtySubstanceProgramState,
-  domain: currentDirtyDomainProgramState,
-};
-
-export const currentDirtyProgramSelector = selectorFamily<
-  ProgramContent,
-  ProgramType
->({
-  key: "currentDirtyProgramSelector",
-  get:
-    (programType: ProgramType) =>
-    ({ get }) => {
-      return get(currentDirtyProgramStates[programType]);
-    },
-  set:
-    (programType: ProgramType) =>
-    ({ set }, newProgContent) => {
-      set(currentDirtyProgramStates[programType], newProgContent);
-    },
 });
 
 export const currentDomainCacheSelector = selector<DomainEnv | null>({

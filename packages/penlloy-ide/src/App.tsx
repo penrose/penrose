@@ -1,13 +1,17 @@
 import { IJsonModel, Layout, Model, TabNode } from "flexlayout-react";
 import "flexlayout-react/style/light.css";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { useRecoilCallback, useRecoilValue } from "recoil";
+import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
 import BlueButton from "./components/BlueButton";
-import { makeEditor } from "./components/ProgramEditor";
+import {
+  makeNonStyleEditor,
+  makeStyleEditor,
+} from "./components/ProgramEditor";
 import VizPanel from "./components/VizPanel";
 import * as layoutJson from "./layout.json";
 import {
+  currentDirtyStyleProgramState,
   currentDomainProgramState,
   currentStyleProgramState,
   currentSubstanceProgramState,
@@ -22,7 +26,8 @@ const componentFactory = (node: TabNode) => {
   const component = node.getComponent();
   switch (component) {
     case "styleEditor":
-      const [editor, commitDirty] = makeEditor("style");
+      const dirtyStyle = useRecoilValue(currentDirtyStyleProgramState);
+      const [, setStyle] = useRecoilState(currentStyleProgramState);
       return (
         <div style={{ display: "flex", flexDirection: "row", height: "100%" }}>
           <div
@@ -35,13 +40,13 @@ const componentFactory = (node: TabNode) => {
           >
             <BlueButton
               onClick={() => {
-                commitDirty();
+                setStyle(dirtyStyle);
                 compileDiagram();
               }}
             >
               Apply style
             </BlueButton>
-            {editor}
+            {makeStyleEditor()}
           </div>
         </div>
       );
@@ -62,7 +67,7 @@ const componentFactory = (node: TabNode) => {
                 read-only.
               </i>
             </span>
-            {makeEditor("domain")[0]}
+            {makeNonStyleEditor("domain")}
           </div>
         </div>
       );
@@ -83,7 +88,7 @@ const componentFactory = (node: TabNode) => {
                 and read-only.
               </i>
             </span>
-            {makeEditor("substance")[0]}
+            {makeNonStyleEditor("substance")}
           </div>
         </div>
       );
@@ -106,14 +111,6 @@ const componentFactory = (node: TabNode) => {
               Resample
             </BlueButton>
 
-            <span>current sty: {useRecoilValue(currentStyleProgramState)}</span>
-            <span>
-              current sub: {useRecoilValue(currentSubstanceProgramState)}
-            </span>
-            <span>
-              current dom: {useRecoilValue(currentDomainProgramState)}
-            </span>
-
             <VizPanel />
           </div>
         </div>
@@ -135,12 +132,14 @@ const App = ({ port }: { port: number }) => {
 
   const ws = useRef<WebSocket | null>(null);
 
+  const [available, setAvailable] = useState(false);
+
   const compileDiagram = useCompileDiagram();
   const updateDomainAndSubstance = useRecoilCallback(
     ({ set }) =>
       async (domain: string, substance: string) => {
-        set(currentDomainProgramState, domain);
-        set(currentSubstanceProgramState, substance);
+        await set(currentDomainProgramState, domain);
+        await set(currentSubstanceProgramState, substance);
         await compileDiagram();
       },
   );
@@ -155,6 +154,7 @@ const App = ({ port }: { port: number }) => {
     };
     ws.current.onopen = () => {
       toast.success("connected to Penlloy's Penrose program server");
+      setAvailable(true);
     };
     ws.current.onmessage = (e) => {
       const parsed = JSON.parse(e.data) as DomainAndSubstanceMessage;

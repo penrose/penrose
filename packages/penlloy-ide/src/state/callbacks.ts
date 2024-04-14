@@ -73,7 +73,6 @@ export const useCompileDiagram = () =>
       .contents as SubstanceProgram;
     const styleProgram = snapshot.getLoadable(currentStyleProgramState)
       .contents as StyleProgram;
-
     const diagram = snapshot.getLoadable(currentDiagramState)
       .contents as Diagram;
     const variation = diagram.metadata.variation;
