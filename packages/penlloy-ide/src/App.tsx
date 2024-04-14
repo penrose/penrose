@@ -148,9 +148,11 @@ const App = ({ port }: { port: number }) => {
     ws.current = new WebSocket("ws://localhost:" + port);
     ws.current.onclose = () => {
       toast.error("disconnected from Penlloy's Penrose program server");
+      setAvailable(false);
     };
     ws.current.onerror = () => {
       toast.error("couldn't connect to Penlloy's Penrose program server");
+      setAvailable(false);
     };
     ws.current.onopen = () => {
       toast.success("connected to Penlloy's Penrose program server");
@@ -169,9 +171,35 @@ const App = ({ port }: { port: number }) => {
     }
   }, []);
 
-  return (
-    <Layout model={layoutModel} factory={(node) => componentFactory(node)} />
-  );
+  if (available) {
+    return (
+      <Layout model={layoutModel} factory={(node) => componentFactory(node)} />
+    );
+  } else {
+    return (
+      <div style={{ display: "flex", flexDirection: "row", height: "100%" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            maxHeight: "100%",
+            width: "100%",
+          }}
+        >
+          <span>
+            Cannot connect to Penrose generator. Please check that it is on and{" "}
+            <BlueButton
+              onClick={() => {
+                location.reload();
+              }}
+            >
+              Refresh
+            </BlueButton>
+          </span>
+        </div>
+      </div>
+    );
+  }
 };
 
 export default App;
