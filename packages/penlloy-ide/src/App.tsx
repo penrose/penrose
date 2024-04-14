@@ -8,6 +8,7 @@ import {
   makeNonStyleEditor,
   makeStyleEditor,
 } from "./components/ProgramEditor";
+import { StyleResourceEditor } from "./components/StyleResourceEditor";
 import VizPanel from "./components/VizPanel";
 import * as layoutJson from "./layout.json";
 import {
@@ -21,11 +22,10 @@ import { useCompileDiagram, useResampleDiagram } from "./state/callbacks";
 const layoutModel = Model.fromJson(layoutJson as IJsonModel);
 
 const componentFactory = (node: TabNode) => {
-  const compileDiagram = useCompileDiagram();
-  const resampleDiagram = useResampleDiagram();
   const component = node.getComponent();
   switch (component) {
     case "styleEditor":
+      const compileDiagram = useCompileDiagram();
       const dirtyStyle = useRecoilValue(currentDirtyStyleProgramState);
       const [, setStyle] = useRecoilState(currentStyleProgramState);
       return (
@@ -47,6 +47,21 @@ const componentFactory = (node: TabNode) => {
               Apply style
             </BlueButton>
             {makeStyleEditor()}
+          </div>
+        </div>
+      );
+    case "styleResourcesEditor":
+      return (
+        <div style={{ display: "flex", flexDirection: "row", height: "100%" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              maxHeight: "100%",
+              width: "100%",
+            }}
+          >
+            <StyleResourceEditor />
           </div>
         </div>
       );
@@ -93,6 +108,7 @@ const componentFactory = (node: TabNode) => {
         </div>
       );
     case "vizPanel":
+      const resampleDiagram = useResampleDiagram();
       return (
         <div style={{ display: "flex", flexDirection: "row", height: "100%" }}>
           <div
@@ -172,9 +188,7 @@ const App = ({ port }: { port: number }) => {
   }, []);
 
   if (available) {
-    return (
-      <Layout model={layoutModel} factory={(node) => componentFactory(node)} />
-    );
+    return <Layout model={layoutModel} factory={componentFactory} />;
   } else {
     return (
       <div style={{ display: "flex", flexDirection: "row", height: "100%" }}>

@@ -1,6 +1,7 @@
 import { isOptimized, showError, stepTimes, toSVG } from "@penrose/core";
 import { useEffect, useRef } from "react";
 import { useRecoilState } from "recoil";
+import { usePathResolver } from "../image-resolution/ImageResolution";
 import { currentCanvasState, currentDiagramState } from "../state/atoms";
 
 export default function VizPanel() {
@@ -8,6 +9,8 @@ export default function VizPanel() {
   const [diagram, setDiagram] = useRecoilState(currentDiagramState);
   const [_, setCanvasState] = useRecoilState(currentCanvasState);
   const { state, error, warnings, metadata } = diagram;
+
+  const pathResolver = usePathResolver();
 
   const requestRef = useRef<number>();
 
@@ -17,11 +20,7 @@ export default function VizPanel() {
     if (state !== null && cur !== null) {
       (async () => {
         // render the current frame
-        const rendered = await toSVG(
-          state,
-          async (path) => undefined,
-          "penlloy",
-        );
+        const rendered = await toSVG(state, pathResolver, "penlloy");
         rendered.setAttribute("width", "100%");
         rendered.setAttribute("height", "100%");
         if (cur.firstElementChild) {

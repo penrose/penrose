@@ -73,6 +73,29 @@ export const currentDomainCacheSelector = selector<DomainEnv | null>({
   },
 });
 
+export type StyleSVGResource = {
+  contents: string;
+};
+
+export type StyleResources = Map<string, StyleSVGResource>;
+
+export const currentStyleResourcesState = atom<StyleResources>({
+  key: "currentStyleResourcesState",
+  default: new Map([
+    [
+      "a.svg",
+      {
+        contents: `
+        <svg height="100" width="100" xmlns="http://www.w3.org/2000/svg">
+        <circle r="45" cx="0" cy="0" stroke="green" stroke-width="3" fill="red" opacity="0.5" />
+      </svg> 
+      `,
+      },
+    ],
+    ["someKey2", { contents: "someContents2" }],
+  ]),
+});
+
 export type DiagramMetadata = {
   variation: string;
   stepSize: number;

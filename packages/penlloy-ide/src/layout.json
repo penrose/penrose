@@ -19,7 +19,14 @@
               {
                 "type": "tab",
                 "name": "Style",
+                "id": "styleEditor",
                 "component": "styleEditor"
+              },
+              {
+                "type": "tab",
+                "name": "Style Resources",
+                "id": "styleResourcesEditor",
+                "component": "styleResourcesEditor"
               }
             ]
           },
