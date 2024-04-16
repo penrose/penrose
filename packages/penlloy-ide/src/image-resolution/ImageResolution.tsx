@@ -1,5 +1,6 @@
 import { useRecoilCallback } from "recoil";
-import { StyleResources, currentStyleResourcesState } from "../state/atoms";
+import { currentStyleResourcesState } from "../state/atoms";
+import { loadFromSnapshot } from "../utils/Utils";
 
 /**
  * Fetch url, but try local storage first using a name.
@@ -39,8 +40,10 @@ export const usePathResolver = () =>
           return fetchResource(url);
         }
 
-        const resources = snapshot.getLoadable(currentStyleResourcesState)
-          .contents as StyleResources;
+        const resources = loadFromSnapshot(
+          snapshot,
+          currentStyleResourcesState,
+        );
 
         const resource = resources.get(path);
         if (resource === undefined) {

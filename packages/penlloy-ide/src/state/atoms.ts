@@ -7,6 +7,7 @@ import {
   State,
   compileDomain,
 } from "@penrose/core";
+import * as im from "immutable";
 import { RefObject } from "react";
 import { generateVariation } from "./variation";
 
@@ -77,23 +78,11 @@ export type StyleSVGResource = {
   contents: string;
 };
 
-export type StyleResources = Map<string, StyleSVGResource>;
+export type StyleResources = im.Map<string, StyleSVGResource>;
 
 export const currentStyleResourcesState = atom<StyleResources>({
   key: "currentStyleResourcesState",
-  default: new Map([
-    [
-      "a.svg",
-      {
-        contents: `
-        <svg height="100" width="100" xmlns="http://www.w3.org/2000/svg">
-        <circle r="45" cx="0" cy="0" stroke="green" stroke-width="3" fill="red" opacity="0.5" />
-      </svg> 
-      `,
-      },
-    ],
-    ["someKey2", { contents: "someContents2" }],
-  ]),
+  default: im.Map(),
 });
 
 export type DiagramMetadata = {

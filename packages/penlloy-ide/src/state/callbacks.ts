@@ -1,11 +1,9 @@
 import { compile, compileDomain, resample } from "@penrose/core";
 import toast from "react-hot-toast";
 import { CallbackInterface, useRecoilCallback } from "recoil";
+import { loadFromSnapshot } from "../utils/Utils";
 import {
   Diagram,
-  DomainProgram,
-  StyleProgram,
-  SubstanceProgram,
   currentDiagramState,
   currentDomainProgramState,
   currentStyleProgramState,
@@ -67,14 +65,13 @@ const _compileDiagram = async (
 
 export const useCompileDiagram = () =>
   useRecoilCallback(({ snapshot, set }) => async () => {
-    const domainProgram = snapshot.getLoadable(currentDomainProgramState)
-      .contents as DomainProgram;
-    const substanceProgram = snapshot.getLoadable(currentSubstanceProgramState)
-      .contents as SubstanceProgram;
-    const styleProgram = snapshot.getLoadable(currentStyleProgramState)
-      .contents as StyleProgram;
-    const diagram = snapshot.getLoadable(currentDiagramState)
-      .contents as Diagram;
+    const domainProgram = loadFromSnapshot(snapshot, currentDomainProgramState);
+    const substanceProgram = loadFromSnapshot(
+      snapshot,
+      currentSubstanceProgramState,
+    );
+    const styleProgram = loadFromSnapshot(snapshot, currentStyleProgramState);
+    const diagram = loadFromSnapshot(snapshot, currentDiagramState);
     const variation = diagram.metadata.variation;
 
     await _compileDiagram(
@@ -89,8 +86,7 @@ export const useCompileDiagram = () =>
 
 export const useResampleDiagram = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
-    const diagram: Diagram = snapshot.getLoadable(currentDiagramState)
-      .contents as Diagram;
+    const diagram: Diagram = loadFromSnapshot(snapshot, currentDiagramState);
     if (diagram.state === null) {
       toast.error("Cannot resample a diagram that does not exist");
       return;
