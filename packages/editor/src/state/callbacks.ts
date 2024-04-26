@@ -144,8 +144,6 @@ export const useIsUnsaved = () =>
   useRecoilCallback(({ snapshot, set }) => () => {
     const workspace = snapshot.getLoadable(currentWorkspaceState)
       .contents as Workspace;
-    console.log("checking if workspace is clean", workspace.metadata);
-
     return !isCleanWorkspace(workspace);
   });
 
@@ -389,7 +387,12 @@ export const useLoadLocalWorkspace = () =>
   useRecoilCallback(({ set, snapshot }) => async (id: string) => {
     const currentWorkspace = snapshot.getLoadable(currentWorkspaceState)
       .contents as Workspace;
-    if (!isCleanWorkspace(currentWorkspace)) {
+    if (
+      !isCleanWorkspace(currentWorkspace) &&
+      !confirm(
+        "You have unsaved changes. Are you sure you want to load a new workspace?",
+      )
+    ) {
       return;
     }
     const loadedWorkspace = (await localforage.getItem(id)) as Workspace;
@@ -417,7 +420,12 @@ export const useLoadExampleWorkspace = () =>
         const currentWorkspace = snapshot.getLoadable(
           currentWorkspaceState,
         ).contents;
-        if (!isCleanWorkspace(currentWorkspace)) {
+        if (
+          !isCleanWorkspace(currentWorkspace) &&
+          !confirm(
+            "You have unsaved changes. Are you sure you want to load a gallery example?",
+          )
+        ) {
           return;
         }
         const id = toast.loading("Loading example...");
@@ -665,7 +673,10 @@ const REDIRECT_URL =
 export const useSignIn = () =>
   useRecoilCallback(({ set, snapshot }) => () => {
     const workspace = snapshot.getLoadable(currentWorkspaceState).contents;
-    if (!isCleanWorkspace(workspace)) {
+    if (
+      !isCleanWorkspace(workspace) &&
+      !confirm("You have unsaved changes. Please save before continuing.")
+    ) {
       return;
     }
     window.location.replace(REDIRECT_URL);
