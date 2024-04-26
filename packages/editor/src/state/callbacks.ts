@@ -140,6 +140,15 @@ export const useCompileDiagram = () =>
     );
   });
 
+export const useIsUnsaved = () =>
+  useRecoilCallback(({ snapshot, set }) => () => {
+    const workspace = snapshot.getLoadable(currentWorkspaceState)
+      .contents as Workspace;
+    console.log("checking if workspace is clean", workspace.metadata);
+
+    return !isCleanWorkspace(workspace);
+  });
+
 export const useResampleDiagram = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
     const diagram: Diagram = snapshot.getLoadable(diagramState)
@@ -368,15 +377,12 @@ export const useDuplicate = () =>
 export const isCleanWorkspace = (workspace: Workspace): boolean => {
   if (
     workspace.metadata.location.kind === "local" &&
-    !workspace.metadata.location.saved &&
-    !(
-      workspace.files.domain.contents === "" &&
-      workspace.files.substance.contents === ""
-    )
+    !workspace.metadata.location.saved
   ) {
-    return confirm("Your current workspace is unsaved. Overwrite it?");
+    return false;
+  } else {
+    return true;
   }
-  return true;
 };
 
 export const useLoadLocalWorkspace = () =>
