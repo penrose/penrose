@@ -10,12 +10,21 @@ import {
 import {
   useCompileDiagram,
   useDownloadSvg,
+  useIsUnsaved,
   usePublishGist,
   useResampleDiagram,
   useSaveLocally,
 } from "../state/callbacks.js";
 import BlueButton from "./BlueButton.js";
 import ExportButton from "./ExportButton.js";
+
+const UnsavedIcon = styled.div`
+  background-color: #dddddd;
+  padding: 2px 4px;
+  border-radius: 2px;
+  font-size: 10px;
+  color: #111111;
+`;
 
 const TitleBox = styled.div`
   padding: 5px 10px;
@@ -108,6 +117,7 @@ export default function TopBar() {
   const saveLocally = useSaveLocally();
   const publishGist = usePublishGist();
   const { running } = useRecoilValue(diagramWorkerState);
+  const isUnsaved = useIsUnsaved();
 
   return (
     <nav
@@ -132,6 +142,7 @@ export default function TopBar() {
           }}
         >
           <EditableTitle />
+          {isUnsaved() ? <UnsavedIcon>unsaved</UnsavedIcon> : ""}
           {workspaceMetadata.location.kind === "gist" && (
             <a
               style={{ textDecoration: "none", color: "inherit" }}

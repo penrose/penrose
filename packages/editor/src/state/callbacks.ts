@@ -140,6 +140,13 @@ export const useCompileDiagram = () =>
     );
   });
 
+export const useIsUnsaved = () =>
+  useRecoilCallback(({ snapshot, set }) => () => {
+    const workspace = snapshot.getLoadable(currentWorkspaceState)
+      .contents as Workspace;
+    return !isCleanWorkspace(workspace);
+  });
+
 export const useResampleDiagram = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
     const diagram: Diagram = snapshot.getLoadable(diagramState)
@@ -368,22 +375,24 @@ export const useDuplicate = () =>
 export const isCleanWorkspace = (workspace: Workspace): boolean => {
   if (
     workspace.metadata.location.kind === "local" &&
-    !workspace.metadata.location.saved &&
-    !(
-      workspace.files.domain.contents === "" &&
-      workspace.files.substance.contents === ""
-    )
+    !workspace.metadata.location.saved
   ) {
-    return confirm("Your current workspace is unsaved. Overwrite it?");
+    return false;
+  } else {
+    return true;
   }
-  return true;
 };
 
 export const useLoadLocalWorkspace = () =>
   useRecoilCallback(({ set, snapshot }) => async (id: string) => {
     const currentWorkspace = snapshot.getLoadable(currentWorkspaceState)
       .contents as Workspace;
-    if (!isCleanWorkspace(currentWorkspace)) {
+    if (
+      !isCleanWorkspace(currentWorkspace) &&
+      !confirm(
+        "You have unsaved changes. Are you sure you want to load a new workspace?",
+      )
+    ) {
       return;
     }
     const loadedWorkspace = (await localforage.getItem(id)) as Workspace;
@@ -411,7 +420,12 @@ export const useLoadExampleWorkspace = () =>
         const currentWorkspace = snapshot.getLoadable(
           currentWorkspaceState,
         ).contents;
-        if (!isCleanWorkspace(currentWorkspace)) {
+        if (
+          !isCleanWorkspace(currentWorkspace) &&
+          !confirm(
+            "You have unsaved changes. Are you sure you want to load a gallery example?",
+          )
+        ) {
           return;
         }
         const id = toast.loading("Loading example...");
@@ -659,7 +673,10 @@ const REDIRECT_URL =
 export const useSignIn = () =>
   useRecoilCallback(({ set, snapshot }) => () => {
     const workspace = snapshot.getLoadable(currentWorkspaceState).contents;
-    if (!isCleanWorkspace(workspace)) {
+    if (
+      !isCleanWorkspace(workspace) &&
+      !confirm("You have unsaved changes. Please save before continuing.")
+    ) {
       return;
     }
     window.location.replace(REDIRECT_URL);
