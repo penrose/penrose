@@ -8,6 +8,7 @@ import {
 } from "@material-ui/core";
 import { MultipleChoiceProblem } from "@penrose/components";
 import {
+  compile,
   compileDomain,
   compileSubstance,
   PenroseState,
@@ -156,56 +157,80 @@ export class Content extends React.Component<ContentProps, ContentState> {
 
   onPrompt = (prompt: string) => this.setState({ prompt });
 
-  generateProgs =
-    () =>
-    (
-      setting: SynthesizerSetting,
-      seed: string,
-      numPrograms: number,
-      dsl: string,
-      sub: string,
-      sty: string,
-    ) => {
-      const envOrError = compileDomain(dsl);
+  generateProgs = async (
+    setting: SynthesizerSetting,
+    seed: string,
+    numPrograms: number,
+    dsl: string,
+    sub: string,
+    sty: string,
+  ) => {
+    const envOrError = compileDomain(dsl);
 
-      // initialize synthesizer
-      if (envOrError.isOk()) {
-        const domEnv = envOrError.value;
-        let subEnv;
-        if (sub.length > 0) {
-          const subRes = compileSubstance(sub, domEnv);
-          if (subRes.isOk()) {
-            subEnv = subRes.value;
-          } else {
-            console.log(
-              `Error when compiling the template Substance program: ${showError(
-                subRes.error,
-              )}`,
-            );
-          }
-        }
-        const synth = new Synthesizer(
-          domEnv,
-          subEnv === undefined ? initSubstanceEnv() : subEnv,
-          setting,
-          subEnv === undefined ? undefined : [subEnv, domEnv],
-          seed,
-        );
-        let progs = synth.generateSubstances(numPrograms);
-        const template = synth.getTemplate();
-
-        // if the mutator actually runs, update the internal state
-        if (template) {
-          this.setState({
-            progs: [{ prog: template, ops: [] }, ...progs],
-            staged: [],
-            domain: dsl,
-            style: sty,
-            layoutDone: true, // NOTE: allow intermediate layouts to be selected
-          });
+    // initialize synthesizer
+    if (envOrError.isOk()) {
+      const domEnv = envOrError.value;
+      let subEnv;
+      if (sub.length > 0) {
+        const subRes = compileSubstance(sub, domEnv);
+        if (subRes.isOk()) {
+          subEnv = subRes.value;
+        } else {
+          console.log(
+            `Error when compiling the template Substance program: ${showError(
+              subRes.error,
+            )}`,
+          );
         }
       }
-    };
+      const synth = new Synthesizer(
+        domEnv,
+        subEnv === undefined ? initSubstanceEnv() : subEnv,
+        setting,
+        subEnv === undefined ? undefined : [subEnv, domEnv],
+        seed,
+      );
+      let progs = synth.generateSubstances(numPrograms);
+      do {
+        console.log("checking if there are compiler errors", progs.length);
+
+        const compiled = await Promise.all(
+          progs.map(async ({ src: substance }, i) => {
+            const res = await compile({
+              substance,
+              style: this.state.style,
+              domain: this.state.domain,
+              variation: `${i}`,
+            });
+            return res.isOk();
+          }),
+        );
+        const missing = numPrograms - compiled.filter((c) => c).length;
+        if (missing > 0) {
+          progs = progs.filter((_, i) => compiled[i]);
+          console.log(
+            `${missing} programs could not be compiled. Generating more programs to replace them.`,
+          );
+          progs.push(...synth.generateSubstances(missing));
+        }
+      } while (progs.length < numPrograms);
+      const template = synth.getTemplate();
+
+      // if the mutator actually runs, update the internal state
+      if (template) {
+        this.setState({
+          progs: [
+            { prog: template, ops: [], src: prettySubstance(template) },
+            ...progs,
+          ],
+          staged: [],
+          domain: dsl,
+          style: sty,
+          layoutDone: true, // NOTE: allow intermediate layouts to be selected
+        });
+      }
+    }
+  };
 
   exportDiagrams = async (diagrams: SelectedDiagram[]) => {
     const zip = JSZip();
@@ -358,7 +383,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
         <Toolbar />
         <ContentSection>
           <Settings
-            generateCallback={this.generateProgs()}
+            generateCallback={this.generateProgs}
             onPrompt={(prompt) => this.setState({ prompt })}
             defaultDomain={this.state.domain}
             defaultStyle={this.state.style}

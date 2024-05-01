@@ -83,7 +83,7 @@ export interface SettingsProps {
     currentTab: number,
     domainSelect: string,
     presetSelect: string,
-  ) => void;
+  ) => Promise<void>;
   onPrompt: (prompt: string) => void;
   defaultDomain: string;
   defaultStyle: string;
