@@ -207,8 +207,10 @@ export class Content extends React.Component<ContentProps, ContentState> {
       }
     };
 
-  exportDiagrams = async (indices: number[]) => {
+  exportDiagrams = async (diagrams: SelectedDiagram[]) => {
     const zip = JSZip();
+    const indices: number[] = diagrams.map(({ index }) => index);
+    zip.file(`anwser.json`, JSON.stringify(diagrams));
     zip.file(`domain.domain`, this.state.domain);
     zip.file(`style.style`, this.state.style);
     for (const idx of indices) {
@@ -226,8 +228,8 @@ export class Content extends React.Component<ContentProps, ContentState> {
         },
         "diagram", // standalone SVG exports don't require distinct namespaces
       );
-      zip.file(`diagram_${idx}.svg`, svg.outerHTML.toString());
-      zip.file(`substance_${idx}.substance`, prettySubstance(prog));
+      zip.file(`${idx}.svg`, svg.outerHTML.toString());
+      zip.file(`${idx}.substance`, prettySubstance(prog));
       zip.file(`mutations_${idx}.txt`, showMutations(ops));
     }
     zip.generateAsync({ type: "blob" }).then(function (content) {
@@ -324,11 +326,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
               <OutlineButton
                 variant="outlined"
                 color="inherit"
-                onClick={() =>
-                  this.exportDiagrams(
-                    this.state.staged.map(({ index }) => index),
-                  )
-                }
+                onClick={() => this.exportDiagrams(this.state.staged)}
               >
                 Export
               </OutlineButton>

@@ -115,7 +115,7 @@ predicate ParallelMarker(Linelike, Linelike) -- This predicate marks two lines p
 -- Parallel(lineAB, lineCD)
 -- ParallelMarker(lineAB, lineCD)
 -- AutoLabel A, B, C, D
-predicate EqualLengthMarker(Linelike, Linelike) -- This predicate only marks two segments with a tick indicating that they have equal length. Only use if EqualLength precedes it. Example usage: 
+symmetric predicate EqualLengthMarker(Linelike, Linelike) -- This predicate only marks two segments with a tick indicating that they have equal length. Only use if EqualLength precedes it. Example usage: 
 -- Point A, B, C, D
 -- Segment segmentAB, segmentCD
 -- segmentAB := Segment(A, B)
@@ -171,7 +171,7 @@ predicate AngleBisector(Angle, Linelike) -- This predicate makes a ray be the an
 -- rayABC := Ray(A, B)
 -- AngleBisector(angleABC, rayABC)
 -- AutoLabel A, B, C
-predicate EqualAngleMarker(Angle, Angle) -- This predicate only marks two angles with a tick indicating that they have equal measure. Only use if EqualAngle precedes it. Example usage: 
+symmetric predicate EqualAngleMarker(Angle, Angle) -- This predicate only marks two angles with a tick indicating that they have equal measure. Only use if EqualAngle precedes it. Example usage: 
 -- Point A, B, C, D, E, F
 -- Angle angleABC, angleDEF
 -- angleABC := InteriorAngle(A, B, C)
