@@ -297,7 +297,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
               substance,
               style,
               domain,
-              variation: `${i}`,
+              variation: this.state.states[i].variation,
               answer: false,
             },
           ];
