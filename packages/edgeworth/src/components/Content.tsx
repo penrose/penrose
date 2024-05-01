@@ -191,7 +191,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
         seed,
       );
       let progs = synth.generateSubstances(numPrograms);
-      do {
+      while (true) {
         console.log("checking if there are compiler errors", progs.length);
 
         const compiled = await Promise.all(
@@ -212,8 +212,10 @@ export class Content extends React.Component<ContentProps, ContentState> {
             `${missing} programs could not be compiled. Generating more programs to replace them.`,
           );
           progs.push(...synth.generateSubstances(missing));
+        } else {
+          break;
         }
-      } while (progs.length < numPrograms);
+      }
       const template = synth.getTemplate();
 
       // if the mutator actually runs, update the internal state
@@ -280,7 +282,13 @@ export class Content extends React.Component<ContentProps, ContentState> {
         if (answer.correct.includes(i)) {
           return [
             ...problems,
-            { substance, style, domain, variation: `${i}`, answer: true },
+            {
+              substance,
+              style,
+              domain,
+              variation: this.state.states[i].variation,
+              answer: true,
+            },
           ];
         } else if (answer.incorrect.includes(i)) {
           return [
