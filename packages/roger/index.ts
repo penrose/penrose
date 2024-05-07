@@ -17,13 +17,12 @@ import {
   step,
   toSVG,
 } from "@penrose/core";
+import { ok } from "@penrose/core/dist/utils/Error";
 import chalk from "chalk";
 import convertHrtime from "convert-hrtime";
 import * as fs from "fs";
 import { basename, extname, join, resolve } from "path";
 import prettier from "prettier";
-// import packageJSON from "./package.json"; // TODO: no supported by node
-import { ok } from "@penrose/core/dist/utils/Error";
 import { InstanceData } from "./types.js";
 import watch from "./watch.js";
 
@@ -226,11 +225,9 @@ const orderTrio = (unordered: string[]): string[] => {
 };
 
 //#region command-line interface
-
 yargs(hideBin(process.argv))
   .scriptName("roger")
-  // .description("Command-line interface for Penrose.")
-  // .version(packageJSON.version) // TODO: not supported by node
+  .version()
   .command(
     "trio [trio..]",
     "Generate a diagram from a Penrose trio.",
