@@ -7,37 +7,36 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### :warning: BREAKING CHANGE
 
-* separate Substance environment and remove unused features (#1677)
+- separate Substance environment and remove unused features (#1677)
 
 ### :rocket: New Feature
 
-* Add array-manipulation diagram to gallery ([#1716](https://github.com/penrose/penrose/issues/1716)) ([7f08c63](https://github.com/penrose/penrose/commit/7f08c636bfbcdf09c465bf5e244f31a42a3cf6e7))
-* More fractals ([#1644](https://github.com/penrose/penrose/issues/1644)) ([4862055](https://github.com/penrose/penrose/commit/4862055cb61891e7e55a2e910582fb4fbbb9f205))
-* Nephroid as Envelope ([#1647](https://github.com/penrose/penrose/issues/1647)) ([09119bd](https://github.com/penrose/penrose/commit/09119bd26895fa015d3c4864eadb05b1d72f8f9d))
-* Random Index Style Function & Chaos Game ([#1643](https://github.com/penrose/penrose/issues/1643)) ([36d4299](https://github.com/penrose/penrose/commit/36d4299a03c965b27b611dbb8c3fee941bbfbb4a))
-* Update spectral graph examples ([#1642](https://github.com/penrose/penrose/issues/1642)) ([97daca2](https://github.com/penrose/penrose/commit/97daca2af38db7d7ded95caa754d6e74b8d8e274))
-* Update variation for caffeine example ([#1700](https://github.com/penrose/penrose/issues/1700)) ([cd68afa](https://github.com/penrose/penrose/commit/cd68afa950f1471fe05a9fd6f113686aee3a4841))
-* initial values for unknown variables ([#1638](https://github.com/penrose/penrose/issues/1638)) ([61f2ad7](https://github.com/penrose/penrose/commit/61f2ad766efc471bf552a6cfc3d9fcf9c2f3779a))
-* substance literal values ([#1682](https://github.com/penrose/penrose/issues/1682)) ([7c1978f](https://github.com/penrose/penrose/commit/7c1978f4e33498828d6893d7d8f9257d2f1f839b))
+- Add array-manipulation diagram to gallery ([#1716](https://github.com/penrose/penrose/issues/1716)) ([7f08c63](https://github.com/penrose/penrose/commit/7f08c636bfbcdf09c465bf5e244f31a42a3cf6e7))
+- More fractals ([#1644](https://github.com/penrose/penrose/issues/1644)) ([4862055](https://github.com/penrose/penrose/commit/4862055cb61891e7e55a2e910582fb4fbbb9f205))
+- Nephroid as Envelope ([#1647](https://github.com/penrose/penrose/issues/1647)) ([09119bd](https://github.com/penrose/penrose/commit/09119bd26895fa015d3c4864eadb05b1d72f8f9d))
+- Random Index Style Function & Chaos Game ([#1643](https://github.com/penrose/penrose/issues/1643)) ([36d4299](https://github.com/penrose/penrose/commit/36d4299a03c965b27b611dbb8c3fee941bbfbb4a))
+- Update spectral graph examples ([#1642](https://github.com/penrose/penrose/issues/1642)) ([97daca2](https://github.com/penrose/penrose/commit/97daca2af38db7d7ded95caa754d6e74b8d8e274))
+- Update variation for caffeine example ([#1700](https://github.com/penrose/penrose/issues/1700)) ([cd68afa](https://github.com/penrose/penrose/commit/cd68afa950f1471fe05a9fd6f113686aee3a4841))
+- initial values for unknown variables ([#1638](https://github.com/penrose/penrose/issues/1638)) ([61f2ad7](https://github.com/penrose/penrose/commit/61f2ad766efc471bf552a6cfc3d9fcf9c2f3779a))
+- substance literal values ([#1682](https://github.com/penrose/penrose/issues/1682)) ([7c1978f](https://github.com/penrose/penrose/commit/7c1978f4e33498828d6893d7d8f9257d2f1f839b))
 
 ### :bug: Bug Fix
 
-* separate Substance environment and remove unused features ([#1677](https://github.com/penrose/penrose/issues/1677)) ([7ad14e7](https://github.com/penrose/penrose/commit/7ad14e7d819d1ddedc03a75eb17f17532430b3aa))
-* vector subtraction in tutorial3.md ([#1701](https://github.com/penrose/penrose/issues/1701)) ([2680e34](https://github.com/penrose/penrose/commit/2680e346c80cf67cbb402b8d45e800c80f22c5c7))
+- separate Substance environment and remove unused features ([#1677](https://github.com/penrose/penrose/issues/1677)) ([7ad14e7](https://github.com/penrose/penrose/commit/7ad14e7d819d1ddedc03a75eb17f17532430b3aa))
+- vector subtraction in tutorial3.md ([#1701](https://github.com/penrose/penrose/issues/1701)) ([2680e34](https://github.com/penrose/penrose/commit/2680e346c80cf67cbb402b8d45e800c80f22c5c7))
 
 ### :nail_care: Polish
 
-* `Bond` constructor names in the chemistry domain ([#1712](https://github.com/penrose/penrose/issues/1712)) ([11ae235](https://github.com/penrose/penrose/commit/11ae2352279c18fb116a5dfa195a72fa9ef642a3))
-* commented geometry domain ([#1728](https://github.com/penrose/penrose/issues/1728)) ([2a335ee](https://github.com/penrose/penrose/commit/2a335ee1f2825b482766677001ad3dd3f280da9e))
-* integrate Rose ([#1636](https://github.com/penrose/penrose/issues/1636)) ([d7c1ef4](https://github.com/penrose/penrose/commit/d7c1ef4be11ac0251f026c755039bccc05818303))
+- `Bond` constructor names in the chemistry domain ([#1712](https://github.com/penrose/penrose/issues/1712)) ([11ae235](https://github.com/penrose/penrose/commit/11ae2352279c18fb116a5dfa195a72fa9ef642a3))
+- commented geometry domain ([#1728](https://github.com/penrose/penrose/issues/1728)) ([2a335ee](https://github.com/penrose/penrose/commit/2a335ee1f2825b482766677001ad3dd3f280da9e))
+- integrate Rose ([#1636](https://github.com/penrose/penrose/issues/1636)) ([d7c1ef4](https://github.com/penrose/penrose/commit/d7c1ef4be11ac0251f026c755039bccc05818303))
 
 ### :house: Internal
 
-* fix labeling objective in ray tracing Style ([#1660](https://github.com/penrose/penrose/issues/1660)) ([4f9ed8e](https://github.com/penrose/penrose/commit/4f9ed8ec5e78869f5577e8598a23b401a6a691b8))
-* simplify names of `IsSubset` and `NotIntersecting` ([#1724](https://github.com/penrose/penrose/issues/1724)) ([b5e8cb8](https://github.com/penrose/penrose/commit/b5e8cb8675c63f279e9e769913b24c1ec8055b23))
-* wait until the end to write the text chart ([#1665](https://github.com/penrose/penrose/issues/1665)) ([31492d0](https://github.com/penrose/penrose/commit/31492d0d29a8310f1782ea4a5b252a162f6ab285))
-* write out registry stats after every diagram ([#1664](https://github.com/penrose/penrose/issues/1664)) ([c16e63f](https://github.com/penrose/penrose/commit/c16e63f93bacf65e161264982af250a83b3b0d38))
-
+- fix labeling objective in ray tracing Style ([#1660](https://github.com/penrose/penrose/issues/1660)) ([4f9ed8e](https://github.com/penrose/penrose/commit/4f9ed8ec5e78869f5577e8598a23b401a6a691b8))
+- simplify names of `IsSubset` and `NotIntersecting` ([#1724](https://github.com/penrose/penrose/issues/1724)) ([b5e8cb8](https://github.com/penrose/penrose/commit/b5e8cb8675c63f279e9e769913b24c1ec8055b23))
+- wait until the end to write the text chart ([#1665](https://github.com/penrose/penrose/issues/1665)) ([31492d0](https://github.com/penrose/penrose/commit/31492d0d29a8310f1782ea4a5b252a162f6ab285))
+- write out registry stats after every diagram ([#1664](https://github.com/penrose/penrose/issues/1664)) ([c16e63f](https://github.com/penrose/penrose/commit/c16e63f93bacf65e161264982af250a83b3b0d38))
 
 ## [v3.2.0](https://github.com/penrose/penrose/compare/v3.1.0...v3.2.0) (2023-08-08)
 

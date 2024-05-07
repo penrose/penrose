@@ -7,31 +7,30 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### :warning: BREAKING CHANGE
 
-* separate Substance environment and remove unused features (#1677)
+- separate Substance environment and remove unused features (#1677)
 
 ### :rocket: New Feature
 
-* initial values for unknown variables ([#1638](https://github.com/penrose/penrose/issues/1638)) ([61f2ad7](https://github.com/penrose/penrose/commit/61f2ad766efc471bf552a6cfc3d9fcf9c2f3779a))
-* run the compiler and optimizer in a web worker ([#1681](https://github.com/penrose/penrose/issues/1681)) ([42a657d](https://github.com/penrose/penrose/commit/42a657dcb32e565ebd8923df671f673b6b6436d5))
-* warn `editor` users to save local changes ([#1734](https://github.com/penrose/penrose/issues/1734)) ([c088040](https://github.com/penrose/penrose/commit/c088040a604034e6776b8dcf8dd8a8b39180ca0c))
+- initial values for unknown variables ([#1638](https://github.com/penrose/penrose/issues/1638)) ([61f2ad7](https://github.com/penrose/penrose/commit/61f2ad766efc471bf552a6cfc3d9fcf9c2f3779a))
+- run the compiler and optimizer in a web worker ([#1681](https://github.com/penrose/penrose/issues/1681)) ([42a657d](https://github.com/penrose/penrose/commit/42a657dcb32e565ebd8923df671f673b6b6436d5))
+- warn `editor` users to save local changes ([#1734](https://github.com/penrose/penrose/issues/1734)) ([c088040](https://github.com/penrose/penrose/commit/c088040a604034e6776b8dcf8dd8a8b39180ca0c))
 
 ### :bug: Bug Fix
 
-* download functionality in the editor ([#1678](https://github.com/penrose/penrose/issues/1678)) ([6401b84](https://github.com/penrose/penrose/commit/6401b841d7413ef1c6a878c84927c737dff80858))
-* duplicate `<penrose>` tags in exported SVGs ([#1652](https://github.com/penrose/penrose/issues/1652)) ([1da2cab](https://github.com/penrose/penrose/commit/1da2cabc1ec11d1fdba101dedc0cff5f63ed5880))
-* off-by-one error in time-travel slider ([#1698](https://github.com/penrose/penrose/issues/1698)) ([bcb0c6c](https://github.com/penrose/penrose/commit/bcb0c6caff00d7c95220161d07f00e6b7840e8d4))
-* queue and resolve pending requests in optimizer worker ([#1722](https://github.com/penrose/penrose/issues/1722)) ([357b1da](https://github.com/penrose/penrose/commit/357b1da0d53abb39408863ce78a28f45150d6716))
-* resolve state-related bugs in the editor ([#1696](https://github.com/penrose/penrose/issues/1696)) ([b9e08d4](https://github.com/penrose/penrose/commit/b9e08d4f8897efd194a0ee843ebcdad26eaa91da))
-* separate Substance environment and remove unused features ([#1677](https://github.com/penrose/penrose/issues/1677)) ([7ad14e7](https://github.com/penrose/penrose/commit/7ad14e7d819d1ddedc03a75eb17f17532430b3aa))
+- download functionality in the editor ([#1678](https://github.com/penrose/penrose/issues/1678)) ([6401b84](https://github.com/penrose/penrose/commit/6401b841d7413ef1c6a878c84927c737dff80858))
+- duplicate `<penrose>` tags in exported SVGs ([#1652](https://github.com/penrose/penrose/issues/1652)) ([1da2cab](https://github.com/penrose/penrose/commit/1da2cabc1ec11d1fdba101dedc0cff5f63ed5880))
+- off-by-one error in time-travel slider ([#1698](https://github.com/penrose/penrose/issues/1698)) ([bcb0c6c](https://github.com/penrose/penrose/commit/bcb0c6caff00d7c95220161d07f00e6b7840e8d4))
+- queue and resolve pending requests in optimizer worker ([#1722](https://github.com/penrose/penrose/issues/1722)) ([357b1da](https://github.com/penrose/penrose/commit/357b1da0d53abb39408863ce78a28f45150d6716))
+- resolve state-related bugs in the editor ([#1696](https://github.com/penrose/penrose/issues/1696)) ([b9e08d4](https://github.com/penrose/penrose/commit/b9e08d4f8897efd194a0ee843ebcdad26eaa91da))
+- separate Substance environment and remove unused features ([#1677](https://github.com/penrose/penrose/issues/1677)) ([7ad14e7](https://github.com/penrose/penrose/commit/7ad14e7d819d1ddedc03a75eb17f17532430b3aa))
 
 ### :nail_care: Polish
 
-* simplified shared `Grid` and custom `Grid` in Edgeworth ([#1729](https://github.com/penrose/penrose/issues/1729)) ([a7c9d4d](https://github.com/penrose/penrose/commit/a7c9d4d5d8cc44b3544afb826da3a7002ef55cff))
+- simplified shared `Grid` and custom `Grid` in Edgeworth ([#1729](https://github.com/penrose/penrose/issues/1729)) ([a7c9d4d](https://github.com/penrose/penrose/commit/a7c9d4d5d8cc44b3544afb826da3a7002ef55cff))
 
 ### :house: Internal
 
-* add default canvas block to `editor` ([#1674](https://github.com/penrose/penrose/issues/1674)) ([52f8fd2](https://github.com/penrose/penrose/commit/52f8fd28e1cfc22e0c9750f3c9cdc61e5f9a6591))
-
+- add default canvas block to `editor` ([#1674](https://github.com/penrose/penrose/issues/1674)) ([52f8fd2](https://github.com/penrose/penrose/commit/52f8fd28e1cfc22e0c9750f3c9cdc61e5f9a6591))
 
 ## [v3.2.0](https://github.com/penrose/penrose/compare/v3.1.0...v3.2.0) (2023-08-08)
 

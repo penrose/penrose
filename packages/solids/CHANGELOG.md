@@ -7,16 +7,15 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### :rocket: New Feature
 
-* initial values for unknown variables ([#1638](https://github.com/penrose/penrose/issues/1638)) ([61f2ad7](https://github.com/penrose/penrose/commit/61f2ad766efc471bf552a6cfc3d9fcf9c2f3779a))
+- initial values for unknown variables ([#1638](https://github.com/penrose/penrose/issues/1638)) ([61f2ad7](https://github.com/penrose/penrose/commit/61f2ad766efc471bf552a6cfc3d9fcf9c2f3779a))
 
 ### :nail_care: Polish
 
-* integrate Rose ([#1636](https://github.com/penrose/penrose/issues/1636)) ([d7c1ef4](https://github.com/penrose/penrose/commit/d7c1ef4be11ac0251f026c755039bccc05818303))
+- integrate Rose ([#1636](https://github.com/penrose/penrose/issues/1636)) ([d7c1ef4](https://github.com/penrose/penrose/commit/d7c1ef4be11ac0251f026c755039bccc05818303))
 
 ### :memo: Documentation
 
-* comment SolidJS `sample` function ([#1656](https://github.com/penrose/penrose/issues/1656)) ([68975e5](https://github.com/penrose/penrose/commit/68975e5519ee3ad9ba0e5b50bd9b2766fff2c543))
-
+- comment SolidJS `sample` function ([#1656](https://github.com/penrose/penrose/issues/1656)) ([68975e5](https://github.com/penrose/penrose/commit/68975e5519ee3ad9ba0e5b50bd9b2766fff2c543))
 
 ## [v3.2.0](https://github.com/penrose/penrose/compare/v3.1.0...v3.2.0) (2023-08-08)
 
