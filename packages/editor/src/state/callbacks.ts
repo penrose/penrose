@@ -413,68 +413,115 @@ export const useLoadLocalWorkspace = () =>
     );
   });
 
-export const useLoadExampleWorkspace = () =>
-  useRecoilCallback(
-    ({ set, reset, snapshot }) =>
-      async (meta: TrioWithPreview) => {
-        const currentWorkspace = snapshot.getLoadable(
-          currentWorkspaceState,
-        ).contents;
-        if (
-          !isCleanWorkspace(currentWorkspace) &&
-          !confirm(
-            "You have unsaved changes. Are you sure you want to load a gallery example?",
-          )
-        ) {
-          return;
-        }
-        const id = toast.loading("Loading example...");
-        const { domain, style, substance, variation, excludeWarnings } =
-          await meta.get();
-        toast.dismiss(id);
-        const styleJoined = style
-          .map(({ contents }: Style) => contents)
-          .join("\n");
-        // HACK: we should really use each Style's individual `resolver`
-        const { resolver } = style[0];
-        set(currentWorkspaceState, {
-          metadata: {
-            id: uuid(),
-            name: meta.name!,
-            lastModified: new Date().toISOString(),
-            editorVersion: EDITOR_VERSION,
-            location: {
-              kind: "example",
-              resolver,
+  export const useLoadExampleWorkspace = () =>
+    useRecoilCallback(
+      ({ set, reset, snapshot }) =>
+        async (meta: TrioWithPreview) => {
+          const currentWorkspace = snapshot.getLoadable(
+            currentWorkspaceState,
+          ).contents;
+          if (
+            !isCleanWorkspace(currentWorkspace) &&
+            !confirm(
+              "You have unsaved changes. Are you sure you want to load a gallery example?",
+            )
+          ) {
+            return;
+          }
+          const id = toast.loading("Loading example...");
+          const { domain, style, substance, variation, excludeWarnings } =
+            await meta.get();
+          toast.dismiss(id);
+          const styleJoined = style
+            .map(({ contents }: Style) => contents)
+            .join("\n");
+          // HACK: we should really use each Style's individual `resolver`
+          const { resolver } = style[0];
+          set(currentWorkspaceState, {
+            metadata: {
+              id: uuid(),
+              name: meta.name!,
+              lastModified: new Date().toISOString(),
+              editorVersion: EDITOR_VERSION,
+              location: {
+                kind: "example",
+                resolver,
+              },
+              forkedFromGist: null,
             },
-            forkedFromGist: null,
+            files: {
+              domain: {
+                contents: domain,
+                name: `.domain`,
+              },
+              style: {
+                contents: styleJoined,
+                name: `.style`,
+              },
+              substance: {
+                contents: substance,
+                name: `.substance`,
+              },
+            },
+          });
+          reset(diagramState);
+          await _compileDiagram(
+            substance,
+            styleJoined,
+            domain,
+            variation,
+            excludeWarnings,
+            set,
+          );
+        },
+    );
+
+export const useNewWorkspace = () =>
+  useRecoilCallback(({ set, snapshot }) => () => {
+    const workspace = snapshot.getLoadable(currentWorkspaceState).contents;
+    if (
+      !isCleanWorkspace(workspace) &&
+      !confirm(`You have unsaved changes. Are you sure you want to create
+      a new workspace?`)
+    ) {
+      return;
+    }
+    else
+    {
+      // Using set rather than reset as reset created an issue in
+      // id reuse which led to saving a new workspace to override past saves
+      set(currentWorkspaceState, {
+        metadata: {
+          id: uuid(),
+          name: "Untitled Diagram",
+          lastModified: new Date().toISOString(),
+          editorVersion: 0.1,
+          location: {
+            kind: "local",
+            saved: false,
           },
-          files: {
-            domain: {
-              contents: domain,
-              name: `.domain`,
-            },
-            style: {
-              contents: styleJoined,
-              name: `.style`,
-            },
-            substance: {
-              contents: substance,
-              name: `.substance`,
-            },
+          forkedFromGist: null,
+        },
+        files: {
+          domain: {
+            contents: "",
+            name: `.domain`,
           },
-        });
-        reset(diagramState);
-        await _compileDiagram(
-          substance,
-          styleJoined,
-          domain,
-          variation,
-          excludeWarnings,
-          set,
-        );
-      },
-  );
+          style: {
+            contents: `canvas {
+              width = 400
+              height = 400
+            }`,
+            name: `.style`,
+          },
+          substance: {
+            contents: "",
+            name: `.substance`,
+          },
+        },
+      });
+    }
+  });
 
 export const useCheckURL = () =>
   useRecoilCallback(({ set, snapshot, reset }) => async () => {

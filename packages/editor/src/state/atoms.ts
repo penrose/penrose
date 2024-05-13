@@ -253,6 +253,7 @@ export const fileContentsSelector = selectorFamily<ProgramFile, ProgramType>({
 export const workspaceMetadataSelector = selector<WorkspaceMetadata>({
   key: "workspaceMetadata",
   get: ({ get }) => {
+    // console.log(get(currentWorkspaceState).metadata)
     return get(currentWorkspaceState).metadata;
   },
   set: ({ set }, newValue) => {

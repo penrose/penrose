@@ -14,6 +14,7 @@ import {
   usePublishGist,
   useResampleDiagram,
   useSaveLocally,
+  useNewWorkspace,
 } from "../state/callbacks.js";
 import BlueButton from "./BlueButton.js";
 import ExportButton from "./ExportButton.js";
@@ -118,6 +119,7 @@ export default function TopBar() {
   const publishGist = usePublishGist();
   const { running } = useRecoilValue(diagramWorkerState);
   const isUnsaved = useIsUnsaved();
+  const newWorkspace = useNewWorkspace();
 
   return (
     <nav
@@ -172,6 +174,8 @@ export default function TopBar() {
             settings.github !== null && (
               <BlueButton onClick={publishGist}>share</BlueButton>
             )}
+        
+        <BlueButton onClick={newWorkspace}>new workspace</BlueButton>
         </div>
       )}
       <HeaderButtonContainer>
