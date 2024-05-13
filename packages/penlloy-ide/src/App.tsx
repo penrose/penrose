@@ -1,6 +1,6 @@
 import { Layout, TabNode } from "flexlayout-react";
 import "flexlayout-react/style/light.css";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
 import { styleEditorLayoutModel, topLayoutModel } from "./Layout";
@@ -149,8 +149,6 @@ const App = ({ port }: { port: number }) => {
 
   const ws = useRef<WebSocket | null>(null);
 
-  const [available, setAvailable] = useState(false);
-
   const compileDiagram = useCompileDiagram();
   const updateDomainAndSubstance = useRecoilCallback(
     ({ set }) =>
@@ -167,22 +165,20 @@ const App = ({ port }: { port: number }) => {
       toast.error("disconnected from Penlloy's Penrose program server", {
         duration: 1000,
       });
-      setAvailable(false);
     };
     ws.current.onerror = () => {
       toast.error("couldn't connect to Penlloy's Penrose program server", {
         duration: 1000,
       });
-      setAvailable(false);
     };
     ws.current.onopen = () => {
       toast.success("connected to Penlloy's Penrose program server", {
         duration: 1000,
       });
-      setAvailable(true);
     };
     ws.current.onmessage = (e) => {
       const parsed = JSON.parse(e.data) as DomainAndSubstanceMessage;
+      console.log(parsed);
       const { domain, substance } = parsed;
       updateDomainAndSubstance(domain, substance);
     };
@@ -194,33 +190,7 @@ const App = ({ port }: { port: number }) => {
     }
   }, []);
 
-  if (true) {
-    return <Layout model={topLayoutModel} factory={componentFactory} />;
-  } else {
-    return (
-      <div style={{ display: "flex", flexDirection: "row", height: "100%" }}>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            maxHeight: "100%",
-            width: "100%",
-          }}
-        >
-          <span>
-            Cannot connect to Penrose generator. Please check that it is on and{" "}
-            <BlueButton
-              onClick={() => {
-                location.reload();
-              }}
-            >
-              Refresh
-            </BlueButton>
-          </span>
-        </div>
-      </div>
-    );
-  }
+  return <Layout model={topLayoutModel} factory={componentFactory} />;
 };
 
 export default App;

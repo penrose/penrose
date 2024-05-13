@@ -45,10 +45,11 @@ export const usePathResolver = () =>
           currentStyleResourcesState,
         );
 
-        const resource = resources.get(path);
-        if (resource === undefined) {
+        const ind = resources.findIndex(([name]) => name === path);
+        if (ind === -1) {
           return undefined;
         } else {
+          const [, resource] = resources.get(ind)!;
           return resource.contents;
         }
       },

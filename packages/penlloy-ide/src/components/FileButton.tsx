@@ -32,10 +32,12 @@ export default function FileButton({
   children,
   onClick,
   onDelete,
+  onRename,
 }: {
   children: React.ReactNode;
   onClick: () => void;
   onDelete: () => void;
+  onRename: () => void;
 }) {
   return (
     <_FileButton isFocused={false} onClick={onClick}>
@@ -49,15 +51,37 @@ export default function FileButton({
         }}
       >
         <div>{children}</div>
-        <div>
-          <BlueButton
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete();
-            }}
-          >
-            x
-          </BlueButton>
+        <div
+          style={{
+            display: "flex",
+            width: "100%",
+            justifyContent: "right",
+            alignItems: "center",
+            boxSizing: "border-box",
+          }}
+        >
+          <div>
+            <BlueButton
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete();
+              }}
+              title="Delete"
+            >
+              x
+            </BlueButton>
+          </div>
+          <div>
+            <BlueButton
+              onClick={(e) => {
+                e.stopPropagation();
+                onRename();
+              }}
+              title="Rename"
+            >
+              ⇆
+            </BlueButton>
+          </div>
         </div>
       </div>
     </_FileButton>

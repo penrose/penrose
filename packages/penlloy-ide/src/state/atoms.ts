@@ -78,11 +78,11 @@ export type StyleSVGResource = {
   contents: string;
 };
 
-export type StyleResources = im.Map<string, StyleSVGResource>;
+export type StyleResources = im.List<[string, StyleSVGResource]>;
 
 export const currentStyleResourcesState = atom<StyleResources>({
   key: "currentStyleResourcesState",
-  default: im.Map(),
+  default: im.List(),
 });
 
 export type DiagramMetadata = {

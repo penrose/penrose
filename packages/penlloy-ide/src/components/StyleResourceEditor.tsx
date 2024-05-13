@@ -63,18 +63,31 @@ const StyleResource = ({ resourceName }: { resourceName: string }) => {
   const [styleResources, setStyleResources] = useRecoilState(
     currentStyleResourcesState,
   );
-  const resource = styleResources.get(resourceName);
-  if (resource === undefined) {
+  const ind = styleResources.findIndex(([name]) => name === resourceName);
+  if (ind === -1) {
     throw new Error("cannot locate resource with key = " + resourceName);
   }
+  const [, resource] = styleResources.get(ind)!;
   return (
     <FileButton
       key={resourceName}
-      onClick={() => {}}
+      onClick={() => {
+        const w = window.open();
+        w?.document.write(resource.contents);
+      }}
       onDelete={() => {
         const confirmed = confirm(`Delete resource ${resourceName}?`);
         if (confirmed) {
-          setStyleResources(styleResources.delete(resourceName));
+          setStyleResources(styleResources.delete(ind));
+        }
+      }}
+      onRename={() => {
+        const newName = prompt(
+          `Enter new name for resource ${resourceName}:`,
+          resourceName,
+        );
+        if (newName) {
+          setStyleResources(styleResources.set(ind, [newName, resource]));
         }
       }}
     >
@@ -107,8 +120,8 @@ export const StyleResourceEditor = () => {
         <StyleResourceUploader />
       </div>
       <div>
-        {Array.from(styleResources.keys()).map((key) => (
-          <StyleResource resourceName={key} key={key} />
+        {styleResources.map(([key], ind) => (
+          <StyleResource resourceName={key} key={ind} />
         ))}
       </div>
       {styleResources.size === 0 && (
