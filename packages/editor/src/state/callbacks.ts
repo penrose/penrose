@@ -4,7 +4,7 @@ import localforage from "localforage";
 import { range } from "lodash";
 import queryString from "query-string";
 import toast from "react-hot-toast";
-import { useRecoilCallback } from "recoil";
+import { useRecoilCallback, useRecoilState } from "recoil";
 import { v4 as uuid } from "uuid";
 import {
   DownloadPNG,
@@ -477,7 +477,7 @@ export const useLoadLocalWorkspace = () =>
     );
 
 export const useNewWorkspace = () =>
-  useRecoilCallback(({ set, snapshot }) => () => {
+  useRecoilCallback(({ reset, set, snapshot }) => () => {
     const workspace = snapshot.getLoadable(currentWorkspaceState).contents;
     if (
       !isCleanWorkspace(workspace) &&
@@ -486,41 +486,13 @@ export const useNewWorkspace = () =>
     ) {
       return;
     }
-    else
-    {
-      // Using set rather than reset as reset created an issue in
-      // id reuse which led to saving a new workspace to override past saves
-      set(currentWorkspaceState, {
-        metadata: {
-          id: uuid(),
-          name: "Untitled Diagram",
-          lastModified: new Date().toISOString(),
-          editorVersion: 0.1,
-          location: {
-            kind: "local",
-            saved: false,
-          },
-          forkedFromGist: null,
-        },
-        files: {
-          domain: {
-            contents: "",
-            name: `.domain`,
-          },
-          style: {
-            contents: `canvas {
-              width = 400
-              height = 400
-            }`,
-            name: `.style`,
-          },
-          substance: {
-            contents: "",
-            name: `.substance`,
-          },
-        },
-      });
-    }
+    reset(currentWorkspaceState);
+    set(currentWorkspaceState, (currState) => ({
+      ...currState,
+      metadata: { ...currState.metadata,
+        id: uuid(),
+      },
+    }));
   });
 
 export const useCheckURL = () =>
