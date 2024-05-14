@@ -18,8 +18,6 @@ export default function SavedFilesBrowser() {
   const duplicate = useDuplicate();
   const onDelete = useDeleteLocalFile();
 
-  // console.log(Object.values(localFiles));
-
   return (
     <div>
       {Object.values(localFiles).map((file) => (

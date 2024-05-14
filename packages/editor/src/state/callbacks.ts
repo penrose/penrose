@@ -4,7 +4,7 @@ import localforage from "localforage";
 import { range } from "lodash";
 import queryString from "query-string";
 import toast from "react-hot-toast";
-import { useRecoilCallback, useRecoilState } from "recoil";
+import { useRecoilCallback } from "recoil";
 import { v4 as uuid } from "uuid";
 import {
   DownloadPNG,
@@ -413,68 +413,68 @@ export const useLoadLocalWorkspace = () =>
     );
   });
 
-  export const useLoadExampleWorkspace = () =>
-    useRecoilCallback(
-      ({ set, reset, snapshot }) =>
-        async (meta: TrioWithPreview) => {
-          const currentWorkspace = snapshot.getLoadable(
-            currentWorkspaceState,
-          ).contents;
-          if (
-            !isCleanWorkspace(currentWorkspace) &&
-            !confirm(
-              "You have unsaved changes. Are you sure you want to load a gallery example?",
-            )
-          ) {
-            return;
-          }
-          const id = toast.loading("Loading example...");
-          const { domain, style, substance, variation, excludeWarnings } =
-            await meta.get();
-          toast.dismiss(id);
-          const styleJoined = style
-            .map(({ contents }: Style) => contents)
-            .join("\n");
-          // HACK: we should really use each Style's individual `resolver`
-          const { resolver } = style[0];
-          set(currentWorkspaceState, {
-            metadata: {
-              id: uuid(),
-              name: meta.name!,
-              lastModified: new Date().toISOString(),
-              editorVersion: EDITOR_VERSION,
-              location: {
-                kind: "example",
-                resolver,
-              },
-              forkedFromGist: null,
+export const useLoadExampleWorkspace = () =>
+  useRecoilCallback(
+    ({ set, reset, snapshot }) =>
+      async (meta: TrioWithPreview) => {
+        const currentWorkspace = snapshot.getLoadable(
+          currentWorkspaceState,
+        ).contents;
+        if (
+          !isCleanWorkspace(currentWorkspace) &&
+          !confirm(
+            "You have unsaved changes. Are you sure you want to load a gallery example?",
+          )
+        ) {
+          return;
+        }
+        const id = toast.loading("Loading example...");
+        const { domain, style, substance, variation, excludeWarnings } =
+          await meta.get();
+        toast.dismiss(id);
+        const styleJoined = style
+          .map(({ contents }: Style) => contents)
+          .join("\n");
+        // HACK: we should really use each Style's individual `resolver`
+        const { resolver } = style[0];
+        set(currentWorkspaceState, {
+          metadata: {
+            id: uuid(),
+            name: meta.name!,
+            lastModified: new Date().toISOString(),
+            editorVersion: EDITOR_VERSION,
+            location: {
+              kind: "example",
+              resolver,
             },
-            files: {
-              domain: {
-                contents: domain,
-                name: `.domain`,
-              },
-              style: {
-                contents: styleJoined,
-                name: `.style`,
-              },
-              substance: {
-                contents: substance,
-                name: `.substance`,
-              },
+            forkedFromGist: null,
+          },
+          files: {
+            domain: {
+              contents: domain,
+              name: `.domain`,
             },
-          });
-          reset(diagramState);
-          await _compileDiagram(
-            substance,
-            styleJoined,
-            domain,
-            variation,
-            excludeWarnings,
-            set,
-          );
-        },
-    );
+            style: {
+              contents: styleJoined,
+              name: `.style`,
+            },
+            substance: {
+              contents: substance,
+              name: `.substance`,
+            },
+          },
+        });
+        reset(diagramState);
+        await _compileDiagram(
+          substance,
+          styleJoined,
+          domain,
+          variation,
+          excludeWarnings,
+          set,
+        );
+      },
+  );
 
 export const useNewWorkspace = () =>
   useRecoilCallback(({ reset, set, snapshot }) => () => {
@@ -489,10 +489,9 @@ export const useNewWorkspace = () =>
     reset(currentWorkspaceState);
     set(currentWorkspaceState, (currState) => ({
       ...currState,
-      metadata: { ...currState.metadata,
-        id: uuid(),
-      },
+      metadata: { ...currState.metadata, id: uuid() },
     }));
+    reset(diagramState);
   });
 
 export const useCheckURL = () =>
