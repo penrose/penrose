@@ -11,6 +11,7 @@ import {
   useCompileDiagram,
   useDownloadSvg,
   useIsUnsaved,
+  useNewWorkspace,
   usePublishGist,
   useResampleDiagram,
   useSaveLocally,
@@ -118,6 +119,7 @@ export default function TopBar() {
   const publishGist = usePublishGist();
   const { running } = useRecoilValue(diagramWorkerState);
   const isUnsaved = useIsUnsaved();
+  const newWorkspace = useNewWorkspace();
 
   return (
     <nav
@@ -172,6 +174,8 @@ export default function TopBar() {
             settings.github !== null && (
               <BlueButton onClick={publishGist}>share</BlueButton>
             )}
+
+          <BlueButton onClick={newWorkspace}>new workspace</BlueButton>
         </div>
       )}
       <HeaderButtonContainer>

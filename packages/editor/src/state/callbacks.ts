@@ -32,6 +32,7 @@ import {
   canvasState,
   currentRogerState,
   currentWorkspaceState,
+  defaultWorkspaceState,
   diagramGridState,
   diagramMetadataSelector,
   diagramState,
@@ -475,6 +476,21 @@ export const useLoadExampleWorkspace = () =>
         );
       },
   );
+
+export const useNewWorkspace = () =>
+  useRecoilCallback(({ reset, set, snapshot }) => () => {
+    const workspace = snapshot.getLoadable(currentWorkspaceState).contents;
+    if (
+      !isCleanWorkspace(workspace) &&
+      !confirm(`You have unsaved changes. Are you sure you want to create
+      a new workspace?`)
+    ) {
+      return;
+    }
+    // set rather than reset to generate new id to avoid id conflicts
+    set(currentWorkspaceState, () => defaultWorkspaceState());
+    reset(diagramState);
+  });
 
 export const useCheckURL = () =>
   useRecoilCallback(({ set, snapshot, reset }) => async () => {
