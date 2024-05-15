@@ -32,6 +32,7 @@ import {
   canvasState,
   currentRogerState,
   currentWorkspaceState,
+  defaultWorkspaceState,
   diagramGridState,
   diagramMetadataSelector,
   diagramState,
@@ -486,11 +487,7 @@ export const useNewWorkspace = () =>
     ) {
       return;
     }
-    reset(currentWorkspaceState);
-    set(currentWorkspaceState, (currState) => ({
-      ...currState,
-      metadata: { ...currState.metadata, id: uuid() },
-    }));
+    set(currentWorkspaceState, () => defaultWorkspaceState());
     reset(diagramState);
   });
 

@@ -189,35 +189,37 @@ const syncFilenamesEffect: AtomEffect<Workspace> = ({ onSet }) => {
   });
 };
 
-export const currentWorkspaceState = atom<Workspace>({
-  key: "currentWorkspace",
-  default: {
-    metadata: {
-      name: "Untitled Diagram",
-      id: uuid(),
-      lastModified: new Date().toISOString(),
-      editorVersion: 0.1,
-      location: { kind: "local", saved: false },
-      forkedFromGist: null,
+export const defaultWorkspaceState = (): Workspace => ({
+  metadata: {
+    name: "Untitled Diagram",
+    id: uuid(),
+    lastModified: new Date().toISOString(),
+    editorVersion: 0.1,
+    location: { kind: "local", saved: false },
+    forkedFromGist: null,
+  },
+  files: {
+    substance: {
+      name: ".substance",
+      contents: "",
     },
-    files: {
-      substance: {
-        name: ".substance",
-        contents: "",
-      },
-      style: {
-        name: ".style",
-        contents: `canvas {
-  width = 400
-  height = 400
+    style: {
+      name: ".style",
+      contents: `canvas {
+width = 400
+height = 400
 }`,
-      },
-      domain: {
-        name: ".domain",
-        contents: "",
-      },
+    },
+    domain: {
+      name: ".domain",
+      contents: "",
     },
   },
+});
+
+export const currentWorkspaceState = atom<Workspace>({
+  key: "currentWorkspace",
+  default: defaultWorkspaceState(),
   effects: [saveWorkspaceEffect, syncFilenamesEffect],
 });
 
