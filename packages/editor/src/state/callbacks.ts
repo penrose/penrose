@@ -717,7 +717,9 @@ export const useDeleteLocalFile = () =>
         });
         await localforage.removeItem(id);
         if (currentWorkspace.metadata.id === id) {
-          reset(currentWorkspaceState);
+          // set rather than reset to generate new id to avoid id conflicts
+          set(currentWorkspaceState, () => defaultWorkspaceState());
+          reset(diagramState);
         }
         toast.success(`Removed ${name}`);
       },
