@@ -487,6 +487,7 @@ export const useNewWorkspace = () =>
     ) {
       return;
     }
+    // set rather than reset to generate new id to avoid id conflicts
     set(currentWorkspaceState, () => defaultWorkspaceState());
     reset(diagramState);
   });
