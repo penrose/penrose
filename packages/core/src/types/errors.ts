@@ -525,7 +525,10 @@ export interface MissingArgumentError {
 
 export interface TooManyArgumentsError {
   tag: "TooManyArgumentsError";
-  func: CompFunc | ObjFunc | ConstrFunc;
+  func:
+    | Omit<CompFunc, "body">
+    | Omit<ObjFunc, "body">
+    | Omit<ConstrFunc, "body">;
   funcLocation: SourceRange;
   numProvided: number;
 }
