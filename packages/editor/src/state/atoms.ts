@@ -206,8 +206,8 @@ export const defaultWorkspaceState = (): Workspace => ({
     style: {
       name: ".style",
       contents: `canvas {
-width = 400
-height = 400
+  width = 400
+  height = 400
 }`,
     },
     domain: {
