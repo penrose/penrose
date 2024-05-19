@@ -2,7 +2,7 @@ import im from "immutable";
 import { ShapeType } from "../shapes/Shapes.js";
 import Graph from "../utils/Graph.js";
 import * as ad from "./ad.js";
-import { C, Identifier } from "./ast.js";
+import { ASTNode, C } from "./ast.js";
 import { StyleDiagnostics, StyleError } from "./errors.js";
 import { Fn } from "./state.js";
 import { Expr, GPIDecl } from "./style.js";
@@ -157,16 +157,65 @@ export interface BlockInfo {
 
 export interface Context extends BlockInfo, Locals {}
 
-export interface ResolvedName {
-  tag: "Global" | "Local" | "Substance";
-  block: LocalVarSubst;
-  name: string;
-}
+// export interface ResolvedName {
+//   tag: "Global" | "Local" | "Substance";
+//   block: LocalVarSubst;
+//   name: string;
+// }
+//
+// export type ResolvedPath<T> = T &
+//   ResolvedName & {
+//     members: Identifier<T>[];
+//   };
 
-export type ResolvedPath<T> = T &
-  ResolvedName & {
-    members: Identifier<T>[];
-  };
+export type StylePath<T> =
+  | EmptyStylePath<T>
+  | StylePathToScope<T>
+  | StylePathToObject<T>;
+
+export type StylePathToScope<T> =
+  | StylePathToLocalScope<T>
+  | StylePathToSubstanceScope<T>
+  | StylePathToNamespaceScope<T>;
+
+export type EmptyStylePath<T> = ASTNode<T> & { tag: "Empty" };
+export type StylePathToLocalScope<T> = ASTNode<T> & { tag: "Local" };
+export type StylePathToSubstanceScope<T> = ASTNode<T> & {
+  tag: "Substance";
+  substanceName: string;
+  styleName: string;
+};
+export type StylePathToNamespaceScope<T> = ASTNode<T> & {
+  tag: "Namespace";
+  name: string;
+};
+
+export type StylePathToObject<T> =
+  | StylePathToShapeObject<T>
+  | StylePathToValueObject<T>;
+
+export type StylePathToShapeObject<T> = ASTNode<T> & {
+  tag: "Object";
+  // `parent' can only point to a scope, it cannot point to a Style object.
+  // if `parent' points to a value object, then the `parent' cannot have any children.
+  // if `parent` points to a shape object, then nested shapes are disallowed.
+  parent: StylePathToScope<T>;
+  name: string;
+};
+
+export type StylePathToValueObject<T> = ASTNode<T> & {
+  tag: "Object";
+  // the parent of a value object can be a scope (local, substance, or namespace) or a shape object
+  parent: StylePathToScope<T> | StylePathToShapeObject<T>;
+  name: string;
+};
+
+// This is only used in errors. It is not used in the actual Style semantics.
+export type BadStylePathToValueObject<T> = ASTNode<T> & {
+  tag: "Object";
+  parent: StylePathToValueObject<T>;
+  name: string;
+};
 
 //#endregion
 

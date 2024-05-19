@@ -90,11 +90,11 @@ import {
   Layer,
   LocalVarSubst,
   NotShape,
-  ResolvedName,
-  ResolvedPath,
   SelectorEnv,
   ShapeSource,
   StySubst,
+  StylePath,
+  StylePathToScope,
   Subst,
   SubstanceLiteral,
   SubstanceObject,
@@ -125,7 +125,6 @@ import {
   LListV,
   ListV,
   MatrixV,
-  PropID,
   PtListV,
   ShapeListV,
   StrV,
@@ -159,6 +158,7 @@ import {
   traverseUp,
 } from "../utils/GroupGraph.js";
 import Heap from "../utils/Heap.js";
+import { resolveLhsStylePath } from "../utils/StylePath.js";
 import {
   boolV,
   cartesianProduct,
@@ -753,10 +753,14 @@ const matchBvar = (
     case "SubVar": {
       if (subVar.value === bf.contents.value) {
         // Substance variables matched; comparing string equality
-        return {};
+        const newSubst: Subst = {};
+        newSubst[`\`${bf.contents.value}\``] = {
+          tag: "SubstanceVar",
+          name: subVar.value,
+        };
+        return newSubst;
       } else {
-        return undefined; // TODO: Note, here we distinguish between an empty substitution and no substitution... but why?
-        // Answer: An empty substitution counts as a match; an invalid substitution (undefined) does not count as a match.
+        return undefined; // invalid substitution
       }
     }
   }
@@ -890,9 +894,12 @@ const matchStyArgToSubArg = (
         if (subArg.value === styBForm.contents.value) {
           if (isSubtype(subArgType, styArgType, domEnv)) {
             // The result is a valid match.
-            // This is an empty substitution because a substitution only maps Style variables
-            // to substance variables.
-            return [{}];
+            const rSubst: Subst = {};
+            rSubst[`\`${styArgName}\``] = {
+              tag: "SubstanceVar",
+              name: subArgName,
+            };
+            return [rSubst];
           } else {
             // invalid match
             return [];
@@ -1145,7 +1152,11 @@ const matchRelField = (
     const label = subEnv.labels.get(subName);
     if (label) {
       const rSubst: Subst = {};
-      rSubst[styName] = { tag: "SubstanceVar", name: subName };
+      if (rel.name.tag === "StyVar") {
+        rSubst[styName] = { tag: "SubstanceVar", name: subName };
+      } else {
+        rSubst[`\`${styName}\``] = { tag: "SubstanceVar", name: subName };
+      }
       if (fieldDesc) {
         return label.type === fieldDesc ? rSubst : undefined;
       } else {
@@ -1527,79 +1538,175 @@ type FieldedRes = Result<
   StyleError
 >;
 
-const updateExpr = (
-  path: ResolvedPath<C>,
+const resolveScope = (
+  assignment: BlockAssignment,
+  scope: StylePathToScope<C>,
+): FieldDict => {
+  if (scope.tag === "Local") {
+    return assignment.locals;
+  } else if (scope.tag === "Namespace") {
+    return assignment.globals.get(scope.name) ?? im.Map();
+  } else {
+    // Substance
+    return assignment.substances.get(scope.substanceName) ?? im.Map();
+  }
+};
+
+const updateScope = (
+  assignment: BlockAssignment,
+  scope: StylePathToScope<C>,
+  newDict: FieldDict,
+): BlockAssignment => {
+  if (scope.tag === "Local") {
+    return { ...assignment, locals: newDict };
+  } else if (scope.tag === "Namespace") {
+    return {
+      ...assignment,
+      globals: assignment.globals.set(scope.name, newDict),
+    };
+  } else {
+    return {
+      ...assignment,
+      substances: assignment.substances.set(scope.substanceName, newDict),
+    };
+  }
+};
+
+const checkPathAndUpdateExpr = (
+  path: StylePath<C>,
   assignment: BlockAssignment,
   errTagGlobal: "AssignGlobalError" | "DeleteGlobalError",
   errTagSubstance: "AssignSubstanceError" | "DeleteSubstanceError",
-  // this function performs the actual dictionary updates. `updateExpr` only needs to extract the path to pass to `f`.
-  f: (field: Field, prop: PropID | undefined, fielded: FieldDict) => FieldedRes,
+  f: (field: string, prop: string | undefined, dict: FieldDict) => FieldedRes,
 ): BlockAssignment => {
-  switch (path.tag) {
-    case "Global": {
-      if (path.members.length < 1) {
-        return addDiags(oneErr({ tag: errTagGlobal, path }), assignment);
-      } else if (path.members.length > 2) {
-        return addDiags(
-          oneErr({ tag: "PropertyMemberError", path }),
-          assignment,
-        );
-      }
-      const field = path.members[0].value;
-      const prop = path.members.length > 1 ? path.members[1].value : undefined;
-      const namespaceFields = assignment.globals.get(path.name) ?? im.Map();
-      const res = f(field, prop, namespaceFields);
-      if (res.isErr()) {
-        return addDiags(oneErr(res.error), assignment);
-      }
-      const { dict, warns } = res.value;
-      return addDiags(warnings(warns), {
-        ...assignment,
-        globals: assignment.globals.set(path.name, dict),
-      });
+  if (path.tag === "Empty" || path.tag === "Local") {
+    // the LHS resolver and parser should never allow this
+    throw new Error("should never happen");
+  } else if (path.tag === "Namespace" || path.tag === "Substance") {
+    return addDiags(
+      oneErr({
+        tag: path.tag === "Namespace" ? errTagGlobal : errTagSubstance,
+        path,
+      }),
+      assignment,
+    );
+  } else {
+    // all the checks for path validity are done by the LHS resolver ...
+    // so `path` is guaranteed to point to a valid object
+    let scope: StylePathToScope<C> | undefined = undefined;
+    const otherPartsReversed: string[] = [path.name];
+    const { parent } = path;
+    if (parent.tag === "Object") {
+      otherPartsReversed.push(parent.name);
+      scope = parent.parent;
+    } else {
+      scope = parent;
     }
-    case "Local": {
-      // a local variable can only have 0 or 1 members (`x = 1` or `icon = { x: 1 }`)
-      if (path.members.length > 1) {
-        return addDiags(
-          oneErr({ tag: "PropertyMemberError", path }),
-          assignment,
-        );
-      }
-      // remember, we don't use `--noUncheckedIndexedAccess`
-      const prop = path.members.length > 0 ? path.members[0].value : undefined;
-      // coincidentally, `BlockAssignment["locals"]` looks just like `Fielded`
-      const res = f(path.name, prop, assignment.locals);
-      if (res.isErr()) {
-        return addDiags(oneErr(res.error), assignment);
-      }
-      const { dict: locals, warns } = res.value;
-      return addDiags(warnings(warns), { ...assignment, locals });
+
+    const [field, prop] =
+      otherPartsReversed.length === 1
+        ? [otherPartsReversed[0], undefined]
+        : [otherPartsReversed[1], otherPartsReversed[0]];
+
+    const dict = resolveScope(assignment, scope);
+
+    const res = f(field, prop, dict);
+    if (res.isErr()) {
+      return addDiags(oneErr(res.error), assignment);
     }
-    case "Substance": {
-      if (path.members.length < 1) {
-        return addDiags(oneErr({ tag: errTagSubstance, path }), assignment);
-      } else if (path.members.length > 2) {
-        return addDiags(
-          oneErr({ tag: "PropertyMemberError", path }),
-          assignment,
-        );
-      }
-      const field = path.members[0].value;
-      // remember, we don't use `--noUncheckedIndexedAccess`
-      const prop = path.members.length > 1 ? path.members[1].value : undefined;
-      const subObj = assignment.substances.get(path.name) ?? im.Map();
-      const res = f(field, prop, subObj);
-      if (res.isErr()) {
-        return addDiags(oneErr(res.error), assignment);
-      }
-      const { dict, warns } = res.value;
-      return addDiags(warnings(warns), {
-        ...assignment,
-        substances: assignment.substances.set(path.name, dict),
-      });
-    }
+
+    const { dict: newDict, warns } = res.value;
+
+    return addDiags(warnings(warns), updateScope(assignment, scope, newDict));
   }
+  // switch (path.tag) {
+  //   case "Empty":
+  //   case "Local":
+  //     // the LHS resolver and parser should never allow this
+  //     throw new Error("should never happen");
+  //   case "Namespace":
+  //     return addDiags(
+  //       oneErr({
+  //         tag: errTagGlobal,
+  //         path,
+  //       }),
+  //       assignment,
+  //     );
+  //   case "Substance":
+  //     return addDiags(
+  //       oneErr({
+  //         tag: errTagSubstance,
+  //         path,
+  //       }),
+  //       assignment,
+  //     );
+  //   case "Object":
+  // }
+  // switch (path.tag) {
+  //   case "Global": {
+  //     if (path.members.length < 1) {
+  //       return addDiags(oneErr({ tag: errTagGlobal, path }), assignment);
+  //     } else if (path.members.length > 2) {
+  //       return addDiags(
+  //         oneErr({ tag: "PropertyMemberError", path }),
+  //         assignment,
+  //       );
+  //     }
+  //     const field = path.members[0].value;
+  //     const prop = path.members.length > 1 ? path.members[1].value : undefined;
+  //     const namespaceFields = assignment.globals.get(path.name) ?? im.Map();
+  //     const res = f(field, prop, namespaceFields);
+  //     if (res.isErr()) {
+  //       return addDiags(oneErr(res.error), assignment);
+  //     }
+  //     const { dict, warns } = res.value;
+  //     return addDiags(warnings(warns), {
+  //       ...assignment,
+  //       globals: assignment.globals.set(path.name, dict),
+  //     });
+  //   }
+  //   case "Local": {
+  //     // a local variable can only have 0 or 1 members (`x = 1` or `icon = { x: 1 }`)
+  //     if (path.members.length > 1) {
+  //       return addDiags(
+  //         oneErr({ tag: "PropertyMemberError", path }),
+  //         assignment,
+  //       );
+  //     }
+  //     // remember, we don't use `--noUncheckedIndexedAccess`
+  //     const prop = path.members.length > 0 ? path.members[0].value : undefined;
+  //     // coincidentally, `BlockAssignment["locals"]` looks just like `Fielded`
+  //     const res = f(path.name, prop, assignment.locals);
+  //     if (res.isErr()) {
+  //       return addDiags(oneErr(res.error), assignment);
+  //     }
+  //     const { dict: locals, warns } = res.value;
+  //     return addDiags(warnings(warns), { ...assignment, locals });
+  //   }
+  //   case "Substance": {
+  //     if (path.members.length < 1) {
+  //       return addDiags(oneErr({ tag: errTagSubstance, path }), assignment);
+  //     } else if (path.members.length > 2) {
+  //       return addDiags(
+  //         oneErr({ tag: "PropertyMemberError", path }),
+  //         assignment,
+  //       );
+  //     }
+  //     const field = path.members[0].value;
+  //     // remember, we don't use `--noUncheckedIndexedAccess`
+  //     const prop = path.members.length > 1 ? path.members[1].value : undefined;
+  //     const subObj = assignment.substances.get(path.name) ?? im.Map();
+  //     const res = f(field, prop, subObj);
+  //     if (res.isErr()) {
+  //       return addDiags(oneErr(res.error), assignment);
+  //     }
+  //     const { dict, warns } = res.value;
+  //     return addDiags(warnings(warns), {
+  //       ...assignment,
+  //       substances: assignment.substances.set(path.name, dict),
+  //     });
+  //   }
+  // }
 };
 
 const processExpr = (
@@ -1628,11 +1735,11 @@ const processExpr = (
 
 const insertExpr = (
   block: BlockInfo,
-  path: ResolvedPath<C>,
+  path: StylePath<C>,
   expr: Expr<C>,
   assignment: BlockAssignment,
 ): BlockAssignment =>
-  updateExpr(
+  checkPathAndUpdateExpr(
     path,
     assignment,
     "AssignGlobalError",
@@ -1680,10 +1787,10 @@ const insertExpr = (
   );
 
 const deleteExpr = (
-  path: ResolvedPath<C>,
+  path: StylePath<C>,
   assignment: BlockAssignment,
 ): BlockAssignment =>
-  updateExpr(
+  checkPathAndUpdateExpr(
     path,
     assignment,
     "DeleteGlobalError",
@@ -1713,58 +1820,149 @@ const deleteExpr = (
     },
   );
 
-const resolveLhsName = (
-  { block, subst }: BlockInfo,
-  assignment: BlockAssignment,
-  name: BindingForm<C>,
-): ResolvedName => {
-  const { value } = name.contents;
-  switch (name.tag) {
-    case "StyVar": {
-      if (assignment.locals.has(value)) {
-        // locals shadow selector match names
-        return { tag: "Local", block, name: value };
-      } else if (subst.tag === "StySubSubst" && value in subst.contents) {
-        // selector match names shadow globals
-        return {
-          tag: "Substance",
-          block,
-          name: subObjectToUniqueName(subst.contents[value]),
-        };
-      } else if (subst.tag === "CollectionSubst" && value in subst.groupby) {
-        return {
-          tag: "Substance",
-          block,
-          name: subObjectToUniqueName(subst.groupby[value]),
-        };
-      } else if (assignment.globals.has(value)) {
-        return { tag: "Global", block, name: value };
-      } else {
-        // if undefined, we may be defining for the first time, must be a local
-        return { tag: "Local", block, name: value };
-      }
-    }
-    case "SubVar": {
-      return { tag: "Substance", block, name: value };
-    }
-  }
-};
+// const resolveLhsName = (
+//   { block, subst }: BlockInfo,
+//   assignment: BlockAssignment,
+//   name: BindingForm<C>,
+// ): ResolvedName => {
+//   const { value } = name.contents;
+//   switch (name.tag) {
+//     case "StyVar": {
+//       if (assignment.locals.has(value)) {
+//         // locals shadow selector match names
+//         return { tag: "Local", block, name: value };
+//       } else if (subst.tag === "StySubSubst" && value in subst.contents) {
+//         // selector match names shadow globals
+//         return {
+//           tag: "Substance",
+//           block,
+//           name: subObjectToUniqueName(subst.contents[value]),
+//         };
+//       } else if (subst.tag === "CollectionSubst" && value in subst.groupby) {
+//         return {
+//           tag: "Substance",
+//           block,
+//           name: subObjectToUniqueName(subst.groupby[value]),
+//         };
+//       } else if (assignment.globals.has(value)) {
+//         return { tag: "Global", block, name: value };
+//       } else {
+//         // if undefined, we may be defining for the first time, must be a local
+//         return { tag: "Local", block, name: value };
+//       }
+//     }
+//     case "SubVar": {
+//       const styleName = `\`${value}\``;
+//       if (subst.tag === "StySubSubst" && styleName in subst.contents) {
+//         return {
+//           tag: "Substance",
+//           block,
+//           name: subObjectToUniqueName(subst.contents[styleName]),
+//         };
+//       } else if (
+//         subst.tag === "CollectionSubst" &&
+//         styleName in subst.groupby
+//       ) {
+//         return {
+//           tag: "Substance",
+//           block,
+//           name: subObjectToUniqueName(subst.groupby[styleName]),
+//         };
+//       } else {
+//         // if undefined, we may be defining for the first time, must be a local
+//         return { tag: "Local", block, name: value };
+//       }
+//     }
+//   }
+// };
 
-const resolveLhsPath = (
-  block: BlockInfo,
-  assignment: BlockAssignment,
-  path: Path<C>,
-): Result<ResolvedPath<C>, StyleError> => {
-  const { start, end, name, members, indices } = path;
-  return indices.length > 0
-    ? err({ tag: "AssignAccessError", path })
-    : ok({
-        start,
-        end,
-        ...resolveLhsName(block, assignment, name),
-        members,
-      });
-};
+// const resolveLhsPath = (
+//   { block, subst }: BlockInfo,
+//   assignment: BlockAssignment,
+//   path: Path<C>,
+// ): Result<ResolvedPath<C>, StyleError> => {
+//   const { start, end, name, members, indices } = path;
+//   if (indices.length > 0) {
+//     return err({ tag: "AssignAccessError", path });
+//   }
+//   if (members.length === 0) {
+//     // the whole path must be a single name, like `x`.
+//     // this must be a local variable, declared or undeclared, within the block.
+//     // Note:
+//     //  - cannot be global, since globals can be accessed only by both namespace and field.
+//     //  - cannot be a header variable, since you cannot write things like
+//     //      forall Set s { s = 100 }
+//     if (name.tag === "StyVar") {
+//       const realName = name.contents.value;
+//       // attempt to find the name in header subst
+//       const substanceName = getUniqueSubstanceNameFromSubst(subst, realName);
+//       if (substanceName !== undefined) {
+//         // if found, then this is a header variable, disallow
+//         return err({
+//           tag: "AssignSubstanceError",
+//           path: {
+//             tag: "Substance",
+//             start,
+//             end,
+//             block,
+//             name: substanceName,
+//             members: [],
+//           },
+//         });
+//       } else if (assignment.globals.has(realName)) {
+//         // this is the name of a namespace, disallow
+//         return err({
+//           tag: "AssignGlobalError",
+//           path: {
+//             tag: "Global",
+//             start,
+//             end,
+//             block,
+//             name: realName,
+//             members: [],
+//           },
+//         });
+//       } else {
+//         // otherwise this must be a local variable, allow
+//         return ok({
+//           start,
+//           end,
+//           tag: "Local",
+//           block,
+//           name: realName,
+//           members: [],
+//         });
+//       }
+//     } else {
+//       // the entire path has the form, "`x`"
+//       // then `x` is a header variable, disallow
+//       return err({
+//         tag: "AssignSubstanceError",
+//         path: {
+//           tag: "Substance",
+//           start,
+//           end,
+//           block,
+//           name: name.contents.value,
+//           members: [],
+//         },
+//       });
+//     }
+//   } else {
+//     // this path has multiple parts:
+//     // aaa.bbb
+//     fdsafdsaf;
+//   }
+//
+//   return indices.length > 0
+//     ? err({ tag: "AssignAccessError", path })
+//     : ok({
+//         start,
+//         end,
+//         ...resolveLhsName(block, assignment, name),
+//         members,
+//       });
+// };
 
 const processStmt = (
   block: BlockInfo,
@@ -1775,7 +1973,7 @@ const processStmt = (
   switch (stmt.tag) {
     case "PathAssign": {
       // TODO: check `stmt.type`
-      const path = resolveLhsPath(block, assignment, stmt.path);
+      const path = resolveLhsStylePath(block, assignment, stmt.path);
       if (path.isErr()) {
         return addDiags(oneErr(path.error), assignment);
       }
@@ -1783,7 +1981,7 @@ const processStmt = (
     }
     case "Override": {
       // resolve just once, not again between deleting and inserting
-      const path = resolveLhsPath(block, assignment, stmt.path);
+      const path = resolveLhsStylePath(block, assignment, stmt.path);
       if (path.isErr()) {
         return addDiags(oneErr(path.error), assignment);
       }
@@ -1795,7 +1993,7 @@ const processStmt = (
       );
     }
     case "Delete": {
-      const path = resolveLhsPath(block, assignment, stmt.contents);
+      const path = resolveLhsStylePath(block, assignment, stmt.contents);
       if (path.isErr()) {
         return addDiags(oneErr(path.error), assignment);
       }

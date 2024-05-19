@@ -53,6 +53,7 @@ import { State } from "../types/state.js";
 import { BindingForm, ColorLit } from "../types/style.js";
 import { SubExpr, TypeApp } from "../types/substance.js";
 import { ArgVal, ArgValWithSourceLoc, ShapeVal, Val } from "../types/value.js";
+import { prettyStylePath } from "./StylePath.js";
 import {
   ErrorLoc,
   describeType,
@@ -353,6 +354,30 @@ export const showError = (
     case "InvalidConstraintNameError": {
       return `Got invalid constraint name '${error.givenName.value}'.`;
       // COMBAK: Constraint suggestions, or just print the list
+    }
+
+    case "InvalidLhsPathError": {
+      const { path } = error;
+      if (path.tag === "Namespace") {
+        return `Cannot assign to or delete a namespace ${path.name} (at ${loc(
+          path,
+        )})`;
+      } else if (path.tag === "Substance") {
+        const { substanceName, styleName } = path;
+        let msg = `Cannot assign to or delete a Substance object ${substanceName}`;
+
+        if (substanceName !== styleName) {
+          msg += ` referred to by ${styleName}`;
+        }
+
+        return msg + ` (at ${loc(path)})`;
+      } else if (path.tag === "Object") {
+        return `Cannot access ${prettyStylePath(path)} (at ${loc(
+          path,
+        )}) because ${prettyStylePath(path.parent)} is not a shape.`;
+      } else {
+        return `Cannot assign to or delete path ${prettyStylePath(path)}`;
+      }
     }
 
     // --- END BLOCK STATIC ERRORS
@@ -771,6 +796,9 @@ export const errLocs = (
     case "InvalidObjectiveNameError":
     case "InvalidConstraintNameError": {
       return locOrNone(e.givenName);
+    }
+    case "InvalidLhsPathError": {
+      return locOrNone(e.path);
     }
 
     // --- END BLOCK STATIC ERRORS
