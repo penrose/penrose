@@ -81,17 +81,18 @@ export type CollectionSubst = {
 
 export type StySubst = StySubSubst | CollectionSubst;
 
-export type LocalVarSubst = LocalVarId | NamespaceId;
+export type StyleBlockId = MatchableBlockId | NamespaceId;
 
-export interface LocalVarId {
-  tag: "LocalVarId";
-  contents: [number, number];
+export interface MatchableBlockId {
+  tag: "MatchableBlock";
+  blockId: number;
+  matchId: number;
   // Index of the block, paired with the index of the current substitution
   // Should be unique across blocks and substitutions
 }
 
 export interface NamespaceId {
-  tag: "NamespaceId";
+  tag: "Namespace";
   contents: string;
   // Namespace's name, e.g. things that are parsed as local vars (e.g. Const { red ... }) get turned into paths "Const.red"
 }
@@ -151,7 +152,7 @@ export interface Locals {
 export interface BlockAssignment extends Assignment, Locals {}
 
 export interface BlockInfo {
-  block: LocalVarSubst;
+  block: StyleBlockId;
   subst: StySubst;
 }
 
@@ -168,7 +169,7 @@ export interface Context extends BlockInfo, Locals {}
 //     members: Identifier<T>[];
 //   };
 
-export type StylePath<T> =
+export type ResolvedStylePath<T> =
   | EmptyStylePath<T>
   | StylePathToScope<T>
   | StylePathToObject<T>;
@@ -179,7 +180,10 @@ export type StylePathToScope<T> =
   | StylePathToNamespaceScope<T>;
 
 export type EmptyStylePath<T> = ASTNode<T> & { tag: "Empty" };
-export type StylePathToLocalScope<T> = ASTNode<T> & { tag: "Local" };
+export type StylePathToLocalScope<T> = ASTNode<T> & {
+  tag: "Local";
+  block: StyleBlockId;
+};
 export type StylePathToSubstanceScope<T> = ASTNode<T> & {
   tag: "Substance";
   substanceName: string;

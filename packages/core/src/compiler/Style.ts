@@ -88,12 +88,12 @@ import {
   FieldDict,
   FieldSource,
   Layer,
-  LocalVarSubst,
   NotShape,
+  ResolvedStylePath,
   SelectorEnv,
   ShapeSource,
   StySubst,
-  StylePath,
+  StyleBlockId,
   StylePathToScope,
   Subst,
   SubstanceLiteral,
@@ -158,7 +158,7 @@ import {
   traverseUp,
 } from "../utils/GroupGraph.js";
 import Heap from "../utils/Heap.js";
-import { resolveLhsStylePath } from "../utils/StylePath.js";
+import { prettyStylePath, resolveLhsStylePath } from "../utils/StylePath.js";
 import {
   boolV,
   cartesianProduct,
@@ -170,7 +170,6 @@ import {
   listV,
   llistV,
   matrixV,
-  prettyPrintResolvedPath,
   ptListV,
   resolveRhsName,
   shapeListV,
@@ -1573,7 +1572,7 @@ const updateScope = (
 };
 
 const checkPathAndUpdateExpr = (
-  path: StylePath<C>,
+  path: ResolvedStylePath<C>,
   assignment: BlockAssignment,
   errTagGlobal: "AssignGlobalError" | "DeleteGlobalError",
   errTagSubstance: "AssignSubstanceError" | "DeleteSubstanceError",
@@ -1619,94 +1618,6 @@ const checkPathAndUpdateExpr = (
 
     return addDiags(warnings(warns), updateScope(assignment, scope, newDict));
   }
-  // switch (path.tag) {
-  //   case "Empty":
-  //   case "Local":
-  //     // the LHS resolver and parser should never allow this
-  //     throw new Error("should never happen");
-  //   case "Namespace":
-  //     return addDiags(
-  //       oneErr({
-  //         tag: errTagGlobal,
-  //         path,
-  //       }),
-  //       assignment,
-  //     );
-  //   case "Substance":
-  //     return addDiags(
-  //       oneErr({
-  //         tag: errTagSubstance,
-  //         path,
-  //       }),
-  //       assignment,
-  //     );
-  //   case "Object":
-  // }
-  // switch (path.tag) {
-  //   case "Global": {
-  //     if (path.members.length < 1) {
-  //       return addDiags(oneErr({ tag: errTagGlobal, path }), assignment);
-  //     } else if (path.members.length > 2) {
-  //       return addDiags(
-  //         oneErr({ tag: "PropertyMemberError", path }),
-  //         assignment,
-  //       );
-  //     }
-  //     const field = path.members[0].value;
-  //     const prop = path.members.length > 1 ? path.members[1].value : undefined;
-  //     const namespaceFields = assignment.globals.get(path.name) ?? im.Map();
-  //     const res = f(field, prop, namespaceFields);
-  //     if (res.isErr()) {
-  //       return addDiags(oneErr(res.error), assignment);
-  //     }
-  //     const { dict, warns } = res.value;
-  //     return addDiags(warnings(warns), {
-  //       ...assignment,
-  //       globals: assignment.globals.set(path.name, dict),
-  //     });
-  //   }
-  //   case "Local": {
-  //     // a local variable can only have 0 or 1 members (`x = 1` or `icon = { x: 1 }`)
-  //     if (path.members.length > 1) {
-  //       return addDiags(
-  //         oneErr({ tag: "PropertyMemberError", path }),
-  //         assignment,
-  //       );
-  //     }
-  //     // remember, we don't use `--noUncheckedIndexedAccess`
-  //     const prop = path.members.length > 0 ? path.members[0].value : undefined;
-  //     // coincidentally, `BlockAssignment["locals"]` looks just like `Fielded`
-  //     const res = f(path.name, prop, assignment.locals);
-  //     if (res.isErr()) {
-  //       return addDiags(oneErr(res.error), assignment);
-  //     }
-  //     const { dict: locals, warns } = res.value;
-  //     return addDiags(warnings(warns), { ...assignment, locals });
-  //   }
-  //   case "Substance": {
-  //     if (path.members.length < 1) {
-  //       return addDiags(oneErr({ tag: errTagSubstance, path }), assignment);
-  //     } else if (path.members.length > 2) {
-  //       return addDiags(
-  //         oneErr({ tag: "PropertyMemberError", path }),
-  //         assignment,
-  //       );
-  //     }
-  //     const field = path.members[0].value;
-  //     // remember, we don't use `--noUncheckedIndexedAccess`
-  //     const prop = path.members.length > 1 ? path.members[1].value : undefined;
-  //     const subObj = assignment.substances.get(path.name) ?? im.Map();
-  //     const res = f(field, prop, subObj);
-  //     if (res.isErr()) {
-  //       return addDiags(oneErr(res.error), assignment);
-  //     }
-  //     const { dict, warns } = res.value;
-  //     return addDiags(warnings(warns), {
-  //       ...assignment,
-  //       substances: assignment.substances.set(path.name, dict),
-  //     });
-  //   }
-  // }
 };
 
 const processExpr = (
@@ -1735,7 +1646,7 @@ const processExpr = (
 
 const insertExpr = (
   block: BlockInfo,
-  path: StylePath<C>,
+  path: ResolvedStylePath<C>,
   expr: Expr<C>,
   assignment: BlockAssignment,
 ): BlockAssignment =>
@@ -1787,7 +1698,7 @@ const insertExpr = (
   );
 
 const deleteExpr = (
-  path: StylePath<C>,
+  path: ResolvedStylePath<C>,
   assignment: BlockAssignment,
 ): BlockAssignment =>
   checkPathAndUpdateExpr(
@@ -2003,15 +1914,21 @@ const processStmt = (
       const { start } = stmt;
       // act as if the synthetic name we create is from the beginning of the
       // anonymous assignment statement
-      const range: SourceRange = { start, end: start };
       return insertExpr(
         block,
         {
-          ...range,
-          tag: "Local",
-          block: block.block,
+          tag: "Object",
+          parent: {
+            tag: "Local",
+            block: block.block,
+            start,
+            end: start,
+            nodeType: "Style",
+          },
           name: `$${ANON_KEYWORD}_${index}`,
-          members: [],
+          start,
+          end: start,
+          nodeType: "Style",
         },
         stmt.contents,
         assignment,
@@ -2024,14 +1941,18 @@ const blockId = (
   blockIndex: number,
   substIndex: number,
   header: Header<A>,
-): LocalVarSubst => {
+): StyleBlockId => {
   switch (header.tag) {
     case "Selector":
     case "Collector": {
-      return { tag: "LocalVarId", contents: [blockIndex, substIndex] };
+      return {
+        tag: "MatchableBlock",
+        blockId: blockIndex,
+        matchId: substIndex,
+      };
     }
     case "Namespace": {
-      return { tag: "NamespaceId", contents: header.contents.contents.value };
+      return { tag: "Namespace", contents: header.contents.contents.value };
     }
   }
 };
@@ -2100,7 +2021,7 @@ const processBlock = (
   return substs.reduce((assignment, subst, substIndex) => {
     const block = blockId(blockIndex, substIndex, hb.header);
     const withLocals: BlockAssignment = { ...assignment, locals: im.Map() };
-    if (block.tag === "NamespaceId") {
+    if (block.tag === "Namespace") {
       if (withLocals.globals.has(block.contents)) {
         // if the namespace exists, throw an error
         withLocals.diagnostics.errors = errors.push(
@@ -2130,27 +2051,33 @@ const processBlock = (
       .concat(hb.block.statements);
 
     // Translate each statement in the block
-    const { diagnostics, globals, unnamed, substances, locals } =
-      augmentedStatements.reduce(
-        (assignment, stmt, stmtIndex) =>
-          processStmt({ block, subst }, stmtIndex, stmt, assignment),
-        withLocals,
-      );
+    const {
+      diagnostics,
+      globals,
+      unnamed,
+      substances,
+      locals: localsOfBlock,
+    } = augmentedStatements.reduce(
+      (assignment, stmt, stmtIndex) =>
+        processStmt({ block, subst }, stmtIndex, stmt, assignment),
+      withLocals,
+    );
 
     switch (block.tag) {
-      case "LocalVarId": {
+      case "MatchableBlock": {
+        const { blockId, matchId: substId } = block;
         return {
           diagnostics,
           globals,
-          unnamed: unnamed.set(im.List(block.contents), locals),
+          unnamed: unnamed.set(im.List([blockId, substId]), localsOfBlock),
           substances,
         };
       }
-      case "NamespaceId": {
+      case "Namespace": {
         // TODO: check that `substs` is a singleton list
         return {
           diagnostics,
-          globals: globals.set(block.contents, locals),
+          globals: globals.set(block.contents, localsOfBlock),
           unnamed,
           substances,
         };
@@ -2183,7 +2110,7 @@ export const buildAssignment = (
             tag: "OtherSource",
             expr: {
               context: {
-                block: { tag: "NamespaceId", contents: "" }, // HACK
+                block: { tag: "Namespace", contents: "" }, // HACK
                 subst: { tag: "StySubSubst", contents: {} },
                 locals: im.Map(),
               },
@@ -2417,14 +2344,22 @@ export const gatherDependencies = (assignment: Assignment): DepGraph => {
 
   for (const [indices, fields] of assignment.unnamed) {
     for (const [fieldName, field] of fields) {
-      const [blockIndex, substIndex] = indices;
-      const p: ResolvedPath<A> = {
-        tag: "Local",
+      const [blockIndex, matchIndex] = indices;
+      const p: ResolvedStylePath<A> = {
+        tag: "Object",
+        parent: {
+          tag: "Local",
+          block: {
+            tag: "MatchableBlock",
+            blockId: blockIndex,
+            matchId: matchIndex,
+          },
+          nodeType: "Style",
+        },
         name: fieldName,
-        block: { tag: "LocalVarId", contents: [blockIndex, substIndex] },
-        members: [],
+        nodeType: "Style",
       };
-      gatherField(graph, prettyPrintResolvedPath(p), field);
+      gatherField(graph, prettyStylePath(p), field);
     }
   }
 

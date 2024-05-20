@@ -11,9 +11,6 @@ import { Fn } from "../types/state.js";
 import { BindingForm, Expr, Path } from "../types/style.js";
 import {
   Context,
-  LocalVarSubst,
-  ResolvedName,
-  ResolvedPath,
   SubstanceLiteral,
   SubstanceObject,
   WithContext,
@@ -855,52 +852,6 @@ const resolveRhsPath = (
   }
 
   return { ...resolveRhsName(p.context, name), members };
-};
-
-const blockPrefix = ({ tag, contents }: LocalVarSubst): string => {
-  switch (tag) {
-    case "LocalVarId": {
-      const [i, j] = contents;
-      return `${i}:${j}:`;
-    }
-    case "NamespaceId": {
-      // locals in a global block point to globals
-      return `${contents}.`;
-    }
-  }
-};
-
-const prettyPrintResolvedName = ({
-  tag,
-  block,
-  name,
-}: ResolvedName): string => {
-  switch (tag) {
-    case "Global": {
-      return name;
-    }
-    case "Local": {
-      return `${blockPrefix(block)}${name}`;
-    }
-    case "Substance": {
-      return `\`${name}\``;
-    }
-  }
-};
-
-export const prettyPrintResolvedPath = (
-  p: ResolvedPath<A> | FloatV<number> | StrV | VectorV<number>,
-): string => {
-  if (p.tag === "FloatV") {
-    return p.contents.toString();
-  } else if (p.tag === "StrV") {
-    return p.contents;
-  } else if (p.tag === "VectorV") {
-    return `[${p.contents.map((n) => n.toString()).join(",")}]`;
-  } else
-    return [prettyPrintResolvedName(p), ...p.members.map((m) => m.value)].join(
-      ".",
-    );
 };
 
 const prettyPrintBindingForm = (bf: BindingForm<A>): string => {

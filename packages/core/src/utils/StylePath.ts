@@ -1,12 +1,13 @@
-import { A, C, Identifier } from "../types/ast.js";
+import { A, Identifier, location, locations } from "../types/ast.js";
 import {
   BadStylePathToValueObject,
   BlockAssignment,
   BlockInfo,
   EmptyStylePath,
   FieldDict,
+  ResolvedStylePath,
   StySubst,
-  StylePath,
+  StyleBlockId,
   StylePathToObject,
   StylePathToScope,
   StylePathToShapeObject,
@@ -14,13 +15,14 @@ import {
 } from "../types/styleSemantics.js";
 
 import im from "immutable";
+import { Context } from "vitest";
 import { StyleError } from "../types/errors.js";
 import { Path } from "../types/style.js";
 import { Result, err, ok } from "./Error.js";
 import { subObjectToUniqueName } from "./Util.js";
 
 type StylePathResolverResult<T> = {
-  resolvedPath: StylePath<T>;
+  resolvedPath: ResolvedStylePath<T>;
   remaining: Identifier<T>[];
 };
 
@@ -61,24 +63,20 @@ const pathRefersToShapeObject = <T>(
 export const resolveLhsStylePath = (
   { block, subst }: BlockInfo,
   assignment: BlockAssignment,
-  path: Path<C>,
-): Result<StylePath<C>, StyleError> => {
-  const init: EmptyStylePath<C> = {
+  path: Path<A>,
+): Result<ResolvedStylePath<A>, StyleError> => {
+  const init: EmptyStylePath<A> = {
+    ...location(path),
     tag: "Empty",
-    nodeType: "Style",
-    start: path.start,
-    end: path.start,
   };
 
-  const firstPart: Identifier<C> =
+  const firstPart: Identifier<A> =
     path.name.tag === "StyVar"
       ? path.name.contents
       : {
+          ...location(path.name),
           tag: "Identifier",
           value: `\`${path.name.contents.value}\``,
-          start: path.name.start,
-          end: path.name.end,
-          nodeType: "Style",
           type: "value",
         };
 
@@ -87,8 +85,44 @@ export const resolveLhsStylePath = (
   const parts = [firstPart, ...rest];
 
   const helper = (
-    result: StylePathResolverResult<C>,
-  ): Result<StylePath<C>, StyleError> => {
+    result: StylePathResolverResult<A>,
+  ): Result<ResolvedStylePath<A>, StyleError> => {
+    if (result.remaining.length === 0) {
+      return ok(result.resolvedPath);
+    } else {
+      return resolveLhsStylePathPart(
+        { block, subst },
+        assignment,
+        result.resolvedPath,
+        result.remaining,
+      ).andThen(helper);
+    }
+  };
+
+  return helper({ resolvedPath: init, remaining: parts });
+};
+
+export const resolveLhsStylePathString = (
+  block: StyleBlockId,
+  subst: StySubst,
+  assignment: BlockAssignment,
+  path: string,
+): Result<ResolvedStylePath<A>, StyleError> => {
+  const parts: Identifier<A>[] = path.split(".").map((p) => ({
+    tag: "Identifier",
+    value: p,
+    type: "value",
+    nodeType: "SyntheticStyle",
+  }));
+
+  const init: EmptyStylePath<A> = {
+    tag: "Empty",
+    nodeType: "SyntheticStyle",
+  };
+
+  const helper = (
+    result: StylePathResolverResult<A>,
+  ): Result<ResolvedStylePath<A>, StyleError> => {
     if (result.remaining.length === 0) {
       return ok(result.resolvedPath);
     } else {
@@ -118,42 +152,37 @@ const findFromSubst = (
 const resolveLhsStylePathPart = (
   { block, subst }: BlockInfo,
   assignment: BlockAssignment,
-  curr: StylePath<C>,
-  parts: Identifier<C>[],
-): Result<StylePathResolverResult<C>, StyleError> => {
+  curr: ResolvedStylePath<A>,
+  parts: Identifier<A>[],
+): Result<StylePathResolverResult<A>, StyleError> => {
   const [next, ...rest] = parts;
   if (curr.tag === "Empty") {
     const subObj = findFromSubst(subst, next.value);
     if (subObj !== undefined) {
       return ok({
         resolvedPath: {
+          ...locations(curr, next),
           tag: "Substance",
           substanceName: subObjectToUniqueName(subObj),
           styleName: next.value,
-          nodeType: "Style",
-          start: curr.start,
-          end: next.end,
         },
         remaining: rest,
       });
     } else if (assignment.globals.has(next.value)) {
       return ok({
         resolvedPath: {
+          ...locations(curr, next),
           tag: "Namespace",
           name: next.value,
-          nodeType: "Style",
-          start: curr.start,
-          end: next.end,
         },
         remaining: rest,
       });
     } else {
       return ok({
         resolvedPath: {
+          ...location(curr),
           tag: "Local",
-          nodeType: "Style",
-          start: curr.start,
-          end: curr.end,
+          block: block,
         },
         // not `rest` here, since we only know that `curr` is in local,
         // we have not resolved `curr` yet.
@@ -173,12 +202,10 @@ const resolveLhsStylePathPart = (
     // for RHS we definitely need to check this.
     return ok({
       resolvedPath: {
+        ...locations(curr, next),
         tag: "Object",
         parent: curr,
         name: next.value,
-        nodeType: "Style",
-        start: curr.start,
-        end: next.end,
       },
       remaining: rest,
     });
@@ -189,12 +216,10 @@ const resolveLhsStylePathPart = (
     if (pathRefersToShapeObject(assignment, curr)) {
       return ok({
         resolvedPath: {
+          ...locations(curr, next),
           tag: "Object",
           parent: curr,
           name: next.value,
-          nodeType: "Style",
-          start: curr.start,
-          end: next.end,
         },
         remaining: rest,
       });
@@ -202,25 +227,36 @@ const resolveLhsStylePathPart = (
       return err({
         tag: "InvalidLhsPathError",
         path: {
+          ...locations(curr, next),
           tag: "Object",
           parent: curr,
           name: next.value,
-          nodeType: "Style",
-          start: curr.start,
-          end: next.end,
         },
       });
     }
   }
 };
 
+const blockPrefix = (block: StyleBlockId): string => {
+  switch (block.tag) {
+    case "MatchableBlock": {
+      const { blockId, matchId } = block;
+      return `${blockId}:${matchId}`;
+    }
+    case "Namespace":
+      return `${block.contents}`;
+  }
+};
+
 export const prettyStylePath = (
-  p: StylePath<A> | BadStylePathToValueObject<A>,
+  p: ResolvedStylePath<A> | BadStylePathToValueObject<A>,
 ): string => {
   if (p.tag === "Empty") {
     return "";
   } else if (p.tag === "Local") {
-    return "";
+    // todo: use colon: 3:1:var
+    const prefix = blockPrefix(p.block);
+    return `${prefix}`;
   } else if (p.tag === "Namespace") {
     return p.name;
   } else if (p.tag === "Substance") {
@@ -234,3 +270,8 @@ export const prettyStylePath = (
     }
   }
 };
+
+export const resolveRhsStylePath = (
+  context: Context,
+  path: Path<C>,
+): Result<ResolvedStylePath<C>, StyleError> => {};

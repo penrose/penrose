@@ -71,3 +71,25 @@ export const location = (
       nodeType: node.nodeType,
     };
 };
+
+// assume `a` and `b` are ordered
+export const locations = (
+  a: ASTNode<A>,
+  b: ASTNode<A>,
+): {
+  start?: SourceLoc;
+  end?: SourceLoc;
+  nodeType: NodeType;
+} => {
+  if (isConcrete(a) && isConcrete(b) && a.nodeType === b.nodeType) {
+    return {
+      start: a.start,
+      end: b.end,
+      nodeType: a.nodeType,
+    };
+  } else {
+    return {
+      nodeType: a.nodeType,
+    };
+  }
+};

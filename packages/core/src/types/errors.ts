@@ -22,7 +22,10 @@ import {
   Path,
   UOp,
 } from "./style.js";
-import { BadStylePathToValueObject, StylePath } from "./styleSemantics.js";
+import {
+  BadStylePathToValueObject,
+  ResolvedStylePath,
+} from "./styleSemantics.js";
 import { StmtSet, SubExpr, TypeApp } from "./substance.js";
 import { ArgValWithSourceLoc, ShapeVal, Val, Value } from "./value.js";
 
@@ -272,12 +275,12 @@ export interface StyleDiagnostics {
 
 export interface ImplicitOverrideWarning {
   tag: "ImplicitOverrideWarning";
-  path: StylePath<C>;
+  path: ResolvedStylePath<C>;
 }
 
 export interface NoopDeleteWarning {
   tag: "NoopDeleteWarning";
-  path: StylePath<C>;
+  path: ResolvedStylePath<C>;
 }
 export interface LayerCycleWarning {
   tag: "LayerCycleWarning";
@@ -390,13 +393,13 @@ export interface InvalidConstraintNameError {
 
 export interface AccessPropertyOfValueError {
   tag: "AccessPropertyOfValueError";
-  path: StylePath<A>;
+  path: ResolvedStylePath<A>;
   member: string;
 }
 
 export interface InvalidLhsPathError {
   tag: "InvalidLhsPathError";
-  path: StylePath<A> | BadStylePathToValueObject<A>;
+  path: ResolvedStylePath<A> | BadStylePathToValueObject<A>;
 }
 
 //#endregion Block statics
@@ -410,12 +413,12 @@ export interface AssignAccessError {
 
 export interface AssignGlobalError {
   tag: "AssignGlobalError";
-  path: StylePath<C>;
+  path: ResolvedStylePath<C>;
 }
 
 export interface AssignSubstanceError {
   tag: "AssignSubstanceError";
-  path: StylePath<C>;
+  path: ResolvedStylePath<C>;
 }
 
 export interface BadElementError {
@@ -451,22 +454,22 @@ export interface CyclicAssignmentError {
 
 export interface DeleteGlobalError {
   tag: "DeleteGlobalError";
-  path: StylePath<C>;
+  path: ResolvedStylePath<C>;
 }
 
 export interface DeleteSubstanceError {
   tag: "DeleteSubstanceError";
-  path: StylePath<C>;
+  path: ResolvedStylePath<C>;
 }
 
 export interface MissingPathError {
   tag: "MissingPathError";
-  path: StylePath<C>;
+  path: ResolvedStylePath<C>;
 }
 
 export interface MissingShapeError {
   tag: "MissingShapeError";
-  path: StylePath<C>;
+  path: ResolvedStylePath<C>;
 }
 
 export interface NestedShapeError {
@@ -486,7 +489,7 @@ export interface IndexIntoShapeListError {
 
 export interface NotShapeError {
   tag: "NotShapeError";
-  path: StylePath<C>;
+  path: ResolvedStylePath<C>;
   what: string;
 }
 
@@ -504,7 +507,7 @@ export interface OutOfBoundsError {
 
 export interface PropertyMemberError {
   tag: "PropertyMemberError";
-  path: StylePath<C>;
+  path: ResolvedStylePath<C>;
 }
 
 export interface UOpTypeError {
