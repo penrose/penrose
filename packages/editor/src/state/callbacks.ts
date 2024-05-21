@@ -1,5 +1,6 @@
 import { Style } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
+import { initializeApp } from "firebase/app";
 import localforage from "localforage";
 import { range } from "lodash";
 import queryString from "query-string";
@@ -44,6 +45,19 @@ import {
   workspaceMetadataSelector,
 } from "./atoms.js";
 import { generateVariation } from "./variation.js";
+
+// I believe this info will need to be in an env file elsewhere
+const firebaseConfig = {
+  apiKey: "AIzaSyBbHZXQtFDEzWHJvg9AqdYPVvmVnHd0eXg",
+  authDomain: "penrose-dev-4b249.firebaseapp.com",
+  projectId: "penrose-dev-4b249",
+  storageBucket: "penrose-dev-4b249.appspot.com",
+  messagingSenderId: "703631165969",
+  appId: "1:703631165969:web:e25fb9109d17ed98d3ffb0",
+  measurementId: "G-LXKVSSS1T6",
+};
+
+const firebase_app = initializeApp(firebaseConfig);
 
 const _compileDiagram = async (
   substance: string,

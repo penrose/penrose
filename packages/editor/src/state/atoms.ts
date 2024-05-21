@@ -100,6 +100,10 @@ export type RogerState =
       trio: string[];
     };
 
+export type LoginModalState = {
+  isOpen: boolean;
+};
+
 const localFilesEffect: AtomEffect<LocalWorkspaces> = ({ setSelf, onSet }) => {
   setSelf(
     localforage
@@ -226,6 +230,12 @@ export const currentWorkspaceState = atom<Workspace>({
 export const currentRogerState = atom<RogerState>({
   key: "currentRogerState",
   default: { kind: "disconnected" },
+});
+
+// no idea what's going on with this type error
+export const currentLoginModalState = atom<LoginModalState>({
+  key: "currentLoginModalState",
+  default: { isOpen: false },
 });
 
 /**

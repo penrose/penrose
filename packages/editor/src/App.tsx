@@ -15,6 +15,7 @@ import {
   useRecoilState,
   useRecoilValueLoadable,
 } from "recoil";
+import { Modal } from "./components/AuthWindows.js";
 import DiagramOptions from "./components/DiagramOptions.js";
 import DiagramPanel from "./components/DiagramPanel.js";
 import ExamplesBrowser from "./components/ExamplesBrowser.js";
@@ -29,8 +30,10 @@ import SvgUploader from "./components/SvgUploader.js";
 import TopBar from "./components/TopBar.js";
 import {
   Diagram,
+  LoginModalState,
   RogerState,
   Workspace,
+  currentLoginModalState,
   currentRogerState,
   currentWorkspaceState,
   diagramState,
@@ -171,6 +174,10 @@ function App() {
   const ws = useRef<WebSocket | null>(null);
   const [rogerState, setRogerState] =
     useRecoilState<RogerState>(currentRogerState);
+
+  const [loginModalState, setLoginModalState] = useRecoilState<LoginModalState>(
+    currentLoginModalState,
+  );
 
   const panelFactory = useCallback(
     (node: TabNode) => {
@@ -370,14 +377,21 @@ function App() {
     return <div>Loading local files...</div>;
   }
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <TopBar />
-      <div style={{ position: "relative", flex: 1 }}>
-        <Layout
-          model={layoutModel}
-          factory={panelFactory}
-          onAction={onAction}
-        />
+    <div>
+      <Modal isOpen={loginModalState}>
+        <>
+          <h1>test</h1>
+        </>
+      </Modal>
+      <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+        <TopBar />
+        <div style={{ position: "relative", flex: 1 }}>
+          <Layout
+            model={layoutModel}
+            factory={panelFactory}
+            onAction={onAction}
+          />
+        </div>
       </div>
     </div>
   );
