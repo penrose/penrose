@@ -1,3 +1,6 @@
+import { initializeApp } from "firebase/app";
+import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
+import toast from "react-hot-toast";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
 import { AuthModalState, currentAuthModalState } from "../state/atoms.js";
@@ -87,6 +90,19 @@ const AdditionalOptions = styled.div<{}>`
   cursor: pointer;
 `;
 
+// I believe this info will need to be in an env file elsewhere
+const firebaseConfig = {
+  apiKey: "AIzaSyBbHZXQtFDEzWHJvg9AqdYPVvmVnHd0eXg",
+  authDomain: "penrose-dev-4b249.firebaseapp.com",
+  projectId: "penrose-dev-4b249",
+  storageBucket: "penrose-dev-4b249.appspot.com",
+  messagingSenderId: "703631165969",
+  appId: "1:703631165969:web:e25fb9109d17ed98d3ffb0",
+  measurementId: "G-LXKVSSS1T6",
+};
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+
 export const AuthMenuModal = () => {
   const [authModalState, setAuthModalState] = useRecoilState<AuthModalState>(
     currentAuthModalState,
@@ -106,33 +122,77 @@ export const AuthMenuModal = () => {
     });
   };
 
+  const registerUser = () => {
+    var email = document.getElementById("reg_email") as HTMLInputElement;
+    var password = document.getElementById("reg_password") as HTMLInputElement;
+    var password_confirmation = document.getElementById(
+      "confirmed_password",
+    ) as HTMLInputElement;
+
+    if (email.value && password.value && password_confirmation.value) {
+      if (password.value != password_confirmation.value) {
+        toast.error("Password and confirmation are different!");
+        return;
+      }
+      createUserWithEmailAndPassword(auth, email.value, password.value)
+        .then((userCredential) => {
+          // Signed up
+          toast.success("Successfully registered!");
+          closeModal();
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          toast.error(errorMessage);
+        });
+    } else {
+      toast.error("Cannot register, field is blank");
+    }
+  };
+
   return (
     <>
       {(authModalState.loginIsOpen || authModalState.registerIsOpen) && (
         <MenuShadow>
-          <Menu>
-            <CloseButton onClick={closeModal}>x</CloseButton>
-            <h3>
-              {authModalState.loginIsOpen ? "Sign in Here" : "Register Here"}
-            </h3>
-            <input type="text" placeholder="Email" id="username" />
-            <input type="text" placeholder="Password" id="password" />
-            {authModalState.loginIsOpen ? (
+          {authModalState.loginIsOpen ? (
+            // Login menu
+            <Menu>
+              <CloseButton onClick={closeModal}>x</CloseButton>
+              <h3>Sign in Here</h3>
+              <input type="text" placeholder="Email" id="login_email" />
+              <input
+                type="password"
+                placeholder="Password"
+                id="login_password"
+              />
               <FormButton>Log In</FormButton>
-            ) : (
-              <FormButton>Register</FormButton>
-            )}
-            <AdditionalOptions onClick={toggleMode}>
-              {authModalState.loginIsOpen
-                ? "New user? Register"
-                : "Return to Login"}
-            </AdditionalOptions>
-            <AdditionalOptions>Login with GitHub</AdditionalOptions>
-          </Menu>
+              <AdditionalOptions onClick={toggleMode}>
+                New user? Register
+              </AdditionalOptions>
+              <AdditionalOptions>Forgot Password?</AdditionalOptions>
+              <AdditionalOptions>Login with GitHub</AdditionalOptions>
+            </Menu>
+          ) : (
+            // Registration menu
+            <Menu>
+              <CloseButton onClick={closeModal}>x</CloseButton>
+              <h3>Register Here</h3>
+              <input type="text" placeholder="Email" id="reg_email" />
+              <input type="password" placeholder="Password" id="reg_password" />
+              <input
+                type="password"
+                placeholder="Confirm Password"
+                id="confirmed_password"
+              />
+              <FormButton onClick={registerUser}>Register</FormButton>
+              <AdditionalOptions onClick={toggleMode}>
+                Return to Login
+              </AdditionalOptions>
+              <AdditionalOptions>Login with GitHub</AdditionalOptions>
+            </Menu>
+          )}
         </MenuShadow>
       )}
     </>
   );
 };
-
-const LoginMenuModal = () => {};
