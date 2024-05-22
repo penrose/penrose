@@ -1,6 +1,6 @@
 <svg width="700" height="400">
   <!--#-->
-  <g style="user-select: none">
+  <g>
     <g
       style="font-size: 10px; pointer-events: none"
       transform="translate(0,330)"
@@ -86,9 +86,8 @@
       <text
         font-family="STIXGeneral-Italic"
         font-size="20px"
-        stroke="0"
+        stroke-width="0"
         fill="#3498db"
-        style="user-select: none"
         x="259"
         y="298"
       >
@@ -103,15 +102,16 @@
         x2="254"
         y2="303"
       ></line>
-      <g>
-        <circle
-          r="22.91"
-          fill="#000"
-          fill-opacity="0.1"
-          cx="254"
-          cy="303"
-        ></circle>
-      </g>
+    </g>
+    <!--/--><!--#-->
+    <g>
+      <circle
+        r="22.91"
+        fill="#000"
+        fill-opacity="0.1"
+        cx="254"
+        cy="303"
+      ></circle>
     </g>
     <!--/--><!--#-->
     <g>
@@ -131,9 +131,8 @@
       <text
         font-family="STIXGeneral-Italic"
         font-size="20px"
-        stroke="0"
+        stroke-width="0"
         fill="#2ecc71"
-        style="user-select: none"
         x="232"
         y="271"
       >
@@ -148,35 +147,40 @@
         x2="227"
         y2="276"
       ></line>
-      <g>
-        <circle
-          r="22.91"
-          fill="#000"
-          fill-opacity="0.1"
-          cx="227"
-          cy="276"
-        ></circle>
-      </g>
+    </g>
+    <!--/--><!--#-->
+    <g>
+      <circle
+        r="22.91"
+        fill="#000"
+        fill-opacity="0.1"
+        cx="227"
+        cy="276"
+      ></circle>
     </g>
     <!--/--><!--#-->
     <g>
       <text
         font-family="STIXGeneral-Italic"
         font-size="20px"
-        stroke="0"
+        stroke-width="0"
         fill="#E74C3C"
-        style="user-select: none"
         x="323"
         y="153"
       >
         v
       </text>
       <circle r="4" fill="rgb(231, 76, 60)" cx="308" cy="168"></circle>
-      <!--#-->
-      <g transform="translate(308, 168)">
-        <circle r="22.91" fill="#000" fill-opacity="0.1"></circle>
-      </g>
-      <!--/-->
+    </g>
+    <!--/--><!--#-->
+    <g>
+      <circle
+        r="22.91"
+        fill="#000"
+        fill-opacity="0.1"
+        cx="308"
+        cy="168"
+      ></circle>
     </g>
     <!--/-->
     <line
@@ -193,19 +197,18 @@
       <text
         font-family="STIXGeneral-Italic"
         font-size="20px"
-        stroke="0"
+        stroke-width="0"
         fill="#E74C3C"
-        style="user-select: none"
         x="404"
         y="99"
       >
         Av
       </text>
       <circle r="4" fill="rgb(231, 76, 60)" cx="389" cy="114"></circle>
-      <!--#--><!--/-->
     </g>
     <!--/-->
   </g>
+  <!--#-->
   <line
     stroke-width="1"
     stroke="#000"
@@ -217,14 +220,16 @@
   <text
     font-family="STIXGeneral-Italic"
     font-size="20px"
-    stroke="0"
+    stroke="#fff"
+    stroke-width="4"
+    paint-order="stroke"
     fill="#000"
-    style="user-select: none"
     x="270.7096781327967"
     y="259.2903218672033"
   >
     s₁
   </text>
+  <!--/--><!--#-->
   <line
     stroke-width="1"
     stroke="#000"
@@ -236,12 +241,14 @@
   <text
     font-family="STIXGeneral-Italic"
     font-size="20px"
-    stroke="0"
+    stroke="#fff"
+    stroke-width="4"
+    paint-order="stroke"
     fill="#000"
-    style="user-select: none"
     x="129.29032186720332"
     y="259.2903218672033"
   >
     s₂
   </text>
+  <!--/-->
 </svg>
