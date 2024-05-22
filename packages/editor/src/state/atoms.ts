@@ -100,8 +100,9 @@ export type RogerState =
       trio: string[];
     };
 
-export type LoginModalState = {
-  isOpen: boolean;
+export type AuthModalState = {
+  loginIsOpen: boolean;
+  registerIsOpen: boolean;
 };
 
 const localFilesEffect: AtomEffect<LocalWorkspaces> = ({ setSelf, onSet }) => {
@@ -233,9 +234,9 @@ export const currentRogerState = atom<RogerState>({
 });
 
 // no idea what's going on with this type error
-export const currentLoginModalState = atom<LoginModalState>({
+export const currentAuthModalState = atom<AuthModalState>({
   key: "currentLoginModalState",
-  default: { isOpen: false },
+  default: { loginIsOpen: false, registerIsOpen: false },
 });
 
 /**

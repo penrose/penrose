@@ -1,5 +1,6 @@
+import { useRecoilState } from "recoil";
 import styled from "styled-components";
-import { LoginModalState } from "../state/atoms.js";
+import { AuthModalState, currentAuthModalState } from "../state/atoms.js";
 
 const MenuShadow = styled.div<{}>`
   position: absolute;
@@ -86,26 +87,46 @@ const AdditionalOptions = styled.div<{}>`
   cursor: pointer;
 `;
 
-interface loginMenuModalProps {
-  loginModalState: LoginModalState;
-  toggleLoginModal: () => void;
-}
+export const AuthMenuModal = () => {
+  const [authModalState, setAuthModalState] = useRecoilState<AuthModalState>(
+    currentAuthModalState,
+  );
 
-export const LoginMenuModal = ({
-  loginModalState,
-  toggleLoginModal,
-}: loginMenuModalProps) => {
+  const toggleMode = () => {
+    setAuthModalState({
+      loginIsOpen: !authModalState.loginIsOpen,
+      registerIsOpen: !authModalState.registerIsOpen,
+    });
+  };
+
+  const closeModal = () => {
+    setAuthModalState({
+      loginIsOpen: false,
+      registerIsOpen: false,
+    });
+  };
+
   return (
     <>
-      {loginModalState.isOpen && (
+      {(authModalState.loginIsOpen || authModalState.registerIsOpen) && (
         <MenuShadow>
           <Menu>
-            <CloseButton onClick={toggleLoginModal}>x</CloseButton>
-            <h3>Sign In Here</h3>
+            <CloseButton onClick={closeModal}>x</CloseButton>
+            <h3>
+              {authModalState.loginIsOpen ? "Sign in Here" : "Register Here"}
+            </h3>
             <input type="text" placeholder="Email" id="username" />
             <input type="text" placeholder="Password" id="password" />
-            <FormButton>Log In</FormButton>
-            <AdditionalOptions>New user? Register</AdditionalOptions>
+            {authModalState.loginIsOpen ? (
+              <FormButton>Log In</FormButton>
+            ) : (
+              <FormButton>Register</FormButton>
+            )}
+            <AdditionalOptions onClick={toggleMode}>
+              {authModalState.loginIsOpen
+                ? "New user? Register"
+                : "Return to Login"}
+            </AdditionalOptions>
             <AdditionalOptions>Login with GitHub</AdditionalOptions>
           </Menu>
         </MenuShadow>
@@ -113,3 +134,5 @@ export const LoginMenuModal = ({
     </>
   );
 };
+
+const LoginMenuModal = () => {};

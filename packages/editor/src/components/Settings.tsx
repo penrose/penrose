@@ -1,19 +1,29 @@
 import { useCallback } from "react";
-import { useRecoilStateLoadable } from "recoil";
-import { settingsState } from "../state/atoms.js";
+import { useRecoilState, useRecoilStateLoadable } from "recoil";
+import {
+  AuthModalState,
+  currentAuthModalState,
+  settingsState,
+} from "../state/atoms.js";
 import BlueButton from "./BlueButton.js";
 
-interface settingsProps {
-  toggleLoginModal: () => void;
-}
-
-export default function Settings({
-  toggleLoginModal = () => {},
-}: settingsProps) {
+export default function Settings() {
   const [settings, setSettings] = useRecoilStateLoadable(settingsState);
   const signOut = useCallback(() => {
     setSettings((settings) => ({ ...settings, github: null }));
   }, []);
+
+  const [authModalState, setAuthModalState] = useRecoilState<AuthModalState>(
+    currentAuthModalState,
+  );
+
+  const toggleLoginModal = () => {
+    setAuthModalState({
+      loginIsOpen: !authModalState.loginIsOpen,
+      registerIsOpen: authModalState.registerIsOpen,
+    });
+  };
+
   if (settings.state !== "hasValue") {
     return <div>loading...</div>;
   }

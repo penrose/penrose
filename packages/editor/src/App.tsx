@@ -15,7 +15,7 @@ import {
   useRecoilState,
   useRecoilValueLoadable,
 } from "recoil";
-import { LoginMenuModal } from "./components/AuthWindows.js";
+import { AuthMenuModal } from "./components/AuthWindows.js";
 import DiagramOptions from "./components/DiagramOptions.js";
 import DiagramPanel from "./components/DiagramPanel.js";
 import ExamplesBrowser from "./components/ExamplesBrowser.js";
@@ -30,10 +30,8 @@ import SvgUploader from "./components/SvgUploader.js";
 import TopBar from "./components/TopBar.js";
 import {
   Diagram,
-  LoginModalState,
   RogerState,
   Workspace,
-  currentLoginModalState,
   currentRogerState,
   currentWorkspaceState,
   diagramState,
@@ -175,14 +173,6 @@ function App() {
   const [rogerState, setRogerState] =
     useRecoilState<RogerState>(currentRogerState);
 
-  const [loginModalState, setLoginModalState] = useRecoilState<LoginModalState>(
-    currentLoginModalState,
-  );
-
-  const toggleLoginModal = () => {
-    setLoginModalState({ isOpen: !loginModalState.isOpen });
-  };
-
   const panelFactory = useCallback(
     (node: TabNode) => {
       switch (node.getComponent()) {
@@ -199,7 +189,7 @@ function App() {
         case "examplesPanel":
           return <ExamplesBrowser />;
         case "settingsPanel":
-          return <Settings toggleLoginModal={toggleLoginModal} />;
+          return <Settings />;
         case "diagramOptions":
           return <DiagramOptions />;
         case "stateInspector":
@@ -383,10 +373,7 @@ function App() {
   return (
     <div style={{ height: "100%", width: "100%" }}>
       {/* currently LoginMenuModal appears above, want it to overlay */}
-      <LoginMenuModal
-        loginModalState={loginModalState}
-        toggleLoginModal={toggleLoginModal}
-      />
+      <AuthMenuModal />
       <div
         style={{
           display: "flex",
