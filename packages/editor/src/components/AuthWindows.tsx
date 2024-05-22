@@ -1,16 +1,12 @@
-import { initializeApp } from "firebase/app";
-import {
-  createUserWithEmailAndPassword,
-  getAuth,
-  sendEmailVerification,
-  sendPasswordResetEmail,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
 import { useState } from "react";
-import toast from "react-hot-toast";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
 import { AuthModalState, currentAuthModalState } from "../state/atoms.js";
+import {
+  logInUser,
+  loginWithGithub,
+  registerUser,
+} from "../utils/authUtils.js";
 
 const MenuShadow = styled.div<{}>`
   position: absolute;
@@ -97,13 +93,6 @@ const AdditionalOptions = styled.div<{}>`
   cursor: pointer;
 `;
 
-// I believe this info will need to be in an env file elsewhere
-const firebaseConfig = {
-  // apiKey and such here, see discord
-};
-const firebaseApp = initializeApp(firebaseConfig);
-const auth = getAuth(firebaseApp);
-
 export const AuthMenuModal = () => {
   const [authModalState, setAuthModalState] = useRecoilState<AuthModalState>(
     currentAuthModalState,
@@ -125,80 +114,25 @@ export const AuthMenuModal = () => {
 
   const [showForgotPass, setShowForgotPass] = useState(true);
 
-  const registerUser = () => {
-    var email = document.getElementById("reg_email") as HTMLInputElement;
-    var password = document.getElementById("reg_password") as HTMLInputElement;
-    var password_confirmation = document.getElementById(
-      "confirmed_password",
-    ) as HTMLInputElement;
-
-    if (email.value && password.value && password_confirmation.value) {
-      if (password.value != password_confirmation.value) {
-        toast.error("Password and confirmation must match!");
-        return;
-      }
-      createUserWithEmailAndPassword(auth, email.value, password.value)
-        .then((userCredential) => {
-          // Signed up
-          sendEmailVerification(userCredential.user);
-          toast.success("Verification email sent, please check your email");
-          closeModal();
-        })
-        .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          toast.error(errorMessage);
-        });
-    } else {
-      toast.error("Cannot register, field is blank");
+  const loginWrapper = () => {
+    console.log("hit 1");
+    console.log(logInUser());
+    if (logInUser()) {
+      console.log("hit 2");
+      closeModal();
     }
   };
 
-  const logInUser = () => {
-    var email = document.getElementById("login_email") as HTMLInputElement;
-    var password = document.getElementById(
-      "login_password",
-    ) as HTMLInputElement;
-
-    if (email.value && password.value) {
-      signInWithEmailAndPassword(auth, email.value, password.value)
-        .then((userCredential) => {
-          // Signed up
-          toast.success("Logged in successfully!");
-          closeModal();
-        })
-        .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          toast.error(errorMessage);
-        });
-    } else {
-      toast.error("Cannot log in, field is blank");
+  const registerWrapper = () => {
+    if (registerUser()) {
+      closeModal();
     }
   };
 
-  const forgotPassword = () => {
-    var email = document.getElementById("login_email") as HTMLInputElement;
-    if (email.value) {
-      sendPasswordResetEmail(auth, email.value)
-        .then(() => {
-          toast.success(`Sent password reset link to ${email.value}`);
-          setShowForgotPass(false);
-          // Password reset email sent!
-          // ..
-        })
-        .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          toast.error(errorMessage);
-        });
-    } else {
-      toast.error("Please enter the account email above");
+  const forgotPassWrapper = () => {
+    if (registerUser()) {
+      setShowForgotPass(false);
     }
-  };
-
-  const loginWithGithub = () => {
-    toast.error("Github OAuth not yet implemented");
   };
 
   return (
@@ -216,12 +150,12 @@ export const AuthMenuModal = () => {
                 placeholder="Password"
                 id="login_password"
               />
-              <FormButton onClick={logInUser}>Log In</FormButton>
+              <FormButton onClick={loginWrapper}>Log In</FormButton>
               <AdditionalOptions onClick={toggleMode}>
                 New user? Register
               </AdditionalOptions>
               {showForgotPass ? (
-                <AdditionalOptions onClick={forgotPassword}>
+                <AdditionalOptions onClick={forgotPassWrapper}>
                   Forgot Password?
                 </AdditionalOptions>
               ) : null}
@@ -242,7 +176,7 @@ export const AuthMenuModal = () => {
                 placeholder="Confirm Password"
                 id="confirmed_password"
               />
-              <FormButton onClick={registerUser}>Register</FormButton>
+              <FormButton onClick={registerWrapper}>Register</FormButton>
               <AdditionalOptions onClick={toggleMode}>
                 Return to Login
               </AdditionalOptions>
