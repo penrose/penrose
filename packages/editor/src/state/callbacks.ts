@@ -57,7 +57,7 @@ const firebaseConfig = {
   measurementId: "G-LXKVSSS1T6",
 };
 
-const firebase_app = initializeApp(firebaseConfig);
+const firebaseApp = initializeApp(firebaseConfig);
 
 const _compileDiagram = async (
   substance: string,

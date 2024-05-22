@@ -15,7 +15,7 @@ import {
   useRecoilState,
   useRecoilValueLoadable,
 } from "recoil";
-import { Modal } from "./components/AuthWindows.js";
+import { LoginMenuModal } from "./components/AuthWindows.js";
 import DiagramOptions from "./components/DiagramOptions.js";
 import DiagramPanel from "./components/DiagramPanel.js";
 import ExamplesBrowser from "./components/ExamplesBrowser.js";
@@ -179,6 +179,10 @@ function App() {
     currentLoginModalState,
   );
 
+  const toggleLoginModal = () => {
+    setLoginModalState({ isOpen: !loginModalState.isOpen });
+  };
+
   const panelFactory = useCallback(
     (node: TabNode) => {
       switch (node.getComponent()) {
@@ -195,7 +199,7 @@ function App() {
         case "examplesPanel":
           return <ExamplesBrowser />;
         case "settingsPanel":
-          return <Settings />;
+          return <Settings toggleLoginModal={toggleLoginModal} />;
         case "diagramOptions":
           return <DiagramOptions />;
         case "stateInspector":
@@ -377,13 +381,20 @@ function App() {
     return <div>Loading local files...</div>;
   }
   return (
-    <div>
-      <Modal isOpen={loginModalState}>
-        <>
-          <h1>test</h1>
-        </>
-      </Modal>
-      <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+    <div style={{ height: "100%", width: "100%" }}>
+      {/* currently LoginMenuModal appears above, want it to overlay */}
+      <LoginMenuModal
+        loginModalState={loginModalState}
+        toggleLoginModal={toggleLoginModal}
+      />
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+          zIndex: 0,
+        }}
+      >
         <TopBar />
         <div style={{ position: "relative", flex: 1 }}>
           <Layout
