@@ -14,18 +14,41 @@ const MenuShadow = styled.div<{}>`
   justifycontent: center;
 `;
 
-const MenuBackground = styled.div<{}>`
-  background: white;
-  height: 150;
-  width: 240;
-  margin: auto;
-  padding: 2%;
-  border: 2px solid #e2e2e2;
-  border-radius: 15px;
-  boxshadow: 2px solid black;
+const Menu = styled.div<{}>`
+  height: 420px;
+  width: 300px;
+  background-color: white;
   position: relative;
-  width: 430px;
-  height: 520px;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 40px rgba(8, 7, 16, 0.8);
+  padding: 50px 35px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  h3 {
+    font-size: 32px;
+    font-weight: 500;
+    line-height: 20px;
+    text-align: center;
+  }
+
+  input {
+    display: block;
+    height: 50px;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.07);
+    border-radius: 3px;
+    margin-top: 10px;
+    font-size: 14px;
+    font-weight: 300;
+    padding: 0px 5px;
+  }
 `;
 
 const CloseButton = styled.button<{}>`
@@ -42,6 +65,27 @@ const CloseButton = styled.button<{}>`
   }
 `;
 
+const FormButton = styled.button<{}>`
+  margin-top: 10px;
+  width: 80%;
+  background-color: #ffffff;
+  color: #080710;
+  padding: 15px;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 5px;
+  cursor: pointer;
+`;
+
+const AdditionalOptions = styled.div<{}>`
+  margin-top: 15px;
+  opacity: 0.7;
+  &:hover {
+    opacity: 1;
+  }
+  cursor: pointer;
+`;
+
 interface loginMenuModalProps {
   loginModalState: LoginModalState;
   toggleLoginModal: () => void;
@@ -55,10 +99,15 @@ export const LoginMenuModal = ({
     <>
       {loginModalState.isOpen && (
         <MenuShadow>
-          <MenuBackground>
-            <h1>aaaaaaaa</h1>
+          <Menu>
             <CloseButton onClick={toggleLoginModal}>x</CloseButton>
-          </MenuBackground>
+            <h3>Sign In Here</h3>
+            <input type="text" placeholder="Email" id="username" />
+            <input type="text" placeholder="Password" id="password" />
+            <FormButton>Log In</FormButton>
+            <AdditionalOptions>New user? Register</AdditionalOptions>
+            <AdditionalOptions>Login with GitHub</AdditionalOptions>
+          </Menu>
         </MenuShadow>
       )}
     </>
