@@ -1,5 +1,10 @@
 import { initializeApp } from "firebase/app";
-import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  getAuth,
+  sendEmailVerification,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import toast from "react-hot-toast";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
@@ -131,13 +136,14 @@ export const AuthMenuModal = () => {
 
     if (email.value && password.value && password_confirmation.value) {
       if (password.value != password_confirmation.value) {
-        toast.error("Password and confirmation are different!");
+        toast.error("Password and confirmation must match!");
         return;
       }
       createUserWithEmailAndPassword(auth, email.value, password.value)
         .then((userCredential) => {
           // Signed up
-          toast.success("Successfully registered!");
+          sendEmailVerification(userCredential.user);
+          toast.success("Verification email sent, please check your email");
           closeModal();
         })
         .catch((error) => {
@@ -147,6 +153,29 @@ export const AuthMenuModal = () => {
         });
     } else {
       toast.error("Cannot register, field is blank");
+    }
+  };
+
+  const logInUser = () => {
+    var email = document.getElementById("login_email") as HTMLInputElement;
+    var password = document.getElementById(
+      "login_password",
+    ) as HTMLInputElement;
+
+    if (email.value && password.value) {
+      signInWithEmailAndPassword(auth, email.value, password.value)
+        .then((userCredential) => {
+          // Signed up
+          toast.success("Logged in successfully!");
+          closeModal();
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          toast.error(errorMessage);
+        });
+    } else {
+      toast.error("Cannot log in, field is blank");
     }
   };
 
@@ -165,7 +194,7 @@ export const AuthMenuModal = () => {
                 placeholder="Password"
                 id="login_password"
               />
-              <FormButton>Log In</FormButton>
+              <FormButton onClick={logInUser}>Log In</FormButton>
               <AdditionalOptions onClick={toggleMode}>
                 New user? Register
               </AdditionalOptions>
