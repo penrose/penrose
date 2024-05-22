@@ -1,12 +1,16 @@
 import { useCallback } from "react";
 import { useRecoilStateLoadable } from "recoil";
 import { settingsState } from "../state/atoms.js";
-import { useSignIn } from "../state/callbacks.js";
 import BlueButton from "./BlueButton.js";
 
-export default function Settings({ toggleLoginModal }) {
+interface settingsProps {
+  toggleLoginModal: () => void;
+}
+
+export default function Settings({
+  toggleLoginModal = () => {},
+}: settingsProps) {
   const [settings, setSettings] = useRecoilStateLoadable(settingsState);
-  const signIn = useSignIn();
   const signOut = useCallback(() => {
     setSettings((settings) => ({ ...settings, github: null }));
   }, []);
@@ -44,7 +48,7 @@ export default function Settings({ toggleLoginModal }) {
       </div>
       {settings.contents.github === null && (
         <div style={{ margin: "10px" }}>
-          <BlueButton onClick={toggleLoginModal}>sign into GitHub</BlueButton>
+          <BlueButton onClick={toggleLoginModal}>sign in</BlueButton>
         </div>
       )}
       {settings.contents.github !== null && (

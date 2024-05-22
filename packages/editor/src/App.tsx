@@ -392,11 +392,10 @@ function App() {
           display: "flex",
           flexDirection: "column",
           height: "100%",
-          zIndex: 0,
         }}
       >
         <TopBar />
-        <div style={{ position: "relative", flex: 1 }}>
+        <div style={{ position: "relative", flex: 1, zIndex: 0 }}>
           <Layout
             model={layoutModel}
             factory={panelFactory}

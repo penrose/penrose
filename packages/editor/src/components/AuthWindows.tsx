@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { LoginModalState } from "../state/atoms.js";
 
 const MenuShadow = styled.div<{}>`
   position: absolute;
@@ -19,10 +20,12 @@ const MenuBackground = styled.div<{}>`
   width: 240;
   margin: auto;
   padding: 2%;
-  border: 2px solid #000;
-  borderradius: 10px;
+  border: 2px solid #e2e2e2;
+  border-radius: 15px;
   boxshadow: 2px solid black;
   position: relative;
+  width: 430px;
+  height: 520px;
 `;
 
 const CloseButton = styled.button<{}>`
@@ -39,11 +42,15 @@ const CloseButton = styled.button<{}>`
   }
 `;
 
-export const LoginMenuModal = ({ loginModalState, toggleLoginModal }) => {
-  //   const toggleModal = () => {
-  //     setLoginModalState(false);
-  //   };
+interface loginMenuModalProps {
+  loginModalState: LoginModalState;
+  toggleLoginModal: () => void;
+}
 
+export const LoginMenuModal = ({
+  loginModalState,
+  toggleLoginModal,
+}: loginMenuModalProps) => {
   return (
     <>
       {loginModalState.isOpen && (
@@ -57,74 +64,3 @@ export const LoginMenuModal = ({ loginModalState, toggleLoginModal }) => {
     </>
   );
 };
-
-// export const Modal = ({ isOpen, children }) => {
-//   if (!isOpen) return null;
-
-//   return (
-//     <div
-//       //   onClick={onClose}
-//       style={{
-//         position: "fixed",
-//         top: 0,
-//         left: 0,
-//         width: "100%",
-//         height: "100%",
-//         background: "rgba(0, 0, 0, 0.5)",
-//         display: "flex",
-//         alignItems: "center",
-//         justifyContent: "center",
-//       }}
-//     >
-//       <div
-//         style={{
-//           background: "white",
-//           height: 150,
-//           width: 240,
-//           margin: "auto",
-//           padding: "2%",
-//           border: "2px solid #000",
-//           borderRadius: "10px",
-//           boxShadow: "2px solid black",
-//         }}
-//       >
-//         {children}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default function LoginButton() {
-//   const [open, setOpen] = React.useState(false);
-
-//   const handleClose = () => {
-//     setOpen(false);
-//   };
-
-//   const handleOpen = () => {
-//     setOpen(true);
-//   };
-
-//   return (
-//     <div
-//       style={{
-//         textAlign: "center",
-//         display: "block",
-//         padding: 30,
-//         margin: "auto",
-//       }}
-//     >
-//       <h1 style={{ color: "green" }}>GeeksforGeeks</h1>
-//       <h4>Modal Component in ReactJS?</h4>
-//       <button type="button" onClick={handleOpen}>
-//         Click Me to Open Modal
-//       </button>
-//       <Modal isOpen={open} onClose={handleClose}>
-//         <>
-//           <h1>GFG</h1>
-//           <h3>A computer science portal!</h3>
-//         </>
-//       </Modal>
-//     </div>
-//   );
-// }
