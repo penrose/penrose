@@ -3,8 +3,10 @@ import {
   createUserWithEmailAndPassword,
   getAuth,
   sendEmailVerification,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
 } from "firebase/auth";
+import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
@@ -127,6 +129,8 @@ export const AuthMenuModal = () => {
     });
   };
 
+  const [showForgotPass, setShowForgotPass] = useState(true);
+
   const registerUser = () => {
     var email = document.getElementById("reg_email") as HTMLInputElement;
     var password = document.getElementById("reg_password") as HTMLInputElement;
@@ -179,6 +183,30 @@ export const AuthMenuModal = () => {
     }
   };
 
+  const forgotPassword = () => {
+    var email = document.getElementById("login_email") as HTMLInputElement;
+    if (email.value) {
+      sendPasswordResetEmail(auth, email.value)
+        .then(() => {
+          toast.success(`Sent password reset link to ${email.value}`);
+          setShowForgotPass(false);
+          // Password reset email sent!
+          // ..
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          toast.error(errorMessage);
+        });
+    } else {
+      toast.error("Please enter the account email above");
+    }
+  };
+
+  const loginWithGithub = () => {
+    toast.error("Github OAuth not yet implemented");
+  };
+
   return (
     <>
       {(authModalState.loginIsOpen || authModalState.registerIsOpen) && (
@@ -198,8 +226,15 @@ export const AuthMenuModal = () => {
               <AdditionalOptions onClick={toggleMode}>
                 New user? Register
               </AdditionalOptions>
-              <AdditionalOptions>Forgot Password?</AdditionalOptions>
-              <AdditionalOptions>Login with GitHub</AdditionalOptions>
+              {showForgotPass ? (
+                <AdditionalOptions onClick={forgotPassword}>
+                  Forgot Password?
+                </AdditionalOptions>
+              ) : null}
+
+              <AdditionalOptions onClick={loginWithGithub}>
+                Login with GitHub
+              </AdditionalOptions>
             </Menu>
           ) : (
             // Registration menu
@@ -217,7 +252,9 @@ export const AuthMenuModal = () => {
               <AdditionalOptions onClick={toggleMode}>
                 Return to Login
               </AdditionalOptions>
-              <AdditionalOptions>Login with GitHub</AdditionalOptions>
+              <AdditionalOptions onClick={loginWithGithub}>
+                Login with GitHub
+              </AdditionalOptions>
             </Menu>
           )}
         </MenuShadow>
