@@ -1,6 +1,5 @@
-import { A, Identifier, location, locations } from "../types/ast.js";
+import { A, C, Identifier } from "../types/ast.js";
 import {
-  BadStylePathToValueObject,
   BlockAssignment,
   BlockInfo,
   EmptyStylePath,
@@ -8,14 +7,14 @@ import {
   ResolvedStylePath,
   StySubst,
   StyleBlockId,
+  StylePathToLocalScope,
+  StylePathToNamespaceScope,
   StylePathToObject,
   StylePathToScope,
-  StylePathToShapeObject,
   SubstanceObject,
 } from "../types/styleSemantics.js";
 
 import im from "immutable";
-import { Context } from "vitest";
 import { StyleError } from "../types/errors.js";
 import { Path } from "../types/style.js";
 import { Result, err, ok } from "./Error.js";
@@ -29,7 +28,7 @@ type StylePathResolverResult<T> = {
 const pathRefersToShapeObject = <T>(
   assignment: BlockAssignment,
   path: StylePathToScope<T> | StylePathToObject<T>,
-): path is StylePathToShapeObject<T> => {
+): boolean => {
   if (path.tag !== "Object") {
     return false;
   }
@@ -63,21 +62,25 @@ const pathRefersToShapeObject = <T>(
 export const resolveLhsStylePath = (
   { block, subst }: BlockInfo,
   assignment: BlockAssignment,
-  path: Path<A>,
-): Result<ResolvedStylePath<A>, StyleError> => {
-  const init: EmptyStylePath<A> = {
-    ...location(path),
+  path: Path<C>,
+): Result<ResolvedStylePath<C>, StyleError> => {
+  const { start } = path;
+  const init: EmptyStylePath<C> = {
     tag: "Empty",
+    start: start,
+    end: start,
   };
 
-  const firstPart: Identifier<A> =
+  const firstPart: Identifier<C> =
     path.name.tag === "StyVar"
       ? path.name.contents
       : {
-          ...location(path.name),
           tag: "Identifier",
           value: `\`${path.name.contents.value}\``,
           type: "value",
+          start: start,
+          end: path.name.end,
+          nodeType: "Style",
         };
 
   const rest = path.members;
@@ -85,48 +88,12 @@ export const resolveLhsStylePath = (
   const parts = [firstPart, ...rest];
 
   const helper = (
-    result: StylePathResolverResult<A>,
-  ): Result<ResolvedStylePath<A>, StyleError> => {
+    result: StylePathResolverResult<C>,
+  ): Result<ResolvedStylePath<C>, StyleError> => {
     if (result.remaining.length === 0) {
       return ok(result.resolvedPath);
     } else {
-      return resolveLhsStylePathPart(
-        { block, subst },
-        assignment,
-        result.resolvedPath,
-        result.remaining,
-      ).andThen(helper);
-    }
-  };
-
-  return helper({ resolvedPath: init, remaining: parts });
-};
-
-export const resolveLhsStylePathString = (
-  block: StyleBlockId,
-  subst: StySubst,
-  assignment: BlockAssignment,
-  path: string,
-): Result<ResolvedStylePath<A>, StyleError> => {
-  const parts: Identifier<A>[] = path.split(".").map((p) => ({
-    tag: "Identifier",
-    value: p,
-    type: "value",
-    nodeType: "SyntheticStyle",
-  }));
-
-  const init: EmptyStylePath<A> = {
-    tag: "Empty",
-    nodeType: "SyntheticStyle",
-  };
-
-  const helper = (
-    result: StylePathResolverResult<A>,
-  ): Result<ResolvedStylePath<A>, StyleError> => {
-    if (result.remaining.length === 0) {
-      return ok(result.resolvedPath);
-    } else {
-      return resolveLhsStylePathPart(
+      return resolveLhsStylePathHelper(
         { block, subst },
         assignment,
         result.resolvedPath,
@@ -149,40 +116,43 @@ const findFromSubst = (
   }
 };
 
-const resolveLhsStylePathPart = (
+const resolveLhsStylePathHelper = (
   { block, subst }: BlockInfo,
   assignment: BlockAssignment,
-  curr: ResolvedStylePath<A>,
-  parts: Identifier<A>[],
-): Result<StylePathResolverResult<A>, StyleError> => {
+  curr: ResolvedStylePath<C>,
+  parts: Identifier<C>[],
+): Result<StylePathResolverResult<C>, StyleError> => {
   const [next, ...rest] = parts;
   if (curr.tag === "Empty") {
     const subObj = findFromSubst(subst, next.value);
     if (subObj !== undefined) {
       return ok({
         resolvedPath: {
-          ...locations(curr, next),
           tag: "Substance",
           substanceName: subObjectToUniqueName(subObj),
           styleName: next.value,
+          start: curr.start,
+          end: next.end,
         },
         remaining: rest,
       });
     } else if (assignment.globals.has(next.value)) {
       return ok({
         resolvedPath: {
-          ...locations(curr, next),
           tag: "Namespace",
           name: next.value,
+          start: curr.start,
+          end: next.end,
         },
         remaining: rest,
       });
     } else {
       return ok({
         resolvedPath: {
-          ...location(curr),
           tag: "Local",
           block: block,
+          start: curr.start,
+          end: curr.end,
         },
         // not `rest` here, since we only know that `curr` is in local,
         // we have not resolved `curr` yet.
@@ -198,14 +168,13 @@ const resolveLhsStylePathPart = (
     // for LHS,
     // we don't need to check if `next` actually exists in the scope indicated by `curr`
     // because we may be declaring it for the first time.
-
-    // for RHS we definitely need to check this.
     return ok({
       resolvedPath: {
-        ...locations(curr, next),
         tag: "Object",
         parent: curr,
         name: next.value,
+        start: curr.start,
+        end: next.end,
       },
       remaining: rest,
     });
@@ -216,10 +185,11 @@ const resolveLhsStylePathPart = (
     if (pathRefersToShapeObject(assignment, curr)) {
       return ok({
         resolvedPath: {
-          ...locations(curr, next),
           tag: "Object",
           parent: curr,
           name: next.value,
+          start: curr.start,
+          end: next.end,
         },
         remaining: rest,
       });
@@ -227,10 +197,11 @@ const resolveLhsStylePathPart = (
       return err({
         tag: "InvalidLhsPathError",
         path: {
-          ...locations(curr, next),
           tag: "Object",
           parent: curr,
           name: next.value,
+          start: curr.start,
+          end: next.end,
         },
       });
     }
@@ -248,13 +219,10 @@ const blockPrefix = (block: StyleBlockId): string => {
   }
 };
 
-export const prettyStylePath = (
-  p: ResolvedStylePath<A> | BadStylePathToValueObject<A>,
-): string => {
+export const prettyStylePath = (p: ResolvedStylePath<A>): string => {
   if (p.tag === "Empty") {
     return "";
   } else if (p.tag === "Local") {
-    // todo: use colon: 3:1:var
     const prefix = blockPrefix(p.block);
     return `${prefix}`;
   } else if (p.tag === "Namespace") {
@@ -271,7 +239,156 @@ export const prettyStylePath = (
   }
 };
 
-export const resolveRhsStylePath = (
-  context: Context,
+export const makePathToLocalScope = (
+  blockId: number,
+  matchId: number,
+): StylePathToLocalScope<A> => ({
+  tag: "Local",
+  block: { tag: "MatchableBlock", blockId, matchId },
+});
+
+export const makePathToNamespaceScope = (
+  namespace: string,
+): StylePathToNamespaceScope<A> => ({
+  tag: "Namespace",
+  name: namespace,
+});
+
+export const makePathToSubstanceScope = (
+  substanceName: string,
+  styleName?: string,
+): StylePathToScope<A> => ({
+  tag: "Substance",
+  substanceName,
+  styleName: styleName === undefined ? substanceName : styleName,
+});
+
+export const makePathToObject = (
+  parent: StylePathToScope<A> | StylePathToObject<A>,
+  name: string,
+): StylePathToObject<A> => ({
+  tag: "Object",
+  parent,
+  name,
+});
+
+export const uncheckedResolveRhsPath = (
+  { block, subst }: BlockInfo,
+  assignment: BlockAssignment,
   path: Path<C>,
-): Result<ResolvedStylePath<C>, StyleError> => {};
+): ResolvedStylePath<C> => {
+  const { start } = path;
+  const init: EmptyStylePath<C> = {
+    tag: "Empty",
+    start: start,
+    end: start,
+  };
+
+  const firstPart: Identifier<C> =
+    path.name.tag === "StyVar"
+      ? path.name.contents
+      : {
+          tag: "Identifier",
+          value: `\`${path.name.contents.value}\``,
+          type: "value",
+          start: start,
+          end: path.name.end,
+          nodeType: "Style",
+        };
+
+  const rest = path.members;
+
+  const parts = [firstPart, ...rest];
+
+  const helper = (result: StylePathResolverResult<C>): ResolvedStylePath<C> => {
+    if (result.remaining.length === 0) {
+      return result.resolvedPath;
+    } else {
+      return helper(
+        uncheckedResolveRhsPathHelper(
+          { block, subst },
+          assignment,
+          result.resolvedPath,
+          result.remaining,
+        ),
+      );
+    }
+  };
+
+  return helper({ resolvedPath: init, remaining: parts });
+};
+
+// "unchecked" means it doesn't actually check if the path is valid, modulo some well-formedness checks.
+const uncheckedResolveRhsPathHelper = (
+  { block, subst }: BlockInfo,
+  assignment: BlockAssignment,
+  curr: ResolvedStylePath<C>,
+  parts: Identifier<C>[],
+): StylePathResolverResult<C> => {
+  const [next, ...rest] = parts;
+  if (curr.tag === "Empty") {
+    const subObj = findFromSubst(subst, next.value);
+    if (subObj !== undefined) {
+      return {
+        resolvedPath: {
+          tag: "Substance",
+          substanceName: subObjectToUniqueName(subObj),
+          styleName: next.value,
+          start: curr.start,
+          end: next.end,
+        },
+        remaining: rest,
+      };
+    } else if (assignment.globals.has(next.value)) {
+      return {
+        resolvedPath: {
+          tag: "Namespace",
+          name: next.value,
+          start: curr.start,
+          end: next.end,
+        },
+        remaining: rest,
+      };
+    } else {
+      return {
+        resolvedPath: {
+          tag: "Local",
+          block: block,
+          start: curr.start,
+          end: curr.end,
+        },
+        remaining: parts,
+      };
+    }
+  } else if (
+    curr.tag === "Local" ||
+    curr.tag === "Namespace" ||
+    curr.tag === "Substance"
+  ) {
+    // `next` might not actially have been declared in the scope.
+    // That is fine though, since we are still looking at an incomplete assignment.
+    return {
+      resolvedPath: {
+        tag: "Object",
+        parent: curr,
+        name: next.value,
+        start: curr.start,
+        end: next.end,
+      },
+      remaining: rest,
+    };
+  } else {
+    // here, no need to check if the path actually refers to a shape
+    // the path might not even exist since we are dealing with an incomplete assignment.
+    return {
+      resolvedPath: {
+        tag: "Object",
+        parent: curr,
+        name: next.value,
+        start: curr.start,
+        end: next.end,
+      },
+      remaining: rest,
+    };
+  }
+};

@@ -1,4 +1,5 @@
 import { ASTNode, Identifier, StringLit } from "./ast.js";
+import { ResolvedStylePath } from "./styleSemantics.js";
 import { LabelType, NumberConstant } from "./substance.js";
 
 export type Staged<T> = {
@@ -363,3 +364,22 @@ export type Path<T> = ASTNode<T> & {
   members: Identifier<T>[];
   indices: Expr<T>[];
 };
+
+type Primitive = string | number | bigint | boolean | null | undefined;
+
+export type Replaced<T, TReplace, TWith, TKeep = Primitive> = T extends
+  | TReplace
+  | TKeep
+  ? T extends TReplace
+    ? TWith | Exclude<T, TReplace>
+    : T
+  : {
+      [P in keyof T]: Replaced<T[P], TReplace, TWith, TKeep>;
+    };
+
+export type ResolvedPath<T> = T & {
+  tag: "ResolvedPath";
+  contents: ResolvedStylePath<T>;
+};
+
+export type Resolved<T, Tx> = Replaced<T, Path<Tx>, ResolvedPath<Tx>>;

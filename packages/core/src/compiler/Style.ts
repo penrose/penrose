@@ -66,6 +66,7 @@ import {
   RelField,
   RelPred,
   RelationPattern,
+  Resolved,
   SEFunc,
   SEFuncOrValCons,
   SEValCons,
@@ -158,7 +159,11 @@ import {
   traverseUp,
 } from "../utils/GroupGraph.js";
 import Heap from "../utils/Heap.js";
-import { prettyStylePath, resolveLhsStylePath } from "../utils/StylePath.js";
+import {
+  prettyStylePath,
+  resolveLhsStylePath,
+  uncheckedResolveRhsPath,
+} from "../utils/StylePath.js";
 import {
   boolV,
   cartesianProduct,
@@ -176,6 +181,7 @@ import {
   strV,
   subObjectToUniqueName,
   substanceLiteralToValue,
+  toLiteralUniqueName,
   tupV,
   val,
   vectorV,
@@ -1644,12 +1650,113 @@ const processExpr = (
   return andThen((props) => ok({ tag: "ShapeSource", shapeType, props }), res);
 };
 
+const resolveRhsFunctionCall = (
+  block: BlockInfo,
+  assignment: BlockAssignment,
+  expr: FunctionCall<C> | InlineComparison<C>,
+): Resolved<FunctionCall<C> | InlineComparison<C>, C> => {
+  const resolve = (e: Expr<C>) => resolveRhsExpr(block, assignment, e);
+  if (expr.tag === "FunctionCall") {
+    return {
+      ...expr,
+      args: expr.args.map(resolve),
+    };
+  } else {
+    const { arg1, arg2 } = expr;
+    return {
+      ...expr,
+      arg1: resolve(arg1),
+      arg2: resolve(arg2),
+    };
+  }
+};
+
+const resolveRhsExpr = (
+  block: BlockInfo,
+  assignment: BlockAssignment,
+  expr: Expr<C>,
+): Resolved<Expr<C>, C> => {
+  const resolve = (e: Expr<C>) => resolveRhsExpr(block, assignment, e);
+  switch (expr.tag) {
+    case "Fix":
+    case "Vary":
+    case "StringLit":
+    case "BoolLit":
+    case "ColorLit":
+    case "UnaryStyVarExpr":
+    case "CollectionAccess":
+      return expr;
+    case "CompApp":
+      return {
+        ...expr,
+        name: expr.name,
+        args: expr.args.map(resolve),
+      };
+    case "ObjFn":
+    case "ConstrFn":
+      return {
+        ...expr,
+        body: resolveRhsFunctionCall(block, assignment, expr.body),
+      };
+    case "BinOp":
+      return {
+        ...expr,
+        left: resolve(expr.left),
+        right: resolve(expr.right),
+      };
+    case "UOp":
+      return {
+        ...expr,
+        arg: resolve(expr.arg),
+      };
+    case "List":
+    case "Vector":
+      return {
+        ...expr,
+        contents: expr.contents.map(resolve),
+      };
+    case "Tuple":
+      return {
+        ...expr,
+        contents: [resolve(expr.contents[0]), resolve(expr.contents[1])],
+      };
+    case "GPIDecl":
+      return {
+        ...expr,
+        properties: expr.properties.map((propDecl) => ({
+          ...propDecl,
+          value: resolve(propDecl.value),
+        })),
+      };
+    case "Layering":
+      return {
+        ...expr,
+        tag: "Layering",
+        left: {
+          tag: "ResolvedPath",
+          contents: uncheckedResolveRhsPath(block, assignment, expr.left),
+        },
+        right: expr.right.map((e) => ({
+          tag: "ResolvedPath",
+          contents: uncheckedResolveRhsPath(block, assignment, e),
+        })),
+      };
+    case "Path":
+      return {
+        ...expr,
+        tag: "ResolvedPath",
+        contents: uncheckedResolveRhsPath(block, assignment, expr),
+      };
+  }
+};
+
 const insertExpr = (
   block: BlockInfo,
   path: ResolvedStylePath<C>,
   expr: Expr<C>,
   assignment: BlockAssignment,
-): BlockAssignment =>
+): BlockAssignment => {
+  const resolvedExpr = resolveRhsExpr(block, assignment, expr);
   checkPathAndUpdateExpr(
     path,
     assignment,
@@ -1696,6 +1803,7 @@ const insertExpr = (
       }
     },
   );
+};
 
 const deleteExpr = (
   path: ResolvedStylePath<C>,
@@ -2097,35 +2205,63 @@ export const buildAssignment = (
     start: { line: 1, col: 1 },
     end: { line: 1, col: 1 },
   };
-  const assignment: Assignment = {
-    diagnostics: { errors: im.List(), warnings: im.List() },
-    globals: im.Map(),
-    unnamed: im.Map(),
-    substances: subEnv.labels.map((label) =>
-      im.Map([
-        [
-          LABEL_FIELD,
-          {
-            ...range,
-            tag: "OtherSource",
+
+  // pre-populate all the namespaces and substances
+  const namespaces: im.List<string> = styProg.items.reduce(
+    (namespaces, item) => {
+      if (item.tag === "HeaderBlock" && item.header.tag === "Namespace") {
+        return namespaces.push(item.header.contents.contents.value);
+      } else {
+        return namespaces;
+      }
+    },
+    im.List<string>(),
+  );
+
+  const substances: im.List<string> = im.List(...subEnv.objs.keys());
+  const withLiterals: im.List<string> = substances.push(
+    ...subEnv.literals.map((lit) => toLiteralUniqueName(lit.contents.contents)),
+  );
+
+  const withLiteralsMap: im.Map<string, FieldDict> = im.Map(
+    withLiterals.map((name) => [name, im.Map()]),
+  );
+
+  const labelsMap: im.Map<string, FieldDict> = subEnv.labels.map((label) =>
+    im.Map([
+      [
+        LABEL_FIELD,
+        {
+          ...range,
+          tag: "OtherSource",
+          expr: {
+            context: {
+              block: { tag: "Namespace", contents: "" }, // HACK
+              subst: { tag: "StySubSubst", contents: {} },
+              locals: im.Map(),
+            },
             expr: {
-              context: {
-                block: { tag: "Namespace", contents: "" }, // HACK
-                subst: { tag: "StySubSubst", contents: {} },
-                locals: im.Map(),
-              },
-              expr: {
-                ...range,
-                tag: "StringLit",
-                nodeType: "SyntheticStyle",
-                contents: label.value,
-              },
+              ...range,
+              tag: "StringLit",
+              nodeType: "SyntheticStyle",
+              contents: label.value,
             },
           },
-        ],
-      ]),
-    ),
+        },
+      ],
+    ]),
+  );
+
+  const substanceMap: im.Map<string, FieldDict> =
+    withLiteralsMap.merge(labelsMap);
+
+  const assignment: Assignment = {
+    diagnostics: { errors: im.List(), warnings: im.List() },
+    globals: im.Map(namespaces.map((name) => [name, im.Map()])),
+    unnamed: im.Map(),
+    substances: substanceMap,
   };
+
   return styProg.items.reduce(
     (assignment, item, index) =>
       item.tag === "HeaderBlock"
