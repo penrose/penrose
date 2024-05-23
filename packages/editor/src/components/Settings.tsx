@@ -1,11 +1,12 @@
 import { useRecoilStateLoadable, useRecoilValue } from "recoil";
 import { currentAppUser, settingsState } from "../state/atoms.js";
-import { signOutWrapper } from "../utils/authUtils.js";
+import { signOutWrapper } from "../utils/firebaseUtils.js";
 import { OpenModalButton } from "./AuthWindows.js";
 import BlueButton from "./BlueButton.js";
 
 export default function Settings() {
   const [settings, setSettings] = useRecoilStateLoadable(settingsState);
+  const currentUser = useRecoilValue(currentAppUser);
 
   if (settings.state !== "hasValue") {
     return <div>loading...</div>;
@@ -39,7 +40,7 @@ export default function Settings() {
           />
         </label>
       </div>
-      {useRecoilValue(currentAppUser) != null ? (
+      {currentUser != null ? (
         <div style={{ margin: "10px" }}>
           {" "}
           <BlueButton onClick={signOutWrapper}>sign out</BlueButton>

@@ -9,7 +9,7 @@ import toast from "react-hot-toast";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
 import { AuthModalState, currentAuthModalState } from "../state/atoms.js";
-import { authObject } from "../utils/authUtils.js";
+import { authObject } from "../utils/firebaseUtils.js";
 import BlueButton from "./BlueButton.js";
 
 const MenuShadow = styled.div<{}>`
@@ -133,8 +133,15 @@ export const AuthMenuModal = () => {
       createUserWithEmailAndPassword(authObject, email.value, password.value)
         .then((userCredential) => {
           // Signed up
-          sendEmailVerification(userCredential.user);
-          toast.success("Verification email sent, please check your email");
+          sendEmailVerification(userCredential.user)
+            .catch((error) => {
+              toast.error(
+                `Could not send verification email: ${error.message}`,
+              );
+            })
+            .then(() => {
+              toast.success("Verification email sent, please check your email");
+            });
           closeModal();
         })
         .catch((error) => {

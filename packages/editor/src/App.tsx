@@ -48,7 +48,7 @@ import {
   useCompileDiagram,
   useIsUnsaved,
 } from "./state/callbacks.js";
-import { authObject } from "./utils/authUtils.js";
+import { authObject } from "./utils/firebaseUtils.js";
 
 const mainRowLayout: IJsonRowNode = {
   type: "row",

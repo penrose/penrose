@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, signOut } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 import toast from "react-hot-toast";
 
 const firebaseConfig = {
@@ -14,6 +15,7 @@ const firebaseConfig = {
 
 const firebaseApp = initializeApp(firebaseConfig);
 export const authObject = getAuth(firebaseApp);
+export const db = getFirestore(firebaseApp);
 
 export const signOutWrapper = () => {
   signOut(authObject)
@@ -21,7 +23,6 @@ export const signOutWrapper = () => {
       toast.success("logged out");
     })
     .catch((error) => {
-      console.log("huh");
       toast.error(error.message);
     });
 };
