@@ -183,8 +183,12 @@ function App() {
     authObject.onAuthStateChanged((user) => {
       // https://github.com/firebase/firebase-js-sdk/issues/5722
       const userCopy = JSON.parse(JSON.stringify(user));
-      setAppUserState(true);
-      console.log(appUserState);
+      // console.log("a");
+      // console.log(userCopy);
+      setAppUserState(userCopy);
+      // console.log(useRecoilValue(currentAppUser));
+      // console.log("b");
+      // console.log(user);
     });
   }, []);
 

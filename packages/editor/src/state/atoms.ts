@@ -6,6 +6,7 @@ import {
 } from "@penrose/core";
 import { PathResolver, Trio, TrioMeta } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
+import { User as FirebaseUser } from "firebase/auth";
 import { Actions, BorderNode, TabNode } from "flexlayout-react";
 import localforage from "localforage";
 import { debounce, range } from "lodash";
@@ -105,7 +106,7 @@ export type AuthModalState = {
   registerIsOpen: boolean;
 };
 
-export type AppUser = boolean;
+export type AppUser = FirebaseUser | null;
 
 const localFilesEffect: AtomEffect<LocalWorkspaces> = ({ setSelf, onSet }) => {
   setSelf(
@@ -242,7 +243,7 @@ export const currentAuthModalState = atom<AuthModalState>({
 
 export const currentAppUser = atom<AppUser>({
   key: "currentAppUser",
-  default: false,
+  default: null,
 });
 
 /**

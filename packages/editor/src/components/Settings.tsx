@@ -1,7 +1,8 @@
-import { useRecoilState, useRecoilStateLoadable } from "recoil";
+import { useRecoilState, useRecoilStateLoadable, useRecoilValue } from "recoil";
 import {
   AppUser,
   AuthModalState,
+  currentAppUser,
   currentAuthModalState,
   settingsState,
 } from "../state/atoms.js";
@@ -9,7 +10,8 @@ import { signOutWrapper } from "../utils/authUtils.js";
 import BlueButton from "./BlueButton.js";
 
 export default function Settings({ appUserState }: { appUserState: AppUser }) {
-  console.log(appUserState);
+  // console.log(useRecoilValue(currentAppUser));
+  // console.log(appUserState);
   const [settings, setSettings] = useRecoilStateLoadable(settingsState);
 
   const [authModalState, setAuthModalState] = useRecoilState<AuthModalState>(
@@ -55,7 +57,7 @@ export default function Settings({ appUserState }: { appUserState: AppUser }) {
           />
         </label>
       </div>
-      {appUserState ? (
+      {useRecoilValue(currentAppUser) != null ? (
         <div style={{ margin: "10px" }}>
           {" "}
           <BlueButton onClick={signOutWrapper}>sign out</BlueButton>
