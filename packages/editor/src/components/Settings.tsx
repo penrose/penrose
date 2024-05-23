@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRecoilState, useRecoilStateLoadable } from "recoil";
 import {
+  AppUser,
   AuthModalState,
+  currentAppUser,
   currentAuthModalState,
   settingsState,
 } from "../state/atoms.js";
@@ -10,32 +12,22 @@ import BlueButton from "./BlueButton.js";
 
 export default function Settings() {
   const [settings, setSettings] = useRecoilStateLoadable(settingsState);
-  // const signOut = useCallback(() => {
-  //   setSettings((settings) => ({ ...settings, github: null }));
-  // }, []);
 
   const [authModalState, setAuthModalState] = useRecoilState<AuthModalState>(
     currentAuthModalState,
   );
 
-  // idk if this actually works, would like to test more
-  // just need to fix the type err
-  const [loggedIn, setLoggedIn] = useState(null);
+  // const [loggedIn, setLoggedIn] = useState(null);
+  const [appUserState, setAppUserState] =
+    useRecoilState<AppUser>(currentAppUser);
 
   useEffect(() => {
-    const unsubscribe = authObject.onAuthStateChanged((user) => {
-      setLoggedIn(user);
+    authObject.onAuthStateChanged((user) => {
+      // https://github.com/firebase/firebase-js-sdk/issues/5722
+      const userCopy = JSON.parse(JSON.stringify(user));
+      setAppUserState(userCopy);
     });
-
-    return unsubscribe; // Clean up the observer on component unmount
   }, []);
-
-  // useEffect(() => {
-  //   const currentUser = authObject.currentUser;
-  //   if (currentUser != null) {
-  //     setLoggedIn(true);
-  //   }
-  // }, []);
 
   const toggleLoginModal = () => {
     setAuthModalState({
@@ -76,7 +68,7 @@ export default function Settings() {
           />
         </label>
       </div>
-      {loggedIn != null ? (
+      {appUserState != null ? (
         <div style={{ margin: "10px" }}>
           {" "}
           <BlueButton onClick={signOutWrapper}>sign out</BlueButton>

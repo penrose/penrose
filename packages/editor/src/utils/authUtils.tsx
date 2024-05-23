@@ -19,9 +19,9 @@ export const signOutWrapper = () => {
   signOut(authObject)
     .then(() => {
       toast.success("logged out");
-      // Sign-out successful.
     })
     .catch((error) => {
+      console.log("huh");
       toast.error(error.message);
     });
 };

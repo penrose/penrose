@@ -6,6 +6,7 @@ import {
 } from "@penrose/core";
 import { PathResolver, Trio, TrioMeta } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
+import { User as FirebaseUser } from "firebase/auth";
 import { Actions, BorderNode, TabNode } from "flexlayout-react";
 import localforage from "localforage";
 import { debounce, range } from "lodash";
@@ -104,6 +105,8 @@ export type AuthModalState = {
   loginIsOpen: boolean;
   registerIsOpen: boolean;
 };
+
+export type AppUser = FirebaseUser | null;
 
 const localFilesEffect: AtomEffect<LocalWorkspaces> = ({ setSelf, onSet }) => {
   setSelf(
@@ -233,10 +236,14 @@ export const currentRogerState = atom<RogerState>({
   default: { kind: "disconnected" },
 });
 
-// no idea what's going on with this type error
 export const currentAuthModalState = atom<AuthModalState>({
   key: "currentLoginModalState",
   default: { loginIsOpen: false, registerIsOpen: false },
+});
+
+export const currentAppUser = atom<AppUser>({
+  key: "currentAppuser",
+  default: null,
 });
 
 /**
