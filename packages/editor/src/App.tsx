@@ -29,9 +29,11 @@ import StateInspector from "./components/StateInspector.js";
 import SvgUploader from "./components/SvgUploader.js";
 import TopBar from "./components/TopBar.js";
 import {
+  AppUser,
   Diagram,
   RogerState,
   Workspace,
+  currentAppUser,
   currentRogerState,
   currentWorkspaceState,
   diagramState,
@@ -45,6 +47,7 @@ import {
   useCompileDiagram,
   useIsUnsaved,
 } from "./state/callbacks.js";
+import { authObject } from "./utils/authUtils.js";
 
 const mainRowLayout: IJsonRowNode = {
   type: "row",
@@ -173,6 +176,18 @@ function App() {
   const [rogerState, setRogerState] =
     useRecoilState<RogerState>(currentRogerState);
 
+  const [appUserState, setAppUserState] =
+    useRecoilState<AppUser>(currentAppUser);
+
+  useEffect(() => {
+    authObject.onAuthStateChanged((user) => {
+      // https://github.com/firebase/firebase-js-sdk/issues/5722
+      const userCopy = JSON.parse(JSON.stringify(user));
+      setAppUserState(true);
+      console.log(appUserState);
+    });
+  }, []);
+
   const panelFactory = useCallback(
     (node: TabNode) => {
       switch (node.getComponent()) {
@@ -189,7 +204,7 @@ function App() {
         case "examplesPanel":
           return <ExamplesBrowser />;
         case "settingsPanel":
-          return <Settings />;
+          return <Settings appUserState={appUserState} />;
         case "diagramOptions":
           return <DiagramOptions />;
         case "stateInspector":

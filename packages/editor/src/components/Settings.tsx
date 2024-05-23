@@ -1,33 +1,20 @@
-import { useEffect } from "react";
 import { useRecoilState, useRecoilStateLoadable } from "recoil";
 import {
   AppUser,
   AuthModalState,
-  currentAppUser,
   currentAuthModalState,
   settingsState,
 } from "../state/atoms.js";
-import { authObject, signOutWrapper } from "../utils/authUtils.js";
+import { signOutWrapper } from "../utils/authUtils.js";
 import BlueButton from "./BlueButton.js";
 
-export default function Settings() {
+export default function Settings({ appUserState }: { appUserState: AppUser }) {
+  console.log(appUserState);
   const [settings, setSettings] = useRecoilStateLoadable(settingsState);
 
   const [authModalState, setAuthModalState] = useRecoilState<AuthModalState>(
     currentAuthModalState,
   );
-
-  // const [loggedIn, setLoggedIn] = useState(null);
-  const [appUserState, setAppUserState] =
-    useRecoilState<AppUser>(currentAppUser);
-
-  useEffect(() => {
-    authObject.onAuthStateChanged((user) => {
-      // https://github.com/firebase/firebase-js-sdk/issues/5722
-      const userCopy = JSON.parse(JSON.stringify(user));
-      setAppUserState(userCopy);
-    });
-  }, []);
 
   const toggleLoginModal = () => {
     setAuthModalState({
@@ -68,7 +55,7 @@ export default function Settings() {
           />
         </label>
       </div>
-      {appUserState != null ? (
+      {appUserState ? (
         <div style={{ margin: "10px" }}>
           {" "}
           <BlueButton onClick={signOutWrapper}>sign out</BlueButton>
