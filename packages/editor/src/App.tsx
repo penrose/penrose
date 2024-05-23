@@ -14,6 +14,7 @@ import {
   useRecoilCallback,
   useRecoilState,
   useRecoilValueLoadable,
+  useSetRecoilState,
 } from "recoil";
 import { AuthMenuModal } from "./components/AuthWindows.js";
 import DiagramOptions from "./components/DiagramOptions.js";
@@ -176,19 +177,13 @@ function App() {
   const [rogerState, setRogerState] =
     useRecoilState<RogerState>(currentRogerState);
 
-  const [appUserState, setAppUserState] =
-    useRecoilState<AppUser>(currentAppUser);
+  const setAppUserState = useSetRecoilState<AppUser>(currentAppUser);
 
   useEffect(() => {
     authObject.onAuthStateChanged((user) => {
       // https://github.com/firebase/firebase-js-sdk/issues/5722
       const userCopy = JSON.parse(JSON.stringify(user));
-      // console.log("a");
-      // console.log(userCopy);
       setAppUserState(userCopy);
-      // console.log(useRecoilValue(currentAppUser));
-      // console.log("b");
-      // console.log(user);
     });
   }, []);
 
@@ -208,7 +203,7 @@ function App() {
         case "examplesPanel":
           return <ExamplesBrowser />;
         case "settingsPanel":
-          return <Settings appUserState={appUserState} />;
+          return <Settings />;
         case "diagramOptions":
           return <DiagramOptions />;
         case "stateInspector":

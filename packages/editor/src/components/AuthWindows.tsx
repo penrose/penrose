@@ -10,6 +10,7 @@ import { useRecoilState } from "recoil";
 import styled from "styled-components";
 import { AuthModalState, currentAuthModalState } from "../state/atoms.js";
 import { authObject } from "../utils/authUtils.js";
+import BlueButton from "./BlueButton.js";
 
 const MenuShadow = styled.div<{}>`
   position: absolute;
@@ -247,4 +248,19 @@ export const AuthMenuModal = () => {
       )}
     </>
   );
+};
+
+export const OpenModalButton = () => {
+  const [authModalState, setAuthModalState] = useRecoilState<AuthModalState>(
+    currentAuthModalState,
+  );
+
+  const toggleLoginModal = () => {
+    setAuthModalState({
+      loginIsOpen: !authModalState.loginIsOpen,
+      registerIsOpen: authModalState.registerIsOpen,
+    });
+  };
+
+  return <BlueButton onClick={toggleLoginModal}>sign in</BlueButton>;
 };

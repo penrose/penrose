@@ -1,29 +1,11 @@
-import { useRecoilState, useRecoilStateLoadable, useRecoilValue } from "recoil";
-import {
-  AppUser,
-  AuthModalState,
-  currentAppUser,
-  currentAuthModalState,
-  settingsState,
-} from "../state/atoms.js";
+import { useRecoilStateLoadable, useRecoilValue } from "recoil";
+import { currentAppUser, settingsState } from "../state/atoms.js";
 import { signOutWrapper } from "../utils/authUtils.js";
+import { OpenModalButton } from "./AuthWindows.js";
 import BlueButton from "./BlueButton.js";
 
-export default function Settings({ appUserState }: { appUserState: AppUser }) {
-  // console.log(useRecoilValue(currentAppUser));
-  // console.log(appUserState);
+export default function Settings() {
   const [settings, setSettings] = useRecoilStateLoadable(settingsState);
-
-  const [authModalState, setAuthModalState] = useRecoilState<AuthModalState>(
-    currentAuthModalState,
-  );
-
-  const toggleLoginModal = () => {
-    setAuthModalState({
-      loginIsOpen: !authModalState.loginIsOpen,
-      registerIsOpen: authModalState.registerIsOpen,
-    });
-  };
 
   if (settings.state !== "hasValue") {
     return <div>loading...</div>;
@@ -64,7 +46,7 @@ export default function Settings({ appUserState }: { appUserState: AppUser }) {
         </div>
       ) : (
         <div style={{ margin: "10px" }}>
-          <BlueButton onClick={toggleLoginModal}>sign in</BlueButton>
+          <OpenModalButton />
         </div>
       )}
     </div>
