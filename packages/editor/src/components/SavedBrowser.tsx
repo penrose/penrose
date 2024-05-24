@@ -1,6 +1,6 @@
 import { sendEmailVerification } from "firebase/auth";
 import toast from "react-hot-toast";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import {
   currentAppUser,
   currentWorkspaceState,
@@ -28,10 +28,11 @@ export default function SavedFilesBrowser() {
   const onDelete = useDeleteLocalFile();
   const currentUser = useRecoilValue(currentAppUser);
   const currentWorkspace = useRecoilValue(currentWorkspaceState);
+  const setSavedFilesState = useSetRecoilState(savedFilesState);
 
   const saveNewDiagramWrapper = () => {
     if (currentUser != null && currentUser.uid != undefined) {
-      saveNewDiagram(currentUser.uid, currentWorkspace);
+      saveNewDiagram(currentUser.uid, currentWorkspace, setSavedFilesState);
     } else {
       toast.error("Could not save workspace, please check login credentials");
     }

@@ -9,8 +9,8 @@ import {
   setDoc,
 } from "firebase/firestore";
 import toast from "react-hot-toast";
-import { useSetRecoilState } from "recoil";
-import { SavedWorkspaces, Workspace, savedFilesState } from "../state/atoms.js";
+import { SetterOrUpdater } from "recoil";
+import { SavedWorkspaces, Workspace } from "../state/atoms.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA_WZrM0sWpOt3oKmPp_D77rS7TsqaTC-w",
@@ -97,6 +97,7 @@ export async function createSavedWorkspaceObject(userid: string) {
 export async function saveNewDiagram(
   userid: string,
   currentWorkspaceState: Workspace,
+  setSavedFilesState: SetterOrUpdater<SavedWorkspaces>,
 ) {
   // console.log(userid);
   // console.log(currentWorkspaceState);
@@ -108,23 +109,23 @@ export async function saveNewDiagram(
     substance: currentWorkspaceState.files.substance.contents,
     style: currentWorkspaceState.files.style.contents,
     domain: currentWorkspaceState.files.domain.contents,
-  }).catch((error) => console.log(error));
-
-  const setSavedFilesState = useSetRecoilState(savedFilesState);
-
-  setSavedFilesState((prevState) => ({
-    ...prevState,
-    [currentWorkspaceState.metadata.id]: createWorkspaceObject(
-      currentWorkspaceState.metadata.name,
-      currentWorkspaceState.metadata.lastModified,
-      currentWorkspaceState.metadata.id,
-      currentWorkspaceState.metadata.editorVersion,
-      true,
-      currentWorkspaceState.files.substance.contents,
-      currentWorkspaceState.files.style.contents,
-      currentWorkspaceState.files.domain.contents,
-    ),
-  }));
+  })
+    .catch((error) => console.log(error))
+    .then(() => {
+      setSavedFilesState((prevState) => ({
+        ...prevState,
+        [currentWorkspaceState.metadata.id]: createWorkspaceObject(
+          currentWorkspaceState.metadata.name,
+          currentWorkspaceState.metadata.lastModified,
+          currentWorkspaceState.metadata.id,
+          currentWorkspaceState.metadata.editorVersion,
+          true,
+          currentWorkspaceState.files.substance.contents,
+          currentWorkspaceState.files.style.contents,
+          currentWorkspaceState.files.domain.contents,
+        ),
+      }));
+    });
 }
 
 export async function getDiagram(diagramId: string) {
