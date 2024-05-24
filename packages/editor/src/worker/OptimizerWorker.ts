@@ -295,6 +295,7 @@ export default class OptimizerWorker {
       log.info("Worker asked to stop");
       this._queue(request, onUpdate, onComplete, () => {});
     }
+    this.running = true;
     log.info(`Start resampling for ${id}, ${variation}`);
     this.request(request);
     // call `onComplete` before swapping out the update function
@@ -321,6 +322,7 @@ export default class OptimizerWorker {
       log.info("Worker asked to stop");
       this._queue(request, onUpdate, onComplete, () => {});
     }
+    this.running = true;
     log.info(`Start reoptimizing after drag`);
     this.request(request);
     this.onComplete();

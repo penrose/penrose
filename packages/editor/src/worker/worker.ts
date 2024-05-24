@@ -87,10 +87,17 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
           const [xVarId, yVarId] = idVec;
           currentState.varyingValues[xVarId] += dx;
           currentState.varyingValues[yVarId] += dy;
-          // shape.center.contents[0] = currentState.varyingValues[xVarId];
-          // shape.center.contents[1] = currentState.varyingValues[yVarId];
           currentState.inputs[xVarId].handle.val = currentState.varyingValues[xVarId];
           currentState.inputs[yVarId].handle.val = currentState.varyingValues[yVarId];
+          for (const stage of currentState.constraintSets.keys()) {
+            const set = currentState.constraintSets.get(stage);
+            if (set === undefined) {
+              respondError({ errorType: "RuntimeError", tag: "RuntimeError", message: `dict error`});
+            } else {
+              set.inputMask[xVarId] = false;
+              set.inputMask[yVarId] = false;
+            }
+          }
           optimize(insertPending(currentState));
         }
       }
