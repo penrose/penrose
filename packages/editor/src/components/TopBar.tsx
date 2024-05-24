@@ -3,6 +3,7 @@ import { useRecoilCallback, useRecoilValue } from "recoil";
 import styled from "styled-components";
 import {
   WorkspaceMetadata,
+  currentWorkspaceState,
   diagramWorkerState,
   settingsState,
   workspaceMetadataSelector,
@@ -80,7 +81,7 @@ function EditableTitle() {
         }));
         const metadata = snapshot.getLoadable(workspaceMetadataSelector)
           .contents as WorkspaceMetadata;
-        if (metadata.location.kind !== "local" || !metadata.location.saved) {
+        if (metadata.location.kind !== "stored" || !metadata.location.saved) {
           saveLocally();
         }
       },
@@ -113,7 +114,7 @@ function EditableTitle() {
 export default function TopBar() {
   const compileDiagram = useCompileDiagram();
   const resampleDiagram = useResampleDiagram();
-  const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
+  const currentWorkspace = useRecoilValue(currentWorkspaceState);
   const settings = useRecoilValue(settingsState);
   const saveLocally = useSaveLocally();
   const publishGist = usePublishGist();
@@ -133,7 +134,7 @@ export default function TopBar() {
         boxSizing: "border-box",
       }}
     >
-      {workspaceMetadata.location.kind === "roger" ? (
+      {currentWorkspace.metadata.location.kind === "roger" ? (
         <div>loaded from filesystem via Roger</div>
       ) : (
         <div
@@ -145,7 +146,7 @@ export default function TopBar() {
         >
           <EditableTitle />
           {isUnsaved() ? <UnsavedIcon>unsaved</UnsavedIcon> : ""}
-          {workspaceMetadata.location.kind === "gist" && (
+          {currentWorkspace.metadata.location.kind === "gist" && (
             <a
               style={{ textDecoration: "none", color: "inherit" }}
               href={`https://github.com/${workspaceMetadata.location.author}`}
@@ -156,21 +157,21 @@ export default function TopBar() {
                     width: "25px",
                     height: "25px",
                     margin: "5px",
-                    backgroundImage: `url(${workspaceMetadata.location.avatar})`,
+                    backgroundImage: `url(${currentWorkspace.metadata.location.avatar})`,
                     borderRadius: "50%",
                     backgroundSize: "cover",
                     display: "inline-block",
                   }}
                 />{" "}
-                {workspaceMetadata.location.author}
+                {currentWorkspace.metadata.location.author}
               </AuthorBox>
             </a>
           )}
-          {workspaceMetadata.location.kind === "local" &&
-            !workspaceMetadata.location.saved && (
+          {currentWorkspace.metadata.location.kind === "stored" &&
+            !currentWorkspace.metadata.location.saved && (
               <BlueButton onClick={saveLocally}>save</BlueButton>
             )}
-          {workspaceMetadata.location.kind === "local" &&
+          {currentWorkspace.metadata.location.kind === "stored" &&
             settings.github !== null && (
               <BlueButton onClick={publishGist}>share</BlueButton>
             )}

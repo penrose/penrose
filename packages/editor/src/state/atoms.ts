@@ -131,27 +131,80 @@ export const savedFilesState = atom<SavedWorkspaces>({
   effects: [],
 });
 
+// /**
+//  * On any state change to the workspace, if it's being saved, autosave it (debounced)
+//  * TODO: changes that happen within the 500ms window will not be collected, this is an
+//  *       issue with things that are not directly related to editing trios i.e. duplicating
+//  *       workspaces, saving a new workspace, etc., see issue #1695
+//  */
+// const saveWorkspaceEffect: AtomEffect<Workspace> = ({ onSet, setSelf }) => {
+//   onSet(
+//     // HACK: this isn't typesafe
+//     debounce(async (newValue: Workspace, oldValue, isReset) => {
+//       // If edit is made on something that isnt already local
+//       if (
+//         newValue.metadata.id === oldValue.metadata.id &&
+//         newValue.metadata.location.kind !== "stored" &&
+//         newValue.metadata.location.kind !== "roger"
+//       ) {
+//         setSelf((workspaceOrDefault) => {
+//           const workspace = workspaceOrDefault as Workspace;
+//           let resolver: PathResolver | undefined = undefined;
+//           if (workspace.metadata.location.kind === "example")
+//             resolver = workspace.metadata.location.resolver;
+//           return {
+//             ...workspace,
+//             metadata: {
+//               ...workspace.metadata,
+//               location: { kind: "stored", saved: false, resolver },
+//               forkedFromGist:
+//                 newValue.metadata.location.kind === "gist"
+//                   ? newValue.metadata.location.id
+//                   : null,
+//             } as WorkspaceMetadata,
+//           };
+//         });
+//       }
+//       // If the workspace is already in localStorage
+//       if (
+//         newValue.metadata.location.kind === "stored" &&
+//         newValue.metadata.location.saved
+//       ) {
+//         await localforage.setItem(newValue.metadata.id, newValue);
+//       }
+//     }, 500),
+//   );
+// };
+
 /**
- * On any state change to the workspace, if it's being saved, autosave it (debounced)
- * TODO: changes that happen within the 500ms window will not be collected, this is an
- *       issue with things that are not directly related to editing trios i.e. duplicating
- *       workspaces, saving a new workspace, etc., see issue #1695
+ * On any state change to a stored workspace, mark it as unsaved (debounced)
  */
-const saveWorkspaceEffect: AtomEffect<Workspace> = ({ onSet, setSelf }) => {
+const markWorkspaceUnsavedEffect: AtomEffect<Workspace> = ({
+  onSet,
+  setSelf,
+}) => {
   onSet(
     // HACK: this isn't typesafe
     debounce(async (newValue: Workspace, oldValue, isReset) => {
-      // If edit is made on something that isnt already local
+      // console.log(newValue);
+      // console.log(oldValue);
+      // Check equal ids to prevent state change when swapping active diagram
+      // Check equal saved values to prevent this effect from self-triggering
       if (
-        newValue.metadata.id === oldValue.metadata.id &&
-        newValue.metadata.location.kind !== "stored" &&
-        newValue.metadata.location.kind !== "roger"
+        newValue.metadata.location.kind == "stored" &&
+        newValue.metadata.location.saved &&
+        newValue.metadata.id == oldValue.metadata.id &&
+        newValue.metadata.location.saved == oldValue.metadata.location.saved
       ) {
+        // console.log(newValue.files.domain.contents);
+        // console.log(oldValue.files.domain.contents);
+        // console.log(
+        //   oldValue.files.domain.contents != newValue.files.domain.contents,
+        // );
+        console.log("hit path");
         setSelf((workspaceOrDefault) => {
           const workspace = workspaceOrDefault as Workspace;
           let resolver: PathResolver | undefined = undefined;
-          if (workspace.metadata.location.kind === "example")
-            resolver = workspace.metadata.location.resolver;
           return {
             ...workspace,
             metadata: {
@@ -164,13 +217,6 @@ const saveWorkspaceEffect: AtomEffect<Workspace> = ({ onSet, setSelf }) => {
             } as WorkspaceMetadata,
           };
         });
-      }
-      // If the workspace is already in localStorage
-      if (
-        newValue.metadata.location.kind === "stored" &&
-        newValue.metadata.location.saved
-      ) {
-        await localforage.setItem(newValue.metadata.id, newValue);
       }
     }, 500),
   );
@@ -228,7 +274,7 @@ export const defaultWorkspaceState = (): Workspace => ({
 export const currentWorkspaceState = atom<Workspace>({
   key: "currentWorkspace",
   default: defaultWorkspaceState(),
-  effects: [saveWorkspaceEffect, syncFilenamesEffect],
+  effects: [markWorkspaceUnsavedEffect, syncFilenamesEffect],
 });
 
 export const currentRogerState = atom<RogerState>({
