@@ -171,7 +171,11 @@ export const AuthMenuModal = () => {
           const errorCode = error.code;
           const errorMessage = error.message;
           console.log(errorMessage);
-          toast.error("Error logging in");
+          if (errorCode == "auth/invalid-credential") {
+            toast.error("Invalid credentials");
+          } else {
+            toast.error("Error logging in");
+          }
         });
     } else {
       toast.error("Cannot log in, field is blank");
