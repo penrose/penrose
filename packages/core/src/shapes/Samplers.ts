@@ -45,7 +45,7 @@ export interface InputMeta {
   stages: OptStages; // can be the empty set, meaning unoptimized
 }
 
-export type InputFactory = (meta: InputMeta, remainingPath: string, index: number) => ad.Var; // NOTE: stateful!
+export type InputFactory = (meta: InputMeta, remainingPath?: string, index?: number) => ad.Var; // NOTE: stateful!
 
 export interface Context {
   makeInput: InputFactory;
@@ -53,7 +53,7 @@ export interface Context {
 
 export const curryContextPath = (context: Context, path: string): Context => {
   return {
-    makeInput: (meta: InputMeta, remainingPath: string, index: number) => 
+    makeInput: (meta: InputMeta, remainingPath?: string, index?: number) => 
       context.makeInput(meta, path + remainingPath, index)
   }
 }

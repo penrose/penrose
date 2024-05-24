@@ -3901,7 +3901,7 @@ export const compileStyleHelper = async (
     varyingValues.push(val);
     inputs.push(x);
     metas.push(meta);
-    if (fieldPath !== undefined) {
+    if (fieldPath !== undefined && index !== undefined) {
       if (!inputIdsByFieldPath.has(fieldPath)) {
         inputIdsByFieldPath.set(fieldPath, []);
       }
