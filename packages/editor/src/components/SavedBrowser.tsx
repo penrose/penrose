@@ -1,6 +1,7 @@
 import { sendEmailVerification } from "firebase/auth";
 import toast from "react-hot-toast";
 import { useRecoilValue, useSetRecoilState } from "recoil";
+import { v4 as uuid } from "uuid";
 import {
   currentAppUser,
   currentWorkspaceState,
@@ -31,8 +32,32 @@ export default function SavedFilesBrowser() {
   const setSavedFilesState = useSetRecoilState(savedFilesState);
 
   const saveNewDiagramWrapper = () => {
-    if (currentUser != null && currentUser.uid != undefined) {
-      saveNewDiagram(currentUser.uid, currentWorkspace, setSavedFilesState);
+    if (
+      authObject.currentUser != null &&
+      authObject.currentUser.uid != undefined
+    ) {
+      saveNewDiagram(
+        authObject.currentUser.uid,
+        currentWorkspace,
+        setSavedFilesState,
+        currentWorkspace.metadata.id,
+      );
+    } else {
+      toast.error("Could not save workspace, please check login credentials");
+    }
+  };
+
+  const duplicateWorkspace = () => {
+    if (
+      authObject.currentUser != null &&
+      authObject.currentUser.uid != undefined
+    ) {
+      saveNewDiagram(
+        authObject.currentUser.uid,
+        currentWorkspace,
+        setSavedFilesState,
+        uuid(),
+      );
     } else {
       toast.error("Could not save workspace, please check login credentials");
     }
@@ -42,7 +67,7 @@ export default function SavedFilesBrowser() {
   // json and not a firebase object (????)
   const resendVerificationEmail = () => {
     if (authObject.currentUser != null) {
-      console.log(currentUser);
+      // console.log(currentUser);
       sendEmailVerification(authObject.currentUser).catch((error) => {
         toast.error(error.message);
       });
@@ -55,7 +80,8 @@ export default function SavedFilesBrowser() {
 
   return (
     <>
-      {currentUser != null && currentUser.emailVerified ? (
+      {authObject.currentUser != null &&
+      authObject.currentUser.emailVerified ? (
         <div>
           {Object.values(savedFiles).map((file) => (
             <FileButton
@@ -68,21 +94,24 @@ export default function SavedFilesBrowser() {
             </FileButton>
           ))}
           <div>
-            {(workspaceMetadata.location.kind !== "local" ||
+            {(workspaceMetadata.location.kind !== "stored" ||
               !workspaceMetadata.location.saved) && (
               <BlueButton onClick={saveNewDiagramWrapper}>
                 save current workspace
               </BlueButton>
             )}
-            {workspaceMetadata.location.kind === "local" &&
+            {workspaceMetadata.location.kind === "stored" &&
               workspaceMetadata.location.saved && (
-                <BlueButton onClick={duplicate}>duplicate workspace</BlueButton>
+                <BlueButton onClick={duplicateWorkspace}>
+                  duplicate workspace
+                </BlueButton>
               )}
           </div>
         </div>
       ) : (
         <div style={{ margin: "0.5em" }}>
-          {currentUser != null && !currentUser.emailVerified ? (
+          {authObject.currentUser != null &&
+          !authObject.currentUser.emailVerified ? (
             <div>
               <h3>Please verify your email!</h3>
               <BlueButton onClick={resendVerificationEmail}>

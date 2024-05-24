@@ -198,15 +198,20 @@ function App() {
   useEffect(() => {
     console.log("hit in app");
     async function populateSavedWorkspaces() {
-      if (appUserState != null) {
-        let savedSpaces = await createSavedWorkspaceObject(appUserState.uid);
+      if (
+        authObject.currentUser != null &&
+        authObject.currentUser.emailVerified
+      ) {
+        let savedSpaces = await createSavedWorkspaceObject(
+          authObject.currentUser.uid,
+        );
         setSavedWorkspaces(savedSpaces);
-        console.log(savedSpaces);
+        // console.log(savedSpaces);
       }
     }
 
     populateSavedWorkspaces();
-  }, [appUserState]);
+  }, [authObject.currentUser]);
 
   const panelFactory = useCallback(
     (node: TabNode) => {

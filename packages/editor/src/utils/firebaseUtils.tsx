@@ -53,7 +53,7 @@ export function createWorkspaceObject(
       id: id,
       editorVersion: editorVersion,
       forkedFromGist: null,
-      location: { kind: "local", saved: saved },
+      location: { kind: "stored", saved: saved },
     },
     files: {
       substance: {
@@ -95,15 +95,17 @@ export async function createSavedWorkspaceObject(userid: string) {
   return loadedWorkspaces;
 }
 
+// diagramId as a parameter for reuse between save and duplicate
 export async function saveNewDiagram(
   userid: string,
   currentWorkspaceState: Workspace,
   setSavedFilesState: SetterOrUpdater<SavedWorkspaces>,
+  diagramId: string,
 ) {
   // console.log(userid);
   // console.log(currentWorkspaceState);
-  await setDoc(doc(db, userid, currentWorkspaceState.metadata.id), {
-    diagramId: currentWorkspaceState.metadata.id,
+  await setDoc(doc(db, userid, diagramId), {
+    diagramId: diagramId,
     name: currentWorkspaceState.metadata.name,
     lastModified: currentWorkspaceState.metadata.lastModified,
     editorVersion: currentWorkspaceState.metadata.editorVersion,
@@ -115,10 +117,10 @@ export async function saveNewDiagram(
     .then(() => {
       setSavedFilesState((prevState) => ({
         ...prevState,
-        [currentWorkspaceState.metadata.id]: createWorkspaceObject(
+        [diagramId]: createWorkspaceObject(
           currentWorkspaceState.metadata.name,
           currentWorkspaceState.metadata.lastModified,
-          currentWorkspaceState.metadata.id,
+          diagramId,
           currentWorkspaceState.metadata.editorVersion,
           true,
           currentWorkspaceState.files.substance.contents,

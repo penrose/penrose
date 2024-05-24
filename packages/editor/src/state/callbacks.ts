@@ -189,7 +189,7 @@ const _saveLocally = (set: any) => {
   const id = toast.loading("saving...");
   set(workspaceMetadataSelector, (state: WorkspaceMetadata) => ({
     ...state,
-    location: { kind: "local", saved: true } as WorkspaceLocation,
+    location: { kind: "stored", saved: true } as WorkspaceLocation,
   }));
   toast.dismiss(id);
 };
@@ -369,7 +369,7 @@ export const useDuplicate = () =>
   useRecoilCallback(({ set }) => () => {
     set(workspaceMetadataSelector, (state: WorkspaceMetadata) => ({
       ...state,
-      location: { kind: "local", saved: true } as WorkspaceLocation,
+      location: { kind: "stored", saved: true } as WorkspaceLocation,
       id: uuid(),
     }));
   });
@@ -377,7 +377,7 @@ export const useDuplicate = () =>
 // returns true if there are no unsaved changes
 export const isCleanWorkspace = (workspace: Workspace): boolean => {
   if (
-    workspace.metadata.location.kind === "local" &&
+    workspace.metadata.location.kind === "stored" &&
     !workspace.metadata.location.saved
   ) {
     return false;
@@ -644,7 +644,7 @@ export const usePublishGist = () =>
     }
     // save draft to a new workspace before redirecting to gist url
     if (
-      workspace.metadata.location.kind === "local" &&
+      workspace.metadata.location.kind === "stored" &&
       !workspace.metadata.location.saved
     ) {
       await _saveLocally(set);

@@ -40,7 +40,7 @@ export type GistLocation = {
 
 export type WorkspaceLocation =
   | {
-      kind: "local";
+      kind: "stored";
       /**
        * True if file is explicitly saved to localStorage
        */
@@ -144,7 +144,7 @@ const saveWorkspaceEffect: AtomEffect<Workspace> = ({ onSet, setSelf }) => {
       // If edit is made on something that isnt already local
       if (
         newValue.metadata.id === oldValue.metadata.id &&
-        newValue.metadata.location.kind !== "local" &&
+        newValue.metadata.location.kind !== "stored" &&
         newValue.metadata.location.kind !== "roger"
       ) {
         setSelf((workspaceOrDefault) => {
@@ -156,7 +156,7 @@ const saveWorkspaceEffect: AtomEffect<Workspace> = ({ onSet, setSelf }) => {
             ...workspace,
             metadata: {
               ...workspace.metadata,
-              location: { kind: "local", saved: false, resolver },
+              location: { kind: "stored", saved: false, resolver },
               forkedFromGist:
                 newValue.metadata.location.kind === "gist"
                   ? newValue.metadata.location.id
@@ -167,7 +167,7 @@ const saveWorkspaceEffect: AtomEffect<Workspace> = ({ onSet, setSelf }) => {
       }
       // If the workspace is already in localStorage
       if (
-        newValue.metadata.location.kind === "local" &&
+        newValue.metadata.location.kind === "stored" &&
         newValue.metadata.location.saved
       ) {
         await localforage.setItem(newValue.metadata.id, newValue);
@@ -203,7 +203,7 @@ export const defaultWorkspaceState = (): Workspace => ({
     id: uuid(),
     lastModified: new Date().toISOString(),
     editorVersion: 0.1,
-    location: { kind: "local", saved: false },
+    location: { kind: "stored", saved: false },
     forkedFromGist: null,
   },
   files: {
