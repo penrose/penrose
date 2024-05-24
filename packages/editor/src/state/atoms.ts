@@ -84,8 +84,8 @@ export type Workspace = {
   };
 };
 
-export type LocalWorkspaces = {
-  [id: string]: WorkspaceMetadata;
+export type SavedWorkspaces = {
+  [id: string]: Workspace;
 };
 
 export type RogerState =
@@ -108,27 +108,27 @@ export type AuthModalState = {
 
 export type AppUser = FirebaseUser | null;
 
-const localFilesEffect: AtomEffect<LocalWorkspaces> = ({ setSelf, onSet }) => {
-  setSelf(
-    localforage
-      .getItem("local_files")
-      .then(
-        (savedValue) =>
-          (savedValue != null ? savedValue : {}) as LocalWorkspaces,
-      ),
-  );
+// const localFilesEffect: AtomEffect<SavedWorkspaces> = ({ setSelf, onSet }) => {
+//   setSelf(
+//     localforage
+//       .getItem("local_files")
+//       .then(
+//         (savedValue) =>
+//           (savedValue != null ? savedValue : {}) as SavedWorkspaces,
+//       ),
+//   );
 
-  onSet((newValue, _, isReset) => {
-    isReset
-      ? localforage.removeItem("local_files")
-      : localforage.setItem("local_files", newValue);
-  });
-};
+//   onSet((newValue, _, isReset) => {
+//     isReset
+//       ? localforage.removeItem("local_files")
+//       : localforage.setItem("local_files", newValue);
+//   });
+// };
 
-export const localFilesState = atom<LocalWorkspaces>({
-  key: "localFiles",
+export const savedFilesState = atom<SavedWorkspaces>({
+  key: "savedFiles",
   default: {},
-  effects: [localFilesEffect],
+  effects: [],
 });
 
 /**
@@ -282,12 +282,12 @@ export const workspaceMetadataSelector = selector<WorkspaceMetadata>({
       metadata: newMetadata,
     }));
     // If local & saved, add it to the localFiles
-    if (newMetadata.location.kind === "local" && newMetadata.location.saved) {
-      set(localFilesState, (state) => ({
-        ...state,
-        [(newValue as WorkspaceMetadata).id]: newValue as WorkspaceMetadata,
-      }));
-    }
+    // if (newMetadata.location.kind === "local" && newMetadata.location.saved) {
+    //   set(localFilesState, (state) => ({
+    //     ...state,
+    //     [(newValue as WorkspaceMetadata).id]: newValue as WorkspaceMetadata,
+    //   }));
+    // }
   },
 });
 

@@ -38,8 +38,8 @@ import {
   diagramState,
   diagramWorkerState,
   fileContentsSelector,
-  localFilesState,
   optimizer,
+  savedFilesState,
   settingsState,
   workspaceMetadataSelector,
 } from "./atoms.js";
@@ -711,7 +711,7 @@ export const useDeleteLocalFile = () =>
           currentWorkspaceState,
         ).contents;
         // removes from index
-        set(localFilesState, (localFiles) => {
+        set(savedFilesState, (localFiles) => {
           const { [id]: removedFile, ...newFiles } = localFiles;
           return newFiles;
         });

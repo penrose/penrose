@@ -3,7 +3,8 @@ import toast from "react-hot-toast";
 import { useRecoilValue } from "recoil";
 import {
   currentAppUser,
-  localFilesState,
+  currentWorkspaceState,
+  savedFilesState,
   workspaceMetadataSelector,
 } from "../state/atoms.js";
 import {
@@ -12,13 +13,13 @@ import {
   useLoadLocalWorkspace,
   useSaveLocally,
 } from "../state/callbacks.js";
-import { authObject } from "../utils/firebaseUtils.js";
+import { authObject, saveNewDiagram } from "../utils/firebaseUtils.js";
 import { OpenModalButton } from "./AuthWindows.js";
 import BlueButton from "./BlueButton.js";
 import FileButton from "./FileButton.js";
 
 export default function SavedFilesBrowser() {
-  const localFiles = useRecoilValue(localFilesState);
+  const savedFiles = useRecoilValue(savedFilesState);
   const currentWorkspaceMetadata = useRecoilValue(workspaceMetadataSelector);
   const loadWorkspace = useLoadLocalWorkspace();
   const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
@@ -26,6 +27,11 @@ export default function SavedFilesBrowser() {
   const duplicate = useDuplicate();
   const onDelete = useDeleteLocalFile();
   const currentUser = useRecoilValue(currentAppUser);
+  const currentWorkspace = useRecoilValue(currentWorkspaceState);
+
+  const coolFunction = () => {
+    saveNewDiagram(currentUser?.uid, currentWorkspace);
+  };
 
   // We use authObject.currentUser here as currentAppUser is viewed as
   // json and not a firebase object (????)
@@ -44,14 +50,15 @@ export default function SavedFilesBrowser() {
     <>
       {currentUser != null && currentUser.emailVerified ? (
         <div>
-          {Object.values(localFiles).map((file) => (
+          <BlueButton onClick={coolFunction}> cool button!</BlueButton>
+          {Object.values(savedFiles).map((file) => (
             <FileButton
-              key={file.id}
-              onClick={() => loadWorkspace(file.id)}
-              isFocused={file.id === currentWorkspaceMetadata.id}
-              onDelete={() => onDelete(file)}
+              key={file.metadata.id}
+              onClick={() => loadWorkspace(file.metadata.id)}
+              isFocused={file.metadata.id === currentWorkspaceMetadata.id}
+              onDelete={() => onDelete(file.metadata)}
             >
-              {file.name}
+              {file.metadata.name}
             </FileButton>
           ))}
           <div>

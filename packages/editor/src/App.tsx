@@ -39,8 +39,8 @@ import {
   currentWorkspaceState,
   diagramState,
   fileContentsSelector,
-  localFilesState,
   optimizer,
+  savedFilesState,
   settingsState,
 } from "./state/atoms.js";
 import {
@@ -372,7 +372,7 @@ function App() {
   }, [isTabletOrMobile, isPortrait]);
 
   const checkURL = useCheckURL();
-  const localFiles = useRecoilValueLoadable(localFilesState);
+  const localFiles = useRecoilValueLoadable(savedFilesState);
   const settings = useRecoilValueLoadable(settingsState);
   useEffect(() => {
     // If settings is loaded

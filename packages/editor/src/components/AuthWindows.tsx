@@ -142,6 +142,7 @@ export const AuthMenuModal = () => {
             .then(() => {
               toast.success("Verification email sent, please check your email");
             });
+
           closeModal();
         })
         .catch((error) => {
