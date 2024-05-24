@@ -1,6 +1,12 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, signOut } from "firebase/auth";
-import { addDoc, collection, getDocs, getFirestore } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDocs,
+  getFirestore,
+  setDoc,
+} from "firebase/firestore";
 import toast from "react-hot-toast";
 import { SavedWorkspaces, Workspace } from "../state/atoms.js";
 
@@ -66,34 +72,36 @@ export async function createSavedWorkspaceObject(userid: string) {
   return loadedWorkspaces;
 }
 
-// export async function saveNewDiagram(
-//   userid: string,
-//   currentWorkspaceState: Workspace,
-// ) {
-//   console.log(userid);
-//   console.log(currentWorkspaceState);
-//   await setDoc(doc(db, userid, currentWorkspaceState.metadata.id), {
-//     diagramId: currentWorkspaceState.metadata.id,
-//     name: currentWorkspaceState.metadata.name,
-//     lastModified: currentWorkspaceState.metadata.lastModified,
-//     editorVersion: currentWorkspaceState.metadata.editorVersion,
-//     substance: currentWorkspaceState.files.substance.contents,
-//     style: currentWorkspaceState.files.style.contents,
-//     domain: currentWorkspaceState.files.domain.contents,
-//   }).catch((error) => console.log(error));
-// }
-
 export async function saveNewDiagram(
   userid: string,
   currentWorkspaceState: Workspace,
 ) {
-  console.log("hit ");
-  await addDoc(collection(db, "cities"), {
-    name: "Los Angeles",
-    state: "CA",
-    country: "USA",
-  })
-    .catch((error) => console.log(error))
-    .then(() => console.log("yeah"));
-  console.log("end");
+  // console.log(userid);
+  // console.log(currentWorkspaceState);
+  await setDoc(doc(db, userid, currentWorkspaceState.metadata.id), {
+    diagramId: currentWorkspaceState.metadata.id,
+    name: currentWorkspaceState.metadata.name,
+    lastModified: currentWorkspaceState.metadata.lastModified,
+    editorVersion: currentWorkspaceState.metadata.editorVersion,
+    substance: currentWorkspaceState.files.substance.contents,
+    style: currentWorkspaceState.files.style.contents,
+    domain: currentWorkspaceState.files.domain.contents,
+  }).catch((error) => console.log(error));
+
+  // Add to local
 }
+
+// export async function saveNewDiagram(
+//   userid: string,
+//   currentWorkspaceState: Workspace,
+// ) {
+//   console.log("hit ");
+//   await addDoc(collection(db, "cities"), {
+//     name: "Los Angeles",
+//     state: "CA",
+//     country: "USA",
+//   })
+//     .catch((error) => console.log(error))
+//     .then(() => console.log("yeah"));
+//   console.log("end");
+// }

@@ -29,7 +29,7 @@ export default function SavedFilesBrowser() {
   const currentUser = useRecoilValue(currentAppUser);
   const currentWorkspace = useRecoilValue(currentWorkspaceState);
 
-  const coolFunction = () => {
+  const saveNewDiagramWrapper = () => {
     saveNewDiagram(currentUser?.uid, currentWorkspace);
   };
 
@@ -50,7 +50,6 @@ export default function SavedFilesBrowser() {
     <>
       {currentUser != null && currentUser.emailVerified ? (
         <div>
-          <BlueButton onClick={coolFunction}> cool button!</BlueButton>
           {Object.values(savedFiles).map((file) => (
             <FileButton
               key={file.metadata.id}
@@ -64,7 +63,7 @@ export default function SavedFilesBrowser() {
           <div>
             {(workspaceMetadata.location.kind !== "local" ||
               !workspaceMetadata.location.saved) && (
-              <BlueButton onClick={saveLocally}>
+              <BlueButton onClick={saveNewDiagramWrapper}>
                 save current workspace
               </BlueButton>
             )}
