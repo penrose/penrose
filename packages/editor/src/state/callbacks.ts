@@ -1,6 +1,6 @@
 import { Style } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
-import localforage from "localforage";
+import { deleteDoc, doc } from "firebase/firestore";
 import { range } from "lodash";
 import queryString from "query-string";
 import toast from "react-hot-toast";
@@ -12,7 +12,7 @@ import {
   pathResolver,
   zipTrio,
 } from "../utils/downloadUtils.js";
-import { getDiagram } from "../utils/firebaseUtils.js";
+import { authObject, db, getDiagram } from "../utils/firebaseUtils.js";
 import { stateToSVG } from "../utils/renderUtils.js";
 import { LayoutStats, RenderState } from "../worker/message.js";
 import {
@@ -723,20 +723,32 @@ export const useDeleteLocalFile = () =>
         if (!shouldDelete) {
           return;
         }
-        const currentWorkspace = snapshot.getLoadable(
-          currentWorkspaceState,
-        ).contents;
-        // removes from index
-        set(savedFilesState, (localFiles) => {
-          const { [id]: removedFile, ...newFiles } = localFiles;
-          return newFiles;
-        });
-        await localforage.removeItem(id);
-        if (currentWorkspace.metadata.id === id) {
-          // set rather than reset to generate new id to avoid id conflicts
-          set(currentWorkspaceState, () => defaultWorkspaceState());
-          reset(diagramState);
+
+        // Delete from cloud storage
+        if (authObject.currentUser != null) {
+          await deleteDoc(doc(db, authObject.currentUser.uid, id))
+            .catch((error) => {
+              toast.error(`Error deleting diagram: ${name}`);
+              return;
+            })
+            .then(() => {
+              // If successful, remove from local state
+              const currentWorkspace = snapshot.getLoadable(
+                currentWorkspaceState,
+              ).contents;
+              // removes from index
+              set(savedFilesState, (savedFiles) => {
+                const { [id]: removedFile, ...newFiles } = savedFiles;
+                return newFiles;
+              });
+
+              if (currentWorkspace.metadata.id === id) {
+                // set rather than reset to generate new id to avoid id conflicts
+                set(currentWorkspaceState, () => defaultWorkspaceState());
+                reset(diagramState);
+              }
+              toast.success(`Removed ${name}`);
+            });
         }
-        toast.success(`Removed ${name}`);
       },
   );
