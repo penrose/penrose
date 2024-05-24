@@ -135,9 +135,8 @@ export const AuthMenuModal = () => {
           // Signed up
           sendEmailVerification(userCredential.user)
             .catch((error) => {
-              toast.error(
-                `Could not send verification email: ${error.message}`,
-              );
+              toast.error(`Error: could not send verification email`);
+              console.log(error.message);
             })
             .then(() => {
               toast.success("Verification email sent, please check your email");
@@ -147,7 +146,8 @@ export const AuthMenuModal = () => {
         .catch((error) => {
           const errorCode = error.code;
           const errorMessage = error.message;
-          toast.error(errorMessage);
+          console.log(errorMessage);
+          toast.error("Error registering");
         });
     } else {
       toast.error("Cannot register, field is blank");
@@ -170,7 +170,8 @@ export const AuthMenuModal = () => {
         .catch((error) => {
           const errorCode = error.code;
           const errorMessage = error.message;
-          toast.error(errorMessage);
+          console.log(errorMessage);
+          toast.error("Error logging in");
         });
     } else {
       toast.error("Cannot log in, field is blank");
@@ -190,7 +191,8 @@ export const AuthMenuModal = () => {
         .catch((error) => {
           const errorCode = error.code;
           const errorMessage = error.message;
-          toast.error(errorMessage);
+          console.log(errorMessage);
+          toast.error("Error resetting password");
         });
     } else {
       toast.error("Please enter the account email above");
