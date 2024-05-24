@@ -3,6 +3,7 @@ import { getAuth, signOut } from "firebase/auth";
 import {
   collection,
   doc,
+  getDoc,
   getDocs,
   getFirestore,
   setDoc,
@@ -124,9 +125,35 @@ export async function saveNewDiagram(
       currentWorkspaceState.files.domain.contents,
     ),
   }));
-
-  // Add to local state
 }
+
+export async function getDiagram(diagramId: string) {
+  if (authObject.currentUser != null) {
+    const fetchedDoc = await getDoc(
+      doc(db, authObject.currentUser.uid, diagramId),
+    );
+    if (fetchedDoc.exists()) {
+      const docData = fetchedDoc.data();
+      return createWorkspaceObject(
+        docData.name,
+        docData.lastModified,
+        docData.diagramId,
+        docData.editorVersion,
+        true,
+        docData.substance,
+        docData.style,
+        docData.domain,
+      );
+    } else {
+      toast.error("Could not fetch diagram");
+    }
+  } else {
+    toast.error("User not logged in");
+  }
+  return null;
+}
+
+// Add to local state
 
 // export async function saveNewDiagram(
 //   userid: string,

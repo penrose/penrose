@@ -12,6 +12,7 @@ import {
   pathResolver,
   zipTrio,
 } from "../utils/downloadUtils.js";
+import { getDiagram } from "../utils/firebaseUtils.js";
 import { stateToSVG } from "../utils/renderUtils.js";
 import { LayoutStats, RenderState } from "../worker/message.js";
 import {
@@ -24,6 +25,7 @@ import {
   LocalGithubUser,
   ProgramFile,
   RogerState,
+  SavedWorkspaces,
   Settings,
   TrioWithPreview,
   Workspace,
@@ -388,6 +390,8 @@ export const useLoadLocalWorkspace = () =>
   useRecoilCallback(({ set, snapshot }) => async (id: string) => {
     const currentWorkspace = snapshot.getLoadable(currentWorkspaceState)
       .contents as Workspace;
+    const currentSavedFilesState = snapshot.getLoadable(savedFilesState)
+      .contents as SavedWorkspaces;
     if (
       !isCleanWorkspace(currentWorkspace) &&
       !confirm(
@@ -396,22 +400,34 @@ export const useLoadLocalWorkspace = () =>
     ) {
       return;
     }
-    const loadedWorkspace = (await localforage.getItem(id)) as Workspace;
-    if (loadedWorkspace === null) {
-      console.error("Could not retrieve workspace", id);
-      toast.error(`Could not retrieve workspace ${id}`);
-      return;
+
+    let loadedWorkspace: Workspace | null;
+    if (id in currentSavedFilesState) {
+      // console.log("found");
+      loadedWorkspace = currentSavedFilesState[id];
+    } else {
+      // should test this might need to do async await stuff
+      loadedWorkspace = await getDiagram(id);
+      console.log("sheet we gotta do a firebase req");
     }
 
-    set(currentWorkspaceState, loadedWorkspace as Workspace);
-    await _compileDiagram(
-      loadedWorkspace.files.substance.contents,
-      loadedWorkspace.files.style.contents,
-      loadedWorkspace.files.domain.contents,
-      uuid(),
-      [],
-      set,
-    );
+    // const loadedWorkspace = (await localforage.getItem(id)) as Workspace;
+    // if (loadedWorkspace === null) {
+    //   console.error("Could not retrieve workspace", id);
+    //   toast.error(`Could not retrieve workspace ${id}`);
+    //   return;
+    // }
+    if (loadedWorkspace != null) {
+      set(currentWorkspaceState, loadedWorkspace as Workspace);
+      await _compileDiagram(
+        loadedWorkspace.files.substance.contents,
+        loadedWorkspace.files.style.contents,
+        loadedWorkspace.files.domain.contents,
+        uuid(),
+        [],
+        set,
+      );
+    }
   });
 
 export const useLoadExampleWorkspace = () =>
