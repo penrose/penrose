@@ -33,6 +33,7 @@ import {
   AppUser,
   Diagram,
   RogerState,
+  SavedWorkspaces,
   Workspace,
   currentAppUser,
   currentRogerState,
@@ -48,7 +49,10 @@ import {
   useCompileDiagram,
   useIsUnsaved,
 } from "./state/callbacks.js";
-import { authObject } from "./utils/firebaseUtils.js";
+import {
+  authObject,
+  createSavedWorkspaceObject,
+} from "./utils/firebaseUtils.js";
 
 const mainRowLayout: IJsonRowNode = {
   type: "row",
@@ -177,7 +181,11 @@ function App() {
   const [rogerState, setRogerState] =
     useRecoilState<RogerState>(currentRogerState);
 
-  const setAppUserState = useSetRecoilState<AppUser>(currentAppUser);
+  const [appUserState, setAppUserState] =
+    useRecoilState<AppUser>(currentAppUser);
+
+  const setSavedWorkspaces =
+    useSetRecoilState<SavedWorkspaces>(savedFilesState);
 
   useEffect(() => {
     authObject.onAuthStateChanged((user) => {
@@ -186,6 +194,19 @@ function App() {
       setAppUserState(userCopy);
     });
   }, []);
+
+  useEffect(() => {
+    console.log("hit in app");
+    async function populateSavedWorkspaces() {
+      if (appUserState != null) {
+        let savedSpaces = await createSavedWorkspaceObject(appUserState.uid);
+        setSavedWorkspaces(savedSpaces);
+        console.log(savedSpaces);
+      }
+    }
+
+    populateSavedWorkspaces();
+  }, [appUserState]);
 
   const panelFactory = useCallback(
     (node: TabNode) => {

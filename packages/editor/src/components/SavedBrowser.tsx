@@ -30,7 +30,11 @@ export default function SavedFilesBrowser() {
   const currentWorkspace = useRecoilValue(currentWorkspaceState);
 
   const saveNewDiagramWrapper = () => {
-    saveNewDiagram(currentUser?.uid, currentWorkspace);
+    if (currentUser != null && currentUser.uid != undefined) {
+      saveNewDiagram(currentUser.uid, currentWorkspace);
+    } else {
+      toast.error("Could not save workspace, please check login credentials");
+    }
   };
 
   // We use authObject.currentUser here as currentAppUser is viewed as
@@ -45,6 +49,8 @@ export default function SavedFilesBrowser() {
       toast.error("Please re-login!");
     }
   };
+
+  // console.log(savedFiles);
 
   return (
     <>

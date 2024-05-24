@@ -8,7 +8,8 @@ import {
   setDoc,
 } from "firebase/firestore";
 import toast from "react-hot-toast";
-import { SavedWorkspaces, Workspace } from "../state/atoms.js";
+import { useSetRecoilState } from "recoil";
+import { SavedWorkspaces, Workspace, savedFilesState } from "../state/atoms.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA_WZrM0sWpOt3oKmPp_D77rS7TsqaTC-w",
@@ -34,6 +35,42 @@ export const signOutWrapper = () => {
     });
 };
 
+export function createWorkspaceObject(
+  name: string,
+  lastModified: string,
+  id: string,
+  editorVersion: number,
+  saved: boolean,
+  substance: string,
+  style: string,
+  domain: string,
+): Workspace {
+  return {
+    metadata: {
+      name: name,
+      lastModified: lastModified,
+      id: id,
+      editorVersion: editorVersion,
+      forkedFromGist: null,
+      location: { kind: "local", saved: saved },
+    },
+    files: {
+      substance: {
+        name: ".substance",
+        contents: substance,
+      },
+      style: {
+        name: ".style",
+        contents: style,
+      },
+      domain: {
+        name: ".domain",
+        contents: domain,
+      },
+    },
+  };
+}
+
 // untested no idea if this is valid
 export async function createSavedWorkspaceObject(userid: string) {
   var loadedWorkspaces = {} as SavedWorkspaces;
@@ -41,32 +78,16 @@ export async function createSavedWorkspaceObject(userid: string) {
 
   querySnapshot.forEach((doc) => {
     var docData = doc.data();
-    loadedWorkspaces[doc.id] = {
-      metadata: {
-        name: docData.name,
-        lastModified: docData.lastModified,
-        // docData.diagramId vs doc.id
-        id: docData.diagramId,
-        editorVersion: docData.editorVersion,
-        // maybe edit later idk what this does or if this will break things lol
-        forkedFromGist: null,
-        location: { kind: "local", saved: false },
-      },
-      files: {
-        substance: {
-          name: ".substance",
-          contents: docData.substance,
-        },
-        style: {
-          name: ".style",
-          contents: docData.style,
-        },
-        domain: {
-          name: ".domain",
-          contents: docData.domain,
-        },
-      },
-    };
+    loadedWorkspaces[doc.id] = createWorkspaceObject(
+      docData.name,
+      docData.lastModified,
+      docData.diagramId,
+      docData.editorVersion,
+      true,
+      docData.substance,
+      docData.style,
+      docData.domain,
+    );
   });
 
   return loadedWorkspaces;
@@ -88,7 +109,23 @@ export async function saveNewDiagram(
     domain: currentWorkspaceState.files.domain.contents,
   }).catch((error) => console.log(error));
 
-  // Add to local
+  const setSavedFilesState = useSetRecoilState(savedFilesState);
+
+  setSavedFilesState((prevState) => ({
+    ...prevState,
+    [currentWorkspaceState.metadata.id]: createWorkspaceObject(
+      currentWorkspaceState.metadata.name,
+      currentWorkspaceState.metadata.lastModified,
+      currentWorkspaceState.metadata.id,
+      currentWorkspaceState.metadata.editorVersion,
+      true,
+      currentWorkspaceState.files.substance.contents,
+      currentWorkspaceState.files.style.contents,
+      currentWorkspaceState.files.domain.contents,
+    ),
+  }));
+
+  // Add to local state
 }
 
 // export async function saveNewDiagram(
