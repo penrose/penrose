@@ -7,11 +7,11 @@ import {
   Req,
   Resp,
   layoutStateToRenderState,
-  separateRenderedLabels,
+  separateRenderedLabels
 } from "./message.js";
 
 const log = (consola as any)
-  .create({ level: (consola as any).LogLevel.Warn })
+  .create({ level: (consola as any).LogLevel.Info })
   .withScope("worker:client");
 
 export type onComplete = () => void;
@@ -302,6 +302,32 @@ export default class OptimizerWorker {
     this.onComplete = onComplete;
     this.onUpdate = onUpdate;
   };
+
+  onDrag = (
+    id: string,
+    shapeId: number,
+    dx: number,
+    dy: number,
+    onUpdate: OnUpdate,
+    onComplete: onComplete,
+  ) => {
+    const request: Req = {
+      tag: "OnDrag",
+      shapeId, dx, dy,
+      id
+    };
+    if (this.running) {
+      Atomics.store(this.sharedMemory, 1, 1);
+      log.info("Worker asked to stop");
+      this._queue(request, onUpdate, onComplete, () => {});
+    }
+    log.info(`Start reoptimizing after drag`);
+    this.request(request);
+    this.onComplete();
+    this.onComplete = onComplete;
+    this.onUpdate = onUpdate;
+  }
+
   terminate() {
     worker.terminate();
   }

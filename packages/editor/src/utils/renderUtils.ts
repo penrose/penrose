@@ -1,5 +1,6 @@
-import { PathResolver, RenderShapes } from "@penrose/core";
+import { PathResolver, RenderShapes, PenroseOnDrag } from "@penrose/core";
 import { RenderState } from "../worker/message";
+import { InteractiveProps } from "@penrose/core/dist/renderer/Renderer";
 
 export const stateToSVG = async (
   state: RenderState,
@@ -8,6 +9,7 @@ export const stateToSVG = async (
     width: string;
     height: string;
   },
+  onDrag?: PenroseOnDrag,
 ): Promise<SVGSVGElement> => {
   const { canvas, shapes, labelCache, variation } = state;
   // render the current frame
@@ -25,7 +27,14 @@ export const stateToSVG = async (
     namespace: "editor",
     texLabels: false,
     pathResolver: config.pathResolver,
-  });
+  },
+  onDrag ? {
+    onDrag,
+    parentSVG: rendered,
+    draggableShapePaths: state.draggableShapePaths
+  }
+    : undefined
+  );
   rendered.setAttribute("width", config.width);
   rendered.setAttribute("height", config.height);
   return rendered;

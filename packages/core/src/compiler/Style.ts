@@ -17,6 +17,7 @@ import {
   InputMeta,
   Context as MutableContext,
   constSampler,
+  curryContextPath,
   makeCanvas,
   uniform,
 } from "../shapes/Samplers.js";
@@ -40,11 +41,11 @@ import {
   StyleWarning,
 } from "../types/errors.js";
 import {
-  Fn,
+  Fn, IdsByPath,
   OptPipeline,
   OptStages,
   StagedConstraints,
-  State,
+  State
 } from "../types/state.js";
 import {
   BinOp,
@@ -192,6 +193,7 @@ import {
   initSubstanceEnv as initSubEnv,
 } from "./Substance.js";
 import { checkShape } from "./shapeChecker/CheckShape.js";
+import { isVar } from "../types/ad.js";
 
 const log = (consola as any)
   .create({ level: (consola as any).LogLevel.Warn })
@@ -2255,8 +2257,11 @@ const evalExprs = (
   trans: Translation,
 ): Result<ArgVal<ad.Num>[], StyleDiagnostics> =>
   all(
-    args.map((expr) => {
-      return evalExpr(mut, canvas, stages, { context, expr }, trans);
+    args.map((expr, i) => {
+      return evalExpr(
+        { makeInput: (meta) => mut.makeInput(meta, "", i) }, 
+        canvas, stages, { context, expr }, trans
+      );
     }),
   ).mapErr(flatErrs);
 
@@ -3051,7 +3056,7 @@ const evalExpr = (
                     : constSampler(init),
               },
               stages,
-            }),
+            }, "", 0),
           ),
         ),
       );
@@ -3472,7 +3477,11 @@ export const translate = (
   for (const path of graph.nodes()) {
     const shapeType = graph.node(path);
     if (typeof shapeType === "string") {
-      const props = sampleShape(shapeType, mut, canvas);
+      const props = sampleShape(
+        shapeType, 
+        curryContextPath(mut, path), 
+        canvas
+      );
       for (const [prop, value] of Object.entries(props)) {
         symbols = symbols.set(`${path}.${prop}`, val(value));
       }
@@ -3521,7 +3530,10 @@ export const translate = (
         });
       }
     } else {
-      trans = translateExpr(mut, canvas, stages, path, e, trans);
+      trans = translateExpr(
+        curryContextPath(mut, path), 
+        canvas, stages, path, e, trans
+      );
     }
   }
   log.info("Translation stage ends");
@@ -3881,13 +3893,26 @@ export const compileStyleHelper = async (
   const varyingValues: number[] = [];
   const inputs: ad.Var[] = [];
   const metas: InputMeta[] = [];
-  const makeInput = (meta: InputMeta) => {
+  const inputIdsByFieldPath: IdsByPath = new Map();
+  const makeInput = (meta: InputMeta, fieldPath?: string, index?: number) => {
     const val =
       meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending;
     const x = variable(val);
     varyingValues.push(val);
     inputs.push(x);
     metas.push(meta);
+    if (fieldPath !== undefined) {
+      if (!inputIdsByFieldPath.has(fieldPath)) {
+        inputIdsByFieldPath.set(fieldPath, []);
+      }
+
+      const arr = inputIdsByFieldPath.get(fieldPath) ?? [];
+      while (arr.length <= index) {
+        arr.push(0);
+      }
+
+      arr[index] = inputs.length - 1;
+    }
     return x;
   };
 
@@ -3927,6 +3952,12 @@ export const compileStyleHelper = async (
   }
 
   const shapes = getShapesList(translation, layerOrdering);
+  const draggableShapePaths = new Set<string>();
+  for (const shape of shapes) {
+    if ("center" in shape && isVar(shape.center.contents[0])) {
+      draggableShapePaths.add(shape.name.contents);
+    }
+  }
 
   const nameShapeMap = new Map<string, Shape<ad.Num>>();
 
@@ -3988,6 +4019,8 @@ export const compileStyleHelper = async (
     params,
     currentStageIndex: 0,
     optStages: optimizationStages.value,
+    inputIdsByFieldPath,
+    draggableShapePaths
   };
 
   log.info("init state from GenOptProblem", initState);

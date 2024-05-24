@@ -5,6 +5,7 @@ import { boolV, floatV, noPaint, strV } from "../utils/Util.js";
 import {
   Canvas,
   Context,
+  curryContextPath,
   sampleColor,
   sampleHeight,
   sampleVector,
@@ -29,10 +30,10 @@ export const sampleEllipse = (
   strokeStyle: strV("solid"),
   strokeColor: noPaint(),
   strokeDasharray: strV(""),
-  fillColor: sampleColor(context),
-  center: sampleVector(context, canvas),
-  rx: sampleWidth(context, canvas),
-  ry: sampleHeight(context, canvas),
+  fillColor: sampleColor(curryContextPath(context, ".fillColor")),
+  center: sampleVector(curryContextPath(context, ".center"), canvas),
+  rx: sampleWidth(curryContextPath(context, ".rx"), canvas),
+  ry: sampleHeight(curryContextPath(context, ".ry"), canvas),
   ensureOnCanvas: boolV(true),
 });
 

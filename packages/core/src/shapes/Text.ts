@@ -51,35 +51,35 @@ export const sampleText = (
     context.makeInput({
       init: { tag: "Sampled", sampler: uniform(...canvas.xRange) },
       stages: "All",
-    }),
+    }, ".center", 0),
     context.makeInput({
       init: { tag: "Sampled", sampler: uniform(...canvas.yRange) },
       stages: "All",
-    }),
+    }, ".center", 1),
   ]),
   width: floatV(
     context.makeInput({
       init: { tag: "Pending", pending: 0 },
       stages: new Set(),
-    }),
+    }, ".width", 0),
   ),
   height: floatV(
     context.makeInput({
       init: { tag: "Pending", pending: 0 },
       stages: new Set(),
-    }),
+    }, ".height", 0),
   ),
   ascent: floatV(
     context.makeInput({
       init: { tag: "Pending", pending: 0 },
       stages: new Set(),
-    }),
+    }, ".ascent", 0),
   ),
   descent: floatV(
     context.makeInput({
       init: { tag: "Pending", pending: 0 },
       stages: new Set(),
-    }),
+    }, ".descent", 0),
   ),
   rotation: floatV(0),
   string: strV("defaultText"),

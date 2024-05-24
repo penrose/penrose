@@ -8,7 +8,7 @@ import {
   Stroke,
 } from "../types/shapes.js";
 import { boolV, floatV, noPaint, ptListV, strV } from "../utils/Util.js";
-import { Canvas, Context, sampleColor } from "./Samplers.js";
+import { Canvas, Context, curryContextPath, sampleColor } from "./Samplers.js";
 
 export interface PolygonProps<T>
   extends Named<T>,
@@ -26,7 +26,7 @@ export const samplePolygon = (
   strokeStyle: strV("solid"),
   strokeColor: noPaint(),
   strokeDasharray: strV(""),
-  fillColor: sampleColor(context),
+  fillColor: sampleColor(curryContextPath(context, ".fillColor")),
   scale: floatV(1),
   points: ptListV([
     [0, 0],

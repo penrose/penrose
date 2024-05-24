@@ -9,9 +9,10 @@ import {
   isOptimized,
   nextStage,
   resample,
-  step,
+  step
 } from "@penrose/core";
 import { LayoutStats, Req, Resp, stateToLayoutState } from "./message.js";
+
 
 // one "frame" of optimization is a list of varying numbers
 type Frame = number[];
@@ -68,6 +69,31 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
       const { variation } = data;
       const resampled = resample({ ...currentState, variation });
       optimize(insertPending(resampled));
+      break;
+    }
+    case "OnDrag": {
+      console.log("onDrag!");
+      const { shapeId, dx, dy } = data;
+      const shape = currentState.shapes[shapeId];
+      if (!currentState.draggableShapePaths.has(shape.name.contents)
+          || !("center" in shape)) {
+        respondError({ errorType: "RuntimeError", tag: "RuntimeError", message: "undraggable shape"});
+      } else {
+        const fieldPath = shape.name.contents + ".center";
+        const idVec = currentState.inputIdsByFieldPath.get(fieldPath);
+        if (idVec === undefined) {
+          respondError({ errorType: "RuntimeError", tag: "RuntimeError", message: `no variable ids for field ${fieldPath}`});
+        } else {
+          const [xVarId, yVarId] = idVec;
+          currentState.varyingValues[xVarId] += dx;
+          currentState.varyingValues[yVarId] += dy;
+          // shape.center.contents[0] = currentState.varyingValues[xVarId];
+          // shape.center.contents[1] = currentState.varyingValues[yVarId];
+          currentState.inputs[xVarId].handle.val = currentState.varyingValues[xVarId];
+          currentState.inputs[yVarId].handle.val = currentState.varyingValues[yVarId];
+          optimize(insertPending(currentState));
+        }
+      }
       break;
     }
     case "ComputeShapes": {

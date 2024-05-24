@@ -5,6 +5,7 @@ import { boolV, floatV, noPaint, strV } from "../utils/Util.js";
 import {
   Canvas,
   Context,
+  curryContextPath,
   sampleColor,
   sampleVector,
   sampleWidth,
@@ -28,9 +29,9 @@ export const sampleCircle = (
     strokeStyle: strV("solid"),
     strokeColor: noPaint(),
     strokeDasharray: strV(""),
-    fillColor: sampleColor(context),
-    center: sampleVector(context, canvas),
-    r: sampleWidth(context, canvas),
+    fillColor: sampleColor(curryContextPath(context, ".fillColor")),
+    center: sampleVector(curryContextPath(context, ".center"), canvas),
+    r: sampleWidth(curryContextPath(context, ".r"), canvas),
     ensureOnCanvas: boolV(true),
   };
 };

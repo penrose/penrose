@@ -1,12 +1,12 @@
 import {
-  Canvas,
+  Canvas, IdsByPath,
   LabelCache,
   LabelData,
   LabelMeasurements,
   Num,
   PenroseError,
   Shape,
-  State,
+  State
 } from "@penrose/core";
 
 /** request */
@@ -16,7 +16,7 @@ type ID = { id: string };
 export type Req =
   | Init
   | ComputeShapes
-  | ((Compile | RespLabels | Resample) & ID);
+  | ((Compile | RespLabels | Resample | OnDrag) & ID);
 
 export type Resample = {
   tag: "Resample";
@@ -42,6 +42,13 @@ export type ReqLabels = {
   tag: "ReqLabels";
   shapes: Shape<Num>[];
 };
+
+export type OnDrag = {
+  tag: "OnDrag";
+  shapeId: number;
+  dx: number;
+  dy: number;
+}
 
 export type Compile = {
   tag: "Compile";
@@ -85,6 +92,8 @@ export interface LayoutState {
   shapes: Shape<number>[];
   optStages: string[];
   currentStageIndex: number;
+  inputIdsByFieldPath: IdsByPath;
+  draggableShapePaths: Set<string>
 }
 
 // state maintained by the main thread for rendering
@@ -96,6 +105,8 @@ export interface RenderState {
   varyingValues: number[];
   optStages: string[];
   currentStageIndex: number;
+  inputIdsByFieldPath: IdsByPath;
+  draggableShapePaths: Set<string>;
 }
 
 // translate from the entire state to the state that is passed to the main thread
@@ -108,6 +119,8 @@ export const stateToLayoutState = (state: State): LayoutState => {
     varyingValues: state.varyingValues,
     optStages: state.optStages,
     currentStageIndex: state.currentStageIndex,
+    inputIdsByFieldPath: state.inputIdsByFieldPath,
+    draggableShapePaths: state.draggableShapePaths,
   };
 };
 

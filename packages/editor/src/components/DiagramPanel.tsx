@@ -4,10 +4,10 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import {
   canvasState,
   currentRogerState,
-  diagramState,
+  diagramState, diagramWorkerState,
   layoutTimelineState,
   optimizer,
-  workspaceMetadataSelector,
+  workspaceMetadataSelector
 } from "../state/atoms.js";
 import { pathResolver } from "../utils/downloadUtils.js";
 import { stateToSVG } from "../utils/renderUtils.js";
@@ -17,10 +17,9 @@ export default function DiagramPanel() {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [diagram, setDiagram] = useRecoilState(diagramState);
   const [_, setCanvasState] = useRecoilState(canvasState);
+  const [worker, __] = useRecoilState(diagramWorkerState);
   const { state, error, warnings, metadata } = diagram;
   const [showEasterEgg, setShowEasterEgg] = useState(false);
-  // TODO: bring back interactive mode
-  // const { interactive } = useRecoilValue(diagramMetadataSelector);
   const workspace = useRecoilValue(workspaceMetadataSelector);
   const rogerState = useRecoilValue(currentRogerState);
 
@@ -36,6 +35,15 @@ export default function DiagramPanel() {
             pathResolver(path, rogerState, workspace),
           width: "100%",
           height: "100%",
+        }, (shapeId: number, dx: number, dy: number) => {
+          optimizer.onDrag(worker.id, shapeId, dx, dy,
+            (dragged) => {
+              setDiagram((state) => ({
+                ...state,
+                state: dragged,
+              }));
+            },
+            () => {});
         });
         rendered.setAttribute("width", "100%");
         rendered.setAttribute("height", "100%");

@@ -6,13 +6,16 @@ import { A } from "./ast.js";
 import { StyleWarning } from "./errors.js";
 import { ConstrFn, ObjFn } from "./style.js";
 import { WithContext } from "./styleSemantics.js";
-import { FloatV } from "./value.js";
+import { FloatV, Value } from "./value.js";
+import { ShapeT } from "./types.js";
 
 export type ShapeFn = (xs: number[]) => Shape<number>[];
 
 export type OptPipeline = string[];
 
 export type StagedConstraints = Map<string, ad.Masks>;
+
+export type IdsByPath = Map<string, number[]>
 
 export interface InputInfo {
   handle: ad.Var;
@@ -38,6 +41,8 @@ export interface State {
   params: Params;
   gradient: ad.Gradient;
   computeShapes: ShapeFn;
+  inputIdsByFieldPath: IdsByPath;
+  draggableShapePaths: Set<string>
 }
 
 /**
