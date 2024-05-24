@@ -1,10 +1,11 @@
 import { useCallback, useState } from "react";
-import { useRecoilCallback, useRecoilValue } from "recoil";
+import { useRecoilCallback, useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components";
 import {
   WorkspaceMetadata,
   currentWorkspaceState,
   diagramWorkerState,
+  savedFilesState,
   settingsState,
   workspaceMetadataSelector,
 } from "../state/atoms.js";
@@ -15,7 +16,6 @@ import {
   useNewWorkspace,
   usePublishGist,
   useResampleDiagram,
-  useSaveLocally,
 } from "../state/callbacks.js";
 import BlueButton from "./BlueButton.js";
 import ExportButton from "./ExportButton.js";
@@ -71,7 +71,7 @@ const HeaderButtonContainer = styled.div`
 function EditableTitle() {
   const [editing, setEditing] = useState(false);
   const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
-  const saveLocally = useSaveLocally();
+  // const saveLocally = useSaveLocally();
   const onChange = useRecoilCallback(
     ({ set, snapshot }) =>
       (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,7 +82,7 @@ function EditableTitle() {
         const metadata = snapshot.getLoadable(workspaceMetadataSelector)
           .contents as WorkspaceMetadata;
         if (metadata.location.kind !== "stored" || !metadata.location.saved) {
-          saveLocally();
+          // save just title here
         }
       },
   );
@@ -116,11 +116,30 @@ export default function TopBar() {
   const resampleDiagram = useResampleDiagram();
   const currentWorkspace = useRecoilValue(currentWorkspaceState);
   const settings = useRecoilValue(settingsState);
-  const saveLocally = useSaveLocally();
   const publishGist = usePublishGist();
   const { running } = useRecoilValue(diagramWorkerState);
   const isUnsaved = useIsUnsaved();
   const newWorkspace = useNewWorkspace();
+  const setSavedFilesState = useSetRecoilState(savedFilesState);
+  const setcurrentWorkspaceState = useSetRecoilState(currentWorkspaceState);
+
+  async function saveDiagram() {
+    console.log("to be implemented");
+    // if (
+    //   authObject.currentUser != null &&
+    //   authObject.currentUser.uid != undefined
+    // ) {
+    //   // First check the diff, use last edited, this also means we need to update this
+
+    //   saveNewDiagram(
+    //     authObject.currentUser.uid,
+    //     currentWorkspace,
+    //     setSavedFilesState,
+    //     currentWorkspace.metadata.id,
+    //   );
+    // } else {
+    //   toast.error("Could not save workspace, please check login credentials");
+  }
 
   return (
     <nav
@@ -169,7 +188,7 @@ export default function TopBar() {
           )}
           {currentWorkspace.metadata.location.kind === "stored" &&
             !currentWorkspace.metadata.location.saved && (
-              <BlueButton onClick={saveLocally}>save</BlueButton>
+              <BlueButton onClick={saveDiagram}>save</BlueButton>
             )}
           {currentWorkspace.metadata.location.kind === "stored" &&
             settings.github !== null && (

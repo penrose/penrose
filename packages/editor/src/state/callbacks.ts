@@ -194,7 +194,7 @@ const _saveLocally = (set: any) => {
   toast.dismiss(id);
 };
 
-export const useSaveLocally = () =>
+export const useSaveDiagram = () =>
   useRecoilCallback(({ set }) => () => {
     _saveLocally(set);
   });
@@ -632,6 +632,7 @@ export const useCheckURL = () =>
     // TODO: implementing loading individual registry examples by URL
   });
 
+// this probably needs to be reworked
 export const usePublishGist = () =>
   useRecoilCallback(({ snapshot, set }) => async () => {
     const workspace = snapshot.getLoadable(currentWorkspaceState)
@@ -647,7 +648,8 @@ export const usePublishGist = () =>
       workspace.metadata.location.kind === "stored" &&
       !workspace.metadata.location.saved
     ) {
-      await _saveLocally(set);
+      console.log("bruh");
+      // await _saveLocally(set);
     }
     const gistMetadata: GistMetadata = {
       name: workspace.metadata.name,

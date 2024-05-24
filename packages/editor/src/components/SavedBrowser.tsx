@@ -12,7 +12,6 @@ import {
   useDeleteLocalFile,
   useDuplicate,
   useLoadLocalWorkspace,
-  useSaveLocally,
 } from "../state/callbacks.js";
 import { authObject, saveNewDiagram } from "../utils/firebaseUtils.js";
 import { OpenModalButton } from "./AuthWindows.js";
@@ -24,7 +23,7 @@ export default function SavedFilesBrowser() {
   const currentWorkspaceMetadata = useRecoilValue(workspaceMetadataSelector);
   const loadWorkspace = useLoadLocalWorkspace();
   const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
-  const saveLocally = useSaveLocally();
+  // const saveLocally = useSaveLocally();
   const duplicate = useDuplicate();
   const onDelete = useDeleteLocalFile();
   const currentUser = useRecoilValue(currentAppUser);
