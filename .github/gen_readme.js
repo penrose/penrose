@@ -8,7 +8,7 @@ const path = require("path");
 const slurp = (p) => fs.readFileSync(p, "utf8");
 
 const dir = "packages/examples/src/set-theory-domain";
-const trio = path.join(dir, "tree-venn.trio.json");
+const trio = path.join(dir, "tree-euler.trio.json");
 const { substance, style, domain, variation } = JSON.parse(slurp(trio));
 if (style.length !== 1)
   throw Error(`expected exactly one Style program, got ${style.length}`);
