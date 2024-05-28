@@ -86,7 +86,6 @@ function EditableTitle() {
   );
 
   const onFinish = () => {
-    // console.log("hit");
     if (currentWorkspace.metadata.location.kind == "stored") {
       saveWorkspace();
     }

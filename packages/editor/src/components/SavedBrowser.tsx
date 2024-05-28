@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useRecoilValue } from "recoil";
 import { v4 as uuid } from "uuid";
 import { currentWorkspaceState, savedFilesState } from "../state/atoms.js";
@@ -5,6 +6,7 @@ import {
   useDeleteLocalFile,
   useLoadLocalWorkspace,
   useSaveNewWorkspace,
+  useSaveWorkspace,
 } from "../state/callbacks.js";
 import { authObject, resendVerificationEmail } from "../utils/firebaseUtils.js";
 import { OpenModalButton } from "./AuthWindows.js";
@@ -17,6 +19,36 @@ export default function SavedFilesBrowser() {
   const loadWorkspace = useLoadLocalWorkspace();
   const onDelete = useDeleteLocalFile();
   const saveNewWorkspace = useSaveNewWorkspace();
+  const saveWorkspace = useSaveWorkspace();
+
+  const saveShortcut = ({
+    repeat,
+    metaKey,
+    ctrlKey,
+    key,
+  }: {
+    repeat: boolean;
+    metaKey: boolean;
+    ctrlKey: boolean;
+    key: string;
+  }) => {
+    if (repeat) return;
+    if (
+      (metaKey || ctrlKey) &&
+      key === "s" &&
+      currentWorkspace.metadata.location.kind == "stored" &&
+      !currentWorkspace.metadata.location.saved
+    ) {
+      saveWorkspace();
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("keydown", saveShortcut);
+
+    // Cleanup
+    return () => document.removeEventListener("keydown", saveShortcut);
+  }, []);
 
   return (
     <>
