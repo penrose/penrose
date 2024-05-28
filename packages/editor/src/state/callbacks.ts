@@ -822,8 +822,7 @@ export const useSaveWorkspace = () =>
     ).contents;
     if (
       authObject.currentUser != null &&
-      authObject.currentUser.uid != undefined &&
-      !currentWorkspace.metadata.location.saved
+      authObject.currentUser.uid != undefined
     ) {
       // Check for overwriting conflicts by checking lastModified string
       const storedDiagram = await getDoc(

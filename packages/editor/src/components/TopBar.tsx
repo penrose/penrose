@@ -2,12 +2,10 @@ import { useCallback, useState } from "react";
 import { useRecoilCallback, useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components";
 import {
-  WorkspaceMetadata,
   currentWorkspaceState,
   diagramWorkerState,
   savedFilesState,
   settingsState,
-  workspaceMetadataSelector,
 } from "../state/atoms.js";
 import {
   useCompileDiagram,
@@ -71,24 +69,35 @@ const HeaderButtonContainer = styled.div`
 
 function EditableTitle() {
   const [editing, setEditing] = useState(false);
-  const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
+  const currentWorkspace = useRecoilValue(currentWorkspaceState);
+  const saveWorkspace = useSaveWorkspace();
   // const saveLocally = useSaveLocally();
-  const onChange = useRecoilCallback(
-    ({ set, snapshot }) =>
-      (e: React.ChangeEvent<HTMLInputElement>) => {
-        set(workspaceMetadataSelector, (state) => ({
-          ...state,
+  const onChange = useRecoilCallback(({ set }) =>
+    // Set locally
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      set(currentWorkspaceState, (state) => ({
+        ...state,
+        metadata: {
+          ...state.metadata,
           name: e.target.value,
-        }));
-        const metadata = snapshot.getLoadable(workspaceMetadataSelector)
-          .contents as WorkspaceMetadata;
-        if (metadata.location.kind !== "stored" || !metadata.location.saved) {
-          // save just title here
-        }
-      },
+        },
+      }));
+    },
   );
+
+  const onFinish = () => {
+    // console.log("hit");
+    if (currentWorkspace.metadata.location.kind == "stored") {
+      saveWorkspace();
+    }
+    setEditing(false);
+  };
+
   const onKey = useCallback((e: React.KeyboardEvent) => {
     if (e.key === "Enter" || e.key === "Escape") {
+      if (currentWorkspace.metadata.location.kind == "stored") {
+        saveWorkspace();
+      }
       setEditing(false);
     }
   }, []);
@@ -96,10 +105,10 @@ function EditableTitle() {
     return (
       <InputBox
         type="text"
-        value={workspaceMetadata.name}
+        value={currentWorkspace.metadata.name}
         autoFocus={true}
         onFocus={(e) => e.target.select()}
-        onBlur={() => setEditing(false)}
+        onBlur={onFinish}
         onKeyDown={onKey}
         onChange={onChange}
       />
@@ -107,7 +116,7 @@ function EditableTitle() {
   }
   return (
     <TitleBox onClick={() => setEditing(true)}>
-      {workspaceMetadata.name}
+      {currentWorkspace.metadata.name}
     </TitleBox>
   );
 }
@@ -152,7 +161,7 @@ export default function TopBar() {
           {currentWorkspace.metadata.location.kind === "gist" && (
             <a
               style={{ textDecoration: "none", color: "inherit" }}
-              href={`https://github.com/${workspaceMetadata.location.author}`}
+              href={`https://github.com/${currentWorkspace.metadata.location.author}`}
             >
               <AuthorBox>
                 <div

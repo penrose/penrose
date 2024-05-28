@@ -202,7 +202,7 @@ const markWorkspaceUnsavedEffect: AtomEffect<Workspace> = ({
         // console.log(
         //   oldValue.files.domain.contents != newValue.files.domain.contents,
         // );
-        console.log("hit path");
+        // console.log("hit path");
         setSelf((workspaceOrDefault) => {
           const workspace = workspaceOrDefault as Workspace;
           let resolver: PathResolver | undefined = undefined;
