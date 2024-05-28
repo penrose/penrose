@@ -52,7 +52,7 @@ It's specified by the following trio of Domain, Substance, and Style programs
   AutoLabel All
   ```
 
-- `venn.style`:
+- `euler.style`:
 
   ```
   canvas {
