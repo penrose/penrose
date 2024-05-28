@@ -126,7 +126,7 @@ export const resendVerificationEmail = () => {
   if (authObject.currentUser != null) {
     // console.log(currentUser);
     sendEmailVerification(authObject.currentUser).catch((error) => {
-      toast.error(error.message);
+      toast.error("Could not resend verification email");
     });
   } else {
     toast.error("Please re-login!");

@@ -16,6 +16,7 @@ import {
   useNewWorkspace,
   usePublishGist,
   useResampleDiagram,
+  useSaveWorkspace,
 } from "../state/callbacks.js";
 import BlueButton from "./BlueButton.js";
 import ExportButton from "./ExportButton.js";
@@ -122,24 +123,7 @@ export default function TopBar() {
   const newWorkspace = useNewWorkspace();
   const setSavedFilesState = useSetRecoilState(savedFilesState);
   const setcurrentWorkspaceState = useSetRecoilState(currentWorkspaceState);
-
-  async function saveDiagram() {
-    console.log("to be implemented");
-    // if (
-    //   authObject.currentUser != null &&
-    //   authObject.currentUser.uid != undefined
-    // ) {
-    //   // First check the diff, use last edited, this also means we need to update this
-
-    //   saveNewDiagram(
-    //     authObject.currentUser.uid,
-    //     currentWorkspace,
-    //     setSavedFilesState,
-    //     currentWorkspace.metadata.id,
-    //   );
-    // } else {
-    //   toast.error("Could not save workspace, please check login credentials");
-  }
+  const saveWorkspace = useSaveWorkspace();
 
   return (
     <nav
@@ -188,7 +172,7 @@ export default function TopBar() {
           )}
           {currentWorkspace.metadata.location.kind === "stored" &&
             !currentWorkspace.metadata.location.saved && (
-              <BlueButton onClick={saveDiagram}>save</BlueButton>
+              <BlueButton onClick={() => saveWorkspace()}>save</BlueButton>
             )}
           {currentWorkspace.metadata.location.kind === "stored" &&
             settings.github !== null && (

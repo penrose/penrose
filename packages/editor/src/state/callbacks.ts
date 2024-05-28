@@ -1,6 +1,6 @@
 import { Style } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
-import { deleteDoc, doc, setDoc } from "firebase/firestore";
+import { deleteDoc, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { range } from "lodash";
 import queryString from "query-string";
 import toast from "react-hot-toast";
@@ -764,18 +764,21 @@ export const useDeleteLocalFile = () =>
 
 export const useSaveNewWorkspace = () =>
   useRecoilCallback(({ snapshot, set }) => async (diagramId: string) => {
-    const currentWorkspace = snapshot.getLoadable(
-      currentWorkspaceState,
-    ).contents;
     if (
       authObject.currentUser != null &&
       authObject.currentUser.uid != undefined
     ) {
+      const currentWorkspace = snapshot.getLoadable(
+        currentWorkspaceState,
+      ).contents;
+
+      const modificationTime = new Date().toISOString();
       // Save to cloud
+      const notif = toast.loading("saving...");
       await setDoc(doc(db, authObject.currentUser.uid, diagramId), {
         diagramId: diagramId,
         name: currentWorkspace.metadata.name,
-        lastModified: currentWorkspace.metadata.lastModified,
+        lastModified: modificationTime,
         editorVersion: currentWorkspace.metadata.editorVersion,
         substance: currentWorkspace.files.substance.contents,
         style: currentWorkspace.files.style.contents,
@@ -788,7 +791,7 @@ export const useSaveNewWorkspace = () =>
             ...prevState,
             [diagramId]: createWorkspaceObject(
               currentWorkspace.metadata.name,
-              currentWorkspace.metadata.lastModified,
+              modificationTime,
               diagramId,
               currentWorkspace.metadata.editorVersion,
               true,
@@ -801,9 +804,86 @@ export const useSaveNewWorkspace = () =>
             ...prevState,
             metadata: {
               ...prevState.metadata,
+              lastModified: modificationTime,
               location: { kind: "stored", saved: true } as WorkspaceLocation,
             },
           }));
+          toast.dismiss(notif);
+        });
+    } else {
+      toast.error("Could not save workspace, please check login credentials");
+    }
+  });
+
+export const useSaveWorkspace = () =>
+  useRecoilCallback(({ snapshot, set }) => async () => {
+    const currentWorkspace = snapshot.getLoadable(
+      currentWorkspaceState,
+    ).contents;
+    if (
+      authObject.currentUser != null &&
+      authObject.currentUser.uid != undefined &&
+      !currentWorkspace.metadata.location.saved
+    ) {
+      // Check for overwriting conflicts by checking lastModified string
+      const storedDiagram = await getDoc(
+        doc(db, authObject.currentUser.uid, currentWorkspace.metadata.id),
+      );
+      if (storedDiagram.exists()) {
+        const storedDiagramData = storedDiagram.data();
+        if (
+          storedDiagramData.lastModified !=
+            currentWorkspace.metadata.lastModified &&
+          !confirm(
+            `Merge conflict detected. Are you sure you want to override saved 
+            changes?`,
+          )
+        ) {
+          return;
+        }
+      } else {
+        toast.error("Error saving workspace");
+        return;
+      }
+      const notif = toast.loading("saving...");
+      const modificationTime = new Date().toISOString();
+      // Save to cloud
+      await updateDoc(
+        doc(db, authObject.currentUser.uid, currentWorkspace.metadata.id),
+        {
+          name: currentWorkspace.metadata.name,
+          lastModified: modificationTime,
+          editorVersion: currentWorkspace.metadata.editorVersion,
+          substance: currentWorkspace.files.substance.contents,
+          style: currentWorkspace.files.style.contents,
+          domain: currentWorkspace.files.domain.contents,
+        },
+      )
+        .catch((error) => toast.error("Encountered an error"))
+        // Update local state
+        .then(() => {
+          set(savedFilesState, (prevState) => ({
+            ...prevState,
+            [currentWorkspace.metadata.id]: createWorkspaceObject(
+              currentWorkspace.metadata.name,
+              modificationTime,
+              currentWorkspace.metadata.id,
+              currentWorkspace.metadata.editorVersion,
+              true,
+              currentWorkspace.files.substance.contents,
+              currentWorkspace.files.style.contents,
+              currentWorkspace.files.domain.contents,
+            ),
+          }));
+          set(currentWorkspaceState, (prevState) => ({
+            ...prevState,
+            metadata: {
+              ...prevState.metadata,
+              lastModified: modificationTime,
+              location: { kind: "stored", saved: true } as WorkspaceLocation,
+            },
+          }));
+          toast.dismiss(notif);
         });
     } else {
       toast.error("Could not save workspace, please check login credentials");
