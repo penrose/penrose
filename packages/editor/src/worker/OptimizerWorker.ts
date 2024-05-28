@@ -46,7 +46,7 @@ export default class OptimizerWorker {
     return this.stats;
   }
 
-  async computeShapes(index: number): Promise<RenderState> {
+  async ƒ(index: number): Promise<RenderState> {
     return new Promise((resolve, reject) => {
       log.debug("Worker computing shapes...");
       this.request({
@@ -288,20 +288,21 @@ export default class OptimizerWorker {
       variation,
       id,
     };
+    log.info(`Start resampling for ${id}, ${variation}`);
     if (this.running) {
       // Let worker know we want them to stop optimizing and get
       // ready to receive a new trio
       Atomics.store(this.sharedMemory, 1, 1);
       log.info("Worker asked to stop");
-      this._queue(request, onUpdate, onComplete, () => {});
+      this._queue(request, onUpdate, () => {}, onComplete);
+    } else {
+      this.running = true;
+      // call `onComplete` before swapping out the update function
+      this.onComplete();
+      this.onComplete = onComplete;
+      this.onUpdate = onUpdate;
+      this.request(request);
     }
-    this.running = true;
-    log.info(`Start resampling for ${id}, ${variation}`);
-    this.request(request);
-    // call `onComplete` before swapping out the update function
-    this.onComplete();
-    this.onComplete = onComplete;
-    this.onUpdate = onUpdate;
   };
 
   onDrag = (
@@ -317,17 +318,18 @@ export default class OptimizerWorker {
       shapeId, dx, dy,
       id
     };
+    log.info(`Start reoptimizing after drag`);
     if (this.running) {
       Atomics.store(this.sharedMemory, 1, 1);
       log.info("Worker asked to stop");
-      this._queue(request, onUpdate, onComplete, () => {});
+      this._queue(request, onUpdate, () => {}, onComplete);
+    } else {
+      this.running = true;
+      this.onComplete();
+      this.onComplete = onComplete;
+      this.onUpdate = onUpdate;
+      this.request(request);
     }
-    this.running = true;
-    log.info(`Start reoptimizing after drag`);
-    this.request(request);
-    this.onComplete();
-    this.onComplete = onComplete;
-    this.onUpdate = onUpdate;
   }
 
   terminate() {
