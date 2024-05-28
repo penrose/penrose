@@ -1,5 +1,3 @@
-import { sendEmailVerification } from "firebase/auth";
-import toast from "react-hot-toast";
 import { useRecoilValue } from "recoil";
 import { v4 as uuid } from "uuid";
 import { currentWorkspaceState, savedFilesState } from "../state/atoms.js";
@@ -8,7 +6,7 @@ import {
   useLoadLocalWorkspace,
   useSaveNewWorkspace,
 } from "../state/callbacks.js";
-import { authObject } from "../utils/firebaseUtils.js";
+import { authObject, resendVerificationEmail } from "../utils/firebaseUtils.js";
 import { OpenModalButton } from "./AuthWindows.js";
 import BlueButton from "./BlueButton.js";
 import FileButton from "./FileButton.js";
@@ -19,20 +17,6 @@ export default function SavedFilesBrowser() {
   const loadWorkspace = useLoadLocalWorkspace();
   const onDelete = useDeleteLocalFile();
   const saveNewWorkspace = useSaveNewWorkspace();
-  console.log(currentWorkspace);
-
-  // We use authObject.currentUser here as currentAppUser is viewed as
-  // json and not a firebase object (????)
-  const resendVerificationEmail = () => {
-    if (authObject.currentUser != null) {
-      // console.log(currentUser);
-      sendEmailVerification(authObject.currentUser).catch((error) => {
-        toast.error(error.message);
-      });
-    } else {
-      toast.error("Please re-login!");
-    }
-  };
 
   return (
     <>

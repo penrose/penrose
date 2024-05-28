@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, signOut } from "firebase/auth";
+import { getAuth, sendEmailVerification, signOut } from "firebase/auth";
 import {
   collection,
   doc,
@@ -119,6 +119,19 @@ export async function getDiagram(diagramId: string) {
   }
   return null;
 }
+
+// We use authObject.currentUser here as currentAppUser is viewed as
+// json and not a firebase object (????)
+export const resendVerificationEmail = () => {
+  if (authObject.currentUser != null) {
+    // console.log(currentUser);
+    sendEmailVerification(authObject.currentUser).catch((error) => {
+      toast.error(error.message);
+    });
+  } else {
+    toast.error("Please re-login!");
+  }
+};
 
 // Add to local state
 
