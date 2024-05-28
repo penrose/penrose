@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useRecoilValue } from "recoil";
+import { useRecoilCallback, useRecoilValue } from "recoil";
 import { v4 as uuid } from "uuid";
 import { currentWorkspaceState, savedFilesState } from "../state/atoms.js";
 import {
@@ -13,42 +13,54 @@ import { OpenModalButton } from "./AuthWindows.js";
 import BlueButton from "./BlueButton.js";
 import FileButton from "./FileButton.js";
 
+const saveShortcutHook = () => {
+  const saveWorkspace = useSaveWorkspace();
+
+  // useRecoilCallback for snapshot, otherwise currentWorkspace not accurate
+  const handleShortcut = useRecoilCallback(
+    ({ snapshot }) =>
+      async ({
+        repeat,
+        metaKey,
+        ctrlKey,
+        key,
+      }: {
+        repeat: boolean;
+        metaKey: boolean;
+        ctrlKey: boolean;
+        key: string;
+      }) => {
+        const currentWorkspace = snapshot.getLoadable(
+          currentWorkspaceState,
+        ).contents;
+        if (repeat) return;
+        if (
+          (metaKey || ctrlKey) &&
+          key === "s" &&
+          currentWorkspace.metadata.location.kind == "stored" &&
+          !currentWorkspace.metadata.location.saved
+        ) {
+          saveWorkspace();
+        }
+      },
+  );
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleShortcut);
+
+    // Cleanup
+    return () => document.removeEventListener("keydown", handleShortcut);
+  }, []);
+};
+
 export default function SavedFilesBrowser() {
   const savedFiles = useRecoilValue(savedFilesState);
   const currentWorkspace = useRecoilValue(currentWorkspaceState);
   const loadWorkspace = useLoadLocalWorkspace();
   const onDelete = useDeleteLocalFile();
   const saveNewWorkspace = useSaveNewWorkspace();
-  const saveWorkspace = useSaveWorkspace();
 
-  const saveShortcut = ({
-    repeat,
-    metaKey,
-    ctrlKey,
-    key,
-  }: {
-    repeat: boolean;
-    metaKey: boolean;
-    ctrlKey: boolean;
-    key: string;
-  }) => {
-    if (repeat) return;
-    if (
-      (metaKey || ctrlKey) &&
-      key === "s" &&
-      currentWorkspace.metadata.location.kind == "stored" &&
-      !currentWorkspace.metadata.location.saved
-    ) {
-      saveWorkspace();
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener("keydown", saveShortcut);
-
-    // Cleanup
-    return () => document.removeEventListener("keydown", saveShortcut);
-  }, []);
+  saveShortcutHook();
 
   return (
     <>

@@ -882,6 +882,10 @@ export const useSaveWorkspace = () =>
               location: { kind: "stored", saved: true } as WorkspaceLocation,
             },
           }));
+          const currentWorkspaceTest = snapshot.getLoadable(
+            currentWorkspaceState,
+          ).contents;
+          console.log(currentWorkspaceTest);
           toast.dismiss(notif);
         });
     } else {

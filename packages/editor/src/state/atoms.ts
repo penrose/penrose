@@ -195,8 +195,13 @@ const markWorkspaceUnsavedEffect: AtomEffect<Workspace> = ({
         newValue.metadata.location.kind == "stored" &&
         newValue.metadata.location.saved &&
         newValue.metadata.id == oldValue.metadata.id &&
-        newValue.metadata.location.saved == oldValue.metadata.location.saved
+        newValue.metadata.location.saved == oldValue.metadata.location.saved &&
+        (newValue.files.substance.contents !=
+          oldValue.files.substance.contents ||
+          newValue.files.style.contents != oldValue.files.style.contents ||
+          newValue.files.domain.contents != oldValue.files.domain.contents)
       ) {
+        console.log("hit mark unsaved");
         // console.log(newValue.files.domain.contents);
         // console.log(oldValue.files.domain.contents);
         // console.log(
