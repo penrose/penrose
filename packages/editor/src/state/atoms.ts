@@ -186,32 +186,21 @@ export const autosaveTimerState = atom<AutosaveTimer>({
 /**
  * On any state change to a stored workspace, mark it as unsaved (debounced)
  */
-// dawg is this debounce even doing anything lmao
 const markWorkspaceUnsavedEffect: AtomEffect<Workspace> = ({
   onSet,
   setSelf,
 }) => {
   onSet(
-    // HACK: this isn't typesafe
-    debounce(async (newValue: Workspace, oldValue, isReset) => {
-      // console.log(newValue);
-      // console.log(oldValue);
+    // HACK: this isn't typesafe (comment from old saveWorkspaceEffect)
+    debounce(async (newValue: Workspace, oldValue) => {
       // Check equal ids to prevent state change when swapping active diagram
       // Check equal saved values to prevent this effect from self-triggering
-      // removed check contents checks, if this breaks add those back in
       if (
         newValue.metadata.location.kind == "stored" &&
         newValue.metadata.location.saved &&
         newValue.metadata.id == oldValue.metadata.id &&
         newValue.metadata.location.saved == oldValue.metadata.location.saved
       ) {
-        // console.log("hit mark unsaved");
-        // console.log(newValue.files.domain.contents);
-        // console.log(oldValue.files.domain.contents);
-        // console.log(
-        //   oldValue.files.domain.contents != newValue.files.domain.contents,
-        // );
-        // console.log("hit path");
         setSelf((workspaceOrDefault) => {
           const workspace = workspaceOrDefault as Workspace;
           let resolver: PathResolver | undefined = undefined;

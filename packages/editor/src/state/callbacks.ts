@@ -410,20 +410,12 @@ export const useLoadLocalWorkspace = () =>
 
     let loadedWorkspace: Workspace | null;
     if (id in currentSavedFilesState) {
-      // console.log("found");
       loadedWorkspace = currentSavedFilesState[id];
     } else {
-      // should test this might need to do async await stuff
+      // Workspace missing from local state, search database instead
       loadedWorkspace = await getDiagram(id);
-      console.log("sheet we gotta do a firebase req");
     }
 
-    // const loadedWorkspace = (await localforage.getItem(id)) as Workspace;
-    // if (loadedWorkspace === null) {
-    //   console.error("Could not retrieve workspace", id);
-    //   toast.error(`Could not retrieve workspace ${id}`);
-    //   return;
-    // }
     if (loadedWorkspace != null) {
       set(currentWorkspaceState, loadedWorkspace as Workspace);
       await _compileDiagram(
@@ -655,7 +647,7 @@ export const usePublishGist = () =>
       workspace.metadata.location.kind === "stored" &&
       !workspace.metadata.location.saved
     ) {
-      console.log("bruh");
+      // console.log("bruh");
       // await _saveLocally(set);
     }
     const gistMetadata: GistMetadata = {

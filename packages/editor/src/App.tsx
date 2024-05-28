@@ -200,7 +200,6 @@ function App() {
   }, []);
 
   useEffect(() => {
-    // console.log("hit in app");
     async function populateSavedWorkspaces() {
       if (
         authObject.currentUser != null &&
@@ -210,7 +209,6 @@ function App() {
           authObject.currentUser.uid,
         );
         setSavedWorkspaces(savedSpaces);
-        // console.log(savedSpaces);
       }
     }
 

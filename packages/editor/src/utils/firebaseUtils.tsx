@@ -24,6 +24,7 @@ const firebaseApp = initializeApp(firebaseConfig);
 export const authObject = getAuth(firebaseApp);
 export const db = getFirestore(firebaseApp);
 
+// Auth Utils
 export const signOutWrapper = () => {
   signOut(authObject)
     .then(() => {
@@ -34,6 +35,17 @@ export const signOutWrapper = () => {
     });
 };
 
+export const resendVerificationEmail = () => {
+  if (authObject.currentUser != null) {
+    sendEmailVerification(authObject.currentUser).catch((error) => {
+      toast.error("Could not resend verification email");
+    });
+  } else {
+    toast.error("Please re-login!");
+  }
+};
+
+// Database utils
 export function createWorkspaceObject(
   name: string,
   lastModified: string,
@@ -70,11 +82,12 @@ export function createWorkspaceObject(
   };
 }
 
-// untested no idea if this is valid
+/* Creates hashmap of workspace ids to workspace objects from user's cloud 
+storage. Used to populate savedFilesState
+*/
 export async function createSavedWorkspaceObject(userid: string) {
   var loadedWorkspaces = {} as SavedWorkspaces;
   const querySnapshot = await getDocs(collection(db, userid));
-  // console.log("called getDocs");
 
   querySnapshot.forEach((doc) => {
     var docData = doc.data();
@@ -94,7 +107,6 @@ export async function createSavedWorkspaceObject(userid: string) {
 }
 
 export async function getDiagram(diagramId: string) {
-  // console.log("read getDiagram");
   if (authObject.currentUser != null) {
     const fetchedDoc = await getDoc(
       doc(db, authObject.currentUser.uid, diagramId),
@@ -119,33 +131,3 @@ export async function getDiagram(diagramId: string) {
   }
   return null;
 }
-
-// We use authObject.currentUser here as currentAppUser is viewed as
-// json and not a firebase object (????)
-export const resendVerificationEmail = () => {
-  if (authObject.currentUser != null) {
-    // console.log(currentUser);
-    sendEmailVerification(authObject.currentUser).catch((error) => {
-      toast.error("Could not resend verification email");
-    });
-  } else {
-    toast.error("Please re-login!");
-  }
-};
-
-// Add to local state
-
-// export async function saveNewDiagram(
-//   userid: string,
-//   currentWorkspaceState: Workspace,
-// ) {
-//   console.log("hit ");
-//   await addDoc(collection(db, "cities"), {
-//     name: "Los Angeles",
-//     state: "CA",
-//     country: "USA",
-//   })
-//     .catch((error) => console.log(error))
-//     .then(() => console.log("yeah"));
-//   console.log("end");
-// }
