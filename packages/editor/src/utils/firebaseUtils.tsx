@@ -6,10 +6,8 @@ import {
   getDoc,
   getDocs,
   getFirestore,
-  setDoc,
 } from "firebase/firestore";
 import toast from "react-hot-toast";
-import { SetterOrUpdater } from "recoil";
 import { SavedWorkspaces, Workspace } from "../state/atoms.js";
 
 const firebaseConfig = {
@@ -93,42 +91,6 @@ export async function createSavedWorkspaceObject(userid: string) {
   });
 
   return loadedWorkspaces;
-}
-
-// diagramId as a parameter for reuse between save and duplicate
-export async function saveNewDiagram(
-  userid: string,
-  currentWorkspaceState: Workspace,
-  setSavedFilesState: SetterOrUpdater<SavedWorkspaces>,
-  diagramId: string,
-) {
-  // console.log(userid);
-  // console.log(currentWorkspaceState);
-  await setDoc(doc(db, userid, diagramId), {
-    diagramId: diagramId,
-    name: currentWorkspaceState.metadata.name,
-    lastModified: currentWorkspaceState.metadata.lastModified,
-    editorVersion: currentWorkspaceState.metadata.editorVersion,
-    substance: currentWorkspaceState.files.substance.contents,
-    style: currentWorkspaceState.files.style.contents,
-    domain: currentWorkspaceState.files.domain.contents,
-  })
-    .catch((error) => console.log(error))
-    .then(() => {
-      setSavedFilesState((prevState) => ({
-        ...prevState,
-        [diagramId]: createWorkspaceObject(
-          currentWorkspaceState.metadata.name,
-          currentWorkspaceState.metadata.lastModified,
-          diagramId,
-          currentWorkspaceState.metadata.editorVersion,
-          true,
-          currentWorkspaceState.files.substance.contents,
-          currentWorkspaceState.files.style.contents,
-          currentWorkspaceState.files.domain.contents,
-        ),
-      }));
-    });
 }
 
 export async function getDiagram(diagramId: string) {

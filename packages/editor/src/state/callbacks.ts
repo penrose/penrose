@@ -1,6 +1,6 @@
 import { Style } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
-import { deleteDoc, doc } from "firebase/firestore";
+import { deleteDoc, doc, setDoc } from "firebase/firestore";
 import { range } from "lodash";
 import queryString from "query-string";
 import toast from "react-hot-toast";
@@ -12,7 +12,12 @@ import {
   pathResolver,
   zipTrio,
 } from "../utils/downloadUtils.js";
-import { authObject, db, getDiagram } from "../utils/firebaseUtils.js";
+import {
+  authObject,
+  createWorkspaceObject,
+  db,
+  getDiagram,
+} from "../utils/firebaseUtils.js";
 import { stateToSVG } from "../utils/renderUtils.js";
 import { LayoutStats, RenderState } from "../worker/message.js";
 import {
@@ -185,19 +190,21 @@ export const useResampleDiagram = () =>
     );
   });
 
-const _saveLocally = (set: any) => {
-  const id = toast.loading("saving...");
-  set(workspaceMetadataSelector, (state: WorkspaceMetadata) => ({
-    ...state,
-    location: { kind: "stored", saved: true } as WorkspaceLocation,
-  }));
-  toast.dismiss(id);
-};
+// const _saveLocally = (set: any) => {
+//   const id = toast.loading("saving...");
+//   set(workspaceMetadataSelector, (state: WorkspaceMetadata) => ({
+//     ...state,
+//     location: { kind: "stored", saved: true } as WorkspaceLocation,
+//   }));
+//   toast.dismiss(id);
+// };
 
-export const useSaveDiagram = () =>
-  useRecoilCallback(({ set }) => () => {
-    _saveLocally(set);
-  });
+// export const useSaveDiagram = () =>
+//   useRecoilCallback(({ set }) => () => {
+//     const notif = toast.loading("saving...")
+//     set()
+//     // _saveLocally(set);
+//   });
 
 export const useDownloadTrio = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
@@ -754,3 +761,51 @@ export const useDeleteLocalFile = () =>
         }
       },
   );
+
+export const useSaveNewWorkspace = () =>
+  useRecoilCallback(({ snapshot, set }) => async (diagramId: string) => {
+    const currentWorkspace = snapshot.getLoadable(
+      currentWorkspaceState,
+    ).contents;
+    if (
+      authObject.currentUser != null &&
+      authObject.currentUser.uid != undefined
+    ) {
+      // Save to cloud
+      await setDoc(doc(db, authObject.currentUser.uid, diagramId), {
+        diagramId: diagramId,
+        name: currentWorkspace.metadata.name,
+        lastModified: currentWorkspace.metadata.lastModified,
+        editorVersion: currentWorkspace.metadata.editorVersion,
+        substance: currentWorkspace.files.substance.contents,
+        style: currentWorkspace.files.style.contents,
+        domain: currentWorkspace.files.domain.contents,
+      })
+        .catch((error) => toast.error("Encountered an error"))
+        // Update local state
+        .then(() => {
+          set(savedFilesState, (prevState) => ({
+            ...prevState,
+            [diagramId]: createWorkspaceObject(
+              currentWorkspace.metadata.name,
+              currentWorkspace.metadata.lastModified,
+              diagramId,
+              currentWorkspace.metadata.editorVersion,
+              true,
+              currentWorkspace.files.substance.contents,
+              currentWorkspace.files.style.contents,
+              currentWorkspace.files.domain.contents,
+            ),
+          }));
+          set(currentWorkspaceState, (prevState) => ({
+            ...prevState,
+            metadata: {
+              ...prevState.metadata,
+              location: { kind: "stored", saved: true } as WorkspaceLocation,
+            },
+          }));
+        });
+    } else {
+      toast.error("Could not save workspace, please check login credentials");
+    }
+  });
