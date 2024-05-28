@@ -108,6 +108,8 @@ export type AuthModalState = {
 
 export type AppUser = FirebaseUser | null;
 
+export type AutosaveTimer = number | null;
+
 // const localFilesEffect: AtomEffect<SavedWorkspaces> = ({ setSelf, onSet }) => {
 //   setSelf(
 //     localforage
@@ -129,6 +131,11 @@ export const savedFilesState = atom<SavedWorkspaces>({
   key: "savedFiles",
   default: {},
   effects: [],
+});
+
+export const autosaveTimerState = atom<AutosaveTimer>({
+  key: "autosaveTimerState",
+  default: null,
 });
 
 // /**
@@ -191,17 +198,14 @@ const markWorkspaceUnsavedEffect: AtomEffect<Workspace> = ({
       // console.log(oldValue);
       // Check equal ids to prevent state change when swapping active diagram
       // Check equal saved values to prevent this effect from self-triggering
+      // removed check contents checks, if this breaks add those back in
       if (
         newValue.metadata.location.kind == "stored" &&
         newValue.metadata.location.saved &&
         newValue.metadata.id == oldValue.metadata.id &&
-        newValue.metadata.location.saved == oldValue.metadata.location.saved &&
-        (newValue.files.substance.contents !=
-          oldValue.files.substance.contents ||
-          newValue.files.style.contents != oldValue.files.style.contents ||
-          newValue.files.domain.contents != oldValue.files.domain.contents)
+        newValue.metadata.location.saved == oldValue.metadata.location.saved
       ) {
-        console.log("hit mark unsaved");
+        // console.log("hit mark unsaved");
         // console.log(newValue.files.domain.contents);
         // console.log(oldValue.files.domain.contents);
         // console.log(

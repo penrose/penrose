@@ -735,9 +735,11 @@ export const useDeleteLocalFile = () =>
 
         // Delete from cloud storage
         if (authObject.currentUser != null) {
+          const notif = toast.loading(`Deleting ${name}...`);
           await deleteDoc(doc(db, authObject.currentUser.uid, id))
             .catch((error) => {
               toast.error(`Error deleting diagram: ${name}`);
+              toast.dismiss(notif);
               return;
             })
             .then(() => {
@@ -745,7 +747,6 @@ export const useDeleteLocalFile = () =>
               const currentWorkspace = snapshot.getLoadable(
                 currentWorkspaceState,
               ).contents;
-              // removes from index
               set(savedFilesState, (savedFiles) => {
                 const { [id]: removedFile, ...newFiles } = savedFiles;
                 return newFiles;
@@ -756,7 +757,8 @@ export const useDeleteLocalFile = () =>
                 set(currentWorkspaceState, () => defaultWorkspaceState());
                 reset(diagramState);
               }
-              toast.success(`Removed ${name}`);
+              toast.dismiss(notif);
+              toast.success(`Deleted ${name}`);
             });
         }
       },
@@ -804,6 +806,7 @@ export const useSaveNewWorkspace = () =>
             ...prevState,
             metadata: {
               ...prevState.metadata,
+              id: diagramId,
               lastModified: modificationTime,
               location: { kind: "stored", saved: true } as WorkspaceLocation,
             },
@@ -882,10 +885,6 @@ export const useSaveWorkspace = () =>
               location: { kind: "stored", saved: true } as WorkspaceLocation,
             },
           }));
-          const currentWorkspaceTest = snapshot.getLoadable(
-            currentWorkspaceState,
-          ).contents;
-          console.log(currentWorkspaceTest);
           toast.dismiss(notif);
         });
     } else {

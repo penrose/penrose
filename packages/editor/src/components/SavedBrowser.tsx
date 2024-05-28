@@ -16,7 +16,7 @@ import FileButton from "./FileButton.js";
 const saveShortcutHook = () => {
   const saveWorkspace = useSaveWorkspace();
 
-  // useRecoilCallback for snapshot, otherwise currentWorkspace not accurate
+  // Need useRecoilCallback for snapshot, otherwise currentWorkspace outdated
   const handleShortcut = useRecoilCallback(
     ({ snapshot }) =>
       async ({
@@ -34,6 +34,7 @@ const saveShortcutHook = () => {
           currentWorkspaceState,
         ).contents;
         if (repeat) return;
+        // Cmd+s or Cntrl+s
         if (
           (metaKey || ctrlKey) &&
           key === "s" &&

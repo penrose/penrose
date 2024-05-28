@@ -74,7 +74,7 @@ export function createWorkspaceObject(
 export async function createSavedWorkspaceObject(userid: string) {
   var loadedWorkspaces = {} as SavedWorkspaces;
   const querySnapshot = await getDocs(collection(db, userid));
-  console.log("called getDocs");
+  // console.log("called getDocs");
 
   querySnapshot.forEach((doc) => {
     var docData = doc.data();
@@ -94,7 +94,7 @@ export async function createSavedWorkspaceObject(userid: string) {
 }
 
 export async function getDiagram(diagramId: string) {
-  console.log("read getDiagram");
+  // console.log("read getDiagram");
   if (authObject.currentUser != null) {
     const fetchedDoc = await getDoc(
       doc(db, authObject.currentUser.uid, diagramId),

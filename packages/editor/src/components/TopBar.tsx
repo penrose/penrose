@@ -1,10 +1,9 @@
 import { useCallback, useState } from "react";
-import { useRecoilCallback, useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilCallback, useRecoilValue } from "recoil";
 import styled from "styled-components";
 import {
   currentWorkspaceState,
   diagramWorkerState,
-  savedFilesState,
   settingsState,
 } from "../state/atoms.js";
 import {
@@ -129,8 +128,6 @@ export default function TopBar() {
   const { running } = useRecoilValue(diagramWorkerState);
   const isUnsaved = useIsUnsaved();
   const newWorkspace = useNewWorkspace();
-  const setSavedFilesState = useSetRecoilState(savedFilesState);
-  const setcurrentWorkspaceState = useSetRecoilState(currentWorkspaceState);
   const saveWorkspace = useSaveWorkspace();
 
   return (

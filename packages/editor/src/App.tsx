@@ -187,6 +187,10 @@ function App() {
   const setSavedWorkspaces =
     useSetRecoilState<SavedWorkspaces>(savedFilesState);
 
+  /* We need this effect as authObject.currentUser doesn't update immediately
+   on change to auth state, so for the settings menu to update properly we
+   use AppUser recoil state 
+  */
   useEffect(() => {
     authObject.onAuthStateChanged((user) => {
       // https://github.com/firebase/firebase-js-sdk/issues/5722
@@ -196,7 +200,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    console.log("hit in app");
+    // console.log("hit in app");
     async function populateSavedWorkspaces() {
       if (
         authObject.currentUser != null &&
