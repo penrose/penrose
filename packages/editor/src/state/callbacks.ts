@@ -13,7 +13,7 @@ import {
   zipTrio,
 } from "../utils/downloadUtils.js";
 import { stateToSVG } from "../utils/renderUtils.js";
-import { LayoutStats, RenderState } from "../worker/message.js";
+import { LayoutStats, RenderState } from "../worker/common.js";
 import {
   Canvas,
   Diagram,
@@ -44,6 +44,7 @@ import {
   workspaceMetadataSelector,
 } from "./atoms.js";
 import { generateVariation } from "./variation.js";
+import { UpdateInfo } from "../worker/OptimizerWorker";
 
 const _compileDiagram = async (
   substance: string,
@@ -54,7 +55,7 @@ const _compileDiagram = async (
   set: any,
 ) => {
   const compiling = toast.loading("Compiling...");
-  const onUpdate = (updatedState: RenderState, stats: LayoutStats) => {
+  const onUpdate = ({ state: updatedState, stats }: UpdateInfo) => {
     set(diagramState, (state: Diagram): Diagram => {
       return {
         ...state,
@@ -84,27 +85,19 @@ const _compileDiagram = async (
     }));
   };
 
-  const id = optimizer.run({
+  const id = await optimizer.compile(
     domain,
     style,
     substance,
-    variation,
-    onUpdate,
-    onError: (error) => {
-      toast.dismiss(compiling);
-      set(diagramState, (state: Diagram) => ({ ...state, error }));
-      set(diagramWorkerState, {
-        ...diagramWorkerState,
-        running: false,
-      });
-    },
-    onComplete: () => {
-      toast.dismiss(compiling);
-      set(diagramWorkerState, {
-        ...diagramWorkerState,
-        running: false,
-      });
-    },
+    variation
+  );
+
+  await optimizer.startOptimizing(() => {
+    toast.dismiss(compiling);
+    set(diagramWorkerState, {
+      ...diagramWorkerState,
+      running: false,
+    });
   });
 
   set(diagramWorkerState, {
@@ -112,6 +105,18 @@ const _compileDiagram = async (
     id,
     running: true,
   });
+
+  // get the ball rolling
+  await optimizer.askForUpdate()
+    .then(onUpdate)
+    .catch(() => {
+      toast.dismiss(compiling);
+      set(diagramWorkerState, {
+        ...diagramWorkerState,
+        running: false,
+      });
+    });
+
 
   // TODO: update grid state too
   // set(diagramGridState, ({ gridSize }: DiagramGrid) => ({
@@ -160,27 +165,28 @@ export const useResampleDiagram = () =>
     }
     const variation = generateVariation();
     const resamplingLoading = toast.loading("Resampling...");
-    optimizer.resample(
+    await optimizer.resample(
       id,
       variation,
-      (resampled) => {
-        set(diagramState, (state) => ({
-          ...state,
-          metadata: { ...state.metadata, variation },
-          state: resampled,
-        }));
-        // update grid state too
-        set(diagramGridState, ({ gridSize }) => ({
-          variations: range(gridSize).map((i) =>
-            i === 0 ? variation : generateVariation(),
-          ),
-          gridSize,
-        }));
-      },
       () => {
         toast.dismiss(resamplingLoading);
-      },
+      }
     );
+    await optimizer.askForUpdate()
+      .then(({ state: resampled} ) => {
+      set(diagramState, (state) => ({
+        ...state,
+        metadata: { ...state.metadata, variation },
+        state: resampled,
+      }));
+      // update grid state too
+      set(diagramGridState, ({ gridSize }) => ({
+        variations: range(gridSize).map((i) =>
+          i === 0 ? variation : generateVariation(),
+        ),
+        gridSize,
+      }));
+    });
   });
 
 const _saveLocally = (set: any) => {

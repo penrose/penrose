@@ -1,308 +1,463 @@
-import { PenroseError, collectLabels, mathjaxInit } from "@penrose/core";
-import consola from "consola";
-import { v4 as uuid } from "uuid";
 import {
-  LayoutStats,
-  RenderState,
-  Req,
-  Resp,
-  layoutStateToRenderState,
-  separateRenderedLabels,
-} from "./message.js";
+  CompiledReq,
+  CompiledResp,
+  FinishedResp,
+  InitReq,
+  InitResp, LayoutState,
+  layoutStateToRenderState, OptimizingReq, RenderState,
+  Req, ResampleReq,
+  Resp, UpdateResp,
+  WorkerState
+} from "./common";
+import { LayoutStats } from "./common"
+import { v4 as uuid } from "uuid";
+import { unwrap } from "@penrose/core/dist/utils/Util";
+import { PenroseError } from "@penrose/core";
 
-const log = (consola as any)
-  .create({ level: (consola as any).LogLevel.Warn })
-  .withScope("worker:client");
+type Off = {
+  tag: 'Off';
+  worker: Worker;
+  sharedBuffer: SharedArrayBuffer
+}
 
-export type onComplete = () => void;
-export type OnUpdate = (state: RenderState, stats: LayoutStats) => void;
-export type OnError = (error: PenroseError) => void;
-export type Pending = {
-  onUpdate: OnUpdate;
-  onError: OnError;
-  onComplete: onComplete;
-  request: Req;
-};
+type Init = {
+  tag: 'Init';
+  worker: Worker;
+  sharedArray: Int8Array
+}
 
-const worker = new Worker(new URL("./worker.ts", import.meta.url), {
-  type: "module",
-});
+type Compiled = {
+  tag: 'Compiled';
+  worker: Worker;
+  sharedArray: Int8Array;
+  svgCache: Map<string, HTMLElement>;
+  layoutStats: LayoutStats;
+}
 
-/**
- * Wrapper class for the worker thread. Handles sending and receiving messages to and from the worker.
- */
+type Optimizing = {
+  tag: 'Optimizing';
+  worker: Worker;
+  sharedArray: Int8Array;
+  svgCache: Map<string, HTMLElement>;
+  layoutStats: LayoutStats;
+  onFinish: (info: UpdateInfo) => void;
+}
+
+type StableState = Off | Init | Compiled | Optimizing;
+
+type OffToInit = {
+  tag: 'OffToInit';
+  previous: Off
+  resolve: () => void;
+  reject: (msg: string) => void;
+}
+
+type InitToCompiled = {
+  tag: 'InitToCompiled';
+  previous: Init;
+  resolve: (jobId: string) => void;
+  reject: (msg: string) => void;
+}
+
+type CompiledToOptimizing = {
+  tag: 'CompiledToOptimizing';
+  previous: Compiled;
+  onFinish: (info: UpdateInfo) => void;
+  resolve: () => void;
+  reject: (msg: string) => void;
+}
+
+type OptimizingToCompiled = {
+  tag: 'OptimizingToCompiled';
+  previous: Optimizing;
+  resolve: () => void;
+  reject: (msg: string) => void;
+}
+
+type WaitingForUpdate = {
+  tag: 'WaitingForUpdate';
+  previous: Optimizing;
+  resolve: (info: UpdateInfo) => void;
+  reject: (msg: string) => void;
+}
+
+type WaitingForShapes = {
+  tag: 'WaitingForShapes';
+  previous: Optimizing | Compiled;
+  resolve: (state: RenderState) => void;
+  reject : (msg: string) => void;
+}
+
+type WaitingState = OffToInit | InitToCompiled | CompiledToOptimizing
+  | OptimizingToCompiled | WaitingForUpdate | WaitingForShapes;
+
+type OWState = StableState | WaitingState
+
+export interface UpdateInfo {
+  state: RenderState;
+  stats: LayoutStats;
+}
+
+enum SharedMemoryByte {
+  Update = 0,
+  Stop,
+  ComputeShapes,
+  NUM_BYTES // leave unlabeled and at end
+}
+
+const launchWorker = (onmessage: (event: MessageEvent<Resp>) => void): Worker => {
+  const worker = new Worker(new URL("./newWorker.ts", import.meta.url), {
+    type: "module",
+  });
+  worker.onmessage = onmessage;
+  return worker;
+}
+
+const runtimeError = (msg: string): PenroseError => ({
+  tag: 'RuntimeError',
+  errorType: 'RuntimeError',
+  message: msg
+})
+
+const requestTimeout = 10000;
+
+
 export default class OptimizerWorker {
-  private svgCache: Map<string, HTMLElement> = new Map();
-  private workerInitialized: boolean = false;
-  private sharedMemory: Int8Array = new Int8Array();
-  private running: boolean = false;
-  private onUpdate: OnUpdate = () => {};
-  private onError: OnError = () => {};
-  private onComplete: onComplete = () => {};
-  private pending: Pending[] = [];
-  private stats: LayoutStats = [];
+  private state: OWState = {
+    tag: 'Off',
+    worker: launchWorker(this.onMessage.bind(this)),
+    sharedBuffer: new SharedArrayBuffer(SharedMemoryByte.NUM_BYTES)
+  };
 
-  getStats() {
-    return this.stats;
-  }
+  private onMessage({ data }: MessageEvent<Resp>) {
+    switch (this.state.tag) {
+      case 'Optimizing':
+        switch (data.tag) {
+          case 'FinishedResp':
+            this.state.onFinish( {
+              state: layoutStateToRenderState(
+                data.state,
+                this.state.svgCache
+              ),
+              stats: data.stats
+            });
+            this.state = {
+              ...this.state,
+              tag: 'Compiled',
+            }
+            break;
 
-  async computeShapes(index: number): Promise<RenderState> {
-    return new Promise((resolve, reject) => {
-      log.debug("Worker computing shapes...");
-      this.request({
-        tag: "ComputeShapes",
-        index,
-      });
-      const messageHandler = async ({ data }: MessageEvent<Resp>) => {
-        if (data.tag === "Update") {
-          worker.removeEventListener("message", messageHandler);
-          resolve(layoutStateToRenderState(data.state, this.svgCache));
-        } else {
-          worker.removeEventListener("message", messageHandler);
-          // Shouldn't happen, but ignore other messages
-          console.error(`Unknown Response: ${data.tag}`);
+          default:
+            throw runtimeError(`Worker responded ${data.tag} while optimizing`);
         }
-      };
+        break;
 
-      worker.addEventListener("message", messageHandler);
-    });
-  }
+      case 'OffToInit':
+        switch (data.tag) {
+          case 'InitResp':
+            this.state.resolve();
+            this.state = {
+              ...this.state.previous,
+              tag: 'Init',
+              sharedArray: new Int8Array(this.state.previous.sharedBuffer)
+            };
+            break;
 
-  /* Initialize the worker by declaring a shared array buffer and passing it to the worker. Then wait for confirmation from the worker before setting up anything. */
-  async init() {
-    return new Promise<void>((resolve, reject) => {
-      log.debug("Worker initializing...", worker);
-      // `sharedMemory` has two bytes, the first is a flag to tell the worker to give an update, and the second is a flag to tell the worker to stop the current task.
-      const sab = new SharedArrayBuffer(2);
-      this.sharedMemory = new Int8Array(sab);
-      this.request({
-        tag: "Init",
-        sharedMemory: sab,
-      });
-
-      // add a timeout to reject the promise if the worker takes too long
-      const timeout = setTimeout(() => {
-        reject(new Error("Worker initialization timed out"));
-      }, 10000);
-      worker.onmessage = async ({ data }: MessageEvent<Resp>) => {
-        if (data.tag === "Ready") {
-          this.workerInitialized = true;
-          log.info("Worker Initialized");
-          this.setup();
-          // if there is a pending request, send it after setup
-          this.resolvePending();
-          clearTimeout(timeout);
-          resolve();
-        } else {
-          // Shouldn't happen, but ignore other messages
-          console.error(`Unknown Response: ${data}`);
+          default:
+            this.state.reject(`Worker responded ${data.tag} while Off => Init`);
+            break;
         }
-      };
-    });
-  }
+        break;
 
-  // check if there is a pending request and send it to the worker
-  resolvePending() {
-    if (this.pending.length > 0) {
-      log.info("Worker has pending request, sending...");
-      // get the most recent request and call `onComplete` on everyone
-      const lastest = this.pending[this.pending.length - 1];
-      this.request(lastest.request);
-      this.onComplete = () => {
-        for (const pendingTask of this.pending) {
-          pendingTask.onComplete();
+      case 'InitToCompiled':
+        switch (data.tag) {
+          case 'CompiledResp':
+            this.state.resolve(data.jobId);
+            this.state = {
+              ...this.state.previous,
+              tag: 'Compiled',
+              svgCache: new Map(),
+              layoutStats: []
+            };
+            break;
+
+          default:
+            this.state.reject(`Worker responded ${data.tag} while Init => Compiled`);
+            break;
         }
-      };
-      this.onError = (e) => {
-        for (let i = 0; i < this.pending.length - 1; i++) {
-          this.pending[i].onError(e);
+        break;
+
+      case 'CompiledToOptimizing':
+        switch (data.tag) {
+          case 'OptimizingResp':
+            this.state.resolve();
+            this.state = {
+              ...this.state.previous,
+              tag: 'Optimizing',
+              onFinish: this.state.onFinish
+            };
+            break;
+
+          default:
+            this.state.reject(`Worker responded ${data.tag} while Compiled => Optimizing`);
+            break;
         }
-        lastest.onError(e);
-      };
-      this.onUpdate = lastest.onUpdate;
+        break;
+
+      case 'OptimizingToCompiled':
+        switch (data.tag) {
+          case 'FinishedResp':
+            this.state.resolve();
+            this.state = {
+              ...this.state.previous,
+              tag: 'Compiled',
+            };
+            break;
+        }
+        break;
+
+      case 'WaitingForUpdate':
+        switch (data.tag) {
+          case 'UpdateResp':
+            this.state.resolve({
+              state: layoutStateToRenderState(
+                data.state,
+                this.state.previous.svgCache
+              ),
+              stats: data.stats
+            });
+            this.state = {
+              ...this.state.previous,
+            };
+            break;
+
+          default:
+            this.state.reject(`Worker responded ${data.tag} while waiting for update`);
+        }
+        break;
+
+      default:
+        throw runtimeError(`Cannot receive message in state ${this.state.tag}`);
     }
-  }
-
-  setup() {
-    log.info("Registering worker listeners");
-    worker.onerror = (e) => {
-      log.error("Worker error: ", e.message);
-    };
-
-    worker.onmessageerror = (e) => {
-      log.error("Worker message error: ", e);
-    };
-
-    worker.onmessage = async ({ data }: MessageEvent<Resp>) => {
-      log.debug("Received message: ", data);
-      if (data.tag === "Update") {
-        this.stats = data.stats;
-        this.onUpdate(
-          layoutStateToRenderState(data.state, this.svgCache),
-          data.stats,
-        );
-      } else if (data.tag === "Error") {
-        this.running = false;
-        this.onError(data.error);
-        return;
-      } else if (data.tag === "Ready") {
-        log.info("Worker ready for new input");
-        this.onComplete();
-        this.resolvePending();
-      } else if (data.tag === "Finished") {
-        this.running = false;
-        this.stats = data.stats;
-        this.onUpdate(
-          layoutStateToRenderState(data.state, this.svgCache),
-          data.stats,
-        );
-        this.onComplete();
-        log.info(`Finished optimization for ${data.id}`);
-      } else if (data.tag === "ReqLabels") {
-        const convert = mathjaxInit();
-        const labelCache = await collectLabels(data.shapes, convert);
-        if (labelCache.isErr()) {
-          this.onError(labelCache.error);
-          return;
-        }
-        const { optLabelCache, svgCache } = separateRenderedLabels(
-          labelCache.value,
-        );
-        this.svgCache = svgCache;
-        log.info(
-          `Compilation completed for ${data.id}, Sending label cache to worker`,
-        );
-        this.onComplete();
-        this.request({
-          tag: "RespLabels",
-          labelCache: optLabelCache,
-          id: data.id,
-        });
-      } else {
-        // Shouldn't Happen
-        console.error(`Unknown Response: ${data}`);
-      }
-    };
   }
 
   private request(req: Req) {
-    log.debug("Sending request: ", req);
-    worker.postMessage(req);
-  }
-  askForUpdate(onUpdate: OnUpdate, onError: OnError) {
-    this.onUpdate = onUpdate;
-    this.onError = onError;
-    Atomics.store(this.sharedMemory, 0, 1);
+    if ('worker' in this.state) {
+      this.state.worker.postMessage(req);
+    } else {
+      this.state.previous.worker.postMessage(req);
+    }
   }
 
-  private _queue(
-    req: Req,
-    onUpdate: OnUpdate,
-    onError: OnError,
-    onComplete: onComplete,
-  ) {
-    this.pending.push({
-      request: req,
-      onUpdate: (s, stats) => {
-        onUpdate(s, stats);
-        this.pending = [];
-      },
-      onError: (e) => {
-        onError(e);
-        this.pending = [];
-      },
-      onComplete: () => {
-        onComplete();
-        this.pending = [];
-      },
+  async init() {
+    return new Promise<void>((resolve, reject) => {
+      switch (this.state.tag) {
+        case 'Off':
+          const req: InitReq = {
+            tag: 'InitReq',
+            sharedMemoryBuffer: this.state.sharedBuffer
+          }
+          this.state = {
+            tag: 'OffToInit',
+            previous: this.state,
+            resolve,
+            reject
+          }
+          this.request(req);
+          break;
+
+        default:
+          reject(`Cannot init in state ${this.state.tag}`);
+          break;
+      }
     });
   }
 
-  run({
-    domain,
-    style,
-    substance,
-    variation,
-    onUpdate,
-    onComplete,
-    onError,
-  }: {
-    domain: string;
-    style: string;
-    substance: string;
-    variation: string;
-    onUpdate: OnUpdate;
-    onError: OnError;
-    onComplete: onComplete;
-  }): string {
-    // clear out stats
-    this.stats = [];
-    const id = uuid();
-    const request: Req = {
-      tag: "Compile",
-      domain,
-      style,
-      substance,
-      variation,
-      id,
-    };
-    log.info(`Start compilation for ${id}`);
-    if (this.running) {
-      // Let worker know we want them to stop optimizing and get
-      // ready to receive a new trio
-      Atomics.store(this.sharedMemory, 1, 1);
-      log.info("Worker running and asked to stop");
-      this.pending.push({
-        request,
-        onUpdate,
-        onComplete,
-        onError,
-      });
-    } else if (!this.workerInitialized) {
-      log.info("Worker not initialized yet, waiting...");
-      setTimeout(() => {
-        this.request({
-          tag: "Init",
-          sharedMemory: this.sharedMemory.buffer as SharedArrayBuffer,
-        });
-      }, 1000);
-      this._queue(request, onUpdate, onError, onComplete);
-    } else {
-      this.running = true;
-      this.onUpdate = onUpdate;
-      this.onError = onError;
-      this.onComplete = onComplete;
-      this.request(request);
-    }
-    return id;
+  async compile(
+    domain: string,
+    style: string,
+    substance: string,
+    variation: string,
+  ): Promise<string> {
+    return new Promise((resolve, reject) => {
+      switch (this.state.tag) {
+        case 'Init':
+          const jobId: string = uuid();
+          const req: CompiledReq = {
+            tag: 'CompiledReq',
+            substance,
+            style,
+            domain,
+            variation,
+            jobId
+          };
+          this.state = {
+            tag: 'InitToCompiled',
+            previous: this.state,
+            resolve,
+            reject
+          };
+          this.request(req);
+          break;
+
+        default:
+          reject(`Cannot compile in state ${this.state.tag}`);
+      }
+    });
   }
 
-  resample = (
-    id: string,
+  async startOptimizing(
+    onFinish: (info: UpdateInfo) => void
+  ): Promise<void> {
+    new Promise<void>((resolve, reject) => {
+      switch (this.state.tag) {
+        case 'Compiled':
+          const req: OptimizingReq = {
+            tag: 'OptimizingReq',
+          };
+          this.state = {
+            tag: 'CompiledToOptimizing',
+            previous: this.state,
+            onFinish,
+            resolve,
+            reject
+          };
+          this.request(req);
+          break;
+
+        default:
+          reject(`Cannot compile in state ${this.state.tag}`);
+      }
+    });
+  }
+
+  async interruptOptimizing(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      switch (this.state.tag) {
+        case 'Optimizing':
+          this.state = {
+            tag: 'OptimizingToCompiled',
+            previous: this.state,
+            resolve,
+            reject
+          };
+          Atomics.store(this.state.previous.sharedArray, SharedMemoryByte.Stop, 1);
+          break;
+
+        default:
+          reject(`Cannot receive message in state ${this.state.tag}`);
+      }
+    });
+  }
+
+  /**
+   * Resample the diagram. If optimizing, first interrupts to compiled state, and
+   * then resamples. Promises resolves when optimization has restarted, NOT when
+   * optimization has finished. Use `onFinish` as a callback for optimizer finish.
+   *
+   * @param jobId Id of this optimization task. Returned by `compile`.
+   * @param variation Diagram variation
+   * @param onFinish Callback for optimizer finish
+   */
+  async resample(
+    jobId: string,
     variation: string,
-    onUpdate: OnUpdate,
-    onComplete: onComplete,
-  ) => {
-    const request: Req = {
-      tag: "Resample",
-      variation,
-      id,
-    };
-    if (this.running) {
-      // Let worker know we want them to stop optimizing and get
-      // ready to receive a new trio
-      Atomics.store(this.sharedMemory, 1, 1);
-      log.info("Worker asked to stop");
-      this._queue(request, onUpdate, onComplete, () => {});
+    onFinish: (info: UpdateInfo) => void
+  ): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      switch (this.state.tag) {
+        case 'Optimizing':
+          this.interruptOptimizing()
+            .then(() => this.resample(jobId, variation, onFinish))
+            .then(resolve);
+          break;
+
+        case 'Compiled':
+          const req: ResampleReq = {
+            tag: 'ResampleReq',
+            variation,
+            jobId
+          };
+          this.state = {
+            tag: 'CompiledToOptimizing',
+            previous: this.state,
+            onFinish,
+            resolve,
+            reject
+          };
+          this.request(req);
+          break;
+
+        default:
+          reject(`Cannot resample from state ${this.state.tag}`);
+          break;
+      }
+    });
+  }
+
+  async askForUpdate(): Promise<UpdateInfo> {
+    return new Promise<UpdateInfo>((resolve, reject) => {
+      switch (this.state.tag) {
+        case 'Optimizing':
+          this.state = {
+            tag: 'WaitingForUpdate',
+            previous: this.state,
+            resolve,
+            reject
+          };
+          Atomics.store(this.state.previous.sharedArray, SharedMemoryByte.Update, 1);
+          break;
+
+        default:
+          reject(`Cannot askForUpdate from state ${this.state.tag}`);
+          break;
+      }
+    });
+  }
+
+  async computeShapesAtIndex(i: number): Promise<RenderState> {
+    return new Promise<RenderState>((resolve, reject) => {
+      switch (this.state.tag) {
+        case 'Optimizing':
+          this.state = {
+            tag: 'WaitingForShapes',
+            previous: this.state,
+            resolve,
+            reject
+          };
+          Atomics.store(this.state.previous.sharedArray, SharedMemoryByte.ComputeShapes, 1);
+          this.request({
+            tag: 'ComputeShapesReq',
+            index: i
+          });
+          break;
+
+        case 'Compiled':
+          this.state = {
+            tag: 'WaitingForShapes',
+            previous: this.state,
+            resolve,
+            reject
+          };
+          this.request({
+            tag: 'ComputeShapesReq',
+            index: i
+          });
+          break;
+
+        default:
+          reject(`Cannot computeShapesReq from state ${this.state.tag}`);
+      }
+    });
+  }
+
+  getStats() {
+    if ('layoutStats' in this.state) {
+      return this.state.layoutStats;
+    } else if ('previous' in this.state && 'layoutStats' in this.state.previous) {
+      return this.state.previous.layoutStats;
+    } else {
+      throw runtimeError(`Cannot get stats in state ${this.state.tag}`);
     }
-    log.info(`Start resampling for ${id}, ${variation}`);
-    this.request(request);
-    // call `onComplete` before swapping out the update function
-    this.onComplete();
-    this.onComplete = onComplete;
-    this.onUpdate = onUpdate;
-  };
-  terminate() {
-    worker.terminate();
   }
 }
