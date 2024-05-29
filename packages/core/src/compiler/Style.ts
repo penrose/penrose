@@ -66,6 +66,7 @@ import {
   RelField,
   RelPred,
   RelationPattern,
+  ResolvedStylePath,
   SEFunc,
   SEFuncOrValCons,
   SEValCons,
@@ -75,6 +76,7 @@ import {
   SelectorType,
   Stmt,
   StyProg,
+  StylePathToScope,
   UOp,
   Vector,
 } from "../types/style.js";
@@ -88,13 +90,11 @@ import {
   FieldDict,
   FieldSource,
   Layer,
-  LocalVarSubst,
   NotShape,
-  ResolvedName,
-  ResolvedPath,
   SelectorEnv,
   ShapeSource,
   StySubst,
+  StyleBlockId,
   Subst,
   SubstanceLiteral,
   SubstanceObject,
@@ -125,7 +125,6 @@ import {
   LListV,
   ListV,
   MatrixV,
-  PropID,
   PtListV,
   ShapeListV,
   StrV,
@@ -159,6 +158,12 @@ import {
   traverseUp,
 } from "../utils/GroupGraph.js";
 import Heap from "../utils/Heap.js";
+import {
+  makeStylePathToUnknownObject,
+  resolveLhsStylePath,
+  stylePathToNamespaceScope,
+  stylePathToUnnamedScope,
+} from "../utils/StylePathResolution.js";
 import {
   boolV,
   cartesianProduct,
@@ -1527,78 +1532,89 @@ type FieldedRes = Result<
   StyleError
 >;
 
-const updateExpr = (
-  path: ResolvedPath<C>,
+const resolveScope = (
+  assignment: BlockAssignment,
+  scope: StylePathToScope<A>,
+): FieldDict => {
+  if (scope.tag === "Namespace") {
+    return assignment.globals.get(scope.name) ?? im.Map();
+  } else if (scope.tag === "Substance") {
+    return assignment.substances.get(scope.substanceName) ?? im.Map();
+  } else {
+    return (
+      assignment.unnamed.get(im.List([scope.blockId, scope.substId])) ??
+      im.Map()
+    );
+  }
+};
+
+const updateScope = (
+  assignment: BlockAssignment,
+  scope: StylePathToScope<A>,
+  dict: FieldDict,
+): BlockAssignment => {
+  if (scope.tag === "Namespace") {
+    return { ...assignment, globals: assignment.globals.set(scope.name, dict) };
+  } else if (scope.tag === "Substance") {
+    return {
+      ...assignment,
+      substances: assignment.substances.set(scope.substanceName, dict),
+    };
+  } else {
+    return {
+      ...assignment,
+      unnamed: assignment.unnamed.set(
+        im.List([scope.blockId, scope.substId]),
+        dict,
+      ),
+    };
+  }
+};
+
+const checkPathAndUpdateExpr = (
+  path: ResolvedStylePath<A>,
   assignment: BlockAssignment,
   errTagGlobal: "AssignGlobalError" | "DeleteGlobalError",
   errTagSubstance: "AssignSubstanceError" | "DeleteSubstanceError",
-  // this function performs the actual dictionary updates. `updateExpr` only needs to extract the path to pass to `f`.
-  f: (field: Field, prop: PropID | undefined, fielded: FieldDict) => FieldedRes,
+  f: (field: string, prop: string | undefined, dict: FieldDict) => FieldedRes,
 ): BlockAssignment => {
-  switch (path.tag) {
-    case "Global": {
-      if (path.members.length < 1) {
-        return addDiags(oneErr({ tag: errTagGlobal, path }), assignment);
-      } else if (path.members.length > 2) {
-        return addDiags(
-          oneErr({ tag: "PropertyMemberError", path }),
-          assignment,
-        );
-      }
-      const field = path.members[0].value;
-      const prop = path.members.length > 1 ? path.members[1].value : undefined;
-      const namespaceFields = assignment.globals.get(path.name) ?? im.Map();
-      const res = f(field, prop, namespaceFields);
-      if (res.isErr()) {
-        return addDiags(oneErr(res.error), assignment);
-      }
-      const { dict, warns } = res.value;
-      return addDiags(warnings(warns), {
-        ...assignment,
-        globals: assignment.globals.set(path.name, dict),
-      });
+  if (path.tag === "Empty" || path.tag === "Unnamed") {
+    // the LHS resolver and parser should never allow this
+    throw new Error("should never happen");
+  } else if (path.tag === "Namespace" || path.tag === "Substance") {
+    return addDiags(
+      oneErr({
+        tag: path.tag === "Namespace" ? errTagGlobal : errTagSubstance,
+        path,
+      }),
+      assignment,
+    );
+  } else {
+    const { parent, name } = path;
+    let scope: StylePathToScope<A> | undefined = undefined;
+    const otherPartsReversed: string[] = [name];
+    if (parent.tag === "Object") {
+      otherPartsReversed.push(parent.name);
+      scope = parent.parent;
+    } else {
+      scope = parent;
     }
-    case "Local": {
-      // a local variable can only have 0 or 1 members (`x = 1` or `icon = { x: 1 }`)
-      if (path.members.length > 1) {
-        return addDiags(
-          oneErr({ tag: "PropertyMemberError", path }),
-          assignment,
-        );
-      }
-      // remember, we don't use `--noUncheckedIndexedAccess`
-      const prop = path.members.length > 0 ? path.members[0].value : undefined;
-      // coincidentally, `BlockAssignment["locals"]` looks just like `Fielded`
-      const res = f(path.name, prop, assignment.locals);
-      if (res.isErr()) {
-        return addDiags(oneErr(res.error), assignment);
-      }
-      const { dict: locals, warns } = res.value;
-      return addDiags(warnings(warns), { ...assignment, locals });
+
+    const [field, prop] =
+      otherPartsReversed.length === 1
+        ? [otherPartsReversed[0], undefined]
+        : [otherPartsReversed[1], otherPartsReversed[0]];
+
+    const dict = resolveScope(assignment, scope);
+
+    const res = f(field, prop, dict);
+    if (res.isErr()) {
+      return addDiags(oneErr(res.error), assignment);
     }
-    case "Substance": {
-      if (path.members.length < 1) {
-        return addDiags(oneErr({ tag: errTagSubstance, path }), assignment);
-      } else if (path.members.length > 2) {
-        return addDiags(
-          oneErr({ tag: "PropertyMemberError", path }),
-          assignment,
-        );
-      }
-      const field = path.members[0].value;
-      // remember, we don't use `--noUncheckedIndexedAccess`
-      const prop = path.members.length > 1 ? path.members[1].value : undefined;
-      const subObj = assignment.substances.get(path.name) ?? im.Map();
-      const res = f(field, prop, subObj);
-      if (res.isErr()) {
-        return addDiags(oneErr(res.error), assignment);
-      }
-      const { dict, warns } = res.value;
-      return addDiags(warnings(warns), {
-        ...assignment,
-        substances: assignment.substances.set(path.name, dict),
-      });
-    }
+
+    const { dict: newDict, warns } = res.value;
+
+    return addDiags(warnings(warns), updateScope(assignment, scope, newDict));
   }
 };
 
@@ -1628,11 +1644,11 @@ const processExpr = (
 
 const insertExpr = (
   block: BlockInfo,
-  path: ResolvedPath<C>,
+  path: ResolvedStylePath<A>,
   expr: Expr<C>,
   assignment: BlockAssignment,
 ): BlockAssignment =>
-  updateExpr(
+  checkPathAndUpdateExpr(
     path,
     assignment,
     "AssignGlobalError",
@@ -1680,10 +1696,10 @@ const insertExpr = (
   );
 
 const deleteExpr = (
-  path: ResolvedPath<C>,
+  path: ResolvedStylePath<A>,
   assignment: BlockAssignment,
 ): BlockAssignment =>
-  updateExpr(
+  checkPathAndUpdateExpr(
     path,
     assignment,
     "DeleteGlobalError",
@@ -1713,59 +1729,6 @@ const deleteExpr = (
     },
   );
 
-const resolveLhsName = (
-  { block, subst }: BlockInfo,
-  assignment: BlockAssignment,
-  name: BindingForm<C>,
-): ResolvedName => {
-  const { value } = name.contents;
-  switch (name.tag) {
-    case "StyVar": {
-      if (assignment.locals.has(value)) {
-        // locals shadow selector match names
-        return { tag: "Local", block, name: value };
-      } else if (subst.tag === "StySubSubst" && value in subst.contents) {
-        // selector match names shadow globals
-        return {
-          tag: "Substance",
-          block,
-          name: subObjectToUniqueName(subst.contents[value]),
-        };
-      } else if (subst.tag === "CollectionSubst" && value in subst.groupby) {
-        return {
-          tag: "Substance",
-          block,
-          name: subObjectToUniqueName(subst.groupby[value]),
-        };
-      } else if (assignment.globals.has(value)) {
-        return { tag: "Global", block, name: value };
-      } else {
-        // if undefined, we may be defining for the first time, must be a local
-        return { tag: "Local", block, name: value };
-      }
-    }
-    case "SubVar": {
-      return { tag: "Substance", block, name: value };
-    }
-  }
-};
-
-const resolveLhsPath = (
-  block: BlockInfo,
-  assignment: BlockAssignment,
-  path: Path<C>,
-): Result<ResolvedPath<C>, StyleError> => {
-  const { start, end, name, members, indices } = path;
-  return indices.length > 0
-    ? err({ tag: "AssignAccessError", path })
-    : ok({
-        start,
-        end,
-        ...resolveLhsName(block, assignment, name),
-        members,
-      });
-};
-
 const processStmt = (
   block: BlockInfo,
   index: number,
@@ -1775,7 +1738,7 @@ const processStmt = (
   switch (stmt.tag) {
     case "PathAssign": {
       // TODO: check `stmt.type`
-      const path = resolveLhsPath(block, assignment, stmt.path);
+      const path = resolveLhsStylePath(block, assignment, stmt.path);
       if (path.isErr()) {
         return addDiags(oneErr(path.error), assignment);
       }
@@ -1783,7 +1746,7 @@ const processStmt = (
     }
     case "Override": {
       // resolve just once, not again between deleting and inserting
-      const path = resolveLhsPath(block, assignment, stmt.path);
+      const path = resolveLhsStylePath(block, assignment, stmt.path);
       if (path.isErr()) {
         return addDiags(oneErr(path.error), assignment);
       }
@@ -1795,7 +1758,7 @@ const processStmt = (
       );
     }
     case "Delete": {
-      const path = resolveLhsPath(block, assignment, stmt.contents);
+      const path = resolveLhsStylePath(block, assignment, stmt.contents);
       if (path.isErr()) {
         return addDiags(oneErr(path.error), assignment);
       }
@@ -1806,14 +1769,28 @@ const processStmt = (
       // act as if the synthetic name we create is from the beginning of the
       // anonymous assignment statement
       const range: SourceRange = { start, end: start };
+      const scope: StylePathToScope<A> =
+        block.block.tag === "NamespaceId"
+          ? {
+              tag: "Namespace",
+              name: block.block.contents,
+              nodeType: "Style",
+            }
+          : {
+              tag: "Unnamed",
+              blockId: block.block.contents[0],
+              substId: block.block.contents[1],
+              nodeType: "Style",
+            };
       return insertExpr(
         block,
         {
           ...range,
-          tag: "Local",
-          block: block.block,
+          tag: "Object",
           name: `$${ANON_KEYWORD}_${index}`,
-          members: [],
+          parent: scope,
+          nodeType: "Style",
+          shapeOrValue: "Unknown",
         },
         stmt.contents,
         assignment,
@@ -1826,7 +1803,7 @@ const blockId = (
   blockIndex: number,
   substIndex: number,
   header: Header<A>,
-): LocalVarSubst => {
+): StyleBlockId => {
   switch (header.tag) {
     case "Selector":
     case "Collector": {
@@ -2187,7 +2164,11 @@ const gatherExpr = (
   }
 };
 
-const gatherField = (graph: DepGraph, lhs: string, rhs: FieldSource): void => {
+const gatherField = (
+  graph: DepGraph,
+  lhs: ResolvedStylePath<A>,
+  rhs: FieldSource,
+): void => {
   switch (rhs.tag) {
     case "ShapeSource": {
       graph.setNode(lhs, rhs.shapeType);
@@ -2206,27 +2187,22 @@ const gatherField = (graph: DepGraph, lhs: string, rhs: FieldSource): void => {
 };
 
 export const gatherDependencies = (assignment: Assignment): DepGraph => {
-  const graph = new Graph<
-    string,
-    ShapeType | WithContext<NotShape> | undefined
-  >();
+  const graph: DepGraph = new Graph();
 
   for (const [blockName, fields] of assignment.globals) {
+    const pathToScope = stylePathToNamespaceScope(blockName);
     for (const [fieldName, field] of fields) {
-      gatherField(graph, `${blockName}.${fieldName}`, field);
+      const pathToObject = makeStylePathToUnknownObject(pathToScope, fieldName);
+      gatherField(graph, pathToObject, field);
     }
   }
 
   for (const [indices, fields] of assignment.unnamed) {
+    const [blockId, substId] = indices.toArray();
+    const pathToScope = stylePathToUnnamedScope(blockId, substId);
     for (const [fieldName, field] of fields) {
-      const [blockIndex, substIndex] = indices;
-      const p: ResolvedPath<A> = {
-        tag: "Local",
-        name: fieldName,
-        block: { tag: "LocalVarId", contents: [blockIndex, substIndex] },
-        members: [],
-      };
-      gatherField(graph, prettyPrintResolvedPath(p), field);
+      const pathToObject = makeStylePathToUnknownObject(pathToScope, fieldName);
+      gatherField(graph, pathToObject, field);
     }
   }
 

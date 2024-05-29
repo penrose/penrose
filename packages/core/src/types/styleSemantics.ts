@@ -2,10 +2,10 @@ import im from "immutable";
 import { ShapeType } from "../shapes/Shapes.js";
 import Graph from "../utils/Graph.js";
 import * as ad from "./ad.js";
-import { C, Identifier } from "./ast.js";
+import { A, C } from "./ast.js";
 import { StyleDiagnostics, StyleError } from "./errors.js";
 import { Fn } from "./state.js";
-import { Expr, GPIDecl } from "./style.js";
+import { Expr, GPIDecl, ResolvedStylePath } from "./style.js";
 import { SubstanceEnv } from "./substance.js";
 import { ArgVal, Field, Name, PropID } from "./value.js";
 
@@ -81,7 +81,7 @@ export type CollectionSubst = {
 
 export type StySubst = StySubSubst | CollectionSubst;
 
-export type LocalVarSubst = LocalVarId | NamespaceId;
+export type StyleBlockId = LocalVarId | NamespaceId;
 
 export interface LocalVarId {
   tag: "LocalVarId";
@@ -151,22 +151,11 @@ export interface Locals {
 export interface BlockAssignment extends Assignment, Locals {}
 
 export interface BlockInfo {
-  block: LocalVarSubst;
+  block: StyleBlockId;
   subst: StySubst;
 }
 
 export interface Context extends BlockInfo, Locals {}
-
-export interface ResolvedName {
-  tag: "Global" | "Local" | "Substance";
-  block: LocalVarSubst;
-  name: string;
-}
-
-export type ResolvedPath<T> = T &
-  ResolvedName & {
-    members: Identifier<T>[];
-  };
 
 //#endregion
 
@@ -174,7 +163,10 @@ export type ResolvedPath<T> = T &
 
 export type DepGraph = Graph<
   string,
-  ShapeType | WithContext<NotShape> | undefined
+  {
+    contents: ShapeType | WithContext<NotShape> | undefined;
+    where: ResolvedStylePath<A>;
+  }
 >;
 
 //#endregion

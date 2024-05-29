@@ -22,7 +22,6 @@ import {
   Path,
   UOp,
 } from "./style.js";
-import { ResolvedPath } from "./styleSemantics.js";
 import { StmtSet, SubExpr, TypeApp } from "./substance.js";
 import { ArgValWithSourceLoc, ShapeVal, Val, Value } from "./value.js";
 
