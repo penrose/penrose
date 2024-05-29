@@ -1,5 +1,6 @@
 import { Style } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
+import { GithubAuthProvider, signInWithCredential } from "firebase/auth";
 import { deleteDoc, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { range } from "lodash";
 import queryString from "query-string";
@@ -509,21 +510,41 @@ export const useNewWorkspace = () =>
 export const useCheckURL = () =>
   useRecoilCallback(({ set, snapshot, reset }) => async () => {
     const parsed = queryString.parse(window.location.search);
-    // if (
-    //   "access_token" in parsed &&
-    //   "profile[login]" in parsed &&
-    //   "profile[avatar_url]" in parsed
-    // ) {
-    //   // Signed into GitHub
-    //   set(settingsState, (state) => ({
-    //     ...state,
-    //     github: {
-    //       username: parsed["profile[login]"],
-    //       accessToken: parsed["access_token"],
-    //       avatar: parsed["profile[avatar_url]"],
-    //     } as LocalGithubUser,
-    //   }));
-    // }
+    if (
+      "access_token" in parsed &&
+      "profile[login]" in parsed &&
+      "profile[avatar_url]" in parsed
+    ) {
+      console.log(parsed["access_token"]);
+      if (typeof parsed["access_token"] === "string") {
+        console.log("hit");
+        const credential = GithubAuthProvider.credential(
+          parsed["access_token"],
+        );
+        // console.log(credential);
+        signInWithCredential(authObject, credential)
+          .then((result) => {
+            console.log(result);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
+
+      // const loginFunc = logInWrapperTest();
+      // if (typeof parsed["access_token"] === "string") {
+      //   loginFunc(parsed["access_token"]);
+      // }
+      // Signed into GitHub
+      // set(settingsState, (state) => ({
+      //   ...state,
+      //   github: {
+      //     username: parsed["profile[login]"],
+      //     accessToken: parsed["access_token"],
+      //     avatar: parsed["profile[avatar_url]"],
+      //   } as LocalGithubUser,
+      // }));
+    }
     if ("gist" in parsed) {
       // Loading a gist
       const id = toast.loading("Loading gist...");

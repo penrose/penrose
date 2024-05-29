@@ -2,6 +2,7 @@ import { initializeApp } from "firebase/app";
 import {
   GithubAuthProvider,
   getAuth,
+  signInWithCredential,
   signInWithPopup,
   signOut,
 } from "firebase/auth";
@@ -33,11 +34,50 @@ export const oauthProvider = new GithubAuthProvider();
 oauthProvider.addScope("gist");
 oauthProvider.setCustomParameters({ display: "popup" });
 
+export const testlol = async () => {
+  window.location.replace("https://google.com");
+};
+
+export const logInWrapperTest = () =>
+  useRecoilCallback(({ set }) => async (accessToken: string) => {
+    const credential = GithubAuthProvider.credential(accessToken);
+    signInWithCredential(authObject, credential)
+      .then((result) => {
+        // const credential = GithubAuthProvider.credentialFromResult(result);
+        // if (credential !== null) {
+        // Save access token to local state, settingsEffect propogates to local storage
+        // For type safety, assign null if undefined
+        set(settingsState, (prevState) => ({
+          ...prevState,
+          githubAccessToken: accessToken,
+          // credential.accessToken != undefined
+          //   ? credential.accessToken
+          //   : null,
+        }));
+
+        toast.success(`Logged in as ${result.user.displayName}`);
+        // }
+      })
+      .catch((error) => {
+        console.log(error);
+        // toast.error("Error logging in");
+      });
+  });
+
 // Auth Utils
 // const GITHUB_CLIENT_ID = "Ov23liCNUtRlSsXVPuDu";
 // const GITHUB_CLIENT_SECRET = "cce2604d49feb0a1c2d58e8aae4233edccc6c3b3";
 // const GITHUB_CALLBACK_URL = "localhost:3000/try/";
-// const githubOAuthURL = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&scope=user`;
+// const githubOAuthURL = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&scope=user&redirect_uri=${GITHUB_CALLBACK_URL}`;
+// const githubOAuthURL = `https://github.com/login/oauth/authorize`;
+
+// export const handleLogin = async () => {
+//   window.location.replace(githubOAuthURL);
+
+//   // fetch(githubOAuthURL)
+//   //   .then((response) => console.log(response))
+//   //   .catch((error) => console.log(error));
+// };
 
 // export const handleLogin = async () => {
 //   try {
