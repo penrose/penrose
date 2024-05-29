@@ -1,15 +1,18 @@
 import { useEffect } from "react";
 import { useRecoilCallback, useRecoilValue } from "recoil";
 import { v4 as uuid } from "uuid";
-import { currentWorkspaceState, savedFilesState } from "../state/atoms.js";
+import {
+  currentAppUser,
+  currentWorkspaceState,
+  savedFilesState,
+} from "../state/atoms.js";
 import {
   useDeleteLocalFile,
   useLoadLocalWorkspace,
   useSaveNewWorkspace,
   useSaveWorkspace,
 } from "../state/callbacks.js";
-import { authObject, resendVerificationEmail } from "../utils/firebaseUtils.js";
-import { OpenModalButton } from "./AuthWindows.js";
+import { logInWrapper } from "../utils/firebaseUtils.js";
 import BlueButton from "./BlueButton.js";
 import FileButton from "./FileButton.js";
 
@@ -60,13 +63,14 @@ export default function SavedFilesBrowser() {
   const loadWorkspace = useLoadLocalWorkspace();
   const onDelete = useDeleteLocalFile();
   const saveNewWorkspace = useSaveNewWorkspace();
+  const useLogin = logInWrapper();
+  const currentUser = useRecoilValue(currentAppUser);
 
   saveShortcutHook();
 
   return (
     <>
-      {authObject.currentUser != null &&
-      authObject.currentUser.emailVerified ? (
+      {currentUser != null ? (
         <div>
           {Object.values(savedFiles).map((file) => (
             <FileButton
@@ -97,20 +101,8 @@ export default function SavedFilesBrowser() {
         </div>
       ) : (
         <div style={{ margin: "0.5em" }}>
-          {authObject.currentUser != null &&
-          !authObject.currentUser.emailVerified ? (
-            <div>
-              <h3>Please verify your email!</h3>
-              <BlueButton onClick={resendVerificationEmail}>
-                Resend Verification
-              </BlueButton>
-            </div>
-          ) : (
-            <div>
-              <h3>Please sign in to use saved diagrams!</h3>
-              <OpenModalButton />
-            </div>
-          )}
+          <h3>Please sign in to use saved diagrams!</h3>
+          <BlueButton onClick={useLogin}> Login with GitHub </BlueButton>
         </div>
       )}
     </>

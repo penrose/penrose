@@ -1,5 +1,10 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, sendEmailVerification, signOut } from "firebase/auth";
+import {
+  GithubAuthProvider,
+  getAuth,
+  signInWithPopup,
+  signOut,
+} from "firebase/auth";
 import {
   collection,
   doc,
@@ -8,7 +13,8 @@ import {
   getFirestore,
 } from "firebase/firestore";
 import toast from "react-hot-toast";
-import { SavedWorkspaces, Workspace } from "../state/atoms.js";
+import { useRecoilCallback } from "recoil";
+import { SavedWorkspaces, Workspace, settingsState } from "../state/atoms.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA_WZrM0sWpOt3oKmPp_D77rS7TsqaTC-w",
@@ -23,27 +29,49 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 export const authObject = getAuth(firebaseApp);
 export const db = getFirestore(firebaseApp);
+export const oauthProvider = new GithubAuthProvider();
+oauthProvider.addScope("gist");
+oauthProvider.setCustomParameters({ display: "popup" });
 
 // Auth Utils
-export const signOutWrapper = () => {
-  signOut(authObject)
-    .then(() => {
-      toast.success("logged out");
-    })
-    .catch((error) => {
-      toast.error(error.message);
-    });
-};
+export const signOutWrapper = () =>
+  useRecoilCallback(({ set }) => async () => {
+    signOut(authObject)
+      .then(() => {
+        set(settingsState, (prevState) => ({
+          ...prevState,
+          githubAccessToken: null,
+        }));
+        toast.success("Logged out");
+      })
+      .catch((error) => {
+        toast.error("Error logging out");
+      });
+  });
 
-export const resendVerificationEmail = () => {
-  if (authObject.currentUser != null) {
-    sendEmailVerification(authObject.currentUser).catch((error) => {
-      toast.error("Could not resend verification email");
-    });
-  } else {
-    toast.error("Please re-login!");
-  }
-};
+export const logInWrapper = () =>
+  useRecoilCallback(({ set }) => async () => {
+    signInWithPopup(authObject, oauthProvider)
+      .then((result) => {
+        const credential = GithubAuthProvider.credentialFromResult(result);
+        if (credential !== null) {
+          // Save access token to local state, settingsEffect propogates to local storage
+          // For type safety, assign null if undefined
+          set(settingsState, (prevState) => ({
+            ...prevState,
+            githubAccessToken:
+              credential.accessToken != undefined
+                ? credential.accessToken
+                : null,
+          }));
+
+          toast.success(`Logged in as ${result.user.displayName}`);
+        }
+      })
+      .catch((error) => {
+        toast.error("Error logging in");
+      });
+  });
 
 // Database utils
 export function createWorkspaceObject(

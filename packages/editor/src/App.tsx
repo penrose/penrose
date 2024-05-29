@@ -16,7 +16,6 @@ import {
   useRecoilValueLoadable,
   useSetRecoilState,
 } from "recoil";
-import { AuthMenuModal } from "./components/AuthWindows.js";
 import DiagramOptions from "./components/DiagramOptions.js";
 import DiagramPanel from "./components/DiagramPanel.js";
 import ExamplesBrowser from "./components/ExamplesBrowser.js";
@@ -201,10 +200,7 @@ function App() {
 
   useEffect(() => {
     async function populateSavedWorkspaces() {
-      if (
-        authObject.currentUser != null &&
-        authObject.currentUser.emailVerified
-      ) {
+      if (authObject.currentUser != null) {
         let savedSpaces = await createSavedWorkspaceObject(
           authObject.currentUser.uid,
         );
@@ -415,7 +411,6 @@ function App() {
   return (
     <div style={{ height: "100%", width: "100%" }}>
       {/* currently LoginMenuModal appears above, want it to overlay */}
-      <AuthMenuModal />
       <div
         style={{
           display: "flex",

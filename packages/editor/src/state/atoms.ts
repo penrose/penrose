@@ -519,12 +519,6 @@ export const exampleTriosState = atom<TrioWithPreview[]>({
   }),
 });
 
-export type LocalGithubUser = {
-  username: string;
-  avatar: string;
-  accessToken: string;
-};
-
 export type GistMetadata = {
   name: string;
   editorVersion: number;
@@ -537,7 +531,7 @@ export type GistMetadata = {
 };
 
 export type Settings = {
-  github: LocalGithubUser | null;
+  githubAccessToken: string | null;
   vimMode: boolean;
   debugMode: boolean;
 };
@@ -578,7 +572,7 @@ const debugModeEffect: AtomEffect<Settings> = ({ onSet }) => {
 export const settingsState = atom<Settings>({
   key: "settings",
   default: {
-    github: null,
+    githubAccessToken: null,
     vimMode: false,
     // debug mode is on by default in local dev mode
     debugMode: process.env.NODE_ENV === "development",

@@ -2,14 +2,13 @@ import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
   sendPasswordResetEmail,
-  signInWithEmailAndPassword,
 } from "firebase/auth";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
 import { AuthModalState, currentAuthModalState } from "../state/atoms.js";
-import { authObject } from "../utils/firebaseUtils.js";
+import { authObject, logInUser } from "../utils/firebaseUtils.js";
 import BlueButton from "./BlueButton.js";
 
 const MenuShadow = styled.div<{}>`
@@ -155,28 +154,28 @@ export const AuthMenuModal = () => {
     }
   };
 
-  const logInUser = () => {
-    var email = document.getElementById("login_email") as HTMLInputElement;
-    var password = document.getElementById(
-      "login_password",
-    ) as HTMLInputElement;
+  // const logInUser = () => {
+  //   var email = document.getElementById("login_email") as HTMLInputElement;
+  //   var password = document.getElementById(
+  //     "login_password",
+  //   ) as HTMLInputElement;
 
-    if (email.value && password.value) {
-      signInWithEmailAndPassword(authObject, email.value, password.value)
-        .then((userCredential) => {
-          // Signed up
-          toast.success("Logged in successfully!");
-          closeModal();
-        })
-        .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          toast.error(errorMessage);
-        });
-    } else {
-      toast.error("Cannot log in, field is blank");
-    }
-  };
+  //   if (email.value && password.value) {
+  //     signInWithEmailAndPassword(authObject, email.value, password.value)
+  //       .then((userCredential) => {
+  //         // Signed up
+  //         toast.success("Logged in successfully!");
+  //         closeModal();
+  //       })
+  //       .catch((error) => {
+  //         const errorCode = error.code;
+  //         const errorMessage = error.message;
+  //         toast.error(errorMessage);
+  //       });
+  //   } else {
+  //     toast.error("Cannot log in, field is blank");
+  //   }
+  // };
 
   const forgotPassword = () => {
     var email = document.getElementById("login_email") as HTMLInputElement;

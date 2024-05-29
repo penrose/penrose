@@ -27,7 +27,6 @@ import {
   DiagramMetadata,
   EDITOR_VERSION,
   GistMetadata,
-  LocalGithubUser,
   ProgramFile,
   RogerState,
   SavedWorkspaces,
@@ -510,21 +509,22 @@ export const useNewWorkspace = () =>
 export const useCheckURL = () =>
   useRecoilCallback(({ set, snapshot, reset }) => async () => {
     const parsed = queryString.parse(window.location.search);
-    if (
-      "access_token" in parsed &&
-      "profile[login]" in parsed &&
-      "profile[avatar_url]" in parsed
-    ) {
-      // Signed into GitHub
-      set(settingsState, (state) => ({
-        ...state,
-        github: {
-          username: parsed["profile[login]"],
-          accessToken: parsed["access_token"],
-          avatar: parsed["profile[avatar_url]"],
-        } as LocalGithubUser,
-      }));
-    } else if ("gist" in parsed) {
+    // if (
+    //   "access_token" in parsed &&
+    //   "profile[login]" in parsed &&
+    //   "profile[avatar_url]" in parsed
+    // ) {
+    //   // Signed into GitHub
+    //   set(settingsState, (state) => ({
+    //     ...state,
+    //     github: {
+    //       username: parsed["profile[login]"],
+    //       accessToken: parsed["access_token"],
+    //       avatar: parsed["profile[avatar_url]"],
+    //     } as LocalGithubUser,
+    //   }));
+    // }
+    if ("gist" in parsed) {
       // Loading a gist
       const id = toast.loading("Loading gist...");
       const res = await fetch(
@@ -637,7 +637,8 @@ export const usePublishGist = () =>
     const workspace = snapshot.getLoadable(currentWorkspaceState)
       .contents as Workspace;
     const settings = snapshot.getLoadable(settingsState).contents as Settings;
-    if (settings.github === null) {
+    if (settings.githubAccessToken === null) {
+      // check auth token instead in local storage (in case user cleared cache)
       console.error(`Not authorized with GitHub`);
       toast.error(`Not authorized with GitHub`);
       return;
@@ -647,6 +648,7 @@ export const usePublishGist = () =>
       workspace.metadata.location.kind === "stored" &&
       !workspace.metadata.location.saved
     ) {
+      // call saveDiagram
       // console.log("bruh");
       // await _saveLocally(set);
     }
@@ -664,7 +666,7 @@ export const usePublishGist = () =>
       method: "POST",
       headers: {
         accept: "application/vnd.github.v3+json",
-        Authorization: `token ${settings.github.accessToken}`,
+        Authorization: `token ${settings.githubAccessToken}`,
       },
       body: JSON.stringify({
         description: workspace.metadata.name,
@@ -699,21 +701,21 @@ export const usePublishGist = () =>
     window.location.search = queryString.stringify({ gist: json.id });
   });
 
-const REDIRECT_URL =
-  process.env.NODE_ENV === "development"
-    ? "https://penrose-gh-auth-zeta.vercel.app/connect/github"
-    : "https://penrose-gh-auth.vercel.app/connect/github";
-export const useSignIn = () =>
-  useRecoilCallback(({ set, snapshot }) => () => {
-    const workspace = snapshot.getLoadable(currentWorkspaceState).contents;
-    if (
-      !isCleanWorkspace(workspace) &&
-      !confirm("You have unsaved changes. Please save before continuing.")
-    ) {
-      return;
-    }
-    window.location.replace(REDIRECT_URL);
-  });
+// const REDIRECT_URL =
+//   process.env.NODE_ENV === "development"
+//     ? "https://penrose-gh-auth-zeta.vercel.app/connect/github"
+//     : "https://penrose-gh-auth.vercel.app/connect/github";
+// export const useSignIn = () =>
+//   useRecoilCallback(({ set, snapshot }) => () => {
+//     const workspace = snapshot.getLoadable(currentWorkspaceState).contents;
+//     if (
+//       !isCleanWorkspace(workspace) &&
+//       !confirm("You have unsaved changes. Please save before continuing.")
+//     ) {
+//       return;
+//     }
+//     window.location.replace(REDIRECT_URL);
+//   });
 
 export const useDeleteLocalFile = () =>
   useRecoilCallback(
