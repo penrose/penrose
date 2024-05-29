@@ -34,6 +34,43 @@ oauthProvider.addScope("gist");
 oauthProvider.setCustomParameters({ display: "popup" });
 
 // Auth Utils
+// const GITHUB_CLIENT_ID = "Ov23liCNUtRlSsXVPuDu";
+// const GITHUB_CLIENT_SECRET = "cce2604d49feb0a1c2d58e8aae4233edccc6c3b3";
+// const GITHUB_CALLBACK_URL = "localhost:3000/try/";
+// const githubOAuthURL = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&scope=user`;
+
+// export const handleLogin = async () => {
+//   try {
+//     // Exchange the code for an access token
+//     const data = await fetch("https://github.com/login/oauth/access_token", {
+//       mode: "no-cors",
+//       method: "POST",
+//       body: {
+//         client_id: GITHUB_CLIENT_ID,
+//         client_secret: GITHUB_CLIENT_SECRET,
+//       },
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//     }).then((response) => response.json());
+
+//     const accessToken = data.access_token;
+
+//     // Fetch the user's GitHub profile
+//     const userProfile = await fetch("https://api.github.com/user", {
+//       headers: {
+//         Authorization: `Bearer ${accessToken}`,
+//         "User-Agent": "Your-App-Name",
+//       },
+//     });
+
+//     // Handle the user profile data (e.g., store it in your database and log the user in)
+//     console.log(userProfile);
+//   } catch (error) {
+//     console.error(error);
+//   }
+// };
+
 export const signOutWrapper = () =>
   useRecoilCallback(({ set }) => async () => {
     signOut(authObject)

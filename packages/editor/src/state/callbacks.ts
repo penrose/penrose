@@ -701,21 +701,21 @@ export const usePublishGist = () =>
     window.location.search = queryString.stringify({ gist: json.id });
   });
 
-// const REDIRECT_URL =
-//   process.env.NODE_ENV === "development"
-//     ? "https://penrose-gh-auth-zeta.vercel.app/connect/github"
-//     : "https://penrose-gh-auth.vercel.app/connect/github";
-// export const useSignIn = () =>
-//   useRecoilCallback(({ set, snapshot }) => () => {
-//     const workspace = snapshot.getLoadable(currentWorkspaceState).contents;
-//     if (
-//       !isCleanWorkspace(workspace) &&
-//       !confirm("You have unsaved changes. Please save before continuing.")
-//     ) {
-//       return;
-//     }
-//     window.location.replace(REDIRECT_URL);
-//   });
+const REDIRECT_URL =
+  process.env.NODE_ENV === "development"
+    ? "https://penrose-gh-auth-zeta.vercel.app/connect/github"
+    : "https://penrose-gh-auth.vercel.app/connect/github";
+export const useSignIn = () =>
+  useRecoilCallback(({ set, snapshot }) => () => {
+    const workspace = snapshot.getLoadable(currentWorkspaceState).contents;
+    if (
+      !isCleanWorkspace(workspace) &&
+      !confirm("You have unsaved changes. Please save before continuing.")
+    ) {
+      return;
+    }
+    window.location.replace(REDIRECT_URL);
+  });
 
 export const useDeleteLocalFile = () =>
   useRecoilCallback(
