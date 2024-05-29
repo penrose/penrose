@@ -18,9 +18,9 @@ export const LayoutTimelineSlider: React.FC<{}> = (props) => {
     setMax(stats.reduce((acc, stat) => acc + stat.steps, 0));
   }, [diagram]);
 
-  // useEffect(() => {
-  //   setIndex(max);
-  // }, [max]);
+  useEffect(() => {
+    setIndex(max);
+  }, [max]);
 
   const onChange = (i: number) => {
     // request shapes from worker
@@ -53,6 +53,7 @@ export const LayoutTimelineSlider: React.FC<{}> = (props) => {
           })) ?? []
         }
         onChange={onChange}
+        defaultValue={max}
       ></SegmentedSlider>
     </div>
   );

@@ -1129,6 +1129,12 @@ export const nanError = (message: string, lastState: State): NaNError => ({
   lastState,
 });
 
+export const runtimeError = (message: string): PenroseError => ({
+  tag: 'RuntimeError',
+  errorType: 'RuntimeError',
+  message: message
+});
+
 // If there are multiple errors, just return the tag of the first one
 export const toStyleErrors = (errors: StyleError[]): PenroseError => {
   if (!errors.length) {

@@ -90,7 +90,9 @@ const _compileDiagram = async (
     style,
     substance,
     variation
-  );
+  ).catch((e) => {
+    toast.error(e);
+  });
 
   await optimizer.startOptimizing(() => {
     toast.dismiss(compiling);
@@ -98,6 +100,9 @@ const _compileDiagram = async (
       ...diagramWorkerState,
       running: false,
     });
+  }). catch((e) => {
+    toast.dismiss(compiling);
+    toast.error(e);
   });
 
   set(diagramWorkerState, {
@@ -107,9 +112,12 @@ const _compileDiagram = async (
   });
 
   // get the ball rolling
-  await optimizer.askForUpdate()
-    .then(onUpdate)
-    .catch(() => {
+  await optimizer.pollForUpdate()
+    .then((info) => {
+      if (info !== null) onUpdate(info);
+    })
+    .catch((e) => {
+      toast.error(e);
       toast.dismiss(compiling);
       set(diagramWorkerState, {
         ...diagramWorkerState,
@@ -172,20 +180,21 @@ export const useResampleDiagram = () =>
         toast.dismiss(resamplingLoading);
       }
     );
-    await optimizer.askForUpdate()
-      .then(({ state: resampled} ) => {
-      set(diagramState, (state) => ({
-        ...state,
-        metadata: { ...state.metadata, variation },
-        state: resampled,
-      }));
-      // update grid state too
-      set(diagramGridState, ({ gridSize }) => ({
-        variations: range(gridSize).map((i) =>
-          i === 0 ? variation : generateVariation(),
-        ),
-        gridSize,
-      }));
+    await optimizer.pollForUpdate()
+      .then((info) => {
+        if (info === null) return;
+        set(diagramState, (state) => ({
+          ...state,
+          metadata: { ...state.metadata, variation },
+          state: info.state,
+        }));
+        // update grid state too
+        set(diagramGridState, ({ gridSize }) => ({
+          variations: range(gridSize).map((i) =>
+            i === 0 ? variation : generateVariation(),
+          ),
+          gridSize,
+        }));
     });
   });
 

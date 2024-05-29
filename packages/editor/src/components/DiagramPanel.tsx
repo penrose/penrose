@@ -60,12 +60,13 @@ export default function DiagramPanel() {
 
   const step = () => {
     if (state) {
-      optimizer.askForUpdate()
-        .then(({ state}) => {
+      optimizer.pollForUpdate()
+        .then((info) => {
+          if (info === null) return;
           setDiagram({
             ...diagram,
             error: null,
-            state,
+            state: info.state,
           });
         })
         .catch((error) => {

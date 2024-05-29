@@ -1,4 +1,4 @@
-import { Canvas, LabelCache, LabelData, LabelMeasurements, Shape, State } from "@penrose/core";
+import { Canvas, LabelCache, LabelData, LabelMeasurements, Num, PenroseError, Shape, State } from "@penrose/core";
 
 export enum WorkerState {
   Off = 'Off',
@@ -14,6 +14,7 @@ export type InitResp = {
 export type CompiledResp = {
   tag: 'CompiledResp';
   jobId: string;
+  shapes: Shape<Num>[]
 }
 
 export type OptimizingResp = {
@@ -36,7 +37,6 @@ export type Resp = InitResp | CompiledResp | OptimizingResp | FinishedResp | Upd
 
 export type InitReq = {
   tag: 'InitReq';
-  sharedMemoryBuffer: SharedArrayBuffer;
 }
 
 export type CompiledReq = {
@@ -50,6 +50,7 @@ export type CompiledReq = {
 
 export type OptimizingReq = {
   tag: 'OptimizingReq'
+  labelCache: LabelMeasurements
 };
 
 export type UpdateReq = {
@@ -67,9 +68,12 @@ export type ComputeShapesReq = {
   index: number;
 }
 
-export type Req = InitReq | CompiledReq | OptimizingReq | UpdateReq
-  | ResampleReq | ComputeShapesReq;
+export type InterruptReq = {
+  tag: 'InterruptReq';
+}
 
+export type Req = InitReq | CompiledReq | OptimizingReq | UpdateReq
+  | ResampleReq | ComputeShapesReq | InterruptReq;
 
 // state passed from the worker to the main thread.
 // NOTE: there is no DOM element or functions in this state because they cannot be transferred between threads.
