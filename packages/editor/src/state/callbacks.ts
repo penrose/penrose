@@ -293,6 +293,7 @@ export const useDownloadSvgTex = () =>
             pathResolver(path, rogerState, metadata),
           width: state.canvas.width.toString(),
           height: state.canvas.height.toString(),
+          texLabels: true,
         });
         const domain = snapshot.getLoadable(fileContentsSelector("domain"))
           .contents as ProgramFile;

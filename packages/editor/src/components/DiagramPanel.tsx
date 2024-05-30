@@ -36,6 +36,7 @@ export default function DiagramPanel() {
             pathResolver(path, rogerState, workspace),
           width: "100%",
           height: "100%",
+          texLabels: false,
         });
         rendered.setAttribute("width", "100%");
         rendered.setAttribute("height", "100%");
