@@ -89,26 +89,43 @@ const _compileDiagram = async (
   const onError = (error: any) => {
     toast.dismiss(compiling);
     toast.error(error.message);
+    set(diagramWorkerState, {
+      ...diagramWorkerState,
+      optimizing: false,
+    });
   };
 
   // ugly `then` chain allows for one catch at the end
   await optimizer
     .compile(domain, style, substance, variation)
-    .then((id) => {
-      optimizer.startOptimizing(() => {
-        toast.dismiss(compiling);
-        set(diagramWorkerState, {
-          ...diagramWorkerState,
-          optimizing: false,
-        });
-      });
+    .then(async (id) => {
       set(diagramWorkerState, {
         ...diagramWorkerState,
         id,
+        optimizing: false,
+      });
+      return optimizer.startOptimizing();
+    })
+    .then(({ onStart, onFinish }) => {
+      onFinish
+        .then(() => {
+          toast.dismiss(compiling);
+          set(diagramWorkerState, {
+            ...diagramWorkerState,
+            optimizing: false,
+          });
+        })
+        .catch(onError);
+
+      return onStart;
+    })
+    .then(() => {
+      set(diagramWorkerState, {
+        ...diagramWorkerState,
         optimizing: true,
       });
+      return optimizer.pollForUpdate();
     })
-    .then(optimizer.pollForUpdate.bind(optimizer))
     .then((info) => {
       if (info !== null) onUpdate(info);
     })
@@ -164,12 +181,34 @@ export const useResampleDiagram = () =>
     const onError = (error: any) => {
       toast.dismiss(resamplingLoading);
       toast.error(error.message);
+      set(diagramWorkerState, (state) => ({
+        ...state,
+        optimizing: false,
+      }));
     };
+
     await optimizer
-      .resample(id, variation, () => {
-        toast.dismiss(resamplingLoading);
+      .resample(id, variation)
+      .then(({ onStart, onFinish }) => {
+        onFinish
+          .then(() => {
+            toast.dismiss(resamplingLoading);
+            set(diagramWorkerState, (state) => ({
+              ...state,
+              optimizing: false,
+            }));
+          })
+          .catch(onError);
+
+        return onStart;
       })
-      .then(optimizer.pollForUpdate.bind(optimizer))
+      .then(() => {
+        set(diagramWorkerState, (state) => ({
+          ...state,
+          optimizing: true,
+        }));
+        return optimizer.pollForUpdate();
+      })
       .then((info) => {
         if (info === null) return;
         set(diagramState, (state) => ({
@@ -184,7 +223,8 @@ export const useResampleDiagram = () =>
           ),
           gridSize,
         }));
-      });
+      })
+      .catch(onError);
   });
 
 const _saveLocally = (set: any) => {

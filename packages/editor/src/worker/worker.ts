@@ -30,9 +30,6 @@ type PartialState = Pick<State, "varyingValues" | "inputs" | "shapes"> & {
   labelCache: LabelMeasurements;
 };
 
-// Array of size two. First index is set if main thread wants an update,
-// second is set if user wants to send a new trio.
-let sharedMemory: Int32Array;
 let unoptState: PenroseState;
 let optState: PenroseState | null = null;
 // the UUID of the current task
@@ -43,7 +40,7 @@ let workerState: WorkerState = WorkerState.Init;
 let shouldFinish = false;
 
 const log = (consola as any)
-  .create({ level: (consola as any).LogLevel.Info })
+  .create({ level: (consola as any).LogLevel.Warn })
   .withScope("worker:server");
 
 // Wrapper function for postMessage to ensure type safety
@@ -52,7 +49,10 @@ const respond = (response: Resp) => {
 };
 
 const respondError = (error: PenroseError) => {
-  throw error; // TODO: actually respond as an error
+  respond({
+    tag: "ErrorResp",
+    error,
+  });
 };
 
 onmessage = async ({ data }: MessageEvent<Req>) => {
@@ -98,7 +98,7 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
           log.info("Received ComputeShapesReq in state Compiled");
           if (data.index >= history.length) {
             respondError(
-              runtimeError(`Index ${data.index} to large for history`),
+              runtimeError(`Index ${data.index} too large for history`),
             );
             break;
           }
@@ -127,7 +127,7 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
 
         case "InterruptReq":
           // rare edge case, but can happen if interrupt is requested _just_
-          // before optimization finishes
+          // after optimization finishes
           break;
 
         default:
@@ -244,14 +244,13 @@ const optimize = async (state: PenroseState) => {
   ];
   const numSteps = 1;
   let i = 0;
-  const optStep = () => {
+  const optStep = async () => {
     log.info(i);
     let j = 0;
     history.push(state.varyingValues);
     const steppedState = step(state, { until: (): boolean => j++ >= numSteps });
     if (steppedState.isErr()) {
-      respondError(steppedState.error);
-      return;
+      throw steppedState.error;
     } else {
       const stepped = steppedState.value;
       if (isOptimized(stepped) && !finalStage(stepped)) {
@@ -290,7 +289,19 @@ const optimize = async (state: PenroseState) => {
       break;
     }
 
-    optStep(); // run an optimization step
+    const optimizationFailed = await optStep() // run an optimization step
+      .then(() => false)
+      .catch((error: PenroseError) => {
+        respondError(error);
+        return true;
+      });
+
+    if (optimizationFailed) {
+      log.info("Optimization failed. Quitting without finishing...");
+      workerState = WorkerState.Compiled;
+      optState = null;
+      return;
+    }
   }
 
   log.info("Optimization finished");

@@ -4,6 +4,7 @@ import {
   LabelData,
   LabelMeasurements,
   Num,
+  PenroseError,
   Shape,
   State,
 } from "@penrose/core";
@@ -40,12 +41,18 @@ export type UpdateResp = {
   stats: LayoutStats;
 };
 
+export type ErrorResp = {
+  tag: "ErrorResp";
+  error: PenroseError;
+};
+
 export type Resp =
   | InitResp
   | CompiledResp
   | OptimizingResp
   | FinishedResp
-  | UpdateResp;
+  | UpdateResp
+  | ErrorResp;
 
 export type CompiledReq = {
   tag: "CompiledReq";

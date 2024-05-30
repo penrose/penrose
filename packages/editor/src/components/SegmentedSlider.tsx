@@ -40,14 +40,12 @@ interface SegmentedSliderProps {
   disabled?: boolean;
   segments: Segment[];
   onChange: (index: number) => void;
-  defaultValue: number;
 }
 
 const SegmentedSlider: React.FC<SegmentedSliderProps> = ({
   segments: stages,
   disabled,
   onChange,
-  defaultValue,
 }) => {
   if (stages.length === 0) return null;
   // compute the step ranges for each stage
@@ -72,6 +70,8 @@ const SegmentedSlider: React.FC<SegmentedSliderProps> = ({
     onChange(newValue);
   };
 
+  const currValue = dragged ? value : totalSteps;
+
   return (
     <SliderContainer>
       <Slider
@@ -79,15 +79,15 @@ const SegmentedSlider: React.FC<SegmentedSliderProps> = ({
         type="range"
         min="0"
         max={totalSteps - 1}
-        value={dragged ? value : defaultValue}
+        value={currValue}
         onChange={handleChange}
       />
       <div>
         {stages.map((stage, index) => (
           <StageLabel
             key={index}
-            enabled={stageRanges[index].start <= value}
-            width={(stage.steps / totalSteps) * 100}
+            enabled={stageRanges[index].start <= currValue}
+            width={(stage.steps / (!!totalSteps ? totalSteps : 1)) * 100}
             color={stage.color}
           >
             {stage.label}

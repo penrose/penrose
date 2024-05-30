@@ -1,26 +1,13 @@
 // a slider that shows the history of the diagram layout optimization, requesting shapes from the worker and rendering them on demand
 
 import { penroseBlue } from "@penrose/components";
-import { useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { diagramState, diagramWorkerState, optimizer } from "../state/atoms";
 import SegmentedSlider from "./SegmentedSlider";
 
 export const LayoutTimelineSlider: React.FC<{}> = (props) => {
   const [diagram, setDiagram] = useRecoilState(diagramState);
-  const min = 0;
-  const [max, setMax] = useState(0);
-  const stats = optimizer.getStats();
-  const [index, setIndex] = useState(0);
   const { optimizing } = useRecoilValue(diagramWorkerState);
-
-  useEffect(() => {
-    setMax(stats.reduce((acc, stat) => acc + stat.steps, 0));
-  }, [diagram]);
-
-  useEffect(() => {
-    setIndex(max);
-  }, [max]);
 
   const onChange = (i: number) => {
     // request shapes from worker
@@ -32,8 +19,6 @@ export const LayoutTimelineSlider: React.FC<{}> = (props) => {
       }));
     }
     requestShapes();
-    // update current index
-    setIndex(i);
   };
   return (
     <div
@@ -53,7 +38,6 @@ export const LayoutTimelineSlider: React.FC<{}> = (props) => {
           })) ?? []
         }
         onChange={onChange}
-        defaultValue={max}
       ></SegmentedSlider>
     </div>
   );

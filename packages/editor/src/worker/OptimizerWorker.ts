@@ -38,10 +38,17 @@ type Optimizing = {
   svgCache: Map<string, HTMLElement>;
   labelCache: LabelMeasurements;
   layoutStats: LayoutStats;
-  onFinish: (info: UpdateInfo) => void;
+  finishReject: (error: PenroseError) => void;
+  finishResolve: (info: UpdateInfo) => void;
 };
 
-type StableState = Init | Compiled | Optimizing;
+// unrecoverable error state
+type Error = {
+  tag: "Error";
+  error: PenroseError;
+};
+
+type StableState = Init | Compiled | Optimizing | Error;
 
 type WaitingForInit = {
   tag: "WaitingForInit";
@@ -62,7 +69,8 @@ type CompiledToOptimizing = {
   tag: "CompiledToOptimizing";
   waiting: true;
   previous: Compiled;
-  onFinish: (info: UpdateInfo) => void;
+  finishReject: (error: PenroseError) => void;
+  finishResolve: (info: UpdateInfo) => void;
   resolve: () => void;
   reject: (e: PenroseError) => void;
 };
@@ -104,7 +112,7 @@ type OWState = StableState | WaitingState;
 /* Module helpers */
 
 const log = (consola as any)
-  .create({ level: (consola as any).LogLevel.Info })
+  .create({ level: (consola as any).LogLevel.Warn })
   .withScope("worker:client");
 
 const isWaiting = (state: OWState): state is WaitingState => {
@@ -117,6 +125,41 @@ export interface UpdateInfo {
   state: RenderState;
   stats: LayoutStats;
 }
+
+export interface OptimizerPromises {
+  onStart: Promise<void>;
+  onFinish: Promise<UpdateInfo>;
+}
+
+const generateOptimizerPromises = async (
+  helper: (
+    finishResolve: (info: UpdateInfo) => void,
+    finishReject: (e: PenroseError) => void,
+  ) => Promise<void>,
+): Promise<OptimizerPromises> => {
+  let finishResolve: ((info: UpdateInfo) => void) | undefined;
+  let finishReject: ((e: PenroseError) => void) | undefined;
+  let onFinish: Promise<UpdateInfo> | undefined;
+
+  await new Promise<void>((resolve) => {
+    onFinish = new Promise<UpdateInfo>((finishResolve_, finishReject_) => {
+      finishResolve = finishResolve_;
+      finishReject = finishReject_;
+      resolve();
+    });
+  });
+
+  if (
+    finishResolve === undefined ||
+    finishReject === undefined ||
+    onFinish === undefined
+  ) {
+    throw runtimeError("Could not generate optimizer promise pair");
+  }
+
+  const onStart = helper(finishResolve, finishReject);
+  return { onStart, onFinish };
+};
 
 export default class OptimizerWorker {
   private state: OWState;
@@ -158,6 +201,45 @@ export default class OptimizerWorker {
   }
 
   private async onMessage({ data }: MessageEvent<Resp>) {
+    if (data.tag === "ErrorResp") {
+      switch (this.state.tag) {
+        case "InitToCompiled":
+          this.state.reject(data.error);
+          this.setState({
+            tag: "Init",
+          });
+          break;
+
+        case "CompiledToOptimizing":
+          this.state.reject(data.error);
+          this.setState({
+            ...this.state.previous,
+            tag: "Compiled",
+          });
+          break;
+
+        case "Optimizing":
+          this.state.finishReject(data.error);
+          this.setState({
+            ...this.state,
+            tag: "Compiled",
+            polled: false,
+          });
+          break;
+
+        default:
+          if ("waiting" in this.state) {
+            this.state.reject(data.error);
+          }
+          this.setState({
+            tag: "Error",
+            error: data.error,
+          });
+          break;
+      }
+      return;
+    }
+
     switch (this.state.tag) {
       case "Compiled":
         switch (data.tag) {
@@ -176,7 +258,7 @@ export default class OptimizerWorker {
         switch (data.tag) {
           case "FinishedResp":
             log.info("Received FinishedResp in state Optimizing");
-            this.state.onFinish({
+            this.state.finishResolve({
               state: layoutStateToRenderState(data.state, this.state.svgCache),
               stats: data.stats,
             });
@@ -256,7 +338,8 @@ export default class OptimizerWorker {
             this.setState({
               ...this.state.previous,
               tag: "Optimizing",
-              onFinish: this.state.onFinish,
+              finishResolve: this.state.finishResolve,
+              finishReject: this.state.finishReject,
             });
             break;
 
@@ -274,7 +357,7 @@ export default class OptimizerWorker {
         switch (data.tag) {
           case "FinishedResp":
             log.info("Received FinishedResp in state OptimizingToCompiled");
-            this.state.previous.onFinish({
+            this.state.previous.finishResolve({
               state: layoutStateToRenderState(
                 data.state,
                 this.state.previous.svgCache,
@@ -308,7 +391,7 @@ export default class OptimizerWorker {
 
             if (data.tag === "FinishedResp") {
               if (this.state.previous.tag === "Optimizing") {
-                this.state.previous.onFinish(updateInfo);
+                this.state.previous.finishResolve(updateInfo);
               }
               this.setState({
                 ...this.state.previous,
@@ -425,9 +508,11 @@ export default class OptimizerWorker {
     });
   }
 
-  async startOptimizing(onFinish: (info: UpdateInfo) => void): Promise<void> {
-    log.info(`startOptimize called from state ${this.state.tag}`);
-    new Promise<void>(async (resolve, reject) => {
+  private async startOptimizingHelper(
+    finishResolve: (info: UpdateInfo) => void,
+    finishReject: (e: PenroseError) => void,
+  ) {
+    return new Promise<void>(async (startResolve, startReject) => {
       while (isWaiting(this.state)) await this.waitForNextState();
 
       log.info(`startOptimize running from state ${this.state.tag}`);
@@ -441,24 +526,30 @@ export default class OptimizerWorker {
             tag: "CompiledToOptimizing",
             waiting: true,
             previous: this.state,
-            onFinish,
-            resolve,
-            reject,
+            finishResolve,
+            finishReject,
+            resolve: startResolve,
+            reject: startReject,
           });
           this.request(req);
           break;
 
         default:
-          reject(runtimeError(`Cannot compile in state ${this.state.tag}`));
+          startReject(
+            runtimeError(`Cannot compile in state ${this.state.tag}`),
+          );
       }
     });
+  }
+
+  async startOptimizing(): Promise<OptimizerPromises> {
+    return generateOptimizerPromises(this.startOptimizingHelper.bind(this));
   }
 
   async interruptOptimizing(): Promise<void> {
     log.info(`interruptOptimizing called from state ${this.state.tag}`);
     return new Promise<void>(async (resolve, reject) => {
       while (isWaiting(this.state)) await this.waitForNextState();
-
       log.info(`interruptOptimizing running from state ${this.state.tag}`);
       switch (this.state.tag) {
         case "Optimizing":
@@ -483,30 +574,26 @@ export default class OptimizerWorker {
     });
   }
 
-  /**
-   * Resample the diagram. If optimizing, first interrupts to compiled state, and
-   * then resamples. Promises resolves when optimization has restarted, NOT when
-   * optimization has finished. Use `onFinish` as a callback for optimizer finish.
-   *
-   * @param jobId Id of this optimization task. Returned by `compile`.
-   * @param variation Diagram variation
-   * @param onFinish Callback for optimizer finish
-   */
-  async resample(
+  private async resampleHelper(
     jobId: string,
     variation: string,
-    onFinish: (info: UpdateInfo) => void,
-  ): Promise<void> {
-    log.info(`resample called from state ${this.state.tag}`);
-    return new Promise<void>(async (resolve, reject) => {
+    finishResolve: (info: UpdateInfo) => void,
+    finishReject: (err: PenroseError) => void,
+  ) {
+    return new Promise<void>(async (startResolve, startReject) => {
       while (isWaiting(this.state)) await this.waitForNextState();
 
       log.info(`resample running from state ${this.state.tag}`);
       switch (this.state.tag) {
         case "Optimizing":
           this.interruptOptimizing()
-            .then(() => this.resample(jobId, variation, onFinish))
-            .then(resolve);
+            .then(() => this.resample(jobId, variation))
+            .then(({ onStart, onFinish }) => {
+              onFinish.then(finishResolve, finishReject);
+
+              startResolve();
+            })
+            .catch(startReject);
           break;
 
         case "Compiled":
@@ -519,19 +606,41 @@ export default class OptimizerWorker {
             tag: "CompiledToOptimizing",
             waiting: true,
             previous: this.state,
-            onFinish,
-            resolve,
-            reject,
+            finishResolve,
+            finishReject,
+            resolve: startResolve,
+            reject: startReject,
           });
           this.request(req);
           break;
 
         default:
-          reject(runtimeError(`Cannot resample from state ${this.state.tag}`));
+          startReject(
+            runtimeError(`Cannot resample from state ${this.state.tag}`),
+          );
           break;
       }
     });
   }
+
+  async resample(jobId: string, variation: string): Promise<OptimizerPromises> {
+    return generateOptimizerPromises((finishResolve, finishReject) => {
+      return this.resampleHelper(jobId, variation, finishResolve, finishReject);
+    });
+  }
+
+  /**
+   * Resample the diagram. If optimizing, first interrupts to compiled state, and
+   * then resamples. Promises resolves when optimization has restarted, NOT when
+   * optimization has finished. Use `onFinish` as a callback for optimizer finish.
+   *
+   * @param jobId Id of this optimization task. Returned by `compile`.
+   * @param variation Diagram variation
+   */
+  // resample(
+  //   jobId: string,
+  //   variation: string
+  // )
 
   async pollForUpdate(): Promise<UpdateInfo | null> {
     log.info(`pollForUpdate called from state ${this.state.tag}`);
