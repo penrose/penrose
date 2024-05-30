@@ -563,6 +563,15 @@ export const useCheckURL = () =>
         files,
       };
       set(currentWorkspaceState, workspace);
+
+      // Notification + save to clipboard if redirected from clicking share
+      if ("pub" in parsed) {
+        const gistParameter = queryString.stringify({ gist: parsed["gist"] });
+        const shareableURL = `https://penrose.cs.cmu.edu/try/?${gistParameter}`;
+        navigator.clipboard.writeText(shareableURL).then(() => {
+          toast.success("Copied shareable link to clipboard");
+        });
+      }
     } else if ("examples" in parsed) {
       const t = toast.loading("Loading example...");
       const id = parsed["examples"];
@@ -678,18 +687,10 @@ export const usePublishGist = () =>
       toast.error(`Could not publish gist: ${res.statusText} ${json.message}`);
       return;
     }
-    const queryParameter = queryString.stringify({ gist: json.id });
-    const redirectURL = `https://penrose.cs.cmu.edu/try/?${queryParameter}`;
-    navigator.clipboard
-      .writeText(redirectURL)
-      .then(() => {
-        toast.success("Copied sharable link to clipboard");
-      })
-      .catch(() => {
-        toast.success("Redirecting to gist...");
-      });
-
-    window.location.search = queryParameter;
+    // Use query string (pub) to pass state to display notification on next page
+    const gistParameter = queryString.stringify({ gist: json.id, pub: true });
+    toast.success("Redirecting to gist...");
+    window.location.search = gistParameter;
   });
 
 const REDIRECT_URL =
