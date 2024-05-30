@@ -270,14 +270,14 @@ export type StyVarExpr<T> = CollectionAccess<T> | UnaryStyVarExpr<T>;
 
 export type CollectionAccess<T> = ASTNode<T> & {
   tag: "CollectionAccess";
-  name: Identifier<T>;
+  name: Path<T>;
   field: Identifier<T>;
 };
 
 export type UnaryStyVarExpr<T> = ASTNode<T> & {
   tag: "UnaryStyVarExpr";
   op: "numberof" | "nameof";
-  arg: Identifier<T>;
+  arg: Path<T>;
 };
 
 export type BinaryOp =
@@ -363,69 +363,3 @@ export type Path<T> = ASTNode<T> & {
   members: Identifier<T>[];
   indices: Expr<T>[];
 };
-
-export type ResolvedStylePath<T> =
-  | EmptyStylePath<T>
-  | StylePathToScope<T>
-  | StylePathToObject<T>;
-
-type Primitive = string | number | bigint | boolean | null | undefined;
-type Replaced<T, TReplace, TWith, TKeep = Primitive> = T extends
-  | TReplace
-  | TKeep
-  ? T extends TReplace
-    ? TWith | Exclude<T, TReplace>
-    : T
-  : {
-      [P in keyof T]: Replaced<T[P], TReplace, TWith, TKeep>;
-    };
-
-export type Resolved<U, T> = Replaced<U, Path<T>, ResolvedStylePath<T>>;
-export type ResolvedExpr<T> = Resolved<Expr<T>, T>;
-
-export type StylePathToScope<T> =
-  | StylePathToUnnamedScope<T>
-  | StylePathToSubstanceScope<T>
-  | StylePathToNamespaceScope<T>;
-
-export type EmptyStylePath<T> = ASTNode<T> & { tag: "Empty" };
-export type StylePathToUnnamedScope<T> = ASTNode<T> & {
-  tag: "Unnamed";
-  blockId: number;
-  substId: number;
-};
-export type StylePathToSubstanceScope<T> = ASTNode<T> & {
-  tag: "Substance";
-  substanceName: string;
-  styleName: string;
-};
-export type StylePathToNamespaceScope<T> = ASTNode<T> & {
-  tag: "Namespace";
-  name: string;
-};
-
-export type StylePathToShapeObject<T> = ASTNode<T> & {
-  tag: "Object";
-  parent: StylePathToScope<T>;
-  name: string;
-  shapeOrValue: "Shape";
-};
-
-export type StylePathToValueObject<T> = ASTNode<T> & {
-  tag: "Object";
-  parent: StylePathToScope<T> | StylePathToShapeObject<T>;
-  name: string;
-  shapeOrValue: "Value";
-};
-
-export type StylePathToUnknownObject<T> = ASTNode<T> & {
-  tag: "Object";
-  parent: StylePathToScope<T>;
-  name: string;
-  shapeOrValue: "Unknown";
-};
-
-export type StylePathToObject<T> =
-  | StylePathToShapeObject<T>
-  | StylePathToValueObject<T>
-  | StylePathToUnknownObject<T>;

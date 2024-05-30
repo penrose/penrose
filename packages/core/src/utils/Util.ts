@@ -825,7 +825,7 @@ export const substanceLiteralToValue = (
 
 const resolveRhsPath = (
   p: WithContext<Path<A>>,
-): ResolvedPath<A> | FloatV<number> | StrV => {
+): ResolvedStylePath<A> | FloatV<number> | StrV => {
   const { name, members, indices } = p.expr; // drop `indices`
 
   const { subst } = p.context;

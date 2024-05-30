@@ -2,10 +2,13 @@ import im from "immutable";
 import { ShapeType } from "../shapes/Shapes.js";
 import Graph from "../utils/Graph.js";
 import * as ad from "./ad.js";
-import { A, C } from "./ast.js";
+import { A } from "./ast.js";
 import { StyleDiagnostics, StyleError } from "./errors.js";
 import { Fn } from "./state.js";
-import { Expr, GPIDecl, ResolvedStylePath } from "./style.js";
+import {
+  LhsResolvedStylePath,
+  ResolvedNotShape,
+} from "./stylePathResolution.js";
 import { SubstanceEnv } from "./substance.js";
 import { ArgVal, Field, Name, PropID } from "./value.js";
 
@@ -115,22 +118,20 @@ export type SubstanceName = Name;
 // something we would like to support eventually:
 // https://github.com/penrose/penrose/issues/924#issuecomment-1076951074
 
-export interface WithContext<T> {
-  context: Context;
-  expr: T;
-}
-
-export type NotShape = Exclude<Expr<C>, GPIDecl<C>>;
+// export interface WithContext<T> {
+//   context: Context;
+//   expr: T;
+// }
 
 export interface ShapeSource {
   tag: "ShapeSource";
   shapeType: ShapeType;
-  props: im.Map<PropID, WithContext<NotShape>>;
+  props: im.Map<PropID, ResolvedNotShape<A>>;
 }
 
 export interface OtherSource {
   tag: "OtherSource";
-  expr: WithContext<NotShape>;
+  expr: ResolvedNotShape<A>;
 }
 
 export type FieldSource = ShapeSource | OtherSource;
@@ -144,18 +145,18 @@ export interface Assignment {
   substances: im.Map<SubstanceName, FieldDict>;
 }
 
-export interface Locals {
-  locals: im.Map<StyleName, FieldSource>;
-}
+// export interface Locals {
+//   locals: im.Map<StyleName, FieldSource>;
+// }
 
-export interface BlockAssignment extends Assignment, Locals {}
+// export interface BlockAssignment extends Assignment, Locals {}
 
 export interface BlockInfo {
   block: StyleBlockId;
   subst: StySubst;
 }
 
-export interface Context extends BlockInfo, Locals {}
+// export interface Context extends BlockInfo, Locals {}
 
 //#endregion
 
@@ -164,8 +165,8 @@ export interface Context extends BlockInfo, Locals {}
 export type DepGraph = Graph<
   string,
   {
-    contents: ShapeType | WithContext<NotShape> | undefined;
-    where: ResolvedStylePath<A>;
+    contents: ShapeType | ResolvedNotShape<A> | undefined;
+    where: LhsResolvedStylePath<A>;
   }
 >;
 

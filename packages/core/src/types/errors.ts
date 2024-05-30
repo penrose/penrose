@@ -20,6 +20,8 @@ import {
   GPIDecl,
   LayoutStages,
   Path,
+  Resolved,
+  ResolvedStylePath,
   UOp,
 } from "./style.js";
 import { StmtSet, SubExpr, TypeApp } from "./substance.js";
@@ -270,12 +272,12 @@ export interface StyleDiagnostics {
 
 export interface ImplicitOverrideWarning {
   tag: "ImplicitOverrideWarning";
-  path: ResolvedPath<C>;
+  path: ResolvedStylePath<A>;
 }
 
 export interface NoopDeleteWarning {
   tag: "NoopDeleteWarning";
-  path: ResolvedPath<C>;
+  path: ResolvedStylePath<A>;
 }
 export interface LayerCycleWarning {
   tag: "LayerCycleWarning";
@@ -392,17 +394,17 @@ export interface InvalidConstraintNameError {
 
 export interface AssignAccessError {
   tag: "AssignAccessError";
-  path: Path<C>;
+  path: Path<A>;
 }
 
 export interface AssignGlobalError {
   tag: "AssignGlobalError";
-  path: ResolvedPath<C>;
+  path: ResolvedStylePath<A>;
 }
 
 export interface AssignSubstanceError {
   tag: "AssignSubstanceError";
-  path: ResolvedPath<C>;
+  path: ResolvedStylePath<A>;
 }
 
 export interface BadElementError {
@@ -438,27 +440,27 @@ export interface CyclicAssignmentError {
 
 export interface DeleteGlobalError {
   tag: "DeleteGlobalError";
-  path: ResolvedPath<C>;
+  path: ResolvedStylePath<A>;
 }
 
 export interface DeleteSubstanceError {
   tag: "DeleteSubstanceError";
-  path: ResolvedPath<C>;
+  path: ResolvedStylePath<A>;
 }
 
 export interface MissingPathError {
   tag: "MissingPathError";
-  path: ResolvedPath<C>;
+  path: ResolvedStylePath<A>;
 }
 
 export interface MissingShapeError {
   tag: "MissingShapeError";
-  path: ResolvedPath<C>;
+  path: ResolvedStylePath<A>;
 }
 
 export interface NestedShapeError {
   tag: "NestedShapeError";
-  expr: GPIDecl<C>;
+  expr: Resolved<GPIDecl<A>, A>;
 }
 
 export interface NotCollError {
@@ -473,7 +475,7 @@ export interface IndexIntoShapeListError {
 
 export interface NotShapeError {
   tag: "NotShapeError";
-  path: ResolvedPath<C>;
+  path: ResolvedStylePath<A>;
   what: string;
 }
 
@@ -491,7 +493,7 @@ export interface OutOfBoundsError {
 
 export interface PropertyMemberError {
   tag: "PropertyMemberError";
-  path: ResolvedPath<C>;
+  path: ResolvedStylePath<A>;
 }
 
 export interface UOpTypeError {
