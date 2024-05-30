@@ -20,21 +20,10 @@ export default function DiagramPanel() {
   const { state, error, warnings, metadata } = diagram;
   const [showEasterEgg, setShowEasterEgg] = useState(false);
   // TODO: bring back interactive mode
-  // const { interactive } = useRecoilValue(diagramMetadataSelector);
   const workspace = useRecoilValue(workspaceMetadataSelector);
   const rogerState = useRecoilValue(currentRogerState);
 
   const requestRef = useRef<number>();
-
-  // const [workerState, setWorkerState] = useRecoilState(diagramWorkerState)
-  // useEffect(() => {
-  //   optimizer.waitForInit().then(() => {
-  //     setWorkerState({
-  //       ...workerState,
-  //       init: true
-  //     });
-  //   });
-  // }, []);
 
   useEffect(() => {
     const cur = canvasRef.current;

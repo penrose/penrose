@@ -1,4 +1,12 @@
-import { Canvas, LabelCache, LabelData, LabelMeasurements, Num, PenroseError, Shape, State } from "@penrose/core";
+import {
+  Canvas,
+  LabelCache,
+  LabelData,
+  LabelMeasurements,
+  Num,
+  Shape,
+  State
+} from "@penrose/core";
 
 export enum WorkerState {
   Init = 'Init',
@@ -34,10 +42,6 @@ export type UpdateResp = {
 
 export type Resp = InitResp | CompiledResp | OptimizingResp | FinishedResp | UpdateResp;
 
-export type InitReq = {
-  tag: 'InitReq';
-}
-
 export type CompiledReq = {
   tag: 'CompiledReq';
   domain: string;
@@ -71,7 +75,7 @@ export type InterruptReq = {
   tag: 'InterruptReq';
 }
 
-export type Req = InitReq | CompiledReq | OptimizingReq | UpdateReq
+export type Req = CompiledReq | OptimizingReq | UpdateReq
   | ResampleReq | ComputeShapesReq | InterruptReq;
 
 // state passed from the worker to the main thread.

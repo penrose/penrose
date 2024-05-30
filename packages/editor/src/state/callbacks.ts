@@ -13,7 +13,6 @@ import {
   zipTrio,
 } from "../utils/downloadUtils.js";
 import { stateToSVG } from "../utils/renderUtils.js";
-import { LayoutStats, RenderState } from "../worker/common.js";
 import {
   Canvas,
   Diagram,

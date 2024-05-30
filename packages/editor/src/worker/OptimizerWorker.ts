@@ -1,16 +1,25 @@
 import {
   CompiledReq,
-  InitReq,
-  layoutStateToRenderState, OptimizingReq, RenderState,
+  layoutStateToRenderState,
+  OptimizingReq,
+  RenderState,
   Req,
   ResampleReq,
   Resp,
 } from "./common";
 import { LayoutStats } from "./common"
 import { v4 as uuid } from "uuid";
-import { collectLabels, LabelMeasurements, mathjaxInit, PenroseError, runtimeError } from "@penrose/core";
-import { separateRenderedLabels } from "../oldWorker/message";
+import {
+  collectLabels,
+  LabelMeasurements,
+  mathjaxInit,
+  PenroseError,
+  runtimeError
+} from "@penrose/core";
+import { separateRenderedLabels } from "./common";
 import consola from "consola";
+
+/* State types */
 
 type Init = {
   tag: 'Init';
@@ -87,10 +96,8 @@ type WaitingState = WaitingForInit | InitToCompiled | CompiledToOptimizing
 
 type OWState = StableState | WaitingState
 
-export interface UpdateInfo {
-  state: RenderState;
-  stats: LayoutStats;
-}
+
+/* Module helpers */
 
 const log = (consola as any)
   .create({ level: (consola as any).LogLevel.Info })
@@ -100,6 +107,13 @@ const isWaiting = (state: OWState): state is WaitingState => {
   return 'waiting' in state;
 }
 
+
+/* Exported Members */
+
+export interface UpdateInfo {
+  state: RenderState;
+  stats: LayoutStats;
+}
 
 export default class OptimizerWorker {
   private state: OWState;

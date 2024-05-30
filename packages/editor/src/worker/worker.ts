@@ -3,10 +3,14 @@ import {
   compileTrio, finalStage,
   insertPending,
   isOptimized,
-  LabelMeasurements, nextStage,
+  LabelMeasurements,
+  nextStage,
   PenroseError,
-  PenroseState, resample, runtimeError,
-  State, step
+  PenroseState,
+  resample,
+  runtimeError,
+  State,
+  step
 } from "@penrose/core";
 import {
   CompiledReq,
@@ -275,18 +279,20 @@ const optimize = async (state: PenroseState) => {
   }
 
   while (!isOptimized(state)) {
-    /* queues optStep as next in the event queue, after onmessage if a message
-     has been received. await-ing is not enough, since this will queue optStep
+    /* queues resolve as next in the event queue, after onmessage if a message
+     has been received. await-ing `optStep` is not enough, since this will queue optStep
      as a _microtask_, which will still run before onmessage */
     await new Promise<void>(resolve => {
       setTimeout(resolve, 0);
-    }).then(optStep);
+    });
 
-    if (shouldFinish) {
+    if (shouldFinish) {  // set by onmessage if we need to stop
       log.info('Optimization finishing early');
       shouldFinish = false;
       break;
     }
+
+    optStep();  // run an optimization step
   }
 
   log.info('Optimization finished');
