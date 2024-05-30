@@ -678,8 +678,18 @@ export const usePublishGist = () =>
       toast.error(`Could not publish gist: ${res.statusText} ${json.message}`);
       return;
     }
-    toast.success(`Published gist, redirecting...`);
-    window.location.search = queryString.stringify({ gist: json.id });
+    const queryParameter = queryString.stringify({ gist: json.id });
+    const redirectURL = `https://penrose.cs.cmu.edu/try/?${queryParameter}`;
+    navigator.clipboard
+      .writeText(redirectURL)
+      .then(() => {
+        toast.success("Copied sharable link to clipboard");
+      })
+      .catch(() => {
+        toast.success("Redirecting to gist...");
+      });
+
+    window.location.search = queryParameter;
   });
 
 const REDIRECT_URL =
