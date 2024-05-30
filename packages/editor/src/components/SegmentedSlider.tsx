@@ -47,7 +47,7 @@ const SegmentedSlider: React.FC<SegmentedSliderProps> = ({
   segments: stages,
   disabled,
   onChange,
-  defaultValue
+  defaultValue,
 }) => {
   if (stages.length === 0) return null;
   // compute the step ranges for each stage

@@ -5,78 +5,88 @@ import {
   LabelMeasurements,
   Num,
   Shape,
-  State
+  State,
 } from "@penrose/core";
 
 export enum WorkerState {
-  Init = 'Init',
-  Compiled = 'Compiled',
-  Optimizing = 'Optimizing',
+  Init = "Init",
+  Compiled = "Compiled",
+  Optimizing = "Optimizing",
 }
 
 export type InitResp = {
-  tag: 'InitResp';
-}
+  tag: "InitResp";
+};
 
 export type CompiledResp = {
-  tag: 'CompiledResp';
+  tag: "CompiledResp";
   jobId: string;
-  shapes: Shape<Num>[]
-}
+  shapes: Shape<Num>[];
+};
 
 export type OptimizingResp = {
-  tag: 'OptimizingResp';
-}
+  tag: "OptimizingResp";
+};
 
 export type FinishedResp = {
-  tag: 'FinishedResp';
+  tag: "FinishedResp";
   state: LayoutState;
   stats: LayoutStats;
-}
+};
 
 export type UpdateResp = {
-  tag: 'UpdateResp';
+  tag: "UpdateResp";
   state: LayoutState;
   stats: LayoutStats;
-}
+};
 
-export type Resp = InitResp | CompiledResp | OptimizingResp | FinishedResp | UpdateResp;
+export type Resp =
+  | InitResp
+  | CompiledResp
+  | OptimizingResp
+  | FinishedResp
+  | UpdateResp;
 
 export type CompiledReq = {
-  tag: 'CompiledReq';
+  tag: "CompiledReq";
   domain: string;
   style: string;
   substance: string;
   variation: string;
   jobId: string;
-}
+};
 
 export type OptimizingReq = {
-  tag: 'OptimizingReq'
-  labelCache: LabelMeasurements
+  tag: "OptimizingReq";
+  labelCache: LabelMeasurements;
 };
 
 export type UpdateReq = {
-  tag: 'UpdateReq';
-}
+  tag: "UpdateReq";
+};
 
 export type ResampleReq = {
-  tag: 'ResampleReq';
+  tag: "ResampleReq";
   variation: string;
   jobId: string;
-}
+};
 
 export type ComputeShapesReq = {
-  tag: 'ComputeShapesReq';
+  tag: "ComputeShapesReq";
   index: number;
-}
+};
 
 export type InterruptReq = {
-  tag: 'InterruptReq';
-}
+  tag: "InterruptReq";
+};
 
-export type Req = CompiledReq | OptimizingReq | UpdateReq
-  | ResampleReq | ComputeShapesReq | InterruptReq;
+export type Req =
+  | CompiledReq
+  | OptimizingReq
+  | UpdateReq
+  | ResampleReq
+  | ComputeShapesReq
+  | InterruptReq;
 
 // state passed from the worker to the main thread.
 // NOTE: there is no DOM element or functions in this state because they cannot be transferred between threads.

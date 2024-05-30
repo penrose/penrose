@@ -36,8 +36,7 @@ import {
   diagramState,
   fileContentsSelector,
   localFilesState,
-  optimizer,
-  settingsState, diagramWorkerState
+  settingsState,
 } from "./state/atoms.js";
 import {
   useCheckURL,

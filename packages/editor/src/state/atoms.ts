@@ -356,7 +356,7 @@ export const diagramWorkerState = atom<{
   default: {
     id: "",
     init: false,
-    optimizing: false
+    optimizing: false,
   },
 });
 

@@ -12,7 +12,7 @@ export const LayoutTimelineSlider: React.FC<{}> = (props) => {
   const [max, setMax] = useState(0);
   const stats = optimizer.getStats();
   const [index, setIndex] = useState(0);
-  const { running } = useRecoilValue(diagramWorkerState);
+  const { optimizing } = useRecoilValue(diagramWorkerState);
 
   useEffect(() => {
     setMax(stats.reduce((acc, stat) => acc + stat.steps, 0));
@@ -44,7 +44,7 @@ export const LayoutTimelineSlider: React.FC<{}> = (props) => {
       }}
     >
       <SegmentedSlider
-        disabled={running}
+        disabled={optimizing}
         segments={
           optimizer.getStats().map((stat, i) => ({
             label: stat.name,

@@ -4,10 +4,10 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import {
   canvasState,
   currentRogerState,
-  diagramState, diagramWorkerState,
+  diagramState,
   layoutTimelineState,
   optimizer,
-  workspaceMetadataSelector
+  workspaceMetadataSelector,
 } from "../state/atoms.js";
 import { pathResolver } from "../utils/downloadUtils.js";
 import { stateToSVG } from "../utils/renderUtils.js";
@@ -59,7 +59,8 @@ export default function DiagramPanel() {
 
   const step = () => {
     if (state) {
-      optimizer.pollForUpdate()
+      optimizer
+        .pollForUpdate()
         .then((info) => {
           if (info === null) return;
           setDiagram({

@@ -183,12 +183,8 @@ export default function TopBar() {
           save Penrose SVG
         </BlueButton>
         <ExportButton />
-        <BlueButton onClick={compileDiagram}>
-          compile ▶
-        </BlueButton>
-        <BlueButton onClick={resampleDiagram}>
-          resample
-        </BlueButton>
+        <BlueButton onClick={compileDiagram}>compile ▶</BlueButton>
+        <BlueButton onClick={resampleDiagram}>resample</BlueButton>
       </HeaderButtonContainer>
     </nav>
   );

@@ -1,6 +1,7 @@
 // one "frame" of optimization is a list of varying numbers
 import {
-  compileTrio, finalStage,
+  compileTrio,
+  finalStage,
   insertPending,
   isOptimized,
   LabelMeasurements,
@@ -10,8 +11,9 @@ import {
   resample,
   runtimeError,
   State,
-  step
+  step,
 } from "@penrose/core";
+import consola from "consola";
 import {
   CompiledReq,
   LayoutState,
@@ -19,9 +21,8 @@ import {
   Req,
   Resp,
   stateToLayoutState,
-  WorkerState
+  WorkerState,
 } from "./common";
-import consola from "consola";
 
 type Frame = number[];
 
@@ -51,18 +52,20 @@ const respond = (response: Resp) => {
 };
 
 const respondError = (error: PenroseError) => {
-  throw error;  // TODO: actually respond as an error
-}
+  throw error; // TODO: actually respond as an error
+};
 
 onmessage = async ({ data }: MessageEvent<Req>) => {
   const badStateError = () => {
-    respondError(runtimeError(`Cannot receive ${data.tag} in worker state ${workerState}`));
-  }
+    respondError(
+      runtimeError(`Cannot receive ${data.tag} in worker state ${workerState}`),
+    );
+  };
   switch (workerState) {
     case WorkerState.Init:
       switch (data.tag) {
-        case 'CompiledReq':
-          log.info('Received CompiledReq in state Init');
+        case "CompiledReq":
+          log.info("Received CompiledReq in state Init");
           await compileAndRespond(data);
           break;
 
@@ -74,8 +77,8 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
 
     case WorkerState.Compiled:
       switch (data.tag) {
-        case 'OptimizingReq':
-          log.info('Received OptimizingReq in state Compiled');
+        case "OptimizingReq":
+          log.info("Received OptimizingReq in state Compiled");
           const stateWithoutLabels: PartialState = unoptState;
           unoptState = {
             ...stateWithoutLabels,
@@ -86,15 +89,17 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
           optimize(insertPending(unoptState));
           break;
 
-        case 'UpdateReq':
-          log.info('Received UpdateReq in state Compiled');
+        case "UpdateReq":
+          log.info("Received UpdateReq in state Compiled");
           respondUpdate(stateToLayoutState(optState ?? unoptState), stats);
           break;
 
-        case 'ComputeShapesReq':
-          log.info('Received ComputeShapesReq in state Compiled');
+        case "ComputeShapesReq":
+          log.info("Received ComputeShapesReq in state Compiled");
           if (data.index >= history.length) {
-            respondError(runtimeError(`Index ${data.index} to large for history`));
+            respondError(
+              runtimeError(`Index ${data.index} to large for history`),
+            );
             break;
           }
           {
@@ -107,20 +112,20 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
           }
           break;
 
-        case 'CompiledReq':
-          log.info('Received CompiledReq in state Compiled');
+        case "CompiledReq":
+          log.info("Received CompiledReq in state Compiled");
           await compileAndRespond(data);
           break;
 
-        case 'ResampleReq':
-          log.info('Received ResampleReq in state Compiled');
+        case "ResampleReq":
+          log.info("Received ResampleReq in state Compiled");
           const { variation } = data;
           const resampled = resample({ ...unoptState, variation });
           respondOptimizing();
           optimize(insertPending(resampled));
           break;
 
-        case 'InterruptReq':
+        case "InterruptReq":
           // rare edge case, but can happen if interrupt is requested _just_
           // before optimization finishes
           break;
@@ -132,21 +137,23 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
       break;
 
     case WorkerState.Optimizing:
-      log.info('Received request during optimization');
+      log.info("Received request during optimization");
 
       if (optState === null) {
-        respondError(runtimeError(`OptState was null on request during optimizing`));
+        respondError(
+          runtimeError(`OptState was null on request during optimizing`),
+        );
         return;
       }
 
       switch (data.tag) {
-        case 'UpdateReq':
-          log.info('Received UpdateReq in state Optimizing');
+        case "UpdateReq":
+          log.info("Received UpdateReq in state Optimizing");
           respondUpdate(stateToLayoutState(optState), stats);
           break;
 
-        case 'ComputeShapesReq':
-          log.info('Received ComputeShapesReq in state Optimizing');
+        case "ComputeShapesReq":
+          log.info("Received ComputeShapesReq in state Optimizing");
           const newShapes: LayoutState = stateToLayoutState({
             ...unoptState,
             varyingValues: history[data.index],
@@ -154,8 +161,8 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
           respondUpdate(newShapes, stats);
           break;
 
-        case 'InterruptReq':
-          log.info('Received InterruptReq in state Optimizing');
+        case "InterruptReq":
+          log.info("Received InterruptReq in state Optimizing");
           shouldFinish = true;
           break;
 
@@ -168,13 +175,7 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
 };
 
 const compileAndRespond = async (data: CompiledReq) => {
-  const {
-    domain,
-    substance,
-    style,
-    variation,
-    jobId
-  } = data;
+  const { domain, substance, style, variation, jobId } = data;
 
   // save the id for the current task
   currentTask = jobId;
@@ -192,46 +193,43 @@ const compileAndRespond = async (data: CompiledReq) => {
     workerState = WorkerState.Compiled;
     respondCompiled(jobId, unoptState);
   }
-}
+};
 
 const respondInit = () => {
   respond({
-    tag: 'InitResp'
+    tag: "InitResp",
   });
-}
+};
 
 const respondCompiled = (id: string, state: PenroseState) => {
   respond({
-    tag: 'CompiledResp',
+    tag: "CompiledResp",
     jobId: id,
-    shapes: state.shapes
+    shapes: state.shapes,
   });
-}
+};
 
 const respondOptimizing = () => {
   respond({
-    tag: 'OptimizingResp'
+    tag: "OptimizingResp",
   });
-}
+};
 
-const respondUpdate = (
-  state: LayoutState,
-  stats: LayoutStats
-) => {
+const respondUpdate = (state: LayoutState, stats: LayoutStats) => {
   respond({
-    tag: 'UpdateResp',
+    tag: "UpdateResp",
     state,
     stats,
-  })
-}
+  });
+};
 
 const respondFinished = (state: PenroseState, stats: LayoutStats) => {
   respond({
-    tag: 'FinishedResp',
+    tag: "FinishedResp",
     state: stateToLayoutState(state),
     stats,
   });
-}
+};
 
 const optimize = async (state: PenroseState) => {
   optState = state;
@@ -250,8 +248,7 @@ const optimize = async (state: PenroseState) => {
     log.info(i);
     let j = 0;
     history.push(state.varyingValues);
-    const steppedState =
-      step(state, { until: (): boolean => j++ >= numSteps });
+    const steppedState = step(state, { until: (): boolean => j++ >= numSteps });
     if (steppedState.isErr()) {
       respondError(steppedState.error);
       return;
@@ -276,28 +273,29 @@ const optimize = async (state: PenroseState) => {
 
     optState = state;
     i++;
-  }
+  };
 
   while (!isOptimized(state)) {
     /* queues resolve as next in the event queue, after onmessage if a message
      has been received. await-ing `optStep` is not enough, since this will queue optStep
      as a _microtask_, which will still run before onmessage */
-    await new Promise<void>(resolve => {
+    await new Promise<void>((resolve) => {
       setTimeout(resolve, 0);
     });
 
-    if (shouldFinish) {  // set by onmessage if we need to stop
-      log.info('Optimization finishing early');
+    if (shouldFinish) {
+      // set by onmessage if we need to stop
+      log.info("Optimization finishing early");
       shouldFinish = false;
       break;
     }
 
-    optStep();  // run an optimization step
+    optStep(); // run an optimization step
   }
 
-  log.info('Optimization finished');
+  log.info("Optimization finished");
   workerState = WorkerState.Compiled;
   respondFinished(state, stats);
-}
+};
 
 respondInit();

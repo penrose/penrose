@@ -13,6 +13,7 @@ import {
   zipTrio,
 } from "../utils/downloadUtils.js";
 import { stateToSVG } from "../utils/renderUtils.js";
+import { UpdateInfo } from "../worker/OptimizerWorker";
 import {
   Canvas,
   Diagram,
@@ -43,7 +44,6 @@ import {
   workspaceMetadataSelector,
 } from "./atoms.js";
 import { generateVariation } from "./variation.js";
-import { UpdateInfo } from "../worker/OptimizerWorker";
 
 const _compileDiagram = async (
   substance: string,
@@ -89,22 +89,18 @@ const _compileDiagram = async (
   const onError = (error: any) => {
     toast.dismiss(compiling);
     toast.error(error.message);
-  }
+  };
 
   // ugly `then` chain allows for one catch at the end
-  await optimizer.compile(
-    domain,
-    style,
-    substance,
-    variation
-  )
+  await optimizer
+    .compile(domain, style, substance, variation)
     .then((id) => {
       optimizer.startOptimizing(() => {
         toast.dismiss(compiling);
         set(diagramWorkerState, {
           ...diagramWorkerState,
           optimizing: false,
-        })
+        });
       });
       set(diagramWorkerState, {
         ...diagramWorkerState,
@@ -168,14 +164,11 @@ export const useResampleDiagram = () =>
     const onError = (error: any) => {
       toast.dismiss(resamplingLoading);
       toast.error(error.message);
-    }
-    await optimizer.resample(
-      id,
-      variation,
-      () => {
+    };
+    await optimizer
+      .resample(id, variation, () => {
         toast.dismiss(resamplingLoading);
-      }
-    )
+      })
       .then(optimizer.pollForUpdate.bind(optimizer))
       .then((info) => {
         if (info === null) return;
