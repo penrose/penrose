@@ -349,12 +349,14 @@ export const layoutTimelineState = atom<LayoutTimeline>({
 
 export const diagramWorkerState = atom<{
   id: string;
-  running: boolean;
+  init: boolean;
+  optimizing: boolean;
 }>({
   key: "diagramWorkerState",
   default: {
     id: "",
-    running: false,
+    init: false,
+    optimizing: false
   },
 });
 

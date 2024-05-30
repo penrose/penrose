@@ -54,6 +54,10 @@ const _compileDiagram = async (
   excludeWarnings: string[],
   set: any,
 ) => {
+  if (!optimizer.isInit()) {
+    return;
+  }
+
   const compiling = toast.loading("Compiling...");
   const onUpdate = ({ state: updatedState, stats }: UpdateInfo) => {
     set(diagramState, (state: Diagram): Diagram => {
@@ -178,24 +182,24 @@ export const useResampleDiagram = () =>
       variation,
       () => {
         toast.dismiss(resamplingLoading);
+        optimizer.pollForUpdate()
+          .then((info) => {
+            if (info === null) return;
+            set(diagramState, (state) => ({
+              ...state,
+              metadata: { ...state.metadata, variation },
+              state: info.state,
+            }));
+            // update grid state too
+            set(diagramGridState, ({ gridSize }) => ({
+              variations: range(gridSize).map((i) =>
+                i === 0 ? variation : generateVariation(),
+              ),
+              gridSize,
+            }));
+          });
       }
     );
-    await optimizer.pollForUpdate()
-      .then((info) => {
-        if (info === null) return;
-        set(diagramState, (state) => ({
-          ...state,
-          metadata: { ...state.metadata, variation },
-          state: info.state,
-        }));
-        // update grid state too
-        set(diagramGridState, ({ gridSize }) => ({
-          variations: range(gridSize).map((i) =>
-            i === 0 ? variation : generateVariation(),
-          ),
-          gridSize,
-        }));
-    });
   });
 
 const _saveLocally = (set: any) => {

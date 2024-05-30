@@ -5,7 +5,7 @@ import {
   isOptimized,
   LabelMeasurements, nextStage,
   PenroseError,
-  PenroseState, runtimeError,
+  PenroseState, resample, runtimeError,
   State, step
 } from "@penrose/core";
 import {
@@ -34,9 +34,7 @@ let optState: PenroseState | null = null;
 let currentTask: string;
 let history: Frame[] = [];
 let stats: LayoutStats = [];
-let workerState: WorkerState = WorkerState.Off;
-let pauseOptimizeResolve: (() => void) | null = null;
-let waitForMsgResolve: ((shouldFinish: boolean) => void) | null = null;
+let workerState: WorkerState = WorkerState.Init;
 let shouldFinish = false;
 
 const log = (consola as any)
@@ -57,20 +55,6 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
     respondError(runtimeError(`Cannot receive ${data.tag} in worker state ${workerState}`));
   }
   switch (workerState) {
-    case WorkerState.Off:
-      switch (data.tag) {
-        case 'InitReq':
-          log.info('Received InitReq in state Off');
-          workerState = WorkerState.Init;
-          respondInit();
-          break;
-
-        default:
-          badStateError();
-          break;
-      }
-      break;
-
     case WorkerState.Init:
       switch (data.tag) {
         case 'CompiledReq':
@@ -123,6 +107,14 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
         case 'CompiledReq':
           log.info('Received CompiledReq in state Compiled');
           await compileAndRespond(data);
+          break;
+
+        case 'ResampleReq':
+          log.info('Received ResampleReq in state Compiled');
+          const { variation } = data;
+          const resampled = resample({ ...unoptState, variation });
+          respondOptimizing();
+          optimize(insertPending(resampled));
           break;
 
         default:
@@ -294,10 +286,8 @@ const optimize = async (state: PenroseState) => {
   }
 
   log.info('Optimization finished');
-  if (pauseOptimizeResolve !== null) {
-    pauseOptimizeResolve();
-    pauseOptimizeResolve = null;
-  }
   workerState = WorkerState.Compiled;
   respondFinished(state, stats);
 }
+
+respondInit();

@@ -4,10 +4,10 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import {
   canvasState,
   currentRogerState,
-  diagramState,
+  diagramState, diagramWorkerState,
   layoutTimelineState,
   optimizer,
-  workspaceMetadataSelector,
+  workspaceMetadataSelector
 } from "../state/atoms.js";
 import { pathResolver } from "../utils/downloadUtils.js";
 import { stateToSVG } from "../utils/renderUtils.js";
@@ -25,6 +25,16 @@ export default function DiagramPanel() {
   const rogerState = useRecoilValue(currentRogerState);
 
   const requestRef = useRef<number>();
+
+  const [workerState, setWorkerState] = useRecoilState(diagramWorkerState)
+  useEffect(() => {
+    optimizer.waitForInit().then(() => {
+      setWorkerState({
+        ...workerState,
+        init: true
+      });
+    });
+  }, []);
 
   useEffect(() => {
     const cur = canvasRef.current;

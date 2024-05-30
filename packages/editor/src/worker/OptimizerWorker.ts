@@ -12,39 +12,31 @@ import { collectLabels, LabelMeasurements, mathjaxInit, PenroseError, runtimeErr
 import { separateRenderedLabels } from "../oldWorker/message";
 import consola from "consola";
 
-type Off = {
-  tag: 'Off';
-  worker: Worker;
-}
-
 type Init = {
   tag: 'Init';
-  worker: Worker;
 }
 
 type Compiled = {
   tag: 'Compiled';
-  worker: Worker;
   svgCache: Map<string, HTMLElement>;
   layoutStats: LayoutStats;
   labelCache: LabelMeasurements;
+  polled: boolean
 }
 
 type Optimizing = {
   tag: 'Optimizing';
-  worker: Worker;
   svgCache: Map<string, HTMLElement>;
   labelCache: LabelMeasurements;
   layoutStats: LayoutStats;
   onFinish: (info: UpdateInfo) => void;
 }
 
-type StableState = Off | Init | Compiled | Optimizing;
+type StableState = Init | Compiled | Optimizing;
 
-type OffToInit = {
-  tag: 'OffToInit';
+type WaitingForInit = {
+  tag: 'WaitingForInit';
   waiting: true;
-  previous: Off;
   resolve: () => void;
   reject: (e: PenroseError) => void;
 }
@@ -90,7 +82,7 @@ type WaitingForShapes = {
   reject : (e: PenroseError) => void;
 }
 
-type WaitingState = OffToInit | InitToCompiled | CompiledToOptimizing
+type WaitingState = WaitingForInit | InitToCompiled | CompiledToOptimizing
   | OptimizingToCompiled | WaitingForUpdate | WaitingForShapes;
 
 type OWState = StableState | WaitingState
@@ -100,26 +92,29 @@ export interface UpdateInfo {
   stats: LayoutStats;
 }
 
-const launchWorker = (onmessage: (event: MessageEvent<Resp>) => void): Worker => {
-  const worker = new Worker(new URL("./worker.ts", import.meta.url), {
-    type: "module",
-  });
-  worker.onmessage = onmessage;
-  return worker;
-}
-
 const log = (consola as any)
   .create({ level: (consola as any).LogLevel.Info })
   .withScope("worker:client");
 
 
 export default class OptimizerWorker {
-  private state: OWState = {
-    tag: 'Off',
-    worker: launchWorker(this.onMessage.bind(this))
-  };
-
+  private state: OWState;
+  private worker: Worker;
   private queued: () => void = () => {};
+
+  constructor() {
+    this.state = {
+      tag: 'WaitingForInit',
+      waiting: true,
+      resolve: () => {},
+      reject: () => {}
+    }
+
+    this.worker = new Worker(new URL("./worker.ts", import.meta.url), {
+      type: "module",
+    });
+    this.worker.onmessage = this.onMessage.bind(this);
+  }
 
   private queueIfNecessary(func: () => unknown) {
     if ('waiting' in this.state) {
@@ -158,7 +153,8 @@ export default class OptimizerWorker {
             this.state = {
               ...this.state,
               tag: 'Compiled',
-              layoutStats: data.stats
+              layoutStats: data.stats,
+              polled: false
             }
             console.log(`New state ${this.state.tag}`);
             break;
@@ -168,13 +164,12 @@ export default class OptimizerWorker {
         }
         break;
 
-      case 'OffToInit':
+      case 'WaitingForInit':
         switch (data.tag) {
           case 'InitResp':
-            log.info('Received InitResp in state OffToInit');
+            log.info('Received InitResp in state WaitingForInit');
             this.state.resolve();
             this.state = {
-              ...this.state.previous,
               tag: 'Init'
             };
             console.log(`New state ${this.state.tag}`);
@@ -211,7 +206,8 @@ export default class OptimizerWorker {
               tag: 'Compiled',
               svgCache,
               labelCache: optLabelCache,
-              layoutStats: []
+              layoutStats: [],
+              polled: false
             };
             console.log(`New state ${this.state.tag}`);
             break;
@@ -257,7 +253,8 @@ export default class OptimizerWorker {
             this.state = {
               ...this.state.previous,
               tag: 'Compiled',
-              layoutStats: data.stats
+              layoutStats: data.stats,
+              polled: false
             };
             console.log(`New state ${this.state.tag}`);
             break;
@@ -323,40 +320,21 @@ export default class OptimizerWorker {
   }
 
   private request(req: Req) {
-    if ('worker' in this.state) {
-      this.state.worker.postMessage(req);
-    } else {
-      this.state.previous.worker.postMessage(req);
-    }
+    this.worker.postMessage(req);
   }
 
-  async init() {
-    return new Promise<void>((resolve, reject) => {
-      this.queueIfNecessary(() => {
-        log.info(`Init called from state ${this.state.tag}`);
-        switch (this.state.tag) {
-          case 'Off':
-            const req: InitReq = {
-              tag: 'InitReq'
-            }
-            this.state = {
-              tag: 'OffToInit',
-              waiting: true,
-              previous: this.state,
-              resolve,
-              reject
-            }
-            console.log(`New state ${this.state.tag}`);
-            this.request(req);
-            break;
+  isInit() {
+    return this.state.tag !== 'WaitingForInit';
+  }
 
-          default:
-            reject(
-              runtimeError(`Cannot init in state ${this.state.tag}`)
-            );
-            break;
-        }
-      });
+  async waitForInit() {
+    return new Promise<void>((resolve, reject) => {
+      if (this.state.tag !== 'WaitingForInit') {
+        resolve();
+      } else {
+        this.state.resolve = resolve;
+        this.state.reject = reject;
+      }
     });
   }
 
@@ -528,6 +506,16 @@ export default class OptimizerWorker {
         log.info(`pollForUpdate called from state ${this.state.tag}`);
         switch (this.state.tag) {
           case 'Optimizing':
+          case 'Compiled':
+            if ('polled' in this.state) {
+              if (this.state.polled) {
+                resolve(null);
+                break;
+              } else {
+                this.state.polled = true;
+              }
+            }
+
             this.state = {
               tag: 'WaitingForUpdate',
               waiting: true,
@@ -539,10 +527,6 @@ export default class OptimizerWorker {
             this.request({
               tag: 'UpdateReq'
             });
-            break;
-
-          case 'Compiled':
-            resolve(null);
             break;
 
           default:
