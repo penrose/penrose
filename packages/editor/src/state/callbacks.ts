@@ -229,9 +229,7 @@ export const useCopyToClipboard = () =>
     const sub = workspace.files.substance.contents;
     const sty = workspace.files.style.contents;
     const dsl = workspace.files.domain.contents;
-    const concatenated = `-- .substance \n ${sub} \n 
-    -- .style \n ${sty} \n 
-    -- .domain \n ${dsl} \n`;
+    const concatenated = `-- .substance\n${sub}\n-- .style\n${sty}\n-- .domain\n${dsl}\n`;
 
     navigator.clipboard
       .writeText(concatenated)
