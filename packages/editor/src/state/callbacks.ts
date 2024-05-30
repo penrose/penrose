@@ -222,6 +222,21 @@ export const useDownloadTrio = () =>
     }
   });
 
+export const useCopyToClipboard = () =>
+  useRecoilCallback(({ set, snapshot }) => async () => {
+    const workspace = snapshot.getLoadable(currentWorkspaceState)
+      .contents as Workspace;
+    const dsl = workspace.files.domain.contents;
+    const sub = workspace.files.substance.contents;
+    const sty = workspace.files.style.contents;
+    const concatenated = `-- .substance \n ${sub} \n 
+    -- .style \n ${sty} \n 
+    -- .domain \n ${dsl} \n`;
+
+    navigator.clipboard.writeText(concatenated);
+    toast.success("Copied trio to clipboard!");
+  });
+
 export const useDownloadSvg = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
     const diagram = snapshot.getLoadable(diagramMetadataSelector)

@@ -1,4 +1,5 @@
 import {
+  useCopyToClipboard,
   useDownloadPdf,
   useDownloadPng,
   useDownloadSvgTex,
@@ -12,6 +13,7 @@ export default function ExportButton() {
     { label: "as PNG", onClick: useDownloadPng() },
     { label: "as PDF", onClick: useDownloadPdf() },
     { label: "as Penrose trio", onClick: useDownloadTrio() },
+    { label: "Copy to Clipboard", onClick: useCopyToClipboard() },
   ];
 
   return (
