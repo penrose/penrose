@@ -54,9 +54,7 @@ const _compileDiagram = async (
   excludeWarnings: string[],
   set: any,
 ) => {
-  if (!optimizer.isInit()) {
-    return;
-  }
+  await optimizer.waitForInit();
 
   const compiling = toast.loading("Compiling...");
   const onUpdate = ({ state: updatedState, stats }: UpdateInfo) => {
@@ -89,46 +87,37 @@ const _compileDiagram = async (
     }));
   };
 
-  const id = await optimizer.compile(
+  const onError = (error: any) => {
+    toast.dismiss(compiling);
+    toast.error(error.message);
+  }
+
+  // ugly `then` chain allows for one catch at the end
+  await optimizer.compile(
     domain,
     style,
     substance,
     variation
-  ).catch((e) => {
-    toast.error(e);
-  });
-
-  await optimizer.startOptimizing(() => {
-    toast.dismiss(compiling);
-    set(diagramWorkerState, {
-      ...diagramWorkerState,
-      running: false,
-    });
-  }). catch((e) => {
-    toast.dismiss(compiling);
-    toast.error(e);
-  });
-
-  set(diagramWorkerState, {
-    ...diagramWorkerState,
-    id,
-    running: true,
-  });
-
-  // get the ball rolling
-  await optimizer.pollForUpdate()
+  )
+    .then((id) => {
+      optimizer.startOptimizing(() => {
+        toast.dismiss(compiling);
+        set(diagramWorkerState, {
+          ...diagramWorkerState,
+          optimizing: false,
+        })
+      });
+      set(diagramWorkerState, {
+        ...diagramWorkerState,
+        id,
+        optimizing: true,
+      });
+    })
+    .then(optimizer.pollForUpdate.bind(optimizer))
     .then((info) => {
       if (info !== null) onUpdate(info);
     })
-    .catch((e) => {
-      toast.error(e);
-      toast.dismiss(compiling);
-      set(diagramWorkerState, {
-        ...diagramWorkerState,
-        running: false,
-      });
-    });
-
+    .catch(onError);
 
   // TODO: update grid state too
   // set(diagramGridState, ({ gridSize }: DiagramGrid) => ({
@@ -177,29 +166,33 @@ export const useResampleDiagram = () =>
     }
     const variation = generateVariation();
     const resamplingLoading = toast.loading("Resampling...");
+    const onError = (error: any) => {
+      toast.dismiss(resamplingLoading);
+      toast.error(error.message);
+    }
     await optimizer.resample(
       id,
       variation,
       () => {
         toast.dismiss(resamplingLoading);
-        optimizer.pollForUpdate()
-          .then((info) => {
-            if (info === null) return;
-            set(diagramState, (state) => ({
-              ...state,
-              metadata: { ...state.metadata, variation },
-              state: info.state,
-            }));
-            // update grid state too
-            set(diagramGridState, ({ gridSize }) => ({
-              variations: range(gridSize).map((i) =>
-                i === 0 ? variation : generateVariation(),
-              ),
-              gridSize,
-            }));
-          });
       }
-    );
+    )
+      .then(optimizer.pollForUpdate.bind(optimizer))
+      .then((info) => {
+        if (info === null) return;
+        set(diagramState, (state) => ({
+          ...state,
+          metadata: { ...state.metadata, variation },
+          state: info.state,
+        }));
+        // update grid state too
+        set(diagramGridState, ({ gridSize }) => ({
+          variations: range(gridSize).map((i) =>
+            i === 0 ? variation : generateVariation(),
+          ),
+          gridSize,
+        }));
+      });
   });
 
 const _saveLocally = (set: any) => {

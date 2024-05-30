@@ -83,9 +83,8 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
           break;
 
         case 'UpdateReq':
-          // edge case where request was sent while still optimizing but received
-          // after finish. We can safely ignore since the 'FinishedResp' fill
-          // complete the request.
+          log.info('Received UpdateReq in state Compiled');
+          respondUpdate(stateToLayoutState(optState ?? unoptState), stats);
           break;
 
         case 'ComputeShapesReq':
@@ -115,6 +114,11 @@ onmessage = async ({ data }: MessageEvent<Req>) => {
           const resampled = resample({ ...unoptState, variation });
           respondOptimizing();
           optimize(insertPending(resampled));
+          break;
+
+        case 'InterruptReq':
+          // rare edge case, but can happen if interrupt is requested _just_
+          // before optimization finishes
           break;
 
         default:

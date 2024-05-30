@@ -96,11 +96,16 @@ const log = (consola as any)
   .create({ level: (consola as any).LogLevel.Info })
   .withScope("worker:client");
 
+const isWaiting = (state: OWState): state is WaitingState => {
+  return 'waiting' in state;
+}
+
 
 export default class OptimizerWorker {
   private state: OWState;
   private worker: Worker;
-  private queued: () => void = () => {};
+  private nextStatePromise: Promise<void>;
+  private nextStatePromiseResolve: () => void;
 
   constructor() {
     this.state = {
@@ -114,14 +119,25 @@ export default class OptimizerWorker {
       type: "module",
     });
     this.worker.onmessage = this.onMessage.bind(this);
+
+    // can't call set state because fields need to be definitively assigned
+    this.nextStatePromiseResolve = () => {};
+    this.nextStatePromise = new Promise(resolve => {
+      this.nextStatePromiseResolve = resolve;
+    });
   }
 
-  private queueIfNecessary(func: () => unknown) {
-    if ('waiting' in this.state) {
-      this.queued = func;
-    } else {
-      func();
-    }
+  private setState(state: OWState) {
+    log.info(`New worker client state ${state.tag}`);
+    this.state = state;
+    this.nextStatePromiseResolve();
+    this.nextStatePromise = new Promise(resolve => {
+      this.nextStatePromiseResolve = resolve;
+    });
+  }
+
+  private async waitForNextState() {
+    await this.nextStatePromise;
   }
 
   private async onMessage({ data }: MessageEvent<Resp>) {
@@ -150,13 +166,12 @@ export default class OptimizerWorker {
               ),
               stats: data.stats
             });
-            this.state = {
+            this.setState({
               ...this.state,
               tag: 'Compiled',
               layoutStats: data.stats,
               polled: false
-            }
-            console.log(`New state ${this.state.tag}`);
+            });
             break;
 
           default:
@@ -169,10 +184,9 @@ export default class OptimizerWorker {
           case 'InitResp':
             log.info('Received InitResp in state WaitingForInit');
             this.state.resolve();
-            this.state = {
+            this.setState({
               tag: 'Init'
-            };
-            console.log(`New state ${this.state.tag}`);
+            });
             break;
 
           default:
@@ -201,15 +215,14 @@ export default class OptimizerWorker {
             const { optLabelCache, svgCache } = separateRenderedLabels(
               labelCache.value,
             );
-            this.state = {
+            this.setState({
               ...this.state.previous,
               tag: 'Compiled',
               svgCache,
               labelCache: optLabelCache,
               layoutStats: [],
               polled: false
-            };
-            console.log(`New state ${this.state.tag}`);
+            });
             break;
 
           default:
@@ -223,14 +236,13 @@ export default class OptimizerWorker {
       case 'CompiledToOptimizing':
         switch (data.tag) {
           case 'OptimizingResp':
-            log.info('Recieved OptimizingResp in state CompiledToOptimizing');
+            log.info('Received OptimizingResp in state CompiledToOptimizing');
             this.state.resolve();
-            this.state = {
+            this.setState({
               ...this.state.previous,
               tag: 'Optimizing',
               onFinish: this.state.onFinish
-            };
-            console.log(`New state ${this.state.tag}`);
+            });
             break;
 
           default:
@@ -250,13 +262,12 @@ export default class OptimizerWorker {
               stats: data.stats
             });
             this.state.resolve();
-            this.state = {
+            this.setState({
               ...this.state.previous,
               tag: 'Compiled',
               layoutStats: data.stats,
               polled: false
-            };
-            console.log(`New state ${this.state.tag}`);
+            });
             break;
         }
         break;
@@ -274,17 +285,23 @@ export default class OptimizerWorker {
               stats: data.stats
             };
             this.state.resolve(updateInfo);
-            if ('onFinish' in this.state.previous) {
-              this.state.previous.onFinish(updateInfo);
-            }
-            this.state = {
-              ...this.state.previous,
-              layoutStats: data.stats
-            };
+
             if (data.tag === 'FinishedResp') {
-              this.state.tag = 'Compiled';
+              if (this.state.previous.tag === 'Optimizing') {
+                this.state.previous.onFinish(updateInfo);
+              }
+              this.setState({
+                ...this.state.previous,
+                tag: 'Compiled',
+                layoutStats: data.stats,
+                polled: false
+              });
+            } else {
+              this.setState({
+                ...this.state.previous,
+                layoutStats: data.stats
+              });
             }
-            console.log(`New state ${this.state.tag}`);
             break;
 
           default:
@@ -301,8 +318,7 @@ export default class OptimizerWorker {
             this.state.resolve(
               layoutStateToRenderState(data.state, this.state.previous.svgCache)
             );
-            this.state = this.state.previous;
-            console.log(`New state ${this.state.tag}`);
+            this.setState(this.state.previous);
             break;
 
           default:
@@ -315,8 +331,6 @@ export default class OptimizerWorker {
       default:
         throw runtimeError(`Cannot receive message ${data.tag} in state ${this.state.tag}`);
     }
-
-    this.queued();
   }
 
   private request(req: Req) {
@@ -344,107 +358,106 @@ export default class OptimizerWorker {
     substance: string,
     variation: string,
   ): Promise<string> {
-    return new Promise((resolve, reject) => {
-      this.queueIfNecessary(() => {
-        log.info(`compile called from state ${this.state.tag}`);
-        switch (this.state.tag) {
-          case 'Init':
-          case 'Compiled':
-            const jobId: string = uuid();
-            const req: CompiledReq = {
-              tag: 'CompiledReq',
-              substance,
-              style,
-              domain,
-              variation,
-              jobId
-            };
-            this.state = {
-              tag: 'InitToCompiled',
-              waiting: true,
-              previous: this.state,
-              resolve,
-              reject
-            };
-            console.log(`New state ${this.state.tag}`);
-            this.request(req);
-            break;
+    log.info(`compile called from state ${this.state.tag}`);
+    return new Promise(async (resolve, reject) => {
+      while (isWaiting(this.state))
+        await this.waitForNextState();
 
-          case 'Optimizing':
-            this.interruptOptimizing()
-              .then(() => this.compile(domain, style, substance, variation))
-              .then((jobId: string) => resolve(jobId));
-            break;
+      log.info(`compile running from state ${this.state.tag}`);
+      switch (this.state.tag) {
+        case 'Init':
+        case 'Compiled':
+          const jobId: string = uuid();
+          const req: CompiledReq = {
+            tag: 'CompiledReq',
+            substance,
+            style,
+            domain,
+            variation,
+            jobId
+          };
+          this.setState({
+            tag: 'InitToCompiled',
+            waiting: true,
+            previous: this.state,
+            resolve,
+            reject
+          });
+          this.request(req);
+          break;
 
-          default:
-            reject(
-              runtimeError(`Cannot compile in state ${this.state.tag}`)
-            );
-            break;
-        }
-      });
+        case 'Optimizing':
+          this.interruptOptimizing()
+            .then(() => this.compile(domain, style, substance, variation))
+            .then((jobId: string) => resolve(jobId));
+          break;
+
+        // exhaustive
+      }
     });
   }
 
   async startOptimizing(
     onFinish: (info: UpdateInfo) => void
   ): Promise<void> {
-    new Promise<void>((resolve, reject) => {
-      this.queueIfNecessary(() => {
-        log.info(`startOptimize called from state ${this.state.tag}`);
-        switch (this.state.tag) {
-          case 'Compiled':
-            const req: OptimizingReq = {
-              tag: 'OptimizingReq',
-              labelCache: this.state.labelCache
-            };
-            this.state = {
-              tag: 'CompiledToOptimizing',
-              waiting: true,
-              previous: this.state,
-              onFinish,
-              resolve,
-              reject
-            };
-            console.log(`New state ${this.state.tag}`);
-            this.request(req);
-            break;
+    log.info(`startOptimize called from state ${this.state.tag}`);
+    new Promise<void>(async (resolve, reject) => {
+      while (isWaiting(this.state))
+        await this.waitForNextState();
 
-          default:
-            reject(
-              runtimeError(`Cannot compile in state ${this.state.tag}`)
-            );
-        }
-      });
+      log.info(`startOptimize running from state ${this.state.tag}`);
+      switch (this.state.tag) {
+        case 'Compiled':
+          const req: OptimizingReq = {
+            tag: 'OptimizingReq',
+            labelCache: this.state.labelCache
+          };
+          this.setState({
+            tag: 'CompiledToOptimizing',
+            waiting: true,
+            previous: this.state,
+            onFinish,
+            resolve,
+            reject
+          });
+          this.request(req);
+          break;
+
+        default:
+          reject(
+            runtimeError(`Cannot compile in state ${this.state.tag}`)
+          );
+      }
     });
   }
 
   async interruptOptimizing(): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      this.queueIfNecessary(() => {
-        log.info(`interruptOptimizing called from state ${this.state.tag}`);
-        switch (this.state.tag) {
-          case 'Optimizing':
-            this.state = {
-              tag: 'OptimizingToCompiled',
-              waiting: true,
-              previous: this.state,
-              resolve,
-              reject
-            };
-            console.log(`New state ${this.state.tag}`);
-            this.request({
-              tag: 'InterruptReq'
-            })
-            break;
+    log.info(`interruptOptimizing called from state ${this.state.tag}`);
+    return new Promise<void>(async (resolve, reject) => {
+      while (isWaiting(this.state))
+        await this.waitForNextState();
 
-          default:
-            reject(
-              runtimeError(`Cannot receive message in state ${this.state.tag}`)
-            );
-            break;
-        }
-      });
+      log.info(`interruptOptimizing running from state ${this.state.tag}`);
+      switch (this.state.tag) {
+        case 'Optimizing':
+          this.setState({
+            tag: 'OptimizingToCompiled',
+            waiting: true,
+            previous: this.state,
+            resolve,
+            reject
+          });
+          this.request({
+            tag: 'InterruptReq'
+          })
+          break;
+
+        default:
+          reject(
+            runtimeError(`Cannot receive message in state ${this.state.tag}`)
+          );
+          break;
+      }
     });
   }
 
@@ -462,124 +475,127 @@ export default class OptimizerWorker {
     variation: string,
     onFinish: (info: UpdateInfo) => void
   ): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      this.queueIfNecessary(() => {
-        log.info(`resample called from state ${this.state.tag}`);
-        switch (this.state.tag) {
-          case 'Optimizing':
-            this.interruptOptimizing()
-              .then(() => this.resample(jobId, variation, onFinish))
-              .then(resolve);
-            break;
+    log.info(`resample called from state ${this.state.tag}`);
+    return new Promise<void>(async (resolve, reject) => {
+      while (isWaiting(this.state))
+        await this.waitForNextState();
 
-          case 'Compiled':
-            const req: ResampleReq = {
-              tag: 'ResampleReq',
-              variation,
-              jobId
-            };
-            this.state = {
-              tag: 'CompiledToOptimizing',
-              waiting: true,
-              previous: this.state,
-              onFinish,
-              resolve,
-              reject
-            };
-            console.log(`New state ${this.state.tag}`);
-            this.request(req);
-            break;
+      log.info(`resample running from state ${this.state.tag}`);
+      switch (this.state.tag) {
+        case 'Optimizing':
+          this.interruptOptimizing()
+            .then(() => this.resample(jobId, variation, onFinish))
+            .then(resolve);
+          break;
 
-          default:
-            reject(
-              runtimeError(`Cannot resample from state ${this.state.tag}`)
-            );
-            break;
-        }
-      });
+        case 'Compiled':
+          const req: ResampleReq = {
+            tag: 'ResampleReq',
+            variation,
+            jobId
+          };
+          this.setState({
+            tag: 'CompiledToOptimizing',
+            waiting: true,
+            previous: this.state,
+            onFinish,
+            resolve,
+            reject
+          });
+          this.request(req);
+          break;
+
+        default:
+          reject(
+            runtimeError(`Cannot resample from state ${this.state.tag}`)
+          );
+          break;
+      }
     });
   }
 
   async pollForUpdate(): Promise<UpdateInfo | null> {
-    return new Promise<UpdateInfo | null>((resolve, reject) => {
-      this.queueIfNecessary(() => {
-        log.info(`pollForUpdate called from state ${this.state.tag}`);
-        switch (this.state.tag) {
-          case 'Optimizing':
-          case 'Compiled':
-            if ('polled' in this.state) {
-              if (this.state.polled) {
-                resolve(null);
-                break;
-              } else {
-                this.state.polled = true;
-              }
+    log.info(`pollForUpdate called from state ${this.state.tag}`);
+    return new Promise<UpdateInfo | null>(async (resolve, reject) => {
+      while (isWaiting(this.state))
+        await this.waitForNextState();
+
+      log.info(`pollForUpdate running from state ${this.state.tag}`);
+      switch (this.state.tag) {
+        case 'Optimizing':
+        case 'Compiled':
+          if (this.state.tag === 'Compiled') {
+            if (this.state.polled) {
+              log.info('Already polled. Continuing...');
+              resolve(null);
+              break;
+            } else {
+              this.state.polled = true;
             }
+          }
 
-            this.state = {
-              tag: 'WaitingForUpdate',
-              waiting: true,
-              previous: this.state,
-              resolve,
-              reject
-            };
-            console.log(`New state ${this.state.tag}`);
-            this.request({
-              tag: 'UpdateReq'
-            });
-            break;
+          this.setState({
+            tag: 'WaitingForUpdate',
+            waiting: true,
+            previous: this.state,
+            resolve,
+            reject
+          });
+          this.request({
+            tag: 'UpdateReq'
+          });
+          break;
 
-          default:
-            reject(
-              runtimeError(`Cannot pollForUpdate from state ${this.state.tag}`)
-            );
-            break;
-        }
-      });
+        default:
+          reject(
+            runtimeError(`Cannot pollForUpdate from state ${this.state.tag}`)
+          );
+          break;
+      }
     });
   }
 
   async computeShapesAtIndex(i: number): Promise<RenderState> {
-    return new Promise<RenderState>((resolve, reject) => {
-      this.queueIfNecessary(() => {
-        log.info(`computeShapesAtIndex called from state ${this.state.tag}`);
-        switch (this.state.tag) {
-          case 'Optimizing':
-            this.state = {
-              tag: 'WaitingForShapes',
-              waiting: true,
-              previous: this.state,
-              resolve,
-              reject
-            };
-            console.log(`New state ${this.state.tag}`);
-            this.request({
-              tag: 'ComputeShapesReq',
-              index: i
-            });
-            break;
+    log.info(`computeShapesAtIndex called from state ${this.state.tag}`);
+    return new Promise<RenderState>(async (resolve, reject) => {
+      while (isWaiting(this.state))
+        await this.waitForNextState();
 
-          case 'Compiled':
-            this.state = {
-              tag: 'WaitingForShapes',
-              waiting: true,
-              previous: this.state,
-              resolve,
-              reject
-            };
-            console.log(`New state ${this.state.tag}`);
-            this.request({
-              tag: 'ComputeShapesReq',
-              index: i
-            });
-            break;
+      log.info(`computeShapesAtIndex running from state ${this.state.tag}`);
+      switch (this.state.tag) {
+        case 'Optimizing':
+          this.setState({
+            tag: 'WaitingForShapes',
+            waiting: true,
+            previous: this.state,
+            resolve,
+            reject
+          });
+          this.request({
+            tag: 'ComputeShapesReq',
+            index: i
+          });
+          break;
 
-          default:
-            reject(
-              runtimeError(`Cannot computeShapesReq from state ${this.state.tag}`)
-            );
-        }
-      });
+        case 'Compiled':
+          this.setState({
+            tag: 'WaitingForShapes',
+            waiting: true,
+            previous: this.state,
+            resolve,
+            reject
+          });
+          this.request({
+            tag: 'ComputeShapesReq',
+            index: i
+          });
+          break;
+
+        default:
+          reject(
+            runtimeError(`Cannot compute shapes from state ${this.state.tag}`)
+          );
+      }
     });
   }
 

@@ -26,15 +26,15 @@ export default function DiagramPanel() {
 
   const requestRef = useRef<number>();
 
-  const [workerState, setWorkerState] = useRecoilState(diagramWorkerState)
-  useEffect(() => {
-    optimizer.waitForInit().then(() => {
-      setWorkerState({
-        ...workerState,
-        init: true
-      });
-    });
-  }, []);
+  // const [workerState, setWorkerState] = useRecoilState(diagramWorkerState)
+  // useEffect(() => {
+  //   optimizer.waitForInit().then(() => {
+  //     setWorkerState({
+  //       ...workerState,
+  //       init: true
+  //     });
+  //   });
+  // }, []);
 
   useEffect(() => {
     const cur = canvasRef.current;

@@ -1,7 +1,6 @@
 import { Canvas, LabelCache, LabelData, LabelMeasurements, Num, PenroseError, Shape, State } from "@penrose/core";
 
 export enum WorkerState {
-  Off = 'Off',
   Init = 'Init',
   Compiled = 'Compiled',
   Optimizing = 'Optimizing',
