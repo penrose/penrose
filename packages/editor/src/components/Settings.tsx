@@ -1,7 +1,7 @@
 import { useRecoilStateLoadable, useRecoilValue } from "recoil";
 import { currentAppUser, settingsState } from "../state/atoms.js";
 import { useSignIn } from "../state/callbacks.js";
-import { authObject, signOutWrapper } from "../utils/firebaseUtils.js";
+import { signOutWrapper } from "../utils/firebaseUtils.js";
 import BlueButton from "./BlueButton.js";
 
 export default function Settings() {
@@ -9,7 +9,7 @@ export default function Settings() {
   const currentUser = useRecoilValue(currentAppUser);
   const useLogin = useSignIn();
   const useLogout = signOutWrapper();
-  console.log(authObject.currentUser);
+  // console.log(authObject.currentUser);
 
   if (settings.state !== "hasValue") {
     return <div>loading...</div>;

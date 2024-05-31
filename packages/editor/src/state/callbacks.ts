@@ -517,7 +517,8 @@ export const useCheckURL = () =>
     ) {
       console.log(parsed["access_token"]);
       if (typeof parsed["access_token"] === "string") {
-        console.log("hit");
+        // console.log("hit");
+
         const credential = GithubAuthProvider.credential(
           parsed["access_token"],
         );
@@ -724,8 +725,9 @@ export const usePublishGist = () =>
 
 const REDIRECT_URL =
   process.env.NODE_ENV === "development"
-    ? "https://penrose-gh-auth-zeta.vercel.app/connect/github"
-    : "https://penrose-gh-auth.vercel.app/connect/github";
+    ? // i think these change later ?
+      "https://penrose-gh-auth-lac.vercel.app/connect/github"
+    : "https://penrose-gh-auth-lac.vercel.app/connect/github";
 export const useSignIn = () =>
   useRecoilCallback(({ set, snapshot }) => () => {
     const workspace = snapshot.getLoadable(currentWorkspaceState).contents;
