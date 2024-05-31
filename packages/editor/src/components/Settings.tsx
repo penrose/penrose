@@ -9,7 +9,6 @@ export default function Settings() {
   const currentUser = useRecoilValue(currentAppUser);
   const useLogin = useSignIn();
   const useLogout = signOutWrapper();
-  // console.log(authObject.currentUser);
 
   if (settings.state !== "hasValue") {
     return <div>loading...</div>;

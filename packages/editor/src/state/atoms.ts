@@ -39,11 +39,16 @@ export type GistLocation = {
 };
 
 export type WorkspaceLocation =
+  /**
+   * "local" used for unstored non example workspaces, to distinguish for
+   * save button functionality
+   */
+  | { kind: "local" }
   | {
-      kind: "stored";
       /**
-       * True if file is explicitly saved to localStorage
+       * If file is explicitly saved to cloud storage
        */
+      kind: "stored";
       saved: boolean;
       resolver?: PathResolver;
     }
@@ -248,7 +253,7 @@ export const defaultWorkspaceState = (): Workspace => ({
     id: uuid(),
     lastModified: new Date().toISOString(),
     editorVersion: 0.1,
-    location: { kind: "stored", saved: false },
+    location: { kind: "local" },
     forkedFromGist: null,
   },
   files: {

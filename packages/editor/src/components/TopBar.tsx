@@ -13,6 +13,7 @@ import {
   useNewWorkspace,
   usePublishGist,
   useResampleDiagram,
+  useSaveNewWorkspace,
   useSaveWorkspace,
 } from "../state/callbacks.js";
 import BlueButton from "./BlueButton.js";
@@ -129,6 +130,7 @@ export default function TopBar() {
   const isUnsaved = useIsUnsaved();
   const newWorkspace = useNewWorkspace();
   const saveWorkspace = useSaveWorkspace();
+  const saveNewWorkspace = useSaveNewWorkspace();
 
   return (
     <nav
@@ -174,6 +176,13 @@ export default function TopBar() {
                 {currentWorkspace.metadata.location.author}
               </AuthorBox>
             </a>
+          )}
+          {currentWorkspace.metadata.location.kind == "local" && (
+            <BlueButton
+              onClick={() => saveNewWorkspace(currentWorkspace.metadata.id)}
+            >
+              save
+            </BlueButton>
           )}
           {currentWorkspace.metadata.location.kind === "stored" &&
             !currentWorkspace.metadata.location.saved && (
