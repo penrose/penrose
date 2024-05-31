@@ -17,7 +17,7 @@ import {
   ResampleReq,
   Resp,
   separateRenderedLabels,
-} from "./common";
+} from "./common.js";
 
 /* State types */
 
@@ -481,7 +481,7 @@ export default class OptimizerWorker {
       log.info(`compile running from state ${this.state.tag}`);
       switch (this.state.tag) {
         case "Init":
-        case "Compiled":
+        case "Compiled": {
           const jobId: string = uuid();
           const req: CompiledReq = {
             tag: "CompiledReq",
@@ -500,12 +500,14 @@ export default class OptimizerWorker {
           });
           this.request(req);
           break;
+        }
 
-        case "Optimizing":
-          this.interruptOptimizing()
-            .then(() => this.compile(domain, style, substance, variation))
-            .then((jobId: string) => resolve(jobId));
+        case "Optimizing": {
+          await this.interruptOptimizing();
+          const jobId = await this.compile(domain, style, substance, variation);
+          resolve(jobId);
           break;
+        }
 
         // exhaustive
       }
@@ -540,7 +542,7 @@ export default class OptimizerWorker {
 
         default:
           startReject(
-            runtimeError(`Cannot compile in state ${this.state.tag}`),
+            runtimeError(`Cannot start optimizing in state ${this.state.tag}`),
           );
       }
     });
@@ -590,14 +592,15 @@ export default class OptimizerWorker {
       log.info(`resample running from state ${this.state.tag}`);
       switch (this.state.tag) {
         case "Optimizing":
-          this.interruptOptimizing()
-            .then(() => this.resample(jobId, variation))
-            .then(({ onStart, onFinish }) => {
-              onFinish.then(finishResolve, finishReject);
-
-              startResolve();
-            })
-            .catch(startReject);
+          try {
+            await this.interruptOptimizing();
+            const { onStart, onFinish } = await this.resample(jobId, variation);
+            onFinish.then(finishResolve, finishReject);
+            await onStart;
+            startResolve();
+          } catch (error: any) {
+            startReject(error);
+          }
           break;
 
         case "Compiled":

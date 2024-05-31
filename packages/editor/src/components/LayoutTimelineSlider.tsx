@@ -2,8 +2,8 @@
 
 import { penroseBlue } from "@penrose/components";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { diagramState, diagramWorkerState, optimizer } from "../state/atoms";
-import SegmentedSlider from "./SegmentedSlider";
+import { diagramState, diagramWorkerState, optimizer } from "../state/atoms.js";
+import SegmentedSlider from "./SegmentedSlider.js";
 
 export const LayoutTimelineSlider: React.FC<{}> = (props) => {
   const [diagram, setDiagram] = useRecoilState(diagramState);

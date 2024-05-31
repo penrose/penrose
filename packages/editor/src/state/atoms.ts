@@ -20,8 +20,8 @@ import {
 } from "recoil";
 import { v4 as uuid } from "uuid";
 import { layoutModel } from "../App.js";
-import { RenderState } from "../worker/common";
-import OptimizerWorker from "../worker/OptimizerWorker";
+import { RenderState } from "../worker/common.js";
+import OptimizerWorker from "../worker/OptimizerWorker.js";
 import { generateVariation } from "./variation.js";
 
 export const optimizer = new OptimizerWorker();

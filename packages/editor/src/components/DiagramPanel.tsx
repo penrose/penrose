@@ -57,24 +57,22 @@ export default function DiagramPanel() {
     return () => cancelAnimationFrame(requestRef.current!);
   }, [diagram.state]);
 
-  const step = () => {
+  const step = async () => {
     if (state) {
-      optimizer
-        .pollForUpdate()
-        .then((info) => {
-          if (info === null) return;
-          setDiagram({
-            ...diagram,
-            error: null,
-            state: info.state,
-          });
-        })
-        .catch((error) => {
-          setDiagram({
-            ...diagram,
-            error,
-          });
+      try {
+        const info = await optimizer.pollForUpdate();
+        if (info === null) return;
+        setDiagram({
+          ...diagram,
+          error: null,
+          state: info.state,
         });
+      } catch (error: any) {
+        setDiagram({
+          ...diagram,
+          error,
+        });
+      }
     }
   };
 

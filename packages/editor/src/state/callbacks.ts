@@ -96,40 +96,36 @@ const _compileDiagram = async (
   };
 
   // ugly `then` chain allows for one catch at the end
-  await optimizer
-    .compile(domain, style, substance, variation)
-    .then(async (id) => {
-      set(diagramWorkerState, {
-        ...diagramWorkerState,
-        id,
-        optimizing: false,
-      });
-      return optimizer.startOptimizing();
-    })
-    .then(({ onStart, onFinish }) => {
-      onFinish
-        .then(() => {
-          toast.dismiss(compiling);
-          set(diagramWorkerState, {
-            ...diagramWorkerState,
-            optimizing: false,
-          });
-        })
-        .catch(onError);
+  try {
+    const id = await optimizer.compile(domain, style, substance, variation);
+    set(diagramWorkerState, {
+      ...diagramWorkerState,
+      id,
+      optimizing: false,
+    });
 
-      return onStart;
-    })
-    .then(() => {
-      set(diagramWorkerState, {
-        ...diagramWorkerState,
-        optimizing: true,
-      });
-      return optimizer.pollForUpdate();
-    })
-    .then((info) => {
-      if (info !== null) onUpdate(info);
-    })
-    .catch(onError);
+    const { onStart, onFinish } = await optimizer.startOptimizing();
+    onFinish
+      .then(() => {
+        toast.dismiss(compiling);
+        set(diagramWorkerState, {
+          ...diagramWorkerState,
+          optimizing: false,
+        });
+      })
+      .catch(onError);
+
+    await onStart;
+    set(diagramWorkerState, {
+      ...diagramWorkerState,
+      optimizing: true,
+    });
+
+    const info = await optimizer.pollForUpdate();
+    if (info !== null) onUpdate(info);
+  } catch (error: any) {
+    onError(error);
+  }
 
   // TODO: update grid state too
   // set(diagramGridState, ({ gridSize }: DiagramGrid) => ({
@@ -187,44 +183,41 @@ export const useResampleDiagram = () =>
       }));
     };
 
-    await optimizer
-      .resample(id, variation)
-      .then(({ onStart, onFinish }) => {
-        onFinish
-          .then(() => {
-            toast.dismiss(resamplingLoading);
-            set(diagramWorkerState, (state) => ({
-              ...state,
-              optimizing: false,
-            }));
-          })
-          .catch(onError);
+    try {
+      const { onStart, onFinish } = await optimizer.resample(id, variation);
+      onFinish
+        .then(() => {
+          toast.dismiss(resamplingLoading);
+          set(diagramWorkerState, (state) => ({
+            ...state,
+            optimizing: false,
+          }));
+        })
+        .catch(onError);
 
-        return onStart;
-      })
-      .then(() => {
-        set(diagramWorkerState, (state) => ({
-          ...state,
-          optimizing: true,
-        }));
-        return optimizer.pollForUpdate();
-      })
-      .then((info) => {
-        if (info === null) return;
-        set(diagramState, (state) => ({
-          ...state,
-          metadata: { ...state.metadata, variation },
-          state: info.state,
-        }));
-        // update grid state too
-        set(diagramGridState, ({ gridSize }) => ({
-          variations: range(gridSize).map((i) =>
-            i === 0 ? variation : generateVariation(),
-          ),
-          gridSize,
-        }));
-      })
-      .catch(onError);
+      await onStart;
+      set(diagramWorkerState, (state) => ({
+        ...state,
+        optimizing: true,
+      }));
+
+      const info = await optimizer.pollForUpdate();
+      if (info === null) return;
+      set(diagramState, (state) => ({
+        ...state,
+        metadata: { ...state.metadata, variation },
+        state: info.state,
+      }));
+      // update grid state too
+      set(diagramGridState, ({ gridSize }) => ({
+        variations: range(gridSize).map((i) =>
+          i === 0 ? variation : generateVariation(),
+        ),
+        gridSize,
+      }));
+    } catch (error: any) {
+      onError(error);
+    }
   });
 
 const _saveLocally = (set: any) => {

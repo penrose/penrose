@@ -22,7 +22,7 @@ import {
   Resp,
   stateToLayoutState,
   WorkerState,
-} from "./common";
+} from "./common.js";
 
 type Frame = number[];
 
@@ -120,9 +120,13 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
         case "ResampleReq":
           log.info("Received ResampleReq in state Compiled");
           const { variation } = data;
-          const resampled = resample({ ...unoptState, variation });
-          respondOptimizing();
-          optimize(insertPending(resampled));
+          try {
+            const resampled = resample({ ...unoptState, variation });
+            respondOptimizing();
+            optimize(insertPending(resampled));
+          } catch (err: any) {
+            respondError(err);
+          }
           break;
 
         case "InterruptReq":
@@ -289,12 +293,13 @@ const optimize = async (state: PenroseState) => {
       break;
     }
 
-    const optimizationFailed = await optStep() // run an optimization step
-      .then(() => false)
-      .catch((error: PenroseError) => {
-        respondError(error);
-        return true;
-      });
+    let optimizationFailed = false;
+    try {
+      await optStep();
+    } catch (err: any) {
+      optimizationFailed = true;
+      respondError(err);
+    }
 
     if (optimizationFailed) {
       log.info("Optimization failed. Quitting without finishing...");
