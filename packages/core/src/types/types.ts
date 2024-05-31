@@ -20,6 +20,7 @@ export const valueTypeDesc = {
   ColorType: { description: "Color Type", symbol: `"rgb" | "hsv"` },
   PathType: { description: "Path Type", symbol: `"open" | "closed"` },
   ShapeList: { description: "List of shapes", symbol: "Shape[]" },
+  PathDataList: { description: "List of paths", symbol: "PathData[]" },
   PathCmd: { description: "Path Command", symbol: "PathCmd" },
   Boolean: { description: "Boolean Value", symbol: `true | false` },
   ClipData: { description: "Shape clip data", symbol: "ClipData" },

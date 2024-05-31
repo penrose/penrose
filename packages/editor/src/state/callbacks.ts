@@ -1,3 +1,4 @@
+import { showError } from "@penrose/core";
 import { Style } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
 import localforage from "localforage";
@@ -88,7 +89,7 @@ const _compileDiagram = async (
 
   const onError = (error: any) => {
     toast.dismiss(compiling);
-    toast.error(error.message);
+    toast.error(showError(error));
     set(diagramWorkerState, {
       ...diagramWorkerState,
       optimizing: false,
@@ -176,7 +177,7 @@ export const useResampleDiagram = () =>
     const resamplingLoading = toast.loading("Resampling...");
     const onError = (error: any) => {
       toast.dismiss(resamplingLoading);
-      toast.error(error.message);
+      toast.error(showError(error));
       set(diagramWorkerState, (state) => ({
         ...state,
         optimizing: false,

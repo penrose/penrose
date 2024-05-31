@@ -70,6 +70,7 @@ import {
   LListV,
   ListV,
   MatrixV,
+  PathCmd,
   PathDataV,
   PtListV,
   StrV,
@@ -89,6 +90,8 @@ import {
   noClip,
   noWarn,
   pathCmdT,
+  pathDataListT,
+  pathDataV,
   pathTypeT,
   posIntT,
   ptListV,
@@ -2002,6 +2005,61 @@ export const compDict = {
       _.chunk(tailpts, 2).forEach(([cp, pt]) => path.cubicCurveJoin(cp, pt));
       if (pathType === "closed") path.closePath();
       return noWarn(path.getPath());
+    },
+    returns: valueT("PathCmd"),
+  },
+
+  joinPaths: {
+    name: "joinPaths",
+    description:
+      "Given a list of `PathData`s, returns a `PathData` representing the union of these paths with " +
+      "lines connecting the start and end points.",
+
+    params: [
+      { type: pathTypeT(), name: "pathType", description: "Path type" },
+      {
+        type: pathDataListT(),
+        name: "pathDataList",
+        description: "List of path data",
+      },
+    ],
+    body: (
+      _context: Context,
+      pathType: string,
+      pathDataList: PathCmd<ad.Num>[][],
+    ): MayWarn<PathDataV<ad.Num>> => {
+      if (pathDataList.length === 0) {
+        return noWarn(pathDataV([]));
+      }
+
+      let resPathData: PathCmd<ad.Num>[] = [];
+      const connectToStart = (pathData: PathCmd<ad.Num>[]) => {
+        const coords = pathData[0].contents[0].contents;
+        resPathData.push({
+          cmd: "L",
+          contents: [
+            {
+              tag: "CoordV",
+              contents: coords,
+            },
+          ],
+        });
+      };
+      for (let i = 0; i < pathDataList.length; i++) {
+        let pathData = pathDataList[i];
+        if (pathData.length === 0) {
+          continue;
+        }
+        if (i !== 0 && pathData[0].cmd === "M") {
+          connectToStart(pathData);
+          pathData = pathData.slice(1);
+        }
+        resPathData = resPathData.concat(pathData);
+      }
+      if (pathType === "closed") {
+        connectToStart(pathDataList[0]);
+      }
+      return noWarn(pathDataV(resPathData));
     },
     returns: valueT("PathCmd"),
   },
