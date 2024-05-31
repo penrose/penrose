@@ -2009,8 +2009,8 @@ export const compDict = {
     returns: valueT("PathCmd"),
   },
 
-  joinPaths: {
-    name: "joinPaths",
+  connectPaths: {
+    name: "connectPaths",
     description:
       "Given a list of `PathData`s, returns a `PathData` representing the union of these paths with " +
       "lines connecting the start and end points.",
@@ -2028,37 +2028,39 @@ export const compDict = {
       pathType: string,
       pathDataList: PathCmd<ad.Num>[][],
     ): MayWarn<PathDataV<ad.Num>> => {
-      if (pathDataList.length === 0) {
-        return noWarn(pathDataV([]));
-      }
-
-      let resPathData: PathCmd<ad.Num>[] = [];
-      const connectToStart = (pathData: PathCmd<ad.Num>[]) => {
-        const coords = pathData[0].contents[0].contents;
-        resPathData.push({
+      const connect = (startCmd: PathCmd<ad.Num>): PathCmd<ad.Num> => {
+        return {
           cmd: "L",
-          contents: [
-            {
-              tag: "CoordV",
-              contents: coords,
-            },
-          ],
-        });
+          contents: startCmd.contents,
+        };
       };
-      for (let i = 0; i < pathDataList.length; i++) {
-        let pathData = pathDataList[i];
-        if (pathData.length === 0) {
-          continue;
-        }
-        if (i !== 0 && pathData[0].cmd === "M") {
-          connectToStart(pathData);
-          pathData = pathData.slice(1);
-        }
-        resPathData = resPathData.concat(pathData);
-      }
-      if (pathType === "closed") {
-        connectToStart(pathDataList[0]);
-      }
+      const resPathData = PathBuilder.concatPaths(
+        pathDataList,
+        connect,
+        pathType === "closed",
+      );
+      return noWarn(pathDataV(resPathData));
+    },
+    returns: valueT("PathCmd"),
+  },
+
+  concatenatePaths: {
+    name: "concatenatePaths",
+    description:
+      "Given a list of `PathData`s, return the union of these paths.",
+
+    params: [
+      {
+        type: pathDataListT(),
+        name: "pathDataList",
+        description: "List of path data",
+      },
+    ],
+    body: (
+      _context: Context,
+      pathDataList: PathCmd<ad.Num>[][],
+    ): MayWarn<PathDataV<ad.Num>> => {
+      const resPathData = PathBuilder.concatPaths(pathDataList);
       return noWarn(pathDataV(resPathData));
     },
     returns: valueT("PathCmd"),
