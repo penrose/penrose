@@ -20,7 +20,7 @@ import {
 } from "recoil";
 import { v4 as uuid } from "uuid";
 import { layoutModel } from "../App.js";
-import { RenderState } from "../worker/message.js";
+import { RenderState } from "../worker/common.js";
 import OptimizerWorker from "../worker/OptimizerWorker.js";
 import { generateVariation } from "./variation.js";
 
@@ -349,12 +349,14 @@ export const layoutTimelineState = atom<LayoutTimeline>({
 
 export const diagramWorkerState = atom<{
   id: string;
-  running: boolean;
+  init: boolean;
+  optimizing: boolean;
 }>({
   key: "diagramWorkerState",
   default: {
     id: "",
-    running: false,
+    init: false,
+    optimizing: false,
   },
 });
 
