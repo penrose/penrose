@@ -712,11 +712,11 @@ export const usePublishGist = () =>
     window.location.search = queryString.stringify({ gist: json.id });
   });
 
-const REDIRECT_URL =
-  process.env.NODE_ENV === "development"
-    ? // i think these change later ?
-      "https://penrose-gh-auth-lac.vercel.app/connect/github"
-    : "https://penrose-gh-auth-lac.vercel.app/connect/github";
+const REDIRECT_URL = "https://penrose-gh-auth-lac.vercel.app/connect/github";
+// Because cors policy cannot be changed due to use of SharedArrayBuffer,
+// we must use another server to serve github oauth requests.
+// On success, this process redirects to the main server and CheckURL passes
+// the GitHub access token to Firebase for later secure user reference.
 export const useSignIn = () =>
   useRecoilCallback(({ set, snapshot }) => () => {
     const workspace = snapshot.getLoadable(currentWorkspaceState).contents;
