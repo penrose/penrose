@@ -11,8 +11,8 @@ import {
   useLoadLocalWorkspace,
   useSaveNewWorkspace,
   useSaveWorkspace,
-  useSignIn,
 } from "../state/callbacks.js";
+import { logInWrapper } from "../utils/firebaseUtils.js";
 import BlueButton from "./BlueButton.js";
 import FileButton from "./FileButton.js";
 
@@ -63,7 +63,7 @@ export default function SavedFilesBrowser() {
   const loadWorkspace = useLoadLocalWorkspace();
   const onDelete = useDeleteWorkspace();
   const saveNewWorkspace = useSaveNewWorkspace();
-  const useLogin = useSignIn();
+  const useLogin = logInWrapper();
   const currentUser = useRecoilValue(currentAppUser);
 
   saveShortcutHook();

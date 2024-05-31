@@ -1,5 +1,10 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, signOut } from "firebase/auth";
+import {
+  GithubAuthProvider,
+  getAuth,
+  signInWithPopup,
+  signOut,
+} from "firebase/auth";
 import {
   collection,
   doc,
@@ -24,6 +29,33 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 export const authObject = getAuth(firebaseApp);
 export const db = getFirestore(firebaseApp);
+export const oauthProvider = new GithubAuthProvider();
+oauthProvider.addScope("gist");
+
+// Auth utils
+export const logInWrapper = () =>
+  useRecoilCallback(({ set }) => async () => {
+    signInWithPopup(authObject, oauthProvider)
+      .then((result) => {
+        const credential = GithubAuthProvider.credentialFromResult(result);
+        if (credential !== null) {
+          // Save access token to local state, settingsEffect propogates to local storage
+          // For type safety, assign null if undefined
+          set(settingsState, (prevState) => ({
+            ...prevState,
+            githubAccessToken:
+              credential.accessToken != undefined
+                ? credential.accessToken
+                : null,
+          }));
+
+          toast.success(`Logged in as ${result.user.displayName}`);
+        }
+      })
+      .catch((error) => {
+        toast.error("Error logging in");
+      });
+  });
 
 export const signOutWrapper = () =>
   useRecoilCallback(({ set }) => async () => {

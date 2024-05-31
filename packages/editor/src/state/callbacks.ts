@@ -1,6 +1,5 @@
 import { Style } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
-import { GithubAuthProvider, signInWithCredential } from "firebase/auth";
 import { deleteDoc, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { range } from "lodash";
 import queryString from "query-string";
@@ -526,32 +525,6 @@ export const useNewWorkspace = () =>
 export const useCheckURL = () =>
   useRecoilCallback(({ set, snapshot, reset }) => async () => {
     const parsed = queryString.parse(window.location.search);
-    // Process login query
-    // I believe this can be removed after new oauth flow implemented
-    if ("access_token" in parsed) {
-      // Hide parameter from URL
-      window.history.replaceState({}, document.title, window.location.pathname);
-      // For type safety
-      let access_token: string;
-      if (typeof parsed["access_token"] === "string") {
-        access_token = parsed["access_token"];
-        // Use access token to login with Firebase for secure user reference later
-        const credential = GithubAuthProvider.credential(access_token);
-        signInWithCredential(authObject, credential)
-          .then((result) => {
-            set(settingsState, (prevState) => ({
-              ...prevState,
-              githubAccessToken: access_token,
-            }));
-            toast.success(`Logged in as ${result.user.displayName}`);
-          })
-          .catch((error) => {
-            toast.error("Error logging in");
-          });
-      } else {
-        toast.error("Error logging in");
-      }
-    }
     if ("gist" in parsed) {
       // Loading a gist
       const id = toast.loading("Loading gist...");
@@ -716,24 +689,6 @@ export const usePublishGist = () =>
     }
     toast.success(`Published gist, redirecting...`);
     window.location.search = queryString.stringify({ gist: json.id });
-  });
-
-// Likely this will get removed after new oauth pipeline implemented
-const REDIRECT_URL = "https://penrose-gh-auth-lac.vercel.app/connect/github";
-// Because cors policy cannot be changed due to use of SharedArrayBuffer,
-// we must use another server to serve github oauth requests.
-// On success, this process redirects to the main server and CheckURL passes
-// the GitHub access token to Firebase for later secure user reference.
-export const useSignIn = () =>
-  useRecoilCallback(({ set, snapshot }) => () => {
-    const workspace = snapshot.getLoadable(currentWorkspaceState).contents;
-    if (
-      !isCleanWorkspace(workspace) &&
-      !confirm("You have unsaved changes. Please save before continuing.")
-    ) {
-      return;
-    }
-    window.location.replace(REDIRECT_URL);
   });
 
 export const useDeleteWorkspace = () =>
