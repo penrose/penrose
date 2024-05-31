@@ -190,22 +190,6 @@ export const useResampleDiagram = () =>
     );
   });
 
-// const _saveLocally = (set: any) => {
-//   const id = toast.loading("saving...");
-//   set(workspaceMetadataSelector, (state: WorkspaceMetadata) => ({
-//     ...state,
-//     location: { kind: "stored", saved: true } as WorkspaceLocation,
-//   }));
-//   toast.dismiss(id);
-// };
-
-// export const useSaveDiagram = () =>
-//   useRecoilCallback(({ set }) => () => {
-//     const notif = toast.loading("saving...")
-//     set()
-//     // _saveLocally(set);
-//   });
-
 export const useDownloadTrio = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
     const metadata = snapshot.getLoadable(workspaceMetadataSelector)
@@ -372,15 +356,6 @@ export const useDownloadPdf = () =>
     }
   });
 
-export const useDuplicate = () =>
-  useRecoilCallback(({ set }) => () => {
-    set(workspaceMetadataSelector, (state: WorkspaceMetadata) => ({
-      ...state,
-      location: { kind: "stored", saved: true } as WorkspaceLocation,
-      id: uuid(),
-    }));
-  });
-
 // returns true if there are no unsaved changes
 export const isCleanWorkspace = (workspace: Workspace): boolean => {
   if (
@@ -412,7 +387,11 @@ export const useLoadLocalWorkspace = () =>
     if (id in currentSavedFilesState) {
       loadedWorkspace = currentSavedFilesState[id];
     } else {
-      // Workspace missing from local state, search database instead
+      /**
+       * Workspace missing from local state, search database instead
+       * As a fallback in case of some unforseen bug, I do not expect this
+       * branch to be reached
+       */
       loadedWorkspace = await getDiagram(id);
     }
 
@@ -511,6 +490,7 @@ export const useCheckURL = () =>
   useRecoilCallback(({ set, snapshot, reset }) => async () => {
     const parsed = queryString.parse(window.location.search);
     // Process login query
+    // I believe this can be removed after new oauth flow implemented
     if ("access_token" in parsed) {
       // Hide parameter from URL
       window.history.replaceState({}, document.title, window.location.pathname);
@@ -642,26 +622,15 @@ export const useCheckURL = () =>
     // TODO: implementing loading individual registry examples by URL
   });
 
-// this probably needs to be reworked
 export const usePublishGist = () =>
   useRecoilCallback(({ snapshot, set }) => async () => {
     const workspace = snapshot.getLoadable(currentWorkspaceState)
       .contents as Workspace;
     const settings = snapshot.getLoadable(settingsState).contents as Settings;
     if (settings.githubAccessToken === null) {
-      // check auth token instead in local storage (in case user cleared cache)
       console.error(`Not authorized with GitHub`);
       toast.error(`Not authorized with GitHub`);
       return;
-    }
-    // save draft to a new workspace before redirecting to gist url
-    if (
-      workspace.metadata.location.kind === "stored" &&
-      !workspace.metadata.location.saved
-    ) {
-      // call saveDiagram
-      // console.log("bruh");
-      // await _saveLocally(set);
     }
     const gistMetadata: GistMetadata = {
       name: workspace.metadata.name,
@@ -712,6 +681,7 @@ export const usePublishGist = () =>
     window.location.search = queryString.stringify({ gist: json.id });
   });
 
+// Likely this will get removed after new oauth pipeline implemented
 const REDIRECT_URL = "https://penrose-gh-auth-lac.vercel.app/connect/github";
 // Because cors policy cannot be changed due to use of SharedArrayBuffer,
 // we must use another server to serve github oauth requests.
@@ -729,7 +699,7 @@ export const useSignIn = () =>
     window.location.replace(REDIRECT_URL);
   });
 
-export const useDeleteLocalFile = () =>
+export const useDeleteWorkspace = () =>
   useRecoilCallback(
     ({ set, snapshot, reset }) =>
       async (workspaceMetadata: WorkspaceMetadata) => {
@@ -770,6 +740,10 @@ export const useDeleteLocalFile = () =>
       },
   );
 
+/**
+ * Used when a "local" workspace is saved for the first time
+ * Also used for duplicate diagram, diagramId passed in as fresh uuid
+ */
 export const useSaveNewWorkspace = () =>
   useRecoilCallback(({ snapshot, set }) => async (diagramId: string) => {
     if (

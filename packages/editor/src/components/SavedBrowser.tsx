@@ -7,7 +7,7 @@ import {
   savedFilesState,
 } from "../state/atoms.js";
 import {
-  useDeleteLocalFile,
+  useDeleteWorkspace,
   useLoadLocalWorkspace,
   useSaveNewWorkspace,
   useSaveWorkspace,
@@ -61,7 +61,7 @@ export default function SavedFilesBrowser() {
   const savedFiles = useRecoilValue(savedFilesState);
   const currentWorkspace = useRecoilValue(currentWorkspaceState);
   const loadWorkspace = useLoadLocalWorkspace();
-  const onDelete = useDeleteLocalFile();
+  const onDelete = useDeleteWorkspace();
   const saveNewWorkspace = useSaveNewWorkspace();
   const useLogin = useSignIn();
   const currentUser = useRecoilValue(currentAppUser);

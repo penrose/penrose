@@ -189,6 +189,7 @@ export default function TopBar() {
               <BlueButton onClick={() => saveWorkspace()}>save</BlueButton>
             )}
           {currentWorkspace.metadata.location.kind === "stored" &&
+            currentWorkspace.metadata.location.saved &&
             settings.githubAccessToken !== null && (
               <BlueButton onClick={publishGist}>share</BlueButton>
             )}
