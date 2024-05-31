@@ -161,6 +161,9 @@ const generateOptimizerPromises = async (
   return { onStart, onFinish };
 };
 
+/**
+ * Wrapper for parallel diagram optimization.
+ */
 export default class OptimizerWorker {
   private state: OWState;
   private worker: Worker;
@@ -190,6 +193,9 @@ export default class OptimizerWorker {
   private setState(state: OWState) {
     log.info(`New worker client state ${state.tag}`);
     this.state = state;
+
+    // signal to await-ers that we have switched states, and reset promise for
+    // the next state
     this.nextStatePromiseResolve();
     this.nextStatePromise = new Promise((resolve) => {
       this.nextStatePromiseResolve = resolve;
@@ -200,7 +206,15 @@ export default class OptimizerWorker {
     await this.nextStatePromise;
   }
 
+  /**
+   * Handles messages from the worker thread.
+   * @param data Message from worker thread
+   * @private
+   */
   private async onMessage({ data }: MessageEvent<Resp>) {
+    // Handle errors first: simplifies switch statement some
+    // we can either drop down a state if the error is recoverable,
+    // or move into a latching "Error" state
     if (data.tag === "ErrorResp") {
       switch (this.state.tag) {
         case "InitToCompiled":
@@ -433,14 +447,24 @@ export default class OptimizerWorker {
     this.worker.postMessage(req);
   }
 
+  /**
+   * Return whether the worker thread is ready to accept messages.
+   */
   isInit() {
     return this.state.tag !== "WaitingForInit";
   }
 
+  /**
+   * Get the current state of the worker
+   */
   getState() {
     return this.state.tag;
   }
 
+  /**
+   * If the optimizer is in an error state, return the error
+   * @returns PenroseError if in error state, null otherwise
+   */
   getError(): PenroseError | null {
     if (this.state.tag === "Error") {
       return this.state.error;
@@ -449,6 +473,10 @@ export default class OptimizerWorker {
     }
   }
 
+  /**
+   * Terminate the optimizer. Places optimizer in error state, and a new
+   * one must be constructed if optimization is needed.
+   */
   terminate() {
     this.state = {
       tag: "Error",
@@ -457,6 +485,9 @@ export default class OptimizerWorker {
     this.worker.terminate();
   }
 
+  /**
+   * Wait for the optimizer to be ready to compile
+   */
   async waitForInit() {
     return new Promise<void>((resolve, reject) => {
       if (this.state.tag !== "WaitingForInit") {
@@ -468,6 +499,13 @@ export default class OptimizerWorker {
     });
   }
 
+  /**
+   * Compile a diagram. Places optimizer into 'Compiled' state.
+   * @param domain
+   * @param style
+   * @param substance
+   * @param variation
+   */
   async compile(
     domain: string,
     style: string,
@@ -548,10 +586,22 @@ export default class OptimizerWorker {
     });
   }
 
+  /**
+   * Start optimizing a previously compiled diagram. Must be in 'Compiled' state, and
+   * an error is thrown if requested before compilation or after optimization starts.
+   *
+   * @returns Promises `{ onStart, onFinish }` such that `onStart` resolves once optimization begins
+   *  and `onFinish` resolves once optimization finishes. If `onStart` rejects,
+   * `onFinish` will remain pending.
+   */
   async startOptimizing(): Promise<OptimizerPromises> {
     return generateOptimizerPromises(this.startOptimizingHelper.bind(this));
   }
 
+  /**
+   * Stop optimizing. An error is thrown if an interrupt is requested when optimization
+   * is not occurring.
+   */
   async interruptOptimizing(): Promise<void> {
     log.info(`interruptOptimizing called from state ${this.state.tag}`);
     return new Promise<void>(async (resolve, reject) => {
@@ -630,6 +680,12 @@ export default class OptimizerWorker {
     });
   }
 
+  /**
+   * Resample a diagram. Must be previously compiled, but resampling in progress
+   * optimization is valid and will simply interrupt the current optimization.
+   * @param jobId Id returned by `compile`
+   * @param variation
+   */
   async resample(jobId: string, variation: string): Promise<OptimizerPromises> {
     return generateOptimizerPromises((finishResolve, finishReject) => {
       return this.resampleHelper(jobId, variation, finishResolve, finishReject);
@@ -637,18 +693,9 @@ export default class OptimizerWorker {
   }
 
   /**
-   * Resample the diagram. If optimizing, first interrupts to compiled state, and
-   * then resamples. Promises resolves when optimization has restarted, NOT when
-   * optimization has finished. Use `onFinish` as a callback for optimizer finish.
-   *
-   * @param jobId Id of this optimization task. Returned by `compile`.
-   * @param variation Diagram variation
+   * Poll the worker for diagram updates. Must only be called after compilation.
+   * @returns UpdateInfo if the diagram has changed, otherwise null
    */
-  // resample(
-  //   jobId: string,
-  //   variation: string
-  // )
-
   async pollForUpdate(): Promise<UpdateInfo | null> {
     log.info(`pollForUpdate called from state ${this.state.tag}`);
     return new Promise<UpdateInfo | null>(async (resolve, reject) => {
@@ -689,6 +736,11 @@ export default class OptimizerWorker {
     });
   }
 
+  /**
+   * Ask for the diagram at optimization state `i`. Must only be called after
+   * compilation.
+   * @param i Optimization step from which to compute shapes
+   */
   async computeShapesAtIndex(i: number): Promise<RenderState> {
     log.info(`computeShapesAtIndex called from state ${this.state.tag}`);
     return new Promise<RenderState>(async (resolve, reject) => {
@@ -732,6 +784,9 @@ export default class OptimizerWorker {
     });
   }
 
+  /**
+   * Get layout stats
+   */
   getStats() {
     if ("layoutStats" in this.state) {
       return this.state.layoutStats;

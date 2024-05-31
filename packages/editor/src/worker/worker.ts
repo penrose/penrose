@@ -30,13 +30,20 @@ type PartialState = Pick<State, "varyingValues" | "inputs" | "shapes"> & {
   labelCache: LabelMeasurements;
 };
 
+// state returned by compileTrio
 let unoptState: PenroseState;
+
+// most recent state computed through optimization
 let optState: PenroseState | null = null;
+
 // the UUID of the current task
 let currentTask: string;
+
 let history: Frame[] = [];
 let stats: LayoutStats = [];
 let workerState: WorkerState = WorkerState.Init;
+
+// set to true to cause optimizer to finish before the next step
 let shouldFinish = false;
 
 const log = (consola as any)
@@ -86,6 +93,8 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
           } as PenroseState;
           workerState = WorkerState.Optimizing;
           respondOptimizing();
+          // launch optimization worker asynchronously
+          // we don't await so that we can accept new messages
           optimize(insertPending(unoptState));
           break;
 
@@ -120,6 +129,7 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
         case "ResampleReq":
           log.info("Received ResampleReq in state Compiled");
           const { variation } = data;
+          // resample can fail, but doesn't return a result. Hence, try/catch
           try {
             const resampled = resample({ ...unoptState, variation });
             respondOptimizing();
@@ -248,6 +258,8 @@ const optimize = async (state: PenroseState) => {
   ];
   const numSteps = 1;
   let i = 0;
+
+  // take one optimization step
   const optStep = async () => {
     log.info(i);
     let j = 0;
@@ -279,9 +291,12 @@ const optimize = async (state: PenroseState) => {
   };
 
   while (!isOptimized(state)) {
-    /* queues resolve as next in the event queue, after onmessage if a message
-     has been received. await-ing `optStep` is not enough, since this will queue optStep
-     as a _microtask_, which will still run before onmessage */
+    /* Javascript has two execution queues: low-priority 'tasks', and
+     high priority 'microtasks'. The microtask queue is emptied after the
+     completion of each task. Promises are queued as microtasks, while events
+     (such as `setTimeout` and `onmessage`) are queued as tasks. So await-ing the
+     next `optStep` would not actually yield to incoming messages. Instead, we
+     place the next call to `optStep` on the task queue as follows. */
     await new Promise<void>((resolve) => {
       setTimeout(resolve, 0);
     });
@@ -293,18 +308,13 @@ const optimize = async (state: PenroseState) => {
       break;
     }
 
-    let optimizationFailed = false;
     try {
       await optStep();
     } catch (err: any) {
-      optimizationFailed = true;
-      respondError(err);
-    }
-
-    if (optimizationFailed) {
       log.info("Optimization failed. Quitting without finishing...");
       workerState = WorkerState.Compiled;
       optState = null;
+      respondError(err);
       return;
     }
   }
@@ -314,4 +324,5 @@ const optimize = async (state: PenroseState) => {
   respondFinished(state, stats);
 };
 
+// tell OptimizerWorker that we're ready to go
 respondInit();
