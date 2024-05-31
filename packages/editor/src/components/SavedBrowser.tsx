@@ -50,7 +50,7 @@ const saveShortcutHook = () => {
   );
 
   useEffect(() => {
-    document.addEventListener("keydown", handleShortcut);
+    document.addEventListener("keydown", handleShortcut, { passive: false });
 
     // Cleanup
     return () => document.removeEventListener("keydown", handleShortcut);
