@@ -510,41 +510,30 @@ export const useNewWorkspace = () =>
 export const useCheckURL = () =>
   useRecoilCallback(({ set, snapshot, reset }) => async () => {
     const parsed = queryString.parse(window.location.search);
-    if (
-      "access_token" in parsed &&
-      "profile[login]" in parsed &&
-      "profile[avatar_url]" in parsed
-    ) {
-      console.log(parsed["access_token"]);
+    // Process login query
+    if ("access_token" in parsed) {
+      // Hide parameter from URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+      // For type safety
+      let access_token: string;
       if (typeof parsed["access_token"] === "string") {
-        // console.log("hit");
-
-        const credential = GithubAuthProvider.credential(
-          parsed["access_token"],
-        );
-        // console.log(credential);
+        access_token = parsed["access_token"];
+        // Use access token to login with Firebase for secure user reference later
+        const credential = GithubAuthProvider.credential(access_token);
         signInWithCredential(authObject, credential)
           .then((result) => {
-            console.log(result);
+            set(settingsState, (prevState) => ({
+              ...prevState,
+              githubAccessToken: access_token,
+            }));
+            toast.success(`Logged in as ${result.user.displayName}`);
           })
           .catch((error) => {
-            console.log(error);
+            toast.error("Error logging in");
           });
+      } else {
+        toast.error("Error logging in");
       }
-
-      // const loginFunc = logInWrapperTest();
-      // if (typeof parsed["access_token"] === "string") {
-      //   loginFunc(parsed["access_token"]);
-      // }
-      // Signed into GitHub
-      // set(settingsState, (state) => ({
-      //   ...state,
-      //   github: {
-      //     username: parsed["profile[login]"],
-      //     accessToken: parsed["access_token"],
-      //     avatar: parsed["profile[avatar_url]"],
-      //   } as LocalGithubUser,
-      // }));
     }
     if ("gist" in parsed) {
       // Loading a gist
