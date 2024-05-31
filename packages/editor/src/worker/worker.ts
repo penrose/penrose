@@ -55,7 +55,7 @@ const respondError = (error: PenroseError) => {
   });
 };
 
-onmessage = async ({ data }: MessageEvent<Req>) => {
+self.onmessage = async ({ data }: MessageEvent<Req>) => {
   const badStateError = () => {
     respondError(
       runtimeError(`Cannot receive ${data.tag} in worker state ${workerState}`),

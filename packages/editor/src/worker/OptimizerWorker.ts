@@ -21,11 +21,11 @@ import {
 
 /* State types */
 
-type Init = {
+export type Init = {
   tag: "Init";
 };
 
-type Compiled = {
+export type Compiled = {
   tag: "Compiled";
   svgCache: Map<string, HTMLElement>;
   layoutStats: LayoutStats;
@@ -33,7 +33,7 @@ type Compiled = {
   polled: boolean;
 };
 
-type Optimizing = {
+export type Optimizing = {
   tag: "Optimizing";
   svgCache: Map<string, HTMLElement>;
   labelCache: LabelMeasurements;
@@ -43,21 +43,21 @@ type Optimizing = {
 };
 
 // unrecoverable error state
-type Error = {
+export type Error = {
   tag: "Error";
   error: PenroseError;
 };
 
-type StableState = Init | Compiled | Optimizing | Error;
+export type StableState = Init | Compiled | Optimizing | Error;
 
-type WaitingForInit = {
+export type WaitingForInit = {
   tag: "WaitingForInit";
   waiting: true;
   resolve: () => void;
   reject: (e: PenroseError) => void;
 };
 
-type InitToCompiled = {
+export type InitToCompiled = {
   tag: "InitToCompiled";
   waiting: true;
   previous: Init | Compiled;
@@ -65,7 +65,7 @@ type InitToCompiled = {
   reject: (e: PenroseError) => void;
 };
 
-type CompiledToOptimizing = {
+export type CompiledToOptimizing = {
   tag: "CompiledToOptimizing";
   waiting: true;
   previous: Compiled;
@@ -75,7 +75,7 @@ type CompiledToOptimizing = {
   reject: (e: PenroseError) => void;
 };
 
-type OptimizingToCompiled = {
+export type OptimizingToCompiled = {
   tag: "OptimizingToCompiled";
   waiting: true;
   previous: Optimizing;
@@ -83,7 +83,7 @@ type OptimizingToCompiled = {
   reject: (e: PenroseError) => void;
 };
 
-type WaitingForUpdate = {
+export type WaitingForUpdate = {
   tag: "WaitingForUpdate";
   waiting: true;
   previous: Optimizing | Compiled;
@@ -91,7 +91,7 @@ type WaitingForUpdate = {
   reject: (e: PenroseError) => void;
 };
 
-type WaitingForShapes = {
+export type WaitingForShapes = {
   tag: "WaitingForShapes";
   waiting: true;
   previous: Optimizing | Compiled;
@@ -99,7 +99,7 @@ type WaitingForShapes = {
   reject: (e: PenroseError) => void;
 };
 
-type WaitingState =
+export type WaitingState =
   | WaitingForInit
   | InitToCompiled
   | CompiledToOptimizing
@@ -107,7 +107,7 @@ type WaitingState =
   | WaitingForUpdate
   | WaitingForShapes;
 
-type OWState = StableState | WaitingState;
+export type OWState = StableState | WaitingState;
 
 /* Module helpers */
 
@@ -376,6 +376,7 @@ export default class OptimizerWorker {
         break;
 
       case "WaitingForUpdate":
+      case "WaitingForShapes":
         switch (data.tag) {
           case "UpdateResp":
           case "FinishedResp":
@@ -387,7 +388,12 @@ export default class OptimizerWorker {
               ),
               stats: data.stats,
             };
-            this.state.resolve(updateInfo);
+
+            if (this.state.tag === "WaitingForUpdate") {
+              this.state.resolve(updateInfo);
+            } else {
+              this.state.resolve(updateInfo.state);
+            }
 
             if (data.tag === "FinishedResp") {
               if (this.state.previous.tag === "Optimizing") {
@@ -416,28 +422,6 @@ export default class OptimizerWorker {
         }
         break;
 
-      case "WaitingForShapes":
-        switch (data.tag) {
-          case "UpdateResp":
-            log.info("Received UpdateResp in state WaitingForShapes");
-            this.state.resolve(
-              layoutStateToRenderState(
-                data.state,
-                this.state.previous.svgCache,
-              ),
-            );
-            this.setState(this.state.previous);
-            break;
-
-          default:
-            this.state.reject(
-              runtimeError(
-                `Worker responded ${data.tag} while waiting for shapes`,
-              ),
-            );
-        }
-        break;
-
       default:
         throw runtimeError(
           `Cannot receive message ${data.tag} in state ${this.state.tag}`,
@@ -451,6 +435,26 @@ export default class OptimizerWorker {
 
   isInit() {
     return this.state.tag !== "WaitingForInit";
+  }
+
+  getState() {
+    return this.state.tag;
+  }
+
+  getError(): PenroseError | null {
+    if (this.state.tag === "Error") {
+      return this.state.error;
+    } else {
+      return null;
+    }
+  }
+
+  terminate() {
+    this.state = {
+      tag: "Error",
+      error: runtimeError("Worker terminated"),
+    };
+    this.worker.terminate();
   }
 
   async waitForInit() {
