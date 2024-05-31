@@ -39,7 +39,6 @@ import {
   currentWorkspaceState,
   diagramState,
   fileContentsSelector,
-  optimizer,
   savedFilesState,
   settingsState,
 } from "./state/atoms.js";
@@ -367,7 +366,6 @@ function App() {
   }, []);
   const isUnsaved = useIsUnsaved();
   useEffect(() => {
-    optimizer.init();
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (isUnsaved()) {
         // warn user if they try to navigate to a new URL while in draft state

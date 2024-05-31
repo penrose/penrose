@@ -1,138 +1,252 @@
+// one "frame" of optimization is a list of varying numbers
 import {
-  LabelMeasurements,
-  PenroseError,
-  PenroseState,
-  State,
   compileTrio,
   finalStage,
   insertPending,
   isOptimized,
+  LabelMeasurements,
   nextStage,
+  PenroseError,
+  PenroseState,
   resample,
+  runtimeError,
+  State,
   step,
 } from "@penrose/core";
-import { LayoutStats, Req, Resp, stateToLayoutState } from "./message.js";
+import consola from "consola";
+import {
+  CompiledReq,
+  LayoutState,
+  LayoutStats,
+  Req,
+  Resp,
+  stateToLayoutState,
+  WorkerState,
+} from "./common.js";
 
-// one "frame" of optimization is a list of varying numbers
 type Frame = number[];
 
 type PartialState = Pick<State, "varyingValues" | "inputs" | "shapes"> & {
   labelCache: LabelMeasurements;
 };
 
-// Array of size two. First index is set if main thread wants an update,
-// second is set if user wants to send a new trio.
-let sharedMemory: Int8Array;
-let currentState: PenroseState;
+// state returned by compileTrio
+let unoptState: PenroseState;
+
+// most recent state computed through optimization
+let optState: PenroseState | null = null;
+
 // the UUID of the current task
 let currentTask: string;
+
 let history: Frame[] = [];
 let stats: LayoutStats = [];
+let workerState: WorkerState = WorkerState.Init;
 
-onmessage = async ({ data }: MessageEvent<Req>) => {
-  console.debug("Received message: ", data);
-  switch (data.tag) {
-    case "Init": {
-      sharedMemory = new Int8Array(data.sharedMemory);
-      respond({ tag: "Ready" });
-      return;
-    }
-    case "Compile": {
-      const { domain, substance, style, variation, id } = data;
-      // save the id for the current task
-      currentTask = id;
-      const compileResult = await compileTrio({
-        domain,
-        substance,
-        style,
-        variation,
-      });
-      if (compileResult.isErr()) {
-        respondError(compileResult.error);
-      } else {
-        currentState = compileResult.value;
-        respondReqLabels(compileResult.value);
-      }
-      break;
-    }
-    case "RespLabels": {
-      const stateWithoutLabels: PartialState = currentState;
-      currentState = {
-        ...stateWithoutLabels,
-        labelCache: data.labelCache,
-      } as PenroseState;
-      optimize(insertPending(currentState));
-      break;
-    }
-    case "Resample": {
-      const { variation } = data;
-      const resampled = resample({ ...currentState, variation });
-      optimize(insertPending(resampled));
-      break;
-    }
-    case "ComputeShapes": {
-      const index = data.index;
-      const newShapes = {
-        ...currentState,
-        varyingValues: history[index],
-      };
-      respond({
-        tag: "Update",
-        state: stateToLayoutState(newShapes),
-        id: currentTask,
-        stats: stats,
-      });
-      break;
-    }
-    default: {
-      // Shouldn't ever happen
-      console.error(`Unknown request: `, data);
-    }
-  }
-};
+// set to true to cause optimizer to finish before the next step
+let shouldFinish = false;
 
-const respondReqLabels = (state: PenroseState) => {
-  respond({
-    tag: "ReqLabels",
-    shapes: state.shapes,
-    id: currentTask,
-  });
-};
-
-const respondUpdate = async (state: PenroseState) => {
-  respond({
-    tag: "Update",
-    state: stateToLayoutState(state),
-    id: currentTask,
-    stats,
-  });
-};
-
-const respondError = (error: PenroseError) => {
-  const resp: Resp = { tag: "Error", error, id: currentTask };
-  respond(resp);
-};
-
-const respondReady = () => {
-  respond({ tag: "Ready" });
-};
-
-const respondFinished = (state: PenroseState) => {
-  respond({
-    tag: "Finished",
-    state: stateToLayoutState(state),
-    stats,
-    id: currentTask,
-  });
-};
+const log = (consola as any)
+  .create({ level: (consola as any).LogLevel.Warn })
+  .withScope("worker:server");
 
 // Wrapper function for postMessage to ensure type safety
 const respond = (response: Resp) => {
   postMessage(response);
 };
 
-// the main optimization loop
-const optimize = (state: PenroseState) => {
+const respondError = (error: PenroseError) => {
+  respond({
+    tag: "ErrorResp",
+    error,
+  });
+};
+
+self.onmessage = async ({ data }: MessageEvent<Req>) => {
+  const badStateError = () => {
+    respondError(
+      runtimeError(`Cannot receive ${data.tag} in worker state ${workerState}`),
+    );
+  };
+  switch (workerState) {
+    case WorkerState.Init:
+      switch (data.tag) {
+        case "CompiledReq":
+          log.info("Received CompiledReq in state Init");
+          await compileAndRespond(data);
+          break;
+
+        default:
+          badStateError();
+          break;
+      }
+      break;
+
+    case WorkerState.Compiled:
+      switch (data.tag) {
+        case "OptimizingReq":
+          log.info("Received OptimizingReq in state Compiled");
+          const stateWithoutLabels: PartialState = unoptState;
+          unoptState = {
+            ...stateWithoutLabels,
+            labelCache: data.labelCache,
+          } as PenroseState;
+          workerState = WorkerState.Optimizing;
+          respondOptimizing();
+          // launch optimization worker asynchronously
+          // we don't await so that we can accept new messages
+          optimize(insertPending(unoptState));
+          break;
+
+        case "UpdateReq":
+          log.info("Received UpdateReq in state Compiled");
+          respondUpdate(stateToLayoutState(optState ?? unoptState), stats);
+          break;
+
+        case "ComputeShapesReq":
+          log.info("Received ComputeShapesReq in state Compiled");
+          if (data.index >= history.length) {
+            respondError(
+              runtimeError(`Index ${data.index} too large for history`),
+            );
+            break;
+          }
+          {
+            const state = optState ?? unoptState;
+            const newShapes: LayoutState = stateToLayoutState({
+              ...state,
+              varyingValues: history[data.index],
+            });
+            respondUpdate(newShapes, stats);
+          }
+          break;
+
+        case "CompiledReq":
+          log.info("Received CompiledReq in state Compiled");
+          await compileAndRespond(data);
+          break;
+
+        case "ResampleReq":
+          log.info("Received ResampleReq in state Compiled");
+          const { variation } = data;
+          // resample can fail, but doesn't return a result. Hence, try/catch
+          try {
+            const resampled = resample({ ...unoptState, variation });
+            respondOptimizing();
+            optimize(insertPending(resampled));
+          } catch (err: any) {
+            respondError(err);
+          }
+          break;
+
+        case "InterruptReq":
+          // rare edge case, but can happen if interrupt is requested _just_
+          // after optimization finishes
+          break;
+
+        default:
+          badStateError();
+          break;
+      }
+      break;
+
+    case WorkerState.Optimizing:
+      log.info("Received request during optimization");
+
+      if (optState === null) {
+        respondError(
+          runtimeError(`OptState was null on request during optimizing`),
+        );
+        return;
+      }
+
+      switch (data.tag) {
+        case "UpdateReq":
+          log.info("Received UpdateReq in state Optimizing");
+          respondUpdate(stateToLayoutState(optState), stats);
+          break;
+
+        case "ComputeShapesReq":
+          log.info("Received ComputeShapesReq in state Optimizing");
+          const newShapes: LayoutState = stateToLayoutState({
+            ...unoptState,
+            varyingValues: history[data.index],
+          });
+          respondUpdate(newShapes, stats);
+          break;
+
+        case "InterruptReq":
+          log.info("Received InterruptReq in state Optimizing");
+          shouldFinish = true;
+          break;
+
+        default:
+          badStateError();
+          break;
+      }
+      break;
+  }
+};
+
+const compileAndRespond = async (data: CompiledReq) => {
+  const { domain, substance, style, variation, jobId } = data;
+
+  // save the id for the current task
+  currentTask = jobId;
+  const compileResult = await compileTrio({
+    domain,
+    substance,
+    style,
+    variation,
+  });
+
+  if (compileResult.isErr()) {
+    respondError(compileResult.error);
+  } else {
+    unoptState = compileResult.value;
+    workerState = WorkerState.Compiled;
+    respondCompiled(jobId, unoptState);
+  }
+};
+
+const respondInit = () => {
+  respond({
+    tag: "InitResp",
+  });
+};
+
+const respondCompiled = (id: string, state: PenroseState) => {
+  respond({
+    tag: "CompiledResp",
+    jobId: id,
+    shapes: state.shapes,
+  });
+};
+
+const respondOptimizing = () => {
+  respond({
+    tag: "OptimizingResp",
+  });
+};
+
+const respondUpdate = (state: LayoutState, stats: LayoutStats) => {
+  respond({
+    tag: "UpdateResp",
+    state,
+    stats,
+  });
+};
+
+const respondFinished = (state: PenroseState, stats: LayoutStats) => {
+  respond({
+    tag: "FinishedResp",
+    state: stateToLayoutState(state),
+    stats,
+  });
+};
+
+const optimize = async (state: PenroseState) => {
+  optState = state;
   // reset history and stats per optimization run
   // TODO: actually return them?
   history = [];
@@ -144,13 +258,15 @@ const optimize = (state: PenroseState) => {
   ];
   const numSteps = 1;
   let i = 0;
-  while (!isOptimized(state)) {
+
+  // take one optimization step
+  const optStep = async () => {
+    log.info(i);
     let j = 0;
     history.push(state.varyingValues);
     const steppedState = step(state, { until: (): boolean => j++ >= numSteps });
     if (steppedState.isErr()) {
-      respondError(steppedState.error);
-      return;
+      throw steppedState.error;
     } else {
       const stepped = steppedState.value;
       if (isOptimized(stepped) && !finalStage(stepped)) {
@@ -169,16 +285,44 @@ const optimize = (state: PenroseState) => {
         stats[stats.length - 1].steps = i;
       }
     }
-    // Main thread wants an update
-    if (Atomics.exchange(sharedMemory, 0, 0)) {
-      respondUpdate(state);
+
+    optState = state;
+    i++;
+  };
+
+  while (!isOptimized(state)) {
+    /* Javascript has two execution queues: low-priority 'tasks', and
+     high priority 'microtasks'. The microtask queue is emptied after the
+     completion of each task. Promises are queued as microtasks, while events
+     (such as `setTimeout` and `onmessage`) are queued as tasks. So await-ing the
+     next `optStep` would not actually yield to incoming messages. Instead, we
+     place the next call to `optStep` on the task queue as follows. */
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 0);
+    });
+
+    if (shouldFinish) {
+      // set by onmessage if we need to stop
+      log.info("Optimization finishing early");
+      shouldFinish = false;
+      break;
     }
-    // Main thread wants to compile something else
-    if (Atomics.exchange(sharedMemory, 1, 0)) {
-      respondReady();
+
+    try {
+      await optStep();
+    } catch (err: any) {
+      log.info("Optimization failed. Quitting without finishing...");
+      workerState = WorkerState.Compiled;
+      optState = null;
+      respondError(err);
       return;
     }
-    i++;
   }
-  respondFinished(state);
+
+  log.info("Optimization finished");
+  workerState = WorkerState.Compiled;
+  respondFinished(state, stats);
 };
+
+// tell OptimizerWorker that we're ready to go
+respondInit();

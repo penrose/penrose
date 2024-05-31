@@ -20,7 +20,7 @@ import {
   getDiagram,
 } from "../utils/firebaseUtils.js";
 import { stateToSVG } from "../utils/renderUtils.js";
-import { LayoutStats, RenderState } from "../worker/message.js";
+import { UpdateInfo } from "../worker/OptimizerWorker";
 import {
   Canvas,
   Diagram,
@@ -60,8 +60,10 @@ const _compileDiagram = async (
   excludeWarnings: string[],
   set: any,
 ) => {
+  await optimizer.waitForInit();
+
   const compiling = toast.loading("Compiling...");
-  const onUpdate = (updatedState: RenderState, stats: LayoutStats) => {
+  const onUpdate = ({ state: updatedState, stats }: UpdateInfo) => {
     set(diagramState, (state: Diagram): Diagram => {
       return {
         ...state,
@@ -91,34 +93,46 @@ const _compileDiagram = async (
     }));
   };
 
-  const id = optimizer.run({
-    domain,
-    style,
-    substance,
-    variation,
-    onUpdate,
-    onError: (error) => {
-      toast.dismiss(compiling);
-      set(diagramState, (state: Diagram) => ({ ...state, error }));
-      set(diagramWorkerState, {
-        ...diagramWorkerState,
-        running: false,
-      });
-    },
-    onComplete: () => {
-      toast.dismiss(compiling);
-      set(diagramWorkerState, {
-        ...diagramWorkerState,
-        running: false,
-      });
-    },
-  });
+  const onError = (error: any) => {
+    toast.dismiss(compiling);
+    toast.error(error.message);
+    set(diagramWorkerState, {
+      ...diagramWorkerState,
+      optimizing: false,
+    });
+  };
 
-  set(diagramWorkerState, {
-    ...diagramWorkerState,
-    id,
-    running: true,
-  });
+  // ugly `then` chain allows for one catch at the end
+  try {
+    const id = await optimizer.compile(domain, style, substance, variation);
+    set(diagramWorkerState, {
+      ...diagramWorkerState,
+      id,
+      optimizing: false,
+    });
+
+    const { onStart, onFinish } = await optimizer.startOptimizing();
+    onFinish
+      .then(() => {
+        toast.dismiss(compiling);
+        set(diagramWorkerState, {
+          ...diagramWorkerState,
+          optimizing: false,
+        });
+      })
+      .catch(onError);
+
+    await onStart;
+    set(diagramWorkerState, {
+      ...diagramWorkerState,
+      optimizing: true,
+    });
+
+    const info = await optimizer.pollForUpdate();
+    if (info !== null) onUpdate(info);
+  } catch (error: any) {
+    onError(error);
+  }
 
   // TODO: update grid state too
   // set(diagramGridState, ({ gridSize }: DiagramGrid) => ({
@@ -167,27 +181,50 @@ export const useResampleDiagram = () =>
     }
     const variation = generateVariation();
     const resamplingLoading = toast.loading("Resampling...");
-    optimizer.resample(
-      id,
-      variation,
-      (resampled) => {
-        set(diagramState, (state) => ({
-          ...state,
-          metadata: { ...state.metadata, variation },
-          state: resampled,
-        }));
-        // update grid state too
-        set(diagramGridState, ({ gridSize }) => ({
-          variations: range(gridSize).map((i) =>
-            i === 0 ? variation : generateVariation(),
-          ),
-          gridSize,
-        }));
-      },
-      () => {
-        toast.dismiss(resamplingLoading);
-      },
-    );
+    const onError = (error: any) => {
+      toast.dismiss(resamplingLoading);
+      toast.error(error.message);
+      set(diagramWorkerState, (state) => ({
+        ...state,
+        optimizing: false,
+      }));
+    };
+
+    try {
+      const { onStart, onFinish } = await optimizer.resample(id, variation);
+      onFinish
+        .then(() => {
+          toast.dismiss(resamplingLoading);
+          set(diagramWorkerState, (state) => ({
+            ...state,
+            optimizing: false,
+          }));
+        })
+        .catch(onError);
+
+      await onStart;
+      set(diagramWorkerState, (state) => ({
+        ...state,
+        optimizing: true,
+      }));
+
+      const info = await optimizer.pollForUpdate();
+      if (info === null) return;
+      set(diagramState, (state) => ({
+        ...state,
+        metadata: { ...state.metadata, variation },
+        state: info.state,
+      }));
+      // update grid state too
+      set(diagramGridState, ({ gridSize }) => ({
+        variations: range(gridSize).map((i) =>
+          i === 0 ? variation : generateVariation(),
+        ),
+        gridSize,
+      }));
+    } catch (error: any) {
+      onError(error);
+    }
   });
 
 export const useDownloadTrio = () =>
