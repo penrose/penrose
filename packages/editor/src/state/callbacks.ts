@@ -1,11 +1,11 @@
-import { showError } from "@penrose/core";
+import { isPenroseError, runtimeError } from "@penrose/core";
 import { Style } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
 import localforage from "localforage";
 import { range } from "lodash";
 import queryString from "query-string";
 import toast from "react-hot-toast";
-import { useRecoilCallback } from "recoil";
+import { RecoilState, useRecoilCallback } from "recoil";
 import { v4 as uuid } from "uuid";
 import {
   DownloadPNG,
@@ -52,13 +52,13 @@ const _compileDiagram = async (
   domain: string,
   variation: string,
   excludeWarnings: string[],
-  set: any,
+  set: <T>(state: RecoilState<T>, update: (t: T) => T) => void,
 ) => {
   await optimizer.waitForInit();
 
   const compiling = toast.loading("Compiling...");
   const onUpdate = ({ state: updatedState, stats }: UpdateInfo) => {
-    set(diagramState, (state: Diagram): Diagram => {
+    set(diagramState, (state) => {
       return {
         ...state,
         error: null,
@@ -89,42 +89,47 @@ const _compileDiagram = async (
 
   const onError = (error: any) => {
     toast.dismiss(compiling);
-    toast.error(showError(error));
-    set(diagramWorkerState, {
-      ...diagramWorkerState,
+    if (!isPenroseError(error)) {
+      error = runtimeError(String(error));
+    }
+    set(diagramState, (state) => ({
+      ...state,
+      error,
+    }));
+    set(diagramWorkerState, (state) => ({
+      ...state,
       optimizing: false,
-    });
+    }));
   };
 
-  // ugly `then` chain allows for one catch at the end
   try {
     const id = await optimizer.compile(domain, style, substance, variation);
-    set(diagramWorkerState, {
-      ...diagramWorkerState,
+    set(diagramWorkerState, (state) => ({
+      ...state,
       id,
       optimizing: false,
-    });
+    }));
 
     const { onStart, onFinish } = await optimizer.startOptimizing();
     onFinish
       .then(() => {
         toast.dismiss(compiling);
-        set(diagramWorkerState, {
-          ...diagramWorkerState,
+        set(diagramWorkerState, (state) => ({
+          ...state,
           optimizing: false,
-        });
+        }));
       })
       .catch(onError);
 
     await onStart;
-    set(diagramWorkerState, {
-      ...diagramWorkerState,
+    set(diagramWorkerState, (state) => ({
+      ...state,
       optimizing: true,
-    });
+    }));
 
     const info = await optimizer.pollForUpdate();
     if (info !== null) onUpdate(info);
-  } catch (error: any) {
+  } catch (error: unknown) {
     onError(error);
   }
 
@@ -177,7 +182,13 @@ export const useResampleDiagram = () =>
     const resamplingLoading = toast.loading("Resampling...");
     const onError = (error: any) => {
       toast.dismiss(resamplingLoading);
-      toast.error(showError(error));
+      if (!isPenroseError(error)) {
+        error = runtimeError(String(error));
+      }
+      set(diagramState, (state) => ({
+        ...state,
+        error,
+      }));
       set(diagramWorkerState, (state) => ({
         ...state,
         optimizing: false,
@@ -216,7 +227,7 @@ export const useResampleDiagram = () =>
         ),
         gridSize,
       }));
-    } catch (error: any) {
+    } catch (error: unknown) {
       onError(error);
     }
   });
