@@ -191,6 +191,13 @@ const autosaveEffect: AtomEffect<Workspace> = ({ onSet, setSelf }) => {
           ) {
             toast.success("Autosaving code...");
             console.log("autosaving");
+            const event = new KeyboardEvent("keydown", {
+              ctrlKey: true, // Set the Ctrl key as pressed
+              key: "s", // Set the key value to 's' (case-insensitive)
+            });
+
+            // Dispatch the keyboard event on the document
+            document.dispatchEvent(event);
           }
         }, 5000);
         console.log(newTimeoutId);
