@@ -18,6 +18,7 @@ import {
   Resp,
   separateRenderedLabels,
 } from "./common.js";
+import { showWorkerError, toPenroseError } from "./errors.js";
 
 /* State types */
 
@@ -112,7 +113,7 @@ export type OWState = StableState | WaitingState;
 /* Module helpers */
 
 const log = (consola as any)
-  .create({ level: (consola as any).LogLevel.Warn })
+  .create({ level: (consola as any).LogLevel.Info })
   .withScope("worker:client");
 
 const isWaiting = (state: OWState): state is WaitingState => {
@@ -212,66 +213,110 @@ export default class OptimizerWorker {
    * @private
    */
   private async onMessage({ data }: MessageEvent<Resp>) {
+    log.info(`Received ${data.tag} in state ${this.state.tag}`);
+
     // Handle errors first: simplifies switch statement some
     // we can either drop down a state if the error is recoverable,
     // or move into a latching "Error" state
     if (data.tag === "ErrorResp") {
-      switch (this.state.tag) {
-        case "InitToCompiled":
-          this.state.reject(data.error);
-          this.setState({
-            tag: "Init",
-          });
-          break;
+      log.warn(
+        `Optimizer worker received error resp: ${showWorkerError(data.error)}`,
+      );
+      const penroseError = toPenroseError(data.error);
+      const callRejects = () => {
+        if ("finishReject" in this.state) {
+          this.state.finishReject(penroseError);
+        }
+        if ("reject" in this.state) {
+          this.state.reject(penroseError);
+        }
+      };
 
-        case "CompiledToOptimizing":
-          this.state.reject(data.error);
-          this.setState({
-            ...this.state.previous,
-            tag: "Compiled",
-          });
-          break;
+      const goToErrorState = () => {
+        callRejects();
+        this.setState({
+          tag: "Error",
+          error: penroseError,
+        });
+      };
 
-        case "Optimizing":
-          this.state.finishReject(data.error);
-          this.setState({
-            ...this.state,
-            tag: "Compiled",
-            polled: false,
-          });
-          break;
+      if (data.error.tag === "FatalWorkerError") {
+        goToErrorState();
+        return;
+      }
 
-        default:
-          if ("waiting" in this.state) {
-            this.state.reject(data.error);
+      switch (data.error.tag) {
+        case "BadStateError":
+        case "HistoryIndexOutOfRangeError":
+          if (
+            "previous" in this.state &&
+            this.state.previous.tag === data.error.nextWorkerState
+          ) {
+            callRejects();
+            this.setState(this.state.previous);
+            return;
           }
-          this.setState({
-            tag: "Error",
-            error: data.error,
-          });
+          break;
+
+        case "OptimizationError":
+          if (
+            "previous" in this.state &&
+            this.state.previous.tag === "Optimizing"
+          ) {
+            callRejects();
+            this.setState({
+              ...this.state.previous,
+              tag: "Compiled",
+              polled: false,
+            });
+            return;
+          } else if (this.state.tag === "Optimizing") {
+            callRejects();
+            this.setState({
+              ...this.state,
+              tag: "Compiled",
+              polled: false,
+            });
+            return;
+          }
+          break;
+
+        case "CompileError":
+          if (
+            "previous" in this.state &&
+            this.state.previous.tag === data.error.nextWorkerState &&
+            this.state.previous.tag === "Compiled"
+          ) {
+            callRejects();
+            this.setState(this.state.previous);
+            return;
+          }
           break;
       }
+
+      goToErrorState();
       return;
     }
 
+    if (
+      data.tag === "UpdateResp" &&
+      this.state.tag !== "WaitingForUpdate" &&
+      this.state.tag !== "WaitingForShapes"
+    ) {
+      log.info("Received stale UpdateResp. Ignoring...");
+      return;
+    }
+
+    const logErrorBadState = () => {
+      consola.error(
+        `Worker responded ${data.tag} while in state ${this.state.tag}`,
+      );
+    };
+
     switch (this.state.tag) {
-      case "Compiled":
-        switch (data.tag) {
-          case "UpdateResp":
-            // a leftover that occurs if optimization stops before an update request is processed
-            // but tough to catch on the worker side. So we just ignore it.
-            log.info("Received UpdateResp in state compiled. Ignoring...");
-            break;
-
-          default:
-            throw runtimeError(`Worker received ${data.tag} in state compiled`);
-        }
-        break;
-
       case "Optimizing":
         switch (data.tag) {
           case "FinishedResp":
-            log.info("Received FinishedResp in state Optimizing");
             this.state.finishResolve({
               state: layoutStateToRenderState(data.state, this.state.svgCache),
               stats: data.stats,
@@ -285,14 +330,14 @@ export default class OptimizerWorker {
             break;
 
           default:
-            throw runtimeError(`Worker responded ${data.tag} while optimizing`);
+            logErrorBadState();
+            break;
         }
         break;
 
       case "WaitingForInit":
         switch (data.tag) {
           case "InitResp":
-            log.info("Received InitResp in state WaitingForInit");
             this.state.resolve();
             this.setState({
               tag: "Init",
@@ -300,9 +345,7 @@ export default class OptimizerWorker {
             break;
 
           default:
-            this.state.reject(
-              runtimeError(`Worker responded ${data.tag} while Off => Init`),
-            );
+            logErrorBadState();
             break;
         }
         break;
@@ -310,7 +353,6 @@ export default class OptimizerWorker {
       case "InitToCompiled":
         switch (data.tag) {
           case "CompiledResp":
-            log.info("Received CompiledResp in state InitToCompiled");
             const convert = mathjaxInit();
             const labelCache = await collectLabels(data.shapes, convert);
 
@@ -335,11 +377,7 @@ export default class OptimizerWorker {
             break;
 
           default:
-            this.state.reject(
-              runtimeError(
-                `Worker responded ${data.tag} while Init => Compiled`,
-              ),
-            );
+            logErrorBadState();
             break;
         }
         break;
@@ -358,11 +396,7 @@ export default class OptimizerWorker {
             break;
 
           default:
-            this.state.reject(
-              runtimeError(
-                `Worker responded ${data.tag} while Compiled => Optimizing`,
-              ),
-            );
+            logErrorBadState();
             break;
         }
         break;
@@ -370,7 +404,6 @@ export default class OptimizerWorker {
       case "OptimizingToCompiled":
         switch (data.tag) {
           case "FinishedResp":
-            log.info("Received FinishedResp in state OptimizingToCompiled");
             this.state.previous.finishResolve({
               state: layoutStateToRenderState(
                 data.state,
@@ -386,6 +419,8 @@ export default class OptimizerWorker {
               polled: false,
             });
             break;
+
+          case "UpdateResp":
         }
         break;
 
@@ -394,7 +429,6 @@ export default class OptimizerWorker {
         switch (data.tag) {
           case "UpdateResp":
           case "FinishedResp":
-            log.info(`Received ${data.tag} in state WaitingForUpdate`);
             const updateInfo = {
               state: layoutStateToRenderState(
                 data.state,
@@ -428,18 +462,14 @@ export default class OptimizerWorker {
             break;
 
           default:
-            this.state.reject(
-              runtimeError(
-                `Worker responded ${data.tag} while waiting for update`,
-              ),
-            );
+            logErrorBadState();
+            break;
         }
         break;
 
       default:
-        throw runtimeError(
-          `Cannot receive message ${data.tag} in state ${this.state.tag}`,
-        );
+        logErrorBadState();
+        break;
     }
   }
 
@@ -578,6 +608,22 @@ export default class OptimizerWorker {
           this.request(req);
           break;
 
+        case "Optimizing":
+          // chain promise resolvers, but otherwise do nothing
+          const oldFinishResolve = this.state.finishResolve;
+          this.state.finishResolve = (info) => {
+            oldFinishResolve(info);
+            finishResolve(info);
+          };
+
+          const oldFinishReject = this.state.finishReject;
+          this.state.finishReject = (e) => {
+            oldFinishReject(e);
+            finishReject(e);
+          };
+
+          break;
+
         default:
           startReject(
             runtimeError(`Cannot start optimizing in state ${this.state.tag}`),
@@ -587,8 +633,8 @@ export default class OptimizerWorker {
   }
 
   /**
-   * Start optimizing a previously compiled diagram. Must be in 'Compiled' state, and
-   * an error is thrown if requested before compilation or after optimization starts.
+   * Start optimizing a previously compiled diagram. Errors if called in state 'Init',
+   * and no-op if called in state 'Optimizing' (though returned promises are still valid)
    *
    * @returns Promises `{ onStart, onFinish }` such that `onStart` resolves once optimization begins
    *  and `onFinish` resolves once optimization finishes. If `onStart` rejects,
@@ -596,6 +642,29 @@ export default class OptimizerWorker {
    */
   async startOptimizing(): Promise<OptimizerPromises> {
     return generateOptimizerPromises(this.startOptimizingHelper.bind(this));
+  }
+
+  async compileAndStartOptimizing(
+    domain: string,
+    style: string,
+    substance: string,
+    variation: string,
+  ): Promise<{ id: string; promises: OptimizerPromises }> {
+    // HACK: we need to queue startOptimizing immediately so that another compile
+    // command won't get inbetween (can cause toast callback ordering to be unintuitive).
+    // Becuase of how `queue` is used, id is guaranteed to be set before `startOptimizing`
+    // actual starts running
+
+    let id: string | null = null;
+    this.compile(domain, style, substance, variation).then((_id) => {
+      id = _id;
+    });
+
+    const promises = await this.startOptimizing();
+    return {
+      id: id!,
+      promises: promises,
+    };
   }
 
   /**
