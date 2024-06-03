@@ -24,7 +24,7 @@ Options:
 ## Getting started
 
 - Follow the instruction in [`CONTRIBUTING.md`](/CONTRIBUTING.md) to install Penrose.
-- Run `roger trio packages/examples/src/set-theory-domain/tree-venn.trio.json` from the repo root. The output SVG will appear in the console.
+- Run `roger trio packages/examples/src/set-theory-domain/tree-euler.trio.json` from the repo root. The output SVG will appear in the console.
 
 ## Using `roger` for local development
 

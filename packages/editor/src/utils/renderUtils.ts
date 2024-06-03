@@ -8,6 +8,7 @@ export const stateToSVG = async (
     pathResolver: PathResolver;
     width: string;
     height: string;
+    texLabels: boolean;
   },
   onDrag?: PenroseOnDrag,
 ): Promise<SVGSVGElement> => {
@@ -25,7 +26,7 @@ export const stateToSVG = async (
     canvasSize: canvas.size,
     variation,
     namespace: "editor",
-    texLabels: false,
+    texLabels: config.texLabels,
     pathResolver: config.pathResolver,
   },
   onDrag ? {

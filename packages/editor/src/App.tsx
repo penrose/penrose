@@ -36,7 +36,6 @@ import {
   diagramState,
   fileContentsSelector,
   localFilesState,
-  optimizer,
   settingsState,
 } from "./state/atoms.js";
 import {
@@ -328,7 +327,6 @@ function App() {
   }, []);
   const isUnsaved = useIsUnsaved();
   useEffect(() => {
-    optimizer.init();
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (isUnsaved()) {
         // warn user if they try to navigate to a new URL while in draft state
@@ -369,6 +367,7 @@ function App() {
   if (localFiles.state !== "hasValue") {
     return <div>Loading local files...</div>;
   }
+
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       <TopBar />

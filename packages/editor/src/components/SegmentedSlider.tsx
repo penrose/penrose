@@ -61,12 +61,16 @@ const SegmentedSlider: React.FC<SegmentedSliderProps> = ({
   );
 
   const totalSteps = stageRanges[stageRanges.length - 1].end;
+  const [dragged, setDragged] = useState<boolean>(false);
   const [value, setValue] = useState<number>(totalSteps - 1);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDragged(true);
     const newValue = parseInt(e.target.value, 10);
     setValue(newValue);
     onChange(newValue);
   };
+
+  const currValue = dragged ? value : totalSteps;
 
   return (
     <SliderContainer>
@@ -75,15 +79,15 @@ const SegmentedSlider: React.FC<SegmentedSliderProps> = ({
         type="range"
         min="0"
         max={totalSteps - 1}
-        value={value}
+        value={currValue}
         onChange={handleChange}
       />
       <div>
         {stages.map((stage, index) => (
           <StageLabel
             key={index}
-            enabled={stageRanges[index].start <= value}
-            width={(stage.steps / totalSteps) * 100}
+            enabled={stageRanges[index].start <= currValue}
+            width={(stage.steps / (!!totalSteps ? totalSteps : 1)) * 100}
             color={stage.color}
           >
             {stage.label}

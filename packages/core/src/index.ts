@@ -430,7 +430,12 @@ export {
   insertLabelMeasurements as insertPending,
   mathjaxInit,
 } from "./utils/CollectLabels.js";
-export { errLocs, showError } from "./utils/Error.js";
+export {
+  errLocs,
+  isPenroseError,
+  runtimeError,
+  showError,
+} from "./utils/Error.js";
 export type { Result } from "./utils/Error.js";
 export {
   allWarnings,

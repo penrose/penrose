@@ -1,10 +1,11 @@
+import { isPenroseError, runtimeError } from "@penrose/core";
 import { Style } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
 import localforage from "localforage";
 import { range } from "lodash";
 import queryString from "query-string";
 import toast from "react-hot-toast";
-import { useRecoilCallback } from "recoil";
+import { RecoilState, useRecoilCallback } from "recoil";
 import { v4 as uuid } from "uuid";
 import {
   DownloadPNG,
@@ -13,7 +14,7 @@ import {
   zipTrio,
 } from "../utils/downloadUtils.js";
 import { stateToSVG } from "../utils/renderUtils.js";
-import { LayoutStats, RenderState } from "../worker/message.js";
+import { UpdateInfo } from "../worker/OptimizerWorker";
 import {
   Canvas,
   Diagram,
@@ -51,11 +52,13 @@ const _compileDiagram = async (
   domain: string,
   variation: string,
   excludeWarnings: string[],
-  set: any,
+  set: <T>(state: RecoilState<T>, update: (t: T) => T) => void,
 ) => {
+  await optimizer.waitForInit();
+
   const compiling = toast.loading("Compiling...");
-  const onUpdate = (updatedState: RenderState, stats: LayoutStats) => {
-    set(diagramState, (state: Diagram): Diagram => {
+  const onUpdate = ({ state: updatedState, stats }: UpdateInfo) => {
+    set(diagramState, (state) => {
       return {
         ...state,
         error: null,
@@ -84,34 +87,51 @@ const _compileDiagram = async (
     }));
   };
 
-  const id = optimizer.run({
-    domain,
-    style,
-    substance,
-    variation,
-    onUpdate,
-    onError: (error) => {
-      toast.dismiss(compiling);
-      set(diagramState, (state: Diagram) => ({ ...state, error }));
-      set(diagramWorkerState, {
-        ...diagramWorkerState,
-        running: false,
-      });
-    },
-    onComplete: () => {
-      toast.dismiss(compiling);
-      set(diagramWorkerState, {
-        ...diagramWorkerState,
-        running: false,
-      });
-    },
-  });
+  const onError = (error: any) => {
+    toast.dismiss(compiling);
+    if (!isPenroseError(error)) {
+      error = runtimeError(String(error));
+    }
+    set(diagramState, (state) => ({
+      ...state,
+      error,
+    }));
+    set(diagramWorkerState, (state) => ({
+      ...state,
+      optimizing: false,
+    }));
+  };
 
-  set(diagramWorkerState, {
-    ...diagramWorkerState,
-    id,
-    running: true,
-  });
+  try {
+    const id = await optimizer.compile(domain, style, substance, variation);
+    set(diagramWorkerState, (state) => ({
+      ...state,
+      id,
+      optimizing: false,
+    }));
+
+    const { onStart, onFinish } = await optimizer.startOptimizing();
+    onFinish
+      .then(() => {
+        toast.dismiss(compiling);
+        set(diagramWorkerState, (state) => ({
+          ...state,
+          optimizing: false,
+        }));
+      })
+      .catch(onError);
+
+    await onStart;
+    set(diagramWorkerState, (state) => ({
+      ...state,
+      optimizing: true,
+    }));
+
+    const info = await optimizer.pollForUpdate();
+    if (info !== null) onUpdate(info);
+  } catch (error: unknown) {
+    onError(error);
+  }
 
   // TODO: update grid state too
   // set(diagramGridState, ({ gridSize }: DiagramGrid) => ({
@@ -160,27 +180,56 @@ export const useResampleDiagram = () =>
     }
     const variation = generateVariation();
     const resamplingLoading = toast.loading("Resampling...");
-    optimizer.resample(
-      id,
-      variation,
-      (resampled) => {
-        set(diagramState, (state) => ({
-          ...state,
-          metadata: { ...state.metadata, variation },
-          state: resampled,
-        }));
-        // update grid state too
-        set(diagramGridState, ({ gridSize }) => ({
-          variations: range(gridSize).map((i) =>
-            i === 0 ? variation : generateVariation(),
-          ),
-          gridSize,
-        }));
-      },
-      () => {
-        toast.dismiss(resamplingLoading);
-      },
-    );
+    const onError = (error: any) => {
+      toast.dismiss(resamplingLoading);
+      if (!isPenroseError(error)) {
+        error = runtimeError(String(error));
+      }
+      set(diagramState, (state) => ({
+        ...state,
+        error,
+      }));
+      set(diagramWorkerState, (state) => ({
+        ...state,
+        optimizing: false,
+      }));
+    };
+
+    try {
+      const { onStart, onFinish } = await optimizer.resample(id, variation);
+      onFinish
+        .then(() => {
+          toast.dismiss(resamplingLoading);
+          set(diagramWorkerState, (state) => ({
+            ...state,
+            optimizing: false,
+          }));
+        })
+        .catch(onError);
+
+      await onStart;
+      set(diagramWorkerState, (state) => ({
+        ...state,
+        optimizing: true,
+      }));
+
+      const info = await optimizer.pollForUpdate();
+      if (info === null) return;
+      set(diagramState, (state) => ({
+        ...state,
+        metadata: { ...state.metadata, variation },
+        state: info.state,
+      }));
+      // update grid state too
+      set(diagramGridState, ({ gridSize }) => ({
+        variations: range(gridSize).map((i) =>
+          i === 0 ? variation : generateVariation(),
+        ),
+        gridSize,
+      }));
+    } catch (error: unknown) {
+      onError(error);
+    }
   });
 
 const _saveLocally = (set: any) => {
@@ -220,6 +269,25 @@ export const useDownloadTrio = () =>
         "Could not export: no Penrose diagram detected. Compile a Penrose trio and try again.",
       );
     }
+  });
+
+export const useCopyToClipboard = () =>
+  useRecoilCallback(({ set, snapshot }) => async () => {
+    const workspace = snapshot.getLoadable(currentWorkspaceState)
+      .contents as Workspace;
+    const sub = workspace.files.substance.contents;
+    const sty = workspace.files.style.contents;
+    const dsl = workspace.files.domain.contents;
+    const concatenated = `-- .substance\n${sub}\n-- .style\n${sty}\n-- .domain\n${dsl}\n`;
+
+    navigator.clipboard
+      .writeText(concatenated)
+      .then(() => {
+        toast.success("Copied trio to clipboard!");
+      })
+      .catch(() => {
+        toast.error("Error could not copy");
+      });
   });
 
 export const useDownloadSvg = () =>
@@ -274,6 +342,7 @@ export const useDownloadSvgTex = () =>
             pathResolver(path, rogerState, metadata),
           width: state.canvas.width.toString(),
           height: state.canvas.height.toString(),
+          texLabels: true,
         });
         const domain = snapshot.getLoadable(fileContentsSelector("domain"))
           .contents as ProgramFile;

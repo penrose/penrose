@@ -476,7 +476,7 @@ const {
     --- comments
 
   }
-  -- venn
+  -- euler
   p.icon = Circle {
     strokeWidth : 0.0
     color : rgba(0.0, 0.0, 0.0, 1.0)
