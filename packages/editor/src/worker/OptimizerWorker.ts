@@ -648,7 +648,7 @@ export default class OptimizerWorker {
             onFinish.then(finishResolve, finishReject);
             await onStart;
             startResolve();
-          } catch (error: any) {
+          } catch (error: unknown) {
             startReject(error);
           }
           break;

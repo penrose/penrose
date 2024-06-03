@@ -1172,6 +1172,17 @@ const loc = (node: AbstractNode): string => {
   }
 };
 
+export const isPenroseError = (error: unknown): error is PenroseError => {
+  return (
+    error instanceof Object &&
+    "errorType" in error &&
+    (error.errorType === "DomainError" ||
+      error.errorType === "SubstanceError" ||
+      error.errorType === "StyleError" ||
+      error.errorType === "RuntimeError")
+  );
+};
+
 // #endregion
 
 // #region Either monad
