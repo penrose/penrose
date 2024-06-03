@@ -256,60 +256,62 @@ const optimize = async (state: PenroseState) => {
       steps: 0,
     },
   ];
-  const numSteps = 1;
+
+  const numStepsPerHistory = 1;
   let i = 0;
 
+  // on message, we will take a step, but these messages will be queued behind
+  // self.onmessage, so we can interrupt optimization with a message
+  const optStepMsgChannel = new MessageChannel();
+
   // take one optimization step
-  const optStep = async () => {
-    log.info(i);
-    let j = 0;
-    history.push(state.varyingValues);
-    const steppedState = step(state, { until: (): boolean => j++ >= numSteps });
-    if (steppedState.isErr()) {
-      throw steppedState.error;
-    } else {
-      const stepped = steppedState.value;
-      if (isOptimized(stepped) && !finalStage(stepped)) {
-        const nextInitState = nextStage(stepped);
-        state = nextInitState;
-        const currentStage = state.optStages[state.currentStageIndex];
-        // add the total steps taken by the previous stage
-        stats.push({
-          name: currentStage,
-          steps: 0,
-        });
-        i = 0;
-      } else {
-        state = stepped;
-        // update the step count for the current stage
-        stats[stats.length - 1].steps = i;
-      }
-    }
-
-    optState = state;
-    i++;
-  };
-
-  while (!isOptimized(state)) {
-    /* Javascript has two execution queues: low-priority 'tasks', and
-     high priority 'microtasks'. The microtask queue is emptied after the
-     completion of each task. Promises are queued as microtasks, while events
-     (such as `setTimeout` and `onmessage`) are queued as tasks. So await-ing the
-     next `optStep` would not actually yield to incoming messages. Instead, we
-     place the next call to `optStep` on the task queue as follows. */
-    await new Promise<void>((resolve) => {
-      setTimeout(resolve, 0);
-    });
-
-    if (shouldFinish) {
-      // set by onmessage if we need to stop
-      log.info("Optimization finishing early");
-      shouldFinish = false;
-      break;
-    }
-
+  const optStep = () => {
     try {
-      await optStep();
+      if (shouldFinish) {
+        // set by onmessage if we need to stop
+        log.info("Optimization finishing early");
+        shouldFinish = false;
+        return;
+      }
+
+      log.info(i);
+      let j = 0;
+      history.push(state.varyingValues);
+      const steppedState = step(state, {
+        until: (): boolean => j++ >= numStepsPerHistory,
+      });
+      if (steppedState.isErr()) {
+        throw steppedState.error;
+      } else {
+        const stepped = steppedState.value;
+        if (isOptimized(stepped) && !finalStage(stepped)) {
+          const nextInitState = nextStage(stepped);
+          state = nextInitState;
+          const currentStage = state.optStages[state.currentStageIndex];
+          // add the total steps taken by the previous stage
+          stats.push({
+            name: currentStage,
+            steps: 0,
+          });
+          i = 0;
+        } else {
+          state = stepped;
+          // update the step count for the current stage
+          stats[stats.length - 1].steps = i;
+        }
+      }
+
+      optState = state;
+
+      if (isOptimized(state)) {
+        log.info("Optimization finished");
+        workerState = WorkerState.Compiled;
+        respondFinished(state, stats);
+        return;
+      }
+
+      i++;
+      optStepMsgChannel.port2.postMessage(null);
     } catch (err: any) {
       log.info("Optimization failed. Quitting without finishing...");
       workerState = WorkerState.Compiled;
@@ -317,11 +319,12 @@ const optimize = async (state: PenroseState) => {
       respondError(err);
       return;
     }
-  }
+  };
 
-  log.info("Optimization finished");
-  workerState = WorkerState.Compiled;
-  respondFinished(state, stats);
+  optStepMsgChannel.port1.onmessage = () => {
+    optStep();
+  };
+  optStepMsgChannel.port2.postMessage(null);
 };
 
 // tell OptimizerWorker that we're ready to go
