@@ -609,19 +609,11 @@ export default class OptimizerWorker {
           break;
 
         case "Optimizing":
-          // chain promise resolvers, but otherwise do nothing
-          const oldFinishResolve = this.state.finishResolve;
-          this.state.finishResolve = (info) => {
-            oldFinishResolve(info);
-            finishResolve(info);
-          };
-
-          const oldFinishReject = this.state.finishReject;
-          this.state.finishReject = (e) => {
-            oldFinishReject(e);
-            finishReject(e);
-          };
-
+          await this.interruptOptimizing();
+          const { onStart, onFinish } = await this.startOptimizing();
+          onFinish.then(finishResolve);
+          onFinish.catch(finishReject);
+          await onStart;
           break;
 
         default:
@@ -642,29 +634,6 @@ export default class OptimizerWorker {
    */
   async startOptimizing(): Promise<OptimizerPromises> {
     return generateOptimizerPromises(this.startOptimizingHelper.bind(this));
-  }
-
-  async compileAndStartOptimizing(
-    domain: string,
-    style: string,
-    substance: string,
-    variation: string,
-  ): Promise<{ id: string; promises: OptimizerPromises }> {
-    // HACK: we need to queue startOptimizing immediately so that another compile
-    // command won't get inbetween (can cause toast callback ordering to be unintuitive).
-    // Becuase of how `queue` is used, id is guaranteed to be set before `startOptimizing`
-    // actual starts running
-
-    let id: string | null = null;
-    this.compile(domain, style, substance, variation).then((_id) => {
-      id = _id;
-    });
-
-    const promises = await this.startOptimizing();
-    return {
-      id: id!,
-      promises: promises,
-    };
   }
 
   /**

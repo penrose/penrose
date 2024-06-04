@@ -114,21 +114,14 @@ const _compileDiagram = async (
   };
 
   try {
-    const {
-      id,
-      promises: { onStart, onFinish },
-    } = await optimizer.compileAndStartOptimizing(
-      domain,
-      style,
-      substance,
-      variation,
-    );
+    const id = await optimizer.compile(domain, style, substance, variation);
     set(diagramWorkerState, (state) => ({
       ...state,
       id,
       optimizing: false,
     }));
 
+    const { onStart, onFinish } = await optimizer.startOptimizing();
     onFinish
       .then((info) => {
         toast.dismiss(compiling);
