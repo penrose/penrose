@@ -1,0 +1,55 @@
+-- Nodes
+
+Node Carrot  -- 🥕
+Node Tomato  -- 🍅
+Node Lettuce  -- 🥬
+Node Chicken  -- 🍗
+Node Beef  -- 🥩
+Node Egg  -- 🥚
+
+-- Labels
+
+Label Carrot "🥕"
+Label Tomato "🍅"
+Label Lettuce "🥬"
+Label Chicken "🍗"
+Label Beef "🥩"
+Label Egg "🥚"
+
+-- Hyperedges (Recipes)
+
+Hyperedge Salad -- Salad
+
+isIn(Carrot, Salad)
+isIn(Tomato, Salad)
+isIn(Lettuce, Salad)
+notIn(Chicken, Salad)
+notIn(Beef, Salad)
+notIn(Egg, Salad)
+
+Hyperedge StirFry -- Stir Fry
+
+isIn(Carrot, StirFry)
+isIn(Beef, StirFry)
+isIn(Egg, StirFry)
+notIn(Tomato, StirFry)
+notIn(Lettuce, StirFry)
+notIn(Chicken, StirFry)
+
+Hyperedge Omelette -- Omelette
+
+isIn(Tomato, Omelette)
+isIn(Egg, Omelette)
+notIn(Carrot, Omelette)
+notIn(Lettuce, Omelette)
+notIn(Chicken, Omelette)
+notIn(Beef, Omelette)
+
+Hyperedge Roast -- Roast
+
+isIn(Beef, Roast)
+isIn(Carrot, Roast)
+notIn(Tomato, Roast)
+notIn(Lettuce, Roast)
+notIn(Chicken, Roast)
+notIn(Egg, Roast)
