@@ -1,7 +1,9 @@
-import { useEffect } from "react";
-import { useRecoilCallback, useRecoilValue } from "recoil";
+import { debounce } from "lodash";
+import { useCallback, useEffect, useRef } from "react";
+import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
 import { v4 as uuid } from "uuid";
 import {
+  autosaveTimerState,
   currentAppUser,
   currentWorkspaceState,
   savedFilesState,
@@ -57,6 +59,55 @@ const saveShortcutHook = () => {
   }, []);
 };
 
+const autosaveHook = () => {
+  const currentWorkspace = useRecoilValue(currentWorkspaceState);
+  const isInitialRender = useRef(true);
+  const saveWorkspace = useSaveWorkspace();
+  const [autosaveTimerValue, autosaveTimerSetter] =
+    useRecoilState(autosaveTimerState);
+
+  // Callback so debounce works
+  const autosaveLogic = useCallback(
+    debounce(async () => {
+      console.log(autosaveTimerValue);
+      // Reset autosave timer
+      if (autosaveTimerValue != null) {
+        clearTimeout(autosaveTimerValue);
+        // console.log("cleared");
+      }
+      // Set new timer, 5 seconds without edit
+      const newTimeoutId = setTimeout(() => {
+        // console.log("running!");
+        // console.log(currentWorkspace.metadata.location.kind);
+        // console.log(!currentWorkspace.metadata.location.saved);
+        if (
+          currentWorkspace.metadata.location.kind == "stored" &&
+          !currentWorkspace.metadata.location.saved
+        ) {
+          saveWorkspace();
+          // console.log("autosaving");
+        }
+      }, 3000);
+      // console.log(newTimeoutId);
+      autosaveTimerSetter(newTimeoutId);
+    }, 500),
+    // Otherwise updates to these values won't be reflected in execution
+    [autosaveTimerValue, currentWorkspace.metadata],
+  );
+
+  useEffect(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+    autosaveLogic();
+  }, [
+    currentWorkspace.files.substance.contents,
+    currentWorkspace.files.style.contents,
+    currentWorkspace.files.domain.contents,
+  ]);
+};
+
 export default function SavedFilesBrowser() {
   const savedFiles = useRecoilValue(savedFilesState);
   const currentWorkspace = useRecoilValue(currentWorkspaceState);
@@ -67,6 +118,7 @@ export default function SavedFilesBrowser() {
   const currentUser = useRecoilValue(currentAppUser);
 
   saveShortcutHook();
+  autosaveHook();
 
   return (
     <>

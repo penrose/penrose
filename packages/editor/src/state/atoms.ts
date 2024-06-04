@@ -50,7 +50,6 @@ export type WorkspaceLocation =
        */
       kind: "stored";
       saved: boolean;
-      autosaveTimer: NodeJS.Timeout | null;
       resolver?: PathResolver;
     }
   | GistLocation
@@ -114,7 +113,7 @@ export type AuthModalState = {
 
 export type AppUser = FirebaseUser | null;
 
-export type AutosaveTimer = number | null;
+export type AutosaveTimer = NodeJS.Timeout | null;
 
 export const savedFilesState = atom<SavedWorkspaces>({
   key: "savedFiles",
@@ -165,61 +164,61 @@ const markWorkspaceUnsavedEffect: AtomEffect<Workspace> = ({
   );
 };
 
-const autosaveEffect: AtomEffect<Workspace> = ({ onSet, setSelf }) => {
-  onSet(
-    // HACK: this isn't typesafe (comment from old saveWorkspaceEffect)
-    debounce(async (newValue: Workspace, oldValue) => {
-      // Check equal ids to prevent state change when swapping active diagram
-      // Check equal autosaveTimer values to prevent this effect from self-triggering
-      if (
-        newValue.metadata.location.kind == "stored" &&
-        newValue.metadata.id == oldValue.metadata.id &&
-        newValue.metadata.location.autosaveTimer ==
-          oldValue.metadata.location.autosaveTimer
-      ) {
-        console.log("Hit");
-        // Reset autosave timer
-        if (newValue.metadata.location.autosaveTimer != null) {
-          clearTimeout(newValue.metadata.location.autosaveTimer);
-          console.log("cleared");
-        }
-        // Set new timer, 5 seconds without edit
-        const newTimeoutId = setTimeout(() => {
-          if (
-            newValue.metadata.location.kind == "stored" &&
-            !newValue.metadata.location.saved
-          ) {
-            toast.success("Autosaving code...");
-            console.log("autosaving");
-            const event = new KeyboardEvent("keydown", {
-              ctrlKey: true, // Set the Ctrl key as pressed
-              key: "s", // Set the key value to 's' (case-insensitive)
-            });
+// const autosaveEffect: AtomEffect<Workspace> = ({ onSet, setSelf }) => {
+//   onSet(
+//     // HACK: this isn't typesafe (comment from old saveWorkspaceEffect)
+//     debounce(async (newValue: Workspace, oldValue) => {
+//       // Check equal ids to prevent state change when swapping active diagram
+//       // Check equal autosaveTimer values to prevent this effect from self-triggering
+//       if (
+//         newValue.metadata.location.kind == "stored" &&
+//         newValue.metadata.id == oldValue.metadata.id &&
+//         newValue.metadata.location.autosaveTimer ==
+//           oldValue.metadata.location.autosaveTimer
+//       ) {
+//         console.log("Hit");
+//         // Reset autosave timer
+//         if (newValue.metadata.location.autosaveTimer != null) {
+//           clearTimeout(newValue.metadata.location.autosaveTimer);
+//           console.log("cleared");
+//         }
+//         // Set new timer, 5 seconds without edit
+//         const newTimeoutId = setTimeout(() => {
+//           if (
+//             newValue.metadata.location.kind == "stored" &&
+//             !newValue.metadata.location.saved
+//           ) {
+//             toast.success("Autosaving code...");
+//             console.log("autosaving");
+//             const event = new KeyboardEvent("keydown", {
+//               ctrlKey: true, // Set the Ctrl key as pressed
+//               key: "s", // Set the key value to 's' (case-insensitive)
+//             });
 
-            // Dispatch the keyboard event on the document
-            document.dispatchEvent(event);
-          }
-        }, 5000);
-        console.log(newTimeoutId);
+//             // Dispatch the keyboard event on the document
+//             document.dispatchEvent(event);
+//           }
+//         }, 5000);
+//         console.log(newTimeoutId);
 
-        setSelf((workspaceOrDefault) => {
-          const workspace = workspaceOrDefault as Workspace;
-          return {
-            ...workspace,
-            metadata: {
-              ...workspace.metadata,
-              location: {
-                ...workspace.metadata.location,
-                kind: "stored",
-                autosaveTimer: newTimeoutId,
-              },
-            } as WorkspaceMetadata,
-          };
-        });
-      }
-    }, 500),
-  );
-};
+//         setSelf((workspaceOrDefault) => {
+//           const workspace = workspaceOrDefault as Workspace;
+//           return {
+//             ...workspace,
+//             metadata: {
+//               ...workspace.metadata,
+//               location: {
+//                 ...workspace.metadata.location,
+//                 kind: "stored",
+//                 autosaveTimer: newTimeoutId,
+//               },
+//             } as WorkspaceMetadata,
+//           };
+//         });
+//       }
+//     }, 500),
+//   );
+// };
 
 /**
  * When workspace is loaded in, sync the fileNames with the layout
@@ -273,7 +272,7 @@ export const defaultWorkspaceState = (): Workspace => ({
 export const currentWorkspaceState = atom<Workspace>({
   key: "currentWorkspace",
   default: defaultWorkspaceState(),
-  effects: [markWorkspaceUnsavedEffect, syncFilenamesEffect, autosaveEffect],
+  effects: [markWorkspaceUnsavedEffect, syncFilenamesEffect],
 });
 
 export const currentRogerState = atom<RogerState>({
