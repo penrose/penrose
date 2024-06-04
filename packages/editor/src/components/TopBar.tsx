@@ -117,7 +117,7 @@ export default function TopBar() {
   const settings = useRecoilValue(settingsState);
   const saveLocally = useSaveLocally();
   const publishGist = usePublishGist();
-  const { optimizing } = useRecoilValue(diagramWorkerState);
+  const { optimizing, compiling } = useRecoilValue(diagramWorkerState);
   const isUnsaved = useIsUnsaved();
   const newWorkspace = useNewWorkspace();
 
@@ -179,12 +179,16 @@ export default function TopBar() {
         </div>
       )}
       <HeaderButtonContainer>
-        <BlueButton disabled={optimizing} onClick={useDownloadSvg()}>
+        <BlueButton disabled={compiling} onClick={useDownloadSvg()}>
           save Penrose SVG
         </BlueButton>
         <ExportButton />
-        <BlueButton onClick={compileDiagram}>compile ▶</BlueButton>
-        <BlueButton onClick={resampleDiagram}>resample</BlueButton>
+        <BlueButton disabled={compiling} onClick={compileDiagram}>
+          compile ▶
+        </BlueButton>
+        <BlueButton disabled={compiling} onClick={resampleDiagram}>
+          resample
+        </BlueButton>
       </HeaderButtonContainer>
     </nav>
   );

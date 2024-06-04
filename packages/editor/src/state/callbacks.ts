@@ -1,4 +1,4 @@
-import { isPenroseError, runtimeError } from "@penrose/core";
+import { isPenroseError, runtimeError, showError } from "@penrose/core";
 import { Style } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
 import localforage from "localforage";
@@ -46,6 +46,28 @@ import {
 } from "./atoms.js";
 import { generateVariation } from "./variation.js";
 
+const _onError = (
+  error: any,
+  set: <T>(state: RecoilState<T>, update: (t: T) => T) => void,
+) => {
+  if (!isPenroseError(error)) {
+    error = runtimeError(String(error));
+  }
+  console.error(showError(error));
+  if (optimizer.getState() == "Error") {
+    console.error("OptimizerWorker latching error: " + showError(error));
+  }
+  set(diagramState, (state) => ({
+    ...state,
+    error,
+  }));
+  set(diagramWorkerState, (state) => ({
+    ...state,
+    compiling: false,
+    optimizing: false,
+  }));
+};
+
 const _compileDiagram = async (
   substance: string,
   style: string,
@@ -88,36 +110,31 @@ const _compileDiagram = async (
   };
 
   const onError = (error: any) => {
+    _onError(error, set);
     toast.dismiss(compiling);
-    if (!isPenroseError(error)) {
-      error = runtimeError(String(error));
-    }
-    set(diagramState, (state) => ({
-      ...state,
-      error,
-    }));
-    set(diagramWorkerState, (state) => ({
-      ...state,
-      optimizing: false,
-    }));
   };
 
   try {
+    set(diagramWorkerState, (state) => ({
+      ...state,
+      compiling: true,
+    }));
     const id = await optimizer.compile(domain, style, substance, variation);
     set(diagramWorkerState, (state) => ({
       ...state,
       id,
-      optimizing: false,
+      compiling: false,
     }));
+    toast.dismiss(compiling);
 
     const { onStart, onFinish } = await optimizer.startOptimizing();
     onFinish
-      .then(() => {
-        toast.dismiss(compiling);
+      .then((info) => {
         set(diagramWorkerState, (state) => ({
           ...state,
           optimizing: false,
         }));
+        onUpdate(info);
       })
       .catch(onError);
 
@@ -180,41 +197,13 @@ export const useResampleDiagram = () =>
     }
     const variation = generateVariation();
     const resamplingLoading = toast.loading("Resampling...");
+
     const onError = (error: any) => {
+      _onError(error, set);
       toast.dismiss(resamplingLoading);
-      if (!isPenroseError(error)) {
-        error = runtimeError(String(error));
-      }
-      set(diagramState, (state) => ({
-        ...state,
-        error,
-      }));
-      set(diagramWorkerState, (state) => ({
-        ...state,
-        optimizing: false,
-      }));
     };
 
-    try {
-      const { onStart, onFinish } = await optimizer.resample(id, variation);
-      onFinish
-        .then(() => {
-          toast.dismiss(resamplingLoading);
-          set(diagramWorkerState, (state) => ({
-            ...state,
-            optimizing: false,
-          }));
-        })
-        .catch(onError);
-
-      await onStart;
-      set(diagramWorkerState, (state) => ({
-        ...state,
-        optimizing: true,
-      }));
-
-      const info = await optimizer.pollForUpdate();
-      if (info === null) return;
+    const onUpdate = (info: UpdateInfo) => {
       set(diagramState, (state) => ({
         ...state,
         metadata: { ...state.metadata, variation },
@@ -227,6 +216,29 @@ export const useResampleDiagram = () =>
         ),
         gridSize,
       }));
+    };
+
+    try {
+      const { onStart, onFinish } = await optimizer.resample(id, variation);
+      toast.dismiss(resamplingLoading);
+      onFinish
+        .then((info) => {
+          set(diagramWorkerState, (state) => ({
+            ...state,
+            optimizing: false,
+          }));
+          onUpdate(info);
+        })
+        .catch(onError);
+
+      await onStart;
+      set(diagramWorkerState, (state) => ({
+        ...state,
+        optimizing: true,
+      }));
+
+      const info = await optimizer.pollForUpdate();
+      if (info !== null) onUpdate(info);
     } catch (error: unknown) {
       onError(error);
     }
