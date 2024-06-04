@@ -139,6 +139,9 @@ export default function DiagramPanel() {
   };
 
   const layoutTimeline = useRecoilValue(layoutTimelineState);
+  const unexcludedWarnings = warnings.filter(
+    (w) => metadata.excludeWarnings.find((s) => w.tag === s) === undefined,
+  );
 
   return (
     <div style={{ display: "flex", flexDirection: "row", height: "100%" }}>
@@ -178,7 +181,7 @@ export default function DiagramPanel() {
             </pre>
           </div>
         )}
-        {warnings.length > 0 && (
+        {unexcludedWarnings.length > 0 && (
           <div
             style={{
               bottom: 0,
@@ -197,7 +200,9 @@ export default function DiagramPanel() {
               warnings
             </span>
             <pre style={{ whiteSpace: "pre-wrap" }}>
-              {warnings.map((w) => showError(w).toString()).join("\n")}
+              {unexcludedWarnings
+                .map((w) => showError(w).toString())
+                .join("\n")}
             </pre>
           </div>
         )}

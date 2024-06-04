@@ -59,6 +59,7 @@ const _onError = (
   }
   set(diagramState, (state) => ({
     ...state,
+    warnings: [],
     error,
   }));
   set(diagramWorkerState, (state) => ({
@@ -83,19 +84,6 @@ const _compileDiagram = async (
     set(diagramState, (state) => {
       return {
         ...state,
-        error: null,
-        // TODO: warnings
-        // warnings: initialState.warnings,
-        metadata: {
-          ...state.metadata,
-          variation,
-          excludeWarnings,
-          source: {
-            domain,
-            substance,
-            style,
-          },
-        },
         state: updatedState,
       };
     });
@@ -115,15 +103,38 @@ const _compileDiagram = async (
   };
 
   try {
+    set(diagramState, (state) => ({
+      ...state,
+      metadata: {
+        ...state.metadata,
+        variation,
+        excludeWarnings,
+        source: {
+          substance,
+          style,
+          domain,
+        },
+      },
+    }));
     set(diagramWorkerState, (state) => ({
       ...state,
       compiling: true,
     }));
-    const id = await optimizer.compile(domain, style, substance, variation);
+    const { id, warnings } = await optimizer.compile(
+      domain,
+      style,
+      substance,
+      variation,
+    );
     set(diagramWorkerState, (state) => ({
       ...state,
       id,
       compiling: false,
+    }));
+    set(diagramState, (state) => ({
+      ...state,
+      warnings: warnings,
+      error: null,
     }));
     toast.dismiss(compiling);
 
@@ -592,7 +603,11 @@ export const useCheckURL = () =>
       }));
     } else if ("gist" in parsed) {
       // Loading a gist
-      const id = toast.loading("Loading gist...");
+      // Show loading notification only if not redirected from share
+      var id!: string;
+      if (!("pub" in parsed)) {
+        id = toast.loading("Loading gist...");
+      }
       const res = await fetch(
         `https://api.github.com/gists/${parsed["gist"]}`,
         {
@@ -601,7 +616,9 @@ export const useCheckURL = () =>
           },
         },
       );
-      toast.dismiss(id);
+      if (!("pub" in parsed)) {
+        toast.dismiss(id);
+      }
       if (res.status !== 200) {
         console.error(res);
         toast.error(`Could not load gist: ${res.statusText}`);
@@ -644,6 +661,17 @@ export const useCheckURL = () =>
         files,
       };
       set(currentWorkspaceState, workspace);
+
+      // Notification + save to clipboard if redirected from clicking share
+      if ("pub" in parsed) {
+        const gistParameter = queryString.stringify({ gist: parsed["gist"] });
+        const shareableURL = `${window.location.origin}${window.location.pathname}?${gistParameter}`;
+        navigator.clipboard.writeText(shareableURL).then(() => {
+          toast.success("Copied shareable link to clipboard");
+        });
+        // Hide pub query parameter from displayed URL
+        window.history.replaceState({}, document.title, shareableURL);
+      }
     } else if ("examples" in parsed) {
       const t = toast.loading("Loading example...");
       const id = parsed["examples"];
@@ -759,8 +787,10 @@ export const usePublishGist = () =>
       toast.error(`Could not publish gist: ${res.statusText} ${json.message}`);
       return;
     }
-    toast.success(`Published gist, redirecting...`);
-    window.location.search = queryString.stringify({ gist: json.id });
+    // Use query string (pub) to pass state to display notification on next page
+    const gistParameter = queryString.stringify({ gist: json.id, pub: true });
+    toast.success("Redirecting to gist...");
+    window.location.search = gistParameter;
   });
 
 const REDIRECT_URL =
