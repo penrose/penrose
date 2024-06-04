@@ -3,6 +3,7 @@ import {
   LabelMeasurements,
   mathjaxInit,
   PenroseError,
+  PenroseWarning,
   runtimeError,
 } from "@penrose/core";
 import consola from "consola";
@@ -62,7 +63,7 @@ export type InitToCompiled = {
   tag: "InitToCompiled";
   waiting: true;
   previous: Init | Compiled;
-  resolve: (jobId: string) => void;
+  resolve: (info: CompiledInfo) => void;
   reject: (e: PenroseError) => void;
 };
 
@@ -125,6 +126,11 @@ const isWaiting = (state: OWState): state is WaitingState => {
 export interface UpdateInfo {
   state: RenderState;
   stats: LayoutStats;
+}
+
+export interface CompiledInfo {
+  id: string;
+  warnings: PenroseWarning[];
 }
 
 export interface OptimizerPromises {
@@ -360,7 +366,10 @@ export default class OptimizerWorker {
               this.state.reject(labelCache.error);
               return;
             } else {
-              this.state.resolve(data.jobId);
+              this.state.resolve({
+                id: data.jobId,
+                warnings: data.warnings,
+              });
             }
 
             const { optLabelCache, svgCache } = separateRenderedLabels(
@@ -541,7 +550,7 @@ export default class OptimizerWorker {
     style: string,
     substance: string,
     variation: string,
-  ): Promise<string> {
+  ): Promise<CompiledInfo> {
     log.info(`compile called from state ${this.state.tag}`);
     return new Promise(async (resolve, reject) => {
       while (isWaiting(this.state)) await this.waitForNextState();

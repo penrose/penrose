@@ -59,6 +59,7 @@ const _onError = (
   }
   set(diagramState, (state) => ({
     ...state,
+    warnings: [],
     error,
   }));
   set(diagramWorkerState, (state) => ({
@@ -84,8 +85,6 @@ const _compileDiagram = async (
       return {
         ...state,
         error: null,
-        // TODO: warnings
-        // warnings: initialState.warnings,
         metadata: {
           ...state.metadata,
           variation,
@@ -119,11 +118,20 @@ const _compileDiagram = async (
       ...state,
       compiling: true,
     }));
-    const id = await optimizer.compile(domain, style, substance, variation);
+    const { id, warnings } = await optimizer.compile(
+      domain,
+      style,
+      substance,
+      variation,
+    );
     set(diagramWorkerState, (state) => ({
       ...state,
       id,
       compiling: false,
+    }));
+    set(diagramState, (state) => ({
+      ...state,
+      warnings: warnings,
     }));
     toast.dismiss(compiling);
 

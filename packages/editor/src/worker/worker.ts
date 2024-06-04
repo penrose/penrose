@@ -233,6 +233,7 @@ const respondCompiled = (id: string, state: PenroseState) => {
     tag: "CompiledResp",
     jobId: id,
     shapes: state.shapes,
+    warnings: state.warnings,
   });
 };
 

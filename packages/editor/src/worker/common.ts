@@ -4,6 +4,7 @@ import {
   LabelData,
   LabelMeasurements,
   Num,
+  PenroseWarning,
   Shape,
   State,
 } from "@penrose/core";
@@ -23,6 +24,7 @@ export type InitResp = {
 export type CompiledResp = {
   tag: "CompiledResp";
   jobId: string;
+  warnings: PenroseWarning[];
   shapes: Shape<Num>[];
 };
 
