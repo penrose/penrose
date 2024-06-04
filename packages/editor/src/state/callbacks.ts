@@ -84,17 +84,6 @@ const _compileDiagram = async (
     set(diagramState, (state) => {
       return {
         ...state,
-        error: null,
-        metadata: {
-          ...state.metadata,
-          variation,
-          excludeWarnings,
-          source: {
-            domain,
-            substance,
-            style,
-          },
-        },
         state: updatedState,
       };
     });
@@ -114,6 +103,19 @@ const _compileDiagram = async (
   };
 
   try {
+    set(diagramState, (state) => ({
+      ...state,
+      metadata: {
+        ...state.metadata,
+        variation,
+        excludeWarnings,
+        source: {
+          substance,
+          style,
+          domain,
+        },
+      },
+    }));
     set(diagramWorkerState, (state) => ({
       ...state,
       compiling: true,
@@ -132,6 +134,7 @@ const _compileDiagram = async (
     set(diagramState, (state) => ({
       ...state,
       warnings: warnings,
+      error: null,
     }));
     toast.dismiss(compiling);
 
