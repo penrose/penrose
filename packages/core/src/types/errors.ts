@@ -13,7 +13,6 @@ import { Arg, Type } from "./domain.js";
 import { CompFunc, ConstrFunc, FuncParam, ObjFunc } from "./functions.js";
 import { State } from "./state.js";
 import {
-  BinOp,
   BindingForm,
   ColorLit,
   Expr,
@@ -22,8 +21,14 @@ import {
   Path,
   Resolved,
   ResolvedStylePath,
-  UOp,
 } from "./style.js";
+import {
+  LhsStylePathToObject,
+  ResolvedBinOp,
+  ResolvedExpr,
+  ResolvedPath,
+  ResolvedUOp,
+} from "./stylePathResolution.js";
 import { StmtSet, SubExpr, TypeApp } from "./substance.js";
 import { ArgValWithSourceLoc, ShapeVal, Val, Value } from "./value.js";
 
@@ -326,7 +331,7 @@ export interface ParseError {
 
 export interface InvalidColorLiteral {
   tag: "InvalidColorLiteral";
-  color: ColorLit<C>;
+  color: ColorLit<A>;
 }
 
 export interface SelectorVarMultipleDecl {
@@ -409,18 +414,18 @@ export interface AssignSubstanceError {
 
 export interface BadElementError {
   tag: "BadElementError";
-  coll: Expr<C>;
+  coll: ResolvedExpr<A>;
   index: number;
 }
 
 export interface BadIndexError {
   tag: "BadIndexError";
-  expr: Expr<C>;
+  expr: ResolvedExpr<A>;
 }
 
 export interface BinOpTypeError {
   tag: "BinOpTypeError";
-  expr: BinOp<C>;
+  expr: ResolvedBinOp<A>;
   left: Value<ad.Num>["tag"];
   right: Value<ad.Num>["tag"];
 }
@@ -465,12 +470,12 @@ export interface NestedShapeError {
 
 export interface NotCollError {
   tag: "NotCollError";
-  expr: Expr<C>;
+  expr: ResolvedExpr<A>;
 }
 
 export interface IndexIntoShapeListError {
   tag: "IndexIntoShapeListError";
-  expr: Expr<C>;
+  expr: ResolvedExpr<A>;
 }
 
 export interface NotShapeError {
@@ -481,13 +486,13 @@ export interface NotShapeError {
 
 export interface NotValueError {
   tag: "NotValueError";
-  expr: Expr<C>;
+  expr: ResolvedExpr<A>;
   what?: string;
 }
 
 export interface OutOfBoundsError {
   tag: "OutOfBoundsError";
-  expr: Path<C>;
+  expr: ResolvedPath<A>;
   indices: number[];
 }
 
@@ -498,13 +503,13 @@ export interface PropertyMemberError {
 
 export interface UOpTypeError {
   tag: "UOpTypeError";
-  expr: UOp<C>;
+  expr: ResolvedUOp<A>;
   arg: Value<ad.Num>["tag"];
 }
 
 export interface BadShapeParamTypeError {
   tag: "BadShapeParamTypeError";
-  path: string;
+  path: LhsStylePathToObject<A>;
   value: Val<ad.Num> | ShapeVal<ad.Num>;
   expectedType: string;
   passthrough: boolean;
@@ -571,8 +576,7 @@ export interface StyleVariableReferToLiteralError {
 
 export interface LayerOnNonShapesError {
   tag: "LayerOnNonShapesError";
-  location: SourceRange;
-  expr: string;
+  expr: ResolvedExpr<A>;
 }
 
 //#endregion

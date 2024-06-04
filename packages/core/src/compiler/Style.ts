@@ -5,7 +5,11 @@ import nearley from "nearley";
 import seedrandom from "seedrandom";
 import { genGradient, ops, variable } from "../engine/Autodiff.js";
 import { add, div, mul, neg, pow, sub } from "../engine/AutodiffFunctions.js";
-import { compileCompGraph, dummyIdentifier } from "../engine/EngineUtils.js";
+import {
+  compileCompGraph,
+  dummyIdentifier,
+  isConcrete,
+} from "../engine/EngineUtils.js";
 import { start as genOptProblem } from "../engine/Optimizer.js";
 import { constrDict } from "../lib/Constraints.js";
 import { compDict } from "../lib/Functions.js";
@@ -47,19 +51,14 @@ import {
   State,
 } from "../types/state.js";
 import {
-  BinOp,
   BinaryOp,
   BindingForm,
   CollectionAccess,
   Collector,
   DeclPattern,
-  Expr,
-  FunctionCall,
   Header,
   HeaderBlock,
-  InlineComparison,
   LayoutStages,
-  List,
   Path,
   PathAssign,
   RelBind,
@@ -75,14 +74,20 @@ import {
   SelectorType,
   Stmt,
   StyProg,
-  UOp,
-  Vector,
 } from "../types/style.js";
 import {
   LhsResolvedStylePath,
   LhsStylePathToObject,
+  ResolvedBinOp,
+  ResolvedCollectionAccess,
   ResolvedExpr,
+  ResolvedFunctionCall,
+  ResolvedInlineComparison,
+  ResolvedList,
   ResolvedNotShape,
+  ResolvedPath,
+  ResolvedUOp,
+  ResolvedVector,
   StylePathToScope,
   StylePathToSubstanceScope,
 } from "../types/stylePathResolution.js";
@@ -94,7 +99,6 @@ import {
   FieldDict,
   FieldSource,
   Layer,
-  NotShape,
   SelectorEnv,
   ShapeSource,
   StySubst,
@@ -123,6 +127,7 @@ import {
 } from "../types/substance.js";
 import {
   ArgVal,
+  ArgValWithExpr,
   Field,
   FloatV,
   LListV,
@@ -183,6 +188,7 @@ import {
   shapeListV,
   strV,
   subObjectToUniqueName,
+  substanceLiteralToValue,
   tupV,
   val,
   vectorV,
@@ -1660,11 +1666,9 @@ const processExpr = (
   return andThen((props) => ok({ tag: "ShapeSource", shapeType, props }), res);
 };
 
-type NewType = LhsResolvedStylePath<A>;
-
 const insertExpr = (
   block: BlockInfo,
-  path: NewType,
+  path: LhsResolvedStylePath<A>,
   expr: ResolvedExpr<A>,
   assignment: Assignment,
 ): Assignment =>
@@ -1996,7 +2000,7 @@ export const buildAssignment = (
 
 //#region second pass
 
-const findPathsExpr = (expr: ResolvedExpr<A>): LhsResolvedStylePath<A>[] => {
+const findPathsExpr = (expr: ResolvedExpr<A>): LhsStylePathToObject<A>[] => {
   switch (expr.tag) {
     case "BinOp": {
       return [expr.left, expr.right].flatMap((e) => findPathsExpr(e));
@@ -2263,13 +2267,12 @@ const evalExprs = (
   mut: MutableContext,
   canvas: Canvas,
   stages: OptPipeline,
-  context: Context,
-  args: Expr<C>[],
+  args: ResolvedExpr<A>[],
   trans: Translation,
 ): Result<ArgVal<ad.Num>[], StyleDiagnostics> =>
   all(
     args.map((expr) => {
-      return evalExpr(mut, canvas, stages, { context, expr }, trans);
+      return evalExpr(mut, canvas, stages, expr, trans);
     }),
   ).mapErr(flatErrs);
 
@@ -2277,11 +2280,10 @@ const evalVals = (
   mut: MutableContext,
   canvas: Canvas,
   stages: OptPipeline,
-  context: Context,
-  args: Expr<C>[],
+  args: ResolvedExpr<A>[],
   trans: Translation,
 ): Result<Value<ad.Num>[], StyleDiagnostics> =>
-  evalExprs(mut, canvas, stages, context, args, trans).andThen((argVals) =>
+  evalExprs(mut, canvas, stages, args, trans).andThen((argVals) =>
     all(
       argVals.map((argVal, i): Result<Value<ad.Num>, StyleDiagnostics> => {
         switch (argVal.tag) {
@@ -2533,7 +2535,7 @@ const evalBinOpStrings = (
 };
 
 const evalBinOp = (
-  expr: BinOp<C>,
+  expr: ResolvedBinOp<A>,
   left: Value<ad.Num>,
   right: Value<ad.Num>,
 ): Result<Value<ad.Num>, StyleError> => {
@@ -2610,7 +2612,7 @@ const evalBinOp = (
 };
 
 const eval1D = (
-  coll: List<C> | Vector<C> | CollectionAccess<C>,
+  coll: ResolvedList<A> | ResolvedVector<A> | ResolvedCollectionAccess<A>,
   first: FloatV<ad.Num>,
   rest: ArgVal<ad.Num>[],
 ): Result<ListV<ad.Num> | VectorV<ad.Num>, StyleDiagnostics> => {
@@ -2636,7 +2638,7 @@ const eval1D = (
 };
 
 const eval2D = (
-  coll: List<C> | Vector<C> | CollectionAccess<C>,
+  coll: ResolvedList<A> | ResolvedVector<A> | ResolvedCollectionAccess<A>,
   first: VectorV<ad.Num> | ListV<ad.Num> | TupV<ad.Num>,
   rest: ArgVal<ad.Num>[],
 ): Result<
@@ -2672,7 +2674,7 @@ const eval2D = (
 };
 
 const evalShapeList = (
-  coll: List<C> | Vector<C> | CollectionAccess<C>,
+  coll: ResolvedList<A> | ResolvedVector<A> | ResolvedCollectionAccess<A>,
   first: Shape<ad.Num>,
   rest: ArgVal<ad.Num>[],
 ): Result<ShapeListV<ad.Num>, StyleDiagnostics> => {
@@ -2691,11 +2693,10 @@ const evalListOrVector = (
   mut: MutableContext,
   canvas: Canvas,
   stages: OptPipeline,
-  context: Context,
-  coll: List<C> | Vector<C>,
+  coll: ResolvedList<A> | ResolvedVector<A>,
   trans: Translation,
 ): Result<Value<ad.Num>, StyleDiagnostics> => {
-  return evalExprs(mut, canvas, stages, context, coll.contents, trans).andThen(
+  return evalExprs(mut, canvas, stages, coll.contents, trans).andThen(
     (argVals) => {
       if (argVals.length === 0) {
         switch (coll.tag) {
@@ -2741,7 +2742,7 @@ const isValidIndex = (a: unknown[], i: number): boolean =>
   Number.isInteger(i) && 0 <= i && i < a.length;
 
 const evalAccess = (
-  expr: Path<C>,
+  expr: ResolvedPath<A>,
   coll: Value<ad.Num>,
   indices: number[],
 ): Result<Value<ad.Num>, StyleError> => {
@@ -2799,7 +2800,7 @@ const evalAccess = (
 };
 
 const evalUMinus = (
-  expr: UOp<C>,
+  expr: ResolvedUOp<A>,
   arg: Value<ad.Num>,
 ): Result<Value<ad.Num>, StyleError> => {
   switch (arg.tag) {
@@ -2826,7 +2827,7 @@ const evalUMinus = (
 };
 
 const evalUTranspose = (
-  expr: UOp<C>,
+  expr: ResolvedUOp<A>,
   arg: Value<ad.Num>,
 ): Result<Value<ad.Num>, StyleError> => {
   switch (arg.tag) {
@@ -2850,11 +2851,41 @@ const evalUTranspose = (
   }
 };
 
+const extractVectorFromCollectionLiterals = (
+  subObjs: SubstanceObject[],
+): VectorV<ad.Num> | undefined => {
+  // If each object is substance literal number, then return them as a vector
+  if (subObjs.every((subObj) => subObj.tag === "SubstanceLiteral")) {
+    const lits = subObjs.map((subObj) => {
+      if (subObj.tag === "SubstanceLiteral") {
+        return substanceLiteralToValue(subObj);
+      } else {
+        throw new Error(
+          "Should never happen: every object is SubstanceLiteral",
+        );
+      }
+    });
+
+    if (lits.every((lit) => lit.tag === "FloatV")) {
+      return {
+        tag: "VectorV",
+        // This is okay because everything in `lits` is FloatV
+        // as in the guard
+        contents: lits.map((lit) => lit.contents as number),
+      };
+    } else {
+      return undefined;
+    }
+  } else {
+    return undefined;
+  }
+};
+
 const evalExpr = (
   mut: MutableContext,
   canvas: Canvas,
   layoutStages: OptPipeline,
-  { context, expr }: WithContext<Expr<C>>,
+  expr: ResolvedExpr<A>,
   trans: Translation,
 ): Result<ArgVal<ad.Num>, StyleDiagnostics> => {
   switch (expr.tag) {
@@ -2863,7 +2894,6 @@ const evalExpr = (
         mut,
         canvas,
         layoutStages,
-        context,
         [expr.left, expr.right],
         trans,
       ).andThen(([left, right]) => {
@@ -2887,32 +2917,26 @@ const evalExpr = (
       }
     }
     case "CompApp": {
-      const args = evalExprs(
-        mut,
-        canvas,
-        layoutStages,
-        context,
-        expr.args,
-        trans,
-      );
+      const args = evalExprs(mut, canvas, layoutStages, expr.args, trans);
       if (args.isErr()) {
         return err(args.error);
       }
-
-      const argsWithSourceLoc = zip2(args.value, expr.args).map(([v, e]) => ({
+      const argsWithExprs: ArgValWithExpr<ad.Num>[] = zip2(
+        args.value,
+        expr.args,
+      ).map(([v, e]) => ({
         ...v,
-        start: e.start,
-        end: e.end,
+        expr: e,
       }));
 
-      const { name, start, end } = expr;
+      const { name } = expr;
       if (!isKeyOf(name.value, compDict)) {
         return err(
           oneErr({ tag: "InvalidFunctionNameError", givenName: name }),
         );
       }
       const f = compDict[name.value];
-      const x = callCompFunc(f, { start, end }, mut, argsWithSourceLoc);
+      const x = callCompFunc(expr, f, argsWithExprs);
       if (x.isErr()) return err(oneErr(x.error));
       const { value, warnings } = x.value;
 
@@ -2931,16 +2955,64 @@ const evalExpr = (
     }
     case "List":
     case "Vector": {
-      return evalListOrVector(
-        mut,
-        canvas,
-        layoutStages,
-        context,
-        expr,
-        trans,
-      ).map(val);
+      return evalListOrVector(mut, canvas, layoutStages, expr, trans).map(val);
     }
-    case "Path": {
+    case "ResolvedPath": {
+      const path = expr.contents;
+      if (path.tag === "Empty" || path.tag === "Unnamed") {
+        // should never happen
+        throw new Error("Encountered empty or unnamed path");
+      }
+
+      if (path.tag === "Namespace") {
+        // invalid path
+        return err({});
+      }
+
+      if (path.tag === "Collection") {
+        // if the path refers to a collection, and if that collection is a collection of substance literals, just return a vector.
+        const vec = extractVectorFromCollectionLiterals(path.substanceObjects);
+        if (vec !== undefined) {
+          return ok(val(vec));
+        } else {
+          // error: path refers to a collection of non-numerical Substance objects
+          return err();
+        }
+      }
+
+      if (path.tag === "Substance") {
+        // if the path refers to a single substance literal, return the value
+        const subObj = path.substanceObject;
+        if (subObj.tag === "SubstanceLiteral") {
+          const v = substanceLiteralToValue(subObj);
+          return ok(val(v));
+        } else {
+          // error: path refers to a non-literal Substance object
+          return err({});
+        }
+      }
+
+      // this path refers to an object (value or shape)
+      const { access } = path;
+      if (access.tag === "Member") {
+        // it has no index
+        const pathStr = prettyResolvedStylePath(path);
+        const resolved = trans.symbols.get(pathStr);
+        if (resolved === undefined) {
+          return err(oneErr({ tag: "MissingPathError", path }));
+        }
+        if (resolved.tag === "ShapeVal") {
+          resolved.contents.name === strV(pathStr);
+        }
+        return ok(resolved);
+      } else {
+        // it has an index
+        const { indices, parent: nonIndexedPart } = access;
+        if (access.indices.length > 0) {
+          const nonIndexedPartStr = prettyResolvedStylePath(nonIndexedPart);
+        }
+      }
+
       const resolvedPath = resolveRhsPath({ context, expr });
       if (
         resolvedPath.tag === "FloatV" ||
@@ -3214,8 +3286,8 @@ const stageExpr = (
 };
 
 const extractObjConstrBody = (
-  body: InlineComparison<C> | FunctionCall<C>,
-): { name: Identifier<C>; argExprs: Expr<C>[] } => {
+  body: ResolvedInlineComparison<A> | ResolvedFunctionCall<A>,
+): { name: Identifier<A>; argExprs: ResolvedExpr<A>[] } => {
   if (body.tag === "InlineComparison") {
     const mapInlineOpToFunctionName = (op: "<" | "==" | ">"): string => {
       switch (op) {
@@ -3231,9 +3303,8 @@ const extractObjConstrBody = (
 
     return {
       name: {
+        ...body.op,
         tag: "Identifier",
-        start: body.op.start,
-        end: body.op.end,
         nodeType: body.op.nodeType,
         type: "value",
         value: functionName,
@@ -3252,53 +3323,49 @@ const translateExpr = (
   mut: MutableContext,
   canvas: Canvas,
   layoutStages: OptPipeline,
-  path: string,
-  e: WithContext<NotShape>,
+  path: LhsStylePathToObject<A>,
+  e: ResolvedNotShape<A>,
   trans: Translation,
 ): Translation => {
-  switch (e.expr.tag) {
+  const pathStr = prettyResolvedStylePath(path);
+  switch (e.tag) {
     case "BinOp":
     case "BoolLit":
     case "ColorLit":
     case "CompApp":
     case "Fix":
     case "List":
-    case "Path":
     case "StringLit":
     case "Tuple":
     case "UOp":
     case "Vary":
     case "Vector":
     case "CollectionAccess":
-    case "UnaryStyVarExpr": {
+    case "UnaryStyVarExpr":
+    case "ResolvedPath": {
       const res = evalExpr(mut, canvas, layoutStages, e, trans);
       if (res.isErr()) {
         return addDiags(res.error, trans);
       }
       return {
         ...trans,
-        symbols: trans.symbols.set(path, res.value),
+        symbols: trans.symbols.set(pathStr, res.value),
       };
     }
     case "ConstrFn": {
-      const { name, argExprs } = extractObjConstrBody(e.expr.body);
-      const args = evalExprs(
-        mut,
-        canvas,
-        layoutStages,
-        e.context,
-        argExprs,
-        trans,
-      );
+      const { name, argExprs } = extractObjConstrBody(e.body);
+      const args = evalExprs(mut, canvas, layoutStages, argExprs, trans);
       if (args.isErr()) {
         return addDiags(args.error, trans);
       }
-      const argsWithSourceLoc = zip2(args.value, argExprs).map(([v, e]) => ({
+      const argsWithExprs: ArgValWithExpr<ad.Num>[] = zip2(
+        args.value,
+        argExprs,
+      ).map(([v, e]) => ({
         ...v,
-        start: e.start,
-        end: e.end,
+        expr: e,
       }));
-      const { stages, exclude } = e.expr;
+      const { stages, exclude } = e;
       const fname = name.value;
       if (!isKeyOf(fname, constrDict)) {
         return addDiags(
@@ -3306,11 +3373,7 @@ const translateExpr = (
           trans,
         );
       }
-      const output = callObjConstrFunc(
-        constrDict[fname],
-        { start: e.expr.start, end: e.expr.end },
-        argsWithSourceLoc,
-      );
+      const output = callObjConstrFunc(e, constrDict[fname], argsWithExprs);
       if (output.isErr()) {
         return addDiags(oneErr(output.error), trans);
       }
@@ -3329,31 +3392,26 @@ const translateExpr = (
           warnings: trans.diagnostics.warnings.push(...warnings),
         },
         constraints: trans.constraints.push({
-          ast: { context: e.context, expr: e.expr },
+          ast: e,
           optStages,
           output: value,
         }),
       };
     }
     case "ObjFn": {
-      const { name, argExprs } = extractObjConstrBody(e.expr.body);
-      const args = evalExprs(
-        mut,
-        canvas,
-        layoutStages,
-        e.context,
-        argExprs,
-        trans,
-      );
+      const { name, argExprs } = extractObjConstrBody(e.body);
+      const args = evalExprs(mut, canvas, layoutStages, argExprs, trans);
       if (args.isErr()) {
         return addDiags(args.error, trans);
       }
-      const argsWithSourceLoc = zip2(args.value, argExprs).map(([v, e]) => ({
+      const argsWithExprs: ArgValWithExpr<ad.Num>[] = zip2(
+        args.value,
+        argExprs,
+      ).map(([v, e]) => ({
         ...v,
-        start: e.start,
-        end: e.end,
+        expr: e,
       }));
-      const { stages, exclude } = e.expr;
+      const { stages, exclude } = e;
       const fname = name.value;
       if (!isKeyOf(fname, objDict)) {
         return addDiags(
@@ -3367,11 +3425,7 @@ const translateExpr = (
         exclude,
         stages.map((s) => s.value),
       );
-      const output = callObjConstrFunc(
-        objDict[fname],
-        { start: e.expr.start, end: e.expr.end },
-        argsWithSourceLoc,
-      );
+      const output = callObjConstrFunc(e, objDict[fname], argsWithExprs);
       if (output.isErr()) {
         return addDiags(oneErr(output.error), trans);
       }
@@ -3383,36 +3437,15 @@ const translateExpr = (
           warnings: trans.diagnostics.warnings.push(...warnings),
         },
         objectives: trans.objectives.push({
-          ast: { context: e.context, expr: e.expr },
+          ast: e,
           optStages,
           output: value,
         }),
       };
     }
     case "Layering": {
-      const { expr, context } = e;
-
-      const leftPp = prettyPrintResolvedPath(
-        resolveRhsPath({ context: context, expr: expr.left }),
-      );
-      const leftResolved = evalExpr(
-        mut,
-        canvas,
-        layoutStages,
-        { context, expr: expr.left },
-        trans,
-      );
-      const rightListPp = expr.right.map((r: Path<C>) =>
-        prettyPrintResolvedPath(resolveRhsPath({ context: context, expr: r })),
-      );
-      const rightListResolved = evalExprs(
-        mut,
-        canvas,
-        layoutStages,
-        context,
-        expr.right,
-        trans,
-      );
+      const { left, right, layeringOp } = e;
+      const leftResolved = evalExpr(mut, canvas, layoutStages, left, trans);
       if (leftResolved.isErr()) {
         return addDiags(leftResolved.error, trans);
       }
@@ -3420,41 +3453,39 @@ const translateExpr = (
         return addDiags(
           oneErr({
             tag: "LayerOnNonShapesError",
-            location: {
-              start: expr.left.start,
-              end: expr.left.end,
-            },
-            expr: leftPp,
+            expr: left,
           }),
           trans,
         );
       }
+      const rightResolved = all(
+        right.map((p) => evalExpr(mut, canvas, layoutStages, p, trans)),
+      );
 
-      if (rightListResolved.isErr()) {
-        return addDiags(rightListResolved.error, trans);
+      if (rightResolved.isErr()) {
+        return addDiags(rightResolved.error[0], trans);
       }
-      for (let i = 0; i < expr.right.length; i++) {
-        if (rightListResolved.value[i].tag !== "ShapeVal") {
+      for (let i = 0; i < e.right.length; i++) {
+        if (rightResolved.value[i].tag !== "ShapeVal") {
           return addDiags(
             oneErr({
               tag: "LayerOnNonShapesError",
-              location: {
-                start: expr.right[i].start,
-                end: expr.right[i].end,
-              },
-              expr: rightListPp[i],
+              expr: right[i],
             }),
             trans,
           );
         }
       }
 
-      const layeringRelations = rightListPp.map((r: string) => {
-        switch (expr.layeringOp) {
+      const layeringRelations: {
+        below: LhsStylePathToObject<A>;
+        above: LhsStylePathToObject<A>;
+      }[] = right.map((r) => {
+        switch (layeringOp) {
           case "below":
-            return { below: leftPp, above: r };
+            return { below: left.contents, above: r.contents };
           case "above":
-            return { below: r, above: leftPp };
+            return { below: r.contents, above: left.contents };
         }
       });
       return {
@@ -3466,7 +3497,7 @@ const translateExpr = (
 };
 
 const evalGPI = (
-  path: string,
+  path: LhsStylePathToObject<A>,
   shapeType: ShapeType,
   trans: Translation,
 ): Result<Shape<ad.Num>, StyleError> => {
@@ -3483,11 +3514,20 @@ export const translate = (
   log.info("Starting translation stage...");
   let symbols = im.Map<string, ArgVal<ad.Num>>();
   for (const path of graph.nodes()) {
-    const shapeType = graph.node(path);
+    const { contents: shapeType, where: shapePath } = graph.node(path);
     if (typeof shapeType === "string") {
       const props = sampleShape(shapeType, mut, canvas);
       for (const [prop, value] of Object.entries(props)) {
-        symbols = symbols.set(`${path}.${prop}`, val(value));
+        const propPath: LhsStylePathToObject<A> = {
+          nodeType: "SyntheticStyle",
+          tag: "Object",
+          access: {
+            tag: "Member",
+            parent: shapePath,
+            name: prop,
+          },
+        };
+        symbols = symbols.set(prettyResolvedStylePath(propPath), val(value));
       }
     }
   }
@@ -3502,13 +3542,13 @@ export const translate = (
 
   const cycles = graph.findCycles().map((cycle) =>
     cycle.map((id) => {
-      const e = graph.node(id);
+      const { contents: e, where: path } = graph.node(id);
+      const location = isConcrete(path)
+        ? { start: path.start, end: path.end }
+        : undefined;
       return {
         id,
-        src:
-          e === undefined || typeof e === "string"
-            ? undefined
-            : { start: e.expr.start, end: e.expr.end },
+        src: e === undefined || typeof e === "string" ? undefined : location,
       };
     }),
   );
@@ -3519,8 +3559,8 @@ export const translate = (
     };
   }
 
-  for (const path of graph.topsort()) {
-    const e = graph.node(path);
+  for (const pathStr of graph.topsort()) {
+    const { contents: e, where: path } = graph.node(pathStr);
     if (e === undefined) {
       // nothing
     } else if (typeof e === "string") {
@@ -3528,7 +3568,7 @@ export const translate = (
       if (shape.isErr()) {
         trans.diagnostics.errors = trans.diagnostics.errors.push(shape.error);
       } else {
-        trans.symbols = trans.symbols.set(path, {
+        trans.symbols = trans.symbols.set(pathStr, {
           tag: "ShapeVal",
           contents: shape.value,
         });
@@ -3578,11 +3618,13 @@ export const processLayering = (
   groupGraph: GroupGraph,
   layerGraph: LayerGraph,
 ): void => {
+  const belowStr = prettyResolvedStylePath(below);
+  const aboveStr = prettyResolvedStylePath(above);
   // Path from the root to the node, excluding the root
   // [..., below]
-  const belowPath = traverseUp(groupGraph, below).reverse();
+  const belowPath = traverseUp(groupGraph, belowStr).reverse();
   // [..., above]
-  const abovePath = traverseUp(groupGraph, above).reverse();
+  const abovePath = traverseUp(groupGraph, aboveStr).reverse();
   // Find the first differing element.
   let i = 0;
   while (i < belowPath.length && i < abovePath.length) {
@@ -3669,14 +3711,14 @@ export const getCanvasDim = (
   if (!graph.hasNode(i))
     return err({ tag: "CanvasNonexistentDimsError", attr, kind: "missing" });
   const dim = graph.node(i);
-  if (dim === undefined) {
+  if (dim.contents === undefined) {
     return err({ tag: "CanvasNonexistentDimsError", attr, kind: "missing" });
-  } else if (typeof dim === "string") {
+  } else if (typeof dim.contents === "string") {
     return err({ tag: "CanvasNonexistentDimsError", attr, kind: "GPI" });
-  } else if (dim.expr.tag !== "Fix") {
+  } else if (dim.contents.tag !== "Fix") {
     return err({ tag: "CanvasNonexistentDimsError", attr, kind: "wrong type" });
   }
-  return ok(dim.expr.contents);
+  return ok(dim.contents.contents);
 };
 
 //#endregion

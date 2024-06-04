@@ -5,7 +5,6 @@ import * as ad from "../types/ad.js";
 import {
   A,
   AbstractNode,
-  C,
   Identifier,
   NodeType,
   SourceLoc,
@@ -51,6 +50,7 @@ import {
 } from "../types/functions.js";
 import { State } from "../types/state.js";
 import { BindingForm, ColorLit } from "../types/style.js";
+import { LhsStylePathToObject } from "../types/stylePathResolution.js";
 import { SubExpr, TypeApp } from "../types/substance.js";
 import { ArgVal, ArgValWithSourceLoc, ShapeVal, Val } from "../types/value.js";
 import {
@@ -1027,14 +1027,14 @@ export const parseError = (
 });
 
 export const invalidColorLiteral = (
-  color: ColorLit<C>,
+  color: ColorLit<A>,
 ): InvalidColorLiteral => ({
   tag: "InvalidColorLiteral",
   color,
 });
 
 export const badShapeParamTypeError = (
-  path: string,
+  path: LhsStylePathToObject<A>,
   value: Val<ad.Num> | ShapeVal<ad.Num>,
   expectedType: string,
   passthrough: boolean,

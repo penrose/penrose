@@ -13,7 +13,9 @@ import { Rectangle } from "../../shapes/Rectangle.js";
 import { Shape, ShapeType } from "../../shapes/Shapes.js";
 import { Text } from "../../shapes/Text.js";
 import * as ad from "../../types/ad.js";
+import { A } from "../../types/ast.js";
 import { StyleError } from "../../types/errors.js";
+import { LhsStylePathToObject } from "../../types/stylePathResolution.js";
 import { Translation } from "../../types/styleSemantics.js";
 import {
   checkArrow,
@@ -42,7 +44,7 @@ const { err, ok } = Result;
 
 export const checkShape = (
   shapeType: ShapeType,
-  path: string,
+  path: LhsStylePathToObject<A>,
   trans: Translation,
 ): Result<Shape<ad.Num>, StyleError> => {
   switch (shapeType) {
@@ -77,7 +79,7 @@ export const checkShape = (
 };
 
 export const checkCircle = (
-  path: string,
+  path: LhsStylePathToObject<A>,
   trans: Translation,
 ): Result<Circle<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
@@ -107,7 +109,7 @@ export const checkCircle = (
 };
 
 export const checkEllipse = (
-  path: string,
+  path: LhsStylePathToObject<A>,
   trans: Translation,
 ): Result<Ellipse<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
@@ -141,7 +143,7 @@ export const checkEllipse = (
 };
 
 export const checkEquation = (
-  path: string,
+  path: LhsStylePathToObject<A>,
   trans: Translation,
 ): Result<Equation<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
@@ -183,7 +185,7 @@ export const checkEquation = (
 };
 
 export const checkGroup = (
-  path: string,
+  path: LhsStylePathToObject<A>,
   trans: Translation,
 ): Result<Group<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
@@ -205,7 +207,7 @@ export const checkGroup = (
 };
 
 export const checkImage = (
-  path: string,
+  path: LhsStylePathToObject<A>,
   trans: Translation,
 ): Result<Image<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
@@ -244,7 +246,7 @@ export const checkImage = (
 };
 
 export const checkLine = (
-  path: string,
+  path: LhsStylePathToObject<A>,
   trans: Translation,
 ): Result<Line<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
@@ -282,7 +284,7 @@ export const checkLine = (
 };
 
 export const checkPath = (
-  path: string,
+  path: LhsStylePathToObject<A>,
   trans: Translation,
 ): Result<Path<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
@@ -316,7 +318,7 @@ export const checkPath = (
 };
 
 export const checkPolygon = (
-  path: string,
+  path: LhsStylePathToObject<A>,
   trans: Translation,
 ): Result<Polygon<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
@@ -346,7 +348,7 @@ export const checkPolygon = (
 };
 
 export const checkPolyline = (
-  path: string,
+  path: LhsStylePathToObject<A>,
   trans: Translation,
 ): Result<Polyline<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
@@ -380,7 +382,7 @@ export const checkPolyline = (
 };
 
 export const checkRectangle = (
-  path: string,
+  path: LhsStylePathToObject<A>,
   trans: Translation,
 ): Result<Rectangle<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);
@@ -418,7 +420,7 @@ export const checkRectangle = (
 };
 
 export const checkText = (
-  path: string,
+  path: LhsStylePathToObject<A>,
   trans: Translation,
 ): Result<Text<ad.Num>, StyleError> => {
   const named = checkNamed(path, trans);

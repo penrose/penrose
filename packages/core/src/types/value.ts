@@ -1,6 +1,7 @@
 import { Group } from "../shapes/Group.js";
 import { Shape as RealShape, Shape } from "../shapes/Shapes.js";
-import { SourceRange } from "./ast.js";
+import { A } from "./ast.js";
+import { ResolvedExpr } from "./stylePathResolution.js";
 
 /**
  * The input parameters to computations/objectives/constraints in Style.
@@ -19,7 +20,12 @@ export interface ShapeVal<T> {
   contents: RealShape<T>;
 }
 
-export type ArgValWithSourceLoc<T> = ArgVal<T> & SourceRange;
+export interface UnknownShapeVal<T> {
+  tag: "UnknownShapeVal";
+  contents: { [k: string]: Value<T> };
+}
+
+export type ArgValWithExpr<T> = ArgVal<T> & { expr: ResolvedExpr<A> };
 
 export type Field = string;
 export type Name = string;

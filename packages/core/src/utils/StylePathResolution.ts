@@ -21,7 +21,6 @@ import {
   SubstanceObject,
 } from "../types/styleSemantics.js";
 import { Result, all, err, ok } from "../utils/Error.js";
-import { subObjectToUniqueName } from "./Util.js";
 const loc = (
   x: ASTNode<A>,
 ): { nodeType: NodeType; start?: SourceLoc; end?: SourceLoc } => {
@@ -188,8 +187,7 @@ const resolveStylePathHelper = (
           result: {
             ...loc(next),
             tag: "Collection",
-            substanceNames: subObj.map(subObjectToUniqueName),
-            styleName: nextName,
+            substanceObjects: subObj,
           },
           remaining: rest,
         });
@@ -198,8 +196,7 @@ const resolveStylePathHelper = (
           result: {
             ...loc(next),
             tag: "Substance",
-            substanceName: subObjectToUniqueName(subObj),
-            styleName: nextName,
+            substanceObject: subObj,
           },
           remaining: rest,
         });
@@ -283,11 +280,10 @@ export const stylePathToNamespaceScope = (
 });
 
 export const stylePathToSubstanceScope = (
-  name: string,
+  obj: SubstanceObject,
 ): StylePathToSubstanceScope<A> => ({
   tag: "Substance",
-  substanceName: name,
-  styleName: name,
+  substanceObject: obj,
   nodeType: "SyntheticStyle",
 });
 

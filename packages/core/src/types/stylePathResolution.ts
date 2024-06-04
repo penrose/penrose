@@ -8,6 +8,7 @@ import {
   Staged,
   UnaryOp,
 } from "./style.js";
+import { SubstanceObject } from "./styleSemantics.js";
 
 //#region style path
 export type ResolvedStylePath<T> =
@@ -29,13 +30,11 @@ export type StylePathToUnnamedScope<T> = ASTNode<T> & {
 };
 export type StylePathToSubstanceScope<T> = ASTNode<T> & {
   tag: "Substance";
-  substanceName: string;
-  styleName: string;
+  substanceObject: SubstanceObject;
 };
 export type StylePathToCollection<T> = ASTNode<T> & {
   tag: "Collection";
-  styleName: string;
-  substanceNames: string[];
+  substanceObjects: SubstanceObject[];
 };
 export type StylePathToNamespaceScope<T> = ASTNode<T> & {
   tag: "Namespace";

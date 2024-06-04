@@ -1,5 +1,5 @@
 import * as ad from "../types/ad.js";
-import { SourceRange } from "../types/ast.js";
+import { A, SourceRange } from "../types/ast.js";
 import {
   CompFunc,
   ConstrFunc,
@@ -9,10 +9,14 @@ import {
 } from "../types/functions.js";
 
 import { Result } from "true-myth";
-import { Context } from "../shapes/Samplers.js";
 import { Shape } from "../shapes/Shapes.js";
 import { StyleError } from "../types/errors.js";
-import { ArgValWithSourceLoc, Value } from "../types/value.js";
+import {
+  ResolvedCompApp,
+  ResolvedConstrFn,
+  ResolvedObjFn,
+} from "../types/stylePathResolution.js";
+import { ArgValWithExpr, Value } from "../types/value.js";
 import {
   badArgumentTypeError,
   functionInternalError,
@@ -24,10 +28,9 @@ import { checkType } from "./StyleTypeChecker.js";
 const { ok, err } = Result;
 
 export const callCompFunc = (
+  callExpr: ResolvedCompApp<A>,
   func: CompFunc,
-  range: SourceRange,
-  context: Context,
-  args: ArgValWithSourceLoc<ad.Num>[],
+  args: ArgValWithExpr<ad.Num>[],
 ): Result<MayWarn<Value<ad.Num>>, StyleError> => {
   const checkedArgs = checkArgs(func, range, args);
   if (checkedArgs.isErr()) return err(checkedArgs.error);
@@ -64,9 +67,9 @@ export const callCompFunc = (
 };
 
 export const callObjConstrFunc = (
+  callExpr: ResolvedObjFn<A> | ResolvedConstrFn<A>,
   func: ObjFunc | ConstrFunc,
-  range: SourceRange,
-  args: ArgValWithSourceLoc<ad.Num>[],
+  args: ArgValWithExpr<ad.Num>[],
 ): Result<MayWarn<ad.Num>, StyleError> => {
   const checkedArgs = checkArgs(func, range, args);
   if (checkedArgs.isErr()) return err(checkedArgs.error);
