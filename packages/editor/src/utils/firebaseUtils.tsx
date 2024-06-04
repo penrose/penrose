@@ -75,7 +75,7 @@ export const signOutWrapper = () =>
 // Database utils
 export function createWorkspaceObject(
   name: string,
-  lastModified: string,
+  lastModified: number,
   id: string,
   editorVersion: number,
   saved: boolean,

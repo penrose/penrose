@@ -486,7 +486,7 @@ export const useLoadExampleWorkspace = () =>
           metadata: {
             id: uuid(),
             name: meta.name!,
-            lastModified: new Date().toISOString(),
+            lastModified: Date.parse(new Date().toISOString()),
             editorVersion: EDITOR_VERSION,
             location: {
               kind: "example",
@@ -609,7 +609,7 @@ export const useCheckURL = () =>
         metadata: {
           id: uuid(),
           name: ex.name!,
-          lastModified: new Date().toISOString(),
+          lastModified: Date.parse(new Date().toISOString()),
           editorVersion: EDITOR_VERSION,
           location: {
             kind: "example",
@@ -760,7 +760,7 @@ export const useSaveNewWorkspace = () =>
         currentWorkspaceState,
       ).contents;
 
-      const modificationTime = new Date().toISOString();
+      const modificationTime = Date.parse(new Date().toISOString());
       // Save to cloud
       const notif = toast.loading("saving...");
       await setDoc(doc(db, authObject.currentUser.uid, diagramId), {
@@ -834,7 +834,7 @@ export const useSaveWorkspace = () =>
         return;
       }
       const notif = toast.loading("saving...");
-      const modificationTime = new Date().toISOString();
+      const modificationTime = Date.parse(new Date().toISOString());
       // Save to cloud
       await updateDoc(
         doc(db, authObject.currentUser.uid, currentWorkspace.metadata.id),

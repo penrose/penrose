@@ -124,16 +124,22 @@ export default function SavedFilesBrowser() {
     <>
       {currentUser != null ? (
         <div>
-          {Object.values(savedFiles).map((file) => (
-            <FileButton
-              key={file.metadata.id}
-              onClick={() => loadWorkspace(file.metadata.id)}
-              isFocused={file.metadata.id === currentWorkspace.metadata.id}
-              onDelete={() => onDelete(file.metadata)}
-            >
-              {file.metadata.name}
-            </FileButton>
-          ))}
+          {Object.values(savedFiles)
+            // Display most recently modified at the top
+            .sort(
+              (file1, file2) =>
+                file2.metadata.lastModified - file1.metadata.lastModified,
+            )
+            .map((file) => (
+              <FileButton
+                key={file.metadata.id}
+                onClick={() => loadWorkspace(file.metadata.id)}
+                isFocused={file.metadata.id === currentWorkspace.metadata.id}
+                onDelete={() => onDelete(file.metadata)}
+              >
+                {file.metadata.name}
+              </FileButton>
+            ))}
           <div>
             {(currentWorkspace.metadata.location.kind !== "stored" ||
               !currentWorkspace.metadata.location.saved) && (

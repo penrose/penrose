@@ -67,7 +67,7 @@ export type WorkspaceLocation =
 export type WorkspaceMetadata = {
   name: string;
   // ISO String of date
-  lastModified: string;
+  lastModified: number;
   id: string;
   // Gist ID
   forkedFromGist: string | null;
@@ -245,7 +245,7 @@ export const defaultWorkspaceState = (): Workspace => ({
   metadata: {
     name: "Untitled Diagram",
     id: uuid(),
-    lastModified: new Date().toISOString(),
+    lastModified: Date.parse(new Date().toISOString()),
     editorVersion: 0.1,
     location: { kind: "local" },
     forkedFromGist: null,
