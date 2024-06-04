@@ -63,6 +63,7 @@ const _onError = (
   }));
   set(diagramWorkerState, (state) => ({
     ...state,
+    compiling: false,
     optimizing: false,
   }));
 };
@@ -114,17 +115,21 @@ const _compileDiagram = async (
   };
 
   try {
+    set(diagramWorkerState, (state) => ({
+      ...state,
+      compiling: true,
+    }));
     const id = await optimizer.compile(domain, style, substance, variation);
     set(diagramWorkerState, (state) => ({
       ...state,
       id,
-      optimizing: false,
+      compiling: false,
     }));
+    toast.dismiss(compiling);
 
     const { onStart, onFinish } = await optimizer.startOptimizing();
     onFinish
       .then((info) => {
-        toast.dismiss(compiling);
         set(diagramWorkerState, (state) => ({
           ...state,
           optimizing: false,
@@ -215,9 +220,9 @@ export const useResampleDiagram = () =>
 
     try {
       const { onStart, onFinish } = await optimizer.resample(id, variation);
+      toast.dismiss(resamplingLoading);
       onFinish
         .then((info) => {
-          toast.dismiss(resamplingLoading);
           set(diagramWorkerState, (state) => ({
             ...state,
             optimizing: false,
