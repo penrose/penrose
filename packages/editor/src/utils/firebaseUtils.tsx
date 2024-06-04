@@ -39,12 +39,14 @@ export const logInWrapper = () =>
       .then((result) => {
         const credential = GithubAuthProvider.credentialFromResult(result);
         if (credential !== null) {
-          // Save access token to local state, settingsEffect propogates to local storage
-          // For type safety, assign null if undefined
+          /**
+           * Save access token to local state
+           * settingsEffect propogates to local storage
+           */
           set(settingsState, (prevState) => ({
             ...prevState,
             githubAccessToken:
-              credential.accessToken != undefined
+              credential.accessToken != undefined // For type safety, assign null if undefined
                 ? credential.accessToken
                 : null,
           }));
@@ -72,7 +74,7 @@ export const signOutWrapper = () =>
       });
   });
 
-// Database utils
+// Firestore database utils
 export function createWorkspaceObject(
   name: string,
   lastModified: number,
@@ -109,9 +111,10 @@ export function createWorkspaceObject(
   };
 }
 
-/* Creates hashmap of workspace ids to workspace objects from user's cloud 
-storage. Used to populate savedFilesState
-*/
+/*
+ * Creates hashmap of workspace ids to workspace objects from user's cloud
+ * storage. Used to populate savedFilesState
+ */
 export async function createSavedWorkspaceObject(userid: string) {
   var loadedWorkspaces = {} as SavedWorkspaces;
   const querySnapshot = await getDocs(collection(db, userid));

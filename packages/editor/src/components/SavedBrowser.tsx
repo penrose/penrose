@@ -102,7 +102,7 @@ const autosaveHook = () => {
       console.log(newTimeoutId);
       autosaveTimerSetter(newTimeoutId);
     }, 500),
-    // Needed, otherwise updates to these values won't be reflected in execution
+    // So that updates to these values won't be reflected in execution
     [autosaveTimerValue, currentWorkspace.metadata],
   );
 

@@ -438,8 +438,8 @@ export const useLoadLocalWorkspace = () =>
       loadedWorkspace = currentSavedFilesState[id];
     } else {
       /**
-       * Workspace missing from local state, search database instead
-       * As a fallback in case of some unforseen bug, I do not expect this
+       * Workspace missing from local state, search database instead.
+       * A fallback in case of some unforseen bug, I do not expect this
        * branch to be reached
        */
       loadedWorkspace = await getDiagram(id);

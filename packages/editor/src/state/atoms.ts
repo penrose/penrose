@@ -40,7 +40,7 @@ export type GistLocation = {
 
 export type WorkspaceLocation =
   /**
-   * "local" used for unstored non example workspaces, to distinguish for
+   * "local" used for unstored non-example workspaces, to distinguish for
    * save button functionality
    */
   | { kind: "local" }
@@ -164,62 +164,6 @@ const markWorkspaceUnsavedEffect: AtomEffect<Workspace> = ({
   );
 };
 
-// const autosaveEffect: AtomEffect<Workspace> = ({ onSet, setSelf }) => {
-//   onSet(
-//     // HACK: this isn't typesafe (comment from old saveWorkspaceEffect)
-//     debounce(async (newValue: Workspace, oldValue) => {
-//       // Check equal ids to prevent state change when swapping active diagram
-//       // Check equal autosaveTimer values to prevent this effect from self-triggering
-//       if (
-//         newValue.metadata.location.kind == "stored" &&
-//         newValue.metadata.id == oldValue.metadata.id &&
-//         newValue.metadata.location.autosaveTimer ==
-//           oldValue.metadata.location.autosaveTimer
-//       ) {
-//         console.log("Hit");
-//         // Reset autosave timer
-//         if (newValue.metadata.location.autosaveTimer != null) {
-//           clearTimeout(newValue.metadata.location.autosaveTimer);
-//           console.log("cleared");
-//         }
-//         // Set new timer, 5 seconds without edit
-//         const newTimeoutId = setTimeout(() => {
-//           if (
-//             newValue.metadata.location.kind == "stored" &&
-//             !newValue.metadata.location.saved
-//           ) {
-//             toast.success("Autosaving code...");
-//             console.log("autosaving");
-//             const event = new KeyboardEvent("keydown", {
-//               ctrlKey: true, // Set the Ctrl key as pressed
-//               key: "s", // Set the key value to 's' (case-insensitive)
-//             });
-
-//             // Dispatch the keyboard event on the document
-//             document.dispatchEvent(event);
-//           }
-//         }, 5000);
-//         console.log(newTimeoutId);
-
-//         setSelf((workspaceOrDefault) => {
-//           const workspace = workspaceOrDefault as Workspace;
-//           return {
-//             ...workspace,
-//             metadata: {
-//               ...workspace.metadata,
-//               location: {
-//                 ...workspace.metadata.location,
-//                 kind: "stored",
-//                 autosaveTimer: newTimeoutId,
-//               },
-//             } as WorkspaceMetadata,
-//           };
-//         });
-//       }
-//     }, 500),
-//   );
-// };
-
 /**
  * When workspace is loaded in, sync the fileNames with the layout
  */
@@ -312,7 +256,6 @@ export const fileContentsSelector = selectorFamily<ProgramFile, ProgramType>({
 
 /**
  * Access just the workspace's metadata.
- * Auto updates the localStorage via effects.
  */
 export const workspaceMetadataSelector = selector<WorkspaceMetadata>({
   key: "workspaceMetadata",
@@ -325,13 +268,6 @@ export const workspaceMetadataSelector = selector<WorkspaceMetadata>({
       ...state,
       metadata: newMetadata,
     }));
-    // If local & saved, add it to the localFiles
-    // if (newMetadata.location.kind === "local" && newMetadata.location.saved) {
-    //   set(localFilesState, (state) => ({
-    //     ...state,
-    //     [(newValue as WorkspaceMetadata).id]: newValue as WorkspaceMetadata,
-    //   }));
-    // }
   },
 });
 
@@ -553,6 +489,7 @@ const settingsEffect: AtomEffect<Settings> = ({ setSelf, onSet }) => {
       : localforage.setItem("settings", newValue);
   });
 };
+
 const debugModeEffect: AtomEffect<Settings> = ({ onSet }) => {
   onSet((newValue, _, isReset) => {
     layoutModel.visitNodes((node) => {

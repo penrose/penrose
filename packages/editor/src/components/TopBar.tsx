@@ -71,18 +71,17 @@ function EditableTitle() {
   const [editing, setEditing] = useState(false);
   const currentWorkspace = useRecoilValue(currentWorkspaceState);
   const saveWorkspace = useSaveWorkspace();
-  // const saveLocally = useSaveLocally();
-  const onChange = useRecoilCallback(({ set }) =>
-    // Set locally
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      set(currentWorkspaceState, (state) => ({
-        ...state,
-        metadata: {
-          ...state.metadata,
-          name: e.target.value,
-        },
-      }));
-    },
+  const onChange = useRecoilCallback(
+    ({ set }) =>
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        set(currentWorkspaceState, (state) => ({
+          ...state,
+          metadata: {
+            ...state.metadata,
+            name: e.target.value,
+          },
+        }));
+      },
   );
 
   const onFinish = () => {
