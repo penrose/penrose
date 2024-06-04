@@ -408,8 +408,9 @@ export const useDownloadPdf = () =>
 // returns true if there are no unsaved changes
 export const isCleanWorkspace = (workspace: Workspace): boolean => {
   if (
-    workspace.metadata.location.kind === "stored" &&
-    !workspace.metadata.location.saved
+    (workspace.metadata.location.kind === "stored" &&
+      !workspace.metadata.location.saved) ||
+    workspace.metadata.location.kind == "local"
   ) {
     return false;
   } else {

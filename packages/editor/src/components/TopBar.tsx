@@ -92,14 +92,17 @@ function EditableTitle() {
     setEditing(false);
   };
 
-  const onKey = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === "Escape") {
-      if (currentWorkspace.metadata.location.kind == "stored") {
-        saveWorkspace();
+  const onKey = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" || e.key === "Escape") {
+        if (currentWorkspace.metadata.location.kind == "stored") {
+          saveWorkspace();
+        }
+        setEditing(false);
       }
-      setEditing(false);
-    }
-  }, []);
+    },
+    [currentWorkspace],
+  );
   if (editing) {
     return (
       <InputBox

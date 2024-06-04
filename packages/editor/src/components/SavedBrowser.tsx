@@ -69,7 +69,7 @@ const autosaveHook = () => {
   // Callback so debounce works
   const autosaveLogic = useCallback(
     debounce(async () => {
-      console.log(autosaveTimerValue);
+      // console.log(autosaveTimerValue);
       // Reset autosave timer
       if (autosaveTimerValue != null) {
         clearTimeout(autosaveTimerValue);
