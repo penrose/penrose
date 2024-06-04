@@ -3006,66 +3006,58 @@ const evalExpr = (
         }
         return ok(resolved);
       } else {
-        // it has an index
         const { indices, parent: nonIndexedPart } = access;
-        if (access.indices.length > 0) {
-          const nonIndexedPartStr = prettyResolvedStylePath(nonIndexedPart);
+        const parentValue = evalExpr(
+          mut,
+          canvas,
+          layoutStages,
+          {
+            ...parent,
+            nodeType: "Style",
+            tag: "ResolvedPath",
+            contents: nonIndexedPart,
+          },
+          trans,
+        );
+        if (parentValue.isErr()) {
+          return err(parentValue.error);
         }
-      }
-
-      const resolvedPath = resolveRhsPath({ context, expr });
-      if (
-        resolvedPath.tag === "FloatV" ||
-        resolvedPath.tag === "StrV" ||
-        resolvedPath.tag === "VectorV"
-      ) {
-        return ok(val(resolvedPath));
-      }
-      const path = prettyPrintResolvedPath(resolvedPath);
-      const resolved = trans.symbols.get(path);
-      if (resolved === undefined) {
-        return err(oneErr({ tag: "MissingPathError", path: resolvedPath }));
-      }
-
-      if (resolved.tag === "ShapeVal") {
-        // Can evaluate a path to a GPI - just return the GPI
-        // Need to incorporate the "name" information:
-        resolved.contents.name = strV(path);
-        return ok(resolved);
-      }
-      if (expr.indices.length === 0) {
-        return ok(resolved);
-      }
-      const res = all(
-        expr.indices.map((e) =>
-          evalExpr(
+        if (parentValue.value.tag === "ShapeVal") {
+          return err(); // error: trying to index into a shape
+        }
+        if (indices.length > 0) {
+          const resolvedIndices = evalExprs(
             mut,
             canvas,
             layoutStages,
-            { context, expr: e },
+            indices,
             trans,
-          ).andThen<number>((i) => {
+          );
+          if (resolvedIndices.isErr()) {
+            return err(resolvedIndices.error);
+          }
+          const indexValues: number[] = [];
+          for (const i of resolvedIndices.value) {
             if (i.tag === "ShapeVal") {
-              return err(oneErr({ tag: "NotValueError", expr: e }));
+              return err(oneErr({ tag: "NotValueError", expr }));
             } else if (
               i.contents.tag === "FloatV" &&
               typeof i.contents.contents === "number"
             ) {
-              return ok(i.contents.contents);
+              indexValues.push(i.contents.contents);
             } else {
-              return err(oneErr({ tag: "BadIndexError", expr: e }));
+              return err(oneErr({ tag: "BadIndexError", expr }));
             }
-          }),
-        ),
-      );
-      if (res.isErr()) {
-        return err(flatErrs(res.error));
+          }
+          return evalAccess(
+            expr,
+            parentValue.value.contents,
+            indexValues,
+          ).andThen((v) => ok(val(v)));
+        } else {
+          return parentValue;
+        }
       }
-      const elem = evalAccess(expr, resolved.contents, res.value);
-      if (elem.isErr()) {
-        return err(oneErr(elem.error));
-      }
-      return ok(val(elem.value));
     }
     case "StringLit": {
       return ok(val(strV(expr.contents)));
