@@ -64,6 +64,33 @@ const respondError = (error: WorkerError) => {
   });
 };
 
+const deeperCopyState = (state: PenroseState): PenroseState => {
+  const newConstraintSets = new Map(state.constraintSets);
+  for (const [stage, set] of newConstraintSets) {
+    newConstraintSets.set(stage, {
+      inputMask: [...set.inputMask],
+      objMask: [...set.objMask],
+      constrMask: [...set.constrMask],
+    });
+  }
+
+  return  {
+    ...state,
+    warnings: [...state.warnings],
+    constraintSets: newConstraintSets,
+    objFns: [...state.objFns],
+    constrFns: [...state.constrFns],
+    inputs: [...state.inputs],
+    varyingValues: [...state.varyingValues],
+    labelCache: new Map(state.labelCache),
+    shapes: [...state.shapes],
+    optStages: [...state.optStages],
+    params: {...state.params},
+    inputIdsByFieldPath: new Map(state.inputIdsByFieldPath),
+    draggableShapePaths: new Set(state.draggableShapePaths),
+  };
+}
+
 self.onmessage = async ({ data }: MessageEvent<Req>) => {
   const badStateError = () => {
     respondError({
@@ -97,11 +124,12 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
             ...stateWithoutLabels,
             labelCache: data.labelCache,
           } as PenroseState;
+          optState = deeperCopyState(unoptState);
           workerState = WorkerState.Optimizing;
           respondOptimizing();
           // launch optimization worker asynchronously
           // we don't await so that we can accept new messages
-          optimize(insertPending(unoptState));
+          optimize(insertPending(optState));
           break;
 
         case "UpdateReq":
@@ -143,7 +171,7 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
             });
             break;
           }
-          const draggedState = dragShape(optState, data.shapeIdx, data.dx, data.dy);
+          const draggedState = dragShape(optState, data.shapePath, data.dx, data.dy);
           if (draggedState.isErr()) {
             respondError({
               ...draggedState.error,
@@ -203,11 +231,14 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
   }
 };
 
-const dragShape = (state: PenroseState, shapeIdx: number, dx: number, dy: number): Result<PenroseState, DragError> => {
+const dragShape = (
+  state: PenroseState,
+  shapePath: string,
+  dx: number,
+  dy: number
+): Result<PenroseState, DragError> => {
   const newState = {...state};
-  const shapePath = state.shapes[shapeIdx].name.contents;
   if (!state.draggableShapePaths.has(shapePath)) {
-    console.log(shapePath + ` ${shapeIdx}`);
     return err({
       tag: "DragError",
       message: "undraggable shape",
@@ -314,6 +345,7 @@ const respondFinished = (state: PenroseState, stats: LayoutStats) => {
 
 const optimize = async (state: PenroseState) => {
   optState = state;
+
   // reset history and stats per optimization run
   // TODO: actually return them?
   history = [];

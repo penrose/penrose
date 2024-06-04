@@ -40,13 +40,12 @@ export interface RenderProps {
   pathResolver: PathResolver;
 }
 
-export type OnDrag = (id: number, dx: number, dy: number) => void;
+export type OnDrag = (shapePath: string, dx: number, dy: number) => void;
 export type InteractiveProps = {
   onDrag: OnDrag;
   parentSVG: SVGSVGElement;
   draggableShapePaths: Set<string>
 };
-export type InteractivePropsWithId = InteractiveProps & { id: number };
 
 /**
  * Converts screen to relative SVG coords
@@ -189,7 +188,7 @@ export const toSVG = async (
 const RenderGroup = async (
   groupShape: Group<number>,
   shapeProps: RenderProps,
-  interactiveProps?: InteractivePropsWithId,
+  interactiveProps?: InteractiveProps,
 ): Promise<SVGGElement> => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
 
@@ -280,7 +279,7 @@ const RenderShapeSvg = async (
 export const RenderShape = async (
   shape: Shape<number>,
   renderProps: RenderProps,
-  interactiveProps?: InteractivePropsWithId,
+  interactiveProps?: InteractiveProps,
 ): Promise<SVGElement> => {
   if (shape.shapeType === "Group") {
     const outSvg = await RenderGroup(shape, renderProps, interactiveProps);
@@ -295,7 +294,7 @@ export const RenderShape = async (
       g.setAttribute("pointer-events", "visiblePainted")
       g.appendChild(elem);
       const onMouseDown = (e: MouseEvent) => {
-        console.log(shape.name.contents + ` ${interactiveProps.id}`);
+        console.log(shape.name.contents);
         console.log("mouse down!");
         const { clientX, clientY } = e;
         const { x: tempX, y: tempY } = getPosition(
@@ -328,7 +327,7 @@ export const RenderShape = async (
           g.setAttribute("opacity", "1");
           document.removeEventListener("mouseup", onMouseUp);
           document.removeEventListener("mousemove", onMouseMove);
-          interactiveProps.onDrag(interactiveProps.id, dx, dy);
+          interactiveProps.onDrag(shape.name.contents, dx, dy);
         };
         document.addEventListener("mouseup", onMouseUp);
         document.addEventListener("mousemove", onMouseMove);
@@ -348,8 +347,10 @@ export const RenderShapes = async (
   for (let i = 0; i < shapes.length; ++i) {
     const shape = shapes[i];
     const elem = await RenderShape(
-      shape, renderProps,
-      interactiveProps ? { ...interactiveProps, id: i } : undefined);
+      shape,
+      renderProps,
+      interactiveProps
+    );
     svg.appendChild(elem);
   }
 };

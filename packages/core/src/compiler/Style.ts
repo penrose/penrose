@@ -3954,8 +3954,13 @@ export const compileStyleHelper = async (
   const shapes = getShapesList(translation, layerOrdering);
   const draggableShapePaths = new Set<string>();
   for (const shape of shapes) {
-    if ("center" in shape && isVar(shape.center.contents[0])) {
-      draggableShapePaths.add(shape.name.contents);
+    if ("center" in shape) {
+      const [xIdx, yIdx] = inputIdsByFieldPath.get(shape.name.contents + ".center")!;
+      const xInput = inputs[xIdx];
+      const yInput = inputs[yIdx];
+      if (xInput === shape.center.contents[0] && yInput === shape.center.contents[1]) {
+        draggableShapePaths.add(shape.name.contents);
+      }
     }
   }
 

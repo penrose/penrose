@@ -86,7 +86,7 @@ export type ComputeShapesReq = {
 
 export type DragShapeReq = {
   tag: "DragShapeReq";
-  shapeIdx: number;
+  shapePath: string;
   dx: number;
   dy: number;
 }

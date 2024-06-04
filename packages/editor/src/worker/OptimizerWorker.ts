@@ -851,7 +851,7 @@ export default class OptimizerWorker {
   }
 
   private async dragShapeHelper(
-    shapeIdx: number,
+    shapePath: string,
     dx: number,
     dy: number,
     finishResolve: (info: UpdateInfo) => void,
@@ -875,7 +875,7 @@ export default class OptimizerWorker {
           });
           this.request({
             tag: "DragShapeReq",
-            shapeIdx,
+            shapePath,
             dx,
             dy,
           });
@@ -884,7 +884,7 @@ export default class OptimizerWorker {
         case "Optimizing":
           await this.interruptThenOptimizingHelper(
             () => this.dragShapeHelper(
-              shapeIdx,
+              shapePath,
               dx,
               dy,
               finishResolve,
@@ -904,13 +904,13 @@ export default class OptimizerWorker {
   }
 
   async dragShape(
-    shapeIdx: number,
+    shapePath: string,
     dx: number,
     dy: number
   ): Promise<OptimizerPromises> {
     log.info(`dragShape called from state ${this.state.tag}`);
     return generateOptimizerPromises((finishResolve, finishReject) => {
-      return this.dragShapeHelper(shapeIdx, dx, dy, finishResolve, finishReject);
+      return this.dragShapeHelper(shapePath, dx, dy, finishResolve, finishReject);
     });
   }
 
