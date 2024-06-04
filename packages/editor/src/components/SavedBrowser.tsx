@@ -87,11 +87,9 @@ const autosaveHook = () => {
       // Reset autosave timer
       if (autosaveTimerValue != null) {
         clearTimeout(autosaveTimerValue);
-        console.log("cleared");
       }
       // Set new timer, after 5 seconds have elapsed without edit
       const newTimeoutId = setTimeout(() => {
-        console.log(currentWorkspace);
         if (
           currentWorkspace.metadata.location.kind == "stored" &&
           !currentWorkspace.metadata.location.saved
@@ -99,7 +97,6 @@ const autosaveHook = () => {
           saveWorkspace();
         }
       }, 3000);
-      console.log(newTimeoutId);
       autosaveTimerSetter(newTimeoutId);
     }, 500),
     // So that updates to these values won't be reflected in execution

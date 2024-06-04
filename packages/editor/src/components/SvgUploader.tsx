@@ -17,9 +17,15 @@ export default function SvgUploader() {
   );
 
   const handleChange = (svg: File) => {
-    if (!isCleanWorkspace(currentWorkspace)) {
+    if (
+      !isCleanWorkspace(currentWorkspace) &&
+      !confirm(
+        "You have unsaved changes. Are you sure you want to load this SVG?",
+      )
+    ) {
       return;
     }
+
     const reader = new FileReader();
     reader.readAsText(svg);
     reader.onabort = () => console.log("file reading was aborted");
@@ -55,7 +61,7 @@ export default function SvgUploader() {
         ...currentWorkspace,
         metadata: {
           ...currentWorkspace.metadata,
-          location: { kind: "stored", saved: false } as WorkspaceLocation,
+          location: { kind: "local" } as WorkspaceLocation,
           id: uuid(),
           name: svg.name.replace(".svg", ""),
         },
