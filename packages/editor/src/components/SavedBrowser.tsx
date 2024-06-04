@@ -18,6 +18,11 @@ import { logInWrapper } from "../utils/firebaseUtils.js";
 import BlueButton from "./BlueButton.js";
 import FileButton from "./FileButton.js";
 
+/**
+ * Allows user to save workspace with ctrl+s or cmd+s
+ * Due to current layout scheme, this runs no matter what side tab the user
+ * is on. If layout scheme ever changes, this may need to be moved to App
+ */
 const saveShortcutHook = () => {
   const saveWorkspace = useSaveWorkspace();
 
@@ -59,6 +64,13 @@ const saveShortcutHook = () => {
   }, []);
 };
 
+/**
+ * Autosaves every 5 seconds after a user has finished editing
+ * Known bug: The first edit to a diagram after load will not trigger this.
+ * This is due to nuances with currentWorkspace state not updating in time.
+ * Due to current layout scheme, this runs no matter what side tab the user
+ * is on. If layout scheme ever changes, this may need to be moved to App
+ */
 const autosaveHook = () => {
   const currentWorkspace = useRecoilValue(currentWorkspaceState);
   const isInitialRender = useRef(true);
@@ -66,32 +78,31 @@ const autosaveHook = () => {
   const [autosaveTimerValue, autosaveTimerSetter] =
     useRecoilState(autosaveTimerState);
 
-  // Callback so debounce works
+  /**
+   * useCallback necessary for debounce to work. Without debounce, every
+   * character entered will trigger the function.
+   */
   const autosaveLogic = useCallback(
     debounce(async () => {
-      // console.log(autosaveTimerValue);
       // Reset autosave timer
       if (autosaveTimerValue != null) {
         clearTimeout(autosaveTimerValue);
-        // console.log("cleared");
+        console.log("cleared");
       }
-      // Set new timer, 5 seconds without edit
+      // Set new timer, after 5 seconds have elapsed without edit
       const newTimeoutId = setTimeout(() => {
-        // console.log("running!");
-        // console.log(currentWorkspace.metadata.location.kind);
-        // console.log(!currentWorkspace.metadata.location.saved);
+        console.log(currentWorkspace);
         if (
           currentWorkspace.metadata.location.kind == "stored" &&
           !currentWorkspace.metadata.location.saved
         ) {
           saveWorkspace();
-          // console.log("autosaving");
         }
       }, 3000);
-      // console.log(newTimeoutId);
+      console.log(newTimeoutId);
       autosaveTimerSetter(newTimeoutId);
     }, 500),
-    // Otherwise updates to these values won't be reflected in execution
+    // Needed, otherwise updates to these values won't be reflected in execution
     [autosaveTimerValue, currentWorkspace.metadata],
   );
 
