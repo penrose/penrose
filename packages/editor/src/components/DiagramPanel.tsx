@@ -1,4 +1,4 @@
-import { showError } from "@penrose/core";
+import { isPenroseError, runtimeError, showError } from "@penrose/core";
 import { useEffect, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
@@ -23,13 +23,67 @@ export default function DiagramPanel() {
   const [showEasterEgg, setShowEasterEgg] = useState(false);
   const workspace = useRecoilValue(workspaceMetadataSelector);
   const rogerState = useRecoilValue(currentRogerState);
-  const workerState = useRecoilValue(diagramWorkerState);
+  const [workerState, setWorkerState] = useRecoilState(diagramWorkerState);
 
   const requestRef = useRef<number>();
 
   useEffect(() => {
     const cur = canvasRef.current;
     setCanvasState({ ref: canvasRef }); // required for downloading/exporting diagrams
+
+    const onError = (error: any) => {
+      if (!isPenroseError(error)) {
+        error = runtimeError(String(error));
+      }
+      console.error(showError(error));
+      if (optimizer.getState() == "Error") {
+        console.error("OptimizerWorker latching error: " + showError(error));
+      }
+      setDiagram((state) => ({
+        ...state,
+        error,
+      }));
+      setWorkerState((state) => ({
+        ...state,
+        compiling: false,
+        optimizing: false,
+      }));
+    }
+
+    const onDrag = async (shapeIdx: number, dx: number, dy: number) => {
+      try {
+        const { onStart, onFinish } = await optimizer.dragShape(shapeIdx, dx, dy);
+        onFinish
+          .then((info) => {
+            setDiagram((state) => ({
+              ...state,
+              state: info.state,
+            }));
+            setWorkerState((state) => ({
+              ...state,
+              optimizing: false,
+            }));
+          })
+          .catch(onError);
+
+        await onStart;
+        setWorkerState({
+          ...workerState,
+          optimizing: true,
+        });
+
+        const info = await optimizer.pollForUpdate();
+        if (info !== null) {
+          setDiagram((state) => ({
+            ...state,
+            state: info.state,
+          }));
+        }
+      } catch (error: any) {
+        onError(error);
+      }
+    }
+
     if (state !== null && cur !== null) {
       (async () => {
         const rendered = await stateToSVG(state, {
@@ -37,16 +91,8 @@ export default function DiagramPanel() {
             pathResolver(path, rogerState, workspace),
           width: "100%",
           height: "100%",
-        }, (shapeId: number, dx: number, dy: number) => {
-          optimizer.onDrag(worker.id, shapeId, dx, dy,
-            (dragged) => {
-              setDiagram((state) => ({
-                ...state,
-                state: dragged,
-              }));
-            },
-            () => {});
-        });
+          texLabels: false,
+        }, onDrag);
         rendered.setAttribute("width", "100%");
         rendered.setAttribute("height", "100%");
         if (cur.firstElementChild) {

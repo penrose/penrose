@@ -84,6 +84,13 @@ export type ComputeShapesReq = {
   index: number;
 };
 
+export type DragShapeReq = {
+  tag: "DragShapeReq";
+  shapeIdx: number;
+  dx: number;
+  dy: number;
+}
+
 export type InterruptReq = {
   tag: "InterruptReq";
 };
@@ -94,7 +101,8 @@ export type Req =
   | UpdateReq
   | ResampleReq
   | ComputeShapesReq
-  | InterruptReq;
+  | InterruptReq
+  | DragShapeReq;
 
 // state passed from the worker to the main thread.
 // NOTE: there is no DOM element or functions in this state because they cannot be transferred between threads.

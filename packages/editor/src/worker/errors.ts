@@ -29,12 +29,18 @@ export type OptimizationError = {
   nextWorkerState: WorkerState.Compiled;
 };
 
+export type DragError = {
+  tag: "DragError";
+  message: string;
+}
+
 export type WorkerError =
   | ((
       | BadStateError
       | HistoryIndexOutOfRangeError
       | CompileError
       | OptimizationError
+      | DragError
     ) & {
       nextWorkerState: WorkerState;
     })
@@ -56,6 +62,9 @@ export const showWorkerError = (error: WorkerError): string => {
 
     case "FatalWorkerError":
       return `Fatal worker error: ${error.error}`;
+
+    case "DragError":
+      return `Drag error: ${error.message}`;
   }
 };
 

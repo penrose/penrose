@@ -1,6 +1,5 @@
 import { PathResolver, RenderShapes, PenroseOnDrag } from "@penrose/core";
-import { RenderState } from "../worker/message";
-import { InteractiveProps } from "@penrose/core/dist/renderer/Renderer";
+import { RenderState } from "../worker/common";
 
 export const stateToSVG = async (
   state: RenderState,

@@ -292,6 +292,17 @@ export default class OptimizerWorker {
             return;
           }
           break;
+
+        case "DragError":
+          if (
+            "previous" in this.state &&
+            this.state.previous.tag === data.error.nextWorkerState
+          ) {
+            callRejects();
+            this.setState(this.state.previous);
+            return;
+          }
+          break;
       }
 
       goToErrorState();
@@ -609,11 +620,14 @@ export default class OptimizerWorker {
           break;
 
         case "Optimizing":
-          await this.interruptOptimizing();
-          const { onStart, onFinish } = await this.startOptimizing();
-          onFinish.then(finishResolve);
-          onFinish.catch(finishReject);
-          await onStart;
+          await this.interruptThenOptimizingHelper(
+            () => this.startOptimizingHelper(
+              finishResolve,
+              finishReject
+            ),
+            startResolve,
+            startReject
+          );
           break;
 
         default:
@@ -629,8 +643,7 @@ export default class OptimizerWorker {
    * and no-op if called in state 'Optimizing' (though returned promises are still valid)
    *
    * @returns Promises `{ onStart, onFinish }` such that `onStart` resolves once optimization begins
-   *  and `onFinish` resolves once optimization finishes. If `onStart` rejects,
-   * `onFinish` will remain pending.
+   *  and `onFinish` resolves once optimization finishes.
    */
   async startOptimizing(): Promise<OptimizerPromises> {
     return generateOptimizerPromises(this.startOptimizingHelper.bind(this));
@@ -680,15 +693,16 @@ export default class OptimizerWorker {
       log.info(`resample running from state ${this.state.tag}`);
       switch (this.state.tag) {
         case "Optimizing":
-          try {
-            await this.interruptOptimizing();
-            const { onStart, onFinish } = await this.resample(jobId, variation);
-            onFinish.then(finishResolve, finishReject);
-            await onStart;
-            startResolve();
-          } catch (error: unknown) {
-            startReject(error);
-          }
+          await this.interruptThenOptimizingHelper(
+            () => this.resampleHelper(
+              jobId,
+              variation,
+              finishResolve,
+              finishReject
+            ),
+            startResolve,
+            startReject
+          );
           break;
 
         case "Compiled":
@@ -819,6 +833,84 @@ export default class OptimizerWorker {
             runtimeError(`Cannot compute shapes from state ${this.state.tag}`),
           );
       }
+    });
+  }
+
+  private async interruptThenOptimizingHelper(
+    optimizingHelper: () => Promise<void>,
+    startResolve: () => void,
+    startReject: (error: PenroseError) => void,
+  ): Promise<void> {
+    try {
+      await this.interruptOptimizing();
+      await optimizingHelper();
+      startResolve();
+    } catch (error: any) {
+      startReject(error);
+    }
+  }
+
+  private async dragShapeHelper(
+    shapeIdx: number,
+    dx: number,
+    dy: number,
+    finishResolve: (info: UpdateInfo) => void,
+    finishReject: (error: PenroseError) => void,
+  ): Promise<void> {
+    return new Promise<void>(async (startResolve, startReject) => {
+      while (isWaiting(this.state))
+        await this.waitForNextState();
+
+      log.info(`dragShape running from state ${this.state.tag}`);
+      switch (this.state.tag) {
+        case "Compiled":
+          this.setState({
+            tag: "CompiledToOptimizing",
+            waiting: true,
+            previous: this.state,
+            resolve: startResolve,
+            reject: startReject,
+            finishResolve,
+            finishReject,
+          });
+          this.request({
+            tag: "DragShapeReq",
+            shapeIdx,
+            dx,
+            dy,
+          });
+          break;
+
+        case "Optimizing":
+          await this.interruptThenOptimizingHelper(
+            () => this.dragShapeHelper(
+              shapeIdx,
+              dx,
+              dy,
+              finishResolve,
+              finishReject,
+            ),
+            startResolve,
+            startReject
+          );
+          break;
+
+        default:
+          startReject(
+            runtimeError(`Cannot dragShape dragShape from state ${this.state.tag}`)
+          );
+      }
+    });
+  }
+
+  async dragShape(
+    shapeIdx: number,
+    dx: number,
+    dy: number
+  ): Promise<OptimizerPromises> {
+    log.info(`dragShape called from state ${this.state.tag}`);
+    return generateOptimizerPromises((finishResolve, finishReject) => {
+      return this.dragShapeHelper(shapeIdx, dx, dy, finishResolve, finishReject);
     });
   }
 

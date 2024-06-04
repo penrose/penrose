@@ -435,6 +435,8 @@ export {
   isPenroseError,
   runtimeError,
   showError,
+  err,
+  ok
 } from "./utils/Error.js";
 export type { Result } from "./utils/Error.js";
 export {

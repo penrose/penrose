@@ -1,16 +1,18 @@
 // one "frame" of optimization is a list of varying numbers
 import {
   compileTrio,
+  err,
   finalStage,
   insertPending,
   isOptimized,
   LabelMeasurements,
-  nextStage,
+  nextStage, ok,
   PenroseState,
   resample,
+  Result,
   runtimeError,
   State,
-  step,
+  step
 } from "@penrose/core";
 import consola from "consola";
 import {
@@ -22,7 +24,7 @@ import {
   stateToLayoutState,
   WorkerState,
 } from "./common.js";
-import { WorkerError } from "./errors.js";
+import { DragError, WorkerError } from "./errors.js";
 
 type Frame = number[];
 
@@ -131,6 +133,30 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
           }
           break;
 
+        case "DragShapeReq":
+          log.info("Received DragShapeReq in state Compiled");
+          if (!optState) {
+            respondError({
+              tag: "DragError",
+              nextWorkerState: workerState,
+              message: "No opt state on drag",
+            });
+            break;
+          }
+          const draggedState = dragShape(optState, data.shapeIdx, data.dx, data.dy);
+          if (draggedState.isErr()) {
+            respondError({
+              ...draggedState.error,
+              nextWorkerState: workerState,
+            });
+            break;
+          }
+
+          workerState = WorkerState.Optimizing;
+          respondOptimizing();
+          optimize(insertPending(draggedState.value));
+          break;
+
         case "InterruptReq":
           // rare edge case, but can happen if interrupt is requested _just_
           // after optimization finishes
@@ -176,6 +202,34 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
       break;
   }
 };
+
+const dragShape = (state: PenroseState, shapeIdx: number, dx: number, dy: number): Result<PenroseState, DragError> => {
+  const newState = {...state};
+  const shapePath = state.shapes[shapeIdx].name.contents;
+  if (!state.draggableShapePaths.has(shapePath)) {
+    console.log(shapePath + ` ${shapeIdx}`);
+    return err({
+      tag: "DragError",
+      message: "undraggable shape",
+      nextWorkerState: workerState
+    });
+  }
+
+  const fieldPath = shapePath + ".center";
+  const [xIdx, yIdx] = newState.inputIdsByFieldPath.get(fieldPath)!;
+  newState.varyingValues[xIdx] += dx;
+  newState.varyingValues[yIdx] += dy;
+
+  newState.currentStageIndex = 0;
+  for (const [stage, masks] of newState.constraintSets) {
+    masks.inputMask[xIdx] = false;
+    masks.inputMask[yIdx] = false;
+  }
+
+  newState.params = unoptState.params;
+
+  return ok(newState);
+}
 
 const compileAndRespond = async (data: CompiledReq) => {
   const { domain, substance, style, variation, jobId } = data;
