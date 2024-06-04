@@ -4,15 +4,17 @@ import {
   LabelData,
   LabelMeasurements,
   Num,
-  PenroseError,
+  PenroseWarning,
   Shape,
   State,
 } from "@penrose/core";
+import { WorkerError } from "./errors.js";
 
 export enum WorkerState {
   Init = "Init",
   Compiled = "Compiled",
   Optimizing = "Optimizing",
+  Error = "Error",
 }
 
 export type InitResp = {
@@ -22,6 +24,7 @@ export type InitResp = {
 export type CompiledResp = {
   tag: "CompiledResp";
   jobId: string;
+  warnings: PenroseWarning[];
   shapes: Shape<Num>[];
 };
 
@@ -43,7 +46,7 @@ export type UpdateResp = {
 
 export type ErrorResp = {
   tag: "ErrorResp";
-  error: PenroseError;
+  error: WorkerError;
 };
 
 export type Resp =

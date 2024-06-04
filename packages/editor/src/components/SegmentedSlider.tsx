@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 interface Segment {
@@ -47,9 +47,8 @@ const SegmentedSlider: React.FC<SegmentedSliderProps> = ({
   disabled,
   onChange,
 }) => {
-  if (stages.length === 0) return null;
   // compute the step ranges for each stage
-  const stageRanges = stages.reduce(
+  let stageRanges = stages.reduce(
     (acc, stage, i) => [
       ...acc,
       {
@@ -59,10 +58,12 @@ const SegmentedSlider: React.FC<SegmentedSliderProps> = ({
     ],
     [] as { start: number; end: number }[],
   );
+  if (stageRanges.length === 0) {
+    stageRanges = [{ start: 0, end: 0 }];
+  }
 
-  const totalSteps = stageRanges[stageRanges.length - 1].end;
   const [dragged, setDragged] = useState<boolean>(false);
-  const [value, setValue] = useState<number>(totalSteps - 1);
+  const [value, setValue] = useState<number>(0);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setDragged(true);
     const newValue = parseInt(e.target.value, 10);
@@ -70,6 +71,13 @@ const SegmentedSlider: React.FC<SegmentedSliderProps> = ({
     onChange(newValue);
   };
 
+  useEffect(() => {
+    if (disabled) {
+      setDragged(false);
+    }
+  }, [disabled]);
+
+  const totalSteps = stageRanges[stageRanges.length - 1].end;
   const currValue = dragged ? value : totalSteps;
 
   return (
