@@ -806,9 +806,23 @@ export const useSaveNewWorkspace = () =>
 
 export const useSaveWorkspace = () =>
   useRecoilCallback(({ snapshot, set }) => async () => {
-    const currentWorkspace = snapshot.getLoadable(
+    const currentWorkspace: Workspace = snapshot.getLoadable(
       currentWorkspaceState,
-    ).contents;
+    ).contents as Workspace;
+
+    /**
+     * Check exists because of autosave. In autosave, a metadata update race
+     * makes it so that checking if the workspace is not saved before calling
+     * this function infeasible. As such, we move the check into this
+     * function.
+     */
+    if (
+      currentWorkspace.metadata.location.kind == "stored" &&
+      currentWorkspace.metadata.location.saved
+    ) {
+      return;
+    }
+
     if (
       authObject.currentUser != null &&
       authObject.currentUser.uid != undefined

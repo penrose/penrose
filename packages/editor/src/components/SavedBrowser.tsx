@@ -29,35 +29,29 @@ const saveShortcutHook = () => {
   // Need useRecoilCallback for snapshot, otherwise currentWorkspace outdated
   const handleShortcut = useRecoilCallback(
     ({ snapshot }) =>
-      async ({
-        repeat,
-        metaKey,
-        ctrlKey,
-        key,
-      }: {
-        repeat: boolean;
-        metaKey: boolean;
-        ctrlKey: boolean;
-        key: string;
-      }) => {
+      async (event: KeyboardEvent) => {
         const currentWorkspace = snapshot.getLoadable(
           currentWorkspaceState,
         ).contents;
-        if (repeat) return;
+        if (event.repeat) return;
         // Cmd+s or Cntrl+s
         if (
-          (metaKey || ctrlKey) &&
-          key === "s" &&
+          (event.metaKey || event.ctrlKey) &&
+          event.key === "s" &&
           currentWorkspace.metadata.location.kind == "stored" &&
           !currentWorkspace.metadata.location.saved
         ) {
+          event.preventDefault();
+
           saveWorkspace();
         }
       },
   );
 
   useEffect(() => {
-    document.addEventListener("keydown", handleShortcut, { passive: false });
+    document.addEventListener("keydown", handleShortcut, {
+      passive: false,
+    });
 
     // Cleanup
     return () => document.removeEventListener("keydown", handleShortcut);
@@ -84,15 +78,18 @@ const autosaveHook = () => {
    */
   const autosaveLogic = useCallback(
     debounce(async () => {
+      console.log("hit outer");
       // Reset autosave timer
       if (autosaveTimerValue != null) {
         clearTimeout(autosaveTimerValue);
       }
       // Set new timer, after 5 seconds have elapsed without edit
       const newTimeoutId = setTimeout(() => {
+        console.log("hit inner");
+        console.log(currentWorkspace.metadata.location);
         if (
-          currentWorkspace.metadata.location.kind == "stored" &&
-          !currentWorkspace.metadata.location.saved
+          currentWorkspace.metadata.location.kind == "stored"
+          // !currentWorkspace.metadata.location.saved
         ) {
           saveWorkspace();
         }
