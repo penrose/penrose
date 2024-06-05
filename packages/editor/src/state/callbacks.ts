@@ -2,10 +2,16 @@ import { isPenroseError, runtimeError } from "@penrose/core";
 import { Style } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
 import { deleteDoc, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
-import { range } from "lodash";
+import { debounce, range } from "lodash";
 import queryString from "query-string";
+import { useCallback, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
-import { RecoilState, useRecoilCallback } from "recoil";
+import {
+  RecoilState,
+  useRecoilCallback,
+  useRecoilState,
+  useRecoilValue,
+} from "recoil";
 import { v4 as uuid } from "uuid";
 import {
   DownloadPNG,
@@ -22,6 +28,7 @@ import {
 import { stateToSVG } from "../utils/renderUtils.js";
 import { UpdateInfo } from "../worker/OptimizerWorker";
 import {
+  AutosaveTimer,
   Canvas,
   Diagram,
   DiagramGrid,
@@ -36,6 +43,7 @@ import {
   Workspace,
   WorkspaceLocation,
   WorkspaceMetadata,
+  autosaveTimerState,
   canvasState,
   currentRogerState,
   currentWorkspaceState,
@@ -721,6 +729,9 @@ export const useDeleteWorkspace = () =>
           await deleteDoc(doc(db, authObject.currentUser.uid, id))
             .catch((error) => {
               toast.error(`Error deleting diagram: ${name}`);
+              console.log(
+                `Error code: ${error.code}, Error message: ${error.message}`,
+              );
               toast.dismiss(notif);
               return;
             })
@@ -772,7 +783,12 @@ export const useSaveNewWorkspace = () =>
         style: currentWorkspace.files.style.contents,
         domain: currentWorkspace.files.domain.contents,
       })
-        .catch((error) => toast.error("Encountered an error"))
+        .catch((error) => {
+          console.log(
+            `Error code: ${error.code}, Error message: ${error.message}`,
+          );
+          toast.error("Encountered an error");
+        })
         // Update local state
         .then(() => {
           set(savedFilesState, (prevState) => ({
@@ -861,7 +877,12 @@ export const useSaveWorkspace = () =>
           domain: currentWorkspace.files.domain.contents,
         },
       )
-        .catch((error) => toast.error("Encountered an error"))
+        .catch((error) => {
+          console.log(
+            `Error code: ${error.code}, Error message: ${error.message}`,
+          );
+          toast.error("Encountered an error");
+        })
         // Update local state
         .then(() => {
           set(savedFilesState, (prevState) => ({
@@ -891,3 +912,114 @@ export const useSaveWorkspace = () =>
       toast.error("Could not save workspace, please check login credentials");
     }
   });
+
+/**
+ * Called in App to handle logic for save workspace with ctrl+s or cmd+s
+ * saveWorkspace and saveNewWorkspace passed as arguments to avoid
+ * React hook error
+ * If user in an "local" workspace (new workspace): Adds to saved workspaces
+ * If user in a "stored" workspace that's unsaved: Saves
+ * If user in an example, gist, or roger workspace: Does nothing
+ */
+export const useSaveShortcut = (saveWorkspace: any, saveNewWorkspace: any) =>
+  useRecoilCallback(({ snapshot }) => async (event: KeyboardEvent) => {
+    const currentWorkspace = snapshot.getLoadable(
+      currentWorkspaceState,
+    ).contents;
+    if (event.repeat) return;
+    // Cmd+s or Ctrl+s
+    if ((event.metaKey || event.ctrlKey) && event.key === "s") {
+      if (
+        currentWorkspace.metadata.location.kind == "stored" &&
+        !currentWorkspace.metadata.location.saved
+      ) {
+        event.preventDefault();
+        saveWorkspace();
+      } else if (currentWorkspace.metadata.location.kind == "local") {
+        event.preventDefault();
+        saveNewWorkspace(uuid());
+      }
+    }
+  });
+
+/**
+ * Autosaves every 5 seconds after a user has finished editing
+ */
+export const useAutosave = (
+  autosaveTimerValue: AutosaveTimer,
+  autosaveTimerSetter: any,
+  currentWorkspace: Workspace,
+  saveWorkspace: any,
+) =>
+  useCallback(
+    debounce(async () => {
+      console.log("hit outer");
+      // Reset autosave timer
+      if (autosaveTimerValue != null) {
+        clearTimeout(autosaveTimerValue);
+      }
+      // Set new timer, after 5 seconds have elapsed without edit
+      const newTimeoutId = setTimeout(() => {
+        console.log("hit inner");
+        console.log(currentWorkspace.metadata.location);
+        if (
+          currentWorkspace.metadata.location.kind == "stored"
+          // !currentWorkspace.metadata.location.saved
+        ) {
+          saveWorkspace();
+        }
+      }, 3000);
+      autosaveTimerSetter(newTimeoutId);
+    }, 500),
+    // So that updates to these values won't be reflected in execution
+    [currentWorkspace.metadata, autosaveTimerValue],
+  );
+
+export const autosaveHook = () => {
+  const currentWorkspace = useRecoilValue(currentWorkspaceState);
+  const isInitialRender = useRef(true);
+  const saveWorkspace = useSaveWorkspace();
+  const [autosaveTimerValue, autosaveTimerSetter] =
+    useRecoilState(autosaveTimerState);
+  // console.log("Called");
+
+  /**
+   * useCallback necessary for debounce to work. Without debounce, every
+   * character entered will trigger the function.
+   */
+  const autosaveLogic = useCallback(
+    debounce(async () => {
+      console.log("hit outer");
+      // Reset autosave timer
+      if (autosaveTimerValue != null) {
+        clearTimeout(autosaveTimerValue);
+      }
+      // Set new timer, after 5 seconds have elapsed without edit
+      const newTimeoutId = setTimeout(() => {
+        console.log("hit inner");
+        console.log(currentWorkspace.metadata.location);
+        if (
+          currentWorkspace.metadata.location.kind == "stored"
+          // !currentWorkspace.metadata.location.saved
+        ) {
+          saveWorkspace();
+        }
+      }, 3000);
+      autosaveTimerSetter(newTimeoutId);
+    }, 500),
+    // So that updates to these values won't be reflected in execution
+    [autosaveTimerValue, currentWorkspace.metadata],
+  );
+
+  useEffect(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+    autosaveLogic();
+  }, [
+    currentWorkspace.files.substance.contents,
+    currentWorkspace.files.style.contents,
+    currentWorkspace.files.domain.contents,
+  ]);
+};

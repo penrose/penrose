@@ -55,6 +55,9 @@ export const logInWrapper = () =>
         }
       })
       .catch((error) => {
+        console.log(
+          `Error code: ${error.code}, Error message: ${error.message}`,
+        );
         toast.error("Error logging in");
       });
   });
@@ -70,6 +73,9 @@ export const signOutWrapper = () =>
         toast.success("Logged out");
       })
       .catch((error) => {
+        console.log(
+          `Error code: ${error.code}, Error message: ${error.message}`,
+        );
         toast.error("Error logging out");
       });
   });
@@ -87,10 +93,10 @@ export function createWorkspaceObject(
 ): Workspace {
   return {
     metadata: {
-      name: name,
-      lastModified: lastModified,
-      id: id,
-      editorVersion: editorVersion,
+      name,
+      lastModified,
+      id,
+      editorVersion,
       forkedFromGist: null,
       location: { kind: "stored", saved: saved },
     },
@@ -154,7 +160,9 @@ export async function getDiagram(diagramId: string) {
         docData.domain,
       );
     } else {
-      toast.error("Could not fetch diagram");
+      toast.error(
+        "Could not fetch diagram from cloud storage because it doesn't exist.",
+      );
     }
   } else {
     toast.error("User not logged in");

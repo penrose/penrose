@@ -34,6 +34,7 @@ import {
   RogerState,
   SavedWorkspaces,
   Workspace,
+  autosaveTimerState,
   currentAppUser,
   currentRogerState,
   currentWorkspaceState,
@@ -46,6 +47,9 @@ import {
   useCheckURL,
   useCompileDiagram,
   useIsUnsaved,
+  useSaveNewWorkspace,
+  useSaveShortcut,
+  useSaveWorkspace,
 } from "./state/callbacks.js";
 import {
   authObject,
@@ -402,6 +406,42 @@ function App() {
       checkURL();
     }
   }, [settings.state]);
+
+  // Keyboard shortcut for saving
+  const saveWorkspace = useSaveWorkspace();
+  const saveNewWorkspace = useSaveNewWorkspace();
+  const saveShortcut = useSaveShortcut(saveWorkspace, saveNewWorkspace);
+  useEffect(() => {
+    document.addEventListener("keydown", saveShortcut, {
+      passive: false,
+    });
+
+    // Cleanup
+    return () => document.removeEventListener("keydown", saveShortcut);
+  }, []);
+
+  // Autosave logic
+  // const currentWorkspace = useRecoilValueLoadable(currentWorkspaceState);
+  const [autosaveTimerValue, autosaveTimerSetter] =
+    useRecoilState(autosaveTimerState);
+  // const autosave = useAutosave(
+  //   autosaveTimerValue,
+  //   autosaveTimerSetter,
+  //   currentWorkspace,
+  //   saveWorkspace,
+  // );
+
+  // useEffect(() => {
+  //   console.log("huh");
+  //   // autosave();
+  // }, [
+  //   currentWorkspace.files.substance.contents,
+  //   currentWorkspace.files.style.contents,
+  //   currentWorkspace.files.domain.contents,
+  // ]);
+
+  // autosaveHook();
+  // saveShortcutHook();
 
   if (localFiles.state !== "hasValue") {
     return <div>Loading local files...</div>;
