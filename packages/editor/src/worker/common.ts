@@ -44,6 +44,10 @@ export type UpdateResp = {
   stats: LayoutStats;
 };
 
+export type DragOkResp = {
+  tag: "DragOkResp";
+}
+
 export type ErrorResp = {
   tag: "ErrorResp";
   error: WorkerError;
@@ -55,7 +59,8 @@ export type Resp =
   | OptimizingResp
   | FinishedResp
   | UpdateResp
-  | ErrorResp;
+  | ErrorResp
+  | DragOkResp;
 
 export type CompiledReq = {
   tag: "CompiledReq";
@@ -89,7 +94,8 @@ export type ComputeShapesReq = {
 export type DragShapeReq = {
   tag: "DragShapeReq";
   shapePath: string;
-  dx: number;
+  finish: boolean;
+  dx: number; // relative to start of drag
   dy: number;
 }
 
@@ -116,7 +122,7 @@ export interface LayoutState {
   shapes: Shape<number>[];
   optStages: string[];
   currentStageIndex: number;
-  inputIdsByFieldPath: IdxsByPath;
+  inputIdxsByPath: IdxsByPath;
   draggableShapePaths: Set<string>
 }
 
@@ -129,7 +135,7 @@ export interface RenderState {
   varyingValues: number[];
   optStages: string[];
   currentStageIndex: number;
-  inputIdsByFieldPath: IdxsByPath;
+  inputIdxsByPath: IdxsByPath;
   draggableShapePaths: Set<string>;
 }
 
@@ -143,7 +149,7 @@ export const stateToLayoutState = (state: State): LayoutState => {
     varyingValues: state.varyingValues,
     optStages: state.optStages,
     currentStageIndex: state.currentStageIndex,
-    inputIdsByFieldPath: state.inputIdsByFieldPath,
+    inputIdxsByPath: state.inputIdxsByPath,
     draggableShapePaths: state.draggableShapePaths,
   };
 };

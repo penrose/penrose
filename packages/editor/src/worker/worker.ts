@@ -16,16 +16,17 @@ import {
 } from "@penrose/core";
 import consola from "consola";
 import {
-  CompiledReq,
+  CompiledReq, DragShapeReq,
   LayoutState,
   LayoutStats,
   Req,
   Resp,
   stateToLayoutState,
-  WorkerState,
+  WorkerState
 } from "./common.js";
 import { DragError, WorkerError } from "./errors.js";
 import _ from "lodash";
+import { Unit } from "true-myth"
 
 type Frame = number[];
 
@@ -48,6 +49,8 @@ let workerState: WorkerState = WorkerState.Init;
 
 // set to true to cause optimizer to finish before the next step
 let shouldFinish = false;
+
+let dragStart: [number, number] | null = null;
 
 const log = (consola as any)
   .create({ level: (consola as any).LogLevel.Warn })
@@ -137,15 +140,7 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
 
         case "DragShapeReq":
           log.info("Received DragShapeReq in state Compiled");
-          if (!optState) {
-            respondError({
-              tag: "DragError",
-              nextWorkerState: workerState,
-              message: "No opt state on drag",
-            });
-            break;
-          }
-          const draggedState = dragShape(optState, data.shapePath, data.dx, data.dy);
+          const draggedState = dragShape(data);
           if (draggedState.isErr()) {
             respondError({
               ...draggedState.error,
@@ -156,7 +151,7 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
 
           workerState = WorkerState.Optimizing;
           respondOptimizing();
-          optimize(insertPending(draggedState.value));
+          optimize(insertPending(optState!));
           break;
 
         case "InterruptReq":
@@ -197,6 +192,21 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
           shouldFinish = true;
           break;
 
+        case "DragShapeReq":
+          log.info("Received DragShapeReq in state Optimizing");
+          const draggedState = dragShape(data);
+          if (draggedState.isErr()) {
+            respondError({
+              ...draggedState.error,
+              nextWorkerState: workerState,
+            });
+            break;
+          }
+          respond({
+            tag: "DragOkResp"
+          });
+          break;
+
         default:
           badStateError();
           break;
@@ -206,13 +216,17 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
 };
 
 const dragShape = (
-  state: PenroseState,
-  shapePath: string,
-  dx: number,
-  dy: number
-): Result<PenroseState, DragError> => {
-  const newState = {...state};
-  if (!state.draggableShapePaths.has(shapePath)) {
+  data: DragShapeReq
+): Result<Unit, DragError> => {
+  if (!optState) {
+    return err({
+      tag: "DragError",
+      nextWorkerState: workerState,
+      message: "No opt state on drag",
+    });
+  }
+
+  if (!optState.draggableShapePaths.has(data.shapePath)) {
     return err({
       tag: "DragError",
       message: "undraggable shape",
@@ -220,8 +234,8 @@ const dragShape = (
     });
   }
 
-  const fieldPath = shapePath + ".center";
-  const center = newState.inputIdxsByPath.get(fieldPath);
+  const fieldPath = data.shapePath + ".center";
+  const center = optState.inputIdxsByPath.get(fieldPath);
   let xIdx, yIdx;
   if (
     center && center.tag === "Val" &&
@@ -239,25 +253,34 @@ const dragShape = (
     });
   }
 
-  newState.varyingValues[xIdx] += dx;
-  newState.varyingValues[yIdx] += dy;
+  if (dragStart == null) {
+    dragStart = [optState.varyingValues[xIdx], optState.varyingValues[yIdx]];
 
-  newState.currentStageIndex = 0;
-  newState.pinnedInputIdxs = new Set([xIdx, yIdx]);
+    const previouslyPinned = new Set(optState.pinnedInputIdxs);
+    optState.pinnedInputIdxs = new Set([xIdx, yIdx]);
 
-  for (const [stage, masks] of newState.constraintSets) {
-    for (const pinnedInput of state.pinnedInputIdxs) {
-      masks.inputMask[pinnedInput] = true;
-    }
+    for (const [stage, masks] of optState.constraintSets) {
+      // for (const pinnedInput of previouslyPinned) {
+      //   masks.inputMask[pinnedInput] = true;
+      // }
 
-    for (const pinnedInput of newState.pinnedInputIdxs) {
-      masks.inputMask[pinnedInput] = false;
+      for (const pinnedInput of optState.pinnedInputIdxs) {
+        masks.inputMask[pinnedInput] = false;
+      }
     }
   }
 
-  newState.params = unoptState.params;
+  optState.varyingValues[xIdx] = dragStart[0] + data.dx;
+  optState.varyingValues[yIdx] = dragStart[1] + data.dy;
+  optState.currentStageIndex = 0;
 
-  return ok(newState);
+  optState.params = _.cloneDeep(unoptState.params);
+
+  if (data.finish) {
+    dragStart = null;
+  }
+
+  return ok();
 }
 
 const compileAndRespond = async (data: CompiledReq) => {

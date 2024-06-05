@@ -40,7 +40,7 @@ export interface RenderProps {
   pathResolver: PathResolver;
 }
 
-export type OnDrag = (shapePath: string, dx: number, dy: number) => void;
+export type OnDrag = (shapePath: string, finish: boolean, dx: number, dy: number) => Promise<void>;
 export type InteractiveProps = {
   onDrag: OnDrag;
   parentSVG: SVGSVGElement;
@@ -50,17 +50,16 @@ export type InteractiveProps = {
 /**
  * Converts screen to relative SVG coords
  * Thanks to
- * https://www.petercollingridge.co.uk/tutorials/svg/interactive/dragging/
+ * https://www.petercollingridge.co.uk/tutorials/svg/interxactive/dragging/
  * @param e
- * @param svg
+ * @param CTM
  */
 const getPosition = (
-  { clientX, clientY }: { clientX: number; clientY: number },
-  svg: SVGSVGElement,
+  { screenX, screenY }: { screenX: number; screenY: number },
+  CTM: DOMMatrix | null,
 ) => {
-  const CTM = svg.getScreenCTM();
   if (CTM !== null) {
-    return { x: (clientX - CTM.e) / CTM.a, y: (clientY - CTM.f) / CTM.d };
+    return { x: (screenX - CTM.e) / CTM.a, y: (screenY - CTM.f) / CTM.d };
   }
   return { x: 0, y: 0 };
 };
@@ -311,10 +310,9 @@ export const RenderShape = async (
       const onMouseDown = (e: MouseEvent) => {
         console.log(shape.name.contents);
         console.log("mouse down!");
-        const { clientX, clientY } = e;
+        const CTM = interactiveProps.parentSVG.getScreenCTM();
         const { x: tempX, y: tempY } = getPosition(
-          { clientX, clientY },
-          interactiveProps.parentSVG,
+          e, CTM
         );
 
         const screenBBox = (e.target as SVGElement).getBoundingClientRect();
@@ -330,25 +328,35 @@ export const RenderShape = async (
         const minY = tempY - bboxY;
         const maxY = renderProps.canvasSize[1] - bboxH + (tempY - bboxY);
 
-        console.log(`${bboxX} ${bboxY} ${bboxW} ${bboxH}`);
-
         g.setAttribute("opacity", "0.5");
+        g.setAttribute("style", "cursor:grab");
+
         let dx = 0,
           dy = 0;
+        let readyForOnDrag = true;
+
         const onMouseMove = (e: MouseEvent) => {
-          const { x, y } = getPosition(e, interactiveProps.parentSVG);
+          if (!readyForOnDrag)
+            return;
+          const { x, y } = getPosition(e, CTM);
           const constrainedX = clamp(x, minX, maxX);
           const constrainedY = clamp(y, minY, maxY);
           dx = constrainedX - tempX;
           dy = tempY - constrainedY;
           g.setAttribute(`transform`, `translate(${dx},${-dy})`);
+
+          readyForOnDrag = false;
+          interactiveProps.onDrag(shape.name.contents, false, dx, dy)
+            .then(() => { readyForOnDrag = true; });
         };
+
         const onMouseUp = () => {
           g.setAttribute("opacity", "1");
           document.removeEventListener("mouseup", onMouseUp);
           document.removeEventListener("mousemove", onMouseMove);
-          interactiveProps.onDrag(shape.name.contents, dx, dy);
+          interactiveProps.onDrag(shape.name.contents, true, dx, dy);
         };
+
         document.addEventListener("mouseup", onMouseUp);
         document.addEventListener("mousemove", onMouseMove);
       };

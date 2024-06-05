@@ -101,20 +101,36 @@ export type WaitingForShapes = {
   reject: (e: PenroseError) => void;
 };
 
+// moved into when calling dragShapes from Optimizing. Normally, it will
+// receive DragOkResp to indicate that we can move back to optimizing.
+// However, it is possible for optimization to end while waiting, in which case
+// we move into CompiledToOptimizing and wait for optimization restart, using
+// finishResolve and finishReject for our next Optimizing state
+export type WaitingForDrag = {
+  tag: "WaitingForDrag";
+  waiting: true;
+  previous: Optimizing;
+  resolve: () => void;
+  reject: (e: PenroseError) => void;
+  finishResolve: (info: UpdateInfo) => void,
+  finishReject: (e: PenroseError) => void
+}
+
 export type WaitingState =
   | WaitingForInit
   | InitToCompiled
   | CompiledToOptimizing
   | OptimizingToCompiled
   | WaitingForUpdate
-  | WaitingForShapes;
+  | WaitingForShapes
+  | WaitingForDrag;
 
 export type OWState = StableState | WaitingState;
 
 /* Module helpers */
 
 const log = (consola as any)
-  .create({ level: (consola as any).LogLevel.Info })
+  .create({ level: (consola as any).LogLevel.Warn })
   .withScope("worker:client");
 
 const isWaiting = (state: OWState): state is WaitingState => {
@@ -301,7 +317,7 @@ export default class OptimizerWorker {
 
         case "DragError":
           if (
-            "previous" in this.state &&
+            this.state.tag === "WaitingForDrag" &&
             this.state.previous.tag === data.error.nextWorkerState
           ) {
             callRejects();
@@ -483,6 +499,45 @@ export default class OptimizerWorker {
 
           default:
             logErrorBadState();
+            break;
+        }
+        break;
+
+      case "WaitingForDrag":
+        switch (data.tag) {
+          case "DragOkResp":
+            this.state.resolve();
+            const originalResolve = this.state.previous.finishResolve;
+            const originalReject = this.state.previous.finishReject;
+            const newResolve = this.state.finishResolve;
+            const newReject = this.state.finishReject;
+            this.state.previous.finishResolve = (info) => {
+              originalResolve(info);
+              newResolve(info);
+            }
+            this.state.previous.finishReject = (error) => {
+              originalReject(error);
+              newReject(error);
+            }
+            this.setState(this.state.previous);
+            break;
+
+          case "FinishedResp":
+            // ignore, we'll start optimizing very soon
+            this.state.finishResolve({
+              state: layoutStateToRenderState(data.state, this.state.previous.svgCache),
+              stats: data.stats,
+            });
+            break;
+
+          case "OptimizingResp":
+            this.state.resolve();
+            this.setState({
+              ...this.state.previous,
+              tag: "Optimizing",
+              finishResolve: this.state.finishResolve,
+              finishReject: this.state.finishReject
+            });
             break;
         }
         break;
@@ -861,6 +916,7 @@ export default class OptimizerWorker {
 
   private async dragShapeHelper(
     shapePath: string,
+    finish: boolean,
     dx: number,
     dy: number,
     finishResolve: (info: UpdateInfo) => void,
@@ -885,28 +941,34 @@ export default class OptimizerWorker {
           this.request({
             tag: "DragShapeReq",
             shapePath,
+            finish,
             dx,
             dy,
           });
           break;
 
         case "Optimizing":
-          await this.interruptThenOptimizingHelper(
-            () => this.dragShapeHelper(
-              shapePath,
-              dx,
-              dy,
-              finishResolve,
-              finishReject,
-            ),
-            startResolve,
-            startReject
-          );
+          this.setState({
+            tag: "WaitingForDrag",
+            waiting: true,
+            previous: this.state,
+            resolve: startResolve,
+            reject: startReject,
+            finishResolve,
+            finishReject
+          });
+          this.request({
+            tag: "DragShapeReq",
+            shapePath,
+            finish,
+            dx,
+            dy,
+          });
           break;
 
         default:
           startReject(
-            runtimeError(`Cannot dragShape dragShape from state ${this.state.tag}`)
+            runtimeError(`Cannot dragShape from state ${this.state.tag}`)
           );
       }
     });
@@ -914,12 +976,13 @@ export default class OptimizerWorker {
 
   async dragShape(
     shapePath: string,
+    finish: boolean,
     dx: number,
     dy: number
   ): Promise<OptimizerPromises> {
     log.info(`dragShape called from state ${this.state.tag}`);
     return generateOptimizerPromises((finishResolve, finishReject) => {
-      return this.dragShapeHelper(shapePath, dx, dy, finishResolve, finishReject);
+      return this.dragShapeHelper(shapePath, finish, dx, dy, finishResolve, finishReject);
     });
   }
 

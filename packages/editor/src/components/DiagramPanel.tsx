@@ -50,11 +50,9 @@ export default function DiagramPanel() {
       }));
     }
 
-    const onDrag = async (shapePath: string, dx: number, dy: number) => {
+    const onDrag = async (shapePath: string, finish: boolean, dx: number, dy: number) => {
       try {
-        const { onStart, onFinish } =
-          await optimizer.dragShape(shapePath, dx, dy);
-
+        const {  onStart, onFinish } = await optimizer.dragShape(shapePath, finish, dx, dy);
         onFinish
           .then((info) => {
             setDiagram((state) => ({
