@@ -53,7 +53,6 @@ import {
 import {
   BinaryOp,
   BindingForm,
-  CollectionAccess,
   Collector,
   DeclPattern,
   Header,
@@ -86,8 +85,10 @@ import {
   ResolvedList,
   ResolvedNotShape,
   ResolvedPath,
+  ResolvedStylePath,
   ResolvedUOp,
   ResolvedVector,
+  StylePathToCollection,
   StylePathToScope,
   StylePathToSubstanceScope,
 } from "../types/stylePathResolution.js";
@@ -1546,7 +1547,8 @@ const resolveScope = (
   if (scope.tag === "Namespace") {
     return assignment.globals.get(scope.name) ?? im.Map();
   } else if (scope.tag === "Substance") {
-    return assignment.substances.get(scope.substanceName) ?? im.Map();
+    const substanceName = subObjectToUniqueName(scope.substanceObject);
+    return assignment.substances.get(substanceName) ?? im.Map();
   } else {
     return (
       assignment.unnamed.get(im.List([scope.blockId, scope.substId])) ??
@@ -1563,9 +1565,10 @@ const updateScope = (
   if (scope.tag === "Namespace") {
     return { ...assignment, globals: assignment.globals.set(scope.name, dict) };
   } else if (scope.tag === "Substance") {
+    const substanceName = subObjectToUniqueName(scope.substanceObject);
     return {
       ...assignment,
-      substances: assignment.substances.set(scope.substanceName, dict),
+      substances: assignment.substances.set(substanceName, dict),
     };
   } else {
     return {
@@ -3049,11 +3052,13 @@ const evalExpr = (
               return err(oneErr({ tag: "BadIndexError", expr }));
             }
           }
-          return evalAccess(
+          const elem = evalAccess(
             expr,
             parentValue.value.contents,
             indexValues,
-          ).andThen((v) => ok(val(v)));
+          );
+          if (elem.isErr()) return err(oneErr(elem.error));
+          else return ok(val(elem.value));
         } else {
           return parentValue;
         }
@@ -3063,51 +3068,46 @@ const evalExpr = (
       return ok(val(strV(expr.contents)));
     }
     case "Tuple": {
-      return evalVals(
-        mut,
-        canvas,
-        layoutStages,
-        context,
-        expr.contents,
-        trans,
-      ).andThen(([left, right]) => {
-        if (left.tag !== "FloatV") {
-          return err(oneErr({ tag: "BadElementError", coll: expr, index: 0 }));
-        }
-        if (right.tag !== "FloatV") {
-          return err(oneErr({ tag: "BadElementError", coll: expr, index: 1 }));
-        }
-        return ok(val(tupV([left.contents, right.contents])));
-      });
+      return evalVals(mut, canvas, layoutStages, expr.contents, trans).andThen(
+        ([left, right]) => {
+          if (left.tag !== "FloatV") {
+            return err(
+              oneErr({ tag: "BadElementError", coll: expr, index: 0 }),
+            );
+          }
+          if (right.tag !== "FloatV") {
+            return err(
+              oneErr({ tag: "BadElementError", coll: expr, index: 1 }),
+            );
+          }
+          return ok(val(tupV([left.contents, right.contents])));
+        },
+      );
     }
     case "UOp": {
-      return evalExpr(
-        mut,
-        canvas,
-        layoutStages,
-        { context, expr: expr.arg },
-        trans,
-      ).andThen((argVal) => {
-        if (argVal.tag === "ShapeVal") {
-          return err(oneErr({ tag: "NotValueError", expr }));
-        }
-        switch (expr.op) {
-          case "UMinus": {
-            const res = evalUMinus(expr, argVal.contents);
-            if (res.isErr()) {
-              return err(oneErr(res.error));
-            }
-            return ok(val(res.value));
+      return evalExpr(mut, canvas, layoutStages, expr.arg, trans).andThen(
+        (argVal) => {
+          if (argVal.tag === "ShapeVal") {
+            return err(oneErr({ tag: "NotValueError", expr }));
           }
-          case "UTranspose": {
-            const res = evalUTranspose(expr, argVal.contents);
-            if (res.isErr()) {
-              return err(oneErr(res.error));
+          switch (expr.op) {
+            case "UMinus": {
+              const res = evalUMinus(expr, argVal.contents);
+              if (res.isErr()) {
+                return err(oneErr(res.error));
+              }
+              return ok(val(res.value));
             }
-            return ok(val(res.value));
+            case "UTranspose": {
+              const res = evalUTranspose(expr, argVal.contents);
+              if (res.isErr()) {
+                return err(oneErr(res.error));
+              }
+              return ok(val(res.value));
+            }
           }
-        }
-      });
+        },
+      );
     }
     case "Vary": {
       const { exclude, init } = expr;
@@ -3134,78 +3134,54 @@ const evalExpr = (
       );
     }
     case "CollectionAccess": {
-      const { subst } = context;
       const { name, field } = expr;
-      if (subst.tag === "CollectionSubst" && name.value === subst.collName) {
-        // actually gather the list.
-        const collection = subst.collContent;
-        const result: ArgVal<ad.Num>[] = [];
-        for (const subObj of collection) {
-          const uniqueName = subObjectToUniqueName(subObj);
-          const actualPath = `\`${uniqueName}\`.${field.value}`;
-          const value = trans.symbols.get(actualPath);
-          if (value !== undefined) {
-            result.push(value);
-          }
+      const collection = name.contents.substanceObjects;
+      const result: ArgVal<ad.Num>[] = [];
+      for (const subObj of collection) {
+        const uniqueName = subObjectToUniqueName(subObj);
+        const actualPath = `\`${uniqueName}\`.${field.value}`;
+        const value = trans.symbols.get(actualPath);
+        if (value !== undefined) {
+          result.push(value);
         }
-        const collected = collectIntoVal(result, expr);
-        if (collected.isErr()) {
-          return err(collected.error);
-        } else {
-          return ok(val(collected.value));
-        }
+      }
+      const collected = collectIntoVal(result, expr);
+      if (collected.isErr()) {
+        return err(collected.error);
       } else {
-        return err(
-          oneErr(
-            notSubstanceCollectionError(name.value, {
-              start: expr.start,
-              end: expr.end,
-            }),
-          ),
-        );
+        return ok(val(collected.value));
       }
     }
     case "UnaryStyVarExpr": {
-      const { subst } = context;
       const { op, arg } = expr;
-      if (expr.op === "numberof") {
-        return evalNumberOf(subst, arg, { start: expr.start, end: expr.end });
+      if (op === "numberof") {
+        return evalNumberOf(arg);
       } else {
-        return evalNameOf(subst, arg, { start: expr.start, end: expr.end });
+        return evalNameOf(arg);
       }
     }
   }
 };
 
 const evalNumberOf = (
-  subst: StySubst,
-  arg: Identifier<C>,
-  loc: SourceRange,
+  arg: ResolvedPath<A> & {
+    contents: StylePathToSubstanceScope<A> | StylePathToCollection<A>;
+  },
 ): Result<ArgVal<ad.Num>, StyleDiagnostics> => {
-  if (subst.tag === "CollectionSubst" && arg.value === subst.collName) {
-    return ok(val(floatV(subst.collContent.length)));
+  if (arg.contents.tag === "Collection") {
+    return ok(val(floatV(arg.contents.substanceObjects.length)));
   } else {
-    return err(oneErr(notSubstanceCollectionError(arg.value, loc)));
-  }
-};
-
-const extractMainSubst = (subst: StySubst) => {
-  if (subst.tag === "StySubSubst") {
-    return subst.contents;
-  } else {
-    return subst.groupby;
+    return err(oneErr(notSubstanceCollectionError(arg)));
   }
 };
 
 const evalNameOf = (
-  subst: StySubst,
-  arg: Identifier<C>,
-  loc: SourceRange,
+  arg: ResolvedPath<A> & {
+    contents: StylePathToSubstanceScope<A> | StylePathToCollection<A>;
+  },
 ): Result<ArgVal<ad.Num>, StyleDiagnostics> => {
-  const s = extractMainSubst(subst);
-
-  if (arg.value in s) {
-    const m = s[arg.value];
+  if (arg.contents.tag === "Substance") {
+    const m = arg.contents.substanceObject;
     if (m.tag === "SubstanceVar") {
       return ok(val(strV(m.name)));
     } else {
@@ -3216,7 +3192,7 @@ const evalNameOf = (
       }
     }
   } else {
-    return err(oneErr(notStyleVariableError(arg.value, loc)));
+    return err(oneErr(notStyleVariableError(arg)));
   }
 };
 
@@ -3231,7 +3207,7 @@ type CollectionType<T> =
 
 const collectIntoVal = (
   coll: ArgVal<ad.Num>[],
-  expr: CollectionAccess<C>,
+  expr: ResolvedCollectionAccess<A>,
 ): Result<CollectionType<ad.Num>, StyleDiagnostics> => {
   if (coll.length === 0) {
     return ok(vectorV([]));
@@ -3470,8 +3446,8 @@ const translateExpr = (
       }
 
       const layeringRelations: {
-        below: LhsStylePathToObject<A>;
-        above: LhsStylePathToObject<A>;
+        below: ResolvedStylePath<A>;
+        above: ResolvedStylePath<A>;
       }[] = right.map((r) => {
         switch (layeringOp) {
           case "below":

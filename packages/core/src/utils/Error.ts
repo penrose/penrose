@@ -50,7 +50,10 @@ import {
 } from "../types/functions.js";
 import { State } from "../types/state.js";
 import { BindingForm, ColorLit } from "../types/style.js";
-import { LhsStylePathToObject } from "../types/stylePathResolution.js";
+import {
+  LhsStylePathToObject,
+  ResolvedPath,
+} from "../types/stylePathResolution.js";
 import { SubExpr, TypeApp } from "../types/substance.js";
 import { ArgVal, ArgValWithSourceLoc, ShapeVal, Val } from "../types/value.js";
 import {
@@ -1106,8 +1109,7 @@ export const redeclareNamespaceError = (
 });
 
 export const notSubstanceCollectionError = (
-  name: string,
-  location: SourceRange,
+  path: ResolvedPath<A>,
 ): NotSubstanceCollectionError => ({
   tag: "NotSubstanceCollectionError",
   name,

@@ -74,7 +74,6 @@ export type LhsStylePathToObject<T> = StylePathToObject<T> & {
 };
 
 export type LhsResolvedStylePath<T> =
-  | EmptyStylePath<T>
   | StylePathToScope<T>
   | StylePathToCollection<T>
   | LhsStylePathToObject<T>;

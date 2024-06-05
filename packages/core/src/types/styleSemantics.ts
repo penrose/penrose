@@ -6,8 +6,9 @@ import { A } from "./ast.js";
 import { StyleDiagnostics, StyleError } from "./errors.js";
 import { Fn } from "./state.js";
 import {
-  LhsResolvedStylePath,
+  LhsStylePathToObject,
   ResolvedNotShape,
+  ResolvedStylePath,
 } from "./stylePathResolution.js";
 import { SubstanceEnv } from "./substance.js";
 import { ArgVal, Field, Name, PropID } from "./value.js";
@@ -166,7 +167,7 @@ export type DepGraph = Graph<
   string,
   {
     contents: ShapeType | ResolvedNotShape<A> | undefined;
-    where: LhsResolvedStylePath<A>;
+    where: LhsStylePathToObject<A>;
   }
 >;
 
@@ -175,8 +176,8 @@ export type DepGraph = Graph<
 //#region third Style compiler pass: expression compilation
 
 export interface Layer {
-  below: string;
-  above: string;
+  below: ResolvedStylePath<A>;
+  above: ResolvedStylePath<A>;
 }
 
 export interface Translation {
