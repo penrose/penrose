@@ -28,7 +28,6 @@ import {
 import { stateToSVG } from "../utils/renderUtils.js";
 import { UpdateInfo } from "../worker/OptimizerWorker";
 import {
-  AutosaveTimer,
   Canvas,
   Diagram,
   DiagramGrid,
@@ -914,74 +913,58 @@ export const useSaveWorkspace = () =>
   });
 
 /**
- * Called in App to handle logic for save workspace with ctrl+s or cmd+s
- * saveWorkspace and saveNewWorkspace passed as arguments to avoid
- * React hook error
+ * Allows user to save workspace with ctrl+s or cmd+s
  * If user in an "local" workspace (new workspace): Adds to saved workspaces
  * If user in a "stored" workspace that's unsaved: Saves
  * If user in an example, gist, or roger workspace: Does nothing
  */
-export const useSaveShortcut = (saveWorkspace: any, saveNewWorkspace: any) =>
-  useRecoilCallback(({ snapshot }) => async (event: KeyboardEvent) => {
-    const currentWorkspace = snapshot.getLoadable(
-      currentWorkspaceState,
-    ).contents;
-    if (event.repeat) return;
-    // Cmd+s or Ctrl+s
-    if ((event.metaKey || event.ctrlKey) && event.key === "s") {
-      if (
-        currentWorkspace.metadata.location.kind == "stored" &&
-        !currentWorkspace.metadata.location.saved
-      ) {
-        event.preventDefault();
-        saveWorkspace();
-      } else if (currentWorkspace.metadata.location.kind == "local") {
-        event.preventDefault();
-        saveNewWorkspace(uuid());
-      }
-    }
-  });
+export const saveShortcutHook = () => {
+  const saveWorkspace = useSaveWorkspace();
+  const saveNewWorkspace = useSaveNewWorkspace();
 
-/**
- * Autosaves every 5 seconds after a user has finished editing
- */
-export const useAutosave = (
-  autosaveTimerValue: AutosaveTimer,
-  autosaveTimerSetter: any,
-  currentWorkspace: Workspace,
-  saveWorkspace: any,
-) =>
-  useCallback(
-    debounce(async () => {
-      console.log("hit outer");
-      // Reset autosave timer
-      if (autosaveTimerValue != null) {
-        clearTimeout(autosaveTimerValue);
-      }
-      // Set new timer, after 5 seconds have elapsed without edit
-      const newTimeoutId = setTimeout(() => {
-        console.log("hit inner");
-        console.log(currentWorkspace.metadata.location);
-        if (
-          currentWorkspace.metadata.location.kind == "stored"
-          // !currentWorkspace.metadata.location.saved
-        ) {
-          saveWorkspace();
+  // Need useRecoilCallback for snapshot, otherwise currentWorkspace outdated
+  const handleShortcut = useRecoilCallback(
+    ({ snapshot }) =>
+      async (event: KeyboardEvent) => {
+        const currentWorkspace = snapshot.getLoadable(
+          currentWorkspaceState,
+        ).contents;
+        if (event.repeat) return;
+        // Cmd+s or Ctrl+s
+        if ((event.metaKey || event.ctrlKey) && event.key === "s") {
+          if (
+            currentWorkspace.metadata.location.kind == "stored" &&
+            !currentWorkspace.metadata.location.saved
+          ) {
+            event.preventDefault();
+            saveWorkspace();
+          } else if (currentWorkspace.metadata.location.kind == "local") {
+            event.preventDefault();
+            saveNewWorkspace(uuid());
+          }
         }
-      }, 3000);
-      autosaveTimerSetter(newTimeoutId);
-    }, 500),
-    // So that updates to these values won't be reflected in execution
-    [currentWorkspace.metadata, autosaveTimerValue],
+      },
   );
 
+  useEffect(() => {
+    document.addEventListener("keydown", handleShortcut, {
+      passive: false,
+    });
+
+    // Cleanup
+    return () => document.removeEventListener("keydown", handleShortcut);
+  }, []);
+};
+
+/**
+ * Autosaves every 5 seconds after a user has finished editing.
+ */
 export const autosaveHook = () => {
   const currentWorkspace = useRecoilValue(currentWorkspaceState);
   const isInitialRender = useRef(true);
   const saveWorkspace = useSaveWorkspace();
   const [autosaveTimerValue, autosaveTimerSetter] =
     useRecoilState(autosaveTimerState);
-  // console.log("Called");
 
   /**
    * useCallback necessary for debounce to work. Without debounce, every
@@ -989,22 +972,16 @@ export const autosaveHook = () => {
    */
   const autosaveLogic = useCallback(
     debounce(async () => {
-      console.log("hit outer");
       // Reset autosave timer
       if (autosaveTimerValue != null) {
         clearTimeout(autosaveTimerValue);
       }
       // Set new timer, after 5 seconds have elapsed without edit
       const newTimeoutId = setTimeout(() => {
-        console.log("hit inner");
-        console.log(currentWorkspace.metadata.location);
-        if (
-          currentWorkspace.metadata.location.kind == "stored"
-          // !currentWorkspace.metadata.location.saved
-        ) {
+        if (currentWorkspace.metadata.location.kind == "stored") {
           saveWorkspace();
         }
-      }, 3000);
+      }, 2000);
       autosaveTimerSetter(newTimeoutId);
     }, 500),
     // So that updates to these values won't be reflected in execution

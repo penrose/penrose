@@ -7,6 +7,8 @@ import {
   settingsState,
 } from "../state/atoms.js";
 import {
+  autosaveHook,
+  saveShortcutHook,
   useCompileDiagram,
   useDownloadSvg,
   useIsUnsaved,
@@ -133,6 +135,14 @@ export default function TopBar() {
   const newWorkspace = useNewWorkspace();
   const saveWorkspace = useSaveWorkspace();
   const saveNewWorkspace = useSaveNewWorkspace();
+
+  /**
+   * These hooks are here because 1) In App, the call to get value of
+   * currentWorkspace in autosaveHook creates a noticable slowdown. 2) This
+   * component exists on all loads (why we put here and not SavedBrowser)
+   */
+  saveShortcutHook();
+  autosaveHook();
 
   return (
     <nav

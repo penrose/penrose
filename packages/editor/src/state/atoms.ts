@@ -159,7 +159,6 @@ const markWorkspaceUnsavedEffect: AtomEffect<Workspace> = ({
             } as WorkspaceMetadata,
           };
         });
-        console.log("hit mark unsaved");
       }
     }, 500),
   );
