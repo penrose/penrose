@@ -1,7 +1,7 @@
 import seedrandom from "seedrandom";
 import { variable } from "../engine/Autodiff.js";
 import * as ad from "../types/ad.js";
-import { OptStages } from "../types/state.js";
+import { IdxsByPath, OptStages } from "../types/state.js";
 import { ColorV, FloatV, VectorV } from "../types/value.js";
 import { colorV, floatV, randFloat, vectorV } from "../utils/Util.js";
 
@@ -45,17 +45,10 @@ export interface InputMeta {
   stages: OptStages; // can be the empty set, meaning unoptimized
 }
 
-export type InputFactory = (meta: InputMeta, remainingPath?: string, index?: number) => ad.Var; // NOTE: stateful!
+export type InputFactory = (meta: InputMeta) => ad.Var; // NOTE: stateful!
 
 export interface Context {
   makeInput: InputFactory;
-}
-
-export const curryContextPath = (context: Context, path: string): Context => {
-  return {
-    makeInput: (meta: InputMeta, remainingPath?: string, index?: number) => 
-      context.makeInput(meta, path + remainingPath, index)
-  }
 }
 
 /**
@@ -93,11 +86,11 @@ export const sampleVector = (
     makeInput({
       init: { tag: "Sampled", sampler: uniform(...canvas.xRange) },
       stages: "All",
-    }, "", 0),
+    }),
     makeInput({
       init: { tag: "Sampled", sampler: uniform(...canvas.yRange) },
       stages: "All",
-    }, "", 1),
+    }),
   ]);
 
 export const sampleWidth = (
@@ -109,7 +102,7 @@ export const sampleWidth = (
       // BUG: when canvas width is too small this will error out
       init: { tag: "Sampled", sampler: uniform(3, canvas.width / 6) },
       stages: "All",
-    }, "", 0),
+    }),
   );
 
 export const sampleHeight = (
@@ -121,7 +114,7 @@ export const sampleHeight = (
       // BUG: when canvas width is too small this will error out
       init: { tag: "Sampled", sampler: uniform(3, canvas.height / 6) },
       stages: "All",
-    }, "", 0),
+    }),
   );
 
 export const sampleStroke = ({ makeInput }: Context): FloatV<ad.Num> =>
@@ -129,7 +122,7 @@ export const sampleStroke = ({ makeInput }: Context): FloatV<ad.Num> =>
     makeInput({
       init: { tag: "Sampled", sampler: uniform(0.5, 3) },
       stages: "All",
-    }, "", 0),
+    }),
   );
 
 export const sampleColor = ({ makeInput }: Context): ColorV<ad.Num> => {
@@ -140,15 +133,15 @@ export const sampleColor = ({ makeInput }: Context): ColorV<ad.Num> => {
       makeInput({
         init: { tag: "Sampled", sampler: uniform(min, max) },
         stages: "All",
-      }, "", 0),
+      }),
       makeInput({
         init: { tag: "Sampled", sampler: uniform(min, max) },
         stages: "All",
-      }, "", 1),
+      }),
       makeInput({
         init: { tag: "Sampled", sampler: uniform(min, max) },
         stages: "All",
-      }, "", 2),
+      }),
       0.5,
     ],
   });

@@ -1,5 +1,5 @@
 import {
-  Canvas, IdsByPath,
+  Canvas, IdxsByPath,
   LabelCache,
   LabelData,
   LabelMeasurements,
@@ -116,7 +116,7 @@ export interface LayoutState {
   shapes: Shape<number>[];
   optStages: string[];
   currentStageIndex: number;
-  inputIdsByFieldPath: IdsByPath;
+  inputIdsByFieldPath: IdxsByPath;
   draggableShapePaths: Set<string>
 }
 
@@ -129,7 +129,7 @@ export interface RenderState {
   varyingValues: number[];
   optStages: string[];
   currentStageIndex: number;
-  inputIdsByFieldPath: IdsByPath;
+  inputIdsByFieldPath: IdxsByPath;
   draggableShapePaths: Set<string>;
 }
 

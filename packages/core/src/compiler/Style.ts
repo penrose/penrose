@@ -5,7 +5,7 @@ import nearley from "nearley";
 import seedrandom from "seedrandom";
 import { genGradient, ops, variable } from "../engine/Autodiff.js";
 import { add, div, mul, neg, pow, sub } from "../engine/AutodiffFunctions.js";
-import { compileCompGraph, dummyIdentifier } from "../engine/EngineUtils.js";
+import { compileCompGraph, dummyIdentifier, mapShape, mapTuple, mapValueNumeric } from "../engine/EngineUtils.js";
 import { start as genOptProblem } from "../engine/Optimizer.js";
 import { constrDict } from "../lib/Constraints.js";
 import { compDict } from "../lib/Functions.js";
@@ -17,7 +17,6 @@ import {
   InputMeta,
   Context as MutableContext,
   constSampler,
-  curryContextPath,
   makeCanvas,
   uniform,
 } from "../shapes/Samplers.js";
@@ -41,7 +40,8 @@ import {
   StyleWarning,
 } from "../types/errors.js";
 import {
-  Fn, IdsByPath,
+  Fn,
+  IdxsByPath,
   OptPipeline,
   OptStages,
   StagedConstraints,
@@ -2259,8 +2259,7 @@ const evalExprs = (
   all(
     args.map((expr, i) => {
       return evalExpr(
-        { makeInput: (meta) => mut.makeInput(meta, "", i) }, 
-        canvas, stages, { context, expr }, trans
+        mut, canvas, stages, { context, expr }, trans
       );
     }),
   ).mapErr(flatErrs);
@@ -3056,7 +3055,7 @@ const evalExpr = (
                     : constSampler(init),
               },
               stages,
-            }, "", 0),
+            }),
           ),
         ),
       );
@@ -3479,7 +3478,7 @@ export const translate = (
     if (typeof shapeType === "string") {
       const props = sampleShape(
         shapeType, 
-        curryContextPath(mut, path), 
+        mut,
         canvas
       );
       for (const [prop, value] of Object.entries(props)) {
@@ -3531,8 +3530,7 @@ export const translate = (
       }
     } else {
       trans = translateExpr(
-        curryContextPath(mut, path), 
-        canvas, stages, path, e, trans
+        mut, canvas, stages, path, e, trans
       );
     }
   }
@@ -3810,6 +3808,39 @@ export const stageConstraints = (
     ]),
   );
 
+const getInputIdxsByPath = (
+  symbols: im.Map<string, ArgVal<ad.Num>>,
+  inputIdxsByVar: Map<ad.Var, number>
+): IdxsByPath => {
+  const tryGetIdx = (x: ad.Num) => isVar(x) ? inputIdxsByVar.get(x) : undefined;
+  const res: IdxsByPath = new Map();
+  for (const [path, val] of symbols) {
+    let mappedVal: ArgVal<number | undefined>;
+    switch (val.tag) {
+      case "Val":
+        switch (val.contents.tag) {
+          case "StrV":
+          case "BoolV":
+            continue;
+
+          default:
+            mappedVal = {
+              tag: "Val",
+              contents: mapValueNumeric((x) => tryGetIdx(x), val.contents),
+            }
+            break;
+        }
+        break;
+
+      case "ShapeVal":
+        continue;
+    }
+    res.set(path, mappedVal);
+  }
+
+  return res;
+}
+
 const processPassthrough = (
   { symbols }: Translation,
   nameShapeMap: Map<string, Shape<ad.Num>>,
@@ -3892,27 +3923,16 @@ export const compileStyleHelper = async (
   const rng = seedrandom(variation);
   const varyingValues: number[] = [];
   const inputs: ad.Var[] = [];
+  const inputIdxsByVar = new Map<ad.Var, number>();
   const metas: InputMeta[] = [];
-  const inputIdsByFieldPath: IdsByPath = new Map();
-  const makeInput = (meta: InputMeta, fieldPath?: string, index?: number) => {
+  const makeInput = (meta: InputMeta) => {
     const val =
       meta.init.tag === "Sampled" ? meta.init.sampler(rng) : meta.init.pending;
     const x = variable(val);
     varyingValues.push(val);
     inputs.push(x);
     metas.push(meta);
-    if (fieldPath !== undefined && index !== undefined) {
-      if (!inputIdsByFieldPath.has(fieldPath)) {
-        inputIdsByFieldPath.set(fieldPath, []);
-      }
-
-      const arr = inputIdsByFieldPath.get(fieldPath) ?? [];
-      while (arr.length <= index) {
-        arr.push(0);
-      }
-
-      arr[index] = inputs.length - 1;
-    }
+    inputIdxsByVar.set(x, inputs.length - 1);
     return x;
   };
 
@@ -3924,6 +3944,8 @@ export const compileStyleHelper = async (
     graph,
     assignment.diagnostics.warnings,
   );
+
+  const inputIdxsByPath = getInputIdxsByPath(translation.symbols, inputIdxsByVar);
 
   log.info("translation (before genOptProblem)", translation);
 
@@ -3954,13 +3976,8 @@ export const compileStyleHelper = async (
   const shapes = getShapesList(translation, layerOrdering);
   const draggableShapePaths = new Set<string>();
   for (const shape of shapes) {
-    if ("center" in shape) {
-      const [xIdx, yIdx] = inputIdsByFieldPath.get(shape.name.contents + ".center")!;
-      const xInput = inputs[xIdx];
-      const yInput = inputs[yIdx];
-      if (xInput === shape.center.contents[0] && yInput === shape.center.contents[1]) {
-        draggableShapePaths.add(shape.name.contents);
-      }
+    if ("center" in shape && isVar(shape.center.contents[0]) && isVar(shape.center.contents[1])) {
+      draggableShapePaths.add(shape.name.contents);
     }
   }
 
@@ -4024,8 +4041,9 @@ export const compileStyleHelper = async (
     params,
     currentStageIndex: 0,
     optStages: optimizationStages.value,
-    inputIdsByFieldPath,
-    draggableShapePaths
+    inputIdxsByPath,
+    draggableShapePaths,
+    pinnedInputIdxs: new Set(),
   };
 
   log.info("init state from GenOptProblem", initState);

@@ -5,7 +5,6 @@ import { boolV, floatV, strV } from "../utils/Util.js";
 import {
   Canvas,
   Context,
-  curryContextPath,
   sampleHeight,
   sampleVector,
   sampleWidth,
@@ -24,9 +23,9 @@ export const sampleImage = (
   canvas: Canvas,
 ): ImageProps<ad.Num> => ({
   name: strV("defaultImage"),
-  center: sampleVector(curryContextPath(context, ".center"), canvas),
-  width: sampleWidth(curryContextPath(context, ".width"), canvas),
-  height: sampleHeight(curryContextPath(context, ".height"), canvas),
+  center: sampleVector(context, canvas),
+  width: sampleWidth(context, canvas),
+  height: sampleHeight(context, canvas),
   rotation: floatV(0),
   href: strV("defaultImage"),
   ensureOnCanvas: boolV(true),

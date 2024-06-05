@@ -25,6 +25,7 @@ import {
   WorkerState,
 } from "./common.js";
 import { DragError, WorkerError } from "./errors.js";
+import _ from "lodash";
 
 type Frame = number[];
 
@@ -64,33 +65,6 @@ const respondError = (error: WorkerError) => {
   });
 };
 
-const deeperCopyState = (state: PenroseState): PenroseState => {
-  const newConstraintSets = new Map(state.constraintSets);
-  for (const [stage, set] of newConstraintSets) {
-    newConstraintSets.set(stage, {
-      inputMask: [...set.inputMask],
-      objMask: [...set.objMask],
-      constrMask: [...set.constrMask],
-    });
-  }
-
-  return  {
-    ...state,
-    warnings: [...state.warnings],
-    constraintSets: newConstraintSets,
-    objFns: [...state.objFns],
-    constrFns: [...state.constrFns],
-    inputs: [...state.inputs],
-    varyingValues: [...state.varyingValues],
-    labelCache: new Map(state.labelCache),
-    shapes: [...state.shapes],
-    optStages: [...state.optStages],
-    params: {...state.params},
-    inputIdsByFieldPath: new Map(state.inputIdsByFieldPath),
-    draggableShapePaths: new Set(state.draggableShapePaths),
-  };
-}
-
 self.onmessage = async ({ data }: MessageEvent<Req>) => {
   const badStateError = () => {
     respondError({
@@ -124,7 +98,7 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
             ...stateWithoutLabels,
             labelCache: data.labelCache,
           } as PenroseState;
-          optState = deeperCopyState(unoptState);
+          optState = _.cloneDeep(unoptState);
           workerState = WorkerState.Optimizing;
           respondOptimizing();
           // launch optimization worker asynchronously
@@ -152,7 +126,7 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
           const { variation } = data;
           // resample can fail, but doesn't return a result. Hence, try/catch
           try {
-            const resampled = resample({ ...unoptState, variation });
+            const resampled = _.cloneDeep(resample({ ...unoptState, variation }));
             workerState = WorkerState.Optimizing;
             respondOptimizing();
             optimize(insertPending(resampled));
@@ -247,14 +221,38 @@ const dragShape = (
   }
 
   const fieldPath = shapePath + ".center";
-  const [xIdx, yIdx] = newState.inputIdsByFieldPath.get(fieldPath)!;
+  const center = newState.inputIdxsByPath.get(fieldPath);
+  let xIdx, yIdx;
+  if (
+    center && center.tag === "Val" &&
+    (center.contents.tag === "ListV" ||
+     center.contents.tag === "VectorV" ||
+     center.contents.tag === "TupV")
+  ) {
+    xIdx = center.contents.contents[0]!;
+    yIdx = center.contents.contents[1]!;
+  } else {
+    return err({
+      tag: "DragError",
+      message: `could not find center indices at path ${fieldPath}`,
+      nextWorkerState: workerState
+    });
+  }
+
   newState.varyingValues[xIdx] += dx;
   newState.varyingValues[yIdx] += dy;
 
   newState.currentStageIndex = 0;
+  newState.pinnedInputIdxs = new Set([xIdx, yIdx]);
+
   for (const [stage, masks] of newState.constraintSets) {
-    masks.inputMask[xIdx] = false;
-    masks.inputMask[yIdx] = false;
+    for (const pinnedInput of state.pinnedInputIdxs) {
+      masks.inputMask[pinnedInput] = true;
+    }
+
+    for (const pinnedInput of newState.pinnedInputIdxs) {
+      masks.inputMask[pinnedInput] = false;
+    }
   }
 
   newState.params = unoptState.params;

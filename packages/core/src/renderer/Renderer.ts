@@ -65,6 +65,21 @@ const getPosition = (
   return { x: 0, y: 0 };
 };
 
+const screenBBoxtoSVGBBox = (
+  bbox: DOMRect,
+  parentSVG: SVGSVGElement,
+): DOMRect => {
+  const ctmInv = parentSVG.getScreenCTM()!.inverse();
+  const topLeft = new DOMPoint(bbox.left, bbox.top);
+  const bottomRight = new DOMPoint(bbox.right, bbox.bottom);
+  const topLeftSVG = topLeft.matrixTransform(ctmInv);
+  const bottomRightSVG = bottomRight.matrixTransform(ctmInv);
+  return new DOMRect(
+    topLeftSVG.x, topLeftSVG.y,
+    bottomRightSVG.x - topLeftSVG.x,
+    bottomRightSVG.y - topLeftSVG.y);
+}
+
 /**
  *
  // * @param state
@@ -301,16 +316,21 @@ export const RenderShape = async (
           { clientX, clientY },
           interactiveProps.parentSVG,
         );
+
+        const screenBBox = (e.target as SVGElement).getBoundingClientRect();
         const {
           width: bboxW,
           height: bboxH,
           x: bboxX,
           y: bboxY,
-        } = (e.target as SVGSVGElement).getBBox({ stroke: true });
+        } = screenBBoxtoSVGBBox(screenBBox, interactiveProps.parentSVG);
+
         const minX = tempX - bboxX;
         const maxX = renderProps.canvasSize[0] - bboxW + (tempX - bboxX);
         const minY = tempY - bboxY;
         const maxY = renderProps.canvasSize[1] - bboxH + (tempY - bboxY);
+
+        console.log(`${bboxX} ${bboxY} ${bboxW} ${bboxH}`);
 
         g.setAttribute("opacity", "0.5");
         let dx = 0,

@@ -6,7 +6,7 @@ import { A } from "./ast.js";
 import { StyleWarning } from "./errors.js";
 import { ConstrFn, ObjFn } from "./style.js";
 import { WithContext } from "./styleSemantics.js";
-import { FloatV, Value } from "./value.js";
+import { ArgVal, FloatV, Value } from "./value.js";
 import { ShapeT } from "./types.js";
 
 export type ShapeFn = (xs: number[]) => Shape<number>[];
@@ -15,7 +15,10 @@ export type OptPipeline = string[];
 
 export type StagedConstraints = Map<string, ad.Masks>;
 
-export type IdsByPath = Map<string, number[]>
+/**
+ * For each path with a some optimized value, get that
+ */
+export type IdxsByPath = Map<string, ArgVal<number | undefined>>
 
 export interface InputInfo {
   handle: ad.Var;
@@ -41,8 +44,9 @@ export interface State {
   params: Params;
   gradient: ad.Gradient;
   computeShapes: ShapeFn;
-  inputIdsByFieldPath: IdsByPath;
-  draggableShapePaths: Set<string>
+  inputIdxsByPath: IdxsByPath;
+  draggableShapePaths: Set<string>;
+  pinnedInputIdxs: Set<number>;
 }
 
 /**

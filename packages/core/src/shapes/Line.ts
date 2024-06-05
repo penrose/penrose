@@ -2,7 +2,7 @@ import * as ad from "../types/ad.js";
 import { Arrow, Fill, Named, ShapeCommon, Stroke } from "../types/shapes.js";
 import { StrV, VectorV } from "../types/value.js";
 import { black, boolV, floatV, noPaint, strV } from "../utils/Util.js";
-import { Canvas, Context, curryContextPath, sampleVector } from "./Samplers.js";
+import { Canvas, Context, sampleVector } from "./Samplers.js";
 
 export interface LineProps<T> extends Named<T>, Stroke<T>, Arrow<T>, Fill<T> {
   start: VectorV<T>;
@@ -26,8 +26,8 @@ export const sampleLine = (
   flipStartArrowhead: boolV(false),
   endArrowheadSize: floatV(1),
   endArrowhead: strV("none"),
-  start: sampleVector(curryContextPath(context, ".start"), canvas),
-  end: sampleVector(curryContextPath(context, ".end"), canvas),
+  start: sampleVector(context, canvas),
+  end: sampleVector(context, canvas),
   strokeLinecap: strV(""),
   ensureOnCanvas: boolV(true),
   fillColor: noPaint(),
