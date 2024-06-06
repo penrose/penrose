@@ -2066,6 +2066,30 @@ export const compDict = {
     returns: valueT("PathCmd"),
   },
 
+  joinPaths: {
+    name: "joinPaths",
+    description:
+      "Given a list of `PathData`s, join them into one SVG path. For correct results, the end points and start points" +
+      "of each path must already coincide.",
+
+    params: [
+      {
+        type: pathDataListT(),
+        name: "pathDataList",
+        description: "List of path data",
+      },
+    ],
+    body: (
+      _context: Context,
+      pathDataList: PathCmd<ad.Num>[][],
+    ): MayWarn<PathDataV<ad.Num>> => {
+      const connect = () => null;
+      const resPathData = PathBuilder.concatPaths(pathDataList, connect);
+      return noWarn(pathDataV(resPathData));
+    },
+    returns: valueT("PathCmd"),
+  },
+
   Penrose: {
     name: "Penrose",
     description: `Return path data describing an "impossible polygon."`,
