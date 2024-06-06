@@ -35,7 +35,8 @@ Be sure you have these tools installed:
 
 - [Git][]
 
-- [Python][] 3.10 and below.
+- [Python][] 3.10 or below (if using Linux or Mac, we recommend installing via
+  [Pyenv][])
 
 - [Node.js][] v18+ (if using Linux or Mac, we recommend installing via [nvm][])
 
@@ -436,6 +437,7 @@ Our repo uses [semantic versioning][] and maintains the same version number for 
 [open a pull request]: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request
 [prettier]: https://prettier.io/
 [push]: https://github.com/git-guides/git-push
+[pyenv]: https://github.com/pyenv/pyenv
 [remote]: https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes
 [that link]: http://localhost:3000/try/
 [this repo]: https://github.com/penrose/penrose
