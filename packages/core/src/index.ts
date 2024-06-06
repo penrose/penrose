@@ -3,7 +3,7 @@ import { compileDomain } from "./compiler/Domain.js";
 import { compileStyle } from "./compiler/Style.js";
 import { compileSubstance } from "./compiler/Substance.js";
 import { start, stepUntil } from "./engine/Optimizer.js";
-import { PathResolver, toSVG, OnDrag } from "./renderer/Renderer.js";
+import { OnDrag, PathResolver, toSVG } from "./renderer/Renderer.js";
 import * as ad from "./types/ad.js";
 import { DomainEnv } from "./types/domain.js";
 import { PenroseError } from "./types/errors.js";
@@ -431,12 +431,12 @@ export {
   mathjaxInit,
 } from "./utils/CollectLabels.js";
 export {
+  err,
   errLocs,
   isPenroseError,
+  ok,
   runtimeError,
   showError,
-  err,
-  ok
 } from "./utils/Error.js";
 export type { Result } from "./utils/Error.js";
 export {

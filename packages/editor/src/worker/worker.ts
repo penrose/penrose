@@ -6,27 +6,29 @@ import {
   insertPending,
   isOptimized,
   LabelMeasurements,
-  nextStage, ok,
+  nextStage,
+  ok,
   PenroseState,
   resample,
   Result,
   runtimeError,
   State,
-  step
+  step,
 } from "@penrose/core";
 import consola from "consola";
+import _ from "lodash";
+import { Unit } from "true-myth";
 import {
-  CompiledReq, DragShapeReq,
+  CompiledReq,
+  DragShapeReq,
   LayoutState,
   LayoutStats,
   Req,
   Resp,
   stateToLayoutState,
-  WorkerState
+  WorkerState,
 } from "./common.js";
 import { DragError, WorkerError } from "./errors.js";
-import _ from "lodash";
-import { Unit } from "true-myth"
 
 type Frame = number[];
 
@@ -129,7 +131,9 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
           const { variation } = data;
           // resample can fail, but doesn't return a result. Hence, try/catch
           try {
-            const resampled = _.cloneDeep(resample({ ...unoptState, variation }));
+            const resampled = _.cloneDeep(
+              resample({ ...unoptState, variation }),
+            );
             workerState = WorkerState.Optimizing;
             respondOptimizing();
             optimize(insertPending(resampled));
@@ -203,7 +207,7 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
             break;
           }
           respond({
-            tag: "DragOkResp"
+            tag: "DragOkResp",
           });
           break;
 
@@ -215,9 +219,7 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
   }
 };
 
-const dragShape = (
-  data: DragShapeReq
-): Result<Unit, DragError> => {
+const dragShape = (data: DragShapeReq): Result<Unit, DragError> => {
   if (!optState) {
     return err({
       tag: "DragError",
@@ -230,7 +232,7 @@ const dragShape = (
     return err({
       tag: "DragError",
       message: "undraggable shape",
-      nextWorkerState: workerState
+      nextWorkerState: workerState,
     });
   }
 
@@ -238,10 +240,11 @@ const dragShape = (
   const center = optState.inputIdxsByPath.get(fieldPath);
   let xIdx, yIdx;
   if (
-    center && center.tag === "Val" &&
+    center &&
+    center.tag === "Val" &&
     (center.contents.tag === "ListV" ||
-     center.contents.tag === "VectorV" ||
-     center.contents.tag === "TupV")
+      center.contents.tag === "VectorV" ||
+      center.contents.tag === "TupV")
   ) {
     xIdx = center.contents.contents[0]!;
     yIdx = center.contents.contents[1]!;
@@ -249,7 +252,7 @@ const dragShape = (
     return err({
       tag: "DragError",
       message: `could not find center indices at path ${fieldPath}`,
-      nextWorkerState: workerState
+      nextWorkerState: workerState,
     });
   }
 
@@ -260,9 +263,9 @@ const dragShape = (
     optState.pinnedInputIdxs = new Set([xIdx, yIdx]);
 
     for (const [stage, masks] of optState.constraintSets) {
-      // for (const pinnedInput of previouslyPinned) {
-      //   masks.inputMask[pinnedInput] = true;
-      // }
+      for (const pinnedInput of previouslyPinned) {
+        masks.inputMask[pinnedInput] = true;
+      }
 
       for (const pinnedInput of optState.pinnedInputIdxs) {
         masks.inputMask[pinnedInput] = false;
@@ -281,7 +284,7 @@ const dragShape = (
   }
 
   return ok();
-}
+};
 
 const compileAndRespond = async (data: CompiledReq) => {
   const { domain, substance, style, variation, jobId } = data;

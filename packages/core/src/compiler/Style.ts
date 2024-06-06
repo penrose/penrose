@@ -5,7 +5,11 @@ import nearley from "nearley";
 import seedrandom from "seedrandom";
 import { genGradient, ops, variable } from "../engine/Autodiff.js";
 import { add, div, mul, neg, pow, sub } from "../engine/AutodiffFunctions.js";
-import { compileCompGraph, dummyIdentifier, mapShape, mapTuple, mapValueNumeric } from "../engine/EngineUtils.js";
+import {
+  compileCompGraph,
+  dummyIdentifier,
+  mapValueNumeric,
+} from "../engine/EngineUtils.js";
 import { start as genOptProblem } from "../engine/Optimizer.js";
 import { constrDict } from "../lib/Constraints.js";
 import { compDict } from "../lib/Functions.js";
@@ -27,6 +31,7 @@ import {
   sampleShape,
 } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
+import { isVar } from "../types/ad.js";
 import { A, C, Identifier, SourceRange } from "../types/ast.js";
 import { DomainEnv, Type } from "../types/domain.js";
 import {
@@ -45,7 +50,7 @@ import {
   OptPipeline,
   OptStages,
   StagedConstraints,
-  State
+  State,
 } from "../types/state.js";
 import {
   BinOp,
@@ -193,7 +198,6 @@ import {
   initSubstanceEnv as initSubEnv,
 } from "./Substance.js";
 import { checkShape } from "./shapeChecker/CheckShape.js";
-import { isVar } from "../types/ad.js";
 
 const log = (consola as any)
   .create({ level: (consola as any).LogLevel.Warn })
@@ -2258,9 +2262,7 @@ const evalExprs = (
 ): Result<ArgVal<ad.Num>[], StyleDiagnostics> =>
   all(
     args.map((expr, i) => {
-      return evalExpr(
-        mut, canvas, stages, { context, expr }, trans
-      );
+      return evalExpr(mut, canvas, stages, { context, expr }, trans);
     }),
   ).mapErr(flatErrs);
 
@@ -3476,11 +3478,7 @@ export const translate = (
   for (const path of graph.nodes()) {
     const shapeType = graph.node(path);
     if (typeof shapeType === "string") {
-      const props = sampleShape(
-        shapeType, 
-        mut,
-        canvas
-      );
+      const props = sampleShape(shapeType, mut, canvas);
       for (const [prop, value] of Object.entries(props)) {
         symbols = symbols.set(`${path}.${prop}`, val(value));
       }
@@ -3529,9 +3527,7 @@ export const translate = (
         });
       }
     } else {
-      trans = translateExpr(
-        mut, canvas, stages, path, e, trans
-      );
+      trans = translateExpr(mut, canvas, stages, path, e, trans);
     }
   }
   log.info("Translation stage ends");
@@ -3810,9 +3806,10 @@ export const stageConstraints = (
 
 const getInputIdxsByPath = (
   symbols: im.Map<string, ArgVal<ad.Num>>,
-  inputIdxsByVar: Map<ad.Var, number>
+  inputIdxsByVar: Map<ad.Var, number>,
 ): IdxsByPath => {
-  const tryGetIdx = (x: ad.Num) => isVar(x) ? inputIdxsByVar.get(x) : undefined;
+  const tryGetIdx = (x: ad.Num) =>
+    isVar(x) ? inputIdxsByVar.get(x) : undefined;
   const res: IdxsByPath = new Map();
   for (const [path, val] of symbols) {
     let mappedVal: ArgVal<number | undefined>;
@@ -3827,7 +3824,7 @@ const getInputIdxsByPath = (
             mappedVal = {
               tag: "Val",
               contents: mapValueNumeric((x) => tryGetIdx(x), val.contents),
-            }
+            };
             break;
         }
         break;
@@ -3839,7 +3836,7 @@ const getInputIdxsByPath = (
   }
 
   return res;
-}
+};
 
 const processPassthrough = (
   { symbols }: Translation,
@@ -3945,7 +3942,10 @@ export const compileStyleHelper = async (
     assignment.diagnostics.warnings,
   );
 
-  const inputIdxsByPath = getInputIdxsByPath(translation.symbols, inputIdxsByVar);
+  const inputIdxsByPath = getInputIdxsByPath(
+    translation.symbols,
+    inputIdxsByVar,
+  );
 
   log.info("translation (before genOptProblem)", translation);
 
@@ -3976,7 +3976,11 @@ export const compileStyleHelper = async (
   const shapes = getShapesList(translation, layerOrdering);
   const draggableShapePaths = new Set<string>();
   for (const shape of shapes) {
-    if ("center" in shape && isVar(shape.center.contents[0]) && isVar(shape.center.contents[1])) {
+    if (
+      "center" in shape &&
+      isVar(shape.center.contents[0]) &&
+      isVar(shape.center.contents[1])
+    ) {
       draggableShapePaths.add(shape.name.contents);
     }
   }

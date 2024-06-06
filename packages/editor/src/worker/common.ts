@@ -1,12 +1,13 @@
 import {
-  Canvas, IdxsByPath,
+  Canvas,
+  IdxsByPath,
   LabelCache,
   LabelData,
   LabelMeasurements,
   Num,
   PenroseWarning,
   Shape,
-  State
+  State,
 } from "@penrose/core";
 import { WorkerError } from "./errors.js";
 
@@ -46,7 +47,7 @@ export type UpdateResp = {
 
 export type DragOkResp = {
   tag: "DragOkResp";
-}
+};
 
 export type ErrorResp = {
   tag: "ErrorResp";
@@ -97,7 +98,7 @@ export type DragShapeReq = {
   finish: boolean;
   dx: number; // relative to start of drag
   dy: number;
-}
+};
 
 export type InterruptReq = {
   tag: "InterruptReq";
@@ -123,7 +124,7 @@ export interface LayoutState {
   optStages: string[];
   currentStageIndex: number;
   inputIdxsByPath: IdxsByPath;
-  draggableShapePaths: Set<string>
+  draggableShapePaths: Set<string>;
 }
 
 // state maintained by the main thread for rendering

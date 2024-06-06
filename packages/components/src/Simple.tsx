@@ -137,12 +137,11 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
     } else {
       const node = this.canvasRef.current;
       if (this.penroseState) {
-        const renderedState: SVGSVGElement = await (
-          toSVG(
-              this.penroseState,
-              this.props.imageResolver ?? fetchResolver,
-              this.props.name ?? "",
-        ));
+        const renderedState: SVGSVGElement = await toSVG(
+          this.penroseState,
+          this.props.imageResolver ?? fetchResolver,
+          this.props.name ?? "",
+        );
         renderedState.setAttribute("width", "100%");
         renderedState.setAttribute("height", "100%");
         if (node.firstChild !== null) {

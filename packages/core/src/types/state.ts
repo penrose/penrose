@@ -6,8 +6,7 @@ import { A } from "./ast.js";
 import { StyleWarning } from "./errors.js";
 import { ConstrFn, ObjFn } from "./style.js";
 import { WithContext } from "./styleSemantics.js";
-import { ArgVal, FloatV, Value } from "./value.js";
-import { ShapeT } from "./types.js";
+import { ArgVal, FloatV } from "./value.js";
 
 export type ShapeFn = (xs: number[]) => Shape<number>[];
 
@@ -18,7 +17,7 @@ export type StagedConstraints = Map<string, ad.Masks>;
 /**
  * For each path with a some optimized value, get that
  */
-export type IdxsByPath = Map<string, ArgVal<number | undefined>>
+export type IdxsByPath = Map<string, ArgVal<number | undefined>>;
 
 export interface InputInfo {
   handle: ad.Var;

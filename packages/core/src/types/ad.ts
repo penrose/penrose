@@ -209,6 +209,7 @@ export interface Problem {
 export type Pt2 = [Num, Num];
 
 export const isPt2 = (vec: Num[]): vec is Pt2 => vec.length === 2;
-export const isVar = (n: Num): n is Var => typeof n === "object" && n.tag === "Var";
+export const isVar = (n: Num): n is Var =>
+  typeof n === "object" && n.tag === "Var";
 
 //#endregion

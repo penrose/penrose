@@ -32,7 +32,7 @@ export type OptimizationError = {
 export type DragError = {
   tag: "DragError";
   message: string;
-}
+};
 
 export type WorkerError =
   | ((

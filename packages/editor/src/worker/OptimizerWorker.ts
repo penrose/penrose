@@ -112,9 +112,9 @@ export type WaitingForDrag = {
   previous: Optimizing;
   resolve: () => void;
   reject: (e: PenroseError) => void;
-  finishResolve: (info: UpdateInfo) => void,
-  finishReject: (e: PenroseError) => void
-}
+  finishResolve: (info: UpdateInfo) => void;
+  finishReject: (e: PenroseError) => void;
+};
 
 export type WaitingState =
   | WaitingForInit
@@ -514,18 +514,21 @@ export default class OptimizerWorker {
             this.state.previous.finishResolve = (info) => {
               originalResolve(info);
               newResolve(info);
-            }
+            };
             this.state.previous.finishReject = (error) => {
               originalReject(error);
               newReject(error);
-            }
+            };
             this.setState(this.state.previous);
             break;
 
           case "FinishedResp":
             // ignore, we'll start optimizing very soon
             this.state.finishResolve({
-              state: layoutStateToRenderState(data.state, this.state.previous.svgCache),
+              state: layoutStateToRenderState(
+                data.state,
+                this.state.previous.svgCache,
+              ),
               stats: data.stats,
             });
             break;
@@ -536,7 +539,7 @@ export default class OptimizerWorker {
               ...this.state.previous,
               tag: "Optimizing",
               finishResolve: this.state.finishResolve,
-              finishReject: this.state.finishReject
+              finishReject: this.state.finishReject,
             });
             break;
         }
@@ -685,12 +688,9 @@ export default class OptimizerWorker {
 
         case "Optimizing":
           await this.interruptThenOptimizingHelper(
-            () => this.startOptimizingHelper(
-              finishResolve,
-              finishReject
-            ),
+            () => this.startOptimizingHelper(finishResolve, finishReject),
             startResolve,
-            startReject
+            startReject,
           );
           break;
 
@@ -758,14 +758,15 @@ export default class OptimizerWorker {
       switch (this.state.tag) {
         case "Optimizing":
           await this.interruptThenOptimizingHelper(
-            () => this.resampleHelper(
-              jobId,
-              variation,
-              finishResolve,
-              finishReject
-            ),
+            () =>
+              this.resampleHelper(
+                jobId,
+                variation,
+                finishResolve,
+                finishReject,
+              ),
             startResolve,
-            startReject
+            startReject,
           );
           break;
 
@@ -923,8 +924,7 @@ export default class OptimizerWorker {
     finishReject: (error: PenroseError) => void,
   ): Promise<void> {
     return new Promise<void>(async (startResolve, startReject) => {
-      while (isWaiting(this.state))
-        await this.waitForNextState();
+      while (isWaiting(this.state)) await this.waitForNextState();
 
       log.info(`dragShape running from state ${this.state.tag}`);
       switch (this.state.tag) {
@@ -955,7 +955,7 @@ export default class OptimizerWorker {
             resolve: startResolve,
             reject: startReject,
             finishResolve,
-            finishReject
+            finishReject,
           });
           this.request({
             tag: "DragShapeReq",
@@ -968,7 +968,7 @@ export default class OptimizerWorker {
 
         default:
           startReject(
-            runtimeError(`Cannot dragShape from state ${this.state.tag}`)
+            runtimeError(`Cannot dragShape from state ${this.state.tag}`),
           );
       }
     });
@@ -978,11 +978,18 @@ export default class OptimizerWorker {
     shapePath: string,
     finish: boolean,
     dx: number,
-    dy: number
+    dy: number,
   ): Promise<OptimizerPromises> {
     log.info(`dragShape called from state ${this.state.tag}`);
     return generateOptimizerPromises((finishResolve, finishReject) => {
-      return this.dragShapeHelper(shapePath, finish, dx, dy, finishResolve, finishReject);
+      return this.dragShapeHelper(
+        shapePath,
+        finish,
+        dx,
+        dy,
+        finishResolve,
+        finishReject,
+      );
     });
   }
 

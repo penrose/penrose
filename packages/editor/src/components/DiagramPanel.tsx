@@ -8,7 +8,7 @@ import {
   diagramWorkerState,
   layoutTimelineState,
   optimizer,
-  workspaceMetadataSelector
+  workspaceMetadataSelector,
 } from "../state/atoms.js";
 import { pathResolver } from "../utils/downloadUtils.js";
 import { stateToSVG } from "../utils/renderUtils.js";
@@ -48,11 +48,21 @@ export default function DiagramPanel() {
         compiling: false,
         optimizing: false,
       }));
-    }
+    };
 
-    const onDrag = async (shapePath: string, finish: boolean, dx: number, dy: number) => {
+    const onDrag = async (
+      shapePath: string,
+      finish: boolean,
+      dx: number,
+      dy: number,
+    ) => {
       try {
-        const {  onStart, onFinish } = await optimizer.dragShape(shapePath, finish, dx, dy);
+        const { onStart, onFinish } = await optimizer.dragShape(
+          shapePath,
+          finish,
+          dx,
+          dy,
+        );
         onFinish
           .then((info) => {
             setDiagram((state) => ({
@@ -82,17 +92,21 @@ export default function DiagramPanel() {
       } catch (error: any) {
         onError(error);
       }
-    }
+    };
 
     if (state !== null && cur !== null) {
       (async () => {
-        const rendered = await stateToSVG(state, {
-          pathResolver: (path: string) =>
-            pathResolver(path, rogerState, workspace),
-          width: "100%",
-          height: "100%",
-          texLabels: false,
-        }, onDrag);
+        const rendered = await stateToSVG(
+          state,
+          {
+            pathResolver: (path: string) =>
+              pathResolver(path, rogerState, workspace),
+            width: "100%",
+            height: "100%",
+            texLabels: false,
+          },
+          onDrag,
+        );
         rendered.setAttribute("width", "100%");
         rendered.setAttribute("height", "100%");
         if (cur.firstElementChild) {

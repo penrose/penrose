@@ -40,11 +40,16 @@ export interface RenderProps {
   pathResolver: PathResolver;
 }
 
-export type OnDrag = (shapePath: string, finish: boolean, dx: number, dy: number) => Promise<void>;
+export type OnDrag = (
+  shapePath: string,
+  finish: boolean,
+  dx: number,
+  dy: number,
+) => Promise<void>;
 export type InteractiveProps = {
   onDrag: OnDrag;
   parentSVG: SVGSVGElement;
-  draggableShapePaths: Set<string>
+  draggableShapePaths: Set<string>;
 };
 
 /**
@@ -74,53 +79,12 @@ const screenBBoxtoSVGBBox = (
   const topLeftSVG = topLeft.matrixTransform(ctmInv);
   const bottomRightSVG = bottomRight.matrixTransform(ctmInv);
   return new DOMRect(
-    topLeftSVG.x, topLeftSVG.y,
+    topLeftSVG.x,
+    topLeftSVG.y,
     bottomRightSVG.x - topLeftSVG.x,
-    bottomRightSVG.y - topLeftSVG.y);
-}
-
-/**
- *
- // * @param state
- // * @param updateState Callback for drag-updated state
- // * @param pathResolver Resolves paths to static strings
- // * @returns
- */
-// export const toInteractiveSVG = async (
-//   state: State,
-//   updateState: (newState: State) => void,
-//   pathResolver: PathResolver,
-//   namespace: string,
-// ): Promise<SVGSVGElement> => {
-//   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-//   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-//   svg.setAttribute("version", "1.2");
-//   svg.setAttribute(
-//     "viewBox",
-//     `0 0 ${state.canvas.width} ${state.canvas.height}`,
-//   );
-//   const onDrag = (id: number, dx: number, dy: number) => {
-//     updateState(dragUpdate(state, id, dx, dy));
-//   };
-//   const shapes = state.computeShapes(state.varyingValues);
-//   await RenderShapes(
-//     shapes,
-//     svg,
-//     {
-//       labels: state.labelCache,
-//       canvasSize: state.canvas.size,
-//       variation: state.variation,
-//       namespace,
-//       texLabels: false,
-//       pathResolver,
-//     },
-//     {
-//       onDrag,
-//       parentSVG: svg,
-//     },
-//   );
-//   return svg;
-// };
+    bottomRightSVG.y - topLeftSVG.y,
+  );
+};
 
 /**
  * Renders a static SVG of the shapes and labels.
@@ -300,20 +264,20 @@ export const RenderShape = async (
     return outSvg;
   } else {
     const elem = await RenderShapeSvg(shape, renderProps);
-    if (!interactiveProps
-        || !interactiveProps.draggableShapePaths.has(shape.name.contents)) {
+    if (
+      !interactiveProps ||
+      !interactiveProps.draggableShapePaths.has(shape.name.contents)
+    ) {
       return elem;
     } else {
       const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-      g.setAttribute("pointer-events", "visiblePainted")
+      g.setAttribute("pointer-events", "visiblePainted");
       g.appendChild(elem);
       const onMouseDown = (e: MouseEvent) => {
         console.log(shape.name.contents);
         console.log("mouse down!");
         const CTM = interactiveProps.parentSVG.getScreenCTM();
-        const { x: tempX, y: tempY } = getPosition(
-          e, CTM
-        );
+        const { x: tempX, y: tempY } = getPosition(e, CTM);
 
         const screenBBox = (e.target as SVGElement).getBoundingClientRect();
         const {
@@ -335,9 +299,8 @@ export const RenderShape = async (
           dy = 0;
         let readyForOnDrag = true;
 
-        const onMouseMove = (e: MouseEvent) => {
-          if (!readyForOnDrag)
-            return;
+        const onMouseMove = async (e: MouseEvent) => {
+          if (!readyForOnDrag) return;
           const { x, y } = getPosition(e, CTM);
           const constrainedX = clamp(x, minX, maxX);
           const constrainedY = clamp(y, minY, maxY);
@@ -346,8 +309,8 @@ export const RenderShape = async (
           g.setAttribute(`transform`, `translate(${dx},${-dy})`);
 
           readyForOnDrag = false;
-          interactiveProps.onDrag(shape.name.contents, false, dx, dy)
-            .then(() => { readyForOnDrag = true; });
+          await interactiveProps.onDrag(shape.name.contents, false, dx, dy);
+          readyForOnDrag = true;
         };
 
         const onMouseUp = () => {
@@ -374,11 +337,7 @@ export const RenderShapes = async (
 ) => {
   for (let i = 0; i < shapes.length; ++i) {
     const shape = shapes[i];
-    const elem = await RenderShape(
-      shape,
-      renderProps,
-      interactiveProps
-    );
+    const elem = await RenderShape(shape, renderProps, interactiveProps);
     svg.appendChild(elem);
   }
 };
