@@ -407,23 +407,14 @@ function App() {
     return <div>Loading local files...</div>;
   }
   return (
-    <div style={{ height: "100%", width: "100%" }}>
-      {/* currently LoginMenuModal appears above, want it to overlay */}
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          height: "100%",
-        }}
-      >
-        <TopBar />
-        <div style={{ position: "relative", flex: 1, zIndex: 0 }}>
-          <Layout
-            model={layoutModel}
-            factory={panelFactory}
-            onAction={onAction}
-          />
-        </div>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      <TopBar />
+      <div style={{ position: "relative", flex: 1 }}>
+        <Layout
+          model={layoutModel}
+          factory={panelFactory}
+          onAction={onAction}
+        />
       </div>
     </div>
   );

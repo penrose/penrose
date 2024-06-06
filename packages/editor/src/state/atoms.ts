@@ -128,6 +128,8 @@ export const autosaveTimerState = atom<AutosaveTimer>({
 
 /**
  * On any state change to a stored workspace, mark it as unsaved (debounced)
+ * On any state change to an example workspace (i.e. title or content edit),
+ * mark it as "local" (shows save button in top bar + marks as unclean)
  */
 const markWorkspaceUnsavedEffect: AtomEffect<Workspace> = ({
   onSet,
@@ -137,28 +139,40 @@ const markWorkspaceUnsavedEffect: AtomEffect<Workspace> = ({
     // HACK: this isn't typesafe (comment from old saveWorkspaceEffect)
     debounce(async (newValue: Workspace, oldValue) => {
       // Check equal ids to prevent state change when swapping active diagram
-      // Check equal saved values to prevent this effect from self-triggering
-      if (
-        newValue.metadata.location.kind == "stored" &&
-        newValue.metadata.location.saved &&
-        newValue.metadata.id == oldValue.metadata.id &&
-        newValue.metadata.location.saved == oldValue.metadata.location.saved
-      ) {
-        setSelf((workspaceOrDefault) => {
-          const workspace = workspaceOrDefault as Workspace;
-          let resolver: PathResolver | undefined = undefined;
-          return {
-            ...workspace,
-            metadata: {
-              ...workspace.metadata,
-              location: { kind: "stored", saved: false, resolver },
-              forkedFromGist:
-                newValue.metadata.location.kind === "gist"
-                  ? newValue.metadata.location.id
-                  : null,
-            } as WorkspaceMetadata,
-          };
-        });
+      if (newValue.metadata.id == oldValue.metadata.id) {
+        // Check equal saved values to prevent this effect from self-triggering
+        if (
+          newValue.metadata.location.kind == "stored" &&
+          newValue.metadata.location.saved &&
+          newValue.metadata.location.saved == oldValue.metadata.location.saved
+        ) {
+          setSelf((workspaceOrDefault) => {
+            const workspace = workspaceOrDefault as Workspace;
+            let resolver: PathResolver | undefined = undefined;
+            return {
+              ...workspace,
+              metadata: {
+                ...workspace.metadata,
+                location: { kind: "stored", saved: false, resolver },
+                forkedFromGist:
+                  newValue.metadata.location.kind === "gist"
+                    ? newValue.metadata.location.id
+                    : null,
+              } as WorkspaceMetadata,
+            };
+          });
+        } else if (newValue.metadata.location.kind == "example") {
+          setSelf((workspaceOrDefault) => {
+            const workspace = workspaceOrDefault as Workspace;
+            return {
+              ...workspace,
+              metadata: {
+                ...workspace.metadata,
+                location: { kind: "local" },
+              } as WorkspaceMetadata,
+            };
+          });
+        }
       }
     }, 500),
   );
