@@ -28,6 +28,7 @@ import {
 import { stateToSVG } from "../utils/renderUtils.js";
 import { UpdateInfo } from "../worker/OptimizerWorker";
 import {
+  AutosaveTimer,
   Canvas,
   Diagram,
   DiagramGrid,
@@ -744,6 +745,16 @@ export const useDeleteWorkspace = () =>
                 return newFiles;
               });
 
+              // Clear autosave to avoid race
+              const autosaveTimer: AutosaveTimer = snapshot.getLoadable(
+                autosaveTimerState,
+              ).contents as AutosaveTimer;
+
+              if (autosaveTimer != null) {
+                clearTimeout(autosaveTimer);
+                set(autosaveTimerState, null);
+              }
+
               if (currentWorkspace.metadata.id === id) {
                 // set rather than reset to generate new id to avoid id conflicts
                 set(currentWorkspaceState, () => defaultWorkspaceState());
@@ -859,7 +870,7 @@ export const useSaveWorkspace = () =>
           return;
         }
       } else {
-        toast.error("Error saving workspace");
+        toast.error("Error saving workspace, this workspace does not exist");
         return;
       }
       const notif = toast.loading("saving...");
