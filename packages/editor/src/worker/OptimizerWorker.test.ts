@@ -94,7 +94,13 @@ const fuzz = async (ops: number, expect: any) => {
   };
 
   const compile = async () => {
-    id = await optimizer.compile(domain, style, substance, variation);
+    const { id: id_, warnings } = await optimizer.compile(
+      domain,
+      style,
+      substance,
+      variation,
+    );
+    id = id_;
     expect(state === "Compiled");
   };
 

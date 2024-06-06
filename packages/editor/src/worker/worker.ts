@@ -6,7 +6,6 @@ import {
   isOptimized,
   LabelMeasurements,
   nextStage,
-  PenroseError,
   PenroseState,
   resample,
   runtimeError,
@@ -23,6 +22,7 @@ import {
   stateToLayoutState,
   WorkerState,
 } from "./common.js";
+import { WorkerError } from "./errors.js";
 
 type Frame = number[];
 
@@ -55,7 +55,7 @@ const respond = (response: Resp) => {
   postMessage(response);
 };
 
-const respondError = (error: PenroseError) => {
+const respondError = (error: WorkerError) => {
   respond({
     tag: "ErrorResp",
     error,
@@ -64,10 +64,14 @@ const respondError = (error: PenroseError) => {
 
 self.onmessage = async ({ data }: MessageEvent<Req>) => {
   const badStateError = () => {
-    respondError(
-      runtimeError(`Cannot receive ${data.tag} in worker state ${workerState}`),
-    );
+    respondError({
+      tag: "BadStateError",
+      request: data.tag,
+      workerState: workerState,
+      nextWorkerState: workerState,
+    });
   };
+
   switch (workerState) {
     case WorkerState.Init:
       switch (data.tag) {
@@ -105,20 +109,7 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
 
         case "ComputeShapesReq":
           log.info("Received ComputeShapesReq in state Compiled");
-          if (data.index >= history.length) {
-            respondError(
-              runtimeError(`Index ${data.index} too large for history`),
-            );
-            break;
-          }
-          {
-            const state = optState ?? unoptState;
-            const newShapes: LayoutState = stateToLayoutState({
-              ...state,
-              varyingValues: history[data.index],
-            });
-            respondUpdate(newShapes, stats);
-          }
+          respondShapes(data.index);
           break;
 
         case "CompiledReq":
@@ -132,6 +123,7 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
           // resample can fail, but doesn't return a result. Hence, try/catch
           try {
             const resampled = resample({ ...unoptState, variation });
+            workerState = WorkerState.Optimizing;
             respondOptimizing();
             optimize(insertPending(resampled));
           } catch (err: any) {
@@ -154,9 +146,10 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
       log.info("Received request during optimization");
 
       if (optState === null) {
-        respondError(
-          runtimeError(`OptState was null on request during optimizing`),
-        );
+        respondError({
+          tag: "FatalWorkerError",
+          error: runtimeError("OptState was null during optimization"),
+        });
         return;
       }
 
@@ -168,11 +161,7 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
 
         case "ComputeShapesReq":
           log.info("Received ComputeShapesReq in state Optimizing");
-          const newShapes: LayoutState = stateToLayoutState({
-            ...unoptState,
-            varyingValues: history[data.index],
-          });
-          respondUpdate(newShapes, stats);
+          respondShapes(data.index);
           break;
 
         case "InterruptReq":
@@ -191,8 +180,6 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
 const compileAndRespond = async (data: CompiledReq) => {
   const { domain, substance, style, variation, jobId } = data;
 
-  // save the id for the current task
-  currentTask = jobId;
   const compileResult = await compileTrio({
     domain,
     substance,
@@ -201,11 +188,37 @@ const compileAndRespond = async (data: CompiledReq) => {
   });
 
   if (compileResult.isErr()) {
-    respondError(compileResult.error);
+    respondError({
+      tag: "CompileError",
+      error: compileResult.error,
+      nextWorkerState: workerState,
+    });
   } else {
+    // save the id for the current task
+    currentTask = jobId;
     unoptState = compileResult.value;
     workerState = WorkerState.Compiled;
     respondCompiled(jobId, unoptState);
+  }
+};
+
+const respondShapes = (index: number) => {
+  if (index >= history.length) {
+    respondError({
+      tag: "HistoryIndexOutOfRangeError",
+      index: index,
+      historyLength: history.length,
+      nextWorkerState: workerState,
+    });
+    return;
+  }
+  {
+    const state = optState ?? unoptState;
+    const newShapes: LayoutState = stateToLayoutState({
+      ...state,
+      varyingValues: history[index],
+    });
+    respondUpdate(newShapes, stats);
   }
 };
 
@@ -220,6 +233,7 @@ const respondCompiled = (id: string, state: PenroseState) => {
     tag: "CompiledResp",
     jobId: id,
     shapes: state.shapes,
+    warnings: state.warnings,
   });
 };
 
@@ -256,60 +270,64 @@ const optimize = async (state: PenroseState) => {
       steps: 0,
     },
   ];
-  const numSteps = 1;
+
+  const numStepsPerHistory = 1;
   let i = 0;
 
+  // on message, we will take a step, but these messages will be queued behind
+  // self.onmessage, so we can interrupt optimization with a message
+  const optStepMsgChannel = new MessageChannel();
+
   // take one optimization step
-  const optStep = async () => {
-    log.info(i);
-    let j = 0;
-    history.push(state.varyingValues);
-    const steppedState = step(state, { until: (): boolean => j++ >= numSteps });
-    if (steppedState.isErr()) {
-      throw steppedState.error;
-    } else {
-      const stepped = steppedState.value;
-      if (isOptimized(stepped) && !finalStage(stepped)) {
-        const nextInitState = nextStage(stepped);
-        state = nextInitState;
-        const currentStage = state.optStages[state.currentStageIndex];
-        // add the total steps taken by the previous stage
-        stats.push({
-          name: currentStage,
-          steps: 0,
-        });
-        i = 0;
-      } else {
-        state = stepped;
-        // update the step count for the current stage
-        stats[stats.length - 1].steps = i;
-      }
-    }
-
-    optState = state;
-    i++;
-  };
-
-  while (!isOptimized(state)) {
-    /* Javascript has two execution queues: low-priority 'tasks', and
-     high priority 'microtasks'. The microtask queue is emptied after the
-     completion of each task. Promises are queued as microtasks, while events
-     (such as `setTimeout` and `onmessage`) are queued as tasks. So await-ing the
-     next `optStep` would not actually yield to incoming messages. Instead, we
-     place the next call to `optStep` on the task queue as follows. */
-    await new Promise<void>((resolve) => {
-      setTimeout(resolve, 0);
-    });
-
-    if (shouldFinish) {
-      // set by onmessage if we need to stop
-      log.info("Optimization finishing early");
-      shouldFinish = false;
-      break;
-    }
-
+  const optStep = () => {
     try {
-      await optStep();
+      if (shouldFinish) {
+        // set by onmessage if we need to stop
+        log.info("Optimization finishing early");
+        shouldFinish = false;
+        workerState = WorkerState.Compiled;
+        respondFinished(state, stats);
+        return;
+      }
+
+      log.info(i);
+      let j = 0;
+      history.push(state.varyingValues);
+      const steppedState = step(state, {
+        until: (): boolean => j++ >= numStepsPerHistory,
+      });
+      if (steppedState.isErr()) {
+        throw steppedState.error;
+      } else {
+        const stepped = steppedState.value;
+        if (isOptimized(stepped) && !finalStage(stepped)) {
+          const nextInitState = nextStage(stepped);
+          state = nextInitState;
+          const currentStage = state.optStages[state.currentStageIndex];
+          // add the total steps taken by the previous stage
+          stats.push({
+            name: currentStage,
+            steps: 0,
+          });
+          i = 0;
+        } else {
+          state = stepped;
+          // update the step count for the current stage
+          stats[stats.length - 1].steps = i;
+        }
+      }
+
+      optState = state;
+
+      if (isOptimized(state)) {
+        log.info("Optimization finished");
+        workerState = WorkerState.Compiled;
+        respondFinished(state, stats);
+        return;
+      }
+
+      i++;
+      optStepMsgChannel.port2.postMessage(null);
     } catch (err: any) {
       log.info("Optimization failed. Quitting without finishing...");
       workerState = WorkerState.Compiled;
@@ -317,11 +335,12 @@ const optimize = async (state: PenroseState) => {
       respondError(err);
       return;
     }
-  }
+  };
 
-  log.info("Optimization finished");
-  workerState = WorkerState.Compiled;
-  respondFinished(state, stats);
+  optStepMsgChannel.port1.onmessage = () => {
+    optStep();
+  };
+  optStepMsgChannel.port2.postMessage(null);
 };
 
 // tell OptimizerWorker that we're ready to go
