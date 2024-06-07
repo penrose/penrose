@@ -8,7 +8,6 @@ import {
   resample,
   showError,
   stepTimes,
-  toInteractiveSVG,
   toSVG,
 } from "@penrose/core";
 import React from "react";
@@ -138,25 +137,11 @@ class Simple extends React.Component<SimpleProps, SimpleState> {
     } else {
       const node = this.canvasRef.current;
       if (this.penroseState) {
-        const renderedState: SVGSVGElement = await (this.props.interactive ===
-        false
-          ? toSVG(
-              this.penroseState,
-              this.props.imageResolver ?? fetchResolver,
-              this.props.name ?? "",
-            )
-          : toInteractiveSVG(
-              this.penroseState,
-              async (newState: PenroseState) => {
-                this.penroseState = newState;
-                if (!this.props.animate) {
-                  await this.converge();
-                }
-                this.renderCanvas();
-              },
-              this.props.imageResolver ?? fetchResolver,
-              this.props.name ?? "",
-            ));
+        const renderedState: SVGSVGElement = await toSVG(
+          this.penroseState,
+          this.props.imageResolver ?? fetchResolver,
+          this.props.name ?? "",
+        );
         renderedState.setAttribute("width", "100%");
         renderedState.setAttribute("height", "100%");
         if (node.firstChild !== null) {

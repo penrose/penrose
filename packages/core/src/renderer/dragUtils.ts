@@ -6,7 +6,7 @@ import { State } from "../types/state.js";
  */
 export const dragUpdate = (
   state: State,
-  id: string,
+  id: number,
   dx: number,
   dy: number,
 ): State => {

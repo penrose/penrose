@@ -8,7 +8,6 @@ import { compile } from "../engine/Autodiff.js";
 import { maxN, minN } from "../engine/AutodiffFunctions.js";
 import { maxX, maxY, minX, minY } from "../engine/BBox.js";
 import { bboxFromShape } from "../lib/Queries.js";
-import { isLinelike, isRectlike } from "../lib/Utils.js";
 import { Group } from "../shapes/Group.js";
 import { Shape } from "../shapes/Shapes.js";
 import { LabelCache, State } from "../types/state.js";
@@ -24,7 +23,6 @@ import RenderPolygon from "./Polygon.js";
 import RenderPolyline from "./Polyline.js";
 import RenderRectangle from "./Rectangle.js";
 import RenderText from "./Text.js";
-import { dragUpdate } from "./dragUtils.js";
 
 /**
  * Resolves path references into static strings. Implemented by client
@@ -41,71 +39,51 @@ export interface RenderProps {
   canvasSize: [number, number];
   pathResolver: PathResolver;
 }
+
+export type OnDrag = (
+  shapePath: string,
+  finish: boolean,
+  dx: number,
+  dy: number,
+) => Promise<void>;
 export type InteractiveProps = {
-  updateState: (newState: State) => void;
-  onDrag: (id: string, dx: number, dy: number) => void;
+  onDrag: OnDrag;
   parentSVG: SVGSVGElement;
+  draggableShapePaths: Set<string>;
 };
+
 /**
  * Converts screen to relative SVG coords
  * Thanks to
- * https://www.petercollingridge.co.uk/tutorials/svg/interactive/dragging/
+ * https://www.petercollingridge.co.uk/tutorials/svg/interxactive/dragging/
  * @param e
- * @param svg
+ * @param CTM
  */
 const getPosition = (
-  { clientX, clientY }: { clientX: number; clientY: number },
-  svg: SVGSVGElement,
+  { screenX, screenY }: { screenX: number; screenY: number },
+  CTM: DOMMatrix | null,
 ) => {
-  const CTM = svg.getScreenCTM();
   if (CTM !== null) {
-    return { x: (clientX - CTM.e) / CTM.a, y: (clientY - CTM.f) / CTM.d };
+    return { x: (screenX - CTM.e) / CTM.a, y: (screenY - CTM.f) / CTM.d };
   }
   return { x: 0, y: 0 };
 };
 
-/**
- *
- * @param state
- * @param updateState Callback for drag-updated state
- * @param pathResolver Resolves paths to static strings
- * @returns
- */
-export const toInteractiveSVG = async (
-  state: State,
-  updateState: (newState: State) => void,
-  pathResolver: PathResolver,
-  namespace: string,
-): Promise<SVGSVGElement> => {
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-  svg.setAttribute("version", "1.2");
-  svg.setAttribute(
-    "viewBox",
-    `0 0 ${state.canvas.width} ${state.canvas.height}`,
+const screenBBoxtoSVGBBox = (
+  bbox: DOMRect,
+  parentSVG: SVGSVGElement,
+): DOMRect => {
+  const ctmInv = parentSVG.getScreenCTM()!.inverse();
+  const topLeft = new DOMPoint(bbox.left, bbox.top);
+  const bottomRight = new DOMPoint(bbox.right, bbox.bottom);
+  const topLeftSVG = topLeft.matrixTransform(ctmInv);
+  const bottomRightSVG = bottomRight.matrixTransform(ctmInv);
+  return new DOMRect(
+    topLeftSVG.x,
+    topLeftSVG.y,
+    bottomRightSVG.x - topLeftSVG.x,
+    bottomRightSVG.y - topLeftSVG.y,
   );
-  const onDrag = (id: string, dx: number, dy: number) => {
-    updateState(dragUpdate(state, id, dx, dy));
-  };
-  const shapes = state.computeShapes(state.varyingValues);
-  await RenderShapes(
-    shapes,
-    svg,
-    {
-      labels: state.labelCache,
-      canvasSize: state.canvas.size,
-      variation: state.variation,
-      namespace,
-      texLabels: false,
-      pathResolver,
-    },
-    {
-      updateState,
-      onDrag,
-      parentSVG: svg,
-    },
-  );
-  return svg;
 };
 
 /**
@@ -188,7 +166,7 @@ export const toSVG = async (
 const RenderGroup = async (
   groupShape: Group<number>,
   shapeProps: RenderProps,
-  interactiveProp?: InteractiveProps,
+  interactiveProps?: InteractiveProps,
 ): Promise<SVGGElement> => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
 
@@ -203,7 +181,7 @@ const RenderGroup = async (
     const clipShapeSvg = await RenderShape(
       clipShape,
       shapeProps,
-      interactiveProp,
+      interactiveProps,
     );
 
     const clipPathSvg = document.createElementNS(
@@ -223,7 +201,7 @@ const RenderGroup = async (
     const name = shape.name.contents;
     if (clip.tag === "Clip") {
       if (name !== clipShapeName) {
-        const childSvg = await RenderShape(shape, shapeProps, interactiveProp);
+        const childSvg = await RenderShape(shape, shapeProps, interactiveProps);
 
         // wraps the shape in a <g> tag so that clipping is applied after all the transformations etc.
         const wrapper = document.createElementNS(
@@ -236,7 +214,7 @@ const RenderGroup = async (
       }
       // If already rendered as clip shape, don't render it here because the clip shape is implicitly a group member.
     } else {
-      const childSvg = await RenderShape(shape, shapeProps, interactiveProp);
+      const childSvg = await RenderShape(shape, shapeProps, interactiveProps);
       elem.appendChild(childSvg);
     }
   }
@@ -279,59 +257,78 @@ const RenderShapeSvg = async (
 export const RenderShape = async (
   shape: Shape<number>,
   renderProps: RenderProps,
-  interactiveProp?: InteractiveProps,
+  interactiveProps?: InteractiveProps,
 ): Promise<SVGElement> => {
   if (shape.shapeType === "Group") {
-    const outSvg = await RenderGroup(shape, renderProps, interactiveProp);
+    const outSvg = await RenderGroup(shape, renderProps, interactiveProps);
     return outSvg;
   } else {
     const elem = await RenderShapeSvg(shape, renderProps);
-    if (!interactiveProp) {
+    if (
+      !interactiveProps ||
+      !interactiveProps.draggableShapePaths.has(shape.name.contents)
+    ) {
       return elem;
     } else {
       const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-      if (isLinelike(shape)) {
-        g.setAttribute("pointer-events", "visibleStroke");
-      } else if (isRectlike(shape)) {
-        g.setAttribute("pointer-events", "bounding-box");
-      } else {
-        g.setAttribute("pointer-events", "auto");
-      }
+      g.setAttribute("pointer-events", "visiblePainted");
       g.appendChild(elem);
       const onMouseDown = (e: MouseEvent) => {
-        const { clientX, clientY } = e;
-        const { x: tempX, y: tempY } = getPosition(
-          { clientX, clientY },
-          interactiveProp.parentSVG,
-        );
+        console.log(shape.name.contents);
+        console.log("mouse down!");
+        const CTM = interactiveProps.parentSVG.getScreenCTM();
+        const { x: tempX, y: tempY } = getPosition(e, CTM);
+
+        const screenBBox = (e.target as SVGElement).getBoundingClientRect();
         const {
           width: bboxW,
           height: bboxH,
           x: bboxX,
           y: bboxY,
-        } = (e.target as SVGSVGElement).getBBox({ stroke: true });
+        } = screenBBoxtoSVGBBox(screenBBox, interactiveProps.parentSVG);
+
         const minX = tempX - bboxX;
         const maxX = renderProps.canvasSize[0] - bboxW + (tempX - bboxX);
         const minY = tempY - bboxY;
         const maxY = renderProps.canvasSize[1] - bboxH + (tempY - bboxY);
 
         g.setAttribute("opacity", "0.5");
+        g.setAttribute("style", "cursor:grab");
+
         let dx = 0,
           dy = 0;
-        const onMouseMove = (e: MouseEvent) => {
-          const { x, y } = getPosition(e, interactiveProp.parentSVG);
+        let queuedMouseMove: () => void = () => {};
+        let readyForOnDrag = true;
+
+        const onMouseMove = async (e: MouseEvent) => {
+          if (!readyForOnDrag) {
+            queuedMouseMove = () => onMouseMove(e);
+            return;
+          }
+
+          const { x, y } = getPosition(e, CTM);
           const constrainedX = clamp(x, minX, maxX);
           const constrainedY = clamp(y, minY, maxY);
           dx = constrainedX - tempX;
           dy = tempY - constrainedY;
-          g.setAttribute(`transform`, `translate(${dx},${-dy})`);
+          // g.setAttribute(`transform`, `translate(${dx},${-dy})`);
+
+          readyForOnDrag = false;
+          await interactiveProps.onDrag(shape.name.contents, false, dx, dy);
+          readyForOnDrag = true;
+
+          const toRun = queuedMouseMove;
+          queuedMouseMove = () => {};
+          toRun();
         };
+
         const onMouseUp = () => {
           g.setAttribute("opacity", "1");
           document.removeEventListener("mouseup", onMouseUp);
           document.removeEventListener("mousemove", onMouseMove);
-          interactiveProp.onDrag(shape.name.contents, dx, dy);
+          interactiveProps.onDrag(shape.name.contents, true, dx, dy);
         };
+
         document.addEventListener("mouseup", onMouseUp);
         document.addEventListener("mousemove", onMouseMove);
       };
@@ -345,10 +342,11 @@ export const RenderShapes = async (
   shapes: Shape<number>[],
   svg: SVGSVGElement,
   renderProps: RenderProps,
-  interactiveProp?: InteractiveProps,
+  interactiveProps?: InteractiveProps,
 ) => {
-  for (const shape of shapes) {
-    const elem = await RenderShape(shape, renderProps, interactiveProp);
+  for (let i = 0; i < shapes.length; ++i) {
+    const shape = shapes[i];
+    const elem = await RenderShape(shape, renderProps, interactiveProps);
     svg.appendChild(elem);
   }
 };

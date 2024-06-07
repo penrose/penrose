@@ -1,5 +1,6 @@
 import {
   Canvas,
+  IdxsByPath,
   LabelCache,
   LabelData,
   LabelMeasurements,
@@ -44,6 +45,15 @@ export type UpdateResp = {
   stats: LayoutStats;
 };
 
+export type DragOkResp = {
+  tag: "DragOkResp";
+};
+
+export type ComputeShapesResp = {
+  tag: "ComputeShapesResp";
+  state: LayoutState;
+}
+
 export type ErrorResp = {
   tag: "ErrorResp";
   error: WorkerError;
@@ -55,7 +65,9 @@ export type Resp =
   | OptimizingResp
   | FinishedResp
   | UpdateResp
-  | ErrorResp;
+  | ErrorResp
+  | DragOkResp
+  | ComputeShapesResp;
 
 export type CompiledReq = {
   tag: "CompiledReq";
@@ -71,10 +83,6 @@ export type OptimizingReq = {
   labelCache: LabelMeasurements;
 };
 
-export type UpdateReq = {
-  tag: "UpdateReq";
-};
-
 export type ResampleReq = {
   tag: "ResampleReq";
   variation: string;
@@ -86,6 +94,14 @@ export type ComputeShapesReq = {
   index: number;
 };
 
+export type DragShapeReq = {
+  tag: "DragShapeReq";
+  shapePath: string;
+  finish: boolean;
+  dx: number; // relative to start of drag
+  dy: number;
+};
+
 export type InterruptReq = {
   tag: "InterruptReq";
 };
@@ -93,10 +109,10 @@ export type InterruptReq = {
 export type Req =
   | CompiledReq
   | OptimizingReq
-  | UpdateReq
   | ResampleReq
   | ComputeShapesReq
-  | InterruptReq;
+  | InterruptReq
+  | DragShapeReq;
 
 // state passed from the worker to the main thread.
 // NOTE: there is no DOM element or functions in this state because they cannot be transferred between threads.
@@ -108,6 +124,8 @@ export interface LayoutState {
   shapes: Shape<number>[];
   optStages: string[];
   currentStageIndex: number;
+  inputIdxsByPath: IdxsByPath;
+  draggableShapePaths: Set<string>;
 }
 
 // state maintained by the main thread for rendering
@@ -119,6 +137,8 @@ export interface RenderState {
   varyingValues: number[];
   optStages: string[];
   currentStageIndex: number;
+  inputIdxsByPath: IdxsByPath;
+  draggableShapePaths: Set<string>;
 }
 
 // translate from the entire state to the state that is passed to the main thread
@@ -131,6 +151,8 @@ export const stateToLayoutState = (state: State): LayoutState => {
     varyingValues: state.varyingValues,
     optStages: state.optStages,
     currentStageIndex: state.currentStageIndex,
+    inputIdxsByPath: state.inputIdxsByPath,
+    draggableShapePaths: state.draggableShapePaths,
   };
 };
 

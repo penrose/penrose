@@ -1,4 +1,4 @@
-import { showError } from "@penrose/core";
+import { isPenroseError, runtimeError, showError } from "@penrose/core";
 import { useEffect, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
@@ -13,6 +13,7 @@ import {
 import { pathResolver } from "../utils/downloadUtils.js";
 import { stateToSVG } from "../utils/renderUtils.js";
 import { LayoutTimelineSlider } from "./LayoutTimelineSlider.js";
+import { UpdateInfo } from "../worker/OptimizerWorker";
 
 export default function DiagramPanel() {
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -22,22 +23,91 @@ export default function DiagramPanel() {
   const [showEasterEgg, setShowEasterEgg] = useState(false);
   const workspace = useRecoilValue(workspaceMetadataSelector);
   const rogerState = useRecoilValue(currentRogerState);
-  const workerState = useRecoilValue(diagramWorkerState);
+  const [workerState, setWorkerState] = useRecoilState(diagramWorkerState);
 
-  const requestRef = useRef<number>();
+  useEffect(() => {
+    const onUpdate = (info: UpdateInfo) => {
+      setDiagram({
+        ...diagram,
+        error: null,
+        state: info.state,
+      });
+    }
+    optimizer.setOnUpdate(onUpdate);
+  }, []);
 
   useEffect(() => {
     const cur = canvasRef.current;
     setCanvasState({ ref: canvasRef }); // required for downloading/exporting diagrams
+
+    const onError = (error: any) => {
+      if (!isPenroseError(error)) {
+        error = runtimeError(String(error));
+      }
+      console.error(showError(error));
+      if (optimizer.getState() == "Error") {
+        console.error("OptimizerWorker latching error: " + showError(error));
+      }
+      setDiagram((state) => ({
+        ...state,
+        error,
+      }));
+      setWorkerState((state) => ({
+        ...state,
+        compiling: false,
+        optimizing: false,
+      }));
+    };
+
+    const onDrag = async (
+      shapePath: string,
+      finish: boolean,
+      dx: number,
+      dy: number,
+    ) => {
+      try {
+        const { onStart, onFinish } = await optimizer.dragShape(
+          shapePath,
+          finish,
+          dx,
+          dy,
+        );
+        onFinish
+          .then((info) => {
+            setDiagram((state) => ({
+              ...state,
+              state: info.state,
+            }));
+            setWorkerState((state) => ({
+              ...state,
+              optimizing: false,
+            }));
+          })
+          .catch(onError);
+
+        await onStart;
+        setWorkerState({
+          ...workerState,
+          optimizing: true,
+        });
+      } catch (error: any) {
+        onError(error);
+      }
+    };
+
     if (state !== null && cur !== null) {
       (async () => {
-        const rendered = await stateToSVG(state, {
-          pathResolver: (path: string) =>
-            pathResolver(path, rogerState, workspace),
-          width: "100%",
-          height: "100%",
-          texLabels: false,
-        });
+        const rendered = await stateToSVG(
+          state,
+          {
+            pathResolver: (path: string) =>
+              pathResolver(path, rogerState, workspace),
+            width: "100%",
+            height: "100%",
+            texLabels: false,
+          },
+          onDrag,
+        );
         rendered.setAttribute("width", "100%");
         rendered.setAttribute("height", "100%");
         if (cur.firstElementChild) {
@@ -49,37 +119,7 @@ export default function DiagramPanel() {
     } else if (state === null && cur !== null) {
       cur.innerHTML = "";
     }
-  }, [diagram.state]);
-
-  // TODO: since the diagram state is updated by the `onUpdate` callback provided to the worker, this effect will get triggered every time the diagram state updates, which in turn triggers another `onUpdate` again. Perhaps this is okay?
-  useEffect(() => {
-    if (workerState.optimizing) {
-      // request the next frame if the diagram state updates
-      requestRef.current = requestAnimationFrame(step);
-      // Make sure the effect runs only once. Otherwise there might be other `step` calls running in the background causing race conditions
-      return () => cancelAnimationFrame(requestRef.current!);
-    }
-  }, [diagram.state]);
-
-  const step = async () => {
-    if (state) {
-      try {
-        const info = await optimizer.pollForUpdate();
-        if (info !== null) {
-          setDiagram({
-            ...diagram,
-            error: null,
-            state: info.state,
-          });
-        }
-      } catch (error: any) {
-        setDiagram({
-          ...diagram,
-          error,
-        });
-      }
-    }
-  };
+  }, [state]);
 
   const layoutTimeline = useRecoilValue(layoutTimelineState);
   const unexcludedWarnings = warnings.filter(

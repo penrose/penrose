@@ -1,20 +1,26 @@
 // one "frame" of optimization is a list of varying numbers
 import {
   compileTrio,
+  err,
   finalStage,
   insertPending,
   isOptimized,
   LabelMeasurements,
   nextStage,
+  ok,
   PenroseState,
   resample,
+  Result,
   runtimeError,
   State,
   step,
 } from "@penrose/core";
 import consola from "consola";
+import _, { last } from "lodash";
+import { Unit } from "true-myth";
 import {
   CompiledReq,
+  DragShapeReq,
   LayoutState,
   LayoutStats,
   Req,
@@ -22,7 +28,7 @@ import {
   stateToLayoutState,
   WorkerState,
 } from "./common.js";
-import { WorkerError } from "./errors.js";
+import { DragError, WorkerError } from "./errors.js";
 
 type Frame = number[];
 
@@ -45,6 +51,10 @@ let workerState: WorkerState = WorkerState.Init;
 
 // set to true to cause optimizer to finish before the next step
 let shouldFinish = false;
+let dragStart: [number, number] | null = null;
+
+const maxUpdateHz = 50;
+let lastUpdateTime = self.performance.now();
 
 const log = (consola as any)
   .create({ level: (consola as any).LogLevel.Warn })
@@ -95,16 +105,12 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
             ...stateWithoutLabels,
             labelCache: data.labelCache,
           } as PenroseState;
+          optState = _.cloneDeep(unoptState);
           workerState = WorkerState.Optimizing;
           respondOptimizing();
           // launch optimization worker asynchronously
           // we don't await so that we can accept new messages
-          optimize(insertPending(unoptState));
-          break;
-
-        case "UpdateReq":
-          log.info("Received UpdateReq in state Compiled");
-          respondUpdate(stateToLayoutState(optState ?? unoptState), stats);
+          optimize(insertPending(optState));
           break;
 
         case "ComputeShapesReq":
@@ -122,13 +128,31 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
           const { variation } = data;
           // resample can fail, but doesn't return a result. Hence, try/catch
           try {
-            const resampled = resample({ ...unoptState, variation });
+            const resampled = _.cloneDeep(
+              resample({ ...unoptState, variation }),
+            );
             workerState = WorkerState.Optimizing;
             respondOptimizing();
             optimize(insertPending(resampled));
           } catch (err: any) {
             respondError(err);
           }
+          break;
+
+        case "DragShapeReq":
+          log.info("Received DragShapeReq in state Compiled");
+          const draggedState = dragShape(data);
+          if (draggedState.isErr()) {
+            respondError({
+              ...draggedState.error,
+              nextWorkerState: workerState,
+            });
+            break;
+          }
+
+          workerState = WorkerState.Optimizing;
+          respondOptimizing();
+          optimize(insertPending(optState!));
           break;
 
         case "InterruptReq":
@@ -154,11 +178,6 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
       }
 
       switch (data.tag) {
-        case "UpdateReq":
-          log.info("Received UpdateReq in state Optimizing");
-          respondUpdate(stateToLayoutState(optState), stats);
-          break;
-
         case "ComputeShapesReq":
           log.info("Received ComputeShapesReq in state Optimizing");
           respondShapes(data.index);
@@ -169,12 +188,94 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
           shouldFinish = true;
           break;
 
+        case "DragShapeReq":
+          log.info("Received DragShapeReq in state Optimizing");
+          const draggedState = dragShape(data);
+          if (draggedState.isErr()) {
+            respondError({
+              ...draggedState.error,
+              nextWorkerState: workerState,
+            });
+            break;
+          }
+          respond({
+            tag: "DragOkResp",
+          });
+          break;
+
         default:
           badStateError();
           break;
       }
       break;
   }
+};
+
+const dragShape = (data: DragShapeReq): Result<Unit, DragError> => {
+  if (!optState) {
+    return err({
+      tag: "DragError",
+      nextWorkerState: workerState,
+      message: "No opt state on drag",
+    });
+  }
+
+  if (!optState.draggableShapePaths.has(data.shapePath)) {
+    return err({
+      tag: "DragError",
+      message: "undraggable shape",
+      nextWorkerState: workerState,
+    });
+  }
+
+  const fieldPath = data.shapePath + ".center";
+  const center = optState.inputIdxsByPath.get(fieldPath);
+  let xIdx, yIdx;
+  if (
+    center &&
+    center.tag === "Val" &&
+    (center.contents.tag === "ListV" ||
+      center.contents.tag === "VectorV" ||
+      center.contents.tag === "TupV")
+  ) {
+    xIdx = center.contents.contents[0]!;
+    yIdx = center.contents.contents[1]!;
+  } else {
+    return err({
+      tag: "DragError",
+      message: `could not find center indices at path ${fieldPath}`,
+      nextWorkerState: workerState,
+    });
+  }
+
+  if (dragStart == null) {
+    dragStart = [optState.varyingValues[xIdx], optState.varyingValues[yIdx]];
+
+    const previouslyPinned = new Set(optState.pinnedInputIdxs);
+    optState.pinnedInputIdxs = new Set([xIdx, yIdx]);
+
+    for (const [stage, masks] of optState.constraintSets) {
+      // for (const pinnedInput of previouslyPinned) {
+      //   masks.inputMask[pinnedInput] = true;
+      // }
+
+      for (const pinnedInput of optState.pinnedInputIdxs) {
+        masks.inputMask[pinnedInput] = false;
+      }
+    }
+  }
+
+  optState.varyingValues[xIdx] = dragStart[0] + data.dx;
+  optState.varyingValues[yIdx] = dragStart[1] + data.dy;
+  optState.currentStageIndex = 0;
+
+  optState.params = _.cloneDeep(unoptState.params);
+
+  if (data.finish) {
+    dragStart = null;
+  }
+
+  return ok();
 };
 
 const compileAndRespond = async (data: CompiledReq) => {
@@ -218,7 +319,10 @@ const respondShapes = (index: number) => {
       ...state,
       varyingValues: history[index],
     });
-    respondUpdate(newShapes, stats);
+    respond({
+      tag: "ComputeShapesResp",
+      state: newShapes
+    })
   }
 };
 
@@ -261,6 +365,8 @@ const respondFinished = (state: PenroseState, stats: LayoutStats) => {
 
 const optimize = async (state: PenroseState) => {
   optState = state;
+  // lastUpdateTime = self.performance.now();
+
   // reset history and stats per optimization run
   // TODO: actually return them?
   history = [];
@@ -326,13 +432,23 @@ const optimize = async (state: PenroseState) => {
         return;
       }
 
+      const now = self.performance.now();
+      if ((now - lastUpdateTime) >= 1000. / maxUpdateHz) {
+        respondUpdate(stateToLayoutState(optState), stats);
+        lastUpdateTime = now;
+      }
+
       i++;
       optStepMsgChannel.port2.postMessage(null);
     } catch (err: any) {
       log.info("Optimization failed. Quitting without finishing...");
       workerState = WorkerState.Compiled;
       optState = null;
-      respondError(err);
+      respondError({
+        tag: "OptimizationError",
+        error: err,
+        nextWorkerState: WorkerState.Compiled,
+      });
       return;
     }
   };
