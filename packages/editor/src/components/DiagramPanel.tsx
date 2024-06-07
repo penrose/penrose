@@ -14,6 +14,9 @@ import { pathResolver } from "../utils/downloadUtils.js";
 import { stateToSVG } from "../utils/renderUtils.js";
 import { LayoutTimelineSlider } from "./LayoutTimelineSlider.js";
 import { UpdateInfo } from "../worker/OptimizerWorker";
+import InteractivityOverlay from "./InteractivityOverlay";
+import im from "immutable";
+import RenderRectangle from "@penrose/core/dist/renderer/Rectangle";
 
 export default function DiagramPanel() {
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -24,6 +27,7 @@ export default function DiagramPanel() {
   const workspace = useRecoilValue(workspaceMetadataSelector);
   const rogerState = useRecoilValue(currentRogerState);
   const [workerState, setWorkerState] = useRecoilState(diagramWorkerState);
+  const [enabledWidgetPath, setEnabledWidgetPath] = useState<string | null>(null);
 
   useEffect(() => {
     const onUpdate = (info: UpdateInfo) => {
@@ -39,6 +43,12 @@ export default function DiagramPanel() {
   useEffect(() => {
     const cur = canvasRef.current;
     setCanvasState({ ref: canvasRef }); // required for downloading/exporting diagrams
+
+    if (cur && cur.firstElementChild) {
+      cur.firstElementChild.addEventListener("click", () => {
+        setEnabledWidgetPath(null);
+      });
+    }
 
     const onError = (error: any) => {
       if (!isPenroseError(error)) {
@@ -59,40 +69,50 @@ export default function DiagramPanel() {
       }));
     };
 
-    const onDrag = async (
-      shapePath: string,
-      finish: boolean,
-      dx: number,
-      dy: number,
-    ) => {
-      try {
-        const { onStart, onFinish } = await optimizer.dragShape(
-          shapePath,
-          finish,
-          dx,
-          dy,
-        );
-        onFinish
-          .then((info) => {
-            setDiagram((state) => ({
-              ...state,
-              state: info.state,
-            }));
-            setWorkerState((state) => ({
-              ...state,
-              optimizing: false,
-            }));
-          })
-          .catch(onError);
+    // const onDrag = async (
+    //   shapePath: string,
+    //   finish: boolean,
+    //   dx: number,
+    //   dy: number,
+    // ) => {
+    //   try {
+    //     setDiagram((state) => ({
+    //       ...state,
+    //       widgetEnabledPaths: finish ?
+    //         diagram.widgetEnabledPaths.remove(shapePath)
+    //         : diagram.widgetEnabledPaths.add(shapePath)
+    //     }));
+    //     const { onStart, onFinish } = await optimizer.dragShape(
+    //       shapePath,
+    //       finish,
+    //       dx,
+    //       dy,
+    //     );
+    //     onFinish
+    //       .then((info) => {
+    //         setDiagram((state) => ({
+    //           ...state,
+    //           state: info.state,
+    //         }));
+    //         setWorkerState((state) => ({
+    //           ...state,
+    //           optimizing: false,
+    //         }));
+    //       })
+    //       .catch(onError);
+    //
+    //     await onStart;
+    //     setWorkerState({
+    //       ...workerState,
+    //       optimizing: true,
+    //     });
+    //   } catch (error: any) {
+    //     onError(error);
+    //   }
+    // };
 
-        await onStart;
-        setWorkerState({
-          ...workerState,
-          optimizing: true,
-        });
-      } catch (error: any) {
-        onError(error);
-      }
+    const onClick = (path: string) => {
+      setEnabledWidgetPath(() => path);
     };
 
     if (state !== null && cur !== null) {
@@ -106,7 +126,7 @@ export default function DiagramPanel() {
             height: "100%",
             texLabels: false,
           },
-          onDrag,
+          onClick,
         );
         rendered.setAttribute("width", "100%");
         rendered.setAttribute("height", "100%");
@@ -115,6 +135,10 @@ export default function DiagramPanel() {
         } else {
           cur.appendChild(rendered);
         }
+        setDiagram((state) => ({
+          ...state,
+          svg: rendered,
+        }));
       })();
     } else if (state === null && cur !== null) {
       cur.innerHTML = "";
@@ -126,6 +150,7 @@ export default function DiagramPanel() {
     (w) => metadata.excludeWarnings.find((s) => w.tag === s) === undefined,
   );
 
+  console.log("hi")
   return (
     <div style={{ display: "flex", flexDirection: "row", height: "100%" }}>
       <div
@@ -210,6 +235,13 @@ export default function DiagramPanel() {
           ></iframe>
         )}
         <LayoutTimelineSlider />
+        {diagram.svg && state && (
+          <InteractivityOverlay
+            enabledWidgetPath={enabledWidgetPath}
+            diagramSVG={diagram.svg}
+            state={state}
+          />
+        )}
       </div>
     </div>
   );

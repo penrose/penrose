@@ -40,17 +40,7 @@ export interface RenderProps {
   pathResolver: PathResolver;
 }
 
-export type OnDrag = (
-  shapePath: string,
-  finish: boolean,
-  dx: number,
-  dy: number,
-) => Promise<void>;
-export type InteractiveProps = {
-  onDrag: OnDrag;
-  parentSVG: SVGSVGElement;
-  draggableShapePaths: Set<string>;
-};
+export type OnClick = (path: string) => void;
 
 /**
  * Converts screen to relative SVG coords
@@ -166,7 +156,7 @@ export const toSVG = async (
 const RenderGroup = async (
   groupShape: Group<number>,
   shapeProps: RenderProps,
-  interactiveProps?: InteractiveProps,
+  onClick?: OnClick,
 ): Promise<SVGGElement> => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
 
@@ -181,7 +171,7 @@ const RenderGroup = async (
     const clipShapeSvg = await RenderShape(
       clipShape,
       shapeProps,
-      interactiveProps,
+      onClick,
     );
 
     const clipPathSvg = document.createElementNS(
@@ -201,7 +191,7 @@ const RenderGroup = async (
     const name = shape.name.contents;
     if (clip.tag === "Clip") {
       if (name !== clipShapeName) {
-        const childSvg = await RenderShape(shape, shapeProps, interactiveProps);
+        const childSvg = await RenderShape(shape, shapeProps, onClick);
 
         // wraps the shape in a <g> tag so that clipping is applied after all the transformations etc.
         const wrapper = document.createElementNS(
@@ -214,7 +204,7 @@ const RenderGroup = async (
       }
       // If already rendered as clip shape, don't render it here because the clip shape is implicitly a group member.
     } else {
-      const childSvg = await RenderShape(shape, shapeProps, interactiveProps);
+      const childSvg = await RenderShape(shape, shapeProps, onClick);
       elem.appendChild(childSvg);
     }
   }
@@ -257,84 +247,90 @@ const RenderShapeSvg = async (
 export const RenderShape = async (
   shape: Shape<number>,
   renderProps: RenderProps,
-  interactiveProps?: InteractiveProps,
+  onClick?: OnClick,
 ): Promise<SVGElement> => {
   if (shape.shapeType === "Group") {
-    const outSvg = await RenderGroup(shape, renderProps, interactiveProps);
+    const outSvg = await RenderGroup(shape, renderProps, onClick);
     return outSvg;
   } else {
     const elem = await RenderShapeSvg(shape, renderProps);
-    if (
-      !interactiveProps ||
-      !interactiveProps.draggableShapePaths.has(shape.name.contents)
-    ) {
-      return elem;
-    } else {
-      const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-      g.setAttribute("pointer-events", "visiblePainted");
-      g.appendChild(elem);
-      const onMouseDown = (e: MouseEvent) => {
-        console.log(shape.name.contents);
-        console.log("mouse down!");
-        const CTM = interactiveProps.parentSVG.getScreenCTM();
-        const { x: tempX, y: tempY } = getPosition(e, CTM);
-
-        const screenBBox = (e.target as SVGElement).getBoundingClientRect();
-        const {
-          width: bboxW,
-          height: bboxH,
-          x: bboxX,
-          y: bboxY,
-        } = screenBBoxtoSVGBBox(screenBBox, interactiveProps.parentSVG);
-
-        const minX = tempX - bboxX;
-        const maxX = renderProps.canvasSize[0] - bboxW + (tempX - bboxX);
-        const minY = tempY - bboxY;
-        const maxY = renderProps.canvasSize[1] - bboxH + (tempY - bboxY);
-
-        g.setAttribute("opacity", "0.5");
-        g.setAttribute("style", "cursor:grab");
-
-        let dx = 0,
-          dy = 0;
-        let queuedMouseMove: () => void = () => {};
-        let readyForOnDrag = true;
-
-        const onMouseMove = async (e: MouseEvent) => {
-          if (!readyForOnDrag) {
-            queuedMouseMove = () => onMouseMove(e);
-            return;
-          }
-
-          const { x, y } = getPosition(e, CTM);
-          const constrainedX = clamp(x, minX, maxX);
-          const constrainedY = clamp(y, minY, maxY);
-          dx = constrainedX - tempX;
-          dy = tempY - constrainedY;
-          // g.setAttribute(`transform`, `translate(${dx},${-dy})`);
-
-          readyForOnDrag = false;
-          await interactiveProps.onDrag(shape.name.contents, false, dx, dy);
-          readyForOnDrag = true;
-
-          const toRun = queuedMouseMove;
-          queuedMouseMove = () => {};
-          toRun();
-        };
-
-        const onMouseUp = () => {
-          g.setAttribute("opacity", "1");
-          document.removeEventListener("mouseup", onMouseUp);
-          document.removeEventListener("mousemove", onMouseMove);
-          interactiveProps.onDrag(shape.name.contents, true, dx, dy);
-        };
-
-        document.addEventListener("mouseup", onMouseUp);
-        document.addEventListener("mousemove", onMouseMove);
-      };
-      g.addEventListener("mousedown", onMouseDown);
-      return g;
+    if (onClick) {
+      elem.addEventListener("click", () => {
+        onClick(shape.name.contents);
+      });
     }
+    return elem;
+    // if (
+    //   !interactiveProps ||
+    //   !interactiveProps.draggableShapePaths.has(shape.name.contents)
+    // ) {
+    //   return elem;
+    // } else {
+    //   const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    //   g.setAttribute("pointer-events", "visiblePainted");
+    //   g.appendChild(elem);
+    //   const onMouseDown = (e: MouseEvent) => {
+    //     console.log(shape.name.contents);
+    //     console.log("mouse down!");
+    //     const CTM = interactiveProps.parentSVG.getScreenCTM();
+    //     const { x: tempX, y: tempY } = getPosition(e, CTM);
+    //
+    //     const screenBBox = (e.target as SVGElement).getBoundingClientRect();
+    //     const {
+    //       width: bboxW,
+    //       height: bboxH,
+    //       x: bboxX,
+    //       y: bboxY,
+    //     } = screenBBoxtoSVGBBox(screenBBox, interactiveProps.parentSVG);
+    //
+    //     const minX = tempX - bboxX;
+    //     const maxX = renderProps.canvasSize[0] - bboxW + (tempX - bboxX);
+    //     const minY = tempY - bboxY;
+    //     const maxY = renderProps.canvasSize[1] - bboxH + (tempY - bboxY);
+    //
+    //     g.setAttribute("opacity", "0.5");
+    //     g.setAttribute("style", "cursor:grab");
+    //
+    //     let dx = 0,
+    //       dy = 0;
+    //     let queuedMouseMove: () => void = () => {};
+    //     let readyForOnDrag = true;
+    //
+    //     const onMouseMove = async (e: MouseEvent) => {
+    //       if (!readyForOnDrag) {
+    //         queuedMouseMove = () => onMouseMove(e);
+    //         return;
+    //       }
+    //
+    //       const { x, y } = getPosition(e, CTM);
+    //       const constrainedX = clamp(x, minX, maxX);
+    //       const constrainedY = clamp(y, minY, maxY);
+    //       dx = constrainedX - tempX;
+    //       dy = tempY - constrainedY;
+    //       // g.setAttribute(`transform`, `translate(${dx},${-dy})`);
+    //
+    //       readyForOnDrag = false;
+    //       await interactiveProps.onDrag(shape.name.contents, false, dx, dy);
+    //       readyForOnDrag = true;
+    //
+    //       const toRun = queuedMouseMove;
+    //       queuedMouseMove = () => {};
+    //       toRun();
+    //     };
+    //
+    //     const onMouseUp = () => {
+    //       g.setAttribute("opacity", "1");
+    //       document.removeEventListener("mouseup", onMouseUp);
+    //       document.removeEventListener("mousemove", onMouseMove);
+    //       interactiveProps.onDrag(shape.name.contents, true, dx, dy);
+    //     };
+    //
+    //     document.addEventListener("mouseup", onMouseUp);
+    //     document.addEventListener("mousemove", onMouseMove);
+    //   };
+    //   g.addEventListener("mousedown", onMouseDown);
+    //   return g;
+    // }
   }
 };
 
@@ -342,11 +338,11 @@ export const RenderShapes = async (
   shapes: Shape<number>[],
   svg: SVGSVGElement,
   renderProps: RenderProps,
-  interactiveProps?: InteractiveProps,
+  onClick?: OnClick,
 ) => {
   for (let i = 0; i < shapes.length; ++i) {
     const shape = shapes[i];
-    const elem = await RenderShape(shape, renderProps, interactiveProps);
+    const elem = await RenderShape(shape, renderProps, onClick);
     svg.appendChild(elem);
   }
 };

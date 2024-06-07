@@ -23,6 +23,7 @@ import { layoutModel } from "../App.js";
 import { RenderState } from "../worker/common.js";
 import OptimizerWorker from "../worker/OptimizerWorker.js";
 import { generateVariation } from "./variation.js";
+import im from "immutable";
 
 export const optimizer = new OptimizerWorker();
 
@@ -302,6 +303,7 @@ export type Diagram = {
   state: RenderState | null;
   error: PenroseError | null;
   warnings: PenroseWarning[];
+  svg: SVGSVGElement | null;
   metadata: DiagramMetadata;
 };
 
@@ -322,6 +324,7 @@ export const diagramState = atom<Diagram>({
     state: null,
     error: null,
     warnings: [],
+    svg: null,
     metadata: {
       variation: generateVariation(),
       stepSize: 10000,
