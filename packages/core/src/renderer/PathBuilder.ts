@@ -137,7 +137,7 @@ export class PathBuilder {
    * Concatenate paths according to the specified connection policy.
    * @param pathDataList List of paths, given as lists of path commands (a list of lists)
    * @param connect Given start command, transform it to a new command (or lack thereof)
-   * @param connectEnd Should the ends of the paths be connected according to `connect`?
+   * @param connectLast Should the ends of the paths be connected according to `connect`?
    */
   static concatPaths(
     pathDataList: PathCmd<ad.Num>[][],
