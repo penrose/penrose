@@ -13,19 +13,28 @@ import {
 import { pathResolver } from "../utils/downloadUtils.js";
 import { stateToSVG } from "../utils/renderUtils.js";
 import { LayoutTimelineSlider } from "./LayoutTimelineSlider.js";
+import { UpdateInfo } from "../worker/OptimizerWorker";
 
 export default function DiagramPanel() {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [diagram, setDiagram] = useRecoilState(diagramState);
   const [_, setCanvasState] = useRecoilState(canvasState);
-  const [worker, __] = useRecoilState(diagramWorkerState);
   const { state, error, warnings, metadata } = diagram;
   const [showEasterEgg, setShowEasterEgg] = useState(false);
   const workspace = useRecoilValue(workspaceMetadataSelector);
   const rogerState = useRecoilValue(currentRogerState);
   const [workerState, setWorkerState] = useRecoilState(diagramWorkerState);
 
-  const requestRef = useRef<number>();
+  useEffect(() => {
+    const onUpdate = (info: UpdateInfo) => {
+      setDiagram({
+        ...diagram,
+        error: null,
+        state: info.state,
+      });
+    }
+    optimizer.setOnUpdate(onUpdate);
+  }, []);
 
   useEffect(() => {
     const cur = canvasRef.current;
@@ -81,14 +90,6 @@ export default function DiagramPanel() {
           ...workerState,
           optimizing: true,
         });
-
-        const info = await optimizer.pollForUpdate();
-        if (info !== null) {
-          setDiagram((state) => ({
-            ...state,
-            state: info.state,
-          }));
-        }
       } catch (error: any) {
         onError(error);
       }
@@ -118,37 +119,7 @@ export default function DiagramPanel() {
     } else if (state === null && cur !== null) {
       cur.innerHTML = "";
     }
-  }, [diagram.state]);
-
-  // TODO: since the diagram state is updated by the `onUpdate` callback provided to the worker, this effect will get triggered every time the diagram state updates, which in turn triggers another `onUpdate` again. Perhaps this is okay?
-  useEffect(() => {
-    if (workerState.optimizing) {
-      // request the next frame if the diagram state updates
-      requestRef.current = requestAnimationFrame(step);
-      // Make sure the effect runs only once. Otherwise there might be other `step` calls running in the background causing race conditions
-      return () => cancelAnimationFrame(requestRef.current!);
-    }
-  }, [diagram.state]);
-
-  const step = async () => {
-    if (state) {
-      try {
-        const info = await optimizer.pollForUpdate();
-        if (info !== null) {
-          setDiagram({
-            ...diagram,
-            error: null,
-            state: info.state,
-          });
-        }
-      } catch (error: any) {
-        setDiagram({
-          ...diagram,
-          error,
-        });
-      }
-    }
-  };
+  }, [state]);
 
   const layoutTimeline = useRecoilValue(layoutTimelineState);
   const unexcludedWarnings = warnings.filter(

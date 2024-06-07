@@ -297,20 +297,29 @@ export const RenderShape = async (
 
         let dx = 0,
           dy = 0;
+        let queuedMouseMove: () => void = () => {};
         let readyForOnDrag = true;
 
         const onMouseMove = async (e: MouseEvent) => {
-          if (!readyForOnDrag) return;
+          if (!readyForOnDrag) {
+            queuedMouseMove = () => onMouseMove(e);
+            return;
+          }
+
           const { x, y } = getPosition(e, CTM);
           const constrainedX = clamp(x, minX, maxX);
           const constrainedY = clamp(y, minY, maxY);
           dx = constrainedX - tempX;
           dy = tempY - constrainedY;
-          g.setAttribute(`transform`, `translate(${dx},${-dy})`);
+          // g.setAttribute(`transform`, `translate(${dx},${-dy})`);
 
           readyForOnDrag = false;
           await interactiveProps.onDrag(shape.name.contents, false, dx, dy);
           readyForOnDrag = true;
+
+          const toRun = queuedMouseMove;
+          queuedMouseMove = () => {};
+          toRun();
         };
 
         const onMouseUp = () => {

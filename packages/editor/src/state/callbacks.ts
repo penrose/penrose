@@ -154,9 +154,6 @@ const _compileDiagram = async (
       ...state,
       optimizing: true,
     }));
-
-    const info = await optimizer.pollForUpdate();
-    if (info !== null) onUpdate(info);
   } catch (error: unknown) {
     onError(error);
   }
@@ -247,9 +244,6 @@ export const useResampleDiagram = () =>
         ...state,
         optimizing: true,
       }));
-
-      const info = await optimizer.pollForUpdate();
-      if (info !== null) onUpdate(info);
     } catch (error: unknown) {
       onError(error);
     }

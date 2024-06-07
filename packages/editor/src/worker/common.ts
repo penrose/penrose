@@ -49,6 +49,11 @@ export type DragOkResp = {
   tag: "DragOkResp";
 };
 
+export type ComputeShapesResp = {
+  tag: "ComputeShapesResp";
+  state: LayoutState;
+}
+
 export type ErrorResp = {
   tag: "ErrorResp";
   error: WorkerError;
@@ -61,7 +66,8 @@ export type Resp =
   | FinishedResp
   | UpdateResp
   | ErrorResp
-  | DragOkResp;
+  | DragOkResp
+  | ComputeShapesResp;
 
 export type CompiledReq = {
   tag: "CompiledReq";
@@ -75,10 +81,6 @@ export type CompiledReq = {
 export type OptimizingReq = {
   tag: "OptimizingReq";
   labelCache: LabelMeasurements;
-};
-
-export type UpdateReq = {
-  tag: "UpdateReq";
 };
 
 export type ResampleReq = {
@@ -107,7 +109,6 @@ export type InterruptReq = {
 export type Req =
   | CompiledReq
   | OptimizingReq
-  | UpdateReq
   | ResampleReq
   | ComputeShapesReq
   | InterruptReq

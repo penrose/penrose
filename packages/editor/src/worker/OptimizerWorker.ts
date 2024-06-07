@@ -20,6 +20,8 @@ import {
   separateRenderedLabels,
 } from "./common.js";
 import { showWorkerError, toPenroseError } from "./errors.js";
+import { Simulate } from "react-dom/test-utils";
+import waiting = Simulate.waiting;
 
 /* State types */
 
@@ -85,13 +87,13 @@ export type OptimizingToCompiled = {
   reject: (e: PenroseError) => void;
 };
 
-export type WaitingForUpdate = {
-  tag: "WaitingForUpdate";
-  waiting: true;
-  previous: Optimizing | Compiled;
-  resolve: (info: UpdateInfo) => void;
-  reject: (e: PenroseError) => void;
-};
+// export type WaitingForUpdate = {
+//   tag: "WaitingForUpdate";
+//   waiting: true;
+//   previous: Optimizing | Compiled;
+//   resolve: (info: UpdateInfo) => void;
+//   reject: (e: PenroseError) => void;
+// };
 
 export type WaitingForShapes = {
   tag: "WaitingForShapes";
@@ -121,7 +123,6 @@ export type WaitingState =
   | InitToCompiled
   | CompiledToOptimizing
   | OptimizingToCompiled
-  | WaitingForUpdate
   | WaitingForShapes
   | WaitingForDrag;
 
@@ -192,6 +193,7 @@ export default class OptimizerWorker {
   private worker: Worker;
   private nextStatePromise: Promise<void>;
   private nextStatePromiseResolve: () => void;
+  private onUpdate: (info: UpdateInfo) => void;
 
   constructor() {
     this.state = {
@@ -211,6 +213,8 @@ export default class OptimizerWorker {
     this.nextStatePromise = new Promise((resolve) => {
       this.nextStatePromiseResolve = resolve;
     });
+
+    this.onUpdate = () => {};
   }
 
   private setState(state: OWState) {
@@ -234,7 +238,7 @@ export default class OptimizerWorker {
    * @param data Message from worker thread
    * @private
    */
-  private async onMessage({ data }: MessageEvent<Resp>) {
+  private onMessage({ data }: MessageEvent<Resp>) {
     log.info(`Received ${data.tag} in state ${this.state.tag}`);
 
     // Handle errors first: simplifies switch statement some
@@ -283,7 +287,8 @@ export default class OptimizerWorker {
         case "OptimizationError":
           if (
             "previous" in this.state &&
-            this.state.previous.tag === "Optimizing"
+            (this.state.previous.tag === "Optimizing" ||
+             this.state.previous.tag === "Compiled")
           ) {
             callRejects();
             this.setState({
@@ -292,7 +297,10 @@ export default class OptimizerWorker {
               polled: false,
             });
             return;
-          } else if (this.state.tag === "Optimizing") {
+          } else if (
+            this.state.tag === "Optimizing" ||
+            this.state.tag === "Compiled"
+          ) {
             callRejects();
             this.setState({
               ...this.state,
@@ -331,29 +339,47 @@ export default class OptimizerWorker {
       return;
     }
 
-    if (
-      data.tag === "UpdateResp" &&
-      this.state.tag !== "WaitingForUpdate" &&
-      this.state.tag !== "WaitingForShapes"
-    ) {
-      log.info("Received stale UpdateResp. Ignoring...");
-      return;
-    }
-
     const logErrorBadState = () => {
-      consola.error(
+      log.error(
         `Worker responded ${data.tag} while in state ${this.state.tag}`,
       );
     };
+
+    if (data.tag === "UpdateResp") {
+      if (
+        this.state.tag === "WaitingForInit" ||
+        this.state.tag === "Init" ||
+        this.state.tag === "InitToCompiled" ||
+        this.state.tag === "Error"
+      ) {
+        logErrorBadState();
+        return;
+      } else {
+        this.onUpdate({
+          state: layoutStateToRenderState(data.state,
+            "waiting" in this.state ? this.state.previous.svgCache : this.state.svgCache
+          ),
+          stats: data.stats,
+        });
+        if ("waiting" in this.state) {
+          this.state.previous.layoutStats = data.stats;
+        } else {
+          this.state.layoutStats = data.stats;
+        }
+        return;
+      }
+    }
 
     switch (this.state.tag) {
       case "Optimizing":
         switch (data.tag) {
           case "FinishedResp":
-            this.state.finishResolve({
+            const info = {
               state: layoutStateToRenderState(data.state, this.state.svgCache),
               stats: data.stats,
-            });
+            };
+            this.state.finishResolve(info);
+            this.onUpdate(info);
             this.setState({
               ...this.state,
               tag: "Compiled",
@@ -386,30 +412,35 @@ export default class OptimizerWorker {
       case "InitToCompiled":
         switch (data.tag) {
           case "CompiledResp":
-            const convert = mathjaxInit();
-            const labelCache = await collectLabels(data.shapes, convert);
+            const previous = this.state.previous;
+            const resolve = this.state.resolve;
+            const reject = this.state.reject;
+            (async () => {
+              const convert = mathjaxInit();
+              const labelCache = await collectLabels(data.shapes, convert);
 
-            if (labelCache.isErr()) {
-              this.state.reject(labelCache.error);
-              return;
-            } else {
-              this.state.resolve({
-                id: data.jobId,
-                warnings: data.warnings,
+              if (labelCache.isErr()) {
+                reject(labelCache.error);
+                return;
+              } else {
+                resolve({
+                  id: data.jobId,
+                  warnings: data.warnings,
+                });
+              }
+
+              const { optLabelCache, svgCache } = separateRenderedLabels(
+                labelCache.value,
+              );
+              this.setState({
+                ...previous,
+                tag: "Compiled",
+                svgCache,
+                labelCache: optLabelCache,
+                layoutStats: [],
+                polled: false,
               });
-            }
-
-            const { optLabelCache, svgCache } = separateRenderedLabels(
-              labelCache.value,
-            );
-            this.setState({
-              ...this.state.previous,
-              tag: "Compiled",
-              svgCache,
-              labelCache: optLabelCache,
-              layoutStats: [],
-              polled: false,
-            });
+            })();
             break;
 
           default:
@@ -440,13 +471,15 @@ export default class OptimizerWorker {
       case "OptimizingToCompiled":
         switch (data.tag) {
           case "FinishedResp":
-            this.state.previous.finishResolve({
+            const info = {
               state: layoutStateToRenderState(
                 data.state,
                 this.state.previous.svgCache,
               ),
               stats: data.stats,
-            });
+            };
+            this.state.previous.finishResolve(info);
+            this.onUpdate(info);
             this.state.resolve();
             this.setState({
               ...this.state.previous,
@@ -455,46 +488,35 @@ export default class OptimizerWorker {
               polled: false,
             });
             break;
-
-          case "UpdateResp":
         }
         break;
 
-      case "WaitingForUpdate":
       case "WaitingForShapes":
         switch (data.tag) {
-          case "UpdateResp":
+          case "ComputeShapesResp":
           case "FinishedResp":
-            const updateInfo = {
+            const stats = data.tag === "ComputeShapesResp" ?
+              this.state.previous.layoutStats : data.stats;
+            const info = {
               state: layoutStateToRenderState(
                 data.state,
                 this.state.previous.svgCache,
               ),
-              stats: data.stats,
+              stats,
             };
-
-            if (this.state.tag === "WaitingForUpdate") {
-              this.state.resolve(updateInfo);
-            } else {
-              this.state.resolve(updateInfo.state);
-            }
-
+            this.state.resolve(info.state);
             if (data.tag === "FinishedResp") {
-              if (this.state.previous.tag === "Optimizing") {
-                this.state.previous.finishResolve(updateInfo);
-              }
-              this.setState({
-                ...this.state.previous,
-                tag: "Compiled",
-                layoutStats: data.stats,
-                polled: false,
-              });
-            } else {
-              this.setState({
-                ...this.state.previous,
-                layoutStats: data.stats,
-              });
+              this.onUpdate(info);
             }
+            if (this.state.previous.tag === "Optimizing") {
+              this.state.previous.finishResolve(info);
+            }
+            this.setState({
+              ...this.state.previous,
+              tag: "Compiled",
+              layoutStats: stats,
+              polled: false,
+            });
             break;
 
           default:
@@ -809,49 +831,64 @@ export default class OptimizerWorker {
     });
   }
 
+  setOnUpdate(onUpdate: (info: UpdateInfo) => void) {
+    this.onUpdate = onUpdate;
+  }
+
   /**
    * Poll the worker for diagram updates. Must only be called after compilation.
    * @returns UpdateInfo if the diagram has changed, otherwise null
    */
-  async pollForUpdate(): Promise<UpdateInfo | null> {
-    log.info(`pollForUpdate called from state ${this.state.tag}`);
-    return new Promise<UpdateInfo | null>(async (resolve, reject) => {
-      while (isWaiting(this.state)) await this.waitForNextState();
-
-      log.info(`pollForUpdate running from state ${this.state.tag}`);
-      switch (this.state.tag) {
-        case "Optimizing":
-        case "Compiled":
-          if (this.state.tag === "Compiled") {
-            if (this.state.polled) {
-              log.info("Already polled. Continuing...");
-              resolve(null);
-              break;
-            } else {
-              this.state.polled = true;
-            }
-          }
-
-          this.setState({
-            tag: "WaitingForUpdate",
-            waiting: true,
-            previous: this.state,
-            resolve,
-            reject,
-          });
-          this.request({
-            tag: "UpdateReq",
-          });
-          break;
-
-        default:
-          reject(
-            runtimeError(`Cannot pollForUpdate from state ${this.state.tag}`),
-          );
-          break;
-      }
-    });
-  }
+  // async pollForUpdate(): Promise<UpdateInfo | null> {
+  //   log.info(`pollForUpdate called from state ${this.state.tag}`);
+  //   return new Promise<UpdateInfo | null>(async (resolve, reject) => {
+  //     while (isWaiting(this.state)) {
+  //       if (this.state.tag === "WaitingForUpdate") {
+  //         const prevResolve = this.state.resolve;
+  //         this.state.resolve = (info) => { resolve(info); prevResolve(info); };
+  //         const prevReject = this.state.reject;
+  //         this.state.reject = (error) => { reject(error); prevReject(error); };
+  //         return;
+  //       } else {
+  //         await this.waitForNextState();
+  //       }
+  //     }
+  //
+  //
+  //     log.info(`pollForUpdate running from state ${this.state.tag}`);
+  //     switch (this.state.tag) {
+  //       case "Optimizing":
+  //       case "Compiled":
+  //         if (this.state.tag === "Compiled") {
+  //           if (this.state.polled) {
+  //             log.info("Already polled. Continuing...");
+  //             resolve(null);
+  //             break;
+  //           } else {
+  //             this.state.polled = true;
+  //           }
+  //         }
+  //
+  //         this.setState({
+  //           tag: "WaitingForUpdate",
+  //           waiting: true,
+  //           previous: this.state,
+  //           resolve,
+  //           reject,
+  //         });
+  //         this.request({
+  //           tag: "UpdateReq",
+  //         });
+  //         break;
+  //
+  //       default:
+  //         reject(
+  //           runtimeError(`Cannot pollForUpdate from state ${this.state.tag}`),
+  //         );
+  //         break;
+  //     }
+  //   });
+  // }
 
   /**
    * Ask for the diagram at optimization state `i`. Must only be called after

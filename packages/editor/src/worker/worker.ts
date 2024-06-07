@@ -16,7 +16,7 @@ import {
   step,
 } from "@penrose/core";
 import consola from "consola";
-import _ from "lodash";
+import _, { last } from "lodash";
 import { Unit } from "true-myth";
 import {
   CompiledReq,
@@ -51,8 +51,10 @@ let workerState: WorkerState = WorkerState.Init;
 
 // set to true to cause optimizer to finish before the next step
 let shouldFinish = false;
-
 let dragStart: [number, number] | null = null;
+
+const maxUpdateHz = 50;
+let lastUpdateTime = self.performance.now();
 
 const log = (consola as any)
   .create({ level: (consola as any).LogLevel.Warn })
@@ -109,11 +111,6 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
           // launch optimization worker asynchronously
           // we don't await so that we can accept new messages
           optimize(insertPending(optState));
-          break;
-
-        case "UpdateReq":
-          log.info("Received UpdateReq in state Compiled");
-          respondUpdate(stateToLayoutState(optState ?? unoptState), stats);
           break;
 
         case "ComputeShapesReq":
@@ -181,11 +178,6 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
       }
 
       switch (data.tag) {
-        case "UpdateReq":
-          log.info("Received UpdateReq in state Optimizing");
-          respondUpdate(stateToLayoutState(optState), stats);
-          break;
-
         case "ComputeShapesReq":
           log.info("Received ComputeShapesReq in state Optimizing");
           respondShapes(data.index);
@@ -263,9 +255,9 @@ const dragShape = (data: DragShapeReq): Result<Unit, DragError> => {
     optState.pinnedInputIdxs = new Set([xIdx, yIdx]);
 
     for (const [stage, masks] of optState.constraintSets) {
-      for (const pinnedInput of previouslyPinned) {
-        masks.inputMask[pinnedInput] = true;
-      }
+      // for (const pinnedInput of previouslyPinned) {
+      //   masks.inputMask[pinnedInput] = true;
+      // }
 
       for (const pinnedInput of optState.pinnedInputIdxs) {
         masks.inputMask[pinnedInput] = false;
@@ -327,7 +319,10 @@ const respondShapes = (index: number) => {
       ...state,
       varyingValues: history[index],
     });
-    respondUpdate(newShapes, stats);
+    respond({
+      tag: "ComputeShapesResp",
+      state: newShapes
+    })
   }
 };
 
@@ -370,6 +365,7 @@ const respondFinished = (state: PenroseState, stats: LayoutStats) => {
 
 const optimize = async (state: PenroseState) => {
   optState = state;
+  // lastUpdateTime = self.performance.now();
 
   // reset history and stats per optimization run
   // TODO: actually return them?
@@ -436,13 +432,23 @@ const optimize = async (state: PenroseState) => {
         return;
       }
 
+      const now = self.performance.now();
+      if ((now - lastUpdateTime) >= 1000. / maxUpdateHz) {
+        respondUpdate(stateToLayoutState(optState), stats);
+        lastUpdateTime = now;
+      }
+
       i++;
       optStepMsgChannel.port2.postMessage(null);
     } catch (err: any) {
       log.info("Optimization failed. Quitting without finishing...");
       workerState = WorkerState.Compiled;
       optState = null;
-      respondError(err);
+      respondError({
+        tag: "OptimizationError",
+        error: err,
+        nextWorkerState: WorkerState.Compiled,
+      });
       return;
     }
   };
