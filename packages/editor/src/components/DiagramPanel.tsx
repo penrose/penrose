@@ -41,6 +41,24 @@ export default function DiagramPanel() {
   }, []);
 
   useEffect(() => {
+    const onMousedownBackground = (e: MouseEvent) => {
+      if (
+        !diagram.svg?.contains(e.target as Node) ||
+        e.target === diagram.svg
+      ) {
+        setEnabledWidgetPath(null);
+        return;
+      }
+      console.log(diagram.svg)
+      console.log(e.target)
+    };
+    document.addEventListener("mousedown", onMousedownBackground);
+    return () => {
+      document.removeEventListener("mousedown", onMousedownBackground);
+    }
+  }, [diagram.svg]);
+
+  useEffect(() => {
     const cur = canvasRef.current;
     setCanvasState({ ref: canvasRef }); // required for downloading/exporting diagrams
 
@@ -150,7 +168,6 @@ export default function DiagramPanel() {
     (w) => metadata.excludeWarnings.find((s) => w.tag === s) === undefined,
   );
 
-  console.log("hi")
   return (
     <div style={{ display: "flex", flexDirection: "row", height: "100%" }}>
       <div

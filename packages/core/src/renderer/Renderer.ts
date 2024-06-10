@@ -255,7 +255,7 @@ export const RenderShape = async (
   } else {
     const elem = await RenderShapeSvg(shape, renderProps);
     if (onClick) {
-      elem.addEventListener("click", () => {
+      elem.addEventListener("mousedown", () => {
         onClick(shape.name.contents);
       });
     }

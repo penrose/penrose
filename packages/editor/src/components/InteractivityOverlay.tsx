@@ -5,6 +5,7 @@
 import { RenderState } from "../worker/common.js";
 import DragWidget from "./DragWidget";
 import im from "immutable";
+import { useEffect } from "react";
 
 export interface InteractivityOverlayProps {
   enabledWidgetPath: string | null;
@@ -15,7 +16,6 @@ export interface InteractivityOverlayProps {
 export default function InteractivityOverlay(
   props: InteractivityOverlayProps
 ): JSX.Element {
-  console.log(props);
   return (
     <div style={{
       position: 'absolute',
