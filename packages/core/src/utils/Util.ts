@@ -9,10 +9,7 @@ import { StyleWarning } from "../types/errors.js";
 import { MayWarn } from "../types/functions.js";
 import { Fn } from "../types/state.js";
 import { BindingForm, Expr, Path } from "../types/style.js";
-import {
-  ResolvedExpr,
-  ResolvedStylePath,
-} from "../types/stylePathResolution.js";
+import { ResolvedExpr, StylePath } from "../types/stylePathResolution.js";
 import { SubstanceLiteral, SubstanceObject } from "../types/styleSemantics.js";
 import {
   ShapeT,
@@ -776,6 +773,35 @@ export const subObjectToUniqueName = (lit: SubstanceObject) => {
   } else return toLiteralUniqueName(lit.contents.contents);
 };
 
+export const uniqueNameToSubObject = (name: string): SubstanceObject => {
+  if (name.length < 3 || name[0] !== "{") {
+    return {
+      tag: "SubstanceVar",
+      name,
+    };
+  } else {
+    if (name[1] === "s") {
+      return {
+        tag: "SubstanceLiteral",
+        contents: {
+          tag: "SubstanceString",
+          contents: name.slice(2, name.length - 1),
+        },
+      };
+    } else if (name[1] === "n") {
+      return {
+        tag: "SubstanceLiteral",
+        contents: {
+          tag: "SubstanceNumber",
+          contents: Number(name.slice(2, name.length - 1)),
+        },
+      };
+    } else {
+      throw new Error("Invalid unique name");
+    }
+  }
+};
+
 export const substanceLiteralToValue = (
   lit: SubstanceLiteral,
 ): FloatV<number> | StrV => {
@@ -788,7 +814,7 @@ export const substanceLiteralToValue = (
   }
 };
 
-export const prettyResolvedStylePath = (p: ResolvedStylePath<A>): string => {
+export const prettyResolvedStylePath = (p: StylePath<A>): string => {
   switch (p.tag) {
     case "Empty":
       return "";

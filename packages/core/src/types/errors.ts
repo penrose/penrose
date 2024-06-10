@@ -10,27 +10,23 @@ import {
   SourceRange,
 } from "./ast.js";
 import { Arg, Type } from "./domain.js";
-import { CompFunc, ConstrFunc, FuncParam, ObjFunc } from "./functions.js";
+import { FuncParam, FuncSignature } from "./functions.js";
 import { State } from "./state.js";
+import { BindingForm, ColorLit, Expr, LayoutStages, Path } from "./style.js";
 import {
-  BindingForm,
-  ColorLit,
-  Expr,
-  GPIDecl,
-  LayoutStages,
-  Path,
-  Resolved,
-  ResolvedStylePath,
-} from "./style.js";
-import {
-  LhsStylePathToObject,
   ResolvedBinOp,
   ResolvedExpr,
+  ResolvedGPIDecl,
   ResolvedPath,
   ResolvedUOp,
+  StylePath,
+  StylePathToCollection,
+  StylePathToNamespaceScope,
+  StylePathToSubstanceScope,
+  StylePathToUnindexedObject,
 } from "./stylePathResolution.js";
 import { StmtSet, SubExpr, TypeApp } from "./substance.js";
-import { ArgValWithSourceLoc, ShapeVal, Val, Value } from "./value.js";
+import { ArgValWithExpr, ShapeVal, Val, Value } from "./value.js";
 
 //#region ErrorTypes
 
@@ -277,12 +273,12 @@ export interface StyleDiagnostics {
 
 export interface ImplicitOverrideWarning {
   tag: "ImplicitOverrideWarning";
-  path: ResolvedStylePath<A>;
+  path: StylePath<A>;
 }
 
 export interface NoopDeleteWarning {
   tag: "NoopDeleteWarning";
-  path: ResolvedStylePath<A>;
+  path: StylePath<A>;
 }
 export interface LayerCycleWarning {
   tag: "LayerCycleWarning";
@@ -307,7 +303,7 @@ export interface BBoxApproximationWarning {
 
 export interface BBoxApproximationWarningItem {
   signature: string;
-  location?: SourceRange;
+  callExpression: ResolvedExpr<A>;
 }
 
 //#endregion
@@ -404,12 +400,12 @@ export interface AssignAccessError {
 
 export interface AssignGlobalError {
   tag: "AssignGlobalError";
-  path: ResolvedStylePath<A>;
+  path: StylePathToNamespaceScope<A>;
 }
 
 export interface AssignSubstanceError {
   tag: "AssignSubstanceError";
-  path: ResolvedStylePath<A>;
+  path: StylePathToSubstanceScope<A> | StylePathToCollection<A>;
 }
 
 export interface BadElementError {
@@ -445,27 +441,27 @@ export interface CyclicAssignmentError {
 
 export interface DeleteGlobalError {
   tag: "DeleteGlobalError";
-  path: ResolvedStylePath<A>;
+  path: StylePath<A>;
 }
 
 export interface DeleteSubstanceError {
   tag: "DeleteSubstanceError";
-  path: ResolvedStylePath<A>;
+  path: StylePath<A>;
 }
 
 export interface MissingPathError {
   tag: "MissingPathError";
-  path: ResolvedStylePath<A>;
+  path: StylePath<A>;
 }
 
 export interface MissingShapeError {
   tag: "MissingShapeError";
-  path: ResolvedStylePath<A>;
+  path: StylePathToUnindexedObject<A>;
 }
 
 export interface NestedShapeError {
   tag: "NestedShapeError";
-  expr: Resolved<GPIDecl<A>, A>;
+  expr: ResolvedGPIDecl<A>;
 }
 
 export interface NotCollError {
@@ -480,7 +476,7 @@ export interface IndexIntoShapeListError {
 
 export interface NotShapeError {
   tag: "NotShapeError";
-  path: ResolvedStylePath<A>;
+  path: StylePathToUnindexedObject<A>;
   what: string;
 }
 
@@ -498,7 +494,7 @@ export interface OutOfBoundsError {
 
 export interface PropertyMemberError {
   tag: "PropertyMemberError";
-  path: ResolvedStylePath<A>;
+  path: StylePath<A>;
 }
 
 export interface UOpTypeError {
@@ -509,7 +505,7 @@ export interface UOpTypeError {
 
 export interface BadShapeParamTypeError {
   tag: "BadShapeParamTypeError";
-  path: LhsStylePathToObject<A>;
+  path: StylePathToUnindexedObject<A>;
   value: Val<ad.Num> | ShapeVal<ad.Num>;
   expectedType: string;
   passthrough: boolean;
@@ -518,35 +514,29 @@ export interface BadShapeParamTypeError {
 export interface BadArgumentTypeError {
   tag: "BadArgumentTypeError";
   funcName: string;
-  funcArg: FuncParam;
-  provided: ArgValWithSourceLoc<ad.Num>;
+  formalArg: FuncParam;
+  actualArg: ArgValWithExpr<ad.Num>;
 }
 
 export interface MissingArgumentError {
   tag: "MissingArgumentError";
   funcName: string;
-  funcArg: FuncParam;
-  funcLocation: SourceRange;
+  formalArg: FuncParam;
+  callExpression: ResolvedExpr<A>;
 }
 
 export interface TooManyArgumentsError {
   tag: "TooManyArgumentsError";
-  func:
-    | Omit<CompFunc, "body">
-    | Omit<ObjFunc, "body">
-    | Omit<ConstrFunc, "body">;
-  funcLocation: SourceRange;
+  func: FuncSignature;
+  callExpression: ResolvedExpr<A>;
   numProvided: number;
 }
 
 export interface FunctionInternalError {
   tag: "FunctionInternalError";
   // NOTE: to be compatible with webworkers, the function body cannot be cloned and can be therefore excluded.
-  func:
-    | Omit<CompFunc, "body">
-    | Omit<ObjFunc, "body">
-    | Omit<ConstrFunc, "body">;
-  location: SourceRange;
+  func: FuncSignature;
+  callExpression: ResolvedExpr<A>;
   message: string;
 }
 
@@ -558,8 +548,7 @@ export interface RedeclareNamespaceError {
 
 export interface NotSubstanceCollectionError {
   tag: "NotSubstanceCollectionError";
-  name: string;
-  location: SourceRange;
+  path: ResolvedPath<A>;
 }
 
 export interface NotStyleVariableError {

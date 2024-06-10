@@ -10,8 +10,8 @@ import {
 } from "./style.js";
 import { SubstanceObject } from "./styleSemantics.js";
 
-//#region style path
-export type ResolvedStylePath<T> =
+//#region states in the state machine
+export type StylePath<T> =
   | EmptyStylePath<T>
   | StylePathToScope<T>
   | StylePathToCollection<T>
@@ -23,6 +23,7 @@ export type StylePathToScope<T> =
   | StylePathToNamespaceScope<T>;
 
 export type EmptyStylePath<T> = ASTNode<T> & { tag: "Empty" };
+
 export type StylePathToUnnamedScope<T> = ASTNode<T> & {
   tag: "Unnamed";
   blockId: number;
@@ -31,10 +32,12 @@ export type StylePathToUnnamedScope<T> = ASTNode<T> & {
 export type StylePathToSubstanceScope<T> = ASTNode<T> & {
   tag: "Substance";
   substanceObject: SubstanceObject;
+  styleName?: string;
 };
 export type StylePathToCollection<T> = ASTNode<T> & {
   tag: "Collection";
   substanceObjects: SubstanceObject[];
+  styleName?: string;
 };
 export type StylePathToNamespaceScope<T> = ASTNode<T> & {
   tag: "Namespace";
@@ -52,32 +55,45 @@ export type StylePathAccess<T> =
 
 export type StylePathAccessMember<T> = {
   tag: "Member";
-  parent: StylePathToScope<T> | LhsStylePathToObject<T>;
+  parent: StylePathToScope<T> | StylePathToUnindexedObject<T>;
   name: string;
 };
 
 export type StylePathAccessIndex<T> = {
   tag: "Index";
-  parent: LhsStylePathToObject<T>;
+  parent: StylePathToUnindexedObject<T>;
   indices: ResolvedExpr<T>[];
 };
 
-export type ResolvedPath<T> = ASTNode<T> & {
-  tag: "ResolvedPath";
-  contents: ResolvedStylePath<T>;
+export type StylePathToUnindexedObject<T> = StylePathToObject<T> & {
+  access: StylePathAccessMember<T>;
 };
+//#endregion
 
-export type LhsStylePathToObject<T> = StylePathToObject<T> & {
-  access: StylePathAccessMember<T> & {
-    parent: StylePathToScope<T> | LhsStylePathToObject<T>;
-  };
-};
+//#region valid resolved style paths
 
-export type LhsResolvedStylePath<T> =
+// there can't really be a path that is resolved into an unnamed scope.
+// it would just be an empty path.
+export type ResolvedStylePathToScope<T> =
+  | StylePathToNamespaceScope<T>
+  | StylePathToSubstanceScope<T>;
+
+export type ResolvedStylePath<T> =
+  | ResolvedStylePathToScope<T>
+  | StylePathToCollection<T>
+  | StylePathToObject<T>;
+
+export type ResolvedUnindexedStylePath<T> =
   | StylePathToScope<T>
   | StylePathToCollection<T>
-  | LhsStylePathToObject<T>;
+  | StylePathToUnindexedObject<T>;
+
 //#endregion
+
+export type ResolvedPath<T> = ASTNode<T> & {
+  tag: "ResolvedPath";
+  contents: StylePath<T>;
+};
 
 //#region style exprs
 

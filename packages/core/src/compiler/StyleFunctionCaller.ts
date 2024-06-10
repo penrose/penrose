@@ -1,5 +1,5 @@
 import * as ad from "../types/ad.js";
-import { A, SourceRange } from "../types/ast.js";
+import { A } from "../types/ast.js";
 import {
   CompFunc,
   ConstrFunc,
@@ -9,11 +9,13 @@ import {
 } from "../types/functions.js";
 
 import { Result } from "true-myth";
+import { Context } from "../shapes/Samplers.js";
 import { Shape } from "../shapes/Shapes.js";
 import { StyleError } from "../types/errors.js";
 import {
   ResolvedCompApp,
   ResolvedConstrFn,
+  ResolvedExpr,
   ResolvedObjFn,
 } from "../types/stylePathResolution.js";
 import { ArgValWithExpr, Value } from "../types/value.js";
@@ -28,11 +30,12 @@ import { checkType } from "./StyleTypeChecker.js";
 const { ok, err } = Result;
 
 export const callCompFunc = (
+  context: Context,
   callExpr: ResolvedCompApp<A>,
   func: CompFunc,
   args: ArgValWithExpr<ad.Num>[],
 ): Result<MayWarn<Value<ad.Num>>, StyleError> => {
-  const checkedArgs = checkArgs(func, range, args);
+  const checkedArgs = checkArgs(callExpr, func, args);
   if (checkedArgs.isErr()) return err(checkedArgs.error);
   try {
     const { value, warnings } = func.body(context, ...checkedArgs.value);
@@ -42,7 +45,7 @@ export const callCompFunc = (
         // Attach location information to the top of `BBoxApproximationWarnings`
         // since only the top stack element is resulted from the user call to Style function
         if (w.tag === "BBoxApproximationWarning") {
-          w.stack[w.stack.length - 1].location = range;
+          w.stack[w.stack.length - 1].callExpression = callExpr;
         }
         return w;
       }),
@@ -56,7 +59,7 @@ export const callCompFunc = (
             description: func.description,
             params: func.params,
           },
-          range,
+          callExpr,
           e.message,
         ),
       );
@@ -71,7 +74,7 @@ export const callObjConstrFunc = (
   func: ObjFunc | ConstrFunc,
   args: ArgValWithExpr<ad.Num>[],
 ): Result<MayWarn<ad.Num>, StyleError> => {
-  const checkedArgs = checkArgs(func, range, args);
+  const checkedArgs = checkArgs(callExpr, func, args);
   if (checkedArgs.isErr()) return err(checkedArgs.error);
   try {
     const { value, warnings } = func.body(...checkedArgs.value);
@@ -81,7 +84,7 @@ export const callObjConstrFunc = (
         // Attach location information to the top of `BBoxApproximationWarnings`
         // since only the top stack element is resulted from the user call to Style function
         if (w.tag === "BBoxApproximationWarning") {
-          w.stack[w.stack.length - 1].location = range;
+          w.stack[w.stack.length - 1].callExpression = callExpr;
         }
         return w;
       }),
@@ -95,7 +98,7 @@ export const callObjConstrFunc = (
             description: func.description,
             params: func.params,
           },
-          range,
+          callExpr,
           e.message,
         ),
       );
@@ -106,9 +109,9 @@ export const callObjConstrFunc = (
 };
 
 export const checkArgs = (
+  callExpr: ResolvedExpr<A>,
   func: ObjFunc | ConstrFunc | CompFunc,
-  range: SourceRange,
-  args: ArgValWithSourceLoc<ad.Num>[],
+  args: ArgValWithExpr<ad.Num>[],
 ): Result<(Shape<ad.Num> | Value<ad.Num>["contents"])[], StyleError> => {
   if (args.length > func.params.length) {
     return err(
@@ -118,16 +121,16 @@ export const checkArgs = (
           description: func.description,
           params: func.params,
         },
-        range,
+        callExpr,
         args.length,
       ),
     );
   }
   const vals: (Shape<ad.Num> | Value<ad.Num>["contents"])[] = [];
   for (let i = 0; i < func.params.length; i++) {
-    const funcArg = func.params[i];
-    const arg: ArgValWithSourceLoc<ad.Num> | undefined = args[i];
-    const v = checkArg(func.name, range, funcArg, arg);
+    const formalArg = func.params[i];
+    const actualArg: ArgValWithExpr<ad.Num> | undefined = args[i];
+    const v = checkArg(callExpr, func.name, formalArg, actualArg);
     if (v.isErr()) return err(v.error);
     vals.push(v.value);
   }
@@ -135,25 +138,25 @@ export const checkArgs = (
 };
 
 export const checkArg = (
+  callExpr: ResolvedExpr<A>,
   funcName: string,
-  location: SourceRange,
-  funcArg: FuncParam,
-  arg: ArgValWithSourceLoc<ad.Num> | undefined,
+  formalArg: FuncParam,
+  actualArg: ArgValWithExpr<ad.Num> | undefined,
 ): Result<Shape<ad.Num> | Value<ad.Num>["contents"], StyleError> => {
   // If the argument is not provided
-  if (!arg) {
+  if (!actualArg) {
     // But if the argument has a default value
-    if (funcArg.default !== undefined) {
+    if (formalArg.default !== undefined) {
       // Use the default value.
-      return ok(funcArg.default);
+      return ok(formalArg.default);
     } else {
       // Otherwise report error.
-      return err(missingArgumentError(funcName, funcArg, location));
+      return err(missingArgumentError(funcName, formalArg, callExpr));
     }
   }
 
   // The argument is provided.
-  const result = checkType(funcArg.type, arg);
+  const result = checkType(formalArg.type, actualArg);
   if (result !== undefined) return ok(result);
-  return err(badArgumentTypeError(funcName, funcArg, arg));
+  return err(badArgumentTypeError(funcName, formalArg, actualArg));
 };

@@ -8,7 +8,7 @@ import { Fn } from "./state.js";
 import {
   LhsStylePathToObject,
   ResolvedNotShape,
-  ResolvedStylePath,
+  StylePath,
 } from "./stylePathResolution.js";
 import { SubstanceEnv } from "./substance.js";
 import { ArgVal, Field, Name, PropID } from "./value.js";
@@ -176,8 +176,8 @@ export type DepGraph = Graph<
 //#region third Style compiler pass: expression compilation
 
 export interface Layer {
-  below: ResolvedStylePath<A>;
-  above: ResolvedStylePath<A>;
+  below: StylePath<A>;
+  above: StylePath<A>;
 }
 
 export interface Translation {

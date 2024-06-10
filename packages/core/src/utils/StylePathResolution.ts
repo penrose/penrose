@@ -3,13 +3,14 @@ import { A, ASTNode, Identifier, NodeType, SourceLoc } from "../types/ast.js";
 import { StyleError } from "../types/errors.js";
 import { Expr, FunctionCall, InlineComparison, Path } from "../types/style.js";
 import {
-  LhsResolvedStylePath,
+  EmptyStylePath,
   ResolvedExpr,
   ResolvedFunctionCall,
   ResolvedInlineComparison,
   ResolvedPath,
   ResolvedPropertyDecl,
   ResolvedStylePath,
+  ResolvedUnindexedStylePath,
   StylePathToNamespaceScope,
   StylePathToScope,
   StylePathToSubstanceScope,
@@ -79,17 +80,30 @@ const findInSubst = (
 };
 
 export const resolveLhsStylePath = (
-  { block, subst }: BlockInfo,
+  block: BlockInfo,
   assignment: Assignment,
   original: Path<A>,
-): Result<LhsResolvedStylePath<A>, StyleError> => {
-  if (original.indices.length > 0) {
-    return err({ tag: "AssignAccessError", path: original });
+): Result<ResolvedUnindexedStylePath<A>, StyleError> => {
+  const resolved = resolveStylePath(block, assignment, original);
+  if (resolved.isErr()) return err(resolved.error);
+
+  if (resolved.value.tag === "Object") {
+    const { access } = resolved.value;
+    if (access.tag === "Index") {
+      // AssignAccessError
+      return err();
+    } else {
+      return ok({
+        ...resolved.value,
+        access,
+      });
+    }
+  } else {
+    return ok(resolved.value);
   }
-  return resolveStylePathWithoutIndex({ block, subst }, assignment, original);
 };
 
-export const resolveRhsStylePath = (
+export const resolveStylePath = (
   block: BlockInfo,
   assignment: Assignment,
   original: Path<A>,
@@ -103,14 +117,15 @@ export const resolveRhsStylePath = (
     return err(withoutIndex.error);
   }
 
-  if (withoutIndex.value.tag !== "Object") {
-    return err();
-  }
-
   const { indices } = original;
 
   if (indices.length === 0) {
     return ok(withoutIndex.value);
+  }
+
+  if (withoutIndex.value.tag !== "Object") {
+    // numerically indexing into an non-object
+    return err();
   }
 
   const resolvedIndices = all(
@@ -137,9 +152,12 @@ export const resolveRhsStylePath = (
 export const resolveStylePathWithoutIndex = (
   { block, subst }: BlockInfo,
   assignment: Assignment,
-  original: Path<A>,
-): Result<LhsResolvedStylePath<A>, StyleError> => {
-  let curr: LhsResolvedStylePath<A> = { ...emptyLoc(original), tag: "Empty" };
+  original: Omit<Path<A>, "indices">,
+): Result<ResolvedUnindexedStylePath<A>, StyleError> => {
+  let curr: ResolvedUnindexedStylePath<A> | EmptyStylePath<A> = {
+    ...emptyLoc(original),
+    tag: "Empty",
+  };
   const firstPart: Identifier<A> =
     original.name.tag === "StyVar"
       ? original.name.contents
@@ -159,17 +177,23 @@ export const resolveStylePathWithoutIndex = (
       parts = remaining;
     }
   }
-  return ok(curr);
+
+  if (curr.tag === "Empty" || curr.tag === "Unnamed") {
+    // should never happen
+    throw new Error(
+      "resolved into an Empty or Unnamed path which should not happen",
+    );
+  } else return ok(curr);
 };
 
 const resolveStylePathHelper = (
   { block, subst }: BlockInfo,
   assignment: Assignment,
-  curr: LhsResolvedStylePath<A>,
+  curr: ResolvedUnindexedStylePath<A> | EmptyStylePath<A>,
   parts: Identifier<A>[],
 ): Result<
   {
-    result: LhsResolvedStylePath<A>;
+    result: ResolvedUnindexedStylePath<A> | EmptyStylePath<A>;
     remaining: Identifier<A>[];
   },
   StyleError
@@ -301,7 +325,7 @@ const resolvePath = (
   assignment: Assignment,
   p: Path<A>,
 ): Result<ResolvedPath<A>, StyleError> => {
-  const resolved = resolveRhsStylePath(block, assignment, p);
+  const resolved = resolveStylePath(block, assignment, p);
   if (resolved.isErr()) {
     return err(resolved.error);
   }

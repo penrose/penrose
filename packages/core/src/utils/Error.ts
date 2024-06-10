@@ -42,26 +42,22 @@ import {
   TypeNotFound,
   VarNotFound,
 } from "../types/errors.js";
-import {
-  CompFunc,
-  ConstrFunc,
-  FuncParam,
-  ObjFunc,
-} from "../types/functions.js";
+import { FuncParam, FuncSignature } from "../types/functions.js";
 import { State } from "../types/state.js";
 import { BindingForm, ColorLit } from "../types/style.js";
 import {
   LhsStylePathToObject,
+  ResolvedExpr,
   ResolvedPath,
 } from "../types/stylePathResolution.js";
 import { SubExpr, TypeApp } from "../types/substance.js";
-import { ArgVal, ArgValWithSourceLoc, ShapeVal, Val } from "../types/value.js";
+import { ArgVal, ArgValWithExpr, ShapeVal, Val } from "../types/value.js";
 import {
   ErrorLoc,
   describeType,
   locOrNone,
   prettyPrintPath,
-  prettyPrintResolvedPath,
+  prettyResolvedStylePath,
   toErrorLoc,
 } from "./Util.js";
 const {
@@ -369,28 +365,24 @@ export const showError = (
     }
 
     case "AssignGlobalError": {
-      return `Cannot assign to global ${prettyPrintResolvedPath(
-        error.path,
-      )} (at ${locc(
-        "Style",
-        error.path,
-      )}); instead, just assign to ${error.path.members
-        .map((id) => id.value)
-        .join(".")} inside the ${error.path.name} namespace.`;
+      const { path } = error;
+      const pathStr = prettyResolvedStylePath(path);
+      return `Cannot assign to a namespace ${pathStr} (at ${loc(
+        path,
+      )}); instead, assign to individual members of the namespace like ${pathStr}.member`;
     }
 
     case "AssignSubstanceError": {
-      return `Cannot assign to Substance object ${prettyPrintResolvedPath(
+      const { path } = error;
+      return `Cannot assign to Substance object ${prettyResolvedStylePath(
         error.path,
-      )} (at ${locc("Style", error.path)}).`;
+      )} (which is referred to at ${loc(path)}).`;
     }
 
     case "BadElementError": {
+      const { coll } = error;
       if (error.coll.tag === "CollectionAccess") {
-        const preamble = `The collection access (at ${locc(
-          "Style",
-          error.coll,
-        )}) failed`;
+        const preamble = `The collection access (at ${loc(coll)}) failed`;
         if (error.index === 0) {
           return (
             preamble +
@@ -446,28 +438,30 @@ canvas {
     }
 
     case "DeleteGlobalError": {
-      return `Cannot delete global ${prettyPrintResolvedPath(
+      return `Cannot delete namespace ${prettyResolvedStylePath(
         error.path,
-      )} (at ${locc("Style", error.path)}).`;
+      )} (at ${loc(error.path)}).`;
     }
 
     case "DeleteSubstanceError": {
-      return `Cannot delete Substance object ${prettyPrintResolvedPath(
+      const { path } = error;
+      return `Cannot delete Substance object ${prettyResolvedStylePath(
         error.path,
-      )} (at ${locc("Style", error.path)}).`;
+      )} (which is referred to at ${loc(path)}).`;
     }
 
     case "MissingPathError": {
-      return `Could not find ${prettyPrintResolvedPath(error.path)} (at ${locc(
-        "Style",
+      return `Could not find ${prettyResolvedStylePath(error.path)} (at ${loc(
         error.path,
       )}).`;
     }
 
     case "MissingShapeError": {
-      return `Expected to find shape already defined to hold property ${prettyPrintResolvedPath(
-        error.path,
-      )} (at ${locc("Style", error.path)}), found nothing.`;
+      const { path } = error;
+      const { parent } = path.access;
+      return `Path ${prettyResolvedStylePath(parent)} (at ${loc(
+        parent,
+      )}) cannot be found.`;
     }
 
     case "NestedShapeError": {
@@ -485,9 +479,11 @@ canvas {
     }
 
     case "NotShapeError": {
-      return `Expected to find shape to hold property ${prettyPrintResolvedPath(
-        error.path,
-      )} (at ${locc("Style", error.path)}), found ${error.what}.`;
+      const { path, what } = error;
+      const { parent } = path.access;
+      return `Expected to find shape at path ${prettyResolvedStylePath(
+        parent,
+      )} (at ${loc(parent)}), but found ${what}.`;
     }
 
     case "NotValueError": {
@@ -499,8 +495,8 @@ canvas {
     case "OutOfBoundsError": {
       return `Indices ${error.indices
         .map((i) => `[${i}]`)
-        .join("")} of path ${prettyPrintPath(
-        error.expr,
+        .join("")} of path ${prettyResolvedStylePath(
+        error.expr.contents,
       )} out of bounds (at ${loc(error.expr)}).`;
     }
 
@@ -1051,51 +1047,45 @@ export const badShapeParamTypeError = (
 
 export const badArgumentTypeError = (
   funcName: string,
-  funcArg: FuncParam,
-  provided: ArgValWithSourceLoc<ad.Num>,
+  formalArg: FuncParam,
+  actualArg: ArgValWithExpr<ad.Num>,
 ): BadArgumentTypeError => ({
   tag: "BadArgumentTypeError",
   funcName,
-  funcArg,
-  provided,
+  formalArg,
+  actualArg,
 });
 
 export const missingArgumentError = (
   funcName: string,
-  funcArg: FuncParam,
-  funcLocation: SourceRange,
+  formalArg: FuncParam,
+  callExpression: ResolvedExpr<A>,
 ): MissingArgumentError => ({
   tag: "MissingArgumentError",
   funcName,
-  funcArg,
-  funcLocation,
+  formalArg,
+  callExpression,
 });
 
 export const tooManyArgumentsError = (
-  func:
-    | Omit<CompFunc, "body">
-    | Omit<ObjFunc, "body">
-    | Omit<ConstrFunc, "body">,
-  funcLocation: SourceRange,
+  func: FuncSignature,
+  callExpression: ResolvedExpr<A>,
   numProvided: number,
 ): TooManyArgumentsError => ({
   tag: "TooManyArgumentsError",
   func,
-  funcLocation,
+  callExpression,
   numProvided,
 });
 
 export const functionInternalError = (
-  func:
-    | Omit<CompFunc, "body">
-    | Omit<ObjFunc, "body">
-    | Omit<ConstrFunc, "body">,
-  location: SourceRange,
+  func: FuncSignature,
+  callExpression: ResolvedExpr<A>,
   message: string,
 ): FunctionInternalError => ({
   tag: "FunctionInternalError",
   func,
-  location,
+  callExpression,
   message,
 });
 
@@ -1112,8 +1102,7 @@ export const notSubstanceCollectionError = (
   path: ResolvedPath<A>,
 ): NotSubstanceCollectionError => ({
   tag: "NotSubstanceCollectionError",
-  name,
-  location,
+  path,
 });
 
 export const notStyleVariableError = (
