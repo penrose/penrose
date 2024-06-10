@@ -1,0 +1,24 @@
+type Vertex
+type Edge
+type Triangle
+constructor Edge(Vertex v0, Vertex v1)
+constructor Triangle(Edge e0, Edge e1, Edge e2)
+
+type Angle
+type Circle
+type Segment
+
+constructor StraightCorner( Vertex i, Vertex j1, Vertex j2 ) -> Angle
+constructor FirstStraightCorner( Triangle ijk ) -> Angle
+constructor SecondStraightCorner( Triangle ijk ) -> Angle
+constructor ThirdStraightCorner( Triangle ijk ) -> Angle
+constructor FirstCircularCorner( Triangle ijk ) -> Angle
+constructor SecondCircularCorner( Triangle ijk ) -> Angle
+constructor ThirdCircularCorner( Triangle ijk ) -> Angle
+constructor StartBendAngle( Edge ij ) -> Angle
+constructor EndBendAngle( Edge ij ) -> Angle
+
+constructor CircleThrough( Edge ij ) -> Circle
+
+constructor RadiusOf( Circle c ) -> Segment
+

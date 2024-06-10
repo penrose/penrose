@@ -1,0 +1,187 @@
+canvas {
+  width = 400
+  height = 400
+}
+
+global {
+  scalar pointSize = 2.0
+  
+  -- size of angle markers
+  scalar straightAngleRadius = 15
+  scalar circularAngleRadius = 20
+  scalar bendAngleRadius = 25
+}
+
+forall Vertex v {
+  vec2 v.p = (?,?)
+  shape v.icon = Circle {
+    center: v.p
+    r: global.pointSize
+    fillColor: #000
+  }
+}
+
+forall Edge e; Vertex u, v
+where e := Edge(u,v) {
+
+  vec2 e.start = u.p
+  vec2 e.end = v.p
+
+  shape e.segment = Line {
+    start: e.start
+    end: e.end
+    strokeDasharray: "4 6"
+    strokeColor: #1b1f8a33
+  }
+
+  scalar alpha = random( -1, 1 ) * MathPI()/4 -- bend angle
+  vec2 m = ( e.start + e.end )/2 -- midpoint
+  scalar h = .5 / tan(alpha) -- unnormalized distance to circle center
+  vec2 n = rot90( e.start - e.end ) -- unnormalized normal
+  vec2 e.c = m + n*h -- circle center
+
+  vec2 w0 = e.start - e.c -- vector to start point
+  vec2 w1 = e.end - e.c -- vector to end point
+  scalar theta0 = angleFrom( (1,0), w0 ) -- angle to start point
+  scalar theta1 = theta0 + angleFrom( w0, w1 ) -- angle to end point
+  scalar e.r = norm(w0) -- circle radius
+
+  e.bentPath = circularArc( "open", e.c, e.r, theta0, theta1 )
+
+  shape e.arc = Path {
+    d: e.bentPath
+    strokeColor: #000
+    strokeWidth: 1
+  }
+}
+
+forall Triangle t; Edge ij, jk, ki
+where t := Triangle(ij,jk,ki) {
+   t.pi = ij.start
+   t.pj = jk.start
+   t.pk = ki.start
+
+   shape t.straightRegion = Polygon {
+     points: [ t.pi, t.pj, t.pk ]
+     fillColor: #1b1f8a33
+     strokeColor: none()
+   }
+
+   shape t.circularRegion = Path {
+     d: joinPaths([ij.bentPath, jk.bentPath, ki.bentPath])
+     fillColor: #1b1f8a33
+     strokeColor: none()
+   }
+}
+
+-- Draw each angle marker as a circular disk, which gets
+-- clipped against some other geometry to make a wedge.
+forall Angle A {
+   vec2 A.c = (0,0)
+   scalar A.r = 20
+   scalar A.theta0 = 0
+   scalar A.theta1 = MathPI()/3
+
+   shape A.disk = Circle {
+      center: A.c
+      r: A.r
+      fillColor: #1b1f8a33
+      strokeColor: #1b1f8a
+      strokeWidth: 1
+   }
+   shape A.mask = Circle {
+      center: A.disk.center
+      r: A.disk.r
+   }
+   shape A.icon = Group {
+      shapes: [ A.mask ]
+      clipPath: clip( A.disk )
+   }
+}
+
+forall Angle A; Triangle ijk
+where A := FirstStraightCorner( ijk ) {
+   override A.c = ijk.pi
+   override A.r = global.straightAngleRadius
+   override A.mask = Polygon {
+      points: ijk.straightRegion.points
+      fillColor: A.disk.fillColor
+   }
+}
+forall Angle A; Triangle ijk
+where A := SecondStraightCorner( ijk ) {
+   override A.c = ijk.pj
+   override A.r = global.straightAngleRadius
+   override A.mask = Polygon {
+      points: ijk.straightRegion.points
+      fillColor: A.disk.fillColor
+   }
+}
+forall Angle A; Triangle ijk
+where A := ThirdStraightCorner( ijk ) {
+   override A.c = ijk.pk
+   override A.r = global.straightAngleRadius
+   override A.mask = Polygon {
+      points: ijk.straightRegion.points
+      fillColor: A.disk.fillColor
+   }
+}
+
+forall Angle A; Triangle ijk
+where A := FirstCircularCorner( ijk ) {
+   override A.c = ijk.pi
+   override A.r = global.circularAngleRadius
+   override A.mask = Path {
+      d: ijk.circularRegion.d
+      fillColor: A.disk.fillColor
+   }
+}
+forall Angle A; Triangle ijk
+where A := SecondCircularCorner( ijk ) {
+   override A.c = ijk.pj
+   override A.r = global.circularAngleRadius
+   override A.mask = Path {
+      d: ijk.circularRegion.d
+      fillColor: A.disk.fillColor
+   }
+}
+forall Angle A; Triangle ijk
+where A := ThirdCircularCorner( ijk ) {
+   override A.c = ijk.pk
+   override A.r = global.circularAngleRadius
+   override A.mask = Path {
+      d: ijk.circularRegion.d
+      fillColor: A.disk.fillColor
+   }
+}
+
+forall Angle A; Edge ij
+where A := StartBendAngle( ij ) {
+   override A.r = global.bendAngleRadius
+   override A.c = ij.start
+   shape A.mask = Path {
+      d: joinPaths( [ij.bentPath] )
+      fillColor: A.disk.fillColor
+      strokeColor: #000
+      strokeWidth: 1
+   }
+   override A.disk.strokeColor = #000
+   override A.disk.strokeWidth = 1
+   shape A.icon = Group {
+      shapes: [ A.mask ]
+      clipPath: clip( A.disk )
+   }
+}
+forall Angle A; Edge ij
+where A := EndBendAngle( ij ) {
+   override A.r = global.bendAngleRadius
+   override A.c = ij.end
+   shape A.mask = Path {
+      d: joinPaths( [ij.bentPath] )
+      fillColor: A.disk.fillColor
+   }
+   shape A.icon = Group {
+      shapes: [ A.mask ]
+      clipPath: clip( A.disk )
+   }
+}
