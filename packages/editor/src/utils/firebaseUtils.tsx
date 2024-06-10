@@ -14,7 +14,16 @@ import {
 } from "firebase/firestore";
 import toast from "react-hot-toast";
 import { useRecoilCallback } from "recoil";
-import { SavedWorkspaces, Workspace, settingsState } from "../state/atoms.js";
+import {
+  AutosaveTimer,
+  SavedWorkspaces,
+  Workspace,
+  autosaveTimerState,
+  currentWorkspaceState,
+  defaultWorkspaceState,
+  diagramState,
+  settingsState,
+} from "../state/atoms.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA_WZrM0sWpOt3oKmPp_D77rS7TsqaTC-w",
@@ -63,13 +72,26 @@ export const logInWrapper = () =>
   });
 
 export const signOutWrapper = () =>
-  useRecoilCallback(({ set }) => async () => {
+  useRecoilCallback(({ set, reset, snapshot }) => async () => {
     signOut(authObject)
       .then(() => {
         set(settingsState, (prevState) => ({
           ...prevState,
           githubAccessToken: null,
         }));
+        // set rather than reset to generate new id to avoid id conflicts
+        set(currentWorkspaceState, () => defaultWorkspaceState());
+        reset(diagramState);
+        // clear autosave timer to avoid race issue
+        const autosaveTimer: AutosaveTimer = snapshot.getLoadable(
+          autosaveTimerState,
+        ).contents as AutosaveTimer;
+
+        if (autosaveTimer != null) {
+          clearTimeout(autosaveTimer);
+          set(autosaveTimerState, null);
+        }
+
         toast.success("Logged out");
       })
       .catch((error) => {
