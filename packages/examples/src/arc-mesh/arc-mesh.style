@@ -104,8 +104,8 @@ forall Angle A {
       r: A.disk.r
    }
    shape A.icon = Group {
-      shapes: [ A.mask ]
-      clipPath: clip( A.disk )
+      shapes: [ A.disk ]
+      clipPath: clip( A.mask )
    }
 }
 
