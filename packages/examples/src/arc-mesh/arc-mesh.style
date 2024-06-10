@@ -1,6 +1,6 @@
 canvas {
-  width = 400
-  height = 400
+  width = 240
+  height = 200
 }
 
 global {
@@ -21,6 +21,11 @@ forall Vertex v {
   }
 }
 
+forall Vertex v; Number x,y
+where SetPosition(v,x,y) {
+   override v.p = (x,y)
+}
+
 forall Edge e; Vertex u, v
 where e := Edge(u,v) {
 
@@ -34,9 +39,9 @@ where e := Edge(u,v) {
     strokeColor: #1b1f8a33
   }
 
-  scalar alpha = random( -1, 1 ) * MathPI()/4 -- bend angle
+  scalar e.alpha = random( -1, 1 ) * MathPI()/4 -- bend angle
   vec2 m = ( e.start + e.end )/2 -- midpoint
-  scalar h = .5 / tan(alpha) -- unnormalized distance to circle center
+  scalar h = .5 / tan(e.alpha) -- unnormalized distance to circle center
   vec2 n = rot90( e.start - e.end ) -- unnormalized normal
   vec2 e.c = m + n*h -- circle center
 
@@ -53,6 +58,11 @@ where e := Edge(u,v) {
     strokeColor: #000
     strokeWidth: 1
   }
+}
+
+forall Edge e; Number alpha
+where SetBendAngle( e, alpha ) {
+   override e.alpha = -alpha
 }
 
 forall Triangle t; Edge ij, jk, ki
@@ -159,29 +169,102 @@ forall Angle A; Edge ij
 where A := StartBendAngle( ij ) {
    override A.r = global.bendAngleRadius
    override A.c = ij.start
-   shape A.mask = Path {
+   override A.mask = Path {
       d: joinPaths( [ij.bentPath] )
       fillColor: A.disk.fillColor
       strokeColor: #000
       strokeWidth: 1
-   }
-   override A.disk.strokeColor = #000
-   override A.disk.strokeWidth = 1
-   shape A.icon = Group {
-      shapes: [ A.mask ]
-      clipPath: clip( A.disk )
    }
 }
 forall Angle A; Edge ij
 where A := EndBendAngle( ij ) {
    override A.r = global.bendAngleRadius
    override A.c = ij.end
-   shape A.mask = Path {
+   override A.mask = Path {
       d: joinPaths( [ij.bentPath] )
       fillColor: A.disk.fillColor
    }
-   shape A.icon = Group {
-      shapes: [ A.mask ]
-      clipPath: clip( A.disk )
+}
+
+forall Circle C {
+   vec2 C.c = (?,?)
+   scalar C.r = abs(?)
+   C.icon = Circle {
+      center: C.c
+      r: C.r
+      fillColor: none()
+      strokeColor: #0004
+      strokeWidth: 1
    }
 }
+
+-- draw the circle associated with the arc through a given edge
+forall Circle C; Edge ij
+where C := CircleThrough( ij ) {
+
+   -- copy the center and radius of the
+   -- edge's circular arc, so that it
+   -- can be more easily referenced by
+   -- rules that reference this circle
+   override C.c = ij.c
+   override C.r = ij.r
+}
+
+forall Point P {
+   vec2 P.p = (?,?)
+
+   shape P.icon = Circle {
+      center: P.p
+      r: global.pointSize
+      fillColor: #fff
+      strokeColor: #000
+      strokeWidth: .65
+   }
+}
+
+forall Point P; Circle C
+where P := CenterOf(C) {
+   override P.p = C.c
+}
+
+forall Segment S {
+   vec2 S.start = (?,?)
+   vec2 S.end = (?,?)
+
+   S.icon = Line {
+      start: S.start
+      end: S.end
+      strokeWidth: 1
+      strokeColor: #0003
+   }
+}
+
+forall Segment S; Circle C
+where S := RadiusOf(C) {
+   override S.start = C.c
+   override S.end = C.c + circleRandom()*C.r
+}
+
+forall Triangle t
+where HideStraightRegion(t) {
+   override t.straightRegion.fillColor = none()
+}
+
+forall Triangle t
+where HideCircularRegion(t) {
+   override t.circularRegion.fillColor = none()
+}
+
+-- Layering
+
+forall Circle C; Point P; Segment S
+where P := CenterOf(C); S := RadiusOf(C) {
+   layer P.icon above S.icon
+   layer S.icon above C.icon
+}
+
+forall Point P; Triangle T {
+   layer P.icon above T.straightRegion
+   layer P.icon above T.circularRegion
+}
+

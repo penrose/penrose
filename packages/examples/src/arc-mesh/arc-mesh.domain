@@ -4,6 +4,7 @@ type Triangle
 constructor Edge(Vertex v0, Vertex v1)
 constructor Triangle(Edge e0, Edge e1, Edge e2)
 
+type Point
 type Angle
 type Circle
 type Segment
@@ -18,7 +19,12 @@ constructor ThirdCircularCorner( Triangle ijk ) -> Angle
 constructor StartBendAngle( Edge ij ) -> Angle
 constructor EndBendAngle( Edge ij ) -> Angle
 
-constructor CircleThrough( Edge ij ) -> Circle
-
+constructor CircleThrough( Edge e ) -> Circle
+constructor CenterOf( Circle c ) -> Point
 constructor RadiusOf( Circle c ) -> Segment
+
+predicate SetPosition( Vertex v, Number x, Number y )
+predicate SetBendAngle( Edge e, Number alpha )
+predicate HideStraightRegion( Triangle t )
+predicate HideCircularRegion( Triangle t )
 
