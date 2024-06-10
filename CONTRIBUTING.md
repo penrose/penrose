@@ -38,7 +38,7 @@ Be sure you have these tools installed:
 - [Python][] 3.10 or below (if using Linux or Mac, we recommend installing via
   [Pyenv][])
 
-- [Node.js][] v18+ (if using Linux or Mac, we recommend installing via [nvm][])
+- [Node.js][] v18 (if using Linux or Mac, we recommend installing via [nvm][])
 
   - [Yarn][] v1.x
 
@@ -53,6 +53,14 @@ don't already have it, then run this command:
 ```sh
 brew install pkg-config cairo pango libpng jpeg giflib librsvg pixman
 ```
+
+Note that, because some of these packages depend on Python, your Python version
+may be wrong after this step even if it was correct earlier; for instance, if
+you've never installed Python before so you just have the Python 3.9 that your
+Mac comes preinstalled with, you may think you're OK but then after this step
+you may run `python3 --version` again and find that you now have Python 3.12
+installed. Using [Pyenv][] is a great way to prevent these shenanigans from
+messing with your Penrose setup!
 
 ### Windows WSL
 
