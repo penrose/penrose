@@ -49,93 +49,94 @@ export const RenderPath = (
   shape: Path<number>,
   { canvasSize }: RenderProps,
 ): SVGGElement => {
+  // TODO: distinguish between fill opacity and stroke opacity
+  const strokeColor = toSvgPaintProperty(shape.strokeColor.contents);
+  const strokeOpacity = toSvgOpacityProperty(shape.strokeColor.contents);
 
-   // TODO: distinguish between fill opacity and stroke opacity
-   const strokeColor = toSvgPaintProperty(shape.strokeColor.contents);
-   const strokeOpacity = toSvgOpacityProperty(shape.strokeColor.contents);
+  // Keep track of which input properties we programatically mapped
+  const attrToNotAutoMap: string[] = [];
 
-   // Keep track of which input properties we programatically mapped
-   const attrToNotAutoMap: string[] = [];
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  attrToNotAutoMap.push(...attrFill(shape, path));
+  attrToNotAutoMap.push(...attrStroke(shape, path));
 
-   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-   attrToNotAutoMap.push(...attrFill(shape, path));
-   attrToNotAutoMap.push(...attrStroke(shape, path));
+  path.setAttribute("d", toPathString(shape.d.contents, canvasSize));
+  attrToNotAutoMap.push("d");
 
-   path.setAttribute("d", toPathString(shape.d.contents, canvasSize));
-   attrToNotAutoMap.push("d");
+  let elem;
 
-   var elem;
+  // TODO: If there are arrowheads, we create a group containing both the marker
+  // definitions and the path definition.  However, this group is not actually
+  // required by SVG; it's just a kludge we use here so that we can return just
+  // a single SVGGElement rather than a list.  Enclosing in <g>...</g> also
+  // prevents this path from being used as a clipping mask (if it has arrowheads).
+  const startArrowhead = getArrowhead(shape.startArrowhead.contents);
+  const endArrowhead = getArrowhead(shape.endArrowhead.contents);
+  if (startArrowhead || endArrowhead) {
+    const groupElem = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "g",
+    );
+    const startArrowId = shape.name.contents + "-startArrowId";
+    const endArrowId = shape.name.contents + "-endArrowId";
 
-   // TODO: If there are arrowheads, we create a group containing both the marker
-   // definitions and the path definition.  However, this group is not actually
-   // required by SVG; it's just a kludge we use here so that we can return just
-   // a single SVGGElement rather than a list.  Enclosing in <g>...</g> also
-   // prevents this path from being used as a clipping mask (if it has arrowheads).
-   const startArrowhead = getArrowhead(shape.startArrowhead.contents);
-   const endArrowhead = getArrowhead(shape.endArrowhead.contents);
-   if( startArrowhead || endArrowhead )
-   {
-      const groupElem = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    if (startArrowhead) {
       const startArrowId = shape.name.contents + "-startArrowId";
-      const endArrowId = shape.name.contents + "-endArrowId";
-
-      if (startArrowhead) {
-         const startArrowId = shape.name.contents + "-startArrowId";
-         const startArrowheadSize = shape.startArrowheadSize.contents;
-         const flip = shape.flipStartArrowhead.contents;
-         groupElem.appendChild(
-            arrowHead(
-               startArrowId,
-               strokeColor,
-               strokeOpacity,
-               startArrowhead,
-               startArrowheadSize,
-               flip,
-            ),
-         );
-      }
-      if (endArrowhead) {
-         const endArrowId = shape.name.contents + "-endArrowId";
-         const endArrowheadSize = shape.endArrowheadSize.contents;
-         groupElem.appendChild(
-            arrowHead(
-               endArrowId,
-               strokeColor,
-               strokeOpacity,
-               endArrowhead,
-               endArrowheadSize,
-               false,
-            ),
-         );
-      }
-
-      // Map/Fill the shape attributes while keeping track of input properties mapped
-      attrToNotAutoMap.push(
-         "name",
-         "startArrowhead",
-         "flipStartArrowhead",
-         "endArrowhead",
+      const startArrowheadSize = shape.startArrowheadSize.contents;
+      const flip = shape.flipStartArrowhead.contents;
+      groupElem.appendChild(
+        arrowHead(
+          startArrowId,
+          strokeColor,
+          strokeOpacity,
+          startArrowhead,
+          startArrowheadSize,
+          flip,
+        ),
       );
+    }
+    if (endArrowhead) {
+      const endArrowId = shape.name.contents + "-endArrowId";
+      const endArrowheadSize = shape.endArrowheadSize.contents;
+      groupElem.appendChild(
+        arrowHead(
+          endArrowId,
+          strokeColor,
+          strokeOpacity,
+          endArrowhead,
+          endArrowheadSize,
+          false,
+        ),
+      );
+    }
 
-      if (startArrowhead) {
-         path.setAttribute("marker-start", `url(#${startArrowId})`);
-         attrToNotAutoMap.push("startArrowhead");
-      }
-      if (endArrowhead) {
-         path.setAttribute("marker-end", `url(#${endArrowId})`);
-         attrToNotAutoMap.push("endArrowhead");
-      }
-      groupElem.appendChild(path);
-      elem = groupElem;
-   } else {
-      elem = path;
-   }
+    // Map/Fill the shape attributes while keeping track of input properties mapped
+    attrToNotAutoMap.push(
+      "name",
+      "startArrowhead",
+      "flipStartArrowhead",
+      "endArrowhead",
+    );
 
-   attrToNotAutoMap.push(...attrTitle(shape, elem));
+    if (startArrowhead) {
+      path.setAttribute("marker-start", `url(#${startArrowId})`);
+      attrToNotAutoMap.push("startArrowhead");
+    }
+    if (endArrowhead) {
+      path.setAttribute("marker-end", `url(#${endArrowId})`);
+      attrToNotAutoMap.push("endArrowhead");
+    }
+    groupElem.appendChild(path);
+    elem = groupElem;
+  } else {
+    elem = path;
+  }
 
-   // Directly Map across any "unknown" SVG properties
-   attrAutoFillSvg(shape, elem, attrToNotAutoMap);
+  attrToNotAutoMap.push(...attrTitle(shape, elem));
 
-   return elem;
+  // Directly Map across any "unknown" SVG properties
+  attrAutoFillSvg(shape, elem, attrToNotAutoMap);
+
+  return elem;
 };
 export default RenderPath;
