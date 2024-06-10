@@ -3,12 +3,12 @@ import { useEffect, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
   canvasState,
-  currentRogerState,
+  currentRogerState, Diagram,
   diagramState,
   diagramWorkerState,
   layoutTimelineState,
   optimizer,
-  workspaceMetadataSelector,
+  workspaceMetadataSelector
 } from "../state/atoms.js";
 import { pathResolver } from "../utils/downloadUtils.js";
 import { stateToSVG } from "../utils/renderUtils.js";
@@ -27,111 +27,21 @@ export default function DiagramPanel() {
   const workspace = useRecoilValue(workspaceMetadataSelector);
   const rogerState = useRecoilValue(currentRogerState);
   const [workerState, setWorkerState] = useRecoilState(diagramWorkerState);
-  const [enabledWidgetPath, setEnabledWidgetPath] = useState<string | null>(null);
 
   useEffect(() => {
     const onUpdate = (info: UpdateInfo) => {
-      setDiagram({
-        ...diagram,
+      setDiagram((state: Diagram) => ({
+        ...state,
         error: null,
         state: info.state,
-      });
+      }));
     }
     optimizer.setOnUpdate(onUpdate);
   }, []);
 
   useEffect(() => {
-    const onMousedownBackground = (e: MouseEvent) => {
-      if (
-        !diagram.svg?.contains(e.target as Node) ||
-        e.target === diagram.svg
-      ) {
-        setEnabledWidgetPath(null);
-        return;
-      }
-      console.log(diagram.svg)
-      console.log(e.target)
-    };
-    document.addEventListener("mousedown", onMousedownBackground);
-    return () => {
-      document.removeEventListener("mousedown", onMousedownBackground);
-    }
-  }, [diagram.svg]);
-
-  useEffect(() => {
     const cur = canvasRef.current;
     setCanvasState({ ref: canvasRef }); // required for downloading/exporting diagrams
-
-    if (cur && cur.firstElementChild) {
-      cur.firstElementChild.addEventListener("click", () => {
-        setEnabledWidgetPath(null);
-      });
-    }
-
-    const onError = (error: any) => {
-      if (!isPenroseError(error)) {
-        error = runtimeError(String(error));
-      }
-      console.error(showError(error));
-      if (optimizer.getState() == "Error") {
-        console.error("OptimizerWorker latching error: " + showError(error));
-      }
-      setDiagram((state) => ({
-        ...state,
-        error,
-      }));
-      setWorkerState((state) => ({
-        ...state,
-        compiling: false,
-        optimizing: false,
-      }));
-    };
-
-    // const onDrag = async (
-    //   shapePath: string,
-    //   finish: boolean,
-    //   dx: number,
-    //   dy: number,
-    // ) => {
-    //   try {
-    //     setDiagram((state) => ({
-    //       ...state,
-    //       widgetEnabledPaths: finish ?
-    //         diagram.widgetEnabledPaths.remove(shapePath)
-    //         : diagram.widgetEnabledPaths.add(shapePath)
-    //     }));
-    //     const { onStart, onFinish } = await optimizer.dragShape(
-    //       shapePath,
-    //       finish,
-    //       dx,
-    //       dy,
-    //     );
-    //     onFinish
-    //       .then((info) => {
-    //         setDiagram((state) => ({
-    //           ...state,
-    //           state: info.state,
-    //         }));
-    //         setWorkerState((state) => ({
-    //           ...state,
-    //           optimizing: false,
-    //         }));
-    //       })
-    //       .catch(onError);
-    //
-    //     await onStart;
-    //     setWorkerState({
-    //       ...workerState,
-    //       optimizing: true,
-    //     });
-    //   } catch (error: any) {
-    //     onError(error);
-    //   }
-    // };
-
-    const onClick = (path: string) => {
-      setEnabledWidgetPath(() => path);
-    };
 
     if (state !== null && cur !== null) {
       (async () => {
@@ -144,7 +54,7 @@ export default function DiagramPanel() {
             height: "100%",
             texLabels: false,
           },
-          onClick,
+          () => {},
         );
         rendered.setAttribute("width", "100%");
         rendered.setAttribute("height", "100%");
@@ -254,7 +164,6 @@ export default function DiagramPanel() {
         <LayoutTimelineSlider />
         {diagram.svg && state && (
           <InteractivityOverlay
-            enabledWidgetPath={enabledWidgetPath}
             diagramSVG={diagram.svg}
             state={state}
           />

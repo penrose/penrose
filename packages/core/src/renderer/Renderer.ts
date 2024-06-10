@@ -59,22 +59,6 @@ const getPosition = (
   return { x: 0, y: 0 };
 };
 
-const screenBBoxtoSVGBBox = (
-  bbox: DOMRect,
-  parentSVG: SVGSVGElement,
-): DOMRect => {
-  const ctmInv = parentSVG.getScreenCTM()!.inverse();
-  const topLeft = new DOMPoint(bbox.left, bbox.top);
-  const bottomRight = new DOMPoint(bbox.right, bbox.bottom);
-  const topLeftSVG = topLeft.matrixTransform(ctmInv);
-  const bottomRightSVG = bottomRight.matrixTransform(ctmInv);
-  return new DOMRect(
-    topLeftSVG.x,
-    topLeftSVG.y,
-    bottomRightSVG.x - topLeftSVG.x,
-    bottomRightSVG.y - topLeftSVG.y,
-  );
-};
 
 /**
  * Renders a static SVG of the shapes and labels.
@@ -255,7 +239,7 @@ export const RenderShape = async (
   } else {
     const elem = await RenderShapeSvg(shape, renderProps);
     if (onClick) {
-      elem.addEventListener("mousedown", () => {
+      elem.addEventListener("mouseover", () => {
         onClick(shape.name.contents);
       });
     }
