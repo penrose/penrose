@@ -45,28 +45,6 @@ export const toPathString = (
     })
     .join(" ");
 
-const Shadow = (id: string) => {
-  const elem = document.createElementNS("http://www.w3.org/2000/svg", "filter");
-  elem.setAttribute("id", id);
-  elem.setAttribute("x", "0");
-  elem.setAttribute("y", "0");
-  elem.setAttribute("width", "200%");
-  elem.setAttribute("height", "200%");
-  elem.innerHTML = `
-    <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-       <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-       <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-       <feComponentTransfer>
-         <feFuncA type="linear" slope="0.5" />
-       </feComponentTransfer>
-       <feMerge>
-         <feMergeNode />
-         <feMergeNode in="SourceGraphic" />
-       </feMerge>
-    `;
-  return elem;
-};
-
 export const RenderPath = (
   shape: Path<number>,
   { canvasSize }: RenderProps,
@@ -74,7 +52,6 @@ export const RenderPath = (
   // TODO: distinguish between fill opacity and stroke opacity
   const startArrowId = shape.name.contents + "-startArrowId";
   const endArrowId = shape.name.contents + "-endArrowId";
-  const shadowId = shape.name.contents + "-shadow";
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
   const strokeColor = toSvgPaintProperty(shape.strokeColor.contents);
   const strokeOpacity = toSvgOpacityProperty(shape.strokeColor.contents);
@@ -122,7 +99,6 @@ export const RenderPath = (
     "flipStartArrowhead",
     "endArrowhead",
   );
-  elem.appendChild(Shadow(shadowId));
 
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
   attrToNotAutoMap.push(...attrFill(shape, path));
