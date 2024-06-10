@@ -18,6 +18,7 @@ constructor SecondCircularCorner( Triangle ijk ) -> Angle
 constructor ThirdCircularCorner( Triangle ijk ) -> Angle
 constructor StartBendAngle( Edge ij ) -> Angle
 constructor EndBendAngle( Edge ij ) -> Angle
+constructor LengthMarker( Edge ij ) -> Segment
 
 constructor CircleThrough( Edge e ) -> Circle
 constructor CenterOf( Circle c ) -> Point

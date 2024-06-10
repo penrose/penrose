@@ -3,21 +3,57 @@ canvas {
   height = 200
 }
 
+colors {
+   color debug = #ff6600
+
+   -- main color for points and lines/curves
+   color point = #000
+   color line = #000
+
+   -- fill color for solid regions
+   color solidRegion = #1b1f8a33
+
+   -- fill and stroke color for ancillary points
+   color secondaryPointFill = #fff
+   color secondaryPointStroke = #000
+
+   -- stroke color for ancillary lines
+   color secondaryLine = #1b1f8a
+
+   -- stroke color for lines/curves used to indicate
+   -- geometric constructions
+   color constructionLine = #0003
+}
+
 global {
-  scalar pointSize = 2.0
+
+  -- default size for vertices, points, etc.
+  scalar dotSize = 2.0
+
+  -- default width for lines/curves
+  scalar lineWidth = 1
+
+  -- width for secondary lines/curves
+  scalar secondaryLineWidth = 0.8
   
   -- size of angle markers
   scalar straightAngleRadius = 15
   scalar circularAngleRadius = 20
   scalar bendAngleRadius = 25
+
+  -- labels
+  string labelFont = "Linux Libertine O"
+  string labelStyle = "italic"
+  string labelSize = "9px"
+  scalar labelSizeNum = 9
 }
 
 forall Vertex v {
   vec2 v.p = (?,?)
   shape v.icon = Circle {
     center: v.p
-    r: global.pointSize
-    fillColor: #000
+    r: global.dotSize
+    fillColor: colors.point
   }
 }
 
@@ -36,7 +72,7 @@ where e := Edge(u,v) {
     start: e.start
     end: e.end
     strokeDasharray: "4 6"
-    strokeColor: #1b1f8a33
+    strokeColor: colors.constructionLine
   }
 
   scalar e.alpha = random( -1, 1 ) * MathPI()/4 -- bend angle
@@ -55,8 +91,8 @@ where e := Edge(u,v) {
 
   shape e.arc = Path {
     d: e.bentPath
-    strokeColor: #000
-    strokeWidth: 1
+    strokeColor: colors.line
+    strokeWidth: global.lineWidth
   }
 }
 
@@ -73,13 +109,13 @@ where t := Triangle(ij,jk,ki) {
 
    shape t.straightRegion = Polygon {
      points: [ t.pi, t.pj, t.pk ]
-     fillColor: #1b1f8a33
+     fillColor: colors.solidRegion
      strokeColor: none()
    }
 
    shape t.circularRegion = Path {
      d: joinPaths([ij.bentPath, jk.bentPath, ki.bentPath])
-     fillColor: #1b1f8a33
+     fillColor: colors.solidRegion
      strokeColor: none()
    }
 }
@@ -95,9 +131,9 @@ forall Angle A {
    shape A.disk = Circle {
       center: A.c
       r: A.r
-      fillColor: #1b1f8a33
-      strokeColor: #1b1f8a
-      strokeWidth: 1
+      fillColor: colors.solidRegion
+      strokeColor: colors.secondaryLine
+      strokeWidth: global.secondaryLineWidth
    }
    shape A.mask = Circle {
       center: A.disk.center
@@ -172,8 +208,8 @@ where A := StartBendAngle( ij ) {
    override A.mask = Path {
       d: joinPaths( [ij.bentPath] )
       fillColor: A.disk.fillColor
-      strokeColor: #000
-      strokeWidth: 1
+      strokeColor: colors.debug
+      strokeWidth: global.lineWidth
    }
 }
 forall Angle A; Edge ij
@@ -193,8 +229,8 @@ forall Circle C {
       center: C.c
       r: C.r
       fillColor: none()
-      strokeColor: #0004
-      strokeWidth: 1
+      strokeColor: colors.constructionLine
+      strokeWidth: global.lineWidth
    }
 }
 
@@ -215,10 +251,10 @@ forall Point P {
 
    shape P.icon = Circle {
       center: P.p
-      r: global.pointSize
-      fillColor: #fff
-      strokeColor: #000
-      strokeWidth: .65
+      r: global.dotSize
+      fillColor: colors.secondaryPointFill
+      strokeColor: colors.secondaryPointStroke
+      strokeWidth: global.secondaryLineWidth
    }
 }
 
@@ -234,8 +270,8 @@ forall Segment S {
    S.icon = Line {
       start: S.start
       end: S.end
-      strokeWidth: 1
-      strokeColor: #0003
+      strokeWidth: global.lineWidth
+      strokeColor: colors.constructionLine
    }
 }
 
@@ -243,6 +279,41 @@ forall Segment S; Circle C
 where S := RadiusOf(C) {
    override S.start = C.c
    override S.end = C.c + circleRandom()*C.r
+}
+
+forall Segment S; Edge e
+where S := LengthMarker(e) {
+   scalar offset = 8
+   scalar markerSize = 3
+
+   vec2 p0 = e.start
+   vec2 p1 = e.end
+   vec2 t = unit(p1-p0)
+   vec2 n = -rot90(t)
+   vec2 a = p0 + offset*n
+   vec2 b = p1 + offset*n
+
+   override S.start = a
+   override S.end = b
+
+   color markerColor = #ddd
+   override S.icon.strokeColor = markerColor
+
+   shape markerA = Line {
+      start: a - markerSize*n
+      end: a + markerSize*n
+      strokeColor: markerColor
+      strokeWidth: S.icon.strokeWidth
+   }
+   shape markerB = Line {
+      start: b - markerSize*n
+      end: b + markerSize*n
+      strokeColor: markerColor
+      strokeWidth: S.icon.strokeWidth
+   }
+   shape G = Group {
+      shapes: [ S.icon, markerA, markerB ]
+   }
 }
 
 forall Triangle t

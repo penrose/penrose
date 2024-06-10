@@ -20,6 +20,8 @@ Circle Cjk := CircleThrough( jk )
 Segment rij := RadiusOf(Cjk)
 Point p := CenterOf(Cjk)
 
+Segment lki := LengthMarker( ki )
+
 -- Labeling, styling, and constants
 SetPosition( i, 70, 0 )
 SetPosition( j, -70, 70 )
