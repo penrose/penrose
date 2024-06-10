@@ -22,11 +22,10 @@ colors {
 
    -- stroke color for lines/curves used to indicate
    -- geometric constructions
-   color constructionLine = #0003
+   color constructionLine = #00000033
 }
 
 global {
-
   -- default size for vertices, points, etc.
   scalar dotSize = 2.0
 
@@ -48,8 +47,11 @@ global {
   scalar labelSizeNum = 9
 }
 
-forall Vertex v {
-  vec2 v.p = (?,?)
+-- Draw vertices as little dots
+forall Vertex v
+{
+  vec2 v.p = (?,?) -- dot location on canvas
+
   shape v.icon = Circle {
     center: v.p
     r: global.dotSize
@@ -57,62 +59,80 @@ forall Vertex v {
   }
 }
 
+-- Allow dot location to be set explicitly
 forall Vertex v; Number x,y
 where SetPosition(v,x,y) {
    override v.p = (x,y)
 }
 
+-- Draw edges as circular arcs, with the option to
+-- also draw a straight line connecting endpoints
+-- (using ShowStraightEdge(e)), and to hide the circular
+-- arc (using HideCircularEdge(e)).
 forall Edge e; Vertex u, v
 where e := Edge(u,v) {
 
+  -- Edge endpoints
   vec2 e.start = u.p
   vec2 e.end = v.p
 
-  shape e.segment = Line {
-    start: e.start
-    end: e.end
-    strokeDasharray: "4 6"
-    strokeColor: colors.constructionLine
-  }
-
+  -- Compute the center e.c, radius e.r, and start/end angles e.theta0/theta1
   scalar e.alpha = random( -1, 1 ) * MathPI()/4 -- bend angle
   vec2 m = ( e.start + e.end )/2 -- midpoint
   scalar h = .5 / tan(e.alpha) -- unnormalized distance to circle center
   vec2 n = rot90( e.start - e.end ) -- unnormalized normal
   vec2 e.c = m + n*h -- circle center
-
   vec2 w0 = e.start - e.c -- vector to start point
   vec2 w1 = e.end - e.c -- vector to end point
   scalar theta0 = angleFrom( (1,0), w0 ) -- angle to start point
   scalar theta1 = theta0 + angleFrom( w0, w1 ) -- angle to end point
   scalar e.r = norm(w0) -- circle radius
 
-  e.bentPath = circularArc( "open", e.c, e.r, theta0, theta1 )
+  -- Draw the straight edge as an invisible line
+  -- (can be made visible with ShowStraightEdge(e))
+  shape e.straightEdge = Line {
+    start: e.start
+    end: e.end
+    strokeDasharray: "4 6"
+    strokeColor: none()
+  }
 
-  shape e.arc = Path {
+  -- Draw circular edge as a visible arc
+  -- (can be made invisible with HideCircularEdge(e))
+  e.bentPath = circularArc( "open", e.c, e.r, theta0, theta1 )
+  shape e.circularEdge = Path {
     d: e.bentPath
     strokeColor: colors.line
     strokeWidth: global.lineWidth
   }
 }
 
+-- Allow edge bend angle to be set explicitly
 forall Edge e; Number alpha
 where SetBendAngle( e, alpha ) {
    override e.alpha = -alpha
 }
 
+-- Draw triangles as regions bounded by circular arcs,
+-- with the option to show the straight-edge region
+-- (using ShowStraightRegion(t)) and to hide the circular
+-- region (using HideCircularRegion(t)).
 forall Triangle t; Edge ij, jk, ki
 where t := Triangle(ij,jk,ki) {
+
+   -- Corner locations
    t.pi = ij.start
    t.pj = jk.start
    t.pk = ki.start
 
+   -- Region bounded by three straight segments
    shape t.straightRegion = Polygon {
      points: [ t.pi, t.pj, t.pk ]
-     fillColor: colors.solidRegion
+     fillColor: none()
      strokeColor: none()
    }
 
+   -- Region bounded by three circular arcs
    shape t.circularRegion = Path {
      d: joinPaths([ij.bentPath, jk.bentPath, ki.bentPath])
      fillColor: colors.solidRegion
@@ -135,6 +155,12 @@ forall Angle A {
       strokeColor: colors.secondaryLine
       strokeWidth: global.secondaryLineWidth
    }
+
+   -- The default mask is just the circle itself, so
+   -- that an angle not assigned to any shape is still
+   -- visible on canvas (as a full circle).  Other rules
+   -- will overwrite this mask to draw angles for specific
+   -- shapes.
    shape A.mask = Circle {
       center: A.disk.center
       r: A.disk.r
@@ -145,13 +171,14 @@ forall Angle A {
    }
 }
 
+-- Associate an angle with the first, second, or third
+-- straight corner of a straight-edge triangle.
 forall Angle A; Triangle ijk
 where A := FirstStraightCorner( ijk ) {
    override A.c = ijk.pi
    override A.r = global.straightAngleRadius
    override A.mask = Polygon {
       points: ijk.straightRegion.points
-      fillColor: A.disk.fillColor
    }
 }
 forall Angle A; Triangle ijk
@@ -160,7 +187,6 @@ where A := SecondStraightCorner( ijk ) {
    override A.r = global.straightAngleRadius
    override A.mask = Polygon {
       points: ijk.straightRegion.points
-      fillColor: A.disk.fillColor
    }
 }
 forall Angle A; Triangle ijk
@@ -169,17 +195,17 @@ where A := ThirdStraightCorner( ijk ) {
    override A.r = global.straightAngleRadius
    override A.mask = Polygon {
       points: ijk.straightRegion.points
-      fillColor: A.disk.fillColor
    }
 }
 
+-- Associate an angle with the first, second, or third
+-- straight corner of a circular-arc triangle.
 forall Angle A; Triangle ijk
 where A := FirstCircularCorner( ijk ) {
    override A.c = ijk.pi
    override A.r = global.circularAngleRadius
    override A.mask = Path {
       d: ijk.circularRegion.d
-      fillColor: A.disk.fillColor
    }
 }
 forall Angle A; Triangle ijk
@@ -188,7 +214,6 @@ where A := SecondCircularCorner( ijk ) {
    override A.r = global.circularAngleRadius
    override A.mask = Path {
       d: ijk.circularRegion.d
-      fillColor: A.disk.fillColor
    }
 }
 forall Angle A; Triangle ijk
@@ -197,10 +222,11 @@ where A := ThirdCircularCorner( ijk ) {
    override A.r = global.circularAngleRadius
    override A.mask = Path {
       d: ijk.circularRegion.d
-      fillColor: A.disk.fillColor
    }
 }
 
+-- Associate an angle with the start or end point
+-- of a “bent” circular edge
 forall Angle A; Edge ij
 where A := StartBendAngle( ij ) {
    override A.r = global.bendAngleRadius
@@ -222,6 +248,7 @@ where A := EndBendAngle( ij ) {
    }
 }
 
+-- Draw circles as empty circles
 forall Circle C {
    vec2 C.c = (?,?)
    scalar C.r = abs(?)
@@ -234,7 +261,8 @@ forall Circle C {
    }
 }
 
--- draw the circle associated with the arc through a given edge
+-- Draw the circle associated with the arc through
+-- a given edge
 forall Circle C; Edge ij
 where C := CircleThrough( ij ) {
 
@@ -246,23 +274,27 @@ where C := CircleThrough( ij ) {
    override C.r = ij.r
 }
 
+-- Draw points as little dots
 forall Point P {
    vec2 P.p = (?,?)
 
    shape P.icon = Circle {
       center: P.p
       r: global.dotSize
-      fillColor: colors.secondaryPointFill
-      strokeColor: colors.secondaryPointStroke
-      strokeWidth: global.secondaryLineWidth
+      fillColor: colors.point
    }
 }
 
+-- Draw circle centers as "secondary points"
 forall Point P; Circle C
 where P := CenterOf(C) {
    override P.p = C.c
+   override P.icon.fillColor = colors.secondaryPointFill
+   override P.icon.strokeColor = colors.secondaryPointStroke
+   override P.icon.strokeWidth = global.secondaryLineWidth
 }
 
+-- Draw segments as straight lines
 forall Segment S {
    vec2 S.start = (?,?)
    vec2 S.end = (?,?)
@@ -275,21 +307,26 @@ forall Segment S {
    }
 }
 
+-- Mark the radius of a circle by drawing a line from
+-- the center to an arbitrary point on the boundary
 forall Segment S; Circle C
 where S := RadiusOf(C) {
    override S.start = C.c
    override S.end = C.c + circleRandom()*C.r
 }
 
+-- Indicate a length by drawing a segment with endcaps
 forall Segment S; Edge e
 where S := LengthMarker(e) {
-   scalar offset = 8
-   scalar markerSize = 3
 
+   scalar offset = 8 -- distance from marked edge
+   scalar markerSize = 3 -- size of endcaps
+
+   -- Compute endpoints for offset marker
    vec2 p0 = e.start
    vec2 p1 = e.end
-   vec2 t = unit(p1-p0)
-   vec2 n = -rot90(t)
+   vec2 t = unit(p1-p0) -- tangent
+   vec2 n = -rot90(t) -- normal
    vec2 a = p0 + offset*n
    vec2 b = p1 + offset*n
 
@@ -311,29 +348,37 @@ where S := LengthMarker(e) {
       strokeColor: markerColor
       strokeWidth: S.icon.strokeWidth
    }
+   -- Draw the three segments as a group, to make
+   -- them easier to edit in external programs
    shape G = Group {
       shapes: [ S.icon, markerA, markerB ]
    }
 }
 
+-- Hide/show various decorations
 forall Triangle t
-where HideStraightRegion(t) {
-   override t.straightRegion.fillColor = none()
+where ShowStraightRegion(t) {
+   override t.straightRegion.fillColor = colors.solidRegion
 }
-
 forall Triangle t
 where HideCircularRegion(t) {
    override t.circularRegion.fillColor = none()
 }
+forall Edge e
+where HideCircularEdge(e) {
+   override e.circularEdge.strokeColor = none()
+}
+forall Edge e
+where ShowStraightEdge(e) {
+   override e.straightEdge.strokeColor = colors.constructionLine
+}
 
 -- Layering
-
 forall Circle C; Point P; Segment S
 where P := CenterOf(C); S := RadiusOf(C) {
    layer P.icon above S.icon
    layer S.icon above C.icon
 }
-
 forall Point P; Triangle T {
    layer P.icon above T.straightRegion
    layer P.icon above T.circularRegion

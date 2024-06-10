@@ -1,31 +1,45 @@
+-- Connectivity of CAT mesh
 type Vertex
 type Edge
 type Triangle
 constructor Edge(Vertex v0, Vertex v1)
 constructor Triangle(Edge e0, Edge e1, Edge e2)
 
+-- Basic geometry in the plane
 type Point
 type Angle
 type Circle
 type Segment
 
-constructor StraightCorner( Vertex i, Vertex j1, Vertex j2 ) -> Angle
+-- Optionally, the location of a vertex and bending angle
+-- of an edge can be specified explicitly by numerical values
+-- NOTE: Due to a bug in Penrose, you cannot set x = y
+predicate SetPosition( Vertex v, Number x, Number y )
+predicate SetBendAngle( Edge e, Number alpha )
+
+-- Straight corners mark angles in the straight edge triangle
 constructor FirstStraightCorner( Triangle ijk ) -> Angle
 constructor SecondStraightCorner( Triangle ijk ) -> Angle
 constructor ThirdStraightCorner( Triangle ijk ) -> Angle
+
+-- Circular corners mark angles in the circular arc triangle
 constructor FirstCircularCorner( Triangle ijk ) -> Angle
 constructor SecondCircularCorner( Triangle ijk ) -> Angle
 constructor ThirdCircularCorner( Triangle ijk ) -> Angle
+
+-- Bend angles mark angles at the start/end of a circular edge
 constructor StartBendAngle( Edge ij ) -> Angle
 constructor EndBendAngle( Edge ij ) -> Angle
-constructor LengthMarker( Edge ij ) -> Segment
 
+-- Decorations for illustrating various quantities/constructions
+constructor LengthMarker( Edge ij ) -> Segment
 constructor CircleThrough( Edge e ) -> Circle
 constructor CenterOf( Circle c ) -> Point
 constructor RadiusOf( Circle c ) -> Segment
 
-predicate SetPosition( Vertex v, Number x, Number y )
-predicate SetBendAngle( Edge e, Number alpha )
-predicate HideStraightRegion( Triangle t )
+-- Toggles to show/hide different parts of the figure
+predicate ShowStraightRegion( Triangle t )
 predicate HideCircularRegion( Triangle t )
+predicate ShowStraightEdge( Edge e )
+predicate HideCircularEdge( Edge e )
 
