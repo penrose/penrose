@@ -55,7 +55,6 @@ const respond = (response: Resp) => {
   postMessage(response);
 };
 
-
 const respondError = (error: WorkerError) => {
   respond({
     tag: "ErrorResp",
@@ -180,6 +179,7 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
 
 const compileAndRespond = async (data: CompiledReq) => {
   const { domain, substance, style, variation, jobId } = data;
+
   const compileResult = await compileTrio({
     domain,
     substance,
@@ -200,6 +200,8 @@ const compileAndRespond = async (data: CompiledReq) => {
     workerState = WorkerState.Compiled;
     respondCompiled(jobId, unoptState);
   }
+};
+
 const respondShapes = (index: number) => {
   if (index >= history.length) {
     respondError({

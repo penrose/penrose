@@ -222,6 +222,7 @@ export const useResampleDiagram = () =>
     }
     const variation = generateVariation();
     const resamplingLoading = toast.loading("Resampling...");
+
     const onError = (error: any) => {
       _onError(error, set);
       toast.dismiss(resamplingLoading);
@@ -265,43 +266,6 @@ export const useResampleDiagram = () =>
 
       const info = await optimizer.pollForUpdate();
       if (info !== null) onUpdate(info);
-    } catch (error: unknown) {
-      onError(error);
-    }
-  });
-
-    try {
-      const { onStart, onFinish } = await optimizer.resample(id, variation);
-      onFinish
-        .then(() => {
-          toast.dismiss(resamplingLoading);
-          set(diagramWorkerState, (state) => ({
-            ...state,
-            optimizing: false,
-          }));
-        })
-        .catch(onError);
-
-      await onStart;
-      set(diagramWorkerState, (state) => ({
-        ...state,
-        optimizing: true,
-      }));
-
-      const info = await optimizer.pollForUpdate();
-      if (info === null) return;
-      set(diagramState, (state) => ({
-        ...state,
-        metadata: { ...state.metadata, variation },
-        state: info.state,
-      }));
-      // update grid state too
-      set(diagramGridState, ({ gridSize }) => ({
-        variations: range(gridSize).map((i) =>
-          i === 0 ? variation : generateVariation(),
-        ),
-        gridSize,
-      }));
     } catch (error: unknown) {
       onError(error);
     }
@@ -1067,7 +1031,7 @@ export const saveShortcutHook = () => {
 };
 
 /**
- * Autosaves every 5 seconds after a user has finished editing.
+ * Autosaves every 4 seconds after a user has finished editing.
  */
 export const autosaveHook = () => {
   const currentWorkspace = useRecoilValue(currentWorkspaceState);
@@ -1091,7 +1055,7 @@ export const autosaveHook = () => {
         if (currentWorkspace.metadata.location.kind == "stored") {
           saveWorkspace();
         }
-      }, 2000);
+      }, 4000);
       autosaveTimerSetter(newTimeoutId);
     }, 500),
     // So that updates to these values won't be reflected in execution

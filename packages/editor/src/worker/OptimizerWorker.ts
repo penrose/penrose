@@ -303,7 +303,7 @@ export default class OptimizerWorker {
       goToErrorState();
       return;
     }
-    
+
     if (
       data.tag === "UpdateResp" &&
       this.state.tag !== "WaitingForUpdate" &&
@@ -318,8 +318,6 @@ export default class OptimizerWorker {
         `Worker responded ${data.tag} while in state ${this.state.tag}`,
       );
     };
-    this.worker.terminate();
-  }
 
     switch (this.state.tag) {
       case "Optimizing":
