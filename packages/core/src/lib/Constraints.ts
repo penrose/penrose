@@ -30,6 +30,7 @@ import {
   real2T,
   realNT,
   realT,
+  shapeListT,
   shapeT,
 } from "../utils/Util.js";
 import { constrDictCurves } from "./Curves.js";
@@ -1057,6 +1058,36 @@ const constrDictGeneral = {
       },
     ],
     body: noWarnFn(containsRects),
+  },
+
+  hSpacing: {
+    name: "hSpacing",
+    description:
+      "Requires that the bounding boxes for shapes within a shapeList are touching.",
+    params: [
+      {
+        name: "shapes",
+        description:
+          "List containing the top-left, top-right, bottom-right, bottom-left points (in that order) of the axis-aligned bounding box of a shape",
+        type: shapeListT(),
+      },
+    ],
+    body: noWarnFn((shapes: Shape<ad.Num>[]) => {
+      let spacingSum: ad.Num = 0;
+
+      for (let i = 0; i < shapes.length - 1; i++) {
+        const currShape = BBox.maxX(bboxFromShape(shapes[i]));
+        const nextShape = BBox.minX(bboxFromShape(shapes[i + 1]));
+
+        const difference = absVal(sub(currShape, nextShape));
+
+        spacingSum = add(spacingSum, difference);
+
+        //compare |currShapeRight - nextShapeLeft|
+      }
+
+      return spacingSum;
+    }),
   },
 };
 
