@@ -8,9 +8,10 @@ constructor Triangle(Edge e0, Edge e1, Edge e2)
 
 -- Basic geometry in the plane
 type Geometry
-type Point <: Geometry
 type Angle <: Geometry
+type Arc <: Geometry
 type Circle <: Geometry
+type Point <: Geometry
 type Segment <: Geometry
 
 -- Optionally, the location of a vertex and bending angle
@@ -35,6 +36,7 @@ constructor EndBendAngle( Edge ij ) -> Angle
 
 -- Decorations for illustrating various quantities/constructions
 constructor LengthMarker( Edge ij ) -> Segment
+constructor ArcLengthMarker( Edge ij ) -> Arc
 constructor CircleThrough( Edge e ) -> Circle
 constructor CenterOf( Circle c ) -> Point
 constructor RadiusOf( Circle c ) -> Segment

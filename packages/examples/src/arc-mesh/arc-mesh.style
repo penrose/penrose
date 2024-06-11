@@ -26,7 +26,8 @@ colors {
 
    -- stroke color for lines/curves used to indicate
    -- geometric constructions
-   color constructionLine = #00000033
+   color constructionLine = #000
+   scalar constructionLineOpacity = 0.2
 }
 
 global {
@@ -43,6 +44,10 @@ global {
   scalar straightAngleRadius = 15
   scalar circularAngleRadius = 20
   scalar bendAngleRadius = 25
+
+  -- size of length markers
+  scalar markerOffset = 8 -- distance from marked edge/arc
+  scalar markerEndcapSize = 3 -- size of straight end caps
 
   -- labels
   string labelFont = "Linux Libertine O"
@@ -98,8 +103,8 @@ where e := Edge(u,v) {
   vec2 e.c = m + n*h -- circle center
   vec2 w0 = e.start - e.c -- vector to start point
   vec2 w1 = e.end - e.c -- vector to end point
-  scalar theta0 = angleFrom( (1,0), w0 ) -- angle to start point
-  scalar theta1 = theta0 + angleFrom( w0, w1 ) -- angle to end point
+  scalar e.theta0 = angleFrom( (1,0), w0 ) -- angle to start point
+  scalar e.theta1 = e.theta0 + angleFrom( w0, w1 ) -- angle to end point
   scalar e.r = norm(w0) -- circle radius
 
   -- Draw the straight edge as an invisible line
@@ -109,12 +114,13 @@ where e := Edge(u,v) {
     end: e.end
     strokeDasharray: "4 6"
     strokeColor: none()
+    opacity: colors.constructionLineOpacity
     ensureOnCanvas: false
   }
 
   -- Draw circular edge as a visible arc
   -- (can be made invisible with HideCircularEdge(e))
-  e.bentPath = circularArc( "open", e.c, e.r, theta0, theta1 )
+  e.bentPath = circularArc( "open", e.c, e.r, e.theta0, e.theta1 )
   shape e.circularEdge = Path {
     d: e.bentPath
     strokeColor: colors.line
@@ -288,6 +294,7 @@ forall Circle C {
       r: C.r
       fillColor: none()
       strokeColor: colors.constructionLine
+      opacity: colors.constructionLineOpacity
       strokeWidth: global.lineWidth
       ensureOnCanvas: false
    }
@@ -338,7 +345,7 @@ forall Segment S {
       start: S.start
       end: S.end
       strokeWidth: global.lineWidth
-      strokeColor: colors.constructionLine
+      strokeColor: colors.line
       ensureOnCanvas: false
    }
    shape S.icon = Group {
@@ -353,40 +360,37 @@ forall Segment S; Circle C
 where S := RadiusOf(C) {
    override S.start = C.c
    override S.end = C.c + circleRandom()*C.r
+   override S.icon.opacity = colors.constructionLineOpacity
 }
 
 -- Indicate a length by drawing a segment with endcaps
 forall Segment S; Edge e
 where S := LengthMarker(e) {
 
-   scalar offset = 8 -- distance from marked edge
-   scalar markerSize = 3 -- size of endcaps
-
    -- Compute endpoints for offset marker
    vec2 p0 = e.start
    vec2 p1 = e.end
    vec2 t = unit(p1-p0) -- tangent
    vec2 n = -rot90(t) -- normal
-   vec2 a = p0 + offset*n
-   vec2 b = p1 + offset*n
+   vec2 a = p0 + global.markerOffset*n
+   vec2 b = p1 + global.markerOffset*n
 
    override S.start = a
    override S.end = b
 
-   color markerColor = #ddd
-   override S.line.strokeColor = markerColor
+   override S.line.strokeColor = colors.constructionLine
 
    shape markerA = Line {
-      start: a - markerSize*n
-      end: a + markerSize*n
-      strokeColor: markerColor
+      start: a - global.markerEndcapSize*n
+      end: a + global.markerEndcapSize*n
+      strokeColor: colors.constructionLine
       strokeWidth: S.line.strokeWidth
       ensureOnCanvas: false
    }
    shape markerB = Line {
-      start: b - markerSize*n
-      end: b + markerSize*n
-      strokeColor: markerColor
+      start: b - global.markerEndcapSize*n
+      end: b + global.markerEndcapSize*n
+      strokeColor: colors.constructionLine
       strokeWidth: S.line.strokeWidth
       ensureOnCanvas: false
    }
@@ -394,6 +398,64 @@ where S := LengthMarker(e) {
    -- them easier to edit in external programs
    override S.icon = Group {
       shapes: [ S.line, markerA, markerB ]
+      ensureOnCanvas: false
+      opacity: colors.constructionLineOpacity
+   }
+}
+
+-- Arc -------------------------------------------------------------------------
+
+forall Arc A {
+   scalar A.theta0 = 0
+   scalar A.theta1 = MathPI()/2
+   scalar A.r = 30
+   vec2 A.c = (?,?)
+
+   shape A.arc = Path {
+      d: circularArc( "open", A.c, A.r, A.theta0, A.theta1 )
+      strokeColor: colors.constructionLine
+      strokeWidth: 1
+      ensureOnCanvas: false
+   }
+   shape A.icon = Group {
+      shapes: [A.arc]
+      ensureOnCanvas: false
+      opacity: colors.constructionLineOpacity
+   }
+}
+
+-- Indicate an arc length by drawing an arc with endcaps
+forall Arc A; Edge e
+where A := ArcLengthMarker(e) {
+
+   vec2 u0 = unitVector( e.theta0 )
+   vec2 u1 = unitVector( e.theta1 )
+   scalar R = e.r + global.markerOffset
+   vec2 a = e.c + R*u0
+   vec2 b = e.c + R*u1
+
+   override A.c = e.c
+   override A.r = R
+   override A.theta0 = e.theta0
+   override A.theta1 = e.theta1
+
+   shape A.markerA = Line {
+      start: a - global.markerEndcapSize*u0
+      end: a + global.markerEndcapSize*u0
+      strokeColor: A.arc.strokeColor
+      strokeWidth: A.arc.strokeWidth
+      ensureOnCanvas: false
+   }
+   shape A.markerB = Line {
+      start: b - global.markerEndcapSize*u1
+      end: b + global.markerEndcapSize*u1
+      strokeColor: A.arc.strokeColor
+      strokeWidth: A.arc.strokeWidth
+      ensureOnCanvas: false
+   }
+   override A.icon = Group {
+      shapes: [A.arc, A.markerA, A.markerB]
+      opacity: colors.constructionLineOpacity
       ensureOnCanvas: false
    }
 }
@@ -443,15 +505,56 @@ where v has math label {
 -- Labeling --------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
-forall Vertex v
-where v has math label {
-   shape v.labelText = Equation {
-      string: v.label
+forall MeshElement E
+where E has math label {
+   shape E.labelText = Equation {
+      string: E.label
       fontSize: global.labelSize
       ensureOnCanvas: false
    }
+}
+
+forall Geometry G
+where G has math label {
+   shape G.labelText = Equation {
+      string: G.label
+      fontSize: global.labelSize
+      ensureOnCanvas: false
+   }
+}
+
+forall Vertex v
+where v has math label {
    encourage near( v.labelText, v.icon )
    ensure disjoint( v.labelText, v.icon, global.labelPadding )
+}
+
+forall Edge e
+where e has math label {
+   encourage near( e.labelText, e.straightEdge )
+   ensure disjoint( e.labelText, e.straightEdge, global.labelPadding )
+}
+
+forall Triangle t
+where t has math label {
+   encourage near( t.labelText, (t.pi+t.pj+t.pk)/3 )
+}
+
+forall Point p
+where p has math label {
+   encourage near( p.labelText, p.icon )
+   ensure disjoint( p.labelText, p.icon, global.labelPadding )
+}
+
+forall Segment S
+where S has math label {
+   encourage near( S.labelText, S.line )
+   ensure disjoint( S.labelText, S.line, global.labelPadding )
+}
+
+forall Angle A
+where A has math label {
+   encourage norm( A.labelText.center - A.c ) == 0
 }
 
 forall Vertex v; Edge e

@@ -13,20 +13,21 @@ Segment rij := RadiusOf(Cjk)
 Point p := CenterOf(Cjk)
 
 Segment lki := LengthMarker( ki )
+Arc sjk := ArcLengthMarker( jk )
 
 Angle thetaIJK := FirstStraightCorner( ijk )
 Angle thetaJKI := SecondStraightCorner( ijk )
 Angle thetaKIJ := ThirdStraightCorner( ijk )
--- Angle betaIJK := FirstCircularCorner( ijk )
--- Angle betaJKI := SecondCircularCorner( ijk )
--- Angle betaKIJ := ThirdCircularCorner( ijk )
--- Angle betaJIL := ThirdCircularCorner( jil )
--- Angle alphaIJs := StartBendAngle( ij )
--- Angle alphaIJe := EndBendAngle( ij )
--- Angle alphaJKs := StartBendAngle( jk )
--- Angle alphaJKe := EndBendAngle( jk )
--- Angle alphaKIs := StartBendAngle( ki )
--- Angle alphaKIe := EndBendAngle( ki )
+Angle betaIJK := FirstCircularCorner( ijk )
+Angle betaJKI := SecondCircularCorner( ijk )
+Angle betaKIJ := ThirdCircularCorner( ijk )
+Angle betaLJI := ThirdCircularCorner( jil )
+Angle alphaIJs := StartBendAngle( ij )
+Angle alphaIJe := EndBendAngle( ij )
+Angle alphaJKs := StartBendAngle( jk )
+Angle alphaJKe := EndBendAngle( jk )
+Angle alphaKIs := StartBendAngle( ki )
+Angle alphaKIe := EndBendAngle( ki )
 
 -- Labeling, styling, and constants
 SetPosition( i, 70, 0 )
@@ -45,4 +46,9 @@ ShowStraightEdge(ki)
 Label i $i$
 Label j $j$
 Label k $k$
+Label p $c_{jk}$
+Label lki $\ell_{ki}$
+Label rij $r_{ij}$
+Label betaLJI $\beta_l^{ji}$
+Label thetaJKI $\theta_j^{ki}$
 
