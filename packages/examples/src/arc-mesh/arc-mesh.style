@@ -334,11 +334,15 @@ forall Segment S {
    vec2 S.start = (?,?)
    vec2 S.end = (?,?)
 
-   S.icon = Line {
+   shape S.line = Line {
       start: S.start
       end: S.end
       strokeWidth: global.lineWidth
       strokeColor: colors.constructionLine
+      ensureOnCanvas: false
+   }
+   shape S.icon = Group {
+      shapes: [S.line]
       ensureOnCanvas: false
    }
 }
@@ -370,26 +374,26 @@ where S := LengthMarker(e) {
    override S.end = b
 
    color markerColor = #ddd
-   override S.icon.strokeColor = markerColor
+   override S.line.strokeColor = markerColor
 
    shape markerA = Line {
       start: a - markerSize*n
       end: a + markerSize*n
       strokeColor: markerColor
-      strokeWidth: S.icon.strokeWidth
+      strokeWidth: S.line.strokeWidth
       ensureOnCanvas: false
    }
    shape markerB = Line {
       start: b - markerSize*n
       end: b + markerSize*n
       strokeColor: markerColor
-      strokeWidth: S.icon.strokeWidth
+      strokeWidth: S.line.strokeWidth
       ensureOnCanvas: false
    }
    -- Draw the three segments as a group, to make
    -- them easier to edit in external programs
-   shape G = Group {
-      shapes: [ S.icon, markerA, markerB ]
+   override S.icon = Group {
+      shapes: [ S.line, markerA, markerB ]
       ensureOnCanvas: false
    }
 }
@@ -430,6 +434,11 @@ forall Point P; Triangle T {
    layer P.icon above T.circularRegion
 }
 
+forall Vertex v; Geometry G
+where v has math label {
+   layer v.labelText above G.icon
+}
+
 --------------------------------------------------------------------------------
 -- Labeling --------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -443,5 +452,10 @@ where v has math label {
    }
    encourage near( v.labelText, v.icon )
    ensure disjoint( v.labelText, v.icon, global.labelPadding )
+}
+
+forall Vertex v; Edge e
+where v has math label {
+   ensure disjoint( v.labelText, e.straightEdge, global.labelPadding )
 }
 

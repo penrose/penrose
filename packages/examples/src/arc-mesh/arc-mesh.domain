@@ -1,15 +1,17 @@
 -- Connectivity of CAT mesh
-type Vertex
-type Edge
-type Triangle
+type MeshElement
+type Vertex <: MeshElement
+type Edge <: MeshElement
+type Triangle <: MeshElement
 constructor Edge(Vertex v0, Vertex v1)
 constructor Triangle(Edge e0, Edge e1, Edge e2)
 
 -- Basic geometry in the plane
-type Point
-type Angle
-type Circle
-type Segment
+type Geometry
+type Point <: Geometry
+type Angle <: Geometry
+type Circle <: Geometry
+type Segment <: Geometry
 
 -- Optionally, the location of a vertex and bending angle
 -- of an edge can be specified explicitly by numerical values
