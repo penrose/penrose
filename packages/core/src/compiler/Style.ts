@@ -131,6 +131,8 @@ import {
   LListV,
   ListV,
   MatrixV,
+  PathDataListV,
+  PathDataV,
   PropID,
   PtListV,
   ShapeListV,
@@ -176,6 +178,8 @@ import {
   listV,
   llistV,
   matrixV,
+  pathDataListV,
+  pathDataV,
   prettyPrintResolvedPath,
   ptListV,
   resolveRhsName,
@@ -2680,6 +2684,22 @@ const evalShapeList = (
   return ok(shapeListV(elems));
 };
 
+const evalPathDataList = (
+  coll: List<C> | Vector<C> | CollectionAccess<C>,
+  first: PathDataV<ad.Num>,
+  rest: ArgVal<ad.Num>[],
+): Result<PathDataListV<ad.Num>, StyleDiagnostics> => {
+  const elems = [first.contents];
+  for (const v of rest) {
+    if (v.tag === "Val" && v.contents.tag === "PathDataV") {
+      elems.push(v.contents.contents);
+    } else {
+      return err(oneErr({ tag: "BadElementError", coll, index: elems.length }));
+    }
+  }
+  return ok(pathDataListV(elems));
+};
+
 const evalListOrVector = (
   mut: MutableContext,
   canvas: Canvas,
@@ -2713,11 +2733,14 @@ const evalListOrVector = (
           case "TupV": {
             return eval2D(coll, first.contents, rest);
           }
+          case "PathDataV": {
+            return evalPathDataList(coll, first.contents, rest);
+          }
+          case "PathDataListV":
           case "BoolV":
           case "ColorV":
           case "LListV":
           case "MatrixV":
-          case "PathDataV":
           case "PtListV":
           case "StrV":
           case "ShapeListV":
@@ -2741,7 +2764,8 @@ const evalAccess = (
   switch (coll.tag) {
     case "ListV":
     case "TupV":
-    case "VectorV": {
+    case "VectorV":
+    case "PathDataListV": {
       if (indices.length !== 1) {
         return err({ tag: "BadIndexError", expr });
       }
@@ -2749,7 +2773,11 @@ const evalAccess = (
       if (!isValidIndex(coll.contents, i)) {
         return err({ tag: "OutOfBoundsError", expr, indices });
       }
-      return ok(floatV(coll.contents[i]));
+      if (coll.tag === "PathDataListV") {
+        return ok(pathDataV(coll.contents[i]));
+      } else {
+        return ok(floatV(coll.contents[i]));
+      }
     }
     case "LListV":
     case "MatrixV":
@@ -2812,6 +2840,7 @@ const evalUMinus = (
     case "StrV":
     case "TupV":
     case "ShapeListV":
+    case "PathDataListV":
     case "ClipDataV": {
       return err({ tag: "UOpTypeError", expr, arg: arg.tag });
     }
@@ -2837,6 +2866,7 @@ const evalUTranspose = (
     case "StrV":
     case "ShapeListV":
     case "ClipDataV":
+    case "PathDataListV":
     case "TupV": {
       return err({ tag: "UOpTypeError", expr, arg: arg.tag });
     }

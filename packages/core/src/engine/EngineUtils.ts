@@ -48,6 +48,7 @@ import {
   ListV,
   MatrixV,
   PathCmd,
+  PathDataListV,
   PathDataV,
   PtListV,
   ShapeListV,
@@ -159,6 +160,21 @@ function mapPathData<T, S>(f: (arg: T) => S, v: PathDataV<T>): PathDataV<S> {
           };
         }),
       };
+    }),
+  };
+}
+
+function mapPathDataList<T, S>(
+  f: (arg: T) => S,
+  v: PathDataListV<T>,
+): PathDataListV<S> {
+  return {
+    tag: "PathDataListV",
+    contents: v.contents.map((cmds) => {
+      return mapPathData(f, {
+        tag: "PathDataV",
+        contents: cmds,
+      }).contents;
     }),
   };
 }
@@ -481,6 +497,8 @@ export function mapValueNumeric<T, S>(f: (arg: T) => S, v: Value<T>): Value<S> {
       return mapPathData(f, v);
     case "ShapeListV":
       return mapShapeList(f, v);
+    case "PathDataListV":
+      return mapPathDataList(f, v);
     case "ClipDataV":
       return mapClipData(f, v);
     // non-numeric Value types

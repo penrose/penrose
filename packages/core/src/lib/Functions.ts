@@ -70,6 +70,7 @@ import {
   LListV,
   ListV,
   MatrixV,
+  PathCmd,
   PathDataV,
   PtListV,
   StrV,
@@ -89,6 +90,8 @@ import {
   noClip,
   noWarn,
   pathCmdT,
+  pathDataListT,
+  pathDataV,
   pathTypeT,
   posIntT,
   ptListV,
@@ -2002,6 +2005,87 @@ export const compDict = {
       _.chunk(tailpts, 2).forEach(([cp, pt]) => path.cubicCurveJoin(cp, pt));
       if (pathType === "closed") path.closePath();
       return noWarn(path.getPath());
+    },
+    returns: valueT("PathCmd"),
+  },
+
+  connectPaths: {
+    name: "connectPaths",
+    description:
+      "Given a list of `PathData`s, returns a `PathData` representing the union of these paths with " +
+      "lines connecting the start and end points.",
+
+    params: [
+      { type: pathTypeT(), name: "pathType", description: "Path type" },
+      {
+        type: pathDataListT(),
+        name: "pathDataList",
+        description: "List of path data",
+      },
+    ],
+    body: (
+      _context: Context,
+      pathType: string,
+      pathDataList: PathCmd<ad.Num>[][],
+    ): MayWarn<PathDataV<ad.Num>> => {
+      const connect = (startCmd: PathCmd<ad.Num>): PathCmd<ad.Num> => {
+        return {
+          cmd: "L",
+          contents: startCmd.contents,
+        };
+      };
+      const resPathData = PathBuilder.concatPaths(
+        pathDataList,
+        connect,
+        pathType === "closed",
+      );
+      return noWarn(pathDataV(resPathData));
+    },
+    returns: valueT("PathCmd"),
+  },
+
+  concatenatePaths: {
+    name: "concatenatePaths",
+    description:
+      "Given a list of `PathData`s, return the union of these paths.",
+
+    params: [
+      {
+        type: pathDataListT(),
+        name: "pathDataList",
+        description: "List of path data",
+      },
+    ],
+    body: (
+      _context: Context,
+      pathDataList: PathCmd<ad.Num>[][],
+    ): MayWarn<PathDataV<ad.Num>> => {
+      const resPathData = PathBuilder.concatPaths(pathDataList);
+      return noWarn(pathDataV(resPathData));
+    },
+    returns: valueT("PathCmd"),
+  },
+
+  joinPaths: {
+    name: "joinPaths",
+    description:
+      "Given a list of `PathData`s, join them into one SVG path. For correct results, the end points and start points" +
+      "of each path must already coincide.",
+
+    params: [
+      {
+        type: pathDataListT(),
+        name: "pathDataList",
+        description: "List of path data",
+      },
+    ],
+    body: (
+      _context: Context,
+      pathDataList: PathCmd<ad.Num>[][],
+    ): MayWarn<PathDataV<ad.Num>> => {
+      const connect = () => null;
+      const resPathData = PathBuilder.concatPaths(pathDataList, connect);
+      return noWarn(pathDataV(resPathData));
     },
     returns: valueT("PathCmd"),
   },

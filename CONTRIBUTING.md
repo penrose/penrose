@@ -35,9 +35,10 @@ Be sure you have these tools installed:
 
 - [Git][]
 
-- [Python][] 3.10 and below.
+- [Python][] 3.10 or below (if using Linux or Mac, we recommend installing via
+  [Pyenv][])
 
-- [Node.js][] v18+ (if using Linux or Mac, we recommend installing via [nvm][])
+- [Node.js][] v18 (if using Linux or Mac, we recommend installing via [nvm][])
 
   - [Yarn][] v1.x
 
@@ -52,6 +53,14 @@ don't already have it, then run this command:
 ```sh
 brew install pkg-config cairo pango libpng jpeg giflib librsvg pixman
 ```
+
+Note that, because some of these packages depend on Python, your Python version
+may be wrong after this step even if it was correct earlier; for instance, if
+you've never installed Python before so you just have the Python 3.9 that your
+Mac comes preinstalled with, you may think you're OK but then after this step
+you may run `python3 --version` again and find that you now have Python 3.12
+installed. Using [Pyenv][] is a great way to prevent these shenanigans from
+messing with your Penrose setup!
 
 ### Windows WSL
 
@@ -436,6 +445,7 @@ Our repo uses [semantic versioning][] and maintains the same version number for 
 [open a pull request]: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request
 [prettier]: https://prettier.io/
 [push]: https://github.com/git-guides/git-push
+[pyenv]: https://github.com/pyenv/pyenv
 [remote]: https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes
 [that link]: http://localhost:3000/try/
 [this repo]: https://github.com/penrose/penrose
