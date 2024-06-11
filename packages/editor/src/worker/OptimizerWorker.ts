@@ -114,7 +114,7 @@ export type OWState = StableState | WaitingState;
 /* Module helpers */
 
 const log = (consola as any)
-  .create({ level: (consola as any).LogLevel.Warn })
+  .create({ level: (consola as any).LogLevel.Debug })
   .withScope("worker:client");
 
 const isWaiting = (state: OWState): state is WaitingState => {

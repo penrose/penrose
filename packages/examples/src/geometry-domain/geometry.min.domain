@@ -1,0 +1,135 @@
+-- ~~~~~~~~~~~~~~~~ TYPES ~~~~~~~~~~~~~~~~
+type Shape
+type Point <: Shape -- This type describes a point. Example usage: 
+-- Point A, B, C
+-- AutoLabel A, B, C
+type Linelike <: Shape -- This type describes a plane. Example usage: 
+-- Plane p
+-- AutoLabel p
+type Ray <: Linelike -- This type describes a ray. See construction of a ray below.
+type Line <: Linelike -- This type describes a line. See construction of a line below.
+type Segment <: Linelike -- This type describes a line segment. See construction of a line segment below.
+
+type Angle <: Shape -- This type describes an angle. See construction of an angle below.
+
+type Circle <: Shape -- This type describes a circle. See construction of a circle below.
+
+-- ~~~~~~~~~~~~~~~~ CONSTRUCTORS ~~~~~~~~~~~~~~~~
+-- Lines and Points
+constructor Segment(Point p, Point q) -- This constructor creates a line segment from two points. Example usage: 
+-- Point A, B
+-- Segment AB := Segment(A, B)
+-- AutoLabel A, B
+constructor Ray(Point base, Point direction) -- This constructor creates a ray from two points, a base and a direction point. Example usage: 
+-- Point A, B
+-- Ray rayAB := Ray(A, B)
+-- AutoLabel A, B
+constructor Line(Point p, Point q) -- This constructor creates a line from two points. Example usage: 
+-- Point A, B
+-- Line lineAB := Line(A, B)
+-- AutoLabel A, B
+constructor InteriorAngle(Point p, Point q, Point r) -> Angle -- This constructor creates an angle from three points. Example usage: 
+-- Point A, B, C
+-- Angle angleABC := InteriorAngle(A, B, C)
+-- AutoLabel A, B, C
+constructor Circle(Point center, Point radius) -> Circle -- This constructor creates a circle from a center point and a radius point. Example usage: 
+-- Point A, B
+-- Circle circleAB := Circle(A, B)
+-- AutoLabel A, B
+
+-- ~~~~~~~~~~~~~~~~ FUNCTIONS ~~~~~~~~~~~~~~~~
+function Chord(Circle c, Point p, Point q) -> Segment -- This function creates a chord from a circle and two points on the circle. Example usage: 
+-- Point A, B, C
+-- Circle circleAB
+-- circleAB := Circle(A, B)
+-- Segment chordAC := Chord(circleAB, A, C)
+-- AutoLabel A, B, C
+function Diameter(Circle c, Point p, Point q) -> Segment -- This function creates a diameter from a circle and two points. Example usage: 
+-- Point A, B
+-- Circle circleAB
+-- 
+-- Segment diameterAC := Diameter(circleAB, A, B)
+-- AutoLabel A, B
+
+-- ~~~~~~~~~~~~~~~~ PREDICATES ~~~~~~~~~~~~~~~~
+predicate On(Point, Linelike) -- This predicate makes a point be on a line. Example usage: 
+-- Point A, B
+-- Line lineAB
+-- lineAB := Line(A, B)
+-- On(A, lineAB)
+-- AutoLabel A, B
+predicate Midpoint(Linelike, Point) -- This predicate makes a point be the midpoint of a line. Example usage: 
+-- Point A, B, C
+-- Segment segmentAB
+-- segmentAB := Segment(A, B)
+-- Midpoint(segmentAB, C)
+-- AutoLabel A, B, C
+predicate Collinear(Point, Point, Point) -- This predicate makes three points collinear. Example usage: 
+-- Point A, B, C
+-- Segment AB, BC
+-- AB := Segment(A, B)
+-- BC := Segment(B, C)
+-- Collinear(A, B, C)
+predicate ParallelMarker(Linelike, Linelike) -- This predicate marks two lines parallel. Only use if Parallel precedes it. Example usage: 
+-- Point A, B, C, D
+-- Line lineAB, lineCD
+-- lineAB := Line(A, B)
+-- lineCD := Line(C, D)
+-- Parallel(lineAB, lineCD)
+-- ParallelMarker(lineAB, lineCD)
+-- AutoLabel A, B, C, D
+predicate EqualLengthMarker(Linelike, Linelike) -- This predicate only marks two segments with a tick indicating that they have equal length. Only use if EqualLength precedes it. Example usage: 
+-- Point A, B, C, D
+-- Segment segmentAB, segmentCD
+-- segmentAB := Segment(A, B)
+-- segmentCD := Segment(C, D)
+-- EqualLength(segmentAB, segmentCD)
+-- EqualLengthMarker(segmentAB, segmentCD)
+-- AutoLabel A, B, C, D
+predicate EqualLength(Linelike, Linelike) -- This predicate makes two segments have equal length. Example usage: 
+-- Point A, B, C, D
+-- Segment segmentAB, segmentCD
+-- segmentAB := Segment(A, B)
+-- segmentCD := Segment(C, D)
+-- EqualLength(segmentAB, segmentCD)
+-- AutoLabel A, B, C, D
+predicate Parallel(Linelike, Linelike) -- This predicate makes two lines parallel. Example usage: 
+-- Point A, B, C, D
+-- Line lineAB, lineCD
+-- lineAB := Line(A, B)
+-- lineCD := Line(C, D)
+-- Parallel(lineAB, lineCD)
+-- AutoLabel A, B, C, D
+predicate RightMarked(Angle) -- This predicate makes an angle right and marks it with a square. Example usage: 
+-- Point A, B, C
+-- Angle angleABC
+-- angleABC := InteriorAngle(A, B, C)
+-- RightMarked(angleABC)
+-- AutoLabel A, B, C
+predicate Right(Angle) -- This predicate makes an angle right and does not mark it with a square. Example usage: 
+-- Point A, B, C
+-- Angle angleABC
+-- angleABC := InteriorAngle(A, B, C)
+-- Right(angleABC)
+-- AutoLabel A, B, C
+predicate EqualAngleMarker(Angle, Angle) -- This predicate only marks two angles with a tick indicating that they have equal measure. Only use if EqualAngle precedes it. Example usage: 
+-- Point A, B, C, D, E, F
+-- Angle angleABC, angleDEF
+-- angleABC := InteriorAngle(A, B, C)
+-- angleDEF := InteriorAngle(D, E, F)
+-- EqualAngle(angleABC, angleDEF)
+-- EqualAngleMarker(angleABC, angleDEF)
+-- AutoLabel A, B, C, D, E, F
+predicate EqualAngle(Angle, Angle) -- This predicate makes two angles have equal measure. Example usage: 
+-- Point A, B, C, D, E, F
+-- Angle angleABC, angleDEF
+-- angleABC := InteriorAngle(A, B, C)
+-- angleDEF := InteriorAngle(D, E, F)
+-- EqualAngle(angleABC, angleDEF)
+-- AutoLabel A, B, C, D, E, F
+predicate OnCircle(Circle, Point) -- This predicate makes a point be on a circle. Example usage: 
+-- Point A, B, C
+-- Circle circleAB
+-- circleAB := Circle(A, B)
+-- OnCircle(circleAB, C)
+-- AutoLabel A, B, C

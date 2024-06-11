@@ -1,0 +1,490 @@
+canvas {
+  width = 500
+  height = 500
+}
+
+Colors {
+    -- Keenan palette
+    black = #000000
+    darkpurple = #8c90c1
+    lightpurple = #d0d3e6
+    purple2 = rgba(0.106, 0.122, 0.54, 0.2)
+    verylightpurple = rgba(0.953, 0.957, 0.977, 1.0)
+    purple3 = rgba(0.557, 0.627, 0.769, 1.0)
+    midnightblue = rgba(0.14, 0.16, 0.52, 1.0)
+    none = none()
+}
+
+const {
+    arrowheadSize = 0.65
+    strokeWidth = 1.75
+    textPadding = 10.0
+    textPadding2 = 25.0
+    repelWeight = 0.7 -- TODO: Reverted from 0.0
+    repelWeight2 = 0.5
+    fontSize = "20px"
+    fontOutlineSize = "27px"
+    containPadding = 50.0
+    rayLength = 100.0
+    pointRadius = 4.0
+    pointStroke = 0.0
+    thetaRadius = 30.0
+    circleRadius = 150.0
+    labelPadding = 30.0
+    minSegmentLength = 80.0
+    minLineLength = 200.0
+}
+
+layout = [parallel, shape, label]
+
+--Point
+forall Point p {
+  p.x = ? except label
+  p.y = ? except label
+  p.vec = (p.x, p.y)
+  p.color = Colors.black
+
+  p.icon = Circle {
+    center: p.vec
+    r : const.pointRadius
+    fillColor : Colors.black
+    strokeWidth : 0.0
+    strokeColor : Colors.black
+  }
+
+}
+
+forall Point p 
+where p has label {
+  p.text = Equation {
+    string : p.label
+    fillColor : Colors.black
+		texContourColor: "white"
+    fontSize : const.fontSize
+    center: (? in label, ? in label)
+    ensureOnCanvas: false
+  }
+  ensure onCanvas(p.text, canvas.width, canvas.height) in label
+  ensure signedDistance(p.text, p.vec) == const.textPadding + const.pointRadius in label
+}
+
+forall Point p, q, r
+where Collinear(p, q, r) {
+  ensure collinearOrdered(p.icon.center, q.icon.center, r.icon.center) 
+  encourage notTooClose(p.icon, r.icon, const.repelWeight)
+}
+
+forall Point p
+with Linelike l
+where On(p, l) {
+  ensure signedDistance(l.icon, p.vec) == 0
+}
+
+forall Point p
+with Linelike l
+where On(p, l); p has label {
+  ensure disjoint(l.icon, p.text) in label
+}
+
+forall Point p
+where Midpoint(l, p)
+with Linelike l {
+  override p.vec = midpoint(l.icon.start, l.icon.end)
+}
+
+forall Point p
+where Midpoint(l, p); p has label
+with Linelike l {
+  override p.vec = midpoint(l.icon.start, l.icon.end)
+  ensure disjoint(p.text, l.icon) in label
+}
+
+--Linelike
+forall Linelike l {
+  l.color = Colors.black
+
+  l.icon = Line {
+    start : (?, ?)
+    end : (?, ?)
+    strokeColor : l.color
+    strokeWidth : const.strokeWidth
+    style : "solid"
+  }
+}
+
+forall Ray r
+where r := Ray(base, direction)
+with Point base; Point direction {
+  r.start = base.vec
+  r.end = direction.vec
+  r.vec = direction.vec - base.vec
+
+  override r.icon = Line {
+    start : base.icon.center
+    end : ptOnLine(base.vec, direction.vec, norm(r.vec) + 40.)
+    strokeColor : r.color
+    strokeWidth : const.strokeWidth
+    style : "solid"
+    endArrowhead : "straight"
+    endArrowheadSize: const.arrowheadSize
+  }
+  -- labeling
+  ensure disjoint(r.icon, base.text) in label
+  ensure disjoint(r.icon, direction.text) in label
+}
+
+forall Ray r {
+    r.length = const.rayLength
+}
+
+
+forall Line l
+where l := Line(p, q)
+with Point p; Point q {
+  l.start = p.vec
+  l.end = q.vec
+  l.vec = q.vec - p.vec
+  override l.icon = Line {
+    start : ptOnLine(p.vec,q.vec, -40.)
+    end : ptOnLine(p.vec, q.vec, norm(l.vec) + 40.)
+    strokeColor : l.color
+    strokeWidth : const.strokeWidth
+    style : "solid"
+    endArrowhead : "straight"
+    startArrowhead: "straight"
+    startArrowheadSize: const.arrowheadSize
+    endArrowheadSize: const.arrowheadSize
+  }
+
+  -- edge case
+  ensure norm(l.vec) > const.minLineLength
+
+  -- labeling
+  ensure disjoint(l.icon, p.text) in label
+  ensure disjoint(l.icon, q.text) in label
+}
+
+forall Linelike l1, l2 -- should this work with rays and lines?
+where ParallelMarker(l1, l2) {
+  l1.tick1 = Path {
+    d : pathFromPoints("open", chevron(l1.icon, 20.))
+    strokeWidth : 2.0
+    strokeColor : Colors.black
+    fillColor : Colors.none
+  }
+  l2.tick1 = Path {
+    d : pathFromPoints("open", chevron(l2.icon, 20.))
+    strokeWidth : 2.0
+    strokeColor : Colors.black
+    fillColor : Colors.none
+  }
+}
+
+forall Linelike l1, l2
+where Parallel(l1, l2) as p {
+  -- the dot product of the unit vectors of parallel lines is 1
+  -- HACK: scaling to 10000s for convergence
+  -- ensure dot(normalize(l1.vec), normalize(l2.vec)) == 1 in parallel
+  p.energy = ensure 10000*dot(normalize(l1.vec), normalize(l2.vec)) == 10000 in parallel
+	-- ensure shapeDistance(l1.icon, l1.icon) > 0 in parallel
+}
+
+
+--Segment
+forall Segment e
+where e := Segment(p, q)
+with Point p; Point q {
+  e.vec = [q.x - p.x, q.y - p.y]
+  e.start = p.vec
+  e.end = q.vec
+
+  override e.icon = Line {
+    start : p.icon.center
+    end : q.icon.center
+    strokeColor : e.color
+    strokeWidth : const.strokeWidth
+    style : "solid"
+  }
+
+  p.icon above e.icon
+  q.icon above e.icon
+
+  -- edge case
+  ensure norm(e.vec) > const.minSegmentLength
+}
+
+forall Segment e
+where e := Segment(p, q); p has label; q has label
+with Point p; Point q {
+	ensure disjoint(e.icon, p.text) in label
+	ensure disjoint(e.icon, q.text) in label
+}
+
+forall Segment e
+with Point p, q
+where e := Segment(p, q); e has label {
+	e.text = Equation {
+		string : e.label
+		fillColor : Colors.black
+		fontSize : const.fontSize
+		center: (? in label, ? in label)
+	}
+	ensure disjoint(e.text, e.icon) in label
+	encourage norm(e.text.center - midpoint(p.vec, q.vec)) == 0 in label
+}
+
+
+forall Linelike s, t
+where EqualLength(s, t) {
+  ensure vdist(s.icon.start, s.icon.end) == vdist(t.icon.start, t.icon.end)
+}
+
+
+forall Linelike s, t 
+where EqualLengthMarker(s, t) as e {
+  e.equivGroup = match_id
+  override s.tick = Path {
+    d : ticksOnLine(s.icon.start, s.icon.end, 15., e.equivGroup, 10.)
+    strokeWidth : 2.0
+    strokeColor : Colors.black
+    fillColor: Colors.none
+  }
+  override t.tick = Path {
+    d : ticksOnLine(t.icon.start, t.icon.end, 15., e.equivGroup, 10.)
+    strokeWidth : 2.0
+    strokeColor : Colors.black
+    fillColor: Colors.none
+  }
+  s.tick above s.icon
+  t.tick above t.icon
+}
+
+-- HACK: set transitive equal marks to have the same amount of ticks. This will not decrement subsequent matches of `EqualLength`, so only use this when there are _only_ transitive equal marks in a diagram
+forall Linelike s, t, u
+where EqualLengthMarker(s, t) as e1; EqualLengthMarker(t, u) as e2 {
+  minEquivGroup = min(e1.equivGroup, e2.equivGroup)
+  -- NOTE: since we cannot handle transitive predicates and don't allow recursive expressions, we override the shape properties so the tick counts are the same
+  override s.tick.d = ticksOnLine(s.icon.start, s.icon.end, 15., minEquivGroup, 10.) 
+  override u.tick.d = ticksOnLine(u.icon.start, u.icon.end, 15., minEquivGroup, 10.) 
+  override t.tick.d = ticksOnLine(t.icon.start, t.icon.end, 15., minEquivGroup, 10.) 
+}
+
+--Angle
+forall Angle theta
+where theta := InteriorAngle(p, q, r)
+with Point p; Point q; Point r {
+  theta.p = p.vec
+  theta.q = q.vec
+  theta.r = r.vec
+  theta.interiorDir = normalize((p.vec - q.vec) + (r.vec - q.vec))
+  theta.color = #000
+  theta.side1 = Line {
+    start : p.icon.center
+    end : q.icon.center
+    strokeColor : theta.color
+    strokeWidth : const.strokeWidth
+    style : "solid"
+  }
+  theta.side2 = Line {
+    start : q.icon.center
+    end : r.icon.center
+    strokeColor : theta.color
+    strokeWidth : const.strokeWidth
+    style : "solid"
+  }
+  
+  theta.radius = const.thetaRadius
+  -- encourage the angle to be bigger than 10
+  angle = angleBetween(theta.q - theta.p, theta.q - theta.r) 
+  ensure angle > 10/180 * MathPI()
+  theta.side1 below p.icon, q.icon
+  theta.side2 below q.icon, r.icon
+}
+
+
+-- push the vertex label out of the angle
+forall Angle a
+where a := InteriorAngle(p, q, r); q has label
+with Point p; Point q; Point r {
+	-- labeling
+  padding = const.textPadding + const.pointRadius
+	-- ideal position is right outside of the angle
+	ideal = q.vec - a.interiorDir*padding
+	encourage norm(q.text.center - ideal) == 0
+}
+
+forall Angle theta
+where theta := InteriorAngle(p, q, r); theta has label
+with Point p; Point q; Point r {
+  padding = const.textPadding + const.pointRadius + theta.text.width
+  theta.text = Equation {
+    string : theta.label
+    fillColor : Colors.black
+    fontSize : const.fontSize
+    center: q.vec + theta.interiorDir*padding
+  }
+}
+
+forall Angle theta
+where theta := InteriorAngle(p, q, r); q has label
+with Point p; Point q; Point r {
+	theta.vertexLabel = q.text
+}
+
+forall Angle a, b
+where EqualAngleMarker(a, b) as e {
+  e.equivGroup = match_id
+  --find points from p->q, then q->r for each vector. draw vectors for each
+  a.start = ptOnLine(a.q, a.p, a.radius)
+  a.end = ptOnLine(a.q, a.r, a.radius)
+  a.sweep = arcSweepFlag(a.q, a.start, a.end)
+  a.spacing = 10
+
+  b.start = ptOnLine(b.q, b.p, b.radius)
+  b.end = ptOnLine(b.q, b.r, b.radius)
+  b.sweep = arcSweepFlag(b.q, b.start, b.end)
+  b.spacing = 10
+
+  override a.mark = Path {
+    d : repeatedArcs(a.start, a.end, a.p, a.r, (a.radius, a.radius), e.equivGroup, a.spacing, a.sweep)
+    strokeWidth : 2.0
+    strokeColor : Colors.black
+    fillColor: Colors.none
+ }
+  override b.mark = Path {
+    d : repeatedArcs(b.start, b.end, b.p, b.r, (b.radius, b.radius), e.equivGroup, b.spacing, b.sweep)
+    strokeWidth : 2.0
+    strokeColor : Colors.black
+    fillColor: Colors.none
+	}
+}
+
+forall Angle a, b, c
+where EqualAngleMarker(a, b) as e1; EqualAngleMarker(b, c) as e2 {
+  minEquivGroup = min(e1.equivGroup, e2.equivGroup)
+  override a.mark.d = repeatedArcs(a.start, a.end, a.p, a.r, (a.radius, a.radius), minEquivGroup, a.spacing, a.sweep)
+  override b.mark.d = repeatedArcs(b.start, b.end, b.p, b.r, (b.radius, b.radius), minEquivGroup, b.spacing, b.sweep)
+  override c.mark.d = repeatedArcs(c.start, c.end, c.p, c.r, (c.radius, c.radius), minEquivGroup, c.spacing, c.sweep)
+}
+
+forall Angle a, b
+where EqualAngle(a, b) {
+  -- make sure angle a is equal to angle b
+  -- HACK: increase the magnitude of angles
+  weight = 100
+  angleA = angleBetween(a.p - a.q, a.r - a.q) * weight
+  angleB = angleBetween(b.p - b.q, b.r - b.q) * weight
+  ensure angleA == angleB 
+}
+
+forall Angle a
+where Right(a) {
+  -- ensure perpendicular(a.p, a.q, a.r)
+  vec2 u = a.p - a.q
+  vec2 v = a.r - a.q
+  ensure dot(u, v) == 0
+}
+
+forall Angle a
+where RightMarked(a) {
+  --render half square path of size a.radius
+  markSize = 10
+  a.mark = Path {
+    d : pathFromPoints("open", [ptOnLine(a.q, a.p, markSize), innerPointOffset(a.q, a.p, a.r, markSize), ptOnLine(a.q, a.r, markSize)])
+    strokeWidth : 2.0
+    strokeColor : #000
+    fillColor : Colors.none
+  }
+  vec2 u = a.p - a.q
+  vec2 v = a.r - a.q
+  ensure dot(u, v) == 0
+}
+
+forall Circle c {
+  c.radius = const.circleRadius
+  c.vec = (?, ?)
+
+  c.icon = Circle {
+    center : c.vec
+    r : c.radius
+    strokeWidth : const.strokeWidth
+    strokeColor : Colors.black
+    fillColor : Colors.none
+  }
+}
+
+forall Circle c
+where c := Circle(p, q)
+with Point p, q {
+  override c.radius = vdist(p.vec, q.vec)
+  override c.vec = p.icon.center
+  override c.icon = Circle {
+    center : c.vec
+    r : c.radius
+    strokeWidth : const.strokeWidth
+    strokeColor : Colors.black
+    fillColor : Colors.none
+  }
+}
+
+forall Point p
+where OnCircle(c, p)
+with Circle c {
+  ensure norm(c.vec - p.vec) == c.radius
+}
+
+forall Point p
+where OnCircle(c, p); p has label
+with Circle c {
+  ensure disjoint(p.text, c.icon) in label
+}
+
+forall Shape s1, s2
+where s1 has math label; s2 has math label {
+  encourage notTooClose(s1.text, s2.text) in label
+}
+
+forall Segment s
+where s := Chord(c, p, q)
+with Circle c; Point p, q {
+  override s.vec = q.vec - p.vec
+  override s.icon = Line {
+    start : p.icon.center
+    end : q.icon.center
+    strokeColor : s.color
+    strokeWidth : const.strokeWidth
+    style : "solid"
+  }
+
+  p.icon above c.icon
+  q.icon above c.icon
+  ensure norm(p.vec - c.vec) == c.radius
+  ensure norm(q.vec - c.vec) == c.radius
+  ensure norm(q.vec - p.vec) > const.minSegmentLength
+}
+
+forall Segment s
+where s := Chord(c, p, q); p has label; q has label 
+with Circle c; Point p, q {
+  ensure disjoint(c.icon, p.text) in label
+  ensure disjoint(c.icon, q.text) in label
+}
+
+
+forall Segment s
+where s := Diameter(c, p, q)
+with Circle c; Point p, q {
+  override s.vec = q.vec - p.vec
+  override s.icon = Line {
+    start : p.icon.center
+    end : q.icon.center
+    strokeWidth : const.strokeWidth
+    style : "solid"
+    strokeColor : Colors.black
+  }
+
+  p.icon above c.icon
+  q.icon above c.icon
+  ensure norm(midpoint(p.vec, q.vec) - c.icon.center) == 0
+  ensure c.icon.r * 2 == norm(s.vec)
+}

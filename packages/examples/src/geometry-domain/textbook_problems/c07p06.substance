@@ -2,7 +2,7 @@ Point A, B, C, D, E
 Let AB := Line(A, B)
 Let CD := Line(C, D)
 Parallel(AB, CD)
-ParallelMarker1(AB, CD)
+ParallelMarker(AB, CD)
 Let AC := Line(A, C)
 Let BD := Line(B, D)
 Collinear(A, E, D)

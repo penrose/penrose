@@ -130,6 +130,7 @@ export interface SynthesisContext {
 export interface SynthesizedSubstance {
   prog: SubProg<A>;
   ops: Mutation[];
+  src: string;
 }
 
 interface IDList {
@@ -503,9 +504,11 @@ export class Synthesizer {
     // add autolabel statement
     // TODO: find out what to label
     // this.updateProg(autoLabel(this.currentProg));
+    const prog = sortStmts(dedupStmts(this.currentProg)); // sort and deduplicate statements to make sure edits don't introduce compiler errors
     return {
-      prog: sortStmts(dedupStmts(this.currentProg)), // sort and deduplicate statements to make sure edits don't introduce compiler errors
+      prog,
       ops: this.currentMutations,
+      src: prettySubstance(prog),
     };
   };
 

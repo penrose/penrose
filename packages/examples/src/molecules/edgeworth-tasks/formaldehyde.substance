@@ -1,0 +1,9 @@
+Carbon c1
+Hydrogen h1, h2
+Oxygen o1
+
+Bond b1 := MakeSingleBond(h1, c1)
+Bond b2 := MakeSingleBond(h2, c1)
+Bond b3 := MakeDoubleBond(o1, c1)
+
+FourDots(o1)
