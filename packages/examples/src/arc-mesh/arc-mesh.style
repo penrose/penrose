@@ -3,6 +3,10 @@ canvas {
   height = 200
 }
 
+--------------------------------------------------------------------------------
+-- Constants and Styling -------------------------------------------------------
+--------------------------------------------------------------------------------
+
 colors {
    color debug = #ff6600
 
@@ -45,7 +49,14 @@ global {
   string labelStyle = "italic"
   string labelSize = "9px"
   scalar labelSizeNum = 9
+  scalar labelPadding = 2
 }
+
+--------------------------------------------------------------------------------
+-- Shape Definitions -----------------------------------------------------------
+--------------------------------------------------------------------------------
+
+-- Vertex ----------------------------------------------------------------------
 
 -- Draw vertices as little dots
 forall Vertex v
@@ -56,6 +67,7 @@ forall Vertex v
     center: v.p
     r: global.dotSize
     fillColor: colors.point
+    ensureOnCanvas: false
   }
 }
 
@@ -64,6 +76,8 @@ forall Vertex v; Number x,y
 where SetPosition(v,x,y) {
    override v.p = (x,y)
 }
+
+-- Edge ------------------------------------------------------------------------
 
 -- Draw edges as circular arcs, with the option to
 -- also draw a straight line connecting endpoints
@@ -95,6 +109,7 @@ where e := Edge(u,v) {
     end: e.end
     strokeDasharray: "4 6"
     strokeColor: none()
+    ensureOnCanvas: false
   }
 
   -- Draw circular edge as a visible arc
@@ -104,6 +119,7 @@ where e := Edge(u,v) {
     d: e.bentPath
     strokeColor: colors.line
     strokeWidth: global.lineWidth
+    ensureOnCanvas: false
   }
 }
 
@@ -112,6 +128,8 @@ forall Edge e; Number alpha
 where SetBendAngle( e, alpha ) {
    override e.alpha = -alpha
 }
+
+-- Triangle --------------------------------------------------------------------
 
 -- Draw triangles as regions bounded by circular arcs,
 -- with the option to show the straight-edge region
@@ -130,6 +148,7 @@ where t := Triangle(ij,jk,ki) {
      points: [ t.pi, t.pj, t.pk ]
      fillColor: none()
      strokeColor: none()
+     ensureOnCanvas: false
    }
 
    -- Region bounded by three circular arcs
@@ -137,8 +156,11 @@ where t := Triangle(ij,jk,ki) {
      d: joinPaths([ij.bentPath, jk.bentPath, ki.bentPath])
      fillColor: colors.solidRegion
      strokeColor: none()
+     ensureOnCanvas: false
    }
 }
+
+-- Angle -----------------------------------------------------------------------
 
 -- Draw each angle marker as a circular disk, which gets
 -- clipped against some other geometry to make a wedge.
@@ -154,6 +176,7 @@ forall Angle A {
       fillColor: colors.solidRegion
       strokeColor: colors.secondaryLine
       strokeWidth: global.secondaryLineWidth
+      ensureOnCanvas: false
    }
 
    -- The default mask is just the circle itself, so
@@ -164,10 +187,12 @@ forall Angle A {
    shape A.mask = Circle {
       center: A.disk.center
       r: A.disk.r
+      ensureOnCanvas: false
    }
    shape A.icon = Group {
       shapes: [ A.disk ]
       clipPath: clip( A.mask )
+      ensureOnCanvas: false
    }
 }
 
@@ -179,6 +204,7 @@ where A := FirstStraightCorner( ijk ) {
    override A.r = global.straightAngleRadius
    override A.mask = Polygon {
       points: ijk.straightRegion.points
+      ensureOnCanvas: false
    }
 }
 forall Angle A; Triangle ijk
@@ -187,6 +213,7 @@ where A := SecondStraightCorner( ijk ) {
    override A.r = global.straightAngleRadius
    override A.mask = Polygon {
       points: ijk.straightRegion.points
+      ensureOnCanvas: false
    }
 }
 forall Angle A; Triangle ijk
@@ -195,6 +222,7 @@ where A := ThirdStraightCorner( ijk ) {
    override A.r = global.straightAngleRadius
    override A.mask = Polygon {
       points: ijk.straightRegion.points
+      ensureOnCanvas: false
    }
 }
 
@@ -206,6 +234,7 @@ where A := FirstCircularCorner( ijk ) {
    override A.r = global.circularAngleRadius
    override A.mask = Path {
       d: ijk.circularRegion.d
+      ensureOnCanvas: false
    }
 }
 forall Angle A; Triangle ijk
@@ -214,6 +243,7 @@ where A := SecondCircularCorner( ijk ) {
    override A.r = global.circularAngleRadius
    override A.mask = Path {
       d: ijk.circularRegion.d
+      ensureOnCanvas: false
    }
 }
 forall Angle A; Triangle ijk
@@ -222,6 +252,7 @@ where A := ThirdCircularCorner( ijk ) {
    override A.r = global.circularAngleRadius
    override A.mask = Path {
       d: ijk.circularRegion.d
+      ensureOnCanvas: false
    }
 }
 
@@ -233,9 +264,7 @@ where A := StartBendAngle( ij ) {
    override A.c = ij.start
    override A.mask = Path {
       d: joinPaths( [ij.bentPath] )
-      fillColor: A.disk.fillColor
-      strokeColor: colors.debug
-      strokeWidth: global.lineWidth
+      ensureOnCanvas: false
    }
 }
 forall Angle A; Edge ij
@@ -244,20 +273,23 @@ where A := EndBendAngle( ij ) {
    override A.c = ij.end
    override A.mask = Path {
       d: joinPaths( [ij.bentPath] )
-      fillColor: A.disk.fillColor
+      ensureOnCanvas: false
    }
 }
+
+-- Circle ----------------------------------------------------------------------
 
 -- Draw circles as empty circles
 forall Circle C {
    vec2 C.c = (?,?)
    scalar C.r = abs(?)
-   C.icon = Circle {
+   shape C.icon = Circle {
       center: C.c
       r: C.r
       fillColor: none()
       strokeColor: colors.constructionLine
       strokeWidth: global.lineWidth
+      ensureOnCanvas: false
    }
 }
 
@@ -282,17 +314,20 @@ forall Point P {
       center: P.p
       r: global.dotSize
       fillColor: colors.point
+      ensureOnCanvas: false
    }
 }
 
 -- Draw circle centers as "secondary points"
-forall Point P; Circle C
+forall Circle C; Point P
 where P := CenterOf(C) {
    override P.p = C.c
    override P.icon.fillColor = colors.secondaryPointFill
    override P.icon.strokeColor = colors.secondaryPointStroke
    override P.icon.strokeWidth = global.secondaryLineWidth
 }
+
+-- Segment ---------------------------------------------------------------------
 
 -- Draw segments as straight lines
 forall Segment S {
@@ -304,6 +339,7 @@ forall Segment S {
       end: S.end
       strokeWidth: global.lineWidth
       strokeColor: colors.constructionLine
+      ensureOnCanvas: false
    }
 }
 
@@ -341,19 +377,26 @@ where S := LengthMarker(e) {
       end: a + markerSize*n
       strokeColor: markerColor
       strokeWidth: S.icon.strokeWidth
+      ensureOnCanvas: false
    }
    shape markerB = Line {
       start: b - markerSize*n
       end: b + markerSize*n
       strokeColor: markerColor
       strokeWidth: S.icon.strokeWidth
+      ensureOnCanvas: false
    }
    -- Draw the three segments as a group, to make
    -- them easier to edit in external programs
    shape G = Group {
       shapes: [ S.icon, markerA, markerB ]
+      ensureOnCanvas: false
    }
 }
+
+--------------------------------------------------------------------------------
+-- Decoration Control ----------------------------------------------------------
+--------------------------------------------------------------------------------
 
 -- Hide/show various decorations
 forall Triangle t
@@ -373,7 +416,10 @@ where ShowStraightEdge(e) {
    override e.straightEdge.strokeColor = colors.constructionLine
 }
 
--- Layering
+--------------------------------------------------------------------------------
+-- Layering --------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
 forall Circle C; Point P; Segment S
 where P := CenterOf(C); S := RadiusOf(C) {
    layer P.icon above S.icon
@@ -382,5 +428,20 @@ where P := CenterOf(C); S := RadiusOf(C) {
 forall Point P; Triangle T {
    layer P.icon above T.straightRegion
    layer P.icon above T.circularRegion
+}
+
+--------------------------------------------------------------------------------
+-- Labeling --------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+forall Vertex v
+where v has math label {
+   shape v.labelText = Equation {
+      string: v.label
+      fontSize: global.labelSize
+      ensureOnCanvas: false
+   }
+   encourage near( v.labelText, v.icon )
+   ensure disjoint( v.labelText, v.icon, global.labelPadding )
 }
 

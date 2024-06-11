@@ -17,16 +17,16 @@ Segment lki := LengthMarker( ki )
 Angle thetaIJK := FirstStraightCorner( ijk )
 Angle thetaJKI := SecondStraightCorner( ijk )
 Angle thetaKIJ := ThirdStraightCorner( ijk )
-Angle betaIJK := FirstCircularCorner( ijk )
-Angle betaJKI := SecondCircularCorner( ijk )
-Angle betaKIJ := ThirdCircularCorner( ijk )
-Angle betaJIL := ThirdCircularCorner( jil )
-Angle alphaIJs := StartBendAngle( ij )
-Angle alphaIJe := EndBendAngle( ij )
-Angle alphaJKs := StartBendAngle( jk )
-Angle alphaJKe := EndBendAngle( jk )
-Angle alphaKIs := StartBendAngle( ki )
-Angle alphaKIe := EndBendAngle( ki )
+-- Angle betaIJK := FirstCircularCorner( ijk )
+-- Angle betaJKI := SecondCircularCorner( ijk )
+-- Angle betaKIJ := ThirdCircularCorner( ijk )
+-- Angle betaJIL := ThirdCircularCorner( jil )
+-- Angle alphaIJs := StartBendAngle( ij )
+-- Angle alphaIJe := EndBendAngle( ij )
+-- Angle alphaJKs := StartBendAngle( jk )
+-- Angle alphaJKe := EndBendAngle( jk )
+-- Angle alphaKIs := StartBendAngle( ki )
+-- Angle alphaKIe := EndBendAngle( ki )
 
 -- Labeling, styling, and constants
 SetPosition( i, 70, 0 )
@@ -41,4 +41,8 @@ HideCircularRegion(jil)
 ShowStraightEdge(ij)
 ShowStraightEdge(jk)
 ShowStraightEdge(ki)
+
+Label i $i$
+Label j $j$
+Label k $k$
 
