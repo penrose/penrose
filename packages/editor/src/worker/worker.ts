@@ -6,7 +6,6 @@ import {
   isOptimized,
   LabelMeasurements,
   nextStage,
-  PenroseError,
   PenroseState,
   resample,
   runtimeError,
@@ -23,6 +22,7 @@ import {
   stateToLayoutState,
   WorkerState,
 } from "./common.js";
+import { WorkerError } from "./errors.js";
 
 type Frame = number[];
 
@@ -55,7 +55,8 @@ const respond = (response: Resp) => {
   postMessage(response);
 };
 
-const respondError = (error: PenroseError) => {
+
+const respondError = (error: WorkerError) => {
   respond({
     tag: "ErrorResp",
     error,
@@ -64,10 +65,14 @@ const respondError = (error: PenroseError) => {
 
 self.onmessage = async ({ data }: MessageEvent<Req>) => {
   const badStateError = () => {
-    respondError(
-      runtimeError(`Cannot receive ${data.tag} in worker state ${workerState}`),
-    );
+    respondError({
+      tag: "BadStateError",
+      request: data.tag,
+      workerState: workerState,
+      nextWorkerState: workerState,
+    });
   };
+
   switch (workerState) {
     case WorkerState.Init:
       switch (data.tag) {
@@ -105,20 +110,7 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
 
         case "ComputeShapesReq":
           log.info("Received ComputeShapesReq in state Compiled");
-          if (data.index >= history.length) {
-            respondError(
-              runtimeError(`Index ${data.index} too large for history`),
-            );
-            break;
-          }
-          {
-            const state = optState ?? unoptState;
-            const newShapes: LayoutState = stateToLayoutState({
-              ...state,
-              varyingValues: history[data.index],
-            });
-            respondUpdate(newShapes, stats);
-          }
+          respondShapes(data.index);
           break;
 
         case "CompiledReq":
@@ -132,6 +124,7 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
           // resample can fail, but doesn't return a result. Hence, try/catch
           try {
             const resampled = resample({ ...unoptState, variation });
+            workerState = WorkerState.Optimizing;
             respondOptimizing();
             optimize(insertPending(resampled));
           } catch (err: any) {
@@ -154,9 +147,10 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
       log.info("Received request during optimization");
 
       if (optState === null) {
-        respondError(
-          runtimeError(`OptState was null on request during optimizing`),
-        );
+        respondError({
+          tag: "FatalWorkerError",
+          error: runtimeError("OptState was null during optimization"),
+        });
         return;
       }
 
@@ -168,11 +162,7 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
 
         case "ComputeShapesReq":
           log.info("Received ComputeShapesReq in state Optimizing");
-          const newShapes: LayoutState = stateToLayoutState({
-            ...unoptState,
-            varyingValues: history[data.index],
-          });
-          respondUpdate(newShapes, stats);
+          respondShapes(data.index);
           break;
 
         case "InterruptReq":
@@ -190,9 +180,6 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
 
 const compileAndRespond = async (data: CompiledReq) => {
   const { domain, substance, style, variation, jobId } = data;
-
-  // save the id for the current task
-  currentTask = jobId;
   const compileResult = await compileTrio({
     domain,
     substance,
@@ -201,11 +188,35 @@ const compileAndRespond = async (data: CompiledReq) => {
   });
 
   if (compileResult.isErr()) {
-    respondError(compileResult.error);
+    respondError({
+      tag: "CompileError",
+      error: compileResult.error,
+      nextWorkerState: workerState,
+    });
   } else {
+    // save the id for the current task
+    currentTask = jobId;
     unoptState = compileResult.value;
     workerState = WorkerState.Compiled;
     respondCompiled(jobId, unoptState);
+  }
+const respondShapes = (index: number) => {
+  if (index >= history.length) {
+    respondError({
+      tag: "HistoryIndexOutOfRangeError",
+      index: index,
+      historyLength: history.length,
+      nextWorkerState: workerState,
+    });
+    return;
+  }
+  {
+    const state = optState ?? unoptState;
+    const newShapes: LayoutState = stateToLayoutState({
+      ...state,
+      varyingValues: history[index],
+    });
+    respondUpdate(newShapes, stats);
   }
 };
 
@@ -220,6 +231,7 @@ const respondCompiled = (id: string, state: PenroseState) => {
     tag: "CompiledResp",
     jobId: id,
     shapes: state.shapes,
+    warnings: state.warnings,
   });
 };
 
@@ -271,6 +283,8 @@ const optimize = async (state: PenroseState) => {
         // set by onmessage if we need to stop
         log.info("Optimization finishing early");
         shouldFinish = false;
+        workerState = WorkerState.Compiled;
+        respondFinished(state, stats);
         return;
       }
 
@@ -316,7 +330,11 @@ const optimize = async (state: PenroseState) => {
       log.info("Optimization failed. Quitting without finishing...");
       workerState = WorkerState.Compiled;
       optState = null;
-      respondError(err);
+      respondError({
+        tag: "OptimizationError",
+        error: err,
+        nextWorkerState: WorkerState.Compiled,
+      });
       return;
     }
   };

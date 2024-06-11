@@ -1,4 +1,4 @@
-import { isPenroseError, runtimeError } from "@penrose/core";
+import { isPenroseError, runtimeError, showError } from "@penrose/core";
 import { Style } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
 import { deleteDoc, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
@@ -60,6 +60,29 @@ import {
 } from "./atoms.js";
 import { generateVariation } from "./variation.js";
 
+const _onError = (
+  error: any,
+  set: <T>(state: RecoilState<T>, update: (t: T) => T) => void,
+) => {
+  if (!isPenroseError(error)) {
+    error = runtimeError(String(error));
+  }
+  console.error(showError(error));
+  if (optimizer.getState() == "Error") {
+    console.error("OptimizerWorker latching error: " + showError(error));
+  }
+  set(diagramState, (state) => ({
+    ...state,
+    warnings: [],
+    error,
+  }));
+  set(diagramWorkerState, (state) => ({
+    ...state,
+    compiling: false,
+    optimizing: false,
+  }));
+};
+
 const _compileDiagram = async (
   substance: string,
   style: string,
@@ -75,19 +98,6 @@ const _compileDiagram = async (
     set(diagramState, (state) => {
       return {
         ...state,
-        error: null,
-        // TODO: warnings
-        // warnings: initialState.warnings,
-        metadata: {
-          ...state.metadata,
-          variation,
-          excludeWarnings,
-          source: {
-            domain,
-            substance,
-            style,
-          },
-        },
         state: updatedState,
       };
     });
@@ -102,37 +112,54 @@ const _compileDiagram = async (
   };
 
   const onError = (error: any) => {
+    _onError(error, set);
     toast.dismiss(compiling);
-    if (!isPenroseError(error)) {
-      error = runtimeError(String(error));
-    }
+  };
+
+  try {
     set(diagramState, (state) => ({
       ...state,
-      error,
+      metadata: {
+        ...state.metadata,
+        variation,
+        excludeWarnings,
+        source: {
+          substance,
+          style,
+          domain,
+        },
+      },
     }));
     set(diagramWorkerState, (state) => ({
       ...state,
-      optimizing: false,
+      compiling: true,
     }));
-  };
-
-  // ugly `then` chain allows for one catch at the end
-  try {
-    const id = await optimizer.compile(domain, style, substance, variation);
+    const { id, warnings } = await optimizer.compile(
+      domain,
+      style,
+      substance,
+      variation,
+    );
     set(diagramWorkerState, (state) => ({
       ...state,
       id,
-      optimizing: false,
+      compiling: false,
     }));
+    set(diagramState, (state) => ({
+      ...state,
+      warnings: warnings,
+      error: null,
+    }));
+    toast.dismiss(compiling);
 
     const { onStart, onFinish } = await optimizer.startOptimizing();
     onFinish
-      .then(() => {
-        toast.dismiss(compiling);
+      .then((info) => {
         set(diagramWorkerState, (state) => ({
           ...state,
           optimizing: false,
         }));
+        onUpdate(info);
       })
       .catch(onError);
 
@@ -196,19 +223,52 @@ export const useResampleDiagram = () =>
     const variation = generateVariation();
     const resamplingLoading = toast.loading("Resampling...");
     const onError = (error: any) => {
+      _onError(error, set);
       toast.dismiss(resamplingLoading);
-      if (!isPenroseError(error)) {
-        error = runtimeError(String(error));
-      }
+    };
+
+    const onUpdate = (info: UpdateInfo) => {
       set(diagramState, (state) => ({
         ...state,
-        error,
+        metadata: { ...state.metadata, variation },
+        state: info.state,
+        // keep compile errors on resample, but clear runtime errors
+        error: state.error?.errorType === "RuntimeError" ? null : state.error,
       }));
-      set(diagramWorkerState, (state) => ({
-        ...state,
-        optimizing: false,
+      // update grid state too
+      set(diagramGridState, ({ gridSize }) => ({
+        variations: range(gridSize).map((i) =>
+          i === 0 ? variation : generateVariation(),
+        ),
+        gridSize,
       }));
     };
+
+    try {
+      const { onStart, onFinish } = await optimizer.resample(id, variation);
+      toast.dismiss(resamplingLoading);
+      onFinish
+        .then((info) => {
+          set(diagramWorkerState, (state) => ({
+            ...state,
+            optimizing: false,
+          }));
+          onUpdate(info);
+        })
+        .catch(onError);
+
+      await onStart;
+      set(diagramWorkerState, (state) => ({
+        ...state,
+        optimizing: true,
+      }));
+
+      const info = await optimizer.pollForUpdate();
+      if (info !== null) onUpdate(info);
+    } catch (error: unknown) {
+      onError(error);
+    }
+  });
 
     try {
       const { onStart, onFinish } = await optimizer.resample(id, variation);
@@ -272,6 +332,25 @@ export const useDownloadTrio = () =>
     }
   });
 
+export const useCopyToClipboard = () =>
+  useRecoilCallback(({ set, snapshot }) => async () => {
+    const workspace = snapshot.getLoadable(currentWorkspaceState)
+      .contents as Workspace;
+    const sub = workspace.files.substance.contents;
+    const sty = workspace.files.style.contents;
+    const dsl = workspace.files.domain.contents;
+    const concatenated = `-- .substance\n${sub}\n-- .style\n${sty}\n-- .domain\n${dsl}\n`;
+
+    navigator.clipboard
+      .writeText(concatenated)
+      .then(() => {
+        toast.success("Copied trio to clipboard!");
+      })
+      .catch(() => {
+        toast.error("Error could not copy");
+      });
+  });
+
 export const useDownloadSvg = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
     const diagram = snapshot.getLoadable(diagramMetadataSelector)
@@ -324,6 +403,7 @@ export const useDownloadSvgTex = () =>
             pathResolver(path, rogerState, metadata),
           width: state.canvas.width.toString(),
           height: state.canvas.height.toString(),
+          texLabels: true,
         });
         const domain = snapshot.getLoadable(fileContentsSelector("domain"))
           .contents as ProgramFile;
@@ -549,7 +629,11 @@ export const useCheckURL = () =>
     const parsed = queryString.parse(window.location.search);
     if ("gist" in parsed) {
       // Loading a gist
-      const id = toast.loading("Loading gist...");
+      // Show loading notification only if not redirected from share
+      var id!: string;
+      if (!("pub" in parsed)) {
+        id = toast.loading("Loading gist...");
+      }
       const res = await fetch(
         `https://api.github.com/gists/${parsed["gist"]}`,
         {
@@ -558,7 +642,9 @@ export const useCheckURL = () =>
           },
         },
       );
-      toast.dismiss(id);
+      if (!("pub" in parsed)) {
+        toast.dismiss(id);
+      }
       if (res.status !== 200) {
         console.error(res);
         toast.error(`Could not load gist: ${res.statusText}`);
@@ -601,6 +687,17 @@ export const useCheckURL = () =>
         files,
       };
       set(currentWorkspaceState, workspace);
+
+      // Notification + save to clipboard if redirected from clicking share
+      if ("pub" in parsed) {
+        const gistParameter = queryString.stringify({ gist: parsed["gist"] });
+        const shareableURL = `${window.location.origin}${window.location.pathname}?${gistParameter}`;
+        navigator.clipboard.writeText(shareableURL).then(() => {
+          toast.success("Copied shareable link to clipboard");
+        });
+        // Hide pub query parameter from displayed URL
+        window.history.replaceState({}, document.title, shareableURL);
+      }
     } else if ("examples" in parsed) {
       const t = toast.loading("Loading example...");
       const id = parsed["examples"];
@@ -709,8 +806,10 @@ export const usePublishGist = () =>
       toast.error(`Could not publish gist: ${res.statusText} ${json.message}`);
       return;
     }
-    toast.success(`Published gist, redirecting...`);
-    window.location.search = queryString.stringify({ gist: json.id });
+    // Use query string (pub) to pass state to display notification on next page
+    const gistParameter = queryString.stringify({ gist: json.id, pub: true });
+    toast.success("Redirecting to gist...");
+    window.location.search = gistParameter;
   });
 
 export const useDeleteWorkspace = () =>

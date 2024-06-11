@@ -6,9 +6,9 @@ import linearAlgebraDomain from "@penrose/examples/dist/linear-algebra-domain/li
 import twoVectorsPerpSubstance from "@penrose/examples/dist/linear-algebra-domain/twoVectorsPerp-unsugared.substance";
 import continuousMapStyle from "@penrose/examples/dist/set-theory-domain/continuousmap.style";
 import continuousMapSubstance from "@penrose/examples/dist/set-theory-domain/continuousmap.substance";
+import euler from "@penrose/examples/dist/set-theory-domain/euler.style";
 import functionsDomain from "@penrose/examples/dist/set-theory-domain/functions.domain";
 import setTheory from "@penrose/examples/dist/set-theory-domain/setTheory.domain";
-import venn from "@penrose/examples/dist/set-theory-domain/venn.style";
 
 export const error = {
   domain: `typeppp Set`,
@@ -25,7 +25,7 @@ export const oneSet = {
 Set A
 AutoLabel All
 `,
-  style: venn,
+  style: euler,
   variation: "",
 };
 

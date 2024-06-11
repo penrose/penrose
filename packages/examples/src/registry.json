@@ -1,6 +1,6 @@
 {
-  "set-theory-domain/tree-venn": {
-    "name": "Sets as Venn Diagram",
+  "set-theory-domain/tree-euler": {
+    "name": "Sets as Euler Diagram",
     "gallery": true
   },
   "set-theory-domain/tree-tree": {
@@ -23,8 +23,8 @@
     "name": "Quaternions as Cayley graph",
     "gallery": true
   },
-  "set-theory-domain/tree-venn-3d": {
-    "name": "Sets as Venn Diagram in 2.5D",
+  "set-theory-domain/tree-euler-3d": {
+    "name": "Sets as Euler Diagram in 2.5D",
     "gallery": true
   },
   "atoms-and-bonds/one-water-molecule": {

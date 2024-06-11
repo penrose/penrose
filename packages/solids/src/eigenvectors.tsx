@@ -13,22 +13,18 @@ import {
 import MarkdownIt from "markdown-it";
 import mdMJ from "markdown-it-mathjax3";
 import { createMutable } from "solid-js/store";
-import { num, signalNum } from "./util.js";
+import DraggablePoint from "./DraggablePoint.js";
+import { SignalNum, num, signalNum } from "./util.js";
 
-const md = MarkdownIt({
-  // linkify: true,
-  // breaks: true,
-}).use(mdMJ);
+const md = MarkdownIt().use(mdMJ);
 
 const [ox, oy] = [200, 330];
 const [w, h] = [270, 270];
 const fontSize = "20px";
 const fontFamily = "STIXGeneral-Italic";
-let svg: SVGSVGElement;
-
-const Draggable = (props: any) => {
-  return <div>draggable</div>;
-};
+const a1Color = "#3498db";
+const a2Color = "#2ecc71";
+const vColor = "#E74C3C";
 
 const $ = (props: { children: string }) => (
   <span innerHTML={md.render(`$${props.children}$`)}></span>
@@ -37,11 +33,18 @@ const P = (props: { children: string }) => (
   <p innerHTML={md.render(`${props.children}`)}></p>
 );
 
-const toCanvas = (props: Num[]) => [
-  add(mul(props[0], w / 5), ox),
-  add(neg(mul(props[1], h / 5)), oy),
+const toCanvas = (xy: Num[]) => [
+  add(mul(xy[0], w / 5), ox),
+  add(neg(mul(xy[1], h / 5)), oy),
 ];
-const toModel = ([x, y]: number[]): number[] => [x / (w / 5), y / (h / 5)];
+const toModel = (xy: number[]): number[] => [xy[0] / (w / 5), xy[1] / (h / 5)];
+const toScreen = (xy: number[]) => [(xy[0] * w) / 5 + ox, oy - (xy[1] * h) / 5];
+const inWorld = (xy: number[]) => {
+  const minmax = (n: number) => Math.max(0, Math.min(5, n));
+  const x = minmax(xy[0]);
+  const y = minmax(xy[1]);
+  return [x, y];
+};
 
 const Arrowhead = (args: { id: string; fill: string }) => (
   <marker
@@ -60,12 +63,10 @@ const Point = ({
   val,
   fill,
   label,
-  draggable,
 }: {
   val: Num[];
   fill: string;
   label: string;
-  draggable?: boolean;
 }) => {
   const vals = toCanvas(val).map(signalNum);
   const [lx, ly] = ops.vadd(toCanvas(val), [15, -15]).map(signalNum);
@@ -74,13 +75,10 @@ const Point = ({
       <text
         font-family={fontFamily}
         font-size={fontSize}
-        stroke={"0"}
+        stroke-width={0}
         fill={fill}
         x={num(lx)}
         y={num(ly)}
-        style={{
-          "user-select": "none",
-        }}
       >
         {label}
       </text>
@@ -90,14 +88,6 @@ const Point = ({
         r={4}
         fill={"rgb(231, 76, 60)"}
       ></circle>
-      {draggable && (
-        <g
-          transform={`translate(${num(vals[0])}, ${num(vals[1])})`}
-          onMouseDown={(e) => onMouseDown(e, svg, val as Var[])}
-        >
-          <circle r="22.91" fill="#000" fill-opacity={0.1}></circle>
-        </g>
-      )}
     </g>
   );
 };
@@ -170,13 +160,10 @@ const Vector = ({
       <text
         font-family={fontFamily}
         font-size={fontSize}
-        stroke={"0"}
+        stroke-width={0}
         fill={fill}
         x={num(lx)}
         y={num(ly)}
-        style={{
-          "user-select": "none",
-        }}
       >
         {label}
       </text>
@@ -189,15 +176,6 @@ const Vector = ({
         x2={num(vals[0])}
         y2={num(vals[1])}
       ></line>
-      <g onMouseDown={(e) => onMouseDown(e, svg, val)}>
-        <circle
-          cx={num(vals[0])}
-          cy={num(vals[1])}
-          r="22.91"
-          fill="#000"
-          fill-opacity={0.1}
-        ></circle>
-      </g>
     </g>
   );
 };
@@ -221,11 +199,7 @@ const Axis = ({
   const yTicks = Math.floor(height / yStep) + 1;
   const stroke = "#0002";
   return (
-    <g
-      style={{
-        "user-select": "none",
-      }}
-    >
+    <g>
       <g
         transform={`translate(0,${oy})`}
         style="font-size: 10px; pointer-events: none;"
@@ -272,9 +246,6 @@ export const EigenValues = ({
   a2: Var[];
   v: Var[];
 }) => {
-  const a1Color = "#3498db";
-  const a2Color = "#2ecc71";
-  const vColor = "#E74C3C";
   const A = ops.mtrans([a1, a2]);
   const Av = ops.mvmul(A, v);
   const vc = toCanvas(v).map(signalNum);
@@ -289,6 +260,38 @@ export const EigenValues = ({
   const eigen1D = eigen1.map(signalNum);
   const eigen2 = ops.vnormalize([sub(eigenValues[1], A[1][1]), A[1][0]]);
   const eigen2D = eigen2.map(signalNum);
+  const EigenSpace = ({
+    basis,
+    label,
+  }: {
+    basis: SignalNum[];
+    label: string;
+  }) => (
+    <>
+      <line
+        x1={ox}
+        y1={oy}
+        x2={ox + num(basis[0]) * 10000}
+        y2={oy - num(basis[1]) * 10000}
+        stroke-width={1}
+        stroke={"#000"}
+      ></line>
+      <text
+        font-family={fontFamily}
+        font-size={fontSize}
+        stroke="#fff"
+        stroke-width={4}
+        paint-order="stroke"
+        fill="#000"
+        x={ox + num(basis[0]) * 100}
+        y={oy - num(basis[1]) * 100}
+      >
+        {label}
+      </text>
+    </>
+  );
+
+  let svg = undefined;
 
   return (
     <div
@@ -308,62 +311,43 @@ export const EigenValues = ({
           yRange={[0, 5]}
         />
         <g>
-          <Vector id={"primary"} fill={a1Color} val={a1} label={"a₁"} />
-          <Vector id={"secondary"} fill={a2Color} val={a2} label={"a₂"} />
-          <Point fill={vColor} val={v} label={"v"} draggable />
+          <Vector id="primary" fill={a1Color} val={a1} label="a₁" />
+          <DraggablePoint
+            x={a1[0]}
+            y={a1[1]}
+            constrain={inWorld}
+            transform={{ toScreen, toModel }}
+            svg={svg}
+          />
+          <Vector id="secondary" fill={a2Color} val={a2} label="a₂" />
+          <DraggablePoint
+            x={a2[0]}
+            y={a2[1]}
+            constrain={inWorld}
+            svg={svg}
+            transform={{ toScreen, toModel }}
+          />
+          <Point fill={vColor} val={v} label="v" />
+          <DraggablePoint
+            x={v[0]}
+            y={v[1]}
+            constrain={inWorld}
+            svg={svg}
+            transform={{ toScreen, toModel }}
+          />
           <line
             x1={num(vc[0])}
             y1={num(vc[1])}
             x2={num(avc[0])}
             y2={num(avc[1])}
             stroke-width={2}
-            stroke={"#0002"}
-            stroke-dasharray={"2,2"}
+            stroke="#0002"
+            stroke-dasharray="2,2"
           ></line>
-          <Point fill={vColor} val={Av} label={"Av"} />
+          <Point fill={vColor} val={Av} label="Av" />
         </g>
-        <line
-          x1={ox}
-          y1={oy}
-          x2={ox + num(eigen1D[0]) * 10000}
-          y2={oy - num(eigen1D[1]) * 10000}
-          stroke-width={1}
-          stroke={"#000"}
-        ></line>
-        <text
-          font-family={fontFamily}
-          font-size={fontSize}
-          stroke={"0"}
-          fill={"#000"}
-          x={ox + num(eigen1D[0]) * 100}
-          y={oy - num(eigen1D[1]) * 100}
-          style={{
-            "user-select": "none",
-          }}
-        >
-          {"s₁"}
-        </text>
-        <line
-          x1={ox}
-          y1={oy}
-          x2={ox + num(eigen2D[0]) * 10000}
-          y2={oy - num(eigen2D[1]) * 10000}
-          stroke-width={1}
-          stroke={"#000"}
-        ></line>
-        <text
-          font-family={fontFamily}
-          font-size={fontSize}
-          stroke={"0"}
-          fill={"#000"}
-          x={ox + num(eigen2D[0]) * 100}
-          y={oy - num(eigen2D[1]) * 100}
-          style={{
-            "user-select": "none",
-          }}
-        >
-          {"s₂"}
-        </text>
+        <EigenSpace basis={eigen1D} label="s₁" />
+        <EigenSpace basis={eigen2D} label="s₂" />
       </svg>
       <div>
         <$>{`\\lambda_1 = ${num(eigenValuesD[0]).toFixed(2)}`}</$>
@@ -376,16 +360,10 @@ export const EigenValues = ({
 export const Vectors = ({ a1, a2, v }: { a1: Var[]; a2: Var[]; v: Var[] }) => {
   const A = ops.mtrans([a1, a2]);
   const Av = ops.mvmul(A, v);
-  const vd = v.map(signalNum);
   const avd = Av.map(signalNum);
-  const v1d = a1.map(signalNum);
-  const v2d = a2.map(signalNum);
   const vc = toCanvas(v).map(signalNum);
   const avc = toCanvas(ops.mvmul(A, v)).map(signalNum);
-  const a1Color = "#3498db";
-  const a2Color = "#2ecc71";
-  const vColor = "#E74C3C";
-
+  let svg = undefined;
   return (
     <div style={{ display: "flex", "align-items": "center" }}>
       <svg ref={svg} width={800} height={400}>
@@ -397,19 +375,40 @@ export const Vectors = ({ a1, a2, v }: { a1: Var[]; a2: Var[]; v: Var[] }) => {
           yRange={[0, 5]}
         />
         <g>
-          <Vector id={"primary"} fill={a1Color} val={a1} label={"a₁"} />
-          <Vector id={"secondary"} fill={a2Color} val={a2} label={"a₂"} />
-          <Point fill={vColor} val={v} label={"v"} draggable />
+          <Vector id="primary" fill={a1Color} val={a1} label="a₁" />
+          <DraggablePoint
+            x={a1[0]}
+            y={a1[1]}
+            constrain={inWorld}
+            svg={svg}
+            transform={{ toScreen, toModel }}
+          />
+          <Vector id="secondary" fill={a2Color} val={a2} label="a₂" />
+          <DraggablePoint
+            x={a2[0]}
+            y={a2[1]}
+            constrain={inWorld}
+            svg={svg}
+            transform={{ toScreen, toModel }}
+          />
+          <Point fill={vColor} val={v} label="v" />
+          <DraggablePoint
+            x={v[0]}
+            y={v[1]}
+            constrain={inWorld}
+            svg={svg}
+            transform={{ toScreen, toModel }}
+          />
           <line
             x1={num(vc[0])}
             y1={num(vc[1])}
             x2={num(avc[0])}
             y2={num(avc[1])}
             stroke-width={2}
-            stroke={"#0002"}
-            stroke-dasharray={"2,2"}
+            stroke="#0002"
+            stroke-dasharray="2,2"
           ></line>
-          <Point fill={vColor} val={Av} label={"Av"} />
+          <Point fill={vColor} val={Av} label="Av" />
         </g>
       </svg>
       <div>
@@ -420,13 +419,13 @@ export const Vectors = ({ a1, a2, v }: { a1: Var[]; a2: Var[]; v: Var[] }) => {
 \\textcolor{${a1Color}}{a_1,y} & \\textcolor{${a2Color}}{a_2,y} \\\\
 \\end{bmatrix} =
 \\begin{bmatrix}
-${num(v1d[0]).toFixed(2)} & ${num(v2d[0]).toFixed(2)}\\\\
-${num(v1d[1]).toFixed(2)} & ${num(v2d[1]).toFixed(2)}
+${num(a1[0]).toFixed(2)} & ${num(a2[0]).toFixed(2)}\\\\
+${num(a1[1]).toFixed(2)} & ${num(a2[1]).toFixed(2)}
 \\end{bmatrix}
 `}
         </$>
-        <$>{`\\textcolor{${vColor}}{v}= [${num(vd[0]).toFixed(2)}, ${num(
-          vd[1],
+        <$>{`\\textcolor{${vColor}}{v}= [${num(v[0]).toFixed(2)}, ${num(
+          v[1],
         ).toFixed(2)}]`}</$>
         <$>{`\\textcolor{${vColor}}{Av}= [${num(avd[0]).toFixed(2)}, ${num(
           avd[1],

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from "vue";
 import siggraphTeaser from "@penrose/examples/dist/geometry-domain/siggraph-teaser.trio.js";
-import treeVenn from "@penrose/examples/dist/set-theory-domain/tree-venn-3d.trio.js";
+import treeEuler from "@penrose/examples/dist/set-theory-domain/tree-euler-3d.trio.js";
 import hexagonal from "@penrose/examples/dist/spectral-graphs/examples/hexagonal-lattice.trio.js";
 import caffieine from "@penrose/examples/dist/structural-formula/molecules/caffeine.trio.js";
 
@@ -20,11 +20,11 @@ const demo = [
     stepSize: 10,
   },
   {
-    sub: treeVenn.substance,
-    sty: treeVenn.style.map(({ contents }) => contents).join("\n"),
-    dsl: treeVenn.domain,
+    sub: treeEuler.substance,
+    sty: treeEuler.style.map(({ contents }) => contents).join("\n"),
+    dsl: treeEuler.domain,
     variation: "PlumvilleCapybara104",
-    imageResolver: treeVenn.style[0].resolver,
+    imageResolver: treeEuler.style[0].resolver,
   },
   {
     sub: caffieine.substance,

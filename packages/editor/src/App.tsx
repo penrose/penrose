@@ -406,6 +406,7 @@ function App() {
   if (localFiles.state !== "hasValue") {
     return <div>Loading local files...</div>;
   }
+
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       <TopBar />
