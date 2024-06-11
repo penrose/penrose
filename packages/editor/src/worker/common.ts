@@ -10,6 +10,7 @@ import {
   State,
 } from "@penrose/core";
 import { WorkerError } from "./errors.js";
+import { Interaction } from "../utils/interactionUtils";
 
 export enum WorkerState {
   Init = "Init",
@@ -45,8 +46,8 @@ export type UpdateResp = {
   stats: LayoutStats;
 };
 
-export type DragOkResp = {
-  tag: "DragOkResp";
+export type InteractOkResp = {
+  tag: "InteractOkResp";
 };
 
 export type ComputeShapesResp = {
@@ -66,7 +67,7 @@ export type Resp =
   | FinishedResp
   | UpdateResp
   | ErrorResp
-  | DragOkResp
+  | InteractOkResp
   | ComputeShapesResp;
 
 export type CompiledReq = {
@@ -94,13 +95,12 @@ export type ComputeShapesReq = {
   index: number;
 };
 
-export type DragShapeReq = {
-  tag: "DragShapeReq";
-  shapePath: string;
+export type InteractReq = {
+  tag: "InteractReq";
+  interaction: Interaction;
   finish: boolean;
-  dx: number; // relative to start of drag
-  dy: number;
-};
+}
+
 
 export type InterruptReq = {
   tag: "InterruptReq";
@@ -112,7 +112,7 @@ export type Req =
   | ResampleReq
   | ComputeShapesReq
   | InterruptReq
-  | DragShapeReq;
+  | InteractReq;
 
 // state passed from the worker to the main thread.
 // NOTE: there is no DOM element or functions in this state because they cannot be transferred between threads.
@@ -125,7 +125,7 @@ export interface LayoutState {
   optStages: string[];
   currentStageIndex: number;
   inputIdxsByPath: IdxsByPath;
-  draggableShapePaths: Set<string>;
+  translatableShapePaths: Set<string>;
 }
 
 // state maintained by the main thread for rendering
@@ -138,7 +138,7 @@ export interface RenderState {
   optStages: string[];
   currentStageIndex: number;
   inputIdxsByPath: IdxsByPath;
-  draggableShapePaths: Set<string>;
+  translatableShapePaths: Set<string>;
 }
 
 // translate from the entire state to the state that is passed to the main thread
@@ -152,7 +152,7 @@ export const stateToLayoutState = (state: State): LayoutState => {
     optStages: state.optStages,
     currentStageIndex: state.currentStageIndex,
     inputIdxsByPath: state.inputIdxsByPath,
-    draggableShapePaths: state.draggableShapePaths,
+    translatableShapePaths: state.translatableShapePaths,
   };
 };
 

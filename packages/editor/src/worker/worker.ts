@@ -1,34 +1,30 @@
 // one "frame" of optimization is a list of varying numbers
 import {
   compileTrio,
-  err,
   finalStage,
   insertPending,
   isOptimized,
   LabelMeasurements,
   nextStage,
-  ok,
   PenroseState,
   resample,
-  Result,
   runtimeError,
   State,
   step,
 } from "@penrose/core";
 import consola from "consola";
-import _, { last } from "lodash";
-import { Unit } from "true-myth";
+import _ from "lodash";
 import {
   CompiledReq,
-  DragShapeReq,
   LayoutState,
   LayoutStats,
   Req,
   Resp,
   stateToLayoutState,
-  WorkerState,
+  WorkerState
 } from "./common.js";
-import { DragError, WorkerError } from "./errors.js";
+import { WorkerError } from "./errors.js";
+import { getTranslatedInputsIdxs, Interaction, makeTranslateCallback } from "../utils/interactionUtils.js";
 
 type Frame = number[];
 
@@ -51,13 +47,15 @@ let workerState: WorkerState = WorkerState.Init;
 
 // set to true to cause optimizer to finish before the next step
 let shouldFinish = false;
-let dragStart: [number, number] | null = null;
+
+let translateCallback: ((dx: number, dy: number, state: PenroseState) => void) | null = null;
+let scaleCallback: ((sx: number, sy: number) => void) | null = null;
 
 const maxUpdateHz = 50;
 let lastUpdateTime = self.performance.now();
 
 const log = (consola as any)
-  .create({ level: (consola as any).LogLevel.Warn })
+  .create({ level: (consola as any).LogLevel.Info })
   .withScope("worker:server");
 
 // Wrapper function for postMessage to ensure type safety
@@ -139,17 +137,17 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
           }
           break;
 
-        case "DragShapeReq":
-          log.info("Received DragShapeReq in state Compiled");
-          const draggedState = dragShape(data);
-          if (draggedState.isErr()) {
+        case "InteractReq":
+          log.info("Received InteractReq in state Compiled");
+          try {
+            interact(data.interaction, data.finish);
+          } catch (error: any) {
             respondError({
-              ...draggedState.error,
+              tag: "InteractError",
               nextWorkerState: workerState,
+              error,
             });
-            break;
           }
-
           workerState = WorkerState.Optimizing;
           respondOptimizing();
           optimize(insertPending(optState!));
@@ -188,18 +186,19 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
           shouldFinish = true;
           break;
 
-        case "DragShapeReq":
+        case "InteractReq":
           log.info("Received DragShapeReq in state Optimizing");
-          const draggedState = dragShape(data);
-          if (draggedState.isErr()) {
+          try {
+            interact(data.interaction, data.finish);
+          } catch (error: any) {
             respondError({
-              ...draggedState.error,
+              tag: "InteractError",
               nextWorkerState: workerState,
+              error,
             });
-            break;
           }
           respond({
-            tag: "DragOkResp",
+            tag: "InteractOkResp",
           });
           break;
 
@@ -211,71 +210,52 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
   }
 };
 
-const dragShape = (data: DragShapeReq): Result<Unit, DragError> => {
+/**
+ * Interact with (non-null) `optState` according to interaction.
+ * @param interaction
+ * @param finish Whether this is the last call from this interaction (i.e., mouseup)
+ */
+const interact = (interaction: Interaction, finish: boolean) => {
   if (!optState) {
-    return err({
-      tag: "DragError",
-      nextWorkerState: workerState,
-      message: "No opt state on drag",
-    });
+    throw new Error("No opt state on interact");
   }
 
-  if (!optState.draggableShapePaths.has(data.shapePath)) {
-    return err({
-      tag: "DragError",
-      message: "undraggable shape",
-      nextWorkerState: workerState,
-    });
-  }
-
-  const fieldPath = data.shapePath + ".center";
-  const center = optState.inputIdxsByPath.get(fieldPath);
-  let xIdx, yIdx;
-  if (
-    center &&
-    center.tag === "Val" &&
-    (center.contents.tag === "ListV" ||
-      center.contents.tag === "VectorV" ||
-      center.contents.tag === "TupV")
-  ) {
-    xIdx = center.contents.contents[0]!;
-    yIdx = center.contents.contents[1]!;
-  } else {
-    return err({
-      tag: "DragError",
-      message: `could not find center indices at path ${fieldPath}`,
-      nextWorkerState: workerState,
-    });
-  }
-
-  if (dragStart == null) {
-    dragStart = [optState.varyingValues[xIdx], optState.varyingValues[yIdx]];
-
-    const previouslyPinned = new Set(optState.pinnedInputIdxs);
-    optState.pinnedInputIdxs = new Set([xIdx, yIdx]);
-
-    for (const [stage, masks] of optState.constraintSets) {
-      // for (const pinnedInput of previouslyPinned) {
-      //   masks.inputMask[pinnedInput] = true;
-      // }
-
-      for (const pinnedInput of optState.pinnedInputIdxs) {
-        masks.inputMask[pinnedInput] = false;
+  switch (interaction.tag) {
+    case "Translation":
+      try {
+        if (translateCallback === null) {
+          const translatedInputIdxs
+            = getTranslatedInputsIdxs(
+                interaction.path,
+                optState
+              );
+          for (const [_, masks] of optState.constraintSets) {
+            for (const [xIdx, yIdx] of translatedInputIdxs) {
+              masks.inputMask[xIdx] = false;
+              masks.inputMask[yIdx] = false;
+            }
+          }
+          translateCallback = makeTranslateCallback(translatedInputIdxs, optState);
+        }
+        translateCallback!(interaction.dx, interaction.dy, optState);
+        optState.params = _.cloneDeep(unoptState.params);
+        if (finish) {
+          console.log('asdklfhj')
+          translateCallback = null;
+        }
+      } catch (error: unknown) {
+        respondError({
+          tag: "InteractError",
+          nextWorkerState: workerState,
+          error,
+        });
+        return;
       }
-    }
+      break;
+
+    case "Scale":
+      break;
   }
-
-  optState.varyingValues[xIdx] = dragStart[0] + data.dx;
-  optState.varyingValues[yIdx] = dragStart[1] + data.dy;
-  optState.currentStageIndex = 0;
-
-  optState.params = _.cloneDeep(unoptState.params);
-
-  if (data.finish) {
-    dragStart = null;
-  }
-
-  return ok();
 };
 
 const compileAndRespond = async (data: CompiledReq) => {

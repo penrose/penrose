@@ -4,7 +4,7 @@
 
 import { RenderState } from "../worker/common.js";
 import InteractiveWidget from "./InteractiveWidget";
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { MutableRefObject, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import HoverDisplay from "./HoverDisplay";
 
 
@@ -59,7 +59,7 @@ export default function InteractivityOverlay(
 
     for (const titleElem of getTitleElements(props.diagramSVG)) {
       const path = titleElem.innerHTML;
-      if (!props.state.draggableShapePaths.has(path)) {
+      if (!props.state.translatableShapePaths.has(path)) {
         continue;
       }
 
@@ -116,22 +116,23 @@ export default function InteractivityOverlay(
       }}
       ref={activeOverlay}
     >
-      {clickedPath && clickedElem &&
+      {clickedPath && clickedElem && activeOverlay.current &&
         (
           <InteractiveWidget
             elem={clickedElem}
             path={clickedPath}
             diagramSVG={props.diagramSVG}
             state={props.state}
+            overlay={activeOverlay as MutableRefObject<Element>}
           />
         )
       }
 
-      {hoveredElem &&
+      {hoveredElem && activeOverlay.current &&
         (
           <HoverDisplay
             elem={hoveredElem}
-            diagramSVG={props.diagramSVG}
+            overlay={activeOverlay as MutableRefObject<Element>}
             state={props.state}
           />
         )

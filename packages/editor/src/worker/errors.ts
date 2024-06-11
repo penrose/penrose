@@ -29,9 +29,9 @@ export type OptimizationError = {
   nextWorkerState: WorkerState.Compiled;
 };
 
-export type DragError = {
-  tag: "DragError";
-  message: string;
+export type InteractError = {
+  tag: "InteractError";
+  error: unknown;
 };
 
 export type WorkerError =
@@ -40,7 +40,7 @@ export type WorkerError =
       | HistoryIndexOutOfRangeError
       | CompileError
       | OptimizationError
-      | DragError
+      | InteractError
     ) & {
       nextWorkerState: WorkerState;
     })
@@ -63,21 +63,9 @@ export const showWorkerError = (error: WorkerError): string => {
     case "FatalWorkerError":
       return `Fatal worker error: ${error.error}`;
 
-    case "DragError":
-      return `Drag error: ${error.message}`;
+    case "InteractError":
+      return `Interaction error: ${error.error}`;
   }
-};
-
-export const isWorkerError = (error: unknown): error is WorkerError => {
-  return (
-    error instanceof Object &&
-    "tag" in error &&
-    (error.tag === "BadStateError" ||
-      error.tag === "HistoryIndexOutOfRangeError" ||
-      error.tag === "CompileError" ||
-      error.tag === "OptimizationError" ||
-      error.tag === "FatalWorkerError")
-  );
 };
 
 export const toPenroseError = (error: WorkerError) => {

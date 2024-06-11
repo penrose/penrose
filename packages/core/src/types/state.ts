@@ -15,7 +15,9 @@ export type OptPipeline = string[];
 export type StagedConstraints = Map<string, ad.Masks>;
 
 /**
- * For each path with a some optimized value, get that
+ * For each path with a some optimized value, get that value with each ad.Num
+ * replaced by either an index into `inputs` if this was an ad.Var (and thus lives
+ * somewhere in `inputs`), or undefined if it was a `number`.
  */
 export type IdxsByPath = Map<string, ArgVal<number | undefined>>;
 
@@ -44,7 +46,8 @@ export interface State {
   gradient: ad.Gradient;
   computeShapes: ShapeFn;
   inputIdxsByPath: IdxsByPath;
-  draggableShapePaths: Set<string>;
+  translatableShapePaths: Set<string>;
+  scalableShapePaths: Set<string>;
   pinnedInputIdxs: Set<number>;
 }
 

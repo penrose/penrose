@@ -146,10 +146,18 @@ export default function DiagramPanel() {
             display: "flex",
             minHeight: "60%",
             maxHeight: "100%",
+            margin: "10px",
             justifyContent: "center",
           }}
           ref={canvasRef}
-        />
+        >
+          {diagram.svg && state && (
+            <InteractivityOverlay
+              diagramSVG={diagram.svg}
+              state={state}
+            />
+          )}
+        </div>
 
         {showEasterEgg && (
           <iframe
@@ -162,12 +170,6 @@ export default function DiagramPanel() {
           ></iframe>
         )}
         <LayoutTimelineSlider />
-        {diagram.svg && state && (
-          <InteractivityOverlay
-            diagramSVG={diagram.svg}
-            state={state}
-          />
-        )}
       </div>
     </div>
   );

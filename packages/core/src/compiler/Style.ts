@@ -28,7 +28,7 @@ import {
   Shape,
   ShapeType,
   isShapeType,
-  sampleShape,
+  sampleShape, isScalable, isTranslatable
 } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
 import { isVar } from "../types/ad.js";
@@ -4004,14 +4004,14 @@ export const compileStyleHelper = async (
   }
 
   const shapes = getShapesList(translation, layerOrdering);
-  const draggableShapePaths = new Set<string>();
+  const translatableShapePaths = new Set<string>();
+  const scalableShapePaths = new Set<string>();
   for (const shape of shapes) {
-    if (
-      "center" in shape &&
-      isVar(shape.center.contents[0]) &&
-      isVar(shape.center.contents[1])
-    ) {
-      draggableShapePaths.add(shape.name.contents);
+    if (isTranslatable(shape)) {
+      translatableShapePaths.add(shape.name.contents);
+    }
+    if (isScalable(shape)) {
+      scalableShapePaths.add(shape.name.contents);
     }
   }
 
@@ -4076,7 +4076,8 @@ export const compileStyleHelper = async (
     currentStageIndex: 0,
     optStages: optimizationStages.value,
     inputIdxsByPath,
-    draggableShapePaths,
+    translatableShapePaths,
+    scalableShapePaths,
     pinnedInputIdxs: new Set(),
   };
 

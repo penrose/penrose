@@ -38,12 +38,12 @@ export const stateToSVG = async (
   return rendered;
 };
 
-export const getBBox = (elem: SVGElement, svg: SVGSVGElement) => {
+export const getRelativeBBox = (elem: Element, containing: Element) => {
   const screenElemBBox = elem.getBoundingClientRect();
-  const screenSVGBBox = svg.getBoundingClientRect();
+  const screenContainingBBox = containing.getBoundingClientRect();
   return new DOMRect(
-    screenElemBBox.x - screenSVGBBox.x,
-    screenElemBBox.y - screenSVGBBox.y,
+    screenElemBBox.x - screenContainingBBox.x,
+    screenElemBBox.y - screenContainingBBox.y,
     screenElemBBox.width,
     screenElemBBox.height
   );

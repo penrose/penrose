@@ -144,18 +144,6 @@ const fuzz = async (ops: number, expect: any) => {
     }
   };
 
-  const pollForUpdate = async () => {
-    const info = await optimizer.pollForUpdate();
-    if (info !== null) {
-      layoutStats = info.stats;
-    }
-
-    const origState = state;
-    state = optimizer.getState();
-    expect(state === "Compiled" || state === "Optimizing");
-    expect(!(origState === "Compiled" && state === "Optimizing"));
-  };
-
   const computeShapes = async () => {
     const max = totalSteps();
     if (max === 0) return;
@@ -171,8 +159,8 @@ const fuzz = async (ops: number, expect: any) => {
 
   const legalMethods = new Map<string, (() => Promise<void>)[]>([
     ["Init", [compile]],
-    ["Compiled", [startOptimizing, pollForUpdate, computeShapes]],
-    ["Optimizing", [interruptOptimizing, pollForUpdate, computeShapes]],
+    ["Compiled", [startOptimizing, computeShapes]],
+    ["Optimizing", [interruptOptimizing, computeShapes]],
   ]);
 
   await optimizer.waitForInit();

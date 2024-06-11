@@ -1,7 +1,7 @@
 import { RenderState } from "../worker/common.js";
-import { getBBox, getPosition, screenBBoxtoSVGBBox } from "../utils/renderUtils";
+import { getPosition, getRelativeBBox, screenBBoxtoSVGBBox } from "../utils/renderUtils";
 import { clamp } from "lodash";
-import { Ref, useCallback, useEffect, useMemo } from "react";
+import { MutableRefObject, Ref, useCallback, useEffect, useMemo } from "react";
 import { diagramState, diagramWorkerState, optimizer } from "../state/atoms";
 import { useRecoilState, useSetRecoilState } from "recoil";
 
@@ -10,6 +10,7 @@ export interface DragWidgetProps {
   path: string;
   diagramSVG: SVGSVGElement;
   state: RenderState;
+  overlay: MutableRefObject<Element>;
 }
 
 export default function InteractiveWidget(
@@ -19,8 +20,14 @@ export default function InteractiveWidget(
   const setWorkerState = useSetRecoilState(diagramWorkerState);
 
   const onDrag = useCallback(async (path: string, finish: boolean, dx: number, dy: number) => {
-    const { onStart, onFinish } = await optimizer.dragShape(
-      path, finish, dx, dy,
+    const { onStart, onFinish } = await optimizer.interact(
+      {
+        tag: "Translation",
+        path,
+        dx,
+        dy,
+      },
+      finish
     );
     onFinish
       .then((info) => {
@@ -110,7 +117,7 @@ export default function InteractiveWidget(
     }
   }, [props.elem, onMouseDown]);
 
-  const bbox = getBBox(props.elem, props.diagramSVG);
+  const bbox = getRelativeBBox(props.elem, props.overlay.current);
   const borderWidth = 2;
 
   const scaleSquareWidth = 10;

@@ -14,6 +14,10 @@ import { Polyline, PolylineProps, samplePolyline } from "./Polyline.js";
 import { Rectangle, RectangleProps, sampleRectangle } from "./Rectangle.js";
 import { Canvas, Context } from "./Samplers.js";
 import { Text, TextProps, sampleText } from "./Text.js";
+import { isVar } from "../types/ad.js";
+import { ListV, TupV, Value, VectorV } from "../types/value.js";
+import { PenroseState, State } from "../index.js";
+import { zip } from "lodash";
 //#region other shape types/globals
 
 export type Shape<T> =
@@ -143,5 +147,61 @@ export const sampleShape = (
 // TODO: don't use a type predicate for this
 export const isShapeType = (shapeType: string): shapeType is ShapeType =>
   shapeSampler.has(shapeType);
+
+export const isTranslatable = (shape: Shape<ad.Num>): boolean => {
+  switch (shape.shapeType) {
+    case "Circle":
+    case "Ellipse":
+    case "Equation":
+    case "Image":
+    case "Rectangle":
+    case "Text":
+      return isVar(shape.center.contents[0]) && isVar(shape.center.contents[1]);
+
+    case "Line":
+      return isVar(shape.start.contents[0]) && isVar(shape.start.contents[1])
+        && isVar(shape.end.contents[0]) && isVar(shape.end.contents[1]);
+
+    case "Group":
+    case "Path":
+      return false;
+
+    case "Polygon":
+    case "Polyline":
+      for (const point of shape.points.contents) {
+        if (!isVar(point[0]) || !isVar(point[1])) {
+          return false;
+        }
+      }
+      return true;
+  }
+}
+
+export const isScalable = (shape: Shape<ad.Num>): boolean => {
+  switch (shape.shapeType) {
+    case "Circle":
+      //return isVar(shape.r.contents);
+      return false;
+
+    case "Ellipse":
+      return isVar(shape.rx.contents) && isVar(shape.ry.contents);
+
+    case "Equation":
+    case "Image":
+    case "Rectangle":
+    case "Text":
+      return isVar(shape.width.contents) && isVar(shape.height.contents);
+
+    case "Group":
+    case "Path":
+      return false;
+
+    case "Line":
+    case "Polygon":
+    case "Polyline":
+      //return isTranslatable(shape);
+      return false;
+  }
+}
 
 //#endregion

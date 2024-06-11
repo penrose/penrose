@@ -1,16 +1,17 @@
-import { getBBox } from "../utils/renderUtils";
 import { RenderState } from "../worker/common";
+import { MutableRefObject } from "react";
+import { getRelativeBBox } from "../utils/renderUtils";
 
 export interface BBoxDisplayProps {
   elem: SVGElement;
-  diagramSVG: SVGSVGElement;
   state: RenderState;
+  overlay: MutableRefObject<Element>;
 }
 
 export default function HoverDisplay(
   props: BBoxDisplayProps,
 ): JSX.Element {
-  const bbox = getBBox(props.elem, props.diagramSVG);
+  const bbox = getRelativeBBox(props.elem, props.overlay.current);
   const borderWidth = 1;
 
   return (

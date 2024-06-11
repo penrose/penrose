@@ -22,6 +22,7 @@ import {
 import { showWorkerError, toPenroseError } from "./errors.js";
 import { Simulate } from "react-dom/test-utils";
 import waiting = Simulate.waiting;
+import { Interaction } from "../utils/interactionUtils";
 
 /* State types */
 
@@ -108,8 +109,8 @@ export type WaitingForShapes = {
 // However, it is possible for optimization to end while waiting, in which case
 // we move into CompiledToOptimizing and wait for optimization restart, using
 // finishResolve and finishReject for our next Optimizing state
-export type WaitingForDrag = {
-  tag: "WaitingForDrag";
+export type WaitingForInteract = {
+  tag: "WaitingForInteract";
   waiting: true;
   previous: Optimizing;
   resolve: () => void;
@@ -124,14 +125,14 @@ export type WaitingState =
   | CompiledToOptimizing
   | OptimizingToCompiled
   | WaitingForShapes
-  | WaitingForDrag;
+  | WaitingForInteract;
 
 export type OWState = StableState | WaitingState;
 
 /* Module helpers */
 
 const log = (consola as any)
-  .create({ level: (consola as any).LogLevel.Warn })
+  .create({ level: (consola as any).LogLevel.Info })
   .withScope("worker:client");
 
 const isWaiting = (state: OWState): state is WaitingState => {
@@ -323,9 +324,9 @@ export default class OptimizerWorker {
           }
           break;
 
-        case "DragError":
+        case "InteractError":
           if (
-            this.state.tag === "WaitingForDrag" &&
+            this.state.tag === "WaitingForInteract" &&
             this.state.previous.tag === data.error.nextWorkerState
           ) {
             callRejects();
@@ -525,9 +526,9 @@ export default class OptimizerWorker {
         }
         break;
 
-      case "WaitingForDrag":
+      case "WaitingForInteract":
         switch (data.tag) {
-          case "DragOkResp":
+          case "InteractOkResp":
             this.state.resolve();
             const originalResolve = this.state.previous.finishResolve;
             const originalReject = this.state.previous.finishReject;
@@ -952,11 +953,9 @@ export default class OptimizerWorker {
     }
   }
 
-  private async dragShapeHelper(
-    shapePath: string,
+  private async interactHelper(
+    interaction: Interaction,
     finish: boolean,
-    dx: number,
-    dy: number,
     finishResolve: (info: UpdateInfo) => void,
     finishReject: (error: PenroseError) => void,
   ): Promise<void> {
@@ -976,17 +975,15 @@ export default class OptimizerWorker {
             finishReject,
           });
           this.request({
-            tag: "DragShapeReq",
-            shapePath,
+            tag: "InteractReq",
+            interaction,
             finish,
-            dx,
-            dy,
           });
           break;
 
         case "Optimizing":
           this.setState({
-            tag: "WaitingForDrag",
+            tag: "WaitingForInteract",
             waiting: true,
             previous: this.state,
             resolve: startResolve,
@@ -995,11 +992,9 @@ export default class OptimizerWorker {
             finishReject,
           });
           this.request({
-            tag: "DragShapeReq",
-            shapePath,
+            tag: "InteractReq",
+            interaction,
             finish,
-            dx,
-            dy,
           });
           break;
 
@@ -1011,19 +1006,15 @@ export default class OptimizerWorker {
     });
   }
 
-  async dragShape(
-    shapePath: string,
+  async interact(
+    interaction: Interaction,
     finish: boolean,
-    dx: number,
-    dy: number,
   ): Promise<OptimizerPromises> {
     log.info(`dragShape called from state ${this.state.tag}`);
     return generateOptimizerPromises((finishResolve, finishReject) => {
-      return this.dragShapeHelper(
-        shapePath,
+      return this.interactHelper(
+        interaction,
         finish,
-        dx,
-        dy,
         finishResolve,
         finishReject,
       );
