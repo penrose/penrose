@@ -66,17 +66,16 @@ export default function DiagramPanel() {
       try {
         const info = await optimizer.pollForUpdate();
         if (info !== null) {
-          setDiagram({
-            ...diagram,
-            error: null,
+          setDiagram((state) => ({
+            ...state,
             state: info.state,
-          });
+          }));
         }
       } catch (error: any) {
-        setDiagram({
-          ...diagram,
+        setDiagram((state) => ({
+          ...state,
           error,
-        });
+        }));
       }
     }
   };
