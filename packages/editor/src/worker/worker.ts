@@ -332,7 +332,11 @@ const optimize = async (state: PenroseState) => {
       log.info("Optimization failed. Quitting without finishing...");
       workerState = WorkerState.Compiled;
       optState = null;
-      respondError(err);
+      respondError({
+        tag: "OptimizationError",
+        error: err,
+        nextWorkerState: WorkerState.Compiled,
+      });
       return;
     }
   };
