@@ -46,4 +46,5 @@ predicate ShowStraightRegion( Triangle t )
 predicate HideCircularRegion( Triangle t )
 predicate ShowStraightEdge( Edge e )
 predicate HideCircularEdge( Edge e )
+predicate HideWedge( Angle A )
 

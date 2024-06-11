@@ -15,14 +15,14 @@ colors {
    color line = #000
 
    -- fill color for solid regions
-   color solidRegion = #1b1f8a33
+   color solidRegion = #1b1f8a33 -- #00000033
 
    -- fill and stroke color for ancillary points
    color secondaryPointFill = #fff
    color secondaryPointStroke = #000
 
    -- stroke color for ancillary lines
-   color secondaryLine = #1b1f8a
+   color secondaryLine = #1b1f8a -- #888
 
    -- stroke color for lines/curves used to indicate
    -- geometric constructions
@@ -38,12 +38,12 @@ global {
   scalar lineWidth = 1
 
   -- width for secondary lines/curves
-  scalar secondaryLineWidth = 0.8
+  scalar secondaryLineWidth = 0.75
   
   -- size of angle markers
-  scalar straightAngleRadius = 20
-  scalar circularAngleRadius = 27
-  scalar bendAngleRadius = 34
+  scalar straightAngleRadius = 30
+  scalar circularAngleRadius = 37
+  scalar bendAngleRadius = 44
 
   -- size of length markers
   scalar markerOffset = 8 -- distance from marked edge/arc
@@ -116,7 +116,7 @@ where e := Edge(u,v) {
     start: e.start
     end: e.end
     strokeColor: none()
-    opacity: colors.constructionLineOpacity
+    strokeWidth: global.secondaryLineWidth
     ensureOnCanvas: false
   }
 
@@ -182,6 +182,12 @@ forall Angle A {
       center: A.c
       r: A.r
       fillColor: colors.solidRegion
+      ensureOnCanvas: false
+   }
+   shape A.boundary = Circle {
+      center: A.c
+      r: A.r
+      fillColor: none()
       strokeColor: colors.secondaryLine
       strokeWidth: global.secondaryLineWidth
       ensureOnCanvas: false
@@ -202,6 +208,16 @@ forall Angle A {
       clipPath: clip( A.mask )
       ensureOnCanvas: false
    }
+   shape A.boundaryMask = Circle {
+      center: A.disk.center
+      r: 2*A.disk.r
+      ensureOnCanvas: false
+   }
+   shape A.boundaryIcon = Group {
+      shapes: [ A.boundary ]
+      clipPath: clip( A.boundaryMask )
+      ensureOnCanvas: false
+   }
 }
 
 -- Associate an angle with the first, second, or third
@@ -214,6 +230,10 @@ where A := FirstStraightCorner( ijk ) {
       points: ijk.straightRegion.points
       ensureOnCanvas: false
    }
+   override A.boundaryMask = Polygon {
+      points: ijk.straightRegion.points
+      ensureOnCanvas: false
+   }
 }
 forall Angle A; Triangle ijk
 where A := SecondStraightCorner( ijk ) {
@@ -223,12 +243,20 @@ where A := SecondStraightCorner( ijk ) {
       points: ijk.straightRegion.points
       ensureOnCanvas: false
    }
+   override A.boundaryMask = Polygon {
+      points: ijk.straightRegion.points
+      ensureOnCanvas: false
+   }
 }
 forall Angle A; Triangle ijk
 where A := ThirdStraightCorner( ijk ) {
    override A.c = ijk.pk
    override A.r = global.straightAngleRadius
    override A.mask = Polygon {
+      points: ijk.straightRegion.points
+      ensureOnCanvas: false
+   }
+   override A.boundaryMask = Polygon {
       points: ijk.straightRegion.points
       ensureOnCanvas: false
    }
@@ -244,6 +272,10 @@ where A := FirstCircularCorner( ijk ) {
       d: ijk.circularRegion.d
       ensureOnCanvas: false
    }
+   override A.boundaryMask = Path {
+      d: ijk.circularRegion.d
+      ensureOnCanvas: false
+   }
 }
 forall Angle A; Triangle ijk
 where A := SecondCircularCorner( ijk ) {
@@ -253,12 +285,20 @@ where A := SecondCircularCorner( ijk ) {
       d: ijk.circularRegion.d
       ensureOnCanvas: false
    }
+   override A.boundaryMask = Path {
+      d: ijk.circularRegion.d
+      ensureOnCanvas: false
+   }
 }
 forall Angle A; Triangle ijk
 where A := ThirdCircularCorner( ijk ) {
    override A.c = ijk.pk
    override A.r = global.circularAngleRadius
    override A.mask = Path {
+      d: ijk.circularRegion.d
+      ensureOnCanvas: false
+   }
+   override A.boundaryMask = Path {
       d: ijk.circularRegion.d
       ensureOnCanvas: false
    }
@@ -274,12 +314,20 @@ where A := StartBendAngle( ij ) {
       d: joinPaths( [ij.bentPath] )
       ensureOnCanvas: false
    }
+   override A.boundaryMask = Path {
+      d: joinPaths( [ij.bentPath] )
+      ensureOnCanvas: false
+   }
 }
 forall Angle A; Edge ij
 where A := EndBendAngle( ij ) {
    override A.r = global.bendAngleRadius
    override A.c = ij.end
    override A.mask = Path {
+      d: joinPaths( [ij.bentPath] )
+      ensureOnCanvas: false
+   }
+   override A.boundaryMask = Path {
       d: joinPaths( [ij.bentPath] )
       ensureOnCanvas: false
    }
@@ -496,7 +544,11 @@ where HideCircularEdge(e) {
 }
 forall Edge e
 where ShowStraightEdge(e) {
-   override e.straightEdge.strokeColor = colors.constructionLine
+   override e.straightEdge.strokeColor = #fff
+}
+forall Angle A
+where HideWedge( A ) {
+   override A.disk.fillColor = none()
 }
 
 --------------------------------------------------------------------------------
@@ -517,6 +569,53 @@ forall Vertex v; Geometry G
 where v has math label {
    layer v.labelText above G.icon
 }
+
+forall Triangle T; Edge e {
+   layer T.circularRegion below e.straightEdge
+   layer T.circularRegion below e.circularEdge
+}
+
+forall Angle A; Edge e {
+   layer e.circularEdge above A.disk
+   layer e.circularEdge above A.boundary
+}
+
+forall Angle A; Edge e; Triangle t
+where A := FirstCircularCorner(t) {
+   layer A.boundary above e.straightEdge
+}
+forall Angle A; Edge e; Triangle t
+where A := SecondCircularCorner(t) {
+   layer A.boundary above e.straightEdge
+}
+forall Angle A; Edge e; Triangle t
+where A := ThirdCircularCorner(t) {
+   layer A.boundary above e.straightEdge
+}
+
+forall Angle A; Edge e; Triangle t
+where A := FirstStraightCorner(t) {
+   layer A.boundary below e.straightEdge
+}
+forall Angle A; Edge e; Triangle t
+where A := SecondStraightCorner(t) {
+   layer A.boundary below e.straightEdge
+}
+forall Angle A; Edge e; Triangle t
+where A := ThirdStraightCorner(t) {
+   layer A.boundary below e.straightEdge
+}
+
+forall Angle A; Edge e
+where A := StartBendAngle(e) {
+   layer A.boundary below e.straightEdge
+}
+forall Angle A; Edge e
+where A := EndBendAngle(e) {
+   layer A.boundary below e.straightEdge
+}
+
+
 
 --------------------------------------------------------------------------------
 -- Labeling --------------------------------------------------------------------
@@ -571,6 +670,11 @@ where S has math label {
 
 forall Segment S; Circle C
 where S has math label; S := RadiusOf(C) {
+   override S.labelText.opacity = colors.constructionLineOpacity
+}
+
+forall Segment S; Edge e
+where S has math label; S := LengthMarker(e) {
    override S.labelText.opacity = colors.constructionLineOpacity
 }
 

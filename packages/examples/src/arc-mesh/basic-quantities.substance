@@ -33,6 +33,12 @@ SetBendAngle( ki, .8 )
 ShowStraightEdge(ij)
 ShowStraightEdge(jk)
 ShowStraightEdge(ki)
+HideWedge( alphaIJs )
+HideWedge( alphaIJe )
+HideWedge( alphaJKs )
+HideWedge( alphaJKe )
+HideWedge( alphaKIs )
+HideWedge( alphaKIe )
 
 Label i $i$
 Label j $j$
