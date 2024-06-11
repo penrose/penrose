@@ -70,6 +70,9 @@ export default function InteractivityOverlay(
       for (const member of elemFamily) {
         member.addEventListener("mousedown", (e: MouseEvent) => {
           setClickedPath(path);
+          if (path === hoveredPath) {
+            setHoveredPath(null);
+          }
         });
         member.addEventListener("mouseover", (e: MouseEvent) => {
           setHoveredPath(path === clickedPath ? null : path);
@@ -101,7 +104,7 @@ export default function InteractivityOverlay(
       document.removeEventListener("mousedown", onMousedownBackground);
       document.removeEventListener("mouseover", onMouseoverBackground);
     }
-  }, [props.diagramSVG]);
+  }, [props.diagramSVG, clickedPath, hoveredPath]);
 
   return (
     <div

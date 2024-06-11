@@ -1,7 +1,7 @@
 import { RenderState } from "../worker/common.js";
 import { getBBox, getPosition, screenBBoxtoSVGBBox } from "../utils/renderUtils";
 import { clamp } from "lodash";
-import { Ref, useCallback, useEffect } from "react";
+import { Ref, useCallback, useEffect, useMemo } from "react";
 import { diagramState, diagramWorkerState, optimizer } from "../state/atoms";
 import { useRecoilState, useSetRecoilState } from "recoil";
 
@@ -57,9 +57,9 @@ export default function InteractiveWidget(
     } = screenBBoxtoSVGBBox(screenBBox, props.diagramSVG);
 
     const minX = tempX - bboxX;
-    const maxX = props.diagramSVG.width.baseVal.value - bboxW + (tempX - bboxX);
+    const maxX = props.state.canvas.width - bboxW + (tempX - bboxX);
     const minY = tempY - bboxY;
-    const maxY = props.diagramSVG.height.baseVal.value - bboxH + (tempY - bboxY);
+    const maxY = props.state.canvas.height - bboxH + (tempY - bboxY);
 
     // g.setAttribute("opacity", "0.5");
     // g.setAttribute("style", "cursor:grab");
@@ -100,8 +100,79 @@ export default function InteractiveWidget(
     document.addEventListener("mousemove", onMouseMove);
   }, [props.diagramSVG, props.elem, props.path]);
 
+  useEffect(() => {
+    props.elem.addEventListener("mousedown", onMouseDown);
+    props.elem.style.cursor = "crosshair";
+
+    return () => {
+      props.elem.removeEventListener("mousedown", onMouseDown);
+      props.elem.style.cursor = "auto";
+    }
+  }, [props.elem, onMouseDown]);
+
   const bbox = getBBox(props.elem, props.diagramSVG);
   const borderWidth = 2;
+
+  const scaleSquareWidth = 10;
+  const scaleSquareBorder = 2;
+  const scaleSquareOffset= (scaleSquareBorder + scaleSquareWidth + 3) / 2;
+
+  const makeScalingCorner = useCallback((props: any) => {
+    return (
+      <div
+        style={{
+          position: "absolute",
+          width: `${scaleSquareWidth}px`,
+          height: `${scaleSquareWidth}px`,
+          pointerEvents: "all",
+          backgroundColor: "white",
+          border: `${scaleSquareBorder}px solid black`,
+          ...props,
+        }}
+      >
+      </div>
+    );
+  }, []);
+
+  const topLeftScalingCorner = useMemo(
+    () =>
+      makeScalingCorner({
+       top: `-${scaleSquareOffset}px`,
+       left: `-${scaleSquareOffset}px`,
+       cursor: "nwse-resize",
+      }),
+    [makeScalingCorner]
+  );
+
+  const topRightScalingCorner = useMemo(
+    () =>
+      makeScalingCorner({
+        top: `-${scaleSquareOffset}px`,
+        right: `-${scaleSquareOffset}px`,
+        cursor: "nesw-resize",
+      }),
+    [makeScalingCorner]
+  );
+
+  const bottomLeftScalingCorner = useMemo(
+    () =>
+      makeScalingCorner({
+        bottom: `-${scaleSquareOffset}px`,
+        left: `-${scaleSquareOffset}px`,
+        cursor: "nesw-resize",
+      }),
+    [makeScalingCorner]
+  );
+
+  const bottomRightScalingCorner = useMemo(
+    () =>
+      makeScalingCorner({
+        bottom: `-${scaleSquareOffset}px`,
+        right: `-${scaleSquareOffset}px`,
+        cursor: "nwse-resize",
+      }),
+    [makeScalingCorner]
+  );
 
   return (
     <div
@@ -112,10 +183,14 @@ export default function InteractiveWidget(
         border: `${borderWidth}px solid black`,
         width: `${bbox.width}px`,
         height: `${bbox.height}px`,
-        cursor: "grab",
-        pointerEvents: "all"
+        pointerEvents: "none"
       }}
       onMouseDown={onMouseDown}
-    />
+    >
+      {topLeftScalingCorner}
+      {topRightScalingCorner}
+      {bottomRightScalingCorner}
+      {bottomLeftScalingCorner}
+    </div>
   );
 }
