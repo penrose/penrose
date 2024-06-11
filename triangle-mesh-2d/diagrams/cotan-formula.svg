@@ -66,60 +66,22 @@
   >
     <title>`l`.bounds</title>
   </circle>
-  <g>
-    <filter
-      id="cotan-formula__`ijk`.icon-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#1b1f8a"
-      fill-opacity="0.2"
-      stroke="none"
-      d="M 111.79802174858025 242.99105813592334 L 243.83240029583567 137.2558564970959 L 122.91170972519352 131.13775158051536 Z "
-    />
+  <path
+    fill="#1b1f8a"
+    fill-opacity="0.2"
+    stroke="none"
+    d="M 111.79802174858025 242.99105813592334 L 243.83240029583567 137.2558564970959 L 122.91170972519352 131.13775158051536 Z "
+  >
     <title>`ijk`.icon</title>
-  </g>
-  <g>
-    <filter
-      id="cotan-formula__`jil`.icon-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#1b1f8a"
-      fill-opacity="0.2"
-      stroke="none"
-      d="M 243.83240029583567 137.2558564970959 L 111.79802174858025 242.99105813592334 L 250.54149862717568 246.16738436823806 Z "
-    />
+  </path>
+  <path
+    fill="#1b1f8a"
+    fill-opacity="0.2"
+    stroke="none"
+    d="M 243.83240029583567 137.2558564970959 L 111.79802174858025 242.99105813592334 L 250.54149862717568 246.16738436823806 Z "
+  >
     <title>`jil`.icon</title>
-  </g>
+  </path>
   <circle
     fill="#ffffff"
     fill-opacity="1"
@@ -284,62 +246,24 @@
     <title>`clji`.text</title>
     β
   </text>
-  <g>
-    <filter
-      id="cotan-formula__`clji`.arc-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="0.75"
-      stroke-linecap="butt"
-      d="M 248.69695425894542 216.2241437942182 A 30 30 0 0 0 220.54935723544457 245.48075875088233"
-    />
+  <path
+    fill="none"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0.75"
+    stroke-linecap="butt"
+    d="M 248.69695425894542 216.2241437942182 A 30 30 0 0 0 220.54935723544457 245.48075875088233"
+  >
     <title>`clji`.arc</title>
-  </g>
-  <g>
-    <filter
-      id="cotan-formula__`clji`.arcFill-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#1b1f8a"
-      fill-opacity="0.2"
-      stroke="none"
-      d="M 248.69695425894542 216.2241437942182 A 30 30 0 0 0 220.54935723544457 245.48075875088233 L 250.54149862717568 246.16738436823806 Z "
-    />
+  </path>
+  <path
+    fill="#1b1f8a"
+    fill-opacity="0.2"
+    stroke="none"
+    d="M 248.69695425894542 216.2241437942182 A 30 30 0 0 0 220.54935723544457 245.48075875088233 L 250.54149862717568 246.16738436823806 Z "
+  >
     <title>`clji`.arcFill</title>
-  </g>
+  </path>
   <circle
     fill="#000000"
     fill-opacity="1"
@@ -392,62 +316,24 @@
     <title>`ckij`.text</title>
     α
   </text>
-  <g>
-    <filter
-      id="cotan-formula__`ckij`.arc-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="0.75"
-      stroke-linecap="butt"
-      d="M 119.94553045598683 160.99075445364235 A 30 30 0 0 0 152.87338394473377 132.65369285976618"
-    />
+  <path
+    fill="none"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0.75"
+    stroke-linecap="butt"
+    d="M 119.94553045598683 160.99075445364235 A 30 30 0 0 0 152.87338394473377 132.65369285976618"
+  >
     <title>`ckij`.arc</title>
-  </g>
-  <g>
-    <filter
-      id="cotan-formula__`ckij`.arcFill-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#1b1f8a"
-      fill-opacity="0.2"
-      stroke="none"
-      d="M 119.94553045598683 160.99075445364235 A 30 30 0 0 0 152.87338394473377 132.65369285976618 L 122.91170972519352 131.13775158051536 Z "
-    />
+  </path>
+  <path
+    fill="#1b1f8a"
+    fill-opacity="0.2"
+    stroke="none"
+    d="M 119.94553045598683 160.99075445364235 A 30 30 0 0 0 152.87338394473377 132.65369285976618 L 122.91170972519352 131.13775158051536 Z "
+  >
     <title>`ckij`.arcFill</title>
-  </g>
+  </path>
   <circle
     fill="#000000"
     fill-opacity="1"

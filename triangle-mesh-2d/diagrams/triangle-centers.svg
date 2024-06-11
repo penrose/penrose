@@ -57,33 +57,14 @@
   >
     <title>`k`.bounds</title>
   </circle>
-  <g>
-    <filter
-      id="triangle-centers__`ijk`.icon-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#1b1f8a"
-      fill-opacity="0.2"
-      stroke="none"
-      d="M 145.5534931680864 246.35850166372933 L 222.02791382817273 205.32888734002427 L 73.13037813634557 26.271052056316734 Z "
-    />
+  <path
+    fill="#1b1f8a"
+    fill-opacity="0.2"
+    stroke="none"
+    d="M 145.5534931680864 246.35850166372933 L 222.02791382817273 205.32888734002427 L 73.13037813634557 26.271052056316734 Z "
+  >
     <title>`ijk`.icon</title>
-  </g>
+  </path>
   <circle
     fill="#ffffff"
     fill-opacity="1"

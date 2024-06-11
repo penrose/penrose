@@ -156,35 +156,16 @@
   >
     <title>`Path`.container</title>
   </rect>
-  <g>
-    <filter
-      id="all-shapes__`Path`.icon-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="1"
-      stroke-linecap="butt"
-      d="M 483.33333333333337 200 L 533.3333333333334 150 L 583.3333333333334 200 L 558.3333333333334 250 L 508.33333333333337 250 Z "
-    />
+  <path
+    fill="none"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="1"
+    stroke-linecap="butt"
+    d="M 483.33333333333337 200 L 533.3333333333334 150 L 583.3333333333334 200 L 558.3333333333334 250 L 508.33333333333337 250 Z "
+  >
     <title>`Path`.icon</title>
-  </g>
+  </path>
   <g
     transform="rotate(0, 533.3333333333334, 870)translate(501.4293333333334, 863.008)"
   >

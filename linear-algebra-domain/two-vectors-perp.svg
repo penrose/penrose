@@ -19,36 +19,17 @@
   >
     <title>`V`.background</title>
   </rect>
-  <g>
-    <filter
-      id="two-vectors-perp__6:0:perpMark-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#ffffff"
-      fill-opacity="1"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="1"
-      stroke-linecap="butt"
-      d="M 400 350 L 387.41945374747513 365.54765878969334 L 402.96711891367215 378.1282006658989 L 415.547665166197 362.58054187620553 Z "
-    />
+  <path
+    fill="#ffffff"
+    fill-opacity="1"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="1"
+    stroke-linecap="butt"
+    d="M 400 350 L 387.41945374747513 365.54765878969334 L 402.96711891367215 378.1282006658989 L 415.547665166197 362.58054187620553 Z "
+  >
     <title>6:0:perpMark</title>
-  </g>
+  </path>
   <g>
     <marker
       id="two-vectors-perp__registry--`u`.arrow-endArrowId"

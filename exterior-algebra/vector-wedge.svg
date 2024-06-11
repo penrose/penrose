@@ -111,33 +111,14 @@
     />
     <title>`b`.icon</title>
   </g>
-  <g>
-    <filter
-      id="vector-wedge__`v`.icon-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#38cc00"
-      fill-opacity="0.2"
-      stroke="none"
-      d="M 120 90 L 204.17911034228118 114.0474506712538 L 223.32972788683125 173.24011011452052 L 139.15061754455007 149.1926594432667 Z "
-    />
+  <path
+    fill="#38cc00"
+    fill-opacity="0.2"
+    stroke="none"
+    d="M 120 90 L 204.17911034228118 114.0474506712538 L 223.32972788683125 173.24011011452052 L 139.15061754455007 149.1926594432667 Z "
+  >
     <title>`v`.icon</title>
-  </g>
+  </path>
   <g>
     <marker
       id="vector-wedge__registry-SnorlaxIbis743-`a`.icon-endArrowId"
@@ -168,33 +149,14 @@
     />
     <title>`a`.icon</title>
   </g>
-  <g>
-    <filter
-      id="vector-wedge__`u`.icon-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#bd00cc"
-      fill-opacity="0.2"
-      stroke="none"
-      d="M 120 90 L 154.6239981057763 34.55717081324828 L 238.8031084480575 58.604621484502076 L 204.17911034228118 114.0474506712538 Z "
-    />
+  <path
+    fill="#bd00cc"
+    fill-opacity="0.2"
+    stroke="none"
+    d="M 120 90 L 154.6239981057763 34.55717081324828 L 238.8031084480575 58.604621484502076 L 204.17911034228118 114.0474506712538 Z "
+  >
     <title>`u`.icon</title>
-  </g>
+  </path>
   <g
     transform="rotate(0, 208.0252506319639, 115.1461777606088)translate(206.0947506319639, 111.9736777606088)"
     font-family="Linux Libertine"
@@ -276,24 +238,6 @@
         fill-opacity="1"
       />
     </marker>
-    <filter
-      id="vector-wedge__`u`.marker-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
     <path
       fill="none"
       stroke="#bd00cc"
@@ -366,24 +310,6 @@
         fill-opacity="1"
       />
     </marker>
-    <filter
-      id="vector-wedge__`v`.marker-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
     <path
       fill="none"
       stroke="#38cc00"

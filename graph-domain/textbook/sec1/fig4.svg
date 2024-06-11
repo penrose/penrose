@@ -10,174 +10,60 @@
       180.23948951977803
     </croppedViewBox>
   </penrose>
-  <g>
-    <filter
-      id="fig4__`Arc_Detroit_Chicago`.pointer-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#000000"
-      fill-opacity="1"
-      stroke="none"
-      d="M 267.246286011003 133.4933095522918 L 254.6226386371904 134.29549072971008 L 264.2402478297895 126.07955736348791 Z "
-    />
+  <path
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    d="M 267.246286011003 133.4933095522918 L 254.6226386371904 134.29549072971008 L 264.2402478297895 126.07955736348791 Z "
+  >
     <title>`Arc_Detroit_Chicago`.pointer</title>
-  </g>
-  <g>
-    <filter
-      id="fig4__`Arc_Detroit_Chicago`.arrow-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="1"
-      stroke-linecap="butt"
-      d="M 309.6236598582791 106.61142990846199 Q 267.5240490011243 134.44729841602498 217.926701663648 143.791598656275"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="1"
+    stroke-linecap="butt"
+    d="M 309.6236598582791 106.61142990846199 Q 267.5240490011243 134.44729841602498 217.926701663648 143.791598656275"
+  >
     <title>`Arc_Detroit_Chicago`.arrow</title>
-  </g>
-  <g>
-    <filter
-      id="fig4__`Arc_Detroit_NYC`.pointer-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#000000"
-      fill-opacity="1"
-      stroke="none"
-      d="M 273.90201513855334 180.35897636077425 L 264.63886562269647 188.9725725993205 L 266.8812274922542 176.52380589896936 Z "
-    />
+  </path>
+  <path
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    d="M 273.90201513855334 180.35897636077425 L 264.63886562269647 188.9725725993205 L 266.8812274922542 176.52380589896936 Z "
+  >
     <title>`Arc_Detroit_NYC`.pointer</title>
-  </g>
-  <g>
-    <filter
-      id="fig4__`Arc_Detroit_NYC`.arrow-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="1"
-      stroke-linecap="butt"
-      d="M 309.6236598582791 106.61142990846199 Q 272.90803399051475 173.84528120725744 236.17470958887588 241.0694645175376"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="1"
+    stroke-linecap="butt"
+    d="M 309.6236598582791 106.61142990846199 Q 272.90803399051475 173.84528120725744 236.17470958887588 241.0694645175376"
+  >
     <title>`Arc_Detroit_NYC`.arrow</title>
-  </g>
-  <g>
-    <filter
-      id="fig4__`Arc_Chicago_Detroit`.pointer-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#000000"
-      fill-opacity="1"
-      stroke="none"
-      d="M 260.29653202935356 116.88785538200976 L 272.9201794031662 116.0856742045915 L 263.30257021056707 124.30160757081366 Z "
-    />
+  </path>
+  <path
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    d="M 260.29653202935356 116.88785538200976 L 272.9201794031662 116.0856742045915 L 263.30257021056707 124.30160757081366 Z "
+  >
     <title>`Arc_Chicago_Detroit`.pointer</title>
-  </g>
-  <g>
-    <filter
-      id="fig4__`Arc_Chicago_Detroit`.arrow-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="1"
-      stroke-linecap="butt"
-      d="M 217.926701663648 143.791598656275 Q 260.0089556968356 115.91292324343654 309.6236598582791 106.61142990846199"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="1"
+    stroke-linecap="butt"
+    d="M 217.926701663648 143.791598656275 Q 260.0089556968356 115.91292324343654 309.6236598582791 106.61142990846199"
+  >
     <title>`Arc_Chicago_Detroit`.arrow</title>
-  </g>
+  </path>
   <circle
     fill="#000000"
     fill-opacity="1"
@@ -212,174 +98,60 @@
     <title>`Detroit`.text</title>
     Detroit
   </text>
-  <g>
-    <filter
-      id="fig4__`Arc_Washington_NYC`.pointer-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#000000"
-      fill-opacity="1"
-      stroke="none"
-      d="M 283.5988071772708 226.18734782649219 L 270.9754600716202 226.99424033009396 L 280.59000225397966 218.77471806382218 Z "
-    />
+  <path
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    d="M 283.5988071772708 226.18734782649219 L 270.9754600716202 226.99424033009396 L 280.59000225397966 218.77471806382218 Z "
+  >
     <title>`Arc_Washington_NYC`.pointer</title>
-  </g>
-  <g>
-    <filter
-      id="fig4__`Arc_Washington_NYC`.arrow-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="1"
-      stroke-linecap="butt"
-      d="M 327.8644084685336 203.85238687614333 Q 282.0547473533961 222.54761726693417 236.17470958887588 241.0694645175376"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="1"
+    stroke-linecap="butt"
+    d="M 327.8644084685336 203.85238687614333 Q 282.0547473533961 222.54761726693417 236.17470958887588 241.0694645175376"
+  >
     <title>`Arc_Washington_NYC`.arrow</title>
-  </g>
-  <g>
-    <filter
-      id="fig4__`Arc_Washington_Chicago`.pointer-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#000000"
-      fill-opacity="1"
-      stroke="none"
-      d="M 259.04653462554234 176.51397267160328 L 250.43334700241945 167.25044346158313 L 262.88201462692984 169.4933542557255 Z "
-    />
+  </path>
+  <path
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    d="M 259.04653462554234 176.51397267160328 L 250.43334700241945 167.25044346158313 L 262.88201462692984 169.4933542557255 Z "
+  >
     <title>`Arc_Washington_Chicago`.pointer</title>
-  </g>
-  <g>
-    <filter
-      id="fig4__`Arc_Washington_Chicago`.arrow-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="1"
-      stroke-linecap="butt"
-      d="M 327.8644084685336 203.85238687614333 Q 268.09916553168193 182.60149902952242 217.926701663648 143.791598656275"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="1"
+    stroke-linecap="butt"
+    d="M 327.8644084685336 203.85238687614333 Q 268.09916553168193 182.60149902952242 217.926701663648 143.791598656275"
+  >
     <title>`Arc_Washington_Chicago`.arrow</title>
-  </g>
-  <g>
-    <filter
-      id="fig4__`Arc_Chicago_Washington`.pointer-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#000000"
-      fill-opacity="1"
-      stroke="none"
-      d="M 278.76761810387086 166.77648696795322 L 287.3808057269937 176.04001617797337 L 274.93213810248335 173.79710538383097 Z "
-    />
+  </path>
+  <path
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    d="M 278.76761810387086 166.77648696795322 L 287.3808057269937 176.04001617797337 L 274.93213810248335 173.79710538383097 Z "
+  >
     <title>`Arc_Chicago_Washington`.pointer</title>
-  </g>
-  <g>
-    <filter
-      id="fig4__`Arc_Chicago_Washington`.arrow-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="1"
-      stroke-linecap="butt"
-      d="M 217.926701663648 143.791598656275 Q 277.68822699705265 165.04929135527777 327.8644084685336 203.85238687614333"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="1"
+    stroke-linecap="butt"
+    d="M 217.926701663648 143.791598656275 Q 277.68822699705265 165.04929135527777 327.8644084685336 203.85238687614333"
+  >
     <title>`Arc_Chicago_Washington`.arrow</title>
-  </g>
+  </path>
   <circle
     fill="#000000"
     fill-opacity="1"
@@ -414,286 +186,96 @@
     <title>`Washington`.text</title>
     Washington
   </text>
-  <g>
-    <filter
-      id="fig4__`Arc_LA_Denver`.pointer-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#000000"
-      fill-opacity="1"
-      stroke="none"
-      d="M 72.49650235548293 123.94734400600501 L 79.66222717673448 134.37098821850665 L 67.67546079223226 130.33150774125627 Z "
-    />
+  <path
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    d="M 72.49650235548293 123.94734400600501 L 79.66222717673448 134.37098821850665 L 67.67546079223226 130.33150774125627 Z "
+  >
     <title>`Arc_LA_Denver`.pointer</title>
-  </g>
-  <g>
-    <filter
-      id="fig4__`Arc_LA_Denver`.arrow-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="1"
-      stroke-linecap="butt"
-      d="M 22.0600102490217 97.14640097300068 Q 71.94594417798348 122.26989773180232 109.76275330873938 163.37568127283498"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="1"
+    stroke-linecap="butt"
+    d="M 22.0600102490217 97.14640097300068 Q 71.94594417798348 122.26989773180232 109.76275330873938 163.37568127283498"
+  >
     <title>`Arc_LA_Denver`.arrow</title>
-  </g>
-  <g>
-    <filter
-      id="fig4__`Arc_SF_Denver`.pointer-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#000000"
-      fill-opacity="1"
-      stroke="none"
-      d="M 57.07742646775162 182.7982581385505 L 69.65959688753045 181.49865832272292 L 60.37362044120394 190.08764042725227 Z "
-    />
+  </path>
+  <path
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    d="M 57.07742646775162 182.7982581385505 L 69.65959688753045 181.49865832272292 L 60.37362044120394 190.08764042725227 Z "
+  >
     <title>`Arc_SF_Denver`.pointer</title>
-  </g>
-  <g>
-    <filter
-      id="fig4__`Arc_SF_Denver`.arrow-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="1"
-      stroke-linecap="butt"
-      d="M 5.054110319793693 210.72400028245593 Q 57.399936430495984 187.0310536247984 109.76275330873938 163.37568127283498"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="1"
+    stroke-linecap="butt"
+    d="M 5.054110319793693 210.72400028245593 Q 57.399936430495984 187.0310536247984 109.76275330873938 163.37568127283498"
+  >
     <title>`Arc_SF_Denver`.arrow</title>
-  </g>
-  <g>
-    <filter
-      id="fig4__`Arc_Chicago_Denver`.pointer-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#000000"
-      fill-opacity="1"
-      stroke="none"
-      d="M 163.57936526382596 152.5984908252446 L 151.058703470846 150.8004365562024 L 162.15406546665528 144.7264828956482 Z "
-    />
+  </path>
+  <path
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    d="M 163.57936526382596 152.5984908252446 L 151.058703470846 150.8004365562024 L 162.15406546665528 144.7264828956482 Z "
+  >
     <title>`Arc_Chicago_Denver`.pointer</title>
-  </g>
-  <g>
-    <filter
-      id="fig4__`Arc_Chicago_Denver`.arrow-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="1"
-      stroke-linecap="butt"
-      d="M 217.926701663648 143.791598656275 Q 162.05716440459395 143.71083230616608 109.76275330873938 163.37568127283498"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="1"
+    stroke-linecap="butt"
+    d="M 217.926701663648 143.791598656275 Q 162.05716440459395 143.71083230616608 109.76275330873938 163.37568127283498"
+  >
     <title>`Arc_Chicago_Denver`.arrow</title>
-  </g>
-  <g>
-    <filter
-      id="fig4__`Arc_Denver_LA`.pointer-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#000000"
-      fill-opacity="1"
-      stroke="none"
-      d="M 59.33435682903499 136.56366450777975 L 52.16863200778343 126.1400202952781 L 64.15539839228566 130.17950077252848 Z "
-    />
+  </path>
+  <path
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    d="M 59.33435682903499 136.56366450777975 L 52.16863200778343 126.1400202952781 L 64.15539839228566 130.17950077252848 Z "
+  >
     <title>`Arc_Denver_LA`.pointer</title>
-  </g>
-  <g>
-    <filter
-      id="fig4__`Arc_Denver_LA`.arrow-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="1"
-      stroke-linecap="butt"
-      d="M 109.76275330873938 163.37568127283498 Q 59.89335041365416 138.23029363721838 22.0600102490217 97.14640097300068"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="1"
+    stroke-linecap="butt"
+    d="M 109.76275330873938 163.37568127283498 Q 59.89335041365416 138.23029363721838 22.0600102490217 97.14640097300068"
+  >
     <title>`Arc_Denver_LA`.arrow</title>
-  </g>
-  <g>
-    <filter
-      id="fig4__`Arc_Denver_Chicago`.pointer-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#000000"
-      fill-opacity="1"
-      stroke="none"
-      d="M 164.10377000405032 154.5360477543518 L 176.62443179703027 156.334102023394 L 165.529069801221 162.40805568394822 Z "
-    />
+  </path>
+  <path
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    d="M 164.10377000405032 154.5360477543518 L 176.62443179703027 156.334102023394 L 165.529069801221 162.40805568394822 Z "
+  >
     <title>`Arc_Denver_Chicago`.pointer</title>
-  </g>
-  <g>
-    <filter
-      id="fig4__`Arc_Denver_Chicago`.arrow-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="1"
-      stroke-linecap="butt"
-      d="M 109.76275330873938 163.37568127283498 Q 165.62040946087305 163.39082762631216 217.926701663648 143.791598656275"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="1"
+    stroke-linecap="butt"
+    d="M 109.76275330873938 163.37568127283498 Q 165.62040946087305 163.39082762631216 217.926701663648 143.791598656275"
+  >
     <title>`Arc_Denver_Chicago`.arrow</title>
-  </g>
+  </path>
   <circle
     fill="#000000"
     fill-opacity="1"
@@ -728,62 +310,24 @@
     <title>`Denver`.text</title>
     Denver
   </text>
-  <g>
-    <filter
-      id="fig4__`Arc_SF_LA`.pointer-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#000000"
-      fill-opacity="1"
-      stroke="none"
-      d="M 9.77199634233267 152.17967057034272 L 15.504842220844438 140.90427921264376 L 17.683800332654414 153.36429982591 Z "
-    />
+  <path
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    d="M 9.77199634233267 152.17967057034272 L 15.504842220844438 140.90427921264376 L 17.683800332654414 153.36429982591 Z "
+  >
     <title>`Arc_SF_LA`.pointer</title>
-  </g>
-  <g>
-    <filter
-      id="fig4__`Arc_SF_LA`.arrow-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="1"
-      stroke-linecap="butt"
-      d="M 5.054110319793693 210.72400028245593 Q 13.550547425097989 153.93422546154812 22.0600102490217 97.14640097300068"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="1"
+    stroke-linecap="butt"
+    d="M 5.054110319793693 210.72400028245593 Q 13.550547425097989 153.93422546154812 22.0600102490217 97.14640097300068"
+  >
     <title>`Arc_SF_LA`.arrow</title>
-  </g>
+  </path>
   <circle
     fill="#000000"
     fill-opacity="1"
@@ -852,62 +396,24 @@
     <title>`SF`.text</title>
     San Francisco
   </text>
-  <g>
-    <filter
-      id="fig4__`Arc_Chicago_NYC`.pointer-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#000000"
-      fill-opacity="1"
-      stroke="none"
-      d="M 230.95973930085756 191.58592049127512 L 229.2407595037568 204.11768318156092 L 223.0968857272659 193.0608851510718 Z "
-    />
+  <path
+    fill="#000000"
+    fill-opacity="1"
+    stroke="none"
+    d="M 230.95973930085756 191.58592049127512 L 229.2407595037568 204.11768318156092 L 223.0968857272659 193.0608851510718 Z "
+  >
     <title>`Arc_Chicago_NYC`.pointer</title>
-  </g>
-  <g>
-    <filter
-      id="fig4__`Arc_Chicago_NYC`.arrow-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="1"
-      stroke-linecap="butt"
-      d="M 217.926701663648 143.791598656275 Q 227.04626738390726 192.43136414096108 236.17470958887588 241.0694645175376"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="1"
+    stroke-linecap="butt"
+    d="M 217.926701663648 143.791598656275 Q 227.04626738390726 192.43136414096108 236.17470958887588 241.0694645175376"
+  >
     <title>`Arc_Chicago_NYC`.arrow</title>
-  </g>
+  </path>
   <circle
     fill="#000000"
     fill-opacity="1"

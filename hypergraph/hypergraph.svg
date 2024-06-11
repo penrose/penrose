@@ -517,122 +517,46 @@
   >
     <title>`N1`.dotlP</title>
   </circle>
-  <g>
-    <filter
-      id="hypergraph__`N1`.line3r-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#672551"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 505.157820109806 382.4580892827332 Q 561.170539577718 385.7719606626482 605.157817980443 350.9362781527552"
-    />
+  <path
+    fill="none"
+    stroke="#672551"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 505.157820109806 382.4580892827332 Q 561.170539577718 385.7719606626482 605.157817980443 350.9362781527552"
+  >
     <title>`N1`.line3r</title>
-  </g>
-  <g>
-    <filter
-      id="hypergraph__`N1`.line12-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#672551"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 305.1578065334064 280.2368777723859 Q 339.31600655615193 357.3274447337684 405.15781271269947 410.0018509193656"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#672551"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 305.1578065334064 280.2368777723859 Q 339.31600655615193 357.3274447337684 405.15781271269947 410.0018509193656"
+  >
     <title>`N1`.line12</title>
-  </g>
-  <g>
-    <filter
-      id="hypergraph__`N1`.line23-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#672551"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 405.15781271269947 410.0018509193656 Q 460.46879440724854 415.51191594679574 505.157820109806 382.4580892827332"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#672551"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 405.15781271269947 410.0018509193656 Q 460.46879440724854 415.51191594679574 505.157820109806 382.4580892827332"
+  >
     <title>`N1`.line23</title>
-  </g>
-  <g>
-    <filter
-      id="hypergraph__`N1`.linel1-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#672551"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 205.15780931309436 319.26013458221166 Q 262.4284785245933 318.3801264632617 305.1578065334064 280.2368777723859"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#672551"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 205.15780931309436 319.26013458221166 Q 262.4284785245933 318.3801264632617 305.1578065334064 280.2368777723859"
+  >
     <title>`N1`.linel1</title>
-  </g>
+  </path>
   <ellipse
     fill="#000000"
     fill-opacity="0.2"
@@ -725,122 +649,46 @@
   >
     <title>`N2`.dotlP</title>
   </circle>
-  <g>
-    <filter
-      id="hypergraph__`N2`.line3r-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#652b68"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 505.157820109806 257.22460985970287 Q 560.3885466380293 262.98010315651845 605.157817980443 230.12785569408396"
-    />
+  <path
+    fill="none"
+    stroke="#652b68"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 505.157820109806 257.22460985970287 Q 560.3885466380293 262.98010315651845 605.157817980443 230.12785569408396"
+  >
     <title>`N2`.line3r</title>
-  </g>
-  <g>
-    <filter
-      id="hypergraph__`N2`.line12-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#652b68"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 305.1578065334064 265.0435168904399 Q 360.1751974956816 271.4460954832949 405.15781271269947 239.1278403302731"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#652b68"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 305.1578065334064 265.0435168904399 Q 360.1751974956816 271.4460954832949 405.15781271269947 239.1278403302731"
+  >
     <title>`N2`.line12</title>
-  </g>
-  <g>
-    <filter
-      id="hypergraph__`N2`.line23-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#652b68"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 405.15781271269947 239.1278403302731 Q 451.59631663585697 267.856561490196 505.157820109806 257.22460985970287"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#652b68"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 405.15781271269947 239.1278403302731 Q 451.59631663585697 267.856561490196 505.157820109806 257.22460985970287"
+  >
     <title>`N2`.line23</title>
-  </g>
-  <g>
-    <filter
-      id="hypergraph__`N2`.linel1-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#652b68"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 205.15780931309436 297.33996852183856 Q 261.3044847467844 300.2237759106846 305.1578065334064 265.0435168904399"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#652b68"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 205.15780931309436 297.33996852183856 Q 261.3044847467844 300.2237759106846 305.1578065334064 265.0435168904399"
+  >
     <title>`N2`.linel1</title>
-  </g>
+  </path>
   <ellipse
     fill="#000000"
     fill-opacity="0.2"
@@ -944,122 +792,46 @@
   >
     <title>`N3`.dotlP</title>
   </circle>
-  <g>
-    <filter
-      id="hypergraph__`N3`.line3r-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#715f55"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 505.157820109806 248.70129823380444 Q 547.4028289260186 288.16960476114104 605.157817980443 290.7673238501723"
-    />
+  <path
+    fill="none"
+    stroke="#715f55"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 505.157820109806 248.70129823380444 Q 547.4028289260186 288.16960476114104 605.157817980443 290.7673238501723"
+  >
     <title>`N3`.line3r</title>
-  </g>
-  <g>
-    <filter
-      id="hypergraph__`N3`.line12-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#715f55"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 305.1578065334064 276.6806797567544 Q 362.18895510668284 276.6275849919786 405.15781271269947 239.12783919965406"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#715f55"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 305.1578065334064 276.6806797567544 Q 362.18895510668284 276.6275849919786 405.15781271269947 239.12783919965406"
+  >
     <title>`N3`.line12</title>
-  </g>
-  <g>
-    <filter
-      id="hypergraph__`N3`.line23-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#715f55"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 405.15781271269947 239.12783919965406 Q 453.25184423803313 263.8235413280686 505.157820109806 248.70129823380444"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#715f55"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 405.15781271269947 239.12783919965406 Q 453.25184423803313 263.8235413280686 505.157820109806 248.70129823380444"
+  >
     <title>`N3`.line23</title>
-  </g>
-  <g>
-    <filter
-      id="hypergraph__`N3`.linel1-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#715f55"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 205.15780931309436 230.14048211881544 Q 246.7189392450308 271.5430221110532 305.1578065334064 276.6806797567544"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#715f55"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 205.15780931309436 230.14048211881544 Q 246.7189392450308 271.5430221110532 305.1578065334064 276.6806797567544"
+  >
     <title>`N3`.linel1</title>
-  </g>
+  </path>
   <ellipse
     fill="#000000"
     fill-opacity="0.2"
@@ -1152,122 +924,46 @@
   >
     <title>`N4`.dotlP</title>
   </circle>
-  <g>
-    <filter
-      id="hypergraph__`N4`.line3r-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#4d558a"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 505.157820109806 257.2246144182234 Q 545.7563559209964 301.5063740858912 605.157817980443 310.48303947437574"
-    />
+  <path
+    fill="none"
+    stroke="#4d558a"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 505.157820109806 257.2246144182234 Q 545.7563559209964 301.5063740858912 605.157817980443 310.48303947437574"
+  >
     <title>`N4`.line3r</title>
-  </g>
-  <g>
-    <filter
-      id="hypergraph__`N4`.line12-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#4d558a"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 305.1578065334064 438.6218976240169 Q 366.2464615046012 421.95636743247417 405.15781271269947 372.00169589594776"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#4d558a"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 305.1578065334064 438.6218976240169 Q 366.2464615046012 421.95636743247417 405.15781271269947 372.00169589594776"
+  >
     <title>`N4`.line12</title>
-  </g>
-  <g>
-    <filter
-      id="hypergraph__`N4`.line23-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#4d558a"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 405.15781271269947 372.00169589594776 Q 470.2373114990656 327.7512210476335 505.157820109806 257.2246144182234"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#4d558a"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 405.15781271269947 372.00169589594776 Q 470.2373114990656 327.7512210476335 505.157820109806 257.2246144182234"
+  >
     <title>`N4`.line23</title>
-  </g>
-  <g>
-    <filter
-      id="hypergraph__`N4`.linel1-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#4d558a"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 205.15780931309436 423.2053139604449 Q 252.11049664613262 450.6800878999418 305.1578065334064 438.6218976240169"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#4d558a"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 205.15780931309436 423.2053139604449 Q 252.11049664613262 450.6800878999418 305.1578065334064 438.6218976240169"
+  >
     <title>`N4`.linel1</title>
-  </g>
+  </path>
   <ellipse
     fill="#000000"
     fill-opacity="0.2"
@@ -1360,122 +1056,46 @@
   >
     <title>`N5`.dotlP</title>
   </circle>
-  <g>
-    <filter
-      id="hypergraph__`N5`.line3r-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#b82ac9"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 505.157820109806 386.3206673728348 Q 548.2360850834814 423.5288675838138 605.157817980443 423.2089703792256"
-    />
+  <path
+    fill="none"
+    stroke="#b82ac9"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 505.157820109806 386.3206673728348 Q 548.2360850834814 423.5288675838138 605.157817980443 423.2089703792256"
+  >
     <title>`N5`.line3r</title>
-  </g>
-  <g>
-    <filter
-      id="hypergraph__`N5`.line12-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#b82ac9"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 305.1578065334064 318.23686319236845 Q 345.686935207083 362.7346498768069 405.15781271269947 372.00162803601546"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#b82ac9"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 305.1578065334064 318.23686319236845 Q 345.686935207083 362.7346498768069 405.15781271269947 372.00162803601546"
+  >
     <title>`N5`.line12</title>
-  </g>
-  <g>
-    <filter
-      id="hypergraph__`N5`.line23-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#b82ac9"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 405.15781271269947 372.00162803601546 Q 452.32292911194094 398.9592116200706 505.157820109806 386.3206673728348"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#b82ac9"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 405.15781271269947 372.00162803601546 Q 452.32292911194094 398.9592116200706 505.157820109806 386.3206673728348"
+  >
     <title>`N5`.line23</title>
-  </g>
-  <g>
-    <filter
-      id="hypergraph__`N5`.linel1-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#b82ac9"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 205.15780931309436 264.2237950269325 Q 245.65305426210722 308.82747624924195 305.1578065334064 318.23686319236845"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#b82ac9"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 205.15780931309436 264.2237950269325 Q 245.65305426210722 308.82747624924195 305.1578065334064 318.23686319236845"
+  >
     <title>`N5`.linel1</title>
-  </g>
+  </path>
   <ellipse
     fill="#000000"
     fill-opacity="0.2"
@@ -1557,122 +1177,46 @@
   >
     <title>`N6`.dotlP</title>
   </circle>
-  <g>
-    <filter
-      id="hypergraph__`N6`.line3r-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#c690d3"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 505.157820109806 307.8393034913962 Q 562.8440272537423 305.489443134617 605.157817980443 266.2114293164209"
-    />
+  <path
+    fill="none"
+    stroke="#c690d3"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 505.157820109806 307.8393034913962 Q 562.8440272537423 305.489443134617 605.157817980443 266.2114293164209"
+  >
     <title>`N6`.line3r</title>
-  </g>
-  <g>
-    <filter
-      id="hypergraph__`N6`.line12-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#c690d3"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 305.1578065334064 356.23683903173657 Q 361.816920228988 357.4405649452828 405.15781271269947 320.92659365963317"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#c690d3"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 305.1578065334064 356.23683903173657 Q 361.816920228988 357.4405649452828 405.15781271269947 320.92659365963317"
+  >
     <title>`N6`.line12</title>
-  </g>
-  <g>
-    <filter
-      id="hypergraph__`N6`.line23-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#c690d3"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 405.15781271269947 320.92659365963317 Q 457.7531473131406 334.21383807110163 505.157820109806 307.8393034913962"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#c690d3"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 405.15781271269947 320.92659365963317 Q 457.7531473131406 334.21383807110163 505.157820109806 307.8393034913962"
+  >
     <title>`N6`.line23</title>
-  </g>
-  <g>
-    <filter
-      id="hypergraph__`N6`.linel1-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#c690d3"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 205.15780931309436 406.5742318003685 Q 264.15026967527695 399.26990106896324 305.1578065334064 356.23683903173657"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#c690d3"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 205.15780931309436 406.5742318003685 Q 264.15026967527695 399.26990106896324 305.1578065334064 356.23683903173657"
+  >
     <title>`N6`.linel1</title>
-  </g>
+  </path>
   <ellipse
     fill="#000000"
     fill-opacity="0.2"
@@ -1754,122 +1298,46 @@
   >
     <title>`N7`.dotlP</title>
   </circle>
-  <g>
-    <filter
-      id="hypergraph__`N7`.line3r-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#9d7676"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 505.157820109806 295.224640635601 Q 564.1933560577464 287.74717488803105 605.157817980443 244.584474125229"
-    />
+  <path
+    fill="none"
+    stroke="#9d7676"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 505.157820109806 295.224640635601 Q 564.1933560577464 287.74717488803105 605.157817980443 244.584474125229"
+  >
     <title>`N7`.line3r</title>
-  </g>
-  <g>
-    <filter
-      id="hypergraph__`N7`.line12-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#9d7676"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 305.1578065334064 356.2368387946556 Q 361.8167240012802 357.44121911198675 405.15781271269947 320.9277636553611"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#9d7676"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 305.1578065334064 356.2368387946556 Q 361.8167240012802 357.44121911198675 405.15781271269947 320.9277636553611"
+  >
     <title>`N7`.line12</title>
-  </g>
-  <g>
-    <filter
-      id="hypergraph__`N7`.line23-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#9d7676"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 405.15781271269947 320.9277636553611 Q 460.13661304498333 327.4465791835894 505.157820109806 295.224640635601"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#9d7676"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 405.15781271269947 320.9277636553611 Q 460.13661304498333 327.4465791835894 505.157820109806 295.224640635601"
+  >
     <title>`N7`.line23</title>
-  </g>
-  <g>
-    <filter
-      id="hypergraph__`N7`.linel1-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#9d7676"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 205.15780931309436 386.7265365091062 Q 260.99065882800403 390.61223322174783 305.1578065334064 356.2368387946556"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#9d7676"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 205.15780931309436 386.7265365091062 Q 260.99065882800403 390.61223322174783 305.1578065334064 356.2368387946556"
+  >
     <title>`N7`.linel1</title>
-  </g>
+  </path>
   <circle
     fill="#50a9ac"
     fill-opacity="0.5"
@@ -1940,122 +1408,46 @@
   >
     <title>`N8`.dotlP</title>
   </circle>
-  <g>
-    <filter
-      id="hypergraph__`N8`.line3r-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#50a9ac"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 505.157820109806 295.225044679161 Q 547.7587353197437 333.716407424819 605.157817980443 335.0457742229585"
-    />
+  <path
+    fill="none"
+    stroke="#50a9ac"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 505.157820109806 295.225044679161 Q 547.7587353197437 333.716407424819 605.157817980443 335.0457742229585"
+  >
     <title>`N8`.line3r</title>
-  </g>
-  <g>
-    <filter
-      id="hypergraph__`N8`.line12-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#50a9ac"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 305.1578065334064 394.23682156996057 Q 365.47734285478634 381.25126376450135 405.15781271269947 334.0016043160124"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#50a9ac"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 305.1578065334064 394.23682156996057 Q 365.47734285478634 381.25126376450135 405.15781271269947 334.0016043160124"
+  >
     <title>`N8`.line12</title>
-  </g>
-  <g>
-    <filter
-      id="hypergraph__`N8`.line23-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#50a9ac"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 405.15781271269947 334.0016043160124 Q 462.38854713577973 333.2604813479159 505.157820109806 295.225044679161"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#50a9ac"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 405.15781271269947 334.0016043160124 Q 462.38854713577973 333.2604813479159 505.157820109806 295.225044679161"
+  >
     <title>`N8`.line23</title>
-  </g>
-  <g>
-    <filter
-      id="hypergraph__`N8`.linel1-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#50a9ac"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 205.15780931309436 359.0096682056295 Q 248.5126446789007 395.4870125390599 305.1578065334064 394.23682156996057"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#50a9ac"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 205.15780931309436 359.0096682056295 Q 248.5126446789007 395.4870125390599 305.1578065334064 394.23682156996057"
+  >
     <title>`N8`.linel1</title>
-  </g>
+  </path>
   <circle
     fill="#dbba3b"
     fill-opacity="0.5"
@@ -2126,120 +1518,44 @@
   >
     <title>`N9`.dotlP</title>
   </circle>
-  <g>
-    <filter
-      id="hypergraph__`N9`.line3r-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#dbba3b"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 505.157820109806 310.21305388445546 Q 543.6892898662455 361.59495158940297 605.157817980443 380.2065717286854"
-    />
+  <path
+    fill="none"
+    stroke="#dbba3b"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 505.157820109806 310.21305388445546 Q 543.6892898662455 361.59495158940297 605.157817980443 380.2065717286854"
+  >
     <title>`N9`.line3r</title>
-  </g>
-  <g>
-    <filter
-      id="hypergraph__`N9`.line12-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#dbba3b"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 305.1578065334064 394.23682240124816 Q 365.47734544093305 381.2512527518171 405.15781271269947 334.00158457490016"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#dbba3b"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 305.1578065334064 394.23682240124816 Q 365.47734544093305 381.2512527518171 405.15781271269947 334.00158457490016"
+  >
     <title>`N9`.line12</title>
-  </g>
-  <g>
-    <filter
-      id="hypergraph__`N9`.line23-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#dbba3b"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 405.15781271269947 334.00158457490016 Q 459.7863654484765 341.56436052536 505.157820109806 310.21305388445546"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#dbba3b"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 405.15781271269947 334.00158457490016 Q 459.7863654484765 341.56436052536 505.157820109806 310.21305388445546"
+  >
     <title>`N9`.line23</title>
-  </g>
-  <g>
-    <filter
-      id="hypergraph__`N9`.linel1-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#dbba3b"
-      stroke-opacity="0.5"
-      stroke-width="3"
-      stroke-linecap="butt"
-      d="M 205.15780931309436 341.227432029719 Q 245.79064479363143 385.40289924785543 305.1578065334064 394.23682240124816"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#dbba3b"
+    stroke-opacity="0.5"
+    stroke-width="3"
+    stroke-linecap="butt"
+    d="M 205.15780931309436 341.227432029719 Q 245.79064479363143 385.40289924785543 305.1578065334064 394.23682240124816"
+  >
     <title>`N9`.linel1</title>
-  </g>
+  </path>
 </svg>

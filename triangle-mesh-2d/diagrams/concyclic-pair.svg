@@ -213,62 +213,24 @@
     <title>`cI`.text</title>
     β’
   </text>
-  <g>
-    <filter
-      id="concyclic-pair__`cI`.arc-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="0.75"
-      stroke-linecap="butt"
-      d="M 186.21523573372207 320.51389342972124 A 30 30 0 0 0 148.66351337920557 301.41059705593364"
-    />
+  <path
+    fill="none"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0.75"
+    stroke-linecap="butt"
+    d="M 186.21523573372207 320.51389342972124 A 30 30 0 0 0 148.66351337920557 301.41059705593364"
+  >
     <title>`cI`.arc</title>
-  </g>
-  <g>
-    <filter
-      id="concyclic-pair__`cI`.arcFill-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#1b1f8a"
-      fill-opacity="0.2"
-      stroke="none"
-      d="M 186.21523573372207 320.51389342972124 A 30 30 0 0 0 148.66351337920557 301.41059705593364 L 157.75449518517493 330.00000155836307 Z "
-    />
+  </path>
+  <path
+    fill="#1b1f8a"
+    fill-opacity="0.2"
+    stroke="none"
+    d="M 186.21523573372207 320.51389342972124 A 30 30 0 0 0 148.66351337920557 301.41059705593364 L 157.75449518517493 330.00000155836307 Z "
+  >
     <title>`cI`.arcFill</title>
-  </g>
+  </path>
   <text
     fill="#000000"
     fill-opacity="1"
@@ -290,62 +252,24 @@
     <title>`cJ`.text</title>
     α’
   </text>
-  <g>
-    <filter
-      id="concyclic-pair__`cJ`.arc-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="0.75"
-      stroke-linecap="butt"
-      d="M 228.48258278266871 166.84183864358326 A 30 30 0 0 0 267.4380428307968 184.37479229265386"
-    />
+  <path
+    fill="none"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0.75"
+    stroke-linecap="butt"
+    d="M 228.48258278266871 166.84183864358326 A 30 30 0 0 0 267.4380428307968 184.37479229265386"
+  >
     <title>`cJ`.arc</title>
-  </g>
-  <g>
-    <filter
-      id="concyclic-pair__`cJ`.arcFill-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#1b1f8a"
-      fill-opacity="0.2"
-      stroke="none"
-      d="M 228.48258278266871 166.84183864358326 A 30 30 0 0 0 267.4380428307968 184.37479229265386 L 256.60619200553964 156.3985343638426 Z "
-    />
+  </path>
+  <path
+    fill="#1b1f8a"
+    fill-opacity="0.2"
+    stroke="none"
+    d="M 228.48258278266871 166.84183864358326 A 30 30 0 0 0 267.4380428307968 184.37479229265386 L 256.60619200553964 156.3985343638426 Z "
+  >
     <title>`cJ`.arcFill</title>
-  </g>
+  </path>
   <text
     fill="#000000"
     fill-opacity="1"
@@ -367,62 +291,24 @@
     <title>`cK`.text</title>
     α
   </text>
-  <g>
-    <filter
-      id="concyclic-pair__`cK`.arc-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="0.75"
-      stroke-linecap="butt"
-      d="M 127.91241786822313 236.15235805665682 A 30 30 0 0 0 146.9450452851247 197.1196492744867"
-    />
+  <path
+    fill="none"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0.75"
+    stroke-linecap="butt"
+    d="M 127.91241786822313 236.15235805665682 A 30 30 0 0 0 146.9450452851247 197.1196492744867"
+  >
     <title>`cK`.arc</title>
-  </g>
-  <g>
-    <filter
-      id="concyclic-pair__`cK`.arcFill-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#1b1f8a"
-      fill-opacity="0.2"
-      stroke="none"
-      d="M 127.91241786822313 236.15235805665682 A 30 30 0 0 0 146.9450452851247 197.1196492744867 L 118.82143606225377 207.56295355422736 Z "
-    />
+  </path>
+  <path
+    fill="#1b1f8a"
+    fill-opacity="0.2"
+    stroke="none"
+    d="M 127.91241786822313 236.15235805665682 A 30 30 0 0 0 146.9450452851247 197.1196492744867 L 118.82143606225377 207.56295355422736 Z "
+  >
     <title>`cK`.arcFill</title>
-  </g>
+  </path>
   <text
     fill="#000000"
     fill-opacity="1"
@@ -444,116 +330,40 @@
     <title>`cL`.text</title>
     β
   </text>
-  <g>
-    <filter
-      id="concyclic-pair__`cL`.arc-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="0.75"
-      stroke-linecap="butt"
-      d="M 294.00813054972286 252.99941048648563 A 30 30 0 0 0 276.3792408264329 290.46177654393875"
-    />
+  <path
+    fill="none"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0.75"
+    stroke-linecap="butt"
+    d="M 294.00813054972286 252.99941048648563 A 30 30 0 0 0 276.3792408264329 290.46177654393875"
+  >
     <title>`cL`.arc</title>
-  </g>
-  <g>
-    <filter
-      id="concyclic-pair__`cL`.arcFill-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#1b1f8a"
-      fill-opacity="0.2"
-      stroke="none"
-      d="M 294.00813054972286 252.99941048648563 A 30 30 0 0 0 276.3792408264329 290.46177654393875 L 304.8399813749801 280.9756684152969 Z "
-    />
+  </path>
+  <path
+    fill="#1b1f8a"
+    fill-opacity="0.2"
+    stroke="none"
+    d="M 294.00813054972286 252.99941048648563 A 30 30 0 0 0 276.3792408264329 290.46177654393875 L 304.8399813749801 280.9756684152969 Z "
+  >
     <title>`cL`.arcFill</title>
-  </g>
-  <g>
-    <filter
-      id="concyclic-pair__`ijk`.icon-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#1b1f8a"
-      fill-opacity="0.2"
-      stroke="none"
-      d="M 157.75449518517493 330.00000155836307 L 256.60619200553964 156.3985343638426 L 118.82143606225377 207.56295355422736 Z "
-    />
+  </path>
+  <path
+    fill="#1b1f8a"
+    fill-opacity="0.2"
+    stroke="none"
+    d="M 157.75449518517493 330.00000155836307 L 256.60619200553964 156.3985343638426 L 118.82143606225377 207.56295355422736 Z "
+  >
     <title>`ijk`.icon</title>
-  </g>
-  <g>
-    <filter
-      id="concyclic-pair__`jil`.icon-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#1b1f8a"
-      fill-opacity="0.2"
-      stroke="none"
-      d="M 256.60619200553964 156.3985343638426 L 157.75449518517493 330.00000155836307 L 304.8399813749801 280.9756684152969 Z "
-    />
+  </path>
+  <path
+    fill="#1b1f8a"
+    fill-opacity="0.2"
+    stroke="none"
+    d="M 256.60619200553964 156.3985343638426 L 157.75449518517493 330.00000155836307 L 304.8399813749801 280.9756684152969 Z "
+  >
     <title>`jil`.icon</title>
-  </g>
+  </path>
   <g>
     <line
       x1="118.82143606225377"

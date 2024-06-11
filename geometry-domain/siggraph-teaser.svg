@@ -152,35 +152,16 @@
     />
     <title>`w`.icon</title>
   </g>
-  <g>
-    <filter
-      id="siggraph-teaser__`theta`.mark-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#8c90c1"
-      stroke-opacity="1"
-      stroke-width="2"
-      stroke-linecap="butt"
-      d="M 415.65882892312254 195.72184878309588 A 30 30 0 0 0 421.5947858970717 197.21132233201195"
-    />
+  <path
+    fill="none"
+    stroke="#8c90c1"
+    stroke-opacity="1"
+    stroke-width="2"
+    stroke-linecap="butt"
+    d="M 415.65882892312254 195.72184878309588 A 30 30 0 0 0 421.5947858970717 197.21132233201195"
+  >
     <title>`theta`.mark</title>
-  </g>
+  </path>
   <g style="solid">
     <line
       x1="276.14933932822197"
@@ -376,36 +357,17 @@
       </g>
     </svg>
   </g>
-  <g>
-    <filter
-      id="siggraph-teaser__`t`.icon-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#1b1f8a"
-      fill-opacity="0.2"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="0"
-      stroke-linecap="butt"
-      d="M 425.8900955692768 167.5204101350522 L 647.766448318246 359.96659142807374 L 371.8975918307671 540.7383641670176 Z "
-    />
+  <path
+    fill="#1b1f8a"
+    fill-opacity="0.2"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="0"
+    stroke-linecap="butt"
+    d="M 425.8900955692768 167.5204101350522 L 647.766448318246 359.96659142807374 L 371.8975918307671 540.7383641670176 Z "
+  >
     <title>`t`.icon</title>
-  </g>
+  </path>
   <circle
     fill="#000000"
     fill-opacity="1"
@@ -473,33 +435,14 @@
   >
     <title>`m`.icon</title>
   </circle>
-  <g>
-    <filter
-      id="siggraph-teaser__`h`.mark-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="2"
-      stroke-linecap="butt"
-      d="M 360.4201963000547 377.3033612527555 L 357.0097744249098 386.7038401040608 L 347.60929531103875 383.2934187128578"
-    />
+  <path
+    fill="none"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="2"
+    stroke-linecap="butt"
+    d="M 360.4201963000547 377.3033612527555 L 357.0097744249098 386.7038401040608 L 347.60929531103875 383.2934187128578"
+  >
     <title>`h`.mark</title>
-  </g>
+  </path>
 </svg>

@@ -435,35 +435,16 @@
     />
     <title>`EA`.icon</title>
   </g>
-  <g>
-    <filter
-      id="c11p12__`Fb`.mark-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#425664"
-      stroke-opacity="1"
-      stroke-width="2"
-      stroke-linecap="butt"
-      d="M 266.3731182618797 406.12772843656603 L 246.38193605759233 405.5339387673141 L 245.7881464751846 425.5251209497244"
-    />
+  <path
+    fill="none"
+    stroke="#425664"
+    stroke-opacity="1"
+    stroke-width="2"
+    stroke-linecap="butt"
+    d="M 266.3731182618797 406.12772843656603 L 246.38193605759233 405.5339387673141 L 245.7881464751846 425.5251209497244"
+  >
     <title>`Fb`.mark</title>
-  </g>
+  </path>
   <g style="solid">
     <line
       x1="270.7375257758634"
@@ -488,35 +469,16 @@
     />
     <title>`EC`.icon</title>
   </g>
-  <g>
-    <filter
-      id="c11p12__`Fd`.mark-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#425664"
-      stroke-opacity="1"
-      stroke-width="2"
-      stroke-linecap="butt"
-      d="M 135.0036528377723 255.1590562992522 L 134.40985765136276 275.15023825347026 L 114.41867573414666 274.5564431543548"
-    />
+  <path
+    fill="none"
+    stroke="#425664"
+    stroke-opacity="1"
+    stroke-width="2"
+    stroke-linecap="butt"
+    d="M 135.0036528377723 255.1590562992522 L 134.40985765136276 275.15023825347026 L 114.41867573414666 274.5564431543548"
+  >
     <title>`Fd`.mark</title>
-  </g>
+  </path>
   <g style="solid">
     <line
       x1="270.7375257758634"

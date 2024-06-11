@@ -197,24 +197,6 @@
         fill-opacity="1"
       />
     </marker>
-    <filter
-      id="relative-orientation__`ijk`.orientationArc-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
     <path
       fill="none"
       stroke="#000000"
@@ -226,33 +208,14 @@
     />
     <title>`ijk`.orientationArc</title>
   </g>
-  <g>
-    <filter
-      id="relative-orientation__`ijk`.icon-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#1b1f8a"
-      fill-opacity="0.2"
-      stroke="none"
-      d="M 262.3347622579559 329.91192707103147 L 162.4104836182105 135.99347634061417 L 59.71382640394373 246.68204492020516 Z "
-    />
+  <path
+    fill="#1b1f8a"
+    fill-opacity="0.2"
+    stroke="none"
+    d="M 262.3347622579559 329.91192707103147 L 162.4104836182105 135.99347634061417 L 59.71382640394373 246.68204492020516 Z "
+  >
     <title>`ijk`.icon</title>
-  </g>
+  </path>
   <circle
     fill="#000000"
     fill-opacity="1"
@@ -332,24 +295,6 @@
         fill-opacity="1"
       />
     </marker>
-    <filter
-      id="relative-orientation__`jil`.orientationArc-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
     <path
       fill="none"
       stroke="#000000"
@@ -361,31 +306,12 @@
     />
     <title>`jil`.orientationArc</title>
   </g>
-  <g>
-    <filter
-      id="relative-orientation__`jil`.icon-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="#1b1f8a"
-      fill-opacity="0.2"
-      stroke="none"
-      d="M 162.4104836182105 135.99347634061417 L 262.3347622579559 329.91192707103147 L 304.0484169902831 144.75522251065797 Z "
-    />
+  <path
+    fill="#1b1f8a"
+    fill-opacity="0.2"
+    stroke="none"
+    d="M 162.4104836182105 135.99347634061417 L 262.3347622579559 329.91192707103147 L 304.0484169902831 144.75522251065797 Z "
+  >
     <title>`jil`.icon</title>
-  </g>
+  </path>
 </svg>

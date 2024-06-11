@@ -346,58 +346,20 @@
       </g>
     </svg>
   </g>
-  <g>
-    <filter
-      id="c05p01__`GJF`.icon-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="none"
-      d="M 274.89778286232223 273.98841736780537 L 197.4214004809053 107.40453516068649 L 383.9278326761727 176.07840379637963 Z "
-    />
+  <path
+    fill="none"
+    stroke="none"
+    d="M 274.89778286232223 273.98841736780537 L 197.4214004809053 107.40453516068649 L 383.9278326761727 176.07840379637963 Z "
+  >
     <title>`GJF`.icon</title>
-  </g>
-  <g>
-    <filter
-      id="c05p01__`DEF`.icon-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="none"
-      d="M 10.914968285637883 38.73066652499335 L 165.86773304847173 371.89843093923116 L 383.9278326761727 176.07840379637963 Z "
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="none"
+    d="M 10.914968285637883 38.73066652499335 L 165.86773304847173 371.89843093923116 L 383.9278326761727 176.07840379637963 Z "
+  >
     <title>`DEF`.icon</title>
-  </g>
+  </path>
   <g style="solid">
     <line
       x1="10.914968285637883"

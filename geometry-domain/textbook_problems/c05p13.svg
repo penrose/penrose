@@ -353,85 +353,28 @@
       </g>
     </svg>
   </g>
-  <g>
-    <filter
-      id="c05p13__`PLM`.icon-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="none"
-      d="M 322.42965391291375 196.84578657165008 L 413.1228877639983 29.522580727716843 L 272.82223046685607 106.91443953310355 Z "
-    />
+  <path
+    fill="none"
+    stroke="none"
+    d="M 322.42965391291375 196.84578657165008 L 413.1228877639983 29.522580727716843 L 272.82223046685607 106.91443953310355 Z "
+  >
     <title>`PLM`.icon</title>
-  </g>
-  <g>
-    <filter
-      id="c05p13__`JKL`.icon-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="none"
-      d="M 441.454686917326 367.0387067437046 L 89.22503706908009 203.808337992847 L 413.1228877639983 29.522580727716843 Z "
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="none"
+    d="M 441.454686917326 367.0387067437046 L 89.22503706908009 203.808337992847 L 413.1228877639983 29.522580727716843 Z "
+  >
     <title>`JKL`.icon</title>
-  </g>
-  <g>
-    <filter
-      id="c05p13__`PML`.mark-shadow"
-      x="0"
-      y="0"
-      width="200%"
-      height="200%"
-    >
-      <feOffset result="offOut" in="SourceAlpha" dx="5" dy="5" />
-      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
-      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-      <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <path
-      fill="none"
-      stroke="#000000"
-      stroke-opacity="1"
-      stroke-width="2"
-      stroke-linecap="butt"
-      d="M 277.65226656548145 115.67062202394618 L 286.4084490563241 110.8405859253208 L 281.5784132649791 102.08440326783301"
-    />
+  </path>
+  <path
+    fill="none"
+    stroke="#000000"
+    stroke-opacity="1"
+    stroke-width="2"
+    stroke-linecap="butt"
+    d="M 277.65226656548145 115.67062202394618 L 286.4084490563241 110.8405859253208 L 281.5784132649791 102.08440326783301"
+  >
     <title>`PML`.mark</title>
-  </g>
+  </path>
 </svg>
