@@ -859,7 +859,6 @@ where Subset(y, x) { }`,
 
       // ------- Compilation errors
 
-      PropertyMemberError: [`forall Set x { delete y.z.p }`],
       MissingShapeError: [
         `forall Set x { x.icon = Circle { }
 delete x.z.p }`,

@@ -238,7 +238,6 @@ export type StyleError =
   | NotShapeError
   | NotValueError
   | OutOfBoundsError
-  | PropertyMemberError
   | UOpTypeError
   | BadShapeParamTypeError
   | BadArgumentTypeError
@@ -248,7 +247,6 @@ export type StyleError =
   | RedeclareNamespaceError
   | NotSubstanceCollectionError
   | NotStyleVariableError
-  | StyleVariableReferToLiteralError
   | LayerOnNonShapesError
   // Runtime errors
   | RuntimeValueTypeError;
@@ -492,11 +490,6 @@ export interface OutOfBoundsError {
   indices: number[];
 }
 
-export interface PropertyMemberError {
-  tag: "PropertyMemberError";
-  path: StylePath<A>;
-}
-
 export interface UOpTypeError {
   tag: "UOpTypeError";
   expr: ResolvedUOp<A>;
@@ -553,19 +546,12 @@ export interface NotSubstanceCollectionError {
 
 export interface NotStyleVariableError {
   tag: "NotStyleVariableError";
-  name: string;
-  location: SourceRange;
-}
-
-export interface StyleVariableReferToLiteralError {
-  tag: "StyleVariableReferToLiteralError";
-  name: string;
-  location: SourceRange;
+  path: ResolvedPath<A>;
 }
 
 export interface LayerOnNonShapesError {
   tag: "LayerOnNonShapesError";
-  expr: ResolvedExpr<A>;
+  path: ResolvedPath<A>;
 }
 
 //#endregion

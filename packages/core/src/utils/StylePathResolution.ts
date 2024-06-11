@@ -3,7 +3,6 @@ import { A, ASTNode, Identifier, NodeType, SourceLoc } from "../types/ast.js";
 import { StyleError } from "../types/errors.js";
 import { Expr, FunctionCall, InlineComparison, Path } from "../types/style.js";
 import {
-  EmptyStylePath,
   ResolvedExpr,
   ResolvedFunctionCall,
   ResolvedInlineComparison,
@@ -14,6 +13,7 @@ import {
   StylePathToNamespaceScope,
   StylePathToScope,
   StylePathToSubstanceScope,
+  UnindexedStylePath,
 } from "../types/stylePathResolution.js";
 import {
   Assignment,
@@ -154,7 +154,7 @@ export const resolveStylePathWithoutIndex = (
   assignment: Assignment,
   original: Omit<Path<A>, "indices">,
 ): Result<ResolvedUnindexedStylePath<A>, StyleError> => {
-  let curr: ResolvedUnindexedStylePath<A> | EmptyStylePath<A> = {
+  let curr: UnindexedStylePath<A> = {
     ...emptyLoc(original),
     tag: "Empty",
   };
@@ -189,11 +189,11 @@ export const resolveStylePathWithoutIndex = (
 const resolveStylePathHelper = (
   { block, subst }: BlockInfo,
   assignment: Assignment,
-  curr: ResolvedUnindexedStylePath<A> | EmptyStylePath<A>,
+  curr: UnindexedStylePath<A>,
   parts: Identifier<A>[],
 ): Result<
   {
-    result: ResolvedUnindexedStylePath<A> | EmptyStylePath<A>;
+    result: UnindexedStylePath<A>;
     remaining: Identifier<A>[];
   },
   StyleError

@@ -58,7 +58,6 @@ import {
   Header,
   HeaderBlock,
   LayoutStages,
-  Path,
   PathAssign,
   RelBind,
   RelField,
@@ -88,6 +87,7 @@ import {
   ResolvedVector,
   StylePath,
   StylePathToCollection,
+  StylePathToNamespaceScope,
   StylePathToScope,
   StylePathToSubstanceScope,
   StylePathToUnindexedObject,
@@ -1594,10 +1594,7 @@ const checkPathAndUpdateExpr = (
     path: StylePathToUnindexedObject<A>,
   ) => FieldedRes,
 ): Assignment => {
-  if (path.tag === "Unnamed") {
-    // the LHS resolver and parser should never allow this
-    throw new Error("should never happen");
-  } else if (path.tag === "Namespace") {
+  if (path.tag === "Namespace") {
     return addDiags(
       oneErr({
         tag: errTagGlobal,
@@ -2005,7 +2002,9 @@ export const buildAssignment = (
 
 //#region second pass
 
-const findPathsExpr = (expr: ResolvedExpr<A>): LhsStylePathToObject<A>[] => {
+const findPathsExpr = (
+  expr: ResolvedExpr<A>,
+): StylePathToUnindexedObject<A>[] => {
   switch (expr.tag) {
     case "BinOp": {
       return [expr.left, expr.right].flatMap((e) => findPathsExpr(e));
@@ -2070,8 +2069,8 @@ const findPathsExpr = (expr: ResolvedExpr<A>): LhsStylePathToObject<A>[] => {
           tag: "Substance",
           substanceObject: subObj,
         }));
-      const pathsToObjects: LhsStylePathToObject<A>[] = pathsToSubstances.map(
-        (pathToSubstance) => ({
+      const pathsToObjects: StylePathToUnindexedObject<A>[] =
+        pathsToSubstances.map((pathToSubstance) => ({
           ...expr,
           tag: "Object",
           access: {
@@ -2079,8 +2078,7 @@ const findPathsExpr = (expr: ResolvedExpr<A>): LhsStylePathToObject<A>[] => {
             parent: pathToSubstance,
             name: field,
           },
-        }),
-      );
+        }));
 
       return pathsToObjects;
     }
@@ -2092,7 +2090,7 @@ const findPathsExpr = (expr: ResolvedExpr<A>): LhsStylePathToObject<A>[] => {
 
 const gatherExpr = (
   graph: DepGraph,
-  w: LhsStylePathToObject<A>,
+  w: StylePathToUnindexedObject<A>,
   expr: ResolvedNotShape<A>,
 ): void => {
   const wStr = prettyResolvedStylePath(w);
@@ -2115,7 +2113,7 @@ const gatherExpr = (
 
 const gatherField = (
   graph: DepGraph,
-  lhs: LhsStylePathToObject<A>,
+  lhs: StylePathToUnindexedObject<A>,
   rhs: FieldSource,
 ): void => {
   const lhsStr = prettyResolvedStylePath(lhs);
@@ -2124,7 +2122,7 @@ const gatherField = (
     case "ShapeSource": {
       graph.setNode(lhsStr, { contents: rhs.shapeType, where: lhs });
       for (const [k, expr] of rhs.props) {
-        const pathToProperty: LhsStylePathToObject<A> = {
+        const pathToProperty: StylePathToUnindexedObject<A> = {
           nodeType: "SyntheticStyle",
           tag: "Object",
           access: {
@@ -2155,7 +2153,7 @@ export const gatherDependencies = (assignment: Assignment): DepGraph => {
   for (const [blockName, fields] of assignment.globals) {
     const pathToScope = stylePathToNamespaceScope(blockName);
     for (const [fieldName, field] of fields) {
-      const pathToObject: LhsStylePathToObject<A> = {
+      const pathToObject: StylePathToUnindexedObject<A> = {
         nodeType: "SyntheticStyle",
         tag: "Object",
         access: {
@@ -2172,7 +2170,7 @@ export const gatherDependencies = (assignment: Assignment): DepGraph => {
     const [blockId, substId] = indices.toArray();
     const pathToScope = stylePathToUnnamedScope(blockId, substId);
     for (const [fieldName, field] of fields) {
-      const pathToObject: LhsStylePathToObject<A> = {
+      const pathToObject: StylePathToUnindexedObject<A> = {
         nodeType: "SyntheticStyle",
         tag: "Object",
         access: {
@@ -2190,7 +2188,7 @@ export const gatherDependencies = (assignment: Assignment): DepGraph => {
       uniqueNameToSubObject(substanceName),
     );
     for (const [fieldName, field] of fields) {
-      const pathToObject: LhsStylePathToObject<A> = {
+      const pathToObject: StylePathToUnindexedObject<A> = {
         nodeType: "SyntheticStyle",
         tag: "Object",
         access: {
@@ -2886,7 +2884,7 @@ const evalExpr = (
         );
       }
       const f = compDict[name.value];
-      const x = callCompFunc(expr, f, argsWithExprs);
+      const x = callCompFunc(mut, expr, f, argsWithExprs);
       if (x.isErr()) return err(oneErr(x.error));
       const { value, warnings } = x.value;
 
@@ -3238,7 +3236,7 @@ const translateExpr = (
   mut: MutableContext,
   canvas: Canvas,
   layoutStages: OptPipeline,
-  path: LhsStylePathToObject<A>,
+  path: StylePathToUnindexedObject<A>,
   e: ResolvedNotShape<A>,
   trans: Translation,
 ): Translation => {
@@ -3368,7 +3366,7 @@ const translateExpr = (
         return addDiags(
           oneErr({
             tag: "LayerOnNonShapesError",
-            expr: left,
+            path: left,
           }),
           trans,
         );
@@ -3385,7 +3383,7 @@ const translateExpr = (
           return addDiags(
             oneErr({
               tag: "LayerOnNonShapesError",
-              expr: right[i],
+              path: right[i],
             }),
             trans,
           );
@@ -3412,7 +3410,7 @@ const translateExpr = (
 };
 
 const evalGPI = (
-  path: LhsStylePathToObject<A>,
+  path: StylePathToUnindexedObject<A>,
   shapeType: ShapeType,
   trans: Translation,
 ): Result<Shape<ad.Num>, StyleError> => {
@@ -3433,7 +3431,7 @@ export const translate = (
     if (typeof shapeType === "string") {
       const props = sampleShape(shapeType, mut, canvas);
       for (const [prop, value] of Object.entries(props)) {
-        const propPath: LhsStylePathToObject<A> = {
+        const propPath: StylePathToUnindexedObject<A> = {
           nodeType: "SyntheticStyle",
           tag: "Object",
           access: {
@@ -3693,19 +3691,47 @@ const getShapesList = (
   });
 };
 
-const fakePath = (name: string, members: string[]): Path<A> => ({
-  tag: "Path",
-  nodeType: "SyntheticStyle",
-  name: { tag: "StyVar", nodeType: "SyntheticStyle", contents: dummyId(name) },
-  members: members.map(dummyId),
-  indices: [],
-});
-
 const onCanvases = (canvas: Canvas, shapes: Shape<ad.Num>[]): Fn[] => {
+  const canvasScope: StylePathToNamespaceScope<A> = {
+    tag: "Namespace",
+    nodeType: "SyntheticStyle",
+    name: "canvas",
+  };
+  const pathToWidth: ResolvedPath<A> = {
+    tag: "ResolvedPath",
+    nodeType: "SyntheticStyle",
+    contents: {
+      tag: "Object",
+      nodeType: "SyntheticStyle",
+      access: {
+        tag: "Member",
+        parent: canvasScope,
+        name: "width",
+      },
+    },
+  };
+  const pathToHeight: ResolvedPath<A> = {
+    tag: "ResolvedPath",
+    nodeType: "SyntheticStyle",
+    contents: {
+      tag: "Object",
+      nodeType: "SyntheticStyle",
+      access: {
+        tag: "Member",
+        parent: canvasScope,
+        name: "height",
+      },
+    },
+  };
+
   const fns: Fn[] = [];
   for (const shape of shapes) {
-    const name = shape.name.contents;
     if (shape.ensureOnCanvas.contents) {
+      const pathToShape: ResolvedPath<A> = {
+        ...shape.path,
+        tag: "ResolvedPath",
+        contents: shape.path,
+      };
       const output = constrDict.onCanvas.body(
         shape,
         canvas.width,
@@ -3713,25 +3739,16 @@ const onCanvases = (canvas: Canvas, shapes: Shape<ad.Num>[]): Fn[] => {
       ).value;
       fns.push({
         ast: {
-          expr: {
-            tag: "ConstrFn",
+          tag: "ConstrFn",
+          nodeType: "SyntheticStyle",
+          body: {
+            tag: "FunctionCall",
             nodeType: "SyntheticStyle",
-            body: {
-              tag: "FunctionCall",
-              nodeType: "SyntheticStyle",
-              name: dummyId("onCanvas"),
-              args: [
-                // HACK: the right way to do this would be to parse `name` into
-                // the correct `Path`, but we don't really care as long as it
-                // pretty-prints into something that looks right
-                fakePath(name, []),
-                fakePath("canvas", ["width"]),
-                fakePath("canvas", ["height"]),
-              ],
-            },
-            stages: [],
-            exclude: true,
+            name: dummyId("onCanvas"),
+            args: [pathToShape, pathToWidth, pathToHeight],
           },
+          stages: [],
+          exclude: true,
         },
         output,
         // TODO: what's a good default stage for `onCanvas`? How can someone change this behavior?
@@ -3774,17 +3791,27 @@ const processPassthrough = (
     const propName = key.slice(i + 1);
     const shape = nameShapeMap.get(shapeName);
     if (shape) {
+      const { path: shapePath } = shape;
+      const propPath: StylePathToUnindexedObject<A> = {
+        tag: "Object",
+        nodeType: "SyntheticStyle",
+        access: {
+          tag: "Member",
+          parent: shapePath,
+          name: propName,
+        },
+      }
       if (Object.keys(shape).includes(propName)) continue;
       if (value.tag === "Val") {
         if (value.contents.tag === "FloatV" || value.contents.tag === "StrV") {
           shape.passthrough.set(propName, value.contents);
         } else {
           return err(
-            badShapeParamTypeError(key, value, "StrV or FloatV", true),
+            badShapeParamTypeError(propPath, value, "StrV or FloatV", true),
           );
         }
       } else {
-        return err(badShapeParamTypeError(key, value, "StrV or FloatV", true));
+        return err(badShapeParamTypeError(propPath, value, "StrV or FloatV", true));
       }
     }
   }

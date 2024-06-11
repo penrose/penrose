@@ -68,6 +68,13 @@ export type StylePathAccessIndex<T> = {
 export type StylePathToUnindexedObject<T> = StylePathToObject<T> & {
   access: StylePathAccessMember<T>;
 };
+
+export type UnindexedStylePath<T> =
+  | EmptyStylePath<T>
+  | StylePathToScope<T>
+  | StylePathToCollection<T>
+  | StylePathToUnindexedObject<T>;
+
 //#endregion
 
 //#region valid resolved style paths
@@ -84,7 +91,7 @@ export type ResolvedStylePath<T> =
   | StylePathToObject<T>;
 
 export type ResolvedUnindexedStylePath<T> =
-  | StylePathToScope<T>
+  | ResolvedStylePathToScope<T>
   | StylePathToCollection<T>
   | StylePathToUnindexedObject<T>;
 

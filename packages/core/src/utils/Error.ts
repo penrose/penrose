@@ -46,9 +46,9 @@ import { FuncParam, FuncSignature } from "../types/functions.js";
 import { State } from "../types/state.js";
 import { BindingForm, ColorLit } from "../types/style.js";
 import {
-  LhsStylePathToObject,
   ResolvedExpr,
   ResolvedPath,
+  StylePathToUnindexedObject,
 } from "../types/stylePathResolution.js";
 import { SubExpr, TypeApp } from "../types/substance.js";
 import { ArgVal, ArgValWithExpr, ShapeVal, Val } from "../types/value.js";
@@ -57,6 +57,7 @@ import {
   describeType,
   locOrNone,
   prettyPrintPath,
+  prettyResolvedExpr,
   prettyResolvedStylePath,
   toErrorLoc,
 } from "./Util.js";
@@ -500,12 +501,6 @@ canvas {
       )} out of bounds (at ${loc(error.expr)}).`;
     }
 
-    case "PropertyMemberError": {
-      return `Cannot assign to member ${prettyPrintResolvedPath(
-        error.path,
-      )} of a property (at ${locc("Style", error.path)}).`;
-    }
-
     case "UOpTypeError": {
       return `Unsupported unary operation ${error.expr.op} on type ${
         error.arg
@@ -520,34 +515,34 @@ canvas {
           ? `does not accept type ${error.value.contents.tag}`
           : `does not accept shape ${error.value.contents.shapeType}`;
       const propertyClause = error.passthrough
-        ? `Passthrough shape property ${error.path}`
-        : `Shape property ${error.path}`;
+        ? `Passthrough shape property ${prettyResolvedStylePath(error.path)}`
+        : `Shape property ${prettyResolvedStylePath(error.path)}`;
       return `${propertyClause} ${expectedClause} and ${doesNotAcceptClause}.`;
     }
 
     case "BadArgumentTypeError": {
-      const { funcName, funcArg, provided } = error;
+      const { funcName, formalArg, actualArg } = error;
 
-      const { name: argName, type: expectedType } = funcArg;
-      const locStr = locc("Style", provided);
+      const { name: argName, type: expectedType } = formalArg;
+      const locStr = loc(actualArg.expr);
       const strExpectedType = describeType(expectedType).symbol;
-      const strActualType = showArgValType(provided);
+      const strActualType = showArgValType(actualArg);
 
       return `Parameter \`${argName}\` (at ${locStr}) of function \`${funcName}\` expects ${strExpectedType} but is given incompatible ${strActualType}.`;
     }
 
     case "MissingArgumentError": {
-      const { funcName, funcArg, funcLocation } = error;
-      const locStr = locc("Style", funcLocation);
+      const { funcName, formalArg, callExpression } = error;
+      const locStr = loc(callExpression);
 
-      const { name } = funcArg;
+      const { name } = formalArg;
 
       return `Parameter \`${name}\` of function \`${funcName}\` (at ${locStr}) is missing without default value.`;
     }
 
     case "TooManyArgumentsError": {
-      const { func, funcLocation, numProvided } = error;
-      const locStr = locc("Style", funcLocation);
+      const { func, callExpression, numProvided } = error;
+      const locStr = loc(callExpression);
 
       const expNum = func.params.length;
 
@@ -555,8 +550,8 @@ canvas {
     }
 
     case "FunctionInternalError": {
-      const { func, location, message } = error;
-      const locStr = locc("Style", location);
+      const { func, callExpression, message } = error;
+      const locStr = loc(callExpression);
       return `Function \`${func.name}\` (at ${locStr}) failed with message: ${message}`;
     }
     case "RedeclareNamespaceError": {
@@ -566,27 +561,27 @@ canvas {
     }
 
     case "NotSubstanceCollectionError": {
-      const { name, location } = error;
-      const locStr = locc("Style", location);
-      return `The expression at ${locStr} expects \`${name}\` to be a collection.`;
+      const { path } = error;
+      const locStr = loc(path);
+      return `The expression ${prettyResolvedStylePath(
+        path.contents,
+      )} (at ${locStr}) is not a collection.`;
     }
 
     case "NotStyleVariableError": {
-      const { name, location } = error;
-      const locStr = locc("Style", location);
-      return `The expression at ${locStr} expects \`${name}\` to be a non-collection style variable.`;
-    }
-
-    case "StyleVariableReferToLiteralError": {
-      const { name, location } = error;
-      const locStr = locc("Style", location);
-      return `The expression at ${locStr} expects \`${name}\` to refer to an actual Substance variable, not a literal.`;
+      const { path } = error;
+      const locStr = loc(path);
+      return `The expression ${prettyResolvedStylePath(
+        path.contents,
+      )} (at ${locStr}) is not a non-collection style variable.`;
     }
 
     case "LayerOnNonShapesError": {
-      const { location, expr } = error;
-      const locStr = locc("Style", location);
-      return `Expects \`${expr}\` (at ${locStr}) to be a shape, but provided with a non-shape.`;
+      const { path } = error;
+      const locStr = loc(path);
+      return `Expects \`${prettyResolvedExpr(
+        path,
+      )}\` (at ${locStr}) to be a shape, but provided with a non-shape.`;
     }
     // --- END COMPILATION ERRORS
 
@@ -604,15 +599,15 @@ canvas {
     // ---- BEGIN STYLE WARNINGS
 
     case "ImplicitOverrideWarning": {
-      return `Implicitly overriding ${prettyPrintResolvedPath(
+      return `Implicitly overriding ${prettyResolvedStylePath(
         error.path,
-      )} (at ${locc("Style", error.path)}).`;
+      )} (at ${loc(error.path)}).`;
     }
 
     case "NoopDeleteWarning": {
-      return `Deleting nonexistent ${prettyPrintResolvedPath(
+      return `Deleting nonexistent ${prettyResolvedStylePath(
         error.path,
-      )} (at ${locc("Style", error.path)}).`;
+      )} (at ${loc(error.path)}).`;
     }
 
     case "LayerCycleWarning": {
@@ -640,11 +635,10 @@ canvas {
     case "BBoxApproximationWarning": {
       const topItem = error.stack[error.stack.length - 1];
       const rest = error.stack.slice(0, -1).reverse();
-      const loc =
-        topItem.location === undefined
-          ? ""
-          : `(at ${locc("Style", topItem.location)}) `;
-      const topStr = `Function call ${topItem.signature} ${loc}uses bounding box approximations`;
+      const location = !isConcrete(topItem.callExpression)
+        ? ""
+        : `(at ${loc(topItem.callExpression)}) `;
+      const topStr = `Function call ${topItem.signature} ${location}uses bounding box approximations`;
       const restStrs = rest.map(
         (item) =>
           `- Function call ${item.signature} uses bounding box approximations`,
@@ -686,7 +680,7 @@ export const errLocs = (
         ];
       }
     case "InvalidColorLiteral":
-      return [toErrorLoc(e.color)];
+      return locOrNone(e.color);
     case "TypeDeclared": {
       return locOrNone(e.typeName);
     }
@@ -813,10 +807,9 @@ export const errLocs = (
     case "MissingPathError":
     case "MissingShapeError":
     case "NotShapeError":
-    case "PropertyMemberError":
     case "AssignGlobalError":
     case "AssignSubstanceError": {
-      return locOrNone({ ...e.path, nodeType: "Style" });
+      return locOrNone(e.path);
     }
 
     case "NestedShapeError":
@@ -834,45 +827,23 @@ export const errLocs = (
     }
 
     case "BadArgumentTypeError": {
-      return [
-        toErrorLoc({
-          nodeType: "Style",
-          start: e.provided.start,
-          end: e.provided.end,
-        }),
-      ];
+      return locOrNone(e.actualArg.expr);
     }
 
-    case "MissingArgumentError": {
-      return [
-        toErrorLoc({
-          ...e.funcLocation,
-          nodeType: "Style",
-        }),
-      ];
+    case "MissingArgumentError":
+    case "TooManyArgumentsError":
+    case "FunctionInternalError": {
+      return locOrNone(e.callExpression);
     }
 
-    case "TooManyArgumentsError": {
-      return [
-        toErrorLoc({
-          ...e.funcLocation,
-          nodeType: "Style",
-        }),
-      ];
+    case "RedeclareNamespaceError": {
+      return [toErrorLoc({ ...e.location, nodeType: "Style" })];
     }
 
-    case "FunctionInternalError":
-    case "RedeclareNamespaceError":
     case "NotSubstanceCollectionError":
     case "NotStyleVariableError":
-    case "StyleVariableReferToLiteralError":
     case "LayerOnNonShapesError": {
-      return [
-        toErrorLoc({
-          ...e.location,
-          nodeType: "Style",
-        }),
-      ];
+      return locOrNone(e.path);
     }
     // --- END COMPILATION ERRORS
 
@@ -890,8 +861,8 @@ export const errLocs = (
       return locOrNone({ ...e.path, nodeType: "Style" });
     }
     case "BBoxApproximationWarning": {
-      const l = e.stack[e.stack.length - 1].location;
-      return l === undefined ? [] : [toErrorLoc({ ...l, nodeType: "Style" })];
+      const expr = e.stack[e.stack.length - 1].callExpression;
+      return locOrNone(expr);
     }
 
     case "LayerCycleWarning":
@@ -1033,7 +1004,7 @@ export const invalidColorLiteral = (
 });
 
 export const badShapeParamTypeError = (
-  path: LhsStylePathToObject<A>,
+  path: StylePathToUnindexedObject<A>,
   value: Val<ad.Num> | ShapeVal<ad.Num>,
   expectedType: string,
   passthrough: boolean,
@@ -1106,12 +1077,10 @@ export const notSubstanceCollectionError = (
 });
 
 export const notStyleVariableError = (
-  name: string,
-  location: SourceRange,
+  path: ResolvedPath<A>,
 ): NotStyleVariableError => ({
   tag: "NotStyleVariableError",
-  name,
-  location,
+  path,
 });
 
 export const nanError = (message: string, lastState: State): NaNError => ({
