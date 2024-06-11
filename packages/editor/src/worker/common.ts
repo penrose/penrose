@@ -4,7 +4,6 @@ import {
   LabelData,
   LabelMeasurements,
   Num,
-
   PenroseWarning,
   Shape,
   State,
