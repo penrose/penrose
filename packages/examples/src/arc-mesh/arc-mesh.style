@@ -32,7 +32,7 @@ colors {
 
 global {
   -- default size for vertices, points, etc.
-  scalar dotSize = 2.0
+  scalar pointSize = 2.0
 
   -- default width for lines/curves
   scalar lineWidth = 1
@@ -41,13 +41,16 @@ global {
   scalar secondaryLineWidth = 0.8
   
   -- size of angle markers
-  scalar straightAngleRadius = 15
-  scalar circularAngleRadius = 20
-  scalar bendAngleRadius = 25
+  scalar straightAngleRadius = 20
+  scalar circularAngleRadius = 27
+  scalar bendAngleRadius = 34
 
   -- size of length markers
   scalar markerOffset = 8 -- distance from marked edge/arc
   scalar markerEndcapSize = 3 -- size of straight end caps
+
+  -- size of dashes
+  string dashing = "3 4"
 
   -- labels
   string labelFont = "Linux Libertine O"
@@ -70,7 +73,7 @@ forall Vertex v
 
   shape v.icon = Circle {
     center: v.p
-    r: global.dotSize
+    r: global.pointSize
     fillColor: colors.point
     ensureOnCanvas: false
   }
@@ -112,7 +115,6 @@ where e := Edge(u,v) {
   shape e.straightEdge = Line {
     start: e.start
     end: e.end
-    strokeDasharray: "4 6"
     strokeColor: none()
     opacity: colors.constructionLineOpacity
     ensureOnCanvas: false
@@ -304,13 +306,13 @@ forall Circle C {
 -- a given edge
 forall Circle C; Edge ij
 where C := CircleThrough( ij ) {
-
    -- copy the center and radius of the
    -- edge's circular arc, so that it
    -- can be more easily referenced by
    -- rules that reference this circle
    override C.c = ij.c
    override C.r = ij.r
+   override C.icon.strokeDasharray = global.dashing
 }
 
 -- Draw points as little dots
@@ -319,7 +321,7 @@ forall Point P {
 
    shape P.icon = Circle {
       center: P.p
-      r: global.dotSize
+      r: global.pointSize
       fillColor: colors.point
       ensureOnCanvas: false
    }
@@ -358,9 +360,24 @@ forall Segment S {
 -- the center to an arbitrary point on the boundary
 forall Segment S; Circle C
 where S := RadiusOf(C) {
-   override S.start = C.c
-   override S.end = C.c + circleRandom()*C.r
-   override S.icon.opacity = colors.constructionLineOpacity
+   vec2 u = circleRandom()
+   override S.start = C.c + u*global.pointSize
+   override S.end = C.c + u*C.r
+   override S.line.strokeDasharray = global.dashing
+
+   shape S.centerPoint = Circle {
+      center: C.c
+      r: global.pointSize
+      fillColor: none()
+      strokeColor: colors.constructionLine
+      strokeWidth: global.secondaryLineWidth
+      ensureOnCanvas: false
+   }
+   override S.icon = Group {
+      shapes: [S.line,S.centerPoint]
+      opacity: colors.constructionLineOpacity
+      ensureOnCanvas: false
+   }
 }
 
 -- Indicate a length by drawing a segment with endcaps
@@ -552,9 +569,27 @@ where S has math label {
    ensure disjoint( S.labelText, S.line, global.labelPadding )
 }
 
+forall Segment S; Circle C
+where S has math label; S := RadiusOf(C) {
+   override S.labelText.opacity = colors.constructionLineOpacity
+}
+
 forall Angle A
 where A has math label {
    encourage norm( A.labelText.center - A.c ) == 0
+}
+
+forall Arc A
+where A has math label {
+   vec2 u0 = unitVector( A.theta0 )
+   vec2 u1 = unitVector( A.theta1 )
+   vec2 x = A.c + (A.r + global.labelSizeNum)*unit( (u0+u1)/2 )
+   encourage norm( A.labelText.center - x ) == 0
+}
+
+forall Arc A; Edge e
+where A has math label; A := ArcLengthMarker(e) {
+   override A.labelText.opacity = colors.constructionLineOpacity
 }
 
 forall Vertex v; Edge e

@@ -43,12 +43,12 @@ ShowStraightEdge(ij)
 ShowStraightEdge(jk)
 ShowStraightEdge(ki)
 
-Label i $i$
-Label j $j$
-Label k $k$
-Label p $c_{jk}$
-Label lki $\ell_{ki}$
-Label rij $r_{ij}$
-Label betaLJI $\beta_l^{ji}$
-Label thetaJKI $\theta_j^{ki}$
+-- Label i $i$
+-- Label j $j$
+-- Label k $k$
+-- Label p $c_{jk}$
+-- Label lki $\ell_{ki}$
+-- Label rij $r_{ij}$
+-- Label betaLJI $\beta_l^{ji}$
+-- Label thetaJKI $\theta_j^{ki}$
 
