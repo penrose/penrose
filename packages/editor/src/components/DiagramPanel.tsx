@@ -1,22 +1,21 @@
-import { isPenroseError, runtimeError, showError } from "@penrose/core";
+import { showError } from "@penrose/core";
 import { useEffect, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import {
+  Diagram,
   canvasState,
-  currentRogerState, Diagram,
+  currentRogerState,
   diagramState,
   diagramWorkerState,
   layoutTimelineState,
   optimizer,
-  workspaceMetadataSelector
+  workspaceMetadataSelector,
 } from "../state/atoms.js";
 import { pathResolver } from "../utils/downloadUtils.js";
 import { stateToSVG } from "../utils/renderUtils.js";
-import { LayoutTimelineSlider } from "./LayoutTimelineSlider.js";
 import { UpdateInfo } from "../worker/OptimizerWorker";
 import InteractivityOverlay from "./InteractivityOverlay";
-import im from "immutable";
-import RenderRectangle from "@penrose/core/dist/renderer/Rectangle";
+import { LayoutTimelineSlider } from "./LayoutTimelineSlider.js";
 
 export default function DiagramPanel() {
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -35,7 +34,7 @@ export default function DiagramPanel() {
         error: null,
         state: info.state,
       }));
-    }
+    };
     optimizer.setOnUpdate(onUpdate);
   }, []);
 
@@ -152,10 +151,7 @@ export default function DiagramPanel() {
           ref={canvasRef}
         >
           {diagram.svg && state && (
-            <InteractivityOverlay
-              diagramSVG={diagram.svg}
-              state={state}
-            />
+            <InteractivityOverlay diagramSVG={diagram.svg} state={state} />
           )}
         </div>
 

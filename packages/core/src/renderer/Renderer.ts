@@ -59,7 +59,6 @@ const getPosition = (
   return { x: 0, y: 0 };
 };
 
-
 /**
  * Renders a static SVG of the shapes and labels.
  * @param pathResolver Resolves paths to static strings
@@ -152,11 +151,7 @@ const RenderGroup = async (
   if (clip.tag === "Clip") {
     const clipShape = clip.contents;
     clipShapeName = clipShape.name.contents;
-    const clipShapeSvg = await RenderShape(
-      clipShape,
-      shapeProps,
-      onClick,
-    );
+    const clipShapeSvg = await RenderShape(clipShape, shapeProps, onClick);
 
     const clipPathSvg = document.createElementNS(
       "http://www.w3.org/2000/svg",

@@ -2,11 +2,10 @@
  * A component that lies over the DiagramPanel which displays interactivity handles
  */
 
+import { MutableRefObject, useEffect, useMemo, useRef, useState } from "react";
 import { RenderState } from "../worker/common.js";
-import InteractiveWidget from "./InteractiveWidget";
-import { MutableRefObject, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import HoverDisplay from "./HoverDisplay";
-
+import InteractiveWidget from "./InteractiveWidget";
 
 interface ClickedElemProps {
   elem: SVGElement;
@@ -15,28 +14,23 @@ interface ClickedElemProps {
 
 export interface InteractivityOverlayProps {
   diagramSVG: SVGSVGElement;
-  state: RenderState
+  state: RenderState;
 }
 
 const getTitleElements = (svg: SVGSVGElement) => {
-  return Array.from(
-    svg.querySelectorAll("title")
-  );
-}
+  return Array.from(svg.querySelectorAll("title"));
+};
 
 export default function InteractivityOverlay(
-  props: InteractivityOverlayProps
+  props: InteractivityOverlayProps,
 ): JSX.Element {
-  const [clickedPath, setClickedPath]
-    = useState<string | null>(null);
+  const [clickedPath, setClickedPath] = useState<string | null>(null);
 
-  const [hoveredPath, setHoveredPath]
-    = useState<string | null>(null);
+  const [hoveredPath, setHoveredPath] = useState<string | null>(null);
 
-  const activeOverlay
-    = useRef<HTMLDivElement | null>(null);
+  const activeOverlay = useRef<HTMLDivElement | null>(null);
 
-  const clickedElem= useMemo(() => {
+  const clickedElem = useMemo(() => {
     for (const titleElem of getTitleElements(props.diagramSVG)) {
       if (titleElem.innerHTML === clickedPath) {
         return titleElem.parentElement as unknown as SVGElement;
@@ -59,7 +53,10 @@ export default function InteractivityOverlay(
 
     for (const titleElem of getTitleElements(props.diagramSVG)) {
       const path = titleElem.innerHTML;
-      if (!props.state.translatableShapePaths.has(path)) {
+      if (
+        !props.state.translatableShapePaths.has(path) &&
+        !props.state.scalableShapePaths.has(path)
+      ) {
         continue;
       }
 
@@ -83,9 +80,10 @@ export default function InteractivityOverlay(
     }
 
     const onMousedownBackground = (e: MouseEvent) => {
-      if (!clickables.has(e.target as Element) &&
-          activeOverlay.current &&
-          !activeOverlay.current.contains(e.target as Element)
+      if (
+        !clickables.has(e.target as Element) &&
+        activeOverlay.current &&
+        !activeOverlay.current.contains(e.target as Element)
       ) {
         setClickedPath(null);
       }
@@ -95,7 +93,7 @@ export default function InteractivityOverlay(
       if (!clickables.has(e.target as Element)) {
         setHoveredPath(null);
       }
-    }
+    };
 
     document.addEventListener("mousedown", onMousedownBackground);
     document.addEventListener("mouseover", onMouseoverBackground);
@@ -103,40 +101,36 @@ export default function InteractivityOverlay(
     return () => {
       document.removeEventListener("mousedown", onMousedownBackground);
       document.removeEventListener("mouseover", onMouseoverBackground);
-    }
+    };
   }, [props.diagramSVG, clickedPath, hoveredPath]);
 
   return (
     <div
       style={{
-        position: 'absolute',
-        width: '100%',
-        height: '100%',
-        pointerEvents: 'none',
+        position: "absolute",
+        width: "100%",
+        height: "100%",
+        pointerEvents: "none",
       }}
       ref={activeOverlay}
     >
-      {clickedPath && clickedElem && activeOverlay.current &&
-        (
-          <InteractiveWidget
-            elem={clickedElem}
-            path={clickedPath}
-            diagramSVG={props.diagramSVG}
-            state={props.state}
-            overlay={activeOverlay as MutableRefObject<Element>}
-          />
-        )
-      }
+      {clickedPath && clickedElem && activeOverlay.current && (
+        <InteractiveWidget
+          elem={clickedElem}
+          path={clickedPath}
+          diagramSVG={props.diagramSVG}
+          state={props.state}
+          overlay={activeOverlay as MutableRefObject<Element>}
+        />
+      )}
 
-      {hoveredElem && activeOverlay.current &&
-        (
-          <HoverDisplay
-            elem={hoveredElem}
-            overlay={activeOverlay as MutableRefObject<Element>}
-            state={props.state}
-          />
-        )
-      }
+      {hoveredElem && activeOverlay.current && (
+        <HoverDisplay
+          elem={hoveredElem}
+          overlay={activeOverlay as MutableRefObject<Element>}
+          state={props.state}
+        />
+      )}
     </div>
   );
 }

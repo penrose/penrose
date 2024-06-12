@@ -9,8 +9,8 @@ import {
   Shape,
   State,
 } from "@penrose/core";
-import { WorkerError } from "./errors.js";
 import { Interaction } from "../utils/interactionUtils";
+import { WorkerError } from "./errors.js";
 
 export enum WorkerState {
   Init = "Init",
@@ -53,7 +53,7 @@ export type InteractOkResp = {
 export type ComputeShapesResp = {
   tag: "ComputeShapesResp";
   state: LayoutState;
-}
+};
 
 export type ErrorResp = {
   tag: "ErrorResp";
@@ -99,8 +99,7 @@ export type InteractReq = {
   tag: "InteractReq";
   interaction: Interaction;
   finish: boolean;
-}
-
+};
 
 export type InterruptReq = {
   tag: "InterruptReq";
@@ -126,6 +125,7 @@ export interface LayoutState {
   currentStageIndex: number;
   inputIdxsByPath: IdxsByPath;
   translatableShapePaths: Set<string>;
+  scalableShapePaths: Set<string>;
 }
 
 // state maintained by the main thread for rendering
@@ -139,6 +139,7 @@ export interface RenderState {
   currentStageIndex: number;
   inputIdxsByPath: IdxsByPath;
   translatableShapePaths: Set<string>;
+  scalableShapePaths: Set<string>;
 }
 
 // translate from the entire state to the state that is passed to the main thread
@@ -153,6 +154,7 @@ export const stateToLayoutState = (state: State): LayoutState => {
     currentStageIndex: state.currentStageIndex,
     inputIdxsByPath: state.inputIdxsByPath,
     translatableShapePaths: state.translatableShapePaths,
+    scalableShapePaths: state.scalableShapePaths,
   };
 };
 

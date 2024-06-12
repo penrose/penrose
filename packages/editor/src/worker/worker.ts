@@ -15,16 +15,21 @@ import {
 import consola from "consola";
 import _ from "lodash";
 import {
+  getScalingInfo, getScalingInputIdxs,
+  getTranslatedInputsIdxs,
+  Interaction, makeScaleCallback,
+  makeTranslateCallback
+} from "../utils/interactionUtils.js";
+import {
   CompiledReq,
   LayoutState,
   LayoutStats,
   Req,
   Resp,
   stateToLayoutState,
-  WorkerState
+  WorkerState,
 } from "./common.js";
 import { WorkerError } from "./errors.js";
-import { getTranslatedInputsIdxs, Interaction, makeTranslateCallback } from "../utils/interactionUtils.js";
 
 type Frame = number[];
 
@@ -48,8 +53,10 @@ let workerState: WorkerState = WorkerState.Init;
 // set to true to cause optimizer to finish before the next step
 let shouldFinish = false;
 
-let translateCallback: ((dx: number, dy: number, state: PenroseState) => void) | null = null;
-let scaleCallback: ((sx: number, sy: number) => void) | null = null;
+let translateCallback:
+  | ((dx: number, dy: number, state: PenroseState) => void)
+  | null = null;
+let scaleCallback: ((sx: number, sy: number, state: PenroseState) => void) | null = null;
 
 const maxUpdateHz = 50;
 let lastUpdateTime = self.performance.now();
@@ -224,23 +231,24 @@ const interact = (interaction: Interaction, finish: boolean) => {
     case "Translation":
       try {
         if (translateCallback === null) {
-          const translatedInputIdxs
-            = getTranslatedInputsIdxs(
-                interaction.path,
-                optState
-              );
+          const translatedInputIdxs = getTranslatedInputsIdxs(
+            interaction.path,
+            optState,
+          );
           for (const [_, masks] of optState.constraintSets) {
             for (const [xIdx, yIdx] of translatedInputIdxs) {
               masks.inputMask[xIdx] = false;
               masks.inputMask[yIdx] = false;
             }
           }
-          translateCallback = makeTranslateCallback(translatedInputIdxs, optState);
+          translateCallback = makeTranslateCallback(
+            translatedInputIdxs,
+            optState,
+          );
         }
         translateCallback!(interaction.dx, interaction.dy, optState);
         optState.params = _.cloneDeep(unoptState.params);
         if (finish) {
-          console.log('asdklfhj')
           translateCallback = null;
         }
       } catch (error: unknown) {
@@ -254,6 +262,29 @@ const interact = (interaction: Interaction, finish: boolean) => {
       break;
 
     case "Scale":
+      try {
+        if (scaleCallback === null) {
+          const scalingInfo = getScalingInfo(interaction.path, optState);
+          for (const [_, masks] of optState.constraintSets) {
+            for (const idx of getScalingInputIdxs(scalingInfo)) {
+              masks.inputMask[idx] = false;
+            }
+          }
+          scaleCallback = makeScaleCallback(scalingInfo, optState,);
+        }
+        scaleCallback!(interaction.sx, interaction.sy, optState);
+        optState.params = _.cloneDeep(unoptState.params);
+        if (finish) {
+          scaleCallback = null;
+        }
+      } catch (error: unknown) {
+        respondError({
+          tag: "InteractError",
+          nextWorkerState: workerState,
+          error,
+        });
+        return;
+      }
       break;
   }
 };
@@ -301,8 +332,8 @@ const respondShapes = (index: number) => {
     });
     respond({
       tag: "ComputeShapesResp",
-      state: newShapes
-    })
+      state: newShapes,
+    });
   }
 };
 
@@ -413,7 +444,7 @@ const optimize = async (state: PenroseState) => {
       }
 
       const now = self.performance.now();
-      if ((now - lastUpdateTime) >= 1000. / maxUpdateHz) {
+      if (now - lastUpdateTime >= 1000 / maxUpdateHz) {
         respondUpdate(stateToLayoutState(optState), stats);
         lastUpdateTime = now;
       }

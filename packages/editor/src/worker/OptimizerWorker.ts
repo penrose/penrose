@@ -7,7 +7,9 @@ import {
   runtimeError,
 } from "@penrose/core";
 import consola from "consola";
+import { Simulate } from "react-dom/test-utils";
 import { v4 as uuid } from "uuid";
+import { Interaction } from "../utils/interactionUtils";
 import {
   CompiledReq,
   layoutStateToRenderState,
@@ -20,9 +22,7 @@ import {
   separateRenderedLabels,
 } from "./common.js";
 import { showWorkerError, toPenroseError } from "./errors.js";
-import { Simulate } from "react-dom/test-utils";
 import waiting = Simulate.waiting;
-import { Interaction } from "../utils/interactionUtils";
 
 /* State types */
 
@@ -289,7 +289,7 @@ export default class OptimizerWorker {
           if (
             "previous" in this.state &&
             (this.state.previous.tag === "Optimizing" ||
-             this.state.previous.tag === "Compiled")
+              this.state.previous.tag === "Compiled")
           ) {
             callRejects();
             this.setState({
@@ -357,8 +357,11 @@ export default class OptimizerWorker {
         return;
       } else {
         this.onUpdate({
-          state: layoutStateToRenderState(data.state,
-            "waiting" in this.state ? this.state.previous.svgCache : this.state.svgCache
+          state: layoutStateToRenderState(
+            data.state,
+            "waiting" in this.state
+              ? this.state.previous.svgCache
+              : this.state.svgCache,
           ),
           stats: data.stats,
         });
@@ -496,8 +499,10 @@ export default class OptimizerWorker {
         switch (data.tag) {
           case "ComputeShapesResp":
           case "FinishedResp":
-            const stats = data.tag === "ComputeShapesResp" ?
-              this.state.previous.layoutStats : data.stats;
+            const stats =
+              data.tag === "ComputeShapesResp"
+                ? this.state.previous.layoutStats
+                : data.stats;
             const info = {
               state: layoutStateToRenderState(
                 data.state,

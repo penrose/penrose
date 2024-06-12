@@ -27,8 +27,10 @@ import {
 import {
   Shape,
   ShapeType,
+  isScalable,
   isShapeType,
-  sampleShape, isScalable, isTranslatable
+  isTranslatable,
+  sampleShape,
 } from "../shapes/Shapes.js";
 import * as ad from "../types/ad.js";
 import { isVar } from "../types/ad.js";

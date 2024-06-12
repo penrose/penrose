@@ -1,6 +1,7 @@
 import { add, div, maxN, minN, sub } from "../engine/AutodiffFunctions.js";
 import * as BBox from "../engine/BBox.js";
 import * as ad from "../types/ad.js";
+import { isVar } from "../types/ad.js";
 import { unwrap } from "../utils/Util.js";
 import { Circle, CircleProps, sampleCircle } from "./Circle.js";
 import { Ellipse, EllipseProps, sampleEllipse } from "./Ellipse.js";
@@ -14,10 +15,6 @@ import { Polyline, PolylineProps, samplePolyline } from "./Polyline.js";
 import { Rectangle, RectangleProps, sampleRectangle } from "./Rectangle.js";
 import { Canvas, Context } from "./Samplers.js";
 import { Text, TextProps, sampleText } from "./Text.js";
-import { isVar } from "../types/ad.js";
-import { ListV, TupV, Value, VectorV } from "../types/value.js";
-import { PenroseState, State } from "../index.js";
-import { zip } from "lodash";
 //#region other shape types/globals
 
 export type Shape<T> =
@@ -159,8 +156,12 @@ export const isTranslatable = (shape: Shape<ad.Num>): boolean => {
       return isVar(shape.center.contents[0]) && isVar(shape.center.contents[1]);
 
     case "Line":
-      return isVar(shape.start.contents[0]) && isVar(shape.start.contents[1])
-        && isVar(shape.end.contents[0]) && isVar(shape.end.contents[1]);
+      return (
+        isVar(shape.start.contents[0]) &&
+        isVar(shape.start.contents[1]) &&
+        isVar(shape.end.contents[0]) &&
+        isVar(shape.end.contents[1])
+      );
 
     case "Group":
     case "Path":
@@ -175,7 +176,7 @@ export const isTranslatable = (shape: Shape<ad.Num>): boolean => {
       }
       return true;
   }
-}
+};
 
 export const isScalable = (shape: Shape<ad.Num>): boolean => {
   switch (shape.shapeType) {
@@ -202,6 +203,6 @@ export const isScalable = (shape: Shape<ad.Num>): boolean => {
       //return isTranslatable(shape);
       return false;
   }
-}
+};
 
 //#endregion

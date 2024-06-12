@@ -1,9 +1,14 @@
+import { clamp, max, min } from "lodash";
+import { MutableRefObject, useCallback, useEffect, useMemo } from "react";
+import { useSetRecoilState } from "recoil";
+import { diagramState, diagramWorkerState, optimizer } from "../state/atoms.js";
+import {
+  getRelativeBBox,
+  getScreenToSvgPosition,
+  getSvgBBox,
+} from "../utils/renderUtils.js";
+import { handleOptimizerPromises } from "../utils/stateUtils.js";
 import { RenderState } from "../worker/common.js";
-import { getPosition, getRelativeBBox, screenBBoxtoSVGBBox } from "../utils/renderUtils";
-import { clamp } from "lodash";
-import { MutableRefObject, Ref, useCallback, useEffect, useMemo } from "react";
-import { diagramState, diagramWorkerState, optimizer } from "../state/atoms";
-import { useRecoilState, useSetRecoilState } from "recoil";
 
 export interface DragWidgetProps {
   elem: SVGElement;
@@ -13,118 +18,248 @@ export interface DragWidgetProps {
   overlay: MutableRefObject<Element>;
 }
 
-export default function InteractiveWidget(
+const useTranslateOnMouseDown = (
   props: DragWidgetProps,
-): JSX.Element {
-  const setDiagram = useSetRecoilState(diagramState);
-  const setWorkerState = useSetRecoilState(diagramWorkerState);
+  translate: (
+    path: string,
+    finish: boolean,
+    dx: number,
+    dy: number,
+  ) => Promise<void>,
+) =>
+  useCallback(
+    (e: MouseEvent) => {
+      const CTM = props.diagramSVG.getScreenCTM();
+      const { x: startX, y: startY } = getScreenToSvgPosition(e, CTM);
 
-  const onDrag = useCallback(async (path: string, finish: boolean, dx: number, dy: number) => {
-    const { onStart, onFinish } = await optimizer.interact(
-      {
-        tag: "Translation",
-        path,
-        dx,
-        dy,
-      },
-      finish
-    );
-    onFinish
-      .then((info) => {
-        setDiagram((state) => ({
-          ...state,
-          state: info.state,
-        }));
-        setWorkerState((state) => ({
-          ...state,
-          optimizing: false,
-        }));
-      })
+      console.log(startX, startY);
+      const {
+        width: bboxW,
+        height: bboxH,
+        x: bboxX,
+        y: bboxY,
+      } = getSvgBBox(props.elem, props.diagramSVG);
 
-    await onStart;
-    setWorkerState((state) => ({
-      ...state,
-      optimizing: true,
-    }));
-  }, []);
+      const minX = startX - bboxX;
+      const maxX = props.state.canvas.width - bboxW + (startX - bboxX);
+      const minY = startY - bboxY;
+      const maxY = props.state.canvas.height - bboxH + (startY - bboxY);
 
-  const onMouseDown = useCallback((e: {
-    screenX: number;
-    screenY: number;
-  }) => {
-    const CTM = props.diagramSVG.getScreenCTM();
-    const { x: tempX, y: tempY } = getPosition(e, CTM);
+      let dx = 0,
+        dy = 0;
+      let queuedMouseMove: () => void = () => {};
+      let readyForMouseMove = true;
 
-    const screenBBox = props.elem.getBoundingClientRect();
-    const {
-      width: bboxW,
-      height: bboxH,
-      x: bboxX,
-      y: bboxY,
-    } = screenBBoxtoSVGBBox(screenBBox, props.diagramSVG);
+      const onMouseMove = async (e: MouseEvent) => {
+        if (!readyForMouseMove) {
+          queuedMouseMove = () => onMouseMove(e);
+          return;
+        }
 
-    const minX = tempX - bboxX;
-    const maxX = props.state.canvas.width - bboxW + (tempX - bboxX);
-    const minY = tempY - bboxY;
-    const maxY = props.state.canvas.height - bboxH + (tempY - bboxY);
+        const { x, y } = getScreenToSvgPosition(e, CTM);
+        const constrainedX = clamp(x, minX, maxX);
+        const constrainedY = clamp(y, minY, maxY);
+        dx = constrainedX - startX;
+        dy = startY - constrainedY;
 
-    // g.setAttribute("opacity", "0.5");
-    // g.setAttribute("style", "cursor:grab");
+        readyForMouseMove = false;
+        await translate(props.path, false, dx, dy);
+        readyForMouseMove = true;
 
-    let dx = 0, dy = 0;
-    let queuedMouseMove: () => void = () => {};
-    let readyForMouseMove = true;
+        const toRun = queuedMouseMove;
+        queuedMouseMove = () => {};
+        toRun();
+      };
 
-    const onMouseMove = async (e: MouseEvent) => {
-      if (!readyForMouseMove) {
-        queuedMouseMove = () => onMouseMove(e);
-        return;
+      const onMouseUp = () => {
+        document.removeEventListener("mouseup", onMouseUp);
+        document.removeEventListener("mousemove", onMouseMove);
+        translate(props.path, true, dx, dy);
+      };
+
+      document.addEventListener("mouseup", onMouseUp);
+      document.addEventListener("mousemove", onMouseMove);
+    },
+    [props.diagramSVG, props.elem, props.path, props.state, translate],
+  );
+
+const useScaleOnMouseDown = (
+  props: DragWidgetProps,
+  corner: "topLeft" | "topRight" | "bottomLeft" | "bottomRight",
+  scale: (
+    path: string,
+    finish: boolean,
+    sx: number,
+    sy: number,
+  ) => Promise<void>,
+) =>
+  useCallback(
+    (e: MouseEvent) => {
+      console.log("scaling ", corner)
+      const CTM = props.diagramSVG.getScreenCTM();
+      const { x: startMouseX, y: startMouseY } = getScreenToSvgPosition(
+        e,
+        CTM,
+      );
+
+      const {
+        width: bboxW,
+        height: bboxH,
+        x: bboxX,
+        y: bboxY,
+      } = getSvgBBox(props.elem, props.diagramSVG);
+
+      let minMouseX: number,
+        maxMouseX: number,
+        minMouseY: number,
+        maxMouseY: number;
+      let left: boolean, top: boolean;
+
+      const leftMargin = bboxX;
+      const rightMargin = props.state.canvas.width - (bboxX + bboxW);
+      const xMargin = min([leftMargin, rightMargin])!;
+
+      const topMargin = bboxY;
+      const bottomMargin = props.state.canvas.height - (bboxY + bboxH);
+      const yMargin = min([topMargin, bottomMargin])!;
+
+
+      switch (corner) {
+        case "topLeft":
+        case "bottomLeft":
+          minMouseX = startMouseX - xMargin;
+          maxMouseX = startMouseX + bboxW / 2;
+          left = true;
+          break;
+
+        case "topRight":
+        case "bottomRight":
+          minMouseX = startMouseX - bboxW / 2;
+          maxMouseX = startMouseX + xMargin;
+          left = false;
+          break;
       }
 
-      const { x, y } = getPosition(e, CTM);
-      const constrainedX = clamp(x, minX, maxX);
-      const constrainedY = clamp(y, minY, maxY);
-      dx = constrainedX - tempX;
-      dy = tempY - constrainedY;
-      // g.setAttribute(`transform`, `translate(${dx},${-dy})`);
+      switch (corner) {
+        case "topLeft":
+        case "topRight":
+          minMouseY = startMouseY - yMargin;
+          maxMouseY = startMouseY + bboxH / 2;
+          top = true;
+          break;
 
-      readyForMouseMove = false;
-      await onDrag(props.path, false, dx, dy);
-      readyForMouseMove = true;
+        case "bottomLeft":
+        case "bottomRight":
+          minMouseY = startMouseY - bboxH / 2;
+          maxMouseY = startMouseY + yMargin;
+          top = false;
+          break;
+      }
 
-      const toRun = queuedMouseMove;
-      queuedMouseMove = () => {};
-      toRun();
-    };
+      let sx = 1,
+        sy = 1;
+      let queuedMouseMove: () => void = () => {};
+      let readyForMouseMove = true;
 
-    const onMouseUp = () => {
-      document.removeEventListener("mouseup", onMouseUp);
-      document.removeEventListener("mousemove", onMouseMove);
-      onDrag(props.path, true, dx, dy);
-    };
+      const onMouseMove = async (e: MouseEvent) => {
+        if (!readyForMouseMove) {
+          queuedMouseMove = () => onMouseMove(e);
+          return;
+        }
 
-    document.addEventListener("mouseup", onMouseUp);
-    document.addEventListener("mousemove", onMouseMove);
-  }, [props.diagramSVG, props.elem, props.path]);
+        const { x, y } = getScreenToSvgPosition(e, CTM);
+        const constrainedX = clamp(x, minMouseX, maxMouseX);
+        const constrainedY = clamp(y, minMouseY, maxMouseY);
+        sx =
+          ((constrainedX - startMouseX) * (left ? -1 : 1) * 2 + bboxW) / bboxW;
+        sy =
+          ((constrainedY - startMouseY) * (top ? -1 : 1) * 2 + bboxH) / bboxH;
+
+        readyForMouseMove = false;
+        await scale(props.path, false, sx, sy);
+        readyForMouseMove = true;
+
+        const toRun = queuedMouseMove;
+        queuedMouseMove = () => {};
+        toRun();
+      };
+
+      const onMouseUp = () => {
+        document.removeEventListener("mouseup", onMouseUp);
+        document.removeEventListener("mousemove", onMouseMove);
+        scale(props.path, true, sx, sy);
+      };
+
+      document.addEventListener("mouseup", onMouseUp);
+      document.addEventListener("mousemove", onMouseMove);
+    },
+    [props.diagramSVG, props.state],
+  );
+
+export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
+  const setDiagram = useSetRecoilState(diagramState);
+  const setWorker = useSetRecoilState(diagramWorkerState);
+
+  const translate = useCallback(
+    async (path: string, finish: boolean, dx: number, dy: number) => {
+      await handleOptimizerPromises(
+        await optimizer.interact(
+          {
+            tag: "Translation",
+            path,
+            dx,
+            dy,
+          },
+          finish,
+        ),
+        setDiagram,
+        setWorker,
+      );
+    },
+    [],
+  );
+
+  const scale = useCallback(
+    async (path: string, finish: boolean, sx: number, sy: number) => {
+      await handleOptimizerPromises(
+        await optimizer.interact(
+          {
+            tag: "Scale",
+            path,
+            sx,
+            sy,
+          },
+          finish,
+        ),
+        setDiagram,
+        setWorker,
+      );
+    },
+    [],
+  );
+
+  const translateOnMouseDown = useTranslateOnMouseDown(props, translate);
 
   useEffect(() => {
-    props.elem.addEventListener("mousedown", onMouseDown);
-    props.elem.style.cursor = "crosshair";
+    if (props.state.translatableShapePaths.has(props.path)) {
+      props.elem.addEventListener("mousedown", translateOnMouseDown);
+      props.elem.style.cursor = "crosshair";
 
-    return () => {
-      props.elem.removeEventListener("mousedown", onMouseDown);
-      props.elem.style.cursor = "auto";
+      return () => {
+        props.elem.removeEventListener("mousedown", translateOnMouseDown);
+        props.elem.style.cursor = "auto";
+      };
     }
-  }, [props.elem, onMouseDown]);
+  }, [props.elem, props.state, props.path, translateOnMouseDown]);
 
   const bbox = getRelativeBBox(props.elem, props.overlay.current);
   const borderWidth = 2;
 
   const scaleSquareWidth = 10;
   const scaleSquareBorder = 2;
-  const scaleSquareOffset= (scaleSquareBorder + scaleSquareWidth + 3) / 2;
+  const scaleSquareOffset = (scaleSquareBorder + scaleSquareWidth + 3) / 2;
 
-  const makeScalingCorner = useCallback((props: any) => {
+  const makeScalingCorner = useCallback((styleProps: any, otherProps: any) => {
     return (
       <div
         style={{
@@ -134,21 +269,29 @@ export default function InteractiveWidget(
           pointerEvents: "all",
           backgroundColor: "white",
           border: `${scaleSquareBorder}px solid black`,
-          ...props,
+          ...styleProps,
         }}
-      >
-      </div>
+        {...otherProps}
+      ></div>
     );
   }, []);
+
+  const topLeftScaleMouseDown = useScaleOnMouseDown(props, "topLeft", scale);
+  const topRightScaleMouseDown = useScaleOnMouseDown(props, "topRight", scale);
+  const bottomLeftScaleMouseDown = useScaleOnMouseDown(props, "bottomLeft", scale);
+  const bottomRightScaleMouseDown = useScaleOnMouseDown(props, "bottomRight", scale);
 
   const topLeftScalingCorner = useMemo(
     () =>
       makeScalingCorner({
-       top: `-${scaleSquareOffset}px`,
-       left: `-${scaleSquareOffset}px`,
-       cursor: "nwse-resize",
+        top: `-${scaleSquareOffset}px`,
+        left: `-${scaleSquareOffset}px`,
+        cursor: "nwse-resize",
+      }, {
+        key: "topLeft",
+        onMouseDown: topLeftScaleMouseDown,
       }),
-    [makeScalingCorner]
+    [makeScalingCorner, topLeftScaleMouseDown],
   );
 
   const topRightScalingCorner = useMemo(
@@ -157,8 +300,11 @@ export default function InteractiveWidget(
         top: `-${scaleSquareOffset}px`,
         right: `-${scaleSquareOffset}px`,
         cursor: "nesw-resize",
+      }, {
+        key: "topRight",
+        onMouseDown: topRightScaleMouseDown,
       }),
-    [makeScalingCorner]
+    [makeScalingCorner, topRightScaleMouseDown],
   );
 
   const bottomLeftScalingCorner = useMemo(
@@ -167,8 +313,11 @@ export default function InteractiveWidget(
         bottom: `-${scaleSquareOffset}px`,
         left: `-${scaleSquareOffset}px`,
         cursor: "nesw-resize",
+      }, {
+        key: "bottomLeft",
+        onMouseDown: bottomLeftScaleMouseDown,
       }),
-    [makeScalingCorner]
+    [makeScalingCorner, bottomLeftScaleMouseDown],
   );
 
   const bottomRightScalingCorner = useMemo(
@@ -177,8 +326,11 @@ export default function InteractiveWidget(
         bottom: `-${scaleSquareOffset}px`,
         right: `-${scaleSquareOffset}px`,
         cursor: "nwse-resize",
+      }, {
+        key: "bottomRight",
+        onMouseDown: bottomRightScaleMouseDown,
       }),
-    [makeScalingCorner]
+    [makeScalingCorner, bottomRightScaleMouseDown],
   );
 
   return (
@@ -190,14 +342,17 @@ export default function InteractiveWidget(
         border: `${borderWidth}px solid black`,
         width: `${bbox.width}px`,
         height: `${bbox.height}px`,
-        pointerEvents: "none"
+        pointerEvents: "none",
       }}
-      onMouseDown={onMouseDown}
     >
-      {topLeftScalingCorner}
-      {topRightScalingCorner}
-      {bottomRightScalingCorner}
-      {bottomLeftScalingCorner}
+      {props.state.scalableShapePaths.has(props.path) &&
+        [
+          topLeftScalingCorner,
+          topRightScalingCorner,
+          bottomRightScalingCorner,
+          bottomLeftScalingCorner,
+        ]
+      }
     </div>
   );
 }

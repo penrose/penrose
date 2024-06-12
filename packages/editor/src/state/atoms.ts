@@ -23,7 +23,6 @@ import { layoutModel } from "../App.js";
 import { RenderState } from "../worker/common.js";
 import OptimizerWorker from "../worker/OptimizerWorker.js";
 import { generateVariation } from "./variation.js";
-import im from "immutable";
 
 export const optimizer = new OptimizerWorker();
 

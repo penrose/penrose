@@ -45,9 +45,9 @@ export const getRelativeBBox = (elem: Element, containing: Element) => {
     screenElemBBox.x - screenContainingBBox.x,
     screenElemBBox.y - screenContainingBBox.y,
     screenElemBBox.width,
-    screenElemBBox.height
+    screenElemBBox.height,
   );
-}
+};
 
 /**
  * Converts screen to relative SVG coords
@@ -56,7 +56,7 @@ export const getRelativeBBox = (elem: Element, containing: Element) => {
  * @param e
  * @param CTM
  */
-export const getPosition = (
+export const getScreenToSvgPosition = (
   { screenX, screenY }: { screenX: number; screenY: number },
   CTM: DOMMatrix | null,
 ) => {
@@ -66,10 +66,11 @@ export const getPosition = (
   return { x: 0, y: 0 };
 };
 
-export const screenBBoxtoSVGBBox = (
-  bbox: DOMRect,
+export const getSvgBBox = (
+  elem: SVGElement,
   parentSVG: SVGSVGElement,
 ): DOMRect => {
+  const bbox = elem.getBoundingClientRect();
   const ctmInv = parentSVG.getScreenCTM()!.inverse();
   const topLeft = new DOMPoint(bbox.left, bbox.top);
   const bottomRight = new DOMPoint(bbox.right, bbox.bottom);
@@ -82,4 +83,3 @@ export const screenBBoxtoSVGBBox = (
     bottomRightSVG.y - topLeftSVG.y,
   );
 };
-
