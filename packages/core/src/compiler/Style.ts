@@ -85,7 +85,6 @@ import {
   ResolvedUOp,
   ResolvedUnindexedStylePath,
   ResolvedVector,
-  StylePath,
   StylePathToNamespaceScope,
   StylePathToScope,
   StylePathToSubstanceScope,
@@ -3417,15 +3416,15 @@ const translateExpr = (
         }
       }
 
-      const layeringRelations: {
-        below: StylePath<A>;
-        above: StylePath<A>;
-      }[] = right.map((r) => {
+      const leftStr = prettyResolvedStylePath(left.contents);
+
+      const layeringRelations: Layer[] = right.map((r) => {
+        const rightStr = prettyResolvedStylePath(r.contents);
         switch (layeringOp) {
           case "below":
-            return { below: left.contents, above: r.contents };
+            return { below: leftStr, above: rightStr };
           case "above":
-            return { below: r.contents, above: left.contents };
+            return { below: rightStr, above: leftStr };
         }
       });
       return {
@@ -3558,13 +3557,11 @@ export const processLayering = (
   groupGraph: GroupGraph,
   layerGraph: LayerGraph,
 ): void => {
-  const belowStr = prettyResolvedStylePath(below);
-  const aboveStr = prettyResolvedStylePath(above);
   // Path from the root to the node, excluding the root
   // [..., below]
-  const belowPath = traverseUp(groupGraph, belowStr).reverse();
+  const belowPath = traverseUp(groupGraph, below).reverse();
   // [..., above]
-  const abovePath = traverseUp(groupGraph, aboveStr).reverse();
+  const abovePath = traverseUp(groupGraph, above).reverse();
   // Find the first differing element.
   let i = 0;
   while (i < belowPath.length && i < abovePath.length) {
@@ -3929,7 +3926,9 @@ export const compileStyleHelper = async (
 
   const groupGraph: GroupGraph = makeGroupGraph(
     getShapesList(translation, [
-      ...graph.nodes().filter((p) => typeof graph.node(p) === "string"),
+      ...graph
+        .nodes()
+        .filter((p) => typeof graph.node(p).contents === "string"),
     ]),
   );
 
@@ -3937,7 +3936,11 @@ export const compileStyleHelper = async (
 
   const { shapeOrdering: layerOrdering, warning: layeringWarning } =
     computeLayerOrdering(
-      [...graph.nodes().filter((p) => typeof graph.node(p) === "string")],
+      [
+        ...graph
+          .nodes()
+          .filter((p) => typeof graph.node(p).contents === "string"),
+      ],
       [...translation.layering],
       groupGraph,
     );

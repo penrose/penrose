@@ -262,7 +262,7 @@ const resolveStylePathHelper = (
           result: {
             ...loc(curr),
             tag: "Namespace",
-            name: nextName,
+            name: block.contents,
           },
           // similar as above
           remaining: parts,

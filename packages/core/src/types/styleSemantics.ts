@@ -7,7 +7,6 @@ import { StyleDiagnostics, StyleError } from "./errors.js";
 import { Fn } from "./state.js";
 import {
   ResolvedNotShape,
-  StylePath,
   StylePathToUnindexedObject,
 } from "./stylePathResolution.js";
 import { SubstanceEnv } from "./substance.js";
@@ -176,8 +175,8 @@ export type DepGraph = Graph<
 //#region third Style compiler pass: expression compilation
 
 export interface Layer {
-  below: StylePath<A>;
-  above: StylePath<A>;
+  below: string;
+  above: string;
 }
 
 export interface Translation {
