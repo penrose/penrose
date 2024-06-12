@@ -1,0 +1,20 @@
+Vertex i, j, k
+Edge ij := Edge( i, j )
+Edge jk := Edge( j, k )
+Edge ki := Edge( k, i )
+Triangle ijk := Triangle( ij, jk, ki )
+
+Angle alphaIJs := StartBendAngle( ij )
+Angle alphaIJe := EndBendAngle( ij )
+
+-- Labeling, styling, and constants
+SetPosition( k, 0, 80 )
+SetPosition( i, -49.282, -40 )
+SetPosition( j, 49.282, -40 )
+SetBendAngle( ij, -.8 )
+SetBendAngle( jk, .8 )
+SetBendAngle( ki, .8 )
+ShowStraightEdge(ij)
+HideWedge( alphaIJs )
+HideWedge( alphaIJe )
+

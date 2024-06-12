@@ -41,9 +41,9 @@ global {
   scalar secondaryLineWidth = 0.75
   
   -- size of angle markers
-  scalar straightAngleRadius = 30
-  scalar circularAngleRadius = 37
-  scalar bendAngleRadius = 44
+  scalar straightAngleRadius = 10 -- 30
+  scalar circularAngleRadius = 17 -- 37
+  scalar bendAngleRadius = 24 -- 44
 
   -- size of length markers
   scalar markerOffset = 8 -- distance from marked edge/arc
@@ -544,7 +544,9 @@ where HideCircularEdge(e) {
 }
 forall Edge e
 where ShowStraightEdge(e) {
-   override e.straightEdge.strokeColor = #fff
+   -- override e.straightEdge.strokeColor = #fff
+   override e.straightEdge.strokeColor = colors.line
+   override e.straightEdge.strokeDasharray = global.dashing
 }
 forall Angle A
 where HideWedge( A ) {
