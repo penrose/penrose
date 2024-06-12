@@ -181,8 +181,7 @@ export const isTranslatable = (shape: Shape<ad.Num>): boolean => {
 export const isScalable = (shape: Shape<ad.Num>): boolean => {
   switch (shape.shapeType) {
     case "Circle":
-      //return isVar(shape.r.contents);
-      return false;
+      return isVar(shape.r.contents);
 
     case "Ellipse":
       return isVar(shape.rx.contents) && isVar(shape.ry.contents);

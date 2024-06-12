@@ -1,4 +1,5 @@
 import { PenroseState, State, Value } from "@penrose/core";
+import { max, min } from "lodash";
 
 export type InteractionCommon = {
   path: string;
@@ -236,8 +237,10 @@ export const makeScaleCallback = (
 ): ((sx: number, sy: number, state: PenroseState) => void) => {
   switch (info.tag) {
     case "RadiusScaling": {
-      // TODO: radius scaling
-      throw new Error("Radius scaling not implemented");
+      const start = state.varyingValues[info.rIdx];
+      return (sx, sy, state) => {
+        state.varyingValues[info.rIdx] = start * max([sx, sy])!;
+      }
     }
 
     case "WidthHeightScaling": {

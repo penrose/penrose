@@ -193,7 +193,7 @@ const useScaleOnMouseDown = (
       document.addEventListener("mouseup", onMouseUp);
       document.addEventListener("mousemove", onMouseMove);
     },
-    [props.diagramSVG, props.state],
+    [props.diagramSVG, props.state, props.path, props.elem],
   );
 
 export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
