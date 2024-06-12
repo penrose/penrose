@@ -1,0 +1,36 @@
+-- Draw a polygon with circular arc edges, decomposed into circular arc triangles
+
+-- vertices
+Vertex i_p for p in [0,4]
+
+-- boundary edges
+Edge b_p := Edge( i_p, i_q ) for p in [0,4], q in [0,4] where q == (p + 1) mod 5
+
+-- interior edges
+Edge e02 := Edge( i_0, i_2 )
+Edge e20 := Edge( i_2, i_0 )
+Edge e03 := Edge( i_0, i_3 )
+Edge e30 := Edge( i_3, i_0 )
+
+-- triangles
+Triangle t012 := Triangle( b_0, b_1, e20 )
+Triangle t023 := Triangle( e02, b_2, e30 )
+Triangle t034 := Triangle( e03, b_3, b_4 )
+
+-- Labeling, styling, and constants
+SetPosition( i_0, 0., 80.)
+SetPosition( i_1, -76.0845, 24.7214)
+SetPosition( i_2, -47.0228, -64.7214)
+SetPosition( i_3, 47.0228, -64.7214)
+SetPosition( i_4, 76.0845, 24.7214)
+
+SetBendAngle( e20, .3 )
+SetBendAngle( e02, -.3 )
+SetBendAngle( e30, .2 )
+SetBendAngle( e03, -.2 )
+
+DeemphasizeCircularEdge( e20 )
+HideCircularEdge( e02 )
+DeemphasizeCircularEdge( e30 )
+HideCircularEdge( e03 )
+

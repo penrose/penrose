@@ -539,14 +539,20 @@ where HideCircularRegion(t) {
    override t.circularRegion.fillColor = none()
 }
 forall Edge e
-where HideCircularEdge(e) {
-   override e.circularEdge.strokeColor = none()
-}
-forall Edge e
 where ShowStraightEdge(e) {
    -- override e.straightEdge.strokeColor = #fff
    override e.straightEdge.strokeColor = colors.line
    override e.straightEdge.strokeDasharray = global.dashing
+}
+forall Edge e
+where HideCircularEdge(e) {
+   override e.circularEdge.strokeColor = none()
+}
+forall Edge e
+where DeemphasizeCircularEdge(e) {
+   override e.circularEdge.strokeColor = colors.constructionLine
+   override e.circularEdge.opacity = colors.constructionLineOpacity
+   override e.circularEdge.strokeDasharray = global.dashing
 }
 forall Angle A
 where HideWedge( A ) {
