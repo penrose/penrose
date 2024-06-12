@@ -1,0 +1,177 @@
+canvas {
+  width = 800
+  height = 800
+}
+
+Color {
+  darkPurple = #76448A
+  mediumPurple = #AF7AC5
+  lightPurple = #D7BDE2
+  offWhite = #F9F2FE
+
+}
+
+config {
+  shapeHeight = 100
+  font = "15px"
+  minShapeWidth = 100
+
+}
+
+
+layout = [shapes, texts]
+
+
+forall Object x {
+
+  x.width = ?[20] in shapes
+  x.height = config.shapeHeight
+
+  x.center_x = ? in shapes 
+  x.center_y = ? in shapes
+
+  x.center = [x.center_x, x.center_y]
+
+  x.left = x.center_x - x.width/2
+  x.right = x.center_x + x.width/2
+  x.top = x.center_y + x.height/2
+  x.bottom = x.center_y - x.height/2
+
+
+  ensure x.width > config.minShapeWidth in shapes
+
+
+
+  x.icon = Rectangle {
+    fillColor : #808080
+    strokeColor : #000000
+    strokeWidth : 1
+    center: x.center
+    width: x.width
+    height: x.height
+  }
+
+
+
+  
+  x.text = Text {
+    string : x.label
+    center: x.center
+    fontSize: config.font
+    
+
+  }
+
+  x.g = Group {
+    shapes: [x.icon, x.text]
+  }
+  layer x.icon below x.text
+
+
+  ensure contains(x.icon, x.text, 10) in texts
+
+}
+
+forall Dir d {
+  override d.icon.fillColor = Color.lightPurple
+  
+}
+
+forall File f {
+  override f.icon.fillColor = Color.offWhite
+}
+
+forall Root r {
+  override r.icon.fillColor = Color.darkPurple
+  override r.text.fillColor = #F5EEF8
+
+}
+
+
+forall Entry e {
+
+  e.width = ?[20] in shapes
+  e.height = config.shapeHeight
+
+
+  e.center_x = ? in shapes 
+  e.center_y = ? in shapes
+
+  e.center = [e.center_x, e.center_y]
+
+  e.left = e.center_x - e.width/2
+  e.right = e.center_x + e.width/2
+  e.top = e.center_y + e.height/2
+  e.bottom = e.center_y - e.height/2
+
+  ensure e.width > config.minShapeWidth in shapes
+
+
+  
+  e.icon = Rectangle {
+    fillColor : Color.mediumPurple
+    strokeColor : #000000
+    strokeWidth : 0.5
+    center: e.center 
+    width: e.width
+    height: e.height
+  }
+
+  e.text = Text {
+    string : e.label
+    fontSize: config.font
+    center: e.center
+  }
+
+
+  e.g = Group {
+    shapes : [e.icon, e.text]
+  }
+
+  layer e.icon below e.text
+  ensure contains(e.icon, e.text, 10) in texts
+
+}
+
+
+
+
+forall Object o; Entry e 
+where object(e, o) {
+
+  override o.center_y = e.center_y - config.shapeHeight
+
+  ensure o.left > e.left
+  ensure  o.right < e.right
+
+
+}
+
+
+
+forall Dir d ; Entry e
+where entries (d, e) {
+
+  override e.center_y = d.center_y - config.shapeHeight
+
+  ensure e.left > d.left
+  ensure  e.right < d.right
+
+}
+
+
+collect Entry e into es
+where entries(d, e)
+foreach Dir d {
+  override d.width = sum(listof width from es)
+  ensure hSpacing(listof icon from es)
+}
+
+
+
+collect Object o into os
+where object(e, o)
+foreach Entry e {
+  override e.width = sum(listof width from os)
+  ensure hSpacing(listof icon from os)
+}
