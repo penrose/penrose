@@ -59,6 +59,7 @@ import {
   prettyPrintPath,
   prettyResolvedExpr,
   prettyResolvedStylePath,
+  subObjectToUniqueName,
   toErrorLoc,
 } from "./Util.js";
 const {
@@ -360,7 +361,7 @@ export const showError = (
     // --- BEGIN COMPILATION ERRORS
 
     case "AssignAccessError": {
-      return `Cannot directly assign to or delete an index ${prettyPrintPath(
+      return `Cannot directly assign to or delete an index ${prettyResolvedStylePath(
         error.path,
       )} of a larger structure (at ${loc(error.path)}).`;
     }
@@ -404,6 +405,12 @@ export const showError = (
 
     case "BadIndexError": {
       return `Invalid indexing (at ${loc(error.expr)}).`;
+    }
+
+    case "UnindexableItemError": {
+      return `The path \`${prettyResolvedStylePath(
+        error.expr,
+      )}\` is not indexable.`;
     }
 
     case "BinOpTypeError": {
@@ -455,6 +462,39 @@ canvas {
       return `Could not find ${prettyResolvedStylePath(error.path)} (at ${loc(
         error.path,
       )}).`;
+    }
+
+    case "PathToNamespaceError": {
+      return `The expression ${error.path.name} (at ${loc(
+        error.path,
+      )}) refers to an entire namespace, which is not a value. Such a path cannot appear here. Instead, use a path that refers to a member of this namespace, e.g., \`${
+        error.path.name
+      }.field_name.\``;
+    }
+
+    case "PathToCollectionError": {
+      return `The expression ${error.path.styleName} (at ${loc(
+        error.path,
+      )}) refers to a collection of non-literal values, which cannot appear here. Instead, access information about the collection using operators like \`listof ... from ${
+        error.path.styleName
+      }\` or \`numberof ${error.path.styleName}\``;
+    }
+
+    case "PathToSubstanceError": {
+      return `The expression at ${loc(
+        error.path,
+      )} refers to a non-literal Substance object \`${subObjectToUniqueName(
+        error.path.substanceObject,
+      )}\`, which cannot appear here.`;
+    }
+
+    case "CollectionMemberAccessError": {
+      const { path, field } = error;
+      return `The expression ${prettyResolvedStylePath(path)} (at ${loc(
+        path,
+      )}) is a collection, and cannot be accessed with the dot-operator. To access field \`${field}\` of each member of the collection, use the collection-access expression \`listof ${field} from ${prettyResolvedStylePath(
+        path,
+      )}\`.`;
     }
 
     case "MissingShapeError": {
@@ -583,6 +623,14 @@ canvas {
         path,
       )}\` (at ${locStr}) to be a shape, but provided with a non-shape.`;
     }
+
+    case "NonWellFormedPathError": {
+      const { path } = error;
+      return `Path ${prettyResolvedStylePath(path)} (at ${loc(
+        path,
+      )}) is not a valid path.`;
+    }
+
     // --- END COMPILATION ERRORS
 
     // TODO(errors): use identifiers here
@@ -635,9 +683,11 @@ canvas {
     case "BBoxApproximationWarning": {
       const topItem = error.stack[error.stack.length - 1];
       const rest = error.stack.slice(0, -1).reverse();
-      const location = !isConcrete(topItem.callExpression)
-        ? ""
-        : `(at ${loc(topItem.callExpression)}) `;
+      const location =
+        topItem.callExpression === undefined ||
+        !isConcrete(topItem.callExpression)
+          ? ""
+          : `(at ${loc(topItem.callExpression)}) `;
       const topStr = `Function call ${topItem.signature} ${location}uses bounding box approximations`;
       const restStrs = rest.map(
         (item) =>
@@ -808,7 +858,12 @@ export const errLocs = (
     case "MissingShapeError":
     case "NotShapeError":
     case "AssignGlobalError":
-    case "AssignSubstanceError": {
+    case "AssignSubstanceError":
+    case "NonWellFormedPathError":
+    case "CollectionMemberAccessError":
+    case "PathToCollectionError":
+    case "PathToNamespaceError":
+    case "PathToSubstanceError": {
       return locOrNone(e.path);
     }
 
@@ -817,7 +872,8 @@ export const errLocs = (
     case "IndexIntoShapeListError":
     case "NotValueError":
     case "OutOfBoundsError":
-    case "UOpTypeError": {
+    case "UOpTypeError":
+    case "UnindexableItemError": {
       return locOrNone(e.expr);
     }
 
@@ -862,6 +918,9 @@ export const errLocs = (
     }
     case "BBoxApproximationWarning": {
       const expr = e.stack[e.stack.length - 1].callExpression;
+      if (expr === undefined) {
+        return [];
+      }
       return locOrNone(expr);
     }
 

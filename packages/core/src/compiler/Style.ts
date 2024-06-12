@@ -86,7 +86,6 @@ import {
   ResolvedUnindexedStylePath,
   ResolvedVector,
   StylePath,
-  StylePathToCollection,
   StylePathToNamespaceScope,
   StylePathToScope,
   StylePathToSubstanceScope,
@@ -1621,7 +1620,13 @@ const checkPathAndUpdateExpr = (
       if (parent2.tag === "Object") {
         // if parent's parent is an object, then parent must be a shape property, which is not possible
         // since shape property cannot be a parent of anything.
-        return addDiags(oneErr({}), assignment);
+        return addDiags(
+          oneErr({
+            tag: "NonWellFormedPathError",
+            path,
+          }),
+          assignment,
+        );
         // todo: add an error for this.
       }
       scope = parent2;
@@ -2062,6 +2067,9 @@ const findPathsExpr = (
     }
     case "CollectionAccess": {
       const path = expr.name.contents;
+      if (path.tag !== "Collection") {
+        return [];
+      }
       const field = expr.field.value;
       const pathsToSubstances: StylePathToSubstanceScope<A>[] =
         path.substanceObjects.map((subObj) => ({
@@ -2914,7 +2922,12 @@ const evalExpr = (
 
       if (path.tag === "Namespace") {
         // invalid path
-        return err({});
+        return err(
+          oneErr({
+            tag: "PathToNamespaceError",
+            path,
+          }),
+        );
       }
 
       if (path.tag === "Collection") {
@@ -2924,7 +2937,12 @@ const evalExpr = (
           return ok(val(vec));
         } else {
           // error: path refers to a collection of non-numerical Substance objects
-          return err();
+          return err(
+            oneErr({
+              tag: "PathToCollectionError",
+              path,
+            }),
+          );
         }
       }
 
@@ -2936,7 +2954,12 @@ const evalExpr = (
           return ok(val(v));
         } else {
           // error: path refers to a non-literal Substance object
-          return err({});
+          return err(
+            oneErr({
+              tag: "PathToSubstanceError",
+              path,
+            }),
+          );
         }
       }
 
@@ -2971,7 +2994,12 @@ const evalExpr = (
           return err(parentValue.error);
         }
         if (parentValue.value.tag === "ShapeVal") {
-          return err(); // error: trying to index into a shape
+          return err(
+            oneErr({
+              tag: "UnindexableItemError",
+              expr: nonIndexedPart,
+            }),
+          );
         }
         if (indices.length > 0) {
           const resolvedIndices = evalExprs(
@@ -3080,6 +3108,9 @@ const evalExpr = (
     }
     case "CollectionAccess": {
       const { name, field } = expr;
+      if (name.contents.tag !== "Collection") {
+        return err(oneErr(notSubstanceCollectionError(name)));
+      }
       const collection = name.contents.substanceObjects;
       const result: ArgVal<ad.Num>[] = [];
       for (const subObj of collection) {
@@ -3109,9 +3140,7 @@ const evalExpr = (
 };
 
 const evalNumberOf = (
-  arg: ResolvedPath<A> & {
-    contents: StylePathToSubstanceScope<A> | StylePathToCollection<A>;
-  },
+  arg: ResolvedPath<A>,
 ): Result<ArgVal<ad.Num>, StyleDiagnostics> => {
   if (arg.contents.tag === "Collection") {
     return ok(val(floatV(arg.contents.substanceObjects.length)));
@@ -3121,9 +3150,7 @@ const evalNumberOf = (
 };
 
 const evalNameOf = (
-  arg: ResolvedPath<A> & {
-    contents: StylePathToSubstanceScope<A> | StylePathToCollection<A>;
-  },
+  arg: ResolvedPath<A>,
 ): Result<ArgVal<ad.Num>, StyleDiagnostics> => {
   if (arg.contents.tag === "Substance") {
     const m = arg.contents.substanceObject;
@@ -3800,7 +3827,7 @@ const processPassthrough = (
           parent: shapePath,
           name: propName,
         },
-      }
+      };
       if (Object.keys(shape).includes(propName)) continue;
       if (value.tag === "Val") {
         if (value.contents.tag === "FloatV" || value.contents.tag === "StrV") {
@@ -3811,7 +3838,9 @@ const processPassthrough = (
           );
         }
       } else {
-        return err(badShapeParamTypeError(propPath, value, "StrV or FloatV", true));
+        return err(
+          badShapeParamTypeError(propPath, value, "StrV or FloatV", true),
+        );
       }
     }
   }

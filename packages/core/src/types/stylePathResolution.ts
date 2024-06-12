@@ -37,7 +37,7 @@ export type StylePathToSubstanceScope<T> = ASTNode<T> & {
 export type StylePathToCollection<T> = ASTNode<T> & {
   tag: "Collection";
   substanceObjects: SubstanceObject[];
-  styleName?: string;
+  styleName: string;
 };
 export type StylePathToNamespaceScope<T> = ASTNode<T> & {
   tag: "Namespace";
@@ -159,16 +159,14 @@ export type ResolvedStyVarExpr<T> =
 
 export type ResolvedCollectionAccess<T> = ASTNode<T> & {
   tag: "CollectionAccess";
-  name: ResolvedPath<T> & { contents: StylePathToCollection<T> };
+  name: ResolvedPath<T>;
   field: Identifier<T>;
 };
 
 export type ResolvedUnaryStyVarExpr<T> = ASTNode<T> & {
   tag: "UnaryStyVarExpr";
   op: "numberof" | "nameof";
-  arg: ResolvedPath<T> & {
-    contents: StylePathToSubstanceScope<T> | StylePathToCollection<T>;
-  };
+  arg: ResolvedPath<T>;
 };
 
 export type ResolvedBinOp<T> = ASTNode<T> & {

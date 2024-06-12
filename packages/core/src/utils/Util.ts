@@ -9,7 +9,11 @@ import { StyleWarning } from "../types/errors.js";
 import { MayWarn } from "../types/functions.js";
 import { Fn } from "../types/state.js";
 import { BindingForm, Expr, Path } from "../types/style.js";
-import { ResolvedExpr, StylePath } from "../types/stylePathResolution.js";
+import {
+  ResolvedExpr,
+  StylePath,
+  StylePathToUnindexedObject,
+} from "../types/stylePathResolution.js";
 import { SubstanceLiteral, SubstanceObject } from "../types/styleSemantics.js";
 import {
   ShapeT,
@@ -759,6 +763,22 @@ export const rectlikeT = (): UnionT =>
 
 //#region Style
 
+export const fakePath = (name: string): StylePathToUnindexedObject<A> => {
+  return {
+    tag: "Object",
+    nodeType: "SyntheticStyle",
+    access: {
+      tag: "Member",
+      parent: {
+        tag: "Namespace",
+        nodeType: "SyntheticStyle",
+        name: "defaultNamespace",
+      },
+      name,
+    },
+  };
+};
+
 export const toLiteralUniqueName = (literal: string | number) => {
   if (typeof literal === "string") {
     return `{s${literal}}`;
@@ -824,13 +844,13 @@ export const prettyResolvedStylePath = (p: StylePath<A>): string => {
       return `\`${s}\``;
     }
     case "Namespace":
-      return `${p.name}`;
+      return p.name;
     case "Unnamed": {
       const { blockId, substId } = p;
       return `${blockId}:${substId}`;
     }
     case "Collection": {
-      return "";
+      return p.styleName;
     }
     case "Object": {
       if (p.access.tag === "Member") {

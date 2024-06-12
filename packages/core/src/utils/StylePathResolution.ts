@@ -13,6 +13,7 @@ import {
   StylePathToNamespaceScope,
   StylePathToScope,
   StylePathToSubstanceScope,
+  StylePathToUnindexedObject,
   UnindexedStylePath,
 } from "../types/stylePathResolution.js";
 import {
@@ -91,7 +92,10 @@ export const resolveLhsStylePath = (
     const { access } = resolved.value;
     if (access.tag === "Index") {
       // AssignAccessError
-      return err();
+      return err({
+        tag: "AssignAccessError",
+        path: resolved.value,
+      });
     } else {
       return ok({
         ...resolved.value,
@@ -125,7 +129,10 @@ export const resolveStylePath = (
 
   if (withoutIndex.value.tag !== "Object") {
     // numerically indexing into an non-object
-    return err();
+    return err({
+      tag: "UnindexableItemError",
+      expr: withoutIndex.value,
+    });
   }
 
   const resolvedIndices = all(
@@ -212,6 +219,7 @@ const resolveStylePathHelper = (
             ...loc(next),
             tag: "Collection",
             substanceObjects: subObj,
+            styleName: nextName,
           },
           remaining: rest,
         });
@@ -221,6 +229,7 @@ const resolveStylePathHelper = (
             ...loc(next),
             tag: "Substance",
             substanceObject: subObj,
+            styleName: nextName,
           },
           remaining: rest,
         });
@@ -278,18 +287,33 @@ const resolveStylePathHelper = (
       remaining: rest,
     });
   } else if (curr.tag === "Collection") {
-    return err();
+    return err({
+      tag: "CollectionMemberAccessError",
+      path: curr,
+      field: nextName,
+    });
   } else {
-    return ok({
-      result: {
-        ...locs(curr, next),
-        tag: "Object",
-        access: {
-          tag: "Member",
-          parent: curr,
-          name: nextName,
-        },
+    // if both parent and parent's parent are objects, this is not a well-formed path
+    const newPath: StylePathToUnindexedObject<A> = {
+      ...locs(curr, next),
+      tag: "Object",
+      access: {
+        tag: "Member",
+        parent: curr,
+        name: nextName,
       },
+    };
+    if (
+      curr.access.parent.tag === "Object" &&
+      curr.access.parent.access.parent.tag === "Object"
+    ) {
+      return err({
+        tag: "NonWellFormedPathError",
+        path: newPath,
+      });
+    }
+    return ok({
+      result: newPath,
       remaining: rest,
     });
   }
@@ -468,37 +492,18 @@ export const resolveStyleExpr = (
     case "UnaryStyVarExpr": {
       const a = resolvep(expr.arg);
       if (a.isErr()) return err(a.error);
-      if (
-        a.value.contents.tag === "Collection" ||
-        a.value.contents.tag === "Substance"
-      ) {
-        return ok({
-          ...expr,
-          arg: {
-            ...a.value,
-            tag: "ResolvedPath",
-            contents: a.value.contents,
-          },
-        });
-      } else {
-        return err({});
-      }
+      return ok({
+        ...expr,
+        arg: a.value,
+      });
     }
     case "CollectionAccess": {
       const n = resolvep(expr.name);
       if (n.isErr()) return err(n.error);
-      if (n.value.contents.tag === "Collection") {
-        return ok({
-          ...expr,
-          name: {
-            ...n.value,
-            tag: "ResolvedPath",
-            contents: n.value.contents,
-          },
-        });
-      } else {
-        return err({});
-      }
+      return ok({
+        ...expr,
+        name: n.value,
+      });
     }
     case "Path":
       return resolvep(expr);

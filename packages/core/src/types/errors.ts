@@ -18,7 +18,9 @@ import {
   ResolvedExpr,
   ResolvedGPIDecl,
   ResolvedPath,
+  ResolvedStylePath,
   ResolvedUOp,
+  ResolvedUnindexedStylePath,
   StylePath,
   StylePathToCollection,
   StylePathToNamespaceScope,
@@ -224,6 +226,7 @@ export type StyleError =
   | AssignSubstanceError
   | BadElementError
   | BadIndexError
+  | UnindexableItemError
   | BinOpTypeError
   | CanvasNonexistentDimsError
   | CyclicAssignmentError
@@ -231,6 +234,10 @@ export type StyleError =
   | DeleteSubstanceError
   | MultipleLayoutError
   | MissingPathError
+  | PathToCollectionError
+  | PathToNamespaceError
+  | PathToSubstanceError
+  | CollectionFieldAccessError
   | MissingShapeError
   | NestedShapeError
   | NotCollError
@@ -248,6 +255,7 @@ export type StyleError =
   | NotSubstanceCollectionError
   | NotStyleVariableError
   | LayerOnNonShapesError
+  | NonWellFormedPathError
   // Runtime errors
   | RuntimeValueTypeError;
 
@@ -301,7 +309,7 @@ export interface BBoxApproximationWarning {
 
 export interface BBoxApproximationWarningItem {
   signature: string;
-  callExpression: ResolvedExpr<A>;
+  callExpression?: ResolvedExpr<A>;
 }
 
 //#endregion
@@ -393,7 +401,7 @@ export interface InvalidConstraintNameError {
 
 export interface AssignAccessError {
   tag: "AssignAccessError";
-  path: Path<A>;
+  path: ResolvedStylePath<A>;
 }
 
 export interface AssignGlobalError {
@@ -415,6 +423,11 @@ export interface BadElementError {
 export interface BadIndexError {
   tag: "BadIndexError";
   expr: ResolvedExpr<A>;
+}
+
+export interface UnindexableItemError {
+  tag: "UnindexableItemError";
+  expr: ResolvedUnindexedStylePath<A>;
 }
 
 export interface BinOpTypeError {
@@ -450,6 +463,27 @@ export interface DeleteSubstanceError {
 export interface MissingPathError {
   tag: "MissingPathError";
   path: StylePath<A>;
+}
+
+export interface PathToCollectionError {
+  tag: "PathToCollectionError";
+  path: StylePathToCollection<A>;
+}
+
+export interface PathToSubstanceError {
+  tag: "PathToSubstanceError";
+  path: StylePathToSubstanceScope<A>;
+}
+
+export interface PathToNamespaceError {
+  tag: "PathToNamespaceError";
+  path: StylePathToNamespaceScope<A>;
+}
+
+export interface CollectionFieldAccessError {
+  tag: "CollectionMemberAccessError";
+  path: StylePathToCollection<A>;
+  field: string;
 }
 
 export interface MissingShapeError {
@@ -552,6 +586,11 @@ export interface NotStyleVariableError {
 export interface LayerOnNonShapesError {
   tag: "LayerOnNonShapesError";
   path: ResolvedPath<A>;
+}
+
+export interface NonWellFormedPathError {
+  tag: "NonWellFormedPathError";
+  path: StylePath<A>;
 }
 
 //#endregion
