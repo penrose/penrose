@@ -1063,7 +1063,7 @@ const constrDictGeneral = {
   hSpacing: {
     name: "hSpacing",
     description:
-      "Requires that the bounding boxes for shapes within a shapeList are evenly spaced with a set padding.",
+      "Requires that the bounding boxes for shapes within a shapeList are evenly spaced horizontally with a set padding.",
     params: [
       {
         name: "shapes",
@@ -1084,6 +1084,43 @@ const constrDictGeneral = {
       for (let i = 0; i < shapes.length - 1; i++) {
         const currShape = BBox.maxX(bboxFromShape(shapes[i]));
         const nextShape = BBox.minX(bboxFromShape(shapes[i + 1]));
+
+        const difference = absVal(sub(add(currShape, padding), nextShape));
+
+        spacingSum = add(spacingSum, difference);
+
+        //compare |currShapeRight - nextShapeLeft|
+      }
+
+      return spacingSum;
+    }),
+  },
+
+  vSpacing: {
+    name: "vSpacing",
+    description:
+      "Requires that the bounding boxes for shapes within a shapeList are evenly spaced vertically with a set padding.",
+
+    params: [
+      {
+        name: "shapes",
+        description:
+          "List containing the top-left, top-right, bottom-right, bottom-left points (in that order) of the axis-aligned bounding box of a shape",
+        type: shapeListT(),
+      },
+      {
+        name: "padding",
+        description: "Margin between bounding boxes of shapes",
+        type: realT(),
+        default: 0,
+      },
+    ],
+    body: noWarnFn((shapes: Shape<ad.Num>[], padding: ad.Num) => {
+      let spacingSum: ad.Num = 0;
+
+      for (let i = 0; i < shapes.length - 1; i++) {
+        const currShape = BBox.maxY(bboxFromShape(shapes[i]));
+        const nextShape = BBox.minY(bboxFromShape(shapes[i + 1]));
 
         const difference = absVal(sub(add(currShape, padding), nextShape));
 
