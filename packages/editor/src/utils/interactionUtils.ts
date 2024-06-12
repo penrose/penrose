@@ -1,5 +1,5 @@
 import { PenroseState, State, Value } from "@penrose/core";
-import { max, min } from "lodash";
+import { min } from "lodash";
 
 export type InteractionCommon = {
   path: string;
@@ -39,8 +39,7 @@ export const getTranslatedInputsIdxs = (
   path: string,
   state: State,
 ): [number, number][] => {
-  // TODO: cache shape names
-  const shape = state.shapes.find((s) => s.name.contents === path);
+  const shape = state.shapesByPath.get(path);
   if (shape === undefined) {
     throw new Error(`No shape with path ${path}`);
   }
@@ -151,8 +150,11 @@ const valueIsNumeric = (
   return val.tag === "FloatV" && !!val.contents;
 };
 
-export const getScalingInfo = (path: string, state: PenroseState): ScalingInfo => {
-  const shape = state.shapes.find((s) => s.name.contents === path);
+export const getScalingInfo = (
+  path: string,
+  state: PenroseState,
+): ScalingInfo => {
+  const shape = state.shapesByPath.get(path);
   if (shape === undefined) {
     throw new Error(`No shape with path ${path}`);
   }
@@ -229,7 +231,7 @@ export const getScalingInputIdxs = (info: ScalingInfo): number[] => {
     case "PointsScaling":
       return info.pointIdxs.flat();
   }
-}
+};
 
 export const makeScaleCallback = (
   info: ScalingInfo,
@@ -239,8 +241,8 @@ export const makeScaleCallback = (
     case "RadiusScaling": {
       const start = state.varyingValues[info.rIdx];
       return (sx, sy, state) => {
-        state.varyingValues[info.rIdx] = start * max([sx, sy])!;
-      }
+        state.varyingValues[info.rIdx] = start * min([sx, sy])!;
+      };
     }
 
     case "WidthHeightScaling": {

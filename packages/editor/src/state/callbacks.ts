@@ -1,4 +1,3 @@
-import { isPenroseError, runtimeError, showError } from "@penrose/core";
 import { Style } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
 import localforage from "localforage";
@@ -14,11 +13,14 @@ import {
   zipTrio,
 } from "../utils/downloadUtils.js";
 import { stateToSVG } from "../utils/renderUtils.js";
-import { UpdateInfo } from "../worker/OptimizerWorker";
+import {
+  handleOptimizerPromises,
+  updateStateOnError,
+} from "../utils/stateUtils";
+import { CompiledInfo, UpdateInfo } from "../worker/OptimizerWorker";
 import {
   Canvas,
   Diagram,
-  DiagramGrid,
   DiagramMetadata,
   EDITOR_VERSION,
   GistMetadata,
@@ -46,29 +48,6 @@ import {
 } from "./atoms.js";
 import { generateVariation } from "./variation.js";
 
-const _onError = (
-  error: any,
-  set: <T>(state: RecoilState<T>, update: (t: T) => T) => void,
-) => {
-  if (!isPenroseError(error)) {
-    error = runtimeError(String(error));
-  }
-  console.error(showError(error));
-  if (optimizer.getState() == "Error") {
-    console.error("OptimizerWorker latching error: " + showError(error));
-  }
-  set(diagramState, (state) => ({
-    ...state,
-    warnings: [],
-    error,
-  }));
-  set(diagramWorkerState, (state) => ({
-    ...state,
-    compiling: false,
-    optimizing: false,
-  }));
-};
-
 const _compileDiagram = async (
   substance: string,
   style: string,
@@ -80,83 +59,58 @@ const _compileDiagram = async (
   await optimizer.waitForInit();
 
   const compiling = toast.loading("Compiling...");
-  const onUpdate = ({ state: updatedState, stats }: UpdateInfo) => {
-    set(diagramState, (state) => {
-      return {
-        ...state,
-        state: updatedState,
-      };
-    });
 
-    // TODO: update grid state too
-    set(diagramGridState, ({ gridSize }: DiagramGrid) => ({
-      variations: range(gridSize).map((i) =>
-        i === 0 ? variation : generateVariation(),
-      ),
-      gridSize,
-    }));
-  };
-
-  const onError = (error: any) => {
-    _onError(error, set);
-    toast.dismiss(compiling);
-  };
-
-  try {
-    set(diagramState, (state) => ({
-      ...state,
-      metadata: {
-        ...state.metadata,
-        variation,
-        excludeWarnings,
-        source: {
-          substance,
-          style,
-          domain,
-        },
-      },
-    }));
-    set(diagramWorkerState, (state) => ({
-      ...state,
-      compiling: true,
-    }));
-    const { id, warnings } = await optimizer.compile(
-      domain,
-      style,
-      substance,
+  set(diagramState, (state) => ({
+    ...state,
+    metadata: {
+      ...state.metadata,
       variation,
-    );
-    set(diagramWorkerState, (state) => ({
-      ...state,
-      id,
-      compiling: false,
-    }));
-    set(diagramState, (state) => ({
-      ...state,
-      warnings: warnings,
-      error: null,
-    }));
-    toast.dismiss(compiling);
+      excludeWarnings,
+      source: {
+        substance,
+        style,
+        domain,
+      },
+    },
+  }));
 
-    const { onStart, onFinish } = await optimizer.startOptimizing();
-    onFinish
-      .then((info) => {
-        set(diagramWorkerState, (state) => ({
-          ...state,
-          optimizing: false,
-        }));
-        onUpdate(info);
-      })
-      .catch(onError);
+  set(diagramWorkerState, (state) => ({
+    ...state,
+    compiling: true,
+  }));
 
-    await onStart;
-    set(diagramWorkerState, (state) => ({
-      ...state,
-      optimizing: true,
-    }));
+  let compiledInfo: CompiledInfo;
+  try {
+    compiledInfo = await optimizer.compile(domain, style, substance, variation);
   } catch (error: unknown) {
-    onError(error);
+    updateStateOnError(
+      error,
+      (x) => set(diagramWorkerState, x),
+      (x) => set(diagramState, x),
+    );
+    toast.dismiss(compiling);
+    return;
   }
+
+  const { id, warnings } = compiledInfo;
+
+  set(diagramWorkerState, (state) => ({
+    ...state,
+    id,
+    compiling: false,
+  }));
+  set(diagramState, (state) => ({
+    ...state,
+    warnings: warnings,
+    error: null,
+  }));
+  toast.dismiss(compiling);
+
+  await handleOptimizerPromises(
+    await optimizer.startOptimizing(),
+    (x) => set(diagramWorkerState, x),
+    (x) => set(diagramState, x),
+  );
 
   // TODO: update grid state too
   // set(diagramGridState, ({ gridSize }: DiagramGrid) => ({
@@ -197,19 +151,14 @@ export const useResampleDiagram = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
     const diagram: Diagram = snapshot.getLoadable(diagramState)
       .contents as Diagram;
-    const id: string = snapshot.getLoadable(diagramWorkerState)
-      .contents as string;
+    const id: string = snapshot.getLoadable(diagramWorkerState).contents
+      .id as string;
     if (diagram.state === null) {
       toast.error("Cannot resample uncompiled diagram");
       return;
     }
     const variation = generateVariation();
     const resamplingLoading = toast.loading("Resampling...");
-
-    const onError = (error: any) => {
-      _onError(error, set);
-      toast.dismiss(resamplingLoading);
-    };
 
     const onUpdate = (info: UpdateInfo) => {
       set(diagramState, (state) => ({
@@ -226,27 +175,13 @@ export const useResampleDiagram = () =>
       }));
     };
 
-    try {
-      const { onStart, onFinish } = await optimizer.resample(id, variation);
-      toast.dismiss(resamplingLoading);
-      onFinish
-        .then((info) => {
-          set(diagramWorkerState, (state) => ({
-            ...state,
-            optimizing: false,
-          }));
-          onUpdate(info);
-        })
-        .catch(onError);
-
-      await onStart;
-      set(diagramWorkerState, (state) => ({
-        ...state,
-        optimizing: true,
-      }));
-    } catch (error: unknown) {
-      onError(error);
-    }
+    await handleOptimizerPromises(
+      await optimizer.resample(id, variation),
+      (x) => set(diagramWorkerState, x),
+      (x) => set(diagramState, x),
+      () => toast.dismiss(resamplingLoading),
+    );
+    toast.dismiss(resamplingLoading);
   });
 
 const _saveLocally = (set: any) => {

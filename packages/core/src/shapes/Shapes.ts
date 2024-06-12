@@ -186,20 +186,17 @@ export const isScalable = (shape: Shape<ad.Num>): boolean => {
     case "Ellipse":
       return isVar(shape.rx.contents) && isVar(shape.ry.contents);
 
-    case "Equation":
     case "Image":
     case "Rectangle":
-    case "Text":
       return isVar(shape.width.contents) && isVar(shape.height.contents);
 
+    case "Equation":
+    case "Text":
     case "Group":
     case "Path":
-      return false;
-
     case "Line":
     case "Polygon":
     case "Polyline":
-      //return isTranslatable(shape);
       return false;
   }
 };

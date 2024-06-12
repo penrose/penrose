@@ -126,6 +126,7 @@ export interface LayoutState {
   inputIdxsByPath: IdxsByPath;
   translatableShapePaths: Set<string>;
   scalableShapePaths: Set<string>;
+  shapesByPath: Map<string, Shape<unknown>>;
 }
 
 // state maintained by the main thread for rendering
@@ -140,6 +141,7 @@ export interface RenderState {
   inputIdxsByPath: IdxsByPath;
   translatableShapePaths: Set<string>;
   scalableShapePaths: Set<string>;
+  shapesByPath: Map<string, Shape<unknown>>;
 }
 
 // translate from the entire state to the state that is passed to the main thread
@@ -155,6 +157,7 @@ export const stateToLayoutState = (state: State): LayoutState => {
     inputIdxsByPath: state.inputIdxsByPath,
     translatableShapePaths: state.translatableShapePaths,
     scalableShapePaths: state.scalableShapePaths,
+    shapesByPath: state.shapesByPath,
   };
 };
 

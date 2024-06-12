@@ -1,4 +1,4 @@
-import { clamp, max, min } from "lodash";
+import { clamp, min } from "lodash";
 import { MutableRefObject, useCallback, useEffect, useMemo } from "react";
 import { useSetRecoilState } from "recoil";
 import { diagramState, diagramWorkerState, optimizer } from "../state/atoms.js";
@@ -95,12 +95,9 @@ const useScaleOnMouseDown = (
 ) =>
   useCallback(
     (e: MouseEvent) => {
-      console.log("scaling ", corner)
+      console.log("scaling ", corner);
       const CTM = props.diagramSVG.getScreenCTM();
-      const { x: startMouseX, y: startMouseY } = getScreenToSvgPosition(
-        e,
-        CTM,
-      );
+      const { x: startMouseX, y: startMouseY } = getScreenToSvgPosition(e, CTM);
 
       const {
         width: bboxW,
@@ -122,7 +119,6 @@ const useScaleOnMouseDown = (
       const topMargin = bboxY;
       const bottomMargin = props.state.canvas.height - (bboxY + bboxH);
       const yMargin = min([topMargin, bottomMargin])!;
-
 
       switch (corner) {
         case "topLeft":
@@ -212,8 +208,8 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
           },
           finish,
         ),
-        setDiagram,
         setWorker,
+        setDiagram,
       );
     },
     [],
@@ -231,8 +227,8 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
           },
           finish,
         ),
-        setDiagram,
         setWorker,
+        setDiagram,
       );
     },
     [],
@@ -278,58 +274,78 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
 
   const topLeftScaleMouseDown = useScaleOnMouseDown(props, "topLeft", scale);
   const topRightScaleMouseDown = useScaleOnMouseDown(props, "topRight", scale);
-  const bottomLeftScaleMouseDown = useScaleOnMouseDown(props, "bottomLeft", scale);
-  const bottomRightScaleMouseDown = useScaleOnMouseDown(props, "bottomRight", scale);
+  const bottomLeftScaleMouseDown = useScaleOnMouseDown(
+    props,
+    "bottomLeft",
+    scale,
+  );
+  const bottomRightScaleMouseDown = useScaleOnMouseDown(
+    props,
+    "bottomRight",
+    scale,
+  );
 
   const topLeftScalingCorner = useMemo(
     () =>
-      makeScalingCorner({
-        top: `-${scaleSquareOffset}px`,
-        left: `-${scaleSquareOffset}px`,
-        cursor: "nwse-resize",
-      }, {
-        key: "topLeft",
-        onMouseDown: topLeftScaleMouseDown,
-      }),
+      makeScalingCorner(
+        {
+          top: `-${scaleSquareOffset}px`,
+          left: `-${scaleSquareOffset}px`,
+          cursor: "nwse-resize",
+        },
+        {
+          key: "topLeft",
+          onMouseDown: topLeftScaleMouseDown,
+        },
+      ),
     [makeScalingCorner, topLeftScaleMouseDown],
   );
 
   const topRightScalingCorner = useMemo(
     () =>
-      makeScalingCorner({
-        top: `-${scaleSquareOffset}px`,
-        right: `-${scaleSquareOffset}px`,
-        cursor: "nesw-resize",
-      }, {
-        key: "topRight",
-        onMouseDown: topRightScaleMouseDown,
-      }),
+      makeScalingCorner(
+        {
+          top: `-${scaleSquareOffset}px`,
+          right: `-${scaleSquareOffset}px`,
+          cursor: "nesw-resize",
+        },
+        {
+          key: "topRight",
+          onMouseDown: topRightScaleMouseDown,
+        },
+      ),
     [makeScalingCorner, topRightScaleMouseDown],
   );
 
   const bottomLeftScalingCorner = useMemo(
     () =>
-      makeScalingCorner({
-        bottom: `-${scaleSquareOffset}px`,
-        left: `-${scaleSquareOffset}px`,
-        cursor: "nesw-resize",
-      }, {
-        key: "bottomLeft",
-        onMouseDown: bottomLeftScaleMouseDown,
-      }),
+      makeScalingCorner(
+        {
+          bottom: `-${scaleSquareOffset}px`,
+          left: `-${scaleSquareOffset}px`,
+          cursor: "nesw-resize",
+        },
+        {
+          key: "bottomLeft",
+          onMouseDown: bottomLeftScaleMouseDown,
+        },
+      ),
     [makeScalingCorner, bottomLeftScaleMouseDown],
   );
 
   const bottomRightScalingCorner = useMemo(
     () =>
-      makeScalingCorner({
-        bottom: `-${scaleSquareOffset}px`,
-        right: `-${scaleSquareOffset}px`,
-        cursor: "nwse-resize",
-      }, {
-        key: "bottomRight",
-        onMouseDown: bottomRightScaleMouseDown,
-      }),
+      makeScalingCorner(
+        {
+          bottom: `-${scaleSquareOffset}px`,
+          right: `-${scaleSquareOffset}px`,
+          cursor: "nwse-resize",
+        },
+        {
+          key: "bottomRight",
+          onMouseDown: bottomRightScaleMouseDown,
+        },
+      ),
     [makeScalingCorner, bottomRightScaleMouseDown],
   );
 
@@ -345,14 +361,12 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
         pointerEvents: "none",
       }}
     >
-      {props.state.scalableShapePaths.has(props.path) &&
-        [
-          topLeftScalingCorner,
-          topRightScalingCorner,
-          bottomRightScalingCorner,
-          bottomLeftScalingCorner,
-        ]
-      }
+      {props.state.scalableShapePaths.has(props.path) && [
+        topLeftScalingCorner,
+        topRightScalingCorner,
+        bottomRightScalingCorner,
+        bottomLeftScalingCorner,
+      ]}
     </div>
   );
 }

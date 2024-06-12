@@ -48,7 +48,7 @@ export interface State {
   inputIdxsByPath: IdxsByPath;
   translatableShapePaths: Set<string>;
   scalableShapePaths: Set<string>;
-  pinnedInputIdxs: Set<number>;
+  shapesByPath: Map<string, Shape<ad.Num>>;
 }
 
 /**

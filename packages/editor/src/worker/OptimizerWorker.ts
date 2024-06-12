@@ -132,7 +132,7 @@ export type OWState = StableState | WaitingState;
 /* Module helpers */
 
 const log = (consola as any)
-  .create({ level: (consola as any).LogLevel.Info })
+  .create({ level: (consola as any).LogLevel.Warn })
   .withScope("worker:client");
 
 const isWaiting = (state: OWState): state is WaitingState => {
@@ -326,7 +326,8 @@ export default class OptimizerWorker {
 
         case "InteractError":
           if (
-            this.state.tag === "WaitingForInteract" &&
+            (this.state.tag === "WaitingForInteract" ||
+              this.state.tag === "CompiledToOptimizing") &&
             this.state.previous.tag === data.error.nextWorkerState
           ) {
             callRejects();

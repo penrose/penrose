@@ -174,7 +174,6 @@ import {
   cartesianProduct,
   colorV,
   floatV,
-  getAdValueAsString,
   hexToRgba,
   isKeyOf,
   listV,
@@ -4008,7 +4007,9 @@ export const compileStyleHelper = async (
   const shapes = getShapesList(translation, layerOrdering);
   const translatableShapePaths = new Set<string>();
   const scalableShapePaths = new Set<string>();
+  const shapesByPath = new Map<string, Shape<ad.Num>>();
   for (const shape of shapes) {
+    shapesByPath.set(shape.name.contents, shape);
     if (isTranslatable(shape)) {
       translatableShapePaths.add(shape.name.contents);
     }
@@ -4017,15 +4018,8 @@ export const compileStyleHelper = async (
     }
   }
 
-  const nameShapeMap = new Map<string, Shape<ad.Num>>();
-
-  for (const shape of shapes) {
-    const shapeName = getAdValueAsString(shape.name);
-    nameShapeMap.set(shapeName, shape);
-  }
-
   // fill in passthrough properties
-  const passthroughResult = processPassthrough(translation, nameShapeMap);
+  const passthroughResult = processPassthrough(translation, shapesByPath);
   if (passthroughResult.isErr()) {
     return err(toStyleErrors([passthroughResult.error]));
   }
@@ -4033,7 +4027,7 @@ export const compileStyleHelper = async (
   const renderGraph = buildRenderGraph(
     findOrderedRoots(groupGraph),
     groupGraph,
-    nameShapeMap,
+    shapesByPath,
   );
 
   const objFns = [...translation.objectives];
@@ -4080,7 +4074,7 @@ export const compileStyleHelper = async (
     inputIdxsByPath,
     translatableShapePaths,
     scalableShapePaths,
-    pinnedInputIdxs: new Set(),
+    shapesByPath,
   };
 
   log.info("init state from GenOptProblem", initState);

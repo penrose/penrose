@@ -15,10 +15,12 @@ import {
 import consola from "consola";
 import _ from "lodash";
 import {
-  getScalingInfo, getScalingInputIdxs,
+  getScalingInfo,
+  getScalingInputIdxs,
   getTranslatedInputsIdxs,
-  Interaction, makeScaleCallback,
-  makeTranslateCallback
+  Interaction,
+  makeScaleCallback,
+  makeTranslateCallback,
 } from "../utils/interactionUtils.js";
 import {
   CompiledReq,
@@ -50,19 +52,24 @@ let history: Frame[] = [];
 let stats: LayoutStats = [];
 let workerState: WorkerState = WorkerState.Init;
 
+let userPinnedInputIdxs = new Set<number>();
+let tempPinnedInputIdxs = new Set<number>();
+
 // set to true to cause optimizer to finish before the next step
 let shouldFinish = false;
 
 let translateCallback:
   | ((dx: number, dy: number, state: PenroseState) => void)
   | null = null;
-let scaleCallback: ((sx: number, sy: number, state: PenroseState) => void) | null = null;
+let scaleCallback:
+  | ((sx: number, sy: number, state: PenroseState) => void)
+  | null = null;
 
-const maxUpdateHz = 50;
+const maxUpdateHz = 10;
 let lastUpdateTime = self.performance.now();
 
 const log = (consola as any)
-  .create({ level: (consola as any).LogLevel.Info })
+  .create({ level: (consola as any).LogLevel.Warn })
   .withScope("worker:server");
 
 // Wrapper function for postMessage to ensure type safety
@@ -76,8 +83,37 @@ const respondError = (error: WorkerError) => {
     error,
   });
 };
+/**
+ * Apply user pins and temporary pins to `optState`. OptState must not be null.
+ */
+const applyPinning = () => {
+  for (const [stage, masks] of optState!.constraintSets) {
+    masks.inputMask = [...unoptState.constraintSets.get(stage)!.inputMask];
+    for (const idx of [...userPinnedInputIdxs, ...tempPinnedInputIdxs]) {
+      masks.inputMask[idx] = false;
+    }
+  }
+};
+
+const tempPinAllInteractiveInputs = (path: string) => {
+  let inputIdxs: number[] = [];
+  if (optState!.translatableShapePaths.has(path)) {
+    inputIdxs = inputIdxs.concat(
+      getTranslatedInputsIdxs(path, optState!).flat(),
+    );
+  }
+  if (optState!.scalableShapePaths.has(path)) {
+    inputIdxs = inputIdxs.concat(
+      getScalingInputIdxs(getScalingInfo(path, optState!)),
+    );
+  }
+  for (const idx of inputIdxs) {
+    tempPinnedInputIdxs.add(idx);
+  }
+};
 
 self.onmessage = async ({ data }: MessageEvent<Req>) => {
+  log.info(`Worker received ${data.tag} in state ${workerState}`);
   const badStateError = () => {
     respondError({
       tag: "BadStateError",
@@ -91,7 +127,6 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
     case WorkerState.Init:
       switch (data.tag) {
         case "CompiledReq":
-          log.info("Received CompiledReq in state Init");
           await compileAndRespond(data);
           break;
 
@@ -104,7 +139,6 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
     case WorkerState.Compiled:
       switch (data.tag) {
         case "OptimizingReq":
-          log.info("Received OptimizingReq in state Compiled");
           const stateWithoutLabels: PartialState = unoptState;
           unoptState = {
             ...stateWithoutLabels,
@@ -119,17 +153,14 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
           break;
 
         case "ComputeShapesReq":
-          log.info("Received ComputeShapesReq in state Compiled");
           respondShapes(data.index);
           break;
 
         case "CompiledReq":
-          log.info("Received CompiledReq in state Compiled");
           await compileAndRespond(data);
           break;
 
         case "ResampleReq":
-          log.info("Received ResampleReq in state Compiled");
           const { variation } = data;
           // resample can fail, but doesn't return a result. Hence, try/catch
           try {
@@ -145,7 +176,6 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
           break;
 
         case "InteractReq":
-          log.info("Received InteractReq in state Compiled");
           try {
             interact(data.interaction, data.finish);
           } catch (error: any) {
@@ -154,6 +184,7 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
               nextWorkerState: workerState,
               error,
             });
+            return;
           }
           workerState = WorkerState.Optimizing;
           respondOptimizing();
@@ -172,8 +203,6 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
       break;
 
     case WorkerState.Optimizing:
-      log.info("Received request during optimization");
-
       if (optState === null) {
         respondError({
           tag: "FatalWorkerError",
@@ -184,17 +213,14 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
 
       switch (data.tag) {
         case "ComputeShapesReq":
-          log.info("Received ComputeShapesReq in state Optimizing");
           respondShapes(data.index);
           break;
 
         case "InterruptReq":
-          log.info("Received InterruptReq in state Optimizing");
           shouldFinish = true;
           break;
 
         case "InteractReq":
-          log.info("Received DragShapeReq in state Optimizing");
           try {
             interact(data.interaction, data.finish);
           } catch (error: any) {
@@ -203,10 +229,12 @@ self.onmessage = async ({ data }: MessageEvent<Req>) => {
               nextWorkerState: workerState,
               error,
             });
+            return;
           }
           respond({
             tag: "InteractOkResp",
           });
+          respondUpdate(stateToLayoutState(optState), stats);
           break;
 
         default:
@@ -235,12 +263,9 @@ const interact = (interaction: Interaction, finish: boolean) => {
             interaction.path,
             optState,
           );
-          for (const [_, masks] of optState.constraintSets) {
-            for (const [xIdx, yIdx] of translatedInputIdxs) {
-              masks.inputMask[xIdx] = false;
-              masks.inputMask[yIdx] = false;
-            }
-          }
+          tempPinnedInputIdxs = new Set<number>();
+          tempPinAllInteractiveInputs(interaction.path);
+          applyPinning();
           translateCallback = makeTranslateCallback(
             translatedInputIdxs,
             optState,
@@ -265,12 +290,10 @@ const interact = (interaction: Interaction, finish: boolean) => {
       try {
         if (scaleCallback === null) {
           const scalingInfo = getScalingInfo(interaction.path, optState);
-          for (const [_, masks] of optState.constraintSets) {
-            for (const idx of getScalingInputIdxs(scalingInfo)) {
-              masks.inputMask[idx] = false;
-            }
-          }
-          scaleCallback = makeScaleCallback(scalingInfo, optState,);
+          tempPinnedInputIdxs = new Set<number>();
+          tempPinAllInteractiveInputs(interaction.path);
+          applyPinning();
+          scaleCallback = makeScaleCallback(scalingInfo, optState);
         }
         scaleCallback!(interaction.sx, interaction.sy, optState);
         optState.params = _.cloneDeep(unoptState.params);
@@ -287,6 +310,8 @@ const interact = (interaction: Interaction, finish: boolean) => {
       }
       break;
   }
+
+  optState.currentStageIndex = 0;
 };
 
 const compileAndRespond = async (data: CompiledReq) => {
@@ -364,6 +389,7 @@ const respondUpdate = (state: LayoutState, stats: LayoutStats) => {
     state,
     stats,
   });
+  lastUpdateTime = self.performance.now();
 };
 
 const respondFinished = (state: PenroseState, stats: LayoutStats) => {
@@ -446,7 +472,6 @@ const optimize = async (state: PenroseState) => {
       const now = self.performance.now();
       if (now - lastUpdateTime >= 1000 / maxUpdateHz) {
         respondUpdate(stateToLayoutState(optState), stats);
-        lastUpdateTime = now;
       }
 
       i++;
