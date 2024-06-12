@@ -1063,7 +1063,7 @@ const constrDictGeneral = {
   hSpacing: {
     name: "hSpacing",
     description:
-      "Requires that the bounding boxes for shapes within a shapeList are touching.",
+      "Requires that the bounding boxes for shapes within a shapeList are evenly spaced with a set padding.",
     params: [
       {
         name: "shapes",
@@ -1071,15 +1071,21 @@ const constrDictGeneral = {
           "List containing the top-left, top-right, bottom-right, bottom-left points (in that order) of the axis-aligned bounding box of a shape",
         type: shapeListT(),
       },
+      {
+        name: "padding",
+        description: "Margin between bounding boxes of shapes",
+        type: realT(),
+        default: 0,
+      },
     ],
-    body: noWarnFn((shapes: Shape<ad.Num>[]) => {
+    body: noWarnFn((shapes: Shape<ad.Num>[], padding: ad.Num) => {
       let spacingSum: ad.Num = 0;
 
       for (let i = 0; i < shapes.length - 1; i++) {
         const currShape = BBox.maxX(bboxFromShape(shapes[i]));
         const nextShape = BBox.minX(bboxFromShape(shapes[i + 1]));
 
-        const difference = absVal(sub(currShape, nextShape));
+        const difference = absVal(sub(add(currShape, padding), nextShape));
 
         spacingSum = add(spacingSum, difference);
 
