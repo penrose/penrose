@@ -1089,7 +1089,7 @@ const constrDictGeneral = {
 
         spacingSum = add(spacingSum, difference);
 
-        //compare |currShapeRight - nextShapeLeft|
+        //compare difference between current shape + horizontal padding and next shape
       }
 
       return spacingSum;
@@ -1126,7 +1126,7 @@ const constrDictGeneral = {
 
         spacingSum = add(spacingSum, difference);
 
-        //compare |currShapeRight - nextShapeLeft|
+        //compare difference between current shape + vertical padding and next shape
       }
 
       return spacingSum;
