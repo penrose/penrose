@@ -1,0 +1,441 @@
+<svg
+  version="1.2"
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 800 800"
+  penrose="0"
+>
+  <penrose>
+    <croppedViewBox>
+      242.3101799227303 69.43537444092357 329.8447369789909 701
+    </croppedViewBox>
+  </penrose>
+  <g>
+    <rect
+      x="371.2374742260023"
+      y="369.93537444092357"
+      width="100.08460269473183"
+      height="100"
+      fill="#af7ac5"
+      fill-opacity="1"
+      stroke="#000000"
+      stroke-opacity="1"
+      stroke-width="0.5"
+      rx="0"
+      transform="rotate(0, 421.2797755733682, 419.93537444092357)"
+    >
+      <title>`entry2`.icon</title>
+    </rect>
+    <text
+      fill="#000000"
+      fill-opacity="1"
+      stroke="none"
+      transform="rotate(0, 421.2797755733682, 419.93537444092357)"
+      style="font: 15px sans-serif"
+      x="421.2797755733682"
+      y="424.43537444092357"
+      width="54.6767578125"
+      height="15"
+      font-size-adjust=""
+      alignment-baseline="alphabetic"
+      dominant-baseline="alphabetic"
+      ascent="12"
+      descent="3"
+      text-anchor="middle"
+      visibility=""
+    >
+      <title>`entry2`.text</title>
+      Entry 2
+    </text>
+    <title>`entry2`.g</title>
+  </g>
+  <g>
+    <rect
+      x="242.97683323294802"
+      y="169.93537444092357"
+      width="228.1785660590947"
+      height="100"
+      fill="#af7ac5"
+      fill-opacity="1"
+      stroke="#000000"
+      stroke-opacity="1"
+      stroke-width="0.5"
+      rx="0"
+      transform="rotate(0, 357.06611626249537, 219.93537444092357)"
+    >
+      <title>`entry3`.icon</title>
+    </rect>
+    <text
+      fill="#000000"
+      fill-opacity="1"
+      stroke="none"
+      transform="rotate(0, 357.06611626249537, 219.93537444092357)"
+      style="font: 15px sans-serif"
+      x="357.06611626249537"
+      y="224.43537444092357"
+      width="54.6767578125"
+      height="15"
+      font-size-adjust=""
+      alignment-baseline="alphabetic"
+      dominant-baseline="alphabetic"
+      ascent="12"
+      descent="3"
+      text-anchor="middle"
+      visibility=""
+    >
+      <title>`entry3`.text</title>
+      Entry 3
+    </text>
+    <title>`entry3`.g</title>
+  </g>
+  <g>
+    <rect
+      x="471.48872113763605"
+      y="169.93537444092357"
+      width="100.16619422794724"
+      height="100"
+      fill="#af7ac5"
+      fill-opacity="1"
+      stroke="#000000"
+      stroke-opacity="1"
+      stroke-width="0.5"
+      rx="0"
+      transform="rotate(0, 521.5718182516097, 219.93537444092357)"
+    >
+      <title>`entry4`.icon</title>
+    </rect>
+    <text
+      fill="#000000"
+      fill-opacity="1"
+      stroke="none"
+      transform="rotate(0, 521.5718182516097, 219.93537444092357)"
+      style="font: 15px sans-serif"
+      x="521.5718182516097"
+      y="224.43537444092357"
+      width="54.6767578125"
+      height="15"
+      font-size-adjust=""
+      alignment-baseline="alphabetic"
+      dominant-baseline="alphabetic"
+      ascent="12"
+      descent="3"
+      text-anchor="middle"
+      visibility=""
+    >
+      <title>`entry4`.text</title>
+      Entry 4
+    </text>
+    <title>`entry4`.g</title>
+  </g>
+  <g>
+    <rect
+      x="242.8101799227303"
+      y="469.9353744409236"
+      width="128.09396336436285"
+      height="100"
+      fill="#d7bde2"
+      fill-opacity="1"
+      stroke="#000000"
+      stroke-opacity="1"
+      stroke-width="1"
+      rx="0"
+      transform="rotate(0, 306.8571616049117, 519.9353744409236)"
+    >
+      <title>`dir0`.icon</title>
+    </rect>
+    <text
+      fill="#000000"
+      fill-opacity="1"
+      stroke="none"
+      transform="rotate(0, 306.8571616049117, 519.9353744409236)"
+      style="font: 15px sans-serif"
+      x="306.8571616049117"
+      y="524.4353744409236"
+      width="83.8984375"
+      height="15"
+      font-size-adjust=""
+      alignment-baseline="alphabetic"
+      dominant-baseline="alphabetic"
+      ascent="12"
+      descent="3"
+      text-anchor="middle"
+      visibility=""
+    >
+      <title>`dir0`.text</title>
+      Directory 0
+    </text>
+    <title>`dir0`.g</title>
+  </g>
+  <g>
+    <rect
+      x="242.97684243637713"
+      y="269.93537444092357"
+      width="228.1785660590947"
+      height="100"
+      fill="#d7bde2"
+      fill-opacity="1"
+      stroke="#000000"
+      stroke-opacity="1"
+      stroke-width="1"
+      rx="0"
+      transform="rotate(0, 357.0661254659245, 319.93537444092357)"
+    >
+      <title>`dir1`.icon</title>
+    </rect>
+    <text
+      fill="#000000"
+      fill-opacity="1"
+      stroke="none"
+      transform="rotate(0, 357.0661254659245, 319.93537444092357)"
+      style="font: 15px sans-serif"
+      x="357.0661254659245"
+      y="324.43537444092357"
+      width="83.8984375"
+      height="15"
+      font-size-adjust=""
+      alignment-baseline="alphabetic"
+      dominant-baseline="alphabetic"
+      ascent="12"
+      descent="3"
+      text-anchor="middle"
+      visibility=""
+    >
+      <title>`dir1`.text</title>
+      Directory 1
+    </text>
+    <title>`dir1`.g</title>
+  </g>
+  <g>
+    <rect
+      x="371.23748919977214"
+      y="469.9353744409236"
+      width="100.08460269473183"
+      height="100"
+      fill="#d7bde2"
+      fill-opacity="1"
+      stroke="#000000"
+      stroke-opacity="1"
+      stroke-width="1"
+      rx="0"
+      transform="rotate(0, 421.2797905471381, 519.9353744409236)"
+    >
+      <title>`dir2`.icon</title>
+    </rect>
+    <text
+      fill="#000000"
+      fill-opacity="1"
+      stroke="none"
+      transform="rotate(0, 421.2797905471381, 519.9353744409236)"
+      style="font: 15px sans-serif"
+      x="421.2797905471381"
+      y="524.4353744409236"
+      width="83.8984375"
+      height="15"
+      font-size-adjust=""
+      alignment-baseline="alphabetic"
+      dominant-baseline="alphabetic"
+      ascent="12"
+      descent="3"
+      text-anchor="middle"
+      visibility=""
+    >
+      <title>`dir2`.text</title>
+      Directory 2
+    </text>
+    <title>`dir2`.g</title>
+  </g>
+  <g>
+    <rect
+      x="243.14349603060288"
+      y="69.93537444092357"
+      width="328.34476028704194"
+      height="100"
+      fill="#76448a"
+      fill-opacity="1"
+      stroke="#000000"
+      stroke-opacity="1"
+      stroke-width="1"
+      rx="0"
+      transform="rotate(0, 407.31587617412384, 119.93537444092357)"
+    >
+      <title>`root0`.icon</title>
+    </rect>
+    <text
+      fill="#f5eef8"
+      fill-opacity="1"
+      stroke="none"
+      transform="rotate(0, 407.31587617412384, 119.93537444092357)"
+      style="font: 15px sans-serif"
+      x="407.31587617412384"
+      y="125.93537444092357"
+      width="35.1015625"
+      height="12"
+      font-size-adjust=""
+      alignment-baseline="alphabetic"
+      dominant-baseline="alphabetic"
+      ascent="12"
+      descent="0"
+      text-anchor="middle"
+      visibility=""
+    >
+      <title>`root0`.text</title>
+      Root
+    </text>
+    <title>`root0`.g</title>
+  </g>
+  <g>
+    <rect
+      x="471.48872267377396"
+      y="269.93537444092357"
+      width="100.16619422794724"
+      height="100"
+      fill="#f9f2fe"
+      fill-opacity="1"
+      stroke="#000000"
+      stroke-opacity="1"
+      stroke-width="1"
+      rx="0"
+      transform="rotate(0, 521.5718197877476, 319.93537444092357)"
+    >
+      <title>`file0`.icon</title>
+    </rect>
+    <text
+      fill="#000000"
+      fill-opacity="1"
+      stroke="none"
+      transform="rotate(0, 521.5718197877476, 319.93537444092357)"
+      style="font: 15px sans-serif"
+      x="521.5718197877476"
+      y="325.93537444092357"
+      width="39.8662109375"
+      height="12"
+      font-size-adjust=""
+      alignment-baseline="alphabetic"
+      dominant-baseline="alphabetic"
+      ascent="12"
+      descent="0"
+      text-anchor="middle"
+      visibility=""
+    >
+      <title>`file0`.text</title>
+      File 0
+    </text>
+    <title>`file0`.g</title>
+  </g>
+  <g>
+    <rect
+      x="371.2374995408864"
+      y="669.9353744409236"
+      width="100.08460269473183"
+      height="100"
+      fill="#f9f2fe"
+      fill-opacity="1"
+      stroke="#000000"
+      stroke-opacity="1"
+      stroke-width="1"
+      rx="0"
+      transform="rotate(0, 421.27980088825234, 719.9353744409236)"
+    >
+      <title>`file1`.icon</title>
+    </rect>
+    <text
+      fill="#000000"
+      fill-opacity="1"
+      stroke="none"
+      transform="rotate(0, 421.27980088825234, 719.9353744409236)"
+      style="font: 15px sans-serif"
+      x="421.27980088825234"
+      y="725.9353744409236"
+      width="39.8662109375"
+      height="12"
+      font-size-adjust=""
+      alignment-baseline="alphabetic"
+      dominant-baseline="alphabetic"
+      ascent="12"
+      descent="0"
+      text-anchor="middle"
+      visibility=""
+    >
+      <title>`file1`.text</title>
+      File 1
+    </text>
+    <title>`file1`.g</title>
+  </g>
+  <g>
+    <rect
+      x="371.2374962042785"
+      y="569.9353744409236"
+      width="100.08460269473183"
+      height="100"
+      fill="#af7ac5"
+      fill-opacity="1"
+      stroke="#000000"
+      stroke-opacity="1"
+      stroke-width="0.5"
+      rx="0"
+      transform="rotate(0, 421.27979755164444, 619.9353744409236)"
+    >
+      <title>`entry0`.icon</title>
+    </rect>
+    <text
+      fill="#000000"
+      fill-opacity="1"
+      stroke="none"
+      transform="rotate(0, 421.27979755164444, 619.9353744409236)"
+      style="font: 15px sans-serif"
+      x="421.27979755164444"
+      y="624.4353744409236"
+      width="54.6767578125"
+      height="15"
+      font-size-adjust=""
+      alignment-baseline="alphabetic"
+      dominant-baseline="alphabetic"
+      ascent="12"
+      descent="3"
+      text-anchor="middle"
+      visibility=""
+    >
+      <title>`entry0`.text</title>
+      Entry 0
+    </text>
+    <title>`entry0`.g</title>
+  </g>
+  <g>
+    <rect
+      x="242.81018306130494"
+      y="369.93537444092357"
+      width="128.09396336436285"
+      height="100"
+      fill="#af7ac5"
+      fill-opacity="1"
+      stroke="#000000"
+      stroke-opacity="1"
+      stroke-width="0.5"
+      rx="0"
+      transform="rotate(0, 306.85716474348635, 419.93537444092357)"
+    >
+      <title>`entry1`.icon</title>
+    </rect>
+    <text
+      fill="#000000"
+      fill-opacity="1"
+      stroke="none"
+      transform="rotate(0, 306.85716474348635, 419.93537444092357)"
+      style="font: 15px sans-serif"
+      x="306.85716474348635"
+      y="424.43537444092357"
+      width="54.6767578125"
+      height="15"
+      font-size-adjust=""
+      alignment-baseline="alphabetic"
+      dominant-baseline="alphabetic"
+      ascent="12"
+      descent="3"
+      text-anchor="middle"
+      visibility=""
+    >
+      <title>`entry1`.text</title>
+      Entry 1
+    </text>
+    <title>`entry1`.g</title>
+  </g>
+</svg>
