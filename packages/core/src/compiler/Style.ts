@@ -765,10 +765,14 @@ const matchBvar = (
     case "SubVar": {
       if (subVar.value === bf.contents.value) {
         // Substance variables matched; comparing string equality
-        return {};
+        const newSubst: Subst = {};
+        newSubst[`\`${bf.contents.value}\``] = {
+          tag: "SubstanceVar",
+          name: subVar.value,
+        };
+        return newSubst;
       } else {
-        return undefined; // TODO: Note, here we distinguish between an empty substitution and no substitution... but why?
-        // Answer: An empty substitution counts as a match; an invalid substitution (undefined) does not count as a match.
+        return undefined; // invalid substitution
       }
     }
   }
@@ -902,9 +906,12 @@ const matchStyArgToSubArg = (
         if (subArg.value === styBForm.contents.value) {
           if (isSubtype(subArgType, styArgType, domEnv)) {
             // The result is a valid match.
-            // This is an empty substitution because a substitution only maps Style variables
-            // to substance variables.
-            return [{}];
+            const rSubst: Subst = {};
+            rSubst[`\`${styArgName}\``] = {
+              tag: "SubstanceVar",
+              name: subArgName,
+            };
+            return [rSubst];
           } else {
             // invalid match
             return [];
@@ -1157,7 +1164,11 @@ const matchRelField = (
     const label = subEnv.labels.get(subName);
     if (label) {
       const rSubst: Subst = {};
-      rSubst[styName] = { tag: "SubstanceVar", name: subName };
+      if (rel.name.tag === "StyVar") {
+        rSubst[styName] = { tag: "SubstanceVar", name: subName };
+      } else {
+        rSubst[`\`${styName}\``] = { tag: "SubstanceVar", name: subName };
+      }
       if (fieldDesc) {
         return label.type === fieldDesc ? rSubst : undefined;
       } else {
@@ -2982,7 +2993,7 @@ const evalExpr = (
           canvas,
           layoutStages,
           {
-            ...parent,
+            ...nonIndexedPart,
             nodeType: "Style",
             tag: "ResolvedPath",
             contents: nonIndexedPart,
