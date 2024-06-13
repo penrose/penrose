@@ -5,6 +5,7 @@ import {
   insertPending,
   isOptimized,
   LabelMeasurements,
+  mapValueNumeric,
   nextStage,
   PenroseState,
   resample,
@@ -16,7 +17,6 @@ import consola from "consola";
 import _ from "lodash";
 import {
   getScalingInfo,
-  getScalingInputIdxs,
   getTranslatedInputsIdxs,
   Interaction,
   makeScaleCallback,
@@ -52,8 +52,8 @@ let history: Frame[] = [];
 let stats: LayoutStats = [];
 let workerState: WorkerState = WorkerState.Init;
 
-let userPinnedInputIdxs = new Set<number>();
-let tempPinnedInputIdxs = new Set<number>();
+let pinnedInputIdxSets = new Map<string, Set<number>>();
+// let tempPinnedInputIdxs = new Set<number>();
 
 // set to true to cause optimizer to finish before the next step
 let shouldFinish = false;
@@ -69,7 +69,7 @@ const maxUpdateHz = 10;
 let lastUpdateTime = self.performance.now();
 
 const log = (consola as any)
-  .create({ level: (consola as any).LogLevel.Warn })
+  .create({ level: (consola as any).LogLevel.Info })
   .withScope("worker:server");
 
 // Wrapper function for postMessage to ensure type safety
@@ -89,27 +89,27 @@ const respondError = (error: WorkerError) => {
 const applyPinning = () => {
   for (const [stage, masks] of optState!.constraintSets) {
     masks.inputMask = [...unoptState.constraintSets.get(stage)!.inputMask];
-    for (const idx of [...userPinnedInputIdxs, ...tempPinnedInputIdxs]) {
-      masks.inputMask[idx] = false;
+    for (const [path, idxs] of pinnedInputIdxSets) {
+      for (const idx of idxs) {
+        masks.inputMask[idx] = false;
+      }
     }
   }
 };
 
-const tempPinAllInteractiveInputs = (path: string) => {
-  let inputIdxs: number[] = [];
-  if (optState!.translatableShapePaths.has(path)) {
-    inputIdxs = inputIdxs.concat(
-      getTranslatedInputsIdxs(path, optState!).flat(),
-    );
+const getAllInputs = (path: string) => {
+  const res = new Set<number>();
+  const shape = optState!.shapesByPath.get(path)!;
+  for (const field of Object.keys(shape)) {
+    const fieldPath = path + "." + field;
+    const inputIdxs = optState!.inputIdxsByPath.get(fieldPath);
+    if (inputIdxs !== undefined && inputIdxs.tag === "Val") {
+      mapValueNumeric((i: number | undefined) => {
+        if (i) res.add(i);
+      }, inputIdxs.contents);
+    }
   }
-  if (optState!.scalableShapePaths.has(path)) {
-    inputIdxs = inputIdxs.concat(
-      getScalingInputIdxs(getScalingInfo(path, optState!)),
-    );
-  }
-  for (const idx of inputIdxs) {
-    tempPinnedInputIdxs.add(idx);
-  }
+  return res;
 };
 
 self.onmessage = async ({ data }: MessageEvent<Req>) => {
@@ -263,8 +263,10 @@ const interact = (interaction: Interaction, finish: boolean) => {
             interaction.path,
             optState,
           );
-          tempPinnedInputIdxs = new Set<number>();
-          tempPinAllInteractiveInputs(interaction.path);
+          pinnedInputIdxSets.set(
+            interaction.path,
+            getAllInputs(interaction.path),
+          );
           applyPinning();
           translateCallback = makeTranslateCallback(
             translatedInputIdxs,
@@ -272,7 +274,6 @@ const interact = (interaction: Interaction, finish: boolean) => {
           );
         }
         translateCallback!(interaction.dx, interaction.dy, optState);
-        optState.params = _.cloneDeep(unoptState.params);
         if (finish) {
           translateCallback = null;
         }
@@ -290,13 +291,14 @@ const interact = (interaction: Interaction, finish: boolean) => {
       try {
         if (scaleCallback === null) {
           const scalingInfo = getScalingInfo(interaction.path, optState);
-          tempPinnedInputIdxs = new Set<number>();
-          tempPinAllInteractiveInputs(interaction.path);
+          pinnedInputIdxSets.set(
+            interaction.path,
+            getAllInputs(interaction.path),
+          );
           applyPinning();
           scaleCallback = makeScaleCallback(scalingInfo, optState);
         }
         scaleCallback!(interaction.sx, interaction.sy, optState);
-        optState.params = _.cloneDeep(unoptState.params);
         if (finish) {
           scaleCallback = null;
         }
@@ -309,9 +311,20 @@ const interact = (interaction: Interaction, finish: boolean) => {
         return;
       }
       break;
+
+    case "ChangePin":
+      if (interaction.active) {
+        const inputIdxs = getAllInputs(interaction.path);
+        pinnedInputIdxSets.set(interaction.path, inputIdxs);
+      } else {
+        pinnedInputIdxSets.delete(interaction.path);
+      }
+      applyPinning();
+      break;
   }
 
   optState.currentStageIndex = 0;
+  optState.params = _.cloneDeep(unoptState.params);
 };
 
 const compileAndRespond = async (data: CompiledReq) => {

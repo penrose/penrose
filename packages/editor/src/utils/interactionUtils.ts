@@ -17,7 +17,12 @@ export type Scale = {
   sy: number;
 } & InteractionCommon;
 
-export type Interaction = Translation | Scale;
+export type ChangePin = {
+  tag: "ChangePin";
+  active: boolean;
+} & InteractionCommon;
+
+export type Interaction = Translation | Scale | ChangePin;
 
 const valueIsVectorNumeric = (
   val: Value.Value<number | undefined>,

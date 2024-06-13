@@ -406,6 +406,7 @@ export {
   prettyCompiledSubstance,
   prettySubstance,
 } from "./compiler/Substance.js";
+export { mapShape, mapValueNumeric } from "./engine/EngineUtils.js";
 export { constrDict } from "./lib/Constraints.js";
 export { compDict } from "./lib/Functions.js";
 export { objDict } from "./lib/Objectives.js";

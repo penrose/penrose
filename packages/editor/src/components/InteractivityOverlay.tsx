@@ -2,6 +2,7 @@
  * A component that lies over the DiagramPanel which displays interactivity handles
  */
 
+import * as im from "immutable";
 import { MutableRefObject, useEffect, useMemo, useRef, useState } from "react";
 import { RenderState } from "../worker/common.js";
 import HoverDisplay from "./HoverDisplay";
@@ -25,9 +26,8 @@ export default function InteractivityOverlay(
   props: InteractivityOverlayProps,
 ): JSX.Element {
   const [clickedPath, setClickedPath] = useState<string | null>(null);
-
   const [hoveredPath, setHoveredPath] = useState<string | null>(null);
-
+  const [pinnedPaths, setPinnedPaths] = useState<im.Set<string>>(im.Set());
   const activeOverlay = useRef<HTMLDivElement | null>(null);
 
   const clickedElem = useMemo(() => {
@@ -121,14 +121,17 @@ export default function InteractivityOverlay(
           diagramSVG={props.diagramSVG}
           state={props.state}
           overlay={activeOverlay as MutableRefObject<Element>}
+          pinnedPaths={pinnedPaths}
+          setPinnedPaths={setPinnedPaths}
         />
       )}
 
-      {hoveredElem && activeOverlay.current && (
+      {hoveredPath && hoveredElem && activeOverlay.current && (
         <HoverDisplay
           elem={hoveredElem}
           overlay={activeOverlay as MutableRefObject<Element>}
           state={props.state}
+          pinned={pinnedPaths.has(hoveredPath)}
         />
       )}
     </div>

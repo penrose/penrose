@@ -1,3 +1,4 @@
+import * as im from "immutable";
 import { clamp, min } from "lodash";
 import { MutableRefObject, useCallback, useEffect, useMemo } from "react";
 import { useSetRecoilState } from "recoil";
@@ -16,6 +17,8 @@ export interface DragWidgetProps {
   diagramSVG: SVGSVGElement;
   state: RenderState;
   overlay: MutableRefObject<Element>;
+  pinnedPaths: im.Set<string>;
+  setPinnedPaths: (pinnedPaths: im.Set<string>) => void;
 }
 
 const useTranslateOnMouseDown = (
@@ -75,6 +78,7 @@ const useTranslateOnMouseDown = (
         document.removeEventListener("mouseup", onMouseUp);
         document.removeEventListener("mousemove", onMouseMove);
         translate(props.path, true, dx, dy);
+        props.setPinnedPaths(props.pinnedPaths.add(props.path));
       };
 
       document.addEventListener("mouseup", onMouseUp);
@@ -188,6 +192,7 @@ const useScaleOnMouseDown = (
 
       document.addEventListener("mouseup", onMouseUp);
       document.addEventListener("mousemove", onMouseMove);
+      props.setPinnedPaths(props.pinnedPaths.add(props.path));
     },
     [props.diagramSVG, props.state, props.path, props.elem],
   );
@@ -234,19 +239,56 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
     [],
   );
 
+  const changePin = useCallback(async (path: string, active: boolean) => {
+    await handleOptimizerPromises(
+      await optimizer.interact(
+        {
+          tag: "ChangePin",
+          path,
+          active,
+        },
+        true,
+      ),
+      setWorker,
+      setDiagram,
+    );
+  }, []);
+
   const translateOnMouseDown = useTranslateOnMouseDown(props, translate);
+  const elemOnMouseDown = useCallback(
+    (e: MouseEvent) => {
+      if (e.button === 0) {
+        translateOnMouseDown(e);
+      } else {
+        const currentlyPinned = props.pinnedPaths.has(props.path);
+        changePin(props.path, !currentlyPinned);
+        if (currentlyPinned) {
+          props.setPinnedPaths(props.pinnedPaths.remove(props.path));
+        } else {
+          props.setPinnedPaths(props.pinnedPaths.add(props.path));
+        }
+      }
+    },
+    [translateOnMouseDown, changePin, props.pinnedPaths.has(props.path)],
+  );
+
+  useEffect(() => {
+    props.elem.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+    });
+  }, [props.elem]);
 
   useEffect(() => {
     if (props.state.translatableShapePaths.has(props.path)) {
-      props.elem.addEventListener("mousedown", translateOnMouseDown);
+      props.elem.addEventListener("mousedown", elemOnMouseDown);
       props.elem.style.cursor = "crosshair";
 
       return () => {
-        props.elem.removeEventListener("mousedown", translateOnMouseDown);
+        props.elem.removeEventListener("mousedown", elemOnMouseDown);
         props.elem.style.cursor = "auto";
       };
     }
-  }, [props.elem, props.state, props.path, translateOnMouseDown]);
+  }, [props.elem, props.state, props.path, elemOnMouseDown]);
 
   const bbox = getRelativeBBox(props.elem, props.overlay.current);
   const borderWidth = 2;
@@ -255,22 +297,27 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
   const scaleSquareBorder = 2;
   const scaleSquareOffset = (scaleSquareBorder + scaleSquareWidth + 3) / 2;
 
-  const makeScalingCorner = useCallback((styleProps: any, otherProps: any) => {
-    return (
-      <div
-        style={{
-          position: "absolute",
-          width: `${scaleSquareWidth}px`,
-          height: `${scaleSquareWidth}px`,
-          pointerEvents: "all",
-          backgroundColor: "white",
-          border: `${scaleSquareBorder}px solid black`,
-          ...styleProps,
-        }}
-        {...otherProps}
-      ></div>
-    );
-  }, []);
+  const mainCol = props.pinnedPaths.has(props.path) ? "red" : "black";
+
+  const makeScalingCorner = useCallback(
+    (styleProps: any, otherProps: any) => {
+      return (
+        <div
+          style={{
+            position: "absolute",
+            width: `${scaleSquareWidth}px`,
+            height: `${scaleSquareWidth}px`,
+            pointerEvents: "all",
+            backgroundColor: "white",
+            border: `${scaleSquareBorder}px solid ${mainCol}`,
+            ...styleProps,
+          }}
+          {...otherProps}
+        ></div>
+      );
+    },
+    [mainCol],
+  );
 
   const topLeftScaleMouseDown = useScaleOnMouseDown(props, "topLeft", scale);
   const topRightScaleMouseDown = useScaleOnMouseDown(props, "topRight", scale);
@@ -355,7 +402,7 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
         position: "absolute",
         top: `${bbox.y - borderWidth}px`,
         left: `${bbox.x - borderWidth}px`,
-        border: `${borderWidth}px solid black`,
+        border: `${borderWidth}px solid ${mainCol}`,
         width: `${bbox.width}px`,
         height: `${bbox.height}px`,
         pointerEvents: "none",
