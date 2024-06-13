@@ -44,6 +44,7 @@
     "@penrose/components": "^4.0.0-alpha.0",
     "@penrose/core": "^4.0.0-alpha.0",
     "@penrose/examples": "^4.0.0-alpha.0",
+    "@uiw/react-codemirror": "^4.22.2",
     "animals": "^0.0.3",
     "color-name-list": "^8.38.0",
     "flexlayout-react": "^0.7.3",

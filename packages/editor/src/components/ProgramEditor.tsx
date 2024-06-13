@@ -37,9 +37,6 @@ export default function ProgramEditor({ kind }: { kind: ProgramType }) {
       domainCache={domainCache}
       onChange={onChange}
       readOnly={workspaceMetadata.location.kind === "roger"}
-      onWrite={compileDiagram}
-      error={error}
-      warnings={warnings}
     />
   );
 }
