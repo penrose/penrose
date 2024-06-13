@@ -37,6 +37,7 @@ import {
   MatrixV,
   NoClip,
   PathCmd,
+  PathDataListV,
   PathDataV,
   PtListV,
   ShapeListV,
@@ -665,6 +666,13 @@ export const shapeListV = (contents: Shape<ad.Num>[]): ShapeListV<ad.Num> => ({
   contents,
 });
 
+export const pathDataListV = (
+  contents: PathCmd<ad.Num>[][],
+): PathDataListV<ad.Num> => ({
+  tag: "PathDataListV",
+  contents,
+});
+
 export const black = (): ColorV<ad.Num> =>
   colorV({ tag: "RGBA", contents: [0, 0, 0, 1] });
 export const white = (): ColorV<ad.Num> =>
@@ -740,6 +748,7 @@ export const posIntT = (): ValueT => valueT("PosInt");
 export const booleanT = (): ValueT => valueT("Boolean");
 export const realNMT = (): ValueT => valueT("RealNM");
 export const shapeListT = (): ValueT => valueT("ShapeList");
+export const pathDataListT = (): ValueT => valueT("PathDataList");
 
 export const shapeT = (type: ShapeType | "AnyShape"): ShapeT => ({
   tag: "ShapeT",

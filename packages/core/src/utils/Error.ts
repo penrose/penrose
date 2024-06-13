@@ -1148,6 +1148,12 @@ export const nanError = (message: string, lastState: State): NaNError => ({
   lastState,
 });
 
+export const runtimeError = (message: string): PenroseError => ({
+  tag: "RuntimeError",
+  errorType: "RuntimeError",
+  message: message,
+});
+
 // If there are multiple errors, just return the tag of the first one
 export const toStyleErrors = (errors: StyleError[]): PenroseError => {
   if (!errors.length) {
@@ -1183,6 +1189,17 @@ const loc = (node: AbstractNode): string => {
   } else {
     return `generated code by the compiler`; // TODO: better description of where the node is coming from
   }
+};
+
+export const isPenroseError = (error: unknown): error is PenroseError => {
+  return (
+    error instanceof Object &&
+    "errorType" in error &&
+    (error.errorType === "DomainError" ||
+      error.errorType === "SubstanceError" ||
+      error.errorType === "StyleError" ||
+      error.errorType === "RuntimeError")
+  );
 };
 
 // #endregion

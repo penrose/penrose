@@ -1,5 +1,5 @@
 import * as ad from "../types/ad.js";
-import { PathDataV, SubPath } from "../types/value.js";
+import { PathCmd, PathDataV, SubPath } from "../types/value.js";
 
 /**
  * Class for building SVG paths
@@ -132,4 +132,48 @@ export class PathBuilder {
     });
     return this;
   };
+
+  /**
+   * Concatenate paths according to the specified connection policy.
+   * @param pathDataList List of paths, given as lists of path commands (a list of lists)
+   * @param connect Given start command, transform it to a new command (or lack thereof)
+   * @param connectLast Should the ends of the paths be connected according to `connect`?
+   */
+  static concatPaths(
+    pathDataList: PathCmd<ad.Num>[][],
+    connect?: (startCmd: PathCmd<ad.Num>) => PathCmd<ad.Num> | null,
+    connectLast: boolean = false,
+  ): PathCmd<ad.Num>[] {
+    if (pathDataList.length === 0) {
+      return [];
+    }
+
+    let resPathData: PathCmd<ad.Num>[] = [];
+    for (let i = 0; i < pathDataList.length; i++) {
+      // shallow copy
+      const pathData = pathDataList[i].map((x) => x);
+      if (pathData.length === 0) {
+        continue;
+      }
+      if (connect && i > 0) {
+        const oldStart: PathCmd<ad.Num> | null = pathData[0];
+        const newStart = connect(oldStart);
+        if (newStart) {
+          pathData[0] = newStart;
+        } else {
+          pathData.shift();
+        }
+      }
+      resPathData = resPathData.concat(pathData);
+    }
+    if (connect && connectLast) {
+      const start: PathCmd<ad.Num> | null = resPathData[0];
+      const newEnd = connect(start);
+      if (newEnd) {
+        resPathData.push(newEnd);
+      }
+    }
+
+    return resPathData;
+  }
 }

@@ -87,6 +87,8 @@ export const checkValueAgainstValueType = (
   } else if (expected === "PathType") {
     if (tag === "StrV" && (contents === "open" || contents === "closed"))
       return contents;
+  } else if (expected === "PathDataList") {
+    if (tag === "PathDataListV") return contents;
   } else if (expected === "ShapeList") {
     if (tag === "ShapeListV") return contents;
   } else if (expected === "PathCmd") {

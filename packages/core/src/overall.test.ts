@@ -26,7 +26,7 @@ predicate Intersecting(Set s1, Set s2)
 predicate Subset(Set s1, Set s2)
 `;
 
-// copied from `packages/examples/src/set-theory-domain/venn.style`
+// copied from `packages/examples/src/set-theory-domain/euler.style`
 const vennStyle = `canvas {
   width = 800
   height = 700

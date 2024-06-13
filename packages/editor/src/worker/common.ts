@@ -4,76 +4,99 @@ import {
   LabelData,
   LabelMeasurements,
   Num,
-  PenroseError,
+  PenroseWarning,
   Shape,
   State,
 } from "@penrose/core";
+import { WorkerError } from "./errors.js";
 
-/** request */
+export enum WorkerState {
+  Init = "Init",
+  Compiled = "Compiled",
+  Optimizing = "Optimizing",
+  Error = "Error",
+}
 
-type ID = { id: string };
-
-export type Req =
-  | Init
-  | ComputeShapes
-  | ((Compile | RespLabels | Resample) & ID);
-
-export type Resample = {
-  tag: "Resample";
-  variation: string;
+export type InitResp = {
+  tag: "InitResp";
 };
 
-export type ComputeShapes = {
-  tag: "ComputeShapes";
-  index: number;
-};
-
-export type Init = {
-  tag: "Init";
-  sharedMemory: SharedArrayBuffer;
-};
-
-export type RespLabels = {
-  tag: "RespLabels";
-  labelCache: LabelMeasurements;
-};
-
-export type ReqLabels = {
-  tag: "ReqLabels";
+export type CompiledResp = {
+  tag: "CompiledResp";
+  jobId: string;
+  warnings: PenroseWarning[];
   shapes: Shape<Num>[];
 };
 
-export type Compile = {
-  tag: "Compile";
+export type OptimizingResp = {
+  tag: "OptimizingResp";
+};
+
+export type FinishedResp = {
+  tag: "FinishedResp";
+  state: LayoutState;
+  stats: LayoutStats;
+};
+
+export type UpdateResp = {
+  tag: "UpdateResp";
+  state: LayoutState;
+  stats: LayoutStats;
+};
+
+export type ErrorResp = {
+  tag: "ErrorResp";
+  error: WorkerError;
+};
+
+export type Resp =
+  | InitResp
+  | CompiledResp
+  | OptimizingResp
+  | FinishedResp
+  | UpdateResp
+  | ErrorResp;
+
+export type CompiledReq = {
+  tag: "CompiledReq";
   domain: string;
   style: string;
   substance: string;
   variation: string;
+  jobId: string;
 };
 
-/** response */
-export type Resp = Ready | ((Update | Error | Finished | ReqLabels) & ID);
-
-export type Update = {
-  tag: "Update";
-  state: LayoutState;
-  stats: LayoutStats;
+export type OptimizingReq = {
+  tag: "OptimizingReq";
+  labelCache: LabelMeasurements;
 };
 
-export type Finished = {
-  tag: "Finished";
-  state: LayoutState;
-  stats: LayoutStats;
+export type UpdateReq = {
+  tag: "UpdateReq";
 };
 
-export type Error = {
-  tag: "Error";
-  error: PenroseError;
+export type ResampleReq = {
+  tag: "ResampleReq";
+  variation: string;
+  jobId: string;
 };
 
-export type Ready = {
-  tag: "Ready";
+export type ComputeShapesReq = {
+  tag: "ComputeShapesReq";
+  index: number;
 };
+
+export type InterruptReq = {
+  tag: "InterruptReq";
+};
+
+export type Req =
+  | CompiledReq
+  | OptimizingReq
+  | UpdateReq
+  | ResampleReq
+  | ComputeShapesReq
+  | InterruptReq;
 
 // state passed from the worker to the main thread.
 // NOTE: there is no DOM element or functions in this state because they cannot be transferred between threads.
