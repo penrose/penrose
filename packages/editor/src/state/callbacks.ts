@@ -210,6 +210,16 @@ export const useIsUnsaved = () =>
     return !isCleanWorkspace(workspace);
   });
 
+export const useClearAutosave = (set: any, snapshot: any) => {
+  const autosaveTimer: AutosaveTimer = snapshot.getLoadable(autosaveTimerState)
+    .contents as AutosaveTimer;
+
+  if (autosaveTimer != null) {
+    clearTimeout(autosaveTimer);
+    set(autosaveTimerState, null);
+  }
+};
+
 export const useResampleDiagram = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
     const diagram: Diagram = snapshot.getLoadable(diagramState)
@@ -485,6 +495,9 @@ export const useLoadLocalWorkspace = () =>
       return;
     }
 
+    // Clear autosave to avoid race
+    useClearAutosave(set, snapshot);
+
     let loadedWorkspace: Workspace | null;
     if (id in currentSavedFilesState) {
       loadedWorkspace = currentSavedFilesState[id];
@@ -525,6 +538,10 @@ export const useLoadExampleWorkspace = () =>
         ) {
           return;
         }
+
+        // Clear autosave to avoid race
+        useClearAutosave(set, snapshot);
+
         const id = toast.loading("Loading example...");
         const { domain, style, substance, variation, excludeWarnings } =
           await meta.get();
@@ -809,14 +826,7 @@ export const useDeleteWorkspace = () =>
               });
 
               // Clear autosave to avoid race
-              const autosaveTimer: AutosaveTimer = snapshot.getLoadable(
-                autosaveTimerState,
-              ).contents as AutosaveTimer;
-
-              if (autosaveTimer != null) {
-                clearTimeout(autosaveTimer);
-                set(autosaveTimerState, null);
-              }
+              useClearAutosave(set, snapshot);
 
               if (currentWorkspace.metadata.id === id) {
                 // set rather than reset to generate new id to avoid id conflicts
