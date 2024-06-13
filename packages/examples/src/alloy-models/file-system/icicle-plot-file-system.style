@@ -164,7 +164,7 @@ collect Entry e into es
 where entries(d, e)
 foreach Dir d {
   override d.width = sum(listof width from es)
-  ensure hSpacing(listof icon from es)
+  ensure distributeHorizontally(listof icon from es)
 }
 
 
@@ -173,5 +173,5 @@ collect Object o into os
 where object(e, o)
 foreach Entry e {
   override e.width = sum(listof width from os)
-  ensure hSpacing(listof icon from os)
+  ensure distributeHorizontally(listof icon from os)
 }
