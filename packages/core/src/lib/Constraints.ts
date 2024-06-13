@@ -1060,8 +1060,8 @@ const constrDictGeneral = {
     body: noWarnFn(containsRects),
   },
 
-  hSpacing: {
-    name: "hSpacing",
+  distributeHorizontally: {
+    name: "distributeHorizontally",
     description:
       "Requires that the bounding boxes for shapes within a shapeList are evenly spaced horizontally with a set padding.",
     params: [
@@ -1096,8 +1096,8 @@ const constrDictGeneral = {
     }),
   },
 
-  vSpacing: {
-    name: "vSpacing",
+  distributeVertically: {
+    name: "distributeVertically",
     description:
       "Requires that the bounding boxes for shapes within a shapeList are evenly spaced vertically with a set padding.",
 
