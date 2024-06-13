@@ -6,6 +6,7 @@ import MultipleChoiceProblem from "./MultipleChoiceProblem.js";
 import { Simple } from "./Simple.js";
 import StagedDiagram from "./StagedDiagram.js";
 import EditorPane from "./editing/EditorPane.js";
+import { getDomainCache } from "./editing/hooks/domain/getDomainCache.js";
 import { SetupDomainMonaco } from "./editing/languages/DomainConfig.js";
 import { SetupStyleMonaco } from "./editing/languages/StyleConfig.js";
 import { SetupSubstanceMonaco } from "./editing/languages/SubstanceConfig.js";
@@ -24,5 +25,8 @@ export {
   Simple,
   StagedDiagram,
   fetchResolver,
+  getDomainCache,
   penroseBlue,
 };
+
+export { type DomainCache } from "./editing/types.js";

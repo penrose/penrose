@@ -34,7 +34,12 @@ Constructor {
 }
 
 Subtype {
-    Identifier "<:" commaSep1<Identifier>
+    Identifier "<:" InheritanceList
+}
+
+// Named for use in identifying autocomplete
+InheritanceList {
+    commaSep1<Identifier>
 }
 
 ParamList {
@@ -42,12 +47,17 @@ ParamList {
   }
 
 commaSep<content> {
-    (content ("," content)*)?
+    (content (Sep content)*)?
   }
 
 
 commaSep1<content> {
-    content ("," content)*
+    content (Sep content)*
+}
+
+// Named for use in identifying autocomplete
+Sep {
+    ","
 }
 
 @tokens {
