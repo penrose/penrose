@@ -34,7 +34,6 @@ function InsideDeclaration(parentNode: SyntaxNode | null) {
 }
 
 const DomainAutocomplete = (domainCache: DomainCache) => {
-  //   console.log("hit");
   return useCallback(
     async (context: CompletionContext) => {
       let nodeBefore = syntaxTree(context.state).resolveInner(context.pos, -1);
@@ -42,7 +41,7 @@ const DomainAutocomplete = (domainCache: DomainCache) => {
       let leftSib = nodeBefore.prevSibling;
       let word = context.matchBefore(/\w*/);
       let wholeTree = syntaxTree(context.state).topNode;
-      console.log(domainCache);
+      //   console.log(domainCache);
       // console.log(wholeTree.toString(), leftSib, parent);
       // console.log(wholeTree.toString());
 
@@ -104,6 +103,7 @@ const DomainAutocomplete = (domainCache: DomainCache) => {
       return null;
     },
     [domainCache],
+    // need to specify, otherwise domainCache won't update correctly
   );
 };
 

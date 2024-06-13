@@ -1,5 +1,4 @@
 import { autocompletion } from "@codemirror/autocomplete";
-import { Compartment, EditorState } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import CodeMirror from "@uiw/react-codemirror";
 import { useRef } from "react";
@@ -33,28 +32,8 @@ export default function EditorPane({
     },
   });
 
-  const completionfn = new Compartment();
-
   const defaultExtensions = [EditorView.lineWrapping, SetFontSize];
   let domainCompletionFn = DomainAutocomplete(domainCache);
-
-  // useEffect(() => {
-  //   console.log("updating fn");
-  //   domainCompletionFn = DomainAutocomplete(domainCache);
-  // }, [domainCache]);
-
-  let updateCompletionFn = EditorState.transactionExtender.of((tr) => {
-    // console.log("hit");
-    if (!tr.docChanged) {
-      return null;
-    }
-    // console.log("got here");
-    return {
-      effects: completionfn.reconfigure(
-        autocompletion({ override: [domainCompletionFn] }),
-      ),
-    };
-  });
 
   const domainExtensions = [
     autocompletion({ override: [domainCompletionFn] }),
