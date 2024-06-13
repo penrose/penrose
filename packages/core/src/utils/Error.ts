@@ -408,9 +408,9 @@ export const showError = (
     }
 
     case "UnindexableItemError": {
-      return `The path \`${prettyResolvedStylePath(
+      return `The item \`${prettyResolvedStylePath(error.expr)}\` (at ${loc(
         error.expr,
-      )}\` is not indexable.`;
+      )}) is not indexable.`;
     }
 
     case "BinOpTypeError": {
