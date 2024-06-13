@@ -44,17 +44,13 @@ export default function DiagramPanel() {
 
     if (state !== null && cur !== null) {
       (async () => {
-        const rendered = await stateToSVG(
-          state,
-          {
-            pathResolver: (path: string) =>
-              pathResolver(path, rogerState, workspace),
-            width: "100%",
-            height: "100%",
-            texLabels: false,
-          },
-          () => {},
-        );
+        const rendered = await stateToSVG(state, {
+          pathResolver: (path: string) =>
+            pathResolver(path, rogerState, workspace),
+          width: "100%",
+          height: "100%",
+          texLabels: false,
+        });
         rendered.setAttribute("width", "100%");
         rendered.setAttribute("height", "100%");
         if (cur.firstElementChild) {
@@ -150,7 +146,7 @@ export default function DiagramPanel() {
           }}
           ref={canvasRef}
         >
-          {diagram.svg && state && (
+          {diagram.svg && state && !workerState.compiling && (
             <InteractivityOverlay diagramSVG={diagram.svg} state={state} />
           )}
         </div>

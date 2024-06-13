@@ -347,6 +347,9 @@ const compileAndRespond = async (data: CompiledReq) => {
     // save the id for the current task
     currentTask = jobId;
     unoptState = compileResult.value;
+    pinnedInputIdxSets = new Map();
+    translateCallback = null;
+    scaleCallback = null;
     workerState = WorkerState.Compiled;
     respondCompiled(jobId, unoptState);
   }

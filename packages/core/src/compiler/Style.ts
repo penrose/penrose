@@ -3835,6 +3835,13 @@ export const stageConstraints = (
     ]),
   );
 
+/**
+ * Map each numeric field, map the field such that each number with a
+ * corresponding optimizer input is replaced by the index of that input,
+ * and otherwise undefined.
+ * @param symbols
+ * @param inputIdxsByVar A map of `ad.Var`s to input indices
+ */
 const getInputIdxsByPath = (
   symbols: im.Map<string, ArgVal<ad.Num>>,
   inputIdxsByVar: Map<ad.Var, number>,

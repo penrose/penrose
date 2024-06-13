@@ -3,7 +3,7 @@ import { compileDomain } from "./compiler/Domain.js";
 import { compileStyle } from "./compiler/Style.js";
 import { compileSubstance } from "./compiler/Substance.js";
 import { start, stepUntil } from "./engine/Optimizer.js";
-import { OnClick, PathResolver, toSVG } from "./renderer/Renderer.js";
+import { PathResolver, toSVG } from "./renderer/Renderer.js";
 import * as ad from "./types/ad.js";
 import { DomainEnv } from "./types/domain.js";
 import { PenroseError } from "./types/errors.js";
@@ -198,54 +198,6 @@ export const diagram = async (
   }
 };
 
-// /**
-//  * Embed an interactive Penrose diagram in a DOM node.
-//  *
-//  * @param prog a Penrose trio and variation
-//  * @param pathResolver a resolver function for fetching Style imports
-//  * @param node a node in the DOM tree
-//  * @param name the name of the diagram
-//  */
-// export const interactiveDiagram = async (
-//   prog: {
-//     substance: string;
-//     style: string;
-//     domain: string;
-//     variation: string;
-//     excludeWarnings: string[];
-//   },
-//   node: HTMLElement,
-//   pathResolver: PathResolver,
-//   name?: string,
-// ): Promise<void> => {
-//   const updateData = async (state: State) => {
-//     const stepped = optimizeOrThrow(state);
-//     const rendering = await toInteractiveSVG(
-//       stepped,
-//       updateData,
-//       pathResolver,
-//       name ?? "",
-//     );
-//     node.replaceChild(rendering, node.firstChild!);
-//   };
-//   const res = await compile(prog);
-//   if (res.isOk()) {
-//     const state: State = res.value;
-//     const optimized = optimizeOrThrow(state);
-//     const rendering = await toInteractiveSVG(
-//       optimized,
-//       updateData,
-//       pathResolver,
-//       name ?? "",
-//     );
-//     node.appendChild(rendering);
-//   } else {
-//     throw Error(
-//       `Error when generating Penrose diagram: ${showError(res.error)}`,
-//     );
-//   }
-// };
-
 /**
  * Given a trio of Domain, Substance, and Style programs, compile them into an initial `State`.
  * @param domainProg a Domain program string
@@ -395,7 +347,6 @@ export const evalFns = (
 
 export type PenroseState = State;
 export type PenroseFn = Fn;
-export type PenroseOnClick = OnClick;
 
 export * from "./api.js";
 export { checkDomain, compileDomain, parseDomain } from "./compiler/Domain.js";
