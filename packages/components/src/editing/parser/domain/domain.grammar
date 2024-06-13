@@ -1,0 +1,74 @@
+@top Program { (declaration semi)* }
+
+semi { ";" | insertSemi }
+
+declaration {
+    Type |
+    Predicate |
+    SymPred |
+    Function |
+    Constructor |
+    Subtype
+}
+
+kw<term> { @specialize[@name={term}]<Identifier, term> }
+
+Type {
+    kw<"type"> (Identifier | Subtype)
+}
+
+Predicate {
+    kw<"predicate"> Identifier ParamList
+}
+
+SymPred {
+    kw<"symmetric"> Predicate
+}
+
+Function {
+    kw<"function"> Identifier ParamList "->" Identifier
+}
+
+Constructor {
+    kw<"constructor"> Identifier ParamList ("->" Identifier)?
+}
+
+Subtype {
+    Identifier "<:" commaSep1<Identifier>
+}
+
+ParamList {
+    "(" commaSep<Identifier (Identifier)?> ")"
+  }
+
+commaSep<content> {
+    (content ("," content)*)?
+  }
+
+
+commaSep1<content> {
+    content ("," content)*
+}
+
+@tokens {
+    Identifier { $[a-zA-Z0-9_]+ }
+    LineComment[@export] { "--" ![\n]* }
+    spaces[@export] { $[\u0009 \u000b\u00a0]+ }
+    newline[@export] { $[\r\n] }
+}
+
+@skip {} {
+BlockComment { "/*" (blockCommentContent | blockCommentNewline)* blockCommentEnd }
+}
+
+@local tokens {
+blockCommentEnd { "*/" }
+blockCommentNewline { "\n" }
+@else blockCommentContent
+}
+
+@skip { spaces | newline| LineComment | BlockComment }
+@external tokens insertSemicolon from "./domainTokens.js" { insertSemi }
+@context trackNewline from "./domainTokens.js"
+
+@detectDelim

@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "isolatedModules": true,
+    "allowJs": true,
     "jsx": "react-jsx",
     "declaration": true,
     "declarationMap": true,
