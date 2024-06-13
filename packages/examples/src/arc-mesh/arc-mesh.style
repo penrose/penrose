@@ -24,6 +24,10 @@ colors {
    -- stroke color for ancillary lines
    color secondaryLine = #1b1f8a -- #888
 
+   -- stroke color for highlighted elements
+   color highlightPoint = #4d59e8
+   color highlightLine = #4d59e8
+
    -- stroke color for lines/curves used to indicate
    -- geometric constructions
    color constructionLine = #000
@@ -36,6 +40,7 @@ global {
 
   -- default width for lines/curves
   scalar lineWidth = 1
+  scalar highlightWidth = 1.4
 
   -- width for secondary lines/curves
   scalar secondaryLineWidth = 0.75
@@ -53,7 +58,7 @@ global {
   string dashing = "3 4"
 
   -- labels
-  string labelFont = "Linux Libertine O"
+  string labelFont = "Linux Libertine"
   string labelStyle = "italic"
   string labelSize = "9px"
   scalar labelSizeNum = 9
@@ -530,6 +535,10 @@ where A := ArcLengthMarker(e) {
 --------------------------------------------------------------------------------
 
 -- Hide/show various decorations
+forall Vertex v
+where HighlightVertex(v) {
+   override v.icon.fillColor = colors.highlightPoint
+}
 forall Triangle t
 where ShowStraightRegion(t) {
    override t.straightRegion.fillColor = colors.solidRegion
@@ -547,6 +556,11 @@ where ShowStraightEdge(e) {
 forall Edge e
 where HideCircularEdge(e) {
    override e.circularEdge.strokeColor = none()
+}
+forall Edge e
+where HighlightCircularEdge(e) {
+   override e.circularEdge.strokeColor = colors.highlightLine
+   override e.circularEdge.strokeWidth = global.highlightWidth
 }
 forall Edge e
 where DeemphasizeCircularEdge(e) {
@@ -571,6 +585,11 @@ where P := CenterOf(C); S := RadiusOf(C) {
 forall Point P; Triangle T {
    layer P.icon above T.straightRegion
    layer P.icon above T.circularRegion
+}
+
+forall Vertex v; Edge e {
+   layer v.icon above e.straightEdge
+   layer v.icon above e.circularEdge
 }
 
 forall Vertex v; Geometry G
@@ -631,8 +650,10 @@ where A := EndBendAngle(e) {
 
 forall MeshElement E
 where E has math label {
-   shape E.labelText = Equation {
+   shape E.labelText = Text { -- Equation {
       string: E.label
+      fontFamily: global.labelFont
+      fontStyle: global.labelStyle
       fontSize: global.labelSize
       ensureOnCanvas: false
    }
@@ -651,6 +672,10 @@ forall Vertex v
 where v has math label {
    encourage near( v.labelText, v.icon )
    ensure disjoint( v.labelText, v.icon, global.labelPadding )
+}
+forall Vertex v
+where HighlightVertex(v); v has label {
+   override v.labelText.fillColor = colors.highlightPoint
 }
 
 forall Edge e
@@ -704,8 +729,8 @@ where A has math label; A := ArcLengthMarker(e) {
    override A.labelText.opacity = colors.constructionLineOpacity
 }
 
-forall Vertex v; Edge e
-where v has math label {
-   ensure disjoint( v.labelText, e.straightEdge, global.labelPadding )
-}
+-- forall Vertex v; Edge e
+-- where v has math label {
+--    ensure disjoint( v.labelText, e.straightEdge, global.labelPadding )
+-- }
 

@@ -6,6 +6,14 @@ type Triangle <: MeshElement
 constructor Edge(Vertex v0, Vertex v1)
 constructor Triangle(Edge e0, Edge e1, Edge e2)
 
+-- TODO: We may want to rename "edge" to "halfedge,"
+-- because this is really what it represents.  For instance,
+-- Triangles sharing an edge must be built from oppositely-
+-- oriented halfedges, and those halfedges must be assigned
+-- equal and opposite bend angles to be compatible.  This
+-- setup is needed to represent the general case (e.g.,
+-- 2D layouts of triangles that don't have zero edge curvature).
+
 -- Basic geometry in the plane
 type Geometry
 type Angle <: Geometry
@@ -42,10 +50,12 @@ constructor CenterOf( Circle c ) -> Point
 constructor RadiusOf( Circle c ) -> Segment
 
 -- Toggles to show/hide different parts of the figure
+predicate HighlightVertex( Vertex v )
 predicate ShowStraightRegion( Triangle t )
 predicate HideCircularRegion( Triangle t )
 predicate ShowStraightEdge( Edge e )
 predicate HideCircularEdge( Edge e )
+predicate HighlightCircularEdge( Edge e )
 predicate DeemphasizeCircularEdge( Edge e )
 predicate HideWedge( Angle A )
 

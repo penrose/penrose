@@ -1,0 +1,62 @@
+-- Draw a polygon with circular arc edges, decomposed into circular arc triangles
+
+-- vertices
+Vertex i_p for p in [0,6]
+
+-- interior edges ("spokes")
+Edge e_p := Edge( i_p, i_6 ) for p in [0,5]
+Edge f_p := Edge( i_6, i_p ) for p in [0,5]
+-- boundary edges ("rims")
+Edge b_p := Edge( i_p, i_q ) for p in [0,5], q in [0,5] where q == (p + 1) mod 6
+
+-- triangles
+Triangle t_p := Triangle( f_p, b_p, e_q ) for p in [0,5], q in [0,5] where q == (p + 1) mod 6
+
+-- angles
+Angle alpha_p := SecondCircularCorner( t_p ) for p in [0,5]
+Angle beta_p := ThirdCircularCorner( t_p ) for p in [0,5]
+
+
+-- Labeling, styling, and constants
+SetPosition( i_0, 80.,0.)
+SetPosition( i_1, 40.,69.282)
+SetPosition( i_2, -40.,69.282)
+SetPosition( i_3, -80.,0.)
+SetPosition( i_4, -40.,-69.282)
+SetPosition( i_5, 40.,-69.282)
+SetPosition( i_6, 0., 0.01)
+
+SetBendAngle( e_0, +.4 )
+SetBendAngle( f_0, -.4 )
+SetBendAngle( e_1, .3 )
+SetBendAngle( f_1, -.3 )
+SetBendAngle( e_2, +.2 )
+SetBendAngle( f_2, -.2 )
+SetBendAngle( e_3, .4 )
+SetBendAngle( f_3, -.4 )
+SetBendAngle( e_4, -.25 )
+SetBendAngle( f_4, +.25 )
+SetBendAngle( e_5, -.2 )
+SetBendAngle( f_5, .2 )
+
+SetBendAngle( b_0, -.2 )
+SetBendAngle( b_1, .4 )
+SetBendAngle( b_2, .4 )
+SetBendAngle( b_3, -.1 )
+SetBendAngle( b_4, -.3 )
+SetBendAngle( b_5, .4 )
+
+HighlightVertex( i_0 )
+HighlightVertex( i_3 )
+HighlightVertex( i_6 )
+HighlightCircularEdge( e_0 )
+HighlightCircularEdge( e_3 )
+HideCircularEdge( f_i ) for i in [0,5]
+
+Label i_6 $i$
+
+
+
+
+
+
