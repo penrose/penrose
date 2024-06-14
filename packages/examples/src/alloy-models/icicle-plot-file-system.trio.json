@@ -1,0 +1,6 @@
+{
+  "substance": "./file-system/icicle-plot-file-system.substance",
+  "style": ["./file-system/icicle-plot-file-system.style"],
+  "domain": "./file-system/icicle-plot-file-system.domain",
+  "variation": "CeruleanFalcon14759"
+}

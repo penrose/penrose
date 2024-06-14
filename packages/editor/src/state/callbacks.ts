@@ -165,6 +165,8 @@ export const useResampleDiagram = () =>
         ...state,
         metadata: { ...state.metadata, variation },
         state: info.state,
+        // keep compile errors on resample, but clear runtime errors
+        error: state.error?.errorType === "RuntimeError" ? null : state.error,
       }));
       // update grid state too
       set(diagramGridState, ({ gridSize }) => ({
