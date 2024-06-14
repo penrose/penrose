@@ -499,9 +499,8 @@ canvas {
 
     case "MissingShapeError": {
       const { path } = error;
-      const { parent } = path.access;
-      return `Path ${prettyResolvedStylePath(parent)} (at ${loc(
-        parent,
+      return `Path ${prettyResolvedStylePath(path)} (at ${loc(
+        path,
       )}) cannot be found.`;
     }
 

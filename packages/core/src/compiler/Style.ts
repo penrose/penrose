@@ -1717,7 +1717,7 @@ const insertExpr = (
         }
         const shape = fielded.get(field);
         if (shape === undefined) {
-          return err({ tag: "MissingShapeError", path });
+          return err({ tag: "MissingShapeError", path: path.access.parent });
         }
         if (shape.tag !== "ShapeSource") {
           return err({ tag: "NotShapeError", path, what: shape.expr.tag });

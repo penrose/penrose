@@ -488,7 +488,7 @@ export interface CollectionFieldAccessError {
 
 export interface MissingShapeError {
   tag: "MissingShapeError";
-  path: StylePathToUnindexedObject<A>;
+  path: StylePath<A>;
 }
 
 export interface NestedShapeError {
