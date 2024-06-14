@@ -1,9 +1,5 @@
-import {
-  compileDomain,
-  DomainEnv,
-  PenroseError,
-  PenroseWarning,
-} from "@penrose/core";
+import { DomainCache, getDomainCache } from "@penrose/components";
+import { PenroseError, PenroseWarning } from "@penrose/core";
 import { PathResolver, Trio, TrioMeta } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
 import { Actions, BorderNode, TabNode } from "flexlayout-react";
@@ -12,16 +8,16 @@ import { debounce, range } from "lodash";
 import { RefObject } from "react";
 import toast from "react-hot-toast";
 import {
-  atom,
   AtomEffect,
   DefaultValue,
+  atom,
   selector,
   selectorFamily,
 } from "recoil";
 import { v4 as uuid } from "uuid";
 import { layoutModel } from "../App.js";
-import { RenderState } from "../worker/common.js";
 import OptimizerWorker from "../worker/OptimizerWorker.js";
+import { RenderState } from "../worker/common.js";
 import { generateVariation } from "./variation.js";
 
 export const optimizer = new OptimizerWorker();
@@ -273,15 +269,21 @@ export const workspaceMetadataSelector = selector<WorkspaceMetadata>({
   },
 });
 
-export const domainCacheState = selector<DomainEnv | null>({
+export const domainCacheState = selector<DomainCache>({
   key: "domainCache",
-  get: ({ get }) => {
+  get: ({ get, getCallback }) => {
     const domainProgram = get(fileContentsSelector("domain")).contents;
-    const compiledDomain = compileDomain(domainProgram);
-    if (compiledDomain.isOk()) {
-      return compiledDomain.value;
-    }
-    return null;
+    const domainCache = getDomainCache(domainProgram);
+    return domainCache;
+
+    // const compiledDomain = compileDomain(domainProgram);
+    // if (compiledDomain.isOk()) {
+    //   return compiledDomain.value;
+    // }
+    // to allow domainCache to work while user is editing domain
+    // this creates the bug that if a user has a buggy domain
+    // they will get the last working domain as their cache
+    // solution idea: getCallback snapshot
   },
 });
 

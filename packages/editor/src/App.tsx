@@ -90,7 +90,8 @@ const mainRowLayout: IJsonRowNode = {
     },
     {
       type: "tabset",
-      weight: process.env.NODE_ENV === "development" ? 75 : 50,
+      // controls size of diagram vs editor tab in layout. used to be 75 : 50
+      weight: process.env.NODE_ENV === "development" ? 25 : 50,
       children: [
         {
           type: "tab",
