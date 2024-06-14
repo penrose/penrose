@@ -85,12 +85,17 @@ CompareOp { ("<" | ">" | "==" | "!=") "="? }
 ArithOp<tkn> { tkn }
 BoolOp<tkn> {tkn}
 
+// For autocomplete identification
+Sep {
+    ","
+}
+
 commaSep<content> {
-    (content ("," content)*)?
+    (content (Sep content)*)?
   }
 
 commaSep1<content> {
-    content ("," content)*
+    content (Sep content)*
 }
 
 @tokens {

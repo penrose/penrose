@@ -19,9 +19,11 @@ const getIdsFromTypes = (substanceProg: string, typeAppNodes: SyntaxNode[]) => {
     let nodeCursor = node.cursor();
     // move to NamedId
     nodeCursor.firstChild();
-    // move to identifier, loop
+    // move to identifier, loop because of comma sep list
     while (nodeCursor.nextSibling()) {
-      ids.push(extractText(substanceProg, nodeCursor.to, nodeCursor.from));
+      if (nodeCursor.name === "Identifier") {
+        ids.push(extractText(substanceProg, nodeCursor.to, nodeCursor.from));
+      }
     }
   });
   //   console.log(ids);

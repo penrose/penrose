@@ -2,10 +2,10 @@ import { CompletionContext } from "@codemirror/autocomplete";
 import { syntaxTree } from "@codemirror/language";
 import { SyntaxNode } from "@lezer/common";
 import { useCallback } from "react";
-import { DomainCache } from "../../../editing/types";
+import { DomainCache, SubstanceCache } from "../../../editing/types";
 
 const keywordOptions = ["Let", "AutoLabel", "Label", "NoLabel"].map((kw) => ({
-  label: `${kw} `,
+  label: `${kw}`,
   type: "keyword",
 }));
 
@@ -31,13 +31,13 @@ function InsideStatementNested(parentNode: SyntaxNode | null) {
 const predTypeOptions = (domainCache: DomainCache) => {
   const typeOptions = domainCache.typeNames.map((type) => ({
     label: `${type} `,
-    type: "variable",
+    type: "type",
     detail: "type",
   }));
 
   const predicateOptions = domainCache.predNames.map((type) => ({
     label: `${type} `,
-    type: "variable",
+    type: "type",
     detail: "predicate",
   }));
 
@@ -47,20 +47,33 @@ const predTypeOptions = (domainCache: DomainCache) => {
 const fnConsOptions = (domainCache: DomainCache) => {
   const fnOptions = domainCache.fnNames.map((type) => ({
     label: `${type} `,
-    type: "variable",
+    type: "type",
     detail: "function",
   }));
 
   const consOptions = domainCache.consNames.map((type) => ({
     label: `${type} `,
-    type: "variable",
+    type: "type",
     detail: "constructor",
   }));
 
   return fnOptions.concat(consOptions);
 };
 
-const SubstanceAutocomplete = (domainCache: DomainCache) => {
+const idOptions = (substanceCache: SubstanceCache) => {
+  console.log(substanceCache);
+  return substanceCache.varNames
+    .map((id) => ({
+      label: `${id}`,
+      type: "variable",
+    }))
+    .filter((obj) => obj.label.length > 1);
+};
+
+const SubstanceAutocomplete = (
+  domainCache: DomainCache,
+  substanceCache: SubstanceCache,
+) => {
   return useCallback(
     async (context: CompletionContext) => {
       let nodeBefore = syntaxTree(context.state).resolveInner(context.pos, -1);
@@ -97,12 +110,14 @@ const SubstanceAutocomplete = (domainCache: DomainCache) => {
       } else if (leftSib !== null && leftSib.name === "AutoLabel") {
         return {
           from: word.from,
-          options: [{ label: "All", type: "keyword" }],
+          options: [{ label: "All", type: "keyword" }].concat(
+            idOptions(substanceCache),
+          ),
         };
       } else if (leftSib !== null && leftSib.name === "Range") {
         return {
           from: word.from,
-          options: [{ label: "where", type: "keyword" }],
+          options: [{ label: "where ", type: "keyword" }],
         };
       }
       // for suggestor, will suggest in correct spaces in all but Label statements
@@ -116,7 +131,7 @@ const SubstanceAutocomplete = (domainCache: DomainCache) => {
       ) {
         return {
           from: word.from,
-          options: [{ label: "for", type: "keyword" }],
+          options: [{ label: "for ", type: "keyword" }],
         };
       }
 
@@ -128,9 +143,25 @@ const SubstanceAutocomplete = (domainCache: DomainCache) => {
         };
       }
 
+      // Suggest ids
+      if (
+        parentNode !== null &&
+        // Case 1: Inside arg list
+        (parentNode.name === "ArgList" ||
+          // Case 2: Inside label statement, after the keyword ("AutoLabel" etc)
+          // This will "incorrectly" trigger for the label in Label statements
+          // but those are supposed to be Strings or TeX anyways
+          (parentNode.name === "Labeling" && leftSib !== null))
+      ) {
+        // console.log(substanceCache);
+        return {
+          from: word.from,
+          options: idOptions(substanceCache),
+        };
+      }
       return null;
     },
-    [domainCache],
+    [domainCache, substanceCache],
   );
 };
 
