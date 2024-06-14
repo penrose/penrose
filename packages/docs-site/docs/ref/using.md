@@ -79,7 +79,7 @@ npm i -g @penrose/roger
 ```json
 {
   "substance": "./tree.substance",
-  "style": ["./venn.style"],
+  "style": ["./euler.style"],
   "domain": "./setTheory.domain",
   "variation": "PlumvilleCapybara104"
 }

@@ -85,7 +85,17 @@ export const callObjConstrFunc = (
     });
   } catch (e) {
     if (e instanceof Error) {
-      return err(functionInternalError(func, range, e.message));
+      return err(
+        functionInternalError(
+          {
+            name: func.name,
+            description: func.description,
+            params: func.params,
+          },
+          range,
+          e.message,
+        ),
+      );
     } else {
       throw new Error("Function call resulted in exception not of Error type");
     }
@@ -98,7 +108,17 @@ export const checkArgs = (
   args: ArgValWithSourceLoc<ad.Num>[],
 ): Result<(Shape<ad.Num> | Value<ad.Num>["contents"])[], StyleError> => {
   if (args.length > func.params.length) {
-    return err(tooManyArgumentsError(func, range, args.length));
+    return err(
+      tooManyArgumentsError(
+        {
+          name: func.name,
+          description: func.description,
+          params: func.params,
+        },
+        range,
+        args.length,
+      ),
+    );
   }
   const vals: (Shape<ad.Num> | Value<ad.Num>["contents"])[] = [];
   for (let i = 0; i < func.params.length; i++) {

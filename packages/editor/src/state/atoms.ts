@@ -20,7 +20,7 @@ import {
 } from "recoil";
 import { v4 as uuid } from "uuid";
 import { layoutModel } from "../App.js";
-import { RenderState } from "../worker/message.js";
+import { RenderState } from "../worker/common.js";
 import OptimizerWorker from "../worker/OptimizerWorker.js";
 import { generateVariation } from "./variation.js";
 
@@ -189,35 +189,37 @@ const syncFilenamesEffect: AtomEffect<Workspace> = ({ onSet }) => {
   });
 };
 
-export const currentWorkspaceState = atom<Workspace>({
-  key: "currentWorkspace",
-  default: {
-    metadata: {
-      name: "Untitled Diagram",
-      id: uuid(),
-      lastModified: new Date().toISOString(),
-      editorVersion: 0.1,
-      location: { kind: "local", saved: false },
-      forkedFromGist: null,
+export const defaultWorkspaceState = (): Workspace => ({
+  metadata: {
+    name: "Untitled Diagram",
+    id: uuid(),
+    lastModified: new Date().toISOString(),
+    editorVersion: 0.1,
+    location: { kind: "local", saved: false },
+    forkedFromGist: null,
+  },
+  files: {
+    substance: {
+      name: ".substance",
+      contents: "",
     },
-    files: {
-      substance: {
-        name: ".substance",
-        contents: "",
-      },
-      style: {
-        name: ".style",
-        contents: `canvas {
+    style: {
+      name: ".style",
+      contents: `canvas {
   width = 400
   height = 400
 }`,
-      },
-      domain: {
-        name: ".domain",
-        contents: "",
-      },
+    },
+    domain: {
+      name: ".domain",
+      contents: "",
     },
   },
+});
+
+export const currentWorkspaceState = atom<Workspace>({
+  key: "currentWorkspace",
+  default: defaultWorkspaceState(),
   effects: [saveWorkspaceEffect, syncFilenamesEffect],
 });
 
@@ -347,12 +349,16 @@ export const layoutTimelineState = atom<LayoutTimeline>({
 
 export const diagramWorkerState = atom<{
   id: string;
-  running: boolean;
+  init: boolean;
+  compiling: boolean;
+  optimizing: boolean;
 }>({
   key: "diagramWorkerState",
   default: {
     id: "",
-    running: false,
+    init: false,
+    compiling: false,
+    optimizing: false,
   },
 });
 

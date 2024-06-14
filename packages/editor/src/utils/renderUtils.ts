@@ -1,5 +1,5 @@
 import { PathResolver, RenderShapes } from "@penrose/core";
-import { RenderState } from "../worker/message";
+import { RenderState } from "../worker/common";
 
 export const stateToSVG = async (
   state: RenderState,
@@ -7,6 +7,7 @@ export const stateToSVG = async (
     pathResolver: PathResolver;
     width: string;
     height: string;
+    texLabels: boolean;
   },
 ): Promise<SVGSVGElement> => {
   const { canvas, shapes, labelCache, variation } = state;
@@ -23,7 +24,7 @@ export const stateToSVG = async (
     canvasSize: canvas.size,
     variation,
     namespace: "editor",
-    texLabels: false,
+    texLabels: config.texLabels,
     pathResolver: config.pathResolver,
   });
   rendered.setAttribute("width", config.width);

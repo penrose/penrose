@@ -5,6 +5,7 @@ import {
   canvasState,
   currentRogerState,
   diagramState,
+  diagramWorkerState,
   layoutTimelineState,
   optimizer,
   workspaceMetadataSelector,
@@ -19,10 +20,9 @@ export default function DiagramPanel() {
   const [_, setCanvasState] = useRecoilState(canvasState);
   const { state, error, warnings, metadata } = diagram;
   const [showEasterEgg, setShowEasterEgg] = useState(false);
-  // TODO: bring back interactive mode
-  // const { interactive } = useRecoilValue(diagramMetadataSelector);
   const workspace = useRecoilValue(workspaceMetadataSelector);
   const rogerState = useRecoilValue(currentRogerState);
+  const workerState = useRecoilValue(diagramWorkerState);
 
   const requestRef = useRef<number>();
 
@@ -36,6 +36,7 @@ export default function DiagramPanel() {
             pathResolver(path, rogerState, workspace),
           width: "100%",
           height: "100%",
+          texLabels: false,
         });
         rendered.setAttribute("width", "100%");
         rendered.setAttribute("height", "100%");
@@ -52,33 +53,37 @@ export default function DiagramPanel() {
 
   // TODO: since the diagram state is updated by the `onUpdate` callback provided to the worker, this effect will get triggered every time the diagram state updates, which in turn triggers another `onUpdate` again. Perhaps this is okay?
   useEffect(() => {
-    // request the next frame if the diagram state updates
-    requestRef.current = requestAnimationFrame(step);
-    // Make sure the effect runs only once. Otherwise there might be other `step` calls running in the background causing race conditions
-    return () => cancelAnimationFrame(requestRef.current!);
+    if (workerState.optimizing) {
+      // request the next frame if the diagram state updates
+      requestRef.current = requestAnimationFrame(step);
+      // Make sure the effect runs only once. Otherwise there might be other `step` calls running in the background causing race conditions
+      return () => cancelAnimationFrame(requestRef.current!);
+    }
   }, [diagram.state]);
 
-  const step = () => {
+  const step = async () => {
     if (state) {
-      optimizer.askForUpdate(
-        (state) => {
-          setDiagram({
-            ...diagram,
-            error: null,
-            state,
-          });
-        },
-        (error) => {
-          setDiagram({
-            ...diagram,
-            error,
-          });
-        },
-      );
+      try {
+        const info = await optimizer.pollForUpdate();
+        if (info !== null) {
+          setDiagram((state) => ({
+            ...state,
+            state: info.state,
+          }));
+        }
+      } catch (error: any) {
+        setDiagram((state) => ({
+          ...state,
+          error,
+        }));
+      }
     }
   };
 
   const layoutTimeline = useRecoilValue(layoutTimelineState);
+  const unexcludedWarnings = warnings.filter(
+    (w) => metadata.excludeWarnings.find((s) => w.tag === s) === undefined,
+  );
 
   return (
     <div style={{ display: "flex", flexDirection: "row", height: "100%" }}>
@@ -118,7 +123,7 @@ export default function DiagramPanel() {
             </pre>
           </div>
         )}
-        {warnings.length > 0 && (
+        {unexcludedWarnings.length > 0 && (
           <div
             style={{
               bottom: 0,
@@ -137,7 +142,9 @@ export default function DiagramPanel() {
               warnings
             </span>
             <pre style={{ whiteSpace: "pre-wrap" }}>
-              {warnings.map((w) => showError(w).toString()).join("\n")}
+              {unexcludedWarnings
+                .map((w) => showError(w).toString())
+                .join("\n")}
             </pre>
           </div>
         )}

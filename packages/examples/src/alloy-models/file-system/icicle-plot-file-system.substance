@@ -1,0 +1,42 @@
+Dir dir0, dir1, dir2
+Entry entry0, entry1, entry2, entry3, entry4
+File file0, file1
+Name name0, name1, name2
+Root root0
+
+name(entry0, name2)
+name(entry1, name2)
+name(entry2, name1)
+name(entry3, name2)
+name(entry4, name1)
+
+
+entries(dir1, entry1)
+entries(dir1, entry2)
+entries(dir2, entry0)
+entries(root0, entry3)
+entries(root0, entry4)
+
+
+object(entry0, file1)
+object(entry1, dir0)
+object(entry2, dir2)
+object(entry3, dir1)
+object(entry4, file0)
+
+
+Label dir0 "Directory 0"
+Label dir1 "Directory 1"
+Label dir2 "Directory 2"
+Label entry0 "Entry 0"
+Label entry1 "Entry 1"
+Label entry2 "Entry 2"
+Label entry3 "Entry 3"
+Label entry4 "Entry 4"
+Label file0 "File 0"
+Label file1 "File 1"
+Label name0 "Name 0"
+Label name1 "Name 1"
+Label name2 "Name 2"
+Label root0 "Root"
+

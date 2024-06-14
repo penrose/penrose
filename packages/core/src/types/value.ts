@@ -43,6 +43,7 @@ export type Value<T> =
   | TupV<T>
   | LListV<T>
   | ShapeListV<T>
+  | PathDataListV<T>
   | ClipDataV<T>;
 
 /** A floating point number **/
@@ -109,6 +110,12 @@ export interface TupV<T> {
 export interface LListV<T> {
   tag: "LListV";
   contents: T[][];
+}
+
+/** A list of SVG paths */
+export interface PathDataListV<T> {
+  tag: "PathDataListV";
+  contents: PathCmd<T>[][];
 }
 
 export type Color<T> = RGBA<T> | HSVA<T> | NoPaint;

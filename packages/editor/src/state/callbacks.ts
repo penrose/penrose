@@ -1,10 +1,11 @@
+import { isPenroseError, runtimeError, showError } from "@penrose/core";
 import { Style } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
 import localforage from "localforage";
 import { range } from "lodash";
 import queryString from "query-string";
 import toast from "react-hot-toast";
-import { useRecoilCallback } from "recoil";
+import { RecoilState, useRecoilCallback } from "recoil";
 import { v4 as uuid } from "uuid";
 import {
   DownloadPNG,
@@ -13,7 +14,7 @@ import {
   zipTrio,
 } from "../utils/downloadUtils.js";
 import { stateToSVG } from "../utils/renderUtils.js";
-import { LayoutStats, RenderState } from "../worker/message.js";
+import { UpdateInfo } from "../worker/OptimizerWorker";
 import {
   Canvas,
   Diagram,
@@ -32,6 +33,7 @@ import {
   canvasState,
   currentRogerState,
   currentWorkspaceState,
+  defaultWorkspaceState,
   diagramGridState,
   diagramMetadataSelector,
   diagramState,
@@ -44,32 +46,44 @@ import {
 } from "./atoms.js";
 import { generateVariation } from "./variation.js";
 
+const _onError = (
+  error: any,
+  set: <T>(state: RecoilState<T>, update: (t: T) => T) => void,
+) => {
+  if (!isPenroseError(error)) {
+    error = runtimeError(String(error));
+  }
+  console.error(showError(error));
+  if (optimizer.getState() == "Error") {
+    console.error("OptimizerWorker latching error: " + showError(error));
+  }
+  set(diagramState, (state) => ({
+    ...state,
+    warnings: [],
+    error,
+  }));
+  set(diagramWorkerState, (state) => ({
+    ...state,
+    compiling: false,
+    optimizing: false,
+  }));
+};
+
 const _compileDiagram = async (
   substance: string,
   style: string,
   domain: string,
   variation: string,
   excludeWarnings: string[],
-  set: any,
+  set: <T>(state: RecoilState<T>, update: (t: T) => T) => void,
 ) => {
+  await optimizer.waitForInit();
+
   const compiling = toast.loading("Compiling...");
-  const onUpdate = (updatedState: RenderState, stats: LayoutStats) => {
-    set(diagramState, (state: Diagram): Diagram => {
+  const onUpdate = ({ state: updatedState, stats }: UpdateInfo) => {
+    set(diagramState, (state) => {
       return {
         ...state,
-        error: null,
-        // TODO: warnings
-        // warnings: initialState.warnings,
-        metadata: {
-          ...state.metadata,
-          variation,
-          excludeWarnings,
-          source: {
-            domain,
-            substance,
-            style,
-          },
-        },
         state: updatedState,
       };
     });
@@ -83,34 +97,69 @@ const _compileDiagram = async (
     }));
   };
 
-  const id = optimizer.run({
-    domain,
-    style,
-    substance,
-    variation,
-    onUpdate,
-    onError: (error) => {
-      toast.dismiss(compiling);
-      set(diagramState, (state: Diagram) => ({ ...state, error }));
-      set(diagramWorkerState, {
-        ...diagramWorkerState,
-        running: false,
-      });
-    },
-    onComplete: () => {
-      toast.dismiss(compiling);
-      set(diagramWorkerState, {
-        ...diagramWorkerState,
-        running: false,
-      });
-    },
-  });
+  const onError = (error: any) => {
+    _onError(error, set);
+    toast.dismiss(compiling);
+  };
 
-  set(diagramWorkerState, {
-    ...diagramWorkerState,
-    id,
-    running: true,
-  });
+  try {
+    set(diagramState, (state) => ({
+      ...state,
+      metadata: {
+        ...state.metadata,
+        variation,
+        excludeWarnings,
+        source: {
+          substance,
+          style,
+          domain,
+        },
+      },
+    }));
+    set(diagramWorkerState, (state) => ({
+      ...state,
+      compiling: true,
+    }));
+    const { id, warnings } = await optimizer.compile(
+      domain,
+      style,
+      substance,
+      variation,
+    );
+    set(diagramWorkerState, (state) => ({
+      ...state,
+      id,
+      compiling: false,
+    }));
+    set(diagramState, (state) => ({
+      ...state,
+      warnings: warnings,
+      error: null,
+    }));
+    toast.dismiss(compiling);
+
+    const { onStart, onFinish } = await optimizer.startOptimizing();
+    onFinish
+      .then((info) => {
+        set(diagramWorkerState, (state) => ({
+          ...state,
+          optimizing: false,
+        }));
+        onUpdate(info);
+      })
+      .catch(onError);
+
+    await onStart;
+    set(diagramWorkerState, (state) => ({
+      ...state,
+      optimizing: true,
+    }));
+
+    const info = await optimizer.pollForUpdate();
+    if (info !== null) onUpdate(info);
+  } catch (error: unknown) {
+    onError(error);
+  }
 
   // TODO: update grid state too
   // set(diagramGridState, ({ gridSize }: DiagramGrid) => ({
@@ -140,6 +189,13 @@ export const useCompileDiagram = () =>
     );
   });
 
+export const useIsUnsaved = () =>
+  useRecoilCallback(({ snapshot, set }) => () => {
+    const workspace = snapshot.getLoadable(currentWorkspaceState)
+      .contents as Workspace;
+    return !isCleanWorkspace(workspace);
+  });
+
 export const useResampleDiagram = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
     const diagram: Diagram = snapshot.getLoadable(diagramState)
@@ -152,27 +208,53 @@ export const useResampleDiagram = () =>
     }
     const variation = generateVariation();
     const resamplingLoading = toast.loading("Resampling...");
-    optimizer.resample(
-      id,
-      variation,
-      (resampled) => {
-        set(diagramState, (state) => ({
-          ...state,
-          metadata: { ...state.metadata, variation },
-          state: resampled,
-        }));
-        // update grid state too
-        set(diagramGridState, ({ gridSize }) => ({
-          variations: range(gridSize).map((i) =>
-            i === 0 ? variation : generateVariation(),
-          ),
-          gridSize,
-        }));
-      },
-      () => {
-        toast.dismiss(resamplingLoading);
-      },
-    );
+
+    const onError = (error: any) => {
+      _onError(error, set);
+      toast.dismiss(resamplingLoading);
+    };
+
+    const onUpdate = (info: UpdateInfo) => {
+      set(diagramState, (state) => ({
+        ...state,
+        metadata: { ...state.metadata, variation },
+        state: info.state,
+        // keep compile errors on resample, but clear runtime errors
+        error: state.error?.errorType === "RuntimeError" ? null : state.error,
+      }));
+      // update grid state too
+      set(diagramGridState, ({ gridSize }) => ({
+        variations: range(gridSize).map((i) =>
+          i === 0 ? variation : generateVariation(),
+        ),
+        gridSize,
+      }));
+    };
+
+    try {
+      const { onStart, onFinish } = await optimizer.resample(id, variation);
+      toast.dismiss(resamplingLoading);
+      onFinish
+        .then((info) => {
+          set(diagramWorkerState, (state) => ({
+            ...state,
+            optimizing: false,
+          }));
+          onUpdate(info);
+        })
+        .catch(onError);
+
+      await onStart;
+      set(diagramWorkerState, (state) => ({
+        ...state,
+        optimizing: true,
+      }));
+
+      const info = await optimizer.pollForUpdate();
+      if (info !== null) onUpdate(info);
+    } catch (error: unknown) {
+      onError(error);
+    }
   });
 
 const _saveLocally = (set: any) => {
@@ -212,6 +294,25 @@ export const useDownloadTrio = () =>
         "Could not export: no Penrose diagram detected. Compile a Penrose trio and try again.",
       );
     }
+  });
+
+export const useCopyToClipboard = () =>
+  useRecoilCallback(({ set, snapshot }) => async () => {
+    const workspace = snapshot.getLoadable(currentWorkspaceState)
+      .contents as Workspace;
+    const sub = workspace.files.substance.contents;
+    const sty = workspace.files.style.contents;
+    const dsl = workspace.files.domain.contents;
+    const concatenated = `-- .substance\n${sub}\n-- .style\n${sty}\n-- .domain\n${dsl}\n`;
+
+    navigator.clipboard
+      .writeText(concatenated)
+      .then(() => {
+        toast.success("Copied trio to clipboard!");
+      })
+      .catch(() => {
+        toast.error("Error could not copy");
+      });
   });
 
 export const useDownloadSvg = () =>
@@ -266,6 +367,7 @@ export const useDownloadSvgTex = () =>
             pathResolver(path, rogerState, metadata),
           width: state.canvas.width.toString(),
           height: state.canvas.height.toString(),
+          texLabels: true,
         });
         const domain = snapshot.getLoadable(fileContentsSelector("domain"))
           .contents as ProgramFile;
@@ -368,22 +470,24 @@ export const useDuplicate = () =>
 export const isCleanWorkspace = (workspace: Workspace): boolean => {
   if (
     workspace.metadata.location.kind === "local" &&
-    !workspace.metadata.location.saved &&
-    !(
-      workspace.files.domain.contents === "" &&
-      workspace.files.substance.contents === ""
-    )
+    !workspace.metadata.location.saved
   ) {
-    return confirm("Your current workspace is unsaved. Overwrite it?");
+    return false;
+  } else {
+    return true;
   }
-  return true;
 };
 
 export const useLoadLocalWorkspace = () =>
   useRecoilCallback(({ set, snapshot }) => async (id: string) => {
     const currentWorkspace = snapshot.getLoadable(currentWorkspaceState)
       .contents as Workspace;
-    if (!isCleanWorkspace(currentWorkspace)) {
+    if (
+      !isCleanWorkspace(currentWorkspace) &&
+      !confirm(
+        "You have unsaved changes. Are you sure you want to load a new workspace?",
+      )
+    ) {
       return;
     }
     const loadedWorkspace = (await localforage.getItem(id)) as Workspace;
@@ -411,7 +515,12 @@ export const useLoadExampleWorkspace = () =>
         const currentWorkspace = snapshot.getLoadable(
           currentWorkspaceState,
         ).contents;
-        if (!isCleanWorkspace(currentWorkspace)) {
+        if (
+          !isCleanWorkspace(currentWorkspace) &&
+          !confirm(
+            "You have unsaved changes. Are you sure you want to load a gallery example?",
+          )
+        ) {
           return;
         }
         const id = toast.loading("Loading example...");
@@ -462,6 +571,21 @@ export const useLoadExampleWorkspace = () =>
       },
   );
 
+export const useNewWorkspace = () =>
+  useRecoilCallback(({ reset, set, snapshot }) => () => {
+    const workspace = snapshot.getLoadable(currentWorkspaceState).contents;
+    if (
+      !isCleanWorkspace(workspace) &&
+      !confirm(`You have unsaved changes. Are you sure you want to create
+      a new workspace?`)
+    ) {
+      return;
+    }
+    // set rather than reset to generate new id to avoid id conflicts
+    set(currentWorkspaceState, () => defaultWorkspaceState());
+    reset(diagramState);
+  });
+
 export const useCheckURL = () =>
   useRecoilCallback(({ set, snapshot, reset }) => async () => {
     const parsed = queryString.parse(window.location.search);
@@ -481,7 +605,11 @@ export const useCheckURL = () =>
       }));
     } else if ("gist" in parsed) {
       // Loading a gist
-      const id = toast.loading("Loading gist...");
+      // Show loading notification only if not redirected from share
+      var id!: string;
+      if (!("pub" in parsed)) {
+        id = toast.loading("Loading gist...");
+      }
       const res = await fetch(
         `https://api.github.com/gists/${parsed["gist"]}`,
         {
@@ -490,7 +618,9 @@ export const useCheckURL = () =>
           },
         },
       );
-      toast.dismiss(id);
+      if (!("pub" in parsed)) {
+        toast.dismiss(id);
+      }
       if (res.status !== 200) {
         console.error(res);
         toast.error(`Could not load gist: ${res.statusText}`);
@@ -533,6 +663,17 @@ export const useCheckURL = () =>
         files,
       };
       set(currentWorkspaceState, workspace);
+
+      // Notification + save to clipboard if redirected from clicking share
+      if ("pub" in parsed) {
+        const gistParameter = queryString.stringify({ gist: parsed["gist"] });
+        const shareableURL = `${window.location.origin}${window.location.pathname}?${gistParameter}`;
+        navigator.clipboard.writeText(shareableURL).then(() => {
+          toast.success("Copied shareable link to clipboard");
+        });
+        // Hide pub query parameter from displayed URL
+        window.history.replaceState({}, document.title, shareableURL);
+      }
     } else if ("examples" in parsed) {
       const t = toast.loading("Loading example...");
       const id = parsed["examples"];
@@ -648,8 +789,10 @@ export const usePublishGist = () =>
       toast.error(`Could not publish gist: ${res.statusText} ${json.message}`);
       return;
     }
-    toast.success(`Published gist, redirecting...`);
-    window.location.search = queryString.stringify({ gist: json.id });
+    // Use query string (pub) to pass state to display notification on next page
+    const gistParameter = queryString.stringify({ gist: json.id, pub: true });
+    toast.success("Redirecting to gist...");
+    window.location.search = gistParameter;
   });
 
 const REDIRECT_URL =
@@ -659,7 +802,10 @@ const REDIRECT_URL =
 export const useSignIn = () =>
   useRecoilCallback(({ set, snapshot }) => () => {
     const workspace = snapshot.getLoadable(currentWorkspaceState).contents;
-    if (!isCleanWorkspace(workspace)) {
+    if (
+      !isCleanWorkspace(workspace) &&
+      !confirm("You have unsaved changes. Please save before continuing.")
+    ) {
       return;
     }
     window.location.replace(REDIRECT_URL);
@@ -684,7 +830,9 @@ export const useDeleteLocalFile = () =>
         });
         await localforage.removeItem(id);
         if (currentWorkspace.metadata.id === id) {
-          reset(currentWorkspaceState);
+          // set rather than reset to generate new id to avoid id conflicts
+          set(currentWorkspaceState, () => defaultWorkspaceState());
+          reset(diagramState);
         }
         toast.success(`Removed ${name}`);
       },
