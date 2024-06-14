@@ -290,8 +290,7 @@ export default class OptimizerWorker {
         case "CompileError":
           if (
             "previous" in this.state &&
-            this.state.previous.tag === data.error.nextWorkerState &&
-            this.state.previous.tag === "Compiled"
+            this.state.previous.tag === data.error.nextWorkerState
           ) {
             callRejects();
             this.setState(this.state.previous);
