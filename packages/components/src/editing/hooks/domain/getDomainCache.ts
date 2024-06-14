@@ -1,9 +1,6 @@
 import { SyntaxNode } from "@lezer/common";
 import { parser } from "../../parser/domain/domain";
-
-const extractText = (domainProg: string, to: number, from: number) => {
-  return domainProg.slice(from, to);
-};
+import { extractText } from "../hooksUtils";
 
 const getTypeNames = (domainProg: string, typeNodes: SyntaxNode[]) => {
   let types = [] as string[];

@@ -4,3 +4,7 @@ export type DomainCache = {
   fnNames: string[];
   consNames: string[];
 };
+
+export type SubstanceCache = {
+  varNames: string[];
+};

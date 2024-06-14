@@ -7,6 +7,7 @@ import {
   domainCacheState,
   fileContentsSelector,
   settingsState,
+  substanceCacheState,
   workspaceMetadataSelector,
 } from "../state/atoms.js";
 import { useCompileDiagram } from "../state/callbacks.js";
@@ -16,6 +17,7 @@ export default function ProgramEditor({ kind }: { kind: ProgramType }) {
   );
   const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
   const domainCache = useRecoilValue(domainCacheState);
+  const substanceCache = useRecoilValue(substanceCacheState);
   const compileDiagram = useCompileDiagram();
   const settings = useRecoilValueLoadable(settingsState);
   const [diagram] = useRecoilState(diagramState);
@@ -33,9 +35,10 @@ export default function ProgramEditor({ kind }: { kind: ProgramType }) {
     <EditorPane
       value={programState.contents}
       vimMode={settings.contents.vimMode}
+      onChange={onChange}
       languageType={kind}
       domainCache={domainCache}
-      onChange={onChange}
+      substanceCache={substanceCache}
       readOnly={workspaceMetadata.location.kind === "roger"}
     />
   );

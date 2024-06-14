@@ -37,12 +37,18 @@ const DomainAutocomplete = (domainCache: DomainCache) => {
   return useCallback(
     async (context: CompletionContext) => {
       let nodeBefore = syntaxTree(context.state).resolveInner(context.pos, -1);
-      let parent = nodeBefore.parent;
+      let parentNode = nodeBefore.parent;
       let leftSib = nodeBefore.prevSibling;
       let word = context.matchBefore(/\w*/);
       let wholeTree = syntaxTree(context.state).topNode;
       //   console.log(domainCache);
-      // console.log(wholeTree.toString(), leftSib, parent);
+      // In erorr state, error node wraps the current node
+      if (parentNode != null && parentNode.type.isError) {
+        leftSib = parentNode.prevSibling;
+        parentNode = parentNode.parent;
+      }
+
+      console.log(wholeTree.toString(), leftSib, parent);
       // console.log(wholeTree.toString());
 
       // not sure what this does, stolen from autocomplete example
@@ -56,7 +62,7 @@ const DomainAutocomplete = (domainCache: DomainCache) => {
         doesn't work because by default, characters are viewed as part
         of subtype since subtype starts with Identifier 
         */
-      if (InsideDeclaration(parent) && leftSib === null) {
+      if (InsideDeclaration(parentNode) && leftSib === null) {
         return {
           from: word.from,
           options: keywordOptions,

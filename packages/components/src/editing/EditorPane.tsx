@@ -2,7 +2,7 @@ import { autocompletion } from "@codemirror/autocomplete";
 import { EditorView } from "@codemirror/view";
 import CodeMirror from "@uiw/react-codemirror";
 import { useRef } from "react";
-import { DomainCache } from "../editing/types";
+import { DomainCache, SubstanceCache } from "../editing/types";
 import DomainAutocomplete from "./hooks/domain/domainAutocomplete";
 import SubstanceAutocomplete from "./hooks/substance/substanceAutocomplete";
 import { domainLanguageSupport } from "./parser/domain/domainLanguage";
@@ -14,6 +14,7 @@ export default function EditorPane({
   vimMode,
   languageType,
   domainCache,
+  substanceCache,
   readOnly,
 }: {
   value: string;
@@ -21,6 +22,7 @@ export default function EditorPane({
   onChange(value: string): void;
   languageType: "substance" | "style" | "domain";
   domainCache: DomainCache;
+  substanceCache: SubstanceCache;
   readOnly?: boolean;
 }) {
   // no idea what this does

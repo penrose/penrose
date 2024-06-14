@@ -7,6 +7,7 @@ import { Simple } from "./Simple.js";
 import StagedDiagram from "./StagedDiagram.js";
 import EditorPane from "./editing/EditorPane.js";
 import { getDomainCache } from "./editing/hooks/domain/getDomainCache.js";
+import { getSubstanceCache } from "./editing/hooks/substance/getSubstanceCache.js";
 import { SetupDomainMonaco } from "./editing/languages/DomainConfig.js";
 import { SetupStyleMonaco } from "./editing/languages/StyleConfig.js";
 import { SetupSubstanceMonaco } from "./editing/languages/SubstanceConfig.js";
@@ -26,7 +27,8 @@ export {
   StagedDiagram,
   fetchResolver,
   getDomainCache,
+  getSubstanceCache,
   penroseBlue,
 };
 
-export { type DomainCache } from "./editing/types.js";
+export { type DomainCache, type SubstanceCache } from "./editing/types.js";

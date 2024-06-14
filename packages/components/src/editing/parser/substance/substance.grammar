@@ -19,8 +19,11 @@ PredicateApp {
 }
 
 Fn_ConsApp {
-    !fn_consapp Identifier Assignment Identifier ArgList (IndexedStatement)? |
-    !fn_consapp NamedId Identifier Assignment Identifier ArgList (IndexedStatement)? |
+    // object_name := function_constructor_name (argument_list)
+    !fn_consapp Identifier Assignment NamedId ArgList (IndexedStatement)? |
+    // type_name object_name := function_constructor_name (argument_list)
+    !fn_consapp NamedId Identifier Assignment NamedId ArgList (IndexedStatement)? |
+    // Let object_name := function_constructor_name (argument_list)
     kw<"Let"> Identifier Assignment NamedId ArgList (IndexedStatement)?
 }
 

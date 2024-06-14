@@ -1,4 +1,9 @@
-import { DomainCache, getDomainCache } from "@penrose/components";
+import {
+  DomainCache,
+  SubstanceCache,
+  getDomainCache,
+  getSubstanceCache,
+} from "@penrose/components";
 import { PenroseError, PenroseWarning } from "@penrose/core";
 import { PathResolver, Trio, TrioMeta } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
@@ -275,6 +280,15 @@ export const domainCacheState = selector<DomainCache>({
     const domainProgram = get(fileContentsSelector("domain")).contents;
     const domainCache = getDomainCache(domainProgram);
     return domainCache;
+  },
+});
+
+export const substanceCacheState = selector<SubstanceCache>({
+  key: "substanceCache",
+  get: ({ get }) => {
+    const substanceProgram = get(fileContentsSelector("substance")).contents;
+    const substanceCache = getSubstanceCache(substanceProgram);
+    return substanceCache;
   },
 });
 

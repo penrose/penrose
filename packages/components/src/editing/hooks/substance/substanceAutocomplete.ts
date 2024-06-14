@@ -76,7 +76,7 @@ const SubstanceAutocomplete = (domainCache: DomainCache) => {
       let wholeTree = syntaxTree(context.state).topNode;
       //   console.log(domainCache);
       //   console.log(parentNode, leftSib, wholeTree.toString());
-
+      //   console.log(wholeTree.toString());
       // not sure what this does, stolen from autocomplete example
       if (word == null || (word.from === word.to && !context.explicit)) {
         return null;
