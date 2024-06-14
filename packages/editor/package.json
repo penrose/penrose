@@ -61,6 +61,7 @@
     "recoil": "^0.7.3-alpha.2",
     "styled-components": "^5.3.5",
     "svgo": "^3.0.2",
+    "true-myth": "^7.3.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

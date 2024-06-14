@@ -418,6 +418,9 @@ export type { DomainEnv } from "./types/domain.js";
 export type {
   PenroseError,
   Warning as PenroseWarning,
+  StyleError,
+  DomainError,
+  SubstanceError,
 } from "./types/errors.js";
 export type { CompFunc } from "./types/functions.js";
 export * from "./types/state.js";

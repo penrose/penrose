@@ -200,7 +200,4 @@ export const layoutStateToRenderState = (
   labelCache: addRenderedLabels(state.labelCache, svgCache),
 });
 
-export type LayoutStats = {
-  name: string;
-  steps: number;
-}[];
+
