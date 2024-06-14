@@ -11,16 +11,17 @@ statement {
 kw<term> { @specialize[@name={term}]<Identifier, term> }
 
 TypeApp {
-    !typeapp Identifier commaSep1<Identifier> (IndexedStatement)?
+    !typeapp NamedId commaSep1<Identifier> (IndexedStatement)?
 }
 
 PredicateApp {
-    Identifier ArgList (IndexedStatement)?
+    NamedId ArgList (IndexedStatement)?
 }
 
 Fn_ConsApp {
-    !fn_consapp (Identifier)? Identifier Assignment Identifier ArgList (IndexedStatement)? |
-    kw<"Let"> Identifier Assignment Identifier ArgList (IndexedStatement)?
+    !fn_consapp Identifier Assignment Identifier ArgList (IndexedStatement)? |
+    !fn_consapp NamedId Identifier Assignment Identifier ArgList (IndexedStatement)? |
+    kw<"Let"> Identifier Assignment NamedId ArgList (IndexedStatement)?
 }
 
 Labeling {
@@ -52,6 +53,11 @@ condition {
 // For use in autocomplete identification
 Assignment {
     ":="
+}
+
+// For use in autocomplete identification
+NamedId {
+    Identifier 
 }
 
 BooleanExpression {

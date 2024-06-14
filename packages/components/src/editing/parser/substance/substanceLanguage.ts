@@ -18,6 +18,7 @@ export const substanceLanguage = LRLanguage.define({
         NoLabel: t.keyword,
         TeX: t.string,
         String: t.string,
+        "NamedId/...": t.typeName,
       }),
     ],
   }),

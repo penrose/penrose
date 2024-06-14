@@ -10,12 +10,12 @@ const keywordOptions = [
   "type",
   "function",
   "constructor",
-].map((kw) => ({ label: kw, type: "keyword" }));
+].map((kw) => ({ label: `${kw} `, type: "keyword" }));
 
 const getTypeOptions = (domainCache: DomainCache) => {
   //   console.log(domainCache);
   return domainCache.typeNames.map((type) => ({
-    label: type,
+    label: `${type} `,
     type: "variable",
     detail: "type",
   }));

@@ -7,7 +7,7 @@ import DomainAutocomplete from "./hooks/domain/domainAutocomplete";
 import SubstanceAutocomplete from "./hooks/substance/substanceAutocomplete";
 import { domainLanguageSupport } from "./parser/domain/domainLanguage";
 import { substanceLanguageSupport } from "./parser/substance/substanceLanguage";
-
+import { penroseEditorTheme } from "./theme";
 export default function EditorPane({
   value,
   onChange,
@@ -46,11 +46,7 @@ export default function EditorPane({
     substanceLanguageSupport(),
   ].concat(defaultExtensions);
 
-  const styleExtensions = [
-    autocompletion({ override: [substanceCompletionFn] }),
-    substanceLanguageSupport(),
-    EditorView.lineWrapping,
-  ].concat(defaultExtensions);
+  const styleExtensions = defaultExtensions;
 
   let extensionsList =
     languageType === "domain"
@@ -65,6 +61,7 @@ export default function EditorPane({
         value={value}
         extensions={extensionsList}
         onChange={onChange}
+        theme={penroseEditorTheme}
       />
       <div
         ref={statusBarRef}
