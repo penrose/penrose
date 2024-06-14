@@ -19,8 +19,8 @@ PredicateApp {
 }
 
 Fn_ConsApp {
-    !fn_consapp (Identifier)? Identifier ":=" Identifier ArgList (IndexedStatement)? |
-    kw<"Let"> Identifier ":=" Identifier ArgList (IndexedStatement)?
+    !fn_consapp (Identifier)? Identifier Assignment Identifier ArgList (IndexedStatement)? |
+    kw<"Let"> Identifier Assignment Identifier ArgList (IndexedStatement)?
 }
 
 Labeling {
@@ -47,6 +47,11 @@ Range {
 
 condition {
     kw<"where"> BooleanExpression
+}
+
+// For use in autocomplete identification
+Assignment {
+    ":="
 }
 
 BooleanExpression {

@@ -271,19 +271,10 @@ export const workspaceMetadataSelector = selector<WorkspaceMetadata>({
 
 export const domainCacheState = selector<DomainCache>({
   key: "domainCache",
-  get: ({ get, getCallback }) => {
+  get: ({ get }) => {
     const domainProgram = get(fileContentsSelector("domain")).contents;
     const domainCache = getDomainCache(domainProgram);
     return domainCache;
-
-    // const compiledDomain = compileDomain(domainProgram);
-    // if (compiledDomain.isOk()) {
-    //   return compiledDomain.value;
-    // }
-    // to allow domainCache to work while user is editing domain
-    // this creates the bug that if a user has a buggy domain
-    // they will get the last working domain as their cache
-    // solution idea: getCallback snapshot
   },
 });
 
