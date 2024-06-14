@@ -40,7 +40,7 @@ export default function EditorPane({
     domainLanguageSupport(),
   ].concat(defaultExtensions);
 
-  const substanceCompletionFn = SubstanceAutocomplete();
+  const substanceCompletionFn = SubstanceAutocomplete(domainCache);
   const substanceExtensions = [
     autocompletion({ override: [substanceCompletionFn] }),
     substanceLanguageSupport(),
