@@ -3,6 +3,7 @@ import {
   attrAutoFillSvg,
   attrCenter,
   attrFill,
+  attrRotation,
   attrStroke,
   attrTitle,
 } from "./AttrHelper.js";
@@ -25,6 +26,7 @@ const RenderEllipse = (
   attrToNotAutoMap.push(...attrCenter(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrStroke(shape, elem));
   attrToNotAutoMap.push(...attrTitle(shape, elem));
+  attrToNotAutoMap.push(...attrRotation(shape, canvasSize, elem));
 
   elem.setAttribute("rx", Math.max(shape.rx.contents, 0).toString());
   attrToNotAutoMap.push("rx");
