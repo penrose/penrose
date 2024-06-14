@@ -1,62 +1,64 @@
 import {
-  CompileResult,
+  CompileRequestData,
+  CompileResult, logLevel,
   MessageID,
   MessageIDGenerator,
   MessageResponse,
   MessageResult,
-  Notification
+  MessageTags,
+  Notification,
+  request, resolveResponse,
+  spinAndWaitForInit
 } from "./common.js";
+import consola from "consola";
+
+const log = consola
+  .create({ level: logLevel })
+  .withScope("optimizer:client");
 
 export default class Optimizer {
-  private resolvesByMsgId
-    = new Map<MessageID, (result: MessageResult) => void>;
+  private resolvesByMsgId = new Map<
+    MessageID,
+    (result: MessageResult) => void
+  >();
 
   private messageIdGenerator = new MessageIDGenerator();
-
   private broker: Worker;
 
-  /** Create an `Optimizer` with an already initialized broker. Private since
+  /**
+   * Create an `Optimizer` with an already initialized broker. Private since
    *  users should just call `Optimizer.create()`.
    * @param broker Initialized broker
    * @private
    */
-  private constructor (broker: Worker) {
+  private constructor(broker: Worker) {
     this.broker = broker;
-
-    broker.onmessage = ({ data }: MessageEvent<MessageResponse | Notification>) => {
-      switch (data.tag) {
-        case "MessageResponse":
-          const resolve = this.resolvesByMsgId.get(data.messageId);
-      }
-    }
+    broker.onmessage = this.onBrokerMessage.bind(this);
+    log.info(`Optimizer created with initialized broker`);
   }
 
-  private onBrokerMessage = (
-    { data }: MessageEvent<MessageResponse | Notification>
-  ) => {
+  private onBrokerMessage = ({
+    data,
+  }: MessageEvent<MessageResponse | Notification>) => {
     switch (data.tag) {
       case "MessageResponse":
-        this.resolvesByMsgId.get(data.messageId);
+        resolveResponse(data, this.resolvesByMsgId);
+        break;
+
+      case "Notification":
+        throw new Error(
+          `Optimizer received unknown notification ${data.data.tag}`,
+        );
     }
-  }
+  };
 
   /**
    * Create an optimizer.
    */
   static create = async (): Promise<Optimizer> => {
-    return new Promise((resolve) => {
-      const broker = new Worker(
-        new URL("./broker.ts", import.meta.url), {
-          type: "module",
-        }
-      );
-
-      broker.onmessage = () => {
-        broker.onmessage = null;
-        resolve(new Optimizer(broker));
-      };
-    });
-  }
+    log.info("Spinning new broker");
+    return new Optimizer(await spinAndWaitForInit("./broker.ts"));
+  };
 
   compile = async (
     domain: string,
@@ -64,8 +66,19 @@ export default class Optimizer {
     substance: string,
     variation: string,
   ): Promise<CompileResult> => {
-    new Promise((resolve, reject) => {
-      this.resolvesByMsgId.set()
-    });
-  }
+    log.info("Sending compile request to broker");
+    const requestData: CompileRequestData = {
+      tag: MessageTags.Compile,
+      domain,
+      style,
+      substance,
+      variation,
+    };
+    return await request(
+      this.broker,
+      requestData,
+      this.resolvesByMsgId,
+      this.messageIdGenerator,
+    );
+  };
 }

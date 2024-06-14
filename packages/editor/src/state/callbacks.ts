@@ -42,7 +42,7 @@ import {
   localFilesState,
   optimizer,
   settingsState,
-  workspaceMetadataSelector,
+  workspaceMetadataSelector, newOptimizer
 } from "./atoms.js";
 import { generateVariation } from "./variation.js";
 
@@ -120,6 +120,15 @@ const _compileDiagram = async (
       ...state,
       compiling: true,
     }));
+
+    const result = await newOptimizer.compile(
+      domain,
+      style,
+      substance,
+      variation
+    );
+    console.log(result);
+
     const { id, warnings } = await optimizer.compile(
       domain,
       style,

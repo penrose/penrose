@@ -23,8 +23,11 @@ import { layoutModel } from "../App.js";
 import { RenderState } from "../worker/common.js";
 import OptimizerWorker from "../worker/OptimizerWorker.js";
 import { generateVariation } from "./variation.js";
+import Optimizer from "../optimizer/optimizer";
 
 export const optimizer = new OptimizerWorker();
+
+export const newOptimizer = await Optimizer.create();
 
 export const EDITOR_VERSION = 0.1;
 

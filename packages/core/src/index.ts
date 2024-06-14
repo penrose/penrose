@@ -416,10 +416,10 @@ export { sampleShape, shapeTypes } from "./shapes/Shapes.js";
 export type { ShapeType } from "./shapes/Shapes.js";
 export type { DomainEnv } from "./types/domain.js";
 export type {
+  DomainError,
   PenroseError,
   Warning as PenroseWarning,
   StyleError,
-  DomainError,
   SubstanceError,
 } from "./types/errors.js";
 export type { CompFunc } from "./types/functions.js";

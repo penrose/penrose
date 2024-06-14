@@ -1,7 +1,14 @@
-import { Shape } from "@penrose/core";
-import { Result, Unit } from "true-myth"
-import { DomainError, StyleError, SubstanceError } from "@penrose/core";
+import { PenroseError, Shape } from "@penrose/core";
+import { Result, Unit } from "true-myth";
+import consola from "consola";
 
+
+// Config
+
+export const logLevel = (consola as any).LogLevel.Info;
+
+
+// Basic types
 
 export type MessageID = number;
 export type DiagramID = number;
@@ -22,21 +29,20 @@ export type LayoutStats = {
   steps: number;
 }[];
 
-export type StepSequenceState =
-  | "Pending"
-  | "Done"
-  | OptimizationError;
+export type StepSequenceState = "Pending" | "Done" | OptimizationError;
 
 export type StepSequenceInfo = {
   layoutStats: LayoutStats;
   parent: HistoryLoc;
   state: StepSequenceState;
-}
+};
 
 export type HistoryStats = Map<StepSequenceID, StepSequenceInfo>;
 
+export type MessageResolve = (result: MessageResult) => void;
 
-// Basic types
+
+// Message types
 
 /** Requests sent from main thread to broker or broker to worker */
 export type MessageRequest = {
@@ -56,7 +62,7 @@ export type MessageResponse = {
 export type Notification = {
   tag: "Notification";
   data: NotificationData;
-}
+};
 
 export type MessageRequestData =
   | CompileRequestData
@@ -72,14 +78,21 @@ export type MessageResult =
   | DiscardDiagramResult
   | DiscardStepSequenceResult;
 
-export type NotificationData =
-  | InitData;
+export type NotificationData = InitData;
 
+/** Ensure request data and result pairs have the same tag, to check validity */
+export enum MessageTags {
+  Compile = "Compile",
+  Poll = "Poll",
+  ComputeShapes = "ComputeShapes",
+  DiscardDiagram = "DiscardDiagram",
+  DiscardStepSequence = "DiscardStepSequence",
+}
 
 // Request Data
 
 export type CompileRequestData = {
-  tag: "CompileRequestData";
+  tag: MessageTags.Compile;
   domain: string;
   style: string;
   substance: string;
@@ -87,83 +100,109 @@ export type CompileRequestData = {
 };
 
 export type PollRequestData = {
-  tag: "PollRequestData";
+  tag: MessageTags.Poll;
   diagramId: number;
 };
 
 export type ComputeShapesRequestData = {
-  tag: "ComputeShapesRequestData";
+  tag: MessageTags.ComputeShapes;
   diagramId: DiagramID;
   historyLoc: HistoryLoc;
-}
-
+};
 
 export type DiscardDiagramRequestData = {
-  tag: "DiscardDiagramRequestData";
+  tag: MessageTags.DiscardDiagram;
   diagramId: DiagramID;
 };
 
-
 export type DiscardStepSequenceRequestData = {
-  tag: "DiscardStepSequenceRequestData";
+  tag: MessageTags.DiscardStepSequence;
   sequenceId: StepSequenceID;
 };
-
 
 // Notification Data
 
 export type InitData = {
   tag: "InitData";
-}
-
+};
 
 // Results
 
-export type CompileResult = Result<DiagramID, CompileError> & {
-  tag: "CompileResult";
+export type TaggedOk<V, T> = {
+  tag: T;
+  isOk: true;
+  value: V;
 };
 
-export type PollResult = Result<HistoryStats, InvalidDiagramIDError> & {
-  tag: "PollResult";
+export type TaggedErr<E, T> = {
+  tag: T;
+  isOk: false;
+  error: E;
 };
 
-export type ComputeShapesResult = Result<
-  Shape<number>[],
-  InvalidDiagramIDError | InvalidHistoryLocError
-> & {
-  tag: "ComputeShapesResult";
+export type TaggedResult<V, E, T> = TaggedOk<V, T> | TaggedErr<E, T>;
+
+export const taggedOk = <V, T>(value: V, tag: T): TaggedOk<V, T> => {
+  return {
+    tag,
+    isOk: true,
+    value,
+  };
 };
 
-export type DiscardDiagramResult = Result<Unit, never> & {
-  tag: "DiscardDiagramResult";
-};
-export type DiscardStepSequenceResult = Result<Unit, never> & {
-  tag: "DiscardStepSequenceResult";
+export const taggedErr = <E, T>(error: E, tag: T): TaggedErr<E, T> => {
+  return {
+    tag,
+    isOk: false,
+    error,
+  };
 };
 
+export type CompileResult = TaggedResult<
+  DiagramID,
+  PenroseError,
+  MessageTags.Compile
+>;
+
+export type PollResult = {
+  tag: MessageTags.Poll;
+  result: Result<HistoryStats, InvalidDiagramIDError>;
+};
+
+export type ComputeShapesResult = {
+  tag: MessageTags.ComputeShapes;
+  result: Result<
+    Shape<number>[],
+    InvalidDiagramIDError | InvalidHistoryLocError
+  >;
+};
+
+export type DiscardDiagramResult = {
+  tag: MessageTags.DiscardDiagram;
+  result: Result<Unit, never>;
+};
+export type DiscardStepSequenceResult = {
+  tag: MessageTags.DiscardStepSequence;
+  result: Result<Unit, never>;
+};
 
 // Errors
-
-export type CompileError = {
-  tag: "CompileError";
-  error: StyleError | SubstanceError | DomainError;
-}
 
 export type InvalidDiagramIDError = {
   tag: "InvalidDiagramIDError";
   id: DiagramID;
   validIds: Set<DiagramID>;
-}
+};
 
 export type InvalidHistoryLocError = {
   tag: "InvalidHistoryLocError";
   historyLoc: HistoryLoc;
   historyStats: HistoryStats;
-}
+};
 export type OptimizationError = {
   tag: "OptimizationError";
   message: string;
-}
+};
 
 
 // Utils
@@ -173,9 +212,88 @@ class NumericIDGenerator {
 
   next = () => {
     return this.nextId++;
-  }
+  };
 }
 
-export const MessageIDGenerator = NumericIDGenerator;
-export const DiagramIDGenerator = NumericIDGenerator;
-export const LayoutSequenceIDGenerator = NumericIDGenerator;
+export {
+  NumericIDGenerator as DiagramIDGenerator,
+  NumericIDGenerator as MessageIDGenerator,
+  NumericIDGenerator as StepSequenceIDGenerator,
+};
+
+export type Tagged<T> = {
+  tag: T;
+};
+
+export const request = <T, R extends MessageResult & Tagged<T>>(
+  worker: Worker,
+  data: MessageRequestData & Tagged<T>,
+  resolvesById: Map<MessageID, MessageResolve>,
+  messageIdGenerator: NumericIDGenerator,
+): Promise<R> => {
+  return new Promise((resolve) => {
+    const messageId: MessageID = messageIdGenerator.next();
+    const request: MessageRequest = {
+      tag: "MessageRequest",
+      messageId,
+      data,
+    };
+    resolvesById.set(messageId, (result: MessageResult) => {
+      if (result.tag === data.tag) {
+        (resolve as any)(result);
+        resolvesById.delete(messageId);
+      } else {
+        throw new Error(
+          `MessageID ${messageId} expected result of type 
+          ${data.tag} but received ${result.tag}`,
+        );
+      }
+    });
+    worker.postMessage(request);
+  });
+};
+
+export const spinAndWaitForInit = async (url: string): Promise<Worker> => {
+  return new Promise((resolve) => {
+    const worker = new Worker(new URL(url, import.meta.url), {
+      type: "module",
+    });
+    worker.onmessage = ({ data }: MessageEvent<Notification>) => {
+      switch (data.data.tag) {
+        case "InitData":
+          worker.onmessage = null;
+          resolve(worker);
+      }
+    };
+  });
+};
+
+export const notify = (data: NotificationData) => {
+  const notification: Notification = {
+    tag: "Notification",
+    data,
+  };
+  self.postMessage(notification);
+};
+
+export const respond = (messageId: MessageID, result: MessageResult) => {
+  const response = {
+    tag: "MessageResponse",
+    messageId,
+    result,
+  };
+};
+
+export const resolveResponse = (
+  response: MessageResponse,
+  resolvesById: Map<MessageID, MessageResolve>
+) => {
+  const resolve = resolvesById.get(response.messageId);
+  if (!resolve) {
+    throw new Error(
+      `Received response from unknown message id ${response.messageId}`,
+    );
+  }
+  resolve(response.result);
+  resolvesById.delete(response.messageId);
+}
