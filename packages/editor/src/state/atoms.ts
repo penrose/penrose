@@ -369,6 +369,11 @@ export const diagramWorkerState = atom<{
   },
 });
 
+export const showCompileErrsState = atom<boolean>({
+  key: "showCompileErrsState",
+  default: false,
+});
+
 export type DiagramGrid = {
   variations: string[];
   gridSize: number;

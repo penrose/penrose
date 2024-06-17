@@ -5,7 +5,7 @@ import { useCallback } from "react";
 import { DomainCache, SubstanceCache } from "../../../editing/types";
 
 const keywordOptions = ["Let", "AutoLabel", "Label", "NoLabel"].map((kw) => ({
-  label: `${kw}`,
+  label: `${kw} `,
   type: "keyword",
 }));
 
@@ -36,7 +36,7 @@ const predTypeOptions = (domainCache: DomainCache) => {
   }));
 
   const predicateOptions = domainCache.predNames.map((type) => ({
-    label: `${type} `,
+    label: `${type}`,
     type: "type",
     detail: "predicate",
   }));
@@ -46,13 +46,13 @@ const predTypeOptions = (domainCache: DomainCache) => {
 
 const fnConsOptions = (domainCache: DomainCache) => {
   const fnOptions = domainCache.fnNames.map((type) => ({
-    label: `${type} `,
+    label: `${type}`,
     type: "type",
     detail: "function",
   }));
 
   const consOptions = domainCache.consNames.map((type) => ({
-    label: `${type} `,
+    label: `${type}`,
     type: "type",
     detail: "constructor",
   }));

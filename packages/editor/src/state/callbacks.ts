@@ -42,6 +42,7 @@ import {
   localFilesState,
   optimizer,
   settingsState,
+  showCompileErrsState,
   workspaceMetadataSelector,
 } from "./atoms.js";
 import { generateVariation } from "./variation.js";
@@ -178,6 +179,8 @@ export const useCompileDiagram = () =>
     const substanceFile = workspace.files.substance.contents;
     const styleFile = workspace.files.style.contents;
     const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
+
+    set(showCompileErrsState, true);
 
     await _compileDiagram(
       substanceFile,

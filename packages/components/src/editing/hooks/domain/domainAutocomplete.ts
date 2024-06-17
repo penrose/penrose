@@ -48,7 +48,7 @@ const DomainAutocomplete = (domainCache: DomainCache) => {
         parentNode = parentNode.parent;
       }
 
-      console.log(wholeTree.toString(), leftSib, parent);
+      // console.log(wholeTree.toString(), leftSib, parent);
       // console.log(wholeTree.toString());
 
       // not sure what this does, stolen from autocomplete example

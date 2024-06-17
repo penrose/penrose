@@ -1,0 +1,164 @@
+@top Input { Items }
+
+// macros
+
+sepBy<content, sep> {
+	"" | content (sep content?)*
+}
+
+// Similar to `sepEndBy1`
+sepBy1<content, sep> {
+  content (sep content?)*
+}
+
+commaSep<content> {
+  sepBy<content, ",">
+}
+
+commaSep1<content> {
+	sepBy1<content, ",">
+}
+
+kw<term> { @specialize[@name={term}]<Identifier, term> }
+
+// grammar
+
+Items {
+  (Item)*
+}
+
+Item {
+  HeaderBlock { Header Block }
+  | LayoutStages { kw<"layout">  "="  StageList }
+}
+
+StageList {
+	"[" commaSep1<Stage> "]"
+}
+
+Stage {
+	Identifier
+}
+
+Header {
+  Selector
+  | Namespace
+  | Collector
+}
+
+// Selector rules
+
+Selector {
+  kw<"forall"> kw<"repeatable">? DeclList (
+		Where? With?
+		| With? Where?
+	)
+}
+
+Where { kw<"where"> RelationList }
+
+With { kw<"with"> DeclList }
+
+Foreach { kw<"foreach"> DeclList }
+
+Namespace { Identifier }
+
+DeclList { sepBy1<DeclPattern, ";"> }
+
+DeclPattern { SelType commaSep1<Variable> }
+
+Decl { SelType Variable }
+
+SelType { Identifier }
+Variable {
+	StyVar { Identifier }
+	| SubVar { "`" Identifier "`" }
+}
+
+RelationList { sepBy1<Relation, ";"> }
+
+Relation { Bind | Pred | Field }
+
+Bind { Variable ":=" Expr }
+
+Pred {Identifier "(" Args ")" As?}
+
+As { kw<"as"> Identifier }
+
+Expr { Func | Arg }
+
+Func { Identifier "(" commaSep<Expr> ")" }
+
+Arg { Variable | Literal }
+
+Literal { Number | String }
+
+Args { sepBy1<Arg, ","> }
+
+Field { Variable kw<"has"> FieldDesc? Identifier}
+
+FieldDesc { kw<"math"> | kw<"text"> }
+
+Block {
+	"{" "}"
+}
+
+// collector rules
+
+Collector {
+	kw<"collect"> kw<"repeatable">? Decl Into (
+		Where? With? Foreach? |
+		Where? Foreach? With? |
+		With? Where? Foreach? |
+		With? Foreach? Where? |
+		Foreach? Where? With? |
+		Foreach? With? Where?
+	)
+}
+
+Into { kw<"into"> Identifier }
+
+// skips and tokens 
+
+@skip { spaces | newline | LineComment 
+	| BlockComment { "/*" (blockCommentContent | blockCommentNewline)* blockCommentEnd }
+}
+
+// handle block comment content
+@local tokens {
+  blockCommentEnd { "*/" }
+  blockCommentNewline { "\n" }
+  @else blockCommentContent
+}
+
+@tokens {
+	hex { @digit | $[a-fA-F] }
+	stringContentDouble { ![\\\n"]+ }
+	identifierChar { @asciiLetter | $[_$\u{a1}-\u{10ffff}] }
+  word { identifierChar (identifierChar | @digit)* }
+  Identifier { word }
+	LineComment { "--" ![\n]* }
+  spaces { $[ \t]+ }
+  newline { "\n" }
+  eof { @eof }
+	Number {
+		(@digit ("_" | @digit)* ("." ("_" | @digit)*)? | "." @digit ("_" | @digit)*)
+			(("e" | "E") ("+" | "-")? ("_" | @digit)+)?
+	}
+
+	String {
+		'"' (stringContentDouble | Escape)* ('"' | "\n") 
+		// "'" (stringContentSingle | Escape)* ("'" | "\n")
+	}
+	Escape {
+		"\\" ("x" hex hex | "u" ("{" hex+ "}" | hex hex hex hex) | ![xu])
+	}
+	"."
+	"("[@name=LParen]
+	")"[@name=RParen]
+	":="[@name=Bind]
+	@precedence { Number "." }
+}
+
+
+

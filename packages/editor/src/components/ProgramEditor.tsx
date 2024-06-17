@@ -7,6 +7,7 @@ import {
   domainCacheState,
   fileContentsSelector,
   settingsState,
+  showCompileErrsState,
   substanceCacheState,
   workspaceMetadataSelector,
 } from "../state/atoms.js";
@@ -21,10 +22,19 @@ export default function ProgramEditor({ kind }: { kind: ProgramType }) {
   const compileDiagram = useCompileDiagram();
   const settings = useRecoilValueLoadable(settingsState);
   const [diagram] = useRecoilState(diagramState);
-  const { error, warnings } = diagram;
+  /*
+  When a user clicks compile, if there are compiler errors these are shown.
+  On edit, these are hidden and parser errors are shown.
+  showCompileErrs is set to true by useCompile and used by EditorPane and the
+  linter.
+  */
+  const [showCompileErrs, setShowCompileErrs] =
+    useRecoilState(showCompileErrsState);
+  let { error, warnings } = diagram;
   const onChange = useCallback(
     (v: string) => {
       setProgramState((state) => ({ ...state, contents: v }));
+      setShowCompileErrs(false);
     },
     [setProgramState],
   );
@@ -40,6 +50,9 @@ export default function ProgramEditor({ kind }: { kind: ProgramType }) {
       domainCache={domainCache}
       substanceCache={substanceCache}
       readOnly={workspaceMetadata.location.kind === "roger"}
+      error={error}
+      warnings={warnings}
+      showCompileErrs={showCompileErrs}
     />
   );
 }
