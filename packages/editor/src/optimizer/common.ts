@@ -1,6 +1,7 @@
 import { PenroseError, Shape } from "@penrose/core";
 import { Result, Unit } from "true-myth";
 import consola from "consola";
+import { ok } from "true-myth/result";
 
 
 // Config
@@ -10,8 +11,19 @@ export const logLevel = (consola as any).LogLevel.Info;
 
 // Basic types
 
+/** Unique ID assigned to every request/response pair */
 export type MessageID = number;
+
+/**
+ * Unique ID assigned to every new worker, which each handle one diagrams
+ * compilation, optimization, interaction, etc.
+ */
 export type DiagramID = number;
+
+/**
+ * Unique ID assigned to every sequence of optimizer steps. Only necessarily
+ * unique within a diagram.
+ */
 export type StepSequenceID = number;
 
 /**
@@ -24,16 +36,33 @@ export type HistoryLoc = {
   step: number;
 };
 
+/**
+ * Array of stage name and optimizer steps per stage.
+ */
 export type LayoutStats = {
   name: string;
   steps: number;
 }[];
 
+/**
+ * Current state of a sequence of optimizer states:
+ *  - `"Pending"`: optimizer has not finished (ongoing, interrupted). Could
+ *    or will continue.
+ *  - `"Done"`: optimizer finished normally
+ *  - `OptimizerError`: optimizer errored and cannot continue.
+ */
 export type StepSequenceState = "Pending" | "Done" | OptimizationError;
 
+/**
+ * Info about a step sequence.
+ *  - `LayoutStats`: stage names and steps
+ *  - `parent`: The step sequence and step from which this sequence originated,
+ *    or null if this is a root sequence
+ *  - `state`: State of the step sequence
+ */
 export type StepSequenceInfo = {
   layoutStats: LayoutStats;
-  parent: HistoryLoc;
+  parent: HistoryLoc | null;
   state: StepSequenceState;
 };
 
@@ -128,35 +157,10 @@ export type InitData = {
 
 // Results
 
-export type TaggedOk<V, T> = {
+export type TaggedResult<V, E, T> = {
   tag: T;
-  isOk: true;
-  value: V;
-};
-
-export type TaggedErr<E, T> = {
-  tag: T;
-  isOk: false;
-  error: E;
-};
-
-export type TaggedResult<V, E, T> = TaggedOk<V, T> | TaggedErr<E, T>;
-
-export const taggedOk = <V, T>(value: V, tag: T): TaggedOk<V, T> => {
-  return {
-    tag,
-    isOk: true,
-    value,
-  };
-};
-
-export const taggedErr = <E, T>(error: E, tag: T): TaggedErr<E, T> => {
-  return {
-    tag,
-    isOk: false,
-    error,
-  };
-};
+  result: Result<V, E>;
+}
 
 export type CompileResult = TaggedResult<
   DiagramID,
@@ -282,6 +286,7 @@ export const respond = (messageId: MessageID, result: MessageResult) => {
     messageId,
     result,
   };
+  self.postMessage(response);
 };
 
 export const resolveResponse = (
@@ -296,4 +301,18 @@ export const resolveResponse = (
   }
   resolve(response.result);
   resolvesById.delete(response.messageId);
+}
+
+export const taggedOk = <V, E, T>(tag: T, value: V): TaggedResult<V, E, T> => {
+  return {
+    tag,
+    result: Result.ok(value),
+  };
+}
+
+export const taggedErr = <V, E, T>(tag: T, error: E): TaggedResult<V, E, T> => {
+  return {
+    tag,
+    result: Result.err(error),
+  };
 }

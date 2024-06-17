@@ -3,19 +3,25 @@ import {
   CompileResult,
   DiagramID,
   DiagramIDGenerator,
+  DiscardDiagramResult,
+  logLevel,
   MessageID,
   MessageIDGenerator,
   MessageRequest,
+  MessageResponse,
   MessageResult,
   MessageTags,
-  StepSequenceIDGenerator,
+  Notification,
   notify,
   request,
+  resolveResponse,
   respond,
   spinAndWaitForInit,
-  logLevel, MessageResponse, Notification, resolveResponse
+  StepSequenceIDGenerator,
+  taggedOk
 } from "./common.js";
 import consola from "consola";
+import { Unit } from "true-myth";
 
 
 const log = consola
@@ -63,9 +69,9 @@ const spinWorkerAndCompile = async (
     messageIdGenerator,
   );
 
-  if (result.isOk) {
+  if (result.result.isOk) {
     workers.set(diagramId, worker);
-    result.value = diagramId;
+    result.result.value = diagramId;
   } else {
     worker.terminate();
   }
@@ -80,6 +86,17 @@ self.onmessage = async ({ data }: MessageEvent<MessageRequest>) => {
     case MessageTags.Compile:
       const compileResult = await spinWorkerAndCompile(requestData);
       respond(data.messageId, compileResult);
+      log.info(workers);
+      break;
+
+    case MessageTags.DiscardDiagram:
+      workers.get(requestData.diagramId)?.terminate();
+      workers.delete(requestData.diagramId);
+      log.info(workers);
+      const discardResult: DiscardDiagramResult = taggedOk(
+        MessageTags.DiscardDiagram, Unit
+      );
+      respond(data.messageId, discardResult);
       break;
 
     default:

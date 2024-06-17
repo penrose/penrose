@@ -1,14 +1,18 @@
 import {
   CompileRequestData,
-  CompileResult, logLevel,
+  CompileResult,
+  DiagramID,
+  DiscardDiagramRequestData,
+  DiscardDiagramResult,
+  logLevel,
   MessageID,
-  MessageIDGenerator,
+  MessageIDGenerator, MessageRequest, MessageRequestData,
   MessageResponse,
   MessageResult,
   MessageTags,
-  Notification,
+  Notification, PollRequestData, PollResult,
   request, resolveResponse,
-  spinAndWaitForInit
+  spinAndWaitForInit, Tagged
 } from "./common.js";
 import consola from "consola";
 
@@ -52,6 +56,17 @@ export default class Optimizer {
     }
   };
 
+  private request = <T, R extends MessageResult & Tagged<T>>(
+    requestData: MessageRequestData & Tagged<T>,
+  ): Promise<R> => {
+    return request<T, R>(
+      this.broker,
+      requestData,
+      this.resolvesByMsgId,
+      this.messageIdGenerator,
+    );
+  }
+
   /**
    * Create an optimizer.
    */
@@ -60,6 +75,14 @@ export default class Optimizer {
     return new Optimizer(await spinAndWaitForInit("./broker.ts"));
   };
 
+  /**
+   * Compile the given trio with the specified variation.
+   *
+   * @param domain
+   * @param style
+   * @param substance
+   * @param variation
+   */
   compile = async (
     domain: string,
     style: string,
@@ -74,11 +97,32 @@ export default class Optimizer {
       substance,
       variation,
     };
-    return await request(
-      this.broker,
-      requestData,
-      this.resolvesByMsgId,
-      this.messageIdGenerator,
-    );
+    return await this.request(requestData);
   };
+
+  poll = async (
+    diagramId: DiagramID,
+  ): Promise<PollResult> => {
+    log.info("Sending poll request to broker");
+    const requestData: PollRequestData = {
+      tag: MessageTags.Poll,
+      diagramId,
+    };
+    return await this.request(requestData);
+  }
+
+  /**
+   * Mark diagram as unused and discard the worker associated with it. No-op
+   * if `diagramID` is invalid.
+   * @param diagramID Diagram to discard
+   */
+  discardDiagram = async (
+    diagramId: DiagramID,
+  ): Promise<DiscardDiagramResult> => {
+    const requestData: DiscardDiagramRequestData = {
+      tag: MessageTags.DiscardDiagram,
+      diagramId,
+    };
+    return await this.request(requestData);
+  }
 }

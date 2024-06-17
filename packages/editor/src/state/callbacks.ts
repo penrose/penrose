@@ -128,6 +128,10 @@ const _compileDiagram = async (
       variation
     );
     console.log(result);
+    if (result.result.isOk) {
+      console.log("discarding")
+      await newOptimizer.discardDiagram(result.result.value);
+    }
 
     const { id, warnings } = await optimizer.compile(
       domain,

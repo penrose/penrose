@@ -1,14 +1,13 @@
 import { PenroseState, compileTrio } from "@penrose/core";
 import {
   CompileRequestData,
-  CompileResult, logLevel,
+  CompileResult,
+  logLevel,
   MessageID,
   MessageRequest,
   MessageTags,
   notify,
-  respond,
-  taggedErr,
-  taggedOk
+  respond, taggedErr, taggedOk
 } from "./common.js";
 import consola from "consola";
 
@@ -30,10 +29,10 @@ const compileAndRespond = async (
     log.info("Compiled")
     penroseState = compiledState.value;
     // diagramId is assigned by broker, not us, so we just pass 0
-    result = taggedOk(0, MessageTags.Compile);
+    result = taggedOk(MessageTags.Compile, 0);
   } else {
     log.info("Compilation failed")
-    result = taggedErr(compiledState.error, MessageTags.Compile);
+    result = taggedErr(MessageTags.Compile, compiledState.error);
   }
 
   respond(messageId, result);
