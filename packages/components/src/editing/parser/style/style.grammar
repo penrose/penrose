@@ -1,4 +1,5 @@
 @top Input { Items }
+@precedence {Path, Type, times @left, plus @left}
 
 // macros
 
@@ -63,7 +64,7 @@ Foreach { kw<"foreach"> DeclList }
 
 Namespace { Identifier }
 
-DeclList { sepBy1<DeclPattern, ";"> }
+DeclList { sepBy1<DeclPattern, semi> }
 
 DeclPattern { SelType commaSep1<Variable> }
 
@@ -79,15 +80,15 @@ RelationList { sepBy1<Relation, ";"> }
 
 Relation { Bind | Pred | Field }
 
-Bind { Variable ":=" Expr }
+Bind { Variable ":=" RelExpr }
 
 Pred {Identifier "(" Args ")" As?}
 
 As { kw<"as"> Identifier }
 
-Expr { Func | Arg }
+RelExpr { Func | Arg }
 
-Func { Identifier "(" commaSep<Expr> ")" }
+Func { Identifier "(" commaSep<RelExpr> ")" }
 
 Arg { Variable | Literal }
 
@@ -97,11 +98,7 @@ Args { sepBy1<Arg, ","> }
 
 Field { Variable kw<"has"> FieldDesc? Identifier}
 
-FieldDesc { kw<"math"> | kw<"text"> }
-
-Block {
-	"{" "}"
-}
+FieldDesc { @extend<Identifier, "math"> | @extend<Identifier, "text"> }
 
 // collector rules
 
@@ -118,10 +115,107 @@ Collector {
 
 Into { kw<"into"> Identifier }
 
+// block rules
+
+Block { "{" sepBy<Statement, semi> "}" }
+Statement { Delete | Override | Assign | AnonExpr }
+Delete { kw<"delete"> Path }
+Override { kw<"override"> Path "=" AssignExpr }
+Assign { 
+	Type? Path "=" AssignExpr 
+}
+Type {
+	@extend<Identifier,
+		("scalar" |
+		"int" |
+		"bool" |
+		"string" |
+		"path" |
+		"color" |
+		"file" |
+		"style" |
+		"shape" | 
+		"list" |
+		"vec2" |
+		"vec3" |
+		"vec4" |
+		"mat2x2" |
+		"mat3x3" |
+		"mat4x4" |
+		"function" |
+		"objective" |
+		"constraint" )
+	>
+}
+
+Path { Variable ("." Identifier)* AccessOps? }
+AccessOps { AccessOp (AccessOp)* }
+AccessOp { "[" Expr "]" }
+
+// expression rules
+AnonExpr { Layering | Objective | Constraint | ShapeDecl }
+AssignExpr { Expr | Layering | Objective | Constraint | ShapeDecl }
+
+Expr { 
+	BooleanLiteral |
+	ColorLiteral |
+	String |
+	AnnotatedFloat |
+	ComputationFunction |
+	StyVarExpr |
+	Path |
+	List |
+	Tuple |
+	Vector | 
+	BinaryExpression
+}
+
+BinaryExpression {
+	Expr !times (BinOp<"*" | "/" | ".*" | "./"> | kw<"then">) Expr |
+	Expr !plus (BinOp<"+" | "-">) Expr
+}
+
+AnnotatedFloat { "?" | Number } 
+ComputationFunction { Identifier "(" commaSep<Expr> ")" }
+StyVarExpr {
+	kw<"listof"> Identifier kw<"from"> Identifier |
+	(kw<"numberof"> | kw<"nameof">) Identifier
+}
+List { "[" commaSep<Expr> "]" }
+Tuple { "{" Expr "," Expr "}" }
+Vector { "(" commaSep1<Expr> ")" }
+Layering { 
+	kw<"layer">? Path (kw<"above"> | kw<"below">) commaSep1<Path> 
+}
+Objective {
+	kw<"encourage"> ObjConstrBody
+}
+Constraint {
+	kw<"ensure"> ObjConstrBody
+}
+ObjConstrBody {
+	// function call
+	Identifier "(" commaSep<Expr> ")" |
+	// comparison expr
+	Expr CompareOp Expr 
+}
+ShapeDecl {
+	ShapeName "{" PropertyDecl* "}"
+}
+ShapeName { Identifier }
+PropertyDecl { PropName ":" Expr semi }
+PropName { Identifier }
+BinOp<tkn> { tkn }
+
 // skips and tokens 
 
+
+@skip {} {
+	BlockComment { "/*" (blockCommentContent | blockCommentNewline)* blockCommentEnd }
+}
+	
 @skip { spaces | newline | LineComment 
-	| BlockComment { "/*" (blockCommentContent | blockCommentNewline)* blockCommentEnd }
+	| BlockComment 
 }
 
 // handle block comment content
@@ -131,15 +225,19 @@ Into { kw<"into"> Identifier }
   @else blockCommentContent
 }
 
+
 @tokens {
 	hex { @digit | $[a-fA-F] }
 	stringContentDouble { ![\\\n"]+ }
 	identifierChar { @asciiLetter | $[_$\u{a1}-\u{10ffff}] }
   word { identifierChar (identifierChar | @digit)* }
+	newline[@export] { $[\r\n] }
+  spaces[@export] { $[ \t]+ }
+	BooleanLiteral { "true" | "false" }
   Identifier { word }
+
+	@precedence{ BooleanLiteral, Identifier }
 	LineComment { "--" ![\n]* }
-  spaces { $[ \t]+ }
-  newline { "\n" }
   eof { @eof }
 	Number {
 		(@digit ("_" | @digit)* ("." ("_" | @digit)*)? | "." @digit ("_" | @digit)*)
@@ -153,12 +251,22 @@ Into { kw<"into"> Identifier }
 	Escape {
 		"\\" ("x" hex hex | "u" ("{" hex+ "}" | hex hex hex hex) | ![xu])
 	}
+  ColorLiteral { "#" hex hex hex (hex (hex hex (hex hex)?)?)?  }
 	"."
 	"("[@name=LParen]
 	")"[@name=RParen]
 	":="[@name=Bind]
+	// BinOp { $[+\-*/] | ".*" | "./" | "then" }
+	CompareOp { "<" | "==" | ">" }
+
+
 	@precedence { Number "." }
+	@precedence{LineComment, "-"}
 }
 
 
-
+// https://lezer.codemirror.net/examples/javascript/
+// Because other tokens should take precedence over inserted semicolons (JavaScript only inserts semicolons when it can't otherwise proceed its parse), the declaration for this external tokenizer has to appear after the other tokenizers.
+@external tokens insertSemicolon from "./styleTokens.js" { insertSemi }
+@context trackNewline from "./styleTokens.js"
+semi { ";" | insertSemi }
