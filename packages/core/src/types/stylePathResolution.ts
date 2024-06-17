@@ -1,13 +1,5 @@
-import { ASTNode, Identifier, StringLit } from "./ast.js";
-import {
-  AnnoFloat,
-  BinaryOp,
-  BoolLit,
-  ColorLit,
-  ComparisonOp,
-  Staged,
-  UnaryOp,
-} from "./style.js";
+import { A, ASTNode } from "./ast.js";
+import { Expr, Path } from "./style.js";
 import { SubstanceObject } from "./styleSemantics.js";
 
 //#region states in the state machine
@@ -104,118 +96,22 @@ export type ResolvedPath<T> = ASTNode<T> & {
 
 //#region style exprs
 
-export type ResolvedExpr<T> =
-  | AnnoFloat<T>
-  | StringLit<T>
-  | BoolLit<T>
-  | ColorLit<T>
-  | ResolvedPath<T>
-  | ResolvedCompApp<T>
-  | ResolvedObjFn<T>
-  | ResolvedConstrFn<T>
-  | ResolvedBinOp<T>
-  | ResolvedStyVarExpr<T>
-  | ResolvedUOp<T>
-  | ResolvedList<T>
-  | ResolvedTuple<T>
-  | ResolvedVector<T>
-  | ResolvedGPIDecl<T>
-  | ResolvedLayering<T>;
+type Primitive = string | number | bigint | boolean | null | undefined;
 
-export type ResolvedCompApp<T> = ASTNode<T> & {
-  tag: "CompApp";
-  name: Identifier<T>;
-  args: ResolvedExpr<T>[];
-};
+export type Replaced<T, TReplace, TWith, TKeep = Primitive> = T extends
+  | TReplace
+  | TKeep
+  ? T extends TReplace
+    ? TWith | Exclude<T, TReplace>
+    : T
+  : {
+      [P in keyof T]: Replaced<T[P], TReplace, TWith, TKeep>;
+    };
 
-export type ResolvedFunctionCall<T> = ASTNode<T> & {
-  tag: "FunctionCall";
-  name: Identifier<T>;
-  args: ResolvedExpr<T>[];
-};
+export type Resolved<T> = T extends ASTNode<A>
+  ? Replaced<T, Path<A>, ResolvedPath<A>>
+  : T;
 
-export type ResolvedInlineComparison<T> = ASTNode<T> & {
-  tag: "InlineComparison";
-  op: ComparisonOp<T>;
-  arg1: ResolvedExpr<T>;
-  arg2: ResolvedExpr<T>;
-};
-
-export type ResolvedObjFn<T> = ASTNode<T> &
-  Staged<T> & {
-    tag: "ObjFn";
-    body: ResolvedFunctionCall<T> | ResolvedInlineComparison<T>;
-  };
-
-export type ResolvedConstrFn<T> = ASTNode<T> &
-  Staged<T> & {
-    tag: "ConstrFn";
-    body: ResolvedFunctionCall<T> | ResolvedInlineComparison<T>;
-  };
-
-export type ResolvedStyVarExpr<T> =
-  | ResolvedCollectionAccess<T>
-  | ResolvedUnaryStyVarExpr<T>;
-
-export type ResolvedCollectionAccess<T> = ASTNode<T> & {
-  tag: "CollectionAccess";
-  name: ResolvedPath<T>;
-  field: Identifier<T>;
-};
-
-export type ResolvedUnaryStyVarExpr<T> = ASTNode<T> & {
-  tag: "UnaryStyVarExpr";
-  op: "numberof" | "nameof";
-  arg: ResolvedPath<T>;
-};
-
-export type ResolvedBinOp<T> = ASTNode<T> & {
-  tag: "BinOp";
-  op: BinaryOp;
-  left: ResolvedExpr<T>;
-  right: ResolvedExpr<T>;
-};
-
-export type ResolvedUOp<T> = ASTNode<T> & {
-  tag: "UOp";
-  op: UnaryOp;
-  arg: ResolvedExpr<T>;
-};
-
-export type ResolvedList<T> = ASTNode<T> & {
-  tag: "List";
-  contents: ResolvedExpr<T>[];
-};
-
-export type ResolvedTuple<T> = ASTNode<T> & {
-  tag: "Tuple";
-  contents: [ResolvedExpr<T>, ResolvedExpr<T>];
-};
-
-export type ResolvedVector<T> = ASTNode<T> & {
-  tag: "Vector";
-  contents: ResolvedExpr<T>[];
-};
-
-export type ResolvedGPIDecl<T> = ASTNode<T> & {
-  tag: "GPIDecl";
-  shapeName: Identifier<T>;
-  properties: ResolvedPropertyDecl<T>[];
-};
-
-export type ResolvedLayering<T> = ASTNode<T> & {
-  tag: "Layering";
-  layeringOp: "below" | "above";
-  left: ResolvedPath<T>;
-  right: ResolvedPath<T>[];
-};
-
-export type ResolvedPropertyDecl<T> = ASTNode<T> & {
-  tag: "PropertyDecl";
-  name: Identifier<T>;
-  value: ResolvedExpr<T>;
-};
-
-export type ResolvedNotShape<T> = Exclude<ResolvedExpr<T>, ResolvedGPIDecl<T>>;
+export type ResolvedExpr<T> = Resolved<Expr<T>>;
 
 //#endregion

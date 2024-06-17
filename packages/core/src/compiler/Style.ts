@@ -51,13 +51,18 @@ import {
   State,
 } from "../types/state.js";
 import {
+  BinOp,
   BinaryOp,
   BindingForm,
+  CollectionAccess,
   Collector,
   DeclPattern,
+  FunctionCall,
   Header,
   HeaderBlock,
+  InlineComparison,
   LayoutStages,
+  List,
   PathAssign,
   RelBind,
   RelField,
@@ -72,19 +77,14 @@ import {
   SelectorType,
   Stmt,
   StyProg,
+  UOp,
+  Vector,
 } from "../types/style.js";
 import {
-  ResolvedBinOp,
-  ResolvedCollectionAccess,
+  Resolved,
   ResolvedExpr,
-  ResolvedFunctionCall,
-  ResolvedInlineComparison,
-  ResolvedList,
-  ResolvedNotShape,
   ResolvedPath,
-  ResolvedUOp,
   ResolvedUnindexedStylePath,
-  ResolvedVector,
   StylePathToNamespaceScope,
   StylePathToScope,
   StylePathToSubstanceScope,
@@ -98,6 +98,7 @@ import {
   FieldDict,
   FieldSource,
   Layer,
+  NotShape,
   SelectorEnv,
   ShapeSource,
   StySubst,
@@ -2112,7 +2113,7 @@ const findPathsExpr = (
 const gatherExpr = (
   graph: DepGraph,
   w: StylePathToUnindexedObject<A>,
-  expr: ResolvedNotShape<A>,
+  expr: Resolved<NotShape<A>>,
 ): void => {
   const wStr = prettyResolvedStylePath(w);
   graph.setNode(wStr, { contents: expr, where: w });
@@ -2504,7 +2505,7 @@ const evalBinOpStrings = (
 };
 
 const evalBinOp = (
-  expr: ResolvedBinOp<A>,
+  expr: Resolved<BinOp<A>>,
   left: Value<ad.Num>,
   right: Value<ad.Num>,
 ): Result<Value<ad.Num>, StyleError> => {
@@ -2581,7 +2582,7 @@ const evalBinOp = (
 };
 
 const eval1D = (
-  coll: ResolvedList<A> | ResolvedVector<A> | ResolvedCollectionAccess<A>,
+  coll: Resolved<List<A> | Vector<A> | CollectionAccess<A>>,
   first: FloatV<ad.Num>,
   rest: ArgVal<ad.Num>[],
 ): Result<ListV<ad.Num> | VectorV<ad.Num>, StyleDiagnostics> => {
@@ -2607,7 +2608,7 @@ const eval1D = (
 };
 
 const eval2D = (
-  coll: ResolvedList<A> | ResolvedVector<A> | ResolvedCollectionAccess<A>,
+  coll: Resolved<List<A> | Vector<A> | CollectionAccess<A>>,
   first: VectorV<ad.Num> | ListV<ad.Num> | TupV<ad.Num>,
   rest: ArgVal<ad.Num>[],
 ): Result<
@@ -2643,7 +2644,7 @@ const eval2D = (
 };
 
 const evalShapeList = (
-  coll: ResolvedList<A> | ResolvedVector<A> | ResolvedCollectionAccess<A>,
+  coll: Resolved<List<A> | Vector<A> | CollectionAccess<A>>,
   first: Shape<ad.Num>,
   rest: ArgVal<ad.Num>[],
 ): Result<ShapeListV<ad.Num>, StyleDiagnostics> => {
@@ -2659,7 +2660,7 @@ const evalShapeList = (
 };
 
 const evalPathDataList = (
-  coll: ResolvedList<A> | ResolvedVector<A> | ResolvedCollectionAccess<A>,
+  coll: Resolved<List<A> | Vector<A> | CollectionAccess<A>>,
   first: PathDataV<ad.Num>,
   rest: ArgVal<ad.Num>[],
 ): Result<PathDataListV<ad.Num>, StyleDiagnostics> => {
@@ -2678,7 +2679,7 @@ const evalListOrVector = (
   mut: MutableContext,
   canvas: Canvas,
   stages: OptPipeline,
-  coll: ResolvedList<A> | ResolvedVector<A>,
+  coll: Resolved<List<A> | Vector<A>>,
   trans: Translation,
 ): Result<Value<ad.Num>, StyleDiagnostics> => {
   return evalExprs(mut, canvas, stages, coll.contents, trans).andThen(
@@ -2793,7 +2794,7 @@ const evalAccess = (
 };
 
 const evalUMinus = (
-  expr: ResolvedUOp<A>,
+  expr: Resolved<UOp<A>>,
   arg: Value<ad.Num>,
 ): Result<Value<ad.Num>, StyleError> => {
   switch (arg.tag) {
@@ -2821,7 +2822,7 @@ const evalUMinus = (
 };
 
 const evalUTranspose = (
-  expr: ResolvedUOp<A>,
+  expr: Resolved<UOp<A>>,
   arg: Value<ad.Num>,
 ): Result<Value<ad.Num>, StyleError> => {
   switch (arg.tag) {
@@ -3218,7 +3219,7 @@ type CollectionType<T> =
 
 const collectIntoVal = (
   coll: ArgVal<ad.Num>[],
-  expr: ResolvedCollectionAccess<A>,
+  expr: Resolved<CollectionAccess<A>>,
 ): Result<CollectionType<ad.Num>, StyleDiagnostics> => {
   if (coll.length === 0) {
     return ok(vectorV([]));
@@ -3265,7 +3266,7 @@ const stageExpr = (
 };
 
 const extractObjConstrBody = (
-  body: ResolvedInlineComparison<A> | ResolvedFunctionCall<A>,
+  body: Resolved<InlineComparison<A> | FunctionCall<A>>,
 ): { name: Identifier<A>; argExprs: ResolvedExpr<A>[] } => {
   if (body.tag === "InlineComparison") {
     const mapInlineOpToFunctionName = (op: "<" | "==" | ">"): string => {
@@ -3279,7 +3280,7 @@ const extractObjConstrBody = (
       }
     };
     const functionName = mapInlineOpToFunctionName(body.op.op);
-
+    body.arg1;
     return {
       name: {
         ...body.op,
@@ -3303,7 +3304,7 @@ const translateExpr = (
   canvas: Canvas,
   layoutStages: OptPipeline,
   path: StylePathToUnindexedObject<A>,
-  e: ResolvedNotShape<A>,
+  e: Resolved<NotShape<A>>,
   trans: Translation,
 ): Translation => {
   const pathStr = prettyResolvedStylePath(path);

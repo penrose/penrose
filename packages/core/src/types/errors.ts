@@ -12,14 +12,21 @@ import {
 import { Arg, Type } from "./domain.js";
 import { FuncParam, FuncSignature } from "./functions.js";
 import { State } from "./state.js";
-import { BindingForm, ColorLit, Expr, LayoutStages, Path } from "./style.js";
 import {
-  ResolvedBinOp,
+  BinOp,
+  BindingForm,
+  ColorLit,
+  Expr,
+  GPIDecl,
+  LayoutStages,
+  Path,
+  UOp,
+} from "./style.js";
+import {
+  Resolved,
   ResolvedExpr,
-  ResolvedGPIDecl,
   ResolvedPath,
   ResolvedStylePath,
-  ResolvedUOp,
   ResolvedUnindexedStylePath,
   StylePath,
   StylePathToCollection,
@@ -433,7 +440,7 @@ export interface UnindexableItemError {
 
 export interface BinOpTypeError {
   tag: "BinOpTypeError";
-  expr: ResolvedBinOp<A>;
+  expr: Resolved<BinOp<A>>;
   left: Value<ad.Num>["tag"];
   right: Value<ad.Num>["tag"];
 }
@@ -499,7 +506,7 @@ export interface MissingShapeError {
 
 export interface NestedShapeError {
   tag: "NestedShapeError";
-  expr: ResolvedGPIDecl<A>;
+  expr: Resolved<GPIDecl<A>>;
 }
 
 export interface NotCollError {
@@ -532,7 +539,7 @@ export interface OutOfBoundsError {
 
 export interface UOpTypeError {
   tag: "UOpTypeError";
-  expr: ResolvedUOp<A>;
+  expr: Resolved<UOp<A>>;
   arg: Value<ad.Num>["tag"];
 }
 

@@ -1,13 +1,16 @@
 import { isConcrete } from "../engine/EngineUtils.js";
 import { A, ASTNode, Identifier, NodeType, SourceLoc } from "../types/ast.js";
 import { StyleError } from "../types/errors.js";
-import { Expr, FunctionCall, InlineComparison, Path } from "../types/style.js";
 import {
-  ResolvedExpr,
-  ResolvedFunctionCall,
-  ResolvedInlineComparison,
+  Expr,
+  FunctionCall,
+  InlineComparison,
+  Path,
+  PropertyDecl,
+} from "../types/style.js";
+import {
+  Resolved,
   ResolvedPath,
-  ResolvedPropertyDecl,
   ResolvedStylePath,
   ResolvedUnindexedStylePath,
   StylePathToNamespaceScope,
@@ -376,10 +379,7 @@ const resolveStyleFunctionCall = (
   block: BlockInfo,
   assignment: Assignment,
   body: FunctionCall<A> | InlineComparison<A>,
-): Result<
-  ResolvedFunctionCall<A> | ResolvedInlineComparison<A>,
-  StyleError
-> => {
+): Result<Resolved<FunctionCall<A> | InlineComparison<A>>, StyleError> => {
   const resolvee = (e: Expr<A>) => resolveStyleExpr(block, assignment, e);
   if (body.tag === "InlineComparison") {
     const a1 = resolvee(body.arg1);
@@ -405,7 +405,7 @@ export const resolveStyleExpr = (
   block: BlockInfo,
   assignment: Assignment,
   expr: Expr<A>,
-): Result<ResolvedExpr<A>, StyleError> => {
+): Result<Resolved<Expr<A>>, StyleError> => {
   const resolvee = (e: Expr<A>) => resolveStyleExpr(block, assignment, e);
   const resolvep = (p: Path<A>): Result<ResolvedPath<A>, StyleError> =>
     resolvePath(block, assignment, p);
@@ -485,7 +485,7 @@ export const resolveStyleExpr = (
     case "GPIDecl": {
       const ps = all(
         expr.properties.map(
-          (pDecl): Result<ResolvedPropertyDecl<A>, StyleError> => {
+          (pDecl): Result<Resolved<PropertyDecl<A>>, StyleError> => {
             const v = resolvee(pDecl.value);
             if (v.isErr()) return err(v.error);
             return ok({

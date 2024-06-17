@@ -12,12 +12,8 @@ import { Result } from "true-myth";
 import { Context } from "../shapes/Samplers.js";
 import { Shape } from "../shapes/Shapes.js";
 import { StyleError } from "../types/errors.js";
-import {
-  ResolvedCompApp,
-  ResolvedConstrFn,
-  ResolvedExpr,
-  ResolvedObjFn,
-} from "../types/stylePathResolution.js";
+import { CompApp, ConstrFn, ObjFn } from "../types/style.js";
+import { Resolved, ResolvedExpr } from "../types/stylePathResolution.js";
 import { ArgValWithExpr, Value } from "../types/value.js";
 import {
   badArgumentTypeError,
@@ -31,7 +27,7 @@ const { ok, err } = Result;
 
 export const callCompFunc = (
   context: Context,
-  callExpr: ResolvedCompApp<A>,
+  callExpr: Resolved<CompApp<A>>,
   func: CompFunc,
   args: ArgValWithExpr<ad.Num>[],
 ): Result<MayWarn<Value<ad.Num>>, StyleError> => {
@@ -70,7 +66,7 @@ export const callCompFunc = (
 };
 
 export const callObjConstrFunc = (
-  callExpr: ResolvedObjFn<A> | ResolvedConstrFn<A>,
+  callExpr: Resolved<ObjFn<A> | ConstrFn<A>>,
   func: ObjFunc | ConstrFunc,
   args: ArgValWithExpr<ad.Num>[],
 ): Result<MayWarn<ad.Num>, StyleError> => {

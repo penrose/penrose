@@ -5,10 +5,8 @@ import * as ad from "./ad.js";
 import { A } from "./ast.js";
 import { StyleDiagnostics, StyleError } from "./errors.js";
 import { Fn } from "./state.js";
-import {
-  ResolvedNotShape,
-  StylePathToUnindexedObject,
-} from "./stylePathResolution.js";
+import { Expr, GPIDecl } from "./style.js";
+import { Resolved, StylePathToUnindexedObject } from "./stylePathResolution.js";
 import { SubstanceEnv } from "./substance.js";
 import { ArgVal, Field, Name, PropID } from "./value.js";
 
@@ -118,20 +116,17 @@ export type SubstanceName = Name;
 // something we would like to support eventually:
 // https://github.com/penrose/penrose/issues/924#issuecomment-1076951074
 
-// export interface WithContext<T> {
-//   context: Context;
-//   expr: T;
-// }
+export type NotShape<T> = Exclude<Expr<T>, GPIDecl<T>>;
 
 export interface ShapeSource {
   tag: "ShapeSource";
   shapeType: ShapeType;
-  props: im.Map<PropID, ResolvedNotShape<A>>;
+  props: im.Map<PropID, Resolved<NotShape<A>>>;
 }
 
 export interface OtherSource {
   tag: "OtherSource";
-  expr: ResolvedNotShape<A>;
+  expr: Resolved<NotShape<A>>;
 }
 
 export type FieldSource = ShapeSource | OtherSource;
@@ -165,7 +160,7 @@ export interface BlockInfo {
 export type DepGraph = Graph<
   string,
   {
-    contents: ShapeType | ResolvedNotShape<A> | undefined;
+    contents: ShapeType | Resolved<NotShape<A>> | undefined;
     where: StylePathToUnindexedObject<A>;
   }
 >;
