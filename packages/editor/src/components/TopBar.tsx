@@ -2,19 +2,21 @@ import { useCallback, useState } from "react";
 import { useRecoilCallback, useRecoilValue } from "recoil";
 import styled from "styled-components";
 import {
-  WorkspaceMetadata,
+  currentWorkspaceState,
   diagramWorkerState,
   settingsState,
-  workspaceMetadataSelector,
 } from "../state/atoms.js";
 import {
+  autosaveHook,
+  saveShortcutHook,
   useCompileDiagram,
   useDownloadSvg,
   useIsUnsaved,
   useNewWorkspace,
   usePublishGist,
   useResampleDiagram,
-  useSaveLocally,
+  useSaveNewWorkspace,
+  useSaveWorkspace,
 } from "../state/callbacks.js";
 import BlueButton from "./BlueButton.js";
 import ExportButton from "./ExportButton.js";
@@ -69,35 +71,47 @@ const HeaderButtonContainer = styled.div`
 
 function EditableTitle() {
   const [editing, setEditing] = useState(false);
-  const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
-  const saveLocally = useSaveLocally();
+  const currentWorkspace = useRecoilValue(currentWorkspaceState);
+  const saveWorkspace = useSaveWorkspace();
   const onChange = useRecoilCallback(
-    ({ set, snapshot }) =>
+    ({ set }) =>
       (e: React.ChangeEvent<HTMLInputElement>) => {
-        set(workspaceMetadataSelector, (state) => ({
+        set(currentWorkspaceState, (state) => ({
           ...state,
-          name: e.target.value,
+          metadata: {
+            ...state.metadata,
+            name: e.target.value,
+          },
         }));
-        const metadata = snapshot.getLoadable(workspaceMetadataSelector)
-          .contents as WorkspaceMetadata;
-        if (metadata.location.kind !== "local" || !metadata.location.saved) {
-          saveLocally();
-        }
       },
   );
-  const onKey = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === "Escape") {
-      setEditing(false);
+
+  const onFinish = () => {
+    if (currentWorkspace.metadata.location.kind == "stored") {
+      saveWorkspace();
     }
-  }, []);
+    setEditing(false);
+  };
+
+  const onKey = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" || e.key === "Escape") {
+        if (currentWorkspace.metadata.location.kind == "stored") {
+          saveWorkspace();
+        }
+        setEditing(false);
+      }
+    },
+    [currentWorkspace],
+  );
   if (editing) {
     return (
       <InputBox
         type="text"
-        value={workspaceMetadata.name}
+        value={currentWorkspace.metadata.name}
         autoFocus={true}
         onFocus={(e) => e.target.select()}
-        onBlur={() => setEditing(false)}
+        onBlur={onFinish}
         onKeyDown={onKey}
         onChange={onChange}
       />
@@ -105,7 +119,7 @@ function EditableTitle() {
   }
   return (
     <TitleBox onClick={() => setEditing(true)}>
-      {workspaceMetadata.name}
+      {currentWorkspace.metadata.name}
     </TitleBox>
   );
 }
@@ -113,13 +127,22 @@ function EditableTitle() {
 export default function TopBar() {
   const compileDiagram = useCompileDiagram();
   const resampleDiagram = useResampleDiagram();
-  const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
+  const currentWorkspace = useRecoilValue(currentWorkspaceState);
   const settings = useRecoilValue(settingsState);
-  const saveLocally = useSaveLocally();
   const publishGist = usePublishGist();
   const { optimizing, compiling } = useRecoilValue(diagramWorkerState);
   const isUnsaved = useIsUnsaved();
   const newWorkspace = useNewWorkspace();
+  const saveWorkspace = useSaveWorkspace();
+  const saveNewWorkspace = useSaveNewWorkspace();
+
+  /**
+   * These hooks are here because 1) In App, the call to get value of
+   * currentWorkspace in autosaveHook creates a noticable slowdown. 2) This
+   * component exists on all loads (why we put here and not SavedBrowser)
+   */
+  saveShortcutHook();
+  autosaveHook();
 
   return (
     <nav
@@ -133,7 +156,7 @@ export default function TopBar() {
         boxSizing: "border-box",
       }}
     >
-      {workspaceMetadata.location.kind === "roger" ? (
+      {currentWorkspace.metadata.location.kind === "roger" ? (
         <div>loaded from filesystem via Roger</div>
       ) : (
         <div
@@ -145,10 +168,10 @@ export default function TopBar() {
         >
           <EditableTitle />
           {isUnsaved() ? <UnsavedIcon>unsaved</UnsavedIcon> : ""}
-          {workspaceMetadata.location.kind === "gist" && (
+          {currentWorkspace.metadata.location.kind === "gist" && (
             <a
               style={{ textDecoration: "none", color: "inherit" }}
-              href={`https://github.com/${workspaceMetadata.location.author}`}
+              href={`https://github.com/${currentWorkspace.metadata.location.author}`}
             >
               <AuthorBox>
                 <div
@@ -156,22 +179,30 @@ export default function TopBar() {
                     width: "25px",
                     height: "25px",
                     margin: "5px",
-                    backgroundImage: `url(${workspaceMetadata.location.avatar})`,
+                    backgroundImage: `url(${currentWorkspace.metadata.location.avatar})`,
                     borderRadius: "50%",
                     backgroundSize: "cover",
                     display: "inline-block",
                   }}
                 />{" "}
-                {workspaceMetadata.location.author}
+                {currentWorkspace.metadata.location.author}
               </AuthorBox>
             </a>
           )}
-          {workspaceMetadata.location.kind === "local" &&
-            !workspaceMetadata.location.saved && (
-              <BlueButton onClick={saveLocally}>save</BlueButton>
+          {currentWorkspace.metadata.location.kind == "local" && (
+            <BlueButton
+              onClick={() => saveNewWorkspace(currentWorkspace.metadata.id)}
+            >
+              save
+            </BlueButton>
+          )}
+          {currentWorkspace.metadata.location.kind === "stored" &&
+            !currentWorkspace.metadata.location.saved && (
+              <BlueButton onClick={() => saveWorkspace()}>save</BlueButton>
             )}
-          {workspaceMetadata.location.kind === "local" &&
-            settings.github !== null && (
+          {currentWorkspace.metadata.location.kind === "stored" &&
+            currentWorkspace.metadata.location.saved &&
+            settings.githubAccessToken !== null && (
               <BlueButton onClick={publishGist}>share</BlueButton>
             )}
 

@@ -20,14 +20,16 @@ class ErrorBoundary extends Component<{ children: ReactElement }> {
 }
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <RecoilRoot>
-      <ErrorBoundary>
-        <React.Suspense fallback={<div>Loading...</div>}>
-          <App />
-        </React.Suspense>
-      </ErrorBoundary>
-      <Toaster />
-    </RecoilRoot>
-  </React.StrictMode>,
+  // React Strict mode is useful for development but causes an additional
+  // render which causes bugs with CheckURL firing twice from App useEffect
+  // <React.StrictMode>
+  <RecoilRoot>
+    <ErrorBoundary>
+      <React.Suspense fallback={<div>Loading...</div>}>
+        <App />
+      </React.Suspense>
+    </ErrorBoundary>
+    <Toaster />
+  </RecoilRoot>,
+  // </React.StrictMode>,
 );
