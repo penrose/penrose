@@ -289,7 +289,6 @@ export type DiagramMetadata = {
   variation: string;
   stepSize: number;
   autostep: boolean;
-  interactive: boolean;
   excludeWarnings: string[];
   source: {
     domain: string;
@@ -328,7 +327,6 @@ export const diagramState = atom<Diagram>({
       variation: generateVariation(),
       stepSize: 10000,
       autostep: true,
-      interactive: false,
       excludeWarnings: [],
       source: {
         substance: "",
@@ -353,6 +351,7 @@ export const diagramWorkerState = atom<{
   id: string;
   init: boolean;
   compiling: boolean;
+  resampling: boolean;
   optimizing: boolean;
 }>({
   key: "diagramWorkerState",
@@ -360,6 +359,7 @@ export const diagramWorkerState = atom<{
     id: "",
     init: false,
     compiling: false,
+    resampling: false,
     optimizing: false,
   },
 });
@@ -483,6 +483,7 @@ export type Settings = {
   github: LocalGithubUser | null;
   vimMode: boolean;
   debugMode: boolean;
+  interactive: boolean;
 };
 
 const settingsEffect: AtomEffect<Settings> = ({ setSelf, onSet }) => {
@@ -525,6 +526,7 @@ export const settingsState = atom<Settings>({
     vimMode: false,
     // debug mode is on by default in local dev mode
     debugMode: process.env.NODE_ENV === "development",
+    interactive: false,
   },
   effects: [settingsEffect, debugModeEffect],
 });

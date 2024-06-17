@@ -1,6 +1,6 @@
 import { showError } from "@penrose/core";
 import { useEffect, useRef, useState } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilStateLoadable, useRecoilValue } from "recoil";
 import {
   Diagram,
   canvasState,
@@ -9,6 +9,7 @@ import {
   diagramWorkerState,
   layoutTimelineState,
   optimizer,
+  settingsState,
   workspaceMetadataSelector,
 } from "../state/atoms.js";
 import { pathResolver } from "../utils/downloadUtils.js";
@@ -26,6 +27,7 @@ export default function DiagramPanel() {
   const workspace = useRecoilValue(workspaceMetadataSelector);
   const rogerState = useRecoilValue(currentRogerState);
   const [workerState, setWorkerState] = useRecoilState(diagramWorkerState);
+  const [settings, setSettings] = useRecoilStateLoadable(settingsState);
 
   useEffect(() => {
     const onUpdate = (info: UpdateInfo) => {
@@ -146,9 +148,13 @@ export default function DiagramPanel() {
           }}
           ref={canvasRef}
         >
-          {diagram.svg && state && !workerState.compiling && (
-            <InteractivityOverlay diagramSVG={diagram.svg} state={state} />
-          )}
+          {diagram.svg &&
+            state &&
+            !workerState.compiling &&
+            !workerState.resampling &&
+            settings.contents.interactive && (
+              <InteractivityOverlay diagramSVG={diagram.svg} state={state} />
+            )}
         </div>
 
         {showEasterEgg && (

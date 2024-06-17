@@ -177,6 +177,10 @@ export const useResampleDiagram = () =>
       }));
     };
 
+    set(diagramWorkerState, (state) => ({
+      ...state,
+      resampling: true,
+    }));
     await handleOptimizerPromises(
       await optimizer.resample(id, variation),
       (x) => set(diagramWorkerState, x),
@@ -184,6 +188,10 @@ export const useResampleDiagram = () =>
       () => toast.dismiss(resamplingLoading),
     );
     toast.dismiss(resamplingLoading);
+    set(diagramWorkerState, (state) => ({
+      ...state,
+      resampling: false,
+    }));
   });
 
 const _saveLocally = (set: any) => {
