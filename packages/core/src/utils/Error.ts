@@ -464,6 +464,12 @@ canvas {
       )}).`;
     }
 
+    case "UndeclaredSubVarError": {
+      return `The substance object ${error.name.value} (at ${loc(
+        error.name,
+      )}) has not been declared in the Style block header.`;
+    }
+
     case "PathToNamespaceError": {
       return `The expression ${error.path.name} (at ${loc(
         error.path,
@@ -850,6 +856,9 @@ export const errLocs = (
         .flat();
       return cycleLocs;
     }
+
+    case "UndeclaredSubVarError":
+      return locOrNone(e.name);
 
     case "DeleteGlobalError":
     case "DeleteSubstanceError":

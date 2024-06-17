@@ -212,6 +212,18 @@ const resolveStylePathHelper = (
   const nextName = next.value;
   if (curr.tag === "Empty") {
     const subObj = findInSubst(subst, next.value);
+
+    // special handling for a substance variable that is not declared in header
+    if (
+      nextName.startsWith("`") &&
+      nextName.endsWith("`") &&
+      subObj === undefined
+    ) {
+      return err({
+        tag: "UndeclaredSubVarError",
+        name: next,
+      });
+    }
     if (subObj !== undefined) {
       if (subObj instanceof Array) {
         return ok({

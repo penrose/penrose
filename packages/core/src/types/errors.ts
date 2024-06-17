@@ -234,6 +234,7 @@ export type StyleError =
   | DeleteSubstanceError
   | MultipleLayoutError
   | MissingPathError
+  | UndeclaredSubVarError
   | PathToCollectionError
   | PathToNamespaceError
   | PathToSubstanceError
@@ -463,6 +464,11 @@ export interface DeleteSubstanceError {
 export interface MissingPathError {
   tag: "MissingPathError";
   path: StylePath<A>;
+}
+
+export interface UndeclaredSubVarError {
+  tag: "UndeclaredSubVarError";
+  name: Identifier<A>;
 }
 
 export interface PathToCollectionError {
