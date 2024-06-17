@@ -1641,7 +1641,6 @@ const checkPathAndUpdateExpr = (
           }),
           assignment,
         );
-        // todo: add an error for this.
       }
       scope = parent2;
     } else {
