@@ -117,7 +117,7 @@ export default function DiagramPanel() {
 
       const layoutResult = await newOptimizer.computeLayout(diagramId, {
         sequenceId: stepSequenceId,
-        step: stepSequenceInfo.layoutStats.at(-1)!.cumulativeSteps - 1,
+        step: stepSequenceInfo.layoutStats.at(-1)!.cumulativeSteps,
       });
       if (layoutResult.isErr()) {
         setDiagram((diagram) => ({
@@ -134,7 +134,7 @@ export default function DiagramPanel() {
       }
 
       if (stepSequenceInfo.state == "Pending") {
-        const frameMs = 50;
+        const frameMs = 25;
         setTimeout(keepComputingLatestLayout, frameMs);
       } else {
         setWorkerState((worker) => ({

@@ -18,7 +18,9 @@ import {
   MessageResult,
   MessageTags,
   Notification,
+  NotificationData,
   notify,
+  notifyWorker,
   request,
   resolveResponse,
   respond,
@@ -90,6 +92,15 @@ const forwardRequest = async (
   return result;
 };
 
+const forwardNotification = (diagramId: DiagramID, data: NotificationData) => {
+  const worker = getWorkerOrError(diagramId);
+  if (worker.isErr()) {
+    throw new Error("Invalid diagram id for notification forward");
+  }
+
+  notifyWorker(worker.value, data);
+};
+
 const compile = async (data: CompileRequestData): Promise<CompileResult> => {
   log.info("Spinning new worker");
   const worker = await spinAndWaitForInit("./worker.ts");
@@ -123,34 +134,59 @@ const discardDiagram = async (
   return result;
 };
 
-self.onmessage = async ({ data }: MessageEvent<MessageRequest>) => {
-  const requestData = data.data;
-  log.info(`Broker received request ${requestData.tag}`);
+self.onmessage = async ({
+  data,
+}: MessageEvent<MessageRequest | Notification>) => {
+  switch (data.tag) {
+    case "MessageRequest":
+      {
+        const requestData = data.data;
+        log.info(`Broker received request ${requestData.tag}`);
 
-  let result: MessageResult;
-  switch (requestData.tag) {
-    case MessageTags.Compile:
-      result = await compile(requestData);
+        let result: MessageResult;
+        switch (requestData.tag) {
+          case MessageTags.Compile:
+            result = await compile(requestData);
+            break;
+
+          case MessageTags.Poll:
+            result = await forwardRequest(requestData.diagramId, requestData);
+            break;
+
+          case MessageTags.ComputeLayout:
+            result = await forwardRequest(requestData.diagramId, requestData);
+            break;
+
+          case MessageTags.DiscardDiagram:
+            result = await discardDiagram(requestData);
+            break;
+
+          default:
+            throw new Error(
+              `Request type ${requestData.tag} not supported for broker`,
+            );
+        }
+        respond(data.messageId, result);
+      }
       break;
 
-    case MessageTags.Poll:
-      result = await forwardRequest(requestData.diagramId, requestData);
-      break;
+    case "Notification":
+      {
+        const notifData = data.data;
+        log.info(`Broker received notification ${notifData.tag}`);
+        switch (notifData.tag) {
+          case "LabelMeasurementData":
+            forwardNotification(notifData.diagramId, notifData);
+            break;
 
-    case MessageTags.ComputeLayout:
-      result = await forwardRequest(requestData.diagramId, requestData);
+          default:
+            throw new Error(
+              `Notification type ${notifData.tag} not supported from main thread to broker`,
+            );
+        }
+      }
       break;
-
-    case MessageTags.DiscardDiagram:
-      result = await discardDiagram(requestData);
-      break;
-
-    default:
-      throw new Error(
-        `Request type ${requestData.tag} not supported for broker`,
-      );
   }
-  respond(data.messageId, result);
 };
 
 log.info("Broker initialized");

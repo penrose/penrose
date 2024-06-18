@@ -1,7 +1,13 @@
-import { collectLabels, mathjaxInit, PenroseError, Shape } from "@penrose/core";
+import {
+  isPenroseError,
+  LabelMeasurements,
+  PenroseError,
+  runtimeError,
+} from "@penrose/core";
 import consola from "consola";
 import { Result } from "true-myth";
 import {
+  collectAndSeparateLabels,
   CompileRequestData,
   CompileResult,
   ComputeLayoutRequestData,
@@ -21,14 +27,16 @@ import {
   MessageResult,
   MessageTags,
   Notification,
+  notifyWorker,
   PollRequestData,
   PollResult,
   RenderState,
   request,
   resolveResponse,
-  separateRenderedLabels,
+  showOptimizerError,
   spinAndWaitForInit,
   Tagged,
+  taggedErr,
 } from "./common.js";
 
 const log = consola.create({ level: logLevel }).withScope("optimizer:client");
@@ -40,6 +48,7 @@ export default class Optimizer {
   >();
 
   private svgCaches = new Map<DiagramID, Map<string, HTMLElement>>();
+  private labelMeasurements = new Map<DiagramID, LabelMeasurements>();
 
   private messageIdGenerator = new MessageIDGenerator();
   private broker: Worker;
@@ -83,18 +92,6 @@ export default class Optimizer {
     );
   };
 
-  private getSvgCache = async (
-    shapes: Shape<number>[],
-  ): Promise<Result<Map<string, HTMLElement>, PenroseError>> => {
-    const convert = mathjaxInit();
-    const labelCache = await collectLabels(shapes, convert);
-    if (labelCache.isErr()) {
-      return Result.err(labelCache.error);
-    }
-
-    return Result.ok(separateRenderedLabels(labelCache.value).svgCache);
-  };
-
   /**
    * Create an optimizer.
    */
@@ -125,7 +122,35 @@ export default class Optimizer {
       substance,
       variation,
     };
-    return await this.request(requestData);
+
+    const compileResult = await this.request(requestData);
+    if (isErr(compileResult)) {
+      return compileResult;
+    }
+
+    const diagramId = compileResult.value.diagramId;
+
+    const renderState = await this.computeLayout(diagramId, {
+      sequenceId: 0,
+      step: 0,
+    });
+    if (renderState.isErr()) {
+      await this.discardDiagram(diagramId);
+      return taggedErr(
+        MessageTags.Compile,
+        isPenroseError(renderState.error)
+          ? renderState.error
+          : runtimeError(showOptimizerError(renderState.error)),
+      );
+    }
+
+    notifyWorker(this.broker, {
+      tag: "LabelMeasurementData",
+      diagramId,
+      labelMeasurements: this.labelMeasurements.get(diagramId)!,
+    });
+
+    return compileResult;
   };
 
   poll = async (diagramId: DiagramID): Promise<PollResult> => {
@@ -134,6 +159,7 @@ export default class Optimizer {
       tag: MessageTags.Poll,
       diagramId,
     };
+
     return await this.request(requestData);
   };
 
@@ -158,14 +184,18 @@ export default class Optimizer {
 
     let svgCache: Map<string, HTMLElement>;
     if (!this.svgCaches.has(diagramId)) {
-      const svgCacheResult = await this.getSvgCache(result.value.shapes);
+      const svgCacheResult = await collectAndSeparateLabels(
+        result.value.shapes,
+      );
       if (svgCacheResult.isErr()) {
         return Result.err(svgCacheResult.error);
       }
-      svgCache = svgCacheResult.value;
+      svgCache = svgCacheResult.value.svgCache;
       this.svgCaches.set(diagramId, svgCache);
+      this.labelMeasurements.set(diagramId, svgCacheResult.value.optLabelCache);
     } else {
       svgCache = this.svgCaches.get(diagramId)!;
+      this.labelMeasurements.set(diagramId, result.value.labelMeasurements);
     }
 
     return Result.ok(layoutStateToRenderState(result.value, svgCache));
@@ -179,6 +209,9 @@ export default class Optimizer {
   discardDiagram = async (
     diagramId: DiagramID,
   ): Promise<DiscardDiagramResult> => {
+    this.svgCaches.delete(diagramId);
+    this.labelMeasurements.delete(diagramId);
+
     const requestData: DiscardDiagramRequestData = {
       tag: MessageTags.DiscardDiagram,
       diagramId,

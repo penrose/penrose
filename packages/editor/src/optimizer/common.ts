@@ -1,13 +1,18 @@
 import {
   Canvas,
+  collectLabels,
   LabelCache,
   LabelData,
   LabelMeasurements,
+  mathjaxInit,
+  Num,
   PenroseError,
   PenroseWarning,
   Shape,
+  State,
 } from "@penrose/core";
 import consola from "consola";
+import { Result } from "true-myth";
 
 // Config
 
@@ -132,7 +137,7 @@ export type MessageResult =
   | DiscardDiagramResult
   | DiscardStepSequenceResult;
 
-export type NotificationData = InitData;
+export type NotificationData = InitData | LabelMeasurementData;
 
 /** Ensure request data and result pairs have the same tag, to check validity */
 export enum MessageTags {
@@ -178,6 +183,12 @@ export type DiscardStepSequenceRequestData = {
 
 export type InitData = {
   tag: "InitData";
+};
+
+export type LabelMeasurementData = {
+  tag: "LabelMeasurementData";
+  diagramId: DiagramID;
+  labelMeasurements: LabelMeasurements;
 };
 
 // Results
@@ -320,6 +331,14 @@ export const notify = (data: NotificationData) => {
   self.postMessage(notification);
 };
 
+export const notifyWorker = (worker: Worker, data: NotificationData) => {
+  const notification: Notification = {
+    tag: "Notification",
+    data,
+  };
+  worker.postMessage(notification);
+};
+
 export const respond = (messageId: MessageID, result: MessageResult) => {
   const response = {
     tag: "MessageResponse",
@@ -450,3 +469,29 @@ export const layoutStateToRenderState = (
   ...layoutState,
   labelCache: addRenderedLabels(layoutState.labelMeasurements, svgCache),
 });
+
+export const collectAndSeparateLabels = async (
+  shapes: Shape<Num>[],
+): Promise<
+  Result<
+    { optLabelCache: LabelMeasurements; svgCache: Map<string, HTMLElement> },
+    PenroseError
+  >
+> => {
+  const convert = mathjaxInit();
+  const labelCache = await collectLabels(shapes, convert);
+  if (labelCache.isErr()) {
+    return Result.err(labelCache.error);
+  }
+
+  return Result.ok(separateRenderedLabels(labelCache.value));
+};
+
+export const stateToLayoutState = (state: State): LayoutState => {
+  return {
+    variation: state.variation,
+    labelMeasurements: separateRenderedLabels(state.labelCache).optLabelCache,
+    canvas: state.canvas,
+    shapes: state.computeShapes(state.varyingValues),
+  };
+};

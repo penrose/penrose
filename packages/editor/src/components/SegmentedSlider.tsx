@@ -53,7 +53,7 @@ const SegmentedSlider: React.FC<SegmentedSliderProps> = ({
       ...acc,
       {
         start: i === 0 ? 0 : acc[i - 1].end,
-        end: i === 0 ? stage.steps : acc[i - 1].end + stage.steps,
+        end: i === 0 ? stage.steps + 1 : acc[i - 1].end + stage.steps + 1,
       },
     ],
     [] as { start: number; end: number }[],
