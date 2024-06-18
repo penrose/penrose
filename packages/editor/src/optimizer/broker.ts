@@ -5,8 +5,7 @@ import {
   CompileResult,
   DiagramID,
   DiagramIDGenerator,
-  DiscardDiagramRequestData,
-  DiscardDiagramResult,
+  DiscardDiagramData,
   InvalidDiagramIDError,
   isOk,
   logLevel,
@@ -122,16 +121,9 @@ const compile = async (data: CompileRequestData): Promise<CompileResult> => {
   return result;
 };
 
-const discardDiagram = async (
-  data: DiscardDiagramRequestData,
-): Promise<DiscardDiagramResult> => {
+const discardDiagram = (data: DiscardDiagramData) => {
   workers.get(data.diagramId)?.terminate();
   workers.delete(data.diagramId);
-  const result: DiscardDiagramResult = taggedOk(
-    MessageTags.DiscardDiagram,
-    null,
-  );
-  return result;
 };
 
 self.onmessage = async ({
@@ -149,22 +141,17 @@ self.onmessage = async ({
             result = await compile(requestData);
             break;
 
-          case MessageTags.Poll:
-            result = await forwardRequest(requestData.diagramId, requestData);
-            break;
-
           case MessageTags.ComputeLayout:
+          case MessageTags.Poll:
+          case MessageTags.Resample:
             result = await forwardRequest(requestData.diagramId, requestData);
             break;
 
-          case MessageTags.DiscardDiagram:
-            result = await discardDiagram(requestData);
-            break;
-
-          default:
-            throw new Error(
-              `Request type ${requestData.tag} not supported for broker`,
-            );
+          // never
+          // default:
+          //   throw new Error(
+          //     `Request type ${requestData.tag} not supported for broker`,
+          //   );
         }
         respond(data.messageId, result);
       }
@@ -175,8 +162,12 @@ self.onmessage = async ({
         const notifData = data.data;
         log.info(`Broker received notification ${notifData.tag}`);
         switch (notifData.tag) {
-          case "LabelMeasurementData":
+          case MessageTags.LabelMeasurements:
             forwardNotification(notifData.diagramId, notifData);
+            break;
+
+          case MessageTags.DiscardDiagram:
+            discardDiagram(notifData);
             break;
 
           default:
@@ -190,4 +181,4 @@ self.onmessage = async ({
 };
 
 log.info("Broker initialized");
-notify({ tag: "InitData" });
+notify({ tag: MessageTags.Init });

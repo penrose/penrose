@@ -41,6 +41,7 @@ import {
   settingsState,
   workspaceMetadataSelector,
 } from "./atoms.js";
+import { generateVariation } from "./variation.js";
 
 const _compileDiagram = async (
   substance: string,
@@ -51,17 +52,20 @@ const _compileDiagram = async (
   set: <T>(state: RecoilState<T>, update: (t: T) => T) => void,
   snapshot: Snapshot,
 ) => {
+  const prevWorkerState = {
+    ...snapshot.getLoadable(diagramWorkerState).contents,
+  };
+
   set(diagramWorkerState, (state) => ({
-    ...state,
+    diagramId: null,
+    stepSequenceId: null,
+    optimizing: false,
     compiling: true,
   }));
 
   const compiling = toast.loading("Compiling...");
   const currentDiagram =
     snapshot.getLoadable(diagramWorkerState).contents.diagramId;
-  if (currentDiagram !== null) {
-    newOptimizer.discardDiagram(currentDiagram);
-  }
   const compileResult = await newOptimizer.compile(
     domain,
     style,
@@ -69,6 +73,10 @@ const _compileDiagram = async (
     variation,
   );
   toast.dismiss(compiling);
+  set(diagramWorkerState, (state) => ({
+    ...state,
+    compiling: false,
+  }));
 
   if (isErr(compileResult)) {
     set(diagramState, (diagram) => ({
@@ -76,21 +84,30 @@ const _compileDiagram = async (
       error: compileResult.error,
     }));
     set(diagramWorkerState, (state) => ({
-      ...state,
-      compiling: false,
+      ...prevWorkerState,
+      optimizing: false,
     }));
     return;
   }
 
-  set(diagramWorkerState, (state) => ({
-    ...state,
-    compiling: false,
-    optimizing: true,
-    diagramId: compileResult.value.diagramId,
-  }));
+  const pollResult = await newOptimizer.poll(compileResult.value.diagramId);
+  if (isErr(pollResult)) {
+    set(diagramState, (diagram) => ({
+      ...diagram,
+      error: runtimeError(showOptimizerError(pollResult.error)),
+    }));
+    set(diagramWorkerState, (state) => ({
+      ...prevWorkerState,
+      optimizing: false,
+    }));
+    return;
+  }
+
   set(diagramState, (diagram) => ({
     ...diagram,
     warnings: compileResult.value.warnings,
+    error: null,
+    layoutStats: [],
     metadata: {
       ...diagram.metadata,
       variation,
@@ -103,22 +120,17 @@ const _compileDiagram = async (
     },
   }));
 
-  const pollResult = await newOptimizer.poll(compileResult.value.diagramId);
-  if (isErr(pollResult)) {
-    set(diagramState, (diagram) => ({
-      ...diagram,
-      error: runtimeError(showOptimizerError(pollResult.error)),
-    }));
-    return;
-  }
-
-  console.log(pollResult);
-
   set(diagramWorkerState, (state) => ({
-    ...state,
+    diagramId: compileResult.value.diagramId,
     // guaranteed only to be one at this point
     stepSequenceId: pollResult.value.keys().next().value,
+    compiling: false,
+    optimizing: true,
   }));
+
+  if (currentDiagram !== null) {
+    newOptimizer.discardDiagram(currentDiagram);
+  }
 };
 
 export const useCompileDiagram = () =>
@@ -150,6 +162,44 @@ export const useIsUnsaved = () =>
 
 export const useResampleDiagram = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
+    const diagram: Diagram = snapshot.getLoadable(diagramState)
+      .contents as Diagram;
+    const { diagramId } = snapshot.getLoadable(diagramWorkerState).contents;
+    if (diagram.state === null) {
+      toast.error("Cannot resample uncompiled diagram");
+      return;
+    }
+    const variation = generateVariation();
+    const resamplingLoading = toast.loading("Resampling...");
+
+    set(diagramWorkerState, (worker) => ({
+      ...worker,
+      stepSequenceId: null,
+    }));
+
+    const resampleResult = await newOptimizer.resample(diagramId, variation);
+    if (isErr(resampleResult)) {
+      set(diagramState, (diagram) => ({
+        ...diagram,
+        error: runtimeError(showOptimizerError(resampleResult.error)),
+      }));
+      return;
+    }
+
+    toast.dismiss(resamplingLoading);
+    set(diagramWorkerState, (worker) => ({
+      ...worker,
+      optimizing: true,
+      stepSequenceId: resampleResult.value,
+    }));
+    set(diagramState, (diagram) => ({
+      ...diagram,
+      error:
+        diagram.error !== null && diagram.error.errorType !== "RuntimeError"
+          ? diagram.error
+          : null,
+    }));
+
     // const diagram: Diagram = snapshot.getLoadable(diagramState)
     //   .contents as Diagram;
     // const id: string = snapshot.getLoadable(diagramWorkerState)

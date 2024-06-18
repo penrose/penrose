@@ -1,11 +1,12 @@
 import {
+  LabelMeasurements,
+  PenroseState,
   compileTrio,
   finalStage,
   insertPending,
   isOptimized,
-  LabelMeasurements,
   nextStage,
-  PenroseState,
+  resample as penroseResample,
   start,
   step,
 } from "@penrose/core";
@@ -18,32 +19,32 @@ import {
   ComputeLayoutResult,
   HistoryInfo,
   HistoryLoc,
-  logLevel,
   MessageRequest,
   MessageResult,
   MessageTags,
   Notification,
-  notify,
   PollResult,
-  respond,
-  stateToLayoutState,
+  ResampleResult,
   StepSequenceID,
   StepSequenceIDGenerator,
   StepSequenceInfo,
+  logLevel,
+  notify,
+  respond,
+  stateToLayoutState,
   taggedErr,
   taggedOk,
 } from "./common.js";
 
 const log = consola.create({ level: logLevel }).withScope("optimizer:worker");
+const stepSequenceIdGenerator = new StepSequenceIDGenerator();
 
-const historyInfo: HistoryInfo = new Map();
+let historyInfo: HistoryInfo = new Map();
 /**
  * Varying values sequence for each step sequence. Kept separate from history
  * info so we don't need to recompute history info on every poll.
  */
-const historyValues: Map<StepSequenceID, number[][]> = new Map();
-
-const stepSequenceIdGenerator = new StepSequenceIDGenerator();
+let historyValues: Map<StepSequenceID, number[][]> = new Map();
 
 /**
  * Context for optimizer. Varying values only represent the last
@@ -89,9 +90,6 @@ const poll = async (): Promise<PollResult> => {
 const computeLayout = async (
   data: ComputeLayoutRequestData,
 ): Promise<ComputeLayoutResult> => {
-  console.log(data);
-  console.log(historyValues);
-  console.log(historyInfo);
   const varyingValues = historyValues.get(data.historyLoc.sequenceId);
   const stepSequenceInfo = historyInfo.get(data.historyLoc.sequenceId);
 
@@ -248,6 +246,19 @@ const startOptimize = async (stepSequenceId: StepSequenceID) => {
   optStepMsgChannel.port2.postMessage(null);
 };
 
+const resample = (variation: string): ResampleResult => {
+  penroseState = penroseResample({
+    ...penroseState!,
+    variation,
+  });
+  historyInfo = new Map();
+  historyValues = new Map();
+  const stepSequenceId = makeNewStepSequence(null, variation);
+  startOptimize(historyInfo.keys().next().value);
+
+  return taggedOk(MessageTags.Resample, stepSequenceId);
+};
+
 self.onmessage = async ({
   data,
 }: MessageEvent<MessageRequest | Notification>) => {
@@ -271,10 +282,15 @@ self.onmessage = async ({
             result = await computeLayout(requestData);
             break;
 
-          default:
-            throw new Error(
-              `Request type ${requestData.tag} not supported for worker`,
-            );
+          case MessageTags.Resample:
+            result = resample(requestData.variation);
+            break;
+
+          // never
+          // default:
+          //   throw new Error(
+          //     `Request type ${requestData.tag} not supported for worker`,
+          //   );
         }
 
         respond(data.messageId, result);
@@ -286,7 +302,7 @@ self.onmessage = async ({
         const notifData = data.data;
         log.info(`Worker recieved notification ${notifData.tag}`);
         switch (notifData.tag) {
-          case "LabelMeasurementData":
+          case MessageTags.LabelMeasurements:
             const partialState = {
               ...penroseState!,
               labelCache: notifData.labelMeasurements,
@@ -308,4 +324,4 @@ self.onmessage = async ({
 };
 
 log.info("Worker initialized");
-notify({ tag: "InitData" });
+notify({ tag: MessageTags.Init });

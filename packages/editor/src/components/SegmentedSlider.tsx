@@ -95,7 +95,7 @@ const SegmentedSlider: React.FC<SegmentedSliderProps> = ({
           <StageLabel
             key={index}
             enabled={stageRanges[index].start <= currValue}
-            width={(stage.steps / (!!totalSteps ? totalSteps : 1)) * 100}
+            width={((stage.steps + 1) / (!!totalSteps ? totalSteps : 1)) * 100}
             color={stage.color}
           >
             {stage.label}

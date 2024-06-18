@@ -12,8 +12,7 @@ import {
   CompileResult,
   ComputeLayoutRequestData,
   DiagramID,
-  DiscardDiagramRequestData,
-  DiscardDiagramResult,
+  DiscardDiagramData,
   HistoryLoc,
   InvalidDiagramIDError,
   InvalidHistoryLocError,
@@ -32,6 +31,8 @@ import {
   PollResult,
   RenderState,
   request,
+  ResampleRequestData,
+  ResampleResult,
   resolveResponse,
   showOptimizerError,
   spinAndWaitForInit,
@@ -145,7 +146,7 @@ export default class Optimizer {
     }
 
     notifyWorker(this.broker, {
-      tag: "LabelMeasurementData",
+      tag: MessageTags.LabelMeasurements,
       diagramId,
       labelMeasurements: this.labelMeasurements.get(diagramId)!,
     });
@@ -206,15 +207,26 @@ export default class Optimizer {
    * if `diagramID` is invalid.
    * @param diagramId Diagram to discard
    */
-  discardDiagram = async (
-    diagramId: DiagramID,
-  ): Promise<DiscardDiagramResult> => {
+  discardDiagram = (diagramId: DiagramID): void => {
     this.svgCaches.delete(diagramId);
     this.labelMeasurements.delete(diagramId);
 
-    const requestData: DiscardDiagramRequestData = {
+    const notifData: DiscardDiagramData = {
       tag: MessageTags.DiscardDiagram,
       diagramId,
+    };
+
+    notifyWorker(this.broker, notifData);
+  };
+
+  resample = async (
+    diagramId: DiagramID,
+    variation: string,
+  ): Promise<ResampleResult> => {
+    const requestData: ResampleRequestData = {
+      tag: MessageTags.Resample,
+      diagramId,
+      variation,
     };
     return await this.request(requestData);
   };

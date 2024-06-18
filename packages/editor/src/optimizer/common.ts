@@ -127,17 +127,18 @@ export type MessageRequestData =
   | CompileRequestData
   | PollRequestData
   | ComputeLayoutRequestData
-  | DiscardDiagramRequestData
-  | DiscardStepSequenceRequestData;
+  | ResampleRequestData;
 
 export type MessageResult =
   | CompileResult
   | PollResult
   | ComputeLayoutResult
-  | DiscardDiagramResult
-  | DiscardStepSequenceResult;
+  | ResampleResult;
 
-export type NotificationData = InitData | LabelMeasurementData;
+export type NotificationData =
+  | InitData
+  | LabelMeasurementData
+  | DiscardDiagramData;
 
 /** Ensure request data and result pairs have the same tag, to check validity */
 export enum MessageTags {
@@ -146,6 +147,9 @@ export enum MessageTags {
   ComputeLayout = "ComputeLayout",
   DiscardDiagram = "DiscardDiagram",
   DiscardStepSequence = "DiscardStepSequence",
+  Init = "Init",
+  LabelMeasurements = "LabelMeasurements",
+  Resample = "Resample",
 }
 
 // Request Data
@@ -169,26 +173,27 @@ export type ComputeLayoutRequestData = {
   historyLoc: HistoryLoc;
 };
 
-export type DiscardDiagramRequestData = {
-  tag: MessageTags.DiscardDiagram;
+export type ResampleRequestData = {
+  tag: MessageTags.Resample;
   diagramId: DiagramID;
-};
-
-export type DiscardStepSequenceRequestData = {
-  tag: MessageTags.DiscardStepSequence;
-  sequenceId: StepSequenceID;
+  variation: string;
 };
 
 // Notification Data
 
 export type InitData = {
-  tag: "InitData";
+  tag: MessageTags.Init;
 };
 
 export type LabelMeasurementData = {
-  tag: "LabelMeasurementData";
+  tag: MessageTags.LabelMeasurements;
   diagramId: DiagramID;
   labelMeasurements: LabelMeasurements;
+};
+
+export type DiscardDiagramData = {
+  tag: MessageTags.DiscardDiagram;
+  diagramId: DiagramID;
 };
 
 // Results
@@ -225,16 +230,10 @@ export type ComputeLayoutResult = TaggedResult<
   MessageTags.ComputeLayout
 >;
 
-export type DiscardDiagramResult = TaggedResult<
-  null,
-  never,
-  MessageTags.DiscardDiagram
->;
-
-export type DiscardStepSequenceResult = TaggedResult<
-  null,
-  never,
-  MessageTags.DiscardStepSequence
+export type ResampleResult = TaggedResult<
+  StepSequenceID,
+  InvalidDiagramIDError,
+  MessageTags.Resample
 >;
 
 // Errors
@@ -315,7 +314,7 @@ export const spinAndWaitForInit = async (url: string): Promise<Worker> => {
     });
     worker.onmessage = ({ data }: MessageEvent<Notification>) => {
       switch (data.data.tag) {
-        case "InitData":
+        case MessageTags.Init:
           worker.onmessage = null;
           resolve(worker);
       }
