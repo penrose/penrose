@@ -4,15 +4,15 @@ import {insertSemicolon, trackNewline} from "./domainTokens.js"
 const spec_Identifier = {__proto__:null,type:12, predicate:22, symmetric:28, function:32, constructor:36}
 export const parser = LRParser.deserialize({
   version: 14,
-  states: "(QQ`QPOOPtOPOOOyQPO'#CcOOQQ'#C|'#C|O!OQRO'#CpQ`QPOOO!WQPO'#C`O!]QPO'#CfO!bQPO'#CiO!gQPO'#CkO!lQPO'#CmP!qOSO'#C^POOO)C>k)C>kO!|QPO,58}OOQO'#DU'#DUOOQO,59[,59[OOQO-E6n-E6nO#RQRO,58zOOQQ,58z,58zO#^QPO,59QOOQQ,59T,59TO#^QPO,59VO#^QPO,59XPOOO'#Co'#CoP#cOSO,58xPOOO,58x,58xO#nQRO'#DOOOQQ'#Cd'#CdOOQQ1G.i1G.iO#yQPO'#ChOOQQ1G.l1G.lO$RQPO1G.qO$WQRO1G.sPOOO-E6m-E6mPOOO1G.d1G.dOOQO'#Ce'#CeO$cQPO'#CqO$hQRO,59jO$sQPO'#DSO%OQPO,59SO%TQPO7+$]O%YQPO7+$_OOQQ,59],59]OOQQ-E6o-E6oO%_QPO'#CrO%dQPO,59nO%dQPO,59nOOQQ1G.n1G.nOOQQ<<Gw<<GwOOQQ<<Gy<<GyO%lQPO,59^OOQO-E6p-E6pO%wQPO1G/YOOQO1G.x1G.x",
-  stateData: "&P~OjOSkOSPOSlPQ~OTQOUUOZVO^WO`XObYO~OlZO~Oq]O~Oh^Oy^O~OTaO~OTcO~OZVO~OTeO~OTfO~OmgOngOoiO~OTjO~Oq]OhSaySa~OumO~OmgOngOorO~OssOhrXyrX~OTvOtvP~OwxO~OwyOhaiyai~OTzO~OssOhrayra~OT!OOssOtvX~Ot!PO~OT!QO~OT!RO~OT!SO~OssOtva~OT!VOsfatfa~OssOtvi~O",
+  states: "(^Q`QPOOPtOPOOOyQPO'#CcOOQQ'#C|'#C|O!OQRO'#CpQ`QPOOO!WQPO'#C`O!]QPO'#CfO!bQPO'#CiO!gQPO'#CkO!lQPO'#CmP!qOSO'#C^POOO)C>k)C>kO!|QPO,58}OOQO'#DU'#DUOOQO,59[,59[OOQO-E6n-E6nO#RQRO,58zOOQQ,58z,58zO#^QPO,59QOOQQ,59T,59TO#^QPO,59VO#^QPO,59XPOOO'#Co'#CoP#cOSO,58xPOOO,58x,58xO#nQRO'#DOOOQQ'#Cd'#CdOOQQ1G.i1G.iO#yQPO'#ChOOQQ1G.l1G.lO$RQPO1G.qO$WQRO1G.sPOOO-E6m-E6mPOOO1G.d1G.dOOQO'#Ce'#CeO$cQPO'#CqO$hQRO,59jO$sQPO'#DSO%OQPO,59SO%TQPO7+$]O%YQPO7+$_OOQQ,59],59]OOQQ-E6o-E6oO%_QPO'#CrO%dQPO,59nO%dQPO,59nOOQQ1G.n1G.nO%lQRO<<GwO%wQRO<<GyO&SQPO,59^OOQO-E6p-E6pO&_QPO1G/YOOQQAN=cAN=cOOQQAN=eAN=eOOQO1G.x1G.x",
+  stateData: "&g~OjOSkOSPOSlPQ~OTQOUUOZVO^WO`XObYO~OlZO~Oq]O~Oh^Oy^O~OTaO~OTcO~OZVO~OTeO~OTfO~OmgOngOoiO~OTjO~Oq]OhSaySa~OumO~OmgOngOorO~OssOhrXyrX~OTvOtvP~OwxO~OwyOhaiyai~OTzO~OssOhrayra~OT!OOssOtvX~Ot!PO~OT!QO~OT!RO~OT!SO~OssOtva~OT!VOh_yy_y~OT!WOhayyay~OT!XOsfatfa~OssOtvi~O",
   goto: "#ryPPzP}PP!R!Y!]!gP!n}P}P}P!w!}#T#ZPPPPPPPPP#eP#iPPP#lP#oR[PTROTSROTRbURl]StjuX|v}!O!USROTRdWQncQoeRpfQhZRqhQTOR`TQujR{uQ}vS!T}!UR!U!OTSOTRk]RwmR_S",
   nodeNames: "⚠ LineComment BlockComment Program Type Identifier type Subtype InheritanceList Sep Predicate predicate ParamList SymPred symmetric Function function Constructor constructor",
   maxTerm: 41,
   context: trackNewline,
   skippedNodes: [0,1,2,19],
   repeatNodeCount: 4,
-  tokenData: "$r~RaXY!WYZ!iZ[!W]^!ipq!Wxy!nyz!s|}!x}!O!}!P!Q#t!Q![$P!]!^$b!^!_$g!c!}$P#R#S$P#T#o$P$f$g!W~!]Sj~XY!WZ[!Wpq!W$f$g!W~!nOk~~!sOu~~!xOt~~!}Os~~#QQ}!O#W!`!a#o~#]SP~OY#WZ;'S#W;'S;=`#i<%lO#W~#lP;=`<%l#W~#tOw~~#wPz{#z~$POl~~$UST~!Q![$P!c!}$P#R#S$P#T#o$P~$gOy~~$jP![!]$m~$rOq~",
+  tokenData: "%_~RdXY!aYZ!rZ[!a]^!rpq!atu!wxy#lyz#q|}#v}!O#{!P!Q$r!]!^$}!^!_%S!c!}!w#R#S!w#T#o!w$f$g!a$g;'S!w;'S;=`#f<%lO!w~!fSj~XY!aZ[!apq!a$f$g!a~!wOk~~!|WT~tu!w!Q![!w!c!}!w#R#S!w#T#o!w$g;'S!w;'S;=`#f<%lO!w~#iP;=`<%l!w~#qOu~~#vOt~~#{Os~~$OQ}!O$U!`!a$m~$ZSP~OY$UZ;'S$U;'S;=`$g<%lO$U~$jP;=`<%l$U~$rOw~~$uPz{$x~$}Ol~~%SOy~~%VP![!]%Y~%_Oq~",
   tokenizers: [1, insertSemicolon, new LocalTokenGroup("j~RQYZXz{^~^On~~aP!P!Qd~iOo~~", 25, 29)],
   topRules: {"Program":[0,3]},
   specialized: [{term: 5, get: (value) => spec_Identifier[value] || -1}],

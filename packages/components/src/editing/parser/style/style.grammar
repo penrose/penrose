@@ -1,5 +1,5 @@
 @top Input { Items }
-@precedence {Path, Type, times @left, plus @left}
+@precedence {Path, Type, call, prefix, postfix, times @left, plus @left, compare}
 
 // macros
 
@@ -39,6 +39,11 @@ StageList {
 
 Stage {
 	Identifier
+}
+
+// For some reason doing (kw<"in"> || kw<"except">) throws an error
+StageSpecifier {
+	(kw<"in"> | kw<"except">) (StageList | Stage)
 }
 
 Header {
@@ -118,6 +123,7 @@ Into { kw<"into"> Identifier }
 // block rules
 
 Block { "{" sepBy<Statement, semi> "}" }
+
 Statement { Delete | Override | Assign | AnonExpr }
 Delete { kw<"delete"> Path }
 Override { kw<"override"> Path "=" AssignExpr }
@@ -128,7 +134,7 @@ Type {
 	@extend<Identifier,
 		("scalar" |
 		"int" |
-		"bool" |
+		"bool" |	
 		"string" |
 		"path" |
 		"color" |
@@ -167,7 +173,16 @@ Expr {
 	List |
 	Tuple |
 	Vector | 
+	Parenthesized |
+	UnaryExpression |
 	BinaryExpression
+}
+
+Parenthesized[@dynamicPrecedence=1] { "(" Expr ~vector ")" }
+
+UnaryExpression {
+	!prefix "-" Expr |
+	Expr !postfix "'"
 }
 
 BinaryExpression {
@@ -175,35 +190,36 @@ BinaryExpression {
 	Expr !plus (BinOp<"+" | "-">) Expr
 }
 
-AnnotatedFloat { "?" | Number } 
-ComputationFunction { Identifier "(" commaSep<Expr> ")" }
+AnnotatedFloat { ("?" (!postfix StageSpecifier)? | Number) } 
+// AnnotatedFloat { ("?" | Number) } 
+ComputationFunction { Identifier !call "(" commaSep<Expr> ")" }
 StyVarExpr {
 	kw<"listof"> Identifier kw<"from"> Identifier |
 	(kw<"numberof"> | kw<"nameof">) Identifier
 }
 List { "[" commaSep<Expr> "]" }
 Tuple { "{" Expr "," Expr "}" }
-Vector { "(" commaSep1<Expr> ")" }
+Vector { "(" commaSep1<Expr> ~vector  ")" }
 Layering { 
 	kw<"layer">? Path (kw<"above"> | kw<"below">) commaSep1<Path> 
 }
 Objective {
-	kw<"encourage"> ObjConstrBody
+	kw<"encourage"> ObjConstrBody StageSpecifier?
 }
 Constraint {
-	kw<"ensure"> ObjConstrBody
+	kw<"ensure"> ObjConstrBody StageSpecifier?
 }
 ObjConstrBody {
 	// function call
-	Identifier "(" commaSep<Expr> ")" |
+	Identifier !call "(" commaSep<Expr> ")" |
 	// comparison expr
-	Expr CompareOp Expr 
+	Expr !compare CompareOp Expr 
 }
 ShapeDecl {
-	ShapeName "{" PropertyDecl* "}"
+	ShapeName "{" sepBy<PropertyDecl, semi> "}"
 }
 ShapeName { Identifier }
-PropertyDecl { PropName ":" Expr semi }
+PropertyDecl { PropName ":" Expr }
 PropName { Identifier }
 BinOp<tkn> { tkn }
 
@@ -240,8 +256,8 @@ BinOp<tkn> { tkn }
 	LineComment { "--" ![\n]* }
   eof { @eof }
 	Number {
-		(@digit ("_" | @digit)* ("." ("_" | @digit)*)? | "." @digit ("_" | @digit)*)
-			(("e" | "E") ("+" | "-")? ("_" | @digit)+)?
+		(@digit+ ("." (@digit)*)? | "." @digit+)
+		(("e" | "E") ("+" | "-")? @digit+)?
 	}
 
 	String {
@@ -261,7 +277,7 @@ BinOp<tkn> { tkn }
 
 
 	@precedence { Number "." }
-	@precedence{LineComment, "-"}
+	@precedence {LineComment, "-"}
 }
 
 

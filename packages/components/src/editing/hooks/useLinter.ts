@@ -53,6 +53,7 @@ export const createLinter = (
 ) => {
   return useCallback(
     async (view: EditorView) => {
+      console.log(error);
       let diagnostics: Diagnostic[] = [];
 
       const errPairs = error === null ? [] : errLocPairs(error);

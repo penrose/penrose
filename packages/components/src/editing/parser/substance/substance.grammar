@@ -34,7 +34,7 @@ Labeling {
 }
 
 ArgList {
-    "(" commaSep<(Identifier | String | Number | Float | (ArithOp<"-">) Number | (ArithOp<"-">) Float)> ")"
+    "(" commaSep<(Identifier | String | Number | (ArithOp<"-">) Number | (ArithOp<"-">))> ")"
 }
 
 IndexedStatement {
@@ -72,7 +72,6 @@ BooleanExpression {
 }
 
 NumericExpression {
-    Float |
     Number |
     Identifier |
     (ArithOp<"-">) NumericExpression |
@@ -99,20 +98,22 @@ commaSep1<content> {
 }
 
 @tokens {
-    Identifier { $[a-zA-Z0-9_]+ }
+	identifierChar { @asciiLetter | $[_$\u{a1}-\u{10ffff}] }
+  	word { identifierChar (identifierChar | @digit)* }
+    Identifier { word }
     // this might be way too inclusive 
     TeX {"$" ![$]+ "$"}
     LineComment[@export] { "--" ![\n]* }
     spaces[@export] { $[\u0009 \u000b\u00a0]+ }
     newline[@export] { $[\r\n] }
-    Number {$[0-9]+}
-    Float {$[0-9]+"."$[0-9]+}
+	Number {
+		(@digit+ ("." (@digit)*)? | "." @digit+)
+		(("e" | "E") ("+" | "-")? @digit+)?
+	}
     Boolean {"true" | "false"}
     String { '"' (!["\\] | "\\" _)* '"' }
 
-    @precedence {Float, Number}
     @precedence {Number, Identifier}
-    @precedence {Float, Identifier}
     @precedence {Boolean, Identifier}
     @precedence {LineComment, "-"}
 

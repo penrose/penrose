@@ -12,9 +12,11 @@ import CodeMirror from "@uiw/react-codemirror";
 import { useRef } from "react";
 import { DomainCache, SubstanceCache } from "../editing/types";
 import DomainAutocomplete from "./hooks/domain/domainAutocomplete";
+import StyleAutocomplete from "./hooks/style/styleAutocomplete";
 import SubstanceAutocomplete from "./hooks/substance/substanceAutocomplete";
 import { createLinter } from "./hooks/useLinter";
 import { domainLanguageSupport } from "./parser/domain/domainLanguage";
+import { styleLanguageSupport } from "./parser/style/styleLanguage";
 import { substanceLanguageSupport } from "./parser/substance/substanceLanguage";
 import { penroseEditorTheme } from "./theme";
 // import { ErrorLoc } from "@penrose/core/dist/utils/Util.js";
@@ -82,12 +84,12 @@ export default function EditorPane({
     substanceLanguageSupport(),
   ].concat(defaultExtensions);
 
-  // const styleCompletionFn = StyleAutocomplete();
-  // const styleExtensions = [
-  //   autocompletion({ override: [styleCompletionFn] }),
-  //   styleLanguageSupport(),
-  // ].concat(defaultExtensions);
-  const styleExtensions = defaultExtensions;
+  const styleCompletionFn = StyleAutocomplete();
+  const styleExtensions = [
+    autocompletion({ override: [styleCompletionFn] }),
+    styleLanguageSupport(),
+  ].concat(defaultExtensions);
+  // const styleExtensions = defaultExtensions.concat(styleLanguageSupport());
 
   let extensionsList =
     languageType === "domain"

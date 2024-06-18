@@ -26,11 +26,11 @@ SymPred {
 }
 
 Function {
-    kw<"function"> Identifier ParamList "->" Identifier
+    kw<"function"> Identifier ParamList "->" Identifier Identifier?
 }
 
 Constructor {
-    kw<"constructor"> Identifier ParamList ("->" Identifier)?
+    kw<"constructor"> Identifier ParamList ("->" Identifier Identifier?)?
 }
 
 Subtype {
@@ -61,7 +61,9 @@ Sep {
 }
 
 @tokens {
-    Identifier { $[a-zA-Z0-9_]+ }
+	identifierChar { @asciiLetter | $[_$\u{a1}-\u{10ffff}] }
+    word { identifierChar (identifierChar | @digit)* }
+    Identifier { word }
     LineComment[@export] { "--" ![\n]* }
     spaces[@export] { $[\u0009 \u000b\u00a0]+ }
     newline[@export] { $[\r\n] }
