@@ -1097,6 +1097,43 @@ delete x.z.p }`,
           x = listof c from aa
         }`,
       ],
+      UndeclaredSubVarError: [
+        `forall Set \`B\` {
+           \`B\`.x = 100 
+         }
+           forall Set a {
+           a.x = \`B\`.x
+         }`,
+      ],
+      PathToSubstanceError: [
+        `forall Set x {
+          v = x
+        }`,
+      ],
+      PathToCollectionError: [
+        `collect Set s into ss {
+          x = ss
+        }`,
+      ],
+      PathToNamespaceError: [
+        `ns {
+          x = 100
+        }
+        forall Set x {
+          y = ns
+        }`,
+      ],
+      CollectionMemberAccessError: [
+        `collect Set s into ss {
+          x = ss.r
+        }`,
+      ],
+      UnindexableItemError: [
+        `forall Set x {
+          x.icon = Circle {}
+          y = x.icon[1]
+        }`,
+      ],
       // TODO: this test should _not_ fail, but it's failing because we are skipping `OptEval` checks for access paths
       //       InvalidAccessPathError: [
       //         `forall Set x {

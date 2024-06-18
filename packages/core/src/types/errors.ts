@@ -245,7 +245,7 @@ export type StyleError =
   | PathToCollectionError
   | PathToNamespaceError
   | PathToSubstanceError
-  | CollectionFieldAccessError
+  | CollectionMemberAccessError
   | MissingShapeError
   | NestedShapeError
   | NotCollError
@@ -493,7 +493,7 @@ export interface PathToNamespaceError {
   path: StylePathToNamespaceScope<A>;
 }
 
-export interface CollectionFieldAccessError {
+export interface CollectionMemberAccessError {
   tag: "CollectionMemberAccessError";
   path: StylePathToCollection<A>;
   field: string;
