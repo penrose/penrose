@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="a03b704c-3545-4c30-9659-d3d31e9f2362" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/packages/editor/src/components/DiagramPanel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/editor/src/components/DiagramPanel.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/editor/src/components/SegmentedSlider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/editor/src/components/SegmentedSlider.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/editor/src/optimizer/broker.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/editor/src/optimizer/broker.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/editor/src/optimizer/common.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/editor/src/optimizer/common.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/editor/src/optimizer/optimizer.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/editor/src/optimizer/optimizer.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/editor/src/optimizer/worker.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/editor/src/optimizer/worker.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/editor/src/state/callbacks.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/editor/src/state/callbacks.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/editor/src/utils/renderUtils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/editor/src/utils/renderUtils.ts" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="2gpg9cNIl99fZBw2e2NNitEKFLU" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;Vitest.OptimizerWorker.executor&quot;: &quot;Run&quot;,
+    &quot;Vitest.OptimizerWorker.fuzz 10.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;lsp-style-worker&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/griffinteller/penrose&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;yarn&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/Users/griffinteller/penrose/node_modules/typescript/lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/packages/editor/src/newWorker" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Vitest.OptimizerWorker.fuzz 10">
+    <configuration name="OptimizerWorker" type="JavaScriptTestRunnerVitest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <vitest-package value="$PROJECT_DIR$/node_modules/vitest" />
+      <working-dir value="$PROJECT_DIR$/packages/editor" />
+      <vitest-options value="--run" />
+      <envs />
+      <scope-kind value="SUITE" />
+      <test-file value="$PROJECT_DIR$/packages/editor/src/worker/OptimizerWorker.test.ts" />
+      <test-names>
+        <test-name value="OptimizerWorker" />
+      </test-names>
+      <method v="2" />
+    </configuration>
+    <configuration name="OptimizerWorker.fuzz 10" type="JavaScriptTestRunnerVitest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <vitest-package value="$PROJECT_DIR$/packages/editor/node_modules/vitest" />
+      <working-dir value="$PROJECT_DIR$/packages/editor" />
+      <vitest-options value="--run" />
+      <envs />
+      <scope-kind value="TEST" />
+      <test-file value="$PROJECT_DIR$/packages/editor/src/worker/OptimizerWorker.test.ts" />
+      <test-names>
+        <test-name value="OptimizerWorker" />
+        <test-name value="fuzz 10" />
+      </test-names>
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Vitest.OptimizerWorker.fuzz 10" />
+        <item itemvalue="Vitest.OptimizerWorker" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-WS-241.17011.90" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="a03b704c-3545-4c30-9659-d3d31e9f2362" name="Changes" comment="" />
+      <created>1716399783998</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1716399783998</updated>
+      <workItem from="1716399785289" duration="144000" />
+      <workItem from="1716399933015" duration="2195000" />
+      <workItem from="1716402530914" duration="33324000" />
+      <workItem from="1716498495342" duration="10850000" />
+      <workItem from="1716560819689" duration="8284000" />
+      <workItem from="1716570402165" duration="359000" />
+      <workItem from="1716570769173" duration="3554000" />
+      <workItem from="1716902567876" duration="22705000" />
+      <workItem from="1716927828621" duration="9365000" />
+      <workItem from="1716989338506" duration="63336000" />
+      <workItem from="1717104023041" duration="16002000" />
+      <workItem from="1717171820074" duration="993000" />
+      <workItem from="1717173537084" duration="1047000" />
+      <workItem from="1717177548008" duration="27764000" />
+      <workItem from="1717417605026" duration="14955000" />
+      <workItem from="1717452052288" duration="34771000" />
+      <workItem from="1717551379573" duration="14493000" />
+      <workItem from="1717608376818" duration="51238000" />
+      <workItem from="1717791315736" duration="8779000" />
+      <workItem from="1717864350302" duration="2692000" />
+      <workItem from="1718027373349" duration="42640000" />
+      <workItem from="1718135850452" duration="34990000" />
+      <workItem from="1718285208664" duration="39818000" />
+      <workItem from="1718409999693" duration="21000" />
+      <workItem from="1718631465907" duration="26601000" />
+      <workItem from="1718717480390" duration="12838000" />
+      <workItem from="1718732944244" duration="12680000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ID_ORDER">
+      <list>
+        <option value="Default.Root" />
+        <option value="Default.Author" />
+        <option value="Default.Date" />
+        <option value="Default.Subject" />
+        <option value="GitHub.CommitStatus" />
+      </list>
+    </option>
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
