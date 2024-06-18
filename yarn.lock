@@ -17361,11 +17361,6 @@ trough@^1.0.0:
   resolved "https://registry.yarnpkg.com/true-myth/-/true-myth-4.1.1.tgz#ff4ac9d5130276e34aa338757e2416ec19248ba2"
   integrity sha512-rqy30BSpxPznbbTcAcci90oZ1YR4DqvKcNXNerG5gQBU2v4jk0cygheiul5J6ExIMrgDVuanv/MkGfqZbKrNNg==
 
-"true-myth@^7.3.0":
-  version "7.3.0"
-  resolved "https://registry.yarnpkg.com/true-myth/-/true-myth-7.3.0.tgz#668f2cd3dfdb92a6479911b31d3094b1da23c221"
-  integrity sha512-kbtDomawnft9aoAe3RMIntB/mqtlSuo9yVhNy3wCwcLoTeth1dyp+NMmBF1FbDMMvdaqFQ2ksP8Y6s1/gUhyQg==
-
 ts-api-utils@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/ts-api-utils/-/ts-api-utils-1.0.1.tgz#8144e811d44c749cd65b2da305a032510774452d"

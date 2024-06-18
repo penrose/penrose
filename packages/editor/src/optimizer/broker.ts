@@ -1,13 +1,19 @@
+import consola from "consola";
+import { Result } from "true-myth";
 import {
   CompileRequestData,
   CompileResult,
   DiagramID,
   DiagramIDGenerator,
+  DiscardDiagramRequestData,
   DiscardDiagramResult,
+  InvalidDiagramIDError,
+  isOk,
   logLevel,
   MessageID,
   MessageIDGenerator,
   MessageRequest,
+  MessageRequestData,
   MessageResponse,
   MessageResult,
   MessageTags,
@@ -17,61 +23,87 @@ import {
   resolveResponse,
   respond,
   spinAndWaitForInit,
-  StepSequenceIDGenerator,
-  taggedOk
+  taggedErr,
+  taggedOk,
 } from "./common.js";
-import consola from "consola";
-import { Unit } from "true-myth";
 
-
-const log = consola
-  .create({ level: logLevel })
-  .withScope("optimizer:broker");
+const log = consola.create({ level: logLevel }).withScope("optimizer:broker");
 
 const workers = new Map<DiagramID, Worker>();
 const resolvesById = new Map<MessageID, (result: MessageResult) => void>();
 
 const diagramIdGenerator = new DiagramIDGenerator();
 const messageIdGenerator = new MessageIDGenerator();
-const stepSequenceIdGenerator = new StepSequenceIDGenerator();
 
-const makeWorkerOnMessage = (diagramId: DiagramID) =>
+const makeWorkerOnMessage =
+  (diagramId: DiagramID) =>
   ({ data }: MessageEvent<MessageResponse | Notification>) => {
     switch (data.tag) {
       case "MessageResponse":
         const result = data.result;
         log.info(
-          `Received ${result.tag} from worker with diagramId 
-          ${diagramId} for messageId ${data.messageId}
-        `);
+          `Broker received response ${result.tag} from worker with diagramId ${diagramId} for messageId ${data.messageId}`,
+        );
         resolveResponse(data, resolvesById);
         break;
 
       case "Notification":
         throw new Error(
-          `Broker does not support notification ${data.data.tag}`
+          `Broker does not support notification ${data.data.tag}`,
         );
     }
+  };
+
+const getWorkerOrError = (
+  diagramId: DiagramID,
+): Result<Worker, InvalidDiagramIDError> => {
+  const worker = workers.get(diagramId);
+  if (!worker) {
+    return Result.err({
+      tag: "InvalidDiagramIDError",
+      id: diagramId,
+      validIds: new Set(workers.keys()),
+    });
+  } else {
+    return Result.ok(worker);
+  }
+};
+
+const forwardRequest = async (
+  diagramId: DiagramID,
+  data: MessageRequestData,
+): Promise<MessageResult> => {
+  const worker = getWorkerOrError(diagramId);
+
+  let result: any;
+  if (worker.isErr()) {
+    result = taggedErr(data.tag, worker.error);
+  } else {
+    result = await request(
+      worker.value,
+      data,
+      resolvesById,
+      messageIdGenerator,
+    );
   }
 
-const spinWorkerAndCompile = async (
-  compileData: CompileRequestData,
-): Promise<CompileResult> => {
+  return result;
+};
+
+const compile = async (data: CompileRequestData): Promise<CompileResult> => {
   log.info("Spinning new worker");
   const worker = await spinAndWaitForInit("./worker.ts");
   const diagramId = diagramIdGenerator.next();
-  worker.onmessage = makeWorkerOnMessage(diagramId)
+  worker.onmessage = makeWorkerOnMessage(diagramId);
 
-  const result = await request(
-    worker,
-    compileData,
-    resolvesById,
-    messageIdGenerator,
-  );
+  let result = await request(worker, data, resolvesById, messageIdGenerator);
 
-  if (result.result.isOk) {
+  if (isOk(result)) {
     workers.set(diagramId, worker);
-    result.result.value = diagramId;
+    result = taggedOk(MessageTags.Compile, {
+      ...result.value,
+      diagramId,
+    });
   } else {
     worker.terminate();
   }
@@ -79,24 +111,38 @@ const spinWorkerAndCompile = async (
   return result;
 };
 
+const discardDiagram = async (
+  data: DiscardDiagramRequestData,
+): Promise<DiscardDiagramResult> => {
+  workers.get(data.diagramId)?.terminate();
+  workers.delete(data.diagramId);
+  const result: DiscardDiagramResult = taggedOk(
+    MessageTags.DiscardDiagram,
+    null,
+  );
+  return result;
+};
+
 self.onmessage = async ({ data }: MessageEvent<MessageRequest>) => {
   const requestData = data.data;
   log.info(`Broker received request ${requestData.tag}`);
+
+  let result: MessageResult;
   switch (requestData.tag) {
     case MessageTags.Compile:
-      const compileResult = await spinWorkerAndCompile(requestData);
-      respond(data.messageId, compileResult);
-      log.info(workers);
+      result = await compile(requestData);
+      break;
+
+    case MessageTags.Poll:
+      result = await forwardRequest(requestData.diagramId, requestData);
+      break;
+
+    case MessageTags.ComputeLayout:
+      result = await forwardRequest(requestData.diagramId, requestData);
       break;
 
     case MessageTags.DiscardDiagram:
-      workers.get(requestData.diagramId)?.terminate();
-      workers.delete(requestData.diagramId);
-      log.info(workers);
-      const discardResult: DiscardDiagramResult = taggedOk(
-        MessageTags.DiscardDiagram, Unit
-      );
-      respond(data.messageId, discardResult);
+      result = await discardDiagram(requestData);
       break;
 
     default:
@@ -104,6 +150,7 @@ self.onmessage = async ({ data }: MessageEvent<MessageRequest>) => {
         `Request type ${requestData.tag} not supported for broker`,
       );
   }
+  respond(data.messageId, result);
 };
 
 log.info("Broker initialized");

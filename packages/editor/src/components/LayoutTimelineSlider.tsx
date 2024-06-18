@@ -1,26 +1,45 @@
 // a slider that shows the history of the diagram layout optimization, requesting shapes from the worker and rendering them on demand
 
 import { penroseBlue } from "@penrose/components";
+import { runtimeError } from "@penrose/core";
 import { useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { diagramState, diagramWorkerState, optimizer } from "../state/atoms.js";
+import {
+  diagramState,
+  diagramWorkerState,
+  newOptimizer,
+} from "../state/atoms.js";
 import SegmentedSlider from "./SegmentedSlider.js";
 
 export const LayoutTimelineSlider: React.FC<{}> = (props) => {
   const [diagram, setDiagram] = useRecoilState(diagramState);
-  const { optimizing } = useRecoilValue(diagramWorkerState);
+  const { optimizing, diagramId, stepSequenceId } =
+    useRecoilValue(diagramWorkerState);
   const [waiting, setWaiting] = useState(false);
 
   const onChange = (i: number) => {
     // request shapes from worker
     async function requestShapes() {
+      if (diagramId === null || stepSequenceId === null) return;
+
       setWaiting(true);
-      const state = await optimizer.computeShapesAtIndex(i);
-      setDiagram((diagram) => ({
-        ...diagram,
-        state: state,
-      }));
-      setWaiting(false);
+      const state = await newOptimizer.computeLayout(diagramId, {
+        sequenceId: stepSequenceId,
+        step: i,
+      });
+      if (state.isErr()) {
+        setWaiting(false);
+        setDiagram((diagram) => ({
+          ...diagram,
+          error: runtimeError("Failed to compute shapes"), // TODO: better handling
+        }));
+      } else {
+        setWaiting(false);
+        setDiagram((diagram) => ({
+          ...diagram,
+          state: state.value,
+        }));
+      }
     }
 
     if (!waiting) {
@@ -42,7 +61,7 @@ export const LayoutTimelineSlider: React.FC<{}> = (props) => {
       <SegmentedSlider
         disabled={optimizing}
         segments={
-          optimizer.getStats().map((stat, i) => ({
+          diagram.layoutStats.map((stat, i) => ({
             label: stat.name,
             steps: stat.steps,
             color: penroseBlue.primary,

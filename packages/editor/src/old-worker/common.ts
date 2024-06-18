@@ -134,20 +134,6 @@ export const stateToLayoutState = (state: State): LayoutState => {
   };
 };
 
-const removeRenderedLabels = <T extends LabelData>(labelData: T): LabelData => {
-  if (labelData.tag === "EquationData") {
-    return {
-      tag: "EquationData",
-      width: labelData.width,
-      height: labelData.height,
-      descent: labelData.descent,
-      ascent: labelData.ascent,
-    };
-  } else {
-    return labelData;
-  }
-};
-
 export const separateRenderedLabels = (
   labelCache: LabelCache,
 ): { optLabelCache: LabelMeasurements; svgCache: Map<string, HTMLElement> } => {
@@ -162,29 +148,6 @@ export const separateRenderedLabels = (
   });
 
   return { optLabelCache, svgCache };
-};
-
-export const addRenderedLabels = (
-  optLabelCache: LabelMeasurements,
-  svgCache: Map<string, HTMLElement>,
-): LabelCache => {
-  const labelCache: LabelCache = new Map();
-
-  optLabelCache.forEach((value, key) => {
-    if (value.tag === "EquationData") {
-      labelCache.set(key, {
-        tag: "EquationData",
-        width: value.width,
-        height: value.height,
-        rendered: svgCache.get(key)!,
-        descent: value.descent,
-        ascent: value.ascent,
-      });
-    } else {
-      labelCache.set(key, value);
-    }
-  });
-  return labelCache;
 };
 
 export const renderStateToLayoutState = (state: RenderState): LayoutState => ({
@@ -204,4 +167,3 @@ export type LayoutStats = {
   name: string;
   steps: number;
 }[];
-

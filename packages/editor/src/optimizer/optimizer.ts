@@ -1,30 +1,45 @@
+import { collectLabels, mathjaxInit, PenroseError, Shape } from "@penrose/core";
+import consola from "consola";
+import { Result } from "true-myth";
 import {
   CompileRequestData,
   CompileResult,
+  ComputeLayoutRequestData,
   DiagramID,
   DiscardDiagramRequestData,
   DiscardDiagramResult,
+  HistoryLoc,
+  InvalidDiagramIDError,
+  InvalidHistoryLocError,
+  isErr,
+  layoutStateToRenderState,
   logLevel,
   MessageID,
-  MessageIDGenerator, MessageRequest, MessageRequestData,
+  MessageIDGenerator,
+  MessageRequestData,
   MessageResponse,
   MessageResult,
   MessageTags,
-  Notification, PollRequestData, PollResult,
-  request, resolveResponse,
-  spinAndWaitForInit, Tagged
+  Notification,
+  PollRequestData,
+  PollResult,
+  RenderState,
+  request,
+  resolveResponse,
+  separateRenderedLabels,
+  spinAndWaitForInit,
+  Tagged,
 } from "./common.js";
-import consola from "consola";
 
-const log = consola
-  .create({ level: logLevel })
-  .withScope("optimizer:client");
+const log = consola.create({ level: logLevel }).withScope("optimizer:client");
 
 export default class Optimizer {
   private resolvesByMsgId = new Map<
     MessageID,
     (result: MessageResult) => void
   >();
+
+  private svgCaches = new Map<DiagramID, Map<string, HTMLElement>>();
 
   private messageIdGenerator = new MessageIDGenerator();
   private broker: Worker;
@@ -46,6 +61,7 @@ export default class Optimizer {
   }: MessageEvent<MessageResponse | Notification>) => {
     switch (data.tag) {
       case "MessageResponse":
+        log.info(`Main thread received response ${data.result.tag}`);
         resolveResponse(data, this.resolvesByMsgId);
         break;
 
@@ -65,7 +81,19 @@ export default class Optimizer {
       this.resolvesByMsgId,
       this.messageIdGenerator,
     );
-  }
+  };
+
+  private getSvgCache = async (
+    shapes: Shape<number>[],
+  ): Promise<Result<Map<string, HTMLElement>, PenroseError>> => {
+    const convert = mathjaxInit();
+    const labelCache = await collectLabels(shapes, convert);
+    if (labelCache.isErr()) {
+      return Result.err(labelCache.error);
+    }
+
+    return Result.ok(separateRenderedLabels(labelCache.value).svgCache);
+  };
 
   /**
    * Create an optimizer.
@@ -100,21 +128,53 @@ export default class Optimizer {
     return await this.request(requestData);
   };
 
-  poll = async (
-    diagramId: DiagramID,
-  ): Promise<PollResult> => {
+  poll = async (diagramId: DiagramID): Promise<PollResult> => {
     log.info("Sending poll request to broker");
     const requestData: PollRequestData = {
       tag: MessageTags.Poll,
       diagramId,
     };
     return await this.request(requestData);
-  }
+  };
+
+  computeLayout = async (
+    diagramId: DiagramID,
+    historyLoc: HistoryLoc,
+  ): Promise<
+    Result<
+      RenderState,
+      InvalidDiagramIDError | InvalidHistoryLocError | PenroseError
+    >
+  > => {
+    const requestData: ComputeLayoutRequestData = {
+      tag: MessageTags.ComputeLayout,
+      diagramId,
+      historyLoc,
+    };
+    const result = await this.request(requestData);
+    if (isErr(result)) {
+      return Result.err(result.error);
+    }
+
+    let svgCache: Map<string, HTMLElement>;
+    if (!this.svgCaches.has(diagramId)) {
+      const svgCacheResult = await this.getSvgCache(result.value.shapes);
+      if (svgCacheResult.isErr()) {
+        return Result.err(svgCacheResult.error);
+      }
+      svgCache = svgCacheResult.value;
+      this.svgCaches.set(diagramId, svgCache);
+    } else {
+      svgCache = this.svgCaches.get(diagramId)!;
+    }
+
+    return Result.ok(layoutStateToRenderState(result.value, svgCache));
+  };
 
   /**
    * Mark diagram as unused and discard the worker associated with it. No-op
    * if `diagramID` is invalid.
-   * @param diagramID Diagram to discard
+   * @param diagramId Diagram to discard
    */
   discardDiagram = async (
     diagramId: DiagramID,
@@ -124,5 +184,5 @@ export default class Optimizer {
       diagramId,
     };
     return await this.request(requestData);
-  }
+  };
 }

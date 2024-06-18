@@ -1,13 +1,17 @@
-import { PenroseError, Shape } from "@penrose/core";
-import { Result, Unit } from "true-myth";
+import {
+  Canvas,
+  LabelCache,
+  LabelData,
+  LabelMeasurements,
+  PenroseError,
+  PenroseWarning,
+  Shape,
+} from "@penrose/core";
 import consola from "consola";
-import { ok } from "true-myth/result";
-
 
 // Config
 
 export const logLevel = (consola as any).LogLevel.Info;
-
 
 // Basic types
 
@@ -42,6 +46,7 @@ export type HistoryLoc = {
 export type LayoutStats = {
   name: string;
   steps: number;
+  cumulativeSteps: number;
 }[];
 
 /**
@@ -59,17 +64,37 @@ export type StepSequenceState = "Pending" | "Done" | OptimizationError;
  *  - `parent`: The step sequence and step from which this sequence originated,
  *    or null if this is a root sequence
  *  - `state`: State of the step sequence
+ *  - `variation`: Variation string on last resample
  */
 export type StepSequenceInfo = {
   layoutStats: LayoutStats;
   parent: HistoryLoc | null;
   state: StepSequenceState;
+  variation: string;
 };
 
-export type HistoryStats = Map<StepSequenceID, StepSequenceInfo>;
+export type HistoryInfo = Map<StepSequenceID, StepSequenceInfo>;
 
 export type MessageResolve = (result: MessageResult) => void;
 
+export type LayoutState = {
+  canvas: Canvas;
+  shapes: Shape<number>[];
+  labelMeasurements: LabelMeasurements;
+  variation: string;
+};
+
+export type RenderState = {
+  canvas: Canvas;
+  shapes: Shape<number>[];
+  labelCache: LabelCache;
+  variation: string;
+};
+
+export type CompileInfo = {
+  diagramId: DiagramID;
+  warnings: PenroseWarning[];
+};
 
 // Message types
 
@@ -96,14 +121,14 @@ export type Notification = {
 export type MessageRequestData =
   | CompileRequestData
   | PollRequestData
-  | ComputeShapesRequestData
+  | ComputeLayoutRequestData
   | DiscardDiagramRequestData
   | DiscardStepSequenceRequestData;
 
 export type MessageResult =
   | CompileResult
   | PollResult
-  | ComputeShapesResult
+  | ComputeLayoutResult
   | DiscardDiagramResult
   | DiscardStepSequenceResult;
 
@@ -113,7 +138,7 @@ export type NotificationData = InitData;
 export enum MessageTags {
   Compile = "Compile",
   Poll = "Poll",
-  ComputeShapes = "ComputeShapes",
+  ComputeLayout = "ComputeLayout",
   DiscardDiagram = "DiscardDiagram",
   DiscardStepSequence = "DiscardStepSequence",
 }
@@ -133,8 +158,8 @@ export type PollRequestData = {
   diagramId: number;
 };
 
-export type ComputeShapesRequestData = {
-  tag: MessageTags.ComputeShapes;
+export type ComputeLayoutRequestData = {
+  tag: MessageTags.ComputeLayout;
   diagramId: DiagramID;
   historyLoc: HistoryLoc;
 };
@@ -157,38 +182,49 @@ export type InitData = {
 
 // Results
 
-export type TaggedResult<V, E, T> = {
+export type TaggedOk<V, T> = {
   tag: T;
-  result: Result<V, E>;
-}
+  variant: "Ok";
+  value: V;
+};
+
+export type TaggedErr<E, T> = {
+  tag: T;
+  variant: "Err";
+  error: E;
+};
+
+export type TaggedResult<V, E, T> = TaggedOk<V, T> | TaggedErr<E, T>;
 
 export type CompileResult = TaggedResult<
-  DiagramID,
+  CompileInfo,
   PenroseError,
   MessageTags.Compile
 >;
 
-export type PollResult = {
-  tag: MessageTags.Poll;
-  result: Result<HistoryStats, InvalidDiagramIDError>;
-};
+export type PollResult = TaggedResult<
+  HistoryInfo,
+  InvalidDiagramIDError,
+  MessageTags.Poll
+>;
 
-export type ComputeShapesResult = {
-  tag: MessageTags.ComputeShapes;
-  result: Result<
-    Shape<number>[],
-    InvalidDiagramIDError | InvalidHistoryLocError
-  >;
-};
+export type ComputeLayoutResult = TaggedResult<
+  LayoutState,
+  InvalidDiagramIDError | InvalidHistoryLocError | PenroseError,
+  MessageTags.ComputeLayout
+>;
 
-export type DiscardDiagramResult = {
-  tag: MessageTags.DiscardDiagram;
-  result: Result<Unit, never>;
-};
-export type DiscardStepSequenceResult = {
-  tag: MessageTags.DiscardStepSequence;
-  result: Result<Unit, never>;
-};
+export type DiscardDiagramResult = TaggedResult<
+  null,
+  never,
+  MessageTags.DiscardDiagram
+>;
+
+export type DiscardStepSequenceResult = TaggedResult<
+  null,
+  never,
+  MessageTags.DiscardStepSequence
+>;
 
 // Errors
 
@@ -201,13 +237,17 @@ export type InvalidDiagramIDError = {
 export type InvalidHistoryLocError = {
   tag: "InvalidHistoryLocError";
   historyLoc: HistoryLoc;
-  historyStats: HistoryStats;
+  historyInfo: HistoryInfo;
 };
 export type OptimizationError = {
   tag: "OptimizationError";
-  message: string;
+  error: unknown;
 };
 
+export type OptimizerError =
+  | OptimizationError
+  | InvalidDiagramIDError
+  | InvalidHistoryLocError;
 
 // Utils
 
@@ -291,7 +331,7 @@ export const respond = (messageId: MessageID, result: MessageResult) => {
 
 export const resolveResponse = (
   response: MessageResponse,
-  resolvesById: Map<MessageID, MessageResolve>
+  resolvesById: Map<MessageID, MessageResolve>,
 ) => {
   const resolve = resolvesById.get(response.messageId);
   if (!resolve) {
@@ -301,18 +341,112 @@ export const resolveResponse = (
   }
   resolve(response.result);
   resolvesById.delete(response.messageId);
-}
+};
 
 export const taggedOk = <V, E, T>(tag: T, value: V): TaggedResult<V, E, T> => {
   return {
     tag,
-    result: Result.ok(value),
+    variant: "Ok",
+    value,
   };
-}
+};
 
 export const taggedErr = <V, E, T>(tag: T, error: E): TaggedResult<V, E, T> => {
   return {
     tag,
-    result: Result.err(error),
+    variant: "Err",
+    error,
   };
-}
+};
+
+export const isOk = <V, E, T>(
+  result: TaggedResult<V, E, T>,
+): result is TaggedOk<V, T> => {
+  return result.variant === "Ok";
+};
+
+export const isErr = <V, E, T>(
+  result: TaggedResult<V, E, T>,
+): result is TaggedErr<E, T> => {
+  return result.variant === "Err";
+};
+
+export const removeRenderedLabels = <T extends LabelData>(
+  labelData: T,
+): LabelData => {
+  if (labelData.tag === "EquationData") {
+    return {
+      tag: "EquationData",
+      width: labelData.width,
+      height: labelData.height,
+      descent: labelData.descent,
+      ascent: labelData.ascent,
+    };
+  } else {
+    return labelData;
+  }
+};
+
+export const showOptimizerError = (error: OptimizerError): string => {
+  switch (error.tag) {
+    case "OptimizationError":
+      return `OptimizationError: ${JSON.stringify(error)}`;
+
+    case "InvalidDiagramIDError":
+      return `InvalidDiagramIDError: Id ${
+        error.id
+      } is invalid. Valid ids: ${error.validIds.keys()}`;
+
+    case "InvalidHistoryLocError":
+      return `InvalidHistoryLocError:\n    Location: ${JSON.stringify(
+        error.historyLoc,
+      )}\n    History Info: ${JSON.stringify(error.historyInfo)}\n`;
+  }
+};
+
+export const addRenderedLabels = (
+  optLabelCache: LabelMeasurements,
+  svgCache: Map<string, HTMLElement>,
+): LabelCache => {
+  const labelCache: LabelCache = new Map();
+
+  optLabelCache.forEach((value, key) => {
+    if (value.tag === "EquationData") {
+      labelCache.set(key, {
+        tag: "EquationData",
+        width: value.width,
+        height: value.height,
+        rendered: svgCache.get(key)!,
+        descent: value.descent,
+        ascent: value.ascent,
+      });
+    } else {
+      labelCache.set(key, value);
+    }
+  });
+  return labelCache;
+};
+
+export const separateRenderedLabels = (
+  labelCache: LabelCache,
+): { optLabelCache: LabelMeasurements; svgCache: Map<string, HTMLElement> } => {
+  const optLabelCache: LabelMeasurements = new Map<string, LabelData>();
+  const svgCache: Map<string, HTMLElement> = new Map();
+
+  labelCache.forEach((value, key) => {
+    optLabelCache.set(key, removeRenderedLabels(value));
+    if (value.tag === "EquationData") {
+      svgCache.set(key, value.rendered);
+    }
+  });
+
+  return { optLabelCache, svgCache };
+};
+
+export const layoutStateToRenderState = (
+  layoutState: LayoutState,
+  svgCache: Map<string, HTMLElement>,
+) => ({
+  ...layoutState,
+  labelCache: addRenderedLabels(layoutState.labelMeasurements, svgCache),
+});

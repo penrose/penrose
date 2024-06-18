@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { defineWebWorkers } from "@vitest/web-worker/pure";
-import { describe, expect, it, test } from "vitest";
+import { describe, it } from "vitest";
 import Optimizer from "./optimizer";
 
 // copied from `packages/examples/src/set-theory-domain/setTheory.domain`

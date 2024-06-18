@@ -1,13 +1,14 @@
-import { showError } from "@penrose/core";
+import { isPenroseError, runtimeError, showError } from "@penrose/core";
 import { useEffect, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
+import { isErr, showOptimizerError } from "../optimizer/common.js";
 import {
   canvasState,
   currentRogerState,
   diagramState,
   diagramWorkerState,
   layoutTimelineState,
-  optimizer,
+  newOptimizer,
   workspaceMetadataSelector,
 } from "../state/atoms.js";
 import { pathResolver } from "../utils/downloadUtils.js";
@@ -22,7 +23,7 @@ export default function DiagramPanel() {
   const [showEasterEgg, setShowEasterEgg] = useState(false);
   const workspace = useRecoilValue(workspaceMetadataSelector);
   const rogerState = useRecoilValue(currentRogerState);
-  const workerState = useRecoilValue(diagramWorkerState);
+  const [workerState, setWorkerState] = useRecoilState(diagramWorkerState);
 
   const requestRef = useRef<number>();
 
@@ -51,34 +52,104 @@ export default function DiagramPanel() {
     }
   }, [diagram.state]);
 
-  // TODO: since the diagram state is updated by the `onUpdate` callback provided to the worker, this effect will get triggered every time the diagram state updates, which in turn triggers another `onUpdate` again. Perhaps this is okay?
-  useEffect(() => {
-    if (workerState.optimizing) {
-      // request the next frame if the diagram state updates
-      requestRef.current = requestAnimationFrame(step);
-      // Make sure the effect runs only once. Otherwise there might be other `step` calls running in the background causing race conditions
-      return () => cancelAnimationFrame(requestRef.current!);
-    }
-  }, [diagram.state]);
+  // // TODO: since the diagram state is updated by the `onUpdate` callback provided to the worker, this effect will get triggered every time the diagram state updates, which in turn triggers another `onUpdate` again. Perhaps this is okay?
+  // useEffect(() => {
+  //   if (workerState.optimizing) {
+  //     // request the next frame if the diagram state updates
+  //     requestRef.current = requestAnimationFrame(step);
+  //     // Make sure the effect runs only once. Otherwise there might be other `step` calls running in the background causing race conditions
+  //     return () => cancelAnimationFrame(requestRef.current!);
+  //   }
+  // }, [diagram.state]);
+  //
+  // const step = async () => {
+  //   if (state) {
+  //     try {
+  //       const info = await optimizer.pollForUpdate();
+  //       if (info !== null) {
+  //         setDiagram((state) => ({
+  //           ...state,
+  //           state: info.state,
+  //         }));
+  //       }
+  //     } catch (error: any) {
+  //       setDiagram((state) => ({
+  //         ...state,
+  //         error,
+  //       }));
+  //     }
+  //   }
+  // };
 
-  const step = async () => {
-    if (state) {
-      try {
-        const info = await optimizer.pollForUpdate();
-        if (info !== null) {
-          setDiagram((state) => ({
-            ...state,
-            state: info.state,
-          }));
-        }
-      } catch (error: any) {
-        setDiagram((state) => ({
-          ...state,
-          error,
+  const keepComputingLatestLayout = async () => {
+    const { diagramId, stepSequenceId } = workerState;
+    if (
+      diagramId !== null &&
+      stepSequenceId !== null &&
+      workerState.optimizing
+    ) {
+      const pollResult = await newOptimizer.poll(diagramId);
+      if (isErr(pollResult)) {
+        setDiagram((diagram) => ({
+          ...diagram,
+          error: runtimeError(showOptimizerError(pollResult.error)),
+        }));
+        return;
+      }
+
+      const stepSequenceInfo = pollResult.value.get(stepSequenceId);
+      if (!stepSequenceInfo) {
+        setDiagram((diagram) => ({
+          ...diagram,
+          error: runtimeError(
+            `Invalid step sequence id ${stepSequenceId} for diagram`,
+          ),
+        }));
+        return;
+      }
+
+      console.log(stepSequenceInfo);
+
+      setDiagram((diagram) => ({
+        ...diagram,
+        layoutStats: stepSequenceInfo.layoutStats,
+      }));
+
+      const layoutResult = await newOptimizer.computeLayout(diagramId, {
+        sequenceId: stepSequenceId,
+        step: stepSequenceInfo.layoutStats.at(-1)!.cumulativeSteps - 1,
+      });
+      if (layoutResult.isErr()) {
+        setDiagram((diagram) => ({
+          ...diagram,
+          error: isPenroseError(layoutResult.error)
+            ? layoutResult.error
+            : runtimeError(showOptimizerError(layoutResult.error)),
+        }));
+      } else {
+        setDiagram((diagram) => ({
+          ...diagram,
+          state: layoutResult.value,
+        }));
+      }
+
+      if (stepSequenceInfo.state == "Pending") {
+        const frameMs = 50;
+        setTimeout(keepComputingLatestLayout, frameMs);
+      } else {
+        setWorkerState((worker) => ({
+          ...worker,
+          optimizing: false,
         }));
       }
     }
   };
+
+  useEffect(() => {
+    if (workerState.optimizing) {
+      keepComputingLatestLayout();
+    }
+  }, [workerState]);
 
   const layoutTimeline = useRecoilValue(layoutTimelineState);
   const unexcludedWarnings = warnings.filter(

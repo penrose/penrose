@@ -20,12 +20,14 @@ import {
 } from "recoil";
 import { v4 as uuid } from "uuid";
 import { layoutModel } from "../App.js";
-import { RenderState } from "../worker/common.js";
-import OptimizerWorker from "../worker/OptimizerWorker.js";
+import {
+  DiagramID,
+  LayoutStats,
+  RenderState,
+  StepSequenceID,
+} from "../optimizer/common.js";
+import Optimizer from "../optimizer/optimizer.js";
 import { generateVariation } from "./variation.js";
-import Optimizer from "../optimizer/optimizer";
-
-export const optimizer = new OptimizerWorker();
 
 export const newOptimizer = await Optimizer.create();
 
@@ -305,6 +307,7 @@ export type Diagram = {
   state: RenderState | null;
   error: PenroseError | null;
   warnings: PenroseWarning[];
+  layoutStats: LayoutStats;
   metadata: DiagramMetadata;
 };
 
@@ -325,6 +328,7 @@ export const diagramState = atom<Diagram>({
     state: null,
     error: null,
     warnings: [],
+    layoutStats: [],
     metadata: {
       variation: generateVariation(),
       stepSize: 10000,
@@ -351,15 +355,15 @@ export const layoutTimelineState = atom<LayoutTimeline>({
 });
 
 export const diagramWorkerState = atom<{
-  id: string;
-  init: boolean;
+  diagramId: DiagramID | null;
+  stepSequenceId: StepSequenceID | null;
   compiling: boolean;
   optimizing: boolean;
 }>({
   key: "diagramWorkerState",
   default: {
-    id: "",
-    init: false,
+    diagramId: null,
+    stepSequenceId: null,
     compiling: false,
     optimizing: false,
   },
