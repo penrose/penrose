@@ -8,3 +8,11 @@ export type DomainCache = {
 export type SubstanceCache = {
   varNames: string[];
 };
+
+export type ShapeProperties = {
+  [key: string]: string;
+};
+
+export type ShapeDefinitions = {
+  [shapeName: string]: ShapeProperties;
+};

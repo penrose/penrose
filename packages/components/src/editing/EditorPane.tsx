@@ -9,8 +9,12 @@ import {
   SubstanceError,
 } from "@penrose/core/dist/types/errors.js";
 import CodeMirror from "@uiw/react-codemirror";
-import { useRef } from "react";
-import { DomainCache, SubstanceCache } from "../editing/types";
+import { useEffect, useRef, useState } from "react";
+import {
+  DomainCache,
+  ShapeDefinitions,
+  SubstanceCache,
+} from "../editing/types";
 import DomainAutocomplete from "./hooks/domain/domainAutocomplete";
 import StyleAutocomplete from "./hooks/style/styleAutocomplete";
 import SubstanceAutocomplete from "./hooks/substance/substanceAutocomplete";
@@ -22,6 +26,38 @@ import { penroseEditorTheme } from "./theme";
 // import { ErrorLoc } from "@penrose/core/dist/utils/Util.js";
 // import { errLocs, showError } from "@penrose/core";
 import { linter } from "@codemirror/lint";
+
+import {
+  ShapeType,
+  makeCanvas,
+  sampleShape,
+  shapeTypes,
+  simpleContext,
+} from "@penrose/core";
+
+/**
+ * Retrieves defintions for all shapes and writes their properties to a
+ * hashmap object with shapeName as the top level key with the value being
+ * a hashmap of properties that belong to the shape as keys with type as value
+ */
+const getShapeDefs = (): ShapeDefinitions => {
+  const shapeProps = {} as ShapeDefinitions;
+  const size = 311; // placeholder, this doesn't matter
+
+  for (const shapeName of shapeTypes) {
+    const shapeSample = sampleShape(
+      shapeName as ShapeType,
+      simpleContext("ShapeProps dummy"),
+      makeCanvas(size, size),
+    );
+
+    shapeProps[shapeName] = Object.fromEntries(
+      Object.entries(shapeSample).map(([key, value]) => [key, value.tag]),
+    );
+  }
+
+  return shapeProps;
+};
 
 export default function EditorPane({
   value,
@@ -46,8 +82,6 @@ export default function EditorPane({
   warnings: StyleWarning[];
   showCompileErrs: boolean;
 }) {
-  // console.log("err", error);
-  // console.log("warn", warnings);
   // no idea what this does
   const statusBarRef = useRef<HTMLDivElement>(null);
 
@@ -68,6 +102,12 @@ export default function EditorPane({
     lintGutter(),
   ];
 
+  const [shapeDefs, setshapeDefs] = useState<ShapeDefinitions>({});
+
+  useEffect(() => {
+    setshapeDefs(getShapeDefs());
+  }, []);
+
   let domainCompletionFn = DomainAutocomplete(domainCache);
 
   const domainExtensions = [
@@ -84,7 +124,7 @@ export default function EditorPane({
     substanceLanguageSupport(),
   ].concat(defaultExtensions);
 
-  const styleCompletionFn = StyleAutocomplete();
+  const styleCompletionFn = StyleAutocomplete(domainCache, shapeDefs);
   const styleExtensions = [
     autocompletion({ override: [styleCompletionFn] }),
     styleLanguageSupport(),

@@ -1,8 +1,12 @@
 import { CompletionContext } from "@codemirror/autocomplete";
 import { syntaxTree } from "@codemirror/language";
 import { useCallback } from "react";
+import { DomainCache, ShapeDefinitions } from "../../types";
 
-const StyleAutocomplete = () => {
+const StyleAutocomplete = (
+  domainCache: DomainCache,
+  shapeDefns: ShapeDefinitions,
+) => {
   return useCallback(
     async (context: CompletionContext) => {
       let nodeBefore = syntaxTree(context.state).resolveInner(context.pos, -1);
@@ -26,8 +30,7 @@ const StyleAutocomplete = () => {
       }
       return null;
     },
-    [],
-    // need to specify, otherwise domainCache won't update correctly
+    [domainCache, shapeDefns],
   );
 };
 

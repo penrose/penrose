@@ -246,7 +246,7 @@ BinOp<tkn> { tkn }
 	hex { @digit | $[a-fA-F] }
 	stringContentDouble { ![\\\n"]+ }
 	identifierChar { @asciiLetter | $[_$\u{a1}-\u{10ffff}] }
-  word { identifierChar (identifierChar | @digit)* }
+  	word { identifierChar (identifierChar | @digit)* }
 	newline[@export] { $[\r\n] }
   spaces[@export] { $[ \t]+ }
 	BooleanLiteral { "true" | "false" }
