@@ -1,6 +1,8 @@
 import { CompletionContext } from "@codemirror/autocomplete";
 import { syntaxTree } from "@codemirror/language";
 import { printTree } from "@lezer-unofficial/printer";
+import { SyntaxNode } from "@lezer/common";
+import { constrDict } from "@penrose/core";
 import { useCallback } from "react";
 import { DomainCache, ShapeDefinitions, ShapeProperties } from "../../types";
 import { extractText } from "../hooksUtils";
@@ -15,10 +17,57 @@ const getShapeProps = (shapeProps: ShapeProperties) => {
   ]);
 };
 
+const getConstraints = () => {
+  return Object.entries(constrDict).flatMap(([key, value]) => [
+    {
+      label: key,
+      type: "function ",
+      info: "description" in value ? value.description : "",
+    },
+  ]);
+};
+
+const typeNames = [
+  "scalar",
+  "int",
+  "bool",
+  "string",
+  "path",
+  "color",
+  "file",
+  "style",
+  "shape",
+  "vec2",
+  "vec3",
+  "vec4",
+  "mat2x2",
+  "mat3x3",
+  "mat4x4",
+  "function",
+  "objective",
+  "constraint",
+].map((name) => ({
+  label: `${name} `,
+  type: "type",
+}));
+
 const headerOptions = ["forall", "collect", "layout"].map((kw) => ({
   label: `${kw} `,
   type: "keyword",
 }));
+
+const goToParentX = (parentNode: SyntaxNode, x: number) => {
+  let i = 0;
+  let nextParent: SyntaxNode | null = parentNode;
+  while (i < x) {
+    nextParent = nextParent.parent;
+    i++;
+    if (nextParent == null) {
+      return null;
+    }
+  }
+  return nextParent;
+};
 
 const StyleAutocomplete = (
   domainCache: DomainCache,
@@ -50,13 +99,15 @@ const StyleAutocomplete = (
         return null;
       }
 
+      if (parentNode == null) {
+        return null;
+      }
+
       /*
        * Shape property auto complete. Properties nested as identifier
        * inside PropName inside PropertyDecl inside ShapeDecl
        */
       if (
-        // Inside PropName
-        parentNode != null &&
         // Inside PropertyDecl
         parentNode.parent != null &&
         // Inside ShapeDecl
@@ -83,8 +134,6 @@ const StyleAutocomplete = (
 
       // Top level kw completion (forall, collect, layout)
       if (
-        // Go up to namespace
-        parentNode != null &&
         // Go up to header
         parentNode.parent != null &&
         parentNode.parent.name === "Header"
@@ -94,6 +143,23 @@ const StyleAutocomplete = (
           options: headerOptions,
         };
       }
+      if (parentNode != null) console.log(goToParentX(parentNode, 5));
+
+      // Constraint completion
+      // Path: StyVar, Var, Path, Expr, ObjConstrBody, Constraint/Objective
+      // (5+parentNode)
+      const upSix = goToParentX(parentNode, 5);
+      if (
+        upSix != null &&
+        (upSix.name === "Objective" || upSix.name === "Constraint")
+      ) {
+        return {
+          from: word.from,
+          options: getConstraints(),
+        };
+      }
+
+      //
 
       return null;
     },
