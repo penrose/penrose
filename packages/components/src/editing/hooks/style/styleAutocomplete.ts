@@ -159,7 +159,22 @@ const StyleAutocomplete = (
         };
       }
 
-      //
+      // Namespace types completion
+      // Path: StyVar, Var, Path, Assign, Statement, Block, HeaderBlock
+      const upSeven = goToParentX(parentNode, 6);
+      if (
+        upSeven != null &&
+        // Go down into Header
+        upSeven.firstChild != null &&
+        // Go down into Namespace
+        upSeven.firstChild.firstChild != null &&
+        upSeven.firstChild.firstChild.name === "Namespace"
+      ) {
+        return {
+          from: word.from,
+          options: typeNames,
+        };
+      }
 
       return null;
     },
