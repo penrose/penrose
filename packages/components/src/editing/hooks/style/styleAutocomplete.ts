@@ -15,6 +15,11 @@ const getShapeProps = (shapeProps: ShapeProperties) => {
   ]);
 };
 
+const headerOptions = ["forall", "collect", "layout"].map((kw) => ({
+  label: `${kw} `,
+  type: "keyword",
+}));
+
 const StyleAutocomplete = (
   domainCache: DomainCache,
   shapeDefns: ShapeDefinitions,
@@ -74,6 +79,20 @@ const StyleAutocomplete = (
             options: getShapeProps(shapeDefns[shapeName]),
           };
         }
+      }
+
+      // Top level kw completion (forall, collect, layout)
+      if (
+        // Go up to namespace
+        parentNode != null &&
+        // Go up to header
+        parentNode.parent != null &&
+        parentNode.parent.name === "Header"
+      ) {
+        return {
+          from: word.from,
+          options: headerOptions,
+        };
       }
 
       return null;
