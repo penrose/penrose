@@ -1,7 +1,19 @@
 import { CompletionContext } from "@codemirror/autocomplete";
 import { syntaxTree } from "@codemirror/language";
+import { printTree } from "@lezer-unofficial/printer";
 import { useCallback } from "react";
-import { DomainCache, ShapeDefinitions } from "../../types";
+import { DomainCache, ShapeDefinitions, ShapeProperties } from "../../types";
+import { extractText } from "../hooksUtils";
+
+const getShapeProps = (shapeProps: ShapeProperties) => {
+  return Object.entries(shapeProps).flatMap(([key, value]) => [
+    {
+      label: key,
+      type: "property",
+      detail: value,
+    },
+  ]);
+};
 
 const StyleAutocomplete = (
   domainCache: DomainCache,
@@ -20,14 +32,50 @@ const StyleAutocomplete = (
         leftSib = parentNode.prevSibling;
         parentNode = parentNode.parent;
       }
-
-      //   console.log(wholeTree.toString(), leftSib, parent);
-      console.log(wholeTree.toString());
+      console.log(
+        printTree(wholeTree, context.state.doc.toString()),
+        nodeBefore,
+        parentNode,
+      );
+      // console.log(wholeTree.toString(), leftSib, parent);
+      // console.log(wholeTree.toString());
 
       // not sure what this does, stolen from autocomplete example
       if (word == null || (word.from === word.to && !context.explicit)) {
         return null;
       }
+
+      /*
+       * Shape property auto complete. Properties nested as identifier
+       * inside PropName inside PropertyDecl inside ShapeDecl
+       */
+      if (
+        // Inside PropName
+        parentNode != null &&
+        // Inside PropertyDecl
+        parentNode.parent != null &&
+        // Inside ShapeDecl
+        parentNode.parent.parent != null &&
+        parentNode.parent.parent.name === "ShapeDecl" &&
+        // There is a ShapeName
+        parentNode.parent.parent.firstChild !== null
+      ) {
+        // Get shape name
+        let shapeNameNode = parentNode.parent.parent.firstChild;
+        let shapeName = extractText(
+          context.state.doc.toString(),
+          shapeNameNode.to,
+          shapeNameNode.from,
+        );
+        // We allow arbitrary shape names, so check it actually exists
+        if (shapeDefns[shapeName]) {
+          return {
+            from: word.from,
+            options: getShapeProps(shapeDefns[shapeName]),
+          };
+        }
+      }
+
       return null;
     },
     [domainCache, shapeDefns],
