@@ -197,10 +197,22 @@ export const idOf = (value: string, nodeType: NodeType): Identifier<C> => ({
 
 export const lastLocation = (parser: nearley.Parser): SourceLoc | undefined => {
   const lexerState = parser.lexerState;
+  const lexerNext = parser.lexer.next();
   if (lexerState) {
     return {
       line: lexerState.line,
       col: lexerState.col,
+    };
+    // lexerState returns as undefined for some parse errors
+    // lexerNext is Token or undefined. Token can be a string or a dictionary
+  } else if (
+    typeof lexerNext === "object" &&
+    "line" in lexerNext &&
+    "col" in lexerNext
+  ) {
+    return {
+      line: Number(lexerNext.line),
+      col: Number(lexerNext.col),
     };
   } else {
     return undefined;

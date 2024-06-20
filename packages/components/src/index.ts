@@ -31,4 +31,9 @@ export {
   penroseBlue,
 };
 
-export { type DomainCache, type SubstanceCache } from "./editing/types.js";
+export {
+  type DomainCache,
+  type ShapeDefinitions,
+  type ShapeProperties,
+  type SubstanceCache,
+} from "./editing/types.js";
