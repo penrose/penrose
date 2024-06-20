@@ -66,6 +66,20 @@ const collectKws = ["encourage", "ensure"].map((kw) => ({
   type: "keyword",
 }));
 
+const getTypeOptions = (domainCache: DomainCache) => {
+  return domainCache.typeNames.map((type) => ({
+    label: `${type} `,
+    type: "type",
+  }));
+};
+
+const getPredOptions = (domainCache: DomainCache) => {
+  return domainCache.predNames.map((pred) => ({
+    label: `${pred} `,
+    type: "type",
+  }));
+};
+
 const goToParentX = (parentNode: SyntaxNode, x: number) => {
   let i = 0;
   let nextParent: SyntaxNode | null = parentNode;
@@ -92,10 +106,10 @@ const StyleAutocomplete = (
       let wholeTree = syntaxTree(context.state).topNode;
       //   console.log(domainCache);
       // In erorr state, error node wraps the current node
-      if (parentNode != null && parentNode.type.isError) {
-        leftSib = parentNode.prevSibling;
-        parentNode = parentNode.parent;
-      }
+      // if (parentNode != null && parentNode.type.isError) {
+      //   leftSib = parentNode.prevSibling;
+      //   parentNode = parentNode.parent;
+      // }
       console.log(
         printTree(wholeTree, context.state.doc.toString()),
         nodeBefore,
@@ -186,18 +200,77 @@ const StyleAutocomplete = (
             options: typeNames,
           };
           // Suggest typenames and kws inside Selector
-        } else if (upSeven.firstChild.firstChild.name === "Selector") {
+        } else if (
+          (upSeven.firstChild.firstChild.name === "Selector" ||
+            upSeven.firstChild.firstChild.name === "Collector") &&
+          upSix != null &&
+          upSix.name === "Block"
+        ) {
           return {
             from: word.from,
             options: typeNames.concat(selectorKws),
           };
           // Suggest typenames and kws inside Collect
-        } else if (upSeven.firstChild.firstChild.name === "Collector") {
+        } else if (
+          upSeven.firstChild.firstChild.name === "Collector" &&
+          upSix != null &&
+          upSix.name === "Block"
+        ) {
           return {
             from: word.from,
             options: typeNames.concat(collectKws),
           };
         }
+      }
+
+      // Suggest type names
+      if (
+        parentNode != null &&
+        parentNode.name === "SelType" &&
+        nodeBefore.name === "Identifier"
+      ) {
+        return {
+          from: word.from,
+          options: getTypeOptions(domainCache),
+        };
+      }
+
+      // Collect Header autocomplete
+      // Collect suggest repeatable
+      if (
+        // SelType -> Decl
+        parentNode.parent != null &&
+        parentNode.parent.prevSibling != null &&
+        parentNode.parent.prevSibling.name === "collect"
+      ) {
+        return {
+          from: word.from,
+          options: [{ label: "repeatable", type: "keyword" }],
+        };
+      }
+
+      // Collect suggest into
+      if (
+        // Into error node
+        parentNode != null &&
+        parentNode != null &&
+        parentNode.prevSibling != null &&
+        parentNode.prevSibling.name === "Decl"
+      ) {
+        return {
+          from: word.from,
+          options: [{ label: "into ", type: "keyword" }],
+        };
+      }
+
+      // Suggest pred names in where
+      // StyVar -> Variable -> Bind -> Relation
+      const upFour = goToParentX(parentNode, 3);
+      if (upFour != null && upFour.name === "Relation") {
+        return {
+          from: word.from,
+          options: getPredOptions(domainCache),
+        };
       }
 
       return null;
