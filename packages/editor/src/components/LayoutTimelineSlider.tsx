@@ -4,27 +4,22 @@ import { penroseBlue } from "@penrose/components";
 import { runtimeError } from "@penrose/core";
 import { useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
-import {
-  diagramState,
-  diagramWorkerState,
-  newOptimizer,
-} from "../state/atoms.js";
+import { diagramState, diagramWorkerState, optimizer } from "../state/atoms.js";
 import SegmentedSlider from "./SegmentedSlider.js";
 
 export const LayoutTimelineSlider: React.FC<{}> = (props) => {
   const [diagram, setDiagram] = useRecoilState(diagramState);
-  const { optimizing, diagramId, stepSequenceId } =
-    useRecoilValue(diagramWorkerState);
+  const { optimizing } = useRecoilValue(diagramWorkerState);
   const [waiting, setWaiting] = useState(false);
 
   const onChange = (i: number) => {
     // request shapes from worker
     async function requestShapes() {
-      if (diagramId === null || stepSequenceId === null) return;
+      if (diagram.diagramId === null || diagram.stepSequenceId === null) return;
 
       setWaiting(true);
-      const state = await newOptimizer.computeLayout(diagramId, {
-        sequenceId: stepSequenceId,
+      const state = await optimizer.computeLayout(diagram.diagramId, {
+        sequenceId: diagram.stepSequenceId,
         step: i,
       });
       if (state.isErr()) {
@@ -64,6 +59,7 @@ export const LayoutTimelineSlider: React.FC<{}> = (props) => {
           diagram.layoutStats.map((stat, i) => ({
             label: stat.name,
             steps: stat.steps,
+            cumulativeSteps: stat.cumulativeSteps,
             color: penroseBlue.primary,
           })) ?? []
         }

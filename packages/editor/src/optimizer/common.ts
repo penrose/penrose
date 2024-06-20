@@ -16,7 +16,7 @@ import { Result } from "true-myth";
 
 // Config
 
-export const logLevel = (consola as any).LogLevel.Info;
+export const logLevel = (consola as any).LogLevel.Warn;
 
 // Basic types
 
@@ -494,3 +494,49 @@ export const stateToLayoutState = (state: State): LayoutState => {
     shapes: state.computeShapes(state.varyingValues),
   };
 };
+
+export class SizeBoundedMap<K, V> {
+  private readonly _map = new Map<K, V>();
+  private readonly maxLen;
+  private readonly onDelete;
+
+  private _keys: K[] = [];
+
+  constructor(maxLen: number, onDelete?: (key: K, val: V) => void) {
+    this.maxLen = maxLen;
+    this.onDelete = onDelete;
+  }
+
+  get = (key: K): V | undefined => {
+    return this._map.get(key);
+  };
+
+  set = (key: K, value: V): void => {
+    if (this._map.size === this.maxLen) {
+      const toDeleteKey = this._keys.shift();
+      if (toDeleteKey !== undefined) {
+        const toDeleteValue = this._map.get(toDeleteKey)!;
+        this._map.delete(toDeleteKey);
+        this.onDelete?.(toDeleteKey, toDeleteValue);
+      }
+    }
+    this._keys.push(key);
+    this._map.set(key, value);
+  };
+
+  delete = (key: K): void => {
+    const index = this._keys.findIndex((k) => k === key);
+    if (index >= 0) {
+      this._keys.splice(index, 1);
+      this._map.delete(key);
+    }
+  };
+
+  keys = () => {
+    return [...this._keys];
+  };
+
+  map = () => {
+    return new Map(this._map);
+  };
+}

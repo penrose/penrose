@@ -37,7 +37,7 @@ import {
   diagramWorkerState,
   fileContentsSelector,
   localFilesState,
-  newOptimizer,
+  optimizer,
   settingsState,
   workspaceMetadataSelector,
 } from "./atoms.js";
@@ -55,10 +55,9 @@ const _compileDiagram = async (
   const prevWorkerState = {
     ...snapshot.getLoadable(diagramWorkerState).contents,
   };
+  const diagram = snapshot.getLoadable(diagramState).contents;
 
   set(diagramWorkerState, (state) => ({
-    diagramId: null,
-    stepSequenceId: null,
     optimizing: false,
     compiling: true,
   }));
@@ -66,7 +65,7 @@ const _compileDiagram = async (
   const compiling = toast.loading("Compiling...");
   const currentDiagram =
     snapshot.getLoadable(diagramWorkerState).contents.diagramId;
-  const compileResult = await newOptimizer.compile(
+  const compileResult = await optimizer.compile(
     domain,
     style,
     substance,
@@ -83,14 +82,14 @@ const _compileDiagram = async (
       ...diagram,
       error: compileResult.error,
     }));
-    set(diagramWorkerState, (state) => ({
+    set(diagramWorkerState, () => ({
       ...prevWorkerState,
       optimizing: false,
     }));
     return;
   }
 
-  const pollResult = await newOptimizer.poll(compileResult.value.diagramId);
+  const pollResult = await optimizer.poll(compileResult.value.diagramId);
   if (isErr(pollResult)) {
     set(diagramState, (diagram) => ({
       ...diagram,
@@ -108,6 +107,8 @@ const _compileDiagram = async (
     warnings: compileResult.value.warnings,
     error: null,
     layoutStats: [],
+    diagramId: compileResult.value.diagramId,
+    stepSequenceId: pollResult.value.keys().next().value,
     metadata: {
       ...diagram.metadata,
       variation,
@@ -121,16 +122,9 @@ const _compileDiagram = async (
   }));
 
   set(diagramWorkerState, (state) => ({
-    diagramId: compileResult.value.diagramId,
-    // guaranteed only to be one at this point
-    stepSequenceId: pollResult.value.keys().next().value,
     compiling: false,
     optimizing: true,
   }));
-
-  if (currentDiagram !== null) {
-    newOptimizer.discardDiagram(currentDiagram);
-  }
 };
 
 export const useCompileDiagram = () =>
@@ -164,20 +158,22 @@ export const useResampleDiagram = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
     const diagram: Diagram = snapshot.getLoadable(diagramState)
       .contents as Diagram;
-    const { diagramId } = snapshot.getLoadable(diagramWorkerState).contents;
-    if (diagram.state === null) {
+    if (diagram.diagramId === null) {
       toast.error("Cannot resample uncompiled diagram");
       return;
     }
     const variation = generateVariation();
     const resamplingLoading = toast.loading("Resampling...");
 
-    set(diagramWorkerState, (worker) => ({
-      ...worker,
+    set(diagramState, (state) => ({
+      ...state,
       stepSequenceId: null,
     }));
 
-    const resampleResult = await newOptimizer.resample(diagramId, variation);
+    const resampleResult = await optimizer.resample(
+      diagram.diagramId,
+      variation,
+    );
     if (isErr(resampleResult)) {
       set(diagramState, (diagram) => ({
         ...diagram,
@@ -190,73 +186,15 @@ export const useResampleDiagram = () =>
     set(diagramWorkerState, (worker) => ({
       ...worker,
       optimizing: true,
-      stepSequenceId: resampleResult.value,
     }));
     set(diagramState, (diagram) => ({
       ...diagram,
+      stepSequenceId: resampleResult.value,
       error:
         diagram.error !== null && diagram.error.errorType !== "RuntimeError"
           ? diagram.error
           : null,
     }));
-
-    // const diagram: Diagram = snapshot.getLoadable(diagramState)
-    //   .contents as Diagram;
-    // const id: string = snapshot.getLoadable(diagramWorkerState)
-    //   .contents as string;
-    // if (diagram.state === null) {
-    //   toast.error("Cannot resample uncompiled diagram");
-    //   return;
-    // }
-    // const variation = generateVariation();
-    // const resamplingLoading = toast.loading("Resampling...");
-    //
-    // const onError = (error: any) => {
-    //   _onError(error, set);
-    //   toast.dismiss(resamplingLoading);
-    // };
-    //
-    // const onUpdate = (info: UpdateInfo) => {
-    //   set(diagramState, (state) => ({
-    //     ...state,
-    //     metadata: { ...state.metadata, variation },
-    //     state: info.state,
-    //     // keep compile errors on resample, but clear runtime errors
-    //     error: state.error?.errorType === "RuntimeError" ? null : state.error,
-    //   }));
-    //   // update grid state too
-    //   set(diagramGridState, ({ gridSize }) => ({
-    //     variations: range(gridSize).map((i) =>
-    //       i === 0 ? variation : generateVariation(),
-    //     ),
-    //     gridSize,
-    //   }));
-    // };
-    //
-    // try {
-    //   const { onStart, onFinish } = await optimizer.resample(id, variation);
-    //   toast.dismiss(resamplingLoading);
-    //   onFinish
-    //     .then((info) => {
-    //       set(diagramWorkerState, (state) => ({
-    //         ...state,
-    //         optimizing: false,
-    //       }));
-    //       onUpdate(info);
-    //     })
-    //     .catch(onError);
-    //
-    //   await onStart;
-    //   set(diagramWorkerState, (state) => ({
-    //     ...state,
-    //     optimizing: true,
-    //   }));
-    //
-    //   const info = await optimizer.pollForUpdate();
-    //   if (info !== null) onUpdate(info);
-    // } catch (error: unknown) {
-    //   onError(error);
-    // }
   });
 
 const _saveLocally = (set: any) => {

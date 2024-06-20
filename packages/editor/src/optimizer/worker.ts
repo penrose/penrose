@@ -17,7 +17,6 @@ import {
   CompileResult,
   ComputeLayoutRequestData,
   ComputeLayoutResult,
-  HistoryInfo,
   HistoryLoc,
   MessageRequest,
   MessageResult,
@@ -25,6 +24,7 @@ import {
   Notification,
   PollResult,
   ResampleResult,
+  SizeBoundedMap,
   StepSequenceID,
   StepSequenceIDGenerator,
   StepSequenceInfo,
@@ -38,8 +38,11 @@ import {
 
 const log = consola.create({ level: logLevel }).withScope("optimizer:worker");
 const stepSequenceIdGenerator = new StepSequenceIDGenerator();
+const numStepSequencesToKeep = 3;
 
-let historyInfo: HistoryInfo = new Map();
+let historyInfo = new SizeBoundedMap<StepSequenceID, StepSequenceInfo>(
+  numStepSequencesToKeep,
+);
 /**
  * Varying values sequence for each step sequence. Kept separate from history
  * info so we don't need to recompute history info on every poll.
@@ -84,7 +87,7 @@ const compile = async (data: CompileRequestData): Promise<CompileResult> => {
 };
 
 const poll = async (): Promise<PollResult> => {
-  return taggedOk(MessageTags.Poll, historyInfo);
+  return taggedOk(MessageTags.Poll, historyInfo.map());
 };
 
 const computeLayout = async (
@@ -112,7 +115,7 @@ const computeLayout = async (
     result = taggedErr(MessageTags.ComputeLayout, {
       tag: "InvalidHistoryLocError",
       historyLoc: data.historyLoc,
-      historyInfo,
+      historyInfo: historyInfo.map(),
     });
   }
 
@@ -132,8 +135,11 @@ const makeNewStepSequence = (
           penroseState!.optStages.length === 1
             ? "default"
             : penroseState!.optStages[0],
-        steps: 0,
-        cumulativeSteps: 0,
+        // steps, as it is used in the rest of the codebase, indicates the number
+        // of varying values in a list--not the number of optimizer steps. So
+        // we initialize this to one, since one varying value is added initially
+        steps: 1,
+        cumulativeSteps: 1,
       },
     ],
     parent: parentLoc,
@@ -215,11 +221,10 @@ const startOptimize = async (stepSequenceId: StepSequenceID) => {
           });
         } else {
           penroseState = stepped;
-          // update the step count for the current stage
-          stepSequenceInfo.layoutStats.at(-1)!.steps++;
         }
 
         varyingValuesSequence.push([...penroseState.varyingValues]);
+        stepSequenceInfo.layoutStats.at(-1)!.steps++;
         stepSequenceInfo.layoutStats.at(-1)!.cumulativeSteps++;
       }
 
@@ -251,10 +256,8 @@ const resample = (variation: string): ResampleResult => {
     ...penroseState!,
     variation,
   });
-  historyInfo = new Map();
-  historyValues = new Map();
   const stepSequenceId = makeNewStepSequence(null, variation);
-  startOptimize(historyInfo.keys().next().value);
+  startOptimize(stepSequenceId);
 
   return taggedOk(MessageTags.Resample, stepSequenceId);
 };

@@ -29,7 +29,7 @@ import {
 import Optimizer from "../optimizer/optimizer.js";
 import { generateVariation } from "./variation.js";
 
-export const newOptimizer = await Optimizer.create();
+export const optimizer = await Optimizer.create();
 
 export const EDITOR_VERSION = 0.1;
 
@@ -308,6 +308,8 @@ export type Diagram = {
   error: PenroseError | null;
   warnings: PenroseWarning[];
   layoutStats: LayoutStats;
+  diagramId: DiagramID | null;
+  stepSequenceId: StepSequenceID | null;
   metadata: DiagramMetadata;
 };
 
@@ -329,6 +331,8 @@ export const diagramState = atom<Diagram>({
     error: null,
     warnings: [],
     layoutStats: [],
+    diagramId: null,
+    stepSequenceId: null,
     metadata: {
       variation: generateVariation(),
       stepSize: 10000,
@@ -355,15 +359,11 @@ export const layoutTimelineState = atom<LayoutTimeline>({
 });
 
 export const diagramWorkerState = atom<{
-  diagramId: DiagramID | null;
-  stepSequenceId: StepSequenceID | null;
   compiling: boolean;
   optimizing: boolean;
 }>({
   key: "diagramWorkerState",
   default: {
-    diagramId: null,
-    stepSequenceId: null,
     compiling: false,
     optimizing: false,
   },

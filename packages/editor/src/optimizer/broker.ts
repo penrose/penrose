@@ -23,14 +23,18 @@ import {
   request,
   resolveResponse,
   respond,
+  SizeBoundedMap,
   spinAndWaitForInit,
   taggedErr,
   taggedOk,
 } from "./common.js";
 
 const log = consola.create({ level: logLevel }).withScope("optimizer:broker");
+const numWorkersToKeep = 3;
 
-const workers = new Map<DiagramID, Worker>();
+const workers = new SizeBoundedMap<DiagramID, Worker>(3, (_, worker) => {
+  worker.terminate();
+});
 const resolvesById = new Map<MessageID, (result: MessageResult) => void>();
 
 const diagramIdGenerator = new DiagramIDGenerator();

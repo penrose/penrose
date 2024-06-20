@@ -1,6 +1,6 @@
 import { isPenroseError, runtimeError, showError } from "@penrose/core";
 import { useEffect, useRef, useState } from "react";
-import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { isErr, showOptimizerError } from "../optimizer/common.js";
 import {
   canvasState,
@@ -8,7 +8,7 @@ import {
   diagramState,
   diagramWorkerState,
   layoutTimelineState,
-  newOptimizer,
+  optimizer,
   workspaceMetadataSelector,
 } from "../state/atoms.js";
 import { pathResolver } from "../utils/downloadUtils.js";
@@ -24,9 +24,9 @@ export default function DiagramPanel() {
   const workspace = useRecoilValue(workspaceMetadataSelector);
   const rogerState = useRecoilValue(currentRogerState);
   const [workerState, setWorkerState] = useRecoilState(diagramWorkerState);
-  const [computeLayoutRunning, setComputeLayoutRunning] = useState(false);
 
-  const requestRef = useRef<number>();
+  const computeLayoutRunning = useRef(false);
+  const computeLayoutShouldStop = useRef(false);
 
   useEffect(() => {
     const cur = canvasRef.current;
@@ -53,88 +53,100 @@ export default function DiagramPanel() {
     }
   }, [diagram.state]);
 
-  const runComputeLayout = useRecoilCallback(
-    ({ set, snapshot }) =>
-      async () => {
-        const { diagramId, stepSequenceId } =
-          snapshot.getLoadable(diagramWorkerState).contents;
+  const runComputeLayout = async (
+    diagramId: number,
+    stepSequenceId: number,
+  ) => {
+    if (computeLayoutShouldStop.current) {
+      computeLayoutRunning.current = false;
+      return;
+    }
 
-        if (
-          diagramId !== null &&
-          stepSequenceId !== null &&
-          workerState.optimizing
-        ) {
-          const pollResult = await newOptimizer.poll(diagramId);
-          if (isErr(pollResult)) {
-            setDiagram((diagram) => ({
-              ...diagram,
-              error: runtimeError(showOptimizerError(pollResult.error)),
-            }));
-            setComputeLayoutRunning(false);
-            return;
-          }
+    const pollResult = await optimizer.poll(diagramId);
+    if (isErr(pollResult)) {
+      setDiagram((diagram) => ({
+        ...diagram,
+        error: runtimeError(showOptimizerError(pollResult.error)),
+      }));
+      computeLayoutRunning.current = false;
+      return;
+    }
 
-          const stepSequenceInfo = pollResult.value.get(stepSequenceId);
-          if (!stepSequenceInfo) {
-            setDiagram((diagram) => ({
-              ...diagram,
-              error: runtimeError(
-                `Invalid step sequence id ${stepSequenceId} for diagram`,
-              ),
-            }));
-            setComputeLayoutRunning(false);
-            return;
-          }
+    const stepSequenceInfo = pollResult.value.get(stepSequenceId);
+    if (!stepSequenceInfo) {
+      setDiagram((diagram) => ({
+        ...diagram,
+        error: runtimeError(
+          `Invalid step sequence id ${diagram.stepSequenceId} for diagram`,
+        ),
+      }));
+      computeLayoutRunning.current = false;
+      return;
+    }
 
-          setDiagram((diagram) => ({
-            ...diagram,
-            layoutStats: stepSequenceInfo.layoutStats,
-          }));
+    setDiagram((diagram) => ({
+      ...diagram,
+      layoutStats: stepSequenceInfo.layoutStats,
+    }));
 
-          const layoutResult = await newOptimizer.computeLayout(diagramId, {
-            sequenceId: stepSequenceId,
-            step: stepSequenceInfo.layoutStats.at(-1)!.cumulativeSteps,
-          });
-          if (layoutResult.isErr()) {
-            setDiagram((diagram) => ({
-              ...diagram,
-              error: isPenroseError(layoutResult.error)
-                ? layoutResult.error
-                : runtimeError(showOptimizerError(layoutResult.error)),
-            }));
-          } else {
-            setDiagram((diagram) => ({
-              ...diagram,
-              state: layoutResult.value,
-            }));
-          }
+    const layoutResult = await optimizer.computeLayout(diagramId, {
+      sequenceId: stepSequenceId,
+      step: stepSequenceInfo.layoutStats.at(-1)!.cumulativeSteps - 1,
+    });
 
-          if (stepSequenceInfo.state == "Pending") {
-            const frameMs = 25;
-            setTimeout(runComputeLayout, frameMs);
-          } else {
-            setWorkerState((worker) => ({
-              ...worker,
-              optimizing: false,
-            }));
-            setComputeLayoutRunning(false);
-          }
-        } else {
-          setComputeLayoutRunning(false);
-        }
-      },
-    [workerState],
-  );
+    if (layoutResult.isErr()) {
+      setDiagram((diagram) => ({
+        ...diagram,
+        error: isPenroseError(layoutResult.error)
+          ? layoutResult.error
+          : runtimeError(showOptimizerError(layoutResult.error)),
+      }));
+    } else {
+      setDiagram((diagram) => ({
+        ...diagram,
+        state: layoutResult.value,
+      }));
+    }
 
-  if (
-    !computeLayoutRunning &&
-    workerState.optimizing &&
-    workerState.diagramId !== null &&
-    workerState.stepSequenceId !== null
-  ) {
-    setComputeLayoutRunning(true);
-    runComputeLayout();
-  }
+    if (stepSequenceInfo.state == "Pending") {
+      requestAnimationFrame(() => runComputeLayout(diagramId, stepSequenceId));
+    } else {
+      setWorkerState((worker) => ({
+        ...worker,
+        optimizing: false,
+      }));
+      computeLayoutRunning.current = false;
+    }
+  };
+
+  useEffect(() => {
+    computeLayoutShouldStop.current = true;
+  }, [diagram.diagramId, diagram.stepSequenceId]);
+
+  useEffect(() => {
+    if (!workerState.optimizing) {
+      computeLayoutShouldStop.current = true;
+    }
+  }, [workerState.optimizing]);
+
+  // silly: we need this to be checked when `computerLayoutRunning.current`
+  // changes (in case we should restart). But usually you don't want refs to
+  // trigger a re-render. Wrapping it in an effect seems to work...
+  useEffect(() => {
+    if (
+      !computeLayoutRunning.current &&
+      workerState.optimizing &&
+      diagram.diagramId !== null &&
+      diagram.stepSequenceId !== null
+    ) {
+      computeLayoutRunning.current = true;
+      computeLayoutShouldStop.current = false; // just in case this was set but
+      // loop stopped on its own
+      requestAnimationFrame(() =>
+        runComputeLayout(diagram.diagramId!, diagram.stepSequenceId!),
+      );
+    }
+  }, [computeLayoutRunning.current, workerState, diagram]);
 
   const layoutTimeline = useRecoilValue(layoutTimelineState);
   const unexcludedWarnings = warnings.filter(

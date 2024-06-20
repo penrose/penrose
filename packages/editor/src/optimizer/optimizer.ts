@@ -136,7 +136,6 @@ export default class Optimizer {
       step: 0,
     });
     if (renderState.isErr()) {
-      await this.discardDiagram(diagramId);
       return taggedErr(
         MessageTags.Compile,
         isPenroseError(renderState.error)
