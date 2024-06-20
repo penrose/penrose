@@ -56,6 +56,16 @@ const headerOptions = ["forall", "collect", "layout"].map((kw) => ({
   type: "keyword",
 }));
 
+const selectorKws = ["override", "layer", "encourage", "ensure"].map((kw) => ({
+  label: `${kw} `,
+  type: "keyword",
+}));
+
+const collectKws = ["encourage", "ensure"].map((kw) => ({
+  label: `${kw} `,
+  type: "keyword",
+}));
+
 const goToParentX = (parentNode: SyntaxNode, x: number) => {
   let i = 0;
   let nextParent: SyntaxNode | null = parentNode;
@@ -159,7 +169,7 @@ const StyleAutocomplete = (
         };
       }
 
-      // Namespace types completion
+      // Namespace, Selector, Collect block completion
       // Path: StyVar, Var, Path, Assign, Statement, Block, HeaderBlock
       const upSeven = goToParentX(parentNode, 6);
       if (
@@ -167,13 +177,27 @@ const StyleAutocomplete = (
         // Go down into Header
         upSeven.firstChild != null &&
         // Go down into Namespace
-        upSeven.firstChild.firstChild != null &&
-        upSeven.firstChild.firstChild.name === "Namespace"
+        upSeven.firstChild.firstChild != null
       ) {
-        return {
-          from: word.from,
-          options: typeNames,
-        };
+        // Suggest type names inside Namespace
+        if (upSeven.firstChild.firstChild.name === "Namespace") {
+          return {
+            from: word.from,
+            options: typeNames,
+          };
+          // Suggest typenames and kws inside Selector
+        } else if (upSeven.firstChild.firstChild.name === "Selector") {
+          return {
+            from: word.from,
+            options: typeNames.concat(selectorKws),
+          };
+          // Suggest typenames and kws inside Collect
+        } else if (upSeven.firstChild.firstChild.name === "Collector") {
+          return {
+            from: word.from,
+            options: typeNames.concat(collectKws),
+          };
+        }
       }
 
       return null;
