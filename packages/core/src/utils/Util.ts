@@ -843,10 +843,7 @@ export const substanceLiteralToValue = (
   }
 };
 
-export const prettyResolvedStylePath = (
-  p: StylePath<A>,
-  userFacing: boolean = false,
-): string => {
+export const prettyResolvedStylePath = (p: StylePath<A>): string => {
   switch (p.tag) {
     case "Empty":
       return "";

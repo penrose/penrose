@@ -189,7 +189,7 @@ export const resolveStylePathWithoutIndex = (
   }
 
   if (curr.tag === "Empty" || curr.tag === "Unnamed") {
-    // should never happen
+    // should never end with Empty or Unnamed path
     throw new Error(
       "resolved into an Empty or Unnamed path which should not happen",
     );
@@ -201,6 +201,7 @@ const resolveStylePathHelper = (
   assignment: Assignment,
   curr: UnindexedStylePath<A>,
   parts: Identifier<A>[],
+  allowUndeclared: boolean = true,
 ): Result<
   {
     result: UnindexedStylePath<A>;
