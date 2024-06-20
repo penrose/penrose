@@ -1458,7 +1458,7 @@
     "@codemirror/view" "^6.0.0"
     crelt "^1.0.5"
 
-"@codemirror/state@^6.0.0", "@codemirror/state@^6.1.1", "@codemirror/state@^6.4.0":
+"@codemirror/state@^6.0.0", "@codemirror/state@^6.1.1", "@codemirror/state@^6.2.1", "@codemirror/state@^6.4.0":
   version "6.4.1"
   resolved "https://registry.npmjs.org/@codemirror/state/-/state-6.4.1.tgz"
   integrity sha512-QkEyUiLhsJoZkbumGZlswmAhA7CBU02Wrz7zvH4SrcifbsqwlXShVXg65f3v/ts57W3dqyamEriMhij1Z3Zz4A==
@@ -2976,6 +2976,14 @@
   dependencies:
     npmlog "^4.1.2"
     write-file-atomic "^2.3.0"
+
+"@lezer-unofficial/printer@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@lezer-unofficial/printer/-/printer-1.0.1.tgz#95695294299872231693c9d632a4b9d380e343fb"
+  integrity sha512-0bIixSdtdCyErXna3eKArYFsGfsUiXrgdu7t4gV8mL+2ooVDQArz66py1lSaEpfYI6n2nO11uNyHHvXojUWakw==
+  dependencies:
+    "@codemirror/state" "^6.2.1"
+    "@lezer/common" "^1.1.0"
 
 "@lezer/common@^1.0.0", "@lezer/common@^1.1.0":
   version "1.2.1"
