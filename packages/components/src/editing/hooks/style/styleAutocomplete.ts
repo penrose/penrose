@@ -1,8 +1,8 @@
-import { CompletionContext } from "@codemirror/autocomplete";
+import { Completion, CompletionContext } from "@codemirror/autocomplete";
 import { syntaxTree } from "@codemirror/language";
 import { printTree } from "@lezer-unofficial/printer";
 import { SyntaxNode } from "@lezer/common";
-import { constrDict } from "@penrose/core";
+import { compDict, constrDict } from "@penrose/core";
 import { useCallback } from "react";
 import { DomainCache, ShapeDefinitions, ShapeProperties } from "../../types";
 import { extractText } from "../hooksUtils";
@@ -12,7 +12,7 @@ const getShapeProps = (shapeProps: ShapeProperties) => {
     {
       label: key,
       type: "property",
-      detail: value,
+      info: value,
     },
   ]);
 };
@@ -26,6 +26,24 @@ const getConstraints = () => {
     },
   ]);
 };
+
+const getComputationFns = () => {
+  return Object.entries(compDict).flatMap(([key, value]) => [
+    {
+      label: value.name,
+      type: "function",
+      info: "description" in value ? value.description : "",
+    },
+  ]);
+};
+
+const exprOptions = ["true", "false", "listof"]
+  .map((name) => ({
+    label: `${name}`,
+    type: "keyword",
+    info: "",
+  }))
+  .concat(getComputationFns());
 
 const typeNames = [
   "scalar",
@@ -49,27 +67,43 @@ const typeNames = [
 ].map((name) => ({
   label: `${name} `,
   type: "type",
+  info: "",
 }));
 
 const headerOptions = ["forall", "collect", "layout"].map((kw) => ({
   label: `${kw} `,
   type: "keyword",
+  info: "",
 }));
 
-const selectorKws = ["override", "layer", "encourage", "ensure"].map((kw) => ({
+const statementKws = ["delete", "override"].map((kw) => ({
   label: `${kw} `,
   type: "keyword",
+  info: "",
 }));
 
-const collectKws = ["encourage", "ensure"].map((kw) => ({
+const anonExprKws = ["override", "layer", "encourage", "ensure"].map((kw) => ({
   label: `${kw} `,
   type: "keyword",
+  info: "",
 }));
+
+const getShapeNames = (shapeDefns: ShapeDefinitions) => {
+  return Object.entries(shapeDefns).flatMap(([key, value]) => [
+    {
+      label: `${key} `,
+      // idk what the property type here should be
+      type: "class",
+      info: "",
+    },
+  ]);
+};
 
 const getTypeOptions = (domainCache: DomainCache) => {
   return domainCache.typeNames.map((type) => ({
     label: `${type} `,
     type: "type",
+    info: "",
   }));
 };
 
@@ -77,6 +111,7 @@ const getPredOptions = (domainCache: DomainCache) => {
   return domainCache.predNames.map((pred) => ({
     label: `${pred} `,
     type: "type",
+    info: "",
   }));
 };
 
@@ -101,7 +136,6 @@ const StyleAutocomplete = (
     async (context: CompletionContext) => {
       let nodeBefore = syntaxTree(context.state).resolveInner(context.pos, -1);
       let parentNode = nodeBefore.parent;
-      let leftSib = nodeBefore.prevSibling;
       let word = context.matchBefore(/\w*/);
       let wholeTree = syntaxTree(context.state).topNode;
       //   console.log(domainCache);
@@ -127,6 +161,8 @@ const StyleAutocomplete = (
         return null;
       }
 
+      let completionOpts = [] as Completion[];
+
       /*
        * Shape property auto complete. Properties nested as identifier
        * inside PropName inside PropertyDecl inside ShapeDecl
@@ -149,10 +185,9 @@ const StyleAutocomplete = (
         );
         // We allow arbitrary shape names, so check it actually exists
         if (shapeDefns[shapeName]) {
-          return {
-            from: word.from,
-            options: getShapeProps(shapeDefns[shapeName]),
-          };
+          completionOpts = completionOpts.concat(
+            getShapeProps(shapeDefns[shapeName]),
+          );
         }
       }
 
@@ -162,12 +197,22 @@ const StyleAutocomplete = (
         parentNode.parent != null &&
         parentNode.parent.name === "Header"
       ) {
-        return {
-          from: word.from,
-          options: headerOptions,
-        };
+        completionOpts = completionOpts.concat(headerOptions);
       }
-      if (parentNode != null) console.log(goToParentX(parentNode, 5));
+
+      // Expr completion
+      const upFour = goToParentX(parentNode, 3);
+      if (upFour != null && upFour.name === "Expr") {
+        completionOpts = completionOpts.concat(exprOptions);
+      }
+
+      // AssignExpr completion
+      const upFive = goToParentX(parentNode, 4);
+      if (upFive != null && upFive.name === "AssignExpr") {
+        completionOpts = completionOpts
+          .concat(anonExprKws)
+          .concat(getShapeNames(shapeDefns));
+      }
 
       // Constraint completion
       // Path: StyVar, Var, Path, Expr, ObjConstrBody, Constraint/Objective
@@ -177,50 +222,18 @@ const StyleAutocomplete = (
         upSix != null &&
         (upSix.name === "Objective" || upSix.name === "Constraint")
       ) {
-        return {
-          from: word.from,
-          options: getConstraints(),
-        };
+        completionOpts = completionOpts.concat(getConstraints());
       }
 
       // Namespace, Selector, Collect block completion
       // Path: StyVar, Var, Path, Assign, Statement, Block, HeaderBlock
-      const upSeven = goToParentX(parentNode, 6);
-      if (
-        upSeven != null &&
-        // Go down into Header
-        upSeven.firstChild != null &&
-        // Go down into Namespace
-        upSeven.firstChild.firstChild != null
-      ) {
-        // Suggest type names inside Namespace
-        if (upSeven.firstChild.firstChild.name === "Namespace") {
-          return {
-            from: word.from,
-            options: typeNames,
-          };
-          // Suggest typenames and kws inside Selector
-        } else if (
-          (upSeven.firstChild.firstChild.name === "Selector" ||
-            upSeven.firstChild.firstChild.name === "Collector") &&
-          upSix != null &&
-          upSix.name === "Block"
-        ) {
-          return {
-            from: word.from,
-            options: typeNames.concat(selectorKws),
-          };
-          // Suggest typenames and kws inside Collect
-        } else if (
-          upSeven.firstChild.firstChild.name === "Collector" &&
-          upSix != null &&
-          upSix.name === "Block"
-        ) {
-          return {
-            from: word.from,
-            options: typeNames.concat(collectKws),
-          };
-        }
+      // const upSeven = goToParentX(parentNode, 6);
+      if (upSix != null && upSix.name === "Block") {
+        completionOpts = completionOpts
+          .concat(typeNames)
+          .concat(anonExprKws)
+          .concat(statementKws)
+          .concat(getShapeNames(shapeDefns));
       }
 
       // Suggest type names
@@ -229,10 +242,7 @@ const StyleAutocomplete = (
         parentNode.name === "SelType" &&
         nodeBefore.name === "Identifier"
       ) {
-        return {
-          from: word.from,
-          options: getTypeOptions(domainCache),
-        };
+        completionOpts = completionOpts.concat(getTypeOptions(domainCache));
       }
 
       // Collect Header autocomplete
@@ -243,10 +253,9 @@ const StyleAutocomplete = (
         parentNode.parent.prevSibling != null &&
         parentNode.parent.prevSibling.name === "collect"
       ) {
-        return {
-          from: word.from,
-          options: [{ label: "repeatable", type: "keyword" }],
-        };
+        completionOpts = completionOpts.concat([
+          { label: "repeatable", type: "keyword" },
+        ]);
       }
 
       // Collect suggest into
@@ -257,22 +266,23 @@ const StyleAutocomplete = (
         parentNode.prevSibling != null &&
         parentNode.prevSibling.name === "Decl"
       ) {
-        return {
-          from: word.from,
-          options: [{ label: "into ", type: "keyword" }],
-        };
+        completionOpts = completionOpts.concat([
+          { label: "into ", type: "keyword" },
+        ]);
       }
 
       // Suggest pred names in where
       // StyVar -> Variable -> Bind -> Relation
-      const upFour = goToParentX(parentNode, 3);
       if (upFour != null && upFour.name === "Relation") {
-        return {
-          from: word.from,
-          options: getPredOptions(domainCache),
-        };
+        completionOpts = completionOpts.concat(getPredOptions(domainCache));
       }
 
+      if (completionOpts.length > 0) {
+        return {
+          from: word.from,
+          options: completionOpts,
+        };
+      }
       return null;
     },
     [domainCache, shapeDefns],
