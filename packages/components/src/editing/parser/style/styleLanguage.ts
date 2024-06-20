@@ -1,4 +1,9 @@
-import { LRLanguage, LanguageSupport } from "@codemirror/language";
+import {
+  LRLanguage,
+  LanguageSupport,
+  continuedIndent,
+  indentNodeProp,
+} from "@codemirror/language";
 import { styleTags, tags as t } from "@lezer/highlight";
 import { parser } from "./style.js";
 
@@ -8,6 +13,10 @@ export const styleLanguage = LRLanguage.define({
   },
   parser: parser.configure({
     props: [
+      indentNodeProp.add({
+        Block: continuedIndent(),
+        ShapeDecl: continuedIndent(),
+      }),
       styleTags({
         LineComment: t.lineComment,
         BlockComment: t.lineComment,

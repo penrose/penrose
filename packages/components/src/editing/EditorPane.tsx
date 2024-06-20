@@ -22,7 +22,6 @@ import { createLinter } from "./hooks/useLinter";
 import { domainLanguageSupport } from "./parser/domain/domainLanguage";
 import { styleLanguageSupport } from "./parser/style/styleLanguage";
 import { substanceLanguageSupport } from "./parser/substance/substanceLanguage";
-import { penroseEditorTheme } from "./theme";
 // import { ErrorLoc } from "@penrose/core/dist/utils/Util.js";
 // import { errLocs, showError } from "@penrose/core";
 import { linter } from "@codemirror/lint";
@@ -144,7 +143,7 @@ export default function EditorPane({
         value={value}
         extensions={extensionsList}
         onChange={onChange}
-        theme={penroseEditorTheme}
+        // theme={penroseEditorTheme}
       />
       <div
         ref={statusBarRef}
