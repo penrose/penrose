@@ -78,10 +78,19 @@ export type StepSequenceInfo = {
   variation: string;
 };
 
+/**
+ * Map from `StepSequenceID`s to `StepSequenceInfo`s
+ */
 export type HistoryInfo = Map<StepSequenceID, StepSequenceInfo>;
 
+/** Type of a resolve for a promise waiting on a `MessageResult` */
 export type MessageResolve = (result: MessageResult) => void;
 
+/**
+ * A `RenderState`, but without rendered labels which cannot be sent across
+ * threads. Use `layoutStateToRenderState` to combine with an `svgCache` to
+ * generate a `RenderState` for rendering.
+ */
 export type LayoutState = {
   canvas: Canvas;
   shapes: Shape<number>[];
@@ -89,6 +98,7 @@ export type LayoutState = {
   variation: string;
 };
 
+/** Minimal state needed for rendering */
 export type RenderState = {
   canvas: Canvas;
   shapes: Shape<number>[];
@@ -96,6 +106,7 @@ export type RenderState = {
   variation: string;
 };
 
+/** Info for a successful compile */
 export type CompileInfo = {
   diagramId: DiagramID;
   warnings: PenroseWarning[];
@@ -123,18 +134,21 @@ export type Notification = {
   data: NotificationData;
 };
 
+/** Data sent in a `MessageRequest` */
 export type MessageRequestData =
   | CompileRequestData
   | PollRequestData
   | ComputeLayoutRequestData
   | ResampleRequestData;
 
+/** Result type contained in a `MessageResponse` */
 export type MessageResult =
   | CompileResult
   | PollResult
   | ComputeLayoutResult
   | ResampleResult;
 
+/** Data contained in a `Notification` */
 export type NotificationData =
   | InitData
   | LabelMeasurementData
@@ -210,6 +224,9 @@ export type TaggedErr<E, T> = {
   error: E;
 };
 
+/**
+ * A Result type, but with a tag. Supertype of `MessageResult`.
+ */
 export type TaggedResult<V, E, T> = TaggedOk<V, T> | TaggedErr<E, T>;
 
 export type CompileResult = TaggedResult<
@@ -269,6 +286,8 @@ class NumericIDGenerator {
   };
 }
 
+// We reexport as different generators for each ID type, in case we decide
+// not to use numbers in the future
 export {
   NumericIDGenerator as DiagramIDGenerator,
   NumericIDGenerator as MessageIDGenerator,
@@ -279,6 +298,14 @@ export type Tagged<T> = {
   tag: T;
 };
 
+/**
+ * Make a request to a worker.
+ *
+ * @param worker Worker to request
+ * @param data Request data
+ * @param resolvesById Map from `MessageID` to `MessageResolve`. Mutated.
+ * @param messageIdGenerator Generator from which we should get the next message id
+ */
 export const request = <T, R extends MessageResult & Tagged<T>>(
   worker: Worker,
   data: MessageRequestData & Tagged<T>,
@@ -307,6 +334,10 @@ export const request = <T, R extends MessageResult & Tagged<T>>(
   });
 };
 
+/**
+ * Launch worker, and wait for a notification `InitData` before resolving.
+ * @param url Worker to spin
+ */
 export const spinAndWaitForInit = async (url: string): Promise<Worker> => {
   return new Promise((resolve) => {
     const worker = new Worker(new URL(url, import.meta.url), {
@@ -322,6 +353,10 @@ export const spinAndWaitForInit = async (url: string): Promise<Worker> => {
   });
 };
 
+/**
+ * Send a `Notification` from a worker to the parent thread.
+ * @param data Notification data
+ */
 export const notify = (data: NotificationData) => {
   const notification: Notification = {
     tag: "Notification",
@@ -330,6 +365,11 @@ export const notify = (data: NotificationData) => {
   self.postMessage(notification);
 };
 
+/**
+ * Send a `Notification` to a worker
+ * @param worker Worker to notify
+ * @param data Notification data
+ */
 export const notifyWorker = (worker: Worker, data: NotificationData) => {
   const notification: Notification = {
     tag: "Notification",
@@ -338,6 +378,11 @@ export const notifyWorker = (worker: Worker, data: NotificationData) => {
   worker.postMessage(notification);
 };
 
+/**
+ * Respond to the parent thread.
+ * @param messageId `MessageID` of the associated request
+ * @param result Result of the message
+ */
 export const respond = (messageId: MessageID, result: MessageResult) => {
   const response = {
     tag: "MessageResponse",
@@ -347,6 +392,11 @@ export const respond = (messageId: MessageID, result: MessageResult) => {
   self.postMessage(response);
 };
 
+/**
+ * On receiving a response, call the associated `resolve` and remove the resolve.
+ * @param response Message response
+ * @param resolvesById Map from `MessageID`s to `MessageResolve`s. Mutated.
+ */
 export const resolveResponse = (
   response: MessageResponse,
   resolvesById: Map<MessageID, MessageResolve>,
@@ -389,6 +439,10 @@ export const isErr = <V, E, T>(
   return result.variant === "Err";
 };
 
+/**
+ * Strip `labelData` of all rendered (and non-message-able) fields
+ * @param labelData
+ */
 export const removeRenderedLabels = <T extends LabelData>(
   labelData: T,
 ): LabelData => {
@@ -405,6 +459,10 @@ export const removeRenderedLabels = <T extends LabelData>(
   }
 };
 
+/**
+ * Convert an `OptimizerError` to a readable string.
+ * @param error Error to show
+ */
 export const showOptimizerError = (error: OptimizerError): string => {
   switch (error.tag) {
     case "OptimizationError":
@@ -422,6 +480,11 @@ export const showOptimizerError = (error: OptimizerError): string => {
   }
 };
 
+/**
+ * Combine label measurements and svg cache to create rendered labels.
+ * @param optLabelCache Label measurements
+ * @param svgCache SVG cache
+ */
 export const addRenderedLabels = (
   optLabelCache: LabelMeasurements,
   svgCache: Map<string, HTMLElement>,
@@ -445,6 +508,10 @@ export const addRenderedLabels = (
   return labelCache;
 };
 
+/**
+ * Separate labels into measurements and svgs
+ * @param labelCache
+ */
 export const separateRenderedLabels = (
   labelCache: LabelCache,
 ): { optLabelCache: LabelMeasurements; svgCache: Map<string, HTMLElement> } => {
@@ -495,6 +562,9 @@ export const stateToLayoutState = (state: State): LayoutState => {
   };
 };
 
+/**
+ * A `Map`, but after size grows past `maxLen`, old elements are deleted.
+ */
 export class SizeBoundedMap<K, V> {
   private readonly _map = new Map<K, V>();
   private readonly maxLen;
@@ -512,6 +582,8 @@ export class SizeBoundedMap<K, V> {
   };
 
   set = (key: K, value: V): void => {
+    // if we're about to grow past our maximum length, find the oldest key
+    // and remove it from _keys and _map.
     if (this._map.size === this.maxLen) {
       const toDeleteKey = this._keys.shift();
       if (toDeleteKey !== undefined) {

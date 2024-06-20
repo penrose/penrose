@@ -53,6 +53,9 @@ export default function DiagramPanel() {
     }
   }, [diagram.state]);
 
+  // starts a chain of callbacks, running every animation frame, to compute the
+  // most recent shapes, until it sees that the step sequence it was given has
+  // finished optimizing, or `computeLayoutShouldStop` is set.
   const runComputeLayout = async (
     diagramId: number,
     stepSequenceId: number,
@@ -62,6 +65,7 @@ export default function DiagramPanel() {
       return;
     }
 
+    // get updated history info for the diagram
     const pollResult = await optimizer.poll(diagramId);
     if (isErr(pollResult)) {
       setDiagram((diagram) => ({
@@ -72,6 +76,7 @@ export default function DiagramPanel() {
       return;
     }
 
+    // get history of the current step sequence
     const stepSequenceInfo = pollResult.value.get(stepSequenceId);
     if (!stepSequenceInfo) {
       setDiagram((diagram) => ({
@@ -84,11 +89,13 @@ export default function DiagramPanel() {
       return;
     }
 
+    // set layout stats for use by timeline slider
     setDiagram((diagram) => ({
       ...diagram,
       layoutStats: stepSequenceInfo.layoutStats,
     }));
 
+    // compute the most recent shapes for the step sequence
     const layoutResult = await optimizer.computeLayout(diagramId, {
       sequenceId: stepSequenceId,
       step: stepSequenceInfo.layoutStats.at(-1)!.cumulativeSteps - 1,
@@ -101,6 +108,8 @@ export default function DiagramPanel() {
           ? layoutResult.error
           : runtimeError(showOptimizerError(layoutResult.error)),
       }));
+      // don't return here, since we want to check whether the step sequence has
+      // stopped optimizing, and set the diagram state accordingly
     } else {
       setDiagram((diagram) => ({
         ...diagram,
@@ -119,15 +128,10 @@ export default function DiagramPanel() {
     }
   };
 
+  // stop whenever either active id changes (but we will restart very quickly)
   useEffect(() => {
     computeLayoutShouldStop.current = true;
   }, [diagram.diagramId, diagram.stepSequenceId]);
-
-  useEffect(() => {
-    if (!workerState.optimizing) {
-      computeLayoutShouldStop.current = true;
-    }
-  }, [workerState.optimizing]);
 
   // silly: we need this to be checked when `computerLayoutRunning.current`
   // changes (in case we should restart). But usually you don't want refs to

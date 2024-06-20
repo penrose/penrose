@@ -1,9 +1,10 @@
 // a slider that shows the history of the diagram layout optimization, requesting shapes from the worker and rendering them on demand
 
 import { penroseBlue } from "@penrose/components";
-import { runtimeError } from "@penrose/core";
+import { isPenroseError, runtimeError } from "@penrose/core";
 import { useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
+import { showOptimizerError } from "../optimizer/common";
 import { diagramState, diagramWorkerState, optimizer } from "../state/atoms.js";
 import SegmentedSlider from "./SegmentedSlider.js";
 
@@ -26,7 +27,9 @@ export const LayoutTimelineSlider: React.FC<{}> = (props) => {
         setWaiting(false);
         setDiagram((diagram) => ({
           ...diagram,
-          error: runtimeError("Failed to compute shapes"), // TODO: better handling
+          error: isPenroseError(state.error)
+            ? state.error
+            : runtimeError(showOptimizerError(state.error)),
         }));
       } else {
         setWaiting(false);

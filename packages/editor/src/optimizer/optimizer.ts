@@ -82,6 +82,7 @@ export default class Optimizer {
     }
   };
 
+  /** Convenience wrapper */
   private request = <T, R extends MessageResult & Tagged<T>>(
     requestData: MessageRequestData & Tagged<T>,
   ): Promise<R> => {
@@ -131,6 +132,7 @@ export default class Optimizer {
 
     const diagramId = compileResult.value.diagramId;
 
+    // get the render state, which gets and caches the svg and label measurements for us
     const renderState = await this.computeLayout(diagramId, {
       sequenceId: 0,
       step: 0,
@@ -144,6 +146,7 @@ export default class Optimizer {
       );
     }
 
+    // send the label measurements to the broker with the destination diagramId
     notifyWorker(this.broker, {
       tag: MessageTags.LabelMeasurements,
       diagramId,
@@ -153,6 +156,10 @@ export default class Optimizer {
     return compileResult;
   };
 
+  /**
+   * Get the `HistoryInfo` of the given diagram
+   * @param diagramId
+   */
   poll = async (diagramId: DiagramID): Promise<PollResult> => {
     log.info("Sending poll request to broker");
     const requestData: PollRequestData = {
@@ -163,11 +170,18 @@ export default class Optimizer {
     return await this.request(requestData);
   };
 
+  /**
+   * Compute the `RenderState` of the given diagram and location in history
+   * @param diagramId
+   * @param historyLoc
+   */
   computeLayout = async (
     diagramId: DiagramID,
     historyLoc: HistoryLoc,
   ): Promise<
     Result<
+      // actual message returns a `LayoutState`, so we can't return the
+      // message result type directly
       RenderState,
       InvalidDiagramIDError | InvalidHistoryLocError | PenroseError
     >
@@ -183,6 +197,9 @@ export default class Optimizer {
     }
 
     let svgCache: Map<string, HTMLElement>;
+
+    // if we haven't already cached the svgs and label measurements, calulate them
+    // and store them
     if (!this.svgCaches.has(diagramId)) {
       const svgCacheResult = await collectAndSeparateLabels(
         result.value.shapes,
@@ -218,6 +235,11 @@ export default class Optimizer {
     notifyWorker(this.broker, notifData);
   };
 
+  /**
+   * Resample an existing diagram. Returns the new `StepSequenceID`.
+   * @param diagramId
+   * @param variation
+   */
   resample = async (
     diagramId: DiagramID,
     variation: string,

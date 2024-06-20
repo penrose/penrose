@@ -4,7 +4,7 @@ import registry from "@penrose/examples/dist/registry.js";
 import localforage from "localforage";
 import queryString from "query-string";
 import toast from "react-hot-toast";
-import { RecoilState, Snapshot, useRecoilCallback } from "recoil";
+import { RecoilState, useRecoilCallback } from "recoil";
 import { v4 as uuid } from "uuid";
 import { isErr, showOptimizerError } from "../optimizer/common.js";
 import {
@@ -50,21 +50,14 @@ const _compileDiagram = async (
   variation: string,
   excludeWarnings: string[],
   set: <T>(state: RecoilState<T>, update: (t: T) => T) => void,
-  snapshot: Snapshot,
 ) => {
-  const prevWorkerState = {
-    ...snapshot.getLoadable(diagramWorkerState).contents,
-  };
-  const diagram = snapshot.getLoadable(diagramState).contents;
-
+  // indicate that buttons should gray out for now
   set(diagramWorkerState, (state) => ({
     optimizing: false,
     compiling: true,
   }));
 
   const compiling = toast.loading("Compiling...");
-  const currentDiagram =
-    snapshot.getLoadable(diagramWorkerState).contents.diagramId;
   const compileResult = await optimizer.compile(
     domain,
     style,
@@ -72,42 +65,42 @@ const _compileDiagram = async (
     variation,
   );
   toast.dismiss(compiling);
-  set(diagramWorkerState, (state) => ({
-    ...state,
+
+  // un-gray buttons
+  set(diagramWorkerState, () => ({
+    optimizing: false,
     compiling: false,
   }));
 
   if (isErr(compileResult)) {
+    // display error
     set(diagramState, (diagram) => ({
       ...diagram,
       error: compileResult.error,
     }));
-    set(diagramWorkerState, () => ({
-      ...prevWorkerState,
-      optimizing: false,
-    }));
     return;
   }
 
+  // get currently available step sequence id and history (should be exactly one
+  // id, and no history, currently)
   const pollResult = await optimizer.poll(compileResult.value.diagramId);
   if (isErr(pollResult)) {
     set(diagramState, (diagram) => ({
       ...diagram,
       error: runtimeError(showOptimizerError(pollResult.error)),
     }));
-    set(diagramWorkerState, (state) => ({
-      ...prevWorkerState,
-      optimizing: false,
-    }));
     return;
   }
 
+  // we've succesfully compiled, so we can update the diagram metadata, warnings, etc
   set(diagramState, (diagram) => ({
     ...diagram,
     warnings: compileResult.value.warnings,
     error: null,
     layoutStats: [],
     diagramId: compileResult.value.diagramId,
+    // uses our assumption that there will only be one step sequence for a newly
+    // compiled diagram
     stepSequenceId: pollResult.value.keys().next().value,
     metadata: {
       ...diagram.metadata,
@@ -121,7 +114,7 @@ const _compileDiagram = async (
     },
   }));
 
-  set(diagramWorkerState, (state) => ({
+  set(diagramWorkerState, () => ({
     compiling: false,
     optimizing: true,
   }));
@@ -143,7 +136,6 @@ export const useCompileDiagram = () =>
       diagram.metadata.variation,
       diagram.metadata.excludeWarnings,
       set,
-      snapshot,
     );
   });
 
@@ -162,18 +154,16 @@ export const useResampleDiagram = () =>
       toast.error("Cannot resample uncompiled diagram");
       return;
     }
+
     const variation = generateVariation();
     const resamplingLoading = toast.loading("Resampling...");
-
-    set(diagramState, (state) => ({
-      ...state,
-      stepSequenceId: null,
-    }));
 
     const resampleResult = await optimizer.resample(
       diagram.diagramId,
       variation,
     );
+    toast.dismiss(resamplingLoading);
+
     if (isErr(resampleResult)) {
       set(diagramState, (diagram) => ({
         ...diagram,
@@ -182,18 +172,23 @@ export const useResampleDiagram = () =>
       return;
     }
 
-    toast.dismiss(resamplingLoading);
-    set(diagramWorkerState, (worker) => ({
-      ...worker,
+    // resampling succeeded, so we know we're now optimizing
+    set(diagramWorkerState, () => ({
+      compiling: false,
       optimizing: true,
     }));
     set(diagramState, (diagram) => ({
       ...diagram,
       stepSequenceId: resampleResult.value,
+      // on resample, only clear runtime errors
       error:
         diagram.error !== null && diagram.error.errorType !== "RuntimeError"
           ? diagram.error
           : null,
+      metadata: {
+        ...diagram.metadata,
+        variation,
+      },
     }));
   });
 
@@ -445,7 +440,6 @@ export const useLoadLocalWorkspace = () =>
       uuid(),
       [],
       set,
-      snapshot,
     );
   });
 
@@ -508,7 +502,6 @@ export const useLoadExampleWorkspace = () =>
           variation,
           excludeWarnings,
           set,
-          snapshot,
         );
       },
   );
@@ -663,7 +656,6 @@ export const useCheckURL = () =>
         variation,
         excludeWarnings,
         set,
-        snapshot,
       );
       toast.dismiss(t);
     }

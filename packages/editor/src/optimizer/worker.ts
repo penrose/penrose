@@ -1,5 +1,4 @@
 import {
-  LabelMeasurements,
   PenroseState,
   compileTrio,
   finalStage,
@@ -52,19 +51,31 @@ let historyValues: Map<StepSequenceID, number[][]> = new Map();
 /**
  * Context for optimizer. Varying values only represent the last
  * values the optimizer saw; refer to `historyValue` to get the appropriate list
- * for a particular `historyLoc`.
+ * for a particular `historyLoc`. This will be non-null always after compilation,
+ * which happens immediately after launch, so it is virtually always safe to use
+ * `penroseState!`.
  */
 let penroseState: PenroseState | null = null;
-let labelMeasurements: LabelMeasurements = new Map();
 let optimizerShouldStop = false;
 
-const getParentVaryingValues = (stepSequenceInfo: StepSequenceInfo) => {
+/**
+ * Returns a copy of parents varying values (or if null, a copy of the current).
+ * @param stepSequenceInfo
+ */
+const getParentOrCurrentVaryingValues = (
+  stepSequenceInfo: StepSequenceInfo,
+) => {
   const parentLoc = stepSequenceInfo.parent;
   return parentLoc === null
-    ? penroseState!.varyingValues
-    : historyValues.get(parentLoc.sequenceId)![parentLoc.step];
+    ? [...penroseState!.varyingValues]
+    : [...historyValues.get(parentLoc.sequenceId)![parentLoc.step]];
 };
 
+/**
+ * Compile, but don't start optimizing until we receive `LabelMeasurementsData`
+ * in a notification. After calling, `penroseState` will be non-null.
+ * @param data
+ */
 const compile = async (data: CompileRequestData): Promise<CompileResult> => {
   const compiledState = await compileTrio(data);
 
@@ -93,17 +104,17 @@ const poll = async (): Promise<PollResult> => {
 const computeLayout = async (
   data: ComputeLayoutRequestData,
 ): Promise<ComputeLayoutResult> => {
-  const varyingValues = historyValues.get(data.historyLoc.sequenceId);
+  const varyingValuesSequence = historyValues.get(data.historyLoc.sequenceId);
   const stepSequenceInfo = historyInfo.get(data.historyLoc.sequenceId);
 
   let result: ComputeLayoutResult;
   if (
-    varyingValues &&
+    varyingValuesSequence &&
     stepSequenceInfo &&
     0 <= data.historyLoc.step &&
-    data.historyLoc.step < varyingValues.length
+    data.historyLoc.step < varyingValuesSequence.length
   ) {
-    const xs = varyingValues[data.historyLoc.step];
+    const xs = varyingValuesSequence[data.historyLoc.step];
     result = taggedOk(
       MessageTags.ComputeLayout,
       stateToLayoutState({
@@ -146,7 +157,11 @@ const makeNewStepSequence = (
     state: "Pending",
     variation,
   };
-  const varyingValuesSequence: number[][] = [getParentVaryingValues(info)];
+
+  // initialize the history of varying values to just the unoptimized values
+  const varyingValuesSequence: number[][] = [
+    getParentOrCurrentVaryingValues(info),
+  ];
 
   historyInfo.set(id, info);
   historyValues.set(id, varyingValuesSequence);
@@ -156,6 +171,8 @@ const makeNewStepSequence = (
 const startOptimize = async (stepSequenceId: StepSequenceID) => {
   const stepSequenceInfo = historyInfo.get(stepSequenceId);
   if (!stepSequenceInfo) {
+    // we don't even have a step sequence to set to error state, so we have no
+    // choice but to throw the error
     throw new Error("invalid step sequence for optimizer");
   }
 
@@ -170,10 +187,10 @@ const startOptimize = async (stepSequenceId: StepSequenceID) => {
     return;
   }
 
-  const initVaryingValues = getParentVaryingValues(stepSequenceInfo);
+  const initVaryingValues = getParentOrCurrentVaryingValues(stepSequenceInfo);
   penroseState = {
     ...penroseState!,
-    varyingValues: [...initVaryingValues],
+    varyingValues: initVaryingValues,
     params: start(initVaryingValues.length),
     currentStageIndex: stepSequenceInfo.layoutStats.length - 1,
   };
@@ -192,6 +209,7 @@ const startOptimize = async (stepSequenceId: StepSequenceID) => {
         // set by onmessage if we need to stop
         log.info("Optimization finishing early");
         optimizerShouldStop = false;
+        // return from the opt step
         return;
       }
 
@@ -204,10 +222,15 @@ const startOptimize = async (stepSequenceId: StepSequenceID) => {
           tag: "OptimizationError",
           error: steppedState.error,
         };
+        // return from the opt step
         return;
       } else {
+        // if we successfully took an optimization step
+
         const stepped = steppedState.value;
         if (isOptimized(stepped) && !finalStage(stepped)) {
+          // if we should go to the next layout stage
+
           const nextInitState = nextStage(stepped);
           penroseState = nextInitState;
           const currentStage =
@@ -220,20 +243,25 @@ const startOptimize = async (stepSequenceId: StepSequenceID) => {
               stepSequenceInfo.layoutStats.at(-1)!.cumulativeSteps,
           });
         } else {
+          // if we should stay in the current layout stage
           penroseState = stepped;
         }
 
+        // in either switching stages or continuing with the same stage,
+        // we would like to record the values and increment the steps for the
+        // (potentially new) latest stage
         varyingValuesSequence.push([...penroseState.varyingValues]);
         stepSequenceInfo.layoutStats.at(-1)!.steps++;
         stepSequenceInfo.layoutStats.at(-1)!.cumulativeSteps++;
-      }
+      } // end if successfully optimized
 
       if (isOptimized(penroseState)) {
         log.info("Optimization finished");
         stepSequenceInfo.state = "Done";
-        return;
+        return; // from the opt step
       }
 
+      // trigger a new call to `optStep` at the back of the event queue
       optStepMsgChannel.port2.postMessage(null);
     } catch (err: any) {
       log.info("Optimization failed. Quitting without finishing...");
@@ -245,12 +273,20 @@ const startOptimize = async (stepSequenceId: StepSequenceID) => {
     }
   };
 
+  // create a new message channel such that, on any message, we take an `optStep`.
   optStepMsgChannel.port1.onmessage = () => {
     optStep();
   };
+
+  // trigger the first `optStep`
   optStepMsgChannel.port2.postMessage(null);
 };
 
+/**
+ * Resample the current state, creating a new step sequence, and immediately
+ * start optimizing.
+ * @param variation
+ */
 const resample = (variation: string): ResampleResult => {
   penroseState = penroseResample({
     ...penroseState!,
@@ -306,6 +342,8 @@ self.onmessage = async ({
         log.info(`Worker recieved notification ${notifData.tag}`);
         switch (notifData.tag) {
           case MessageTags.LabelMeasurements:
+            // this is final piece of info we need to start optimizing after
+            // compile
             const partialState = {
               ...penroseState!,
               labelCache: notifData.labelMeasurements,
@@ -322,8 +360,6 @@ self.onmessage = async ({
       }
       break;
   }
-
-  //
 };
 
 log.info("Worker initialized");

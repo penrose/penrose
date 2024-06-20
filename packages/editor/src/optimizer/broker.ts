@@ -32,14 +32,27 @@ import {
 const log = consola.create({ level: logLevel }).withScope("optimizer:broker");
 const numWorkersToKeep = 3;
 
-const workers = new SizeBoundedMap<DiagramID, Worker>(3, (_, worker) => {
-  worker.terminate();
-});
+const workers = new SizeBoundedMap<DiagramID, Worker>(
+  numWorkersToKeep,
+  (_, worker) => {
+    worker.terminate();
+  },
+);
+
+/**
+ * Map from message ids created on a request, to a resolve function whose
+ * promises is being `await`ed on.
+ */
 const resolvesById = new Map<MessageID, (result: MessageResult) => void>();
 
 const diagramIdGenerator = new DiagramIDGenerator();
 const messageIdGenerator = new MessageIDGenerator();
 
+/**
+ * Create the callback to listen for responses and notifications from a child
+ * worker.
+ * @param diagramId `DiagramID` of the worker
+ */
 const makeWorkerOnMessage =
   (diagramId: DiagramID) =>
   ({ data }: MessageEvent<MessageResponse | Notification>) => {
@@ -54,7 +67,7 @@ const makeWorkerOnMessage =
 
       case "Notification":
         throw new Error(
-          `Broker does not support notification ${data.data.tag}`,
+          `Broker does not support notification ${data.data.tag} from worker`,
         );
     }
   };
@@ -74,6 +87,14 @@ const getWorkerOrError = (
   }
 };
 
+/**
+ * Forward a request to the worker with id `diagramId`. The result type of this
+ * request _must_ support the error `InvalidDiagramIDError`, despite this not
+ * being type checked.
+ * TODO: figure out how to type check request forwarding properly
+ * @param diagramId
+ * @param data
+ */
 const forwardRequest = async (
   diagramId: DiagramID,
   data: MessageRequestData,
@@ -95,6 +116,7 @@ const forwardRequest = async (
   return result;
 };
 
+/** Forward a notification to the worker with `diagramId` */
 const forwardNotification = (diagramId: DiagramID, data: NotificationData) => {
   const worker = getWorkerOrError(diagramId);
   if (worker.isErr()) {
@@ -104,6 +126,10 @@ const forwardNotification = (diagramId: DiagramID, data: NotificationData) => {
   notifyWorker(worker.value, data);
 };
 
+/**
+ * Creates a worker, waits for init, and then forwards the compile request.
+ * @param data
+ */
 const compile = async (data: CompileRequestData): Promise<CompileResult> => {
   log.info("Spinning new worker");
   const worker = await spinAndWaitForInit("./worker.ts");
@@ -125,11 +151,17 @@ const compile = async (data: CompileRequestData): Promise<CompileResult> => {
   return result;
 };
 
+/**
+ * Terminate worker and free data associated with `diagramId`. Future calls with
+ * this id will lead to an `InvalidDiagramIDError`.
+ * @param data
+ */
 const discardDiagram = (data: DiscardDiagramData) => {
   workers.get(data.diagramId)?.terminate();
   workers.delete(data.diagramId);
 };
 
+// handle requests and notifications from main thread
 self.onmessage = async ({
   data,
 }: MessageEvent<MessageRequest | Notification>) => {
@@ -184,5 +216,6 @@ self.onmessage = async ({
   }
 };
 
+// Notify main thread that we are ready to accept messages
 log.info("Broker initialized");
 notify({ tag: MessageTags.Init });
