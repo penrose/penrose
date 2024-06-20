@@ -25,6 +25,7 @@ import { substanceLanguageSupport } from "./parser/substance/substanceLanguage";
 // import { ErrorLoc } from "@penrose/core/dist/utils/Util.js";
 // import { errLocs, showError } from "@penrose/core";
 import { linter } from "@codemirror/lint";
+import { quietlight } from "@uiw/codemirror-theme-quietlight";
 
 import {
   ShapeType,
@@ -143,7 +144,7 @@ export default function EditorPane({
         value={value}
         extensions={extensionsList}
         onChange={onChange}
-        // theme={penroseEditorTheme}
+        theme={quietlight}
       />
       <div
         ref={statusBarRef}

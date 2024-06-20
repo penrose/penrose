@@ -41,17 +41,13 @@ const StyleAutocomplete = (
         return null;
       }
 
-      if (parentNode == null) {
-        return null;
-      }
-
       let completionOpts = [] as Completion[];
 
       /*
        * Shape property auto complete. Properties nested as identifier
        * inside PropName inside PropertyDecl inside ShapeDecl
        */
-      const upThree = goToParentX(parentNode, 2);
+      const upThree = goToParentX(nodeBefore, 3);
       if (
         upThree != null &&
         upThree.name === "ShapeDecl" &&
@@ -76,6 +72,7 @@ const StyleAutocomplete = (
 
       // Top level kw completion (forall, collect, layout)
       if (
+        parentNode != null &&
         // Go up to header
         parentNode.parent != null &&
         parentNode.parent.name === "Header"
@@ -85,14 +82,14 @@ const StyleAutocomplete = (
 
       // Expr completion
       // StyVar -> Var -> Path -> Expr
-      const upFour = goToParentX(parentNode, 3);
+      const upFour = goToParentX(nodeBefore, 4);
       if (upFour != null && upFour.name === "Expr") {
         completionOpts = completionOpts.concat(exprOptions);
       }
 
       // AssignExpr completion
       // StyVar -> Var -> Path -> Expr -> AssignExpr
-      const upFive = goToParentX(parentNode, 4);
+      const upFive = goToParentX(nodeBefore, 5);
       if (upFive != null && upFive.name === "AssignExpr") {
         completionOpts = completionOpts
           .concat(anonExprKws)
@@ -102,7 +99,7 @@ const StyleAutocomplete = (
       // Constraint completion
       // StyVar -> Var -> Path -> Expr -> ObjConstrBody -> Constraint/Objective
       // (5+parentNode)
-      const upSix = goToParentX(parentNode, 5);
+      const upSix = goToParentX(nodeBefore, 6);
       if (
         upSix != null &&
         (upSix.name === "Objective" || upSix.name === "Constraint")
@@ -133,6 +130,7 @@ const StyleAutocomplete = (
       // Collect Header autocomplete
       // Collect suggest repeatable
       if (
+        parentNode != null &&
         // SelType -> Decl
         parentNode.parent != null &&
         parentNode.parent.prevSibling != null &&
