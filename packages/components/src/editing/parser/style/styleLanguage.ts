@@ -2,6 +2,8 @@ import {
   LRLanguage,
   LanguageSupport,
   continuedIndent,
+  foldInside,
+  foldNodeProp,
   indentNodeProp,
 } from "@codemirror/language";
 import { styleTags, tags as t } from "@lezer/highlight";
@@ -16,6 +18,9 @@ export const styleLanguage = LRLanguage.define({
       indentNodeProp.add({
         Block: continuedIndent(),
         ShapeDecl: continuedIndent(),
+      }),
+      foldNodeProp.add({
+        Block: foldInside,
       }),
       styleTags({
         LineComment: t.lineComment,
