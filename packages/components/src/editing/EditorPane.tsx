@@ -25,8 +25,6 @@ import { substanceLanguageSupport } from "./parser/substance/substanceLanguage";
 // import { ErrorLoc } from "@penrose/core/dist/utils/Util.js";
 // import { errLocs, showError } from "@penrose/core";
 import { linter } from "@codemirror/lint";
-import { quietlight } from "@uiw/codemirror-theme-quietlight";
-
 import {
   ShapeType,
   makeCanvas,
@@ -34,6 +32,8 @@ import {
   shapeTypes,
   simpleContext,
 } from "@penrose/core";
+import { colorPicker } from "@replit/codemirror-css-color-picker";
+import { penroseTheme } from "./theme";
 
 /**
  * Retrieves defintions for all shapes and writes their properties to a
@@ -100,6 +100,7 @@ export default function EditorPane({
     SetFontSize,
     lintObject,
     lintGutter(),
+    colorPicker,
   ];
 
   const [shapeDefs, setshapeDefs] = useState<ShapeDefinitions>({});
@@ -144,7 +145,7 @@ export default function EditorPane({
         value={value}
         extensions={extensionsList}
         onChange={onChange}
-        theme={quietlight}
+        theme={penroseTheme}
       />
       <div
         ref={statusBarRef}

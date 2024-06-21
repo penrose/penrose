@@ -6,8 +6,10 @@ import { DomainCache, ShapeDefinitions } from "../../types";
 import { extractText } from "../hooksUtils";
 import {
   anonExprKws,
-  exprOptions,
+  exprKws,
+  getComputationFns,
   getConstraints,
+  // getNamespaces,
   getPredOptions,
   getShapeNames,
   getShapeProps,
@@ -84,7 +86,12 @@ const StyleAutocomplete = (
       // StyVar -> Var -> Path -> Expr
       const upFour = goToParentX(nodeBefore, 4);
       if (upFour != null && upFour.name === "Expr") {
-        completionOpts = completionOpts.concat(exprOptions);
+        const topNode = syntaxTree(context.state).topNode;
+        const styleProg = context.state.doc.toString();
+        completionOpts = completionOpts
+          .concat(exprKws)
+          .concat(getComputationFns());
+        // .concat(getNamespaces(topNode, styleProg));
       }
 
       // AssignExpr completion

@@ -52,6 +52,8 @@
     "@lezer/generator": "^1.7.0",
     "@monaco-editor/react": "^4.0.11",
     "@penrose/core": "^4.0.0-alpha.0",
+    "@replit/codemirror-css-color-picker": "^6.1.1",
+    "@uiw/codemirror-theme-quietlight": "^4.22.2",
     "@uiw/codemirror-themes": "^4.22.2",
     "monaco-editor": "^0.31.0",
     "monaco-vim": "^0.3.4",
