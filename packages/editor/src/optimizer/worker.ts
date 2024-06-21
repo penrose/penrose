@@ -305,7 +305,7 @@ self.onmessage = async ({
     case "MessageRequest":
       {
         const requestData = data.data;
-        log.info(`Worker recieved request ${requestData.tag}`);
+        log.info(`Worker received request ${requestData.tag}`);
 
         let result: MessageResult;
         switch (requestData.tag) {
