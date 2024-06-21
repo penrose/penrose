@@ -254,7 +254,7 @@ const startOptimize = async (stepSequenceId: StepSequenceID) => {
 
       if (isOptimized(penroseState)) {
         log.info("Optimization finished");
-        stepSequenceInfo.state = "Done";
+        stepSequenceInfo.state = { tag: "Done" };
         return; // from the opt step
       }
 
