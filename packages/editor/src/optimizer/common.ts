@@ -341,13 +341,13 @@ export const request = <T, R extends MessageResult & Tagged<T>>(
 
 /**
  * Launch worker, and wait for a notification `InitData` before resolving.
- * @param url Worker to launch
+ * @param WorkerConstructor
  */
-export const launchAndWaitForInit = async (url: string): Promise<Worker> => {
+export const launchAndWaitForInit = async (WorkerConstructor: {
+  new (): Worker;
+}): Promise<Worker> => {
   return new Promise((resolve) => {
-    const worker = new Worker(new URL(url, import.meta.url), {
-      type: "module",
-    });
+    const worker = new WorkerConstructor();
     worker.onmessage = ({ data }: MessageEvent<Notification>) => {
       switch (data.data.tag) {
         case MessageTags.Init:
