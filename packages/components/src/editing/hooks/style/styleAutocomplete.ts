@@ -114,7 +114,13 @@ const StyleAutocomplete = (
       // Expr completion
       // StyVar -> Var -> Path -> Expr
       const upFour = goToParentX(nodeBefore, 4);
-      if (upFour != null && upFour.name === "Expr") {
+      // Check nodeBefore name to avoid triggering on Numbers, parser guesses
+      // Identifier before term completed
+      if (
+        upFour != null &&
+        upFour.name === "Expr" &&
+        nodeBefore.name === "Identifier"
+      ) {
         const topNode = syntaxTree(context.state).topNode;
         const styleProg = context.state.doc.toString();
         completionOpts = completionOpts
@@ -126,7 +132,12 @@ const StyleAutocomplete = (
       // AssignExpr completion
       // StyVar -> Var -> Path -> Expr -> AssignExpr
       const upFive = goToParentX(nodeBefore, 5);
-      if (upFive != null && upFive.name === "AssignExpr") {
+      if (
+        upFive != null &&
+        upFive.name === "AssignExpr" &&
+        nodeBefore.name === "Identifier"
+      ) {
+        console.log("Hit");
         completionOpts = completionOpts
           .concat(anonExprKws)
           .concat(getShapeNames(shapeDefns));
