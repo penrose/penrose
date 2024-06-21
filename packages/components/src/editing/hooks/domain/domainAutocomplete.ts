@@ -48,7 +48,7 @@ const DomainAutocomplete = (domainCache: DomainCache) => {
         parentNode = parentNode.parent;
       }
 
-      // console.log(wholeTree.toString(), leftSib, parent);
+      console.log(wholeTree.toString(), leftSib, parentNode);
       // console.log(wholeTree.toString());
 
       // not sure what this does, stolen from autocomplete example
@@ -82,8 +82,8 @@ const DomainAutocomplete = (domainCache: DomainCache) => {
       }
       // Case 1: Inside parameter list, either as first item or after comma
       if (
-        parent !== null &&
-        parent.name === "ParamList" &&
+        parentNode !== null &&
+        parentNode.name === "ParamList" &&
         (leftSib === null || leftSib.name === "Sep")
       ) {
         return {
@@ -99,7 +99,7 @@ const DomainAutocomplete = (domainCache: DomainCache) => {
         };
       }
       // Case 3: Defining subtype
-      else if (parent !== null && parent.name === "InheritanceList") {
+      else if (parentNode !== null && parentNode.name === "InheritanceList") {
         return {
           from: word.from,
           options: getTypeOptions(domainCache),
