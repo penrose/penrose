@@ -68,7 +68,7 @@ const getParentOrCurrentVaryingValues = (
   const parentLoc = stepSequenceInfo.parent;
   return parentLoc === null
     ? [...penroseState!.varyingValues]
-    : [...historyValues.get(parentLoc.sequenceId)![parentLoc.step]];
+    : [...historyValues.get(parentLoc.sequenceId)![parentLoc.frame]];
 };
 
 /**
@@ -111,10 +111,10 @@ const computeLayout = async (
   if (
     varyingValuesSequence &&
     stepSequenceInfo &&
-    0 <= data.historyLoc.step &&
-    data.historyLoc.step < varyingValuesSequence.length
+    0 <= data.historyLoc.frame &&
+    data.historyLoc.frame < varyingValuesSequence.length
   ) {
-    const xs = varyingValuesSequence[data.historyLoc.step];
+    const xs = varyingValuesSequence[data.historyLoc.frame];
     result = taggedOk(
       MessageTags.ComputeLayout,
       stateToLayoutState({
@@ -146,15 +146,12 @@ const makeNewStepSequence = (
           penroseState!.optStages.length === 1
             ? "default"
             : penroseState!.optStages[0],
-        // steps, as it is used in the rest of the codebase, indicates the number
-        // of varying values in a list--not the number of optimizer steps. So
-        // we initialize this to one, since one varying value is added initially
-        steps: 1,
-        cumulativeSteps: 1,
+        frames: 1,
+        cumulativeFrames: 1,
       },
     ],
     parent: parentLoc,
-    state: "Pending",
+    state: { tag: "Pending" },
     variation,
   };
 
@@ -238,9 +235,9 @@ const startOptimize = async (stepSequenceId: StepSequenceID) => {
           // add the total steps taken by the previous stage
           stepSequenceInfo.layoutStats.push({
             name: currentStage,
-            steps: 0,
-            cumulativeSteps:
-              stepSequenceInfo.layoutStats.at(-1)!.cumulativeSteps,
+            frames: 0,
+            cumulativeFrames:
+              stepSequenceInfo.layoutStats.at(-1)!.cumulativeFrames,
           });
         } else {
           // if we should stay in the current layout stage
@@ -251,8 +248,8 @@ const startOptimize = async (stepSequenceId: StepSequenceID) => {
         // we would like to record the values and increment the steps for the
         // (potentially new) latest stage
         varyingValuesSequence.push([...penroseState.varyingValues]);
-        stepSequenceInfo.layoutStats.at(-1)!.steps++;
-        stepSequenceInfo.layoutStats.at(-1)!.cumulativeSteps++;
+        stepSequenceInfo.layoutStats.at(-1)!.frames++;
+        stepSequenceInfo.layoutStats.at(-1)!.cumulativeFrames++;
       } // end if successfully optimized
 
       if (isOptimized(penroseState)) {

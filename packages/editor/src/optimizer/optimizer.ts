@@ -135,7 +135,7 @@ export default class Optimizer {
     // get the render state, which gets and caches the svg and label measurements for us
     const renderState = await this.computeLayout(diagramId, {
       sequenceId: 0,
-      step: 0,
+      frame: 0,
     });
     if (renderState.isErr()) {
       return taggedErr(

@@ -1,6 +1,7 @@
 import {
   Canvas,
   collectLabels,
+  isPenroseError,
   LabelCache,
   LabelData,
   LabelMeasurements,
@@ -9,6 +10,7 @@ import {
   PenroseError,
   PenroseWarning,
   Shape,
+  showError,
   State,
 } from "@penrose/core";
 import consola from "consola";
@@ -42,7 +44,7 @@ export type StepSequenceID = number;
  */
 export type HistoryLoc = {
   sequenceId: StepSequenceID;
-  step: number;
+  frame: number;
 };
 
 /**
@@ -50,8 +52,8 @@ export type HistoryLoc = {
  */
 export type LayoutStats = {
   name: string;
-  steps: number;
-  cumulativeSteps: number;
+  frames: number;
+  cumulativeFrames: number;
 }[];
 
 /**
@@ -61,7 +63,10 @@ export type LayoutStats = {
  *  - `"Done"`: optimizer finished normally
  *  - `OptimizerError`: optimizer errored and cannot continue.
  */
-export type StepSequenceState = "Pending" | "Done" | OptimizationError;
+export type StepSequenceState =
+  | { tag: "Pending" }
+  | { tag: "Done" }
+  | OptimizationError;
 
 /**
  * Info about a step sequence.
@@ -466,17 +471,27 @@ export const removeRenderedLabels = <T extends LabelData>(
 export const showOptimizerError = (error: OptimizerError): string => {
   switch (error.tag) {
     case "OptimizationError":
-      return `OptimizationError: ${JSON.stringify(error)}`;
+      const prefix = "OptimizationError: ";
+      if (error.error instanceof Object && "message" in error.error) {
+        return prefix + error.error.message;
+      } else if (isPenroseError(error.error)) {
+        return prefix + showError(error.error);
+      } else {
+        console.error("Unknown optimization error: ", error.error);
+        return prefix + "unknown error. Check console.";
+      }
 
     case "InvalidDiagramIDError":
-      return `InvalidDiagramIDError: Id ${
-        error.id
-      } is invalid. Valid ids: ${error.validIds.keys()}`;
+      return `InvalidDiagramIDError: Id ${error.id} is invalid. Valid ids: ${[
+        ...error.validIds.keys(),
+      ]}`;
 
     case "InvalidHistoryLocError":
       return `InvalidHistoryLocError:\n    Location: ${JSON.stringify(
         error.historyLoc,
-      )}\n    History Info: ${JSON.stringify(error.historyInfo)}\n`;
+      )}\n    History Info: ${JSON.stringify([
+        ...error.historyInfo.entries(),
+      ])}\n`;
   }
 };
 

@@ -98,7 +98,7 @@ export default function DiagramPanel() {
     // compute the most recent shapes for the step sequence
     const layoutResult = await optimizer.computeLayout(diagramId, {
       sequenceId: stepSequenceId,
-      step: stepSequenceInfo.layoutStats.at(-1)!.cumulativeSteps - 1,
+      frame: stepSequenceInfo.layoutStats.at(-1)!.cumulativeFrames - 1,
     });
 
     if (layoutResult.isErr()) {
@@ -117,14 +117,23 @@ export default function DiagramPanel() {
       }));
     }
 
-    if (stepSequenceInfo.state == "Pending") {
+    if (stepSequenceInfo.state.tag == "Pending") {
       requestAnimationFrame(() => runComputeLayout(diagramId, stepSequenceId));
     } else {
+      // state is either "done" or an OptimizationError; either case we quit
       setWorkerState((worker) => ({
         ...worker,
         optimizing: false,
       }));
       computeLayoutRunning.current = false;
+
+      if (stepSequenceInfo.state.tag === "OptimizationError") {
+        const error = stepSequenceInfo.state;
+        setDiagram((diagram) => ({
+          ...diagram,
+          error: runtimeError(showOptimizerError(error)),
+        }));
+      }
     }
   };
 

@@ -21,7 +21,7 @@ export const LayoutTimelineSlider: React.FC<{}> = (props) => {
       setWaiting(true);
       const state = await optimizer.computeLayout(diagram.diagramId, {
         sequenceId: diagram.stepSequenceId,
-        step: i,
+        frame: i,
       });
       if (state.isErr()) {
         setWaiting(false);
@@ -61,8 +61,8 @@ export const LayoutTimelineSlider: React.FC<{}> = (props) => {
         segments={
           diagram.layoutStats.map((stat, i) => ({
             label: stat.name,
-            steps: stat.steps,
-            cumulativeSteps: stat.cumulativeSteps,
+            frames: stat.frames,
+            cumulativeFrames: stat.cumulativeFrames,
             color: penroseBlue.primary,
           })) ?? []
         }
