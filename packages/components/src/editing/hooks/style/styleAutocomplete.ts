@@ -9,11 +9,13 @@ import {
   exprKws,
   getComputationFns,
   getConstraints,
-  // getNamespaces,
+  getNamespaceProps,
+  getNamespaces,
   getPredOptions,
   getShapeNames,
   getShapeProps,
   getTypeOptions,
+  goToChildX,
   goToParentX,
   headerOptions,
   statementKws,
@@ -35,11 +37,13 @@ const StyleAutocomplete = (
         printTree(wholeTree, context.state.doc.toString()),
         nodeBefore,
         parentNode,
+        word,
       );
       // console.log(wholeTree.toString());
 
       // not sure what this does, stolen from autocomplete example
-      if (word == null || (word.from === word.to && !context.explicit)) {
+      if (word == null) {
+        console.log("gg");
         return null;
       }
 
@@ -72,6 +76,31 @@ const StyleAutocomplete = (
         }
       }
 
+      // Suggest user defined namespace properties
+      if (
+        parentNode != null &&
+        // Case 1) User typed . and they're inside path
+        ((nodeBefore.name === "." && parentNode.name === "Path") ||
+          // Case 2) User typed .[something]
+          (nodeBefore.name === "Identifier" &&
+            nodeBefore.prevSibling != null &&
+            nodeBefore.prevSibling.name === "."))
+      ) {
+        // Grab namespace identifier
+        let id = goToChildX(parentNode, 3);
+        if (id != null) {
+          const topNode = syntaxTree(context.state).topNode;
+          const styleProg = context.state.doc.toString();
+          const namespace = extractText(styleProg, id.to, id.from);
+
+          // We shortciruit to avoid triggering other autocomplete fns
+          return {
+            from: word.from,
+            options: getNamespaceProps(topNode, styleProg, namespace),
+          };
+        }
+      }
+
       // Top level kw completion (forall, collect, layout)
       if (
         parentNode != null &&
@@ -90,8 +119,8 @@ const StyleAutocomplete = (
         const styleProg = context.state.doc.toString();
         completionOpts = completionOpts
           .concat(exprKws)
-          .concat(getComputationFns());
-        // .concat(getNamespaces(topNode, styleProg));
+          .concat(getComputationFns())
+          .concat(getNamespaces(topNode, styleProg));
       }
 
       // AssignExpr completion

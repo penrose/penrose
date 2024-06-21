@@ -64,37 +64,86 @@ export const getPredOptions = (domainCache: DomainCache) => {
  * Create hashmap structure with namespace identifiers as keys and
  * declared variables array as value
  */
-export const getNamespaces = (topNode: SyntaxNode, styleProg: string) => {
+export const getNamespaceDict = (topNode: SyntaxNode, styleProg: string) => {
   // topNode is type input, walk down into items
   const itemsNode = topNode.getChild("Items");
-  if (itemsNode === null) return [];
+  if (itemsNode === null) return {};
   const itemNodes = itemsNode.getChildren("Item");
-  let namespaceCache = {} as { string: [string] };
+  let namespaceCache = {} as { [Key: string]: string[] };
 
   itemNodes.forEach((node: SyntaxNode) => {
-    console.log(node);
     let nodeCursor = node.cursor();
     // move to "HeaderBlock"
     nodeCursor.firstChild();
     if (nodeCursor.name !== "HeaderBlock") return;
-    console.log("in headerblock");
     // move to Header
     nodeCursor.firstChild();
-    if (nodeCursor.name !== "Header") return;
     // Move to Namespace
     nodeCursor.firstChild();
-
+    // Node cursor throws a typescript error on checking the names successively
+    // @ts-ignore
     if (nodeCursor.name !== "Namespace") return;
     // Move to Identifier
     nodeCursor.firstChild();
-
-    if (nodeCursor.name === "Identifier") {
-      let blockName = extractText(styleProg, nodeCursor.to, nodeCursor.from);
-      if (blockName === "canvas") return;
-      let varNames = [];
-    }
+    let blockName = extractText(styleProg, nodeCursor.to, nodeCursor.from);
+    if (blockName === "canvas") return;
+    let varNames = [] as string[];
+    // Move to Namespace
+    nodeCursor.parent();
+    // Move to Header
+    nodeCursor.parent();
+    // Move to Block
+    nodeCursor.nextSibling();
+    // Get children
+    let statements = nodeCursor.node.getChildren("Statement");
+    statements.forEach((stNode: SyntaxNode) => {
+      let stNodeCursor = stNode.cursor();
+      stNodeCursor.firstChild();
+      if (stNodeCursor.name !== "Assign") return;
+      // Into either Type or Path
+      stNodeCursor.firstChild();
+      // @ts-ignore
+      if (stNodeCursor.name === "Type") {
+        stNodeCursor.nextSibling();
+      }
+      // Should now be in Path
+      // Move into Variable
+      stNodeCursor.firstChild();
+      // Move into Styvar
+      stNodeCursor.firstChild();
+      // Move into Identifier
+      stNodeCursor.firstChild();
+      varNames.push(extractText(styleProg, stNodeCursor.to, stNodeCursor.from));
+    });
+    namespaceCache[blockName] = varNames;
   });
 
+  return namespaceCache;
+};
+
+export const getNamespaces = (topNode: SyntaxNode, styleProg: string) => {
+  let namespaceDict = getNamespaceDict(topNode, styleProg);
+
+  return Object.entries(namespaceDict).map(([key, value]) => ({
+    label: key,
+    type: "namespace",
+    info: "",
+  }));
+};
+
+export const getNamespaceProps = (
+  topNode: SyntaxNode,
+  styleProg: string,
+  namespace: string,
+) => {
+  let namespaceDict = getNamespaceDict(topNode, styleProg);
+  if (namespace in namespaceDict) {
+    return namespaceDict[namespace].map((prop) => ({
+      label: prop,
+      type: "property",
+      info: "",
+    }));
+  }
   return [];
 };
 
@@ -149,9 +198,9 @@ export const anonExprKws = ["override", "layer", "encourage", "ensure"].map(
   }),
 );
 
-export const goToParentX = (parentNode: SyntaxNode, x: number) => {
+export const goToParentX = (node: SyntaxNode, x: number) => {
   let i = 0;
-  let nextParent: SyntaxNode | null = parentNode;
+  let nextParent: SyntaxNode | null = node;
   while (i < x) {
     nextParent = nextParent.parent;
     i++;
@@ -160,4 +209,17 @@ export const goToParentX = (parentNode: SyntaxNode, x: number) => {
     }
   }
   return nextParent;
+};
+
+export const goToChildX = (node: SyntaxNode, x: number) => {
+  let i = 0;
+  let nextChild: SyntaxNode | null = node;
+  while (i < x) {
+    nextChild = nextChild.firstChild;
+    i++;
+    if (nextChild == null) {
+      return null;
+    }
+  }
+  return nextChild;
 };

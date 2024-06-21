@@ -14,7 +14,7 @@ export const config = {
   matchingBracket: "#E4F6D4",
   keyword: "#4B69C6",
   storage: "#4B69C6",
-  variable: "#db8523",
+  variable: "#DB8523",
   parameter: "#7A3E9D",
   function: "#AA3731",
   string: "#448C27",
