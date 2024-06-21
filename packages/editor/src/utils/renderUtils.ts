@@ -1,5 +1,6 @@
 import { PathResolver, RenderShapes } from "@penrose/core";
-import { RenderState } from "../optimizer/common.js";
+import { RenderState } from "../worker/common";
+
 export const stateToSVG = async (
   state: RenderState,
   config: {
