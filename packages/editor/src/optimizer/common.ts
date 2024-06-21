@@ -341,9 +341,9 @@ export const request = <T, R extends MessageResult & Tagged<T>>(
 
 /**
  * Launch worker, and wait for a notification `InitData` before resolving.
- * @param url Worker to spin
+ * @param url Worker to launch
  */
-export const spinAndWaitForInit = async (url: string): Promise<Worker> => {
+export const launchAndWaitForInit = async (url: string): Promise<Worker> => {
   return new Promise((resolve) => {
     const worker = new Worker(new URL(url, import.meta.url), {
       type: "module",

@@ -24,8 +24,8 @@ export default function DiagramPanel() {
   const workspace = useRecoilValue(workspaceMetadataSelector);
   const rogerState = useRecoilValue(currentRogerState);
   const [workerState, setWorkerState] = useRecoilState(diagramWorkerState);
+  const [computeLayoutRunning, setComputeLayoutRunning] = useState(false);
 
-  const computeLayoutRunning = useRef(false);
   const computeLayoutShouldStop = useRef(false);
 
   useEffect(() => {
@@ -61,7 +61,7 @@ export default function DiagramPanel() {
     stepSequenceId: number,
   ) => {
     if (computeLayoutShouldStop.current) {
-      computeLayoutRunning.current = false;
+      setComputeLayoutRunning(false);
       return;
     }
 
@@ -72,7 +72,7 @@ export default function DiagramPanel() {
         ...diagram,
         error: runtimeError(showOptimizerError(pollResult.error)),
       }));
-      computeLayoutRunning.current = false;
+      setComputeLayoutRunning(false);
       return;
     }
 
@@ -85,7 +85,7 @@ export default function DiagramPanel() {
           `Invalid step sequence id ${diagram.stepSequenceId} for diagram`,
         ),
       }));
-      computeLayoutRunning.current = false;
+      setComputeLayoutRunning(false);
       return;
     }
 
@@ -125,7 +125,7 @@ export default function DiagramPanel() {
         ...worker,
         optimizing: false,
       }));
-      computeLayoutRunning.current = false;
+      setComputeLayoutRunning(false);
 
       if (stepSequenceInfo.state.tag === "OptimizationError") {
         const error = stepSequenceInfo.state;
@@ -142,24 +142,21 @@ export default function DiagramPanel() {
     computeLayoutShouldStop.current = true;
   }, [diagram.diagramId, diagram.stepSequenceId]);
 
-  // silly: we need this to be checked when `computerLayoutRunning.current`
-  // changes (in case we should restart). But usually you don't want refs to
-  // trigger a re-render. Wrapping it in an effect seems to work...
   useEffect(() => {
     if (
-      !computeLayoutRunning.current &&
+      !computeLayoutRunning &&
       workerState.optimizing &&
       diagram.diagramId !== null &&
       diagram.stepSequenceId !== null
     ) {
-      computeLayoutRunning.current = true;
-      computeLayoutShouldStop.current = false; // just in case this was set but
-      // loop stopped on its own
+      setComputeLayoutRunning(true);
+      computeLayoutShouldStop.current = false;
+
       requestAnimationFrame(() =>
         runComputeLayout(diagram.diagramId!, diagram.stepSequenceId!),
       );
     }
-  }, [computeLayoutRunning.current, workerState, diagram]);
+  }, [computeLayoutRunning, workerState, diagram]);
 
   const layoutTimeline = useRecoilValue(layoutTimelineState);
   const unexcludedWarnings = warnings.filter(

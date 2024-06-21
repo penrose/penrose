@@ -8,6 +8,7 @@ import {
   DiscardDiagramData,
   InvalidDiagramIDError,
   isOk,
+  launchAndWaitForInit,
   logLevel,
   MessageID,
   MessageIDGenerator,
@@ -24,7 +25,6 @@ import {
   resolveResponse,
   respond,
   SizeBoundedMap,
-  spinAndWaitForInit,
   taggedErr,
   taggedOk,
 } from "./common.js";
@@ -132,7 +132,7 @@ const forwardNotification = (diagramId: DiagramID, data: NotificationData) => {
  */
 const compile = async (data: CompileRequestData): Promise<CompileResult> => {
   log.info("Spinning new worker");
-  const worker = await spinAndWaitForInit("./worker.ts");
+  const worker = await launchAndWaitForInit("./worker.ts");
   const diagramId = diagramIdGenerator.next();
   worker.onmessage = makeWorkerOnMessage(diagramId);
 

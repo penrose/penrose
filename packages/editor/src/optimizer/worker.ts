@@ -56,7 +56,7 @@ let historyValues: Map<StepSequenceID, number[][]> = new Map();
  * `penroseState!`.
  */
 let penroseState: PenroseState | null = null;
-let optimizerShouldStop = false;
+let activeOptimizationId: StepSequenceID | null = null;
 
 /**
  * Returns a copy of parents varying values (or if null, a copy of the current).
@@ -165,7 +165,9 @@ const makeNewStepSequence = (
   return id;
 };
 
-const startOptimize = async (stepSequenceId: StepSequenceID) => {
+const startOptimize = (stepSequenceId: StepSequenceID) => {
+  activeOptimizationId = stepSequenceId;
+
   const stepSequenceInfo = historyInfo.get(stepSequenceId);
   if (!stepSequenceInfo) {
     // we don't even have a step sequence to set to error state, so we have no
@@ -202,10 +204,9 @@ const startOptimize = async (stepSequenceId: StepSequenceID) => {
   // take one optimization step
   const optStep = () => {
     try {
-      if (optimizerShouldStop) {
-        // set by onmessage if we need to stop
+      if (activeOptimizationId !== stepSequenceId) {
+        // we've been interrupted
         log.info("Optimization finishing early");
-        optimizerShouldStop = false;
         // return from the opt step
         return;
       }

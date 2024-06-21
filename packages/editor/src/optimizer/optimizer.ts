@@ -17,6 +17,7 @@ import {
   InvalidDiagramIDError,
   InvalidHistoryLocError,
   isErr,
+  launchAndWaitForInit,
   layoutStateToRenderState,
   logLevel,
   MessageID,
@@ -35,7 +36,6 @@ import {
   ResampleResult,
   resolveResponse,
   showOptimizerError,
-  spinAndWaitForInit,
   Tagged,
   taggedErr,
 } from "./common.js";
@@ -99,7 +99,7 @@ export default class Optimizer {
    */
   static create = async (): Promise<Optimizer> => {
     log.info("Spinning new broker");
-    return new Optimizer(await spinAndWaitForInit("./broker.ts"));
+    return new Optimizer(await launchAndWaitForInit("./broker.ts"));
   };
 
   /**
