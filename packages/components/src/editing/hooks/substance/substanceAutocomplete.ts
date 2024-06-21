@@ -24,7 +24,10 @@ function InsideStatementNested(parentNode: SyntaxNode | null) {
   return (
     parentNode !== null &&
     (InsideStatement(parentNode) ||
-      (parentNode.name === "NamedId" && InsideStatement(parentNode.parent)))
+      (parentNode.name === "NamedId" &&
+        // Additional null check to avoid triggering in assignment
+        parentNode.prevSibling == null &&
+        InsideStatement(parentNode.parent)))
   );
 }
 
@@ -89,7 +92,7 @@ const SubstanceAutocomplete = (
       let wholeTree = syntaxTree(context.state).topNode;
       //   console.log(domainCache);
       //   console.log(parentNode, leftSib, wholeTree.toString());
-      //   console.log(wholeTree.toString());
+      console.log(wholeTree.toString(), parentNode, parentNode?.prevSibling);
       // not sure what this does, stolen from autocomplete example
       if (word == null || (word.from === word.to && !context.explicit)) {
         return null;
@@ -136,7 +139,12 @@ const SubstanceAutocomplete = (
       }
 
       // Suggest function and constructor names
-      if (leftSib !== null && leftSib.name === "Assignment") {
+      if (
+        // Escape NamedId
+        parentNode !== null &&
+        parentNode.prevSibling !== null &&
+        parentNode.prevSibling.name === "Assignment"
+      ) {
         return {
           from: word.from,
           options: fnConsOptions(domainCache),

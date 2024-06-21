@@ -137,7 +137,6 @@ const StyleAutocomplete = (
         upFive.name === "AssignExpr" &&
         nodeBefore.name === "Identifier"
       ) {
-        console.log("Hit");
         completionOpts = completionOpts
           .concat(anonExprKws)
           .concat(getShapeNames(shapeDefns));
