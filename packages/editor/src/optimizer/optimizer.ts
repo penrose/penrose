@@ -6,7 +6,7 @@ import {
 } from "@penrose/core";
 import consola from "consola";
 import { Result } from "true-myth";
-import brokerUrl from "./broker.js?url";
+import Broker from "./broker.ts?worker";
 import {
   collectAndSeparateLabels,
   CompileRequestData,
@@ -100,7 +100,7 @@ export default class Optimizer {
    */
   static create = async (): Promise<Optimizer> => {
     log.info("Spinning new broker");
-    return new Optimizer(await launchAndWaitForInit(brokerUrl));
+    return new Optimizer(await launchAndWaitForInit(new Broker()));
   };
 
   /**

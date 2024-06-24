@@ -28,7 +28,7 @@ import {
   taggedErr,
   taggedOk,
 } from "./common.js";
-import workerUrl from "./worker.js?url";
+import Worker_ from "./worker.ts?worker";
 
 const log = consola.create({ level: logLevel }).withScope("optimizer:broker");
 const numWorkersToKeep = 3;
@@ -133,7 +133,7 @@ const forwardNotification = (diagramId: DiagramID, data: NotificationData) => {
  */
 const compile = async (data: CompileRequestData): Promise<CompileResult> => {
   log.info("Spinning new worker");
-  const worker = await launchAndWaitForInit(workerUrl);
+  const worker = await launchAndWaitForInit(new Worker_());
   const diagramId = diagramIdGenerator.next();
   worker.onmessage = makeWorkerOnMessage(diagramId);
 
