@@ -198,6 +198,20 @@ export const anonExprKws = ["override", "layer", "encourage", "ensure"].map(
   }),
 );
 
+export const selectorHeaderOptions = ["where", "with"].map((kw) => ({
+  label: `${kw} `,
+  type: "keyword",
+  info: "",
+}));
+
+export const collectorHeaderOptions = ["foreach"]
+  .map((kw) => ({
+    label: `${kw} `,
+    type: "keyword",
+    info: "",
+  }))
+  .concat(selectorHeaderOptions);
+
 export const goToParentX = (node: SyntaxNode, x: number) => {
   let i = 0;
   let nextParent: SyntaxNode | null = node;
@@ -209,6 +223,15 @@ export const goToParentX = (node: SyntaxNode, x: number) => {
     }
   }
   return nextParent;
+};
+
+export const goUpToTarget = (node: SyntaxNode, targetName: string) => {
+  let nextParent: SyntaxNode | null = node;
+  while (nextParent != null) {
+    if (nextParent.name === targetName) return nextParent;
+    nextParent = nextParent.parent;
+  }
+  return null;
 };
 
 export const goToChildX = (node: SyntaxNode, x: number) => {

@@ -6,6 +6,7 @@ import { DomainCache, ShapeDefinitions } from "../../types";
 import { extractText } from "../hooksUtils";
 import {
   anonExprKws,
+  collectorHeaderOptions,
   exprKws,
   getComputationFns,
   getConstraints,
@@ -17,7 +18,9 @@ import {
   getTypeOptions,
   goToChildX,
   goToParentX,
+  goUpToTarget,
   headerOptions,
+  selectorHeaderOptions,
   statementKws,
   typeNames,
 } from "./styleAutocompleteUtils";
@@ -43,7 +46,6 @@ const StyleAutocomplete = (
 
       // not sure what this does, stolen from autocomplete example
       if (word == null) {
-        console.log("gg");
         return null;
       }
 
@@ -98,6 +100,43 @@ const StyleAutocomplete = (
             from: word.from,
             options: getNamespaceProps(topNode, styleProg, namespace),
           };
+        }
+      }
+
+      /*
+       * Collector and Selector header completion
+       * Language ambiguity issue: start of keywords like "where" and "which"
+       * in the header are assumed to be the start of a new namespace block
+       * We check for this error state and shortcircuit
+       */
+      let itemNode = goUpToTarget(nodeBefore, "Item");
+      if (
+        itemNode != null &&
+        itemNode.prevSibling != null &&
+        itemNode.prevSibling.firstChild != null &&
+        itemNode.prevSibling.firstChild.name === "HeaderBlock"
+      ) {
+        let prevHeaderBlock = itemNode.prevSibling.firstChild;
+        // HeaderBlock -> Header -> Collector or Selector
+        let innerHeader = goToChildX(prevHeaderBlock, 2);
+        // Checks for error state in the block part of Headerblock
+        if (
+          prevHeaderBlock.lastChild != null &&
+          prevHeaderBlock.lastChild.type.isError &&
+          innerHeader != null
+        ) {
+          if (innerHeader.name === "Selector") {
+            return {
+              from: word.from,
+              options: selectorHeaderOptions,
+            };
+          }
+          if (innerHeader.name === "Collector") {
+            return {
+              from: word.from,
+              options: collectorHeaderOptions,
+            };
+          }
         }
       }
 
