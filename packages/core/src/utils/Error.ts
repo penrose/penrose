@@ -516,14 +516,6 @@ canvas {
       )}) within another shape.`;
     }
 
-    case "NotCollError": {
-      return `Cannot index into a non-collection (at ${loc(error.expr)}).`;
-    }
-
-    case "IndexIntoShapeListError": {
-      return `Cannot index into a list of shapes (at ${loc(error.expr)}).`;
-    }
-
     case "NotShapeError": {
       const { path, what } = error;
       const { parent } = path.access;
@@ -876,8 +868,6 @@ export const errLocs = (
     }
 
     case "NestedShapeError":
-    case "NotCollError":
-    case "IndexIntoShapeListError":
     case "NotValueError":
     case "OutOfBoundsError":
     case "UOpTypeError":

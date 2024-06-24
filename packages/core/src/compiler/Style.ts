@@ -85,7 +85,9 @@ import {
   ResolvedExpr,
   ResolvedPath,
   ResolvedUnindexedStylePath,
+  StylePathAccessIndex,
   StylePathToNamespaceScope,
+  StylePathToObject,
   StylePathToScope,
   StylePathToSubstanceScope,
   StylePathToUnindexedObject,
@@ -2731,7 +2733,9 @@ const isValidIndex = (a: unknown[], i: number): boolean =>
   Number.isInteger(i) && 0 <= i && i < a.length;
 
 const evalAccess = (
-  expr: ResolvedPath<A>,
+  expr: ResolvedPath<A> & {
+    contents: StylePathToObject<A> & { access: StylePathAccessIndex<A> };
+  },
   coll: Value<ad.Num>,
   indices: number[],
 ): Result<Value<ad.Num>, StyleError> => {
@@ -2778,17 +2782,17 @@ const evalAccess = (
         return err({ tag: "BadIndexError", expr });
       }
     }
-    case "ShapeListV": {
-      return err({ tag: "IndexIntoShapeListError", expr });
-    }
+    case "ShapeListV":
     case "BoolV":
     case "ColorV":
     case "FloatV":
     case "PathDataV":
     case "StrV":
     case "ClipDataV": {
-      // Not allowing indexing into a shape list for now
-      return err({ tag: "NotCollError", expr });
+      return err({
+        tag: "UnindexableItemError",
+        expr: expr.contents.access.parent,
+      });
     }
   }
 };
@@ -2955,10 +2959,6 @@ const evalExpr = (
     }
     case "ResolvedPath": {
       const path = expr.contents;
-      if (path.tag === "Empty" || path.tag === "Unnamed") {
-        // should never happen
-        throw new Error("Encountered empty or unnamed path");
-      }
 
       if (path.tag === "Namespace") {
         // invalid path
@@ -3066,7 +3066,13 @@ const evalExpr = (
             }
           }
           const elem = evalAccess(
-            expr,
+            {
+              ...expr,
+              contents: {
+                ...path,
+                access,
+              },
+            },
             parentValue.value.contents,
             indexValues,
           );

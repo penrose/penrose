@@ -91,7 +91,7 @@ export type ResolvedUnindexedStylePath<T> =
 
 export type ResolvedPath<T> = ASTNode<T> & {
   tag: "ResolvedPath";
-  contents: StylePath<T>;
+  contents: ResolvedStylePath<T>;
 };
 
 //#region style exprs

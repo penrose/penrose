@@ -248,8 +248,6 @@ export type StyleError =
   | CollectionMemberAccessError
   | MissingShapeError
   | NestedShapeError
-  | NotCollError
-  | IndexIntoShapeListError
   | NotShapeError
   | NotValueError
   | OutOfBoundsError
@@ -507,16 +505,6 @@ export interface MissingShapeError {
 export interface NestedShapeError {
   tag: "NestedShapeError";
   expr: Resolved<GPIDecl<A>>;
-}
-
-export interface NotCollError {
-  tag: "NotCollError";
-  expr: ResolvedExpr<A>;
-}
-
-export interface IndexIntoShapeListError {
-  tag: "IndexIntoShapeListError";
-  expr: ResolvedExpr<A>;
 }
 
 export interface NotShapeError {
