@@ -1,11 +1,12 @@
+import { runtimeError } from "@penrose/core";
 import { Style } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
 import localforage from "localforage";
-import { range } from "lodash";
 import queryString from "query-string";
 import toast from "react-hot-toast";
 import { RecoilState, useRecoilCallback } from "recoil";
 import { v4 as uuid } from "uuid";
+import { isErr, showOptimizerError } from "../optimizer/common.js";
 import {
   DownloadPNG,
   DownloadSVG,
@@ -36,7 +37,6 @@ import {
   currentRogerState,
   currentWorkspaceState,
   defaultWorkspaceState,
-  diagramGridState,
   diagramMetadataSelector,
   diagramState,
   diagramWorkerState,
@@ -56,14 +56,59 @@ const _compileDiagram = async (
   excludeWarnings: string[],
   set: <T>(state: RecoilState<T>, update: (t: T) => T) => void,
 ) => {
-  await optimizer.waitForInit();
+  // indicate that buttons should gray out for now
+  set(diagramWorkerState, (state) => ({
+    optimizing: false,
+    compiling: true,
+  }));
 
   const compiling = toast.loading("Compiling...");
+  const compileResult = await optimizer.compile(
+    domain,
+    style,
+    substance,
+    variation,
+  );
+  toast.dismiss(compiling);
 
-  set(diagramState, (state) => ({
-    ...state,
+  // un-gray buttons
+  set(diagramWorkerState, () => ({
+    optimizing: false,
+    compiling: false,
+  }));
+
+  if (isErr(compileResult)) {
+    // display error
+    set(diagramState, (diagram) => ({
+      ...diagram,
+      error: compileResult.error,
+    }));
+    return;
+  }
+
+  // get currently available step sequence id and history (should be exactly one
+  // id, and no history, currently)
+  const pollResult = await optimizer.poll(compileResult.value.diagramId);
+  if (isErr(pollResult)) {
+    set(diagramState, (diagram) => ({
+      ...diagram,
+      error: runtimeError(showOptimizerError(pollResult.error)),
+    }));
+    return;
+  }
+
+  // we've succesfully compiled, so we can update the diagram metadata, warnings, etc
+  set(diagramState, (diagram) => ({
+    ...diagram,
+    warnings: compileResult.value.warnings,
+    error: null,
+    layoutStats: [],
+    diagramId: compileResult.value.diagramId,
+    // uses our assumption that there will only be one step sequence for a newly
+    // compiled diagram
+    stepSequenceId: pollResult.value.keys().next().value,
     metadata: {
-      ...state.metadata,
+      ...diagram.metadata,
       variation,
       excludeWarnings,
       source: {
@@ -74,51 +119,10 @@ const _compileDiagram = async (
     },
   }));
 
-  set(diagramWorkerState, (state) => ({
-    ...state,
-    compiling: true,
-  }));
-
-  let compiledInfo: CompiledInfo;
-  try {
-    compiledInfo = await optimizer.compile(domain, style, substance, variation);
-  } catch (error: unknown) {
-    updateStateOnError(
-      error,
-      (x) => set(diagramWorkerState, x),
-      (x) => set(diagramState, x),
-    );
-    toast.dismiss(compiling);
-    return;
-  }
-
-  const { id, warnings } = compiledInfo;
-
-  set(diagramWorkerState, (state) => ({
-    ...state,
-    id,
+  set(diagramWorkerState, () => ({
     compiling: false,
+    optimizing: true,
   }));
-  set(diagramState, (state) => ({
-    ...state,
-    warnings: warnings,
-    error: null,
-  }));
-  toast.dismiss(compiling);
-
-  await handleOptimizerPromises(
-    await optimizer.startOptimizing(),
-    (x) => set(diagramWorkerState, x),
-    (x) => set(diagramState, x),
-  );
-
-  // TODO: update grid state too
-  // set(diagramGridState, ({ gridSize }: DiagramGrid) => ({
-  //   variations: range(gridSize).map((i) =>
-  //     i === 0 ? variation : generateVariation(),
-  //   ),
-  //   gridSize,
-  // }));
 };
 
 export const useCompileDiagram = () =>
@@ -151,46 +155,45 @@ export const useResampleDiagram = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
     const diagram: Diagram = snapshot.getLoadable(diagramState)
       .contents as Diagram;
-    const id: string = snapshot.getLoadable(diagramWorkerState).contents
-      .id as string;
-    if (diagram.state === null) {
+    if (diagram.diagramId === null) {
       toast.error("Cannot resample uncompiled diagram");
       return;
     }
+
     const variation = generateVariation();
     const resamplingLoading = toast.loading("Resampling...");
 
-    const onUpdate = (info: UpdateInfo) => {
-      set(diagramState, (state) => ({
-        ...state,
-        metadata: { ...state.metadata, variation },
-        state: info.state,
-        // keep compile errors on resample, but clear runtime errors
-        error: state.error?.errorType === "RuntimeError" ? null : state.error,
-      }));
-      // update grid state too
-      set(diagramGridState, ({ gridSize }) => ({
-        variations: range(gridSize).map((i) =>
-          i === 0 ? variation : generateVariation(),
-        ),
-        gridSize,
-      }));
-    };
-
-    set(diagramWorkerState, (state) => ({
-      ...state,
-      resampling: true,
-    }));
-    await handleOptimizerPromises(
-      await optimizer.resample(id, variation),
-      (x) => set(diagramWorkerState, x),
-      (x) => set(diagramState, x),
-      () => toast.dismiss(resamplingLoading),
+    const resampleResult = await optimizer.resample(
+      diagram.diagramId,
+      variation,
     );
     toast.dismiss(resamplingLoading);
-    set(diagramWorkerState, (state) => ({
-      ...state,
-      resampling: false,
+
+    if (isErr(resampleResult)) {
+      set(diagramState, (diagram) => ({
+        ...diagram,
+        error: runtimeError(showOptimizerError(resampleResult.error)),
+      }));
+      return;
+    }
+
+    // resampling succeeded, so we know we're now optimizing
+    set(diagramWorkerState, () => ({
+      compiling: false,
+      optimizing: true,
+    }));
+    set(diagramState, (diagram) => ({
+      ...diagram,
+      stepSequenceId: resampleResult.value,
+      // on resample, only clear runtime errors
+      error:
+        diagram.error !== null && diagram.error.errorType !== "RuntimeError"
+          ? diagram.error
+          : null,
+      metadata: {
+        ...diagram.metadata,
+        variation,
+      },
     }));
   });
 

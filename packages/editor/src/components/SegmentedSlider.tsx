@@ -3,7 +3,8 @@ import styled from "styled-components";
 
 interface Segment {
   label: string;
-  steps: number;
+  frames: number;
+  cumulativeFrames: number;
   color: string;
 }
 
@@ -48,16 +49,10 @@ const SegmentedSlider: React.FC<SegmentedSliderProps> = ({
   onChange,
 }) => {
   // compute the step ranges for each stage
-  let stageRanges = stages.reduce(
-    (acc, stage, i) => [
-      ...acc,
-      {
-        start: i === 0 ? 0 : acc[i - 1].end,
-        end: i === 0 ? stage.steps : acc[i - 1].end + stage.steps,
-      },
-    ],
-    [] as { start: number; end: number }[],
-  );
+  let stageRanges = stages.map((stage, i) => ({
+    start: i === 0 ? 0 : stages[i - 1].cumulativeFrames,
+    end: stage.cumulativeFrames,
+  }));
   if (stageRanges.length === 0) {
     stageRanges = [{ start: 0, end: 0 }];
   }
@@ -77,8 +72,9 @@ const SegmentedSlider: React.FC<SegmentedSliderProps> = ({
     }
   }, [disabled]);
 
-  const totalSteps = stageRanges[stageRanges.length - 1].end;
-  const currValue = dragged ? value : totalSteps;
+  const totalFrames = stageRanges[stageRanges.length - 1].end;
+  const maxValue = totalFrames - 1;
+  const currValue = dragged ? value : maxValue;
 
   return (
     <SliderContainer>
@@ -86,7 +82,7 @@ const SegmentedSlider: React.FC<SegmentedSliderProps> = ({
         disabled={disabled}
         type="range"
         min="0"
-        max={totalSteps - 1}
+        max={maxValue}
         value={currValue}
         onChange={handleChange}
       />
@@ -95,7 +91,7 @@ const SegmentedSlider: React.FC<SegmentedSliderProps> = ({
           <StageLabel
             key={index}
             enabled={stageRanges[index].start <= currValue}
-            width={(stage.steps / (!!totalSteps ? totalSteps : 1)) * 100}
+            width={(stage.frames / (!!totalFrames ? totalFrames : 1)) * 100}
             color={stage.color}
           >
             {stage.label}
