@@ -17,13 +17,15 @@
     "build-decls": ":",
     "typecheck": ":",
     "storybook": "cross-env NODE_OPTIONS='--max-old-space-size=8192 --openssl-legacy-provider' start-storybook -p 6006",
-    "build-storybook": "cross-env NODE_OPTIONS='--max-old-space-size=8192 --openssl-legacy-provider' build-storybook"
+    "build-storybook": "cross-env NODE_OPTIONS='--max-old-space-size=8192 --openssl-legacy-provider' build-storybook",
+    "build-parsers": "lezer-generator src/editing/parser/style/style.grammar -o src/editing/parser/style/style.js && lezer-generator src/editing/parser/domain/domain.grammar -o src/editing/parser/domain/domain.js && lezer-generator src/editing/parser/substance/substance.grammar -o src/editing/parser/substance/substance.js"
   },
   "nx": {
     "targets": {
       "build": {
         "dependsOn": [
-          "^build"
+          "^build",
+          "build-parsers"
         ]
       },
       "build-decls": {
