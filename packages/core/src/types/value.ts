@@ -20,11 +20,6 @@ export interface ShapeVal<T> {
   contents: RealShape<T>;
 }
 
-export interface UnknownShapeVal<T> {
-  tag: "UnknownShapeVal";
-  contents: { [k: string]: Value<T> };
-}
-
 export type ArgValWithExpr<T> = ArgVal<T> & { expr: ResolvedExpr<A> };
 
 export type Field = string;
