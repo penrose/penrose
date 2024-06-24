@@ -405,6 +405,7 @@ export {
   prettyCompiledSubstance,
   prettySubstance,
 } from "./compiler/Substance.js";
+export { start } from "./engine/Optimizer.js";
 export { constrDict } from "./lib/Constraints.js";
 export { compDict } from "./lib/Functions.js";
 export { objDict } from "./lib/Objectives.js";
@@ -416,8 +417,11 @@ export { sampleShape, shapeTypes } from "./shapes/Shapes.js";
 export type { ShapeType } from "./shapes/Shapes.js";
 export type { DomainEnv } from "./types/domain.js";
 export type {
+  DomainError,
   PenroseError,
   Warning as PenroseWarning,
+  StyleError,
+  SubstanceError,
 } from "./types/errors.js";
 export type { CompFunc } from "./types/functions.js";
 export * from "./types/state.js";
