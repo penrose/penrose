@@ -61,6 +61,7 @@
     "recoil": "^0.7.3-alpha.2",
     "styled-components": "^5.3.5",
     "svgo": "^3.0.2",
+    "true-myth": "^4.1.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
@@ -73,7 +74,7 @@
     "@vitejs/plugin-react-swc": "^3.0.1",
     "@vitest/web-worker": "^1.5.0",
     "shx": "^0.3.3",
-    "vite": "^4.0.4",
+    "vite": "^5.2.1",
     "vite-plugin-top-level-await": "^1.4.1",
     "vitest": "^1.6.0"
   }
