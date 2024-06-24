@@ -1,5 +1,6 @@
 import { CompletionContext } from "@codemirror/autocomplete";
 import { syntaxTree } from "@codemirror/language";
+import { printTree } from "@lezer-unofficial/printer";
 import { SyntaxNode } from "@lezer/common";
 import { useCallback } from "react";
 import { DomainCache } from "../../../editing/types";
@@ -13,9 +14,8 @@ const keywordOptions = [
 ].map((kw) => ({ label: `${kw} `, type: "keyword" }));
 
 const getTypeOptions = (domainCache: DomainCache) => {
-  //   console.log(domainCache);
   return domainCache.typeNames.map((type) => ({
-    label: `${type} `,
+    label: `${type}`,
     type: "variable",
     detail: "type",
   }));
@@ -41,33 +41,44 @@ const DomainAutocomplete = (domainCache: DomainCache) => {
       let leftSib = nodeBefore.prevSibling;
       let word = context.matchBefore(/\w*/);
       let wholeTree = syntaxTree(context.state).topNode;
-      //   console.log(domainCache);
       // In erorr state, error node wraps the current node
       if (parentNode != null && parentNode.type.isError) {
         leftSib = parentNode.prevSibling;
         parentNode = parentNode.parent;
       }
 
-      console.log(wholeTree.toString(), leftSib, parentNode);
-      // console.log(wholeTree.toString());
+      console.log(printTree(wholeTree, context.state.doc.toString()));
 
       // not sure what this does, stolen from autocomplete example
       if (word == null || (word.from === word.to && !context.explicit)) {
         return null;
       }
 
-      /*
-        Autocomplete keyword only if there's nothing to the left of it
-        Trying to case on if the characters are inside of some declaration
-        doesn't work because by default, characters are viewed as part
-        of subtype since subtype starts with Identifier 
-        */
+      // Autocomplete keywords
       if (InsideDeclaration(parentNode) && leftSib === null) {
         return {
           from: word.from,
           options: keywordOptions,
         };
       }
+      /*
+       * Ambiguous case example: "function name() -> type (newline) typ"
+       * would not suggest "type" without the following code, to assist in
+       * Error recovery, Lezer assumes "typ" is inside Function as a return
+       * name Identifier. We manually suggest autocompletion keywords here.
+       */
+      if (
+        parentNode != null &&
+        leftSib != null &&
+        (parentNode.name === "Function" || parentNode.name === "Constructor") &&
+        leftSib.name === "Identifier"
+      ) {
+        return {
+          from: word.from,
+          options: keywordOptions,
+        };
+      }
+
       // Exception: Autocomplete predicate if it's following symmetric
       else if (leftSib !== null && leftSib.name === "symmetric") {
         return {
@@ -109,7 +120,7 @@ const DomainAutocomplete = (domainCache: DomainCache) => {
       return null;
     },
     [domainCache],
-    // need to specify, otherwise domainCache won't update correctly
+    // Need to specify, otherwise domainCache won't update correctly
   );
 };
 
