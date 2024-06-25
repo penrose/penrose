@@ -94,9 +94,18 @@ export default function EditorPane({
   // no idea what this does, was part of old codebase
   const statusBarRef = useRef<HTMLDivElement>(null);
 
-  const SetFontSize = EditorView.theme({
+  const BaseStyles = EditorView.theme({
     "&": {
       fontSize: "12pt",
+    },
+    ".cm-completionInfo-right, .cm-completionInfo-left": {
+      display: "none",
+    },
+
+    "@media screen and (min-width: 900px)": {
+      ".cm-completionInfo-right, .cm-completionInfo-left": {
+        display: "initial",
+      },
     },
   });
 
@@ -106,7 +115,7 @@ export default function EditorPane({
 
   const defaultExtensions = [
     EditorView.lineWrapping,
-    SetFontSize,
+    BaseStyles,
     lintObject,
     lintGutter(),
     color,

@@ -3407,6 +3407,16 @@
   resolved "https://registry.npmjs.org/@remix-run/router/-/router-1.6.1.tgz"
   integrity sha512-YUkWj+xs0oOzBe74OgErsuR3wVn+efrFhXBWrit50kOiED+pvQe2r6MWY0iJMQU/mSVKxvNzL4ZaYvjdX+G7ZA==
 
+"@replit/codemirror-css-color-picker@^6.1.1":
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/@replit/codemirror-css-color-picker/-/codemirror-css-color-picker-6.1.1.tgz#9b68652d7ff56e3cc491fd7e26584d1f08e5b659"
+  integrity sha512-e/wYHcgt3HRDpvYuwqXyjv3LEY6VyFjJeDQK1UtFmaykp86R6Cbw3ULH9pvuJuelaW6nS4CVtIRHuOfbFLlqwQ==
+
+"@replit/codemirror-vim@^6.2.1":
+  version "6.2.1"
+  resolved "https://registry.yarnpkg.com/@replit/codemirror-vim/-/codemirror-vim-6.2.1.tgz#6673ff4be93b7da03d303ef37d6cbfa5f647b74b"
+  integrity sha512-qDAcGSHBYU5RrdO//qCmD8K9t6vbP327iCj/iqrkVnjbrpFhrjOt92weGXGHmTNRh16cUtkUZ7Xq7rZf+8HVow==
+
 "@rollup/plugin-virtual@^3.0.2":
   version "3.0.2"
   resolved "https://registry.npmjs.org/@rollup/plugin-virtual/-/plugin-virtual-3.0.2.tgz"
@@ -5199,7 +5209,23 @@
     "@codemirror/state" "^6.0.0"
     "@codemirror/view" "^6.0.0"
 
-"@uiw/codemirror-themes@^4.22.2":
+"@uiw/codemirror-extensions-color@^4.22.2":
+  version "4.22.2"
+  resolved "https://registry.yarnpkg.com/@uiw/codemirror-extensions-color/-/codemirror-extensions-color-4.22.2.tgz#d508a2b5c121ea0b25d5d4ee278b6eb0adffc5f3"
+  integrity sha512-WA9fpRCMPWv3brsobg8ck9VlU6jevrcLHAlSfVWjoi3Dmxwo3W50IH5t34NP1Q7DjXQtx7tDEEY/mG99SyGTrQ==
+  dependencies:
+    colors-named "^1.0.0"
+    colors-named-hex "^1.0.0"
+    hsl-matcher "^1.2.3"
+
+"@uiw/codemirror-theme-quietlight@^4.22.2":
+  version "4.22.2"
+  resolved "https://registry.yarnpkg.com/@uiw/codemirror-theme-quietlight/-/codemirror-theme-quietlight-4.22.2.tgz#d876c5c508c82d701f139ca6969e8c0ed770be06"
+  integrity sha512-NtHUttXgnDE8F+lrJA6HfiTNjY8GVJjUwtpvOQywqgNoBDwBpuEfdpvZ/OI0EW0sqZpbVlWfmANT4H5oj3ODaw==
+  dependencies:
+    "@uiw/codemirror-themes" "4.22.2"
+
+"@uiw/codemirror-themes@4.22.2", "@uiw/codemirror-themes@^4.22.2":
   version "4.22.2"
   resolved "https://registry.yarnpkg.com/@uiw/codemirror-themes/-/codemirror-themes-4.22.2.tgz#e4d2f506fab35f9c396aabe87008a6a2f27919f1"
   integrity sha512-gsLHn6SUuV5iboBvGrM7YimzLFHQmsNlkGIYs3UaVUJTo/A/ZrKoSJNyPziShLRjBXA2UwKdBTIU6VhHyyaChw==
@@ -7552,6 +7578,16 @@ color-support@^1.1.2:
   version "1.1.3"
   resolved "https://registry.npmjs.org/color-support/-/color-support-1.1.3.tgz"
   integrity sha512-qiBjkpbMLO/HL68y+lh4q0/O1MZFj2RX6X/KmMa3+gJD3z+WwI1ZzDHysvqHGS3mP6mznPckpXmw1nI9cJjyRg==
+
+colors-named-hex@^1.0.0:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/colors-named-hex/-/colors-named-hex-1.0.2.tgz#353165cc548ef0fbd770280bf441ec2dfc1bb386"
+  integrity sha512-k6kq1e1pUCQvSVwIaGFq2l0LrkAPQZWyeuZn1Z8nOiYSEZiKoFj4qx690h2Kd34DFl9Me0gKS6MUwAMBJj8nuA==
+
+colors-named@^1.0.0:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/colors-named/-/colors-named-1.0.2.tgz#362dd6b520c08da8d9a77250174f0d5f2cfc5b81"
+  integrity sha512-2ANq2r393PV9njYUD66UdfBcxR1slMqRA3QRTWgCx49JoCJ+kOhyfbQYxKJbPZQIhZUcNjVOs5AlyY1WwXec3w==
 
 colors@1.4.0:
   version "1.4.0"
@@ -10766,6 +10802,11 @@ hosted-git-info@^4.0.1, hosted-git-info@^4.0.2:
   integrity sha512-kyCuEOWjJqZuDbRHzL8V93NzQhwIB71oFWSyzVo+KPZI+pnQPPxucdkrOZvkLRnrf5URsQM+IJ09Dw29cRALIA==
   dependencies:
     lru-cache "^6.0.0"
+
+hsl-matcher@^1.2.3:
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/hsl-matcher/-/hsl-matcher-1.2.4.tgz#8097a50a071c47b1560ba7f8a5d1b9ad6399f53f"
+  integrity sha512-tS7XnJS33Egirm+6cI+Z/kH/aVZt94uxGlJxOZlGql2/yqbAzPg3zHHnTnVN4cVpoJnEYEGq+LE3iXbuUIe8BA==
 
 html-encoding-sniffer@^3.0.0:
   version "3.0.0"
