@@ -5,7 +5,7 @@ import Listing from "./Listing.js";
 import MultipleChoiceProblem from "./MultipleChoiceProblem.js";
 import { Simple } from "./Simple.js";
 import StagedDiagram from "./StagedDiagram.js";
-import EditorPane from "./editing/EditorPane.js";
+import EditorPane, { codemirrorHistory } from "./editing/EditorPane.js";
 import { getDomainCache } from "./editing/hooks/domain/getDomainCache.js";
 import { getSubstanceCache } from "./editing/hooks/substance/getSubstanceCache.js";
 import { SetupDomainMonaco } from "./editing/languages/DomainConfig.js";
@@ -25,6 +25,7 @@ export {
   SetupSubstanceMonaco,
   Simple,
   StagedDiagram,
+  codemirrorHistory,
   fetchResolver,
   getDomainCache,
   getSubstanceCache,

@@ -33,6 +33,7 @@ import {
   simpleContext,
 } from "@penrose/core";
 import { colorPicker } from "@replit/codemirror-css-color-picker";
+import { atom, useRecoilValue } from "recoil";
 import { penroseTheme } from "./theme";
 
 /**
@@ -59,6 +60,11 @@ const getShapeDefs = (): ShapeDefinitions => {
   return shapeProps;
 };
 
+export const codemirrorHistory = atom<boolean>({
+  key: "codemirrorHistory",
+  default: true,
+});
+
 export default function EditorPane({
   value,
   onChange,
@@ -82,7 +88,7 @@ export default function EditorPane({
   warnings: StyleWarning[];
   showCompileErrs: boolean;
 }) {
-  // no idea what this does
+  // no idea what this does, was part of old codebase
   const statusBarRef = useRef<HTMLDivElement>(null);
 
   const SetFontSize = EditorView.theme({
@@ -90,7 +96,7 @@ export default function EditorPane({
       fontSize: "12pt",
     },
   });
-  // console.log(languageType);
+
   const lintObject = linter(
     createLinter(error, warnings, languageType, showCompileErrs),
   );
@@ -130,7 +136,6 @@ export default function EditorPane({
     autocompletion({ override: [styleCompletionFn] }),
     styleLanguageSupport(),
   ].concat(defaultExtensions);
-  // const styleExtensions = defaultExtensions.concat(styleLanguageSupport());
 
   let extensionsList =
     languageType === "domain"
@@ -139,6 +144,8 @@ export default function EditorPane({
       ? substanceExtensions
       : styleExtensions;
 
+  const codemirrorHistoryState = useRecoilValue(codemirrorHistory);
+
   return (
     <div style={{ width: "100%", height: "100%", position: "relative" }}>
       <CodeMirror
@@ -146,6 +153,9 @@ export default function EditorPane({
         extensions={extensionsList}
         onChange={onChange}
         theme={penroseTheme}
+        // History reset. https://github.com/uiwjs/react-codemirror/issues/405
+        // Set in packages/editor/src/state/callbacks.ts
+        basicSetup={{ history: codemirrorHistoryState }}
       />
       <div
         ref={statusBarRef}
