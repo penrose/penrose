@@ -1438,7 +1438,7 @@ delete x.z.p }`,
       // And this would fail:
       const { graph } = await loadProgs({ dsl, sub, sty });
       expect(graph.parents("`t`.val").sort()).toEqual(
-        ["`t`.vals", "1:0.match_id"].sort(),
+        ["`t`.vals", "1:0:match_id"].sort(),
       );
     });
   });
