@@ -1,5 +1,6 @@
 import { autocompletion } from "@codemirror/autocomplete";
 import { lintGutter } from "@codemirror/lint";
+import { Extension } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import {
   DomainError,
@@ -32,7 +33,9 @@ import {
   shapeTypes,
   simpleContext,
 } from "@penrose/core";
-import { colorPicker } from "@replit/codemirror-css-color-picker";
+// import { colorPicker } from "@replit/codemirror-css-color-picker";
+import { vim } from "@replit/codemirror-vim";
+import { color } from "@uiw/codemirror-extensions-color";
 import { atom, useRecoilValue } from "recoil";
 import { penroseTheme } from "./theme";
 
@@ -106,7 +109,8 @@ export default function EditorPane({
     SetFontSize,
     lintObject,
     lintGutter(),
-    colorPicker,
+    color,
+    // colorPicker,
   ];
 
   const [shapeDefs, setshapeDefs] = useState<ShapeDefinitions>({});
@@ -137,12 +141,19 @@ export default function EditorPane({
     styleLanguageSupport(),
   ].concat(defaultExtensions);
 
-  let extensionsList =
-    languageType === "domain"
-      ? domainExtensions
-      : languageType === "substance"
-      ? substanceExtensions
-      : styleExtensions;
+  const [extensions, setExtensions] = useState<Extension[]>([]);
+  useEffect(() => {
+    let extensionsList =
+      languageType === "domain"
+        ? domainExtensions
+        : languageType === "substance"
+        ? substanceExtensions
+        : styleExtensions;
+
+    if (vimMode) extensionsList.push(vim());
+
+    setExtensions(extensionsList);
+  }, [vimMode, languageType]);
 
   const codemirrorHistoryState = useRecoilValue(codemirrorHistory);
 
@@ -150,7 +161,7 @@ export default function EditorPane({
     <div style={{ width: "100%", height: "100%", position: "relative" }}>
       <CodeMirror
         value={value}
-        extensions={extensionsList}
+        extensions={extensions}
         onChange={onChange}
         theme={penroseTheme}
         // History reset. https://github.com/uiwjs/react-codemirror/issues/405
