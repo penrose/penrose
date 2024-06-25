@@ -2,16 +2,12 @@
  * A component that lies over the DiagramPanel which displays interactivity handles
  */
 
-import * as im from "immutable";
 import { MutableRefObject, useEffect, useMemo, useRef, useState } from "react";
-import { RenderState } from "../worker/common.js";
+import { useRecoilValue } from "recoil";
+import { RenderState } from "../optimizer/common.js";
+import { diagramState } from "../state/atoms";
 import HoverDisplay from "./HoverDisplay";
 import InteractiveWidget from "./InteractiveWidget";
-
-interface ClickedElemProps {
-  elem: SVGElement;
-  path: string;
-}
 
 export interface InteractivityOverlayProps {
   diagramSVG: SVGSVGElement;
@@ -25,9 +21,10 @@ const getTitleElements = (svg: SVGSVGElement) => {
 export default function InteractivityOverlay(
   props: InteractivityOverlayProps,
 ): JSX.Element {
+  const diagram = useRecoilValue(diagramState);
   const [clickedPath, setClickedPath] = useState<string | null>(null);
   const [hoveredPath, setHoveredPath] = useState<string | null>(null);
-  const [pinnedPaths, setPinnedPaths] = useState<im.Set<string>>(im.Set());
+  const [pinnedPaths, setPinnedPaths] = useState<Set<string>>(new Set());
   const activeOverlay = useRef<HTMLDivElement | null>(null);
 
   const clickedElem = useMemo(() => {
@@ -104,6 +101,19 @@ export default function InteractivityOverlay(
     };
   }, [props.diagramSVG, clickedPath, hoveredPath]);
 
+  useEffect(() => {
+    const pinnedPathsArray = diagram.historyLoc
+      ? diagram.historyInfo
+          ?.get(diagram.historyLoc.sequenceId)
+          ?.pinnedInputPaths.keys()
+      : undefined;
+    if (pinnedPathsArray) {
+      setPinnedPaths(new Set(pinnedPathsArray));
+    } else {
+      setPinnedPaths(new Set());
+    }
+  }, [diagram.historyInfo]);
+
   return (
     <div
       style={{
@@ -114,17 +124,19 @@ export default function InteractivityOverlay(
       }}
       ref={activeOverlay}
     >
-      {clickedPath && clickedElem && activeOverlay.current && (
-        <InteractiveWidget
-          elem={clickedElem}
-          path={clickedPath}
-          diagramSVG={props.diagramSVG}
-          state={props.state}
-          overlay={activeOverlay as MutableRefObject<Element>}
-          pinnedPaths={pinnedPaths}
-          setPinnedPaths={setPinnedPaths}
-        />
-      )}
+      {clickedPath &&
+        clickedElem &&
+        activeOverlay.current &&
+        diagram.historyLoc && (
+          <InteractiveWidget
+            elem={clickedElem}
+            path={clickedPath}
+            diagramSVG={props.diagramSVG}
+            state={props.state}
+            overlay={activeOverlay as MutableRefObject<Element>}
+            pinnedPaths={pinnedPaths}
+          />
+        )}
 
       {hoveredPath && hoveredElem && activeOverlay.current && (
         <HoverDisplay

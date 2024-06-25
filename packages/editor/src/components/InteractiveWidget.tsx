@@ -1,15 +1,15 @@
-import * as im from "immutable";
+import { runtimeError } from "@penrose/core";
 import { clamp, min } from "lodash";
 import { MutableRefObject, useCallback, useEffect, useMemo } from "react";
-import { useSetRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { RenderState, isErr, showOptimizerError } from "../optimizer/common.js";
 import { diagramState, diagramWorkerState, optimizer } from "../state/atoms.js";
+import { Interaction } from "../utils/interactionUtils";
 import {
   getRelativeBBox,
   getScreenToSvgPosition,
   getSvgBBox,
 } from "../utils/renderUtils.js";
-import { handleOptimizerPromises } from "../utils/stateUtils.js";
-import { RenderState } from "../worker/common.js";
 
 export interface DragWidgetProps {
   elem: SVGElement;
@@ -17,25 +17,24 @@ export interface DragWidgetProps {
   diagramSVG: SVGSVGElement;
   state: RenderState;
   overlay: MutableRefObject<Element>;
-  pinnedPaths: im.Set<string>;
-  setPinnedPaths: (pinnedPaths: im.Set<string>) => void;
+  pinnedPaths: Set<string>;
 }
+
+const preventSelection = (e: Event) => {
+  e.preventDefault();
+};
 
 const useTranslateOnMouseDown = (
   props: DragWidgetProps,
-  translate: (
-    path: string,
-    finish: boolean,
-    dx: number,
-    dy: number,
-  ) => Promise<void>,
+  translate: (path: string, dx: number, dy: number) => Promise<void>,
 ) =>
   useCallback(
     (e: MouseEvent) => {
+      window.addEventListener("selectstart", preventSelection);
+
       const CTM = props.diagramSVG.getScreenCTM();
       const { x: startX, y: startY } = getScreenToSvgPosition(e, CTM);
 
-      console.log(startX, startY);
       const {
         width: bboxW,
         height: bboxH,
@@ -66,7 +65,7 @@ const useTranslateOnMouseDown = (
         dy = startY - constrainedY;
 
         readyForMouseMove = false;
-        await translate(props.path, false, dx, dy);
+        await translate(props.path, dx, dy);
         readyForMouseMove = true;
 
         const toRun = queuedMouseMove;
@@ -77,8 +76,8 @@ const useTranslateOnMouseDown = (
       const onMouseUp = () => {
         document.removeEventListener("mouseup", onMouseUp);
         document.removeEventListener("mousemove", onMouseMove);
-        translate(props.path, true, dx, dy);
-        props.setPinnedPaths(props.pinnedPaths.add(props.path));
+        window.removeEventListener("selectstart", preventSelection);
+        translate(props.path, dx, dy);
       };
 
       document.addEventListener("mouseup", onMouseUp);
@@ -90,12 +89,7 @@ const useTranslateOnMouseDown = (
 const useScaleOnMouseDown = (
   props: DragWidgetProps,
   corner: "topLeft" | "topRight" | "bottomLeft" | "bottomRight",
-  scale: (
-    path: string,
-    finish: boolean,
-    sx: number,
-    sy: number,
-  ) => Promise<void>,
+  scale: (path: string, sx: number, sy: number) => Promise<void>,
 ) =>
   useCallback(
     (e: MouseEvent) => {
@@ -176,7 +170,7 @@ const useScaleOnMouseDown = (
           ((constrainedY - startMouseY) * (top ? -1 : 1) * 2 + bboxH) / bboxH;
 
         readyForMouseMove = false;
-        await scale(props.path, false, sx, sy);
+        await scale(props.path, sx, sy);
         readyForMouseMove = true;
 
         const toRun = queuedMouseMove;
@@ -187,90 +181,87 @@ const useScaleOnMouseDown = (
       const onMouseUp = () => {
         document.removeEventListener("mouseup", onMouseUp);
         document.removeEventListener("mousemove", onMouseMove);
-        scale(props.path, true, sx, sy);
+        scale(props.path, sx, sy);
       };
 
       document.addEventListener("mouseup", onMouseUp);
       document.addEventListener("mousemove", onMouseMove);
-      props.setPinnedPaths(props.pinnedPaths.add(props.path));
     },
     [props.diagramSVG, props.state, props.path, props.elem],
   );
 
 export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
-  const setDiagram = useSetRecoilState(diagramState);
+  const [diagram, setDiagram] = useRecoilState(diagramState);
   const setWorker = useSetRecoilState(diagramWorkerState);
 
-  const translate = useCallback(
-    async (path: string, finish: boolean, dx: number, dy: number) => {
-      await handleOptimizerPromises(
-        await optimizer.interact(
-          {
-            tag: "Translation",
-            path,
-            dx,
-            dy,
-          },
-          finish,
-        ),
-        setWorker,
-        setDiagram,
-      );
-    },
-    [],
-  );
+  console.log("frame: ", diagram.historyLoc?.frame);
 
-  const scale = useCallback(
-    async (path: string, finish: boolean, sx: number, sy: number) => {
-      await handleOptimizerPromises(
-        await optimizer.interact(
-          {
-            tag: "Scale",
-            path,
-            sx,
-            sy,
-          },
-          finish,
-        ),
-        setWorker,
-        setDiagram,
-      );
-    },
-    [],
-  );
-
-  const changePin = useCallback(async (path: string, active: boolean) => {
-    await handleOptimizerPromises(
-      await optimizer.interact(
-        {
-          tag: "ChangePin",
-          path,
-          active,
-        },
-        true,
-      ),
-      setWorker,
-      setDiagram,
+  const interact = async (interaction: Interaction) => {
+    const interactionResult = await optimizer.interact(
+      diagram.diagramId!,
+      diagram.historyLoc!,
+      interaction,
     );
-  }, []);
+    if (isErr(interactionResult)) {
+      setDiagram((diagram) => ({
+        ...diagram,
+        error: runtimeError(showOptimizerError(interactionResult.error)),
+      }));
+      return;
+    }
+
+    const info = interactionResult.value.historyInfo;
+    const seqId = interactionResult.value.sequenceId;
+
+    setDiagram((diagram) => ({
+      ...diagram,
+      historyLoc: {
+        sequenceId: seqId,
+        frame: info.get(seqId)!.layoutStats.at(-1)!.cumulativeFrames - 1,
+      },
+      historyInfo: info,
+    }));
+    setWorker((worker) => ({
+      ...worker,
+      optimizing: true,
+    }));
+  };
+
+  const translate = async (path: string, dx: number, dy: number) => {
+    await interact({
+      tag: "Translation",
+      dx,
+      dy,
+      path,
+    });
+  };
+
+  const scale = async (path: string, sx: number, sy: number) => {
+    await interact({
+      tag: "Scale",
+      sx,
+      sy,
+      path,
+    });
+  };
+
+  const changePin = async (path: string, active: boolean) => {
+    await interact({
+      tag: "ChangePin",
+      active,
+      path,
+    });
+  };
 
   const translateOnMouseDown = useTranslateOnMouseDown(props, translate);
-  const elemOnMouseDown = useCallback(
-    (e: MouseEvent) => {
-      if (e.button === 0) {
-        translateOnMouseDown(e);
-      } else {
-        const currentlyPinned = props.pinnedPaths.has(props.path);
-        changePin(props.path, !currentlyPinned);
-        if (currentlyPinned) {
-          props.setPinnedPaths(props.pinnedPaths.remove(props.path));
-        } else {
-          props.setPinnedPaths(props.pinnedPaths.add(props.path));
-        }
-      }
-    },
-    [translateOnMouseDown, changePin, props.pinnedPaths.has(props.path)],
-  );
+  const elemOnMouseDown = (e: MouseEvent) => {
+    if (e.button === 0) {
+      translateOnMouseDown(e);
+    } else {
+      const currentlyPinned = props.pinnedPaths.has(props.path);
+      changePin(props.path, !currentlyPinned);
+    }
+  };
 
   useEffect(() => {
     props.elem.addEventListener("contextmenu", (e) => {

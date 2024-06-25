@@ -1,6 +1,6 @@
 import { MutableRefObject } from "react";
-import { getRelativeBBox } from "../utils/renderUtils";
-import { RenderState } from "../worker/common";
+import { RenderState } from "../optimizer/common.js";
+import { getRelativeBBox } from "../utils/renderUtils.js";
 
 export interface BBoxDisplayProps {
   elem: SVGElement;

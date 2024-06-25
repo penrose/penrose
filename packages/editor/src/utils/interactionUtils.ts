@@ -113,22 +113,30 @@ export const getTranslatedInputsIdxs = (
   }
 };
 
-export const makeTranslateCallback = (
-  inputIdxPairs: [number, number][],
-  state: PenroseState,
-): ((dx: number, dy: number, state: PenroseState) => void) => {
-  const startingVals: [number, number][] = [];
-  for (const [xIdx, yIdx] of inputIdxPairs) {
-    startingVals.push([state.varyingValues[xIdx], state.varyingValues[yIdx]]);
+/**
+ * Add`dx`and `dy` to `parentVaryingValues` to find offset shape values, but mutate
+ * `recentVaryingValues` with these deltas added.
+ * @param path
+ * @param dx
+ * @param dy
+ * @param parentVaryingValues
+ * @param recentVaryingValues
+ * @param state
+ */
+export const translateVaryingValues = (
+  path: string,
+  dx: number,
+  dy: number,
+  parentVaryingValues: number[],
+  recentVaryingValues: number[],
+  state: State,
+) => {
+  const inputIdxPairs = getTranslatedInputsIdxs(path, state);
+  for (let i = 0; i < inputIdxPairs.length; i++) {
+    const [xIdx, yIdx] = inputIdxPairs[i];
+    recentVaryingValues[xIdx] = parentVaryingValues[xIdx] + dx;
+    recentVaryingValues[yIdx] = parentVaryingValues[yIdx] + dy;
   }
-  return (dx: number, dy: number, state: PenroseState) => {
-    for (let i = 0; i < inputIdxPairs.length; i++) {
-      const [xIdx, yIdx] = inputIdxPairs[i];
-      const [startX, startY] = startingVals[i];
-      state.varyingValues[xIdx] = startX + dx;
-      state.varyingValues[yIdx] = startY + dy;
-    }
-  };
 };
 
 export type RadiusScaling = {
@@ -266,4 +274,50 @@ export const makeScaleCallback = (
       throw new Error("Points scaling not implemented");
     }
   }
+};
+
+export const scaleVaryingValues = (
+  path: string,
+  sx: number,
+  sy: number,
+  parentVaryingValues: number[],
+  recentVaryingValues: number[],
+  state: State,
+) => {
+  const info = getScalingInfo(path, state);
+  switch (info.tag) {
+    case "RadiusScaling": {
+      const start = parentVaryingValues[info.rIdx];
+      recentVaryingValues[info.rIdx] = start * min([sx, sy])!;
+      break;
+    }
+
+    case "WidthHeightScaling": {
+      const start = [
+        parentVaryingValues[info.widthIdx],
+        parentVaryingValues[info.heightIdx],
+      ];
+      recentVaryingValues[info.widthIdx] = start[0] * sx;
+      recentVaryingValues[info.heightIdx] = start[1] * sy;
+      break;
+    }
+
+    case "PointsScaling": {
+      // TODO: points scaling
+      throw new Error("Points scaling not implemented");
+    }
+  }
+};
+
+export const getAllInteractiveIdxs = (
+  path: string,
+  state: PenroseState,
+): Set<number> => {
+  const scaling = state.scalableShapePaths.has(path)
+    ? getScalingInputIdxs(getScalingInfo(path, state))
+    : [];
+  const translating = state.translatableShapePaths.has(path)
+    ? getTranslatedInputsIdxs(path, state).flat()
+    : [];
+  return new Set(scaling.concat(translating));
 };

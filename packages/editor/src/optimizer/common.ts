@@ -15,10 +15,11 @@ import {
 } from "@penrose/core";
 import consola from "consola";
 import { Result } from "true-myth";
+import { Interaction } from "../utils/interactionUtils";
 
 // Config
 
-export const logLevel = (consola as any).LogLevel.Warn;
+export const logLevel = (consola as any).LogLevel.Info;
 
 // Basic types
 
@@ -79,8 +80,10 @@ export type StepSequenceState =
 export type StepSequenceInfo = {
   layoutStats: LayoutStats;
   parent: HistoryLoc | null;
+  child: StepSequenceID | null;
   state: StepSequenceState;
   variation: string;
+  pinnedInputPaths: Map<string, Set<number>>;
 };
 
 /**
@@ -101,6 +104,8 @@ export type LayoutState = {
   shapes: Shape<number>[];
   labelMeasurements: LabelMeasurements;
   variation: string;
+  translatableShapePaths: Set<string>;
+  scalableShapePaths: Set<string>;
 };
 
 /** Minimal state needed for rendering */
@@ -109,12 +114,21 @@ export type RenderState = {
   shapes: Shape<number>[];
   labelCache: LabelCache;
   variation: string;
+  translatableShapePaths: Set<string>;
+  scalableShapePaths: Set<string>;
 };
 
 /** Info for a successful compile */
 export type CompileInfo = {
   diagramId: DiagramID;
   warnings: PenroseWarning[];
+};
+
+export type InteractionInfo = {
+  sequenceId: StepSequenceID;
+  // performance optimization: we pass back the last history so we can immediately
+  // update the stored info without a poll
+  historyInfo: HistoryInfo;
 };
 
 // Message types
@@ -144,14 +158,16 @@ export type MessageRequestData =
   | CompileRequestData
   | PollRequestData
   | ComputeLayoutRequestData
-  | ResampleRequestData;
+  | ResampleRequestData
+  | InteractionRequestData;
 
 /** Result type contained in a `MessageResponse` */
 export type MessageResult =
   | CompileResult
   | PollResult
   | ComputeLayoutResult
-  | ResampleResult;
+  | ResampleResult
+  | InteractionResult;
 
 /** Data contained in a `Notification` */
 export type NotificationData =
@@ -165,10 +181,10 @@ export enum MessageTags {
   Poll = "Poll",
   ComputeLayout = "ComputeLayout",
   DiscardDiagram = "DiscardDiagram",
-  DiscardStepSequence = "DiscardStepSequence",
   Init = "Init",
   LabelMeasurements = "LabelMeasurements",
   Resample = "Resample",
+  Interaction = "Interaction",
 }
 
 // Request Data
@@ -196,6 +212,13 @@ export type ResampleRequestData = {
   tag: MessageTags.Resample;
   diagramId: DiagramID;
   variation: string;
+};
+
+export type InteractionRequestData = {
+  tag: MessageTags.Interaction;
+  diagramId: DiagramID;
+  parentHistoryLoc: HistoryLoc;
+  interaction: Interaction;
 };
 
 // Notification Data
@@ -258,6 +281,12 @@ export type ResampleResult = TaggedResult<
   MessageTags.Resample
 >;
 
+export type InteractionResult = TaggedResult<
+  InteractionInfo,
+  InvalidDiagramIDError | InvalidHistoryLocError | InteractionError,
+  MessageTags.Interaction
+>;
+
 // Errors
 
 export type InvalidDiagramIDError = {
@@ -276,10 +305,16 @@ export type OptimizationError = {
   error: unknown;
 };
 
+export type InteractionError = {
+  tag: "InteractionError";
+  message: string;
+};
+
 export type OptimizerError =
   | OptimizationError
   | InvalidDiagramIDError
-  | InvalidHistoryLocError;
+  | InvalidHistoryLocError
+  | InteractionError;
 
 // Utils
 
@@ -489,6 +524,9 @@ export const showOptimizerError = (error: OptimizerError): string => {
       )}\n    History Info: ${JSON.stringify([
         ...error.historyInfo.entries(),
       ])}\n`;
+
+    case "InteractionError":
+      return `InteractionError: ${error.message}`;
   }
 };
 
@@ -571,6 +609,8 @@ export const stateToLayoutState = (state: State): LayoutState => {
     labelMeasurements: separateRenderedLabels(state.labelCache).optLabelCache,
     canvas: state.canvas,
     shapes: state.computeShapes(state.varyingValues),
+    translatableShapePaths: state.translatableShapePaths,
+    scalableShapePaths: state.scalableShapePaths,
   };
 };
 

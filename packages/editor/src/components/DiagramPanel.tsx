@@ -1,9 +1,8 @@
 import { isPenroseError, runtimeError, showError } from "@penrose/core";
 import { useEffect, useRef, useState } from "react";
-import { useRecoilState, useRecoilValue, useRecoilStateLoadable } from "recoil";
+import { useRecoilState, useRecoilStateLoadable, useRecoilValue } from "recoil";
 import { isErr, showOptimizerError } from "../optimizer/common.js";
 import {
-  Diagram,
   canvasState,
   currentRogerState,
   diagramState,
@@ -15,7 +14,6 @@ import {
 } from "../state/atoms.js";
 import { pathResolver } from "../utils/downloadUtils.js";
 import { stateToSVG } from "../utils/renderUtils.js";
-import { UpdateInfo } from "../worker/OptimizerWorker";
 import InteractivityOverlay from "./InteractivityOverlay";
 import { LayoutTimelineSlider } from "./LayoutTimelineSlider.js";
 
@@ -92,24 +90,30 @@ export default function DiagramPanel() {
       setDiagram((diagram) => ({
         ...diagram,
         error: runtimeError(
-          `Invalid step sequence id ${diagram.stepSequenceId} for diagram`,
+          `Invalid step sequence id ${stepSequenceId} for diagram`,
         ),
       }));
       setComputeLayoutRunning(false);
       return;
     }
 
+    const newHistoryLoc = {
+      sequenceId: stepSequenceId,
+      frame: stepSequenceInfo.layoutStats.at(-1)!.cumulativeFrames - 1,
+    };
+
     // set layout stats for use by timeline slider
     setDiagram((diagram) => ({
       ...diagram,
-      layoutStats: stepSequenceInfo.layoutStats,
+      historyInfo: pollResult.value,
+      historyLoc: newHistoryLoc,
     }));
 
     // compute the most recent shapes for the step sequence
-    const layoutResult = await optimizer.computeLayout(diagramId, {
-      sequenceId: stepSequenceId,
-      frame: stepSequenceInfo.layoutStats.at(-1)!.cumulativeFrames - 1,
-    });
+    const layoutResult = await optimizer.computeLayout(
+      diagramId,
+      newHistoryLoc,
+    );
 
     if (layoutResult.isErr()) {
       setDiagram((diagram) => ({
@@ -150,20 +154,20 @@ export default function DiagramPanel() {
   // stop whenever either active id changes (but we will restart very quickly)
   useEffect(() => {
     computeLayoutShouldStop.current = true;
-  }, [diagram.diagramId, diagram.stepSequenceId]);
+  }, [diagram.diagramId, diagram.historyLoc?.sequenceId]);
 
   useEffect(() => {
     if (
       !computeLayoutRunning &&
       workerState.optimizing &&
       diagram.diagramId !== null &&
-      diagram.stepSequenceId !== null
+      diagram.historyLoc !== null
     ) {
       setComputeLayoutRunning(true);
       computeLayoutShouldStop.current = false;
 
       requestAnimationFrame(() =>
-        runComputeLayout(diagram.diagramId!, diagram.stepSequenceId!),
+        runComputeLayout(diagram.diagramId!, diagram.historyLoc!.sequenceId),
       );
     }
   }, [computeLayoutRunning, workerState, diagram]);

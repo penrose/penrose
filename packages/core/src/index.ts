@@ -357,8 +357,8 @@ export {
   prettyCompiledSubstance,
   prettySubstance,
 } from "./compiler/Substance.js";
-export { start } from "./engine/Optimizer.js";
 export { mapShape, mapValueNumeric } from "./engine/EngineUtils.js";
+export { start } from "./engine/Optimizer.js";
 export { constrDict } from "./lib/Constraints.js";
 export { compDict } from "./lib/Functions.js";
 export { objDict } from "./lib/Objectives.js";
