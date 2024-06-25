@@ -93,7 +93,8 @@ const useScaleOnMouseDown = (
 ) =>
   useCallback(
     (e: MouseEvent) => {
-      console.log("scaling ", corner);
+      window.addEventListener("selectstart", preventSelection);
+
       const CTM = props.diagramSVG.getScreenCTM();
       const { x: startMouseX, y: startMouseY } = getScreenToSvgPosition(e, CTM);
 
@@ -181,6 +182,7 @@ const useScaleOnMouseDown = (
       const onMouseUp = () => {
         document.removeEventListener("mouseup", onMouseUp);
         document.removeEventListener("mousemove", onMouseMove);
+        window.removeEventListener("selectstart", preventSelection);
         scale(props.path, sx, sy);
       };
 
@@ -279,7 +281,7 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
         props.elem.style.cursor = "auto";
       };
     }
-  }, [props.elem, props.state, props.path, elemOnMouseDown]);
+  }, [props.elem, props.state, props.path]);
 
   const bbox = getRelativeBBox(props.elem, props.overlay.current);
   const borderWidth = 2;

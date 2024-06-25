@@ -62,15 +62,19 @@ export default function InteractivityOverlay(
       elemFamily.push(elem);
 
       for (const member of elemFamily) {
-        member.addEventListener("mousedown", (e: MouseEvent) => {
+        const mousedownListener = (e: MouseEvent) => {
           setClickedPath(path);
           if (path === hoveredPath) {
             setHoveredPath(null);
           }
-        });
-        member.addEventListener("mouseover", (e: MouseEvent) => {
+        };
+
+        const mouseoverListener = (e: MouseEvent) => {
           setHoveredPath(path === clickedPath ? null : path);
-        });
+        };
+
+        member.addEventListener("mousedown", mousedownListener);
+        member.addEventListener("mouseover", mouseoverListener);
 
         clickables.add(member);
       }

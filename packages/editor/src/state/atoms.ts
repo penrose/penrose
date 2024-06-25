@@ -424,6 +424,20 @@ export const diagramMetadataSelector = selector<DiagramMetadata>({
   },
 });
 
+export const diagramErrorsAndWarningsSelector = selector<{
+  error: PenroseError | null;
+  warnings: PenroseWarning[];
+}>({
+  key: "diagramErrorsAndWarnings",
+  get: ({ get }) => {
+    const diagram = get(diagramState);
+    return {
+      error: diagram.error,
+      warnings: diagram.warnings,
+    };
+  },
+});
+
 export interface TrioWithPreview {
   id: string;
   get: () => Promise<Trio>;
