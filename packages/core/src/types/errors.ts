@@ -285,12 +285,12 @@ export interface StyleDiagnostics {
 
 export interface ImplicitOverrideWarning {
   tag: "ImplicitOverrideWarning";
-  path: StylePath<A>;
+  path: ResolvedUnindexedStylePath<A>;
 }
 
 export interface NoopDeleteWarning {
   tag: "NoopDeleteWarning";
-  path: StylePath<A>;
+  path: ResolvedUnindexedStylePath<A>;
 }
 export interface LayerCycleWarning {
   tag: "LayerCycleWarning";
@@ -591,7 +591,7 @@ export interface LayerOnNonShapesError {
 
 export interface NonWellFormedPathError {
   tag: "NonWellFormedPathError";
-  path: StylePath<A>;
+  path: ResolvedUnindexedStylePath<A>;
 }
 
 //#endregion

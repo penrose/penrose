@@ -48,6 +48,7 @@ import { BindingForm, ColorLit } from "../types/style.js";
 import {
   ResolvedExpr,
   ResolvedPath,
+  StylePath,
   StylePathToUnindexedObject,
 } from "../types/stylePathResolution.js";
 import { SubExpr, TypeApp } from "../types/substance.js";
@@ -122,6 +123,8 @@ export const styWarnings = [
   "DeletedPropWithNoGPIError",
   "DeletedNonexistentFieldError",
 ];
+
+const showPath = (p: StylePath<A>) => prettyResolvedStylePath(p, true);
 
 // TODO: fix template formatting
 export const showError = (
@@ -361,14 +364,14 @@ export const showError = (
     // --- BEGIN COMPILATION ERRORS
 
     case "AssignAccessError": {
-      return `Cannot directly assign to or delete an index ${prettyResolvedStylePath(
+      return `Cannot directly assign to or delete an index ${showPath(
         error.path,
       )} of a larger structure (at ${loc(error.path)}).`;
     }
 
     case "AssignGlobalError": {
       const { path } = error;
-      const pathStr = prettyResolvedStylePath(path);
+      const pathStr = showPath(path);
       return `Cannot assign to a namespace ${pathStr} (at ${loc(
         path,
       )}); instead, assign to individual members of the namespace like ${pathStr}.member`;
@@ -376,9 +379,9 @@ export const showError = (
 
     case "AssignSubstanceError": {
       const { path } = error;
-      return `Cannot assign to Substance object ${prettyResolvedStylePath(
+      return `Cannot assign to Substance object ${showPath(
         error.path,
-      )} (which is referred to at ${loc(path)}).`;
+      )} (at ${loc(path)}).`;
     }
 
     case "BadElementError": {
@@ -408,7 +411,7 @@ export const showError = (
     }
 
     case "UnindexableItemError": {
-      return `The item \`${prettyResolvedStylePath(error.expr)}\` (at ${loc(
+      return `The item \`${showPath(error.expr)}\` (at ${loc(
         error.expr,
       )}) is not indexable.`;
     }
@@ -446,22 +449,20 @@ canvas {
     }
 
     case "DeleteGlobalError": {
-      return `Cannot delete namespace ${prettyResolvedStylePath(
+      return `Cannot delete namespace ${showPath(error.path)} (at ${loc(
         error.path,
-      )} (at ${loc(error.path)}).`;
+      )}).`;
     }
 
     case "DeleteSubstanceError": {
       const { path } = error;
-      return `Cannot delete Substance object ${prettyResolvedStylePath(
-        error.path,
-      )} (which is referred to at ${loc(path)}).`;
+      return `Cannot delete Substance object ${showPath(error.path)} (at ${loc(
+        path,
+      )}).`;
     }
 
     case "MissingPathError": {
-      return `Could not find ${prettyResolvedStylePath(error.path)} (at ${loc(
-        error.path,
-      )}).`;
+      return `Could not find ${showPath(error.path)} (at ${loc(error.path)}).`;
     }
 
     case "UndeclaredSubVarError": {
@@ -496,18 +497,16 @@ canvas {
 
     case "CollectionMemberAccessError": {
       const { path, field } = error;
-      return `The expression ${prettyResolvedStylePath(path)} (at ${loc(
+      return `The expression ${showPath(path)} (at ${loc(
         path,
-      )}) is a collection, and cannot be accessed with the dot-operator. To access field \`${field}\` of each member of the collection, use the collection-access expression \`listof ${field} from ${prettyResolvedStylePath(
+      )}) is a collection, and cannot be accessed with the dot-operator. To access field \`${field}\` of each member of the collection, use the collection-access expression \`listof ${field} from ${showPath(
         path,
       )}\`.`;
     }
 
     case "MissingShapeError": {
       const { path } = error;
-      return `Path ${prettyResolvedStylePath(path)} (at ${loc(
-        path,
-      )}) cannot be found.`;
+      return `Path ${showPath(path)} (at ${loc(path)}) cannot be found.`;
     }
 
     case "NestedShapeError": {
@@ -519,9 +518,9 @@ canvas {
     case "NotShapeError": {
       const { path, what } = error;
       const { parent } = path.access;
-      return `Expected to find shape at path ${prettyResolvedStylePath(
+      return `Expected to find shape at path ${showPath(parent)} (at ${loc(
         parent,
-      )} (at ${loc(parent)}), but found ${what}.`;
+      )}), but found ${what}.`;
     }
 
     case "NotValueError": {
@@ -533,7 +532,7 @@ canvas {
     case "OutOfBoundsError": {
       return `Indices ${error.indices
         .map((i) => `[${i}]`)
-        .join("")} of path ${prettyResolvedStylePath(
+        .join("")} of path ${showPath(
         error.expr.contents,
       )} out of bounds (at ${loc(error.expr)}).`;
     }
@@ -552,8 +551,8 @@ canvas {
           ? `does not accept type ${error.value.contents.tag}`
           : `does not accept shape ${error.value.contents.shapeType}`;
       const propertyClause = error.passthrough
-        ? `Passthrough shape property ${prettyResolvedStylePath(error.path)}`
-        : `Shape property ${prettyResolvedStylePath(error.path)}`;
+        ? `Passthrough shape property ${showPath(error.path)}`
+        : `Shape property ${showPath(error.path)}`;
       return `${propertyClause} ${expectedClause} and ${doesNotAcceptClause}.`;
     }
 
@@ -600,7 +599,7 @@ canvas {
     case "NotSubstanceCollectionError": {
       const { path } = error;
       const locStr = loc(path);
-      return `The expression ${prettyResolvedStylePath(
+      return `The expression ${showPath(
         path.contents,
       )} (at ${locStr}) is not a collection.`;
     }
@@ -608,7 +607,7 @@ canvas {
     case "NotStyleVariableError": {
       const { path } = error;
       const locStr = loc(path);
-      return `The expression ${prettyResolvedStylePath(
+      return `The expression ${showPath(
         path.contents,
       )} (at ${locStr}) is not a non-collection style variable.`;
     }
@@ -623,9 +622,7 @@ canvas {
 
     case "NonWellFormedPathError": {
       const { path } = error;
-      return `Path ${prettyResolvedStylePath(path)} (at ${loc(
-        path,
-      )}) is not a valid path.`;
+      return `Path ${showPath(path)} (at ${loc(path)}) is not a valid path.`;
     }
 
     // --- END COMPILATION ERRORS
@@ -644,15 +641,15 @@ canvas {
     // ---- BEGIN STYLE WARNINGS
 
     case "ImplicitOverrideWarning": {
-      return `Implicitly overriding ${prettyResolvedStylePath(
+      return `Implicitly overriding ${showPath(error.path)} (at ${loc(
         error.path,
-      )} (at ${loc(error.path)}).`;
+      )}).`;
     }
 
     case "NoopDeleteWarning": {
-      return `Deleting nonexistent ${prettyResolvedStylePath(
+      return `Deleting nonexistent ${showPath(error.path)} (at ${loc(
         error.path,
-      )} (at ${loc(error.path)}).`;
+      )}).`;
     }
 
     case "LayerCycleWarning": {
