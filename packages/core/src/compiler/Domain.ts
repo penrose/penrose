@@ -1,7 +1,8 @@
+import { printTree } from "@lezer-unofficial/printer";
 import { SyntaxNode, Tree } from "@lezer/common";
 import im from "immutable";
+import { parser } from "../parser/DomainParser.js";
 import { idOf } from "../parser/ParserUtil.js";
-import { parser } from "../parser/domainParser.js";
 import { A, C, Identifier, SourceRange } from "../types/ast.js";
 import {
   Arg,
@@ -10,7 +11,9 @@ import {
   DomainProg,
   DomainStmt,
   FunctionDecl,
+  NamedArg,
   PredicateDecl,
+  SubTypeDecl,
   Type,
   TypeDecl,
 } from "../types/domain.js";
@@ -46,27 +49,42 @@ export const extractText = (progText: string, to: number, from: number) => {
 export const validateDomain = (
   ast: Tree,
   src: string,
-): DomainProg<C> | ParseError => {
-  const res = [
+): Result<DomainProg<C>, ParseError> => {
+  const res: Result<DomainStmt<C>, ParseError>[] = [
     ...ast.topNode
       .getChildren("TypeDecl")
       .map((node) => validateTypeDecl(node, src)),
     ...ast.topNode
       .getChildren("Predicate")
       .map((node) => validatePredicate(node, src)),
+    ...ast.topNode
+      .getChildren("Function")
+      .map((node) => validateFunction(node, src)),
+    ...ast.topNode
+      .getChildren("Constructor")
+      .map((node) => validateConstructor(node, src)),
   ];
+  // TODO: make subtypeDecl accept multiple super types in the AST
+  const subtypeDeclOrErr = all(
+    ast.topNode
+      .getChildren("Subtype")
+      .map((node) => validateSubtype(node, src)),
+  );
 
   const statementsOrErr = all<DomainStmt<C>, ParseError>(res);
+
   if (statementsOrErr.isErr()) {
-    return statementsOrErr.error[0];
+    return err(statementsOrErr.error[0]);
+  } else if (subtypeDeclOrErr.isErr()) {
+    return err(subtypeDeclOrErr.error[0]);
   } else {
-    return {
+    return ok({
       tag: "DomainProg",
-      statements: statementsOrErr.value,
+      statements: [...statementsOrErr.value, ...subtypeDeclOrErr.value.flat()],
       start: 0,
       end: ast.length,
       nodeType: "Domain",
-    };
+    });
   }
 };
 
@@ -74,6 +92,28 @@ const meta = (node: SyntaxNode): SourceRange & { nodeType: "Domain" } => {
   const start = node.from;
   const end = node.to;
   return { start, end, nodeType: "Domain" };
+};
+
+const validateSubtype = (
+  node: SyntaxNode,
+  src: string,
+): Result<SubTypeDecl<C>[], ParseError> => {
+  const subType = node.getChild("Identifier");
+  const superTypes = node.getChild("InheritanceList");
+  if (subType && superTypes) {
+    return ok(
+      superTypes.getChildren("Identifier").map((superType) => ({
+        tag: "SubTypeDecl",
+        subType: validateType(subType, src),
+        superType: validateType(superType, src),
+        ...meta(node),
+      })),
+    );
+  } else {
+    return err(
+      parseError(`error processing subtype declaration`, node.from, "Domain"),
+    );
+  }
 };
 
 const validateTypeDecl = (
@@ -104,19 +144,26 @@ const validateTypeDecl = (
   }
 };
 
+export const printNode = (node: SyntaxNode, src: string) => {
+  return printTree(node.cursor(), src, {
+    doColorize: true,
+    from: node.from,
+    to: node.to,
+  });
+};
+
 const validatePredicate = (
   node: SyntaxNode,
   src: string,
 ): Result<PredicateDecl<C>, ParseError> => {
   const id = node.getChild("Identifier");
   const args = node.getChild("ParamList");
-  if (id && args) {
-    console.log(args.firstChild);
 
+  if (id && args) {
     return ok({
       tag: "PredicateDecl",
       name: validateID(id, src),
-      symmetric: node.getChild("Symmetric") !== null,
+      symmetric: node.getChild("symmetric") !== null,
       args: args.getChildren("NamedArg").map((a) => validateArg(a, src)) || [],
       ...meta(node),
     });
@@ -128,14 +175,97 @@ const validatePredicate = (
   }
 };
 
+const validateNamedArg = (node: SyntaxNode, src: string): NamedArg<C> => {
+  const typeNode = node.firstChild;
+  const varNode = typeNode?.nextSibling;
+  if (typeNode) {
+    if (varNode) {
+      return {
+        tag: "Arg",
+        variable: validateID(varNode, src),
+        type: validateType(typeNode, src),
+        ...meta(node),
+      };
+    } else {
+      throw new Error(
+        `TODO: argument needs to be named ${printNode(node!, src)}`,
+      );
+    }
+  } else {
+    throw new Error("TODO: expected type node");
+  }
+};
+
 const validateArg = (node: SyntaxNode, src: string): Arg<C> => {
-  const varNode = node.getChild("variable");
-  return {
-    tag: "Arg",
-    variable: varNode ? validateID(varNode, src) : undefined,
-    type: validateType(node.getChild("typeAnnotation")!, src),
-    ...meta(node),
-  };
+  const typeNode = node.firstChild;
+  if (typeNode) {
+    const varNode = typeNode?.nextSibling;
+    return {
+      tag: "Arg",
+      variable: varNode ? validateID(varNode, src) : undefined,
+      type: validateType(typeNode, src),
+      ...meta(node),
+    };
+  } else {
+    throw new Error("internal error: expected type node");
+  }
+};
+
+const validateConstructor = (
+  node: SyntaxNode,
+  src: string,
+): Result<ConstructorDecl<C>, ParseError> => {
+  const name = node.getChild("Identifier");
+  const args = node.getChild("ParamList");
+  const output = node.getChild("Output");
+  if (name && args) {
+    return ok({
+      tag: "ConstructorDecl",
+      name: validateID(name, src),
+      args: args
+        ? args.getChildren("NamedArg").map((a) => validateNamedArg(a, src))
+        : [],
+      output: output
+        ? validateArg(output, src)
+        : {
+            tag: "Arg",
+            type: validateType(name, src),
+            variable: undefined,
+            ...meta(name),
+          },
+      ...meta(node),
+    });
+  } else {
+    // TODO: error
+    return err(
+      parseError(`error processing function declaration`, node.from, "Domain"),
+    );
+  }
+};
+
+const validateFunction = (
+  node: SyntaxNode,
+  src: string,
+): Result<FunctionDecl<C>, ParseError> => {
+  const name = node.getChild("Identifier");
+  const args = node.getChild("ParamList");
+  const output = node.getChild("Output");
+  if (name && args && output) {
+    return ok({
+      tag: "FunctionDecl",
+      name: validateID(name, src),
+      args: args
+        ? args.getChildren("NamedArg").map((a) => validateArg(a, src))
+        : [],
+      output: validateArg(output, src),
+      ...meta(node),
+    });
+  } else {
+    // TODO: error
+    return err(
+      parseError(`error processing function declaration`, node.from, "Domain"),
+    );
+  }
 };
 
 const validateID = (node: SyntaxNode, src: string): Identifier<C> => ({
@@ -154,23 +284,21 @@ const validateType = (node: SyntaxNode, src: string): Type<C> => ({
 export const parseDomain = (
   prog: string,
 ): Result<DomainProg<C>, ParseError> => {
-  return err(parseError(parser.parse(prog), { line: 1, col: 1 }, "Domain"));
-  // const parser = new nearley.Parser(
-  //   nearley.Grammar.fromCompiled(domainGrammar),
-  // );
-  // try {
-  //   const { results } = parser.feed(prog).feed("\n"); // NOTE: extra newline to avoid trailing comments
-  //   if (results.length > 0) {
-  //     const ast: DomainProg<C> = results[0];
-  //     return ok(ast);
-  //   } else {
-  //     return err(
-  //       parseError(`Unexpected end of input`, lastLocation(parser), "Domain"),
-  //     );
-  //   }
-  // } catch (e) {
-  //   return err(parseError(prettyParseError(e), lastLocation(parser), "Domain"));
-  // }
+  const res = parser.parse(prog);
+  let errorNode: SyntaxNode | undefined;
+  res.iterate({
+    enter: (node) => {
+      if (node.type.isError) {
+        errorNode = node.node;
+      }
+    },
+  });
+  if (errorNode) {
+    return err(
+      parseError("error parsing domain program", errorNode.from, "Domain"),
+    );
+  }
+  return validateDomain(res, prog);
 };
 
 /**
@@ -196,8 +324,8 @@ export const compileDomain = (
 export type CheckerResult = Result<DomainEnv, DomainError>;
 
 export const stringType: Type<C> = {
-  start: { line: 1, col: 1 },
-  end: { line: 1, col: 1 },
+  start: 0,
+  end: 0,
   tag: "Type",
   nodeType: "BuiltinDomain",
   name: idOf("String", "Domain"),
@@ -209,8 +337,8 @@ export const stringTypeDecl: TypeDecl<C> = {
 };
 
 export const numberType: Type<C> = {
-  start: { line: 1, col: 1 },
-  end: { line: 1, col: 1 },
+  start: 0,
+  end: 0,
   nodeType: "BuiltinDomain",
   tag: "Type",
   name: idOf("Number", "Domain"),

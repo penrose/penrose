@@ -3,7 +3,6 @@
 /reports/
 /junit.xml
 /src/parser/DomainParser.ts
+/src/parser/DomainParser.terms.ts
 /src/parser/StyleParser.ts
 /src/parser/SubstanceParser.ts
-/src/parser/domainParser.js
-/src/parser/domainParser.terms.js

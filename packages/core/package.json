@@ -22,7 +22,7 @@
     "!dist/**/*.test.d.ts"
   ],
   "scripts": {
-    "build-parsers": "nearleyc src/parser/Domain.ne > src/parser/DomainParser.ts && nearleyc src/parser/Substance.ne > src/parser/SubstanceParser.ts && nearleyc src/parser/Style.ne > src/parser/StyleParser.ts && lezer-generator src/parser/domain.grammar -o src/parser/domainParser.js",
+    "build-parsers": "nearleyc src/parser/Substance.ne > src/parser/SubstanceParser.ts && nearleyc src/parser/Style.ne > src/parser/StyleParser.ts && lezer-generator --typeScript src/parser/Domain.grammar -o src/parser/DomainParser.ts",
     "build": "tsc",
     "bundle": "vite build",
     "watch": "yarn build --watch",

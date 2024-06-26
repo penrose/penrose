@@ -1,6 +1,6 @@
-@top Program { (declaration semi)* }
+@top Program { (declaration Semi)* }
 
-semi { ";" | insertSemi }
+Semi { ";" | insertSemi }
 
 declaration {
     TypeDecl |
@@ -42,7 +42,11 @@ ParamList {
 }
 
 NamedArg {
-		@specialize<Identifier, "typeAnnotation"> (@specialize<Identifier, "variable">)?
+		Identifier Identifier?
+}
+
+Output {
+		Identifier  ~danglingID Identifier?
 }
 
 commaSep<content> {
