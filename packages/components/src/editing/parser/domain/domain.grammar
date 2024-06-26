@@ -1,6 +1,6 @@
-@top Program { (declaration Semi)* }
+@top Program { (declaration semi)* }
 
-Semi { ";" | insertSemi }
+semi { ";" | insertSemi }
 
 declaration {
     Type |

@@ -1,7 +1,13 @@
 import { autocompletion } from "@codemirror/autocomplete";
-import { lintGutter } from "@codemirror/lint";
-import { Extension } from "@codemirror/state";
+import { lintGutter, linter } from "@codemirror/lint";
 import { EditorView } from "@codemirror/view";
+import {
+  ShapeType,
+  makeCanvas,
+  sampleShape,
+  shapeTypes,
+  simpleContext,
+} from "@penrose/core";
 import {
   DomainError,
   RuntimeError,
@@ -9,8 +15,11 @@ import {
   StyleWarning,
   SubstanceError,
 } from "@penrose/core/dist/types/errors.js";
+import { vim } from "@replit/codemirror-vim";
+import { color } from "@uiw/codemirror-extensions-color";
 import CodeMirror from "@uiw/react-codemirror";
 import { useEffect, useRef, useState } from "react";
+import { atom, useRecoilValue } from "recoil";
 import {
   DomainCache,
   ShapeDefinitions,
@@ -23,20 +32,6 @@ import { createLinter } from "./hooks/useLinter";
 import { domainLanguageSupport } from "./parser/domain/domainLanguage";
 import { styleLanguageSupport } from "./parser/style/styleLanguage";
 import { substanceLanguageSupport } from "./parser/substance/substanceLanguage";
-// import { ErrorLoc } from "@penrose/core/dist/utils/Util.js";
-// import { errLocs, showError } from "@penrose/core";
-import { linter } from "@codemirror/lint";
-import {
-  ShapeType,
-  makeCanvas,
-  sampleShape,
-  shapeTypes,
-  simpleContext,
-} from "@penrose/core";
-// import { colorPicker } from "@replit/codemirror-css-color-picker";
-import { vim } from "@replit/codemirror-vim";
-import { color } from "@uiw/codemirror-extensions-color";
-import { atom, useRecoilValue } from "recoil";
 import { penroseTheme } from "./theme";
 
 /**
@@ -46,7 +41,7 @@ import { penroseTheme } from "./theme";
  */
 const getShapeDefs = (): ShapeDefinitions => {
   const shapeProps = {} as ShapeDefinitions;
-  const size = 311; // placeholder, this doesn't matter
+  const size = 311; // placeholder, this value doesn't matter
 
   for (const shapeName of shapeTypes) {
     const shapeSample = sampleShape(
@@ -75,7 +70,6 @@ export default function EditorPane({
   languageType,
   domainCache,
   substanceCache,
-  readOnly,
   error,
   warnings,
   showCompileErrs,
@@ -86,26 +80,24 @@ export default function EditorPane({
   languageType: "substance" | "style" | "domain";
   domainCache: DomainCache;
   substanceCache: SubstanceCache;
-  readOnly?: boolean;
   error: StyleError | DomainError | SubstanceError | RuntimeError | null;
   warnings: StyleWarning[];
   showCompileErrs: boolean;
 }) {
-  // no idea what this does, was part of old codebase
   const statusBarRef = useRef<HTMLDivElement>(null);
 
-  const BaseStyles = EditorView.theme({
-    "&": {
-      fontSize: "12pt",
-    },
-    ".cm-completionInfo-right, .cm-completionInfo-left": {
-      display: "none",
-    },
-
-    "@media screen and (min-width: 900px)": {
-      ".cm-completionInfo-right, .cm-completionInfo-left": {
-        display: "initial",
-      },
+  const ResponsiveStyles = EditorView.theme({
+    /*
+     * Hide autocomplete info box on mobile devices
+     * https://github.com/codemirror/autocomplete/blob/82893f890f37dc182e0dd1e585a62a35e8819cfc/src/theme.ts#L73
+     * Seems like on mobile, the info boxes automatically swap to the "narrow"
+     * class names
+     */
+    "@media screen and (max-width: 800px)": {
+      ".cm-completionInfo-right, .cm-completionInfo-left, .cm-completionInfo.cm-completionInfo-left-narrow, .cm-completionInfo.cm-completionInfo-right-narrow":
+        {
+          display: "none",
+        },
     },
   });
 
@@ -115,11 +107,10 @@ export default function EditorPane({
 
   const defaultExtensions = [
     EditorView.lineWrapping,
-    BaseStyles,
+    ResponsiveStyles,
     lintObject,
     lintGutter(),
     color,
-    // colorPicker,
   ];
 
   const [shapeDefs, setshapeDefs] = useState<ShapeDefinitions>({});
@@ -150,19 +141,14 @@ export default function EditorPane({
     styleLanguageSupport(),
   ].concat(defaultExtensions);
 
-  const [extensions, setExtensions] = useState<Extension[]>([]);
-  useEffect(() => {
-    let extensionsList =
-      languageType === "domain"
-        ? domainExtensions
-        : languageType === "substance"
-        ? substanceExtensions
-        : styleExtensions;
+  let extensionsList =
+    languageType === "domain"
+      ? domainExtensions
+      : languageType === "substance"
+      ? substanceExtensions
+      : styleExtensions;
 
-    if (vimMode) extensionsList.push(vim());
-
-    setExtensions(extensionsList);
-  }, [vimMode, languageType]);
+  if (vimMode) extensionsList.push(vim());
 
   const codemirrorHistoryState = useRecoilValue(codemirrorHistory);
 
@@ -170,10 +156,10 @@ export default function EditorPane({
     <div style={{ width: "100%", height: "100%", position: "relative" }}>
       <CodeMirror
         value={value}
-        extensions={extensions}
+        extensions={extensionsList}
         onChange={onChange}
         theme={penroseTheme}
-        // History reset. https://github.com/uiwjs/react-codemirror/issues/405
+        // History reset https://github.com/uiwjs/react-codemirror/issues/405
         // Set in packages/editor/src/state/callbacks.ts
         basicSetup={{ history: codemirrorHistoryState }}
       />

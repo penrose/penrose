@@ -20,6 +20,8 @@ function InsideStatement(parentNode: SyntaxNode | null) {
 }
 
 // Nested version to deal with NamedId wrapper
+// Returns true if parentNode is inside a statement or inside a NamedId
+// which is inside a statement
 function InsideStatementNested(parentNode: SyntaxNode | null) {
   return (
     parentNode !== null &&
@@ -92,9 +94,9 @@ const SubstanceAutocomplete = (
       let wholeTree = syntaxTree(context.state).topNode;
       //   console.log(domainCache);
       //   console.log(parentNode, leftSib, wholeTree.toString());
-      console.log(wholeTree.toString(), parentNode, parentNode?.prevSibling);
-      // not sure what this does, stolen from autocomplete example
-      if (word == null || (word.from === word.to && !context.explicit)) {
+      // console.log(wholeTree.toString(), parentNode, parentNode?.prevSibling);
+
+      if (word == null) {
         return null;
       }
 

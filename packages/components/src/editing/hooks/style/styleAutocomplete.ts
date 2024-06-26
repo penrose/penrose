@@ -3,7 +3,12 @@ import { syntaxTree } from "@codemirror/language";
 import { printTree } from "@lezer-unofficial/printer";
 import { useCallback } from "react";
 import { DomainCache, ShapeDefinitions } from "../../types";
-import { extractText } from "../hooksUtils";
+import {
+  extractText,
+  goDownToTarget,
+  goToParentX,
+  goUpToTarget,
+} from "../hooksUtils";
 import {
   anonExprKws,
   collectorHeaderOptions,
@@ -16,9 +21,6 @@ import {
   getShapeNames,
   getShapeProps,
   getTypeOptions,
-  goToChildX,
-  goToParentX,
-  goUpToTarget,
   headerOptions,
   selectorHeaderOptions,
   statementKws,
@@ -42,54 +44,58 @@ const StyleAutocomplete = (
         parentNode,
         word,
       );
-      // console.log(wholeTree.toString());
 
-      // not sure what this does, stolen from autocomplete example
       if (word == null) {
         return null;
       }
 
-      let completionOpts = [] as Completion[];
-
       /*
-       * Shape property auto complete. Properties nested as identifier
-       * inside PropName inside PropertyDecl inside ShapeDecl
+       * We track completionOpts and return at the end for the cases where
+       * multiple sets of completion items should trigger.
        */
-      const upThree = goToParentX(nodeBefore, 3);
-      if (
-        upThree != null &&
-        upThree.name === "ShapeDecl" &&
-        upThree.firstChild !== null
-      ) {
-        // Get shape name
-        let shapeNameNode = upThree.firstChild;
-        let shapeName = extractText(
-          context.state.doc.toString(),
-          shapeNameNode.to,
-          shapeNameNode.from,
-        );
-        // We allow arbitrary shape names, so check it actually exists
-        if (shapeDefns[shapeName]) {
-          // We shortciruit to avoid triggering other autocomplete fns
-          return {
-            from: word.from,
-            options: getShapeProps(shapeDefns[shapeName]),
-          };
+      let completionOpts = [] as Completion[];
+      /*
+       * Shape property auto complete.
+       * Triggers if cursor is inside both PropName and ShapeDecl
+       * Check ShapeDecl exists so we can get shapeNameNode
+       */
+      const searchForPropName = goUpToTarget(nodeBefore, "PropName");
+      const searchForShapeDecl = goUpToTarget(nodeBefore, "ShapeDecl");
+      if (searchForPropName != null && searchForShapeDecl != null) {
+        // ShapeDecl -> ShapeName -> Identifier
+        let shapeNameNode = goDownToTarget(searchForShapeDecl, "Identifier");
+
+        if (shapeNameNode != null) {
+          let shapeName = extractText(
+            context.state.doc.toString(),
+            shapeNameNode.to,
+            shapeNameNode.from,
+          );
+
+          // We allow arbitrary shape names in parse, so check it actually exists
+          if (shapeDefns[shapeName]) {
+            // We shortciruit to avoid triggering other autocomplete fns
+            return {
+              from: word.from,
+              options: getShapeProps(shapeDefns[shapeName]),
+            };
+          }
         }
       }
 
       // Suggest user defined namespace properties
       if (
         parentNode != null &&
-        // Case 1) User typed . and they're inside path
-        ((nodeBefore.name === "." && parentNode.name === "Path") ||
+        parentNode.name === "Path" &&
+        // Case 1) User typed .
+        (nodeBefore.name === "." ||
           // Case 2) User typed .[something]
           (nodeBefore.name === "Identifier" &&
             nodeBefore.prevSibling != null &&
             nodeBefore.prevSibling.name === "."))
       ) {
-        // Grab namespace identifier
-        let id = goToChildX(parentNode, 3);
+        // Grab namespace identifier, here parentNode is Path
+        let id = goDownToTarget(parentNode, "Identifier");
         if (id != null) {
           const topNode = syntaxTree(context.state).topNode;
           const styleProg = context.state.doc.toString();
@@ -110,6 +116,7 @@ const StyleAutocomplete = (
        * We check for this error state and shortcircuit
        */
       let itemNode = goUpToTarget(nodeBefore, "Item");
+      // Check if previous item exists and is a HeaderBlock
       if (
         itemNode != null &&
         itemNode.prevSibling != null &&
@@ -117,21 +124,18 @@ const StyleAutocomplete = (
         itemNode.prevSibling.firstChild.name === "HeaderBlock"
       ) {
         let prevHeaderBlock = itemNode.prevSibling.firstChild;
-        // HeaderBlock -> Header -> Collector or Selector
-        let innerHeader = goToChildX(prevHeaderBlock, 2);
-        // Checks for error state in the block part of Headerblock
+        // Checks for error state in the position of block (in prev HeaderBlock)
         if (
           prevHeaderBlock.lastChild != null &&
-          prevHeaderBlock.lastChild.type.isError &&
-          innerHeader != null
+          prevHeaderBlock.lastChild.type.isError
         ) {
-          if (innerHeader.name === "Selector") {
+          if (goDownToTarget(prevHeaderBlock, "Selector")) {
             return {
               from: word.from,
               options: selectorHeaderOptions,
             };
           }
-          if (innerHeader.name === "Collector") {
+          if (goDownToTarget(prevHeaderBlock, "Collector")) {
             return {
               from: word.from,
               options: collectorHeaderOptions,
@@ -150,14 +154,13 @@ const StyleAutocomplete = (
         completionOpts = completionOpts.concat(headerOptions);
       }
 
-      // Expr completion
-      // StyVar -> Var -> Path -> Expr
-      const upFour = goToParentX(nodeBefore, 4);
-      // Check nodeBefore name to avoid triggering on Numbers, parser guesses
-      // Identifier before term completed
+      /*
+       * Expr completion
+       * Check nodeBefore name to avoid triggering on Numbers
+       * parser guesses Identifier before term completed
+       */
       if (
-        upFour != null &&
-        upFour.name === "Expr" &&
+        goUpToTarget(nodeBefore, "Expr") != null &&
         nodeBefore.name === "Identifier"
       ) {
         const topNode = syntaxTree(context.state).topNode;
@@ -169,11 +172,8 @@ const StyleAutocomplete = (
       }
 
       // AssignExpr completion
-      // StyVar -> Var -> Path -> Expr -> AssignExpr
-      const upFive = goToParentX(nodeBefore, 5);
       if (
-        upFive != null &&
-        upFive.name === "AssignExpr" &&
+        goUpToTarget(nodeBefore, "AssignExpr") != null &&
         nodeBefore.name === "Identifier"
       ) {
         completionOpts = completionOpts
@@ -181,20 +181,17 @@ const StyleAutocomplete = (
           .concat(getShapeNames(shapeDefns));
       }
 
-      // Constraint completion
-      // StyVar -> Var -> Path -> Expr -> ObjConstrBody -> Constraint/Objective
-      // (5+parentNode)
-      const upSix = goToParentX(nodeBefore, 6);
-      if (
-        upSix != null &&
-        (upSix.name === "Objective" || upSix.name === "Constraint")
-      ) {
+      // Constraint completion (following "encourage" and "ensure")
+      if (goUpToTarget(nodeBefore, "ObjConstrBody") != null) {
         completionOpts = completionOpts.concat(getConstraints());
       }
 
-      // Namespace, Selector, Collect block completion
-      // StyVar -> Var -> Path -> Assign -> Statement -> Block -> HeaderBlock
-      // const upSeven = goToParentX(parentNode, 6);
+      /*
+       * Namespace, Selector, Collect block completion
+       * StyVar -> Var -> Path -> Assign -> Statement -> Block
+       * Doesn't use goUpToTarget due to deep nesting possible in Block
+       */
+      const upSix = goToParentX(nodeBefore, 6);
       if (upSix != null && upSix.name === "Block") {
         completionOpts = completionOpts
           .concat(typeNames)
@@ -203,7 +200,7 @@ const StyleAutocomplete = (
           .concat(getShapeNames(shapeDefns));
       }
 
-      // Suggest type names
+      // Suggest domain-defined type names
       if (
         parentNode != null &&
         parentNode.name === "SelType" &&
@@ -228,7 +225,7 @@ const StyleAutocomplete = (
 
       // Collect suggest into
       if (
-        // Into error node
+        // Parser wraps start of into in an error node, hence why we take parent
         parentNode != null &&
         parentNode.prevSibling != null &&
         parentNode.prevSibling.name === "Decl"
@@ -238,9 +235,15 @@ const StyleAutocomplete = (
         ]);
       }
 
-      // Suggest pred names in where header
-      // StyVar -> Variable -> Bind -> Relation
-      if (upFour != null && upFour.name === "Relation") {
+      /*
+       * Parser defaults to Bind in partial parse state. Null checks to ensure
+       * this does not trigger inside actual Bind and Field expressions
+       */
+      if (
+        goUpToTarget(nodeBefore, "Relation") != null &&
+        goUpToTarget(nodeBefore, "RelExpr") == null &&
+        goUpToTarget(nodeBefore, "Field") == null
+      ) {
         completionOpts = completionOpts.concat(getPredOptions(domainCache));
       }
 

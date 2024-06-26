@@ -45,6 +45,8 @@ export const styleLanguage = LRLanguage.define({
         layer: t.keyword,
         above: t.keyword,
         below: t.keyword,
+        in: t.keyword,
+        except: t.keyword,
         // variables
         ShapeName: t.className,
         StyVar: t.variableName,

@@ -19,7 +19,6 @@ const getTypeNames = (domainProg: string, typeNodes: SyntaxNode[]) => {
       types.push(extractText(domainProg, nodeCursor.to, nodeCursor.from));
     }
   });
-  //   console.log("types", types);
 
   return types;
 };
@@ -53,10 +52,8 @@ const getPredicateNames = (
     preds.push(extractText(domainProg, nodeCursor.to, nodeCursor.from));
   });
   return preds;
-  //   console.log("preds", preds);
 };
 
-// Honestly this could probably be merged with getTypeNames
 const getFn_ConsNames = (domainProg: string, nodes: SyntaxNode[]) => {
   let names = [] as string[];
 
@@ -70,7 +67,6 @@ const getFn_ConsNames = (domainProg: string, nodes: SyntaxNode[]) => {
       names.push(extractText(domainProg, nodeCursor.to, nodeCursor.from));
     }
   });
-  //   console.log("fns / cons", names);
   return names;
 };
 

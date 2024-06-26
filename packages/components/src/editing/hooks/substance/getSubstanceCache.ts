@@ -1,6 +1,6 @@
 import { SyntaxNode } from "@lezer/common";
 import { parser } from "../../parser/substance/substance";
-import { extractText } from "../hooksUtils";
+import { extractText, traverseCursorDown } from "../hooksUtils";
 
 const containsIndexedStatement = (node: SyntaxNode): boolean => {
   return node.getChild("IndexedStatement") !== null;
@@ -12,13 +12,11 @@ const getIdsFromTypes = (substanceProg: string, typeAppNodes: SyntaxNode[]) => {
   typeAppNodes.forEach((node: SyntaxNode) => {
     // Ignore indexed statements
     if (containsIndexedStatement(node)) {
-      // exits from current iteration, like continue
       return;
     }
 
     let nodeCursor = node.cursor();
-    // move to NamedId
-    nodeCursor.firstChild();
+    if (!traverseCursorDown(nodeCursor, "NamedId")) return;
     // move to identifier, loop because of comma sep list
     while (nodeCursor.nextSibling()) {
       if (nodeCursor.name === "Identifier") {
@@ -26,7 +24,6 @@ const getIdsFromTypes = (substanceProg: string, typeAppNodes: SyntaxNode[]) => {
       }
     }
   });
-  //   console.log(ids);
   return ids;
 };
 

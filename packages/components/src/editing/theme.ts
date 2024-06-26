@@ -38,6 +38,7 @@ export const defaultSettingsPenroseTheme: CreateThemeOptions["settings"] = {
   gutterForeground: config.foreground,
   gutterBorder: "transparent",
   lineHighlight: config.activeLine,
+  fontSize: "12pt",
 };
 
 export const penroseThemeInit = (options?: Partial<CreateThemeOptions>) => {

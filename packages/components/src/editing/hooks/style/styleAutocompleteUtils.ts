@@ -1,7 +1,11 @@
 import { SyntaxNode } from "@lezer/common";
 import { compDict, constrDict } from "@penrose/core";
 import { DomainCache, ShapeDefinitions, ShapeProperties } from "../../types";
-import { extractText } from "../hooksUtils";
+import {
+  extractText,
+  traverseCursorDown,
+  traverseCursorUp,
+} from "../hooksUtils";
 
 export const getShapeProps = (shapeProps: ShapeProperties) => {
   return Object.entries(shapeProps).flatMap(([key, value]) => [
@@ -73,25 +77,21 @@ export const getNamespaceDict = (topNode: SyntaxNode, styleProg: string) => {
 
   itemNodes.forEach((node: SyntaxNode) => {
     let nodeCursor = node.cursor();
-    // move to "HeaderBlock"
-    nodeCursor.firstChild();
-    if (nodeCursor.name !== "HeaderBlock") return;
-    // move to Header
-    nodeCursor.firstChild();
-    // Move to Namespace
-    nodeCursor.firstChild();
-    // Node cursor throws a typescript error on checking the names successively
-    // @ts-ignore
-    if (nodeCursor.name !== "Namespace") return;
-    // Move to Identifier
-    nodeCursor.firstChild();
+    /*
+     * Continue only if Namespace is a child of this item node and we can find
+     * the block name identifier
+     */
+    if (
+      !traverseCursorDown(nodeCursor, "Namespace") ||
+      !traverseCursorDown(nodeCursor, "Identifier")
+    )
+      return;
     let blockName = extractText(styleProg, nodeCursor.to, nodeCursor.from);
     if (blockName === "canvas") return;
+
+    // Get namespace property identifiers
     let varNames = [] as string[];
-    // Move to Namespace
-    nodeCursor.parent();
-    // Move to Header
-    nodeCursor.parent();
+    if (!traverseCursorUp(nodeCursor, "Header")) return;
     // Move to Block
     nodeCursor.nextSibling();
     // Get children
@@ -107,12 +107,8 @@ export const getNamespaceDict = (topNode: SyntaxNode, styleProg: string) => {
         stNodeCursor.nextSibling();
       }
       // Should now be in Path
-      // Move into Variable
-      stNodeCursor.firstChild();
-      // Move into Styvar
-      stNodeCursor.firstChild();
-      // Move into Identifier
-      stNodeCursor.firstChild();
+      traverseCursorDown(stNodeCursor, "Identifier");
+
       varNames.push(extractText(styleProg, stNodeCursor.to, stNodeCursor.from));
     });
     namespaceCache[blockName] = varNames;
@@ -211,38 +207,3 @@ export const collectorHeaderOptions = ["foreach"]
     info: "",
   }))
   .concat(selectorHeaderOptions);
-
-export const goToParentX = (node: SyntaxNode, x: number) => {
-  let i = 0;
-  let nextParent: SyntaxNode | null = node;
-  while (i < x) {
-    nextParent = nextParent.parent;
-    i++;
-    if (nextParent == null) {
-      return null;
-    }
-  }
-  return nextParent;
-};
-
-export const goUpToTarget = (node: SyntaxNode, targetName: string) => {
-  let nextParent: SyntaxNode | null = node;
-  while (nextParent != null) {
-    if (nextParent.name === targetName) return nextParent;
-    nextParent = nextParent.parent;
-  }
-  return null;
-};
-
-export const goToChildX = (node: SyntaxNode, x: number) => {
-  let i = 0;
-  let nextChild: SyntaxNode | null = node;
-  while (i < x) {
-    nextChild = nextChild.firstChild;
-    i++;
-    if (nextChild == null) {
-      return null;
-    }
-  }
-  return nextChild;
-};
