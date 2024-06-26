@@ -3658,13 +3658,8 @@
 
 "@replit/codemirror-css-color-picker@^6.1.1":
   version "6.1.1"
-  resolved "https://registry.npmjs.org/@replit/codemirror-css-color-picker/-/codemirror-css-color-picker-6.1.1.tgz"
+  resolved "https://registry.yarnpkg.com/@replit/codemirror-css-color-picker/-/codemirror-css-color-picker-6.1.1.tgz#9b68652d7ff56e3cc491fd7e26584d1f08e5b659"
   integrity sha512-e/wYHcgt3HRDpvYuwqXyjv3LEY6VyFjJeDQK1UtFmaykp86R6Cbw3ULH9pvuJuelaW6nS4CVtIRHuOfbFLlqwQ==
-
-"@replit/codemirror-vim@^6.2.1":
-  version "6.2.1"
-  resolved "https://registry.npmjs.org/@replit/codemirror-vim/-/codemirror-vim-6.2.1.tgz"
-  integrity sha512-qDAcGSHBYU5RrdO//qCmD8K9t6vbP327iCj/iqrkVnjbrpFhrjOt92weGXGHmTNRh16cUtkUZ7Xq7rZf+8HVow==
 
 "@rollup/plugin-virtual@^3.0.2":
   version "3.0.2"
@@ -5253,7 +5248,14 @@
     "@codemirror/state" "^6.0.0"
     "@codemirror/view" "^6.0.0"
 
-"@uiw/codemirror-extensions-color@^4.22.2":
+"@uiw/codemirror-theme-quietlight@^4.22.2":
+  version "4.22.2"
+  resolved "https://registry.yarnpkg.com/@uiw/codemirror-theme-quietlight/-/codemirror-theme-quietlight-4.22.2.tgz#d876c5c508c82d701f139ca6969e8c0ed770be06"
+  integrity sha512-NtHUttXgnDE8F+lrJA6HfiTNjY8GVJjUwtpvOQywqgNoBDwBpuEfdpvZ/OI0EW0sqZpbVlWfmANT4H5oj3ODaw==
+  dependencies:
+    "@uiw/codemirror-themes" "4.22.2"
+
+"@uiw/codemirror-themes@4.22.2", "@uiw/codemirror-themes@^4.22.2":
   version "4.22.2"
   resolved "https://registry.npmjs.org/@uiw/codemirror-extensions-color/-/codemirror-extensions-color-4.22.2.tgz"
   integrity sha512-WA9fpRCMPWv3brsobg8ck9VlU6jevrcLHAlSfVWjoi3Dmxwo3W50IH5t34NP1Q7DjXQtx7tDEEY/mG99SyGTrQ==
@@ -16883,3 +16885,8 @@ yocto-queue@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/yocto-queue/-/yocto-queue-1.0.0.tgz"
   integrity sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==
+
+zwitch@^1.0.0:
+  version "1.0.5"
+  resolved "https://registry.npmjs.org/zwitch/-/zwitch-1.0.5.tgz"
+  integrity sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==

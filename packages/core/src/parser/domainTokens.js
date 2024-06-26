@@ -5,7 +5,7 @@ import {
   insertSemi,
   newline,
   spaces,
-} from "./domain.terms.js";
+} from "./domainParser.terms.js";
 
 export const trackNewline = new ContextTracker({
   start: false,

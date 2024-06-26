@@ -1,8 +1,8 @@
+import { SyntaxNode, Tree } from "@lezer/common";
 import im from "immutable";
-import nearley from "nearley";
-import domainGrammar from "../parser/DomainParser.js";
-import { idOf, lastLocation, prettyParseError } from "../parser/ParserUtil.js";
-import { A, C } from "../types/ast.js";
+import { idOf } from "../parser/ParserUtil.js";
+import { parser } from "../parser/domainParser.js";
+import { A, C, Identifier, SourceRange } from "../types/ast.js";
 import {
   Arg,
   ConstructorDecl,
@@ -23,6 +23,7 @@ import {
 import { TypeApp } from "../types/substance.js";
 import {
   Result,
+  all,
   andThen,
   cyclicSubtypes,
   duplicateName,
@@ -38,25 +39,138 @@ import {
 } from "../utils/Error.js";
 import Graph from "../utils/Graph.js";
 
+export const extractText = (progText: string, to: number, from: number) => {
+  return progText.slice(from, to);
+};
+
+export const validateDomain = (
+  ast: Tree,
+  src: string,
+): DomainProg<C> | ParseError => {
+  const res = [
+    ...ast.topNode
+      .getChildren("TypeDecl")
+      .map((node) => validateTypeDecl(node, src)),
+    ...ast.topNode
+      .getChildren("Predicate")
+      .map((node) => validatePredicate(node, src)),
+  ];
+
+  const statementsOrErr = all<DomainStmt<C>, ParseError>(res);
+  if (statementsOrErr.isErr()) {
+    return statementsOrErr.error[0];
+  } else {
+    return {
+      tag: "DomainProg",
+      statements: statementsOrErr.value,
+      start: 0,
+      end: ast.length,
+      nodeType: "Domain",
+    };
+  }
+};
+
+const meta = (node: SyntaxNode): SourceRange & { nodeType: "Domain" } => {
+  const start = node.from;
+  const end = node.to;
+  return { start, end, nodeType: "Domain" };
+};
+
+const validateTypeDecl = (
+  node: SyntaxNode,
+  src: string,
+): Result<TypeDecl<C>, ParseError> => {
+  const id = node.getChild("Identifier");
+  const superTypes = node.getChild("InheritanceList");
+  if (id) {
+    return ok({
+      tag: "TypeDecl",
+      name: validateID(id, src),
+      superTypes:
+        superTypes
+          ?.getChildren("Identifier")
+          .map((t) => validateType(t, src)) || [],
+      ...meta(node),
+    });
+  } else {
+    // TODO: error
+    return err(
+      parseError(
+        `expected identifier but got ${node.type.name} under ${node.parent?.type.name}`,
+        node.from,
+        "Domain",
+      ),
+    );
+  }
+};
+
+const validatePredicate = (
+  node: SyntaxNode,
+  src: string,
+): Result<PredicateDecl<C>, ParseError> => {
+  const id = node.getChild("Identifier");
+  const args = node.getChild("ParamList");
+  if (id && args) {
+    console.log(args.firstChild);
+
+    return ok({
+      tag: "PredicateDecl",
+      name: validateID(id, src),
+      symmetric: node.getChild("Symmetric") !== null,
+      args: args.getChildren("NamedArg").map((a) => validateArg(a, src)) || [],
+      ...meta(node),
+    });
+  } else {
+    // TODO: error
+    return err(
+      parseError(`error processing predicate declaration`, node.from, "Domain"),
+    );
+  }
+};
+
+const validateArg = (node: SyntaxNode, src: string): Arg<C> => {
+  const varNode = node.getChild("variable");
+  return {
+    tag: "Arg",
+    variable: varNode ? validateID(varNode, src) : undefined,
+    type: validateType(node.getChild("typeAnnotation")!, src),
+    ...meta(node),
+  };
+};
+
+const validateID = (node: SyntaxNode, src: string): Identifier<C> => ({
+  tag: "Identifier",
+  type: "value",
+  value: extractText(src, node.to, node.from),
+  ...meta(node),
+});
+
+const validateType = (node: SyntaxNode, src: string): Type<C> => ({
+  tag: "Type",
+  name: validateID(node, src),
+  ...meta(node),
+});
+
 export const parseDomain = (
   prog: string,
 ): Result<DomainProg<C>, ParseError> => {
-  const parser = new nearley.Parser(
-    nearley.Grammar.fromCompiled(domainGrammar),
-  );
-  try {
-    const { results } = parser.feed(prog).feed("\n"); // NOTE: extra newline to avoid trailing comments
-    if (results.length > 0) {
-      const ast: DomainProg<C> = results[0];
-      return ok(ast);
-    } else {
-      return err(
-        parseError(`Unexpected end of input`, lastLocation(parser), "Domain"),
-      );
-    }
-  } catch (e) {
-    return err(parseError(prettyParseError(e), lastLocation(parser), "Domain"));
-  }
+  return err(parseError(parser.parse(prog), { line: 1, col: 1 }, "Domain"));
+  // const parser = new nearley.Parser(
+  //   nearley.Grammar.fromCompiled(domainGrammar),
+  // );
+  // try {
+  //   const { results } = parser.feed(prog).feed("\n"); // NOTE: extra newline to avoid trailing comments
+  //   if (results.length > 0) {
+  //     const ast: DomainProg<C> = results[0];
+  //     return ok(ast);
+  //   } else {
+  //     return err(
+  //       parseError(`Unexpected end of input`, lastLocation(parser), "Domain"),
+  //     );
+  //   }
+  // } catch (e) {
+  //   return err(parseError(prettyParseError(e), lastLocation(parser), "Domain"));
+  // }
 };
 
 /**

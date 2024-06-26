@@ -1,5 +1,7 @@
 @top Program { (declaration semi)* }
 
+semi { ";" | insertSemi }
+
 declaration {
     TypeDecl |
     Predicate |
@@ -40,11 +42,7 @@ ParamList {
 }
 
 NamedArg {
-		Identifier Identifier?
-}
-
-Output {
-		Identifier  ~danglingID Identifier?
+		@specialize<Identifier, "typeAnnotation"> (@specialize<Identifier, "variable">)?
 }
 
 commaSep<content> {
