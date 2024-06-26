@@ -1,6 +1,7 @@
 import {
   Canvas,
-  collectLabels, InteractivityInfo,
+  collectLabels,
+  InteractivityInfo,
   isPenroseError,
   LabelCache,
   LabelData,
@@ -11,12 +12,12 @@ import {
   PenroseWarning,
   Shape,
   showError,
-  State
+  State,
 } from "@penrose/core";
 import consola from "consola";
+import { pick } from "lodash";
 import { Result } from "true-myth";
 import { Interaction } from "../utils/interactionUtils";
-import { pick } from "lodash";
 
 // Config
 
@@ -613,9 +614,9 @@ export const getPartialInteractivityInfo = (
   return pick(interactivityInfo, [
     "translatableShapePaths",
     "scalableShapePaths",
-    "draggingConstraints"
+    "draggingConstraints",
   ]);
-}
+};
 
 export const stateToLayoutState = (state: State): LayoutState => {
   return {

@@ -387,7 +387,11 @@ const interact = (data: InteractionRequestData): InteractionResult => {
 
   switch (data.interaction.tag) {
     case "Translation":
-      if (!penroseState!.interactivityInfo.translatableShapePaths.has(data.interaction.path)) {
+      if (
+        !penroseState!.interactivityInfo.translatableShapePaths.has(
+          data.interaction.path,
+        )
+      ) {
         return taggedErr(MessageTags.Interaction, {
           tag: "InteractionError",
           message: "Untranslatable shape",
@@ -407,7 +411,11 @@ const interact = (data: InteractionRequestData): InteractionResult => {
       break;
 
     case "Scale":
-      if (!penroseState!.interactivityInfo.scalableShapePaths.has(data.interaction.path)) {
+      if (
+        !penroseState!.interactivityInfo.scalableShapePaths.has(
+          data.interaction.path,
+        )
+      ) {
         return taggedErr(MessageTags.Interaction, {
           tag: "InteractionError",
           message: "Unscalable shape",
