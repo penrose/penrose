@@ -21,6 +21,15 @@ export type StagedConstraints = Map<string, ad.Masks>;
  */
 export type IdxsByPath = Map<string, ArgVal<number | undefined>>;
 
+export interface InteractivityInfo {
+  inputIdxsByPath: IdxsByPath;
+  translatableShapePaths: Set<string>;
+  scalableShapePaths: Set<string>;
+  // path -> string of f : screen pos -> screen pos
+  draggingConstraints: Map<string, string>;
+  shapesByPath: Map<string, Shape<ad.Num>>;
+}
+
 export interface InputInfo {
   handle: ad.Var;
   meta: InputMeta;
@@ -45,10 +54,7 @@ export interface State {
   params: Params;
   gradient: ad.Gradient;
   computeShapes: ShapeFn;
-  inputIdxsByPath: IdxsByPath;
-  translatableShapePaths: Set<string>;
-  scalableShapePaths: Set<string>;
-  shapesByPath: Map<string, Shape<ad.Num>>;
+  interactivityInfo: InteractivityInfo;
 }
 
 /**

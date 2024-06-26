@@ -4078,10 +4078,13 @@ export const compileStyleHelper = async (
     params,
     currentStageIndex: 0,
     optStages: optimizationStages.value,
-    inputIdxsByPath,
-    translatableShapePaths,
-    scalableShapePaths,
-    shapesByPath,
+    interactivityInfo: {
+      inputIdxsByPath,
+      translatableShapePaths,
+      scalableShapePaths,
+      shapesByPath,
+      draggingConstraints: new Map(),
+    },
   };
 
   log.info("init state from GenOptProblem", initState);

@@ -1,6 +1,6 @@
 import {
   Canvas,
-  collectLabels,
+  collectLabels, InteractivityInfo,
   isPenroseError,
   LabelCache,
   LabelData,
@@ -11,11 +11,12 @@ import {
   PenroseWarning,
   Shape,
   showError,
-  State,
+  State
 } from "@penrose/core";
 import consola from "consola";
 import { Result } from "true-myth";
 import { Interaction } from "../utils/interactionUtils";
+import { pick } from "lodash";
 
 // Config
 
@@ -94,6 +95,11 @@ export type HistoryInfo = Map<StepSequenceID, StepSequenceInfo>;
 /** Type of a resolve for a promise waiting on a `MessageResult` */
 export type MessageResolve = (result: MessageResult) => void;
 
+export type PartialInteractivityInfo = Pick<
+  InteractivityInfo,
+  "translatableShapePaths" | "scalableShapePaths" | "draggingConstraints"
+>;
+
 /**
  * A `RenderState`, but without rendered labels which cannot be sent across
  * threads. Use `layoutStateToRenderState` to combine with an `svgCache` to
@@ -104,8 +110,7 @@ export type LayoutState = {
   shapes: Shape<number>[];
   labelMeasurements: LabelMeasurements;
   variation: string;
-  translatableShapePaths: Set<string>;
-  scalableShapePaths: Set<string>;
+  interactivityInfo: PartialInteractivityInfo;
 };
 
 /** Minimal state needed for rendering */
@@ -114,8 +119,7 @@ export type RenderState = {
   shapes: Shape<number>[];
   labelCache: LabelCache;
   variation: string;
-  translatableShapePaths: Set<string>;
-  scalableShapePaths: Set<string>;
+  interactivityInfo: PartialInteractivityInfo;
 };
 
 /** Info for a successful compile */
@@ -603,14 +607,23 @@ export const collectAndSeparateLabels = async (
   return Result.ok(separateRenderedLabels(labelCache.value));
 };
 
+export const getPartialInteractivityInfo = (
+  interactivityInfo: InteractivityInfo,
+): PartialInteractivityInfo => {
+  return pick(interactivityInfo, [
+    "translatableShapePaths",
+    "scalableShapePaths",
+    "draggingConstraints"
+  ]);
+}
+
 export const stateToLayoutState = (state: State): LayoutState => {
   return {
     variation: state.variation,
     labelMeasurements: separateRenderedLabels(state.labelCache).optLabelCache,
     canvas: state.canvas,
     shapes: state.computeShapes(state.varyingValues),
-    translatableShapePaths: state.translatableShapePaths,
-    scalableShapePaths: state.scalableShapePaths,
+    interactivityInfo: getPartialInteractivityInfo(state.interactivityInfo),
   };
 };
 

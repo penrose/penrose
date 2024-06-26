@@ -45,6 +45,9 @@ import {
 
 const log = consola.create({ level: logLevel }).withScope("optimizer:worker");
 const stepSequenceIdGenerator = new StepSequenceIDGenerator();
+// on message, we will take a step, but these messages will be queued behind
+// self.onmessage, so we can interrupt optimization with a message
+const optStepMsgChannel = new MessageChannel();
 
 let historyInfo = new Map<StepSequenceID, StepSequenceInfo>();
 /**
@@ -238,9 +241,6 @@ const startOptimize = (stepSequenceId: StepSequenceID) => {
   penroseState = insertPending(penroseState);
 
   const numStepsPerYield = 1;
-  // on message, we will take a step, but these messages will be queued behind
-  // self.onmessage, so we can interrupt optimization with a message
-  const optStepMsgChannel = new MessageChannel();
 
   // take one optimization step
   const optStep = () => {
@@ -387,7 +387,7 @@ const interact = (data: InteractionRequestData): InteractionResult => {
 
   switch (data.interaction.tag) {
     case "Translation":
-      if (!penroseState!.translatableShapePaths.has(data.interaction.path)) {
+      if (!penroseState!.interactivityInfo.translatableShapePaths.has(data.interaction.path)) {
         return taggedErr(MessageTags.Interaction, {
           tag: "InteractionError",
           message: "Untranslatable shape",
@@ -407,7 +407,7 @@ const interact = (data: InteractionRequestData): InteractionResult => {
       break;
 
     case "Scale":
-      if (!penroseState!.scalableShapePaths.has(data.interaction.path)) {
+      if (!penroseState!.interactivityInfo.scalableShapePaths.has(data.interaction.path)) {
         return taggedErr(MessageTags.Interaction, {
           tag: "InteractionError",
           message: "Unscalable shape",

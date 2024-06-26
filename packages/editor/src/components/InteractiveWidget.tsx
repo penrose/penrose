@@ -272,7 +272,7 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
   }, [props.elem]);
 
   useEffect(() => {
-    if (props.state.translatableShapePaths.has(props.path)) {
+    if (props.state.interactivityInfo.translatableShapePaths.has(props.path)) {
       props.elem.addEventListener("mousedown", elemOnMouseDown);
       props.elem.style.cursor = "crosshair";
 
@@ -401,7 +401,7 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
         pointerEvents: "none",
       }}
     >
-      {props.state.scalableShapePaths.has(props.path) && [
+      {props.state.interactivityInfo.scalableShapePaths.has(props.path) && [
         topLeftScalingCorner,
         topRightScalingCorner,
         bottomRightScalingCorner,

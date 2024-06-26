@@ -51,8 +51,8 @@ export default function InteractivityOverlay(
     for (const titleElem of getTitleElements(props.diagramSVG)) {
       const path = titleElem.innerHTML;
       if (
-        !props.state.translatableShapePaths.has(path) &&
-        !props.state.scalableShapePaths.has(path)
+        !props.state.interactivityInfo.translatableShapePaths.has(path) &&
+        !props.state.interactivityInfo.scalableShapePaths.has(path)
       ) {
         continue;
       }

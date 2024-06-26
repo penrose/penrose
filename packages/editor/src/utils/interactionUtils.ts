@@ -44,7 +44,7 @@ export const getTranslatedInputsIdxs = (
   path: string,
   state: State,
 ): [number, number][] => {
-  const shape = state.shapesByPath.get(path);
+  const shape = state.interactivityInfo.shapesByPath.get(path);
   if (shape === undefined) {
     throw new Error(`No shape with path ${path}`);
   }
@@ -56,7 +56,7 @@ export const getTranslatedInputsIdxs = (
     case "Image":
     case "Rectangle":
     case "Text": {
-      const center = state.inputIdxsByPath.get(path + ".center");
+      const center = state.interactivityInfo.inputIdxsByPath.get(path + ".center");
       if (
         !center ||
         center.tag !== "Val" ||
@@ -69,8 +69,8 @@ export const getTranslatedInputsIdxs = (
     }
 
     case "Line": {
-      const start = state.inputIdxsByPath.get(path + ".start");
-      const end = state.inputIdxsByPath.get(path + ".end");
+      const start = state.interactivityInfo.inputIdxsByPath.get(path + ".start");
+      const end = state.interactivityInfo.inputIdxsByPath.get(path + ".end");
       if (
         !start ||
         start.tag !== "Val" ||
@@ -91,7 +91,7 @@ export const getTranslatedInputsIdxs = (
 
     case "Polygon":
     case "Polyline": {
-      const points = state.inputIdxsByPath.get(path + ".points");
+      const points = state.interactivityInfo.inputIdxsByPath.get(path + ".points");
       if (!points || points.tag !== "Val" || points.contents.tag !== "LListV") {
         throw new Error(`Could not find points inputs indices at path ${path}`);
       }
@@ -167,14 +167,14 @@ export const getScalingInfo = (
   path: string,
   state: PenroseState,
 ): ScalingInfo => {
-  const shape = state.shapesByPath.get(path);
+  const shape = state.interactivityInfo.shapesByPath.get(path);
   if (shape === undefined) {
     throw new Error(`No shape with path ${path}`);
   }
 
   switch (shape.shapeType) {
     case "Circle": {
-      const r = state.inputIdxsByPath.get(path + ".r");
+      const r = state.interactivityInfo.inputIdxsByPath.get(path + ".r");
       if (!r || r.tag !== "Val" || !valueIsNumeric(r.contents)) {
         throw new Error(`Could not find radius input index for path ${path}`);
       }
@@ -185,8 +185,8 @@ export const getScalingInfo = (
     }
 
     case "Ellipse": {
-      const rx = state.inputIdxsByPath.get(path + ".rx");
-      const ry = state.inputIdxsByPath.get(path + ".ry");
+      const rx = state.interactivityInfo.inputIdxsByPath.get(path + ".rx");
+      const ry = state.interactivityInfo.inputIdxsByPath.get(path + ".ry");
       if (!rx || rx.tag !== "Val" || !valueIsNumeric(rx.contents)) {
         throw new Error(`Could not find rx input index for path ${path}`);
       }
@@ -204,8 +204,8 @@ export const getScalingInfo = (
     case "Image":
     case "Rectangle":
     case "Text": {
-      const width = state.inputIdxsByPath.get(path + ".width");
-      const height = state.inputIdxsByPath.get(path + ".height");
+      const width = state.interactivityInfo.inputIdxsByPath.get(path + ".width");
+      const height = state.interactivityInfo.inputIdxsByPath.get(path + ".height");
       if (!width || width.tag !== "Val" || !valueIsNumeric(width.contents)) {
         throw new Error(`Could not find width input index for path ${path}`);
       }
@@ -313,10 +313,10 @@ export const getAllInteractiveIdxs = (
   path: string,
   state: PenroseState,
 ): Set<number> => {
-  const scaling = state.scalableShapePaths.has(path)
+  const scaling = state.interactivityInfo.scalableShapePaths.has(path)
     ? getScalingInputIdxs(getScalingInfo(path, state))
     : [];
-  const translating = state.translatableShapePaths.has(path)
+  const translating = state.interactivityInfo.translatableShapePaths.has(path)
     ? getTranslatedInputsIdxs(path, state).flat()
     : [];
   return new Set(scaling.concat(translating));
