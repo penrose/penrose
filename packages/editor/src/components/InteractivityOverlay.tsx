@@ -5,18 +5,15 @@
 import { MutableRefObject, useEffect, useMemo, useRef, useState } from "react";
 import { useRecoilValue } from "recoil";
 import { RenderState } from "../optimizer/common.js";
-import { diagramState } from "../state/atoms";
-import HoverDisplay from "./HoverDisplay";
-import InteractiveWidget from "./InteractiveWidget";
+import { diagramState } from "../state/atoms.js";
+import HoverDisplay from "./HoverDisplay.js";
+import InteractiveWidget from "./InteractiveWidget.js";
 
 export interface InteractivityOverlayProps {
   diagramSVG: SVGSVGElement;
   state: RenderState;
+  svgTitleCache: Map<string, SVGElement>;
 }
-
-const getTitleElements = (svg: SVGSVGElement) => {
-  return Array.from(svg.querySelectorAll("title"));
-};
 
 export default function InteractivityOverlay(
   props: InteractivityOverlayProps,
@@ -27,37 +24,33 @@ export default function InteractivityOverlay(
   const [pinnedPaths, setPinnedPaths] = useState<Set<string>>(new Set());
   const activeOverlay = useRef<HTMLDivElement | null>(null);
 
-  const clickedElem = useMemo(() => {
-    for (const titleElem of getTitleElements(props.diagramSVG)) {
-      if (titleElem.innerHTML === clickedPath) {
-        return titleElem.parentElement as unknown as SVGElement;
-      }
-    }
-    return null;
-  }, [props.diagramSVG, clickedPath]);
+  const clickedElem = useMemo(
+    () => clickedPath ? props.svgTitleCache.get(clickedPath) ?? null : null,
+    [props.svgTitleCache, clickedPath]
+  );
 
-  const hoveredElem = useMemo(() => {
-    for (const titleElem of getTitleElements(props.diagramSVG)) {
-      if (titleElem.innerHTML === hoveredPath) {
-        return titleElem.parentElement as unknown as SVGElement;
-      }
-    }
-    return null;
-  }, [props.diagramSVG, hoveredPath]);
+  const hoveredElem = useMemo(
+    () => hoveredPath ? props.svgTitleCache.get(hoveredPath) ?? null : null,
+    [props.svgTitleCache, hoveredPath]
+  );
 
   useEffect(() => {
     const clickables = new Set<Element>();
 
-    for (const titleElem of getTitleElements(props.diagramSVG)) {
-      const path = titleElem.innerHTML;
-      if (
-        !props.state.interactivityInfo.translatableShapePaths.has(path) &&
-        !props.state.interactivityInfo.scalableShapePaths.has(path)
-      ) {
+    const interactables = function* () {
+      const translatables = props.state.interactivityInfo.translatableShapePaths.keys();
+      const scalables = props.state.interactivityInfo.scalableShapePaths.keys();
+      for (const path of translatables)
+        yield { path, elem: props.svgTitleCache.get(path) };
+      for (const path of scalables)
+        yield { path, elem: props.svgTitleCache.get(path) };
+    };
+
+    for (const { path, elem } of interactables()) {
+      if (elem === undefined) {
         continue;
       }
 
-      const elem = titleElem.parentElement as unknown as SVGElement;
       const elemFamily = Array.from(elem.querySelectorAll("*")) as SVGElement[];
       elemFamily.push(elem);
 
@@ -103,7 +96,7 @@ export default function InteractivityOverlay(
       document.removeEventListener("mousedown", onMousedownBackground);
       document.removeEventListener("mouseover", onMouseoverBackground);
     };
-  }, [props.diagramSVG, clickedPath, hoveredPath]);
+  }, [props.svgTitleCache, clickedPath, hoveredPath]);
 
   useEffect(() => {
     const pinnedPathsArray = diagram.historyLoc

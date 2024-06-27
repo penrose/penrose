@@ -56,7 +56,9 @@ export const getTranslatedInputsIdxs = (
     case "Image":
     case "Rectangle":
     case "Text": {
-      const center = state.interactivityInfo.inputIdxsByPath.get(path + ".center");
+      const center = state.interactivityInfo.inputIdxsByPath.get(
+        path + ".center",
+      );
       if (
         !center ||
         center.tag !== "Val" ||
@@ -69,7 +71,9 @@ export const getTranslatedInputsIdxs = (
     }
 
     case "Line": {
-      const start = state.interactivityInfo.inputIdxsByPath.get(path + ".start");
+      const start = state.interactivityInfo.inputIdxsByPath.get(
+        path + ".start",
+      );
       const end = state.interactivityInfo.inputIdxsByPath.get(path + ".end");
       if (
         !start ||
@@ -91,7 +95,9 @@ export const getTranslatedInputsIdxs = (
 
     case "Polygon":
     case "Polyline": {
-      const points = state.interactivityInfo.inputIdxsByPath.get(path + ".points");
+      const points = state.interactivityInfo.inputIdxsByPath.get(
+        path + ".points",
+      );
       if (!points || points.tag !== "Val" || points.contents.tag !== "LListV") {
         throw new Error(`Could not find points inputs indices at path ${path}`);
       }
@@ -204,8 +210,12 @@ export const getScalingInfo = (
     case "Image":
     case "Rectangle":
     case "Text": {
-      const width = state.interactivityInfo.inputIdxsByPath.get(path + ".width");
-      const height = state.interactivityInfo.inputIdxsByPath.get(path + ".height");
+      const width = state.interactivityInfo.inputIdxsByPath.get(
+        path + ".width",
+      );
+      const height = state.interactivityInfo.inputIdxsByPath.get(
+        path + ".height",
+      );
       if (!width || width.tag !== "Val" || !valueIsNumeric(width.contents)) {
         throw new Error(`Could not find width input index for path ${path}`);
       }

@@ -38,6 +38,7 @@ export interface RenderProps {
   texLabels: boolean;
   canvasSize: [number, number];
   pathResolver: PathResolver;
+  titleCache?: Map<string, SVGElement>;
 }
 
 /**
@@ -72,6 +73,7 @@ export const toSVG = async (
   pathResolver: PathResolver,
   namespace: string,
   texLabels = false,
+  titleCache?: Map<string, SVGElement>,
 ): Promise<SVGSVGElement> => {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("version", "1.2");
@@ -125,6 +127,7 @@ export const toSVG = async (
     namespace,
     texLabels,
     pathResolver,
+    titleCache,
   });
   return svg;
 };
@@ -180,7 +183,7 @@ const RenderGroup = async (
     }
   }
   attrAutoFillSvg(groupShape, elem, [
-    ...attrTitle(groupShape, elem),
+    ...attrTitle(groupShape, elem, shapeProps.titleCache),
     "shapes",
     "clipPath",
   ]);
@@ -235,6 +238,8 @@ export const RenderShapes = async (
   for (let i = 0; i < shapes.length; ++i) {
     const shape = shapes[i];
     const elem = await RenderShape(shape, renderProps);
+    // prevent from blocking interactive elements
+    elem.setAttribute("pointer-events", "none");
     svg.appendChild(elem);
   }
 };

@@ -314,11 +314,16 @@ export const attrStroke = (
 export const attrTitle = (
   properties: Named<number>,
   elem: SVGElement,
+  titleCache?: Map<string, SVGElement>
 ): string[] => {
   const name = properties.name;
   const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
   title.textContent = name.contents;
   elem.appendChild(title);
+
+  if (titleCache) {
+    titleCache.set(name.contents, elem);
+  }
 
   return ["name"]; // Return array of input properties programatically mapped
 };

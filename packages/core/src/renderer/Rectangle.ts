@@ -13,7 +13,7 @@ import { RenderProps } from "./Renderer.js";
 
 const RenderRectangle = (
   shape: Rectangle<number>,
-  { canvasSize }: RenderProps,
+  { canvasSize, titleCache }: RenderProps,
 ): SVGRectElement => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "rect");
 
@@ -25,7 +25,7 @@ const RenderRectangle = (
   attrToNotAutoMap.push(...attrWH(shape, elem));
   attrToNotAutoMap.push(...attrFill(shape, elem));
   attrToNotAutoMap.push(...attrStroke(shape, elem));
-  attrToNotAutoMap.push(...attrTitle(shape, elem));
+  attrToNotAutoMap.push(...attrTitle(shape, elem, titleCache));
   attrToNotAutoMap.push(...attrCornerRadius(shape, elem));
   attrToNotAutoMap.push(...attrRotation(shape, canvasSize, elem));
 

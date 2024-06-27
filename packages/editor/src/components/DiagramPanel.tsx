@@ -13,9 +13,10 @@ import {
   workspaceMetadataSelector,
 } from "../state/atoms.js";
 import { pathResolver } from "../utils/downloadUtils.js";
-import { stateToSVG } from "../utils/renderUtils.js";
-import InteractivityOverlay from "./InteractivityOverlay";
+import { interactAndUpdate, makeTranslateOnMouseDown, stateToSVG } from "../utils/renderUtils.js";
+import InteractivityOverlay from "./InteractivityOverlay.js";
 import { LayoutTimelineSlider } from "./LayoutTimelineSlider.js";
+import { set } from "lodash";
 
 export default function DiagramPanel() {
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -28,6 +29,7 @@ export default function DiagramPanel() {
   const [workerState, setWorkerState] = useRecoilState(diagramWorkerState);
   const [computeLayoutRunning, setComputeLayoutRunning] = useState(false);
   const [settings, setSettings] = useRecoilStateLoadable(settingsState);
+  const [svgTitleCache, setSvgTitleCache] = useState<Map<string, SVGElement>>(new Map());
 
   const computeLayoutShouldStop = useRef(false);
 
@@ -37,12 +39,14 @@ export default function DiagramPanel() {
 
     if (state !== null && cur !== null) {
       (async () => {
+        const titleCache = new Map<string, SVGElement>();
         const rendered = await stateToSVG(state, {
           pathResolver: (path: string) =>
             pathResolver(path, rogerState, workspace),
           width: "100%",
           height: "100%",
           texLabels: false,
+          titleCache,
         });
         rendered.setAttribute("width", "100%");
         rendered.setAttribute("height", "100%");
@@ -51,6 +55,8 @@ export default function DiagramPanel() {
         } else {
           cur.appendChild(rendered);
         }
+
+        setSvgTitleCache(titleCache);
         setDiagram((state) => ({
           ...state,
           svg: rendered,
@@ -60,6 +66,59 @@ export default function DiagramPanel() {
       cur.innerHTML = "";
     }
   }, [state]);
+
+  useEffect(() => {
+    if (!diagram.state || !diagram.svg) return;
+
+    for (const [path, constraint] of diagram.state.interactivityInfo.draggingConstraints) {
+      const elem = svgTitleCache.get(path);
+      if (elem === undefined) continue;
+
+      const translate = (_: unknown, dx: number, dy: number) => {
+        return interactAndUpdate(
+          {
+            tag: "Translation",
+            dx,
+            dy,
+            path
+          },
+          diagram,
+          setDiagram,
+          setWorkerState
+        );
+      };
+      const constraintFn = new Function("[x, y]", constraint) as any;
+      const onMouseUp = () => {
+        interactAndUpdate(
+          {
+            tag: "ChangePin",
+            active: false,
+            path,
+          },
+          diagram,
+          setDiagram,
+          setWorkerState
+        );
+      };
+
+      const elemFamily = Array.from(elem.querySelectorAll("*")) as SVGElement[];
+      elemFamily.push(elem);
+
+      for (const member of elemFamily) {
+        const mousedownListener = makeTranslateOnMouseDown(
+          diagram.svg,
+          member,
+          diagram.state,
+          path,
+          translate,
+          constraintFn,
+          onMouseUp
+        );
+        member.setAttribute("pointer-events", "visiblePainted");
+        member.onmousedown = mousedownListener;
+      }
+    }
+  });
 
   // starts a chain of callbacks, running every animation frame, to compute the
   // most recent shapes, until it sees that the step sequence it was given has
@@ -250,13 +309,17 @@ export default function DiagramPanel() {
           }}
           ref={canvasRef}
         >
-          {diagram.svg &&
-            state &&
-            !workerState.compiling &&
-            !workerState.resampling &&
-            settings.contents.interactive && (
-              <InteractivityOverlay diagramSVG={diagram.svg} state={state} />
-            )}
+          {/*{diagram.svg &&*/}
+          {/*  state &&*/}
+          {/*  !workerState.compiling &&*/}
+          {/*  !workerState.resampling &&*/}
+          {/*  settings.contents.interactive && (*/}
+          {/*    <InteractivityOverlay*/}
+          {/*      diagramSVG={diagram.svg}*/}
+          {/*      state={state}*/}
+          {/*      svgTitleCache={svgTitleCache}*/}
+          {/*    />*/}
+          {/*  )}*/}
         </div>
 
         {showEasterEgg && (

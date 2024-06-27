@@ -14,7 +14,7 @@ import { RenderProps } from "./Renderer.js";
 
 const RenderText = (
   shape: Text<number>,
-  { canvasSize, labels }: RenderProps,
+  { canvasSize, labels, titleCache }: RenderProps,
 ): SVGTextElement => {
   const elem = document.createElementNS("http://www.w3.org/2000/svg", "text");
 
@@ -25,7 +25,7 @@ const RenderText = (
   attrToNotAutoMap.push("x", "y");
   attrToNotAutoMap.push(...attrFill(shape, elem));
   attrToNotAutoMap.push(...attrStroke(shape, elem));
-  attrToNotAutoMap.push(...attrTitle(shape, elem));
+  attrToNotAutoMap.push(...attrTitle(shape, elem, titleCache));
   attrToNotAutoMap.push(...attrString(shape, elem));
   attrToNotAutoMap.push(...attrRotation(shape, canvasSize, elem));
   attrToNotAutoMap.push(...attrFont(shape, elem));
