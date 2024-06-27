@@ -49,7 +49,6 @@ export default function ProgramEditor({ kind }: { kind: ProgramType }) {
       languageType={kind}
       domainCache={domainCache}
       substanceCache={substanceCache}
-      readOnly={workspaceMetadata.location.kind === "roger"}
       error={error}
       warnings={warnings}
       showCompileErrs={showCompileErrs}
