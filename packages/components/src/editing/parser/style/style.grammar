@@ -133,6 +133,7 @@ Assign {
 Type {
 	@extend<Identifier,
 		("scalar" |
+		"float" |
 		"int" |
 		"bool" |	
 		"string" |
