@@ -1,5 +1,5 @@
 import { CompletionContext, CompletionResult } from "@codemirror/autocomplete";
-import { EditorState } from "@codemirror/state";
+import { EditorState, Extension } from "@codemirror/state";
 import { LRParser } from "@lezer/lr";
 import { createDomainAutocomplete } from "../hooks/domain/domainAutocomplete";
 import { getDomainCache } from "../hooks/domain/getDomainCache";
@@ -7,8 +7,11 @@ import {
   getNamespaceDict,
   getNamespaceProps,
 } from "../hooks/style/styleAutocompleteUtils";
+import { getSubstanceCache } from "../hooks/substance/getSubstanceCache";
+import { createSubstanceAutocomplete } from "../hooks/substance/substanceAutocomplete";
 import { domainLanguageSupport } from "../parser/domain/domainLanguage";
 import { parser } from "../parser/style/style";
+import { substanceLanguageSupport } from "../parser/substance/substanceLanguage";
 import { DomainCache } from "../types";
 
 export function hasNoErrors(parser: LRParser, input: string) {
@@ -97,10 +100,11 @@ export function CompletionsToLabels(
 function constructContext(
   input: string,
   cursorOffset: number,
+  extensions: Extension[],
 ): CompletionContext {
   const state = EditorState.create({
     doc: input,
-    extensions: [domainLanguageSupport()],
+    extensions: extensions,
   });
 
   return new CompletionContext(state, input.length - cursorOffset, true);
@@ -111,13 +115,42 @@ export async function testDomainAutocomplete(
   expected: string[],
   cursorOffset = 0,
 ) {
-  const context = constructContext(input, cursorOffset);
+  const context = constructContext(input, cursorOffset, [
+    domainLanguageSupport(),
+  ]);
   const domainCache = getDomainCache(input);
   const autocompleteFn = createDomainAutocomplete(domainCache);
   const results = await autocompleteFn(context);
   // console.log(results);
   const completionLabels = CompletionsToLabels(results);
+  // console.log(completionLabels);
+  // console.log(expected);
+  // console.log(sameItems(completionLabels, expected));
+
+  return sameItems(completionLabels, expected);
+}
+
+export async function testSubstanceAutocomplete(
+  input: string,
+  domainProg: string,
+  expected: string[],
+  cursorOffset = 0,
+) {
+  const context = constructContext(input, cursorOffset, [
+    substanceLanguageSupport(),
+  ]);
+  const domainCache = getDomainCache(domainProg);
+  const substanceCache = getSubstanceCache(input);
+  const autocompleteFn = createSubstanceAutocomplete(
+    domainCache,
+    substanceCache,
+  );
+  const results = await autocompleteFn(context);
+  const completionLabels = CompletionsToLabels(results);
   console.log(completionLabels);
+  console.log(results);
+  console.log(context.pos);
+  // console.log(substanceCache);
   console.log(expected);
   // console.log(sameItems(completionLabels, expected));
 

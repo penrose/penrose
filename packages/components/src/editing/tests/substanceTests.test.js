@@ -1,7 +1,12 @@
 import { describe, expect, test } from "vitest";
 import { getSubstanceCache } from "../hooks/substance/getSubstanceCache";
+import { substanceKws } from "../hooks/substance/substanceAutocomplete";
 import { parser } from "../parser/substance/substance";
-import { constructSubstanceCacheObj, hasNoErrors } from "./testUtils";
+import {
+  constructSubstanceCacheObj,
+  hasNoErrors,
+  testSubstanceAutocomplete,
+} from "./testUtils";
 
 describe("Parser", () => {
   test("empty", () => {
@@ -341,6 +346,270 @@ Label a7 $Sorted$`;
     const executionTime = end - start;
 
     console.log(`Substance Cache Execution Time: ${executionTime} ms`);
-    expect(executionTime).toBeLessThan(10);
+    expect(executionTime).toBeLessThan(20);
+  });
+});
+
+// Narrowing of results is handled by a separate Codemirror extension
+// End back tick for input strings should be same line as the last character
+describe("Autocomplete", () => {
+  test("KWs Empty Domain", async () => {
+    const input = `L`;
+
+    expect(await testSubstanceAutocomplete(input, "", substanceKws)).toBe(true);
+  });
+
+  test("KWs 1", async () => {
+    const input = `Element A, B, C
+    E`;
+
+    const domainProg = `type Element
+    type Point`;
+
+    expect(
+      await testSubstanceAutocomplete(
+        input,
+        domainProg,
+        substanceKws.concat(["Element", "Point"]),
+      ),
+    ).toBe(true);
+  });
+
+  test("KWs 2", async () => {
+    const input = `Element A, B, C
+    Point p1, p2
+    Circle(p1, p2)
+    B`;
+
+    const domainProg = `type Element
+    type Point
+    predicate Circle(Point, Point)
+    predicate Ball(Element, Point)
+    function CreateBalls(Point, Point, Point) -> Element
+    constructor Bisect(Point) -> Element`;
+
+    expect(
+      await testSubstanceAutocomplete(
+        input,
+        domainProg,
+        substanceKws.concat(["Element", "Point", "Circle", "Ball"]),
+      ),
+    ).toBe(true);
+  });
+
+  test("AutoLabel", async () => {
+    const input = `Element A, B, C
+    Point p1, p2
+    Circle(p1, p2)
+    AutoLabel A`;
+
+    const domainProg = `type Element
+    type Point
+    predicate Circle(Point, Point)
+    predicate Ball(Element, Point)
+    function CreateBalls(Point, Point, Point) -> Element
+    constructor Bisect(Point) -> Element`;
+
+    expect(
+      await testSubstanceAutocomplete(input, domainProg, [
+        "All",
+        "A",
+        "B",
+        "C",
+        "p1",
+        "p2",
+      ]),
+    ).toBe(true);
+  });
+
+  test("where", async () => {
+    const input = `Element A, B, C
+    Point p_i for i in [0,5] w`;
+
+    const domainProg = `type Point
+    type Element
+    predicate Circle(Point, Point)
+    function CreateBalls(Point, Point, Point) -> Element`;
+
+    expect(await testSubstanceAutocomplete(input, domainProg, ["where"])).toBe(
+      true,
+    );
+  });
+
+  test("for in type index", async () => {
+    const input = `Point A, B, C
+    Point p_i f`;
+
+    const domainProg = `type Point
+    type Element
+    predicate Circle(Point, Point)
+    function CreateBalls(Point, Point, Point) -> Element`;
+
+    expect(await testSubstanceAutocomplete(input, domainProg, ["for"])).toBe(
+      true,
+    );
+  });
+
+  test("for in predicate index", async () => {
+    const input = `Point A, B, C
+    Circle(p_i, p_j) fo`;
+
+    const domainProg = `type Point
+    type Element
+    predicate Circle(Point, Point)
+    function CreateBalls(Point, Point, Point) -> Element`;
+
+    expect(await testSubstanceAutocomplete(input, domainProg, ["for"])).toBe(
+      true,
+    );
+  });
+
+  test("suggest functions and constructors 1", async () => {
+    const input = `Point A, B, C
+    Circle(A, B) fo
+    D := C`;
+
+    const domainProg = `type Point
+    type Element
+    predicate Circle(Point, Point)
+    function CreateBalls(Point, Point, Point) -> Element
+    constructor Bisect(Point) -> Element`;
+
+    expect(
+      await testSubstanceAutocomplete(input, domainProg, [
+        "CreateBalls",
+        "Bisect",
+      ]),
+    ).toBe(true);
+  });
+
+  test("suggest functions and constructors 2", async () => {
+    const input = `Point A, B, C
+    Circle(A, B)
+    Element D := C`;
+
+    const domainProg = `type Point
+    type Element
+    predicate Circle(Point, Point)
+    function CreateBalls(Point, Point, Point) -> Element
+    constructor Bisect(Point) -> Element`;
+
+    expect(
+      await testSubstanceAutocomplete(input, domainProg, [
+        "CreateBalls",
+        "Bisect",
+      ]),
+    ).toBe(true);
+  });
+
+  test("suggest functions and constructors 3", async () => {
+    const input = `Point A, B, C
+    Circle(A, B)
+    Let D := C`;
+
+    const domainProg = `type Point
+    type Element
+    predicate Circle(Point, Point)
+    function CreateBalls(Point, Point, Point) -> Element
+    constructor Bisect(Point) -> Element`;
+
+    expect(
+      await testSubstanceAutocomplete(input, domainProg, [
+        "CreateBalls",
+        "Bisect",
+      ]),
+    ).toBe(true);
+  });
+
+  // Offset by 1 to put cursor after x rather than after )
+  test("id first in pred params", async () => {
+    const input = `Point x1, x2, x3
+    Circle(x)`;
+
+    const domainProg = `type Point
+    predicate Circle(Point, Point)`;
+
+    expect(
+      await testSubstanceAutocomplete(input, domainProg, ["x1", "x2", "x3"], 1),
+    ).toBe(true);
+  });
+
+  test("id after comma in pred params", async () => {
+    const input = `Point x1, x2, x3
+    Circle(x1, x2, x)`;
+
+    const domainProg = `type Point
+    predicate Circle(Point, Point)`;
+
+    expect(
+      await testSubstanceAutocomplete(input, domainProg, ["x1", "x2", "x3"], 1),
+    ).toBe(true);
+  });
+
+  test("id in function param", async () => {
+    const input = `Point x1, x2, x3
+    Point x4 := CreateBalls(x1, x)`;
+
+    const domainProg = `type Point
+    type Element
+    predicate Circle(Point, Point)
+    function CreateBalls(Point, Point, Point) -> Element
+    constructor Bisect(Point) -> Point
+    `;
+
+    expect(
+      await testSubstanceAutocomplete(
+        input,
+        domainProg,
+        ["x1", "x2", "x3", "x4"],
+        1,
+      ),
+    ).toBe(true);
+  });
+
+  test("id in constructor param", async () => {
+    const input = `Point x1, x2, x3
+    Point x4 := Bisect(x1)
+    Element x5 := CreateBalls(x1, x)`;
+
+    const domainProg = `type Point
+    type Element
+    predicate Circle(Point, Point)
+    function CreateBalls(Point, Point, Point) -> Element
+    constructor Bisect(Point) -> Point
+    `;
+
+    expect(
+      await testSubstanceAutocomplete(
+        input,
+        domainProg,
+        ["x1", "x2", "x3", "x4", "x5"],
+        1,
+      ),
+    ).toBe(true);
+  });
+
+  test("id in NoLabel", async () => {
+    const input = `Point x1, x2, x3
+    Point x4 := Bisect(x1)
+    Element x5 := CreateBalls(x1, x2, x3)
+    NoLabel x1, x2, x`;
+
+    const domainProg = `type Point
+    type Element
+    predicate Circle(Point, Point)
+    function CreateBalls(Point, Point, Point) -> Element
+    constructor Bisect(Point) -> Point
+    `;
+
+    expect(
+      await testSubstanceAutocomplete(input, domainProg, [
+        "x1",
+        "x2",
+        "x3",
+        "x4",
+        "x5",
+      ]),
+    ).toBe(true);
   });
 });

@@ -292,6 +292,7 @@ describe("Autocomplete", () => {
     expect(await testDomainAutocomplete(input, ["predicate"])).toBe(true);
   });
 
+  // Offset by 1 to put cursor after P rather than after )
   test("Type names, first item in function param list", async () => {
     const input = `type Point
     type Rectangle
