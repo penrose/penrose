@@ -234,6 +234,7 @@ predicate Concyclic(Triangle s, Triangle t)`;
 });
 
 // Narrowing of results is handled by a separate Codemirror extension
+// End back tick for input strings should be same line as the last character
 describe("Autocomplete", () => {
   test("Top level kws basic", async () => {
     const input = `type Circle

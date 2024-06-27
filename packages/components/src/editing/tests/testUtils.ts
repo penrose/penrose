@@ -3,6 +3,8 @@ import { EditorState, Extension } from "@codemirror/state";
 import { LRParser } from "@lezer/lr";
 import { createDomainAutocomplete } from "../hooks/domain/domainAutocomplete";
 import { getDomainCache } from "../hooks/domain/getDomainCache";
+import { getShapeDefs } from "../hooks/hooksUtils";
+import { createStyleAutocomplete } from "../hooks/style/styleAutocomplete";
 import {
   getNamespaceDict,
   getNamespaceProps,
@@ -11,6 +13,7 @@ import { getSubstanceCache } from "../hooks/substance/getSubstanceCache";
 import { createSubstanceAutocomplete } from "../hooks/substance/substanceAutocomplete";
 import { domainLanguageSupport } from "../parser/domain/domainLanguage";
 import { parser } from "../parser/style/style";
+import { styleLanguageSupport } from "../parser/style/styleLanguage";
 import { substanceLanguageSupport } from "../parser/substance/substanceLanguage";
 import { DomainCache } from "../types";
 
@@ -54,8 +57,13 @@ export function compareDicts(dict1: any, dict2: any) {
   );
 }
 
+// Checks all elements in array 1 are in array 2
+function arr1Subsetarr2(arr1: string[], arr2: string[]) {
+  return arr1.every((key) => arr2.includes(key));
+}
+
 function sameItems(arr1: string[], arr2: string[]) {
-  return arr1.every((key) => arr2.includes(key)) && arr1.length === arr2.length;
+  return arr1Subsetarr2(arr1, arr2) && arr1.length === arr2.length;
 }
 
 /*
@@ -147,12 +155,44 @@ export async function testSubstanceAutocomplete(
   );
   const results = await autocompleteFn(context);
   const completionLabels = CompletionsToLabels(results);
-  console.log(completionLabels);
-  console.log(results);
-  console.log(context.pos);
+  // console.log(completionLabels);
+  // console.log(results);
+  // console.log(context.pos);
   // console.log(substanceCache);
-  console.log(expected);
+  // console.log(expected);
   // console.log(sameItems(completionLabels, expected));
 
   return sameItems(completionLabels, expected);
+}
+
+/*
+ * cursorOffset: Cursor initialized to the last character. cursorOffset sets
+ * cursor to last character - cursorOffset
+ * semi: To check for expected is subset of completions rather than strict
+ * equality
+ */
+export async function testStyleAutocomplete(
+  input: string,
+  domainProg: string,
+  expected: string[],
+  cursorOffset = 0,
+  semi = false,
+) {
+  const context = constructContext(input, cursorOffset, [
+    styleLanguageSupport(),
+  ]);
+  const domainCache = getDomainCache(domainProg);
+  const autocompleteFn = createStyleAutocomplete(domainCache, getShapeDefs());
+  const results = await autocompleteFn(context);
+  const completionLabels = CompletionsToLabels(results);
+  console.log(completionLabels);
+  // console.log(results);
+  // console.log(context.pos);
+  // console.log(substanceCache);
+  // console.log(expected);
+  // console.log(sameItems(completionLabels, expected));
+
+  if (semi) return arr1Subsetarr2(expected, completionLabels);
+
+  return sameItems(expected, completionLabels);
 }
