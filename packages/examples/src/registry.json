@@ -566,5 +566,9 @@
   "dataviz/residual": {
     "name": "Linear Regression Residuals",
     "gallery": false
+  },
+  "alloy-models/icicle-plot-file-system": {
+    "name": "File System Icicle Plot",
+    "gallery": false
   }
 }

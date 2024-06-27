@@ -1,0 +1,10 @@
+type Object
+type File <: Object
+type Dir <: Object
+type Root <: Dir
+type Entry
+type Name
+
+predicate name(Entry, Name)
+predicate object(Entry, Object)
+predicate entries(Dir, Entry)
