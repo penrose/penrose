@@ -626,6 +626,25 @@ describe("Autocomplete", () => {
     ).toBe(true);
   });
 
+  test("Selector repeatable", async () => {
+    const input = `canvas {
+    width = 400
+    height = 400
+    }
+    
+    forall re`;
+
+    expect(
+      await testStyleAutocomplete(
+        input,
+        exampleDomain,
+        ["repeatable"],
+        0,
+        true,
+      ),
+    ).toBe(true);
+  });
+
   test("Collector repeatable", async () => {
     const input = `canvas {
     width = 400

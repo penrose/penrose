@@ -149,7 +149,8 @@ export const exprKws = ["true", "false", "listof"].map((name) => ({
   info: "",
 }));
 
-export const typeNames = [
+// We break into string array and completion object array for use in tests
+export const typeNamesArr = [
   "scalar",
   "int",
   "bool",
@@ -168,13 +169,17 @@ export const typeNames = [
   "function",
   "objective",
   "constraint",
-].map((name) => ({
+];
+
+export const typeNames = typeNamesArr.map((name) => ({
   label: `${name} `,
   type: "type",
   info: "",
 }));
 
-export const headerOptions = ["forall", "collect", "layout"].map((kw) => ({
+export const styleHeaderKws = ["forall", "collect", "layout"];
+
+export const headerOptions = styleHeaderKws.map((kw) => ({
   label: `${kw} `,
   type: "keyword",
   info: "",
@@ -194,16 +199,18 @@ export const anonExprKws = ["override", "layer", "encourage", "ensure"].map(
   }),
 );
 
-export const selectorHeaderOptions = ["where", "with"].map((kw) => ({
+export const selectorHeaderKws = ["where", "with"];
+
+export const collectorHeaderKws = ["foreach"].concat(selectorHeaderKws);
+
+export const selectorHeaderOptions = selectorHeaderKws.map((kw) => ({
   label: `${kw} `,
   type: "keyword",
   info: "",
 }));
 
-export const collectorHeaderOptions = ["foreach"]
-  .map((kw) => ({
-    label: `${kw} `,
-    type: "keyword",
-    info: "",
-  }))
-  .concat(selectorHeaderOptions);
+export const collectorHeaderOptions = collectorHeaderKws.map((kw) => ({
+  label: `${kw} `,
+  type: "keyword",
+  info: "",
+}));
