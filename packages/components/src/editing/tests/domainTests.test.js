@@ -240,7 +240,7 @@ describe("Autocomplete", () => {
     const input = `type Circle
     ty`;
 
-    expect(await testDomainAutocomplete(input, domainKws)).toBe(true);
+    await testDomainAutocomplete(input, domainKws);
   });
 
   test("Top level kws mixed", async () => {
@@ -249,7 +249,7 @@ describe("Autocomplete", () => {
     predicate Segment(Point x, Point y)
     f`;
 
-    expect(await testDomainAutocomplete(input, domainKws)).toBe(true);
+    await testDomainAutocomplete(input, domainKws);
   });
 
   test("Top level kws function ambiguous case 1", async () => {
@@ -257,7 +257,7 @@ describe("Autocomplete", () => {
     function Bisect(Angle a) -> Angle
     sy`;
 
-    expect(await testDomainAutocomplete(input, domainKws)).toBe(true);
+    await testDomainAutocomplete(input, domainKws);
   });
 
   test("Top level kws ambiguous case 2", async () => {
@@ -266,7 +266,7 @@ describe("Autocomplete", () => {
     constructor Bisect(Angle a) -> Angle
     sy`;
 
-    expect(await testDomainAutocomplete(input, domainKws)).toBe(true);
+    await testDomainAutocomplete(input, domainKws);
   });
 
   test("Top level kws constructor no output type", async () => {
@@ -274,7 +274,7 @@ describe("Autocomplete", () => {
     constructor Bisect(Angle a)
     sy`;
 
-    expect(await testDomainAutocomplete(input, domainKws)).toBe(true);
+    await testDomainAutocomplete(input, domainKws);
   });
 
   test("Top level kws constructor with identifier", async () => {
@@ -282,7 +282,7 @@ describe("Autocomplete", () => {
     constructor Bisect(Angle a) -> Angle b
     sy`;
 
-    expect(await testDomainAutocomplete(input, domainKws)).toBe(true);
+    await testDomainAutocomplete(input, domainKws);
   });
 
   test("Symmetric predicate", async () => {
@@ -290,7 +290,7 @@ describe("Autocomplete", () => {
     type Circle
     symmetric p`;
 
-    expect(await testDomainAutocomplete(input, ["predicate"])).toBe(true);
+    await testDomainAutocomplete(input, ["predicate"]);
   });
 
   // Offset by 1 to put cursor after P rather than after )
@@ -299,9 +299,7 @@ describe("Autocomplete", () => {
     type Rectangle
     function Box(P)`;
 
-    expect(await testDomainAutocomplete(input, ["Point", "Rectangle"], 1)).toBe(
-      true,
-    );
+    await testDomainAutocomplete(input, ["Point", "Rectangle"], 1);
   });
 
   test("Type names, first item in constructor param list", async () => {
@@ -309,9 +307,7 @@ describe("Autocomplete", () => {
     type Rectangle
     constructor Box(P)`;
 
-    expect(await testDomainAutocomplete(input, ["Point", "Rectangle"], 1)).toBe(
-      true,
-    );
+    await testDomainAutocomplete(input, ["Point", "Rectangle"], 1);
   });
 
   test("Type names, comma sep in function param list", async () => {
@@ -319,9 +315,7 @@ describe("Autocomplete", () => {
     type Rectangle
     function Box(Point x1, Point y1, Point x2, P)`;
 
-    expect(await testDomainAutocomplete(input, ["Point", "Rectangle"], 1)).toBe(
-      true,
-    );
+    await testDomainAutocomplete(input, ["Point", "Rectangle"], 1);
   });
 
   test("Function output type", async () => {
@@ -330,9 +324,7 @@ describe("Autocomplete", () => {
     type Program
     function Compute(Array a) -> E`;
 
-    expect(
-      await testDomainAutocomplete(input, ["Element", "Array", "Program"]),
-    ).toBe(true);
+    await testDomainAutocomplete(input, ["Element", "Array", "Program"]);
   });
 
   test("Constructor output type", async () => {
@@ -341,9 +333,7 @@ describe("Autocomplete", () => {
     type Program
     constructor Compute(Array a) -> E`;
 
-    expect(
-      await testDomainAutocomplete(input, ["Element", "Array", "Program"]),
-    ).toBe(true);
+    await testDomainAutocomplete(input, ["Element", "Array", "Program"]);
   });
 
   test("Subtypes implicit", async () => {
@@ -351,9 +341,8 @@ describe("Autocomplete", () => {
     type Element
     type Program
     Element <: P`;
-    expect(
-      await testDomainAutocomplete(input, ["Element", "Array", "Program"]),
-    ).toBe(true);
+
+    await testDomainAutocomplete(input, ["Element", "Array", "Program"]);
   });
 
   test("Subtypes explicit", async () => {
@@ -361,13 +350,12 @@ describe("Autocomplete", () => {
     type Element
     type Program
     type Balls <: P`;
-    expect(
-      await testDomainAutocomplete(input, [
-        "Element",
-        "Array",
-        "Program",
-        "Balls",
-      ]),
-    ).toBe(true);
+
+    await testDomainAutocomplete(input, [
+      "Element",
+      "Array",
+      "Program",
+      "Balls",
+    ]);
   });
 });

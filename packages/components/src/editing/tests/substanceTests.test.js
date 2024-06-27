@@ -356,7 +356,7 @@ describe("Autocomplete", () => {
   test("KWs Empty Domain", async () => {
     const input = `L`;
 
-    expect(await testSubstanceAutocomplete(input, "", substanceKws)).toBe(true);
+    await testSubstanceAutocomplete(input, "", substanceKws);
   });
 
   test("KWs 1", async () => {
@@ -366,13 +366,11 @@ describe("Autocomplete", () => {
     const domainProg = `type Element
     type Point`;
 
-    expect(
-      await testSubstanceAutocomplete(
-        input,
-        domainProg,
-        substanceKws.concat(["Element", "Point"]),
-      ),
-    ).toBe(true);
+    await testSubstanceAutocomplete(
+      input,
+      domainProg,
+      substanceKws.concat(["Element", "Point"]),
+    );
   });
 
   const ref_domainProg = `type Element
@@ -388,13 +386,11 @@ describe("Autocomplete", () => {
     Circle(p1, p2)
     B`;
 
-    expect(
-      await testSubstanceAutocomplete(
-        input,
-        ref_domainProg,
-        substanceKws.concat(["Element", "Point", "Circle", "Ball"]),
-      ),
-    ).toBe(true);
+    await testSubstanceAutocomplete(
+      input,
+      ref_domainProg,
+      substanceKws.concat(["Element", "Point", "Circle", "Ball"]),
+    );
   });
 
   test("AutoLabel", async () => {
@@ -403,43 +399,35 @@ describe("Autocomplete", () => {
     Circle(p1, p2)
     AutoLabel A`;
 
-    expect(
-      await testSubstanceAutocomplete(input, ref_domainProg, [
-        "All",
-        "A",
-        "B",
-        "C",
-        "p1",
-        "p2",
-      ]),
-    ).toBe(true);
+    await testSubstanceAutocomplete(input, ref_domainProg, [
+      "All",
+      "A",
+      "B",
+      "C",
+      "p1",
+      "p2",
+    ]);
   });
 
   test("where", async () => {
     const input = `Element A, B, C
     Point p_i for i in [0,5] w`;
 
-    expect(
-      await testSubstanceAutocomplete(input, ref_domainProg, ["where"]),
-    ).toBe(true);
+    await testSubstanceAutocomplete(input, ref_domainProg, ["where"]);
   });
 
   test("for in type index", async () => {
     const input = `Point A, B, C
     Point p_i f`;
 
-    expect(
-      await testSubstanceAutocomplete(input, ref_domainProg, ["for"]),
-    ).toBe(true);
+    await testSubstanceAutocomplete(input, ref_domainProg, ["for"]);
   });
 
   test("for in predicate index", async () => {
     const input = `Point A, B, C
     Circle(p_i, p_j) fo`;
 
-    expect(
-      await testSubstanceAutocomplete(input, ref_domainProg, ["for"]),
-    ).toBe(true);
+    await testSubstanceAutocomplete(input, ref_domainProg, ["for"]);
   });
 
   test("suggest functions and constructors 1", async () => {
@@ -447,12 +435,10 @@ describe("Autocomplete", () => {
     Circle(A, B) fo
     D := C`;
 
-    expect(
-      await testSubstanceAutocomplete(input, ref_domainProg, [
-        "CreateBalls",
-        "Bisect",
-      ]),
-    ).toBe(true);
+    await testSubstanceAutocomplete(input, ref_domainProg, [
+      "CreateBalls",
+      "Bisect",
+    ]);
   });
 
   test("suggest functions and constructors 2", async () => {
@@ -460,12 +446,10 @@ describe("Autocomplete", () => {
     Circle(A, B)
     Element D := C`;
 
-    expect(
-      await testSubstanceAutocomplete(input, ref_domainProg, [
-        "CreateBalls",
-        "Bisect",
-      ]),
-    ).toBe(true);
+    await testSubstanceAutocomplete(input, ref_domainProg, [
+      "CreateBalls",
+      "Bisect",
+    ]);
   });
 
   test("suggest functions and constructors 3", async () => {
@@ -473,12 +457,10 @@ describe("Autocomplete", () => {
     Circle(A, B)
     Let D := C`;
 
-    expect(
-      await testSubstanceAutocomplete(input, ref_domainProg, [
-        "CreateBalls",
-        "Bisect",
-      ]),
-    ).toBe(true);
+    await testSubstanceAutocomplete(input, ref_domainProg, [
+      "CreateBalls",
+      "Bisect",
+    ]);
   });
 
   // Offset by 1 to put cursor after x rather than after )
@@ -486,42 +468,36 @@ describe("Autocomplete", () => {
     const input = `Point x1, x2, x3
     Circle(x)`;
 
-    expect(
-      await testSubstanceAutocomplete(
-        input,
-        ref_domainProg,
-        ["x1", "x2", "x3"],
-        1,
-      ),
-    ).toBe(true);
+    await testSubstanceAutocomplete(
+      input,
+      ref_domainProg,
+      ["x1", "x2", "x3"],
+      1,
+    );
   });
 
   test("id after comma in pred params", async () => {
     const input = `Point x1, x2, x3
     Circle(x1, x2, x)`;
 
-    expect(
-      await testSubstanceAutocomplete(
-        input,
-        ref_domainProg,
-        ["x1", "x2", "x3"],
-        1,
-      ),
-    ).toBe(true);
+    await testSubstanceAutocomplete(
+      input,
+      ref_domainProg,
+      ["x1", "x2", "x3"],
+      1,
+    );
   });
 
   test("id in function param", async () => {
     const input = `Point x1, x2, x3
     Point x4 := CreateBalls(x1, x)`;
 
-    expect(
-      await testSubstanceAutocomplete(
-        input,
-        ref_domainProg,
-        ["x1", "x2", "x3", "x4"],
-        1,
-      ),
-    ).toBe(true);
+    await testSubstanceAutocomplete(
+      input,
+      ref_domainProg,
+      ["x1", "x2", "x3", "x4"],
+      1,
+    );
   });
 
   test("id in constructor param", async () => {
@@ -529,14 +505,12 @@ describe("Autocomplete", () => {
     Point x4 := Bisect(x1)
     Element x5 := CreateBalls(x1, x)`;
 
-    expect(
-      await testSubstanceAutocomplete(
-        input,
-        ref_domainProg,
-        ["x1", "x2", "x3", "x4", "x5"],
-        1,
-      ),
-    ).toBe(true);
+    await testSubstanceAutocomplete(
+      input,
+      ref_domainProg,
+      ["x1", "x2", "x3", "x4", "x5"],
+      1,
+    );
   });
 
   test("id in NoLabel", async () => {
@@ -545,14 +519,12 @@ describe("Autocomplete", () => {
     Element x5 := CreateBalls(x1, x2, x3)
     NoLabel x1, x2, x`;
 
-    expect(
-      await testSubstanceAutocomplete(input, ref_domainProg, [
-        "x1",
-        "x2",
-        "x3",
-        "x4",
-        "x5",
-      ]),
-    ).toBe(true);
+    await testSubstanceAutocomplete(input, ref_domainProg, [
+      "x1",
+      "x2",
+      "x3",
+      "x4",
+      "x5",
+    ]);
   });
 });

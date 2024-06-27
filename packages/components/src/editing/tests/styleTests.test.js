@@ -32,7 +32,7 @@ describe("Namespace Caching", () => {
     namespace2 {
     }`;
     let expected = ["namespace1", "namespace2"];
-    expect(testNamespaces(input, expected)).toBe(true);
+    testNamespaces(input, expected);
   });
   test("has properties", () => {
     let input = `
@@ -42,7 +42,7 @@ describe("Namespace Caching", () => {
         color3 = #000004
     }`;
     let expected = ["color1", "color2", "color3"];
-    expect(testNamespaceProps(input, "colors", expected)).toBe(true);
+    testNamespaceProps(input, "colors", expected);
   });
 
   test("full prog", () => {
@@ -83,9 +83,9 @@ forall Element g
     let expected_colors = ["lightGray", "mediumGray", "darkGray"];
     let expected_globals = ["tableWidth", "tableHeight", "boxPadding"];
 
-    expect(testNamespaceProps(input, "colors", expected_colors)).toBe(true);
-    expect(testNamespaceProps(input, "global", expected_globals)).toBe(true);
-    expect(testNamespaces(input, expected_names)).toBe(true);
+    testNamespaceProps(input, "colors", expected_colors);
+    testNamespaceProps(input, "global", expected_globals);
+    testNamespaces(input, expected_names);
   });
 
   test("runtime 1", () => {
@@ -278,14 +278,13 @@ describe("Autocomplete", () => {
             s}}`;
 
     // Offset by 2 because of ending braces
-    expect(
-      await testStyleAutocomplete(
-        input,
-        "",
-        Object.keys(shapeDefns["Circle"]),
-        2,
-      ),
-    ).toBe(true);
+
+    await testStyleAutocomplete(
+      input,
+      "",
+      Object.keys(shapeDefns["Circle"]),
+      2,
+    );
   });
 
   test("ShapeProps Equation", async () => {
@@ -299,14 +298,12 @@ describe("Autocomplete", () => {
             s}}`;
 
     // Offset by 2 because of ending braces
-    expect(
-      await testStyleAutocomplete(
-        input,
-        "",
-        Object.keys(shapeDefns["Equation"]),
-        2,
-      ),
-    ).toBe(true);
+    await testStyleAutocomplete(
+      input,
+      "",
+      Object.keys(shapeDefns["Equation"]),
+      2,
+    );
   });
 
   const namespacesTestProg = `canvas {
@@ -330,9 +327,7 @@ describe("Autocomplete", () => {
       ` forall Point p {
             a = c}`;
 
-    expect(
-      await testStyleAutocomplete(input, "", ["colors", "globals"], 1, true),
-    ).toBe(true);
+    await testStyleAutocomplete(input, "", ["colors", "globals"], 1, true);
   });
 
   test("Namespace properties 1", async () => {
@@ -341,9 +336,7 @@ describe("Autocomplete", () => {
       ` forall Point p {
             a = colors.}`;
 
-    expect(
-      await testStyleAutocomplete(input, "", ["lightBlue", "green"], 1),
-    ).toBe(true);
+    await testStyleAutocomplete(input, "", ["lightBlue", "green"], 1);
   });
 
   test("Namespace properties 2", async () => {
@@ -352,9 +345,7 @@ describe("Autocomplete", () => {
       ` forall Point p {
             a = colors.}`;
 
-    expect(
-      await testStyleAutocomplete(input, "", ["lightBlue", "green"], 1),
-    ).toBe(true);
+    await testStyleAutocomplete(input, "", ["lightBlue", "green"], 1);
   });
 
   test("Namespace properties 3", async () => {
@@ -363,9 +354,7 @@ describe("Autocomplete", () => {
       ` forall Point p {
             a = globals.}`;
 
-    expect(
-      await testStyleAutocomplete(input, "", ["ballRadius", "numBalls"], 1),
-    ).toBe(true);
+    await testStyleAutocomplete(input, "", ["ballRadius", "numBalls"], 1);
   });
 
   test("Namespace properties 4", async () => {
@@ -374,25 +363,17 @@ describe("Autocomplete", () => {
       ` forall Point p {
             a = globals.b}`;
 
-    expect(
-      await testStyleAutocomplete(input, "", ["ballRadius", "numBalls"], 1),
-    ).toBe(true);
+    await testStyleAutocomplete(input, "", ["ballRadius", "numBalls"], 1);
   });
 
   test("Selector with", async () => {
     const input = `forall Set x wi`;
-
-    expect(await testStyleAutocomplete(input, "", selectorHeaderKws)).toBe(
-      true,
-    );
+    await testStyleAutocomplete(input, "", selectorHeaderKws);
   });
 
   test("Selector where", async () => {
     const input = `forall Set x; Set y; with Set z wh`;
-
-    expect(await testStyleAutocomplete(input, "", selectorHeaderKws)).toBe(
-      true,
-    );
+    await testStyleAutocomplete(input, "", selectorHeaderKws);
   });
 
   test("Header Kws", async () => {
@@ -402,8 +383,7 @@ describe("Autocomplete", () => {
     }
     
     f`;
-
-    expect(await testStyleAutocomplete(input, "", styleHeaderKws)).toBe(true);
+    await testStyleAutocomplete(input, "", styleHeaderKws);
   });
 
   test("Header Kws following selector", async () => {
@@ -419,8 +399,7 @@ describe("Autocomplete", () => {
     }
     
     c`;
-
-    expect(await testStyleAutocomplete(input, "", styleHeaderKws)).toBe(true);
+    await testStyleAutocomplete(input, "", styleHeaderKws);
   });
 
   // Tests assume computation functions suggested in expressions.
@@ -435,9 +414,7 @@ describe("Autocomplete", () => {
     forall Element A where IsCircular(A) {
         a = c}`;
 
-    expect(
-      await testStyleAutocomplete(input, "", computationFns, 1, true),
-    ).toBe(true);
+    await testStyleAutocomplete(input, "", computationFns, 1, true);
   });
   test("Binary Expressions", async () => {
     const input = `canvas {
@@ -448,9 +425,7 @@ describe("Autocomplete", () => {
     forall Element A where IsCircular(A) {
         a = 5 + c}`;
 
-    expect(
-      await testStyleAutocomplete(input, "", computationFns, 1, true),
-    ).toBe(true);
+    await testStyleAutocomplete(input, "", computationFns, 1, true);
   });
 
   test("Assignment Exprs include shape names", async () => {
@@ -461,10 +436,7 @@ describe("Autocomplete", () => {
     
     forall Element A where IsCircular(A) {
         shape B = C}`;
-
-    expect(await testStyleAutocomplete(input, "", shapeNames, 1, true)).toBe(
-      true,
-    );
+    await testStyleAutocomplete(input, "", shapeNames, 1, true);
   });
 
   test("Constraint fns after encourage", async () => {
@@ -477,10 +449,7 @@ describe("Autocomplete", () => {
         scalar a = 5
         string b = "hello"
         encourage i}`;
-
-    expect(await testStyleAutocomplete(input, "", constraints, 1, true)).toBe(
-      true,
-    );
+    await testStyleAutocomplete(input, "", constraints, 1, true);
   });
 
   test("Constraint fns after ensure", async () => {
@@ -493,10 +462,7 @@ describe("Autocomplete", () => {
         scalar a = 5
         string b = "hello"
         ensure i}`;
-
-    expect(await testStyleAutocomplete(input, "", constraints, 1, true)).toBe(
-      true,
-    );
+    await testStyleAutocomplete(input, "", constraints, 1, true);
   });
 
   test("Type names suggested in body of selector", async () => {
@@ -507,10 +473,7 @@ describe("Autocomplete", () => {
     
     forall Element A where IsCircular(A) {
         sca}`;
-
-    expect(await testStyleAutocomplete(input, "", typeNamesArr, 1, true)).toBe(
-      true,
-    );
+    await testStyleAutocomplete(input, "", typeNamesArr, 1, true);
   });
 
   test("Type names suggested in body of collector", async () => {
@@ -521,10 +484,7 @@ describe("Autocomplete", () => {
     
     collect Balls b into bs {
         sca}`;
-
-    expect(await testStyleAutocomplete(input, "", typeNamesArr, 1, true)).toBe(
-      true,
-    );
+    await testStyleAutocomplete(input, "", typeNamesArr, 1, true);
   });
 
   const exampleDomain = `type Set
@@ -539,15 +499,13 @@ describe("Autocomplete", () => {
     
     forall S`;
 
-    expect(
-      await testStyleAutocomplete(
-        input,
-        exampleDomain,
-        ["Set", "Element", "Ball"],
-        0,
-        true,
-      ),
-    ).toBe(true);
+    await testStyleAutocomplete(
+      input,
+      exampleDomain,
+      ["Set", "Element", "Ball"],
+      0,
+      true,
+    );
   });
 
   test("Domain defined types in selector header ; sep", async () => {
@@ -558,15 +516,13 @@ describe("Autocomplete", () => {
     
     forall Set a; B`;
 
-    expect(
-      await testStyleAutocomplete(
-        input,
-        exampleDomain,
-        ["Set", "Element", "Ball"],
-        0,
-        true,
-      ),
-    ).toBe(true);
+    await testStyleAutocomplete(
+      input,
+      exampleDomain,
+      ["Set", "Element", "Ball"],
+      0,
+      true,
+    );
   });
 
   test("Domain defined types in collector header", async () => {
@@ -577,15 +533,13 @@ describe("Autocomplete", () => {
     
     collect Ba`;
 
-    expect(
-      await testStyleAutocomplete(
-        input,
-        exampleDomain,
-        ["Set", "Element", "Ball"],
-        0,
-        true,
-      ),
-    ).toBe(true);
+    await testStyleAutocomplete(
+      input,
+      exampleDomain,
+      ["Set", "Element", "Ball"],
+      0,
+      true,
+    );
   });
 
   test("Domain defined types in with clause", async () => {
@@ -596,15 +550,13 @@ describe("Autocomplete", () => {
     
     collect Balls b into bs with E`;
 
-    expect(
-      await testStyleAutocomplete(
-        input,
-        exampleDomain,
-        ["Set", "Element", "Ball"],
-        0,
-        true,
-      ),
-    ).toBe(true);
+    await testStyleAutocomplete(
+      input,
+      exampleDomain,
+      ["Set", "Element", "Ball"],
+      0,
+      true,
+    );
   });
 
   test("Domain defined types repetable collector", async () => {
@@ -615,15 +567,13 @@ describe("Autocomplete", () => {
     
     collect repeatable Bal`;
 
-    expect(
-      await testStyleAutocomplete(
-        input,
-        exampleDomain,
-        ["Set", "Element", "Ball"],
-        0,
-        true,
-      ),
-    ).toBe(true);
+    await testStyleAutocomplete(
+      input,
+      exampleDomain,
+      ["Set", "Element", "Ball"],
+      0,
+      true,
+    );
   });
 
   test("Selector repeatable", async () => {
@@ -634,15 +584,7 @@ describe("Autocomplete", () => {
     
     forall re`;
 
-    expect(
-      await testStyleAutocomplete(
-        input,
-        exampleDomain,
-        ["repeatable"],
-        0,
-        true,
-      ),
-    ).toBe(true);
+    await testStyleAutocomplete(input, exampleDomain, ["repeatable"], 0, true);
   });
 
   test("Collector repeatable", async () => {
@@ -653,15 +595,7 @@ describe("Autocomplete", () => {
     
     collect re`;
 
-    expect(
-      await testStyleAutocomplete(
-        input,
-        exampleDomain,
-        ["repeatable"],
-        0,
-        true,
-      ),
-    ).toBe(true);
+    await testStyleAutocomplete(input, exampleDomain, ["repeatable"], 0, true);
   });
 
   test("Collector into", async () => {
@@ -672,9 +606,7 @@ describe("Autocomplete", () => {
     
     collect Ball b in`;
 
-    expect(
-      await testStyleAutocomplete(input, exampleDomain, ["into"], 0, true),
-    ).toBe(true);
+    await testStyleAutocomplete(input, exampleDomain, ["into"], 0, true);
   });
 
   test("Collector into following selector", async () => {
@@ -689,9 +621,7 @@ describe("Autocomplete", () => {
     
     collect Ball b in`;
 
-    expect(
-      await testStyleAutocomplete(input, exampleDomain, ["into"], 0, true),
-    ).toBe(true);
+    await testStyleAutocomplete(input, exampleDomain, ["into"], 0, true);
   });
 
   const exampleDomainWithPredicates = `type Set
@@ -714,15 +644,13 @@ describe("Autocomplete", () => {
     
     collect Ball b into bs where F`;
 
-    expect(
-      await testStyleAutocomplete(
-        input,
-        exampleDomainWithPredicates,
-        ["Group", "Fill", "Rotate"],
-        0,
-        true,
-      ),
-    ).toBe(true);
+    await testStyleAutocomplete(
+      input,
+      exampleDomainWithPredicates,
+      ["Group", "Fill", "Rotate"],
+      0,
+      true,
+    );
   });
 
   test("Selector preds in where clause", async () => {
@@ -737,14 +665,12 @@ describe("Autocomplete", () => {
     
     forall Set a; Element b; where F`;
 
-    expect(
-      await testStyleAutocomplete(
-        input,
-        exampleDomainWithPredicates,
-        ["Group", "Fill", "Rotate"],
-        0,
-        true,
-      ),
-    ).toBe(true);
+    await testStyleAutocomplete(
+      input,
+      exampleDomainWithPredicates,
+      ["Group", "Fill", "Rotate"],
+      0,
+      true,
+    );
   });
 });

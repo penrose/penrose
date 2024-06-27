@@ -1,6 +1,7 @@
 import { CompletionContext, CompletionResult } from "@codemirror/autocomplete";
 import { EditorState, Extension } from "@codemirror/state";
 import { LRParser } from "@lezer/lr";
+import { assert } from "vitest";
 import { createDomainAutocomplete } from "../hooks/domain/domainAutocomplete";
 import { getDomainCache } from "../hooks/domain/getDomainCache";
 import { getShapeDefs } from "../hooks/hooksUtils";
@@ -22,10 +23,8 @@ export function hasNoErrors(parser: LRParser, input: string) {
   let hasNoErrors = true;
   tree.iterate({
     enter: (node) => {
-      return true;
-    },
-    leave: (node) => {
-      if (node.type.isError) hasNoErrors = false;
+      if (node.type.isError)
+        assert.fail(`Unexpected error node in ${node}. Input: ${input}`);
     },
   });
   return hasNoErrors;
@@ -76,7 +75,14 @@ export function testNamespaces(input: string, expected: string[]) {
   // Convert to array of namespaces
   const foundNamespaces: string[] = Object.keys(namespaceCache);
 
-  return sameItems(expected, foundNamespaces);
+  if (!sameItems(expected, foundNamespaces)) {
+    assert.fail(
+      `"Failed namespaces test. 
+      Expected: ${expected}
+      Recieved: ${foundNamespaces}
+      Program: ${input}`,
+    );
+  }
 }
 
 /*
@@ -95,7 +101,15 @@ export function testNamespaceProps(
     namespace,
   );
   const namespaceProps = namespaceCompletions.map((cmpl) => cmpl.label);
-  return sameItems(namespaceProps, expected);
+
+  if (!sameItems(expected, namespaceProps)) {
+    assert.fail(
+      `"Failed namespace props test. 
+      Expected: ${expected}
+      Recieved: ${namespaceProps}
+      Program: ${input}`,
+    );
+  }
 }
 
 export function CompletionsToLabels(
@@ -129,13 +143,16 @@ export async function testDomainAutocomplete(
   const domainCache = getDomainCache(input);
   const autocompleteFn = createDomainAutocomplete(domainCache);
   const results = await autocompleteFn(context);
-  // console.log(results);
   const completionLabels = CompletionsToLabels(results);
-  // console.log(completionLabels);
-  // console.log(expected);
-  // console.log(sameItems(completionLabels, expected));
 
-  return sameItems(completionLabels, expected);
+  if (!sameItems(completionLabels, expected)) {
+    assert.fail(
+      `"Failed domain autocomplete test. 
+      Expected: ${expected}
+      Recieved: ${completionLabels}
+      Program: ${input}`,
+    );
+  }
 }
 
 export async function testSubstanceAutocomplete(
@@ -155,14 +172,15 @@ export async function testSubstanceAutocomplete(
   );
   const results = await autocompleteFn(context);
   const completionLabels = CompletionsToLabels(results);
-  // console.log(completionLabels);
-  // console.log(results);
-  // console.log(context.pos);
-  // console.log(substanceCache);
-  // console.log(expected);
-  // console.log(sameItems(completionLabels, expected));
 
-  return sameItems(completionLabels, expected);
+  if (!sameItems(completionLabels, expected)) {
+    assert.fail(
+      `"Failed substance autocomplete test. 
+      Expected: ${expected}
+      Recieved: ${completionLabels}
+      Program: ${input}`,
+    );
+  }
 }
 
 /*
@@ -185,14 +203,25 @@ export async function testStyleAutocomplete(
   const autocompleteFn = createStyleAutocomplete(domainCache, getShapeDefs());
   const results = await autocompleteFn(context);
   const completionLabels = CompletionsToLabels(results);
-  console.log(completionLabels);
-  // console.log(results);
-  // console.log(context.pos);
-  // console.log(substanceCache);
-  // console.log(expected);
-  // console.log(sameItems(completionLabels, expected));
 
-  if (semi) return arr1Subsetarr2(expected, completionLabels);
+  if (semi) {
+    if (!arr1Subsetarr2(expected, completionLabels)) {
+      assert.fail(
+        `"Failed subset style autocomplete test. 
+        Expected (subset): ${expected}
+        Recieved: ${completionLabels}
+        Program: ${input}`,
+      );
+    }
+    return;
+  }
 
-  return sameItems(expected, completionLabels);
+  if (!sameItems(expected, completionLabels)) {
+    assert.fail(
+      `"Failed style autocomplete test. 
+      Expected: ${expected}
+      Recieved: ${completionLabels}
+      Program: ${input}`,
+    );
+  }
 }
