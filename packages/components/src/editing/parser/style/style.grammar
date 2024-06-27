@@ -99,7 +99,7 @@ Arg { Variable | Literal }
 
 Literal { Number | String }
 
-Args { sepBy1<Arg, ","> }
+Args { commaSep<Arg> }
 
 Field { Variable kw<"has"> FieldDesc? Identifier}
 
