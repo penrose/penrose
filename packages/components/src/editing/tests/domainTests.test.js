@@ -1,10 +1,12 @@
 import { describe, expect, test } from "vitest";
+import { domainKws } from "../hooks/domain/domainAutocomplete";
 import { getDomainCache } from "../hooks/domain/getDomainCache";
 import { parser } from "../parser/domain/domain";
 import {
   compareDicts,
   constructDomainCacheObj,
   hasNoErrors,
+  testDomainAutocomplete,
 } from "./testUtils";
 
 describe("Parser", () => {
@@ -228,5 +230,142 @@ predicate Concyclic(Triangle s, Triangle t)`;
 
     console.log(`Domain Cache Execution Time: ${executionTime} ms`);
     expect(executionTime).toBeLessThan(10);
+  });
+});
+
+// Narrowing of results is handled by a separate Codemirror extension
+describe("Autocomplete", () => {
+  test("Top level kws basic", async () => {
+    const input = `type Circle
+    ty`;
+
+    expect(await testDomainAutocomplete(input, domainKws)).toBe(true);
+  });
+
+  test("Top level kws mixed", async () => {
+    const input = `type Angle
+    type Point
+    predicate Segment(Point x, Point y)
+    f`;
+
+    expect(await testDomainAutocomplete(input, domainKws)).toBe(true);
+  });
+
+  test("Top level kws function ambiguous case 1", async () => {
+    const input = `type Angle
+    function Bisect(Angle a) -> Angle
+    sy`;
+
+    expect(await testDomainAutocomplete(input, domainKws)).toBe(true);
+  });
+
+  test("Top level kws ambiguous case 2", async () => {
+    const input = `type Angle
+    predicate Large(Angle a, Angle b)
+    constructor Bisect(Angle a) -> Angle
+    sy`;
+
+    expect(await testDomainAutocomplete(input, domainKws)).toBe(true);
+  });
+
+  test("Top level kws constructor no output type", async () => {
+    const input = `type Angle
+    constructor Bisect(Angle a)
+    sy`;
+
+    expect(await testDomainAutocomplete(input, domainKws)).toBe(true);
+  });
+
+  test("Top level kws constructor with identifier", async () => {
+    const input = `type Angle
+    constructor Bisect(Angle a) -> Angle b
+    sy`;
+
+    expect(await testDomainAutocomplete(input, domainKws)).toBe(true);
+  });
+
+  test("Symmetric predicate", async () => {
+    const input = `type Point
+    type Circle
+    symmetric p`;
+
+    expect(await testDomainAutocomplete(input, ["predicate"])).toBe(true);
+  });
+
+  test("Type names, first item in function param list", async () => {
+    const input = `type Point
+    type Rectangle
+    function Box(P)`;
+
+    expect(await testDomainAutocomplete(input, ["Point", "Rectangle"], 1)).toBe(
+      true,
+    );
+  });
+
+  test("Type names, first item in constructor param list", async () => {
+    const input = `type Point
+    type Rectangle
+    constructor Box(P)`;
+
+    expect(await testDomainAutocomplete(input, ["Point", "Rectangle"], 1)).toBe(
+      true,
+    );
+  });
+
+  test("Type names, comma sep in function param list", async () => {
+    const input = `type Point
+    type Rectangle
+    function Box(Point x1, Point y1, Point x2, P)`;
+
+    expect(await testDomainAutocomplete(input, ["Point", "Rectangle"], 1)).toBe(
+      true,
+    );
+  });
+
+  test("Function output type", async () => {
+    const input = `type Array
+    type Element
+    type Program
+    function Compute(Array a) -> E`;
+
+    expect(
+      await testDomainAutocomplete(input, ["Element", "Array", "Program"]),
+    ).toBe(true);
+  });
+
+  test("Constructor output type", async () => {
+    const input = `type Array
+    type Element
+    type Program
+    constructor Compute(Array a) -> E`;
+
+    expect(
+      await testDomainAutocomplete(input, ["Element", "Array", "Program"]),
+    ).toBe(true);
+  });
+
+  test("Subtypes implicit", async () => {
+    const input = `type Array
+    type Element
+    type Program
+    Element <: P`;
+    expect(
+      await testDomainAutocomplete(input, ["Element", "Array", "Program"]),
+    ).toBe(true);
+  });
+
+  test("Subtypes explicit", async () => {
+    const input = `type Array
+    type Element
+    type Program
+    type Balls <: P`;
+    expect(
+      await testDomainAutocomplete(input, [
+        "Element",
+        "Array",
+        "Program",
+        "Balls",
+      ]),
+    ).toBe(true);
   });
 });

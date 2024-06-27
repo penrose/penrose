@@ -1,9 +1,15 @@
+import { CompletionContext, CompletionResult } from "@codemirror/autocomplete";
+import { EditorState } from "@codemirror/state";
 import { LRParser } from "@lezer/lr";
+import { createDomainAutocomplete } from "../hooks/domain/domainAutocomplete";
+import { getDomainCache } from "../hooks/domain/getDomainCache";
 import {
   getNamespaceDict,
   getNamespaceProps,
 } from "../hooks/style/styleAutocompleteUtils";
+import { domainLanguageSupport } from "../parser/domain/domainLanguage";
 import { parser } from "../parser/style/style";
+import { DomainCache } from "../types";
 
 export function hasNoErrors(parser: LRParser, input: string) {
   let tree = parser.parse(input);
@@ -28,7 +34,7 @@ export function constructDomainCacheObj(
   predNames: string[],
   fnNames: string[],
   consNames: string[],
-) {
+): DomainCache {
   return { typeNames, predNames, fnNames, consNames };
 }
 
@@ -45,6 +51,10 @@ export function compareDicts(dict1: any, dict2: any) {
   );
 }
 
+function sameItems(arr1: string[], arr2: string[]) {
+  return arr1.every((key) => arr2.includes(key)) && arr1.length === arr2.length;
+}
+
 /*
  * Takes an input program, gets the namespace header names and compares it to
  * an expected array of namespaces
@@ -55,10 +65,7 @@ export function testNamespaces(input: string, expected: string[]) {
   // Convert to array of namespaces
   const foundNamespaces: string[] = Object.keys(namespaceCache);
 
-  return (
-    expected.every((key) => foundNamespaces.includes(key)) &&
-    foundNamespaces.every((key) => expected.includes(key))
-  );
+  return sameItems(expected, foundNamespaces);
 }
 
 /*
@@ -77,8 +84,42 @@ export function testNamespaceProps(
     namespace,
   );
   const namespaceProps = namespaceCompletions.map((cmpl) => cmpl.label);
-  return (
-    namespaceProps.every((prop) => expected.includes(prop)) &&
-    expected.every((prop) => namespaceProps.includes(prop))
-  );
+  return sameItems(namespaceProps, expected);
+}
+
+export function CompletionsToLabels(
+  completions: CompletionResult | null,
+): string[] {
+  if (completions == null) return [];
+  return completions.options.map((cmp) => cmp.label.trim());
+}
+
+function constructContext(
+  input: string,
+  cursorOffset: number,
+): CompletionContext {
+  const state = EditorState.create({
+    doc: input,
+    extensions: [domainLanguageSupport()],
+  });
+
+  return new CompletionContext(state, input.length - cursorOffset, true);
+}
+
+export async function testDomainAutocomplete(
+  input: string,
+  expected: string[],
+  cursorOffset = 0,
+) {
+  const context = constructContext(input, cursorOffset);
+  const domainCache = getDomainCache(input);
+  const autocompleteFn = createDomainAutocomplete(domainCache);
+  const results = await autocompleteFn(context);
+  // console.log(results);
+  const completionLabels = CompletionsToLabels(results);
+  console.log(completionLabels);
+  console.log(expected);
+  // console.log(sameItems(completionLabels, expected));
+
+  return sameItems(completionLabels, expected);
 }
