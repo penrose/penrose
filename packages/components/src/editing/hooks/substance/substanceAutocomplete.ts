@@ -68,7 +68,7 @@ const fnConsOptions = (domainCache: DomainCache) => {
 };
 
 const idOptions = (substanceCache: SubstanceCache) => {
-  console.log(substanceCache);
+  // console.log(substanceCache);
   return substanceCache.varNames.map((id) => ({
     label: `${id}`,
     type: "variable",

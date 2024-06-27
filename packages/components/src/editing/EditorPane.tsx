@@ -2,13 +2,6 @@ import { autocompletion } from "@codemirror/autocomplete";
 import { lintGutter, linter } from "@codemirror/lint";
 import { EditorView } from "@codemirror/view";
 import {
-  ShapeType,
-  makeCanvas,
-  sampleShape,
-  shapeTypes,
-  simpleContext,
-} from "@penrose/core";
-import {
   DomainError,
   RuntimeError,
   StyleError,
@@ -26,6 +19,7 @@ import {
   SubstanceCache,
 } from "../editing/types";
 import DomainAutocomplete from "./hooks/domain/domainAutocomplete";
+import { getShapeDefs } from "./hooks/hooksUtils";
 import StyleAutocomplete from "./hooks/style/styleAutocomplete";
 import SubstanceAutocomplete from "./hooks/substance/substanceAutocomplete";
 import { createLinter } from "./hooks/useLinter";
@@ -33,30 +27,6 @@ import { domainLanguageSupport } from "./parser/domain/domainLanguage";
 import { styleLanguageSupport } from "./parser/style/styleLanguage";
 import { substanceLanguageSupport } from "./parser/substance/substanceLanguage";
 import { penroseTheme } from "./theme";
-
-/**
- * Retrieves defintions for all shapes and writes their properties to a
- * hashmap object with shapeName as the top level key with the value being
- * a hashmap of properties that belong to the shape as keys with type as value
- */
-const getShapeDefs = (): ShapeDefinitions => {
-  const shapeProps = {} as ShapeDefinitions;
-  const size = 311; // placeholder, this value doesn't matter
-
-  for (const shapeName of shapeTypes) {
-    const shapeSample = sampleShape(
-      shapeName as ShapeType,
-      simpleContext("ShapeProps dummy"),
-      makeCanvas(size, size),
-    );
-
-    shapeProps[shapeName] = Object.fromEntries(
-      Object.entries(shapeSample).map(([key, value]) => [key, value.tag]),
-    );
-  }
-
-  return shapeProps;
-};
 
 export const codemirrorHistory = atom<boolean>({
   key: "codemirrorHistory",

@@ -468,6 +468,7 @@ Label a7 $Sorted$`;
 
 // Narrowing of results is handled by a separate Codemirror extension
 // End back tick for input strings should be same line as the last character
+// because test function cursor position placing is sensitive to whitespace
 describe("Autocomplete", () => {
   test("KWs Empty Domain", async () => {
     const input = `L`;

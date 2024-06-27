@@ -18,6 +18,9 @@ import { styleLanguageSupport } from "../parser/style/styleLanguage";
 import { substanceLanguageSupport } from "../parser/substance/substanceLanguage";
 import { DomainCache } from "../types";
 
+/*
+ * Parses input and raises fail if there are any error nodes
+ */
 export function hasNoErrors(parser: LRParser, input: string) {
   let tree = parser.parse(input);
   tree.iterate({
@@ -28,6 +31,12 @@ export function hasNoErrors(parser: LRParser, input: string) {
   });
 }
 
+/*
+ * Parses input and raises fail if there are no error nodes
+ * Use in cases where an error is expected
+ * Function does not require a location for where the error is, this could be
+ * made more robust
+ */
 export function hasErrors(parser: LRParser, input: string) {
   let tree = parser.parse(input);
   let hasErrors = false;
@@ -55,7 +64,11 @@ export function constructDomainCacheObj(
   return { typeNames, predNames, fnNames, consNames };
 }
 
-// Assumes each value is an array. Not sensitive to array element order.
+/*
+ * Assumes each value is an array.
+ * Intentionally array element order insensitive.
+ * Used for domainCache tests
+ */
 export function compareDicts(dict1: any, dict2: any) {
   return (
     Object.keys(dict1).length === Object.keys(dict2).length &&
@@ -73,6 +86,7 @@ function arr1Subsetarr2(arr1: string[], arr2: string[]) {
   return arr1.every((key) => arr2.includes(key));
 }
 
+// Checks array 1 and array 2 have the exact same elements. Order insensitive.
 function sameItems(arr1: string[], arr2: string[]) {
   return arr1Subsetarr2(arr1, arr2) && arr1.length === arr2.length;
 }
@@ -124,6 +138,7 @@ export function testNamespaceProps(
   }
 }
 
+// Converts CompletionResult object to array of labels (strings)
 export function CompletionsToLabels(
   completions: CompletionResult | null,
 ): string[] {
@@ -198,7 +213,7 @@ export async function testSubstanceAutocomplete(
 /*
  * cursorOffset: Cursor initialized to the last character. cursorOffset sets
  * cursor to last character - cursorOffset
- * semi: To check for expected is subset of completions rather than strict
+ * semi: To check if expected is subset of completions rather than strict
  * equality
  */
 export async function testStyleAutocomplete(
