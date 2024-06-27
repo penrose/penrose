@@ -20,14 +20,26 @@ import { DomainCache } from "../types";
 
 export function hasNoErrors(parser: LRParser, input: string) {
   let tree = parser.parse(input);
-  let hasNoErrors = true;
   tree.iterate({
     enter: (node) => {
       if (node.type.isError)
         assert.fail(`Unexpected error node in ${node}. Input: ${input}`);
     },
   });
-  return hasNoErrors;
+}
+
+export function hasErrors(parser: LRParser, input: string) {
+  let tree = parser.parse(input);
+  let hasErrors = false;
+  tree.iterate({
+    enter: (node) => {
+      if (node.type.isError) hasErrors = true;
+    },
+  });
+
+  if (!hasErrors) {
+    assert.fail(`Expected an error to be raised. No error was raised.`);
+  }
 }
 
 export function constructSubstanceCacheObj(vars: string[]) {

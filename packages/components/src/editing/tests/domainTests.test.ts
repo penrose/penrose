@@ -11,8 +11,123 @@ import {
 
 describe("Parser", () => {
   test("empty", () => {
-    let input = "";
-    expect(hasNoErrors(parser, input)).toBe(true);
+    let prog = "";
+    hasNoErrors(parser, prog);
+  });
+
+  test("comments and whitespaces", () => {
+    const prog = `
+-- comments
+type Set -- inline comments\r
+-- type Point
+predicate From(Map f, Set domain, Set codomain)\r\n
+/* Multi-line comments
+type ParametrizedSet ('T, 'U)
+predicate From(Map f, Set domain, Set codomain)
+*/
+predicate From(Map f, Set domain, Set codomain)
+	`;
+
+    hasNoErrors(parser, prog);
+  });
+
+  test("tree integrity", () => {
+    const prog = `
+-- comments
+type Set -- inline comments
+-- type Point
+predicate From(Map f, Set domain, Set codomain)
+/* Multi-line comments
+predicate From(Map f, Set domain, Set codomain)
+*/
+predicate From(Map f, Set domain, Set codomain)
+function Intersection(Set a, Set b) -> Set
+function Union(Set a, Set b) -> Set c
+function Subtraction(Set a, Set b) -> Set
+function CartesianProduct(Set a, Set b) -> Set
+function Difference(Set a, Set b) -> Set
+function Subset(Set a, Set b) -> Set
+function AddPoint(Point p, Set s1) -> Set
+-- edge case
+function Empty() -> Scalar
+-- generics
+RightClopenInterval <: Interval
+	`;
+
+    hasNoErrors(parser, prog);
+  });
+
+  test("predicate decls", () => {
+    const prog = `
+-- comments
+predicate Not(Prop p1)
+predicate From(Map f, Set domain, Set codomain)
+predicate Empty(Set s)
+predicate Intersecting(Set s1, Set s2)
+predicate Subset(Set s1, Set s2)
+predicate PointIn(Set s, Point p)
+predicate In(Point p, Set s)
+predicate Injection(Map m)
+predicate Surjection(Map m)
+predicate Bijection(Map m)
+predicate PairIn(Point, Point, Map)
+symmetric predicate Intersecting(Set s1, Set s2)
+symmetric predicate Disjoint(Set, Set)
+	`;
+
+    hasNoErrors(parser, prog);
+  });
+
+  test("function decls", () => {
+    const prog = `
+-- comments
+function Intersection(Set a, Set b) -> Set
+function Union(Set a, Set b) -> Set c
+function Subtraction(Set a, Set b) -> Set
+function CartesianProduct(Set a, Set b) -> Set
+function Difference(Set a, Set b) -> Set
+function Subset(Set a, Set b) -> Set
+function AddPoint(Point p, Set s1) -> Set
+-- edge case
+function Empty() -> Scalar
+	`;
+    hasNoErrors(parser, prog);
+  });
+
+  test("constructor decls", () => {
+    const prog = `
+-- real program
+constructor CreateInterval(Real left, Real right) -> Interval
+constructor CreateOpenInterval(Real left, Real right) -> OpenInterval
+constructor CreateClosedInterval(Real left, Real right) -> ClosedInterval
+constructor CreateLeftClopenInterval(Real left, Real right) -> LeftClopenInterval
+constructor CreateRightClopenInterval(Real left, Real right) -> RightClopenInterval
+constructor CreateFunction(Set s1, Set s2) -> Function
+constructor Pt(Real x, Real y) -> Point
+		`;
+    hasNoErrors(parser, prog);
+  });
+
+  test("Subtype decls", () => {
+    const prog = `
+Reals <: Set
+Interval <: Set
+Reals <: Interval
+OpenInterval <: Interval
+ClosedInterval <: Interval
+LeftClopenInterval <: Interval
+RightClopenInterval <: Interval
+		`;
+
+    hasNoErrors(parser, prog);
+  });
+  test("dangling output type conflict with subtype decls", () => {
+    const prog = `
+		type A
+		type B        
+		function f(A arg) -> B
+		A <: B`;
+    hasNoErrors(parser, prog);
   });
 });
 

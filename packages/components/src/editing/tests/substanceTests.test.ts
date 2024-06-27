@@ -10,33 +10,149 @@ import {
 
 describe("Parser", () => {
   test("empty", () => {
-    let input = "";
-    expect(hasNoErrors(parser, input)).toBe(true);
+    let prog = "";
+    hasNoErrors(parser, prog);
   });
 
   test("comments and white spaces", () => {
-    const input = `
-        -- Top-level comments
-        Set A, B, C, D, E, F, G -- inline comments\r\n
-        
-        /*
-        Subset(B, A)\r
-        Subset(C, A)\r\n
-        Subset(D, B)
-        Subset(E, B)
-        Subset(F, C)
-        Subset(G, C)
-        */
-        
-        -- Not(Intersecting(E, D))
-        Set C
-        -- Not(Intersecting(B, C))
-        AutoLabel All
-        
-        /* Other comments */
-            `;
+    const prog = `
+    -- Top-level comments
+    Set A, B, C, D, E, F, G -- inline comments\r\n
+    
+    /*
+    Subset(B, A)\r
+    Subset(C, A)\r\n
+    Subset(D, B)
+    Subset(E, B)
+    Subset(F, C)
+    Subset(G, C)
+    */
+    
+    -- Not(Intersecting(E, D))
+    Set C
+    -- Not(Intersecting(B, C))
+    AutoLabel All
+    
+    /* Other comments */
+        `;
 
-    expect(hasNoErrors(parser, input)).toBe(true);
+    hasNoErrors(parser, prog);
+  });
+
+  test("trailing comment", () => {
+    const prog = `
+    Set A
+    Set B
+    Set C
+    Set D
+    -- Set E`;
+    hasNoErrors(parser, prog);
+  });
+});
+
+describe("statements", () => {
+  test("iset 1", () => {
+    // Numbers aren't showing in the parse tree
+    const prog = `Set A for i in [0, 10]`;
+    hasNoErrors(parser, prog);
+  });
+  test("iset 2", () => {
+    // Numbers aren't showing in the parse tree
+    const prog = `Set A for i in [0, 10], j in [1, 5]`;
+    hasNoErrors(parser, prog);
+  });
+  test("indexed constructor 1", () => {
+    // Numbers aren't showing in the parse tree
+    const prog = `Set A := MakeSet(hello_j) for j in [0, 20]`;
+    hasNoErrors(parser, prog);
+  });
+
+  test("indexed constructor 2", () => {
+    // Numbers aren't showing in the parse tree
+    const prog = `Let B := Set(hello_world) for abc in [80, 70]`;
+    hasNoErrors(parser, prog);
+  });
+
+  test("indexed predicate 1", () => {
+    // Numbers aren't showing in the parse tree
+    const prog = `Edge(a_i, a_j) for i in [0, 20], j in [20, 30] where 
+        i + 1 == j && j + 1 == i 
+        || !(j == 1 && y == 2)`;
+    hasNoErrors(parser, prog);
+  });
+
+  test("indexed predicate 2", () => {
+    // Numbers aren't showing in the parse tree
+    const prog = `Edge(v_i, v_i) for i in [0, 20] where 20 != 20`;
+    hasNoErrors(parser, prog);
+  });
+
+  test("indexed labels 1", () => {
+    // Numbers aren't showing in the parse tree
+    const prog = `Label x_i "abcde" for i in [0, 10]`;
+    hasNoErrors(parser, prog);
+  });
+
+  test("indexed labels 2", () => {
+    // Numbers aren't showing in the parse tree
+    const prog = `Label y $abc$ for j in [0, 15]`;
+    hasNoErrors(parser, prog);
+  });
+
+  test("decl and decl list", () => {
+    // Numbers aren't showing in the parse tree
+    const prog = `Set A
+        Map f, g, h`;
+    hasNoErrors(parser, prog);
+  });
+
+  test("label decl", () => {
+    // Numbers aren't showing in the parse tree
+    const prog = `Set A, B, C
+        Label A $\\vec{A}$
+        Label B $B_1$`;
+    hasNoErrors(parser, prog);
+  });
+
+  test("no label decl", () => {
+    // Numbers aren't showing in the parse tree
+    const prog = `Set A, B, C
+        NoLabel A
+        NoLabel B, C`;
+    hasNoErrors(parser, prog);
+  });
+
+  test("auto label decl", () => {
+    // Numbers aren't showing in the parse tree
+    const prog = `Set A, B, C
+        AutoLabel All
+        AutoLabel B, C
+        NoLabel B, C`;
+    hasNoErrors(parser, prog);
+  });
+
+  test("bind and exprs", () => {
+    // Numbers aren't showing in the parse tree
+    const prog = `Set A, B, C
+        Point p1, p2
+        C := Intersection(A, B)`;
+    hasNoErrors(parser, prog);
+  });
+
+  test("predicates", () => {
+    // Numbers aren't showing in the parse tree
+    const prog = `Set A, B, C
+        Subset(A, B)`;
+    hasNoErrors(parser, prog);
+  });
+
+  test("numbers and strings", () => {
+    // Numbers aren't showing in the parse tree
+    const prog = ` Set A
+    Contains(A, 1)
+    Contains(B, "never gonna give you up")
+    Contains(C, 3.0)`;
+    hasNoErrors(parser, prog);
   });
 });
 
