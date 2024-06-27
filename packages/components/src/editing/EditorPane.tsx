@@ -10,7 +10,7 @@ import {
   SubstanceError,
 } from "@penrose/core/dist/types/errors.js";
 import { ErrorLoc } from "@penrose/core/dist/utils/Util.js";
-import { MarkerSeverity, editor } from "monaco-editor";
+import { IDisposable, MarkerSeverity, editor } from "monaco-editor";
 import { VimMode, initVimMode } from "monaco-vim";
 import { useEffect, useRef } from "react";
 import { SetupDomainMonaco } from "./languages/DomainConfig.js";
@@ -79,12 +79,19 @@ export default function EditorPane({
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const statusBarRef = useRef<HTMLDivElement>(null);
 
-  if (monaco !== null && onWrite !== undefined) {
-    editorRef.current?.addCommand(
-      monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
-      onWrite,
-    );
-  }
+  useEffect(() => {
+    let dispose: IDisposable | undefined;
+    if (monaco !== null && onWrite !== undefined) {
+      dispose = editorRef.current?.addAction({
+        id: "write",
+        label: "Write",
+        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
+        run: onWrite,
+      });
+    }
+
+    return () => dispose?.dispose();
+  }, [onWrite]);
 
   useEffect(() => {
     if (monaco) {

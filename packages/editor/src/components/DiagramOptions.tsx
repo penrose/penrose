@@ -63,21 +63,6 @@ export default function DiagramOptions() {
           next stage
         </BlueButton>
       </div> */}
-      {/* <div>
-        <label>
-          interactive mode{" "}
-          <input
-            type="checkbox"
-            checked={diagramMetadata.interactive}
-            onChange={(e) =>
-              setDiagramMetadata((metadata) => ({
-                ...metadata,
-                interactive: e.target.checked,
-              }))
-            }
-          />
-        </label>
-      </div> */}
       <div>
         <label>
           exclude warnings:{" "}

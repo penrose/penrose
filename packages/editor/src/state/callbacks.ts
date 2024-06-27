@@ -54,6 +54,7 @@ const _compileDiagram = async (
   // indicate that buttons should gray out for now
   set(diagramWorkerState, (state) => ({
     optimizing: false,
+    resampling: false,
     compiling: true,
   }));
 
@@ -69,6 +70,7 @@ const _compileDiagram = async (
   // un-gray buttons
   set(diagramWorkerState, () => ({
     optimizing: false,
+    resampling: false,
     compiling: false,
   }));
 
@@ -97,11 +99,14 @@ const _compileDiagram = async (
     ...diagram,
     warnings: compileResult.value.warnings,
     error: null,
-    layoutStats: [],
+    historyInfo: pollResult.value,
     diagramId: compileResult.value.diagramId,
     // uses our assumption that there will only be one step sequence for a newly
     // compiled diagram
-    stepSequenceId: pollResult.value.keys().next().value,
+    historyLoc: {
+      sequenceId: pollResult.value.keys().next().value,
+      frame: 0,
+    },
     metadata: {
       ...diagram.metadata,
       variation,
@@ -116,6 +121,7 @@ const _compileDiagram = async (
 
   set(diagramWorkerState, () => ({
     compiling: false,
+    resampling: false,
     optimizing: true,
   }));
 };
@@ -172,14 +178,27 @@ export const useResampleDiagram = () =>
       return;
     }
 
+    const pollResult = await optimizer.poll(diagram.diagramId);
+    if (isErr(pollResult)) {
+      set(diagramState, (diagram) => ({
+        ...diagram,
+        error: runtimeError(showOptimizerError(pollResult.error)),
+      }));
+      return;
+    }
+
     // resampling succeeded, so we know we're now optimizing
     set(diagramWorkerState, () => ({
       compiling: false,
       optimizing: true,
+      resampling: false,
     }));
     set(diagramState, (diagram) => ({
       ...diagram,
-      stepSequenceId: resampleResult.value,
+      historyLoc: {
+        sequenceId: resampleResult.value,
+        frame: 0,
+      },
       // on resample, only clear runtime errors
       error:
         diagram.error !== null && diagram.error.errorType !== "RuntimeError"

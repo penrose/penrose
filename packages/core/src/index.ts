@@ -3,7 +3,7 @@ import { compileDomain } from "./compiler/Domain.js";
 import { compileStyle } from "./compiler/Style.js";
 import { compileSubstance } from "./compiler/Substance.js";
 import { start, stepUntil } from "./engine/Optimizer.js";
-import { PathResolver, toInteractiveSVG, toSVG } from "./renderer/Renderer.js";
+import { PathResolver, toSVG } from "./renderer/Renderer.js";
 import * as ad from "./types/ad.js";
 import { DomainEnv } from "./types/domain.js";
 import { PenroseError } from "./types/errors.js";
@@ -199,54 +199,6 @@ export const diagram = async (
 };
 
 /**
- * Embed an interactive Penrose diagram in a DOM node.
- *
- * @param prog a Penrose trio and variation
- * @param pathResolver a resolver function for fetching Style imports
- * @param node a node in the DOM tree
- * @param name the name of the diagram
- */
-export const interactiveDiagram = async (
-  prog: {
-    substance: string;
-    style: string;
-    domain: string;
-    variation: string;
-    excludeWarnings: string[];
-  },
-  node: HTMLElement,
-  pathResolver: PathResolver,
-  name?: string,
-): Promise<void> => {
-  const updateData = async (state: State) => {
-    const stepped = optimizeOrThrow(state);
-    const rendering = await toInteractiveSVG(
-      stepped,
-      updateData,
-      pathResolver,
-      name ?? "",
-    );
-    node.replaceChild(rendering, node.firstChild!);
-  };
-  const res = await compile(prog);
-  if (res.isOk()) {
-    const state: State = res.value;
-    const optimized = optimizeOrThrow(state);
-    const rendering = await toInteractiveSVG(
-      optimized,
-      updateData,
-      pathResolver,
-      name ?? "",
-    );
-    node.appendChild(rendering);
-  } else {
-    throw Error(
-      `Error when generating Penrose diagram: ${showError(res.error)}`,
-    );
-  }
-};
-
-/**
  * Given a trio of Domain, Substance, and Style programs, compile them into an initial `State`.
  * @param domainProg a Domain program string
  * @param subProg a Substance program string
@@ -405,11 +357,12 @@ export {
   prettyCompiledSubstance,
   prettySubstance,
 } from "./compiler/Substance.js";
+export { mapShape, mapValueNumeric } from "./engine/EngineUtils.js";
 export { start } from "./engine/Optimizer.js";
 export { constrDict } from "./lib/Constraints.js";
 export { compDict } from "./lib/Functions.js";
 export { objDict } from "./lib/Objectives.js";
-export { RenderShapes, toInteractiveSVG, toSVG } from "./renderer/Renderer.js";
+export { RenderShapes, toSVG } from "./renderer/Renderer.js";
 export type { PathResolver } from "./renderer/Renderer.js";
 export { makeCanvas, simpleContext } from "./shapes/Samplers.js";
 export type { Canvas } from "./shapes/Samplers.js";
@@ -433,8 +386,10 @@ export {
   mathjaxInit,
 } from "./utils/CollectLabels.js";
 export {
+  err,
   errLocs,
   isPenroseError,
+  ok,
   runtimeError,
   showError,
 } from "./utils/Error.js";

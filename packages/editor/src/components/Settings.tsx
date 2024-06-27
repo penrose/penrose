@@ -1,11 +1,14 @@
 import { useCallback } from "react";
-import { useRecoilStateLoadable } from "recoil";
-import { settingsState } from "../state/atoms.js";
+import { useRecoilState, useRecoilStateLoadable } from "recoil";
+import { diagramMetadataSelector, settingsState } from "../state/atoms.js";
 import { useSignIn } from "../state/callbacks.js";
 import BlueButton from "./BlueButton.js";
 
 export default function Settings() {
   const [settings, setSettings] = useRecoilStateLoadable(settingsState);
+  const [diagramMetadata, setDiagramMetadata] = useRecoilState(
+    diagramMetadataSelector,
+  );
   const signIn = useSignIn();
   const signOut = useCallback(() => {
     setSettings((settings) => ({ ...settings, github: null }));
@@ -39,6 +42,21 @@ export default function Settings() {
             onChange={(e) =>
               setSettings((state) => ({ ...state, vimMode: e.target.checked }))
             }
+          />
+        </label>
+      </div>
+      <div>
+        <label>
+          interactive mode (experimental){" "}
+          <input
+            type="checkbox"
+            checked={settings.contents.interactive}
+            onChange={(e) => {
+              setSettings((settings) => ({
+                ...settings,
+                interactive: e.target.checked,
+              }));
+            }}
           />
         </label>
       </div>
