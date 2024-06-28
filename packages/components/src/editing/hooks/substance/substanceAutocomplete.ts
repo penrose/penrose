@@ -91,7 +91,7 @@ export const createSubstanceAutocomplete = (
 
     let word = context.matchBefore(/\w*/);
 
-    if (word == null) {
+    if (word == null || (word.from == word.to && !context.explicit)) {
       return null;
     }
 
