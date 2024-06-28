@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { domainKws } from "../hooks/domain/domainAutocomplete";
+import { builtinTypes, domainKws } from "../hooks/domain/domainAutocomplete";
 import { getDomainCache } from "../hooks/domain/getDomainCache";
 import { parser } from "../parser/domain/domain";
 import {
@@ -405,7 +405,11 @@ describe("Autocomplete", () => {
     type Rectangle
     function Box(P)`;
 
-    await testDomainAutocomplete(input, ["Point", "Rectangle"], 1);
+    await testDomainAutocomplete(
+      input,
+      ["Point", "Rectangle"].concat(builtinTypes),
+      1,
+    );
   });
 
   test("Type names, first item in constructor param list", async () => {
@@ -413,7 +417,11 @@ describe("Autocomplete", () => {
     type Rectangle
     constructor Box(P)`;
 
-    await testDomainAutocomplete(input, ["Point", "Rectangle"], 1);
+    await testDomainAutocomplete(
+      input,
+      ["Point", "Rectangle"].concat(builtinTypes),
+      1,
+    );
   });
 
   test("Type names, comma sep in function param list", async () => {
@@ -421,7 +429,11 @@ describe("Autocomplete", () => {
     type Rectangle
     function Box(Point x1, Point y1, Point x2, P)`;
 
-    await testDomainAutocomplete(input, ["Point", "Rectangle"], 1);
+    await testDomainAutocomplete(
+      input,
+      ["Point", "Rectangle"].concat(builtinTypes),
+      1,
+    );
   });
 
   test("Function output type", async () => {
@@ -430,7 +442,10 @@ describe("Autocomplete", () => {
     type Program
     function Compute(Array a) -> E`;
 
-    await testDomainAutocomplete(input, ["Element", "Array", "Program"]);
+    await testDomainAutocomplete(
+      input,
+      ["Element", "Array", "Program"].concat(builtinTypes),
+    );
   });
 
   test("Constructor output type", async () => {
@@ -439,7 +454,10 @@ describe("Autocomplete", () => {
     type Program
     constructor Compute(Array a) -> E`;
 
-    await testDomainAutocomplete(input, ["Element", "Array", "Program"]);
+    await testDomainAutocomplete(
+      input,
+      ["Element", "Array", "Program"].concat(builtinTypes),
+    );
   });
 
   test("Subtypes implicit", async () => {
@@ -448,7 +466,10 @@ describe("Autocomplete", () => {
     type Program
     Element <: P`;
 
-    await testDomainAutocomplete(input, ["Element", "Array", "Program"]);
+    await testDomainAutocomplete(
+      input,
+      ["Element", "Array", "Program"].concat(builtinTypes),
+    );
   });
 
   test("Subtypes explicit", async () => {
@@ -457,11 +478,9 @@ describe("Autocomplete", () => {
     type Program
     type Balls <: P`;
 
-    await testDomainAutocomplete(input, [
-      "Element",
-      "Array",
-      "Program",
-      "Balls",
-    ]);
+    await testDomainAutocomplete(
+      input,
+      ["Element", "Array", "Program", "Balls"].concat(builtinTypes),
+    );
   });
 });

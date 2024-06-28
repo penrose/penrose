@@ -1,6 +1,5 @@
 import { CompletionContext } from "@codemirror/autocomplete";
 import { syntaxTree } from "@codemirror/language";
-import { printTree } from "@lezer-unofficial/printer";
 import { SyntaxNode } from "@lezer/common";
 import { useCallback } from "react";
 import { DomainCache } from "../../../editing/types";
@@ -13,6 +12,14 @@ export const domainKws = [
   "function",
   "constructor",
 ];
+
+export const builtinTypes = ["String", "Number"];
+
+const builtinTypeOptions = builtinTypes.map((type) => ({
+  label: `${type}`,
+  type: "variable",
+  detail: "type",
+}));
 
 const keywordOptions = domainKws.map((kw) => ({
   label: `${kw} `,
@@ -57,9 +64,6 @@ export const createDomainAutocomplete = (domainCache: DomainCache) => {
       leftSib = parentNode.prevSibling;
       parentNode = parentNode.parent;
     }
-    let wholeTree = syntaxTree(context.state).topNode;
-
-    console.log(printTree(wholeTree, context.state.doc.toString()));
 
     // Autocomplete keywords
     if (InsideDeclaration(parentNode) && leftSib === null) {
@@ -110,21 +114,21 @@ export const createDomainAutocomplete = (domainCache: DomainCache) => {
     if (leftSib === null && goUpToTarget(nodeBefore, "ParamList")) {
       return {
         from: word.from,
-        options: getTypeOptions(domainCache),
+        options: getTypeOptions(domainCache).concat(builtinTypeOptions),
       };
     }
     // Case 2: Output type in functions and constructors
     else if (leftSib === null && goUpToTarget(nodeBefore, "Output")) {
       return {
         from: word.from,
-        options: getTypeOptions(domainCache),
+        options: getTypeOptions(domainCache).concat(builtinTypeOptions),
       };
     }
     // Case 3: Defining subtype
     else if (parentNode !== null && parentNode.name === "InheritanceList") {
       return {
         from: word.from,
-        options: getTypeOptions(domainCache),
+        options: getTypeOptions(domainCache).concat(builtinTypeOptions),
       };
     }
 
