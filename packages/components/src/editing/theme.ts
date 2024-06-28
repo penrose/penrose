@@ -4,7 +4,7 @@ import { tags as t } from "@lezer/highlight";
 import { createTheme, type CreateThemeOptions } from "@uiw/codemirror-themes";
 
 export const config = {
-  background: "#F5F5F5",
+  background: "#FFFFFF",
   foreground: "#333333",
   selection: "#C9D0D9",
   selectionMatch: "#C9D0D9",
