@@ -9,13 +9,10 @@ const getTypeNames = (domainProg: string, typeNodes: SyntaxNode[]) => {
     let nodeCursor = node.cursor();
     // move to "type"
     nodeCursor.firstChild();
-    // move to identifier or SubType
+    // move to identifier
     nodeCursor.nextSibling();
+
     if (nodeCursor.type.name === "Identifier") {
-      types.push(extractText(domainProg, nodeCursor.to, nodeCursor.from));
-    } else if (nodeCursor.type.name === "Subtype") {
-      // move into SubType identifier
-      nodeCursor.firstChild();
       types.push(extractText(domainProg, nodeCursor.to, nodeCursor.from));
     }
   });
@@ -23,34 +20,21 @@ const getTypeNames = (domainProg: string, typeNodes: SyntaxNode[]) => {
   return types;
 };
 
-const getPredicateNames = (
-  domainProg: string,
-  predNodes: SyntaxNode[],
-  symPredNodes: SyntaxNode[],
-) => {
+const getPredicateNames = (domainProg: string, predNodes: SyntaxNode[]) => {
   let preds = [] as string[];
 
   predNodes.forEach((node: SyntaxNode) => {
     let nodeCursor = node.cursor();
-    // move to "predicate"
+    // move to "predicate" or symmetric
     nodeCursor.firstChild();
+    if (nodeCursor.name === "symmetric") {
+      nodeCursor.nextSibling();
+    }
     // move to identifier
     nodeCursor.nextSibling();
     preds.push(extractText(domainProg, nodeCursor.to, nodeCursor.from));
   });
 
-  symPredNodes.forEach((node: SyntaxNode) => {
-    let nodeCursor = node.cursor();
-    // move to "symmetric"
-    nodeCursor.firstChild();
-    // move into Predicate
-    nodeCursor.nextSibling();
-    // move into "predicate"
-    nodeCursor.firstChild();
-    // move to identifier
-    nodeCursor.nextSibling();
-    preds.push(extractText(domainProg, nodeCursor.to, nodeCursor.from));
-  });
   return preds;
 };
 
@@ -74,12 +58,8 @@ export const getDomainCache = (domainProg: string) => {
   const tree = parser.parse(domainProg).topNode;
 
   return {
-    typeNames: getTypeNames(domainProg, tree.getChildren("Type")),
-    predNames: getPredicateNames(
-      domainProg,
-      tree.getChildren("Predicate"),
-      tree.getChildren("SymPred"),
-    ),
+    typeNames: getTypeNames(domainProg, tree.getChildren("TypeDecl")),
+    predNames: getPredicateNames(domainProg, tree.getChildren("Predicate")),
     fnNames: getFn_ConsNames(domainProg, tree.getChildren("Function")),
     consNames: getFn_ConsNames(domainProg, tree.getChildren("Constructor")),
   };

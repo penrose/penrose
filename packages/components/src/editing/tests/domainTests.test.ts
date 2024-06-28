@@ -16,8 +16,7 @@ describe("Parser", () => {
   });
 
   test("comments and whitespaces", () => {
-    const prog = `
--- comments
+    const prog = `-- comments
 type Set -- inline comments\r
 -- type Point
 predicate From(Map f, Set domain, Set codomain)\r\n
@@ -32,8 +31,7 @@ predicate From(Map f, Set domain, Set codomain)
   });
 
   test("tree integrity", () => {
-    const prog = `
--- comments
+    const prog = `-- comments
 type Set -- inline comments
 -- type Point
 predicate From(Map f, Set domain, Set codomain)
@@ -58,8 +56,7 @@ RightClopenInterval <: Interval
   });
 
   test("predicate decls", () => {
-    const prog = `
--- comments
+    const prog = `-- comments
 predicate Not(Prop p1)
 predicate From(Map f, Set domain, Set codomain)
 predicate Empty(Set s)
@@ -79,8 +76,7 @@ symmetric predicate Disjoint(Set, Set)
   });
 
   test("function decls", () => {
-    const prog = `
--- comments
+    const prog = `-- comments
 function Intersection(Set a, Set b) -> Set
 function Union(Set a, Set b) -> Set c
 function Subtraction(Set a, Set b) -> Set
@@ -95,8 +91,7 @@ function Empty() -> Scalar
   });
 
   test("constructor decls", () => {
-    const prog = `
--- real program
+    const prog = `-- real program
 constructor CreateInterval(Real left, Real right) -> Interval
 constructor CreateOpenInterval(Real left, Real right) -> OpenInterval
 constructor CreateClosedInterval(Real left, Real right) -> ClosedInterval
@@ -109,8 +104,7 @@ constructor Pt(Real x, Real y) -> Point
   });
 
   test("Subtype decls", () => {
-    const prog = `
-Reals <: Set
+    const prog = `Reals <: Set
 Interval <: Set
 Reals <: Interval
 OpenInterval <: Interval
@@ -122,8 +116,7 @@ RightClopenInterval <: Interval
     hasNoErrors(parser, prog);
   });
   test("dangling output type conflict with subtype decls", () => {
-    const prog = `
-		type A
+    const prog = `type A
 		type B        
 		function f(A arg) -> B
 		A <: B`;
@@ -203,8 +196,7 @@ Ray <: Segment`;
   });
 
   test("combined 1", () => {
-    const input = `
-type Graph
+    const input = `type Graph
 type Layer
 type Layer1
 type Layer2
@@ -230,8 +222,7 @@ function Bisector(Angle) -> Ray -- This function creates a ray as the angle bise
   });
 
   test("combined 2", () => {
-    const input = `
-    predicate IsLine()
+    const input = `predicate IsLine()
     predicate IsBig()
     type Angle
     function Bisector (Angle) -> Angle
@@ -355,7 +346,7 @@ describe("Autocomplete", () => {
     const input = `type Circle
     ty`;
 
-    await testDomainAutocomplete(input, domainKws);
+    await testDomainAutocomplete(input, domainKws.concat(["Circle"]));
   });
 
   test("Top level kws mixed", async () => {
@@ -364,7 +355,7 @@ describe("Autocomplete", () => {
     predicate Segment(Point x, Point y)
     f`;
 
-    await testDomainAutocomplete(input, domainKws);
+    await testDomainAutocomplete(input, domainKws.concat(["Angle", "Point"]));
   });
 
   test("Top level kws function ambiguous case 1", async () => {
@@ -372,7 +363,7 @@ describe("Autocomplete", () => {
     function Bisect(Angle a) -> Angle
     sy`;
 
-    await testDomainAutocomplete(input, domainKws);
+    await testDomainAutocomplete(input, domainKws.concat(["Angle"]));
   });
 
   test("Top level kws ambiguous case 2", async () => {
@@ -381,7 +372,7 @@ describe("Autocomplete", () => {
     constructor Bisect(Angle a) -> Angle
     sy`;
 
-    await testDomainAutocomplete(input, domainKws);
+    await testDomainAutocomplete(input, domainKws.concat(["Angle"]));
   });
 
   test("Top level kws constructor no output type", async () => {
@@ -389,7 +380,7 @@ describe("Autocomplete", () => {
     constructor Bisect(Angle a)
     sy`;
 
-    await testDomainAutocomplete(input, domainKws);
+    await testDomainAutocomplete(input, domainKws.concat(["Angle"]));
   });
 
   test("Top level kws constructor with identifier", async () => {
@@ -397,7 +388,7 @@ describe("Autocomplete", () => {
     constructor Bisect(Angle a) -> Angle b
     sy`;
 
-    await testDomainAutocomplete(input, domainKws);
+    await testDomainAutocomplete(input, domainKws.concat(["Angle"]));
   });
 
   test("Symmetric predicate", async () => {

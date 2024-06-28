@@ -417,18 +417,18 @@ test("arithmetic expr", () => {
   const prog = `
 const {
   -- pos/neg numbers
-  float pn1 = -5.2
+  pn1 = -5.2
   pn2 = -3.14532e+2
   pn3 = 1 + (-3.14) / 3.0 * (-2.0)
   -- nesting and parens
   n1 = (1.0)
   n2 = (1.0 + .2)
-  float n3 = 1.0 + 2.0 / .3
+  n3 = 1.0 + 2.0 / .3
   -- plus/minus
   p1 = 1.0 - 2.0
   p2 = 1.0 + "string" -- should still parse
   p3 = 1.0 + ?
-  float p4 = 1.0 + 2.0 - 3.0 + 4.0
+  p4 = 1.0 + 2.0 - 3.0 + 4.0
   -- mul/div
   m1 = 1.0 / 2.0
   m2 = 1.0 * "string" -- should still parse
@@ -493,7 +493,7 @@ testing {
   mat3x3 a1 = vec[42]
   vec3 a2 = vec[12][34]
   vec2 a3 = a[1] + a[0]
-  vec2[] a4 = m [1][0] + m[c] [b]
+  vec2 a4 = m [1][0] + m[c] [b]
   a5 = comp(x[1][b])
   a6 = A.shape.vec[comp(a1[12][34])][a2[56]]
 

@@ -152,7 +152,6 @@ export const exprKws = ["true", "false", "listof"].map((name) => ({
 // We break into string array and completion object array for use in tests
 export const typeNamesArr = [
   "scalar",
-  "float",
   "int",
   "bool",
   "string",

@@ -133,7 +133,6 @@ Assign {
 Type {
 	@extend<Identifier,
 		("scalar" |
-		"float" |
 		"int" |
 		"bool" |	
 		"string" |
@@ -191,7 +190,7 @@ BinaryExpression {
 	Expr !plus (BinOp<"+" | "-">) Expr
 }
 
-AnnotatedFloat { ("?" (!postfix StageSpecifier)? | Number) } 
+AnnotatedFloat { ("?" ("[" Number "]")? (!postfix StageSpecifier)? | Number) } 
 // AnnotatedFloat { ("?" | Number) } 
 ComputationFunction { Identifier !call "(" commaSep<Expr> ")" }
 StyVarExpr {
