@@ -39,8 +39,7 @@ const errLocPairs = (
 
 // need to test this more
 const getPos = (line: number, col: number, text: Text) => {
-  // console.log(col);
-  // rule seems to work correctly for all but end of line, min compensates
+  // Rule seems to work correctly for all but end of line, min compensates
   const pos = text.line(line).from + col;
   return Math.min(pos, text.line(line).to);
 };
@@ -53,7 +52,6 @@ export const createLinter = (
 ) => {
   return useCallback(
     async (view: EditorView) => {
-      // console.log(error);
       let diagnostics: Diagnostic[] = [];
 
       const errPairs = error === null ? [] : errLocPairs(error);
@@ -81,7 +79,7 @@ export const createLinter = (
             severity: "warning",
           }));
 
-        // type should be Severity from lezer, but its not exported
+        // type for err should be Severity from lezer, but its not exported
         errMarkers.forEach((err: any) => {
           diagnostics.push(err);
         });

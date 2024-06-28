@@ -36,7 +36,6 @@ const getIdsFromFnCons = (
   fnConsAppNodes.forEach((node: SyntaxNode) => {
     // Ignore indexed statements
     if (containsIndexedStatement(node)) {
-      // exits from current iteration, like continue
       return;
     }
 
@@ -54,7 +53,6 @@ const getIdsFromFnCons = (
     // Move to Identifier
     ids.push(extractText(substanceProg, nodeCursor.to, nodeCursor.from));
   });
-  //   console.log(ids);
   return ids;
 };
 

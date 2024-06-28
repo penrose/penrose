@@ -102,6 +102,7 @@ export const getNamespaceDict = (topNode: SyntaxNode, styleProg: string) => {
       if (stNodeCursor.name !== "Assign") return;
       // Into either Type or Path
       stNodeCursor.firstChild();
+      // Typescript thinks the name must be "Assign" by previous check
       // @ts-ignore
       if (stNodeCursor.name === "Type") {
         stNodeCursor.nextSibling();

@@ -34,14 +34,6 @@ export const createStyleAutocomplete = (
     let nodeBefore = syntaxTree(context.state).resolveInner(context.pos, -1);
     let parentNode = nodeBefore.parent;
     let word = context.matchBefore(/\w*/);
-    let wholeTree = syntaxTree(context.state).topNode;
-
-    // console.log(
-    //   printTree(wholeTree, context.state.doc.toString()),
-    // nodeBefore,
-    // parentNode,
-    // word,
-    // );
 
     if (word == null) {
       return null;

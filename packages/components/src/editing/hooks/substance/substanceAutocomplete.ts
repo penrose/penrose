@@ -73,7 +73,6 @@ const idOptions = (substanceCache: SubstanceCache) => {
     label: `${id}`,
     type: "variable",
   }));
-  // .filter((obj) => obj.label.length > 1);
 };
 
 export const createSubstanceAutocomplete = (
@@ -91,10 +90,6 @@ export const createSubstanceAutocomplete = (
     }
 
     let word = context.matchBefore(/\w*/);
-    let wholeTree = syntaxTree(context.state).topNode;
-    //   console.log(domainCache);
-    //   console.log(parentNode, leftSib, wholeTree.toString());
-    // console.log(wholeTree.toString(), parentNode, parentNode?.prevSibling,);
 
     if (word == null) {
       return null;
@@ -163,7 +158,6 @@ export const createSubstanceAutocomplete = (
         // but those are supposed to be Strings or TeX anyways
         (parentNode.name === "Labeling" && leftSib !== null))
     ) {
-      // console.log(substanceCache);
       return {
         from: word.from,
         options: idOptions(substanceCache),

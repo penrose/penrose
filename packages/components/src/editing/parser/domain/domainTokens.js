@@ -10,7 +10,6 @@ import {
 export const trackNewline = new ContextTracker({
   start: false,
   shift(context, term) {
-    // console.log(term, context);
     return term === LineComment || term === BlockComment || term === spaces
       ? context
       : term === newline;
@@ -21,7 +20,9 @@ export const trackNewline = new ContextTracker({
 export const insertSemicolon = new ExternalTokenizer(
   (input, stack) => {
     let { next } = input;
-    if (next === -1 || stack.context) input.acceptToken(insertSemi);
+    if (next === -1 || stack.context) {
+      input.acceptToken(insertSemi);
+    }
   },
   { contextual: false, fallback: true },
 );

@@ -51,16 +51,11 @@ export const createDomainAutocomplete = (domainCache: DomainCache) => {
       return null;
     }
 
-    let wholeTree = syntaxTree(context.state).topNode;
-
     // In erorr state, error node wraps the current node
     if (parentNode != null && parentNode.type.isError) {
       leftSib = parentNode.prevSibling;
       parentNode = parentNode.parent;
     }
-
-    // console.log(context.pos, context.state.doc.length);
-    // console.log(printTree(wholeTree, context.state.doc.toString()));
 
     /*
      * Autocomplete predicate if it's following symmetric
