@@ -1,4 +1,4 @@
-@top Program { (declaration newline*)* }
+@top Program { (declaration semi)* }
 
 declaration {
     TypeDecl |
@@ -65,7 +65,7 @@ Sep {
 	identifierChar { @asciiLetter | $[_$\u{a1}-\u{10ffff}] }
     word { identifierChar (identifierChar | @digit)* }
     Identifier { word }
-    LineComment[@export] { "--" ![\n\r]* newline }
+    LineComment[@export] { "--" ![\n\r]* }
     spaces[@export] { $[\u0009 \u000b\u00a0]+ }
     newline[@export] { $[\r\n] }
 }
@@ -80,6 +80,10 @@ blockCommentNewline { "\n" }
 @else blockCommentContent
 }
 
-@skip { spaces | LineComment | BlockComment }
+@skip { newline | spaces | LineComment | BlockComment }
 
 @detectDelim
+// https://lezer.codemirror.net/examples/javascript/
+@external tokens insertSemicolon from "./domainTokens.js" { insertSemi }
+@context trackNewline from "./domainTokens.js"
+semi { ";" | insertSemi }

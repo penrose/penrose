@@ -1,5 +1,6 @@
 import { CompletionContext } from "@codemirror/autocomplete";
 import { syntaxTree } from "@codemirror/language";
+import { printTree } from "@lezer-unofficial/printer";
 import { SyntaxNode } from "@lezer/common";
 import { useCallback } from "react";
 import { DomainCache } from "../../../editing/types";
@@ -56,40 +57,47 @@ export const createDomainAutocomplete = (domainCache: DomainCache) => {
       leftSib = parentNode.prevSibling;
       parentNode = parentNode.parent;
     }
+    let wholeTree = syntaxTree(context.state).topNode;
 
-    /*
-     * Autocomplete predicate if it's following symmetric
-     * Lezer guesses partial is a separate declaration node
-     * Example: symmetric p
-     * Lezer guesses this is an errored predicate node and the p belongs to a
-     * new subtype node
-     * Order matters, keyword autocomplete also checks true in this case
-     */
-    if (
-      // Check current node follows a Predicate declaration
-      parentNode != null &&
-      parentNode.prevSibling != null &&
-      parentNode.prevSibling.name === "Predicate"
-    ) {
-      if (
-        // Check has symmetric and is incomplete
-        parentNode.prevSibling.firstChild != null &&
-        parentNode.prevSibling.firstChild.name == "symmetric" &&
-        parentNode.prevSibling.firstChild.nextSibling != null &&
-        parentNode.prevSibling.firstChild.nextSibling.type.isError
-      ) {
-        return {
-          from: word.from,
-          options: [{ label: "predicate", type: "keyword" }],
-        };
-      }
-    }
+    console.log(printTree(wholeTree, context.state.doc.toString()));
 
     // Autocomplete keywords
     if (InsideDeclaration(parentNode) && leftSib === null) {
       return {
         from: word.from,
+        // Include type options for subtype statements
         options: keywordOptions.concat(getTypeOptions(domainCache)),
+      };
+    }
+
+    /*
+     * Ambiguous case. Example: "function name() -> type (newline) typ"
+     * would not suggest "type" without the following code, to assist in
+     * Error recovery, Lezer assumes "typ" is inside Function as a return
+     * name Identifier. We manually suggest autocompletion keywords here.
+     */
+    if (
+      parentNode != null &&
+      leftSib != null &&
+      parentNode.name === "Output" &&
+      leftSib.name === "Identifier"
+    ) {
+      return {
+        from: word.from,
+        options: keywordOptions.concat(getTypeOptions(domainCache)),
+      };
+    }
+
+    // Autocomplete predicate if it follows symmetric
+    if (
+      parentNode != null &&
+      parentNode.name === "Predicate" &&
+      leftSib != null &&
+      leftSib.name === "symmetric"
+    ) {
+      return {
+        from: word.from,
+        options: [{ label: "predicate", type: "keyword" }],
       };
     }
 
