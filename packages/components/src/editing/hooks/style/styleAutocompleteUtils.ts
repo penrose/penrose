@@ -87,7 +87,6 @@ export const getNamespaceDict = (topNode: SyntaxNode, styleProg: string) => {
     )
       return;
     let blockName = extractText(styleProg, nodeCursor.to, nodeCursor.from);
-    if (blockName === "canvas") return;
 
     // Get namespace property identifiers
     let varNames = [] as string[];

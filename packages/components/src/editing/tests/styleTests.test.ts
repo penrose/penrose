@@ -556,7 +556,7 @@ forall Element g
    scalar g.v = ( (1.-g.t) - 0.5 ) * global.tableWidth
 }
 `;
-    let expected_names = ["colors", "global"];
+    let expected_names = ["colors", "global", "canvas"];
     let expected_colors = ["lightGray", "mediumGray", "darkGray"];
     let expected_globals = ["tableWidth", "tableHeight", "boxPadding"];
 
