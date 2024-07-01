@@ -1,6 +1,5 @@
 import { autocompletion } from "@codemirror/autocomplete";
 import { lintGutter, linter } from "@codemirror/lint";
-import { EditorState } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import {
   DomainError,
@@ -40,8 +39,21 @@ export default function EditorPane({
   showCompileErrs,
   codemirrorHistoryState,
   readOnly,
+  darkMode,
+  height,
+  minHeight,
+  maxHeight,
+  width,
+  minWidth,
+  maxWidth,
 }: {
   value: string;
+  height?: string;
+  minHeight?: string;
+  maxHeight?: string;
+  width?: string;
+  minWidth?: string;
+  maxWidth?: string;
   vimMode: boolean;
   onChange(value: string): void;
   languageType: "substance" | "style" | "domain";
@@ -51,6 +63,7 @@ export default function EditorPane({
   warnings: StyleWarning[];
   showCompileErrs: boolean;
   readOnly: boolean;
+  darkMode: boolean;
   codemirrorHistoryState: boolean;
 }) {
   const statusBarRef = useRef<HTMLDivElement>(null);
@@ -118,7 +131,6 @@ export default function EditorPane({
       : styleExtensions;
 
   if (vimMode) extensionsList.push(vim());
-  if (readOnly) extensionsList.push(EditorState.readOnly.of(true));
 
   return (
     <div style={{ width: "100%", height: "100%", position: "relative" }}>
@@ -126,10 +138,16 @@ export default function EditorPane({
         value={value}
         extensions={extensionsList}
         onChange={onChange}
-        theme={penroseTheme}
+        theme={darkMode ? "dark" : penroseTheme}
         // History reset https://github.com/uiwjs/react-codemirror/issues/405
         // Set in packages/editor/src/state/callbacks.ts
         basicSetup={{ history: codemirrorHistoryState }}
+        width={width}
+        height={height}
+        maxHeight={maxHeight}
+        maxWidth={maxWidth}
+        minHeight={minHeight}
+        minWidth={minWidth}
       />
       <div
         ref={statusBarRef}

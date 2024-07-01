@@ -32,11 +32,14 @@ const Listing = ({
       languageType={"substance"}
       domainCache={getDomainCache(domain)}
       substanceCache={getSubstanceCache(substance)}
+      darkMode={darkMode}
       vimMode={false}
       error={error}
       warnings={warnings}
       codemirrorHistoryState={true}
       showCompileErrs={false}
+      width={width}
+      height={height}
     />
   );
 };

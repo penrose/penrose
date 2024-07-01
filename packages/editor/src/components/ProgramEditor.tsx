@@ -52,6 +52,7 @@ export default function ProgramEditor({ kind }: { kind: ProgramType }) {
       domainCache={domainCache}
       substanceCache={substanceCache}
       error={error}
+      darkMode={false}
       warnings={warnings}
       showCompileErrs={showCompileErrs}
       codemirrorHistoryState={codemirrorHistoryState}
