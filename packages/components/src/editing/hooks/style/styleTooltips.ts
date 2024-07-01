@@ -1,6 +1,6 @@
 import { syntaxTree } from "@codemirror/language";
 import { EditorView, hoverTooltip } from "@codemirror/view";
-import { compDict, isKeyOf } from "@penrose/core";
+import { compDict, constrDict, isKeyOf } from "@penrose/core";
 import { extractText, getShapeDefs } from "../hooksUtils";
 
 const createTooltip = (start: number, end: number, text: string) => {
@@ -46,9 +46,13 @@ export const wordHover = hoverTooltip((view, pos, side) => {
   // Go to parent since ComputationFn, ObjConstrBody, ShapeName have Identifier inside
   cursor.parent();
 
-  // Computation Function tooltip
-
-  if (cursor.name === "ComputationFunction") {
+  // Computation & Constraint Function tooltip
+  if (
+    cursor.name === "ComputationFunction" ||
+    cursor.name === "ObjConstrBody"
+  ) {
+    console.log("here");
+    let name = cursor.name;
     cursor.firstChild();
     const fnName = extractText(
       view.state.doc.toString(),
@@ -56,11 +60,20 @@ export const wordHover = hoverTooltip((view, pos, side) => {
       cursor.from,
     );
 
-    console.log(compDict);
-    // Necessary to avoid type error
-    if (!isKeyOf(fnName, compDict)) return null;
-    let text = toParamString(compDict[fnName], fnName);
-    return createTooltip(start, end, text);
+    if (name === "ComputationFunction") {
+      // Necessary to avoid type error
+      if (!isKeyOf(fnName, compDict)) return null;
+      let text = toParamString(compDict[fnName], fnName);
+      return createTooltip(start, end, text);
+    }
+
+    // Constraint Function case
+    if (name === "ObjConstrBody") {
+      console.log("inside");
+      if (!isKeyOf(fnName, constrDict)) return null;
+      let text = toParamString(constrDict[fnName], fnName);
+      return createTooltip(start, end, text);
+    }
   }
 
   // Shape property tooltip
