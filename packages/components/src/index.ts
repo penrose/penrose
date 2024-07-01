@@ -8,9 +8,6 @@ import StagedDiagram from "./StagedDiagram.js";
 import EditorPane from "./editing/EditorPane.js";
 import { getDomainCache } from "./editing/hooks/domain/getDomainCache.js";
 import { getSubstanceCache } from "./editing/hooks/substance/getSubstanceCache.js";
-import { SetupDomainMonaco } from "./editing/languages/DomainConfig.js";
-import { SetupStyleMonaco } from "./editing/languages/StyleConfig.js";
-import { SetupSubstanceMonaco } from "./editing/languages/SubstanceConfig.js";
 import fetchResolver from "./fetchPathResolver.js";
 import penroseBlue from "./themes/penroseBlue.js";
 export {
@@ -20,9 +17,6 @@ export {
   Grid,
   Listing,
   MultipleChoiceProblem,
-  SetupDomainMonaco,
-  SetupStyleMonaco,
-  SetupSubstanceMonaco,
   Simple,
   StagedDiagram,
   fetchResolver,
