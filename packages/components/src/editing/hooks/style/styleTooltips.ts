@@ -1,7 +1,12 @@
 import { syntaxTree } from "@codemirror/language";
 import { EditorView, hoverTooltip } from "@codemirror/view";
 import { compDict, constrDict, isKeyOf } from "@penrose/core";
-import { extractText, getShapeDefs } from "../hooksUtils";
+import {
+  extractText,
+  getShapeDefs,
+  traverseCursorDown,
+  traverseCursorUp,
+} from "../hooksUtils";
 
 const createTooltip = (start: number, end: number, text: string) => {
   return {
@@ -76,7 +81,7 @@ export const wordHover = hoverTooltip((view, pos, side) => {
     }
   }
 
-  // Shape property tooltip
+  // Shape name show properties tooltip
   if (cursor.name === "ShapeName") {
     const shapeName = extractText(
       view.state.doc.toString(),
@@ -93,6 +98,33 @@ export const wordHover = hoverTooltip((view, pos, side) => {
         " Properties: " +
         Object.keys(shapeDefs[shapeName]).join(", ");
       return createTooltip(start, end, text);
+    }
+  }
+
+  //   Shape property show type tooltip
+  if (cursor.name === "PropName") {
+    const propName = extractText(
+      view.state.doc.toString(),
+      cursor.to,
+      cursor.from,
+    );
+    const shapeDefs = getShapeDefs();
+    console.log(shapeDefs);
+
+    if (
+      traverseCursorUp(cursor, "ShapeDecl") &&
+      traverseCursorDown(cursor, "Identifier")
+    ) {
+      const shapeName = extractText(
+        view.state.doc.toString(),
+        cursor.to,
+        cursor.from,
+      );
+
+      if (shapeName in shapeDefs && propName in shapeDefs[shapeName]) {
+        const text = `${propName}:${shapeDefs[shapeName][propName]}`;
+        return createTooltip(start, end, text);
+      }
     }
   }
 
