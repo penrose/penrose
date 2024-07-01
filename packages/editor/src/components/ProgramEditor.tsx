@@ -56,6 +56,7 @@ export default function ProgramEditor({ kind }: { kind: ProgramType }) {
       warnings={warnings}
       showCompileErrs={showCompileErrs}
       codemirrorHistoryState={codemirrorHistoryState}
+      readOnly={false}
     />
   );
 }
