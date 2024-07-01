@@ -411,7 +411,12 @@ export { compDict } from "./lib/Functions.js";
 export { objDict } from "./lib/Objectives.js";
 export { RenderShapes, toInteractiveSVG, toSVG } from "./renderer/Renderer.js";
 export type { PathResolver } from "./renderer/Renderer.js";
-export { makeCanvas, simpleContext } from "./shapes/Samplers.js";
+export {
+  Context as SamplingContext,
+  makeCanvas,
+  simpleContext,
+  uniform,
+} from "./shapes/Samplers.js";
 export type { Canvas } from "./shapes/Samplers.js";
 export { sampleShape, shapeTypes } from "./shapes/Shapes.js";
 export type { ShapeType } from "./shapes/Shapes.js";
@@ -450,4 +455,15 @@ export {
   zip2,
 } from "./utils/Util.js";
 
+export { Circle, sampleCircle } from "./shapes/Circle.js";
+export { Ellipse, sampleEllipse } from "./shapes/Ellipse.js";
+export { Equation, sampleEquation } from "./shapes/Equation.js";
+export { Group, sampleGroup } from "./shapes/Group.js";
+export { Image, sampleImage } from "./shapes/Image.js";
+export { Line, sampleLine } from "./shapes/Line.js";
+export { Path, samplePath } from "./shapes/Path.js";
+export { Polygon, samplePolygon } from "./shapes/Polygon.js";
+export { Polyline, samplePolyline } from "./shapes/Polyline.js";
+export { Rectangle, sampleRectangle } from "./shapes/Rectangle.js";
 export type { Shape } from "./shapes/Shapes.js";
+export { Text, sampleText } from "./shapes/Text.js";
