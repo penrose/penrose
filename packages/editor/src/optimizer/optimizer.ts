@@ -41,7 +41,7 @@ import {
   taggedErr,
 } from "./common.js";
 
-const log = consola.create({ level: logLevel }).withScope("optimizer:client");
+const log = consola.create({ level: logLevel }).withTag("optimizer:client");
 
 export default class Optimizer {
   private resolvesByMsgId = new Map<
