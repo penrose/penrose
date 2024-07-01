@@ -78,8 +78,8 @@
     "@storybook/react": "^8.1.11",
     "@storybook/react-vite": "^8.1.11",
     "@storybook/test": "^8.1.11",
-    "@types/react": "^18.0.26",
-    "@types/react-dom": "^18.0.9",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
     "babel-loader": "^8.2.5",
     "storybook": "^8.1.11",
     "vite": "^4.0.4"

@@ -1,4 +1,4 @@
-import { ComponentMeta, ComponentStory } from "@storybook/react";
+import { Meta, StoryFn } from "@storybook/react";
 import Demo from "../Demo.js";
 import { vectorWedge } from "./PenrosePrograms.js";
 
@@ -12,10 +12,10 @@ export default {
   // argTypes: {
   //   backgroundColor: { control: 'color' },
   // },
-} as ComponentMeta<typeof Demo>;
+} as Meta<typeof Demo>;
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
-const Template: ComponentStory<typeof Demo> = (args) => (
+const Template: StoryFn<typeof Demo> = (args) => (
   <div style={{ width: "400px", height: "400px" }}>
     <Demo {...args} />
   </div>

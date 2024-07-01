@@ -1,4 +1,4 @@
-import { ComponentMeta, ComponentStory } from "@storybook/react";
+import { Meta, StoryFn } from "@storybook/react";
 import Embed from "../Embed.js";
 import { continuousMap, error, oneSet } from "./PenrosePrograms.js";
 
@@ -12,10 +12,10 @@ export default {
   // argTypes: {
   //   backgroundColor: { control: 'color' },
   // },
-} as ComponentMeta<typeof Embed>;
+} as Meta<typeof Embed>;
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
-const Template: ComponentStory<typeof Embed> = (args) => (
+const Template: StoryFn<typeof Embed> = (args) => (
   <div style={{ width: "50%", height: "50%" }}>
     <Embed {...args} />
   </div>
