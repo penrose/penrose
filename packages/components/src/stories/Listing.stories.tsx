@@ -27,9 +27,6 @@ ContinuousMapDark.args = {
   substance: continuousMap.substance,
   width: "400px",
   height: "300px",
-  monacoOptions: {
-    theme: "vs-dark",
-  },
 };
 
 export const ContinuousMap = Template.bind({});

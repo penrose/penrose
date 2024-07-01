@@ -1,5 +1,6 @@
 import { autocompletion } from "@codemirror/autocomplete";
 import { lintGutter, linter } from "@codemirror/lint";
+import { EditorState } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import {
   DomainError,
@@ -12,7 +13,6 @@ import { vim } from "@replit/codemirror-vim";
 import { color } from "@uiw/codemirror-extensions-color";
 import CodeMirror from "@uiw/react-codemirror";
 import { useEffect, useRef, useState } from "react";
-import { atom, useRecoilValue } from "recoil";
 import {
   DomainCache,
   ShapeDefinitions,
@@ -28,11 +28,6 @@ import { styleLanguageSupport } from "./parser/style/styleLanguage";
 import { substanceLanguageSupport } from "./parser/substance/substanceLanguage";
 import { penroseTheme } from "./theme";
 
-export const codemirrorHistory = atom<boolean>({
-  key: "codemirrorHistory",
-  default: true,
-});
-
 export default function EditorPane({
   value,
   onChange,
@@ -43,6 +38,8 @@ export default function EditorPane({
   error,
   warnings,
   showCompileErrs,
+  codemirrorHistoryState,
+  readOnly,
 }: {
   value: string;
   vimMode: boolean;
@@ -53,6 +50,8 @@ export default function EditorPane({
   error: StyleError | DomainError | SubstanceError | RuntimeError | null;
   warnings: StyleWarning[];
   showCompileErrs: boolean;
+  readOnly: boolean;
+  codemirrorHistoryState: boolean;
 }) {
   const statusBarRef = useRef<HTMLDivElement>(null);
 
@@ -119,8 +118,7 @@ export default function EditorPane({
       : styleExtensions;
 
   if (vimMode) extensionsList.push(vim());
-
-  const codemirrorHistoryState = useRecoilValue(codemirrorHistory);
+  if (readOnly) extensionsList.push(EditorState.readOnly.of(true));
 
   return (
     <div style={{ width: "100%", height: "100%", position: "relative" }}>

@@ -3,6 +3,7 @@ import { useCallback } from "react";
 import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from "recoil";
 import {
   ProgramType,
+  codemirrorHistory,
   diagramState,
   domainCacheState,
   fileContentsSelector,
@@ -19,6 +20,7 @@ export default function ProgramEditor({ kind }: { kind: ProgramType }) {
   const workspaceMetadata = useRecoilValue(workspaceMetadataSelector);
   const domainCache = useRecoilValue(domainCacheState);
   const substanceCache = useRecoilValue(substanceCacheState);
+  const codemirrorHistoryState = useRecoilValue(codemirrorHistory);
   const compileDiagram = useCompileDiagram();
   const settings = useRecoilValueLoadable(settingsState);
   const [diagram] = useRecoilState(diagramState);
@@ -52,6 +54,7 @@ export default function ProgramEditor({ kind }: { kind: ProgramType }) {
       error={error}
       warnings={warnings}
       showCompileErrs={showCompileErrs}
+      codemirrorHistoryState={codemirrorHistoryState}
     />
   );
 }

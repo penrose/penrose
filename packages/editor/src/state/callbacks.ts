@@ -1,4 +1,3 @@
-import { codemirrorHistory } from "@penrose/components";
 import { runtimeError } from "@penrose/core";
 import { Style } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
@@ -30,6 +29,7 @@ import {
   WorkspaceLocation,
   WorkspaceMetadata,
   canvasState,
+  codemirrorHistory,
   currentRogerState,
   currentWorkspaceState,
   defaultWorkspaceState,

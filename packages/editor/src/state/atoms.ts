@@ -547,3 +547,8 @@ export const settingsState = atom<Settings>({
   },
   effects: [settingsEffect, debugModeEffect],
 });
+
+export const codemirrorHistory = atom<boolean>({
+  key: "codemirrorHistory",
+  default: true,
+});

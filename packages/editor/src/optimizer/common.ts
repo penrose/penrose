@@ -13,12 +13,12 @@ import {
   showError,
   State,
 } from "@penrose/core";
-import consola from "consola";
+import { LogLevels } from "consola";
 import { Result } from "true-myth";
 
 // Config
 
-export const logLevel = (consola as any).LogLevel.Warn;
+export const logLevel = LogLevels.warn;
 
 // Basic types
 
