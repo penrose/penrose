@@ -222,12 +222,15 @@ export const RenderShape = async (
   shape: Shape<number>,
   renderProps: RenderProps,
 ): Promise<SVGElement> => {
+  let outSvg;
   if (shape.shapeType === "Group") {
-    const outSvg = await RenderGroup(shape, renderProps);
-    return outSvg;
+    outSvg = await RenderGroup(shape, renderProps);
   } else {
-    return await RenderShapeSvg(shape, renderProps);
+    outSvg = await RenderShapeSvg(shape, renderProps);
   }
+  // prevent from blocking interactive elements
+  outSvg.setAttribute("pointer-events", "none");
+  return outSvg;
 };
 
 export const RenderShapes = async (
@@ -238,8 +241,6 @@ export const RenderShapes = async (
   for (let i = 0; i < shapes.length; ++i) {
     const shape = shapes[i];
     const elem = await RenderShape(shape, renderProps);
-    // prevent from blocking interactive elements
-    elem.setAttribute("pointer-events", "none");
     svg.appendChild(elem);
   }
 };

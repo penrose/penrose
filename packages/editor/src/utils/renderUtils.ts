@@ -1,9 +1,9 @@
 import { PathResolver, RenderShapes, runtimeError } from "@penrose/core";
-import { isErr, RenderState, showOptimizerError } from "../optimizer/common.js";
-import { Diagram, optimizer } from "../state/atoms.js";
-import { Interaction } from "./interactionUtils.js";
 import { clamp, min } from "lodash";
 import { useCallback } from "react";
+import { RenderState, isErr, showOptimizerError } from "../optimizer/common.js";
+import { Diagram, optimizer } from "../state/atoms.js";
+import { Interaction } from "./interactionUtils.js";
 
 export const stateToSVG = async (
   state: RenderState,
@@ -12,7 +12,7 @@ export const stateToSVG = async (
     width: string;
     height: string;
     texLabels: boolean;
-    titleCache?: Map<string, SVGElement>
+    titleCache?: Map<string, SVGElement>;
   },
 ): Promise<SVGSVGElement> => {
   const { canvas, shapes, labelCache, variation } = state;
@@ -59,7 +59,7 @@ export const getRelativeBBox = (elem: Element, containing: Element) => {
 export const getScreenToSvgPosition = (
   { clientX, clientY }: { clientX: number; clientY: number },
   CTM: DOMMatrix | null,
-): { x: number, y: number } => {
+): { x: number; y: number } => {
   if (CTM !== null) {
     return new DOMPoint(clientX, clientY).matrixTransform(CTM.inverse());
   }
@@ -118,91 +118,100 @@ export const interactAndUpdate = async (
     ...worker,
     optimizing: true,
   }));
-}
+};
 
 const preventSelection = (e: Event) => {
   e.preventDefault();
 };
 
-export const makeTranslateOnMouseDown = (
-  diagramSVG: SVGSVGElement,
-  elem: SVGElement,
-  state: RenderState,
-  path: string,
-  translate: (path: string, dx: number, dy: number) => Promise<void>,
-  constraint?: ([x, y]: [number, number]) => [number, number],
-  onMouseUp?: (e: MouseEvent) => void,
-) => (e: MouseEvent) => {
-  window.addEventListener("selectstart", preventSelection);
-  console.log("down!")
+export const makeTranslateOnMouseDown =
+  (
+    diagramSVG: SVGSVGElement,
+    elem: SVGElement,
+    state: RenderState,
+    path: string,
+    translate: (path: string, dx: number, dy: number) => Promise<void>,
+    constraint?: ([x, y]: [number, number]) => [number, number],
+    onMouseUp?: (e: MouseEvent) => void,
+  ) =>
+  (e: MouseEvent) => {
+    window.addEventListener("selectstart", preventSelection);
+    const prevCursor = document.body.style.cursor;
+    document.body.style.cursor = "grabbing";
+    elem.style.cursor = "grabbing";
 
-  const CTM = diagramSVG.getScreenCTM();
-  const { x: startX, y: startY } = getScreenToSvgPosition(e, CTM);
+    const CTM = diagramSVG.getScreenCTM();
+    const { x: startX, y: startY } = getScreenToSvgPosition(e, CTM);
 
-  const {
-    width: bboxW,
-    height: bboxH,
-    x: bboxX,
-    y: bboxY,
-  } = getSvgBBox(elem, diagramSVG);
+    const {
+      width: bboxW,
+      height: bboxH,
+      x: bboxX,
+      y: bboxY,
+    } = getSvgBBox(elem, diagramSVG);
 
-  const approxCenterX = bboxX + bboxW / 2;
-  const approxCenterY = bboxY + bboxH / 2;
-  const approxInitDeltaX = startX - approxCenterX;
-  const approxInitDeltaY = startY - approxCenterY;
+    const approxCenterX = bboxX + bboxW / 2;
+    const approxCenterY = bboxY + bboxH / 2;
+    const approxInitDeltaX = startX - approxCenterX;
+    const approxInitDeltaY = startY - approxCenterY;
 
-  const minX = startX - bboxX;
-  const maxX = state.canvas.width - bboxW + (startX - bboxX);
-  const minY = startY - bboxY;
-  const maxY = state.canvas.height - bboxH + (startY - bboxY);
+    const minX = startX - bboxX;
+    const maxX = state.canvas.width - bboxW + (startX - bboxX);
+    const minY = startY - bboxY;
+    const maxY = state.canvas.height - bboxH + (startY - bboxY);
 
-  let dx = 0,
-    dy = 0;
-  let queuedMouseMove: () => void = () => {};
-  let readyForMouseMove = true;
+    let dx = 0,
+      dy = 0;
+    let queuedMouseMove: () => void = () => {};
+    let readyForMouseMove = true;
 
-  const onMouseMove = async (e: MouseEvent) => {
-    if (!readyForMouseMove) {
-      queuedMouseMove = () => onMouseMove(e);
-      return;
-    }
+    const onMouseMove = async (e: MouseEvent) => {
+      if (!readyForMouseMove) {
+        queuedMouseMove = () => onMouseMove(e);
+        return;
+      }
 
-    const viewBox = diagramSVG.viewBox;
-    const svgWidth = viewBox.baseVal.width;
-    const svgHeight = viewBox.baseVal.height;
+      const viewBox = diagramSVG.viewBox;
+      const svgWidth = viewBox.baseVal.width;
+      const svgHeight = viewBox.baseVal.height;
 
-    let { x, y } = getScreenToSvgPosition(e, CTM);
-    console.log(x, y)
-    if (constraint) {
-      [x, y] = constraint([x - approxInitDeltaX - svgWidth / 2, -(y - approxInitDeltaY) + svgHeight / 2]);
-      x = x + approxInitDeltaX + svgWidth / 2;
-      y = -(y - svgHeight / 2) + approxInitDeltaY;
-    }
-    const constrainedX = x;//clamp(x, minX, maxX);
-    const constrainedY = y;//clamp(y, minY, maxY);
-    dx = constrainedX - startX;
-    dy = startY - constrainedY;
+      let { x, y } = getScreenToSvgPosition(e, CTM);
+      console.log(x, y);
+      if (constraint) {
+        [x, y] = constraint([
+          x - approxInitDeltaX - svgWidth / 2,
+          -(y - approxInitDeltaY) + svgHeight / 2,
+        ]);
+        x = x + approxInitDeltaX + svgWidth / 2;
+        y = -(y - svgHeight / 2) + approxInitDeltaY;
+      }
+      const constrainedX = x; //clamp(x, minX, maxX);
+      const constrainedY = y; //clamp(y, minY, maxY);
+      dx = constrainedX - startX;
+      dy = startY - constrainedY;
 
-    readyForMouseMove = false;
-    await translate(path, dx, dy);
-    readyForMouseMove = true;
+      readyForMouseMove = false;
+      await translate(path, dx, dy);
+      readyForMouseMove = true;
 
-    const toRun = queuedMouseMove;
-    queuedMouseMove = () => {};
-    toRun();
+      const toRun = queuedMouseMove;
+      queuedMouseMove = () => {};
+      toRun();
+    };
+
+    const onMouseUp_ = (e: MouseEvent) => {
+      document.removeEventListener("mouseup", onMouseUp_);
+      document.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("selectstart", preventSelection);
+      document.body.style.cursor = prevCursor;
+      elem.style.cursor = "grab";
+      translate(path, dx, dy);
+      onMouseUp?.(e);
+    };
+
+    document.addEventListener("mouseup", onMouseUp_);
+    document.addEventListener("mousemove", onMouseMove);
   };
-
-  const onMouseUp_ = (e: MouseEvent) => {
-    document.removeEventListener("mouseup", onMouseUp_);
-    document.removeEventListener("mousemove", onMouseMove);
-    window.removeEventListener("selectstart", preventSelection);
-    translate(path, dx, dy);
-    onMouseUp?.(e);
-  };
-
-  document.addEventListener("mouseup", onMouseUp_);
-  document.addEventListener("mousemove", onMouseMove);
-}
 
 export const useScaleOnMouseDown = (
   diagramSVG: SVGSVGElement,
@@ -312,3 +321,71 @@ export const useScaleOnMouseDown = (
     },
     [diagramSVG, state, path, elem, scale, corner],
   );
+
+export const renderPlayModeInteractivity = (
+  diagram: Diagram,
+  svgTitleCache: Map<string, SVGElement>,
+  setDiagram: (setter: (diagram: Diagram) => Diagram) => void,
+  setWorker: (setter: (diagram: any) => any) => void,
+) => {
+  if (!diagram.state || !diagram.svg) return;
+
+  console.log("play mode!");
+
+  for (const [path, constraint] of diagram.state.interactivityInfo
+    .draggingConstraints) {
+    const elem = svgTitleCache.get(path);
+    if (elem === undefined) continue;
+
+    const translate = (_: unknown, dx: number, dy: number) => {
+      return interactAndUpdate(
+        {
+          tag: "Translation",
+          dx,
+          dy,
+          path,
+        },
+        diagram,
+        setDiagram,
+        setWorker,
+      );
+    };
+    const constraintFn = new Function("[x, y]", constraint) as any;
+    const onMouseUp = () => {
+      interactAndUpdate(
+        {
+          tag: "ChangePin",
+          active: false,
+          path,
+        },
+        diagram,
+        setDiagram,
+        setWorker,
+      );
+    };
+
+    const elemFamily = Array.from(elem.querySelectorAll("*")) as SVGElement[];
+    elemFamily.push(elem);
+
+    for (const member of elemFamily) {
+      // prevent hover text
+      if (member.tagName === "title") {
+        member.remove();
+        continue;
+      }
+
+      const mousedownListener = makeTranslateOnMouseDown(
+        diagram.svg,
+        member,
+        diagram.state,
+        path,
+        translate,
+        constraintFn,
+        onMouseUp,
+      );
+      member.setAttribute("pointer-events", "visiblePainted");
+      member.setAttribute("cursor", "grab");
+      member.onmousedown = mousedownListener;
+    }
+  }
+};

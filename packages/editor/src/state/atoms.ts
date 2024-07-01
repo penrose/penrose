@@ -504,7 +504,7 @@ export type Settings = {
   github: LocalGithubUser | null;
   vimMode: boolean;
   debugMode: boolean;
-  interactive: boolean;
+  interactive: "EditMode" | "PlayMode" | "Off";
 };
 
 const settingsEffect: AtomEffect<Settings> = ({ setSelf, onSet }) => {
@@ -547,7 +547,7 @@ export const settingsState = atom<Settings>({
     vimMode: false,
     // debug mode is on by default in local dev mode
     debugMode: process.env.NODE_ENV === "development",
-    interactive: false,
+    interactive: "Off",
   },
   effects: [settingsEffect, debugModeEffect],
 });

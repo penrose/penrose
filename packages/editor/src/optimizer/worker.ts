@@ -176,12 +176,11 @@ const makeNewStepSequence = (
   const info: StepSequenceInfo = {
     layoutStats: [
       {
-        name:
-        interacting
+        name: interacting
           ? "interaction"
           : penroseState!.optStages.length === 1
-            ? "default"
-            : penroseState!.optStages[0],
+          ? "default"
+          : penroseState!.optStages[0],
         frames: 1,
         cumulativeFrames: 1,
       },
@@ -285,7 +284,7 @@ const startOptimize = (stepSequenceId: StepSequenceID) => {
               name: currentStage,
               frames: 0,
               cumulativeFrames:
-              stepSequenceInfo.layoutStats.at(-1)!.cumulativeFrames,
+                stepSequenceInfo.layoutStats.at(-1)!.cumulativeFrames,
             });
           }
         } else {

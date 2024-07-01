@@ -3,10 +3,10 @@ import { useRecoilState, useSetRecoilState } from "recoil";
 import { RenderState } from "../optimizer/common.js";
 import { diagramState, diagramWorkerState } from "../state/atoms.js";
 import {
+  getRelativeBBox,
   interactAndUpdate,
   makeTranslateOnMouseDown,
   useScaleOnMouseDown,
-  getRelativeBBox,
 } from "../utils/renderUtils.js";
 
 export interface DragWidgetProps {
@@ -23,7 +23,8 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
   const setWorker = useSetRecoilState(diagramWorkerState);
 
   const translate = async (path: string, dx: number, dy: number) => {
-    await interactAndUpdate({
+    await interactAndUpdate(
+      {
         tag: "Translation",
         dx,
         dy,
@@ -36,7 +37,8 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
   };
 
   const scale = async (path: string, sx: number, sy: number) => {
-    await interactAndUpdate({
+    await interactAndUpdate(
+      {
         tag: "Scale",
         sx,
         sy,
@@ -44,19 +46,20 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
       },
       diagram,
       setDiagram,
-      setWorker
+      setWorker,
     );
   };
 
   const changePin = async (path: string, active: boolean) => {
-    await interactAndUpdate({
+    await interactAndUpdate(
+      {
         tag: "ChangePin",
         active,
         path,
       },
       diagram,
       setDiagram,
-      setWorker
+      setWorker,
     );
   };
 
@@ -65,7 +68,7 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
     props.elem,
     props.state,
     props.path,
-    translate
+    translate,
   );
   const elemOnMouseDown = (e: MouseEvent) => {
     if (e.button === 0) {
@@ -124,12 +127,12 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
   );
 
   const topLeftScaleMouseDown = useScaleOnMouseDown(
-     props.diagramSVG,
+    props.diagramSVG,
     props.elem,
     props.state,
     props.path,
     "topLeft",
-    scale
+    scale,
   );
   const topRightScaleMouseDown = useScaleOnMouseDown(
     props.diagramSVG,
@@ -137,7 +140,7 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
     props.state,
     props.path,
     "topRight",
-    scale
+    scale,
   );
   const bottomLeftScaleMouseDown = useScaleOnMouseDown(
     props.diagramSVG,
@@ -145,7 +148,7 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
     props.state,
     props.path,
     "bottomLeft",
-    scale
+    scale,
   );
   const bottomRightScaleMouseDown = useScaleOnMouseDown(
     props.diagramSVG,
@@ -153,7 +156,7 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
     props.state,
     props.path,
     "bottomRight",
-    scale
+    scale,
   );
 
   const topLeftScalingCorner = useMemo(

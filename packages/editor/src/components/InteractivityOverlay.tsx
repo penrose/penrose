@@ -25,20 +25,21 @@ export default function InteractivityOverlay(
   const activeOverlay = useRef<HTMLDivElement | null>(null);
 
   const clickedElem = useMemo(
-    () => clickedPath ? props.svgTitleCache.get(clickedPath) ?? null : null,
-    [props.svgTitleCache, clickedPath]
+    () => (clickedPath ? props.svgTitleCache.get(clickedPath) ?? null : null),
+    [props.svgTitleCache, clickedPath],
   );
 
   const hoveredElem = useMemo(
-    () => hoveredPath ? props.svgTitleCache.get(hoveredPath) ?? null : null,
-    [props.svgTitleCache, hoveredPath]
+    () => (hoveredPath ? props.svgTitleCache.get(hoveredPath) ?? null : null),
+    [props.svgTitleCache, hoveredPath],
   );
 
   useEffect(() => {
     const clickables = new Set<Element>();
 
     const interactables = function* () {
-      const translatables = props.state.interactivityInfo.translatableShapePaths.keys();
+      const translatables =
+        props.state.interactivityInfo.translatableShapePaths.keys();
       const scalables = props.state.interactivityInfo.scalableShapePaths.keys();
       for (const path of translatables)
         yield { path, elem: props.svgTitleCache.get(path) };
@@ -66,6 +67,7 @@ export default function InteractivityOverlay(
           setHoveredPath(path === clickedPath ? null : path);
         };
 
+        member.setAttribute("pointer-events", "visiblePainted");
         member.addEventListener("mousedown", mousedownListener);
         member.addEventListener("mouseover", mouseoverListener);
 
