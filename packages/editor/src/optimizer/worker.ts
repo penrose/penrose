@@ -35,7 +35,7 @@ import {
   taggedOk,
 } from "./common.js";
 
-const log = consola.create({ level: logLevel }).withScope("optimizer:worker");
+const log = consola.create({ level: logLevel }).withTag("optimizer:worker");
 const stepSequenceIdGenerator = new StepSequenceIDGenerator();
 const numStepSequencesToKeep = 3;
 

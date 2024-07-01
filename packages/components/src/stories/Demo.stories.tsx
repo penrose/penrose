@@ -1,6 +1,6 @@
-import { ComponentMeta, ComponentStory } from "@storybook/react";
+import { Meta, StoryFn } from "@storybook/react";
 import Demo from "../Demo.js";
-import { vectorWedge, vectorsPerp } from "./PenrosePrograms.js";
+import { vectorWedge } from "./PenrosePrograms.js";
 
 // const diagram = await getDiagram();
 
@@ -12,10 +12,10 @@ export default {
   // argTypes: {
   //   backgroundColor: { control: 'color' },
   // },
-} as ComponentMeta<typeof Demo>;
+} as Meta<typeof Demo>;
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
-const Template: ComponentStory<typeof Demo> = (args) => (
+const Template: StoryFn<typeof Demo> = (args) => (
   <div style={{ width: "400px", height: "400px" }}>
     <Demo {...args} />
   </div>
@@ -24,12 +24,6 @@ const Template: ComponentStory<typeof Demo> = (args) => (
 export const VectorExamples = Template.bind({});
 VectorExamples.args = {
   examples: [
-    {
-      sub: vectorsPerp.substance,
-      sty: vectorsPerp.style,
-      dsl: vectorsPerp.domain,
-      variation: vectorsPerp.variation,
-    },
     {
       sub: vectorWedge.substance,
       sty: vectorWedge.style,

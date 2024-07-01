@@ -108,7 +108,7 @@ const selectColumn = (
     options.choices.find((choice) => choice.label === value)?.value ?? null,
 });
 
-interface Data {
+export interface Data {
   start: Date;
   end: Date;
   categories: string[];
