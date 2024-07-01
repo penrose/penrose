@@ -443,6 +443,7 @@ export {
   allWarnings,
   describeType,
   hexToRgba,
+  isKeyOf,
   prettyPrintExpr,
   prettyPrintFn,
   prettyPrintPath,
