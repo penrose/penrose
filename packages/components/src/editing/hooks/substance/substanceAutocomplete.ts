@@ -68,7 +68,6 @@ const fnConsOptions = (domainCache: DomainCache) => {
 };
 
 const idOptions = (substanceCache: SubstanceCache) => {
-  // console.log(substanceCache);
   return substanceCache.varNames.map((id) => ({
     label: `${id}`,
     type: "variable",
@@ -83,7 +82,7 @@ export const createSubstanceAutocomplete = (
     let nodeBefore = syntaxTree(context.state).resolveInner(context.pos, -1);
     let parentNode = nodeBefore.parent;
     let leftSib = nodeBefore.prevSibling;
-    // In erorr state, error node wraps the current node
+    // In error state, error node wraps the current node
     if (parentNode != null && parentNode.type.isError) {
       leftSib = parentNode.prevSibling;
       parentNode = parentNode.parent;
