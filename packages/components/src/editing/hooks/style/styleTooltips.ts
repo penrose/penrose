@@ -4,6 +4,7 @@ import { compDict, constrDict, isKeyOf } from "@penrose/core";
 import {
   extractText,
   getShapeDefs,
+  toParamString,
   traverseCursorDown,
   traverseCursorUp,
 } from "../hooksUtils";
@@ -20,18 +21,6 @@ const createTooltip = (start: number, end: number, text: string) => {
       return { dom };
     },
   };
-};
-
-const toParamString = (dict: any, name: string) => {
-  console.log(dict.params);
-  if (!dict.params || !Array.isArray(dict.params)) {
-    return "";
-  }
-
-  const formattedParams = dict.params
-    .map((param: any) => `${param.name}: ${param.type.type}`)
-    .join(", ");
-  return `${name}(${formattedParams})`;
 };
 
 export const wordHover = hoverTooltip((view, pos, side) => {
