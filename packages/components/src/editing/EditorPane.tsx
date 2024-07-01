@@ -1,6 +1,6 @@
-import { autocompletion } from "@codemirror/autocomplete";
+import { autocompletion, completionKeymap } from "@codemirror/autocomplete";
 import { lintGutter, linter } from "@codemirror/lint";
-import { EditorView } from "@codemirror/view";
+import { EditorView, keymap } from "@codemirror/view";
 import {
   DomainError,
   RuntimeError,
@@ -91,6 +91,7 @@ export default function EditorPane({
     EditorView.lineWrapping,
     ResponsiveStyles,
     lintObject,
+    keymap.of(completionKeymap),
     lintGutter(),
     color,
   ];
