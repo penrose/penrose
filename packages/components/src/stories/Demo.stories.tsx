@@ -1,6 +1,6 @@
 import { ComponentMeta, ComponentStory } from "@storybook/react";
 import Demo from "../Demo.js";
-import { vectorWedge, vectorsPerp } from "./PenrosePrograms.js";
+import { vectorWedge } from "./PenrosePrograms.js";
 
 // const diagram = await getDiagram();
 
@@ -24,12 +24,6 @@ const Template: ComponentStory<typeof Demo> = (args) => (
 export const VectorExamples = Template.bind({});
 VectorExamples.args = {
   examples: [
-    {
-      sub: vectorsPerp.substance,
-      sty: vectorsPerp.style,
-      dsl: vectorsPerp.domain,
-      variation: vectorsPerp.variation,
-    },
     {
       sub: vectorWedge.substance,
       sty: vectorWedge.style,
