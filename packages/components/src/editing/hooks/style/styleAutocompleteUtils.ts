@@ -1,8 +1,12 @@
+import { Completion } from "@codemirror/autocomplete";
 import { SyntaxNode } from "@lezer/common";
 import { compDict, constrDict } from "@penrose/core";
+import Markdown from "markdown-it";
+import markdownItKatex from "markdown-it-katex";
 import { DomainCache, ShapeDefinitions, ShapeProperties } from "../../types";
 import {
   extractText,
+  toParamString,
   traverseCursorDown,
   traverseCursorUp,
 } from "../hooksUtils";
@@ -17,12 +21,30 @@ export const getShapeProps = (shapeProps: ShapeProperties) => {
   ]);
 };
 
+export const makeInfoFn = (dict: any, name: string) => {
+  // Required type for info DOM element rendering
+  return (completion: Completion) => {
+    let paramStr = toParamString(dict, name);
+    let desc = dict.description ?? "";
+
+    const md = Markdown();
+    md.use(markdownItKatex);
+    var result = md.render(desc);
+
+    let dom = document.createElement("div");
+    dom.innerHTML =
+      '<span style="color: #4B69C6;">' + paramStr + "</span><br>" + result;
+
+    return { dom };
+  };
+};
+
 export const getConstraints = () => {
   return Object.entries(constrDict).flatMap(([key, value]) => [
     {
       label: key,
       type: "function ",
-      info: "description" in value ? value.description : "",
+      info: makeInfoFn(value, key),
     },
   ]);
 };
@@ -32,7 +54,7 @@ export const getComputationFns = () => {
     {
       label: value.name,
       type: "function",
-      info: "description" in value ? value.description : "",
+      info: makeInfoFn(value, key),
     },
   ]);
 };
@@ -41,7 +63,6 @@ export const getShapeNames = (shapeDefns: ShapeDefinitions) => {
   return Object.entries(shapeDefns).flatMap(([key, value]) => [
     {
       label: `${key} `,
-      // idk what the property type here should be
       type: "class",
       info: "",
     },
