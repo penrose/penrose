@@ -35,6 +35,22 @@ export const getShapeDefs = (): ShapeDefinitions => {
 
   return shapeProps;
 };
+
+/**
+ * Dict should be constrDict[key] or compDict[key]. Takes a function name and
+ * returns a string functionName(param1:type1, param2:type2,...)
+ */
+export const toParamString = (dict: any, name: string) => {
+  if (!dict.params || !Array.isArray(dict.params)) {
+    return "";
+  }
+
+  const formattedParams = dict.params
+    .map((param: any) => `${param.name}: ${param.type.type}`)
+    .join(", ");
+  return `${name}(${formattedParams})`;
+};
+
 export const goToParentX = (node: SyntaxNode, x: number) => {
   let i = 0;
   let nextParent: SyntaxNode | null = node;
