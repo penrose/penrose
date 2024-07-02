@@ -1,5 +1,5 @@
 import { SyntaxNode } from "@lezer/common";
-import { parser } from "../../parser/domain/domain";
+import { domainParser as parser } from "@penrose/core";
 import { extractText } from "../hooksUtils";
 
 const getNames = (domainProg: string, nodes: SyntaxNode[]) => {

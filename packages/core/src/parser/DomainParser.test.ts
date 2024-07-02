@@ -56,7 +56,8 @@ function Difference(Set a, Set b) -> Set
 function Subset(Set a, Set b) -> Set
 function AddPoint(Point p, Set s1) -> Set
 -- edge case
-function Empty() -> Scalar
+-- due to the ambiguity of the output name and subtype decls, this will fail without the semi.
+function Empty() -> Scalar; 
 -- generics
 RightClopenInterval <: Interval
 	`;
@@ -173,7 +174,8 @@ RightClopenInterval <: Interval
     const prog = `
 		type A
 		type B        
-		function f(A arg) -> B
+		-- due to the ambiguity of the output name and subtype decls, this will fail without the semi.
+		function f(A arg) -> B;
 		A <: B`;
     const tree = parser.parse(prog);
     isError(tree, prog);

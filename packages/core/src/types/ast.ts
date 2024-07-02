@@ -3,7 +3,7 @@ import { isConcrete } from "../engine/EngineUtils.js";
 //#region AST nodes
 
 // In the concrete AST, the source location is an offset value in the source string
-export type SourceLoc = number;
+export type SourceLoc = number | { line: number; col: number };
 
 export interface SourceRange {
   start: SourceLoc;

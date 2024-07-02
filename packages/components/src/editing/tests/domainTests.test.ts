@@ -1,7 +1,7 @@
+import { domainParser as parser } from "@penrose/core";
 import { describe, expect, test } from "vitest";
 import { builtinTypes, domainKws } from "../hooks/domain/domainAutocomplete";
 import { getDomainCache } from "../hooks/domain/getDomainCache";
-import { parser } from "../parser/domain/domain";
 import {
   compareDicts,
   constructDomainCacheObj,

@@ -1,6 +1,6 @@
 import { LRLanguage, LanguageSupport } from "@codemirror/language";
 import { styleTags, tags as t } from "@lezer/highlight";
-import { parser } from "./domain.js";
+import { domainParser as parser } from "@penrose/core";
 
 export const domainLanguage = LRLanguage.define({
   parser: parser.configure({
