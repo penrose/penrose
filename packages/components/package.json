@@ -14,16 +14,19 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
+    "test": "vitest run --no-threads",
     "build-decls": ":",
     "typecheck": ":",
-    "storybook": "cross-env NODE_OPTIONS='--max-old-space-size=8192 --openssl-legacy-provider' start-storybook -p 6006",
-    "build-storybook": "cross-env NODE_OPTIONS='--max-old-space-size=8192 --openssl-legacy-provider' build-storybook"
+    "storybook": "cross-env NODE_OPTIONS='--max-old-space-size=8192 --openssl-legacy-provider' storybook dev -p 6006",
+    "build-storybook": "cross-env NODE_OPTIONS='--max-old-space-size=8192 --openssl-legacy-provider' storybook build",
+    "build-parsers": "lezer-generator src/editing/parser/style/style.grammar -o src/editing/parser/style/style.js && lezer-generator src/editing/parser/domain/domain.grammar -o src/editing/parser/domain/domain.js && lezer-generator src/editing/parser/substance/substance.grammar -o src/editing/parser/substance/substance.js"
   },
   "nx": {
     "targets": {
       "build": {
         "dependsOn": [
-          "^build"
+          "^build",
+          "build-parsers"
         ]
       },
       "build-decls": {
@@ -33,7 +36,8 @@
       },
       "build-storybook": {
         "dependsOn": [
-          "^build"
+          "^build",
+          "build-parsers"
         ]
       },
       "watch": {
@@ -48,10 +52,14 @@
     "react-dom": "^18.2.0"
   },
   "dependencies": {
-    "@monaco-editor/react": "^4.0.11",
+    "@lezer-unofficial/printer": "^1.0.1",
+    "@lezer/generator": "^1.7.0",
     "@penrose/core": "^4.0.0-alpha.0",
-    "monaco-editor": "^0.31.0",
-    "monaco-vim": "^0.3.4",
+    "@replit/codemirror-css-color-picker": "^6.1.1",
+    "@replit/codemirror-vim": "^6.2.1",
+    "@uiw/codemirror-extensions-color": "^4.22.2",
+    "@uiw/codemirror-theme-quietlight": "^4.22.2",
+    "@uiw/codemirror-themes": "^4.22.2",
     "react-datasheet-grid": "^4.11.0",
     "react-latex-next": "^2.2.0",
     "react-select": "^5.7.3",
@@ -61,16 +69,17 @@
     "@babel/core": "^7.18.0",
     "@mdx-js/preact": "^2.1.5",
     "@penrose/examples": "^4.0.0-alpha.0",
-    "@storybook/addon-actions": "^6.5.15",
-    "@storybook/addon-essentials": "^6.5.15",
-    "@storybook/addon-interactions": "^6.5.15",
-    "@storybook/addon-links": "^6.5.15",
-    "@storybook/builder-vite": "^0.3.0",
-    "@storybook/react": "^6.5.15",
-    "@storybook/testing-library": "^0.0.13",
-    "@types/react": "^18.0.26",
-    "@types/react-dom": "^18.0.9",
+    "@storybook/addon-actions": "^8.1.11",
+    "@storybook/addon-essentials": "^8.1.11",
+    "@storybook/addon-interactions": "^8.1.11",
+    "@storybook/addon-links": "^8.1.11",
+    "@storybook/react": "^8.1.11",
+    "@storybook/react-vite": "^8.1.11",
+    "@storybook/test": "^8.1.11",
+    "@types/react": "^18.2.3",
+    "@types/react-dom": "^18.2.0",
     "babel-loader": "^8.2.5",
+    "storybook": "^8.1.11",
     "vite": "^4.0.4"
   }
 }

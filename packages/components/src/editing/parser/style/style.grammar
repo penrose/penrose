@@ -1,0 +1,288 @@
+@top Input { Items }
+@precedence {Path, Type, call, prefix, postfix, times @left, plus @left, compare}
+
+// macros
+
+sepBy<content, sep> {
+	"" | content (sep content?)*
+}
+
+// Similar to `sepEndBy1`
+sepBy1<content, sep> {
+  content (sep content?)*
+}
+
+commaSep<content> {
+  sepBy<content, ",">
+}
+
+commaSep1<content> {
+	sepBy1<content, ",">
+}
+
+kw<term> { @specialize[@name={term}]<Identifier, term> }
+
+// grammar
+
+Items {
+  (Item)*
+}
+
+Item {
+  HeaderBlock { Header Block }
+  | LayoutStages { kw<"layout">  "="  StageList }
+}
+
+StageList {
+	"[" commaSep1<Stage> "]"
+}
+
+Stage {
+	Identifier
+}
+
+// For some reason doing (kw<"in"> || kw<"except">) throws an error
+StageSpecifier {
+	(kw<"in"> | kw<"except">) (StageList | Stage)
+}
+
+Header {
+  Selector
+  | Namespace
+  | Collector
+}
+
+// Selector rules
+
+Selector {
+  kw<"forall"> kw<"repeatable">? DeclList (
+		Where? With?
+		| With? Where?
+	)
+}
+
+Where { kw<"where"> RelationList }
+
+With { kw<"with"> DeclList }
+
+Foreach { kw<"foreach"> DeclList }
+
+Namespace { Identifier }
+
+DeclList { sepBy1<DeclPattern, semi> }
+
+DeclPattern { SelType commaSep1<Variable> }
+
+Decl { SelType Variable }
+
+SelType { Identifier }
+Variable {
+	StyVar { Identifier }
+	| SubVar { "`" Identifier "`" }
+}
+
+RelationList { sepBy1<Relation, ";"> }
+
+Relation { Bind | Pred | Field }
+
+Bind { Variable ":=" RelExpr }
+
+Pred {Identifier "(" Args ")" As?}
+
+As { kw<"as"> Identifier }
+
+RelExpr { Func | Arg }
+
+Func { Identifier "(" commaSep<RelExpr> ")" }
+
+Arg { Variable | Literal }
+
+Literal { Number | String }
+
+Args { commaSep<Arg> }
+
+Field { Variable kw<"has"> FieldDesc? Identifier}
+
+FieldDesc { @extend<Identifier, "math"> | @extend<Identifier, "text"> }
+
+// collector rules
+
+Collector {
+	kw<"collect"> kw<"repeatable">? Decl Into (
+		Where? With? Foreach? |
+		Where? Foreach? With? |
+		With? Where? Foreach? |
+		With? Foreach? Where? |
+		Foreach? Where? With? |
+		Foreach? With? Where?
+	)
+}
+
+Into { kw<"into"> Identifier }
+
+// block rules
+
+Block { "{" sepBy<Statement, semi> "}" }
+
+Statement { Delete | Override | Assign | AnonExpr }
+Delete { kw<"delete"> Path }
+Override { kw<"override"> Path "=" AssignExpr }
+Assign { 
+	Type? Path "=" AssignExpr 
+}
+Type {
+	@extend<Identifier,
+		("scalar" |
+		"int" |
+		"bool" |	
+		"string" |
+		"path" |
+		"color" |
+		"file" |
+		"style" |
+		"shape" | 
+		"list" |
+		"vec2" |
+		"vec3" |
+		"vec4" |
+		"mat2x2" |
+		"mat3x3" |
+		"mat4x4" |
+		"function" |
+		"objective" |
+		"constraint" )
+	>
+}
+
+Path { Variable ("." Identifier)* AccessOps? }
+AccessOps { AccessOp (AccessOp)* }
+AccessOp { "[" Expr "]" }
+
+// expression rules
+AnonExpr { Layering | Objective | Constraint | ShapeDecl }
+AssignExpr { Expr | Layering | Objective | Constraint | ShapeDecl }
+
+Expr { 
+	BooleanLiteral |
+	ColorLiteral |
+	String |
+	AnnotatedFloat |
+	ComputationFunction |
+	StyVarExpr |
+	Path |
+	List |
+	Tuple |
+	Vector | 
+	Parenthesized |
+	UnaryExpression |
+	BinaryExpression
+}
+
+Parenthesized[@dynamicPrecedence=1] { "(" Expr ~vector ")" }
+
+UnaryExpression {
+	!prefix "-" Expr |
+	Expr !postfix "'"
+}
+
+BinaryExpression {
+	Expr !times (BinOp<"*" | "/" | ".*" | "./" | "^"> | kw<"then">) Expr |
+	Expr !plus (BinOp<"+" | "-">) Expr
+}
+
+AnnotatedFloat { ("?" ("[" Number "]")? (!postfix StageSpecifier)? | Number) } 
+// AnnotatedFloat { ("?" | Number) } 
+ComputationFunction { Identifier !call "(" commaSep<Expr> ")" }
+StyVarExpr {
+	kw<"listof"> Identifier kw<"from"> Identifier |
+	(kw<"numberof"> | kw<"nameof">) Identifier
+}
+List { "[" commaSep<Expr> "]" }
+Tuple { "{" Expr "," Expr "}" }
+Vector { "(" commaSep1<Expr> ~vector  ")" }
+Layering { 
+	kw<"layer">? Path (kw<"above"> | kw<"below">) commaSep1<Path> 
+}
+Objective {
+	kw<"encourage"> ObjConstrBody StageSpecifier?
+}
+Constraint {
+	kw<"ensure"> ObjConstrBody StageSpecifier?
+}
+ObjConstrBody {
+	// function call
+	Identifier !call "(" commaSep<Expr> ")" |
+	// comparison expr
+	Expr !compare CompareOp Expr 
+}
+ShapeDecl {
+	ShapeName "{" sepBy<PropertyDecl, semi> "}"
+}
+ShapeName { Identifier }
+PropertyDecl { PropName ":" Expr }
+PropName { Identifier }
+BinOp<tkn> { tkn }
+
+// skips and tokens 
+
+
+@skip {} {
+	BlockComment { "/*" (blockCommentContent | blockCommentNewline)* blockCommentEnd }
+}
+	
+@skip { spaces | newline | LineComment 
+	| BlockComment 
+}
+
+// handle block comment content
+@local tokens {
+  blockCommentEnd { "*/" }
+  blockCommentNewline { "\n" }
+  @else blockCommentContent
+}
+
+
+@tokens {
+	hex { @digit | $[a-fA-F] }
+	stringContentDouble { ![\\\n"]+ }
+	identifierChar { @asciiLetter | $[_$\u{a1}-\u{10ffff}] }
+  	word { identifierChar (identifierChar | @digit)* }
+	newline[@export] { $[\r\n] }
+  spaces[@export] { $[ \t]+ }
+	BooleanLiteral { "true" | "false" }
+  Identifier { word }
+
+	@precedence{ BooleanLiteral, Identifier }
+	LineComment { "--" ![\n]* }
+  eof { @eof }
+	Number {
+		(@digit+ ("." (@digit)*)? | "." @digit+)
+		(("e" | "E") ("+" | "-")? @digit+)?
+	}
+
+	String {
+		'"' (stringContentDouble | Escape)* ('"' | "\n") 
+		// "'" (stringContentSingle | Escape)* ("'" | "\n")
+	}
+	Escape {
+		"\\" ("x" hex hex | "u" ("{" hex+ "}" | hex hex hex hex) | ![xu])
+	}
+  ColorLiteral { "#" hex hex hex (hex (hex hex (hex hex)?)?)?  }
+	"."
+	"("[@name=LParen]
+	")"[@name=RParen]
+	":="[@name=Bind]
+	// BinOp { $[+\-*/] | ".*" | "./" | "then" }
+	CompareOp { "<" | "==" | ">" }
+
+
+	@precedence { Number "." }
+	@precedence {LineComment, "-"}
+}
+
+
+// https://lezer.codemirror.net/examples/javascript/
+// Because other tokens should take precedence over inserted semicolons (JavaScript only inserts semicolons when it can't otherwise proceed its parse), the declaration for this external tokenizer has to appear after the other tokenizers.
+@external tokens insertSemicolon from "./styleTokens.js" { insertSemi }
+@context trackNewline from "./styleTokens.js"
+semi { ";" | insertSemi }

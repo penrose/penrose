@@ -1,0 +1,89 @@
+@top Program { (declaration semi)* }
+
+declaration {
+    TypeDecl |
+    Predicate |
+    Function |
+    Constructor |
+    Subtype
+}
+
+kw<term> { @specialize[@name={term}]<Identifier, term> }
+
+TypeDecl {
+    kw<"type"> Identifier ("<:" InheritanceList)?
+}
+
+Predicate {
+    kw<"symmetric">? kw<"predicate"> Identifier ParamList
+}
+
+Function {
+    kw<"function"> Identifier ParamList "->" Output
+}
+
+Constructor {
+    kw<"constructor"> Identifier ParamList ("->" Output)?
+}
+
+Subtype[@dynamicPrecedence=1] {
+    ~danglingID Identifier "<:" InheritanceList
+}
+
+// Named for use in identifying autocomplete
+InheritanceList {
+    commaSep1<Identifier>
+}
+
+ParamList {
+    "(" commaSep<NamedArg> ")"
+}
+
+NamedArg {
+		Identifier Identifier?
+}
+
+Output {
+		Identifier  ~danglingID Identifier?
+}
+
+commaSep<content> {
+    (content (Sep content)*)?
+  }
+
+
+commaSep1<content> {
+    content (Sep content)*
+}
+
+// Named for use in identifying autocomplete
+Sep {
+    ","
+}
+
+@tokens {
+	identifierChar { @asciiLetter | $[_$\u{a1}-\u{10ffff}] }
+    word { identifierChar (identifierChar | @digit)* }
+    Identifier { word }
+    LineComment[@export] { "--" ![\n\r]* }
+    spaces[@export] { $[\u0009 \u000b\u00a0]+ }
+    newline[@export] { $[\r\n] }
+}
+
+@skip {} {
+BlockComment { "/*" (blockCommentContent | blockCommentNewline)* blockCommentEnd }
+}
+
+@local tokens {
+blockCommentEnd { "*/" }
+blockCommentNewline { "\n" }
+@else blockCommentContent
+}
+
+@skip { newline | spaces | LineComment | BlockComment }
+
+@detectDelim
+// https://lezer.codemirror.net/examples/javascript/
+@external tokens insertSemicolon from "./domainTokens.js" { insertSemi }
+@context trackNewline from "./domainTokens.js"
+semi { ";" | insertSemi }

@@ -10,7 +10,7 @@ import {
   CompiledSubProg as SubProg,
   CompiledSubStmt as SubStmt,
 } from "@penrose/core/dist/types/substance";
-import consola from "consola";
+import consola, { LogLevels } from "consola";
 import _ from "lodash";
 import {
   ArgExpr,
@@ -33,8 +33,8 @@ import {
 } from "./Synthesizer.js";
 
 const log = consola
-  .create({ level: (consola as any).LogLevel.Warn })
-  .withScope("Synthesizer Mutations");
+  .create({ level: LogLevels.warn })
+  .withTag("Synthesizer Mutations");
 
 //#region Mutation types
 

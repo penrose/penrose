@@ -1,4 +1,4 @@
-import consola from "consola";
+import consola, { LogLevels } from "consola";
 import { zip2 } from "../utils/Util.js";
 import * as lbfgs from "./Lbfgs.js";
 
@@ -70,11 +70,8 @@ interface OptInfo {
   failed: boolean;
 }
 
-// NOTE: to view logs, change `level` below to `LogLevel.Info`, otherwise it should be `LogLevel.Warn`
-// const log = consola.create({ level: LogLevel.Info }).withScope("Optimizer");
-const log = (consola as any)
-  .create({ level: (consola as any).LogLevel.Warn })
-  .withScope("Optimizer");
+// NOTE: to view logs, change `level` below to `LogLevels.info`, otherwise it should be `LogLevels.warn`
+const log = consola.create({ level: LogLevels.warn }).withTag("Optimizer");
 
 // Intial weight for constraints
 const initConstraintWeight = 1e3;
