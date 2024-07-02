@@ -85,4 +85,3 @@ const t=`<?xml version="1.0" encoding="utf-8"?>
 <path class="st7" d="M17.1,19.1l0.2-0.5l3.5,1.7L17.1,19.1z"/>
 </svg>
 `;export{t as default};
-//# sourceMappingURL=lightbulb.svg-369ad0eb.js.map

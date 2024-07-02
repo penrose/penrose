@@ -233,7 +233,7 @@ const t=`<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 
 		<title>
 			x2.labelText
 		</title>
-		…
+		\u2026
 	</text>
 	<circle fill="#000000" fill-opacity="1" cx="60.320615518041365" cy="63.63469116329577" stroke="none" r="2.5" ensureOnCanvas="false">
 		<title>
@@ -266,8 +266,7 @@ const t=`<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 
 		<title>
 			U.labelText
 		</title>
-		Ω
+		\u03A9
 	</text>
 </svg>
 `;export{t as default};
-//# sourceMappingURL=wos-poisson-estimator-walk-on-spheres.svg-da763e66.js.map

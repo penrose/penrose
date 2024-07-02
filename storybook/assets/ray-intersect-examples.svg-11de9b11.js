@@ -1,4 +1,4 @@
-const t=`<?xml version="1.0" encoding="utf-8"?>
+const l=`<?xml version="1.0" encoding="utf-8"?>
 <!-- Generator: Adobe Illustrator 27.2.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 1629.9 739" style="enable-background:new 0 0 1629.9 739;" xml:space="preserve">
@@ -1505,5 +1505,4 @@ type Group &lt;: Shape
 	</g>
 </g>
 </svg>
-`;export{t as default};
-//# sourceMappingURL=ray-intersect-examples.svg-11de9b11.js.map
+`;export{l as default};

@@ -9,4 +9,3 @@ const e=`<?xml version="1.0" encoding="UTF-8"?>
   </defs>
   <circle cx="110.900001525878906" cy="110.900001525878906" r="110.900001525878906" style="fill: url(#uuid-edffd131-03eb-43e5-abfb-64430e9c2b27); isolation: isolate; opacity: .600000023841858;"/>
 </svg>`;export{e as default};
-//# sourceMappingURL=node-shading.svg-a7761123.js.map

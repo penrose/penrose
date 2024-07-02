@@ -17,4 +17,3 @@ const o=`<?xml version="1.0" encoding="UTF-8"?>
   </defs>
   <circle cx="50.021585103309917" cy="50.021583918562101" r="50.021583326186281" style="fill: url(#uuid-1af6088e-3e62-408d-8b94-f64946df4939);"/>
 </svg>`;export{o as default};
-//# sourceMappingURL=sphere-shading.svg-c4cf2b2e.js.map

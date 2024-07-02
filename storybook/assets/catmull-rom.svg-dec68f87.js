@@ -1,4 +1,4 @@
-const n=`<?xml version="1.0" encoding="utf-8"?>
+const t=`<?xml version="1.0" encoding="utf-8"?>
 <!-- Generator: Adobe Illustrator 27.2.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 425 400" style="enable-background:new 0 0 425 400;" xml:space="preserve">
@@ -42,7 +42,7 @@ const n=`<?xml version="1.0" encoding="utf-8"?>
 	<rect x="32.5" y="149.9" class="st6" width="300.7" height="43.9"/>
 	<g>
 		<text transform="matrix(1 0 0 1 40.8428 164.4043)" class="st7 st8 st9">shape spline = Path {</text>
-		<text transform="matrix(1 0 0 1 54.4595 174.3428)" class="st7 st8 st9">d: interpolatingSpline( “closed”, [ p1, ..., pN ], tension )</text>
+		<text transform="matrix(1 0 0 1 54.4595 174.3428)" class="st7 st8 st9">d: interpolatingSpline( \u201Cclosed\u201D, [ p1, ..., pN ], tension )</text>
 		<text transform="matrix(1 0 0 1 40.9966 184.8281)" class="st7 st8 st9">}</text>
 	</g>
 	<penrose>
@@ -72,7 +72,7 @@ global {
    }
    shape line2 = Text {
       center: line1.center + (122,-12)
-      string: &quot;d: interpolatingSpline( “closed”, [ p1, ..., pN ], tension )&quot;
+      string: &quot;d: interpolatingSpline( \u201Cclosed\u201D, [ p1, ..., pN ], tension )&quot;
       fontFamily: line1.fontFamily
       fontSize: line1.fontSize
       fillColor: line1.fillColor
@@ -193,7 +193,7 @@ type InterpolatingCurve</dsl>
 	<rect x="11.1" y="284.2" class="st6" width="296.2" height="43.9"/>
 	<g>
 		<text transform="matrix(1 0 0 1 19.4858 298.6465)" class="st7 st8 st9">shape spline = Path {</text>
-		<text transform="matrix(1 0 0 1 37.6182 308.584)" class="st7 st8 st9">d: interpolatingSpline( “open”, [ p1, ..., pN ], tension )</text>
+		<text transform="matrix(1 0 0 1 37.6182 308.584)" class="st7 st8 st9">d: interpolatingSpline( \u201Copen\u201D, [ p1, ..., pN ], tension )</text>
 		<text transform="matrix(1 0 0 1 19.6396 319.0693)" class="st7 st8 st9">}</text>
 	</g>
 </g>
@@ -224,7 +224,7 @@ global {
    }
    shape line2 = Text {
       center: line1.center + (122,-12)
-      string: &quot;d: interpolatingSpline( “open”, [ p1, ..., pN ], tension )&quot;
+      string: &quot;d: interpolatingSpline( \u201Copen\u201D, [ p1, ..., pN ], tension )&quot;
       fontFamily: line1.fontFamily
       fontSize: line1.fontSize
       fillColor: line1.fillColor
@@ -314,5 +314,4 @@ forall Point p {
 type InterpolatingCurve</dsl>
 </penrose>
 </svg>
-`;export{n as default};
-//# sourceMappingURL=catmull-rom.svg-dec68f87.js.map
+`;export{t as default};

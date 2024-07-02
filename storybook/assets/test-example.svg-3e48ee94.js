@@ -222,18 +222,18 @@ where crossProductMatrix(S) {
 
 forall Shape S
 where rotate3d(S) {
-   scalar θ = 12.3
+   scalar \u03B8 = 12.3
    vec3 u = (1, 1, 1)/sqrt(3)
-   mat3x3 A = rotate3d( θ, u )
+   mat3x3 A = rotate3d( \u03B8, u )
    override S.computedPoints = matrixMultiplyList( A, S.points )
    override S.referencePoints = [(-14.4165,-21.5198,-24.0638),(14.8782,-25.7264,-19.1518),(-7.86714,17.5398,-29.6726),(-21.4275,-13.3331,24.7606)]
 }
 
 forall Shape S
 where rotate3dh(S) {
-   scalar θ = 3.21
+   scalar \u03B8 = 3.21
    vec3 u = (1, -1, 1)/sqrt(3)
-   mat3x3 A = rotate3dh( θ, u )
+   mat3x3 A = rotate3dh( \u03B8, u )
    override S.computedPoints = fromHomogeneousList( matrixMultiplyList( A, toHomogeneousList(S.points) ))
    override S.referencePoints = [(-0.128713,32.8763,13.005),(-10.0819,11.7158,31.7977),(-25.1856,19.6054,-15.209),(35.1388,1.55518,-3.58367)]
 }
@@ -490,18 +490,18 @@ where crossProductMatrix(S) {
 
 forall Shape S
 where rotate3d(S) {
-   scalar θ = 12.35
+   scalar \u03B8 = 12.35
    vec3 u = (1, 1, 1)/sqrt(3)
-   mat3x3 A = rotate3d( θ, u )
+   mat3x3 A = rotate3d( \u03B8, u )
    override S.computedPoints = matrixMultiplyList( A, S.points )
    override S.referencePoints = [(-14.4165,-21.5198,-24.0638),(14.8782,-25.7264,-19.1518),(-7.86714,17.5398,-29.6726),(-21.4275,-13.3331,24.7606)]
 }
 
 forall Shape S
 where rotate3dh(S) {
-   scalar θ = 3.21
+   scalar \u03B8 = 3.21
    vec3 u = (1, -1, 1)/sqrt(3)
-   mat3x3 A = rotate3dh( θ, u )
+   mat3x3 A = rotate3dh( \u03B8, u )
    override S.computedPoints = fromHomogeneousList( matrixMultiplyList( A, toHomogeneousList(S.points) ))
    override S.referencePoints = [(-0.128713,32.8763,13.005),(-10.0819,11.7158,31.7977),(-25.1856,19.6054,-15.209),(35.1388,1.55518,-3.58367)]
 }
@@ -560,4 +560,3 @@ predicate matrix3d( Shape S )
 </g>
 </svg>
 `;export{e as default};
-//# sourceMappingURL=test-example.svg-3e48ee94.js.map

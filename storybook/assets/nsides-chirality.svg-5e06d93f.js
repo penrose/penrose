@@ -1,4 +1,4 @@
-const t=`<?xml version="1.0" encoding="utf-8"?>
+const c=`<?xml version="1.0" encoding="utf-8"?>
 <!-- Generator: Adobe Illustrator 27.2.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <svg version="1.1" id="Layer_1" focusable="false" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
 	 x="0px" y="0px" viewBox="0 0 1958 630" style="enable-background:new 0 0 1958 630;" xml:space="preserve">
@@ -777,5 +777,4 @@ forall NGon \`P_2\` {
 	<dsl>type NGon</dsl>
 </penrose>
 </svg>
-`;export{t as default};
-//# sourceMappingURL=nsides-chirality.svg-5e06d93f.js.map
+`;export{c as default};

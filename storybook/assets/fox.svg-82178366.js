@@ -1,4 +1,4 @@
-const n=`<?xml version="1.0" standalone="no"?>
+const c=`<?xml version="1.0" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
  "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
 <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
@@ -3214,5 +3214,4 @@ m-209 -39 c-10 -10 -79 -24 -79 -16 0 8 26 16 64 19 11 0 17 -1 15 -3z"/>
 -8 -4 -11 -10z"/>
 </g>
 </svg>
-`;export{n as default};
-//# sourceMappingURL=fox.svg-82178366.js.map
+`;export{c as default};

@@ -1,4 +1,4 @@
-const n=`<?xml version="1.0" standalone="no"?>
+const t=`<?xml version="1.0" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
  "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
 <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
@@ -286,5 +286,4 @@ l-74 39 7 -46 c13 -87 63 -268 88 -323 34 -70 98 -135 164 -166 28 -13 115
 160 185 139 142 170 194 176 299 5 89 -10 155 -68 304 -58 149 -58 149 -99 71z"/>
 </g>
 </svg>
-`;export{n as default};
-//# sourceMappingURL=grain.svg-9029d5bf.js.map
+`;export{t as default};

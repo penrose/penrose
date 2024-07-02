@@ -8,4 +8,3 @@ const e=`<?xml version="1.0" encoding="UTF-8"?>
   </defs>
   <polygon points="100 0 100 100 0 100 0 0 100 0" style="fill: url(#uuid-e0f6b897-4010-4fc1-bd22-60ee8a3f792c);"/>
 </svg>`;export{e as default};
-//# sourceMappingURL=background.svg-2adafeec.js.map

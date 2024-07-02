@@ -1,4 +1,4 @@
-const n=`<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180">
+const e=`<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180">
   <rect
     x="0"
     y="0"
@@ -472,5 +472,4 @@ const n=`<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 
     </svg>
   </g>
 </svg>
-`;export{n as default};
-//# sourceMappingURL=example.svg-83d50d93.js.map
+`;export{e as default};

@@ -1,4 +1,4 @@
-const t=`<?xml version="1.0" encoding="utf-8"?>
+const c=`<?xml version="1.0" encoding="utf-8"?>
 <!-- Generator: Adobe Illustrator 27.2.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 559.6 486.6" style="enable-background:new 0 0 559.6 486.6;" xml:space="preserve">
@@ -791,5 +791,4 @@ const t=`<?xml version="1.0" encoding="utf-8"?>
 	<text transform="matrix(1.0004 0 0 1 314.1472 283.3376)" class="st21 st22">e</text>
 </g>
 </svg>
-`;export{t as default};
-//# sourceMappingURL=geometric-queries-example.svg-593d0132.js.map
+`;export{c as default};

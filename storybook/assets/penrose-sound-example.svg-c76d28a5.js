@@ -1,4 +1,4 @@
-const t=`<!-- <svg width="100%" height="100%" version="1.2" viewBox="0 0 240 180" xmlns="http://www.w3.org/2000/svg"> -->
+const e=`<!-- <svg width="100%" height="100%" version="1.2" viewBox="0 0 240 180" xmlns="http://www.w3.org/2000/svg"> -->
 <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" version="1.2" viewBox="0 0 240 180">
 	<defs>
 		<script>
@@ -249,5 +249,4 @@ const t=`<!-- <svg width="100%" height="100%" version="1.2" viewBox="0 0 240 180
 		</title>
 	</circle>
 </svg>
-`;export{t as default};
-//# sourceMappingURL=penrose-sound-example.svg-c76d28a5.js.map
+`;export{e as default};

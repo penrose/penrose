@@ -1,4 +1,4 @@
-const t=`<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240">
+const e=`<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240">
 	<rect x="0" y="0" width="320" height="240" fill="none" stroke="none" rx="0" transform="rotate(0, 0, 0)" ensureOnCanvas="true">
 		<title>
 			Global.box
@@ -501,7 +501,7 @@ const t=`<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 
 		<title>
 			x2.labelText
 		</title>
-		…
+		\u2026
 	</text>
 	<circle fill="#000000" fill-opacity="1" cx="232.9349962718888" cy="83.40291609351337" stroke="none" r="2.5" ensureOnCanvas="false">
 		<title>
@@ -534,8 +534,7 @@ const t=`<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 
 		<title>
 			U.labelText
 		</title>
-		Ω
+		\u03A9
 	</text>
 </svg>
-`;export{t as default};
-//# sourceMappingURL=wos-nested-estimator-walk-on-spheres.svg-42d8d9be.js.map
+`;export{e as default};

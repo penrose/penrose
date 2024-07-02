@@ -20,4 +20,3 @@ const t=`<?xml version="1.0" encoding="utf-8"?>
 </g>
 </svg>
 `;export{t as default};
-//# sourceMappingURL=ball-shading.svg-bf3a9326.js.map

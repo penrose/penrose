@@ -1,4 +1,4 @@
-const t=`<?xml version="1.0" encoding="utf-8"?>
+const o=`<?xml version="1.0" encoding="utf-8"?>
 <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 92.9 92.9" style="enable-background:new 0 0 92.9 92.9;" xml:space="preserve">
@@ -21,5 +21,4 @@ const t=`<?xml version="1.0" encoding="utf-8"?>
 </radialGradient>
 <circle class="st0" cx="46.4" cy="46.4" r="46.4"/>
 </svg>
-`;export{t as default};
-//# sourceMappingURL=persistent-homology-shading.svg-004be5f1.js.map
+`;export{o as default};

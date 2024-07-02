@@ -1,4 +1,4 @@
-const n=`<?xml version="1.0" standalone="no"?>
+const c=`<?xml version="1.0" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
  "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
 <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
@@ -396,5 +396,4 @@ c0 15 7 36 15 46 28 37 19 56 -24 56 -21 0 -58 7 -81 15 -45 16 -100 20 -100
 3z"/>
 </g>
 </svg>
-`;export{n as default};
-//# sourceMappingURL=chicken.svg-2ecb9f37.js.map
+`;export{c as default};

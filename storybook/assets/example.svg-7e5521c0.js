@@ -2434,4 +2434,3 @@ const t=`<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 
   </g>
 </svg>
 `;export{t as default};
-//# sourceMappingURL=example.svg-7e5521c0.js.map

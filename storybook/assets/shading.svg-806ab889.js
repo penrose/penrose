@@ -19,4 +19,3 @@ const o=`<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/
   </g>
 </svg>
 `;export{o as default};
-//# sourceMappingURL=shading.svg-806ab889.js.map

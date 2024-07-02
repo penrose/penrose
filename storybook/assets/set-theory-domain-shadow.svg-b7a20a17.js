@@ -1,4 +1,4 @@
-const n=`<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 874.58 820.84">
+const e=`<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 874.58 820.84">
   <defs>
     <linearGradient id="linear-gradient" x1="214.17" y1="30.72" x2="996.08" y2="1361.33" gradientUnits="userSpaceOnUse">
       <stop offset="0.14" stop-color="#dbdbdb" stop-opacity="0"/>
@@ -12,5 +12,4 @@ const n=`<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/
     </g>
   </g>
 </svg>
-`;export{n as default};
-//# sourceMappingURL=set-theory-domain-shadow.svg-b7a20a17.js.map
+`;export{e as default};

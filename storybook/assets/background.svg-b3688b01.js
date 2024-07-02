@@ -17,4 +17,3 @@ const o=`<?xml version="1.0" encoding="UTF-8"?>
   </defs>
   <rect x=".000000006734808" y="-.000000006734808" width="99.999999986531293" height="100.000000000000909" transform="translate(99.999999993266101 -.000000006734808) rotate(90)" style="fill: url(#uuid-403fa7fb-1c6a-467c-b68f-bcc65b719694);"/>
 </svg>`;export{o as default};
-//# sourceMappingURL=background.svg-b3688b01.js.map

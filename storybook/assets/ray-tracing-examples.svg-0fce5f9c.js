@@ -1,4 +1,4 @@
-const t=`<?xml version="1.0" encoding="utf-8"?>
+const s=`<?xml version="1.0" encoding="utf-8"?>
 <!-- Generator: Adobe Illustrator 27.2.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 1920 1080" style="enable-background:new 0 0 1920 1080;" xml:space="preserve">
@@ -6528,5 +6528,4 @@ const t=`<?xml version="1.0" encoding="utf-8"?>
 	<path class="st25" d="M1134.9,907.1l0.5-1.3l8.9,4.3L1134.9,907.1z"/>
 </g>
 </svg>
-`;export{t as default};
-//# sourceMappingURL=ray-tracing-examples.svg-0fce5f9c.js.map
+`;export{s as default};

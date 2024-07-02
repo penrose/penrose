@@ -1,4 +1,4 @@
-const n=`<?xml version="1.0" standalone="no"?>
+const c=`<?xml version="1.0" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
  "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
 <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
@@ -639,5 +639,4 @@ l111 13 51 -27 c29 -15 66 -27 84 -27 l33 1 -33 27 c-18 15 -32 30 -32 35 0
 8 387 25 45 28 -52 39 -340 38 -135 0 -260 -4 -278 -8z"/>
 </g>
 </svg>
-`;export{n as default};
-//# sourceMappingURL=farmer.svg-0acf7898.js.map
+`;export{c as default};

@@ -249,7 +249,7 @@ const t=`<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 
 		<title>
 			x3.labelText
 		</title>
-		…
+		\u2026
 	</text>
 	<circle fill="#000000" fill-opacity="1" cx="238.0817885738261" cy="188.76737525164285" stroke="none" r="2.5" ensureOnCanvas="false">
 		<title>
@@ -293,8 +293,7 @@ const t=`<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 
 		<title>
 			U.labelText
 		</title>
-		Ω
+		\u03A9
 	</text>
 </svg>
 `;export{t as default};
-//# sourceMappingURL=wos-offcenter-estimator-walk-on-spheres.svg-8d1c1e77.js.map

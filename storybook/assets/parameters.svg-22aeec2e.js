@@ -199,4 +199,3 @@ global {
 </g>
 </svg>
 `;export{t as default};
-//# sourceMappingURL=parameters.svg-22aeec2e.js.map

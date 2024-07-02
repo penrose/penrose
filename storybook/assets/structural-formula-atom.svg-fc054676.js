@@ -1,4 +1,4 @@
-const t=`<?xml version="1.0" encoding="utf-8"?>
+const o=`<?xml version="1.0" encoding="utf-8"?>
 <!-- Generator: Adobe Illustrator 24.2.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 432 432" style="enable-background:new 0 0 432 432;" xml:space="preserve">
@@ -20,5 +20,4 @@ const t=`<?xml version="1.0" encoding="utf-8"?>
 </radialGradient>
 <circle class="st0" cx="216" cy="216" r="216"/>
 </svg>
-`;export{t as default};
-//# sourceMappingURL=structural-formula-atom.svg-fc054676.js.map
+`;export{o as default};

@@ -1051,4 +1051,3 @@ where IsShadow(D) {
 }</sty><dsl>type Dinosaur
 predicate IsReflected(Dinosaur D)
 predicate IsShadow(Dinosaur D)</dsl></penrose></svg>`;export{o as default};
-//# sourceMappingURL=dinoshade-vectorized.svg-fa8da95a.js.map
