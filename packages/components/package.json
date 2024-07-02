@@ -29,6 +29,12 @@
           "build-parsers"
         ]
       },
+      "test": {
+        "dependsOn": [
+          "^build",
+          "build-parsers"
+        ]
+      },
       "build-decls": {
         "dependsOn": [
           "build"
