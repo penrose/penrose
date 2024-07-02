@@ -37,11 +37,10 @@ export const getShapeDefs = (): ShapeDefinitions => {
 };
 
 /**
- * Dict should be constrDict or compDict. Takes a function name and returns
- * a string functionName(param1:type1, param2:type2,...)
+ * Dict should be constrDict[key] or compDict[key]. Takes a function name and
+ * returns a string functionName(param1:type1, param2:type2,...)
  */
 export const toParamString = (dict: any, name: string) => {
-  console.log(dict.params);
   if (!dict.params || !Array.isArray(dict.params)) {
     return "";
   }
