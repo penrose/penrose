@@ -4,6 +4,7 @@ import { PathDataV, StrV } from "../types/value.js";
 import {
   black,
   boolV,
+  fakePath,
   floatV,
   noPaint,
   pathDataV,
@@ -49,4 +50,5 @@ export const makePath = (
   ...properties,
   shapeType: "Path",
   passthrough: new Map(),
+  path: fakePath("defaultPath"),
 });

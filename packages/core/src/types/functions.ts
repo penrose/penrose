@@ -44,3 +44,12 @@ export interface ConstrFunc {
   body: ConstrFuncBody;
   description?: string;
 }
+
+export type CompFuncSignature = Omit<CompFunc, "body">;
+export type ObjFuncSignature = Omit<ObjFunc, "body">;
+export type ConstrFuncSignature = Omit<ConstrFunc, "body">;
+
+export type FuncSignature =
+  | CompFuncSignature
+  | ObjFuncSignature
+  | ConstrFuncSignature;

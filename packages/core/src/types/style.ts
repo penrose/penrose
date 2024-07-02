@@ -270,14 +270,14 @@ export type StyVarExpr<T> = CollectionAccess<T> | UnaryStyVarExpr<T>;
 
 export type CollectionAccess<T> = ASTNode<T> & {
   tag: "CollectionAccess";
-  name: Identifier<T>;
+  name: Path<T>;
   field: Identifier<T>;
 };
 
 export type UnaryStyVarExpr<T> = ASTNode<T> & {
   tag: "UnaryStyVarExpr";
   op: "numberof" | "nameof";
-  arg: Identifier<T>;
+  arg: Path<T>;
 };
 
 export type BinaryOp =

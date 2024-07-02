@@ -1,7 +1,14 @@
 import * as ad from "../types/ad.js";
 import { Arrow, Fill, Named, ShapeCommon, Stroke } from "../types/shapes.js";
 import { StrV, VectorV } from "../types/value.js";
-import { black, boolV, floatV, noPaint, strV } from "../utils/Util.js";
+import {
+  black,
+  boolV,
+  fakePath,
+  floatV,
+  noPaint,
+  strV,
+} from "../utils/Util.js";
 import { Canvas, Context, sampleVector } from "./Samplers.js";
 
 export interface LineProps<T> extends Named<T>, Stroke<T>, Arrow<T>, Fill<T> {
@@ -44,4 +51,5 @@ export const makeLine = (
   ...properties,
   shapeType: "Line",
   passthrough: new Map(),
+  path: fakePath("defaultLine"),
 });

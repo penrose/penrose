@@ -9,7 +9,7 @@ import {
   ShapeCommon,
   Stroke,
 } from "../types/shapes.js";
-import { boolV, floatV, noPaint, strV } from "../utils/Util.js";
+import { boolV, fakePath, floatV, noPaint, strV } from "../utils/Util.js";
 import {
   Canvas,
   Context,
@@ -59,4 +59,5 @@ export const makeRectangle = (
   ...properties,
   shapeType: "Rectangle",
   passthrough: new Map(),
+  path: fakePath("defaultRectangle"),
 });

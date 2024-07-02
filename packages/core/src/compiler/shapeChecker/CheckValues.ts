@@ -1,6 +1,8 @@
 import { Result } from "true-myth";
+import { A } from "vitest/dist/types-ad1c3f45.js";
 import * as ad from "../../types/ad.js";
 import { BadShapeParamTypeError } from "../../types/errors.js";
+import { StylePathToUnindexedObject } from "../../types/stylePathResolution.js";
 import {
   BoolV,
   ClipDataV,
@@ -22,7 +24,7 @@ import { val } from "../../utils/Util.js";
 const { err, ok } = Result;
 
 export const checkFloatV = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   value: Value<ad.Num>,
 ): Result<FloatV<ad.Num>, BadShapeParamTypeError> => {
   if (value.tag === "FloatV") {
@@ -32,7 +34,7 @@ export const checkFloatV = (
 };
 
 export const checkBoolV = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   value: Value<ad.Num>,
 ): Result<BoolV, BadShapeParamTypeError> => {
   if (value.tag === "BoolV") {
@@ -42,7 +44,7 @@ export const checkBoolV = (
 };
 
 export const checkStrV = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   value: Value<ad.Num>,
 ): Result<StrV, BadShapeParamTypeError> => {
   if (value.tag === "StrV") {
@@ -52,7 +54,7 @@ export const checkStrV = (
 };
 
 export const checkPathDataV = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   value: Value<ad.Num>,
 ): Result<PathDataV<ad.Num>, BadShapeParamTypeError> => {
   if (value.tag === "PathDataV") {
@@ -62,7 +64,7 @@ export const checkPathDataV = (
 };
 
 export const checkPtListV = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   value: Value<ad.Num>,
 ): Result<PtListV<ad.Num>, BadShapeParamTypeError> => {
   if (
@@ -83,7 +85,7 @@ export const checkPtListV = (
 };
 
 export const checkColorV = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   value: Value<ad.Num>,
 ): Result<ColorV<ad.Num>, BadShapeParamTypeError> => {
   if (value.tag === "ColorV") {
@@ -93,7 +95,7 @@ export const checkColorV = (
 };
 
 export const checkListV = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   value: Value<ad.Num>,
 ): Result<ListV<ad.Num>, BadShapeParamTypeError> => {
   if (
@@ -114,7 +116,7 @@ export const checkListV = (
 };
 
 export const checkVectorV = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   value: Value<ad.Num>,
 ): Result<VectorV<ad.Num>, BadShapeParamTypeError> => {
   if (
@@ -135,7 +137,7 @@ export const checkVectorV = (
 };
 
 export const checkMatrixV = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   value: Value<ad.Num>,
 ): Result<MatrixV<ad.Num>, BadShapeParamTypeError> => {
   if (
@@ -156,7 +158,7 @@ export const checkMatrixV = (
 };
 
 export const checkTupV = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   value: Value<ad.Num>,
 ): Result<TupV<ad.Num>, BadShapeParamTypeError> => {
   if (value.tag === "TupV") {
@@ -166,7 +168,7 @@ export const checkTupV = (
 };
 
 export const checkLListV = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   value: Value<ad.Num>,
 ): Result<LListV<ad.Num>, BadShapeParamTypeError> => {
   if (
@@ -187,7 +189,7 @@ export const checkLListV = (
 };
 
 export const checkShapeListV = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   value: Value<ad.Num>,
 ): Result<ShapeListV<ad.Num>, BadShapeParamTypeError> => {
   if (value.tag === "ShapeListV") {
@@ -197,7 +199,7 @@ export const checkShapeListV = (
 };
 
 export const checkClipDataV = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   value: Value<ad.Num>,
 ): Result<ClipDataV<ad.Num>, BadShapeParamTypeError> => {
   if (value.tag === "ClipDataV") {

@@ -18,7 +18,7 @@ forall Text `g` {
   }
 }
 
-forall Line l {
+forall Text `g`; Line l {
   l.shape = Line {
     strokeColor: #000
   }

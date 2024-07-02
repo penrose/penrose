@@ -2,10 +2,11 @@ import im from "immutable";
 import { ShapeType } from "../shapes/Shapes.js";
 import Graph from "../utils/Graph.js";
 import * as ad from "./ad.js";
-import { C, Identifier } from "./ast.js";
+import { A } from "./ast.js";
 import { StyleDiagnostics, StyleError } from "./errors.js";
 import { Fn } from "./state.js";
 import { Expr, GPIDecl } from "./style.js";
+import { Resolved, StylePathToUnindexedObject } from "./stylePathResolution.js";
 import { SubstanceEnv } from "./substance.js";
 import { ArgVal, Field, Name, PropID } from "./value.js";
 
@@ -81,7 +82,7 @@ export type CollectionSubst = {
 
 export type StySubst = StySubSubst | CollectionSubst;
 
-export type LocalVarSubst = LocalVarId | NamespaceId;
+export type StyleBlockId = LocalVarId | NamespaceId;
 
 export interface LocalVarId {
   tag: "LocalVarId";
@@ -115,22 +116,17 @@ export type SubstanceName = Name;
 // something we would like to support eventually:
 // https://github.com/penrose/penrose/issues/924#issuecomment-1076951074
 
-export interface WithContext<T> {
-  context: Context;
-  expr: T;
-}
-
-export type NotShape = Exclude<Expr<C>, GPIDecl<C>>;
+export type NotShape<T> = Exclude<Expr<T>, GPIDecl<T>>;
 
 export interface ShapeSource {
   tag: "ShapeSource";
   shapeType: ShapeType;
-  props: im.Map<PropID, WithContext<NotShape>>;
+  props: im.Map<PropID, Resolved<NotShape<A>>>;
 }
 
 export interface OtherSource {
   tag: "OtherSource";
-  expr: WithContext<NotShape>;
+  expr: Resolved<NotShape<A>>;
 }
 
 export type FieldSource = ShapeSource | OtherSource;
@@ -144,29 +140,18 @@ export interface Assignment {
   substances: im.Map<SubstanceName, FieldDict>;
 }
 
-export interface Locals {
-  locals: im.Map<StyleName, FieldSource>;
-}
+// export interface Locals {
+//   locals: im.Map<StyleName, FieldSource>;
+// }
 
-export interface BlockAssignment extends Assignment, Locals {}
+// export interface BlockAssignment extends Assignment, Locals {}
 
 export interface BlockInfo {
-  block: LocalVarSubst;
+  block: StyleBlockId;
   subst: StySubst;
 }
 
-export interface Context extends BlockInfo, Locals {}
-
-export interface ResolvedName {
-  tag: "Global" | "Local" | "Substance";
-  block: LocalVarSubst;
-  name: string;
-}
-
-export type ResolvedPath<T> = T &
-  ResolvedName & {
-    members: Identifier<T>[];
-  };
+// export interface Context extends BlockInfo, Locals {}
 
 //#endregion
 
@@ -174,7 +159,10 @@ export type ResolvedPath<T> = T &
 
 export type DepGraph = Graph<
   string,
-  ShapeType | WithContext<NotShape> | undefined
+  {
+    contents: ShapeType | Resolved<NotShape<A>> | undefined;
+    where: StylePathToUnindexedObject<A>;
+  }
 >;
 
 //#endregion

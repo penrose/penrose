@@ -1,7 +1,7 @@
 import * as ad from "../types/ad.js";
 import { Center, Fill, Named, ShapeCommon, Stroke } from "../types/shapes.js";
 import { FloatV } from "../types/value.js";
-import { boolV, floatV, noPaint, strV } from "../utils/Util.js";
+import { boolV, fakePath, floatV, noPaint, strV } from "../utils/Util.js";
 import {
   Canvas,
   Context,
@@ -49,4 +49,5 @@ export const makeEllipse = (
   ...properties,
   shapeType: "Ellipse",
   passthrough: new Map(),
+  path: fakePath("defaultEllipse"),
 });
