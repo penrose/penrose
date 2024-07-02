@@ -116,7 +116,7 @@ RightClopenInterval <: Interval
     hasNoErrors(parser, prog);
   });
   // TODO: resolve the ambiguous grammar in Domain
-  // https://github.com/penrose/penrose/issues/1812
+  // https://github.com/penrose/penrose/issues/1814
   test.skip("dangling output type conflict with subtype decls", () => {
     const prog = `type A
 		type B        
