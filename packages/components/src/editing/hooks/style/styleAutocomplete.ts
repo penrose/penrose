@@ -41,14 +41,12 @@ export const createStyleAutocomplete = (
 
     // Suggest user defined namespace properties
     if (
-      parentNode != null &&
-      parentNode.name === "Path" &&
+      parentNode?.name === "Path" &&
       // Case 1) User typed .
       (nodeBefore.name === "." ||
         // Case 2) User typed .[something]
         (nodeBefore.name === "Identifier" &&
-          nodeBefore.prevSibling != null &&
-          nodeBefore.prevSibling.name === "."))
+          nodeBefore?.prevSibling?.name === "."))
     ) {
       // Grab namespace identifier, here parentNode is Path
       let id = goDownToTarget(parentNode, "Identifier");
@@ -116,18 +114,10 @@ export const createStyleAutocomplete = (
      */
     let itemNode = goUpToTarget(nodeBefore, "Item");
     // Check if previous item exists and is a HeaderBlock
-    if (
-      itemNode != null &&
-      itemNode.prevSibling != null &&
-      itemNode.prevSibling.firstChild != null &&
-      itemNode.prevSibling.firstChild.name === "HeaderBlock"
-    ) {
+    if (itemNode?.prevSibling?.firstChild?.name === "HeaderBlock") {
       let prevHeaderBlock = itemNode.prevSibling.firstChild;
       // Checks for error state in the position of block (in prev HeaderBlock)
-      if (
-        prevHeaderBlock.lastChild != null &&
-        prevHeaderBlock.lastChild.type.isError
-      ) {
+      if (prevHeaderBlock.lastChild?.type.isError) {
         if (goDownToTarget(prevHeaderBlock, "Selector")) {
           return {
             from: word.from,
@@ -144,12 +134,7 @@ export const createStyleAutocomplete = (
     }
 
     // Top level kw completion (forall, collect, layout)
-    if (
-      parentNode != null &&
-      // Go up to header
-      parentNode.parent != null &&
-      parentNode.parent.name === "Header"
-    ) {
+    if (parentNode?.parent?.name === "Header") {
       completionOpts = completionOpts.concat(headerOptions);
     }
 
@@ -191,7 +176,7 @@ export const createStyleAutocomplete = (
      * Doesn't use goUpToTarget due to deep nesting possible in Block
      */
     const upSix = goToParentX(nodeBefore, 6);
-    if (upSix != null && upSix.name === "Block") {
+    if (upSix?.name === "Block") {
       completionOpts = completionOpts
         .concat(typeNames)
         .concat(anonExprKws)
@@ -200,11 +185,7 @@ export const createStyleAutocomplete = (
     }
 
     // Suggest domain-defined type names
-    if (
-      parentNode != null &&
-      parentNode.name === "SelType" &&
-      nodeBefore.name === "Identifier"
-    ) {
+    if (parentNode?.name === "SelType" && nodeBefore.name === "Identifier") {
       completionOpts = completionOpts.concat(getTypeOptions(domainCache));
     }
 
@@ -218,11 +199,7 @@ export const createStyleAutocomplete = (
     ) {
       const searchForDeclList = goUpToTarget(searchForDeclPattern, "DeclList");
       // Check the node we're at comes right after "forall"
-      if (
-        searchForDeclList != null &&
-        searchForDeclList.prevSibling != null &&
-        searchForDeclList.prevSibling.name === "forall"
-      ) {
+      if (searchForDeclList?.prevSibling?.name === "forall") {
         completionOpts = completionOpts.concat([
           { label: "repeatable", type: "keyword" },
         ]);
@@ -231,13 +208,7 @@ export const createStyleAutocomplete = (
 
     // Collect Header autocomplete
     // Collect suggest repeatable
-    if (
-      parentNode != null &&
-      // SelType -> Decl
-      parentNode.parent != null &&
-      parentNode.parent.prevSibling != null &&
-      parentNode.parent.prevSibling.name === "collect"
-    ) {
+    if (parentNode?.parent?.prevSibling?.name === "collect") {
       completionOpts = completionOpts.concat([
         { label: "repeatable", type: "keyword" },
       ]);
@@ -246,9 +217,7 @@ export const createStyleAutocomplete = (
     // Collect suggest into
     if (
       // Parser wraps start of into in an error node, hence why we take parent
-      parentNode != null &&
-      parentNode.prevSibling != null &&
-      parentNode.prevSibling.name === "Decl"
+      parentNode?.prevSibling?.name === "Decl"
     ) {
       completionOpts = completionOpts.concat([
         { label: "into ", type: "keyword" },

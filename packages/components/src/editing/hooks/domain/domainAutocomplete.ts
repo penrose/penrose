@@ -60,7 +60,7 @@ export const createDomainAutocomplete = (domainCache: DomainCache) => {
     }
 
     // In erorr state, error node wraps the current node
-    if (parentNode != null && parentNode.type.isError) {
+    if (parentNode?.type.isError) {
       leftSib = parentNode.prevSibling;
       parentNode = parentNode.parent;
     }
@@ -80,12 +80,7 @@ export const createDomainAutocomplete = (domainCache: DomainCache) => {
      * Error recovery, Lezer assumes "typ" is inside Function as a return
      * name Identifier. We manually suggest autocompletion keywords here.
      */
-    if (
-      parentNode != null &&
-      leftSib != null &&
-      parentNode.name === "Output" &&
-      leftSib.name === "Identifier"
-    ) {
+    if (parentNode?.name === "Output" && leftSib?.name === "Identifier") {
       return {
         from: word.from,
         options: keywordOptions.concat(getTypeOptions(domainCache)),
@@ -93,12 +88,7 @@ export const createDomainAutocomplete = (domainCache: DomainCache) => {
     }
 
     // Autocomplete predicate if it follows symmetric
-    if (
-      parentNode != null &&
-      parentNode.name === "Predicate" &&
-      leftSib != null &&
-      leftSib.name === "symmetric"
-    ) {
+    if (parentNode?.name === "Predicate" && leftSib?.name === "symmetric") {
       return {
         from: word.from,
         options: [{ label: "predicate", type: "keyword" }],
@@ -125,7 +115,7 @@ export const createDomainAutocomplete = (domainCache: DomainCache) => {
       };
     }
     // Case 3: Defining subtype
-    else if (parentNode !== null && parentNode.name === "InheritanceList") {
+    else if (parentNode?.name === "InheritanceList") {
       return {
         from: word.from,
         options: getTypeOptions(domainCache).concat(builtinTypeOptions),

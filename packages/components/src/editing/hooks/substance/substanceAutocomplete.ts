@@ -106,14 +106,14 @@ export const createSubstanceAutocomplete = (
         from: word.from,
         options: autocompleteOptions,
       };
-    } else if (leftSib !== null && leftSib.name === "AutoLabel") {
+    } else if (leftSib?.name === "AutoLabel") {
       return {
         from: word.from,
         options: [{ label: "All", type: "keyword" }].concat(
           idOptions(substanceCache),
         ),
       };
-    } else if (leftSib !== null && leftSib.name === "Range") {
+    } else if (leftSib?.name === "Range") {
       return {
         from: word.from,
         options: [{ label: "where ", type: "keyword" }],
@@ -122,11 +122,10 @@ export const createSubstanceAutocomplete = (
     // for suggestor, will suggest in correct spaces in all but Label statements
     else if (
       InsideStatementNested(parentNode) &&
-      leftSib !== null &&
       // To suggest after TypeApp
-      (leftSib.name === "Identifier" ||
+      (leftSib?.name === "Identifier" ||
         // To suggest after PredicateApp and Fn_ConsApp
-        leftSib.name === "ArgList")
+        leftSib?.name === "ArgList")
     ) {
       return {
         from: word.from,
@@ -136,10 +135,8 @@ export const createSubstanceAutocomplete = (
 
     // Suggest function and constructor names
     if (
-      // Escape NamedId
-      parentNode !== null &&
-      parentNode.prevSibling !== null &&
-      parentNode.prevSibling.name === "Assignment"
+      // Take parent node to escape NamedId
+      parentNode?.prevSibling?.name === "Assignment"
     ) {
       return {
         from: word.from,
@@ -149,13 +146,12 @@ export const createSubstanceAutocomplete = (
 
     // Suggest ids
     if (
-      parentNode !== null &&
       // Case 1: Inside arg list
-      (parentNode.name === "ArgList" ||
-        // Case 2: Inside label statement, after the keyword ("AutoLabel" etc)
-        // This will "incorrectly" trigger for the label in Label statements
-        // but those are supposed to be Strings or TeX anyways
-        (parentNode.name === "Labeling" && leftSib !== null))
+      parentNode?.name === "ArgList" ||
+      // Case 2: Inside label statement, after the keyword ("AutoLabel" etc)
+      // This will "incorrectly" trigger for the label in Label statements
+      // but those are supposed to be Strings or TeX anyways
+      (parentNode?.name === "Labeling" && leftSib !== null)
     ) {
       return {
         from: word.from,
