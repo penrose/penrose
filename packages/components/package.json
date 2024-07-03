@@ -62,8 +62,6 @@
     "@uiw/codemirror-themes": "^4.22.2",
     "markdown-it": "^14.1.0",
     "markdown-it-katex": "^2.0.3",
-    "monaco-editor": "^0.31.0",
-    "monaco-vim": "^0.3.4",
     "react-datasheet-grid": "^4.11.0",
     "react-latex-next": "^2.2.0",
     "react-select": "^5.7.3",

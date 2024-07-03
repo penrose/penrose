@@ -36,7 +36,6 @@ export const wordHover = hoverTooltip((view, pos, side) => {
   if ((start == pos && side < 0) || (end == pos && side > 0)) return null;
 
   const word = extractText(view.state.doc.toString(), cursor.to, cursor.from);
-  console.log(word);
 
   if (isKeyOf(word, compDict)) {
     let text = toParamString(compDict[word], word);
@@ -49,7 +48,6 @@ export const wordHover = hoverTooltip((view, pos, side) => {
   }
 
   if (isKeyOf(word, constrDict)) {
-    console.log("here");
     let text = toParamString(constrDict[word], word);
     return createTooltip(start, end, text);
   }
