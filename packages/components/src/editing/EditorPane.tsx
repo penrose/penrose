@@ -1,5 +1,6 @@
 import { autocompletion, completionKeymap } from "@codemirror/autocomplete";
 import { lintGutter, linter } from "@codemirror/lint";
+import { Prec } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
 import {
   DomainError,
@@ -8,7 +9,7 @@ import {
   StyleWarning,
   SubstanceError,
 } from "@penrose/core/dist/types/errors.js";
-import { vim } from "@replit/codemirror-vim";
+import { Vim, vim } from "@replit/codemirror-vim";
 import { color } from "@uiw/codemirror-extensions-color";
 import CodeMirror from "@uiw/react-codemirror";
 import { useEffect, useRef, useState } from "react";
@@ -46,6 +47,7 @@ export default function EditorPane({
   width,
   minWidth,
   maxWidth,
+  onWrite,
 }: {
   value: string;
   height?: string;
@@ -65,6 +67,7 @@ export default function EditorPane({
   readOnly: boolean;
   darkMode: boolean;
   codemirrorHistoryState: boolean;
+  onWrite?: () => void;
 }) {
   const statusBarRef = useRef<HTMLDivElement>(null);
 
@@ -130,6 +133,30 @@ export default function EditorPane({
       : languageType === "substance"
       ? substanceExtensions
       : styleExtensions;
+
+  // onWrite may be undefined (like in Listing.tsx)
+  if (onWrite) {
+    // Keymap Cmd/Cntrl+Enter compile diagram
+    const compileShortcutExtension = keymap.of([
+      {
+        key: "Mod-Enter",
+        run: () => {
+          onWrite();
+          return true;
+        },
+      },
+    ]);
+
+    extensionsList.push(
+      // Set precedence to override default
+      Prec.highest([compileShortcutExtension]),
+    );
+
+    // Vim :w override to be compile diagram
+    Vim.defineEx("write", "w", function () {
+      onWrite();
+    });
+  }
 
   if (vimMode) extensionsList.push(vim());
 
