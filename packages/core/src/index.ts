@@ -405,19 +405,15 @@ export {
   prettyCompiledSubstance,
   prettySubstance,
 } from "./compiler/Substance.js";
+export { compileCompGraph } from "./engine/EngineUtils.js";
 export { start } from "./engine/Optimizer.js";
 export { constrDict } from "./lib/Constraints.js";
 export { compDict } from "./lib/Functions.js";
 export { objDict } from "./lib/Objectives.js";
 export { RenderShapes, toInteractiveSVG, toSVG } from "./renderer/Renderer.js";
 export type { PathResolver } from "./renderer/Renderer.js";
-export {
-  Context as SamplingContext,
-  makeCanvas,
-  simpleContext,
-  uniform,
-} from "./shapes/Samplers.js";
-export type { Canvas } from "./shapes/Samplers.js";
+export { makeCanvas, simpleContext, uniform } from "./shapes/Samplers.js";
+export type { Canvas, InputMeta } from "./shapes/Samplers.js";
 export { sampleShape, shapeTypes } from "./shapes/Shapes.js";
 export type { ShapeType } from "./shapes/Shapes.js";
 export type { DomainEnv } from "./types/domain.js";
@@ -446,24 +442,31 @@ export {
 export type { Result } from "./utils/Error.js";
 export {
   allWarnings,
+  boolV,
   describeType,
+  floatV,
   hexToRgba,
+  pathDataV,
   prettyPrintExpr,
   prettyPrintFn,
   prettyPrintPath,
   rgbaToHex,
+  strV,
   zip2,
+  vectorV,
+  clipDataV,
+  colorV,
+  ptListV,
 } from "./utils/Util.js";
-
-export { Circle, sampleCircle } from "./shapes/Circle.js";
-export { Ellipse, sampleEllipse } from "./shapes/Ellipse.js";
-export { Equation, sampleEquation } from "./shapes/Equation.js";
-export { Group, sampleGroup } from "./shapes/Group.js";
-export { Image, sampleImage } from "./shapes/Image.js";
-export { Line, sampleLine } from "./shapes/Line.js";
-export { Path, samplePath } from "./shapes/Path.js";
-export { Polygon, samplePolygon } from "./shapes/Polygon.js";
-export { Polyline, samplePolyline } from "./shapes/Polyline.js";
-export { Rectangle, sampleRectangle } from "./shapes/Rectangle.js";
 export type { Shape } from "./shapes/Shapes.js";
-export { Text, sampleText } from "./shapes/Text.js";
+export type { Circle } from "./shapes/Circle.js";
+export type { Ellipse } from "./shapes/Ellipse.js";
+export type { Polygon } from "./shapes/Polygon.js";
+export type { Rectangle } from "./shapes/Rectangle.js";
+export type { Path } from "./shapes/Path.js";
+export type { Line } from "./shapes/Line.js";
+export type { Text } from "./shapes/Text.js";
+export type { Image } from "./shapes/Image.js";
+export type { Group } from "./shapes/Group.js";
+export { genGradient } from "./engine/Autodiff.js";
+export { makeGroupGraph, buildRenderGraph } from "./utils/GroupGraph.js";
