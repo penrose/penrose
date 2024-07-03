@@ -1,5 +1,6 @@
 import { Completion, CompletionContext } from "@codemirror/autocomplete";
 import { syntaxTree } from "@codemirror/language";
+// import { printTree } from "@lezer-unofficial/printer";
 import { useCallback } from "react";
 import { DomainCache, ShapeDefinitions } from "../../types";
 import {
@@ -19,6 +20,7 @@ import {
   getPredOptions,
   getShapeNames,
   getShapeProps,
+  getStageNameOpts,
   getTypeOptions,
   headerOptions,
   selectorHeaderOptions,
@@ -34,6 +36,19 @@ export const createStyleAutocomplete = (
     let nodeBefore = syntaxTree(context.state).resolveInner(context.pos, -1);
     let parentNode = nodeBefore.parent;
     let word = context.matchBefore(/\w*/);
+
+    // console.log(
+    //   printTree(
+    //     syntaxTree(context.state).topNode,
+    //     context.state.doc.toString(),
+    //   ),
+    // );
+    // console.log(
+    //   getStageNameOpts(
+    //     syntaxTree(context.state).topNode,
+    //     context.state.doc.toString(),
+    //   ),
+    // );
 
     if (word == null) {
       return null;
@@ -131,6 +146,21 @@ export const createStyleAutocomplete = (
           };
         }
       }
+    }
+
+    // Stage Name autocomplete
+    if (
+      goUpToTarget(nodeBefore, "StageSpecifier") &&
+      // Avoid suggesting where "in"/"except" go
+      parentNode?.prevSibling != null
+    ) {
+      const topNode = syntaxTree(context.state).topNode;
+      const styleProg = context.state.doc.toString();
+
+      return {
+        from: word.from,
+        options: getStageNameOpts(topNode, styleProg),
+      };
     }
 
     // Top level kw completion (forall, collect, layout)

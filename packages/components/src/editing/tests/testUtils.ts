@@ -9,6 +9,7 @@ import { createStyleAutocomplete } from "../hooks/style/styleAutocomplete";
 import {
   getNamespaceDict,
   getNamespaceProps,
+  getStageNames,
 } from "../hooks/style/styleAutocompleteUtils";
 import { getSubstanceCache } from "../hooks/substance/getSubstanceCache";
 import { createSubstanceAutocomplete } from "../hooks/substance/substanceAutocomplete";
@@ -137,7 +138,23 @@ export function testNamespaceProps(
     );
   }
 }
+/*
+ * Takes an input program and gets all the declared layout stages.
+ * Then compares it to an expected array of stage names
+ */
+export function testLayoutStages(input: string, expected: string[]) {
+  const parsedTree = parser.parse(input);
+  const stageCompletions = getStageNames(parsedTree.topNode, input);
 
+  if (!sameItems(expected, stageCompletions)) {
+    assert.fail(
+      `"Failed stage completions caching test. 
+      Expected: ${expected}
+      Recieved: ${stageCompletions}
+      Program: ${input}`,
+    );
+  }
+}
 // Converts CompletionResult object to array of labels (strings)
 export function CompletionsToLabels(
   completions: CompletionResult | null,
