@@ -41,34 +41,20 @@ export const wordHover = hoverTooltip((view, pos, side) => {
   cursor.parent();
 
   // Computation & Constraint Function tooltip
-  if (
-    cursor.name === "ComputationFunction" ||
-    cursor.name === "ObjConstrBody"
-  ) {
-    console.log("here");
-    let name = cursor.name;
-    cursor.firstChild();
-    const fnName = extractText(
-      view.state.doc.toString(),
-      cursor.to,
-      cursor.from,
-    );
+  cursor.firstChild();
+  const fnName = extractText(view.state.doc.toString(), cursor.to, cursor.from);
 
-    if (name === "ComputationFunction") {
-      // Necessary to avoid type error
-      if (!isKeyOf(fnName, compDict)) return null;
-      let text = toParamString(compDict[fnName], fnName);
-      return createTooltip(start, end, text);
-    }
-
-    // Constraint Function case
-    if (name === "ObjConstrBody") {
-      console.log("inside");
-      if (!isKeyOf(fnName, constrDict)) return null;
-      let text = toParamString(constrDict[fnName], fnName);
-      return createTooltip(start, end, text);
-    }
+  if (isKeyOf(fnName, compDict)) {
+    let text = toParamString(compDict[fnName], fnName);
+    return createTooltip(start, end, text);
   }
+
+  if (isKeyOf(fnName, constrDict)) {
+    let text = toParamString(constrDict[fnName], fnName);
+    return createTooltip(start, end, text);
+  }
+
+  cursor.parent();
 
   // Shape name show properties tooltip
   if (cursor.name === "ShapeName") {
@@ -80,7 +66,6 @@ export const wordHover = hoverTooltip((view, pos, side) => {
 
     const shapeDefs = getShapeDefs();
 
-    // console.log(shapeDefs);
     if (shapeName in shapeDefs) {
       let text =
         shapeName +

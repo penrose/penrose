@@ -26,7 +26,6 @@ import { createLinter } from "./hooks/useLinter";
 import { domainLanguageSupport } from "./parser/domain/domainLanguage";
 import { styleLanguageSupport } from "./parser/style/styleLanguage";
 import { substanceLanguageSupport } from "./parser/substance/substanceLanguage";
-import "./styles.css";
 import { penroseTheme } from "./theme";
 
 export default function EditorPane({
