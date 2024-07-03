@@ -1,6 +1,5 @@
 import { Completion, CompletionContext } from "@codemirror/autocomplete";
 import { syntaxTree } from "@codemirror/language";
-// import { printTree } from "@lezer-unofficial/printer";
 import { useCallback } from "react";
 import { DomainCache, ShapeDefinitions } from "../../types";
 import {
@@ -36,19 +35,6 @@ export const createStyleAutocomplete = (
     let nodeBefore = syntaxTree(context.state).resolveInner(context.pos, -1);
     let parentNode = nodeBefore.parent;
     let word = context.matchBefore(/\w*/);
-
-    // console.log(
-    //   printTree(
-    //     syntaxTree(context.state).topNode,
-    //     context.state.doc.toString(),
-    //   ),
-    // );
-    // console.log(
-    //   getStageNameOpts(
-    //     syntaxTree(context.state).topNode,
-    //     context.state.doc.toString(),
-    //   ),
-    // );
 
     if (word == null) {
       return null;
