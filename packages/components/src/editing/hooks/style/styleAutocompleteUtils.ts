@@ -1,6 +1,6 @@
 import { Completion } from "@codemirror/autocomplete";
 import { SyntaxNode } from "@lezer/common";
-import { compDict, constrDict } from "@penrose/core";
+import { compDict, constrDict, objDict } from "@penrose/core";
 import Markdown from "markdown-it";
 import markdownItKatex from "markdown-it-katex";
 import { DomainCache, ShapeDefinitions, ShapeProperties } from "../../types";
@@ -39,14 +39,24 @@ export const makeInfoFn = (dict: any, name: string) => {
   };
 };
 
-export const getConstraints = () => {
-  return Object.entries(constrDict).flatMap(([key, value]) => [
+export const getConstraints_Objectives = () => {
+  let constrArr = Object.entries(constrDict).flatMap(([key, value]) => [
     {
       label: key,
       type: "function ",
       info: makeInfoFn(value, key),
     },
   ]);
+
+  let objArr = Object.entries(objDict).flatMap(([key, value]) => [
+    {
+      label: key,
+      type: "function ",
+      info: makeInfoFn(value, key),
+    },
+  ]);
+
+  return objArr.concat(constrArr);
 };
 
 export const getComputationFns = () => {

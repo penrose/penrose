@@ -1,6 +1,6 @@
 import { syntaxTree } from "@codemirror/language";
 import { EditorView, hoverTooltip } from "@codemirror/view";
-import { compDict, constrDict, isKeyOf } from "@penrose/core";
+import { compDict, constrDict, isKeyOf, objDict } from "@penrose/core";
 import {
   extractText,
   getShapeDefs,
@@ -28,62 +28,49 @@ export const wordHover = hoverTooltip((view, pos, side) => {
   let cursor = syntaxTree(view.state).cursorAt(pos);
 
   // Determine word boundaries: https://codemirror.net/examples/tooltip/
+  // Necessary to determine tooltip show location
   let start = pos,
     end = pos;
   while (start > from && /\w/.test(text[start - from - 1])) start--;
   while (end < to && /\w/.test(text[end - from])) end++;
   if ((start == pos && side < 0) || (end == pos && side > 0)) return null;
 
-  //   Avoids tooltip showing in Expr part of function calls
-  //   If more tooltips are added this check may be problematic
-  if (cursor.prevSibling()) return null;
-  // Go to parent since ComputationFn, ObjConstrBody, ShapeName have Identifier inside
-  cursor.parent();
+  const word = extractText(view.state.doc.toString(), cursor.to, cursor.from);
+  console.log(word);
 
-  // Computation & Constraint Function tooltip
-  cursor.firstChild();
-  const fnName = extractText(view.state.doc.toString(), cursor.to, cursor.from);
-
-  if (isKeyOf(fnName, compDict)) {
-    let text = toParamString(compDict[fnName], fnName);
+  if (isKeyOf(word, compDict)) {
+    let text = toParamString(compDict[word], word);
     return createTooltip(start, end, text);
   }
 
-  if (isKeyOf(fnName, constrDict)) {
-    let text = toParamString(constrDict[fnName], fnName);
+  if (isKeyOf(word, objDict)) {
+    let text = toParamString(objDict[word], word);
     return createTooltip(start, end, text);
   }
 
+  if (isKeyOf(word, constrDict)) {
+    console.log("here");
+    let text = toParamString(constrDict[word], word);
+    return createTooltip(start, end, text);
+  }
+
+  // Go to parent since ShapeName and PropName have Identifier inside
   cursor.parent();
 
   // Shape name show properties tooltip
   if (cursor.name === "ShapeName") {
-    const shapeName = extractText(
-      view.state.doc.toString(),
-      cursor.to,
-      cursor.from,
-    );
-
     const shapeDefs = getShapeDefs();
 
-    if (shapeName in shapeDefs) {
+    if (word in shapeDefs) {
       let text =
-        shapeName +
-        " Properties: " +
-        Object.keys(shapeDefs[shapeName]).join(", ");
+        word + " Properties: " + Object.keys(shapeDefs[word]).join(", ");
       return createTooltip(start, end, text);
     }
   }
 
-  //   Shape property show type tooltip
+  // Shape property show type tooltip
   if (cursor.name === "PropName") {
-    const propName = extractText(
-      view.state.doc.toString(),
-      cursor.to,
-      cursor.from,
-    );
     const shapeDefs = getShapeDefs();
-    console.log(shapeDefs);
 
     if (
       traverseCursorUp(cursor, "ShapeDecl") &&
@@ -95,8 +82,8 @@ export const wordHover = hoverTooltip((view, pos, side) => {
         cursor.from,
       );
 
-      if (shapeName in shapeDefs && propName in shapeDefs[shapeName]) {
-        const text = `${propName}:${shapeDefs[shapeName][propName]}`;
+      if (shapeName in shapeDefs && word in shapeDefs[shapeName]) {
+        const text = `${word}:${shapeDefs[shapeName][word]}`;
         return createTooltip(start, end, text);
       }
     }

@@ -13,7 +13,7 @@ import {
   collectorHeaderOptions,
   exprKws,
   getComputationFns,
-  getConstraints,
+  getConstraints_Objectives,
   getNamespaceProps,
   getNamespaces,
   getPredOptions,
@@ -165,9 +165,9 @@ export const createStyleAutocomplete = (
         .concat(getShapeNames(shapeDefns));
     }
 
-    // Constraint completion (following "encourage" and "ensure")
+    // Constraint + Objective fn completion (following "encourage" and "ensure")
     if (goUpToTarget(nodeBefore, "ObjConstrBody") != null) {
-      completionOpts = completionOpts.concat(getConstraints());
+      completionOpts = completionOpts.concat(getConstraints_Objectives());
     }
 
     /*
