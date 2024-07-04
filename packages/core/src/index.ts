@@ -468,5 +468,6 @@ export type { Line } from "./shapes/Line.js";
 export type { Text } from "./shapes/Text.js";
 export type { Image } from "./shapes/Image.js";
 export type { Group } from "./shapes/Group.js";
+export type { Equation } from "./shapes/Equation.js";
 export { genGradient } from "./engine/Autodiff.js";
 export { makeGroupGraph, buildRenderGraph } from "./utils/GroupGraph.js";

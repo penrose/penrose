@@ -1,13 +1,13 @@
 import {
   boolV,
   Canvas, clipDataV, colorV, floatV, Group as PenroseGroup,
-  LabelCache, Num,
+  LabelCache, Num, pathDataV,
   PathResolver, ptListV,
   RenderShapes, Shape as PenroseShape,
   strV, Value, vectorV
 } from "@penrose/core";
 import _ from "lodash";
-import { Clip, clip, Color, Group, NoClip, noClip, PenroseShapeType, Shape, ShapeType } from "./types.js";
+import { Clip, Color, NoClip, PenroseShapeType, Shape } from "./types.js";
 export const stateToSVG = async (
   state: {
     canvas: Canvas;
@@ -97,6 +97,10 @@ export const toPenroseShape = (
 
       case "BoolV":
         resultV = boolV(value);
+        break;
+
+      case "PathDataV":
+        resultV = pathDataV(value);
         break;
 
       default:

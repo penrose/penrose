@@ -1,10 +1,8 @@
-import { boolV, constrDict, Line as PenroseLine, Num } from "@penrose/core";
-import { ValueType } from "@penrose/core/dist/types/types.d.ts";
-import { BoolV } from "@penrose/core/dist/types/value.d.ts";
+import { constrDict, Line as PenroseLine, Num } from "@penrose/core";
 import { Line, Shape, Vec2, VecN } from "./types.js";
 import { toPenroseShape } from "./utils.js";
 
-export const constraints = {
+const constraints = {
     /**
      * Require that the value `x` is equal to the value `y`.
      * @param x First value
@@ -290,3 +288,5 @@ export const constraints = {
     disjointIntervals: (s1: Line, s2: Line) =>
       constrDict.disjointIntervals.body(toPenroseShape(s1) as PenroseLine<Num>, toPenroseShape(s2) as PenroseLine<Num>).value,
 };
+
+export default constraints;

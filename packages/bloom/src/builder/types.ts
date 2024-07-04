@@ -1,8 +1,8 @@
-import { Num } from "@penrose/core";
+import { Num, Value } from "@penrose/core";
 
 export type Vec2 = [Num, Num];
 export type Vec3 = [Num, Num, Num];
-export type Color = [Num, Num, Num, Num];
+export type Color = Num[];
 export type VecN = Num[];
 
 
@@ -88,6 +88,8 @@ export enum ShapeType {
   Group = "Group",
 }
 
+export type PathData = Value.PathCmd<Num>[];
+
 export interface Circle
   extends Named, Stroke, Fill, Center {
   shapeType: ShapeType.Circle;
@@ -126,7 +128,7 @@ export interface Line
 export interface Path
   extends Named, Stroke, Fill, Arrow {
   shapeType: ShapeType.Path;
-  d: string;
+  d: PathData;
   strokeLinecap: string;
 }
 

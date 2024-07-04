@@ -1,17 +1,12 @@
 import {
-  boolV,
   Canvas,
-  floatV,
   InputMeta,
   Num,
   sampleShape,
   Shape as PenroseShape,
   simpleContext,
-  strV,
   uniform,
-  Value,
-  Var, clipDataV, colorV, ptListV, vectorV,
-  Group as PenroseGroup, constrDict
+  Var,  constrDict
 } from "@penrose/core";
 import _ from "lodash";
 import { Diagram } from "../renderer/Renderer.tsx";
@@ -19,10 +14,9 @@ import {
   Circle,
   CircleProps,
   clip,
-  Clip,
-  Color, Ellipse, EllipseProps, Equation, EquationProps, Group, GroupProps, Image, ImageProps, Line, LineProps,
+  Ellipse, EllipseProps, Equation, EquationProps, Group, GroupProps, Image, ImageProps, Line, LineProps,
   noClip,
-  NoClip, PathProps,
+  PathProps,
   PenroseShapeType, Polygon, PolygonProps, Polyline, PolylineProps, Rectangle, RectangleProps,
   Shape,
   ShapeProps,
@@ -123,7 +117,7 @@ export class DiagramBuilder {
     penroseShape: PenroseShape<Num>
   ): Shape => {
     const shape: Partial<Shape> = {
-      shapeType: penroseShape.shapeType,
+      shapeType: ShapeType[penroseShape.shapeType],
     };
     const shapeTypes = PenroseShapeType.get(ShapeType[penroseShape.shapeType])!;
 
