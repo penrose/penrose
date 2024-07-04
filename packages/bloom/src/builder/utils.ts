@@ -1,10 +1,13 @@
 import {
-  Canvas,
-  LabelCache,
-  PathResolver,
-  RenderShapes,
-  Shape,
+  boolV,
+  Canvas, clipDataV, colorV, floatV, Group as PenroseGroup,
+  LabelCache, Num,
+  PathResolver, ptListV,
+  RenderShapes, Shape as PenroseShape,
+  strV, Value, vectorV
 } from "@penrose/core";
+import _ from "lodash";
+import { Clip, clip, Color, Group, NoClip, noClip, PenroseShapeType, Shape, ShapeType } from "./types.js";
 export const stateToSVG = async (
   state: {
     canvas: Canvas;
@@ -40,3 +43,72 @@ export const stateToSVG = async (
   rendered.setAttribute("height", config.height);
   return rendered;
 };
+
+export const toPenroseShape = (
+  shape: Partial<Shape> & Required<Pick<Shape, "shapeType">>,
+  base?: Partial<PenroseShape<Num>>
+): PenroseShape<Num> => {
+  const penroseShape: Partial<PenroseShape<Num>> = base ?? {};
+
+  for (const [prop, value] of Object.entries(shape)) {
+    if (prop === "shapeType") continue;
+
+    let resultV: Value.Value<Num>;
+    switch (PenroseShapeType.get(shape.shapeType)![prop]) {
+      case "FloatV":
+        resultV = floatV(value);
+        break;
+
+      case "StrV":
+        resultV = strV(value);
+        break;
+
+      case "VectorV":
+        resultV = vectorV(value);
+        break;
+
+      case "ClipDataV":
+        switch ((value as NoClip | Clip).tag) {
+          case "NoClip":
+            resultV = clipDataV(value);
+            break;
+
+          case "Clip":
+            resultV = clipDataV({
+              tag: "Clip",
+              contents: this.sampleAndFillPenroseShape(
+                (value as Clip).shape.shapeType,
+                (value as Clip).shape
+              ) as Exclude<PenroseShape<Num>, PenroseGroup<Num>>,
+            })
+        }
+        break;
+
+      case "PtListV":
+        resultV = ptListV(value);
+        break;
+
+      case "ColorV":
+        resultV = colorV({
+          tag: "RGBA",
+          contents: value as Color
+        });
+        break;
+
+      case "BoolV":
+        resultV = boolV(value);
+        break;
+
+      default:
+        throw new Error(`Unknown field type for ${prop}`);
+    }
+
+    _.set(penroseShape, prop, resultV);
+  }
+
+  return {
+    ...penroseShape,
+    shapeType: shape.shapeType,
+    passthrough: new Map(),
+  } as PenroseShape<Num>;
+}

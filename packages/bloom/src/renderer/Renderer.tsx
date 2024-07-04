@@ -80,10 +80,11 @@ export default function Renderer(props: RendererProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const renderLoopInterruptRef = useRef(false);
 
-  const [renderLoopShouldStart, setRenderLoopShouldStart] = useState(true);
+  const [renderLoopShouldStart, setRenderLoopShouldStart] = useState(false);
   const [renderLoopRunning, setRenderLoopRunning] = useState(false);
 
   useEffect(() => {
+    setRenderLoopShouldStart(true);
     return () => {
       renderLoopInterruptRef.current = true;  // stop existing render loop
     }
@@ -96,6 +97,7 @@ export default function Renderer(props: RendererProps) {
     }
 
     const { svg, stopped } = await props.diagram.pollAndRender();
+    console.log(stopped);
 
     if (canvasRef.current) {
       if (canvasRef.current.lastChild) {
@@ -105,6 +107,7 @@ export default function Renderer(props: RendererProps) {
       }
 
       if (stopped) {
+        renderLoopInterruptRef.current = true;
         setRenderLoopRunning(false);
         return;
       }
@@ -114,6 +117,7 @@ export default function Renderer(props: RendererProps) {
   }
 
   if (!renderLoopRunning && renderLoopShouldStart) {
+    renderLoopInterruptRef.current = false;
     setRenderLoopShouldStart(false);
     setRenderLoopRunning(true);
     renderLoop();

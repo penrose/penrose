@@ -28,6 +28,7 @@ import {
   ShapeProps,
   ShapeType, TextProps, Path
 } from "./types.js";
+import { toPenroseShape } from "./utils.ts";
 
 export type NamedSamplingContext = {
   makeInput: (meta: InputMeta, name?: string) => Var;
@@ -78,7 +79,7 @@ export class DiagramBuilder {
             if (!("name" in props)) {
               props.name = String(this.nextId++) + "_" + shapeType;
             }
-            const penroseShape = this.toPenroseShape(shapeType, props);
+            const penroseShape = this.sampleAndFillPenroseShape(shapeType, props);
             this.shapes.push(penroseShape);
             if (penroseShape.ensureOnCanvas) {
               this.ensure(constrDict.onCanvas.body(penroseShape, this.canvas.width, this.canvas.height).value)
@@ -102,81 +103,28 @@ export class DiagramBuilder {
     return newVar;
   };
 
-  private toPenroseShape = (
+  private sampleAndFillPenroseShape = (
     shapeType: ShapeType,
     props: Partial<ShapeProps>
   ): PenroseShape<Num> => {
-    const penroseShapeProps = sampleShape(
+    const penroseShapeBase = sampleShape(
       shapeType,
       this.samplingContext,
       this.canvas,
     );
 
-    for (const [prop, value] of Object.entries(props)) {
-      let resultV: Value.Value<Num>;
-      switch (PenroseShapeType.get(shapeType)![prop]) {
-        case "FloatV":
-          resultV = floatV(value);
-          break;
-
-        case "StrV":
-          resultV = strV(value);
-          break;
-
-        case "VectorV":
-          resultV = vectorV(value);
-          break;
-
-        case "ClipDataV":
-          switch ((value as NoClip | Clip).tag) {
-            case "NoClip":
-              resultV = clipDataV(value);
-              break;
-
-            case "Clip":
-              resultV = clipDataV({
-                tag: "Clip",
-                contents: this.toPenroseShape(
-                  (value as Clip).shape.shapeType,
-                  (value as Clip).shape
-                ) as Exclude<PenroseShape<Num>, PenroseGroup<Num>>,
-              })
-          }
-          break;
-
-        case "PtListV":
-          resultV = ptListV(value);
-          break;
-
-        case "ColorV":
-          resultV = colorV({
-            tag: "RGBA",
-            contents: value as Color
-          });
-          break;
-
-        case "BoolV":
-          resultV = boolV(value);
-          break;
-
-        default:
-          throw new Error(`Unknown field type for ${prop}`);
-      }
-
-      _.set(penroseShapeProps, prop, resultV);
-    }
-
-    return {
-      ...penroseShapeProps,
-      shapeType: shapeType,
-      passthrough: new Map(),
-    } as PenroseShape<Num>;
+    return toPenroseShape({
+      ...props,
+      shapeType,
+    }, penroseShapeBase);
   };
 
   private fromPenroseShape =(
     penroseShape: PenroseShape<Num>
   ): Shape => {
-    const shape: Partial<Shape> = {};
+    const shape: Partial<Shape> = {
+      shapeType: penroseShape.shapeType,
+    };
     const shapeTypes = PenroseShapeType.get(ShapeType[penroseShape.shapeType])!;
 
     for (const [prop, value] of Object.entries(penroseShape)) {
@@ -243,7 +191,7 @@ export class DiagramBuilder {
       constraints: this.constraints,
       objectives: this.objectives,
       shapes: this.shapes,
-      namedInputs: this.namedInputs,
+      // namedInputs: this.namedInputs,
     });
   };
 }
