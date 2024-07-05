@@ -22,6 +22,7 @@ import { DomainEnv } from "@penrose/core/dist/types/domain";
 import React from "react";
 import Latex from "react-latex-next";
 import { Preset, domains, presets } from "../examples.js";
+import { LLMMutatorPrompt } from "../synthesis/LLMutation.js";
 import {
   DeclTypes,
   MatchSetting,
@@ -84,6 +85,13 @@ export interface SettingsProps {
     domainSelect: string,
     presetSelect: string,
   ) => void;
+
+  LLMGenerateCallback: (config: {
+    input: string;
+    progs: string[];
+    dsl: string;
+    sty: string;
+  }) => void;
   onPrompt: (prompt: string) => void;
   defaultDomain: string;
   defaultStyle: string;
@@ -109,7 +117,7 @@ interface SettingState {
 const SettingContainer = styled(Box)({
   padding: "0.5rem",
   paddingTop: "1rem",
-  width: "25vw",
+  width: "35vw",
 });
 
 const SettingsDrawer = styled(Drawer)(({ theme }) => ({
@@ -261,6 +269,7 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
           onChange={handleTabSwitch}
         >
           <Tab label="Generate new problem" />
+          <Tab label="LLM Mutation" />
           <Tab label="Select from presets" />
         </Tabs>
 
@@ -319,6 +328,37 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
             <Latex>{this.state.prompt}</Latex>
           </div>
         </TabPanel>
+
+        <TabPanel index={2} currentTab={this.state.currentTab}>
+          <InputLabel id="preset-select-label">Preset</InputLabel>
+          <Select
+            key="preset"
+            labelId="preset-select-label"
+            id="preset-select"
+            label="preset"
+            // defaultValue={"c04p01"}
+            value={this.state.presetSelect}
+            onChange={(e) => {
+              const key = e.target.value as string;
+              this.handlePreset(key);
+
+              const domainSelectStr = Object.entries(domains).find(
+                ([_, { domain }]) => domain === presets[key].domain,
+              )![0];
+
+              this.setState({
+                presetSelect: key,
+                domainSelect: domainSelectStr,
+              });
+            }}
+          >
+            {this.presets()}
+          </Select>
+          <SettingLabel>Prompt:</SettingLabel>
+          <div>
+            <Latex>{this.state.prompt}</Latex>
+          </div>
+        </TabPanel>
       </>
     );
   };
@@ -335,11 +375,8 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
     )![1];
   };
 
-  onLLMGenerateClick = () => {
+  openai = async (prompt: string): Promise<string> => {
     let output = "";
-
-    this.setState({ llmRunning: true });
-
     const apiUrl = "https://api.openai.com/v1/chat/completions";
 
     const headers = {
@@ -347,6 +384,31 @@ export class Settings extends React.Component<SettingsProps, SettingState> {
       Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
     };
 
+    console.log(prompt);
+    const data = {
+      model: "gpt-4o-2024-05-13",
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: 2000,
+      temperature: 0.1,
+    };
+
+    const res = await fetch(apiUrl, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+      throw new Error("OpenAI API error: " + res.statusText);
+    } else {
+      const response = await res.json();
+      console.log(response);
+      output = response.choices[0].message.content;
+      return output;
+    }
+  };
+
+  onLLMGenerateClick = async () => {
     const samplePreset = this.getSampleSubstancePreset();
 
     const prompt = `
@@ -369,46 +431,13 @@ ${samplePreset.substance}
 Question: Given the context above, can you generate a new Substance program which describes the following: ${this.state.llmInput}?
 
 To write comments, begin with \`--\`. Return only the Substance program; explain your reasoning in Substance comments only.`;
-
-    console.log(prompt);
-    const data = {
-      model: "gpt-3.5-turbo",
-      // model: "gpt-4",
-      messages: [{ role: "user", content: prompt }],
-      max_tokens: 2000,
-      temperature: 0.1,
-    };
-
-    const start = Date.now();
-
-    fetch(apiUrl, {
-      method: "POST",
-      headers: headers,
-      body: JSON.stringify(data),
-    })
-      .then((response) => {
-        console.log(Date.now() - start + "ms");
-        return response.json();
-      })
-      .then((result) => {
-        //console.log(result);
-        // Process the result
-        output = result.choices[0].message.content;
-
-        // remove backticks from output
-        output = output.replace(/`/g, "");
-
-        this.setState({ substance: output, llmRunning: false });
-      })
-      .catch((error) => {
-        // Handle any errors
-        console.error("Error:", error);
-        this.setState({ llmRunning: false });
-      });
+    const res = await this.openai(prompt);
+    const stripped = res.replace(/`/g, "");
+    this.setState({ substance: stripped });
   };
 
-  onGenerateClick = () => {
-    if (this.state.setting)
+  onGenerateClick = async () => {
+    if (this.state.setting && this.state.currentTab !== 1) {
       this.props.generateCallback(
         this.state.setting,
         this.state.seed,
@@ -421,6 +450,24 @@ To write comments, begin with \`--\`. Return only the Substance program; explain
         this.state.presetSelect,
         this.state.domainSelect,
       );
+    } else if (this.state.currentTab === 1) {
+      const { domain, substance, numPrograms } = this.state;
+      const prompt = LLMMutatorPrompt(
+        domain,
+        this.state.prompt,
+        substance,
+        numPrograms,
+      );
+      const res = await this.openai(prompt);
+      console.log(res);
+
+      this.props.LLMGenerateCallback({
+        input: this.state.substance,
+        dsl: this.state.domain,
+        sty: this.state.style,
+        progs: JSON.parse(res),
+      });
+    }
   };
 
   onMutationCountChange = (event: any, newValue: number | number[]) => {
@@ -611,16 +658,18 @@ To write comments, begin with \`--\`. Return only the Substance program; explain
             </AccordionBodyStyled>
           </Accordion>
 
-          <SettingDiv>
-            <SettingLabel>Mutator seed:</SettingLabel>
-            <TextField
-              id="standard-basic"
-              // label="Mutator seed"
-              variant="standard"
-              value={this.state.seed}
-              onChange={({ target }) => this.setState({ seed: target.value })}
-            />
-          </SettingDiv>
+          {this.state.currentTab !== 1 && (
+            <SettingDiv>
+              <SettingLabel>Mutator seed:</SettingLabel>
+              <TextField
+                id="standard-basic"
+                // label="Mutator seed"
+                variant="standard"
+                value={this.state.seed}
+                onChange={({ target }) => this.setState({ seed: target.value })}
+              />
+            </SettingDiv>
+          )}
           <SettingDiv>
             <SettingLabel>Number of variations to generate:</SettingLabel>
             <Slider
@@ -640,7 +689,7 @@ To write comments, begin with \`--\`. Return only the Substance program; explain
               onChange={this.onProgCountChange}
             />
           </SettingDiv>
-          {this.state.setting && (
+          {this.state.setting && this.state.currentTab !== 1 && (
             <WeightSlider
               divisions={[
                 {

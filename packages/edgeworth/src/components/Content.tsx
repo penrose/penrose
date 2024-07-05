@@ -155,6 +155,48 @@ export class Content extends React.Component<ContentProps, ContentState> {
 
   onPrompt = (prompt: string) => this.setState({ prompt });
 
+  LLMProgs = ({
+    input,
+    progs,
+    dsl,
+    sty,
+  }: {
+    input: string;
+    progs: string[];
+    dsl: string;
+    sty: string;
+  }) => {
+    console.log("LLMProgs", progs);
+
+    const allProgs = [input, ...progs];
+    const envOrError = compileDomain(dsl);
+
+    if (envOrError.isOk()) {
+      const domEnv = envOrError.value;
+      const compiledProgs = allProgs
+        .map((sub) => {
+          const subRes = compileSubstance(sub, domEnv);
+          if (subRes.isOk()) {
+            return subRes.value.ast;
+          } else {
+            throw new Error(
+              `Error when compiling the template Substance program: ${showError(
+                subRes.error,
+              )}`,
+            );
+          }
+        })
+        .map((prog) => ({ prog, ops: [] }));
+      this.setState({
+        progs: compiledProgs,
+        staged: [],
+        domain: dsl,
+        style: sty,
+        layoutDone: false,
+      });
+    }
+  };
+
   generateProgs =
     () =>
     (
@@ -360,6 +402,7 @@ export class Content extends React.Component<ContentProps, ContentState> {
         <ContentSection>
           <Settings
             generateCallback={this.generateProgs()}
+            LLMGenerateCallback={this.LLMProgs}
             onPrompt={(prompt) => this.setState({ prompt })}
             defaultDomain={this.state.domain}
             defaultStyle={this.state.style}
