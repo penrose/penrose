@@ -3,6 +3,12 @@ import * as path from "path";
 import { defineConfig } from "vite";
 import topLevelAwait from "vite-plugin-top-level-await";
 
+const isProduction = process.env.NODE_ENV === "production";
+
+const profiling = isProduction && {
+  "react-dom/client": "react-dom/profiling",
+};
+
 // https://vitejs.dev/config/
 export default defineConfig({
   base: "/try/",
@@ -11,9 +17,12 @@ export default defineConfig({
     format: "es",
     plugins: () => [topLevelAwait()],
   },
-  build: { target: "esnext" },
+  build: {
+    target: "esnext",
+    minify: false,
+  },
   optimizeDeps: {
-    esbuildOptions: { target: "esnext" },
+    esbuildOptions: { target: "esnext", minify: false },
     exclude: ["@penrose/examples", "rose"],
   },
   server: {
@@ -32,6 +41,7 @@ export default defineConfig({
   resolve: {
     preserveSymlinks: true,
     alias: {
+      ...profiling,
       "@penrose/components": `${path.resolve("..")}/components/src`,
       "@penrose/core": `${path.resolve("..")}/core/src`,
     },

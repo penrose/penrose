@@ -1,7 +1,13 @@
 import { PathResolver, RenderShapes, runtimeError } from "@penrose/core";
 import { clamp, min } from "lodash";
 import { useCallback } from "react";
-import { RenderState, isErr, showOptimizerError } from "../optimizer/common.js";
+import {
+  DiagramID,
+  HistoryLoc,
+  RenderState,
+  isErr,
+  showOptimizerError,
+} from "../optimizer/common.js";
 import { Diagram, optimizer } from "../state/atoms.js";
 import { Interaction } from "./interactionUtils.js";
 
@@ -86,13 +92,14 @@ export const getSvgBBox = (
 
 export const interactAndUpdate = async (
   interaction: Interaction,
-  diagram: Diagram,
+  diagramId: DiagramID,
+  historyLoc: HistoryLoc,
   setDiagram: (setter: (diagram: Diagram) => Diagram) => void,
   setWorker: (setter: (worker: any) => any) => void,
 ) => {
   const interactionResult = await optimizer.interact(
-    diagram.diagramId!,
-    diagram.historyLoc!,
+    diagramId,
+    historyLoc,
     interaction,
   );
   if (isErr(interactionResult)) {
@@ -135,6 +142,8 @@ export const makeTranslateOnMouseDown =
     onMouseUp?: (e: MouseEvent) => void,
   ) =>
   (e: MouseEvent) => {
+    const svgParent = diagramSVG.parentElement!;
+
     window.addEventListener("selectstart", preventSelection);
     const prevCursor = document.body.style.cursor;
     document.body.style.cursor = "grabbing";
@@ -176,7 +185,6 @@ export const makeTranslateOnMouseDown =
       const svgHeight = viewBox.baseVal.height;
 
       let { x, y } = getScreenToSvgPosition(e, CTM);
-      console.log(x, y);
       if (constraint) {
         [x, y] = constraint([
           x - approxInitDeltaX - svgWidth / 2,
@@ -200,8 +208,8 @@ export const makeTranslateOnMouseDown =
     };
 
     const onMouseUp_ = (e: MouseEvent) => {
-      document.removeEventListener("mouseup", onMouseUp_);
-      document.removeEventListener("mousemove", onMouseMove);
+      svgParent.removeEventListener("mouseup", onMouseUp_);
+      svgParent.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("selectstart", preventSelection);
       document.body.style.cursor = prevCursor;
       elem.style.cursor = "grab";
@@ -209,8 +217,8 @@ export const makeTranslateOnMouseDown =
       onMouseUp?.(e);
     };
 
-    document.addEventListener("mouseup", onMouseUp_);
-    document.addEventListener("mousemove", onMouseMove);
+    svgParent.addEventListener("mouseup", onMouseUp_);
+    svgParent.addEventListener("mousemove", onMouseMove);
   };
 
 export const useScaleOnMouseDown = (
@@ -223,6 +231,8 @@ export const useScaleOnMouseDown = (
 ) =>
   useCallback(
     (e: MouseEvent) => {
+      const svgParent = diagramSVG.parentElement!;
+
       window.addEventListener("selectstart", preventSelection);
 
       const CTM = diagramSVG.getScreenCTM();
@@ -310,14 +320,14 @@ export const useScaleOnMouseDown = (
       };
 
       const onMouseUp = () => {
-        document.removeEventListener("mouseup", onMouseUp);
-        document.removeEventListener("mousemove", onMouseMove);
+        svgParent.removeEventListener("mouseup", onMouseUp);
+        svgParent.removeEventListener("mousemove", onMouseMove);
         window.removeEventListener("selectstart", preventSelection);
         scale(path, sx, sy);
       };
 
-      document.addEventListener("mouseup", onMouseUp);
-      document.addEventListener("mousemove", onMouseMove);
+      svgParent.addEventListener("mouseup", onMouseUp);
+      svgParent.addEventListener("mousemove", onMouseMove);
     },
     [diagramSVG, state, path, elem, scale, corner],
   );
@@ -329,8 +339,6 @@ export const renderPlayModeInteractivity = (
   setWorker: (setter: (diagram: any) => any) => void,
 ) => {
   if (!diagram.state || !diagram.svg) return;
-
-  console.log("play mode!");
 
   for (const [path, constraint] of diagram.state.interactivityInfo
     .draggingConstraints) {
@@ -345,7 +353,8 @@ export const renderPlayModeInteractivity = (
           dy,
           path,
         },
-        diagram,
+        diagram.diagramId!,
+        diagram.historyLoc!,
         setDiagram,
         setWorker,
       );
@@ -358,7 +367,8 @@ export const renderPlayModeInteractivity = (
           active: false,
           path,
         },
-        diagram,
+        diagram.diagramId!,
+        diagram.historyLoc!,
         setDiagram,
         setWorker,
       );

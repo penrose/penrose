@@ -14,8 +14,8 @@ import {
   showError,
   State,
 } from "@penrose/core";
-import { pick } from "lodash";
 import { LogLevels } from "consola";
+import { pick } from "lodash";
 import { Result } from "true-myth";
 import { Interaction } from "../utils/interactionUtils.js";
 

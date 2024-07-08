@@ -452,6 +452,20 @@ export const diagramErrorsAndWarningsSelector = selector<{
   },
 });
 
+export const diagramIdsSelector = selector<{
+  diagramId: DiagramID | null;
+  historyLoc: HistoryLoc | null;
+}>({
+  key: "diagramIds",
+  get: ({ get }) => {
+    const diagram = get(diagramState);
+    return {
+      diagramId: diagram.diagramId,
+      historyLoc: diagram.historyLoc,
+    };
+  },
+});
+
 export interface TrioWithPreview {
   id: string;
   get: () => Promise<Trio>;

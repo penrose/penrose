@@ -379,9 +379,6 @@ const interact = (data: InteractionRequestData): InteractionResult => {
       parentSeqInfo.variation,
       newInitValues,
     );
-    console.log(
-      `New interaction ${data.interaction.tag} from (ssid ${data.parentHistoryLoc.sequenceId}, frame ${data.parentHistoryLoc.frame}) to ssid ${stepSeqId} `,
-    );
 
     currentValues = historyValues.get(stepSeqId)!.at(-1)!;
   } else {

@@ -1,6 +1,12 @@
-import { MutableRefObject, useCallback, useEffect, useMemo } from "react";
-import { useRecoilState, useSetRecoilState } from "recoil";
-import { RenderState } from "../optimizer/common.js";
+import React, {
+  memo,
+  MutableRefObject,
+  useCallback,
+  useEffect,
+  useMemo, useState
+} from "react";
+import { useSetRecoilState } from "recoil";
+import { DiagramID, HistoryLoc, RenderState } from "../optimizer/common.js";
 import { diagramState, diagramWorkerState } from "../state/atoms.js";
 import {
   getRelativeBBox,
@@ -16,11 +22,16 @@ export interface DragWidgetProps {
   state: RenderState;
   overlay: MutableRefObject<Element>;
   pinnedPaths: Set<string>;
+  diagramId: DiagramID;
+  historyLoc: HistoryLoc;
 }
 
-export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
-  const [diagram, setDiagram] = useRecoilState(diagramState);
+const InteractiveWidget = memo((props: DragWidgetProps): JSX.Element => {
+  const setDiagram = useSetRecoilState(diagramState);
   const setWorker = useSetRecoilState(diagramWorkerState);
+
+  // needs to be set in a useEffect to prevent layout thrashing
+  const [bbox, setBbox] = useState<DOMRect | null>(null);
 
   const translate = async (path: string, dx: number, dy: number) => {
     await interactAndUpdate(
@@ -30,7 +41,8 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
         dy,
         path,
       },
-      diagram,
+      props.diagramId,
+      props.historyLoc,
       setDiagram,
       setWorker,
     );
@@ -44,7 +56,8 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
         sy,
         path,
       },
-      diagram,
+      props.diagramId,
+      props.historyLoc,
       setDiagram,
       setWorker,
     );
@@ -57,7 +70,8 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
         active,
         path,
       },
-      diagram,
+      props.diagramId,
+      props.historyLoc,
       setDiagram,
       setWorker,
     );
@@ -97,7 +111,10 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
     }
   }, [props.elem, props.state, props.path]);
 
-  const bbox = getRelativeBBox(props.elem, props.overlay.current);
+  useEffect(() => {
+    setBbox(getRelativeBBox(props.elem, props.overlay.current));
+  }, [props.elem, props.overlay.current]);
+
   const borderWidth = 2;
 
   const scaleSquareWidth = 10;
@@ -107,7 +124,7 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
   const mainCol = props.pinnedPaths.has(props.path) ? "red" : "black";
 
   const makeScalingCorner = useCallback(
-    (styleProps: any, otherProps: any) => {
+    (key: React.Key, styleProps: any, otherProps: any) => {
       return (
         <div
           style={{
@@ -119,6 +136,7 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
             border: `${scaleSquareBorder}px solid ${mainCol}`,
             ...styleProps,
           }}
+          key={key}
           {...otherProps}
         ></div>
       );
@@ -162,13 +180,13 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
   const topLeftScalingCorner = useMemo(
     () =>
       makeScalingCorner(
+        "topLeft",
         {
           top: `-${scaleSquareOffset}px`,
           left: `-${scaleSquareOffset}px`,
           cursor: "nwse-resize",
         },
         {
-          key: "topLeft",
           onMouseDown: topLeftScaleMouseDown,
         },
       ),
@@ -178,13 +196,13 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
   const topRightScalingCorner = useMemo(
     () =>
       makeScalingCorner(
+        "topRight",
         {
           top: `-${scaleSquareOffset}px`,
           right: `-${scaleSquareOffset}px`,
           cursor: "nesw-resize",
         },
         {
-          key: "topRight",
           onMouseDown: topRightScaleMouseDown,
         },
       ),
@@ -194,13 +212,13 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
   const bottomLeftScalingCorner = useMemo(
     () =>
       makeScalingCorner(
+        "bottomLeft",
         {
           bottom: `-${scaleSquareOffset}px`,
           left: `-${scaleSquareOffset}px`,
           cursor: "nesw-resize",
         },
         {
-          key: "bottomLeft",
           onMouseDown: bottomLeftScaleMouseDown,
         },
       ),
@@ -210,13 +228,13 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
   const bottomRightScalingCorner = useMemo(
     () =>
       makeScalingCorner(
+        "bottomRight",
         {
           bottom: `-${scaleSquareOffset}px`,
           right: `-${scaleSquareOffset}px`,
           cursor: "nwse-resize",
         },
         {
-          key: "bottomRight",
           onMouseDown: bottomRightScaleMouseDown,
         },
       ),
@@ -224,23 +242,29 @@ export default function InteractiveWidget(props: DragWidgetProps): JSX.Element {
   );
 
   return (
-    <div
-      style={{
-        position: "absolute",
-        top: `${bbox.y - borderWidth}px`,
-        left: `${bbox.x - borderWidth}px`,
-        border: `${borderWidth}px solid ${mainCol}`,
-        width: `${bbox.width}px`,
-        height: `${bbox.height}px`,
-        pointerEvents: "none",
-      }}
-    >
-      {props.state.interactivityInfo.scalableShapePaths.has(props.path) && [
-        topLeftScalingCorner,
-        topRightScalingCorner,
-        bottomRightScalingCorner,
-        bottomLeftScalingCorner,
-      ]}
-    </div>
+    <>
+      {bbox &&
+        <div
+          style={{
+            position: "absolute",
+            top: `${bbox.y - borderWidth}px`,
+            left: `${bbox.x - borderWidth}px`,
+            border: `${borderWidth}px solid ${mainCol}`,
+            width: `${bbox.width}px`,
+            height: `${bbox.height}px`,
+            pointerEvents: "none",
+          }}
+        >
+          {props.state.interactivityInfo.scalableShapePaths.has(props.path) && [
+            topLeftScalingCorner,
+            topRightScalingCorner,
+            bottomRightScalingCorner,
+            bottomLeftScalingCorner,
+          ]}
+        </div>
+      }
+    </>
   );
-}
+});
+
+export default InteractiveWidget;

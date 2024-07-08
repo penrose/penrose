@@ -1,8 +1,9 @@
 import { isPenroseError, runtimeError, showError } from "@penrose/core";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from "recoil";
 import { isErr, showOptimizerError } from "../optimizer/common.js";
 import {
+  Diagram,
   canvasState,
   currentRogerState,
   diagramState,
@@ -71,7 +72,7 @@ export default function DiagramPanel() {
     }
   }, [state, settings.contents.interactive]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (settings.contents.interactive === "PlayMode") {
       renderPlayModeInteractivity(
         diagram,
@@ -123,12 +124,11 @@ export default function DiagramPanel() {
       frame: stepSequenceInfo.layoutStats.at(-1)!.cumulativeFrames - 1,
     };
 
-    // set layout stats for use by timeline slider
-    setDiagram((diagram) => ({
-      ...diagram,
+    // cache so we can set once at end
+    let newDiagram: Partial<Diagram> = {
       historyInfo: pollResult.value,
       historyLoc: newHistoryLoc,
-    }));
+    };
 
     // compute the most recent shapes for the step sequence
     const layoutResult = await optimizer.computeLayout(
@@ -137,19 +137,19 @@ export default function DiagramPanel() {
     );
 
     if (layoutResult.isErr()) {
-      setDiagram((diagram) => ({
-        ...diagram,
+      newDiagram = {
+        ...newDiagram,
         error: isPenroseError(layoutResult.error)
           ? layoutResult.error
           : runtimeError(showOptimizerError(layoutResult.error)),
-      }));
+      };
       // don't return here, since we want to check whether the step sequence has
       // stopped optimizing, and set the diagram state accordingly
     } else {
-      setDiagram((diagram) => ({
-        ...diagram,
+      newDiagram = {
+        ...newDiagram,
         state: layoutResult.value,
-      }));
+      };
     }
 
     if (stepSequenceInfo.state.tag == "Pending") {
@@ -164,12 +164,17 @@ export default function DiagramPanel() {
 
       if (stepSequenceInfo.state.tag === "OptimizationError") {
         const error = stepSequenceInfo.state;
-        setDiagram((diagram) => ({
-          ...diagram,
+        newDiagram = {
+          ...newDiagram,
           error: runtimeError(showOptimizerError(error)),
-        }));
+        };
       }
     }
+
+    setDiagram((diagram) => ({
+      ...diagram,
+      ...newDiagram,
+    }));
   };
 
   // stop whenever either active id changes (but we will restart very quickly)
@@ -275,11 +280,19 @@ export default function DiagramPanel() {
             state &&
             !workerState.compiling &&
             !workerState.resampling &&
-            settings.contents.interactive === "EditMode" && (
+            settings.contents.interactive === "EditMode" &&
+            diagram.diagramId !== null &&
+            diagram.historyLoc !== null && (
               <InteractivityOverlay
                 diagramSVG={diagram.svg}
                 state={state}
                 svgTitleCache={svgTitleCache}
+                diagramId={diagram.diagramId}
+                historyLoc={diagram.historyLoc}
+                pinnedInputPaths={
+                  diagram.historyInfo?.get(diagram.historyLoc.sequenceId)
+                    ?.pinnedInputPaths ?? null
+                }
               />
             )}
         </div>
