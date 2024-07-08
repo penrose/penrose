@@ -66,6 +66,7 @@ let historyValues: Map<StepSequenceID, number[][]> = new Map();
 let penroseState: PenroseState | null = null;
 let activeOptimizationId: number = 0;
 let unpinnedContraintSets: StagedConstraints = new Map();
+let interacting = false;
 
 /**
  * Compile, but don't start optimizing until we receive `LabelMeasurementsData`
@@ -175,10 +176,11 @@ const makeNewStepSequence = (
   const info: StepSequenceInfo = {
     layoutStats: [
       {
-        name:
-          penroseState!.optStages.length === 1
-            ? "default"
-            : penroseState!.optStages[0],
+        name: interacting
+          ? "interaction"
+          : penroseState!.optStages.length === 1
+          ? "default"
+          : penroseState!.optStages[0],
         frames: 1,
         cumulativeFrames: 1,
       },
@@ -249,6 +251,7 @@ const startOptimize = (stepSequenceId: StepSequenceID) => {
         // we've been interrupted
         log.info("Optimization finishing early");
         // return from the opt step
+        interacting = false;
         return;
       }
 
@@ -262,6 +265,7 @@ const startOptimize = (stepSequenceId: StepSequenceID) => {
           error: steppedState.error,
         };
         // return from the opt step
+        interacting = false;
         return;
       } else {
         // if we successfully took an optimization step
@@ -275,12 +279,14 @@ const startOptimize = (stepSequenceId: StepSequenceID) => {
           const currentStage =
             penroseState.optStages[penroseState.currentStageIndex];
           // add the total steps taken by the previous stage
-          stepSequenceInfo.layoutStats.push({
-            name: currentStage,
-            frames: 0,
-            cumulativeFrames:
-              stepSequenceInfo.layoutStats.at(-1)!.cumulativeFrames,
-          });
+          if (!interacting) {
+            stepSequenceInfo.layoutStats.push({
+              name: currentStage,
+              frames: 0,
+              cumulativeFrames:
+                stepSequenceInfo.layoutStats.at(-1)!.cumulativeFrames,
+            });
+          }
         } else {
           // if we should stay in the current layout stage
           penroseState = stepped;
@@ -297,6 +303,7 @@ const startOptimize = (stepSequenceId: StepSequenceID) => {
       if (isOptimized(penroseState)) {
         log.info("Optimization finished");
         stepSequenceInfo.state = { tag: "Done" };
+        interacting = false;
         return; // from the opt step
       }
 
@@ -304,6 +311,7 @@ const startOptimize = (stepSequenceId: StepSequenceID) => {
       optStepMsgChannel.port2.postMessage(null);
     } catch (err: any) {
       log.info("Optimization failed. Quitting without finishing...");
+      interacting = false;
       stepSequenceInfo.state = {
         tag: "OptimizationError",
         error: err,
@@ -341,6 +349,8 @@ const resample = (variation: string): ResampleResult => {
 };
 
 const interact = (data: InteractionRequestData): InteractionResult => {
+  interacting = true;
+
   const parentSeqInfo = historyInfo.get(data.parentHistoryLoc.sequenceId);
   if (
     parentSeqInfo === undefined ||

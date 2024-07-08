@@ -4031,6 +4031,15 @@ export const compileStyleHelper = async (
     return err(toStyleErrors([passthroughResult.error]));
   }
 
+  const draggingConstraints = new Map<string, string>();
+  for (const [path, shape] of shapesByPath) {
+    const constraint = shape.passthrough.get("draggingConstraint");
+    if (constraint !== undefined && constraint.tag === "StrV") {
+      console.log(path);
+      draggingConstraints.set(path, constraint.contents);
+    }
+  }
+
   const renderGraph = buildRenderGraph(
     findOrderedRoots(groupGraph),
     groupGraph,
@@ -4083,7 +4092,7 @@ export const compileStyleHelper = async (
       translatableShapePaths,
       scalableShapePaths,
       shapesByPath,
-      draggingConstraints: new Map(),
+      draggingConstraints,
     },
   };
 

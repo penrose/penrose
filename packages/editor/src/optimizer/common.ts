@@ -17,11 +17,11 @@ import {
 import consola from "consola";
 import { pick } from "lodash";
 import { Result } from "true-myth";
-import { Interaction } from "../utils/interactionUtils";
+import { Interaction } from "../utils/interactionUtils.js";
 
 // Config
 
-export const logLevel = (consola as any).LogLevel.Info;
+export const logLevel = (consola as any).LogLevel.Warn;
 
 // Basic types
 

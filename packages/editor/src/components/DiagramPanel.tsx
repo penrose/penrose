@@ -1,6 +1,6 @@
 import { isPenroseError, runtimeError, showError } from "@penrose/core";
-import { useEffect, useRef, useState } from "react";
-import { useRecoilState, useRecoilStateLoadable, useRecoilValue } from "recoil";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from "recoil";
 import { isErr, showOptimizerError } from "../optimizer/common.js";
 import {
   canvasState,
@@ -13,8 +13,11 @@ import {
   workspaceMetadataSelector,
 } from "../state/atoms.js";
 import { pathResolver } from "../utils/downloadUtils.js";
-import { stateToSVG } from "../utils/renderUtils.js";
-import InteractivityOverlay from "./InteractivityOverlay";
+import {
+  renderPlayModeInteractivity,
+  stateToSVG,
+} from "../utils/renderUtils.js";
+import InteractivityOverlay from "./InteractivityOverlay.js";
 import { LayoutTimelineSlider } from "./LayoutTimelineSlider.js";
 
 export default function DiagramPanel() {
@@ -27,7 +30,10 @@ export default function DiagramPanel() {
   const rogerState = useRecoilValue(currentRogerState);
   const [workerState, setWorkerState] = useRecoilState(diagramWorkerState);
   const [computeLayoutRunning, setComputeLayoutRunning] = useState(false);
-  const [settings, setSettings] = useRecoilStateLoadable(settingsState);
+  const settings = useRecoilValueLoadable(settingsState);
+  const [svgTitleCache, setSvgTitleCache] = useState<Map<string, SVGElement>>(
+    new Map(),
+  );
 
   const computeLayoutShouldStop = useRef(false);
 
@@ -37,12 +43,14 @@ export default function DiagramPanel() {
 
     if (state !== null && cur !== null) {
       (async () => {
+        const titleCache = new Map<string, SVGElement>();
         const rendered = await stateToSVG(state, {
           pathResolver: (path: string) =>
             pathResolver(path, rogerState, workspace),
           width: "100%",
           height: "100%",
           texLabels: false,
+          titleCache,
         });
         rendered.setAttribute("width", "100%");
         rendered.setAttribute("height", "100%");
@@ -51,6 +59,8 @@ export default function DiagramPanel() {
         } else {
           cur.appendChild(rendered);
         }
+
+        setSvgTitleCache(titleCache);
         setDiagram((state) => ({
           ...state,
           svg: rendered,
@@ -59,7 +69,18 @@ export default function DiagramPanel() {
     } else if (state === null && cur !== null) {
       cur.innerHTML = "";
     }
-  }, [state]);
+  }, [state, settings.contents.interactive]);
+
+  useLayoutEffect(() => {
+    if (settings.contents.interactive === "PlayMode") {
+      renderPlayModeInteractivity(
+        diagram,
+        svgTitleCache,
+        setDiagram,
+        setWorkerState,
+      );
+    }
+  }, [diagram, svgTitleCache, settings.contents.interactive]);
 
   // starts a chain of callbacks, running every animation frame, to compute the
   // most recent shapes, until it sees that the step sequence it was given has
@@ -254,8 +275,12 @@ export default function DiagramPanel() {
             state &&
             !workerState.compiling &&
             !workerState.resampling &&
-            settings.contents.interactive && (
-              <InteractivityOverlay diagramSVG={diagram.svg} state={state} />
+            settings.contents.interactive === "EditMode" && (
+              <InteractivityOverlay
+                diagramSVG={diagram.svg}
+                state={state}
+                svgTitleCache={svgTitleCache}
+              />
             )}
         </div>
 
