@@ -143,6 +143,45 @@ export const getNamespaceProps = (
   return [];
 };
 
+/*
+ * Returns an array of every stage name defined in style
+ */
+export const getStageNames = (
+  topNode: SyntaxNode,
+  styleProg: string,
+): string[] => {
+  // topNode is type input, walk down into items
+  const itemsNode = topNode.getChild("Items");
+  if (itemsNode === null) return [];
+  const itemNodes = itemsNode.getChildren("Item");
+  let stageNames = [] as string[];
+
+  itemNodes.forEach((node: SyntaxNode) => {
+    // Will shortcircuit if any not found
+    let stages = node
+      .getChild("LayoutStages")
+      ?.getChild("StageList")
+      ?.getChildren("Stage");
+
+    if (stages) {
+      stages.forEach((stageNode: SyntaxNode) => {
+        stageNames.push(extractText(styleProg, stageNode.to, stageNode.from));
+      });
+    }
+  });
+
+  return stageNames;
+};
+
+export const getStageNameOpts = (topNode: SyntaxNode, styleProg: string) => {
+  let stageNames = getStageNames(topNode, styleProg);
+  return stageNames.map((name) => ({
+    label: `${name}`,
+    type: "text",
+    info: "",
+  }));
+};
+
 export const exprKws = ["true", "false", "listof"].map((name) => ({
   label: `${name}`,
   type: "keyword",
