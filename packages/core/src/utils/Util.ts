@@ -11,10 +11,8 @@ import { Fn } from "../types/state.js";
 import { BindingForm, Expr, Path } from "../types/style.js";
 import {
   ResolvedExpr,
-  ResolvedUnindexedStylePath,
   StylePath,
   StylePathToUnindexedObject,
-  StylePathToUnnamedScope,
 } from "../types/stylePathResolution.js";
 import { SubstanceLiteral, SubstanceObject } from "../types/styleSemantics.js";
 import {
@@ -845,43 +843,6 @@ export const substanceLiteralToValue = (
   }
 };
 
-export const prettyResolvedUnindexedStylePath = (
-  p: ResolvedUnindexedStylePath<A> | StylePathToUnnamedScope<A>,
-  userFacing: boolean = false,
-): string => {
-  switch (p.tag) {
-    case "Collection": {
-      if (userFacing) {
-        return p.styleName + ".";
-      } else {
-        return `[${p.substanceObjects.map(subObjectToUniqueName).join(", ")}].`;
-      }
-    }
-    case "Namespace": {
-      return p.name + ".";
-    }
-    case "Unnamed": {
-      if (userFacing) {
-        return "";
-      } else {
-        return `${p.blockId}:${p.substId}:`;
-      }
-    }
-    case "Substance": {
-      if (userFacing && p.styleName !== undefined) {
-        return p.styleName + ".";
-      } else {
-        return `\`${subObjectToUniqueName(p.substanceObject)}\`.`;
-      }
-    }
-    case "Object": {
-      return `${prettyResolvedUnindexedStylePath(p.access.parent, userFacing)}${
-        p.access.name
-      }.`;
-    }
-  }
-};
-
 export const prettyResolvedStylePath = (
   p: StylePath<A>,
   userFacing: boolean = false,
@@ -889,24 +850,40 @@ export const prettyResolvedStylePath = (
   switch (p.tag) {
     case "Empty":
       return "";
+    case "Substance":
+      if (userFacing && p.styleName !== undefined) {
+        return p.styleName;
+      } else {
+        return `\`${subObjectToUniqueName(p.substanceObject)}\``;
+      }
     case "Collection":
+      if (userFacing) {
+        return p.styleName;
+      } else {
+        return `[${p.substanceObjects
+          .map(subObjectToUniqueName)
+          .map((s) => `\`${s}\``)
+          .join(", ")}]`;
+      }
     case "Namespace":
+      return p.name;
     case "Unnamed":
-    case "Substance": {
-      const s = prettyResolvedUnindexedStylePath(p, userFacing);
-      return s.substring(0, s.length - 1);
-    }
+      if (userFacing) {
+        return "";
+      } else {
+        return `${p.blockId}:${p.substId}`;
+      }
     case "Object": {
       if (p.access.tag === "Member") {
-        const s = prettyResolvedUnindexedStylePath(
-          { ...p, access: p.access },
-          userFacing,
-        );
-        return s.substring(0, s.length - 1);
+        const sParent = prettyResolvedStylePath(p.access.parent, userFacing);
+        if (sParent === "") {
+          return p.access.name;
+        } else {
+          return sParent + "." + p.access.name;
+        }
       } else {
         const { parent, indices } = p.access;
-        let sParent = prettyResolvedUnindexedStylePath(parent, userFacing);
-        sParent = sParent.substring(0, sParent.length - 1);
+        const sParent = prettyResolvedStylePath(parent, userFacing);
         const sIndices = indices.map((i) => `[${prettyResolvedExpr(i)}]`);
         return sParent + sIndices.join("");
       }
