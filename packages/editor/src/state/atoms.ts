@@ -1,9 +1,10 @@
 import {
-  compileDomain,
-  DomainEnv,
-  PenroseError,
-  PenroseWarning,
-} from "@penrose/core";
+  DomainCache,
+  SubstanceCache,
+  getDomainCache,
+  getSubstanceCache,
+} from "@penrose/components";
+import { PenroseError, PenroseWarning } from "@penrose/core";
 import { PathResolver, Trio, TrioMeta } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
 import { Actions, BorderNode, TabNode } from "flexlayout-react";
@@ -12,14 +13,15 @@ import { debounce, range } from "lodash";
 import { RefObject } from "react";
 import toast from "react-hot-toast";
 import {
-  atom,
   AtomEffect,
   DefaultValue,
+  atom,
   selector,
   selectorFamily,
 } from "recoil";
 import { v4 as uuid } from "uuid";
 import { layoutModel } from "../App.js";
+
 import {
   DiagramID,
   HistoryInfo,
@@ -27,6 +29,7 @@ import {
   RenderState,
 } from "../optimizer/common.js";
 import Optimizer from "../optimizer/optimizer.js";
+
 import { generateVariation } from "./variation.js";
 
 export const optimizer = await Optimizer.create();
@@ -278,15 +281,21 @@ export const workspaceMetadataSelector = selector<WorkspaceMetadata>({
   },
 });
 
-export const domainCacheState = selector<DomainEnv | null>({
+export const domainCacheState = selector<DomainCache>({
   key: "domainCache",
   get: ({ get }) => {
     const domainProgram = get(fileContentsSelector("domain")).contents;
-    const compiledDomain = compileDomain(domainProgram);
-    if (compiledDomain.isOk()) {
-      return compiledDomain.value;
-    }
-    return null;
+    const domainCache = getDomainCache(domainProgram);
+    return domainCache;
+  },
+});
+
+export const substanceCacheState = selector<SubstanceCache>({
+  key: "substanceCache",
+  get: ({ get }) => {
+    const substanceProgram = get(fileContentsSelector("substance")).contents;
+    const substanceCache = getSubstanceCache(substanceProgram);
+    return substanceCache;
   },
 });
 
@@ -369,6 +378,11 @@ export const diagramWorkerState = atom<{
     resampling: false,
     optimizing: false,
   },
+});
+
+export const showCompileErrsState = atom<boolean>({
+  key: "showCompileErrsState",
+  default: false,
 });
 
 export type DiagramGrid = {
@@ -550,4 +564,9 @@ export const settingsState = atom<Settings>({
     interactive: "Off",
   },
   effects: [settingsEffect, debugModeEffect],
+});
+
+export const codemirrorHistory = atom<boolean>({
+  key: "codemirrorHistory",
+  default: true,
 });

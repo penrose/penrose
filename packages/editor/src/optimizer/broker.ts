@@ -1,4 +1,4 @@
-import consola from "consola";
+import consola, { LogLevels } from "consola";
 import { Result } from "true-myth";
 import {
   CompileRequestData,
@@ -9,7 +9,6 @@ import {
   InvalidDiagramIDError,
   isOk,
   launchAndWaitForInit,
-  logLevel,
   MessageID,
   MessageIDGenerator,
   MessageRequest,
@@ -30,7 +29,9 @@ import {
 } from "./common.js";
 import Worker_ from "./worker.ts?worker";
 
-const log = consola.create({ level: logLevel }).withScope("optimizer:broker");
+const log = consola
+  .create({ level: LogLevels.warn })
+  .withTag("optimizer:broker");
 const numWorkersToKeep = 3;
 
 const workers = new SizeBoundedMap<DiagramID, Worker>(

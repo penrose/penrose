@@ -4,3 +4,10 @@ dist
 dist-ssr
 *.local
 storybook-static
+src/editing/parser/domain/domain.js
+src/editing/parser/domain/domain.terms.js
+src/editing/parser/style/style.js
+src/editing/parser/style/style.terms.js
+src/editing/parser/substance/substance.js
+src/editing/parser/substance/substance.terms.js
+

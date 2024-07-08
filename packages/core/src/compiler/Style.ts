@@ -1,4 +1,4 @@
-import consola from "consola";
+import consola, { LogLevels } from "consola";
 import im from "immutable";
 import _ from "lodash";
 import nearley from "nearley";
@@ -204,9 +204,7 @@ import {
 } from "./Substance.js";
 import { checkShape } from "./shapeChecker/CheckShape.js";
 
-const log = (consola as any)
-  .create({ level: (consola as any).LogLevel.Warn })
-  .withScope("Style Compiler");
+const log = consola.create({ level: LogLevels.warn }).withTag("Style Compiler");
 
 //#region consts
 const ANON_KEYWORD = "ANON";

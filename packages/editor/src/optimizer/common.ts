@@ -14,14 +14,14 @@ import {
   showError,
   State,
 } from "@penrose/core";
-import consola from "consola";
 import { pick } from "lodash";
+import { LogLevels } from "consola";
 import { Result } from "true-myth";
 import { Interaction } from "../utils/interactionUtils.js";
 
 // Config
 
-export const logLevel = (consola as any).LogLevel.Warn;
+export const logLevel = LogLevels.warn;
 
 // Basic types
 

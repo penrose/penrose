@@ -43,7 +43,7 @@ import {
   taggedOk,
 } from "./common.js";
 
-const log = consola.create({ level: logLevel }).withScope("optimizer:worker");
+const log = consola.create({ level: logLevel }).withTag("optimizer:worker");
 const stepSequenceIdGenerator = new StepSequenceIDGenerator();
 // on message, we will take a step, but these messages will be queued behind
 // self.onmessage, so we can interrupt optimization with a message

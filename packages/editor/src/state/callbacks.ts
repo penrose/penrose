@@ -29,6 +29,7 @@ import {
   WorkspaceLocation,
   WorkspaceMetadata,
   canvasState,
+  codemirrorHistory,
   currentRogerState,
   currentWorkspaceState,
   defaultWorkspaceState,
@@ -39,6 +40,7 @@ import {
   localFilesState,
   optimizer,
   settingsState,
+  showCompileErrsState,
   workspaceMetadataSelector,
 } from "./atoms.js";
 import { generateVariation } from "./variation.js";
@@ -135,6 +137,8 @@ export const useCompileDiagram = () =>
     const styleFile = workspace.files.style.contents;
     const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
 
+    set(showCompileErrsState, true);
+
     await _compileDiagram(
       substanceFile,
       styleFile,
@@ -151,6 +155,18 @@ export const useIsUnsaved = () =>
       .contents as Workspace;
     return !isCleanWorkspace(workspace);
   });
+
+/*
+ * See: https://github.com/uiwjs/react-codemirror/issues/405
+ * Summary: Utilizing React Codemirror provides useful abstractions that
+ * would be annoying to implement manually (namely onChange hook)
+ * Docs recommend clearing history by resetting State, but this would
+ * remove the React Codemirror state. This is a hacky workaround
+ */
+export const useResetEditorHistory = (set: any) => {
+  set(codemirrorHistory, false);
+  setTimeout(() => set(codemirrorHistory, true), 1);
+};
 
 export const useResampleDiagram = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
@@ -460,6 +476,7 @@ export const useLoadLocalWorkspace = () =>
       [],
       set,
     );
+    useResetEditorHistory(set);
   });
 
 export const useLoadExampleWorkspace = () =>
@@ -522,6 +539,8 @@ export const useLoadExampleWorkspace = () =>
           excludeWarnings,
           set,
         );
+
+        useResetEditorHistory(set);
       },
   );
 
@@ -538,6 +557,7 @@ export const useNewWorkspace = () =>
     // set rather than reset to generate new id to avoid id conflicts
     set(currentWorkspaceState, () => defaultWorkspaceState());
     reset(diagramState);
+    useResetEditorHistory(set);
   });
 
 export const useCheckURL = () =>

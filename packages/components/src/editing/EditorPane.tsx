@@ -1,57 +1,32 @@
-import MonacoEditor, { useMonaco } from "@monaco-editor/react";
-import { errLocs, showError } from "@penrose/core";
-import { DomainEnv } from "@penrose/core/dist/types/domain";
+import { autocompletion, completionKeymap } from "@codemirror/autocomplete";
+import { lintGutter, linter } from "@codemirror/lint";
+import { Prec } from "@codemirror/state";
+import { EditorView, keymap } from "@codemirror/view";
 import {
   DomainError,
   RuntimeError,
   StyleError,
-  StyleErrorList,
   StyleWarning,
   SubstanceError,
 } from "@penrose/core/dist/types/errors.js";
-import { ErrorLoc } from "@penrose/core/dist/utils/Util.js";
-import { IDisposable, MarkerSeverity, editor } from "monaco-editor";
-import { VimMode, initVimMode } from "monaco-vim";
-import { useEffect, useRef } from "react";
-import { SetupDomainMonaco } from "./languages/DomainConfig.js";
-import { SetupStyleMonaco } from "./languages/StyleConfig.js";
-import { SetupSubstanceMonaco } from "./languages/SubstanceConfig.js";
-
-const monacoOptions = (
-  vimMode: boolean,
-): editor.IEditorConstructionOptions => ({
-  automaticLayout: true,
-  minimap: { enabled: false },
-  wordWrap: "on",
-  tabCompletion: "on",
-  fontSize: 16,
-  copyWithSyntaxHighlighting: true,
-  glyphMargin: false,
-  cursorStyle: vimMode ? "block" : "line",
-  fixedOverflowWidgets: true,
-});
-
-type IndividualError = Exclude<
-  StyleError | DomainError | SubstanceError | RuntimeError | StyleWarning,
-  StyleErrorList
->;
-
-type ErrLocPair = {
-  err: IndividualError;
-  loc: ErrorLoc;
-};
-
-const errLocPairs = (
-  err: StyleError | DomainError | SubstanceError | RuntimeError | StyleWarning,
-): ErrLocPair[] => {
-  if (err.tag === "StyleErrorList") {
-    const pairs = err.errors.map(errLocPairs);
-    return pairs.flat(1);
-  } else {
-    const locs = errLocs(err);
-    return locs.length > 0 ? [{ err, loc: locs[0] }] : [];
-  }
-};
+import { Vim, vim } from "@replit/codemirror-vim";
+import { color } from "@uiw/codemirror-extensions-color";
+import CodeMirror from "@uiw/react-codemirror";
+import { useEffect, useRef, useState } from "react";
+import {
+  DomainCache,
+  ShapeDefinitions,
+  SubstanceCache,
+} from "../editing/types";
+import DomainAutocomplete from "./hooks/domain/domainAutocomplete";
+import { getShapeDefs } from "./hooks/hooksUtils";
+import StyleAutocomplete from "./hooks/style/styleAutocomplete";
+import SubstanceAutocomplete from "./hooks/substance/substanceAutocomplete";
+import { createLinter } from "./hooks/useLinter";
+import { domainLanguageSupport } from "./parser/domain/domainLanguage";
+import { styleLanguageSupport } from "./parser/style/styleLanguage";
+import { substanceLanguageSupport } from "./parser/substance/substanceLanguage";
+import { penroseTheme } from "./theme";
 
 export default function EditorPane({
   value,
@@ -59,115 +34,147 @@ export default function EditorPane({
   vimMode,
   languageType,
   domainCache,
-  readOnly,
-  onWrite,
+  substanceCache,
   error,
   warnings,
+  showCompileErrs,
+  codemirrorHistoryState,
+  readOnly,
+  darkMode,
+  height,
+  minHeight,
+  maxHeight,
+  width,
+  minWidth,
+  maxWidth,
+  onWrite,
 }: {
   value: string;
+  height?: string;
+  minHeight?: string;
+  maxHeight?: string;
+  width?: string;
+  minWidth?: string;
+  maxWidth?: string;
   vimMode: boolean;
   onChange(value: string): void;
   languageType: "substance" | "style" | "domain";
-  domainCache: DomainEnv | null;
-  readOnly?: boolean;
-  /// In vim mode, this is called when the user calls :w
-  onWrite?: () => void;
+  domainCache: DomainCache;
+  substanceCache: SubstanceCache;
   error: StyleError | DomainError | SubstanceError | RuntimeError | null;
   warnings: StyleWarning[];
+  showCompileErrs: boolean;
+  readOnly: boolean;
+  darkMode: boolean;
+  codemirrorHistoryState: boolean;
+  onWrite?: () => void;
 }) {
-  const monaco = useMonaco();
-  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const statusBarRef = useRef<HTMLDivElement>(null);
+  const ResponsiveStyles = EditorView.theme({
+    /*
+     * Hide autocomplete info box on mobile devices
+     * https://github.com/codemirror/autocomplete/blob/82893f890f37dc182e0dd1e585a62a35e8819cfc/src/theme.ts#L73
+     * Seems like on mobile, the info boxes automatically swap to the "narrow"
+     * class names
+     */
+    "@media screen and (max-width: 800px)": {
+      ".cm-completionInfo-right, .cm-completionInfo-left, .cm-completionInfo.cm-completionInfo-left-narrow, .cm-completionInfo.cm-completionInfo-right-narrow":
+        {
+          display: "none",
+        },
+    },
+  });
+
+  const lintObject = linter(
+    createLinter(error, warnings, languageType, showCompileErrs),
+  );
+
+  const defaultExtensions = [
+    EditorView.lineWrapping,
+    ResponsiveStyles,
+    lintObject,
+    keymap.of(completionKeymap),
+    lintGutter(),
+    color,
+  ];
+
+  const [shapeDefs, setshapeDefs] = useState<ShapeDefinitions>({});
 
   useEffect(() => {
-    let dispose: IDisposable | undefined;
-    if (monaco !== null && onWrite !== undefined) {
-      dispose = editorRef.current?.addAction({
-        id: "write",
-        label: "Write",
-        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
-        run: onWrite,
-      });
-    }
+    setshapeDefs(getShapeDefs());
+  }, []);
 
-    return () => dispose?.dispose();
-  }, [onWrite]);
+  let domainCompletionFn = DomainAutocomplete(domainCache);
 
-  useEffect(() => {
-    if (monaco) {
-      const dispose =
-        languageType === "domain"
-          ? SetupDomainMonaco(monaco)
-          : languageType === "style"
-          ? SetupStyleMonaco(monaco)
-          : SetupSubstanceMonaco(domainCache)(monaco);
-      return () => {
-        dispose();
-      };
-    }
-  }, [monaco, vimMode, languageType, domainCache]);
+  const domainExtensions = [
+    autocompletion({ override: [domainCompletionFn] }),
+    domainLanguageSupport(),
+  ].concat(defaultExtensions);
 
-  useEffect(() => {
-    if (onWrite && !VimMode.Vim.SET_WRITE) {
-      // HACK to prevent multiple definitions of :w
-      VimMode.Vim.SET_WRITE = true;
-      VimMode.Vim.defineEx("write", "w", onWrite);
-    }
-  }, [onWrite]);
+  const substanceCompletionFn = SubstanceAutocomplete(
+    domainCache,
+    substanceCache,
+  );
+  const substanceExtensions = [
+    autocompletion({ override: [substanceCompletionFn] }),
+    substanceLanguageSupport(),
+  ].concat(defaultExtensions);
 
-  useEffect(() => {
-    if (vimMode && editorRef.current) {
-      const vim = initVimMode(editorRef.current, statusBarRef.current);
-      return () => {
-        vim.dispose();
-      };
-    }
-  }, [vimMode, editorRef.current]);
+  const styleCompletionFn = StyleAutocomplete(domainCache, shapeDefs);
+  const styleExtensions = [
+    autocompletion({ override: [styleCompletionFn] }),
+    styleLanguageSupport(),
+  ].concat(defaultExtensions);
 
-  const onEditorMount = (editorArg: editor.IStandaloneCodeEditor) => {
-    editorRef.current = editorArg;
-  };
+  let extensionsList =
+    languageType === "domain"
+      ? domainExtensions
+      : languageType === "substance"
+      ? substanceExtensions
+      : styleExtensions;
 
-  useEffect(() => {
-    const errPairs = error === null ? [] : errLocPairs(error);
-    const warningPairs = warnings.map(errLocPairs).flat(1);
-    const errMarkers: editor.IMarkerData[] = errPairs
-      .filter(({ loc }) => loc.type.toLowerCase() === languageType)
-      .map(({ loc, err }) => ({
-        startLineNumber: loc.range.start.line,
-        startColumn: loc.range.start.col + 1,
-        endLineNumber: loc.range.end.line,
-        endColumn: loc.range.end.col + 1,
-        message: showError(err),
-        severity: MarkerSeverity.Error,
-      }));
-    const warningMarkers: editor.IMarkerData[] = warningPairs
-      .filter(({ loc }) => loc.type.toLowerCase() === languageType)
-      .map(({ loc, err: warn }) => ({
-        startLineNumber: loc.range.start.line,
-        startColumn: loc.range.start.col + 1,
-        endLineNumber: loc.range.end.line,
-        endColumn: loc.range.end.col + 1,
-        message: showError(warn),
-        severity: MarkerSeverity.Warning,
-      }));
+  // onWrite may be undefined (like in Listing.tsx)
+  if (onWrite) {
+    // Keymap Cmd/Cntrl+Enter compile diagram
+    const compileShortcutExtension = keymap.of([
+      {
+        key: "Mod-Enter",
+        run: () => {
+          onWrite();
+          return true;
+        },
+      },
+    ]);
 
-    const markers = [...errMarkers, ...warningMarkers];
-    if (monaco && editorRef.current) {
-      monaco.editor.setModelMarkers(editorRef.current.getModel()!, "", markers);
-    }
-  }, [monaco, editorRef.current, languageType, error, warnings, value]);
+    extensionsList.push(
+      // Set precedence to override default
+      Prec.highest([compileShortcutExtension]),
+    );
+
+    // Vim :w override to be compile diagram
+    Vim.defineEx("write", "w", function () {
+      onWrite();
+    });
+  }
+
+  if (vimMode) extensionsList.push(vim());
 
   return (
     <div style={{ width: "100%", height: "100%", position: "relative" }}>
-      <MonacoEditor
-        width="100%"
+      <CodeMirror
         value={value}
-        onChange={(v) => onChange(v ?? "")}
-        defaultLanguage={languageType}
-        // HACK
-        options={{ ...(monacoOptions(vimMode) as any), readOnly }}
-        onMount={onEditorMount as any}
+        extensions={extensionsList}
+        onChange={onChange}
+        theme={darkMode ? "dark" : penroseTheme}
+        // History reset https://github.com/uiwjs/react-codemirror/issues/405
+        // Set in packages/editor/src/state/callbacks.ts
+        basicSetup={{ history: codemirrorHistoryState }}
+        width={width}
+        height={height}
+        maxHeight={maxHeight}
+        maxWidth={maxWidth}
+        minHeight={minHeight}
+        minWidth={minWidth}
       />
       <div
         ref={statusBarRef}
