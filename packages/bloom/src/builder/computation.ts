@@ -1,24 +1,26 @@
+import { Num, Value, compDict } from "@penrose/core";
 import { Color, PathData, Vec2, VecN } from "./types.js";
-import { compDict, Num, Value } from "@penrose/core";
 
 const context = {
-  makeInput: () => { throw new Error("Dummy context was called"); }
+  makeInput: () => {
+    throw new Error("Dummy context was called");
+  },
 };
 
 const mapColor = (colorV: Value.ColorV<Num>): Color => {
-  if (colorV.contents.tag === "NONE" ) {
+  if (colorV.contents.tag === "NONE") {
     return [0, 0, 0, 0];
   } else {
     return colorV.contents.contents;
   }
-}
+};
 
 const toPenroseColor = (color: Color): Value.Color<Num> => {
   return {
     tag: "RGBA",
-    contents: color
+    contents: color,
   };
-}
+};
 
 const computation = {
   /**
@@ -33,9 +35,10 @@ const computation = {
     start: Vec2,
     end: Vec2,
     curveHeight: Num,
-    padding: Num
+    padding: Num,
   ): PathData =>
-    compDict.makePath.body(context, start, end, curveHeight, padding).value.contents,
+    compDict.makePath.body(context, start, end, curveHeight, padding).value
+      .contents,
 
   /**
    * Return `i`th element of list `xs`, assuming lists only hold floats.
@@ -70,8 +73,8 @@ const computation = {
         context,
         toPenroseColor(color1),
         toPenroseColor(color2),
-        level
-      ).value
+        level,
+      ).value,
     ),
 
   /**
@@ -89,8 +92,7 @@ const computation = {
    * Return a paint of none (no paint)
    * @returns None color
    */
-  none: (): Color =>
-    mapColor(compDict.none.body(context).value),
+  none: (): Color => mapColor(compDict.none.body(context).value),
 
   /**
    * Index a point list using 1-based indexing.
@@ -106,32 +108,28 @@ const computation = {
    * @param x Input value
    * @returns acosh(x)
    */
-  acosh: (x: Num): Num =>
-    compDict.acosh.body(context, x).value.contents,
+  acosh: (x: Num): Num => compDict.acosh.body(context, x).value.contents,
 
   /**
    * Return `acos(x)`.
    * @param x Input value
    * @returns acos(x)
    */
-  acos: (x: Num): Num =>
-    compDict.acos.body(context, x).value.contents,
+  acos: (x: Num): Num => compDict.acos.body(context, x).value.contents,
 
   /**
    * Return `asin(x)`.
    * @param x Input value
    * @returns asin(x)
    */
-  asin: (x: Num): Num =>
-    compDict.asin.body(context, x).value.contents,
+  asin: (x: Num): Num => compDict.asin.body(context, x).value.contents,
 
   /**
    * Return `asinh(x)`.
    * @param x Input value
    * @returns asinh(x)
    */
-  asinh: (x: Num): Num =>
-    compDict.asinh.body(context, x).value.contents,
+  asinh: (x: Num): Num => compDict.asinh.body(context, x).value.contents,
 
   /**
    * Return `mod(a, n)`.
@@ -139,16 +137,14 @@ const computation = {
    * @param n Divisor
    * @returns a mod n
    */
-  mod: (a: Num, n: Num): Num =>
-    compDict.mod.body(context, a, n).value.contents,
+  mod: (a: Num, n: Num): Num => compDict.mod.body(context, a, n).value.contents,
 
   /**
    * Return `atan(x)`.
    * @param x Input value
    * @returns atan(x)
    */
-  atan: (x: Num): Num =>
-    compDict.atan.body(context, x).value.contents,
+  atan: (x: Num): Num => compDict.atan.body(context, x).value.contents,
 
   /**
    * Return `atan2(y, x)`.
@@ -164,48 +160,42 @@ const computation = {
    * @param x Input value
    * @returns atanh(x)
    */
-  atanh: (x: Num): Num =>
-    compDict.atanh.body(context, x).value.contents,
+  atanh: (x: Num): Num => compDict.atanh.body(context, x).value.contents,
 
   /**
    * Return `cbrt(x)`.
    * @param x Input value
    * @returns cbrt(x)
    */
-  cbrt: (x: Num): Num =>
-    compDict.cbrt.body(context, x).value.contents,
+  cbrt: (x: Num): Num => compDict.cbrt.body(context, x).value.contents,
 
   /**
    * Return `ceil(x)`.
    * @param x Input value
    * @returns ceil(x)
    */
-  ceil: (x: Num): Num =>
-    compDict.ceil.body(context, x).value.contents,
+  ceil: (x: Num): Num => compDict.ceil.body(context, x).value.contents,
 
   /**
    * Return `cos(x)`.
    * @param x Input value
    * @returns cos(x)
    */
-  cos: (x: Num): Num =>
-    compDict.cos.body(context, x).value.contents,
+  cos: (x: Num): Num => compDict.cos.body(context, x).value.contents,
 
   /**
    * Return `cosh(x)`.
    * @param x Input value
    * @returns cosh(x)
    */
-  cosh: (x: Num): Num =>
-    compDict.cosh.body(context, x).value.contents,
+  cosh: (x: Num): Num => compDict.cosh.body(context, x).value.contents,
 
   /**
    * Return `exp(x)`.
    * @param x Input value
    * @returns exp(x)
    */
-  exp: (x: Num): Num =>
-    compDict.exp.body(context, x).value.contents,
+  exp: (x: Num): Num => compDict.exp.body(context, x).value.contents,
 };
 
 export default computation;

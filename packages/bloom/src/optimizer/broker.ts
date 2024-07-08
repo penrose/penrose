@@ -1,7 +1,8 @@
 import consola from "consola";
 import { Result } from "true-myth";
 import {
-  CompileFromMinStateRequestData, CompileFromMinStateResult,
+  CompileFromMinStateRequestData,
+  CompileFromMinStateResult,
   CompileRequestData,
   CompileResult,
   DiagramID,
@@ -27,7 +28,7 @@ import {
   respond,
   SizeBoundedMap,
   taggedErr,
-  taggedOk
+  taggedOk,
 } from "./common.js";
 import Worker_ from "./worker.ts?worker";
 
@@ -72,7 +73,6 @@ const makeWorkerOnMessage =
         throw new Error(
           `Broker does not support notification ${data.data.tag} from worker`,
         );
-
     }
   };
 
@@ -160,7 +160,7 @@ const compile = async (data: CompileRequestData): Promise<CompileResult> => {
  * @param data
  */
 const compileFromMinState = async (
-  data: CompileFromMinStateRequestData
+  data: CompileFromMinStateRequestData,
 ): Promise<CompileFromMinStateResult> => {
   log.info("Spinning new worker");
   const worker = await launchAndWaitForInit(new Worker_());

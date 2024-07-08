@@ -5,7 +5,7 @@ import { Circle } from "../builder/types.js";
 export const circles = async () => {
   const { circle, ensure, build } = new DiagramBuilder(
     makeCanvas(400, 400),
-    "simple"
+    "simple",
   );
 
   const circles: Readonly<Circle>[] = [];

@@ -8,7 +8,9 @@ import consola from "consola";
 import { Result } from "true-myth";
 import Broker from "./broker.ts?worker";
 import {
-  collectAndSeparateLabels, CompileFromMinStateRequestData, CompileFromMinStateResult,
+  collectAndSeparateLabels,
+  CompileFromMinStateRequestData,
+  CompileFromMinStateResult,
   CompileRequestData,
   CompileResult,
   ComputeLayoutRequestData,
@@ -26,7 +28,8 @@ import {
   MessageRequestData,
   MessageResponse,
   MessageResult,
-  MessageTags, MinState,
+  MessageTags,
+  MinState,
   Notification,
   notifyWorker,
   PollRequestData,
@@ -38,7 +41,7 @@ import {
   resolveResponse,
   showOptimizerError,
   Tagged,
-  taggedErr
+  taggedErr,
 } from "./common.js";
 
 const log = consola.create({ level: logLevel }).withScope("optimizer:client");
@@ -125,7 +128,7 @@ export default class Optimizer {
     });
 
     return Result.ok(layoutResult.value);
-  }
+  };
 
   /**
    * Compile the given trio with the specified variation.
@@ -159,7 +162,7 @@ export default class Optimizer {
 
     const notifyResult = await this.computeLayoutAndSendMeasurements(diagramId);
     if (notifyResult.isErr()) {
-      return taggedErr(MessageTags.Compile, notifyResult.error)
+      return taggedErr(MessageTags.Compile, notifyResult.error);
     }
 
     return compileResult;
@@ -262,7 +265,7 @@ export default class Optimizer {
   };
 
   compileFromMinimumState = async (
-    state: MinState
+    state: MinState,
   ): Promise<CompileFromMinStateResult> => {
     const requestData: CompileFromMinStateRequestData = {
       tag: MessageTags.CompileFromMinState,
@@ -281,5 +284,5 @@ export default class Optimizer {
     }
 
     return result;
-  }
+  };
 }

@@ -5,7 +5,6 @@ export type Vec3 = [Num, Num, Num];
 export type Color = Num[];
 export type VecN = Num[];
 
-
 export interface Named {
   name: string;
   ensureOnCanvas: boolean;
@@ -60,7 +59,6 @@ export interface String {
   fontSize: string;
 }
 
-
 export type Shape =
   | Circle
   | Ellipse
@@ -71,8 +69,7 @@ export type Shape =
   | Polygon
   | Polyline
   | Rectangle
-  | Text
-  | Group;
+  | Text;
 
 export enum ShapeType {
   Circle = "Circle",
@@ -85,71 +82,74 @@ export enum ShapeType {
   Polyline = "Polyline",
   Rectangle = "Rectangle",
   Text = "Text",
-  Group = "Group",
 }
 
 export type PathData = Value.PathCmd<Num>[];
 
-export interface Circle
-  extends Named, Stroke, Fill, Center {
+export interface Circle extends Named, Stroke, Fill, Center {
   shapeType: ShapeType.Circle;
   r: Num;
 }
 
-export interface Ellipse
-  extends Named, Stroke, Fill, Center {
+export interface Ellipse extends Named, Stroke, Fill, Center {
   shapeType: ShapeType.Ellipse;
   rx: Num;
   ry: Num;
 }
 
-export interface Equation
-  extends Named, Fill, Center, Rect, Rotate, String {
+export interface Equation extends Named, Fill, Center, Rect, Rotate, String {
   shapeType: ShapeType.Equation;
   ascent: Num;
   descent: Num;
 }
 
-export interface Image
-  extends Named, Center, Rect, Rotate {
+export interface Image extends Named, Center, Rect, Rotate {
   shapeType: ShapeType.Image;
   href: string;
   preserveAspectRatio: string;
 }
 
-export interface Line
-  extends Named, Stroke, Arrow, Fill {
+export interface Line extends Named, Stroke, Arrow, Fill {
   shapeType: ShapeType.Line;
   start: Vec2;
   end: Vec2;
   strokeLinecap: string;
 }
 
-export interface Path
-  extends Named, Stroke, Fill, Arrow {
+export interface Path extends Named, Stroke, Fill, Arrow {
   shapeType: ShapeType.Path;
   d: PathData;
   strokeLinecap: string;
 }
 
-export interface Polygon
-  extends Named, Stroke, Fill, Scale, Poly {
+export interface Polygon extends Named, Stroke, Fill, Scale, Poly {
   shapeType: ShapeType.Polygon;
 }
 
-export interface Polyline
-  extends Named, Stroke, Scale, Poly {
+export interface Polyline extends Named, Stroke, Scale, Poly {
   shapeType: ShapeType.Polyline;
   strokeLinecap: string;
 }
 
 export interface Rectangle
-  extends Named, Stroke, Fill, Center, Rotate, Rect, Corner {
+  extends Named,
+    Stroke,
+    Fill,
+    Center,
+    Rotate,
+    Rect,
+    Corner {
   shapeType: ShapeType.Rectangle;
 }
 
 export interface Text
-  extends Named, Stroke, Fill, Center, Rect, Rotate, String {
+  extends Named,
+    Stroke,
+    Fill,
+    Center,
+    Rect,
+    Rotate,
+    String {
   shapeType: ShapeType.Text;
   visibility: string;
   fontFamily: string;
@@ -166,24 +166,6 @@ export interface Text
   descent: Num;
 }
 
-export type NoClip = {
-  tag: "NoClip" ;
-};
-export const noClip = (): NoClip => ({ tag: "NoClip" });
-
-export type Clip = {
-  tag: "Clip";
-  shape: Exclude<Shape, Group>;
-};
-export const clip = (shape: Exclude<Shape, Group>): Clip => ({ tag: "Clip", shape });
-
-export interface Group
-  extends Named {
-  shapeType: ShapeType.Group;
-  shapes: Shape[];
-  clipPath: NoClip | Clip
-}
-
 export type ShapeProps =
   | CircleProps
   | EllipseProps
@@ -194,8 +176,7 @@ export type ShapeProps =
   | PolygonProps
   | PolylineProps
   | RectangleProps
-  | TextProps
-  | GroupProps;
+  | TextProps;
 
 export type CircleProps = Omit<Circle, "shapeType">;
 export type EllipseProps = Omit<Ellipse, "shapeType">;
@@ -207,32 +188,31 @@ export type PolygonProps = Omit<Polygon, "shapeType">;
 export type PolylineProps = Omit<Polyline, "shapeType">;
 export type RectangleProps = Omit<Rectangle, "shapeType">;
 export type TextProps = Omit<Text, "shapeType">;
-export type GroupProps = Omit<Group, "shapeType">;
 
 const PenroseNamedTypes = {
   name: "StrV",
   ensureOnCanvas: "BoolV",
-}
+};
 
 const PenroseStrokeTypes = {
   strokeWidth: "FloatV",
   strokeStyle: "StrV",
   strokeColor: "ColorV",
   strokeDasharray: "StrV",
-}
+};
 
 const PenroseFillTypes = {
   fillColor: "ColorV",
-}
+};
 
 const PenroseCenterTypes = {
   center: "VectorV",
-}
+};
 
 const PenroseRectTypes = {
   width: "FloatV",
   height: "FloatV",
-}
+};
 
 const PenroseArrowTypes = {
   startArrowheadSize: "FloatV",
@@ -240,28 +220,28 @@ const PenroseArrowTypes = {
   startArrowhead: "StrV",
   endArrowhead: "StrV",
   flipStartArrowhead: "BoolV",
-}
+};
 
 const PenroseCornerTypes = {
   cornerRadius: "FloatV",
-}
+};
 
 const PenroseRotateTypes = {
   rotation: "FloatV",
-}
+};
 
 const PenroseScaleTypes = {
   scale: "FloatV",
-}
+};
 
 const PenrosePolyTypes = {
   points: "PtListV",
-}
+};
 
 const PenroseStringTypes = {
   string: "StrV",
   fontSize: "StrV",
-}
+};
 
 const PenroseCircleTypes = {
   ...PenroseNamedTypes,
@@ -269,7 +249,7 @@ const PenroseCircleTypes = {
   ...PenroseFillTypes,
   ...PenroseCenterTypes,
   r: "FloatV",
-}
+};
 
 const PenroseEllipseTypes = {
   ...PenroseNamedTypes,
@@ -278,7 +258,7 @@ const PenroseEllipseTypes = {
   ...PenroseCenterTypes,
   rx: "FloatV",
   ry: "FloatV",
-}
+};
 
 const PenroseEquationTypes = {
   ...PenroseNamedTypes,
@@ -289,7 +269,7 @@ const PenroseEquationTypes = {
   ...PenroseStringTypes,
   ascent: "FloatV",
   descent: "FloatV",
-}
+};
 
 const PenroseImageTypes = {
   ...PenroseNamedTypes,
@@ -298,7 +278,7 @@ const PenroseImageTypes = {
   ...PenroseRotateTypes,
   href: "StrV",
   preserveAspectRatio: "StrV",
-}
+};
 
 const PenroseLineTypes = {
   ...PenroseNamedTypes,
@@ -308,7 +288,7 @@ const PenroseLineTypes = {
   start: "VectorV",
   end: "VectorV",
   strokeLinecap: "StrV",
-}
+};
 
 const PenrosePathTypes = {
   ...PenroseNamedTypes,
@@ -317,7 +297,7 @@ const PenrosePathTypes = {
   ...PenroseArrowTypes,
   d: "StrV",
   strokeLinecap: "StrV",
-}
+};
 
 const PenrosePolygonTypes = {
   ...PenroseNamedTypes,
@@ -325,7 +305,7 @@ const PenrosePolygonTypes = {
   ...PenroseFillTypes,
   ...PenroseScaleTypes,
   ...PenrosePolyTypes,
-}
+};
 
 const PenrosePolylineTypes = {
   ...PenroseNamedTypes,
@@ -333,7 +313,7 @@ const PenrosePolylineTypes = {
   ...PenroseScaleTypes,
   ...PenrosePolyTypes,
   strokeLinecap: "StrV",
-}
+};
 
 const PenroseRectangleTypes = {
   ...PenroseNamedTypes,
@@ -343,7 +323,7 @@ const PenroseRectangleTypes = {
   ...PenroseRotateTypes,
   ...PenroseRectTypes,
   ...PenroseCornerTypes,
-}
+};
 
 const PenroseTextTypes = {
   ...PenroseNamedTypes,
@@ -366,13 +346,7 @@ const PenroseTextTypes = {
   dominantBaseline: "StrV",
   ascent: "FloatV",
   descent: "FloatV",
-}
-
-const PenroseGroupTypes = {
-  ...PenroseNamedTypes,
-  shapes: "ShapeListV",
-  clipPath: "ClipDataV",
-}
+};
 
 export const PenroseShapeType = new Map<ShapeType, any>([
   [ShapeType.Circle, PenroseCircleTypes],
@@ -385,8 +359,4 @@ export const PenroseShapeType = new Map<ShapeType, any>([
   [ShapeType.Polyline, PenrosePolylineTypes],
   [ShapeType.Rectangle, PenroseRectangleTypes],
   [ShapeType.Text, PenroseTextTypes],
-  [ShapeType.Group, PenroseGroupTypes]
 ]);
-
-
-

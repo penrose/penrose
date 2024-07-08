@@ -1,17 +1,26 @@
 import {
+  Canvas,
+  Graph,
+  LabelCache,
+  Num,
+  PathResolver,
+  Shape as PenroseShape,
+  RenderShapes,
+  Value,
   boolV,
-  Canvas, clipDataV, colorV, floatV, Group as PenroseGroup,
-  LabelCache, Num, pathDataV,
-  PathResolver, ptListV,
-  RenderShapes, Shape as PenroseShape,
-  strV, Value, vectorV
+  colorV,
+  floatV,
+  pathDataV,
+  ptListV,
+  strV,
+  vectorV,
 } from "@penrose/core";
 import _ from "lodash";
-import { Clip, Color, NoClip, PenroseShapeType, Shape } from "./types.js";
+import { Color, PenroseShapeType, Shape, ShapeType } from "./types.js";
 export const stateToSVG = async (
   state: {
     canvas: Canvas;
-    shapes: Shape<number>[];
+    shapes: PenroseShape<number>[];
     labelCache: LabelCache;
     variation: string;
   },
@@ -46,7 +55,7 @@ export const stateToSVG = async (
 
 export const toPenroseShape = (
   shape: Partial<Shape> & Required<Pick<Shape, "shapeType">>,
-  base?: Partial<PenroseShape<Num>>
+  base?: Partial<PenroseShape<Num>>,
 ): PenroseShape<Num> => {
   const penroseShape: Partial<PenroseShape<Num>> = base ?? {};
 
@@ -67,23 +76,6 @@ export const toPenroseShape = (
         resultV = vectorV(value);
         break;
 
-      case "ClipDataV":
-        switch ((value as NoClip | Clip).tag) {
-          case "NoClip":
-            resultV = clipDataV(value);
-            break;
-
-          case "Clip":
-            resultV = clipDataV({
-              tag: "Clip",
-              contents: this.sampleAndFillPenroseShape(
-                (value as Clip).shape.shapeType,
-                (value as Clip).shape
-              ) as Exclude<PenroseShape<Num>, PenroseGroup<Num>>,
-            })
-        }
-        break;
-
       case "PtListV":
         resultV = ptListV(value);
         break;
@@ -91,7 +83,7 @@ export const toPenroseShape = (
       case "ColorV":
         resultV = colorV({
           tag: "RGBA",
-          contents: value as Color
+          contents: value as Color,
         });
         break;
 
@@ -104,7 +96,11 @@ export const toPenroseShape = (
         break;
 
       default:
-        throw new Error(`Unknown field type for ${prop}`);
+        throw new Error(
+          `Unknown field type ${
+            PenroseShapeType.get(shape.shapeType)![prop]
+          } for ${prop}`,
+        );
     }
 
     _.set(penroseShape, prop, resultV);
@@ -115,4 +111,54 @@ export const toPenroseShape = (
     shapeType: shape.shapeType,
     passthrough: new Map(),
   } as PenroseShape<Num>;
-}
+};
+
+export const fromPenroseShape = (penroseShape: PenroseShape<Num>): Shape => {
+  if (penroseShape.shapeType === "Group") {
+    throw new Error("Groups not yet supported in bloom");
+  }
+
+  const shape: Partial<Shape> = {
+    shapeType: ShapeType[penroseShape.shapeType],
+  };
+  const shapeTypes = PenroseShapeType.get(ShapeType[penroseShape.shapeType])!;
+
+  for (const [prop, value] of Object.entries(penroseShape)) {
+    switch (shapeTypes[prop]) {
+      case "FloatV":
+      case "StrV":
+      case "VectorV":
+      case "PtListV":
+      case "BoolV":
+        _.set(shape, prop, value.contents);
+        break;
+
+      case "ColorV":
+        _.set(shape, prop, value.contents.contents);
+        break;
+
+      // default, nothing
+    }
+  }
+
+  return shape as unknown as Shape;
+};
+
+export const sortShapes = (
+  shapes: PenroseShape<Num>[],
+  partialLayering: [string, string][],
+): PenroseShape<Num>[] => {
+  const layerGraph = new Graph<string>();
+  for (const { name } of shapes) {
+    layerGraph.setNode(name.contents, undefined);
+  }
+  for (const [below, above] of partialLayering) {
+    layerGraph.setEdge({ i: below, j: above, e: undefined });
+  }
+  const sortedNames = layerGraph.topsort();
+  const nameIndices = new Map(sortedNames.map((name, i) => [name, i]));
+  return shapes.sort(
+    (a, b) =>
+      nameIndices.get(a.name.contents)! - nameIndices.get(b.name.contents)!,
+  );
+};

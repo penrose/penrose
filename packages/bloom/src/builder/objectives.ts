@@ -1,13 +1,22 @@
 import {
   Num,
-  objDict,
-  Line as PenroseLine,
   Equation as PenroseEquation,
+  Image as PenroseImage,
+  Line as PenroseLine,
   Rectangle as PenroseRectangle,
   Text as PenroseText,
-  Image as PenroseImage,
+  objDict,
 } from "@penrose/core";
-import { Equation, Image, Line, Rectangle, Shape, Vec2, VecN, Text } from "./types.js";
+import {
+  Equation,
+  Image,
+  Line,
+  Rectangle,
+  Shape,
+  Text,
+  Vec2,
+  VecN,
+} from "./types.js";
 import { toPenroseShape } from "./utils.js";
 
 type PenroseRectLike =
@@ -16,34 +25,27 @@ type PenroseRectLike =
   | PenroseText<Num>
   | PenroseImage<Num>;
 
-export type RectLike =
-  | Rectangle
-  | Equation
-  | Text
-  | Image;
+export type RectLike = Rectangle | Equation | Text | Image;
 
 const objectives = {
   /**
    * Encourage the input value to be close to negative infinity
    * @param x Value
    */
-  minimal: (x: Num): Num =>
-    objDict.minimal.body(x).value,
+  minimal: (x: Num): Num => objDict.minimal.body(x).value,
 
   /**
    * Encourage the input value to be close to infinity
    * @param x Value
    */
-  maximal: (x: Num): Num =>
-    objDict.maximal.body(x).value,
+  maximal: (x: Num): Num => objDict.maximal.body(x).value,
 
   /**
    * Encourage the inputs to have the same value: `(x - y)^2`
    * @param x First value
    * @param y Second value
    */
-  equal: (x: Num, y: Num): Num =>
-    objDict.equal.body(x, y).value,
+  equal: (x: Num, y: Num): Num => objDict.equal.body(x, y).value,
 
   /**
    * Encourage two vectors `v1` and `v2` to be near each other with distance `offset`.
@@ -59,16 +61,14 @@ const objectives = {
    * @param x First value
    * @param y Second value
    */
-  greaterThan: (x: Num, y: Num): Num =>
-    objDict.greaterThan.body(x, y).value,
+  greaterThan: (x: Num, y: Num): Num => objDict.greaterThan.body(x, y).value,
 
   /**
    * Encourage x to be less than or equal to y: `max(0,x - y)^2`
    * @param x First value
    * @param y Second value
    */
-  lessThan: (x: Num, y: Num): Num =>
-    objDict.lessThan.body(x, y).value,
+  lessThan: (x: Num, y: Num): Num => objDict.lessThan.body(x, y).value,
 
   /**
    * Repel point `a` from another scalar `b` with weight `weight`.
@@ -84,8 +84,7 @@ const objectives = {
    * @param c First scalar
    * @param d Second scalar
    */
-  repelScalar: (c: Num, d: Num): Num =>
-    objDict.repelScalar.body(c, d).value,
+  repelScalar: (c: Num, d: Num): Num => objDict.repelScalar.body(c, d).value,
 
   /**
    * Encourage the point `p` to be in the direction `direction` with respect to point `pRef`. The `direction` vector does not need to be normalized. The `offset` parameter is the shortest allowed distance between the points.
@@ -104,7 +103,8 @@ const objectives = {
    * @param offset Distance between the two centers (default: 100)
    */
   below: (bottom: Shape, top: Shape, offset: Num = 100): Num =>
-    objDict.below.body(toPenroseShape(bottom), toPenroseShape(top), offset).value,
+    objDict.below.body(toPenroseShape(bottom), toPenroseShape(top), offset)
+      .value,
 
   /**
    * Encourage the center of `top` to be above the center of `bottom`.
@@ -113,7 +113,8 @@ const objectives = {
    * @param offset Distance between the two centers (default: 100)
    */
   above: (top: Shape, bottom: Shape, offset: Num = 100): Num =>
-    objDict.above.body(toPenroseShape(top), toPenroseShape(bottom), offset).value,
+    objDict.above.body(toPenroseShape(top), toPenroseShape(bottom), offset)
+      .value,
 
   /**
    * Encourage the center of `left` to be leftwards to the center of `right`.
@@ -122,7 +123,8 @@ const objectives = {
    * @param offset Distance between the two centers (default: 100)
    */
   leftwards: (left: Shape, right: Shape, offset: Num = 100): Num =>
-    objDict.leftwards.body(toPenroseShape(left), toPenroseShape(right), offset).value,
+    objDict.leftwards.body(toPenroseShape(left), toPenroseShape(right), offset)
+      .value,
 
   /**
    * Encourage the center of `right` to be rightwards to the center of `left`.
@@ -131,7 +133,8 @@ const objectives = {
    * @param offset Distance between the two centers (default: 100)
    */
   rightwards: (right: Shape, left: Shape, offset: Num = 100): Num =>
-    objDict.rightwards.body(toPenroseShape(right), toPenroseShape(left), offset).value,
+    objDict.rightwards.body(toPenroseShape(right), toPenroseShape(left), offset)
+      .value,
 
   /**
    * Encourage shape `s1` to have the same center position as shape `s2`.
@@ -148,7 +151,8 @@ const objectives = {
    * @param weight Weight of repel (default: 10.0)
    */
   notTooClose: (s1: Shape, s2: Shape, weight: Num = 10.0): Num =>
-    objDict.notTooClose.body(toPenroseShape(s1), toPenroseShape(s2), weight).value,
+    objDict.notTooClose.body(toPenroseShape(s1), toPenroseShape(s2), weight)
+      .value,
 
   /**
    * Try to place shape `s1` near shape `s2` (putting their centers at the same place).
@@ -177,8 +181,20 @@ const objectives = {
    * @param strength Strength (default: 20)
    * @param range Range (default: 10)
    */
-  nonDegenerateAngle: (s0: Shape, s1: Shape, s2: Shape, strength: Num = 20, range: Num = 10): Num =>
-    objDict.nonDegenerateAngle.body(toPenroseShape(s0), toPenroseShape(s1), toPenroseShape(s2), strength, range).value,
+  nonDegenerateAngle: (
+    s0: Shape,
+    s1: Shape,
+    s2: Shape,
+    strength: Num = 20,
+    range: Num = 10,
+  ): Num =>
+    objDict.nonDegenerateAngle.body(
+      toPenroseShape(s0),
+      toPenroseShape(s1),
+      toPenroseShape(s2),
+      strength,
+      range,
+    ).value,
 
   /**
    * Center label above a line
@@ -190,7 +206,7 @@ const objectives = {
     objDict.centerLabelAbove.body(
       toPenroseShape(s1) as PenroseLine<Num>,
       toPenroseShape(s2) as PenroseRectLike,
-      w
+      w,
     ).value,
 
   /**
@@ -200,11 +216,17 @@ const objectives = {
    * @param w Weight
    * @param padding Padding (default: 10)
    */
-  centerLabel: (s1: RectLike | Line, s2: RectLike, w: number, padding: Num = 10): Num =>
+  centerLabel: (
+    s1: RectLike | Line,
+    s2: RectLike,
+    w: number,
+    padding: Num = 10,
+  ): Num =>
     objDict.centerLabel.body(
       toPenroseShape(s1) as PenroseRectLike | PenroseLine<Num>,
       toPenroseShape(s2) as PenroseRectLike,
-      w, padding
+      w,
+      padding,
     ).value,
 
   /**
@@ -214,7 +236,11 @@ const objectives = {
    * @param padding Padding
    */
   pointLineDist: (point: Vec2, s1: Line, padding: Num): Num =>
-    objDict.pointLineDist.body(point, toPenroseShape(s1) as PenroseLine<Num>, padding).value,
+    objDict.pointLineDist.body(
+      point,
+      toPenroseShape(s1) as PenroseLine<Num>,
+      padding,
+    ).value,
 
   /**
    * Try to make the shape regular (equiangular and equilateral)

@@ -1,6 +1,6 @@
 // import { circles } from "./examples/simple.js";
-import Renderer from "./renderer/Renderer.tsx";
 import { sets } from "./examples/sets.js";
+import Renderer from "./renderer/Renderer.tsx";
 
 const diagram = await sets();
 

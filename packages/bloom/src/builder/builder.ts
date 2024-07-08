@@ -2,27 +2,39 @@ import {
   Canvas,
   InputMeta,
   Num,
-  sampleShape,
   Shape as PenroseShape,
+  Var,
+  constrDict,
+  sampleShape,
   simpleContext,
   uniform,
-  Var,  constrDict
 } from "@penrose/core";
-import _ from "lodash";
-import { Diagram } from "../renderer/Renderer.tsx";
+import { Diagram } from "../renderer/Renderer.js";
 import {
   Circle,
   CircleProps,
-  clip,
-  Ellipse, EllipseProps, Equation, EquationProps, Group, GroupProps, Image, ImageProps, Line, LineProps,
-  noClip,
+  Ellipse,
+  EllipseProps,
+  Equation,
+  EquationProps,
+  Image,
+  ImageProps,
+  Line,
+  LineProps,
+  Path,
   PathProps,
-  PenroseShapeType, Polygon, PolygonProps, Polyline, PolylineProps, Rectangle, RectangleProps,
+  Polygon,
+  PolygonProps,
+  Polyline,
+  PolylineProps,
+  Rectangle,
+  RectangleProps,
   Shape,
   ShapeProps,
-  ShapeType, TextProps, Path
+  ShapeType,
+  TextProps,
 } from "./types.js";
-import { toPenroseShape } from "./utils.ts";
+import { fromPenroseShape, sortShapes, toPenroseShape } from "./utils.js";
 
 export type NamedSamplingContext = {
   makeInput: (meta: InputMeta, name?: string) => Var;
@@ -39,6 +51,7 @@ export class DiagramBuilder {
   private objectives: Num[] = [];
   private variation: string;
   private nextId = 0;
+  private partialLayering: [string, string][] = [];
 
   constructor(canvas: Canvas, variation: string) {
     this.canvas = canvas;
@@ -67,24 +80,27 @@ export class DiagramBuilder {
 
     const shapeTypes = Object.keys(ShapeType) as ShapeType[];
     for (const shapeType of shapeTypes) {
-      Object.defineProperty(
-        this, firstLetterLower(shapeType), {
-          value: (props: Partial<ShapeProps> = {}): Shape => {
-            if (!("name" in props)) {
-              props.name = String(this.nextId++) + "_" + shapeType;
-            }
-            const penroseShape = this.sampleAndFillPenroseShape(shapeType, props);
-            this.shapes.push(penroseShape);
-            if (penroseShape.ensureOnCanvas) {
-              this.ensure(constrDict.onCanvas.body(penroseShape, this.canvas.width, this.canvas.height).value)
-            }
-            return this.fromPenroseShape(penroseShape) as Shape;
-          },
-        }
-      );
+      Object.defineProperty(this, firstLetterLower(shapeType), {
+        value: (props: Partial<ShapeProps> = {}): Shape => {
+          if (!("name" in props)) {
+            props.name = String(this.nextId++) + "_" + shapeType;
+          }
+          const penroseShape = this.sampleAndFillPenroseShape(shapeType, props);
+          this.shapes.push(penroseShape);
+          if (penroseShape.ensureOnCanvas) {
+            this.ensure(
+              constrDict.onCanvas.body(
+                penroseShape,
+                this.canvas.width,
+                this.canvas.height,
+              ).value,
+            );
+          }
+          return fromPenroseShape(penroseShape);
+        },
+      });
     }
-    console.log(this);
-  }
+  };
 
   vary = (name?: string): Var => {
     const newVar = this.samplingContext.makeInput(
@@ -99,7 +115,7 @@ export class DiagramBuilder {
 
   private sampleAndFillPenroseShape = (
     shapeType: ShapeType,
-    props: Partial<ShapeProps>
+    props: Partial<ShapeProps>,
   ): PenroseShape<Num> => {
     const penroseShapeBase = sampleShape(
       shapeType,
@@ -107,66 +123,48 @@ export class DiagramBuilder {
       this.canvas,
     );
 
-    return toPenroseShape({
-      ...props,
-      shapeType,
-    }, penroseShapeBase);
+    return toPenroseShape(
+      {
+        ...props,
+        shapeType,
+      },
+      penroseShapeBase,
+    );
   };
 
-  private fromPenroseShape =(
-    penroseShape: PenroseShape<Num>
-  ): Shape => {
-    const shape: Partial<Shape> = {
-      shapeType: ShapeType[penroseShape.shapeType],
-    };
-    const shapeTypes = PenroseShapeType.get(ShapeType[penroseShape.shapeType])!;
-
-    for (const [prop, value] of Object.entries(penroseShape)) {
-      switch (shapeTypes[prop]) {
-        case "FloatV":
-        case "StrV":
-        case "VectorV":
-        case "PtListV":
-        case "BoolV":
-          _.set(shape, prop, value.contents);
-          break;
-
-        case "ClipDataV":
-          switch (value.tag) {
-            case "NoClip":
-              _.set(shape, prop, noClip());
-              break;
-
-            case "Clip":
-              _.set(shape, prop, clip(
-                this.fromPenroseShape(value.shape) as Exclude<Shape, Group>
-              ));
-              break;
-          }
-          break;
-
-        case "ColorV":
-          _.set(shape, prop, value.contents.contents);
-          break;
-      }
-    }
-
-    return shape as unknown as Shape;
-  }
-
   // for typing only; dynamically generated
-
-  circle = (props: Partial<CircleProps> = {}): Readonly<Circle> => { throw new Error("Not filled"); }
-  ellipse = (props: Partial<EllipseProps> = {}): Readonly<Ellipse> => { throw new Error("Not filled"); }
-  equation = (props: Partial<EquationProps> = {}): Readonly<Equation> => { throw new Error("Not filled"); }
-  group = (props: Partial<GroupProps> = {}): Readonly<Group> => { throw new Error("Not filled"); }
-  image = (props: Partial<ImageProps> = {}): Readonly<Image> => { throw new Error("Not filled"); }
-  line = (props: Partial<LineProps> = {}): Readonly<Line> => { throw new Error("Not filled"); }
-  path = (props: Partial<PathProps> = {}): Readonly<Path> => { throw new Error("Not filled"); }
-  polygon = (props: Partial<PolygonProps> = {}): Readonly<Polygon> => { throw new Error("Not filled"); }
-  polyline = (props: Partial<PolylineProps> = {}): Readonly<Polyline> => { throw new Error("Not filled"); }
-  rectangle = (props: Partial<RectangleProps> = {}): Readonly<Rectangle> => { throw new Error("Not filled"); }
-  text = (props: Partial<TextProps> = {}): Readonly<Text> => { throw new Error("Not filled"); }
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  circle = (_props: Partial<CircleProps> = {}): Readonly<Circle> => {
+    throw new Error("Not filled");
+  };
+  ellipse = (_props: Partial<EllipseProps> = {}): Readonly<Ellipse> => {
+    throw new Error("Not filled");
+  };
+  equation = (_props: Partial<EquationProps> = {}): Readonly<Equation> => {
+    throw new Error("Not filled");
+  };
+  image = (_props: Partial<ImageProps> = {}): Readonly<Image> => {
+    throw new Error("Not filled");
+  };
+  line = (_props: Partial<LineProps> = {}): Readonly<Line> => {
+    throw new Error("Not filled");
+  };
+  path = (_props: Partial<PathProps> = {}): Readonly<Path> => {
+    throw new Error("Not filled");
+  };
+  polygon = (_props: Partial<PolygonProps> = {}): Readonly<Polygon> => {
+    throw new Error("Not filled");
+  };
+  polyline = (_props: Partial<PolylineProps> = {}): Readonly<Polyline> => {
+    throw new Error("Not filled");
+  };
+  rectangle = (_props: Partial<RectangleProps> = {}): Readonly<Rectangle> => {
+    throw new Error("Not filled");
+  };
+  text = (_props: Partial<TextProps> = {}): Readonly<Text> => {
+    throw new Error("Not filled");
+  };
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 
   ensure = (constraint: Num) => {
     this.constraints.push(constraint);
@@ -176,7 +174,14 @@ export class DiagramBuilder {
     this.objectives.push(objective);
   };
 
+  layer = (below: Shape, above: Shape) => {
+    this.partialLayering.push([below.name, above.name]);
+  };
+
   build = async (): Promise<Diagram> => {
+    const orderedShapes = sortShapes(this.shapes, this.partialLayering);
+    console.log(orderedShapes.map((s) => s.name.contents));
+
     return Diagram.create({
       canvas: this.canvas,
       variation: this.variation,
@@ -184,7 +189,7 @@ export class DiagramBuilder {
       inputInits: this.inputInits,
       constraints: this.constraints,
       objectives: this.objectives,
-      shapes: this.shapes,
+      shapes: orderedShapes,
       // namedInputs: this.namedInputs,
     });
   };

@@ -1,15 +1,16 @@
 import {
+  InputMeta,
+  PenroseState,
   compileCompGraph,
   compileTrio,
   finalStage,
-  genGradient, InputMeta,
+  genGradient,
   insertPending,
   isOptimized,
   nextStage,
-  PenroseState,
   resample as penroseResample,
   start,
-  step
+  step,
 } from "@penrose/core";
 import consola from "consola";
 import { Result } from "true-myth";
@@ -21,22 +22,22 @@ import {
   ComputeLayoutRequestData,
   ComputeLayoutResult,
   HistoryLoc,
-  logLevel,
   MessageRequest,
   MessageResult,
   MessageTags,
   Notification,
-  notify,
   PollResult,
   ResampleResult,
-  respond,
   SizeBoundedMap,
-  stateToLayoutState,
   StepSequenceID,
   StepSequenceIDGenerator,
   StepSequenceInfo,
+  logLevel,
+  notify,
+  respond,
+  stateToLayoutState,
   taggedErr,
-  taggedOk
+  taggedOk,
 } from "./common.js";
 
 const log = consola.create({ level: logLevel }).withScope("optimizer:worker");
@@ -102,25 +103,33 @@ const compile = async (data: CompileRequestData): Promise<CompileResult> => {
 };
 
 const compileFromMinState = async (
-  data: CompileFromMinStateRequestData
+  data: CompileFromMinStateRequestData,
 ): Promise<CompileFromMinStateResult> => {
   const inputs = data.minState.inputs.map((v, i) => ({
     handle: v,
     meta: {
-      init: data.minState.inputInits[i] == "Pending" ?
-        { tag: "Pending", pending: 0 } :
-        { tag: "Sampled", sampler: () =>  { throw new Error("Unresamplable diagram") } },
-      stages: data.minState.inputInits[i] == "Pending" ?
-        new Set() : "All",
+      init:
+        data.minState.inputInits[i] == "Pending"
+          ? { tag: "Pending", pending: 0 }
+          : {
+              tag: "Sampled",
+              sampler: () => {
+                throw new Error("Unresamplable diagram");
+              },
+            },
+      stages: data.minState.inputInits[i] == "Pending" ? new Set() : "All",
     } as InputMeta,
   }));
 
   const constraintSets = new Map([
-    ["", {
-      inputMask: inputs.map(({ meta }) => meta.init.tag === "Sampled"),
-      objMask: data.minState.objectives.map(() => true),
-      constrMask: data.minState.constraints.map(() => true),
-    }]
+    [
+      "",
+      {
+        inputMask: inputs.map(({ meta }) => meta.init.tag === "Sampled"),
+        objMask: data.minState.objectives.map(() => true),
+        constrMask: data.minState.constraints.map(() => true),
+      },
+    ],
   ]);
 
   const state: PenroseState = {
@@ -129,7 +138,7 @@ const compileFromMinState = async (
     constraintSets,
     objFns: [],
     constrFns: [],
-    varyingValues: data.minState.inputs.map(v => v.val),
+    varyingValues: data.minState.inputs.map((v) => v.val),
     inputs,
     labelCache: new Map(),
     shapes: data.minState.shapes,
@@ -153,7 +162,7 @@ const compileFromMinState = async (
   makeNewStepSequence(null, state.variation);
   // diagramId is assigned by broker, not us, so we just pass 0
   return taggedOk(MessageTags.CompileFromMinState, 0);
-}
+};
 
 const poll = async (): Promise<PollResult> => {
   return taggedOk(MessageTags.Poll, historyInfo.map());

@@ -1,8 +1,14 @@
-import { DiagramID, isErr, MinState, showOptimizerError, StepSequenceID } from "../optimizer/common.js";
-import Optimizer from "../optimizer/optimizer.js";
 import { showError } from "@penrose/core";
 import { useEffect, useRef, useState } from "react";
 import { stateToSVG } from "../builder/utils.ts";
+import {
+  DiagramID,
+  MinState,
+  StepSequenceID,
+  isErr,
+  showOptimizerError,
+} from "../optimizer/common.js";
+import Optimizer from "../optimizer/optimizer.js";
 
 const optimizer = await Optimizer.create();
 
@@ -15,7 +21,7 @@ export class Diagram {
     this.stepSequenceId = stepSequenceId;
   }
 
-  static create = async (state: MinState)=> {
+  static create = async (state: MinState) => {
     const compileResult = await optimizer.compileFromMinimumState(state);
     if (isErr(compileResult)) {
       throw new Error(showError(compileResult.error));
@@ -29,11 +35,11 @@ export class Diagram {
     const stepSequenceId = pollResult.value.keys().next().value;
 
     return new Diagram(diagramId, stepSequenceId);
-  }
+  };
 
   pollAndRender = async (): Promise<{
-    svg: SVGSVGElement,
-    stopped: boolean,
+    svg: SVGSVGElement;
+    stopped: boolean;
   }> => {
     const pollResult = await optimizer.poll(this.diagramId);
     if (isErr(pollResult)) {
@@ -46,34 +52,33 @@ export class Diagram {
     }
     const stopped = sequenceState.tag !== "Pending";
 
-    const latestStep = pollResult.value.get(this.stepSequenceId)!.layoutStats.at(-1)!.cumulativeFrames - 1;
-    const layoutResult = await optimizer.computeLayout(
-      this.diagramId,
-      {
-        sequenceId: this.stepSequenceId,
-        frame: latestStep,
-      }
-    );
+    const latestStep =
+      pollResult.value.get(this.stepSequenceId)!.layoutStats.at(-1)!
+        .cumulativeFrames - 1;
+    const layoutResult = await optimizer.computeLayout(this.diagramId, {
+      sequenceId: this.stepSequenceId,
+      frame: latestStep,
+    });
     if (layoutResult.isErr()) {
       throw layoutResult.error;
     }
 
     const renderState = layoutResult.value;
-    const svg = await stateToSVG(
-      renderState, {
-        pathResolver: async () => { throw new Error("file loading not supported") },
-        width: "100%",
-        height: "100%",
-        texLabels: false,
-      }
-    );
+    const svg = await stateToSVG(renderState, {
+      pathResolver: async () => {
+        throw new Error("file loading not supported");
+      },
+      width: "100%",
+      height: "100%",
+      texLabels: false,
+    });
 
     return { svg, stopped };
-  }
+  };
 }
 
 export interface RendererProps {
-  diagram: Diagram
+  diagram: Diagram;
 }
 
 export default function Renderer(props: RendererProps) {
@@ -86,8 +91,8 @@ export default function Renderer(props: RendererProps) {
   useEffect(() => {
     setRenderLoopShouldStart(true);
     return () => {
-      renderLoopInterruptRef.current = true;  // stop existing render loop
-    }
+      renderLoopInterruptRef.current = true; // stop existing render loop
+    };
   }, []);
 
   const renderLoop = async () => {
@@ -114,7 +119,7 @@ export default function Renderer(props: RendererProps) {
     }
 
     requestAnimationFrame(renderLoop);
-  }
+  };
 
   if (!renderLoopRunning && renderLoopShouldStart) {
     renderLoopInterruptRef.current = false;
@@ -131,7 +136,6 @@ export default function Renderer(props: RendererProps) {
         height: "100%",
       }}
       ref={canvasRef}
-    >
-    </div>
-  )
+    ></div>
+  );
 }

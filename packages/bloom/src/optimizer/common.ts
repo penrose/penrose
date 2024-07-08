@@ -11,7 +11,8 @@ import {
   PenroseWarning,
   Shape,
   showError,
-  State, Var
+  State,
+  Var,
 } from "@penrose/core";
 import consola from "consola";
 import { Result } from "true-myth";
@@ -215,7 +216,7 @@ export type ResampleRequestData = {
 export type CompileFromMinStateRequestData = {
   tag: MessageTags.CompileFromMinState;
   minState: MinState;
-}
+};
 
 // Notification Data
 
