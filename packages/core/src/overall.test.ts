@@ -220,8 +220,8 @@ describe("Energy API", () => {
       const state = res.value;
       const smallerThanFns = state.constrFns.filter((c) => {
         return (
-          c.ast.expr.body.tag === "FunctionCall" &&
-          c.ast.expr.body.name.value === "disjoint"
+          c.ast.body.tag === "FunctionCall" &&
+          c.ast.body.name.value === "disjoint"
         );
       });
       const masks: ad.Masks = {
