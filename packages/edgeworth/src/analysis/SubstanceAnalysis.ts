@@ -35,14 +35,14 @@ import {
   SubstanceEnv,
   TypeApp,
 } from "@penrose/core/dist/types/substance";
-import consola from "consola";
+import consola, { LogLevels } from "consola";
 import im from "immutable";
 import _ from "lodash";
 import { SynthesizedSubstance } from "../synthesis/Synthesizer";
 
 const log = consola
-  .create({ level: (consola as any).LogLevel.Info })
-  .withScope("Substance Analysis");
+  .create({ level: LogLevels.info })
+  .withTag("Substance Analysis");
 
 export interface Signature {
   args: string[];

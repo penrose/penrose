@@ -1,4 +1,5 @@
 import { Result } from "true-myth";
+import { A } from "vitest/dist/types-ad1c3f45.js";
 import * as ad from "../../types/ad.js";
 import { StyleError } from "../../types/errors.js";
 import {
@@ -14,8 +15,10 @@ import {
   String as StringProps,
   Stroke,
 } from "../../types/shapes.js";
+import { StylePathToUnindexedObject } from "../../types/stylePathResolution.js";
 import { Translation } from "../../types/styleSemantics.js";
 import { Value } from "../../types/value.js";
+import { prettyResolvedStylePath } from "../../utils/Util.js";
 import { internalMissingPathError } from "../Style.js";
 import {
   checkBoolV,
@@ -26,27 +29,42 @@ import {
   checkVectorV,
 } from "./CheckValues.js";
 const { err, ok } = Result;
-const getTransProp = (path: string, trans: Translation): Value<ad.Num> => {
-  const v = trans.symbols.get(path);
+const getTransProp = (
+  path: StylePathToUnindexedObject<A>,
+  trans: Translation,
+): Value<ad.Num> => {
+  const pathStr = prettyResolvedStylePath(path);
+  const v = trans.symbols.get(pathStr);
   if (v === undefined || v.tag !== "Val") {
-    throw internalMissingPathError(path);
+    throw internalMissingPathError(pathStr);
   }
   return v.contents;
 };
 
 export const checkProp = <T>(
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   prop: string,
   trans: Translation,
-  checker: (propPath: string, value: Value<ad.Num>) => Result<T, StyleError>,
+  checker: (
+    propPath: StylePathToUnindexedObject<A>,
+    value: Value<ad.Num>,
+  ) => Result<T, StyleError>,
 ): Result<T, StyleError> => {
-  const propP = `${path}.${prop}`;
-  const propV = getTransProp(propP, trans);
-  return checker(propP, propV);
+  const propPath: StylePathToUnindexedObject<A> = {
+    nodeType: "SyntheticStyle",
+    tag: "Object",
+    access: {
+      tag: "Member",
+      parent: path,
+      name: prop,
+    },
+  };
+  const propV = getTransProp(propPath, trans);
+  return checker(propPath, propV);
 };
 
 export const checkNamed = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   trans: Translation,
 ): Result<Named<ad.Num>, StyleError> => {
   const name = checkProp(path, "name", trans, checkStrV);
@@ -62,7 +80,7 @@ export const checkNamed = (
 };
 
 export const checkStroke = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   trans: Translation,
 ): Result<Stroke<ad.Num>, StyleError> => {
   const strokeWidth = checkProp(path, "strokeWidth", trans, checkFloatV);
@@ -86,7 +104,7 @@ export const checkStroke = (
 };
 
 export const checkFill = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   trans: Translation,
 ): Result<Fill<ad.Num>, StyleError> => {
   const fillColor = checkProp(path, "fillColor", trans, checkColorV);
@@ -96,7 +114,7 @@ export const checkFill = (
 };
 
 export const checkCenter = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   trans: Translation,
 ): Result<Center<ad.Num>, StyleError> => {
   const center = checkProp(path, "center", trans, checkVectorV);
@@ -106,7 +124,7 @@ export const checkCenter = (
 };
 
 export const checkRect = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   trans: Translation,
 ): Result<Rect<ad.Num>, StyleError> => {
   const width = checkProp(path, "width", trans, checkFloatV);
@@ -119,7 +137,7 @@ export const checkRect = (
 };
 
 export const checkArrow = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   trans: Translation,
 ): Result<Arrow<ad.Num>, StyleError> => {
   const startArrowheadSize = checkProp(
@@ -162,7 +180,7 @@ export const checkArrow = (
 };
 
 export const checkCorner = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   trans: Translation,
 ): Result<Corner<ad.Num>, StyleError> => {
   const cornerRadius = checkProp(path, "cornerRadius", trans, checkFloatV);
@@ -172,7 +190,7 @@ export const checkCorner = (
 };
 
 export const checkRotate = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   trans: Translation,
 ): Result<Rotate<ad.Num>, StyleError> => {
   const rotation = checkProp(path, "rotation", trans, checkFloatV);
@@ -182,7 +200,7 @@ export const checkRotate = (
 };
 
 export const checkScale = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   trans: Translation,
 ): Result<Scale<ad.Num>, StyleError> => {
   const scale = checkProp(path, "scale", trans, checkFloatV);
@@ -192,7 +210,7 @@ export const checkScale = (
 };
 
 export const checkPoly = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   trans: Translation,
 ): Result<Poly<ad.Num>, StyleError> => {
   const points = checkProp(path, "points", trans, checkPtListV);
@@ -202,7 +220,7 @@ export const checkPoly = (
 };
 
 export const checkString = (
-  path: string,
+  path: StylePathToUnindexedObject<A>,
   trans: Translation,
 ): Result<StringProps<ad.Num>, StyleError> => {
   const string = checkProp(path, "string", trans, checkStrV);

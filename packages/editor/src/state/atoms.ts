@@ -1,9 +1,10 @@
 import {
-  compileDomain,
-  DomainEnv,
-  PenroseError,
-  PenroseWarning,
-} from "@penrose/core";
+  DomainCache,
+  SubstanceCache,
+  getDomainCache,
+  getSubstanceCache,
+} from "@penrose/components";
+import { PenroseError, PenroseWarning } from "@penrose/core";
 import { PathResolver, Trio, TrioMeta } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
 import { User as FirebaseUser } from "firebase/auth";
@@ -13,19 +14,26 @@ import { debounce, range } from "lodash";
 import { RefObject } from "react";
 import toast from "react-hot-toast";
 import {
-  atom,
   AtomEffect,
   DefaultValue,
+  atom,
   selector,
   selectorFamily,
 } from "recoil";
 import { v4 as uuid } from "uuid";
 import { layoutModel } from "../App.js";
-import { RenderState } from "../worker/common.js";
-import OptimizerWorker from "../worker/OptimizerWorker.js";
+
+import {
+  DiagramID,
+  LayoutStats,
+  RenderState,
+  StepSequenceID,
+} from "../optimizer/common.js";
+import Optimizer from "../optimizer/optimizer.js";
+
 import { generateVariation } from "./variation.js";
 
-export const optimizer = new OptimizerWorker();
+export const optimizer = await Optimizer.create();
 
 export const EDITOR_VERSION = 0.1;
 
@@ -285,15 +293,21 @@ export const workspaceMetadataSelector = selector<WorkspaceMetadata>({
   },
 });
 
-export const domainCacheState = selector<DomainEnv | null>({
+export const domainCacheState = selector<DomainCache>({
   key: "domainCache",
   get: ({ get }) => {
     const domainProgram = get(fileContentsSelector("domain")).contents;
-    const compiledDomain = compileDomain(domainProgram);
-    if (compiledDomain.isOk()) {
-      return compiledDomain.value;
-    }
-    return null;
+    const domainCache = getDomainCache(domainProgram);
+    return domainCache;
+  },
+});
+
+export const substanceCacheState = selector<SubstanceCache>({
+  key: "substanceCache",
+  get: ({ get }) => {
+    const substanceProgram = get(fileContentsSelector("substance")).contents;
+    const substanceCache = getSubstanceCache(substanceProgram);
+    return substanceCache;
   },
 });
 
@@ -314,6 +328,9 @@ export type Diagram = {
   state: RenderState | null;
   error: PenroseError | null;
   warnings: PenroseWarning[];
+  layoutStats: LayoutStats;
+  diagramId: DiagramID | null;
+  stepSequenceId: StepSequenceID | null;
   metadata: DiagramMetadata;
 };
 
@@ -334,6 +351,9 @@ export const diagramState = atom<Diagram>({
     state: null,
     error: null,
     warnings: [],
+    layoutStats: [],
+    diagramId: null,
+    stepSequenceId: null,
     metadata: {
       variation: generateVariation(),
       stepSize: 10000,
@@ -360,18 +380,19 @@ export const layoutTimelineState = atom<LayoutTimeline>({
 });
 
 export const diagramWorkerState = atom<{
-  id: string;
-  init: boolean;
   compiling: boolean;
   optimizing: boolean;
 }>({
   key: "diagramWorkerState",
   default: {
-    id: "",
-    init: false,
     compiling: false,
     optimizing: false,
   },
+});
+
+export const showCompileErrsState = atom<boolean>({
+  key: "showCompileErrsState",
+  default: false,
 });
 
 export type DiagramGrid = {
@@ -532,4 +553,9 @@ export const settingsState = atom<Settings>({
     debugMode: process.env.NODE_ENV === "development",
   },
   effects: [settingsEffect, debugModeEffect],
+});
+
+export const codemirrorHistory = atom<boolean>({
+  key: "codemirrorHistory",
+  default: true,
 });

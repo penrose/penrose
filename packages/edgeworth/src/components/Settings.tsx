@@ -605,8 +605,8 @@ To write comments, begin with \`--\`. Return only the Substance program; explain
                 }
                 width={"100%"}
                 height={"400px"}
-                monacoOptions={{ theme: "vs", lineNumbers: "on" }}
                 readOnly={false}
+                darkMode={false}
               />
             </AccordionBodyStyled>
           </Accordion>

@@ -1,8 +1,8 @@
-import { isPenroseError, runtimeError, showError } from "@penrose/core";
+import { runtimeError } from "@penrose/core";
 import { Style } from "@penrose/examples/dist/index.js";
 import registry from "@penrose/examples/dist/registry.js";
 import { deleteDoc, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
-import { debounce, range } from "lodash";
+import { debounce } from "lodash";
 import queryString from "query-string";
 import { useCallback, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
@@ -13,6 +13,7 @@ import {
   useRecoilValue,
 } from "recoil";
 import { v4 as uuid } from "uuid";
+import { isErr, showOptimizerError } from "../optimizer/common.js";
 import {
   DownloadPNG,
   DownloadSVG,
@@ -26,12 +27,10 @@ import {
   getDiagram,
 } from "../utils/firebaseUtils.js";
 import { stateToSVG } from "../utils/renderUtils.js";
-import { UpdateInfo } from "../worker/OptimizerWorker";
 import {
   AutosaveTimer,
   Canvas,
   Diagram,
-  DiagramGrid,
   DiagramMetadata,
   EDITOR_VERSION,
   GistMetadata,
@@ -45,10 +44,10 @@ import {
   WorkspaceMetadata,
   autosaveTimerState,
   canvasState,
+  codemirrorHistory,
   currentRogerState,
   currentWorkspaceState,
   defaultWorkspaceState,
-  diagramGridState,
   diagramMetadataSelector,
   diagramState,
   diagramWorkerState,
@@ -56,32 +55,10 @@ import {
   optimizer,
   savedFilesState,
   settingsState,
+  showCompileErrsState,
   workspaceMetadataSelector,
 } from "./atoms.js";
 import { generateVariation } from "./variation.js";
-
-const _onError = (
-  error: any,
-  set: <T>(state: RecoilState<T>, update: (t: T) => T) => void,
-) => {
-  if (!isPenroseError(error)) {
-    error = runtimeError(String(error));
-  }
-  console.error(showError(error));
-  if (optimizer.getState() == "Error") {
-    console.error("OptimizerWorker latching error: " + showError(error));
-  }
-  set(diagramState, (state) => ({
-    ...state,
-    warnings: [],
-    error,
-  }));
-  set(diagramWorkerState, (state) => ({
-    ...state,
-    compiling: false,
-    optimizing: false,
-  }));
-};
 
 const _compileDiagram = async (
   substance: string,
@@ -91,97 +68,73 @@ const _compileDiagram = async (
   excludeWarnings: string[],
   set: <T>(state: RecoilState<T>, update: (t: T) => T) => void,
 ) => {
-  await optimizer.waitForInit();
+  // indicate that buttons should gray out for now
+  set(diagramWorkerState, (state) => ({
+    optimizing: false,
+    compiling: true,
+  }));
 
   const compiling = toast.loading("Compiling...");
-  const onUpdate = ({ state: updatedState, stats }: UpdateInfo) => {
-    set(diagramState, (state) => {
-      return {
-        ...state,
-        state: updatedState,
-      };
-    });
+  const compileResult = await optimizer.compile(
+    domain,
+    style,
+    substance,
+    variation,
+  );
+  toast.dismiss(compiling);
 
-    // TODO: update grid state too
-    set(diagramGridState, ({ gridSize }: DiagramGrid) => ({
-      variations: range(gridSize).map((i) =>
-        i === 0 ? variation : generateVariation(),
-      ),
-      gridSize,
-    }));
-  };
+  // un-gray buttons
+  set(diagramWorkerState, () => ({
+    optimizing: false,
+    compiling: false,
+  }));
 
-  const onError = (error: any) => {
-    _onError(error, set);
-    toast.dismiss(compiling);
-  };
-
-  try {
-    set(diagramState, (state) => ({
-      ...state,
-      metadata: {
-        ...state.metadata,
-        variation,
-        excludeWarnings,
-        source: {
-          substance,
-          style,
-          domain,
-        },
-      },
+  if (isErr(compileResult)) {
+    // display error
+    set(diagramState, (diagram) => ({
+      ...diagram,
+      error: compileResult.error,
     }));
-    set(diagramWorkerState, (state) => ({
-      ...state,
-      compiling: true,
-    }));
-    const { id, warnings } = await optimizer.compile(
-      domain,
-      style,
-      substance,
-      variation,
-    );
-    set(diagramWorkerState, (state) => ({
-      ...state,
-      id,
-      compiling: false,
-    }));
-    set(diagramState, (state) => ({
-      ...state,
-      warnings: warnings,
-      error: null,
-    }));
-    toast.dismiss(compiling);
-
-    const { onStart, onFinish } = await optimizer.startOptimizing();
-    onFinish
-      .then((info) => {
-        set(diagramWorkerState, (state) => ({
-          ...state,
-          optimizing: false,
-        }));
-        onUpdate(info);
-      })
-      .catch(onError);
-
-    await onStart;
-    set(diagramWorkerState, (state) => ({
-      ...state,
-      optimizing: true,
-    }));
-
-    const info = await optimizer.pollForUpdate();
-    if (info !== null) onUpdate(info);
-  } catch (error: unknown) {
-    onError(error);
+    return;
   }
 
-  // TODO: update grid state too
-  // set(diagramGridState, ({ gridSize }: DiagramGrid) => ({
-  //   variations: range(gridSize).map((i) =>
-  //     i === 0 ? variation : generateVariation(),
-  //   ),
-  //   gridSize,
-  // }));
+  // get currently available step sequence id and history (should be exactly one
+  // id, and no history, currently)
+  const pollResult = await optimizer.poll(compileResult.value.diagramId);
+  if (isErr(pollResult)) {
+    set(diagramState, (diagram) => ({
+      ...diagram,
+      error: runtimeError(showOptimizerError(pollResult.error)),
+    }));
+    return;
+  }
+
+  // we've succesfully compiled, so we can update the diagram metadata, warnings, etc
+  set(diagramState, (diagram) => ({
+    ...diagram,
+    warnings: compileResult.value.warnings,
+    error: null,
+    layoutStats: [],
+    diagramId: compileResult.value.diagramId,
+    // uses our assumption that there will only be one step sequence for a newly
+    // compiled diagram
+    stepSequenceId: pollResult.value.keys().next().value,
+    metadata: {
+      ...diagram.metadata,
+      variation,
+      excludeWarnings,
+      source: {
+        substance,
+        style,
+        domain,
+      },
+    },
+  }));
+
+  set(diagramWorkerState, () => ({
+    compiling: false,
+    optimizing: true,
+  }));
 };
 
 export const useCompileDiagram = () =>
@@ -192,6 +145,8 @@ export const useCompileDiagram = () =>
     const substanceFile = workspace.files.substance.contents;
     const styleFile = workspace.files.style.contents;
     const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
+
+    set(showCompileErrsState, true);
 
     await _compileDiagram(
       substanceFile,
@@ -219,66 +174,62 @@ export const useClearAutosave = (set: any, snapshot: any) => {
     set(autosaveTimerState, null);
   }
 };
+/*
+ * See: https://github.com/uiwjs/react-codemirror/issues/405
+ * Summary: Utilizing React Codemirror provides useful abstractions that
+ * would be annoying to implement manually (namely onChange hook)
+ * Docs recommend clearing history by resetting State, but this would
+ * remove the React Codemirror state. This is a hacky workaround
+ */
+export const useResetEditorHistory = (set: any) => {
+  set(codemirrorHistory, false);
+  setTimeout(() => set(codemirrorHistory, true), 1);
+};
 
 export const useResampleDiagram = () =>
   useRecoilCallback(({ set, snapshot }) => async () => {
     const diagram: Diagram = snapshot.getLoadable(diagramState)
       .contents as Diagram;
-    const id: string = snapshot.getLoadable(diagramWorkerState)
-      .contents as string;
-    if (diagram.state === null) {
+    if (diagram.diagramId === null) {
       toast.error("Cannot resample uncompiled diagram");
       return;
     }
+
     const variation = generateVariation();
     const resamplingLoading = toast.loading("Resampling...");
 
-    const onError = (error: any) => {
-      _onError(error, set);
-      toast.dismiss(resamplingLoading);
-    };
+    const resampleResult = await optimizer.resample(
+      diagram.diagramId,
+      variation,
+    );
+    toast.dismiss(resamplingLoading);
 
-    const onUpdate = (info: UpdateInfo) => {
-      set(diagramState, (state) => ({
-        ...state,
-        metadata: { ...state.metadata, variation },
-        state: info.state,
-        // keep compile errors on resample, but clear runtime errors
-        error: state.error?.errorType === "RuntimeError" ? null : state.error,
+    if (isErr(resampleResult)) {
+      set(diagramState, (diagram) => ({
+        ...diagram,
+        error: runtimeError(showOptimizerError(resampleResult.error)),
       }));
-      // update grid state too
-      set(diagramGridState, ({ gridSize }) => ({
-        variations: range(gridSize).map((i) =>
-          i === 0 ? variation : generateVariation(),
-        ),
-        gridSize,
-      }));
-    };
-
-    try {
-      const { onStart, onFinish } = await optimizer.resample(id, variation);
-      toast.dismiss(resamplingLoading);
-      onFinish
-        .then((info) => {
-          set(diagramWorkerState, (state) => ({
-            ...state,
-            optimizing: false,
-          }));
-          onUpdate(info);
-        })
-        .catch(onError);
-
-      await onStart;
-      set(diagramWorkerState, (state) => ({
-        ...state,
-        optimizing: true,
-      }));
-
-      const info = await optimizer.pollForUpdate();
-      if (info !== null) onUpdate(info);
-    } catch (error: unknown) {
-      onError(error);
+      return;
     }
+
+    // resampling succeeded, so we know we're now optimizing
+    set(diagramWorkerState, () => ({
+      compiling: false,
+      optimizing: true,
+    }));
+    set(diagramState, (diagram) => ({
+      ...diagram,
+      stepSequenceId: resampleResult.value,
+      // on resample, only clear runtime errors
+      error:
+        diagram.error !== null && diagram.error.errorType !== "RuntimeError"
+          ? diagram.error
+          : null,
+      metadata: {
+        ...diagram.metadata,
+        variation,
+      },
+    }));
   });
 
 export const useDownloadTrio = () =>
@@ -520,6 +471,7 @@ export const useLoadLocalWorkspace = () =>
         [],
         set,
       );
+      useResetEditorHistory(set);
     }
   });
 
@@ -587,6 +539,8 @@ export const useLoadExampleWorkspace = () =>
           excludeWarnings,
           set,
         );
+
+        useResetEditorHistory(set);
       },
   );
 
@@ -603,6 +557,7 @@ export const useNewWorkspace = () =>
     // set rather than reset to generate new id to avoid id conflicts
     set(currentWorkspaceState, () => defaultWorkspaceState());
     reset(diagramState);
+    useResetEditorHistory(set);
   });
 
 export const useCheckURL = () =>

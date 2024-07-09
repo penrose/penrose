@@ -28,7 +28,7 @@ import {
   TypeApp,
 } from "@penrose/core/dist/types/substance";
 import { combinations2 } from "@penrose/core/dist/utils/Util";
-import consola from "consola";
+import consola, { LogLevels } from "consola";
 import im from "immutable";
 import _ from "lodash";
 import pc from "pandemonium/choice";
@@ -85,8 +85,8 @@ import {
 type RandomFunction = (min: number, max: number) => number;
 
 const log = consola
-  .create({ level: (consola as any).LogLevel.Info })
-  .withScope("Substance Synthesizer");
+  .create({ level: LogLevels.info })
+  .withTag("Substance Synthesizer");
 
 //#region Synthesizer setting types
 
