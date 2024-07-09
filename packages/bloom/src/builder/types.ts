@@ -1,5 +1,11 @@
 import { Num, Value } from "@penrose/core";
 
+export type Substance = any;
+export type Type = (name?: string) => Substance;
+export type Predicate = ((...substances: Substance[]) => void) & {
+  test: ((...substances: Substance[]) => boolean);
+};
+
 export type Vec2 = [Num, Num];
 export type Vec3 = [Num, Num, Num];
 export type Color = Num[];

@@ -27,12 +27,15 @@ import {
   PolygonProps,
   Polyline,
   PolylineProps,
+  Predicate,
   Rectangle,
   RectangleProps,
   Shape,
   ShapeProps,
   ShapeType,
+  Substance,
   TextProps,
+  Type,
 } from "./types.js";
 import { fromPenroseShape, sortShapes, toPenroseShape } from "./utils.js";
 
@@ -40,7 +43,14 @@ export type NamedSamplingContext = {
   makeInput: (meta: InputMeta, name?: string) => Var;
 };
 
+export type SelectorVars = Record<string, Type>;
+export type SelectorAssignment = Record<string, Substance>;
+
 export class DiagramBuilder {
+  /** Substance/Domain stuff */
+  private substanceTypeMap: Map<Substance, Type> = new Map();
+  private namedSubstances: Map<string, Substance> = new Map();
+
   private canvas: Canvas;
   private inputs: Var[] = [];
   private inputInits: ("Pending" | "Sampled")[] = [];
@@ -102,10 +112,104 @@ export class DiagramBuilder {
     }
   };
 
-  vary = (name?: string): Var => {
+  private substance = (type: Type, name?: string): Substance => {
+    const newSubstance: Substance = {};
+    this.substanceTypeMap.set(newSubstance, type);
+    if (name !== undefined) {
+      newSubstance.name = name;
+      this.namedSubstances.set(name, newSubstance);
+    }
+    return newSubstance;
+  };
+
+  type = (): Type => {
+    const substance = this.substance.bind(this);
+    return function t(name?: string) {
+      return substance(t, name);
+    };
+  };
+
+  predicate = (): Predicate => {
+    const substanceSeqs: Substance[][] = [];
+    const pred: Partial<Predicate> = (...substances: Substance[]) => {
+      substanceSeqs.push(substances);
+    };
+    pred.test = (...substances: Substance[]) =>
+      substanceSeqs.some((subs) => {
+        return (
+          subs.length === substances.length &&
+          subs.every((s, i) => s === substances[i])
+        );
+      });
+
+    return pred as Predicate;
+  };
+
+  forall = (
+    vars: SelectorVars,
+    func: (assigned: SelectorAssignment, matchId: number) => void,
+  ) => {
+    const varTypePairs: { name: string; type: Type }[] = Object.entries(
+      vars,
+    ).map(([v, t]) => ({
+      name: v,
+      type: t,
+    }));
+    const substances = [...this.substanceTypeMap.keys()];
+
+    const traverseSubstances = (
+      prevPairs: { name: string; subst: Substance }[],
+      nextPairs: { name: string; type: Type }[],
+      startI: number,
+      matches: number,
+    ): number => {
+      if (nextPairs.length === 0) {
+        const assignment: SelectorAssignment = {};
+        for (const { name, subst } of prevPairs) {
+          assignment[name] = subst;
+        }
+        func(assignment, matches);
+        return matches;
+      }
+
+      for (let i = startI; i < substances.length; ++i) {
+        const subst = substances[i];
+        const type = this.substanceTypeMap.get(subst)!;
+        if (nextPairs[0].type === type) {
+          matches += traverseSubstances(
+            prevPairs.concat([{ name: nextPairs[0].name, subst }]),
+            nextPairs.slice(1),
+            i + 1,
+            matches,
+          );
+        }
+      }
+
+      return matches;
+    };
+
+    traverseSubstances([], varTypePairs, 0, 0);
+  };
+
+  where = (
+    conditions: boolean[],
+    func: (assignment: SelectorAssignment) => void,
+  ): ((assignment: SelectorAssignment) => void) => {
+    if (conditions.every((b) => b)) {
+      return func;
+    } else {
+      return () => {};
+    }
+  };
+
+  vary = (init?: number, name?: string): Var => {
     const newVar = this.samplingContext.makeInput(
       {
-        init: { tag: "Sampled", sampler: uniform(...this.canvas.xRange) },
+        init: {
+          tag: "Sampled",
+          sampler:
+            init !== undefined ? () => init : uniform(...this.canvas.xRange),
+        },
         stages: "All", // no staging for now
       },
       name,
@@ -180,8 +284,6 @@ export class DiagramBuilder {
 
   build = async (): Promise<Diagram> => {
     const orderedShapes = sortShapes(this.shapes, this.partialLayering);
-    console.log(orderedShapes.map((s) => s.name.contents));
-
     return Diagram.create({
       canvas: this.canvas,
       variation: this.variation,
