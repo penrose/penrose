@@ -228,8 +228,6 @@ export const RenderShape = async (
   } else {
     outSvg = await RenderShapeSvg(shape, renderProps);
   }
-  // prevent from blocking interactive elements
-  outSvg.setAttribute("pointer-events", "none");
   return outSvg;
 };
 

@@ -43,6 +43,14 @@ const InteractivityOverlay = memo(
       return new Set(props.pinnedInputPaths?.keys() ?? []);
     }, [props.pinnedInputPaths]);
 
+    // prevent non-interactive elements from blocking clicks
+    useEffect(() => {
+      for (const [_, elem] of props.svgTitleCache) {
+        const parent = elem.parentElement!;
+        parent.setAttribute("pointer-events", "none");
+      }
+    }, [props.svgTitleCache]);
+
     useEffect(() => {
       const clickables = new Set<Element>();
 
