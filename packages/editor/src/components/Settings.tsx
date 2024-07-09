@@ -1,14 +1,11 @@
 import { useCallback } from "react";
-import { useRecoilState, useRecoilStateLoadable } from "recoil";
-import { diagramMetadataSelector, settingsState } from "../state/atoms.js";
+import { useRecoilStateLoadable } from "recoil";
+import { settingsState } from "../state/atoms.js";
 import { useSignIn } from "../state/callbacks.js";
 import BlueButton from "./BlueButton.js";
 
 export default function Settings() {
   const [settings, setSettings] = useRecoilStateLoadable(settingsState);
-  const [diagramMetadata, setDiagramMetadata] = useRecoilState(
-    diagramMetadataSelector,
-  );
   const signIn = useSignIn();
   const signOut = useCallback(() => {
     setSettings((settings) => ({ ...settings, github: null }));
@@ -46,47 +43,45 @@ export default function Settings() {
         </label>
       </div>
       <div>
-        <p>
-          interactive mode (experimental) <br />
-          <input
-            type="radio"
-            name="interactivity"
-            checked={settings.contents.interactive === "Off"}
-            onChange={(e) => {
-              setSettings((settings) => ({
-                ...settings,
-                interactive: "Off",
-              }));
-            }}
-          />
-          <label>Off</label>
-          <br />
-          <input
-            type="radio"
-            name="interactivity"
-            checked={settings.contents.interactive === "EditMode"}
-            onChange={(e) => {
-              setSettings((settings) => ({
-                ...settings,
-                interactive: "EditMode",
-              }));
-            }}
-          />
-          <label>Edit Mode</label>
-          <br />
-          <input
-            type="radio"
-            name="interactivity"
-            checked={settings.contents.interactive === "PlayMode"}
-            onChange={(e) => {
-              setSettings((settings) => ({
-                ...settings,
-                interactive: "PlayMode",
-              }));
-            }}
-          />
-          <label>Play Mode</label>
-        </p>
+        interactive mode (experimental) <br />
+        <input
+          type="radio"
+          name="interactivity"
+          checked={settings.contents.interactive === "Off"}
+          onChange={(e) => {
+            setSettings((settings) => ({
+              ...settings,
+              interactive: "Off",
+            }));
+          }}
+        />
+        <label>Off</label>
+        <br />
+        <input
+          type="radio"
+          name="interactivity"
+          checked={settings.contents.interactive === "EditMode"}
+          onChange={(e) => {
+            setSettings((settings) => ({
+              ...settings,
+              interactive: "EditMode",
+            }));
+          }}
+        />
+        <label>Edit Mode</label>
+        <br />
+        <input
+          type="radio"
+          name="interactivity"
+          checked={settings.contents.interactive === "PlayMode"}
+          onChange={(e) => {
+            setSettings((settings) => ({
+              ...settings,
+              interactive: "PlayMode",
+            }));
+          }}
+        />
+        <label>Play Mode</label>
       </div>
       {settings.contents.github === null && (
         <div style={{ margin: "10px" }}>

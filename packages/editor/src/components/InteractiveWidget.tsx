@@ -3,7 +3,8 @@ import React, {
   MutableRefObject,
   useCallback,
   useEffect,
-  useMemo, useState
+  useMemo,
+  useState,
 } from "react";
 import { useSetRecoilState } from "recoil";
 import { DiagramID, HistoryLoc, RenderState } from "../optimizer/common.js";
@@ -26,11 +27,12 @@ export interface DragWidgetProps {
   historyLoc: HistoryLoc;
 }
 
+/** Display a draggable bbox around translatable shapes, and scaling corners if scalable */
 const InteractiveWidget = memo((props: DragWidgetProps): JSX.Element => {
   const setDiagram = useSetRecoilState(diagramState);
   const setWorker = useSetRecoilState(diagramWorkerState);
 
-  // needs to be set in a useEffect to prevent layout thrashing
+  // needs to be set in a useEffect to prevent getClientBoundingRect from returning odd results
   const [bbox, setBbox] = useState<DOMRect | null>(null);
 
   const translate = async (path: string, dx: number, dy: number) => {
@@ -243,7 +245,7 @@ const InteractiveWidget = memo((props: DragWidgetProps): JSX.Element => {
 
   return (
     <>
-      {bbox &&
+      {bbox && (
         <div
           style={{
             position: "absolute",
@@ -262,7 +264,7 @@ const InteractiveWidget = memo((props: DragWidgetProps): JSX.Element => {
             bottomLeftScalingCorner,
           ]}
         </div>
-      }
+      )}
     </>
   );
 });

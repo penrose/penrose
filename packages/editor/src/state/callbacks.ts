@@ -4,7 +4,7 @@ import registry from "@penrose/examples/dist/registry.js";
 import localforage from "localforage";
 import queryString from "query-string";
 import toast from "react-hot-toast";
-import { RecoilState, useRecoilCallback, useRecoilValue } from "recoil";
+import { RecoilState, useRecoilCallback } from "recoil";
 import { v4 as uuid } from "uuid";
 import { isErr, showOptimizerError } from "../optimizer/common.js";
 import {
@@ -128,32 +128,26 @@ const _compileDiagram = async (
   }));
 };
 
-export const useCompileDiagram = () => {
-  const workspace = useRecoilValue(currentWorkspaceState);
-  return useRecoilCallback(
-    ({ snapshot, set }) =>
-      async () => {
-        const workspace = snapshot.getLoadable(currentWorkspaceState)
-          .contents as Workspace;
-        const domainFile = workspace.files.domain.contents;
-        const substanceFile = workspace.files.substance.contents;
-        const styleFile = workspace.files.style.contents;
-        const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
+export const useCompileDiagram = () =>
+  useRecoilCallback(({ snapshot, set }) => async () => {
+    const workspace = snapshot.getLoadable(currentWorkspaceState)
+      .contents as Workspace;
+    const domainFile = workspace.files.domain.contents;
+    const substanceFile = workspace.files.substance.contents;
+    const styleFile = workspace.files.style.contents;
+    const diagram = snapshot.getLoadable(diagramState).contents as Diagram;
 
-        set(showCompileErrsState, true);
+    set(showCompileErrsState, true);
 
-        await _compileDiagram(
-          substanceFile,
-          styleFile,
-          domainFile,
-          diagram.metadata.variation,
-          diagram.metadata.excludeWarnings,
-          set,
-        );
-      },
-    [workspace],
-  );
-};
+    await _compileDiagram(
+      substanceFile,
+      styleFile,
+      domainFile,
+      diagram.metadata.variation,
+      diagram.metadata.excludeWarnings,
+      set,
+    );
+  });
 
 export const useIsUnsaved = () =>
   useRecoilCallback(({ snapshot, set }) => () => {
@@ -196,15 +190,6 @@ export const useResampleDiagram = () =>
       set(diagramState, (diagram) => ({
         ...diagram,
         error: runtimeError(showOptimizerError(resampleResult.error)),
-      }));
-      return;
-    }
-
-    const pollResult = await optimizer.poll(diagram.diagramId);
-    if (isErr(pollResult)) {
-      set(diagramState, (diagram) => ({
-        ...diagram,
-        error: runtimeError(showOptimizerError(pollResult.error)),
       }));
       return;
     }

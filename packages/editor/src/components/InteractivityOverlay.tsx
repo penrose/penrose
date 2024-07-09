@@ -67,6 +67,9 @@ const InteractivityOverlay = memo(
         ) as SVGElement[];
         elemFamily.push(elem);
 
+        // it's tricky to figure out exactly which element needs to
+        // have an event listener added to-so we just add them to
+        // every child of the returned element
         for (const member of elemFamily) {
           const mousedownListener = (e: MouseEvent) => {
             setClickedPath(path);

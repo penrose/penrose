@@ -70,6 +70,7 @@ export default function EditorPane({
   onWrite?: () => void;
 }) {
   const statusBarRef = useRef<HTMLDivElement>(null);
+
   const ResponsiveStyles = EditorView.theme({
     /*
      * Hide autocomplete info box on mobile devices

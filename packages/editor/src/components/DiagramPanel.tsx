@@ -32,6 +32,8 @@ export default function DiagramPanel() {
   const [workerState, setWorkerState] = useRecoilState(diagramWorkerState);
   const [computeLayoutRunning, setComputeLayoutRunning] = useState(false);
   const settings = useRecoilValueLoadable(settingsState);
+
+  // keep a map from paths to title elements, so we can grab their parent svg elements
   const [svgTitleCache, setSvgTitleCache] = useState<Map<string, SVGElement>>(
     new Map(),
   );
@@ -41,7 +43,6 @@ export default function DiagramPanel() {
   useEffect(() => {
     const cur = canvasRef.current;
     setCanvasState({ ref: canvasRef }); // required for downloading/exporting diagrams
-
     if (state !== null && cur !== null) {
       (async () => {
         const titleCache = new Map<string, SVGElement>();
@@ -72,6 +73,7 @@ export default function DiagramPanel() {
     }
   }, [state, settings.contents.interactive]);
 
+  // attach event listeners that trigger interaction but constrain dragging
   useEffect(() => {
     if (settings.contents.interactive === "PlayMode") {
       renderPlayModeInteractivity(
@@ -124,7 +126,7 @@ export default function DiagramPanel() {
       frame: stepSequenceInfo.layoutStats.at(-1)!.cumulativeFrames - 1,
     };
 
-    // cache so we can set once at end
+    // cache so we can set once at end (profiling shows this is fairly critical)
     let newDiagram: Partial<Diagram> = {
       historyInfo: pollResult.value,
       historyLoc: newHistoryLoc,

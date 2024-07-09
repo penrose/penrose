@@ -209,6 +209,8 @@ const makeNewStepSequence = (
  * @param stepSequenceId
  */
 const startOptimize = (stepSequenceId: StepSequenceID) => {
+  // we can't just use stepSequenceId because we might want to interrupt
+  // and continue on same sequence (e.g., for interaction)
   activeOptimizationId++;
   const startingOptimizationId = activeOptimizationId;
 
@@ -278,7 +280,7 @@ const startOptimize = (stepSequenceId: StepSequenceID) => {
           penroseState = nextInitState;
           const currentStage =
             penroseState.optStages[penroseState.currentStageIndex];
-          // add the total steps taken by the previous stage
+          // if we're interaction, just continue the interaction stage
           if (!interacting) {
             stepSequenceInfo.layoutStats.push({
               name: currentStage,

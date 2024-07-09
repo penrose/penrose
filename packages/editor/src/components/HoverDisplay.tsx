@@ -9,6 +9,7 @@ export interface BBoxDisplayProps {
   pinned: boolean;
 }
 
+/** Display a bbox around a hovered element */
 const HoverDisplay = memo((props: BBoxDisplayProps): JSX.Element => {
   const [bbox, setBbox] = useState<DOMRect | null>(null);
 
@@ -21,7 +22,7 @@ const HoverDisplay = memo((props: BBoxDisplayProps): JSX.Element => {
 
   return (
     <>
-      {bbox &&
+      {bbox && (
         <div
           style={{
             position: "absolute",
@@ -33,7 +34,7 @@ const HoverDisplay = memo((props: BBoxDisplayProps): JSX.Element => {
             pointerEvents: "none",
           }}
         />
-      }
+      )}
     </>
   );
 });

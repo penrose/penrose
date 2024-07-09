@@ -286,6 +286,15 @@ export const makeScaleCallback = (
   }
 };
 
+/**
+ * Scale the values in `parentVaryingValues` and store the changed inputs in `recentVaryingValues`
+ * @param path
+ * @param sx
+ * @param sy
+ * @param parentVaryingValues
+ * @param recentVaryingValues
+ * @param state
+ */
 export const scaleVaryingValues = (
   path: string,
   sx: number,

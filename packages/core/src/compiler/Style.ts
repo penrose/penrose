@@ -2264,7 +2264,7 @@ const evalExprs = (
   trans: Translation,
 ): Result<ArgVal<ad.Num>[], StyleDiagnostics> =>
   all(
-    args.map((expr, i) => {
+    args.map((expr) => {
       return evalExpr(mut, canvas, stages, { context, expr }, trans);
     }),
   ).mapErr(flatErrs);
@@ -4012,9 +4012,9 @@ export const compileStyleHelper = async (
   const shapes = getShapesList(translation, layerOrdering);
   const translatableShapePaths = new Set<string>();
   const scalableShapePaths = new Set<string>();
-  const shapesByPath = new Map<string, Shape<ad.Num>>();
+  const nameShapeMap = new Map<string, Shape<ad.Num>>();
   for (const shape of shapes) {
-    shapesByPath.set(shape.name.contents, shape);
+    nameShapeMap.set(shape.name.contents, shape);
     if (isTranslatable(shape)) {
       translatableShapePaths.add(shape.name.contents);
     }
@@ -4024,13 +4024,13 @@ export const compileStyleHelper = async (
   }
 
   // fill in passthrough properties
-  const passthroughResult = processPassthrough(translation, shapesByPath);
+  const passthroughResult = processPassthrough(translation, nameShapeMap);
   if (passthroughResult.isErr()) {
     return err(toStyleErrors([passthroughResult.error]));
   }
 
   const draggingConstraints = new Map<string, string>();
-  for (const [path, shape] of shapesByPath) {
+  for (const [path, shape] of nameShapeMap) {
     const constraint = shape.passthrough.get("draggingConstraint");
     if (constraint !== undefined && constraint.tag === "StrV") {
       console.log(path);
@@ -4041,7 +4041,7 @@ export const compileStyleHelper = async (
   const renderGraph = buildRenderGraph(
     findOrderedRoots(groupGraph),
     groupGraph,
-    shapesByPath,
+    nameShapeMap,
   );
 
   const objFns = [...translation.objectives];
@@ -4089,7 +4089,7 @@ export const compileStyleHelper = async (
       inputIdxsByPath,
       translatableShapePaths,
       scalableShapePaths,
-      shapesByPath,
+      shapesByPath: nameShapeMap,
       draggingConstraints,
     },
   };

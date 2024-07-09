@@ -25,7 +25,7 @@ export interface InteractivityInfo {
   inputIdxsByPath: IdxsByPath;
   translatableShapePaths: Set<string>;
   scalableShapePaths: Set<string>;
-  // path -> string of f : screen pos -> screen pos
+  // Map of paths to strings of bodies of functions over mouse coordinates
   draggingConstraints: Map<string, string>;
   shapesByPath: Map<string, Shape<ad.Num>>;
 }
