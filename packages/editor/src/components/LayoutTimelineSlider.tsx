@@ -12,6 +12,7 @@ export const LayoutTimelineSlider: React.FC<{}> = (props) => {
   const [diagram, setDiagram] = useRecoilState(diagramState);
   const { optimizing } = useRecoilValue(diagramWorkerState);
   const [waiting, setWaiting] = useState(false);
+
   const onChange = (i: number) => {
     // request shapes from worker
     async function requestShapes() {

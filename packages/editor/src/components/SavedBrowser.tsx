@@ -62,7 +62,7 @@ export default function SavedFilesBrowser() {
         </div>
       ) : (
         <div style={{ margin: "0.5em" }}>
-          <h3>Please sign in to use saved diagrams!</h3>
+          <p>Please sign in to use saved diagrams!</p>
           <BlueButton onClick={useLogin}> Login with GitHub </BlueButton>
         </div>
       )}
