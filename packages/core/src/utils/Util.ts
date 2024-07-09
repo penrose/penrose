@@ -10,14 +10,13 @@ import { MayWarn } from "../types/functions.js";
 import { Fn } from "../types/state.js";
 import { BindingForm, Expr, Path } from "../types/style.js";
 import {
-  Context,
-  LocalVarSubst,
-  ResolvedName,
-  ResolvedPath,
-  SubstanceLiteral,
-  SubstanceObject,
-  WithContext,
-} from "../types/styleSemantics.js";
+  ResolvedExpr,
+  ResolvedUnindexedStylePath,
+  StylePath,
+  StylePathToUnindexedObject,
+  StylePathToUnnamedScope,
+} from "../types/stylePathResolution.js";
+import { SubstanceLiteral, SubstanceObject } from "../types/styleSemantics.js";
 import {
   ShapeT,
   TypeDesc,
@@ -775,6 +774,22 @@ export const rectlikeT = (): UnionT =>
 
 //#region Style
 
+export const fakePath = (name: string): StylePathToUnindexedObject<A> => {
+  return {
+    tag: "Object",
+    nodeType: "SyntheticStyle",
+    access: {
+      tag: "Member",
+      parent: {
+        tag: "Namespace",
+        nodeType: "SyntheticStyle",
+        name: "defaultNamespace",
+      },
+      name,
+    },
+  };
+};
+
 export const toLiteralUniqueName = (literal: string | number) => {
   if (typeof literal === "string") {
     return `{s${literal}}`;
@@ -789,36 +804,31 @@ export const subObjectToUniqueName = (lit: SubstanceObject) => {
   } else return toLiteralUniqueName(lit.contents.contents);
 };
 
-export const resolveRhsName = (
-  { block, subst, locals }: Context,
-  name: BindingForm<A>,
-): ResolvedName => {
-  const { value } = name.contents;
-  switch (name.tag) {
-    case "StyVar": {
-      if (locals.has(value)) {
-        // locals shadow selector match names
-        return { tag: "Local", block, name: value };
-      } else if (subst.tag === "StySubSubst" && value in subst.contents) {
-        // selector match names shadow globals
-        return {
-          tag: "Substance",
-          block,
-          name: subObjectToUniqueName(subst.contents[value]),
-        };
-      } else if (subst.tag === "CollectionSubst" && value in subst.groupby) {
-        return {
-          tag: "Substance",
-          block,
-          name: subObjectToUniqueName(subst.groupby[value]),
-        };
-      } else {
-        // couldn't find it in context, must be a glboal
-        return { tag: "Global", block, name: value };
-      }
-    }
-    case "SubVar": {
-      return { tag: "Substance", block, name: value };
+export const uniqueNameToSubObject = (name: string): SubstanceObject => {
+  if (name.length < 3 || name[0] !== "{") {
+    return {
+      tag: "SubstanceVar",
+      name,
+    };
+  } else {
+    if (name[1] === "s") {
+      return {
+        tag: "SubstanceLiteral",
+        contents: {
+          tag: "SubstanceString",
+          contents: name.slice(2, name.length - 1),
+        },
+      };
+    } else if (name[1] === "n") {
+      return {
+        tag: "SubstanceLiteral",
+        contents: {
+          tag: "SubstanceNumber",
+          contents: Number(name.slice(2, name.length - 1)),
+        },
+      };
+    } else {
+      throw new Error("Invalid unique name");
     }
   }
 };
@@ -835,81 +845,73 @@ export const substanceLiteralToValue = (
   }
 };
 
-const resolveRhsPath = (
-  p: WithContext<Path<A>>,
-): ResolvedPath<A> | FloatV<number> | StrV => {
-  const { name, members, indices } = p.expr; // drop `indices`
-
-  const { subst } = p.context;
-
-  // special handling so that if a Style variable maps to a Substance literal,
-  // then accessing it just gives the value.
-  if (members.length === 0 && indices.length === 0) {
-    if (subst.tag === "StySubSubst" && name.contents.value in subst.contents) {
-      const subObj = subst.contents[name.contents.value];
-      if (subObj.tag === "SubstanceLiteral") {
-        return substanceLiteralToValue(subObj);
+export const prettyResolvedUnindexedStylePath = (
+  p: ResolvedUnindexedStylePath<A> | StylePathToUnnamedScope<A>,
+  userFacing: boolean = false,
+): string => {
+  switch (p.tag) {
+    case "Collection": {
+      if (userFacing) {
+        return p.styleName + ".";
+      } else {
+        return `[${p.substanceObjects.map(subObjectToUniqueName).join(", ")}].`;
       }
     }
-
-    if (
-      subst.tag === "CollectionSubst" &&
-      name.contents.value in subst.groupby
-    ) {
-      const subObj = subst.groupby[name.contents.value];
-      if (subObj.tag === "SubstanceLiteral") {
-        return substanceLiteralToValue(subObj);
+    case "Namespace": {
+      return p.name + ".";
+    }
+    case "Unnamed": {
+      if (userFacing) {
+        return "";
+      } else {
+        return `${p.blockId}:${p.substId}:`;
       }
-    }
-  }
-
-  return { ...resolveRhsName(p.context, name), members };
-};
-
-const blockPrefix = ({ tag, contents }: LocalVarSubst): string => {
-  switch (tag) {
-    case "LocalVarId": {
-      const [i, j] = contents;
-      return `${i}:${j}:`;
-    }
-    case "NamespaceId": {
-      // locals in a global block point to globals
-      return `${contents}.`;
-    }
-  }
-};
-
-const prettyPrintResolvedName = ({
-  tag,
-  block,
-  name,
-}: ResolvedName): string => {
-  switch (tag) {
-    case "Global": {
-      return name;
-    }
-    case "Local": {
-      return `${blockPrefix(block)}${name}`;
     }
     case "Substance": {
-      return `\`${name}\``;
+      if (userFacing && p.styleName !== undefined) {
+        return p.styleName + ".";
+      } else {
+        return `\`${subObjectToUniqueName(p.substanceObject)}\`.`;
+      }
+    }
+    case "Object": {
+      return `${prettyResolvedUnindexedStylePath(p.access.parent, userFacing)}${
+        p.access.name
+      }.`;
     }
   }
 };
 
-export const prettyPrintResolvedPath = (
-  p: ResolvedPath<A> | FloatV<number> | StrV | VectorV<number>,
+export const prettyResolvedStylePath = (
+  p: StylePath<A>,
+  userFacing: boolean = false,
 ): string => {
-  if (p.tag === "FloatV") {
-    return p.contents.toString();
-  } else if (p.tag === "StrV") {
-    return p.contents;
-  } else if (p.tag === "VectorV") {
-    return `[${p.contents.map((n) => n.toString()).join(",")}]`;
-  } else
-    return [prettyPrintResolvedName(p), ...p.members.map((m) => m.value)].join(
-      ".",
-    );
+  switch (p.tag) {
+    case "Empty":
+      return "";
+    case "Collection":
+    case "Namespace":
+    case "Unnamed":
+    case "Substance": {
+      const s = prettyResolvedUnindexedStylePath(p, userFacing);
+      return s.substring(0, s.length - 1);
+    }
+    case "Object": {
+      if (p.access.tag === "Member") {
+        const s = prettyResolvedUnindexedStylePath(
+          { ...p, access: p.access },
+          userFacing,
+        );
+        return s.substring(0, s.length - 1);
+      } else {
+        const { parent, indices } = p.access;
+        let sParent = prettyResolvedUnindexedStylePath(parent, userFacing);
+        sParent = sParent.substring(0, sParent.length - 1);
+        const sIndices = indices.map((i) => `[${prettyResolvedExpr(i)}]`);
+        return sParent + sIndices.join("");
+      }
+    }
+  }
 };
 
 const prettyPrintBindingForm = (bf: BindingForm<A>): string => {
@@ -995,32 +997,74 @@ export const prettyPrintExpr = (
   }
 };
 
+export const prettyResolvedExpr = (e: ResolvedExpr<A>): string => {
+  switch (e.tag) {
+    case "ResolvedPath":
+      return prettyResolvedStylePath(e.contents);
+    case "Fix":
+      return String(e.contents);
+    case "CompApp": {
+      const [fnName, fnArgs] = [e.name.value, e.args];
+      return [
+        fnName,
+        "(",
+        ...fnArgs.map(prettyResolvedExpr).join(", "),
+        ")",
+      ].join("");
+    }
+    case "UOp": {
+      if (e.op === "UMinus") {
+        return `(-${prettyResolvedExpr(e.arg)})`;
+      } else {
+        return `(${prettyResolvedExpr(e.arg)}')`;
+      }
+    }
+    case "BinOp": {
+      let binOpName: string = "";
+      switch (e.op) {
+        case "BPlus":
+          binOpName = "+";
+          break;
+        case "BMinus":
+          binOpName = "-";
+          break;
+        case "Multiply":
+          binOpName = "*";
+          break;
+        case "Divide":
+          binOpName = "/";
+          break;
+        case "Exp":
+          binOpName = "**";
+          break;
+      }
+      return (
+        "(" +
+        prettyResolvedExpr(e.left) +
+        " " +
+        binOpName +
+        " " +
+        prettyResolvedExpr(e.right) +
+        ")"
+      );
+    }
+    default: {
+      const res = JSON.stringify(e);
+      return res;
+    }
+  }
+};
+
 export const prettyPrintFn = (fn: Fn): string => {
-  const body = fn.ast.expr.body;
+  const body = fn.ast.body;
   if (body.tag === "FunctionCall") {
     const name = body.name.value;
-    const args = body.args
-      .map((arg) =>
-        prettyPrintExpr(arg, (p) =>
-          prettyPrintResolvedPath(
-            resolveRhsPath({ context: fn.ast.context, expr: p }),
-          ),
-        ),
-      )
-      .join(", ");
+    const args = body.args.map((arg) => prettyResolvedExpr(arg)).join(", ");
     return [name, "(", args, ")"].join("");
   } else {
     const { op, arg1, arg2 } = body;
-    const ppArg1 = prettyPrintExpr(arg1, (p) =>
-      prettyPrintResolvedPath(
-        resolveRhsPath({ context: fn.ast.context, expr: p }),
-      ),
-    );
-    const ppArg2 = prettyPrintExpr(arg2, (p) =>
-      prettyPrintResolvedPath(
-        resolveRhsPath({ context: fn.ast.context, expr: p }),
-      ),
-    );
+    const ppArg1 = prettyResolvedExpr(arg1);
+    const ppArg2 = prettyResolvedExpr(arg2);
     return ppArg1 + " " + op.op + " " + ppArg2;
   }
 };

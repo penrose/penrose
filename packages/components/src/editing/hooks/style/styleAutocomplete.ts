@@ -19,6 +19,7 @@ import {
   getPredOptions,
   getShapeNames,
   getShapeProps,
+  getStageNameOpts,
   getTypeOptions,
   headerOptions,
   selectorHeaderOptions,
@@ -131,6 +132,21 @@ export const createStyleAutocomplete = (
           };
         }
       }
+    }
+
+    // Stage Name autocomplete
+    if (
+      goUpToTarget(nodeBefore, "StageSpecifier") &&
+      // Avoid suggesting where "in"/"except" go
+      parentNode?.prevSibling != null
+    ) {
+      const topNode = syntaxTree(context.state).topNode;
+      const styleProg = context.state.doc.toString();
+
+      return {
+        from: word.from,
+        options: getStageNameOpts(topNode, styleProg),
+      };
     }
 
     // Top level kw completion (forall, collect, layout)

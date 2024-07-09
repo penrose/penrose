@@ -5,7 +5,7 @@ import * as ad from "./ad.js";
 import { A } from "./ast.js";
 import { StyleWarning } from "./errors.js";
 import { ConstrFn, ObjFn } from "./style.js";
-import { WithContext } from "./styleSemantics.js";
+import { Resolved } from "./stylePathResolution.js";
 import { ArgVal, FloatV } from "./value.js";
 
 export type ShapeFn = (xs: number[]) => Shape<number>[];
@@ -100,7 +100,7 @@ export type OptStages = "All" | Set<string>;
  * Generic export interface for constraint or objective functions
  */
 export interface Fn {
-  ast: WithContext<ObjFn<A> | ConstrFn<A>>;
+  ast: Resolved<ObjFn<A> | ConstrFn<A>>;
   output: ad.Num;
   optStages: OptStages;
 }

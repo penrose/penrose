@@ -657,7 +657,7 @@ computation_function -> identifier _ "(" expr_list ")" {%
 %}
 
 sty_var_expr
-  -> "listof" _ identifier _ "from" _ identifier {%
+  -> "listof" _ identifier _ "from" _ path {%
       ([kw, , field, , , , name]): CollectionAccess<C> => ({
        ...nodeData,
        ...rangeBetween(kw, name),
@@ -665,7 +665,7 @@ sty_var_expr
        name, field
       })
     %}
-  | ("numberof" | "nameof") _ identifier {%
+  | ("numberof" | "nameof") _ path {%
       ([kw, , name]): UnaryStyVarExpr<C> => ({
         ...nodeData,
         ...rangeBetween(kw[0], name),
